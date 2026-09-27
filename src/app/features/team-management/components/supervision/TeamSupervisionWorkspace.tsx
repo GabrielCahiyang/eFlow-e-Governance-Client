@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import { AttentionBox, Tab, TabList, TabsContext } from "@vibe/core";
-import { AlertTriangle, CircleAlert, Clock3, ListFilter } from "lucide-react";
+import { AttentionBox, Button, Tab, TabList, TabsContext } from "@vibe/core";
+import { AlertTriangle, CircleAlert, Clock3, ListFilter, UserPlus } from "lucide-react";
 import { AnimatePresence } from "motion/react";
 import * as m from "motion/react-m";
-import { PageHeader, StatCard, WSelect } from "../../../../components/workflow/primitives";
+import { StatCard, WSelect } from "../../../../components/workflow/primitives";
 import { WorkspaceLoadingSkeleton } from "../../../../components/workflow/WorkspaceLoadingSkeleton";
 import { TaskDetailDrawer } from "../../../tasks";
 import type { Task } from "../../../tasks";
@@ -13,12 +13,14 @@ import { TeamAttentionQueue } from "./TeamAttentionQueue";
 import { TeamMemberBoard } from "./TeamMemberBoard";
 import { TeamMemberOperationsPanel } from "./TeamMemberOperationsPanel";
 import { DepartmentIdentityAccessPanel } from "./DepartmentIdentityAccessPanel";
+import { TeamMemberWorkPanel } from "./TeamMemberWorkPanel";
+import { PeopleWorkspaceShell } from "../PeopleWorkspaceShell";
 
 type View = "attention" | "people" | "identity";
 
 export function TeamSupervisionWorkspace() {
   const analytics = useDepartmentTeamAnalytics();
-  const [view, setView] = useState<View>("attention");
+  const [view, setView] = useState<View>("people");
   const [attentionFilter, setAttentionFilter] = useState<TeamAttentionKind | "all">("all");
   const [search, setSearch] = useState("");
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string>();
@@ -47,8 +49,7 @@ export function TeamSupervisionWorkspace() {
   };
 
   return (
-    <div className="min-h-full p-4 sm:p-8">
-      <PageHeader eyebrow="Department · Operations" title="Team Supervision" subtitle="Act on overdue work, blockers, stalled updates, review queues, and workload imbalance from one live workspace." actions={<span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-[12px] font-medium text-emerald-700"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" /> Live workflow data</span>} />
+    <PeopleWorkspaceShell title="Team Supervision" subtitle="Review your team roster, current work, delivery risk, and safe assignment changes from one live workspace." actions={<><span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-[12px] font-medium text-emerald-700"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" /> Live workflow data</span><Button kind="primary" onClick={() => setView("identity")} size="small"><UserPlus size={14} /> Add member</Button></>}>
 
       {analytics.error && <AttentionBox className="mb-4" text={`Some workflow details could not be loaded: ${analytics.error}. Task-level data remains available.`} type="warning" />}
 
@@ -71,11 +72,12 @@ export function TeamSupervisionWorkspace() {
         {view === "attention" && <WSelect ariaLabel="Filter attention queue" value={attentionFilter} onChange={(value) => setAttentionFilter(value as TeamAttentionKind | "all")} options={[ { value: "all", label: "All attention items" }, { value: "overdue", label: "Overdue" }, { value: "due_soon", label: "Due soon" }, { value: "blocked", label: "Blocked" }, { value: "stalled", label: "Stalled" }, { value: "awaiting_review", label: "Review waiting" }, { value: "changes_requested", label: "Changes requested" }, { value: "unassigned", label: "Unassigned" }, { value: "vague_schedule", label: "Vague schedules" } ]} />}
       </div>
 
-      <div className={`grid grid-cols-1 items-start gap-5 ${view === "identity" ? "" : "xl:grid-cols-[minmax(0,1fr)_390px]"}`}>
+      <div className={`grid grid-cols-1 items-start gap-5 ${view === "people" ? "xl:grid-cols-[250px_minmax(0,1fr)_390px]" : view === "identity" ? "" : "xl:grid-cols-[minmax(0,1fr)_390px]"}`}>
+        {view === "people" && <TeamMemberBoard employees={analytics.deptEmployees} layout="rail" metrics={analytics.memberMetrics} selectedEmployeeId={selectedEmployeeId} search={search} onSearch={setSearch} onSelect={setSelectedEmployeeId} />}
         <main className="min-w-0">
           <AnimatePresence mode="wait" initial={false}>
             <m.div key={view} initial={{ opacity: 0, x: 8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -8 }} transition={{ duration: .18 }}>
-              {view === "attention" ? <TeamAttentionQueue items={filteredAttention} onOpenTask={openTaskById} onSelectEmployee={selectEmployee} /> : view === "people" ? <TeamMemberBoard employees={analytics.deptEmployees} metrics={analytics.memberMetrics} selectedEmployeeId={selectedEmployeeId} search={search} onSearch={setSearch} onSelect={setSelectedEmployeeId} /> : <DepartmentIdentityAccessPanel employees={directDepartmentEmployees} roles={roleByEmployeeId} />}
+              {view === "attention" ? <TeamAttentionQueue items={filteredAttention} onOpenTask={openTaskById} onSelectEmployee={selectEmployee} /> : view === "people" ? <TeamMemberWorkPanel employee={selectedEmployee} metric={selectedMetric} tasks={analytics.tasks} subtasks={analytics.facts.subtasks} onOpenTask={setOpenTask} /> : <DepartmentIdentityAccessPanel employees={directDepartmentEmployees} roles={roleByEmployeeId} />}
             </m.div>
           </AnimatePresence>
         </main>
@@ -84,6 +86,6 @@ export function TeamSupervisionWorkspace() {
       </>}
 
       <TaskDetailDrawer task={openTask} onClose={() => setOpenTask(null)} canDiscuss />
-    </div>
+    </PeopleWorkspaceShell>
   );
 }

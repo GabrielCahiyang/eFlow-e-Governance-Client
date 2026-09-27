@@ -1,9 +1,10 @@
 import * as Icons from "lucide-react";
 import { useChatDrawer } from "./ChatDrawerContext";
 import { parseMessage } from "../services/chatMessageCodec";
+import { ChatUnreadBadge } from "./ChatUnreadBadge";
 
 export function ChatChannelList() {
-  const { channels, setActiveChannelId, startDrag, isFullscreen, setIsFullscreen } = useChatDrawer();
+  const { channels, activeChannelId, setActiveChannelId, startDrag, isFullscreen, setIsFullscreen } = useChatDrawer();
   return (
 <div className="flex flex-col flex-1 overflow-hidden">
               {/* Drag Handle — centered pill bar like notifications */}
@@ -20,6 +21,7 @@ export function ChatChannelList() {
                 <button
                   onMouseDown={(e) => e.stopPropagation()}
                   onClick={() => setIsFullscreen((v) => !v)}
+                  aria-label={isFullscreen ? "Exit full-screen chats" : "Expand chats"}
                   className="w-6 h-6 flex items-center justify-center rounded text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600 transition"
                 >
                   {isFullscreen ? <Icons.Minimize2 size={11} /> : <Icons.Maximize2 size={11} />}
@@ -38,7 +40,9 @@ export function ChatChannelList() {
                     <button
                       key={c.channelId}
                       onClick={() => setActiveChannelId(c.channelId)}
-                      className="w-full text-left px-3 py-2.5 hover:bg-neutral-50 border-b border-neutral-50 flex items-center justify-between"
+                      aria-label={`${c.name}${c.unread ? ", unread" : ""}`}
+                      aria-current={activeChannelId === c.channelId ? "page" : undefined}
+                      className="w-full text-left px-3 py-2.5 hover:bg-neutral-50 border-b border-neutral-50 flex items-center justify-between focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-neutral-900"
                     >
                       <div className="min-w-0">
                         <div className="text-[12px] text-neutral-800 truncate font-medium">
@@ -51,7 +55,7 @@ export function ChatChannelList() {
                         </div>
                       </div>
                       {c.unread && (
-                        <span className="w-2 h-2 rounded-full bg-red-500 shrink-0 ml-2" />
+                        <ChatUnreadBadge />
                       )}
                     </button>
                   ))}
@@ -67,7 +71,9 @@ export function ChatChannelList() {
                     <button
                       key={c.channelId}
                       onClick={() => setActiveChannelId(c.channelId)}
-                      className="w-full text-left px-3 py-2.5 hover:bg-amber-50/50 border-b border-amber-100/50 flex items-center justify-between bg-amber-50/30"
+                      aria-label={`${c.name}${c.unread ? ", unread" : ""}`}
+                      aria-current={activeChannelId === c.channelId ? "page" : undefined}
+                      className="w-full text-left px-3 py-2.5 hover:bg-amber-50/50 border-b border-amber-100/50 flex items-center justify-between bg-amber-50/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-neutral-900"
                     >
                       <div className="min-w-0 flex-1">
                         <div className="text-[12px] text-neutral-800 truncate font-medium flex items-center gap-1.5">
@@ -84,7 +90,7 @@ export function ChatChannelList() {
                         </div>
                       </div>
                       {c.unread && (
-                        <span className="w-2 h-2 rounded-full bg-red-500 shrink-0 ml-2" />
+                        <ChatUnreadBadge />
                       )}
                     </button>
                   ))}
@@ -99,7 +105,9 @@ export function ChatChannelList() {
                     <button
                       key={c.channelId}
                       onClick={() => setActiveChannelId(c.channelId)}
-                      className="w-full text-left px-3 py-2.5 hover:bg-neutral-50 border-b border-neutral-50 flex items-center justify-between"
+                      aria-label={`${c.name}${c.unread ? ", unread" : ""}`}
+                      aria-current={activeChannelId === c.channelId ? "page" : undefined}
+                      className="w-full text-left px-3 py-2.5 hover:bg-neutral-50 border-b border-neutral-50 flex items-center justify-between focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-neutral-900"
                     >
                       <div className="min-w-0">
                         <div className="text-[12px] text-neutral-800 truncate font-medium">
@@ -112,7 +120,7 @@ export function ChatChannelList() {
                         </div>
                       </div>
                       {c.unread && (
-                        <span className="w-2 h-2 rounded-full bg-red-500 shrink-0 ml-2" />
+                        <ChatUnreadBadge />
                       )}
                     </button>
                   ))}
@@ -127,7 +135,9 @@ export function ChatChannelList() {
                     <button
                       key={c.channelId}
                       onClick={() => setActiveChannelId(c.channelId)}
-                      className="w-full text-left px-3 py-2.5 hover:bg-neutral-50 border-b border-neutral-50 flex items-center justify-between"
+                      aria-label={`${c.name}${c.unread ? ", unread" : ""}`}
+                      aria-current={activeChannelId === c.channelId ? "page" : undefined}
+                      className="w-full text-left px-3 py-2.5 hover:bg-neutral-50 border-b border-neutral-50 flex items-center justify-between focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-neutral-900"
                     >
                       <div className="min-w-0">
                         <div className="text-[12px] text-neutral-800 truncate font-medium">
@@ -140,7 +150,7 @@ export function ChatChannelList() {
                         </div>
                       </div>
                       {c.unread && (
-                        <span className="w-2 h-2 rounded-full bg-red-500 shrink-0 ml-2" />
+                        <ChatUnreadBadge />
                       )}
                     </button>
                   ))}

@@ -120,7 +120,7 @@ export function MondayBoard({
   const viewBarSentinelRef = useRef<HTMLDivElement>(null);
   const viewTabsRef = useRef<HTMLDivElement>(null);
   const viewTabsScrollerRef = useRef<HTMLDivElement>(null);
-  const observedViewTabsWidthRef = useRef<number>();
+  const observedViewTabsWidthRef = useRef<number | undefined>(undefined);
   const activeProjectId = selectedProjectId ?? internalProjectId;
   const handleSelectProject = (projectId: string) => {
     if (onSelectProject) {

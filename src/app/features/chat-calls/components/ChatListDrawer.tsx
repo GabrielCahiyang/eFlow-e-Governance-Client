@@ -4,6 +4,7 @@ import { ActiveChatPanel } from "./ActiveChatPanel";
 import { ChatChannelList } from "./ChatChannelList";
 import { ChatDrawerProvider, useChatDrawer } from "./ChatDrawerContext";
 import { ChatReactionsModal } from "./ChatReactionsModal";
+import { ChatUnreadBadge } from "./ChatUnreadBadge";
 
 export interface ChatListDrawerProps {
   userId?: string;
@@ -22,13 +23,13 @@ function ChatDrawerRoot() {
       <button
         ref={buttonRef}
         onClick={() => setOpen((v) => !v)}
-        className="relative w-8 h-8 rounded-lg flex items-center justify-center text-neutral-500 hover:bg-neutral-100 transition-colors"
+        aria-label={`${open ? "Close" : "Open"} messages${unreadTotal ? `, ${unreadTotal} unread` : ""}`}
+        title={unreadTotal ? `${unreadTotal} unread conversation${unreadTotal === 1 ? "" : "s"}` : "Messages"}
+        className="relative w-8 h-8 rounded-lg flex items-center justify-center text-neutral-500 hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 transition-colors"
       >
         <Icons.MessageCircle size={17} />
         {unreadTotal > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] flex items-center justify-center">
-            {unreadTotal}
-          </span>
+          <span className="absolute -right-1 -top-1"><ChatUnreadBadge count={unreadTotal} /></span>
         )}
       </button>
 
@@ -52,11 +53,13 @@ function ChatDrawerRoot() {
                   width: panelSize.w,
                   height: panelSize.h,
                   zIndex: 9999,
-                  minWidth: 280,
-                  minHeight: 320,
+                  minWidth: "min(280px, calc(100vw - 16px))",
+                  minHeight: "min(320px, calc(100dvh - 16px))",
                 }
           }
-          className="bg-white border border-neutral-200 shadow-2xl overflow-hidden flex flex-col rounded-xl"
+          aria-label="Messages"
+          className="bg-white border border-neutral-200 shadow-2xl overflow-hidden flex flex-col rounded-xl max-h-[calc(100dvh-16px)] max-w-[calc(100vw-16px)]"
+          role="dialog"
         >
 
           {!activeChannelId ? <ChatChannelList /> : <ActiveChatPanel />}

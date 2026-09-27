@@ -84,6 +84,7 @@ export function ActiveChatPanel() {
                             status: "ringing",
                           });
                         }}
+                        aria-label="Start audio call"
                         className="w-7 h-7 flex items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 transition"
                       >
                         <Icons.Phone size={13} />
@@ -113,6 +114,7 @@ export function ActiveChatPanel() {
                             status: "ringing",
                           });
                         }}
+                        aria-label="Start video call"
                         className="w-7 h-7 flex items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 transition"
                       >
                         <Icons.Video size={13} />
@@ -122,6 +124,7 @@ export function ActiveChatPanel() {
                   <button
                     onMouseDown={(e) => e.stopPropagation()}
                     onClick={() => setIsFullscreen((v) => !v)}
+                    aria-label={isFullscreen ? "Exit full-screen chat" : "Expand chat"}
                     className="w-7 h-7 flex items-center justify-center rounded-full text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 transition"
                   >
                     {isFullscreen ? (
@@ -132,6 +135,7 @@ export function ActiveChatPanel() {
                   </button>
                   <button
                     onClick={() => setActiveChannelId(null)}
+                    aria-label="Back to conversations"
                     className="w-7 h-7 flex items-center justify-center rounded-full text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 transition"
                   >
                     <Icons.X size={14} />
@@ -175,6 +179,7 @@ export function ActiveChatPanel() {
                           }
                           className="w-6 h-6 flex items-center justify-center rounded-full bg-white shadow hover:bg-neutral-50 text-neutral-500 transition-colors cursor-pointer"
                           title="React"
+                          aria-label="Add reaction"
                         >
                           <Icons.Smile size={12} />
                         </button>
@@ -187,6 +192,7 @@ export function ActiveChatPanel() {
                                 <button
                                   key={emoji}
                                   onClick={() => handleToggleReaction(m, emoji)}
+                                  aria-label={`React with ${emoji}`}
                                   className="text-[16px] hover:scale-130 transition-transform p-0.5 hover:drop-shadow cursor-pointer"
                                 >
                                   {emoji}
@@ -201,6 +207,7 @@ export function ActiveChatPanel() {
                         onClick={() => setReplyingTo(m)}
                         className="w-6 h-6 flex items-center justify-center rounded-full bg-white shadow hover:bg-neutral-50 text-neutral-500 transition-colors cursor-pointer"
                         title="Reply"
+                        aria-label="Reply to message"
                       >
                         <Icons.CornerUpLeft size={12} />
                       </button>
@@ -214,6 +221,7 @@ export function ActiveChatPanel() {
                           }
                           className="w-6 h-6 flex items-center justify-center rounded-full bg-white shadow hover:bg-neutral-50 text-neutral-500 transition-colors cursor-pointer"
                           title="More"
+                          aria-label="More message actions"
                         >
                           <Icons.MoreVertical size={12} />
                         </button>

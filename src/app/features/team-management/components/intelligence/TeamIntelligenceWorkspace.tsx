@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { AttentionBox, Avatar, Search as VibeSearch, Tab, TabList, TabsContext } from "@vibe/core";
 import { BrainCircuit, Sparkles, Trophy, UsersRound } from "lucide-react";
-import { PageHeader, SectionEmpty } from "../../../../components/workflow/primitives";
+import { SectionEmpty } from "../../../../components/workflow/primitives";
 import { WorkspaceLoadingSkeleton } from "../../../../components/workflow/WorkspaceLoadingSkeleton";
 import { useEmployeeNotes } from "../../../../hooks/useFirebaseData";
 import type { Employee } from "../../../employees";
@@ -12,6 +12,7 @@ import { SkillCoveragePanel } from "./SkillCoveragePanel";
 import { TeamHealthOverview } from "./TeamHealthOverview";
 import { MonthlyLeaderboard } from "../../../productivity";
 import { TEAM_WORKLOAD_ELEVATED_THRESHOLD, TEAM_WORKLOAD_HIGH_THRESHOLD } from "../../constants";
+import { PeopleWorkspaceShell } from "../PeopleWorkspaceShell";
 
 type View = "overview" | "people" | "skills" | "leaderboard";
 
@@ -50,8 +51,7 @@ export function TeamIntelligenceWorkspace() {
   const activeIntelligenceTab = intelligenceTabs.findIndex((tab) => tab.id === view);
 
   return (
-    <div className="min-h-full min-w-0 p-3 sm:p-8">
-      <PageHeader eyebrow="Department · Evidence-based insights" title="Team Intelligence" subtitle="Understand delivery quality, workload concentration, review patterns, and skills while preserving the manager context used by AI assignments." actions={<span className="inline-flex items-center gap-1.5 rounded-full border border-violet-200 bg-violet-50 px-3 py-1.5 text-[12px] font-medium text-violet-700"><BrainCircuit size={13} /> AI assignment inputs preserved</span>} />
+    <PeopleWorkspaceShell title="Team Intelligence" subtitle="Understand delivery quality, workload concentration, review patterns, and skills while preserving the manager context used by AI assignments." actions={<span className="inline-flex items-center gap-1.5 rounded-full border border-violet-200 bg-violet-50 px-3 py-1.5 text-[12px] font-medium text-violet-700"><BrainCircuit size={13} /> AI assignment inputs preserved</span>}>
       {analytics.error && <AttentionBox className="mb-4" text={`Historical workflow details are partially unavailable: ${analytics.error}`} type="warning" />}
 
       {analytics.loading || notesLoading ? <WorkspaceLoadingSkeleton label="Loading team intelligence…" rows={5} /> : <>
@@ -81,6 +81,6 @@ export function TeamIntelligenceWorkspace() {
       {view === "skills" && <SkillCoveragePanel rows={skills} />}
       {view === "leaderboard" && <div className="space-y-3"><AttentionBox title="Governance note" text="This ranking is a recognition and supervision aid. It is not added to the AI employee-recommendation inputs and must not be used as the sole assignment or personnel decision signal." type="neutral" /><MonthlyLeaderboard employees={analytics.deptEmployees} tasks={analytics.tasks} facts={analytics.facts} currentUserId={analytics.userProfile?.id || analytics.userProfile?.uid} /></div>}
       </>}
-    </div>
+    </PeopleWorkspaceShell>
   );
 }

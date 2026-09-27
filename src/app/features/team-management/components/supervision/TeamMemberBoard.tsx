@@ -10,6 +10,7 @@ export function TeamMemberBoard({
   search,
   onSearch,
   onSelect,
+  layout = "cards",
 }: {
   employees: Employee[];
   metrics: TeamMemberMetrics[];
@@ -17,10 +18,33 @@ export function TeamMemberBoard({
   search: string;
   onSearch: (value: string) => void;
   onSelect: (employeeId: string) => void;
+  layout?: "cards" | "rail";
 }) {
   const metricById = new Map(metrics.map((metric) => [metric.employeeId, metric]));
   const query = search.trim().toLowerCase();
   const filtered = employees.filter((employee) => !query || `${employee.name} ${employee.jobTitle} ${employee.departmentName || ""}`.toLowerCase().includes(query));
+
+  if (layout === "rail") {
+    return (
+      <aside className="min-w-0 overflow-hidden rounded-xl border border-neutral-200 bg-white xl:sticky xl:top-4">
+        <div className="border-b border-neutral-100 p-3">
+          <label className="text-[12px] font-semibold text-neutral-800" htmlFor="team-member-search">Members</label>
+          <div className="relative mt-2"><Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" /><input id="team-member-search" value={search} onChange={(event) => onSearch(event.target.value)} placeholder="Search members…" className="h-9 w-full rounded-lg border border-neutral-200 bg-white pl-9 pr-3 text-[12px] outline-none transition focus:border-neutral-500" /></div>
+        </div>
+        <div className="max-h-[calc(100vh-250px)] overflow-y-auto p-2">
+          {filtered.map((employee) => {
+            const metric = metricById.get(employee.id);
+            if (!metric) return null;
+            const high = metric.workloadSignal >= TEAM_WORKLOAD_HIGH_THRESHOLD;
+            const medium = metric.workloadSignal >= TEAM_WORKLOAD_ELEVATED_THRESHOLD;
+            const selected = selectedEmployeeId === employee.id;
+            return <button key={employee.id} type="button" aria-pressed={selected} onClick={() => onSelect(employee.id)} className={`mb-1 flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2.5 text-left transition ${selected ? "bg-neutral-900 text-white" : "hover:bg-neutral-50"}`}><span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-[11px] font-semibold ${selected ? "bg-white/15" : "bg-neutral-100 text-neutral-600"}`}>{employee.initials || "??"}</span><span className="min-w-0 flex-1"><span className="block truncate text-[13px] font-medium">{employee.name}</span><span className={`mt-0.5 block truncate text-[12px] ${selected ? "text-neutral-300" : "text-neutral-500"}`}>{employee.jobTitle}</span></span><span className={`eflow-tabular text-[12px] font-semibold ${selected ? "text-white" : high ? "text-red-600" : medium ? "text-amber-600" : "text-emerald-600"}`}>{metric.workloadSignal}</span></button>;
+          })}
+          {!filtered.length && <p className="px-3 py-8 text-center text-[12px] text-neutral-500">No team members match this search.</p>}
+        </div>
+      </aside>
+    );
+  }
 
   return (
     <div>

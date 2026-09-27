@@ -42,6 +42,7 @@ import { OrganizationScopePanel } from "../../../permissions/components/Organiza
 import { assignOrganizationLeadership } from "../../../organization/services/leadershipService";
 import { useToast } from "../../../../components/ui/Toast";
 import type { Employee } from "../../../../services/employeeService";
+import { PeopleWorkspaceShell } from "../PeopleWorkspaceShell";
 
 // ─── Types ────────────────────────────────────────────────────────
 
@@ -49,15 +50,15 @@ type IAMTab = "people" | "user-access" | "leadership";
 
 const TAB_META: Record<IAMTab, { label: string; icon: React.ReactNode }> = {
   people: {
-    label: "Department People",
+    label: "Available staff",
     icon: <Users size={14} />,
   },
   "user-access": {
-    label: "User Access",
+    label: "Current access",
     icon: <KeyRound size={14} />,
   },
   leadership: {
-    label: "Department Leadership",
+    label: "Protected leadership",
     icon: <ShieldCheck size={14} />,
   },
 };
@@ -168,10 +169,8 @@ function PeopleTab({
               <UserRoundCog size={19} />
             </div>
             <div>
-              <h2 className="text-[14px] font-semibold text-neutral-950">
-                Identity &amp; Access
-              </h2>
-              <p className="mt-1 max-w-2xl text-[10.5px] leading-relaxed text-neutral-500">
+              <h2 className="text-[14px] font-semibold text-neutral-950">Available staff</h2>
+              <p className="mt-1 max-w-2xl text-[12px] leading-relaxed text-neutral-500">
                 Assign or remove the Accounting Staff workspace for active
                 people in your department. No assignment is required; more than
                 one person can be assigned when workload or continuity requires
@@ -316,13 +315,14 @@ function AccessRow({
         <div className="text-[11.5px] font-medium text-neutral-900">
           {PERMISSION_LABELS[permission as keyof typeof PERMISSION_LABELS]}
         </div>
-        <div className="mt-0.5 text-[9.5px] text-neutral-400">
+        <div className="mt-0.5 text-[11px] text-neutral-500">
           Role default: {inherited ? "Allowed" : "Denied"}
           {override ? ` · Individual ${override.allowed ? "allow" : "deny"}` : ""}
         </div>
+        {override && <div className="mt-0.5 text-[11px] text-neutral-400">Exception owner: {override.setBy || "Recorded manager"}{override.updatedAt ? ` · Updated ${new Date(override.updatedAt).toLocaleDateString()}` : ""}</div>}
       </div>
       <span
-        className={`rounded-full px-2 py-1 text-[9px] font-semibold uppercase tracking-wide ${
+        className={`rounded-full px-2 py-1 text-[11px] font-semibold uppercase tracking-wide ${
           allowed ? "bg-emerald-50 text-emerald-700" : "bg-neutral-100 text-neutral-500"
         }`}
       >
@@ -331,7 +331,7 @@ function AccessRow({
       <button
         type="button"
         onClick={() => onCycle(permission)}
-        className={`inline-flex min-w-[88px] items-center justify-center gap-1 rounded-lg border px-2.5 py-1.5 text-[9.5px] font-medium transition-colors ${
+        className={`inline-flex min-w-[98px] items-center justify-center gap-1 rounded-lg border px-2.5 py-1.5 text-[11px] font-medium transition-colors ${
           override
             ? "border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100"
             : "border-neutral-200 text-neutral-600 hover:bg-neutral-100"
@@ -427,6 +427,7 @@ function UserAccessTab({
       transition={motionTransition.productive}
       className="grid min-h-[650px] gap-4 xl:grid-cols-[280px_minmax(0,1fr)]"
     >
+      <AttentionBox className="xl:col-span-2" type="neutral" title="Access changes have an audit consequence" text="Individual exceptions retain the responsible manager and last-updated time. Restore the role default when an exception is no longer justified; organization scope restrictions remain in effect." />
       {/* Sidebar user list */}
       <aside className="overflow-hidden rounded-2xl border border-neutral-200 bg-white">
         <div className="border-b border-neutral-100 p-3">
@@ -876,34 +877,7 @@ export function DeptHeadIAMWorkspace() {
   }
 
   return (
-    <div className="min-h-full space-y-6 p-4 sm:p-8">
-      {/* Page header */}
-      <m.div
-        initial={{ opacity: 0, y: -6 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={motionTransition.navigation}
-      >
-        <div className="text-[9.5px] font-semibold uppercase tracking-[0.16em] text-neutral-400">
-          People · Department
-        </div>
-        <div className="mt-1 flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h1 className="text-[22px] font-semibold tracking-tight text-neutral-950">
-              Identity &amp; Access
-            </h1>
-            <p className="mt-1 max-w-2xl text-[11.5px] leading-relaxed text-neutral-500">
-              Manage individual access, accounting roles, and department
-              leadership for active people in your department.
-            </p>
-          </div>
-          <div className="flex items-center gap-2 text-[10px] text-neutral-400">
-            <ChevronRight size={12} />
-            <span className="font-medium text-neutral-700">
-              {headOrg?.name ?? "Your Department"}
-            </span>
-          </div>
-        </div>
-      </m.div>
+    <PeopleWorkspaceShell title="Identity & Access" subtitle="Inspect current access, make accountable individual exceptions, and protect leadership authority for active people in your department." actions={<div className="flex items-center gap-2 text-[12px] text-neutral-500"><ChevronRight size={13} /><span className="font-medium text-neutral-700">{headOrg?.name ?? "Your Department"}</span></div>}>
 
       {/* Tab bar */}
       <IAMTabBar active={activeTab} onSelect={setActiveTab} />
@@ -941,6 +915,6 @@ export function DeptHeadIAMWorkspace() {
           </m.div>
         )}
       </AnimatePresence>
-    </div>
+    </PeopleWorkspaceShell>
   );
 }

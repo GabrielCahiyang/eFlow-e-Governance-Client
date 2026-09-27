@@ -128,7 +128,7 @@ export function AnnouncementCenter({ eyebrow = "My Workspace · Updates" }: { ey
 
                         {/* Unread Pill */}
                         {isUnread && (
-                          <Label color="primary" text="New" />
+                          <span className="inline-flex items-center rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-semibold text-white">New</span>
                         )}
 
                         {/* Read Badge */}

@@ -13,6 +13,7 @@ import type { ActiveCall } from "../../../services/callService";
 import { useOrgs } from "../../../hooks/useSupabaseData";
 import { getAncestorOrgIds } from "../../../../lib/supabaseService";
 import { parseMessage } from "../services/chatMessageCodec";
+import { clampChatPanelPosition, clampChatPanelSize } from "../services/chatPanelLayout";
 
 export interface ChatDrawerUser {
   userId?: string;
@@ -81,10 +82,10 @@ export function useChatDrawerController({ userId, userName, userOrgId }: ChatDra
         if (!dragState.current) return;
         const dx = ev.clientX - dragState.current.startX;
         const dy = ev.clientY - dragState.current.startY;
-        setPanelPos({
+        setPanelPos(clampChatPanelPosition({
           x: dragState.current.origX + dx,
           y: dragState.current.origY + dy,
-        });
+        }, panelSize, { width: window.innerWidth, height: window.innerHeight }));
       };
       const onUp = () => {
         dragState.current = null;
@@ -94,7 +95,7 @@ export function useChatDrawerController({ userId, userName, userOrgId }: ChatDra
       window.addEventListener("mousemove", onMove);
       window.addEventListener("mouseup", onUp);
     },
-    [isFullscreen, panelPos],
+    [isFullscreen, panelPos, panelSize],
   );
 
   const startResize = useCallback(
@@ -112,10 +113,12 @@ export function useChatDrawerController({ userId, userName, userOrgId }: ChatDra
         if (!resizeState.current) return;
         const dw = ev.clientX - resizeState.current.startX;
         const dh = ev.clientY - resizeState.current.startY;
-        setPanelSize({
-          w: Math.max(280, resizeState.current.origW + dw),
-          h: Math.max(320, resizeState.current.origH + dh),
-        });
+        const nextSize = clampChatPanelSize({
+          w: resizeState.current.origW + dw,
+          h: resizeState.current.origH + dh,
+        }, { width: window.innerWidth, height: window.innerHeight });
+        setPanelSize(nextSize);
+        setPanelPos((position) => position ? clampChatPanelPosition(position, nextSize, { width: window.innerWidth, height: window.innerHeight }) : position);
       };
       const onUp = () => {
         resizeState.current = null;
@@ -158,8 +161,8 @@ export function useChatDrawerController({ userId, userName, userOrgId }: ChatDra
     const rect = buttonRef.current.getBoundingClientRect();
     const left = rect.right > 0 ? rect.right + 12 : 80;
     const top = Math.max(8, rect.top - 350);
-    setPanelPos({ x: left, y: top });
-  }, [open, panelPos]);
+    setPanelPos(clampChatPanelPosition({ x: left, y: top }, panelSize, { width: window.innerWidth, height: window.innerHeight }));
+  }, [open, panelPos, panelSize]);
 
   // Reset position when panel is closed
   useEffect(() => {
@@ -168,6 +171,19 @@ export function useChatDrawerController({ userId, userName, userOrgId }: ChatDra
       setIsFullscreen(false);
     }
   }, [open]);
+
+  useEffect(() => {
+    const keepPanelVisible = () => {
+      const viewport = { width: window.innerWidth, height: window.innerHeight };
+      setPanelSize((size) => {
+        const nextSize = clampChatPanelSize(size, viewport);
+        setPanelPos((position) => position ? clampChatPanelPosition(position, nextSize, viewport) : position);
+        return nextSize;
+      });
+    };
+    window.addEventListener("resize", keepPanelVisible);
+    return () => window.removeEventListener("resize", keepPanelVisible);
+  }, []);
 
   // Close on outside click
   useEffect(() => {
