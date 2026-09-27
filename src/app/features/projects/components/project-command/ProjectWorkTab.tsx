@@ -2,7 +2,7 @@ import { AlertCircle, Calendar, CheckSquare, ChevronDown, Clock, Layers, MoreVer
 import { useMemo, useState } from "react";
 import type { UserProfile } from "../../../../types";
 import { useToast } from "../../../../components/ui/Toast";
-import { getTaskLeadId, TaskTeamEditorDialog, updateTask, type Task } from "../../../tasks";
+import { getTaskLeadId, isOverdue, TaskTeamEditorDialog, updateTask, type Task } from "../../../tasks";
 import type { ProjectCommandData } from "./types";
 
 type BoardColumn = {
@@ -148,7 +148,7 @@ function TaskBoardCard({
   const category = task.activityTitle || task.programTitle || "Project work";
 
   const dateValue = task.deadline || task.dueDate;
-  const isOverdue = !isCompleted && Boolean(dateValue && new Date(dateValue) < new Date());
+  const isOverdueTask = !isCompleted && isOverdue(task);
 
   return (
     <article
@@ -217,7 +217,7 @@ function TaskBoardCard({
           </span>
         )}
         {dateValue && (
-          <span className={`eflow-figma-task-card__due ${isOverdue ? "eflow-figma-task-card__due--overdue" : ""}`}>
+          <span className={`eflow-figma-task-card__due ${isOverdueTask ? "eflow-figma-task-card__due--overdue" : ""}`}>
             <Calendar size={12} />
             <span>{dateValue}</span>
           </span>

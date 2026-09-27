@@ -25,6 +25,7 @@ interface ProductivitySidebarProps {
   mobile?: boolean;
   navigationItems: ShellNavigationItem[];
   onPageSelect: (section: string, page: string) => void;
+  workspaceName: string;
 }
 
 function groupNavigationItems(items: ShellNavigationItem[]) {
@@ -46,6 +47,7 @@ export function ProductivitySidebar({
   mobile = false,
   navigationItems,
   onPageSelect,
+  workspaceName,
 }: ProductivitySidebarProps) {
   const [hasFocusWithin, setHasFocusWithin] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -124,7 +126,7 @@ export function ProductivitySidebar({
               transition={motionTransition.productive}
             >
               <img alt="eFlow" className="eflow-productivity-sidebar__logo" src={eflowLogo} />
-              <p className="eflow-productivity-sidebar__workspace">Government workspace</p>
+              <p className="eflow-productivity-sidebar__workspace" title={workspaceName}>{workspaceName}</p>
             </m.div>
           )}
         </AnimatePresence>

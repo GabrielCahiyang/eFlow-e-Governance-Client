@@ -10,6 +10,7 @@ const AUTOMATIC_AI_CONFIG_KEYS = new Set([
   "ai_endpoint",
   "ai_endpoint_status",
   "ai_endpoint_status_message",
+  "ai_model",
 ]);
 
 export function SystemSettings() {
@@ -49,6 +50,7 @@ export function SystemSettings() {
   const aiStatus = aiRuntime.status;
   const aiEndpoint = aiRuntime.endpoint || form["ai_endpoint"] || "";
   const aiStatusMessage = aiRuntime.message || form["ai_endpoint_status_message"] || "";
+  const displayAiStatus = aiStatus === "online" ? "online" : "offline";
 
   if (loading) {
     return (
@@ -68,7 +70,7 @@ export function SystemSettings() {
         System Settings
       </h2>
 
-      <div className="space-y-4 max-w-2xl">
+      <div className="grid max-w-5xl gap-4 lg:grid-cols-2">
         {/* AI Configuration Card */}
         <div className="bg-white rounded-xl border border-neutral-200 overflow-hidden">
           <div className="px-5 py-3 border-b border-neutral-100 bg-neutral-50/50">
@@ -87,24 +89,16 @@ export function SystemSettings() {
                 </div>
               </div>
               <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-medium ${
-                aiStatus === "online"
+                displayAiStatus === "online"
                   ? "bg-emerald-100 text-emerald-700"
-                  : aiStatus === "starting" || aiStatus === "restarting"
-                    ? "bg-amber-100 text-amber-700"
-                    : aiStatus === "offline"
-                      ? "bg-red-100 text-red-700"
-                      : "bg-neutral-200 text-neutral-600"
+                  : "bg-red-100 text-red-700"
               }`}>
                 <span className={`h-1.5 w-1.5 rounded-full ${
-                  aiStatus === "online"
+                  displayAiStatus === "online"
                     ? "bg-emerald-500"
-                    : aiStatus === "starting" || aiStatus === "restarting"
-                      ? "bg-amber-500"
-                      : aiStatus === "offline"
-                        ? "bg-red-500"
-                        : "bg-neutral-400"
+                    : "bg-red-500"
                 }`} />
-                {aiStatus.charAt(0).toUpperCase() + aiStatus.slice(1)}
+                {displayAiStatus === "online" ? "Online" : "Offline"}
               </span>
             </div>
             <div>
@@ -121,24 +115,13 @@ export function SystemSettings() {
               <p className="mt-1.5 text-[10px] leading-relaxed text-neutral-400">
                 Managed automatically by the AI server. Administrators never need to paste a Cloudflare URL.
               </p>
-              {aiStatus !== "online" && aiStatusMessage && (
-                <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[11px] leading-relaxed text-amber-800">
+              {displayAiStatus !== "online" && aiStatusMessage && (
+                <div className="mt-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[11px] leading-relaxed text-red-800">
                   {aiStatusMessage}
                 </div>
               )}
             </div>
-            <div>
-              <label className="block text-[11px] font-medium text-neutral-600 mb-1.5">
-                AI Model
-              </label>
-              <input
-                type="text"
-                value={form["ai_model"] || ""}
-                onChange={(e) => setForm({ ...form, ai_model: e.target.value })}
-                className="w-full px-3 py-2 rounded-lg border border-neutral-200 text-[12px] font-normal placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50"
-                placeholder="deepseek-r1:8b"
-              />
-            </div>
+            <div className="grid grid-cols-2 gap-3 rounded-lg border border-neutral-100 bg-neutral-50 p-3 text-[10.5px]"><div><span className="block text-neutral-400">Connection</span><span className="mt-1 block font-medium text-neutral-700">{aiEndpoint ? "Secure endpoint published" : "No endpoint published"}</span></div><div><span className="block text-neutral-400">Management</span><span className="mt-1 block font-medium text-neutral-700">Automatic local runtime</span></div></div>
           </div>
         </div>
 
@@ -169,11 +152,19 @@ export function SystemSettings() {
                 className="w-full px-3 py-2 rounded-lg border border-neutral-200 text-[12px] font-normal placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50"
               />
             </div>
+            <div>
+              <label className="block text-[11px] font-medium text-neutral-600 mb-1.5">Organization Name</label>
+              <input type="text" value={form["organization_name"] || "LGU Ormoc City"} onChange={(e) => setForm({ ...form, organization_name: e.target.value })} className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-[12px] focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20" />
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div><label className="block text-[11px] font-medium text-neutral-600 mb-1.5">System Time Zone</label><input type="text" value={form["timezone"] || "Asia/Manila"} onChange={(e) => setForm({ ...form, timezone: e.target.value })} className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-[12px] focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20" /></div>
+              <div><label className="block text-[11px] font-medium text-neutral-600 mb-1.5">Session Timeout (minutes)</label><input type="number" min={5} max={480} value={form["session_timeout_minutes"] || "30"} onChange={(e) => setForm({ ...form, session_timeout_minutes: e.target.value })} className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-[12px] focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20" /></div>
+            </div>
           </div>
         </div>
 
         {/* Save Button */}
-        <div className="flex items-center gap-3 pt-2">
+        <div className="flex items-center gap-3 pt-2 lg:col-span-2">
           <button
             onClick={handleSave}
             disabled={saving}

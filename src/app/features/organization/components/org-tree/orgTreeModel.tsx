@@ -2,15 +2,16 @@ import dagre from "@dagrejs/dagre";
 import { Handle, Position, type NodeProps } from "@xyflow/react";
 import type { Edge, Node } from "@xyflow/react";
 import type { Organization, OrgType } from "../../../../types";
+import { Building2, FileText, Folder, FolderTree, Landmark, Scale, Users } from "lucide-react";
 
-const ORG_TYPE_ICONS: Record<OrgType, string> = {
-  lgu: '\u{1F3DB}',
-  department: '\u{1F3E2}',
-  division: '\u{1F4C2}',
-  section: '\u{1F4C1}',
-  unit: '\u{1F4C4}',
-  board: '\u{2696}',
-  committee: '\u{1F465}',
+const ORG_TYPE_ICONS: Record<OrgType, typeof Building2> = {
+  lgu: Landmark,
+  department: Building2,
+  division: FolderTree,
+  section: Folder,
+  unit: FileText,
+  board: Scale,
+  committee: Users,
 };
 
 const ORG_TYPE_COLORS: Record<OrgType, string> = {
@@ -175,7 +176,7 @@ export function buildGraph(orgs: Organization[]): { nodes: Node[]; edges: Edge[]
 function OrgNodeComp({ data }: NodeProps) {
   const org = data as unknown as Organization;
   const isRoot = org.org_type === 'lgu';
-  const icon = ORG_TYPE_ICONS[org.org_type] || '\u{1F4C2}';
+  const Icon = ORG_TYPE_ICONS[org.org_type] || FolderTree;
   const colorClass = ORG_TYPE_COLORS[org.org_type] || 'bg-blue-600 text-white';
 
   return (
@@ -186,7 +187,7 @@ function OrgNodeComp({ data }: NodeProps) {
     >
       <Handle type="target" position={Position.Top} className="w-3 h-3 !bg-neutral-400" />
       <div className="flex items-center gap-2">
-        <span className="text-lg">{icon}</span>
+        <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-lg ${isRoot ? "bg-white/10 text-white" : "bg-neutral-100 text-neutral-600"}`}><Icon size={15} /></span>
         <div className="flex-1 min-w-0">
           <div
             className={`text-[13px] truncate font-semibold

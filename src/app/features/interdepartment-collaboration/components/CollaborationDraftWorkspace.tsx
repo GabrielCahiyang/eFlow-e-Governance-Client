@@ -17,7 +17,7 @@ import type { Task } from "../../tasks";
 import { isExternalReviewParticipant } from "../selectors/organizationEligibility";
 import { ChangeRequestsPanel } from "./ChangeRequestsPanel";
 import { CollaborationDiscussion } from "./CollaborationDiscussion";
-import { CollaborationPlanPanel } from "./CollaborationPlanPanel";
+import { CollaborationPlanEditPanel } from "./CollaborationPlanEditPanel";
 import { CollaborationReadiness } from "./CollaborationReadiness";
 import { RevisionTimeline } from "./RevisionTimeline";
 import { StaffingReviewPanel } from "./StaffingReviewPanel";
@@ -211,7 +211,7 @@ export function CollaborationDraftWorkspace({ draftId, organizations, profiles, 
           />
         )}
         {tab === "board" && isCommittedDraft && <CommittedProposalBoard delivery={delivery} profiles={profiles} readOnly={readOnly} />}
-        {tab === "plan" && <CollaborationPlanPanel snapshot={snapshot} organizations={organizations} editable={isOwner && !["committed", "archived", "deleted"].includes(draft.status)} onSave={saveRevision} />}
+        {tab === "plan" && <CollaborationPlanEditPanel snapshot={snapshot} organizations={organizations} editable={isOwner && !["committed", "archived", "deleted"].includes(draft.status)} onSave={saveRevision} />}
         {tab === "discussion" && <CollaborationDiscussion messages={state.messages} organizations={organizations} profiles={profiles} onSend={(message) => act(async () => { await sendCollaborationMessage({ draftId, message }); }, "Message sent.")} />}
         {tab === "approvals" && !departmentOnly && <div className="space-y-3"><CollaborationReadiness participants={state.participants} approvals={state.approvals} currentRevisionId={draft.currentRevisionId} readiness={state.readiness} organizations={organizations} profiles={profiles} committed={isCommittedDraft} />{canDecide && <CollaborationDecisionPanel organizations={organizations} eligibleOrganizations={eligibleReviewOrganizations} selectedOrgId={reviewOrganization?.orgId} busy={busy} onSelectOrg={setActingOrgId} onDecide={(decision, reason) => act(async () => { await decideCollaborationReview({ draftId, organizationId: reviewOrganization!.orgId, decision, reason }); }, "Your organization decision was recorded.")} />}</div>}
       </main>

@@ -32,6 +32,7 @@ export function ProjectContextSidebar({
   planningCounts,
   planningView,
   onOpenPlanning,
+  departmentFilter,
 }: {
   activeProjectId?: string;
   canAdd: boolean;
@@ -53,6 +54,11 @@ export function ProjectContextSidebar({
   planningCounts: { workplans: number; signoff: number; actionable: number };
   planningView: "portfolio" | "drafts" | "signoff";
   onOpenPlanning: (view: "drafts" | "signoff") => void;
+  departmentFilter?: {
+    value: string;
+    options: { value: string; label: string }[];
+    onChange: (value: string) => void;
+  };
 }) {
   const [contextMenuProjectId, setContextMenuProjectId] = React.useState<string | null>(null);
   const contextProjects = projects.filter((project) => project.status !== "archived");
@@ -176,6 +182,20 @@ export function ProjectContextSidebar({
         >
           <span>Projects</span>
         </button>
+        {departmentFilter && (
+          <label className="eflow-project-context__department-filter">
+            <span>Lead department</span>
+            <select
+              aria-label="Filter plans and projects by department"
+              value={departmentFilter.value}
+              onChange={(event) => departmentFilter.onChange(event.target.value)}
+            >
+              {departmentFilter.options.map((option) => (
+                <option key={option.value} value={option.value}>{option.label}</option>
+              ))}
+            </select>
+          </label>
+        )}
         <div className="eflow-project-context__list">
           {renderProjects(contextProjects)}
           {contextProjects.length === 0 && (
@@ -214,8 +234,8 @@ export function ProjectContextSidebar({
               transition={motionTransition.navigation}
             />
           )}
-          <span>Work plans</span>
-          {planningCounts.actionable > 0 && <span className="relative inline-flex h-2 w-2" title="Work plans need your action"><span className="absolute inset-0 animate-ping rounded-full bg-amber-400 opacity-70 motion-reduce:animate-none" /><span className="relative h-2 w-2 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.75)]" /></span>}
+          <span>Drafts</span>
+          {planningCounts.actionable > 0 && <span className="relative inline-flex h-2 w-2" title="Drafts need your action"><span className="absolute inset-0 animate-ping rounded-full bg-amber-400 opacity-70 motion-reduce:animate-none" /><span className="relative h-2 w-2 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.75)]" /></span>}
           <strong>{planningCounts.workplans}</strong>
         </m.button>
         <m.button

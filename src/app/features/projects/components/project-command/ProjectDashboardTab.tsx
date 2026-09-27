@@ -12,6 +12,7 @@ import {
 import type { ProjectCommandData } from "./types";
 import { formatDate } from "../../../../components/workflow/primitives";
 import { peso } from "../../../budget";
+import { isOverdue } from "../../../tasks";
 
 export function ProjectDashboardTab({
   data,
@@ -47,11 +48,11 @@ export function ProjectDashboardTab({
     return tasks
       .filter((t) => {
         if (t.status === "completed" || t.status === "cancelled") return false;
-        const isOverdue = t.deadline && new Date(t.deadline).getTime() < now;
+        const taskOverdue = isOverdue(t, now);
         const isReview = t.status === "for_review";
         const isChanges = Boolean(t.rejectionNote);
         const isHigh = t.priority === "high";
-        return isOverdue || isReview || isChanges || isHigh;
+        return taskOverdue || isReview || isChanges || isHigh;
       })
       .slice(0, 6);
   }, [tasks]);
@@ -262,7 +263,7 @@ export function ProjectDashboardTab({
             ) : (
               <div className="divide-y divide-neutral-100">
                 {urgentTasks.map((t) => {
-                  const isOverdue = t.deadline && new Date(t.deadline).getTime() < Date.now();
+                  const taskOverdue = isOverdue(t);
                   return (
                     <div
                       key={t.id}
@@ -274,7 +275,7 @@ export function ProjectDashboardTab({
                           <span className="text-xs font-bold text-neutral-900 truncate">
                             {t.title}
                           </span>
-                          {isOverdue && (
+                          {taskOverdue && (
                             <span className="text-[10px] font-bold text-rose-700 bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded">
                               Overdue
                             </span>

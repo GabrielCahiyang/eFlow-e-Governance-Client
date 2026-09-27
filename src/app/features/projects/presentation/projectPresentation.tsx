@@ -37,3 +37,53 @@ export function ProjectScheduleLabel({
   const item = schedule[health];
   return <span role="status" aria-label={`Project schedule: ${item.text}`}><Label text={item.text} color={item.color} /></span>;
 }
+
+export function ProjectStatusBadge({
+  status,
+  health,
+}: {
+  status: ProjectStatus;
+  health?: ProjectScheduleHealth;
+}) {
+  if (status !== "active") {
+    const item = lifecycle[status] || { text: status, color: "primary" };
+    return (
+      <span role="status" aria-label={`Project status: ${item.text}`}>
+        <Label text={item.text} color={item.color} />
+      </span>
+    );
+  }
+  if (health === "overdue") {
+    return (
+      <span role="status" aria-label="Project status: Overdue">
+        <Label text="Overdue" color="negative" />
+      </span>
+    );
+  }
+  if (health === "at_risk") {
+    return (
+      <span role="status" aria-label="Project status: At risk">
+        <Label text="At risk" color="negative" />
+      </span>
+    );
+  }
+  if (health === "due_soon") {
+    return (
+      <span role="status" aria-label="Project status: Due soon">
+        <Label text="Due soon" color="working_orange" />
+      </span>
+    );
+  }
+  if (health === "completed") {
+    return (
+      <span role="status" aria-label="Project status: Completed">
+        <Label text="Completed" color="dark" />
+      </span>
+    );
+  }
+  return (
+    <span role="status" aria-label="Project status: Active">
+      <Label text="Active" color="positive" />
+    </span>
+  );
+}

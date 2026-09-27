@@ -18,6 +18,7 @@ export function FeatureDialog({
   description,
   children,
   contentClassName = "",
+  overlayClassName = "",
   showCloseButton = true,
 }: {
   open?: boolean;
@@ -26,12 +27,14 @@ export function FeatureDialog({
   description?: string;
   children: ReactNode;
   contentClassName?: string;
+  overlayClassName?: string;
   showCloseButton?: boolean;
 }) {
   return (
     <Dialog open={open} onOpenChange={(nextOpen) => !nextOpen && onClose()}>
       <DialogContent
         aria-label={title}
+        overlayClassName={overlayClassName}
         className={`flex max-h-[calc(100dvh-2rem)] min-h-0 flex-col gap-0 overflow-hidden p-0 ${contentClassName}`}
         showCloseButton={showCloseButton}
       >

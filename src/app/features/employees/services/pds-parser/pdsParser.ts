@@ -1,6 +1,6 @@
 import * as XLSX from 'xlsx';
 import type { DepartmentOption, ParsedPdsImport } from './types';
-import { parseEducation, parseEligibility, parseFullName, parseEmail, parseSpecialSkills, parseTrainings, parseWorkExperience } from './extractors';
+import { parseEducation, parseEligibility, parseFullName, parseEmail, parsePersonalDetails, parseSpecialSkills, parseTrainings, parseWorkExperience } from './extractors';
 import { buildNotes, buildStrengths, buildTags } from './notes';
 import { resolveDepartmentId } from './valueUtils';
 import { readRows, validatePdsWorkbook } from './workbookRows';
@@ -44,10 +44,25 @@ export const parsePdsWorkbook = (
       tags: buildTags(currentWork, education, trainings, specialSkills),
       weaknesses: "",
     },
+    details: {
+      sourceFileName: "",
+      personal: parsePersonalDetails(rowsBySheet.C1),
+      currentWork,
+      education,
+      eligibility,
+      trainings,
+      specialSkills,
+    },
   };
 };
 
 export const parsePdsFile = async (
   file: File,
   departments: DepartmentOption[] = [],
-) => parsePdsWorkbook(await file.arrayBuffer(), departments);
+) => {
+  const parsed = parsePdsWorkbook(await file.arrayBuffer(), departments);
+  return {
+    ...parsed,
+    details: { ...parsed.details, sourceFileName: file.name },
+  };
+};

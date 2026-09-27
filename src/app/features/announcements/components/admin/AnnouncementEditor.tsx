@@ -20,9 +20,11 @@ import { InspectorPanel } from "../../../../shared/motion";
 export function AnnouncementEditor({
   existing,
   onClose,
+  onSaved,
 }: {
   existing: Announcement | null;
   onClose: () => void;
+  onSaved?: () => void;
 }) {
   const { orgs } = useOrgs();
   const { users } = useUsers();
@@ -54,6 +56,7 @@ export function AnnouncementEditor({
     try {
       await saveDraft(draft, existing?.id);
       toast("Draft saved.", "success");
+      onSaved?.();
       onClose();
     } catch (e: any) {
       toast(e?.message || "Failed to save draft.", "error");
@@ -80,6 +83,7 @@ export function AnnouncementEditor({
       const id = existing?.id || (await saveDraft(draft));
       await publishAnnouncement(id, draft);
       toast("Announcement published to all recipients.", "success");
+      onSaved?.();
       onClose();
     } catch (e: any) {
       toast(e?.message || "Failed to publish announcement.", "error");

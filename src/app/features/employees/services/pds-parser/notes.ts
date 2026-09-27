@@ -47,6 +47,7 @@ export const buildTags = (
     .toLowerCase();
 
   const tags: string[] = [];
+  specialSkills.forEach((skill) => tags.push(skill));
   if (departmentLabelFromOffice(currentWork?.office || "") === "BPLO") tags.push("BPLO");
   if (/administrative|admin officer/.test(haystack)) tags.push("Administrative");
   if (/public-private|ppp/.test(haystack)) tags.push("PPP");

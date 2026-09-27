@@ -49,6 +49,15 @@ function safeFilename(title: string, ext: string): string {
   return formatFilename(title, ext);
 }
 
+export function recordReportExport(meta: ReportMeta, format: "csv" | "pdf", rowCount: number): void {
+  recordAudit({
+    entityType: 'report',
+    entityId: meta.title,
+    action: 'report.exported',
+    metadata: { format, rows: rowCount, filters: meta.filters },
+  });
+}
+
 // ─── CSV ─────────────────────────────────────────────────────────
 export function exportCsv<T>(rows: T[], columns: ReportColumn<T>[], meta: ReportMeta): void {
   const header = columns.map((c) => escapeCsv(c.header)).join(',');
@@ -56,16 +65,12 @@ export function exportCsv<T>(rows: T[], columns: ReportColumn<T>[], meta: Report
   const csv = '﻿' + [header, ...lines].join('\r\n');
   triggerDownload(new Blob([csv], { type: 'text/csv;charset=utf-8;' }), safeFilename(meta.title, 'csv'));
 
-  recordAudit({
-    entityType: 'report',
-    entityId: meta.title,
-    action: 'report.exported',
-    metadata: { format: 'csv', rows: rows.length, filters: meta.filters },
-  });
+  recordReportExport(meta, 'csv', rows.length);
 }
 
-// ─── PDF (print window) ──────────────────────────────────────────
-export function exportPdf<T>(rows: T[], columns: ReportColumn<T>[], meta: ReportMeta): void {
+// ─── PDF preview document ───────────────────────────────────────
+// The same document powers the in-app preview and the legacy print action.
+export function buildReportHtml<T>(rows: T[], columns: ReportColumn<T>[], meta: ReportMeta): string {
   const generatedAt = new Date().toLocaleString('en-PH', {
     year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
   });
@@ -128,8 +133,14 @@ export function exportPdf<T>(rows: T[], columns: ReportColumn<T>[], meta: Report
     ${chartHtml}
     <table><thead>${thead}</thead><tbody>${tbody}</tbody></table>
     <div class="footer">This report contains only records visible to the exporting user. Confidential — internal use only.</div>
-    <script>window.onload = function(){ setTimeout(function(){ window.print(); }, 300); };</script>
   </body></html>`;
+
+  return html;
+}
+
+// ─── PDF (legacy print window) ──────────────────────────────────
+export function exportPdf<T>(rows: T[], columns: ReportColumn<T>[], meta: ReportMeta): void {
+  const html = buildReportHtml(rows, columns, meta);
 
   const win = window.open('', '_blank', 'width=1100,height=800');
   if (!win) {
@@ -140,13 +151,9 @@ export function exportPdf<T>(rows: T[], columns: ReportColumn<T>[], meta: Report
   win.document.open();
   win.document.write(html);
   win.document.close();
+  win.addEventListener('load', () => win.print(), { once: true });
 
-  recordAudit({
-    entityType: 'report',
-    entityId: meta.title,
-    action: 'report.exported',
-    metadata: { format: 'pdf', rows: rows.length, filters: meta.filters },
-  });
+  recordReportExport(meta, 'pdf', rows.length);
 }
 
 function escapeHtml(s: string): string {

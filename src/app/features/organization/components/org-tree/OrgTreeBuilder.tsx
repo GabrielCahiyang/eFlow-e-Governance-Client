@@ -22,6 +22,8 @@ import { OrgModal } from "./OrgModal";
 import { UsersPanel } from "./UsersPanel";
 import { UndoNotifications, type UndoItem } from "./UndoNotifications";
 import { buildGraph, layoutNodes, nodeTypes, resolveNodeCollisions } from "./orgTreeModel";
+import { Building2, Focus, LayoutDashboard, Plus, ZoomIn, ZoomOut } from "lucide-react";
+import { Tooltip } from "@vibe/core";
 
 function OrgTreeBuilderInner() {
   const { orgs, loading: orgsLoading } = useOrgs();
@@ -263,38 +265,42 @@ function OrgTreeBuilderInner() {
         <UndoNotifications items={undoStack} onUndo={handleUndo} onDismiss={dismissUndo} />
 
         {/* Toolbar */}
-        <div className="flex items-center gap-2 px-4 py-2 border-b border-neutral-200 bg-white shrink-0">
+        <div className="flex flex-wrap items-center gap-2 border-b border-neutral-200 bg-white px-4 py-3 shrink-0">
+          <div className="mr-auto min-w-[220px]"><div className="flex items-center gap-2 text-[13px] font-semibold text-neutral-900"><Building2 size={16} className="text-teal-700" /> Organization structure</div><p className="mt-0.5 text-[9.5px] text-neutral-500">Right-click a node to edit it, add a child, or manage leadership.</p></div>
           <button
             onClick={() => { setAddingParentId(undefined); setEditingOrg(undefined); setShowOrgModal(true); }}
             className="px-3 py-1.5 rounded-lg bg-neutral-900 text-white text-[11px] font-medium hover:bg-neutral-800 cursor-pointer transition-colors"
           >
-            + Add Root Dept
+            <span className="inline-flex items-center gap-1.5"><Plus size={13} /> Add organization</span>
           </button>
           <button
             onClick={runLayout}
             className="px-3 py-1.5 rounded-lg border border-neutral-200 bg-white text-[11px] font-medium text-neutral-700 hover:bg-neutral-50 cursor-pointer transition-colors"
           >
-            Auto Layout
+            <span className="inline-flex items-center gap-1.5"><LayoutDashboard size={13} /> Auto layout</span>
           </button>
           <div className="w-px h-5 bg-neutral-200 mx-1" />
-          <button
+          <Tooltip content="Zoom in on the organization map"><button
             onClick={() => reactFlowInstance.zoomIn()}
-            className="px-3 py-1.5 rounded-lg border border-neutral-200 bg-white text-[11px] font-medium text-neutral-700 hover:bg-neutral-50 cursor-pointer transition-colors"
+            aria-label="Zoom in"
+            className="rounded-lg border border-neutral-200 bg-white p-2 text-neutral-600 hover:border-teal-200 hover:bg-teal-50 hover:text-teal-800"
           >
-            Zoom In
-          </button>
-          <button
+            <ZoomIn size={14} />
+          </button></Tooltip>
+          <Tooltip content="Zoom out from the organization map"><button
             onClick={() => reactFlowInstance.zoomOut()}
-            className="px-3 py-1.5 rounded-lg border border-neutral-200 bg-white text-[11px] font-medium text-neutral-700 hover:bg-neutral-50 cursor-pointer transition-colors"
+            aria-label="Zoom out"
+            className="rounded-lg border border-neutral-200 bg-white p-2 text-neutral-600 hover:border-teal-200 hover:bg-teal-50 hover:text-teal-800"
           >
-            Zoom Out
-          </button>
-          <button
+            <ZoomOut size={14} />
+          </button></Tooltip>
+          <Tooltip content="Fit the full organization map in view"><button
             onClick={() => reactFlowInstance.fitView({ padding: 0.2 })}
-            className="px-3 py-1.5 rounded-lg border border-neutral-200 bg-white text-[11px] font-medium text-neutral-700 hover:bg-neutral-50 cursor-pointer transition-colors"
+            aria-label="Fit organization map"
+            className="rounded-lg border border-neutral-200 bg-white p-2 text-neutral-600 hover:border-teal-200 hover:bg-teal-50 hover:text-teal-800"
           >
-            Fit View
-          </button>
+            <Focus size={14} />
+          </button></Tooltip>
         </div>
 
         {/* Flow canvas */}
@@ -329,7 +335,6 @@ function OrgTreeBuilderInner() {
         orgs={orgs}
         search={search}
         setSearch={setSearch}
-        onCreateUser={() => toast('Use the User Management page to create users', 'info')}
       />
 
       {/* Context menu */}

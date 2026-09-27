@@ -78,6 +78,9 @@ async function readPublishedEndpoint(): Promise<string | null> {
 }
 
 export async function resolveControlPanelBase(): Promise<string> {
+  if (typeof window !== "undefined" && ["localhost", "127.0.0.1"].includes(window.location.hostname)) {
+    return "/controlpanelEflow/api";
+  }
   const endpoint = normalizeControlPanelBase((await readPublishedEndpoint()) || "");
   if (!endpoint) throw new ControlPanelUnavailableError();
   return endpoint;

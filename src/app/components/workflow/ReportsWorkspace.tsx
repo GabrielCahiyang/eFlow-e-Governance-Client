@@ -3,7 +3,7 @@
 // CSV/PDF export of the EXACT filtered rows. Scope-parameterized: Dept Head is
 // limited to their subtree; Super Admin gets the cross-department filter.
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Tab, TabList, TabsContext } from "@vibe/core";
 import { AnimatePresence } from "motion/react";
 import * as m from "motion/react-m";
@@ -13,6 +13,9 @@ import {
   AlertTriangle,
   Clock,
   TrendingUp,
+  X,
+  Printer,
+  Gauge,
 } from "lucide-react";
 import {
   BarChart,
@@ -30,7 +33,7 @@ import { useTasks } from "../../hooks/useFirebaseData";
 import { useOrgs } from "../../hooks/useSupabaseData";
 import type { Task } from "../../services/taskService";
 import { isOverdue } from "../../services/taskSelectors";
-import { exportCsv, exportPdf, type ReportColumn } from "../../services/reportService";
+import { buildReportHtml, exportCsv, recordReportExport, type ReportColumn } from "../../services/reportService";
 import {
   PageHeader,
   StatCard,
@@ -62,6 +65,8 @@ export function ReportsWorkspace({ scope, eyebrow }: { scope: ProjectScope; eyeb
   const [orgFilter, setOrgFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [period, setPeriod] = useState("30");
+  const [pdfPreview, setPdfPreview] = useState<{ title: string; html: string } | null>(null);
+  const previewFrameRef = useRef<HTMLIFrameElement | null>(null);
 
   const scoped = useMemo(() => {
     let rows = tasks.filter((t) => !t.archivedAt);
@@ -69,14 +74,14 @@ export function ReportsWorkspace({ scope, eyebrow }: { scope: ProjectScope; eyeb
       rows = rows.filter((t) => !t.orgId || scope.scopedOrgIds.includes(t.orgId));
     }
     if (scope.isSuperAdmin && orgFilter !== "all") rows = rows.filter((t) => t.orgId === orgFilter);
-    if (statusFilter !== "all") rows = rows.filter((t) => t.status === statusFilter);
+    if (view === "status" && statusFilter !== "all") rows = rows.filter((t) => t.status === statusFilter);
     const days = Number(period);
     if (days > 0) {
       const since = Date.now() - days * 86400000;
       rows = rows.filter((t) => t.createdAt >= since || t.updatedAt >= since);
     }
     return rows;
-  }, [tasks, scope, orgFilter, statusFilter, period]);
+  }, [tasks, scope, orgFilter, statusFilter, period, view]);
 
   // ─ Aggregates ─
   const statusCounts = useMemo(() => {
@@ -105,7 +110,7 @@ export function ReportsWorkspace({ scope, eyebrow }: { scope: ProjectScope; eyeb
 
   const filtersMeta = {
     Department: scope.isSuperAdmin ? (orgFilter === "all" ? "All" : orgs.find((o) => o.id === orgFilter)?.name || orgFilter) : "My department",
-    Status: statusFilter === "all" ? "All" : statusFilter,
+    Status: view !== "status" || statusFilter === "all" ? "All" : statusFilter,
     Period: period === "0" ? "All time" : `Last ${period} days`,
   };
 
@@ -119,8 +124,12 @@ export function ReportsWorkspace({ scope, eyebrow }: { scope: ProjectScope; eyeb
         { key: "review", header: "In review", value: (r) => r.review },
         { key: "overdue", header: "Overdue", value: (r) => r.overdue },
       ];
-      const meta = { title: "Employee productivity", subtitle: eyebrow, filters: filtersMeta, totals: { Employees: productivity.length, "Total completed": completed } };
-      kind === "csv" ? exportCsv(productivity, cols, meta) : exportPdf(productivity, cols, meta);
+      const meta = { title: view === "workload" ? "Workload distribution" : "Employee productivity", subtitle: eyebrow, filters: filtersMeta, totals: { Employees: productivity.length, "Total completed": completed } };
+      if (kind === "csv") exportCsv(productivity, cols, meta);
+      else {
+        setPdfPreview({ title: meta.title, html: buildReportHtml(productivity, cols, meta) });
+        recordReportExport(meta, "pdf", productivity.length);
+      }
     } else {
       const rows = view === "overdue" ? overdueTasks : scoped;
       const cols: ReportColumn<Task>[] = [
@@ -137,14 +146,17 @@ export function ReportsWorkspace({ scope, eyebrow }: { scope: ProjectScope; eyeb
         filters: filtersMeta,
         totals: { Tasks: rows.length, Completed: completed, "Completion rate": `${completionRate}%`, Overdue: overdueTasks.length },
       };
-      kind === "csv" ? exportCsv(rows, cols, meta) : exportPdf(rows, cols, meta);
+      if (kind === "csv") exportCsv(rows, cols, meta);
+      else {
+        setPdfPreview({ title: meta.title, html: buildReportHtml(rows, cols, meta) });
+        recordReportExport(meta, "pdf", rows.length);
+      }
     }
   };
 
   if (loading) return <div className="p-8"><LoadingState label="Building reports…" /></div>;
 
   const orgOptions = [{ value: "all", label: "All departments" }, ...orgs.map((o) => ({ value: o.id, label: o.name }))];
-  const maxCompleted = Math.max(1, ...productivity.map((p) => p.completed + p.active));
   const reportTabs = [
     { id: "status", label: "Status & aging", icon: <BarChart3 size={13} /> },
     { id: "productivity", label: "Productivity", icon: <Users size={13} /> },
@@ -163,30 +175,47 @@ export function ReportsWorkspace({ scope, eyebrow }: { scope: ProjectScope; eyeb
       />
 
       {/* Filters */}
-      <div className="flex items-center gap-2 mb-4 flex-wrap">
-        {scope.isSuperAdmin && <WSelect value={orgFilter} onChange={setOrgFilter} options={orgOptions} />}
-        <WSelect
-          value={statusFilter}
-          onChange={setStatusFilter}
-          options={[
-            { value: "all", label: "All statuses" },
-            { value: "pending_assignment", label: "Unassigned" },
-            { value: "todo", label: "To Do" },
-            { value: "in_progress", label: "In Progress" },
-            { value: "for_review", label: "For Review" },
-            { value: "completed", label: "Completed" },
-          ]}
-        />
-        <WSelect
-          value={period}
-          onChange={setPeriod}
-          options={[
-            { value: "7", label: "Last 7 days" },
-            { value: "30", label: "Last 30 days" },
-            { value: "90", label: "Last 90 days" },
-            { value: "0", label: "All time" },
-          ]}
-        />
+      <div className="mb-4 flex flex-row flex-wrap items-center gap-3 rounded-xl border border-neutral-200 bg-white p-3">
+        {scope.isSuperAdmin && (
+          <div className="w-52">
+            <WSelect
+              ariaLabel="Filter reports by department"
+              value={orgFilter}
+              onChange={setOrgFilter}
+              options={orgOptions}
+            />
+          </div>
+        )}
+        {view === "status" && (
+          <div className="w-48">
+            <WSelect
+              ariaLabel="Filter reports by status"
+              value={statusFilter}
+              onChange={setStatusFilter}
+              options={[
+                { value: "all", label: "All statuses" },
+                { value: "pending_assignment", label: "Unassigned" },
+                { value: "todo", label: "To Do" },
+                { value: "in_progress", label: "In Progress" },
+                { value: "for_review", label: "For Review" },
+                { value: "completed", label: "Completed" },
+              ]}
+            />
+          </div>
+        )}
+        <div className="w-44">
+          <WSelect
+            ariaLabel="Filter reports by reporting period"
+            value={period}
+            onChange={setPeriod}
+            options={[
+              { value: "7", label: "Last 7 days" },
+              { value: "30", label: "Last 30 days" },
+              { value: "90", label: "Last 90 days" },
+              { value: "0", label: "All time" },
+            ]}
+          />
+        </div>
       </div>
 
       {/* KPI */}
@@ -293,9 +322,8 @@ export function ReportsWorkspace({ scope, eyebrow }: { scope: ProjectScope; eyeb
             </div>
           )}
         </Card>
-      ) : (
-        // productivity + workload
-        <Card bodyClassName="p-0" title={view === "workload" ? "Workload distribution" : "Employee productivity"}>
+      ) : view === "productivity" ? (
+        <Card bodyClassName="p-0" title="Employee productivity" subtitle="Outcome-focused performance for the selected period.">
           {productivity.length === 0 ? (
             <SectionEmpty icon={<Users size={28} />} title="No assigned work" />
           ) : (
@@ -303,7 +331,7 @@ export function ReportsWorkspace({ scope, eyebrow }: { scope: ProjectScope; eyeb
               <table className="w-full">
                 <thead>
                   <tr className="bg-neutral-50 border-b border-neutral-200">
-                    {["Employee", "Completed", "Active", "In review", "Overdue", "Load"].map((h) => (
+                    {["Employee", "Completed", "Active", "In review", "Overdue", "Completion mix"].map((h) => (
                       <th key={h} className="px-4 py-2.5 text-left text-[10px] font-medium uppercase tracking-wider text-neutral-400">{h}</th>
                     ))}
                   </tr>
@@ -318,7 +346,7 @@ export function ReportsWorkspace({ scope, eyebrow }: { scope: ProjectScope; eyeb
                       <td className="px-4 py-2.5 text-[12px] text-red-600 tabular-nums">{p.overdue}</td>
                       <td className="px-4 py-2.5 w-[200px]">
                         <div className="h-2 bg-neutral-100 rounded-full overflow-hidden">
-                          <div className="h-full bg-neutral-800 rounded-full" style={{ width: `${((p.completed + p.active) / maxCompleted) * 100}%` }} />
+                          <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${(p.completed / Math.max(1, p.completed + p.active)) * 100}%` }} />
                         </div>
                       </td>
                     </tr>
@@ -328,9 +356,37 @@ export function ReportsWorkspace({ scope, eyebrow }: { scope: ProjectScope; eyeb
             </div>
           )}
         </Card>
+      ) : (
+        <Card title="Workload distribution" subtitle="Current assigned work and review pressure by employee.">
+          {productivity.length === 0 ? (
+            <SectionEmpty icon={<Gauge size={28} />} title="No assigned work" />
+          ) : (
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+              {productivity.map((person) => {
+                const assigned = person.active + person.review;
+                const ratio = Math.min(1, assigned / 8);
+                const loadLabel = assigned >= 8 ? "High load" : assigned >= 4 ? "Balanced" : "Available";
+                const tone = assigned >= 8 ? "bg-rose-500" : assigned >= 4 ? "bg-amber-500" : "bg-emerald-500";
+                return <article key={person.id} className="rounded-xl border border-neutral-200 bg-neutral-50/60 p-4">
+                  <div className="flex items-start justify-between gap-3"><div><h4 className="text-[12px] font-semibold text-neutral-900">{person.name}</h4><p className="mt-0.5 text-[10px] text-neutral-500">{assigned} active assignments · {person.review} in review</p></div><span className="rounded-full bg-white px-2 py-1 text-[9px] font-semibold text-neutral-600 shadow-sm">{loadLabel}</span></div>
+                  <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-neutral-200"><div className={`h-full rounded-full ${tone}`} style={{ width: `${Math.max(8, ratio * 100)}%` }} /></div>
+                  <div className="mt-3 grid grid-cols-3 gap-2 text-center"><div><div className="text-[14px] font-semibold text-neutral-900">{person.active}</div><div className="text-[8.5px] uppercase text-neutral-400">Active</div></div><div><div className="text-[14px] font-semibold text-amber-600">{person.review}</div><div className="text-[8.5px] uppercase text-neutral-400">Review</div></div><div><div className="text-[14px] font-semibold text-rose-600">{person.overdue}</div><div className="text-[8.5px] uppercase text-neutral-400">Overdue</div></div></div>
+                </article>;
+              })}
+            </div>
+          )}
+        </Card>
       )}
         </m.div>
       </AnimatePresence>
+      {pdfPreview && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-neutral-950/55 p-3 sm:p-6" role="dialog" aria-modal="true" aria-label={`${pdfPreview.title} PDF preview`}>
+          <div className="flex h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-2xl">
+            <header className="flex items-center justify-between gap-3 border-b border-neutral-200 px-4 py-3 sm:px-5"><div><h2 className="text-[14px] font-semibold text-neutral-900">{pdfPreview.title}</h2><p className="text-[10.5px] text-neutral-500">PDF preview · print or save without leaving eFlow</p></div><div className="flex items-center gap-2"><button type="button" onClick={() => previewFrameRef.current?.contentWindow?.print()} className="inline-flex items-center gap-1.5 rounded-lg bg-neutral-900 px-3 py-2 text-[11px] font-semibold text-white hover:bg-neutral-800"><Printer size={13} /> Print / Save PDF</button><button type="button" onClick={() => setPdfPreview(null)} className="rounded-lg p-2 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900" aria-label="Close PDF preview"><X size={17} /></button></div></header>
+            <iframe ref={previewFrameRef} title={`${pdfPreview.title} report preview`} srcDoc={pdfPreview.html} className="min-h-0 flex-1 bg-neutral-100" sandbox="allow-same-origin allow-modals" />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -17,9 +17,32 @@ export type PdsUserDefaults = {
   status: "active";
 };
 
+export type PdsPersonalDetails = {
+  surname: string;
+  firstName: string;
+  middleName: string;
+  birthDate: string;
+  placeOfBirth: string;
+  telephone: string;
+  mobile: string;
+  email: string;
+  employeeNumber: string;
+};
+
+export type PdsImportDetails = {
+  sourceFileName: string;
+  personal: PdsPersonalDetails;
+  currentWork?: WorkExperience;
+  education: Education[];
+  eligibility: Eligibility | null;
+  trainings: Training[];
+  specialSkills: string[];
+};
+
 export type ParsedPdsImport = {
   profile: PdsUserDefaults;
   employeeNotes: PdsEmployeeNotes;
+  details: PdsImportDetails;
 };
 
 export type DepartmentOption = {
@@ -34,16 +57,26 @@ export type WorkExperience = {
   to: string;
   position: string;
   office: string;
+  monthlySalary: string;
+  salaryGrade: string;
+  appointmentStatus: string;
+  governmentService: string;
 };
 
 export type Eligibility = {
   title: string;
   rating: string;
+  examinationDate: string;
+  examinationPlace: string;
+  licenseNumber: string;
+  licenseValidity: string;
 };
 
 export type Education = {
   level: string;
+  school: string;
   degree: string;
+  from: string;
   to: string;
   yearGraduated: string;
   highestLevel: string;
@@ -51,5 +84,9 @@ export type Education = {
 
 export type Training = {
   title: string;
+  from: string;
+  to: string;
+  hours: string;
   type: string;
+  provider: string;
 };

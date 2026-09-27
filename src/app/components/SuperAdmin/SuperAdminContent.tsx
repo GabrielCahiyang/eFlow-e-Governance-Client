@@ -12,7 +12,6 @@ import { AdminAuditLog } from "./AdminAuditLog";
 import { AdminPermissions } from "./AdminPermissions";
 import { ProjectsWorkspace } from "../workflow/ProjectsWorkspace";
 import { ReportsWorkspace } from "../workflow/ReportsWorkspace";
-import { AdminTasks } from "./AdminTasks";
 import { useState } from "react";
 import { MonthlyLeaderboard } from "../../features/productivity";
 import { useDepartmentTeamAnalytics } from "../../features/team-management";
@@ -20,7 +19,7 @@ import { useDepartmentTeamAnalytics } from "../../features/team-management";
 // System-wide scope: super admin sees every org (empty scopedOrgIds = all).
 const ADMIN_SCOPE = { isSuperAdmin: true, scopedOrgIds: [] as string[] };
 function AdminProjects() {
-  return <ProjectsWorkspace scope={ADMIN_SCOPE} eyebrow="Administration · Planning Portfolio" />;
+  return <ProjectsWorkspace scope={ADMIN_SCOPE} eyebrow="Administration · Planning Portfolio" readOnly />;
 }
 function AdminReports() {
   const [view, setView] = useState<"reports" | "contribution">("reports");
@@ -49,9 +48,6 @@ const superAdminPages: Record<string, Record<string, React.ComponentType>> = {
   },
   projects: {
     "All Projects": AdminProjects,
-  },
-  tasks: {
-    "All Tasks": AdminTasks,
   },
   reports: {
     "System Reports": AdminReports,
@@ -82,7 +78,6 @@ export const defaultPages: Record<string, string> = {
   users: "All Users",
   org_tree: "Org Structure",
   projects: "All Projects",
-  tasks: "All Tasks",
   reports: "System Reports",
   announcements: "Announcements",
   audit: "Audit Log",

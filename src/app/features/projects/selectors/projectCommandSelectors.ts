@@ -1,7 +1,8 @@
 import type { Milestone, Project } from "../services/types";
-import type { Task } from "../../tasks";
+import { isOverdue, type Task } from "../../tasks";
 import type { TeamAttentionItem, TeamWorkflowFacts } from "../../team-management";
 import type { ProjectActivityItem, ProjectCommandMetrics, ProjectScheduleHealth } from "../components/project-command/types";
+import { parseCalendarDate } from "../../../shared/scheduling/relativeSchedule";
 
 const DAY = 86_400_000;
 const timestamp = (value?: string): number | undefined => {
@@ -28,16 +29,24 @@ export function buildProjectCommandMetrics(
   const changesRequested = facts.submissions.filter((item) => item.status === "changes_requested").length;
   const taskCompleted = activeTasks.filter((task) => task.status === "completed").length;
   const completionRecommended = project.status !== "completed" && activeTasks.length > 0 && taskCompleted === activeTasks.length;
-  const target = timestamp(project.targetDate);
+
+  const today = new Date(now);
+  const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+  const targetParsed = project.targetDate ? parseCalendarDate(project.targetDate) ?? timestamp(project.targetDate) : undefined;
+  const isTargetOverdue = targetParsed !== undefined && targetParsed < todayStart;
+  const isTargetDueSoon = targetParsed !== undefined && targetParsed >= todayStart && targetParsed <= todayStart + 14 * DAY;
+
   let scheduleHealth: ProjectScheduleHealth = "on_track";
   if (project.status === "completed") scheduleHealth = "completed";
-  else if (overdue > 0 || (target && target < now)) scheduleHealth = "overdue";
+  else if (overdue > 0 || isTargetOverdue) scheduleHealth = "overdue";
   else if (blocked > 0 || changesRequested > 0 || milestones.some((milestone) => milestone.manualStatus === "at_risk")) scheduleHealth = "at_risk";
-  else if (target && target <= now + 14 * DAY) scheduleHealth = "due_soon";
+  else if (isTargetDueSoon || attention.some((item) => item.kind === "due_soon")) scheduleHealth = "due_soon";
 
   const taskDeadlines = activeTasks.map((task) => task.deadline || task.dueDate).filter((date): date is string => Boolean(date));
   const milestoneDeadlines = milestones.filter((milestone) => milestone.status !== "completed").map((milestone) => milestone.dueDate).filter((date): date is string => Boolean(date));
-  const nextDeadline = [...taskDeadlines, ...milestoneDeadlines].filter((date) => (timestamp(date) || 0) >= now).sort((a, b) => (timestamp(a) || 0) - (timestamp(b) || 0))[0];
+  const nextDeadline = [...taskDeadlines, ...milestoneDeadlines]
+    .filter((date) => (parseCalendarDate(date) ?? timestamp(date) ?? 0) >= todayStart)
+    .sort((a, b) => (parseCalendarDate(a) ?? timestamp(a) ?? 0) - (parseCalendarDate(b) ?? timestamp(b) ?? 0))[0];
   const activityTimes = [project.updatedAt, ...activeTasks.map((task) => task.lastActivityAt || task.updatedAt), ...facts.progress.map((item) => item.createdAt), ...facts.submissions.map((item) => item.decidedAt || item.submittedAt)];
 
   return {
@@ -105,13 +114,21 @@ export function buildProjectPortfolioSummary(project: Project, tasks: Task[], no
   const live = tasks.filter((task) => task.linkedProjectId === project.id && !task.archivedAt && task.status !== "cancelled");
   const completed = live.filter((task) => task.status === "completed").length;
   const progress = live.length ? Math.round(live.reduce((sum, task) => sum + (task.status === "completed" ? 100 : task.percentComplete || 0), 0) / live.length) : project.status === "completed" ? 100 : 0;
-  const overdue = live.filter((task) => { const date = task.deadline || task.dueDate; return date && task.status !== "completed" && new Date(date).getTime() < now; }).length;
-  const target = project.targetDate ? new Date(project.targetDate).getTime() : undefined;
+  const overdue = live.filter((task) => isOverdue(task, now)).length;
+  const today = new Date(now);
+  const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+  const targetParsed = project.targetDate ? parseCalendarDate(project.targetDate) ?? timestamp(project.targetDate) : undefined;
+  const isTargetOverdue = targetParsed !== undefined && targetParsed < todayStart;
+  const isTargetDueSoon = targetParsed !== undefined && targetParsed >= todayStart && targetParsed <= todayStart + 14 * DAY;
   const awaitingReview = live.filter((task) => task.status === "for_review").length;
   const changesRequested = live.filter((task) => task.status === "changes_requested").length;
   const leadIds = Array.from(new Set(live.map((task) => task.recommendationLeadId || task.assigneeId).filter((id): id is string => Boolean(id))));
-  const deadlines = live.map((task) => task.deadline || task.dueDate).filter((date): date is string => Boolean(date)).filter((date) => new Date(date).getTime() >= now).sort();
-  const health: ProjectScheduleHealth = project.status === "completed" ? "completed" : overdue || (target && target < now) ? "overdue" : changesRequested ? "at_risk" : target && target < now + 14 * DAY ? "due_soon" : "on_track";
+  const deadlines = live
+    .map((task) => task.deadline || task.dueDate)
+    .filter((date): date is string => Boolean(date))
+    .filter((date) => (parseCalendarDate(date) ?? timestamp(date) ?? 0) >= todayStart)
+    .sort((a, b) => (parseCalendarDate(a) ?? timestamp(a) ?? 0) - (parseCalendarDate(b) ?? timestamp(b) ?? 0));
+  const health: ProjectScheduleHealth = project.status === "completed" ? "completed" : overdue || isTargetOverdue ? "overdue" : changesRequested ? "at_risk" : isTargetDueSoon ? "due_soon" : "on_track";
   const completionRecommended = project.status !== "completed" && live.length > 0 && completed === live.length;
   return { progress, completed, total: live.length, isEmpty: live.length === 0 && project.status !== "completed", overdue, awaitingReview, changesRequested, leadIds, nextDeadline: deadlines[0] || project.targetDate, health, completionRecommended, lastActivityAt: Math.max(project.updatedAt, ...live.map((task) => task.lastActivityAt || task.updatedAt)) };
 }

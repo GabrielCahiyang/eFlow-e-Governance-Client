@@ -1,6 +1,6 @@
 import type { Organization, UserProfile } from "../../../../types";
 import type { Project } from "../../services/types";
-import { ProjectLifecycleLabel, ProjectScheduleLabel } from "../../presentation/projectPresentation";
+import { ProjectStatusBadge } from "../../presentation/projectPresentation";
 import type { ProjectCommandMetrics } from "./types";
 
 export function ProjectHeader({
@@ -32,10 +32,9 @@ export function ProjectHeader({
       {/* Project identity and utilities stay below the persistent workspace tabs. */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
-          {/* Status badges */}
+          {/* Status badge */}
           <div className="flex flex-wrap items-center gap-2">
-            <ProjectLifecycleLabel status={project.status} />
-            {metrics && <ProjectScheduleLabel health={metrics.scheduleHealth} />}
+            <ProjectStatusBadge status={project.status} health={metrics?.scheduleHealth} />
             {organization && (
               <span className="text-xs text-neutral-600 font-medium">
                 {organization.name}

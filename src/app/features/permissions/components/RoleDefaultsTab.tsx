@@ -5,6 +5,7 @@ import { ACTION_PERMISSION_KEYS, MANAGED_ROLES, PAGE_PERMISSION_KEYS, PERMISSION
 import { rolePermissionAllowed } from "../selectors";
 import { fetchRolePermissions, setRolePermission } from "../services/permissionService";
 import type { RolePermissionRow } from "../types";
+import { Tooltip } from "@vibe/core";
 
 function PermissionSection({
   title,
@@ -52,17 +53,19 @@ function PermissionSection({
                   const locked = role.key === "super_admin";
                   return (
                     <td key={role.key} className="px-4 py-3 text-center">
-                      <button
-                        type="button"
-                        disabled={locked}
-                        onClick={() => onToggle(role.key, permission)}
-                        className={`relative h-6 w-11 rounded-full transition-all duration-200 ${enabled ? "bg-neutral-900" : "bg-neutral-200"} ${locked ? "cursor-not-allowed opacity-55" : "hover:scale-105"}`}
-                        title={locked ? "Super Admin access is immutable" : enabled ? "Allowed — click to deny" : "Denied — click to allow"}
-                      >
-                        <span className={`absolute top-1 flex h-4 w-4 items-center justify-center rounded-full bg-white shadow-sm transition-transform duration-200 ${enabled ? "translate-x-6" : "translate-x-1"}`}>
-                          {enabled ? <Check size={9} className="text-neutral-900" /> : null}
-                        </span>
-                      </button>
+                      <Tooltip content={locked ? "Super Admin access is always available" : enabled ? "Allowed. Select to deny this capability." : "Denied. Select to allow this capability."}>
+                        <span className="inline-flex"><button
+                          type="button"
+                          aria-label={`${role.label}: ${enabled ? "Allowed" : "Denied"}`}
+                          disabled={locked}
+                          onClick={() => onToggle(role.key, permission)}
+                          className={`relative h-6 w-11 rounded-full border transition-all duration-200 ${enabled ? "border-teal-700 bg-teal-700" : "border-neutral-300 bg-neutral-200"} ${locked ? "cursor-not-allowed opacity-55" : "hover:border-teal-600 hover:shadow-sm"}`}
+                        >
+                          <span className={`absolute top-[3px] flex h-4 w-4 items-center justify-center rounded-full bg-white shadow-sm transition-transform duration-200 ${enabled ? "translate-x-[22px]" : "translate-x-[3px]"}`}>
+                            {enabled ? <Check size={9} className="text-teal-800" /> : null}
+                          </span>
+                        </button></span>
+                      </Tooltip>
                     </td>
                   );
                 })}

@@ -25,18 +25,26 @@ import { ProjectDeleteDialog } from "./ProjectDeleteDialog";
 import { ProjectDetail } from "./ProjectDetail";
 import type { ProjectCommandTab } from "./project-command/types";
 import type { ProjectTool } from "./project-command/ProjectToolsInspector";
-import { resolveProjectWorkspaceAccess, type ProjectScope } from "./model";
+import {
+  ALL_PROJECT_DEPARTMENTS,
+  UNASSIGNED_PROJECT_DEPARTMENT,
+  matchesProjectDepartment,
+  resolveProjectWorkspaceAccess,
+  type ProjectScope,
+} from "./model";
 import { buildProjectPortfolioSummary } from "../selectors/projectCommandSelectors";
 import {
   CollaborationDraftList,
   CollaborationDraftWorkspace,
   isActiveCollaborationDraft,
+  subscribeToCollaborationDraftChanges,
   useCollaborationDrafts,
 } from "../../interdepartment-collaboration";
 import {
   archiveProposalProjects,
   markProposalProjectsCompleted,
 } from "../services/proposalDeliveryService";
+import { notifyProjectListeners } from "../services/projectService";
 import "./projectsVibe.css";
 
 export interface WorkspaceEditorTab {
@@ -102,6 +110,7 @@ export function ProjectsWorkspace({
   const [archiveTarget, setArchiveTarget] = React.useState<{ id: string; title: string; isArchived: boolean } | null>(null);
   const [completeTarget, setCompleteTarget] = React.useState<{ id: string; title: string } | null>(null);
   const [completionTaskId, setCompletionTaskId] = React.useState<string | null>(null);
+  const [departmentFilter, setDepartmentFilter] = React.useState(ALL_PROJECT_DEPARTMENTS);
 
   const [workspaceView, setWorkspaceView] = React.useState<
     "portfolio" | "drafts" | "signoff"
@@ -116,11 +125,51 @@ export function ProjectsWorkspace({
   );
   const currentOrgId = userProfile?.org_id || userProfile?.departmentId || "";
 
+  React.useEffect(() => {
+    return subscribeToCollaborationDraftChanges(() => {
+      void notifyProjectListeners();
+    });
+  }, []);
+
+  const departmentFilterOptions = React.useMemo(() => {
+    if (!scope.isSuperAdmin) return [];
+    const organizationIds = new Set<string>();
+    dbProjects.forEach((project) => {
+      if (project.orgId) organizationIds.add(project.orgId);
+    });
+    activeCollaborationDrafts.forEach((draft) => {
+      if (draft.ownerOrgId) organizationIds.add(draft.ownerOrgId);
+    });
+    const options = orgs
+      .filter((organization) => organizationIds.has(organization.id))
+      .map((organization) => ({ value: organization.id, label: organization.name }))
+      .sort((left, right) => left.label.localeCompare(right.label));
+    organizationIds.forEach((organizationId) => {
+      if (!options.some((option) => option.value === organizationId)) {
+        options.push({ value: organizationId, label: organizationId });
+      }
+    });
+    if (dbProjects.some((project) => !project.orgId)) {
+      options.push({ value: UNASSIGNED_PROJECT_DEPARTMENT, label: "No department assigned" });
+    }
+    return [{ value: ALL_PROJECT_DEPARTMENTS, label: "All departments" }, ...options];
+  }, [activeCollaborationDrafts, dbProjects, orgs, scope.isSuperAdmin]);
+
   const inScope = React.useMemo(() => {
-    if (scope.isSuperAdmin || !scope.enforceOrgScope) return dbProjects;
+    if (scope.isSuperAdmin) {
+      return dbProjects.filter((project) => matchesProjectDepartment(project.orgId, departmentFilter));
+    }
+    if (!scope.enforceOrgScope) return dbProjects;
     if (scope.scopedOrgIds.length === 0) return [];
     return dbProjects;
-  }, [dbProjects, scope]);
+  }, [dbProjects, departmentFilter, scope]);
+
+  const visibleCollaborationDrafts = React.useMemo(
+    () => scope.isSuperAdmin
+      ? activeCollaborationDrafts.filter((draft) => matchesProjectDepartment(draft.ownerOrgId, departmentFilter))
+      : activeCollaborationDrafts,
+    [activeCollaborationDrafts, departmentFilter, scope.isSuperAdmin],
+  );
 
   const active = React.useMemo(
     () => inScope.filter((p) => p.status !== "archived"),
@@ -223,13 +272,22 @@ export function ProjectsWorkspace({
       !["for_review", "completed", "cancelled"].includes(task.status),
   );
   const planningCounts = React.useMemo(() => {
-    const owned = activeCollaborationDrafts.filter((draft) => readOnly || draft.ownerOrgId === currentOrgId);
+    const owned = visibleCollaborationDrafts.filter((draft) => readOnly || draft.ownerOrgId === currentOrgId);
     return {
       workplans: owned.length,
       signoff: owned.filter((draft) => draft.status === "in_review").length,
       actionable: readOnly ? 0 : owned.filter((draft) => draft.status === "ready_to_commit" || draft.status === "changes_requested").length,
     };
-  }, [activeCollaborationDrafts, currentOrgId, readOnly]);
+  }, [currentOrgId, readOnly, visibleCollaborationDrafts]);
+
+  const changeDepartmentFilter = React.useCallback((nextDepartmentId: string) => {
+    setDepartmentFilter(nextDepartmentId);
+    setTabs((current) => current.filter((tab) => tab.pinned));
+    setActiveTabId("portfolio");
+    setWorkspaceView("portfolio");
+    setProjectWorkspaceTab("overview");
+    hasAutoOpenedRef.current = false;
+  }, []);
 
   const activeTab = tabs.find((t) => t.id === activeTabId) || tabs[0];
   const activeProject = activeTab.type === "project" && activeTab.projectId
@@ -259,7 +317,7 @@ export function ProjectsWorkspace({
       return;
     }
     const planningTitle = workspaceView === "drafts"
-      ? "Work plans"
+      ? "Drafts"
       : workspaceView === "signoff"
         ? "Waiting for sign-off"
         : "Plans & Projects";
@@ -350,6 +408,11 @@ export function ProjectsWorkspace({
           setActiveTabId("portfolio");
           setWorkspaceView(view);
         }}
+        departmentFilter={scope.isSuperAdmin ? {
+          value: departmentFilter,
+          options: departmentFilterOptions,
+          onChange: changeDepartmentFilter,
+        } : undefined}
       />
       <div className="eflow-ide-workspace__content">
       {/* The workspace is intentionally continuous: global rail → project context → page. */}
@@ -389,6 +452,7 @@ export function ProjectsWorkspace({
               onBack={() => closeTab(activeTab.id)}
               onCommitted={() => {
                 void collaboration.refresh();
+                void notifyProjectListeners();
                 closeTab(activeTab.id);
                 setWorkspaceView("portfolio");
               }}
@@ -407,8 +471,8 @@ export function ProjectsWorkspace({
             {workspaceView !== "portfolio" && (
               <div className="eflow-project-planning-heading">
                 <span className="eflow-project-view-heading__eyebrow"><Icons.FileClock size={14} /> Planning workspace</span>
-                <h2>{workspaceView === "drafts" ? "Work plans" : "Waiting for sign-off"}</h2>
-                <p>{workspaceView === "drafts" ? "Plans in preparation and collaboration workspaces you own." : "Owned work plans currently waiting on partner decisions."}</p>
+                <h2>{workspaceView === "drafts" ? "Drafts" : "Waiting for sign-off"}</h2>
+                <p>{workspaceView === "drafts" ? "Draft plans in preparation and collaboration workspaces you own." : "Owned work plans currently waiting on partner decisions."}</p>
               </div>
             )}
 
@@ -429,7 +493,7 @@ export function ProjectsWorkspace({
                 </div>
               ) : (
                 <CollaborationDraftList
-                  drafts={activeCollaborationDrafts}
+                  drafts={visibleCollaborationDrafts}
                   organizations={orgs}
                   currentOrgId={currentOrgId}
                   mode={workspaceView === "drafts" ? "owned" : "waiting"}
@@ -471,6 +535,7 @@ export function ProjectsWorkspace({
           onClose={() => {
             setCreationMode(null);
             void collaboration.refresh();
+            void notifyProjectListeners();
           }}
         />
       )}

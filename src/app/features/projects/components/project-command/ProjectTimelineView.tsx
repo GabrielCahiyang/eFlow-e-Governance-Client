@@ -9,6 +9,8 @@ import { CalendarDays, CheckCircle2, Clock, Flag } from "lucide-react";
 import type { UserProfile } from "../../../../types";
 import { ProjectPlanInspector } from "./ProjectPlanInspector";
 import type { ProjectCommandData } from "./types";
+import { isOverdue } from "../../../tasks";
+import { parseCalendarDate } from "../../../../shared/scheduling/relativeSchedule";
 
 interface GanttWorkItem {
   id: string;
@@ -38,6 +40,10 @@ function formatDateYMD(d: Date): string {
 
 function parseDate(value?: string | null | number): Date | null {
   if (!value) return null;
+  if (typeof value === "string") {
+    const cal = parseCalendarDate(value);
+    if (cal !== null) return new Date(cal);
+  }
   const d = typeof value === "number" ? new Date(value) : new Date(value);
   return Number.isNaN(d.getTime()) ? null : d;
 }
@@ -143,11 +149,11 @@ export function ProjectTimelineView({
       }
 
       const isCompleted = task.status === "completed";
-      const isOverdue = !isCompleted && taskDue < today;
+      const isTaskOverdue = !isCompleted && isOverdue(task);
 
       let statusClass = "gantt-bar-task";
       if (isCompleted) statusClass = "gantt-bar-task-completed";
-      else if (isOverdue) statusClass = "gantt-bar-task-overdue";
+      else if (isTaskOverdue) statusClass = "gantt-bar-task-overdue";
       else if (task.status === "in_progress") statusClass = "gantt-bar-task-in-progress";
 
       const progress = isCompleted
@@ -168,7 +174,7 @@ export function ProjectTimelineView({
         _ownerName: owner,
         _status: task.status,
         _dueDateStr: task.deadline || task.dueDate || undefined,
-        _isOverdue: Boolean(isOverdue),
+        _isOverdue: Boolean(isTaskOverdue),
       });
     });
 

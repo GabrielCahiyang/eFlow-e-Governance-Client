@@ -27,7 +27,9 @@ describe("role navigation compatibility", () => {
   });
 
   it("preserves specialist and administration destinations", () => {
-    expect(getRoleNavigation("superadmin").defaultSection).toBe("dashboard");
+    const superAdmin = getRoleNavigation("superadmin");
+    expect(superAdmin.defaultSection).toBe("dashboard");
+    expect(superAdmin.navItems.map((item) => item.id)).not.toContain("tasks");
     expect(getRoleNavigation("executive").navItems.map((item) => item.id)).toEqual([
       "portfolio", "transform", "financial", "audit",
     ]);

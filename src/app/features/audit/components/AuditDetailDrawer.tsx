@@ -55,7 +55,7 @@ export function AuditDetailDrawer({ event, entityLabel, onClose }: { event: Audi
             </section>
           )}
 
-          <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
+          {changes.length ? <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
             <div className="flex items-center justify-between border-b border-neutral-100 px-4 py-3">
               <div>
                 <h3 className="text-[12.5px] font-semibold text-neutral-900">Recorded changes</h3>
@@ -63,12 +63,12 @@ export function AuditDetailDrawer({ event, entityLabel, onClose }: { event: Audi
               </div>
               <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-[9.5px] font-medium text-neutral-600">{changes.length} fields</span>
             </div>
-            {changes.length ? <div className="divide-y divide-neutral-100">{changes.map((change) => <ChangeRow key={change.key} change={change} />)}</div> : <p className="px-4 py-8 text-center text-[11px] text-neutral-400">No before-and-after values were recorded for this event.</p>}
-          </section>
+            <div className="divide-y divide-neutral-100">{changes.map((change) => <ChangeRow key={change.key} change={change} />)}</div>
+          </section> : <div className="rounded-xl border border-neutral-200 bg-white px-4 py-3 text-[11px] text-neutral-500"><span className="font-semibold text-neutral-800">No field-level changes.</span> This event records an action only; supporting details are shown below.</div>}
 
           {event.metadata && Object.keys(event.metadata).length > 0 && (
             <details className="group rounded-2xl border border-neutral-200 bg-white p-4">
-              <summary className="cursor-pointer list-none text-[11px] font-semibold text-neutral-700">Technical metadata <span className="ml-1 font-normal text-neutral-400">({Object.keys(event.metadata).length} entries)</span></summary>
+              <summary className="cursor-pointer list-none text-[11px] font-semibold text-neutral-700">Event details <span className="ml-1 font-normal text-neutral-400">({Object.keys(event.metadata).length})</span></summary>
               <div className="mt-3 grid gap-2">{Object.entries(event.metadata).map(([key, value]) => <TechnicalValue key={key} label={humanizeAuditField(key)} value={value} />)}</div>
             </details>
           )}

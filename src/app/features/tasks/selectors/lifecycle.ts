@@ -32,5 +32,28 @@ export function parseDueDate(task: Task): number | null {
 export function isOverdue(task: Task, now: number = Date.now()): boolean {
   if (!isActive(task)) return false;
   const due = parseDueDate(task);
-  return due !== null && due < now;
+  if (due === null) return false;
+  const today = new Date(now);
+  const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+  return due < todayStart;
+}
+
+export function isDueToday(task: Task, now: number = Date.now()): boolean {
+  if (!isActive(task)) return false;
+  const due = parseDueDate(task);
+  if (due === null) return false;
+  const today = new Date(now);
+  const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+  const todayEnd = todayStart + 86_400_000 - 1;
+  return due >= todayStart && due <= todayEnd;
+}
+
+export function isDueSoon(task: Task, now: number = Date.now(), daysThreshold = 7): boolean {
+  if (!isActive(task)) return false;
+  const due = parseDueDate(task);
+  if (due === null) return false;
+  const today = new Date(now);
+  const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+  const thresholdEnd = todayStart + (daysThreshold + 1) * 86_400_000 - 1;
+  return due >= todayStart && due <= thresholdEnd;
 }

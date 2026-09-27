@@ -8,6 +8,8 @@ import { resolvePermissions, rolePermissionAllowed } from "../selectors";
 import { fetchRolePermissions, fetchUserOverrides, setUserOverride } from "../services/permissionService";
 import type { RolePermissionRow, UserOverrideRow } from "../types";
 import { OrganizationScopePanel } from "./OrganizationScopePanel";
+import { Tooltip } from "@vibe/core";
+import { WSelect } from "../../../components/workflow/primitives";
 
 function AccessRows({
   title,
@@ -42,9 +44,11 @@ function AccessRows({
                 <div className="mt-0.5 text-[9.5px] text-neutral-400">Role default: {inherited ? "Allowed" : "Denied"}{override ? ` · Individual ${override.allowed ? "allow" : "deny"}` : ""}</div>
               </div>
               <span className={`rounded-full px-2 py-1 text-[9px] font-semibold uppercase tracking-wide ${allowed ? "bg-emerald-50 text-emerald-700" : "bg-neutral-100 text-neutral-500"}`}>{allowed ? "Allowed" : "Denied"}</span>
-              <button type="button" onClick={() => onCycle(permission)} className={`inline-flex min-w-[88px] items-center justify-center gap-1 rounded-lg border px-2.5 py-1.5 text-[9.5px] font-medium transition-colors ${override ? "border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100" : "border-neutral-200 text-neutral-600 hover:bg-neutral-100"}`} title="Cycle default → allow → deny → default">
-                {override ? <RotateCcw size={11} /> : null}{!override ? "Set exception" : override.allowed ? "Allow" : "Deny"}
-              </button>
+              <Tooltip content="Cycle through role default, individual allow, and individual deny">
+                <button type="button" onClick={() => onCycle(permission)} className={`inline-flex min-w-[88px] items-center justify-center gap-1 rounded-lg border px-2.5 py-1.5 text-[9.5px] font-medium transition-colors ${override ? "border-teal-200 bg-teal-50 text-teal-800 hover:bg-teal-100" : "border-neutral-200 text-neutral-600 hover:border-teal-200 hover:bg-teal-50"}`}>
+                  {override ? <RotateCcw size={11} /> : null}{!override ? "Set exception" : override.allowed ? "Allow" : "Deny"}
+                </button>
+              </Tooltip>
             </div>
           );
         })}
@@ -66,13 +70,15 @@ export function UserAccessTab({
   const { toast } = useToast();
   const [internalUserId, setInternalUserId] = useState(selectedUserId || "");
   const [search, setSearch] = useState("");
+  const [orgFilter, setOrgFilter] = useState("all");
   const [roleRows, setRoleRows] = useState<RolePermissionRow[]>([]);
   const [overrides, setOverrides] = useState<UserOverrideRow[]>([]);
   const activeUserId = selectedUserId ?? internalUserId;
   const selected = profiles.find((profile) => profile.id === activeUserId);
   const orgMap = useMemo(() => Object.fromEntries(orgs.map((org) => [org.id, org.name])), [orgs]);
   const manageable = profiles.filter((profile) => profile.role !== "super_admin" && profile.is_active);
-  const filteredUsers = manageable.filter((profile) => `${profile.full_name} ${profile.email} ${profile.role} ${orgMap[profile.org_id || ""] || ""}`.toLowerCase().includes(search.toLowerCase()));
+  const filteredUsers = manageable.filter((profile) => (orgFilter === "all" || profile.org_id === orgFilter) && `${profile.full_name} ${profile.email} ${profile.role} ${orgMap[profile.org_id || ""] || ""}`.toLowerCase().includes(search.toLowerCase()));
+  const orgOptions = useMemo(() => [{ value: "all", label: "All departments" }, ...orgs.filter((org) => org.is_active).map((org) => ({ value: org.id, label: org.name })).sort((a, b) => a.label.localeCompare(b.label))], [orgs]);
 
   const chooseUser = (userId: string) => {
     setInternalUserId(userId);
@@ -103,8 +109,9 @@ export function UserAccessTab({
   return (
     <div className="grid min-h-[650px] gap-4 xl:grid-cols-[280px_minmax(0,1fr)]">
       <aside className="overflow-hidden rounded-2xl border border-neutral-200 bg-white">
-        <div className="border-b border-neutral-100 p-3">
+        <div className="space-y-2 border-b border-neutral-100 p-3">
           <div className="relative"><Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search users…" className="h-9 w-full rounded-xl border border-neutral-200 bg-neutral-50 pl-9 pr-3 text-[11px] outline-none focus:border-neutral-400" /></div>
+          <WSelect ariaLabel="Filter users by department" className="!w-full" value={orgFilter} onChange={setOrgFilter} options={orgOptions} />
         </div>
         <div className="max-h-[590px] overflow-y-auto p-2">
           {filteredUsers.map((profile) => (
@@ -121,12 +128,12 @@ export function UserAccessTab({
         <div className="flex min-h-[500px] items-center justify-center rounded-2xl border border-dashed border-neutral-200 bg-white"><div className="text-center"><UserRoundCog size={34} className="mx-auto text-neutral-300" /><p className="mt-3 text-[12px] font-medium text-neutral-600">Choose a user to inspect final access</p><p className="mt-1 text-[10.5px] text-neutral-400">Role defaults, individual exceptions, and organization scope are shown together.</p></div></div>
       ) : (
         <div className="space-y-4">
-          <header className="rounded-2xl border border-neutral-200 bg-gradient-to-br from-neutral-950 to-neutral-800 p-5 text-white shadow-sm">
+          <header className="rounded-2xl border border-teal-100 bg-gradient-to-br from-teal-50 to-white p-5 text-neutral-900 shadow-sm">
             <div className="flex flex-wrap items-start justify-between gap-4">
-              <div className="flex items-center gap-3"><div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-[13px] font-semibold">{selected.full_name.split(" ").map((part) => part[0]).join("").slice(0, 2).toUpperCase()}</div><div><h2 className="text-[16px] font-semibold">{selected.full_name}</h2><p className="mt-0.5 text-[10.5px] text-neutral-300">{selected.role.replace(/_/g, " ")} · {orgMap[selected.org_id || ""] || "No organization"}</p></div></div>
-              <div className="flex gap-2"><div className="rounded-xl bg-white/10 px-3 py-2 text-center"><div className="text-[15px] font-semibold">{pageCount}</div><div className="text-[8.5px] uppercase tracking-widest text-neutral-300">Pages</div></div><div className="rounded-xl bg-white/10 px-3 py-2 text-center"><div className="text-[15px] font-semibold">{actionCount}</div><div className="text-[8.5px] uppercase tracking-widest text-neutral-300">Actions</div></div><div className="rounded-xl bg-white/10 px-3 py-2 text-center"><div className="text-[15px] font-semibold">{overrides.length}</div><div className="text-[8.5px] uppercase tracking-widest text-neutral-300">Exceptions</div></div></div>
+              <div className="flex items-center gap-3"><div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-teal-100 text-[13px] font-semibold text-teal-800">{selected.full_name.split(" ").map((part) => part[0]).join("").slice(0, 2).toUpperCase()}</div><div><h2 className="text-[16px] font-semibold">{selected.full_name}</h2><p className="mt-0.5 text-[10.5px] text-neutral-500">{selected.role.replace(/_/g, " ")} · {orgMap[selected.org_id || ""] || "No organization"}</p></div></div>
+              <div className="flex gap-2"><div className="rounded-xl border border-teal-100 bg-white px-3 py-2 text-center"><div className="text-[15px] font-semibold">{pageCount}</div><div className="text-[8.5px] uppercase tracking-widest text-neutral-400">Pages</div></div><div className="rounded-xl border border-teal-100 bg-white px-3 py-2 text-center"><div className="text-[15px] font-semibold">{actionCount}</div><div className="text-[8.5px] uppercase tracking-widest text-neutral-400">Actions</div></div><div className="rounded-xl border border-teal-100 bg-white px-3 py-2 text-center"><div className="text-[15px] font-semibold">{overrides.length}</div><div className="text-[8.5px] uppercase tracking-widest text-neutral-400">Exceptions</div></div></div>
             </div>
-            <div className="mt-4 flex items-center gap-2 border-t border-white/10 pt-3 text-[9.5px] text-neutral-300"><Shield size={12} /> Effective access = individual exception → role default → safe fallback. Data remains protected by organization scope.</div>
+            <div className="mt-4 flex items-center gap-2 border-t border-teal-100 pt-3 text-[9.5px] text-neutral-500"><Shield size={12} /> Effective access = individual exception → role default → safe fallback. Data remains protected by organization scope.</div>
           </header>
           <AccessRows title="Page access" permissions={PAGE_PERMISSION_KEYS} role={selected.role} roleRows={roleRows} overrides={overrides} effective={effective} onCycle={cycle} />
           <AccessRows title="Actions" permissions={ACTION_PERMISSION_KEYS} role={selected.role} roleRows={roleRows} overrides={overrides} effective={effective} onCycle={cycle} />

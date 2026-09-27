@@ -133,6 +133,7 @@ export function OrgModal({
       isOpen={isOpen}
       onClose={onClose}
       title={isEdit ? `Edit Organization — ${org?.name}` : 'Add Organization'}
+      width="max-w-2xl"
       footer={
         <>
           <ModalButton onClick={onClose}>Cancel</ModalButton>
@@ -151,7 +152,7 @@ export function OrgModal({
             hasError={!!errors.name}
           />
         </FormField>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <FormField label="Org Type">
             <SelectInput
               value={form.org_type}

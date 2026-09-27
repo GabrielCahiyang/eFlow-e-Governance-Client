@@ -4,6 +4,7 @@ import { Add, Announcement as AnnouncementIcon } from "@vibe/icons";
 import * as Icons from "lucide-react";
 import {
   deleteAnnouncement,
+  fetchAllAnnouncements,
   subscribeToAnnouncements,
   withdrawAnnouncement,
   type Announcement,
@@ -21,6 +22,10 @@ export function AdminAnnouncements() {
   const [statusFilter, setStatusFilter] = useState<"all" | "published" | "draft" | "withdrawn">("all");
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
+
+  const refresh = () => {
+    fetchAllAnnouncements().then(setAnnouncements);
+  };
 
   useEffect(() => {
     const unsub = subscribeToAnnouncements((a) => {
@@ -72,18 +77,20 @@ export function AdminAnnouncements() {
       {/* ─── Filter & Search Bar ─── */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white border border-neutral-200/80 rounded-xl p-2.5 shadow-sm">
         {/* Status Filter Tabs */}
-        <div className="w-full min-w-0 overflow-x-auto sm:w-auto"><TabsContext activeTabId={activeStatusTab} id="admin-announcements-tabs"><TabList id="admin-announcements-tab-list">{statusTabs.map((status) => <Tab active={statusFilter === status} id={status} key={status} onClick={() => setStatusFilter(status)}><span className="capitalize">{status}</span></Tab>)}</TabList></TabsContext></div>
+        <div className="shrink-0 overflow-x-auto"><TabsContext activeTabId={activeStatusTab} id="admin-announcements-tabs"><TabList id="admin-announcements-tab-list">{statusTabs.map((status) => <Tab active={statusFilter === status} id={status} key={status} onClick={() => setStatusFilter(status)}><span className="capitalize">{status}</span></Tab>)}</TabList></TabsContext></div>
 
         {/* Search Bar */}
-        <VibeSearch className="min-w-0 w-full sm:w-72" clearIconLabel="Clear announcement filter" inputAriaLabel="Filter announcements" onChange={setSearchQuery} onClear={() => setSearchQuery("")} placeholder="Filter announcements…" showClearIcon size="small" value={searchQuery} />
+        <div className="w-full sm:w-64 shrink-0">
+          <VibeSearch className="w-full" clearIconLabel="Clear announcement filter" inputAriaLabel="Filter announcements" onChange={setSearchQuery} onClear={() => setSearchQuery("")} placeholder="Filter announcements…" showClearIcon size="small" value={searchQuery} />
+        </div>
       </div>
 
       {/* ─── Announcement List ─── */}
       {filteredAnnouncements.length === 0 ? (
         <div className="rounded-xl border border-neutral-200 bg-white">
-          <SectionEmpty action={<Button kind="primary" leftIcon={Add} onClick={() => setEditorFor("new")} size="small">Create announcement</Button>} icon={<AnnouncementIcon size={30} />} title="No announcements found" description={searchQuery
+          <SectionEmpty icon={<AnnouncementIcon size={30} />} title="No announcements found" description={searchQuery
               ? `No announcements match "${searchQuery}".`
-              : "Draft your first official announcement to send broadcasts."} />
+              : "Use New announcement above to draft the first official broadcast."} />
         </div>
       ) : (
         <div className="grid gap-3">
@@ -151,6 +158,7 @@ export function AdminAnnouncements() {
                       <button
                         onClick={async () => {
                           await withdrawAnnouncement(a.id);
+                          refresh();
                           toast("Announcement withdrawn.", "success");
                         }}
                         className="p-2 rounded-lg text-neutral-600 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
@@ -164,6 +172,7 @@ export function AdminAnnouncements() {
                       onClick={async () => {
                         if (window.confirm("Delete this announcement permanently?")) {
                           await deleteAnnouncement(a.id);
+                          refresh();
                           toast("Deleted.", "success");
                         }
                       }}
@@ -185,6 +194,7 @@ export function AdminAnnouncements() {
         <AnnouncementEditor
           existing={editorFor === "new" ? null : editorFor}
           onClose={() => setEditorFor(null)}
+          onSaved={refresh}
         />
       )}
     </div>

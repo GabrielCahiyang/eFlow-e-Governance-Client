@@ -91,11 +91,11 @@ export function AdminAuditLog() {
       </div>
 
       <Card className="mb-4 shadow-sm" bodyClassName="p-3.5">
-        <div className="flex flex-wrap items-center gap-2">
-          <SearchInput value={query} onChange={setQuery} placeholder="Search person, event, record, or note…" className="w-full sm:w-[360px]" />
-          <WSelect value={entityType} onChange={setEntityType} options={[{ value: "all", label: "All record types" }, ...entityTypes.map((type) => ({ value: type, label: humanizeEntityType(type) }))]} />
-          <WSelect value={action} onChange={setAction} options={[{ value: "all", label: "All event types" }, ...actions.map((eventAction) => ({ value: eventAction, label: humanizeAuditAction(eventAction) }))]} />
-          <span className="ml-auto text-[10.5px] text-neutral-500">{filtered.length} matching events</span>
+        <div className="grid grid-cols-1 items-center gap-2 sm:grid-cols-2 lg:grid-cols-[minmax(280px,1fr)_13rem_13rem_auto]">
+          <SearchInput value={query} onChange={setQuery} placeholder="Search person, event, record, or note…" className="w-full" />
+          <WSelect ariaLabel="Filter audit events by record type" className="!w-full" value={entityType} onChange={setEntityType} options={[{ value: "all", label: "All record types" }, ...entityTypes.map((type) => ({ value: type, label: humanizeEntityType(type) }))]} />
+          <WSelect ariaLabel="Filter audit events by event type" className="!w-full" value={action} onChange={setAction} options={[{ value: "all", label: "All event types" }, ...actions.map((eventAction) => ({ value: eventAction, label: humanizeAuditAction(eventAction) }))]} />
+          <span className="justify-self-start text-[10.5px] text-neutral-500 lg:justify-self-end">{filtered.length} matching events</span>
         </div>
       </Card>
 

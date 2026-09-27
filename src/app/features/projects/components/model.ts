@@ -7,6 +7,18 @@ export interface ProjectScope {
   enforceOrgScope?: boolean;
 }
 
+export const ALL_PROJECT_DEPARTMENTS = "all";
+export const UNASSIGNED_PROJECT_DEPARTMENT = "unassigned";
+
+export function matchesProjectDepartment(
+  organizationId: string | null | undefined,
+  selectedDepartmentId: string,
+): boolean {
+  if (selectedDepartmentId === ALL_PROJECT_DEPARTMENTS) return true;
+  if (selectedDepartmentId === UNASSIGNED_PROJECT_DEPARTMENT) return !organizationId;
+  return organizationId === selectedDepartmentId;
+}
+
 export interface ProjectWorkspaceAccess {
   canCreate: boolean;
   canManage: boolean;

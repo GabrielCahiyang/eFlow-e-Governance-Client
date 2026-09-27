@@ -38,7 +38,7 @@ function quotedLabels(value: string): string[] {
 }
 
 function destinationForTask(role: string) {
-  if (role === "superadmin") return { section: "tasks", page: "All Tasks" };
+  if (role === "superadmin") return null;
   if (role === "depthead") return { section: "tasks", page: "Task Board" };
   if (role === "employee" || role === "teamleader") {
     return { section: "tasks", page: "My Tasks" };

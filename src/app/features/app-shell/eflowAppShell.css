@@ -11,12 +11,8 @@
 
 .eflow-topbar {
   align-items: center;
-  background: #152020;
-  border-bottom: 1px solid #2f3e3d;
-  --primary-background-color: #152020;
-  --primary-text-color: #eef5f4;
-  --secondary-text-color: #afc2c0;
-  --layout-border-color: #2f3e3d;
+  background: var(--primary-background-color);
+  border-bottom: 1px solid var(--layout-border-color);
   display: flex;
   flex: 0 0 auto;
   gap: var(--space-16);

@@ -1,5 +1,5 @@
 export * from './types';
-export { fetchAllProjects, subscribeToProjects } from './projectQueryService';
+export { fetchAllProjects, subscribeToProjects, notifyProjectListeners } from './projectQueryService';
 export { archiveProject, createProject, deleteProject, restoreProject, updateProject } from './projectMutationService';
 export { completeProject, fetchProjectCompletionReadiness } from './projectLifecycleService';
 export { addProjectMember, fetchProjectMembers, removeProjectMember, updateProjectMemberRole } from './projectMemberService';

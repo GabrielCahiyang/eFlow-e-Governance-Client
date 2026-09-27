@@ -20,9 +20,29 @@ export function buildTeamAttentionItems(tasks: Task[], facts: TeamWorkflowFacts,
     const lastActivity = latest?.createdAt || task.lastActivityAt || task.updatedAt;
     const base = { taskId: task.id, taskTitle: task.title, employeeIds };
     if (!task.assigneeId) items.push({ ...base, id: `unassigned:${task.id}`, kind: "unassigned", severity: "warning", title: "Task needs a lead", detail: `“${task.title}” has no assigned lead.` });
-    if (isOverdue(task, now) && due) items.push({ ...base, id: `overdue:${task.id}`, kind: "overdue", severity: "critical", title: "Task is overdue", detail: `“${task.title}” is ${Math.max(1, Math.floor((now - due) / DAY))} day(s) late.`, occurredAt: due });
-    else if (due && due >= now && due <= now + 7 * DAY) items.push({ ...base, id: `due:${task.id}`, kind: "due_soon", severity: due <= now + 2 * DAY ? "critical" : "warning", title: "Deadline approaching", detail: `“${task.title}” is due in ${Math.max(1, Math.ceil((due - now) / DAY))} day(s).`, occurredAt: due });
-    if (!due) items.push({ ...base, id: `vague:${task.id}`, kind: "vague_schedule", severity: "info", title: "Schedule cannot be measured", detail: `“${task.title}” uses a relative or missing deadline.` });
+    if (due) {
+      const today = new Date(now);
+      const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+      const days = Math.round((due - todayStart) / DAY);
+      if (isOverdue(task, now)) {
+        const lateDays = Math.max(1, Math.abs(days));
+        items.push({ ...base, id: `overdue:${task.id}`, kind: "overdue", severity: "critical", title: "Task is overdue", detail: `“${task.title}” is ${lateDays} day(s) late.`, occurredAt: due });
+      } else if (days >= 0 && days <= 7) {
+        items.push({
+          ...base,
+          id: `due:${task.id}`,
+          kind: "due_soon",
+          severity: days <= 2 ? "critical" : "warning",
+          title: days === 0 ? "Due today" : "Deadline approaching",
+          detail: days === 0
+            ? `“${task.title}” is due today.`
+            : `“${task.title}” is due in ${days} day(s).`,
+          occurredAt: due,
+        });
+      }
+    } else {
+      items.push({ ...base, id: `vague:${task.id}`, kind: "vague_schedule", severity: "info", title: "Schedule cannot be measured", detail: `“${task.title}” uses a relative or missing deadline.` });
+    }
     if (hasBlocker(latest)) items.push({ ...base, id: `blocked:${task.id}`, kind: "blocked", severity: "critical", title: "Blocker reported", detail: latest?.blocker || "A blocker needs attention.", occurredAt: latest?.createdAt });
     if (task.status === "changes_requested") items.push({ ...base, id: `changes:${task.id}`, kind: "changes_requested", severity: "warning", title: "Changes requested", detail: task.rejectionNote || task.feedback || `“${task.title}” requires revision.`, occurredAt: task.rejectedAt });
     if (task.status === "for_review") {

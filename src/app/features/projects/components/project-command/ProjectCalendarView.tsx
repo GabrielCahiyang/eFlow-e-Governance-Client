@@ -6,6 +6,8 @@ import interactionPlugin from "@fullcalendar/interaction";
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
 import type { UserProfile } from "../../../../types";
 import type { ProjectCommandData } from "./types";
+import { isOverdue } from "../../../tasks";
+import { parseCalendarDate } from "../../../../shared/scheduling/relativeSchedule";
 
 interface CalendarEventItem {
   id: string;
@@ -82,14 +84,13 @@ export function ProjectCalendarView({
       if (!taskDueStr) return;
 
       const isCompleted = task.status === "completed";
-      const dueObj = task.deadline || task.dueDate ? new Date(task.deadline || task.dueDate!) : null;
-      const isOverdue = !isCompleted && Boolean(dueObj && dueObj < today);
+      const isTaskOverdue = !isCompleted && isOverdue(task);
 
       const owner = task.assigneeId ? ownerNames.get(task.assigneeId) : undefined;
 
       let eventClass = "eflow-cal-event eflow-cal-event--task";
       if (isCompleted) eventClass += " eflow-cal-event--completed";
-      else if (isOverdue) eventClass += " eflow-cal-event--overdue";
+      else if (isTaskOverdue) eventClass += " eflow-cal-event--overdue";
       else if (task.status === "in_progress") eventClass += " eflow-cal-event--in-progress";
 
       list.push({
@@ -105,7 +106,7 @@ export function ProjectCalendarView({
           status: task.status,
           priority: task.priority,
           assigneeName: owner,
-          isOverdue: Boolean(isOverdue),
+          isOverdue: Boolean(isTaskOverdue),
         },
       });
     });
@@ -116,12 +117,12 @@ export function ProjectCalendarView({
       if (!dueStr) return;
 
       const isCompleted = milestone.status === "completed";
-      const dueObj = new Date(milestone.dueDate!);
-      const isOverdue = !isCompleted && dueObj < today;
+      const milestoneDue = milestone.dueDate ? (parseCalendarDate(milestone.dueDate) ?? new Date(milestone.dueDate).getTime()) : null;
+      const isMilestoneOverdue = !isCompleted && milestoneDue !== null && milestoneDue < today.getTime();
 
       let eventClass = "eflow-cal-event eflow-cal-event--milestone";
       if (isCompleted) eventClass += " eflow-cal-event--completed";
-      else if (isOverdue) eventClass += " eflow-cal-event--overdue";
+      else if (isMilestoneOverdue) eventClass += " eflow-cal-event--overdue";
       else if (milestone.status === "at_risk") eventClass += " eflow-cal-event--at-risk";
       else if (milestone.status === "in_progress") eventClass += " eflow-cal-event--in-progress";
 

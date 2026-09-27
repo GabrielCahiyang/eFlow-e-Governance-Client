@@ -6,6 +6,7 @@ import type { Organization, UserProfile, UserRole } from "../../../../types";
 import { ROLE_OPTIONS } from "./userManagementPrimitives";
 import { getLeadershipSlotConflict } from "../../services/leadershipConstraints";
 import { updateManagedUserWithLeadership } from "../../services/managedUserLeadershipService";
+import { Plus, X } from "lucide-react";
 
 export function EditUserModal({
   isOpen,
@@ -107,6 +108,7 @@ export function EditUserModal({
       isOpen={isOpen}
       onClose={onClose}
       title={`Edit User — ${editUser.full_name}`}
+      width="max-w-xl"
       footer={
         <>
           <ModalButton onClick={onClose}>Cancel</ModalButton>
@@ -154,7 +156,7 @@ export function EditUserModal({
                 onChange={(e) => setForm({ ...form, fullName: e.target.value })}
               />
             </FormField>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <FormField label="Role" error={leadershipConflict || undefined}>
                 <SelectInput
                   value={form.role}
@@ -206,7 +208,7 @@ export function EditUserModal({
                 disabled={!skillInput.trim()}
                 className="px-3 py-2 rounded-lg bg-neutral-900 text-white text-[12px] font-medium hover:bg-neutral-800 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed transition-colors"
               >
-                +
+                <Plus size={14} />
               </button>
             </div>
             {Object.keys(skills).length === 0 ? (
@@ -225,7 +227,7 @@ export function EditUserModal({
                       onClick={() => removeSkill(skill)}
                       className="text-neutral-400 hover:text-neutral-700 cursor-pointer transition-colors leading-none"
                     >
-                      ×
+                      <X size={11} />
                     </button>
                   </span>
                 ))}

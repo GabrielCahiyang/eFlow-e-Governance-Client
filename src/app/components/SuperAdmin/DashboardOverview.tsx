@@ -1,11 +1,13 @@
 // ─── Super Admin Dashboard — Supabase Metrics ────────────────────
 import { useMemo } from "react";
-import { useDashboardMetrics } from "../../hooks/useSupabaseData";
-import { useOrgs } from "../../hooks/useSupabaseData";
-import { useProfiles } from "../../hooks/useSupabaseData";
+import {
+  useDashboardMetrics,
+  useOrgs,
+  useProfiles,
+  useTasksData,
+} from "../../hooks/useSupabaseData";
 import { MetricCard, MetricCardWide } from "../ui/MetricCard";
 import { DataHealthPanel } from "./DataHealthPanel";
-import type { UserProfile } from "../../types";
 
 // ─── Pure CSS Gauge ──────────────────────────────────────────────
 function CSSGauge({ value, label, color }: { value: number; label: string; color: string }) {
@@ -103,57 +105,122 @@ function RecentList({
   );
 }
 
-// ─── Workload Heatmap ────────────────────────────────────────────
-function WorkloadHeatmap({ users }: { users: UserProfile[] }) {
-  const activeUsers = users.filter((u) => u.is_active).slice(0, 20);
+// ─── Department Capacity & Load ──────────────────────────────────
+interface DeptCapacityItem {
+  id: string;
+  name: string;
+  staff: number;
+  activeTasks: number;
+  status: "available" | "balanced" | "overloaded" | "unstaffed";
+}
+
+function DepartmentCapacityCard({
+  data,
+  loading,
+}: {
+  data: DeptCapacityItem[];
+  loading?: boolean;
+}) {
   return (
-    <div className="bg-white rounded-xl border border-neutral-200 p-4">
-      <div className="text-[12px] font-semibold text-neutral-700 mb-3">
-        Employee Workload Heatmap
+    <div className="bg-white rounded-xl border border-neutral-200 p-4 flex flex-col h-full">
+      <div className="flex items-center justify-between mb-3">
+        <div>
+          <div className="text-[12px] font-semibold text-neutral-800">
+            Department Capacity & Load
+          </div>
+          <div className="text-[10.5px] text-neutral-400">
+            Workload distribution across offices
+          </div>
+        </div>
+        <span className="text-[11px] font-medium text-neutral-400">
+          {data.length} {data.length === 1 ? "office" : "offices"}
+        </span>
       </div>
-      {activeUsers.length === 0 ? (
-        <div className="text-[12px] text-neutral-400 py-4 text-center">No users found</div>
+
+      {loading ? (
+        <div className="text-[12px] text-neutral-400 py-8 text-center">Loading capacity data…</div>
+      ) : data.length === 0 ? (
+        <div className="text-[12px] text-neutral-400 py-8 text-center">No active departments found</div>
       ) : (
-        <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
-          {activeUsers.map((u) => {
-            const color =
-              u.workload >= 80
-                ? "bg-red-400"
-                : u.workload >= 60
-                  ? "bg-amber-400"
-                  : u.workload >= 30
-                    ? "bg-emerald-400"
-                    : "bg-emerald-200";
-            const initials = u.full_name
-              .split(" ")
-              .map((w) => w[0])
-              .join("")
-              .slice(0, 2)
-              .toUpperCase();
+        <div className="space-y-2 overflow-y-auto max-h-[300px] pr-1">
+          {data.map((dept) => {
+            const badgeConfig = {
+              overloaded: {
+                label: "Overloaded",
+                badgeClass: "bg-rose-50 text-rose-700 border-rose-200",
+                barColor: "bg-rose-500",
+                dotColor: "bg-rose-500",
+              },
+              balanced: {
+                label: "Balanced",
+                badgeClass: "bg-sky-50 text-sky-700 border-sky-200",
+                barColor: "bg-sky-500",
+                dotColor: "bg-sky-500",
+              },
+              available: {
+                label: "Available",
+                badgeClass: "bg-emerald-50 text-emerald-700 border-emerald-200",
+                barColor: "bg-emerald-500",
+                dotColor: "bg-emerald-500",
+              },
+              unstaffed: {
+                label: "Unstaffed",
+                badgeClass: "bg-amber-50 text-amber-700 border-amber-200",
+                barColor: "bg-amber-500",
+                dotColor: "bg-amber-500",
+              },
+            }[dept.status];
+
+            const loadPercent = dept.staff > 0
+              ? Math.min(100, Math.round((dept.activeTasks / (dept.staff * 4)) * 100))
+              : dept.activeTasks > 0 ? 100 : 0;
+
             return (
               <div
-                key={u.id}
-                className={`${color} rounded-lg p-2 flex flex-col items-center justify-center text-white aspect-square`}
-                title={`${u.full_name}: ${u.workload}%`}
+                key={dept.id}
+                className="rounded-lg border border-neutral-100 bg-neutral-50/60 p-2.5 transition-colors hover:bg-neutral-50"
               >
-                <span className="text-[11px] font-semibold">{initials}</span>
-                <span className="text-[9px] opacity-80">{u.workload}%</span>
+                <div className="flex items-center justify-between gap-2 mb-1.5">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5">
+                      <span className={`w-1.5 h-1.5 rounded-full ${badgeConfig.dotColor} shrink-0`} />
+                      <span className="text-[12px] font-semibold text-neutral-900 truncate">
+                        {dept.name}
+                      </span>
+                    </div>
+                    <div className="text-[10.5px] text-neutral-500 mt-0.5">
+                      {dept.activeTasks} active {dept.activeTasks === 1 ? "task" : "tasks"} · {dept.staff} {dept.staff === 1 ? "staff" : "staff"}
+                    </div>
+                  </div>
+                  <span
+                    className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold shrink-0 ${badgeConfig.badgeClass}`}
+                  >
+                    {badgeConfig.label}
+                  </span>
+                </div>
+
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-neutral-200/70">
+                  <div
+                    className={`h-full rounded-full transition-all duration-500 ${badgeConfig.barColor}`}
+                    style={{ width: `${Math.max(6, loadPercent)}%` }}
+                  />
+                </div>
               </div>
             );
           })}
         </div>
       )}
-      <div className="flex items-center gap-3 mt-3 justify-center">
-        {["0-29%", "30-59%", "60-79%", "80-100%"].map((label, i) => (
-          <div key={label} className="flex items-center gap-1">
-            <div
-              className={`w-3 h-3 rounded ${
-                i === 0 ? "bg-emerald-200" : i === 1 ? "bg-emerald-400" : i === 2 ? "bg-amber-400" : "bg-red-400"
-              }`}
-            />
-            <span className="text-[9px] text-neutral-500">{label}</span>
-          </div>
-        ))}
+
+      <div className="mt-auto pt-3 border-t border-neutral-100 flex items-center justify-center gap-4 text-[10px] text-neutral-500">
+        <span className="inline-flex items-center gap-1">
+          <span className="w-2 h-2 rounded-full bg-emerald-500" /> Available
+        </span>
+        <span className="inline-flex items-center gap-1">
+          <span className="w-2 h-2 rounded-full bg-sky-500" /> Balanced
+        </span>
+        <span className="inline-flex items-center gap-1">
+          <span className="w-2 h-2 rounded-full bg-rose-500" /> Overloaded
+        </span>
       </div>
     </div>
   );
@@ -161,9 +228,59 @@ function WorkloadHeatmap({ users }: { users: UserProfile[] }) {
 
 // ─── Main Dashboard Component ────────────────────────────────────
 export function DashboardOverview() {
-  const { metrics, loading } = useDashboardMetrics();
-  const { profiles } = useProfiles();
-  const { orgs } = useOrgs();
+  const { metrics, loading: metricsLoading } = useDashboardMetrics();
+  const { profiles, loading: profilesLoading } = useProfiles();
+  const { orgs, loading: orgsLoading } = useOrgs();
+  const { tasks, loading: tasksLoading } = useTasksData();
+
+  const loading = metricsLoading || profilesLoading || orgsLoading || tasksLoading;
+
+  // Compute department capacity & load metrics
+  const deptCapacity = useMemo(() => {
+    const activeOrgs = orgs.filter((o) => o.is_active);
+    const activeProfiles = profiles.filter((u) => u.is_active && u.role !== "super_admin");
+
+    const staffMap: Record<string, number> = {};
+    activeProfiles.forEach((u) => {
+      if (u.org_id) {
+        staffMap[u.org_id] = (staffMap[u.org_id] || 0) + 1;
+      }
+    });
+
+    const taskMap: Record<string, number> = {};
+    tasks.forEach((t) => {
+      if (t.status !== "completed" && t.orgId) {
+        taskMap[t.orgId] = (taskMap[t.orgId] || 0) + 1;
+      }
+    });
+
+    return activeOrgs
+      .map((org) => {
+        const staff = staffMap[org.id] || 0;
+        const activeTasks = taskMap[org.id] || 0;
+        const ratio = staff > 0 ? activeTasks / staff : activeTasks > 0 ? 999 : 0;
+
+        let status: "available" | "balanced" | "overloaded" | "unstaffed";
+        if (staff === 0 && activeTasks > 0) {
+          status = "unstaffed";
+        } else if (ratio >= 4) {
+          status = "overloaded";
+        } else if (ratio >= 1.5) {
+          status = "balanced";
+        } else {
+          status = "available";
+        }
+
+        return {
+          id: org.id,
+          name: org.name,
+          staff,
+          activeTasks,
+          status,
+        };
+      })
+      .sort((a, b) => b.activeTasks - a.activeTasks || b.staff - a.staff);
+  }, [orgs, profiles, tasks]);
 
   // Compute derived data
   const deptDistribution = useMemo(() => {
@@ -287,7 +404,7 @@ export function DashboardOverview() {
       {/* Bottom Row */}
       <div className="mb-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
         <RecentList title="Latest Users" items={latestUsers} emptyText="No users yet" />
-        <WorkloadHeatmap users={profiles} />
+        <DepartmentCapacityCard data={deptCapacity} loading={loading} />
       </div>
 
       {/* Operational data integrity (plan §5) */}

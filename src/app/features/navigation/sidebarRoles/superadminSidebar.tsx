@@ -61,12 +61,6 @@ export const superadminSidebar: Record<string, SidebarContent> = {
           { title: "Portfolio", items: [{ icon: <Carbon.FolderOpen size={16} className="text-neutral-900" />, label: "All Projects", isActive: true }] },
         ],
       },
-      tasks: {
-        title: "Task Oversight",
-        sections: [
-          { title: "Operations", items: [{ icon: <Carbon.Task size={16} className="text-neutral-900" />, label: "All Tasks", isActive: true }] },
-        ],
-      },
       reports: {
         title: "Reports",
         sections: [

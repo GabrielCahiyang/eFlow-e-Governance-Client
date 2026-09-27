@@ -10,7 +10,7 @@ import {
   useRoleNavigationState,
 } from "../navigation";
 import { GuidedTourProvider } from "../guided-tours";
-import { useProjectsData, useTasksData } from "../../hooks/useSupabaseData";
+import { useOrgs, useProjectsData, useTasksData } from "../../hooks/useSupabaseData";
 import { isTaskLead } from "../../services/taskSelectors";
 import { EflowTopBar } from "./components/EflowTopBar";
 import {
@@ -36,6 +36,7 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
   const { can, user, userProfile } = useAuth();
   const { tasks } = useTasksData();
   const { projects } = useProjectsData();
+  const { orgs } = useOrgs();
   const userId = user?.id;
   const planDrafts = usePendingPlanDrafts(userId);
   const [isMobileNavigationOpen, setMobileNavigationOpen] = useState(false);
@@ -103,6 +104,10 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
       }),
     [role, visibleNavigationItems, actionAlerts.projects, actionAlerts.reviews],
   );
+  const workspaceName = useMemo(() => {
+    const orgId = userProfile?.org_id || userProfile?.departmentId;
+    return orgs.find((org) => org.id === orgId)?.name || (role === "superadmin" ? "LGU Ormoc City" : "Organization not assigned");
+  }, [orgs, role, userProfile?.departmentId, userProfile?.org_id]);
 
   useEffect(() => {
     if (activeSection === "settings") return;
@@ -154,6 +159,7 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
               activeSection={activeSection}
               navigationItems={navigationItems}
               onPageSelect={handlePageSelect}
+              workspaceName={workspaceName}
             />
           </div>
           <main
@@ -187,6 +193,7 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
             mobile
             navigationItems={navigationItems}
             onPageSelect={handlePageSelect}
+            workspaceName={workspaceName}
           />
         </div>
       </Modal>

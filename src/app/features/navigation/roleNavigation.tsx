@@ -10,7 +10,6 @@ import {
   Report,
   Security,
   Settings,
-  Task,
   UserMultiple,
 } from "@carbon/icons-react";
 import { getCoreRoleNavigation } from "../../components/Layout/coreWorkflowNavigation";
@@ -40,7 +39,6 @@ const compatibilityNavigation: Record<string, RoleNavigation> = {
         icon: <FolderOpen size={16} />,
         label: "Plans & Projects",
       },
-      { id: "tasks", icon: <Task size={16} />, label: "Task Oversight" },
       { id: "reports", icon: <ChartBar size={16} />, label: "Reports" },
       {
         id: "announcements",
