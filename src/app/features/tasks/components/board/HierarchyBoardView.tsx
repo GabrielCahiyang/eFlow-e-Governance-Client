@@ -104,14 +104,14 @@ export function HierarchyBoardView({
   }, [tasks]);
 
   if (tree.length === 0) {
-    return <div className="rounded-2xl border border-neutral-200 bg-white p-10 text-center text-[12px] text-neutral-500">No tasks yet in this board.</div>;
+    return <div className="rounded-[10px] border border-border bg-card p-5 text-center text-[12px] text-muted-foreground shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">No tasks yet in this board.</div>;
   }
 
   return (
     <div className="space-y-4" aria-label="Task work breakdown">
-      <div className="rounded-2xl border border-neutral-200 bg-white px-4 py-4 shadow-sm sm:px-5">
+      <div className="rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
         <div className="flex items-start gap-3">
-          <span className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-violet-50 text-violet-700"><ListTree size={15} /></span>
+          <span className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"><ListTree size={15} /></span>
           <div>
             <h2 className="text-sm font-semibold text-neutral-900">Work breakdown</h2>
             <p className="mt-1 text-xs leading-relaxed text-neutral-500">Project → activity or milestone → task → subtask. Proposal and program provenance stays available without obscuring operational work.</p>
@@ -120,8 +120,8 @@ export function HierarchyBoardView({
       </div>
 
       {tree.map((project) => (
-        <section key={project.key} className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
-          <header className="flex flex-wrap items-start justify-between gap-3 border-b border-neutral-200 bg-neutral-900 px-4 py-3.5">
+        <section key={project.key} className="overflow-hidden rounded-[10px] border border-border bg-card shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
+          <header className="flex flex-wrap items-start justify-between gap-3 border-b border-primary/20 bg-primary px-5 py-3.5">
             <div className="min-w-0">
               <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-neutral-300"><FolderKanban size={12} /> Project</div>
               <h3 className="mt-1 break-words text-[14px] font-semibold leading-snug text-white">{project.title}</h3>
@@ -133,11 +133,11 @@ export function HierarchyBoardView({
           <div className="divide-y divide-neutral-100">
             {project.activities.map((activity) => (
               <div key={activity.key} className="p-3 sm:p-4">
-                <div className="flex flex-wrap items-center gap-2 rounded-lg border border-violet-100 bg-violet-50 px-3 py-2">
-                  <CircleDotDashed size={13} className="shrink-0 text-violet-700" />
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-violet-700">{activity.kind}</span>
-                  <span className="min-w-0 break-words text-[12px] font-semibold leading-snug text-violet-950">{activity.title}</span>
-                  {activity.schedule && <span className="ml-auto text-[10px] text-violet-700">{activity.schedule}</span>}
+                <div className="flex flex-wrap items-center gap-2 rounded-[14px] border border-primary/15 bg-primary/5 px-3 py-2">
+                  <CircleDotDashed size={13} className="shrink-0 text-primary" />
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-primary">{activity.kind}</span>
+                  <span className="min-w-0 break-words text-[12px] font-semibold leading-snug text-foreground">{activity.title}</span>
+                  {activity.schedule && <span className="ml-auto text-[10px] text-primary">{activity.schedule}</span>}
                 </div>
                 <div className="mt-2 divide-y divide-neutral-100 rounded-lg border border-neutral-200">
                   {activity.tasks.map((task) => {

@@ -357,12 +357,12 @@ export function ProjectViewTabBar({
                       }}
                       className={`flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium cursor-pointer ${
                         isActive
-                          ? "bg-indigo-50 text-indigo-900 font-semibold"
+                          ? "bg-primary/10 text-primary font-semibold"
                           : "text-neutral-700 hover:bg-neutral-100"
                       }`}
                     >
                       <div className="flex items-center gap-2">
-                        <Icon size={14} className={isActive ? "text-indigo-600" : "text-neutral-400"} />
+                        <Icon size={14} className={isActive ? "text-primary" : "text-neutral-400"} />
                         <span>{meta.label}</span>
                       </div>
                       <button

@@ -102,12 +102,12 @@ export function ProjectDashboardTab({
       {/* Top Health & Delivery Progress Summary */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Metric 1: Overall Progress */}
-        <div className="bg-white border border-neutral-200/80 rounded-2xl p-5 shadow-xs">
+        <div className="rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-neutral-400">
               Delivery Progress
             </span>
-            <span className="p-1.5 rounded-lg bg-indigo-50 text-indigo-700">
+            <span className="rounded-lg bg-primary/10 p-1.5 text-primary">
               <TrendingUp size={16} />
             </span>
           </div>
@@ -128,7 +128,7 @@ export function ProjectDashboardTab({
         </div>
 
         {/* Metric 2: Milestones & Activities */}
-        <div className="bg-white border border-neutral-200/80 rounded-2xl p-5 shadow-xs">
+        <div className="rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-neutral-400">
               Milestone Completion
@@ -152,7 +152,7 @@ export function ProjectDashboardTab({
         </div>
 
         {/* Metric 3: Needs Attention */}
-        <div className="bg-white border border-neutral-200/80 rounded-2xl p-5 shadow-xs">
+        <div className="rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-neutral-400">
               Needs Attention
@@ -175,7 +175,7 @@ export function ProjectDashboardTab({
         </div>
 
         {/* Metric 4: Review Queue */}
-        <div className="bg-white border border-neutral-200/80 rounded-2xl p-5 shadow-xs">
+        <div className="rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-neutral-400">
               Project Reviews
@@ -202,7 +202,7 @@ export function ProjectDashboardTab({
         {/* Left 2 Cols: Task Pipeline & Blockers */}
         <div className="lg:col-span-2 space-y-6">
           {/* Widget: Task Pipeline Distribution */}
-          <div className="bg-white border border-neutral-200/80 rounded-2xl p-6 shadow-xs space-y-4">
+          <div className="space-y-4 rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
             <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
               <div>
                 <h3 className="text-sm font-bold text-neutral-900 uppercase tracking-wider">
@@ -218,22 +218,22 @@ export function ProjectDashboardTab({
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
-              <div className="bg-neutral-50 rounded-xl p-3.5 border border-neutral-200/60">
+              <div className="rounded-[14px] border border-border bg-muted/50 p-3.5">
                 <div className="text-[11px] font-semibold text-neutral-500 uppercase tracking-wide">To Do</div>
                 <div className="text-2xl font-bold text-neutral-800 mt-1">{statusCounts.todo}</div>
                 <div className="text-[11px] text-neutral-400 mt-0.5">{todoPercent}% of tasks</div>
               </div>
-              <div className="bg-blue-50/50 rounded-xl p-3.5 border border-blue-100">
+              <div className="rounded-[14px] border border-blue-100 bg-blue-50/50 p-3.5">
                 <div className="text-[11px] font-semibold text-blue-700 uppercase tracking-wide">In Progress</div>
                 <div className="text-2xl font-bold text-blue-900 mt-1">{statusCounts.in_progress}</div>
                 <div className="text-[11px] text-blue-600 mt-0.5">{inProgressPercent}% active</div>
               </div>
-              <div className="bg-amber-50/50 rounded-xl p-3.5 border border-amber-100">
+              <div className="rounded-[14px] border border-amber-100 bg-amber-50/50 p-3.5">
                 <div className="text-[11px] font-semibold text-amber-700 uppercase tracking-wide">For Review</div>
                 <div className="text-2xl font-bold text-amber-900 mt-1">{statusCounts.for_review}</div>
                 <div className="text-[11px] text-amber-600 mt-0.5">{reviewPercent}% waiting</div>
               </div>
-              <div className="bg-emerald-50/50 rounded-xl p-3.5 border border-emerald-100">
+              <div className="rounded-[14px] border border-emerald-100 bg-emerald-50/50 p-3.5">
                 <div className="text-[11px] font-semibold text-emerald-700 uppercase tracking-wide">Completed</div>
                 <div className="text-2xl font-bold text-emerald-900 mt-1">{statusCounts.completed}</div>
                 <div className="text-[11px] text-emerald-600 mt-0.5">{completedPercent}% delivered</div>
@@ -242,7 +242,7 @@ export function ProjectDashboardTab({
           </div>
 
           {/* Widget: Actionable Attention Items & Priority Queue */}
-          <div className="bg-white border border-neutral-200/80 rounded-2xl p-6 shadow-xs space-y-4">
+          <div className="space-y-4 rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
             <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
               <div>
                 <h3 className="text-sm font-bold text-neutral-900 uppercase tracking-wider">
@@ -307,7 +307,7 @@ export function ProjectDashboardTab({
         {/* Right 1 Col: Upcoming Schedule, Financial & Activity */}
         <div className="space-y-6">
           {/* Upcoming Deadlines */}
-          <div className="bg-white border border-neutral-200/80 rounded-2xl p-6 shadow-xs space-y-4">
+          <div className="space-y-4 rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
             <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
               <h3 className="text-sm font-bold text-neutral-900 uppercase tracking-wider flex items-center gap-2">
                 <Calendar size={15} className="text-neutral-400" />
@@ -349,7 +349,7 @@ export function ProjectDashboardTab({
 
           {/* Financial Snapshot (if budget data exists) */}
           {financial && financial.summary && financial.summary.approvedAmount > 0 && (
-            <div className="bg-white border border-neutral-200/80 rounded-2xl p-6 shadow-xs space-y-4">
+            <div className="space-y-4 rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
               <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
                 <h3 className="text-sm font-bold text-neutral-900 uppercase tracking-wider">
                   Financial Overview
@@ -373,7 +373,7 @@ export function ProjectDashboardTab({
           )}
 
           {/* Recent Activity */}
-          <div className="bg-white border border-neutral-200/80 rounded-2xl p-6 shadow-xs space-y-4">
+          <div className="space-y-4 rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
             <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
               <h3 className="text-sm font-bold text-neutral-900 uppercase tracking-wider flex items-center gap-2">
                 <Clock size={15} className="text-neutral-400" />

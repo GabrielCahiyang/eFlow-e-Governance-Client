@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
 import { AttentionBox, Button, Label, Search as VibeSearch } from "@vibe/core";
-import { AnimatePresence } from "motion/react";
 import * as m from "motion/react-m";
 import { ArrowRight, Clock3, FileSearch, ShieldCheck, X } from "lucide-react";
+import { FeatureDialog } from "../../../components/ui/FeatureDialog";
 import { motionTransition } from "../../../shared/motion/motionTokens";
 import type {
   BudgetLedgerEntry,
@@ -53,10 +53,10 @@ export function AccountingTrailPanel({
 
   return (
     <div className="space-y-4">
-      <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
+      <section className="rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
         <div className="flex items-center gap-2">
-          <ShieldCheck size={16} className="text-emerald-700" />
-          <h2 className="text-[14px] font-semibold">
+          <ShieldCheck size={16} className="text-primary" />
+          <h2 className="text-[14px] font-semibold text-foreground">
             End-to-end accounting trail
           </h2>
         </div>
@@ -68,19 +68,19 @@ export function AccountingTrailPanel({
                 text={stage}
               />
               {index < FLOW.length - 1 && (
-                <ArrowRight size={11} className="text-neutral-300" />
+                <ArrowRight size={11} className="text-muted-foreground/60" />
               )}
             </div>
           ))}
         </div>
-        <p className="mt-3 text-[12px] text-neutral-600">
+        <p className="mt-3 text-[12px] text-muted-foreground">
           Operational events remain separate from the double-entry journal.
           Select any event below to inspect its actor, state transition, reason,
           metadata, and linked accounting rows.
         </p>
       </section>
-      <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
-        <header className="border-b border-neutral-100 p-4">
+      <section className="overflow-hidden rounded-[10px] border border-border bg-card shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
+        <header className="border-b border-border p-4">
           <VibeSearch
             className="w-full max-w-lg"
             clearIconLabel="Clear audit search"
@@ -94,7 +94,7 @@ export function AccountingTrailPanel({
           />
         </header>
         {entries.length ? (
-          <div className="divide-y divide-neutral-100">
+          <div className="divide-y divide-border/70">
             {entries.map((entry, index) => (
               <m.button
                 layout
@@ -107,33 +107,33 @@ export function AccountingTrailPanel({
                 }}
                 type="button"
                 onClick={() => setSelected(entry)}
-                className="grid w-full gap-3 p-4 text-left hover:bg-neutral-50 sm:grid-cols-[36px_1fr_auto]"
+                className="grid w-full gap-3 p-4 text-left transition-colors hover:bg-accent/70 focus-visible:bg-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-ring sm:grid-cols-[36px_1fr_auto]"
               >
-                <div className="flex h-9 w-9 items-center justify-center rounded-full border border-neutral-200 bg-white text-neutral-500">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground">
                   <Clock3 size={14} />
                 </div>
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-[12px] font-semibold capitalize text-neutral-850">
+                    <span className="text-[12px] font-semibold capitalize text-foreground">
                       {entry.entryType.split("_").join(" ")}
                     </span>
                     {entry.previousState && entry.newState && (
-                      <span className="text-[11px] text-neutral-500">
+                      <span className="text-[11px] text-muted-foreground">
                         {entry.previousState} → {entry.newState}
                       </span>
                     )}
                   </div>
-                  <p className="mt-1 truncate text-[12px] text-neutral-500">
+                  <p className="mt-1 truncate text-[12px] text-muted-foreground">
                     {entry.description}
                   </p>
-                  <p className="mt-1 text-[11px] text-neutral-500">
+                  <p className="mt-1 text-[11px] text-muted-foreground">
                     {new Date(entry.createdAt).toLocaleString()} ·{" "}
                     {entry.actorRole
                       ? entry.actorRole.split("_").join(" ")
                       : "system"}
                   </p>
                 </div>
-                <strong className="text-right text-[12px] tabular-nums text-neutral-800">
+                <strong className="justify-self-end whitespace-nowrap text-right text-[12px] tabular-nums text-foreground">
                   {peso.format(entry.amount)}
                 </strong>
               </m.button>
@@ -148,38 +148,29 @@ export function AccountingTrailPanel({
           </div>
         )}
       </section>
-      <AnimatePresence>
+      <FeatureDialog
+        open={Boolean(selected)}
+        onClose={() => setSelected(undefined)}
+        title={selected ? selected.entryType.split("_").join(" ") : "Accounting event details"}
+        description="Financial audit event details."
+        showCloseButton={false}
+        contentClassName="!inset-y-0 !left-auto !right-0 !top-auto !h-auto !max-h-none !w-full !max-w-[480px] !translate-x-0 !translate-y-0 !rounded-none !border-y-0 !border-r-0 max-sm:!left-0"
+      >
         {selected && (
-          <>
-            <m.button
-              aria-label="Close audit details"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setSelected(undefined)}
-              className="fixed inset-0 z-[80] bg-neutral-950/30"
-            />
-            <m.aside
-              role="dialog"
-              aria-label="Accounting event details"
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={motionTransition.productive}
-              className="fixed inset-y-0 right-0 z-[81] w-full max-w-lg overflow-y-auto border-l border-neutral-200 bg-white p-6 shadow-2xl"
-            >
+          <aside className="h-full w-full overflow-y-auto border-l border-border bg-card p-5">
               <header className="flex items-start justify-between gap-3">
                 <div>
-                  <div className="text-[11px] uppercase tracking-wider text-neutral-500">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
                     Financial audit event
                   </div>
-                  <h2 className="mt-1 text-[16px] font-semibold capitalize">
+                  <h2 className="mt-1 text-[18px] font-semibold capitalize text-foreground">
                     {selected.entryType.split("_").join(" ")}
                   </h2>
                 </div>
                 <Button
                   kind="tertiary"
                   size="small"
+                  aria-label="Close audit details"
                   onClick={() => setSelected(undefined)}
                 >
                   <X size={15} />
@@ -216,35 +207,35 @@ export function AccountingTrailPanel({
                   value={selected.correlationKey || "Not supplied"}
                 />
                 <div>
-                  <div className="text-[11px] uppercase tracking-wider text-neutral-500">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                     Metadata
                   </div>
-                  <pre className="mt-2 overflow-x-auto rounded-xl bg-neutral-950 p-3 text-[11px] leading-relaxed text-neutral-100">
+                  <pre className="mt-2 overflow-x-auto rounded-lg bg-[#152020] p-3 text-[11px] leading-relaxed text-neutral-100">
                     {JSON.stringify(selected.metadata || {}, null, 2)}
                   </pre>
                 </div>
                 <div>
-                  <div className="text-[11px] uppercase tracking-wider text-neutral-500">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                     Linked journal rows
                   </div>
                   {linkedJournal.length ? (
                     linkedJournal.map((entry) => (
                       <div
                         key={entry.id}
-                        className="mt-2 rounded-xl border border-neutral-200 p-3"
+                        className="mt-2 rounded-lg border border-border bg-card p-3"
                       >
-                        <div className="font-mono text-[11px] text-neutral-500">
+                        <div className="font-mono text-[11px] text-muted-foreground">
                           {entry.referenceNumber}
                         </div>
                         {entry.lines.map((line) => (
                           <div
                             key={line.id}
-                            className="mt-2 flex justify-between gap-3 text-[12px]"
+                            className="mt-2 grid grid-cols-[minmax(0,1fr)_auto] gap-3 text-[12px]"
                           >
-                            <span>
+                            <span className="min-w-0">
                               {line.accountCode} · {line.accountTitle}
                             </span>
-                            <span>
+                            <span className="whitespace-nowrap text-right tabular-nums">
                               {line.debit
                                 ? `Dr ${peso.format(line.debit)}`
                                 : `Cr ${peso.format(line.credit)}`}
@@ -262,21 +253,20 @@ export function AccountingTrailPanel({
                   )}
                 </div>
               </div>
-            </m.aside>
-          </>
+          </aside>
         )}
-      </AnimatePresence>
+      </FeatureDialog>
     </div>
   );
 }
 
 function Detail({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-neutral-200 p-3">
-      <div className="text-[11px] uppercase tracking-wider text-neutral-500">
+    <div className="rounded-lg border border-border bg-card p-3">
+      <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
         {label}
       </div>
-      <div className="mt-1 break-words text-[12px] text-neutral-800">
+      <div className="mt-1 break-words text-[12px] text-foreground">
         {value}
       </div>
     </div>

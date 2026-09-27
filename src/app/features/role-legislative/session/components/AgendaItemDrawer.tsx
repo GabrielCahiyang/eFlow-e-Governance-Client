@@ -1,4 +1,5 @@
 import { Close, Save, Search } from '@carbon/icons-react';
+import { FeatureDialog } from '../../../../components/ui/FeatureDialog';
 import { councilorAvatars, drawerItemTypes, groupOrder } from './agendaModel';
 
 interface AgendaItemDrawerProps {
@@ -22,13 +23,16 @@ interface AgendaItemDrawerProps {
 export function AgendaItemDrawer(props: AgendaItemDrawerProps) {
   const { drawerOpen, setDrawerOpen, drawerType, setDrawerType, drawerRef, setDrawerRef, drawerTitle, setDrawerTitle, drawerSponsor, setDrawerSponsor, drawerDuration, setDrawerDuration, drawerGroup, setDrawerGroup, handleAddItem } = props;
   return (
-    <>
-{/* ===== SLIDE-OUT DRAWER ===== */}
+    <FeatureDialog
+      open={drawerOpen}
+      onClose={() => setDrawerOpen(false)}
+      title="Add Agenda Item"
+      description="Add an item to the 142nd Regular Session agenda."
+      showCloseButton={false}
+      contentClassName="!inset-y-0 !left-auto !right-0 !top-auto !h-auto !max-h-none !w-full !max-w-[400px] !translate-x-0 !translate-y-0 !rounded-none !border-y-0 !border-r-0 max-sm:!left-0"
+    >
       <div
-        className={`fixed top-0 right-0 h-full w-[400px] bg-white border-l border-neutral-200 shadow-2xl z-50 flex flex-col transition-transform duration-500 ${
-          drawerOpen ? "translate-x-0" : "translate-x-full"
-        }`}
-        style={{ transitionTimingFunction: "cubic-bezier(0.25, 1.1, 0.4, 1)" }}
+        className="flex h-full w-full flex-col border-l border-neutral-200 bg-white"
       >
         {/* Drawer Header */}
         <div className="px-6 py-5 border-b border-neutral-100 flex items-center justify-between shrink-0">
@@ -145,7 +149,7 @@ export function AgendaItemDrawer(props: AgendaItemDrawerProps) {
             disabled={!drawerTitle.trim()}
             className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-[12px] font-semibold transition-colors ${
               drawerTitle.trim()
-                ? "bg-blue-600 text-white cursor-pointer hover:bg-blue-700"
+                ? "bg-primary text-primary-foreground cursor-pointer hover:bg-primary/90"
                 : "bg-neutral-200 text-neutral-400 cursor-not-allowed"
             }`}
           >
@@ -154,13 +158,6 @@ export function AgendaItemDrawer(props: AgendaItemDrawerProps) {
         </div>
       </div>
 
-      {/* Backdrop */}
-      {drawerOpen && (
-        <div
-          className="fixed inset-0 bg-black/10 z-40 transition-opacity"
-          onClick={() => setDrawerOpen(false)}
-        />
-      )}
-    </>
+    </FeatureDialog>
   );
 }

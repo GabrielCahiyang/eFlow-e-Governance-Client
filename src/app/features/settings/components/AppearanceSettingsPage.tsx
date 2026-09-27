@@ -38,11 +38,11 @@ export function AppearanceSettingsPage() {
           {options.map((option) => {
             const selected = theme === option.value || pendingTheme === option.value;
             return (
-              <button key={option.value} type="button" role="radio" aria-checked={selected} onClick={() => chooseTheme(option.value)} disabled={Boolean(pendingTheme)} className={`group relative min-h-36 rounded-2xl border p-4 text-left transition ${selected ? 'border-blue-500 bg-blue-50/70 shadow-sm dark:border-blue-400 dark:bg-blue-500/10' : 'border-neutral-200 bg-white hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-sm dark:border-slate-800 dark:bg-slate-950 dark:hover:border-slate-600'} disabled:cursor-not-allowed`}>
+              <button key={option.value} type="button" role="radio" aria-checked={selected} onClick={() => chooseTheme(option.value)} disabled={Boolean(pendingTheme)} className={`group relative min-h-36 rounded-2xl border p-4 text-left transition ${selected ? 'border-primary bg-primary/5 shadow-sm dark:border-primary dark:bg-primary/10' : 'border-neutral-200 bg-white hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-sm dark:border-slate-800 dark:bg-slate-950 dark:hover:border-slate-600'} disabled:cursor-not-allowed`}>
                 <span className={`flex size-9 items-center justify-center rounded-xl ${option.tint}`}>{option.icon}</span>
                 <span className="mt-4 block text-[13px] font-semibold text-neutral-900 dark:text-slate-100">{option.title}</span>
                 <span className="mt-1 block text-[11px] leading-4 text-neutral-500 dark:text-slate-400">{option.description}</span>
-                <span className={`absolute right-3 top-3 flex size-4 items-center justify-center rounded-full border ${selected ? 'border-blue-600 bg-blue-600 text-white' : 'border-neutral-300 bg-white dark:border-slate-600 dark:bg-slate-900'}`}>{selected && <Check size={11} strokeWidth={3} />}</span>
+                <span className={`absolute right-3 top-3 flex size-4 items-center justify-center rounded-full border ${selected ? 'border-primary bg-primary text-primary-foreground' : 'border-neutral-300 bg-white dark:border-slate-600 dark:bg-slate-900'}`}>{selected && <Check size={11} strokeWidth={3} />}</span>
               </button>
             );
           })}

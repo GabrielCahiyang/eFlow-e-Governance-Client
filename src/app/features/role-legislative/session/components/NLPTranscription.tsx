@@ -119,7 +119,7 @@ export function NLPTranscription() {
                         rows={3}
                       />
                       <div className="flex items-center gap-2">
-                        <button onClick={() => saveEdit(entry.id)} className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-[10px] font-semibold cursor-pointer hover:bg-blue-700">Save</button>
+                        <button onClick={() => saveEdit(entry.id)} className="rounded-lg bg-primary px-3 py-1.5 text-[10px] font-semibold text-primary-foreground transition hover:bg-primary/90">Save</button>
                         <button onClick={() => setEditingId(null)} className="px-3 py-1.5 bg-neutral-100 text-neutral-600 rounded-lg text-[10px] font-semibold cursor-pointer hover:bg-neutral-200">Cancel</button>
                       </div>
                     </div>
@@ -158,7 +158,7 @@ export function NLPTranscription() {
           {/* Insert official note */}
           <div className="shrink-0 px-4 py-3 border-t border-neutral-200 bg-neutral-50/50">
             <div className="flex items-center gap-2">
-              <div className="flex-1 flex items-center gap-2 bg-white border border-neutral-200 rounded-lg px-3 py-2.5 focus-within:border-blue-300">
+              <div className="flex-1 flex items-center gap-2 rounded-lg border border-neutral-200 bg-white px-3 py-2.5 focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/20">
                 <DocumentAdd size={14} className="text-neutral-400 shrink-0" />
                 <input
                   type="text"
@@ -171,7 +171,7 @@ export function NLPTranscription() {
               </div>
               <button
                 onClick={insertOfficialNote}
-                className="px-4 py-2.5 bg-blue-600 text-white rounded-lg text-[11px] font-semibold cursor-pointer hover:bg-blue-700 transition-colors"
+                className="rounded-lg bg-primary px-4 py-2.5 text-[11px] font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
               >
                 <Send size={14} />
               </button>

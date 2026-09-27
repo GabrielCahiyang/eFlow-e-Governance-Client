@@ -1,5 +1,6 @@
 import { AlertTriangle, Plus, Trash2, UserPlus, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { FeatureDialog } from "../../../components/ui/FeatureDialog";
 import type { Employee } from "../../employees";
 import { fetchTaskSubtasks, type Subtask } from "../../subtasks";
 import { startTaskIfTodo, type Task } from "../../tasks";
@@ -80,8 +81,8 @@ export function SubtaskTemplateApplyDialog({
   };
 
   return (
-    <div className="fixed inset-0 z-[75] flex items-center justify-center bg-neutral-900/50 p-4" onClick={onClose}>
-      <div className="flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-2xl" onClick={(event) => event.stopPropagation()}>
+    <FeatureDialog onClose={onClose} title={`Apply ${template.title}`} description="Preview the checklist, assign contributors, and choose how it should interact with existing subtasks." contentClassName="!h-[92vh] !max-w-4xl max-sm:!h-[100dvh]" showCloseButton={false}>
+      <div className="flex h-full w-full flex-col bg-white">
         <div className="flex items-start justify-between border-b border-neutral-100 px-5 py-4">
           <div>
             <div className="text-[10px] uppercase tracking-[0.2em] text-violet-500">Apply subtask template</div>
@@ -188,6 +189,6 @@ export function SubtaskTemplateApplyDialog({
           </div>
         </div>
       </div>
-    </div>
+    </FeatureDialog>
   );
 }

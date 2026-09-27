@@ -21,7 +21,7 @@ export function PageHeader({
   subtitle,
   actions,
 }: {
-  eyebrow?: string;
+  eyebrow?: React.ReactNode;
   title: string;
   subtitle?: string;
   actions?: React.ReactNode;
@@ -30,21 +30,49 @@ export function PageHeader({
     <header className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
       <div className="min-w-0">
         {eyebrow && (
-          <Text className="mb-1 uppercase tracking-[0.08em] text-neutral-500" type="text3" weight="medium">
+          <Text className="mb-1 inline-flex items-center gap-1.5 uppercase tracking-[0.08em] text-primary" type="text3" weight="medium">
             {eyebrow}
           </Text>
         )}
-        <Heading className="!overflow-visible !text-clip !whitespace-normal break-words leading-tight text-neutral-900" type="h1" weight="medium">
+        <Heading className="!overflow-visible !text-clip !whitespace-normal !text-[32px] !leading-[38px] break-words text-foreground" type="h1" weight="bold">
           {title}
         </Heading>
         {subtitle && (
-          <Text className="mt-1 max-w-3xl !overflow-visible !text-clip !whitespace-normal break-words text-neutral-500" type="text2">
+          <Text className="mt-2 max-w-3xl !overflow-visible !text-clip !whitespace-normal break-words text-secondary-foreground" type="text2">
             {subtitle}
           </Text>
         )}
       </div>
       {actions && <div className="flex w-full min-w-0 max-w-full flex-wrap items-center gap-2 sm:w-auto sm:shrink-0">{actions}</div>}
     </header>
+  );
+}
+
+// ─── SectionHeading ─────────────────────────────────────────────
+// A compact heading for a card or form section. Feature modules use this
+// instead of carrying their own card-heading typography and icon treatment.
+export function SectionHeading({
+  icon,
+  eyebrow,
+  title,
+  description,
+}: {
+  icon: React.ReactNode;
+  eyebrow: string;
+  title: string;
+  description?: string;
+}) {
+  return (
+    <div className="flex items-start gap-3">
+      <span aria-hidden="true" className="flex size-10 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+        {icon}
+      </span>
+      <div className="min-w-0">
+        <Text className="uppercase tracking-[0.12em] text-primary" type="text3" weight="medium">{eyebrow}</Text>
+        <Heading className="mt-0.5 text-foreground" type="h3" weight="bold">{title}</Heading>
+        {description && <Text className="mt-1 leading-5 text-muted-foreground" type="text3">{description}</Text>}
+      </div>
+    </div>
   );
 }
 
@@ -57,6 +85,7 @@ export function WButton({
   disabled,
   type = "button",
   className = "",
+  size = "medium",
 }: {
   icon?: React.ReactNode;
   children?: React.ReactNode;
@@ -65,6 +94,7 @@ export function WButton({
   disabled?: boolean;
   type?: "button" | "submit";
   className?: string;
+  size?: "small" | "medium" | "large";
 }) {
   const presentation = {
     primary: { kind: "primary", color: "primary" },
@@ -81,7 +111,7 @@ export function WButton({
       disabled={disabled}
       kind={selected.kind}
       onClick={() => onClick?.()}
-      size="small"
+      size={size}
       type={type}
     >
       {icon && <span aria-hidden="true" className="inline-flex shrink-0">{icon}</span>}
@@ -104,26 +134,26 @@ function StatCardContent({
   icon?: React.ReactNode;
 }) {
   const toneMap: Record<typeof tone, string> = {
-    neutral: "text-neutral-900",
-    good: "text-emerald-700",
-    warn: "text-amber-700",
-    bad: "text-red-700",
-    info: "text-blue-700",
+    neutral: "text-foreground",
+    good: "text-[#198754]",
+    warn: "text-[#b65b08]",
+    bad: "text-destructive",
+    info: "text-[#2767a7]",
   };
   const iconTone: Record<typeof tone, string> = {
-    neutral: "bg-neutral-100 text-neutral-600",
-    good: "bg-emerald-50 text-emerald-700",
-    warn: "bg-amber-50 text-amber-700",
-    bad: "bg-red-50 text-red-700",
-    info: "bg-blue-50 text-blue-700",
+    neutral: "bg-muted text-secondary-foreground",
+    good: "bg-[#e7f5ec] text-[#198754]",
+    warn: "bg-[#fff1df] text-[#b65b08]",
+    bad: "bg-destructive/10 text-destructive",
+    info: "bg-[#e8f0f8] text-[#2767a7]",
   };
   return <>
     <div className="flex items-start justify-between gap-3">
-      <Text className="min-w-0 break-words !overflow-visible !text-clip !whitespace-normal uppercase tracking-[0.08em] text-neutral-500" type="text3" weight="medium">{label}</Text>
-      {icon && <span aria-hidden="true" className={`grid size-7 shrink-0 place-items-center rounded-lg ${iconTone[tone]}`}>{icon}</span>}
+      <Text className="min-w-0 break-words !overflow-visible !text-clip !whitespace-normal uppercase tracking-[0.08em] text-muted-foreground" type="text3" weight="medium">{label}</Text>
+      {icon && <span aria-hidden="true" className={`grid size-8 shrink-0 place-items-center rounded-md ${iconTone[tone]}`}>{icon}</span>}
     </div>
     <div className={`eflow-tabular mt-1 text-2xl font-semibold ${toneMap[tone]}`}>{value}</div>
-    {hint && <Text className="mt-1 text-neutral-500" type="text3">{hint}</Text>}
+    {hint && <Text className="mt-1 text-muted-foreground" type="text3">{hint}</Text>}
   </>;
 }
 
@@ -145,8 +175,8 @@ export function StatCard({
   onClick?: () => void;
   active?: boolean;
 }) {
-  const classes = `w-full rounded-xl border bg-white p-4 text-left transition-[border-color,box-shadow] duration-100 ${
-    active ? "border-blue-500 ring-1 ring-blue-500/15" : "border-neutral-200"
+  const classes = `w-full rounded-[10px] border bg-card p-5 text-left shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)] transition-[border-color,box-shadow] duration-120 ${
+    active ? "border-primary ring-2 ring-primary/20" : "border-border"
   }`;
   const content = <StatCardContent icon={icon} hint={hint} label={label} tone={tone} value={value} />;
   return onClick ? (
@@ -154,7 +184,7 @@ export function StatCard({
       aria-pressed={active}
       type="button"
       onClick={onClick}
-      className={`${classes} cursor-pointer hover:border-neutral-300 hover:shadow-sm`}
+      className={`${classes} cursor-pointer hover:border-[#b9c6c5] hover:shadow-[0_4px_8px_rgba(0,0,0,0.20)]`}
     >
       {content}
     </button>
@@ -180,21 +210,21 @@ export function Card({
   bodyClassName?: string;
 }) {
   return (
-    <section className={`min-w-0 rounded-xl border border-neutral-200 bg-white ${className}`}>
+    <section className={`min-w-0 rounded-[10px] border border-border bg-card shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)] ${className}`}>
       {(title || right) && (
-        <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-100">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
           <div className="min-w-0">
             {title && (
-              <Heading className="text-neutral-900" type="h3" weight="medium">{title}</Heading>
+              <Heading className="text-foreground" type="h3" weight="bold">{title}</Heading>
             )}
             {subtitle && (
-              <Text className="mt-0.5 text-neutral-500" type="text3">{subtitle}</Text>
+              <Text className="mt-0.5 text-muted-foreground" type="text3">{subtitle}</Text>
             )}
           </div>
           {right}
         </div>
       )}
-      <div className={bodyClassName || "p-4"}>{children}</div>
+      <div className={bodyClassName || "p-5"}>{children}</div>
     </section>
   );
 }
@@ -257,7 +287,7 @@ export function WSelect({
 // ─── FilterBar ───────────────────────────────────────────────────
 export function FilterBar({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex items-center gap-2 mb-4 flex-wrap">
+    <div className="mb-4 flex flex-wrap items-center gap-2 rounded-[10px] border border-border bg-card p-3">
       {children}
     </div>
   );
@@ -286,7 +316,7 @@ export function ExportMenu({
 // ─── Section states ──────────────────────────────────────────────
 export function LoadingState({ label = "Loading…" }: { label?: string }) {
   return (
-    <div aria-live="polite" className="flex flex-col items-center justify-center gap-3 py-20 text-neutral-500" role="status">
+    <div aria-live="polite" className="flex flex-col items-center justify-center gap-3 py-20 text-muted-foreground" role="status">
       <Loader size="medium" />
       <Text type="text2">{label}</Text>
     </div>
@@ -323,7 +353,7 @@ export function SectionEmpty({
         description={description || title}
         layout="compact"
         title={description ? title : undefined}
-        visual={icon && <span aria-hidden="true" className="text-neutral-400">{icon}</span>}
+        visual={icon && <span aria-hidden="true" className="text-muted-foreground">{icon}</span>}
       />
       {action && <div>{action}</div>}
     </div>

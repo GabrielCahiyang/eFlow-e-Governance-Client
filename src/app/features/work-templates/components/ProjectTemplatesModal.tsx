@@ -1,5 +1,6 @@
 import { CalendarClock, ClipboardList, X } from "lucide-react";
 import { useState } from "react";
+import { FeatureDialog } from "../../../components/ui/FeatureDialog";
 import type { Employee } from "../../employees";
 import { RecurringTaskTemplatesPanel, type Task } from "../../tasks";
 import { SubtaskTemplateLibrary } from "./SubtaskTemplateLibrary";
@@ -27,8 +28,8 @@ export function ProjectTemplatesModal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/45 p-4 backdrop-blur-sm" onClick={onClose}>
-      <div className="flex h-[88vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-50 shadow-2xl" onClick={(event) => event.stopPropagation()}>
+    <FeatureDialog open={open} onClose={onClose} title="Reusable work library" description="Standardize recurring tasks and repeatable Team Leader checklists." contentClassName="!h-[88vh] !max-w-6xl max-sm:!h-[100dvh]" showCloseButton={false}>
+      <div className="flex h-full w-full flex-col bg-neutral-50">
         <div className="flex items-start justify-between border-b border-neutral-200 bg-white px-5 py-4">
           <div>
             <div className="text-[10px] uppercase tracking-[0.22em] text-neutral-400">Projects · Templates</div>
@@ -51,6 +52,6 @@ export function ProjectTemplatesModal({
           )}
         </div>
       </div>
-    </div>
+    </FeatureDialog>
   );
 }

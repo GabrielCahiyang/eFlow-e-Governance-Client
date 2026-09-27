@@ -1,17 +1,19 @@
 import type { ReactNode } from "react";
+import { Card } from "../../../components/ui/card";
 
 export const peso = new Intl.NumberFormat("en-PH", { style: "currency", currency: "PHP", minimumFractionDigits: 2 });
 export const pesoShort = new Intl.NumberFormat("en-PH", { style: "currency", currency: "PHP", notation: "compact", maximumFractionDigits: 1 });
 
 export function BudgetCard({ label, value, note, icon, tone = "neutral" }: { label: string; value: string; note: string; icon: ReactNode; tone?: "neutral" | "good" | "warn" | "bad" }) {
   const colors = { neutral: "bg-neutral-100 text-neutral-600", good: "bg-emerald-50 text-emerald-700", warn: "bg-amber-50 text-amber-700", bad: "bg-rose-50 text-rose-700" };
-  return <div className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
-    <div className="flex items-start justify-between gap-3"><div><div className="text-[12px] uppercase tracking-[0.16em] text-neutral-500">{label}</div><div className="mt-2 text-[20px] font-semibold text-neutral-950 tabular-nums">{value}</div><div className="mt-1 text-[12px] text-neutral-600">{note}</div></div><div className={`rounded-xl p-2 ${colors[tone]}`}>{icon}</div></div>
-  </div>;
+  return <Card className="gap-0 p-4">
+    <div className="flex items-start justify-between gap-3"><div><div className="text-[12px] font-medium uppercase tracking-[0.14em] text-muted-foreground">{label}</div><div className="mt-1 text-[12px] text-muted-foreground">{note}</div></div><div className={`rounded-lg p-2 ${colors[tone]}`}>{icon}</div></div>
+    <div className="mt-4 text-right text-[20px] font-semibold tabular-nums text-foreground">{value}</div>
+  </Card>;
 }
 
 export function BudgetEmpty({ title, description, action }: { title: string; description: string; action?: ReactNode }) {
-  return <div className="rounded-2xl border border-dashed border-neutral-200 bg-white px-6 py-12 text-center"><div className="text-[14px] font-semibold text-neutral-800">{title}</div><p className="mx-auto mt-1 max-w-lg text-[12px] leading-relaxed text-neutral-500">{description}</p>{action && <div className="mt-4">{action}</div>}</div>;
+  return <Card className="gap-0 border-dashed px-6 py-12 text-center shadow-none"><div className="text-[14px] font-semibold text-foreground">{title}</div><p className="mx-auto mt-1 max-w-lg text-[12px] leading-relaxed text-muted-foreground">{description}</p>{action && <div className="mt-4">{action}</div>}</Card>;
 }
 
 export function StatusPill({ status }: { status: string }) {

@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Brain, ChevronRight, Clock, Flame, Heart, RefreshCw, Sparkles } from "lucide-react";
+import { FeatureDialog } from "../../../components/ui/FeatureDialog";
 import { Btn, PageHeader, Stat } from "./primitives";
 
 type RiskLevel = "optimal" | "elevated" | "critical";
@@ -197,8 +198,8 @@ export function DepartmentRiskFlags() {
       </div>
 
       {showIntervention && (
-        <div className="fixed inset-0 bg-neutral-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-6" onClick={() => setShowIntervention(false)}>
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <FeatureDialog onClose={() => setShowIntervention(false)} title="Initiate Wellness Intervention" description={`Trigger a non-punitive outreach sequence for ${selected.name}.`} contentClassName="!max-w-md">
+          <div className="w-full p-6 pr-12">
             <div className="flex items-center gap-2 mb-2">
               <Heart size={16} className="text-red-600" />
               <h3 className="text-[16px] font-semibold">Initiate Wellness Intervention</h3>
@@ -215,7 +216,7 @@ export function DepartmentRiskFlags() {
               </button>
             </div>
           </div>
-        </div>
+        </FeatureDialog>
       )}
     </div>
   );

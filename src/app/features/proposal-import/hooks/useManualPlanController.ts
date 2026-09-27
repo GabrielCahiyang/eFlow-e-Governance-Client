@@ -24,7 +24,6 @@ import {
 import type { DraftTask } from "../components/draftModel";
 import { buildProposalBudgetFromTasks } from "../../budget";
 import {
-  type ManualPlanValidationIssue,
   validateManualPlanDraft,
 } from "../services/manualPlanValidation";
 
@@ -45,12 +44,14 @@ export function useManualPlanController(onClose?: () => void) {
   const { orgs } = useOrgs();
   const { toast } = useToast();
   const [planTitle, setPlanTitle] = useState("");
+  const [planTitleError, setPlanTitleError] = useState("");
   const [planDescription, setPlanDescription] = useState("");
   const [draftTasks, setDraftTasks] = useState<DraftTask[]>([]);
   const proposalBudget = useMemo(() => buildProposalBudgetFromTasks(draftTasks), [draftTasks]);
   const [committing, setCommitting] = useState(false);
   const [commitMessage, setCommitMessage] = useState("");
-  const [validationIssues, setValidationIssues] = useState<ManualPlanValidationIssue[]>([]);
+  const [validationRequested, setValidationRequested] = useState(false);
+  const [saveError, setSaveError] = useState("");
   const [draftId, setDraftId] = useState<string | null>(null);
   const [autoSaveState, setAutoSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const creatingDraft = useRef(false);
@@ -82,6 +83,12 @@ export function useManualPlanController(onClose?: () => void) {
   const currentDraftTask = assignModalTaskKey
     ? draftTasks.find((task) => task.key === assignModalTaskKey) || null
     : null;
+  const validationIssues = useMemo(
+    () => validationRequested
+      ? validateManualPlanDraft({ planTitle, planDescription, tasks: draftTasks })
+      : [],
+    [draftTasks, planDescription, planTitle, validationRequested],
+  );
 
   useEffect(() => {
     if (!ownerOrgId || !planTitle.trim() || draftTasks.length === 0) return;
@@ -119,6 +126,7 @@ export function useManualPlanController(onClose?: () => void) {
   const updatePlanTitle = (nextTitle: string) => {
     setPlanTitle(nextTitle);
     if (nextTitle.trim()) {
+      setPlanTitleError("");
       setDraftTasks((tasks) => renameManualPlan(tasks, nextTitle.trim()));
     }
   };
@@ -126,7 +134,7 @@ export function useManualPlanController(onClose?: () => void) {
   const handleAddProgram = () => {
     const normalizedTitle = planTitle.trim();
     if (!normalizedTitle) {
-      toast("Name the plan before adding its first program.", "error");
+      setPlanTitleError("Enter a plan title before adding a Program.");
       return;
     }
     setDraftTasks((tasks) => addManualProgram(tasks, normalizedTitle));
@@ -143,14 +151,13 @@ export function useManualPlanController(onClose?: () => void) {
 
   const handleCommit = async () => {
     const issues = validateManualPlanDraft({ planTitle, planDescription, tasks: draftTasks });
+    setValidationRequested(true);
+    setSaveError("");
     if (issues.length > 0) {
-      setValidationIssues(issues);
-      setCommitMessage("Complete the listed requirements before creating this work plan.");
-      toast("This work plan is incomplete. Review the requirements below.", "error");
+      setCommitMessage("");
       return;
     }
 
-    setValidationIssues([]);
     setCommitting(true);
     setCommitMessage("Saving persistent collaboration draft...");
     try {
@@ -171,9 +178,8 @@ export function useManualPlanController(onClose?: () => void) {
       onClose?.();
     } catch (error) {
       const message = error instanceof Error ? error.message : "Could not save this work-plan draft.";
-      setValidationIssues([{ id: "save", message }]);
-      setCommitMessage(message);
-      toast("The work-plan draft could not be saved.", "error");
+      setSaveError(message);
+      setCommitMessage("");
     } finally {
       setCommitting(false);
     }
@@ -187,12 +193,14 @@ export function useManualPlanController(onClose?: () => void) {
     employeesLoading,
     employeeNotes,
     planTitle,
+    planTitleError,
     planDescription,
     proposalBudget,
     draftTasks,
     committing,
     autoSaveState,
     commitMessage,
+    saveError,
     validationIssues,
     assignModalTaskKey,
     currentDraftTask,

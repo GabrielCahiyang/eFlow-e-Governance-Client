@@ -96,7 +96,7 @@ export function ArchivedMinutes() {
             </div>
             <button
               onClick={() => setHasSearched(true)}
-              className="px-5 py-3 bg-violet-600 text-white rounded-xl text-[12px] font-semibold cursor-pointer hover:bg-violet-700 transition-colors"
+              className="rounded-xl bg-primary px-5 py-3 text-[12px] font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
             >
               Search
             </button>

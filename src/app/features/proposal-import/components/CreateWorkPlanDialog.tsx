@@ -25,17 +25,17 @@ export function CreateWorkPlanDialog({
       isOpen={open}
       onClose={onClose}
       title="Create a work plan"
-      width="max-w-6xl"
+      width="max-w-5xl"
       overlayClassName="eflow-wide-work-plan-modal"
       className="overflow-hidden"
       bodyClassName="!p-0 !overflow-hidden flex min-h-0 flex-col flex-1"
     >
       {/* Main Container */}
-      <div className="grid min-h-0 min-w-0 flex-1 grid-cols-1 bg-neutral-50/50 xl:grid-cols-[minmax(0,1fr)_260px]">
+      <div className="grid min-h-0 min-w-0 flex-1 grid-cols-1 bg-neutral-50/50 xl:grid-cols-[minmax(0,1fr)_220px]">
         {/* Left Column: Form & Tabs */}
         <div className="min-h-0 min-w-0 space-y-5 overflow-y-auto p-3 sm:p-7 lg:p-8">
           <div className="flex items-center gap-3 border-b border-neutral-200 pb-4">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-indigo-100 bg-indigo-50 text-indigo-600">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary">
               {isManual ? (
                 <Icons.FileEdit size={20} />
               ) : (
@@ -43,7 +43,7 @@ export function CreateWorkPlanDialog({
               )}
             </div>
             <div>
-              <span className="text-[10.5px] font-bold uppercase tracking-wider text-indigo-600">
+              <span className="text-[10.5px] font-bold uppercase tracking-wider text-primary">
                 Planning workspace
               </span>
               <p className="text-sm font-semibold text-neutral-900">
@@ -64,7 +64,7 @@ export function CreateWorkPlanDialog({
             >
               <Icons.FilePlus
                 size={15}
-                className={isManual ? "text-indigo-600" : "text-neutral-400"}
+                className={isManual ? "text-primary" : "text-neutral-400"}
               />
               <span>New work plan</span>
             </button>
@@ -79,7 +79,7 @@ export function CreateWorkPlanDialog({
             >
               <Icons.FileText
                 size={15}
-                className={!isManual ? "text-indigo-600" : "text-neutral-400"}
+                className={!isManual ? "text-primary" : "text-neutral-400"}
               />
               <span>Import proposal</span>
             </button>
@@ -103,36 +103,36 @@ export function CreateWorkPlanDialog({
         </div>
 
         {/* Right Column: Hero Visual Card */}
-        <div className="hidden min-h-0 flex-col justify-between overflow-y-auto border-l border-neutral-200/70 bg-gradient-to-br from-indigo-50/70 via-purple-50/40 to-blue-50/70 p-6 xl:flex">
+        <div className="hidden min-h-0 flex-col justify-between overflow-y-auto border-l border-primary/10 bg-gradient-to-br from-primary/10 via-primary/5 to-info/5 p-5 xl:flex">
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-600 font-sans">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-primary font-sans">
                 {isManual ? "Build with structure" : "AI-Assisted Proposal"}
               </span>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/80 border border-indigo-100 text-[10.5px] font-semibold text-indigo-700 shadow-xs">
-                <span className="w-1.5 h-1.5 rounded-full bg-indigo-600 animate-pulse" />
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/80 border border-primary/15 text-[10.5px] font-semibold text-primary shadow-xs">
+                <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                 Draft
               </span>
             </div>
 
             {/* Visual Board Mockup */}
             <div className="relative py-4 flex items-center justify-center">
-              <div className="w-48 bg-white/90 backdrop-blur-sm border border-indigo-100 rounded-2xl p-4 shadow-lg shadow-indigo-100/50 space-y-2.5 transform -rotate-1 hover:rotate-0 transition-transform">
+              <div className="w-44 bg-white/90 backdrop-blur-sm border border-primary/15 rounded-2xl p-4 shadow-lg shadow-primary/10 space-y-2.5 transform -rotate-1 hover:rotate-0 transition-transform">
                 <div className="flex items-center gap-1.5 mb-2">
                   <div className="w-2 h-2 rounded-full bg-rose-400" />
                   <div className="w-2 h-2 rounded-full bg-amber-400" />
                   <div className="w-2 h-2 rounded-full bg-emerald-400" />
                 </div>
-                <div className="h-2 w-3/4 bg-indigo-200 rounded-full" />
+                <div className="h-2 w-3/4 bg-primary/25 rounded-full" />
                 <div className="h-2 w-full bg-neutral-100 rounded-full" />
                 <div className="grid grid-cols-3 gap-1.5 pt-1">
-                  <div className="h-6 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-[10px] font-bold text-indigo-600">
+                  <div className="h-6 rounded-lg bg-primary/10 border border-primary/15 flex items-center justify-center text-[10px] font-bold text-primary">
                     P
                   </div>
-                  <div className="h-6 rounded-lg bg-purple-50 border border-purple-100 flex items-center justify-center text-[10px] font-bold text-purple-600">
+                  <div className="h-6 rounded-lg bg-primary/10 border border-primary/15 flex items-center justify-center text-[10px] font-bold text-primary">
                     A
                   </div>
-                  <div className="h-6 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center text-[10px] font-bold text-blue-600">
+                  <div className="h-6 rounded-lg bg-primary/10 border border-primary/15 flex items-center justify-center text-[10px] font-bold text-primary">
                     T
                   </div>
                 </div>
@@ -171,7 +171,7 @@ export function CreateWorkPlanDialog({
                   key={step}
                   className="flex items-center gap-3 text-xs font-semibold text-neutral-700"
                 >
-                  <span className="flex items-center justify-center w-5 h-5 rounded-md bg-white border border-indigo-200 text-indigo-600 text-[10px] font-bold shadow-xs">
+                  <span className="flex items-center justify-center w-5 h-5 rounded-md bg-white border border-primary/20 text-primary text-[10px] font-bold shadow-xs">
                     {String(index + 1).padStart(2, "0")}
                   </span>
                   <span>{step}</span>
@@ -180,11 +180,11 @@ export function CreateWorkPlanDialog({
             </ol>
           </div>
 
-          <div className="pt-6 border-t border-indigo-100/80 mt-6">
+          <div className="pt-6 border-t border-primary/15 mt-6">
             <div className="flex items-start gap-2 text-[11px] text-neutral-600 leading-snug">
               <Icons.CheckCircle2
                 size={15}
-                className="text-indigo-600 shrink-0 mt-0.5"
+                className="text-primary shrink-0 mt-0.5"
               />
               <span>
                 Drafts autosave · no operational work is created before approval

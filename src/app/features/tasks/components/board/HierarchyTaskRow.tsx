@@ -3,6 +3,7 @@ import type { Task } from '../../../../services/taskService';
 import { RejectionNotice, ReopenNotice, SubmissionDetails } from './TaskFeedback';
 import { SubtaskProgressChip, getDeadlineInfo, getTaskMemberNames, priorityMeta, statusMeta, type MondayBoardProps } from './model';
 import { TaskManagementMenu } from './TaskManagementMenu';
+import { isTaskLead } from '../../selectors/leadership';
 
 interface HierarchyTaskRowProps {
   task: Task;
@@ -35,7 +36,7 @@ export function HierarchyTaskRow({ task, employeeById, role, currentUserId, onVe
                                     role === "employee" &&
                                     task.status === "in_progress" &&
                                     currentUserId &&
-                                    task.assigneeId === currentUserId;
+                                    isTaskLead(task, currentUserId);
                                   return (
                                     <div key={task.id} className="px-3 py-2.5">
                                       <div className="flex items-start justify-between gap-2">
@@ -155,7 +156,7 @@ export function HierarchyTaskRow({ task, employeeById, role, currentUserId, onVe
                                                 onClick={() =>
                                                   onExecute?.(task.id)
                                                 }
-                                                className="text-[10px] bg-blue-500 text-white px-2 py-0.5 rounded-md hover:bg-blue-600 transition"
+                                                className="rounded-md bg-primary px-2 py-0.5 text-[10px] text-primary-foreground transition hover:bg-primary/90"
                                               >
                                                 Start
                                               </button>
@@ -165,7 +166,7 @@ export function HierarchyTaskRow({ task, employeeById, role, currentUserId, onVe
                                               onClick={() =>
                                                 onSubmitRequest?.(task)
                                               }
-                                              className="text-[10px] bg-violet-500 text-white px-2 py-0.5 rounded-md hover:bg-violet-600 transition"
+                                              className="rounded-md bg-primary px-2 py-0.5 text-[10px] text-primary-foreground transition hover:bg-primary/90"
                                             >
                                               Submit
                                             </button>

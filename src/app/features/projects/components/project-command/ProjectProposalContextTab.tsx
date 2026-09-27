@@ -370,9 +370,9 @@ export function ProjectProposalContextTab({
 
           {/* Decision Action Form (if authorized) */}
           {canDecide && (
-            <div className="bg-white border border-indigo-200 rounded-2xl p-6 shadow-xs space-y-4">
+            <div className="space-y-4 rounded-2xl border border-primary/25 bg-card p-6 shadow-xs">
               <div className="flex items-center gap-2">
-                <Shield size={16} className="text-indigo-600" />
+                <Shield size={16} className="text-primary" />
                 <h3 className="text-sm font-bold text-neutral-900 uppercase tracking-wider">
                   Review &amp; Sign-off Decision
                 </h3>
@@ -388,7 +388,7 @@ export function ProjectProposalContextTab({
                     value={changeReason}
                     onChange={(e) => setChangeReason(e.target.value)}
                     placeholder="Describe specific changes or clarifications required before signing off…"
-                    className="w-full h-24 rounded-xl border border-neutral-300 p-3 text-xs focus:border-indigo-500 focus:outline-none"
+                    className="h-24 w-full rounded-xl border border-neutral-300 p-3 text-xs focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
                   />
                   <div className="flex items-center gap-2">
                     <button

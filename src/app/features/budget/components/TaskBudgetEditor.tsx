@@ -42,13 +42,23 @@ export function TaskBudgetEditor({
   } : line));
   const removeIds = (ids: Set<string>) => updateLines(lines.filter((line) => !ids.has(line.id)));
 
+  const status = value.decision === "missing"
+    ? { label: "Decision needed", className: "bg-amber-50 text-amber-800 ring-1 ring-amber-200" }
+    : value.decision === "funded"
+      ? { label: `Budget assigned · ${peso.format(total)}`, className: "bg-primary/10 text-primary ring-1 ring-primary/20" }
+      : { label: "No cost selected", className: "bg-primary/10 text-primary ring-1 ring-primary/20" };
+
   return <div className="space-y-4">
-    <div className="grid gap-2 sm:grid-cols-3">
+    <div className="space-y-3">
+      <div className="grid gap-2 sm:grid-cols-2">
       <DecisionCard active={value.decision === "funded"} disabled={readOnly} title="Budget assigned" note="Add categories and particulars" onClick={() => selectDecision("funded")} />
       <DecisionCard active={value.decision === "no_cost"} disabled={readOnly} title="No cost required" note="Work uses no proposal money" onClick={() => selectDecision("no_cost")} />
-      <div className={`rounded-xl border p-3 ${value.decision === "missing" ? "border-amber-300 bg-amber-50" : "border-neutral-200 bg-neutral-50"}`}>
-        <div className="text-[10px] font-medium text-neutral-800">Task funding status</div>
-        <div className="mt-1 text-[10px] text-neutral-500">{value.decision === "missing" ? "Decision still required" : value.decision === "funded" ? peso.format(total) : "Explicitly no cost"}</div>
+      </div>
+      <div className="flex flex-wrap items-center gap-2 px-1 text-[10px]">
+        <span className="font-medium text-neutral-500">Task funding status</span>
+        <span className={`rounded-full px-2.5 py-1 font-semibold ${status.className}`}>
+          {status.label}
+        </span>
       </div>
     </div>
 
@@ -82,12 +92,12 @@ export function TaskBudgetEditor({
 }
 
 function DecisionCard({ active, disabled, title, note, onClick }: { active: boolean; disabled: boolean; title: string; note: string; onClick: () => void }) {
-  return <button type="button" disabled={disabled} onClick={onClick} className={`rounded-xl border p-3 text-left transition ${active ? "border-neutral-900 bg-neutral-950 text-white" : "border-neutral-200 bg-white text-neutral-900 hover:border-neutral-400"}`}><div className="flex items-center gap-2"><Banknote size={13} /><span className="text-[10px] font-medium">{title}</span></div><div className={`mt-1 text-[9px] ${active ? "text-neutral-300" : "text-neutral-500"}`}>{note}</div></button>;
+  return <button type="button" disabled={disabled} onClick={onClick} className={`rounded-xl border p-3 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-60 ${active ? "border-primary bg-primary/10 text-primary ring-1 ring-primary/15" : "border-neutral-200 bg-white text-neutral-900 hover:border-primary/35 hover:bg-primary/5"}`}><div className="flex items-center gap-2"><Banknote size={13} /><span className="text-[10px] font-semibold">{title}</span></div><div className={`mt-1 text-[9px] ${active ? "text-primary/80" : "text-neutral-500"}`}>{note}</div></button>;
 }
 
 function ParticularRow({ line, readOnly, onPatch, onRemove }: { line: BudgetLineInput; readOnly: boolean; onPatch: (patch: Partial<BudgetLineInput>) => void; onRemove: () => void }) {
   const amount = getBudgetLineAmount(line);
-  return <div className="grid gap-2 p-3 sm:grid-cols-[minmax(180px,1fr)_80px_90px_110px_110px_30px] sm:items-end">
+  return <div className="grid grid-cols-2 gap-2 p-3 md:grid-cols-[minmax(120px,1fr)_68px_64px_88px_88px_30px] md:items-end">
     <Field label="Particular"><input disabled={readOnly} value={line.particular} onChange={(event) => onPatch({ particular: event.target.value })} placeholder="Exact item or service" className={inputClass} /></Field>
     <Field label="Quantity"><input disabled={readOnly} type="number" min={0} step="0.01" value={line.quantity ?? 1} onChange={(event) => onPatch({ quantity: Number(event.target.value), amount: Number(event.target.value) * Number(line.unitCost || 0) })} className={inputClass} /></Field>
     <Field label="Unit"><input disabled={readOnly} value={line.unit || "item"} onChange={(event) => onPatch({ unit: event.target.value })} className={inputClass} /></Field>

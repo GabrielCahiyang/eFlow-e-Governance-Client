@@ -1,4 +1,5 @@
 import { CornerUpLeft, MoreVertical, Send, Smile, X } from 'lucide-react';
+import { FeatureDialog } from '../../../../../components/ui/FeatureDialog';
 import { deleteMessage } from '../../../../../services/chatService';
 import { parseMessage } from './messageCodec';
 import { useTaskChat } from './useTaskChat';
@@ -198,7 +199,7 @@ if (!channelId) {
         <button
           onClick={handleSend}
           disabled={sending || !draft.trim()}
-          className="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center disabled:opacity-40 disabled:bg-neutral-200 hover:bg-blue-700 active:scale-95 transition-all shrink-0 shadow-sm"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm transition-all hover:bg-primary/90 active:scale-95 disabled:bg-neutral-200 disabled:opacity-40"
         >
           <Send size={13} />
         </button>
@@ -210,8 +211,8 @@ if (!channelId) {
       
       {/* Detailed Reactions Modal */}
       {reactionsModalContent && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-[100000] p-4 animate-fade-in">
-          <div className="bg-[#242526] text-white rounded-2xl w-full max-w-sm shadow-2xl flex flex-col max-h-[400px] border border-neutral-800 overflow-hidden font-normal">
+        <FeatureDialog onClose={() => setReactionsModalContent(null)} title="Message reactions" contentClassName="!max-w-sm" showCloseButton={false}>
+          <div className="flex max-h-[400px] w-full flex-col overflow-hidden rounded-[14px] border border-neutral-800 bg-[#242526] font-normal text-white">
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-800 bg-[#242526]">
               <span className="text-[14px] font-bold">Message reactions</span>
@@ -279,7 +280,7 @@ if (!channelId) {
               })}
             </div>
           </div>
-        </div>
+        </FeatureDialog>
       )}
     </div>
   );

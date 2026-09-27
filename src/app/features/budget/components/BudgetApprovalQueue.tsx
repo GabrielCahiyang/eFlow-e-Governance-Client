@@ -4,6 +4,15 @@ import { AnimatePresence } from "motion/react";
 import * as m from "motion/react-m";
 import { Banknote, Check, FileCheck2, WalletCards, X } from "lucide-react";
 import { BxSliderAlt, BxsBolt, BxsCheckShield } from "../../../components/ui/boxicons";
+import { Textarea } from "../../../components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../../../components/ui/dialog";
 import { useAuth } from "../../../contexts/AuthContext";
 import { motionTransition } from "../../../shared/motion/motionTokens";
 import type { DepartmentBudgetBundle } from "../types";
@@ -118,7 +127,7 @@ export function BudgetApprovalQueue({
     return (
       <div className="space-y-4">
         {isDepartmentApprover && (
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-neutral-200 bg-white px-4 py-3 shadow-sm">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-[10px] border border-border bg-card px-4 py-3 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
             <div className="flex items-center gap-2.5">
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-neutral-100 text-neutral-700">
                 <BxSliderAlt size={16} />
@@ -163,7 +172,7 @@ export function BudgetApprovalQueue({
       {message && <div className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-[12px] text-rose-700">{message}</div>}
 
       {isDepartmentApprover && (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-neutral-200 bg-white px-4 py-3 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-[10px] border border-border bg-card px-4 py-3 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
           <div className="flex items-center gap-2.5">
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-neutral-100 text-neutral-700">
               <BxSliderAlt size={16} />
@@ -354,16 +363,16 @@ export function BudgetApprovalQueue({
 
 function QueueSection({ icon, title, count, children, action }: { icon: ReactNode; title: string; count: number; children: ReactNode; action?: ReactNode }) {
   return (
-    <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
-      <header className="flex items-center gap-2 border-b border-neutral-100 px-4 py-3">
-        <span className="text-neutral-500">{icon}</span>
-        <h3 className="text-[12px] font-semibold text-neutral-900">{title}</h3>
+    <section className="overflow-hidden rounded-[10px] border border-border bg-card shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
+      <header className="flex items-center gap-2 border-b border-border px-4 py-3">
+        <span className="text-muted-foreground">{icon}</span>
+        <h3 className="text-[12px] font-semibold text-foreground">{title}</h3>
         <div className="ml-auto flex items-center gap-2">
           {action}
           <span className="rounded-full bg-amber-50 px-2 py-1 text-[11px] text-amber-700">{count}</span>
         </div>
       </header>
-      <div className="divide-y divide-neutral-100">
+      <div className="divide-y divide-border/70">
         <AnimatePresence initial={false} mode="popLayout">
           {children}
         </AnimatePresence>
@@ -381,7 +390,7 @@ function QueueRow({ recordId, title, meta, status, actions, details, focused = f
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.98 }}
       transition={motionTransition.productive}
-      className={`flex flex-wrap items-center gap-3 p-4 ${focused ? "bg-blue-50 ring-1 ring-inset ring-blue-200" : ""}`}
+      className={`flex flex-wrap items-center gap-3 p-4 ${focused ? "bg-accent ring-1 ring-inset ring-primary/25" : ""}`}
     >
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
@@ -427,17 +436,21 @@ function DecisionButtons({ busy, onApprove, onReject, approveLabel = "Approve", 
 function RejectionDialog({ title, busy, onClose, onConfirm }: { title: string; busy: boolean; onClose: () => void; onConfirm: (reason: string) => Promise<void> }) {
   const [reason, setReason] = useState("");
   return (
-    <>
-      <div className="fixed inset-0 z-[80] bg-neutral-950/35 backdrop-blur-[1px]" onClick={onClose} />
-      <div className="fixed left-1/2 top-1/2 z-[81] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-neutral-200 bg-white p-5 shadow-2xl">
-        <h3 className="text-[14px] font-semibold text-neutral-900">{title}</h3>
-        <p className="mt-1 text-[12px] text-neutral-500">Record a clear reason so the requester knows exactly what to correct.</p>
-        <textarea autoFocus rows={4} value={reason} onChange={(event) => setReason(event.target.value)} placeholder="Reason or required correction" className="mt-4 w-full rounded-xl border border-neutral-200 px-3 py-2 text-[12px]" />
-        <div className="mt-4 flex justify-end gap-2">
-          <button disabled={busy} onClick={onClose} className="h-9 rounded-lg border border-neutral-200 px-4 text-[12px]">Cancel</button>
-          <button disabled={busy || !reason.trim()} onClick={() => void onConfirm(reason.trim())} className="h-9 rounded-lg bg-rose-600 px-4 text-[12px] text-white disabled:opacity-40">Confirm decision</button>
+    <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className="gap-0 overflow-hidden p-0 sm:max-w-[480px]">
+        <DialogHeader className="border-b border-border px-5 py-4 pr-12">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-destructive">Decision required</div>
+          <DialogTitle className="text-[18px]">{title}</DialogTitle>
+          <DialogDescription>Record a clear reason so the requester knows exactly what to correct.</DialogDescription>
+        </DialogHeader>
+        <div className="px-5 py-4">
+          <Textarea autoFocus rows={4} value={reason} onChange={(event) => setReason(event.target.value)} placeholder="Reason or required correction" className="text-[12px]" />
         </div>
-      </div>
-    </>
+        <DialogFooter className="border-t border-border px-5 py-4 sm:justify-end">
+          <Button kind="secondary" size="small" disabled={busy} onClick={onClose}>Cancel</Button>
+          <Button kind="primary" color="negative" size="small" disabled={busy || !reason.trim()} loading={busy} onClick={() => void onConfirm(reason.trim())}>Confirm decision</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

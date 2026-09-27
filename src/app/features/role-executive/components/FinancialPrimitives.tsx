@@ -46,11 +46,11 @@ export function Btn({ icon, label, variant = "secondary" }: { icon: React.ReactN
 
 export function StatCard({ label, value, sub, trend }: { label: string; value: string; sub?: string; trend?: "up" | "down" | "flat" }) {
   return (
-    <section aria-label={label} className="min-w-[155px] flex-1 rounded-xl border border-neutral-200 bg-white p-4">
-      <Text className="uppercase tracking-[0.08em] text-neutral-500" type="text3" weight="medium">{label}</Text>
-      <p className="eflow-tabular mt-1 text-[24px] font-semibold text-neutral-900">{value}</p>
+    <section aria-label={label} className="min-w-[155px] flex-1 rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
+      <Text className="uppercase tracking-[0.08em] text-muted-foreground" type="text3" weight="medium">{label}</Text>
+      <p className="eflow-tabular mt-1 text-[24px] font-semibold text-foreground">{value}</p>
       {sub && (
-        <p className={`mt-1 text-[11px] ${trend === "up" ? "text-emerald-600" : trend === "down" ? "text-red-600" : "text-neutral-500"}`}>
+        <p className={`mt-1 text-[11px] ${trend === "up" ? "text-emerald-600" : trend === "down" ? "text-red-600" : "text-muted-foreground"}`}>
           {trend === "up" ? "↑ " : trend === "down" ? "↓ " : ""}{sub}
         </p>
       )}

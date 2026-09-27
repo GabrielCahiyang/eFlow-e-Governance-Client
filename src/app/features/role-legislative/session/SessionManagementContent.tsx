@@ -100,7 +100,7 @@ function OrderOfBusiness() {
             {!isAdjourned && !isGrace && (
               <button
                 onClick={() => setDrawerOpen(true)}
-                className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 text-white rounded-lg text-[12px] font-semibold cursor-pointer hover:bg-blue-700 transition-colors"
+                className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-[12px] font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
               >
                 <Add size={14} /> Add Agenda Item
               </button>

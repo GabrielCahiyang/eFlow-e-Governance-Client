@@ -85,11 +85,11 @@ export default function ProposalImport({
                 const f = e.dataTransfer.files[0];
                 if (f) handlePdfFile(f);
               }}
-              className="group block cursor-pointer rounded-xl border-2 border-dashed border-indigo-200 bg-indigo-50/20 p-14 text-center transition-colors duration-100 hover:border-indigo-400 hover:bg-indigo-50/40"
+              className="group block cursor-pointer rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 p-14 text-center transition-colors duration-100 hover:border-primary hover:bg-primary/10"
             >
               <Upload
                 size={40}
-                className="mx-auto mb-3 text-indigo-400 transition-colors duration-100 group-hover:text-indigo-600"
+                className="mx-auto mb-3 text-primary/60 transition-colors duration-100 group-hover:text-primary"
               />
               <div className="text-sm font-bold text-neutral-800">
                 Drop a government proposal PDF here
@@ -98,7 +98,7 @@ export default function ProposalImport({
                 or click to browse · AI decomposes it into Programs → Projects →
                 Activities → Tasks
               </div>
-              <div className="mt-4 text-[11px] text-neutral-500 bg-white border border-indigo-100 rounded-full px-4 py-1.5 inline-block shadow-xs">
+              <div className="mt-4 inline-block rounded-full border border-primary/20 bg-card px-4 py-1.5 text-[11px] text-neutral-500 shadow-xs">
                 The editable result is saved as a persistent draft before
                 approval · no operational work is created yet
               </div>
@@ -157,10 +157,10 @@ export default function ProposalImport({
                 )}
               <div className="flex justify-center gap-3 mt-6">
                 <div
-                  className={`w-2 h-2 rounded-full ${pdfPhase === "extracting" ? "bg-indigo-600 animate-pulse" : "bg-emerald-500"}`}
+                  className={`w-2 h-2 rounded-full ${pdfPhase === "extracting" ? "bg-primary animate-pulse" : "bg-emerald-500"}`}
                 />
                 <div
-                  className={`w-2 h-2 rounded-full ${pdfPhase === "decomposing" ? "bg-indigo-600 animate-pulse" : "bg-neutral-200"}`}
+                  className={`w-2 h-2 rounded-full ${pdfPhase === "decomposing" ? "bg-primary animate-pulse" : "bg-neutral-200"}`}
                 />
               </div>
             </div>

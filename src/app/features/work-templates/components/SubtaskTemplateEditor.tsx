@@ -1,5 +1,6 @@
 import { Plus, Trash2, X } from "lucide-react";
 import { useState } from "react";
+import { FeatureDialog } from "../../../components/ui/FeatureDialog";
 import type { SubtaskTemplateDraft } from "../types";
 
 const emptyItem = (position: number) => ({ title: "", position });
@@ -42,8 +43,8 @@ export function SubtaskTemplateEditor({
   };
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-neutral-900/45 p-4" onClick={onClose}>
-      <div className="flex max-h-[88vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-2xl" onClick={(event) => event.stopPropagation()}>
+    <FeatureDialog onClose={onClose} title={initial?.id ? "Edit checklist" : "Create checklist"} contentClassName="!h-[88vh] !max-w-2xl max-sm:!h-[100dvh]" showCloseButton={false}>
+      <div className="flex h-full w-full flex-col bg-white">
         <div className="flex items-center justify-between border-b border-neutral-100 px-5 py-4">
           <div>
             <div className="text-[10px] uppercase tracking-[0.2em] text-neutral-400">Subtask template</div>
@@ -89,6 +90,6 @@ export function SubtaskTemplateEditor({
           <button onClick={save} disabled={saving} className="rounded-xl bg-neutral-900 px-4 py-2 text-[12px] font-medium text-white disabled:opacity-50">{saving ? "Saving…" : initial?.id ? "Save changes" : "Create template"}</button>
         </div>
       </div>
-    </div>
+    </FeatureDialog>
   );
 }

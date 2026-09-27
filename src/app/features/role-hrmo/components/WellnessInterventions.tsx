@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Brain, Calendar, Heart, Pause, Plus, Search } from "lucide-react";
+import { FeatureDialog } from "../../../components/ui/FeatureDialog";
 import { Btn, PageHeader } from "./primitives";
 
 type KColumn = "flagged" | "active" | "monitoring" | "resolved";
@@ -116,8 +117,8 @@ export function WellnessInterventions() {
       </div>
 
       {modal && (
-        <div className="fixed inset-0 bg-neutral-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-6" onClick={() => setModal(null)}>
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <FeatureDialog onClose={() => setModal(null)} title="Activate Intervention" description={`Select a response for ${modal.card.name}.`} contentClassName="!max-w-lg">
+          <div className="w-full p-6 pr-12">
             <div className="flex items-center gap-2 mb-2">
               <Heart size={16} className="text-red-600" />
               <h3 className="text-[16px] font-semibold">Activate Intervention</h3>
@@ -164,7 +165,7 @@ export function WellnessInterventions() {
               </button>
             </div>
           </div>
-        </div>
+        </FeatureDialog>
       )}
     </div>
   );

@@ -138,7 +138,7 @@ describe("Task Board Project Filter", () => {
     expect(filterTasksByBoardView(tasks, "completed", undefined, now).map((task) => task.id)).toEqual(["done"]);
   });
 
-  it("keeps Active work actionable by default while allowing an explicit status filter", () => {
+  it("shows all current records by default while allowing an open-status filter", () => {
     const tasks = [
       { id: "open", status: "in_progress" },
       { id: "review", status: "for_review" },
@@ -147,7 +147,8 @@ describe("Task Board Project Filter", () => {
       { id: "archived", status: "todo", archivedAt: 1 },
     ] as Task[];
 
-    expect(filterTasksByRecordScope(tasks, "active").map((task) => task.id)).toEqual(["open", "review"]);
+    expect(filterTasksByRecordScope(tasks, "active").map((task) => task.id)).toEqual(["open", "review", "done", "cancelled"]);
+    expect(filterTasksByRecordScope(tasks, "active", "active").map((task) => task.id)).toEqual(["open", "review"]);
     expect(filterTasksByRecordScope(tasks, "active", "completed").map((task) => task.id)).toEqual(["done"]);
     expect(filterTasksByRecordScope(tasks, "active", "cancelled").map((task) => task.id)).toEqual(["cancelled"]);
     expect(filterTasksByRecordScope(tasks, "archived").map((task) => task.id)).toEqual(["archived"]);

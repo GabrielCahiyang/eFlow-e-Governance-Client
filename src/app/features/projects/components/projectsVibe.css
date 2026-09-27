@@ -67,18 +67,18 @@
   bottom: -1px;
   left: 0;
   height: 2px;
-  background: linear-gradient(90deg, #5b4df4, #8b7cff 45%, transparent 88%);
+  background: linear-gradient(90deg, var(--primary), color-mix(in srgb, var(--primary) 62%, white) 45%, transparent 88%);
   content: "";
 }
 
 .eflow-creation-builder > div > header > div:first-child > div:first-child {
   width: 44px;
   height: 44px;
-  border: 1px solid #ddd8ff;
+  border: 1px solid color-mix(in srgb, var(--primary) 20%, transparent);
   border-radius: 14px;
-  background: linear-gradient(145deg, #f1efff, #e8e4ff) !important;
-  color: #5b4df4 !important;
-  box-shadow: 0 4px 12px rgba(91, 77, 244, .1);
+  background: color-mix(in srgb, var(--primary) 10%, white) !important;
+  color: var(--primary) !important;
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--primary) 10%, transparent);
 }
 
 .eflow-creation-builder > div > header h1 {
@@ -104,9 +104,9 @@
 }
 
 .eflow-creation-builder > div > header > button:hover {
-  border-color: #b8b1ff;
-  background: #f7f5ff;
-  color: #4437d8 !important;
+  border-color: color-mix(in srgb, var(--primary) 38%, transparent);
+  background: color-mix(in srgb, var(--primary) 6%, white);
+  color: var(--primary) !important;
 }
 
 .eflow-creation-builder section.rounded-2xl {
@@ -119,18 +119,28 @@
 .eflow-creation-builder input,
 .eflow-creation-builder textarea,
 .eflow-creation-builder select {
-  border-color: #d6ddea !important;
-  background: #fbfcfe !important;
-  color: #1f2a3d !important;
+  border-color: var(--border) !important;
+  background: var(--input-background) !important;
+  color: var(--foreground) !important;
   box-shadow: inset 0 1px 2px rgba(15, 23, 42, .02);
 }
 
 .eflow-creation-builder input:focus,
 .eflow-creation-builder textarea:focus,
 .eflow-creation-builder select:focus {
-  border-color: #8176f7 !important;
-  background: #fff !important;
-  box-shadow: 0 0 0 3px rgba(91, 77, 244, .12) !important;
+  border-color: var(--ring) !important;
+  background: var(--input-background) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 15%, transparent) !important;
+}
+
+.eflow-creation-builder input[aria-invalid="true"],
+.eflow-creation-builder textarea[aria-invalid="true"],
+.eflow-creation-builder select[aria-invalid="true"],
+.eflow-creation-builder input[aria-invalid="true"]:focus,
+.eflow-creation-builder textarea[aria-invalid="true"]:focus,
+.eflow-creation-builder select[aria-invalid="true"]:focus {
+  border-color: var(--destructive) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--destructive) 15%, transparent) !important;
 }
 
 .eflow-creation-builder input::placeholder,
@@ -139,13 +149,13 @@
 }
 
 .eflow-creation-builder [class*="border-dashed"] {
-  border-color: #c8c2ff !important;
-  background: linear-gradient(145deg, #fbfaff, #f5f3ff) !important;
+  border-color: color-mix(in srgb, var(--primary) 28%, transparent) !important;
+  background: color-mix(in srgb, var(--primary) 4%, white) !important;
 }
 
 .eflow-creation-builder [class*="border-dashed"]:hover {
-  border-color: #8176f7 !important;
-  background: #f2f0ff !important;
+  border-color: var(--primary) !important;
+  background: color-mix(in srgb, var(--primary) 8%, white) !important;
 }
 
 /* Unified "Create a work plan" dialog. The two existing workflow builders
@@ -3182,10 +3192,10 @@
   border-top: 1px solid #f1f5f9;
 }
 
-/* The work-plan editor needs more room than Vibe's standard 900px large modal.
-   Keep the override scoped to this dialog so other modal sizes are unchanged. */
+/* Keep the work-plan workspace roomy enough for the hierarchy while focused
+   enough that the supporting guide remains secondary. */
 .eflow-wide-work-plan-modal {
-  --modal-width: min(1500px, calc(100vw - 32px)) !important;
+  --modal-width: min(1100px, calc(100vw - 40px)) !important;
   --modal-max-height: calc(100dvh - 48px) !important;
 }
 

@@ -32,7 +32,7 @@ export function SessionSummaries() {
             onClick={() => setSelectedSummary(s)}
             className={`px-4 py-2.5 rounded-xl text-[12px] font-medium cursor-pointer transition-all ${
               selectedSummary.id === s.id
-                ? "bg-blue-600 text-white"
+                ? "bg-primary text-primary-foreground"
                 : "bg-white text-neutral-700 border border-neutral-200 hover:bg-neutral-50"
             }`}
           >

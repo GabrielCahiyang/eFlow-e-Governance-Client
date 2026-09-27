@@ -86,7 +86,7 @@ export function SecuritySettingsPage() {
             </div>
           </div>
           <p className="text-[11px] leading-5 text-neutral-500 dark:text-slate-400">Use at least 8 characters. Any additional password policy configured for your account will be checked before saving.</p>
-          <button type="submit" disabled={saving} className="inline-flex h-10 items-center gap-2 rounded-xl bg-neutral-900 px-4 text-[12px] font-semibold text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-blue-600 dark:hover:bg-blue-500">
+          <button type="submit" disabled={saving} className="inline-flex h-10 items-center gap-2 rounded-xl bg-primary px-4 text-[12px] font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50">
             <KeyRound size={15} /> {saving ? 'Updating password…' : 'Update password'}
           </button>
           <ResultMessage result={result} />

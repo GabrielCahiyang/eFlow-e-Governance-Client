@@ -11,10 +11,10 @@ interface MetricCardProps {
   loading?: boolean;
 }
 
-export function MetricCard({ label, value, icon, trend, color = "#0085FF", loading }: MetricCardProps) {
+export function MetricCard({ label, value, icon, trend, color = "#0c6f6b", loading }: MetricCardProps) {
   if (loading) {
     return (
-      <section className="rounded-xl border border-neutral-200 bg-white p-4" aria-label={`${label} is loading`}>
+      <section className="rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]" aria-label={`${label} is loading`}>
         <Skeleton type="text" size="small" width={80} />
         <div className="my-3"><Skeleton type="rectangle" size="custom" width={64} height={32} /></div>
         <Skeleton type="text" size="small" width={96} />
@@ -23,21 +23,21 @@ export function MetricCard({ label, value, icon, trend, color = "#0085FF", loadi
   }
 
   return (
-    <section className="rounded-xl border border-neutral-200 bg-white p-4 transition-shadow hover:shadow-sm" aria-label={label}>
+    <section className="rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)] transition-shadow duration-120 hover:shadow-[0_4px_8px_rgba(0,0,0,0.20)]" aria-label={label}>
       <div className="flex items-center justify-between mb-2">
         <Text className="uppercase tracking-wider" type="text3" color="secondary" weight="medium">
           {label}
         </Text>
         {icon && (
           <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center"
+            className="flex size-8 items-center justify-center rounded-md"
             style={{ backgroundColor: `${color}10` }}
           >
             <div style={{ color }}>{icon}</div>
           </div>
         )}
       </div>
-      <div className="text-[28px] font-semibold tabular-nums text-neutral-900">
+      <div className="text-[32px] leading-[38px] font-bold tabular-nums text-foreground">
         {value}
       </div>
       {trend && (
@@ -68,7 +68,7 @@ export function MetricCardWide({
   label,
   value,
   suffix,
-  color = "#0085FF",
+  color = "#0c6f6b",
   loading,
 }: {
   label: string;
@@ -79,19 +79,19 @@ export function MetricCardWide({
 }) {
   if (loading) {
     return (
-      <section className="flex items-center justify-center rounded-xl border border-neutral-200 bg-white p-4" aria-label={`${label} is loading`}>
+      <section className="flex items-center justify-center rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]" aria-label={`${label} is loading`}>
         <Skeleton type="rectangle" size="custom" width={80} height={40} />
       </section>
     );
   }
 
   return (
-    <section className="flex flex-col items-center justify-center rounded-xl border border-neutral-200 bg-white p-4" aria-label={label}>
-      <div className="text-[28px] font-semibold tabular-nums" style={{ color }}>
+    <section className="flex flex-col items-center justify-center rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]" aria-label={label}>
+      <div className="text-[32px] leading-[38px] font-bold tabular-nums" style={{ color }}>
         {value}
-        {suffix && <span className="text-[14px] text-neutral-400 ml-1">{suffix}</span>}
+        {suffix && <span className="ml-1 text-[14px] text-muted-foreground">{suffix}</span>}
       </div>
-      <Text className="mt-1 text-neutral-500" type="text3" weight="medium">{label}</Text>
+      <Text className="mt-1 text-muted-foreground" type="text3" weight="medium">{label}</Text>
     </section>
   );
 }

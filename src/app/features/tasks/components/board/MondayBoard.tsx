@@ -39,7 +39,8 @@ const recordScopeOptions = [
 ];
 
 const statusFilterOptions: { value: TaskStatusFilter; label: string }[] = [
-  { value: "active", label: "All active statuses" },
+  { value: "all", label: "All statuses" },
+  { value: "active", label: "Open statuses" },
   ...STATUS_ORDER.map((status) => ({ value: status, label: statusMeta[status].label })),
 ];
 
@@ -67,7 +68,7 @@ function TaskBoardLoadingSkeleton() {
     <div
       aria-label="Loading board records"
       aria-live="polite"
-      className="space-y-4 rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm sm:p-5"
+      className="space-y-4 rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]"
       role="status"
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -108,7 +109,7 @@ export function MondayBoard({
   onDeleteTask,
 }: MondayBoardProps) {
   const [recordScope, setRecordScope] = useState<TaskRecordScope>("active");
-  const [statusFilter, setStatusFilter] = useState<TaskStatusFilter>("active");
+  const [statusFilter, setStatusFilter] = useState<TaskStatusFilter>("all");
   const [internalProjectId, setInternalProjectId] = useState<string>("all");
   const [enabledBoardViews, setEnabledBoardViews] = useState<BoardView[]>(["hierarchy"]);
   const [addViewOpen, setAddViewOpen] = useState(false);
@@ -275,7 +276,7 @@ export function MondayBoard({
       const match = tasks.find((task) => task.id === intent.taskId);
       if (match) {
         setRecordScope(match.archivedAt ? "archived" : "active");
-        setStatusFilter(match.archivedAt ? "active" : match.status);
+        setStatusFilter(match.archivedAt ? "all" : match.status);
         openTaskEditor(match);
       }
       return true;
@@ -287,8 +288,8 @@ export function MondayBoard({
     <div className="eflow-operational-workspace flex w-full flex-col gap-5">
       <h1 className="sr-only">Board</h1>
       <div className="grid min-w-0 gap-4 lg:grid-cols-[236px_minmax(0,1fr)]">
-        <aside className="h-fit rounded-2xl border border-neutral-200 bg-white p-3 shadow-sm lg:sticky lg:top-4" aria-label="Task board context">
-          <div className="rounded-xl bg-neutral-50 px-2.5 py-3">
+        <aside className="h-fit rounded-[10px] border border-border bg-card p-3 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)] lg:sticky lg:top-4" aria-label="Task board context">
+          <div className="rounded-[14px] bg-muted/50 px-2.5 py-3">
             <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-neutral-400">Project context</div>
             <div className="mt-1 break-words text-[13px] font-semibold leading-snug text-neutral-900">{projectContext.title}</div>
             <div className="mt-3 grid grid-cols-3 gap-1.5 text-center">
@@ -417,7 +418,7 @@ export function MondayBoard({
                         <ChevronDown size={13} className="text-neutral-400" />
                       </button>
                       {moreViewOpen && (
-                        <div role="menu" aria-label="More task board views" className="absolute right-0 top-full z-[100] mt-1.5 w-60 rounded-xl border border-neutral-200 bg-white p-1.5 shadow-xl">
+                        <div role="menu" aria-label="More task board views" className="absolute right-0 top-full z-[100] mt-1.5 w-60 rounded-[14px] border border-border bg-card p-1.5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
                           <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-400">Open task views</div>
                           {overflowBoardViews.map((view) => (
                             <div
@@ -470,7 +471,7 @@ export function MondayBoard({
                       <Plus size={14} /> Add view
                     </button>
                     {addViewOpen && (
-                      <div role="menu" aria-label="Add task board view" className="absolute right-0 top-full z-[100] mt-2 w-[300px] rounded-xl border border-neutral-200 bg-white p-2 shadow-xl">
+                      <div role="menu" aria-label="Add task board view" className="absolute right-0 top-full z-[100] mt-2 w-[300px] rounded-[14px] border border-border bg-card p-2 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
                         <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-400">Additional views</div>
                         {availableBoardViews.length === 0 ? (
                           <div className="px-2 py-3 text-xs text-neutral-500">All available views are already open.</div>

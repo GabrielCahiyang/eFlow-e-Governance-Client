@@ -160,7 +160,7 @@ export function ProfileSettingsPage() {
             <label htmlFor="display-name" className="mb-2 block text-[12px] font-medium text-neutral-700 dark:text-slate-200">Display name</label>
             <Input id="display-name" value={displayName} onChange={(event) => { setDisplayName(event.target.value); setNameDirty(true); }} className={inputClass} maxLength={100} />
             <div className="mt-3 flex flex-wrap items-center gap-3">
-              <button type="button" onClick={saveName} disabled={nameSaving || !displayName.trim()} className="inline-flex h-10 items-center gap-2 rounded-xl bg-blue-600 px-4 text-[12px] font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50">
+              <button type="button" onClick={saveName} disabled={nameSaving || !displayName.trim()} className="inline-flex h-10 items-center gap-2 rounded-xl bg-primary px-4 text-[12px] font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50">
                 {nameSaving ? 'Saving…' : <><Check size={15} /> Save name</>}
               </button>
               {nameDirty && !nameSaving && <span className="text-[11px] text-amber-600 dark:text-amber-400">Unsaved changes</span>}
@@ -177,7 +177,7 @@ export function ProfileSettingsPage() {
             </div>
             <div className="min-w-0">
               <div className="flex flex-wrap gap-2">
-                <button type="button" onClick={() => fileInput.current?.click()} disabled={avatarSaving} className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 text-[11px] font-semibold text-neutral-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-blue-500/10">
+                <button type="button" onClick={() => fileInput.current?.click()} disabled={avatarSaving} className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 text-[11px] font-semibold text-neutral-700 transition hover:border-primary/30 hover:bg-primary/5 hover:text-primary disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-primary/10">
                   {avatarSaving ? 'Working…' : <><Upload size={14} /> {userProfile.avatar_path ? 'Replace' : 'Upload'}</>}
                 </button>
                 {userProfile.avatar_path && <button type="button" onClick={removePhoto} disabled={avatarSaving} className="inline-flex h-9 items-center gap-1.5 rounded-lg px-2 text-[11px] font-semibold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 dark:text-red-400 dark:hover:bg-red-500/10"><Trash2 size={14} /> Remove</button>}

@@ -1,8 +1,11 @@
 import { useRef, useState } from "react";
-import { CheckCircle2, RotateCcw, Upload, X } from "lucide-react";
+import { CheckCircle2, RotateCcw, Upload } from "lucide-react";
+import { Button } from "../../../../components/ui/button";
+import { Textarea } from "../../../../components/ui/textarea";
 import type { Task } from "../../../../services/taskService";
 import { RichTextEditor } from "../../../../components/ui/RichTextEditor";
 import { SimpleTableEditor } from "../../../../components/ui/SimpleTableEditor";
+import { TaskBoardDialog } from "./TaskBoardDialog";
 
 export function SubmitForReviewModal({
   open,
@@ -40,35 +43,22 @@ export function SubmitForReviewModal({
   const subtasksReady = remainingSubtasks === 0;
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
-      onClick={onClose}
-    >
-      <div
-        className="flex max-h-[85dvh] w-[calc(100vw-2rem)] max-w-[560px] flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-        style={{ animation: "modalIn 0.18s ease" }}
-      >
-        <style>{`@keyframes modalIn{from{opacity:0;transform:scale(0.96) translateY(6px)}to{opacity:1;transform:scale(1) translateY(0)}}`}</style>
-
-        <div className="px-5 py-4 border-b border-neutral-100 flex items-center justify-between">
-          <div>
-            <div className="text-[10px] uppercase tracking-[0.22em] text-neutral-400 font-medium">
-              Submit for Review
-            </div>
-            <div className="text-[15px] font-semibold text-neutral-900 mt-0.5">
-              {task.title}
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            className="text-neutral-400 hover:text-neutral-700 p-1.5 rounded-lg hover:bg-neutral-100 transition"
-          >
-            <X size={16} />
-          </button>
+    <TaskBoardDialog
+      eyebrow="Submit for review"
+      maxWidthClassName="max-w-[640px]"
+      onClose={onClose}
+      open={open}
+      title={task.title}
+      footer={(
+        <div className="flex justify-end gap-2">
+          <Button onClick={onClose} variant="outline">Cancel</Button>
+          <Button disabled={submitting || !subtasksReady} onClick={onSubmit}>
+            {submitting ? "Submitting..." : "Submit for Review"}
+          </Button>
         </div>
-
-        <div className="flex-1 overflow-y-auto p-5 space-y-4">
+      )}
+    >
+      <div className="space-y-4">
           <div
             className={`rounded-xl border px-3 py-2.5 ${
               subtasksReady
@@ -174,25 +164,8 @@ export function SubmitForReviewModal({
               {error}
             </div>
           )}
-        </div>
-
-        <div className="px-5 py-4 border-t border-neutral-100 flex items-center justify-end gap-2">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 text-[12px] font-medium text-neutral-600 border border-neutral-200 rounded-xl hover:bg-neutral-50 transition"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={onSubmit}
-            disabled={submitting || !subtasksReady}
-            className="px-4 py-2 text-[12px] font-semibold text-white bg-violet-600 rounded-xl hover:bg-violet-700 disabled:opacity-50 transition"
-          >
-            {submitting ? "Submitting..." : "Submit for Review"}
-          </button>
-        </div>
       </div>
-    </div>
+    </TaskBoardDialog>
   );
 }
 
@@ -218,33 +191,23 @@ export function UndoCompletedModal({
   if (!open || !task) return null;
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
-      onClick={onClose}
-    >
-      <div
-        className="w-[520px] max-w-[calc(100vw-32px)] overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-        style={{ animation: "modalIn 0.18s ease" }}
-      >
-        <div className="flex items-center justify-between border-b border-neutral-100 px-5 py-4">
-          <div>
-            <div className="text-[10px] uppercase tracking-[0.22em] text-amber-600 font-medium">
-              Reopen Completed Task
-            </div>
-            <div className="mt-0.5 text-[15px] font-semibold text-neutral-900">
-              {task.title}
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            className="rounded-lg p-1.5 text-neutral-400 transition hover:bg-neutral-100 hover:text-neutral-700"
-          >
-            <X size={16} />
-          </button>
+    <TaskBoardDialog
+      eyebrow="Reopen completed task"
+      maxWidthClassName="max-w-[480px]"
+      onClose={onClose}
+      open={open}
+      title={task.title}
+      footer={(
+        <div className="flex justify-end gap-2">
+          <Button onClick={onClose} variant="outline">Cancel</Button>
+          <Button className="bg-[#b65b08] hover:bg-[#8f4706]" disabled={saving} onClick={onSubmit}>
+            <RotateCcw />
+            {saving ? "Reopening..." : "Undo completion"}
+          </Button>
         </div>
-
-        <div className="space-y-4 p-5">
+      )}
+    >
+      <div className="space-y-4">
           <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-[12px] leading-relaxed text-amber-800">
             This moves the task back to In Progress and notifies the assigned
             team with your reason.
@@ -253,12 +216,12 @@ export function UndoCompletedModal({
             <label className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">
               Undo reason (required)
             </label>
-            <textarea
+            <Textarea
               rows={4}
               value={reason}
               onChange={(e) => onReasonChange(e.target.value)}
               placeholder="Explain why this completed task needs to be reopened..."
-              className="mt-1 w-full resize-none rounded-xl border border-neutral-200 bg-white px-3 py-2.5 text-[13px] text-neutral-900 outline-none focus:border-amber-300"
+              className="mt-1 min-h-24"
             />
           </div>
           {error && (
@@ -266,26 +229,8 @@ export function UndoCompletedModal({
               {error}
             </div>
           )}
-        </div>
-
-        <div className="flex items-center justify-end gap-2 border-t border-neutral-100 px-5 py-4">
-          <button
-            onClick={onClose}
-            className="rounded-xl border border-neutral-200 px-4 py-2 text-[12px] font-medium text-neutral-600 transition hover:bg-neutral-50"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={onSubmit}
-            disabled={saving}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-amber-600 px-4 py-2 text-[12px] font-semibold text-white transition hover:bg-amber-700 disabled:opacity-50"
-          >
-            <RotateCcw size={13} />
-            {saving ? "Reopening..." : "Undo Completion"}
-          </button>
-        </div>
       </div>
-    </div>
+    </TaskBoardDialog>
   );
 }
 

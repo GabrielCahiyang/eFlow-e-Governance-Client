@@ -184,7 +184,7 @@ function AccountingOverview({
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ ...motionTransition.productive, delay: index * 0.04 }}
-            className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm"
+            className="rounded-[10px] border border-border bg-card p-4 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]"
           >
             <div
               className={`flex items-center gap-2 text-[9.5px] uppercase tracking-wider ${card.tone}`}
@@ -192,7 +192,7 @@ function AccountingOverview({
               {card.icon}
               {card.label}
             </div>
-            <div className="mt-2 text-[20px] font-semibold text-neutral-950">
+            <div className="mt-2 text-right text-[20px] font-semibold tabular-nums text-foreground">
               {card.value}
             </div>
             <p className="mt-1 text-[9.5px] text-neutral-500">{card.note}</p>
@@ -205,7 +205,7 @@ function AccountingOverview({
         text="Cash and cheque releases automatically debit employee advances and credit cash. Approved liquidations debit expense and returned cash, then clear the advance in one balanced journal entry."
       />
       <AccountingSettlementQueue data={budget} onChanged={budget.refresh} />
-      <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
+      <div className="rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
         <div className="flex items-center gap-2">
           <ShieldCheck size={16} className="text-emerald-700" />
           <h2 className="text-[12px] font-semibold">Authority boundary</h2>

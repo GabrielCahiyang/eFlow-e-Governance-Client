@@ -11,14 +11,18 @@
 
 .eflow-topbar {
   align-items: center;
-  background: var(--primary-background-color);
-  border-bottom: 1px solid var(--layout-border-color);
+  background: #152020;
+  border-bottom: 1px solid #2f3e3d;
+  --primary-background-color: #152020;
+  --primary-text-color: #eef5f4;
+  --secondary-text-color: #afc2c0;
+  --layout-border-color: #2f3e3d;
   display: flex;
   flex: 0 0 auto;
   gap: var(--space-16);
   justify-content: space-between;
   position: relative;
-  min-height: 76px;
+  min-height: 56px;
   padding: 0 16px;
 }
 
@@ -120,8 +124,8 @@
   display: flex;
   /* Keep the compact rail in the layout. The expanded rail is layered over
      the workspace instead of changing the workspace's left edge on hover. */
-  flex: 0 0 72px;
-  width: 72px;
+  flex: 0 0 68px;
+  width: 68px;
   min-height: 0;
   padding: 0;
   overflow: visible;
@@ -131,15 +135,15 @@
   position: absolute;
   inset: 0 auto 0 0;
   height: 100%;
-  width: 72px;
+  width: 68px;
 }
 
 .eflow-app-shell__desktop-navigation .eflow-productivity-sidebar:not(.eflow-productivity-sidebar--compact) {
-  width: 264px;
+  width: 240px;
 }
 
 .eflow-app-shell__desktop-navigation .eflow-productivity-sidebar:not(.eflow-productivity-sidebar--compact) {
-  box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.20);
 }
 
 .eflow-skip-link {
@@ -164,18 +168,18 @@
 .eflow-productivity-sidebar {
   background: var(--primary-background-color);
   border: 1px solid color-mix(in srgb, var(--layout-border-color) 82%, transparent);
-  border-radius: var(--border-radius-16);
-  box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  border-radius: 14px;
+  box-shadow: 0 4px 6px -4px rgba(0, 0, 0, 0.10);
   display: flex;
   flex-direction: column;
   min-height: 0;
   overflow: hidden;
   transition: width var(--motion-expressive-short, 250ms) var(--motion-timing-transition), box-shadow var(--motion-productive-medium) var(--motion-timing-transition);
-  width: 264px;
+  width: 240px;
 }
 
 .eflow-productivity-sidebar--compact {
-  width: 72px;
+  width: 68px;
   background: var(--primary-background-color);
 }
 
@@ -185,7 +189,7 @@
   display: flex;
   gap: var(--space-8);
   justify-content: space-between;
-  min-height: 72px;
+  min-height: 68px;
   padding: var(--space-8) var(--space-12);
 }
 
@@ -271,7 +275,7 @@
 .eflow-productivity-sidebar__item-main {
   position: relative;
   width: 100%;
-  border-radius: var(--border-radius-12);
+  border-radius: 6px;
   isolation: isolate;
 }
 
@@ -281,7 +285,7 @@
   inset: 0;
   pointer-events: none;
   border: 1px solid color-mix(in srgb, var(--primary-color) 16%, transparent);
-  border-radius: var(--border-radius-12);
+  border-radius: 6px;
   background: var(--primary-selected-color);
   box-shadow: 0 4px 12px color-mix(in srgb, var(--primary-color) 9%, transparent);
 }
@@ -299,7 +303,7 @@
   background: transparent;
   color: var(--secondary-text-color);
   border: 0;
-  border-radius: var(--border-radius-12);
+  border-radius: 6px;
   cursor: pointer;
   padding: 0;
   margin: 0;
@@ -377,7 +381,7 @@
 .eflow-productivity-sidebar__subpage {
   position: relative;
   z-index: 1;
-  border-radius: var(--border-radius-12) !important;
+  border-radius: 6px !important;
   justify-content: flex-start !important;
   max-width: 100%;
   min-height: 40px;
@@ -432,9 +436,9 @@
   min-width: 0;
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--layout-border-color) 82%, transparent);
-  border-radius: var(--border-radius-16);
+  border-radius: 14px;
   background: var(--primary-background-color);
-  box-shadow: 0 8px 28px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(15, 23, 42, 0.035);
+  box-shadow: 0 4px 6px -4px rgba(0, 0, 0, 0.10);
 }
 
 /* Task Board uses the same workspace-tab contract as Plans & Projects while
@@ -449,7 +453,7 @@
    content. Keep the emphasis compact so the board retains its working area. */
 .eflow-task-board__toolbar--pinned {
   border: 1px solid color-mix(in srgb, var(--primary-color, #007f80) 25%, var(--layout-border-color, #e5e7eb));
-  border-radius: 0 0 var(--border-radius-16, 12px) var(--border-radius-16, 12px);
+  border-radius: 0 0 14px 14px;
   box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12), 0 1px 3px rgba(15, 23, 42, 0.08);
   padding: 0.35rem 0.75rem 0.65rem;
 }
@@ -577,12 +581,12 @@
   margin: 0 !important;
   width: min(320px, 88vw) !important;
   max-width: min(320px, 88vw) !important;
-  border-radius: 0 var(--border-radius-16) var(--border-radius-16) 0 !important;
+  border-radius: 0 14px 14px 0 !important;
 }
 
 .eflow-mobile-navigation .eflow-productivity-sidebar {
   box-shadow: var(--box-shadow-large);
-  border-radius: 0 var(--border-radius-16) var(--border-radius-16) 0;
+  border-radius: 0 14px 14px 0;
   width: 100%;
 }
 

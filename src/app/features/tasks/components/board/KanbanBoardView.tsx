@@ -8,6 +8,7 @@ import type { MondayBoardProps } from "./model";
 import { RejectionNotice, ReopenNotice, SubmissionDetails } from "./TaskFeedback";
 import { TaskManagementMenu } from "./TaskManagementMenu";
 import { useHorizontalBoardViewport } from "./useHorizontalBoardViewport";
+import { isTaskLead } from "../../selectors/leadership";
 
 export function KanbanBoardView({
   tasks,
@@ -159,7 +160,7 @@ export function KanbanBoardView({
                   role === "employee" &&
                   task.status === "in_progress" &&
                   currentUserId &&
-                  task.assigneeId === currentUserId;
+                  isTaskLead(task, currentUserId);
                 const isDraggable = !readOnly && canDragTask(
                   task,
                   role,
@@ -282,7 +283,7 @@ export function KanbanBoardView({
                       {!readOnly && role === "employee" && task.status === "todo" && (
                         <button
                           onClick={() => onExecute?.(task.id)}
-                          className="flex-1 text-[10px] bg-blue-500 text-white py-1 rounded-lg hover:bg-blue-600 transition"
+                          className="flex-1 rounded-lg bg-primary py-1 text-[10px] text-primary-foreground transition hover:bg-primary/90"
                         >
                           Start Work
                         </button>
@@ -290,7 +291,7 @@ export function KanbanBoardView({
                       {!readOnly && canSubmit && (
                         <button
                           onClick={() => onSubmitRequest?.(task)}
-                          className="flex-1 text-[10px] bg-violet-500 text-white py-1 rounded-lg hover:bg-violet-600 transition"
+                          className="flex-1 rounded-lg bg-primary py-1 text-[10px] text-primary-foreground transition hover:bg-primary/90"
                         >
                           Submit for Review
                         </button>

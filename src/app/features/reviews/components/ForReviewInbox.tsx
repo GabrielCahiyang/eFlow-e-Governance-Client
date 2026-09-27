@@ -281,7 +281,7 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
               onChange={setReviewKind}
             />
           {reviewKind === "tasks" && (
-              <div className="inline-flex items-center gap-1.5 bg-amber-50 border border-amber-200 rounded-xl px-3 py-1.5 text-xs font-semibold text-amber-700">
+              <div className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-700">
                 <Inbox size={14} /> {queue.length} awaiting review
               </div>
             )}
@@ -307,7 +307,7 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
       {reviewKind === "tasks" && (
         <>
           {queue.length === 0 && !query ? (
-            <div className="bg-white border border-neutral-200/80 rounded-2xl shadow-xs">
+            <div className="rounded-[10px] border border-border bg-card shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
               <SectionEmpty
                 icon={<CheckCircle2 size={36} className="text-emerald-500" />}
                 title="Inbox zero"
@@ -317,8 +317,8 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-[minmax(300px,380px)_1fr] gap-4">
               {/* Queue */}
-              <div className="bg-white border border-neutral-200/80 rounded-2xl overflow-hidden flex flex-col shadow-xs">
-                <div className="flex flex-col gap-2 border-b border-neutral-100 p-3 sm:flex-row sm:items-center">
+              <div className="flex flex-col overflow-hidden rounded-[10px] border border-border bg-card shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
+                <div className="flex flex-col gap-2 border-b border-border bg-muted/40 px-5 py-3 sm:flex-row sm:items-center">
                   <VibeSearch value={query} onChange={setQuery} onClear={() => setQuery("")} placeholder="Search submissions…" inputAriaLabel="Search review submissions" showClearIcon size="small" className="flex-1" />
                   <Dropdown
                     aria-label="Sort review submissions"
@@ -342,7 +342,7 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
                         <button
                           key={t.id}
                           onClick={() => setSelectedId(t.id)}
-                          className={`w-full text-left p-3.5 flex gap-3 transition-colors cursor-pointer ${isSel ? "bg-indigo-50/50" : "hover:bg-neutral-50/70"}`}
+                          className={`flex w-full cursor-pointer gap-3 p-3.5 text-left transition-colors ${isSel ? "bg-primary/5" : "hover:bg-muted/60"}`}
                         >
                           <InitialsAvatar name={t.assigneeName} size={32} />
                           <div className="flex-1 min-w-0">
@@ -363,7 +363,7 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
                               )}
                             </div>
                           </div>
-                          <ChevronRight size={14} className={`self-center shrink-0 ${isSel ? "text-indigo-600" : "text-neutral-300"}`} />
+                          <ChevronRight size={14} className={`self-center shrink-0 ${isSel ? "text-primary" : "text-neutral-300"}`} />
                         </button>
                       );
                     })
@@ -375,7 +375,7 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
               <div className="min-w-0">
                 {selected ? (
                   <div className="space-y-4">
-                    <div className="bg-white border border-neutral-200/80 rounded-2xl p-5 shadow-xs">
+                    <div className="rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
                       <div className="flex items-start justify-between gap-3 mb-3">
                         <div className="min-w-0">
                           <h2 className="text-base font-bold text-neutral-900">{selected.title}</h2>
@@ -398,7 +398,7 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
                       )}
 
                       {latestProgress && (
-                        <div className="bg-blue-50/50 border border-blue-100 rounded-xl p-3 mb-3">
+                        <div className="mb-3 rounded-[14px] border border-blue-100 bg-blue-50/50 p-3">
                           <div className="flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-wide text-blue-700 mb-1">
                             <Gauge size={12} /> Latest progress · {latestProgress.percentComplete ?? "—"}%
                           </div>
@@ -422,7 +422,7 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
                       error={subtaskEvidenceError}
                     />
 
-                    <div className="bg-white border border-neutral-200/80 rounded-2xl p-5 shadow-xs">
+                    <div className="rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
                       <div className="mb-3 flex items-start gap-2.5">
                         <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700">
                           <ClipboardCheck size={16} />
@@ -441,14 +441,14 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
                       />
                     </div>
 
-                    <div className="bg-white border border-neutral-200/80 rounded-2xl p-5 shadow-xs">
+                    <div className="rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
                       <div className="text-xs font-bold uppercase tracking-wide text-neutral-900 mb-0.5">Complete task timeline</div>
                       <div className="mb-3 text-xs text-neutral-500">Status changes and structured parent-task progress updates, newest first.</div>
                       <TaskActivityTimeline taskId={selected.id} />
                     </div>
 
                     {canReviewSelected && (
-                      <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-xs">
+                      <div className="rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
                         <div className="mb-3">
                           <div className="text-xs font-bold uppercase tracking-wide text-neutral-900">Head review decision</div>
                           <div className="mt-0.5 text-xs text-neutral-500">Approve only after checking the completion standards, subtask execution records, evidence files, and final submission.</div>
@@ -464,7 +464,7 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
                     )}
                   </div>
                 ) : (
-                  <div className="bg-white border border-neutral-200/80 rounded-2xl h-full flex items-center justify-center p-12 shadow-xs">
+                  <div className="flex min-h-[320px] h-full items-center justify-center rounded-[10px] border border-border bg-card shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
                     <SectionEmpty icon={<Search size={26} />} title="Select a submission" description="Pick a task from the queue to review it." />
                   </div>
                 )}

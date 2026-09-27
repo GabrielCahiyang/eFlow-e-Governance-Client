@@ -75,15 +75,16 @@ export function ListBoardView({
       </div>
 
       {/* Table */}
-      <div className="bg-white border border-neutral-200 rounded-2xl overflow-hidden shadow-sm">
+      <div className="overflow-hidden rounded-[10px] border border-border bg-card shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
         {/* Header row */}
-        <div className="eflow-task-table-header grid grid-cols-[20px_1fr_180px_90px_150px_120px] gap-0 px-4 py-2.5 bg-neutral-50 border-b border-neutral-200 text-[10px] font-semibold uppercase tracking-[0.12em] text-neutral-400 sticky top-0 z-10">
+        <div className="eflow-task-table-header sticky top-0 z-10 grid grid-cols-[20px_1fr_180px_90px_150px_120px_132px] gap-0 border-b border-border bg-muted/40 px-5 py-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
           <div />
           <div className="pl-3">Task</div>
           <div>Team / Lead</div>
           <div className="text-center">Priority</div>
           <div>Due Date</div>
           <div className="text-center">Status</div>
+          <div className="text-center">Actions</div>
         </div>
 
         {grouped.map(({ status, tasks: items }) => {

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Checkbox, CheckboxCheckedFilled, CheckmarkOutline, ChevronDown, ChevronRight, EventSchedule, ListChecked, Pause, StopFilled, Warning } from "@carbon/icons-react";
+import { FeatureDialog } from "../../../../components/ui/FeatureDialog";
 
 export interface BroadcastEvent {
   id: number;
@@ -34,10 +35,10 @@ export function BroadcastTimeline({ events, isCollapsed, onToggle }: { events: B
   const recentEvents = events.slice(-30); // show last 30 events
 
   return (
-    <div className="bg-white rounded-xl border border-neutral-200 overflow-hidden mt-5">
+    <div className="mt-5 overflow-hidden rounded-[10px] border border-border bg-card shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
       <button
         onClick={onToggle}
-        className="w-full px-5 py-3 flex items-center gap-3 border-b border-neutral-100 cursor-pointer hover:bg-neutral-50/50 transition-colors"
+        className="flex w-full items-center gap-3 border-b border-border bg-muted/40 px-5 py-3 text-left transition-colors hover:bg-muted/70"
       >
         <EventSchedule size={16} className="text-slate-600" />
         <span className="text-[13px] font-semibold text-neutral-900">Broadcast Audit Trail</span>
@@ -122,8 +123,8 @@ export function BatchConcludeModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 z-[100] flex items-center justify-center p-4" onClick={onCancel}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[480px] overflow-hidden" onClick={e => e.stopPropagation()}>
+    <FeatureDialog onClose={onCancel} title="Batch Conclude Items" description={`Select items to mark as officially concluded in ${groupName}.`} contentClassName="!max-w-[480px]" showCloseButton={false}>
+      <div className="w-full overflow-hidden rounded-[14px] border border-border bg-card">
         {/* Header */}
         <div className="bg-emerald-600 px-6 py-4 flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
@@ -202,7 +203,7 @@ export function BatchConcludeModal({
           </button>
         </div>
       </div>
-    </div>
+    </FeatureDialog>
   );
 }
 
@@ -225,8 +226,8 @@ export function EndOfSessionChecklist({
   const hasIssues = pausedItems.length > 0 || broadcastingItem !== null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4" onClick={onCancel}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[520px] overflow-hidden" onClick={e => e.stopPropagation()}>
+    <FeatureDialog onClose={onCancel} title={hasIssues ? "Pre-Adjournment Checklist" : "Session Ready for Adjournment"} description={hasIssues ? "Review incomplete items before proceeding." : "All active items have been resolved."} contentClassName="!max-w-[520px]" showCloseButton={false}>
+      <div className="w-full overflow-hidden rounded-[14px] border border-border bg-card">
         {/* Header */}
         <div className={`px-6 py-4 flex items-center gap-3 ${hasIssues ? "bg-amber-500" : "bg-emerald-600"}`}>
           <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
@@ -246,7 +247,7 @@ export function EndOfSessionChecklist({
         <div className="px-6 py-5 space-y-4">
           {/* Broadcasting item warning */}
           {broadcastingItem && (
-            <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3">
+            <div className="rounded-[14px] border border-emerald-200 bg-emerald-50 p-3">
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                 <span className="text-[10px] font-semibold text-emerald-700 uppercase tracking-wide">Currently Broadcasting</span>
@@ -264,7 +265,7 @@ export function EndOfSessionChecklist({
 
           {/* Paused items */}
           {pausedItems.length > 0 && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3">
+            <div className="rounded-[14px] border border-yellow-200 bg-yellow-50 p-3">
               <div className="flex items-center gap-2 mb-2">
                 <Pause size={14} className="text-yellow-600" />
                 <span className="text-[10px] font-semibold text-yellow-700 uppercase tracking-wide">
@@ -291,7 +292,7 @@ export function EndOfSessionChecklist({
 
           {/* Pending items count */}
           {pendingItems.length > 0 && (
-            <div className="bg-neutral-50 border border-neutral-200 rounded-xl p-3 flex items-center gap-3">
+            <div className="flex items-center gap-3 rounded-[14px] border border-border bg-muted/50 p-3">
               <span className="text-[11px] font-medium text-neutral-700">
                 📋 {pendingItems.length} pending item{pendingItems.length !== 1 ? "s" : ""} not yet reached — will be auto-deferred
               </span>
@@ -299,7 +300,7 @@ export function EndOfSessionChecklist({
           )}
 
           {/* Summary */}
-          <div className="bg-slate-50 rounded-xl p-3 border border-slate-200">
+          <div className="rounded-[14px] border border-border bg-muted/50 p-3">
             <p className="text-[11px] font-normal text-slate-700">
               {hasIssues
                 ? "⚠️ Proceeding will trigger the Adjourn Friction Modal. All paused and pending items will be moved to Unfinished Business."
@@ -328,7 +329,7 @@ export function EndOfSessionChecklist({
           </button>
         </div>
       </div>
-    </div>
+    </FeatureDialog>
   );
 }
 

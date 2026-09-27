@@ -57,8 +57,8 @@ describe("manual work-plan draft hierarchy", () => {
 
     expect(issues.map((issue) => issue.message)).toEqual(expect.arrayContaining([
       "Plan description is required.",
-      "Task “New Task” needs a description.",
-      "Task “New Task” does not have a due date.",
+      "Task description is required.",
+      "Due date is required.",
     ]));
   });
 });

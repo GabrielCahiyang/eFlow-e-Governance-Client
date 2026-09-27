@@ -6,6 +6,7 @@ import { RejectionNotice, ReopenNotice, SubmissionDetails } from './TaskFeedback
 import { SubtaskProgressChip, canDragTask, getDeadlineInfo, getHierarchyDisplay, getTaskMemberNames, priorityMeta, type MondayBoardProps } from './model';
 import { TaskManagementMenu } from './TaskManagementMenu';
 import { TaskStatusLabel } from '../../presentation/TaskStatusLabel';
+import { isTaskLead } from '../../selectors/leadership';
 
 interface ListTaskRowProps {
   task: Task;
@@ -35,7 +36,11 @@ export function ListTaskRow({ task, role, employeeById, currentUserId, onEditTea
                     role === "employee" &&
                     task.status === "in_progress" &&
                     currentUserId &&
-                    task.assigneeId === currentUserId;
+                    isTaskLead(task, currentUserId);
+                  const hasActions =
+                    role === "depthead" ||
+                    (role === "employee" &&
+                      (task.status === "todo" || Boolean(canSubmit)));
                   const isDraggable = canDragTask(
                     task,
                     role,
@@ -53,7 +58,7 @@ export function ListTaskRow({ task, role, employeeById, currentUserId, onEditTea
                       onDragEnd={(e) => {
                         (e.currentTarget as HTMLElement).style.opacity = "1";
                       }}
-                      className={`eflow-task-row grid grid-cols-[20px_1fr_180px_90px_150px_120px] gap-0 px-4 py-3 border-b border-neutral-100 last:border-0 items-center hover:bg-neutral-50/70 transition group ${isDraggable ? "cursor-grab active:cursor-grabbing" : "cursor-default"}`}
+                      className={`eflow-task-row grid grid-cols-[20px_1fr_180px_90px_150px_120px_132px] gap-0 px-4 py-3 border-b border-neutral-100 last:border-0 items-center hover:bg-neutral-50/70 transition group ${isDraggable ? "cursor-grab active:cursor-grabbing" : "cursor-default"}`}
                     >
                       {/* Priority bar */}
                       <div
@@ -117,6 +122,14 @@ export function ListTaskRow({ task, role, employeeById, currentUserId, onEditTea
                               reopenedByName={task.reopenedByName}
                             />
                           )}
+                        {task.status === "completed" && task.auditHash && (
+                          <div
+                            className="mt-1 text-[9px] text-neutral-400"
+                            title={task.auditHash}
+                          >
+                            🔒 Audit: {task.auditHash.substring(0, 8)}…
+                          </div>
+                        )}
                       </div>
 
                       {/* Team */}
@@ -182,68 +195,39 @@ export function ListTaskRow({ task, role, employeeById, currentUserId, onEditTea
                         )}
                       </div>
 
-                      {/* Status + actions */}
-                      <div className="eflow-task-row__status flex flex-col items-center gap-1.5">
+                      {/* Status stays informational; workflow controls are in Actions. */}
+                      <div className="eflow-task-row__status flex items-center justify-center">
                         <TaskStatusLabel status={task.status} />
+                      </div>
 
-                        {role === "depthead" &&
-                          task.status === "for_review" && (
-                            <div className="flex gap-1">
-                              <button
-                                onClick={() => onVerify?.(task.id, true)}
-                                className="text-[10px] bg-emerald-500 text-white px-2 py-0.5 rounded-md hover:bg-emerald-600 transition"
-                              >
-                                ✓ Approve
-                              </button>
-                              <button
-                                onClick={() => {
-                                  const msg = prompt("Reason for rejection:");
-                                  onVerify?.(
-                                    task.id,
-                                    false,
-                                    msg || "Needs rework",
-                                  );
-                                }}
-                                className="text-[10px] bg-red-500 text-white px-2 py-0.5 rounded-md hover:bg-red-600 transition"
-                              >
-                                ✗
-                              </button>
-                            </div>
-                          )}
-                        {role === "employee" && task.status === "todo" && (
-                          <button
-                            onClick={() => onExecute?.(task.id)}
-                            className="text-[10px] bg-blue-500 text-white px-2.5 py-0.5 rounded-md hover:bg-blue-600 transition"
-                          >
-                            Start
-                          </button>
-                        )}
-                        {canSubmit && (
-                          <button
-                            onClick={() => onSubmitRequest?.(task)}
-                            className="text-[10px] bg-violet-500 text-white px-2.5 py-0.5 rounded-md hover:bg-violet-600 transition"
-                          >
-                            Submit
-                          </button>
-                        )}
-                        {role === "depthead" && (
+                      {/* One contextual menu keeps row actions quiet and consistent. */}
+                      <div className="eflow-task-row__actions flex items-center justify-center">
+                        {hasActions ? (
                           <TaskManagementMenu
                             task={task}
-                            onEdit={onOpenTaskEditor}
-                            onEditTeam={onEditTeam}
-                            onArchive={onArchiveTaskRequest}
-                            onCancel={onCancelTaskRequest}
-                            onDelete={onDeleteTaskRequest}
-                            onReopen={onUndoRequest}
+                            onApprove={role === "depthead" && task.status === "for_review" ? () => onVerify?.(task.id, true) : undefined}
+                            onReject={role === "depthead" && task.status === "for_review" ? () => {
+                              const msg = prompt("Reason for rejection:");
+                              onVerify?.(task.id, false, msg || "Needs rework");
+                            } : undefined}
+                            onStart={role === "employee" && task.status === "todo" ? () => onExecute?.(task.id) : undefined}
+                            onSubmit={canSubmit ? () => onSubmitRequest?.(task) : undefined}
+                            onEdit={role === "depthead" ? onOpenTaskEditor : undefined}
+                            onEditTeam={role === "depthead" ? onEditTeam : undefined}
+                            onArchive={role === "depthead" ? onArchiveTaskRequest : undefined}
+                            onCancel={role === "depthead" ? onCancelTaskRequest : undefined}
+                            onDelete={role === "depthead" ? onDeleteTaskRequest : undefined}
+                            onReopen={role === "depthead" ? onUndoRequest : undefined}
+                            menuPlacement={
+                              task.status === "completed" || task.status === "cancelled"
+                                ? "top"
+                                : "bottom"
+                            }
                           />
-                        )}
-                        {task.status === "completed" && task.auditHash && (
-                          <div
-                            className="text-[9px] text-neutral-400 cursor-help"
-                            title={task.auditHash}
-                          >
-                            🔒 {task.auditHash.substring(0, 8)}…
-                          </div>
+                        ) : (
+                          <span className="text-[11px] text-muted-foreground">
+                            N/A
+                          </span>
                         )}
                       </div>
                     </div>

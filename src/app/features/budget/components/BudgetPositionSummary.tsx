@@ -45,7 +45,7 @@ export function BudgetPositionSummary({
   return (
     <section
       aria-label="Budget position summary"
-      className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm"
+      className="overflow-hidden rounded-[10px] border border-border bg-card shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]"
     >
       <div className="grid xl:grid-cols-[minmax(20rem,0.9fr)_minmax(34rem,1.6fr)]">
         <div className="border-b border-neutral-200 bg-neutral-950 p-5 text-white xl:border-b-0 xl:border-r">
@@ -66,7 +66,7 @@ export function BudgetPositionSummary({
           </dl>
         </div>
 
-        <div className="divide-y divide-neutral-100">
+        <div className="divide-y divide-border/70">
           <ActionRow
             icon={<BriefcaseBusiness size={16} />}
             label="Proposal commitments"
@@ -142,16 +142,16 @@ function ActionRow({
     <button
       type="button"
       onClick={onClick}
-      className="grid w-full gap-3 p-4 text-left transition hover:bg-neutral-50 sm:grid-cols-[2rem_minmax(0,1fr)_auto_auto] sm:items-center"
+      className="grid w-full gap-3 p-4 text-left transition-colors hover:bg-accent/70 focus-visible:bg-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-ring sm:grid-cols-[2rem_minmax(0,1fr)_auto_auto] sm:items-center"
     >
-      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-neutral-100 text-neutral-600">
+      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted text-muted-foreground">
         {icon}
       </span>
       <span className="min-w-0">
-        <span className="block text-[13px] font-semibold text-neutral-900">{label}</span>
-        <span className="mt-0.5 block text-[12px] leading-relaxed text-neutral-500">{detail}</span>
+        <span className="block text-[13px] font-semibold text-foreground">{label}</span>
+        <span className="mt-0.5 block text-[12px] leading-relaxed text-muted-foreground">{detail}</span>
       </span>
-      <strong className="text-right text-[15px] font-semibold text-neutral-900 tabular-nums">
+      <strong className="whitespace-nowrap text-right text-[15px] font-semibold text-foreground tabular-nums">
         {count ? String(amount) : peso.format(amount)}
       </strong>
       <span className="inline-flex items-center justify-end gap-1 text-[12px] font-medium text-blue-700">

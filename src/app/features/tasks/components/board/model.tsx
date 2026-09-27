@@ -34,24 +34,25 @@ export type BoardFilterView =
 export const isBoardFilterView = (view: BoardView): view is BoardFilterView =>
   ["my_work", "due_soon", "overdue", "for_review", "completed"].includes(view);
 
-/** The default scope deliberately excludes work that is no longer actionable. */
+/** The record scope controls archived records; the status filter controls lifecycle state. */
 export type TaskRecordScope = "active" | "archived";
-export type TaskStatusFilter = "active" | TaskStatus;
+export type TaskStatusFilter = "all" | "active" | TaskStatus;
 
 const CLOSED_TASK_STATUSES: readonly TaskStatus[] = ["completed", "cancelled"];
 
 export const filterTasksByRecordScope = (
   tasks: Task[],
   recordScope: TaskRecordScope,
-  statusFilter: TaskStatusFilter = "active",
+  statusFilter: TaskStatusFilter = "all",
 ): Task[] =>
   tasks.filter((task) => {
     if (recordScope === "archived") {
       return Boolean(task.archivedAt) &&
-        (statusFilter === "active" || task.status === statusFilter);
+        (statusFilter === "all" || statusFilter === "active" || task.status === statusFilter);
     }
 
     if (task.archivedAt) return false;
+    if (statusFilter === "all") return true;
     if (statusFilter === "active") return !CLOSED_TASK_STATUSES.includes(task.status);
     return task.status === statusFilter;
   });

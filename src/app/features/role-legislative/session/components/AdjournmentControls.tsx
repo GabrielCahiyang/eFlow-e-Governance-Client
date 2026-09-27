@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { StopFilled, Undo, Warning } from "@carbon/icons-react";
+import { FeatureDialog } from "../../../../components/ui/FeatureDialog";
 
 export type SessionState = "pre" | "live" | "suspended" | "adjourned" | "grace";
 
@@ -20,11 +21,8 @@ export function AdjournFrictionModal({
   const isUnlocked = typedText.toUpperCase() === "ADJOURN";
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4" onClick={onCancel}>
-      <div
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-[480px] overflow-hidden"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <FeatureDialog onClose={onCancel} title="Destructive Action — Confirm Adjournment" description="This action triggers the BPA Auto-Deferral Engine." contentClassName="!max-w-[480px]" showCloseButton={false}>
+      <div className="w-full overflow-hidden bg-white">
         {/* Red header */}
         <div className="bg-red-600 px-6 py-4 flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
@@ -111,7 +109,7 @@ export function AdjournFrictionModal({
           </button>
         </div>
       </div>
-    </div>
+    </FeatureDialog>
   );
 }
 

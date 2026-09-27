@@ -33,8 +33,8 @@ const formatNotificationTime = (value?: number) => {
 };
 
 const DETAIL_TONE: Record<NotificationDetailTone, string> = {
-  neutral: "border-neutral-200 bg-neutral-50 text-neutral-700",
-  info: "border-blue-100 bg-blue-50 text-blue-700",
+  neutral: "border-border bg-muted text-foreground",
+  info: "border-primary/20 bg-primary/10 text-primary",
   success: "border-emerald-100 bg-emerald-50 text-emerald-700",
   warning: "border-amber-100 bg-amber-50 text-amber-700",
   danger: "border-rose-100 bg-rose-50 text-rose-700",
@@ -240,33 +240,36 @@ export function NotificationBell({
     ? ReactDOM.createPortal(
         <div
           ref={panelRef}
+          role="dialog"
+          aria-label="Notifications"
           style={panelComputedStyle}
-          className="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-2xl flex flex-col"
+          className="flex flex-col overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-2xl"
         >
           {/* Drag Handle Bar */}
           <div
             onMouseDown={startDrag}
-            className="h-4 flex items-center justify-center bg-white border-b border-neutral-100 cursor-grab active:cursor-grabbing shrink-0 select-none group"
+            className="group flex h-4 shrink-0 cursor-grab select-none items-center justify-center border-b border-border bg-card active:cursor-grabbing"
             title="Drag to move"
           >
-            <span className="w-6 h-0.5 rounded-full bg-neutral-400 opacity-30 group-hover:opacity-70 transition-opacity" />
+            <span className="h-0.5 w-6 rounded-full bg-muted-foreground opacity-30 transition-opacity group-hover:opacity-70" />
           </div>
 
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-neutral-100 px-3 py-2.5 shrink-0">
+          <div className="flex shrink-0 items-center justify-between border-b border-border px-3 py-2.5">
             <div>
-              <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-neutral-400">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                 Notifications
               </div>
-              <div className="text-[11px] text-neutral-500">
+              <div className="text-[11px] text-muted-foreground">
                 {unreadCount} unread
               </div>
             </div>
             <div className="flex items-center gap-1">
               {notifications.length > 0 && (
                 <button
+                  type="button"
                   onClick={() => markAllNotificationsRead(userId)}
-                  className="flex h-7 items-center gap-1 rounded-lg px-2 text-[10px] text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-800"
+                  className="flex h-7 items-center gap-1 rounded-lg px-2 text-[10px] text-muted-foreground transition hover:bg-accent hover:text-accent-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                   title="Mark all read"
                 >
                   <CheckCheck size={12} />
@@ -274,9 +277,10 @@ export function NotificationBell({
                 </button>
               )}
               <button
+                type="button"
                 onMouseDown={(e) => e.stopPropagation()}
                 onClick={() => setIsFullscreen((v) => !v)}
-                className="flex h-7 w-7 items-center justify-center rounded-lg text-neutral-400 transition hover:bg-neutral-100 hover:text-neutral-700"
+                className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition hover:bg-accent hover:text-accent-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                 title={isFullscreen ? "Restore" : "Fullscreen"}
               >
                 {isFullscreen ? (
@@ -286,8 +290,10 @@ export function NotificationBell({
                 )}
               </button>
               <button
+                type="button"
                 onClick={() => setOpen(false)}
-                className="flex h-7 w-7 items-center justify-center rounded-lg text-neutral-400 transition hover:bg-neutral-100 hover:text-neutral-700"
+                aria-label="Close notifications"
+                className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition hover:bg-accent hover:text-accent-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                 title="Close"
               >
                 <X size={13} />
@@ -298,7 +304,7 @@ export function NotificationBell({
           {/* Notification list */}
           <div className="flex-1 overflow-y-auto">
             {notifications.length === 0 ? (
-              <div className="px-4 py-8 text-center text-[12px] text-neutral-400">
+              <div className="px-4 py-8 text-center text-[12px] text-muted-foreground">
                 No notifications yet
               </div>
             ) : (
@@ -311,22 +317,23 @@ export function NotificationBell({
                 return (
                   <button
                     key={notification.id}
+                    type="button"
                     onClick={() => void openNotification(notification)}
-                    className={`block w-full border-b border-neutral-100 px-3 py-3 text-left transition last:border-0 hover:bg-neutral-50 ${
-                      notification.read ? "bg-white" : "bg-blue-50/60"
+                    className={`block w-full border-b border-border px-3 py-3 text-left transition last:border-0 hover:bg-accent/70 focus-visible:bg-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-ring ${
+                      notification.read ? "bg-card" : "bg-primary/10"
                     }`}
                   >
                     <div className="flex items-start gap-2">
                       <span
                         className={`mt-1 h-2 w-2 shrink-0 rounded-full ${
-                          notification.read ? "bg-neutral-200" : "bg-blue-500"
+                          notification.read ? "bg-border" : "bg-primary"
                         }`}
                       />
                       <span className="min-w-0 flex-1">
-                        <span className="block text-[12px] font-semibold text-neutral-900">
+                        <span className="block text-[12px] font-semibold text-foreground">
                           {notification.title || "Notification"}
                         </span>
-                        <span className="mt-0.5 block text-[11px] leading-relaxed text-neutral-600">
+                        <span className="mt-0.5 block text-[11px] leading-relaxed text-muted-foreground">
                           {notification.message}
                         </span>
                         {detail && (
@@ -336,10 +343,10 @@ export function NotificationBell({
                           </span>
                         )}
                         {time && (
-                          <span className="mt-1 flex items-center justify-between gap-2 text-[10px] text-neutral-400">
+                          <span className="mt-1 flex items-center justify-between gap-2 text-[10px] text-muted-foreground">
                             <span>{time}</span>
                             {destination && onNavigate && (
-                              <span className="inline-flex items-center gap-1 font-medium text-blue-600">
+                              <span className="inline-flex items-center gap-1 font-medium text-primary">
                                 {destination.label} <ArrowUpRight size={10} />
                               </span>
                             )}
@@ -357,7 +364,7 @@ export function NotificationBell({
           {!isFullscreen && (
             <div
               onMouseDown={startResize}
-              className="absolute bottom-1.5 right-1.5 w-4 h-4 rounded-full bg-neutral-300 hover:bg-blue-400 cursor-nwse-resize flex items-center justify-center transition-colors shadow z-50 select-none"
+              className="absolute bottom-1.5 right-1.5 z-50 flex h-4 w-4 cursor-nwse-resize select-none items-center justify-center rounded-full bg-muted-foreground shadow transition-colors hover:bg-primary"
               title="Drag to resize"
             >
               <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
@@ -377,8 +384,11 @@ export function NotificationBell({
       <div className={`relative ${className}`}>
         <button
           ref={buttonRef}
+          type="button"
+          aria-expanded={open}
+          aria-haspopup="dialog"
           onClick={() => setOpen((value) => !value)}
-          className={`relative flex items-center justify-center rounded-lg border border-neutral-200 bg-white text-neutral-600 transition hover:bg-neutral-50 hover:text-neutral-900 ${buttonSize}`}
+          className={`relative flex items-center justify-center rounded-lg border border-border bg-card text-muted-foreground transition hover:bg-accent hover:text-accent-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ${buttonSize}`}
           title={
             unreadCount > 0
               ? `${unreadCount} unread notifications`

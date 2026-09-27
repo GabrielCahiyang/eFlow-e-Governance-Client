@@ -62,7 +62,7 @@ export function SemanticSearch() {
             Ask questions in plain language. The NLP engine understands context, synonyms, and legal cross-references.
           </p>
           <div className="flex items-center gap-2">
-            <div className="flex-1 flex items-center gap-2 bg-neutral-50 border border-neutral-200 rounded-xl px-4 py-3 focus-within:border-blue-300 focus-within:bg-white transition-colors">
+            <div className="flex-1 flex items-center gap-2 bg-neutral-50 border border-neutral-200 rounded-xl px-4 py-3 focus-within:border-ring focus-within:bg-white focus-within:ring-2 focus-within:ring-ring/20 transition-colors">
               <Search size={18} className="text-neutral-400 shrink-0" />
               <input
                 type="text"
@@ -74,7 +74,7 @@ export function SemanticSearch() {
             </div>
             <button
               onClick={() => setHasSearched(true)}
-              className="px-5 py-3 bg-blue-600 text-white rounded-xl text-[12px] font-semibold cursor-pointer hover:bg-blue-700 transition-colors"
+              className="rounded-xl bg-primary px-5 py-3 text-[12px] font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
             >
               Search
             </button>

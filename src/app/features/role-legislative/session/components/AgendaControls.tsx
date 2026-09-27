@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 import { CheckmarkOutline, DragVertical, Pause, Play, Warning } from "@carbon/icons-react";
+import { FeatureDialog } from "../../../../components/ui/FeatureDialog";
 import { Pill } from "./primitives";
 import type { AgendaItem } from "./agendaModel";
 import type { SessionState } from "./AdjournmentControls";
@@ -18,8 +19,8 @@ export function InterruptionWarningModal({
   onCancel: () => void;
 }) {
   return (
-    <div className="fixed inset-0 bg-black/40 z-[100] flex items-center justify-center p-4" onClick={onCancel}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[440px] overflow-hidden" onClick={e => e.stopPropagation()}>
+    <FeatureDialog onClose={onCancel} title="Active Item on Floor" description="Broadcast interruption detected." contentClassName="!max-w-[440px]" showCloseButton={false}>
+      <div className="w-full overflow-hidden bg-white">
         {/* Header */}
         <div className="bg-amber-500 px-6 py-4 flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
@@ -78,7 +79,7 @@ export function InterruptionWarningModal({
           </button>
         </div>
       </div>
-    </div>
+    </FeatureDialog>
   );
 }
 

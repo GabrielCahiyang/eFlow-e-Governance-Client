@@ -29,7 +29,7 @@ describe("Phase 04 task board presentation", () => {
   });
 
   it("keeps the desktop sidebar hover from reflowing the workspace", () => {
-    expect(appShellCss).toContain("flex: 0 0 72px;");
+    expect(appShellCss).toContain("flex: 0 0 68px;");
     expect(appShellCss).toContain("overflow: visible;");
     expect(appShellCss).toContain(".eflow-app-shell__desktop-navigation .eflow-productivity-sidebar:not(.eflow-productivity-sidebar--compact)");
   });

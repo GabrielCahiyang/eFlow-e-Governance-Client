@@ -35,15 +35,15 @@ export function NotificationSettingsPage() {
         <div className="p-5 sm:p-6">
           <div className="flex flex-col gap-4 rounded-2xl border border-neutral-200 p-4 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800">
             <div className="flex items-start gap-3">
-              <span className={`mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-xl ${enabled ? 'bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-300' : 'bg-neutral-100 text-neutral-400 dark:bg-slate-900 dark:text-slate-500'}`}><Mail size={18} /></span>
+              <span className={`mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-xl ${enabled ? 'bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary' : 'bg-neutral-100 text-neutral-400 dark:bg-slate-900 dark:text-slate-500'}`}><Mail size={18} /></span>
               <div>
                 <h3 className="text-[13px] font-semibold text-neutral-900 dark:text-slate-100">Task email notifications</h3>
                 <p className="mt-1 max-w-lg text-[12px] leading-5 text-neutral-500 dark:text-slate-400">Receive email when work is assigned to you, updated, or needs your review. In-app notifications remain available either way.</p>
               </div>
             </div>
             <div className="flex shrink-0 items-center gap-3 self-end sm:self-auto">
-              <span className={`text-[11px] font-semibold ${enabled ? 'text-blue-700 dark:text-blue-300' : 'text-neutral-500 dark:text-slate-400'}`}>{saving ? 'Saving…' : enabled ? 'On' : 'Off'}</span>
-              <Switch checked={enabled} onCheckedChange={toggleEmail} disabled={saving} aria-label="Task email notifications" className="data-[state=checked]:bg-blue-600" />
+              <span className={`text-[11px] font-semibold ${enabled ? 'text-primary dark:text-primary' : 'text-neutral-500 dark:text-slate-400'}`}>{saving ? 'Saving…' : enabled ? 'On' : 'Off'}</span>
+              <Switch checked={enabled} onCheckedChange={toggleEmail} disabled={saving} aria-label="Task email notifications" className="data-[state=checked]:bg-primary" />
             </div>
           </div>
           <ResultMessage result={result} />

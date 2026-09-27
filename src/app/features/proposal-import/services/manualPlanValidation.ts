@@ -6,12 +6,6 @@ export interface ManualPlanValidationIssue {
   message: string;
 }
 
-function labelForTask(task: DraftTask, position: number) {
-  return task.title.trim()
-    ? `Task “${task.title.trim()}”`
-    : `Task ${position + 1}`;
-}
-
 function hasCalendarDate(value: string) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
   return !Number.isNaN(Date.parse(`${value}T00:00:00`));
@@ -39,38 +33,35 @@ export function validateManualPlanDraft({
     issues.push({ id: "tasks", message: "Add at least one task to create this work plan." });
   }
 
-  enabledTasks.forEach((task, position) => {
-    const label = labelForTask(task, position);
+  enabledTasks.forEach((task) => {
     if (!task.programTitle.trim()) {
-      issues.push({ id: `${task.key}-program`, message: `${label} needs a Program name.` });
+      issues.push({ id: `${task.key}-program`, message: "Program name is required." });
     }
     if (!task.projectTitle.trim()) {
-      issues.push({ id: `${task.key}-project`, message: `${label} needs a Project name.` });
+      issues.push({ id: `${task.key}-project`, message: "Project name is required." });
     }
     if (!task.activityTitle.trim()) {
-      issues.push({ id: `${task.key}-activity`, message: `${label} needs an Activity name.` });
+      issues.push({ id: `${task.key}-activity`, message: "Activity name is required." });
     }
     if (!task.title.trim()) {
-      issues.push({ id: `${task.key}-title`, message: `${label} needs a task title.` });
+      issues.push({ id: `${task.key}-title`, message: "Task title is required." });
     }
     if (!task.description.trim()) {
-      issues.push({ id: `${task.key}-description`, message: `${label} needs a description.` });
+      issues.push({ id: `${task.key}-description`, message: "Task description is required." });
     }
     if (!task.deadline.trim()) {
-      issues.push({ id: `${task.key}-deadline`, message: `${label} does not have a due date.` });
+      issues.push({ id: `${task.key}-deadline`, message: "Due date is required." });
     } else if (!hasCalendarDate(task.deadline.trim())) {
-      issues.push({ id: `${task.key}-deadline-format`, message: `${label} needs a calendar due date.` });
+      issues.push({ id: `${task.key}-deadline-format`, message: "Enter a valid calendar due date." });
     }
   });
 
   const budgetReadiness = getProposalBudgetReadiness(enabledTasks);
   budgetReadiness.missingTaskKeys.forEach((key) => {
-    const position = enabledTasks.findIndex((task) => task.key === key);
-    issues.push({ id: `${key}-budget-decision`, message: `${labelForTask(enabledTasks[position], position)} must be marked funded or no cost.` });
+    issues.push({ id: `${key}-budget-decision`, message: "Choose funded or no cost for this task." });
   });
   budgetReadiness.invalidTaskKeys.forEach((key) => {
-    const position = enabledTasks.findIndex((task) => task.key === key);
-    issues.push({ id: `${key}-budget-lines`, message: `${labelForTask(enabledTasks[position], position)} needs complete budget particulars with amounts above zero.` });
+    issues.push({ id: `${key}-budget-lines`, message: "Complete the budget particulars and amounts for this task." });
   });
 
   return issues;
