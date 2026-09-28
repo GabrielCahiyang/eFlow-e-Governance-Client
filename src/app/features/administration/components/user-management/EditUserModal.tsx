@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "../../../../contexts/AuthContext";
 import { FormField, SelectInput, TextInput } from "../../../../components/ui/FormField";
 import { Modal, ModalButton } from "../../../../components/ui/Modal";
 import { useToast } from "../../../../components/ui/Toast";
 import type { Organization, UserProfile, UserRole } from "../../../../types";
-import { ROLE_OPTIONS } from "./userManagementPrimitives";
+import { getAssignableRoleOptions } from "./userManagementPrimitives";
 import { getLeadershipSlotConflict } from "../../services/leadershipConstraints";
 import { updateManagedUserWithLeadership } from "../../services/managedUserLeadershipService";
 import { Plus, X } from "lucide-react";
@@ -24,11 +25,11 @@ export function EditUserModal({
   profiles: UserProfile[];
 }) {
   const { toast } = useToast();
+  const { userProfile } = useAuth();
   const [form, setForm] = useState({
     fullName: "",
     role: "employee" as UserRole,
     orgId: "",
-    workload: 0,
   });
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<"basic" | "skills">("basic");
@@ -41,6 +42,7 @@ export function EditUserModal({
     organizations,
     profiles,
   });
+  const roleOptions = getAssignableRoleOptions(userProfile?.role);
 
   useEffect(() => {
     if (editUser) {
@@ -48,7 +50,6 @@ export function EditUserModal({
         fullName: editUser.full_name,
         role: editUser.role,
         orgId: editUser.org_id || "",
-        workload: editUser.workload,
       });
       setSkills(editUser.skills || {});
       setActiveTab("basic");
@@ -87,8 +88,6 @@ export function EditUserModal({
         full_name: form.fullName,
         role: form.role,
         org_id: form.orgId || null,
-        workload: form.workload,
-        burnout_level: form.workload >= 80 ? "high" : form.workload >= 50 ? "medium" : "low",
         skills,
         },
       });
@@ -161,7 +160,7 @@ export function EditUserModal({
                 <SelectInput
                   value={form.role}
                   onChange={(e) => setForm({ ...form, role: e.target.value as UserRole })}
-                  options={ROLE_OPTIONS}
+                  options={roleOptions}
                   hasError={Boolean(leadershipConflict)}
                 />
               </FormField>
@@ -174,15 +173,6 @@ export function EditUserModal({
                 />
               </FormField>
             </div>
-            <FormField label="Workload (%)">
-              <TextInput
-                type="number"
-                min={0}
-                max={100}
-                value={form.workload}
-                onChange={(e) => setForm({ ...form, workload: Math.min(100, Math.max(0, Number(e.target.value))) })}
-              />
-            </FormField>
             <div className="text-[11px] font-normal text-neutral-500">
               Email: {editUser.email} · ID: {editUser.id.slice(0, 12)}...
             </div>

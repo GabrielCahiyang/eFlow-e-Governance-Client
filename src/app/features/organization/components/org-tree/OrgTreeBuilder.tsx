@@ -239,7 +239,7 @@ function OrgTreeBuilderInner() {
         ...n,
         data: {
           ...(n.data as Record<string, unknown>),
-          member_count: profiles.filter((p) => p.org_id === n.id).length,
+          member_count: profiles.filter((p) => p.org_id === n.id && p.role !== 'super_admin' && p.role !== 'admin').length,
         },
       })),
     [nodes, profiles]
@@ -331,7 +331,7 @@ function OrgTreeBuilderInner() {
 
       {/* Users panel */}
       <UsersPanel
-        profiles={profiles.filter((p) => p.role !== 'super_admin')}
+        profiles={profiles.filter((p) => p.role !== 'super_admin' && p.role !== 'admin')}
         orgs={orgs}
         search={search}
         setSearch={setSearch}

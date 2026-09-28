@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { fetchAllConfig, updateConfig } from "../../../lib/supabaseService";
 import { useToast } from "../ui/Toast";
 import { useAiRuntimeStatus } from "../../features/ai";
+import { useAuth } from "../../contexts/AuthContext";
 
 const AUTOMATIC_AI_CONFIG_KEYS = new Set([
   "ai_endpoint",
@@ -15,6 +16,8 @@ const AUTOMATIC_AI_CONFIG_KEYS = new Set([
 
 export function SystemSettings() {
   const { toast } = useToast();
+  const { can } = useAuth();
+  const canManageSettings = can("settings.manage");
   const aiRuntime = useAiRuntimeStatus();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -167,7 +170,8 @@ export function SystemSettings() {
         <div className="flex items-center gap-3 pt-2 lg:col-span-2">
           <button
             onClick={handleSave}
-            disabled={saving}
+            disabled={saving || !canManageSettings}
+            title={canManageSettings ? "Save settings" : "The settings.manage capability is required"}
             className="px-4 py-2.5 rounded-lg bg-neutral-900 text-white text-[12px] font-medium hover:bg-neutral-800 cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {saving ? "Saving..." : "Save Settings"}

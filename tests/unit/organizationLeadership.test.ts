@@ -71,6 +71,8 @@ describe("organization leadership review routing", () => {
       { id: "own-active", full_name: "Own office", org_id: "org-1", role: "employee", is_active: true },
       { id: "other-office", full_name: "Other office", org_id: "org-2", role: "employee", is_active: true },
       { id: "own-inactive", full_name: "Inactive", org_id: "org-1", role: "employee", is_active: false },
+      { id: "admin", full_name: "Admin", org_id: "org-1", role: "admin", is_active: true },
+      { id: "super-admin", full_name: "Super Admin", org_id: "org-1", role: "super_admin", is_active: true },
     ] as UserProfile[];
 
     expect(getLeadershipCandidates(candidates, [organization], "org-1"))

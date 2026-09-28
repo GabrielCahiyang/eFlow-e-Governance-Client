@@ -63,7 +63,7 @@ create table if not exists public.profiles (
   org_id                      uuid references public.organizations(id) on delete set null,
   role                        text not null default 'employee'
                                 check (role in (
-                                  'super_admin','dept_head','assistant_head','accounting_staff','employee',
+                                  'super_admin','admin','dept_head','assistant_head','accounting_staff','employee',
                                   -- legacy roles still referenced by older panels
                                   'department_head','executive','legislative',
                                   'hrmo','finance','councilor_pad')),
@@ -1253,6 +1253,13 @@ create policy taskfiles_rw on storage.objects for all
 -- SECTION 14 — SEED DATA (role permission matrix; mirrors permissionService)
 -- ════════════════════════════════════════════════════════════════════════════
 insert into public.role_permissions (role, permission, allowed) values
+  ('admin','navigation.projects',true),('admin','navigation.reports',true),
+  ('admin','navigation.announcements',true),('admin','navigation.user_management',true),
+  ('admin','navigation.organization',true),('admin','navigation.audit',true),
+  ('admin','navigation.system_settings',true),('admin','navigation.data_tools',true),
+  ('admin','reports.export',true),('admin','announcements.publish',true),
+  ('admin','users.manage',true),('admin','audit.read',true),
+  ('admin','settings.manage',true),('admin','database.backup',true),
   ('super_admin','projects.create',true),('super_admin','projects.archive',true),('super_admin','projects.delete',true),
   ('super_admin','tasks.assign',true),('super_admin','tasks.verify',true),
   ('super_admin','reports.export',true),('super_admin','announcements.publish',true),

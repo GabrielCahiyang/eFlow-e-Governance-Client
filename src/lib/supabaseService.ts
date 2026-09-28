@@ -33,6 +33,10 @@ async function notifyProfileListeners(forcedProfiles?: UserProfile[]) {
   }
 }
 
+export async function refreshProfiles(): Promise<void> {
+  await notifyProfileListeners();
+}
+
 // ─── ORGANIZATION OPERATIONS ─────────────────────────────────────
 
 export async function fetchAllOrgs(): Promise<Organization[]> {

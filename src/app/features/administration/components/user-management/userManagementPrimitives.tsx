@@ -7,13 +7,19 @@ export const ROLE_OPTIONS: { value: UserRole; label: string }[] = [
   { value: "accounting_staff", label: "Accounting Staff" },
   { value: "dept_head", label: "Head" },
   { value: "assistant_head", label: "Assistant Head" },
-  { value: "super_admin", label: "Super Admin" },
+  { value: "admin", label: "Admin" },
 ];
+
+export function getAssignableRoleOptions(viewerRole?: string) {
+  if (viewerRole === "super_admin") return ROLE_OPTIONS;
+  return ROLE_OPTIONS.filter(({ value }) => value === "employee" || value === "accounting_staff");
+}
 
 // ─── Status / Role badges ────────────────────────────────────────
 export function RoleBadge({ role }: { role: string }) {
   const colors: Record<string, string> = {
     super_admin: "border-rose-200 bg-rose-50 text-rose-700",
+    admin: "border-blue-200 bg-blue-50 text-blue-700",
     dept_head: "border-violet-200 bg-violet-50 text-violet-700",
     assistant_head: "border-indigo-200 bg-indigo-50 text-indigo-700",
     accounting_staff: "border-cyan-200 bg-cyan-50 text-cyan-800",

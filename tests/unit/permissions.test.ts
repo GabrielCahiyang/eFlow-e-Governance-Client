@@ -35,4 +35,13 @@ describe("permission resolution compatibility", () => {
     expect(permissions.has("database.backup")).toBe(true);
     expect(permissions.has("navigation.user_management")).toBe(true);
   });
+
+  it("gives Admin the administration workspace and honors revocation overrides", () => {
+    const permissions = resolvePermissions("admin", [], [
+      { userId: "admin-1", permission: "navigation.audit", allowed: false },
+    ]);
+    expect(permissions.has("navigation.user_management")).toBe(true);
+    expect(permissions.has("users.manage")).toBe(true);
+    expect(permissions.has("navigation.audit")).toBe(false);
+  });
 });

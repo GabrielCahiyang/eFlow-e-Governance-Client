@@ -6,7 +6,7 @@ import { useToast } from "../../../../components/ui/Toast";
 import type { Organization, UserProfile, UserRole } from "../../../../types";
 import { assignOrganizationLeadership } from "../../../organization/services/leadershipService";
 import { getLeadershipSlotConflict, isManagedLeadershipRole } from "../../services/leadershipConstraints";
-import { ROLE_OPTIONS } from "./userManagementPrimitives";
+import { getAssignableRoleOptions } from "./userManagementPrimitives";
 import { parsePdsFile, updateEmployeeNotes, type ParsedPdsImport, type PdsEmployeeNotes } from "../../../employees";
 import { FileSpreadsheet, Plus, X } from "lucide-react";
 import { PdsImportReview } from "./PdsImportReview";
@@ -32,7 +32,6 @@ export function CreateUserModal({
     password: "",
     role: "employee" as UserRole,
     orgId: "",
-    workload: 0,
   });
   const [saving, setSaving] = useState(false);
   const [importingPds, setImportingPds] = useState(false);
@@ -49,9 +48,10 @@ export function CreateUserModal({
     organizations,
     profiles,
   });
+  const roleOptions = getAssignableRoleOptions(userProfile?.role);
 
   const resetForm = () => {
-    setForm({ fullName: "", email: "", password: "", role: "employee", orgId: "", workload: 0 });
+    setForm({ fullName: "", email: "", password: "", role: "employee", orgId: "" });
     setErrors({});
     setActiveTab("basic");
     setSkillInput("");
@@ -120,6 +120,7 @@ export function CreateUserModal({
     if (!form.email.trim()) errs.email = "Required";
     if (!form.password || form.password.length < 6) errs.password = "Min 6 characters";
     if (!form.orgId) errs.orgId = "Required";
+    if (!roleOptions.some(({ value }) => value === form.role)) errs.role = "You cannot assign this role.";
     if (leadershipConflict) errs.role = leadershipConflict;
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -280,7 +281,7 @@ export function CreateUserModal({
                 <SelectInput
                   value={form.role}
                   onChange={(e) => setForm({ ...form, role: e.target.value as UserRole })}
-                  options={ROLE_OPTIONS}
+                  options={roleOptions}
                   hasError={Boolean(errors.role || leadershipConflict)}
                 />
               </FormField>
@@ -295,15 +296,6 @@ export function CreateUserModal({
               </FormField>
             </div>
 
-            <FormField label="Initial Workload (%)">
-              <TextInput
-                type="number"
-                min={0}
-                max={100}
-                value={form.workload}
-                onChange={(e) => setForm({ ...form, workload: Math.min(100, Math.max(0, Number(e.target.value))) })}
-              />
-            </FormField>
           </div>
         )}
 

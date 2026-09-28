@@ -25,10 +25,12 @@ interface EflowAppShellProps {
   role: string;
 }
 
-function getSectionPages(role: string, section: string) {
+function getSectionPages(role: string, section: string, persistedRole?: string) {
   const content = getSidebarContent(role, section);
   return content.sections.flatMap((contentSection) =>
-    contentSection.items.map((item) => ({ label: item.label })),
+    contentSection.items
+      .filter((item) => persistedRole === "super_admin" || section !== "users" || item.label === "All Users")
+      .map((item) => ({ label: item.label })),
   );
 }
 
@@ -91,7 +93,7 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
     () =>
       visibleNavigationItems.map((item) => {
         const content = getSidebarContent(role, item.id);
-        const pages = getSectionPages(role, item.id);
+        const pages = getSectionPages(role, item.id, userProfile?.role);
         const hasAlert = item.id === "projects"
           ? actionAlerts.projects
           : (item.id === "reviews" || item.id === "approvals") && actionAlerts.reviews;
@@ -102,7 +104,7 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
           hasAlert,
         };
       }),
-    [role, visibleNavigationItems, actionAlerts.projects, actionAlerts.reviews],
+    [role, userProfile?.role, visibleNavigationItems, actionAlerts.projects, actionAlerts.reviews],
   );
   const workspaceName = useMemo(() => {
     const orgId = userProfile?.org_id || userProfile?.departmentId;

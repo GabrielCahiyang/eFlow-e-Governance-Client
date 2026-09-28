@@ -11,6 +11,8 @@ export function getRoleLabel(role: string): string {
   switch (role) {
     case "super_admin":
       return "Super Admin";
+    case "admin":
+      return "Admin";
     case "dept_head":
     case "department_head":
       return "Head";

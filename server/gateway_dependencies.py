@@ -95,33 +95,64 @@ def require_super_admin(
     return user
 
 
-def require_database_backup(
-    user: AuthenticatedUser = Depends(require_super_admin),
+def _permission_allowed(user: AuthenticatedUser, permission: str) -> bool:
+    if user.role == "super_admin":
+        return True
+
+    override_result = (
+        supabase_admin.table("user_permission_overrides")
+        .select("allowed")
+        .eq("user_id", user.id)
+        .eq("permission", permission)
+        .limit(1)
+        .execute()
+    )
+    override_rows = override_result.data or []
+    if override_rows:
+        return override_rows[0].get("allowed") is True
+
+    role_result = (
+        supabase_admin.table("role_permissions")
+        .select("allowed")
+        .eq("role", user.role)
+        .eq("permission", permission)
+        .limit(1)
+        .execute()
+    )
+    role_rows = role_result.data or []
+    return bool(role_rows and role_rows[0].get("allowed") is True)
+
+
+def require_user_manager(
+    user: AuthenticatedUser = Depends(require_user),
 ) -> AuthenticatedUser:
-    """Require the explicit database.backup capability in addition to role."""
     try:
-        override_result = (
-            supabase_admin.table("user_permission_overrides")
-            .select("allowed")
-            .eq("user_id", user.id)
-            .eq("permission", "database.backup")
-            .limit(1)
-            .execute()
+        allowed = _permission_allowed(user, "users.manage")
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="User-management authorization could not be verified.",
+        ) from exc
+
+    if not allowed:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="The users.manage capability is required.",
         )
-        override_rows = override_result.data or []
-        if override_rows:
-            allowed = override_rows[0].get("allowed") is True
-        else:
-            role_result = (
-                supabase_admin.table("role_permissions")
-                .select("allowed")
-                .eq("role", user.role)
-                .eq("permission", "database.backup")
-                .limit(1)
-                .execute()
-            )
-            role_rows = role_result.data or []
-            allowed = bool(role_rows and role_rows[0].get("allowed") is True)
+    return user
+
+
+def require_database_backup(
+    user: AuthenticatedUser = Depends(require_user),
+) -> AuthenticatedUser:
+    """Require the explicit database.backup capability."""
+    if user.role not in {"super_admin", "admin"}:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Database exports are limited to administrative accounts.",
+        )
+    try:
+        allowed = _permission_allowed(user, "database.backup")
     except Exception as exc:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,

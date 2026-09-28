@@ -14,6 +14,7 @@ import { PageHeader, SectionEmpty, StatCard, formatDate } from "../../../../comp
 import { WorkspaceLoadingSkeleton } from "../../../../components/workflow/WorkspaceLoadingSkeleton";
 import { AnnouncementEditor } from "./AnnouncementEditor";
 import { AUDIENCE_META, STATUS_META } from "./announcementMeta";
+import { useAuth } from "../../../../contexts/AuthContext";
 
 export function AdminAnnouncements() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
@@ -22,6 +23,8 @@ export function AdminAnnouncements() {
   const [statusFilter, setStatusFilter] = useState<"all" | "published" | "draft" | "withdrawn">("all");
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
+  const { can } = useAuth();
+  const canPublish = can("announcements.publish");
 
   const refresh = () => {
     fetchAllAnnouncements().then(setAnnouncements);
@@ -64,7 +67,7 @@ export function AdminAnnouncements() {
 
   return (
     <div className="mx-auto min-h-full max-w-7xl space-y-5 p-4 sm:p-8">
-      <PageHeader eyebrow="Administration · Communications" title="Announcement Management" subtitle="Publish executive broadcasts across the entire LGU, target department subtrees, or notify individual personnel." actions={<Button kind="primary" leftIcon={Add} onClick={() => setEditorFor("new")}>New announcement</Button>} />
+      <PageHeader eyebrow="Administration · Communications" title="Announcement Management" subtitle="Publish executive broadcasts across the entire LGU, target department subtrees, or notify individual personnel." actions={<Button disabled={!canPublish} kind="primary" leftIcon={Add} onClick={() => setEditorFor("new")}>New announcement</Button>} />
 
       {/* ─── Metrics Cards ─── */}
       <div className="grid grid-cols-1 gap-3.5 min-[480px]:grid-cols-2 sm:grid-cols-4">
@@ -143,7 +146,7 @@ export function AdminAnnouncements() {
                   </div>
 
                   {/* Actions Toolbar */}
-                  <div className="flex items-center gap-1 shrink-0 bg-neutral-50 border border-neutral-200/80 rounded-xl p-1">
+                  {canPublish ? <div className="flex items-center gap-1 shrink-0 bg-neutral-50 border border-neutral-200/80 rounded-xl p-1">
                     {a.status !== "published" && (
                       <button
                         onClick={() => setEditorFor(a)}
@@ -181,7 +184,7 @@ export function AdminAnnouncements() {
                     >
                       <Icons.Trash2 size={15} />
                     </button>
-                  </div>
+                  </div> : null}
                 </div>
               </div>
             );
@@ -190,7 +193,7 @@ export function AdminAnnouncements() {
       )}
 
       {/* ─── Slide-over Drawer / Editor Modal ─── */}
-      {editorFor && (
+      {editorFor && canPublish && (
         <AnnouncementEditor
           existing={editorFor === "new" ? null : editorFor}
           onClose={() => setEditorFor(null)}

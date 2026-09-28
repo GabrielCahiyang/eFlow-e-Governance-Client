@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 
 from gateway_dependencies import (
     AuthenticatedUser,
-    require_super_admin,
+    require_user_manager,
     require_user,
     supabase_admin,
 )
@@ -49,11 +49,33 @@ def _profile_exists(uid: str) -> bool:
     return bool(result.data)
 
 
+def _profile_role(uid: str) -> str | None:
+    result = (
+        supabase_admin.table("profiles")
+        .select("role")
+        .eq("id", uid)
+        .maybe_single()
+        .execute()
+    )
+    return str(result.data.get("role")) if result.data else None
+
+
 @router.post("/users/create")
 async def create_managed_user(
     payload: CreateUserPayload,
-    _user: AuthenticatedUser = Depends(require_super_admin),
+    user: AuthenticatedUser = Depends(require_user_manager),
 ):
+    allowed_roles = {
+        "admin", "dept_head", "assistant_head", "accounting_staff", "employee",
+        "department_head", "executive", "legislative", "hrmo", "finance", "councilor_pad",
+    }
+    if payload.role not in allowed_roles:
+        raise HTTPException(status_code=400, detail="Choose a supported account role.")
+    if user.role != "super_admin" and payload.role not in {"employee", "accounting_staff"}:
+        raise HTTPException(
+            status_code=403,
+            detail="Only the Super Admin can create administrative or leadership accounts.",
+        )
     created_uid: str | None = None
     try:
         existing_user = _find_auth_user_by_email(payload.email)
@@ -109,13 +131,31 @@ async def create_managed_user(
 @router.delete("/users/{uid}")
 async def delete_managed_user(
     uid: str,
-    _user: AuthenticatedUser = Depends(require_super_admin),
+    user: AuthenticatedUser = Depends(require_user_manager),
 ):
+    if uid == user.id:
+        raise HTTPException(
+            status_code=400,
+            detail="You cannot permanently delete the account you are currently using.",
+        )
     try:
+        target_role = _profile_role(uid)
+        if target_role == "super_admin":
+            raise HTTPException(status_code=403, detail="The Super Admin account is protected.")
+        if target_role == "admin" and user.role != "super_admin":
+            raise HTTPException(status_code=403, detail="Only the Super Admin can delete an Admin account.")
         supabase_admin.auth.admin.delete_user(uid)
         return {"deleted": uid}
+    except HTTPException:
+        raise
     except Exception as exc:
-        raise HTTPException(status_code=400, detail=str(exc)) from exc
+        message = str(exc)
+        if "foreign key" in message.lower() or "still referenced" in message.lower():
+            message = (
+                "This account is linked to work or audit history and cannot be permanently deleted. "
+                "Deactivate it to preserve those records."
+            )
+        raise HTTPException(status_code=400, detail=message) from exc
 
 
 class UpdateMessagePayload(BaseModel):

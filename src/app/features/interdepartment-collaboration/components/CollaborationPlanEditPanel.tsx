@@ -131,7 +131,6 @@ export function CollaborationPlanEditPanel({
 
 function CollaborationPlanEditPanelInner({
   snapshot,
-  organizations,
   onSave,
 }: {
   snapshot: CollaborationDraftSnapshot;

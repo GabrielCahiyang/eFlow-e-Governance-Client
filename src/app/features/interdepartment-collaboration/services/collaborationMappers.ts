@@ -41,7 +41,7 @@ export function rowToCollaborationRevision(row: Record<string, unknown>): Collab
 
 export function rowToCollaborationParticipant(row: Record<string, unknown>): CollaborationParticipant {
   return {
-    draftId: String(row.draft_id), orgId: String(row.org_id),
+    draftId: String(row.draft_id),
     ...normalizeCollaborationOrganization({
       orgId: String(row.org_id),
       participationRole: row.participation_role,

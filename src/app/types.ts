@@ -4,6 +4,7 @@
 // ─── Roles ───────────────────────────────────────────────────────
 export type UserRole =
   | 'super_admin'
+  | 'admin'
   | 'dept_head'
   | 'assistant_head'
   | 'accounting_staff'

@@ -7,8 +7,6 @@ export interface ManagedUserProfileChanges {
   full_name: string;
   role: UserRole;
   org_id: string | null;
-  workload: number;
-  burnout_level: "low" | "medium" | "high";
   skills: Record<string, boolean>;
 }
 

@@ -15,6 +15,7 @@ import { ReportsWorkspace } from "../workflow/ReportsWorkspace";
 import { useState } from "react";
 import { MonthlyLeaderboard } from "../../features/productivity";
 import { useDepartmentTeamAnalytics } from "../../features/team-management";
+import { useAuth } from "../../contexts/AuthContext";
 
 // System-wide scope: super admin sees every org (empty scopedOrgIds = all).
 const ADMIN_SCOPE = { isSuperAdmin: true, scopedOrgIds: [] as string[] };
@@ -126,12 +127,18 @@ export function SuperAdminContent({
   activeSection: string;
   activePage?: string;
 }) {
+  const { userProfile } = useAuth();
   const section = superAdminPages[activeSection];
   if (!section) {
     return <DashboardOverview />;
   }
 
-  const pageName = activePage || defaultPages[activeSection] || Object.keys(section)[0];
+  const requestedPage = activePage || defaultPages[activeSection] || Object.keys(section)[0];
+  const pageName = userProfile?.role !== "super_admin"
+    && activeSection === "users"
+    && requestedPage !== "All Users"
+    ? "All Users"
+    : requestedPage;
   const PageComponent = section[pageName];
   if (!PageComponent) {
     const fallback = Object.values(section)[0];
