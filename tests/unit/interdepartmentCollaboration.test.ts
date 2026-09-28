@@ -214,12 +214,15 @@ describe("collaboration migration contracts", () => {
     expect(approvalStability).toContain("approval.decision = 'approved'");
     expect(approvalStability).toContain("then 'observer'");
   });
-  it("accepts observer organizations when the first collaboration draft is created", () => {
+  it("accepts observer organizations when collaboration drafts are created or autosaved", () => {
     const creationFix = readFileSync("supabase/migrations/20260928000006_fix_collaboration_draft_creation_roles.sql", "utf8");
+    const autosaveFix = readFileSync("supabase/migrations/20260928000007_fix_autosave_observer_role.sql", "utf8");
     expect(creationFix).toContain("additional_role not in ('participant', 'governance', 'observer')");
     expect(creationFix).toContain("additional_role in ('governance', 'observer') then false");
     expect(creationFix).toContain("target_role not in ('participant', 'governance', 'observer')");
     expect(creationFix).not.toContain("Additional organizations must be participants or governance'");
+    expect(autosaveFix).toContain("target_role not in ('participant', 'governance', 'observer')");
+    expect(autosaveFix).toContain("target_role in ('governance', 'observer') then false");
   });
   it("records funding and requester departments while routing fiscal approval to the fund owner", () => {
     const migration = readFileSync("supabase/migrations/20260928000003_petty_cash_funding_requester_orgs.sql", "utf8");

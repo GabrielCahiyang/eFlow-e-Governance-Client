@@ -6,4 +6,5 @@ export * from './dataHealth';
 export * from './adminTaskProposalSelectors';
 export * from './teamMembership';
 export * from './submissionReadiness';
+export * from './leaderWorkspace';
 export type { TaskStatus } from '../../../services/taskService';

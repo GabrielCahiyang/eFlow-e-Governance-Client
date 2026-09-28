@@ -41,6 +41,10 @@ import {
 import { getSubtaskDeadlineState } from "../../features/subtasks/selectors/deadlines";
 import { useSubtaskReviewerDirectory } from "../../features/subtasks/hooks/useSubtaskReviewerDirectory";
 import { SubtaskReviewerBadge } from "../../features/subtasks/components/SubtaskReviewerBadge";
+import {
+  buildLeaderTaskScopeOptions,
+  getLeaderTaskScopeOption,
+} from "../../features/tasks/selectors";
 
 const subtaskStatusOptions = [
   { value: "all", label: "All Items" },
@@ -58,6 +62,7 @@ export function SubtasksWorkspace() {
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [scopeFilter, setScopeFilter] = useState("all");
   const [activeTaskDetail, setActiveTaskDetail] = useState<Task | null>(null);
   const [activeSubtask, setActiveSubtask] = useState<(Subtask & { parentTask?: Task }) | null>(null);
   const reviewerIds = useMemo(() => subtasks.map((subtask) => subtask.reviewerId), [subtasks]);
@@ -147,6 +152,19 @@ export function SubtasksWorkspace() {
     };
   }, [user?.id, allTasks]);
 
+  const scopeOptions = useMemo(
+    () => buildLeaderTaskScopeOptions(
+      subtasks.flatMap((subtask) => subtask.parentTask ? [subtask.parentTask] : []),
+    ),
+    [subtasks],
+  );
+
+  useEffect(() => {
+    if (!scopeOptions.some((option) => option.value === scopeFilter)) {
+      setScopeFilter("all");
+    }
+  }, [scopeFilter, scopeOptions]);
+
   const filtered = useMemo(() => {
     let rows = subtasks;
     if (statusFilter === "pending") rows = rows.filter((st) => !st.isCompleted && st.status !== "for_review");
@@ -154,17 +172,26 @@ export function SubtasksWorkspace() {
     else if (statusFilter === "changes_requested") rows = rows.filter((st) => st.status === "changes_requested");
     else if (statusFilter === "completed") rows = rows.filter((st) => st.isCompleted);
     else if (statusFilter === "overdue") rows = rows.filter((st) => getSubtaskDeadlineState(st).tone === "overdue");
+    if (scopeFilter !== "all") {
+      rows = rows.filter(
+        (subtask) => subtask.parentTask
+          && getLeaderTaskScopeOption(subtask.parentTask).value === scopeFilter,
+      );
+    }
 
     if (query.trim()) {
       const q = query.toLowerCase();
       rows = rows.filter(
         (st) =>
           st.title.toLowerCase().includes(q) ||
-          (st.parentTask?.title || "").toLowerCase().includes(q),
+          (st.parentTask?.title || "").toLowerCase().includes(q) ||
+          (st.parentTask?.programTitle || "").toLowerCase().includes(q) ||
+          (st.parentTask?.projectTitle || "").toLowerCase().includes(q) ||
+          (st.parentTask?.activityTitle || "").toLowerCase().includes(q),
       );
     }
     return rows;
-  }, [subtasks, statusFilter, query]);
+  }, [subtasks, statusFilter, scopeFilter, query]);
 
   // Group subtasks by Parent Task
   const grouped = useMemo(() => {
@@ -259,6 +286,15 @@ export function SubtasksWorkspace() {
           value={subtaskStatusOptions.find((option) => option.value === statusFilter)}
           onChange={(option) => setStatusFilter(String(option.value))}
           options={subtaskStatusOptions}
+          size="small"
+        />
+        <Dropdown
+          aria-label="Filter subtasks by project and activity"
+          className="w-full sm:w-[260px]"
+          clearable={false}
+          value={scopeOptions.find((option) => option.value === scopeFilter) || scopeOptions[0]}
+          onChange={(option) => setScopeFilter(String(option.value))}
+          options={scopeOptions}
           size="small"
         />
       </div>

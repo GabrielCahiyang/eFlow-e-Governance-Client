@@ -4,7 +4,7 @@
 // on a task sees their leading tasks here, can review progress, and can assign
 // subtasks to any of their task members.
 
-import { useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Dropdown, Search as VibeSearch } from "@vibe/core";
 import {
   Star,
@@ -33,6 +33,10 @@ import { TaskStatusBadge, PriorityPill, InitialsAvatar } from "./StatusBadges";
 import { TaskSubtasksWidget } from "./TaskSubtasksWidget";
 import { TaskDetailDrawer } from "./TaskDetailDrawer";
 import { useNotificationNavigationIntent } from "../../features/notifications";
+import {
+  buildLeaderTaskScopeOptions,
+  getLeaderTaskScopeOption,
+} from "../../features/tasks/selectors";
 
 const leadingStatusOptions = [
   { value: "all", label: "All Leading Tasks" },
@@ -49,6 +53,7 @@ export function YouAreLeadingView() {
   const { tasks, loading } = useTasks();
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [scopeFilter, setScopeFilter] = useState("all");
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   // Explicit lead assignments win; legacy tasks fall back to their first member.
@@ -56,6 +61,17 @@ export function YouAreLeadingView() {
     if (!user?.id) return [];
     return tasks.filter((t) => !t.archivedAt && isTaskLead(t, user.id));
   }, [tasks, user?.id]);
+
+  const scopeOptions = useMemo(
+    () => buildLeaderTaskScopeOptions(leadingTasks),
+    [leadingTasks],
+  );
+
+  useEffect(() => {
+    if (!scopeOptions.some((option) => option.value === scopeFilter)) {
+      setScopeFilter("all");
+    }
+  }, [scopeFilter, scopeOptions]);
 
   useNotificationNavigationIntent(
     (intent) => intent.kind === "leading_task",
@@ -72,13 +88,20 @@ export function YouAreLeadingView() {
     let rows = leadingTasks;
     if (statusFilter === "active") rows = rows.filter((t) => t.status !== "completed");
     else if (statusFilter !== "all") rows = rows.filter((t) => t.status === statusFilter);
+    if (scopeFilter !== "all") {
+      rows = rows.filter(
+        (task) => getLeaderTaskScopeOption(task).value === scopeFilter,
+      );
+    }
 
     if (query.trim()) {
       const q = query.toLowerCase();
       rows = rows.filter(
         (t) =>
           t.title.toLowerCase().includes(q) ||
+          (t.programTitle || "").toLowerCase().includes(q) ||
           (t.projectTitle || "").toLowerCase().includes(q) ||
+          (t.activityTitle || "").toLowerCase().includes(q) ||
           (t.teamMemberNames || []).some((m) => m.toLowerCase().includes(q)),
       );
     }
@@ -87,7 +110,7 @@ export function YouAreLeadingView() {
       const db = new Date(b.deadline || b.dueDate || 0).getTime();
       return da - db;
     });
-  }, [leadingTasks, statusFilter, query]);
+  }, [leadingTasks, statusFilter, scopeFilter, query]);
 
   const stats = useMemo(() => {
     const active = leadingTasks.filter((t) => t.status !== "completed");
@@ -157,6 +180,15 @@ export function YouAreLeadingView() {
           value={leadingStatusOptions.find((option) => option.value === statusFilter)}
           onChange={(option) => setStatusFilter(String(option.value))}
           options={leadingStatusOptions}
+          size="small"
+        />
+        <Dropdown
+          aria-label="Filter tasks you're leading by project and activity"
+          className="w-full sm:w-[260px]"
+          clearable={false}
+          value={scopeOptions.find((option) => option.value === scopeFilter) || scopeOptions[0]}
+          onChange={(option) => setScopeFilter(String(option.value))}
+          options={scopeOptions}
           size="small"
         />
       </div>
