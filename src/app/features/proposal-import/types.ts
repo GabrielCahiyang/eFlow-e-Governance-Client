@@ -47,7 +47,34 @@ export interface ProposalDecompositionTask {
   recommendationReasoning?: string;
   burnoutWarning?: boolean;
   subtasks?: string[];
-  recommendationSource?: "llm" | "fallback" | "import";
+  recommendationSource?: "llm" | "laya" | "pygad" | "fallback" | "import";
+  routingDecision?: {
+    department: string;
+    workflow: string;
+    confidence: number;
+    laya_model: boolean;
+    requires_manual_review?: boolean;
+  };
+  clearanceDecision?: {
+    requiresBAC: boolean;
+    requiresCashAdvance: boolean;
+    approvalTier: string;
+    badge: string;
+    reason: string;
+    confidence: number;
+  };
+  decisionLayer?: {
+    engine: "laya" | "heuristic_fallback";
+    requiresManualReview: boolean;
+  };
+  optimizationMetadata?: {
+    scheduledStartDay: number;
+    scheduledEndDay: number;
+    durationDays: number;
+    budgetMultiplier: number;
+    profile: string;
+    pipelineStages: string[];
+  };
   assignmentException?: ProposalAssignmentException;
   teamComposition?: ProposalTeamComposition;
   budgetDecision?: "missing" | "funded" | "no_cost";

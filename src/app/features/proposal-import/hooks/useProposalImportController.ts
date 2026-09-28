@@ -22,6 +22,7 @@ import { buildHierarchyIds, type DraftTask, type PdfPhase } from "../components/
 import type { AiQueueUpdate } from "../../ai";
 import { buildProposalBudgetFromTasks } from "../../budget";
 import { normalizeImportedTaskBudgetLines } from "../services/proposalBudgetImport";
+import { validateProposalDocument } from "../services/proposalValidationClient";
 
 export function useProposalImportController(onClose?: () => void) {
   const { notes: employeeNotes } = useEmployeeNotes();
@@ -202,6 +203,23 @@ export function useProposalImportController(onClose?: () => void) {
       }
     } catch {
       setPdfError("Failed to read PDF file.");
+      setPdfPhase("error");
+      return;
+    }
+
+    try {
+      const validation = await validateProposalDocument(text, file.name);
+      if (!validation.is_proposal) {
+        setPdfError(`${validation.message} Validation score: ${validation.score}%.`);
+        setPdfPhase("error");
+        return;
+      }
+    } catch (error) {
+      setPdfError(
+        error instanceof Error
+          ? `Could not validate this proposal: ${error.message}`
+          : "Could not validate this proposal.",
+      );
       setPdfPhase("error");
       return;
     }
