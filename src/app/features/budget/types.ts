@@ -141,6 +141,8 @@ export interface PettyCashRequest {
   allocationId: string;
   allocationLineId?: string;
   orgId: string;
+  fundingOrgId: string;
+  requesterOrgId: string;
   taskId: string;
   subtaskId?: string;
   requesterId: string;

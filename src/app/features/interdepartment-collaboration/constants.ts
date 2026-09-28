@@ -14,7 +14,6 @@ export const PARTICIPATION_ROLE_LABELS: Record<CollaborationParticipationRole, s
   owner: "Owner",
   participant: "Participant",
   governance: "Governance",
-  consulted: "Consulted",
   observer: "Observer",
 };
 

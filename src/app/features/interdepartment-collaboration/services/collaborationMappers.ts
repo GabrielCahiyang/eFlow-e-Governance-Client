@@ -7,6 +7,7 @@ import type {
   CollaborationParticipant,
   CollaborationRevision,
 } from "../types";
+import { normalizeCollaborationOrganization, normalizeCollaborationSnapshot } from "../selectors/participationRole";
 
 const time = (value: unknown) => value ? new Date(String(value)).getTime() : undefined;
 
@@ -22,7 +23,7 @@ export function rowToCollaborationDraft(row: Record<string, unknown>): Collabora
     sourceFileHash: row.source_file_hash ? String(row.source_file_hash) : undefined,
     status: row.status as CollaborationDraft["status"],
     currentRevisionId: row.current_revision_id ? String(row.current_revision_id) : undefined,
-    snapshot: (row.working_snapshot || {}) as CollaborationDraftSnapshot,
+    snapshot: normalizeCollaborationSnapshot((row.working_snapshot || {}) as CollaborationDraftSnapshot),
     createdBy: String(row.created_by || ""),
     createdAt: time(row.created_at) || 0,
     updatedAt: time(row.updated_at) || 0,
@@ -33,7 +34,7 @@ export function rowToCollaborationDraft(row: Record<string, unknown>): Collabora
 export function rowToCollaborationRevision(row: Record<string, unknown>): CollaborationRevision {
   return {
     id: String(row.id), draftId: String(row.draft_id), revisionNumber: Number(row.revision_number || 0),
-    snapshot: row.snapshot as CollaborationDraftSnapshot, createdBy: String(row.created_by || ""),
+    snapshot: normalizeCollaborationSnapshot(row.snapshot as CollaborationDraftSnapshot), createdBy: String(row.created_by || ""),
     createdAt: time(row.created_at) || 0, changeSummary: String(row.change_summary || "Draft updated"),
   };
 }
@@ -41,8 +42,11 @@ export function rowToCollaborationRevision(row: Record<string, unknown>): Collab
 export function rowToCollaborationParticipant(row: Record<string, unknown>): CollaborationParticipant {
   return {
     draftId: String(row.draft_id), orgId: String(row.org_id),
-    participationRole: row.participation_role as CollaborationParticipant["participationRole"],
-    staffingEnabled: row.staffing_enabled !== false,
+    ...normalizeCollaborationOrganization({
+      orgId: String(row.org_id),
+      participationRole: row.participation_role,
+      staffingEnabled: row.staffing_enabled !== false,
+    }),
     requestedBy: row.requested_by ? String(row.requested_by) : undefined,
     requestedAt: time(row.requested_at),
     approvalPolicy: (row.approval_policy || "one_of") as CollaborationParticipant["approvalPolicy"],

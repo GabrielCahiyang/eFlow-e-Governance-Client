@@ -16,6 +16,7 @@ import {
 import { CollaborationPlanPanel } from "./CollaborationPlanPanel";
 import type { Organization } from "../../../types";
 import type { CollaborationDraftSnapshot, CollaborationSnapshotTask } from "../types";
+import { withSynchronizedProposalBudget } from "../selectors/snapshotAdapter";
 
 // ─── Adapters ────────────────────────────────────────────────────────────────
 
@@ -237,10 +238,7 @@ function CollaborationPlanEditPanelInner({
     setCommitting(true);
     try {
       const updatedTasks = draftTasksToSnapshotTasks(draftTasks, snapshot.tasks);
-      const updatedSnapshot: CollaborationDraftSnapshot = {
-        ...snapshot,
-        tasks: updatedTasks,
-      };
+      const updatedSnapshot = withSynchronizedProposalBudget(snapshot, updatedTasks);
       await onSave(updatedSnapshot, "Work breakdown updated");
       snapshotRef.current = updatedSnapshot;
       setCommitMessage("Plan saved successfully.");

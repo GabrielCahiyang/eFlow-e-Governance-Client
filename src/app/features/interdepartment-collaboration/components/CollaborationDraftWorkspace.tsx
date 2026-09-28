@@ -140,7 +140,7 @@ export function CollaborationDraftWorkspace({ draftId, organizations, profiles, 
     }
     finally { setBusy(false); }
   };
-  const saveRevision = async (snapshot: CollaborationDraftSnapshot, summary: string) => act(async () => { await saveCollaborationRevision(draftId, snapshot, summary); }, "A new proposal revision was published. Existing approvals must be renewed.");
+  const saveRevision = async (snapshot: CollaborationDraftSnapshot, summary: string) => act(async () => { await saveCollaborationRevision(draftId, snapshot, summary); }, "A new proposal revision was published. Approval status was recalculated for this revision.");
   const saveStaffingRevision = async (snapshot: CollaborationDraftSnapshot, summary: string) => {
     if (isOwner) return saveRevision(snapshot, summary);
     if (!reviewOrganization) throw new Error("No organization is selected for this staffing review.");

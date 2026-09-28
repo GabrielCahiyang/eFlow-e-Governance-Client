@@ -3,6 +3,7 @@ import { COLLABORATION_SOURCE_BUCKET } from "../constants";
 import type { CollaborationDraft, CollaborationDraftSnapshot, CollaborationOrganizationSelection, CollaborationRevision, CollaborationSourceType } from "../types";
 import { rowToCollaborationDraft, rowToCollaborationParticipant, rowToCollaborationRevision } from "./collaborationMappers";
 import { notifyCollaborationDraftsChanged, subscribeToLocalCollaborationDraftChanges } from "./collaborationDraftEvents";
+import { normalizeCollaborationOrganization, normalizeCollaborationSnapshot } from "../selectors/participationRole";
 
 function databaseUpgradeError(error: { code?: string; message: string }) {
   if (error.code === "PGRST202" || error.message.includes("collaboration")) {
@@ -67,16 +68,17 @@ export async function createCollaborationDraft(input: {
   snapshot: CollaborationDraftSnapshot;
   sourceFile?: File;
 }): Promise<CollaborationDraft> {
+  const normalizedSnapshot = normalizeCollaborationSnapshot(input.snapshot);
   // Older live installations accepted only participant/governance during the
   // creation transaction. Create with a compatible scope, then immediately
   // publish the full additive participation levels through the new RPC.
-  const hasAdvisoryOrganizations = input.snapshot.organizations.some((item) => item.participationRole === "consulted" || item.participationRole === "observer");
+  const hasAdvisoryOrganizations = normalizedSnapshot.organizations.some((item) => item.participationRole === "observer");
   const compatibleSnapshot: CollaborationDraftSnapshot = hasAdvisoryOrganizations ? {
-    ...input.snapshot,
-    organizations: input.snapshot.organizations.map((item) => ["consulted", "observer"].includes(item.participationRole)
+    ...normalizedSnapshot,
+    organizations: normalizedSnapshot.organizations.map((item) => item.participationRole === "observer"
       ? { ...item, participationRole: "participant", staffingEnabled: false }
       : item),
-  } : input.snapshot;
+  } : normalizedSnapshot;
   const { data, error } = await supabase.rpc("create_collaboration_draft", {
     p_title: input.title,
     p_owner_org_id: input.ownerOrgId,
@@ -89,7 +91,7 @@ export async function createCollaborationDraft(input: {
   if (error) throw databaseUpgradeError(error);
   const draft = rowToCollaborationDraft((Array.isArray(data) ? data[0] : data) as Record<string, unknown>);
   if (hasAdvisoryOrganizations) {
-    try { await setCollaborationOrganizations(draft.id, input.snapshot.organizations, input.snapshot); }
+    try { await setCollaborationOrganizations(draft.id, normalizedSnapshot.organizations, normalizedSnapshot); }
     catch (scopeError) { await softDeleteFailedSourceDraft(draft.id).catch(() => undefined); throw scopeError; }
   }
   if (input.sourceFile) {
@@ -101,7 +103,7 @@ export async function createCollaborationDraft(input: {
     }
   }
   notifyCollaborationDraftsChanged();
-  return { ...draft, snapshot: input.snapshot };
+  return { ...draft, snapshot: normalizedSnapshot };
 }
 
 export async function autosaveCollaborationDraft(
@@ -112,7 +114,7 @@ export async function autosaveCollaborationDraft(
   const { data, error } = await supabase.rpc("autosave_collaboration_draft", {
     p_draft_id: draftId,
     p_title: title,
-    p_snapshot: snapshot,
+    p_snapshot: normalizeCollaborationSnapshot(snapshot),
   });
   if (error) throw databaseUpgradeError(error);
   const draft = rowToCollaborationDraft((Array.isArray(data) ? data[0] : data) as Record<string, unknown>);
@@ -151,8 +153,9 @@ export async function getCollaborationSourceUrl(path: string) {
 }
 
 export async function saveCollaborationRevision(draftId: string, snapshot: CollaborationDraftSnapshot, changeSummary: string): Promise<CollaborationRevision> {
+  const normalizedSnapshot = normalizeCollaborationSnapshot(snapshot);
   const { data, error } = await supabase.rpc("save_collaboration_revision", {
-    p_draft_id: draftId, p_snapshot: snapshot, p_change_summary: changeSummary,
+    p_draft_id: draftId, p_snapshot: normalizedSnapshot, p_change_summary: changeSummary,
   });
   if (error) throw databaseUpgradeError(error);
   const revision = rowToCollaborationRevision((Array.isArray(data) ? data[0] : data) as Record<string, unknown>);
@@ -166,10 +169,11 @@ export async function saveCollaborationStaffingRevision(
   snapshot: CollaborationDraftSnapshot,
   changeSummary: string,
 ): Promise<CollaborationRevision> {
+  const normalizedSnapshot = normalizeCollaborationSnapshot(snapshot);
   const { data, error } = await supabase.rpc("save_collaboration_staffing_revision", {
     p_draft_id: draftId,
     p_organization_id: organizationId,
-    p_snapshot: snapshot,
+    p_snapshot: normalizedSnapshot,
     p_change_summary: changeSummary,
   });
   if (error) throw databaseUpgradeError(error);
@@ -183,10 +187,12 @@ export async function setCollaborationOrganizations(
   organizations: CollaborationOrganizationSelection[],
   snapshot: CollaborationDraftSnapshot,
 ): Promise<CollaborationRevision> {
+  const normalizedOrganizations = organizations.map(normalizeCollaborationOrganization);
+  const normalizedSnapshot = normalizeCollaborationSnapshot(snapshot);
   const { data, error } = await supabase.rpc("set_collaboration_organizations", {
     p_draft_id: draftId,
-    p_organizations: organizations.filter((item) => item.participationRole !== "owner"),
-    p_snapshot: snapshot,
+    p_organizations: normalizedOrganizations.filter((item) => item.participationRole !== "owner"),
+    p_snapshot: normalizedSnapshot,
     p_change_summary: "Collaboration scope updated",
   });
   if (error) throw databaseUpgradeError(error);

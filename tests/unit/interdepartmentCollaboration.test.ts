@@ -4,12 +4,15 @@ import {
   buildCollaborationSnapshot,
   calculateCollaborationReadiness,
   defaultParticipationRole,
+  evaluateRevisionMateriality,
   getCollaborationCandidateEmployees,
+  normalizeCollaborationParticipationRole,
   summarizeRevisionDiff,
   notifyCollaborationDraftsChanged,
   subscribeToLocalCollaborationDraftChanges,
   isExternalReviewParticipant,
   isActiveCollaborationDraft,
+  withSynchronizedProposalBudget,
 } from "../../src/app/features/interdepartment-collaboration";
 import type { Organization } from "../../src/app/types";
 
@@ -127,7 +130,35 @@ describe("inter-department collaboration domain", () => {
   it("summarizes substantive staffing revisions", () => {
     const before = snapshot();
     const after = { ...before, tasks: before.tasks.map((task) => ({ ...task, assignedMemberIds: ["employee-b"], leadMemberId: "employee-b" })) };
-    expect(summarizeRevisionDiff(before, after)).toContain("Tasks, schedules, responsibilities, or staffing changed");
+    expect(summarizeRevisionDiff(before, after)).toContain("Task staffing changed");
+    expect(evaluateRevisionMateriality(before, after)).toMatchObject({ material: true, reasons: ["staffing"] });
+  });
+
+  it("preserves approvals for editorial revisions and invalidates them for material changes", () => {
+    const before = snapshot();
+    const editorial = { ...before, title: "OCEDSIPP (edited)", description: "Clearer description" };
+    const responsibility = {
+      ...before,
+      tasks: before.tasks.map((task) => ({ ...task, primaryOrgId: ownerOrg, activityPrimaryOrgId: ownerOrg })),
+    };
+    expect(evaluateRevisionMateriality(before, editorial)).toEqual({ material: false, reasons: [] });
+    expect(evaluateRevisionMateriality(before, responsibility)).toMatchObject({ material: true, reasons: ["responsibility"] });
+  });
+
+  it("rebuilds the proposal header budget from edited task budgets", () => {
+    const before = snapshot();
+    const tasks = before.tasks.map((task) => ({
+      ...task,
+      budgetDecision: "funded" as const,
+      budgetLines: [{ id: "line-1", expenseClass: "MOOE", category: "Supplies", particular: "Paper", quantity: 2, unit: "ream", unitCost: 250, amount: 0, fundSource: "General Fund", position: 0 }],
+    }));
+    const result = withSynchronizedProposalBudget(before, tasks);
+    expect(result.budget?.totalAmount).toBe(500);
+    expect(result.budget?.taskBudgets[0]).toMatchObject({ taskKey: "task-a", totalAmount: 500 });
+  });
+
+  it("normalizes the legacy consulted role into a non-blocking observer", () => {
+    expect(normalizeCollaborationParticipationRole("consulted")).toBe("observer");
   });
 });
 
@@ -172,5 +203,23 @@ describe("collaboration migration contracts", () => {
     expect(backend).toContain("Only the owning office may request AI staffing recommendations.");
     expect(backend).toContain('draft.get("status") != "draft"');
     expect(migrations).toContain("collaboration.source_document_attached");
+  });
+  it("allows zero-cost publication before budget lookup and carries editorial approvals", () => {
+    const zeroCost = readFileSync("supabase/migrations/20260928000001_allow_zero_cost_proposals.sql", "utf8");
+    const approvalStability = readFileSync("supabase/migrations/20260928000002_collaboration_role_and_approval_stability.sql", "utf8");
+    expect(zeroCost).toContain("if proposal_total = 0 then");
+    expect(zeroCost.indexOf("if proposal_total = 0 then")).toBeLessThan(zeroCost.indexOf("from public.department_fiscal_budgets"));
+    expect(approvalStability).toContain("collaboration_revision_is_material");
+    expect(approvalStability).toContain("and not material_change");
+    expect(approvalStability).toContain("approval.decision = 'approved'");
+    expect(approvalStability).toContain("then 'observer'");
+  });
+  it("records funding and requester departments while routing fiscal approval to the fund owner", () => {
+    const migration = readFileSync("supabase/migrations/20260928000003_petty_cash_funding_requester_orgs.sql", "utf8");
+    expect(migration).toContain("funding_org_id uuid");
+    expect(migration).toContain("requester_org_id uuid");
+    expect(migration).toContain("new.org_id := new.funding_org_id");
+    expect(migration).toContain("organization_approver_ids(fiscal.org_id)");
+    expect(migration).not.toContain("organization_approver_ids(task_row.org_id)");
   });
 });

@@ -75,6 +75,8 @@ export const mapRequest = (row: Record<string, unknown>): PettyCashRequest => ({
   commitmentId: String(row.commitment_id), allocationId: String(row.allocation_id),
   allocationLineId: row.allocation_line_id ? String(row.allocation_line_id) : undefined,
   orgId: String(row.org_id),
+  fundingOrgId: String(row.funding_org_id || row.org_id),
+  requesterOrgId: String(row.requester_org_id || row.org_id),
   taskId: String(row.task_id), subtaskId: row.subtask_id ? String(row.subtask_id) : undefined,
   requesterId: String(row.requester_id), requesterName: (row.requester as { full_name?: string } | null)?.full_name,
   taskLeaderId: row.task_leader_id ? String(row.task_leader_id) : undefined,

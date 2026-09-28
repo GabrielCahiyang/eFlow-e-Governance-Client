@@ -10,7 +10,7 @@ const participant = (orgId: string, participationRole: CollaborationParticipant[
 
 describe("proposal governance lifecycle", () => {
   it("gates only required participant and governance organizations", () => {
-    const participants = [participant("owner", "owner"), participant("delivery", "participant"), participant("board", "governance"), participant("expert", "consulted"), participant("observer", "observer")];
+    const participants = [participant("owner", "owner"), participant("delivery", "participant"), participant("board", "governance"), participant("observer", "observer")];
     expect(participants.filter(isExternalReviewParticipant).map((item) => item.orgId)).toEqual(["delivery", "board"]);
     expect(calculateCollaborationReadiness({
       currentRevisionId: "revision", participants,

@@ -5,6 +5,7 @@ export * from "./selectors/draftVisibility";
 export * from "./selectors/deliveryProgress";
 export * from "./selectors/deliveryBoard";
 export * from "./selectors/organizationEligibility";
+export * from "./selectors/participationRole";
 export * from "./selectors/revisionDiff";
 export * from "./selectors/snapshotAdapter";
 export * from "./services/collaborationDraftService";

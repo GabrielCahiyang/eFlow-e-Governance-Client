@@ -5,6 +5,7 @@ import type {
   CollaborationSnapshotTask,
 } from "../types";
 import type { ProposalBudgetDraft } from "../../budget/types";
+import { buildProposalBudgetFromTasks } from "../../budget";
 
 export interface DraftTaskInput extends Omit<CollaborationSnapshotTask,
   "activityPrimaryOrgId" | "activitySupportingOrgIds" | "primaryOrgId" | "supportingOrgIds"> {
@@ -92,4 +93,15 @@ export function snapshotTaskAssignmentsByOrganization(snapshot: CollaborationDra
     });
   });
   return assignments;
+}
+
+export function withSynchronizedProposalBudget(
+  snapshot: CollaborationDraftSnapshot,
+  tasks: CollaborationSnapshotTask[],
+): CollaborationDraftSnapshot {
+  return {
+    ...snapshot,
+    tasks,
+    budget: buildProposalBudgetFromTasks(tasks, snapshot.budget?.fiscalYear),
+  };
 }

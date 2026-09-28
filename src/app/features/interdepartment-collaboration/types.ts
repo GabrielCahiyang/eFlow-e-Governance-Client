@@ -7,7 +7,7 @@ export type CollaborationDraftStatus =
   | "committed"
   | "archived"
   | "deleted";
-export type CollaborationParticipationRole = "owner" | "participant" | "governance" | "consulted" | "observer";
+export type CollaborationParticipationRole = "owner" | "participant" | "governance" | "observer";
 export type CollaborationDecision = "approved" | "changes_requested" | "declined";
 export type GovernanceApprovalPolicy = "one_of" | "all" | "quorum";
 export type GovernanceAssignmentRole = "primary_approver" | "backup_approver" | "liaison" | "technical_reviewer" | "observer" | "delegate";

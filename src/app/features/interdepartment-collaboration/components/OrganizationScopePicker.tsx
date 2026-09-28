@@ -96,7 +96,7 @@ function OrganizationRow({ name, type, role, staffingEnabled, onRoleChange, onSt
   type: string;
   role: CollaborationOrganizationSelection["participationRole"];
   staffingEnabled: boolean;
-  onRoleChange?: (role: "participant" | "governance" | "consulted" | "observer") => void;
+  onRoleChange?: (role: "participant" | "governance" | "observer") => void;
   onStaffingChange?: (enabled: boolean) => void;
   onRemove?: () => void;
 }) {
@@ -106,8 +106,8 @@ function OrganizationRow({ name, type, role, staffingEnabled, onRoleChange, onSt
       <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${role === "governance" ? "bg-amber-50 text-amber-700" : role === "owner" ? "bg-violet-50 text-violet-700" : "bg-blue-50 text-blue-700"}`}><Icon size={15} /></div>
       <div className="min-w-[150px] flex-1"><div className="text-[12px] font-medium text-neutral-900">{name}</div><div className="text-[10px] capitalize text-neutral-400">{type}</div></div>
       {onRoleChange ? (
-        <select value={role} onChange={(event) => onRoleChange(event.target.value as "participant" | "governance" | "consulted" | "observer")} className="h-8 rounded-lg border border-neutral-200 bg-white px-2 text-[10px] text-neutral-700">
-          <option value="participant">Required participant</option><option value="governance">Required governance</option><option value="consulted">Consulted</option><option value="observer">Observer</option>
+        <select value={role} onChange={(event) => onRoleChange(event.target.value as "participant" | "governance" | "observer")} className="h-8 rounded-lg border border-neutral-200 bg-white px-2 text-[10px] text-neutral-700">
+          <option value="participant">Required participant</option><option value="governance">Required governance</option><option value="observer">Observer · view only</option>
         </select>
       ) : <span className="rounded-full bg-neutral-100 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-neutral-700">Owner</span>}
       {onStaffingChange && role === "participant" && (
