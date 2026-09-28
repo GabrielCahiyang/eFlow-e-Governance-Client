@@ -59,9 +59,23 @@ begin
     return new;
   end if;
 
-  if old.role not in ('employee', 'accounting_staff')
-     or new.role not in ('employee', 'accounting_staff') then
-    raise exception 'Only the Super Admin can manage administrative or leadership accounts'
+  if old.role in ('super_admin', 'admin')
+     or new.role in ('super_admin', 'admin') then
+    raise exception 'Only the Super Admin can manage administrative accounts'
+      using errcode = '42501';
+  end if;
+
+  if old.role in ('dept_head', 'department_head', 'assistant_head')
+     or new.role in ('dept_head', 'department_head', 'assistant_head') then
+    if new.role is distinct from old.role
+       or new.org_id is distinct from old.org_id
+       or new.is_active is distinct from old.is_active then
+      raise exception 'Only the Super Admin can change leadership assignment or account status'
+        using errcode = '42501';
+    end if;
+  elsif old.role not in ('employee', 'accounting_staff')
+        or new.role not in ('employee', 'accounting_staff') then
+    raise exception 'Only the Super Admin can change this account role'
       using errcode = '42501';
   end if;
 

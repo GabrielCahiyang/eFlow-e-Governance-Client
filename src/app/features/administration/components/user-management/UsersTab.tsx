@@ -39,8 +39,11 @@ export function UsersTab({ onOpenAccess }: { onOpenAccess: (userId: string) => v
   const orgOptions = useMemo(() => orgs.filter((org) => org.is_active).map((org) => ({ value: org.id, label: org.name })).sort((left, right) => left.label.localeCompare(right.label)), [orgs]);
   const orgMap = useMemo(() => Object.fromEntries(orgs.map((org) => [org.id, org.name])), [orgs]);
   const visibleProfiles = useMemo(
-    () => profiles.filter((profile) => profile.role !== "super_admin"),
-    [profiles],
+    () => profiles.filter((profile) =>
+      profile.role !== "super_admin"
+      && (userProfile?.role === "super_admin" || profile.role !== "admin"),
+    ),
+    [profiles, userProfile?.role],
   );
   const directoryProfiles = useMemo(
     () => filterAndSortUserDirectory(visibleProfiles, orgMap, filters),
@@ -48,7 +51,9 @@ export function UsersTab({ onOpenAccess }: { onOpenAccess: (userId: string) => v
   );
 
   const canManageUsers = can("users.manage");
-  const canManageProfile = (profile: UserProfile) =>
+  const canEditProfile = (profile: UserProfile) =>
+    canManageUsers && (userProfile?.role === "super_admin" || profile.role !== "admin");
+  const canManageAccountLifecycle = (profile: UserProfile) =>
     canManageUsers && (
       userProfile?.role === "super_admin"
       || profile.role === "employee"
@@ -83,9 +88,10 @@ export function UsersTab({ onOpenAccess }: { onOpenAccess: (userId: string) => v
     { key: "workload", header: "Workload", sortable: true, sortValue: (profile) => profile.workload, render: (profile) => <WorkloadBar value={profile.workload} /> },
     { key: "status", header: "Status", sortable: true, sortValue: (profile) => profile.is_active ? 1 : 0, render: (profile) => <StatusBadge active={profile.is_active} /> },
     { key: "actions", header: "", width: "300px", render: (profile) => {
-      const manageable = canManageProfile(profile);
-      const manageTitle = manageable ? undefined : "Only the Super Admin can manage an Admin account";
-      return <div className="flex items-center justify-end gap-1.5"><button type="button" onClick={(event) => { event.stopPropagation(); onOpenAccess(profile.id); }} disabled={!manageable || userProfile?.role !== "super_admin"} className="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-2.5 py-1.5 text-[9.5px] font-semibold text-blue-700 hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-40" title={userProfile?.role !== "super_admin" ? "Only the Super Admin can manage individual access" : manageTitle || "Manage individual access"}><KeyRound size={11} /> Access</button><button type="button" onClick={(event) => { event.stopPropagation(); if (manageable) setEditUser(profile); }} disabled={!manageable} title={manageTitle} className="rounded-lg bg-neutral-100 px-2.5 py-1.5 text-[9.5px] font-medium text-neutral-600 hover:bg-neutral-200 disabled:cursor-not-allowed disabled:opacity-40">Edit</button><button type="button" onClick={(event) => { event.stopPropagation(); if (manageable) void handleToggleStatus(profile); }} disabled={!manageable} title={manageTitle} className={`rounded-lg px-2.5 py-1.5 text-[9.5px] font-medium disabled:cursor-not-allowed disabled:opacity-40 ${profile.is_active ? "bg-amber-50 text-amber-700 hover:bg-amber-100" : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"}`}>{profile.is_active ? "Deactivate" : "Activate"}</button><button type="button" onClick={(event) => { event.stopPropagation(); if (manageable) setDeleteUser(profile); }} disabled={!manageable || profile.id === userProfile?.id} className="inline-flex items-center gap-1 rounded-lg bg-red-50 px-2.5 py-1.5 text-[9.5px] font-semibold text-red-700 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-40" title={manageTitle || (profile.id === userProfile?.id ? "You cannot delete the account you are using" : "Permanently delete account")}><Trash2 size={11} /> Delete</button></div>;
+      const editable = canEditProfile(profile);
+      const lifecycleManageable = canManageAccountLifecycle(profile);
+      const protectedTitle = lifecycleManageable ? undefined : "Only the Super Admin can change or delete a leadership account";
+      return <div className="flex items-center justify-end gap-1.5"><button type="button" onClick={(event) => { event.stopPropagation(); onOpenAccess(profile.id); }} disabled={userProfile?.role !== "super_admin"} className="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-2.5 py-1.5 text-[9.5px] font-semibold text-blue-700 hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-40" title={userProfile?.role !== "super_admin" ? "Only the Super Admin can manage individual access" : "Manage individual access"}><KeyRound size={11} /> Access</button><button type="button" onClick={(event) => { event.stopPropagation(); if (editable) setEditUser(profile); }} disabled={!editable} title={editable ? "Edit profile details" : "The users.manage capability is required"} className="rounded-lg bg-neutral-100 px-2.5 py-1.5 text-[9.5px] font-medium text-neutral-600 hover:bg-neutral-200 disabled:cursor-not-allowed disabled:opacity-40">Edit</button><button type="button" onClick={(event) => { event.stopPropagation(); if (lifecycleManageable) void handleToggleStatus(profile); }} disabled={!lifecycleManageable} title={protectedTitle} className={`rounded-lg px-2.5 py-1.5 text-[9.5px] font-medium disabled:cursor-not-allowed disabled:opacity-40 ${profile.is_active ? "bg-amber-50 text-amber-700 hover:bg-amber-100" : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"}`}>{profile.is_active ? "Deactivate" : "Activate"}</button><button type="button" onClick={(event) => { event.stopPropagation(); if (lifecycleManageable) setDeleteUser(profile); }} disabled={!lifecycleManageable || profile.id === userProfile?.id} className="inline-flex items-center gap-1 rounded-lg bg-red-50 px-2.5 py-1.5 text-[9.5px] font-semibold text-red-700 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-40" title={protectedTitle || (profile.id === userProfile?.id ? "You cannot delete the account you are using" : "Permanently delete account")}><Trash2 size={11} /> Delete</button></div>;
     } },
   ];
 
@@ -98,7 +104,7 @@ export function UsersTab({ onOpenAccess }: { onOpenAccess: (userId: string) => v
         totalRecords={visibleProfiles.length}
         columns={columns}
         keyExtractor={(profile) => profile.id}
-        onRowClick={(profile) => { if (canManageProfile(profile)) setEditUser(profile); }}
+        onRowClick={(profile) => { if (canEditProfile(profile)) setEditUser(profile); }}
         loading={loading}
         searchPlaceholder="Search by name, email, role, or organization…"
         searchFilter={(profile, query) => profile.full_name.toLowerCase().includes(query) || profile.email.toLowerCase().includes(query) || (orgMap[profile.org_id || ""] || "").toLowerCase().includes(query) || profile.role.toLowerCase().includes(query)}
