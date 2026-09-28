@@ -31,7 +31,6 @@ import {
   StatCard,
   Card,
   WSelect,
-  LoadingState,
   SectionEmpty,
   ProgressBar,
   relativeDays,
@@ -46,6 +45,30 @@ import { TaskRow } from "./DeptHeadDashboardTaskRow";
 import { getHeadWorkspaceLabel } from "../../shared/roles";
 
 type FocusList = null | "overdue" | "review" | "unassigned" | "completed";
+
+function DeptHeadDashboardSkeleton() {
+  const block = "animate-pulse rounded-lg bg-muted";
+  return (
+    <div className="min-h-full bg-muted/20 p-3 sm:p-6 lg:p-8" role="status" aria-live="polite">
+      <div className="mx-auto max-w-[1480px] space-y-5">
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
+          <div className={`${block} h-3 w-44`} />
+          <div className={`${block} mt-3 h-9 w-64`} />
+          <div className={`${block} mt-3 h-4 w-full max-w-xl`} />
+          <div className={`${block} mt-6 h-10 w-40 sm:mt-5`} />
+        </div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {Array.from({ length: 4 }, (_, index) => <div key={index} className="h-32 rounded-xl border border-border bg-card p-5 shadow-sm"><div className={`${block} h-3 w-28`} /><div className={`${block} mt-5 h-8 w-16`} /><div className={`${block} mt-3 h-3 w-32`} /></div>)}
+        </div>
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+          <div className="space-y-4 lg:col-span-2"><div className="h-48 rounded-xl border border-border bg-card p-5 shadow-sm" /><div className="h-64 rounded-xl border border-border bg-card p-5 shadow-sm" /></div>
+          <div className="space-y-4"><div className="h-64 rounded-xl border border-border bg-card p-5 shadow-sm" /><div className="h-56 rounded-xl border border-border bg-card p-5 shadow-sm" /></div>
+        </div>
+        <span className="sr-only">Loading your department dashboard…</span>
+      </div>
+    </div>
+  );
+}
 
 export function DeptHeadDashboard() {
   const { userProfile } = useAuth();
@@ -158,34 +181,43 @@ export function DeptHeadDashboard() {
     focus === "completed" ? completedList :
     [];
 
-  if (tasksLoading) return <div className="p-8"><LoadingState label="Loading your department…" /></div>;
+  if (tasksLoading) return <DeptHeadDashboardSkeleton />;
 
   const totalHealth = Object.values(healthBuckets).reduce((s, n) => s + n, 0);
 
   return (
-    <div className="min-h-full p-3 sm:p-8">
-      <PageHeader
-        eyebrow={isSuperAdmin ? "Administration · Command Center" : `${workspaceLabel} · Command Center`}
-        title={`Good day, ${(userProfile?.full_name || "there").split(" ")[0]}`}
-        subtitle="Your department at a glance — manage by exception."
-        actions={
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[11px] font-medium text-neutral-400">Completion window</span>
-            <WSelect
-              value={period}
-              onChange={setPeriod}
-              options={[
-                { value: "7", label: "Last 7 days" },
-                { value: "30", label: "Last 30 days" },
-                { value: "90", label: "Last 90 days" },
-              ]}
-            />
+    <div className="min-h-full bg-muted/20 p-3 sm:p-6 lg:p-8">
+      <div className="mx-auto max-w-[1480px] space-y-5">
+        <section className="rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/5 via-card to-card p-5 shadow-sm sm:p-6">
+          <PageHeader
+            eyebrow={isSuperAdmin ? "Administration · Command Center" : `${workspaceLabel} · Command Center`}
+            title={`Good day, ${(userProfile?.full_name || "there").split(" ")[0]}`}
+            subtitle="Your department at a glance — manage by exception."
+            actions={
+              <div className="flex w-full flex-col items-stretch gap-1.5 sm:w-auto sm:items-end">
+                <span className="text-[11px] font-medium text-muted-foreground">Completion window</span>
+                <WSelect
+                  value={period}
+                  onChange={setPeriod}
+                  options={[
+                    { value: "7", label: "Last 7 days" },
+                    { value: "30", label: "Last 30 days" },
+                    { value: "90", label: "Last 90 days" },
+                  ]}
+                  className="min-w-[160px]"
+                />
+              </div>
+            }
+          />
+          <div className="flex flex-wrap items-center gap-2 border-t border-primary/10 pt-4 text-[12px] text-muted-foreground">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-card px-3 py-1.5 ring-1 ring-border"><FolderKanban size={13} className="text-primary" /> {totalHealth} active projects</span>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-card px-3 py-1.5 ring-1 ring-border"><Inbox size={13} className="text-primary" /> {scoped.length} active tasks</span>
+            {overdue.length > 0 ? <span className="inline-flex items-center gap-1.5 rounded-full bg-destructive/10 px-3 py-1.5 text-destructive"><AlertTriangle size={13} /> {overdue.length} overdue</span> : <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 text-emerald-700"><CheckCircle2 size={13} /> No overdue tasks</span>}
           </div>
-        }
-      />
+        </section>
 
       {/* KPI row */}
-      <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           label="Overdue tasks"
           value={overdue.length}
@@ -245,7 +277,7 @@ export function DeptHeadDashboard() {
             `Recently completed (${completedList.length})`
           }
           right={
-            <button onClick={() => setFocus(null)} className="text-[11.5px] font-medium text-neutral-500 hover:text-neutral-900">
+            <button onClick={() => setFocus(null)} className="rounded-md px-2 py-1 text-[11.5px] font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
               Close
             </button>
           }
@@ -254,7 +286,7 @@ export function DeptHeadDashboard() {
           {focusRows.length === 0 ? (
             <SectionEmpty icon={<CheckCircle2 size={28} />} title="All clear" description="Nothing in this list right now." />
           ) : (
-            <div className="divide-y divide-neutral-100 max-h-[360px] overflow-y-auto">
+            <div className="max-h-[360px] overflow-y-auto divide-y divide-border/70">
               {focusRows.slice(0, 40).map((t) => (
                 <TaskRow key={t.id} task={t} onOpen={() => setOpenTask(t)} />
               ))}
@@ -263,11 +295,11 @@ export function DeptHeadDashboard() {
         </Card>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {/* Left column */}
         <div className="lg:col-span-2 space-y-4">
           {/* Project health */}
-          <Card title="Project health" subtitle={`${totalHealth} active project(s) in scope`}>
+          <Card className="overflow-hidden" title="Project health" subtitle={`${totalHealth} active project(s) in scope`}>
             {totalHealth === 0 ? (
               <SectionEmpty
                 icon={<FolderKanban size={26} />}
@@ -276,7 +308,7 @@ export function DeptHeadDashboard() {
               />
             ) : (
               <div className="space-y-3">
-                <div className="flex h-3 rounded-full overflow-hidden bg-neutral-100">
+                <div className="flex h-3 overflow-hidden rounded-full bg-muted" aria-label="Project health distribution">
                   {(Object.keys(healthBuckets) as Health[]).map((h) =>
                     healthBuckets[h] ? (
                       <div
@@ -287,12 +319,12 @@ export function DeptHeadDashboard() {
                     ) : null,
                   )}
                 </div>
-                <div className="grid grid-cols-1 gap-2 sm:grid-cols-4">
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
                   {(Object.keys(healthBuckets) as Health[]).map((h) => (
-                    <div key={h} className="flex items-center gap-2">
+                    <div key={h} className="flex min-w-0 items-center gap-2 rounded-lg border border-border/70 bg-muted/25 px-2.5 py-2">
                       <span className="w-2.5 h-2.5 rounded-full" style={{ background: HEALTH_META[h].color }} />
-                      <span className="text-[12px] font-normal text-neutral-600">{HEALTH_META[h].label}</span>
-                      <span className="text-[12px] font-semibold text-neutral-900 tabular-nums ml-auto">{healthBuckets[h]}</span>
+                      <span className="min-w-0 truncate text-[12px] font-medium text-secondary-foreground">{HEALTH_META[h].label}</span>
+                      <span className="ml-auto text-[12px] font-semibold tabular-nums text-foreground">{healthBuckets[h]}</span>
                     </div>
                   ))}
                 </div>
@@ -301,11 +333,11 @@ export function DeptHeadDashboard() {
           </Card>
 
           {/* Most urgent */}
-          <Card title="Most urgent" subtitle="The five nearest deadlines still open" bodyClassName="p-0">
+          <Card className="overflow-hidden" title="Most urgent" subtitle="The five nearest deadlines still open" bodyClassName="p-0">
             {urgentFive.length === 0 ? (
               <SectionEmpty icon={<CalendarClock size={26} />} title="No open deadlines" />
             ) : (
-              <div className="divide-y divide-neutral-100">
+              <div className="divide-y divide-border/70">
                 {urgentFive.map((t) => (
                   <TaskRow key={t.id} task={t} onOpen={() => setOpenTask(t)} />
                 ))}
@@ -317,7 +349,7 @@ export function DeptHeadDashboard() {
         {/* Right column */}
         <div className="space-y-4">
           {/* Workload */}
-          <Card title="Workload by employee" subtitle="Active tasks per person">
+          <Card className="overflow-hidden" title="Workload by employee" subtitle="Active tasks per person">
             {workload.length === 0 ? (
               <SectionEmpty icon={<Users size={24} />} title="No assigned work" />
             ) : (
@@ -328,13 +360,13 @@ export function DeptHeadDashboard() {
                     <div key={w.id}>
                       <div className="flex items-center gap-2 mb-1">
                         <InitialsAvatar name={w.name} size={22} />
-                        <span className="text-[12px] font-medium text-neutral-800 truncate flex-1">{w.name}</span>
+                        <span className="min-w-0 flex-1 truncate text-[12px] font-medium text-foreground">{w.name}</span>
                         {heavy && <Flame size={12} className="text-red-500" />}
-                        <span className="text-[11.5px] font-semibold text-neutral-900 tabular-nums">{w.active}</span>
+                        <span className="text-[11.5px] font-semibold tabular-nums text-foreground">{w.active}</span>
                       </div>
                       <ProgressBar value={(w.active / maxLoad) * 100} tone={heavy ? "bad" : w.overdue ? "warn" : "neutral"} />
                       {(w.overdue > 0 || w.review > 0) && (
-                        <div className="flex gap-3 mt-1 text-[10px] font-normal text-neutral-400">
+                        <div className="mt-1 flex gap-3 text-[10px] font-medium text-muted-foreground">
                           {w.overdue > 0 && <span className="text-red-500">{w.overdue} overdue</span>}
                           {w.review > 0 && <span className="text-amber-500">{w.review} in review</span>}
                         </div>
@@ -343,7 +375,7 @@ export function DeptHeadDashboard() {
                   );
                 })}
                 {unassigned.length > 0 && (
-                  <div className="mt-2 pt-2 border-t border-neutral-100 flex items-center gap-2 text-[11.5px] font-normal text-neutral-500">
+                  <div className="mt-2 flex items-center gap-2 border-t border-border pt-3 text-[11.5px] font-medium text-muted-foreground">
                     <Users size={12} /> {unassigned.length} unassigned task(s) need an owner
                   </div>
                 )}
@@ -353,6 +385,7 @@ export function DeptHeadDashboard() {
 
           {/* Upcoming deadlines */}
           <Card
+            className="overflow-hidden"
             title="Upcoming deadlines"
             right={
               <WSelect
@@ -371,18 +404,18 @@ export function DeptHeadDashboard() {
             {upcoming.length === 0 ? (
               <SectionEmpty icon={<CalendarClock size={24} />} title="Nothing due soon" />
             ) : (
-              <div className="divide-y divide-neutral-100 max-h-[260px] overflow-y-auto">
+              <div className="max-h-[260px] overflow-y-auto divide-y divide-border/70">
                 {upcoming.slice(0, 20).map((t) => {
                   const rel = relativeDays(t.deadline || t.dueDate);
                   return (
                     <button
                       key={t.id}
                       onClick={() => setOpenTask(t)}
-                      className="w-full text-left flex items-center gap-2 px-4 py-2.5 hover:bg-neutral-50"
+                      className="flex w-full items-center gap-2 px-4 py-3 text-left transition-colors hover:bg-accent/60"
                     >
                       <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${rel.overdue ? "bg-red-500" : "bg-amber-500"}`} />
-                      <span className="text-[12px] font-normal text-neutral-800 truncate flex-1">{t.title}</span>
-                      <span className={`text-[10.5px] font-medium tabular-nums ${rel.overdue ? "text-red-600" : "text-neutral-400"}`}>
+                      <span className="min-w-0 flex-1 truncate text-[12px] font-medium text-foreground">{t.title}</span>
+                      <span className={`text-[10.5px] font-medium tabular-nums ${rel.overdue ? "text-destructive" : "text-muted-foreground"}`}>
                         {rel.label}
                       </span>
                     </button>
@@ -400,6 +433,7 @@ export function DeptHeadDashboard() {
         canReview
         onChanged={() => { /* realtime subscription refreshes lists */ }}
       />
+      </div>
     </div>
   );
 }

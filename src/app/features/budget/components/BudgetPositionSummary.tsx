@@ -48,18 +48,18 @@ export function BudgetPositionSummary({
       className="overflow-hidden rounded-[10px] border border-border bg-card shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]"
     >
       <div className="grid xl:grid-cols-[minmax(20rem,0.9fr)_minmax(34rem,1.6fr)]">
-        <div className="border-b border-neutral-200 bg-neutral-950 p-5 text-white xl:border-b-0 xl:border-r">
-          <div className="flex items-center gap-2 text-[12px] font-medium uppercase tracking-[0.14em] text-neutral-300">
+        <div className="border-b border-primary/20 bg-primary/5 p-5 text-foreground xl:border-b-0 xl:border-r">
+          <div className="flex items-center gap-2 text-[12px] font-medium uppercase tracking-[0.14em] text-primary">
             <Landmark size={15} /> Available to fund
           </div>
-          <div className="mt-3 text-right text-[32px] font-semibold tracking-tight tabular-nums">
+          <div className="mt-3 text-right text-[32px] font-semibold tracking-tight text-primary tabular-nums">
             {peso.format(summary.availableAmount)}
           </div>
-          <p className="mt-2 text-right text-[12px] leading-relaxed text-neutral-300">
+          <p className="mt-2 text-right text-[12px] leading-relaxed text-muted-foreground">
             Funds not yet reserved by published proposals or recorded as actual
             expenditure.
           </p>
-          <dl className="mt-5 grid grid-cols-3 gap-3 border-t border-white/15 pt-4 text-right">
+          <dl className="mt-5 grid grid-cols-3 gap-3 border-t border-primary/15 pt-4 text-right">
             <PositionNumber label="Annual authority" value={summary.approvedAmount} />
             <PositionNumber label="Committed" value={summary.committedAmount} />
             <PositionNumber label="Actual spending" value={summary.spentAmount} />

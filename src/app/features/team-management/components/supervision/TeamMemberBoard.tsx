@@ -38,7 +38,7 @@ export function TeamMemberBoard({
             const high = metric.workloadSignal >= TEAM_WORKLOAD_HIGH_THRESHOLD;
             const medium = metric.workloadSignal >= TEAM_WORKLOAD_ELEVATED_THRESHOLD;
             const selected = selectedEmployeeId === employee.id;
-            return <button key={employee.id} type="button" aria-pressed={selected} onClick={() => onSelect(employee.id)} className={`mb-1 flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2.5 text-left transition ${selected ? "bg-neutral-900 text-white" : "hover:bg-neutral-50"}`}><span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-[11px] font-semibold ${selected ? "bg-white/15" : "bg-neutral-100 text-neutral-600"}`}>{employee.initials || "??"}</span><span className="min-w-0 flex-1"><span className="block truncate text-[13px] font-medium">{employee.name}</span><span className={`mt-0.5 block truncate text-[12px] ${selected ? "text-neutral-300" : "text-neutral-500"}`}>{employee.jobTitle}</span></span><span className={`eflow-tabular text-[12px] font-semibold ${selected ? "text-white" : high ? "text-red-600" : medium ? "text-amber-600" : "text-emerald-600"}`}>{metric.workloadSignal}</span></button>;
+            return <button key={employee.id} type="button" aria-pressed={selected} onClick={() => onSelect(employee.id)} className={`mb-1 flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2.5 text-left transition ${selected ? "bg-primary/10 text-primary ring-1 ring-primary/20" : "hover:bg-neutral-50"}`}><span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-[11px] font-semibold ${selected ? "bg-primary text-primary-foreground" : "bg-neutral-100 text-neutral-600"}`}>{employee.initials || "??"}</span><span className="min-w-0 flex-1"><span className="block truncate text-[13px] font-medium">{employee.name}</span><span className={`mt-0.5 block truncate text-[12px] ${selected ? "text-primary/75" : "text-neutral-500"}`}>{employee.jobTitle}</span></span><span className={`eflow-tabular text-[12px] font-semibold ${selected ? "text-primary" : high ? "text-red-600" : medium ? "text-amber-600" : "text-emerald-600"}`}>{metric.workloadSignal}</span></button>;
           })}
           {!filtered.length && <p className="px-3 py-8 text-center text-[12px] text-neutral-500">No team members match this search.</p>}
         </div>
@@ -60,9 +60,9 @@ export function TeamMemberBoard({
           const medium = metric.workloadSignal >= TEAM_WORKLOAD_ELEVATED_THRESHOLD;
           const selected = selectedEmployeeId === employee.id;
           return (
-            <button key={employee.id} type="button" onClick={() => onSelect(employee.id)} className={`rounded-xl border bg-white p-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-sm motion-reduce:transform-none ${selected ? "border-neutral-900 ring-1 ring-neutral-900/10" : "border-neutral-200 hover:border-neutral-300"}`}>
+            <button key={employee.id} type="button" onClick={() => onSelect(employee.id)} className={`rounded-xl border bg-white p-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-sm motion-reduce:transform-none ${selected ? "border-primary ring-1 ring-primary/20" : "border-neutral-200 hover:border-neutral-300"}`}>
               <div className="flex items-start gap-3">
-                <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-neutral-900 text-[12px] font-semibold text-white">{employee.initials || "??"}</div>
+                <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary text-[12px] font-semibold text-primary-foreground">{employee.initials || "??"}</div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0"><h3 className="truncate text-[13px] font-semibold text-neutral-900">{employee.name}</h3><p className="truncate text-[12px] text-neutral-500">{employee.jobTitle}</p></div>

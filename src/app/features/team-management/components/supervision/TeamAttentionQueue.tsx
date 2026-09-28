@@ -67,7 +67,7 @@ export function TeamAttentionQueue({
                 {item.employeeIds[0] && (
                   <button type="button" onClick={() => onSelectEmployee(item.employeeIds[0])} className="rounded-lg border border-neutral-200 px-2.5 py-1.5 text-[12px] text-neutral-600 transition hover:bg-neutral-50">Person</button>
                 )}
-                <button type="button" onClick={() => onOpenTask(item.taskId)} className="inline-flex items-center gap-1 rounded-lg bg-neutral-900 px-2.5 py-1.5 text-[12px] font-medium text-white transition hover:bg-neutral-800">Open <ExternalLink size={11} /></button>
+                <button type="button" onClick={() => onOpenTask(item.taskId)} className="inline-flex items-center gap-1 rounded-lg bg-primary px-2.5 py-1.5 text-[12px] font-medium text-primary-foreground transition hover:bg-primary/90">Open <ExternalLink size={11} /></button>
               </div>
             </div>
           </article>

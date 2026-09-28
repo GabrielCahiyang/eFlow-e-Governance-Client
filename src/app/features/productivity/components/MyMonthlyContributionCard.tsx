@@ -10,7 +10,7 @@ export function MyMonthlyContributionCard({ employee, tasks, facts }: { employee
   return (
     <section className="mt-5 overflow-hidden rounded-xl border border-violet-200 bg-gradient-to-br from-violet-50 via-white to-amber-50 p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="flex items-center gap-3"><div className="grid h-9 w-9 place-items-center rounded-xl bg-neutral-900 text-amber-300"><Trophy size={17} /></div><div><div className="text-[10px] uppercase tracking-wider text-violet-600">This month · approved work</div><h2 className="text-[15px] font-semibold text-neutral-900">My contribution score</h2></div></div>
+        <div className="flex items-center gap-3"><div className="grid h-9 w-9 place-items-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20"><Trophy size={17} /></div><div><div className="text-[10px] uppercase tracking-wider text-violet-600">This month · approved work</div><h2 className="text-[15px] font-semibold text-neutral-900">My contribution score</h2></div></div>
         <div className="text-right"><div className="text-[25px] font-semibold text-neutral-900">{row?.contributionScore ?? 0}</div><div className="text-[8.5px] text-neutral-400">transparent points</div></div>
       </div>
       <div className="mt-4 grid grid-cols-2 gap-2 md:grid-cols-4">

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Button, Dialog, DialogContentContainer, IconButton, Menu, MenuItem } from "@vibe/core";
-import { Add, Archive, Check, Delete, MoreActions } from "@vibe/icons";
+import { Add, Archive, Check, Delete, MoreActions, Work } from "@vibe/icons";
 import * as m from "motion/react-m";
 import { motionTransition } from "../../../shared/motion";
 import { tasksForProject } from "../../tasks";
@@ -78,7 +78,7 @@ export function ProjectContextSidebar({
   );
   const members = profiles.filter((profile) => contributorIds.has(profile.id));
 
-  const renderProjects = (items: Project[]) => items.map((project, index) => (
+  const renderProjects = (items: Project[]) => items.map((project) => (
             <m.div
               layout="position"
               transition={motionTransition.navigation}
@@ -99,8 +99,8 @@ export function ProjectContextSidebar({
                 onClick={() => onOpenProject(project.id)}
                 type="button"
               >
-                <span className={`eflow-project-context__project-mark eflow-project-context__project-mark--${index % 4}`} aria-hidden="true">
-                  {project.title?.slice(0, 1)?.toUpperCase() || "P"}
+                <span className="eflow-project-context__project-mark" aria-hidden="true">
+                  <Work size={16} />
                 </span>
                 <span className="eflow-project-context__project-name">{project.title}</span>
               </button>

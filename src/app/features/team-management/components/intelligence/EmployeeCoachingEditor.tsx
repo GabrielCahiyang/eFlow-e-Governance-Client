@@ -85,7 +85,7 @@ export function EmployeeCoachingEditor({
         <div className="md:col-span-2"><Field label="Assignment skill tags" hint="Comma-separated keywords used directly by AI matching."><input value={draft.tags} onChange={(event) => change("tags", event.target.value)} placeholder="permits, facilitation, data analysis" className="h-10 w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 text-[11.5px] outline-none transition focus:border-neutral-400 focus:bg-white" /></Field></div>
       </div>
       <div className="flex flex-wrap items-center gap-3 border-t border-neutral-100 px-4 py-3">
-        <button type="button" onClick={save} disabled={!dirty || saving} className="inline-flex items-center gap-1.5 rounded-lg bg-neutral-900 px-3.5 py-2 text-[10.5px] font-medium text-white transition hover:bg-neutral-800 disabled:opacity-40">{saving ? <><Loader2 size={12} className="animate-spin" /> Saving…</> : "Save profile"}</button>
+        <button type="button" onClick={save} disabled={!dirty || saving} className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-[10.5px] font-medium text-primary-foreground transition hover:bg-primary/90 disabled:opacity-40">{saving ? <><Loader2 size={12} className="animate-spin" /> Saving…</> : "Save profile"}</button>
         {saved && <span className="inline-flex items-center gap-1 text-[10.5px] text-emerald-600"><CheckCircle2 size={12} /> Saved and available to AI recommendations</span>}
         {dirty && !saving && <span className="text-[10.5px] text-amber-600">Unsaved changes</span>}
         {error && <span className="text-[10.5px] text-red-600">{error}</span>}

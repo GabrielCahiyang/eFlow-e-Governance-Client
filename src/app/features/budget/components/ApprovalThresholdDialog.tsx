@@ -99,7 +99,7 @@ export function ApprovalThresholdDialog({
                   }}
                   className={`inline-flex h-7 items-center rounded-lg px-2.5 text-[10.5px] font-medium transition ${
                     value === preset
-                      ? "bg-neutral-900 text-white"
+                      ? "bg-primary/10 text-primary ring-1 ring-primary/20"
                       : "border border-neutral-200 bg-neutral-50 text-neutral-600 hover:bg-neutral-100"
                   }`}
                 >

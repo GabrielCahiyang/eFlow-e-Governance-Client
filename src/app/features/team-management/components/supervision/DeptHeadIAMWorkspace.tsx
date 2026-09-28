@@ -452,14 +452,14 @@ function UserAccessTab({
               onClick={() => setSelectedUserId(p.id)}
               className={`mb-1 flex w-full items-center gap-2.5 rounded-xl p-2.5 text-left transition-colors ${
                 p.id === selectedUserId
-                  ? "bg-neutral-900 text-white"
+                  ? "bg-primary/10 text-primary ring-1 ring-primary/20"
                   : "hover:bg-neutral-100"
               }`}
             >
               <span
                 className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold ${
                   p.id === selectedUserId
-                    ? "bg-white/15"
+                  ? "bg-primary text-primary-foreground"
                     : "bg-neutral-100 text-neutral-600"
                 }`}
               >
@@ -476,7 +476,7 @@ function UserAccessTab({
                 </span>
                 <span
                   className={`block truncate text-[9.5px] ${
-                    p.id === selectedUserId ? "text-neutral-300" : "text-neutral-400"
+                    p.id === selectedUserId ? "text-primary/70" : "text-neutral-400"
                   }`}
                 >
                   {orgMap[p.org_id ?? ""] || "No organization"} ·{" "}
@@ -509,10 +509,10 @@ function UserAccessTab({
         </div>
       ) : (
         <div className="space-y-4">
-          <header className="rounded-2xl border border-neutral-200 bg-gradient-to-br from-neutral-950 to-neutral-800 p-5 text-white shadow-sm">
+          <header className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/10 via-primary/5 to-white p-5 text-foreground shadow-sm">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-[13px] font-semibold">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-[13px] font-semibold text-primary">
                   {selected.full_name
                     .split(" ")
                     .map((p) => p[0])
@@ -522,34 +522,34 @@ function UserAccessTab({
                 </div>
                 <div>
                   <h2 className="text-[16px] font-semibold">{selected.full_name}</h2>
-                  <p className="mt-0.5 text-[10.5px] text-neutral-300">
+                  <p className="mt-0.5 text-[10.5px] text-neutral-500">
                     {selected.role.replace(/_/g, " ")} ·{" "}
                     {orgMap[selected.org_id ?? ""] || "No organization"}
                   </p>
                 </div>
               </div>
               <div className="flex gap-2">
-                <div className="rounded-xl bg-white/10 px-3 py-2 text-center">
+                <div className="rounded-xl border border-primary/15 bg-white/70 px-3 py-2 text-center">
                   <div className="text-[15px] font-semibold">{pageCount}</div>
-                  <div className="text-[8.5px] uppercase tracking-widest text-neutral-300">
+                  <div className="text-[8.5px] uppercase tracking-widest text-neutral-500">
                     Pages
                   </div>
                 </div>
-                <div className="rounded-xl bg-white/10 px-3 py-2 text-center">
+                <div className="rounded-xl border border-primary/15 bg-white/70 px-3 py-2 text-center">
                   <div className="text-[15px] font-semibold">{actionCount}</div>
-                  <div className="text-[8.5px] uppercase tracking-widest text-neutral-300">
+                  <div className="text-[8.5px] uppercase tracking-widest text-neutral-500">
                     Actions
                   </div>
                 </div>
-                <div className="rounded-xl bg-white/10 px-3 py-2 text-center">
+                <div className="rounded-xl border border-primary/15 bg-white/70 px-3 py-2 text-center">
                   <div className="text-[15px] font-semibold">{overrides.length}</div>
-                  <div className="text-[8.5px] uppercase tracking-widest text-neutral-300">
+                  <div className="text-[8.5px] uppercase tracking-widest text-neutral-500">
                     Exceptions
                   </div>
                 </div>
               </div>
             </div>
-            <div className="mt-4 flex items-center gap-2 border-t border-white/10 pt-3 text-[9.5px] text-neutral-300">
+            <div className="mt-4 flex items-center gap-2 border-t border-primary/15 pt-3 text-[9.5px] text-neutral-500">
               <Shield size={12} /> Effective access = individual exception → role
               default → safe fallback. Data remains protected by organization scope.
             </div>
@@ -677,14 +677,14 @@ function LeadershipTab({
     >
       {/* Current leadership card */}
       <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
-        <header className="border-b border-neutral-100 bg-gradient-to-br from-neutral-950 to-neutral-800 p-5 text-white">
+        <header className="border-b border-primary/15 bg-gradient-to-br from-primary/10 via-primary/5 to-white p-5 text-foreground">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
               <ShieldCheck size={18} />
             </div>
             <div>
               <h2 className="text-[14px] font-semibold">Department Leadership</h2>
-              <p className="mt-0.5 text-[10.5px] text-neutral-300">
+              <p className="mt-0.5 text-[10.5px] text-neutral-500">
                 {orgName} · leadership team
               </p>
             </div>
@@ -694,7 +694,7 @@ function LeadershipTab({
         <div className="divide-y divide-neutral-100">
           {/* Department Head (read-only for dept head) */}
           <div className="flex items-center gap-4 p-5">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-neutral-900 text-[12px] font-semibold text-white">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-[12px] font-semibold text-primary-foreground">
               {head
                 ? head.full_name
                     .split(" ")
@@ -709,7 +709,7 @@ function LeadershipTab({
                 <span className="text-[13px] font-semibold text-neutral-900">
                   {head?.full_name ?? "No Head assigned"}
                 </span>
-                <span className="rounded-full bg-neutral-900 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-white">
+                <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-primary ring-1 ring-primary/20">
                   Department Head
                 </span>
               </div>

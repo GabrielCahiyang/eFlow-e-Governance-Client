@@ -53,7 +53,7 @@ export function ProposalBudgetEditor({
         </div>
         <div className="flex items-end gap-3">
           <label><span className="block text-[9px] uppercase tracking-wide text-neutral-400">Fiscal year</span><input type="number" min={2000} max={2200} disabled={readOnly} value={value.fiscalYear} onChange={(event) => onChange({ ...value, fiscalYear: Number(event.target.value) })} className="mt-1 h-9 w-24 rounded-xl border border-neutral-200 bg-white px-3 text-[10.5px] disabled:bg-neutral-50" /></label>
-          <div className="min-w-36 rounded-xl bg-neutral-950 px-4 py-2.5 text-right text-white"><div className="text-[8px] uppercase tracking-[0.16em] text-neutral-400">Proposal total</div><div className="mt-1 text-[15px] font-semibold tabular-nums">{peso.format(total)}</div></div>
+          <div className="min-w-36 rounded-xl border border-primary/20 bg-primary/10 px-4 py-2.5 text-right text-primary"><div className="text-[8px] uppercase tracking-[0.16em] text-primary/70">Proposal total</div><div className="mt-1 text-[15px] font-semibold tabular-nums">{peso.format(total)}</div></div>
         </div>
       </header>
 

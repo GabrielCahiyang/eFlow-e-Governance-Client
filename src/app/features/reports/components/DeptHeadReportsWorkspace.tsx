@@ -125,7 +125,7 @@ export function DeptHeadReportsWorkspace() {
   };
 
   return (
-    <div className="min-h-full min-w-0 bg-neutral-50/30 p-3 sm:p-8">
+    <div className="min-h-full min-w-0 bg-muted/20 p-3 sm:p-8">
       <PageHeader
         eyebrow="Dept. Head · Reports"
         title="Reports"
@@ -138,7 +138,7 @@ export function DeptHeadReportsWorkspace() {
         )}
       />
 
-      {analytics.error && <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-[12px] text-red-700">Some workflow facts could not be loaded: {analytics.error}</div>}
+      {analytics.error && <div className="mb-4 rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-[12px] text-destructive">Some workflow facts could not be loaded: {analytics.error}</div>}
 
       {analytics.loading ? <WorkspaceLoadingSkeleton label="Loading live department reports…" rows={6} /> : <>
       <div className="mb-4"><ContributionSummaryCard rows={contributionRows} title="Department contribution this month" /></div>
@@ -151,17 +151,17 @@ export function DeptHeadReportsWorkspace() {
                 type="button"
                 key={report.id}
                 onClick={() => changeKind(report.id)}
-                className={`w-full text-left p-3 rounded-lg transition-colors ${kind === report.id ? "bg-neutral-900 text-white" : "hover:bg-neutral-50 text-neutral-700"}`}
+                className={`w-full rounded-lg border p-3 text-left transition-colors ${kind === report.id ? "border-primary/25 bg-primary/10 text-primary shadow-sm" : "border-transparent text-foreground hover:bg-accent/70"}`}
               >
                 <div className="flex items-center gap-2 text-[12px] font-medium">{reportIcons[report.id]} {report.title}</div>
-                <p className={`mt-1 text-[12px] leading-5 ${kind === report.id ? "text-neutral-300" : "text-neutral-500"}`}>{report.description}</p>
+                <p className={`mt-1 text-[12px] leading-5 ${kind === report.id ? "text-secondary-foreground" : "text-muted-foreground"}`}>{report.description}</p>
               </button>
             ))}
           </div>
         </Card>
 
         <div className="min-w-0">
-          <div className="mb-4 flex flex-wrap items-center gap-x-6 gap-y-3 rounded-xl border border-neutral-200 bg-white px-4 py-3 shadow-sm" aria-label="Report summary">
+          <div className="mb-4 flex flex-wrap items-center gap-x-6 gap-y-3 rounded-xl border border-border bg-card px-4 py-3 shadow-sm" aria-label="Report summary">
             <ReportMetric label="Visible rows" value={rows.length} icon={<BarChart3 size={14} />} />
             <ReportMetric label="People" value={uniquePeople} icon={<Users size={14} />} />
             <ReportMetric label="Projects" value={uniqueProjects} icon={<BriefcaseBusiness size={14} />} />
@@ -169,7 +169,7 @@ export function DeptHeadReportsWorkspace() {
           </div>
 
           <Card title={definition.title} subtitle={definition.description} bodyClassName="p-0">
-            <div className="sticky top-3 z-10 border-b border-neutral-100 bg-white/95 p-3 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-white/80 space-y-2">
+            <div className="sticky top-3 z-10 space-y-2 border-b border-border bg-card/95 p-3 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-card/80">
               <div className="flex flex-wrap gap-2">
                 <SearchInput value={search} onChange={setSearch} placeholder="Search visible report fields…" className="min-w-[230px] flex-1" />
                 <WSelect value={personId} onChange={setPersonId} options={[{ value: "all", label: "All people" }, ...analytics.deptEmployees.map((employee) => ({ value: employee.id, label: employee.name }))]} />
@@ -184,9 +184,9 @@ export function DeptHeadReportsWorkspace() {
                 ]} />
               </div>
               {period === "custom" && (
-                <div className="flex items-center gap-2 text-[12px] text-neutral-500">
-                  <label className="flex items-center gap-1.5">From <input type="date" value={fromDate} onChange={(event) => setFromDate(event.target.value)} className="h-[32px] rounded-lg border border-neutral-200 px-2 text-[12px]" /></label>
-                  <label className="flex items-center gap-1.5">To <input type="date" value={toDate} onChange={(event) => setToDate(event.target.value)} className="h-[32px] rounded-lg border border-neutral-200 px-2 text-[12px]" /></label>
+                <div className="flex items-center gap-2 text-[12px] text-muted-foreground">
+                  <label className="flex items-center gap-1.5">From <input type="date" value={fromDate} onChange={(event) => setFromDate(event.target.value)} className="h-[32px] rounded-lg border border-border bg-card px-2 text-[12px] text-foreground" /></label>
+                  <label className="flex items-center gap-1.5">To <input type="date" value={toDate} onChange={(event) => setToDate(event.target.value)} className="h-[32px] rounded-lg border border-border bg-card px-2 text-[12px] text-foreground" /></label>
                 </div>
               )}
             </div>
@@ -216,12 +216,12 @@ function ReportMetric({
   tone?: "neutral" | "good" | "bad";
   value: number;
 }) {
-  const valueClass = tone === "bad" ? "text-red-700" : tone === "good" ? "text-emerald-700" : "text-neutral-900";
+  const valueClass = tone === "bad" ? "text-destructive" : tone === "good" ? "text-emerald-700" : "text-foreground";
   return (
     <div className="inline-flex min-w-[100px] items-center gap-2">
-      <span className="text-neutral-400">{icon}</span>
+      <span className="text-muted-foreground">{icon}</span>
       <span className="min-w-0">
-        <span className="block text-[12px] font-medium text-neutral-500">{label}</span>
+        <span className="block text-[12px] font-medium text-muted-foreground">{label}</span>
         <span className={`eflow-tabular block text-[16px] font-semibold leading-tight ${valueClass}`}>{value}</span>
       </span>
     </div>

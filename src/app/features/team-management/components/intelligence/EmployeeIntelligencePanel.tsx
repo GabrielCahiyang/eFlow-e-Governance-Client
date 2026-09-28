@@ -32,7 +32,7 @@ export function EmployeeIntelligencePanel({
     <div className="space-y-4">
       <section className="rounded-xl border border-neutral-200 bg-white p-4">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div className="flex items-center gap-3"><div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-neutral-900 text-[13px] font-semibold text-white">{employee.initials || "??"}</div><div><h2 className="text-[16px] font-semibold text-neutral-900">{employee.name}</h2><p className="mt-0.5 text-[12px] text-neutral-500">{employee.jobTitle} · {employee.email || employee.departmentName || "Department team"}</p></div></div>
+          <div className="flex items-center gap-3"><div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-primary text-[13px] font-semibold text-primary-foreground">{employee.initials || "??"}</div><div><h2 className="text-[16px] font-semibold text-neutral-900">{employee.name}</h2><p className="mt-0.5 text-[12px] text-neutral-500">{employee.jobTitle} · {employee.email || employee.departmentName || "Department team"}</p></div></div>
           <div className="text-left sm:text-right"><div className="text-[12px] uppercase tracking-wide text-neutral-500">Workload signal</div><div className={`mt-0.5 text-[20px] font-semibold ${metric.workloadSignal >= TEAM_WORKLOAD_HIGH_THRESHOLD ? "text-red-600" : metric.workloadSignal >= TEAM_WORKLOAD_ELEVATED_THRESHOLD ? "text-amber-600" : "text-emerald-600"}`}>{metric.workloadSignal}/100</div><div className="text-[12px] text-neutral-500">Derived from current work</div></div>
         </div>
         <div className="mt-5 grid grid-cols-2 gap-2 lg:grid-cols-6">

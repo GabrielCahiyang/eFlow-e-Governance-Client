@@ -26,6 +26,8 @@ describe("Phase 8 people, reports, and communications presentation", () => {
     expect(reports).toContain("sticky top-3");
     expect(reports).toContain("setSelectedTaskId");
     expect(reports).toContain("ExportMenu");
+    expect(reports).toContain('"border-primary/25 bg-primary/10 text-primary shadow-sm"');
+    expect(reports).not.toContain('"bg-neutral-900 text-white"');
   });
 
   it("constrains long report fields so work-item text wraps inside the table", () => {

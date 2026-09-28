@@ -92,7 +92,7 @@ export function SubtaskReviewInbox({
   };
 
   if (loading) return (
-    <div className={embedded ? "space-y-3 rounded-2xl border border-neutral-200 bg-white p-6" : "space-y-4 p-8"} aria-live="polite" role="status">
+    <div className={embedded ? "space-y-4" : "eflow-operational-workspace min-h-full p-4 sm:p-8"} aria-live="polite" role="status">
       <Skeleton type="text" width={220} />
       <Skeleton type="text" width={340} />
       <div className="grid gap-4 lg:grid-cols-[minmax(300px,380px)_1fr]">

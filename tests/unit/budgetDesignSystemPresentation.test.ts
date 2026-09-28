@@ -34,7 +34,7 @@ describe("budget design-system presentation", () => {
 
   it("uses a compact, tokenized accounting inspector with tabular journal amounts", () => {
     expect(accountingTrail).toContain('max-w-[480px]');
-    expect(accountingTrail).toContain('aria-modal="true"');
+    expect(accountingTrail).toContain('<FeatureDialog');
     expect(accountingTrail).toContain('whitespace-nowrap text-right tabular-nums');
     expect(accountingTrail).toContain('rounded-lg border border-border bg-card p-3');
   });
@@ -46,7 +46,7 @@ describe("budget design-system presentation", () => {
     expect(taskBudgetEditor).toContain('rounded-full px-2.5 py-1 font-semibold');
     expect(taskBudgetEditor).not.toContain('border-neutral-900 bg-neutral-950 text-white');
     expect(taskBudgetDialog).toContain('bg-primary px-5 text-[10.5px] font-medium text-primary-foreground');
-    expect(taskBudgetDialog).toContain('w-full max-w-2xl');
+    expect(taskBudgetDialog).toContain('!w-full !max-w-2xl');
     expect(taskBudgetDialog).not.toContain('w-full max-w-4xl');
   });
 });

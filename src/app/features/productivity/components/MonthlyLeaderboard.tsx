@@ -58,7 +58,7 @@ export function MonthlyLeaderboard({ employees, tasks, facts, currentUserId, all
       <div className="border-b border-neutral-100 bg-gradient-to-r from-amber-50 via-white to-violet-50 px-5 py-5">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-start gap-3">
-            <div className="grid h-10 w-10 place-items-center rounded-xl bg-neutral-900 text-amber-300 shadow-sm"><Trophy size={19} /></div>
+            <div className="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20"><Trophy size={19} /></div>
             <div>
               <div className="text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-400">Approved contribution</div>
               <h2 className="mt-0.5 text-[17px] font-semibold text-neutral-900">Monthly leaderboard</h2>
@@ -112,7 +112,7 @@ export function MonthlyLeaderboard({ employees, tasks, facts, currentUserId, all
                     <td className="px-3 py-3 text-right"><span className="text-[15px] font-semibold text-neutral-900">{row.contributionScore}</span></td>
                     <td className="px-4 py-3 text-right"><button type="button" onClick={() => setExpandedUserId(expanded ? undefined : row.userId)} className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 px-2.5 py-1.5 text-[9.5px] font-medium text-neutral-600 hover:bg-neutral-50">View {expanded ? <ChevronUp size={11} /> : <ChevronDown size={11} />}</button></td>
                   </tr>,
-                  expanded ? <tr key={`${row.userId}-breakdown`} className="border-b border-neutral-100 bg-neutral-50/60"><td colSpan={9} className="px-4 py-4"><div className="grid grid-cols-2 gap-3 md:grid-cols-4">{Object.entries(row.breakdown).map(([key, value]) => <div key={key} className="rounded-xl border border-neutral-200 bg-white p-3"><div className="text-[9px] uppercase tracking-wider text-neutral-400">{key}</div><div className="mt-1 flex items-end justify-between"><strong className="text-[17px] text-neutral-900">{value}</strong><span className="text-[9px] text-neutral-400">points</span></div><div className="mt-2 h-1.5 overflow-hidden rounded-full bg-neutral-100"><div className="h-full rounded-full bg-neutral-900" style={{ width: `${Math.min(100, value / (key === "collaboration" ? 30 : 40) * 100)}%` }} /></div></div>)}</div></td></tr> : null,
+                  expanded ? <tr key={`${row.userId}-breakdown`} className="border-b border-neutral-100 bg-neutral-50/60"><td colSpan={9} className="px-4 py-4"><div className="grid grid-cols-2 gap-3 md:grid-cols-4">{Object.entries(row.breakdown).map(([key, value]) => <div key={key} className="rounded-xl border border-neutral-200 bg-white p-3"><div className="text-[9px] uppercase tracking-wider text-neutral-400">{key}</div><div className="mt-1 flex items-end justify-between"><strong className="text-[17px] text-neutral-900">{value}</strong><span className="text-[9px] text-neutral-400">points</span></div><div className="mt-2 h-1.5 overflow-hidden rounded-full bg-neutral-100"><div className="h-full rounded-full bg-primary" style={{ width: `${Math.min(100, value / (key === "collaboration" ? 30 : 40) * 100)}%` }} /></div></div>)}</div></td></tr> : null,
                 ];
               })}
             </tbody>

@@ -273,18 +273,20 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
         title="For Review"
         subtitle="Validate submitted work, collaborate on proposals, and keep the pipeline moving."
         actions={
-          <div className="flex min-w-0 max-w-full flex-wrap items-center gap-2">
+          <div className="flex w-full min-w-0 flex-col items-stretch gap-2 sm:w-auto sm:items-end">
             <ReviewKindSwitch
               active={reviewKind}
               includeBudget={canReviewBudget}
               counts={reviewCounts}
               onChange={setReviewKind}
             />
-          {reviewKind === "tasks" && (
-              <div className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-700">
-                <Inbox size={14} /> {queue.length} awaiting review
-              </div>
-            )}
+            <div className="flex min-h-7 justify-end">
+              {reviewKind === "tasks" && (
+                <div className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-700">
+                  <Inbox size={14} /> {queue.length} awaiting review
+                </div>
+              )}
+            </div>
           </div>
         }
       />

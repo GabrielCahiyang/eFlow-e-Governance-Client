@@ -799,15 +799,15 @@
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  background: #6553d9;
-  color: #fff;
-  font-size: 13px;
-  font-weight: 700;
+  border: 1px solid color-mix(in srgb, var(--primary-color, #007f80) 22%, transparent);
+  background: color-mix(in srgb, var(--primary-color, #007f80) 10%, var(--primary-background-color, #fff));
+  color: var(--primary-color, #007f80);
 }
 
-.eflow-project-context__project-mark--1 { background: #ff6e71; }
-.eflow-project-context__project-mark--2 { background: #dd2436; }
-.eflow-project-context__project-mark--3 { background: #2f93b0; }
+.eflow-project-context__project-mark svg {
+  width: 16px;
+  height: 16px;
+}
 
 .eflow-project-context__project-name {
   flex: 1;
@@ -3360,8 +3360,13 @@
   width: 30px;
   height: 30px;
   border-radius: 9px;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
-  font-size: 12px;
+  box-shadow: none;
+}
+
+.eflow-project-context__project--active .eflow-project-context__project-mark {
+  border-color: var(--primary-color, #007f80);
+  background: var(--primary-color, #007f80);
+  color: var(--primary-color-foreground, #fff);
 }
 
 .eflow-project-context__project-name {
