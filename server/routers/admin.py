@@ -144,6 +144,8 @@ async def delete_managed_user(
             raise HTTPException(status_code=403, detail="The Super Admin account is protected.")
         if target_role == "admin" and user.role != "super_admin":
             raise HTTPException(status_code=403, detail="Only the Super Admin can delete an Admin account.")
+        if target_role in {"dept_head", "department_head", "assistant_head"} and user.role != "super_admin":
+            raise HTTPException(status_code=403, detail="Only the Super Admin can delete a leadership account.")
         supabase_admin.auth.admin.delete_user(uid)
         return {"deleted": uid}
     except HTTPException:

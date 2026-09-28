@@ -32,11 +32,14 @@ export async function updateManagedUserWithLeadership({
   if (conflict) throw new Error(conflict);
 
   const targetIsLeadership = isManagedLeadershipRole(changes.role);
-  const affectedOrganizations = organizations.filter((organization) =>
-    organization.head_user_id === user.id
-    || organization.assistant_head_user_id === user.id
-    || (targetIsLeadership && organization.id === targetOrgId),
-  );
+  const leadershipAssignmentChanged = user.role !== changes.role || (user.org_id || "") !== targetOrgId;
+  const affectedOrganizations = leadershipAssignmentChanged
+    ? organizations.filter((organization) =>
+      organization.head_user_id === user.id
+      || organization.assistant_head_user_id === user.id
+      || (targetIsLeadership && organization.id === targetOrgId),
+    )
+    : [];
 
   for (const organization of affectedOrganizations) {
     let headUserId = organization.head_user_id;

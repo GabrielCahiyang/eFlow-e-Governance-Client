@@ -5,9 +5,10 @@ import { Modal, ModalButton } from "../../../../components/ui/Modal";
 import { useToast } from "../../../../components/ui/Toast";
 import type { Organization, UserProfile, UserRole } from "../../../../types";
 import { getAssignableRoleOptions } from "./userManagementPrimitives";
-import { getLeadershipSlotConflict } from "../../services/leadershipConstraints";
+import { getLeadershipSlotConflict, isManagedLeadershipRole } from "../../services/leadershipConstraints";
 import { updateManagedUserWithLeadership } from "../../services/managedUserLeadershipService";
 import { Plus, X } from "lucide-react";
+import { getRoleLabel } from "../../../../shared/roles";
 
 export function EditUserModal({
   isOpen,
@@ -42,7 +43,10 @@ export function EditUserModal({
     organizations,
     profiles,
   });
-  const roleOptions = getAssignableRoleOptions(userProfile?.role);
+  const leadershipLocked = userProfile?.role !== "super_admin" && isManagedLeadershipRole(editUser?.role || "");
+  const roleOptions = leadershipLocked && editUser
+    ? [{ value: editUser.role, label: getRoleLabel(editUser.role) }]
+    : getAssignableRoleOptions(userProfile?.role);
 
   useEffect(() => {
     if (editUser) {
@@ -162,6 +166,7 @@ export function EditUserModal({
                   onChange={(e) => setForm({ ...form, role: e.target.value as UserRole })}
                   options={roleOptions}
                   hasError={Boolean(leadershipConflict)}
+                  disabled={leadershipLocked}
                 />
               </FormField>
               <FormField label="Organization">
@@ -170,9 +175,11 @@ export function EditUserModal({
                   onChange={(e) => setForm({ ...form, orgId: e.target.value })}
                   options={orgOptions}
                   placeholder="Select organization"
+                  disabled={leadershipLocked}
                 />
               </FormField>
             </div>
+            {leadershipLocked ? <p className="rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-[10.5px] text-blue-800">You can edit this leader’s name and skills. Leadership role, organization, and account status are managed by the Super Admin.</p> : null}
             <div className="text-[11px] font-normal text-neutral-500">
               Email: {editUser.email} · ID: {editUser.id.slice(0, 12)}...
             </div>
