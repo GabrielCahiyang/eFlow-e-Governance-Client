@@ -2,7 +2,7 @@ import type { BudgetLineInput } from "../../budget";
 import type { CollaborationDraftSnapshot, CollaborationSnapshotTask } from "../types";
 import { normalizeCollaborationOrganization } from "./participationRole";
 
-export type MaterialRevisionReason = "organization_participation" | "task_structure" | "staffing" | "responsibility" | "budget";
+export type MaterialRevisionReason = "organization_participation" | "task_structure" | "staffing" | "responsibility" | "budget" | "schedule";
 
 export interface RevisionMateriality {
   material: boolean;
@@ -51,6 +51,10 @@ function responsibilitySignature(tasks: CollaborationSnapshotTask[]) {
   })).sort((left, right) => left.key.localeCompare(right.key));
 }
 
+function scheduleSignature(tasks: CollaborationSnapshotTask[]) {
+  return tasks.map((task) => ({ key: task.key, deadline: task.deadline || "", estimatedHours: Number(task.estimatedHours || 0) })).sort((a, b) => a.key.localeCompare(b.key));
+}
+
 function budgetSignature(snapshot: CollaborationDraftSnapshot) {
   const tasks = snapshot.tasks.map((task) => ({
     key: task.key,
@@ -69,6 +73,7 @@ export function evaluateRevisionMateriality(previous: CollaborationDraftSnapshot
   if (differs(taskStructureSignature(previous.tasks), taskStructureSignature(next.tasks))) reasons.push("task_structure");
   if (differs(staffingSignature(previous.tasks), staffingSignature(next.tasks))) reasons.push("staffing");
   if (differs(responsibilitySignature(previous.tasks), responsibilitySignature(next.tasks))) reasons.push("responsibility");
+  if (differs(scheduleSignature(previous.tasks), scheduleSignature(next.tasks))) reasons.push("schedule");
   if (differs(budgetSignature(previous), budgetSignature(next))) reasons.push("budget");
   return { material: reasons.length > 0, reasons };
 }
@@ -82,5 +87,6 @@ export function summarizeRevisionDiff(previous: CollaborationDraftSnapshot, next
   if (materiality.reasons.includes("staffing")) changes.push("Task staffing changed");
   if (materiality.reasons.includes("responsibility")) changes.push("Department responsibilities changed");
   if (materiality.reasons.includes("budget")) changes.push("Task funding changed");
+  if (materiality.reasons.includes("schedule")) changes.push("Task deadlines or duration changed");
   return changes.length ? changes : ["Draft metadata updated"];
 }

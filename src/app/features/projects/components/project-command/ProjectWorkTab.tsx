@@ -13,7 +13,7 @@ type BoardColumn = {
 };
 
 // The four visual lanes follow the Figma source. They deliberately group the
-// richer eFlow lifecycle instead of changing it. Changes requested is still
+// richer eFlow lifecycle instead of changing it. Updates needed is still
 // persisted as its own status but is shown with active work for quick triage.
 export const FIGMA_PROJECT_BOARD_COLUMNS: BoardColumn[] = [
   { id: "todo", label: "TO DO", statuses: ["pending_assignment", "todo"], tone: "#ed5e56" },
@@ -208,7 +208,7 @@ function TaskBoardCard({
         )}
         {task.status === "changes_requested" && (
           <span className="eflow-figma-task-card__signal eflow-figma-task-card__signal--warning">
-            <AlertCircle size={11} /> Changes requested
+            <AlertCircle size={11} /> Updates needed
           </span>
         )}
         {awaitingReview && (

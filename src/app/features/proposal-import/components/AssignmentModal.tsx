@@ -2,6 +2,7 @@ import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Crown, Search, X } from "lucide-react";
 import type { Employee } from "../../../services/employeeService";
+import type { DeadlineWorkload } from "../../tasks";
 import type { EmployeeNotesMap } from "../../../services/employeeNotesService";
 import {
   normalizeDraftAssignment,
@@ -22,7 +23,7 @@ export function AssignmentModal({
 }: {
   open: boolean;
   onClose: () => void;
-  employees: Employee[];
+  employees: Array<Employee & { deadlineWorkload?: DeadlineWorkload }>;
   employeeNotes?: EmployeeNotesMap;
   selectedIds: string[];
   leadId: string | null;
@@ -262,10 +263,10 @@ export function AssignmentModal({
                     {/* Right column: workload */}
                     <div className="text-right shrink-0">
                       <div className="text-[11px] font-medium text-neutral-800">
-                        {load}% Load
+                        {emp.deadlineWorkload?.label || `${load}/100 workload score`}
                       </div>
                       <div className="text-[9px] text-neutral-400 mt-0.5">
-                        40h weekly capacity
+                        Task days + deadlines
                       </div>
                     </div>
                   </div>

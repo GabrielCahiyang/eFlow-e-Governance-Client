@@ -85,9 +85,9 @@ export const OPTIONAL_VIEWS_CATALOG: ProjectViewMeta[] = [
   // Governance
   {
     id: "signoff",
-    label: "Sign-off Status",
+    label: "Approval Status",
     category: "Governance",
-    description: "Department endorsement matrix, sign-off status, and approval quorum.",
+    description: "Department endorsement matrix, approval status, and approval quorum.",
   },
   {
     id: "evidence",
@@ -99,7 +99,7 @@ export const OPTIONAL_VIEWS_CATALOG: ProjectViewMeta[] = [
     id: "decisions",
     label: "Decision History",
     category: "Governance",
-    description: "Formal change requests, sign-off notes, and milestone decisions.",
+    description: "Formal change requests, approval notes, and milestone decisions.",
   },
 ];
 

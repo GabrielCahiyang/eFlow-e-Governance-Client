@@ -1,3 +1,4 @@
+import { TaskDepartmentLabel, deadlineInputParts, deadlineFromInputs, taskEstimateError } from "../../tasks";
 import { useEffect, useState } from "react";
 import { AlertCircle, Banknote, Check, ChevronRight, Clock, Edit2, Trash2 } from "lucide-react";
 import type { Employee } from "../../../services/employeeService";
@@ -28,6 +29,8 @@ export function DraftTaskRow({
 }) {
   const [editing, setEditing] = useState(false);
   const [budgetOpen, setBudgetOpen] = useState(false);
+  const deadlineParts = deadlineInputParts(dt.deadline);
+  const durationError = taskEstimateError(dt.estimatedHours);
   const assignedEmps = dt.assignedMemberIds
     .map((id) => employees.find((e) => e.id === id))
     .filter((emp): emp is Employee => Boolean(emp));
@@ -43,8 +46,8 @@ export function DraftTaskRow({
     || validationMessages[`${dt.key}-budget-lines`];
 
   useEffect(() => {
-    if (titleError || descriptionError || deadlineError) setEditing(true);
-  }, [deadlineError, descriptionError, titleError]);
+    if (titleError || descriptionError || deadlineError || durationError) setEditing(true);
+  }, [deadlineError, descriptionError, titleError, durationError]);
 
   return (
     <div
@@ -73,6 +76,7 @@ export function DraftTaskRow({
 
       {/* Content */}
       <div className="flex-1 min-w-0">
+        <TaskDepartmentLabel task={dt} draft />
         {editing ? (
           <div className="space-y-2">
             <div>
@@ -127,8 +131,8 @@ export function DraftTaskRow({
                   aria-invalid={Boolean(deadlineError)}
                   data-testid="manual-task-deadline"
                   type="date"
-                  value={dt.deadline}
-                  onChange={(e) => onUpdate(dt.key, { deadline: e.target.value })}
+                  value={deadlineParts.date}
+                  onChange={(e) => onUpdate(dt.key, { deadline: deadlineFromInputs(e.target.value, deadlineParts.time) })}
                   className={`rounded-lg border px-2.5 py-1 text-[12px] outline-none transition focus:ring-2 ${
                     deadlineError
                       ? "border-destructive focus:border-destructive focus:ring-destructive/15"
@@ -141,7 +145,17 @@ export function DraftTaskRow({
                   </p>
                 )}
               </div>
+              <label className="text-[11px] text-neutral-600">Due time (optional)
+                <input aria-label="Task due time" type="time" disabled={!deadlineParts.date} value={deadlineParts.time} onChange={(event) => onUpdate(dt.key, { deadline: deadlineFromInputs(deadlineParts.date, event.target.value) })} className="ml-2 rounded-lg border px-2 py-1" />
+                <span className="ml-2 text-neutral-400">Philippine time; blank means end of day</span>
+              </label>
+              <label className="text-[11px] text-neutral-600">Estimated task days
+                <input aria-label="Estimated task days" type="number" min="0.125" step="0.125" value={dt.estimatedHours !== undefined ? dt.estimatedHours / 8 : ""} onChange={(event) => onUpdate(dt.key, { estimatedHours: event.target.value === "" ? undefined : Number(event.target.value) * 8 })} placeholder="e.g. 2" className="ml-2 w-20 rounded-lg border px-2 py-1" />
+                <span className="ml-2 text-neutral-400">1 day = 8 work hours</span>
+                {durationError && <span role="alert" className="block text-red-700">{durationError}</span>}
+              </label>
               <select
+                aria-label="Task priority"
                 value={dt.priority}
                 onChange={(e) =>
                   onUpdate(dt.key, {
@@ -190,6 +204,7 @@ export function DraftTaskRow({
               </div>
             )}
             <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+              <span className="text-[10px] text-neutral-500">{dt.estimatedHours ? String(dt.estimatedHours / 8) + " working day(s)" : "Estimate needed"}</span>
               {dt.deadline && (
                 <span className="inline-flex items-center gap-1 text-[10px] text-neutral-500 bg-neutral-100 rounded-full px-2 py-0.5">
                   <Clock size={9} />
@@ -280,7 +295,7 @@ export function DraftTaskRow({
           <Edit2 size={12} />
         </button>
         <button
-          onClick={() => onDelete(dt.key)}
+          onClick={() => { if (window.confirm("Remove this task from the work plan? It will be excluded when the plan is published.")) onDelete(dt.key); }}
           className="p-1.5 rounded-lg hover:bg-red-50 text-neutral-400 hover:text-red-600 transition"
           title="Delete task"
         >

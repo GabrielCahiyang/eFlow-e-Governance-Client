@@ -8,12 +8,16 @@ export function WelcomeTourPrompt({
   onToggleVoice,
   onStart,
   onLater,
+  nextSteps = [],
+  onNextStep,
 }: {
   roleLabel: string;
   voiceEnabled: boolean;
   onToggleVoice: () => void;
   onStart: () => void;
   onLater: () => void;
+  nextSteps?: { id: string; label: string; page: string; description: string }[];
+  onNextStep?: (section: string, page: string) => void;
 }) {
   const voiceSupported = isTourNarrationSupported();
   return createPortal(
@@ -28,6 +32,7 @@ export function WelcomeTourPrompt({
           <p className="mt-2 text-[13.5px] leading-6 text-white/75">A short guided tour will introduce the tools available to your {roleLabel} account. The tour is instructional only and cannot change official records.</p>
         </div>
         <div className="p-5">
+          {nextSteps.length > 0 && <div className="mb-4"><h3 className="text-sm font-semibold">Suggested first steps</h3><div className="mt-2 grid gap-2">{nextSteps.map((step) => <button key={step.id} type="button" onClick={() => onNextStep?.(step.id, step.page)} className="rounded-xl border border-neutral-200 p-3 text-left hover:bg-neutral-50"><span className="text-xs font-semibold">{step.label}</span><span className="mt-1 block text-xs text-neutral-500">{step.description}</span></button>)}</div></div>}
           <div className="rounded-xl border border-violet-100 bg-violet-50 px-4 py-3 text-[12.5px] leading-5 text-violet-800">The screen will darken while each control is highlighted. Use Back, Next, Skip, or the keyboard at any time.</div>
           <button
             type="button"

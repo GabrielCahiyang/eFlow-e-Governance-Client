@@ -181,6 +181,7 @@ export interface CreateTaskPayload {
 }
 
 export interface UpdateTaskPayload {
+  estimatedHours?: number;
   title?: string;
   description?: string;
   deadline?: string;

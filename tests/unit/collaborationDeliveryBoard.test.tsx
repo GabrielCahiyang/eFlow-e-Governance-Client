@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { CollaborationWorkspaceHeader } from "../../src/app/features/interdepartment-collaboration/components/CollaborationWorkspaceHeader";
 import { CollaborationActionRail } from "../../src/app/features/interdepartment-collaboration/components/CollaborationActionRail";
@@ -18,6 +18,19 @@ const task = (id: string, linkedProjectId: string, title: string, deadline: stri
 } as Task);
 
 describe("committed proposal delivery board", () => {
+  it("selects the opened approval tab and preserves the published task label for department plans", () => {
+    const common = {
+      draft: { id: "selected-plan", title: "Source proposal title", status: "in_review", ownerOrgId: "org" } as any,
+      snapshot: { tasks: [], organizations: [] } as any,
+      participantCount: 2, openChangeCount: 0, onTabChange: vi.fn(),
+    };
+    const view = render(<CollaborationWorkspaceHeader {...common} tab="approvals" />);
+    expect(screen.getByRole("tab", { name: "Review & Governance" }).getAttribute("aria-selected")).toBe("true");
+    expect(screen.getByRole("tab", { name: "Overview" }).getAttribute("aria-selected")).toBe("false");
+    view.rerender(<CollaborationWorkspaceHeader {...common} draft={{ ...common.draft, status: "committed" }} tab="plan" departmentOnly />);
+    expect(screen.getByRole("tab", { name: "Project tasks" }).getAttribute("aria-selected")).toBe("true");
+    expect(screen.queryByRole("tab", { name: "Delivery" })).toBeNull();
+  });
   it("filters the live proposal tasks by project and search text", () => {
     const tasks = [
       task("one", "project-a", "Prepare investment brief", "2026-08-01"),
@@ -46,7 +59,7 @@ describe("committed proposal delivery board", () => {
     expect(onTabChange).toHaveBeenCalledWith("board");
   });
 
-  it("publishes a department-only proposal without collaboration review controls", () => {
+  it("confirms publication of a department-only proposal without collaboration review controls", async () => {
     const onCommit = vi.fn(async () => undefined);
     const onRequestReview = vi.fn(async () => undefined);
     render(
@@ -74,7 +87,9 @@ describe("committed proposal delivery board", () => {
 
     expect(screen.queryByRole("button", { name: "Request collaboration review" })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Publish department proposal" }));
-    expect(onCommit).toHaveBeenCalledOnce();
+    expect(onCommit).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Publish work plan" }));
+    await waitFor(() => expect(onCommit).toHaveBeenCalledOnce());
     expect(onRequestReview).not.toHaveBeenCalled();
   });
 
@@ -117,9 +132,9 @@ describe("committed proposal delivery board", () => {
       />,
     );
 
-    expect(within(view.container).queryByRole("tab", { name: "Sign-off" })).toBeNull();
+    expect(within(view.container).queryByRole("tab", { name: "Approval" })).toBeNull();
     expect(within(view.container).queryByRole("tab", { name: "Governance" })).toBeNull();
-    expect(within(view.container).getByRole("tab", { name: "Work breakdown" })).toBeTruthy();
+    expect(within(view.container).getByRole("tab", { name: "Work plan" })).toBeTruthy();
     expect(within(view.container).getByText("1 organization")).toBeTruthy();
   });
 });

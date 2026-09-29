@@ -1,7 +1,9 @@
-import { useCallback, useEffect, useState } from "react";
+import { isNavigationLocked } from "../../shared/navigationLock";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { getDefaultSection } from "./roleNavigation";
 import {
   readNavigationLocation,
+  type NavigationLocation,
   writeNavigationLocation,
 } from "./navigationUrl";
 
@@ -18,9 +20,12 @@ export function useRoleNavigationState(
     return readNavigationLocation(role, getInitialPage).page;
   });
 
+  const currentLocation = useRef<NavigationLocation>({ section: activeSection, page: activePage });
   useEffect(() => {
     const syncFromUrl = () => {
+      if (isNavigationLocked()) { writeNavigationLocation(currentLocation.current.section, currentLocation.current.page, "replace"); return; }
       const next = readNavigationLocation(role, getInitialPage);
+      currentLocation.current = next;
       setActiveSection(next.section);
       setActivePage(next.page);
       writeNavigationLocation(next.section, next.page, "replace");
@@ -33,6 +38,8 @@ export function useRoleNavigationState(
 
   const selectPage = useCallback(
     (section: string, page: string) => {
+      if (isNavigationLocked()) return;
+      currentLocation.current = { section, page };
       setActiveSection(section);
       setActivePage(page);
       writeNavigationLocation(section, page, "push");

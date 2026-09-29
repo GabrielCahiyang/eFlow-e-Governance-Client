@@ -44,7 +44,7 @@ export function buildTeamAttentionItems(tasks: Task[], facts: TeamWorkflowFacts,
       items.push({ ...base, id: `vague:${task.id}`, kind: "vague_schedule", severity: "info", title: "Schedule cannot be measured", detail: `“${task.title}” uses a relative or missing deadline.` });
     }
     if (hasBlocker(latest)) items.push({ ...base, id: `blocked:${task.id}`, kind: "blocked", severity: "critical", title: "Blocker reported", detail: latest?.blocker || "A blocker needs attention.", occurredAt: latest?.createdAt });
-    if (task.status === "changes_requested") items.push({ ...base, id: `changes:${task.id}`, kind: "changes_requested", severity: "warning", title: "Changes requested", detail: task.rejectionNote || task.feedback || `“${task.title}” requires revision.`, occurredAt: task.rejectedAt });
+    if (task.status === "changes_requested") items.push({ ...base, id: `changes:${task.id}`, kind: "changes_requested", severity: "warning", title: "Updates needed", detail: task.rejectionNote || task.feedback || `“${task.title}” requires revision.`, occurredAt: task.rejectedAt });
     if (task.status === "for_review") {
       const pending = latestPendingTaskSubmission.get(task.id);
       const age = pending ? now - pending.submittedAt : 0;

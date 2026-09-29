@@ -95,7 +95,7 @@ export function GovernanceReviewInbox({ onNavigate }: { onNavigate?: (section: s
   if (collaboration.loading) {
     return (
       <div className="p-8">
-        <WorkspaceLoadingSkeleton label="Loading governance & sign-off items…" rows={4} />
+        <WorkspaceLoadingSkeleton label="Loading governance & approval items…" rows={4} />
       </div>
     );
   }
@@ -107,7 +107,7 @@ export function GovernanceReviewInbox({ onNavigate }: { onNavigate?: (section: s
           value={query}
           onChange={setQuery}
           onClear={() => setQuery("")}
-          placeholder="Search governance items, approvals, sign-off decisions…"
+          placeholder="Search governance items, approvals, approval decisions…"
           inputAriaLabel="Search governance reviews"
           showClearIcon
           size="small"
@@ -132,7 +132,7 @@ export function GovernanceReviewInbox({ onNavigate }: { onNavigate?: (section: s
           <SectionEmpty
             icon={<CheckCircle2 size={36} className="text-emerald-500" />}
             title="Governance queue clear"
-            description="No governance decisions or formal sign-off items require your action at this time."
+            description="No governance decisions or formal approval items require your action at this time."
           />
         </div>
       ) : (
@@ -149,10 +149,10 @@ export function GovernanceReviewInbox({ onNavigate }: { onNavigate?: (section: s
                 <div className="space-y-2 min-w-0 flex-1">
                   <div className="flex items-center gap-2.5 flex-wrap">
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-purple-50 border border-purple-100 text-purple-700 text-[10.5px] font-bold uppercase tracking-wider">
-                      <ShieldCheck size={12} /> Governance / Sign-off
+                      <ShieldCheck size={12} /> Governance / Approval
                     </span>
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full border border-purple-200 bg-purple-50/50 text-[11px] font-semibold text-purple-800">
-                      {draft.status === "ready_to_commit" ? "Ready to Commit" : "Sign-off In Progress"}
+                      {draft.status === "ready_to_commit" ? "Ready to Commit" : "Approval In Progress"}
                     </span>
                     <span className="inline-flex items-center gap-1 text-xs text-neutral-400">
                       <Clock size={12} /> Updated {timeAgo(draft.updatedAt || draft.createdAt)}
@@ -189,7 +189,7 @@ export function GovernanceReviewInbox({ onNavigate }: { onNavigate?: (section: s
                     onClick={() => handleOpenGovernance(draft.id)}
                     className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-700 hover:bg-purple-800 text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
                   >
-                    <span>Sign-off &amp; Governance</span>
+                    <span>Approval &amp; Governance</span>
                     <ExternalLink size={14} />
                   </button>
                 </div>

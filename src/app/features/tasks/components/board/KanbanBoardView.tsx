@@ -1,3 +1,4 @@
+import { TaskDepartmentLabel } from "../TaskDepartmentLabel";
 import React, { useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Crown, Hand } from "lucide-react";
 import type { Employee } from "../../../../services/employeeService";
@@ -201,7 +202,8 @@ export function KanbanBoardView({
                         {task.title}
                       </div>
                     )}
-                    {task.description && (
+                    <TaskDepartmentLabel task={task} />
+                        {task.description && (
                       <div className="text-[10px] text-neutral-400 mt-1 line-clamp-2 leading-relaxed">
                         {task.description}
                       </div>

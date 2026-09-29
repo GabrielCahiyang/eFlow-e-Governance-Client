@@ -1,3 +1,4 @@
+import { calculateDeadlineWorkload } from "../../selectors/deadlineWorkload";
 import { AlertCircle, CheckCircle2, Clock3, Users } from "lucide-react";
 import type { Employee } from "../../../../services/employeeService";
 import type { Task } from "../../../../services/taskService";
@@ -21,12 +22,12 @@ export function WorkloadBoardView({
 
   tasks.forEach((task) => {
     const memberIds = getTaskMemberIds(task);
-    const primaryId = memberIds[0] || "unassigned";
-    const primary = primaryId === "unassigned" ? null : employeeById.get(primaryId);
-    const name = primary?.name || task.assigneeName || getTaskMemberNames(task, employeeRecord)[0] || "Unassigned";
-    const current = groups.get(primaryId) || { name, tasks: [] };
-    current.tasks.push(task);
-    groups.set(primaryId, current);
+    for (const primaryId of memberIds.length ? memberIds : ["unassigned"]) {
+      const primary = primaryId === "unassigned" ? null : employeeById.get(primaryId);
+      const name = primary?.name || task.assigneeName || getTaskMemberNames(task, employeeRecord)[0] || "Unassigned";
+      const current = groups.get(primaryId) || { name, tasks: [] };
+      current.tasks.push(task); groups.set(primaryId, current);
+    }
   });
 
   const rows = Array.from(groups.entries()).sort(([, a], [, b]) => {
@@ -59,7 +60,7 @@ export function WorkloadBoardView({
             const completed = row.tasks.filter((task) => task.status === "completed").length;
             const review = row.tasks.filter((task) => task.status === "for_review").length;
             const overdue = row.tasks.filter((task) => getDeadlineInfo(task)?.label.includes("overdue")).length;
-            const progress = row.tasks.length ? Math.round((completed / row.tasks.length) * 100) : 0;
+            const workload = calculateDeadlineWorkload(row.tasks, Date.now(), id === "unassigned" ? undefined : id);
             const initials = getInitials(row.name) || "?";
 
             return (
@@ -74,12 +75,13 @@ export function WorkloadBoardView({
 
                 <div className="min-w-0">
                   <div className="mb-1 flex items-center justify-between gap-2 text-[11px] text-neutral-500">
-                    <span>{progress}% completed</span>
-                    <span>{completed}/{row.tasks.length}</span>
+                    <span>{workload.label} workload</span>
+                    <span>{workload.pressurePercent}% of available time</span>
                   </div>
                   <div className="h-2 overflow-hidden rounded-full bg-neutral-100">
-                    <span className="block h-full rounded-full bg-emerald-500 transition-[width]" style={{ width: `${progress}%` }} />
+                    <span className="block h-full rounded-full bg-primary transition-[width]" style={{ width: Math.min(100, workload.pressurePercent) + "%" }} />
                   </div>
+                  <p className="mt-2 text-[11px] text-neutral-500">{workload.explanation}</p>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2 text-[11px] text-neutral-600 sm:justify-end">

@@ -1,3 +1,4 @@
+import { withEmployeeDeadlineWorkload } from "../../selectors/employeeDeadlineWorkload";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { type Task, type UpdateTaskPayload, undoCompletedTask } from "../../../../services/taskService";
 import type { Employee } from "../../../../services/employeeService";
@@ -24,8 +25,8 @@ export function useMondayBoardController({
 
   // ── Employee lookups ──────────────────────────────────────────
   const deptEmployees = useMemo(() => {
-    return employees || [];
-  }, [employees]);
+    return withEmployeeDeadlineWorkload(employees || [], tasks);
+  }, [employees, tasks]);
 
   const employeeById = useMemo(
     () => {
@@ -111,7 +112,7 @@ export function useMondayBoardController({
   }, []);
 
   const handleRemoveAttachment = useCallback((index: number) => {
-    setSubmitFiles((prev) => prev.filter((_, i) => i !== index));
+    if (window.confirm("Remove this attachment from the submission?")) setSubmitFiles((prev) => prev.filter((_, i) => i !== index));
   }, []);
 
   const handleSubmitConfirm = useCallback(async () => {
@@ -206,6 +207,7 @@ export function useMondayBoardController({
       setTaskEditorError("Task title is required.");
       return;
     }
+    if (taskEditorDraft.estimatedHours !== undefined && (!Number.isFinite(taskEditorDraft.estimatedHours) || taskEditorDraft.estimatedHours <= 0)) { setTaskEditorError("Estimated task days must be greater than zero."); return; }
 
     const memberIds = uniqueValues(taskEditorDraft.teamMemberIds);
     const resolvedLeadId =
@@ -239,6 +241,7 @@ export function useMondayBoardController({
       .join(" > ");
 
     const payload: UpdateTaskPayload = {
+      estimatedHours: taskEditorDraft.estimatedHours || 0,
       title: taskEditorDraft.title.trim(),
       description: taskEditorDraft.description.trim(),
       deadline: taskEditorDraft.deadline.trim(),
@@ -285,6 +288,8 @@ export function useMondayBoardController({
     if (editingTask.status === "pending_assignment" && memberIds.length > 0) {
       payload.status = "todo";
     }
+
+    if ((resolvedLeadId !== (editingTask.assigneeId || "") || (editingTask.teamMemberIds || []).some((id) => !memberIds.includes(id))) && !window.confirm("Save these responsibility changes? This changes the task lead or removes members from the assigned team.")) return;
 
     setTaskEditorSaving(true);
     setTaskEditorError("");

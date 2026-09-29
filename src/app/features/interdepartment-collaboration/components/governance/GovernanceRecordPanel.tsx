@@ -32,7 +32,7 @@ export function GovernanceRecordPanel({ records, signoffs, organizations, profil
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-2 text-[13px] font-semibold"><FileCheck2 size={15} /> Decisions, resolutions, and minutes</div>
-          <p className="mt-1 text-[10px] text-neutral-500">The immutable revision, named sign-offs, Board record, evidence index, and audit hashes form the final decision packet.</p>
+          <p className="mt-1 text-[10px] text-neutral-500">The immutable revision, named approvals, Board record, evidence index, and audit hashes form the final decision packet.</p>
         </div>
         <button type="button" onClick={onDownloadPacket} className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-[10px] text-neutral-700 hover:bg-neutral-50"><Download size={12} /> Decision packet</button>
       </div>

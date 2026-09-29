@@ -20,6 +20,7 @@ import { LivingBoard } from "./components/LivingBoard";
 import { UsageScenariosModal } from "./UsageScenariosModal";
 import { EFlowMark } from "./components/EFlowMark";
 import type { QuickLoginAccount } from "../../app/shared/quickLoginAccounts";
+import { WorkflowPreview } from "../../app/features/authentication";
 
 import {
   formContainerVariants,
@@ -325,6 +326,7 @@ export function Login() {
             <div className={styles.kanbanWrapper}>
               <LivingBoard />
             </div>
+            <WorkflowPreview />
           </motion.div>
         </section>
 

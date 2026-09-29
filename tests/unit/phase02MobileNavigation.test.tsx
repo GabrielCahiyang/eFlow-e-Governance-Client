@@ -15,6 +15,7 @@ vi.mock("../../src/app/contexts/AuthContext", () => ({
 vi.mock("../../src/app/hooks/useSupabaseData", () => ({
   useTasksData: () => ({ tasks: [] }),
   useProjectsData: () => ({ projects: [] }),
+  useOrgs: () => ({ orgs: [], loading: false }),
 }));
 
 vi.mock("../../src/app/features/guided-tours", () => ({

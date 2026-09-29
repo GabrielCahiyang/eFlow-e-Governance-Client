@@ -27,6 +27,7 @@ export function StaffingReviewPanel({
 }) {
   const [working, setWorking] = React.useState(snapshot);
   const [saving, setSaving] = React.useState(false);
+  const [saveError, setSaveError] = React.useState("");
   const [recommending, setRecommending] = React.useState(false);
   React.useEffect(() => setWorking(snapshot), [snapshot]);
 
@@ -67,6 +68,7 @@ export function StaffingReviewPanel({
   const dirty = JSON.stringify(working) !== JSON.stringify(snapshot);
   const save = async () => {
     setSaving(true);
+    setSaveError("");
     try {
       await onSave(
         working,
@@ -77,6 +79,8 @@ export function StaffingReviewPanel({
               "Participant"
         } staffing updated`,
       );
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : "Changes could not be saved.");
     } finally {
       setSaving(false);
     }
@@ -106,18 +110,20 @@ export function StaffingReviewPanel({
           };
         }),
       }));
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : "Team suggestions could not be loaded.");
     } finally {
       setRecommending(false);
     }
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4">{saveError && <p role="alert" className="text-xs text-red-700">{saveError}</p>}
       <section className="eflow-section-card">
         <header className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2>Interdepartmental staffing roster</h2>
-            <p className="m-0 mt-1 text-xs text-secondary">
+            <p className="m-0 mt-1 text-xs text-neutral-600">
               Proposed team assignments remain in draft review and become live upon proposal commit.
             </p>
           </div>
@@ -139,7 +145,7 @@ export function StaffingReviewPanel({
                 disabled={!dirty || saving}
                 onClick={() => void save()}
               >
-                {saving ? "Publishing…" : "Publish staffing revision"}
+                {saving ? "Saving…" : "Save team changes"}
               </Button>
             )}
           </div>
@@ -163,7 +169,7 @@ export function StaffingReviewPanel({
                       <div className="text-sm font-semibold text-neutral-900">
                         {task.title}
                       </div>
-                      <div className="mt-0.5 text-xs text-secondary">
+                      <div className="mt-0.5 text-xs text-neutral-600">
                         {task.activityTitle} · Primary office:{" "}
                         <span className="font-medium text-neutral-800">
                           {primaryOrg?.name || "Unassigned"}
@@ -202,7 +208,7 @@ export function StaffingReviewPanel({
                             <div className="text-xs font-semibold text-neutral-900">
                               {profile.full_name}
                             </div>
-                            <div className="text-[11px] text-secondary">
+                            <div className="text-[11px] text-neutral-600">
                               {org?.name} · {isLead ? "Task Lead" : "Support"}
                             </div>
                           </div>
@@ -219,7 +225,7 @@ export function StaffingReviewPanel({
                                 <button
                                   type="button"
                                   onClick={() =>
-                                    setWorking((current) => ({
+                                    (!isLead && window.confirm("Change this task lead? The new lead will be responsible for task updates and submissions.")) && setWorking((current) => ({
                                       ...current,
                                       tasks: current.tasks.map((item) =>
                                         item.key === task.key
@@ -241,7 +247,7 @@ export function StaffingReviewPanel({
 
                               <button
                                 type="button"
-                                onClick={() => toggleMember(task.key, profile)}
+                                onClick={() => { if (!task.assignedMemberIds.includes(profile.id) || window.confirm("Remove this team member from the task? If they are the lead, a new lead will be selected.")) toggleMember(task.key, profile); }}
                                 className="p-1 rounded text-neutral-400 hover:text-red-600 hover:bg-red-50"
                                 aria-label={`Remove ${profile.full_name}`}
                               >
@@ -255,7 +261,7 @@ export function StaffingReviewPanel({
 
                     {selectedProfiles.length === 0 && (
                       <div className="text-xs text-red-600 font-medium py-1">
-                        No team assigned yet. Assignment is required before final commit.
+                        No team assigned yet. Assignment is required before publication.
                       </div>
                     )}
                   </div>
@@ -263,7 +269,7 @@ export function StaffingReviewPanel({
                   {/* Available Pool Adder */}
                   {(canEditAll || editableOrgId) && (
                     <div className="mt-3.5 border-t border-neutral-100 pt-3">
-                      <span className="text-[11px] font-semibold uppercase tracking-wider text-secondary">
+                      <span className="text-[11px] font-semibold uppercase tracking-wider text-neutral-600">
                         Available from{" "}
                         {canEditAll
                           ? "staffing pools"
@@ -285,7 +291,7 @@ export function StaffingReviewPanel({
                             <button
                               type="button"
                               key={profile.id}
-                              onClick={() => toggleMember(task.key, profile)}
+                              onClick={() => { if (!task.assignedMemberIds.includes(profile.id) || window.confirm("Remove this team member from the task? If they are the lead, a new lead will be selected.")) toggleMember(task.key, profile); }}
                               className="inline-flex items-center gap-1 rounded-md border border-neutral-200 bg-white px-2.5 py-1 text-xs font-medium text-neutral-700 hover:border-blue-300 hover:text-blue-700 transition-colors"
                             >
                               <span>+</span>

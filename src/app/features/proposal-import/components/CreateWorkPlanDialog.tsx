@@ -1,3 +1,4 @@
+import { useState } from "react";
 import * as Icons from "lucide-react";
 import { Modal } from "../../../components/ui/Modal";
 import { ManualPlanBuilder } from "./ManualPlanBuilder";
@@ -19,11 +20,13 @@ export function CreateWorkPlanDialog({
   onClose,
 }: CreateWorkPlanDialogProps) {
   const isManual = mode === "manual";
+  const [processing, setProcessing] = useState(false);
 
   return (
     <Modal
       isOpen={open}
       onClose={onClose}
+      preventClose={processing}
       title="Create a work plan"
       width="max-w-5xl"
       overlayClassName="eflow-wide-work-plan-modal"
@@ -55,6 +58,7 @@ export function CreateWorkPlanDialog({
           <div className="inline-flex items-center gap-1.5 p-1.5 bg-neutral-200/60 rounded-xl border border-neutral-200/80">
             <button
               type="button"
+              disabled={processing}
               onClick={() => onModeChange("manual")}
               className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 isManual
@@ -70,6 +74,7 @@ export function CreateWorkPlanDialog({
             </button>
             <button
               type="button"
+              disabled={processing}
               onClick={() => onModeChange("import")}
               className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 !isManual
@@ -87,7 +92,7 @@ export function CreateWorkPlanDialog({
 
           <p className="text-xs text-neutral-500 leading-relaxed max-w-xl">
             {isManual
-              ? "Build a structured plan in eFlow. Your draft autosaves and becomes operational only after approval and commit."
+              ? "Build a structured plan in eFlow. Your draft autosaves and becomes operational only after approval and publication."
               : "Bring a government proposal into eFlow. We will prepare an editable draft for your review before anything becomes operational."}
           </p>
 
@@ -97,7 +102,7 @@ export function CreateWorkPlanDialog({
               <ManualPlanBuilder inDialog embedded onClose={onClose} />
             </div>
             <div hidden={isManual}>
-              <ProposalImport inDialog embedded onClose={onClose} />
+              <ProposalImport inDialog embedded onClose={onClose} onProcessingChange={setProcessing} />
             </div>
           </div>
         </div>
@@ -158,8 +163,8 @@ export function CreateWorkPlanDialog({
               {(isManual
                 ? [
                     "Set the plan scope",
-                    "Shape the delivery hierarchy",
-                    "Review and commit",
+                    "Organize projects and tasks",
+                    "Review and publish",
                   ]
                 : [
                     "Upload the proposal",

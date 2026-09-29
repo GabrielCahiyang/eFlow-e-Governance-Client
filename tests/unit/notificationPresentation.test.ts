@@ -29,7 +29,7 @@ describe("notification detail presentation", () => {
   it("labels requested changes as reviewer feedback", () => {
     expect(getNotificationDetail({
       type: "status_change",
-      title: "Changes requested",
+      title: "Updates needed",
       reason: "Add the missing signature",
       statusFrom: "for_review",
       statusTo: "changes_requested",

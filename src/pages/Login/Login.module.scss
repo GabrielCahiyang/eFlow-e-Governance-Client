@@ -232,6 +232,7 @@
    RIGHT PANEL — Elevated eFlow | LGU Ormoc City & Bigger Living Board
    ───────────────────────────────────────────────────────────── */
 .heroColumn {
+  --login-preview-board-height: clamp(300px, calc(100dvh - 350px), 490px);
   display: flex;
   flex-direction: column;
   justify-content: center;

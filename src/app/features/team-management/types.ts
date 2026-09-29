@@ -1,3 +1,4 @@
+import type { DeadlineWorkload } from "../tasks";
 import type { Subtask } from "../subtasks";
 
 export type WorkflowSubmissionStatus = "pending" | "approved" | "changes_requested";
@@ -68,6 +69,7 @@ export interface TeamMemberMetrics {
   employeeName: string;
   recordedWorkload: number;
   workloadSignal: number;
+  workload?: DeadlineWorkload;
   activeTasks: number;
   leadingTasks: number;
   activeSubtasks: number;

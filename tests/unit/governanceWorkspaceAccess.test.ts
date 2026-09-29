@@ -14,9 +14,9 @@ describe("collaboration Source & governance access", () => {
 
   it("keeps working tabs visible to department collaborators", () => {
     expect(header).toContain('label: "Source PDF"');
-    expect(header).toContain('label: "Discussion"');
-    expect(header).toContain('label: "Changes"');
-    expect(header).toContain('label: "Revisions"');
+    expect(header).toContain('label: "Collaboration"');
+    expect(header).toContain('label: "Requested changes"');
+    expect(header).toContain('label: "Plan update history"');
     expect(header).toContain('item.id !== "approvals" && item.id !== "governance"');
     expect(header).not.toContain('item.id !== "discussion"');
   });

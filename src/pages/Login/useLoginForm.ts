@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { validateLoginFields } from "../../app/features/authentication";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../app/contexts/AuthContext";
 import { SESSION_NOTICE_KEY } from "../../app/features/session-security/constants";
@@ -125,30 +126,11 @@ export function useLoginForm(): UseLoginFormReturn {
 
   // Blur validation for Email
   const handleEmailBlur = useCallback(() => {
-    if (!email.trim()) {
-      setFieldErrors((prev) => ({ ...prev, email: "Email address is required." }));
-      return;
-    }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email.trim())) {
-      setFieldErrors((prev) => ({ ...prev, email: "Please enter a valid email address." }));
-      return;
-    }
-    setFieldErrors((prev) => ({ ...prev, email: undefined }));
-  }, [email]);
-
-  // Blur validation for Password
+    setFieldErrors((previous) => ({ ...previous, email: validateLoginFields(email, password).email }));
+  }, [email, password]);
   const handlePasswordBlur = useCallback(() => {
-    if (!password) {
-      setFieldErrors((prev) => ({ ...prev, password: "Password is required." }));
-      return;
-    }
-    if (password.length < 6) {
-      setFieldErrors((prev) => ({ ...prev, password: "Password must be at least 6 characters." }));
-      return;
-    }
-    setFieldErrors((prev) => ({ ...prev, password: undefined }));
-  }, [password]);
+    setFieldErrors((previous) => ({ ...previous, password: validateLoginFields(email, password).password }));
+  }, [email, password]);
 
   // Primary submission handler
   const handleSubmit = async (e?: React.FormEvent) => {
@@ -165,16 +147,10 @@ export function useLoginForm(): UseLoginFormReturn {
     }
 
     const trimmedEmail = email.trim();
-    if (!trimmedEmail) {
-      setFieldErrors((prev) => ({ ...prev, email: "Email address is required." }));
-      setShakeField("email");
-      setTimeout(() => setShakeField(null), 350);
-      return;
-    }
-
-    if (!password) {
-      setFieldErrors((prev) => ({ ...prev, password: "Password is required." }));
-      setShakeField("password");
+    const errors = validateLoginFields(trimmedEmail, password);
+    if (errors.email || errors.password) {
+      setFieldErrors(errors);
+      setShakeField(errors.email ? "email" : "password");
       setTimeout(() => setShakeField(null), 350);
       return;
     }
@@ -228,7 +204,7 @@ export function useLoginForm(): UseLoginFormReturn {
         msg.includes("Invalid email or password")
       ) {
         setState("invalid_credentials");
-        setErrorMessage("Invalid email or password. Please verify your credentials.");
+        setErrorMessage("Email or password is incorrect.");
         setShakeField("password");
         setTimeout(() => setShakeField(null), 350);
       } else if (msg.includes("network") || msg.includes("Failed to fetch")) {
@@ -236,7 +212,9 @@ export function useLoginForm(): UseLoginFormReturn {
         setErrorMessage("Network error: Unable to contact authentication servers.");
       } else {
         setState("server_error");
-        setErrorMessage(msg || "An unexpected error occurred during authentication.");
+        setErrorMessage(/email.*not.*confirm/i.test(msg)
+          ? "Confirm your email address before signing in."
+          : "Unable to sign in right now. Please try again.");
       }
     }
   };

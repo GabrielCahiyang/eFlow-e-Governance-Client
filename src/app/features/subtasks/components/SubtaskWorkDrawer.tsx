@@ -22,7 +22,7 @@ const statusMeta = {
   todo: { label: "To do", tone: "bg-neutral-100 text-neutral-700" },
   in_progress: { label: "In progress", tone: "bg-blue-50 text-blue-700" },
   for_review: { label: "For review", tone: "bg-amber-50 text-amber-700" },
-  changes_requested: { label: "Changes requested", tone: "bg-rose-50 text-rose-700" },
+  changes_requested: { label: "Updates needed", tone: "bg-rose-50 text-rose-700" },
   completed: { label: "Approved", tone: "bg-emerald-50 text-emerald-700" },
 } as const;
 

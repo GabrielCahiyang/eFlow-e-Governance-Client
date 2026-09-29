@@ -165,7 +165,7 @@ export function ProjectProposalContextTab({
         decision: "approved",
       });
       await state.refresh();
-      toast("Sign-off recorded successfully for your office.", "success");
+      toast("Approval recorded successfully for your office.", "success");
     } catch (error: any) {
       toast(error?.message || "Could not record approval.", "error");
     } finally {
@@ -294,16 +294,16 @@ export function ProjectProposalContextTab({
         </div>
       </div>
 
-      {/* 2-Column Grid: Sign-off Matrix & Changes */}
+      {/* 2-Column Grid: Approval Matrix & Changes */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left 2 Cols: Department Sign-off Matrix & Decision Action */}
+        {/* Left 2 Cols: Department Approval Matrix & Decision Action */}
         <div className="lg:col-span-2 space-y-6">
           <div className="bg-white border border-neutral-200/80 rounded-2xl p-6 shadow-xs space-y-4">
             <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
               <div>
                 <h3 className="text-sm font-bold text-neutral-900 uppercase tracking-wider flex items-center gap-2">
                   <ShieldCheck size={16} className="text-indigo-600" />
-                  <span>Department Sign-off Matrix</span>
+                  <span>Department Approval Matrix</span>
                 </h3>
                 <p className="text-xs text-neutral-500 mt-0.5">
                   Endorsement and review status from all participating departments.
@@ -347,7 +347,7 @@ export function ProjectProposalContextTab({
                           ? "Authored and committed the work plan"
                           : approval
                             ? `Decided on ${formatDate(approval.createdAt)}`
-                            : "Awaiting review and sign-off decision"}
+                            : "Awaiting review and approval decision"}
                       </div>
                     </div>
 
@@ -374,11 +374,11 @@ export function ProjectProposalContextTab({
               <div className="flex items-center gap-2">
                 <Shield size={16} className="text-primary" />
                 <h3 className="text-sm font-bold text-neutral-900 uppercase tracking-wider">
-                  Review &amp; Sign-off Decision
+                  Review &amp; Approval Decision
                 </h3>
               </div>
               <p className="text-xs text-neutral-600">
-                You are authorized to record a formal sign-off or request revisions on behalf of{" "}
+                You are authorized to record a formal approval or request revisions on behalf of{" "}
                 <strong className="text-neutral-800">{reviewOrganization?.orgId}</strong>.
               </p>
 

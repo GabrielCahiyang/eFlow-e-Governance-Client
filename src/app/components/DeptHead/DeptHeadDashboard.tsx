@@ -5,6 +5,7 @@
 // employee, completion rate, and upcoming deadlines.
 
 import { useMemo, useState } from "react";
+import { workloadByEmployee } from "../../features/tasks";
 import {
   AlertTriangle,
   Inbox,
@@ -135,24 +136,8 @@ export function DeptHeadDashboard() {
     return buckets;
   }, [scopedProjects, scoped]);
 
-  // Workload by employee (scoped active, non-completed tasks per assignee).
-  const workload = useMemo(() => {
-    const map = new Map<string, { name: string; active: number; overdue: number; review: number }>();
-    scoped.forEach((t) => {
-      if (!t.assigneeId) return;
-      if (t.status === "completed") return;
-      const row = map.get(t.assigneeId) || { name: t.assigneeName || "Unknown", active: 0, overdue: 0, review: 0 };
-      row.active++;
-      if (isOverdue(t)) row.overdue++;
-      if (t.status === "for_review") row.review++;
-      map.set(t.assigneeId, row);
-    });
-    return Array.from(map.entries())
-      .map(([id, v]) => ({ id, ...v }))
-      .sort((a, b) => b.active - a.active);
-  }, [scoped]);
-
-  const maxLoad = Math.max(1, ...workload.map((w) => w.active));
+  // Use the same task-duration and deadline calculation as the task board.
+  const workload = useMemo(() => workloadByEmployee(scoped), [scoped]);
 
   // Upcoming deadlines within horizon.
   const upcoming = useMemo(() => {
@@ -349,22 +334,23 @@ export function DeptHeadDashboard() {
         {/* Right column */}
         <div className="space-y-4">
           {/* Workload */}
-          <Card className="overflow-hidden" title="Workload by employee" subtitle="Active tasks per person">
+          <Card className="overflow-hidden" title="Workload by employee" subtitle="Task duration and deadline pressure">
             {workload.length === 0 ? (
               <SectionEmpty icon={<Users size={24} />} title="No assigned work" />
             ) : (
               <div className="space-y-2.5 max-h-[260px] overflow-y-auto pr-1">
                 {workload.slice(0, 12).map((w) => {
-                  const heavy = w.active >= 6;
+                  const heavy = w.workload?.level === "high" || w.workload?.level === "very_high";
                   return (
                     <div key={w.id}>
                       <div className="flex items-center gap-2 mb-1">
                         <InitialsAvatar name={w.name} size={22} />
                         <span className="min-w-0 flex-1 truncate text-[12px] font-medium text-foreground">{w.name}</span>
                         {heavy && <Flame size={12} className="text-red-500" />}
-                        <span className="text-[11.5px] font-semibold tabular-nums text-foreground">{w.active}</span>
+                        <span className="text-[11.5px] font-semibold tabular-nums text-foreground">{w.active} tasks · {w.workload?.label}</span>
                       </div>
-                      <ProgressBar value={(w.active / maxLoad) * 100} tone={heavy ? "bad" : w.overdue ? "warn" : "neutral"} />
+                      <ProgressBar value={Math.min(100, w.workload?.pressurePercent || 0)} tone={heavy ? "bad" : w.workload?.level === "unknown" ? "warn" : "neutral"} />
+                      <p className="mt-1 text-[10px] text-muted-foreground">{w.workload?.explanation}</p>
                       {(w.overdue > 0 || w.review > 0) && (
                         <div className="mt-1 flex gap-3 text-[10px] font-medium text-muted-foreground">
                           {w.overdue > 0 && <span className="text-red-500">{w.overdue} overdue</span>}

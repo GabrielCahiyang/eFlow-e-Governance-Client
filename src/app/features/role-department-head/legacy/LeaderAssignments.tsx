@@ -17,7 +17,7 @@ const LEADER_ROLES: LeaderRole[] = [
     title: "Site Supervisor",
     responsibilities: [
       "Approve daily photos",
-      "Logbook sign-off",
+      "Logbook approval",
       "Safety incident triage",
     ],
     permissions: [
@@ -29,7 +29,7 @@ const LEADER_ROLES: LeaderRole[] = [
   {
     id: "l2",
     title: "QA/QC Officer",
-    responsibilities: ["Material testing sign-off", "Inspection checklists"],
+    responsibilities: ["Material testing approval", "Inspection checklists"],
     permissions: ["mobile.qc_forms", "mobile.test_results"],
   },
   {

@@ -22,7 +22,7 @@ export function getNotificationDetail(
   const title = notification.title.toLowerCase();
   const destination = notification.statusTo?.toLowerCase();
 
-  if (title.includes("changes requested") || destination === "changes_requested") {
+  if (title.includes("updates needed") || destination === "changes_requested") {
     return { label: "Reviewer feedback", text, tone: "danger" };
   }
 

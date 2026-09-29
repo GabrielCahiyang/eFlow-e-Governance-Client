@@ -1,5 +1,6 @@
+import { withEmployeeDeadlineWorkload, taskDurationHours, taskEstimateError } from "../../tasks";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useEmployeeNotes } from "../../../hooks/useFirebaseData";
+import { useTasks, useEmployeeNotes } from "../../../hooks/useFirebaseData";
 import { useOrgs } from "../../../hooks/useSupabaseData";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useToast } from "../../../components/ui/Toast";
@@ -25,6 +26,7 @@ import { normalizeImportedTaskBudgetLines } from "../services/proposalBudgetImpo
 import { validateProposalDocument } from "../services/proposalValidationClient";
 
 export function useProposalImportController(onClose?: () => void) {
+  const { tasks: liveTasks } = useTasks();
   const { notes: employeeNotes } = useEmployeeNotes();
   const { userProfile } = useAuth();
   const { orgs } = useOrgs();
@@ -43,6 +45,7 @@ export function useProposalImportController(onClose?: () => void) {
     activeOnly: true,
     excludeSuperAdmins: true,
   });
+  const candidateEmployees = useMemo(() => withEmployeeDeadlineWorkload(directoryEmployees, liveTasks), [directoryEmployees, liveTasks]);
   const { toast } = useToast();
 
   // Proposal drafts can only assign employees directly in the requester's
@@ -65,8 +68,8 @@ export function useProposalImportController(onClose?: () => void) {
       : [{ orgId: ownerOrgId, participationRole: "owner", staffingEnabled: true }]);
   }, [ownerOrgId]);
   const allEmployees = useMemo(
-    () => getCollaborationCandidateEmployees(directoryEmployees, collaborationOrganizations),
-    [collaborationOrganizations, directoryEmployees],
+    () => getCollaborationCandidateEmployees(candidateEmployees, collaborationOrganizations),
+    [collaborationOrganizations, candidateEmployees],
   );
 
   const deptEmployeesWithNotes = useMemo(
@@ -154,6 +157,7 @@ export function useProposalImportController(onClose?: () => void) {
               title: t.title,
               description: t.description,
               deadline: act.schedule || "",
+              estimatedHours: taskDurationHours(t.estimatedDuration, t.optimizationMetadata?.durationDays),
               priority: t.priority || "medium",
               requiredSkills: t.requiredSkills || [],
               assignedMemberIds: t.recommendedEmployeeIds || [],
@@ -175,6 +179,7 @@ export function useProposalImportController(onClose?: () => void) {
   };
 
   const handlePdfFile = async (file: File) => {
+    if (["extracting", "validating", "decomposing", "saving"].includes(pdfPhase)) return;
     if (!file.name.toLowerCase().endsWith(".pdf")) {
       setPdfError("Please upload a PDF file.");
       setPdfPhase("error");
@@ -208,6 +213,7 @@ export function useProposalImportController(onClose?: () => void) {
     }
 
     try {
+      setPdfPhase("validating");
       const validation = await validateProposalDocument(text, file.name);
       if (!validation.is_proposal) {
         setPdfError(`${validation.message} Validation score: ${validation.score}%.`);
@@ -236,7 +242,7 @@ export function useProposalImportController(onClose?: () => void) {
         } as CollaborationOrganizationSelection)),
       ];
       setCollaborationOrganizations(detectedScope);
-      const expandedPool = getCollaborationCandidateEmployees(directoryEmployees, detectedScope);
+      const expandedPool = getCollaborationCandidateEmployees(candidateEmployees, detectedScope);
       const candidates = expandedPool.length > 0
         ? filterEmployeesByPdfMentions(text, expandedPool, orgs)
         : employeesForAi;
@@ -259,6 +265,7 @@ export function useProposalImportController(onClose?: () => void) {
         budget: buildProposalBudgetFromTasks(generatedTasks),
       });
       setAutoSaveState("saving");
+      setPdfPhase("saving");
       const persistedDraft = await createCollaborationDraft({
         title: snapshot.title,
         ownerOrgId: departmentFilter,
@@ -286,6 +293,7 @@ export function useProposalImportController(onClose?: () => void) {
 
   useEffect(() => {
     if (!draftId || pdfPhase !== "review" || draftTasks.length === 0) return;
+    if (draftTasks.some((task) => task.enabled && taskEstimateError(task.estimatedHours))) { setAutoSaveState("error"); return; }
     const snapshot = buildCollaborationSnapshot({
       title: draftTasks[0]?.proposalTitle || pdfFileName.replace(/\.pdf$/i, ""),
       tasks: draftTasks,
@@ -380,6 +388,8 @@ export function useProposalImportController(onClose?: () => void) {
   const handleCommit = async () => {
     const toCreate = draftTasks.filter((task) => task.enabled);
     if (toCreate.length === 0) return;
+    const invalidEstimate = toCreate.find((task) => taskEstimateError(task.estimatedHours));
+    if (invalidEstimate) { setCommitMessage(`${invalidEstimate.title}: ${taskEstimateError(invalidEstimate.estimatedHours)}`); return; }
     setCommitting(true);
     setCommitMessage("Saving persistent collaboration draft...");
     try {

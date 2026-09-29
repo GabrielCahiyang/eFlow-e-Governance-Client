@@ -21,3 +21,6 @@ export * from "./hooks/useProposalGovernance";
 export { OrganizationScopePicker } from "./components/OrganizationScopePicker";
 export { CollaborationDraftList } from "./components/CollaborationDraftList";
 export { CollaborationDraftWorkspace } from "./components/CollaborationDraftWorkspace";
+export { DepartmentApprovalMatrix } from "./components/DepartmentApprovalMatrix";
+export { departmentApprovalRows } from "./selectors/departmentApprovalRows";
+export { fetchApprovalPortfolio } from "./services/approvalPortfolioService";

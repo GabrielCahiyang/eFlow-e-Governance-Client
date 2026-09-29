@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTasks } from "../../../hooks/useFirebaseData";
+import { withEmployeeDeadlineWorkload } from "../../tasks";
 import { useEmployeeNotes } from "../../../hooks/useFirebaseData";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useOrgs } from "../../../hooks/useSupabaseData";
@@ -39,6 +41,8 @@ export function useManualPlanController(onClose?: () => void) {
     activeOnly: true,
     excludeSuperAdmins: true,
   });
+  const { tasks: liveTasks } = useTasks();
+  const candidateEmployees = useMemo(() => withEmployeeDeadlineWorkload(directoryEmployees, liveTasks), [directoryEmployees, liveTasks]);
   const { notes: employeeNotes } = useEmployeeNotes();
   const { userProfile } = useAuth();
   const { orgs } = useOrgs();
@@ -73,11 +77,11 @@ export function useManualPlanController(onClose?: () => void) {
   const allEmployees = useMemo(
     () => {
       if (!ownerOrgId) return [];
-      return getCollaborationCandidateEmployees(directoryEmployees, collaborationOrganizations).filter(
+      return getCollaborationCandidateEmployees(candidateEmployees, collaborationOrganizations).filter(
         (employee) => profilesById.get(employee.id)?.role !== "super_admin",
       );
     },
-    [collaborationOrganizations, directoryEmployees, ownerOrgId, profilesById],
+    [collaborationOrganizations, candidateEmployees, ownerOrgId, profilesById],
   );
 
   const currentDraftTask = assignModalTaskKey

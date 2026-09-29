@@ -5,6 +5,7 @@ import { getPageProgressKey, readGuidedTourProgress, writeGuidedTourProgress } f
 import type { GuidedTourKind, GuidedTourProgress, GuidedTourSection, GuidedTourStep } from "../types";
 import { GuidedTourOverlay } from "./GuidedTourOverlay";
 import { WelcomeTourPrompt } from "./WelcomeTourPrompt";
+import { suggestedFirstSteps } from "../firstSteps";
 
 interface GuidedTourContextValue {
   isTourActive: boolean;
@@ -143,6 +144,8 @@ export function GuidedTourProvider({
       {welcomeOpen && (
         <WelcomeTourPrompt
           roleLabel={getRoleLabel(role)}
+          nextSteps={suggestedFirstSteps(role, sections)}
+          onNextStep={(section, page) => { setWelcomeOpen(false); updateProgress((current) => ({ ...current, welcomed: true })); onNavigate(section, page); }}
           voiceEnabled={voiceEnabled}
           onToggleVoice={toggleVoice}
           onStart={startSystemTour}

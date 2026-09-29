@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("admin creation dialogs remain usable on a narrow phone", async ({ page }) => {
+test("admin user dialog and citywide plan approvals remain usable on a narrow phone", async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 740 });
   await page.goto("/", { waitUntil: "domcontentloaded" });
 
@@ -42,11 +42,32 @@ test("admin creation dialogs remain usable on a narrow phone", async ({ page }) 
 
   await page.getByRole("button", { name: "Open navigation" }).click();
   await page.locator('.eflow-mobile-navigation [data-tour-section="projects"] .eflow-productivity-sidebar__item').click();
+  await expect(page.getByRole("heading", { name: "Citywide plans and projects" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Department approval tracking" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Create work plan" })).toHaveCount(0);
+  await expect(page.getByText("Select or create a work plan", { exact: true })).toHaveCount(0);
+});
+
+test("department work-plan creation remains available and fits a narrow phone", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 740 });
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  const quickLogin = page.getByRole("button", { name: "Choose a development account" });
+  test.skip(!(await quickLogin.isVisible()), "Local development account shortcuts are unavailable.");
+  await quickLogin.click();
+  await page.getByRole("menuitem", { name: /^BPLO Head —/ }).click();
+  await page.getByRole("button", { name: "Open navigation" }).waitFor();
+  const dismissTour = page.getByRole("button", { name: "Maybe later" });
+  await dismissTour.waitFor({ timeout: 3000 }).then(() => dismissTour.click()).catch(() => {});
+  await page.getByRole("button", { name: "Open navigation" }).click();
+  await page.locator('.eflow-mobile-navigation [data-tour-section="projects"] .eflow-productivity-sidebar__item').click();
   await page.getByRole("button", { name: "Create work plan" }).first().click();
   const planDialog = page.getByRole("dialog", { name: "Create a work plan" });
   await expect(planDialog).toBeVisible();
   const planInput = planDialog.getByPlaceholder(/2026 Coastal/i);
   await expect(planInput).toBeVisible();
-  const inputBounds = await planInput.boundingBox();
-  expect(inputBounds!.width).toBeGreaterThan(150);
+  expect((await planInput.boundingBox())!.width).toBeGreaterThan(150);
+  await planDialog.getByRole("button", { name: "Import proposal", exact: true }).click();
+  await expect(planDialog.getByText("Drop a government proposal PDF here", { exact: true })).toBeVisible();
+  await planDialog.getByRole("button", { name: "Close dialog" }).click();
+  await expect(planDialog).toHaveCount(0);
 });

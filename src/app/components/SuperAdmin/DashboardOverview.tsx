@@ -1,4 +1,5 @@
 // ─── Super Admin Dashboard — Supabase Metrics ────────────────────
+import { calculateDeadlineWorkload, isActive } from "../../features/tasks";
 import { useMemo } from "react";
 import {
   useDashboardMetrics,
@@ -29,7 +30,7 @@ function CSSGauge({ value, label, color }: { value: number; label: string; color
         />
       </div>
       <div className="text-[24px] font-semibold text-neutral-900 -mt-4 tabular-nums">
-        {clamp}%
+        {Math.round(value)}%
       </div>
       <div className="text-[11px] font-medium text-neutral-500 mt-0.5">{label}</div>
     </div>
@@ -111,7 +112,8 @@ interface DeptCapacityItem {
   name: string;
   staff: number;
   activeTasks: number;
-  status: "available" | "balanced" | "overloaded" | "unstaffed";
+  loadPercent: number;
+  status: "available" | "balanced" | "overloaded" | "unstaffed" | "details_needed";
 }
 
 function DepartmentCapacityCard({
@@ -129,7 +131,7 @@ function DepartmentCapacityCard({
             Department Capacity & Load
           </div>
           <div className="text-[10.5px] text-neutral-400">
-            Workload distribution across offices
+            Highest staff deadline pressure in each office
           </div>
         </div>
         <span className="text-[11px] font-medium text-neutral-400">
@@ -163,6 +165,7 @@ function DepartmentCapacityCard({
                 barColor: "bg-emerald-500",
                 dotColor: "bg-emerald-500",
               },
+              details_needed: { label: "Details needed", badgeClass: "bg-amber-50 text-amber-700 border-amber-200", barColor: "bg-amber-500", dotColor: "bg-amber-500" },
               unstaffed: {
                 label: "Unstaffed",
                 badgeClass: "bg-amber-50 text-amber-700 border-amber-200",
@@ -171,9 +174,7 @@ function DepartmentCapacityCard({
               },
             }[dept.status];
 
-            const loadPercent = dept.staff > 0
-              ? Math.min(100, Math.round((dept.activeTasks / (dept.staff * 4)) * 100))
-              : dept.activeTasks > 0 ? 100 : 0;
+            const loadPercent = Math.min(100, dept.loadPercent);
 
             return (
               <div
@@ -228,12 +229,16 @@ function DepartmentCapacityCard({
 
 // ─── Main Dashboard Component ────────────────────────────────────
 export function DashboardOverview() {
-  const { metrics, loading: metricsLoading } = useDashboardMetrics();
+  const { metrics: storedMetrics, loading: metricsLoading } = useDashboardMetrics();
   const { profiles, loading: profilesLoading } = useProfiles();
   const { orgs, loading: orgsLoading } = useOrgs();
   const { tasks, loading: tasksLoading } = useTasksData();
 
   const loading = metricsLoading || profilesLoading || orgsLoading || tasksLoading;
+
+  const staffWorkloads = useMemo(() => profiles.filter((profile) => profile.is_active && profile.role !== "super_admin").map((profile) => ({ profile, workload: calculateDeadlineWorkload(tasks.filter((task) => task.assigneeId === profile.id || task.teamMemberIds?.includes(profile.id)), Date.now(), profile.id) })), [profiles, tasks]);
+  const knownWorkloads = staffWorkloads.filter((item) => item.workload.level !== "unknown");
+  const metrics = { ...storedMetrics, overloadedEmployees: staffWorkloads.filter((item) => ["high", "very_high"].includes(item.workload.level)).length, averageWorkload: knownWorkloads.length ? Math.round(knownWorkloads.reduce((sum, item) => sum + item.workload.pressurePercent, 0) / knownWorkloads.length) : 0 };
 
   // Compute department capacity & load metrics
   const deptCapacity = useMemo(() => {
@@ -249,7 +254,7 @@ export function DashboardOverview() {
 
     const taskMap: Record<string, number> = {};
     tasks.forEach((t) => {
-      if (t.status !== "completed" && t.orgId) {
+      if (isActive(t) && t.orgId) {
         taskMap[t.orgId] = (taskMap[t.orgId] || 0) + 1;
       }
     });
@@ -258,14 +263,18 @@ export function DashboardOverview() {
       .map((org) => {
         const staff = staffMap[org.id] || 0;
         const activeTasks = taskMap[org.id] || 0;
-        const ratio = staff > 0 ? activeTasks / staff : activeTasks > 0 ? 999 : 0;
+        const officeWorkloads = staffWorkloads.filter((item) => item.profile.org_id === org.id);
+        const loadPercent = officeWorkloads.length ? Math.max(...officeWorkloads.map((item) => item.workload.pressurePercent)) : 0;
+        const unknown = officeWorkloads.some((item) => item.workload.level === "unknown");
 
-        let status: "available" | "balanced" | "overloaded" | "unstaffed";
+        let status: "available" | "balanced" | "overloaded" | "unstaffed" | "details_needed";
         if (staff === 0 && activeTasks > 0) {
           status = "unstaffed";
-        } else if (ratio >= 4) {
+        } else if (loadPercent >= 85) {
           status = "overloaded";
-        } else if (ratio >= 1.5) {
+        } else if (unknown) {
+          status = "details_needed";
+        } else if (loadPercent >= 50) {
           status = "balanced";
         } else {
           status = "available";
@@ -276,11 +285,12 @@ export function DashboardOverview() {
           name: org.name,
           staff,
           activeTasks,
+          loadPercent,
           status,
         };
       })
       .sort((a, b) => b.activeTasks - a.activeTasks || b.staff - a.staff);
-  }, [orgs, profiles, tasks]);
+  }, [orgs, profiles, tasks, staffWorkloads]);
 
   // Compute derived data
   const deptDistribution = useMemo(() => {
@@ -372,9 +382,10 @@ export function DashboardOverview() {
         <MetricCardWide label="Completed Tasks" value={metrics.completedTasks} color="#10b981" loading={loading} />
         <MetricCardWide label="Heads" value={metrics.departmentHeads} color="#6366f1" loading={loading} />
         <MetricCardWide label="Overloaded" value={metrics.overloadedEmployees} color="#ef4444" loading={loading} />
-        <MetricCardWide label="Avg. Workload" value={metrics.averageWorkload} suffix="%" color="#3b82f6" loading={loading} />
+        <MetricCardWide label="Avg. deadline pressure" value={metrics.averageWorkload} suffix="%" color="#3b82f6" loading={loading} />
       </div>
 
+      <p className="mb-4 text-xs text-neutral-500">Workload uses remaining task duration and working hours before deadlines. {staffWorkloads.filter((item) => item.workload.level === "unknown").length} staff member(s) need task estimates or deadlines.</p>
       {/* Charts Row */}
       <div className="mb-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div className="bg-white rounded-xl border border-neutral-200 p-4">
@@ -389,12 +400,12 @@ export function DashboardOverview() {
         </div>
         <div className="bg-white rounded-xl border border-neutral-200 p-4">
           <div className="text-[12px] font-semibold text-neutral-700 mb-3">
-            Average Workload Gauge
+            Average deadline pressure
           </div>
           <div className="flex justify-center">
             <CSSGauge
               value={metrics.averageWorkload}
-              label="Org-wide Average"
+              label="Staff average · known estimates"
               color={metrics.averageWorkload >= 80 ? "#ef4444" : metrics.averageWorkload >= 60 ? "#f59e0b" : "#10b981"}
             />
           </div>

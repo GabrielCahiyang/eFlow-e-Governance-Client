@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTasks } from "../../../hooks/useFirebaseData";
+import { withEmployeeDeadlineWorkload, taskEstimateError } from "../../tasks";
 import { Layers, Plus } from "lucide-react";
 import { useDeptDirectoryEmployees } from "../../employees";
 import { DraftCockpit } from "../../proposal-import/components/DraftCockpit";
@@ -39,6 +41,11 @@ function snapshotTaskToDraftTask(task: CollaborationSnapshotTask): DraftTask {
     title: task.title,
     description: task.description,
     deadline: task.deadline,
+    estimatedHours: task.estimatedHours,
+    primaryOrgId: task.primaryOrgId,
+    supportingOrgIds: task.supportingOrgIds,
+    activityPrimaryOrgId: task.activityPrimaryOrgId,
+    activitySupportingOrgIds: task.activitySupportingOrgIds,
     priority: task.priority,
     requiredSkills: task.requiredSkills,
     assignedMemberIds: task.assignedMemberIds,
@@ -81,6 +88,7 @@ function draftTasksToSnapshotTasks(
       title: dt.title,
       description: dt.description,
       deadline: dt.deadline,
+      estimatedHours: dt.estimatedHours,
       priority: dt.priority,
       requiredSkills: dt.requiredSkills,
       assignedMemberIds: dt.assignedMemberIds,
@@ -137,13 +145,16 @@ function CollaborationPlanEditPanelInner({
   organizations: Organization[];
   onSave: (snapshot: CollaborationDraftSnapshot, summary: string) => Promise<void>;
 }) {
-  const { allEmployees } = useDeptDirectoryEmployees({
+  const { allEmployees: directoryEmployees } = useDeptDirectoryEmployees({
     scope: "exact",
     includeCurrentUser: true,
     includeDepartmentHeads: true,
     activeOnly: true,
     excludeSuperAdmins: true,
   });
+
+  const { tasks: liveTasks } = useTasks();
+  const allEmployees = useMemo(() => withEmployeeDeadlineWorkload(directoryEmployees, liveTasks), [directoryEmployees, liveTasks]);
 
   // Initialize draftTasks from snapshot; re-sync when snapshot changes from the outside
   const [draftTasks, setDraftTasks] = useState<DraftTask[]>(() =>
@@ -234,6 +245,8 @@ function CollaborationPlanEditPanelInner({
 
 
   const handleCommit = useCallback(async () => {
+    const invalidEstimate = draftTasks.find((task) => task.enabled && taskEstimateError(task.estimatedHours));
+    if (invalidEstimate) { setCommitMessage(`${invalidEstimate.title}: ${taskEstimateError(invalidEstimate.estimatedHours)}`); return; }
     setCommitting(true);
     try {
       const updatedTasks = draftTasksToSnapshotTasks(draftTasks, snapshot.tasks);
@@ -241,6 +254,8 @@ function CollaborationPlanEditPanelInner({
       await onSave(updatedSnapshot, "Work breakdown updated");
       snapshotRef.current = updatedSnapshot;
       setCommitMessage("Plan saved successfully.");
+    } catch (error) {
+      setCommitMessage(error instanceof Error ? error.message : "The plan could not be saved.");
     } finally {
       setCommitting(false);
     }

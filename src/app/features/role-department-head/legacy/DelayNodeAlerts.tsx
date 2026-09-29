@@ -146,7 +146,7 @@ export function DelayNodeAlerts() {
                 {selected.name}
               </div>
               <div className="text-[11.5px] font-normal text-neutral-500">
-                Assigned officer · {selected.officer}
+                Asapprovedicer · {selected.officer}
               </div>
             </div>
             <div className="bg-red-600 text-white rounded-lg px-3 py-2 text-center">
@@ -171,7 +171,7 @@ export function DelayNodeAlerts() {
                 <span className="font-medium">
                   {selected.backlog} documents
                 </span>
-                . The assigned officer{" "}
+                . The asapprovedicer{" "}
                 {selected.burnoutFlag && (
                   <>
                     has been flagged by the{" "}

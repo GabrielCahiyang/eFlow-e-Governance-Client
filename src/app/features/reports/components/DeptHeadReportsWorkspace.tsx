@@ -81,7 +81,7 @@ export function DeptHeadReportsWorkspace() {
   const selectedTask = analytics.tasks.find((task) => task.id === selectedTaskId) || null;
   const uniquePeople = new Set(rows.map((row) => row.personId).filter(Boolean)).size;
   const uniqueProjects = new Set(rows.map((row) => row.projectId).filter(Boolean)).size;
-  const urgent = rows.filter((row) => ["critical", "high", "overdue", "blocked"].includes(row.priority.toLowerCase()) || ["overdue", "changes requested"].includes(row.status.toLowerCase())).length;
+  const urgent = rows.filter((row) => ["critical", "high", "overdue", "blocked"].includes(row.priority.toLowerCase()) || ["overdue", "updates needed"].includes(row.status.toLowerCase())).length;
   const contributionRows = useMemo(
     () => buildMonthlyContributionLeaderboard(analytics.deptEmployees, analytics.tasks, analytics.facts),
     [analytics.deptEmployees, analytics.facts, analytics.tasks],

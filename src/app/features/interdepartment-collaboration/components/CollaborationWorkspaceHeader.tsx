@@ -28,14 +28,12 @@ export type CollaborationWorkspaceTab =
 /** Primary tabs always shown in the main tab bar */
 const PRIMARY_TABS: Array<{ id: CollaborationWorkspaceTab; label: string }> = [
   { id: "overview", label: "Overview" },
-  { id: "plan", label: "Delivery" },
+  { id: "plan", label: "Work plan" },
   { id: "discussion", label: "Collaboration" },
   { id: "approvals", label: "Review & Governance" },
 ];
 
 /** Secondary tabs shown as icon buttons — contextual / audit-related */
-// Legacy labels remain documented for compatibility with existing consumers:
-// label: "Discussion", label: "Changes", label: "Work breakdown".
 const SECONDARY_TABS: Array<{
   id: CollaborationWorkspaceTab;
   label: string;
@@ -68,7 +66,7 @@ const SECONDARY_TABS: Array<{
   },
   {
     id: "revisions",
-    label: "Revisions",
+    label: "Plan update history",
     icon: <GitCommitHorizontal size={15} />,
   },
 ];
@@ -126,7 +124,7 @@ export function CollaborationWorkspaceHeader({
         : "primary";
 
   /** Which primary tabs are visible */
-  const visiblePrimary = PRIMARY_TABS.filter((item) => {
+  const visiblePrimary = PRIMARY_TABS.map((item) => item.id === "plan" && isCommitted ? { ...item, label: "Project tasks" } : item).filter((item) => {
     if (departmentOnly && (item.id !== "approvals" && item.id !== "governance" ? false : true))
       return false;
     return true;
@@ -166,6 +164,7 @@ export function CollaborationWorkspaceHeader({
       <div className="eflow-workspace-tabs eflow-collaboration-primary-tabs">
         <TabsContext
           id={`collaboration-tabs-${draft.id}`}
+          activeTabId={Math.max(0, primaryTabs.findIndex((item) => item.id === (tab === "board" ? "board" : primaryActive)))}
           className="min-w-0"
         >
           <TabList id={`collaboration-tab-list-${draft.id}`}>
@@ -176,7 +175,7 @@ export function CollaborationWorkspaceHeader({
                 active={item.id === "board" ? tab === "board" : tab !== "board" && primaryActive === item.id}
                 onClick={() => onTabChange(item.id)}
               >
-                {item.id === "plan" && departmentOnly ? "Work breakdown" : item.label}
+                {item.label}
               </Tab>
             ))}
           </TabList>
@@ -187,7 +186,7 @@ export function CollaborationWorkspaceHeader({
         {/* Title row */}
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <span className="text-xs text-secondary">
+            <span className="text-xs text-neutral-600">
               {draft.sourceType === "ai_pdf"
                 ? "Imported from document"
                 : "Custom work plan"}{" "}
@@ -196,7 +195,7 @@ export function CollaborationWorkspaceHeader({
             <h1 className="mt-1 text-2xl font-bold text-neutral-900">
               {draft.title}
             </h1>
-            <p className="m-0 mt-2 flex flex-wrap items-center gap-2 text-xs text-secondary">
+            <p className="m-0 mt-2 flex flex-wrap items-center gap-2 text-xs text-neutral-600">
               <span>
                 Lead:{" "}
                 <strong className="font-semibold text-neutral-800">
@@ -266,7 +265,7 @@ export function CollaborationWorkspaceHeader({
         {isSecondaryActive && (
           <div className="mt-2 flex items-center gap-1.5 border-t border-neutral-100 pt-3">
             <LayoutDashboard size={13} className="text-neutral-400" />
-            <span className="text-xs text-secondary">
+            <span className="text-xs text-neutral-600">
               {visibleSecondary.find((s) => s.id === secondaryTab)?.label}
             </span>
             <button
@@ -285,7 +284,7 @@ export function CollaborationWorkspaceHeader({
           does not reset the user's place. */}
       {tab !== "overview" && isSecondaryActive && (
         <div className="eflow-collaboration-secondary-context mt-3 flex flex-wrap items-center gap-2 border-b border-neutral-100 pb-3">
-          <div className="flex items-center gap-1.5 text-xs text-secondary">
+          <div className="flex items-center gap-1.5 text-xs text-neutral-600">
             <LayoutDashboard size={13} className="text-neutral-400" />
             <span>{visibleSecondary.find((s) => s.id === secondaryTab)?.label}</span>
           </div>

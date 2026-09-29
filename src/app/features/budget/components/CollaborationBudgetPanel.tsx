@@ -30,6 +30,7 @@ export function CollaborationBudgetPanel({
 }) {
   const [tasks, setTasks] = useState(snapshot.tasks);
   const [openTaskKey, setOpenTaskKey] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState("");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => setTasks(snapshot.tasks), [snapshot]);
@@ -133,7 +134,8 @@ export function CollaborationBudgetPanel({
                         : "Task funding"}
                     </div>
                   </div>
-                  {editable && (
+                  {saveError && <p role="alert" className="text-xs text-red-700">{saveError}</p>}
+      {editable && (
                     <ChevronRight size={16} className="text-neutral-400" />
                   )}
                 </div>
@@ -145,11 +147,12 @@ export function CollaborationBudgetPanel({
 
       {/* Funding Notice */}
       <div className="rounded-lg border border-blue-200 bg-blue-50/70 p-4 text-xs leading-relaxed text-blue-950">
-        <span className="font-semibold">Owner-department funding gate:</span>{" "}
+        <span className="font-semibold">Lead department budget:</span>{" "}
         Publishing reserves {peso.format(budget.totalAmount)} exactly once from{" "}
         {fundingOwnerName ? `${fundingOwnerName}'s` : "the owner's"} locked annual budget and creates matching allocations for every funded task. No-cost tasks create no allocation.
       </div>
 
+      {saveError && <p role="alert" className="text-xs text-red-700">{saveError}</p>}
       {editable && (
         <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
           <div
@@ -166,17 +169,20 @@ export function CollaborationBudgetPanel({
             disabled={!dirty || saving}
             onClick={async () => {
               setSaving(true);
+              setSaveError("");
               try {
                 await onSave(
                   { ...snapshot, tasks, budget },
                   "Task funding schedule updated",
                 );
+              } catch (error) {
+                setSaveError(error instanceof Error ? error.message : "Budget changes could not be saved.");
               } finally {
                 setSaving(false);
               }
             }}
           >
-            {saving ? "Publishing…" : "Publish funding revision"}
+            {saving ? "Publishing…" : "Save budget changes"}
           </Button>
         </div>
       )}

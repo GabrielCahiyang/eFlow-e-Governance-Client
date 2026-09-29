@@ -1,0 +1,2 @@
+/* Processing stays inside the work plan dialog until completion or failure. */
+.eflow-modal-locked button[aria-label="Close dialog"] { display: none; }

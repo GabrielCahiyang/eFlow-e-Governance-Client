@@ -50,7 +50,7 @@ export function ProjectCompleteDialog({ projectId, projectTitle, onClose, onSucc
   }>
     <div className="space-y-4">
       <p className="text-sm text-neutral-700">Complete <strong>{projectTitle}</strong>? This changes only this project—not other projects in the work plan. Archiving is a separate step.</p>
-      {loading && <p role="status" className="flex items-center gap-2 text-sm"><Loader2 size={15} className="animate-spin" /> Checking work, cash settlement, and required sign-offs…</p>}
+      {loading && <p role="status" className="flex items-center gap-2 text-sm"><Loader2 size={15} className="animate-spin" /> Checking work, cash settlement, and required approvals…</p>}
       {error && <p role="alert" className="whitespace-pre-line rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">{error}</p>}
       {!loading && readiness && <>
         {readiness.canComplete ? <p role="status" className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800">All completion checks passed. This project is ready to complete.</p> :

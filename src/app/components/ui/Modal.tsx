@@ -9,6 +9,7 @@ import {
 
 interface ModalProps {
   isOpen: boolean;
+  preventClose?: boolean;
   onClose: () => void;
   /** Optional title. The child content may provide its own branded header. */
   title?: string;
@@ -35,6 +36,7 @@ function modalSizeForWidth(width: string): "small" | "medium" | "large" {
  */
 export function Modal({
   isOpen,
+  preventClose = false,
   onClose,
   title,
   ariaLabel,
@@ -53,10 +55,12 @@ export function Modal({
     <VibeModal
       closeButtonAriaLabel="Close dialog"
       id={modalId}
-      onClose={() => onClose()}
+      onClose={() => { if (!preventClose) onClose(); }}
       show={isOpen}
+      alertModal={preventClose}
+      allowFocusEscapeTo={preventClose ? [] : ["[data-slot='alert-dialog-content']"]}
       size={modalSizeForWidth(width)}
-      className={`eflow-responsive-modal ${overlayClassName}`}
+      className={`eflow-responsive-modal ${preventClose ? "eflow-modal-locked" : ""} ${overlayClassName}`}
       useFixedPosition
     >
       <ModalBasicLayout className={`eflow-vibe-modal-layout ${className}`}>

@@ -3,7 +3,7 @@
 // Single inbox for all review work across eFlow:
 // 1. Work Plan Reviews (incoming proposals & collaborative plans)
 // 2. Project Task Reviews (submitted tasks & completion evidence)
-// 3. Governance / Sign-off (formal approvals and governance commits)
+// 3. Governance / Approval (formal approvals and governance commits)
 // 4. Subtasks & Budget reviews
 
 import { useEffect, useMemo, useState } from "react";

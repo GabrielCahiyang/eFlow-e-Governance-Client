@@ -1,3 +1,4 @@
+import { calculateDeadlineWorkload, type DeadlineWorkload } from './deadlineWorkload';
 import type { Milestone, Project } from '../../../services/projectService';
 import type { Task } from '../../../services/taskService';
 import { isActive, isArchived, isCompleted, isForReview, isOverdue, parseDueDate } from './lifecycle';
@@ -31,12 +32,11 @@ export interface WorkloadRow {
   active: number;
   overdue: number;
   review: number;
+  workload?: DeadlineWorkload;
 }
 
 /**
- * Workload by employee — the count of that person's ACTIVE assigned tasks.
- * Used identically on Department Head and Admin screens so a person's number
- * never differs between views.
+ * Keep existing active-task counts and attach task-duration/deadline pressure.
  */
 export function workloadByEmployee(tasks: Task[], now: number = Date.now()): WorkloadRow[] {
   const map = new Map<string, WorkloadRow>();
@@ -50,7 +50,7 @@ export function workloadByEmployee(tasks: Task[], now: number = Date.now()): Wor
     if (isForReview(t)) row.review++;
     map.set(t.assigneeId, row);
   }
-  return Array.from(map.values()).sort((a, b) => b.active - a.active);
+  return Array.from(map.values()).map((row) => ({ ...row, workload: calculateDeadlineWorkload(tasks.filter((task) => task.assigneeId === row.id || task.teamMemberIds?.includes(row.id)), now, row.id) })).sort((a, b) => b.workload.pressurePercent - a.workload.pressurePercent);
 }
 
 /** Active tasks with a real due date at or before `now + days`, soonest first. */

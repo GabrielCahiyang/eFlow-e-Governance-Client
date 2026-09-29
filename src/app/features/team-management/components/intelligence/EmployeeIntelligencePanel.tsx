@@ -25,7 +25,7 @@ export function EmployeeIntelligencePanel({
   const taskIds = new Set(tasks.filter((task) => task.assigneeId === employee.id || task.teamMemberIds?.includes(employee.id)).map((task) => task.id));
   const activity = [
     ...facts.progress.filter((entry) => entry.authorId === employee.id).map((entry) => ({ id: entry.id, at: entry.createdAt, title: entry.kind === "subtask" ? "Subtask progress updated" : "Task progress updated", detail: `${entry.percentComplete ?? 0}%${entry.blocker ? ` · Blocker: ${entry.blocker}` : entry.note ? ` · ${entry.note}` : ""}` })),
-    ...facts.submissions.filter((entry) => entry.submitterId === employee.id).map((entry) => ({ id: entry.id, at: entry.decidedAt || entry.submittedAt, title: entry.status === "approved" ? "Work approved" : entry.status === "changes_requested" ? "Changes requested" : "Work submitted", detail: `${entry.kind === "subtask" ? "Subtask" : "Task"} attempt ${entry.version}${entry.feedback ? ` · ${entry.feedback}` : ""}` })),
+    ...facts.submissions.filter((entry) => entry.submitterId === employee.id).map((entry) => ({ id: entry.id, at: entry.decidedAt || entry.submittedAt, title: entry.status === "approved" ? "Work approved" : entry.status === "changes_requested" ? "Updates needed" : "Work submitted", detail: `${entry.kind === "subtask" ? "Subtask" : "Task"} attempt ${entry.version}${entry.feedback ? ` · ${entry.feedback}` : ""}` })),
   ].sort((first, second) => second.at - first.at).slice(0, 6);
 
   return (
@@ -33,7 +33,7 @@ export function EmployeeIntelligencePanel({
       <section className="rounded-xl border border-neutral-200 bg-white p-4">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex items-center gap-3"><div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-primary text-[13px] font-semibold text-primary-foreground">{employee.initials || "??"}</div><div><h2 className="text-[16px] font-semibold text-neutral-900">{employee.name}</h2><p className="mt-0.5 text-[12px] text-neutral-500">{employee.jobTitle} · {employee.email || employee.departmentName || "Department team"}</p></div></div>
-          <div className="text-left sm:text-right"><div className="text-[12px] uppercase tracking-wide text-neutral-500">Workload signal</div><div className={`mt-0.5 text-[20px] font-semibold ${metric.workloadSignal >= TEAM_WORKLOAD_HIGH_THRESHOLD ? "text-red-600" : metric.workloadSignal >= TEAM_WORKLOAD_ELEVATED_THRESHOLD ? "text-amber-600" : "text-emerald-600"}`}>{metric.workloadSignal}/100</div><div className="text-[12px] text-neutral-500">Derived from current work</div></div>
+          <div className="text-left sm:text-right"><div className="text-[12px] uppercase tracking-wide text-neutral-500">Workload signal</div><div className={`mt-0.5 text-[20px] font-semibold ${metric.workloadSignal >= TEAM_WORKLOAD_HIGH_THRESHOLD ? "text-red-600" : metric.workloadSignal >= TEAM_WORKLOAD_ELEVATED_THRESHOLD ? "text-amber-600" : "text-emerald-600"}`}>{metric.workload?.label || String(metric.workloadSignal)}</div><div className="text-[12px] text-neutral-500">{metric.workload?.explanation || "Based on estimated duration and deadlines"}</div></div>
         </div>
         <div className="mt-5 grid grid-cols-2 gap-2 lg:grid-cols-6">
           <Metric icon={<Activity size={13} />} label="Active tasks" value={metric.activeTasks} />

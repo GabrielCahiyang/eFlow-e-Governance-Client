@@ -69,7 +69,7 @@ export function TeamSupervisionWorkspace() {
             {canManageIdentity ? <Tab active={view === "identity"} id="identity" onClick={() => setView("identity")}>Identity &amp; Access</Tab> : <></>}
           </TabList>
         </TabsContext></div>
-        {view === "attention" && <WSelect ariaLabel="Filter attention queue" value={attentionFilter} onChange={(value) => setAttentionFilter(value as TeamAttentionKind | "all")} options={[ { value: "all", label: "All attention items" }, { value: "overdue", label: "Overdue" }, { value: "due_soon", label: "Due soon" }, { value: "blocked", label: "Blocked" }, { value: "stalled", label: "Stalled" }, { value: "awaiting_review", label: "Review waiting" }, { value: "changes_requested", label: "Changes requested" }, { value: "unassigned", label: "Unassigned" }, { value: "vague_schedule", label: "Vague schedules" } ]} />}
+        {view === "attention" && <WSelect ariaLabel="Filter attention queue" value={attentionFilter} onChange={(value) => setAttentionFilter(value as TeamAttentionKind | "all")} options={[ { value: "all", label: "All attention items" }, { value: "overdue", label: "Overdue" }, { value: "due_soon", label: "Due soon" }, { value: "blocked", label: "Blocked" }, { value: "stalled", label: "Stalled" }, { value: "awaiting_review", label: "Review waiting" }, { value: "changes_requested", label: "Updates needed" }, { value: "unassigned", label: "Unassigned" }, { value: "vague_schedule", label: "Vague schedules" } ]} />}
       </div>
 
       <div className={`grid grid-cols-1 items-start gap-5 ${view === "people" ? "xl:grid-cols-[250px_minmax(0,1fr)_390px]" : view === "identity" ? "" : "xl:grid-cols-[minmax(0,1fr)_390px]"}`}>

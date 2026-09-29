@@ -6,6 +6,7 @@ import type {
   CollaborationSnapshotTask,
 } from "../types";
 import { ResponsibilityEditor } from "./ResponsibilityEditor";
+import { TaskDepartmentLabel, TaskDepartmentProvider } from "../../tasks";
 
 export function CollaborationActivitySection({
   tasks,
@@ -73,6 +74,10 @@ export function CollaborationActivitySection({
                     {task.title}
                   </div>
                 )}
+                <TaskDepartmentProvider organizations={organizations}>
+                  <TaskDepartmentLabel task={task} />
+                </TaskDepartmentProvider>
+                <p className="mt-1 text-xs text-neutral-500">Estimated task days: {task.estimatedHours ? task.estimatedHours / 8 : "Not set"} (8 hours/day)</p>
                 {editable ? (
                   <textarea
                     value={task.description}
@@ -84,14 +89,14 @@ export function CollaborationActivitySection({
                     className="eflow-control mt-2 w-full h-auto py-2 leading-relaxed"
                   />
                 ) : (
-                  <div className="mt-1 text-xs leading-relaxed text-secondary">
+                  <div className="mt-1 text-xs leading-relaxed text-neutral-600">
                     {task.description || "No task description recorded."}
                   </div>
                 )}
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1.5 text-xs text-secondary">
+                <div className="flex items-center gap-1.5 text-xs text-neutral-600">
                   <CalendarDays size={14} className="text-neutral-400" />
                   <span>Target:</span>
                   {editable ? (

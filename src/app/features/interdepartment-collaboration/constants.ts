@@ -3,9 +3,9 @@ import type { CollaborationDraftStatus, CollaborationParticipationRole } from ".
 export const COLLABORATION_STATUS_LABELS: Record<CollaborationDraftStatus, string> = {
   draft: "Draft",
   in_review: "In review",
-  changes_requested: "Changes requested",
+  changes_requested: "Updates needed",
   ready_to_commit: "Ready to publish",
-  committed: "Committed",
+  committed: "Published",
   archived: "Archived",
   deleted: "Deleted",
 };

@@ -1,38 +1,44 @@
-import * as React from "react";
-import { AlertTriangle, CheckCircle2, Send, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { CheckCircle2, Send, Trash2 } from "lucide-react";
+import { useConfirmation } from "../../../components/ui/useConfirmation";
+import { canRequestCollaborationApproval } from "../selectors/reviewActions";
 import type { CollaborationDraftStatus, CollaborationReadiness as Readiness } from "../types";
 
-export function CollaborationActionRail({
-  isOwner,
-  status,
-  readiness,
-  busy,
-  hasRevision,
-  onRequestReview,
-  onCommit,
-  onDelete,
-  ownerName,
-  departmentOnly,
-}: {
-  isOwner: boolean;
-  status: CollaborationDraftStatus;
-  readiness: Readiness | null;
-  busy: boolean;
-  hasRevision: boolean;
-  onRequestReview: () => Promise<void>;
-  onCommit: () => Promise<void>;
-  onDelete: (reason: string) => Promise<void>;
-  ownerName?: string;
-  departmentOnly: boolean;
+export function CollaborationActionRail({ isOwner, status, readiness, busy, hasRevision, onRequestReview, onCommit, onDelete, ownerName, departmentOnly }: {
+  isOwner: boolean; status: CollaborationDraftStatus; readiness: Readiness | null; busy: boolean; hasRevision: boolean;
+  onRequestReview: () => Promise<void>; onCommit: () => Promise<void>; onDelete: (reason: string) => Promise<void>;
+  ownerName?: string; departmentOnly: boolean;
 }) {
-  const [deleting, setDeleting] = React.useState(false);
-  const [confirmingReview, setConfirmingReview] = React.useState(false);
-  const [reason, setReason] = React.useState("");
+  const [deleting, setDeleting] = useState(false);
+  const [confirmingReview, setConfirmingReview] = useState(false);
+  const [reason, setReason] = useState("");
+  const [error, setError] = useState("");
+  const [pending, setPending] = useState(false);
+  const { confirm, dialog } = useConfirmation();
+  const locked = busy || pending;
+  const unpublished = !["committed", "archived", "deleted"].includes(status);
+  const run = async (operation: () => Promise<void>, onSuccess?: () => void) => {
+    if (locked) return;
+    setPending(true); setError("");
+    try { await operation(); onSuccess?.(); }
+    catch (failure) { setError(failure instanceof Error ? failure.message : "The action failed. Please retry."); }
+    finally { setPending(false); }
+  };
   return <div className="space-y-3">
-    {isOwner && !departmentOnly && status === "draft" && (!confirmingReview ? <button type="button" data-testid="request-collaboration-review" disabled={busy} onClick={() => setConfirmingReview(true)} className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-[12px] font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:opacity-50"><Send size={14} /> Request collaboration review</button> : <div className="rounded-xl border border-amber-200 bg-amber-50 p-3" role="alert"><div className="flex items-start gap-2"><AlertTriangle size={15} className="mt-0.5 shrink-0 text-amber-700" /><div><div className="text-[12px] font-semibold text-amber-900">Send this plan for review?</div><p className="mt-1 text-[11px] leading-relaxed text-amber-800">Participating offices will be notified and the draft will move into the review workflow.</p></div></div><div className="mt-3 flex justify-end gap-2"><button type="button" onClick={() => setConfirmingReview(false)} className="rounded-lg px-3 py-2 text-[11px] font-medium text-neutral-600 hover:bg-white">Cancel</button><button type="button" data-testid="confirm-request-collaboration-review" disabled={busy} onClick={async () => { await onRequestReview(); setConfirmingReview(false); }} className="rounded-lg bg-amber-700 px-3 py-2 text-[11px] font-semibold text-white disabled:opacity-50">Send for review</button></div></div>)}
-    {isOwner && (departmentOnly || readiness?.ready) && status !== "committed" && status !== "archived" && <button type="button" data-testid="publish-proposal" disabled={busy || !hasRevision || !readiness?.ready} onClick={onCommit} className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-[11px] font-medium text-white shadow-sm transition hover:bg-emerald-700 disabled:opacity-50"><CheckCircle2 size={13} /> {departmentOnly ? "Publish department proposal" : "Publish proposal"}</button>}
-    {!departmentOnly && !isOwner && readiness?.ready && status !== "committed" && <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-3 text-[10px] leading-relaxed text-emerald-800"><strong>Approved and ready to publish.</strong><br />Waiting for {ownerName || "the owning office"} Head or Assistant Head to publish the operational work.</div>}
-    {status !== "committed" && <div className="rounded-xl border border-blue-100 bg-blue-50 px-3 py-3 text-[10px] leading-relaxed text-blue-800"><strong>Proposed work is not assigned.</strong><br />{departmentOnly ? "Publishing creates the operational projects, tasks, and employee assignments for your department." : "No project, task, or employee assignment becomes operational until the collaboration approval gate succeeds."}</div>}
-    {isOwner && status !== "committed" && (!deleting ? <button type="button" onClick={() => setDeleting(true)} className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-white px-4 py-2.5 text-[12px] font-semibold text-red-700 hover:bg-red-50"><Trash2 size={14} /> Delete draft</button> : <div className="rounded-xl border border-red-200 bg-red-50 p-3" role="alert"><div className="flex items-center gap-2 text-[12px] font-semibold text-red-900"><Trash2 size={14} /> Soft-delete this draft</div><div className="mt-1 text-[12px] leading-relaxed text-red-700">The draft is removed from active workspaces and its governance history is retained. Restoration availability follows the configured retention policy; a reason is required for the governance audit.</div><textarea value={reason} onChange={(event) => setReason(event.target.value)} rows={2} placeholder="Reason for deletion" className="mt-2 w-full resize-none rounded-lg border border-red-200 bg-white px-3 py-2 text-[12px] outline-none" /><div className="mt-2 flex justify-end gap-2"><button type="button" onClick={() => { setDeleting(false); setReason(""); }} className="rounded-lg px-3 py-2 text-[12px] font-medium text-neutral-600 hover:bg-white">Cancel</button><button type="button" disabled={busy || !reason.trim()} onClick={() => onDelete(reason)} className="rounded-lg bg-red-600 px-3 py-2 text-[12px] font-semibold text-white disabled:opacity-40">Delete draft</button></div></div>)}
+    {dialog}
+    {error && <p role="alert" className="rounded-xl bg-red-50 p-3 text-xs text-red-700">{error}</p>}
+    {canRequestCollaborationApproval(status, isOwner, departmentOnly) && (!confirmingReview ?
+      <button type="button" data-testid="request-collaboration-review" disabled={locked || !hasRevision} onClick={() => setConfirmingReview(true)} className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-xs font-semibold text-primary-foreground disabled:opacity-50"><Send size={14} />{status === "draft" ? "Send approval requests" : "Resend approval requests"}</button> :
+      <div className="rounded-xl border border-amber-200 bg-amber-50 p-3" role="alert">
+        <strong className="text-xs">Send this plan for review?</strong><p className="mt-1 text-xs">Participating departments will be notified to review the latest saved plan and confirm their participation.</p>
+        <div className="mt-3 flex justify-end gap-2"><button type="button" disabled={locked} onClick={() => setConfirmingReview(false)}>Cancel</button><button type="button" data-testid="confirm-request-collaboration-review" disabled={locked} onClick={() => void run(onRequestReview, () => setConfirmingReview(false))} className="rounded-lg bg-amber-700 px-3 py-2 text-xs text-white">Send for review</button></div>
+      </div>)}
+    {isOwner && unpublished && (departmentOnly || readiness?.ready) && <button type="button" data-testid="publish-proposal" disabled={locked || !hasRevision || !readiness?.ready} onClick={async () => {
+      if (await confirm({ title: "Publish this work plan?", description: "This creates active projects, tasks, and employee assignments from the approved plan.", actionLabel: "Publish work plan" })) await run(onCommit);
+    }} className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-xs font-semibold text-white disabled:opacity-50"><CheckCircle2 size={13} />{departmentOnly ? "Publish department proposal" : "Publish proposal"}</button>}
+    {!departmentOnly && !isOwner && readiness?.ready && unpublished && <p className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs">Approved and ready to publish. Waiting for {ownerName || "the lead department"} to publish the work plan.</p>}
+    {unpublished && <p className="rounded-xl border border-blue-100 bg-blue-50 p-3 text-xs text-blue-800"><strong>Draft assignments are proposed.</strong><br />Projects and tasks become active when the lead department publishes the approved plan.</p>}
+    {isOwner && unpublished && (!deleting ? <button type="button" disabled={locked} onClick={() => setDeleting(true)} className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 p-3 text-xs font-semibold text-red-700"><Trash2 size={14} />Delete draft</button> :
+      <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3"><strong className="text-xs">Delete this draft?</strong><p className="mt-1 text-xs">The draft will be removed from active workspaces. Its approval history will be retained. Enter a reason.</p><textarea aria-label="Reason for deletion" value={reason} onChange={(event) => setReason(event.target.value)} rows={2} className="mt-2 w-full rounded-lg border p-2 text-xs" /><div className="mt-2 flex justify-end gap-2"><button type="button" disabled={locked} onClick={() => { setDeleting(false); setReason(""); }}>Cancel</button><button type="button" disabled={locked || !reason.trim()} onClick={() => void run(() => onDelete(reason))} className="rounded-lg bg-red-600 px-3 py-2 text-xs text-white disabled:opacity-50">Delete draft</button></div></div>)}
   </div>;
 }

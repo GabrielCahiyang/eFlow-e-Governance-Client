@@ -47,7 +47,7 @@ export function ProjectReviewsTab({
           </div>
         </div>
         <div className="eflow-health-item">
-          <span className="eflow-health-item-label">Changes requested</span>
+          <span className="eflow-health-item-label">Updates needed</span>
           <div className="flex items-center gap-1.5">
             <span className="eflow-health-item-value text-red-600">
               {changes}
@@ -96,7 +96,7 @@ export function ProjectReviewsTab({
                       <Label
                         text={
                           submission.status === "changes_requested"
-                            ? "Changes requested"
+                            ? "Updates needed"
                             : "Waiting for review"
                         }
                         color={

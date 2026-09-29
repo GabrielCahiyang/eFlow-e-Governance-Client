@@ -1,3 +1,4 @@
+import { TaskDepartmentLabel } from "../TaskDepartmentLabel";
 import { Avatar } from '@vibe/core';
 import { Clock, Crown } from 'lucide-react';
 import type { Employee } from '../../../../services/employeeService';
@@ -83,6 +84,7 @@ export function ListTaskRow({ task, role, employeeById, currentUserId, onEditTea
                             {task.title}
                           </div>
                         )}
+                        <TaskDepartmentLabel task={task} />
                         {task.description && (
                           <div className="text-[11px] text-neutral-400 mt-0.5 line-clamp-1">
                             {task.description}

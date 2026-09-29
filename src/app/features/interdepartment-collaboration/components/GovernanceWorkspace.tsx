@@ -45,7 +45,7 @@ export function GovernanceWorkspace({
   isOwner,
   actingOrgId,
   busy,
-  onAct,
+  onAct: performAction,
   onRefresh,
   onSaveRevision,
 }: {
@@ -70,6 +70,10 @@ export function GovernanceWorkspace({
     summary: string,
   ) => Promise<void>;
 }) {
+  const onAct = async (operation: () => Promise<void>, success: string) => {
+    if (!window.confirm("Confirm this approval or project change? It updates the official review rules, responsibility, or project record.")) return;
+    await performAction(operation, success);
+  };
   const published = draft.status === "committed" || draft.status === "archived";
   const allTasksApproved =
     operationalTasks.length > 0 &&
@@ -118,7 +122,7 @@ export function GovernanceWorkspace({
         </div>
 
         <div className="eflow-health-item">
-          <span className="eflow-health-item-label">Active sign-offs</span>
+          <span className="eflow-health-item-label">Active approvals</span>
           <span className="eflow-health-item-value text-emerald-600">
             {signoffsCount}
           </span>

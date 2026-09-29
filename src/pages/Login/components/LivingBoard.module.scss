@@ -14,9 +14,9 @@
   gap: 18px;
   width: 100%;
   max-width: 960px;
-  height: 490px;
-  min-height: 490px;
-  max-height: 490px;
+  height: var(--login-preview-board-height, 490px);
+  min-height: var(--login-preview-board-height, 490px);
+  max-height: var(--login-preview-board-height, 490px);
   box-sizing: border-box;
   overflow: hidden;
   background: rgba(255, 255, 255, 0.18);
@@ -45,9 +45,9 @@
   padding: 14px 14px 12px 14px;
   box-sizing: border-box;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
-  height: 452px;
-  min-height: 452px;
-  max-height: 452px;
+  height: calc(var(--login-preview-board-height, 490px) - 38px);
+  min-height: calc(var(--login-preview-board-height, 490px) - 38px);
+  max-height: calc(var(--login-preview-board-height, 490px) - 38px);
   overflow: visible;
   position: relative;
   z-index: 1;
@@ -102,9 +102,9 @@
   flex-direction: column;
   gap: 10px;
   flex: 1;
-  height: 380px;
-  min-height: 380px;
-  max-height: 380px;
+  height: calc(var(--login-preview-board-height, 490px) - 110px);
+  min-height: calc(var(--login-preview-board-height, 490px) - 110px);
+  max-height: calc(var(--login-preview-board-height, 490px) - 110px);
   min-width: 0;
   overflow-x: hidden;
   overflow-y: auto;

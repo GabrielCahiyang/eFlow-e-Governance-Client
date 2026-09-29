@@ -7,6 +7,7 @@ export {
   type AiChatResponse,
   type AiJobStatus,
   type AiQueueUpdate,
+  type AiProcessingProgress,
 } from "./services/aiGatewayService";
 export { AiRuntimeNotifier } from "./components/AiRuntimeNotifier";
 export { useAiRuntimeStatus } from "./hooks/useAiRuntimeStatus";

@@ -28,12 +28,18 @@ export type AiChatResponse = {
 
 export type AiJobStatus = "queued" | "processing" | "completed" | "failed";
 
+export interface AiProcessingProgress {
+  stage: string; message: string; current?: number | null; total?: number | null; updated_at?: number;
+  history?: Array<{ stage: string; message: string }>;
+}
+
 export type AiQueueUpdate = {
   jobId: string;
   status: AiJobStatus;
   position: number | null;
   jobsAhead: number;
   queueDepth: number;
+  progress?: AiProcessingProgress | null;
 };
 
 export type AiChatRequestOptions = {
@@ -49,6 +55,7 @@ type AiJobResponse = {
   position: number | null;
   jobs_ahead: number;
   queue_depth: number;
+  progress?: AiProcessingProgress | null;
   result: AiChatResponse | null;
   error: string | null;
   detail?: string;
@@ -82,6 +89,7 @@ function queueUpdate(job: AiJobResponse): AiQueueUpdate {
     position: job.position,
     jobsAhead: job.jobs_ahead,
     queueDepth: job.queue_depth,
+    progress: job.progress,
   };
 }
 

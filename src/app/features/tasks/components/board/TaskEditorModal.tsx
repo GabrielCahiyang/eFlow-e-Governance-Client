@@ -1,3 +1,4 @@
+import { TaskDepartmentLabel } from "../TaskDepartmentLabel";
 import { Trash2, Users, X } from "lucide-react";
 import { Button } from "../../../../components/ui/button";
 import type { Employee } from "../../../../services/employeeService";
@@ -135,6 +136,13 @@ export function TaskEditorModal({
               />
             </div>
             <div>
+              <TaskDepartmentLabel task={task} />
+              <label className="block text-xs text-neutral-600">Estimated task days
+                <input aria-label="Estimated task days" type="number" min="0.125" step="0.125" value={draft.estimatedHours !== undefined ? draft.estimatedHours / 8 : ""} onChange={(event) => onChange({ estimatedHours: event.target.value === "" ? undefined : Number(event.target.value) * 8 })} className="mt-1 w-full rounded-lg border px-3 py-2" />
+              </label>
+              <p className="mt-1 text-xs text-neutral-500">One working day is eight hours. This estimate and the deadline determine workload.</p>
+            </div>
+            <div>
               <label className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">
                 Priority
               </label>
@@ -183,7 +191,7 @@ export function TaskEditorModal({
                 rows={2}
                 value={draft.definitionOfDone}
                 onChange={(event) => onChange({ definitionOfDone: event.target.value })}
-                placeholder="Evidence, sign-off, or quality standard required for completion"
+                placeholder="Evidence, approval, or quality standard required for completion"
                 className="mt-1 w-full resize-none rounded-xl border border-neutral-200 bg-white px-3 py-2.5 text-[12px] text-neutral-900 outline-none focus:border-neutral-400"
               />
             </div>

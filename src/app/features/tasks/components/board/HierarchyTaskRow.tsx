@@ -1,3 +1,4 @@
+import { TaskDepartmentLabel } from "../TaskDepartmentLabel";
 import type { Employee } from '../../../../services/employeeService';
 import type { Task } from '../../../../services/taskService';
 import { RejectionNotice, ReopenNotice, SubmissionDetails } from './TaskFeedback';
@@ -57,7 +58,8 @@ export function HierarchyTaskRow({ task, employeeById, role, currentUserId, onVe
                                               {task.title}
                                             </div>
                                           )}
-                                          {task.description && (
+                                          <TaskDepartmentLabel task={task} />
+                        {task.description && (
                                             <div className="text-[10px] text-neutral-500 mt-0.5 line-clamp-2">
                                               {task.description}
                                             </div>

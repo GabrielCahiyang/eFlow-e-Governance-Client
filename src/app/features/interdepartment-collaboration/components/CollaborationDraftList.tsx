@@ -58,7 +58,7 @@ export function CollaborationDraftList({
           mode === "owned"
             ? "No work plans in preparation"
             : mode === "waiting"
-              ? "No work plans waiting for sign-off"
+              ? "No work plans waiting for approval"
               : "No incoming reviews"
         }
         description={
@@ -88,7 +88,7 @@ export function CollaborationDraftList({
           <div>
             <div className="flex items-center gap-2">
               <h2 className="m-0 text-base font-bold text-neutral-900">
-                {mode === "waiting" ? "Waiting for sign-off" : "Incoming reviews"}
+                {mode === "waiting" ? "Waiting for approval" : "Incoming reviews"}
               </h2>
               <Label
                 text={`${rows.length} waiting`}
@@ -96,7 +96,7 @@ export function CollaborationDraftList({
               />
             </div>
             <p className="m-0 mt-1 text-xs text-secondary">
-              {mode === "waiting" ? "Work plans currently awaiting partner sign-off." : "Proposals and work plans from partner departments waiting for your review."}
+              {mode === "waiting" ? "Work plans currently awaiting partner approval." : "Proposals and work plans from partner departments waiting for your review."}
             </p>
           </div>
         </header>

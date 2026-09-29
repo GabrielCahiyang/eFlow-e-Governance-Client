@@ -6,6 +6,7 @@ import type { Employee } from "../../../../services/employeeService";
 import type { EmployeeNotesMap } from "../../../../services/employeeNotesService";
 import { getInitials } from "./model";
 import { TaskBoardDialog } from "./TaskBoardDialog";
+import type { DeadlineWorkload } from "../../selectors/deadlineWorkload";
 
 export function AssignmentModal({
   open,
@@ -18,7 +19,7 @@ export function AssignmentModal({
 }: {
   open: boolean;
   onClose: () => void;
-  employees: Employee[];
+  employees: Array<Employee & { deadlineWorkload?: DeadlineWorkload }>;
   employeeNotes?: EmployeeNotesMap;
   selectedIds: string[];
   leadId: string | null;
@@ -210,10 +211,10 @@ export function AssignmentModal({
                       <div
                         className={`text-[11px] font-semibold ${load >= 80 ? "text-red-600" : load >= 60 ? "text-amber-600" : "text-emerald-600"}`}
                       >
-                        {load}%
+                        {emp.deadlineWorkload?.label || `${load}/100 workload score`}
                       </div>
                       <div className="text-[9px] text-muted-foreground">
-                        workload
+                        Task days + deadlines
                       </div>
                     </div>
 

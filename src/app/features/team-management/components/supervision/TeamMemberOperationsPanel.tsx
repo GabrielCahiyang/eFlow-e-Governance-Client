@@ -63,7 +63,7 @@ export function TeamMemberOperationsPanel({
         <div className="flex items-start gap-3">
           <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary text-[12px] font-semibold text-primary-foreground">{employee.initials || "??"}</div>
           <div className="min-w-0 flex-1"><h2 className="truncate text-[14px] font-semibold text-neutral-900">{employee.name}</h2><p className="truncate text-[12px] text-neutral-500">{employee.jobTitle} · {employee.departmentName || "Department team"}</p></div>
-          <span className={`rounded-full px-2 py-1 text-[12px] font-medium ${metric.workloadSignal >= TEAM_WORKLOAD_HIGH_THRESHOLD ? "bg-red-50 text-red-700" : metric.workloadSignal >= TEAM_WORKLOAD_ELEVATED_THRESHOLD ? "bg-amber-50 text-amber-700" : "bg-emerald-50 text-emerald-700"}`}>{metric.workloadSignal}/100 signal</span>
+          <span className={`rounded-full px-2 py-1 text-[12px] font-medium ${metric.workloadSignal >= TEAM_WORKLOAD_HIGH_THRESHOLD ? "bg-red-50 text-red-700" : metric.workloadSignal >= TEAM_WORKLOAD_ELEVATED_THRESHOLD ? "bg-amber-50 text-amber-700" : "bg-emerald-50 text-emerald-700"}`}>{metric.workload?.label || String(metric.workloadSignal)} workload</span>
         </div>
         <div className="mt-4 grid grid-cols-3 gap-2">
           {[ ["Leading", metric.leadingTasks], ["Subtasks", metric.activeSubtasks], ["Reviews", metric.awaitingReview] ].map(([label, value]) => <div key={label as string} className="rounded-lg bg-neutral-50 p-2 text-center"><div className="text-[15px] font-semibold text-neutral-900">{value as number}</div><div className="text-[12px] uppercase tracking-wide text-neutral-500">{label as string}</div></div>)}

@@ -4,7 +4,7 @@ import type { ReviewSubmission } from "../types";
 const statusLabel: Record<ReviewSubmission["status"], string> = {
   pending: "Pending review",
   approved: "Approved",
-  changes_requested: "Changes requested",
+  changes_requested: "Updates needed",
 };
 
 export function SubmissionHistory({

@@ -92,6 +92,7 @@ export interface MondayBoardProps {
 }
 
 export interface TaskEditorDraft {
+  estimatedHours?: number;
   title: string;
   description: string;
   deadline: string;
@@ -331,6 +332,7 @@ export const getTaskMemberNames = (
   ]);
 
 export const buildTaskEditorDraft = (task: Task): TaskEditorDraft => ({
+  estimatedHours: task.estimatedHours,
   title: task.title || "",
   description: task.description || "",
   deadline: task.deadline || task.dueDate || "",

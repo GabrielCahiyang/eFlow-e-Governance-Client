@@ -21,6 +21,7 @@ export function CollaborationPlanPanel({
 }) {
   const [working, setWorking] = React.useState(snapshot);
   const [saving, setSaving] = React.useState(false);
+  const [saveError, setSaveError] = React.useState("");
   const [expanded, setExpanded] = React.useState<Set<string>>(
     () => new Set(snapshot.tasks.map((task) => task.projectId)),
   );
@@ -77,15 +78,18 @@ export function CollaborationPlanPanel({
   const dirty = JSON.stringify(working) !== JSON.stringify(snapshot);
   const save = async () => {
     setSaving(true);
+    setSaveError("");
     try {
       await onSave(working, "Proposal plan and responsibilities updated");
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : "Changes could not be saved.");
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4">{saveError && <p role="alert" className="text-xs text-red-700">{saveError}</p>}
       {editable && (
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-blue-200 bg-blue-50/70 p-4">
           <div>
@@ -93,7 +97,7 @@ export function CollaborationPlanPanel({
               Owner editing mode
             </div>
             <div className="mt-0.5 text-xs text-blue-700">
-              Substantive plan updates will publish a new revision and require participating department approvals to be renewed.
+              Changes to responsibilities, team, schedule, or budget require participating departments to approve the updated plan.
             </div>
           </div>
           <Button
@@ -101,7 +105,7 @@ export function CollaborationPlanPanel({
             disabled={!dirty || saving}
             onClick={() => void save()}
           >
-            {saving ? "Publishing…" : "Publish revision"}
+            {saving ? "Saving…" : "Save plan changes"}
           </Button>
         </div>
       )}
@@ -130,7 +134,7 @@ export function CollaborationPlanPanel({
                   <h3 className="text-sm font-bold text-neutral-900">
                     {project.title}
                   </h3>
-                  <div className="mt-0.5 text-xs text-secondary">
+                  <div className="mt-0.5 text-xs text-neutral-600">
                     {project.tasks.length} proposed task
                     {project.tasks.length === 1 ? "" : "s"}
                   </div>

@@ -1,4 +1,5 @@
 import * as React from "react";
+import { CitywidePlansOverview } from "./CitywidePlansOverview";
 import * as Icons from "lucide-react";
 import { Button, Skeleton } from "@vibe/core";
 import { Add } from "@vibe/icons";
@@ -171,6 +172,7 @@ export function ProjectsWorkspace({
     [activeCollaborationDrafts, departmentFilter, scope.isSuperAdmin],
   );
 
+  const approvalPortfolioDrafts = React.useMemo(() => collaboration.drafts.filter((draft) => matchesProjectDepartment(draft.ownerOrgId, departmentFilter)), [collaboration.drafts, departmentFilter]);
   const active = React.useMemo(
     () => inScope.filter((p) => p.status !== "archived"),
     [inScope],
@@ -297,11 +299,11 @@ export function ProjectsWorkspace({
   // Reactively open the first project on initial mount if workspace starts at default portfolio
   const hasAutoOpenedRef = React.useRef(false);
   React.useEffect(() => {
-    if (!hasAutoOpenedRef.current && active.length > 0 && activeTabId === "portfolio" && workspaceView === "portfolio") {
+    if (!scope.isSuperAdmin && !hasAutoOpenedRef.current && active.length > 0 && activeTabId === "portfolio" && workspaceView === "portfolio") {
       hasAutoOpenedRef.current = true;
       openProject(active[0].id);
     }
-  }, [active, activeTabId, openProject, workspaceView]);
+  }, [active, activeTabId, openProject, workspaceView, scope.isSuperAdmin]);
 
   React.useEffect(() => {
     if (activeTab.type === "project" && activeProject) {
@@ -319,7 +321,7 @@ export function ProjectsWorkspace({
     const planningTitle = workspaceView === "drafts"
       ? "Drafts"
       : workspaceView === "signoff"
-        ? "Waiting for sign-off"
+        ? "Waiting for approval"
         : "Plans & Projects";
     document.title = planningTitle;
   }, [activeProject, activeTab, projectWorkspaceTab, workspaceView]);
@@ -385,7 +387,7 @@ export function ProjectsWorkspace({
         canDelete={access.canDelete}
         onCreateWorkPlan={() => setCreationMode("manual")}
         onOpenPortfolio={() => {
-          if (active[0]) {
+          if (!scope.isSuperAdmin && active[0]) {
             openProject(active[0].id);
           } else {
             setActiveTabId("portfolio");
@@ -471,7 +473,7 @@ export function ProjectsWorkspace({
             {workspaceView !== "portfolio" && (
               <div className="eflow-project-planning-heading">
                 <span className="eflow-project-view-heading__eyebrow"><Icons.FileClock size={14} /> Planning workspace</span>
-                <h2>{workspaceView === "drafts" ? "Drafts" : "Waiting for sign-off"}</h2>
+                <h2>{workspaceView === "drafts" ? "Drafts" : "Waiting for approval"}</h2>
                 <p>{workspaceView === "drafts" ? "Draft plans in preparation and collaboration workspaces you own." : "Owned work plans currently waiting on partner decisions."}</p>
               </div>
             )}
@@ -502,14 +504,16 @@ export function ProjectsWorkspace({
                   onOpen={(draftId) => openProposal(draftId, workspaceView === "drafts" ? "overview" : "approvals")}
                 />
               )
+            ) : scope.isSuperAdmin ? (
+              <CitywidePlansOverview projects={inScope} drafts={approvalPortfolioDrafts} organizations={orgs} profiles={profiles} onOpenProject={openProject} onOpenPlan={(id) => openProposal(id, "approvals")} />
             ) : (
               <div className="flex flex-col items-center justify-center py-20 text-center">
                 <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-teal-50 text-teal-700 mb-4 shadow-sm">
                   <Icons.Boxes size={32} />
                 </div>
-                <h3 className="text-lg font-semibold text-neutral-900 mb-1">Select or create a work plan</h3>
+                <h3 className="text-lg font-semibold text-neutral-900 mb-1">{readOnly ? "Select a work plan" : "Select or create a work plan"}</h3>
                 <p className="text-sm text-neutral-500 max-w-sm mb-6">
-                  Select a project from the left sidebar to open its workspace, or create a new plan to get started.
+                  {readOnly ? "Select a project from the left sidebar to view its tasks and approval history." : "Select a project from the left sidebar to open its workspace, or create a new plan to get started."}
                 </p>
                 {!readOnly && (
                   <Button

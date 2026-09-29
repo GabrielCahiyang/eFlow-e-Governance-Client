@@ -15,6 +15,7 @@ import httpx
 
 from gateway_config import settings
 from gateway_dependencies import AuthenticatedUser, internal_ai_key, supabase_admin
+from services.deadline_workload import deadline_workload_signal
 
 
 def _rows(table: str, fields: str = "*") -> Any:
@@ -56,18 +57,10 @@ def _candidate_context(participants: list[dict[str, Any]]) -> list[dict[str, Any
     notes = _rows("employee_notes", "profile_id,strengths,weaknesses,notes,tags").in_("profile_id", ids).execute().data or [] if ids else []
     note_by_id = {str(note["profile_id"]): note for note in notes}
     active_tasks = (
-        _rows("tasks", "assigned_to,team_member_ids,status")
+        _rows("tasks", "assigned_to,team_member_ids,status,deadline,due_date,estimated_hours,percent_complete,archived_at,deleted_at")
         .in_("status", ["pending_assignment", "todo", "in_progress", "for_review", "changes_requested"])
         .execute().data or []
     )
-    active_count = {candidate_id: 0 for candidate_id in ids}
-    for task in active_tasks:
-        involved = {str(item) for item in (task.get("team_member_ids") or [])}
-        if task.get("assigned_to"):
-            involved.add(str(task["assigned_to"]))
-        for candidate_id in involved:
-            if candidate_id in active_count:
-                active_count[candidate_id] += 1
     result: list[dict[str, Any]] = []
     for profile in profiles:
         candidate_id = str(profile["id"])
@@ -78,7 +71,7 @@ def _candidate_context(participants: list[dict[str, Any]]) -> list[dict[str, Any
             "organization_id": str(profile.get("org_id")),
             "role": profile.get("role"),
             "skills": [key for key, enabled in (profile.get("skills") or {}).items() if enabled],
-            "workload": max(int(profile.get("workload") or 0), min(100, active_count[candidate_id] * 20)),
+            "workload": deadline_workload_signal(active_tasks, candidate_id),
             "burnout": profile.get("burnout_level") or "low",
             "strengths": intelligence.get("strengths") or "",
             "weaknesses": intelligence.get("weaknesses") or "",

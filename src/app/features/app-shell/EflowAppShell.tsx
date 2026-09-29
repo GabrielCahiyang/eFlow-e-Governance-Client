@@ -1,3 +1,4 @@
+import { TaskDepartmentProvider } from "../tasks";
 import { Modal } from "@vibe/core";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
@@ -135,6 +136,7 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
   }));
 
   return (
+    <TaskDepartmentProvider organizations={orgs} defaultDepartmentId={userProfile?.org_id || userProfile?.departmentId}>
     <GuidedTourProvider
       activePage={activePage}
       activeSection={activeSection}
@@ -200,5 +202,6 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
         </div>
       </Modal>
     </GuidedTourProvider>
+    </TaskDepartmentProvider>
   );
 }

@@ -1,3 +1,4 @@
+import { TaskDepartmentLabel } from "../../features/tasks";
 // ─── TaskDetailDrawer ────────────────────────────────────────────
 // Right slide-out task detail reused across Dept Head, Admin, and Employee
 // surfaces. Tabs: Overview · Activity (immutable timeline) · Discussion ·
@@ -154,6 +155,7 @@ export function TaskDetailDrawer({
                 <TaskStatusBadge status={task.status} rejected={rejected} />
                 <PriorityPill priority={task.priority} />
               </div>
+              <TaskDepartmentLabel task={task} />
               <h2 className="text-[16px] font-semibold text-neutral-900 leading-snug">
                 {task.title}
               </h2>
@@ -304,7 +306,7 @@ export function TaskDetailDrawer({
               {rejected && (
                 <div className="bg-rose-50 border border-rose-200 rounded-lg p-3">
                   <div className="text-[11px] font-medium text-rose-700 uppercase tracking-wide mb-0.5">
-                    Changes requested
+                    Updates needed
                   </div>
                   {task.rejectionNote && (
                     <div className="text-[12.5px] font-normal text-rose-900">{task.rejectionNote}</div>

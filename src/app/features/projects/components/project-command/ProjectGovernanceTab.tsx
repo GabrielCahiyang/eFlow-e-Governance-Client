@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { CheckCircle2, Clock } from "lucide-react";
+import { DepartmentApprovalMatrix } from "../../../interdepartment-collaboration";
 import type { ProjectCommandData } from "./types";
 import type { Organization } from "../../../../types";
 import { formatDate } from "../../../../components/workflow/primitives";
@@ -46,81 +46,29 @@ export function ProjectGovernanceTab({
       <div className="rounded-2xl border border-neutral-200 bg-white px-5 py-4 shadow-xs">
         <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-400">Governance workspace</div>
         <div className="mt-1 text-sm font-semibold text-neutral-900">
-          {subView === "signoff" ? "Sign-off status" : subView === "evidence" ? "Evidence register" : "Decision history"}
+          {subView === "signoff" ? "Approval status" : subView === "evidence" ? "Evidence register" : "Decision history"}
         </div>
         <p className="mt-1 text-xs leading-relaxed text-neutral-600">
           This view is selected from the Governance group in the workspace view bar.
         </p>
       </div>
 
-      {/* Sub-View: Sign-off Status */}
+      {/* Sub-View: Approval Status */}
       {subView === "signoff" && (
         <div className="space-y-6">
           <div className="bg-white border border-neutral-200/80 rounded-2xl p-6 shadow-xs space-y-4">
             <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
               <div>
                 <h3 className="text-sm font-bold text-neutral-900 uppercase tracking-wider">
-                  Inter-Department Endorsement Matrix
+                  Department approvals
                 </h3>
                 <p className="text-xs text-neutral-500 mt-0.5">
-                  Sign-off verification across all participating departments and partner agencies.
+                  Approval verification across all participating departments and partner agencies.
                 </p>
               </div>
             </div>
 
-            {collaboration.participants.length > 0 ? (
-              <div className="divide-y divide-neutral-100">
-                {collaboration.participants.map((participant) => {
-                  const org = organizations.find((o) => o.id === participant.orgId);
-                  const isOwner = participant.participationRole === "owner";
-                  const approval = collaboration.approvals.find(
-                    (a) => a.organizationId === participant.orgId,
-                  );
-                  const isApproved = approval?.decision === "approved" || isOwner;
-
-                  return (
-                    <div
-                      key={participant.orgId}
-                      className="py-4 flex items-center justify-between gap-4"
-                    >
-                      <div className="space-y-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <strong className="text-sm text-neutral-900">
-                            {org?.name || participant.orgId}
-                          </strong>
-                          <span className="text-[10.5px] font-semibold text-neutral-500 bg-neutral-100 px-2 py-0.5 rounded capitalize">
-                            Role: {participant.participationRole}
-                          </span>
-                        </div>
-                        <p className="text-xs text-neutral-500">
-                          {isOwner
-                            ? "Lead Authority — Originating Department"
-                            : approval
-                              ? `Endorsed and approved on ${formatDate(approval.createdAt)}`
-                              : "Pending review and sign-off decision"}
-                        </p>
-                      </div>
-
-                      <div>
-                        {isApproved ? (
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                            <CheckCircle2 size={14} /> Endorsed &amp; Signed Off
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-                            <Clock size={14} /> Awaiting Sign-off
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="py-8 text-center text-xs text-neutral-500">
-                This project operates under direct single-department governance.
-              </div>
-            )}
+            <DepartmentApprovalMatrix participants={collaboration.participants} approvals={collaboration.approvals} currentRevisionId={collaboration.draft?.currentRevisionId} organizations={organizations} />
           </div>
         </div>
       )}

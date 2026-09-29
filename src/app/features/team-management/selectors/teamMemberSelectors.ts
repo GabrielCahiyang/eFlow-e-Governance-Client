@@ -1,6 +1,6 @@
 import type { Employee } from "../../employees";
 import type { Task } from "../../tasks";
-import { isActive, isOverdue, parseDueDate } from "../../tasks";
+import { calculateDeadlineWorkload, isActive, isOverdue, parseDueDate } from "../../tasks";
 import type { TeamMemberMetrics, TeamWorkflowFacts } from "../types";
 import { DAY, deliveryQuality, hasBlocker, latestProgressByWorkItem, taskParticipantIds } from "./analyticsHelpers";
 
@@ -40,20 +40,14 @@ export function buildTeamMemberMetrics(
     const lastActivityAt = activityTimes.length ? Math.max(...activityTimes) : undefined;
     const stale = activeTasks.length + activeSubtasks.length > 0 && Boolean(lastActivityAt && lastActivityAt < now - 3 * DAY);
     const quality = deliveryQuality(facts.submissions, employee.id);
-    const workloadSignal = Math.min(100, Math.round(
-      leadingTasks.length * 14
-      + Math.max(0, activeTasks.length - leadingTasks.length) * 7
-      + activeSubtasks.length * 9
-      + overdue * 16
-      + dueSoon * 7
-      + blocked * 12
-      + awaitingReview * 5,
-    ));
+    const workload = calculateDeadlineWorkload(participating, now, employee.id);
+    const workloadSignal = workload.signal;
     return {
       employeeId: employee.id,
       employeeName: employee.name,
       recordedWorkload: employee.currentWorkload,
       workloadSignal,
+      workload,
       activeTasks: activeTasks.length,
       leadingTasks: leadingTasks.length,
       activeSubtasks: activeSubtasks.length,

@@ -16,7 +16,7 @@ export function ReviewKindSwitch({
   const kinds: { id: ReviewKind; label: string }[] = [
     { id: "workplans", label: "Work Plans" },
     { id: "tasks", label: "Project Tasks" },
-    { id: "governance", label: "Governance & Sign-off" },
+    { id: "governance", label: "Governance & Approval" },
     { id: "subtasks", label: "Subtasks" },
     ...(includeBudget ? [{ id: "budget" as const, label: "Budget" }] : []),
   ];

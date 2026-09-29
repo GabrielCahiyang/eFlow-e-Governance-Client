@@ -7,6 +7,8 @@ import type { BudgetLineInput, TaskBudgetDecision } from "../../budget";
 export type PdfPhase =
   | "idle"
   | "extracting"
+  | "validating"
+  | "saving"
   | "decomposing"
   | "review"
   | "committing"
@@ -31,6 +33,11 @@ export interface DraftTask {
   title: string;
   description: string;
   deadline: string;
+  estimatedHours?: number;
+  primaryOrgId?: string;
+  supportingOrgIds?: string[];
+  activityPrimaryOrgId?: string;
+  activitySupportingOrgIds?: string[];
   priority: "low" | "medium" | "high";
   requiredSkills: string[];
   assignedMemberIds: string[];

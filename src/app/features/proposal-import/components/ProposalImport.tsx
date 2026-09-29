@@ -1,4 +1,6 @@
-import { AttentionBox, Button, Heading, Loader, Text } from "@vibe/core";
+import { ProposalProcessingStatus } from "./ProposalProcessingStatus";
+import { useProcessingGuard } from "../hooks/useProcessingGuard";
+import { AttentionBox, Button, Heading, Text } from "@vibe/core";
 import { Upload } from "@vibe/icons";
 import { AssignmentModal } from "./AssignmentModal";
 import { DraftCockpit } from "./DraftCockpit";
@@ -9,10 +11,12 @@ export default function ProposalImport({
   onClose,
   inDialog = false,
   embedded = false,
+  onProcessingChange,
 }: {
   onClose?: () => void;
   inDialog?: boolean;
   embedded?: boolean;
+  onProcessingChange?: (active: boolean) => void;
 }) {
   const {
     allEmployees,
@@ -48,6 +52,9 @@ export default function ProposalImport({
     handleCommit,
   } = useProposalImportController(onClose);
 
+  const processing = ["extracting", "validating", "decomposing", "saving"].includes(pdfPhase);
+  useProcessingGuard(processing, onProcessingChange);
+
   return (
     <div
       className={`${embedded ? "p-0" : "p-6"} ${inDialog ? "eflow-creation-builder" : ""}`}
@@ -67,7 +74,7 @@ export default function ProposalImport({
               </Text>
             </div>
             {onClose && (
-              <Button kind="tertiary" onClick={onClose} size="small">
+              <Button kind="tertiary" disabled={processing} onClick={onClose} size="small">
                 Cancel
               </Button>
             )}
@@ -116,55 +123,7 @@ export default function ProposalImport({
             </label>
           )}
 
-          {(pdfPhase === "extracting" || pdfPhase === "decomposing") && (
-            <div
-              aria-live="polite"
-              className="rounded-xl border border-neutral-200 bg-white p-14 text-center"
-              role="status"
-            >
-              <div className="mb-4 flex justify-center">
-                <Loader size="large" />
-              </div>
-              <div className="text-base font-bold text-neutral-800">
-                {pdfPhase === "extracting"
-                  ? "Extracting text from PDF…"
-                  : aiQueueStatus?.status === "queued"
-                    ? "Your AI request is queued"
-                    : "AI is decomposing the proposal…"}
-              </div>
-              <div className="text-xs text-neutral-500 mt-1">
-                {pdfFileName} ·{" "}
-                {pdfPhase === "extracting"
-                  ? "Reading pages"
-                  : aiQueueStatus?.status === "queued"
-                    ? `${aiQueueStatus.jobsAhead} request${aiQueueStatus.jobsAhead === 1 ? "" : "s"} ahead of you`
-                    : decompositionProgress
-                      ? `Part ${decompositionProgress.current} of ${decompositionProgress.total}: ${decompositionProgress.partTitle}`
-                      : "Processing with DeepSeek R1 8B"}
-              </div>
-              {pdfPhase === "decomposing" &&
-                aiQueueStatus?.status === "queued" && (
-                  <AttentionBox
-                    className="mx-auto mt-5 max-w-md text-left"
-                    title={`Queue position ${aiQueueStatus.position ?? "—"}`}
-                    type="warning"
-                    text={
-                      aiQueueStatus.jobsAhead > 0
-                        ? "Another user is currently using the AI. Your proposal will start automatically when the requests ahead of it finish—please keep this page open."
-                        : "The AI worker is preparing your request. Processing will start automatically—please keep this page open."
-                    }
-                  />
-                )}
-              <div className="flex justify-center gap-3 mt-6">
-                <div
-                  className={`w-2 h-2 rounded-full ${pdfPhase === "extracting" ? "bg-primary animate-pulse" : "bg-emerald-500"}`}
-                />
-                <div
-                  className={`w-2 h-2 rounded-full ${pdfPhase === "decomposing" ? "bg-primary animate-pulse" : "bg-neutral-200"}`}
-                />
-              </div>
-            </div>
-          )}
+          {processing && <ProposalProcessingStatus phase={pdfPhase} fileName={pdfFileName} queue={aiQueueStatus} part={decompositionProgress} />}
 
           {pdfPhase === "error" && (
             <div className="rounded-xl border border-red-200 bg-red-50 p-10 text-center">

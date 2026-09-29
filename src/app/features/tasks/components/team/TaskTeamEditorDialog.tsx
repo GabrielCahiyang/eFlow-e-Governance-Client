@@ -82,6 +82,7 @@ export function TaskTeamEditorDialog({
         setError(`${blocker.reason}${blocker.subtaskTitles.length ? ` Active work: ${blocker.subtaskTitles.join(", ")}.` : ""}`);
         return;
       }
+      if (!window.confirm("Remove this member from the task team? Save members to apply the change.")) return;
       setSelectedIds((ids) => ids.filter((id) => id !== candidate.id));
     } else if (candidate.canBeAdded) {
       setSelectedIds((ids) => [...ids, candidate.id]);
@@ -91,6 +92,7 @@ export function TaskTeamEditorDialog({
 
   const save = async () => {
     if (!task) return;
+    if (!window.confirm("Save these task team changes? Members added or removed will gain or lose access to this task.")) return;
     setSaving(true);
     setError("");
     try {

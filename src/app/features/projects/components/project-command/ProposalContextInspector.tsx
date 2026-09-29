@@ -168,7 +168,7 @@ export function ProposalContextInspector({
         decision: "approved",
       });
       await state.refresh();
-      toast("Sign-off recorded successfully for your office.", "success");
+      toast("Approval recorded successfully for your office.", "success");
     } catch (error: any) {
       toast(error?.message || "Could not record approval.", "error");
     } finally {
@@ -296,12 +296,12 @@ export function ProposalContextInspector({
                 </div>
               </div>
 
-              {/* 2. Sign-off / Approvals Section */}
+              {/* 2. Approval / Approvals Section */}
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-600 flex items-center gap-1.5">
                     <CheckCircle2 size={14} className="text-emerald-600" />
-                    Office Sign-off Progress
+                    Office Approval Progress
                   </h3>
                   <span className="text-xs text-neutral-500">
                     {
@@ -465,7 +465,7 @@ export function ProposalContextInspector({
                     <Shield size={16} className="text-blue-700 mt-0.5" />
                     <div>
                       <strong className="block text-xs font-bold text-blue-900">
-                        Sign-off for{" "}
+                        Approval for{" "}
                         {reviewOrganization?.orgId
                           ? organizations.find(
                               (o) => o.id === reviewOrganization.orgId,
@@ -473,7 +473,7 @@ export function ProposalContextInspector({
                           : "Your Office"}
                       </strong>
                       <p className="mt-0.5 text-[11px] text-blue-800">
-                        As a department officer, you can record sign-off or
+                        As a department officer, you can record approval or
                         request revisions.
                       </p>
                     </div>
@@ -488,7 +488,7 @@ export function ProposalContextInspector({
                         disabled={busy}
                         onClick={() => void handleApprove()}
                       >
-                        Sign off proposal
+                        Approve proposal
                       </Button>
                       <Button
                         kind="secondary"

@@ -51,7 +51,7 @@ export function buildCollaborationSnapshot({
       ...(task.assignedMemberIds || []).filter(Boolean),
       ...(leadMemberId ? [leadMemberId] : []),
     ]));
-    const deadline = resolveScheduleDateInput(task.deadline || task.activitySchedule, planningAnchor)
+    const deadline = (/^\d{4}-\d{2}-\d{2}T/.test(task.deadline) ? task.deadline : resolveScheduleDateInput(task.deadline || task.activitySchedule, planningAnchor))
       || task.deadline
       || "";
     return {

@@ -30,7 +30,7 @@ const taskStatusPresentation: Record<TaskStatusPresentationState, TaskStatusPres
     color: "working_orange",
   },
   changes_requested: {
-    label: "Changes requested",
+    label: "Updates needed",
     description: "The submitted work needs updates before approval.",
     color: "negative",
   },

@@ -7,6 +7,8 @@ import { PageHeader } from "../workflow/primitives";
 import { MyMonthlyContributionCard } from "../../features/productivity";
 import { subscribeToTeamWorkflowFacts, type TeamWorkflowFacts } from "../../features/team-management";
 
+import { calculateDeadlineWorkload } from "../../features/tasks";
+
 const EMPTY_FACTS: TeamWorkflowFacts = { subtasks: [], progress: [], submissions: [], statusHistory: [], evidence: [] };
 
 export function EmployeePerformanceView() {
@@ -27,10 +29,9 @@ export function EmployeePerformanceView() {
     [tasks],
   );
 
-  const workload = userProfile?.workload ?? 0;
-  const risk =
-    userProfile?.burnoutLevel ||
-    (workload > 80 ? "high" : workload >= 60 ? "medium" : "low");
+  const deadlineWorkload = calculateDeadlineWorkload(tasks, Date.now(), userProfile?.id);
+  const workload = deadlineWorkload.signal;
+  const risk = deadlineWorkload.level === "very_high" || deadlineWorkload.level === "high" ? "high" : deadlineWorkload.level === "moderate" || deadlineWorkload.level === "unknown" ? "medium" : "low";
   const health = {
     low: {
       label: "Sustainable workload",
@@ -100,11 +101,11 @@ export function EmployeePerformanceView() {
               {health.label}
             </h2>
             <p className={`mt-1 text-[12px] ${health.text}`}>
-              {health.description}
+              {deadlineWorkload.explanation}
             </p>
           </div>
           <div className={`rounded-full bg-white/70 px-2.5 py-1 text-[11px] font-medium ${health.text}`}>
-            {workload}% workload
+            {deadlineWorkload.label} workload
           </div>
         </div>
         <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/80">

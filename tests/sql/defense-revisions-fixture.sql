@@ -1,0 +1,27 @@
+-- Minimal disposable database fixture. No connection to the live project.
+create schema auth;
+create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
+create table public.profiles (full_name text, id uuid primary key default gen_random_uuid(), is_active boolean default true, org_id uuid, role text);
+create table public.organizations (assistant_head_user_id uuid, head_user_id uuid, id uuid primary key default gen_random_uuid(), name text);
+create table public.organization_memberships (membership_role text, organization_id uuid, user_id uuid);
+create table public.proposal_collaboration_drafts (committed_at timestamptz, current_revision_id uuid, deleted_at timestamptz, id uuid primary key default gen_random_uuid(), owner_org_id uuid, owner_user_id uuid, source_file_name text, source_type text, status text, title text, working_snapshot jsonb);
+create table public.proposal_collaboration_revisions (change_summary text, created_by uuid, draft_id uuid, id uuid primary key default gen_random_uuid(), revision_number int, snapshot jsonb);
+create table public.proposal_collaboration_orgs (created_at timestamptz default now(), draft_id uuid, org_id uuid, participation_role text, requested_at timestamptz, requested_by uuid, staffing_enabled boolean default true);
+create table public.proposal_collaboration_approvals (approved_by uuid, created_at timestamptz default now(), decision text, draft_id uuid, id uuid primary key default gen_random_uuid(), organization_id uuid, reason text, revision_id uuid, unique(revision_id,organization_id));
+create table public.audit_events (action text, actor_id uuid, actor_name text, after_data jsonb, created_at timestamptz default now(), entity_id text, entity_type text, id uuid primary key default gen_random_uuid(), org_id uuid, reason text);
+create table public.notifications (actor_id uuid, actor_name text, entity_type text, message text, org_id uuid, proposal_id text, title text, type text, user_id uuid);
+create table public.projects (created_by uuid, description text, id uuid primary key default gen_random_uuid(), org_id uuid, owner_id uuid, priority text, program_id text, program_title text, proposal_id text, proposal_title text, source_collaboration_draft_id uuid, source_collaboration_revision_id uuid, source_file_name text, source_type text, start_date date, status text, target_date date, title text);
+create table public.proposal_collaboration_commit_projects (draft_id uuid, project_id uuid, project_key text, revision_id uuid);
+create table public.project_organizations (organization_id uuid, participation_role text, project_id uuid, source_draft_id uuid, source_revision_id uuid, staffing_enabled boolean default true);
+create table public.project_members (project_id uuid, role text, user_id uuid, unique(project_id,user_id));
+create table public.milestones (description text, due_date date, id uuid primary key default gen_random_uuid(), project_id uuid, sort_order int, title text);
+create table public.milestone_organizations (milestone_id uuid, organization_id uuid, responsibility_role text);
+create table public.tasks (activity_id text, activity_schedule text, activity_title text, assigned_to uuid, assignee_name text, backup_reviewer_id uuid, created_by uuid, deadline text, department text, description text, due_date text, estimated_hours numeric, hierarchy_path text, id uuid primary key default gen_random_uuid(), import_batch_id text, linked_project_id uuid, milestone_id uuid, org_id uuid, percent_complete numeric, priority text, program_id text, program_title text, project_id text, project_title text, proposal_id text, proposal_title text, recommendation_lead_id uuid, recommendation_reasoning text, recommendation_source text, recommended_employee_ids uuid[], review_route_mode text, reviewer_id uuid, source_collaboration_draft_id uuid, source_collaboration_revision_id uuid, status text, tags text[], team_id text, team_member_ids uuid[], team_member_names text[], team_name text, title text);
+create table public.task_organizations (organization_id uuid, responsibility_role text, task_id uuid);
+create function can_manage_collaboration_draft(target uuid,caller uuid) returns boolean language sql stable as $$ select exists(select 1 from proposal_collaboration_drafts where id=target and owner_user_id=caller) $$;
+create function organization_approver_ids(target uuid) returns setof uuid language sql stable as $$ select id from profiles where org_id=target and role='dept_head' and is_active $$;
+create function normalize_collaboration_snapshot_roles(input jsonb) returns jsonb language sql immutable as $$ select input $$;
+create function refresh_collaboration_readiness(target uuid) returns void language sql as $$ select null::void $$;
+create function collaboration_readiness(target uuid) returns jsonb language sql stable as $$ select jsonb_build_object('ready',true) $$;
+create function test_assert(value boolean,message text) returns void language plpgsql as $$ begin if value is distinct from true then raise exception 'Assertion failed: %',message; end if; end $$;
+create function test_throws(command text,expected text) returns void language plpgsql as $$ begin begin execute command; exception when others then if position(expected in sqlerrm)=0 then raise exception 'Expected %, got %',expected,sqlerrm; end if; return; end; raise exception 'Expected failure: %',expected; end $$;
