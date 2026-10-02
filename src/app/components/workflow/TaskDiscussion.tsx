@@ -1,6 +1,7 @@
+import { isAdminRole } from "../../shared/roles";
 // ─── TaskDiscussion ──────────────────────────────────────────────
 // Threaded comments on a task. Participation is restricted to the task's
-// assignees / team members and authorized reviewers. Dept Head / Super Admin
+// assignees / team members and authorized reviewers. Dept Head / Admin
 // may moderate (soft-delete with a reason → audit event, history preserved).
 
 import { useEffect, useMemo, useState } from "react";
@@ -43,7 +44,7 @@ export function TaskDiscussion({
   const [menuFor, setMenuFor] = useState<string | null>(null);
 
   const canModerate =
-    userProfile?.role === "super_admin" ||
+    isAdminRole(userProfile?.role) ||
     userProfile?.role === "dept_head" ||
     userProfile?.role === "assistant_head";
 

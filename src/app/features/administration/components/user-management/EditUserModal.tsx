@@ -8,7 +8,8 @@ import { getAssignableRoleOptions } from "./userManagementPrimitives";
 import { getLeadershipSlotConflict, isManagedLeadershipRole } from "../../services/leadershipConstraints";
 import { updateManagedUserWithLeadership } from "../../services/managedUserLeadershipService";
 import { Plus, X } from "lucide-react";
-import { getRoleLabel } from "../../../../shared/roles";
+import { getRoleLabel, isAdminRole, normalizeUserRole } from "../../../../shared/roles";
+import { isLastActiveAdmin } from "../../selectors/adminAccountProtection";
 
 export function EditUserModal({
   isOpen,
@@ -43,16 +44,20 @@ export function EditUserModal({
     organizations,
     profiles,
   });
-  const leadershipLocked = userProfile?.role !== "super_admin" && isManagedLeadershipRole(editUser?.role || "");
+  const leadershipLocked = !isAdminRole(userProfile?.role) && isManagedLeadershipRole(editUser?.role || "");
   const roleOptions = leadershipLocked && editUser
     ? [{ value: editUser.role, label: getRoleLabel(editUser.role) }]
     : getAssignableRoleOptions(userProfile?.role);
+  if (editUser && !roleOptions.some((item) => item.value === normalizeUserRole(editUser.role))) {
+    roleOptions.push({ value: normalizeUserRole(editUser.role), label: getRoleLabel(editUser.role) });
+  }
+  const lastAdmin = editUser ? isLastActiveAdmin(editUser, profiles) : false;
 
   useEffect(() => {
     if (editUser) {
       setForm({
         fullName: editUser.full_name,
-        role: editUser.role,
+        role: normalizeUserRole(editUser.role),
         orgId: editUser.org_id || "",
       });
       setSkills(editUser.skills || {});
@@ -78,6 +83,10 @@ export function EditUserModal({
 
   const handleSave = async () => {
     if (!editUser) return;
+    if (lastAdmin && !isAdminRole(form.role)) {
+      toast("The last active Admin must keep Admin access.", "error");
+      return;
+    }
     if (leadershipConflict) {
       toast(leadershipConflict, "error");
       return;
@@ -166,7 +175,7 @@ export function EditUserModal({
                   onChange={(e) => setForm({ ...form, role: e.target.value as UserRole })}
                   options={roleOptions}
                   hasError={Boolean(leadershipConflict)}
-                  disabled={leadershipLocked}
+                  disabled={leadershipLocked || lastAdmin || editUser.id === userProfile?.id}
                 />
               </FormField>
               <FormField label="Organization">
@@ -175,11 +184,12 @@ export function EditUserModal({
                   onChange={(e) => setForm({ ...form, orgId: e.target.value })}
                   options={orgOptions}
                   placeholder="Select organization"
-                  disabled={leadershipLocked}
+                  disabled={leadershipLocked || editUser.id === userProfile?.id}
                 />
               </FormField>
             </div>
-            {leadershipLocked ? <p className="rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-[10.5px] text-blue-800">You can edit this leader’s name and skills. Leadership role, organization, and account status are managed by the Super Admin.</p> : null}
+            {lastAdmin ? <p className="rounded-lg border border-amber-100 bg-amber-50 px-3 py-2 text-[10.5px] text-amber-800">The last active Admin must keep Admin access. Create or activate another Admin before changing this account's role.</p> : null}
+            {leadershipLocked ? <p className="rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-[10.5px] text-blue-800">You can edit this leader’s name and skills. Leadership role, organization, and account status are managed by the Admin.</p> : null}
             <div className="text-[11px] font-normal text-neutral-500">
               Email: {editUser.email} · ID: {editUser.id.slice(0, 12)}...
             </div>

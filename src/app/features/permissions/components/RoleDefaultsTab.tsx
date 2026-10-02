@@ -1,3 +1,4 @@
+import { isAdminRole } from "../../../shared/roles";
 import { useCallback, useEffect, useState } from "react";
 import { Check, LockKeyhole, MonitorCog, ShieldCheck } from "lucide-react";
 import { useToast } from "../../../components/ui/Toast";
@@ -50,10 +51,10 @@ function PermissionSection({
                 </td>
                 {MANAGED_ROLES.map((role) => {
                   const enabled = rolePermissionAllowed(role.key, permission, rows);
-                  const locked = role.key === "super_admin";
+                  const locked = isAdminRole(role.key);
                   return (
                     <td key={role.key} className="px-4 py-3 text-center">
-                      <Tooltip content={locked ? "Super Admin access is always available" : enabled ? "Allowed. Select to deny this capability." : "Denied. Select to allow this capability."}>
+                      <Tooltip content={locked ? "Admin access is always available" : enabled ? "Allowed. Select to deny this capability." : "Denied. Select to allow this capability."}>
                         <span className="inline-flex"><button
                           type="button"
                           aria-label={`${role.label}: ${enabled ? "Allowed" : "Denied"}`}
@@ -91,8 +92,8 @@ export function RoleDefaultsTab() {
   useEffect(() => { void load(); }, [load]);
 
   const toggle = async (role: string, permission: string) => {
-    if (role === "super_admin") {
-      toast("Super Admin core access cannot be revoked.", "info");
+    if (isAdminRole(role)) {
+      toast("Admin core access cannot be revoked.", "info");
       return;
     }
     const next = !rolePermissionAllowed(role, permission, rows);

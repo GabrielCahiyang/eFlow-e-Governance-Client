@@ -1,7 +1,7 @@
 // ─── ReportsWorkspace (shared) ───────────────────────────────────
 // Departmental / system-wide reporting with data tables + visual summaries and
 // CSV/PDF export of the EXACT filtered rows. Scope-parameterized: Dept Head is
-// limited to their subtree; Super Admin gets the cross-department filter.
+// limited to their subtree; Admin gets the cross-department filter.
 
 import { useMemo, useRef, useState } from "react";
 import { Tab, TabList, TabsContext } from "@vibe/core";

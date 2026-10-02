@@ -1,3 +1,4 @@
+import { isAdminRole } from "../../../../shared/roles";
 import { useEffect, useMemo, useState } from "react";
 import { AttentionBox, Button, Modal, ModalBasicLayout, ModalContent, ModalHeader, Search, Text } from "@vibe/core";
 import { Favorite, Remove, Team, Warning } from "@vibe/icons";
@@ -54,7 +55,7 @@ export function TaskTeamEditorDialog({
     const taskNameById = new Map((task.teamMemberIds || []).map((id, index) => [id, task.teamMemberNames?.[index] || "Team Member"]));
     if (task.assigneeId && task.assigneeName) taskNameById.set(task.assigneeId, task.assigneeName);
     const ids = new Set([
-      ...profiles.filter((profile) => profile.is_active && profile.role !== "super_admin" && (!responsibleOrgId || profile.org_id === responsibleOrgId || profile.departmentId === responsibleOrgId)).map((profile) => profile.id),
+      ...profiles.filter((profile) => profile.is_active && !isAdminRole(profile.role) && (!responsibleOrgId || profile.org_id === responsibleOrgId || profile.departmentId === responsibleOrgId)).map((profile) => profile.id),
       ...currentIds,
     ]);
     return Array.from(ids).map((id) => {

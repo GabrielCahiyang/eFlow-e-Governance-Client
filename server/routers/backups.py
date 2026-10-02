@@ -1,4 +1,4 @@
-"""Super Admin database Backup & Export endpoints."""
+"""Admin database Backup & Export endpoints."""
 
 from pathlib import Path
 from typing import Literal

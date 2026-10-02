@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 type AuthListener = (event: string, session: { user: { id: string } } | null) => unknown;
 
@@ -46,16 +46,19 @@ vi.mock('../../src/app/shared/controlPanelClient', () => ({
 import { AuthProvider, useAuth } from '../../src/app/contexts/AuthContext';
 
 function AuthProbe({ children }: { children?: ReactNode }) {
-  const { loading, userProfile } = useAuth();
+  const { loading, userProfile, can } = useAuth();
   return (
     <div data-testid="auth-state">
       {loading ? 'loading' : userProfile?.full_name ?? 'ready-without-profile'}
+      <span data-testid="role">{userProfile?.role}</span>
+      <span data-testid="management-access">{String(can('users.manage'))}</span>
       {children}
     </div>
   );
 }
 
 describe('authenticated application startup', () => {
+  afterEach(cleanup);
   beforeEach(() => {
     authListener = null;
     resolveProfile = null;
@@ -97,5 +100,21 @@ describe('authenticated application startup', () => {
     await waitFor(() => {
       expect(screen.getByTestId('auth-state').textContent).toContain('Test User');
     });
+  });
+
+  it.each(['admin', 'super_admin'])('refreshes %s sessions and removes access after deactivation', async (role) => {
+    render(<AuthProvider><AuthProbe /></AuthProvider>);
+    act(() => { authListener?.('INITIAL_SESSION', { user: { id: 'admin-1' } }); });
+    await act(async () => {
+      resolveProfile?.({ data: { id: 'admin-1', full_name: 'Admin', role, is_active: true }, error: null });
+    });
+    expect(screen.getByTestId('role').textContent).toBe('admin');
+    expect(screen.getByTestId('management-access').textContent).toBe('true');
+    act(() => { window.dispatchEvent(new Event('focus')); });
+    expect(single).toHaveBeenCalledTimes(2);
+    await act(async () => {
+      resolveProfile?.({ data: { id: 'admin-1', full_name: 'Admin', role: 'admin', is_active: false }, error: null });
+    });
+    expect(screen.getByTestId('management-access').textContent).toBe('false');
   });
 });

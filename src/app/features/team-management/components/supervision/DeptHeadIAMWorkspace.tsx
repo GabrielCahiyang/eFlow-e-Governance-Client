@@ -1,3 +1,4 @@
+import { isAdminRole } from "../../../../shared/roles";
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence } from "motion/react";
 import * as m from "motion/react-m";
@@ -364,9 +365,9 @@ function UserAccessTab({
     [orgs],
   );
 
-  // Only show dept members, not super admins
+  // Only show dept members, not admins
   const deptProfiles = profiles.filter(
-    (p) => deptMemberIds.has(p.id) && p.role !== "super_admin" && p.is_active,
+    (p) => deptMemberIds.has(p.id) && !isAdminRole(p.role) && p.is_active,
   );
   const filteredUsers = deptProfiles.filter((p) =>
     `${p.full_name} ${p.email} ${p.role} ${orgMap[p.org_id ?? ""] ?? ""}`.toLowerCase()
@@ -639,7 +640,7 @@ function LeadershipTab({
       p.is_active &&
       p.org_id === orgId &&
       p.id !== headUserId &&
-      p.role !== "super_admin",
+      !isAdminRole(p.role),
   );
 
   const handleSave = async () => {
@@ -718,7 +719,7 @@ function LeadershipTab({
               </p>
             </div>
             <div className="flex items-center gap-1 text-[10px] text-neutral-400">
-              <Shield size={12} /> Managed by Super Admin
+              <Shield size={12} /> Managed by Admin
             </div>
           </div>
 
@@ -801,8 +802,8 @@ function LeadershipTab({
       {/* Info banner */}
       <AttentionBox
         type="neutral"
-        title="Head assignment is managed by the Super Admin"
-        text="Only a Super Admin can change who holds the Department Head position. You can reassign the Assistant Head to any active member of your department."
+        title="Head assignment is managed by the Admin"
+        text="Only a Admin can change who holds the Department Head position. You can reassign the Assistant Head to any active member of your department."
       />
     </m.div>
   );
@@ -910,7 +911,7 @@ export function DeptHeadIAMWorkspace() {
             <AttentionBox
               type="warning"
               title="Organization record not found"
-              text="Your account is not listed as the Head of any active organization. Contact a Super Admin to link your account to the correct department organization."
+              text="Your account is not listed as the Head of any active organization. Contact a Admin to link your account to the correct department organization."
             />
           </m.div>
         )}

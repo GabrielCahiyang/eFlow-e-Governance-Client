@@ -83,7 +83,7 @@ export function DeptHeadDashboard() {
   const [focus, setFocus] = useState<FocusList>(null);
   const [openTask, setOpenTask] = useState<Task | null>(null);
 
-  // Scope tasks to the head's org subtree (super admin sees everything).
+  // Scope tasks to the head's org subtree (admin sees everything).
   const scoped = useMemo(() => {
     const active = tasks.filter((t) => !isArchived(t));
     if (isSuperAdmin || scopedOrgIds.length === 0) return active;

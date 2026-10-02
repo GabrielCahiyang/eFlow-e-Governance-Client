@@ -7,7 +7,7 @@ test("admin user dialog and citywide plan approvals remain usable on a narrow ph
   const quickLogin = page.getByRole("button", { name: "Choose a development account" });
   test.skip(!(await quickLogin.isVisible()), "Local development account shortcuts are unavailable.");
   await quickLogin.click();
-  await page.getByRole("menuitem", { name: /^Super Admin —/ }).click();
+  await page.getByRole("menuitem", { name: /^Admin —/ }).click();
   await page.getByRole("button", { name: "Open navigation" }).waitFor();
   const dismissTour = page.getByRole("button", { name: "Maybe later" });
   await dismissTour.waitFor({ timeout: 3000 }).then(() => dismissTour.click()).catch(() => {});

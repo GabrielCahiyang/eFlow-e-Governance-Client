@@ -72,7 +72,7 @@ describe("Phase 02 auth presentation", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Choose a development account" }));
 
-    const superAdmin = await screen.findByRole("menuitem", { name: "Super Admin — admin@gmail.com" });
+    const superAdmin = await screen.findByRole("menuitem", { name: "Admin — admin@gmail.com" });
     expect(superAdmin).toBeTruthy();
     auth.login.mockClear();
     fireEvent.click(superAdmin);

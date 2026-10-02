@@ -1,3 +1,4 @@
+import { isAdminRole } from "../shared/roles";
 // ─── Supabase Realtime Data Hooks ────────────────────────────────
 // Wraps supabaseService subscriptions into clean React hooks.
 
@@ -102,7 +103,7 @@ export function useTasksData() {
 // ─── useDashboardMetrics ─────────────────────────────────────────
 // System-wide metrics. Project/task counts are now derived from LIVE data via
 // the shared selectors (previously hard-coded to 0, which showed false zeroes
-// on the Super Admin dashboard even when data existed).
+// on the Admin dashboard even when data existed).
 export function useDashboardMetrics(): { metrics: DashboardMetrics; loading: boolean } {
   const { profiles, loading: profilesLoading } = useProfiles();
   const { orgs, loading: orgsLoading } = useOrgs();
@@ -112,7 +113,7 @@ export function useDashboardMetrics(): { metrics: DashboardMetrics; loading: boo
   const loading = profilesLoading || orgsLoading || projectsLoading || tasksLoading;
 
   const metrics: DashboardMetrics = useMemo(() => {
-    const activeProfiles = profiles.filter((p) => p.is_active && p.role !== 'super_admin');
+    const activeProfiles = profiles.filter((p) => p.is_active && !isAdminRole(p.role));
     const activeOrgs = orgs.filter((o) => o.is_active);
     const overloaded = activeProfiles.filter((p) => p.workload >= 80);
     const totalWorkload = activeProfiles.reduce((sum, p) => sum + p.workload, 0);
@@ -161,11 +162,11 @@ export function useProjectsData() {
 
 // ─── useScopedOrgIds ─────────────────────────────────────────────
 // The current user's org plus every descendant (their subtree). Empty array
-// means "no scope filter" (e.g. super admin) — callers treat empty as all.
+// means "no scope filter" (e.g. admin) — callers treat empty as all.
 export function useScopedOrgIds(): { scopedOrgIds: string[]; isSuperAdmin: boolean; orgs: Organization[] } {
   const { orgs } = useOrgs();
   const { userProfile } = useAuth();
-  const isSuperAdmin = userProfile?.role === 'super_admin';
+  const isSuperAdmin = isAdminRole(userProfile?.role);
 
   const scopedOrgIds = useMemo(() => {
     if (isSuperAdmin) return [];

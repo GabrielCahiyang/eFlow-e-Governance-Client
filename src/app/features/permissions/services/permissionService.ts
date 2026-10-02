@@ -1,3 +1,4 @@
+import { isAdminRole } from "../../../shared/roles";
 import { supabase } from "../../../../lib/supabase";
 import type { OrganizationScopeGrant, RolePermissionRow, ScopeGrantInput, UserOverrideRow } from "../types";
 import { resolvePermissions } from "../selectors";
@@ -38,7 +39,7 @@ export async function fetchEffectivePermissions(userId: string, role: string): P
 }
 
 export async function setRolePermission(role: string, permission: string, allowed: boolean): Promise<void> {
-  if (role === "super_admin") throw new Error("Super Admin core access cannot be changed.");
+  if (isAdminRole(role)) throw new Error("Admin core access cannot be changed.");
   const { error } = await supabase.from("role_permissions").upsert(
     { role, permission, allowed, updated_at: new Date().toISOString() }, { onConflict: "role,permission" },
   );

@@ -34,6 +34,7 @@ export const ORG_TYPE_OPTIONS: { value: OrgType; label: string }[] = [
 ];
 
 export const ROLE_COLORS: Record<string, string> = {
+  admin: 'bg-red-100 text-red-700',
   super_admin: 'bg-red-100 text-red-700',
   dept_head: 'bg-violet-100 text-violet-700',
   assistant_head: 'bg-indigo-100 text-indigo-700',
@@ -41,7 +42,8 @@ export const ROLE_COLORS: Record<string, string> = {
 };
 
 export const ROLE_LABELS: Record<string, string> = {
-  super_admin: 'Super Admin',
+  admin: 'Admin',
+  super_admin: 'Admin',
   dept_head: 'Head',
   assistant_head: 'Assistant Head',
   employee: 'Employee',

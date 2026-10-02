@@ -1,3 +1,4 @@
+import { isAdminRole } from "../../../../shared/roles";
 import * as React from "react";
 import {
   Background,
@@ -239,7 +240,7 @@ function OrgTreeBuilderInner() {
         ...n,
         data: {
           ...(n.data as Record<string, unknown>),
-          member_count: profiles.filter((p) => p.org_id === n.id && p.role !== 'super_admin' && p.role !== 'admin').length,
+          member_count: profiles.filter((p) => p.org_id === n.id && !isAdminRole(p.role)).length,
         },
       })),
     [nodes, profiles]
@@ -331,7 +332,7 @@ function OrgTreeBuilderInner() {
 
       {/* Users panel */}
       <UsersPanel
-        profiles={profiles.filter((p) => p.role !== 'super_admin' && p.role !== 'admin')}
+        profiles={profiles.filter((p) => !isAdminRole(p.role))}
         orgs={orgs}
         search={search}
         setSearch={setSearch}

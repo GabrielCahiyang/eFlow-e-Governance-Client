@@ -4,7 +4,7 @@
 //
 // audit_events is append-only at the database level: there is an INSERT policy
 // but deliberately no UPDATE/DELETE policy, so no normal client can rewrite
-// history. Reads are scoped by RLS (super admin, own actions, or own subtree).
+// history. Reads are scoped by RLS (admin, own actions, or own subtree).
 
 import { supabase } from '../../lib/supabase';
 

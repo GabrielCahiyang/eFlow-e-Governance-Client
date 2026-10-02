@@ -35,6 +35,7 @@ export function CommittedProposalBoard({
     "department_head",
     "assistant_head",
     "super_admin",
+    "admin",
   ].includes(userProfile?.role || "")
     ? "depthead"
     : "employee";

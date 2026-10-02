@@ -1,3 +1,4 @@
+import { isAdminRole } from "../../shared/roles";
 import type { Organization, UserProfile } from "../../types";
 import {
   resolveLeadershipReviewer,
@@ -36,8 +37,7 @@ export function getLeadershipCandidates(
   return profiles.filter(
     (profile) =>
       profile.is_active &&
-      profile.role !== "super_admin" &&
-      profile.role !== "admin" &&
+      !isAdminRole(profile.role) &&
       // A normal Head or Assistant Head is selected from the organization
       // they already belong to. This deliberately does not move people out of
       // another office as a side-effect of assigning leadership.

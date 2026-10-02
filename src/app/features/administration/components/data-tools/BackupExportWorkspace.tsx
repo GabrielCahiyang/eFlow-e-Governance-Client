@@ -154,7 +154,7 @@ export function BackupExportWorkspace() {
     return (
       <div className="min-h-full bg-neutral-50/40 p-6 sm:p-8">
         <PageHeader
-          eyebrow="Super Admin · Data Tools"
+          eyebrow="Admin · Data Tools"
           title="Backup & Export"
           subtitle="Create an audited, checksummed export of the live eFlow Supabase schema and operational data."
         />
@@ -166,7 +166,7 @@ export function BackupExportWorkspace() {
   return (
     <div className="min-h-full bg-neutral-50/40 p-6 sm:p-8">
       <PageHeader
-        eyebrow="Super Admin · Data Tools"
+        eyebrow="Admin · Data Tools"
         title="Backup & Export"
         subtitle="Create an audited, checksummed export of the live eFlow Supabase schema and operational data."
         actions={(
@@ -311,7 +311,7 @@ export function BackupExportWorkspace() {
 
           <Card title="Security boundaries">
             <div className="space-y-3">
-              <SecurityRule icon={<ShieldCheck size={14} />} title="Super Admin only" detail="Every request is verified with the current Supabase user JWT." />
+              <SecurityRule icon={<ShieldCheck size={14} />} title="Admin only" detail="Every request is verified with the current Supabase user JWT." />
               <SecurityRule icon={<ServerCog size={14} />} title="Server-side credentials" detail="Database and service-role secrets never enter the browser bundle." />
               <SecurityRule icon={<Clock3 size={14} />} title="Automatic cleanup" detail={`Temporary files expire after ${overview?.preflight.retention_hours || 24} hours.`} />
               <SecurityRule icon={<CheckCircle2 size={14} />} title="Audited integrity" detail="Start, completion, download, deletion, failure, and archive hash are recorded." />
@@ -324,7 +324,7 @@ export function BackupExportWorkspace() {
         <div className="mb-3 flex items-center justify-between">
           <div>
             <h2 className="text-[15px] font-semibold text-neutral-900">Backup jobs</h2>
-            <p className="text-[10.5px] text-neutral-500">Temporary gateway archives for your signed-in Super Admin account.</p>
+            <p className="text-[10.5px] text-neutral-500">Temporary gateway archives for your signed-in Admin account.</p>
           </div>
           {refreshing && <span className="inline-flex items-center gap-1 text-[10px] text-neutral-400"><LoaderCircle size={11} className="animate-spin" /> Updating</span>}
         </div>

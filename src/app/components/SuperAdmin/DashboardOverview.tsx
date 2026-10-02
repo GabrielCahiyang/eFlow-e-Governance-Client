@@ -1,4 +1,5 @@
-// ─── Super Admin Dashboard — Supabase Metrics ────────────────────
+import { isAdminRole } from "../../shared/roles";
+// ─── Admin Dashboard — Supabase Metrics ────────────────────
 import { calculateDeadlineWorkload, isActive } from "../../features/tasks";
 import { useMemo } from "react";
 import {
@@ -236,14 +237,14 @@ export function DashboardOverview() {
 
   const loading = metricsLoading || profilesLoading || orgsLoading || tasksLoading;
 
-  const staffWorkloads = useMemo(() => profiles.filter((profile) => profile.is_active && profile.role !== "super_admin").map((profile) => ({ profile, workload: calculateDeadlineWorkload(tasks.filter((task) => task.assigneeId === profile.id || task.teamMemberIds?.includes(profile.id)), Date.now(), profile.id) })), [profiles, tasks]);
+  const staffWorkloads = useMemo(() => profiles.filter((profile) => profile.is_active && !isAdminRole(profile.role)).map((profile) => ({ profile, workload: calculateDeadlineWorkload(tasks.filter((task) => task.assigneeId === profile.id || task.teamMemberIds?.includes(profile.id)), Date.now(), profile.id) })), [profiles, tasks]);
   const knownWorkloads = staffWorkloads.filter((item) => item.workload.level !== "unknown");
   const metrics = { ...storedMetrics, overloadedEmployees: staffWorkloads.filter((item) => ["high", "very_high"].includes(item.workload.level)).length, averageWorkload: knownWorkloads.length ? Math.round(knownWorkloads.reduce((sum, item) => sum + item.workload.pressurePercent, 0) / knownWorkloads.length) : 0 };
 
   // Compute department capacity & load metrics
   const deptCapacity = useMemo(() => {
     const activeOrgs = orgs.filter((o) => o.is_active);
-    const activeProfiles = profiles.filter((u) => u.is_active && u.role !== "super_admin");
+    const activeProfiles = profiles.filter((u) => u.is_active && !isAdminRole(u.role));
 
     const staffMap: Record<string, number> = {};
     activeProfiles.forEach((u) => {
@@ -319,7 +320,7 @@ export function DashboardOverview() {
           secondary: u.email,
           badge: u.role.replace("_", " "),
           badgeColor:
-            u.role === "super_admin"
+            isAdminRole(u.role)
               ? "#ef4444"
               : u.role === "dept_head"
                 ? "#6366f1"
@@ -334,7 +335,7 @@ export function DashboardOverview() {
     <div>
       {/* Breadcrumb */}
       <div className="text-[11px] font-normal text-neutral-400 mb-3">
-        Super Admin <span className="mx-1.5">/</span>{" "}
+        Admin <span className="mx-1.5">/</span>{" "}
         <span className="text-neutral-700">Dashboard Overview</span>
       </div>
 

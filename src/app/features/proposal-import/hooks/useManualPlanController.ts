@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { isAdminRole } from "../../../shared/roles";
 import { useTasks } from "../../../hooks/useFirebaseData";
 import { withEmployeeDeadlineWorkload } from "../../tasks";
 import { useEmployeeNotes } from "../../../hooks/useFirebaseData";
@@ -78,7 +79,7 @@ export function useManualPlanController(onClose?: () => void) {
     () => {
       if (!ownerOrgId) return [];
       return getCollaborationCandidateEmployees(candidateEmployees, collaborationOrganizations).filter(
-        (employee) => profilesById.get(employee.id)?.role !== "super_admin",
+        (employee) => !isAdminRole(profilesById.get(employee.id)?.role),
       );
     },
     [collaborationOrganizations, candidateEmployees, ownerOrgId, profilesById],

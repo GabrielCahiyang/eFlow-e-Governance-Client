@@ -1,3 +1,4 @@
+import { isAdminRole } from "../../../shared/roles";
 import * as React from "react";
 import { Avatar, Button, Label, Tooltip } from "@vibe/core";
 import { Crown, Sparkles, X } from "lucide-react";
@@ -39,7 +40,7 @@ export function StaffingReviewPanel({
   const eligibleProfiles = profiles.filter(
     (profile) =>
       profile.is_active &&
-      profile.role !== "super_admin" &&
+      !isAdminRole(profile.role) &&
       eligibleOrgIds.has(profile.org_id || ""),
   );
   const canModifyOrg = (orgId: string | null) =>

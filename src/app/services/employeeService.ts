@@ -56,6 +56,7 @@ async function loadAndNotify() {
     .select('*, organizations(name)')
     .eq('is_active', true)
     .neq('role', 'super_admin')
+    .neq('role', 'admin')
     .order('full_name');
 
   if (!data) return [];

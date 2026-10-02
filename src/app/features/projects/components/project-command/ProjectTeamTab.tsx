@@ -1,3 +1,4 @@
+import { isAdminRole } from "../../../../shared/roles";
 import * as React from "react";
 import { Avatar, Button, EmptyState, IconButton, Label, Tooltip } from "@vibe/core";
 import { Add, Delete } from "@vibe/icons";
@@ -31,7 +32,7 @@ export function ProjectTeamTab({
   const candidates = profiles.filter(
     (profile) =>
       profile.is_active &&
-      profile.role !== "super_admin" &&
+      !isAdminRole(profile.role) &&
       !existingIds.has(profile.id) &&
       (!data.project.orgId || profile.org_id === data.project.orgId),
   );

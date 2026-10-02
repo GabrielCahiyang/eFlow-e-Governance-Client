@@ -1,3 +1,4 @@
+import { isAdminRole } from "../../../shared/roles";
 import type { Employee } from "../../../services/employeeService";
 import type { UserProfile } from "../../../types";
 
@@ -38,7 +39,7 @@ export function isEligibleDepartmentDirectoryEmployee(
     return false;
   }
 
-  if (options.excludeSuperAdmins && profile?.role === "super_admin") {
+  if (options.excludeSuperAdmins && isAdminRole(profile?.role)) {
     return false;
   }
 

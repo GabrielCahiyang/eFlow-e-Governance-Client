@@ -1,3 +1,4 @@
+import { isAdminRole, normalizeUserRole } from "../shared/roles";
 import React, {
   createContext,
   useContext,
@@ -64,6 +65,7 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 function addCompatAliases(data: Record<string, unknown>): UserProfile {
   return {
     ...data,
+    role: normalizeUserRole(data.role as UserRole),
     uid: data.id,
     fullName: data.full_name,
     avatarPath: typeof data.avatar_path === 'string' ? data.avatar_path : null,
@@ -134,11 +136,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const can = useCallback(
     (permission: string) => {
-      // Super admin implicitly holds every capability.
-      if (userProfile?.role === 'super_admin') return true;
+      if (!userProfile || userProfile.is_active === false) return false;
+      // Admin implicitly holds every capability.
+      if (isAdminRole(userProfile?.role)) return true;
       return permissions.has(permission);
     },
-    [permissions, userProfile?.role],
+    [permissions, userProfile],
   );
 
   // Keep this listener synchronous. Supabase auth callbacks run while the
@@ -174,7 +177,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(true);
     setError(null);
 
-    void (async () => {
+    const refreshProfile = async () => {
       try {
         const { data, error: profileError } = await supabase
           .from('profiles')
@@ -192,7 +195,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } finally {
         if (active) setLoading(false);
       }
-    })();
+    };
+    void refreshProfile();
+    const refreshOnFocus = () => { void refreshProfile(); };
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === 'visible') refreshOnFocus();
+    };
+    window.addEventListener('focus', refreshOnFocus);
+    document.addEventListener('visibilitychange', refreshWhenVisible);
 
     const profileChannel = supabase
       .channel(`signed-in-profile:${user.id}`)
@@ -209,6 +219,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     return () => {
       active = false;
+      window.removeEventListener('focus', refreshOnFocus);
+      document.removeEventListener('visibilitychange', refreshWhenVisible);
       void supabase.removeChannel(profileChannel);
     };
   }, [user?.id]);

@@ -1,3 +1,4 @@
+import { isAdminRole } from "../../../../shared/roles";
 import { useState } from "react";
 import { Button, IconButton } from "@vibe/core";
 import { Close } from "@vibe/icons";
@@ -92,7 +93,7 @@ export function AnnouncementEditor({
     }
   };
 
-  const candidates = users.filter((u) => u.role !== "super_admin");
+  const candidates = users.filter((u) => !isAdminRole(u.role));
 
   return (
       <InspectorPanel ariaLabel={existing ? "Edit announcement" : "Create announcement"} className="w-full sm:w-[580px]" layer={60} onClose={onClose} open>

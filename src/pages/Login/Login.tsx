@@ -234,7 +234,7 @@ export function Login() {
                   text="Forgot password?"
                   onClick={() =>
                     alert(
-                      "Please contact your department IT administrator or Super Admin to reset your password."
+                      "Please contact your department IT administrator or Admin to reset your password."
                     )
                   }
                 />

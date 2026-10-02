@@ -11,6 +11,7 @@ from supabase import Client, create_client
 
 from gateway_config import settings
 from services.recent_auth import is_recent_sign_in
+from services.administrative_roles import is_administrator, normalize_administrative_role
 
 
 supabase_admin: Client = create_client(
@@ -78,25 +79,29 @@ def require_user(
     return AuthenticatedUser(
         id=str(auth_user.id),
         email=profile.get("email") or getattr(auth_user, "email", "") or "",
-        role=profile.get("role") or "employee",
+        role=normalize_administrative_role(profile.get("role") or "employee"),
         org_id=profile.get("org_id"),
         last_sign_in_at=getattr(auth_user, "last_sign_in_at", None),
     )
 
 
-def require_super_admin(
+def require_admin(
     user: AuthenticatedUser = Depends(require_user),
 ) -> AuthenticatedUser:
-    if user.role != "super_admin":
+    if not is_administrator(user.role):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Super Admin access is required.",
+            detail="Admin access is required.",
         )
     return user
 
 
+# Compatibility for gateway extensions importing the old dependency name.
+require_super_admin = require_admin
+
+
 def _permission_allowed(user: AuthenticatedUser, permission: str) -> bool:
-    if user.role == "super_admin":
+    if is_administrator(user.role):
         return True
 
     override_result = (
@@ -146,7 +151,7 @@ def require_database_backup(
     user: AuthenticatedUser = Depends(require_user),
 ) -> AuthenticatedUser:
     """Require the explicit database.backup capability."""
-    if user.role not in {"super_admin", "admin"}:
+    if not is_administrator(user.role):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Database exports are limited to administrative accounts.",

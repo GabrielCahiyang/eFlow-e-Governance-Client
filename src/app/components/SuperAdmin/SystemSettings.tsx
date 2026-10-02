@@ -1,4 +1,4 @@
-// ─── Super Admin: System Settings ────────────────────────────────
+// ─── Admin: System Settings ────────────────────────────────
 // Reads/writes system_config table in Supabase.
 
 import { useState, useEffect } from "react";

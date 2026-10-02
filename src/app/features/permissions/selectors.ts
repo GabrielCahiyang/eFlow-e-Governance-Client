@@ -1,3 +1,4 @@
+import { isAdminRole } from "../../shared/roles";
 import { FALLBACK_DEFAULTS, type PermissionKey } from "./constants";
 import type { RolePermissionRow, UserOverrideRow } from "./types";
 
@@ -6,7 +7,7 @@ export function resolvePermissions(
   rolePermissions: RolePermissionRow[],
   overrides: UserOverrideRow[],
 ): Set<string> {
-  if (role === "super_admin") return new Set(FALLBACK_DEFAULTS.super_admin);
+  if (isAdminRole(role)) return new Set(FALLBACK_DEFAULTS.admin);
   const result = new Set<string>();
   const roleRows = rolePermissions.filter((row) => row.role === role);
   const persisted = new Set(roleRows.map((row) => row.permission));
@@ -19,7 +20,7 @@ export function resolvePermissions(
 }
 
 export function rolePermissionAllowed(role: string, permission: string, rows: RolePermissionRow[]): boolean {
-  if (role === "super_admin") return true;
+  if (isAdminRole(role)) return true;
   const stored = rows.find((row) => row.role === role && row.permission === permission);
   if (stored) return stored.allowed;
   return (FALLBACK_DEFAULTS[role] || []).includes(permission as PermissionKey);

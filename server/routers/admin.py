@@ -2,6 +2,7 @@
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
+from services.administrative_roles import is_administrator
 
 from gateway_dependencies import (
     AuthenticatedUser,
@@ -71,10 +72,10 @@ async def create_managed_user(
     }
     if payload.role not in allowed_roles:
         raise HTTPException(status_code=400, detail="Choose a supported account role.")
-    if user.role != "super_admin" and payload.role not in {"employee", "accounting_staff"}:
+    if not is_administrator(user.role) and payload.role not in {"employee", "accounting_staff"}:
         raise HTTPException(
             status_code=403,
-            detail="Only the Super Admin can create administrative or leadership accounts.",
+            detail="Only Admin can create administrative or leadership accounts.",
         )
     created_uid: str | None = None
     try:
@@ -140,12 +141,16 @@ async def delete_managed_user(
         )
     try:
         target_role = _profile_role(uid)
-        if target_role == "super_admin":
-            raise HTTPException(status_code=403, detail="The Super Admin account is protected.")
-        if target_role == "admin" and user.role != "super_admin":
-            raise HTTPException(status_code=403, detail="Only the Super Admin can delete an Admin account.")
-        if target_role in {"dept_head", "department_head", "assistant_head"} and user.role != "super_admin":
-            raise HTTPException(status_code=403, detail="Only the Super Admin can delete a leadership account.")
+        if is_administrator(target_role):
+            if not is_administrator(user.role):
+                raise HTTPException(status_code=403, detail="Only Admin can delete an Admin account.")
+            active_admins = supabase_admin.table("profiles").select("id").in_(
+                "role", ["admin", "super_admin"]
+            ).eq("is_active", True).execute().data or []
+            if any(str(profile["id"]) == uid for profile in active_admins) and len(active_admins) <= 1:
+                raise HTTPException(status_code=400, detail="The last active Admin account is protected.")
+        if target_role in {"dept_head", "department_head", "assistant_head"} and not is_administrator(user.role):
+            raise HTTPException(status_code=403, detail="Only Admin can delete a leadership account.")
         supabase_admin.auth.admin.delete_user(uid)
         return {"deleted": uid}
     except HTTPException:
@@ -178,7 +183,7 @@ def _require_message_moderator(message_id: str, user: AuthenticatedUser) -> None
         .execute()
     )
     sender_id = str((result.data or {}).get("sender_id", ""))
-    if user.role not in {"super_admin", "dept_head", "assistant_head"} and sender_id != user.id:
+    if not is_administrator(user.role) and user.role not in {"dept_head", "assistant_head"} and sender_id != user.id:
         raise HTTPException(status_code=403, detail="You cannot modify this message.")
 
 

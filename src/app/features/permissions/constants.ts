@@ -82,18 +82,11 @@ export const MANAGED_ROLES = [
   { key: "assistant_head", label: "Assistant Head" },
   { key: "employee", label: "Employee" },
   { key: "accounting_staff", label: "Accounting Staff" },
-  { key: "super_admin", label: "Super Admin" },
 ] as const;
 
 export const FALLBACK_DEFAULTS: Record<string, readonly PermissionKey[]> = {
   super_admin: PERMISSION_KEYS,
-  admin: [
-    "navigation.projects", "navigation.reports", "navigation.announcements",
-    "navigation.user_management", "navigation.organization", "navigation.audit",
-    "navigation.system_settings", "navigation.data_tools", "reports.export",
-    "announcements.publish", "users.manage", "audit.read", "settings.manage",
-    "database.backup",
-  ],
+  admin: PERMISSION_KEYS,
   dept_head: [
     "navigation.projects", "navigation.tasks", "navigation.reviews",
     "navigation.team_supervision", "navigation.team_intelligence",

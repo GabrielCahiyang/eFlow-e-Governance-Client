@@ -58,7 +58,7 @@ export function AccountingStaffWorkspace({
         <AttentionBox
           type="warning"
           title="Department assignment required"
-          text="Accounting Staff access is always scoped to one department. Ask the Department Head or Super Admin to assign your account to a department."
+          text="Accounting Staff access is always scoped to one department. Ask the Department Head or Admin to assign your account to a department."
         />
       </div>
     );

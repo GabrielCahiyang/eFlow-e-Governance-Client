@@ -1,11 +1,12 @@
+import { isAdminRole } from "../../shared/roles";
 import type { GuidedTourSection } from "./types";
 
 export function suggestedFirstSteps(role: string, sections: GuidedTourSection[]) {
-  const priorities = role === "super_admin" ? ["projects", "users", "org_tree"]
+  const priorities = isAdminRole(role) ? ["projects", "users", "org_tree"]
     : ["dept_head", "department_head"].includes(role) ? ["projects", "team", "reviews"]
     : ["tasks", "subtasks", "reviews", "dashboard"];
   const descriptions: Record<string, string> = {
-    projects: role === "super_admin" ? "See citywide projects and department approval status." : "Create a work plan, then review its tasks, departments, team, and budget.",
+    projects: isAdminRole(role) ? "See citywide projects and department approval status." : "Create a work plan, then review its tasks, departments, team, and budget.",
     team: "Check available staff and workload before assigning tasks.",
     reviews: "Open pending requests and review the work before deciding.",
     tasks: "Open your assigned tasks and check their deadlines.",

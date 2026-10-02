@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import re
 from typing import Any
+from services.administrative_roles import is_administrator
 
 import httpx
 
@@ -35,7 +36,7 @@ def _authorized_draft(user: AuthenticatedUser, draft_id: str) -> tuple[dict[str,
         and str(draft.get("owner_org_id")) == user.org_id
         and user.role in {"dept_head", "department_head", "assistant_head"}
     )
-    if user.role == "super_admin" or (not owner and not owner_org_manager):
+    if is_administrator(user.role) or (not owner and not owner_org_manager):
         raise PermissionError("Only the owning office may request AI staffing recommendations.")
     if draft.get("status") != "draft":
         raise PermissionError("AI staffing recommendations are available only before collaboration review begins.")
@@ -51,6 +52,7 @@ def _candidate_context(participants: list[dict[str, Any]]) -> list[dict[str, Any
         .eq("is_active", True)
         .in_("org_id", org_ids)
         .neq("role", "super_admin")
+        .neq("role", "admin")
         .execute().data or []
     )
     ids = [str(profile["id"]) for profile in profiles]

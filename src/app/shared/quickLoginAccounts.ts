@@ -18,8 +18,8 @@ export const QUICK_LOGIN_ACCOUNTS: readonly QuickLoginAccount[] = [
     shortcut: "1",
     email: "admin@gmail.com",
     password: "admin123",
-    label: "Super Admin",
-    roleLabel: "Super Admin",
+    label: "Admin",
+    roleLabel: "Admin",
   },
   {
     shortcut: "2",

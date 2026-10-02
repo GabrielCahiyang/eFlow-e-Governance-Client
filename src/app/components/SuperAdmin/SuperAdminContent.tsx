@@ -1,4 +1,5 @@
-// ─── Super Admin Content Router ──────────────────────────────────
+import { isAdminRole } from "../../shared/roles";
+// ─── Admin Content Router ──────────────────────────────────
 // Thin router that delegates to Supabase-connected modules.
 
 import React from "react";
@@ -17,7 +18,7 @@ import { MonthlyLeaderboard } from "../../features/productivity";
 import { useDepartmentTeamAnalytics } from "../../features/team-management";
 import { useAuth } from "../../contexts/AuthContext";
 
-// System-wide scope: super admin sees every org (empty scopedOrgIds = all).
+// System-wide scope: admin sees every org (empty scopedOrgIds = all).
 const ADMIN_SCOPE = { isSuperAdmin: true, scopedOrgIds: [] as string[] };
 function AdminProjects() {
   return <ProjectsWorkspace scope={ADMIN_SCOPE} eyebrow="Administration · Planning Portfolio" readOnly />;
@@ -134,7 +135,7 @@ export function SuperAdminContent({
   }
 
   const requestedPage = activePage || defaultPages[activeSection] || Object.keys(section)[0];
-  const pageName = userProfile?.role !== "super_admin"
+  const pageName = !isAdminRole(userProfile?.role)
     && activeSection === "users"
     && requestedPage !== "All Users"
     ? "All Users"

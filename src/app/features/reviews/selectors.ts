@@ -1,3 +1,4 @@
+import { isAdminRole } from "../../shared/roles";
 import type { Task } from "../../services/taskService";
 import { isHeadWorkspaceRole } from "../../shared/roles";
 
@@ -23,7 +24,7 @@ export function canUserReviewTask(
 ): boolean {
   if (!userId || task.latestSubmission?.submitterId === userId) return false;
   return (
-    role === "super_admin" ||
+    isAdminRole(role) ||
     task.reviewerId === userId ||
     task.backupReviewerId === userId
   );

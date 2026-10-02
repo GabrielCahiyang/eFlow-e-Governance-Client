@@ -1,3 +1,4 @@
+import { isAdminRole } from "../../../shared/roles";
 import { useEffect, useMemo, useState } from "react";
 import { Check, CircleMinus, RotateCcw, Search, Shield, UserRoundCog } from "lucide-react";
 import { useProfiles, useOrgs } from "../../../hooks/useSupabaseData";
@@ -74,9 +75,9 @@ export function UserAccessTab({
   const [roleRows, setRoleRows] = useState<RolePermissionRow[]>([]);
   const [overrides, setOverrides] = useState<UserOverrideRow[]>([]);
   const activeUserId = selectedUserId ?? internalUserId;
-  const selected = profiles.find((profile) => profile.id === activeUserId);
+  const selected = profiles.find((profile) => profile.id === activeUserId && !isAdminRole(profile.role));
   const orgMap = useMemo(() => Object.fromEntries(orgs.map((org) => [org.id, org.name])), [orgs]);
-  const manageable = profiles.filter((profile) => profile.role !== "super_admin" && profile.is_active);
+  const manageable = profiles.filter((profile) => !isAdminRole(profile.role) && profile.is_active);
   const filteredUsers = manageable.filter((profile) => (orgFilter === "all" || profile.org_id === orgFilter) && `${profile.full_name} ${profile.email} ${profile.role} ${orgMap[profile.org_id || ""] || ""}`.toLowerCase().includes(search.toLowerCase()));
   const orgOptions = useMemo(() => [{ value: "all", label: "All departments" }, ...orgs.filter((org) => org.is_active).map((org) => ({ value: org.id, label: org.name })).sort((a, b) => a.label.localeCompare(b.label))], [orgs]);
 

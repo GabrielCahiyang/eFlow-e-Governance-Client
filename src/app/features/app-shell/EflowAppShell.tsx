@@ -1,3 +1,4 @@
+import { isAdminRole } from "../../shared/roles";
 import { TaskDepartmentProvider } from "../tasks";
 import { Modal } from "@vibe/core";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -30,7 +31,7 @@ function getSectionPages(role: string, section: string, persistedRole?: string) 
   const content = getSidebarContent(role, section);
   return content.sections.flatMap((contentSection) =>
     contentSection.items
-      .filter((item) => persistedRole === "super_admin" || section !== "users" || item.label === "All Users")
+      .filter((item) => isAdminRole(persistedRole) || section !== "users" || item.label === "All Users")
       .map((item) => ({ label: item.label })),
   );
 }

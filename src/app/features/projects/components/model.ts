@@ -1,5 +1,5 @@
 export interface ProjectScope {
-  /** Super Admin sees all organizations. */
+  /** Admin sees all organizations. */
   isSuperAdmin: boolean;
   /** Exact organization ids visible to a scoped management workspace. */
   scopedOrgIds: string[];

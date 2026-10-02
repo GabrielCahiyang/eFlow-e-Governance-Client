@@ -1,3 +1,4 @@
+import { isAdminRole } from "../../../shared/roles";
 import type { Employee } from '../../../services/employeeService';
 import { createProject, fetchMilestones } from '../../../services/projectService';
 import { createTask, type CreateTaskPayload } from '../../../services/taskService';
@@ -50,11 +51,11 @@ async function resolveAuthenticatedCommitScope(
   }
 
   // A Head/Assistant Head always writes to the organization currently stored
-  // on their authenticated profile. A Super Admin may deliberately select a
+  // on their authenticated profile. A Admin may deliberately select a
   // department, while a system-wide plan can remain unscoped.
   const scope = {
     userId: user.id,
-    orgId: profile.role === "super_admin"
+    orgId: isAdminRole(profile.role)
       ? requestedOrgId || null
       : (profile.org_id || null),
   };
@@ -70,7 +71,7 @@ async function resolveAuthenticatedCommitScope(
     throw new Error("The project-creation permission check could not run. Refresh the page and retry.");
   }
   if (!mayCreate) {
-    throw new Error("Your current eFlow role is not allowed to create projects in this organization. Use a Super Admin, Head, or Assistant Head account assigned to this organization.");
+    throw new Error("Your current eFlow role is not allowed to create projects in this organization. Use a Admin, Head, or Assistant Head account assigned to this organization.");
   }
 
   return scope;

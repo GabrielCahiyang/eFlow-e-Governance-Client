@@ -1,3 +1,4 @@
+import { isAdminRole } from "../../../../shared/roles";
 import * as React from "react";
 import type { UserProfile } from "../../../../types";
 import type { Employee } from "../../../../services/employeeService";
@@ -44,7 +45,7 @@ export function ScopedTaskKanban({
   onOpenTask?: (task: Task) => void;
 }) {
   const employees = React.useMemo(
-    () => profiles.filter((profile) => profile.role !== "super_admin").map(profileToBoardEmployee),
+    () => profiles.filter((profile) => !isAdminRole(profile.role)).map(profileToBoardEmployee),
     [profiles],
   );
 

@@ -39,15 +39,20 @@ import { UsersTab } from "../../src/app/features/administration/components/user-
 afterEach(cleanup);
 
 describe("Admin user directory", () => {
-  it("hides Admin accounts and permits profile edits for Heads and Assistant Heads", () => {
+  it("shows Admin accounts and gives Admin authority over leadership accounts", () => {
     render(<UsersTab onOpenAccess={vi.fn()} />);
 
-    expect(screen.queryByText("Andres Manili")).toBeNull();
-    expect(screen.queryByText("Other Admin")).toBeNull();
+    expect(screen.getByText("Andres Manili")).toBeTruthy();
+    const ownRow = screen.getByTestId("row-admin-current");
+    expect(within(ownRow).getByRole("button", { name: "Delete" }).hasAttribute("disabled")).toBe(true);
+    expect(within(ownRow).getByRole("button", { name: "Deactivate" }).hasAttribute("disabled")).toBe(true);
+    const otherAdmin = screen.getByTestId("row-admin-other");
+    expect(within(otherAdmin).getByRole("button", { name: "Deactivate" }).hasAttribute("disabled")).toBe(false);
+    expect(within(otherAdmin).getByRole("button", { name: "Access" }).hasAttribute("disabled")).toBe(true);
 
     const headRow = screen.getByTestId("row-head-1");
     expect(within(headRow).getByRole("button", { name: "Edit" }).hasAttribute("disabled")).toBe(false);
-    expect(within(headRow).getByRole("button", { name: "Deactivate" }).hasAttribute("disabled")).toBe(true);
+    expect(within(headRow).getByRole("button", { name: "Deactivate" }).hasAttribute("disabled")).toBe(false);
     fireEvent.click(within(headRow).getByRole("button", { name: "Edit" }));
     expect(screen.getByTestId("editing-user").textContent).toBe("Cheryl Gallo");
 

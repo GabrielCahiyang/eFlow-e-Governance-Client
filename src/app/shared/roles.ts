@@ -3,6 +3,15 @@ import type { UserRole } from "../types";
 export const HEAD_ROLE: UserRole = "dept_head";
 export const ASSISTANT_HEAD_ROLE: UserRole = "assistant_head";
 
+/** The legacy key remains readable while existing sessions/data are migrated. */
+export function isAdminRole(role: string | null | undefined): boolean {
+  return role === "admin" || role === "super_admin";
+}
+
+export function normalizeUserRole(role: UserRole): UserRole {
+  return isAdminRole(role) ? "admin" : role;
+}
+
 export function isHeadWorkspaceRole(role: string | null | undefined): boolean {
   return role === HEAD_ROLE || role === ASSISTANT_HEAD_ROLE || role === "department_head";
 }
@@ -10,7 +19,6 @@ export function isHeadWorkspaceRole(role: string | null | undefined): boolean {
 export function getRoleLabel(role: string): string {
   switch (role) {
     case "super_admin":
-      return "Super Admin";
     case "admin":
       return "Admin";
     case "dept_head":

@@ -1,3 +1,4 @@
+import { isAdminRole } from "../../../../shared/roles";
 import type { UserRole } from "../../../../types";
 import { ProgressBar } from "@vibe/core";
 import { getRoleLabel } from "../../../../shared/roles";
@@ -11,7 +12,7 @@ export const ROLE_OPTIONS: { value: UserRole; label: string }[] = [
 ];
 
 export function getAssignableRoleOptions(viewerRole?: string) {
-  if (viewerRole === "super_admin") return ROLE_OPTIONS;
+  if (isAdminRole(viewerRole)) return ROLE_OPTIONS;
   return ROLE_OPTIONS.filter(({ value }) => value === "employee" || value === "accounting_staff");
 }
 
