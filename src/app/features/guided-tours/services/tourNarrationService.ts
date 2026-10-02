@@ -8,7 +8,7 @@ export function isTourNarrationSupported(): boolean {
     && typeof SpeechSynthesisUtterance !== "undefined";
 }
 
-export function getTourNarrationText(step: GuidedTourStep): string {
+export function getTourNarrationText(step: Pick<GuidedTourStep, "title" | "description"> & Partial<GuidedTourStep>): string {
   return `${step.title}. ${step.description}`.replace(/\s+/g, " ").trim();
 }
 
@@ -32,7 +32,7 @@ export function stopTourNarration(): void {
 }
 
 export function speakTourStep(
-  step: GuidedTourStep,
+  step: Pick<GuidedTourStep, "title" | "description"> & Partial<GuidedTourStep>,
   handlers: { onStart?: () => void; onEnd?: () => void } = {},
 ): SpeechSynthesisUtterance | null {
   if (!isTourNarrationSupported()) return null;
@@ -56,3 +56,4 @@ export function speakTourStep(
   window.speechSynthesis.speak(utterance);
   return utterance;
 }
+
