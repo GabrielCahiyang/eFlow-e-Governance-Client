@@ -11,7 +11,8 @@ from supabase import Client, create_client
 
 from gateway_config import settings
 from services.recent_auth import is_recent_sign_in
-from services.administrative_roles import is_administrator, normalize_administrative_role
+from services.administrative_roles import is_administrator
+from services.account_roles import normalize_account_role, ADMIN_PERMISSIONS
 
 
 supabase_admin: Client = create_client(
@@ -76,10 +77,15 @@ def require_user(
             detail="This eFlow account is inactive.",
         )
 
+    try:
+        account_role = normalize_account_role(profile.get("role"))
+    except ValueError as exc:
+        raise HTTPException(status_code=403, detail="Unsupported account role. Ask an Admin to correct this account.") from exc
+
     return AuthenticatedUser(
         id=str(auth_user.id),
         email=profile.get("email") or getattr(auth_user, "email", "") or "",
-        role=normalize_administrative_role(profile.get("role") or "employee"),
+        role=account_role,
         org_id=profile.get("org_id"),
         last_sign_in_at=getattr(auth_user, "last_sign_in_at", None),
     )
@@ -102,7 +108,7 @@ require_super_admin = require_admin
 
 def _permission_allowed(user: AuthenticatedUser, permission: str) -> bool:
     if is_administrator(user.role):
-        return True
+        return permission in ADMIN_PERMISSIONS
 
     override_result = (
         supabase_admin.table("user_permission_overrides")

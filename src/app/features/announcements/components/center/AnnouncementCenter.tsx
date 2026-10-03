@@ -15,7 +15,7 @@ const AUDIENCE_META: Record<Audience, { label: string; icon: ReactNode; color: s
     labelColor: "positive",
   },
   org: {
-    label: "Department Scope",
+    label: "Office Scope",
     icon: <Workspace size={11} />,
     color: "bg-blue-50 text-blue-700 border-blue-200",
     labelColor: "bright-blue",
@@ -41,7 +41,7 @@ export function AnnouncementCenter({ eyebrow = "My Workspace · Updates" }: { ey
   const activeFilter = filters.findIndex((item) => item.id === filter);
   const audienceOptions = [
     { value: "all", label: "All audiences" },
-    { value: "org", label: "Department" },
+    { value: "org", label: "Office" },
     { value: "users", label: "Direct" },
   ];
 

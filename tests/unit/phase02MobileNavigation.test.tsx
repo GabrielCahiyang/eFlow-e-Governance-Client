@@ -8,7 +8,7 @@ vi.mock("../../src/app/contexts/AuthContext", () => ({
   useAuth: () => ({
     can: () => true,
     user: { id: "user-1" },
-    userProfile: { role: "dept_head" },
+    userProfile: { role: "head" },
   }),
 }));
 
@@ -80,7 +80,7 @@ describe("Phase 02 mobile navigation", () => {
   it("opens a Vibe modal navigation surface and closes it after a destination is selected", async () => {
     render(
       <EflowVibeThemeProvider preference="light">
-        <EflowAppShell role="depthead" />
+        <EflowAppShell role="head" />
       </EflowVibeThemeProvider>,
     );
 

@@ -20,6 +20,12 @@ __pycache__/
 .venv/
 server/.venv/
 
+# Local repository navigation tooling
+.graphify-venv/
+graphify-out/
+.graphify_python
+graph.json
+
 # Environment files
 .env
 .env.local

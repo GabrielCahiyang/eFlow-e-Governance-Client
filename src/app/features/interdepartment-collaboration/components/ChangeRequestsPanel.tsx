@@ -57,7 +57,7 @@ export function ChangeRequestsPanel({
           <div>
             <h2>Formal change requests ({requests.length})</h2>
             <p className="m-0 mt-1 text-xs text-secondary">
-              Structured modification requirements raised by participating departments. Open requests must be resolved before final commit.
+              Structured modification requirements raised by participating offices. Open requests must be resolved before final commit.
             </p>
           </div>
           {canRequest && !creating && (
@@ -199,7 +199,7 @@ export function ChangeRequestsPanel({
                       <div className="mt-2 text-[11px] text-secondary">
                         Requested by{" "}
                         <span className="font-medium text-neutral-800">
-                          {requester?.full_name || "Department Reviewer"}
+                          {requester?.full_name || "Office Reviewer"}
                         </span>
                         {org?.name && ` (${org.name})`} ·{" "}
                         {new Date(request.createdAt).toLocaleDateString([], {
@@ -241,7 +241,7 @@ export function ChangeRequestsPanel({
                 No open change requests
               </div>
               <p className="mt-1 text-xs text-secondary">
-                All participating departments are aligned with the current proposal plan.
+                All participating offices are aligned with the current proposal plan.
               </p>
             </div>
           )}

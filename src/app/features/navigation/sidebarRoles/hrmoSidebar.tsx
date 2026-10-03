@@ -3,7 +3,7 @@ import type { SidebarContent } from "../sidebarTypes";
 
 export const hrmoSidebar: Record<string, SidebarContent> = {
       workspace: {
-        title: "Department Workspace",
+        title: "Office Workspace",
         sections: [
           {
             title: "Dashboard",
@@ -32,7 +32,7 @@ export const hrmoSidebar: Record<string, SidebarContent> = {
                   { label: "Cumulative Work Experience" },
                   { label: "Response Latencies" },
                   { label: "Logged Project Hours" },
-                  { label: "Department Risk Flags" },
+                  { label: "Office Risk Flags" },
                 ],
               },
               {
@@ -50,7 +50,7 @@ export const hrmoSidebar: Record<string, SidebarContent> = {
         ],
       },
       wellness: {
-        title: "Employee Wellness",
+        title: "Member Wellness",
         sections: [
           {
             title: "Well-being",

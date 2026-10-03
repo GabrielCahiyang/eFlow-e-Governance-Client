@@ -22,9 +22,11 @@ export function canUserReviewTask(
   userId?: string,
   role?: string,
 ): boolean {
-  if (!userId || task.latestSubmission?.submitterId === userId) return false;
+  if (!userId || isAdminRole(role)) return false;
+  const selfSubmission = task.latestSubmission?.submitterId === userId;
+  const officeHeadFinalization = isHeadWorkspaceRole(role) && (!task.reviewRouteMode || task.reviewRouteMode === "organization_default") && task.reviewerId === userId;
+  if (selfSubmission && !officeHeadFinalization) return false;
   return (
-    isAdminRole(role) ||
     task.reviewerId === userId ||
     task.backupReviewerId === userId
   );

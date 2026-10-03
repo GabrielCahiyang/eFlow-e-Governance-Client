@@ -22,27 +22,20 @@ export function AssignHeadModal({
 }) {
   const { toast } = useToast();
   const [headUserId, setHeadUserId] = React.useState("");
-  const [assistantHeadUserId, setAssistantHeadUserId] = React.useState("");
   const [saving, setSaving] = React.useState(false);
 
   React.useEffect(() => {
     if (!org) return;
     setHeadUserId(org.head_user_id || "");
-    setAssistantHeadUserId(org.assistant_head_user_id || "");
   }, [org, isOpen]);
 
   const handleSave = async () => {
     if (!org) return;
-    if (headUserId && headUserId === assistantHeadUserId) {
-      toast("Head and Assistant Head must be different people.", "error");
-      return;
-    }
 
     setSaving(true);
     try {
       await assignOrganizationLeadership(org.id, {
         headUserId: headUserId || null,
-        assistantHeadUserId: assistantHeadUserId || null,
       });
       toast(`Leadership updated for ${org.name}`, "success");
       onClose();
@@ -78,9 +71,9 @@ export function AssignHeadModal({
         organizations={orgs}
         profiles={profiles}
         headUserId={headUserId}
-        assistantHeadUserId={assistantHeadUserId}
+        assistantHeadUserId=""
         onHeadChange={setHeadUserId}
-        onAssistantHeadChange={setAssistantHeadUserId}
+        onAssistantHeadChange={() => {}}
       />
     </Modal>
   );

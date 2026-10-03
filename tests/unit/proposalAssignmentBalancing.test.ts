@@ -11,7 +11,7 @@ import type { TeamMemberMetrics } from "../../src/app/features/team-management";
 const employee = (id: string, name: string, skills: string, workload = 0): Employee => ({
   id,
   name,
-  jobTitle: "Employee",
+  jobTitle: "Member",
   jobDescription: skills,
   currentWorkload: workload,
   department: "ledipo",
@@ -175,8 +175,8 @@ describe("proposal AI assignment validation", () => {
 
   it("does not cap a valid AI team at three members", () => {
     const result = proposalTasks([{
-      title: "Department-wide planning session",
-      description: "Coordinate the full department planning and validation session.",
+      title: "Office-wide planning session",
+      description: "Coordinate the full office planning and validation session.",
       requiredSkills: ["strategic planning"],
       recommendedEmployeeIds: ["cheryl", "juan", "maria", "cris"],
     }]);

@@ -20,16 +20,16 @@ describe("task cash clearance", () => {
     data.liquidations.push({ ...data.liquidations[0], id: "old", version: 1, status: "changes_requested" });
     const [blocker] = getTaskCashBlockers("task-1", data, new Map([["budget-1", 2025]]));
     expect(blocker).toMatchObject({
-      fiscalYear: 2025, stage: "Awaiting final cash settlement", owner: "Department Head",
-      sourceLabel: "Food · Meals · Department Budget", reviewTarget: { recordId: "liquidation-2", role: "department" },
+      fiscalYear: 2025, stage: "Awaiting final cash settlement", owner: "Accounting Staff",
+      sourceLabel: "Food · Meals · Office Budget", reviewTarget: { recordId: "liquidation-2", role: "department" },
       request: { subtaskTitle: "Order Food", requestNumber: 2 }, liquidation: { declaredSpent: 8500, returnedAmount: 1500 },
     });
-    expect(blocker.nextStep).toContain("Approving the work evidence does not settle this cash");
+    expect(blocker.nextStep).toContain("Approving work evidence does not settle this cash");
   });
 
   it.each([
     ["pending_leader_review", "Awaiting operational endorsement", "Gabriel Cahiyang (Task Leader)"],
-    ["pending_department_approval", "Awaiting fiscal authorization", "Department Head"],
+    ["pending_department_approval", "Awaiting fiscal authorization", "Head"],
     ["leader_changes_requested", "Cash request needs correction", "Crisostomo Ibarra"],
     ["department_changes_requested", "Cash request needs correction", "Crisostomo Ibarra"],
     ["released", "Awaiting receipts and return", "Crisostomo Ibarra"],
@@ -57,12 +57,13 @@ describe("task cash clearance", () => {
 
   it("does not offer self-settlement or leadership actions to an unrelated employee", () => {
     const [blocker] = getTaskCashBlockers("task-1", cashData(), new Map([["budget-1", 2026]]));
-    expect(canOpenCashBlockerReview(blocker, "head-1", "dept_head")).toBe(true);
-    expect(canOpenCashBlockerReview(blocker, "employee-1", "dept_head")).toBe(false);
-    expect(canOpenCashBlockerReview(blocker, "unrelated", "employee")).toBe(false);
+    expect(canOpenCashBlockerReview(blocker, "head-1", "head")).toBe(false);
+    expect(canOpenCashBlockerReview(blocker, "accounting-1", "accounting_staff")).toBe(true);
+    expect(canOpenCashBlockerReview(blocker, "employee-1", "head")).toBe(false);
+    expect(canOpenCashBlockerReview(blocker, "unrelated", "member")).toBe(false);
     blocker.reviewTarget = { role: "leader", recordId: "liquidation-2" };
-    expect(canOpenCashBlockerReview(blocker, "leader-1", "employee")).toBe(true);
-    expect(canOpenCashBlockerReview(blocker, "head-1", "dept_head")).toBe(false);
+    expect(canOpenCashBlockerReview(blocker, "leader-1", "member")).toBe(true);
+    expect(canOpenCashBlockerReview(blocker, "head-1", "head")).toBe(false);
   });
 
   it("recognizes only cash-completion failures", () => {

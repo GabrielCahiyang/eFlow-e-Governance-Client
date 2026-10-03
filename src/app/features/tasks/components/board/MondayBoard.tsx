@@ -271,7 +271,7 @@ export function MondayBoard({
   }, [optionalBoardViews.length, visibleOptionalViewCount]);
 
   useNotificationNavigationIntent(
-    (intent) => role === "depthead" && intent.kind === "task",
+    (intent) => role === "head" && intent.kind === "task",
     (intent) => {
       const match = tasks.find((task) => task.id === intent.taskId);
       if (match) {
@@ -518,16 +518,16 @@ export function MondayBoard({
             onVerify={onVerify}
             onExecute={onExecute}
             onSubmitRequest={openSubmitModal}
-            onOpenTaskEditor={role === "depthead" ? openTaskEditor : undefined}
+            onOpenTaskEditor={role === "head" ? openTaskEditor : undefined}
             onDeleteTaskRequest={
-              role === "depthead" ? handleTaskDeleteRequest : undefined
+              role === "head" ? handleTaskDeleteRequest : undefined
             }
-            onArchiveTaskRequest={role === "depthead" ? handleTaskArchiveRequest : undefined}
-            onCancelTaskRequest={role === "depthead" ? handleTaskCancelRequest : undefined}
+            onArchiveTaskRequest={role === "head" ? handleTaskArchiveRequest : undefined}
+            onCancelTaskRequest={role === "head" ? handleTaskCancelRequest : undefined}
             departmentFilter={departmentFilter}
             currentUserId={currentUserId}
             currentUserName={currentUserName}
-            onUndoRequest={role === "depthead" ? openUndoModal : undefined}
+            onUndoRequest={role === "head" ? openUndoModal : undefined}
           />
         )}
         {boardView === "kanban" && (
@@ -538,28 +538,28 @@ export function MondayBoard({
             onVerify={onVerify}
             onExecute={onExecute}
             onSubmitRequest={openSubmitModal}
-            onOpenTaskEditor={role === "depthead" ? openTaskEditor : undefined}
+            onOpenTaskEditor={role === "head" ? openTaskEditor : undefined}
             onDeleteTaskRequest={
-              role === "depthead" ? handleTaskDeleteRequest : undefined
+              role === "head" ? handleTaskDeleteRequest : undefined
             }
-            onArchiveTaskRequest={role === "depthead" ? handleTaskArchiveRequest : undefined}
-            onCancelTaskRequest={role === "depthead" ? handleTaskCancelRequest : undefined}
+            onArchiveTaskRequest={role === "head" ? handleTaskArchiveRequest : undefined}
+            onCancelTaskRequest={role === "head" ? handleTaskCancelRequest : undefined}
             currentUserId={currentUserId}
             currentUserName={currentUserName}
-            onUndoRequest={role === "depthead" ? openUndoModal : undefined}
+            onUndoRequest={role === "head" ? openUndoModal : undefined}
           />
         )}
         {boardView === "timeline" && (
           <TimelineView
             tasks={boardTasks}
             role={role}
-            onOpenTaskEditor={role === "depthead" ? openTaskEditor : undefined}
+            onOpenTaskEditor={role === "head" ? openTaskEditor : undefined}
           />
         )}
         {boardView === "activity" && (
           <TaskActivityHistoryView
             tasks={boardTasks}
-            onOpenTaskEditor={role === "depthead" ? openTaskEditor : undefined}
+            onOpenTaskEditor={role === "head" ? openTaskEditor : undefined}
           />
         )}
         {boardView === "hierarchy" && (
@@ -570,14 +570,14 @@ export function MondayBoard({
             onVerify={onVerify}
             onExecute={onExecute}
             onSubmitRequest={openSubmitModal}
-            onOpenTaskEditor={role === "depthead" ? openTaskEditor : undefined}
+            onOpenTaskEditor={role === "head" ? openTaskEditor : undefined}
             onDeleteTaskRequest={
-              role === "depthead" ? handleTaskDeleteRequest : undefined
+              role === "head" ? handleTaskDeleteRequest : undefined
             }
-            onArchiveTaskRequest={role === "depthead" ? handleTaskArchiveRequest : undefined}
-            onCancelTaskRequest={role === "depthead" ? handleTaskCancelRequest : undefined}
+            onArchiveTaskRequest={role === "head" ? handleTaskArchiveRequest : undefined}
+            onCancelTaskRequest={role === "head" ? handleTaskCancelRequest : undefined}
             currentUserId={currentUserId}
-            onUndoRequest={role === "depthead" ? openUndoModal : undefined}
+            onUndoRequest={role === "head" ? openUndoModal : undefined}
           />
         )}
         {boardView === "workload" && (
@@ -585,19 +585,19 @@ export function MondayBoard({
             tasks={boardTasks}
             employees={deptEmployees}
             role={role}
-            onOpenTaskEditor={role === "depthead" ? openTaskEditor : undefined}
+            onOpenTaskEditor={role === "head" ? openTaskEditor : undefined}
           />
         )}
         {boardView === "calendar" && (
           <CalendarBoardView
             tasks={boardTasks}
-            onOpenTaskEditor={role === "depthead" ? openTaskEditor : undefined}
+            onOpenTaskEditor={role === "head" ? openTaskEditor : undefined}
           />
         )}
         {boardView === "dependencies" && (
           <DependenciesBoardView
             tasks={boardTasks}
-            onOpenTaskEditor={role === "depthead" ? openTaskEditor : undefined}
+            onOpenTaskEditor={role === "head" ? openTaskEditor : undefined}
           />
         )}
         {isBoardFilterView(boardView) && (
@@ -611,14 +611,14 @@ export function MondayBoard({
             onVerify={onVerify}
             onExecute={onExecute}
             onSubmitRequest={openSubmitModal}
-            onOpenTaskEditor={role === "depthead" ? openTaskEditor : undefined}
-            onDeleteTaskRequest={role === "depthead" ? handleTaskDeleteRequest : undefined}
-            onArchiveTaskRequest={role === "depthead" ? handleTaskArchiveRequest : undefined}
-            onCancelTaskRequest={role === "depthead" ? handleTaskCancelRequest : undefined}
+            onOpenTaskEditor={role === "head" ? openTaskEditor : undefined}
+            onDeleteTaskRequest={role === "head" ? handleTaskDeleteRequest : undefined}
+            onArchiveTaskRequest={role === "head" ? handleTaskArchiveRequest : undefined}
+            onCancelTaskRequest={role === "head" ? handleTaskCancelRequest : undefined}
             departmentFilter={departmentFilter}
             currentUserId={currentUserId}
             currentUserName={currentUserName}
-            onUndoRequest={role === "depthead" ? openUndoModal : undefined}
+            onUndoRequest={role === "head" ? openUndoModal : undefined}
           />
         )}
           </m.div>

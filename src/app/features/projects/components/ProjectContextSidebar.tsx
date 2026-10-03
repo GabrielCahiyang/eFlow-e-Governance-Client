@@ -184,9 +184,9 @@ export function ProjectContextSidebar({
         </button>
         {departmentFilter && (
           <label className="eflow-project-context__department-filter">
-            <span>Lead department</span>
+            <span>Lead office</span>
             <select
-              aria-label="Filter plans and projects by department"
+              aria-label="Filter plans and projects by office"
               value={departmentFilter.value}
               onChange={(event) => departmentFilter.onChange(event.target.value)}
             >

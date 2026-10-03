@@ -65,7 +65,7 @@ export function ProposalContextInspector({
     () =>
       new Set(
         [
-          ...(["dept_head", "department_head", "assistant_head"].includes(
+          ...(["head", "head"].includes(
             userProfile?.role || "",
           )
             ? [homeOrgId]
@@ -255,10 +255,10 @@ export function ProposalContextInspector({
               <div className="rounded-xl border border-neutral-200 bg-neutral-50/70 p-4 space-y-2.5">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-medium text-neutral-500">
-                    Originating Department
+                    Originating Office
                   </span>
                   <span className="text-xs font-semibold text-neutral-800">
-                    {ownerOrg?.name || "Department"}
+                    {ownerOrg?.name || "Office"}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
@@ -473,7 +473,7 @@ export function ProposalContextInspector({
                           : "Your Office"}
                       </strong>
                       <p className="mt-0.5 text-[11px] text-blue-800">
-                        As a department officer, you can record approval or
+                        As a office officer, you can record approval or
                         request revisions.
                       </p>
                     </div>

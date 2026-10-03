@@ -48,14 +48,14 @@ function profile(id: string, fullName: string, role: UserProfile["role"]): UserP
 
 describe("organization leadership uniqueness", () => {
   const profiles = [
-    profile("head-1", "Existing Head", "dept_head"),
-    profile("assistant-1", "Existing Assistant", "assistant_head"),
-    profile("employee-1", "New Employee", "employee"),
+    profile("head-1", "Existing Head", "head"),
+    profile("assistant-1", "Existing Assistant", "member"),
+    profile("employee-1", "New Member", "member"),
   ];
 
   it("rejects a second Head and names the existing occupant", () => {
     expect(getLeadershipSlotConflict({
-      role: "dept_head",
+      role: "head",
       orgId: "ledipo",
       currentUserId: "employee-1",
       organizations: [organization],
@@ -63,19 +63,19 @@ describe("organization leadership uniqueness", () => {
     })).toContain("Existing Head");
   });
 
-  it("rejects a second Assistant Head", () => {
+  it("does not create leadership slots for Members", () => {
     expect(getLeadershipSlotConflict({
-      role: "assistant_head",
+      role: "member",
       orgId: "ledipo",
       currentUserId: "employee-1",
       organizations: [organization],
       profiles,
-    })).toContain("Existing Assistant");
+    })).toBeNull();
   });
 
   it("allows the current official occupant to keep their position", () => {
     expect(getLeadershipSlotConflict({
-      role: "dept_head",
+      role: "head",
       orgId: "ledipo",
       currentUserId: "head-1",
       organizations: [organization],

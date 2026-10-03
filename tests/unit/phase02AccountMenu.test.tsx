@@ -11,9 +11,9 @@ vi.mock("../../src/app/contexts/AuthContext", () => ({
     user: { id: "user-1" },
     userProfile: {
       avatar_path: null,
-      departmentId: "department-1",
+      departmentId: "office-1",
       fullName: "Ari Santos",
-      role: "dept_head",
+      role: "head",
     },
     logout: account.logout,
   }),
@@ -52,12 +52,12 @@ describe("Phase 02 account utility", () => {
           activeSection="dashboard"
           onOpenMobileNavigation={() => undefined}
           onPageSelect={onPageSelect}
-          role="depthead"
+          role="head"
         />
       </EflowVibeThemeProvider>,
     );
 
-    expect(screen.getByText("Department Head")).toBeTruthy();
+    expect(screen.getByText("Head")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Open account menu" }));
 
     const settings = await screen.findByRole("menuitem", { name: "Settings" });

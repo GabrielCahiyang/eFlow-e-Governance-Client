@@ -1,4 +1,4 @@
-import type { Employee } from "../../employees";
+import type { Employee } from "../../members";
 import type { Project } from "../../projects";
 import type { Task } from "../../tasks";
 import type { TeamAttentionItem, TeamWorkflowFacts } from "../../team-management";

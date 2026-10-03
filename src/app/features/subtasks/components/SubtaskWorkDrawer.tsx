@@ -154,7 +154,7 @@ export function SubtaskWorkDrawer({
           {readOnly ? (
             <div className="flex gap-2 rounded-xl border border-blue-200 bg-blue-50 p-3 text-[11.5px] text-blue-800">
               <Eye size={14} className="mt-0.5 shrink-0" />
-              <span><strong className="font-semibold">Team Leader view.</strong> Progress is read-only here; the assigned employee owns these updates.</span>
+              <span><strong className="font-semibold">Team Leader view.</strong> Progress is read-only here; the assigned member owns these updates.</span>
             </div>
           ) : (
             <SubtaskProgressForm subtask={current} prerequisite={prerequisite} onSaved={reload} />

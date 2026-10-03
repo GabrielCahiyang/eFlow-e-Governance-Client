@@ -45,7 +45,7 @@ export const OPTIONAL_VIEWS_CATALOG: ProjectViewMeta[] = [
     id: "proposal_context",
     label: "Proposal Context",
     category: "Project",
-    description: "Originating work plan, participating departments, and revision history.",
+    description: "Originating work plan, participating offices, and revision history.",
     requiresProposal: true,
   },
   {
@@ -87,7 +87,7 @@ export const OPTIONAL_VIEWS_CATALOG: ProjectViewMeta[] = [
     id: "signoff",
     label: "Approval Status",
     category: "Governance",
-    description: "Department endorsement matrix, approval status, and approval quorum.",
+    description: "Office endorsement matrix, approval status, and approval quorum.",
   },
   {
     id: "evidence",

@@ -10,6 +10,7 @@ import { FiscalYearControl } from "./FiscalYearControl";
 import { getCurrentFiscalYear } from "../constants";
 import type { NotificationNavigationIntent } from "../../notifications";
 import type { CashReviewFocus } from "../types";
+import { isLiquidationLate } from "../selectors/cashWorkflowRules";
 
 export function BudgetReviewInbox({
   actions,
@@ -24,27 +25,30 @@ export function BudgetReviewInbox({
   scope?: "department" | "leading";
   embedded?: boolean;
 }) {
-  const { userProfile } = useAuth();
+  const { userProfile, can } = useAuth();
   const orgId = cashReviewFocus?.orgId || userProfile?.org_id || userProfile?.departmentId || "";
   const [fiscalYear, setFiscalYear] = useState(cashReviewFocus?.fiscalYear || getCurrentFiscalYear());
   const budget = useDepartmentBudget(orgId, fiscalYear);
   const currentUserId = userProfile?.id || "";
-  const isDepartmentApprover = ["dept_head", "department_head", "assistant_head"].includes(userProfile?.role || "");
+  const isDepartmentApprover = ["head", "head"].includes(userProfile?.role || "");
+  const canSettle = userProfile?.role === "accounting_staff" && can("accounting.settle_liquidation");
+  const canRelease = userProfile?.role === "accounting_staff" && can("accounting.release_cash");
   const counts = useMemo(() => ({
     allocations: budget.allocations.filter((item) => isDepartmentApprover && item.status === "pending" && item.requestedBy !== currentUserId).length,
     requests: budget.requests.filter((item) => (isDepartmentApprover && item.status === "pending_department_approval" && item.requesterId !== currentUserId) || (item.status === "pending_leader_review" && item.taskLeaderId === currentUserId && item.requesterId !== currentUserId)).length,
     liquidations: budget.liquidations.filter((item) => {
       const request = budget.requests.find((candidate) => candidate.id === item.requestId);
-      return (isDepartmentApprover && item.status === "pending_department_settlement" && request?.cashRecipientId !== currentUserId) || (item.status === "pending_leader_review" && request?.taskLeaderId === currentUserId && request?.cashRecipientId !== currentUserId);
+      const lateAuthorization = isDepartmentApprover && isLiquidationLate(request,item) && !item.departmentDecidedAt;
+      return ((lateAuthorization || canSettle) && item.status === "pending_department_settlement" && request?.cashRecipientId !== currentUserId && request?.requesterId !== currentUserId && request?.taskLeaderId !== currentUserId) || (item.status === "pending_leader_review" && request?.taskLeaderId === currentUserId && request?.cashRecipientId !== currentUserId);
     }).length,
-    releases: budget.releases.filter((item) => isDepartmentApprover && item.status === "scheduled" && item.scheduledDate <= new Date().toISOString().slice(0, 10)).length,
-  }), [budget.allocations, budget.liquidations, budget.releases, budget.requests, currentUserId, isDepartmentApprover]);
+    releases: budget.releases.filter((item) => canRelease && item.status === "scheduled" && item.scheduledDate <= new Date().toISOString().slice(0, 10)).length,
+  }), [budget.allocations, budget.liquidations, budget.releases, budget.requests, currentUserId, isDepartmentApprover,canRelease,canSettle]);
   const total = counts.allocations + counts.requests + counts.liquidations + counts.releases;
 
   return (
     <div className={embedded ? "space-y-4" : "min-h-full p-4 sm:p-8"}>
       {!embedded && <PageHeader
-        eyebrow={scope === "leading" ? "Leader Workspace · Financial Reviews" : "Department · Reviews"}
+        eyebrow={scope === "leading" ? "Leader Workspace · Financial Reviews" : "Office · Reviews"}
         title="Financial Approvals"
         subtitle={scope === "leading" ? "Operationally endorse cash requests and receipt packages from contributors on work you lead." : "Fiscally authorize task-linked cash requests, releases, and receipt settlements from one review inbox."}
         actions={(
@@ -68,7 +72,7 @@ export function BudgetReviewInbox({
       ) : budget.error ? (
         <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-[11px] text-rose-700">{budget.error}</div>
       ) : !budget.summary ? (
-        <BudgetEmpty title={`No ${fiscalYear} department budget`} description="Create and lock the annual department budget before contributors can request task funding." />
+        <BudgetEmpty title={`No ${fiscalYear} office budget`} description="Create and lock the annual office budget before contributors can request task funding." />
       ) : (
         <div className="space-y-4">
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">

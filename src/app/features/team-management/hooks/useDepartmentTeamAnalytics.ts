@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTasks } from "../../../hooks/useFirebaseData";
 import { useProjectsData, useScopedOrgIds } from "../../../hooks/useSupabaseData";
-import { useDeptDirectoryEmployees } from "../../employees";
+import { useDeptDirectoryEmployees } from "../../members";
 import { scopeProjects, scopeTasks } from "../../tasks";
 import { buildTeamAttentionItems } from "../selectors/attentionSelectors";
 import { buildTeamHealthSummary } from "../selectors/healthSelectors";
@@ -26,7 +26,7 @@ export function useDepartmentTeamAnalytics(directoryOptions: DirectoryOptions = 
   const directory = useDeptDirectoryEmployees({
     includeDepartmentHeads: true,
     activeOnly: true,
-    excludeSuperAdmins: true,
+    excludeAdmins: true,
     ...directoryOptions,
   });
   const scopedTasks = useMemo(() => scopeTasks(tasks, scopedOrgIds), [scopedOrgIds, tasks]);

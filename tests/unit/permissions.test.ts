@@ -4,10 +4,10 @@ import { resolvePermissions } from "../../src/app/services/permissionService";
 describe("permission resolution compatibility", () => {
   it("uses persisted role permissions and applies user overrides last", () => {
     const result = resolvePermissions(
-      "dept_head",
+      "head",
       [
-        { role: "dept_head", permission: "tasks.assign", allowed: true },
-        { role: "dept_head", permission: "reports.export", allowed: false },
+        { role: "head", permission: "tasks.assign", allowed: true },
+        { role: "head", permission: "reports.export", allowed: false },
       ],
       [
         { userId: "user-1", permission: "tasks.assign", allowed: false },
@@ -20,15 +20,15 @@ describe("permission resolution compatibility", () => {
     expect(result.has("navigation.team_intelligence")).toBe(true);
   });
 
-  it("gives Assistant Head the same default workspace capabilities as Head", () => {
-    const permissions = resolvePermissions("assistant_head", [], []);
-    expect(permissions.has("projects.create")).toBe(true);
-    expect(permissions.has("tasks.verify")).toBe(true);
-    expect(permissions.has("navigation.reviews")).toBe(true);
+  it("keeps Member participation separate from Head authority", () => {
+    const permissions = resolvePermissions("member", [], []);
+    expect(permissions.has("projects.create")).toBe(false);
+    expect(permissions.has("tasks.verify")).toBe(false);
+    expect(permissions.has("navigation.reviews")).toBe(false);
     expect(permissions.has("navigation.user_management")).toBe(false);
   });
 
-  it("keeps Super Admin access immutable even if an override says deny", () => {
+  it("keeps Admin access immutable even if an override says deny", () => {
     const permissions = resolvePermissions("super_admin", [], [
       { userId: "admin", permission: "database.backup", allowed: false },
     ]);
@@ -36,12 +36,16 @@ describe("permission resolution compatibility", () => {
     expect(permissions.has("navigation.user_management")).toBe(true);
   });
 
-  it("gives Admin the former root authority despite legacy revocation overrides", () => {
+  it("keeps Admin administrative defaults fixed", () => {
     const permissions = resolvePermissions("admin", [], [
       { userId: "admin-1", permission: "navigation.audit", allowed: false },
     ]);
     expect(permissions.has("navigation.user_management")).toBe(true);
     expect(permissions.has("users.manage")).toBe(true);
+    expect(permissions.has("projects.create")).toBe(false);
+    expect(permissions.has("tasks.verify")).toBe(false);
+    expect(permissions.has("projects.create")).toBe(false);
+    expect(permissions.has("tasks.verify")).toBe(false);
     expect(permissions.has("navigation.audit")).toBe(true);
     expect(permissions.has("database.backup")).toBe(true);
   });

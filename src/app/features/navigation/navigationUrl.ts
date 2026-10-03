@@ -8,7 +8,7 @@ const SECTION_PATHS: Record<string, string> = {
   command: "command-center",
   projects: "projects",
   tasks: "tasks",
-  budget: "department-budget",
+  budget: "office-budget",
   subtasks: "subtasks",
   leading: "leading",
   reviews: "reviews",
@@ -44,7 +44,7 @@ const SECTION_PATHS: Record<string, string> = {
   accounting_releases: "voucher-cash-releases",
   accounting_journal: "general-journal",
   accounting_audit: "financial-audit-trail",
-  accounting_budgets: "department-budget-ledgers",
+  accounting_budgets: "office-budget-ledgers",
 };
 
 interface NavigationCandidate {
@@ -78,6 +78,8 @@ function getSectionFromPath(
   if (!segment) return undefined;
 
   if (segment === SECTION_PATHS.settings) return "settings";
+  if (segment === "department-budget" && candidates.some(candidate => candidate.id === "budget")) return "budget";
+  if (segment === "department-budget-ledgers" && candidates.some(candidate => candidate.id === "accounting_budgets")) return "accounting_budgets";
 
   return candidates.find((candidate) => {
     const candidatePath = getNavigationPath(candidate.id).slice(1);
@@ -120,6 +122,11 @@ export function readNavigationLocation(
   }
 
   const url = new URL(window.location.href);
+  if (role === "admin") {
+    const legacySupport: Record<string,string> = { organization:"Office Structure", audit:"Account Audit", "system-settings":"System Settings", "data-tools":"Backup & Export", permissions:"Role Defaults" };
+    const supportPage = legacySupport[url.pathname.split("/").filter(Boolean)[0] || ""];
+    if (supportPage) return { section:"users", page:supportPage };
+  }
   const candidates = getRoleNavigationCandidates(role);
   const section = getSectionFromPath(url.pathname, candidates) || defaultSection;
   return {

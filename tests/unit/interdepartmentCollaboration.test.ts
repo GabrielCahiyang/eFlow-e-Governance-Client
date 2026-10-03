@@ -45,7 +45,7 @@ function snapshot() {
   });
 }
 
-describe("inter-department collaboration domain", () => {
+describe("inter-office collaboration domain", () => {
   it("invalidates the draft portfolio immediately after local mutations", () => {
     let refreshes = 0;
     const unsubscribe = subscribeToLocalCollaborationDraftChanges(() => { refreshes += 1; });
@@ -177,14 +177,14 @@ describe("collaboration migration contracts", () => {
     expect(migrations).toContain("save_collaboration_staffing_revision");
     expect(migrations).toContain("autosave_collaboration_draft");
   });
-  it("repairs unpublished department revisions whose Task Leader is missing from the team", () => {
+  it("repairs unpublished office revisions whose Task Leader is missing from the team", () => {
     const repair = readFileSync("supabase/migrations/20260824000005_normalize_proposal_task_leader_membership.sql", "utf8");
     expect(repair).toContain("normalize_collaboration_task_teams");
     expect(repair).toContain("jsonb_build_array(task_item ->> 'leadMemberId')");
     expect(repair).toContain("participant.participation_role <> 'owner'");
     expect(repair).toContain("draft.status not in ('committed', 'archived', 'deleted')");
   });
-  it("publishes the latest autosaved department snapshot instead of a stale revision", () => {
+  it("publishes the latest autosaved office snapshot instead of a stale revision", () => {
     const migration = readFileSync("supabase/migrations/20260824000006_publish_latest_department_proposal_revision.sql", "utf8");
     const service = readFileSync("src/app/features/interdepartment-collaboration/services/collaborationCommitService.ts", "utf8");
     expect(migration).toContain("current_revision.snapshot is distinct from draft_row.working_snapshot");
@@ -224,7 +224,7 @@ describe("collaboration migration contracts", () => {
     expect(autosaveFix).toContain("target_role not in ('participant', 'governance', 'observer')");
     expect(autosaveFix).toContain("target_role in ('governance', 'observer') then false");
   });
-  it("records funding and requester departments while routing fiscal approval to the fund owner", () => {
+  it("records funding and requester offices while routing fiscal approval to the fund owner", () => {
     const migration = readFileSync("supabase/migrations/20260928000003_petty_cash_funding_requester_orgs.sql", "utf8");
     expect(migration).toContain("funding_org_id uuid");
     expect(migration).toContain("requester_org_id uuid");

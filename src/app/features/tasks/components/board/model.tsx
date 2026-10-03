@@ -66,7 +66,7 @@ export interface MondayBoardProps {
   employees?: Employee[];
   allEmployees?: Employee[];
   employeeNotes?: EmployeeNotesMap;
-  role: "depthead" | "employee";
+  role: "head" | "member";
   departmentFilter?: string;
   currentUserId?: string;
   currentUserName?: string;
@@ -286,7 +286,7 @@ export const getDirectBoardTransitionError = (
         task.recommendationLeadId === currentUserId ||
         getTaskMemberIds(task).includes(currentUserId)),
   );
-  if (role !== "depthead" && !isParticipant) {
+  if (role !== "head" && !isParticipant) {
     return "Only a task participant can start or resume this work.";
   }
   if (
@@ -313,7 +313,7 @@ export const canDragTask = (
   currentUserId?: string,
 ) =>
   (task.status === "todo" || task.status === "changes_requested") &&
-  (role === "depthead" ||
+  (role === "head" ||
     Boolean(
       currentUserId &&
         (task.assigneeId === currentUserId ||

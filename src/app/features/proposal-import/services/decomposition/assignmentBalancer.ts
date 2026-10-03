@@ -252,7 +252,7 @@ export function applyBalancedProposalAssignments(
           const pool = candidatePool(scored, rawIdSet);
           if (!pool.length) {
             task.recommendedEmployeeIds = [];
-            task.recommendationReasoning = "No eligible department employee matched this task.";
+            task.recommendationReasoning = "No eligible office member matched this task.";
             return;
           }
 

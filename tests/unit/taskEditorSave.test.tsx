@@ -17,7 +17,7 @@ describe("task editor save feedback", () => {
   it("keeps the editor and draft open with the precise partial-save reason", async () => {
     const message = "Saved task details, but could not save team and reviewer changes. Member has unfinished work.";
     const onUpdateTask = vi.fn().mockRejectedValue(new Error(message));
-    const { result } = renderHook(() => useMondayBoardController({ tasks: [task], role: "depthead", onUpdateTask }));
+    const { result } = renderHook(() => useMondayBoardController({ tasks: [task], role: "head", onUpdateTask }));
     act(() => result.current.openTaskEditor(task));
     act(() => result.current.setTaskEditorDraft((draft) => draft && { ...draft, description: "Keep this draft" }));
     await act(() => result.current.handleTaskEditorSave());
@@ -29,7 +29,7 @@ describe("task editor save feedback", () => {
 
   it("closes the editor only after the whole save succeeds", async () => {
     const onUpdateTask = vi.fn().mockResolvedValue(undefined);
-    const { result } = renderHook(() => useMondayBoardController({ tasks: [task], role: "depthead", onUpdateTask }));
+    const { result } = renderHook(() => useMondayBoardController({ tasks: [task], role: "head", onUpdateTask }));
     act(() => result.current.openTaskEditor(task));
     await act(() => result.current.handleTaskEditorSave());
     expect(onUpdateTask).toHaveBeenCalledOnce();

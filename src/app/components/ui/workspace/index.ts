@@ -1,0 +1,11 @@
+export { WorkspaceShell } from "./WorkspaceShell";
+export { WorkspaceHeader } from "./WorkspaceHeader";
+export { WorkspaceTabs, type WorkspaceTab } from "./WorkspaceTabs";
+export { ActionMenu, type WorkspaceAction } from "./ActionMenu";
+export { SplitActionButton } from "./SplitActionButton";
+export { WorkspacePopover } from "./WorkspacePopover";
+export { InlineEditableText } from "./InlineEditableText";
+export { StatusPill } from "./StatusPill";
+export { PeopleAvatarStack, type WorkspacePerson } from "./PeopleAvatarStack";
+export { WorkspaceSkeleton } from "./WorkspaceSkeleton";
+export { EmptyWorkspaceState } from "./EmptyWorkspaceState";

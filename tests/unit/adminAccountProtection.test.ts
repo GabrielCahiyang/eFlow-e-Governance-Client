@@ -6,7 +6,7 @@ describe("unified Admin identity", () => {
   it("keeps the legacy identity readable while presenting a single Admin role", () => {
     expect(normalizeUserRole("super_admin")).toBe("admin");
     expect(getRoleLabel("super_admin")).toBe("Admin");
-    expect(normalizeUserRole("dept_head")).toBe("dept_head");
+    expect(normalizeUserRole("dept_head")).toBe("head");
   });
 
   it("protects the last active Admin regardless of the legacy role key", () => {

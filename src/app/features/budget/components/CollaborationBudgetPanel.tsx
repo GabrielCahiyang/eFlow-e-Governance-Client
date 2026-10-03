@@ -147,7 +147,7 @@ export function CollaborationBudgetPanel({
 
       {/* Funding Notice */}
       <div className="rounded-lg border border-blue-200 bg-blue-50/70 p-4 text-xs leading-relaxed text-blue-950">
-        <span className="font-semibold">Lead department budget:</span>{" "}
+        <span className="font-semibold">Lead office budget:</span>{" "}
         Publishing reserves {peso.format(budget.totalAmount)} exactly once from{" "}
         {fundingOwnerName ? `${fundingOwnerName}'s` : "the owner's"} locked annual budget and creates matching allocations for every funded task. No-cost tasks create no allocation.
       </div>
@@ -197,7 +197,7 @@ export function CollaborationBudgetPanel({
           lines={openTask.budgetLines || []}
           fundingSource={
             fundingOwnerName
-              ? `${fundingOwnerName} Department Budget`
+              ? `${fundingOwnerName} Office Budget`
               : undefined
           }
           readOnly={!editable}

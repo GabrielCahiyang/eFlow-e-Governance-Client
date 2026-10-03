@@ -9,7 +9,7 @@ describe("project financial report hierarchy", () => {
   it("joins task and subtask accountability, funding mode, reservations, receipts, and evidence", () => {
     const tasks = [{
       id: "task-1", title: "Run workshop", status: "in_progress", assigneeId: "leader-1",
-      assigneeName: "Task Leader", teamMemberIds: ["member-1"], teamMemberNames: ["Employee One"],
+      assigneeName: "Task Leader", teamMemberIds: ["member-1"], teamMemberNames: ["Member One"],
       percentComplete: 40, createdAt: 1, updatedAt: 1,
     }] as Task[];
     const subtasks = [{
@@ -37,13 +37,13 @@ describe("project financial report hierarchy", () => {
     } as DepartmentBudgetBundle;
     const facts = {
       subtasks, progress: [], statusHistory: [],
-      submissions: [{ id: "submission-1", kind: "subtask", taskId: "task-1", subtaskId: "subtask-1", version: 1, submitterId: "member-1", submitterName: "Employee One", status: "pending", submittedAt: 1 }],
+      submissions: [{ id: "submission-1", kind: "subtask", taskId: "task-1", subtaskId: "subtask-1", version: 1, submitterId: "member-1", submitterName: "Member One", status: "pending", submittedAt: 1 }],
       evidence: [{ id: "evidence-1", kind: "subtask", taskId: "task-1", submissionId: "submission-1", fileName: "photo.jpg", filePath: "photo.jpg", fileSize: 1, mimeType: "image/jpeg", createdAt: 1 }],
     } as TeamWorkflowFacts;
 
     const rows = buildProjectExecutionFinancialRows(tasks, subtasks, financial, facts);
     expect(rows).toHaveLength(2);
     expect(rows[0]).toMatchObject({ level: "task", workItem: "Run workshop", accountability: "Task Leader", budgetAmount: 10_000, reservedAmount: 1_000 });
-    expect(rows[1]).toMatchObject({ level: "subtask", workItem: "Buy materials", accountability: "Employee One", budgetMode: "cap", budgetAmount: 3_000, reservedAmount: 1_000, availableAmount: 2_000, receiptCount: 1, evidenceCount: 1 });
+    expect(rows[1]).toMatchObject({ level: "subtask", workItem: "Buy materials", accountability: "Member One", budgetMode: "cap", budgetAmount: 3_000, reservedAmount: 1_000, availableAmount: 2_000, receiptCount: 1, evidenceCount: 1 });
   });
 });

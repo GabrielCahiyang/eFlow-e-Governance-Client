@@ -35,7 +35,7 @@ export function OrgModal({
     description: '',
     parent_id: '',
     head_user_id: '',
-    assistant_head_user_id: '',
+    backup_reviewer_id: '',
   });
   const [saving, setSaving] = React.useState(false);
   const [errors, setErrors] = React.useState<Record<string, string>>({});
@@ -48,7 +48,7 @@ export function OrgModal({
         description: org.description,
         parent_id: org.parent_id || '',
         head_user_id: org.head_user_id || '',
-        assistant_head_user_id: org.assistant_head_user_id || '',
+        backup_reviewer_id: '',
       });
     } else {
       setForm({
@@ -57,7 +57,7 @@ export function OrgModal({
         description: '',
         parent_id: parentId || '',
         head_user_id: '',
-        assistant_head_user_id: '',
+        backup_reviewer_id: '',
       });
     }
   }, [org, parentId, isOpen]);
@@ -67,7 +67,7 @@ export function OrgModal({
     let cancelled = false;
     void fetchOrganizationApprovers(org.id).then((leadership) => {
       if (cancelled) return;
-      setForm((current) => ({ ...current, head_user_id: leadership.headUserId || "", assistant_head_user_id: leadership.assistantHeadUserId || "" }));
+      setForm((current) => ({ ...current, head_user_id: leadership.headUserId || "", backup_reviewer_id: leadership.assistantHeadUserId || "" }));
     }).catch(() => undefined);
     return () => { cancelled = true; };
   }, [isOpen, org]);
@@ -75,8 +75,8 @@ export function OrgModal({
   const validate = () => {
     const errs: Record<string, string> = {};
     if (!form.name.trim()) errs.name = 'Required';
-    if (form.head_user_id && form.head_user_id === form.assistant_head_user_id) {
-      errs.assistant_head_user_id = 'Head and Assistant Head must be different people';
+    if (form.head_user_id && form.head_user_id === form.backup_reviewer_id) {
+      errs.backup_reviewer_id = 'Primary and backup reviewers must be different people';
     }
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -93,11 +93,11 @@ export function OrgModal({
         });
         if (
           form.head_user_id !== org.head_user_id ||
-          form.assistant_head_user_id !== org.assistant_head_user_id
+          ["board", "committee"].includes(form.org_type)
         ) {
           await (["board", "committee"].includes(form.org_type) ? assignOrganizationApprovers : assignOrganizationLeadership)(org.id, {
             headUserId: form.head_user_id || null,
-            assistantHeadUserId: form.assistant_head_user_id || null,
+            assistantHeadUserId: ["board", "committee"].includes(form.org_type) ? form.backup_reviewer_id || null : null,
           });
         }
         toast(`"${form.name}" updated`, 'success');
@@ -108,10 +108,10 @@ export function OrgModal({
           org_type: form.org_type,
           description: form.description.trim(),
         });
-        if (form.head_user_id || form.assistant_head_user_id) {
+        if (form.head_user_id || form.backup_reviewer_id) {
           await (["board", "committee"].includes(form.org_type) ? assignOrganizationApprovers : assignOrganizationLeadership)(newOrg.id, {
             headUserId: form.head_user_id || null,
-            assistantHeadUserId: form.assistant_head_user_id || null,
+            assistantHeadUserId: form.backup_reviewer_id || null,
           });
         }
         toast(`"${form.name}" created`, 'success');
@@ -181,10 +181,10 @@ export function OrgModal({
           organizations={orgs}
           profiles={profiles}
           headUserId={form.head_user_id}
-          assistantHeadUserId={form.assistant_head_user_id}
+          assistantHeadUserId={form.backup_reviewer_id}
           onHeadChange={(userId) => setForm({ ...form, head_user_id: userId })}
-          onAssistantHeadChange={(userId) => setForm({ ...form, assistant_head_user_id: userId })}
-          assistantHeadError={errors.assistant_head_user_id}
+          onAssistantHeadChange={(userId) => setForm({ ...form, backup_reviewer_id: userId })}
+          assistantHeadError={errors.backup_reviewer_id}
           boardMode={["board", "committee"].includes(form.org_type)}
         />
       </div>

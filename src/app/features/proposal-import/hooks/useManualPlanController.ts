@@ -6,7 +6,7 @@ import { useEmployeeNotes } from "../../../hooks/useFirebaseData";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useOrgs } from "../../../hooks/useSupabaseData";
 import { useToast } from "../../../components/ui/Toast";
-import { useDeptDirectoryEmployees } from "../../employees";
+import { useDeptDirectoryEmployees } from "../../members";
 import {
   buildCollaborationSnapshot,
   autosaveCollaborationDraft,
@@ -40,7 +40,7 @@ export function useManualPlanController(onClose?: () => void) {
     includeCurrentUser: true,
     includeDepartmentHeads: true,
     activeOnly: true,
-    excludeSuperAdmins: true,
+    excludeAdmins: true,
   });
   const { tasks: liveTasks } = useTasks();
   const candidateEmployees = useMemo(() => withEmployeeDeadlineWorkload(directoryEmployees, liveTasks), [directoryEmployees, liveTasks]);

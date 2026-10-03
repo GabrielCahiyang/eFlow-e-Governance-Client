@@ -1,4 +1,3 @@
-import { isAdminRole } from "../../../shared/roles";
 import { useEffect, useMemo, useState } from "react";
 import { Search as VibeSearch, Skeleton } from "@vibe/core";
 import { CheckCircle2, Clock, Inbox, MessageSquareWarning, Search } from "lucide-react";
@@ -42,7 +41,7 @@ export function SubtaskReviewInbox({
     if (!user?.id) return;
     return subscribeToPendingSubtaskReviews(
       user.id,
-      isAdminRole(userProfile?.role),
+      false,
       (next) => {
         setItems(next);
         setLoading(false);

@@ -29,7 +29,7 @@ export function AssignmentExceptionNote({
             Capacity-aware assignment
           </div>
           <div className="text-[9.5px] text-neutral-500">
-            Strong skill fit retained while avoiding employee overload.
+            Strong skill fit retained while avoiding member overload.
           </div>
         </div>
       </div>

@@ -19,7 +19,7 @@ function notification(
 }
 
 describe("notification navigation", () => {
-  it("opens the exact department task review queue", () => {
+  it("opens the exact office task review queue", () => {
     expect(resolveNotificationDestination(notification({
       type: "approval_needed",
       title: "Task ready for review",
@@ -27,7 +27,7 @@ describe("notification navigation", () => {
       taskId: "task-1",
       taskTitle: "Prepare meeting",
       statusTo: "for_review",
-    }), "depthead")).toMatchObject({
+    }), "head")).toMatchObject({
       section: "reviews",
       page: "For Review",
       label: "Open task review",
@@ -42,7 +42,7 @@ describe("notification navigation", () => {
       message: 'Gabriel submitted "Prepare presentation".',
       taskId: "task-1",
       statusTo: "for_review",
-    }), "employee")).toMatchObject({
+    }), "member")).toMatchObject({
       section: "reviews",
       page: "Leader Reviews",
       intent: {
@@ -59,7 +59,7 @@ describe("notification navigation", () => {
       title: "New Subtask Assignment",
       message: 'Crisostomo assigned you to subtask "Prepare snacks" in "Meeting".',
       taskId: "task-2",
-    }), "employee")).toMatchObject({
+    }), "member")).toMatchObject({
       section: "subtasks",
       page: "My Subtasks",
       label: "Open subtask",
@@ -72,7 +72,7 @@ describe("notification navigation", () => {
       title: "Subtask progress updated",
       message: 'Maria updated "Invite participants" to 40%.',
       taskId: "task-3",
-    }), "depthead")).toMatchObject({
+    }), "head")).toMatchObject({
       section: "leading",
       page: "Leading Work",
       label: "Open leading task",
@@ -85,7 +85,7 @@ describe("notification navigation", () => {
       type: "assignment",
       title: "New announcement",
       message: "Office closure advisory",
-    }), "employee")).toMatchObject({
+    }), "member")).toMatchObject({
       section: "announcements",
       page: "Announcements",
     });
@@ -97,7 +97,7 @@ describe("notification navigation", () => {
       taskId: "task-4",
       taskTitle: "Meeting report",
       statusTo: "completed",
-    }), "employee")).toMatchObject({
+    }), "member")).toMatchObject({
       section: "tasks",
       page: "My Tasks",
       label: "Open task",
@@ -108,11 +108,11 @@ describe("notification navigation", () => {
   it("opens collaboration requests in Plans & Projects", () => {
     expect(resolveNotificationDestination(notification({
       type: "collaboration_request",
-      title: "Inter-department collaboration request",
+      title: "Inter-office collaboration request",
       message: 'LEDIPO requested review of "OCEDSIPP".',
       proposalId: "draft-1",
       entityType: "collaboration_draft",
-    }), "depthead")).toMatchObject({
+    }), "head")).toMatchObject({
       section: "projects",
       page: "Projects",
       label: "Open collaboration review",
@@ -126,7 +126,7 @@ describe("notification navigation", () => {
       title: "Petty-cash request awaiting approval",
       taskId: "task-5",
       taskTitle: "Prepare workshop",
-    }), "depthead")).toMatchObject({
+    }), "head")).toMatchObject({
       section: "reviews",
       page: "For Review",
       label: "Open funding review",
@@ -137,7 +137,7 @@ describe("notification navigation", () => {
       type: "petty_cash_decision",
       title: "Petty cash approved",
       taskId: "task-5",
-    }), "employee")).toMatchObject({
+    }), "member")).toMatchObject({
       section: "tasks",
       page: "My Tasks",
       label: "Open task funding",
@@ -165,7 +165,7 @@ describe("notification navigation", () => {
       taskId: "task-6",
       financialRecordId: "request-2",
       financialRecordType: "petty_cash_request",
-    }), "employee")).toMatchObject({
+    }), "member")).toMatchObject({
       section: "reviews",
       page: "Leader Reviews",
       label: "Open funding review",

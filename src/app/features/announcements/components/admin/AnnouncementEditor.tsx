@@ -72,7 +72,7 @@ export function AnnouncementEditor({
       return;
     }
     if (audience === "org" && !orgId) {
-      toast("Choose a department for this audience.", "error");
+      toast("Choose a office for this audience.", "error");
       return;
     }
     if (audience === "users" && userIds.length === 0) {
@@ -196,7 +196,7 @@ export function AnnouncementEditor({
                       >
                         <div className="mb-1.5">{meta.icon}</div>
                         <div className="text-[11.5px] font-medium text-center leading-tight">
-                          {a === "all" ? "Everyone" : a === "org" ? "Department" : "Selected Users"}
+                          {a === "all" ? "Everyone" : a === "org" ? "Office" : "Selected Users"}
                         </div>
                       </button>
                     );
@@ -208,14 +208,14 @@ export function AnnouncementEditor({
               {audience === "org" && (
                 <div className="bg-blue-50/50 border border-blue-200/80 rounded-xl p-4 space-y-2">
                   <label className="text-[12px] font-medium text-blue-900 block">
-                    Select Target Department (Includes Sub-units)
+                    Select Target Office (Includes Sub-units)
                   </label>
                   <select
                     value={orgId}
                     onChange={(e) => setOrgId(e.target.value)}
                     className={inputCls}
                   >
-                    <option value="">Choose a department…</option>
+                    <option value="">Choose a office…</option>
                     {orgs.map((o) => (
                       <option key={o.id} value={o.id}>
                         {o.name}

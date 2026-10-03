@@ -25,7 +25,7 @@ const ORG_TYPE_COLORS: Record<OrgType, string> = {
 };
 
 export const ORG_TYPE_OPTIONS: { value: OrgType; label: string }[] = [
-  { value: 'department', label: 'Department' },
+  { value: 'department', label: 'Office' },
   { value: 'division', label: 'Division' },
   { value: 'section', label: 'Section' },
   { value: 'unit', label: 'Unit' },
@@ -35,18 +35,14 @@ export const ORG_TYPE_OPTIONS: { value: OrgType; label: string }[] = [
 
 export const ROLE_COLORS: Record<string, string> = {
   admin: 'bg-red-100 text-red-700',
-  super_admin: 'bg-red-100 text-red-700',
-  dept_head: 'bg-violet-100 text-violet-700',
-  assistant_head: 'bg-indigo-100 text-indigo-700',
-  employee: 'bg-emerald-100 text-emerald-700',
+  head: 'bg-violet-100 text-violet-700',
+  member: 'bg-emerald-100 text-emerald-700',
 };
 
 export const ROLE_LABELS: Record<string, string> = {
   admin: 'Admin',
-  super_admin: 'Admin',
-  dept_head: 'Head',
-  assistant_head: 'Assistant Head',
-  employee: 'Employee',
+  head: 'Head',
+  member: 'Member',
 };
 
 // These dimensions are shared by the renderer and Dagre. Keeping one source

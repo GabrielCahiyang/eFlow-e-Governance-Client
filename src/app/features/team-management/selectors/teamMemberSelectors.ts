@@ -1,4 +1,4 @@
-import type { Employee } from "../../employees";
+import type { Employee } from "../../members";
 import type { Task } from "../../tasks";
 import { calculateDeadlineWorkload, isActive, isOverdue, parseDueDate } from "../../tasks";
 import type { TeamMemberMetrics, TeamWorkflowFacts } from "../types";

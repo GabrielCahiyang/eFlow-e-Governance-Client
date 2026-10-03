@@ -27,7 +27,7 @@ beforeEach(() => window.localStorage.clear());
 
 describe("guided tour progress", () => {
   it("isolates first-login and resume state by authenticated user and role", () => {
-    writeGuidedTourProgress("user-1", "employee", {
+    writeGuidedTourProgress("user-1", "member", {
       welcomed: true,
       systemCompleted: false,
       completedPages: ["tasks:My Tasks"],
@@ -35,15 +35,15 @@ describe("guided tour progress", () => {
       activeTour: { kind: "system", index: 3, section: "tasks", page: "My Tasks" },
     });
 
-    expect(readGuidedTourProgress("user-1", "employee").activeTour?.index).toBe(3);
-    expect(readGuidedTourProgress("user-1", "employee").voiceEnabled).toBe(true);
-    expect(readGuidedTourProgress("user-2", "employee").welcomed).toBe(false);
-    expect(getGuidedTourStorageKey("user-1", "employee")).not.toBe(getGuidedTourStorageKey("user-1", "dept_head"));
+    expect(readGuidedTourProgress("user-1", "member").activeTour?.index).toBe(3);
+    expect(readGuidedTourProgress("user-1", "member").voiceEnabled).toBe(true);
+    expect(readGuidedTourProgress("user-2", "member").welcomed).toBe(false);
+    expect(getGuidedTourStorageKey("user-1", "member")).not.toBe(getGuidedTourStorageKey("user-1", "head"));
   });
 
   it("recovers safely when stored progress is malformed", () => {
-    window.localStorage.setItem(getGuidedTourStorageKey("user-1", "employee"), "not-json");
-    expect(readGuidedTourProgress("user-1", "employee")).toEqual({
+    window.localStorage.setItem(getGuidedTourStorageKey("user-1", "member"), "not-json");
+    expect(readGuidedTourProgress("user-1", "member")).toEqual({
       welcomed: false,
       systemCompleted: false,
       completedPages: [],

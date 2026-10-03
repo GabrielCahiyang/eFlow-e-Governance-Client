@@ -9,7 +9,7 @@ import { isTaskLead } from '../../selectors/leadership';
 interface HierarchyTaskRowProps {
   task: Task;
   employeeById: Record<string, Employee>;
-  role: 'depthead' | 'employee';
+  role: 'head' | 'member';
   currentUserId?: string;
   onVerify?: MondayBoardProps['onVerify'];
   onExecute?: MondayBoardProps['onExecute'];
@@ -34,7 +34,7 @@ export function HierarchyTaskRow({ task, employeeById, role, currentUserId, onVe
                                   const leadName =
                                     task.assigneeName || memberNames[0] || "";
                                   const canSubmit =
-                                    role === "employee" &&
+                                    role === "member" &&
                                     task.status === "in_progress" &&
                                     currentUserId &&
                                     isTaskLead(task, currentUserId);
@@ -42,7 +42,7 @@ export function HierarchyTaskRow({ task, employeeById, role, currentUserId, onVe
                                     <div key={task.id} className="px-3 py-2.5">
                                       <div className="flex items-start justify-between gap-2">
                                         <div className="min-w-0">
-                                          {role === "depthead" &&
+                                          {role === "head" &&
                                           onOpenTaskEditor ? (
                                             <button
                                               onClick={(e) => {
@@ -98,7 +98,7 @@ export function HierarchyTaskRow({ task, employeeById, role, currentUserId, onVe
                                                 </span>
                                               )}
                                           </div>
-                                          {role === "depthead" &&
+                                          {role === "head" &&
                                             task.status === "for_review" && (
                                               <SubmissionDetails
                                                 submission={
@@ -125,7 +125,7 @@ export function HierarchyTaskRow({ task, employeeById, role, currentUserId, onVe
                                         </div>
 
                                         <div className="flex items-center gap-1">
-                                          {role === "depthead" &&
+                                          {role === "head" &&
                                             task.status === "for_review" && (
                                               <>
                                                 <button
@@ -152,7 +152,7 @@ export function HierarchyTaskRow({ task, employeeById, role, currentUserId, onVe
                                                 </button>
                                               </>
                                             )}
-                                          {role === "employee" &&
+                                          {role === "member" &&
                                             task.status === "todo" && (
                                               <button
                                                 onClick={() =>
@@ -173,7 +173,7 @@ export function HierarchyTaskRow({ task, employeeById, role, currentUserId, onVe
                                               Submit
                                             </button>
                                           )}
-                                          {role === "depthead" && (
+                                          {role === "head" && (
                                             <TaskManagementMenu
                                               task={task}
                                               onEdit={onOpenTaskEditor}

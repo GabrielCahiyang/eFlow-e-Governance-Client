@@ -21,7 +21,7 @@ export async function generateManagementBrief(
     stream: false,
     messages: [{
       role: "user",
-      content: `You are preparing a concise management brief for an LGU Department Head. Use only the supplied role-filtered eFlow report data. Do not invent names, figures, causes, or actions. Separate verified observations from recommendations. Return plain text with these exact headings: Executive snapshot, Immediate attention, Positive movement, Recommended next actions. Keep it under 350 words.\n\nReport: ${reportTitle}\nVisible rows: ${rows.length}\nData:\n${JSON.stringify(compactRows)}`,
+      content: `You are preparing a concise management brief for an LGU Head. Use only the supplied role-filtered eFlow report data. Do not invent names, figures, causes, or actions. Separate verified observations from recommendations. Return plain text with these exact headings: Executive snapshot, Immediate attention, Positive movement, Recommended next actions. Keep it under 350 words.\n\nReport: ${reportTitle}\nVisible rows: ${rows.length}\nData:\n${JSON.stringify(compactRows)}`,
     }],
   }, {
     requestTimeoutMs: 30_000,

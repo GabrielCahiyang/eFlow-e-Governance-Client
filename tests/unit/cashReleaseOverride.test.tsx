@@ -4,8 +4,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { DepartmentBudgetBundle, PettyCashRelease } from "../../src/app/features/budget/types";
 import { cashData, cashRequest } from "./taskCashClearance.fixtures";
 
-const mocks = vi.hoisted(() => ({ role: "dept_head", release: vi.fn(), override: vi.fn(), acknowledge: vi.fn() }));
-vi.mock("../../src/app/contexts/AuthContext", () => ({ useAuth: () => ({ userProfile: { id: "head-1", role: mocks.role } }) }));
+const mocks = vi.hoisted(() => ({ role: "accounting_staff", release: vi.fn(), override: vi.fn(), acknowledge: vi.fn() }));
+vi.mock("../../src/app/contexts/AuthContext", () => ({ useAuth: () => ({ userProfile: { id: "accounting-1", role: mocks.role }, can: () => mocks.role === "accounting_staff" }) }));
 vi.mock("../../src/app/features/budget/services/budgetService", () => ({ markPettyCashReleased: mocks.release, overridePettyCashReleaseSchedule: mocks.override, acknowledgePettyCashRelease: mocks.acknowledge }));
 import { BudgetReleasesPanel } from "../../src/app/features/budget/components/BudgetReleasesPanel";
 
@@ -15,7 +15,7 @@ function bundle(): DepartmentBudgetBundle {
 }
 const clickOverride = () => fireEvent.click(screen.getByRole("button", { name: "Override schedule" }));
 const confirm = () => screen.getByRole("button", { name: "Confirm override & release" }) as HTMLButtonElement;
-beforeEach(() => { vi.clearAllMocks(); mocks.role = "dept_head"; mocks.override.mockReset().mockResolvedValue(undefined); });
+beforeEach(() => { vi.clearAllMocks(); mocks.role = "accounting_staff"; mocks.override.mockReset().mockResolvedValue(undefined); });
 afterEach(cleanup);
 
 describe("schedule override confirmation", () => {
@@ -88,18 +88,18 @@ describe("schedule override confirmation", () => {
     fireEvent.click(screen.getByRole("button", { name: "Mark released" }));
     fireEvent.click(screen.getByRole("checkbox"));
     fireEvent.click(screen.getByRole("button", { name: /Confirm & Record Release/i }));
-    await waitFor(() => expect(mocks.release).toHaveBeenCalledWith("release-6"));
+    await waitFor(() => expect(mocks.release).toHaveBeenCalledWith("release-6", {method:"cash",chequeNumber:""}));
     expect(mocks.override).not.toHaveBeenCalled();
-    mocks.role = "employee";
+    mocks.role = "member";
     view.rerender(<BudgetReleasesPanel data={bundle()} onChanged={vi.fn()} />);
     expect(screen.queryByRole("button", { name: "Override schedule" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Mark released" })).toBeNull();
   });
 
-  it("lets Accounting Staff issue a cheque without exposing the Head-only schedule override", async () => {
+  it("lets Accounting Staff issue cheques and use audited schedule overrides", async () => {
     mocks.role = "accounting_staff";
     render(<BudgetReleasesPanel data={bundle()} onChanged={vi.fn()} />);
-    expect(screen.queryByRole("button", { name: "Override schedule" })).toBeNull();
+    expect(screen.getByRole("button", { name: "Override schedule" })).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Mark released" }));
     fireEvent.change(screen.getByLabelText("Release method"), { target: { value: "cheque" } });
     fireEvent.change(screen.getByLabelText("Cheque number"), { target: { value: "CHK-2026-0919" } });

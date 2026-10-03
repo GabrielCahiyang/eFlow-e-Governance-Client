@@ -28,17 +28,7 @@ function getInitials(name?: string) {
     .toUpperCase();
 }
 
-function getAccountRoleLabel(role: string): string {
-  if (role === "dept_head" || role === "department_head" || role === "depthead") {
-    return "Department Head";
-  }
-
-  if (role === "assistant_head") {
-    return "Assistant Department Head";
-  }
-
-  return getRoleLabel(role);
-}
+function getAccountRoleLabel(role: string): string { return getRoleLabel(role); }
 
 function AccountMenu({ onPageSelect, role }: Pick<EflowTopBarProps, "onPageSelect" | "role">) {
   const { logout, userProfile } = useAuth();

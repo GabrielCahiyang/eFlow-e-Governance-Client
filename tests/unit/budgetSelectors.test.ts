@@ -42,8 +42,8 @@ function request(
 describe("budget selectors", () => {
   it("keeps multiple particulars inside their shared category", () => {
     expect(groupProposalBudgetLines([
-      { id: "1", expenseClass: "Professional Services", category: "Honoraria", particular: "Lead consultant", amount: 325_000, fundSource: "Department Budget", position: 0 },
-      { id: "2", expenseClass: "Professional Services", category: "Honoraria", particular: "Research assistants", amount: 120_000, fundSource: "Department Budget", position: 1 },
+      { id: "1", expenseClass: "Professional Services", category: "Honoraria", particular: "Lead consultant", amount: 325_000, fundSource: "Office Budget", position: 0 },
+      { id: "2", expenseClass: "Professional Services", category: "Honoraria", particular: "Research assistants", amount: 120_000, fundSource: "Office Budget", position: 1 },
     ])).toMatchObject([{
       expenseClass: "Professional Services",
       amount: 445_000,
@@ -141,12 +141,12 @@ describe("budget selectors", () => {
   it("lets contributors request only from their assigned subtask allocation", () => {
     const allocations = [
       { id: "task", taskId: "task-1", status: "approved", subtaskAssigneeIds: [] },
-      { id: "mine", taskId: "task-1", subtaskId: "sub-1", status: "approved", subtaskAssigneeIds: ["employee"] },
+      { id: "mine", taskId: "task-1", subtaskId: "sub-1", status: "approved", subtaskAssigneeIds: ["member"] },
       { id: "other", taskId: "task-1", subtaskId: "sub-2", status: "approved", subtaskAssigneeIds: ["other"] },
     ] as WorkBudgetAllocation[];
-    const tasks = [{ id: "task-1", recommendationLeadId: "leader", teamMemberIds: ["employee", "other"] }];
+    const tasks = [{ id: "task-1", recommendationLeadId: "leader", teamMemberIds: ["member", "other"] }];
 
-    expect(getEligiblePettyCashAllocations(allocations, tasks, "employee").map((item) => item.id)).toEqual(["mine"]);
+    expect(getEligiblePettyCashAllocations(allocations, tasks, "member").map((item) => item.id)).toEqual(["mine"]);
     expect(getEligiblePettyCashAllocations(allocations, tasks, "leader").map((item) => item.id)).toEqual(["task", "mine", "other"]);
   });
 
@@ -154,7 +154,7 @@ describe("budget selectors", () => {
     const settled = request("settled", 1_000, 850);
     settled.id = "request-1";
     settled.requestNumber = 7;
-    settled.requesterName = "Employee One";
+    settled.requesterName = "Member One";
     settled.taskTitle = "Prepare meeting";
     settled.subtaskTitle = "Buy materials";
     settled.returnedAmount = 150;
@@ -164,15 +164,15 @@ describe("budget selectors", () => {
       summary: null, lines: [], adjustments: [], releases: [], ledger: [],
       commitments: [{ id: "commitment-1", fiscalBudgetId: "budget-1", proposalDraftId: "draft-1", title: "Annual Investment Plan", amount: 10_000, status: "active", createdAt: 1 }],
       allocations: [{ id: "allocation-1", commitmentId: "commitment-1", taskId: "task-1", amount: 10_000, status: "approved", reason: "Published", requestedBy: "head", requestedAt: 1 }],
-      allocationLines: [{ id: "line-1", allocationId: "allocation-1", expenseClass: "Other Expenses", category: "Meeting supplies", particular: "Materials", amount: 10_000, fundSource: "Department Budget", position: 0 }],
+      allocationLines: [{ id: "line-1", allocationId: "allocation-1", expenseClass: "Other Expenses", category: "Meeting supplies", particular: "Materials", amount: 10_000, fundSource: "Office Budget", position: 0 }],
       requests: [settled, pending],
-      liquidations: [{ id: "liquidation-1", requestId: "request-1", version: 1, declaredSpent: 850, returnedAmount: 150, note: "Complete", status: "approved", submittedBy: "employee", submittedAt: settled.updatedAt, receipts: [{ id: "receipt-1", liquidationId: "liquidation-1", vendor: "Vendor", receiptDate: "2026-08-24", description: "Materials", amount: 850, fileName: "receipt.pdf", filePath: "receipt.pdf", mimeType: "application/pdf", fileSize: 10 }] }],
+      liquidations: [{ id: "liquidation-1", requestId: "request-1", version: 1, declaredSpent: 850, returnedAmount: 150, note: "Complete", status: "approved", submittedBy: "member", submittedAt: settled.updatedAt, receipts: [{ id: "receipt-1", liquidationId: "liquidation-1", vendor: "Vendor", receiptDate: "2026-08-24", description: "Materials", amount: 850, fileName: "receipt.pdf", filePath: "receipt.pdf", mimeType: "application/pdf", fileSize: 10 }] }],
     })).toMatchObject([{
       requestNumber: 7,
       proposal: "Annual Investment Plan",
       task: "Prepare meeting",
       subtask: "Buy materials",
-      employee: "Employee One",
+      employee: "Member One",
       expenseClasses: ["Other Expenses"],
       categories: ["Meeting supplies"],
       actualAmount: 850,

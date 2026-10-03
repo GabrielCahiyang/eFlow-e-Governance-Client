@@ -1,7 +1,7 @@
 import { AlertTriangle, Plus, Trash2, UserPlus, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { FeatureDialog } from "../../../components/ui/FeatureDialog";
-import type { Employee } from "../../employees";
+import type { Employee } from "../../members";
 import { fetchTaskSubtasks, type Subtask } from "../../subtasks";
 import { startTaskIfTodo, type Task } from "../../tasks";
 import { useToast } from "../../../components/ui/Toast";
@@ -145,7 +145,7 @@ export function SubtaskTemplateApplyDialog({
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-[11px] font-semibold uppercase tracking-wide text-neutral-600">Checklist preview</div>
-                <div className="mt-0.5 text-[10.5px] text-neutral-400">Edit titles and assign one or more department members before applying.</div>
+                <div className="mt-0.5 text-[10.5px] text-neutral-400">Edit titles and assign one or more office members before applying.</div>
               </div>
               <button onClick={() => setItems((current) => [...current, { title: "", assignedToIds: [] }])} className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 px-2.5 py-1.5 text-[10.5px] text-neutral-600 hover:bg-neutral-50"><Plus size={11} /> Add</button>
             </div>

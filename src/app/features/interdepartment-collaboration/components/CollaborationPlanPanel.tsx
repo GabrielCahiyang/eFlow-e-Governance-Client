@@ -97,7 +97,7 @@ export function CollaborationPlanPanel({
               Owner editing mode
             </div>
             <div className="mt-0.5 text-xs text-blue-700">
-              Changes to responsibilities, team, schedule, or budget require participating departments to approve the updated plan.
+              Changes to responsibilities, team, schedule, or budget require participating offices to approve the updated plan.
             </div>
           </div>
           <Button

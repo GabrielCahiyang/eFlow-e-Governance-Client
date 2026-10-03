@@ -23,7 +23,7 @@ export type SeedEmployee = Employee;
 
 function profileToEmployee(profile: Record<string, unknown>, orgName?: string): Employee {
   const name = (profile.full_name as string) || '';
-  const role = (profile.role as string) || 'employee';
+  const role = (profile.role as string) || 'member';
   const parts = name.split(' ');
   const initials = parts.map(p => p[0]?.toUpperCase() || '').join('').slice(0, 2) || '??';
   const skills = (profile.skills as Record<string, boolean>) || {};
@@ -55,7 +55,7 @@ async function loadAndNotify() {
     .from('profiles')
     .select('*, organizations(name)')
     .eq('is_active', true)
-    .neq('role', 'super_admin')
+    .neq('role', 'admin').neq('role', 'super_admin')
     .neq('role', 'admin')
     .order('full_name');
 

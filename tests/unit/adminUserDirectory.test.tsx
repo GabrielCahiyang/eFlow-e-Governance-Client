@@ -13,8 +13,8 @@ const base = {
 const profiles = [
   { ...base, id: "admin-current", full_name: "Andres Manili", role: "admin" },
   { ...base, id: "admin-other", full_name: "Other Admin", role: "admin" },
-  { ...base, id: "head-1", full_name: "Cheryl Gallo", role: "dept_head" },
-  { ...base, id: "assistant-1", full_name: "Crisostomo Ibarra", role: "assistant_head" },
+  { ...base, id: "head-1", full_name: "Cheryl Gallo", role: "head" },
+  { ...base, id: "assistant-1", full_name: "Crisostomo Ibarra", role: "member" },
 ] as UserProfile[];
 
 vi.mock("../../src/app/hooks/useSupabaseData", () => ({

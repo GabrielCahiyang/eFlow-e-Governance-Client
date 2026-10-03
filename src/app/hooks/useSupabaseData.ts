@@ -118,7 +118,7 @@ export function useDashboardMetrics(): { metrics: DashboardMetrics; loading: boo
     const overloaded = activeProfiles.filter((p) => p.workload >= 80);
     const totalWorkload = activeProfiles.reduce((sum, p) => sum + p.workload, 0);
     const avgWorkload = activeProfiles.length > 0 ? Math.round(totalWorkload / activeProfiles.length) : 0;
-    const deptHeads = activeProfiles.filter((p) => p.role === 'dept_head');
+    const deptHeads = activeProfiles.filter((p) => p.role === 'head');
 
     // Shared selectors — same definitions every other dashboard uses.
     const op = operationalMetrics(tasks, projects);
@@ -163,15 +163,15 @@ export function useProjectsData() {
 // ─── useScopedOrgIds ─────────────────────────────────────────────
 // The current user's org plus every descendant (their subtree). Empty array
 // means "no scope filter" (e.g. admin) — callers treat empty as all.
-export function useScopedOrgIds(): { scopedOrgIds: string[]; isSuperAdmin: boolean; orgs: Organization[] } {
+export function useScopedOrgIds(): { scopedOrgIds: string[]; includeAllAccessibleWork: boolean; orgs: Organization[] } {
   const { orgs } = useOrgs();
   const { userProfile } = useAuth();
-  const isSuperAdmin = isAdminRole(userProfile?.role);
+  const includeAllAccessibleWork = false;
 
   const scopedOrgIds = useMemo(() => {
-    if (isSuperAdmin) return [];
+    if (includeAllAccessibleWork) return [];
     return getDescendantOrgIds(orgs, userProfile?.org_id);
-  }, [orgs, userProfile?.org_id, isSuperAdmin]);
+  }, [orgs, userProfile?.org_id, includeAllAccessibleWork]);
 
-  return { scopedOrgIds, isSuperAdmin, orgs };
+  return { scopedOrgIds, includeAllAccessibleWork, orgs };
 }

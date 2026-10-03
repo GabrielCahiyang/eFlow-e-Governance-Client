@@ -38,7 +38,7 @@ export function ScopedTaskKanban({
 }: {
   tasks: Task[];
   profiles: UserProfile[];
-  role: "depthead" | "employee";
+  role: "head" | "member";
   currentUserId?: string;
   currentUserName?: string;
   readOnly?: boolean;

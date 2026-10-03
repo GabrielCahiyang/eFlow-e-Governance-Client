@@ -17,7 +17,7 @@ describe("AI proposal budget import", () => {
       quantity: 2,
       unitCost: 60_000,
       amount: 120_000,
-      fundSource: "Department Budget",
+      fundSource: "Office Budget",
     });
   });
 

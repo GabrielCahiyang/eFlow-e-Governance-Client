@@ -14,8 +14,8 @@ const NOW = new Date("2026-08-17T08:00:00Z").getTime();
 const employee = (id: string, name: string, skills = ""): Employee => ({
   id,
   name,
-  jobTitle: "Employee",
-  jobDescription: skills || "Employee",
+  jobTitle: "Member",
+  jobDescription: skills || "Member",
   currentWorkload: 0,
 });
 

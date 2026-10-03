@@ -1,7 +1,7 @@
 import { CalendarClock, ClipboardList, X } from "lucide-react";
 import { useState } from "react";
 import { FeatureDialog } from "../../../components/ui/FeatureDialog";
-import type { Employee } from "../../employees";
+import type { Employee } from "../../members";
 import { RecurringTaskTemplatesPanel, type Task } from "../../tasks";
 import { SubtaskTemplateLibrary } from "./SubtaskTemplateLibrary";
 

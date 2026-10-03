@@ -1,19 +1,7 @@
-export interface LeadershipReviewerResolution {
-  reviewerId: string | null;
-  reviewerRole: "head" | "assistant_head";
-}
-
+export interface LeadershipReviewerResolution { reviewerId: string | null; reviewerRole: "head"; }
+/** Ordinary office output is finalized by its Head, including the Head's own work. */
 export function resolveLeadershipReviewer(
-  taskLeadId: string | null | undefined,
-  headUserId: string | null | undefined,
-  assistantHeadUserId: string | null | undefined,
+  taskLeadId: string | null | undefined, headUserId: string | null | undefined,
 ): LeadershipReviewerResolution | null {
-  if (!taskLeadId) return null;
-  if (taskLeadId === headUserId) {
-    return { reviewerId: assistantHeadUserId || null, reviewerRole: "assistant_head" };
-  }
-  if (taskLeadId === assistantHeadUserId) {
-    return { reviewerId: headUserId || null, reviewerRole: "head" };
-  }
-  return null;
+  return taskLeadId ? { reviewerId: headUserId || null, reviewerRole: "head" } : null;
 }

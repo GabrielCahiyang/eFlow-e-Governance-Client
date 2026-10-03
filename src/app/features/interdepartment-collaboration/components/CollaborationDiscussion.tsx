@@ -137,7 +137,7 @@ export function CollaborationDiscussion({
           onChange={(event) => setMessage(event.target.value)}
           onKeyDown={handleKeyDown}
           rows={2}
-          placeholder="Write a message to all participating departments… (Press Enter to send)"
+          placeholder="Write a message to all participating offices… (Press Enter to send)"
           className="eflow-control min-w-0 flex-1 resize-none h-auto py-2 leading-relaxed"
         />
         <Button

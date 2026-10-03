@@ -51,7 +51,7 @@ export function SubmitForReviewForm({
         attachments: files,
         submitterId: user.id,
         submitterName:
-          userProfile?.full_name || user.email || "Employee",
+          userProfile?.full_name || user.email || "Member",
       });
       toast("Task submitted for review.", "success");
       onSubmitted?.();

@@ -13,7 +13,7 @@ describe("subtask reviewer identity", () => {
         reviewer={{
           id: "reviewer-1",
           name: "Crispin Santos",
-          role: "dept_head",
+          role: "head",
           organizationName: "ORCHAM",
         }}
       />,
@@ -28,7 +28,7 @@ describe("subtask reviewer identity", () => {
       <SubtaskReviewerBadge
         compact
         status="for_review"
-        reviewer={{ id: "reviewer-1", name: "Crispin Santos", role: "dept_head" }}
+        reviewer={{ id: "reviewer-1", name: "Crispin Santos", role: "head" }}
       />,
     );
 

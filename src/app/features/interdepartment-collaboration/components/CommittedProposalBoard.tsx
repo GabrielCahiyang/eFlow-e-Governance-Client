@@ -31,14 +31,11 @@ export function CommittedProposalBoard({
   );
   const currentUserId = user?.id || userProfile?.id || "";
   const boardRole = [
-    "dept_head",
-    "department_head",
-    "assistant_head",
-    "super_admin",
-    "admin",
+    "head",
+    "head",
   ].includes(userProfile?.role || "")
-    ? "depthead"
-    : "employee";
+    ? "head"
+    : "member";
 
   const visibleTasks = React.useMemo(() => {
     return filterCommittedProposalBoardTasks(

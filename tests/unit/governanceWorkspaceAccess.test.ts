@@ -12,7 +12,7 @@ describe("collaboration Source & governance access", () => {
     expect(service).toContain("could not be found or your account does not have access");
   });
 
-  it("keeps working tabs visible to department collaborators", () => {
+  it("keeps working tabs visible to office collaborators", () => {
     expect(header).toContain('label: "Source PDF"');
     expect(header).toContain('label: "Collaboration"');
     expect(header).toContain('label: "Requested changes"');

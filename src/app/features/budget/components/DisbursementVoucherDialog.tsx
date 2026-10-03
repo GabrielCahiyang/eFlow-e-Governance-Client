@@ -39,7 +39,7 @@ export function DisbursementVoucherDialog({
   onClose: () => void;
   onReleased: () => Promise<void>;
 }) {
-  const { userProfile } = useAuth();
+  const { userProfile, can } = useAuth();
   const dvCode    = buildDvCode(release, request, fiscalYear);
   const [checked, setChecked]   = useState(false);
   const [busy,    setBusy]      = useState(false);
@@ -50,7 +50,7 @@ export function DisbursementVoucherDialog({
   const [overrideSchedule, setOverrideSchedule] = useState(false);
   const [overrideReason, setOverrideReason] = useState("");
   const inFlight  = useRef(false);
-  const canOverrideSchedule = ["dept_head", "department_head", "accounting_staff"].includes(userProfile?.role || "");
+  const canOverrideSchedule = userProfile?.role === "accounting_staff" && can("accounting.release_cash");
   const scheduledEarly = release.scheduledDate > new Date().toISOString().slice(0, 10);
 
   const handleCopy = () => {
@@ -61,13 +61,12 @@ export function DisbursementVoucherDialog({
   };
 
   const confirm = async () => {
-    if (inFlight.current || !checked) return;
+    if (inFlight.current || !checked || !canOverrideSchedule) return;
     inFlight.current = true;
     setBusy(true);
     setError("");
     try {
       if (overrideSchedule) await overrideAccountingPettyCashReleaseSchedule({ releaseId: release.id, reason: overrideReason, method, chequeNumber });
-      else if (method === "cash" && userProfile?.role !== "accounting_staff") await markPettyCashReleased(release.id);
       else await markPettyCashReleased(release.id, { method, chequeNumber });
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "The release could not be recorded.");
@@ -202,7 +201,7 @@ export function DisbursementVoucherDialog({
             kind="primary"
             color="positive"
             size="small"
-            disabled={busy || !checked || (method === "cheque" && !chequeNumber.trim()) || (overrideSchedule && overrideReason.trim().length < 10)}
+            disabled={busy || !canOverrideSchedule || !checked || (method === "cheque" && !chequeNumber.trim()) || (overrideSchedule && overrideReason.trim().length < 10)}
             loading={busy}
             onClick={() => { void confirm(); }}
           >

@@ -29,9 +29,9 @@ const task: Task = {
   updatedAt: 1,
 };
 const profiles = [
-  { id: "lead", full_name: "Raoul Cam", role: "employee", org_id: "ledipo", org_name: "LEDIPO", is_active: true },
-  { id: "member", full_name: "Gabriel Cahiyang", role: "employee", org_id: "ledipo", org_name: "LEDIPO", is_active: true },
-  { id: "available", full_name: "Maria Clara", role: "employee", org_id: "ledipo", org_name: "LEDIPO", is_active: true },
+  { id: "lead", full_name: "Raoul Cam", role: "member", org_id: "ledipo", org_name: "LEDIPO", is_active: true },
+  { id: "member", full_name: "Gabriel Cahiyang", role: "member", org_id: "ledipo", org_name: "LEDIPO", is_active: true },
+  { id: "available", full_name: "Maria Clara", role: "member", org_id: "ledipo", org_name: "LEDIPO", is_active: true },
 ] as UserProfile[];
 
 describe("task team editor", () => {

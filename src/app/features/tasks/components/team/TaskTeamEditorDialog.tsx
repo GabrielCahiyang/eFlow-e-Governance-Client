@@ -63,7 +63,7 @@ export function TaskTeamEditorDialog({
       return {
         id,
         name: profile?.full_name || taskNameById.get(id) || "Team Member",
-        role: profile?.role || "employee",
+        role: profile?.role || "member",
         organization: profile?.org_name || task.teamName || "Responsible organization",
         canBeAdded: currentIds.includes(id) || Boolean(profile?.is_active && (!responsibleOrgId || profile.org_id === responsibleOrgId || profile.departmentId === responsibleOrgId)),
       };

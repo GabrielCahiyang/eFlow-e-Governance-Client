@@ -4,7 +4,7 @@ for (const width of [320, 768, 1440]) {
   test(`both complete workflow guides fit and remain usable at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 800 });
     await page.goto("/", { waitUntil: "domcontentloaded" });
-    for (const title of ["Interdepartmental flow", "Within-department flow"]) {
+    for (const title of ["Interdepartmental flow", "Within-office flow"]) {
       const opener = page.getByRole("button", { name: new RegExp(title) });
       if (width >= 1200) {
         const bounds = await opener.boundingBox();
@@ -31,7 +31,7 @@ for (const width of [320, 768, 1440]) {
       await expect(dialog.getByRole("button", { name: "Next step", exact: true })).toBeDisabled();
       await expect(dialog.getByRole("button", { name: "Replay flow", exact: true })).toBeVisible();
       await expect(dialog.locator('[data-preview-screen="archived"]')).toBeVisible();
-      if (title === "Within-department flow") await expect(dialog.getByRole("button", { name: /Step .*Request department approvals/ })).toHaveCount(0);
+      if (title === "Within-office flow") await expect(dialog.getByRole("button", { name: /Step .*Request department approvals/ })).toHaveCount(0);
       const dimensions = await dialog.evaluate((element) => ({ width: element.scrollWidth, visibleWidth: element.clientWidth, bottom: element.getBoundingClientRect().bottom, viewportHeight: innerHeight }));
       expect(dimensions.width).toBeLessThanOrEqual(dimensions.visibleWidth + 1);
       expect(dimensions.bottom).toBeLessThanOrEqual(dimensions.viewportHeight + 1);
@@ -65,7 +65,7 @@ test("spotlights and walkthrough cards stay inside the example panel throughout 
   test.setTimeout(180_000);
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.goto("/", { waitUntil: "domcontentloaded" });
-  for (const title of ["Interdepartmental flow", "Within-department flow"]) {
+  for (const title of ["Interdepartmental flow", "Within-office flow"]) {
     await page.getByRole("button", { name: new RegExp(title) }).click();
     const dialog = page.getByRole("dialog", { name: title });
     const count = Number(await dialog.getByRole("slider", { name: "Jump to workflow step" }).getAttribute("max"));
@@ -115,7 +115,7 @@ test("both flows show the correct budget, leader, subtask, review, and accountin
   test.setTimeout(120_000);
   await page.goto("/", { waitUntil: "domcontentloaded" });
   const examples = [
-    ["Prepare the yearly department budget", "budget", "Planning & Allocation", "Save & lock annual budget"],
+    ["Prepare the yearly office budget", "budget", "Planning & Allocation", "Save & lock annual budget"],
     ["Leader requests voucher funds", "leading", undefined, "Request cash"],
     ["Authorize the cash request", "reviews", "Budget", "Quick Authorize"],
     ["Record the voucher and cash handover", "accounting", undefined, "Confirm & Record Release"],
@@ -126,7 +126,7 @@ test("both flows show the correct budget, leader, subtask, review, and accountin
     ["Submit the completed parent task", "leading", undefined, "Submit for review"],
     ["Review the parent task", "reviews", "Project Tasks", "Approve"],
   ];
-  for (const title of ["Interdepartmental flow", "Within-department flow"]) {
+  for (const title of ["Interdepartmental flow", "Within-office flow"]) {
     await page.getByRole("button", { name: new RegExp(title) }).click();
     const dialog = page.getByRole("dialog", { name: title });
     for (const [name, workspace, tab, action] of examples) {
@@ -155,7 +155,7 @@ test("voiced autoplay waits for narration and stops speech when the dialog close
     } });
   });
   await page.goto("/", { waitUntil: "domcontentloaded" });
-  await page.getByRole("button", { name: /Within-department flow/ }).click();
+  await page.getByRole("button", { name: /Within-office flow/ }).click();
   const dialog = page.getByRole("dialog");
   await dialog.getByRole("switch", { name: "Turn AI voice on" }).click();
   await page.clock.fastForward(400);
@@ -167,7 +167,7 @@ test("voiced autoplay waits for narration and stops speech when the dialog close
   await expect(dialog.getByRole("switch", { name: "Turn AI voice off" })).toHaveAttribute("aria-checked", "true");
   await dialog.getByRole("button", { name: "Close flow preview" }).click();
   await page.clock.fastForward(30000);
-  await page.getByRole("button", { name: /Within-department flow/ }).click();
+  await page.getByRole("button", { name: /Within-office flow/ }).click();
   await expect(page.getByRole("heading", { name: "Create a proposal", exact: true })).toBeVisible();
   await expect(page.getByRole("switch", { name: "Turn AI voice on" })).toHaveAttribute("aria-checked", "false");
 });

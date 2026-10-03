@@ -11,7 +11,7 @@ describe("manual proposal task editing", () => {
     render(
       <DraftTaskRow
         dt={createManualPlanTask({
-          proposalTitle: "Inter-department plan",
+          proposalTitle: "Inter-office plan",
           programIdx: 0,
           projectIdx: 0,
           activityIdx: 0,

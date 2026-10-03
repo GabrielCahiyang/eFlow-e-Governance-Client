@@ -18,7 +18,7 @@ describe("proposal draft team assignment modal", () => {
             id: "profile-1",
             name: "Planning Staff One",
             email: "planning.staff1@gmail.com",
-            jobTitle: "Employee",
+            jobTitle: "Member",
             jobDescription: "Planning employee",
             currentWorkload: 0,
             department: "planning-section",

@@ -1,0 +1,2 @@
+# Development navigation only; isolated from the eFlow gateway environment.
+graphifyy[sql]==0.9.74

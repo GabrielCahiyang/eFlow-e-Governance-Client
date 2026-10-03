@@ -44,6 +44,6 @@ describe("hierarchical deadline rules", () => {
     expect(sql).toContain("unique (entity_type, entity_key, recipient_id, reminder_kind, due_on)");
     expect(sql).toContain("create or replace function public.dispatch_task_review_reminders()");
     expect(sql).toContain("+ public.dispatch_task_review_reminders()");
-    expect(sql).toContain("Super Admin task oversight is read-only");
+    expect(sql).toContain("Admin task oversight is read-only");
   });
 });

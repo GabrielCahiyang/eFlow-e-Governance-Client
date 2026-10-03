@@ -62,7 +62,7 @@ export function ProjectProposalContextTab({
     () =>
       new Set(
         [
-          ...(["dept_head", "department_head", "assistant_head"].includes(
+          ...(["head", "head"].includes(
             userProfile?.role || "",
           )
             ? [homeOrgId]
@@ -303,10 +303,10 @@ export function ProjectProposalContextTab({
               <div>
                 <h3 className="text-sm font-bold text-neutral-900 uppercase tracking-wider flex items-center gap-2">
                   <ShieldCheck size={16} className="text-indigo-600" />
-                  <span>Department Approval Matrix</span>
+                  <span>Office Approval Matrix</span>
                 </h3>
                 <p className="text-xs text-neutral-500 mt-0.5">
-                  Endorsement and review status from all participating departments.
+                  Endorsement and review status from all participating offices.
                 </p>
               </div>
             </div>

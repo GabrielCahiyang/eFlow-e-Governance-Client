@@ -1,4 +1,3 @@
-import { isAdminRole } from "../../shared/roles";
 // ─── TaskDiscussion ──────────────────────────────────────────────
 // Threaded comments on a task. Participation is restricted to the task's
 // assignees / team members and authorized reviewers. Dept Head / Admin
@@ -43,10 +42,7 @@ export function TaskDiscussion({
   const [sending, setSending] = useState(false);
   const [menuFor, setMenuFor] = useState<string | null>(null);
 
-  const canModerate =
-    isAdminRole(userProfile?.role) ||
-    userProfile?.role === "dept_head" ||
-    userProfile?.role === "assistant_head";
+  const canModerate = userProfile?.role === "head";
 
   useEffect(() => {
     const unsub = subscribeToComments(taskId, setComments);

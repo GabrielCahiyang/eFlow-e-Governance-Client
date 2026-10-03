@@ -126,7 +126,7 @@ export function AssignmentModal({
               ref={searchRef}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by name, role, or department…"
+              placeholder="Search by name, role, or office…"
               className="flex-1 bg-transparent px-2 text-[12px] font-normal text-neutral-800 placeholder:text-neutral-400 focus:outline-none"
             />
             {search && (
@@ -171,11 +171,11 @@ export function AssignmentModal({
         <div className="flex-1 overflow-y-auto px-4 py-2">
           {loading ? (
             <div className="text-center text-[12px] text-neutral-400 py-10">
-              Loading eligible employees…
+              Loading eligible members…
             </div>
           ) : filtered.length === 0 ? (
             <div className="text-center text-[12px] text-neutral-400 py-10">
-              {search ? `No employees match "${search}"` : "No eligible employees are available."}
+              {search ? `No members match "${search}"` : "No eligible members are available."}
             </div>
           ) : (
             <div className="space-y-1">
@@ -244,7 +244,7 @@ export function AssignmentModal({
                         )}
                       </div>
                       <div className="text-[11px] text-neutral-400 truncate">
-                        {emp.jobTitle} · {emp.departmentName || emp.department || "No Department"}
+                        {emp.jobTitle} · {emp.departmentName || emp.department || "No Office"}
                       </div>
                       {tags.length > 0 && (
                         <div className="flex flex-wrap gap-1 mt-1.5">

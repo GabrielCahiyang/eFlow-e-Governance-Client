@@ -6,13 +6,13 @@ export type { DeadlineWorkload, WorkloadLevel } from "./selectors/deadlineWorklo
 export { deadlineInputParts, deadlineFromInputs, isValidCalendarDeadline } from "./selectors/deadlineInput";
 export { withEmployeeDeadlineWorkload } from "./selectors/employeeDeadlineWorkload";
 export { TaskDepartmentLabel, TaskDepartmentProvider } from "./components/TaskDepartmentLabel";
-export { DeptHeadTaskBoardView } from "./components/DeptHeadTaskBoardView";
-export { useDeptHeadTaskBoard } from "./hooks/useDeptHeadTaskBoard";
+export { HeadTaskBoardView } from "./components/HeadTaskBoardView";
+export { useHeadTaskBoard } from "./hooks/useHeadTaskBoard";
 export { RecurringTaskTemplatesPanel } from "./components/RecurringTaskTemplatesPanel";
 export { MondayBoard } from "./components/board/MondayBoard";
 export { ScopedTaskKanban } from "./components/board/ScopedTaskKanban";
 export type { MondayBoardProps } from "./components/board/model";
-export { EmployeeTaskWorkspace } from "../../components/Employee/EmployeeTaskWorkspace";
+export { EmployeeTaskWorkspace } from "../../components/Member/EmployeeTaskWorkspace";
 export { YouAreLeadingView } from "../../components/workflow/YouAreLeadingView";
 export { TaskDetailDrawer } from "../../components/workflow/TaskDetailDrawer";
 export { TaskTeamEditorDialog } from "./components/team/TaskTeamEditorDialog";

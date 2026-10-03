@@ -31,15 +31,15 @@ export function CollaborationDecisionPanel({
 
   const actingOrgName =
     organizations.find((org) => org.id === selected?.orgId)?.name ||
-    "Authorized Department";
+    "Authorized Office";
 
   return (
     <section className="eflow-section-card">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2>Department participation approval</h2>
+          <h2>Office participation approval</h2>
           <p className="m-0 mt-1 text-xs text-secondary">
-            Formal department approval or revision request on the active proposal snapshot.
+            Formal office approval or revision request on the active proposal snapshot.
           </p>
         </div>
 
@@ -48,7 +48,7 @@ export function CollaborationDecisionPanel({
             value={selected?.orgId}
             onChange={(event) => onSelectOrg(event.target.value)}
             className="eflow-control"
-            aria-label="Acting department selector"
+            aria-label="Acting office selector"
           >
             {eligibleOrganizations.map((participant) => (
               <option key={participant.orgId} value={participant.orgId}>
@@ -103,7 +103,7 @@ export function CollaborationDecisionPanel({
                 ? "Approval note (optional)"
                 : "Why are updates needed or participation declined?"}
             </div>
-            <p className="mb-2 text-xs text-neutral-600">{decision === "approved" ? "Confirm that your department agrees to its responsibilities and assigned staff in this saved work plan." : "The lead department will receive your decision and explanation."}</p>
+            <p className="mb-2 text-xs text-neutral-600">{decision === "approved" ? "Confirm that your office agrees to its responsibilities and assigned staff in this saved work plan." : "The lead office will receive your decision and explanation."}</p>
             <textarea
               aria-label="Decision explanation"
               value={reason}

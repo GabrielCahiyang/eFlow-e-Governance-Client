@@ -117,7 +117,7 @@ export function UsageScenariosModal({
               lineHeight: 1.4,
             }}
           >
-            Select a pre-configured LGU role account to inspect department workspaces and role permissions.
+            Select a pre-configured LGU role account to inspect office workspaces and role permissions.
           </p>
         </div>
 

@@ -17,7 +17,7 @@ describe("Kanban horizontal viewport", () => {
       }
     }
     Object.defineProperty(window, "PointerEvent", { configurable: true, value: TestPointerEvent });
-    render(createElement(KanbanBoardView, { tasks: [], employees: [], role: "depthead" }));
+    render(createElement(KanbanBoardView, { tasks: [], employees: [], role: "head" }));
     const viewport = screen.getByLabelText("Kanban status board");
     Object.defineProperty(viewport, "setPointerCapture", { value: vi.fn() });
     Object.defineProperty(viewport, "releasePointerCapture", { value: vi.fn() });
@@ -31,7 +31,7 @@ describe("Kanban horizontal viewport", () => {
   });
 
   it("provides explicit left and right viewing controls", () => {
-    render(createElement(KanbanBoardView, { tasks: [], employees: [], role: "depthead" }));
+    render(createElement(KanbanBoardView, { tasks: [], employees: [], role: "head" }));
     expect(screen.getByRole("button", { name: "Scroll Kanban board left" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Scroll Kanban board right" })).toBeTruthy();
   });

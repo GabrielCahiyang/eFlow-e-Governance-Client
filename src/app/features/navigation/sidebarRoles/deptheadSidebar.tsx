@@ -61,7 +61,7 @@ export const deptheadSidebar: Record<string, SidebarContent> = {
         ],
       },
       deptportfolio: {
-        title: "Department Workspace",
+        title: "Office Workspace",
         sections: [
           {
             title: "Core Workflows",

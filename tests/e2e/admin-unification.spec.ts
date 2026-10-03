@@ -41,9 +41,9 @@ for (const storedRole of ["super_admin", "admin"]) {
     await expect(page.getByRole("heading", { name: "Role Defaults", exact: true })).toBeVisible();
     const rootCapabilities = page.getByRole("button", { name: "Admin: Allowed", exact: true });
     await expect(rootCapabilities.first()).toBeVisible();
-    expect(await rootCapabilities.count()).toBeGreaterThan(10);
+    expect(await rootCapabilities.count()).toBe(9);
     for (const capability of await rootCapabilities.all()) await expect(capability).toBeDisabled();
-    await expect(page.getByRole("columnheader", { name: "Super Admin", exact: true })).toHaveCount(0);
+    await expect(page.getByRole("columnheader", { name: "Admin", exact: true })).toHaveCount(2);
     await sidebar.hover();
     await sidebar.getByRole("button", { name: "User Access", exact: true }).click();
     await expect(page.getByRole("heading", { name: "User Access", exact: true })).toBeVisible();

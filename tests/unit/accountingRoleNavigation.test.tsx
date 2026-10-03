@@ -11,7 +11,7 @@ describe("accounting staff role contract", () => {
 
   it("adds the five accounting destinations to the employee workspace", () => {
     const navigation = getCoreRoleNavigation("accounting_staff");
-    const employeeNavigation = getCoreRoleNavigation("employee");
+    const employeeNavigation = getCoreRoleNavigation("member");
     expect(navigation?.defaultSection).toBe("accounting_overview");
     expect(navigation?.navItems.map((item) => item.id)).toEqual([
       ...(employeeNavigation?.navItems.map((item) => item.id) ?? []),

@@ -1,6 +1,6 @@
 import { updateProfile } from "../../../../lib/supabaseService";
 import type { Organization, UserProfile, UserRole } from "../../../types";
-import { assignOrganizationLeadership } from "../../organization/services/leadershipService";
+import { assignOrganizationLeadership } from "../../organization";
 import { getLeadershipSlotConflict, isManagedLeadershipRole } from "./leadershipConstraints";
 
 export interface ManagedUserProfileChanges {
@@ -36,23 +36,19 @@ export async function updateManagedUserWithLeadership({
   const affectedOrganizations = leadershipAssignmentChanged
     ? organizations.filter((organization) =>
       organization.head_user_id === user.id
-      || organization.assistant_head_user_id === user.id
       || (targetIsLeadership && organization.id === targetOrgId),
     )
     : [];
 
   for (const organization of affectedOrganizations) {
     let headUserId = organization.head_user_id;
-    let assistantHeadUserId = organization.assistant_head_user_id;
     if (headUserId === user.id) headUserId = null;
-    if (assistantHeadUserId === user.id) assistantHeadUserId = null;
     if (targetIsLeadership && organization.id === targetOrgId) {
-      if (changes.role === "assistant_head") assistantHeadUserId = user.id;
-      else headUserId = user.id;
+      headUserId = user.id;
     }
 
-    if (headUserId !== organization.head_user_id || assistantHeadUserId !== organization.assistant_head_user_id) {
-      await assignOrganizationLeadership(organization.id, { headUserId, assistantHeadUserId });
+    if (headUserId !== organization.head_user_id) {
+      await assignOrganizationLeadership(organization.id, { headUserId });
     }
   }
 

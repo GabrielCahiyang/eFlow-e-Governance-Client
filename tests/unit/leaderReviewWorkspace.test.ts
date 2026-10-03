@@ -6,7 +6,7 @@ describe("contextual Team Leader review workspace", () => {
     expect(getInitialReviewWorkspaceKind("leading")).toBe("subtasks");
   });
 
-  it("keeps the Department Head review workspace on parent tasks", () => {
+  it("keeps the Head review workspace on parent tasks", () => {
     expect(getInitialReviewWorkspaceKind("department")).toBe("tasks");
   });
 });

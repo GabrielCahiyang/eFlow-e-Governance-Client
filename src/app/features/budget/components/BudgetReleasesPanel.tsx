@@ -27,17 +27,10 @@ export function BudgetReleasesPanel({
   data: DepartmentBudgetBundle;
   onChanged: () => Promise<void>;
 }) {
-  const { userProfile } = useAuth();
+  const { userProfile, can } = useAuth();
   const currentUserId = userProfile?.id || "";
-  const canRelease = [
-    "dept_head",
-    "department_head",
-    "assistant_head",
-    "accounting_staff",
-  ].includes(userProfile?.role || "");
-  const canOverride = ["dept_head", "department_head", "assistant_head"].includes(
-    userProfile?.role || "",
-  );
+  const canRelease = userProfile?.role === "accounting_staff" && can("accounting.release_cash");
+  const canOverride = canRelease;
   const fiscalYear = data.summary?.fiscalYear ?? new Date().getFullYear();
   const [override, setOverride] = useState<PettyCashRelease>();
   const [active, setActive] = useState<ActiveDialog>();

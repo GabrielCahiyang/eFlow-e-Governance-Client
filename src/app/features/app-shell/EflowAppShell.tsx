@@ -110,7 +110,7 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
   );
   const workspaceName = useMemo(() => {
     const orgId = userProfile?.org_id || userProfile?.departmentId;
-    return orgs.find((org) => org.id === orgId)?.name || (role === "superadmin" ? "LGU Ormoc City" : "Organization not assigned");
+    return orgs.find((org) => org.id === orgId)?.name || (role === "admin" ? "LGU Ormoc City" : "Organization not assigned");
   }, [orgs, role, userProfile?.departmentId, userProfile?.org_id]);
 
   useEffect(() => {

@@ -39,7 +39,7 @@ describe("notification bell navigation", () => {
     const navigate = vi.fn();
     render(createElement(NotificationBell, {
       userId: "user-1",
-      role: "depthead",
+      role: "head",
       onNavigate: navigate,
     }));
 

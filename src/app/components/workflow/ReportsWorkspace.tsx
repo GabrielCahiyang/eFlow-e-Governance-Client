@@ -70,10 +70,10 @@ export function ReportsWorkspace({ scope, eyebrow }: { scope: ProjectScope; eyeb
 
   const scoped = useMemo(() => {
     let rows = tasks.filter((t) => !t.archivedAt);
-    if (!scope.isSuperAdmin && scope.scopedOrgIds.length > 0) {
+    if (!scope.includeAllAccessibleWork && scope.scopedOrgIds.length > 0) {
       rows = rows.filter((t) => !t.orgId || scope.scopedOrgIds.includes(t.orgId));
     }
-    if (scope.isSuperAdmin && orgFilter !== "all") rows = rows.filter((t) => t.orgId === orgFilter);
+    if (scope.includeAllAccessibleWork && orgFilter !== "all") rows = rows.filter((t) => t.orgId === orgFilter);
     if (view === "status" && statusFilter !== "all") rows = rows.filter((t) => t.status === statusFilter);
     const days = Number(period);
     if (days > 0) {
@@ -109,7 +109,7 @@ export function ReportsWorkspace({ scope, eyebrow }: { scope: ProjectScope; eyeb
   }, [scoped]);
 
   const filtersMeta = {
-    Department: scope.isSuperAdmin ? (orgFilter === "all" ? "All" : orgs.find((o) => o.id === orgFilter)?.name || orgFilter) : "My department",
+    Department: scope.includeAllAccessibleWork ? (orgFilter === "all" ? "All" : orgs.find((o) => o.id === orgFilter)?.name || orgFilter) : "My office",
     Status: view !== "status" || statusFilter === "all" ? "All" : statusFilter,
     Period: period === "0" ? "All time" : `Last ${period} days`,
   };
@@ -118,13 +118,13 @@ export function ReportsWorkspace({ scope, eyebrow }: { scope: ProjectScope; eyeb
   const doExport = (kind: "csv" | "pdf") => {
     if (view === "productivity" || view === "workload") {
       const cols: ReportColumn<typeof productivity[number]>[] = [
-        { key: "name", header: "Employee", value: (r) => r.name },
+        { key: "name", header: "Member", value: (r) => r.name },
         { key: "completed", header: "Completed", value: (r) => r.completed },
         { key: "active", header: "Active", value: (r) => r.active },
         { key: "review", header: "In review", value: (r) => r.review },
         { key: "overdue", header: "Overdue", value: (r) => r.overdue },
       ];
-      const meta = { title: view === "workload" ? "Workload distribution" : "Employee productivity", subtitle: eyebrow, filters: filtersMeta, totals: { Employees: productivity.length, "Total completed": completed } };
+      const meta = { title: view === "workload" ? "Workload distribution" : "Member productivity", subtitle: eyebrow, filters: filtersMeta, totals: { Employees: productivity.length, "Total completed": completed } };
       if (kind === "csv") exportCsv(productivity, cols, meta);
       else {
         setPdfPreview({ title: meta.title, html: buildReportHtml(productivity, cols, meta) });
@@ -156,7 +156,7 @@ export function ReportsWorkspace({ scope, eyebrow }: { scope: ProjectScope; eyeb
 
   if (loading) return <div className="p-8"><LoadingState label="Building reports…" /></div>;
 
-  const orgOptions = [{ value: "all", label: "All departments" }, ...orgs.map((o) => ({ value: o.id, label: o.name }))];
+  const orgOptions = [{ value: "all", label: "All offices" }, ...orgs.map((o) => ({ value: o.id, label: o.name }))];
   const reportTabs = [
     { id: "status", label: "Status & aging", icon: <BarChart3 size={13} /> },
     { id: "productivity", label: "Productivity", icon: <Users size={13} /> },
@@ -176,10 +176,10 @@ export function ReportsWorkspace({ scope, eyebrow }: { scope: ProjectScope; eyeb
 
       {/* Filters */}
       <div className="mb-4 flex flex-row flex-wrap items-center gap-3 rounded-xl border border-neutral-200 bg-white p-3">
-        {scope.isSuperAdmin && (
+        {scope.includeAllAccessibleWork && (
           <div className="w-52">
             <WSelect
-              ariaLabel="Filter reports by department"
+              ariaLabel="Filter reports by office"
               value={orgFilter}
               onChange={setOrgFilter}
               options={orgOptions}
@@ -223,7 +223,7 @@ export function ReportsWorkspace({ scope, eyebrow }: { scope: ProjectScope; eyeb
         <StatCard label="Tasks in scope" value={scoped.length} icon={<BarChart3 size={15} />} />
         <StatCard label="Completion rate" value={`${completionRate}%`} tone="good" hint={`${completed} completed`} icon={<TrendingUp size={15} />} />
         <StatCard label="Overdue" value={overdueTasks.length} tone={overdueTasks.length ? "bad" : "good"} icon={<AlertTriangle size={15} />} />
-        <StatCard label="Employees" value={productivity.length} icon={<Users size={15} />} />
+        <StatCard label="Members" value={productivity.length} icon={<Users size={15} />} />
       </div>
 
       {/* View tabs */}
@@ -323,7 +323,7 @@ export function ReportsWorkspace({ scope, eyebrow }: { scope: ProjectScope; eyeb
           )}
         </Card>
       ) : view === "productivity" ? (
-        <Card bodyClassName="p-0" title="Employee productivity" subtitle="Outcome-focused performance for the selected period.">
+        <Card bodyClassName="p-0" title="Member productivity" subtitle="Outcome-focused performance for the selected period.">
           {productivity.length === 0 ? (
             <SectionEmpty icon={<Users size={28} />} title="No assigned work" />
           ) : (
@@ -331,7 +331,7 @@ export function ReportsWorkspace({ scope, eyebrow }: { scope: ProjectScope; eyeb
               <table className="w-full">
                 <thead>
                   <tr className="bg-neutral-50 border-b border-neutral-200">
-                    {["Employee", "Completed", "Active", "In review", "Overdue", "Completion mix"].map((h) => (
+                    {["Member", "Completed", "Active", "In review", "Overdue", "Completion mix"].map((h) => (
                       <th key={h} className="px-4 py-2.5 text-left text-[10px] font-medium uppercase tracking-wider text-neutral-400">{h}</th>
                     ))}
                   </tr>
@@ -357,7 +357,7 @@ export function ReportsWorkspace({ scope, eyebrow }: { scope: ProjectScope; eyeb
           )}
         </Card>
       ) : (
-        <Card title="Workload distribution" subtitle="Current assigned work and review pressure by employee.">
+        <Card title="Workload distribution" subtitle="Current assigned work and review pressure by member.">
           {productivity.length === 0 ? (
             <SectionEmpty icon={<Gauge size={28} />} title="No assigned work" />
           ) : (

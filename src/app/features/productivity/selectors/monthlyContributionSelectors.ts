@@ -1,4 +1,4 @@
-import type { Employee } from "../../employees";
+import type { Employee } from "../../members";
 import type { Task } from "../../tasks";
 import { parseDueDate } from "../../tasks";
 import type { ContributionWorkflowFacts, ManilaMonthPeriod, MonthlyContributionRow } from "../types";

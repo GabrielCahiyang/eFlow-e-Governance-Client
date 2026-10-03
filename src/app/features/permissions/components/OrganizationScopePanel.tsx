@@ -57,7 +57,7 @@ export function OrganizationScopePanel({
         <div className="rounded-xl bg-violet-50 p-2 text-violet-700"><Building2 size={17} /></div>
         <div>
           <h3 className="text-[13px] font-semibold text-neutral-900">Organization scope exceptions</h3>
-          <p className="mt-0.5 text-[10.5px] leading-relaxed text-neutral-500">A page permission does not expose another department. Add a separate, reasoned scope only when cross-department work requires it.</p>
+          <p className="mt-0.5 text-[10.5px] leading-relaxed text-neutral-500">A page permission does not expose another office. Add a separate, reasoned scope only when cross-office work requires it.</p>
         </div>
       </div>
 

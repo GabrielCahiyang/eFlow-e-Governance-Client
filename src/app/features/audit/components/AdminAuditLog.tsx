@@ -77,9 +77,9 @@ export function AdminAuditLog() {
   return (
     <div className="min-h-full bg-neutral-50 p-6 sm:p-8">
       <PageHeader
-        eyebrow="Administration · Governance"
-        title="Audit Trail"
-        subtitle="A readable, append-only account of who changed what, when it happened, and which operational record was affected."
+        eyebrow="Administration · Accounts"
+        title="Account Audit"
+        subtitle="Review account corrections, access changes, office assignments, and their recorded reasons."
         actions={<span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-[10.5px] font-medium text-emerald-700"><ShieldCheck size={13} /> Tamper-resistant history</span>}
       />
 

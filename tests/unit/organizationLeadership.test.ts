@@ -22,10 +22,10 @@ const organization: Organization = {
 };
 
 describe("organization leadership review routing", () => {
-  it("routes Head-led work to the Assistant Head", () => {
+  it("routes Head-led work to the accountable Head", () => {
     expect(resolveOrganizationLeadershipReviewer(organization, "head-1")).toEqual({
-      reviewerId: "assistant-1",
-      reviewerRole: "assistant_head",
+      reviewerId: "head-1",
+      reviewerRole: "head",
     });
   });
 
@@ -36,8 +36,8 @@ describe("organization leadership review routing", () => {
     });
   });
 
-  it("preserves normal reviewer routing for other task leads", () => {
-    expect(resolveOrganizationLeadershipReviewer(organization, "employee-1")).toBeNull();
+  it("routes Member and Task Lead work to the office Head", () => {
+    expect(resolveOrganizationLeadershipReviewer(organization, "employee-1")).toEqual({reviewerId:"head-1",reviewerRole:"head"});
   });
 
   it("finds leadership candidates by person details or organization", () => {
@@ -47,7 +47,7 @@ describe("organization leadership review routing", () => {
         full_name: "Cheryl Gallo",
         email: "cheryl@ormoc.gov.ph",
         employee_id: "EMP-104",
-        role: "employee",
+        role: "member",
         org_id: "org-1",
       },
       {
@@ -55,7 +55,7 @@ describe("organization leadership review routing", () => {
         full_name: "Raul Cam",
         email: "raul@ormoc.gov.ph",
         employee_id: "EMP-222",
-        role: "employee",
+        role: "member",
         org_id: null,
       },
     ] as UserProfile[];
@@ -68,11 +68,11 @@ describe("organization leadership review routing", () => {
 
   it("offers normal organization leadership only to active people from that exact organization", () => {
     const candidates = [
-      { id: "own-active", full_name: "Own office", org_id: "org-1", role: "employee", is_active: true },
-      { id: "other-office", full_name: "Other office", org_id: "org-2", role: "employee", is_active: true },
-      { id: "own-inactive", full_name: "Inactive", org_id: "org-1", role: "employee", is_active: false },
+      { id: "own-active", full_name: "Own office", org_id: "org-1", role: "member", is_active: true },
+      { id: "other-office", full_name: "Other office", org_id: "org-2", role: "member", is_active: true },
+      { id: "own-inactive", full_name: "Inactive", org_id: "org-1", role: "member", is_active: false },
       { id: "admin", full_name: "Admin", org_id: "org-1", role: "admin", is_active: true },
-      { id: "super-admin", full_name: "Super Admin", org_id: "org-1", role: "super_admin", is_active: true },
+      { id: "super-admin", full_name: "Admin", org_id: "org-1", role: "super_admin", is_active: true },
     ] as UserProfile[];
 
     expect(getLeadershipCandidates(candidates, [organization], "org-1"))

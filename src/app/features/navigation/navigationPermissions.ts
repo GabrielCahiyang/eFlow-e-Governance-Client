@@ -29,10 +29,9 @@ const SECTION_PERMISSIONS: Record<string, PagePermissionKey> = {
 };
 
 const ENTITLEMENT_ROLES = new Set([
-  "superadmin",
-  "depthead",
-  "teamleader",
-  "employee",
+  "admin",
+  "head",
+  "member",
   "accounting_staff",
 ]);
 
@@ -72,6 +71,8 @@ export function canOpenNavigationSection(
   can: (permission: string) => boolean,
   contextualLeadershipAccess = false,
 ): boolean {
+  if (!ENTITLEMENT_ROLES.has(role)) return false;
+  if (role === "admin" && !isAdministrativeNavigationSection(section) && section !== "permissions" && section !== "settings") return false;
   // Task leadership is assigned operationally, not through a permanent
   // account role. An assigned Task Lead must always be able to open both the
   // leading-work surface and its paired review queue. Database reviewer/RLS

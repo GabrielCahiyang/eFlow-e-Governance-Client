@@ -36,9 +36,9 @@ function PermissionSection({
         <table className="w-full min-w-[760px]">
           <thead>
             <tr className="border-b border-neutral-100">
-              <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-[0.13em] text-neutral-400">Capability</th>
+              <th scope="col" role="columnheader" className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-[0.13em] text-neutral-400">Capability</th>
               {MANAGED_ROLES.map((role) => (
-                <th key={role.key} className="px-4 py-3 text-center text-[10px] font-semibold uppercase tracking-[0.12em] text-neutral-400">{role.label}</th>
+                <th key={role.key} scope="col" role="columnheader" className="px-4 py-3 text-center text-[10px] font-semibold uppercase tracking-[0.12em] text-neutral-400">{role.label}</th>
               ))}
             </tr>
           </thead>
@@ -54,7 +54,7 @@ function PermissionSection({
                   const locked = isAdminRole(role.key);
                   return (
                     <td key={role.key} className="px-4 py-3 text-center">
-                      <Tooltip content={locked ? "Admin access is always available" : enabled ? "Allowed. Select to deny this capability." : "Denied. Select to allow this capability."}>
+                      <Tooltip content={locked ? "Admin is limited to administrative capabilities" : enabled ? "Allowed. Select to deny this capability." : "Denied. Select to allow this capability."}>
                         <span className="inline-flex"><button
                           type="button"
                           aria-label={`${role.label}: ${enabled ? "Allowed" : "Denied"}`}

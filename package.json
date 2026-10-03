@@ -15,7 +15,15 @@
     "test:e2e": "playwright test",
     "spectate:interdept": "node scripts/e2e_live_spectate.mjs",
     "verify:client-secrets": "node scripts/verify-client-secrets.mjs",
-    "verify:live-schema": "node scripts/verify-live-task-schema.mjs"
+    "verify:live-schema": "node scripts/verify-live-task-schema.mjs",
+    "verify:phase1-authority": "node scripts/verify-phase1-authority-sql.mjs",
+    "graph:setup": "node scripts/graphify.mjs setup",
+    "graph:build": "node scripts/graphify.mjs build",
+    "graph:update": "node scripts/graphify.mjs update",
+    "graph:query": "node scripts/graphify.mjs query",
+    "graph:path": "node scripts/graphify.mjs path",
+    "graph:explain": "node scripts/graphify.mjs explain",
+    "graph:open": "node scripts/graphify.mjs open"
   },
   "dependencies": {
     "@carbon/icons-react": "^11.78.0",
@@ -96,6 +104,7 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8",
     "@playwright/test": "^1.55.0",
     "@tailwindcss/vite": "4.1.12",
     "@testing-library/jest-dom": "^6.7.0",

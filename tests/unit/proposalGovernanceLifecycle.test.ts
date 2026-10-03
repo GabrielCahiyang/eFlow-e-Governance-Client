@@ -66,7 +66,7 @@ describe("proposal governance lifecycle", () => {
     expect(sql).not.toContain("new.created_by");
   });
 
-  it("keeps department-only proposals out of collaboration review", () => {
+  it("keeps office-only proposals out of collaboration review", () => {
     const sql = readFileSync("supabase/migrations/20260822000009_single_department_publish_flow.sql", "utf8");
     expect(sql).toContain("guard_single_department_collaboration_review");
     expect(sql).toContain("participant.participation_role <> 'owner'");

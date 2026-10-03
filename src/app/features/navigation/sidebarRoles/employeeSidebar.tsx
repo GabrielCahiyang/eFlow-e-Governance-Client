@@ -42,7 +42,7 @@ export const employeeSidebar: Record<string, SidebarContent> = {
         ],
       },
       workspace: {
-        title: "Department Workspace",
+        title: "Office Workspace",
         sections: [
           {
             title: "Dashboard",

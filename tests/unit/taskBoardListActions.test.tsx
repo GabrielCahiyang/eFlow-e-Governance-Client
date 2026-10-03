@@ -21,7 +21,7 @@ describe("Task board list actions", () => {
   it("shows N/A when an employee has no available row action", () => {
     render(createElement(ListTaskRow, {
       task: task({ auditHash: "audit-reference" }),
-      role: "employee",
+      role: "member",
       employeeById: {},
       currentUserId: "employee-1",
       onEditTeam: vi.fn(),
@@ -37,7 +37,7 @@ describe("Task board list actions", () => {
         status: "in_progress",
         recommendationLeadId: "employee-1",
       }),
-      role: "employee",
+      role: "member",
       employeeById: {},
       currentUserId: "employee-1",
       onEditTeam: vi.fn(),

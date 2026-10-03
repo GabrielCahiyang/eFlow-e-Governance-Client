@@ -38,38 +38,38 @@ function quotedLabels(value: string): string[] {
 }
 
 function destinationForTask(role: string) {
-  if (role === "superadmin") return null;
-  if (role === "depthead") return { section: "tasks", page: "Task Board" };
-  if (role === "employee" || role === "teamleader") {
+  if (role === "admin") return null;
+  if (role === "head") return { section: "tasks", page: "Task Board" };
+  if (role === "member" || role === "teamleader") {
     return { section: "tasks", page: "My Tasks" };
   }
   return null;
 }
 
 function destinationForSubtask(role: string) {
-  if (role === "depthead" || role === "employee" || role === "teamleader") {
+  if (role === "head" || role === "member" || role === "teamleader") {
     return { section: "subtasks", page: "My Subtasks" };
   }
   return destinationForTask(role);
 }
 
 function destinationForReview(role: string) {
-  if (role === "depthead") return { section: "reviews", page: "For Review" };
-  if (role === "employee" || role === "teamleader") {
+  if (role === "head") return { section: "reviews", page: "For Review" };
+  if (role === "member" || role === "teamleader") {
     return { section: "reviews", page: "Leader Reviews" };
   }
   return destinationForTask(role);
 }
 
 function destinationForAnnouncement(role: string) {
-  if (["superadmin", "depthead", "employee", "teamleader"].includes(role)) {
+  if (["admin", "head", "member", "teamleader"].includes(role)) {
     return { section: "announcements", page: "Announcements" };
   }
   return null;
 }
 
 function destinationForProject(role: string) {
-  if (["superadmin", "depthead", "employee", "teamleader"].includes(role)) {
+  if (["admin", "head", "member", "teamleader"].includes(role)) {
     return { section: "projects", page: "Projects" };
   }
   return null;
@@ -81,10 +81,10 @@ function destinationForBudget(notification: Notification, role: string) {
       ? { section: "accounting_releases", page: "Voucher & Cash Releases" }
       : { section: "accounting_audit", page: "Financial Audit Trail" };
   }
-  if (role === "depthead") {
+  if (role === "head") {
     return { section: "reviews", page: "For Review" };
   }
-  if (role === "employee" || role === "teamleader") {
+  if (role === "member" || role === "teamleader") {
     if (notification.type.includes("leader_review")) {
       return { section: "reviews", page: "Leader Reviews" };
     }
@@ -138,7 +138,7 @@ export function resolveNotificationDestination(
       notification,
       destinationForBudget(notification, role),
       "budget",
-      role === "accounting_staff" ? "Open accounting record" : role === "depthead" || notification.type.includes("leader_review") ? "Open funding review" : "Open task funding",
+      role === "accounting_staff" ? "Open accounting record" : role === "head" || notification.type.includes("leader_review") ? "Open funding review" : "Open task funding",
       notification.taskTitle || messageLabels[0],
     );
   }
@@ -164,16 +164,16 @@ export function resolveNotificationDestination(
   }
 
   if (notification.type === "burnout_warning") {
-    const route = role === "depthead"
+    const route = role === "head"
       ? { section: "intelligence", page: "Team Intelligence" }
-      : role === "employee" || role === "teamleader"
+      : role === "member" || role === "teamleader"
         ? { section: "performance", page: "Performance" }
         : null;
     return makeDestination(notification, route, "team_intelligence", "Open workload insight");
   }
 
   if (isSubtask && title.includes("progress updated")) {
-    const route = role === "depthead" || role === "employee" || role === "teamleader"
+    const route = role === "head" || role === "member" || role === "teamleader"
       ? { section: "leading", page: "Leading Work" }
       : destinationForTask(role);
     return makeDestination(

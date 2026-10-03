@@ -29,7 +29,7 @@ interface AuthenticatedCommitScope {
  * scope RLS will evaluate.
  */
 async function resolveAuthenticatedCommitScope(
-  requestedOrgId: string,
+  _requestedOrgId: string,
 ): Promise<AuthenticatedCommitScope> {
   const {
     data: { user },
@@ -50,14 +50,11 @@ async function resolveAuthenticatedCommitScope(
     throw new Error("Your active eFlow profile could not be verified. Sign in again or ask an administrator to check your account.");
   }
 
-  // A Head/Assistant Head always writes to the organization currently stored
-  // on their authenticated profile. A Admin may deliberately select a
-  // department, while a system-wide plan can remain unscoped.
+  if (isAdminRole(profile.role)) throw new Error("Heads create office work. Admin manages accounts.");
+  // Resolve the current office at the authenticated boundary.
   const scope = {
     userId: user.id,
-    orgId: isAdminRole(profile.role)
-      ? requestedOrgId || null
-      : (profile.org_id || null),
+    orgId: profile.org_id || null,
   };
 
   const { data: mayCreate, error: permissionError } = await supabase.rpc(
@@ -71,7 +68,7 @@ async function resolveAuthenticatedCommitScope(
     throw new Error("The project-creation permission check could not run. Refresh the page and retry.");
   }
   if (!mayCreate) {
-    throw new Error("Your current eFlow role is not allowed to create projects in this organization. Use a Admin, Head, or Assistant Head account assigned to this organization.");
+    throw new Error("Your current eFlow role is not allowed to create work in this office. Ask its Head to check your access.");
   }
 
   return scope;

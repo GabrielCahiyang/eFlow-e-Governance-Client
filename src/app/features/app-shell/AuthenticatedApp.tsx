@@ -19,7 +19,7 @@ export function AuthenticatedApp() {
       console.warn("Task maintenance could not run:", error);
     });
     void runDepartmentBudgetMaintenance().catch((error) => {
-      console.warn("Department budget maintenance could not run:", error);
+      console.warn("Office budget maintenance could not run:", error);
     });
   }, [user]);
 

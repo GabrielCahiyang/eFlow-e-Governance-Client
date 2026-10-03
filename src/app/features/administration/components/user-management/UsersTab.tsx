@@ -57,7 +57,7 @@ export function UsersTab({ onOpenAccess }: { onOpenAccess: (userId: string) => v
   const canManageAccountLifecycle = (profile: UserProfile) =>
     canManageUsers && (
       isAdminRole(userProfile?.role)
-      || profile.role === "employee"
+      || profile.role === "member"
       || profile.role === "accounting_staff"
     ) && !isLastActiveAdmin(profile, profiles) && profile.id !== userProfile?.id;
 

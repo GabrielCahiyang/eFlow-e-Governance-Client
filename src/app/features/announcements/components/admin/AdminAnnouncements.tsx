@@ -67,7 +67,7 @@ export function AdminAnnouncements() {
 
   return (
     <div className="mx-auto min-h-full max-w-7xl space-y-5 p-4 sm:p-8">
-      <PageHeader eyebrow="Administration · Communications" title="Announcement Management" subtitle="Publish executive broadcasts across the entire LGU, target department subtrees, or notify individual personnel." actions={<Button disabled={!canPublish} kind="primary" leftIcon={Add} onClick={() => setEditorFor("new")}>New announcement</Button>} />
+      <PageHeader eyebrow="Administration · Communications" title="Announcement Management" subtitle="Publish executive broadcasts across the entire LGU, target office subtrees, or notify individual personnel." actions={<Button disabled={!canPublish} kind="primary" leftIcon={Add} onClick={() => setEditorFor("new")}>New announcement</Button>} />
 
       {/* ─── Metrics Cards ─── */}
       <div className="grid grid-cols-1 gap-3.5 min-[480px]:grid-cols-2 sm:grid-cols-4">

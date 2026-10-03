@@ -20,7 +20,7 @@ export function resolvePermissions(
 }
 
 export function rolePermissionAllowed(role: string, permission: string, rows: RolePermissionRow[]): boolean {
-  if (isAdminRole(role)) return true;
+  if (isAdminRole(role)) return FALLBACK_DEFAULTS.admin.includes(permission as PermissionKey);
   const stored = rows.find((row) => row.role === role && row.permission === permission);
   if (stored) return stored.allowed;
   return (FALLBACK_DEFAULTS[role] || []).includes(permission as PermissionKey);

@@ -18,6 +18,7 @@ import { motionTransition } from "../../../shared/motion/motionTokens";
 import type { DepartmentBudgetBundle } from "../types";
 import {
   createReceiptSignedUrl,
+  authorizeLateLiquidation,
   decidePettyCashLiquidation,
   decidePettyCashLiquidationLeaderReview,
   decidePettyCashLeaderReview,
@@ -45,11 +46,13 @@ export function BudgetApprovalQueue({
   onChanged: () => Promise<void>;
   focusRecordId?: string;
 }) {
-  const { userProfile } = useAuth();
+  const { userProfile, can } = useAuth();
   const currentUserId = userProfile?.id || "";
   const orgId = userProfile?.org_id || userProfile?.departmentId || data.summary?.orgId || "";
-  const isDepartmentApprover = ["dept_head", "department_head", "assistant_head"].includes(userProfile?.role || "");
-  const isDepartmentHead = ["dept_head", "department_head"].includes(userProfile?.role || "");
+  const isDepartmentApprover = ["head", "head"].includes(userProfile?.role || "");
+  const isHead = ["head", "head"].includes(userProfile?.role || "");
+  const canSettle = userProfile?.role === "accounting_staff" && can("accounting.settle_liquidation");
+  const canRelease = userProfile?.role === "accounting_staff" && can("accounting.release_cash");
   const { threshold, setThreshold, defaultThreshold } = useApprovalThreshold(orgId);
   const [thresholdDialogOpen, setThresholdDialogOpen] = useState(false);
   const [batchBusy, setBatchBusy] = useState(false);
@@ -63,9 +66,10 @@ export function BudgetApprovalQueue({
     : [];
   const pendingLiquidations = data.liquidations.filter((item) => {
     const request = data.requests.find((candidate) => candidate.id === item.requestId);
-    return (isDepartmentApprover && item.status === "pending_department_settlement" && request?.cashRecipientId !== currentUserId) || (item.status === "pending_leader_review" && request?.taskLeaderId === currentUserId && request?.cashRecipientId !== currentUserId);
+    const lateAuthorization = isHead && isLiquidationLate(request,item) && !item.departmentDecidedAt;
+    return ((lateAuthorization || canSettle) && item.status === "pending_department_settlement" && request?.cashRecipientId !== currentUserId && request?.requesterId !== currentUserId && request?.taskLeaderId !== currentUserId) || (item.status === "pending_leader_review" && request?.taskLeaderId === currentUserId && request?.cashRecipientId !== currentUserId);
   });
-  const dueReleases = data.releases.filter((item) => isDepartmentApprover && item.status === "scheduled" && item.scheduledDate <= new Date().toISOString().slice(0, 10));
+  const dueReleases = data.releases.filter((item) => canRelease && item.status === "scheduled" && item.scheduledDate <= new Date().toISOString().slice(0, 10));
   const requestById = useMemo(
     () => new Map(data.requests.map((item) => [item.id, item])),
     [data.requests],
@@ -103,7 +107,7 @@ export function BudgetApprovalQueue({
           ? () => decidePettyCashRequest(rejection.id, false, reason)
           : rejection.kind === "liquidation_leader"
             ? () => decidePettyCashLiquidationLeaderReview(rejection.id, false, reason)
-            : () => decidePettyCashLiquidation(rejection.id, false, reason);
+            : () => isHead ? authorizeLateLiquidation(rejection.id, false, reason) : decidePettyCashLiquidation(rejection.id, false, reason);
     if (await act(rejection.id, operation)) setRejection(null);
   };
 
@@ -270,7 +274,7 @@ export function BudgetApprovalQueue({
               recordId={item.id}
               focused={focusRecordId === item.id}
               title={`FR-${String(item.requestNumber).padStart(5, "0")} · ${hierarchy || "Funded work"}`}
-              meta={`${item.requesterName || "Employee"} · ${item.purpose} · ${peso.format(item.requestedAmount)} · ${isLeaderReview ? "Operational endorsement" : "Fiscal authorization"}${line ? ` · ${line.category} / ${line.particular} / ${line.fundSource}` : ""}`}
+              meta={`${item.requesterName || "Member"} · ${item.purpose} · ${peso.format(item.requestedAmount)} · ${isLeaderReview ? "Operational endorsement" : "Fiscal authorization"}${line ? ` · ${line.category} / ${line.particular} / ${line.fundSource}` : ""}`}
               status={item.status}
               tierBadge={tierBadge}
               details={attachments.length ? <div className="mt-2 flex flex-wrap gap-1.5">{attachments.map((attachment) => <button key={attachment.id} type="button" onClick={async () => window.open(await createReceiptSignedUrl(attachment.filePath), "_blank", "noopener,noreferrer")} className="rounded-md border border-neutral-200 bg-white px-2 py-1 text-[8.8px] text-neutral-600">{attachment.fileName}</button>)}</div> : undefined}
@@ -295,21 +299,21 @@ export function BudgetApprovalQueue({
           {pendingLiquidations.map((item) => {
             const request = requestById.get(item.requestId);
             const late = isLiquidationLate(request, item);
-            const needsHead = late && item.status === "pending_department_settlement";
+            const needsHead = late && !item.departmentDecidedAt && item.status === "pending_department_settlement";
             return (
               <div id={`financial-record-${item.id}`} key={item.id} className={`border-b border-neutral-100 p-4 last:border-0 ${focusRecordId === item.id ? "bg-blue-50 ring-1 ring-inset ring-blue-200" : ""}`}>
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <div className="text-[11.5px] font-medium text-neutral-900">{request && `FR-${String(request.requestNumber).padStart(5, "0")} · `}{[request ? commitmentById.get(request.commitmentId)?.title : undefined, request?.taskTitle, request?.subtaskTitle].filter(Boolean).join(" → ") || "Cash liquidation"}</div>
                     <div className="mt-1 text-[10px] text-neutral-500">{request?.requesterName} · spent {peso.format(item.declaredSpent)} · return {peso.format(item.returnedAmount)}</div>
-                    {late && <div className="mt-1 inline-flex rounded-md border border-rose-200 bg-rose-50 px-2 py-1 text-[11px] font-medium text-rose-700">Submitted after the liquidation deadline · Department Head approval required</div>}
+                    {late && <div className="mt-1 inline-flex rounded-md border border-rose-200 bg-rose-50 px-2 py-1 text-[11px] font-medium text-rose-700">Submitted after the liquidation deadline · Head approval required</div>}
                     <div className="mt-1 text-[10px] text-neutral-600">{item.note}</div>
                   </div>
                   <DecisionButtons
                     busy={busy === item.id}
-                    approveDisabled={needsHead && !isDepartmentHead}
-                    approveLabel={item.status === "pending_leader_review" ? "Submit to Head / Assistant Head" : needsHead ? "Approve late liquidation" : "Settle liquidation"}
-                    onApprove={() => void act(item.id, () => item.status === "pending_leader_review" ? decidePettyCashLiquidationLeaderReview(item.id, true, "Receipts endorsed for department settlement") : decidePettyCashLiquidation(item.id, true, "Receipts verified and settled"))}
+                    approveDisabled={needsHead && !isHead}
+                    approveLabel={item.status === "pending_leader_review" ? "Submit to Accounting" : needsHead ? "Approve late liquidation" : "Settle liquidation"}
+                    onApprove={() => void act(item.id, () => item.status === "pending_leader_review" ? decidePettyCashLiquidationLeaderReview(item.id, true, "Receipts endorsed for office settlement") : needsHead && isHead ? authorizeLateLiquidation(item.id, true, "Late package authorized for independent accounting settlement") : decidePettyCashLiquidation(item.id, true, "Receipts verified and settled"))}
                     onReject={() => setRejection({ id: item.id, kind: item.status === "pending_leader_review" ? "liquidation_leader" : "liquidation_department", title: "Request receipt corrections" })}
                   />
                 </div>
@@ -335,7 +339,7 @@ export function BudgetApprovalQueue({
         <QueueSection icon={<Banknote size={14} />} title="Cash releases due" count={dueReleases.length}>
           {dueReleases.map((release) => {
             const request = requestById.get(release.requestId);
-            return <QueueRow key={release.id} recordId={release.id} focused={focusRecordId === release.id} title={`FR-${String(request?.requestNumber || 0).padStart(5, "0")} · ${[request ? commitmentById.get(request.commitmentId)?.title : undefined, request?.taskTitle, request?.subtaskTitle].filter(Boolean).join(" → ") || "Funded work"}`} meta={`${release.scheduledDate} · recipient ${request?.cashRecipientName || request?.requesterName || "Employee"} · ${peso.format(release.amount)}`} status={release.status} actions={<button disabled={busy === release.id} onClick={() => void act(release.id, () => markPettyCashReleased(release.id))} className="inline-flex h-8 items-center gap-1 rounded-lg bg-emerald-700 px-3 text-[9.5px] text-white disabled:opacity-40"><Check size={11} /> Record release</button>} />;
+            return <QueueRow key={release.id} recordId={release.id} focused={focusRecordId === release.id} title={`FR-${String(request?.requestNumber || 0).padStart(5, "0")} · ${[request ? commitmentById.get(request.commitmentId)?.title : undefined, request?.taskTitle, request?.subtaskTitle].filter(Boolean).join(" → ") || "Funded work"}`} meta={`${release.scheduledDate} · recipient ${request?.cashRecipientName || request?.requesterName || "Member"} · ${peso.format(release.amount)}`} status={release.status} actions={<button disabled={busy === release.id} onClick={() => void act(release.id, () => markPettyCashReleased(release.id))} className="inline-flex h-8 items-center gap-1 rounded-lg bg-emerald-700 px-3 text-[9.5px] text-white disabled:opacity-40"><Check size={11} /> Record release</button>} />;
           })}
         </QueueSection>
       )}

@@ -9,14 +9,20 @@ export type { MenuItem, MenuSection, SidebarContent } from "./sidebarTypes";
 export function getSidebarContent(role: string, section: string): SidebarContent {
   if (section === "settings") return settingsContent;
 
+  if (role === "admin" && section === "users") return {
+    title: "User Management", sections: [{title:"Administration", items:[
+      {label:"All Users",isActive:true},{label:"Role Defaults"},{label:"User Access"},
+      {label:"Office Structure"},{label:"Account Audit"},{label:"System Settings"},{label:"Backup & Export"},
+    ]}],
+  };
   const coreContent = getCoreSidebarContent(role, section);
   if (coreContent) return coreContent;
 
   const roleMap = sidebarContentByRole[role];
   if (roleMap?.[section]) return roleMap[section];
 
-  if (role !== "superadmin" && isAdministrativeNavigationSection(section)) {
-    const administrativeContent = sidebarContentByRole.superadmin?.[section];
+  if (role !== "admin" && isAdministrativeNavigationSection(section)) {
+    const administrativeContent = sidebarContentByRole.admin?.[section];
     if (administrativeContent) return administrativeContent;
   }
 

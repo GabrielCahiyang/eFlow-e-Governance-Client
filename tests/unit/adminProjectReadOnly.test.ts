@@ -41,8 +41,8 @@ describe("Super Admin project oversight", () => {
     expect(sql).toContain("Super Admin project access is read-only");
   });
 
-  it("mounts the Super Admin portfolio in read-only mode", () => {
-    expect(superAdminContent).toContain("<ProjectsWorkspace scope={ADMIN_SCOPE}");
-    expect(superAdminContent).toContain("readOnly");
+  it("routes the legacy Admin entry point into Administration", () => {
+    expect(superAdminContent).toContain("AdministrationWorkspace");
+    expect(superAdminContent).not.toContain("ProjectsWorkspace");
   });
 });

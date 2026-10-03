@@ -30,7 +30,7 @@ export function EditUserModal({
   const { userProfile } = useAuth();
   const [form, setForm] = useState({
     fullName: "",
-    role: "employee" as UserRole,
+    role: "member" as UserRole,
     orgId: "",
   });
   const [saving, setSaving] = useState(false);
@@ -199,7 +199,7 @@ export function EditUserModal({
         {activeTab === "skills" && (
           <div className="space-y-3">
             <p className="text-[11px] font-normal text-neutral-500">
-              Add or remove skills for this employee. The AI recommendation engine uses these to match tasks. Each skill is a keyword (e.g. "data analysis", "coordination", "budgeting").
+              Add or remove skills for this member. The AI recommendation engine uses these to match tasks. Each skill is a keyword (e.g. "data analysis", "coordination", "budgeting").
             </p>
             <div className="flex gap-2">
               <input
@@ -220,7 +220,7 @@ export function EditUserModal({
             </div>
             {Object.keys(skills).length === 0 ? (
               <div className="text-center py-8 text-neutral-400 text-[12px] font-normal">
-                No skills added yet. Skills help the AI recommend the right employee for each task.
+                No skills added yet. Skills help the AI recommend the right member for each task.
               </div>
             ) : (
               <div className="flex flex-wrap gap-2 pt-1">

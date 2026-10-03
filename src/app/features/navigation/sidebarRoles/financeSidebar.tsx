@@ -3,7 +3,7 @@ import type { SidebarContent } from "../sidebarTypes";
 
 export const financeSidebar: Record<string, SidebarContent> = {
       workspace: {
-        title: "Department Workspace",
+        title: "Office Workspace",
         sections: [
           {
             title: "Dashboard",

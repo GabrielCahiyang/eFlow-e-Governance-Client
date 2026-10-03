@@ -59,7 +59,7 @@ export const PERMISSION_LABELS: Record<PermissionKey, string> = {
   "navigation.accounting_releases": "Open Voucher and Cash Releases",
   "navigation.accounting_journal": "Open General Journal",
   "navigation.accounting_audit": "Open Financial Audit Trail",
-  "navigation.department_budgets": "Open Department Budget Ledgers",
+  "navigation.department_budgets": "Open Office Budget Ledgers",
   "projects.create": "Create projects",
   "projects.archive": "Archive or restore projects",
   "projects.delete": "Permanently delete projects",
@@ -77,46 +77,25 @@ export const PERMISSION_LABELS: Record<PermissionKey, string> = {
 };
 
 export const MANAGED_ROLES = [
-  { key: "admin", label: "Admin" },
-  { key: "dept_head", label: "Head" },
-  { key: "assistant_head", label: "Assistant Head" },
-  { key: "employee", label: "Employee" },
-  { key: "accounting_staff", label: "Accounting Staff" },
+  { key: "admin", label: "Admin" }, { key: "head", label: "Head" },
+  { key: "accounting_staff", label: "Accounting Staff" }, { key: "member", label: "Member" },
 ] as const;
-
+export const ADMIN_PERMISSIONS: readonly PermissionKey[] = [
+  "navigation.user_management", "users.manage", "navigation.organization", "navigation.audit",
+  "audit.read", "navigation.system_settings", "settings.manage", "navigation.data_tools", "database.backup",
+];
+const MEMBER_PERMISSIONS: readonly PermissionKey[] = [
+  "navigation.projects", "navigation.tasks", "navigation.reports", "navigation.announcements", "reports.export",
+];
 export const FALLBACK_DEFAULTS: Record<string, readonly PermissionKey[]> = {
-  super_admin: PERMISSION_KEYS,
-  admin: PERMISSION_KEYS,
-  dept_head: [
-    "navigation.projects", "navigation.tasks", "navigation.reviews",
-    "navigation.team_supervision", "navigation.team_intelligence",
-    "navigation.reports", "navigation.announcements", "projects.create",
-    "projects.archive", "projects.delete", "tasks.assign", "tasks.verify", "reports.export",
-    "accounting.release_cash", "accounting.settle_liquidation", "accounting.post_journal",
-  ],
-  assistant_head: [
-    "navigation.projects", "navigation.tasks", "navigation.reviews",
-    "navigation.team_supervision", "navigation.team_intelligence",
-    "navigation.reports", "navigation.announcements", "projects.create",
-    "projects.archive", "projects.delete", "tasks.assign", "tasks.verify", "reports.export",
-    "accounting.release_cash", "accounting.settle_liquidation", "accounting.post_journal",
-  ],
-  employee: [
-    "navigation.projects", "navigation.tasks", "navigation.reviews",
-    "navigation.reports", "navigation.announcements", "reports.export",
-  ],
-  accounting_staff: [
-    // Employee workspace — kept intact when accounting access is assigned
-    "navigation.projects", "navigation.tasks", "navigation.reviews",
-    "navigation.reports", "navigation.announcements", "reports.export",
-    // Accounting-specific workspace — added on top
-    "navigation.accounting_overview", "navigation.accounting_releases",
-    "navigation.accounting_journal", "navigation.accounting_audit",
-    "navigation.department_budgets", "accounting.release_cash",
-    "accounting.settle_liquidation", "accounting.post_journal",
-  ],
+  admin: ADMIN_PERMISSIONS,
+  head: [...MEMBER_PERMISSIONS, "navigation.reviews", "navigation.team_supervision", "navigation.team_intelligence", "navigation.department_budgets",
+    "projects.create", "projects.archive", "projects.delete", "tasks.assign", "tasks.verify"],
+  member: MEMBER_PERMISSIONS,
+  accounting_staff: [...MEMBER_PERMISSIONS, "navigation.accounting_overview", "navigation.accounting_releases",
+    "navigation.accounting_journal", "navigation.accounting_audit", "navigation.department_budgets",
+    "accounting.release_cash", "accounting.settle_liquidation", "accounting.post_journal"],
 };
-
 export const ACCESS_LEVELS = [
   { value: "read", label: "Read", description: "View scoped work and reports." },
   { value: "review", label: "Review", description: "View and review routed work." },

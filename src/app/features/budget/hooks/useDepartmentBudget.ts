@@ -24,7 +24,7 @@ export function useDepartmentBudget(orgId?: string, fiscalYear = new Date().getF
     // Mode can remount this effect before removeChannel() finishes, so every
     // subscription needs its own topic to avoid adding bindings to the channel
     // that is still unsubscribing.
-    const channelTopic = `department-budget:${orgId}:${fiscalYear}:${budgetId || "setup"}:${crypto.randomUUID()}`;
+    const channelTopic = `office-budget:${orgId}:${fiscalYear}:${budgetId || "setup"}:${crypto.randomUUID()}`;
     let channel = supabase.channel(channelTopic)
       .on("postgres_changes", { event: "*", schema: "public", table: "department_fiscal_budgets", filter: `org_id=eq.${orgId}` }, refresh)
       .on("postgres_changes", { event: "*", schema: "public", table: "petty_cash_requests", filter: `org_id=eq.${orgId}` }, refresh)

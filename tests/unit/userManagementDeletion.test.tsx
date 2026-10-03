@@ -10,7 +10,7 @@ const profile = {
   id: "employee-1",
   full_name: "Juan Dela Cruz",
   email: "juan@example.test",
-  role: "employee",
+  role: "member",
   org_id: "org-1",
   workload: 0,
   is_active: true,

@@ -85,7 +85,7 @@ export function summarizeRevisionDiff(previous: CollaborationDraftSnapshot, next
   if (materiality.reasons.includes("organization_participation")) changes.push("Organization participation changed");
   if (materiality.reasons.includes("task_structure")) changes.push("Work structure changed");
   if (materiality.reasons.includes("staffing")) changes.push("Task staffing changed");
-  if (materiality.reasons.includes("responsibility")) changes.push("Department responsibilities changed");
+  if (materiality.reasons.includes("responsibility")) changes.push("Office responsibilities changed");
   if (materiality.reasons.includes("budget")) changes.push("Task funding changed");
   if (materiality.reasons.includes("schedule")) changes.push("Task deadlines or duration changed");
   return changes.length ? changes : ["Draft metadata updated"];

@@ -30,7 +30,7 @@ export function KanbanBoardView({
 }: {
   tasks: Task[];
   employees: Employee[];
-  role: "depthead" | "employee";
+  role: "head" | "member";
   onVerify?: MondayBoardProps["onVerify"];
   onExecute?: MondayBoardProps["onExecute"];
   onSubmitRequest?: (task: Task) => void;
@@ -158,7 +158,7 @@ export function KanbanBoardView({
                 const memberNames = getTaskMemberNames(task, employeeById);
                 const leadName = task.assigneeName || memberNames[0] || "";
                 const canSubmit =
-                  role === "employee" &&
+                  role === "member" &&
                   task.status === "in_progress" &&
                   currentUserId &&
                   isTaskLead(task, currentUserId);
@@ -211,7 +211,7 @@ export function KanbanBoardView({
                     <div className="mt-1 text-[9px] text-violet-600/80 line-clamp-2 leading-relaxed">
                       {hierarchy.path}
                     </div>
-                    {role === "depthead" && task.status === "for_review" && (
+                    {role === "head" && task.status === "for_review" && (
                       <SubmissionDetails submission={task.latestSubmission} />
                     )}
                     {task.rejectionNote && (
@@ -263,7 +263,7 @@ export function KanbanBoardView({
 
                     {/* Actions */}
                     <div className="mt-2.5 flex gap-1">
-                      {!readOnly && role === "depthead" && task.status === "for_review" && (
+                      {!readOnly && role === "head" && task.status === "for_review" && (
                         <>
                           <button
                             onClick={() => onVerify?.(task.id, true)}
@@ -282,7 +282,7 @@ export function KanbanBoardView({
                           </button>
                         </>
                       )}
-                      {!readOnly && role === "employee" && task.status === "todo" && (
+                      {!readOnly && role === "member" && task.status === "todo" && (
                         <button
                           onClick={() => onExecute?.(task.id)}
                           className="flex-1 rounded-lg bg-primary py-1 text-[10px] text-primary-foreground transition hover:bg-primary/90"
@@ -298,7 +298,7 @@ export function KanbanBoardView({
                           Submit for Review
                         </button>
                       )}
-                      {!readOnly && role === "depthead" && (
+                      {!readOnly && role === "head" && (
                         <TaskManagementMenu
                           task={task}
                           onEdit={onOpenTaskEditor}

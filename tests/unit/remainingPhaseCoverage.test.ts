@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 const read = (path: string) => readFileSync(path, "utf8");
 const reviews = read("src/app/features/reviews/components/ForReviewInbox.tsx");
 const financialReviews = read("src/app/features/budget/components/BudgetReviewInbox.tsx");
-const budget = read("src/app/features/budget/components/DepartmentBudgetWorkspace.tsx");
+const budget = read("src/app/features/budget/components/OfficeBudgetWorkspace.tsx");
 const budgetPosition = read("src/app/features/budget/components/BudgetPositionSummary.tsx");
 const projectWorkspace = read("src/app/features/projects/components/project-command/ProjectCommandWorkspace.tsx");
 

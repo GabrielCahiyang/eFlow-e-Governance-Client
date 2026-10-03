@@ -78,7 +78,7 @@ export interface ForReviewInboxProps {
 
 export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
   const { tasks, loading: tasksLoading } = useTasks();
-  const { isSuperAdmin } = useScopedOrgIds();
+  const { includeAllAccessibleWork } = useScopedOrgIds();
   const { projects, loading: projectsLoading } = useProjectsData();
   const collaboration = useCollaborationDrafts();
   const [query, setQuery] = useState("");
@@ -146,13 +146,13 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
       .filter(
         (draft) =>
           ["in_review", "ready_to_commit"].includes(draft.status) &&
-          (isSuperAdmin ||
+          (includeAllAccessibleWork ||
             draft.ownerOrgId === currentOrgId ||
             draft.snapshot.organizations.some(
               (item) => item.participationRole === "governance" && accessibleOrgIds.has(item.orgId),
             )),
       ).length;
-  }, [accessibleOrgIds, collaboration.drafts, currentOrgId, isSuperAdmin]);
+  }, [accessibleOrgIds, collaboration.drafts, currentOrgId, includeAllAccessibleWork]);
 
   const queue = useMemo(() => {
     let rows = tasks.filter(
@@ -266,7 +266,7 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
         eyebrow={
           scope === "leading"
             ? "Leader Workspace · Reviews"
-            : isSuperAdmin
+            : includeAllAccessibleWork
               ? "Administration · Reviews"
               : `${getHeadWorkspaceLabel(userProfile?.role)} · Reviews`
         }

@@ -18,14 +18,14 @@ const navigationItems: ShellNavigationItem[] = [
     id: "dashboard",
     icon: null,
     label: "Overview",
-    group: "Department",
+    group: "Office",
     pages: [{ label: "Dashboard" }],
   },
   {
     id: "tasks",
     icon: null,
     label: "Tasks",
-    group: "Department",
+    group: "Office",
     pages: [{ label: "My Tasks" }, { label: "Task Board" }],
   },
 ];

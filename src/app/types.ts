@@ -2,14 +2,13 @@
 // Supabase-backed types. Firebase RTDB types removed.
 
 // ─── Roles ───────────────────────────────────────────────────────
-export type UserRole =
+export type UserRole = 'admin' | 'head' | 'accounting_staff' | 'member';
+export type WorkspaceAccess = 'office_lead' | 'member' | 'observer';
+export type LegacyUserRole =
   | 'super_admin'
-  | 'admin'
   | 'dept_head'
   | 'assistant_head'
-  | 'accounting_staff'
   | 'employee'
-  // ── legacy (still referenced by non-migrated components) ──
   | 'department_head'
   | 'executive'
   | 'legislative'
@@ -42,7 +41,6 @@ export interface Organization {
   org_type: OrgType;
   description: string;
   head_user_id: string | null;
-  assistant_head_user_id: string | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;

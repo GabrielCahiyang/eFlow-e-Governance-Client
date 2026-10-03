@@ -96,7 +96,7 @@ export function CollaborationDraftList({
               />
             </div>
             <p className="m-0 mt-1 text-xs text-secondary">
-              {mode === "waiting" ? "Work plans currently awaiting partner approval." : "Proposals and work plans from partner departments waiting for your review."}
+              {mode === "waiting" ? "Work plans currently awaiting partner approval." : "Proposals and work plans from partner offices waiting for your review."}
             </p>
           </div>
         </header>
@@ -214,8 +214,8 @@ export function CollaborationDraftList({
       >
         <TableHeader>
           <TableHeaderCell title="Work plan" />
-          <TableHeaderCell title="Owner department" />
-          <TableHeaderCell title="Participating departments" />
+          <TableHeaderCell title="Owner office" />
+          <TableHeaderCell title="Participating offices" />
           <TableHeaderCell title="Review status" />
           <TableHeaderCell title="Updated" />
           <TableHeaderCell title="Actions" />

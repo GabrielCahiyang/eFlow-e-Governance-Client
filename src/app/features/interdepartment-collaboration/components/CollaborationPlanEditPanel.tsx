@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTasks } from "../../../hooks/useFirebaseData";
 import { withEmployeeDeadlineWorkload, taskEstimateError } from "../../tasks";
 import { Layers, Plus } from "lucide-react";
-import { useDeptDirectoryEmployees } from "../../employees";
+import { useDeptDirectoryEmployees } from "../../members";
 import { DraftCockpit } from "../../proposal-import/components/DraftCockpit";
 import { AssignmentModal } from "../../proposal-import/components/AssignmentModal";
 import type { DraftTask } from "../../proposal-import/components/draftModel";
@@ -150,7 +150,7 @@ function CollaborationPlanEditPanelInner({
     includeCurrentUser: true,
     includeDepartmentHeads: true,
     activeOnly: true,
-    excludeSuperAdmins: true,
+    excludeAdmins: true,
   });
 
   const { tasks: liveTasks } = useTasks();

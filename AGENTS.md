@@ -18,3 +18,13 @@
 - Work in small vertical slices that build and test independently. Do not mix unrelated feature moves in one change.
 - Add or update a regression test when extracting pure logic, navigation, or a user interaction. Run npm run check, npm test, and npm run build before declaring a slice complete; run the affected Playwright smoke test when the test environment is configured.
 - Delete legacy files or compatibility exports only after repository search proves they have no remaining consumers.
+
+## Graphify navigation
+
+- Use the local Graphify map for architectural dependencies, call paths, impact analysis, authorization, and cross-module questions. Read the summary/hub sections of `graphify-out/GRAPH_REPORT.md` once when broad orientation is needed; use focused queries for detail rather than loading the entire report or reading it on every turn.
+- Use `npm run graph:query -- "focused question"` for bounded context (approximately 1,500 tokens). Stop querying once the relevant source files are identified; never dump the full `graph.json` into model context.
+- Inspect actual source and database migrations before editing. The graph is a navigation aid, not proof of runtime reachability, permissions, or complete cross-language relationships.
+- For localized work with known files, read those files directly. If the map is missing, stale, or incomplete, use focused repository searches instead of guessing or rebuilding repeatedly.
+- After structural edits, refresh with `npm run graph:update`. Run `npm run graph:setup` and `npm run graph:build` only for initial setup or intentional rebuilding. Review update warnings after file deletion; do not force a smaller graph over an incomplete extraction.
+- Keep indexing local and code-only through the repository commands. Documents are read directly; do not enable model extraction, community labeling, live database introspection, global assistant configuration, or automatic hooks for ordinary graph navigation.
+- See `docs/graphify.md` for commands and exclusions. Generated graphs and `.graphify-venv` remain local and ignored by Git.

@@ -2,8 +2,8 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 const mondayBoard = readFileSync("src/app/features/tasks/components/board/MondayBoard.tsx", "utf8");
-const deptHeadBoard = readFileSync("src/app/features/tasks/components/DeptHeadTaskBoardView.tsx", "utf8");
-const deptHeadContent = readFileSync("src/app/features/role-department-head/DeptHeadContent.tsx", "utf8");
+const deptHeadBoard = readFileSync("src/app/features/tasks/components/HeadTaskBoardView.tsx", "utf8");
+const deptHeadContent = readFileSync("src/app/features/role-head/HeadContent.tsx", "utf8");
 const hierarchyBoard = readFileSync("src/app/features/tasks/components/board/HierarchyBoardView.tsx", "utf8");
 const appShellCss = readFileSync("src/app/features/app-shell/eflowAppShell.css", "utf8");
 const reviewInbox = readFileSync("src/app/features/reviews/components/ForReviewInbox.tsx", "utf8");

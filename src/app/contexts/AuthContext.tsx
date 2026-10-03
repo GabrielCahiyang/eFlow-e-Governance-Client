@@ -1,4 +1,4 @@
-import { isAdminRole, normalizeUserRole } from "../shared/roles";
+import { normalizeUserRole } from "../shared/roles";
 import React, {
   createContext,
   useContext,
@@ -137,9 +137,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const can = useCallback(
     (permission: string) => {
       if (!userProfile || userProfile.is_active === false) return false;
-      // Admin implicitly holds every capability.
-      if (isAdminRole(userProfile?.role)) return true;
-      return permissions.has(permission);
+        return permissions.has(permission);
     },
     [permissions, userProfile],
   );
@@ -191,7 +189,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (!active) return;
         console.error('Failed to load the signed-in eFlow profile:', profileError);
         setUserProfile(null);
-        setError('We could not load your eFlow profile. Check your connection and refresh the page.');
+        setError(profileError instanceof Error && profileError.message.includes('Unsupported account role') ? profileError.message : 'We could not load your eFlow profile. Check your connection and refresh the page.');
       } finally {
         if (active) setLoading(false);
       }
@@ -211,7 +209,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${user.id}` },
         (payload) => {
           if (active && payload.new) {
-            setUserProfile(addCompatAliases(payload.new as Record<string, unknown>));
+            try { setUserProfile(addCompatAliases(payload.new as Record<string, unknown>)); }
+            catch (profileError) {
+              setUserProfile(null);
+              setError(profileError instanceof Error ? profileError.message : 'Your account role could not be verified.');
+            }
           }
         },
       )

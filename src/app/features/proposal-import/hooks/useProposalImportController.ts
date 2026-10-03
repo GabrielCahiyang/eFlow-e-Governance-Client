@@ -5,7 +5,7 @@ import { useOrgs } from "../../../hooks/useSupabaseData";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useToast } from "../../../components/ui/Toast";
 import { useDepartmentTeamAnalytics } from "../../team-management";
-import { useDeptDirectoryEmployees } from "../../employees";
+import { useDeptDirectoryEmployees } from "../../members";
 import {
   buildCollaborationSnapshot,
   autosaveCollaborationDraft,
@@ -35,7 +35,7 @@ export function useProposalImportController(onClose?: () => void) {
     includeCurrentUser: true,
     includeDepartmentHeads: true,
     activeOnly: true,
-    excludeSuperAdmins: true,
+    excludeAdmins: true,
   });
   const scopedDepartmentEmployees = teamAnalytics.deptEmployees;
   const { allEmployees: directoryEmployees } = useDeptDirectoryEmployees({
@@ -43,7 +43,7 @@ export function useProposalImportController(onClose?: () => void) {
     includeCurrentUser: true,
     includeDepartmentHeads: true,
     activeOnly: true,
-    excludeSuperAdmins: true,
+    excludeAdmins: true,
   });
   const candidateEmployees = useMemo(() => withEmployeeDeadlineWorkload(directoryEmployees, liveTasks), [directoryEmployees, liveTasks]);
   const { toast } = useToast();

@@ -78,7 +78,7 @@ export function buildTeamComposition(
     ? `${lead.employeeName} is currently the only validated assignment, although the task spans ${scopeText}. Manager review is recommended because additional available coverage could not be confirmed.`
     : mode === "solo"
     ? `${lead.employeeName} was assigned solo because one qualified person covers the essential work (${scopeText}); no additional contributor was needed.`
-    : `${team.length} people were selected from ${eligibleCount} eligible department members because the task spans ${scopeText}. ${lead.employeeName} leads, with complementary contributors added only where they strengthen delivery or parallel execution.`;
+    : `${team.length} people were selected from ${eligibleCount} eligible office members because the task spans ${scopeText}. ${lead.employeeName} leads, with complementary contributors added only where they strengthen delivery or parallel execution.`;
 
   return {
     mode,

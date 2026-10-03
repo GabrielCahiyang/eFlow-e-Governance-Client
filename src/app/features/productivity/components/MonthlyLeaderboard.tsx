@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Award, CalendarDays, ChevronDown, ChevronUp, Gauge, Medal, ShieldCheck, Timer, Trophy } from "lucide-react";
-import type { Employee } from "../../employees";
+import type { Employee } from "../../members";
 import type { Task } from "../../tasks";
 import { buildMonthlyContributionLeaderboard, getManilaMonthPeriod, getRecentManilaMonthPeriods } from "../selectors/monthlyContributionSelectors";
 import { fetchMonthlyProductivitySnapshots } from "../services/productivitySnapshotService";
@@ -74,7 +74,7 @@ export function MonthlyLeaderboard({ employees, tasks, facts, currentUserId, all
             </label>
             {allowDepartmentFilter && departmentOptions.length > 1 && (
               <select value={department} onChange={(event) => setDepartment(event.target.value)} className="rounded-lg border border-neutral-200 bg-white px-3 py-2 text-[10.5px] text-neutral-600 outline-none">
-                <option value="all">All departments</option>
+                <option value="all">All offices</option>
                 {departmentOptions.map((name) => <option key={name} value={name}>{name}</option>)}
               </select>
             )}
@@ -99,7 +99,7 @@ export function MonthlyLeaderboard({ employees, tasks, facts, currentUserId, all
           <p className="px-4 py-2 text-[10px] text-neutral-500 sm:hidden">Swipe sideways to see all columns and row actions.</p>
           <div className="overflow-x-auto" role="region" aria-label="Monthly contribution table" tabIndex={0}>
           <table className="min-w-[920px] w-full border-collapse text-left">
-            <thead><tr className="border-b border-neutral-100 bg-neutral-50/70 text-[9px] uppercase tracking-wider text-neutral-400"><th className="px-4 py-3">Rank</th><th className="px-3 py-3">Employee</th><th className="px-3 py-3 text-center">Tasks</th><th className="px-3 py-3 text-center">Subtasks</th><th className="px-3 py-3 text-center">On time</th><th className="px-3 py-3 text-center">Median cycle</th><th className="px-3 py-3 text-center">First pass</th><th className="px-3 py-3 text-right">Score</th><th className="px-4 py-3 text-right">Breakdown</th></tr></thead>
+            <thead><tr className="border-b border-neutral-100 bg-neutral-50/70 text-[9px] uppercase tracking-wider text-neutral-400"><th className="px-4 py-3">Rank</th><th className="px-3 py-3">Member</th><th className="px-3 py-3 text-center">Tasks</th><th className="px-3 py-3 text-center">Subtasks</th><th className="px-3 py-3 text-center">On time</th><th className="px-3 py-3 text-center">Median cycle</th><th className="px-3 py-3 text-center">First pass</th><th className="px-3 py-3 text-right">Score</th><th className="px-4 py-3 text-right">Breakdown</th></tr></thead>
             <tbody>
               {rows.map((row) => {
                 const expanded = expandedUserId === row.userId;
@@ -107,7 +107,7 @@ export function MonthlyLeaderboard({ employees, tasks, facts, currentUserId, all
                 return [
                   <tr key={row.userId} className={`border-b border-neutral-100 text-[10.5px] transition ${row.userId === currentUserId ? "bg-blue-50/50" : "hover:bg-neutral-50/60"}`}>
                     <td className="px-4 py-3"><span className={`inline-flex h-7 min-w-7 items-center justify-center gap-1 rounded-full px-2 font-semibold ${medalTone}`}>{row.rank <= 3 && <Medal size={11} />}{row.rank}</span></td>
-                    <td className="px-3 py-3"><div className="font-medium text-neutral-800">{row.employeeName}{row.userId === currentUserId ? <span className="ml-2 rounded bg-blue-100 px-1.5 py-0.5 text-[8px] text-blue-700">You</span> : null}</div><div className="mt-0.5 text-[9px] text-neutral-400">{row.departmentName || "Department"} · {row.source === "live" ? "Live" : "Closed snapshot"}</div></td>
+                    <td className="px-3 py-3"><div className="font-medium text-neutral-800">{row.employeeName}{row.userId === currentUserId ? <span className="ml-2 rounded bg-blue-100 px-1.5 py-0.5 text-[8px] text-blue-700">You</span> : null}</div><div className="mt-0.5 text-[9px] text-neutral-400">{row.departmentName || "Office"} · {row.source === "live" ? "Live" : "Closed snapshot"}</div></td>
                     <td className="px-3 py-3 text-center font-medium text-neutral-700">{row.approvedTasks}</td><td className="px-3 py-3 text-center font-medium text-neutral-700">{row.approvedSubtasks}</td><td className="px-3 py-3 text-center text-neutral-600">{percentage(row.onTimeRate)}</td><td className="px-3 py-3 text-center text-neutral-600">{duration(row.medianCycleHours)}</td><td className="px-3 py-3 text-center text-neutral-600">{percentage(row.firstPassApprovalRate)}</td>
                     <td className="px-3 py-3 text-right"><span className="text-[15px] font-semibold text-neutral-900">{row.contributionScore}</span></td>
                     <td className="px-4 py-3 text-right"><button type="button" onClick={() => setExpandedUserId(expanded ? undefined : row.userId)} className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 px-2.5 py-1.5 text-[9.5px] font-medium text-neutral-600 hover:bg-neutral-50">View {expanded ? <ChevronUp size={11} /> : <ChevronDown size={11} />}</button></td>

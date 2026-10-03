@@ -33,7 +33,7 @@ beforeEach(() => {
 });
 
 describe("task-scoped cash diagnostics", () => {
-  it("uses the signed-in task-scoped read across fiscal years, not the department-wide bundle", async () => {
+  it("uses the signed-in task-scoped read across fiscal years, not the office-wide bundle", async () => {
     backend.tables.petty_cash_requests.push({ id: "other", task_id: "other-task", status: "released" });
     const result = await fetchTaskCashBlockers("task-1");
     expect(result).toHaveLength(1);

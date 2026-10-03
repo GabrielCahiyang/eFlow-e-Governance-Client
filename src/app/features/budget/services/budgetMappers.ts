@@ -66,7 +66,7 @@ export const mapAllocationLine = (row: Record<string, unknown>): WorkBudgetAlloc
   draftTaskKey: row.draft_task_key ? String(row.draft_task_key) : undefined,
   expenseClass: String(row.expense_class || "Other Expenses"), category: String(row.category || ""),
   particular: String(row.particular || ""), quantity: number(row.quantity || 1), unit: String(row.unit || "item"),
-  unitCost: number(row.unit_cost), amount: number(row.amount), fundSource: String(row.fund_source || "Department Budget"),
+  unitCost: number(row.unit_cost), amount: number(row.amount), fundSource: String(row.fund_source || "Office Budget"),
   position: number(row.position),
 });
 
@@ -127,6 +127,8 @@ export const mapLiquidation = (row: Record<string, unknown>, receipts: PettyCash
   declaredSpent: number(row.declared_spent), returnedAmount: number(row.returned_amount), note: String(row.note || ""),
   status: String(row.status) as PettyCashLiquidation["status"], submittedBy: String(row.submitted_by),
   submittedAt: millis(row.submitted_at) || 0, decisionReason: row.decision_reason ? String(row.decision_reason) : undefined,
+  departmentDecidedBy: row.department_decided_by ? String(row.department_decided_by) : undefined,
+  departmentDecidedAt: millis(row.department_decided_at) || undefined,
   receipts: receipts.filter((receipt) => receipt.liquidationId === String(row.id)),
   liquidationNumber: row.liquidation_number ? String(row.liquidation_number) : undefined,
   refundReceiptNumber: row.refund_receipt_number ? String(row.refund_receipt_number) : undefined,

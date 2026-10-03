@@ -113,7 +113,7 @@ export function ApprovalThresholdDialog({
           <AttentionBox
             type="neutral"
             title="Governance Routing Rule"
-            text={`Expenses at or below ${peso.format(value || 0)} are fast-tracked for immediate release upon Team Leader endorsement. Requests above this threshold escalate to the Department Head.`}
+            text={`Expenses at or below ${peso.format(value || 0)} are fast-tracked for immediate release upon Team Leader endorsement. Requests above this threshold escalate to the Head.`}
           />
 
           {/* Visual comparison cards */}

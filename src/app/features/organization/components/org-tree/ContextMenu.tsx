@@ -87,7 +87,7 @@ export function ContextMenu({
           onClick={() => { onAddChild(); onClose(); }}
           className="w-full text-left px-3 py-2 text-[12px] font-medium text-neutral-700 hover:bg-neutral-50 cursor-pointer flex items-center gap-2"
         >
-          <span className="text-[14px]">+</span> Add department
+          <span className="text-[14px]">+</span> Add office
         </button>
       )}
     </div>

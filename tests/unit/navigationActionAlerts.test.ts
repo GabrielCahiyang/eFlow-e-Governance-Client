@@ -13,7 +13,7 @@ describe("navigation action alerts", () => {
   it("does not glow for another person's review", () => {
     expect(getNavigationActionAlerts({
       tasks: [reviewTask("other")], projects: [], drafts: [],
-      userId: "me", role: "dept_head", orgId: "org-1",
+      userId: "me", role: "head", orgId: "org-1",
     })).toEqual({ reviews: false, projects: false });
   });
 
@@ -21,7 +21,7 @@ describe("navigation action alerts", () => {
     expect(getNavigationActionAlerts({
       tasks: [reviewTask("me")], projects: [],
       drafts: [{ status: "ready_to_commit", ownerUserId: "me", ownerOrgId: "org-1" } as CollaborationDraft],
-      userId: "me", role: "dept_head", orgId: "org-1",
+      userId: "me", role: "head", orgId: "org-1",
     })).toEqual({ reviews: true, projects: true });
   });
 
@@ -29,7 +29,7 @@ describe("navigation action alerts", () => {
     expect(getNavigationActionAlerts({
       tasks: [], drafts: [],
       projects: [{ status: "completed", ownerId: "me" } as Project],
-      userId: "me", role: "employee", orgId: "org-1",
+      userId: "me", role: "member", orgId: "org-1",
     }).projects).toBe(true);
   });
 });

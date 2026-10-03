@@ -1,1 +1,1 @@
-export * from '../features/employees/services/pds-parser';
+export * from '../features/members/services/pds-parser';

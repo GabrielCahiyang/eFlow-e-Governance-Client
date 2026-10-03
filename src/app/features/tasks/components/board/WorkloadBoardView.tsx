@@ -97,7 +97,7 @@ export function WorkloadBoardView({
                         key={task.id}
                         type="button"
                         onClick={() => onOpenTaskEditor?.(task)}
-                        disabled={!onOpenTaskEditor || role !== "depthead"}
+                        disabled={!onOpenTaskEditor || role !== "head"}
                         className="max-w-full break-words whitespace-normal rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-left text-[11px] text-neutral-600 transition hover:border-violet-200 hover:text-violet-700 disabled:cursor-default disabled:hover:border-neutral-200 disabled:hover:text-neutral-600"
                       >
                         {task.title}

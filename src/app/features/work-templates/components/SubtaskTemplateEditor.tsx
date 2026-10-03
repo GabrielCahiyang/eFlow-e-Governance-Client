@@ -62,11 +62,11 @@ export function SubtaskTemplateEditor({
           <label className="block text-[10.5px] text-neutral-500">Visibility
             <select value={draft.visibility} onChange={(event) => setDraft((current) => ({ ...current, visibility: event.target.value as SubtaskTemplateDraft["visibility"] }))} className="mt-1 h-10 w-full rounded-xl border border-neutral-200 bg-white px-3 text-[12px] outline-none">
               <option value="personal">Personal · only you</option>
-              <option value="department">Department shared</option>
+              <option value="department">Office shared</option>
             </select>
           </label>
           {draft.visibility === "department" && !canPublishDirectly && (
-            <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-[11px] text-amber-800">Department templates created by Team Leaders are submitted to the Head or Assistant Head for approval.</div>
+            <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-[11px] text-amber-800">Office templates created by Team Leaders are submitted to the Head or Member for approval.</div>
           )}
           <div>
             <div className="mb-2 flex items-center justify-between">

@@ -7,7 +7,7 @@ import type { Organization, UserProfile, UserRole } from "../../../../types";
 import { assignOrganizationLeadership } from "../../../organization/services/leadershipService";
 import { getLeadershipSlotConflict, isManagedLeadershipRole } from "../../services/leadershipConstraints";
 import { getAssignableRoleOptions } from "./userManagementPrimitives";
-import { parsePdsFile, updateEmployeeNotes, type ParsedPdsImport, type PdsEmployeeNotes } from "../../../employees";
+import { parsePdsFile, updateEmployeeNotes, type ParsedPdsImport, type PdsEmployeeNotes } from "../../../members";
 import { FileSpreadsheet, Plus, X } from "lucide-react";
 import { PdsImportReview } from "./PdsImportReview";
 
@@ -30,7 +30,7 @@ export function CreateUserModal({
     fullName: "",
     email: "",
     password: "",
-    role: "employee" as UserRole,
+    role: "member" as UserRole,
     orgId: "",
   });
   const [saving, setSaving] = useState(false);
@@ -51,7 +51,7 @@ export function CreateUserModal({
   const roleOptions = getAssignableRoleOptions(userProfile?.role);
 
   const resetForm = () => {
-    setForm({ fullName: "", email: "", password: "", role: "employee", orgId: "" });
+    setForm({ fullName: "", email: "", password: "", role: "member", orgId: "" });
     setErrors({});
     setActiveTab("basic");
     setSkillInput("");
@@ -136,7 +136,7 @@ export function CreateUserModal({
         form.password,
         {
           full_name: form.fullName.trim(),
-          role: requestedLeadershipRole ? "employee" : form.role,
+          role: requestedLeadershipRole ? "member" : form.role,
           org_id: form.orgId,
           employee_id: null,
           skills,
@@ -156,11 +156,10 @@ export function CreateUserModal({
         if (!organization) throw new Error("The selected organization is no longer available.");
         try {
           await assignOrganizationLeadership(organization.id, {
-            headUserId: form.role === "assistant_head" ? organization.head_user_id : userId,
-            assistantHeadUserId: form.role === "assistant_head" ? userId : organization.assistant_head_user_id,
+            headUserId: userId,
           });
         } catch (leadershipError) {
-          toast(`The account was created safely as Employee, but leadership was not assigned: ${leadershipError instanceof Error ? leadershipError.message : "unknown error"}`, "error");
+          toast(`The account was created safely as Member, but leadership was not assigned: ${leadershipError instanceof Error ? leadershipError.message : "unknown error"}`, "error");
           onClose();
           resetForm();
           return;
@@ -302,7 +301,7 @@ export function CreateUserModal({
         {activeTab === "skills" && (
           <div className="space-y-3">
             <p className="text-[11px] font-normal text-neutral-500">
-              Add skills that the AI recommendation engine will use to match this employee to tasks. Each skill is a keyword (e.g. "data analysis", "coordination", "budgeting").
+              Add skills that the AI recommendation engine will use to match this member to tasks. Each skill is a keyword (e.g. "data analysis", "coordination", "budgeting").
             </p>
             <div className="flex gap-2">
               <input
@@ -323,7 +322,7 @@ export function CreateUserModal({
             </div>
             {Object.keys(skills).length === 0 ? (
               <div className="text-center py-8 text-neutral-400 text-[12px] font-normal">
-                No skills added yet. Skills help the AI recommend the right employee for each task.
+                No skills added yet. Skills help the AI recommend the right member for each task.
               </div>
             ) : (
               <div className="flex flex-wrap gap-2 pt-1">

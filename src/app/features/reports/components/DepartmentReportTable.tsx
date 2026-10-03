@@ -21,7 +21,7 @@ export function DepartmentReportTable({
   const [expandedRowId, setExpandedRowId] = useState<string>();
 
   return (
-    <div className="max-w-full overflow-x-auto" role="region" aria-label="Department report rows" tabIndex={0}>
+    <div className="max-w-full overflow-x-auto" role="region" aria-label="Office report rows" tabIndex={0}>
       <table className="w-full min-w-[980px] table-fixed">
         <colgroup>
           <col className="w-[260px]" />

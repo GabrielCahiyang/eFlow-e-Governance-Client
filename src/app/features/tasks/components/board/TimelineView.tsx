@@ -7,7 +7,7 @@ export function TimelineView({
   onOpenTaskEditor,
 }: {
   tasks: Task[];
-  role: "depthead" | "employee";
+  role: "head" | "member";
   onOpenTaskEditor?: (task: Task) => void;
 }) {
   const today = new Date();
@@ -155,7 +155,7 @@ export function TimelineView({
                 <div className="flex items-start gap-2">
                   <div className={`w-1 h-8 rounded-full shrink-0 ${pm.bar}`} />
                   <div className="min-w-0">
-                    {role === "depthead" && onOpenTaskEditor ? (
+                    {role === "head" && onOpenTaskEditor ? (
                       <button
                         onClick={() => onOpenTaskEditor(task)}
                         className="break-words text-left text-[12px] font-medium leading-snug text-neutral-900 hover:text-violet-700 transition"
@@ -245,7 +245,7 @@ export function TimelineView({
                   <span className="text-neutral-400">{label}</span>
                 </>
               );
-              return role === "depthead" && onOpenTaskEditor ? (
+              return role === "head" && onOpenTaskEditor ? (
                 <button
                   key={task.id}
                   onClick={() => onOpenTaskEditor(task)}

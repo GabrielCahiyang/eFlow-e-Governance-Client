@@ -1,3 +1,4 @@
+import { normalizeUserRole } from "../app/shared/roles";
 // ─── eFlow Supabase Service Layer ────────────────────────────────
 // All Supabase reads/writes centralized here.
 // Components never import supabase directly.
@@ -162,7 +163,6 @@ export async function recreateOrg(org: Organization): Promise<Organization> {
       org_type: org.org_type,
       description: org.description,
       head_user_id: org.head_user_id,
-      assistant_head_user_id: org.assistant_head_user_id,
       is_active: org.is_active,
     })
     .select()
@@ -190,7 +190,7 @@ export async function deleteOrg(id: string): Promise<void> {
     .eq('parent_id', id);
 
   if (childCount && childCount > 0) {
-    throw new Error('Cannot delete organization with child departments. Remove or reassign children first.');
+    throw new Error('Cannot delete organization with child offices. Remove or reassign children first.');
   }
 
   const { count: userCount } = await supabase
@@ -212,17 +212,10 @@ export async function deleteOrg(id: string): Promise<void> {
 }
 
 export async function assignOrgHead(orgId: string, userId: string | null): Promise<void> {
-  const { data: org, error: fetchError } = await supabase
-    .from('organizations')
-    .select('assistant_head_user_id')
-    .eq('id', orgId)
-    .single();
-  if (fetchError) throw fetchError;
-
   const { error } = await supabase.rpc('set_organization_leadership', {
     p_org_id: orgId,
     p_head_user_id: userId,
-    p_assistant_head_user_id: org.assistant_head_user_id || null,
+    p_assistant_head_user_id: null,
   });
 
   if (error) throw error;
@@ -264,7 +257,7 @@ export async function fetchAllProfiles(): Promise<UserProfile[]> {
     .order('full_name');
 
   if (error) throw error;
-  return data as UserProfile[];
+  return (data || []).map(profile => ({ ...profile, role: normalizeDirectoryRole(profile.role) })) as UserProfile[];
 }
 
 export async function fetchProfileById(id: string): Promise<UserProfile | null> {
@@ -275,7 +268,7 @@ export async function fetchProfileById(id: string): Promise<UserProfile | null> 
     .maybeSingle();
 
   if (error) throw error;
-  return data as UserProfile | null;
+  return data ? { ...data, role: normalizeDirectoryRole(data.role) } as UserProfile : null;
 }
 
 export async function createProfile(data: {
@@ -313,7 +306,7 @@ export async function createProfile(data: {
 
   if (profileError) throw profileError;
   notifyProfileListeners();
-  return profile as UserProfile;
+  return { ...profile, role: normalizeDirectoryRole(profile.role) } as UserProfile;
 }
 
 export async function updateProfile(id: string, partial: Partial<UserProfile>): Promise<void> {
@@ -424,4 +417,8 @@ export async function fetchAllConfig(): Promise<SystemConfig[]> {
 
   if (error) throw error;
   return data as SystemConfig[];
+}
+
+function normalizeDirectoryRole(role: unknown): string {
+  try { return normalizeUserRole(role); } catch { return typeof role === "string" ? role : "unsupported"; }
 }

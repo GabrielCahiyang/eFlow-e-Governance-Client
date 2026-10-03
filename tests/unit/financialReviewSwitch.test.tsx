@@ -24,9 +24,9 @@ describe("financial review navigation", () => {
     expect(screen.getByRole("tab", { name: "Budget", exact: true }).getAttribute("aria-selected")).toBe("true");
   });
 
-  it("exposes financial approvals to a Task Leader without granting department-wide scope", () => {
-    expect(canOpenBudgetReviewWorkspace("leading", "employee")).toBe(true);
-    expect(canOpenBudgetReviewWorkspace("department", "employee")).toBe(false);
-    expect(canOpenBudgetReviewWorkspace("department", "assistant_head")).toBe(true);
+  it("exposes financial approvals to a Task Leader without granting office-wide scope", () => {
+    expect(canOpenBudgetReviewWorkspace("leading", "member")).toBe(true);
+    expect(canOpenBudgetReviewWorkspace("department", "member")).toBe(false);
+    expect(canOpenBudgetReviewWorkspace("department", "head")).toBe(true);
   });
 });

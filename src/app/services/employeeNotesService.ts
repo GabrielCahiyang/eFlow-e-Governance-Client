@@ -41,7 +41,7 @@ export const subscribeToEmployeeNotes = (
   load();
 
   const channel = supabase
-    .channel(`employee-notes-changes-${Math.random().toString(36).slice(2)}`)
+    .channel(`member-notes-changes-${Math.random().toString(36).slice(2)}`)
     .on(
       'postgres_changes',
       { event: '*', schema: 'public', table: 'employee_notes' },

@@ -30,7 +30,7 @@ function timeAgo(ts?: number): string {
 
 export function GovernanceReviewInbox({ onNavigate }: { onNavigate?: (section: string, page: string) => void }) {
   const { userProfile } = useAuth();
-  const { isSuperAdmin } = useScopedOrgIds();
+  const { includeAllAccessibleWork } = useScopedOrgIds();
   const { orgs } = useOrgs();
   const collaboration = useCollaborationDrafts();
   const [query, setQuery] = useState("");
@@ -49,7 +49,7 @@ export function GovernanceReviewInbox({ onNavigate }: { onNavigate?: (section: s
       .filter(isActiveCollaborationDraft)
       .filter((draft) =>
         ["in_review", "ready_to_commit"].includes(draft.status) &&
-        (isSuperAdmin ||
+        (includeAllAccessibleWork ||
           draft.ownerOrgId === currentOrgId ||
           draft.snapshot.organizations.some(
             (item) => item.participationRole === "governance" && accessibleOrgIds.has(item.orgId),
@@ -73,7 +73,7 @@ export function GovernanceReviewInbox({ onNavigate }: { onNavigate?: (section: s
     });
 
     return rows;
-  }, [accessibleOrgIds, collaboration.drafts, currentOrgId, isSuperAdmin, orgMap, query, sort]);
+  }, [accessibleOrgIds, collaboration.drafts, currentOrgId, includeAllAccessibleWork, orgMap, query, sort]);
 
   const handleOpenGovernance = (draftId: string) => {
     queueNotificationNavigationIntent({
@@ -138,7 +138,7 @@ export function GovernanceReviewInbox({ onNavigate }: { onNavigate?: (section: s
       ) : (
         <div className="grid grid-cols-1 gap-4">
           {governanceDrafts.map((draft) => {
-            const ownerOrgName = orgMap.get(draft.ownerOrgId) || "Lead Department";
+            const ownerOrgName = orgMap.get(draft.ownerOrgId) || "Lead Office";
             const governanceOrgCount = draft.snapshot.organizations.filter((o) => o.participationRole === "governance").length;
 
             return (

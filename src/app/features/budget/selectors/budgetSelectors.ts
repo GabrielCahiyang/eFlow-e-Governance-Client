@@ -307,7 +307,7 @@ export function buildBudgetExpenseReportRows(data: DepartmentBudgetBundle): Budg
         proposal: commitmentById.get(request.commitmentId)?.title || "Funded proposal",
         task: request.taskTitle || "Assigned task",
         subtask: request.subtaskTitle || allocation?.subtaskTitle,
-        employee: request.cashRecipientName || request.requesterName || "Assigned employee",
+        employee: request.cashRecipientName || request.requesterName || "Assigned member",
         purpose: request.purpose,
         expenseClasses: Array.from(new Set(lines.map((line) => line.expenseClass).filter(Boolean))),
         categories: Array.from(new Set(lines.map((line) => line.category).filter(Boolean))),

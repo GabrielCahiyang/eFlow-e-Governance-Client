@@ -25,7 +25,7 @@ export function cashData(requests = [cashRequest()]): Pick<DepartmentBudgetBundl
     }],
     allocationLines: [{
       id: "line-1", allocationId: "allocation-1", expenseClass: "Operating Expenses", category: "Food",
-      particular: "Meals", fundSource: "Department Budget", amount: 15000, position: 0,
+      particular: "Meals", fundSource: "Office Budget", amount: 15000, position: 0,
     }],
   };
 }

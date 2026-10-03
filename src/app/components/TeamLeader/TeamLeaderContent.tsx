@@ -1,4 +1,4 @@
-import { EmployeeContent } from "../Employee/EmployeeContent";
+import { MemberContent } from "../Member/MemberContent";
 
 export function TeamLeaderContent({
   activeSection,
@@ -8,7 +8,7 @@ export function TeamLeaderContent({
   activePage?: string;
 }) {
   return (
-    <EmployeeContent
+    <MemberContent
       activeSection={activeSection || "tasks"}
       activePage={activePage}
     />

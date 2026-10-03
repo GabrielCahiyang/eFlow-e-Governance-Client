@@ -23,7 +23,7 @@ const parentTask = {
   teamMemberIds: ["employee-1"],
   teamMemberNames: ["Gabriel Cahiyang"],
   acceptanceCriteria: ["Timeline covers every approved activity"],
-  definitionOfDone: "Department Head accepts the work plan and evidence.",
+  definitionOfDone: "Head accepts the work plan and evidence.",
   dependencyIds: ["dependency-1"],
 };
 
@@ -42,7 +42,7 @@ describe("Head review evidence details", () => {
     }));
 
     expect(screen.getByText("Timeline covers every approved activity")).toBeTruthy();
-    expect(screen.getByText("Department Head accepts the work plan and evidence.")).toBeTruthy();
+    expect(screen.getByText("Head accepts the work plan and evidence.")).toBeTruthy();
     expect(screen.getByText("Approve the inception report")).toBeTruthy();
     expect(screen.getByText(/1\/1 complete/)).toBeTruthy();
   });

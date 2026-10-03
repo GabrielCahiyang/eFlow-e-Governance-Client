@@ -21,7 +21,7 @@ export async function fetchDepartmentFiscalYears(orgId: string) {
 export async function fetchDepartmentBudgetBundle(orgId: string, fiscalYear: number): Promise<DepartmentBudgetBundle> {
   const summaryResult = await supabase.rpc("department_budget_summary", { p_org_id: orgId, p_fiscal_year: fiscalYear });
   if (summaryResult.error) {
-    if (/not found|schema cache/i.test(summaryResult.error.message)) throw new Error("Apply the department budget migration, then refresh this page.");
+    if (/not found|schema cache/i.test(summaryResult.error.message)) throw new Error("Apply the office budget migration, then refresh this page.");
     throw new Error(summaryResult.error.message);
   }
   const summary = summaryResult.data ? mapBudgetSummary(summaryResult.data as Record<string, unknown>) : null;
@@ -432,6 +432,10 @@ export async function submitPettyCashLiquidation(input: { orgId: string; request
 
 export async function decidePettyCashLiquidation(id: string, approve: boolean, reason: string) {
   const { error } = await supabase.rpc("settle_accounting_liquidation", { p_liquidation_id: id, p_approve: approve, p_reason: reason }); throwIf(error);
+}
+
+export async function authorizeLateLiquidation(id: string, approve: boolean, reason: string) {
+  const { error } = await supabase.rpc("decide_petty_cash_liquidation", { p_liquidation_id: id, p_approve: approve, p_reason: reason }); throwIf(error);
 }
 
 export async function decidePettyCashLiquidationLeaderReview(id: string, approve: boolean, reason: string) {

@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Award, ShieldCheck, Trophy } from "lucide-react";
-import type { Employee } from "../../employees";
+import type { Employee } from "../../members";
 import type { Task } from "../../tasks";
 import type { ContributionWorkflowFacts } from "../types";
 import { buildMonthlyContributionLeaderboard } from "../selectors/monthlyContributionSelectors";
@@ -21,7 +21,7 @@ export function MyMonthlyContributionCard({ employee, tasks, facts }: { employee
           ["First pass", row?.firstPassApprovalRate == null ? "—" : `${Math.round(row.firstPassApprovalRate)}%`, null],
         ].map(([label, value, icon]) => <div key={label as string} className="rounded-lg border border-white bg-white/80 p-3"><div className="flex items-center gap-1 text-[9px] uppercase tracking-wider text-neutral-400">{icon}{label}</div><div className="mt-1 text-[16px] font-medium text-neutral-800">{value}</div></div>)}
       </div>
-      <p className="mt-3 text-[9.5px] leading-4 text-neutral-500">Only authorized approvals count. This personal view never exposes another employee’s restricted work details.</p>
+      <p className="mt-3 text-[9.5px] leading-4 text-neutral-500">Only authorized approvals count. This personal view never exposes another member’s restricted work details.</p>
     </section>
   );
 }

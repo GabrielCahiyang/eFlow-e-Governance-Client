@@ -100,7 +100,7 @@ export function ProjectsPortfolioTable({
       >
         <TableHeader>
           <TableHeaderCell title="Project" />
-          <TableHeaderCell title="Lead department" />
+          <TableHeaderCell title="Lead office" />
           <TableHeaderCell title="Project lead" />
           <TableHeaderCell title="Lifecycle" />
           <TableHeaderCell title="Schedule" />
@@ -141,7 +141,7 @@ export function ProjectsPortfolioTable({
                 {/* 2. Department */}
                 <TableCell>
                   <span className="text-xs text-neutral-700">
-                    {organization?.name || "No department"}
+                    {organization?.name || "No office"}
                   </span>
                 </TableCell>
 

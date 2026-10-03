@@ -11,7 +11,7 @@ import { isTaskLead } from '../../selectors/leadership';
 
 interface ListTaskRowProps {
   task: Task;
-  role: 'depthead' | 'employee';
+  role: 'head' | 'member';
   employeeById: Record<string, Employee>;
   currentUserId?: string;
   onEditTeam: (task: Task) => void;
@@ -34,13 +34,13 @@ export function ListTaskRow({ task, role, employeeById, currentUserId, onEditTea
                   const memberNames = getTaskMemberNames(task, employeeById);
                   const leadName = task.assigneeName || memberNames[0] || "";
                   const canSubmit =
-                    role === "employee" &&
+                    role === "member" &&
                     task.status === "in_progress" &&
                     currentUserId &&
                     isTaskLead(task, currentUserId);
                   const hasActions =
-                    role === "depthead" ||
-                    (role === "employee" &&
+                    role === "head" ||
+                    (role === "member" &&
                       (task.status === "todo" || Boolean(canSubmit)));
                   const isDraggable = canDragTask(
                     task,
@@ -69,7 +69,7 @@ export function ListTaskRow({ task, role, employeeById, currentUserId, onEditTea
 
                       {/* Task info */}
                       <div className="pl-3 pr-4 min-w-0">
-                        {role === "depthead" && onOpenTaskEditor ? (
+                        {role === "head" && onOpenTaskEditor ? (
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
@@ -104,7 +104,7 @@ export function ListTaskRow({ task, role, employeeById, currentUserId, onEditTea
                         <div className="mt-1 break-words text-[10px] leading-relaxed text-violet-600/80">
                           {hierarchy.path}
                         </div>
-                        {role === "depthead" &&
+                        {role === "head" &&
                           task.status === "for_review" && (
                             <SubmissionDetails
                               submission={task.latestSubmission}
@@ -207,19 +207,19 @@ export function ListTaskRow({ task, role, employeeById, currentUserId, onEditTea
                         {hasActions ? (
                           <TaskManagementMenu
                             task={task}
-                            onApprove={role === "depthead" && task.status === "for_review" ? () => onVerify?.(task.id, true) : undefined}
-                            onReject={role === "depthead" && task.status === "for_review" ? () => {
+                            onApprove={role === "head" && task.status === "for_review" ? () => onVerify?.(task.id, true) : undefined}
+                            onReject={role === "head" && task.status === "for_review" ? () => {
                               const msg = prompt("Reason for rejection:");
                               onVerify?.(task.id, false, msg || "Needs rework");
                             } : undefined}
-                            onStart={role === "employee" && task.status === "todo" ? () => onExecute?.(task.id) : undefined}
+                            onStart={role === "member" && task.status === "todo" ? () => onExecute?.(task.id) : undefined}
                             onSubmit={canSubmit ? () => onSubmitRequest?.(task) : undefined}
-                            onEdit={role === "depthead" ? onOpenTaskEditor : undefined}
-                            onEditTeam={role === "depthead" ? onEditTeam : undefined}
-                            onArchive={role === "depthead" ? onArchiveTaskRequest : undefined}
-                            onCancel={role === "depthead" ? onCancelTaskRequest : undefined}
-                            onDelete={role === "depthead" ? onDeleteTaskRequest : undefined}
-                            onReopen={role === "depthead" ? onUndoRequest : undefined}
+                            onEdit={role === "head" ? onOpenTaskEditor : undefined}
+                            onEditTeam={role === "head" ? onEditTeam : undefined}
+                            onArchive={role === "head" ? onArchiveTaskRequest : undefined}
+                            onCancel={role === "head" ? onCancelTaskRequest : undefined}
+                            onDelete={role === "head" ? onDeleteTaskRequest : undefined}
+                            onReopen={role === "head" ? onUndoRequest : undefined}
                             menuPlacement={
                               task.status === "completed" || task.status === "cancelled"
                                 ? "top"

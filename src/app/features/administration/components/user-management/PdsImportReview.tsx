@@ -8,7 +8,7 @@ import {
   Tags,
   UserRound,
 } from "lucide-react";
-import type { ParsedPdsImport } from "../../../employees";
+import type { ParsedPdsImport } from "../../../members";
 
 function Detail({ label, value }: { label: string; value?: string }) {
   return (
@@ -62,7 +62,7 @@ export function PdsImportReview({ parsed }: { parsed: ParsedPdsImport }) {
           <Detail label="Place of birth" value={personal.placeOfBirth} />
           <Detail label="Email" value={personal.email} />
           <Detail label="Mobile" value={personal.mobile} />
-          <Detail label="Employee number" value={personal.employeeNumber} />
+          <Detail label="Member number" value={personal.employeeNumber} />
         </div>
         {(personal.telephone || personal.email || personal.mobile) && (
           <div className="mt-3 flex flex-wrap gap-2 text-[10px] text-neutral-500">
@@ -75,7 +75,7 @@ export function PdsImportReview({ parsed }: { parsed: ParsedPdsImport }) {
       <Section icon={<BriefcaseBusiness size={15} />} title="Current employment">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Detail label="Position" value={details.currentWork?.position} />
-          <Detail label="Office / department" value={details.currentWork?.office} />
+          <Detail label="Office / office" value={details.currentWork?.office} />
           <Detail label="Inclusive dates" value={details.currentWork ? `${details.currentWork.from || "—"} to ${details.currentWork.to || "—"}` : ""} />
           <Detail label="Appointment" value={details.currentWork?.appointmentStatus} />
         </div>

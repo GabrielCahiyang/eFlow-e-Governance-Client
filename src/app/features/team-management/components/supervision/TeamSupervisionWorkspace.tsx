@@ -12,7 +12,7 @@ import type { TeamAttentionKind } from "../../types";
 import { TeamAttentionQueue } from "./TeamAttentionQueue";
 import { TeamMemberBoard } from "./TeamMemberBoard";
 import { TeamMemberOperationsPanel } from "./TeamMemberOperationsPanel";
-import { DepartmentIdentityAccessPanel } from "./DepartmentIdentityAccessPanel";
+import { OfficeIdentityAccessPanel } from "./OfficeIdentityAccessPanel";
 import { TeamMemberWorkPanel } from "./TeamMemberWorkPanel";
 import { PeopleWorkspaceShell } from "../PeopleWorkspaceShell";
 
@@ -34,8 +34,8 @@ export function TeamSupervisionWorkspace() {
   const selectedMetric = analytics.memberMetrics.find((metric) => metric.employeeId === selectedEmployeeId);
   const filteredAttention = useMemo(() => analytics.attention.filter((item) => attentionFilter === "all" || item.kind === attentionFilter), [analytics.attention, attentionFilter]);
   const criticalCount = analytics.attention.filter((item) => item.severity === "critical").length;
-  const canManageIdentity = ["dept_head", "department_head"].includes(analytics.userProfile?.role || "");
-  const roleByEmployeeId = useMemo(() => new Map(Array.from(analytics.profilesById.entries()).map(([id, profile]) => [id, String(profile.role || "employee")])), [analytics.profilesById]);
+  const canManageIdentity = ["head", "head"].includes(analytics.userProfile?.role || "");
+  const roleByEmployeeId = useMemo(() => new Map(Array.from(analytics.profilesById.entries()).map(([id, profile]) => [id, String(profile.role || "member")])), [analytics.profilesById]);
   const directDepartmentEmployees = useMemo(
     () => analytics.deptEmployees.filter((employee) => employee.department === analytics.userProfile?.departmentId),
     [analytics.deptEmployees, analytics.userProfile?.departmentId],
@@ -77,7 +77,7 @@ export function TeamSupervisionWorkspace() {
         <main className="min-w-0">
           <AnimatePresence mode="wait" initial={false}>
             <m.div key={view} initial={{ opacity: 0, x: 8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -8 }} transition={{ duration: .18 }}>
-              {view === "attention" ? <TeamAttentionQueue items={filteredAttention} onOpenTask={openTaskById} onSelectEmployee={selectEmployee} /> : view === "people" ? <TeamMemberWorkPanel employee={selectedEmployee} metric={selectedMetric} tasks={analytics.tasks} subtasks={analytics.facts.subtasks} onOpenTask={setOpenTask} /> : <DepartmentIdentityAccessPanel employees={directDepartmentEmployees} roles={roleByEmployeeId} />}
+              {view === "attention" ? <TeamAttentionQueue items={filteredAttention} onOpenTask={openTaskById} onSelectEmployee={selectEmployee} /> : view === "people" ? <TeamMemberWorkPanel employee={selectedEmployee} metric={selectedMetric} tasks={analytics.tasks} subtasks={analytics.facts.subtasks} onOpenTask={setOpenTask} /> : <OfficeIdentityAccessPanel employees={directDepartmentEmployees} roles={roleByEmployeeId} />}
             </m.div>
           </AnimatePresence>
         </main>

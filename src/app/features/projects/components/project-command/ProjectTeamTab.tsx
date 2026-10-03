@@ -90,12 +90,12 @@ export function ProjectTeamTab({
       {editable && (
         <div className="flex flex-wrap items-center gap-2 border-b border-neutral-100 bg-neutral-50/50 p-3">
           <select
-            aria-label="Choose a department member"
+            aria-label="Choose a office member"
             value={userId}
             onChange={(event) => setUserId(event.target.value)}
             className="eflow-control min-w-[220px] flex-1 text-xs"
           >
-            <option value="">Add a department officer or member…</option>
+            <option value="">Add a office officer or member…</option>
             {candidates.map((profile) => (
               <option key={profile.id} value={profile.id}>
                 {profile.full_name} · {profile.role.replace(/_/g, " ")}
@@ -197,7 +197,7 @@ export function ProjectTeamTab({
         ) : (
           <EmptyState
             title="No project team members"
-            description="Add department members who will collaborate on project tasks and milestones."
+            description="Add office members who will collaborate on project tasks and milestones."
           />
         )}
       </div>

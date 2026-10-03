@@ -163,7 +163,7 @@ export function useDashboardMetrics() {
     const activeTasks = tasks.filter((t) => t.status !== 'completed');
     const pendingTasks = tasks.filter((t) => t.status === 'pending_assignment' || t.status === 'todo');
     const completedTasks = tasks.filter((t) => t.status === 'completed');
-    const deptHeads = activeUsers.filter((u: any) => u.role === 'department_head' || u.role === 'dept_head');
+    const deptHeads = activeUsers.filter((u: any) => u.role === 'head' || u.role === 'head');
     const overloaded = activeUsers.filter((u: any) => u.workload >= 80);
     const totalWorkload = activeUsers.reduce((sum: number, u: any) => sum + (u.workload || 0), 0);
     const avgWorkload = activeUsers.length > 0 ? Math.round(totalWorkload / activeUsers.length) : 0;

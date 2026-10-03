@@ -35,7 +35,7 @@ describe("navigation URL contract", () => {
 
   it("parses a deep link without changing role navigation candidates", () => {
     window.history.replaceState({}, "", "/reviews?page=For+Review");
-    expect(readNavigationLocation("depthead", getInitialPage)).toEqual({
+    expect(readNavigationLocation("head", getInitialPage)).toEqual({
       section: "reviews",
       page: "For Review",
     });
@@ -43,14 +43,14 @@ describe("navigation URL contract", () => {
 
   it("falls back to the registered page when a query is stale", () => {
     window.history.replaceState({}, "", "/reviews?page=Removed+page");
-    expect(readNavigationLocation("depthead", getInitialPage)).toEqual({
+    expect(readNavigationLocation("head", getInitialPage)).toEqual({
       section: "reviews",
       page: "For Review",
     });
   });
 
   it("writes selections and follows browser back/forward", async () => {
-    const { result } = renderHook(() => useRoleNavigationState("depthead", getInitialPage));
+    const { result } = renderHook(() => useRoleNavigationState("head", getInitialPage));
 
     act(() => result.current.selectPage("reviews", "For Review"));
     expect(window.location.pathname).toBe("/reviews");

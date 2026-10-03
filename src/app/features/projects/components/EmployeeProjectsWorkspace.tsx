@@ -7,7 +7,7 @@ import { ProjectsWorkspace } from "./ProjectsWorkspace";
 export function EmployeeProjectsWorkspace() {
   return (
     <ProjectsWorkspace
-      scope={{ isSuperAdmin: false, scopedOrgIds: [] }}
+      scope={{ includeAllAccessibleWork: false, scopedOrgIds: [] }}
       eyebrow="My Workspace · Projects"
       proposalGrouping={false}
     />

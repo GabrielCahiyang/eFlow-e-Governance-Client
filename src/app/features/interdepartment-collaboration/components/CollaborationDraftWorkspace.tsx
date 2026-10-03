@@ -92,7 +92,7 @@ export function CollaborationDraftWorkspace({ draftId, organizations, profiles, 
   React.useEffect(() => { if (userProfile?.id) void fetchMyCollaborationMemberships(userProfile.id).then(setMemberships).catch(() => setMemberships([])); }, [userProfile?.id]);
   const homeOrgId = userProfile?.org_id || userProfile?.departmentId || "";
   const approverOrgIds = React.useMemo(() => new Set([
-    ...(["dept_head", "department_head", "assistant_head"].includes(userProfile?.role || "") ? [homeOrgId] : []),
+    ...(["head", "head"].includes(userProfile?.role || "") ? [homeOrgId] : []),
     ...memberships.filter((item) => item.membershipRole !== "member").map((item) => item.organizationId),
     ...governance.assignments.filter((item) => item.userId === userProfile?.id && ["primary_approver", "backup_approver", "delegate"].includes(item.role)).map((item) => item.organizationId),
   ].filter(Boolean)), [governance.assignments, homeOrgId, memberships, userProfile?.id, userProfile?.role]);
@@ -106,7 +106,7 @@ export function CollaborationDraftWorkspace({ draftId, organizations, profiles, 
     }
   }, [actingOrgId, eligibleReviewOrganizations]);
   const reviewOrganization = eligibleReviewOrganizations.find((participant) => participant.orgId === actingOrgId) || eligibleReviewOrganizations[0];
-  const isOwner = Boolean(!readOnly && state.draft && state.draft.ownerOrgId === homeOrgId && ["dept_head", "department_head", "assistant_head"].includes(userProfile?.role || ""));
+  const isOwner = Boolean(!readOnly && state.draft && state.draft.ownerOrgId === homeOrgId && ["head", "head"].includes(userProfile?.role || ""));
   const currentOrganizationApproval = state.approvals.find((approval) => approval.revisionId === state.draft?.currentRevisionId && approval.organizationId === reviewOrganization?.orgId);
   const canDecide = Boolean(!readOnly && reviewOrganization && !currentOrganizationApproval?.decision.includes("approved") && state.draft && ["in_review", "changes_requested", "ready_to_commit"].includes(state.draft.status));
   const departmentOnly = state.participants.length === 1 && state.participants[0]?.participationRole === "owner";
@@ -152,7 +152,7 @@ export function CollaborationDraftWorkspace({ draftId, organizations, profiles, 
     const resend = Boolean(state.draft && previous && shouldResendAfterUpdate(state.draft.status, evaluateRevisionMateriality(previous, next).material, departmentOnly));
     if (resend && !await confirm({
       title: "Save changes and resend approval requests?",
-      description: "Participating departments must review the updated responsibilities, team, schedule, or budget before this plan can be published.",
+      description: "Participating offices must review the updated responsibilities, team, schedule, or budget before this plan can be published.",
       actionLabel: "Save and resend",
     })) throw new Error("Save cancelled. Your edits are still available.");
     await act(
@@ -166,7 +166,7 @@ export function CollaborationDraftWorkspace({ draftId, organizations, profiles, 
   const saveStaffingRevision = async (snapshot: CollaborationDraftSnapshot, summary: string) => {
     if (isOwner) return saveRevision(snapshot, summary);
     if (!reviewOrganization) throw new Error("No organization is selected for this staffing review.");
-    return act(async () => { await saveCollaborationStaffingRevision(draftId, reviewOrganization.orgId, snapshot, summary); }, "Team changes saved. The lead department can resend approval requests.", true);
+    return act(async () => { await saveCollaborationStaffingRevision(draftId, reviewOrganization.orgId, snapshot, summary); }, "Team changes saved. The lead office can resend approval requests.", true);
   };
 
   if (state.loading) return <div className="flex min-h-[420px] items-center justify-center gap-2" aria-live="polite"><Loader size="medium" /> Loading collaboration workspace…</div>;
@@ -231,10 +231,10 @@ export function CollaborationDraftWorkspace({ draftId, organizations, profiles, 
         {tab === "board" && isCommittedDraft && <CommittedProposalBoard delivery={delivery} profiles={profiles} readOnly={readOnly} />}
         {tab === "plan" && <CollaborationPlanEditPanel snapshot={snapshot} organizations={organizations} editable={isOwner && !["committed", "archived", "deleted"].includes(draft.status)} onSave={saveRevision} />}
         {tab === "discussion" && <CollaborationDiscussion messages={state.messages} organizations={organizations} profiles={profiles} onSend={(message) => act(async () => { await sendCollaborationMessage({ draftId, message }); }, "Message sent.")} />}
-        {tab === "approvals" && !departmentOnly && <div className="space-y-3"><DepartmentApprovalMatrix participants={state.participants} approvals={state.approvals} currentRevisionId={draft.currentRevisionId} organizations={organizations} profiles={profiles} /><CollaborationReadiness participants={state.participants} approvals={state.approvals} currentRevisionId={draft.currentRevisionId} readiness={state.readiness} organizations={organizations} profiles={profiles} committed={isCommittedDraft} />{canDecide && <CollaborationDecisionPanel organizations={organizations} eligibleOrganizations={eligibleReviewOrganizations} selectedOrgId={reviewOrganization?.orgId} busy={busy} onSelectOrg={setActingOrgId} onDecide={(decision, reason) => act(async () => { await decideCollaborationReview({ draftId, organizationId: reviewOrganization!.orgId, decision, reason }); }, "Your department decision was recorded.", true)} />}</div>}
+        {tab === "approvals" && !departmentOnly && <div className="space-y-3"><DepartmentApprovalMatrix participants={state.participants} approvals={state.approvals} currentRevisionId={draft.currentRevisionId} organizations={organizations} profiles={profiles} /><CollaborationReadiness participants={state.participants} approvals={state.approvals} currentRevisionId={draft.currentRevisionId} readiness={state.readiness} organizations={organizations} profiles={profiles} committed={isCommittedDraft} />{canDecide && <CollaborationDecisionPanel organizations={organizations} eligibleOrganizations={eligibleReviewOrganizations} selectedOrgId={reviewOrganization?.orgId} busy={busy} onSelectOrg={setActingOrgId} onDecide={(decision, reason) => act(async () => { await decideCollaborationReview({ draftId, organizationId: reviewOrganization!.orgId, decision, reason }); }, "Your office decision was recorded.", true)} />}</div>}
       </main>
       {!isCommittedDraft && <aside className="space-y-3">{tab !== "approvals" && <CollaborationReadiness participants={state.participants} approvals={state.approvals} currentRevisionId={draft.currentRevisionId} readiness={state.readiness} organizations={organizations} departmentOnly={departmentOnly} />}
-        <CollaborationActionRail departmentOnly={departmentOnly} isOwner={isOwner} ownerName={ownerOrg?.name} status={draft.status} readiness={state.readiness} busy={busy} hasRevision={Boolean(draft.currentRevisionId)} onRequestReview={() => act(async () => { await requestCollaborationReview(draftId); }, "Approval requests sent.", true)} onCommit={() => act(async () => { if (departmentOnly) await publishDepartmentProposal(draftId); else await commitCollaborationDraft(draftId, draft.currentRevisionId!); onCommitted(); }, departmentOnly ? "Department proposal published. Operational projects and tasks are now available." : "Proposal published. Operational projects and tasks are now available.", true)} onDelete={(reason) => act(async () => { await deleteCollaborationDraft(draftId, reason); onBack(); }, departmentOnly ? "Department proposal draft deleted." : "Collaboration draft deleted with its governance history retained.", true)} />
+        <CollaborationActionRail departmentOnly={departmentOnly} isOwner={isOwner} ownerName={ownerOrg?.name} status={draft.status} readiness={state.readiness} busy={busy} hasRevision={Boolean(draft.currentRevisionId)} onRequestReview={() => act(async () => { await requestCollaborationReview(draftId); }, "Approval requests sent.", true)} onCommit={() => act(async () => { if (departmentOnly) await publishDepartmentProposal(draftId); else await commitCollaborationDraft(draftId, draft.currentRevisionId!); onCommitted(); }, departmentOnly ? "Office proposal published. Operational projects and tasks are now available." : "Proposal published. Operational projects and tasks are now available.", true)} onDelete={(reason) => act(async () => { await deleteCollaborationDraft(draftId, reason); onBack(); }, departmentOnly ? "Office proposal draft deleted." : "Collaboration draft deleted with its governance history retained.", true)} />
       </aside>}
     </div>
     {secondaryTab && (

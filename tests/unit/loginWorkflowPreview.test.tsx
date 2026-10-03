@@ -10,12 +10,12 @@ import { useWorkflowPlayback, WORKFLOW_STEP_DURATION } from "../../src/app/featu
 afterEach(() => { cleanup(); vi.useRealTimers(); vi.unstubAllGlobals(); });
 
 describe("login workflow guides", () => {
-  it("distinguishes participation approval from department-only publication and covers both complete journeys", () => {
+  it("distinguishes participation approval from office-only publication and covers both complete journeys", () => {
     const inter = WORKFLOW_GUIDES.interdepartmental.steps;
     const internal = WORKFLOW_GUIDES.department.steps;
     expect(inter.find((step) => step.id === "participation")?.returnPath).toMatch(/resend approval requests/i);
-    expect(internal.some((step) => step.id === "participation" || step.id === "departments")).toBe(false);
-    expect(internal.find((step) => step.id === "publish")?.description).toMatch(/does not need another department/);
+    expect(internal.some((step) => step.id === "participation" || step.id === "offices")).toBe(false);
+    expect(internal.find((step) => step.id === "publish")?.description).toMatch(/does not need another office/);
     for (const steps of [inter, internal]) {
       expect(steps[0].id).toBe("create");
       expect(steps.at(-1)?.id).toBe("archive");
@@ -42,8 +42,8 @@ describe("login workflow guides", () => {
     expect((screen.getByRole("button", { name: "Next step" }) as HTMLButtonElement).disabled).toBe(true);
     fireEvent.click(screen.getByRole("button", { name: "Close flow preview" }));
     expect(screen.queryByRole("dialog")).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: /Within-department flow/ }));
-    expect(screen.getByRole("dialog", { name: "Within-department flow" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: /Within-office flow/ }));
+    expect(screen.getByRole("dialog", { name: "Within-office flow" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Create a proposal" })).toBeTruthy();
     expect(screen.queryByRole("button", { name: /Step .*Request department approvals/ })).toBeNull();
   }, 60000);
@@ -194,7 +194,7 @@ it("uses the walkthrough voice, keeps it enabled across steps, and cancels on of
   vi.stubGlobal("SpeechSynthesisUtterance", Utterance);
   vi.stubGlobal("speechSynthesis", speech);
   render(<WorkflowPreview />);
-  fireEvent.click(screen.getByRole("button", { name: /Within-department flow/ }));
+  fireEvent.click(screen.getByRole("button", { name: /Within-office flow/ }));
   expect(screen.getByRole("switch", { name: "Turn AI voice on" }).getAttribute("aria-checked")).toBe("false");
   fireEvent.click(screen.getByRole("switch", { name: "Turn AI voice on" }));
   act(() => vi.advanceTimersByTime(350));

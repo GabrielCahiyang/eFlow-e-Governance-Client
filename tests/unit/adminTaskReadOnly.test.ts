@@ -7,7 +7,7 @@ const sql = readFileSync(
   "utf8",
 );
 
-describe("Super Admin task oversight", () => {
+describe("Admin task oversight", () => {
   it("removes every interactive task-detail capability in read-only mode", () => {
     expect(resolveTaskDetailCapabilities(true, {
       canReview: true,
@@ -43,6 +43,6 @@ describe("Super Admin task oversight", () => {
   it("enforces read-only task oversight in the database", () => {
     expect(sql).toContain("public.is_super_admin(auth.uid())");
     expect(sql).toContain("before insert or update or delete on public.tasks");
-    expect(sql).toContain("Super Admin task access is read-only");
+    expect(sql).toContain("Admin task access is read-only");
   });
 });

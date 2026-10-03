@@ -74,8 +74,8 @@ export function SubmitForReviewModal({
             </div>
             <p className="mt-1 text-[10.5px] leading-relaxed opacity-80">
               {subtasksReady
-                ? "Add the Team Lead’s final completion summary, then submit the complete task to the Department Head."
-                : `${remainingSubtasks} subtask${remainingSubtasks === 1 ? " is" : "s are"} still waiting for Team Leader approval. The task cannot be submitted to the Department Head yet.`}
+                ? "Add the Team Lead’s final completion summary, then submit the complete task to the Head."
+                : `${remainingSubtasks} subtask${remainingSubtasks === 1 ? " is" : "s are"} still waiting for Team Leader approval. The task cannot be submitted to the Head yet.`}
             </p>
           </div>
 

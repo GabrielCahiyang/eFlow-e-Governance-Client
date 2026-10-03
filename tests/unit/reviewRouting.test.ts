@@ -26,16 +26,16 @@ const task: Task = {
 
 describe("review routing", () => {
   it("allows the primary and backup reviewer", () => {
-    expect(canUserReviewTask(task, "reviewer-1", "employee")).toBe(true);
-    expect(canUserReviewTask(task, "reviewer-2", "employee")).toBe(true);
+    expect(canUserReviewTask(task, "reviewer-1", "member")).toBe(true);
+    expect(canUserReviewTask(task, "reviewer-2", "member")).toBe(true);
   });
 
   it("prevents a submitter from reviewing the same attempt", () => {
     expect(canUserReviewTask(task, "submitter-1", "super_admin")).toBe(false);
   });
 
-  it("allows a super admin override when they are not the submitter", () => {
-    expect(canUserReviewTask(task, "admin-1", "super_admin")).toBe(true);
+  it("denies automatic Admin operational review", () => {
+    expect(canUserReviewTask(task, "admin-1", "super_admin")).toBe(false);
   });
 
   it("keeps an explicitly assigned governance reviewer in the queue across organizations", () => {
@@ -46,10 +46,18 @@ describe("review routing", () => {
       reviewRouteMode: "governance",
     };
 
-    expect(isTaskVisibleInReviewQueue(governedTask, "orcham-head", "dept_head")).toBe(true);
+    expect(isTaskVisibleInReviewQueue(governedTask, "orcham-head", "head")).toBe(true);
   });
 
   it("keeps unrelated users out of the queue", () => {
-    expect(isTaskVisibleInReviewQueue(task, "unrelated-head", "dept_head")).toBe(false);
+    expect(isTaskVisibleInReviewQueue(task, "unrelated-head", "head")).toBe(false);
+  });
+
+  it("allows accountable Head self-finalization only for normal office work", () => {
+    const ownWork = {...task,reviewerId:"head-1",latestSubmission:{...task.latestSubmission!,submitterId:"head-1"}};
+    expect(canUserReviewTask({...ownWork,reviewRouteMode:"organization_default"},"head-1","head")).toBe(true);
+    expect(canUserReviewTask({...ownWork,reviewRouteMode:"governance"},"head-1","head")).toBe(false);
+    expect(canUserReviewTask({...ownWork,reviewRouteMode:"explicit"},"head-1","head")).toBe(false);
+    expect(canUserReviewTask(ownWork,"head-1","member")).toBe(false);
   });
 });

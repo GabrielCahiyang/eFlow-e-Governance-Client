@@ -32,7 +32,7 @@ export function ListBoardView({
   onUndoRequest,
 }: {
   tasks: Task[];
-  role: "depthead" | "employee";
+  role: "head" | "member";
   employees: Employee[];
   employeeNotes?: EmployeeNotesMap;
   onAssign?: MondayBoardProps["onAssign"];

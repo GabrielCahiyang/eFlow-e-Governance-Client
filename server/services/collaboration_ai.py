@@ -34,7 +34,7 @@ def _authorized_draft(user: AuthenticatedUser, draft_id: str) -> tuple[dict[str,
     owner_org_manager = bool(
         user.org_id
         and str(draft.get("owner_org_id")) == user.org_id
-        and user.role in {"dept_head", "department_head", "assistant_head"}
+        and user.role in {"head"}
     )
     if is_administrator(user.role) or (not owner and not owner_org_manager):
         raise PermissionError("Only the owning office may request AI staffing recommendations.")
@@ -51,7 +51,7 @@ def _candidate_context(participants: list[dict[str, Any]]) -> list[dict[str, Any
         _rows("profiles", "id,full_name,role,org_id,skills,workload,burnout_level")
         .eq("is_active", True)
         .in_("org_id", org_ids)
-        .neq("role", "super_admin")
+        .neq("role", "admin").neq("role", "super_admin")
         .neq("role", "admin")
         .execute().data or []
     )

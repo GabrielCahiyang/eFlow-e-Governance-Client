@@ -1,6 +1,6 @@
 import { CalendarDays, CheckCircle2, ExternalLink, ListChecks } from "lucide-react";
 import { isActive, type Task } from "../../../tasks";
-import type { Employee } from "../../../employees";
+import type { Employee } from "../../../members";
 import type { Subtask } from "../../../subtasks";
 import type { TeamMemberMetrics } from "../../types";
 

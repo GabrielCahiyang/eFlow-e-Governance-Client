@@ -218,14 +218,14 @@ export const recommendTeam = async (
 ): Promise<LLMTeamRecommendation | null> => {
   // No employees in the department — skip LLM entirely and return null
   if (!employees || employees.length === 0) {
-    console.info("[LLM] No employees available in this department — skipping AI recommendation.");
+    console.info("[LLM] No members available in this office — skipping AI recommendation.");
     return null;
   }
 
   const employeesContext = buildEmployeesContext(employees, employeeNotes);
   const taskBlock = buildTaskDetailsBlock(task, hierarchyContext);
 
-  const prompt = `You are an AI assistant helping a Department Head assign tasks to employees using a Genetic Algorithm-like evaluation approach.\n\n${taskBlock}\n\nAvailable Employees:\n${employeesContext}\n\nInstructions:\n1. Select a team of 1 to N employees. You may choose as many as needed based on complexity.\n2. Use the Skills field and manager notes (strengths/weaknesses/tags) to match employee capabilities to the task.\n3. Consider workload. Workload above 80 indicates burnout risk.\n4. Choose a lead candidate among the team (include them in the list).\n5. Output your response as strict JSON with no markdown.\n\nRequired JSON format:\n{\n  "recommendedEmployeeIds": ["id_1", "id_2"],\n  "reasoning": "Why this team and size were selected, plus workload assessment.",\n  "burnoutWarning": true/false\n}`;
+  const prompt = `You are an AI assistant helping a Head assign tasks to members using a Genetic Algorithm-like evaluation approach.\n\n${taskBlock}\n\nAvailable Members:\n${employeesContext}\n\nInstructions:\n1. Select a team of 1 to N members. You may choose as many as needed based on complexity.\n2. Use the Skills field and manager notes (strengths/weaknesses/tags) to match member capabilities to the task.\n3. Consider workload. Workload above 80 indicates burnout risk.\n4. Choose a lead candidate among the team (include them in the list).\n5. Output your response as strict JSON with no markdown.\n\nRequired JSON format:\n{\n  "recommendedEmployeeIds": ["id_1", "id_2"],\n  "reasoning": "Why this team and size were selected, plus workload assessment.",\n  "burnoutWarning": true/false\n}`;
 
   console.info("[LLM] Recommendation prompt:", prompt);
 

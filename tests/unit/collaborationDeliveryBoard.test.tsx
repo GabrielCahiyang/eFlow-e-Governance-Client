@@ -18,7 +18,7 @@ const task = (id: string, linkedProjectId: string, title: string, deadline: stri
 } as Task);
 
 describe("committed proposal delivery board", () => {
-  it("selects the opened approval tab and preserves the published task label for department plans", () => {
+  it("selects the opened approval tab and preserves the published task label for office plans", () => {
     const common = {
       draft: { id: "selected-plan", title: "Source proposal title", status: "in_review", ownerOrgId: "org" } as any,
       snapshot: { tasks: [], organizations: [] } as any,
@@ -59,7 +59,7 @@ describe("committed proposal delivery board", () => {
     expect(onTabChange).toHaveBeenCalledWith("board");
   });
 
-  it("confirms publication of a department-only proposal without collaboration review controls", async () => {
+  it("confirms publication of a office-only proposal without collaboration review controls", async () => {
     const onCommit = vi.fn(async () => undefined);
     const onRequestReview = vi.fn(async () => undefined);
     render(
@@ -86,14 +86,14 @@ describe("committed proposal delivery board", () => {
     );
 
     expect(screen.queryByRole("button", { name: "Request collaboration review" })).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "Publish department proposal" }));
+    fireEvent.click(screen.getByRole("button", { name: "Publish office proposal" }));
     expect(onCommit).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole("button", { name: "Publish work plan" }));
     await waitFor(() => expect(onCommit).toHaveBeenCalledOnce());
     expect(onRequestReview).not.toHaveBeenCalled();
   });
 
-  it("asks for confirmation before sending an inter-department review request", () => {
+  it("asks for confirmation before sending an inter-office review request", () => {
     const onRequestReview = vi.fn(async () => undefined);
     render(
       <CollaborationActionRail
@@ -118,7 +118,7 @@ describe("committed proposal delivery board", () => {
     expect(onRequestReview).toHaveBeenCalledOnce();
   });
 
-  it("hides collaboration-only tabs for a department proposal", () => {
+  it("hides collaboration-only tabs for a office proposal", () => {
     const view = render(
       <CollaborationWorkspaceHeader
         draft={{ id: "draft-1", title: "LEDIPO plan", sourceType: "manual", status: "draft", ownerOrgId: "org-1" } as any}

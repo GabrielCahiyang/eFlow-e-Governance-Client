@@ -10,7 +10,7 @@ import {
   Users,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { Employee } from "../../employees";
+import type { Employee } from "../../members";
 import type { Task } from "../../tasks";
 import { useToast } from "../../../components/ui/Toast";
 import {
@@ -83,7 +83,7 @@ export function SubtaskTemplateLibrary({
     await load();
     toast(
       draft.visibility === "department" && !canManageDepartment
-        ? "Template submitted for Department Head approval."
+        ? "Template submitted for Head approval."
         : "Subtask template saved.",
       "success",
     );
@@ -148,8 +148,8 @@ export function SubtaskTemplateLibrary({
                   {canEdit && <button onClick={() => setEditing(template)} className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 px-2.5 py-1.5 text-[10.5px] text-neutral-600 hover:bg-neutral-50"><Edit3 size={11} /> Edit</button>}
                   {canManageDepartment && template.approvalStatus === "pending" && (
                     <>
-                      <button onClick={async () => { await reviewSubtaskTemplate(template.id, true); await load(); toast("Department template approved.", "success"); }} className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 px-2.5 py-1.5 text-[10.5px] text-emerald-700 hover:bg-emerald-50"><ShieldCheck size={11} /> Approve</button>
-                      <button onClick={async () => { await reviewSubtaskTemplate(template.id, false); await load(); toast("Department template rejected.", "success"); }} className="inline-flex items-center gap-1 rounded-lg border border-rose-200 px-2.5 py-1.5 text-[10.5px] text-rose-600 hover:bg-rose-50"><ShieldX size={11} /> Reject</button>
+                      <button onClick={async () => { await reviewSubtaskTemplate(template.id, true); await load(); toast("Office template approved.", "success"); }} className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 px-2.5 py-1.5 text-[10.5px] text-emerald-700 hover:bg-emerald-50"><ShieldCheck size={11} /> Approve</button>
+                      <button onClick={async () => { await reviewSubtaskTemplate(template.id, false); await load(); toast("Office template rejected.", "success"); }} className="inline-flex items-center gap-1 rounded-lg border border-rose-200 px-2.5 py-1.5 text-[10.5px] text-rose-600 hover:bg-rose-50"><ShieldX size={11} /> Reject</button>
                     </>
                   )}
                   {canEdit && <button onClick={async () => {

@@ -11,7 +11,7 @@ import {
 const NOW = new Date("2026-08-17T08:00:00Z").getTime();
 const employees: Employee[] = [
   { id: "lead", name: "Lead One", jobTitle: "Head", jobDescription: "Planning", currentWorkload: 0 },
-  { id: "member", name: "Member One", jobTitle: "Employee", jobDescription: "Writing", currentWorkload: 0 },
+  { id: "member", name: "Member One", jobTitle: "Member", jobDescription: "Writing", currentWorkload: 0 },
 ];
 const tasks: Task[] = [{
   id: "task",
@@ -79,7 +79,7 @@ const facts: TeamWorkflowFacts = {
   }],
 };
 
-describe("department reports", () => {
+describe("office reports", () => {
   it("attributes task and subtask contributions instead of counting only the lead", () => {
     const rows = buildDepartmentReportRows("contributions", tasks, projects, employees, facts, [], NOW);
     expect(rows.filter((row) => row.personId === "member").map((row) => row.role)).toEqual([

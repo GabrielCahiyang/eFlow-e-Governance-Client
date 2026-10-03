@@ -7,7 +7,7 @@ import { normalizeCollaborationOrganization, normalizeCollaborationSnapshot } fr
 
 function databaseUpgradeError(error: { code?: string; message: string }) {
   if (error.code === "PGRST202" || error.message.includes("collaboration")) {
-    return new Error("The inter-department collaboration database migrations have not been applied yet.");
+    return new Error("The inter-office collaboration database migrations have not been applied yet.");
   }
   return new Error(error.message);
 }

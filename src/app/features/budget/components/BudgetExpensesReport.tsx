@@ -31,10 +31,10 @@ export function BudgetExpensesReport({ data }: { data: DepartmentBudgetBundle })
     receipts: filtered.reduce((sum, row) => sum + row.receiptCount, 0),
   }), [filtered]);
 
-  if (!rows.length) return <BudgetEmpty title="No verified expenses yet" description="Only Head/Assistant-approved liquidations become actual spending. Settled packages will appear here with their proposal, task, employee, category, and receipts." />;
+  if (!rows.length) return <BudgetEmpty title="No verified expenses yet" description="Only Head/Assistant-approved liquidations become actual spending. Settled packages will appear here with their proposal, task, member, category, and receipts." />;
 
   const exportCsv = () => {
-    const header = ["Request", "Settled", "Proposal", "Task", "Subtask", "Employee", "Expense class", "Category", "Purpose", "Actual spent", "Returned", "Receipts"];
+    const header = ["Request", "Settled", "Proposal", "Task", "Subtask", "Member", "Expense class", "Category", "Purpose", "Actual spent", "Returned", "Receipts"];
     const records = filtered.map((row) => [
       `PC-${String(row.requestNumber).padStart(5, "0")}`, new Date(row.settledAt).toLocaleString(), row.proposal,
       row.task, row.subtask || "", row.employee, row.expenseClasses.join("; "), row.categories.join("; "), row.purpose,
@@ -55,9 +55,9 @@ export function BudgetExpensesReport({ data }: { data: DepartmentBudgetBundle })
     </div>
     <section className="overflow-hidden rounded-[10px] border border-border bg-card shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
       <header className="flex flex-wrap items-center gap-2 border-b border-border p-4">
-        <div className="relative min-w-[220px] flex-1"><Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" /><Input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search proposal, work, employee, or category…" className="h-9 pl-9 pr-3 text-[12px]" /></div>
+        <div className="relative min-w-[220px] flex-1"><Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" /><Input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search proposal, work, member, or category…" className="h-9 pl-9 pr-3 text-[12px]" /></div>
         <Filter value={proposal} onChange={setProposal} label="All proposals" options={proposals} />
-        <Filter value={employee} onChange={setEmployee} label="All employees" options={employees} />
+        <Filter value={employee} onChange={setEmployee} label="All members" options={employees} />
         <Filter value={month} onChange={setMonth} label="All months" options={months} format={formatMonth} />
         <button onClick={exportCsv} className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border px-3 text-[12px] transition-colors hover:bg-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"><Download size={12} /> CSV</button>
         <button onClick={() => window.print()} className="inline-flex h-9 items-center gap-1.5 rounded-md bg-primary px-3 text-[12px] text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"><Printer size={12} /> Print / PDF</button>

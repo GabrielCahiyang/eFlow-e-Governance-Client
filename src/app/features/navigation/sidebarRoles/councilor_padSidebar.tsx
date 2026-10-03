@@ -3,7 +3,7 @@ import type { SidebarContent } from "../sidebarTypes";
 
 export const councilor_padSidebar: Record<string, SidebarContent> = {
       workspace: {
-        title: "Department Workspace",
+        title: "Office Workspace",
         sections: [
           {
             title: "Dashboard",

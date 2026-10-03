@@ -117,7 +117,7 @@ export function LeadershipAssignmentFields({
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             className="bg-white pl-9"
-            placeholder={boardMode ? "Name, email, employee ID, role, or office" : "Name, email, employee ID, or role"}
+            placeholder={boardMode ? "Name, email, member ID, role, or office" : "Name, email, member ID, or role"}
           />
         </div>
         <p className="mt-1.5 flex items-center gap-1.5 text-[11px] text-neutral-500">
@@ -128,25 +128,25 @@ export function LeadershipAssignmentFields({
 
       {query.trim() && matchingCandidates.length === 0 && (
         <div className="rounded-lg border border-dashed border-neutral-200 bg-white px-3 py-2 text-[11px] text-neutral-500">
-          No eligible users match that search. Try a name, email, office, or employee ID.
+          No eligible users match that search. Try a name, email, office, or member ID.
         </div>
       )}
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <FormField label={boardMode ? "Board Head" : "Head"}>
+        <FormField label={boardMode ? "Primary reviewer" : "Head"}>
           <SelectInput
             value={headUserId}
             onChange={(event) => onHeadChange(event.target.value)}
-            options={optionsFor(headUserId, assistantHeadUserId, boardMode ? "No Board Head assigned" : "No Head assigned")}
+            options={optionsFor(headUserId, assistantHeadUserId, boardMode ? "No primary reviewer assigned" : "No Head assigned")}
           />
         </FormField>
-        <FormField label={boardMode ? "Board Assistant Head" : "Assistant Head"} error={assistantHeadError}>
+        {boardMode && <FormField label="Backup reviewer" error={assistantHeadError}>
           <SelectInput
             value={assistantHeadUserId}
             onChange={(event) => onAssistantHeadChange(event.target.value)}
-            options={optionsFor(assistantHeadUserId, headUserId, boardMode ? "No Board Assistant Head assigned" : "No Assistant Head assigned")}
+            options={optionsFor(assistantHeadUserId, headUserId, "No backup reviewer assigned")}
           />
-        </FormField>
+        </FormField>}
       </div>
     </section>
   );

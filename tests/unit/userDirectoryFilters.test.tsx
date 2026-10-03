@@ -17,7 +17,7 @@ const profile = (id: string, fullName: string, orgId: string, active = true, wor
   org_id: orgId,
   is_active: active,
   workload,
-  role: "employee",
+  role: "member",
 } as UserProfile);
 
 function Harness() {
@@ -26,7 +26,7 @@ function Harness() {
 }
 
 describe("user account directory filters", () => {
-  it("filters by organization and supports department A–Z and Z–A", () => {
+  it("filters by organization and supports office A–Z and Z–A", () => {
     const profiles = [
       profile("1", "Cheryl Gallo", "ledipo"),
       profile("2", "Tasya Salcedo", "bplo"),

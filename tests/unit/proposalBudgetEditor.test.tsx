@@ -14,7 +14,7 @@ const initial: ProposalBudgetDraft = {
     expenseClass: "Other Expenses",
     category: "Operating Expenses",
     particular: "",
-    fundSource: "Department appropriation",
+    fundSource: "Office appropriation",
     amount: 0,
     position: 0,
   }],
@@ -31,7 +31,7 @@ describe("proposal budget editor", () => {
 
     expect(screen.getByRole("combobox", { name: "Expense class" })).toBeTruthy();
     const fundSource = screen.getByRole("combobox", { name: "Fund source" }) as HTMLSelectElement;
-    expect(fundSource.value).toBe("Department Budget");
+    expect(fundSource.value).toBe("Office Budget");
     expect(fundSource.querySelectorAll("option")).toHaveLength(1);
     expect((screen.getByRole("textbox", { name: "Category 1" }) as HTMLInputElement).value).toBe("Operating Expenses");
 

@@ -15,6 +15,7 @@ import {
 import type { DepartmentBudgetBundle } from "../types";
 import { peso } from "./budgetUi";
 import { isLiquidationLate } from "../selectors/cashWorkflowRules";
+import { useAuth } from "../../../contexts/AuthContext";
 
 export function AccountingSettlementQueue({
   data,
@@ -23,6 +24,8 @@ export function AccountingSettlementQueue({
   data: DepartmentBudgetBundle;
   onChanged: () => Promise<void>;
 }) {
+  const { userProfile, can } = useAuth();
+  const canSettle = userProfile?.role === "accounting_staff" && can("accounting.settle_liquidation");
   const items = useMemo(
     () =>
       data.liquidations.filter(
@@ -39,6 +42,7 @@ export function AccountingSettlementQueue({
   const [reason, setReason] = useState("");
   const [error, setError] = useState("");
   const decide = async (id: string, approve: boolean) => {
+    if (!canSettle) return;
     setBusy(id);
     setError("");
     try {
@@ -103,6 +107,9 @@ export function AccountingSettlementQueue({
             {items.map((item) => {
               const request = requestById.get(item.requestId);
               const late = isLiquidationLate(request, item);
+              const awaitingHead = late && !item.departmentDecidedAt;
+              const ownFunds = Boolean(userProfile?.id && [request?.cashRecipientId, request?.requesterId, request?.taskLeaderId].includes(userProfile.id));
+              const canDecide = canSettle && !ownFunds;
               return (
                 <m.article
                   layout
@@ -142,7 +149,7 @@ export function AccountingSettlementQueue({
                           />
                         )}
                         {late && (
-                          <Label color="negative" text="Late · Head approval required" />
+                          <Label color={awaitingHead ? "negative" : "positive"} text={awaitingHead ? "Late · Head approval required" : "Late · Head approved"} />
                         )}
                       </div>
                       <div className="mt-3 flex flex-wrap gap-2">
@@ -163,7 +170,7 @@ export function AccountingSettlementQueue({
                       <Button
                         kind="secondary"
                         size="small"
-                        disabled={Boolean(busy)}
+                        disabled={Boolean(busy) || !canDecide}
                         onClick={() => {
                           setRejecting(item.id);
                           setReason("");
@@ -176,16 +183,16 @@ export function AccountingSettlementQueue({
                         color="positive"
                         size="small"
                         loading={busy === item.id}
-                        disabled={Boolean(busy) || late}
+                        disabled={Boolean(busy) || awaitingHead || !canDecide}
                         onClick={() => void decide(item.id, true)}
                       >
-                        <CheckCircle2 size={12} /> {late ? "Awaiting Department Head" : "Settle & post"}
+                        <CheckCircle2 size={12} /> {awaitingHead ? "Awaiting Head" : "Settle & post"}
                       </Button>
                     </div>
                   </div>
-                  {late && (
+                  {awaitingHead && (
                     <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[9.5px] text-amber-900">
-                      This package was submitted after its liquidation deadline. Accounting cannot settle it; the Department Head must review and approve it in Financial Approvals.
+                      The Head must authorize this late package in Financial Approvals before Accounting Staff can settle it.
                     </div>
                   )}
                   {rejecting === item.id && (
@@ -217,7 +224,7 @@ export function AccountingSettlementQueue({
                           color="negative"
                           size="small"
                           loading={busy === item.id}
-                          disabled={!reason.trim() || Boolean(busy)}
+                          disabled={!reason.trim() || Boolean(busy) || !canDecide}
                           onClick={() => void decide(item.id, false)}
                         >
                           Send correction

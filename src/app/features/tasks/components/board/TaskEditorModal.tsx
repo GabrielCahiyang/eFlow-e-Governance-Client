@@ -267,7 +267,7 @@ export function TaskEditorModal({
                   onChange={(event) => onChange({ reviewerId: event.target.value || null })}
                   className="mt-1 h-[38px] w-full rounded-xl border border-neutral-200 bg-white px-3 text-[12px] normal-case tracking-normal text-neutral-900 outline-none focus:border-neutral-400"
                 >
-                  <option value="">Use department reviewer</option>
+                  <option value="">Use office reviewer</option>
                   {reviewerCandidates
                     .filter((employee) => employee.id !== draft.backupReviewerId)
                     .map((employee) => (

@@ -17,14 +17,14 @@ vi.mock(
   "../../src/app/features/team-management/services/departmentIdentityService",
   () => ({ setDepartmentAccountingStaff: setAccounting }),
 );
-import { DepartmentIdentityAccessPanel } from "../../src/app/features/team-management/components/supervision/DepartmentIdentityAccessPanel";
+import { OfficeIdentityAccessPanel } from "../../src/app/features/team-management/components/supervision/OfficeIdentityAccessPanel";
 
 const employees: Employee[] = [
   {
     id: "employee-1",
     name: "Ana Santos",
     email: "ana@example.test",
-    jobTitle: "Employee",
+    jobTitle: "Member",
     jobDescription: "",
     currentWorkload: 20,
     department: "org-1",
@@ -34,7 +34,7 @@ const employees: Employee[] = [
     id: "employee-2",
     name: "Ben Cruz",
     email: "ben@example.test",
-    jobTitle: "Employee",
+    jobTitle: "Member",
     jobDescription: "",
     currentWorkload: 30,
     department: "org-1",
@@ -42,7 +42,7 @@ const employees: Employee[] = [
   },
   {
     id: "head-1",
-    name: "Department Head",
+    name: "Head",
     email: "head@example.test",
     jobTitle: "Head",
     jobDescription: "",
@@ -57,33 +57,33 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
-describe("department Identity & Access", () => {
-  it("appears under People only for a Department Head", () => {
-    const identity = getCoreRoleNavigation("depthead")?.navItems.find(
+describe("office Identity & Access", () => {
+  it("appears under People only for a Head", () => {
+    const identity = getCoreRoleNavigation("head")?.navItems.find(
       (item) => item.id === "identity",
     );
     expect(identity).toMatchObject({
       group: "People",
       label: "Identity & Access",
       page: "Identity & Access",
-      requiresDepartmentHead: true,
+      requiresHead: true,
     });
-    expect(isRoleNavigationItemVisible(identity!, false, "dept_head")).toBe(
+    expect(isRoleNavigationItemVisible(identity!, false, "head")).toBe(
       true,
     );
     expect(
-      isRoleNavigationItemVisible(identity!, false, "assistant_head"),
+      isRoleNavigationItemVisible(identity!, false, "member"),
     ).toBe(false);
-    expect(getNavigationPermission("depthead", "identity")).toBe(
+    expect(getNavigationPermission("head", "identity")).toBe(
       "navigation.team_supervision",
     );
   });
 
   it("supports no Accounting Staff and protects leadership roles", () => {
     render(
-      <DepartmentIdentityAccessPanel
+      <OfficeIdentityAccessPanel
         employees={employees}
-        roles={new Map([["head-1", "dept_head"]])}
+        roles={new Map([["head-1", "head"]])}
       />,
     );
     expect(screen.getByText("No Accounting Staff assigned")).toBeTruthy();
@@ -92,7 +92,7 @@ describe("department Identity & Access", () => {
 
   it("can assign more than one employee without replacing the first", async () => {
     render(
-      <DepartmentIdentityAccessPanel
+      <OfficeIdentityAccessPanel
         employees={employees.slice(0, 2)}
         roles={new Map()}
       />,

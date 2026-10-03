@@ -1,4 +1,5 @@
 export { useDepartmentTeamAnalytics } from "./hooks/useDepartmentTeamAnalytics";
+export { OfficeIdentityAccessWorkspace } from "./components/supervision/OfficeIdentityAccessWorkspace";
 export {
   getTeamWorkloadBand,
   TEAM_WORKLOAD_ELEVATED_THRESHOLD,

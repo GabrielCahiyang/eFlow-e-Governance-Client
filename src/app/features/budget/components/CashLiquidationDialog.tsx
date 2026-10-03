@@ -75,9 +75,9 @@ export function CashLiquidationDialog({ request, orgId, perReceiptLimit, liquida
           <AttentionBox type="primary" title="Immutable receipt record" text="After submission, receipt rows and uploaded evidence are locked. Corrections are recorded as a new liquidation version so the audit history stays intact." />
           <AttentionBox
             type={overdue ? "warning" : "primary"}
-            title={overdue ? "Late liquidation · Department Head approval required" : `${liquidationDueDays}-day liquidation window`}
+            title={overdue ? "Late liquidation · Head approval required" : `${liquidationDueDays}-day liquidation window`}
             text={overdue
-              ? `The receipt deadline was ${request.liquidationDueAt ? new Date(request.liquidationDueAt).toLocaleDateString() : "already reached"}. You may still submit this package, but only the Department Head can approve and settle it.`
+              ? `The receipt deadline was ${request.liquidationDueAt ? new Date(request.liquidationDueAt).toLocaleDateString() : "already reached"}. You may still submit this package, but only the Head can approve and settle it.`
               : `Upload the complete receipt package by ${request.liquidationDueAt ? new Date(request.liquidationDueAt).toLocaleDateString() : `the ${liquidationDueDays}-day deadline after full release`}.`}
           />
 
@@ -108,7 +108,7 @@ export function CashLiquidationDialog({ request, orgId, perReceiptLimit, liquida
                   {receipt.amount > perReceiptLimit && (
                     <label className="sm:col-span-2">
                       <span className="text-[11px] font-medium text-amber-800">Threshold exception · above {peso.format(perReceiptLimit)}</span>
-                      <Textarea disabled={!allowReceiptOverride} value={receipt.overrideReason || ""} onChange={(event) => update(receipt.id, { overrideReason: event.target.value })} rows={2} placeholder={allowReceiptOverride ? "Explain why the larger receipt was necessary." : "Department policy does not allow an override."} className="mt-1 min-h-0 border-amber-200 bg-amber-50 text-[12px] disabled:opacity-60" />
+                      <Textarea disabled={!allowReceiptOverride} value={receipt.overrideReason || ""} onChange={(event) => update(receipt.id, { overrideReason: event.target.value })} rows={2} placeholder={allowReceiptOverride ? "Explain why the larger receipt was necessary." : "Office policy does not allow an override."} className="mt-1 min-h-0 border-amber-200 bg-amber-50 text-[12px] disabled:opacity-60" />
                     </label>
                   )}
                   <label className="sm:col-span-2">
@@ -126,7 +126,7 @@ export function CashLiquidationDialog({ request, orgId, perReceiptLimit, liquida
             <m.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="grid gap-3 rounded-lg border border-primary/25 bg-primary/5 p-3 sm:grid-cols-2">
               <Field label="Official refund receipt number" value={refundReceiptNumber} onChange={setRefundReceiptNumber} />
               <Field label="Cash return date" type="date" value={refundDate} onChange={setRefundDate} />
-              <p className="sm:col-span-2 text-[11px] leading-5 text-primary">Returned change of <span className="font-semibold tabular-nums">{peso.format(approved - spent)}</span> will post as a debit to Cash and a credit that clears the employee advance.</p>
+              <p className="sm:col-span-2 text-[11px] leading-5 text-primary">Returned change of <span className="font-semibold tabular-nums">{peso.format(approved - spent)}</span> will post as a debit to Cash and a credit that clears the member advance.</p>
             </m.div>
           )}
 

@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("admin user dialog and citywide plan approvals remain usable on a narrow phone", async ({ page }) => {
+test("Admin user management remains usable on a narrow phone", async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 740 });
   await page.goto("/", { waitUntil: "domcontentloaded" });
 
@@ -14,8 +14,8 @@ test("admin user dialog and citywide plan approvals remain usable on a narrow ph
 
   await page.getByRole("button", { name: "Open navigation" }).click();
   const sidebar = page.locator(".eflow-mobile-navigation .eflow-productivity-sidebar");
-  const navItem = sidebar.locator('[data-tour-section="dashboard"] .eflow-productivity-sidebar__item');
-  const activeSurface = sidebar.locator('[data-tour-section="dashboard"] .eflow-productivity-sidebar__active-surface');
+  const navItem = sidebar.locator('[data-tour-section="users"] .eflow-productivity-sidebar__item');
+  const activeSurface = sidebar.locator('[data-tour-section="users"] .eflow-productivity-sidebar__active-surface');
   await expect(navItem).toBeVisible();
   const [sidebarBounds, itemBounds, surfaceBounds] = await Promise.all([
     sidebar.boundingBox(), navItem.boundingBox(), activeSurface.boundingBox(),
@@ -41,14 +41,11 @@ test("admin user dialog and citywide plan approvals remain usable on a narrow ph
   await userDialog.getByRole("button", { name: "Close dialog" }).click();
 
   await page.getByRole("button", { name: "Open navigation" }).click();
-  await page.locator('.eflow-mobile-navigation [data-tour-section="projects"] .eflow-productivity-sidebar__item').click();
-  await expect(page.getByRole("heading", { name: "Citywide plans and projects" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Department approval tracking" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Create work plan" })).toHaveCount(0);
-  await expect(page.getByText("Select or create a work plan", { exact: true })).toHaveCount(0);
+  await expect(sidebar.locator('[data-tour-section="projects"]')).toHaveCount(0);
+  await expect(sidebar.locator('[data-tour-section="dashboard"]')).toHaveCount(0);
 });
 
-test("department work-plan creation remains available and fits a narrow phone", async ({ page }) => {
+test("office work-plan creation remains available and fits a narrow phone", async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 740 });
   await page.goto("/", { waitUntil: "domcontentloaded" });
   const quickLogin = page.getByRole("button", { name: "Choose a development account" });

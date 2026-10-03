@@ -1,14 +1,14 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
-const dashboard = readFileSync("src/app/components/DeptHead/DeptHeadDashboard.tsx", "utf8");
-const taskRow = readFileSync("src/app/components/DeptHead/DeptHeadDashboardTaskRow.tsx", "utf8");
+const dashboard = readFileSync("src/app/components/Head/HeadDashboard.tsx", "utf8");
+const taskRow = readFileSync("src/app/components/Head/HeadDashboardTaskRow.tsx", "utf8");
 
-describe("department head command center presentation", () => {
+describe("office head command center presentation", () => {
   it("uses a responsive command-center shell and skeleton loading state", () => {
     expect(dashboard).toContain("max-w-[1480px]");
     expect(dashboard).toContain("bg-gradient-to-br from-primary/5 via-card to-card");
-    expect(dashboard).toContain("function DeptHeadDashboardSkeleton()");
+    expect(dashboard).toContain("function HeadDashboardSkeleton()");
     expect(dashboard).toContain('aria-live="polite"');
   });
 

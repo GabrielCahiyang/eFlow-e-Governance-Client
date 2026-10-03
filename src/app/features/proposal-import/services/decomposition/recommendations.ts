@@ -100,7 +100,7 @@ export const applyLocalRecommendations = (
   employeeNotes?: EmployeeNotesMap,
 ) => {
   if (!employees || employees.length === 0) return;
-  console.log("[Decomposition DEBUG] Running applyLocalRecommendations with employees:", employees.map(e => e.name));
+  console.log("[Decomposition DEBUG] Running applyLocalRecommendations with members:", employees.map(e => e.name));
 
   result.programs.forEach((program) => {
     program.projects.forEach((project) => {

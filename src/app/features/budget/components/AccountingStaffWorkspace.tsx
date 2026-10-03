@@ -16,7 +16,7 @@ import { useGeneralJournal } from "../hooks/useGeneralJournal";
 import { AccountingSettlementQueue } from "./AccountingSettlementQueue";
 import { AccountingTrailPanel } from "./AccountingTrailPanel";
 import { BudgetReleasesPanel } from "./BudgetReleasesPanel";
-import { DepartmentBudgetWorkspace } from "./DepartmentBudgetWorkspace";
+import { OfficeBudgetWorkspace } from "./OfficeBudgetWorkspace";
 import { FiscalYearControl } from "./FiscalYearControl";
 import { GeneralJournalWorkspace } from "./GeneralJournalWorkspace";
 import { peso } from "./budgetUi";
@@ -50,19 +50,19 @@ export function AccountingStaffWorkspace({
     releases: "Voucher & Cash Releases",
     journal: "General Journal",
     audit: "Financial Audit Trail",
-    budgets: "Department Budget Ledgers",
+    budgets: "Office Budget Ledgers",
   }[view];
   if (!orgId)
     return (
       <div className="p-8">
         <AttentionBox
           type="warning"
-          title="Department assignment required"
-          text="Accounting Staff access is always scoped to one department. Ask the Department Head or Admin to assign your account to a department."
+          title="Office assignment required"
+          text="Accounting Staff access is always scoped to one office. Ask the Head or Admin to assign your account to a office."
         />
       </div>
     );
-  if (view === "budgets") return <DepartmentBudgetWorkspace />;
+  if (view === "budgets") return <OfficeBudgetWorkspace />;
   return (
     <div className="min-h-full min-w-0 bg-neutral-50 p-3 sm:p-8">
       <div className="mx-auto max-w-[1500px] space-y-5">
@@ -74,13 +74,13 @@ export function AccountingStaffWorkspace({
         >
           <div>
             <div className="text-[9px] uppercase tracking-[0.18em] text-blue-600">
-              Department · Accounting
+              Office · Accounting
             </div>
             <h1 className="mt-1 text-[22px] font-semibold text-neutral-950">
               {title}
             </h1>
             <p className="mt-1 max-w-3xl text-[11px] text-neutral-500">
-              Department-scoped releases, settlement, journal reconciliation,
+              Office-scoped releases, settlement, journal reconciliation,
               and immutable financial evidence.
             </p>
             <div className="mt-2">
@@ -202,7 +202,7 @@ function AccountingOverview({
       <AttentionBox
         type="primary"
         title="Balanced, traceable posting"
-        text="Cash and cheque releases automatically debit employee advances and credit cash. Approved liquidations debit expense and returned cash, then clear the advance in one balanced journal entry."
+        text="Cash and cheque releases automatically debit member advances and credit cash. Approved liquidations debit expense and returned cash, then clear the advance in one balanced journal entry."
       />
       <AccountingSettlementQueue data={budget} onChanged={budget.refresh} />
       <div className="rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
@@ -212,8 +212,8 @@ function AccountingOverview({
         </div>
         <p className="mt-2 text-[10px] leading-relaxed text-neutral-500">
           Accounting Staff can record releases, verify settlement evidence, post
-          balanced corrections, and read department ledgers. They cannot approve
-          funding requests, manage users outside their department, or access
+          balanced corrections, and read office ledgers. They cannot approve
+          funding requests, manage users outside their office, or access
           system administration.
         </p>
       </div>

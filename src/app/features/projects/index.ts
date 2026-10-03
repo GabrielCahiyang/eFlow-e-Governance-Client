@@ -1,5 +1,5 @@
 export { ProjectsWorkspace } from "./components/ProjectsWorkspace";
-export { DeptHeadProjectsWorkspace } from "./components/DeptHeadProjectsWorkspace";
+export { HeadProjectsWorkspace } from "./components/HeadProjectsWorkspace";
 export { EmployeeProjectsWorkspace } from "./components/EmployeeProjectsWorkspace";
 export { ProjectCommandWorkspace } from "./components/project-command/ProjectCommandWorkspace";
 export * from "./selectors/projectCommandSelectors";

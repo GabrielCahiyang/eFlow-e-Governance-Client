@@ -39,7 +39,7 @@ describe("guided page walkthrough", () => {
   it("opens from the page toolbar and advances without changing page data", () => {
     render(createElement(GuidedTourProvider, {
       userId: "",
-      role: "employee",
+      role: "member",
       activeSection: "tasks",
       activePage: "My Tasks",
       sections: [{ id: "tasks", label: "My Tasks", page: "My Tasks" }],
@@ -67,7 +67,7 @@ describe("guided page walkthrough", () => {
   it("advances only once when Enter activates the focused Next button", () => {
     render(createElement(GuidedTourProvider, {
       userId: "",
-      role: "employee",
+      role: "member",
       activeSection: "tasks",
       activePage: "My Tasks",
       sections: [{ id: "tasks", label: "My Tasks", page: "My Tasks" }],
@@ -91,7 +91,7 @@ describe("guided page walkthrough", () => {
     vi.useFakeTimers();
     render(createElement(GuidedTourProvider, {
       userId: "",
-      role: "employee",
+      role: "member",
       activeSection: "tasks",
       activePage: "My Tasks",
       sections: [{ id: "tasks", label: "My Tasks", page: "My Tasks" }],

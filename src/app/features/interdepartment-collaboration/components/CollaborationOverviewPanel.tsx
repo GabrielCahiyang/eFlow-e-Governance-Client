@@ -60,9 +60,9 @@ export function CollaborationOverviewPanel({
       {/* Participating Departments Section */}
       <section className="eflow-section-card">
         <header>
-          <h2>Participating departments &amp; governance</h2>
+          <h2>Participating offices &amp; governance</h2>
           <p className="m-0 mt-1 text-xs text-secondary">
-            Departments and governance reviewers committed to this work plan.
+            Offices and governance reviewers committed to this work plan.
           </p>
         </header>
         <div className="p-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

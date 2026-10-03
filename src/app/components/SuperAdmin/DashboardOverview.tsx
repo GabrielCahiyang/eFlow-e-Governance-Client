@@ -129,7 +129,7 @@ function DepartmentCapacityCard({
       <div className="flex items-center justify-between mb-3">
         <div>
           <div className="text-[12px] font-semibold text-neutral-800">
-            Department Capacity & Load
+            Office Capacity & Load
           </div>
           <div className="text-[10.5px] text-neutral-400">
             Highest staff deadline pressure in each office
@@ -143,7 +143,7 @@ function DepartmentCapacityCard({
       {loading ? (
         <div className="text-[12px] text-neutral-400 py-8 text-center">Loading capacity data…</div>
       ) : data.length === 0 ? (
-        <div className="text-[12px] text-neutral-400 py-8 text-center">No active departments found</div>
+        <div className="text-[12px] text-neutral-400 py-8 text-center">No active offices found</div>
       ) : (
         <div className="space-y-2 overflow-y-auto max-h-[300px] pr-1">
           {data.map((dept) => {
@@ -322,9 +322,9 @@ export function DashboardOverview() {
           badgeColor:
             isAdminRole(u.role)
               ? "#ef4444"
-              : u.role === "dept_head"
+              : u.role === "head"
                 ? "#6366f1"
-                : u.role === "assistant_head"
+                : false
                   ? "#4f46e5"
                   : "#10b981",
         })),

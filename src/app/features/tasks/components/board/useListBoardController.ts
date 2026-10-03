@@ -6,7 +6,7 @@ import { getDirectBoardTransitionError, STATUS_ORDER } from "./model";
 interface ListBoardControllerInput {
   tasks: Task[];
   employees: Employee[];
-  role: "depthead" | "employee";
+  role: "head" | "member";
   currentUserId?: string;
   currentUserName?: string;
 }

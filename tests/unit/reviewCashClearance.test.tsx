@@ -8,7 +8,7 @@ import { cashData } from "./taskCashClearance.fixtures";
 const mocks = vi.hoisted(() => ({ fetch: vi.fn(), verify: vi.fn(), toast: vi.fn(), topics: [] as string[] }));
 vi.mock("../../src/app/features/budget/services/taskCashClearanceService", () => ({ fetchTaskCashBlockers: mocks.fetch }));
 vi.mock("../../src/app/services/taskService", () => ({ verifyTask: mocks.verify }));
-vi.mock("../../src/app/contexts/AuthContext", () => ({ useAuth: () => ({ user: { id: "head-1" }, userProfile: { id: "head-1", full_name: "Cheryl Gallo", role: "dept_head" } }) }));
+vi.mock("../../src/app/contexts/AuthContext", () => ({ useAuth: () => ({ user: { id: "accounting-1" }, userProfile: { id: "accounting-1", full_name: "Cheryl Gallo", role: "accounting_staff" } }) }));
 vi.mock("../../src/app/components/ui/Toast", () => ({ useToast: () => ({ toast: mocks.toast }) }));
 vi.mock("../../src/lib/supabase", () => ({ supabase: {
   channel: (topic: string) => {
@@ -45,7 +45,7 @@ describe("cash-aware review decision", () => {
     render(<ReviewDecisionForm taskId="task-1" onOpenFinancialReview={open} />);
     await screen.findByText("FR-00002 · Awaiting final cash settlement");
     expect(screen.getByText("Task: New Tasks → Subtask: Order Food")).toBeTruthy();
-    expect(screen.getByText("Department Head")).toBeTruthy();
+    expect(screen.getByText("Accounting Staff")).toBeTruthy();
     expect(screen.getByText(/₱8,500.00 declared spent · ₱1,500.00 declared return/)).toBeTruthy();
     expect(screen.getByText(/Reviews → Budget → Receipt liquidations → FR-00002/)).toBeTruthy();
     expect(button("Approve").disabled).toBe(true);
@@ -63,7 +63,7 @@ describe("cash-aware review decision", () => {
     fireEvent.click(button("Refresh cash status"));
     await startApproval();
     await waitFor(() => expect(done).toHaveBeenCalledOnce());
-    expect(mocks.verify).toHaveBeenCalledWith("task-1", true, undefined, { id: "head-1", name: "Cheryl Gallo" });
+    expect(mocks.verify).toHaveBeenCalledWith("task-1", true, undefined, { id: "accounting-1", name: "Cheryl Gallo" });
     expect(mocks.fetch).toHaveBeenCalledTimes(3);
   });
 

@@ -1,4 +1,4 @@
-import type { Employee, EmployeeNotesMap } from "../../employees";
+import type { Employee, EmployeeNotesMap } from "../../members";
 import type { SkillCoverageRow } from "../types";
 
 export function buildSkillCoverage(employees: Employee[], notes: EmployeeNotesMap): SkillCoverageRow[] {

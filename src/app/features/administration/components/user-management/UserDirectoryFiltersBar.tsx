@@ -42,8 +42,8 @@ export function UserDirectoryFiltersBar({
       <select aria-label="Sort users" value={value.sort} onChange={(event) => update("sort", event.target.value as UserDirectorySort)} className={`${selectClass} min-w-[165px]`}>
         <option value="name-asc">Name · A–Z</option>
         <option value="name-desc">Name · Z–A</option>
-        <option value="organization-asc">Department · A–Z</option>
-        <option value="organization-desc">Department · Z–A</option>
+        <option value="organization-asc">Office · A–Z</option>
+        <option value="organization-desc">Office · Z–A</option>
         <option value="workload-desc">Highest workload</option>
       </select>
       {hasUserDirectoryFilters(value) && (

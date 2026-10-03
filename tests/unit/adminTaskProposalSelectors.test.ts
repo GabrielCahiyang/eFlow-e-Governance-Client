@@ -22,7 +22,7 @@ function task(id: string, overrides: Partial<Task> = {}): Task {
   };
 }
 
-describe("Super Admin task proposal hierarchy", () => {
+describe("Admin task proposal hierarchy", () => {
   it("groups tasks as proposal, program, project, then task", () => {
     const groups = buildAdminTaskProposalGroups([
       task("one", { percentComplete: 50 }),

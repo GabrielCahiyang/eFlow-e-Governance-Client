@@ -14,7 +14,7 @@ const memberBoard = readFileSync(
   "utf8",
 );
 const iamWorkspace = readFileSync(
-  "src/app/features/team-management/components/supervision/DeptHeadIAMWorkspace.tsx",
+  "src/app/features/team-management/components/supervision/HeadIAMWorkspace.tsx",
   "utf8",
 );
 const monthlyLeaderboard = readFileSync(

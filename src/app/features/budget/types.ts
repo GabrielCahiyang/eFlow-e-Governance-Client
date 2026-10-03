@@ -235,6 +235,8 @@ export interface PettyCashLiquidation {
   status: "pending" | "pending_leader_review" | "pending_department_settlement" | "approved" | "changes_requested";
   submittedBy: string;
   submittedAt: number;
+  departmentDecidedBy?: string;
+  departmentDecidedAt?: number;
   decisionReason?: string;
   receipts: PettyCashReceipt[];
   liquidationNumber?: string;

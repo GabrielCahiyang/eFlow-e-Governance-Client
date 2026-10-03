@@ -44,7 +44,7 @@ describe("Approval Tier Threshold", () => {
     expect(isTier1(largeRequest)).toBe(false);
   });
 
-  it("adjusts tier categorization when Department Head changes the threshold", () => {
+  it("adjusts tier categorization when Head changes the threshold", () => {
     let currentThreshold = readApprovalThreshold(orgId);
     expect(currentThreshold).toBe(1_000);
 

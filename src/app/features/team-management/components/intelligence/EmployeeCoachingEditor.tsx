@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { CheckCircle2, Loader2, Sparkles } from "lucide-react";
-import type { Employee, EmployeeNote } from "../../../employees";
-import { updateEmployeeNotes } from "../../../employees";
+import type { Employee, EmployeeNote } from "../../../members";
+import { updateEmployeeNotes } from "../../../members";
 
 interface NoteDraft {
   strengths: string;
@@ -79,7 +79,7 @@ export function EmployeeCoachingEditor({
         <span className="shrink-0 rounded-full border border-violet-100 bg-violet-50 px-2 py-1 text-[9px] font-medium text-violet-700">AI input</span>
       </div>
       <div className="grid grid-cols-1 gap-4 p-4 md:grid-cols-2">
-        <Field label="Confirmed strengths" hint="Capabilities the employee can reliably apply to assigned work."><textarea rows={4} value={draft.strengths} onChange={(event) => change("strengths", event.target.value)} placeholder="e.g., stakeholder facilitation, technical writing" className="field-textarea" /></Field>
+        <Field label="Confirmed strengths" hint="Capabilities the member can reliably apply to assigned work."><textarea rows={4} value={draft.strengths} onChange={(event) => change("strengths", event.target.value)} placeholder="e.g., stakeholder facilitation, technical writing" className="field-textarea" /></Field>
         <Field label="Development areas" hint="Stored in the existing compatibility field used by the assignment engine."><textarea rows={4} value={draft.developmentAreas} onChange={(event) => change("developmentAreas", event.target.value)} placeholder="e.g., needs support with field documentation" className="field-textarea" /></Field>
         <div className="md:col-span-2"><Field label="Supervisor context" hint="Use factual, work-related context. Avoid unsupported personal judgments."><textarea rows={4} value={draft.notes} onChange={(event) => change("notes", event.target.value)} placeholder="Context for future assignments and coaching conversations…" className="field-textarea" /></Field></div>
         <div className="md:col-span-2"><Field label="Assignment skill tags" hint="Comma-separated keywords used directly by AI matching."><input value={draft.tags} onChange={(event) => change("tags", event.target.value)} placeholder="permits, facilitation, data analysis" className="h-10 w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 text-[11.5px] outline-none transition focus:border-neutral-400 focus:bg-white" /></Field></div>

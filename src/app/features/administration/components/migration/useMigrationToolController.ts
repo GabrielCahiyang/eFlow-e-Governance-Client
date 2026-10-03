@@ -73,11 +73,11 @@ const { userProfile } = useAuth();
 
     try {
       // ── Step 1: Read departments array ──
-      addLog("📖 Reading /departments array...", "info");
+      addLog("📖 Reading /offices array...", "info");
       const deptSnap = await get(ref(database, "departments"));
 
       if (!deptSnap.exists()) {
-        addLog("⚠ /departments node is empty or does not exist.", "warn");
+        addLog("⚠ /offices node is empty or does not exist.", "warn");
       }
 
       const deptArray: any[] = deptSnap.val() || [];
@@ -85,18 +85,18 @@ const { userProfile } = useAuth();
         ? deptArray.filter(Boolean)
         : Object.values(deptArray);
 
-      addLog(`  Found ${validDepts.length} departments`, "info");
+      addLog(`  Found ${validDepts.length} offices`, "info");
       setStats((s) => ({
         ...s,
         departments: { total: validDepts.length, migrated: 0 },
       }));
 
       // ── Step 2: Rewrite departments as keyed object ──
-      addLog("📝 Migrating departments to /departments/{id} format...", "info");
+      addLog("📝 Migrating offices to /offices/{id} format...", "info");
       for (let i = 0; i < validDepts.length; i++) {
         const dept = validDepts[i];
         if (!dept || !dept.id) {
-          addLog(`  ⚠ Skipping null/invalid department at index ${i}`, "warn");
+          addLog(`  ⚠ Skipping null/invalid office at index ${i}`, "warn");
           continue;
         }
 
@@ -108,8 +108,8 @@ const { userProfile } = useAuth();
           createdAt: Date.now(),
         };
 
-        await set(ref(database, `departments/${dept.id}`), deptData);
-        addLog(`  ✓ Migrated department ${dept.id} → /departments/${dept.id}`, "success");
+        await set(ref(database, `offices/${dept.id}`), deptData);
+        addLog(`  ✓ Migrated office ${dept.id} → /offices/${dept.id}`, "success");
 
         setStats((s) => ({
           ...s,
@@ -121,11 +121,11 @@ const { userProfile } = useAuth();
       }
 
       // ── Step 3: Read employees array ──
-      addLog("📖 Reading /employees array...", "info");
+      addLog("📖 Reading /members array...", "info");
       const empSnap = await get(ref(database, "employees"));
 
       if (!empSnap.exists()) {
-        addLog("⚠ /employees node is empty or does not exist.", "warn");
+        addLog("⚠ /members node is empty or does not exist.", "warn");
       }
 
       const empArray: any[] = empSnap.val() || [];
@@ -133,14 +133,14 @@ const { userProfile } = useAuth();
         ? empArray.filter(Boolean)
         : Object.values(empArray);
 
-      addLog(`  Found ${validEmps.length} employees`, "info");
+      addLog(`  Found ${validEmps.length} members`, "info");
       setStats((s) => ({
         ...s,
         employees: { total: validEmps.length, migrated: 0 },
       }));
 
       // ── Step 4: Write employees to /users/{pushKey} ──
-      addLog("📝 Migrating employees to /users/{uid} format...", "info");
+      addLog("📝 Migrating members to /users/{uid} format...", "info");
 
       // Track dept heads to update /departments/{id}/headUid later
       const deptHeadMap: Record<string, string> = {};
@@ -148,7 +148,7 @@ const { userProfile } = useAuth();
       for (let i = 0; i < validEmps.length; i++) {
         const emp = validEmps[i];
         if (!emp || !emp.id) {
-          addLog(`  ⚠ Skipping null/invalid employee at index ${i}`, "warn");
+          addLog(`  ⚠ Skipping null/invalid member at index ${i}`, "warn");
           continue;
         }
 
@@ -156,8 +156,8 @@ const { userProfile } = useAuth();
         const newUserRef = push(ref(database, "users"));
         const uid = newUserRef.key!;
 
-        const isDeptHead = emp.role === "Department Head";
-        const mappedRole = isDeptHead ? "dept_head" : "employee";
+        const isHead = emp.role === "Head";
+        const mappedRole = isHead ? "head" : "member";
 
         const userData = {
           name: emp.name || "",
@@ -177,7 +177,7 @@ const { userProfile } = useAuth();
         );
 
         // Track dept heads
-        if (isDeptHead && emp.department) {
+        if (isHead && emp.department) {
           deptHeadMap[emp.department] = uid;
         }
 
@@ -191,10 +191,10 @@ const { userProfile } = useAuth();
       }
 
       // ── Step 5: Link dept heads to departments ──
-      addLog("🔗 Linking department heads...", "info");
+      addLog("🔗 Linking Heads...", "info");
       for (const [deptId, headUid] of Object.entries(deptHeadMap)) {
         try {
-          await set(ref(database, `departments/${deptId}/headUid`), headUid);
+          await set(ref(database, `offices/${deptId}/headUid`), headUid);
           addLog(`  ✓ Linked ${deptId} headUid → ${headUid}`, "success");
         } catch (err: any) {
           addLog(`  ✗ Failed to link ${deptId}: ${err.message}`, "error");

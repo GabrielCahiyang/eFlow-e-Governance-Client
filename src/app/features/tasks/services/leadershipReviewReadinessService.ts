@@ -19,15 +19,17 @@ export async function assertTaskSubtasksReady(taskId: string): Promise<void> {
 export async function assertLeadershipReviewReady(taskId: string): Promise<void> {
   const { data: task, error: taskError } = await supabase
     .from("tasks")
-    .select("assigned_to,org_id")
+    .select("assigned_to,org_id,review_route_mode")
     .eq("id", taskId)
     .single();
   if (taskError) throw new Error(taskError.message);
-  if (!task.org_id || !task.assigned_to) return;
+  if (task.review_route_mode === "governance" || task.review_route_mode === "explicit") return;
+  if (!task.org_id) throw new Error("Assign a responsible office before submitting this task.");
+  if (!task.assigned_to) return;
 
   const { data: organization, error: organizationError } = await supabase
     .from("organizations")
-    .select("head_user_id,assistant_head_user_id")
+    .select("head_user_id")
     .eq("id", task.org_id)
     .single();
   if (organizationError) throw new Error(organizationError.message);
@@ -35,12 +37,10 @@ export async function assertLeadershipReviewReady(taskId: string): Promise<void>
   const resolution = resolveLeadershipReviewer(
     task.assigned_to,
     organization.head_user_id,
-    organization.assistant_head_user_id,
   );
   if (!resolution) return;
 
-  const reviewerLabel =
-    resolution.reviewerRole === "assistant_head" ? "Assistant Head" : "Head";
+  const reviewerLabel = "Head";
   if (!resolution.reviewerId) {
     throw new Error(
       `Assign an active ${reviewerLabel} for this organization before submitting leadership work.`,

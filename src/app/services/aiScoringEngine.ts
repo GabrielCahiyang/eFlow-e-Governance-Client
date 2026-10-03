@@ -235,7 +235,7 @@ export function scoreEmployees(task: Task, employees: Employee[], employeeNotes?
     else reasons.push(`Limited availability (workload ${emp.currentWorkload}%)`);
 
     if (burnoutWarning) reasons.push(`⚠️ Burnout risk — workload at ${emp.currentWorkload}%`);
-    if (departmentCompatibility > 80) reasons.push("Same department");
+    if (departmentCompatibility > 80) reasons.push("Same office");
 
     return {
       employeeId: emp.id,
@@ -280,7 +280,7 @@ export function generateRecommendationSummary(
   summary += candidate.reasoning;
 
   if (candidate.overloadRisk) {
-    summary += ` WARNING: This employee is at high burnout risk.`;
+    summary += ` WARNING: This member is at high burnout risk.`;
     if (allCandidates.length > 1 && allCandidates[1]) {
       summary += ` Consider ${allCandidates[1].employeeName} as an alternative (score: ${allCandidates[1].totalScore.toFixed(1)}).`;
     }

@@ -112,7 +112,7 @@ export function GovernanceWorkspace({
       {/* Governance Pulse Strip */}
       <div className="eflow-health-strip">
         <div className="eflow-health-item">
-          <span className="eflow-health-item-label">Required departments</span>
+          <span className="eflow-health-item-label">Required offices</span>
           <span className="eflow-health-item-value">{requiredCount}</span>
         </div>
 

@@ -164,7 +164,7 @@ export function WorkBudgetCard({ task, subtask, canManage = false }: WorkBudgetC
       </div>}
 
       {temporaryHeld > 0 && <div className="mt-2 rounded-lg border border-amber-200 bg-amber-50 p-2 text-[8.8px] text-amber-800">A pending request temporarily reduces what others may request, but it is not approved spending and has not been released.</div>}
-      {correctionWaiting && <div className="mt-2 rounded-lg border border-blue-200 bg-blue-50 p-2 text-[8.8px] text-blue-800">A returned request holds no funds. Its amount is checked and temporarily held again only when the employee resubmits it.</div>}
+      {correctionWaiting && <div className="mt-2 rounded-lg border border-blue-200 bg-blue-50 p-2 text-[8.8px] text-blue-800">A returned request holds no funds. Its amount is checked and temporarily held again only when the member resubmits it.</div>}
 
       {context?.lines.length ? <div className="mt-2 space-y-1">{context.lines.filter((line) => line.available > 0 || context.cap?.allocationLineId === line.id).map((line) => <div key={line.id} className="flex items-center justify-between gap-3 rounded-md bg-muted/45 px-2.5 py-1.5 text-[8.8px]"><span className="min-w-0 truncate text-muted-foreground">{line.category} · {line.particular} · {line.fundSource}</span><span className="shrink-0 text-right"><strong className="block tabular-nums text-primary">{peso.format(line.available)} requestable</strong><span className="text-[7.8px] tabular-nums text-muted-foreground">of {peso.format(line.amount)} approved</span></span></div>)}</div> : null}
 

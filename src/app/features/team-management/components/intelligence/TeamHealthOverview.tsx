@@ -11,7 +11,7 @@ export function TeamHealthOverview({ health, members }: { health: TeamHealthSumm
   return (
     <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
       <section className="rounded-xl border border-neutral-200 bg-white p-4 xl:col-span-2">
-        <div className="flex items-start justify-between"><div><h2 className="text-[16px] font-semibold text-neutral-900">Delivery health</h2><p className="mt-0.5 text-[12px] text-neutral-500">Live tasks, delegated subtasks, and reviews in the department scope.</p></div><span className={`rounded-full px-2.5 py-1 text-[12px] font-medium ${riskRate >= 35 ? "bg-red-50 text-red-700" : riskRate >= 15 ? "bg-amber-50 text-amber-700" : "bg-emerald-50 text-emerald-700"}`}>{riskRate}% work at risk</span></div>
+        <div className="flex items-start justify-between"><div><h2 className="text-[16px] font-semibold text-neutral-900">Delivery health</h2><p className="mt-0.5 text-[12px] text-neutral-500">Live tasks, delegated subtasks, and reviews in the office scope.</p></div><span className={`rounded-full px-2.5 py-1 text-[12px] font-medium ${riskRate >= 35 ? "bg-red-50 text-red-700" : riskRate >= 15 ? "bg-amber-50 text-amber-700" : "bg-emerald-50 text-emerald-700"}`}>{riskRate}% work at risk</span></div>
         <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <HealthMetric icon={<Gauge size={15} />} label="Active work" value={activeWork} tone="neutral" />
           <HealthMetric icon={<AlertTriangle size={15} />} label="Overdue" value={health.overdue} tone={health.overdue ? "red" : "green"} />

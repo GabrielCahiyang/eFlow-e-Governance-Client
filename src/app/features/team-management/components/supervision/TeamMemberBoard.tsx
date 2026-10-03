@@ -1,5 +1,5 @@
 import { AlertTriangle, CheckCircle2, Clock3, Search, ShieldAlert } from "lucide-react";
-import type { Employee } from "../../../employees";
+import type { Employee } from "../../../members";
 import type { TeamMemberMetrics } from "../../types";
 import { TEAM_WORKLOAD_ELEVATED_THRESHOLD, TEAM_WORKLOAD_HIGH_THRESHOLD } from "../../constants";
 

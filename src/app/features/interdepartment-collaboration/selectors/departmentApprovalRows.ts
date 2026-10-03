@@ -4,7 +4,7 @@ export function departmentApprovalRows(participants: CollaborationParticipant[],
   return participants.map((participant) => {
     const approval = currentRevisionId ? approvals.filter((item) => item.revisionId === currentRevisionId && item.organizationId === participant.orgId)
       .sort((a, b) => b.createdAt - a.createdAt)[0] : undefined;
-    const status = participant.participationRole === "owner" ? "Lead department"
+    const status = participant.participationRole === "owner" ? "Lead office"
       : participant.participationRole === "observer" ? "Approval not required"
       : approval?.decision === "approved" ? "Approved"
       : approval?.decision === "changes_requested" ? "Updates needed"

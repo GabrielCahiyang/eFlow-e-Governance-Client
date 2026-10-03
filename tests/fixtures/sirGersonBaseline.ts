@@ -1,8 +1,8 @@
 export const sameRoleAccessFixture = {
-  role: "dept_head",
+  role: "head",
   rolePermissions: [
-    { role: "dept_head", permission: "tasks.assign", allowed: true },
-    { role: "dept_head", permission: "reports.export", allowed: true },
+    { role: "head", permission: "tasks.assign", allowed: true },
+    { role: "head", permission: "reports.export", allowed: true },
   ],
   heads: [
     {

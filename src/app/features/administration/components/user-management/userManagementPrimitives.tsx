@@ -4,25 +4,22 @@ import { ProgressBar } from "@vibe/core";
 import { getRoleLabel } from "../../../../shared/roles";
 
 export const ROLE_OPTIONS: { value: UserRole; label: string }[] = [
-  { value: "employee", label: "Employee" },
+  { value: "member", label: "Member" },
   { value: "accounting_staff", label: "Accounting Staff" },
-  { value: "dept_head", label: "Head" },
-  { value: "assistant_head", label: "Assistant Head" },
+  { value: "head", label: "Head" },
   { value: "admin", label: "Admin" },
 ];
 
 export function getAssignableRoleOptions(viewerRole?: string) {
   if (isAdminRole(viewerRole)) return ROLE_OPTIONS;
-  return ROLE_OPTIONS.filter(({ value }) => value === "employee" || value === "accounting_staff");
+  return ROLE_OPTIONS.filter(({ value }) => value === "member" || value === "accounting_staff");
 }
 
 // ─── Status / Role badges ────────────────────────────────────────
 export function RoleBadge({ role }: { role: string }) {
   const colors: Record<string, string> = {
-    super_admin: "border-rose-200 bg-rose-50 text-rose-700",
     admin: "border-blue-200 bg-blue-50 text-blue-700",
-    dept_head: "border-violet-200 bg-violet-50 text-violet-700",
-    assistant_head: "border-indigo-200 bg-indigo-50 text-indigo-700",
+    head: "border-violet-200 bg-violet-50 text-violet-700",
     accounting_staff: "border-cyan-200 bg-cyan-50 text-cyan-800",
     employee: "border-emerald-200 bg-emerald-50 text-emerald-700",
   };

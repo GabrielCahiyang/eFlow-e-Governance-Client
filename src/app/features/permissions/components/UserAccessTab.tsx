@@ -79,7 +79,7 @@ export function UserAccessTab({
   const orgMap = useMemo(() => Object.fromEntries(orgs.map((org) => [org.id, org.name])), [orgs]);
   const manageable = profiles.filter((profile) => !isAdminRole(profile.role) && profile.is_active);
   const filteredUsers = manageable.filter((profile) => (orgFilter === "all" || profile.org_id === orgFilter) && `${profile.full_name} ${profile.email} ${profile.role} ${orgMap[profile.org_id || ""] || ""}`.toLowerCase().includes(search.toLowerCase()));
-  const orgOptions = useMemo(() => [{ value: "all", label: "All departments" }, ...orgs.filter((org) => org.is_active).map((org) => ({ value: org.id, label: org.name })).sort((a, b) => a.label.localeCompare(b.label))], [orgs]);
+  const orgOptions = useMemo(() => [{ value: "all", label: "All offices" }, ...orgs.filter((org) => org.is_active).map((org) => ({ value: org.id, label: org.name })).sort((a, b) => a.label.localeCompare(b.label))], [orgs]);
 
   const chooseUser = (userId: string) => {
     setInternalUserId(userId);
@@ -112,7 +112,7 @@ export function UserAccessTab({
       <aside className="overflow-hidden rounded-2xl border border-neutral-200 bg-white">
         <div className="space-y-2 border-b border-neutral-100 p-3">
           <div className="relative"><Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search users…" className="h-9 w-full rounded-xl border border-neutral-200 bg-neutral-50 pl-9 pr-3 text-[11px] outline-none focus:border-neutral-400" /></div>
-          <WSelect ariaLabel="Filter users by department" className="!w-full" value={orgFilter} onChange={setOrgFilter} options={orgOptions} />
+          <WSelect ariaLabel="Filter users by office" className="!w-full" value={orgFilter} onChange={setOrgFilter} options={orgOptions} />
         </div>
         <div className="max-h-[590px] overflow-y-auto p-2">
           {filteredUsers.map((profile) => (

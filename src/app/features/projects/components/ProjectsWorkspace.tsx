@@ -1,10 +1,10 @@
 import * as React from "react";
 import { CitywidePlansOverview } from "./CitywidePlansOverview";
 import * as Icons from "lucide-react";
-import { Button, Skeleton } from "@vibe/core";
-import { Add } from "@vibe/icons";
+import { Skeleton } from "@vibe/core";
+import { SplitActionButton } from "../../../components/ui/workspace";
 import { CreateWorkPlanDialog, type WorkPlanCreationMode } from "../../proposal-import";
-import { useDeptDirectoryEmployees } from "../../employees";
+import { useDeptDirectoryEmployees } from "../../members";
 import { isTaskLead } from "../../tasks";
 import { ProjectTemplatesModal } from "../../work-templates";
 import { useNotificationNavigationIntent } from "../../notifications";
@@ -91,7 +91,7 @@ export function ProjectsWorkspace({
     includeCurrentUser: true,
     includeDepartmentHeads: true,
     activeOnly: true,
-    excludeSuperAdmins: true,
+    excludeAdmins: true,
   });
 
   // IDE-like Tabs state
@@ -133,7 +133,7 @@ export function ProjectsWorkspace({
   }, []);
 
   const departmentFilterOptions = React.useMemo(() => {
-    if (!scope.isSuperAdmin) return [];
+    if (!scope.includeAllAccessibleWork) return [];
     const organizationIds = new Set<string>();
     dbProjects.forEach((project) => {
       if (project.orgId) organizationIds.add(project.orgId);
@@ -151,13 +151,13 @@ export function ProjectsWorkspace({
       }
     });
     if (dbProjects.some((project) => !project.orgId)) {
-      options.push({ value: UNASSIGNED_PROJECT_DEPARTMENT, label: "No department assigned" });
+      options.push({ value: UNASSIGNED_PROJECT_DEPARTMENT, label: "No office assigned" });
     }
-    return [{ value: ALL_PROJECT_DEPARTMENTS, label: "All departments" }, ...options];
-  }, [activeCollaborationDrafts, dbProjects, orgs, scope.isSuperAdmin]);
+    return [{ value: ALL_PROJECT_DEPARTMENTS, label: "All offices" }, ...options];
+  }, [activeCollaborationDrafts, dbProjects, orgs, scope.includeAllAccessibleWork]);
 
   const inScope = React.useMemo(() => {
-    if (scope.isSuperAdmin) {
+    if (scope.includeAllAccessibleWork) {
       return dbProjects.filter((project) => matchesProjectDepartment(project.orgId, departmentFilter));
     }
     if (!scope.enforceOrgScope) return dbProjects;
@@ -166,10 +166,10 @@ export function ProjectsWorkspace({
   }, [dbProjects, departmentFilter, scope]);
 
   const visibleCollaborationDrafts = React.useMemo(
-    () => scope.isSuperAdmin
+    () => scope.includeAllAccessibleWork
       ? activeCollaborationDrafts.filter((draft) => matchesProjectDepartment(draft.ownerOrgId, departmentFilter))
       : activeCollaborationDrafts,
-    [activeCollaborationDrafts, departmentFilter, scope.isSuperAdmin],
+    [activeCollaborationDrafts, departmentFilter, scope.includeAllAccessibleWork],
   );
 
   const approvalPortfolioDrafts = React.useMemo(() => collaboration.drafts.filter((draft) => matchesProjectDepartment(draft.ownerOrgId, departmentFilter)), [collaboration.drafts, departmentFilter]);
@@ -263,10 +263,9 @@ export function ProjectsWorkspace({
 
   const currentUserId = user?.id || userProfile?.id || userProfile?.uid || "";
   const canManageDepartmentTemplates = [
-    "dept_head",
-    "department_head",
-    "assistant_head",
-  ].includes(userProfile?.role || "");
+    "head",
+    "head",
+    ].includes(userProfile?.role || "");
   const leadingTasks = tasks.filter(
     (task) =>
       isTaskLead(task, currentUserId) &&
@@ -299,11 +298,11 @@ export function ProjectsWorkspace({
   // Reactively open the first project on initial mount if workspace starts at default portfolio
   const hasAutoOpenedRef = React.useRef(false);
   React.useEffect(() => {
-    if (!scope.isSuperAdmin && !hasAutoOpenedRef.current && active.length > 0 && activeTabId === "portfolio" && workspaceView === "portfolio") {
+    if (!scope.includeAllAccessibleWork && !hasAutoOpenedRef.current && active.length > 0 && activeTabId === "portfolio" && workspaceView === "portfolio") {
       hasAutoOpenedRef.current = true;
       openProject(active[0].id);
     }
-  }, [active, activeTabId, openProject, workspaceView, scope.isSuperAdmin]);
+  }, [active, activeTabId, openProject, workspaceView, scope.includeAllAccessibleWork]);
 
   React.useEffect(() => {
     if (activeTab.type === "project" && activeProject) {
@@ -387,7 +386,7 @@ export function ProjectsWorkspace({
         canDelete={access.canDelete}
         onCreateWorkPlan={() => setCreationMode("manual")}
         onOpenPortfolio={() => {
-          if (!scope.isSuperAdmin && active[0]) {
+          if (!scope.includeAllAccessibleWork && active[0]) {
             openProject(active[0].id);
           } else {
             setActiveTabId("portfolio");
@@ -410,7 +409,7 @@ export function ProjectsWorkspace({
           setActiveTabId("portfolio");
           setWorkspaceView(view);
         }}
-        departmentFilter={scope.isSuperAdmin ? {
+        departmentFilter={scope.includeAllAccessibleWork ? {
           value: departmentFilter,
           options: departmentFilterOptions,
           onChange: changeDepartmentFilter,
@@ -500,11 +499,11 @@ export function ProjectsWorkspace({
                   currentOrgId={currentOrgId}
                   mode={workspaceView === "drafts" ? "owned" : "waiting"}
                   accessibleOrgIds={collaboration.membershipOrgIds}
-                  showAll={readOnly && scope.isSuperAdmin}
+                  showAll={readOnly && scope.includeAllAccessibleWork}
                   onOpen={(draftId) => openProposal(draftId, workspaceView === "drafts" ? "overview" : "approvals")}
                 />
               )
-            ) : scope.isSuperAdmin ? (
+            ) : scope.includeAllAccessibleWork ? (
               <CitywidePlansOverview projects={inScope} drafts={approvalPortfolioDrafts} organizations={orgs} profiles={profiles} onOpenProject={openProject} onOpenPlan={(id) => openProposal(id, "approvals")} />
             ) : (
               <div className="flex flex-col items-center justify-center py-20 text-center">
@@ -516,13 +515,11 @@ export function ProjectsWorkspace({
                   {readOnly ? "Select a project from the left sidebar to view its tasks and approval history." : "Select a project from the left sidebar to open its workspace, or create a new plan to get started."}
                 </p>
                 {!readOnly && (
-                  <Button
-                    kind="primary"
-                    leftIcon={Add}
+                  <SplitActionButton
+                    label="Create work plan"
                     onClick={() => setCreationMode("manual")}
-                  >
-                    Create work plan
-                  </Button>
+                    actions={[{id: "templates", label: "Use a project template", onSelect: () => setTemplatesOpen(true)}]}
+                  />
                 )}
               </div>
             )}

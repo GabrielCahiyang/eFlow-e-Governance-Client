@@ -22,7 +22,7 @@ export interface CoreRoleNavItem {
   page: string;
   group: string;
   requiresLeadership?: boolean;
-  requiresDepartmentHead?: boolean;
+  requiresHead?: boolean;
 }
 
 export interface CoreRoleNavigation {
@@ -76,8 +76,8 @@ const ACCOUNTING_NAV_ITEMS: CoreRoleNavItem[] = [
   {
     id: "accounting_budgets",
     icon: <ChartBar size={16} />,
-    label: "Department Budget Ledgers",
-    page: "Department Budget Ledgers",
+    label: "Office Budget Ledgers",
+    page: "Office Budget Ledgers",
     group: "Accounting",
   },
 ];
@@ -164,6 +164,7 @@ const EMPLOYEE_NAV_ITEMS: CoreRoleNavItem[] = [
  * text; they are no longer overloaded as the primary navigation structure.
  */
 const CORE_WORKFLOW_NAVIGATION: Record<string, CoreRoleNavigation> = {
+  admin: { defaultSection: "users", navItems: [{id:"users", icon:<UserMultiple size={16} />,label:"User Management",page:"All Users",group:"Administration"}] },
   /**
    * accounting_staff: All standard employee sections are kept intact so that
    * assigning accounting access is purely additive — the person retains their
@@ -175,7 +176,7 @@ const CORE_WORKFLOW_NAVIGATION: Record<string, CoreRoleNavigation> = {
     defaultSection: "accounting_overview",
     navItems: [...EMPLOYEE_NAV_ITEMS, ...ACCOUNTING_NAV_ITEMS],
   },
-  depthead: {
+  head: {
     defaultSection: "dashboard",
     navItems: [
       {
@@ -183,28 +184,28 @@ const CORE_WORKFLOW_NAVIGATION: Record<string, CoreRoleNavigation> = {
         icon: <Dashboard size={16} />,
         label: "Overview",
         page: "Dashboard",
-        group: "Department",
+        group: "Office",
       },
       {
         id: "projects",
         icon: <FolderOpen size={16} />,
-        label: "Plans & Projects",
+        label: "Projects",
         page: "Projects",
-        group: "Department",
+        group: "Office",
       },
       {
         id: "tasks",
         icon: <Task size={16} />,
-        label: "Task Board",
+        label: "Tasks",
         page: "Task Board",
-        group: "Department",
+        group: "Office",
       },
       {
         id: "budget",
         icon: <Wallet size={16} />,
-        label: "Department Budget",
-        page: "Department Budget",
-        group: "Department",
+        label: "Office Budget",
+        page: "Office Budget",
+        group: "Office",
       },
       {
         id: "leading",
@@ -219,19 +220,19 @@ const CORE_WORKFLOW_NAVIGATION: Record<string, CoreRoleNavigation> = {
         icon: <CheckmarkOutline size={16} />,
         label: "My Subtasks",
         page: "My Subtasks",
-        group: "Department",
+        group: "Office",
       },
       {
         id: "reviews",
         icon: <CheckmarkOutline size={16} />,
         label: "Reviews",
         page: "For Review",
-        group: "Department",
+        group: "Office",
       },
       {
         id: "team",
         icon: <UserMultiple size={16} />,
-        label: "Team Supervision",
+        label: "Office Team",
         page: "Team Supervision",
         group: "People",
       },
@@ -241,7 +242,7 @@ const CORE_WORKFLOW_NAVIGATION: Record<string, CoreRoleNavigation> = {
         label: "Identity & Access",
         page: "Identity & Access",
         group: "People",
-        requiresDepartmentHead: true,
+        requiresHead: true,
       },
       {
         id: "intelligence",
@@ -266,7 +267,7 @@ const CORE_WORKFLOW_NAVIGATION: Record<string, CoreRoleNavigation> = {
       },
     ],
   },
-  employee: {
+  member: {
     defaultSection: "tasks",
     navItems: EMPLOYEE_NAV_ITEMS,
   },

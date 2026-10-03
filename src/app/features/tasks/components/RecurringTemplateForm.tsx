@@ -25,7 +25,7 @@ export function RecurringTemplateForm({
 
   const save = async () => {
     if (!orgId) {
-      toast("Your account must be assigned to a department before creating recurring work.", "error");
+      toast("Your account must be assigned to a office before creating recurring work.", "error");
       return;
     }
     if (!title.trim() || !nextRun) {
@@ -83,7 +83,7 @@ export function RecurringTemplateForm({
           {employees.map((employee) => <option key={employee.id} value={employee.id}>{employee.name}</option>)}
         </select>
         <select value={reviewerId} onChange={(event) => setReviewerId(event.target.value)} className={inputClass}>
-          <option value="">Department reviewer</option>
+          <option value="">Office reviewer</option>
           {employees.filter((employee) => employee.id !== assigneeId).map((employee) => <option key={employee.id} value={employee.id}>{employee.name}</option>)}
         </select>
       </div>

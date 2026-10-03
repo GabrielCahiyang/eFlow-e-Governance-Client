@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { cashData } from "./taskCashClearance.fixtures";
 
 const mocked = vi.hoisted(() => ({ budget: vi.fn() }));
-vi.mock("../../src/app/contexts/AuthContext", () => ({ useAuth: () => ({ userProfile: { id: "head-1", org_id: "home-org", role: "dept_head" } }) }));
+vi.mock("../../src/app/contexts/AuthContext", () => ({ useAuth: () => ({ userProfile: { id: "head-1", org_id: "home-org", role: "head" } }) }));
 vi.mock("../../src/app/features/budget/hooks/useDepartmentBudget", () => ({ useDepartmentBudget: mocked.budget }));
 vi.mock("../../src/app/features/budget/components/BudgetApprovalQueue", () => ({ BudgetApprovalQueue: ({ focusRecordId }: { focusRecordId?: string }) => <div>Focused record: {focusRecordId}</div> }));
 vi.mock("../../src/app/features/budget/components/FiscalYearControl", () => ({ FiscalYearControl: ({ value }: { value: number }) => <div>Fiscal year: {value}</div> }));
@@ -14,7 +14,7 @@ import { BudgetReviewInbox } from "../../src/app/features/budget/components/Budg
 
 afterEach(cleanup);
 describe("cash blocker financial review destination", () => {
-  it("loads the blocked request's department and fiscal year and focuses its liquidation ID", () => {
+  it("loads the blocked request's office and fiscal year and focuses its liquidation ID", () => {
     mocked.budget.mockReturnValue({ ...cashData(), summary: { id: "budget-1" }, allocations: [], loading: false, error: "", refresh: vi.fn() });
     render(<BudgetReviewInbox cashReviewFocus={{ orgId: "request-org", fiscalYear: 2025, recordId: "liquidation-2" }} />);
     expect(mocked.budget).toHaveBeenCalledWith("request-org", 2025);

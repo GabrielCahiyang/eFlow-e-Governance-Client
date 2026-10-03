@@ -1,6 +1,6 @@
 export interface ProjectScope {
   /** Admin sees all organizations. */
-  isSuperAdmin: boolean;
+  includeAllAccessibleWork: boolean;
   /** Exact organization ids visible to a scoped management workspace. */
   scopedOrgIds: string[];
   /** Employees rely on membership RLS; management uses an explicit exact scope. */
@@ -12,11 +12,11 @@ export const UNASSIGNED_PROJECT_DEPARTMENT = "unassigned";
 
 export function matchesProjectDepartment(
   organizationId: string | null | undefined,
-  selectedDepartmentId: string,
+  selectedOfficeId: string,
 ): boolean {
-  if (selectedDepartmentId === ALL_PROJECT_DEPARTMENTS) return true;
-  if (selectedDepartmentId === UNASSIGNED_PROJECT_DEPARTMENT) return !organizationId;
-  return organizationId === selectedDepartmentId;
+  if (selectedOfficeId === ALL_PROJECT_DEPARTMENTS) return true;
+  if (selectedOfficeId === UNASSIGNED_PROJECT_DEPARTMENT) return !organizationId;
+  return organizationId === selectedOfficeId;
 }
 
 export interface ProjectWorkspaceAccess {

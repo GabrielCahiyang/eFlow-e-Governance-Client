@@ -37,7 +37,7 @@ export function HierarchyBoardView({
 }: {
   tasks: Task[];
   employees: Employee[];
-  role: "depthead" | "employee";
+  role: "head" | "member";
   onVerify?: MondayBoardProps["onVerify"];
   onExecute?: MondayBoardProps["onExecute"];
   onSubmitRequest?: (task: Task) => void;

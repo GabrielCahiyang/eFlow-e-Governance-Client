@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Organization } from "../../src/app/types";
-import { getDepartmentEmployeeScopeIds } from "../../src/app/features/employees/services/departmentScope";
+import { getDepartmentEmployeeScopeIds } from "../../src/app/features/members/services/departmentScope";
 
 const organizations: Organization[] = [
   {
@@ -33,8 +33,8 @@ const organizations: Organization[] = [
   },
 ];
 
-describe("department employee scope", () => {
-  it("keeps exact assignment scope to the user's department", () => {
+describe("office employee scope", () => {
+  it("keeps exact assignment scope to the user's office", () => {
     expect(
       Array.from(getDepartmentEmployeeScopeIds(organizations, "ledipo", "exact")),
     ).toEqual(["ledipo"]);

@@ -177,7 +177,7 @@ export function useMondayBoardController({
         actor: currentUserId
           ? {
               id: currentUserId,
-              name: currentUserName || "Department Head",
+              name: currentUserName || "Head",
             }
           : undefined,
       });

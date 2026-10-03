@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import * as XLSX from "xlsx";
-import { parsePdsWorkbook } from "../../src/app/features/employees/services/pds-parser";
+import { parsePdsWorkbook } from "../../src/app/features/members/services/pds-parser";
 
 function workbookBuffer() {
   const workbook = XLSX.utils.book_new();
@@ -57,7 +57,7 @@ describe("CSC PDS import", () => {
       fullName: "Cheryl P. Gallo",
       email: "cvpgallo@example.gov.ph",
       departmentId: "bplo-id",
-      role: "employee",
+      role: "member",
     });
     expect(parsed.details.personal).toMatchObject({
       birthDate: "04/26/1983",

@@ -8,13 +8,12 @@ import {
 export type { LeadershipReviewerResolution } from "../../shared/organizationLeadership";
 
 export function resolveOrganizationLeadershipReviewer(
-  organization: Pick<Organization, "head_user_id" | "assistant_head_user_id">,
+  organization: Pick<Organization, "head_user_id">,
   taskLeadId: string | null | undefined,
 ): LeadershipReviewerResolution | null {
   return resolveLeadershipReviewer(
     taskLeadId,
     organization.head_user_id,
-    organization.assistant_head_user_id,
   );
 }
 
@@ -29,7 +28,6 @@ export function getLeadershipCandidates(
       .filter((organization) => organization.id !== organizationId)
       .flatMap((organization) => [
         organization.head_user_id,
-        organization.assistant_head_user_id,
       ])
       .filter((id): id is string => Boolean(id)),
   );
@@ -38,7 +36,7 @@ export function getLeadershipCandidates(
     (profile) =>
       profile.is_active &&
       !isAdminRole(profile.role) &&
-      // A normal Head or Assistant Head is selected from the organization
+      // A Head is selected from the office
       // they already belong to. This deliberately does not move people out of
       // another office as a side-effect of assigning leadership.
       (allowSecondaryOrganizationLeadership || profile.org_id === organizationId) &&

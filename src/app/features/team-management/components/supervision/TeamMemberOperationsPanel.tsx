@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { AlertTriangle, ArrowRightLeft, CalendarClock, CheckCircle2, ExternalLink, Loader2, ShieldAlert, Users } from "lucide-react";
-import type { Employee } from "../../../employees";
+import type { Employee } from "../../../members";
 import { isActive, type Task } from "../../../tasks";
 import type { Subtask } from "../../../subtasks";
 import type { TeamMemberMetrics } from "../../types";
@@ -62,7 +62,7 @@ export function TeamMemberOperationsPanel({
       <div className="border-b border-neutral-100 p-4">
         <div className="flex items-start gap-3">
           <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary text-[12px] font-semibold text-primary-foreground">{employee.initials || "??"}</div>
-          <div className="min-w-0 flex-1"><h2 className="truncate text-[14px] font-semibold text-neutral-900">{employee.name}</h2><p className="truncate text-[12px] text-neutral-500">{employee.jobTitle} · {employee.departmentName || "Department team"}</p></div>
+          <div className="min-w-0 flex-1"><h2 className="truncate text-[14px] font-semibold text-neutral-900">{employee.name}</h2><p className="truncate text-[12px] text-neutral-500">{employee.jobTitle} · {employee.departmentName || "Office team"}</p></div>
           <span className={`rounded-full px-2 py-1 text-[12px] font-medium ${metric.workloadSignal >= TEAM_WORKLOAD_HIGH_THRESHOLD ? "bg-red-50 text-red-700" : metric.workloadSignal >= TEAM_WORKLOAD_ELEVATED_THRESHOLD ? "bg-amber-50 text-amber-700" : "bg-emerald-50 text-emerald-700"}`}>{metric.workload?.label || String(metric.workloadSignal)} workload</span>
         </div>
         <div className="mt-4 grid grid-cols-3 gap-2">

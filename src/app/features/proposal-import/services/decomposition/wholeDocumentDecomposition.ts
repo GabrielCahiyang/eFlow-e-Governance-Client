@@ -33,7 +33,7 @@ export const decomposeWholeDocument = async (
   // Build employee context for the prompt
   const employeeBlock =
     employees && employees.length > 0
-      ? `\n\nAvailable employees for task assignment:\n${buildCompactEmployeesContext(
+      ? `\n\nAvailable members for task assignment:\n${buildCompactEmployeesContext(
           employees,
           employeeNotes,
         )}`
@@ -41,7 +41,7 @@ export const decomposeWholeDocument = async (
 
   const recommendationInstruction =
     employees && employees.length > 0
-      ? `\n10. For each task, include "recommendedEmployeeIds" as an ordered array where the first ID is the proposed Team Lead. Determine the minimum sufficient team independently for each task: select one person only when they can genuinely cover the task alone, or select multiple contributors for complementary skills, parallel work, field coordination, documentation, facilitation, analysis, or review. There is NO maximum team size; every eligible department member may be selected when genuinely necessary. Do not default to one person and do not add people without a distinct contribution. Match required skills to strengths and tags, treat weaknesses as assignment risks rather than skills, consider current workload, and use qualified alternatives instead of repeatedly selecting one person across most of the proposal. Do not force equal distribution when one person is uniquely qualified. Include "recommendationReasoning" explaining the team size and each member's contribution, or why the task is safely solo.`
+      ? `\n10. For each task, include "recommendedEmployeeIds" as an ordered array where the first ID is the proposed Team Lead. Determine the minimum sufficient team independently for each task: select one person only when they can genuinely cover the task alone, or select multiple contributors for complementary skills, parallel work, field coordination, documentation, facilitation, analysis, or review. There is NO maximum team size; every eligible office member may be selected when genuinely necessary. Do not default to one person and do not add people without a distinct contribution. Match required skills to strengths and tags, treat weaknesses as assignment risks rather than skills, consider current workload, and use qualified alternatives instead of repeatedly selecting one person across most of the proposal. Do not force equal distribution when one person is uniquely qualified. Include "recommendationReasoning" explaining the team size and each member's contribution, or why the task is safely solo.`
       : "";
 
   const recommendationSchema =
@@ -113,7 +113,7 @@ Required JSON shape:
           "priority": "high"${recommendationSchema}${subtaskSchema}
           ,"budgetDecision": "missing",
           "budgetNoCostReason": "",
-          "budgetLines": [{"expenseClass":"Professional Services","category":"Honoraria","particular":"Exact source particular","quantity":1,"unit":"service","unitCost":0,"amount":0,"fundSource":"Department Budget"}]
+          "budgetLines": [{"expenseClass":"Professional Services","category":"Honoraria","particular":"Exact source particular","quantity":1,"unit":"service","unitCost":0,"amount":0,"fundSource":"Office Budget"}]
         }]
       }]
     }]
@@ -173,7 +173,7 @@ Required JSON shape:
                   updatedAt: Date.now(),
                 };
                 const scored = scoreEmployees(taskForScoring, employees, employeeNotes);
-                console.log(`[Decomposition DEBUG] Scored employees for task "${task.title}":`, scored.map(s => ({ name: s.employeeName, score: s.totalScore, skillMatch: s.breakdown.skillMatch })));
+                console.log(`[Decomposition DEBUG] Scored members for task "${task.title}":`, scored.map(s => ({ name: s.employeeName, score: s.totalScore, skillMatch: s.breakdown.skillMatch })));
                 const selected = scored.length > 0 ? selectFallbackTeam(scored) : [];
                 console.log(`[Decomposition DEBUG] Selected fallback team for task "${task.title}":`, selected.map(s => s.employeeName));
 

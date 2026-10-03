@@ -30,7 +30,7 @@ export function filterEmployeesByPdfMentions(
   });
 
   if (mentionedOrgs.length === 0) {
-    console.log("[PDF Scope Filter] No matching proponents found in PDF. Using all employees.");
+    console.log("[PDF Scope Filter] No matching proponents found in PDF. Using all members.");
     return allEmployees;
   }
 
@@ -47,7 +47,7 @@ export function filterEmployeesByPdfMentions(
     return emp.department && allowedOrgIds.has(emp.department);
   });
 
-  console.log("[PDF Scope Filter] Filtered Employees:", filtered.map(e => e.name));
+  console.log("[PDF Scope Filter] Filtered Members:", filtered.map(e => e.name));
   return filtered;
 }
 

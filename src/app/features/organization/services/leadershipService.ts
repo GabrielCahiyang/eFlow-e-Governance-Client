@@ -3,24 +3,19 @@ import { refreshOrganizationDirectory } from "../../../../lib/supabaseService";
 
 export interface OrganizationLeadershipInput {
   headUserId: string | null;
-  assistantHeadUserId: string | null;
+  assistantHeadUserId?: string | null;
 }
 
 export async function assignOrganizationLeadership(
   organizationId: string,
   leadership: OrganizationLeadershipInput,
 ): Promise<void> {
-  if (
-    leadership.headUserId &&
-    leadership.headUserId === leadership.assistantHeadUserId
-  ) {
-    throw new Error("Head and Assistant Head must be different people.");
-  }
+  if (leadership.assistantHeadUserId) throw new Error("Office leadership accepts only a Head.");
 
   const { error } = await supabase.rpc("set_organization_leadership", {
     p_org_id: organizationId,
     p_head_user_id: leadership.headUserId,
-    p_assistant_head_user_id: leadership.assistantHeadUserId,
+    p_assistant_head_user_id: null,
   });
   if (error) throw new Error(error.message);
 
@@ -44,7 +39,7 @@ export async function assignOrganizationApprovers(
   leadership: OrganizationLeadershipInput,
 ): Promise<void> {
   if (leadership.headUserId && leadership.headUserId === leadership.assistantHeadUserId) {
-    throw new Error("Board Head and Board Assistant Head must be different people.");
+    throw new Error("Primary and backup reviewers must be different people.");
   }
   const { error } = await supabase.rpc("set_organization_approvers", {
     p_organization_id: organizationId,

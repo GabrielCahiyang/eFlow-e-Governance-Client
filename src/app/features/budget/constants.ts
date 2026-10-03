@@ -8,7 +8,7 @@ export const DEFAULT_PETTY_CASH_REQUEST_LIMIT = DEFAULT_PER_RECEIPT_LIMIT;
 export const DEFAULT_UNDERUTILIZATION_THRESHOLD = 75;
 export const DEFAULT_LIQUIDATION_DUE_DAYS = 15;
 export const DEFAULT_APPROVAL_TIER_THRESHOLD = 1_000;
-export const PROPOSAL_FUND_SOURCE = "Department Budget";
+export const PROPOSAL_FUND_SOURCE = "Office Budget";
 export const PROPOSAL_EXPENSE_CLASSES = [
   "Professional Services",
   "Other Expenses",

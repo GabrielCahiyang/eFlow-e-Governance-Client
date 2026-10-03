@@ -1,4 +1,5 @@
 import type { DepartmentBudgetBundle, PettyCashRequest, TaskCashBlocker } from "../types";
+import { isLiquidationLate } from "./cashWorkflowRules";
 
 // Match guard_task_financial_completion exactly. In particular, do not silently
 // consider expired/draft requests cleared when the database still blocks them.
@@ -32,8 +33,8 @@ export function getTaskCashBlockers(
       const blocker: TaskCashBlocker = {
         request, fiscalYear: fiscalYears.get(request.fiscalBudgetId), liquidation,
         sourceLabel: line ? [line.category, line.particular, line.fundSource].filter(Boolean).join(" · ") : undefined,
-        stage: request.status.replace(/_/g, " "), owner: "Department Head",
-        nextStep: "Check this request's funding record with the Department Head; its current state still prevents task completion.",
+        stage: request.status.replace(/_/g, " "), owner: "Head",
+        nextStep: "Check this request's funding record with the Head; its current state still prevents task completion.",
         location: fundingLocation,
       };
       const review = (role: "leader" | "department", recordId: string, location: string) => {
@@ -61,11 +62,11 @@ export function getTaskCashBlockers(
         case "scheduled_for_release":
         case "partially_released":
           Object.assign(blocker, {
-            stage: request.status === "partially_released" ? "Cash only partially released" : "Awaiting cash release",
+            stage: request.status === "partially_released" ? "Cash only partially released" : "Awaiting cash release", owner: "Accounting Staff",
             nextStep: scheduled[0]
               ? `Record the ${scheduled[0].scheduledDate} cash release${scheduled.length > 1 ? " and remaining scheduled releases" : ""}. The recipient must then submit receipts and any unused cash for settlement.`
-              : "Check the cash release schedule with the Department Head. Released cash must then be supported by receipts and any unused cash returned for settlement.",
-            location: "Department Budget → Releases & Settlement",
+              : "Check the cash release schedule with Accounting Staff. Released cash must then be supported by receipts and any unused cash returned for settlement.",
+            location: "Office Budget → Releases & Settlement",
           });
           if (scheduled[0]?.scheduledDate <= today) review("department", scheduled[0].id, "Cash releases due");
           break;
@@ -80,18 +81,18 @@ export function getTaskCashBlockers(
           });
           break;
         case "pending_leader_liquidation_review":
-          Object.assign(blocker, { stage: "Receipts awaiting Task Leader review", owner: leader, nextStep: "Review and endorse the receipt package so the Department Head can settle the cash." });
+          Object.assign(blocker, { stage: "Receipts awaiting Task Leader review", owner: leader, nextStep: "Review and endorse the receipt package so Accounting Staff can settle the cash." });
           blocker.location = "Reviews → Budget → Receipt liquidations";
           if (liquidation?.status === "pending_leader_review") review("leader", liquidation.id, "Receipt liquidations");
           break;
         case "liquidation_submitted":
         case "pending_department_settlement":
-          Object.assign(blocker, { stage: "Awaiting final cash settlement", nextStep: "Verify the receipts and any unused cash returned, then approve the liquidation. Approving the work evidence does not settle this cash." });
+          Object.assign(blocker, { stage: "Awaiting final cash settlement", owner: isLiquidationLate(request,liquidation) && !liquidation?.departmentDecidedAt ? "Head" : "Accounting Staff", nextStep: "Accounting verifies the receipts and unused cash. Late packages need independent Head authorization before settlement. Approving work evidence does not settle this cash." });
           blocker.location = "Reviews → Budget → Receipt liquidations";
           if (liquidation?.status === "pending_department_settlement") review("department", liquidation.id, "Receipt liquidations");
           break;
         case "expired":
-          Object.assign(blocker, { stage: "Expired request still blocks completion", owner: "Department Head / system administrator", nextStep: "Reconcile this expired request with the system administrator. The current database completion rule still treats it as open; do not release cash just to clear this error." });
+          Object.assign(blocker, { stage: "Expired request still blocks completion", owner: "Head / system administrator", nextStep: "Reconcile this expired request with the system administrator. The current database completion rule still treats it as open; do not release cash just to clear this error." });
           break;
       }
       return blocker;
@@ -105,7 +106,10 @@ export function canOpenCashBlockerReview(blocker: TaskCashBlocker, userId?: stri
   if (blocker.reviewTarget.recordId === blocker.liquidation?.id) {
     if (userId === request.cashRecipientId || userId === request.requesterId) return false;
   } else if (blocker.reviewTarget.recordId === request.id && userId === request.requesterId) return false;
-  return blocker.reviewTarget.role === "leader"
-    ? request.taskLeaderId === userId
-    : ["dept_head", "department_head", "assistant_head"].includes(role || "");
+  if (blocker.reviewTarget.role === "leader") return request.taskLeaderId === userId;
+  if (blocker.reviewTarget.recordId === blocker.liquidation?.id) {
+    return role === "accounting_staff" || (role === "head" && isLiquidationLate(request,blocker.liquidation) && !blocker.liquidation.departmentDecidedAt);
+  }
+  if (blocker.reviewTarget.recordId !== request.id) return role === "accounting_staff";
+  return role === "head";
 }

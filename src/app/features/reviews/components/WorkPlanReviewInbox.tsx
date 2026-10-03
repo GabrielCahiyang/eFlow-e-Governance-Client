@@ -131,13 +131,13 @@ export function WorkPlanReviewInbox({ onNavigate }: { onNavigate?: (section: str
           <SectionEmpty
             icon={<CheckCircle2 size={36} className="text-emerald-500" />}
             title="All work plans reviewed"
-            description="No incoming collaborative proposals or work plans currently require your department's decision."
+            description="No incoming collaborative proposals or work plans currently require your office's decision."
           />
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4">
           {incomingDrafts.map((draft) => {
-            const ownerOrgName = orgMap.get(draft.ownerOrgId) || "Partner Department";
+            const ownerOrgName = orgMap.get(draft.ownerOrgId) || "Partner Office";
             const participatingOrgs = draft.snapshot.organizations
               .filter((o) => o.orgId !== draft.ownerOrgId)
               .map((o) => orgMap.get(o.orgId) || o.orgId);

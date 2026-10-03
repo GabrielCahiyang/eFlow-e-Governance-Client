@@ -60,10 +60,10 @@ export function ProjectGovernanceTab({
             <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
               <div>
                 <h3 className="text-sm font-bold text-neutral-900 uppercase tracking-wider">
-                  Department approvals
+                  Office approvals
                 </h3>
                 <p className="text-xs text-neutral-500 mt-0.5">
-                  Approval verification across all participating departments and partner agencies.
+                  Approval verification across all participating offices and partner agencies.
                 </p>
               </div>
             </div>

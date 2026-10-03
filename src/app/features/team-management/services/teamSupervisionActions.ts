@@ -1,6 +1,6 @@
 import { createNotification } from "../../../services/notificationService";
 import { assignTask, updateTask, type Task, type TaskAssignmentDetails } from "../../tasks";
-import type { Employee } from "../../employees";
+import type { Employee } from "../../members";
 
 export interface TaskReplacementPlan {
   mode: "lead" | "member";

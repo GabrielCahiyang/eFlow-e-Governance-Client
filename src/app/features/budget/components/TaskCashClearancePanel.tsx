@@ -23,7 +23,7 @@ export function TaskCashClearancePanel({ blockers, loading, error, serverBlocked
             {loading ? "Checking task and subtask cash…" : blockers.length
               ? `${blockers.length} open cash request${blockers.length === 1 ? " is" : "s are"} holding up task approval.`
               : error ? "Cash clearance could not be checked. This does not mean the task is financially cleared."
-                : serverBlocked ? "The last approval attempt reported unresolved cash, but no open requests are visible now. Retry approval to recheck; if it is still blocked, ask the Department Head to check this task's funding records."
+                : serverBlocked ? "The last approval attempt reported unresolved cash, but no open requests are visible now. Retry approval to recheck; if it is still blocked, ask the Head to check this task's funding records."
                   : "No open cash requests found. Final clearance is checked again when approving."}
           </p>
         </div>
@@ -31,7 +31,7 @@ export function TaskCashClearancePanel({ blockers, loading, error, serverBlocked
           <RefreshCw size={12} className={loading ? "animate-spin" : ""} /> Refresh cash status
         </button>
       </div>
-      {error && <p role="alert" className="mt-2 text-xs text-rose-700">{error} Try refreshing, or ask the Department Head to inspect the funding record. Approval still uses the database's settlement checks.</p>}
+      {error && <p role="alert" className="mt-2 text-xs text-rose-700">{error} Try refreshing, or ask the Head to inspect the funding record. Approval still uses the database's settlement checks.</p>}
       {blockers.length > 0 && <>
         <p className="mt-2 text-xs text-amber-900">Work approval and cash settlement are separate. Resolve each request below; requesting changes to the work is still available.</p>
         <ul className="mt-3 space-y-3">

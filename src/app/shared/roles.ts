@@ -1,54 +1,24 @@
 import type { UserRole } from "../types";
-
-export const HEAD_ROLE: UserRole = "dept_head";
-export const ASSISTANT_HEAD_ROLE: UserRole = "assistant_head";
-
-/** The legacy key remains readable while existing sessions/data are migrated. */
-export function isAdminRole(role: string | null | undefined): boolean {
-  return role === "admin" || role === "super_admin";
+export const ADMIN_ROLE: UserRole = "admin";
+export const HEAD_ROLE: UserRole = "head";
+export const ACCOUNTING_ROLE: UserRole = "accounting_staff";
+export const MEMBER_ROLE: UserRole = "member";
+const ROLE_ALIASES: Record<string, UserRole> = {
+  admin: ADMIN_ROLE, super_admin: ADMIN_ROLE,
+  head: HEAD_ROLE, dept_head: HEAD_ROLE, department_head: HEAD_ROLE,
+  accounting_staff: ACCOUNTING_ROLE,
+  member: MEMBER_ROLE, employee: MEMBER_ROLE, assistant_head: MEMBER_ROLE,
+};
+/** The only translation boundary for persisted legacy account roles. */
+export function normalizeUserRole(rawRole: unknown): UserRole {
+  const role = typeof rawRole === "string" && Object.prototype.hasOwnProperty.call(ROLE_ALIASES, rawRole) ? ROLE_ALIASES[rawRole] : undefined;
+  if (!role) throw new Error("Unsupported account role. Ask an Admin to correct this account.");
+  return role;
 }
-
-export function normalizeUserRole(role: UserRole): UserRole {
-  return isAdminRole(role) ? "admin" : role;
-}
-
-export function isHeadWorkspaceRole(role: string | null | undefined): boolean {
-  return role === HEAD_ROLE || role === ASSISTANT_HEAD_ROLE || role === "department_head";
-}
-
+export function isAdminRole(role: string | null | undefined): boolean { return role === ADMIN_ROLE || role === "super_admin"; }
+export function isHeadWorkspaceRole(role: string | null | undefined): boolean { return role === HEAD_ROLE || role === "dept_head" || role === "department_head"; }
 export function getRoleLabel(role: string): string {
-  switch (role) {
-    case "super_admin":
-    case "admin":
-      return "Admin";
-    case "dept_head":
-    case "department_head":
-      return "Head";
-    case "assistant_head":
-      return "Assistant Head";
-    case "accounting_staff":
-      return "Accounting Staff";
-    case "depthead":
-      return "Department Head";
-    case "teamleader":
-      return "Team Leader";
-    case "executive":
-      return "Executive";
-    case "legislative":
-      return "Legislative";
-    case "councilor_pad":
-      return "Councilor";
-    case "hrmo":
-      return "Human Resources";
-    case "finance":
-      return "Finance";
-    case "employee":
-      return "Employee";
-    default:
-      return role.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
-  }
+  try { return { admin: "Admin", head: "Head", accounting_staff: "Accounting Staff", member: "Member" }[normalizeUserRole(role)]; }
+  catch { return "Unsupported role"; }
 }
-
-export function getHeadWorkspaceLabel(role: string | null | undefined): "Head" | "Assistant Head" {
-  return role === ASSISTANT_HEAD_ROLE ? "Assistant Head" : "Head";
-}
+export function getHeadWorkspaceLabel(_role?: string | null): "Head" { return "Head"; }

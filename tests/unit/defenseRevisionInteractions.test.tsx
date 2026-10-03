@@ -46,7 +46,7 @@ describe("PDF operation lock", () => {
   it("blocks sidebar and history navigation while processing and restores navigation afterward", () => {
     window.history.replaceState({}, "", "/dashboard");
     const initialPage = () => "Overview";
-    const view = renderHook(() => useRoleNavigationState("super_admin", initialPage));
+    const view = renderHook(() => useRoleNavigationState("head", initialPage));
     const release = acquireNavigationLock();
     fireEvent(window, new PopStateEvent("popstate"));
     act(() => view.result.current.selectPage("projects", "Plans & Projects"));
@@ -58,15 +58,15 @@ describe("PDF operation lock", () => {
 });
 
 describe("clear task context", () => {
-  it("uses the task department before its activity, includes supporting offices, and only defaults draft tasks", () => {
+  it("uses the task office before its activity, includes supporting offices, and only defaults draft tasks", () => {
     const organizations = [{ id: "lead", name: "LEDIPO" }, { id: "activity", name: "Activity office" }, { id: "support", name: "TDFRO" }] as any;
     const view = render(<TaskDepartmentProvider organizations={organizations} defaultDepartmentId="lead"><TaskDepartmentLabel task={{ primaryOrgId: "lead", activityPrimaryOrgId: "activity", supportingOrgIds: ["support"] }} /></TaskDepartmentProvider>);
-    expect(screen.getByText("Department: LEDIPO")).toBeTruthy();
-    expect(screen.getByText("Supporting departments: TDFRO")).toBeTruthy();
+    expect(screen.getByText("Office: LEDIPO")).toBeTruthy();
+    expect(screen.getByText("Supporting offices: TDFRO")).toBeTruthy();
     view.rerender(<TaskDepartmentProvider organizations={organizations} defaultDepartmentId="lead"><TaskDepartmentLabel task={{}} /></TaskDepartmentProvider>);
-    expect(screen.getByText("Department: Department not set")).toBeTruthy();
+    expect(screen.getByText("Office: Office not set")).toBeTruthy();
     view.rerender(<TaskDepartmentProvider organizations={organizations} defaultDepartmentId="lead"><TaskDepartmentLabel task={{}} draft /></TaskDepartmentProvider>);
-    expect(screen.getByText("Department: LEDIPO")).toBeTruthy();
+    expect(screen.getByText("Office: LEDIPO")).toBeTruthy();
   });
   it("round trips Philippine due times and rejects impossible calendar dates", () => {
     expect(deadlineInputParts("2026-09-30T15:30:00Z")).toEqual({ date: "2026-09-30", time: "23:30" });
@@ -78,9 +78,9 @@ describe("clear task context", () => {
   });
   it("suggests actions available to each role", () => {
     const sections = [{ id: "projects", label: "Plans & Projects", page: "Plans & Projects" }, { id: "users", label: "Users", page: "All Users" }, { id: "tasks", label: "Tasks", page: "My Tasks" }];
-    expect(suggestedFirstSteps("super_admin", sections)[0].description).toContain("citywide");
-    expect(suggestedFirstSteps("dept_head", sections)[0].description).toContain("Create a work plan");
-    expect(suggestedFirstSteps("employee", sections.filter((section) => section.id === "tasks")).map((section) => section.id)).toEqual(["tasks"]);
+    expect(suggestedFirstSteps("admin", sections)[0].id).toBe("users");
+    expect(suggestedFirstSteps("head", sections)[0].description).toContain("Review your office work plans");
+    expect(suggestedFirstSteps("member", sections.filter((section) => section.id === "tasks")).map((section) => section.id)).toEqual(["tasks"]);
   });
 });
 
