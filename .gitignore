@@ -43,3 +43,8 @@ graph.json
 *.njsproj
 *.sln
 *.sw?
+
+# Local Phase 2 rehearsal and visual review
+.phase2-work/
+.phase3-work/
+.codex-tmp/

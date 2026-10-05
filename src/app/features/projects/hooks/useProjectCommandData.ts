@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import type { Project, ProjectMember, Milestone } from "../services/types";
 import type { Task } from "../../tasks";
 import { buildTeamAttentionItems, subscribeToTeamWorkflowFacts, type TeamWorkflowFacts } from "../../team-management";
@@ -49,6 +49,10 @@ export function useProjectCommandData(project: Project, tasks: Task[]): ProjectC
   const budget = useDepartmentBudget(project.orgId || tasks.find((task) => task.orgId)?.orgId || "", getCurrentFiscalYear());
   const taskKey = useMemo(() => tasks.map((task) => task.id).sort().join(","), [tasks]);
   const cached = getCachedProjectCommandData(project.id, taskKey);
+  // Refresh newly added tasks without unmounting the working table and losing
+  // its expanded groups, filters, or unsaved inline drafts.
+  const ready = useRef({ projectId: project.id, loaded: Boolean(cached) });
+  if (ready.current.projectId !== project.id) ready.current = { projectId: project.id, loaded: Boolean(cached) };
   const [milestones, setMilestones] = useState<Milestone[]>(() => cached?.milestones || []);
   const [members, setMembers] = useState<ProjectMember[]>(() => cached?.members || []);
   const [facts, setFacts] = useState<TeamWorkflowFacts>(() => cached?.facts || EMPTY_FACTS);
@@ -70,8 +74,9 @@ export function useProjectCommandData(project: Project, tasks: Task[]): ProjectC
       setFacts(existing.facts);
       setProjectEvents(existing.projectEvents);
       setLoading(false);
+      ready.current.loaded = true;
     } else {
-      setLoading(true);
+      if (!ready.current.loaded) setLoading(true);
       updateProjectCommandCache(project.id, taskKey, {});
     }
     void refreshMembers();
@@ -82,7 +87,7 @@ export function useProjectCommandData(project: Project, tasks: Task[]): ProjectC
   }, [project.id, refreshMembers, taskKey]);
 
   useEffect(() => {
-    if (!getCachedProjectCommandData(project.id, taskKey)) setLoading(true);
+    if (!ready.current.loaded && !getCachedProjectCommandData(project.id, taskKey)) setLoading(true);
     setError("");
     return subscribeToTeamWorkflowFacts(
       taskKey ? taskKey.split(",") : [],
@@ -90,6 +95,7 @@ export function useProjectCommandData(project: Project, tasks: Task[]): ProjectC
         setFacts(nextFacts);
         updateProjectCommandCache(project.id, taskKey, { facts: nextFacts });
         setLoading(false);
+        ready.current.loaded = true;
       },
       (message) => { setError(message); setLoading(false); },
     );

@@ -3,9 +3,12 @@ import type { Task } from "../../../tasks";
 import type { TeamAttentionItem, TeamWorkflowFacts } from "../../../team-management";
 import type { DepartmentBudgetBundle } from "../../../budget";
 
-export type PermanentProjectView = "overview" | "tasks" | "timeline" | "calendar";
+export type PermanentProjectView = "overview" | "tasks" | "timeline" | "gantt" | "calendar";
 
 export type OptionalProjectView =
+  | "readiness"
+  | "board"
+  | "offices"
   | "reports"
   | "proposal_context"
   | "activity"

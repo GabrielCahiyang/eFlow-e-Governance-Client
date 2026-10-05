@@ -24,6 +24,7 @@ export function readGuidedTourProgress(userId: string, role: string): GuidedTour
       systemCompleted: Boolean(parsed.systemCompleted),
       completedPages: Array.isArray(parsed.completedPages) ? parsed.completedPages.filter((value): value is string => typeof value === "string") : [],
       voiceEnabled: Boolean(parsed.voiceEnabled),
+      dismissedTours: Array.isArray(parsed.dismissedTours) ? parsed.dismissedTours.filter((value): value is string => typeof value === "string") : [],
       activeTour: parsed.activeTour,
     };
   } catch {

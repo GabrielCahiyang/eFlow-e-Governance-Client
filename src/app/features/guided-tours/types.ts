@@ -13,6 +13,7 @@ export interface GuidedTourProgress {
   systemCompleted: boolean;
   completedPages: string[];
   voiceEnabled: boolean;
+  dismissedTours?: string[];
   activeTour?: {
     kind: GuidedTourKind;
     index: number;

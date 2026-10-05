@@ -18,6 +18,7 @@ export function ProjectContextSidebar({
   canComplete = false,
   canDelete = true,
   onCreateWorkPlan,
+  onCreateProject,
   onOpenPortfolio,
   onOpenProject,
   onArchiveProject,
@@ -40,6 +41,7 @@ export function ProjectContextSidebar({
   canComplete?: boolean;
   canDelete?: boolean;
   onCreateWorkPlan: () => void;
+  onCreateProject?: () => void;
   onOpenPortfolio: () => void;
   onOpenProject: (projectId: string) => void;
   onCompleteProject?: (projectId: string, projectTitle: string) => void;
@@ -61,6 +63,7 @@ export function ProjectContextSidebar({
   };
 }) {
   const [contextMenuProjectId, setContextMenuProjectId] = React.useState<string | null>(null);
+  const [mobileDetailsOpen, setMobileDetailsOpen] = React.useState(false);
   const contextProjects = projects.filter((project) => project.status !== "archived");
   const archivedProjects = projects.filter((project) => project.status === "archived");
   const selectedProject = projects.find((project) => project.id === activeProjectId);
@@ -173,7 +176,8 @@ export function ProjectContextSidebar({
           ));
 
   return (
-    <aside className="eflow-project-context" aria-label="Projects context">
+    <aside className={`eflow-project-context ${mobileDetailsOpen ? 'eflow-project-context--details-open' : ''}`} aria-label="Projects context">
+      <button type="button" className="pt-context-details-toggle" aria-expanded={mobileDetailsOpen} onClick={()=>setMobileDetailsOpen(!mobileDetailsOpen)}>{mobileDetailsOpen ? 'Hide planning and people' : 'Show planning and people'}</button>
       <div className="eflow-project-context__section">
         <button
           className="eflow-project-context__title"
@@ -205,6 +209,7 @@ export function ProjectContextSidebar({
         {archivedProjects.length > 0 && <details className="mt-3 text-xs text-neutral-500"><summary className="cursor-pointer px-2 py-2">Archived projects ({archivedProjects.length})</summary><div className="eflow-project-context__list">{renderProjects(archivedProjects)}</div></details>}
         {canAdd && (
           <div className="eflow-project-context__create">
+            {onCreateProject && <Button className="eflow-project-context__add" kind="primary" leftIcon={Add} onClick={onCreateProject} size="small">Create project</Button>}
             <Button
               className="eflow-project-context__add"
               kind="primary"

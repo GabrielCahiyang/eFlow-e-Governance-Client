@@ -1,5 +1,6 @@
 export * from "../../services/proposalDecompositionService";
 export * from "../../services/pdsParser";
+export { extractTextFromPdf } from './services/pdfTextExtractor';
 export type {
   ProposalDecompositionActivity,
   ProposalDecompositionProgram,

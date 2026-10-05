@@ -1,5 +1,8 @@
 # Phase 1 delivery
 
+**Current database status — 2026-10-04:** Phase 1, the three Phase 2 migrations, and the Phase 3 workspace migration are now applied to the main Eflow project (`ixnfphgjyelhckjwjkdv`) following the user's explicit instruction. A fresh full custom database archive, role definitions and all 67 actual storage files were verified outside the repository before rollout; the authority preflight passed. Main now has Admin 1, Head 7, Member 9, Accounting Staff 1, with unchanged baseline counts: profiles 18, Offices 10, projects 1, tasks 1, subitems 1. Thirty Phase 3 authority/workflow checks passed with every test record rolled back. Hosted frontend/gateway release identification, production email/SMTP and deployed acceptance remain outstanding. The dated readiness and rehearsal details below are historical; statements that live SQL was not applied are superseded by this update.
+
+
 Phase 1 is implemented in the application and gateway. The coordinated database migration is prepared and has **not** been applied to the deployed project. Deploy the migration, gateway, and frontend together after backup and deployment approval.
 
 ## Result
@@ -45,7 +48,7 @@ These manual checks establish pre-deployment UI behavior. They do **not** establ
 
 The SQL rehearsal builds synthetic tables from a schema-only fixture. It reproduces relevant policies, functions, constraints, and authority triggers; it is not a full hosted Supabase restore and does not reproduce foreign keys, storage, external services, or every unrelated accounting automation trigger. No production user records are in the fixture.
 
-## Production closure status
+## Historical readiness and rehearsal status (before 2026-10-04 main rollout)
 
 **Implementation verification is clean. Production closure remains incomplete.** No Phase 2 work or production migration was started.
 

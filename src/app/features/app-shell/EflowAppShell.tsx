@@ -22,6 +22,7 @@ import {
 import "./eflowAppShell.css";
 import { getNavigationActionAlerts } from "./navigationActionAlerts";
 import { usePendingPlanDrafts } from "./usePendingPlanDrafts";
+import { OnboardingWorkspace } from '../onboarding';
 
 interface EflowAppShellProps {
   role: string;
@@ -173,6 +174,7 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
             id="eflow-active-workspace"
             tabIndex={-1}
           >
+            <OnboardingWorkspace onNavigate={handlePageSelect} />
             <RoleContent
               activePage={activePage}
               activeSection={activeSection}

@@ -19,8 +19,10 @@ describe("project Figma board lifecycle grouping", () => {
       "pending_assignment",
       "todo",
     ]);
-    expect(grouped.get("in_progress")?.map((task) => task.status)).toEqual(["changes_requested", "in_progress"]);
+    expect(grouped.get("in_progress")?.map((task) => task.status)).toEqual(["in_progress"]);
+    expect(grouped.get("changes_requested")?.map((task) => task.status)).toEqual(["changes_requested"]);
     expect(grouped.get("for_review")?.map((task) => task.status)).toEqual(["for_review"]);
-    expect(grouped.get("completed")?.map((task) => task.status)).toEqual(["completed", "cancelled"]);
+    expect(grouped.get("completed")?.map((task) => task.status)).toEqual(["completed"]);
+    expect(grouped.get("cancelled")?.map((task) => task.status)).toEqual(["cancelled"]);
   });
 });

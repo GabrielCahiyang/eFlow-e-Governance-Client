@@ -2,24 +2,25 @@ import { AlertCircle, Calendar, CheckSquare, ChevronDown, Clock, Layers, MoreVer
 import { useMemo, useState } from "react";
 import type { UserProfile } from "../../../../types";
 import { useToast } from "../../../../components/ui/Toast";
-import { getTaskLeadId, isOverdue, TaskTeamEditorDialog, updateTask, type Task } from "../../../tasks";
+import { getTaskLeadId, isOverdue, TaskTeamEditorDialog, updateTask, TASK_STATUS_LABELS, type Task, type TaskStatus } from "../../../tasks";
+import { useProjectViewActions } from '../../../project-views';
 import type { ProjectCommandData } from "./types";
 
 type BoardColumn = {
-  id: "todo" | "in_progress" | "for_review" | "completed";
+  id: TaskStatus;
   label: string;
   statuses: string[];
   tone: string;
 };
 
-// The four visual lanes follow the Figma source. They deliberately group the
-// richer eFlow lifecycle instead of changing it. Updates needed is still
-// persisted as its own status but is shown with active work for quick triage.
+// Preserve canonical lifecycle states while keeping the four primary lanes.
 export const FIGMA_PROJECT_BOARD_COLUMNS: BoardColumn[] = [
   { id: "todo", label: "TO DO", statuses: ["pending_assignment", "todo"], tone: "#ed5e56" },
-  { id: "in_progress", label: "IN PROGRESS", statuses: ["in_progress", "changes_requested"], tone: "#3182f6" },
-  { id: "for_review", label: "FOR REVIEW", statuses: ["for_review"], tone: "#52cc79" },
-  { id: "completed", label: "DONE", statuses: ["completed", "approved", "cancelled"], tone: "#52cc79" },
+  { id: "in_progress", label: "IN PROGRESS", statuses: ["in_progress"], tone: "#f4ae36" },
+  { id: "for_review", label: "FOR REVIEW", statuses: ["for_review"], tone: "#8b6be8" },
+  { id: "completed", label: "COMPLETED", statuses: ["completed"], tone: "#00b97d" },
+  { id: "changes_requested", label: "CHANGES REQUESTED", statuses: ["changes_requested"], tone: "#df526d" },
+  { id: "cancelled", label: "CANCELLED", statuses: ["cancelled"], tone: "#76808c" },
 ];
 
 export function groupProjectTasksForFigmaBoard(tasks: Task[]) {
@@ -62,6 +63,9 @@ export function ProjectWorkTab({
 }) {
   const { toast } = useToast();
   const [teamTaskId, setTeamTaskId] = useState<string | null>(null);
+  const [dragTaskId, setDragTaskId] = useState('');
+  const [dropLane, setDropLane] = useState('');
+  const actions = useProjectViewActions(data.project, canManage);
   const tasksByColumn = useMemo(
     () => groupProjectTasksForFigmaBoard(data.tasks),
     [data.tasks],
@@ -69,11 +73,13 @@ export function ProjectWorkTab({
   const teamTask = data.tasks.find((task) => task.id === teamTaskId) || null;
 
   return (
-    <section className="eflow-figma-board" aria-label="Project task board">
+    <section className="eflow-figma-board pv-board" aria-label="Project task board">
+      <p className="pv-help">Drag or use Start / Resume for permitted moves. Evidence submission and approval stay in task details and Reviews.</p>
+      {actions.notice && <p className="pv-error pv-board-notice" role="alert">{actions.notice}</p>}
       <div className="eflow-figma-board__columns">
-        {FIGMA_PROJECT_BOARD_COLUMNS.map((column) => (
-          <section className="eflow-figma-board__column" key={column.id}>
-            <header className="eflow-figma-board__column-header">
+        {FIGMA_PROJECT_BOARD_COLUMNS.filter(column => !['changes_requested','cancelled'].includes(column.id) || (tasksByColumn.get(column.id)?.length || 0) > 0).map((column) => (
+          <section className={'eflow-figma-board__column ' + (dropLane === column.id ? 'pv-board-drop' : '')} key={column.id} aria-label={column.label + ' lane'} onDragOver={e => { if (dragTaskId) { e.preventDefault(); setDropLane(column.id); } }} onDragLeave={() => setDropLane('')} onDrop={e => { e.preventDefault(); const id=e.dataTransfer.getData('application/eflow-project-task'); const task=data.tasks.find(t=>t.id===id); setDropLane('');setDragTaskId(''); if(task) void actions.run(()=>actions.move(task,column.id)); }}>
+            <header className="eflow-figma-board__column-header" style={{background:column.tone,color:'white',borderColor:column.tone}}>
               <span className="eflow-figma-board__column-title">
                 <i style={{ backgroundColor: column.tone }} />
                 {column.label}
@@ -82,8 +88,9 @@ export function ProjectWorkTab({
             </header>
             <div className="eflow-figma-board__cards">
               {(tasksByColumn.get(column.id) || []).map((task) => (
+                <div key={task.id} className="pv-board-card" draggable={actions.canMove(task)&&!actions.busy} aria-label={'Board card '+task.title} onDragStart={e=>{e.dataTransfer.setData('application/eflow-project-task',task.id);e.dataTransfer.effectAllowed='move';setDragTaskId(task.id);}} onDragEnd={()=>{setDragTaskId('');setDropLane('');}}>
                 <TaskBoardCard
-                  canManage={canManage && data.project.status !== "archived"}
+                  canManage={actions.canEditDates(task)}
                   data={data}
                   key={task.id}
                   onManageTeam={() => setTeamTaskId(task.id)}
@@ -101,6 +108,9 @@ export function ProjectWorkTab({
                     }
                   }}
                 />
+                <span className="pv-help">{TASK_STATUS_LABELS[task.status]}</span>
+                {actions.canMove(task)&&<button className="pv-board-move" disabled={actions.busy} onClick={()=>{void actions.run(()=>actions.move(task,'in_progress'));}}>{task.status==='changes_requested'?'Resume':'Start'} {task.title}</button>}
+                </div>
               ))}
               {(tasksByColumn.get(column.id) || []).length === 0 && <p className="eflow-figma-board__empty">No tasks</p>}
             </div>

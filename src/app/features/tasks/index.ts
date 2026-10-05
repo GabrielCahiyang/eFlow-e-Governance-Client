@@ -36,3 +36,4 @@ export type {
   TaskTemplate,
   TaskTemplateInput,
 } from "./types";
+export { notifyTaskListeners } from './services/taskRealtimeService';

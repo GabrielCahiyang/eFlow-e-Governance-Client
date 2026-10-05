@@ -1,6 +1,7 @@
 """eFlow control gateway exposed through the Cloudflare tunnel on port 8322."""
 
 import logging
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -8,9 +9,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from gateway_config import settings
 from routers.admin import router as admin_router
 from routers.ai import router as ai_router
+from routers.proposals import router as proposals_router
 from routers.notifications import router as notifications_router
 from routers.backups import router as backups_router
 from routers.collaboration import router as collaboration_router
+from routers.invitations import router as invitations_router, team_router
+from routers.professional_profiles import router as professional_profiles_router
+from routers.onboarding import router as onboarding_router
+from routers.staffing import router as staffing_router
+from pds.worker import start_worker
 
 
 logging.basicConfig(
@@ -18,7 +25,13 @@ logging.basicConfig(
     format="%(asctime)s %(levelname)-8s %(name)s %(message)s",
 )
 
-app = FastAPI(title="eFlow Control Gateway")
+@asynccontextmanager
+async def lifespan(_app):
+    worker_stop = start_worker()
+    yield
+    worker_stop.set()
+
+app = FastAPI(title="eFlow Control Gateway", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.allowed_origins,
@@ -34,10 +47,16 @@ async def health():
 
 
 app.include_router(ai_router)
+app.include_router(proposals_router)
 app.include_router(admin_router)
 app.include_router(notifications_router)
 app.include_router(backups_router)
 app.include_router(collaboration_router)
+app.include_router(invitations_router)
+app.include_router(team_router)
+app.include_router(professional_profiles_router)
+app.include_router(onboarding_router)
+app.include_router(staffing_router)
 
 
 if __name__ == "__main__":

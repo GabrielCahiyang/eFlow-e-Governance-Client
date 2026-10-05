@@ -1,0 +1,85 @@
+{
+  "source": "Project implementation plan: Planning Office prepares a community needs assessment. Create one Preparation group with one task: Prepare the needs assessment. Its two subitems are Gather community needs and Summarize the findings for human review. Estimated effort is eight hours. No dates or personnel assignments are specified.",
+  "draft": {
+    "project": {
+      "title": "Community Needs Assessment",
+      "description": "Prepare a human-reviewed assessment.",
+      "objectives": "",
+      "startDate": "",
+      "targetDate": ""
+    },
+    "offices": [],
+    "groups": [
+      {
+        "key": "s1-group-1",
+        "title": "Preparation",
+        "color": "#579bfc",
+        "existingGroupId": "",
+        "tasks": [
+          {
+            "key": "s1-task-1",
+            "title": "Prepare the needs assessment",
+            "description": "Gather community needs and Summarize the findings for human review.",
+            "priority": "medium",
+            "estimatedHours": 8,
+            "estimatedDuration": "1 day",
+            "requiredSkills": [],
+            "startDate": "",
+            "dueDate": "",
+            "sourceQuote": "Create one Preparation group with one task: Prepare the needs assessment. Its two subitems are Gather community needs and Summarize the findings for human review. Estimated effort is eight hours. No dates or personnel assignments are specified.",
+            "officeKey": "",
+            "dependencies": [],
+            "subitems": [
+              {
+                "title": "Gather community needs",
+                "dueDate": ""
+              },
+              {
+                "title": "Summarize the findings for human review",
+                "dueDate": ""
+              }
+            ],
+            "included": true,
+            "advisory": {
+              "routingDecision": {
+                "department": "City Planning & Development Office (CPDO)",
+                "workflow": "planning_and_spatial_analysis",
+                "confidence": 0.38,
+                "laya_model": true,
+                "priority_hint": "medium",
+                "requires_bac_hint": false
+              },
+              "clearanceDecision": {
+                "requiresBAC": false,
+                "requiresCashAdvance": false,
+                "approvalTier": "standard_head",
+                "badge": "Department Standard",
+                "reason": "Standard departmental milestone and head review.",
+                "confidence": 0.93
+              },
+              "decisionLayer": {
+                "engine": "laya",
+                "requiresManualReview": false
+              },
+              "recommendationReasoning": "[LAYA Decision \u00b7 38% conf \u00b7 City Planning & Development Office (CPDO) \u00b7 Department Standard] No department employees available for assignment. Standard departmental milestone and head review."
+            }
+          }
+        ]
+      }
+    ],
+    "schemaVersion": 1,
+    "warnings": [
+      "Office 'Planning & Programming Section' was omitted because its source evidence could not be verified."
+    ],
+    "pipeline": {
+      "stages": [
+        "deepseek-r1:8b",
+        "laya",
+        "pygad"
+      ],
+      "deepseek": "completed",
+      "laya": "completed",
+      "pygad": "skipped_no_employees"
+    }
+  }
+}

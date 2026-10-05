@@ -47,6 +47,7 @@ import {
 } from "../services/proposalDeliveryService";
 import { notifyProjectListeners } from "../services/projectService";
 import "./projectsVibe.css";
+import { CreateProjectDialog } from '../../project-table';
 
 export interface WorkspaceEditorTab {
   id: string;
@@ -60,7 +61,11 @@ export interface WorkspaceEditorTab {
 
 const PROJECT_WORKSPACE_TITLE: Partial<Record<ProjectCommandTab, string>> = {
   overview: "Overview",
-  tasks: "Tasks",
+  tasks: "Main table",
+  gantt: "Gantt",
+  board: "Board",
+  dashboard: "Dashboard",
+  offices: "Offices",
   timeline: "Timeline",
   calendar: "Calendar",
   delivery: "Tasks",
@@ -104,7 +109,8 @@ export function ProjectsWorkspace({
     },
   ]);
   const [activeTabId, setActiveTabId] = React.useState<string>("portfolio");
-  const [projectWorkspaceTab, setProjectWorkspaceTab] = React.useState<ProjectCommandTab>("overview");
+  const [projectWorkspaceTab, setProjectWorkspaceTab] = React.useState<ProjectCommandTab>("tasks");
+  const [quickProjectOpen, setQuickProjectOpen] = React.useState(false);
   const [requestedProjectTool, setRequestedProjectTool] = React.useState<{ projectId: string; tool: ProjectTool } | null>(null);
   const [contextProjectMembers, setContextProjectMembers] = React.useState<ProjectMember[]>([]);
   const [deleteTarget, setDeleteTarget] = React.useState<{ id: string; title: string } | null>(null);
@@ -161,7 +167,8 @@ export function ProjectsWorkspace({
       return dbProjects.filter((project) => matchesProjectDepartment(project.orgId, departmentFilter));
     }
     if (!scope.enforceOrgScope) return dbProjects;
-    if (scope.scopedOrgIds.length === 0) return [];
+    // RLS includes project contacts and selected inter-Office participants,
+    // including new contacts who have no global Office membership yet.
     return dbProjects;
   }, [dbProjects, departmentFilter, scope]);
 
@@ -201,7 +208,7 @@ export function ProjectsWorkspace({
 
       setProjectWorkspaceTab((currentView) => {
         const current = tabs.find((tab) => tab.id === activeTabId);
-        return current?.type === "project" ? currentView : "overview";
+        return current?.type === "project" ? currentView : "tasks";
       });
     },
     [activeTabId, dbProjects, tabs],
@@ -286,7 +293,7 @@ export function ProjectsWorkspace({
     setTabs((current) => current.filter((tab) => tab.pinned));
     setActiveTabId("portfolio");
     setWorkspaceView("portfolio");
-    setProjectWorkspaceTab("overview");
+    setProjectWorkspaceTab("tasks");
     hasAutoOpenedRef.current = false;
   }, []);
 
@@ -300,7 +307,8 @@ export function ProjectsWorkspace({
   React.useEffect(() => {
     if (!scope.includeAllAccessibleWork && !hasAutoOpenedRef.current && active.length > 0 && activeTabId === "portfolio" && workspaceView === "portfolio") {
       hasAutoOpenedRef.current = true;
-      openProject(active[0].id);
+      const requestedId = new URLSearchParams(window.location.search).get('project');
+      openProject(active.find(p=>p.id===requestedId)?.id || active[0].id);
     }
   }, [active, activeTabId, openProject, workspaceView, scope.includeAllAccessibleWork]);
 
@@ -380,7 +388,8 @@ export function ProjectsWorkspace({
     <div className="eflow-ide-workspace">
       <ProjectContextSidebar
         activeProjectId={workspaceView === "portfolio" ? activeProject?.id : undefined}
-        canAdd={!readOnly}
+        canAdd={access.canCreate}
+        onCreateProject={() => setQuickProjectOpen(true)}
         canArchive={access.canArchive}
         canComplete={access.canManage}
         canDelete={access.canDelete}
@@ -510,15 +519,15 @@ export function ProjectsWorkspace({
                 <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-teal-50 text-teal-700 mb-4 shadow-sm">
                   <Icons.Boxes size={32} />
                 </div>
-                <h3 className="text-lg font-semibold text-neutral-900 mb-1">{readOnly ? "Select a work plan" : "Select or create a work plan"}</h3>
+                <h3 className="text-lg font-semibold text-neutral-900 mb-1">{readOnly ? "Select a project" : "Let’s start working together"}</h3>
                 <p className="text-sm text-neutral-500 max-w-sm mb-6">
                   {readOnly ? "Select a project from the left sidebar to view its tasks and approval history." : "Select a project from the left sidebar to open its workspace, or create a new plan to get started."}
                 </p>
-                {!readOnly && (
+                {access.canCreate && (
                   <SplitActionButton
-                    label="Create work plan"
-                    onClick={() => setCreationMode("manual")}
-                    actions={[{id: "templates", label: "Use a project template", onSelect: () => setTemplatesOpen(true)}]}
+                    label="Create project"
+                    onClick={() => setQuickProjectOpen(true)}
+                    actions={[{id:'workplan',label:'Create a work plan',onSelect:()=>setCreationMode('manual')},{id:'import',label:'Import proposal',onSelect:()=>setCreationMode('import')},{id: "templates", label: "Use a project template", onSelect: () => setTemplatesOpen(true)}]}
                   />
                 )}
               </div>
@@ -528,7 +537,7 @@ export function ProjectsWorkspace({
       </div>
       </div>
 
-      {!readOnly && creationMode && (
+      {access.canCreate && creationMode && (
         <CreateWorkPlanDialog
           open
           mode={creationMode}
@@ -540,6 +549,7 @@ export function ProjectsWorkspace({
           }}
         />
       )}
+      {access.canCreate && quickProjectOpen && <CreateProjectDialog open officeId={currentOrgId} onClose={()=>setQuickProjectOpen(false)} onCreated={project=>{setTabs(current=>[...current.filter(t=>t.id!==`project-${project.id}`),{id:`project-${project.id}`,type:'project',projectId:project.id,title:project.title}]);setActiveTabId(`project-${project.id}`);setWorkspaceView('portfolio');setProjectWorkspaceTab('tasks');hasAutoOpenedRef.current=true;}}/>}
 
       {templatesOpen && (
         <ProjectTemplatesModal

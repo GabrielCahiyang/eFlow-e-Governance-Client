@@ -8,13 +8,14 @@ import { mapRoleToPanel } from "./role";
 import { runTaskMaintenance } from "../tasks";
 import { SessionSecurityProvider } from "../session-security";
 import { runDepartmentBudgetMaintenance } from "../budget";
+import { AcceptInvitationPage } from "../invitations";
 
 export function AuthenticatedApp() {
-  const { user, userProfile, loading } = useAuth();
+  const { user, userProfile, loading, permissionsLoading } = useAuth();
   const { loading: preferencesLoading } = useUserPreferences();
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || window.location.pathname === '/accept-invite') return;
     void runTaskMaintenance().catch((error) => {
       console.warn("Task maintenance could not run:", error);
     });
@@ -23,7 +24,8 @@ export function AuthenticatedApp() {
     });
   }, [user]);
 
-  if (loading || (user && preferencesLoading)) return <LoadingScreen />;
+  if (window.location.pathname === '/accept-invite') return <AcceptInvitationPage />;
+  if (loading || permissionsLoading || (user && preferencesLoading)) return <LoadingScreen />;
   if (!user || !userProfile) return <LoginPage />;
 
   return (

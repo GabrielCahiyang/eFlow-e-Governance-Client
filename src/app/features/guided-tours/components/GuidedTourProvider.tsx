@@ -6,6 +6,7 @@ import type { GuidedTourKind, GuidedTourProgress, GuidedTourSection, GuidedTourS
 import { GuidedTourOverlay } from "./GuidedTourOverlay";
 import { WelcomeTourPrompt } from "./WelcomeTourPrompt";
 import { suggestedFirstSteps } from "../firstSteps";
+import { readOnboarding, saveOnboarding } from "../../onboarding";
 
 interface GuidedTourContextValue {
   isTourActive: boolean;
@@ -39,11 +40,19 @@ export function GuidedTourProvider({
   const [index, setIndex] = useState(0);
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const initializedFor = useRef("");
+  const remoteReady = useRef(false);
+  const remoteWrites = useRef(Promise.resolve());
   const startupState = useRef({ sections, onNavigate, begin: null as BeginTour | null });
 
   const updateProgress = useCallback((mutate: (current: GuidedTourProgress) => GuidedTourProgress) => {
     if (!userId) return;
-    writeGuidedTourProgress(userId, role, mutate(readGuidedTourProgress(userId, role)));
+    const updated = mutate(readGuidedTourProgress(userId, role));
+    writeGuidedTourProgress(userId, role, updated);
+    if (remoteReady.current) {
+      remoteWrites.current = remoteWrites.current.then(async () => {
+        await saveOnboarding({ tour_progress: updated });
+      }).catch(() => { /* Local progress remains available while offline. */ });
+    }
   }, [role, userId]);
 
   const begin = useCallback((kind: GuidedTourKind, nextSteps: GuidedTourStep[], startIndex = 0, section = activeSection, page = activePage) => {
@@ -71,9 +80,27 @@ export function GuidedTourProvider({
     const identity = `${userId}:${role}`;
     if (initializedFor.current === identity) return;
     initializedFor.current = identity;
-    const progress = readGuidedTourProgress(userId, role);
+    let cancelled = false;
+    let timer: number | undefined;
+    void (async () => {
+    let progress = readGuidedTourProgress(userId, role);
+    let serverOnboarding = false;
+    let needsFirstRun = false;
+    try {
+      const record = await readOnboarding();
+      if (cancelled) return;
+      serverOnboarding = role !== 'admin';
+      needsFirstRun = serverOnboarding && (record.status === 'not_started' || (record.status === 'in_progress' && !record.state.completed_steps?.includes('welcome')));
+      remoteReady.current = true;
+      if (record.state.tour_progress && typeof record.state.tour_progress === 'object') {
+        writeGuidedTourProgress(userId, role, record.state.tour_progress as GuidedTourProgress);
+        progress = readGuidedTourProgress(userId, role);
+      }
+    } catch { remoteReady.current = false; }
+    if (cancelled) return;
     setVoiceEnabled(progress.voiceEnabled);
-    const timer = window.setTimeout(() => {
+    if (needsFirstRun) return;
+    timer = window.setTimeout(() => {
       const current = startupState.current;
       if (progress.activeTour) {
         const saved = progress.activeTour;
@@ -83,19 +110,30 @@ export function GuidedTourProvider({
         } else {
           current.begin?.("system", getSystemTourSteps(current.sections, current.onNavigate), saved.index, saved.section, saved.page);
         }
-      } else if (!progress.welcomed) {
+      } else if (!progress.welcomed && !serverOnboarding) {
         setWelcomeOpen(true);
       }
     }, 850);
-    return () => window.clearTimeout(timer);
+    })();
+    return () => { cancelled = true; window.clearTimeout(timer); initializedFor.current = ''; remoteReady.current = false; };
   }, [role, userId]);
+
+  useEffect(() => {
+    const firstRunFinished = () => { setWelcomeOpen(false); updateProgress(current => ({ ...current, welcomed: true })); };
+    window.addEventListener('eflow-start-context-tour', startPageTour);
+    window.addEventListener('eflow-first-run-finished', firstRunFinished);
+    return () => {
+      window.removeEventListener('eflow-start-context-tour', startPageTour);
+      window.removeEventListener('eflow-first-run-finished', firstRunFinished);
+    };
+  }, [startPageTour, updateProgress]);
 
   const closeTour = useCallback(() => {
     setTourKind(null);
     setSteps([]);
     setIndex(0);
-    updateProgress((current) => ({ ...current, activeTour: undefined }));
-  }, [updateProgress]);
+    updateProgress((current) => ({ ...current, dismissedTours: [...new Set([...(current.dismissedTours || []), tourKind === 'system' ? 'system' : getPageProgressKey(activeSection, activePage)])], activeTour: undefined }));
+  }, [activePage, activeSection, tourKind, updateProgress]);
 
   const next = useCallback(() => {
     if (index < steps.length - 1) {

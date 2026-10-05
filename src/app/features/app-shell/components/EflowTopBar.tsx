@@ -9,6 +9,7 @@ import { getRoleLabel } from "../../../shared/roles";
 import { IncomingCallListener } from "../../../components/ui/IncomingCallListener";
 import { NotificationBell } from "../../../components/ui/NotificationBell";
 import { EFlowMark } from "../../../../components/EFlowMark";
+import { OnboardingHelpButton } from '../../onboarding';
 
 interface EflowTopBarProps {
   activePage?: string;
@@ -151,6 +152,7 @@ export function EflowTopBar({
       </div>
 
       <div className="eflow-topbar__utilities">
+        {userProfile?.role !== 'admin' && <OnboardingHelpButton />}
         <PageWalkthroughButton />
         <SystemWalkthroughButton collapsed={false} />
         {user?.id && (

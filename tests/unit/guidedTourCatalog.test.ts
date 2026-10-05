@@ -20,7 +20,8 @@ describe("guided tour manifests", () => {
   it("provides a replayable page guide for every destination", () => {
     const steps = getPageTourSteps("projects", "Projects");
     expect(steps).toHaveLength(4);
-    expect(steps[1].description).toContain("milestones");
+    expect(steps[1].description).toContain("Groups organize tasks");
+    expect(steps[1].target).toBe("[data-tour-id='project-main-table']");
     expect(steps.at(-1)?.target).toBe("[data-tour-id='page-walkthrough']");
   });
 });

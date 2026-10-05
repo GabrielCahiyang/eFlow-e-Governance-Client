@@ -101,6 +101,16 @@ export function getSystemTourSteps(
 
 export function getPageTourSteps(section: string, page?: string): GuidedTourStep[] {
   const label = page || section;
+  if (section === 'projects' && page === 'Projects') return [
+    {id:'project-context',title:'Choose or create a project',description:'Select a project from the project sidebar. Create project starts with a name and opens a group ready for work.',target:'.eflow-project-context'},
+    {id:'project-main-table',title:'Your main working table',description:'Groups organize tasks; expand a task to see its subitems. Your changes use the same records as evidence, reviews and budget workflows.',target:"[data-tour-id='project-main-table']"},
+    {id:'project-table-tools',title:'Add and find work',description:'Use New task to add tasks or groups. Search, filter, sort and choose visible columns without changing who can access the records.',target:"[data-tour-id='project-table-toolbar']"},
+    {id:'project-replay',title:'Continue working, or revisit this guide',description:'Edit the fields available to your role. Open task details for evidence, review and funding; completion keeps its required checks. Tab Walkthrough reopens this guide whenever you need it.',target:"[data-tour-id='page-walkthrough']"},
+  ];
+  if (section === 'team' && page === 'Office Team') return [
+    { id: 'office-team', title: 'Your Office Team', description: 'Review active members and pending invitations for your own Office. Roles and membership remain enforced by eFlow.', target: "[data-tour-id='office-team']" },
+    { id: 'invite-member', title: 'Bring your team in', description: 'Invite Members or Accounting Staff by email. PDS attachments are optional; each person reviews their professional profile after joining.', target: "[data-tour-id='invite-member']" },
+  ];
   return [
     {
       id: "page-navigation",

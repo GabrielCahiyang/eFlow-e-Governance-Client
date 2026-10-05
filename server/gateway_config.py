@@ -44,7 +44,7 @@ def load_settings() -> GatewaySettings:
         supabase_url=_required_env("SUPABASE_URL", "VITE_SUPABASE_URL").rstrip("/"),
         # Deliberately do not accept a VITE_ service-role variable. VITE_ values
         # are browser-facing configuration and must never be treated as secrets.
-        supabase_service_role_key=_required_env("SUPABASE_SERVICE_ROLE_KEY"),
+        supabase_service_role_key=_required_env("SUPABASE_SECRET_KEY", "SUPABASE_SERVICE_ROLE_KEY"),
         internal_ai_base_url=os.getenv(
             "EFLOW_INTERNAL_AI_BASE_URL",
             "http://127.0.0.1:8321/controlpanelEflow/api",

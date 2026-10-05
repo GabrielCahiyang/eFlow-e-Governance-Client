@@ -1,0 +1,11 @@
+import { useState } from 'react';
+import { Dialog,DialogContent,DialogTitle,DialogDescription } from '../../../components/ui/dialog';
+import type { ProjectGroup } from '../types';
+import { createWorkspaceTask } from '../services/workspaceService';
+export function ImportTasksDialog({open,onClose,projectId,groups,initialText=''}:{open:boolean;onClose:()=>void;projectId:string;groups:ProjectGroup[];initialText?:string}){
+ const [text,setText]=useState(initialText),[groupId,setGroupId]=useState(''),[busy,setBusy]=useState(false),[message,setMessage]=useState('');
+ const titles=text.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+ return <Dialog open={open} onOpenChange={v=>{if(!v&&!busy)onClose();}}><DialogContent className="pt-small-dialog" onEscapeKeyDown={e=>{if(busy)e.preventDefault();}} onInteractOutside={e=>{if(busy)e.preventDefault();}}><DialogTitle>Import tasks</DialogTitle><DialogDescription>Paste one task title per line. Review the list before adding it to this project. Up to 100 tasks per import.</DialogDescription><form className="pt-popover-form" onSubmit={async e=>{e.preventDefault();if(busy||!titles.length||titles.length>100)return;setBusy(true);setMessage('');let created=0;try{for(const title of titles){await createWorkspaceTask(projectId,groupId||groups[0].id,title);created++;setText(titles.slice(created).join('\n'));}setMessage(created+' tasks added.');}catch(e){setMessage(created+' tasks added. Remaining titles retained for retry. '+(e instanceof Error?e.message:'Import failed.'));}finally{setBusy(false);}}}>
+  <label>Destination group<select value={groupId||groups[0]?.id||''} onChange={e=>setGroupId(e.target.value)} disabled={busy}>{groups.map(g=><option key={g.id} value={g.id}>{g.title}</option>)}</select></label><label>Task titles<textarea aria-label="Task titles to import" rows={9} value={text} onChange={e=>setText(e.target.value)} disabled={busy}/></label><p>{titles.length} tasks ready to add</p>{titles.some(t=>t.length>300)&&<p role="alert">Keep task titles under 300 characters.</p>}{message&&<p role="status">{message}</p>}<button className="pt-primary" disabled={busy||!titles.length||titles.length>100||titles.some(t=>t.length>300)||!groups.length}>{busy?'Adding tasks…':'Add to project'}</button>
+ </form></DialogContent></Dialog>;
+}

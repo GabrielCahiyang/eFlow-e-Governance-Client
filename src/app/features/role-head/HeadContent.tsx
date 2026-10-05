@@ -27,6 +27,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { getHeadWorkspaceLabel } from "../../shared/roles";
 import { OfficeBudgetWorkspace } from "../budget";
 import { OfficeIdentityAccessWorkspace } from "../team-management";
+import { OfficeTeamWorkspace } from "../office-team";
 
 export function HeadTaskBoard() {
   const {
@@ -98,6 +99,7 @@ export const headPages: RolePageSections = {
   },
   team: {
     "Team Supervision": TeamSupervision,
+    "Office Team": OfficeTeamWorkspace,
   },
   identity: {
     "Identity & Access": OfficeIdentityAccessWorkspace,

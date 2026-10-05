@@ -144,7 +144,8 @@ export function writeNavigationLocation(
 
   const url = new URL(window.location.href);
   url.pathname = getNavigationPath(section);
-  url.searchParams.delete("view");
+  // A project invitation carries its workspace tab through account startup.
+  if (section !== "projects" || !url.searchParams.has("project")) url.searchParams.delete("view");
   if (page) url.searchParams.set(NAVIGATION_PAGE_QUERY, page);
   else url.searchParams.delete(NAVIGATION_PAGE_QUERY);
 

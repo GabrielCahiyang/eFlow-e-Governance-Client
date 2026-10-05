@@ -27,13 +27,17 @@ import type {
 } from "./types";
 
 export const PERMANENT_TABS: { id: PermanentProjectView; label: string }[] = [
+  { id: "tasks", label: "Main table" },
+  { id: "gantt", label: "Gantt" },
   { id: "overview", label: "Overview" },
-  { id: "tasks", label: "Tasks" },
   { id: "timeline", label: "Timeline" },
   { id: "calendar", label: "Calendar" },
 ];
 
 export const OPTIONAL_VIEWS_CATALOG: ProjectViewMeta[] = [
+  { id:'readiness', label:'Readiness & closeout', category:'Governance', description:'Review structure, Office participation, task owners, schedule and financial closeout.' },
+  { id:'board', label:'Board', category:'Project', description:'Status lanes over the same tasks, with permitted drag-and-drop moves.' },
+  { id:'offices', label:'Offices', category:'Project', description:'Task ownership, completion and overdue work by Office.' },
   // Project
   {
     id: "reports",
@@ -107,6 +111,9 @@ const VIEW_ICONS: Record<string, React.ComponentType<{ size?: number; className?
   overview: Dashboard,
   tasks: Board,
   timeline: Timeline,
+  gantt: Timeline,
+  board: Board,
+  offices: Team,
   calendar: Calendar,
   reports: Table,
   proposal_context: Description,
@@ -200,7 +207,7 @@ export function ProjectViewTabBar({
       if (closedIndex > 0) {
         onSelectTab(openViews[closedIndex - 1]);
       } else {
-        onSelectTab("overview");
+        onSelectTab("tasks");
       }
     }
   };

@@ -14,6 +14,8 @@ export type AiChatRequest = {
   model?: string;
   messages: AiChatMessage[];
   stream?: boolean;
+  workspace_decomposition?: { schemaVersion: 1; projectId: string; sourceText: string; context: Record<string, unknown> };
+  workspace_staffing?: { schemaVersion: 1; taskId: string };
 };
 
 export type AiChatResponse = {
@@ -126,6 +128,8 @@ export async function requestAiChat(
         messages: request.messages,
         stream: false,
         request_id: requestId,
+        ...(request.workspace_decomposition ? { workspace_decomposition: request.workspace_decomposition } : {}),
+        ...(request.workspace_staffing ? { workspace_staffing: request.workspace_staffing } : {}),
       }),
     },
     {

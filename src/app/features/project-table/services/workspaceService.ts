@@ -1,0 +1,12 @@
+import { supabase } from '../../../../lib/supabase';
+import { notifyTaskListeners } from '../../tasks';
+import type { ProjectGroup, WorkspaceTaskPatch } from '../types';
+const groupFromRow=(r:Record<string,unknown>):ProjectGroup=>({id:String(r.id),projectId:String(r.project_id),title:String(r.title),color:String(r.color),position:Number(r.position),isDefault:r.is_default===true});
+const fail=(error:{message:string;code?:string}|null)=>{if(error)throw new Error(error.code==='42P01'||error.code==='PGRST202'?'The project workspace database upgrade is not available yet.':error.message);};
+export async function fetchProjectGroups(projectId:string) { const {data,error}=await supabase.from('project_groups').select('*').eq('project_id',projectId).order('position').order('created_at');fail(error);return (data||[]).map(groupFromRow); }
+export async function createProjectGroup(projectId:string,title:string,position:number) { const {data,error}=await supabase.from('project_groups').insert({project_id:projectId,title:title.trim(),position,color:['#087f8c','#579bfc','#00b97d','#8b6be8'][position%4]}).select().single();fail(error);return groupFromRow(data!); }
+export async function updateProjectGroup(id:string,changes:{title?:string;color?:string;position?:number}) {const {data,error}=await supabase.from('project_groups').update(changes).eq('id',id).select('id');fail(error);if(!data?.length)throw new Error('You cannot edit this group.');}
+export async function deleteProjectGroup(id:string) {const {data,error}=await supabase.from('project_groups').delete().eq('id',id).select('id');fail(error);if(!data?.length)throw new Error('You cannot delete this group.');}
+export async function createWorkspaceTask(projectId:string,groupId:string,title:string) {const {data,error}=await supabase.rpc('phase3_create_task',{p_project_id:projectId,p_group_id:groupId,p_title:title.trim()});fail(error);await notifyTaskListeners();return data as {id:string};}
+export async function patchWorkspaceTask(taskId:string,patch:WorkspaceTaskPatch) {const {error}=await supabase.rpc('phase3_patch_task',{p_task_id:taskId,p_patch:patch});fail(error);await notifyTaskListeners();}
+export async function reorderWorkspaceTasks(projectId:string,groupId:string,ids:string[]) {const {error}=await supabase.rpc('phase3_reorder_tasks',{p_project_id:projectId,p_group_id:groupId,p_ids:ids});fail(error);await notifyTaskListeners();}

@@ -64,6 +64,8 @@ export function subscribeToProjects(callback: (projects: Project[]) => void): ()
     projectRealtimeChannel = supabase
       .channel('projects-changes-shared')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, () => void notifyProjectListeners())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'project_offices' }, () => void notifyProjectListeners())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'project_office_members' }, () => void notifyProjectListeners())
       .subscribe();
   }
 

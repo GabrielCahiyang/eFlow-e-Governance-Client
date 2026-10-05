@@ -79,3 +79,7 @@ models/
 *.gguf
 *.bin
 *.safetensors
+
+# Isolated local Phase 2 work and browser outputs
+/.phase2-work/
+.phase3-work/

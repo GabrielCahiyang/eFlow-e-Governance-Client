@@ -8,11 +8,13 @@ export function ProjectHeader({
   organizations,
   profiles,
   metrics,
+  hideTitle = false,
 }: {
   project: Project;
   organizations: Organization[];
   profiles?: UserProfile[];
   metrics?: ProjectCommandMetrics;
+  hideTitle?: boolean;
   canArchive?: boolean;
   canDelete?: boolean;
   onBack?: () => void;
@@ -51,9 +53,9 @@ export function ProjectHeader({
           </div>
 
           {/* Project Title */}
-          <h1 className="mt-1 text-2xl font-bold tracking-tight text-neutral-900">
+          {!hideTitle && <h1 className="mt-1 text-2xl font-bold tracking-tight text-neutral-900">
             {project.title}
-          </h1>
+          </h1>}
 
           {/* Compact summary line in header */}
           {metrics && (

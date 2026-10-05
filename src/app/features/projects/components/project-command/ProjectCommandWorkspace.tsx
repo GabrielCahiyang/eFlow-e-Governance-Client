@@ -25,6 +25,15 @@ import { ProjectBudgetTab } from "./ProjectBudgetTab";
 import { ProjectViewTabBar } from "./ProjectViewTabBar";
 import type { ProjectCommandTab } from "./types";
 import "../projectsVibe.css";
+import { ProjectTableWorkspace } from '../../../project-table';
+import { InlineEditableText } from '../../../../components/ui/workspace';
+import { updateProject } from '../../services/projectMutationService';
+import { useAuth } from '../../../../contexts/AuthContext';
+import { ProjectViewFilters, ProjectGanttView, ProjectOfficesView, ProjectInsightsView, EMPTY_PROJECT_FILTERS, filterProjectViewTasks, type ProjectViewFilterState } from '../../../project-views';
+import { buildProjectCommandMetrics } from '../../selectors/projectCommandSelectors';
+import { getTaskScopedBudgetBundle } from '../../../budget';
+import { ProjectOfficeContext, ProjectOfficePanel, useProjectOffices, canStaffProjectOffice } from '../../../project-offices';
+import { ProjectReadinessPanel } from '../../../project-readiness';
 
 export interface ProjectCommandWorkspaceProps {
   project: Project;
@@ -43,19 +52,19 @@ export interface ProjectCommandWorkspaceProps {
 }
 
 const projectTabFromUrl = (value: string | null): ProjectCommandTab | null => {
-  const valid: ProjectCommandTab[] = ["overview", "tasks", "timeline", "calendar", "reports", "proposal_context", "activity", "reviews", "dashboard", "workload", "budget", "signoff", "evidence", "decisions"];
+  const valid: ProjectCommandTab[] = ["readiness", "overview", "tasks", "board", "gantt", "offices", "timeline", "calendar", "reports", "proposal_context", "activity", "reviews", "dashboard", "workload", "budget", "signoff", "evidence", "decisions"];
   return value && valid.includes(value as ProjectCommandTab) ? value as ProjectCommandTab : null;
 };
 
 export function ProjectCommandWorkspace({
   project,
-  initialTab = "overview",
+  initialTab = "tasks",
   initialTool,
   onWorkspaceTabChange,
   onBack: _onBack,
   orgs,
   canArchive: _canArchive,
-  canManage,
+  canManage: requestedManage,
   canDelete: _canDelete,
   onDeleted,
   canReviewTasks,
@@ -65,9 +74,17 @@ export function ProjectCommandWorkspace({
   const { tasks } = useTasks();
   const { profiles } = useProfiles();
   const { toast } = useToast();
+  const { userProfile } = useAuth();
+  const officeState = useProjectOffices(project.id);
+  const canManage = requestedManage && (project.sourceCollaborationDraftId ? true : userProfile?.role === 'head' && userProfile.org_id === project.orgId);
+  const shared = officeState.offices.some(o => o.relationship_type !== 'lead');
+  const ownOffice = officeState.offices.find(o => o.office_id === userProfile?.org_id);
+  const ownWorkAccess = !officeState.error && (!shared || ownOffice?.invitation_status === 'joined' && ownOffice.relationship_type !== 'observer' && (ownOffice.relationship_type === 'lead' || canStaffProjectOffice(ownOffice, userProfile, orgs) || officeState.members.some(m => m.project_office_id === ownOffice.id && m.user_id === userProfile?.id)));
   const [tab, setTabState] = useState<ProjectCommandTab>(() => projectTabFromUrl(typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("view") : null) || initialTool || initialTab);
   const [openTaskId, setOpenTaskId] = useState<string | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [filters, setFilters] = useState<ProjectViewFilterState>({ ...EMPTY_PROJECT_FILTERS });
+  useEffect(() => setFilters({ ...EMPTY_PROJECT_FILTERS }), [project.id]);
 
   useEffect(() => {
     if (initialTool) {
@@ -90,6 +107,13 @@ export function ProjectCommandWorkspace({
     [project.id, tasks],
   );
   const data = useProjectCommandData(project, projectTasks);
+  const visibleTasks = useMemo(() => filterProjectViewTasks(projectTasks, filters), [projectTasks, filters]);
+  const viewData = useMemo(() => {
+    const ids = new Set(visibleTasks.map(task => task.id));
+    const facts = { subtasks: data.facts.subtasks.filter(f => ids.has(f.taskId)), progress: data.facts.progress.filter(f => ids.has(f.taskId)), submissions: data.facts.submissions.filter(f => ids.has(f.taskId)), statusHistory: data.facts.statusHistory.filter(f => ids.has(f.taskId)), evidence: data.facts.evidence.filter(f => ids.has(f.taskId)) };
+    const attention = data.attention.filter(item => ids.has(item.taskId));
+    return { ...data, tasks: visibleTasks, facts, attention, metrics: buildProjectCommandMetrics(project, visibleTasks, data.milestones, facts, attention), financial: getTaskScopedBudgetBundle(data.financial, [...ids]) };
+  }, [data, project, visibleTasks]);
   const openTask = projectTasks.find((task) => task.id === openTaskId) || null;
 
   // Map legacy tab requests (plan, work, people, delivery)
@@ -122,7 +146,8 @@ export function ProjectCommandWorkspace({
   );
 
   return (
-    <div className="eflow-project-command space-y-4 font-sans">
+    <ProjectOfficeContext.Provider value={officeState}><div className="eflow-project-command space-y-4 font-sans">
+      <header className="pt-project-heading" data-tour-id="project-table-heading"><div><h1><InlineEditableText value={project.title} label="project name" disabled={!canManage || ['completed','archived'].includes(project.status)} onSave={title=>updateProject(project.id,{title})}/></h1><p>{orgs.find(o=>o.id===project.orgId)?.name || 'Project workspace'} · {project.status.replace(/_/g,' ')} · {projectTasks.length} tasks</p></div><div className="flex flex-wrap gap-2"><button className="pt-primary" onClick={()=>selectTab('offices')}>Project Offices</button><button className="pt-primary" onClick={()=>selectTab('readiness')}>Readiness & closeout</button></div></header>
       {/* Extensible Workspace Tab Bar (Permanent core views + optional dynamic views) */}
       <ProjectViewTabBar
         projectId={project.id}
@@ -131,6 +156,7 @@ export function ProjectCommandWorkspace({
         hasProposalContext={Boolean(project.sourceCollaborationDraftId)}
         hasBudgetData={hasBudgetData}
       />
+      {['tasks', 'gantt', 'board', 'timeline', 'calendar', 'dashboard', 'offices'].includes(activeTabId) && <ProjectViewFilters value={filters} onChange={setFilters} profiles={profiles.filter(p => projectTasks.some(t => t.assigneeId === p.id) || p.org_id === project.orgId)} offices={orgs.filter(o => projectTasks.some(t => t.orgId === o.id) || o.id === project.orgId)} count={visibleTasks.length}/>}
 
       {activeTabId === "overview" && (
         <ProjectHeader
@@ -138,6 +164,7 @@ export function ProjectCommandWorkspace({
           organizations={orgs}
           profiles={profiles}
           metrics={data.metrics}
+          hideTitle
         />
       )}
 
@@ -171,6 +198,7 @@ export function ProjectCommandWorkspace({
         </div>
       ) : (
         <div className="pt-1">
+          {activeTabId === "readiness" && <ProjectReadinessPanel project={project} canManage={canManage} onOpenTask={setOpenTaskId}/>}
           {activeTabId === "overview" && (
             <ProjectOverviewTab
               data={data}
@@ -179,16 +207,21 @@ export function ProjectCommandWorkspace({
             />
           )}
           {activeTabId === "tasks" && (
+            <ProjectTableWorkspace data={data} profiles={profiles} orgs={orgs} canManage={canManage} onOpenTask={setOpenTaskId} onOpenLegacyBoard={()=>selectTab('board')} sharedFilters={filters} onFiltersChange={setFilters}/>
+          )}
+          {activeTabId === "board" && (
             <ProjectWorkTab
-              data={data}
+              data={viewData}
               profiles={profiles}
               canManage={canManage}
               onOpenTask={setOpenTaskId}
             />
           )}
+          {activeTabId === "gantt" && <ProjectGanttView data={viewData} allTasks={projectTasks} canManage={canManage} onOpenTask={setOpenTaskId} onOpenPlan={() => selectTab('timeline')}/>}
+          {activeTabId === "offices" && <><ProjectOfficePanel projectId={project.id} projectTitle={project.title} projectStatus={project.status} leadOffice={project.orgId || ''} governed={!!project.sourceCollaborationDraftId} organizations={orgs} profiles={profiles}/><ProjectOfficesView tasks={visibleTasks} offices={orgs} onOpenTask={setOpenTaskId} onSelectOffice={office => { setFilters(current => ({ ...current, office })); selectTab('tasks'); }}/></>}
           {activeTabId === "timeline" && (
             <ProjectTimelineView
-              data={data}
+              data={viewData}
               profiles={profiles}
               canManage={canManage}
               onOpenTask={setOpenTaskId}
@@ -196,9 +229,14 @@ export function ProjectCommandWorkspace({
           )}
           {activeTabId === "calendar" && (
             <ProjectCalendarView
-              data={data}
+              data={viewData}
               profiles={profiles}
               onOpenTask={setOpenTaskId}
+              canManage={canManage}
+              onOpenPlan={() => selectTab('timeline')}
+              onOpenReviews={() => selectTab('proposal_context')}
+              offices={orgs}
+              officeFilter={filters.office}
             />
           )}
           {activeTabId === "reports" && (
@@ -224,10 +262,7 @@ export function ProjectCommandWorkspace({
             />
           )}
           {activeTabId === "dashboard" && (
-            <ProjectDashboardTab
-              data={data}
-              onOpenTask={setOpenTaskId}
-            />
+            <><ProjectInsightsView data={viewData} profiles={profiles} offices={orgs} onOpenTask={setOpenTaskId}/><details className="pv-details"><summary>Delivery details, milestones and recent activity</summary><ProjectDashboardTab data={viewData} onOpenTask={setOpenTaskId}/></details></>
           )}
           {activeTabId === "workload" && (
             <ProjectTeamTab
@@ -271,6 +306,8 @@ export function ProjectCommandWorkspace({
         task={openTask}
         onClose={() => setOpenTaskId(null)}
         canReview={canReviewTasks}
+        canSubmitForReview={true}
+        readOnly={userProfile?.role==='admin' || !ownWorkAccess || !!openTask && shared && openTask.orgId !== userProfile?.org_id}
       />
 
       {/* Delete Confirmation Dialog */}
@@ -288,6 +325,6 @@ export function ProjectCommandWorkspace({
           onDeleted();
         }}
       />
-    </div>
+    </div></ProjectOfficeContext.Provider>
   );
 }

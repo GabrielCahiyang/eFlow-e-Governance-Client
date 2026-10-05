@@ -7,7 +7,7 @@ const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const distRoot = join(projectRoot, "dist");
 const env = loadEnv("production", projectRoot, "");
 
-const browserSecretNames = ["VITE_SUPABASE_SERVICE_ROLE_KEY"];
+const browserSecretNames = ["VITE_SUPABASE_SERVICE_ROLE_KEY", "VITE_SUPABASE_SECRET_KEY", "VITE_RESEND_API_KEY"];
 const configuredBrowserSecrets = browserSecretNames.filter((name) => env[name]?.trim());
 
 if (configuredBrowserSecrets.length > 0) {
@@ -28,7 +28,7 @@ async function listFiles(directory) {
   return files;
 }
 
-const privateValues = [env.SUPABASE_SERVICE_ROLE_KEY]
+const privateValues = [env.SUPABASE_SERVICE_ROLE_KEY, env.SUPABASE_SECRET_KEY, env.RESEND_API_KEY, env.RESEND_WEBHOOK_SECRET, env.EFLOW_REHEARSAL_SERVICE_ROLE_KEY]
   .map((value) => value?.trim())
   .filter((value) => value && value.length >= 16);
 

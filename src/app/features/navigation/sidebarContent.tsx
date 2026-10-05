@@ -8,6 +8,9 @@ export type { MenuItem, MenuSection, SidebarContent } from "./sidebarTypes";
 
 export function getSidebarContent(role: string, section: string): SidebarContent {
   if (section === "settings") return settingsContent;
+  if ((role === 'head' || role === 'dept_head') && section === 'team') return {
+    title: 'Office Team', sections: [{ title: 'People', items: [{ label: 'Team Supervision', isActive: true }, { label: 'Office Team' }] }],
+  };
 
   if (role === "admin" && section === "users") return {
     title: "User Management", sections: [{title:"Administration", items:[

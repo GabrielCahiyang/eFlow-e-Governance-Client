@@ -29,6 +29,9 @@ export interface TaskHierarchy {
 }
 
 export interface Task extends TaskHierarchy {
+  groupId?: string;
+  workspacePosition?: number;
+  startDate?: string;
   id: string;
   title: string;
   description?: string;

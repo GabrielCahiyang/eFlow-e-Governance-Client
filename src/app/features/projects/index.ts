@@ -16,3 +16,4 @@ export type {
   EmptyProjectCleanupCandidate,
   EmptyProjectCleanupOutcome,
 } from "./services/emptyProjectCleanupService";
+export type { ProjectCommandData } from './components/project-command/types';

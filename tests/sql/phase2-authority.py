@@ -1,0 +1,87 @@
+import json, uuid, re
+from pathlib import Path
+from dotenv import dotenv_values
+from urllib.parse import urlparse,unquote
+import psycopg2
+root=Path(__file__).resolve().parents[2];conf=dotenv_values(root/'.env');url=conf['EFLOW_REHEARSAL_DATABASE_URL']
+import argparse
+parser=argparse.ArgumentParser();parser.add_argument('--project-ref',required=True);args=parser.parse_args()
+assert unquote(urlparse(url).username)=='postgres.'+args.project_ref,'Rehearsal connection must match the explicit target'
+assert conf.get('EFLOW_DATABASE_URL')!=url,'Never run this rehearsal against the live connection'
+connection=psycopg2.connect(url,sslmode='require');c=connection.cursor();checks=[]
+def query(sql,args=None):
+ c.execute(sql,args);return c.fetchone()[0] if c.description else None
+def check(label,condition):
+ assert condition,label;checks.append(label);print('Passed:',label,flush=True)
+def denied(label,sql,args=None):
+ c.execute('savepoint deny')
+ try:c.execute(sql,args)
+ except psycopg2.Error:c.execute('rollback to savepoint deny');checks.append(label);print('Passed:',label,flush=True)
+ else:raise AssertionError(label+' unexpectedly allowed')
+ finally:c.execute('release savepoint deny')
+def identity(user=None):
+ c.execute('reset role');query("select set_config('request.jwt.claim.sub',%s,true)",(user or '',))
+ if user:c.execute('set local role authenticated')
+try:
+ c.execute("select p.id,p.org_id from profiles p join organizations o on o.head_user_id=p.id where p.role='head' and p.is_active and o.is_active order by p.id limit 1");head,office=map(str,c.fetchone())
+ member=str(query("select id from profiles where role='member' and org_id=%s and is_active limit 1",(office,)))
+ other=str(query("select id from profiles where role='head' and org_id<>%s and is_active limit 1",(office,)))
+ admin=str(query("select id from profiles where role='admin' and is_active limit 1"))
+ invitation=query("select (phase2_create_invitation(%s,'phase2-new@example.test','member',%s,168)).id",(head,'a'*64))
+ check('Head creates only in appointed Office',query('select office_id=%s and status=\'pending\' from user_invitations where id=%s',(office,invitation)))
+ denied('Head cannot invite an Admin',"select phase2_create_invitation(%s,'admin-new@example.test','admin',%s,168)",(head,'b'*64))
+ denied('Member cannot invite',"select phase2_create_invitation(%s,'member-new@example.test','member',%s,168)",(member,'c'*64))
+ denied('Admin cannot act as operational Head',"select phase2_create_invitation(%s,'admin-new@example.test','member',%s,168)",(admin,'d'*64))
+ denied('Duplicate pending invitation is rejected',"select phase2_create_invitation(%s,'PHASE2-NEW@example.test','member',%s,168)",(head,'e'*64))
+ denied('Another Office cannot revoke',"select phase2_manage_invitation(%s,%s,'revoke')",(other,invitation))
+ denied('Cooldown prevents immediate repeated sends',"select phase2_manage_invitation(%s,%s,'resend',%s,168)",(head,invitation,'f'*64))
+ query("update user_invitations set updated_at=now()-interval '2 minutes' where id=%s",(invitation,))
+ query("select phase2_manage_invitation(%s,%s,'resend',%s,168)",(head,invitation,'f'*64))
+ check('Resending invalidates the previous token',query('select not exists(select 1 from user_invitations where token_hash=%s)',('a'*64,)))
+ uid=str(uuid.uuid4());claim=str(uuid.uuid4())
+ query("insert into auth.users(id,email,email_confirmed_at,aud,role) values(%s,'phase2-new@example.test',now(),'authenticated','authenticated')",(uid,))
+ query('select phase2_claim_invitation(%s,%s)',('f'*64,claim))
+ denied('Concurrent acceptance claim rejected','select phase2_claim_invitation(%s,%s)',('f'*64,str(uuid.uuid4())))
+ accepted=str(query('select (phase2_accept_invitation(%s,%s,%s,%s)).id',('f'*64,uid,'Phase Two Rehearsal',claim)))
+ check('Acceptance creates profile, membership, welcome and onboarding atomically',accepted==uid and query("select exists(select 1 from organization_memberships where user_id=%s and organization_id=%s) and exists(select 1 from user_onboarding where user_id=%s) and exists(select 1 from notifications where user_id=%s and type='office_invitation')",(uid,office,uid,uid)))
+ check('Accepted link retry is idempotent',str(query('select (phase2_accept_invitation(%s,%s,%s)).id',('f'*64,uid,'')))==uid)
+ denied('Accepted link cannot be revoked','select phase2_manage_invitation(%s,%s,\'revoke\')',(head,invitation))
+ query("select phase2_save_onboarding(%s,'member-web-v1',%s::jsonb)",(uid,json.dumps({'status':'dismissed','completed_steps':['account']})))
+ query("select phase2_save_onboarding(%s,'member-web-v1',%s::jsonb)",(uid,json.dumps({'tour_progress':{'voiceEnabled':True}})))
+ check('Tour writes retain checklist and dismissal state',query("select status='dismissed' and state->'completed_steps'='[\"account\"]'::jsonb and state ? 'tour_progress' and completed_at is null from user_onboarding where user_id=%s",(uid,)))
+ query("insert into user_professional_profiles(user_id,skills) values(%s,'[\"Python\"]')",(uid,))
+ doc=str(uuid.uuid4())
+ query("insert into user_pds_documents(id,user_id,office_id,storage_path,original_filename,mime_type,file_size,uploaded_by,content_sha256) values(%s,%s,%s,%s,'fixture.pdf','application/pdf',10,%s,%s)",(doc,uid,office,'fixture/'+doc,head,'0'*64))
+ identity(head)
+ check('Head can see own invitation',query('select count(*)=1 from user_invitations where id=%s',(invitation,)))
+ check('Head cannot read an unconfirmed professional draft',query('select count(*)=0 from user_professional_profiles where user_id=%s',(uid,)))
+ denied('Browser cannot read invitation hashes','select token_hash from user_invitations')
+ denied('Browser cannot read PDS storage paths','select storage_path from user_pds_documents')
+ denied('Browser cannot call business mutation RPC','select phase2_manage_invitation(%s,%s,\'revoke\')',(head,invitation))
+ identity(other)
+ check('Other Office cannot read invitation',query('select count(*)=0 from user_invitations where id=%s',(invitation,)))
+ check('Other Office cannot read private PDS metadata',query('select count(*)=0 from user_pds_documents where id=%s',(doc,)))
+ identity()
+ query('update user_professional_profiles set confirmed_by_user=true,confirmed_at=now() where user_id=%s',(uid,))
+ identity(head)
+ check('Head can read confirmed own-Office summary',query('select count(*)=1 from user_professional_profiles where user_id=%s',(uid,)))
+ identity(admin)
+ check('Admin has no blanket access to private PDS metadata',query('select count(*)=0 from user_pds_documents where id=%s',(doc,)))
+ identity()
+ revoked=query("select (phase2_create_invitation(%s,'phase2-revoke@example.test','member',%s,168)).id",(head,'1'*64))
+ query("select phase2_manage_invitation(%s,%s,'revoke')",(head,revoked))
+ denied('Revoked invitation cannot be claimed','select phase2_claim_invitation(%s,%s)',('1'*64,str(uuid.uuid4())))
+ expired=query("select (phase2_create_invitation(%s,'phase2-expire@example.test','member',%s,168)).id",(head,'2'*64))
+ query("update user_invitations set expires_at=now()-interval '1 minute' where id=%s",(expired,))
+ denied('Expired invitation cannot be claimed','select phase2_claim_invitation(%s,%s)',('2'*64,str(uuid.uuid4())))
+ dispatch=query("select (phase2_create_invitation(%s,'phase2-dispatch@example.test','member',%s,168)).id",(head,'3'*64))
+ check('Email reservation increments attempts atomically',query('select (phase2_reserve_invitation_email(%s,%s)).send_count',(dispatch,'3'*64))==1)
+ for _ in range(20):query("select phase2_audit(%s,%s,%s,'invitation_email_attempted')",(head,office,dispatch))
+ denied('Persistent Head email rate limit prevents additional sends','select phase2_reserve_invitation_email(%s,%s)',(dispatch,'3'*64))
+ identity(head)
+ denied('Browser cannot reserve email dispatch','select phase2_reserve_invitation_email(%s,%s)',(dispatch,'3'*64))
+ identity()
+ check('PDS bucket remains private',query("select not public from storage.buckets where id='pds-documents'"))
+ work=root/'.phase2-work';work.mkdir(exist_ok=True);(work/'authority.json').write_text(json.dumps({'checks':checks,'count':len(checks),'target':args.project_ref,'fixtures':'rolled back'}))
+ print('All',len(checks),'isolated SQL authority checks passed; fixtures rolled back')
+finally:connection.rollback();connection.close()

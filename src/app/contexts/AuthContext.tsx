@@ -35,6 +35,7 @@ interface AuthContextValue {
   user: User | null;
   userProfile: UserProfile | null;
   loading: boolean;
+  permissionsLoading: boolean;
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
   register: (
@@ -86,6 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [permissions, setPermissions] = useState<Set<string>>(new Set());
+  const [permissionsLoadedFor, setPermissionsLoadedFor] = useState<string | null>(null);
   const activeUserIdRef = useRef<string | null>(null);
 
   // Load effective permissions whenever the signed-in profile changes, then
@@ -94,6 +96,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     let active = true;
     if (!userProfile?.id) {
       setPermissions(new Set());
+      setPermissionsLoadedFor(null);
       return;
     }
     const userId = userProfile.id;
@@ -101,8 +104,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setPermissions(resolvePermissions(role, [], []));
     const refreshPermissions = () => {
       void fetchEffectivePermissions(userId, role)
-        .then((perms) => { if (active) setPermissions(perms); })
-        .catch(() => { if (active) setPermissions(resolvePermissions(role, [], [])); });
+        .then((perms) => { if (active) { setPermissions(perms); setPermissionsLoadedFor(`${userId}:${role}`); } })
+        .catch(() => { if (active) { setPermissions(resolvePermissions(role, [], [])); setPermissionsLoadedFor(`${userId}:${role}`); } });
     };
     refreshPermissions();
 
@@ -402,6 +405,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         user,
         userProfile,
         loading,
+        permissionsLoading: !!userProfile && permissionsLoadedFor !== `${userProfile.id}:${userProfile.role}`,
         error,
         login,
         register,

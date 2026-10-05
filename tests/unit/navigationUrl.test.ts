@@ -49,6 +49,15 @@ describe("navigation URL contract", () => {
     });
   });
 
+  it("keeps an invitation's project and Office tab while restoring navigation", () => {
+    window.history.replaceState({}, "", "/projects?page=Projects&project=shared-project&view=offices");
+    const { result } = renderHook(() => useRoleNavigationState("head", getInitialPage));
+    expect(result.current.activeSection).toBe("projects");
+    expect(new URLSearchParams(window.location.search).get("view")).toBe("offices");
+    act(() => result.current.selectPage("reviews", "For Review"));
+    expect(new URLSearchParams(window.location.search).has("view")).toBe(false);
+  });
+
   it("writes selections and follows browser back/forward", async () => {
     const { result } = renderHook(() => useRoleNavigationState("head", getInitialPage));
 
