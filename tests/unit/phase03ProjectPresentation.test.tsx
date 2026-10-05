@@ -34,7 +34,7 @@ describe("Phase 03 project presentation", () => {
   });
 
   it("uses the Vibe work icon as the neutral project mark until project logos exist", () => {
-    expect(projectContextSidebar).toContain('import { Archive, Check, Delete, MoreActions, Work } from "@vibe/icons";');
+    expect(projectContextSidebar).toContain('import { Add, Archive, Check, Delete, MoreActions, Work } from "@vibe/icons";');
     expect(projectContextSidebar).toContain('<Work size={16} />');
     expect(projectContextSidebar).not.toContain("project.title?.slice(0, 1)");
     expect(workspaceCss).toContain(".eflow-project-context__project--active .eflow-project-context__project-mark");

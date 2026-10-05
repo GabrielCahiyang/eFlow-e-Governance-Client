@@ -1,6 +1,6 @@
 import * as React from "react";
-import { Dialog, DialogContentContainer, IconButton, Menu, MenuItem } from "@vibe/core";
-import { Archive, Check, Delete, MoreActions, Work } from "@vibe/icons";
+import { Button, Dialog, DialogContentContainer, IconButton, Menu, MenuItem } from "@vibe/core";
+import { Add, Archive, Check, Delete, MoreActions, Work } from "@vibe/icons";
 import * as m from "motion/react-m";
 import { motionTransition } from "../../../shared/motion";
 import { tasksForProject } from "../../tasks";
@@ -13,6 +13,8 @@ import type { Project, ProjectMember } from "../services/types";
  */
 export function ProjectContextSidebar({
   activeProjectId,
+  canAdd,
+  onCreateProject,
   canArchive = false,
   canComplete = false,
   canDelete = true,
@@ -33,6 +35,8 @@ export function ProjectContextSidebar({
   departmentFilter,
 }: {
   activeProjectId?: string;
+  canAdd: boolean;
+  onCreateProject?: () => void;
   canArchive?: boolean;
   canComplete?: boolean;
   canDelete?: boolean;
@@ -201,6 +205,11 @@ export function ProjectContextSidebar({
           )}
         </div>
         {archivedProjects.length > 0 && <details className="mt-3 text-xs text-neutral-500"><summary className="cursor-pointer px-2 py-2">Archived projects ({archivedProjects.length})</summary><div className="eflow-project-context__list">{renderProjects(archivedProjects)}</div></details>}
+        {canAdd && onCreateProject && (
+          <div className="eflow-project-context__create">
+            <Button className="eflow-project-context__add" kind="primary" leftIcon={Add} onClick={onCreateProject} size="small">Create project</Button>
+          </div>
+        )}
       </div>
 
       <div className="eflow-project-context__planning">

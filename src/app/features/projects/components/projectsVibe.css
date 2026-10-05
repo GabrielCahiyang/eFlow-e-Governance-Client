@@ -821,6 +821,24 @@
 
 
 
+.eflow-project-context__create {
+  margin-top: 16px;
+}
+
+.eflow-project-context__create .eflow-project-context__add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 42px;
+  height: auto;
+  padding: 10px 16px !important;
+  border-radius: 8px !important;
+  font-size: 13px;
+  font-weight: 600;
+}
+
 .eflow-project-context__planning {
   display: grid;
   gap: 4px;

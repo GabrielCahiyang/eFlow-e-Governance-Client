@@ -53,10 +53,12 @@ test('Project actions open visible menus and dialogs, and the board returns to t
   await expect(page.getByRole('dialog', { name: 'New task', exact: true })).toBeVisible();
   await page.keyboard.press('Escape');
   const context = page.getByRole('complementary', { name: 'Projects context' });
-  await expect(context.getByRole('button', { name: 'Create project', exact: true })).toHaveCount(0);
+  await context.getByRole('button', { name: 'Create project', exact: true }).click();
+  await expect(page.getByRole('dialog', { name: 'Let’s start working together', exact: true })).toBeVisible();
+  await page.keyboard.press('Escape');
   await expect(context.getByRole('button', { name: 'Create work plan', exact: true })).toHaveCount(0);
 
-  for (const name of ['New task', 'Columns', 'Open task board']) {
+  for (const name of ['New task', 'Columns', 'Open task board', 'Create project']) {
     const style = await page.getByRole('button', { name, exact: true }).evaluate(element => {
       const css = getComputedStyle(element);
       return { height: element.getBoundingClientRect().height, padding: parseFloat(css.paddingLeft), background: css.backgroundColor };
@@ -79,7 +81,11 @@ test('View picker, board return and first-column task actions remain reachable a
   await page.getByRole('button', { name: 'Back to main table', exact: true }).click();
   await expect(page.getByRole('region', { name: 'Project main table' })).toBeVisible();
   const context = page.getByRole('complementary', { name: 'Projects context' });
-  await expect(context.getByRole('button', { name: 'Create project', exact: true })).toHaveCount(0);
+  const createProject = context.getByRole('button', { name: 'Create project', exact: true });
+  await expect(createProject).toBeVisible();
+  await createProject.click();
+  await expect(page.getByRole('dialog', { name: 'Let’s start working together', exact: true })).toBeVisible();
+  await page.keyboard.press('Escape');
   await expect(context.getByRole('button', { name: 'Create work plan', exact: true })).toHaveCount(0);
   const tableScroll = page.locator('.pt-table-scroll').first();
   await tableScroll.evaluate(element => { element.scrollLeft = element.scrollWidth; });

@@ -38,12 +38,13 @@ test('Head table keeps first-column task actions, task edits and inline subitems
   await page.getByRole('textbox', { name: 'Search project tasks' }).fill('meeting'); await expect(page.locator('.pt-task-row')).toHaveCount(1); await page.getByRole('button', { name: 'Clear filters' }).click();
   await page.getByRole('button', { name: 'Column actions for Budget estimate' }).click(); await page.getByRole('menuitem', { name: 'Hide column' }).click(); await expect(page.getByRole('columnheader', { name: 'Budget estimate' })).toHaveCount(0);
   const context = page.getByRole('complementary', { name: 'Projects context' });
-  await expect(context.getByRole('button', { name: 'Create project', exact: true })).toHaveCount(0);
+  await expect(context.getByRole('button', { name: 'Create project', exact: true })).toBeVisible();
   await expect(context.getByRole('button', { name: 'Create work plan', exact: true })).toHaveCount(0);
 });
 
 test('Member table protects structure and keeps detail access at 390px', async ({ page }, info) => {
   test.setTimeout(90_000); await page.setViewportSize({ width: 1440, height: 1000 }); await fixture(page, 'member'); await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.getByRole('complementary', { name: 'Projects context' }).getByRole('button', { name: 'Create project', exact: true })).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'New task', exact: true })).toHaveCount(0); await expect(page.getByRole('button', { name: 'Edit task Prepare community assessment' })).toBeDisabled(); await expect(page.getByRole('combobox', { name: 'Owner for Prepare community assessment' })).toBeDisabled();
   await page.getByRole('button', { name: 'Subitems for Prepare community assessment' }).click();
   await expect(page.getByRole('textbox', { name: 'Add subitem to Prepare community assessment' })).toBeVisible();
