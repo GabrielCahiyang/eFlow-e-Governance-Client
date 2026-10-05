@@ -215,6 +215,7 @@ export function ProjectCommandWorkspace({
               profiles={profiles}
               canManage={canManage}
               onOpenTask={setOpenTaskId}
+              onOpenTable={() => selectTab('tasks')}
             />
           )}
           {activeTabId === "gantt" && <ProjectGanttView data={viewData} allTasks={projectTasks} canManage={canManage} onOpenTask={setOpenTaskId} onOpenPlan={() => selectTab('timeline')}/>}

@@ -388,12 +388,9 @@ export function ProjectsWorkspace({
     <div className="eflow-ide-workspace">
       <ProjectContextSidebar
         activeProjectId={workspaceView === "portfolio" ? activeProject?.id : undefined}
-        canAdd={access.canCreate}
-        onCreateProject={() => setQuickProjectOpen(true)}
         canArchive={access.canArchive}
         canComplete={access.canManage}
         canDelete={access.canDelete}
-        onCreateWorkPlan={() => setCreationMode("manual")}
         onOpenPortfolio={() => {
           if (!scope.includeAllAccessibleWork && active[0]) {
             openProject(active[0].id);

@@ -24,7 +24,7 @@
 .eflow-workspace-panel { min-width: 0; padding: 16px; }
 .eflow-workspace-popover { border: 1px solid var(--workspace-border); border-radius: 11px; background: var(--workspace-surface); color: var(--workspace-text); box-shadow: var(--workspace-shadow-popover); }
 .eflow-split-action { display: inline-flex; align-items: stretch; }
-.eflow-split-action > button { border-radius: var(--workspace-radius) 0 0 var(--workspace-radius); min-height: 36px; }
+.eflow-split-action > button:first-child { border-radius: var(--workspace-radius) 0 0 var(--workspace-radius); min-height: 36px; }
 .eflow-split-action-menu { min-width: 34px; display: grid; place-items: center; color: #fff; background: var(--workspace-primary); border-left: 1px solid rgb(255 255 255 / 35%); border-radius: 0 var(--workspace-radius) var(--workspace-radius) 0; }
 .eflow-split-action-menu:disabled { opacity: .5; cursor: not-allowed; }
 .eflow-inline-text { border: 1px solid transparent; border-radius: 5px; padding: 3px 6px; text-align: left; font: inherit; }

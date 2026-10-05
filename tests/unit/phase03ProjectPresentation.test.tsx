@@ -10,6 +10,7 @@ const workspaceCss = readFileSync("src/app/features/projects/components/projects
 const projectContextSidebar = readFileSync("src/app/features/projects/components/ProjectContextSidebar.tsx", "utf8");
 const governanceTab = readFileSync("src/app/features/projects/components/project-command/ProjectGovernanceTab.tsx", "utf8");
 const projectViewTabBar = readFileSync("src/app/features/projects/components/project-command/ProjectViewTabBar.tsx", "utf8");
+const projectViewMenus = readFileSync("src/app/features/projects/components/project-command/ProjectViewMenus.tsx", "utf8");
 
 describe("Phase 03 project presentation", () => {
   it("communicates lifecycle and schedule independently with accessible text", () => {
@@ -28,12 +29,12 @@ describe("Phase 03 project presentation", () => {
     expect(workspaceCss).toContain(".eflow-workspace-tabs__scroller");
     expect(workspaceCss).toMatch(/\.eflow-figma-board\s*\{\s*width:\s*100%;/);
     expect(workspaceCss).toContain("overflow-x: auto;");
-    expect(projectViewTabBar).toContain('aria-haspopup="menu"');
+    expect(projectViewMenus).toContain('aria-haspopup="menu"');
     expect(projectViewTabBar).toContain("Fixed action lane");
   });
 
   it("uses the Vibe work icon as the neutral project mark until project logos exist", () => {
-    expect(projectContextSidebar).toContain('import { Add, Archive, Check, Delete, MoreActions, Work } from "@vibe/icons";');
+    expect(projectContextSidebar).toContain('import { Archive, Check, Delete, MoreActions, Work } from "@vibe/icons";');
     expect(projectContextSidebar).toContain('<Work size={16} />');
     expect(projectContextSidebar).not.toContain("project.title?.slice(0, 1)");
     expect(workspaceCss).toContain(".eflow-project-context__project--active .eflow-project-context__project-mark");

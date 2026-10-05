@@ -16,7 +16,7 @@ function dialog() {
   return props;
 }
 function sidebar(projects: Project[], managed = true) {
-  const props = { projects, canAdd: managed, canArchive: managed, canComplete: managed, canDelete: managed, onCreateWorkPlan: vi.fn(), onOpenPortfolio: vi.fn(), onOpenProject: vi.fn(), onCompleteProject: vi.fn(), onArchiveProject: vi.fn(), onRestoreProject: vi.fn(), onDeleteProject: vi.fn(), profiles: [], summaries: new Map(), tasks: [], projectMembers: [], planningCounts: { workplans: 0, signoff: 0, actionable: 0 }, planningView: "portfolio" as const, onOpenPlanning: vi.fn() };
+  const props = { projects, canArchive: managed, canComplete: managed, canDelete: managed, onOpenPortfolio: vi.fn(), onOpenProject: vi.fn(), onCompleteProject: vi.fn(), onArchiveProject: vi.fn(), onRestoreProject: vi.fn(), onDeleteProject: vi.fn(), profiles: [], summaries: new Map(), tasks: [], projectMembers: [], planningCounts: { workplans: 0, signoff: 0, actionable: 0 }, planningView: "portfolio" as const, onOpenPlanning: vi.fn() };
   const view = render(<ProjectContextSidebar {...props} />);
   return { ...view, props };
 }
@@ -24,6 +24,16 @@ beforeEach(() => { vi.clearAllMocks(); api.readiness.mockReset().mockResolvedVal
 afterEach(cleanup);
 
 describe("project dropdown lifecycle", () => {
+  it("omits creation controls and retains project switching and Planning navigation", () => {
+    const { props } = sidebar([project]);
+    expect(screen.queryByRole("button", { name: "Create project", exact: true })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Create work plan", exact: true })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Project Issa", exact: true }));
+    expect(props.onOpenProject).toHaveBeenCalledWith(project.id);
+    fireEvent.click(screen.getByRole("button", { name: /^Drafts/ }));
+    expect(props.onOpenPlanning).toHaveBeenCalledWith("drafts");
+  });
+
   it("offers completion but disables archive for active work", async () => {
     const { props } = sidebar([project]);
     fireEvent.click(screen.getByRole("button", { name: "Open Project Issa actions" }));

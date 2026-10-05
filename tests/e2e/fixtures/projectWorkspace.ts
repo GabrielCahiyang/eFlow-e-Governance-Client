@@ -32,7 +32,10 @@ export async function projectWorkspaceFixture(page: Page, role: 'head' | 'member
     if (table === 'user_preferences') body = { user_id: id, theme: 'light', created_at: now, updated_at: now };
     if (table === 'projects') body = single ? projects[0] : projects;
     if (table === 'tasks') body = tasks;
-    if (table === 'subtasks') body = subtasks;
+    if (table === 'subtasks') {
+      if (req.method() === 'POST') { const row = { ...payload, id: crypto.randomUUID(), status: 'todo', percent_complete: 0, created_at: now, updated_at: now }; subtasks.push(row); body = single ? row : [row]; }
+      else body = subtasks;
+    }
     if (table === 'project_groups') {
       if (req.method() === 'POST') { const row = { ...payload, id: crypto.randomUUID(), is_default: false, created_at: now }; groups.push(row); body = single ? row : [row]; }
       else body = groups.filter(g => !url.searchParams.has('project_id') || url.searchParams.get('project_id') === 'eq.' + g.project_id);

@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 const manualBuilder = readFileSync("src/app/features/proposal-import/components/ManualPlanBuilder.tsx", "utf8");
 const settingsProfile = readFileSync("src/app/features/settings/components/ProfileSettingsPage.tsx", "utf8");
 const taskHierarchy = readFileSync("src/app/features/tasks/components/board/HierarchyTaskRow.tsx", "utf8");
-const projectTabs = readFileSync("src/app/features/projects/components/project-command/ProjectViewTabBar.tsx", "utf8");
+const projectViewControls = readFileSync("src/app/features/projects/components/project-command/projectViewControls.css", "utf8");
 const governanceRecord = readFileSync("src/app/features/interdepartment-collaboration/components/governance/GovernanceRecordPanel.tsx", "utf8");
 const legislativeSearch = readFileSync("src/app/features/role-legislative/components/SemanticSearch.tsx", "utf8");
 
@@ -20,7 +20,7 @@ describe("semantic teal primary actions", () => {
     expect(settingsProfile).toContain("bg-primary px-4 text-[12px] font-semibold text-primary-foreground");
     expect(taskHierarchy).toContain("bg-primary px-2 py-0.5 text-[10px] text-primary-foreground");
     expect(taskHierarchy).not.toContain("bg-blue-500 text-white px-2 py-0.5");
-    expect(projectTabs).toContain('"bg-primary/10 text-primary font-semibold"');
+    expect(projectViewControls).toContain('background:var(--workspace-primary, #087f8c)');
   });
 
   it("uses teal for collaboration and legislative calls to action while retaining semantic blue elsewhere", () => {

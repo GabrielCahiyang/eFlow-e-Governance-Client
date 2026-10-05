@@ -1,5 +1,5 @@
-import { useState,type DragEvent } from 'react';
-import { ChevronDown,ChevronRight,GripVertical,MoreHorizontal,PanelRight } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { ChevronDown,ChevronRight,MoreHorizontal,PanelRight } from 'lucide-react';
 import { InlineEditableText,ActionMenu,WorkspacePopover } from '../../../components/ui/workspace';
 import { assignTask,getTaskLeadId,isTaskLead,TASK_STATUS_LABELS,updateTaskStatus,type Task } from '../../tasks';
 import type { Subtask } from '../../subtasks';
@@ -12,8 +12,9 @@ import { useProjectOfficeContext, canHandoverTask, projectOfficePeople, setRespo
 import { useAuth } from '../../../contexts/AuthContext';
 import { SubitemRows } from './SubitemRows';
 import { StaffingDialog } from '../../staffing';
-export function ProjectTaskRow({task,tasks,groups,profiles,orgs,columns,editable,canSetOffice=false,userId,subtasks,onOpen,onOpenSubitem,refreshSubitems,reorderable,onDrag,onDrop,onMove,run}:{task:Task;tasks:Task[];groups:ProjectGroup[];profiles:UserProfile[];orgs:Organization[];columns:ProjectColumn[];editable:boolean;canSetOffice?:boolean;userId:string;subtasks:Subtask[];onOpen:()=>void;onOpenSubitem:(s:Subtask)=>void;refreshSubitems:()=>Promise<void>;reorderable:boolean;onDrag:(e:DragEvent)=>void;onDrop:(e:DragEvent)=>void;onMove:(offset:number)=>void;run:(fn:()=>Promise<void>)=>Promise<void>}){
+export function ProjectTaskRow({task,tasks,groups,profiles,orgs,columns,editable,canSetOffice=false,userId,subtasks,onOpen,onOpenSubitem,refreshSubitems,reorderable,onMove,run}:{task:Task;tasks:Task[];groups:ProjectGroup[];profiles:UserProfile[];orgs:Organization[];columns:ProjectColumn[];editable:boolean;canSetOffice?:boolean;userId:string;subtasks:Subtask[];onOpen:()=>void;onOpenSubitem:(s:Subtask)=>void;refreshSubitems:()=>Promise<void>;reorderable:boolean;onMove:(offset:number)=>void;run:(fn:()=>Promise<void>)=>Promise<void>}){
  const [expanded,setExpanded]=useState(false),[busy,setBusy]=useState(false);
+ const focusSubitemOnClose=useRef(false);
  const [staffing,setStaffing]=useState(false);
  const officeState=useProjectOfficeContext(), {userProfile}=useAuth();
  const shared=officeState.offices.some(o=>o.relationship_type!=='lead');
@@ -23,6 +24,12 @@ export function ProjectTaskRow({task,tasks,groups,profiles,orgs,columns,editable
  const responsible=officeState.offices.find(o=>o.office_id===task.orgId);
  const people=responsible?projectOfficePeople(responsible,officeState.members,profiles,orgs):profiles.filter(p=>p.is_active&&p.org_id===task.orgId&&p.role!=='admin');
  const owner=getTaskLeadId(task),person=profiles.find(p=>p.id===owner),statuses=readOnly?[task.status]:inlineStatusOptions(task,userId,editable);
+ const subitemUnavailableReason=officeState.error?'Subitem changes are unavailable while Office access cannot be verified.'
+  :readOnly?'This Office has read-only access to this task.'
+  :task.archivedAt?'Subitems are locked because this task is archived.'
+  :['for_review','completed','cancelled'].includes(task.status)?'Subitems are locked while this task is '+TASK_STATUS_LABELS[task.status].toLowerCase()+'.'
+  :!owner?'Assign a task owner first. Only the assigned task lead can add subitems.'
+  :'Only the assigned task lead'+(person?.full_name?' ('+person.full_name+')':'')+' can add subitems.';
  const save=async(patch:Parameters<typeof patchWorkspaceTask>[1])=>{setBusy(true);try{await patchWorkspaceTask(task.id,patch);}finally{setBusy(false);}};
  const office=orgs.find(o=>o.id===task.orgId)?.name||task.teamName||task.department||'Office';
  const moveActions=groups.filter(g=>g.id!==task.groupId).map(g=>({id:g.id,label:'Move to '+g.title,disabled:!canSetOffice&&!editable,onSelect:()=>{const position=Math.max(0,...tasks.filter(t=>t.groupId===g.id).map(t=>(t.workspacePosition||0)+1));void run(()=>canSetOffice&&shared?moveProjectOfficeTask(task.id,g.id,position):save({group_id:g.id,workspace_position:position}));}}));
@@ -37,10 +44,16 @@ export function ProjectTaskRow({task,tasks,groups,profiles,orgs,columns,editable
   if(id==='budget')return <NumberCell label={'Budget estimate for '+task.title} value={task.budgetImpact||0} disabled={!editable} field="budget_impact" save={save}/>;
   return <div className="pt-progress" aria-label={'Progress for '+task.title}><progress max={100} value={task.status==='completed'?100:task.status==='cancelled'?0:task.percentComplete||0}/><span>{task.status==='completed'?100:task.status==='cancelled'?0:task.percentComplete||0}%</span></div>;
  };
- return <><tr className="pt-task-row" onDragOver={e=>{if(reorderable)e.preventDefault();}} onDrop={onDrop}>
-  <td><button type="button" className="pt-grip" aria-label={'Drag '+task.title} draggable={reorderable} onDragStart={onDrag} disabled={!reorderable}><GripVertical size={14}/></button></td>
-  <td className="pt-task-name"><div><button type="button" aria-expanded={expanded} aria-label={'Subitems for '+task.title} onClick={()=>setExpanded(!expanded)}>{expanded?<ChevronDown size={15}/>:<ChevronRight size={15}/>}</button><InlineEditableText value={task.title} label={'task '+task.title} maxLength={300} disabled={!editable||busy} onSave={title=>save({title})}/>{subtasks.length>0&&<span className="pt-subitem-count">{subtasks.length}</span>}<button type="button" aria-label={'Open '+task.title} onClick={onOpen}><PanelRight size={15}/></button></div></td>
+ return <><tr className="pt-task-row">
+  <td className="pt-row-actions-cell"><ActionMenu trigger={<button type="button" className="pt-row-actions-button" aria-label={'Actions for '+task.title}><MoreHorizontal size={16}/></button>} onCloseAutoFocus={event=>{
+   if(!focusSubitemOnClose.current)return;
+   focusSubitemOnClose.current=false;
+   event.preventDefault();
+   // The add action hands focus to the expanded editor instead of the menu trigger.
+   requestAnimationFrame(()=>document.getElementById('pt-subitems-'+task.id)?.querySelector<HTMLInputElement>('.pt-inline-create__title')?.focus());
+  }} actions={[{id:'open',label:'Task details, evidence & review',onSelect:onOpen},...(editable&&!readOnly&&userProfile?.role==='head'&&!task.assigneeId&&['pending_assignment','todo'].includes(task.status)?[{id:'staffing',label:'Recommend staff',onSelect:()=>setStaffing(true)}]:[]),{id:'subitem',label:'Add subitem',disabled:!canSubitems,onSelect:()=>{focusSubitemOnClose.current=true;setExpanded(true);}},{id:'up',label:'Move up',disabled:!reorderable,onSelect:()=>onMove(-1)},{id:'down',label:'Move down',disabled:!reorderable,onSelect:()=>onMove(1)},...moveActions]}/></td>
+  <td className="pt-task-name"><div><button type="button" aria-expanded={expanded} aria-controls={'pt-subitems-'+task.id} aria-label={'Subitems for '+task.title} onClick={()=>setExpanded(!expanded)}>{expanded?<ChevronDown size={15}/>:<ChevronRight size={15}/>}</button><InlineEditableText value={task.title} label={'task '+task.title} maxLength={300} disabled={!editable||busy} onSave={title=>save({title})}/>{subtasks.length>0&&<span className="pt-subitem-count">{subtasks.length}</span>}<button type="button" aria-label={'Open '+task.title} onClick={onOpen}><PanelRight size={15}/></button></div></td>
   {columns.map(c=><td key={c} className={'pt-cell pt-cell--'+c}>{cell(c)}</td>)}
-  <td><ActionMenu trigger={<button type="button" aria-label={'Actions for '+task.title}><MoreHorizontal size={16}/></button>} actions={[{id:'open',label:'Task details, evidence & review',onSelect:onOpen},...(editable&&!readOnly&&userProfile?.role==='head'&&!task.assigneeId&&['pending_assignment','todo'].includes(task.status)?[{id:'staffing',label:'Recommend staff',onSelect:()=>setStaffing(true)}]:[]),{id:'subitem',label:'Add subitem',disabled:!canSubitems,onSelect:()=>setExpanded(true)},{id:'up',label:'Move up',disabled:!reorderable,onSelect:()=>onMove(-1)},{id:'down',label:'Move down',disabled:!reorderable,onSelect:()=>onMove(1)},...moveActions]}/></td>
- </tr>{expanded&&<SubitemRows task={task} subtasks={subtasks} columns={columns.length+3} canAdd={canSubitems} onOpen={onOpenSubitem} refresh={refreshSubitems}/ >}{staffing&&<StaffingDialog task={task} onClose={()=>setStaffing(false)}/>}</>;
+
+ </tr>{expanded&&<SubitemRows task={task} subtasks={subtasks} columns={columns.length+2} profiles={profiles} canAdd={canSubitems} unavailableReason={subitemUnavailableReason} onOpen={onOpenSubitem} onOpenTask={onOpen} refresh={refreshSubitems}/ >}{staffing&&<StaffingDialog task={task} onClose={()=>setStaffing(false)}/>}</>;
 }

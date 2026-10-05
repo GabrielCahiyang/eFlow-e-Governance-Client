@@ -28,12 +28,14 @@ import {
   Tooltip,
 } from "@vibe/core";
 import { Add, Info } from "@vibe/icons";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { useState } from "react";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import { TaskStatusLabel } from "../../src/app/features/tasks/presentation/TaskStatusLabel";
 import { getTaskStatusPresentation } from "../../src/app/features/tasks/presentation/taskStatusPresentation";
 import { EflowVibeThemeProvider } from "../../src/app/shared/vibe";
+
+afterEach(cleanup);
 
 if (!window.matchMedia) {
   Object.defineProperty(window, "matchMedia", {

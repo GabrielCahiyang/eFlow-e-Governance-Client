@@ -79,9 +79,9 @@ export function ProjectTableWorkspace({data,profiles,orgs,canManage,onOpenTask,o
 
  return <section className="pt-workspace" aria-label="Project main table" data-tour-id="project-main-table">
 
-  <TableToolbar sharedFilters={!!sharedFilters} query={query} setQuery={setQuery} status={status} setStatus={setStatus} owner={owner} setOwner={setOwner} sort={sort} setSort={setSort} people={people} hidden={hidden} toggleColumn={c=>setHidden(prev=>prev.includes(c)?prev.filter(x=>x!==c):[...prev,c])} canManage={editable} onAddTask={addTask} onAddGroup={()=>setGroupOpen(true)} onImport={()=>{setImportSeed(prev=>({text:'',version:prev.version+1}));setImportOpen(true);}} onAi={()=>setAiOpen(true)}/>
+  <TableToolbar sharedFilters={!!sharedFilters} query={query} setQuery={setQuery} status={status} setStatus={setStatus} owner={owner} setOwner={setOwner} sort={sort} setSort={setSort} people={people} hidden={hidden} toggleColumn={c=>setHidden(prev=>prev.includes(c)?prev.filter(x=>x!==c):[...prev,c])} canManage={editable} onAddTask={addTask} onAddGroup={()=>setGroupOpen(true)} onImport={()=>{setImportSeed(prev=>({text:'',version:prev.version+1}));setImportOpen(true);}} onAi={()=>setAiOpen(true)} onOpenBoard={onOpenLegacyBoard}/>
 
-  <div className="pt-context-line"><span><Table2 size={14}/>{tasks.length} visible tasks</span><span>Changes save where you work.</span>{!editable&&<span><LockKeyhole size={13}/>Project structure is read-only for this account or project.</span>}<button onClick={onOpenLegacyBoard}>Open task board</button></div>
+  <div className="pt-context-line"><span><Table2 size={14}/>{tasks.length} visible tasks</span><span>Changes save where you work.</span>{!editable&&<span><LockKeyhole size={13}/>Project structure is read-only for this account or project.</span>}</div>
   <ProjectImportHistory projectId={data.project.id} revision={importRevision}/>
 
   {notice&&<div role="alert" className="pt-error">{notice}<button onClick={()=>setNotice('')} aria-label="Dismiss error">×</button></div>}

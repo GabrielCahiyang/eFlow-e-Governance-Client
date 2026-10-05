@@ -1,4 +1,4 @@
-import { AlertCircle, Calendar, CheckSquare, ChevronDown, Clock, Layers, MoreVertical, Paperclip } from "lucide-react";
+import { AlertCircle, ArrowLeft, Calendar, CheckSquare, ChevronDown, Clock, Layers, MoreVertical, Paperclip, Table2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { UserProfile } from "../../../../types";
 import { useToast } from "../../../../components/ui/Toast";
@@ -54,11 +54,13 @@ export function ProjectWorkTab({
   data,
   profiles,
   onOpenTask,
+  onOpenTable,
   canManage = false,
 }: {
   data: ProjectCommandData;
   profiles: UserProfile[];
   onOpenTask: (taskId: string) => void;
+  onOpenTable?: () => void;
   canManage?: boolean;
 }) {
   const { toast } = useToast();
@@ -74,6 +76,12 @@ export function ProjectWorkTab({
 
   return (
     <section className="eflow-figma-board pv-board" aria-label="Project task board">
+      {onOpenTable && <header className="eflow-project-board-header">
+        <h2>Task board</h2>
+        <button type="button" className="eflow-project-view-return" onClick={onOpenTable}>
+          <ArrowLeft size={16} /><Table2 size={16} />Back to main table
+        </button>
+      </header>}
       <p className="pv-help">Drag or use Start / Resume for permitted moves. Evidence submission and approval stay in task details and Reviews.</p>
       {actions.notice && <p className="pv-error pv-board-notice" role="alert">{actions.notice}</p>}
       <div className="eflow-figma-board__columns">

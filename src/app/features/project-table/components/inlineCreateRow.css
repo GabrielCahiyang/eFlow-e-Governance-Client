@@ -1,0 +1,52 @@
+.pt-inline-create {padding:5px 0;color:#676879;white-space:normal}
+.pt-add-row .pt-inline-create__fields {width:min(560px,calc(100cqw - 32px))}
+.pt-inline-create__fields {display:flex;align-items:center;flex-wrap:wrap;gap:8px;min-height:34px}
+.pt-inline-create__fields>svg {flex-shrink:0;color:#8b8d97}
+.pt-group .pt-inline-create input.pt-inline-create__title {
+  flex:1 1 240px;
+  width:340px;
+  max-width:340px;
+  min-width:0;
+  height:32px;
+  padding:5px 10px;
+  border:1px solid transparent;
+  border-radius:4px;
+  background:transparent;
+  color:#323338;
+  font-size:13px;
+  line-height:20px;
+}
+.pt-group .pt-inline-create:focus-within input.pt-inline-create__title {
+  border-color:#676879;
+  background:white;
+  outline:none;
+}
+.pt-group .pt-inline-create input[aria-invalid=true] {border-color:#b42318}
+.pt-group .pt-inline-create input[type=date] {
+  width:145px;
+  min-width:0;
+  max-width:145px;
+  height:32px;
+  padding:5px 8px;
+  border:1px solid transparent;
+  border-radius:4px;
+  background:transparent;
+  font-size:12px;
+}
+.pt-group .pt-inline-create input[type=date]:focus-visible {border-color:#676879;background:white;outline:2px solid #087f8c}
+.pt-group .pt-add-row:focus-within>td {background:#cfe5ff}
+.pt-group .pt-add-row:focus-within>td:first-child {background:#dcecff}
+.pt-group .pt-subitem-add {background:white;padding:4px 12px}
+.pt-group .pt-subitem-add:focus-within {background:#cfe5ff}
+.pt-inline-create__hint {display:none;margin:4px 0 0;padding:5px 0 3px 23px;background:white;color:#676879;font-size:12px;line-height:18px}
+.pt-inline-create:focus-within .pt-inline-create__hint {display:block}
+.pt-add-row .pt-inline-create__hint {margin:4px -8px -5px;padding:6px 8px 6px 31px}
+.pt-subitem-add .pt-inline-create__hint {margin:4px -12px -9px;padding:6px 12px 6px 35px}
+.pt-inline-create__hint strong {font-weight:600}
+.pt-inline-create__status {font-size:12px;color:#676879}
+.pt-inline-create__error {margin:5px 0 2px;padding-left:23px;font-size:12px;line-height:18px;color:#b42318;white-space:normal}
+@media(max-width:700px) {
+  .pt-group .pt-inline-create input.pt-inline-create__title {flex:1 1 calc(100% - 30px);max-width:none}
+  .pt-group .pt-inline-create input[type=date] {margin-left:23px}
+  .pt-inline-create__hint {font-size:11px}
+}

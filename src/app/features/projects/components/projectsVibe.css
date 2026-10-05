@@ -819,25 +819,7 @@
   font-weight: 600;
 }
 
-.eflow-project-context__add {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  height: 44px;
-  margin-top: 16px;
-  border: 0;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #5a4df0, #3e35f7);
-  color: #fff;
-  font: 600 16px/24px inherit;
-  cursor: pointer;
-}
 
-.eflow-project-context__create {
-  position: relative;
-}
 
 .eflow-project-context__planning {
   display: grid;
@@ -1535,7 +1517,8 @@
 /* --- Project Command Workspace Shell --- */
 .eflow-project-command {
   min-height: 100%;
-  padding: 20px;
+  min-width: 0;
+  padding: 28px 32px 40px;
   font-family: Figtree, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   color: var(--primary-text-color, #1f2937);
 }
@@ -3375,16 +3358,10 @@
   font-weight: 600;
 }
 
-.eflow-project-context__create {
-  margin-top: 12px;
-}
 
-.eflow-project-context__add {
-  height: 42px;
-  margin-top: 0;
-  border-radius: 10px !important;
-  font-size: 14px;
-}
+
+
+
 
 .eflow-project-context details {
   margin-top: 10px;
