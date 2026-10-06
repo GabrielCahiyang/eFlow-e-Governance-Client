@@ -1,0 +1,5 @@
+import type { ImportProjectDetails } from '../types';
+import type { projectImportSummary } from '../selectors/reviewSummary';
+export function ImportImpact({ summary, title, proposed, current, applyDetails }: { summary: ReturnType<typeof projectImportSummary>; title: string; proposed: ImportProjectDetails; current?: Partial<ImportProjectDetails>; applyDetails: boolean }) {
+  return <><p>{summary.groups} groups · {summary.tasks} tasks · {summary.subitems} subitems</p><p>Unlinked proposed Offices: {summary.proposedOffices.join(', ') || 'None'}</p>{applyDetails ? <><p>Replace project details with the reviewed values below.</p><dl>{(['title','description','objectives','startDate','targetDate'] as const).map(field=><div key={field}><dt>{({title:'Project name',description:'Description',objectives:'Objectives',startDate:'Start date',targetDate:'Target date'})[field]}</dt><dd>Current: {field==='title' ? title : current?.[field] ?? 'Not supplied by this project view'} → Reviewed: {proposed[field] || 'Empty / not set'}</dd></div>)}</dl></> : <p>Existing project details are retained.</p>}</>;
+}

@@ -1,0 +1,15 @@
+
+Running 3 tests using 1 worker
+
+
+
+[1A[2K(node:17176) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:17176) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[1A[2K[1/3] [chromium] › tests\e2e\phase65-office-identities.spec.ts:52:1 › named Office survives reload and separates invitation persistence from failed delivery on mobile
+[1A[2K[2/3] [chromium] › tests\e2e\phase65-office-identities.spec.ts:91:1 › proposed responsibility locks execution until directory linking, Head confirmation and explicit handover
+[1A[2K[3/3] [chromium] › tests\e2e\phase65-office-identities.spec.ts:137:1 › linking a name before contact acceptance keeps the canonical invitation workflow reachable
+[1A[2K  3 passed (26.5s)

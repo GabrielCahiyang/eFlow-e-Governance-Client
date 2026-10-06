@@ -1,0 +1,445 @@
+{
+  "phase": 16,
+  "name": "Admin, Accounting, Reports and Audit UX",
+  "created_at": "2026-10-06T14:23:32.944403+00:00",
+  "status": "local_ui_implemented",
+  "uncommitted": true,
+  "deployed": false,
+  "checks": {
+    "typescript": "passed",
+    "unit_tests": 787,
+    "unit_files": 200,
+    "live_distinct_cases": 15,
+    "live_strengthened_paths": 3,
+    "production_preview_distinct_cases": 11,
+    "build_seconds": 14.57,
+    "circular_export_messages": 42,
+    "sql_authority_assertions": 37,
+    "sql_identity_assertions": 84,
+    "graph_nodes": 7353,
+    "graph_clustered_edges": 23300
+  },
+  "limits": [
+    "Synthetic auth/REST/gateway/realtime browser fixtures, not deployed RLS or real financial/backup transport",
+    "Latest-500 Audit reader conflates empty and failed reads; additive error/pagination API gate remains open",
+    "Financial and backup outcome receipts are session-only, not server idempotency",
+    "Native and assistive-technology sessions not exercised"
+  ],
+  "sources": [
+    {
+      "path": "src/app/features/administration/components/AdministrationWorkspace.tsx",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/features/administration/components/AdministrationWorkspace.tsx",
+      "sha256": "99d53fb0d77d4693872dd8788cec6fd18018bdf7125b60ce1c95af1135f37afe"
+    },
+    {
+      "path": "src/app/features/administration/components/data-tools/BackupExportWorkspace.tsx",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/features/administration/components/data-tools/BackupExportWorkspace.tsx",
+      "sha256": "94e7fa9c3961a2679b4755dd62d25ffd96422e6c6403774edc2cc3e788bacb01"
+    },
+    {
+      "path": "src/app/features/administration/components/user-management/AccountInspector.tsx",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/features/administration/components/user-management/AccountInspector.tsx",
+      "sha256": "e043d3c79b7728ad2c3aa0651b43d26d33dad84e78a3cde72b7efc6779c654a7"
+    },
+    {
+      "path": "src/app/features/administration/components/user-management/CreateUserModal.tsx",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/features/administration/components/user-management/CreateUserModal.tsx",
+      "sha256": "587bbc871170dd0e35acb4f6a52f996c44620cb67f43884598af1e7c7a829856"
+    },
+    {
+      "path": "src/app/features/administration/components/user-management/EditUserModal.tsx",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/features/administration/components/user-management/EditUserModal.tsx",
+      "sha256": "840fb9958747d3b6f39a4aaf5f78924893a1e8f1eee51827bc4b14f8b5d1d98d"
+    },
+    {
+      "path": "src/app/features/administration/components/user-management/UsersTab.tsx",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/features/administration/components/user-management/UsersTab.tsx",
+      "sha256": "8833e53d3ecdc4ab5252ef3f8cc71b29b1044a2d314c859408629794adbae405"
+    },
+    {
+      "path": "src/app/features/administration/components/user-management/UserManagement.tsx",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/features/administration/components/user-management/UserManagement.tsx",
+      "sha256": "fa74144de2b024bff67880ca06b29bcd80fbcc1e6c7fa0634c35b83838564745"
+    },
+    {
+      "path": "src/app/features/audit/auditFilters.ts",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/features/audit/auditFilters.ts",
+      "sha256": "ed9e7e5cc39f39518d9fa0bb195d9ecff743bd0a4fcbcbd292adb54fc9a54a33"
+    },
+    {
+      "path": "src/app/features/audit/presentation.ts",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/features/audit/presentation.ts",
+      "sha256": "eb2376974edb90921b1632071c3f5a82e98dcad8773a3aea7b3b598867904a50"
+    },
+    {
+      "path": "src/app/features/audit/components/AdminAuditLog.tsx",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/features/audit/components/AdminAuditLog.tsx",
+      "sha256": "b400b50443cad09f248f5e8bb4144115372724874c0a4aceb2e00a847b687ab6"
+    },
+    {
+      "path": "src/app/features/audit/components/AuditDetailDrawer.tsx",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/features/audit/components/AuditDetailDrawer.tsx",
+      "sha256": "a9d5697da40c2f1a1eeb32f605b271100f192300319d79fc94493ad0d0e23383"
+    },
+    {
+      "path": "src/app/features/budget/accountingNavigation.ts",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/features/budget/accountingNavigation.ts",
+      "sha256": "24a5337f45689cd8ec32754be89dd83fbce6ec1df27bedac0ba5e1d97251a586"
+    },
+    {
+      "path": "src/app/features/budget/financialReceipts.ts",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/features/budget/financialReceipts.ts",
+      "sha256": "36cea597d3f8efd68cbdddab4808c72947c4b7039764e4e006f0fade791ced92"
+    },
+    {
+      "path": "src/app/features/budget/index.ts",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/features/budget/index.ts",
+      "sha256": "435ce5c74ab9ad6db2258163b5dc6e763baf5346f834dab46ebc47132251eda6"
+    },
+    {
+      "path": "src/app/features/budget/hooks/useDepartmentBudget.ts",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/features/budget/hooks/useDepartmentBudget.ts",
+      "sha256": "0516d41b39710dd43fa3f73dca066cae2bcdfd85efa428a6ed821de2e6dfb7b5"
+    },
+    {
+      "path": "src/app/features/budget/hooks/useGeneralJournal.ts",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/features/budget/hooks/useGeneralJournal.ts",
+      "sha256": "98defef3989258ed5157b25f54c08f61d758ce754e1a662c95543243d6e8e589"
+    },
+    {
+      "path": "src/app/features/budget/components/AccountingStaffWorkspace.tsx",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/features/budget/components/AccountingStaffWorkspace.tsx",
+      "sha256": "46ca83bf3515f9d2da5a3c9a88b738b6d2f87522d7efad846fe9ad0dac3afdb4"
+    },
+    {
+      "path": "src/app/features/budget/components/AccountingSettlementQueue.tsx",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/features/budget/components/AccountingSettlementQueue.tsx",
+      "sha256": "9d7f9a552ca13d52fcacb3512fa093315a0db8114648d7f38b7dbf7e98c01cd1"
+    },
+    {
+      "path": "src/app/features/budget/components/OfficeBudgetWorkspace.tsx",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/features/budget/components/OfficeBudgetWorkspace.tsx",
+      "sha256": "b0615a240c048f434e8e33e6294ac3832469d65a3d2356160c396a5de224dd0d"
+    },
+    {
+      "path": "src/app/features/budget/components/BudgetReleasesPanel.tsx",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/features/budget/components/BudgetReleasesPanel.tsx",
+      "sha256": "d027da98bbcedfcf92bf7d445fae924f28ee88b90f0e9f1b5e58c1bd34df32e8"
+    },
+    {
+      "path": "src/app/features/budget/components/GeneralJournalWorkspace.tsx",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/features/budget/components/GeneralJournalWorkspace.tsx",
+      "sha256": "122a2a1da821624d9a9e54c0ea2993a58f9fefa3dcaf3e58923312cf693ebea9"
+    },
+    {
+      "path": "src/app/features/budget/components/JournalAdjustmentDialog.tsx",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/features/budget/components/JournalAdjustmentDialog.tsx",
+      "sha256": "59eae67922b5c44a8e0cb67d7955ebde48601cdbe97a9546206c249e5fb093d2"
+    },
+    {
+      "path": "src/app/features/budget/components/JournalEntryInspector.tsx",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/features/budget/components/JournalEntryInspector.tsx",
+      "sha256": "e9f4a6d40e8220c1d091628e2899e694c7815f30cc3afcfb66982d6e954c9234"
+    },
+    {
+      "path": "src/app/features/budget/components/DisbursementVoucherDialog.tsx",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/features/budget/components/DisbursementVoucherDialog.tsx",
+      "sha256": "7ebaaaef79a65636cb6485211a4295d9f10a36e4271d6c1eee9fddae5657a989"
+    },
+    {
+      "path": "src/app/features/budget/components/CashReleaseOverrideDialog.tsx",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/features/budget/components/CashReleaseOverrideDialog.tsx",
+      "sha256": "56d40affababad45b0c36a0210892285aa2f7de1b2ae9259c588ebedbd848d3e"
+    },
+    {
+      "path": "src/app/features/budget/components/AnnualBudgetSetup.tsx",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/features/budget/components/AnnualBudgetSetup.tsx",
+      "sha256": "f3d10d0becfe9f4373fa8bd1f1c09999fb26af2f656a1074f09dd90333b67d18"
+    },
+    {
+      "path": "src/app/features/budget/components/LockedBudgetControls.tsx",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/features/budget/components/LockedBudgetControls.tsx",
+      "sha256": "382036aa1832f12d7b50f1386886b967d170a29dad9a614a36c386eaf01ad281"
+    },
+    {
+      "path": "src/app/features/budget/components/BudgetApprovalQueue.tsx",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/features/budget/components/BudgetApprovalQueue.tsx",
+      "sha256": "2fd3a20340b1b056e6436c81763a072f6198c6b1bafe147242c25c426a1b88ee"
+    },
+    {
+      "path": "src/app/features/permissions/components/UserAccessTab.tsx",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/features/permissions/components/UserAccessTab.tsx",
+      "sha256": "6fdc8a8bc80253b2e00329311dfae32e6ef534ee2d2a55c2441763cf3a2b61ce"
+    },
+    {
+      "path": "src/app/features/permissions/components/RoleDefaultsTab.tsx",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/features/permissions/components/RoleDefaultsTab.tsx",
+      "sha256": "cfdd6824a9fef6928d943562fd012333f95ab08f5b7ccfa3d7a1ca1efdba7112"
+    },
+    {
+      "path": "src/app/features/permissions/components/OrganizationScopePanel.tsx",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/features/permissions/components/OrganizationScopePanel.tsx",
+      "sha256": "697945c5d71608e103b977a35ff403690c50d86255a5dc5274e0cb49bbb13f6a"
+    },
+    {
+      "path": "src/app/features/organization/components/org-tree/OrgTreeBuilder.tsx",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/features/organization/components/org-tree/OrgTreeBuilder.tsx",
+      "sha256": "06567f9c2f217488623c602b696b7032a941a637d17aa61c184f3afa79c9f58a"
+    },
+    {
+      "path": "src/app/features/organization/components/org-tree/OrgModal.tsx",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/features/organization/components/org-tree/OrgModal.tsx",
+      "sha256": "91cba94e9e1167250affb1bc01c23afc04167f2b80c3d092fb976a75c343e157"
+    },
+    {
+      "path": "src/app/features/organization/components/org-tree/AssignHeadModal.tsx",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/features/organization/components/org-tree/AssignHeadModal.tsx",
+      "sha256": "b742e139f03442b83d30376ea944a288e09cf4521b49427a62c81f16afa4d39d"
+    },
+    {
+      "path": "src/app/features/reports/components/HeadReportsWorkspace.tsx",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/features/reports/components/HeadReportsWorkspace.tsx",
+      "sha256": "fbba2d855a93546b6f646b0cfb099bc8b3279549f38e9fdc4b27f43e97e5d976"
+    },
+    {
+      "path": "src/app/features/reports/exportColumns.ts",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/features/reports/exportColumns.ts",
+      "sha256": "31afaf0853560e1a33f948a3df7c4c84a0fa356cab8fbe4ddf27775e83f9aa77"
+    },
+    {
+      "path": "src/app/features/team-management/hooks/useDepartmentTeamAnalytics.ts",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/features/team-management/hooks/useDepartmentTeamAnalytics.ts",
+      "sha256": "b831b742197d2bb7b5dcec11755207470688dbf3399fa1b7349e216fe98aeff3"
+    },
+    {
+      "path": "src/app/features/role-accounting/AccountingStaffContent.tsx",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/features/role-accounting/AccountingStaffContent.tsx",
+      "sha256": "4a16c827f3a310e83fcb8998f320516f8a4d93d0879ffbb067942d26512cecc3"
+    },
+    {
+      "path": "src/app/features/navigation/RoleContent.tsx",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/features/navigation/RoleContent.tsx",
+      "sha256": "ba448051d179097ad63c7c04554c6f5659cde1525b3706ef387963f63b3b6aea"
+    },
+    {
+      "path": "src/app/features/navigation/sidebarContent.tsx",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/features/navigation/sidebarContent.tsx",
+      "sha256": "9e9303bde79d59a95894b1fd29986c1709373ce638598bb1f53a02b4cc44c49d"
+    },
+    {
+      "path": "src/app/components/workflow/ReportsWorkspace.tsx",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/components/workflow/ReportsWorkspace.tsx",
+      "sha256": "a0af4be2db0c99ff21a63d0210c4e44cd1e3a5644e472b7eda063ae4e9cd94d2"
+    },
+    {
+      "path": "tests/unit/phase16Contracts.test.ts",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/tests/unit/phase16Contracts.test.ts",
+      "sha256": "e079c8a31c666eaaad735a0d13ee9d67e19a367d2f3e470ab71287a779437818"
+    },
+    {
+      "path": "tests/unit/phase16FinancialScope.test.tsx",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/tests/unit/phase16FinancialScope.test.tsx",
+      "sha256": "a37916ca83dfb0b313cf693e028b3fb515e3fc2db2bb2498e1107af8abaa4faa"
+    },
+    {
+      "path": "tests/unit/accountingSettlementAuthority.test.tsx",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/tests/unit/accountingSettlementAuthority.test.tsx",
+      "sha256": "dd07baf2379bc3726fa9f372f63e0e29cdd693d4df19e102fef19c6ca3a2037c"
+    },
+    {
+      "path": "tests/e2e/fixtures/phase16Financial.ts",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/tests/e2e/fixtures/phase16Financial.ts",
+      "sha256": "6604bea3a1238ddae5f0858df77f91d5eb4471804b4b76cf53f7bbe25a704b8b"
+    },
+    {
+      "path": "tests/e2e/phase16-support-finance.spec.ts",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/tests/e2e/phase16-support-finance.spec.ts",
+      "sha256": "14ae8d53e91e856c7218b7d816a72a7f6d8f3f0b13ca75f2804d3644c751e2ab"
+    },
+    {
+      "path": "tests/e2e/admin-unification.spec.ts",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/tests/e2e/admin-unification.spec.ts",
+      "sha256": "280ed9cfb79dd567d2a3f9dfaff7ba1297b9e4d9badc3119300d71ee2bc9ceb2"
+    },
+    {
+      "path": "tests/e2e/fixtures/projectWorkspace.ts",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/tests/e2e/fixtures/projectWorkspace.ts",
+      "sha256": "81a32040e6eba688630b85ac223dd2fdd0f0c283af5832368069a6f0fc877d1d"
+    },
+    {
+      "path": "tests/unit/cashReleaseOverride.test.tsx",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/tests/unit/cashReleaseOverride.test.tsx",
+      "sha256": "c8029ffcd410760d789506014e691caa53a7fe6f3de1fae496e94f26710075b6"
+    },
+    {
+      "path": "tests/unit/budgetDesignSystemPresentation.test.ts",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/tests/unit/budgetDesignSystemPresentation.test.ts",
+      "sha256": "5145e7fb01dc203f5280ef0d7774ec90241fed63940cfd8e977fa59e05aff017"
+    },
+    {
+      "path": "tests/unit/accountingRoleNavigation.test.tsx",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/tests/unit/accountingRoleNavigation.test.tsx",
+      "sha256": "ba6a662e0ee2f0209ce1749c35ac71ea748a7e92c528d0c158d0cf0008bd6232"
+    },
+    {
+      "path": "src/app/features/navigation/navigationUrl.ts",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/features/navigation/navigationUrl.ts",
+      "sha256": "d902faa3287e784c3b44a2421993048b481185d00f667451c7fd97409095bbcf"
+    },
+    {
+      "path": "tests/unit/navigationUrl.test.ts",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/tests/unit/navigationUrl.test.ts",
+      "sha256": "04daf1058495824786714eeccaa233034b045fd79590f18ae486bf0d0b89ff01"
+    },
+    {
+      "path": "src/app/features/administration/administrationWorkspace.css",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/src/app/features/administration/administrationWorkspace.css",
+      "sha256": "dd13d39e9fe57eac6b0b5284b0fdb9fea002c2584ba3fb51741bdf3c51315384"
+    },
+    {
+      "path": "tests/unit/generalJournalDatePicker.test.tsx",
+      "snapshot": "docs/product-refinement/phase16-evidence/source/tests/unit/generalJournalDatePicker.test.tsx",
+      "sha256": "2d08090c1872f57ab6d3863a1c8c8d646eea2584833c9bbf8041f4feb4d63da6"
+    }
+  ],
+  "receipts": [
+    {
+      "path": "docs/product-refinement/phase16-evidence/receipts/phase16-check-accepted.log",
+      "sha256": "659606cc1e46300d84aa709445df90c5152e824c89833ed71e658e03d3a53309",
+      "notes": "Acceptance / validation receipt"
+    },
+    {
+      "path": "docs/product-refinement/phase16-evidence/receipts/phase16-tests-accepted.log",
+      "sha256": "10e574b5b363c8081e249bb0ba799955a97d64853fd5b2c4ec7f71686f1cd30a",
+      "notes": "Acceptance / validation receipt"
+    },
+    {
+      "path": "docs/product-refinement/phase16-evidence/receipts/phase16-build-accepted.log",
+      "sha256": "497001ddd40f8e9e691fc4f690fe07d44ecb7a1d955cab9cb632e7f4b23ab7b4",
+      "notes": "Acceptance / validation receipt"
+    },
+    {
+      "path": "docs/product-refinement/phase16-evidence/receipts/phase16-browser-final.log",
+      "sha256": "88ce6a19692de0ce5ad137456c85b540d70cab2e837fa7a646928c2aac98770e",
+      "notes": "Acceptance / validation receipt"
+    },
+    {
+      "path": "docs/product-refinement/phase16-evidence/receipts/phase16-live-visual-exports.log",
+      "sha256": "a7e343ffd6166a2e003c377a59711784a2e0159c4ac5854c20ac67ce4d1d30a3",
+      "notes": "Acceptance / validation receipt"
+    },
+    {
+      "path": "docs/product-refinement/phase16-evidence/receipts/phase16-preview-accepted.log",
+      "sha256": "34aa3ea06631ac6cb2be038f10a2ce677e8e106929192d5b30692fc078d5efbe",
+      "notes": "10 passing workflow cases plus one report-selector failure; see passing focused export receipt"
+    },
+    {
+      "path": "docs/product-refinement/phase16-evidence/receipts/phase16-preview-exports.log",
+      "sha256": "90fde243405234fc62b213accd9aef6153cde5da35feba44dfbab60b85426b8e",
+      "notes": "Acceptance / validation receipt"
+    },
+    {
+      "path": "docs/product-refinement/phase16-evidence/receipts/phase16-authority-sql.log",
+      "sha256": "bdca30a4ac90c54cc16098c269ac28bccbfd4f72e7a3394cce1939b9dd995948",
+      "notes": "Acceptance / validation receipt"
+    },
+    {
+      "path": "docs/product-refinement/phase16-evidence/receipts/phase16-identity-sql.log",
+      "sha256": "99821c81523d69d22535416d93f5aff6d51f930de1317d9f3551ac192caa5957",
+      "notes": "Acceptance / validation receipt"
+    },
+    {
+      "path": "docs/product-refinement/phase16-evidence/receipts/phase16-graph-update.log",
+      "sha256": "91a12fd908613025ad4e6521c8131fe24cc7231db50922d931ca8696f14e6564",
+      "notes": "Acceptance / validation receipt"
+    },
+    {
+      "path": "docs/product-refinement/phase16-evidence/receipts/phase16-whitespace-final.log",
+      "sha256": "706cddf41e3ea242119227f00f2dac3493a0a40f533cfb60ced9019e9eee7019",
+      "notes": "git diff --check passed; line-ending warnings only"
+    }
+  ],
+  "captures": [
+    {
+      "path": "docs/product-refinement/phase16-evidence/live/admin-access.png",
+      "sha256": "94566a4ca045c7e599f5ae2a6d3e13998f7fcd4f1c8730b046d3e16f13258971",
+      "surface": "live"
+    },
+    {
+      "path": "docs/product-refinement/phase16-evidence/live/admin-mobile-dialog.png",
+      "sha256": "843d0c961230e1cd81c6f6087b2efd41809653a98e2d2ec8740939f63dc3f82c",
+      "surface": "live"
+    },
+    {
+      "path": "docs/product-refinement/phase16-evidence/live/audit-phone.png",
+      "sha256": "ceb1087b7294b3e69f94da745e3d6843f7038b1958e031696b2940246c860c99",
+      "surface": "live"
+    },
+    {
+      "path": "docs/product-refinement/phase16-evidence/live/backup-preflight.png",
+      "sha256": "4bed9d8a662ac1d70e4b344c6f313bfe9d695d7d97da2ba27e9c0e903eca01ea",
+      "surface": "live"
+    },
+    {
+      "path": "docs/product-refinement/phase16-evidence/live/backup-receipts.png",
+      "sha256": "087679f24c76ea06901288c9b28825682d23e4434d28f7b58f9cd6d0880fbccb",
+      "surface": "live"
+    },
+    {
+      "path": "docs/product-refinement/phase16-evidence/live/journal-phone.png",
+      "sha256": "ee2d6ecd5b3f4ff03849bf6a84f547b4da3794f4b128d650161af51f21ce00e4",
+      "surface": "live"
+    },
+    {
+      "path": "docs/product-refinement/phase16-evidence/live/planning-mobile-dialog.png",
+      "sha256": "9ebe6d0dcb41aa28323be76258328235dda50c4d0aab4e499f41caff8a3ad4e7",
+      "surface": "live"
+    },
+    {
+      "path": "docs/product-refinement/phase16-evidence/live/report-task.png",
+      "sha256": "f909b054156a253ae260372c20d52de0b1cd2b2d308e5aff35bf59e596fc8c8d",
+      "surface": "live"
+    },
+    {
+      "path": "docs/product-refinement/phase16-evidence/live/settlement-journal.png",
+      "sha256": "f83f79917d00eb450b29fb1ccfcebba5992bfb0f59fa5c65c7f787bd692c54d0",
+      "surface": "live"
+    },
+    {
+      "path": "docs/product-refinement/phase16-evidence/preview/admin-access.png",
+      "sha256": "c28ea998451a9468eaa5bbd8ea4cb4ad241c2fd6fc3c5a8dc8fae6c95e4b2859",
+      "surface": "preview"
+    },
+    {
+      "path": "docs/product-refinement/phase16-evidence/preview/audit-phone.png",
+      "sha256": "ceb1087b7294b3e69f94da745e3d6843f7038b1958e031696b2940246c860c99",
+      "surface": "preview"
+    },
+    {
+      "path": "docs/product-refinement/phase16-evidence/preview/backup-preflight.png",
+      "sha256": "b996d73bc5c47fb26a3ae02551bf68777c8c02891b137eae32e6b432fbe23c46",
+      "surface": "preview"
+    },
+    {
+      "path": "docs/product-refinement/phase16-evidence/preview/backup-receipts.png",
+      "sha256": "3c41d1801bc8e13af3d9968b181dedc90429e2e47aec71ae2c0b390a5ace356d",
+      "surface": "preview"
+    },
+    {
+      "path": "docs/product-refinement/phase16-evidence/preview/journal-phone.png",
+      "sha256": "ee2d6ecd5b3f4ff03849bf6a84f547b4da3794f4b128d650161af51f21ce00e4",
+      "surface": "preview"
+    },
+    {
+      "path": "docs/product-refinement/phase16-evidence/preview/report-task.png",
+      "sha256": "7b530170e6b79f25612396719a5cd4002ac46cb2dd66e9e432886f295977d64d",
+      "surface": "preview"
+    },
+    {
+      "path": "docs/product-refinement/phase16-evidence/preview/settlement-journal.png",
+      "sha256": "34e297272eb091745c443aa8c216625054e9f3310496de93e5aaff77ff384ade",
+      "surface": "preview"
+    }
+  ],
+  "next_phase": 17
+}

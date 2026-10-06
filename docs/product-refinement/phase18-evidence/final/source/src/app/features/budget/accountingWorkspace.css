@@ -1,0 +1,39 @@
+.eflow-accounting-views {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  min-width: 0;
+  border-bottom: 1px solid var(--workspace-border);
+}
+
+.eflow-accounting-view {
+  flex: 0 0 auto;
+  min-height: 40px;
+  padding: 8px 12px;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  border-radius: 6px 6px 0 0;
+  color: var(--workspace-muted);
+  font-size: 13px;
+}
+
+.eflow-accounting-view:hover {
+  background: var(--workspace-hover);
+}
+
+.eflow-accounting-view[aria-current="page"] {
+  color: var(--workspace-primary);
+  background: var(--workspace-hover);
+  border-bottom-color: var(--workspace-primary);
+}
+
+.eflow-accounting-view:focus-visible {
+  outline: 2px solid var(--workspace-primary);
+  outline-offset: -2px;
+}
+
+@media (max-width: 767px) {
+  .eflow-accounting-view {
+    min-height: var(--eflow-touch-target);
+  }
+}

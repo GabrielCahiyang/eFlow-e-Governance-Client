@@ -50,18 +50,20 @@ export function Modal({
   const generatedId = useId().replace(/:/g, "");
   const modalId = `eflow-modal-${generatedId}`;
   const accessibleTitle = title || ariaLabel || "Dialog";
+  const modalLayer = typeof document === "undefined" ? 300 : Number.parseInt(getComputedStyle(document.documentElement).getPropertyValue("--eflow-layer-modal"), 10) || 300;
 
   return (
     <VibeModal
       closeButtonAriaLabel="Close dialog"
       id={modalId}
-      onClose={() => { if (!preventClose) onClose(); }}
+      onClose={() => { if (!preventClose && !document.querySelector("[data-slot='alert-dialog-content']")) onClose(); }}
       show={isOpen}
       alertModal={preventClose}
-      allowFocusEscapeTo={preventClose ? [] : ["[data-slot='alert-dialog-content']"]}
+      allowFocusEscapeTo={["[data-slot='alert-dialog-content']", "[data-slot='select-content']", "[data-slot='popover-content']", "[data-slot='dropdown-menu-content']"]}
       size={modalSizeForWidth(width)}
       className={`eflow-responsive-modal ${preventClose ? "eflow-modal-locked" : ""} ${overlayClassName}`}
       useFixedPosition
+      zIndex={modalLayer}
     >
       <ModalBasicLayout className={`eflow-vibe-modal-layout ${className}`}>
         <ModalHeader title={accessibleTitle} />
@@ -84,19 +86,23 @@ export function ModalButton({
   variant = "default",
   onClick,
   disabled,
+  pending = false,
   type = "button",
 }: {
   children: ReactNode;
   variant?: "default" | "primary" | "danger";
   onClick?: () => void;
   disabled?: boolean;
+  pending?: boolean;
   type?: "button" | "submit";
 }) {
   return (
     <Button
       type={type}
       onClick={onClick}
-      disabled={disabled}
+      disabled={disabled || pending}
+      loading={pending}
+      aria-label={pending && typeof children === "string" ? children : undefined}
       kind={variant === "default" ? "secondary" : "primary"}
       color={variant === "danger" ? "negative" : "primary"}
       size="medium"

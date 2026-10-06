@@ -1,0 +1,114 @@
+{
+  "phase": 18,
+  "recordedAt": "2026-10-06T22:40:46.927Z",
+  "localDate": "2026-10-07",
+  "timezone": "Asia/Singapore",
+  "status": "Browser acceptance verified; local performance release issue remains",
+  "revision": "a16d36e0b2c545c09a097801ff1345a26e39d030",
+  "workingTree": "Uncommitted earlier phases and Phase 18 changes; exact current input hashes in final/application-input-sha256.json",
+  "packageLockSha256": "87e367309ebf2089f8d53f008a74978d2dbc6a03d8a1795d55a7708a369569bf",
+  "artifacts": {
+    "finalIndexSha256": "45a0603993adf24cc06d0d5088293d8994e2ebb0e427147c1d9f2457b1cddbab",
+    "baselineIndexSha256": "4386918d50a3ba391957c3db6be2453bdbf9a1b7b385aeee7f0a20e39fb6d729",
+    "rollbackHashesMatch": true,
+    "finalManifest": "final/artifact-sha256.json",
+    "baselineManifest": "baseline/artifact-sha256.json"
+  },
+  "gates": {
+    "typecheck": "pass",
+    "unit": {
+      "tests": 840,
+      "files": 214,
+      "receipt": "final/receipts/verified-unit.log"
+    },
+    "build": "pass",
+    "clientSecrets": "pass",
+    "safetyRegistry": {
+      "assertions": 6,
+      "candidates": 2792,
+      "ownedGroups": 46,
+      "result": "pass"
+    },
+    "browser": {
+      "stats": {
+        "startTime": "2026-10-06T22:20:23.356Z",
+        "duration": 989740.871,
+        "expected": 345,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "casesPerBrowser": 115,
+      "browsers": [
+        "chromium",
+        "firefox",
+        "webkit"
+      ],
+      "report": "final/release-report.json",
+      "skips": 0,
+      "retries": 0
+    },
+    "accessibility": {
+      "audits": 123,
+      "seriousCriticalFindings": 0,
+      "widths": [
+        320,
+        390,
+        768,
+        1024,
+        1440
+      ],
+      "scope": "Four canonical role workspaces, shared task inspector, empty projects, Office Team, Reports and Inbox; keyboard/draft/reflow/reduced-motion/forced-color fixtures",
+      "manualAssistiveTechnology": "unverified"
+    },
+    "authority": {
+      "assertions": 37,
+      "mode": "Disposable local PostgreSQL"
+    },
+    "officeIdentity": {
+      "assertions": 84,
+      "mode": "Disposable local PostgreSQL"
+    },
+    "server": {
+      "tests": 53,
+      "mode": "Mocked local services"
+    },
+    "rollback": {
+      "cases": 2,
+      "report": "final/rollback-report.json",
+      "scope": "Frozen local prior artifact only"
+    },
+    "graph": {
+      "receipt": "final/receipts/verified-graph.log",
+      "knownParserWarnings": 4
+    }
+  },
+  "performance": {
+    "comparison": "final/performance-comparison.json",
+    "runsPerDataset": 3,
+    "guard": "Comparable route/filter medians no more than 10% worse than paired baseline; journal reads exactly one",
+    "regressionGuard": "fail",
+    "stress": "final/stress-report.json",
+    "baseline5000": "Timed out; no valid comparison median or improvement percentage",
+    "baselineSourceProvenance": "24 selected pre-change source fingerprints and frozen artifact; not a complete pre-change source snapshot"
+  },
+  "bundle": {
+    "cycleWarnings": 0,
+    "largeChunkWarning": true,
+    "largestChunk": {
+      "file": "assets/workspace-contracts-V1Rbo-xY.js",
+      "bytes": 3439257,
+      "gzipBytes": 996727
+    },
+    "releaseApproval": "pending"
+  },
+  "remainingReleaseConditions": [
+    "Resolve or explicitly approve the recorded 100/1,000-task filtering regression in phase18-performance-issue.md",
+    "Release owner approval of large shared chunk and supported task scale; actual WAN, React profiler, long-task and peak-memory profiles",
+    "NVDA/VoiceOver/native Safari and actual browser zoom in their supported environments",
+    "G2 shared-project Task Lead authority, deployed Phase 6.5 identity and owned audit/storage/safety gates",
+    "Hosted CI receipt and actual deployment revision/artifact, staged rollout and deployment rollback rehearsal",
+    "Native Mobile A/B acceptance in its own repository"
+  ],
+  "scope": "Local web source, deterministic fixtures and evidence only; no live writes, migration, push or deployment"
+}

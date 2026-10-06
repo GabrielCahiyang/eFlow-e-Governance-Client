@@ -1,0 +1,12 @@
+
+Running 3 tests using 1 worker
+
+(node:9044) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:9044) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [chromium] › tests\e2e\phase10-project-workspace.spec.ts:9:1 › project identity, settings retry, favorites and browser history use one project (9.1s)
+  ok 2 [chromium] › tests\e2e\phase10-project-workspace.spec.ts:53:1 › Observer utilities stay read-only and sharing keeps current access requirements at 390px (5.3s)
+  ok 3 [chromium] › tests\e2e\phase10-project-workspace.spec.ts:63:1 › participant failure retries its source and long project identity stays within the viewport (7.7s)
+
+  3 passed (23.4s)

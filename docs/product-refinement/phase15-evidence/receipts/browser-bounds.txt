@@ -1,0 +1,14 @@
+
+Running 2 tests using 1 worker
+
+
+
+[1A[2K(node:32836) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K(node:32836) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[1/2] [chromium] › tests\e2e\phase15-ai-governance.spec.ts:12:1 › Reviewed project sections preserve source and require one impact confirmation before creating work
+[1A[2K[2/2] [chromium] › tests\e2e\phase15-ai-governance.spec.ts:39:1 › Owner PDS review retries extraction, retains failed profile edits and confirms the saved summary separately
+[1A[2K  2 passed (17.2s)

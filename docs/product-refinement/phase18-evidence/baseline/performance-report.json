@@ -1,0 +1,308 @@
+{
+  "config": {
+    "configFile": "C:\\Users\\james\\projects\\eflow-e-Governance-Project\\playwright.config.ts",
+    "rootDir": "C:/Users/james/projects/eflow-e-Governance-Project/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "C:/Users/james/projects/eflow-e-Governance-Project/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/Users/james/projects/eflow-e-Governance-Project/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.55.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "phase18-measurements.spec.ts",
+      "file": "phase18-measurements.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "production project 100 tasks: three measured samples",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 9420,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  getByRole('button', { name: 'Edit task Benchmark task 0', exact: true })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Edit task Benchmark task 0', exact: true })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  getByRole('button', { name: 'Edit task Benchmark task 0', exact: true })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Edit task Benchmark task 0', exact: true })\u001b[22m\n\n    at C:\\Users\\james\\projects\\eflow-e-Governance-Project\\tests\\e2e\\phase18-measurements.spec.ts:20:97",
+                    "location": {
+                      "file": "C:\\Users\\james\\projects\\eflow-e-Governance-Project\\tests\\e2e\\phase18-measurements.spec.ts",
+                      "column": 97,
+                      "line": 20
+                    },
+                    "snippet": "  18 |     const start = performance.now();\n  19 |     await page.goto(`/projects?page=Projects&project=${data.project}&view=tasks`);\n> 20 |     await expect(page.getByRole('button', { name: 'Edit task Benchmark task 0', exact: true })).toBeVisible();\n     |                                                                                                 ^\n  21 |     await expect(page.getByRole('button', { name: `Edit task Benchmark task ${size - 1}`, exact: true })).toHaveCount(1);\n  22 |     const readyMs = performance.now() - start;\n  23 |     const dom = await page.evaluate(() => ({ nodes: document.querySelectorAll('*').length, memory: (performance as Performance & { memory?: { usedJSHeapSize: number } }).memory?.usedJSHeapSize }));"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\james\\projects\\eflow-e-Governance-Project\\tests\\e2e\\phase18-measurements.spec.ts",
+                        "column": 97,
+                        "line": 20
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  getByRole('button', { name: 'Edit task Benchmark task 0', exact: true })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Edit task Benchmark task 0', exact: true })\u001b[22m\n\n\n  18 |     const start = performance.now();\n  19 |     await page.goto(`/projects?page=Projects&project=${data.project}&view=tasks`);\n> 20 |     await expect(page.getByRole('button', { name: 'Edit task Benchmark task 0', exact: true })).toBeVisible();\n     |                                                                                                 ^\n  21 |     await expect(page.getByRole('button', { name: `Edit task Benchmark task ${size - 1}`, exact: true })).toHaveCount(1);\n  22 |     const readyMs = performance.now() - start;\n  23 |     const dom = await page.evaluate(() => ({ nodes: document.querySelectorAll('*').length, memory: (performance as Performance & { memory?: { usedJSHeapSize: number } }).memory?.usedJSHeapSize }));\n    at C:\\Users\\james\\projects\\eflow-e-Governance-Project\\tests\\e2e\\phase18-measurements.spec.ts:20:97"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T15:40:53.133Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\james\\projects\\eflow-e-Governance-Project\\test-results\\phase18-measurements-produ-e5703-asks-three-measured-samples-chromium\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\james\\projects\\eflow-e-Governance-Project\\test-results\\phase18-measurements-produ-e5703-asks-three-measured-samples-chromium\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\james\\projects\\eflow-e-Governance-Project\\tests\\e2e\\phase18-measurements.spec.ts",
+                    "column": 97,
+                    "line": 20
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "54f5929b2cd53ee9dcfe-51a5f8b9ecdb6e2e98bc",
+          "file": "phase18-measurements.spec.ts",
+          "line": 8,
+          "column": 39
+        },
+        {
+          "title": "production project 1000 tasks: three measured samples",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 17280,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  getByRole('button', { name: 'Edit task Benchmark task 0', exact: true })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Edit task Benchmark task 0', exact: true })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  getByRole('button', { name: 'Edit task Benchmark task 0', exact: true })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Edit task Benchmark task 0', exact: true })\u001b[22m\n\n    at C:\\Users\\james\\projects\\eflow-e-Governance-Project\\tests\\e2e\\phase18-measurements.spec.ts:20:97",
+                    "location": {
+                      "file": "C:\\Users\\james\\projects\\eflow-e-Governance-Project\\tests\\e2e\\phase18-measurements.spec.ts",
+                      "column": 97,
+                      "line": 20
+                    },
+                    "snippet": "  18 |     const start = performance.now();\n  19 |     await page.goto(`/projects?page=Projects&project=${data.project}&view=tasks`);\n> 20 |     await expect(page.getByRole('button', { name: 'Edit task Benchmark task 0', exact: true })).toBeVisible();\n     |                                                                                                 ^\n  21 |     await expect(page.getByRole('button', { name: `Edit task Benchmark task ${size - 1}`, exact: true })).toHaveCount(1);\n  22 |     const readyMs = performance.now() - start;\n  23 |     const dom = await page.evaluate(() => ({ nodes: document.querySelectorAll('*').length, memory: (performance as Performance & { memory?: { usedJSHeapSize: number } }).memory?.usedJSHeapSize }));"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\james\\projects\\eflow-e-Governance-Project\\tests\\e2e\\phase18-measurements.spec.ts",
+                        "column": 97,
+                        "line": 20
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  getByRole('button', { name: 'Edit task Benchmark task 0', exact: true })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Edit task Benchmark task 0', exact: true })\u001b[22m\n\n\n  18 |     const start = performance.now();\n  19 |     await page.goto(`/projects?page=Projects&project=${data.project}&view=tasks`);\n> 20 |     await expect(page.getByRole('button', { name: 'Edit task Benchmark task 0', exact: true })).toBeVisible();\n     |                                                                                                 ^\n  21 |     await expect(page.getByRole('button', { name: `Edit task Benchmark task ${size - 1}`, exact: true })).toHaveCount(1);\n  22 |     const readyMs = performance.now() - start;\n  23 |     const dom = await page.evaluate(() => ({ nodes: document.querySelectorAll('*').length, memory: (performance as Performance & { memory?: { usedJSHeapSize: number } }).memory?.usedJSHeapSize }));\n    at C:\\Users\\james\\projects\\eflow-e-Governance-Project\\tests\\e2e\\phase18-measurements.spec.ts:20:97"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T15:41:03.777Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\james\\projects\\eflow-e-Governance-Project\\test-results\\phase18-measurements-produ-b941c-asks-three-measured-samples-chromium\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\james\\projects\\eflow-e-Governance-Project\\test-results\\phase18-measurements-produ-b941c-asks-three-measured-samples-chromium\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\james\\projects\\eflow-e-Governance-Project\\tests\\e2e\\phase18-measurements.spec.ts",
+                    "column": 97,
+                    "line": 20
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "54f5929b2cd53ee9dcfe-12459234e588349dd0f2",
+          "file": "phase18-measurements.spec.ts",
+          "line": 8,
+          "column": 39
+        },
+        {
+          "title": "production project 5000 tasks: three measured samples",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 180020,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 180000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 180000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 180000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "message": "Error: apiRequestContext._wrapApiCall: ENOENT: no such file or directory, open 'C:\\Users\\james\\projects\\eflow-e-Governance-Project\\test-results\\.playwright-artifacts-2\\traces\\54f5929b2cd53ee9dcfe-25fcbd808000543c2adb.network'"
+                    },
+                    {
+                      "location": {
+                        "file": "C:\\Users\\james\\projects\\eflow-e-Governance-Project\\tests\\e2e\\phase18-measurements.spec.ts",
+                        "column": 97,
+                        "line": 20
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m failed\n\nLocator:  getByRole('button', { name: 'Edit task Benchmark task 0', exact: true })\nExpected: visible\nReceived: <element(s) not found>\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Edit task Benchmark task 0', exact: true })\u001b[22m\n\n\n  18 |     const start = performance.now();\n  19 |     await page.goto(`/projects?page=Projects&project=${data.project}&view=tasks`);\n> 20 |     await expect(page.getByRole('button', { name: 'Edit task Benchmark task 0', exact: true })).toBeVisible();\n     |                                                                                                 ^\n  21 |     await expect(page.getByRole('button', { name: `Edit task Benchmark task ${size - 1}`, exact: true })).toHaveCount(1);\n  22 |     const readyMs = performance.now() - start;\n  23 |     const dom = await page.evaluate(() => ({ nodes: document.querySelectorAll('*').length, memory: (performance as Performance & { memory?: { usedJSHeapSize: number } }).memory?.usedJSHeapSize }));\n    at C:\\Users\\james\\projects\\eflow-e-Governance-Project\\tests\\e2e\\phase18-measurements.spec.ts:20:97"
+                    },
+                    {
+                      "message": "Error: ENOENT: no such file or directory, open 'C:\\Users\\james\\projects\\eflow-e-Governance-Project\\test-results\\.playwright-artifacts-2\\346bc5b9ce67d38e63a4210b365b435d.zip'"
+                    },
+                    {
+                      "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T15:41:22.424Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "54f5929b2cd53ee9dcfe-25fcbd808000543c2adb",
+          "file": "phase18-measurements.spec.ts",
+          "line": 8,
+          "column": 39
+        },
+        {
+          "title": "production Accounting journal scoped request count",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5178,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T15:44:58.443Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "accounting-journal",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGFnZSI6ICJiYXNlbGluZSIsCiAgImJyb3dzZXIiOiAiY2hyb21pdW0iLAogICJzYW1wbGVzIjogWwogICAgewogICAgICAicnVuIjogMCwKICAgICAgInJlYWR5TXMiOiA3NjQuNzI0OTAwMDAwMDAwMiwKICAgICAgImpvdXJuYWxSZWFkcyI6IDIKICAgIH0sCiAgICB7CiAgICAgICJydW4iOiAxLAogICAgICAicmVhZHlNcyI6IDc2MC4wMzY0LAogICAgICAiam91cm5hbFJlYWRzIjogMgogICAgfSwKICAgIHsKICAgICAgInJ1biI6IDIsCiAgICAgICJyZWFkeU1zIjogNzU1Ljc2MjIwMDAwMDAwMDEsCiAgICAgICJqb3VybmFsUmVhZHMiOiAyCiAgICB9CiAgXQp9"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "54f5929b2cd53ee9dcfe-d3b8dc1d284f917d0aec",
+          "file": "phase18-measurements.spec.ts",
+          "line": 34,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-06T15:40:52.145Z",
+    "duration": 251674.023,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 3,
+    "flaky": 0
+  }
+}

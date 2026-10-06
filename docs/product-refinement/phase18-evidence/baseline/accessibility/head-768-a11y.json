@@ -1,0 +1,50 @@
+[
+  {
+    "id": "color-contrast",
+    "impact": "serious",
+    "nodes": [
+      {
+        "target": [
+          ".contentText_61cf023805"
+        ],
+        "detail": "Fix any of the following:\n  Element has insufficient color contrast of 1.8 (foreground color: #ffffff, background color: #66ccff, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+      },
+      {
+        "target": [
+          "aside > div > span"
+        ],
+        "detail": "Fix any of the following:\n  Element has insufficient color contrast of 3.52 (foreground color: #6b8983, background color: #f1f8f7, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1"
+      },
+      {
+        "target": [
+          "aside > button"
+        ],
+        "detail": "Fix any of the following:\n  Element has insufficient color contrast of 4.4 (foreground color: #087f8c, background color: #f1f8f7, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+      },
+      {
+        "target": [
+          "span[aria-label=\"Project schedule: Due soon\"] > span[data-testid=\"label\"][data-vibe=\"Label\"] > .onPrimary_7e039f1c8d.label_26a431b635.kindFill_8717215925 > .inherit_22953a59be.typography_8610ab18ee.start_58170bedfc"
+        ],
+        "detail": "Fix any of the following:\n  Element has insufficient color contrast of 1.89 (foreground color: #ffffff, background color: #fdab3d, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+      },
+      {
+        "target": [
+          ".pv-filter-count"
+        ],
+        "detail": "Fix any of the following:\n  Element has insufficient color contrast of 3.76 (foreground color: #7b8495, background color: #ffffff, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+      },
+      {
+        "target": [
+          "button[aria-label=\"Edit group To do\"]"
+        ],
+        "detail": "Fix any of the following:\n  Element has insufficient color contrast of 2.8 (foreground color: #579bfc, background color: #ffffff, font size: 13.5pt (18px), font weight: normal). Expected contrast ratio of 4.5:1"
+      },
+      {
+        "target": [
+          ".pt-task-row:nth-child(2) > .pt-cell--status.pt-cell > .pt-inline-cell > .pt-status"
+        ],
+        "detail": "Fix any of the following:\n  Element has insufficient color contrast of 2.8 (foreground color: #ffffff, background color: #579bfc, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+      }
+    ]
+  }
+]

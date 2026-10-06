@@ -1,0 +1,194 @@
+[
+  {
+    "file": "server/routers/admin.py",
+    "line": 65,
+    "method": "post",
+    "route": "\"/users/create\")\r",
+    "handler": "create_managed_user",
+    "verification": "Source route only; validation/audit must be traced inside handler and services"
+  },
+  {
+    "file": "server/routers/admin.py",
+    "line": 131,
+    "method": "delete",
+    "route": "\"/users/{uid}\")\r",
+    "handler": "delete_managed_user",
+    "verification": "Source route only; validation/audit must be traced inside handler and services"
+  },
+  {
+    "file": "server/routers/admin.py",
+    "line": 194,
+    "method": "post",
+    "route": "\"/chat/messages/update\")\r",
+    "handler": "update_chat_message",
+    "verification": "Source route only; validation/audit must be traced inside handler and services"
+  },
+  {
+    "file": "server/routers/admin.py",
+    "line": 211,
+    "method": "post",
+    "route": "\"/chat/messages/delete\")\r",
+    "handler": "delete_chat_message",
+    "verification": "Source route only; validation/audit must be traced inside handler and services"
+  },
+  {
+    "file": "server/routers/ai.py",
+    "line": 172,
+    "method": "post",
+    "route": "\"/jobs\")\r",
+    "handler": "enqueue_job",
+    "verification": "Source route only; validation/audit must be traced inside handler and services"
+  },
+  {
+    "file": "server/routers/ai.py",
+    "line": 190,
+    "method": "post",
+    "route": "\"/chat\")\r",
+    "handler": "proxy_chat",
+    "verification": "Source route only; validation/audit must be traced inside handler and services"
+  },
+  {
+    "file": "server/routers/backups.py",
+    "line": 34,
+    "method": "post",
+    "route": "\"\", status_code=202)\r",
+    "handler": "create_backup",
+    "verification": "Source route only; validation/audit must be traced inside handler and services"
+  },
+  {
+    "file": "server/routers/backups.py",
+    "line": 86,
+    "method": "delete",
+    "route": "\"/{job_id}\", status_code=204)\r",
+    "handler": "delete_backup",
+    "verification": "Source route only; validation/audit must be traced inside handler and services"
+  },
+  {
+    "file": "server/routers/collaboration.py",
+    "line": 17,
+    "method": "post",
+    "route": "\"/drafts/{draft_id}/recommend-assignments\")\r",
+    "handler": "collaboration_recommendations",
+    "verification": "Source route only; validation/audit must be traced inside handler and services"
+  },
+  {
+    "file": "server/routers/invitations.py",
+    "line": 116,
+    "method": "post",
+    "route": "'')\r",
+    "handler": "create_invitations",
+    "verification": "Source route only; validation/audit must be traced inside handler and services"
+  },
+  {
+    "file": "server/routers/invitations.py",
+    "line": 127,
+    "method": "post",
+    "route": "'/validate', dependencies=[Depends(public_limit)])\r",
+    "handler": "validate_invitation",
+    "verification": "Source route only; validation/audit must be traced inside handler and services"
+  },
+  {
+    "file": "server/routers/invitations.py",
+    "line": 140,
+    "method": "post",
+    "route": "'/project-office')",
+    "handler": "invite_project_office",
+    "verification": "Source route only; validation/audit must be traced inside handler and services"
+  },
+  {
+    "file": "server/routers/invitations.py",
+    "line": 144,
+    "method": "post",
+    "route": "'/v1/project-office-identity')",
+    "handler": "invite_local_office",
+    "verification": "Source route only; validation/audit must be traced inside handler and services"
+  },
+  {
+    "file": "server/routers/invitations.py",
+    "line": 167,
+    "method": "post",
+    "route": "'/create-account', dependencies=[Depends(public_limit)])\r",
+    "handler": "create_invited_account",
+    "verification": "Source route only; validation/audit must be traced inside handler and services"
+  },
+  {
+    "file": "server/routers/invitations.py",
+    "line": 171,
+    "method": "post",
+    "route": "'/accept', dependencies=[Depends(public_limit)])\r",
+    "handler": "accept_invitation",
+    "verification": "Source route only; validation/audit must be traced inside handler and services"
+  },
+  {
+    "file": "server/routers/invitations.py",
+    "line": 175,
+    "method": "post",
+    "route": "'/{invitation_id}/resend')\r",
+    "handler": "resend",
+    "verification": "Source route only; validation/audit must be traced inside handler and services"
+  },
+  {
+    "file": "server/routers/invitations.py",
+    "line": 179,
+    "method": "post",
+    "route": "'/{invitation_id}/revoke')\r",
+    "handler": "revoke",
+    "verification": "Source route only; validation/audit must be traced inside handler and services"
+  },
+  {
+    "file": "server/routers/notifications.py",
+    "line": 43,
+    "method": "post",
+    "route": "\"/email\")\r",
+    "handler": "send_email_notification",
+    "verification": "Source route only; validation/audit must be traced inside handler and services"
+  },
+  {
+    "file": "server/routers/onboarding.py",
+    "line": 31,
+    "method": "patch",
+    "route": "'/me')\r",
+    "handler": "update_onboarding",
+    "verification": "Source route only; validation/audit must be traced inside handler and services"
+  },
+  {
+    "file": "server/routers/professional_profiles.py",
+    "line": 27,
+    "method": "post",
+    "route": "'/pds/upload')\r",
+    "handler": "upload_pds",
+    "verification": "Source route only; validation/audit must be traced inside handler and services"
+  },
+  {
+    "file": "server/routers/professional_profiles.py",
+    "line": 74,
+    "method": "post",
+    "route": "'/pds/{document_id}/process')\r",
+    "handler": "retry_processing",
+    "verification": "Source route only; validation/audit must be traced inside handler and services"
+  },
+  {
+    "file": "server/routers/professional_profiles.py",
+    "line": 123,
+    "method": "patch",
+    "route": "'/professional-profile/me')\r",
+    "handler": "update_profile",
+    "verification": "Source route only; validation/audit must be traced inside handler and services"
+  },
+  {
+    "file": "server/routers/professional_profiles.py",
+    "line": 131,
+    "method": "post",
+    "route": "'/professional-profile/me/confirm')\r",
+    "handler": "confirm_profile",
+    "verification": "Source route only; validation/audit must be traced inside handler and services"
+  },
+  {
+    "file": "server/routers/proposals.py",
+    "line": 15,
+    "method": "post",
+    "route": "\"/validate\")\r",
+    "handler": "validate_document",
+    "verification": "Source route only; validation/audit must be traced inside handler and services"
+  }
+]

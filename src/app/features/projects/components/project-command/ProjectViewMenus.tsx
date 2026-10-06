@@ -2,14 +2,14 @@ import { useState } from "react";
 import { Add, CloseSmall, DropdownChevronDown, Folder } from "@vibe/icons";
 import { Popover, PopoverContent, PopoverTrigger } from "../../../../components/ui/popover";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "../../../../components/ui/dropdown-menu";
-import { OPTIONAL_VIEWS_CATALOG, VIEW_ICONS } from "./projectViewCatalog";
-import type { OptionalProjectView } from "./types";
+import { CORE_VIEWS_CATALOG, OPTIONAL_VIEWS_CATALOG, VIEW_ICONS } from "./projectViewCatalog";
+import type { OptionalProjectView, ProjectCommandTab } from "./types";
 import "./projectViewControls.css";
 
 interface ProjectViewMenusProps {
   openViews: OptionalProjectView[];
   overflowViews: OptionalProjectView[];
-  onOpenView: (id: OptionalProjectView) => void;
+  onOpenView: (id: ProjectCommandTab) => void;
   onCloseView: (id: OptionalProjectView) => void;
   hasProposalContext: boolean;
   hasBudgetData: boolean;
@@ -17,7 +17,7 @@ interface ProjectViewMenusProps {
 
 export function ProjectViewMenus({ openViews, overflowViews, onOpenView, onCloseView, hasProposalContext, hasBudgetData }: ProjectViewMenusProps) {
   const [addViewOpen, setAddViewOpen] = useState(false);
-  const availableViews = OPTIONAL_VIEWS_CATALOG.filter(view =>
+  const availableViews = [...CORE_VIEWS_CATALOG, ...OPTIONAL_VIEWS_CATALOG].filter(view =>
     (!view.requiresProposal || hasProposalContext) && (!view.requiresBudget || hasBudgetData));
 
   return (
@@ -68,7 +68,7 @@ export function ProjectViewMenus({ openViews, overflowViews, onOpenView, onClose
                       <span className="eflow-project-view-menu__copy">
                         <strong>{meta.label}</strong><span>{meta.description}</span>
                       </span>
-                      {openViews.includes(meta.id) && <span className="eflow-project-view-menu__badge">Open</span>}
+                      {CORE_VIEWS_CATALOG.some(view => view.id === meta.id) ? <span className="eflow-project-view-menu__badge">Core</span> : openViews.includes(meta.id as OptionalProjectView) && <span className="eflow-project-view-menu__badge">Open</span>}
                     </button>
                   );
                 })}

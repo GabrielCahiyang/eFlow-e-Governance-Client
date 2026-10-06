@@ -1,0 +1,566 @@
+{
+  "phase": 15,
+  "captured_at": "2026-10-06T13:07:55.843329+00:00",
+  "sources": [
+    {
+      "path": "AGENTS.md",
+      "snapshot": "source/AGENTS.md",
+      "sha256": "031b988fc1ef5d9652eb62a2542a5f04ab290e3840925e1868c45aaa320329f3"
+    },
+    {
+      "path": "docs/product-refinement/audit/current-to-target.md",
+      "snapshot": "source/docs/product-refinement/audit/current-to-target.md",
+      "sha256": "79fc3a886ffdd0307bba84ab3962c2bc727bd34d25cf48cdfbe3c065cf663f38"
+    },
+    {
+      "path": "docs/product-refinement/phase-15-ai-pds-governance.md",
+      "snapshot": "source/docs/product-refinement/phase-15-ai-pds-governance.md",
+      "sha256": "ef44bc042f9731933cb200fbeac2456456fbbd1a4b7806b55166516b2b36d094"
+    },
+    {
+      "path": "docs/product-refinement/phase15-delivery.md",
+      "snapshot": "source/docs/product-refinement/phase15-delivery.md",
+      "sha256": "4db67fa8eafeb0ec76d4145d4c7add7ed44fd9568b1d6c4ae84036ac77516f58"
+    },
+    {
+      "path": "docs/product-refinement/phase15-workflow-contracts.md",
+      "snapshot": "source/docs/product-refinement/phase15-workflow-contracts.md",
+      "sha256": "8dac6599deb4d86fb442afb36e1e668a82a9ceeb786d6f9127ceb50db87b2ad5"
+    },
+    {
+      "path": "docs/product-refinement/README.md",
+      "snapshot": "source/docs/product-refinement/README.md",
+      "sha256": "7712a5491c1d1d821f24f22616d5041aec43ef76f6a29e9090a6ad787a8304cd"
+    },
+    {
+      "path": "package.json",
+      "snapshot": "source/package.json",
+      "sha256": "11575272f2a7a8874f5c55b247d8b3e6a5b72af335b34d11bc823b8a4f65fc3b"
+    },
+    {
+      "path": "playwright.config.ts",
+      "snapshot": "source/playwright.config.ts",
+      "sha256": "e056dcaef59490aae34175f27b0241392d5d088aa3b03b641ccbba4e2203b138"
+    },
+    {
+      "path": "README.md",
+      "snapshot": "source/README.md",
+      "sha256": "731e5b90c09c332c20f65b02ba3ff141882ea6326eb7017a95682b2d5c5829e8"
+    },
+    {
+      "path": "server/routers/professional_profiles.py",
+      "snapshot": "source/server/routers/professional_profiles.py",
+      "sha256": "adecd0810bdc62889c2b3d3d69bca868d2492bcad6dd5483656c696c133299a2"
+    },
+    {
+      "path": "server/services/staffing_context.py",
+      "snapshot": "source/server/services/staffing_context.py",
+      "sha256": "01e3b07de69808209a5495d224b49b5023fc946f8c49637c87802dc534b7e102"
+    },
+    {
+      "path": "server/tests/test_phase2.py",
+      "snapshot": "source/server/tests/test_phase2.py",
+      "sha256": "0538cb944631eedc20134310d86e51d165d35b8ed4944c1f4caa21de09ada6b9"
+    },
+    {
+      "path": "server/tests/test_phase7.py",
+      "snapshot": "source/server/tests/test_phase7.py",
+      "sha256": "01a2525f716d60ba6054e3e9ce3129f14fe006b3e5dfa86bf5388222ac4853cb"
+    },
+    {
+      "path": "src/app/components/ui/dialog.tsx",
+      "snapshot": "source/src/app/components/ui/dialog.tsx",
+      "sha256": "9d2889ebc5309c7348c98efd8725111b1c7d562f62940278dae8a8b7ee0361e5"
+    },
+    {
+      "path": "src/app/components/ui/useConfirmation.tsx",
+      "snapshot": "source/src/app/components/ui/useConfirmation.tsx",
+      "sha256": "0139e87dbfc3cdcfbd4ccd998be03fc28b1560d764da00ca6f2b6e6b87ffc855"
+    },
+    {
+      "path": "src/app/components/ui/workspace/index.ts",
+      "snapshot": "source/src/app/components/ui/workspace/index.ts",
+      "sha256": "5d765349cefb98a773afb35807994223774ea5b3ad73a254bd375ddc6c70ffc6"
+    },
+    {
+      "path": "src/app/components/ui/workspace/ReviewSectionNav.tsx",
+      "snapshot": "source/src/app/components/ui/workspace/ReviewSectionNav.tsx",
+      "sha256": "ea8a31ab7bce3e122b62ee3df171da767d590b072cd9d44e38d5781e1ca3a1cf"
+    },
+    {
+      "path": "src/app/components/ui/workspace/reviewSections.css",
+      "snapshot": "source/src/app/components/ui/workspace/reviewSections.css",
+      "sha256": "6a1208e7755470f6b811d20feb20879a1b27f4cbba06fc4cf9edd46aaf40a489"
+    },
+    {
+      "path": "src/app/features/guided-tours/tourCatalog.ts",
+      "snapshot": "source/src/app/features/guided-tours/tourCatalog.ts",
+      "sha256": "7d8229aaf1b84da91527578902b8767ca3ae743f12c1c4ad9b598351e973f483"
+    },
+    {
+      "path": "src/app/features/interdepartment-collaboration/components/GovernanceWorkspace.tsx",
+      "snapshot": "source/src/app/features/interdepartment-collaboration/components/GovernanceWorkspace.tsx",
+      "sha256": "6659916ed3102afbaa2baa6236dc1555f28e54d29d47938c90e4e3cae7b27376"
+    },
+    {
+      "path": "src/app/features/interdepartment-collaboration/services/collaborationDraftService.ts",
+      "snapshot": "source/src/app/features/interdepartment-collaboration/services/collaborationDraftService.ts",
+      "sha256": "02de64c4ebf409a07340359aebde5fbcb3a2499fa1214509d51d7b5b948488aa"
+    },
+    {
+      "path": "src/app/features/onboarding/components/OnboardingWorkspace.tsx",
+      "snapshot": "source/src/app/features/onboarding/components/OnboardingWorkspace.tsx",
+      "sha256": "1dec5b736213cebbd84061d49dfde83e5bf2e01e4bb0cc2742954b12f1b1d8f2"
+    },
+    {
+      "path": "src/app/features/professional-profile/components/ProfessionalProfilePanel.tsx",
+      "snapshot": "source/src/app/features/professional-profile/components/ProfessionalProfilePanel.tsx",
+      "sha256": "61b587c381d27b739f13cc94454f96a207e4e9b0e0124ed5f0f6648297195677"
+    },
+    {
+      "path": "src/app/features/professional-profile/index.ts",
+      "snapshot": "source/src/app/features/professional-profile/index.ts",
+      "sha256": "3a40632cf6da316e62c3615ebcf2ef25e01d6fb98ac7b64e52cd27d4f53c19ed"
+    },
+    {
+      "path": "src/app/features/professional-profile/professionalProfile.css",
+      "snapshot": "source/src/app/features/professional-profile/professionalProfile.css",
+      "sha256": "1bb81f93f83479d1f871df93c14ba032a300345f39d6405c9451df8ce9b669d3"
+    },
+    {
+      "path": "src/app/features/professional-profile/services/professionalProfileService.ts",
+      "snapshot": "source/src/app/features/professional-profile/services/professionalProfileService.ts",
+      "sha256": "c98c3a51f862c3905e99a5902e94786544d506d97e1b0eec506ec8fee8e2b023"
+    },
+    {
+      "path": "src/app/features/professional-profile/types.ts",
+      "snapshot": "source/src/app/features/professional-profile/types.ts",
+      "sha256": "30c334619383a0b899b85f223e0fe8ef0268abc2e852265f75d4f0819053d113"
+    },
+    {
+      "path": "src/app/features/project-import/components/ImportImpact.tsx",
+      "snapshot": "source/src/app/features/project-import/components/ImportImpact.tsx",
+      "sha256": "330ce1885c3c21f9e83891160f4f95d0caa772950a45f8709a204578a4661d48"
+    },
+    {
+      "path": "src/app/features/project-import/components/ImportTaskReview.tsx",
+      "snapshot": "source/src/app/features/project-import/components/ImportTaskReview.tsx",
+      "sha256": "ec48c13bdb32c8ac7cda36a76c4361a592edc4e31f955cf01067c5c33b8b0e0e"
+    },
+    {
+      "path": "src/app/features/project-import/components/ProjectImportDialog.tsx",
+      "snapshot": "source/src/app/features/project-import/components/ProjectImportDialog.tsx",
+      "sha256": "b7fa5c076d3edce8dc6dbbfdbdabb06c6cbe397d07f8e74ecc5069edc4de84e4"
+    },
+    {
+      "path": "src/app/features/project-import/components/ProjectImportHistory.tsx",
+      "snapshot": "source/src/app/features/project-import/components/ProjectImportHistory.tsx",
+      "sha256": "594a7013eabfe72359f79b48a2a5384e3bd067898a763da26722415d37378af2"
+    },
+    {
+      "path": "src/app/features/project-import/hooks/useProjectImport.ts",
+      "snapshot": "source/src/app/features/project-import/hooks/useProjectImport.ts",
+      "sha256": "48107a740b4b696cab7a0d112aed94958258cd77b55c1eaae78889a14e2a7ff0"
+    },
+    {
+      "path": "src/app/features/project-import/index.ts",
+      "snapshot": "source/src/app/features/project-import/index.ts",
+      "sha256": "c79f621b0897bd309b6d05b91f04b66bd51947a567922ea6f77383f964f32d96"
+    },
+    {
+      "path": "src/app/features/project-import/projectImport.css",
+      "snapshot": "source/src/app/features/project-import/projectImport.css",
+      "sha256": "7506ea3f8b7a4d6124ca415652e8c6f242f5cc262e0f526776a4dede44667eb4"
+    },
+    {
+      "path": "src/app/features/project-import/selectors/draftValidation.ts",
+      "snapshot": "source/src/app/features/project-import/selectors/draftValidation.ts",
+      "sha256": "87acfa6d843c0e27777c722259e53ddeae494580a548ef19ff348b58e3b02988"
+    },
+    {
+      "path": "src/app/features/project-import/selectors/reviewSummary.ts",
+      "snapshot": "source/src/app/features/project-import/selectors/reviewSummary.ts",
+      "sha256": "d5dea1dab103e20fc450b7bd4ed7e7282236131eb1ff54bab0446e8d63d96f2a"
+    },
+    {
+      "path": "src/app/features/project-import/services/documentService.ts",
+      "snapshot": "source/src/app/features/project-import/services/documentService.ts",
+      "sha256": "cb7d7e4a32969d55cf56e74c41101c0530b4004c890dac2cf8fb421915705bce"
+    },
+    {
+      "path": "src/app/features/project-import/services/projectImportService.ts",
+      "snapshot": "source/src/app/features/project-import/services/projectImportService.ts",
+      "sha256": "fa310acfa5ad6c33a2b3af78471e881cc01d3264c6657f87e1b0cd74d8a17082"
+    },
+    {
+      "path": "src/app/features/project-import/types.ts",
+      "snapshot": "source/src/app/features/project-import/types.ts",
+      "sha256": "352dc43a3d14517150458bc9dc442c79e0bcca9804989e8bb76904701cc40d81"
+    },
+    {
+      "path": "src/app/features/project-readiness/components/ProjectReadinessPanel.tsx",
+      "snapshot": "source/src/app/features/project-readiness/components/ProjectReadinessPanel.tsx",
+      "sha256": "0a6e1d266191d0c621f22857cc9f11f95b8558b47550d99a6705ce30de31e8e1"
+    },
+    {
+      "path": "src/app/features/project-readiness/components/ProjectReadinessSummary.tsx",
+      "snapshot": "source/src/app/features/project-readiness/components/ProjectReadinessSummary.tsx",
+      "sha256": "6e7d5f539aca88cd304043ea68806c65f7009f63eb1f95deec163865725c7649"
+    },
+    {
+      "path": "src/app/features/project-readiness/index.ts",
+      "snapshot": "source/src/app/features/project-readiness/index.ts",
+      "sha256": "b2881eced6bded2fceacb98b9f01d9086b528d3d2ea6baeff05a8b12874d44a3"
+    },
+    {
+      "path": "src/app/features/project-readiness/readiness.css",
+      "snapshot": "source/src/app/features/project-readiness/readiness.css",
+      "sha256": "e68d17ab61ad3bdc8c746831615ebbf054f2591d7cc31c4caa611df9994ac076"
+    },
+    {
+      "path": "src/app/features/project-readiness/resolution.ts",
+      "snapshot": "source/src/app/features/project-readiness/resolution.ts",
+      "sha256": "4d79214cac1c97ae5f1fa40ebbf7751257648a898bd531d4c98a10fc6c2ae3b1"
+    },
+    {
+      "path": "src/app/features/project-readiness/services/readinessService.ts",
+      "snapshot": "source/src/app/features/project-readiness/services/readinessService.ts",
+      "sha256": "b04ccd8edfbee9c5333ac04f4f9ee02e3eef0c5e2652c7a55b56cbf7ac9ab0a2"
+    },
+    {
+      "path": "src/app/features/project-readiness/types.ts",
+      "snapshot": "source/src/app/features/project-readiness/types.ts",
+      "sha256": "4e60a8bfff2841b2fa863cb0ff65aec4a1998756f30878505f2308faec7d6269"
+    },
+    {
+      "path": "src/app/features/project-table/components/ProjectTableWorkspace.tsx",
+      "snapshot": "source/src/app/features/project-table/components/ProjectTableWorkspace.tsx",
+      "sha256": "31eee324772ad0122a938f37eed57ccc858c70647656a0257781c343ed621699"
+    },
+    {
+      "path": "src/app/features/project-table/components/ProjectTaskRow.tsx",
+      "snapshot": "source/src/app/features/project-table/components/ProjectTaskRow.tsx",
+      "sha256": "73f433e4f0e84fd58fb40cbc462383f5b543671e5e96a2b9016ff61adf614e76"
+    },
+    {
+      "path": "src/app/features/projects/components/project-command/ProjectCommandWorkspace.tsx",
+      "snapshot": "source/src/app/features/projects/components/project-command/ProjectCommandWorkspace.tsx",
+      "sha256": "839a3f85ab8d6fc91d2cc014028fc71eb29ea108bab054358c6aa7ba59213c49"
+    },
+    {
+      "path": "src/app/features/projects/components/ProjectsWorkspace.tsx",
+      "snapshot": "source/src/app/features/projects/components/ProjectsWorkspace.tsx",
+      "sha256": "c62e1e590d4c0f0f2044d876f85d36ac90217b0dafc1b92b03f5dfa0f3cde986"
+    },
+    {
+      "path": "src/app/features/proposal-import/components/AssignmentExceptionNote.tsx",
+      "snapshot": "source/src/app/features/proposal-import/components/AssignmentExceptionNote.tsx",
+      "sha256": "1ce3af48e61cb0d9f485a1d53630f750f83a03cef1a33b6a7396b4e5d594286b"
+    },
+    {
+      "path": "src/app/features/proposal-import/components/AssignmentModal.tsx",
+      "snapshot": "source/src/app/features/proposal-import/components/AssignmentModal.tsx",
+      "sha256": "ba0f9c7f908d7e0aa7bff66efcce845125dd38c6246c9bd568ac20c5e215e0b4"
+    },
+    {
+      "path": "src/app/features/proposal-import/components/CreateWorkPlanDialog.tsx",
+      "snapshot": "source/src/app/features/proposal-import/components/CreateWorkPlanDialog.tsx",
+      "sha256": "c7895ce0e42575a5f5c3cfc0c0fcc8a5559851a7b963d5609382be4f1fa940e0"
+    },
+    {
+      "path": "src/app/features/proposal-import/components/DraftCockpit.tsx",
+      "snapshot": "source/src/app/features/proposal-import/components/DraftCockpit.tsx",
+      "sha256": "3efcbf57552145a568d869bcf4ca568f73196323c491277840bf62dba9423179"
+    },
+    {
+      "path": "src/app/features/proposal-import/components/draftModel.ts",
+      "snapshot": "source/src/app/features/proposal-import/components/draftModel.ts",
+      "sha256": "71fb7ac5fc37546f44d0403da0e5c5b3141e99fa715c6af60e412d209bf2ea55"
+    },
+    {
+      "path": "src/app/features/proposal-import/components/DraftTaskRow.tsx",
+      "snapshot": "source/src/app/features/proposal-import/components/DraftTaskRow.tsx",
+      "sha256": "4abb80392eee058d3df1b8d8bc0e383738d369e3619ebf5f5b043b471ec67f9f"
+    },
+    {
+      "path": "src/app/features/proposal-import/components/ManualPlanBuilder.tsx",
+      "snapshot": "source/src/app/features/proposal-import/components/ManualPlanBuilder.tsx",
+      "sha256": "668f94da8e6f040815be244c96cb30e496e65d6f61eb8fa5dcacc0a7cbc7467c"
+    },
+    {
+      "path": "src/app/features/proposal-import/components/ProposalImport.tsx",
+      "snapshot": "source/src/app/features/proposal-import/components/ProposalImport.tsx",
+      "sha256": "fd6fcc128884cfae7c3eeecac7bd64b2d631b66571cac8f6655c77e65994e0c8"
+    },
+    {
+      "path": "src/app/features/proposal-import/components/ProposalProcessingStatus.tsx",
+      "snapshot": "source/src/app/features/proposal-import/components/ProposalProcessingStatus.tsx",
+      "sha256": "5df85ea009e5e544ddeb77d8cc554fc040e5e416372151261e17027486e66143"
+    },
+    {
+      "path": "src/app/features/proposal-import/components/ProposalReviewSections.tsx",
+      "snapshot": "source/src/app/features/proposal-import/components/ProposalReviewSections.tsx",
+      "sha256": "41ec20ee82d84ccef807720a5839197f28142c6695dadee42a9ebeff984b3399"
+    },
+    {
+      "path": "src/app/features/proposal-import/components/TaskAssignmentSummary.tsx",
+      "snapshot": "source/src/app/features/proposal-import/components/TaskAssignmentSummary.tsx",
+      "sha256": "eae11ee59105eeea8ff23d08da32303ee1c63545f67f52b628275a894ac5185e"
+    },
+    {
+      "path": "src/app/features/proposal-import/components/TeamCompositionNote.tsx",
+      "snapshot": "source/src/app/features/proposal-import/components/TeamCompositionNote.tsx",
+      "sha256": "7dda9dce611fd06682d38ff72c7c2eb44260371fb4112edb2bb92ece4752243b"
+    },
+    {
+      "path": "src/app/features/proposal-import/hooks/useManualPlanController.ts",
+      "snapshot": "source/src/app/features/proposal-import/hooks/useManualPlanController.ts",
+      "sha256": "19d16a721261a626303964c5fe85f367101cc1cc6b824051351096769a5848d1"
+    },
+    {
+      "path": "src/app/features/proposal-import/hooks/useProcessingGuard.ts",
+      "snapshot": "source/src/app/features/proposal-import/hooks/useProcessingGuard.ts",
+      "sha256": "d579173b596c5f7ef4b81d75ffd4ad58eca6667820b7b20bf6817c21b8c0f565"
+    },
+    {
+      "path": "src/app/features/proposal-import/hooks/useProposalDraftPersistence.ts",
+      "snapshot": "source/src/app/features/proposal-import/hooks/useProposalDraftPersistence.ts",
+      "sha256": "d636a017610168431fe57f7f52fbee65fbeb9763c9d72a43aaa5228ba766a73c"
+    },
+    {
+      "path": "src/app/features/proposal-import/hooks/useProposalImportController.ts",
+      "snapshot": "source/src/app/features/proposal-import/hooks/useProposalImportController.ts",
+      "sha256": "1f4888d6189fdb758ba23ced0d3de8711a2ba50870e036aa3fa04c421ca4cd27"
+    },
+    {
+      "path": "src/app/features/proposal-import/index.ts",
+      "snapshot": "source/src/app/features/proposal-import/index.ts",
+      "sha256": "525fb3abba7959a19ea927f33c4f086840e597bd2b4bb45cbb8f5b553aa4e6ef"
+    },
+    {
+      "path": "src/app/features/proposal-import/selectors/candidateWorkload.ts",
+      "snapshot": "source/src/app/features/proposal-import/selectors/candidateWorkload.ts",
+      "sha256": "20c9ebbab4a4773f67c73ff10220e300af822917bdb0d5b084a36bd114e99db1"
+    },
+    {
+      "path": "src/app/features/proposal-import/selectors/employeeMentions.ts",
+      "snapshot": "source/src/app/features/proposal-import/selectors/employeeMentions.ts",
+      "sha256": "1f9e18b6ec1c1b24ba6d8b610bbccadbd1feb88d2d1f0796834bc9ddba47635f"
+    },
+    {
+      "path": "src/app/features/proposal-import/services/commitProposalDrafts.ts",
+      "snapshot": "source/src/app/features/proposal-import/services/commitProposalDrafts.ts",
+      "sha256": "6215b34cc0c76af527fcf8b9b5c3567d605425c8a61e097740904713cfd85d91"
+    },
+    {
+      "path": "src/app/features/proposal-import/services/decomposition/assignmentBalancer.ts",
+      "snapshot": "source/src/app/features/proposal-import/services/decomposition/assignmentBalancer.ts",
+      "sha256": "437a774da0cc37225744ee0dce355ed2be30526f4e9ceb3ed4306fa0845cb952"
+    },
+    {
+      "path": "src/app/features/proposal-import/services/decomposition/hierarchyValidation.ts",
+      "snapshot": "source/src/app/features/proposal-import/services/decomposition/hierarchyValidation.ts",
+      "sha256": "ed0174e2c2a66b7d37e26a2a16c2843a324fe52485d7f2a3054cc7c83e87d41a"
+    },
+    {
+      "path": "src/app/features/proposal-import/services/decomposition/index.ts",
+      "snapshot": "source/src/app/features/proposal-import/services/decomposition/index.ts",
+      "sha256": "b1b64d58f47844a5f9250a06cf74a2b7bfdebd1a4461b1dd19f3a2ffed4117ca"
+    },
+    {
+      "path": "src/app/features/proposal-import/services/decomposition/llmClient.ts",
+      "snapshot": "source/src/app/features/proposal-import/services/decomposition/llmClient.ts",
+      "sha256": "5a63ab0415605eef75cb0689a402d109146aa9caa2ef36ee1020db603184747b"
+    },
+    {
+      "path": "src/app/features/proposal-import/services/decomposition/partDecomposition.ts",
+      "snapshot": "source/src/app/features/proposal-import/services/decomposition/partDecomposition.ts",
+      "sha256": "1bc0a2882ac365f7c029fbc83dbcbc8fda2da75045c8d1539da63fac64ca0f79"
+    },
+    {
+      "path": "src/app/features/proposal-import/services/decomposition/recommendations.ts",
+      "snapshot": "source/src/app/features/proposal-import/services/decomposition/recommendations.ts",
+      "sha256": "3916a677e78a69c7e1dffc60f01119355ef8e509722c11f7341c26a22ced9555"
+    },
+    {
+      "path": "src/app/features/proposal-import/services/decomposition/teamComposition.ts",
+      "snapshot": "source/src/app/features/proposal-import/services/decomposition/teamComposition.ts",
+      "sha256": "69a286f1f001f9bd8c547f0504eac3587705cf582abf4b4720c3f4ca87df18c4"
+    },
+    {
+      "path": "src/app/features/proposal-import/services/decomposition/textAnalysis.ts",
+      "snapshot": "source/src/app/features/proposal-import/services/decomposition/textAnalysis.ts",
+      "sha256": "42b9aef8ab4e32314f3e2f7a0d9a08db1b7b0bb364b7984062e164eb64b54255"
+    },
+    {
+      "path": "src/app/features/proposal-import/services/decomposition/wholeDocumentDecomposition.ts",
+      "snapshot": "source/src/app/features/proposal-import/services/decomposition/wholeDocumentDecomposition.ts",
+      "sha256": "f29681c55e679dccdec3d9080b6df0c2176f3b3b4b4f3afb76556e22fd96d22c"
+    },
+    {
+      "path": "src/app/features/proposal-import/services/draftAssignment.ts",
+      "snapshot": "source/src/app/features/proposal-import/services/draftAssignment.ts",
+      "sha256": "f565e7e5874e88979eb189c7bf69abc197949c37a78880eb14ea5f41fa961206"
+    },
+    {
+      "path": "src/app/features/proposal-import/services/manualPlanDraft.ts",
+      "snapshot": "source/src/app/features/proposal-import/services/manualPlanDraft.ts",
+      "sha256": "270344a2c0ea9356ad1967c0a2b284a66969c5d9aaa93c7666c0d7b80efef23c"
+    },
+    {
+      "path": "src/app/features/proposal-import/services/manualPlanValidation.ts",
+      "snapshot": "source/src/app/features/proposal-import/services/manualPlanValidation.ts",
+      "sha256": "e0ac336bfeca815d4692c54d6bf459c15e569290b642c322db5f325251875cf2"
+    },
+    {
+      "path": "src/app/features/proposal-import/services/parseLlmResult.ts",
+      "snapshot": "source/src/app/features/proposal-import/services/parseLlmResult.ts",
+      "sha256": "c71121833107402d84abcf33a58d982a7aa593236c8964049906fd13d59e8e10"
+    },
+    {
+      "path": "src/app/features/proposal-import/services/pdfTextExtractor.ts",
+      "snapshot": "source/src/app/features/proposal-import/services/pdfTextExtractor.ts",
+      "sha256": "513a27227f4cb316a1b53d42c2f47b91e0eb482d4e7dd5d4d2a47333e2b6aaf4"
+    },
+    {
+      "path": "src/app/features/proposal-import/services/proposalBudgetImport.ts",
+      "snapshot": "source/src/app/features/proposal-import/services/proposalBudgetImport.ts",
+      "sha256": "086be22794e4cc8e7aecf035fe4b2c90e4d9ae2dd49ae2f4ee5b2b5d42f2e99c"
+    },
+    {
+      "path": "src/app/features/proposal-import/services/proposalValidationClient.ts",
+      "snapshot": "source/src/app/features/proposal-import/services/proposalValidationClient.ts",
+      "sha256": "ad90d92102b17bc8d6d7d73681144aaf509a5ef78578d0deca5cb9b287064078"
+    },
+    {
+      "path": "src/app/features/proposal-import/types.ts",
+      "snapshot": "source/src/app/features/proposal-import/types.ts",
+      "sha256": "298c9ae3854cbdd7749bf199f3cea61a2426fa17718dfad68bc68fb4b9444565"
+    },
+    {
+      "path": "src/app/features/staffing/components/StaffingDialog.tsx",
+      "snapshot": "source/src/app/features/staffing/components/StaffingDialog.tsx",
+      "sha256": "8ea9acfae9937e2f004c0ccc8fea664c3a0bc63b52db04c095cf9feb249f8e0f"
+    },
+    {
+      "path": "src/app/features/staffing/hooks/useStaffingReview.ts",
+      "snapshot": "source/src/app/features/staffing/hooks/useStaffingReview.ts",
+      "sha256": "0096abdc76fc57db5cf9692d05bc914f8279e969062b940085263947819b748c"
+    },
+    {
+      "path": "src/app/features/staffing/index.ts",
+      "snapshot": "source/src/app/features/staffing/index.ts",
+      "sha256": "66ac828afb8b1ac6b746d2d866e336e6bb75def44e59ea221e0b9d187850be29"
+    },
+    {
+      "path": "src/app/features/staffing/presentation.ts",
+      "snapshot": "source/src/app/features/staffing/presentation.ts",
+      "sha256": "6f23967d15978ca21500c22e84bd30143dc8b3c853bd8d86540db228a0f594c0"
+    },
+    {
+      "path": "src/app/features/staffing/services/staffingService.ts",
+      "snapshot": "source/src/app/features/staffing/services/staffingService.ts",
+      "sha256": "dd23ad96dd8746be9cec219a174bf222456a04268def1e05310f2b1a1e9ed891"
+    },
+    {
+      "path": "src/app/features/staffing/staffing.css",
+      "snapshot": "source/src/app/features/staffing/staffing.css",
+      "sha256": "87544ffbab0e27e12650114130e9b7d7693d548a6c46801da85e6ae8f3143844"
+    },
+    {
+      "path": "src/app/features/staffing/types.ts",
+      "snapshot": "source/src/app/features/staffing/types.ts",
+      "sha256": "ab8c454f482cc1b4a8ee7e8e6e5e103f477362a49407a1613db219a71f0a1ea2"
+    },
+    {
+      "path": "src/app/features/task-inspector/components/TaskInspector.tsx",
+      "snapshot": "source/src/app/features/task-inspector/components/TaskInspector.tsx",
+      "sha256": "54068b2f8b978dc0d8f9e39a8f5d7e0a2f182b86d4bfa8df360a7f7ff0cf6630"
+    },
+    {
+      "path": "src/app/shared/navigationGuard.ts",
+      "snapshot": "source/src/app/shared/navigationGuard.ts",
+      "sha256": "75df8b5e08aaa074d878379a39d9b4c3bebcb14f597f4e8df34aa3d1cbb7fc23"
+    },
+    {
+      "path": "src/app/shared/officeAuthority.ts",
+      "snapshot": "source/src/app/shared/officeAuthority.ts",
+      "sha256": "cab968a204efb4fb85e4191e8ad4c5d42bf006f710ab22cf39c8127fdf587e06"
+    },
+    {
+      "path": "src/app/shared/useExplicitDraft.ts",
+      "snapshot": "source/src/app/shared/useExplicitDraft.ts",
+      "sha256": "ebad9ee6506545a7a524aa9a2a24e5ad605e5ee63a5bf611c2f23d19e67ae00f"
+    },
+    {
+      "path": "supabase/migrations/20261004194130_phase7_readiness_governance.sql",
+      "snapshot": "source/supabase/migrations/20261004194130_phase7_readiness_governance.sql",
+      "sha256": "382d3983a0ed54cd2261e319a887d3d69ebbe963d771e0a7c0ccb2ddf98d84a3"
+    },
+    {
+      "path": "supabase/migrations/20261005170822_phase65_project_local_office_identity.sql",
+      "snapshot": "source/supabase/migrations/20261005170822_phase65_project_local_office_identity.sql",
+      "sha256": "8df2fc34cdce7ca2658c6313e49a9b824e13d1999e35df5c919f5b73f5a1e440"
+    },
+    {
+      "path": "tests/e2e/fixtures/projectWorkspace.ts",
+      "snapshot": "source/tests/e2e/fixtures/projectWorkspace.ts",
+      "sha256": "b7e807827bd45cd7b18eaeadad2a5a004e3b6553c7b2e8544e136df66ae046b0"
+    },
+    {
+      "path": "tests/e2e/phase12-shared-inspector.spec.ts",
+      "snapshot": "source/tests/e2e/phase12-shared-inspector.spec.ts",
+      "sha256": "8a6f981e7f291c332b4024569aeb968b1b06ebbed0fbec88d4246395de649522"
+    },
+    {
+      "path": "tests/e2e/phase14-people-collaboration.spec.ts",
+      "snapshot": "source/tests/e2e/phase14-people-collaboration.spec.ts",
+      "sha256": "6681a52b93bb1a104b6255d063edee382ccfd228904c32e5b57d879015fa5aed"
+    },
+    {
+      "path": "tests/e2e/phase15-ai-governance.spec.ts",
+      "snapshot": "source/tests/e2e/phase15-ai-governance.spec.ts",
+      "sha256": "4bbd51cc11e50f44e5e51458e06ee379038c4547f2243287b066a9d7c36cb4b2"
+    },
+    {
+      "path": "tests/e2e/phase5-project-import.spec.ts",
+      "snapshot": "source/tests/e2e/phase5-project-import.spec.ts",
+      "sha256": "be05caa3e2d6c3a1146a6862fc434f461461a0d593d46460c20cbe1fabe9009d"
+    },
+    {
+      "path": "tests/e2e/phase65-office-identities.spec.ts",
+      "snapshot": "source/tests/e2e/phase65-office-identities.spec.ts",
+      "sha256": "359b84bb24ed3ecc81903a70d6ce73e50770d2605e462f10df79f0ae4f75a129"
+    },
+    {
+      "path": "tests/e2e/phase7-readiness-staffing.spec.ts",
+      "snapshot": "source/tests/e2e/phase7-readiness-staffing.spec.ts",
+      "sha256": "f094dcd9094b4bb0da9f3da0c28fd24e9a66e577da644de9b74dd347f37faced"
+    },
+    {
+      "path": "tests/unit/phase15DraftPersistence.test.tsx",
+      "snapshot": "source/tests/unit/phase15DraftPersistence.test.tsx",
+      "sha256": "452304c03505281196362bf07bd51014d7156b0a807b04836188940a645b788a"
+    },
+    {
+      "path": "tests/unit/phase15ImportSafety.test.tsx",
+      "snapshot": "source/tests/unit/phase15ImportSafety.test.tsx",
+      "sha256": "18c2d9b807593a2f6efd1e5d02b2f92eca0c09e22f754d9150b9305b70e875a6"
+    },
+    {
+      "path": "tests/unit/phase15ProfessionalReview.test.tsx",
+      "snapshot": "source/tests/unit/phase15ProfessionalReview.test.tsx",
+      "sha256": "71c256715f7491a3b31bee61adcd3793df47089cb96e00cbcef13f6aadc92a0d"
+    },
+    {
+      "path": "tests/unit/phase15ReadinessResolution.test.ts",
+      "snapshot": "source/tests/unit/phase15ReadinessResolution.test.ts",
+      "sha256": "cb07fa1cb84deb7fe4e8a03a67b0ca553fbabbbfd1be613231c2541ffd3fc3d8"
+    },
+    {
+      "path": "tests/unit/phase15StaffingReview.test.tsx",
+      "snapshot": "source/tests/unit/phase15StaffingReview.test.tsx",
+      "sha256": "38c5452a0387560bcfcb5b1fef66d2eea4d5b47f64b1647d4dde32e8c474f285"
+    }
+  ]
+}

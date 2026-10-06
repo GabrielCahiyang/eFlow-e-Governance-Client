@@ -1,0 +1,12 @@
+
+Running 3 tests using 1 worker
+
+(node:18460) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18460) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [chromium] › tests\e2e\phase11-main-table.spec.ts:6:1 › column widths, alignment, visibility and sticky task context persist locally (8.1s)
+  ok 2 [chromium] › tests\e2e\phase11-main-table.spec.ts:43:1 › task team entry reuses existing details and mobile sticky context leaves room for work (5.5s)
+  ok 3 [chromium] › tests\e2e\phase11-main-table.spec.ts:62:1 › mobile planning picker and explicit creation keep fields inside the viewport (6.0s)
+
+  3 passed (20.7s)

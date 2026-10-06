@@ -1,0 +1,74 @@
+Diagnostic only; superseded by final passing receipts.
+
+
+Running 23 tests using 1 worker
+
+(node:39580) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:39580) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:9:1 › shared inspector keeps discussion drafts and returns focus to each view origin (16.3s)
+  ok  2 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:31:1 › date range is consistent across views and personal after reload (5.5s)
+  ok  3 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:43:1 › mobile observer inspector stays read only and traps and returns focus (4.7s)
+  ok  4 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:56:1 › Board keyboard action prevents duplicate requests and recovers from denial (4.4s)
+  ok  5 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:65:1 › shared Task Lead team mutations stay gated by G2 while details remain available (5.9s)
+  ok  6 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:73:1 › review drafts stay protected and evidence loading denial has an explicit retry (7.8s)
+  ok  7 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:86:1 › removed canonical task closes mutation controls and explains unavailable access (4.3s)
+  ok  8 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:94:1 › successful inspector lifecycle change returns focus to the refreshed Board card (4.5s)
+  x   9 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:101:1 › mobile team dialog guards drafts and retains a denied member change (12.4s)
+(node:24540) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:24540) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 10 [chromium] › tests\e2e\phase3-project-table.spec.ts:4:1 › Head table keeps first-column task actions, task edits and inline subitems (7.4s)
+  ok 11 [chromium] › tests\e2e\phase3-project-table.spec.ts:45:1 › Member table protects structure and keeps detail access at 390px (4.4s)
+  ok 12 [chromium] › tests\e2e\phase3-project-table.spec.ts:62:1 › Inline tasks save on blur, keep adding with Shift+Enter, and retain failed drafts (5.2s)
+  ok 13 [chromium] › tests\e2e\phase4-project-views.spec.ts:11:1 › Phase 4 shares filters and edits across Board, Gantt, Calendar, Dashboard and Offices (11.2s)
+  ok 14 [chromium] › tests\e2e\phase4-project-views.spec.ts:99:1 › Member can inspect views at 390px without structural date controls (4.7s)
+  ok 15 [chromium] › tests\e2e\phase6-project-offices.spec.ts:5:1 › Lead invites an Office and hands over responsibility without assigning its staff (7.5s)
+  ok 16 [chromium] › tests\e2e\phase6-project-offices.spec.ts:45:1 › Collaborating Head sees a roomy own-Office member picker and only edits its own tasks (5.7s)
+  ok 17 [chromium] › tests\e2e\phase6-project-offices.spec.ts:71:1 › Observer opens the project without editable owners or task planning (5.3s)
+  ok 18 [chromium] › tests\e2e\phase7-readiness-staffing.spec.ts:18:1 › Head confirms readiness; desktop and mobile retain readable checks and closeout blockers (4.7s)
+  ok 19 [chromium] › tests\e2e\phase7-readiness-staffing.spec.ts:35:1 › Staffing is advisory until Head confirmation; roomy dialog supports keyboard selection and mobile footer (6.4s)
+  ok 20 [chromium] › tests\e2e\phase7-readiness-staffing.spec.ts:59:1 › Member reads readiness without Head review, activation or staffing controls (4.2s)
+  ok 21 [chromium] › tests\e2e\project-workspace-controls.spec.ts:19:1 › Project actions open visible menus and dialogs, and the board returns to the filtered table (7.0s)
+  ok 22 [chromium] › tests\e2e\project-workspace-controls.spec.ts:73:1 › View picker, board return and first-column task actions remain reachable at 390px (5.1s)
+  ok 23 [chromium] › tests\e2e\project-workspace-controls.spec.ts:104:1 › Overflow views stay selectable and closable outside the mobile tab scroller (7.9s)
+
+
+  1) [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:101:1 › mobile team dialog guards drafts and retains a denied member change 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByRole('dialog', { name: 'Manage members', exact: true })
+    Expected string: [32m"Task team access denied"[39m
+    Received: <element(s) not found>
+    Timeout: 5000ms
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('dialog', { name: 'Manage members', exact: true })[22m
+
+
+      108 |  await page.route('**/rest/v1/tasks?**',route=>route.request().method()==='PATCH'?route.fulfill({status:403,json:{message:'Task team access denied',code:'42501'}}):route.fallback());
+      109 |  await team.getByRole('button',{name:'Save members',exact:true}).click();const confirmation=page.getByRole('alertdialog');await expect(confirmation).toContainText('1 added');await confirmation.getByRole('button',{name:'Save members',exact:true}).click();
+    > 110 |  await expect(team).toContainText('Task team access denied');expect(records.tasks[0].team_member_ids).toEqual([records.id]);
+          |                     ^
+      111 |  await page.screenshot({path:info.outputPath('team-mobile-denial.png'),fullPage:true,animations:'disabled'});
+      112 |  await team.getByRole('button',{name:'Cancel',exact:true}).click();await page.getByRole('button',{name:'Discard',exact:true}).click();await expect(team).not.toBeVisible();await expect(inspector.getByRole('button',{name:'Manage',exact:true})).toBeFocused();
+      113 | });
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase12-shared-inspector.spec.ts:110:21
+
+    Error Context: test-results\phase12-final-browser\phase12-shared-inspector-m-3a946-ains-a-denied-member-change-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase12-final-browser\phase12-shared-inspector-m-3a946-ains-a-denied-member-change-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase12-final-browser\phase12-shared-inspector-m-3a946-ains-a-denied-member-change-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:101:1 › mobile team dialog guards drafts and retains a denied member change 
+  22 passed (2.6m)

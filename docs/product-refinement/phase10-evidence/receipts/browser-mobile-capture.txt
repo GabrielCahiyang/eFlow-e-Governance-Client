@@ -1,0 +1,10 @@
+
+Running 1 test using 1 worker
+
+(node:39988) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:39988) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [chromium] › tests\e2e\phase10-project-workspace.spec.ts:53:1 › Observer utilities stay read-only and sharing keeps current access requirements at 390px (5.6s)
+
+  1 passed (6.7s)

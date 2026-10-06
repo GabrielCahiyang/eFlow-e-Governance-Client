@@ -1,0 +1,286 @@
+
+Running 12 tests using 1 worker
+
+
+
+[1A[2K(node:32180) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K(node:32180) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[1/12] [chromium] › tests\e2e\phase15-ai-governance.spec.ts:12:1 › Reviewed project sections preserve source and require one impact confirmation before creating work
+[1A[2K  1) [chromium] › tests\e2e\phase15-ai-governance.spec.ts:12:1 › Reviewed project sections preserve source and require one impact confirmation before creating work 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  getByRole('dialog', { name: 'Review your project plan' }).getByLabel('Task name t')
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('dialog', { name: 'Review your project plan' }).getByLabel('Task name t')[22m
+
+
+      14 |  await ai(page,{schemaVersion:1,project:{title:'Reviewed outreach',description:'Reviewed description',objectives:'Serve communities',startDate:'2026-10-10',targetDate:'2026-10-20'},offices:[],groups:[{key:'g',title:'Preparation',color:'#579bfc',existingGroupId:'',tasks:[{key:'t',title:'Assess needs',description:'Gather evidence',priority:'medium',estimatedHours:8,startDate:'',dueDate:'',officeKey:'',dependencies:[],sourceQuote:'',subitems:[]}]}],warnings:['Check the source schedule.']});
+      15 |  await page.route('**/rest/v1/rpc/phase5_import_project_work',route=>{writes++;return route.fulfill({json:{taskCount:1,subitemCount:0,groupCount:1,taskIds:{t:'saved'},groupIds:['g']}});});
+    > 16 |  await page.getByRole('button',{name:'New task options'}).click();await page.getByRole('menuitem',{name:'Import project document'}).click();const initial=page.getByRole('dialog',{name:'Turn a document into project work'});await initial.getByLabel('Document text or project brief').fill(source);await initial.getByRole('button',{name:'Generate draft'}).click();const dialog=page.getByRole('dialog',{name:'Review your project plan'});await expect(dialog.getByLabel('Task name t')).toBeVisible();
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ^
+      17 |  const navigation=dialog.getByRole('navigation',{name:'Review sections'});await navigation.getByRole('button',{name:/Warnings/}).click();await expect(dialog.getByText('Check the source schedule.')).toBeVisible();await navigation.getByRole('button',{name:/Project details/}).click();await dialog.getByLabel('Use these reviewed details for the current project').check();await navigation.getByRole('button',{name:/Groups and work/}).click();expect(writes).toBe(0);
+      18 |  await dialog.getByRole('button',{name:'Add to Project'}).click();const review=page.getByRole('alertdialog',{name:'Add reviewed work to project?'});await expect(review).toContainText('1 groups · 1 tasks · 0 subitems');await expect(review).toContainText('Replace project details');await review.getByRole('button',{name:'Cancel',exact:true}).click();expect(writes).toBe(0);
+      19 |  await page.setViewportSize({width:320,height:844});await page.screenshot({path:info.outputPath('import-review-320.png')});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase15-ai-governance.spec.ts:16:480
+
+    Error Context: test-results\phase15-ai-governance-Revi-f219a-mation-before-creating-work-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase15-ai-governance-Revi-f219a-mation-before-creating-work-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase15-ai-governance-Revi-f219a-mation-before-creating-work-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+[1A[2K(node:41456) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+
+[1A[2K(node:41456) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[1A[2K[2/12] [chromium] › tests\e2e\phase15-ai-governance.spec.ts:22:1 › PDF work-plan review saves only its persistent draft, keeps failed autosave edits and retries saving
+[1A[2K  2) [chromium] › tests\e2e\phase15-ai-governance.spec.ts:22:1 › PDF work-plan review saves only its persistent draft, keeps failed autosave edits and retries saving 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  getByRole('dialog', { name: 'Create a work plan' }).getByLabel('Task title').first()
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  30000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 30000ms[22m
+    [2m  - waiting for getByRole('dialog', { name: 'Create a work plan' }).getByLabel('Task title').first()[22m
+
+
+      28 |  await page.route('**/rest/v1/rpc/autosave_collaboration_draft',route=>{saves++;if(saves===1)return route.fulfill({status:403,json:{code:'42501',message:'Draft update denied'}});saved={...saved,working_snapshot:route.request().postDataJSON().p_snapshot};return route.fulfill({json:[saved]});});
+      29 |  page.on('request',req=>{if(/assign_task_with_details|phase3_create_task|phase5_import_project_work|phase65_import_project_work|commit_collaboration/.test(req.url()))operational++;});
+    > 30 |  await page.goto('/projects?page=Projects');await page.getByRole('button',{name:'Create project options'}).last().click();await page.getByRole('menuitem',{name:'Import proposal',exact:true}).click();const dialog=page.getByRole('dialog',{name:'Create a work plan'});await dialog.locator('#proposal-import-file').setInputFiles({name:'plan.pdf',mimeType:'application/pdf',buffer:pdf(source)});await expect(dialog.getByLabel('Task title').first()).toBeVisible({timeout:30_000});expect(creates).toBe(1);expect(operational).toBe(0);
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                             ^
+      31 |  const sections=dialog.getByRole('navigation',{name:'Review sections'});await sections.getByRole('button',{name:/Timeline and budget/}).click();await expect(dialog.getByText(/not authorized or settled funds/).first()).toBeVisible();await sections.getByRole('button',{name:/Hierarchy and tasks/}).click();await dialog.getByLabel('Task title').first().fill('Reviewed assessment');await expect(dialog.getByRole('alert')).toContainText('Draft update denied');await dialog.getByRole('button',{name:'Retry saving draft'}).click();await expect(dialog.getByText('Current draft saved')).toBeVisible();expect(saves).toBe(2);expect(operational).toBe(0);await page.setViewportSize({width:390,height:844});await page.screenshot({path:info.outputPath('workplan-review-mobile.png')});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+      32 | });
+      33 | test('Task inspector staffing retains selection after eligibility denial and assigns only after reviewed fresh context',async({page},info)=>{
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase15-ai-governance.spec.ts:30:445
+
+    Error Context: test-results\phase15-ai-governance-PDF--58171-ve-edits-and-retries-saving-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase15-ai-governance-PDF--58171-ve-edits-and-retries-saving-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase15-ai-governance-PDF--58171-ve-edits-and-retries-saving-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+[1A[2K(node:15952) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:15952) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[1A[2K[3/12] [chromium] › tests\e2e\phase15-ai-governance.spec.ts:33:1 › Task inspector staffing retains selection after eligibility denial and assigns only after reviewed fresh context
+[1A[2K[4/12] [chromium] › tests\e2e\phase15-ai-governance.spec.ts:39:1 › Owner PDS review retries extraction, retains failed profile edits and confirms the saved summary separately
+[1A[2K[5/12] [chromium] › tests\e2e\phase15-ai-governance.spec.ts:46:1 › Official readiness blockers link to Office and task views, and material changes refresh current checks
+[1A[2K[6/12] [chromium] › tests\e2e\phase15-ai-governance.spec.ts:51:1 › Missing readiness deployment explains administrator recovery and governed projects retain Approval Status handoff
+[1A[2K  3) [chromium] › tests\e2e\phase15-ai-governance.spec.ts:51:1 › Missing readiness deployment explains administrator recovery and governed projects retain Approval Status handoff 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByRole('region', { name: 'Project readiness and closeout' })
+    Expected string: [32m"Governed"[39m
+    Received string: [31m"Delivery governanceReadiness & closeoutConfirm the plan before activation. Material scope, Office, schedule or budget changes require another review.Refresh checksProject completion checks did not return a valid result. Retry before completing the project.Refresh checks to verify the current result before another action."[39m
+    Timeout: 5000ms
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('region', { name: 'Project readiness and closeout' })[22m
+    [2m    4 × locator resolved to <section class="p7-panel" aria-label="Project readiness and closeout">…</section>[22m
+    [2m      - unexpected value "Delivery governanceReadiness & closeoutConfirm the plan before activation. Material scope, Office, schedule or budget changes require another review.Refresh checksProject completion checks did not return a valid result. Retry before completing the project.Refresh checks to verify the current result before another action."[22m
+
+
+      52 |  const r=await projectWorkspaceFixture(page,'head');let installed=false;
+      53 |  await page.route('**/rest/v1/rpc/phase7_*',route=>{if(!installed)return route.fulfill({status:404,json:{code:'PGRST202',message:'RPC unavailable'}});return route.fulfill({json:new URL(route.request().url()).pathname.endsWith('/phase7_closeout_summary')?closeout:{projectId:r.project,governed:true,ready:false,canActivate:false,stage:'Governed',checks:[{key:'structure',label:'Governance review',ok:false,detail:'Use the existing proposal review'}]}});});
+    > 54 |  await page.getByRole('button',{name:'Readiness & closeout',exact:true}).click();const panel=page.getByRole('region',{name:'Project readiness and closeout'});await expect(panel.getByRole('alert')).toContainText('Contact your administrator');await expect(panel.getByRole('button',{name:'Refresh checks'})).toBeDisabled();installed=true;Object.assign(r.projects[0],{source_collaboration_draft_id:'governed'});await page.goto('/projects?page=Projects&project='+r.project+'&view=readiness');await expect(panel).toContainText('Governed');await expect(panel.getByRole('button',{name:'Activate project'})).toHaveCount(0);await panel.getByRole('button',{name:'Open Approval Status'}).first().click();await expect(page).toHaveURL(/view=signoff/);
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ^
+      55 | });
+      56 |
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase15-ai-governance.spec.ts:54:508
+
+    Error Context: test-results\phase15-ai-governance-Miss-3967d-ain-Approval-Status-handoff-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase15-ai-governance-Miss-3967d-ain-Approval-Status-handoff-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase15-ai-governance-Miss-3967d-ain-Approval-Status-handoff-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+[1A[2K(node:27832) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K(node:27832) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[7/12] [chromium] › tests\e2e\phase5-project-import.spec.ts:26:1 › Phase 5 shows a spacious editable hierarchy and imports only after confirmation with safe retry
+[1A[2K  4) [chromium] › tests\e2e\phase5-project-import.spec.ts:26:1 › Phase 5 shows a spacious editable hierarchy and imports only after confirmation with safe retry 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  getByRole('dialog', { name: 'Review your project plan' }).getByLabel('Task name t1')
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('dialog', { name: 'Review your project plan' }).getByLabel('Task name t1')[22m
+
+
+      20 |   await dialog.getByRole('button', { name: 'Generate draft' }).click();
+      21 |   const review = page.getByRole('dialog', { name: 'Review your project plan' });
+    > 22 |   await expect(review.getByLabel('Task name t1')).toBeVisible();
+         |                                                   ^
+      23 |   return review;
+      24 | }
+      25 |
+        at mockAi (C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase5-project-import.spec.ts:22:51)
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase5-project-import.spec.ts:45:18
+
+    Error Context: test-results\phase5-project-import-Phas-c96be-onfirmation-with-safe-retry-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase5-project-import-Phas-c96be-onfirmation-with-safe-retry-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase5-project-import-Phas-c96be-onfirmation-with-safe-retry-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+[1A[2K(node:32984) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:32984) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+
+(Use `node --trace-warnings ...` to show where the warning was created)
+[1A[2K[8/12] [chromium] › tests\e2e\phase5-project-import.spec.ts:75:1 › Phase 5 mobile review fills the screen and scrolls inside its table
+[1A[2K  5) [chromium] › tests\e2e\phase5-project-import.spec.ts:75:1 › Phase 5 mobile review fills the screen and scrolls inside its table 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  getByRole('dialog', { name: 'Review your project plan' }).getByLabel('Task name t1')
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('dialog', { name: 'Review your project plan' }).getByLabel('Task name t1')[22m
+
+
+      20 |   await dialog.getByRole('button', { name: 'Generate draft' }).click();
+      21 |   const review = page.getByRole('dialog', { name: 'Review your project plan' });
+    > 22 |   await expect(review.getByLabel('Task name t1')).toBeVisible();
+         |                                                   ^
+      23 |   return review;
+      24 | }
+      25 |
+        at mockAi (C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase5-project-import.spec.ts:22:51)
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase5-project-import.spec.ts:78:18
+
+    Error Context: test-results\phase5-project-import-Phas-fdd00-nd-scrolls-inside-its-table-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase5-project-import-Phas-fdd00-nd-scrolls-inside-its-table-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase5-project-import-Phas-fdd00-nd-scrolls-inside-its-table-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+[1A[2K(node:24616) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:24616) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[1A[2K[9/12] [chromium] › tests\e2e\phase5-project-import.spec.ts:91:1 › Phase 5 extracts readable PDF project text before generating a draft
+[1A[2K[10/12] [chromium] › tests\e2e\phase7-readiness-staffing.spec.ts:18:1 › Head confirms readiness; desktop and mobile retain readable checks and closeout blockers
+[1A[2K  6) [chromium] › tests\e2e\phase7-readiness-staffing.spec.ts:18:1 › Head confirms readiness; desktop and mobile retain readable checks and closeout blockers 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByRole('region', { name: 'Project readiness and closeout' }).getByRole('status').filter({ hasText: 'Project activated.' })
+    Expected string: [32m"activated"[39m
+    Received: <element(s) not found>
+    Timeout: 5000ms
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('region', { name: 'Project readiness and closeout' }).getByRole('status').filter({ hasText: 'Project activated.' })[22m
+
+
+      27 |  await page.screenshot({path:info.outputPath('readiness-desktop.png')});
+      28 |  await panel.getByRole('button',{name:'Activate project',exact:true}).click();await page.getByRole('alertdialog',{name:'Activate this project?'}).getByRole('button',{name:'Activate project',exact:true}).click();await expect.poll(()=>flow.activated).toBe(1);expect(flow.closed).toBe(0);
+    > 29 |  await expect(panel.getByRole('status').filter({hasText:'Project activated.'})).toContainText('activated');
+         |                                                                                 ^
+      30 |  await page.setViewportSize({width:390,height:844});await expect(panel).toBeVisible();
+      31 |  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+      32 |  const checks=await panel.locator('.p7-check').evaluateAll(rows=>rows.map(row=>({width:row.getBoundingClientRect().width,height:row.getBoundingClientRect().height})));expect(checks.every(c=>c.width>=280&&c.height>=100)).toBe(true);
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase7-readiness-staffing.spec.ts:29:81
+
+    Error Context: test-results\phase7-readiness-staffing--27cfb-hecks-and-closeout-blockers-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase7-readiness-staffing--27cfb-hecks-and-closeout-blockers-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase7-readiness-staffing--27cfb-hecks-and-closeout-blockers-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+[1A[2K(node:5204) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:5204) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[1A[2K[11/12] [chromium] › tests\e2e\phase7-readiness-staffing.spec.ts:35:1 › Staffing is advisory until Head confirmation; roomy dialog supports keyboard selection and mobile footer
+[1A[2K[12/12] [chromium] › tests\e2e\phase7-readiness-staffing.spec.ts:59:1 › Member reads readiness without Head review, activation or staffing controls
+[1A[2K  6 failed
+    [chromium] › tests\e2e\phase15-ai-governance.spec.ts:12:1 › Reviewed project sections preserve source and require one impact confirmation before creating work 
+    [chromium] › tests\e2e\phase15-ai-governance.spec.ts:22:1 › PDF work-plan review saves only its persistent draft, keeps failed autosave edits and retries saving 
+    [chromium] › tests\e2e\phase15-ai-governance.spec.ts:51:1 › Missing readiness deployment explains administrator recovery and governed projects retain Approval Status handoff 
+    [chromium] › tests\e2e\phase5-project-import.spec.ts:26:1 › Phase 5 shows a spacious editable hierarchy and imports only after confirmation with safe retry 
+    [chromium] › tests\e2e\phase5-project-import.spec.ts:75:1 › Phase 5 mobile review fills the screen and scrolls inside its table 
+    [chromium] › tests\e2e\phase7-readiness-staffing.spec.ts:18:1 › Head confirms readiness; desktop and mobile retain readable checks and closeout blockers 
+  6 passed (2.3m)

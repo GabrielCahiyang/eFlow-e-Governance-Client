@@ -1,0 +1,88 @@
+
+Running 35 tests using 2 workers
+
+(node:14100) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:29620) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:14100) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:29620) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [chromium] › tests\e2e\admin-mobile-dialogs.spec.ts:4:1 › Admin user management remains usable on a narrow phone (9.1s)
+  ok  2 [chromium] › tests\e2e\navigation-v2.spec.ts:10:75 › head retains its landing and authorized destinations through global/context navigation (11.1s)
+  ok  3 [chromium] › tests\e2e\admin-mobile-dialogs.spec.ts:21:1 › workspace proposal import and existing manual planning remain reachable in the phone drawer (6.1s)
+  ok  5 [chromium] › tests\e2e\phase1-authority.spec.ts:38:3 › admin has canonical navigation and an intact workspace (9.3s)
+  ok  4 [chromium] › tests\e2e\navigation-v2.spec.ts:10:75 › member retains its landing and authorized destinations through global/context navigation (15.1s)
+  ok  6 [chromium] › tests\e2e\phase1-authority.spec.ts:38:3 › head has canonical navigation and an intact workspace (5.5s)
+  ok  8 [chromium] › tests\e2e\phase1-authority.spec.ts:38:3 › member has canonical navigation and an intact workspace (5.5s)
+  ok  7 [chromium] › tests\e2e\navigation-v2.spec.ts:10:75 › accounting_staff retains its landing and authorized destinations through global/context navigation (11.1s)
+  ok  9 [chromium] › tests\e2e\phase1-authority.spec.ts:38:3 › accounting_staff has canonical navigation and an intact workspace (5.8s)
+  ok 11 [chromium] › tests\e2e\phase2-invitations.spec.ts:44:1 › Head invite dialog follows the split reference and supports keyboard dismissal (12.0s)
+  ok 10 [chromium] › tests\e2e\navigation-v2.spec.ts:10:75 › admin retains its landing and authorized destinations through global/context navigation (17.1s)
+  ok 12 [chromium] › tests\e2e\phase2-invitations.spec.ts:63:1 › Member welcome persists skipped status and remains available from Help (7.2s)
+  ok 14 [chromium] › tests\e2e\phase2-invitations.spec.ts:74:34 › Invited account screen at 1440px preserves locked Office and role (3.3s)
+  ok 15 [chromium] › tests\e2e\phase2-invitations.spec.ts:74:34 › Invited account screen at 390px preserves locked Office and role (3.3s)
+  ok 13 [chromium] › tests\e2e\navigation-v2.spec.ts:35:1 › individual support grants reach the named screen and denied routes load no audit records (16.0s)
+  ok 16 [chromium] › tests\e2e\phase3-project-table.spec.ts:4:1 › Head table keeps first-column task actions, task edits and inline subitems (13.5s)
+  ok 17 [chromium] › tests\e2e\navigation-v2.spec.ts:49:1 › search and favorites retain a shared inter-Office observer project without offering creation (11.6s)
+  ok 18 [chromium] › tests\e2e\phase3-project-table.spec.ts:45:1 › Member table protects structure and keeps detail access at 390px (7.4s)
+  ok 19 [chromium] › tests\e2e\navigation-v2.spec.ts:67:1 › creation menu uses existing handlers, retains failed drafts and discards only after confirmation (9.6s)
+  ok 20 [chromium] › tests\e2e\phase3-project-table.spec.ts:62:1 › Inline tasks save on blur, keep adding with Shift+Enter, and retain failed drafts (9.0s)
+  ok 21 [chromium] › tests\e2e\navigation-v2.spec.ts:91:1 › dirty Security editor keeps navigation and browser history until explicit discard (8.9s)
+  ok 23 [chromium] › tests\e2e\navigation-v2.spec.ts:111:1 › failed inline task remains intact when shell navigation is canceled and logout clears local navigation preferences (8.9s)
+  ok 22 [chromium] › tests\e2e\phase4-project-views.spec.ts:11:1 › Phase 4 shares filters and edits across Board, Gantt, Calendar, Dashboard and Offices (15.6s)
+  ok 25 [chromium] › tests\e2e\phase4-project-views.spec.ts:93:1 › Member can inspect views at 390px without structural date controls (7.5s)
+  x  24 [chromium] › tests\e2e\navigation-v2.spec.ts:127:1 › unassigned Office and zero projects remain usable without exposing stale context (13.5s)
+(node:22536) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:22536) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 26 [chromium] › tests\e2e\phase6-project-offices.spec.ts:5:1 › Lead invites an Office and hands over responsibility without assigning its staff (16.5s)
+  ok 27 [chromium] › tests\e2e\navigation-v2.spec.ts:140:40 › responsive navigation, project context and utilities at 1440px (8.8s)
+  ok 29 [chromium] › tests\e2e\navigation-v2.spec.ts:140:40 › responsive navigation, project context and utilities at 768px (8.0s)
+  ok 28 [chromium] › tests\e2e\phase6-project-offices.spec.ts:45:1 › Collaborating Head sees a roomy own-Office member picker and only edits its own tasks (9.4s)
+  ok 30 [chromium] › tests\e2e\navigation-v2.spec.ts:140:40 › responsive navigation, project context and utilities at 390px (6.6s)
+  ok 31 [chromium] › tests\e2e\phase6-project-offices.spec.ts:71:1 › Observer opens the project without editable owners or task planning (7.1s)
+  ok 32 [chromium] › tests\e2e\navigation-v2.spec.ts:140:40 › responsive navigation, project context and utilities at 320px (6.3s)
+  ok 33 [chromium] › tests\e2e\project-workspace-controls.spec.ts:19:1 › Project actions open visible menus and dialogs, and the board returns to the filtered table (8.2s)
+  ok 34 [chromium] › tests\e2e\project-workspace-controls.spec.ts:73:1 › View picker, board return and first-column task actions remain reachable at 390px (5.8s)
+  ok 35 [chromium] › tests\e2e\project-workspace-controls.spec.ts:104:1 › Overflow views stay selectable and closable outside the mobile tab scroller (8.3s)
+
+
+  1) [chromium] › tests\e2e\navigation-v2.spec.ts:127:1 › unassigned Office and zero projects remain usable without exposing stale context 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  getByText('That project is no longer in your available content. Select an available project to continue.', { exact: true })
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByText('That project is no longer in your available content. Select an available project to continue.', { exact: true })[22m
+
+
+      133 |   await expect(page.getByRole('complementary',{name:'Projects context'}).getByRole('button',{name:'Create project',exact:true})).toHaveCount(0);
+      134 |   await page.goto('/projects?page=Projects&project=unavailable-record&view=offices');
+    > 135 |   await expect(page.getByText('That project is no longer in your available content. Select an available project to continue.',{exact:true})).toBeVisible();
+          |                                                                                                                                              ^
+      136 |   await expect.poll(()=>new URL(page.url()).searchParams.has('project')).toBe(false);
+      137 |   await expect(page.getByText('No active projects.',{exact:true})).toBeVisible();
+      138 | });
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\navigation-v2.spec.ts:135:142
+
+    Error Context: test-results\phase9-delivery\navigation-v2-unassigned-O-73d2b-hout-exposing-stale-context-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase9-delivery\navigation-v2-unassigned-O-73d2b-hout-exposing-stale-context-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase9-delivery\navigation-v2-unassigned-O-73d2b-hout-exposing-stale-context-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › tests\e2e\navigation-v2.spec.ts:127:1 › unassigned Office and zero projects remain usable without exposing stale context 
+  34 passed (3.0m)

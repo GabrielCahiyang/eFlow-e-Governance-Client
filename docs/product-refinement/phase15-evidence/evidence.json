@@ -1,0 +1,440 @@
+{
+  "phase": 15,
+  "captured_at": "2026-10-06T13:07:55.843329+00:00",
+  "frontend": "http://localhost:5173",
+  "production_preview": "http://127.0.0.1:5183; stopped after acceptance",
+  "backend": "Synthetic intercepted auth, REST, gateway, storage and realtime fixtures; no deployed RLS or real AI/file/email integration certification. Isolated Python tests use existing server virtual environment.",
+  "checks": {
+    "typecheck": "passed",
+    "unit": "768 tests / 198 files passed",
+    "browser": "34 distinct live-frontend cases passed; 6 Phase 15 cases passed again with strengthened mobile bounds and PDS wrapping",
+    "production_preview": "6 passed (34.8s), final built assets; preview stopped",
+    "build": "passed in 26.29s; 42 circular-export warnings and large-chunk warning",
+    "server": "19 isolated Phase 2/7 tests passed",
+    "graph": "7313 nodes / 22909 clustered edges; raw rebuild 23646 edges; six partial-extraction warnings and 35 unsupported files skipped",
+    "whitespace": "git diff --check passed; native line-ending warnings only",
+    "live_status": "port 5173 HTTP 200 after temporary preview shutdown"
+  },
+  "gates": {
+    "G2": "Delegated shared-project Task Lead team authority unchanged; server guard remains decisive.",
+    "G4": "Recipient invitation feeds and bulk private PDS metadata remain separate unsupported contracts.",
+    "initial_draft_persistence": "Existing initial draft/source creation is not idempotent. Unknown results require verification in Drafts; known-ID autosave retries are supported."
+  },
+  "limitations": [
+    "No pristine Phase 15 before-state; Phase 14 source/evidence preserved.",
+    "Native zoom and assistive-technology sessions were not run.",
+    "Existing build and partial Graphify extraction warnings remain.",
+    "Changes remain local, uncommitted and unpushed."
+  ],
+  "source_manifest": {
+    "path": "source-manifest.json",
+    "sha256": "b65045a5c65f30a4dd337df0eaf2d570e34c2ce46c36dcdcd6fcab264dab9d6d",
+    "source_count": 112
+  },
+  "receipts": [
+    {
+      "path": "receipts/browser-bounds.txt",
+      "sha256": "aa47ca4edc04d90258d92980ba117e37b48911ee96457374c52c1f958111cc90",
+      "diagnostic": false,
+      "superseded": false
+    },
+    {
+      "path": "receipts/browser-compatibility.txt",
+      "sha256": "65c91863a67b46043da54debf819623140f7cd99e68e06f73a3ab1ec1ecc93a7",
+      "diagnostic": false,
+      "superseded": false
+    },
+    {
+      "path": "receipts/browser-final.txt",
+      "sha256": "3f433f9489fe30c1a46efd277095f02c3462b216c9743173989dc4a19451ddae",
+      "diagnostic": false,
+      "superseded": false
+    },
+    {
+      "path": "receipts/browser-initial.txt",
+      "sha256": "c3cc4f258eef6ab5ea72dc8eceac55437c2f700893723f46123f20d355017853",
+      "diagnostic": true,
+      "superseded": true
+    },
+    {
+      "path": "receipts/browser-retry.txt",
+      "sha256": "d31870ac70755e804ce05210ad88f86b2db8bd613fd761126bfbc4287d3fd36d",
+      "diagnostic": true,
+      "superseded": true
+    },
+    {
+      "path": "receipts/browser.txt",
+      "sha256": "65c91863a67b46043da54debf819623140f7cd99e68e06f73a3ab1ec1ecc93a7",
+      "diagnostic": false,
+      "superseded": false
+    },
+    {
+      "path": "receipts/build-final.txt",
+      "sha256": "8fd38d7dc0d27d27418bff4ff4452d475ddfb8a7b541c97a49b09ab9e9daf9b8",
+      "diagnostic": false,
+      "superseded": false
+    },
+    {
+      "path": "receipts/build.txt",
+      "sha256": "42001727fabd54305d5b1f108a8ac8e07fb204365b8940aa9c14148e8eb4c497",
+      "diagnostic": false,
+      "superseded": true
+    },
+    {
+      "path": "receipts/check-browser.txt",
+      "sha256": "659606cc1e46300d84aa709445df90c5152e824c89833ed71e658e03d3a53309",
+      "diagnostic": false,
+      "superseded": true
+    },
+    {
+      "path": "receipts/check-final.txt",
+      "sha256": "659606cc1e46300d84aa709445df90c5152e824c89833ed71e658e03d3a53309",
+      "diagnostic": false,
+      "superseded": false
+    },
+    {
+      "path": "receipts/check-initial.txt",
+      "sha256": "659606cc1e46300d84aa709445df90c5152e824c89833ed71e658e03d3a53309",
+      "diagnostic": false,
+      "superseded": true
+    },
+    {
+      "path": "receipts/check.txt",
+      "sha256": "659606cc1e46300d84aa709445df90c5152e824c89833ed71e658e03d3a53309",
+      "diagnostic": false,
+      "superseded": true
+    },
+    {
+      "path": "receipts/diagnostic-browser-layout.txt",
+      "sha256": "d31870ac70755e804ce05210ad88f86b2db8bd613fd761126bfbc4287d3fd36d",
+      "diagnostic": true,
+      "superseded": true
+    },
+    {
+      "path": "receipts/diagnostic-browser-syntax.txt",
+      "sha256": "d11e4b69cd1e539511f408b7a3b73b4fa6e84ddabf0d59878098ce6d02080c3b",
+      "diagnostic": true,
+      "superseded": true
+    },
+    {
+      "path": "receipts/diagnostic-browser-workflows.txt",
+      "sha256": "c3cc4f258eef6ab5ea72dc8eceac55437c2f700893723f46123f20d355017853",
+      "diagnostic": true,
+      "superseded": true
+    },
+    {
+      "path": "receipts/diagnostic-focused-unit.txt",
+      "sha256": "5c3e4fe8dce9139bb333fbe6acb807deb721684163f72c699df6998049dadaeb",
+      "diagnostic": true,
+      "superseded": true
+    },
+    {
+      "path": "receipts/focused-unit.txt",
+      "sha256": "f2f873e0d96aeb97442a1018338810febfece5589fd4f15cd3f7f95979d733f3",
+      "diagnostic": false,
+      "superseded": false
+    },
+    {
+      "path": "receipts/graph.txt",
+      "sha256": "89fb28bc73099b4b1237711eff4d28e9ea15423b8f8d9ecda623b3d27297ba49",
+      "diagnostic": false,
+      "superseded": false
+    },
+    {
+      "path": "receipts/live-status.txt",
+      "sha256": "8eefbbb692fb80f70b88d5ffc776bc86afb9befe74d0e972799bcdfc15ffc96d",
+      "diagnostic": false,
+      "superseded": false
+    },
+    {
+      "path": "receipts/production-preview.txt",
+      "sha256": "93f45b429eaf0e3180fe51e480543e20a59e51b5cacc9c8582df0d8e63e4b955",
+      "diagnostic": false,
+      "superseded": false
+    },
+    {
+      "path": "receipts/server.txt",
+      "sha256": "6b55d2cf52fd4375e33d9f560ada6d503cf7b753adfa9f231b3172aae72595b7",
+      "diagnostic": false,
+      "superseded": false
+    },
+    {
+      "path": "receipts/unit-final.txt",
+      "sha256": "46e35b9102cba3080dda768b2f32beabfad5e58cae3928423c1f6cf0a755014e",
+      "diagnostic": false,
+      "superseded": false
+    },
+    {
+      "path": "receipts/unit.txt",
+      "sha256": "8a961c0acba846825fa227958f7f849f920e6a1965cabc596d64f5d4af28dc6c",
+      "diagnostic": false,
+      "superseded": true
+    },
+    {
+      "path": "receipts/whitespace.txt",
+      "sha256": "17ace3ebc3da0d36a2a7e6cfe5e2b7019f85d7f9cb268519c4ff2bed18668998",
+      "diagnostic": false,
+      "superseded": false
+    },
+    {
+      "path": "receipts/verification.txt",
+      "sha256": "d31e6f53a0f2318022af4ca7ac40f246edc6d3be3ab0ea89f17754f2fe476b70",
+      "diagnostic": false,
+      "superseded": false
+    }
+  ],
+  "captures": [
+    {
+      "path": "after/import-review-320.png",
+      "sha256": "222bcdbc8016607e0025c970578bf888b40eecc54e5857ec6e1949158022e58f",
+      "stage": "after",
+      "width": 320,
+      "height": 844
+    },
+    {
+      "path": "after/inspector-mobile.png",
+      "sha256": "c1d8d13b4aab15c7f918f5137d3cbe63af27674393bf5a7d422242d5a44c9272",
+      "stage": "after",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "after/invitation-clipboard-recovery-no-link.png",
+      "sha256": "9ea2b8c90a72e52d0b7a7eeca250cd1a974380812952a655eb4b14ba5d6a2a1b",
+      "stage": "after",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "path": "after/invitation-validity-delivery-mobile.png",
+      "sha256": "10451db59748fce9096fb82b122096286c6d8682edc26db218e040e563b74601",
+      "stage": "after",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "after/local-office-contact-mobile.png",
+      "sha256": "4fd5347a9350a8b9989501778a381c414a3f96a3b20c522652da6c173e71813e",
+      "stage": "after",
+      "width": 320,
+      "height": 740
+    },
+    {
+      "path": "after/member-inspector-320.png",
+      "sha256": "f635bdef2c3c493d938cf366aa1fbe30c43eb0bf8e9263279b74ef62b1e0cec2",
+      "stage": "after",
+      "width": 320,
+      "height": 844
+    },
+    {
+      "path": "after/member-inspector-390.png",
+      "sha256": "d1fd09e08bd576074f0693d6dd7138ae38ed5925cdd2b4900a21aef24c7b4794",
+      "stage": "after",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "after/membership-draft-source-retry.png",
+      "sha256": "65587872f86647e56afff662ecefce5870015bd86ed18ae463dcab99387106ed",
+      "stage": "after",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "path": "after/membership-impact-mobile.png",
+      "sha256": "2ef516ce9a00e79bf47c29fbf0ca5752dcf4cac4e875c1b738fcbe0aac1e2b02",
+      "stage": "after",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "after/office-closed-320.png",
+      "sha256": "b27061f245f08e4dfb5da7e31125884fe37406e73d01e43de20aed3eb299227c",
+      "stage": "after",
+      "width": 320,
+      "height": 844
+    },
+    {
+      "path": "after/office-governed-320.png",
+      "sha256": "71125920d2582a9addae65cd75e95271661b3c38dac2d806b6925d0c39c95eec",
+      "stage": "after",
+      "width": 320,
+      "height": 844
+    },
+    {
+      "path": "after/office-linked-handover-desktop.png",
+      "sha256": "b5fa1fd01a9747c6c89cdfbe0a8baf5427e9bfa89bfeb64ff356e20aef0e912c",
+      "stage": "after",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "path": "after/office-observer-320.png",
+      "sha256": "32a11ee42ceb7f91bcd0fe251b4887e199ef3d154e7e7af180ef6918ec8b7461",
+      "stage": "after",
+      "width": 320,
+      "height": 844
+    },
+    {
+      "path": "after/office-origin.png",
+      "sha256": "a331c5918717a35a7e75802f1235bc4875708715ae82e7d1718948d3648024a4",
+      "stage": "after",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "after/office-team-desktop.png",
+      "sha256": "3a6492f8b3718c39215d823f15a66133dda6b5200a67b43105a39665d15f5a16",
+      "stage": "after",
+      "width": 1440,
+      "height": 950
+    },
+    {
+      "path": "after/professional-summary-desktop.png",
+      "sha256": "d50b52296b79d966b39ae6e6f2e87ac4a5f95d19c05b7bfe09223f79334d385f",
+      "stage": "after",
+      "width": 1440,
+      "height": 950
+    },
+    {
+      "path": "after/profile-draft-320.png",
+      "sha256": "1a08baad945e5ef020d7325a4af8b04d561c0d42078ef354f86db6f8af5dbf62",
+      "stage": "after",
+      "width": 320,
+      "height": 844
+    },
+    {
+      "path": "after/project-offices-table-desktop.png",
+      "sha256": "b5ab6daefe06e565457d7cf3269b26a3ec8b84243e24ae39b138b2c0ddd0a17e",
+      "stage": "after",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "path": "after/project-offices-table-mobile.png",
+      "sha256": "6e62c39e0534a524a6dc0d3f78d88fa57208943eb8e1d0244a770b5db4338d4e",
+      "stage": "after",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "after/readiness-desktop.png",
+      "sha256": "5b890f2fb89a4dc055cecc40451b8bcce5b76e3b9780efc7cd3b1b46df5d54c4",
+      "stage": "after",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "after/readiness-mobile.png",
+      "sha256": "87d93356b177b24cd5b79410dbf3abeccac463cb20dc2bf55bd1de9a95791f30",
+      "stage": "after",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "after/readiness-resolution-mobile.png",
+      "sha256": "6fa8a9be9563968f5d0080c38358d1cecb5519c06ee51f381e3b9488fee7a296",
+      "stage": "after",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "after/review-desktop.png",
+      "sha256": "258868b261ad96ca92c415c9ab2abddf4d7ddd4baf6e2d8c7e003a50ce1a7f99",
+      "stage": "after",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "after/review-mobile.png",
+      "sha256": "ee088e0a3e5b19baf777eb889f0e2bd12132b820f6dc0a7758060842cb11f27a",
+      "stage": "after",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "after/review-subitems.png",
+      "sha256": "13d8d17339caf6a21b5d810bd955e4b0fbc36c3d5286544ff3a22c5e338c1e21",
+      "stage": "after",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "after/shared-lead-gate.png",
+      "sha256": "9ae7c2e570e2475e2353408fd2345b4ff8ec4368836b35c9195b06ece2a00d54",
+      "stage": "after",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "path": "after/staffing-denial-mobile.png",
+      "sha256": "536fae4a8c963d1fa690e5dc91bd74db7003bdffe042a22e1d380c95422aa7bb",
+      "stage": "after",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "after/staffing-desktop.png",
+      "sha256": "46e292c845606960bbf4609a8ac7bea39a8524138b23f3579de83eb52b2f1830",
+      "stage": "after",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "after/staffing-mobile.png",
+      "sha256": "145c6385d89f3cd08caa01a64035aa7f83e09ae97556106cc1f952c6f9da4a9f",
+      "stage": "after",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "after/team-mobile-denial.png",
+      "sha256": "629b2d6cf2d7926c922e99218ee294b2bcbb8e86abf8c6e736b39cfea35de1e7",
+      "stage": "after",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "after/workplan-review-mobile.png",
+      "sha256": "dbd8f82039edcdfbbfbddc279d00647715f0abc9f212e091aa30ccdc514a809e",
+      "stage": "after",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "production/import-review-320.png",
+      "sha256": "222bcdbc8016607e0025c970578bf888b40eecc54e5857ec6e1949158022e58f",
+      "stage": "production",
+      "width": 320,
+      "height": 844
+    },
+    {
+      "path": "production/profile-draft-320.png",
+      "sha256": "1a08baad945e5ef020d7325a4af8b04d561c0d42078ef354f86db6f8af5dbf62",
+      "stage": "production",
+      "width": 320,
+      "height": 844
+    },
+    {
+      "path": "production/readiness-resolution-mobile.png",
+      "sha256": "24c1a5be981ded26cf6a804d442a2081104133a0f2e5cda4ea951f0f95edd167",
+      "stage": "production",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "production/staffing-denial-mobile.png",
+      "sha256": "73b08efabd5e91fecbcdba2d85a2d64d1370e98d72c864fc487af3b95bb4130f",
+      "stage": "production",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "path": "production/workplan-review-mobile.png",
+      "sha256": "2a55d3cb9ead1bbec2a0141119bc6fe0433041d5bd7d8cc689c4c45d81547a11",
+      "stage": "production",
+      "width": 390,
+      "height": 844
+    }
+  ]
+}

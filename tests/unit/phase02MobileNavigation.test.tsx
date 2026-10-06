@@ -35,7 +35,13 @@ vi.mock("../../src/app/features/navigation", async () => {
     tasks: { title: "Tasks", sections: [{ title: "Workspace", items: [{ label: "My Tasks" }] }] },
   };
 
+  const actual = await vi.importActual<typeof import('../../src/app/features/navigation')>('../../src/app/features/navigation');
   return {
+    ...actual,
+    buildShellNavigation: () => [
+      { id: 'dashboard', label: 'Overview', group: 'home', pages: [{label:'Dashboard'}] },
+      { id: 'tasks', label: 'Tasks', group: 'workspaces', pages: [{label:'My Tasks'}] },
+    ],
     canOpenNavigationSection: () => true,
     getRoleNavigationCandidates: () => [
       { id: "dashboard", icon: null, label: "Overview" },
@@ -52,9 +58,10 @@ vi.mock("../../src/app/features/navigation", async () => {
       return {
         activePage,
         activeSection,
-        selectPage: (section: string, page: string) => {
+        selectPageAsync: (section: string, page: string) => {
           setActiveSection(section);
           setActivePage(page);
+          return Promise.resolve(true);
         },
       };
     },
@@ -77,19 +84,19 @@ if (!globalThis.ResizeObserver) {
 }
 
 describe("Phase 02 mobile navigation", () => {
-  it("opens a Vibe modal navigation surface and closes it after a destination is selected", async () => {
+  it("opens the accessible navigation drawer and closes it after a destination is selected", async () => {
     render(
       <EflowVibeThemeProvider preference="light">
         <EflowAppShell role="head" />
       </EflowVibeThemeProvider>,
     );
 
-    expect(screen.getAllByLabelText("Primary navigation")).toHaveLength(1);
+    expect(screen.queryAllByLabelText("Primary navigation")).toHaveLength(0);
     fireEvent.click(screen.getByRole("button", { name: "Open mobile navigation" }));
-    await waitFor(() => expect(screen.getAllByLabelText("Primary navigation")).toHaveLength(2));
-
-    fireEvent.click(screen.getAllByRole("button", { name: "Tasks" }).at(-1)!);
-    await waitFor(() => expect(screen.getByTestId("workspace-state").textContent).toBe("tasks:My Tasks"));
     await waitFor(() => expect(screen.getAllByLabelText("Primary navigation")).toHaveLength(1));
+
+    fireEvent.click(screen.getByRole("button", { name: "Workspaces" }));
+    await waitFor(() => expect(screen.getByTestId("workspace-state").textContent).toBe("tasks:My Tasks"));
+    await waitFor(() => expect(screen.queryAllByLabelText("Primary navigation")).toHaveLength(0));
   });
 });

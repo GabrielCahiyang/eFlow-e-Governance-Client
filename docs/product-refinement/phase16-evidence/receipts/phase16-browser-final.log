@@ -1,0 +1,27 @@
+
+Running 15 tests using 1 worker
+
+
+
+[1A[2K(node:22256) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:22256) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[1A[2K[1/15] [chromium] › tests\e2e\admin-mobile-dialogs.spec.ts:4:1 › Admin user management remains usable on a narrow phone
+[1A[2K[2/15] [chromium] › tests\e2e\admin-mobile-dialogs.spec.ts:21:1 › workspace proposal import and existing manual planning remain reachable in the phone drawer
+[1A[2K[3/15] [chromium] › tests\e2e\admin-unification.spec.ts:11:3 › super_admin sessions expose the unified Admin management surfaces
+[1A[2K[4/15] [chromium] › tests\e2e\admin-unification.spec.ts:11:3 › admin sessions expose the unified Admin management surfaces
+[1A[2K[5/15] [chromium] › tests\e2e\phase16-support-finance.spec.ts:10:1 › Admin Center keeps legacy pages, account inspection and unsaved account edits
+[1A[2K[6/15] [chromium] › tests\e2e\phase16-support-finance.spec.ts:59:1 › Account audit has bounded coverage, loaded filters, nested redaction and truthful unavailable reads on a phone
+[1A[2K[7/15] [chromium] › tests\e2e\phase16-support-finance.spec.ts:129:1 › Accounting retains fiscal scope, exposes settlements, records one decision and inspects its balanced journal
+[1A[2K[8/15] [chromium] › tests\e2e\phase16-support-finance.spec.ts:195:1 › Uncertain settlement keeps its reason and requires verification before resubmission
+[1A[2K[9/15] [chromium] › tests\e2e\phase16-support-finance.spec.ts:232:1 › Journal correction has guarded lines, explicit posting and a retained uncertainty receipt on a phone
+[1A[2K[10/15] [chromium] › tests\e2e\phase16-support-finance.spec.ts:280:1 › Release handover uses its existing physical confirmation and blocks an uncertain repeat
+[1A[2K[11/15] [chromium] › tests\e2e\phase16-support-finance.spec.ts:311:1 › Reports retain seven lenses, filtered CSV export and the task inspector
+[1A[2K[12/15] [chromium] › tests\e2e\phase16-support-finance.spec.ts:349:1 › Backup preflight stays unavailable without gateway configuration
+[1A[2K[13/15] [chromium] › tests\e2e\phase16-support-finance.spec.ts:365:1 › Late-package Head authorization stays separate from independent Accounting settlement
+[1A[2K[14/15] [chromium] › tests\e2e\phase16-support-finance.spec.ts:411:1 › Accounting retains ordinary Member workspaces, requires an Office and cannot settle its own cash
+[1A[2K[15/15] [chromium] › tests\e2e\phase16-support-finance.spec.ts:437:1 › Backup uncertain start verifies the job list and a failed job permits an explicit new attempt
+[1A[2K  15 passed (1.9m)

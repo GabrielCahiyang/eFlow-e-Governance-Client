@@ -1,0 +1,313 @@
+.eflow-app-shell {
+  background: var(--workspace-bg);
+  color: var(--primary-text-color);
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-family);
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.eflow-topbar {
+  align-items: center;
+  background: var(--primary-background-color);
+  border-bottom: 1px solid var(--layout-border-color);
+  display: flex;
+  flex: 0 0 auto;
+  gap: var(--space-16);
+  justify-content: space-between;
+  position: relative;
+  min-height: 56px;
+  padding: 0 16px;
+}
+
+.eflow-topbar__leading,
+.eflow-topbar__utilities,
+.eflow-topbar__communications,
+.eflow-topbar__account {
+  align-items: center;
+  display: flex;
+}
+
+.eflow-topbar__leading {
+  min-width: 0;
+}
+
+.eflow-topbar__utilities {
+  gap: var(--space-8);
+}
+
+
+.eflow-topbar__communications {
+  border-left: 1px solid var(--layout-border-color);
+  gap: var(--space-4);
+  padding-left: var(--space-8);
+}
+
+.eflow-productivity-sidebar__workspace,
+.eflow-productivity-sidebar__group-label,
+.eflow-topbar__account-role {
+  color: var(--secondary-text-color);
+  font: var(--font-text3-normal);
+  margin: 0;
+}
+
+.eflow-productivity-sidebar__wordmark {
+  color: var(--primary-text-color);
+  font: var(--font-text2-bold);
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.eflow-topbar__mobile-menu {
+  display: none;
+}
+
+.eflow-topbar__account {
+  gap: var(--space-8);
+  min-width: 0;
+}
+
+.eflow-topbar__account-context {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.eflow-topbar__account-name {
+  color: var(--primary-text-color);
+  font: var(--font-text3-medium);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.eflow-topbar__brand-lockup {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  margin-left: 8px;
+}
+
+.eflow-topbar__brand-divider {
+  background: var(--layout-border-color);
+  flex-shrink: 0;
+  height: 22px;
+  width: 1.5px;
+}
+
+.eflow-topbar__brand-org {
+  color: var(--secondary-text-color);
+  font: var(--font-text2-medium);
+  white-space: nowrap;
+}
+
+.eflow-app-shell__body {
+  display: flex;
+  flex: 1 1 auto;
+  gap: 12px;
+  min-height: 0;
+  padding: 12px;
+  background: var(--workspace-bg);
+}
+
+.eflow-app-shell__workspace {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--layout-border-color) 82%, transparent);
+  border-radius: 14px;
+  background: var(--primary-background-color);
+  box-shadow: 0 4px 6px -4px rgba(0, 0, 0, 0.10);
+}
+
+/* Task Board uses the same workspace-tab contract as Plans & Projects while
+   keeping its task-specific views. The scroller and action lane are separate
+   so adding views can never push tabs under a button or menu. */
+.eflow-task-board__toolbar {
+  isolation: isolate;
+  transition: box-shadow 160ms ease, border-color 160ms ease, background-color 160ms ease;
+}
+
+/* A pinned view bar needs to read as a workspace control, not more scrolling
+   content. Keep the emphasis compact so the board retains its working area. */
+.eflow-task-board__toolbar--pinned {
+  border: 1px solid color-mix(in srgb, var(--primary-color, #007f80) 25%, var(--layout-border-color, #e5e7eb));
+  border-radius: 0 0 14px 14px;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12), 0 1px 3px rgba(15, 23, 42, 0.08);
+  padding: 0.35rem 0.75rem 0.65rem;
+}
+
+.eflow-task-board__toolbar--pinned::before {
+  background: var(--primary-color, #007f80);
+  border-radius: 0 0 999px 999px;
+  content: "";
+  height: 3px;
+  left: 1.25rem;
+  position: absolute;
+  right: 1.25rem;
+  top: 0;
+}
+
+.eflow-task-board__toolbar--pinned .eflow-task-board__view-tabs-actions {
+  background: transparent;
+}
+
+.eflow-task-board__toolbar--pinned .eflow-task-board__add-view {
+  background: var(--primary-color, #007f80);
+  border-color: var(--primary-color, #007f80);
+  box-shadow: 0 5px 12px color-mix(in srgb, var(--primary-color, #007f80) 28%, transparent);
+  color: #fff;
+}
+
+.eflow-task-board__toolbar--pinned .eflow-task-board__add-view:hover,
+.eflow-task-board__toolbar--pinned .eflow-task-board__add-view[aria-expanded="true"] {
+  background: color-mix(in srgb, var(--primary-color, #007f80) 88%, #000);
+  border-color: color-mix(in srgb, var(--primary-color, #007f80) 88%, #000);
+  color: #fff;
+}
+
+.eflow-task-board__view-tabs {
+  align-items: center;
+  border-bottom: 1px solid var(--layout-border-color, #e5e7eb);
+  display: flex;
+  gap: 8px;
+  justify-content: flex-start;
+  min-height: 45px;
+  min-width: 0;
+  overflow: visible;
+}
+
+.eflow-task-board__view-tabs-scroller {
+  flex: 1 1 0%;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 2px;
+  scrollbar-color: var(--layout-border-color, #d6d9e0) transparent;
+  scrollbar-width: thin;
+}
+
+.eflow-task-board__view-tabs-scroller [role="tablist"] {
+  flex: 0 0 auto;
+  justify-content: flex-start;
+  margin-inline: 0;
+  white-space: nowrap;
+}
+
+.eflow-task-board__view-tabs-actions {
+  align-items: center;
+  background: var(--primary-background-color, #fff);
+  display: flex;
+  flex: 0 0 auto;
+  gap: 4px;
+  min-height: 40px;
+  padding-left: 8px;
+}
+
+.eflow-task-board__view-tabs-actions > button {
+  white-space: nowrap;
+}
+
+.eflow-task-board__more-button {
+  align-items: center;
+  background: #fff;
+  border: 1px solid transparent;
+  border-radius: 10px 10px 0 0;
+  color: var(--secondary-text-color, #676879);
+  display: inline-flex;
+  font-size: 13px;
+  font-weight: 500;
+  gap: 4px;
+  height: 37px;
+  padding: 0 12px;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+  white-space: nowrap;
+}
+
+.eflow-task-board__more-button:hover,
+.eflow-task-board__more-button[aria-expanded="true"] {
+  background: #f4f4f4;
+  border-color: #d7d7d7;
+  color: #181818;
+}
+
+@media (max-width: 767px) {
+  .eflow-task-board__view-tabs {
+    align-items: stretch;
+  }
+
+  .eflow-task-board__view-tabs-actions {
+    padding-left: 4px;
+  }
+
+  .eflow-task-board__view-tabs-actions > button {
+    padding-inline: 8px;
+  }
+}
+
+@media (max-width: 1023px) {
+  .eflow-app-shell__body {
+    gap: 0;
+    padding: 0;
+  }
+
+  .eflow-topbar__mobile-menu {
+    display: inline-flex;
+  }
+
+  .eflow-app-shell__workspace {
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .eflow-topbar {
+    gap: 4px;
+    min-height: 56px;
+    padding: 0 8px;
+  }
+
+  .eflow-topbar__brand-lockup {
+    margin-left: 2px;
+  }
+
+  .eflow-topbar__brand-divider,
+  .eflow-topbar__brand-org,
+  .eflow-topbar__account-avatar {
+    display: none;
+  }
+
+  .eflow-topbar__utilities {
+    flex: 0 0 auto;
+    gap: 2px;
+  }
+
+  .eflow-topbar__account-trigger {
+    font-size: 0 !important;
+    min-width: 36px !important;
+    padding-inline: 8px !important;
+    width: 36px;
+  }
+
+  .eflow-topbar__utilities > [data-tour-id="page-walkthrough"],
+  .eflow-topbar__utilities > [data-tour-id="system-walkthrough"],
+  .eflow-topbar__account-context {
+    display: none;
+  }
+
+  .eflow-topbar__communications {
+    border-left: 0;
+    padding-left: 0;
+  }
+
+  .eflow-topbar__account {
+    gap: 0;
+  }
+}

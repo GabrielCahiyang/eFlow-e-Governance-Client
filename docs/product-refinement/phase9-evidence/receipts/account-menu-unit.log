@@ -1,0 +1,15 @@
+
+> @figma/my-make-file@0.0.1 test
+> vitest --configLoader runner run tests/unit/phase02AccountMenu.test.tsx
+
+
+ RUN  v3.2.4 C:/Users/james/projects/eflow-e-Governance-Project
+
+ ✓ tests/unit/phase02AccountMenu.test.tsx (1 test) 963ms
+   ✓ Phase 02 account utility > shows human-readable account context and retains settings and logout actions  962ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  13:14:31
+   Duration  7.33s (transform 757ms, setup 0ms, collect 5.06s, tests 963ms, environment 840ms, prepare 186ms)
+

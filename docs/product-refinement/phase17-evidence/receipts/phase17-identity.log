@@ -1,0 +1,5 @@
+
+> @figma/my-make-file@0.0.1 verify:phase65-identity
+> node scripts/verify-phase65-identity-sql.mjs
+
+Phase 6.5 disposable PostgreSQL rehearsal passed (84 assertions); no live records changed.

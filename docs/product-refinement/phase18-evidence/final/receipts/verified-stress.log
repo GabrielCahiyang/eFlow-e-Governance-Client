@@ -1,0 +1,10 @@
+
+Running 1 test using 1 worker
+
+(node:32416) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:32416) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [chromium] › tests\e2e\phase18-measurements.spec.ts:9:3 › production project 5000 tasks: three measured samples (2.7m)
+
+  1 passed (2.7m)

@@ -1,0 +1,660 @@
+{
+  "config": {
+    "configFile": "C:\\Users\\james\\projects\\eflow-e-Governance-Project\\playwright.release.config.ts",
+    "rootDir": "C:/Users/james/projects/eflow-e-Governance-Project/tests/e2e",
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 2
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "C:/Users/james/projects/eflow-e-Governance-Project/.phase18/focused-closeout-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/Users/james/projects/eflow-e-Governance-Project/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "/(?:phase(?:1-authority|2-invitations|3-project-table|5-project-import|6-project-offices|7-readiness-staffing|10-project-workspace|11-main-table|12-shared-inspector|13-personal-work|14-people-collaboration|15-ai-governance|16-support-finance|17-safety|18-release|18-preview|18-surfaces)|project-workspace-controls|admin-unification|navigation-v2)\\.spec\\.ts/"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/Users/james/projects/eflow-e-Governance-Project/.phase18/focused-closeout-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "C:/Users/james/projects/eflow-e-Governance-Project/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "/(?:phase(?:1-authority|2-invitations|3-project-table|5-project-import|6-project-offices|7-readiness-staffing|10-project-workspace|11-main-table|12-shared-inspector|13-personal-work|14-people-collaboration|15-ai-governance|16-support-finance|17-safety|18-release|18-preview|18-surfaces)|project-workspace-controls|admin-unification|navigation-v2)\\.spec\\.ts/"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/Users/james/projects/eflow-e-Governance-Project/.phase18/focused-closeout-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "C:/Users/james/projects/eflow-e-Governance-Project/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "/(?:phase(?:1-authority|2-invitations|3-project-table|5-project-import|6-project-offices|7-readiness-staffing|10-project-workspace|11-main-table|12-shared-inspector|13-personal-work|14-people-collaboration|15-ai-governance|16-support-finance|17-safety|18-release|18-preview|18-surfaces)|project-workspace-controls|admin-unification|navigation-v2)\\.spec\\.ts/"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.55.0",
+    "workers": 2,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "navigation-v2.spec.ts",
+      "file": "navigation-v2.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "failed inline task remains intact when shell navigation is canceled and logout clears local navigation preferences",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 6394,
+                  "error": {
+                    "message": "Error: Attempting to serialize unexpected value at position \"emitTaskDelete\": taskId => {\n    for (const [socket, topics] of taskSockets) for (const [topic, ids] of topics) if (ids.length) socket.send(JSON.stringify([null, null, topic, \"postgres_changes\", {\n      ids,\n      data: {\n        schema: \"public\",\n        table: \"tasks\",\n        type: \"DELETE\",\n        commit_timestamp: new Date().toISOString(),\n        columns: [{\n          name: \"id\",\n          type: \"uuid\"\n        }],\n        record: {},\n        old_record: {\n          id: taskId\n        },\n        errors: null\n      }\n    }]));\n  }",
+                    "stack": "Error: Attempting to serialize unexpected value at position \"emitTaskDelete\": taskId => {\n    for (const [socket, topics] of taskSockets) for (const [topic, ids] of topics) if (ids.length) socket.send(JSON.stringify([null, null, topic, \"postgres_changes\", {\n      ids,\n      data: {\n        schema: \"public\",\n        table: \"tasks\",\n        type: \"DELETE\",\n        commit_timestamp: new Date().toISOString(),\n        columns: [{\n          name: \"id\",\n          type: \"uuid\"\n        }],\n        record: {},\n        old_record: {\n          id: taskId\n        },\n        errors: null\n      }\n    }]));\n  }\n    at C:\\Users\\james\\projects\\eflow-e-Governance-Project\\tests\\e2e\\navigation-v2.spec.ts:120:14",
+                    "location": {
+                      "file": "C:\\Users\\james\\projects\\eflow-e-Governance-Project\\tests\\e2e\\navigation-v2.spec.ts",
+                      "column": 14,
+                      "line": 120
+                    },
+                    "snippet": "  118 |   await page.getByRole('navigation',{name:'Global navigation'}).getByRole('button',{name:'Home',exact:true}).click();await page.getByRole('button',{name:'Discard',exact:true}).click();\n  119 |   await expect.poll(()=>new URL(page.url()).pathname).toBe('/overview');expect(requests).toBe(1);\n> 120 |   await page.evaluate(({id,org,project})=>localStorage.setItem(`eflow:navigation:v1:${id}:${org}`,JSON.stringify([project])),records);\n      |              ^\n  121 |   const signouts:string[]=[];page.on('request',request=>{if(request.url().includes('/auth/v1/logout'))signouts.push(request.url());});\n  122 |   await page.getByRole('button',{name:'Open account menu',exact:true}).click();await page.getByRole('menuitem',{name:'Log out',exact:true}).click();\n  123 |   await expect(page.locator('#login-email')).toBeVisible();expect(signouts).toHaveLength(1);expect(new URL(signouts[0]).searchParams.get('scope')).toBe('local');"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\james\\projects\\eflow-e-Governance-Project\\tests\\e2e\\navigation-v2.spec.ts",
+                        "column": 14,
+                        "line": 120
+                      },
+                      "message": "Error: Attempting to serialize unexpected value at position \"emitTaskDelete\": taskId => {\n    for (const [socket, topics] of taskSockets) for (const [topic, ids] of topics) if (ids.length) socket.send(JSON.stringify([null, null, topic, \"postgres_changes\", {\n      ids,\n      data: {\n        schema: \"public\",\n        table: \"tasks\",\n        type: \"DELETE\",\n        commit_timestamp: new Date().toISOString(),\n        columns: [{\n          name: \"id\",\n          type: \"uuid\"\n        }],\n        record: {},\n        old_record: {\n          id: taskId\n        },\n        errors: null\n      }\n    }]));\n  }\n\n  118 |   await page.getByRole('navigation',{name:'Global navigation'}).getByRole('button',{name:'Home',exact:true}).click();await page.getByRole('button',{name:'Discard',exact:true}).click();\n  119 |   await expect.poll(()=>new URL(page.url()).pathname).toBe('/overview');expect(requests).toBe(1);\n> 120 |   await page.evaluate(({id,org,project})=>localStorage.setItem(`eflow:navigation:v1:${id}:${org}`,JSON.stringify([project])),records);\n      |              ^\n  121 |   const signouts:string[]=[];page.on('request',request=>{if(request.url().includes('/auth/v1/logout'))signouts.push(request.url());});\n  122 |   await page.getByRole('button',{name:'Open account menu',exact:true}).click();await page.getByRole('menuitem',{name:'Log out',exact:true}).click();\n  123 |   await expect(page.locator('#login-email')).toBeVisible();expect(signouts).toHaveLength(1);expect(new URL(signouts[0]).searchParams.get('scope')).toBe('local');\n    at C:\\Users\\james\\projects\\eflow-e-Governance-Project\\tests\\e2e\\navigation-v2.spec.ts:120:14"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "steps": [
+                    {
+                      "title": "Expect \"poll toBe\"",
+                      "duration": 2
+                    }
+                  ],
+                  "startTime": "2026-10-06T21:29:38.045Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\james\\projects\\eflow-e-Governance-Project\\.phase18\\focused-closeout-results\\navigation-v2-failed-inlin-eb929-ocal-navigation-preferences-chromium\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\james\\projects\\eflow-e-Governance-Project\\.phase18\\focused-closeout-results\\navigation-v2-failed-inlin-eb929-ocal-navigation-preferences-chromium\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\james\\projects\\eflow-e-Governance-Project\\tests\\e2e\\navigation-v2.spec.ts",
+                    "column": 14,
+                    "line": 120
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "63e7463b5ccde60b7dba-b6504cf2ae48a40e89cc",
+          "file": "navigation-v2.spec.ts",
+          "line": 111,
+          "column": 1
+        },
+        {
+          "title": "failed inline task remains intact when shell navigation is canceled and logout clears local navigation preferences",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 8906,
+                  "error": {
+                    "message": "Error: Attempting to serialize unexpected value at position \"emitTaskDelete\": taskId => {\n    for (const [socket, topics] of taskSockets) for (const [topic, ids] of topics) if (ids.length) socket.send(JSON.stringify([null, null, topic, \"postgres_changes\", {\n      ids,\n      data: {\n        schema: \"public\",\n        table: \"tasks\",\n        type: \"DELETE\",\n        commit_timestamp: new Date().toISOString(),\n        columns: [{\n          name: \"id\",\n          type: \"uuid\"\n        }],\n        record: {},\n        old_record: {\n          id: taskId\n        },\n        errors: null\n      }\n    }]));\n  }",
+                    "stack": "Error: Attempting to serialize unexpected value at position \"emitTaskDelete\": taskId => {\n    for (const [socket, topics] of taskSockets) for (const [topic, ids] of topics) if (ids.length) socket.send(JSON.stringify([null, null, topic, \"postgres_changes\", {\n      ids,\n      data: {\n        schema: \"public\",\n        table: \"tasks\",\n        type: \"DELETE\",\n        commit_timestamp: new Date().toISOString(),\n        columns: [{\n          name: \"id\",\n          type: \"uuid\"\n        }],\n        record: {},\n        old_record: {\n          id: taskId\n        },\n        errors: null\n      }\n    }]));\n  }\n    at C:\\Users\\james\\projects\\eflow-e-Governance-Project\\tests\\e2e\\navigation-v2.spec.ts:120:14",
+                    "location": {
+                      "file": "C:\\Users\\james\\projects\\eflow-e-Governance-Project\\tests\\e2e\\navigation-v2.spec.ts",
+                      "column": 14,
+                      "line": 120
+                    },
+                    "snippet": "  118 |   await page.getByRole('navigation',{name:'Global navigation'}).getByRole('button',{name:'Home',exact:true}).click();await page.getByRole('button',{name:'Discard',exact:true}).click();\n  119 |   await expect.poll(()=>new URL(page.url()).pathname).toBe('/overview');expect(requests).toBe(1);\n> 120 |   await page.evaluate(({id,org,project})=>localStorage.setItem(`eflow:navigation:v1:${id}:${org}`,JSON.stringify([project])),records);\n      |              ^\n  121 |   const signouts:string[]=[];page.on('request',request=>{if(request.url().includes('/auth/v1/logout'))signouts.push(request.url());});\n  122 |   await page.getByRole('button',{name:'Open account menu',exact:true}).click();await page.getByRole('menuitem',{name:'Log out',exact:true}).click();\n  123 |   await expect(page.locator('#login-email')).toBeVisible();expect(signouts).toHaveLength(1);expect(new URL(signouts[0]).searchParams.get('scope')).toBe('local');"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\james\\projects\\eflow-e-Governance-Project\\tests\\e2e\\navigation-v2.spec.ts",
+                        "column": 14,
+                        "line": 120
+                      },
+                      "message": "Error: Attempting to serialize unexpected value at position \"emitTaskDelete\": taskId => {\n    for (const [socket, topics] of taskSockets) for (const [topic, ids] of topics) if (ids.length) socket.send(JSON.stringify([null, null, topic, \"postgres_changes\", {\n      ids,\n      data: {\n        schema: \"public\",\n        table: \"tasks\",\n        type: \"DELETE\",\n        commit_timestamp: new Date().toISOString(),\n        columns: [{\n          name: \"id\",\n          type: \"uuid\"\n        }],\n        record: {},\n        old_record: {\n          id: taskId\n        },\n        errors: null\n      }\n    }]));\n  }\n\n  118 |   await page.getByRole('navigation',{name:'Global navigation'}).getByRole('button',{name:'Home',exact:true}).click();await page.getByRole('button',{name:'Discard',exact:true}).click();\n  119 |   await expect.poll(()=>new URL(page.url()).pathname).toBe('/overview');expect(requests).toBe(1);\n> 120 |   await page.evaluate(({id,org,project})=>localStorage.setItem(`eflow:navigation:v1:${id}:${org}`,JSON.stringify([project])),records);\n      |              ^\n  121 |   const signouts:string[]=[];page.on('request',request=>{if(request.url().includes('/auth/v1/logout'))signouts.push(request.url());});\n  122 |   await page.getByRole('button',{name:'Open account menu',exact:true}).click();await page.getByRole('menuitem',{name:'Log out',exact:true}).click();\n  123 |   await expect(page.locator('#login-email')).toBeVisible();expect(signouts).toHaveLength(1);expect(new URL(signouts[0]).searchParams.get('scope')).toBe('local');\n    at C:\\Users\\james\\projects\\eflow-e-Governance-Project\\tests\\e2e\\navigation-v2.spec.ts:120:14"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "steps": [
+                    {
+                      "title": "Expect \"poll toBe\"",
+                      "duration": 2
+                    }
+                  ],
+                  "startTime": "2026-10-06T21:29:46.719Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\james\\projects\\eflow-e-Governance-Project\\.phase18\\focused-closeout-results\\navigation-v2-failed-inlin-eb929-ocal-navigation-preferences-firefox\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\james\\projects\\eflow-e-Governance-Project\\.phase18\\focused-closeout-results\\navigation-v2-failed-inlin-eb929-ocal-navigation-preferences-firefox\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\james\\projects\\eflow-e-Governance-Project\\tests\\e2e\\navigation-v2.spec.ts",
+                    "column": 14,
+                    "line": 120
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "63e7463b5ccde60b7dba-3d7c3938f7554bbf7cdb",
+          "file": "navigation-v2.spec.ts",
+          "line": 111,
+          "column": 1
+        },
+        {
+          "title": "failed inline task remains intact when shell navigation is canceled and logout clears local navigation preferences",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 11143,
+                  "error": {
+                    "message": "Error: Attempting to serialize unexpected value at position \"emitTaskDelete\": taskId => {\n    for (const [socket, topics] of taskSockets) for (const [topic, ids] of topics) if (ids.length) socket.send(JSON.stringify([null, null, topic, \"postgres_changes\", {\n      ids,\n      data: {\n        schema: \"public\",\n        table: \"tasks\",\n        type: \"DELETE\",\n        commit_timestamp: new Date().toISOString(),\n        columns: [{\n          name: \"id\",\n          type: \"uuid\"\n        }],\n        record: {},\n        old_record: {\n          id: taskId\n        },\n        errors: null\n      }\n    }]));\n  }",
+                    "stack": "Error: Attempting to serialize unexpected value at position \"emitTaskDelete\": taskId => {\n    for (const [socket, topics] of taskSockets) for (const [topic, ids] of topics) if (ids.length) socket.send(JSON.stringify([null, null, topic, \"postgres_changes\", {\n      ids,\n      data: {\n        schema: \"public\",\n        table: \"tasks\",\n        type: \"DELETE\",\n        commit_timestamp: new Date().toISOString(),\n        columns: [{\n          name: \"id\",\n          type: \"uuid\"\n        }],\n        record: {},\n        old_record: {\n          id: taskId\n        },\n        errors: null\n      }\n    }]));\n  }\n    at C:\\Users\\james\\projects\\eflow-e-Governance-Project\\tests\\e2e\\navigation-v2.spec.ts:120:14",
+                    "location": {
+                      "file": "C:\\Users\\james\\projects\\eflow-e-Governance-Project\\tests\\e2e\\navigation-v2.spec.ts",
+                      "column": 14,
+                      "line": 120
+                    },
+                    "snippet": "  118 |   await page.getByRole('navigation',{name:'Global navigation'}).getByRole('button',{name:'Home',exact:true}).click();await page.getByRole('button',{name:'Discard',exact:true}).click();\n  119 |   await expect.poll(()=>new URL(page.url()).pathname).toBe('/overview');expect(requests).toBe(1);\n> 120 |   await page.evaluate(({id,org,project})=>localStorage.setItem(`eflow:navigation:v1:${id}:${org}`,JSON.stringify([project])),records);\n      |              ^\n  121 |   const signouts:string[]=[];page.on('request',request=>{if(request.url().includes('/auth/v1/logout'))signouts.push(request.url());});\n  122 |   await page.getByRole('button',{name:'Open account menu',exact:true}).click();await page.getByRole('menuitem',{name:'Log out',exact:true}).click();\n  123 |   await expect(page.locator('#login-email')).toBeVisible();expect(signouts).toHaveLength(1);expect(new URL(signouts[0]).searchParams.get('scope')).toBe('local');"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\james\\projects\\eflow-e-Governance-Project\\tests\\e2e\\navigation-v2.spec.ts",
+                        "column": 14,
+                        "line": 120
+                      },
+                      "message": "Error: Attempting to serialize unexpected value at position \"emitTaskDelete\": taskId => {\n    for (const [socket, topics] of taskSockets) for (const [topic, ids] of topics) if (ids.length) socket.send(JSON.stringify([null, null, topic, \"postgres_changes\", {\n      ids,\n      data: {\n        schema: \"public\",\n        table: \"tasks\",\n        type: \"DELETE\",\n        commit_timestamp: new Date().toISOString(),\n        columns: [{\n          name: \"id\",\n          type: \"uuid\"\n        }],\n        record: {},\n        old_record: {\n          id: taskId\n        },\n        errors: null\n      }\n    }]));\n  }\n\n  118 |   await page.getByRole('navigation',{name:'Global navigation'}).getByRole('button',{name:'Home',exact:true}).click();await page.getByRole('button',{name:'Discard',exact:true}).click();\n  119 |   await expect.poll(()=>new URL(page.url()).pathname).toBe('/overview');expect(requests).toBe(1);\n> 120 |   await page.evaluate(({id,org,project})=>localStorage.setItem(`eflow:navigation:v1:${id}:${org}`,JSON.stringify([project])),records);\n      |              ^\n  121 |   const signouts:string[]=[];page.on('request',request=>{if(request.url().includes('/auth/v1/logout'))signouts.push(request.url());});\n  122 |   await page.getByRole('button',{name:'Open account menu',exact:true}).click();await page.getByRole('menuitem',{name:'Log out',exact:true}).click();\n  123 |   await expect(page.locator('#login-email')).toBeVisible();expect(signouts).toHaveLength(1);expect(new URL(signouts[0]).searchParams.get('scope')).toBe('local');\n    at C:\\Users\\james\\projects\\eflow-e-Governance-Project\\tests\\e2e\\navigation-v2.spec.ts:120:14"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "steps": [
+                    {
+                      "title": "Expect \"poll toBe\"",
+                      "duration": 1
+                    }
+                  ],
+                  "startTime": "2026-10-06T21:29:59.310Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\james\\projects\\eflow-e-Governance-Project\\.phase18\\focused-closeout-results\\navigation-v2-failed-inlin-eb929-ocal-navigation-preferences-webkit\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\james\\projects\\eflow-e-Governance-Project\\.phase18\\focused-closeout-results\\navigation-v2-failed-inlin-eb929-ocal-navigation-preferences-webkit\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\james\\projects\\eflow-e-Governance-Project\\tests\\e2e\\navigation-v2.spec.ts",
+                    "column": 14,
+                    "line": 120
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "63e7463b5ccde60b7dba-69e5836205bd0af3d987",
+          "file": "navigation-v2.spec.ts",
+          "line": 111,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "phase18-release.spec.ts",
+      "file": "phase18-release.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "accounting_staff: responsive canonical workspace and mobile navigation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 10615,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "steps": [
+                    {
+                      "title": "Accounting view labels must fit their own reachable buttons",
+                      "duration": 25
+                    },
+                    {
+                      "title": "Accounting view labels must fit their own reachable buttons",
+                      "duration": 17
+                    },
+                    {
+                      "title": "Accounting view labels must fit their own reachable buttons",
+                      "duration": 12
+                    },
+                    {
+                      "title": "Accounting view labels must fit their own reachable buttons",
+                      "duration": 30
+                    },
+                    {
+                      "title": "Accounting view labels must fit their own reachable buttons",
+                      "duration": 15
+                    }
+                  ],
+                  "startTime": "2026-10-06T21:29:38.204Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "accounting_staff-320-a11y",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "accounting_staff-320-layout",
+                      "contentType": "application/json",
+                      "body": "eyJvdmVyZmxvdyI6ZmFsc2UsIndpZHRoIjozMjB9"
+                    },
+                    {
+                      "name": "accounting_staff-390-a11y",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "accounting_staff-390-layout",
+                      "contentType": "application/json",
+                      "body": "eyJvdmVyZmxvdyI6ZmFsc2UsIndpZHRoIjozOTB9"
+                    },
+                    {
+                      "name": "accounting_staff-768-a11y",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "accounting_staff-768-layout",
+                      "contentType": "application/json",
+                      "body": "eyJvdmVyZmxvdyI6ZmFsc2UsIndpZHRoIjo3Njh9"
+                    },
+                    {
+                      "name": "accounting_staff-1024-a11y",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "accounting_staff-1024-layout",
+                      "contentType": "application/json",
+                      "body": "eyJvdmVyZmxvdyI6ZmFsc2UsIndpZHRoIjoxMDI0fQ=="
+                    },
+                    {
+                      "name": "accounting_staff-1440-a11y",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "accounting_staff-1440-layout",
+                      "contentType": "application/json",
+                      "body": "eyJvdmVyZmxvdyI6ZmFsc2UsIndpZHRoIjoxNDQwfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "64730d9af7df6eeeed95-5c4c52c5269ff1a6258c",
+          "file": "phase18-release.spec.ts",
+          "line": 54,
+          "column": 3
+        },
+        {
+          "title": "accounting_staff: responsive canonical workspace and mobile navigation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 16712,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "steps": [
+                    {
+                      "title": "Accounting view labels must fit their own reachable buttons",
+                      "duration": 47
+                    },
+                    {
+                      "title": "Accounting view labels must fit their own reachable buttons",
+                      "duration": 22
+                    },
+                    {
+                      "title": "Accounting view labels must fit their own reachable buttons",
+                      "duration": 16
+                    },
+                    {
+                      "title": "Accounting view labels must fit their own reachable buttons",
+                      "duration": 21
+                    },
+                    {
+                      "title": "Accounting view labels must fit their own reachable buttons",
+                      "duration": 16
+                    }
+                  ],
+                  "startTime": "2026-10-06T21:29:50.802Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "accounting_staff-320-a11y",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "accounting_staff-320-layout",
+                      "contentType": "application/json",
+                      "body": "eyJvdmVyZmxvdyI6ZmFsc2UsIndpZHRoIjozMjB9"
+                    },
+                    {
+                      "name": "accounting_staff-390-a11y",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "accounting_staff-390-layout",
+                      "contentType": "application/json",
+                      "body": "eyJvdmVyZmxvdyI6ZmFsc2UsIndpZHRoIjozOTB9"
+                    },
+                    {
+                      "name": "accounting_staff-768-a11y",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "accounting_staff-768-layout",
+                      "contentType": "application/json",
+                      "body": "eyJvdmVyZmxvdyI6ZmFsc2UsIndpZHRoIjo3Njh9"
+                    },
+                    {
+                      "name": "accounting_staff-1024-a11y",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "accounting_staff-1024-layout",
+                      "contentType": "application/json",
+                      "body": "eyJvdmVyZmxvdyI6ZmFsc2UsIndpZHRoIjoxMDI0fQ=="
+                    },
+                    {
+                      "name": "accounting_staff-1440-a11y",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "accounting_staff-1440-layout",
+                      "contentType": "application/json",
+                      "body": "eyJvdmVyZmxvdyI6ZmFsc2UsIndpZHRoIjoxNDQwfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "64730d9af7df6eeeed95-d42189f98abf5cb46743",
+          "file": "phase18-release.spec.ts",
+          "line": 54,
+          "column": 3
+        },
+        {
+          "title": "accounting_staff: responsive canonical workspace and mobile navigation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 13815,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "steps": [
+                    {
+                      "title": "Accounting view labels must fit their own reachable buttons",
+                      "duration": 85
+                    },
+                    {
+                      "title": "Accounting view labels must fit their own reachable buttons",
+                      "duration": 18
+                    },
+                    {
+                      "title": "Accounting view labels must fit their own reachable buttons",
+                      "duration": 13
+                    },
+                    {
+                      "title": "Accounting view labels must fit their own reachable buttons",
+                      "duration": 32
+                    },
+                    {
+                      "title": "Accounting view labels must fit their own reachable buttons",
+                      "duration": 19
+                    }
+                  ],
+                  "startTime": "2026-10-06T21:30:10.697Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "accounting_staff-320-a11y",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "accounting_staff-320-layout",
+                      "contentType": "application/json",
+                      "body": "eyJvdmVyZmxvdyI6ZmFsc2UsIndpZHRoIjozMjB9"
+                    },
+                    {
+                      "name": "accounting_staff-390-a11y",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "accounting_staff-390-layout",
+                      "contentType": "application/json",
+                      "body": "eyJvdmVyZmxvdyI6ZmFsc2UsIndpZHRoIjozOTB9"
+                    },
+                    {
+                      "name": "accounting_staff-768-a11y",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "accounting_staff-768-layout",
+                      "contentType": "application/json",
+                      "body": "eyJvdmVyZmxvdyI6ZmFsc2UsIndpZHRoIjo3Njh9"
+                    },
+                    {
+                      "name": "accounting_staff-1024-a11y",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "accounting_staff-1024-layout",
+                      "contentType": "application/json",
+                      "body": "eyJvdmVyZmxvdyI6ZmFsc2UsIndpZHRoIjoxMDI0fQ=="
+                    },
+                    {
+                      "name": "accounting_staff-1440-a11y",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "accounting_staff-1440-layout",
+                      "contentType": "application/json",
+                      "body": "eyJvdmVyZmxvdyI6ZmFsc2UsIndpZHRoIjoxNDQwfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "64730d9af7df6eeeed95-5d4311e30bea885cc937",
+          "file": "phase18-release.spec.ts",
+          "line": 54,
+          "column": 3
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-06T21:29:35.857Z",
+    "duration": 49015.005999999994,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 3,
+    "flaky": 0
+  }
+}

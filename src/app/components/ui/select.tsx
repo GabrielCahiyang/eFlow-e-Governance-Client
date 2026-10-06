@@ -8,6 +8,7 @@ import {
   ChevronUpIcon,
 } from "lucide-react";
 
+import { useOverlayPopoverLayer } from "./OverlayPopoverLayer";
 import { cn } from "./utils";
 
 function Select({
@@ -58,8 +59,10 @@ function SelectContent({
   className,
   children,
   position = "popper",
+  style,
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Content>) {
+  const popoverLayer = useOverlayPopoverLayer();
   return (
     <SelectPrimitive.Portal>
       <SelectPrimitive.Content
@@ -72,6 +75,7 @@ function SelectContent({
         )}
         position={position}
         {...props}
+        style={{ ...style, zIndex: popoverLayer || style?.zIndex }}
       >
         <SelectScrollUpButton />
         <SelectPrimitive.Viewport

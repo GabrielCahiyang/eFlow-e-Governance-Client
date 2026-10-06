@@ -1,0 +1,69 @@
+
+> @figma/my-make-file@0.0.1 build
+> vite build --configLoader runner
+
+vite v6.3.5 building for production...
+transforming...
+✓ 5962 modules transformed.
+Export "useDepartmentTeamAnalytics" of module "src/app/features/team-management/hooks/useDepartmentTeamAnalytics.ts" was reexported through module "src/app/features/team-management/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/features/reports/components/HeadReportsWorkspace.tsx" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "TaskDetailDrawer" of module "src/app/components/workflow/TaskDetailDrawer.tsx" was reexported through module "src/app/features/tasks/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/features/reports/components/HeadReportsWorkspace.tsx" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "TaskDetailDrawer" of module "src/app/components/workflow/TaskDetailDrawer.tsx" was reexported through module "src/app/features/tasks/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/features/team-management/components/supervision/TeamSupervisionWorkspace.tsx" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "SubtasksWorkspace" of module "src/app/components/workflow/SubtasksWorkspace.tsx" was reexported through module "src/app/features/subtasks/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/features/role-head/HeadContent.tsx" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "MondayBoard" of module "src/app/features/tasks/components/board/MondayBoard.tsx" was reexported through module "src/app/features/tasks/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/components/Member/EmployeeTaskWorkspace.tsx" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "WorkBudgetCard" of module "src/app/features/budget/components/WorkBudgetCard.tsx" was reexported through module "src/app/features/budget/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/components/workflow/TaskDetailDrawer.tsx" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "useProjectOfficeContext" of module "src/app/features/project-offices/hooks/useProjectOffices.ts" was reexported through module "src/app/features/project-offices/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/features/project-table/components/ProjectTaskRow.tsx" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "moveProjectOfficeTask" of module "src/app/features/project-offices/services/projectOfficeService.ts" was reexported through module "src/app/features/project-offices/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/features/project-table/components/ProjectTaskRow.tsx" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "useProjectOfficeContext" of module "src/app/features/project-offices/hooks/useProjectOffices.ts" was reexported through module "src/app/features/project-offices/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/features/project-table/components/ProjectTableWorkspace.tsx" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "SubtaskWorkDrawer" of module "src/app/features/subtasks/components/SubtaskWorkDrawer.tsx" was reexported through module "src/app/features/subtasks/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/features/project-table/components/ProjectTableWorkspace.tsx" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "useProjectOfficeContext" of module "src/app/features/project-offices/hooks/useProjectOffices.ts" was reexported through module "src/app/features/project-offices/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/features/project-views/hooks/useProjectViewActions.ts" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "useProjectOffices" of module "src/app/features/project-offices/hooks/useProjectOffices.ts" was reexported through module "src/app/features/project-offices/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/features/projects/components/project-command/ProjectCommandWorkspace.tsx" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "ProjectOfficeContext" of module "src/app/features/project-offices/hooks/useProjectOffices.ts" was reexported through module "src/app/features/project-offices/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/features/projects/components/project-command/ProjectCommandWorkspace.tsx" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+rendering chunks...
+[plugin vite:reporter] 
+(!) C:/Users/james/projects/eflow-e-Governance-Project/src/app/services/notificationService.ts is dynamically imported by C:/Users/james/projects/eflow-e-Governance-Project/src/app/services/chatService.ts but also statically imported by C:/Users/james/projects/eflow-e-Governance-Project/src/app/components/Member/EmployeeTaskWorkspace.tsx, C:/Users/james/projects/eflow-e-Governance-Project/src/app/components/ui/NotificationBell.tsx, C:/Users/james/projects/eflow-e-Governance-Project/src/app/features/tasks/services/taskMutationService.ts, C:/Users/james/projects/eflow-e-Governance-Project/src/app/features/tasks/services/taskTeamService.ts, C:/Users/james/projects/eflow-e-Governance-Project/src/app/features/team-management/services/teamSupervisionActions.ts, C:/Users/james/projects/eflow-e-Governance-Project/src/app/services/announcementService.ts, C:/Users/james/projects/eflow-e-Governance-Project/src/app/services/subtaskService.ts, C:/Users/james/projects/eflow-e-Governance-Project/src/app/services/taskDiscussionService.ts, dynamic import will not move module into another chunk.
+
+computing gzip size...
+dist/index.html                                               0.67 kB │ gzip:   0.38 kB
+dist/assets/figtree-latin-ext-wght-normal-BDFhNWBr.woff2     10.23 kB
+dist/assets/figtree-latin-ext-wght-italic-iruAYCqh.woff2     10.54 kB
+dist/assets/figtree-latin-wght-normal-B3oYxpP2.woff2         20.02 kB
+dist/assets/figtree-latin-wght-italic-BTI1zcOO.woff2         21.15 kB
+dist/assets/pdf.worker.min-iDqQPrd3.mjs                   1,232.30 kB
+dist/assets/index-DQ4qm-zd.css                                2.15 kB │ gzip:   0.80 kB
+dist/assets/index-C5ap-Sga.css                               15.87 kB │ gzip:   2.67 kB
+dist/assets/index-hKi1UHbm.css                              495.51 kB │ gzip:  81.29 kB
+dist/assets/mail-DwWSmLq5.js                                  0.38 kB │ gzip:   0.30 kB
+dist/assets/key-round-CTWXJsGi.js                             0.52 kB │ gzip:   0.36 kB
+dist/assets/scale-S1LER8uy.js                                 0.54 kB │ gzip:   0.34 kB
+dist/assets/useFirebaseData-D2WYK2AV.js                       3.88 kB │ gzip:   1.62 kB
+dist/assets/Modal-Dxr8kJ9Z.js                                 6.69 kB │ gzip:   2.42 kB
+dist/assets/OrganizationScopePanel-DXUU9tfP.js                7.61 kB │ gzip:   2.91 kB
+dist/assets/index-BSlQgql8.js                                10.62 kB │ gzip:   3.79 kB
+dist/assets/MemberContent-BBvX2ACE.js                        21.19 kB │ gzip:   6.91 kB
+dist/assets/SettingsContent-GkwSH1Ve.js                      25.21 kB │ gzip:   7.76 kB
+dist/assets/WorkspaceLoadingSkeleton-BQ6b7S14.js             31.58 kB │ gzip:   9.56 kB
+dist/assets/OfficeBudgetWorkspace-DJsurOXa.js                86.84 kB │ gzip:  21.83 kB
+dist/assets/index-CM3gilBn.js                               276.76 kB │ gzip:  67.71 kB
+dist/assets/pdf-D-oSvAqu.js                                 458.39 kB │ gzip: 135.97 kB
+dist/assets/index-UlJNrcDk.js                               707.77 kB │ gzip: 229.64 kB
+dist/assets/RolePageRouter-B4_ufD3g.js                    1,096.99 kB │ gzip: 299.05 kB
+dist/assets/index-2RrZAN5e.js                             2,182.86 kB │ gzip: 641.60 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 17.29s

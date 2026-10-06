@@ -1,0 +1,464 @@
+
+Running 12 tests using 1 worker
+
+
+
+[1A[2K(node:3276) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K(node:3276) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[1/12] [chromium] › tests\e2e\admin-mobile-dialogs.spec.ts:4:1 › Admin user management remains usable on a narrow phone
+[1A[2K  1) [chromium] › tests\e2e\admin-mobile-dialogs.spec.ts:4:1 › Admin user management remains usable on a narrow phone 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:5173/", waiting until "load"[22m
+
+
+       at fixtures\projectWorkspace.ts:65
+
+      63 |     return route.fulfill({json:body});
+      64 |   });
+    > 65 |   await page.goto('/'); await page.locator('#login-email').fill(user.email); await page.locator('#login-password').fill('synthetic-password'); await page.locator('#login-submit').click();
+         |              ^
+      66 |   await expect(page.locator('.eflow-app-shell')).toBeVisible({ timeout: 30_000 });
+      67 |   const later = page.getByRole('button', { name: 'Maybe later', exact: true }); await later.waitFor({ timeout: 2000 }).then(() => later.click()).catch(() => {});
+      68 |   const sidebar = page.locator('.eflow-productivity-sidebar').first();
+        at projectWorkspaceFixture (C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\fixtures\projectWorkspace.ts:65:14)
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\admin-mobile-dialogs.spec.ts:6:3
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\admin-mobile-dialogs-Admin-f9627-ns-usable-on-a-narrow-phone-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\admin-mobile-dialogs-Admin-f9627-ns-usable-on-a-narrow-phone-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+[1A[2K(node:41668) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:41668) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[2/12] [chromium] › tests\e2e\admin-mobile-dialogs.spec.ts:21:1 › workspace proposal import and existing manual planning remain reachable in the phone drawer
+[1A[2K  2) [chromium] › tests\e2e\admin-mobile-dialogs.spec.ts:21:1 › workspace proposal import and existing manual planning remain reachable in the phone drawer 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:5173/", waiting until "load"[22m
+
+
+       at fixtures\projectWorkspace.ts:65
+
+      63 |     return route.fulfill({json:body});
+      64 |   });
+    > 65 |   await page.goto('/'); await page.locator('#login-email').fill(user.email); await page.locator('#login-password').fill('synthetic-password'); await page.locator('#login-submit').click();
+         |              ^
+      66 |   await expect(page.locator('.eflow-app-shell')).toBeVisible({ timeout: 30_000 });
+      67 |   const later = page.getByRole('button', { name: 'Maybe later', exact: true }); await later.waitFor({ timeout: 2000 }).then(() => later.click()).catch(() => {});
+      68 |   const sidebar = page.locator('.eflow-productivity-sidebar').first();
+        at projectWorkspaceFixture (C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\fixtures\projectWorkspace.ts:65:14)
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\admin-mobile-dialogs.spec.ts:23:3
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\admin-mobile-dialogs-works-19582-achable-in-the-phone-drawer-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\admin-mobile-dialogs-works-19582-achable-in-the-phone-drawer-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+[1A[2K(node:43412) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:43412) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[3/12] [chromium] › tests\e2e\admin-unification.spec.ts:11:3 › super_admin sessions expose the unified Admin management surfaces
+[1A[2K  3) [chromium] › tests\e2e\admin-unification.spec.ts:11:3 › super_admin sessions expose the unified Admin management surfaces 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:5173/", waiting until "load"[22m
+
+
+       at fixtures\projectWorkspace.ts:65
+
+      63 |     return route.fulfill({json:body});
+      64 |   });
+    > 65 |   await page.goto('/'); await page.locator('#login-email').fill(user.email); await page.locator('#login-password').fill('synthetic-password'); await page.locator('#login-submit').click();
+         |              ^
+      66 |   await expect(page.locator('.eflow-app-shell')).toBeVisible({ timeout: 30_000 });
+      67 |   const later = page.getByRole('button', { name: 'Maybe later', exact: true }); await later.waitFor({ timeout: 2000 }).then(() => later.click()).catch(() => {});
+      68 |   const sidebar = page.locator('.eflow-productivity-sidebar').first();
+        at projectWorkspaceFixture (C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\fixtures\projectWorkspace.ts:65:14)
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\admin-unification.spec.ts:14:21
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\admin-unification-super-ad-d9e7e-d-Admin-management-surfaces-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\admin-unification-super-ad-d9e7e-d-Admin-management-surfaces-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+[1A[2K(node:16148) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:16148) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[1A[2K[4/12] [chromium] › tests\e2e\admin-unification.spec.ts:11:3 › admin sessions expose the unified Admin management surfaces
+[1A[2K  4) [chromium] › tests\e2e\admin-unification.spec.ts:11:3 › admin sessions expose the unified Admin management surfaces 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:5173/", waiting until "load"[22m
+
+
+       at fixtures\projectWorkspace.ts:65
+
+      63 |     return route.fulfill({json:body});
+      64 |   });
+    > 65 |   await page.goto('/'); await page.locator('#login-email').fill(user.email); await page.locator('#login-password').fill('synthetic-password'); await page.locator('#login-submit').click();
+         |              ^
+      66 |   await expect(page.locator('.eflow-app-shell')).toBeVisible({ timeout: 30_000 });
+      67 |   const later = page.getByRole('button', { name: 'Maybe later', exact: true }); await later.waitFor({ timeout: 2000 }).then(() => later.click()).catch(() => {});
+      68 |   const sidebar = page.locator('.eflow-productivity-sidebar').first();
+        at projectWorkspaceFixture (C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\fixtures\projectWorkspace.ts:65:14)
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\admin-unification.spec.ts:14:21
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\admin-unification-admin-se-c3750-d-Admin-management-surfaces-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\admin-unification-admin-se-c3750-d-Admin-management-surfaces-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+[1A[2K(node:26500) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K(node:26500) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[5/12] [chromium] › tests\e2e\phase16-support-finance.spec.ts:9:1 › Admin Center keeps legacy pages, account inspection and unsaved account edits
+[1A[2K  5) [chromium] › tests\e2e\phase16-support-finance.spec.ts:9:1 › Admin Center keeps legacy pages, account inspection and unsaved account edits 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:5173/", waiting until "load"[22m
+
+
+       at fixtures\projectWorkspace.ts:65
+
+      63 |     return route.fulfill({json:body});
+      64 |   });
+    > 65 |   await page.goto('/'); await page.locator('#login-email').fill(user.email); await page.locator('#login-password').fill('synthetic-password'); await page.locator('#login-submit').click();
+         |              ^
+      66 |   await expect(page.locator('.eflow-app-shell')).toBeVisible({ timeout: 30_000 });
+      67 |   const later = page.getByRole('button', { name: 'Maybe later', exact: true }); await later.waitFor({ timeout: 2000 }).then(() => later.click()).catch(() => {});
+      68 |   const sidebar = page.locator('.eflow-productivity-sidebar').first();
+        at projectWorkspaceFixture (C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\fixtures\projectWorkspace.ts:65:14)
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase16-support-finance.spec.ts:12:3
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase16-support-finance-Ad-6ea46-n-and-unsaved-account-edits-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase16-support-finance-Ad-6ea46-n-and-unsaved-account-edits-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+[1A[2K(node:19796) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:19796) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[1A[2K[6/12] [chromium] › tests\e2e\phase16-support-finance.spec.ts:59:1 › Account audit has bounded coverage, loaded filters, nested redaction and truthful unavailable reads on a phone
+[1A[2K  6) [chromium] › tests\e2e\phase16-support-finance.spec.ts:59:1 › Account audit has bounded coverage, loaded filters, nested redaction and truthful unavailable reads on a phone 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:5173/", waiting until "load"[22m
+
+
+       at fixtures\projectWorkspace.ts:65
+
+      63 |     return route.fulfill({json:body});
+      64 |   });
+    > 65 |   await page.goto('/'); await page.locator('#login-email').fill(user.email); await page.locator('#login-password').fill('synthetic-password'); await page.locator('#login-submit').click();
+         |              ^
+      66 |   await expect(page.locator('.eflow-app-shell')).toBeVisible({ timeout: 30_000 });
+      67 |   const later = page.getByRole('button', { name: 'Maybe later', exact: true }); await later.waitFor({ timeout: 2000 }).then(() => later.click()).catch(() => {});
+      68 |   const sidebar = page.locator('.eflow-productivity-sidebar').first();
+        at projectWorkspaceFixture (C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\fixtures\projectWorkspace.ts:65:14)
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase16-support-finance.spec.ts:63:3
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase16-support-finance-Ac-4d491-navailable-reads-on-a-phone-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase16-support-finance-Ac-4d491-navailable-reads-on-a-phone-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+[1A[2K(node:14672) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:14672) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[1A[2K[7/12] [chromium] › tests\e2e\phase16-support-finance.spec.ts:129:1 › Accounting retains fiscal scope, exposes settlements, records one decision and inspects its balanced journal
+[1A[2K  7) [chromium] › tests\e2e\phase16-support-finance.spec.ts:129:1 › Accounting retains fiscal scope, exposes settlements, records one decision and inspects its balanced journal 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:5173/", waiting until "load"[22m
+
+
+       at fixtures\projectWorkspace.ts:65
+
+      63 |     return route.fulfill({json:body});
+      64 |   });
+    > 65 |   await page.goto('/'); await page.locator('#login-email').fill(user.email); await page.locator('#login-password').fill('synthetic-password'); await page.locator('#login-submit').click();
+         |              ^
+      66 |   await expect(page.locator('.eflow-app-shell')).toBeVisible({ timeout: 30_000 });
+      67 |   const later = page.getByRole('button', { name: 'Maybe later', exact: true }); await later.waitFor({ timeout: 2000 }).then(() => later.click()).catch(() => {});
+      68 |   const sidebar = page.locator('.eflow-productivity-sidebar').first();
+        at projectWorkspaceFixture (C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\fixtures\projectWorkspace.ts:65:14)
+        at phase16FinancialFixture (C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\fixtures\phase16Financial.ts:85:19)
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase16-support-finance.spec.ts:132:21
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase16-support-finance-Ac-e07b8-spects-its-balanced-journal-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase16-support-finance-Ac-e07b8-spects-its-balanced-journal-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+[1A[2K(node:33720) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+
+[1A[2K(node:33720) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[1A[2K[8/12] [chromium] › tests\e2e\phase16-support-finance.spec.ts:195:1 › Uncertain settlement keeps its reason and requires verification before resubmission
+[1A[2K  8) [chromium] › tests\e2e\phase16-support-finance.spec.ts:195:1 › Uncertain settlement keeps its reason and requires verification before resubmission 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:5173/", waiting until "load"[22m
+
+
+       at fixtures\projectWorkspace.ts:65
+
+      63 |     return route.fulfill({json:body});
+      64 |   });
+    > 65 |   await page.goto('/'); await page.locator('#login-email').fill(user.email); await page.locator('#login-password').fill('synthetic-password'); await page.locator('#login-submit').click();
+         |              ^
+      66 |   await expect(page.locator('.eflow-app-shell')).toBeVisible({ timeout: 30_000 });
+      67 |   const later = page.getByRole('button', { name: 'Maybe later', exact: true }); await later.waitFor({ timeout: 2000 }).then(() => later.click()).catch(() => {});
+      68 |   const sidebar = page.locator('.eflow-productivity-sidebar').first();
+        at projectWorkspaceFixture (C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\fixtures\projectWorkspace.ts:65:14)
+        at phase16FinancialFixture (C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\fixtures\phase16Financial.ts:85:19)
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase16-support-finance.spec.ts:198:21
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase16-support-finance-Un-b716a-ication-before-resubmission-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase16-support-finance-Un-b716a-ication-before-resubmission-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K(node:31188) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+
+[1A[2K(node:31188) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[9/12] [chromium] › tests\e2e\phase16-support-finance.spec.ts:232:1 › Journal correction has guarded lines, explicit posting and a retained uncertainty receipt on a phone
+[1A[2K  9) [chromium] › tests\e2e\phase16-support-finance.spec.ts:232:1 › Journal correction has guarded lines, explicit posting and a retained uncertainty receipt on a phone 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:5173/", waiting until "load"[22m
+
+
+       at fixtures\projectWorkspace.ts:65
+
+      63 |     return route.fulfill({json:body});
+      64 |   });
+    > 65 |   await page.goto('/'); await page.locator('#login-email').fill(user.email); await page.locator('#login-password').fill('synthetic-password'); await page.locator('#login-submit').click();
+         |              ^
+      66 |   await expect(page.locator('.eflow-app-shell')).toBeVisible({ timeout: 30_000 });
+      67 |   const later = page.getByRole('button', { name: 'Maybe later', exact: true }); await later.waitFor({ timeout: 2000 }).then(() => later.click()).catch(() => {});
+      68 |   const sidebar = page.locator('.eflow-productivity-sidebar').first();
+        at projectWorkspaceFixture (C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\fixtures\projectWorkspace.ts:65:14)
+        at phase16FinancialFixture (C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\fixtures\phase16Financial.ts:85:19)
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase16-support-finance.spec.ts:236:21
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase16-support-finance-Jo-8744f-ertainty-receipt-on-a-phone-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase16-support-finance-Jo-8744f-ertainty-receipt-on-a-phone-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+[1A[2K(node:40500) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+
+[1A[2K(node:40500) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[1A[2K[10/12] [chromium] › tests\e2e\phase16-support-finance.spec.ts:280:1 › Release handover uses its existing physical confirmation and blocks an uncertain repeat
+[1A[2K  10) [chromium] › tests\e2e\phase16-support-finance.spec.ts:280:1 › Release handover uses its existing physical confirmation and blocks an uncertain repeat 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:5173/", waiting until "load"[22m
+
+
+       at fixtures\projectWorkspace.ts:65
+
+      63 |     return route.fulfill({json:body});
+      64 |   });
+    > 65 |   await page.goto('/'); await page.locator('#login-email').fill(user.email); await page.locator('#login-password').fill('synthetic-password'); await page.locator('#login-submit').click();
+         |              ^
+      66 |   await expect(page.locator('.eflow-app-shell')).toBeVisible({ timeout: 30_000 });
+      67 |   const later = page.getByRole('button', { name: 'Maybe later', exact: true }); await later.waitFor({ timeout: 2000 }).then(() => later.click()).catch(() => {});
+      68 |   const sidebar = page.locator('.eflow-productivity-sidebar').first();
+        at projectWorkspaceFixture (C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\fixtures\projectWorkspace.ts:65:14)
+        at phase16FinancialFixture (C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\fixtures\phase16Financial.ts:85:19)
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase16-support-finance.spec.ts:283:21
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase16-support-finance-Re-23d38--blocks-an-uncertain-repeat-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase16-support-finance-Re-23d38--blocks-an-uncertain-repeat-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+[1A[2K(node:3592) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:3592) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[11/12] [chromium] › tests\e2e\phase16-support-finance.spec.ts:311:1 › Reports retain seven lenses, filtered CSV export and the task inspector
+[1A[2K  11) [chromium] › tests\e2e\phase16-support-finance.spec.ts:311:1 › Reports retain seven lenses, filtered CSV export and the task inspector 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:5173/", waiting until "load"[22m
+
+
+       at fixtures\projectWorkspace.ts:65
+
+      63 |     return route.fulfill({json:body});
+      64 |   });
+    > 65 |   await page.goto('/'); await page.locator('#login-email').fill(user.email); await page.locator('#login-password').fill('synthetic-password'); await page.locator('#login-submit').click();
+         |              ^
+      66 |   await expect(page.locator('.eflow-app-shell')).toBeVisible({ timeout: 30_000 });
+      67 |   const later = page.getByRole('button', { name: 'Maybe later', exact: true }); await later.waitFor({ timeout: 2000 }).then(() => later.click()).catch(() => {});
+      68 |   const sidebar = page.locator('.eflow-productivity-sidebar').first();
+        at projectWorkspaceFixture (C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\fixtures\projectWorkspace.ts:65:14)
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase16-support-finance.spec.ts:314:3
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase16-support-finance-Re-0a267-port-and-the-task-inspector-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase16-support-finance-Re-0a267-port-and-the-task-inspector-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K(node:40496) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+
+
+[1A[2K(node:40496) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[1A[2K[12/12] [chromium] › tests\e2e\phase16-support-finance.spec.ts:343:1 › Backup preflight stays unavailable without gateway configuration
+[1A[2K  12) [chromium] › tests\e2e\phase16-support-finance.spec.ts:343:1 › Backup preflight stays unavailable without gateway configuration 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5173/
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:5173/", waiting until "load"[22m
+
+
+       at fixtures\projectWorkspace.ts:65
+
+      63 |     return route.fulfill({json:body});
+      64 |   });
+    > 65 |   await page.goto('/'); await page.locator('#login-email').fill(user.email); await page.locator('#login-password').fill('synthetic-password'); await page.locator('#login-submit').click();
+         |              ^
+      66 |   await expect(page.locator('.eflow-app-shell')).toBeVisible({ timeout: 30_000 });
+      67 |   const later = page.getByRole('button', { name: 'Maybe later', exact: true }); await later.waitFor({ timeout: 2000 }).then(() => later.click()).catch(() => {});
+      68 |   const sidebar = page.locator('.eflow-productivity-sidebar').first();
+        at projectWorkspaceFixture (C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\fixtures\projectWorkspace.ts:65:14)
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase16-support-finance.spec.ts:346:3
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase16-support-finance-Ba-3842e-thout-gateway-configuration-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase16-support-finance-Ba-3842e-thout-gateway-configuration-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K  12 failed
+    [chromium] › tests\e2e\admin-mobile-dialogs.spec.ts:4:1 › Admin user management remains usable on a narrow phone 
+    [chromium] › tests\e2e\admin-mobile-dialogs.spec.ts:21:1 › workspace proposal import and existing manual planning remain reachable in the phone drawer 
+    [chromium] › tests\e2e\admin-unification.spec.ts:11:3 › super_admin sessions expose the unified Admin management surfaces 
+    [chromium] › tests\e2e\admin-unification.spec.ts:11:3 › admin sessions expose the unified Admin management surfaces 
+    [chromium] › tests\e2e\phase16-support-finance.spec.ts:9:1 › Admin Center keeps legacy pages, account inspection and unsaved account edits 
+    [chromium] › tests\e2e\phase16-support-finance.spec.ts:59:1 › Account audit has bounded coverage, loaded filters, nested redaction and truthful unavailable reads on a phone 
+    [chromium] › tests\e2e\phase16-support-finance.spec.ts:129:1 › Accounting retains fiscal scope, exposes settlements, records one decision and inspects its balanced journal 
+    [chromium] › tests\e2e\phase16-support-finance.spec.ts:195:1 › Uncertain settlement keeps its reason and requires verification before resubmission 
+    [chromium] › tests\e2e\phase16-support-finance.spec.ts:232:1 › Journal correction has guarded lines, explicit posting and a retained uncertainty receipt on a phone 
+    [chromium] › tests\e2e\phase16-support-finance.spec.ts:280:1 › Release handover uses its existing physical confirmation and blocks an uncertain repeat 
+    [chromium] › tests\e2e\phase16-support-finance.spec.ts:311:1 › Reports retain seven lenses, filtered CSV export and the task inspector 
+    [chromium] › tests\e2e\phase16-support-finance.spec.ts:343:1 › Backup preflight stays unavailable without gateway configuration 

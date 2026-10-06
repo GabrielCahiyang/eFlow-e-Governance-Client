@@ -1,0 +1,18 @@
+Command: Playwright: phase13-personal-work; grep discovers personal|Admin Inbox|Accounting updates|originating row disappears; built Vite preview port 5183; workers=1
+Exit code: 0
+
+
+Running 6 tests using 1 worker
+
+(node:43404) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:43404) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [chromium] › tests\e2e\phase13-personal-work.spec.ts:10:66 › head discovers personal work and keeps legacy task and subtask URLs (3.7s)
+  ok 2 [chromium] › tests\e2e\phase13-personal-work.spec.ts:10:66 › member discovers personal work and keeps legacy task and subtask URLs (3.5s)
+  ok 3 [chromium] › tests\e2e\phase13-personal-work.spec.ts:10:66 › accounting_staff discovers personal work and keeps legacy task and subtask URLs (3.4s)
+  ok 4 [chromium] › tests\e2e\phase13-personal-work.spec.ts:56:1 › Admin Inbox does not acquire task, financial or review authority (2.9s)
+  ok 5 [chromium] › tests\e2e\phase13-personal-work.spec.ts:80:1 › Accounting updates retain both personal task and financial destinations (2.9s)
+  ok 6 [chromium] › tests\e2e\phase13-personal-work.spec.ts:86:1 › personal inspector returns to search when its originating row disappears (5.7s)
+
+  6 passed (23.2s)

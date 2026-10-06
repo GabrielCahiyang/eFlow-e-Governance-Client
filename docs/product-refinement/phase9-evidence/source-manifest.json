@@ -1,0 +1,282 @@
+{
+  "scope": "Phase 9 navigation sources and acceptance anchors; checkout includes prior phase work.",
+  "inventoryEntries": 102,
+  "files": [
+    {
+      "path": "docs/product-refinement/audit/inventory/screens.json",
+      "sha256": "bd06ff78dbcecc0304ab514916c7a213c61ec640189aad091ab887fe3e07a91a"
+    },
+    {
+      "path": "src/app/components/Settings/SettingsContent.tsx",
+      "sha256": "229ebc7e7020963c24df818cdb600ae7bd45209ab09e06f5bcc4f65731e0229d"
+    },
+    {
+      "path": "src/app/components/SuperAdmin/SystemSettings.tsx",
+      "sha256": "16ba9a3d0977112efc6e7bad9c35270858f2cbce0ef708d8ee72ddf8368a6b58"
+    },
+    {
+      "path": "src/app/components/ui/NotificationBell.tsx",
+      "sha256": "631080d92c7302768dde8042c6286e84f5d4392fb431490e49d676be08504fa5"
+    },
+    {
+      "path": "src/app/components/ui/useConfirmation.tsx",
+      "sha256": "2630b7161d34323639c352e2a08d2e2d3d0346c9ca50a84279bb3e3e509e6655"
+    },
+    {
+      "path": "src/app/components/ui/workspace/InlineEditableText.tsx",
+      "sha256": "fcf51586bb941c21ee4b4b518af04c96eb9a5361e584ba66aac28e02ba844dcf"
+    },
+    {
+      "path": "src/app/contexts/AuthContext.tsx",
+      "sha256": "5e7dfbd83c9b81331a4c45eb8d281cbf7aabd76e1188c2f1c765c84f191be156"
+    },
+    {
+      "path": "src/app/features/administration/components/AdministrationWorkspace.tsx",
+      "sha256": "f3e6241e461c97855e2c56dc976d7bead7ec76deecf7a3cc4964c76990ac3682"
+    },
+    {
+      "path": "src/app/features/app-shell/AppProviders.tsx",
+      "sha256": "c00a791e6a99a4dd342f7262a53566cb9b4045f5a109fe8eb40a705da86a2cc4"
+    },
+    {
+      "path": "src/app/features/app-shell/AuthenticatedApp.tsx",
+      "sha256": "036c8b0e63e0fb9083b5cd30026e063bfad257724c283a59c5f8627d2da042a8"
+    },
+    {
+      "path": "src/app/features/app-shell/components/EflowTopBar.tsx",
+      "sha256": "b0dfbd891b1eb684f7f3aa7c7e8dd3661cb63b598803f448f3649366f801acc4"
+    },
+    {
+      "path": "src/app/features/app-shell/components/GlobalNavigation.tsx",
+      "sha256": "e153d26af836f6cb56e6149ae5cef0d3fa5d21e08833eb19fb6ea34320716743"
+    },
+    {
+      "path": "src/app/features/app-shell/components/MobileNavigationBar.tsx",
+      "sha256": "0ed30857dcb7fe17decb7e37e6d5c7eabbcf23705edadf94f5204c85a47f5515"
+    },
+    {
+      "path": "src/app/features/app-shell/components/NavigationDiscardDialog.tsx",
+      "sha256": "da24eb5edbe26077a4f4e7a9fdc2fd4d2a5f1e71643346151017579087132330"
+    },
+    {
+      "path": "src/app/features/app-shell/components/NavigationSearchDialog.tsx",
+      "sha256": "ef4ae0b92da4270fc0b76ea68358601103f3361f94ce461e99c189fd260058c2"
+    },
+    {
+      "path": "src/app/features/app-shell/components/ProductivitySidebar.tsx",
+      "sha256": "bb4ba6a94a2609e592132543d4b84570b8be4c40693420d1a95fa034f3f19774"
+    },
+    {
+      "path": "src/app/features/app-shell/components/WorkspaceNavigationPanel.tsx",
+      "sha256": "993e0e973424147b3ac22a924a81a1300e402e1feeec850a36a7951ccfe06faa"
+    },
+    {
+      "path": "src/app/features/app-shell/eflowAppShell.css",
+      "sha256": "3cc1d27ddbaa5a06bc8d6ed3a1c35308f012e51c85ecff50e1cc5b787851e3b8"
+    },
+    {
+      "path": "src/app/features/app-shell/EflowAppShell.tsx",
+      "sha256": "574ea7014b07bfa020e843d0758883eb275a84c4f648b6719d4f4507d17b5705"
+    },
+    {
+      "path": "src/app/features/app-shell/eflowNavigationIcons.tsx",
+      "sha256": "7d381c3189755725a942e776e6657102116d2e42205ac9721942134c4fef0654"
+    },
+    {
+      "path": "src/app/features/app-shell/index.ts",
+      "sha256": "dbb9ec345bc1dfb62f086a836ab00d9cff4d2fdc1f1a8584453479ef9515b90f"
+    },
+    {
+      "path": "src/app/features/app-shell/LoadingScreen.tsx",
+      "sha256": "2799187e44ef122970d633456406a09925252ac303bd96694693bbae27493ee5"
+    },
+    {
+      "path": "src/app/features/app-shell/navigationActionAlerts.ts",
+      "sha256": "496933d4a57ac633386f09f7d27dc98b6126bec6f07fc5d7c714dbda32796c13"
+    },
+    {
+      "path": "src/app/features/app-shell/navigationV2.css",
+      "sha256": "4ea962b3b8bcb4f31bb25d334528fcb02e2512a62bacb224c8a4c67b85958a27"
+    },
+    {
+      "path": "src/app/features/app-shell/QuickLoginListener.tsx",
+      "sha256": "4ad6b7469e82472cab63d1cefbcc03506e4ec55b2441f7f7e46748bc8de19802"
+    },
+    {
+      "path": "src/app/features/app-shell/role.ts",
+      "sha256": "45eee877e4c3796588c63ac2c12ffc4d7c1480c4f0e62ee326841af70a27d3b3"
+    },
+    {
+      "path": "src/app/features/app-shell/usePendingPlanDrafts.ts",
+      "sha256": "97d7aa3e56bef1d9e6cce648152a9bd22037e6b0f7e5d89acf5d6adf52dec97d"
+    },
+    {
+      "path": "src/app/features/navigation/AccessDenied.tsx",
+      "sha256": "006b03e8a08e718254ef38be767ccf399cda3bb054829628cedb7b292c67dee3"
+    },
+    {
+      "path": "src/app/features/navigation/administrativePages.ts",
+      "sha256": "e9077d22f91ad4ee4caabcf3090a92f9b97c3e2649ec3faa415011e87f69d2cf"
+    },
+    {
+      "path": "src/app/features/navigation/index.ts",
+      "sha256": "74d7b8966e052ad2a098c7e5dce85ebef5260314427aabbdec01a7232b897684"
+    },
+    {
+      "path": "src/app/features/navigation/navigationPermissions.ts",
+      "sha256": "5d5609a6202f479ea6828195cc2582361b49ffa1f6812fdf9976d58faa3f9785"
+    },
+    {
+      "path": "src/app/features/navigation/navigationUrl.ts",
+      "sha256": "57fc05bbde5e646b9168e21349c99c8949be56452a395e049bcd49dd21f49baa"
+    },
+    {
+      "path": "src/app/features/navigation/presentationNavigation.ts",
+      "sha256": "cd956afddc7e55722720340c79fe9958ad510d906078b81542fbee92ee2a9353"
+    },
+    {
+      "path": "src/app/features/navigation/RoleContent.tsx",
+      "sha256": "b63981fc585e73ddccbeff3cbb7ae0f899c1a003b8707a066343e3d526bc7870"
+    },
+    {
+      "path": "src/app/features/navigation/roleNavigation.tsx",
+      "sha256": "f8262f33d4de82ccb3d2ef878cc653f54d2566d333f38235a775125d40aba070"
+    },
+    {
+      "path": "src/app/features/navigation/sidebarContent.tsx",
+      "sha256": "d5359997acebac1afefb3afee3aadb03487072f53a6bdf0baaf74278e827311d"
+    },
+    {
+      "path": "src/app/features/navigation/sidebarRoles/councilor_padSidebar.tsx",
+      "sha256": "f9e2f390bdcee0215e38facbcab621b547829cf399bb0ef5fe9ddba6b828c8bd"
+    },
+    {
+      "path": "src/app/features/navigation/sidebarRoles/deptheadSidebar.tsx",
+      "sha256": "cb670e2ba13875017e852287d3f21cc373a497c0481ddf355ef5230806c20049"
+    },
+    {
+      "path": "src/app/features/navigation/sidebarRoles/employeeSidebar.tsx",
+      "sha256": "683584034a3f067ff8b674b5851a66094613f50a760399b625041ce1070272b8"
+    },
+    {
+      "path": "src/app/features/navigation/sidebarRoles/executiveSidebar.tsx",
+      "sha256": "dc1c270a3466d9f75711e21c5b6c33348698e19bd3a6f5889b71e1137228051c"
+    },
+    {
+      "path": "src/app/features/navigation/sidebarRoles/financeSidebar.tsx",
+      "sha256": "80bc73baa32c9afc0f1586951f42af35bddd2e988fded06212a49fcafe691498"
+    },
+    {
+      "path": "src/app/features/navigation/sidebarRoles/hrmoSidebar.tsx",
+      "sha256": "95c519f6c157f67cacac2521e67cf1f6e488f52607a071656baa576eb71fd55e"
+    },
+    {
+      "path": "src/app/features/navigation/sidebarRoles/index.ts",
+      "sha256": "96dcd6ae78cc30956dd57619dc5a21e7616eb16c9b8b079db62fcaf03d541150"
+    },
+    {
+      "path": "src/app/features/navigation/sidebarRoles/legislativeSidebar.tsx",
+      "sha256": "baf0d9a8299da303ac45ae0124fa35b846d17b1f59046f6a223f22127c255397"
+    },
+    {
+      "path": "src/app/features/navigation/sidebarRoles/settingsSidebar.tsx",
+      "sha256": "2f49ae1f902a394b1c8926fb1cc4d47e117fe9aaa89225011029d6c1a445abb5"
+    },
+    {
+      "path": "src/app/features/navigation/sidebarRoles/superadminSidebar.tsx",
+      "sha256": "3fa3376709b99591a4a4a9fe6f89eaaec397766a21bdf91dfad0fe2e88bafd12"
+    },
+    {
+      "path": "src/app/features/navigation/sidebarRoles/teamleaderSidebar.tsx",
+      "sha256": "48daad751aef28456b6472cf9faf4ee18dce599a6520f57b687fb43b85534a8a"
+    },
+    {
+      "path": "src/app/features/navigation/sidebarTypes.ts",
+      "sha256": "2143cb29f0cc9af46762ad271d5621977acc7c7ae042e2c1aa2a5b7aa1dab06e"
+    },
+    {
+      "path": "src/app/features/navigation/useRoleNavigationState.ts",
+      "sha256": "027a08fa7b5fb8e4055aa3cb3d191104ce6a295d9d6220665569cddea238633c"
+    },
+    {
+      "path": "src/app/features/project-offices/components/LocalOfficeDialog.tsx",
+      "sha256": "a018fcc2a4171a9f993cd99dc3de97b736af94fe751b146c1e26b9be55026b1f"
+    },
+    {
+      "path": "src/app/features/project-table/components/CreateProjectDialog.tsx",
+      "sha256": "6a41ee5ced7d44abe8375d1b4f2271f43d0ea17d2d3c6e5f0c63a4ffbd4e78ed"
+    },
+    {
+      "path": "src/app/features/project-table/components/InlineCreateRow.tsx",
+      "sha256": "15564dd861671d0cb6c246bf454287ef9f0ea8d303f2f84f10e7f9b1abbdbff4"
+    },
+    {
+      "path": "src/app/features/projects/components/project-command/ProjectCommandWorkspace.tsx",
+      "sha256": "bd55db109ab26bb722beebe0f0dcf14d2c94c8fb091e8ce7df017efa8918619e"
+    },
+    {
+      "path": "src/app/features/projects/components/ProjectContextSidebar.tsx",
+      "sha256": "48b3d8135162ebe600e269c7d979ca39309c124efc884c931a07a35061872842"
+    },
+    {
+      "path": "src/app/features/projects/components/ProjectsWorkspace.tsx",
+      "sha256": "d29ee5bed81d1d0e4d05dc9ba02cd22eb5f46cdb580367d7bac7c5aefc275ff0"
+    },
+    {
+      "path": "src/app/features/projects/hooks/useProjectLocation.ts",
+      "sha256": "41119c23a5bd5200e0d120cab3cd982c7fddb01f20950c0174e2dca0864d8cf8"
+    },
+    {
+      "path": "src/app/features/settings/components/ProfileSettingsPage.tsx",
+      "sha256": "f3fc873c742d66f13e6af9934a8ff0de20ce65e9be8a7805f7cd1afc4022f3b8"
+    },
+    {
+      "path": "src/app/features/settings/components/SecuritySettingsPage.tsx",
+      "sha256": "6237524339d78ce8771847242e7a3674a750e32d6c959f5fd1d5151c65944b7d"
+    },
+    {
+      "path": "src/app/shared/navigationGuard.ts",
+      "sha256": "75df8b5e08aaa074d878379a39d9b4c3bebcb14f597f4e8df34aa3d1cbb7fc23"
+    },
+    {
+      "path": "src/app/shared/navigationHistory.ts",
+      "sha256": "858a7ed4521733eac4f577954ba07baf592e8607a38c3976ea9d407ed280f68b"
+    },
+    {
+      "path": "src/app/shared/navigationPreferences.ts",
+      "sha256": "9b750dbf91c058f4a075a0b8909b6cf10e984c9e6d5d37ec9357472282109668"
+    },
+    {
+      "path": "src/app/shared/useMediaQuery.ts",
+      "sha256": "81ff32fa55c3104f5e6b059ba9e7616c3327ba2481e4407d39cbfd2d8a415b22"
+    },
+    {
+      "path": "src/app/shared/usePanelDismissal.ts",
+      "sha256": "21b3db582ee4307394cd38a31baad4cf639e1d6d16f87921eb17b7faed5dfa25"
+    },
+    {
+      "path": "src/app/shared/WorkspaceNavigationContext.tsx",
+      "sha256": "b0478c493815cf5d79ade88e8ef26110569050cb0751a0dae8fbdc40344951d7"
+    },
+    {
+      "path": "tests/e2e/fixtures/projectWorkspace.ts",
+      "sha256": "c940c157acb62508087dedf5a311460a9a4a58a21ec1af25d4516b0d01e90ef0"
+    },
+    {
+      "path": "tests/e2e/navigation-v2.spec.ts",
+      "sha256": "71960296428838bf82c3cc70bee3bd93514a3b535de818daa0e3e1d8e8bed0a8"
+    },
+    {
+      "path": "tests/e2e/navigation.spec.ts",
+      "sha256": "40fbcaeb4d6df757bc07dcfdca547af4b120b9914b950772dbf16a70499b63f5"
+    },
+    {
+      "path": "tests/unit/navigationV2.test.tsx",
+      "sha256": "e4aa682e7899c9ae4b2d32131d63ff4a9f000bd8f93252d759af4978ac35ea62"
+    },
+    {
+      "path": "tests/unit/phase02AccountMenu.test.tsx",
+      "sha256": "6bac2f496004a152e754d935cdb1fbcc0b3cf43554db3b5322272b144729ba06"
+    }
+  ]
+}

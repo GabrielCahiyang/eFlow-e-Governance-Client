@@ -15,6 +15,7 @@ export const readStringArray = (value: unknown): string[] => {
 
 export function rowToTask(row: Record<string, unknown>): Task {
   return {
+    proposedOfficeIdentityId: readString(row.proposed_office_identity_id),
     groupId: readString(row.group_id),
     workspacePosition: Number(row.workspace_position || 0),
     startDate: readString(row.start_date),

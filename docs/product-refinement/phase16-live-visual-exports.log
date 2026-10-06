@@ -1,0 +1,15 @@
+
+Running 3 tests using 1 worker
+
+
+
+[1A[2K(node:16668) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K(node:16668) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[1/3] [chromium] › tests\e2e\phase16-support-finance.spec.ts:10:1 › Admin Center keeps legacy pages, account inspection and unsaved account edits
+[1A[2K[2/3] [chromium] › tests\e2e\phase16-support-finance.spec.ts:238:1 › Journal correction has guarded lines, explicit posting and a retained uncertainty receipt on a phone
+[1A[2K[3/3] [chromium] › tests\e2e\phase16-support-finance.spec.ts:338:1 › Reports retain seven lenses, filtered CSV export and the task inspector
+[1A[2K  3 passed (25.4s)

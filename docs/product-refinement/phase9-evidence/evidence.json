@@ -1,0 +1,142 @@
+{
+  "capturedAtUTC": "2026-10-06T05:17:30.526335+00:00",
+  "frontend": "http://127.0.0.1:5173",
+  "fixturePolicy": "Real frontend served at the live port; auth/REST/gateway/realtime requests intercepted with synthetic records. No deployed authorization proof or destructive live mutation.",
+  "checks": {
+    "typecheck": "passed",
+    "unit": {
+      "files": 171,
+      "tests": 656,
+      "result": "passed"
+    },
+    "build": "passed with existing warnings",
+    "accountMenuAfterUnusedDeclarationCleanup": "1 passed",
+    "navigationBrowserFinal": "14 passed",
+    "broadBrowser": "34 passed, 1 selector assertion failed; corrected accessible status assertion passes in focused retest and final navigation run",
+    "unavailableContextRetest": "1 passed",
+    "distinctAcceptanceCases": 35,
+    "graph": "7037 nodes / 21405 edges; 6 existing partial-parser warnings",
+    "whitespace": "git diff --check passed"
+  },
+  "inventory": {
+    "entries": 102,
+    "mapping": "inventory-crosswalk.json",
+    "sourceEvidenceOnly": true
+  },
+  "receipts": [
+    "typecheck.log",
+    "unit.log",
+    "build.log",
+    "account-menu-unit.log",
+    "navigation-browser.log",
+    "broad-browser.log",
+    "unavailable-context-browser.log",
+    "graph-update.log"
+  ],
+  "screenshots": [
+    {
+      "file": "screenshots/accounting_staff-navigation.png",
+      "source": "test-results/phase9-navigation-final/navigation-v2-accounting-s-fad23-h-global-context-navigation-chromium/accounting_staff-navigation.png",
+      "sha256": "d2d76de464d5adb5297709edbab4f09e44b87a3a488b18caf2c929e9f526ca86",
+      "frontend": "http://127.0.0.1:5173",
+      "data": "synthetic backend/auth fixtures"
+    },
+    {
+      "file": "screenshots/admin-navigation.png",
+      "source": "test-results/phase9-navigation-final/navigation-v2-admin-retain-05d28-h-global-context-navigation-chromium/admin-navigation.png",
+      "sha256": "13c4a41b23ff4d5b52ac013acef0c1d1b9a609d43d83ff1ffc351026561ac8c1",
+      "frontend": "http://127.0.0.1:5173",
+      "data": "synthetic backend/auth fixtures"
+    },
+    {
+      "file": "screenshots/head-navigation.png",
+      "source": "test-results/phase9-navigation-final/navigation-v2-head-retains-e75f6-h-global-context-navigation-chromium/head-navigation.png",
+      "sha256": "7176d1bc7b82888760a48fa5cb60ea30573128fba1c3d9ce92e67d91e8e386b7",
+      "frontend": "http://127.0.0.1:5173",
+      "data": "synthetic backend/auth fixtures"
+    },
+    {
+      "file": "screenshots/member-navigation.png",
+      "source": "test-results/phase9-navigation-final/navigation-v2-member-retai-cbadc-h-global-context-navigation-chromium/member-navigation.png",
+      "sha256": "4a8a75efa6638047055668d77221a60ddb4c4a47a2fa26f3762deec883d3ec7e",
+      "frontend": "http://127.0.0.1:5173",
+      "data": "synthetic backend/auth fixtures"
+    },
+    {
+      "file": "screenshots/navigation-768.png",
+      "source": "test-results/phase9-navigation-final/navigation-v2-responsive-n-6793f-text-and-utilities-at-768px-chromium/navigation-768.png",
+      "sha256": "e28a8aeae7226e35210f4436e040b7ee9b0e68298677418574d53f0aca72f734",
+      "frontend": "http://127.0.0.1:5173",
+      "data": "synthetic backend/auth fixtures"
+    },
+    {
+      "file": "screenshots/navigation-drawer-768.png",
+      "source": "test-results/phase9-navigation-final/navigation-v2-responsive-n-6793f-text-and-utilities-at-768px-chromium/navigation-drawer-768.png",
+      "sha256": "b50cc1f072a0d663ae85583187dd786cc65a75ef7ede346a1213778b998ef997",
+      "frontend": "http://127.0.0.1:5173",
+      "data": "synthetic backend/auth fixtures"
+    },
+    {
+      "file": "screenshots/navigation-320.png",
+      "source": "test-results/phase9-navigation-final/navigation-v2-responsive-n-7ba44-text-and-utilities-at-320px-chromium/navigation-320.png",
+      "sha256": "3152229a759180d41698e9eb2835c7a58923eb563e919b3cd7133a179476032a",
+      "frontend": "http://127.0.0.1:5173",
+      "data": "synthetic backend/auth fixtures"
+    },
+    {
+      "file": "screenshots/navigation-drawer-320.png",
+      "source": "test-results/phase9-navigation-final/navigation-v2-responsive-n-7ba44-text-and-utilities-at-320px-chromium/navigation-drawer-320.png",
+      "sha256": "2bf35ca62741192ba6df6a425f0f8864cf865b6fdccf5142a1c5e4181cde6006",
+      "frontend": "http://127.0.0.1:5173",
+      "data": "synthetic backend/auth fixtures"
+    },
+    {
+      "file": "screenshots/navigation-390.png",
+      "source": "test-results/phase9-navigation-final/navigation-v2-responsive-n-c9edc-text-and-utilities-at-390px-chromium/navigation-390.png",
+      "sha256": "adf01c3db47e0be9447085ff90ac6b88ba1b140b36b4b41ace6c5c080a890f0d",
+      "frontend": "http://127.0.0.1:5173",
+      "data": "synthetic backend/auth fixtures"
+    },
+    {
+      "file": "screenshots/navigation-drawer-390.png",
+      "source": "test-results/phase9-navigation-final/navigation-v2-responsive-n-c9edc-text-and-utilities-at-390px-chromium/navigation-drawer-390.png",
+      "sha256": "4935a906ea459aa4b68337d4c0a94ccce8d3b6930be9300353336bef80ed124b",
+      "frontend": "http://127.0.0.1:5173",
+      "data": "synthetic backend/auth fixtures"
+    },
+    {
+      "file": "screenshots/navigation-1440.png",
+      "source": "test-results/phase9-navigation-final/navigation-v2-responsive-n-f8731-ext-and-utilities-at-1440px-chromium/navigation-1440.png",
+      "sha256": "0796331b273d10e1cdea0554f3fc7263b53b126e029cc08044384ef38db0d6cf",
+      "frontend": "http://127.0.0.1:5173",
+      "data": "synthetic backend/auth fixtures"
+    },
+    {
+      "file": "screenshots/shared-observer.png",
+      "source": "test-results/phase9-navigation-final/navigation-v2-search-and-f-50902-t-without-offering-creation-chromium/shared-observer.png",
+      "sha256": "e76ce8138c251234b706ca8bd8ea64e0f47f4b29407f08eba8ff18c10e59c1e4",
+      "frontend": "http://127.0.0.1:5173",
+      "data": "synthetic backend/auth fixtures"
+    },
+    {
+      "file": "screenshots/admin-mobile-dialog.png",
+      "source": "test-results/phase9-delivery/admin-mobile-dialogs-Admin-f9627-ns-usable-on-a-narrow-phone-chromium/admin-mobile-dialog.png",
+      "sha256": "f6c6ed51c5233421c9a3fb309456987096f638649519a47e00ea7d8a0585a4b8",
+      "frontend": "http://127.0.0.1:5173",
+      "data": "synthetic backend/auth fixtures"
+    },
+    {
+      "file": "screenshots/planning-mobile-dialog.png",
+      "source": "test-results/phase9-delivery/admin-mobile-dialogs-works-19582-achable-in-the-phone-drawer-chromium/planning-mobile-dialog.png",
+      "sha256": "0133efb07e6f4e71f94d74c515e2641df92ccfee2ede2b4c5b23b1f6bb7cdc13",
+      "frontend": "http://127.0.0.1:5173",
+      "data": "synthetic backend/auth fixtures"
+    }
+  ],
+  "limits": [
+    "Credential-backed navigation suite was not run without configured test accounts.",
+    "No native zoom or assistive-technology session was measured.",
+    "Full Phase 13 aggregation, Phase 16 role workspace redesign, true workspace membership and indexed remote search remain separate work.",
+    "No database/RLS/endpoint/service-payload change belongs to Phase 9."
+  ]
+}

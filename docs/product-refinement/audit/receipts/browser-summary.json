@@ -1,0 +1,396 @@
+{
+  "sourceDate": "2026-10-06",
+  "baselineCommit": "a16d36e0b2c545c09a097801ff1345a26e39d030",
+  "sourceCounts": {
+    "screens": 102,
+    "mutationCandidates": 714,
+    "componentConsumers": 772,
+    "tokens": 245,
+    "serverRoutes": 24,
+    "sqlDeclarations": 422
+  },
+  "appOrigin": "http://127.0.0.1:5173",
+  "browser": "Playwright Chromium",
+  "backend": "All synthetic/intercepted; no deployed reads or writes",
+  "captureCount": 166,
+  "capturedScreenCount": 76,
+  "uncapturedScreenCount": 26,
+  "uncapturedScreens": [
+    {
+      "id": "projects.portfolio",
+      "owner": "projects",
+      "blocker": "Conditional workflow requires dedicated token/media/import/form/denied/startup fixture",
+      "nextStep": "Mapped implementation phase + Phase 18; preserve current action/caller until parity"
+    },
+    {
+      "id": "project.delete",
+      "owner": "projects",
+      "blocker": "Conditional workflow requires dedicated token/media/import/form/denied/startup fixture",
+      "nextStep": "Mapped implementation phase + Phase 18; preserve current action/caller until parity"
+    },
+    {
+      "id": "project.work-plan",
+      "owner": "proposal-import",
+      "blocker": "Conditional workflow requires dedicated token/media/import/form/denied/startup fixture",
+      "nextStep": "Mapped implementation phase + Phase 18; preserve current action/caller until parity"
+    },
+    {
+      "id": "project.templates",
+      "owner": "work-templates",
+      "blocker": "Conditional workflow requires dedicated token/media/import/form/denied/startup fixture",
+      "nextStep": "Mapped implementation phase + Phase 18; preserve current action/caller until parity"
+    },
+    {
+      "id": "project.import",
+      "owner": "project-import",
+      "blocker": "Conditional workflow requires dedicated token/media/import/form/denied/startup fixture",
+      "nextStep": "Mapped implementation phase + Phase 18; preserve current action/caller until parity"
+    },
+    {
+      "id": "task.dates",
+      "owner": "project-views",
+      "blocker": "Conditional workflow requires dedicated token/media/import/form/denied/startup fixture",
+      "nextStep": "Mapped implementation phase + Phase 18; preserve current action/caller until parity"
+    },
+    {
+      "id": "office.invite",
+      "owner": "project-offices",
+      "blocker": "Conditional workflow requires dedicated token/media/import/form/denied/startup fixture",
+      "nextStep": "Mapped implementation phase + Phase 18; preserve current action/caller until parity"
+    },
+    {
+      "id": "office.local",
+      "owner": "project-offices",
+      "blocker": "Conditional workflow requires dedicated token/media/import/form/denied/startup fixture",
+      "nextStep": "Mapped implementation phase + Phase 18; preserve current action/caller until parity"
+    },
+    {
+      "id": "office.link",
+      "owner": "project-offices",
+      "blocker": "Conditional workflow requires dedicated token/media/import/form/denied/startup fixture",
+      "nextStep": "Mapped implementation phase + Phase 18; preserve current action/caller until parity"
+    },
+    {
+      "id": "office.responsibility",
+      "owner": "project-offices",
+      "blocker": "Conditional workflow requires dedicated token/media/import/form/denied/startup fixture",
+      "nextStep": "Mapped implementation phase + Phase 18; preserve current action/caller until parity"
+    },
+    {
+      "id": "account.create",
+      "owner": "administration",
+      "blocker": "Conditional workflow requires dedicated token/media/import/form/denied/startup fixture",
+      "nextStep": "Mapped implementation phase + Phase 18; preserve current action/caller until parity"
+    },
+    {
+      "id": "account.pds",
+      "owner": "team-management",
+      "blocker": "Conditional workflow requires dedicated token/media/import/form/denied/startup fixture",
+      "nextStep": "Mapped implementation phase + Phase 18; preserve current action/caller until parity"
+    },
+    {
+      "id": "utility.call",
+      "owner": "compatibility components/services",
+      "blocker": "Conditional workflow requires dedicated token/media/import/form/denied/startup fixture",
+      "nextStep": "Mapped implementation phase + Phase 18; preserve current action/caller until parity"
+    },
+    {
+      "id": "utility.onboarding",
+      "owner": "onboarding",
+      "blocker": "Conditional workflow requires dedicated token/media/import/form/denied/startup fixture",
+      "nextStep": "Mapped implementation phase + Phase 18; preserve current action/caller until parity"
+    },
+    {
+      "id": "utility.tours",
+      "owner": "guided-tours",
+      "blocker": "Conditional workflow requires dedicated token/media/import/form/denied/startup fixture",
+      "nextStep": "Mapped implementation phase + Phase 18; preserve current action/caller until parity"
+    },
+    {
+      "id": "auth.login",
+      "owner": "compatibility components/services",
+      "blocker": "Conditional workflow requires dedicated token/media/import/form/denied/startup fixture",
+      "nextStep": "Mapped implementation phase + Phase 18; preserve current action/caller until parity"
+    },
+    {
+      "id": "auth.invitation",
+      "owner": "invitations",
+      "blocker": "Conditional workflow requires dedicated token/media/import/form/denied/startup fixture",
+      "nextStep": "Mapped implementation phase + Phase 18; preserve current action/caller until parity"
+    },
+    {
+      "id": "auth.session",
+      "owner": "session-security",
+      "blocker": "Conditional workflow requires dedicated token/media/import/form/denied/startup fixture",
+      "nextStep": "Mapped implementation phase + Phase 18; preserve current action/caller until parity"
+    },
+    {
+      "id": "auth.loading",
+      "owner": "app-shell",
+      "blocker": "Conditional workflow requires dedicated token/media/import/form/denied/startup fixture",
+      "nextStep": "Mapped implementation phase + Phase 18; preserve current action/caller until parity"
+    },
+    {
+      "id": "navigation.denied",
+      "owner": "navigation",
+      "blocker": "Conditional workflow requires dedicated token/media/import/form/denied/startup fixture",
+      "nextStep": "Mapped implementation phase + Phase 18; preserve current action/caller until parity"
+    },
+    {
+      "id": "legacy.councilor_padSidebar",
+      "owner": "navigation",
+      "blocker": "Unregistered prototype; no supported role",
+      "nextStep": "Mapped implementation phase + Phase 18; preserve current action/caller until parity"
+    },
+    {
+      "id": "legacy.executiveSidebar",
+      "owner": "navigation",
+      "blocker": "Unregistered prototype; no supported role",
+      "nextStep": "Mapped implementation phase + Phase 18; preserve current action/caller until parity"
+    },
+    {
+      "id": "legacy.financeSidebar",
+      "owner": "navigation",
+      "blocker": "Unregistered prototype; no supported role",
+      "nextStep": "Mapped implementation phase + Phase 18; preserve current action/caller until parity"
+    },
+    {
+      "id": "legacy.hrmoSidebar",
+      "owner": "navigation",
+      "blocker": "Unregistered prototype; no supported role",
+      "nextStep": "Mapped implementation phase + Phase 18; preserve current action/caller until parity"
+    },
+    {
+      "id": "legacy.legislativeSidebar",
+      "owner": "navigation",
+      "blocker": "Unregistered prototype; no supported role",
+      "nextStep": "Mapped implementation phase + Phase 18; preserve current action/caller until parity"
+    },
+    {
+      "id": "legacy.teamleaderSidebar",
+      "owner": "navigation",
+      "blocker": "Unregistered prototype; no supported role",
+      "nextStep": "Mapped implementation phase + Phase 18; preserve current action/caller until parity"
+    }
+  ],
+  "widths": [
+    320,
+    390,
+    768,
+    1024,
+    1440
+  ],
+  "roles": [
+    "admin",
+    "head",
+    "member",
+    "accounting_staff"
+  ],
+  "observedContexts": {
+    "lead": true,
+    "observer": true,
+    "collaboratingOffice": true,
+    "individualSupport": true
+  },
+  "pageErrors": [],
+  "rootOverflow": [],
+  "overflowLimit": "Document root only; internal clipping/scroll affordances and high-count performance require Phase 18",
+  "desktopKeyboard": [
+    {
+      "role": "admin",
+      "scenario": "Sidebar keyboard expansion",
+      "density": "expanded",
+      "focusInside": true
+    },
+    {
+      "role": "head",
+      "scenario": "Sidebar keyboard expansion",
+      "density": "expanded",
+      "focusInside": true
+    },
+    {
+      "role": "member",
+      "scenario": "Sidebar keyboard expansion",
+      "density": "expanded",
+      "focusInside": true
+    },
+    {
+      "role": "accounting_staff",
+      "scenario": "Sidebar keyboard expansion",
+      "density": "expanded",
+      "focusInside": true
+    }
+  ],
+  "mobileEscapeAfterTransition": [
+    {
+      "role": "admin",
+      "width": 390,
+      "scenario": "Mobile Escape after transition",
+      "dialogs": 0,
+      "focus": null
+    },
+    {
+      "role": "admin",
+      "width": 320,
+      "scenario": "Mobile Escape after transition",
+      "dialogs": 0,
+      "focus": null
+    },
+    {
+      "role": "head",
+      "width": 390,
+      "scenario": "Mobile Escape after transition",
+      "dialogs": 0,
+      "focus": null
+    },
+    {
+      "role": "head",
+      "width": 320,
+      "scenario": "Mobile Escape after transition",
+      "dialogs": 0,
+      "focus": null
+    },
+    {
+      "role": "member",
+      "width": 390,
+      "scenario": "Mobile Escape after transition",
+      "dialogs": 0,
+      "focus": null
+    },
+    {
+      "role": "member",
+      "width": 320,
+      "scenario": "Mobile Escape after transition",
+      "dialogs": 0,
+      "focus": null
+    },
+    {
+      "role": "accounting_staff",
+      "width": 390,
+      "scenario": "Mobile Escape after transition",
+      "dialogs": 0,
+      "focus": null
+    },
+    {
+      "role": "accounting_staff",
+      "width": 320,
+      "scenario": "Mobile Escape after transition",
+      "dialogs": 0,
+      "focus": null
+    }
+  ],
+  "utilityEscapeAfterTransition": [
+    {
+      "role": "admin",
+      "scenario": "Utility Escape after transition",
+      "screenId": "utility.notifications",
+      "focus": "No new notifications",
+      "dialogs": 1
+    },
+    {
+      "role": "admin",
+      "scenario": "Utility Escape after transition",
+      "screenId": "utility.chat",
+      "focus": "Close messages",
+      "dialogs": 1
+    },
+    {
+      "role": "admin",
+      "scenario": "Utility Escape after transition",
+      "screenId": "settings.profile",
+      "focus": null,
+      "dialogs": 0
+    },
+    {
+      "role": "head",
+      "scenario": "Utility Escape after transition",
+      "screenId": "utility.notifications",
+      "focus": "No new notifications",
+      "dialogs": 1
+    },
+    {
+      "role": "head",
+      "scenario": "Utility Escape after transition",
+      "screenId": "utility.chat",
+      "focus": "Close messages",
+      "dialogs": 1
+    },
+    {
+      "role": "head",
+      "scenario": "Utility Escape after transition",
+      "screenId": "settings.profile",
+      "focus": null,
+      "dialogs": 0
+    },
+    {
+      "role": "member",
+      "scenario": "Utility Escape after transition",
+      "screenId": "utility.notifications",
+      "focus": "No new notifications",
+      "dialogs": 1
+    },
+    {
+      "role": "member",
+      "scenario": "Utility Escape after transition",
+      "screenId": "utility.chat",
+      "focus": "Close messages",
+      "dialogs": 1
+    },
+    {
+      "role": "member",
+      "scenario": "Utility Escape after transition",
+      "screenId": "settings.profile",
+      "focus": null,
+      "dialogs": 0
+    },
+    {
+      "role": "accounting_staff",
+      "scenario": "Utility Escape after transition",
+      "screenId": "utility.notifications",
+      "focus": "No new notifications",
+      "dialogs": 1
+    },
+    {
+      "role": "accounting_staff",
+      "scenario": "Utility Escape after transition",
+      "screenId": "utility.chat",
+      "focus": "Close messages",
+      "dialogs": 1
+    },
+    {
+      "role": "accounting_staff",
+      "scenario": "Utility Escape after transition",
+      "screenId": "settings.profile",
+      "focus": null,
+      "dialogs": 0
+    }
+  ],
+  "keyboardLimit": "Immediate pre-transition dialog counts in raw history are not failures. Notifications/messages remain open on Escape in final observations; focus return requires fuller active-element evidence, not just aria-label.",
+  "fixtureBlockers": [],
+  "certification": {
+    "deployedAuthority": false,
+    "actualJWT": false,
+    "delivery": false,
+    "financialWorkflow": false,
+    "privatePDS": false,
+    "screenReader": false,
+    "contrast": false,
+    "performance": false,
+    "native": false
+  },
+  "testBaseline": {
+    "typeScript": "Passed at kickoff and final check",
+    "unit": {
+      "files": 168,
+      "tests": 628,
+      "status": "Passed at kickoff"
+    },
+    "build": "Passed at kickoff with existing warnings",
+    "clientSecrets": "Passed",
+    "fixtureSmoke": {
+      "tests": 11,
+      "status": "Passed final aggregate; exact Office-region locator correction"
+    },
+    "credentialNavigation": "Not run; no authorized accounts configured"
+  }
+}

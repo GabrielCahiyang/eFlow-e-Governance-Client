@@ -1,19 +1,24 @@
 import type React from 'react';
 import { Activity, Board, Calendar, Chart, CheckList, CreditCard, Dashboard, Description, Security, Table, Team, Timeline, Versioning } from '@vibe/icons';
-import type { PermanentProjectView, ProjectViewMeta } from './types';
+import type { PermanentProjectView, ProjectCommandTab, ProjectViewMeta } from './types';
 
 export const PERMANENT_TABS: { id: PermanentProjectView; label: string }[] = [
   { id: "tasks", label: "Main table" },
+  { id: "board", label: "Board" },
   { id: "gantt", label: "Gantt" },
-  { id: "overview", label: "Overview" },
-  { id: "timeline", label: "Timeline" },
   { id: "calendar", label: "Calendar" },
+  { id: "dashboard", label: "Project Dashboard" },
+  { id: "offices", label: "Offices" },
 ];
+
+export const CORE_VIEWS_CATALOG: ProjectViewMeta<PermanentProjectView>[] = PERMANENT_TABS.map(view => ({
+  ...view, category: 'Project', description: 'Core project view over the same authorized tasks and project context.',
+}));
 
 export const OPTIONAL_VIEWS_CATALOG: ProjectViewMeta[] = [
   { id:'readiness', label:'Readiness & closeout', category:'Governance', description:'Review structure, Office participation, task owners, schedule and financial closeout.' },
-  { id:'board', label:'Board', category:'Project', description:'Status lanes over the same tasks, with permitted drag-and-drop moves.' },
-  { id:'offices', label:'Offices', category:'Project', description:'Task ownership, completion and overdue work by Office.' },
+  { id:'overview', label:'Overview', category:'Project', description:'Project delivery summary, milestones and attention items.' },
+  { id:'timeline', label:'Timeline', category:'Project', description:'Existing milestone planning and schedule tools.' },
   // Project
   {
     id: "reports",
@@ -42,12 +47,6 @@ export const OPTIONAL_VIEWS_CATALOG: ProjectViewMeta[] = [
   },
 
   // Insights
-  {
-    id: "dashboard",
-    label: "Project Dashboard",
-    category: "Insights",
-    description: "Modular productivity widgets: delivery progress, blockers, and bottlenecks.",
-  },
   {
     id: "workload",
     label: "Workload & Team",
@@ -82,6 +81,13 @@ export const OPTIONAL_VIEWS_CATALOG: ProjectViewMeta[] = [
     description: "Formal change requests, approval notes, and milestone decisions.",
   },
 ];
+
+/** Existing URL/prop aliases resolve to the same project view; unknown values are ignored. */
+export function resolveProjectView(value: string | null | undefined): ProjectCommandTab | null {
+  const aliases: Record<string, ProjectCommandTab> = { plan: 'timeline', delivery: 'timeline', work: 'tasks', people: 'workload', team: 'workload', main_table: 'tasks', 'main-table': 'tasks', 'proposal-context': 'proposal_context' };
+  if (!value) return null;
+  return Object.prototype.hasOwnProperty.call(aliases, value) ? aliases[value] : ([...PERMANENT_TABS, ...OPTIONAL_VIEWS_CATALOG].some(view => view.id === value) ? value as ProjectCommandTab : null);
+}
 
 export const VIEW_ICONS: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
   overview: Dashboard,

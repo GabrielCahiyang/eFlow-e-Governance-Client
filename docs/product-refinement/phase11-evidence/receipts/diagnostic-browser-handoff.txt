@@ -1,0 +1,172 @@
+
+Running 19 tests using 1 worker
+
+(node:42912) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:42912) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [chromium] › tests\e2e\phase11-main-table.spec.ts:6:1 › column widths, alignment, visibility and sticky task context persist locally (8.5s)
+  ok  2 [chromium] › tests\e2e\phase11-main-table.spec.ts:18:1 › date and dependency drafts guard close and retain denied edits for scoped retry (8.6s)
+  ok  3 [chromium] › tests\e2e\phase11-main-table.spec.ts:27:1 › filter chips clear one or all without changing canonical manual ordering (5.1s)
+  x   4 [chromium] › tests\e2e\phase11-main-table.spec.ts:35:1 › group creation guards its draft and empty deletion confirms impact and retries denial (10.9s)
+(node:31284) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:31284) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   5 [chromium] › tests\e2e\phase11-main-table.spec.ts:43:1 › task team entry reuses existing details and mobile sticky context leaves room for work (1.5m)
+(node:43724) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:43724) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   6 [chromium] › tests\e2e\phase11-main-table.spec.ts:48:1 › shared Task Lead team action explains the unresolved authority gate (30.4s)
+(node:36188) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:36188) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  7 [chromium] › tests\e2e\phase11-main-table.spec.ts:52:1 › Observer inspection and closed-project table retain read-only controls (5.6s)
+  ok  8 [chromium] › tests\e2e\phase11-main-table.spec.ts:56:1 › Head owner appointment confirms impact and retains denied assignment for retry (7.6s)
+  ok  9 [chromium] › tests\e2e\phase3-project-table.spec.ts:4:1 › Head table keeps first-column task actions, task edits and inline subitems (7.1s)
+  ok 10 [chromium] › tests\e2e\phase3-project-table.spec.ts:45:1 › Member table protects structure and keeps detail access at 390px (4.4s)
+  ok 11 [chromium] › tests\e2e\phase3-project-table.spec.ts:62:1 › Inline tasks save on blur, keep adding with Shift+Enter, and retain failed drafts (5.3s)
+  ok 12 [chromium] › tests\e2e\phase4-project-views.spec.ts:11:1 › Phase 4 shares filters and edits across Board, Gantt, Calendar, Dashboard and Offices (8.2s)
+  ok 13 [chromium] › tests\e2e\phase4-project-views.spec.ts:93:1 › Member can inspect views at 390px without structural date controls (4.7s)
+  ok 14 [chromium] › tests\e2e\phase6-project-offices.spec.ts:5:1 › Lead invites an Office and hands over responsibility without assigning its staff (7.4s)
+  ok 15 [chromium] › tests\e2e\phase6-project-offices.spec.ts:45:1 › Collaborating Head sees a roomy own-Office member picker and only edits its own tasks (7.7s)
+  ok 16 [chromium] › tests\e2e\phase6-project-offices.spec.ts:71:1 › Observer opens the project without editable owners or task planning (5.3s)
+  x  17 [chromium] › tests\e2e\project-workspace-controls.spec.ts:19:1 › Project actions open visible menus and dialogs, and the board returns to the filtered table (1.5m)
+(node:35096) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35096) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 18 [chromium] › tests\e2e\project-workspace-controls.spec.ts:73:1 › View picker, board return and first-column task actions remain reachable at 390px (5.2s)
+  ok 19 [chromium] › tests\e2e\project-workspace-controls.spec.ts:104:1 › Overflow views stay selectable and closable outside the mobile tab scroller (8.0s)
+
+
+  1) [chromium] › tests\e2e\phase11-main-table.spec.ts:35:1 › group creation guards its draft and empty deletion confirms impact and retries denial 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveCount[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  getByRole('dialog', { name: 'New group', exact: true })
+    Expected: [32m0[39m
+    Received: [31m1[39m
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toHaveCount" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('dialog', { name: 'New group', exact: true })[22m
+    [2m    9 × locator resolved to 1 element[22m
+    [2m      - unexpected value "1"[22m
+
+
+      35 | test('group creation guards its draft and empty deletion confirms impact and retries denial',async({page},info)=>{
+      36 |  test.setTimeout(90_000);const records=await fixture(page,'head');await page.getByRole('button',{name:'Group actions for To do',exact:true}).click();await expect(page.getByRole('menuitem',{name:'Delete empty group',exact:true})).toBeDisabled();await expect(page.getByText('The default group must remain available for project work.')).toBeVisible();await page.keyboard.press('Escape');await expect(page.getByRole('menu')).toHaveCount(0);
+    > 37 |  await page.getByRole('button',{name:'New group',exact:true}).click();const create=page.getByRole('dialog',{name:'New group',exact:true});await expect(create).toBeVisible({timeout:5000});await create.getByRole('textbox',{name:'Group name',exact:true}).fill('Follow-up');await create.getByRole('button',{name:'Cancel',exact:true}).click();await page.getByRole('button',{name:'Keep editing',exact:true}).click();await expect(create.getByRole('textbox',{name:'Group name',exact:true})).toHaveValue('Follow-up');await create.getByRole('button',{name:'Add group',exact:true}).click();await expect(create).toHaveCount(0);await expect(page.getByRole('button',{name:'Group actions for Follow-up',exact:true})).toBeVisible();
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         ^
+      38 |  let attempts=0;await page.route('**/rest/v1/project_groups?**',route=>{if(route.request().method()!=='DELETE')return route.fallback();attempts++;if(attempts===1)return route.fulfill({status:403,json:{message:'Synthetic group denial'}});const id=new URL(route.request().url()).searchParams.get('id')!.slice(3);const index=records.groups.findIndex(group=>group.id===id);records.groups.splice(index,1);return route.fulfill({json:[{id}]});});
+      39 |  await page.getByRole('button',{name:'Group actions for Follow-up',exact:true}).click();await page.getByRole('menuitem',{name:'Delete empty group',exact:true}).click();const confirm=page.getByRole('alertdialog',{name:'Delete Follow-up?',exact:true});await expect(confirm).toContainText('No tasks or task history will be deleted');await confirm.getByRole('button',{name:'Cancel',exact:true}).click();expect(attempts).toBe(0);
+      40 |  await page.getByRole('button',{name:'Group actions for Follow-up',exact:true}).click();await page.getByRole('menuitem',{name:'Delete empty group',exact:true}).click();await confirm.getByRole('button',{name:'Delete group',exact:true}).click();const error=page.getByRole('alert').filter({hasText:'Synthetic group denial'});await expect(error).toBeVisible();await page.screenshot({path:info.outputPath('group-deletion-error-desktop.png')});await error.getByRole('button',{name:'Retry deletion',exact:true}).click();await confirm.getByRole('button',{name:'Delete group',exact:true}).click();await expect(page.getByRole('button',{name:'Group actions for Follow-up',exact:true})).toHaveCount(0);expect(attempts).toBe(2);
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase11-main-table.spec.ts:37:601
+
+    Error Context: test-results\phase11-browser-final\phase11-main-table-group-c-d17ef-s-impact-and-retries-denial-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase11-browser-final\phase11-main-table-group-c-d17ef-s-impact-and-retries-denial-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase11-browser-final\phase11-main-table-group-c-d17ef-s-impact-and-retries-denial-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › tests\e2e\phase11-main-table.spec.ts:43:1 › task team entry reuses existing details and mobile sticky context leaves room for work 
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 90000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('.pt-task-row').first().getByRole('button', { name: 'Actions for Prepare community assessment', exact: true })[22m
+
+
+      43 | test('task team entry reuses existing details and mobile sticky context leaves room for work',async({page},info)=>{
+      44 |  test.setTimeout(90_000);await fixture(page,'member');await page.getByRole('button',{name:'Actions for '+title,exact:true}).click();await page.getByRole('menuitem',{name:'Task team & contributors',exact:true}).click();await expect(page.getByRole('button',{name:'Manage',exact:true})).toBeVisible();await page.keyboard.press('Escape');
+    > 45 |  await page.setViewportSize({width:390,height:844});const scroll=page.locator('.pt-table-scroll').first();await scroll.evaluate(element=>element.scrollLeft=600);const row=page.locator('.pt-task-row').first(),bounds=await scroll.boundingBox(),name=await row.locator('.pt-task-name').boundingBox();expect(name!.width).toBeLessThanOrEqual(220);expect(name!.x+name!.width).toBeLessThan(bounds!.x+bounds!.width-50);await row.getByRole('button',{name:'Actions for '+title,exact:true}).click();await expect(page.getByRole('menuitem',{name:'Add subitem',exact:true})).toBeVisible();await page.getByRole('menuitem',{name:'Add subitem',exact:true}).click();const input=page.getByRole('textbox',{name:'Add subitem to '+title,exact:true});await expect(input).toBeFocused();const box=await input.boundingBox();expect(box!.x+box!.width).toBeLessThanOrEqual(390);expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);await page.screenshot({path:info.outputPath('sticky-subitems-mobile.png'),fullPage:true});
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ^
+      46 | });
+      47 |
+      48 | test('shared Task Lead team action explains the unresolved authority gate',async({page})=>{
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase11-main-table.spec.ts:45:480
+
+    Error Context: test-results\phase11-browser-final\phase11-main-table-task-te-cf174-ontext-leaves-room-for-work-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase11-browser-final\phase11-main-table-task-te-cf174-ontext-leaves-room-for-work-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase11-browser-final\phase11-main-table-task-te-cf174-ontext-leaves-room-for-work-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [chromium] › tests\e2e\phase11-main-table.spec.ts:48:1 › shared Task Lead team action explains the unresolved authority gate 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('navigation', { name: 'Mobile primary navigation' }).getByRole('button', { name: 'Projects', exact: true })[22m
+
+
+       at fixtures\projectWorkspace.ts:77
+
+      75 |   }
+      76 |   if (await sidebar.isVisible()) await sidebar.getByRole('button', { name: 'Workspaces', exact: true }).press('Enter');
+    > 77 |   else await page.getByRole('navigation', { name: 'Mobile primary navigation' }).getByRole('button', { name: 'Projects', exact: true }).click();
+         |                                                                                                                                         ^
+      78 |   await expect(page.getByRole('region', { name: 'Project main table' })).toBeVisible({ timeout: 30_000 });
+      79 |   await expect(page.getByRole('button', { name: 'Edit task Prepare community assessment' })).toBeVisible();
+      80 |   return {tasks,projects,groups,subtasks,id,org,project,profiles,organizations,projectOffices,officeMembers,profile};
+        at projectWorkspaceFixture (C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\fixtures\projectWorkspace.ts:77:137)
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase11-main-table.spec.ts:49:16
+
+    Error Context: test-results\phase11-browser-final\phase11-main-table-shared--c2cb5-e-unresolved-authority-gate-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase11-browser-final\phase11-main-table-shared--c2cb5-e-unresolved-authority-gate-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase11-browser-final\phase11-main-table-shared--c2cb5-e-unresolved-authority-gate-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [chromium] › tests\e2e\project-workspace-controls.spec.ts:19:1 › Project actions open visible menus and dialogs, and the board returns to the filtered table 
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 90000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: 'New task', exact: true })[22m
+
+
+      50 |   await expect(page.getByRole('dialog', { name: 'New group', exact: true })).toBeVisible();
+      51 |   await page.keyboard.press('Escape');
+    > 52 |   await page.getByRole('button', { name: 'New task', exact: true }).click();
+         |                                                                     ^
+      53 |   await expect(page.getByRole('dialog', { name: 'New task', exact: true })).toBeVisible();
+      54 |   await page.keyboard.press('Escape');
+      55 |   const context = page.getByRole('complementary', { name: 'Projects context' });
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\project-workspace-controls.spec.ts:52:69
+
+    Error Context: test-results\phase11-browser-final\project-workspace-controls-ec47e-turns-to-the-filtered-table-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase11-browser-final\project-workspace-controls-ec47e-turns-to-the-filtered-table-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase11-browser-final\project-workspace-controls-ec47e-turns-to-the-filtered-table-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    [chromium] › tests\e2e\phase11-main-table.spec.ts:35:1 › group creation guards its draft and empty deletion confirms impact and retries denial 
+    [chromium] › tests\e2e\phase11-main-table.spec.ts:43:1 › task team entry reuses existing details and mobile sticky context leaves room for work 
+    [chromium] › tests\e2e\phase11-main-table.spec.ts:48:1 › shared Task Lead team action explains the unresolved authority gate 
+    [chromium] › tests\e2e\project-workspace-controls.spec.ts:19:1 › Project actions open visible menus and dialogs, and the board returns to the filtered table 
+  15 passed (5.5m)

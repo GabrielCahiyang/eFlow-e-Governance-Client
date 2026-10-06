@@ -1,0 +1,224 @@
+[
+  {
+    "dataset": 100,
+    "baseline": {
+      "readyMs": 975.7279999999996,
+      "filterMs": 135.59680000000026,
+      "restReads": 57,
+      "assetBytes": 3916374,
+      "nodes": 6516,
+      "memory": 64000000
+    },
+    "final": {
+      "readyMs": 887.2181,
+      "filterMs": 183.21470000000045,
+      "restReads": 57,
+      "assetBytes": 4126790,
+      "nodes": 6513,
+      "memory": 56800000
+    },
+    "changesPercent": {
+      "readyMs": -9.071165324762598,
+      "filterMs": 35.11727415396242,
+      "restReads": 0,
+      "assetBytes": 5.372724872547918,
+      "nodes": -0.04604051565377798,
+      "memory": -11.250000000000004
+    },
+    "regressionGuard": "fail",
+    "baselineSamples": [
+      {
+        "run": 0,
+        "readyMs": 975.7279999999996,
+        "filterMs": 132.36759999999958,
+        "restReads": 57,
+        "assetBytes": 3916374,
+        "nodes": 6516,
+        "memory": 64000000
+      },
+      {
+        "run": 1,
+        "readyMs": 993.5124999999998,
+        "filterMs": 167.52150000000074,
+        "restReads": 57,
+        "assetBytes": 4101304,
+        "nodes": 6516,
+        "memory": 64000000
+      },
+      {
+        "run": 2,
+        "readyMs": 931.1665000000003,
+        "filterMs": 135.59680000000026,
+        "restReads": 57,
+        "assetBytes": 3916374,
+        "nodes": 6516,
+        "memory": 64000000
+      }
+    ],
+    "finalSamples": [
+      {
+        "run": 0,
+        "readyMs": 938.0724999999998,
+        "filterMs": 149.8129999999992,
+        "restReads": 57,
+        "assetBytes": 4126790,
+        "nodes": 6513,
+        "memory": 56800000
+      },
+      {
+        "run": 1,
+        "readyMs": 887.2181,
+        "filterMs": 185.26890000000003,
+        "restReads": 57,
+        "assetBytes": 4126790,
+        "nodes": 6513,
+        "memory": 56800000
+      },
+      {
+        "run": 2,
+        "readyMs": 873.5956999999999,
+        "filterMs": 183.21470000000045,
+        "restReads": 57,
+        "assetBytes": 4126790,
+        "nodes": 6513,
+        "memory": 56800000
+      }
+    ]
+  },
+  {
+    "dataset": 1000,
+    "baseline": {
+      "readyMs": 6793.607199999999,
+      "filterMs": 927.6115000000027,
+      "restReads": 57,
+      "assetBytes": 3819691,
+      "nodes": 59616,
+      "memory": 1000000000
+    },
+    "final": {
+      "readyMs": 4365.588299999999,
+      "filterMs": 1814.8106000000007,
+      "restReads": 57,
+      "assetBytes": 4137777,
+      "nodes": 59613,
+      "memory": 269000000
+    },
+    "changesPercent": {
+      "readyMs": -35.73975987307596,
+      "filterMs": 95.64339165695934,
+      "restReads": 0,
+      "assetBytes": 8.327532253263414,
+      "nodes": -0.005032206119159888,
+      "memory": -73.1
+    },
+    "regressionGuard": "fail",
+    "baselineSamples": [
+      {
+        "run": 0,
+        "readyMs": 6793.607199999999,
+        "filterMs": 927.6115000000027,
+        "restReads": 57,
+        "assetBytes": 3819691,
+        "nodes": 59616,
+        "memory": 1000000000
+      },
+      {
+        "run": 1,
+        "readyMs": 6672.1571,
+        "filterMs": 881.4360000000015,
+        "restReads": 57,
+        "assetBytes": 3817539,
+        "nodes": 59616,
+        "memory": 1000000000
+      },
+      {
+        "run": 2,
+        "readyMs": 7138.622000000003,
+        "filterMs": 928.3212000000058,
+        "restReads": 57,
+        "assetBytes": 3916374,
+        "nodes": 59616,
+        "memory": 1000000000
+      }
+    ],
+    "finalSamples": [
+      {
+        "run": 0,
+        "readyMs": 4365.588299999999,
+        "filterMs": 1814.8106000000007,
+        "restReads": 57,
+        "assetBytes": 4137777,
+        "nodes": 59613,
+        "memory": 269000000
+      },
+      {
+        "run": 1,
+        "readyMs": 3995.8560999999972,
+        "filterMs": 885.2689000000028,
+        "restReads": 56,
+        "assetBytes": 4137777,
+        "nodes": 59613,
+        "memory": 269000000
+      },
+      {
+        "run": 2,
+        "readyMs": 4428.171699999999,
+        "filterMs": 1932.6054000000004,
+        "restReads": 57,
+        "assetBytes": 4126790,
+        "nodes": 59613,
+        "memory": 269000000
+      }
+    ]
+  },
+  {
+    "dataset": "Accounting journal",
+    "baseline": {
+      "readyMs": 780.056899999996,
+      "journalReads": 2
+    },
+    "final": {
+      "readyMs": 851.9484000000011,
+      "journalReads": 1
+    },
+    "changesPercent": {
+      "readyMs": 9.216186665358062,
+      "journalReads": -50
+    },
+    "regressionGuard": "pass",
+    "baselineSamples": [
+      {
+        "run": 0,
+        "readyMs": 808.7241999999969,
+        "journalReads": 2
+      },
+      {
+        "run": 1,
+        "readyMs": 780.056899999996,
+        "journalReads": 2
+      },
+      {
+        "run": 2,
+        "readyMs": 765.6566000000021,
+        "journalReads": 2
+      }
+    ],
+    "finalSamples": [
+      {
+        "run": 0,
+        "readyMs": 852.3122999999978,
+        "journalReads": 1
+      },
+      {
+        "run": 1,
+        "readyMs": 806.3240000000005,
+        "journalReads": 1
+      },
+      {
+        "run": 2,
+        "readyMs": 851.9484000000011,
+        "journalReads": 1
+      }
+    ]
+  }
+]

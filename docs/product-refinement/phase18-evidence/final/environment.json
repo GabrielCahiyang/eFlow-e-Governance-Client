@@ -1,0 +1,48 @@
+{
+  "node": "v22.17.0",
+  "platform": "win32",
+  "arch": "x64",
+  "cpu": "12th Gen Intel(R) Core(TM) i5-12500H",
+  "logicalCpus": 16,
+  "memoryBytes": 16782295040,
+  "playwright": "1.55.0",
+  "vite": "6.3.5",
+  "browsers": [
+    {
+      "name": "chromium",
+      "revision": "1187",
+      "installByDefault": true,
+      "browserVersion": "140.0.7339.16"
+    },
+    {
+      "name": "firefox",
+      "revision": "1490",
+      "installByDefault": true,
+      "browserVersion": "141.0"
+    },
+    {
+      "name": "webkit",
+      "revision": "2203",
+      "installByDefault": true,
+      "revisionOverrides": {
+        "debian11-x64": "2105",
+        "debian11-arm64": "2105",
+        "mac10.14": "1446",
+        "mac10.15": "1616",
+        "mac11": "1816",
+        "mac11-arm64": "1816",
+        "mac12": "2009",
+        "mac12-arm64": "2009",
+        "mac13": "2140",
+        "mac13-arm64": "2140",
+        "ubuntu20.04-x64": "2092",
+        "ubuntu20.04-arm64": "2092"
+      },
+      "browserVersion": "26.0"
+    }
+  ],
+  "releaseWorkers": 3,
+  "performanceWorkers": 1,
+  "timingModel": "paint-ready-v2: rows present, document fonts ready and two initial animation frames before measuring filtering",
+  "profile": "Local production previews; intercepted synthetic REST/gateway/realtime; no WAN or CPU throttle. Other automated tests/builds stopped for performance runs. Approximate quantized Chromium heap is not peak memory."
+}

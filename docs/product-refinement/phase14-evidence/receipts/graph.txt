@@ -1,0 +1,30 @@
+
+> @figma/my-make-file@0.0.1 graph:update
+> node scripts/graphify.mjs update
+
+Re-extracting code files in . (no LLM needed)...
+[graphify watch] 34 file(s) not classified (no supported extension or shebang), skipped: EFlowMark.module.scss, LivingBoard.module.scss, Login.module.scss, WorkflowDemo.module.scss, WorkflowPreview.module.scss, WorkflowWalkthrough.module.scss (+28 more)
+  AST extraction: 100/1237 uncached files (8%) [4 workers]
+  AST extraction: 200/1237 uncached files (16%) [4 workers]
+  AST extraction: 300/1237 uncached files (24%) [4 workers]
+  AST extraction: 400/1237 uncached files (32%) [4 workers]
+  AST extraction: 500/1237 uncached files (40%) [4 workers]
+  AST extraction: 600/1237 uncached files (48%) [4 workers]
+  AST extraction: 700/1237 uncached files (56%) [4 workers]
+  AST extraction: 800/1237 uncached files (64%) [4 workers]
+  AST extraction: 900/1237 uncached files (72%) [4 workers]
+  AST extraction: 1000/1237 uncached files (80%) [4 workers]
+  AST extraction: 1100/1237 uncached files (88%) [4 workers]
+  AST extraction: 1200/1237 uncached files (97%) [4 workers]
+  AST extraction: 1237/1237 uncached files (100%) [4 workers]
+  warning: 6 file(s) had syntax errors and may be partially extracted: src/app/features/guided-tours/index.ts (first error at line 8, no symbols extracted), src/app/features/productivity/index.ts (first error at line 1, no symbols extracted), src/app/features/project-table/components/ProjectTaskRow.tsx (first error at line 15, no symbols extracted), src/app/features/subtasks/index.ts (first error at line 12, no symbols extracted), src/app/features/team-management/index.ts (first error at line 16, no symbols extracted) (+1 more)
+[graphify watch] Rebuilt (no clustering): 7272 nodes, 23467 edges
+[graphify watch] graph.json updated in graphify-out
+Code graph updated. For doc/paper/image changes run /graphify --update in your AI assistant.
+Loading existing graph...
+Graph: 7272 nodes, 22736 edges
+Re-clustering...
+Graph has 7272 nodes (above 5000 limit). Building aggregated community view...
+graph.html written (aggregated: 343 community nodes, 1539 cross-community edges)
+Tip: run with --obsidian for full node-level detail.
+Done - 343 communities. GRAPH_REPORT.md, graph.json and graph.html updated.

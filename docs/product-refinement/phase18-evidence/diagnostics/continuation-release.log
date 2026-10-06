@@ -1,0 +1,128 @@
+
+> @figma/my-make-file@0.0.1 test:e2e:release
+> node scripts/run-web-release.mjs
+
+[WebServer] (node:9204) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:39184) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] [plugin vite:reporter] 
+[WebServer] (!) C:/Users/james/projects/eflow-e-Governance-Project/src/app/services/notificationService.ts is dynamically imported by C:/Users/james/projects/eflow-e-Governance-Project/src/app/services/chatService.ts but also statically imported by C:/Users/james/projects/eflow-e-Governance-Project/src/app/components/Member/EmployeeTaskWorkspace.tsx, C:/Users/james/projects/eflow-e-Governance-Project/src/app/components/ui/NotificationBell.tsx, C:/Users/james/projects/eflow-e-Governance-Project/src/app/features/action-center/components/UpdatesFeed.tsx, C:/Users/james/projects/eflow-e-Governance-Project/src/app/features/tasks/services/taskMutationService.ts, C:/Users/james/projects/eflow-e-Governance-Project/src/app/features/tasks/services/taskTeamService.ts, C:/Users/james/projects/eflow-e-Governance-Project/src/app/features/team-management/services/teamSupervisionActions.ts, C:/Users/james/projects/eflow-e-Governance-Project/src/app/services/announcementService.ts, C:/Users/james/projects/eflow-e-Governance-Project/src/app/services/subtaskService.ts, C:/Users/james/projects/eflow-e-Governance-Project/src/app/services/taskDiscussionService.ts, dynamic import will not move module into another chunk.
+[WebServer] 
+[WebServer] [plugin vite:reporter] 
+[WebServer] (!) C:/Users/james/projects/eflow-e-Governance-Project/src/app/features/subtasks/components/SubtaskWorkDrawer.tsx is dynamically imported by C:/Users/james/projects/eflow-e-Governance-Project/src/app/features/subtasks/index.ts but also statically imported by C:/Users/james/projects/eflow-e-Governance-Project/src/app/components/workflow/SubtasksWorkspace.tsx, C:/Users/james/projects/eflow-e-Governance-Project/src/app/features/subtasks/components/TaskSubtasksWidget.tsx, dynamic import will not move module into another chunk.
+[WebServer] 
+[WebServer] [plugin vite:reporter] 
+[WebServer] (!) C:/Users/james/projects/eflow-e-Governance-Project/src/app/features/tasks/components/board/MondayBoard.tsx is dynamically imported by C:/Users/james/projects/eflow-e-Governance-Project/src/app/features/tasks/index.ts but also statically imported by C:/Users/james/projects/eflow-e-Governance-Project/src/app/features/tasks/components/HeadTaskBoardView.tsx, dynamic import will not move module into another chunk.
+[WebServer] 
+[WebServer] 
+[WebServer] (!) Some chunks are larger than 500 kB after minification. Consider:
+[WebServer] - Using dynamic import() to code-split the application
+[WebServer] - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+[WebServer] - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+[WebServer] (node:36496) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:35712) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:36964) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 192 tests using 2 workers
+
+(node:5760) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:33288) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:5760) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:33288) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok   1 [chromium] › tests\e2e\phase10-project-workspace.spec.ts:9:1 › project identity, settings retry, favorites and browser history use one project (7.7s)
+  ok   2 [chromium] › tests\e2e\phase11-main-table.spec.ts:6:1 › column widths, alignment, visibility and sticky task context persist locally (8.0s)
+  ok   3 [chromium] › tests\e2e\phase10-project-workspace.spec.ts:38:1 › existing lifecycle dialogs retain notes, server denials and deletion impact (7.4s)
+  ok   4 [chromium] › tests\e2e\phase11-main-table.spec.ts:18:1 › date and dependency drafts guard close and retain denied edits for scoped retry (8.4s)
+  ok   5 [chromium] › tests\e2e\phase10-project-workspace.spec.ts:53:1 › Observer utilities stay read-only and sharing keeps current access requirements at 390px (4.9s)
+  ok   6 [chromium] › tests\e2e\phase11-main-table.spec.ts:27:1 › filter chips clear one or all without changing canonical manual ordering (4.7s)
+  ok   7 [chromium] › tests\e2e\phase10-project-workspace.spec.ts:63:1 › participant failure retries its source and long project identity stays within the viewport (6.9s)
+  ok   8 [chromium] › tests\e2e\phase11-main-table.spec.ts:35:1 › group creation guards its draft and empty deletion confirms impact and retries denial (8.9s)
+  ok  10 [chromium] › tests\e2e\phase11-main-table.spec.ts:43:1 › task team entry reuses existing details and mobile sticky context leaves room for work (6.0s)
+  ok  11 [chromium] › tests\e2e\phase11-main-table.spec.ts:48:1 › shared Task Lead team action explains the unresolved authority gate (4.7s)
+  ok  12 [chromium] › tests\e2e\phase11-main-table.spec.ts:52:1 › Observer inspection and closed-project table retain read-only controls (5.3s)
+  ok   9 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:9:1 › shared inspector keeps discussion drafts and returns focus to each view origin (20.6s)
+  ok  14 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:31:1 › date range is consistent across views and personal after reload (5.1s)
+  ok  13 [chromium] › tests\e2e\phase11-main-table.spec.ts:56:1 › Head owner appointment confirms impact and retains denied assignment for retry (7.5s)
+  ok  15 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:43:1 › mobile observer inspector stays read only and traps and returns focus (4.4s)
+  ok  16 [chromium] › tests\e2e\phase11-main-table.spec.ts:62:1 › mobile planning picker and explicit creation keep fields inside the viewport (5.6s)
+  ok  17 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:56:1 › Board keyboard action prevents duplicate requests and recovers from denial (4.0s)
+  ok  18 [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:9:1 › Office Team lazy professional summary, keyboard focus return and narrow labeled rows (6.1s)
+  ok  19 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:65:1 › shared Task Lead team mutations stay gated by G2 while details remain available (5.3s)
+  ok  20 [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:23:1 › Partial invitations retain failed rows and delivery failure does not cause duplicate creation (7.4s)
+  ok  21 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:73:1 › review drafts stay protected and evidence loading denial has an explicit retry (7.7s)
+  ok  22 [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:42:1 › Office Team failure has retry and filter empty can clear without hiding invitations (4.5s)
+  ok  23 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:86:1 › removed canonical task closes mutation controls and explains unavailable access (4.5s)
+  ok  25 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:94:1 › successful inspector lifecycle change returns focus to the refreshed Board card (4.2s)
+  ok  24 [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:57:1 › Collaborating Head retains project selection on failure, guards dismissal and rechecks authority before retry (7.6s)
+  ok  27 [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:68:1 › Project team removal previews active work and opens the shared task inspector only after discard (5.2s)
+  ok  26 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:101:1 › mobile team dialog guards drafts and retains a denied member change (7.4s)
+  ok  28 [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:73:1 › Failed project invitation delivery still creates one invitation and fresh-link copy failure has manual recovery (6.7s)
+  ok  29 [chromium] › tests\e2e\phase15-ai-governance.spec.ts:12:1 › Reviewed project sections preserve source and require one impact confirmation before creating work (7.8s)
+  ok  30 [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:79:61 › Project Office observer retains read-only reasons and governance handoff (4.5s)
+  ok  31 [chromium] › tests\e2e\phase15-ai-governance.spec.ts:22:1 › PDF work-plan review saves only its persistent draft, keeps failed autosave edits and retries saving (8.2s)
+  ok  32 [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:79:61 › Project Office closed retains read-only reasons and governance handoff (5.1s)
+  ok  34 [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:79:61 › Project Office governed retains read-only reasons and governance handoff (6.2s)
+  ok  33 [chromium] › tests\e2e\phase15-ai-governance.spec.ts:33:1 › Task inspector staffing retains selection after eligibility denial and assigns only after reviewed fresh context (9.7s)
+  ok  35 [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:83:1 › Project Office read failure retries honestly and retains an inspector draft through refresh denial (7.8s)
+  ok  36 [chromium] › tests\e2e\phase15-ai-governance.spec.ts:39:1 › Owner PDS review retries extraction, retains failed profile edits and confirms the saved summary separately (8.0s)
+  ok  37 [chromium] › tests\e2e\phase16-support-finance.spec.ts:10:1 › Admin Center keeps legacy pages, account inspection and unsaved account edits (9.7s)
+  ok  38 [chromium] › tests\e2e\phase15-ai-governance.spec.ts:46:1 › Official readiness blockers link to Office and task views, and material changes refresh current checks (6.4s)
+  ok  39 [chromium] › tests\e2e\phase16-support-finance.spec.ts:65:1 › Account audit has bounded coverage, loaded filters, nested redaction and truthful unavailable reads on a phone (5.6s)
+  ok  40 [chromium] › tests\e2e\phase15-ai-governance.spec.ts:51:1 › Missing readiness deployment explains administrator recovery and governed projects retain Approval Status handoff (6.4s)
+  ok  41 [chromium] › tests\e2e\phase16-support-finance.spec.ts:135:1 › Accounting retains fiscal scope, exposes settlements, records one decision and inspects its balanced journal (7.7s)
+  ok  42 [chromium] › tests\e2e\phase17-safety.spec.ts:24:1 › live legacy board retains details through Keep editing and discards only on acceptance (7.3s)
+  ok  43 [chromium] › tests\e2e\phase16-support-finance.spec.ts:201:1 › Uncertain settlement keeps its reason and requires verification before resubmission (7.3s)
+  ok  44 [chromium] › tests\e2e\phase17-safety.spec.ts:51:1 › typed deletion at 320px cancels without a write then sends exactly one confirmed write (7.2s)
+  ok  45 [chromium] › tests\e2e\phase16-support-finance.spec.ts:238:1 › Journal correction has guarded lines, explicit posting and a retained uncertainty receipt on a phone (6.8s)
+  ok  46 [chromium] › tests\e2e\phase17-safety.spec.ts:93:1 › required task cancellation reason has no write on Escape and is sent once on acceptance (6.5s)
+  ok  47 [chromium] › tests\e2e\phase16-support-finance.spec.ts:307:1 › Release handover uses its existing physical confirmation and blocks an uncertain repeat (5.4s)
+  ok  48 [chromium] › tests\e2e\phase17-safety.spec.ts:130:1 › lost deletion response exposes verification and prevents another write (6.2s)
+  ok  49 [chromium] › tests\e2e\phase16-support-finance.spec.ts:338:1 › Reports retain seven lenses, filtered CSV export and the task inspector (7.4s)
+  ok  50 [chromium] › tests\e2e\phase18-preview.spec.ts:3:1 › production task-inspector chunk failure retains context and retries without a page reload (6.8s)
+  ok  51 [chromium] › tests\e2e\phase16-support-finance.spec.ts:399:1 › Backup preflight stays unavailable without gateway configuration (5.1s)
+  ok  53 [chromium] › tests\e2e\phase16-support-finance.spec.ts:415:1 › Late-package Head authorization stays separate from independent Accounting settlement (13.6s)
+  ok  54 [chromium] › tests\e2e\phase16-support-finance.spec.ts:461:1 › Accounting retains ordinary Member workspaces, requires an Office and cannot settle its own cash (6.4s)
+  ok  52 [chromium] › tests\e2e\phase18-release.spec.ts:54:3 › head: responsive canonical workspace and mobile navigation (25.0s)
+  ok  55 [chromium] › tests\e2e\phase16-support-finance.spec.ts:487:1 › Backup uncertain start verifies the job list and a failed job permits an explicit new attempt (5.3s)
+  ok  57 [chromium] › tests\e2e\phase18-surfaces.spec.ts:5:66 › Office Team: accessible responsive secondary workspace (11.0s)
+  ok  56 [chromium] › tests\e2e\phase18-release.spec.ts:54:3 › member: responsive canonical workspace and mobile navigation (15.6s)
+  ok  58 [chromium] › tests\e2e\phase18-surfaces.spec.ts:5:66 › Reports: accessible responsive secondary workspace (13.9s)
+  ok  59 [chromium] › tests\e2e\phase18-release.spec.ts:54:3 › accounting_staff: responsive canonical workspace and mobile navigation (14.7s)
+  ok  60 [chromium] › tests\e2e\phase18-surfaces.spec.ts:5:66 › Inbox: accessible responsive secondary workspace (10.4s)
+  ok  61 [chromium] › tests\e2e\phase18-release.spec.ts:54:3 › admin: responsive canonical workspace and mobile navigation (14.5s)
+(node:1864) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1864) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  62 [chromium] › tests\e2e\phase18-release.spec.ts:121:1 › task inspector remains usable across rotation, keyboard dismissal and zoom reflow (18.4s)
+  ok  64 [chromium] › tests\e2e\phase18-release.spec.ts:150:1 › empty projects have labeled creation and navigation (6.9s)
+  ok  63 [firefox] › tests\e2e\phase10-project-workspace.spec.ts:9:1 › project identity, settings retry, favorites and browser history use one project (20.2s)
+  ok  65 [chromium] › tests\e2e\phase18-release.spec.ts:165:1 › dirty discussion survives rotation and forced colors, then restores its source focus (7.2s)
+  ok  66 [firefox] › tests\e2e\phase10-project-workspace.spec.ts:38:1 › existing lifecycle dialogs retain notes, server denials and deletion impact (16.2s)
+  ok  67 [firefox] › tests\e2e\phase10-project-workspace.spec.ts:53:1 › Observer utilities stay read-only and sharing keeps current access requirements at 390px (10.6s)
+(node:21436) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:21436) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  68 [firefox] › tests\e2e\phase10-project-workspace.spec.ts:63:1 › participant failure retries its source and long project identity stays within the viewport (21.0s)
+  ok  69 [firefox] › tests\e2e\phase11-main-table.spec.ts:6:1 › column widths, alignment, visibility and sticky task context persist locally (19.0s)
+  ok  71 [firefox] › tests\e2e\phase11-main-table.spec.ts:18:1 › date and dependency drafts guard close and retain denied edits for scoped retry (16.7s)
+  ok  72 [firefox] › tests\e2e\phase11-main-table.spec.ts:27:1 › filter chips clear one or all without changing canonical manual ordering (8.4s)
+  ok  70 [firefox] › tests\e2e\phase12-shared-inspector.spec.ts:9:1 › shared inspector keeps discussion drafts and returns focus to each view origin (30.9s)
+  ok  74 [firefox] › tests\e2e\phase12-shared-inspector.spec.ts:31:1 › date range is consistent across views and personal after reload (11.1s)
+  ok  73 [firefox] › tests\e2e\phase11-main-table.spec.ts:35:1 › group creation guards its draft and empty deletion confirms impact and retries denial (14.1s)
+  ok  75 [firefox] › tests\e2e\phase12-shared-inspector.spec.ts:43:1 › mobile observer inspector stays read only and traps and returns focus (8.8s)
+  ok  76 [firefox] › tests\e2e\phase11-main-table.spec.ts:43:1 › task team entry reuses existing details and mobile sticky context leaves room for work (12.0s)
+  ok  77 [firefox] › tests\e2e\phase12-shared-inspector.spec.ts:56:1 › Board keyboard action prevents duplicate requests and recovers from denial (8.9s)
+  ok  78 [firefox] › tests\e2e\phase11-main-table.spec.ts:48:1 › shared Task Lead team action explains the unresolved authority gate (12.9s)
+  ok  79 [firefox] › tests\e2e\phase12-shared-inspector.spec.ts:65:1 › shared Task Lead team mutations stay gated by G2 while details remain available (11.9s)
+  ok  80 [firefox] › tests\e2e\phase11-main-table.spec.ts:52:1 › Observer inspection and closed-project table retain read-only controls (11.8s)
+  ok  81 [firefox] › tests\e2e\phase12-shared-inspector.spec.ts:73:1 › review drafts stay protected and evidence loading denial has an explicit retry (15.4s)

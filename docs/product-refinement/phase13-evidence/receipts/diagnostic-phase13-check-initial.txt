@@ -1,0 +1,14 @@
+Diagnostic only, superseded by passing final receipts.
+
+
+> @figma/my-make-file@0.0.1 check
+> tsc --noEmit
+
+src/app/features/action-center/components/ActionCenter.tsx(59,88): error TS2322: Type '{ children: string; tone: "error"; title: string; action: Element; }' is not assignable to type 'IntrinsicAttributes & { tone?: "error" | "success" | "warning" | "info" | undefined; title: string; children?: ReactNode; onRetry?: (() => void) | undefined; pending?: boolean | undefined; }'.
+  Property 'action' does not exist on type 'IntrinsicAttributes & { tone?: "error" | "success" | "warning" | "info" | undefined; title: string; children?: ReactNode; onRetry?: (() => void) | undefined; pending?: boolean | undefined; }'.
+src/app/features/action-center/components/ActionCenter.tsx(60,100): error TS2322: Type '{ children: string; tone: "error"; title: string; action: Element; }' is not assignable to type 'IntrinsicAttributes & { tone?: "error" | "success" | "warning" | "info" | undefined; title: string; children?: ReactNode; onRetry?: (() => void) | undefined; pending?: boolean | undefined; }'.
+  Property 'action' does not exist on type 'IntrinsicAttributes & { tone?: "error" | "success" | "warning" | "info" | undefined; title: string; children?: ReactNode; onRetry?: (() => void) | undefined; pending?: boolean | undefined; }'.
+src/app/features/action-center/components/UpdatesFeed.tsx(29,145): error TS2322: Type '{ children: string; tone: "error"; title: string; action: Element; }' is not assignable to type 'IntrinsicAttributes & { tone?: "error" | "success" | "warning" | "info" | undefined; title: string; children?: ReactNode; onRetry?: (() => void) | undefined; pending?: boolean | undefined; }'.
+  Property 'action' does not exist on type 'IntrinsicAttributes & { tone?: "error" | "success" | "warning" | "info" | undefined; title: string; children?: ReactNode; onRetry?: (() => void) | undefined; pending?: boolean | undefined; }'.
+src/app/features/personal-work/components/PersonalWorkWorkspace.tsx(37,143): error TS2322: Type '{ children: string; tone: "error"; title: string; action: Element; }' is not assignable to type 'IntrinsicAttributes & { tone?: "error" | "success" | "warning" | "info" | undefined; title: string; children?: ReactNode; onRetry?: (() => void) | undefined; pending?: boolean | undefined; }'.
+  Property 'action' does not exist on type 'IntrinsicAttributes & { tone?: "error" | "success" | "warning" | "info" | undefined; title: string; children?: ReactNode; onRetry?: (() => void) | undefined; pending?: boolean | undefined; }'.

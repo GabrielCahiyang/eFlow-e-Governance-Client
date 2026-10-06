@@ -1,0 +1,44 @@
+name: Web release checks
+on: [push, pull_request, workflow_dispatch]
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      # Synthetic public client configuration. Tests intercept all backend calls.
+      VITE_SUPABASE_URL: https://eflow-fixture.supabase.co
+      VITE_SUPABASE_ANON_KEY: synthetic-public-fixture-key
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium firefox webkit
+      - run: npm run check
+      - run: npm test -- --maxWorkers=4
+      - run: npm run build
+      - run: npm run verify:client-secrets
+      - run: npm run safety:check
+      - name: Production preview
+        run: |
+          npx vite preview --host 127.0.0.1 --port 5174 --strictPort > /tmp/eflow-preview.log 2>&1 &
+          node --input-type=module <<'JS'
+          for (let attempt = 0; attempt < 60; attempt++) {
+            try { if ((await fetch('http://127.0.0.1:5174')).ok) process.exit(0); } catch {}
+            await new Promise(resolve => setTimeout(resolve, 500));
+          }
+          throw new Error('Production preview did not become ready');
+          JS
+      - name: Critical three-browser gate
+        run: npm run test:e2e:release
+        env:
+          EFLOW_E2E_BASE_URL: http://127.0.0.1:5174
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: web-release-evidence
+          path: |
+            .phase18/release-report.json
+            .phase18/release-results/

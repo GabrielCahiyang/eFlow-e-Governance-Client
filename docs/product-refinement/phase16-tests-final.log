@@ -1,0 +1,869 @@
+
+> @figma/my-make-file@0.0.1 test
+> vitest --configLoader runner run
+
+
+ RUN  v3.2.4 C:/Users/james/projects/eflow-e-Governance-Project
+
+ ✓ tests/unit/workspaceFoundation.test.tsx (4 tests) 1623ms
+   ✓ workspace interaction foundation > cancels with Escape and saves the next edit once despite Enter followed by blur  853ms
+   ✓ workspace interaction foundation > separates the common action from its contextual menu  336ms
+ ✓ tests/unit/designSystemFoundation.test.tsx (7 tests) 1753ms
+   ✓ design foundation compatibility contracts > keeps compound controls' explicit IDs on the control rather than its wrapper  541ms
+   ✓ design foundation compatibility contracts > cancels without mutation and requires an exact phrase or resolved blockers  586ms
+ ✓ tests/unit/phase10ProjectWorkspace.test.tsx (8 tests) 2472ms
+   ✓ Phase 10 project workspace > keeps missing identity readable and closed title editing disabled  706ms
+   ✓ Phase 10 project workspace > retains failed settings, retries once and marks only the saved draft clean  564ms
+   ✓ Phase 10 project workspace > validates dates and blocks switching or duplicate saves while a request is pending  589ms
+ ✓ tests/unit/taskTeamEditorDialog.test.tsx (4 tests) 3811ms
+   ✓ task team editor > shows the complete team and refuses to remove a member with unfinished subtask work  1203ms
+   ✓ Phase 12 task team safety > keeps a team draft on cancelled dismissal, then discards only after acceptance  716ms
+   ✓ Phase 12 task team safety > uses an impact dialog once and retains selected members after a server denial  1030ms
+   ✓ Phase 12 task team safety > refuses to overwrite a team changed remotely while a draft is open  859ms
+ ✓ tests/unit/cashReleaseOverride.test.tsx (7 tests) 4072ms
+   ✓ schedule override confirmation > opens details without making a financial call and cancels safely  1204ms
+   ✓ schedule override confirmation > requires a reason and releases only the selected tranche after confirmation  473ms
+   ✓ schedule override confirmation > keeps the popup open with the server ceiling error and preserves the reason  469ms
+   ✓ schedule override confirmation > prevents double confirmation and dismissal while the request is pending  501ms
+   ✓ schedule override confirmation > does not retry a committed release when only the list refresh fails  481ms
+   ✓ schedule override confirmation > retains the normal release path and hides release controls from employees  479ms
+   ✓ schedule override confirmation > lets Accounting Staff issue cheques and use audited schedule overrides  464ms
+ ✓ tests/unit/projectViewNavigation.test.tsx (6 tests) 3562ms
+   ✓ project view navigation > exposes and persists a Board view entered through a shortcut or direct URL  998ms
+   ✓ project view navigation > renders Add view outside a clipping ancestor and respects conditional views  717ms
+   ✓ project view navigation > closes the view picker with Escape  302ms
+   ✓ project view navigation > keeps an active overflow view selected and exposes the displaced view in More  1008ms
+   ✓ project view navigation > keeps saved views scoped to their project when the project changes  305ms
+ ✓ tests/unit/projectSubitems.test.tsx (13 tests) 4260ms
+   ✓ Project table subitem expansion > places task actions in the first cell and keeps detail access without drag controls  1313ms
+   ✓ Project table subitem expansion > keeps the first-column Add subitem action disabled for someone who is not the task lead  479ms
+   ✓ Project table subitem expansion > hands menu focus to the add field when subitems are already expanded  596ms
+ ✓ tests/unit/projectLifecycle.test.tsx (10 tests) 4492ms
+   ✓ project dropdown lifecycle > restores project creation and retains project switching and Planning navigation without work plan creation  1018ms
+   ✓ project dropdown lifecycle > offers completion but disables archive for active work  691ms
+   ✓ project dropdown lifecycle > offers archive instead of completion after completion  370ms
+   ✓ project dropdown lifecycle > moves archived projects out of the active list, retaining explicit history and restore  359ms
+   ✓ project completion confirmation > checks without changing anything, and cancel never completes  333ms
+   ✓ project completion confirmation > lists exact task, cash and governance blockers and opens the affected record  380ms
+   ✓ project completion confirmation > completes only the chosen project after explicit confirmation  400ms
+   ✓ project completion confirmation > fails closed when checks cannot load  343ms
+   ✓ project completion confirmation > refreshes blockers if the server rejects a stale ready screen  502ms
+ ✓ tests/unit/proposalBudgetEditor.test.tsx (1 test) 1730ms
+   ✓ proposal budget editor > groups multiple particulars under one category and fixes the fund source  1728ms
+ ✓ tests/unit/phase02MobileNavigation.test.tsx (1 test) 1661ms
+   ✓ Phase 02 mobile navigation > opens the accessible navigation drawer and closes it after a destination is selected  1659ms
+ ✓ tests/unit/subtaskAssigneePicker.test.ts (3 tests) 2138ms
+   ✓ subtask assignee picker > closes when the manager left-clicks outside the picker  1109ms
+   ✓ subtask assignee picker > starts a to-do parent automatically when its lead creates a subtask  356ms
+   ✓ subtask assignee picker > lets the Team Lead create independent work with no ordered prerequisite  671ms
+ ✓ tests/unit/phase02AccountMenu.test.tsx (1 test) 2221ms
+   ✓ Phase 02 account utility > shows human-readable account context and retains settings and logout actions  2218ms
+ ✓ tests/unit/collaborationDeliveryBoard.test.tsx (6 tests) 2193ms
+   ✓ committed proposal delivery board > selects the opened approval tab and preserves the published task label for office plans  955ms
+   ✓ committed proposal delivery board > shows Board only after a proposal has been published  412ms
+   ✓ committed proposal delivery board > confirms publication of a office-only proposal without collaboration review controls  639ms
+ ✓ tests/unit/phase02AuthPresentation.test.tsx (2 tests) 1907ms
+   ✓ Phase 02 auth presentation > uses Vibe inputs while retaining the existing login automation identifiers and submit behavior  1367ms
+   ✓ Phase 02 auth presentation > opens the Usage scenarios menu from the Vibe menu button  538ms
+ ✓ tests/unit/defenseRevisionInteractions.test.tsx (9 tests) 1793ms
+   ✓ PDF operation lock > ignores close and Escape during processing and allows closing after release  1083ms
+   ✓ resend approval interactions > preserves the confirmation after failure and permits retry without duplicate clicks  658ms
+ ✓ tests/unit/userManagementDeletion.test.tsx (1 test) 1410ms
+   ✓ User Management deletion > requires explicit confirmation before permanently deleting an account  1408ms
+ ✓ tests/unit/adminUserDirectory.test.tsx (1 test) 1287ms
+   ✓ Admin user directory > shows Admin accounts and gives Admin authority over leadership accounts  1285ms
+ ✓ tests/unit/phase02AppShell.test.tsx (2 tests) 1318ms
+   ✓ Phase 02 productivity sidebar > keeps the registered destination and page callback intact  1156ms
+ ✓ tests/unit/taskManagementMenu.test.ts (4 tests) 1227ms
+   ✓ task management overflow menu > keeps management actions in the overflow and closes after selection  1061ms
+ ✓ tests/unit/guidedTourInteraction.test.ts (3 tests) 1702ms
+   ✓ guided page walkthrough > opens from the page toolbar and advances without changing page data  1089ms
+   ✓ guided page walkthrough > optionally narrates each step and stops immediately when switched off  364ms
+ ✓ tests/unit/manualTaskEditing.test.tsx (1 test) 1077ms
+   ✓ manual proposal task editing > exposes and saves every field required by draft validation  1075ms
+ ✓ tests/unit/phase14ProfessionalPrivacy.test.tsx (2 tests) 1203ms
+   ✓ Phase 14 lazy professional privacy and drafts > never fetches another member private PDS and retries a denied summary without claiming missing data  702ms
+   ✓ Phase 14 lazy professional privacy and drafts > only guards changed own profile drafts and retains denied save fields  499ms
+ ✓ tests/unit/loginWorkflowPreview.test.tsx (10 tests) 11270ms
+   ✓ login workflow guides > opens an unsigned-in guide, navigates backward/forward, scrubs to archive, and starts fresh on reopen  5754ms
+   ✓ login workflow guides > changes example screens when a highlighted control is clicked, without leaving the login panel  2317ms
+   ✓ login workflow guides > provides one real spotlight target for every demo screen and preserves the workflow order  807ms
+   ✓ uses the walkthrough voice, keeps it enabled across steps, and cancels on off and close  2282ms
+ ✓ tests/unit/reviewCashClearance.test.tsx (9 tests) 1217ms
+   ✓ cash-aware review decision > shows the exact blocker before approval and opens its receipt package in the correct fiscal year  339ms
+ ✓ tests/unit/sharedUiVibeAdapters.test.tsx (2 tests) 1171ms
+   ✓ shared Vibe UI adapters > keeps the legacy modal API while exposing an accessible Vibe dialog  1054ms
+ ✓ tests/unit/financialReviewSwitch.test.tsx (2 tests) 1107ms
+   ✓ financial review navigation > keeps financial approvals inside the Head review workspace  1104ms
+ ✓ tests/unit/phase15ProfessionalReview.test.tsx (3 tests) 1096ms
+   ✓ Phase 15 owner review and confirmation > requires an explicit review before confirming and receipts success despite a later read failure  867ms
+ ❯ tests/unit/generalJournalDatePicker.test.tsx (1 test | 1 failed) 1297ms
+   × General Journal calendar controls > opens the native picker from both the header and adjustment view 1295ms
+     → Unable to find an accessible element with the role "button" and name `/Post adjustment/i`
+
+Here are the accessible roles:
+
+  button:
+
+  Name "Refresh journal":
+  [36m<button[39m
+    [33mclass[39m=[32m"rounded-lg border px-3 py-2 text-sm"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  banner:
+
+  Name "":
+  [36m<header[39m
+    [33mclass[39m=[32m"flex flex-col gap-3 border-b border-neutral-100 p-4 xl:flex-row xl:items-center"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  search:
+
+  Name "":
+  [36m<div[39m
+    [33mclass[39m=[32m"wrapper_4de3f28fcf small_d385e3d012 searchWrapper_c532df80b5 min-w-0 flex-1"[39m
+    [33mrole[39m=[32m"search"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  searchbox:
+
+  Name "Search journal":
+  [36m<input[39m
+    [33maria-label[39m=[32m"Search journal"[39m
+    [33mautocomplete[39m=[32m"off"[39m
+    [33mclass[39m=[32m"input_2ae7e871ae search_647bf90738"[39m
+    [33mdata-testid[39m=[32m"search"[39m
+    [33mdata-vibe[39m=[32m"Search"[39m
+    [33mplaceholder[39m=[32m"Search voucher, account, memo, or recorder…"[39m
+    [33mtype[39m=[32m"search"[39m
+    [33mvalue[39m=[32m""[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  combobox:
+
+  Name "Account classification":
+  [36m<select[39m
+    [33maria-label[39m=[32m"Account classification"[39m
+    [33mclass[39m=[32m"h-9 rounded-lg border border-neutral-200 bg-white px-2 text-[12px]"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  option:
+
+  Name "All account classes":
+  [36m<option[39m
+    [33mvalue[39m=[32m"all"[39m
+  [36m/>[39m
+
+  Name "Assets":
+  [36m<option[39m
+    [33mvalue[39m=[32m"asset"[39m
+  [36m/>[39m
+
+  Name "Liabilities":
+  [36m<option[39m
+    [33mvalue[39m=[32m"liability"[39m
+  [36m/>[39m
+
+  Name "Equity":
+  [36m<option[39m
+    [33mvalue[39m=[32m"equity"[39m
+  [36m/>[39m
+
+  Name "Income":
+  [36m<option[39m
+    [33mvalue[39m=[32m"income"[39m
+  [36m/>[39m
+
+  Name "Expenses":
+  [36m<option[39m
+    [33mvalue[39m=[32m"expense"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  heading:
+
+  Name "No journal entries match":
+  [36m<h3[39m
+    [33mclass[39m=[32m"mt-3 text-[12px] font-semibold"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"mt-1 text-[12px] text-neutral-500"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"space-y-4"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"grid gap-3 md:grid-cols-3"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-2 text-[11px] uppercase tracking-wider text-neutral-500"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33mclass[39m=[32m"lucide lucide-scale"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"16"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"2"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"16"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M7 21h10"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M12 3v18"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [0mTrial balance[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mt-2 text-right text-[18px] font-semibold tabular-nums text-neutral-950"[39m
+          [36m>[39m
+            [0m₱0.00[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mt-1 text-right text-[11px] text-emerald-700"[39m
+          [36m>[39m
+            [0mCredits ₱0.00[0m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-2 text-[11px] uppercase tracking-wider text-neutral-500"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33mclass[39m=[32m"lucide lucide-circle-check"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"16"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"2"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"16"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<circle[39m
+                [33mcx[39m=[32m"12"[39m
+                [33mcy[39m=[32m"12"[39m
+                [33mr[39m=[32m"10"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"m9 12 2 2 4-4"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [0mBalance delta[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mt-2 text-right text-[18px] font-semibold tabular-nums text-neutral-950"[39m
+          [36m>[39m
+            [0m₱0.00[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mt-1 text-right text-[11px] text-emerald-700"[39m
+          [36m>[39m
+            [0mDebits equal credits[0m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex items-center gap-2 text-[11px] uppercase tracking-wider text-neutral-500"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33mclass[39m=[32m"lucide lucide-book-open-check"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"16"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"2"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"16"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M12 21V7"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"m16 12 2 2 4-4"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M22 6V4a1 1 0 0 0-1-1h-5a4 4 0 0 0-4 4 4 4 0 0 0-4-4H3a1 1 0 0 0-1 1v13a1 1 0 0 0 1 1h6a3 3 0 0 1 3 3 3 3 0 0 1 3-3h6a1 1 0 0 0 1-1v-1.3"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [0mAppropriation available[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mt-2 text-right text-[18px] font-semibold tabular-nums text-neutral-950"[39m
+          [36m>[39m
+            [0mLinked to annual budget[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mt-1 text-right text-[11px] text-emerald-700"[39m
+          [36m>[39m
+            [0m2026 journal view[0m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<button[39m
+        [33mclass[39m=[32m"rounded-lg border px-3 py-2 text-sm"[39m
+        [33mtype[39m=[32m"button"[39m
+      [36m>[39m
+        [0mRefresh journal[0m
+      [36m</button>[39m
+      [36m<section[39m
+        [33mclass[39m=[32m"overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm"[39m
+      [36m>[39m
+        [36m<header[39m
+          [33mclass[39m=[32m"flex flex-col gap-3 border-b border-neutral-100 p-4 xl:flex-row xl:items-center"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"wrapper_4de3f28fcf small_d385e3d012 searchWrapper_c532df80b5 min-w-0 flex-1"[39m
+            [33mrole[39m=[32m"search"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mclass[39m=[32m"icon_4d3393436c icon_93dcae2db8"[39m
+              [33mdata-testid[39m=[32m"icon"[39m
+              [33mdata-vibe[39m=[32m"Icon"[39m
+              [33mfill[39m=[32m"currentColor"[39m
+   ...
+ ✓ tests/unit/phase11Editors.test.tsx (12 tests) 802ms
+ ✓ tests/unit/committedProposalArchiveRollback.test.tsx (1 test) 1059ms
+   ✓ committed proposal archive > restores the archive action if the server rejects the archive  1057ms
+ ✓ tests/unit/localOfficeDialog.test.tsx (4 tests) 791ms
+   ✓ project-local Office creation > retains an Office name without requiring a canonical record or contact  391ms
+ ✓ tests/unit/userDirectoryFilters.test.tsx (2 tests) 1026ms
+   ✓ user account directory filters > updates filters and exposes a compact reset action  997ms
+ ✓ tests/unit/inlineCreateRow.test.tsx (11 tests) 565ms
+ ✓ tests/unit/phase14InvitationDrafts.test.tsx (3 tests) 836ms
+   ✓ Phase 14 invitation drafts > retains only unsuccessful rows after partial creation and retries without duplicating successful invitations  561ms
+ ✓ tests/unit/departmentIdentityAccess.test.tsx (3 tests) 980ms
+   ✓ office Identity & Access > can assign more than one employee without replacing the first  867ms
+ ✓ tests/unit/taskSubmissionReadiness.test.ts (2 tests) 612ms
+   ✓ parent task review readiness > blocks Head submission until every subtask is approved  486ms
+ ✓ tests/unit/phase11TableLayout.test.tsx (5 tests) 825ms
+   ✓ Phase 11 local table layout > supports keyboard width adjustments and announces bounds  620ms
+ ✓ tests/unit/phase16FinancialScope.test.tsx (4 tests) 487ms
+ ✓ tests/unit/vibeFoundation.test.tsx (3 tests) 1126ms
+   ✓ Vibe foundation > renders representative Vibe components with focus, table, and dialog behavior  1069ms
+ ✓ tests/unit/phase12DialogFocus.test.tsx (2 tests) 662ms
+   ✓ Phase 12 nested dialog return focus > captures the opener before a child search field autofocuses  360ms
+ ✓ tests/unit/phase14MembershipDrafts.test.tsx (5 tests) 609ms
+   ✓ Phase 14 project membership editor > limits candidates to active own-Office non-Admins and guards cancellation while dirty  312ms
+ ✓ tests/unit/inspectorPanel.test.tsx (6 tests) 597ms
+ ✓ tests/unit/projectAiDraft.test.tsx (2 tests) 440ms
+   ✓ Reviewed project AI suggestions > passes generated titles to human review without creating or assigning work  308ms
+ ✓ tests/unit/taskBoardListActions.test.tsx (2 tests) 718ms
+   ✓ Task board list actions > shows Submit to the task lead when a legacy record stores the lead as a recommendation  661ms
+ ✓ tests/unit/kanbanHorizontalViewport.test.ts (2 tests) 694ms
+   ✓ Kanban horizontal viewport > provides explicit left and right viewing controls  612ms
+ ✓ tests/unit/phase12InspectorDrafts.test.tsx (3 tests) 343ms
+ ✓ tests/unit/accountingSettlementAuthority.test.tsx (6 tests) 1904ms
+   ✓ Accounting settlement authority > waits for Head authorization before settling a late package  905ms
+   ✓ Accounting settlement authority > enables Accounting settlement after Head authorizes the late package  456ms
+ ✓ tests/unit/phase13PersonalFeed.test.tsx (4 tests) 279ms
+ ✓ tests/unit/phase13SubtaskDrafts.test.tsx (3 tests) 329ms
+ ✓ tests/unit/budgetPositionSummary.test.tsx (1 test) 313ms
+   ✓ BudgetPositionSummary > shows the current fiscal position and routes each exposure to its existing workflow  311ms
+ ✓ tests/unit/foundationThemePersistence.test.tsx (1 test) 296ms
+ ✓ tests/unit/assignmentModal.test.ts (1 test) 263ms
+ ✓ tests/unit/projectReadinessSummary.test.tsx (3 tests) 898ms
+   ✓ project readiness summary > presents actual confirmed checks and retries only readiness after a failure  786ms
+ ✓ tests/unit/phase12SubmissionDrafts.test.tsx (1 test) 337ms
+   ✓ Phase 12 successful saves and other drafts > marks committed evidence clean while protecting an unrelated progress draft on inspector closure  335ms
+ ✓ tests/unit/phase14InspectorHandoff.test.tsx (1 test) 186ms
+ ✓ tests/unit/taskDetailSubmissionReadiness.test.tsx (2 tests) 227ms
+ ✓ tests/unit/teamCompositionNote.test.ts (1 test) 117ms
+ ✓ tests/unit/assignmentExceptionNote.test.ts (1 test) 129ms
+ ✓ tests/unit/notificationBellNavigation.test.ts (1 test) 143ms
+ ✓ tests/unit/authStartup.test.tsx (3 tests) 116ms
+ ✓ tests/unit/phase09StandingChannels.test.tsx (6 tests) 84ms
+ ✓ tests/unit/phase15ImportSafety.test.tsx (4 tests) 47ms
+ ✓ tests/unit/phase15DraftPersistence.test.tsx (3 tests) 41ms
+ ✓ tests/unit/subtaskReviewerBadge.test.tsx (2 tests) 79ms
+ ✓ tests/unit/phase14InvitationManagement.test.tsx (3 tests) 42ms
+ ✓ tests/unit/organizationContextMenu.test.ts (1 test) 42ms
+ ✓ tests/unit/phase15StaffingReview.test.tsx (3 tests) 41ms
+ ✓ tests/unit/navigationV2.test.tsx (16 tests) 365ms
+ ✓ tests/unit/chatUnreadBadge.test.tsx (1 test) 38ms
+ ✓ tests/unit/taskEditorSave.test.tsx (2 tests) 36ms
+ ✓ tests/unit/approvalTierThreshold.test.ts (4 tests) 8ms
+ ✓ tests/unit/phase12SubtaskScope.test.tsx (1 test) 25ms
+ ✓ tests/unit/subtaskCache.test.ts (4 tests) 28ms
+ ✓ tests/unit/departmentBudgetRealtime.test.tsx (1 test) 26ms
+ ✓ tests/unit/aiProcessingProgress.test.ts (1 test) 33ms
+ ✓ tests/unit/redesignFoundation.test.ts (3 tests) 477ms
+   ✓ redesign foundation > does not reintroduce the retired Lexend or Montserrat presentation fonts  473ms
+ ✓ tests/unit/navigationUrl.test.ts (6 tests) 135ms
+ ✓ tests/unit/pdsImport.test.ts (1 test) 63ms
+ ✓ tests/unit/taskBoardProjectFilter.test.ts (5 tests) 25ms
+ ✓ tests/unit/adminTaskProposalSelectors.test.ts (3 tests) 26ms
+ ✓ tests/unit/phase03ProjectPresentation.test.tsx (5 tests) 56ms
+ ✓ tests/unit/organizationTreeLayout.test.ts (2 tests) 20ms
+ ✓ tests/unit/phase12Evidence.test.tsx (1 test) 104ms
+ ✓ tests/unit/cashReviewFocus.test.tsx (1 test) 83ms
+ ✓ tests/unit/subtaskProgressHistory.test.ts (1 test) 89ms
+ ✓ tests/unit/submissionHistory.test.ts (1 test) 89ms
+ ✓ tests/unit/leaderWorkspaceFilters.test.ts (2 tests) 22ms
+ ✓ tests/unit/phase1Terminology.test.ts (1 test) 3488ms
+   ✓ active production terminology > keeps legacy vocabulary out of display copy while preserving database and employment identifiers  3486ms
+stderr | tests/unit/proposalImport.test.ts > proposal LLM response parsing > does not create a local proposal when DeepSeek is unavailable
+Proposal decomposition failed: Error: AI service unavailable
+    at C:\Users\james\projects\eflow-e-Governance-Project\tests\unit\proposalImport.test.ts:41:48
+    at file:///C:/Users/james/projects/eflow-e-Governance-Project/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11
+    at file:///C:/Users/james/projects/eflow-e-Governance-Project/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26
+    at file:///C:/Users/james/projects/eflow-e-Governance-Project/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///C:/Users/james/projects/eflow-e-Governance-Project/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)
+    at runTest (file:///C:/Users/james/projects/eflow-e-Governance-Project/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at runSuite (file:///C:/Users/james/projects/eflow-e-Governance-Project/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)
+    at runSuite (file:///C:/Users/james/projects/eflow-e-Governance-Project/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)
+
+stdout | tests/unit/proposalImport.test.ts > proposal LLM response parsing > rejects malformed DeepSeek output instead of fabricating a hierarchy
+[Decomposition DEBUG] Raw LLM response content:
+ not JSON
+
+stderr | tests/unit/proposalImport.test.ts > proposal LLM response parsing > rejects malformed DeepSeek output instead of fabricating a hierarchy
+Proposal decomposition failed: Error: DeepSeek returned a response that could not be parsed into a proposal hierarchy.
+    at Module.decomposeWholeDocument (C:\Users\james\projects\eflow-e-Governance-Project\src\app\features\proposal-import\services\decomposition\wholeDocumentDecomposition.ts:145:13)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+ ✓ tests/unit/proposalImport.test.ts (4 tests) 17ms
+ ✓ tests/unit/taskMutationService.test.ts (7 tests) 16ms
+ ✓ tests/unit/proposalValidationClient.test.ts (2 tests) 15ms
+ ✓ tests/unit/reviewEvidenceDetails.test.ts (2 tests) 177ms
+ ✓ tests/unit/taskCashClearance.test.ts (14 tests) 15ms
+ ✓ tests/unit/taskCashClearanceService.test.ts (4 tests) 20ms
+ ✓ tests/unit/phase16Contracts.test.ts (13 tests) 27ms
+ ✓ tests/unit/projectImportDraft.test.ts (6 tests) 14ms
+ ✓ tests/unit/chatModeration.test.ts (7 tests) 13ms
+ ✓ tests/unit/guidedTourProgress.test.ts (2 tests) 13ms
+ ✓ tests/unit/phase0607Enhancements.test.ts (6 tests) 13ms
+ ✓ tests/unit/phase13CheckedFeeds.test.ts (5 tests) 11ms
+ ✓ tests/unit/guidedTourNarration.test.ts (2 tests) 5ms
+ ✓ tests/unit/phase14StaffingAuthority.test.ts (4 tests) 12ms
+ ✓ tests/unit/sessionSecurity.test.ts (5 tests) 9ms
+ ✓ tests/unit/projectCommandSelectors.test.ts (6 tests) 10ms
+ ✓ tests/unit/phase1Roles.test.ts (20 tests) 10ms
+ ✓ tests/unit/phase13PersonalWork.test.ts (10 tests) 17ms
+ ✓ tests/unit/teamAnalytics.test.ts (3 tests) 13ms
+ ✓ tests/unit/projectViews.test.ts (10 tests) 18ms
+ ✓ tests/unit/proposalAssignmentBalancing.test.ts (7 tests) 24ms
+ ✓ tests/unit/phase12ProjectContext.test.ts (11 tests) 15ms
+ ✓ tests/unit/budgetSelectors.test.ts (9 tests) 12ms
+ ✓ tests/unit/proposalGovernanceLifecycle.test.ts (6 tests) 13ms
+ ✓ tests/unit/interdepartmentCollaboration.test.ts (21 tests) 27ms
+ ✓ tests/unit/officeIdentityImport.test.ts (4 tests) 13ms
+ ✓ tests/unit/deadlineWorkload.test.ts (5 tests) 11ms
+ ✓ tests/unit/cashReleaseOverrideService.test.ts (4 tests) 11ms
+ ✓ tests/unit/navigation.test.ts (7 tests) 11ms
+ ✓ tests/unit/projectLifecycleService.test.ts (5 tests) 16ms
+ ✓ tests/unit/departmentBudgetMigration.test.ts (17 tests) 12ms
+ ✓ tests/unit/proposalPortfolioGrouping.test.ts (5 tests) 11ms
+ ✓ tests/unit/hierarchicalDeadlines.test.ts (4 tests) 9ms
+ ✓ tests/unit/collaborationResubmission.test.ts (4 tests) 10ms
+ ✓ tests/unit/notificationNavigation.test.ts (8 tests) 9ms
+ ✓ tests/unit/staffRecommendations.test.ts (2 tests) 7ms
+ ✓ tests/unit/emptyProjectCleanup.test.ts (2 tests) 9ms
+ ✓ tests/unit/taskSelectors.test.ts (4 tests) 9ms
+ ✓ tests/unit/controlPanelClient.test.ts (6 tests) 6ms
+ ✓ tests/unit/managedUserService.test.ts (2 tests) 9ms
+ ✓ tests/unit/onboardingResponse.test.ts (3 tests) 8ms
+ ✓ tests/unit/adminTaskReadOnly.test.ts (5 tests) 7ms
+ ✓ tests/unit/cashWorkflowRules.test.ts (4 tests) 9ms
+ ✓ tests/unit/subtaskSequencing.test.ts (6 tests) 7ms
+ ✓ tests/unit/phase14Participation.test.ts (2 tests) 7ms
+ ✓ tests/unit/accessibilityOverlayMigration.test.ts (3 tests) 6ms
+ ✓ tests/unit/projectTable.test.ts (8 tests) 11ms
+ ✓ tests/unit/accountingRoleNavigation.test.tsx (4 tests) 7ms
+ ✓ tests/unit/cashWorkflowGuardMigrations.test.ts (3 tests) 8ms
+ ✓ tests/unit/phase04TaskBoardPresentation.test.ts (8 tests) 8ms
+ ✓ tests/unit/adminProjectReadOnly.test.ts (4 tests) 7ms
+ ✓ tests/unit/organizationLeadership.test.ts (5 tests) 7ms
+ ✓ tests/unit/phase05OperationsPresentation.test.ts (6 tests) 7ms
+ ✓ tests/unit/taskDiscussionRealtime.test.ts (2 tests) 7ms
+ ✓ tests/unit/taskTeamMembership.test.ts (6 tests) 11ms
+ ✓ tests/unit/taskNormalization.test.ts (2 tests) 6ms
+ ✓ tests/unit/phase14PeoplePresentation.test.ts (3 tests) 6ms
+ ✓ tests/unit/reportFormatting.test.ts (2 tests) 7ms
+ ✓ tests/unit/reviewRouting.test.ts (6 tests) 6ms
+ ✓ tests/unit/governanceWorkspaceAccess.test.ts (4 tests) 5ms
+ ✓ tests/unit/remainingPhaseCoverage.test.ts (3 tests) 6ms
+ ✓ tests/unit/manualPlanDraft.test.ts (3 tests) 10ms
+ ✓ tests/unit/permissions.test.ts (4 tests) 6ms
+ ✓ tests/unit/subtaskExecutionMigration.test.ts (2 tests) 8ms
+ ✓ tests/unit/profileDirectoryAdapter.test.ts (2 tests) 7ms
+ ✓ tests/unit/accountingJournal.test.ts (3 tests) 5ms
+ ✓ tests/unit/monthlyContributionLeaderboard.test.ts (4 tests) 9ms
+ ✓ tests/unit/draftAssignment.test.ts (3 tests) 6ms
+ ✓ tests/unit/workPlanCreationUx.test.ts (5 tests) 5ms
+ ✓ tests/unit/projectOfficeAuthority.test.ts (3 tests) 7ms
+ ✓ tests/unit/phase04AccountingMigration.test.ts (4 tests) 6ms
+ ✓ tests/unit/departmentApprovalRows.test.ts (2 tests) 6ms
+ ✓ tests/unit/sirGersonBaseline.test.ts (3 tests) 6ms
+ ✓ tests/unit/semanticTealActions.test.ts (3 tests) 5ms
+ ✓ tests/unit/pageLocalSurfaceStandardization.test.ts (3 tests) 6ms
+ ✓ tests/unit/notificationPresentation.test.ts (4 tests) 5ms
+ ✓ tests/unit/workflowPrimitiveDelegation.test.ts (3 tests) 5ms
+ ✓ tests/unit/phase2Onboarding.test.ts (2 tests) 5ms
+ ✓ tests/unit/deptHeadDashboardPresentation.test.ts (2 tests) 5ms
+ ✓ tests/unit/governanceLifecycleError.test.ts (2 tests) 5ms
+ ✓ tests/unit/chatPanelLayout.test.ts (2 tests) 5ms
+ ✓ tests/unit/relativeSchedule.test.ts (4 tests) 6ms
+ ✓ tests/unit/departmentDirectoryEligibility.test.ts (3 tests) 5ms
+ ✓ tests/unit/phase15ReadinessResolution.test.ts (2 tests) 5ms
+ ✓ tests/unit/reviewDecisionError.test.ts (2 tests) 4ms
+ ✓ tests/unit/proposalPortfolioMigration.test.ts (3 tests) 5ms
+ ✓ tests/unit/neutralSurfacePresentation.test.ts (1 test) 5ms
+ ✓ tests/unit/projectDepartmentFilter.test.ts (2 tests) 5ms
+ ✓ tests/unit/appShell.test.ts (1 test) 5ms
+ ✓ tests/unit/quickLoginAccounts.test.ts (2 tests) 5ms
+ ✓ tests/unit/departmentScope.test.ts (2 tests) 5ms
+ ✓ tests/unit/leadershipUniqueness.test.ts (3 tests) 5ms
+ ✓ tests/unit/projectFinancialReport.test.ts (1 test) 7ms
+ ✓ tests/unit/guidedTourCatalog.test.ts (2 tests) 8ms
+ ✓ tests/unit/projectDeletionMigration.test.ts (1 test) 5ms
+ ✓ tests/unit/adminRoleMigration.test.ts (2 tests) 5ms
+ ✓ tests/unit/adminAccountProtection.test.ts (2 tests) 5ms
+ ✓ tests/unit/backupGatewayContract.test.ts (2 tests) 5ms
+ ✓ tests/unit/budgetDesignSystemPresentation.test.ts (4 tests) 6ms
+ ✓ tests/unit/leaderReviewWorkspace.test.ts (2 tests) 5ms
+ ✓ tests/unit/proposalServerPipeline.test.ts (1 test) 8ms
+ ✓ tests/unit/dataToolsNavigation.test.ts (1 test) 5ms
+ ✓ tests/unit/departmentReports.test.ts (3 tests) 10ms
+ ✓ tests/unit/navigationActionAlerts.test.ts (3 tests) 6ms
+ ✓ tests/unit/committedProposalDelivery.test.ts (3 tests) 8ms
+ ✓ tests/unit/proposalBudgetImport.test.ts (2 tests) 6ms
+ ✓ tests/unit/managedUserLeadershipService.test.ts (1 test) 6ms
+ ✓ tests/unit/teamSupervisionAssignment.test.ts (2 tests) 6ms
+ ✓ tests/unit/auditPresentation.test.ts (3 tests) 5ms
+ ✓ tests/unit/subtaskTemplateSafety.test.ts (4 tests) 3ms
+ ✓ tests/unit/projectFigmaBoard.test.ts (1 test) 3ms
+ ✓ tests/unit/loginValidation.test.ts (1 test) 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/generalJournalDatePicker.test.tsx > General Journal calendar controls > opens the native picker from both the header and adjustment view
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name `/Post adjustment/i`
+
+Here are the accessible roles:
+
+  button:
+
+  Name "Refresh journal":
+  <button
+    class="rounded-lg border px-3 py-2 text-sm"
+    type="button"
+  />
+
+  --------------------------------------------------
+  banner:
+
+  Name "":
+  <header
+    class="flex flex-col gap-3 border-b border-neutral-100 p-4 xl:flex-row xl:items-center"
+  />
+
+  --------------------------------------------------
+  search:
+
+  Name "":
+  <div
+    class="wrapper_4de3f28fcf small_d385e3d012 searchWrapper_c532df80b5 min-w-0 flex-1"
+    role="search"
+  />
+
+  --------------------------------------------------
+  searchbox:
+
+  Name "Search journal":
+  <input
+    aria-label="Search journal"
+    autocomplete="off"
+    class="input_2ae7e871ae search_647bf90738"
+    data-testid="search"
+    data-vibe="Search"
+    placeholder="Search voucher, account, memo, or recorder…"
+    type="search"
+    value=""
+  />
+
+  --------------------------------------------------
+  combobox:
+
+  Name "Account classification":
+  <select
+    aria-label="Account classification"
+    class="h-9 rounded-lg border border-neutral-200 bg-white px-2 text-[12px]"
+  />
+
+  --------------------------------------------------
+  option:
+
+  Name "All account classes":
+  <option
+    value="all"
+  />
+
+  Name "Assets":
+  <option
+    value="asset"
+  />
+
+  Name "Liabilities":
+  <option
+    value="liability"
+  />
+
+  Name "Equity":
+  <option
+    value="equity"
+  />
+
+  Name "Income":
+  <option
+    value="income"
+  />
+
+  Name "Expenses":
+  <option
+    value="expense"
+  />
+
+  --------------------------------------------------
+  heading:
+
+  Name "No journal entries match":
+  <h3
+    class="mt-3 text-[12px] font-semibold"
+  />
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  <p
+    class="mt-1 text-[12px] text-neutral-500"
+  />
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="space-y-4"
+    >
+      <div
+        class="grid gap-3 md:grid-cols-3"
+      >
+        <div
+          class="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm"
+        >
+          <div
+            class="flex items-center gap-2 text-[11px] uppercase tracking-wider text-neutral-500"
+          >
+            <svg
+              class="lucide lucide-scale"
+              fill="none"
+              height="16"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="16"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"
+              />
+              <path
+                d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"
+              />
+              <path
+                d="M7 21h10"
+              />
+              <path
+                d="M12 3v18"
+              />
+              <path
+                d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"
+              />
+            </svg>
+            Trial balance
+          </div>
+          <div
+            class="mt-2 text-right text-[18px] font-semibold tabular-nums text-neutral-950"
+          >
+            ₱0.00
+          </div>
+          <div
+            class="mt-1 text-right text-[11px] text-emerald-700"
+          >
+            Credits ₱0.00
+          </div>
+        </div>
+        <div
+          class="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm"
+        >
+          <div
+            class="flex items-center gap-2 text-[11px] uppercase tracking-wider text-neutral-500"
+          >
+            <svg
+              class="lucide lucide-circle-check"
+              fill="none"
+              height="16"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="16"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <circle
+                cx="12"
+                cy="12"
+                r="10"
+              />
+              <path
+                d="m9 12 2 2 4-4"
+              />
+            </svg>
+            Balance delta
+          </div>
+          <div
+            class="mt-2 text-right text-[18px] font-semibold tabular-nums text-neutral-950"
+          >
+            ₱0.00
+          </div>
+          <div
+            class="mt-1 text-right text-[11px] text-emerald-700"
+          >
+            Debits equal credits
+          </div>
+        </div>
+        <div
+          class="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm"
+        >
+          <div
+            class="flex items-center gap-2 text-[11px] uppercase tracking-wider text-neutral-500"
+          >
+            <svg
+              class="lucide lucide-book-open-check"
+              fill="none"
+              height="16"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="16"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M12 21V7"
+              />
+              <path
+                d="m16 12 2 2 4-4"
+              />
+              <path
+                d="M22 6V4a1 1 0 0 0-1-1h-5a4 4 0 0 0-4 4 4 4 0 0 0-4-4H3a1 1 0 0 0-1 1v13a1 1 0 0 0 1 1h6a3 3 0 0 1 3 3 3 3 0 0 1 3-3h6a1 1 0 0 0 1-1v-1.3"
+              />
+            </svg>
+            Appropriation available
+          </div>
+          <div
+            class="mt-2 text-right text-[18px] font-semibold tabular-nums text-neutral-950"
+          >
+            Linked to annual budget
+          </div>
+          <div
+            class="mt-1 text-right text-[11px] text-emerald-700"
+          >
+            2026 journal view
+          </div>
+        </div>
+      </div>
+      <button
+        class="rounded-lg border px-3 py-2 text-sm"
+        type="button"
+      >
+        Refresh journal
+      </button>
+      <section
+        class="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm"
+      >
+        <header
+          class="flex flex-col gap-3 border-b border-neutral-100 p-4 xl:flex-row xl:items-center"
+        >
+          <div
+            class="wrapper_4de3f28fcf small_d385e3d012 searchWrapper_c532df80b5 min-w-0 flex-1"
+            role="search"
+          >
+            <svg
+              aria-hidden="true"
+              class="icon_4d3393436c icon_93dcae2db8"
+              data-testid="icon"
+              data-vibe="Icon"
+              fill="currentColor"
+   ...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ tests/unit/generalJournalDatePicker.test.tsx:40:28
+     38|     render(<GeneralJournalWorkspace orgId="org-1" fiscalYear={2026} fi…
+     39|     fireEvent.click(screen.getByLabelText("Journal start date"));
+     40|     fireEvent.click(screen.getByRole("button", { name: /Post adjustmen…
+       |                            ^
+     41|     fireEvent.click(screen.getByLabelText("Entry date"));
+     42|     expect(mocks.showPicker).toHaveBeenCalledTimes(2);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 199 passed (200)
+      Tests  1 failed | 786 passed (787)
+   Start at  22:15:35
+   Duration  89.53s (transform 39.40s, setup 0ms, collect 905.89s, tests 91.52s, environment 143.30s, prepare 56.22s)
+

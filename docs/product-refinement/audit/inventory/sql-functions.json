@@ -1,0 +1,2534 @@
+[
+  {
+    "file": "supabase/migrations/20260711000000_personal_settings.sql",
+    "line": 22,
+    "function": "public.create_default_user_preferences",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260711000000_personal_settings.sql",
+    "line": 41,
+    "function": "public.set_user_preferences_updated_at",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260711000000_personal_settings.sql",
+    "line": 75,
+    "function": "public.guard_self_profile_update",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260712000000_core_workflow.sql",
+    "line": 27,
+    "function": "public.auth_role",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260712000000_core_workflow.sql",
+    "line": 34,
+    "function": "public.auth_org_path",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260712000000_core_workflow.sql",
+    "line": 47,
+    "function": "public.org_in_my_subtree",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260712000000_core_workflow.sql",
+    "line": 65,
+    "function": "public.is_super_admin",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260712000000_core_workflow.sql",
+    "line": 73,
+    "function": "public.touch_updated_at",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260712000000_core_workflow.sql",
+    "line": 121,
+    "function": "public.is_project_member",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260712000000_core_workflow.sql",
+    "line": 132,
+    "function": "public.can_see_project",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260714000001_fix_chat_membership.sql",
+    "line": 3,
+    "function": "public.sync_task_chat_channel",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260715000000_task_lifecycle.sql",
+    "line": 92,
+    "function": "public.can_see_task",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260715000000_task_lifecycle.sql",
+    "line": 112,
+    "function": "public.is_allowed_task_transition",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260715000000_task_lifecycle.sql",
+    "line": 129,
+    "function": "public.guard_task_status_write",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260715000000_task_lifecycle.sql",
+    "line": 143,
+    "function": "public.transition_task_status",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260715000000_task_lifecycle.sql",
+    "line": 250,
+    "function": "public.assign_task",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260725000000_workflow_consistency.sql",
+    "line": 179,
+    "function": "public.can_see_project",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260725000000_workflow_consistency.sql",
+    "line": 227,
+    "function": "public.can_manage_project",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260725000000_workflow_consistency.sql",
+    "line": 264,
+    "function": "public.can_see_task",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260725000000_workflow_consistency.sql",
+    "line": 307,
+    "function": "public.can_contribute_task",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260725000000_workflow_consistency.sql",
+    "line": 345,
+    "function": "public.can_manage_task",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260725000000_workflow_consistency.sql",
+    "line": 556,
+    "function": "public.is_allowed_task_transition",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260725000000_workflow_consistency.sql",
+    "line": 576,
+    "function": "public.guard_task_status_write",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260725000000_workflow_consistency.sql",
+    "line": 595,
+    "function": "public.transition_task_status",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260725000000_workflow_consistency.sql",
+    "line": 872,
+    "function": "public.assign_task",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260725000000_workflow_consistency.sql",
+    "line": 1059,
+    "function": "public.submit_task_progress",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260725000000_workflow_consistency.sql",
+    "line": 1186,
+    "function": "public.submit_task_for_review",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260725000000_workflow_consistency.sql",
+    "line": 1271,
+    "function": "public.decide_task_review",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260725000000_workflow_consistency.sql",
+    "line": 1346,
+    "function": "public.refresh_task_subtask_rollup",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260725000000_workflow_consistency.sql",
+    "line": 1484,
+    "function": "public.guard_subtask_mutation",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260725000000_workflow_consistency.sql",
+    "line": 1523,
+    "function": "public.rollup_task_subtasks",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260725000000_workflow_consistency.sql",
+    "line": 1581,
+    "function": "public.guard_task_project_links",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260725000000_workflow_consistency.sql",
+    "line": 1612,
+    "function": "public.record_initial_task_lifecycle",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260807000000_task_review_hardening.sql",
+    "line": 101,
+    "function": "public.validate_task_reviewers",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260807000000_task_review_hardening.sql",
+    "line": 147,
+    "function": "public.guard_task_review_decision",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260807000000_task_review_hardening.sql",
+    "line": 168,
+    "function": "public.can_see_task",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260807000000_task_review_hardening.sql",
+    "line": 225,
+    "function": "public.submit_task_for_review",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260807000000_task_review_hardening.sql",
+    "line": 423,
+    "function": "public.decide_task_review",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260807000000_task_review_hardening.sql",
+    "line": 583,
+    "function": "public.assign_task_with_details",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260807000000_task_review_hardening.sql",
+    "line": 701,
+    "function": "public.set_task_archived",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260807000000_task_review_hardening.sql",
+    "line": 749,
+    "function": "public.soft_delete_task",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260807000000_task_review_hardening.sql",
+    "line": 798,
+    "function": "public.can_manage_subtasks",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260807000000_task_review_hardening.sql",
+    "line": 817,
+    "function": "public.guard_subtask_contributor_update",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260807000001_task_planning_enhancements.sql",
+    "line": 37,
+    "function": "public.guard_task_submission_readiness",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260807000001_task_planning_enhancements.sql",
+    "line": 67,
+    "function": "public.cancel_task",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260807000001_task_planning_enhancements.sql",
+    "line": 175,
+    "function": "public.dispatch_task_reminders",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260807000002_recurring_task_templates.sql",
+    "line": 99,
+    "function": "public.materialize_due_task_templates",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260814000000_assistant_head_review_routing.sql",
+    "line": 64,
+    "function": "public.auth_role",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260814000000_assistant_head_review_routing.sql",
+    "line": 95,
+    "function": "public.set_organization_leadership",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260814000000_assistant_head_review_routing.sql",
+    "line": 266,
+    "function": "public.route_organization_leadership_review",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260815000000_project_creation_rls.sql",
+    "line": 7,
+    "function": "public.can_create_scoped_work",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260815000001_atomic_project_creation.sql",
+    "line": 5,
+    "function": "public.create_project_with_details",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260815000002_atomic_task_creation.sql",
+    "line": 5,
+    "function": "public.create_task_with_details",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260815000003_restore_review_decision_rpc.sql",
+    "line": 14,
+    "function": "public.decide_task_review",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260815000004_fix_review_audit_hash_extension.sql",
+    "line": 8,
+    "function": "public.decide_task_review",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260816000000_project_deletion.sql",
+    "line": 12,
+    "function": "public.delete_project_permanently",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260816000001_subtask_evidence_review.sql",
+    "line": 131,
+    "function": "public.guard_subtask_contributor_update",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260816000001_subtask_evidence_review.sql",
+    "line": 183,
+    "function": "public.resolve_subtask_reviewer",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260816000001_subtask_evidence_review.sql",
+    "line": 212,
+    "function": "public.save_subtask_progress",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260816000001_subtask_evidence_review.sql",
+    "line": 297,
+    "function": "public.submit_subtask_for_review",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260816000001_subtask_evidence_review.sql",
+    "line": 428,
+    "function": "public.decide_subtask_review",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260816000001_subtask_evidence_review.sql",
+    "line": 537,
+    "function": "public.guard_task_subtask_readiness",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260817000000_fix_task_chat_uuid_members.sql",
+    "line": 7,
+    "function": "public.sync_task_chat_channel",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260817000002_subtask_progress_leader_notifications.sql",
+    "line": 5,
+    "function": "public.notify_subtask_progress_leader",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260817000003_work_template_library.sql",
+    "line": 6,
+    "function": "public.can_use_work_templates",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260817000003_work_template_library.sql",
+    "line": 43,
+    "function": "public.can_approve_work_templates",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260817000003_work_template_library.sql",
+    "line": 104,
+    "function": "public.guard_recurring_template_scope",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260817000003_work_template_library.sql",
+    "line": 171,
+    "function": "public.guard_subtask_template_governance",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260817000003_work_template_library.sql",
+    "line": 311,
+    "function": "public.save_subtask_template",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260817000003_work_template_library.sql",
+    "line": 395,
+    "function": "public.review_subtask_template",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260817000003_work_template_library.sql",
+    "line": 425,
+    "function": "public.apply_subtask_template",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260817000003_work_template_library.sql",
+    "line": 653,
+    "function": "public.materialize_due_task_templates",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260819000000_sir_gerson_access_control.sql",
+    "line": 117,
+    "function": "public.has_permission",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260819000000_sir_gerson_access_control.sql",
+    "line": 152,
+    "function": "public.can_access_org",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260819000000_sir_gerson_access_control.sql",
+    "line": 209,
+    "function": "public.can_see_project",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260819000000_sir_gerson_access_control.sql",
+    "line": 239,
+    "function": "public.can_manage_project",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260819000000_sir_gerson_access_control.sql",
+    "line": 260,
+    "function": "public.can_see_task",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260819000000_sir_gerson_access_control.sql",
+    "line": 287,
+    "function": "public.can_manage_task",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260819000000_sir_gerson_access_control.sql",
+    "line": 307,
+    "function": "public.audit_access_control_change",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260819000001_ordered_subtasks.sql",
+    "line": 38,
+    "function": "public.reorder_task_subtasks",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260819000002_monthly_productivity_leaderboard.sql",
+    "line": 40,
+    "function": "public.recalculate_monthly_productivity",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260819000003_fix_project_deletion_task_links.sql",
+    "line": 5,
+    "function": "public.delete_project_permanently",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260819000004_subtask_execution_dependencies.sql",
+    "line": 11,
+    "function": "public.guard_subtask_contributor_update",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260819000004_subtask_execution_dependencies.sql",
+    "line": 64,
+    "function": "public.guard_subtask_execution_dependencies",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260819000005_proposal_portfolios_and_unique_leadership.sql",
+    "line": 173,
+    "function": "public.guard_profile_leadership_integrity",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260819000005_proposal_portfolios_and_unique_leadership.sql",
+    "line": 224,
+    "function": "public.can_create_scoped_work",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260819000005_proposal_portfolios_and_unique_leadership.sql",
+    "line": 246,
+    "function": "public.can_see_project",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260819000005_proposal_portfolios_and_unique_leadership.sql",
+    "line": 279,
+    "function": "public.create_project_with_details",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260819000006_super_admin_project_read_only.sql",
+    "line": 4,
+    "function": "public.guard_super_admin_project_mutation",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260819000007_super_admin_task_read_only.sql",
+    "line": 5,
+    "function": "public.guard_super_admin_task_mutation",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260820000001_hierarchical_deadlines.sql",
+    "line": 44,
+    "function": "public.guard_subtask_due_date_bounds",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260820000001_hierarchical_deadlines.sql",
+    "line": 75,
+    "function": "public.guard_subtask_due_date_update",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260820000001_hierarchical_deadlines.sql",
+    "line": 105,
+    "function": "public.set_subtask_due_date",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260820000001_hierarchical_deadlines.sql",
+    "line": 235,
+    "function": "public.dispatch_hierarchy_deadline_reminders",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260820000001_hierarchical_deadlines.sql",
+    "line": 425,
+    "function": "public.dispatch_task_review_reminders",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260820000001_hierarchical_deadlines.sql",
+    "line": 491,
+    "function": "public.dispatch_task_reminders",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260821000000_collaboration_organizations.sql",
+    "line": 36,
+    "function": "public.is_organization_member",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260821000000_collaboration_organizations.sql",
+    "line": 55,
+    "function": "public.is_organization_approver",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260821000000_collaboration_organizations.sql",
+    "line": 92,
+    "function": "public.set_organization_membership",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260821000000_collaboration_organizations.sql",
+    "line": 151,
+    "function": "public.set_organization_approvers",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260821000001_collaboration_drafts.sql",
+    "line": 70,
+    "function": "public.is_collaboration_participant",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260821000001_collaboration_drafts.sql",
+    "line": 105,
+    "function": "public.can_manage_collaboration_draft",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260821000001_collaboration_drafts.sql",
+    "line": 129,
+    "function": "public.create_collaboration_draft",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260821000001_collaboration_drafts.sql",
+    "line": 230,
+    "function": "public.save_collaboration_revision",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260821000001_collaboration_drafts.sql",
+    "line": 289,
+    "function": "public.autosave_collaboration_draft",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260821000001_collaboration_drafts.sql",
+    "line": 374,
+    "function": "public.set_collaboration_organizations",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260821000001_collaboration_drafts.sql",
+    "line": 454,
+    "function": "public.soft_delete_collaboration_draft",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260821000001_collaboration_drafts.sql",
+    "line": 483,
+    "function": "public.set_collaboration_source_document",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260821000002_collaboration_security.sql",
+    "line": 47,
+    "function": "public.auto_accept_collaboration_owner",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260821000002_collaboration_security.sql",
+    "line": 93,
+    "function": "public.guard_collaboration_owner_decision",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260821000002_collaboration_security.sql",
+    "line": 128,
+    "function": "public.organization_approver_ids",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260821000002_collaboration_security.sql",
+    "line": 154,
+    "function": "public.collaboration_readiness",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260821000002_collaboration_security.sql",
+    "line": 282,
+    "function": "public.refresh_collaboration_readiness",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260821000002_collaboration_security.sql",
+    "line": 322,
+    "function": "public.request_collaboration_review",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260821000002_collaboration_security.sql",
+    "line": 379,
+    "function": "public.send_collaboration_message",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260821000002_collaboration_security.sql",
+    "line": 427,
+    "function": "public.create_collaboration_change_request",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260821000002_collaboration_security.sql",
+    "line": 497,
+    "function": "public.save_collaboration_staffing_revision",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260821000002_collaboration_security.sql",
+    "line": 596,
+    "function": "public.resolve_collaboration_change_request",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260821000002_collaboration_security.sql",
+    "line": 632,
+    "function": "public.decide_collaboration_review",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260821000002_collaboration_security.sql",
+    "line": 686,
+    "function": "public.collaboration_storage_draft_id",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260821000003_collaboration_runtime.sql",
+    "line": 57,
+    "function": "public.can_see_collaboration_project",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260821000003_collaboration_runtime.sql",
+    "line": 82,
+    "function": "public.can_manage_collaboration_project",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260821000003_collaboration_runtime.sql",
+    "line": 107,
+    "function": "public.can_see_project",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260821000003_collaboration_runtime.sql",
+    "line": 140,
+    "function": "public.can_manage_project",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260821000003_collaboration_runtime.sql",
+    "line": 162,
+    "function": "public.can_see_task",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260821000003_collaboration_runtime.sql",
+    "line": 190,
+    "function": "public.can_manage_task",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260821000003_collaboration_runtime.sql",
+    "line": 215,
+    "function": "public.route_organization_leadership_review",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260821000003_collaboration_runtime.sql",
+    "line": 254,
+    "function": "public.guard_collaboration_task_staffing",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260821000004_collaboration_commit.sql",
+    "line": 13,
+    "function": "public.commit_collaboration_draft",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260821000005_collaboration_owner_auto_accept.sql",
+    "line": 9,
+    "function": "public.auto_accept_collaboration_owner",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260821000005_collaboration_owner_auto_accept.sql",
+    "line": 86,
+    "function": "public.guard_collaboration_owner_decision",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260821000005_collaboration_owner_auto_accept.sql",
+    "line": 113,
+    "function": "public.collaboration_readiness",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260821000005_collaboration_owner_auto_accept.sql",
+    "line": 253,
+    "function": "public.set_collaboration_source_document",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260821000005_collaboration_owner_auto_accept.sql",
+    "line": 288,
+    "function": "public.request_collaboration_review",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260821000006_task_team_removal_guard.sql",
+    "line": 4,
+    "function": "public.guard_active_subtask_team_member_removal",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260822000000_fix_task_team_assignment_array_types.sql",
+    "line": 7,
+    "function": "public.assign_task_with_details",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260822000001_scope_organization_leadership_to_direct_members.sql",
+    "line": 10,
+    "function": "public.guard_organization_leadership_membership",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260822000002_governance_delivery_lifecycle.sql",
+    "line": 130,
+    "function": "public.can_manage_proposal_delivery",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260822000002_governance_delivery_lifecycle.sql",
+    "line": 146,
+    "function": "public.is_proposal_governance_decider",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260822000002_governance_delivery_lifecycle.sql",
+    "line": 167,
+    "function": "public.set_proposal_governance_configuration",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260822000002_governance_delivery_lifecycle.sql",
+    "line": 238,
+    "function": "public.recuse_and_delegate_collaboration_review",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260822000002_governance_delivery_lifecycle.sql",
+    "line": 289,
+    "function": "public.save_proposal_governance_record",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260822000002_governance_delivery_lifecycle.sql",
+    "line": 327,
+    "function": "public.request_proposal_closeout",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260822000002_governance_delivery_lifecycle.sql",
+    "line": 408,
+    "function": "public.decide_proposal_closeout",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260822000002_governance_delivery_lifecycle.sql",
+    "line": 466,
+    "function": "public.complete_proposal_delivery",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260822000002_governance_delivery_lifecycle.sql",
+    "line": 502,
+    "function": "public.archive_proposal_delivery",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260822000002_governance_delivery_lifecycle.sql",
+    "line": 543,
+    "function": "public.run_governance_review_escalations",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260822000003_governance_approval_routing.sql",
+    "line": 6,
+    "function": "public.set_collaboration_organizations",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260822000003_governance_approval_routing.sql",
+    "line": 57,
+    "function": "public.collaboration_readiness",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260822000003_governance_approval_routing.sql",
+    "line": 161,
+    "function": "public.decide_collaboration_review",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260822000003_governance_approval_routing.sql",
+    "line": 272,
+    "function": "public.set_task_governance_route",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260822000004_task_governance_routes_and_storage.sql",
+    "line": 7,
+    "function": "public.apply_collaboration_task_governance_route",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260822000004_task_governance_routes_and_storage.sql",
+    "line": 92,
+    "function": "public.collaboration_storage_org_id",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260822000004_task_governance_routes_and_storage.sql",
+    "line": 120,
+    "function": "public.notify_named_governance_reviewers",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260822000005_advisory_collaboration_autosave.sql",
+    "line": 5,
+    "function": "public.autosave_collaboration_draft",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260822000005_advisory_collaboration_autosave.sql",
+    "line": 56,
+    "function": "public.can_manage_collaboration_draft",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260822000006_fix_interdepartment_department_review_routing.sql",
+    "line": 6,
+    "function": "public.route_organization_leadership_review",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260822000007_inherit_activity_responsibility.sql",
+    "line": 7,
+    "function": "public.normalize_collaboration_activity_responsibility",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260822000007_inherit_activity_responsibility.sql",
+    "line": 40,
+    "function": "public.inherit_collaboration_activity_responsibility",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260822000008_department_budget_and_petty_cash.sql",
+    "line": 169,
+    "function": "public.is_department_budget_head",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260822000008_department_budget_and_petty_cash.sql",
+    "line": 181,
+    "function": "public.is_department_budget_approver",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260822000008_department_budget_and_petty_cash.sql",
+    "line": 193,
+    "function": "public.can_view_department_budget",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260822000008_department_budget_and_petty_cash.sql",
+    "line": 208,
+    "function": "public.save_department_fiscal_budget",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260822000008_department_budget_and_petty_cash.sql",
+    "line": 285,
+    "function": "public.lock_department_fiscal_budget",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260822000008_department_budget_and_petty_cash.sql",
+    "line": 304,
+    "function": "public.commit_single_department_proposal_budget",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260822000008_department_budget_and_petty_cash.sql",
+    "line": 381,
+    "function": "public.create_work_budget_allocation",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260822000008_department_budget_and_petty_cash.sql",
+    "line": 451,
+    "function": "public.decide_work_budget_allocation",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260822000008_department_budget_and_petty_cash.sql",
+    "line": 488,
+    "function": "public.create_petty_cash_request",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260822000008_department_budget_and_petty_cash.sql",
+    "line": 546,
+    "function": "public.decide_petty_cash_request",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260822000008_department_budget_and_petty_cash.sql",
+    "line": 592,
+    "function": "public.submit_petty_cash_liquidation",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260822000008_department_budget_and_petty_cash.sql",
+    "line": 644,
+    "function": "public.decide_petty_cash_liquidation",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260822000008_department_budget_and_petty_cash.sql",
+    "line": 683,
+    "function": "public.department_budget_summary",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260822000009_single_department_publish_flow.sql",
+    "line": 7,
+    "function": "public.guard_single_department_collaboration_review",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260824000001_department_proposal_budget_enforcement.sql",
+    "line": 5,
+    "function": "public.commit_single_department_proposal_budget",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260824000002_owner_department_budget_for_all_proposals.sql",
+    "line": 6,
+    "function": "public.commit_single_department_proposal_budget",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260824000003_fix_governance_delegate_assignment_columns.sql",
+    "line": 6,
+    "function": "public.request_proposal_closeout",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260824000003_fix_governance_delegate_assignment_columns.sql",
+    "line": 85,
+    "function": "public.run_governance_review_escalations",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260824000004_fix_employee_department_budget_access.sql",
+    "line": 7,
+    "function": "public.can_view_department_budget",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260824000005_normalize_proposal_task_leader_membership.sql",
+    "line": 7,
+    "function": "public.normalize_collaboration_task_teams",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260824000005_normalize_proposal_task_leader_membership.sql",
+    "line": 58,
+    "function": "public.normalize_collaboration_revision_task_teams",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260824000005_normalize_proposal_task_leader_membership.sql",
+    "line": 69,
+    "function": "public.normalize_collaboration_working_task_teams",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260824000006_publish_latest_department_proposal_revision.sql",
+    "line": 7,
+    "function": "public.publish_department_proposal",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260824000007_task_budget_daily_petty_cash_workflow.sql",
+    "line": 134,
+    "function": "public.schedule_petty_cash_releases",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260824000007_task_budget_daily_petty_cash_workflow.sql",
+    "line": 175,
+    "function": "public.create_petty_cash_request",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260824000007_task_budget_daily_petty_cash_workflow.sql",
+    "line": 253,
+    "function": "public.decide_petty_cash_leader_review",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260824000007_task_budget_daily_petty_cash_workflow.sql",
+    "line": 292,
+    "function": "public.decide_petty_cash_request",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260824000007_task_budget_daily_petty_cash_workflow.sql",
+    "line": 344,
+    "function": "public.mark_petty_cash_released",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260824000007_task_budget_daily_petty_cash_workflow.sql",
+    "line": 375,
+    "function": "public.commit_single_department_proposal_budget",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260824000007_task_budget_daily_petty_cash_workflow.sql",
+    "line": 552,
+    "function": "public.save_department_fiscal_budget_v2",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260824000007_task_budget_daily_petty_cash_workflow.sql",
+    "line": 645,
+    "function": "public.submit_petty_cash_liquidation",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260824000007_task_budget_daily_petty_cash_workflow.sql",
+    "line": 723,
+    "function": "public.decide_petty_cash_liquidation_leader_review",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260824000007_task_budget_daily_petty_cash_workflow.sql",
+    "line": 761,
+    "function": "public.decide_petty_cash_liquidation",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260824000007_task_budget_daily_petty_cash_workflow.sql",
+    "line": 806,
+    "function": "public.department_budget_summary",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260824000008_budget_controls_and_resubmission.sql",
+    "line": 52,
+    "function": "public.guard_work_budget_allocation_caps",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260824000008_budget_controls_and_resubmission.sql",
+    "line": 93,
+    "function": "public.create_subtask_budget_allocation",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260824000008_budget_controls_and_resubmission.sql",
+    "line": 154,
+    "function": "public.resubmit_petty_cash_request",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260824000008_budget_controls_and_resubmission.sql",
+    "line": 207,
+    "function": "public.acknowledge_petty_cash_release",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260824000008_budget_controls_and_resubmission.sql",
+    "line": 221,
+    "function": "public.guard_liquidation_release_acknowledgement",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260824000008_budget_controls_and_resubmission.sql",
+    "line": 241,
+    "function": "public.adjust_department_fiscal_budget",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260824000008_budget_controls_and_resubmission.sql",
+    "line": 272,
+    "function": "public.close_department_fiscal_budget",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260824000008_budget_controls_and_resubmission.sql",
+    "line": 290,
+    "function": "public.run_department_budget_maintenance",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260824000008_budget_controls_and_resubmission.sql",
+    "line": 309,
+    "function": "public.guard_financial_work_completion",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260824000008_budget_controls_and_resubmission.sql",
+    "line": 326,
+    "function": "public.guard_task_financial_completion",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260825000001_subtask_budget_distribution_guard.sql",
+    "line": 8,
+    "function": "public.guard_work_budget_allocation_caps",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260825000001_subtask_budget_distribution_guard.sql",
+    "line": 87,
+    "function": "public.guard_petty_cash_allocation_capacity",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260825000001_subtask_budget_distribution_guard.sql",
+    "line": 176,
+    "function": "public.create_subtask_budget_allocation",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260826000001_fix_subtask_budget_allocation_fiscal_reference.sql",
+    "line": 8,
+    "function": "public.create_subtask_budget_allocation",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260826000002_task_leader_only_subtask_management.sql",
+    "line": 8,
+    "function": "public.can_manage_subtasks",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260826000003_dynamic_task_funding.sql",
+    "line": 129,
+    "function": "public.is_organization_member",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260826000003_dynamic_task_funding.sql",
+    "line": 156,
+    "function": "public.is_collaboration_participant",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260826000003_dynamic_task_funding.sql",
+    "line": 215,
+    "function": "public.cash_request_obligation",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260826000003_dynamic_task_funding.sql",
+    "line": 230,
+    "function": "public.task_budget_line_available",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260826000003_dynamic_task_funding.sql",
+    "line": 275,
+    "function": "public.subtask_cap_available",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260826000003_dynamic_task_funding.sql",
+    "line": 298,
+    "function": "public.get_task_funding_context",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260826000003_dynamic_task_funding.sql",
+    "line": 373,
+    "function": "public.create_contextual_cash_request",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260826000003_dynamic_task_funding.sql",
+    "line": 497,
+    "function": "public.resubmit_contextual_cash_request",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260826000003_dynamic_task_funding.sql",
+    "line": 562,
+    "function": "public.set_subtask_budget_cap",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260826000003_dynamic_task_funding.sql",
+    "line": 675,
+    "function": "public.remove_subtask_budget_cap",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260826000003_dynamic_task_funding.sql",
+    "line": 717,
+    "function": "public.cancel_contextual_cash_request",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260826000003_dynamic_task_funding.sql",
+    "line": 745,
+    "function": "public.add_cash_request_attachment",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260826000003_dynamic_task_funding.sql",
+    "line": 784,
+    "function": "public.create_petty_cash_request",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260826000003_dynamic_task_funding.sql",
+    "line": 813,
+    "function": "public.resubmit_petty_cash_request",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260826000003_dynamic_task_funding.sql",
+    "line": 832,
+    "function": "public.submit_contextual_cash_liquidation",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260826000003_dynamic_task_funding.sql",
+    "line": 862,
+    "function": "public.audit_cash_request_change",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260826000003_dynamic_task_funding.sql",
+    "line": 906,
+    "function": "public.audit_cash_release_change",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260826000003_dynamic_task_funding.sql",
+    "line": 945,
+    "function": "public.audit_liquidation_change",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260826000003_dynamic_task_funding.sql",
+    "line": 974,
+    "function": "public.audit_receipt_attachment",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260826000003_dynamic_task_funding.sql",
+    "line": 1003,
+    "function": "public.prevent_budget_ledger_mutation",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260826000003_dynamic_task_funding.sql",
+    "line": 1028,
+    "function": "public.run_department_budget_maintenance",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260826000004_release_correction_holds_and_notify_reviewers.sql",
+    "line": 7,
+    "function": "public.cash_request_obligation",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260826000004_release_correction_holds_and_notify_reviewers.sql",
+    "line": 25,
+    "function": "public.normalize_cash_request_reservation_window",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260826000004_release_correction_holds_and_notify_reviewers.sql",
+    "line": 60,
+    "function": "public.notify_corrected_cash_request_reviewer",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260831000001_task_evidence_security.sql",
+    "line": 62,
+    "function": "public.get_task_evidence_rules",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260831000001_task_evidence_security.sql",
+    "line": 85,
+    "function": "eflow_evidence.active_actor",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260831000001_task_evidence_security.sql",
+    "line": 92,
+    "function": "eflow_evidence.path_context",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260831000001_task_evidence_security.sql",
+    "line": 115,
+    "function": "eflow_evidence.can_read_task",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260831000001_task_evidence_security.sql",
+    "line": 127,
+    "function": "eflow_evidence.can_upload",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260831000001_task_evidence_security.sql",
+    "line": 153,
+    "function": "eflow_evidence.can_read",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260831000001_task_evidence_security.sql",
+    "line": 217,
+    "function": "eflow_evidence.lock_path",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260831000001_task_evidence_security.sql",
+    "line": 221,
+    "function": "eflow_evidence.seal_file",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260831000001_task_evidence_security.sql",
+    "line": 262,
+    "function": "eflow_evidence.guard_attempt",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260831000001_task_evidence_security.sql",
+    "line": 308,
+    "function": "eflow_evidence.guard_task_snapshot",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260831000001_task_evidence_security.sql",
+    "line": 335,
+    "function": "eflow_evidence.guard_attachment",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260831000001_task_evidence_security.sql",
+    "line": 366,
+    "function": "eflow_evidence.guard_progress",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260831000001_task_evidence_security.sql",
+    "line": 391,
+    "function": "eflow_evidence.check_subtask_evidence",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260831000001_task_evidence_security.sql",
+    "line": 404,
+    "function": "eflow_evidence.guard_history",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260831000001_task_evidence_security.sql",
+    "line": 428,
+    "function": "public.resolve_subtask_reviewer",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260831000001_task_evidence_security.sql",
+    "line": 475,
+    "function": "public.claim_task_evidence_cleanup",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260831000001_task_evidence_security.sql",
+    "line": 506,
+    "function": "eflow_evidence.can_delete",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260831000002_cash_release_schedule_override.sql",
+    "line": 6,
+    "function": "public.record_petty_cash_release_internal",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260831000002_cash_release_schedule_override.sql",
+    "line": 96,
+    "function": "public.mark_petty_cash_released",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260831000002_cash_release_schedule_override.sql",
+    "line": 103,
+    "function": "public.override_petty_cash_release_schedule",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260831000002_cash_release_schedule_override.sql",
+    "line": 121,
+    "function": "public.schedule_petty_cash_releases",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260831000002_cash_release_schedule_override.sql",
+    "line": 166,
+    "function": "public.department_budget_summary",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260831000003_project_completion_lifecycle.sql",
+    "line": 5,
+    "function": "public.project_completion_readiness_internal",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260831000003_project_completion_lifecycle.sql",
+    "line": 70,
+    "function": "public.get_project_completion_readiness",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260831000003_project_completion_lifecycle.sql",
+    "line": 82,
+    "function": "public.guard_project_completion_lifecycle",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260831000003_project_completion_lifecycle.sql",
+    "line": 108,
+    "function": "public.complete_project",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260831000003_project_completion_lifecycle.sql",
+    "line": 125,
+    "function": "public.archive_completed_project",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260919000000_phase04_phase05_accounting.sql",
+    "line": 13,
+    "function": "public.is_department_accounting_staff",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260919000000_phase04_phase05_accounting.sql",
+    "line": 24,
+    "function": "public.can_manage_department_accounting",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260919000000_phase04_phase05_accounting.sql",
+    "line": 30,
+    "function": "public.set_department_accounting_staff",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260919000000_phase04_phase05_accounting.sql",
+    "line": 116,
+    "function": "public.assign_accounting_document_number",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260919000000_phase04_phase05_accounting.sql",
+    "line": 188,
+    "function": "public.create_default_department_accounting_settings",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260919000000_phase04_phase05_accounting.sql",
+    "line": 243,
+    "function": "public.prevent_accounting_record_mutation",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260919000000_phase04_phase05_accounting.sql",
+    "line": 260,
+    "function": "public.post_cash_release_general_journal",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260919000000_phase04_phase05_accounting.sql",
+    "line": 294,
+    "function": "public.post_liquidation_general_journal",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260919000000_phase04_phase05_accounting.sql",
+    "line": 418,
+    "function": "public.submit_accounting_cash_liquidation",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260919000000_phase04_phase05_accounting.sql",
+    "line": 445,
+    "function": "public.record_accounting_petty_cash_release",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260919000000_phase04_phase05_accounting.sql",
+    "line": 516,
+    "function": "public.acknowledge_accounting_release",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260919000000_phase04_phase05_accounting.sql",
+    "line": 531,
+    "function": "public.settle_accounting_liquidation",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260919000000_phase04_phase05_accounting.sql",
+    "line": 578,
+    "function": "public.notify_department_accounting_settlement",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260919000000_phase04_phase05_accounting.sql",
+    "line": 607,
+    "function": "public.post_general_journal_adjustment",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260919000002_fix_accounting_release_request_alias.sql",
+    "line": 7,
+    "function": "public.record_accounting_petty_cash_release",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260919000003_accounting_release_schedule_override.sql",
+    "line": 6,
+    "function": "public.override_accounting_petty_cash_release_schedule",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260919000004_fix_accounting_document_number_trigger.sql",
+    "line": 5,
+    "function": "public.assign_accounting_document_number",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260925000001_cash_request_future_dates.sql",
+    "line": 4,
+    "function": "public.validate_cash_request_needed_by",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260925000002_fifteen_day_liquidation_head_approval.sql",
+    "line": 32,
+    "function": "public.guard_late_liquidation_head_approval",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260926000000_phase09_standing_org_channels.sql",
+    "line": 12,
+    "function": "public.ensure_org_chat_channel",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260926000000_phase09_standing_org_channels.sql",
+    "line": 48,
+    "function": "public.is_channel_member",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260927000000_fix_task_editor_assignment.sql",
+    "line": 6,
+    "function": "public.assign_task_with_details",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260928000001_allow_zero_cost_proposals.sql",
+    "line": 5,
+    "function": "public.commit_single_department_proposal_budget",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260928000002_collaboration_role_and_approval_stability.sql",
+    "line": 5,
+    "function": "public.normalize_collaboration_snapshot_roles",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260928000002_collaboration_role_and_approval_stability.sql",
+    "line": 59,
+    "function": "public.collaboration_revision_is_material",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260928000002_collaboration_role_and_approval_stability.sql",
+    "line": 143,
+    "function": "public.save_collaboration_revision",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260928000003_petty_cash_funding_requester_orgs.sql",
+    "line": 27,
+    "function": "public.sync_petty_cash_request_organizations",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260928000003_petty_cash_funding_requester_orgs.sql",
+    "line": 61,
+    "function": "public.create_contextual_cash_request",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260928000004_revocable_admin_role.sql",
+    "line": 32,
+    "function": "public.guard_administrative_role_management",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260928000004_revocable_admin_role.sql",
+    "line": 93,
+    "function": "public.guard_administrative_leadership_assignment",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260928000005_admin_leadership_profile_edits.sql",
+    "line": 5,
+    "function": "public.guard_administrative_role_management",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260928000006_fix_collaboration_draft_creation_roles.sql",
+    "line": 6,
+    "function": "public.create_collaboration_draft",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260928000006_fix_collaboration_draft_creation_roles.sql",
+    "line": 144,
+    "function": "public.set_collaboration_organizations",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260928000007_fix_autosave_observer_role.sql",
+    "line": 6,
+    "function": "public.autosave_collaboration_draft",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260930000001_defense_revision_approval_and_duration.sql",
+    "line": 4,
+    "function": "public.collaboration_revision_is_material",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260930000001_defense_revision_approval_and_duration.sql",
+    "line": 92,
+    "function": "public.save_collaboration_revision",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260930000001_defense_revision_approval_and_duration.sql",
+    "line": 179,
+    "function": "public.request_collaboration_review",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20260930000001_defense_revision_approval_and_duration.sql",
+    "line": 242,
+    "function": "public.commit_collaboration_draft",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000000_unify_admin_identity.sql",
+    "line": 88,
+    "function": "public.is_admin",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000000_unify_admin_identity.sql",
+    "line": 92,
+    "function": "public.is_super_admin",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000000_unify_admin_identity.sql",
+    "line": 96,
+    "function": "public.auth_role",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000000_unify_admin_identity.sql",
+    "line": 132,
+    "function": "public.guard_last_active_admin",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000000_unify_admin_identity.sql",
+    "line": 153,
+    "function": "public.guard_admin_role_permissions",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000000_unify_admin_identity.sql",
+    "line": 178,
+    "function": "public.guard_admin_permission_overrides",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000001_access_items_and_employee_status.sql",
+    "line": 64,
+    "function": "public.guard_access_catalogue",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000001_access_items_and_employee_status.sql",
+    "line": 111,
+    "function": "public.guard_profile_item_assignment",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000001_access_items_and_employee_status.sql",
+    "line": 134,
+    "function": "public.has_permission",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000001_access_items_and_employee_status.sql",
+    "line": 145,
+    "function": "public.auth_role",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000001_access_items_and_employee_status.sql",
+    "line": 150,
+    "function": "public.audit_catalogue_change",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000001_access_items_and_employee_status.sql",
+    "line": 187,
+    "function": "public.finalize_managed_user",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000002_dynamic_item_capabilities.sql",
+    "line": 55,
+    "function": "public.can_manage_department_accounting",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000002_dynamic_item_capabilities.sql",
+    "line": 82,
+    "function": "public.guard_custom_item_operation",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000003_revert_phase_2.sql",
+    "line": 81,
+    "function": "public.auth_role",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000004_simplified_roles_and_office_authority.sql",
+    "line": 69,
+    "function": "public.is_office_output_reviewer",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000004_simplified_roles_and_office_authority.sql",
+    "line": 76,
+    "function": "public.route_organization_leadership_review",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000004_simplified_roles_and_office_authority.sql",
+    "line": 93,
+    "function": "public.guard_profile_leadership_integrity",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000004_simplified_roles_and_office_authority.sql",
+    "line": 107,
+    "function": "public.guard_organization_leadership_membership",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000004_simplified_roles_and_office_authority.sql",
+    "line": 118,
+    "function": "public.guard_administrative_leadership_assignment",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000004_simplified_roles_and_office_authority.sql",
+    "line": 129,
+    "function": "public.set_organization_leadership",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000004_simplified_roles_and_office_authority.sql",
+    "line": 163,
+    "function": "public.organization_approver_ids",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000004_simplified_roles_and_office_authority.sql",
+    "line": 172,
+    "function": "public.is_organization_approver",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000004_simplified_roles_and_office_authority.sql",
+    "line": 177,
+    "function": "public.is_department_budget_approver",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000004_simplified_roles_and_office_authority.sql",
+    "line": 182,
+    "function": "public.guard_admin_role_permissions",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000004_simplified_roles_and_office_authority.sql",
+    "line": 202,
+    "function": "public.decide_petty_cash_liquidation",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000004_simplified_roles_and_office_authority.sql",
+    "line": 228,
+    "function": "public.guard_late_liquidation_head_approval",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000004_simplified_roles_and_office_authority.sql",
+    "line": 246,
+    "function": "public.record_accounting_petty_cash_release",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000004_simplified_roles_and_office_authority.sql",
+    "line": 350,
+    "function": "public.set_department_accounting_staff",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000004_simplified_roles_and_office_authority.sql",
+    "line": 394,
+    "function": "public.can_contribute_task",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000004_simplified_roles_and_office_authority.sql",
+    "line": 428,
+    "function": "public.override_accounting_petty_cash_release_schedule",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000004_simplified_roles_and_office_authority.sql",
+    "line": 508,
+    "function": "public.assign_task",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000004_simplified_roles_and_office_authority.sql",
+    "line": 690,
+    "function": "public.validate_task_reviewers",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000004_simplified_roles_and_office_authority.sql",
+    "line": 729,
+    "function": "public.submit_task_for_review",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000004_simplified_roles_and_office_authority.sql",
+    "line": 908,
+    "function": "public.can_see_collaboration_project",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000004_simplified_roles_and_office_authority.sql",
+    "line": 929,
+    "function": "public.decide_task_review",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000004_simplified_roles_and_office_authority.sql",
+    "line": 1104,
+    "function": "public.decide_subtask_review",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000004_simplified_roles_and_office_authority.sql",
+    "line": 1207,
+    "function": "public.can_use_work_templates",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000004_simplified_roles_and_office_authority.sql",
+    "line": 1240,
+    "function": "public.can_approve_work_templates",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000004_simplified_roles_and_office_authority.sql",
+    "line": 1261,
+    "function": "public.can_access_org",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000004_simplified_roles_and_office_authority.sql",
+    "line": 1311,
+    "function": "public.dispatch_hierarchy_deadline_reminders",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000004_simplified_roles_and_office_authority.sql",
+    "line": 1499,
+    "function": "public.recalculate_monthly_productivity",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000004_simplified_roles_and_office_authority.sql",
+    "line": 1632,
+    "function": "public.is_collaboration_participant",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000004_simplified_roles_and_office_authority.sql",
+    "line": 1687,
+    "function": "public.commit_collaboration_draft",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000004_simplified_roles_and_office_authority.sql",
+    "line": 1985,
+    "function": "public.is_department_budget_head",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000004_simplified_roles_and_office_authority.sql",
+    "line": 2001,
+    "function": "public.guard_administrative_role_management",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000004_simplified_roles_and_office_authority.sql",
+    "line": 2055,
+    "function": "public.delete_project_permanently",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000004_simplified_roles_and_office_authority.sql",
+    "line": 2137,
+    "function": "public.record_petty_cash_release_internal",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000004_simplified_roles_and_office_authority.sql",
+    "line": 2229,
+    "function": "public.can_see_task",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000004_simplified_roles_and_office_authority.sql",
+    "line": 2256,
+    "function": "public.can_see_project",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000004_simplified_roles_and_office_authority.sql",
+    "line": 2288,
+    "function": "public.can_create_scoped_work",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000004_simplified_roles_and_office_authority.sql",
+    "line": 2309,
+    "function": "public.settle_accounting_liquidation",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000004_simplified_roles_and_office_authority.sql",
+    "line": 2357,
+    "function": "public.post_general_journal_adjustment",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261003000004_simplified_roles_and_office_authority.sql",
+    "line": 2416,
+    "function": "public.has_permission",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004123126_phase2_invitation_onboarding_pds.sql",
+    "line": 64,
+    "function": "public.phase2_is_office_head",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004123126_phase2_invitation_onboarding_pds.sql",
+    "line": 90,
+    "function": "public.phase2_audit",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004123126_phase2_invitation_onboarding_pds.sql",
+    "line": 97,
+    "function": "public.phase2_invitation_conflict",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004123126_phase2_invitation_onboarding_pds.sql",
+    "line": 110,
+    "function": "public.phase2_create_invitation",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004123126_phase2_invitation_onboarding_pds.sql",
+    "line": 134,
+    "function": "public.phase2_manage_invitation",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004123126_phase2_invitation_onboarding_pds.sql",
+    "line": 154,
+    "function": "public.phase2_claim_invitation",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004123126_phase2_invitation_onboarding_pds.sql",
+    "line": 166,
+    "function": "public.phase2_accept_invitation",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004123126_phase2_invitation_onboarding_pds.sql",
+    "line": 215,
+    "function": "public.phase2_claim_pds_job",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004123126_phase2_invitation_onboarding_pds.sql",
+    "line": 224,
+    "function": "public.phase2_identity_exists",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004123126_phase2_invitation_onboarding_pds.sql",
+    "line": 232,
+    "function": "public.phase2_save_onboarding",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004132527_phase2_invitation_dispatch_limits.sql",
+    "line": 3,
+    "function": "public.phase2_reserve_invitation_email",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004133412_phase2_existing_identity_acceptance.sql",
+    "line": 2,
+    "function": "public.phase2_profile_exists",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004140128_phase3_project_table_workspace.sql",
+    "line": 35,
+    "function": "public.phase3_default_project_group",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004140128_phase3_project_table_workspace.sql",
+    "line": 55,
+    "function": "public.phase3_guard_task_group",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004140128_phase3_project_table_workspace.sql",
+    "line": 70,
+    "function": "public.phase3_guard_group",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004140128_phase3_project_table_workspace.sql",
+    "line": 87,
+    "function": "public.phase3_create_task",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004140128_phase3_project_table_workspace.sql",
+    "line": 106,
+    "function": "public.phase3_patch_task",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004140128_phase3_project_table_workspace.sql",
+    "line": 155,
+    "function": "public.phase3_reorder_tasks",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004140128_phase3_project_table_workspace.sql",
+    "line": 173,
+    "function": "public.phase3_audit_group",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004164937_phase5_workspace_ai_import.sql",
+    "line": 24,
+    "function": "public.phase5_import_project_work",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004174950_phase6_project_office_collaboration.sql",
+    "line": 56,
+    "function": "eflow_phase6.shared",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004174950_phase6_project_office_collaboration.sql",
+    "line": 59,
+    "function": "eflow_phase6.head",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004174950_phase6_project_office_collaboration.sql",
+    "line": 63,
+    "function": "eflow_phase6.access",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004174950_phase6_project_office_collaboration.sql",
+    "line": 71,
+    "function": "eflow_phase6.work",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004174950_phase6_project_office_collaboration.sql",
+    "line": 81,
+    "function": "public.can_see_project",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004174950_phase6_project_office_collaboration.sql",
+    "line": 84,
+    "function": "public.can_manage_task",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004174950_phase6_project_office_collaboration.sql",
+    "line": 89,
+    "function": "public.can_contribute_task",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004174950_phase6_project_office_collaboration.sql",
+    "line": 97,
+    "function": "public.phase6_lead_office",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004174950_phase6_project_office_collaboration.sql",
+    "line": 109,
+    "function": "public.phase6_create_invitation",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004174950_phase6_project_office_collaboration.sql",
+    "line": 131,
+    "function": "public.phase6_accept_invitation",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004174950_phase6_project_office_collaboration.sql",
+    "line": 177,
+    "function": "public.phase6_confirm_office",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004174950_phase6_project_office_collaboration.sql",
+    "line": 186,
+    "function": "public.phase6_set_members",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004174950_phase6_project_office_collaboration.sql",
+    "line": 208,
+    "function": "public.phase6_responsible_office",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004174950_phase6_project_office_collaboration.sql",
+    "line": 222,
+    "function": "public.phase6_guard_task",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004174950_phase6_project_office_collaboration.sql",
+    "line": 255,
+    "function": "eflow_phase6.lock_project",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004174950_phase6_project_office_collaboration.sql",
+    "line": 271,
+    "function": "public.phase6_guard_project_member",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004174950_phase6_project_office_collaboration.sql",
+    "line": 283,
+    "function": "public.phase6_guard_subtask",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004174950_phase6_project_office_collaboration.sql",
+    "line": 295,
+    "function": "public.phase6_invitation_state",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004174950_phase6_project_office_collaboration.sql",
+    "line": 304,
+    "function": "public.phase6_guard_project",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004182453_phase6_shared_structure_guards.sql",
+    "line": 21,
+    "function": "public.phase6_move_task",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004182453_phase6_shared_structure_guards.sql",
+    "line": 36,
+    "function": "public.phase6_guard_project_member",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004194130_phase7_readiness_governance.sql",
+    "line": 25,
+    "function": "eflow_phase7.fingerprint",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004194130_phase7_readiness_governance.sql",
+    "line": 38,
+    "function": "eflow_phase7.readiness",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004194130_phase7_readiness_governance.sql",
+    "line": 69,
+    "function": "public.phase7_project_readiness",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004194130_phase7_readiness_governance.sql",
+    "line": 74,
+    "function": "public.phase7_review_project",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004194130_phase7_readiness_governance.sql",
+    "line": 90,
+    "function": "public.project_completion_readiness_internal",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004194130_phase7_readiness_governance.sql",
+    "line": 102,
+    "function": "public.phase7_closeout_summary",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004194130_phase7_readiness_governance.sql",
+    "line": 115,
+    "function": "public.phase7_activate_project",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004194130_phase7_readiness_governance.sql",
+    "line": 128,
+    "function": "eflow_phase7.guard_project",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261004194130_phase7_readiness_governance.sql",
+    "line": 153,
+    "function": "eflow_phase7.material_change",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261005170822_phase65_project_local_office_identity.sql",
+    "line": 36,
+    "function": "eflow_phase65.sync_canonical_identity",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261005170822_phase65_project_local_office_identity.sql",
+    "line": 80,
+    "function": "public.can_see_project",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261005170822_phase65_project_local_office_identity.sql",
+    "line": 88,
+    "function": "eflow_phase65.require_lead",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261005170822_phase65_project_local_office_identity.sql",
+    "line": 96,
+    "function": "public.phase65_save_office_identity",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261005170822_phase65_project_local_office_identity.sql",
+    "line": 114,
+    "function": "public.phase65_create_invitation",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261005170822_phase65_project_local_office_identity.sql",
+    "line": 129,
+    "function": "eflow_phase65.accept_local",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261005170822_phase65_project_local_office_identity.sql",
+    "line": 153,
+    "function": "public.phase2_accept_invitation",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261005170822_phase65_project_local_office_identity.sql",
+    "line": 159,
+    "function": "eflow_phase65.require_local_invitation",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261005170822_phase65_project_local_office_identity.sql",
+    "line": 168,
+    "function": "public.phase2_manage_invitation",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261005170822_phase65_project_local_office_identity.sql",
+    "line": 173,
+    "function": "public.phase2_claim_invitation",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261005170822_phase65_project_local_office_identity.sql",
+    "line": 179,
+    "function": "public.phase2_reserve_invitation_email",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261005170822_phase65_project_local_office_identity.sql",
+    "line": 186,
+    "function": "eflow_phase65.invitation_state",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261005170822_phase65_project_local_office_identity.sql",
+    "line": 194,
+    "function": "public.phase65_link_office_identity",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261005170822_phase65_project_local_office_identity.sql",
+    "line": 216,
+    "function": "eflow_phase65.guard_task",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261005170822_phase65_project_local_office_identity.sql",
+    "line": 234,
+    "function": "public.phase65_propose_task_office",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261005170822_phase65_project_local_office_identity.sql",
+    "line": 244,
+    "function": "public.phase65_resolve_task_office",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261005170822_phase65_project_local_office_identity.sql",
+    "line": 258,
+    "function": "eflow_phase65.guard_child",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261005170822_phase65_project_local_office_identity.sql",
+    "line": 273,
+    "function": "eflow_phase65.guard_progress",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261005170822_phase65_project_local_office_identity.sql",
+    "line": 285,
+    "function": "public.phase65_import_project_work",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261005170822_phase65_project_local_office_identity.sql",
+    "line": 311,
+    "function": "eflow_phase7.fingerprint",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  },
+  {
+    "file": "supabase/migrations/20261005170822_phase65_project_local_office_identity.sql",
+    "line": 319,
+    "function": "eflow_phase7.readiness",
+    "verification": "Historical declaration; later migration may replace it. Inspect final body/RLS/triggers; not deployed proof."
+  }
+]

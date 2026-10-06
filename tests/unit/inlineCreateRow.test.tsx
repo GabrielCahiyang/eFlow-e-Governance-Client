@@ -2,6 +2,7 @@
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { InlineCreateRow } from '../../src/app/features/project-table/components/InlineCreateRow';
+import { installNavigationConfirmation, requestNavigation } from '../../src/app/shared/navigationGuard';
 
 afterEach(cleanup);
 const show = (onCreate = vi.fn().mockResolvedValue(undefined), onCreated?: () => Promise<void>) => {
@@ -12,6 +13,18 @@ const show = (onCreate = vi.fn().mockResolvedValue(undefined), onCreated?: () =>
 };
 
 describe('inline task and subitem creation', () => {
+  it.each(['task','subitem'] as const)('retains a failed %s during canceled navigation and discards only after acceptance', async itemName => {
+    const create=vi.fn().mockRejectedValue(new Error('Temporary failure'));
+    render(<InlineCreateRow label="Draft" itemName={itemName} maxLength={300} onCreate={create} />);
+    const input=screen.getByRole('textbox',{name:'Draft'});
+    fireEvent.change(input,{target:{value:'Retained draft'}}); fireEvent.blur(input);
+    await screen.findByText('Temporary failure');
+    let accepted=false; const uninstall=installNavigationConfirmation(async()=>accepted); const navigate=vi.fn();
+    await act(async()=>{expect(await requestNavigation(navigate)).toBe(false);});
+    expect(input).toHaveProperty('value','Retained draft'); expect(navigate).not.toHaveBeenCalled();
+    accepted=true; await act(async()=>{expect(await requestNavigation(navigate)).toBe(true);});
+    expect(input).toHaveProperty('value',''); expect(navigate).toHaveBeenCalledOnce(); expect(create).toHaveBeenCalledOnce(); uninstall();
+  });
   it('has no Add button and ignores empty and whitespace-only drafts on blur', () => {
     const { input, onCreate, outside } = show();
     expect(screen.queryByRole('button', { name: 'Add', exact: true })).toBeNull();
@@ -85,13 +98,17 @@ describe('inline task and subitem creation', () => {
   });
 
   it('clears a committed draft even if refreshing the list fails', async () => {
-    const refresh = vi.fn().mockRejectedValue(new Error('Connection lost'));
+    const refresh = vi.fn().mockRejectedValueOnce(new Error('Connection lost')).mockResolvedValue(undefined);
     const { input, onCreate, outside } = show(undefined, refresh);
     fireEvent.change(input, { target: { value: 'Committed task' } });
     fireEvent.blur(input, { relatedTarget: outside });
-    expect(await screen.findByRole('alert')).toHaveProperty('textContent', 'Added, but could not refresh: Connection lost');
+    expect((await screen.findByRole('alert')).textContent).toContain('Added, but could not refresh: Connection lost');
     expect(input.value).toBe('');
     fireEvent.blur(input, { relatedTarget: outside });
+    expect(onCreate).toHaveBeenCalledOnce();
+    fireEvent.click(screen.getByRole('button', { name: 'Retry refresh' }));
+    await waitFor(() => expect(screen.queryByRole('alert')).toBeNull());
+    expect(refresh).toHaveBeenCalledTimes(2);
     expect(onCreate).toHaveBeenCalledOnce();
   });
 

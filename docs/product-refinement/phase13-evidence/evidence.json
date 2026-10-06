@@ -1,0 +1,218 @@
+{
+  "phase": 13,
+  "captured_at": "2026-10-06T09:25:32.420287+00:00",
+  "frontend": "http://127.0.0.1:5173",
+  "production_preview": "http://127.0.0.1:5183 (temporary Vite preview of the accepted build)",
+  "backend": "Synthetic intercepted auth, REST, gateway and realtime fixtures. No live database writes or deployed RLS certification.",
+  "historical_baseline": "../phase12-evidence/evidence.json; no pristine Phase 13 before-state was captured.",
+  "checks": {
+    "typecheck": "passed",
+    "unit": "730 tests / 185 files passed",
+    "build": "passed; 41 circular-export messages (22 in Phase 12), plus large-chunk warning",
+    "browser": "35 distinct dev Chromium cases passed: 34-case combined run, followed by all 12 current personal cases after final focus fallback; one new case in that rerun",
+    "production_preview": "6 current smoke cases passed on built assets",
+    "graph": "7202 nodes / 22379 edges; six existing partial-extraction warnings",
+    "whitespace": "passed"
+  },
+  "gates": {
+    "G2": "Shared-project Task Lead staffing remains gated; no authority changes.",
+    "G4": "Mentions, recipient Invitations, personal readiness and complete pagination remain separate proposals. Initial release contains verified personal task/subtask review discovery and the latest 50 updates.",
+    "approval_ownership": "Task/subtask review, financial authorization, collaboration/governance and Accounting execution retain their existing owners."
+  },
+  "limitations": [
+    "Synthetic browser responses do not certify deployed RLS.",
+    "Native zoom and assistive-technology sessions were not run.",
+    "Circular-export/chunk-size hardening remains a Phase 18 target; the new destinations pass production-build smoke tests.",
+    "Changes remain local, uncommitted and unpushed."
+  ],
+  "source_manifest": {
+    "path": "source-manifest.json",
+    "sha256": "9a67ba0b7e6f9e207d638faee42c6d7f141fbd15078bafebdf67c06974bda6e3",
+    "source_count": 62
+  },
+  "receipts": [
+    {
+      "path": "receipts/browser-focus-final.txt",
+      "sha256": "956f9071d29deb20ce3255962f0f65fc5ddc010a4fa95b0e89cda6b7416d107d",
+      "diagnostic": false
+    },
+    {
+      "path": "receipts/browser.txt",
+      "sha256": "d8515bcd17e198a6a1db19092066920593e2b95863caccca8d0a4dd551df162e",
+      "diagnostic": false
+    },
+    {
+      "path": "receipts/build.txt",
+      "sha256": "c34d926759a059f8e0a28dfab6d0af700b6070bd838fb5ba45775ccbe6da5adf",
+      "diagnostic": false
+    },
+    {
+      "path": "receipts/check.txt",
+      "sha256": "256d8f4b2ac60faa9df4f3c6ab07a8fd61f6db0442eb3ba7d856060073757462",
+      "diagnostic": false
+    },
+    {
+      "path": "receipts/diagnostic-phase13-browser.txt",
+      "sha256": "1be7ab4d643ead15e9dd2b7ccb8682d0829c0a9f0e564741b9b0ac6f6095b014",
+      "diagnostic": true
+    },
+    {
+      "path": "receipts/diagnostic-phase13-check-initial.txt",
+      "sha256": "81cd3df73b446cb0c425dcd50096abf551a1a65d1bd9cf57360adcc9962cbc45",
+      "diagnostic": true
+    },
+    {
+      "path": "receipts/diagnostic-phase13-focused-unit.txt",
+      "sha256": "1af7d61bbfc5d81632f4bb263ea8993cbc248ea33a49f1f03c1d0320aa83eb89",
+      "diagnostic": true
+    },
+    {
+      "path": "receipts/diagnostic-phase13-live.txt",
+      "sha256": "09bf4de4c97704232cd1d63a89192b28e8d4a449321f974cfde69ea1047fe006",
+      "diagnostic": true
+    },
+    {
+      "path": "receipts/graph.txt",
+      "sha256": "552e3756585131115851de644a44946a2d6de9614aef071e0c94594dcbc0d63e",
+      "diagnostic": false
+    },
+    {
+      "path": "receipts/production-smoke.txt",
+      "sha256": "920469e1899fd266aea72d30c02d2aa60bfb3e207ae51bb3b93f066ed3da36af",
+      "diagnostic": false
+    },
+    {
+      "path": "receipts/unit.txt",
+      "sha256": "3dba1f016127f1aee9cd17dbe7ee43b6d376bd35625f5c37e01f2cf34eafb6d2",
+      "diagnostic": false
+    },
+    {
+      "path": "receipts/whitespace.txt",
+      "sha256": "e2e5cd7792f9c3765f422550553ee495f5a16a83023648a53ef243b34a369b1e",
+      "diagnostic": false
+    }
+  ],
+  "captures": [
+    {
+      "path": "after/navigation-v2-accounting-s-fad23-h-global-context-navigation-chromium/accounting_staff-navigation.png",
+      "sha256": "8ab4d7130a99982db572a4501c384d6f1b573000c0012fafad2dadd0a28ddf8f"
+    },
+    {
+      "path": "after/navigation-v2-admin-retain-05d28-h-global-context-navigation-chromium/admin-navigation.png",
+      "sha256": "7bf6d95995b5436595363e4ab46a84c16d4b2097a63fa27fd65af1924ebd2fb7"
+    },
+    {
+      "path": "after/navigation-v2-head-retains-e75f6-h-global-context-navigation-chromium/head-navigation.png",
+      "sha256": "f594163fab6b9ae845239b2b9dd993aed8b7acabf185c283782a853845b9c754"
+    },
+    {
+      "path": "after/navigation-v2-member-retai-cbadc-h-global-context-navigation-chromium/member-navigation.png",
+      "sha256": "18dcc7f0123827b8d6053c4b9ece0714a5dd5880720abb62baafc25463bfd3a7"
+    },
+    {
+      "path": "after/navigation-v2-responsive-n-6793f-text-and-utilities-at-768px-chromium/navigation-768.png",
+      "sha256": "a99b309ef20c1bacedd9930af02fec001fc9f3082150c4864464754806e26926"
+    },
+    {
+      "path": "after/navigation-v2-responsive-n-6793f-text-and-utilities-at-768px-chromium/navigation-drawer-768.png",
+      "sha256": "7c24d30eb0cd528481b8178e7ca3a50047ba35aef9ea821401185697d05cfba7"
+    },
+    {
+      "path": "after/navigation-v2-responsive-n-7ba44-text-and-utilities-at-320px-chromium/navigation-320.png",
+      "sha256": "8add6391395caf8ae803e4c2f883063d3ea3bdc44869b2881b6dd9bc8b8734ee"
+    },
+    {
+      "path": "after/navigation-v2-responsive-n-7ba44-text-and-utilities-at-320px-chromium/navigation-drawer-320.png",
+      "sha256": "407a16b90683376bde44e99eb442454b35e2c22f67564657fd8df8d470f44743"
+    },
+    {
+      "path": "after/navigation-v2-responsive-n-c9edc-text-and-utilities-at-390px-chromium/navigation-390.png",
+      "sha256": "ec1687af7a23fd5f57b9b50c6c14684390baa828b474237d656df29a483a5b77"
+    },
+    {
+      "path": "after/navigation-v2-responsive-n-c9edc-text-and-utilities-at-390px-chromium/navigation-drawer-390.png",
+      "sha256": "6a53d083d795077c3d8c67cf0c41c200a0a8d6c30fe8cd115cbf3d80b19ac56d"
+    },
+    {
+      "path": "after/navigation-v2-responsive-n-f8731-ext-and-utilities-at-1440px-chromium/navigation-1440.png",
+      "sha256": "149ceabce0a8684b305abfa2ad2af760c1b395ecaf8381c77dfc8ddedf7aee00"
+    },
+    {
+      "path": "after/navigation-v2-search-and-f-50902-t-without-offering-creation-chromium/shared-observer.png",
+      "sha256": "2fa18f31f60a047cc815b53150746b5b3e5af4a6e50ea27b244febd4acf1a967"
+    },
+    {
+      "path": "after/phase12-shared-inspector-m-3a946-ains-a-denied-member-change-chromium/team-mobile-denial.png",
+      "sha256": "6a2ca501ac7c19480ddc22632aaf3783e7498333d2871b5df1e4819533239722"
+    },
+    {
+      "path": "after/phase12-shared-inspector-m-bb4ba-and-traps-and-returns-focus-chromium/inspector-mobile.png",
+      "sha256": "c1d8d13b4aab15c7f918f5137d3cbe63af27674393bf5a7d422242d5a44c9272"
+    },
+    {
+      "path": "after/phase12-shared-inspector-s-08ea3-le-details-remain-available-chromium/shared-lead-gate.png",
+      "sha256": "2797e20e1bb82effdeb184c003dec2b3b7e25818adaf4aa665cd084af5259bd6"
+    },
+    {
+      "path": "after/phase12-shared-inspector-s-5c03f-s-focus-to-each-view-origin-chromium/office-origin.png",
+      "sha256": "4df8e0e7781ba4a534b15fe07d58896976b14a15b3202d30fb29b256ffa6d8e5"
+    },
+    {
+      "path": "after/phase13-personal-work-acco-ddbf1-egacy-task-and-subtask-URLs-chromium/accounting_staff-my-work.png",
+      "sha256": "823863e7c3e6eab804ca0d4d29ae7e842f4050fd6cfd5d4a1a58367694c5b807"
+    },
+    {
+      "path": "after/phase13-personal-work-Admi-7197b-nancial-or-review-authority-chromium/admin-inbox.png",
+      "sha256": "80d88b3107a368259bded5daf818713085932bfd53f79f8badb5257f14245cd4"
+    },
+    {
+      "path": "after/phase13-personal-work-head-b2785-egacy-task-and-subtask-URLs-chromium/head-my-work.png",
+      "sha256": "6ae91ddb09ee5d2eb76341faa271163f070a690d4ce23dbd1708d19fbff8b296"
+    },
+    {
+      "path": "after/phase13-personal-work-Inbo-25b6e--a-revoked-navigation-grant-chromium/inbox-denied-navigation.png",
+      "sha256": "05be90c296bdcedfef6b4f0860ea63926cd15c6d47210e90e4409ff9f3f4d066"
+    },
+    {
+      "path": "after/phase13-personal-work-Inbo-e14da-poses-partial-source-denial-chromium/inbox-partial-error.png",
+      "sha256": "72aa32e3de842217174b1dcb4990b75cf2b68728adfc8891cd31ce43c0d58471"
+    },
+    {
+      "path": "after/phase13-personal-work-memb-60bf1-egacy-task-and-subtask-URLs-chromium/member-my-work.png",
+      "sha256": "1a98eb92e0a69baaa63c55aeffee4af2db05e0cda88f66a21203b7cae51548f2"
+    },
+    {
+      "path": "after/phase13-personal-work-mobi-fdcad-iscussion-and-returns-focus-chromium/personal-inspector-mobile.png",
+      "sha256": "a0cffccff735afc486fc17c3258551b116f27cb79635cdddd3b1a1839ac2d829"
+    },
+    {
+      "path": "after/phase13-personal-work-rece-70df9-in-missing-targets-at-390px-chromium/inbox-updates-mobile.png",
+      "sha256": "1c6876428aaec1049f567cab1a2aa90213d1c80287520419f3fa31cc82d03ff0"
+    },
+    {
+      "path": "after/phase13-personal-work-subt-3f7d8--feedback-across-navigation-chromium/delegated-review-draft.png",
+      "sha256": "3856400ce89ff6b19919c582e01947dcaf7a06a44fef2efa6d311619e8e65f28"
+    },
+    {
+      "path": "production/phase13-personal-work-acco-ddbf1-egacy-task-and-subtask-URLs-chromium/accounting_staff-my-work.png",
+      "sha256": "d8d7b99a84418acde47e0ae6f7d40ab1ccc212008dd6186aadf864f0e8fb3059"
+    },
+    {
+      "path": "production/phase13-personal-work-Admi-7197b-nancial-or-review-authority-chromium/admin-inbox.png",
+      "sha256": "1120cdf7e0e93a44b84975ff6bb6e9d98d7a7ed91d09346fef0545426b9567df"
+    },
+    {
+      "path": "production/phase13-personal-work-head-b2785-egacy-task-and-subtask-URLs-chromium/head-my-work.png",
+      "sha256": "1a3338e0b106a5ac7f8ad61564bd5801a146c8370d3f7705b7e21fc03a2cc2dc"
+    },
+    {
+      "path": "production/phase13-personal-work-memb-60bf1-egacy-task-and-subtask-URLs-chromium/member-my-work.png",
+      "sha256": "34b7e592464e63307a8b0a8b51ae11046dae0771107c080bb1076cb43e9e87c8"
+    }
+  ],
+  "visual_review": [
+    "after/phase13-personal-work-rece-70df9-in-missing-targets-at-390px-chromium/inbox-updates-mobile.png",
+    "after/phase13-personal-work-memb-60bf1-egacy-task-and-subtask-URLs-chromium/member-my-work.png",
+    "after/phase13-personal-work-mobi-fdcad-iscussion-and-returns-focus-chromium/personal-inspector-mobile.png"
+  ]
+}

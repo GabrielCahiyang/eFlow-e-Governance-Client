@@ -1,0 +1,377 @@
+{
+  "phase": 14,
+  "captured_at": "2026-10-06T11:48:25.455436+00:00",
+  "frontend": "http://localhost:5173",
+  "production_preview": "http://127.0.0.1:5183; accepted built assets, temporary preview stopped",
+  "backend": "Synthetic intercepted auth, REST, gateway and realtime fixtures; no live database writes or deployed RLS certification. Isolated server tests use existing virtual environment.",
+  "checks": {
+    "typecheck": "passed",
+    "unit": "753 tests / 193 files passed",
+    "build": "passed in 13.21 seconds; 41 circular-export messages and large-chunk warning, matching Phase 13 count/categories",
+    "browser": "41 distinct dev cases passed: combined run 37/38, remaining governance login-timeout case passed isolated, all 3 affected Phase 6.5 cases passed separately",
+    "production_preview": "6 passed (27.0s)",
+    "server": "19 isolated Phase 2/6 tests passed",
+    "graph": "7272 nodes / 22736 clustered edges; raw rebuild 23467 edges; six existing partial-extraction warnings and 34 unsupported files skipped",
+    "whitespace": "git diff --check passed; native line-ending warnings only"
+  },
+  "gates": {
+    "G2": "No delegated shared-project Task Lead staffing authority changes; existing trigger remains decisive.",
+    "G4": "No recipient-invitation feed or bulk private PDS metadata; authorized handoffs and lazy professional summaries only."
+  },
+  "limitations": [
+    "Synthetic browser responses do not certify deployed RLS, real email delivery or gateway integration.",
+    "Native zoom and assistive-technology sessions were not run.",
+    "Before captures cover the prior Project Office card/member-dialog baseline only. After captures include supporting Phase 2/6/6.5/12/13 regressions.",
+    "Circular-export/chunk and local Graphify partial-extraction warnings remain.",
+    "Changes remain local, uncommitted and unpushed."
+  ],
+  "source_manifest": {
+    "path": "source-manifest.json",
+    "sha256": "0aeaa9988dd9d106a08ce3146f88785922b85e70fda53cb0805a118703f2444d",
+    "source_count": 86
+  },
+  "receipts": [
+    {
+      "path": "receipts/browser-focused.txt",
+      "sha256": "aa0d299d10cbdd4528d50d11562d0b87e38fa5696207d5daf30fee5786283d2d",
+      "diagnostic": true
+    },
+    {
+      "path": "receipts/browser-followup.txt",
+      "sha256": "0d5556bcfd49cdd1576a3930d8c1a4f985e41cdb8aa45b19c16af1bb80f9d99f",
+      "diagnostic": false
+    },
+    {
+      "path": "receipts/browser-phase65.txt",
+      "sha256": "cdf8397ad811dcb1d63924e4ed6b34363fd860ce3e91f01b30274007daa8cc5a",
+      "diagnostic": false
+    },
+    {
+      "path": "receipts/browser.txt",
+      "sha256": "245689e667601d0e9fea93120ee8ed1bbce4fefc88cbb6106b1e023f8aeaa72c",
+      "diagnostic": true
+    },
+    {
+      "path": "receipts/build.txt",
+      "sha256": "032f7a91994b9956b6b6773755de99cfc3aea24893b8c6156be5c7f643cb8326",
+      "diagnostic": false
+    },
+    {
+      "path": "receipts/check.txt",
+      "sha256": "659606cc1e46300d84aa709445df90c5152e824c89833ed71e658e03d3a53309",
+      "diagnostic": false
+    },
+    {
+      "path": "receipts/diagnostic-browser.txt",
+      "sha256": "785c89b2c70c4dda402ddde6d0e3cc0cca5d9170986fef20196536656fad9acc",
+      "diagnostic": true
+    },
+    {
+      "path": "receipts/diagnostic-combined-login-timeout.txt",
+      "sha256": "245689e667601d0e9fea93120ee8ed1bbce4fefc88cbb6106b1e023f8aeaa72c",
+      "diagnostic": true
+    },
+    {
+      "path": "receipts/diagnostic-handoff-key.txt",
+      "sha256": "25e506bfeeb524861a85b5d52c56d16e9cabfb885f1ca9e10138f6c57b245b56",
+      "diagnostic": true
+    },
+    {
+      "path": "receipts/diagnostic-server-default-python.txt",
+      "sha256": "99fbe81fa08f82fd58f8e37ca31779e4baf9f0b27073690274a9bed26ddb1d48",
+      "diagnostic": true
+    },
+    {
+      "path": "receipts/focused-unit.txt",
+      "sha256": "1d0b55cc5008e00e806fa474543ea3d04783388c4909f5da1d6df6387b8ee038",
+      "diagnostic": false
+    },
+    {
+      "path": "receipts/graph.txt",
+      "sha256": "f05d2a2c5b4e0c671303e4bce584d8c83129b23e421c868b3744f733e87a756d",
+      "diagnostic": false
+    },
+    {
+      "path": "receipts/handoff-final.txt",
+      "sha256": "421cd8490e441e8f3e84ace755975a5e15ce0f2d8205a4419351ddc884860477",
+      "diagnostic": false
+    },
+    {
+      "path": "receipts/handoff.txt",
+      "sha256": "e12e9512dc613e479f6dc0d9d0c9699637440f262d52b3389b8f33dd8336572f",
+      "diagnostic": true
+    },
+    {
+      "path": "receipts/production-smoke.txt",
+      "sha256": "3cf511f6c41522077d87bcdaef768ae4bfbbc169b66540d99d076a221593fbc4",
+      "diagnostic": false
+    },
+    {
+      "path": "receipts/server.txt",
+      "sha256": "3caaab99c936711db0b0505b32948e2f6828e64ae4675b45e9159383a68295fd",
+      "diagnostic": false
+    },
+    {
+      "path": "receipts/unit.txt",
+      "sha256": "ba1a7560483805fdd5c56f6e77ecaf0e21465ee02d64c99e28b0a505ac1d7fab",
+      "diagnostic": false
+    },
+    {
+      "path": "receipts/whitespace.txt",
+      "sha256": "2d55dbd581313743acda447e21ee15f13f3eb89824edd0bf8775cbd4904dcf1d",
+      "diagnostic": false
+    }
+  ],
+  "captures": [
+    {
+      "path": "before/phase6-project-offices-Col-cffae-nd-only-edits-its-own-tasks-chromium/own-office-team-desktop.png",
+      "sha256": "5cd5689c053cba611a00c28099ba45d9b0e54a7fb5006c1aedfffd692498bf35",
+      "stage": "before"
+    },
+    {
+      "path": "before/phase6-project-offices-Col-cffae-nd-only-edits-its-own-tasks-chromium/own-office-team-mobile.png",
+      "sha256": "a3d43706e95803889dba6907b0bb8b297c2a8d07836c9c5545ae731d0b53a3a9",
+      "stage": "before"
+    },
+    {
+      "path": "before/phase6-project-offices-Lea-30856-without-assigning-its-staff-chromium/invite-office-desktop.png",
+      "sha256": "f0067a3effc449007d33254a4cb1f86dcfb47f0ff8a6cf5b94802ca71c395d8d",
+      "stage": "before"
+    },
+    {
+      "path": "before/phase6-project-offices-Lea-30856-without-assigning-its-staff-chromium/office-workspace-desktop.png",
+      "sha256": "7beab6a32ed6a4dcb033a7ef81c142f12a6b7ffa9355153c11d0df4672a3688b",
+      "stage": "before"
+    },
+    {
+      "path": "after/accept-1440.png",
+      "sha256": "69484f811df19996a703bc0116082c9e69aca6b96ed06fe27917c05b6fddf479",
+      "stage": "after"
+    },
+    {
+      "path": "after/accept-390.png",
+      "sha256": "0b21d6a432e54de82d5b7be1cb0034b4300d18640585e0959a08db37bbc256f6",
+      "stage": "after"
+    },
+    {
+      "path": "after/accounting_staff-my-work.png",
+      "sha256": "d27794fc6932db51a4997cedbf4af38e1fdc236607930cdc2a22422eb68b109f",
+      "stage": "after"
+    },
+    {
+      "path": "after/admin-inbox.png",
+      "sha256": "35da08295e9d870adda449f4bba9c90bd05c7f0c3eb909ca359e13d07646e919",
+      "stage": "after"
+    },
+    {
+      "path": "after/delegated-review-draft.png",
+      "sha256": "b33625a067e6c2c331574347a397578f4d9a270bcacaab5b1cdbb519b2841ee7",
+      "stage": "after"
+    },
+    {
+      "path": "after/getting-started.png",
+      "sha256": "a7ba618849872fe1540f5c1c6d51680ee9530e76a57a5445e601394fc69dcbbd",
+      "stage": "after"
+    },
+    {
+      "path": "after/head-my-work.png",
+      "sha256": "19268d858ae84532dc55da7bae3f69f751d3579adaf47ddf8741170f6b0353ef",
+      "stage": "after"
+    },
+    {
+      "path": "after/inbox-denied-navigation.png",
+      "sha256": "97c4c8dc0667c30042fb14ff059e643564f0036097f96b758309323f71eb8c46",
+      "stage": "after"
+    },
+    {
+      "path": "after/inbox-partial-error.png",
+      "sha256": "bffdb7d7183c8b61971b32bc58f6ac66962c8b542c8cb30c91ff35452e50d1e1",
+      "stage": "after"
+    },
+    {
+      "path": "after/inbox-updates-mobile.png",
+      "sha256": "bfd22d05f082d6e129bedbb777db91c1532123bca508ec096281eb203e5590d0",
+      "stage": "after"
+    },
+    {
+      "path": "after/inspector-mobile.png",
+      "sha256": "c1d8d13b4aab15c7f918f5137d3cbe63af27674393bf5a7d422242d5a44c9272",
+      "stage": "after"
+    },
+    {
+      "path": "after/invitation-clipboard-recovery-no-link.png",
+      "sha256": "76ebe60eb4130aa07b5c093fef5c0b3b29d3ff85acff6fb4a11028482cabceb9",
+      "stage": "after"
+    },
+    {
+      "path": "after/invitation-validity-delivery-mobile.png",
+      "sha256": "a2c3f8a30e0b368d651b9b99d320e34a67165639a5ee6a4ec379ab8e969a1f5c",
+      "stage": "after"
+    },
+    {
+      "path": "after/invite-desktop.png",
+      "sha256": "26698b9088abd6548bddd2244364c974277700596ba60ec6a2df320a345bf95c",
+      "stage": "after"
+    },
+    {
+      "path": "after/invite-office-desktop.png",
+      "sha256": "d0fcc21f397c518fc917d8ed0b9311d7d573b4a241e1b8798a25328b777e272b",
+      "stage": "after"
+    },
+    {
+      "path": "after/local-office-contact-mobile.png",
+      "sha256": "4fd5347a9350a8b9989501778a381c414a3f96a3b20c522652da6c173e71813e",
+      "stage": "after"
+    },
+    {
+      "path": "after/member-inspector-320.png",
+      "sha256": "f635bdef2c3c493d938cf366aa1fbe30c43eb0bf8e9263279b74ef62b1e0cec2",
+      "stage": "after"
+    },
+    {
+      "path": "after/member-inspector-390.png",
+      "sha256": "d1fd09e08bd576074f0693d6dd7138ae38ed5925cdd2b4900a21aef24c7b4794",
+      "stage": "after"
+    },
+    {
+      "path": "after/member-my-work.png",
+      "sha256": "e1c202e73e3e36ebb82718fbd1836d17ae65b2c99769f2d3ed02f542544fccde",
+      "stage": "after"
+    },
+    {
+      "path": "after/membership-draft-source-retry.png",
+      "sha256": "a7d0b5a4d4bf3016fc230244176558459a33df1457bcd1142ade1e791ad3e256",
+      "stage": "after"
+    },
+    {
+      "path": "after/membership-impact-mobile.png",
+      "sha256": "2ef516ce9a00e79bf47c29fbf0ca5752dcf4cac4e875c1b738fcbe0aac1e2b02",
+      "stage": "after"
+    },
+    {
+      "path": "after/office-closed-320.png",
+      "sha256": "405219cdbc855285c918888dd76e3357d13073dc30b85f77546930bc15102f7a",
+      "stage": "after"
+    },
+    {
+      "path": "after/office-governed-320.png",
+      "sha256": "a2431e3a852c524402a870d0ea3fb550cfb9ac76d7ad313713be47c6bc05202b",
+      "stage": "after"
+    },
+    {
+      "path": "after/office-linked-handover-desktop.png",
+      "sha256": "e6c3602db08556074b45c453d554a8853d6d8ebdf0c7fb86289db5f185b72ddb",
+      "stage": "after"
+    },
+    {
+      "path": "after/office-observer-320.png",
+      "sha256": "1f7a96a1eb5dd972a69760ab51fd4f619b981efa90cf92d7a87834ba47de2f52",
+      "stage": "after"
+    },
+    {
+      "path": "after/office-origin.png",
+      "sha256": "3506d047e68300f170dba0b8f336f216826eaf3489a1b98caa984a323090e1e7",
+      "stage": "after"
+    },
+    {
+      "path": "after/office-team-desktop.png",
+      "sha256": "49b3ed132051455bc0efd891c8dc46cc9d1131a48f1aeaf874f0fd2715e0554e",
+      "stage": "after"
+    },
+    {
+      "path": "after/office-workspace-desktop.png",
+      "sha256": "658f20242abe037745c0cffbc10d6385acc475bb75192e71157688fb22ddf7f7",
+      "stage": "after"
+    },
+    {
+      "path": "after/own-office-team-desktop.png",
+      "sha256": "f3b264a15d28b4d25808982a843614736c909069dbd4588b85096dea2a9d8e8c",
+      "stage": "after"
+    },
+    {
+      "path": "after/own-office-team-mobile.png",
+      "sha256": "6d8d3761a7b3a97d668346e87688ff164918825f412e85027dc0bf9b65b48c8e",
+      "stage": "after"
+    },
+    {
+      "path": "after/personal-inspector-mobile.png",
+      "sha256": "a0cffccff735afc486fc17c3258551b116f27cb79635cdddd3b1a1839ac2d829",
+      "stage": "after"
+    },
+    {
+      "path": "after/professional-summary-desktop.png",
+      "sha256": "782de8596dcea04e3528dc937569b62f69e702561637aad1553cd1ed05a6b810",
+      "stage": "after"
+    },
+    {
+      "path": "after/project-offices-table-desktop.png",
+      "sha256": "81daf6cbbb9de5e87d77a1e42e60c7cebc0735e7630d0fc7df1519b07bd81c8a",
+      "stage": "after"
+    },
+    {
+      "path": "after/project-offices-table-mobile.png",
+      "sha256": "27a3665825b0d5bb4bd435fee1461954e477230580d0617e6aa092f7de59e884",
+      "stage": "after"
+    },
+    {
+      "path": "after/shared-lead-gate.png",
+      "sha256": "8798b0e9d5e61e23e9872b37e6d235acaa42ff86e43e256a8bf9e0e0128d696f",
+      "stage": "after"
+    },
+    {
+      "path": "after/team-mobile-denial.png",
+      "sha256": "629b2d6cf2d7926c922e99218ee294b2bcbb8e86abf8c6e736b39cfea35de1e7",
+      "stage": "after"
+    },
+    {
+      "path": "production/invitation-clipboard-recovery-no-link.png",
+      "sha256": "d2a5b07b8ac1b789f346b56a328c92734bc78a056c8b2dc3beeda9117b364a56",
+      "stage": "production"
+    },
+    {
+      "path": "production/member-inspector-320.png",
+      "sha256": "f635bdef2c3c493d938cf366aa1fbe30c43eb0bf8e9263279b74ef62b1e0cec2",
+      "stage": "production"
+    },
+    {
+      "path": "production/member-inspector-390.png",
+      "sha256": "d1fd09e08bd576074f0693d6dd7138ae38ed5925cdd2b4900a21aef24c7b4794",
+      "stage": "production"
+    },
+    {
+      "path": "production/membership-impact-mobile.png",
+      "sha256": "2ef516ce9a00e79bf47c29fbf0ca5752dcf4cac4e875c1b738fcbe0aac1e2b02",
+      "stage": "production"
+    },
+    {
+      "path": "production/office-closed-320.png",
+      "sha256": "278e5e566cea1b8bb4f85b0a7b7a90d3749bc503363bad0981db2fd998141207",
+      "stage": "production"
+    },
+    {
+      "path": "production/office-governed-320.png",
+      "sha256": "c1ba29a09f74e6034f09def83d91cdb45eb07547c604d50735a3a9dd486c5464",
+      "stage": "production"
+    },
+    {
+      "path": "production/office-team-desktop.png",
+      "sha256": "e9236354d543227f02c9ed4ad01defc8e1b0cb09194c0893a9ef29dafbb4ddf5",
+      "stage": "production"
+    },
+    {
+      "path": "production/professional-summary-desktop.png",
+      "sha256": "eb81f5ea7e1f6d346e27b59ee95387136acea8fc44f1b09dd41827eaf5377c78",
+      "stage": "production"
+    },
+    {
+      "path": "production/project-offices-table-desktop.png",
+      "sha256": "5b762f9b4c1441b6f07955d8e297a46355f06268aa60365282ff8b6d13883843",
+      "stage": "production"
+    },
+    {
+      "path": "production/project-offices-table-mobile.png",
+      "sha256": "bacf15194df9de23564addeccfa16f3d03243ccc3a47ce6a2e0b6b2b8158802b",
+      "stage": "production"
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+
+Running 11 tests using 1 worker
+
+
+
+[1A[2K(node:16232) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K(node:16232) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[1/11] [chromium] › tests\e2e\phase16-support-finance.spec.ts:10:1 › Admin Center keeps legacy pages, account inspection and unsaved account edits
+[1A[2K[2/11] [chromium] › tests\e2e\phase16-support-finance.spec.ts:61:1 › Account audit has bounded coverage, loaded filters, nested redaction and truthful unavailable reads on a phone
+[1A[2K[3/11] [chromium] › tests\e2e\phase16-support-finance.spec.ts:131:1 › Accounting retains fiscal scope, exposes settlements, records one decision and inspects its balanced journal
+[1A[2K[4/11] [chromium] › tests\e2e\phase16-support-finance.spec.ts:197:1 › Uncertain settlement keeps its reason and requires verification before resubmission
+[1A[2K[5/11] [chromium] › tests\e2e\phase16-support-finance.spec.ts:234:1 › Journal correction has guarded lines, explicit posting and a retained uncertainty receipt on a phone
+[1A[2K[6/11] [chromium] › tests\e2e\phase16-support-finance.spec.ts:303:1 › Release handover uses its existing physical confirmation and blocks an uncertain repeat
+[1A[2K[7/11] [chromium] › tests\e2e\phase16-support-finance.spec.ts:334:1 › Reports retain seven lenses, filtered CSV export and the task inspector
+[1A[2K  1) [chromium] › tests\e2e\phase16-support-finance.spec.ts:334:1 › Reports retain seven lenses, filtered CSV export and the task inspector 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  getByRole('button', { name: 'Projects and delivery', exact: true })
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('button', { name: 'Projects and delivery', exact: true })[22m
+
+
+      353 |     page.getByRole("region", { name: "Office report rows" }),
+      354 |   ).not.toContainText("Coordinate Office briefing");
+    > 355 |   for (const title of ["Projects and delivery", "Team contributions", "Reviews and revisions", "Evidence register", "Attention and risk register", "Task lifecycle history"]) await expect(page.getByRole("button", {name:new RegExp("^"+title)})).toBeVisible();
+          |                                                                                                                                                                                                                                               ^
+      356 |   const download = page.waitForEvent("download");
+      357 |   await page.getByRole("button", { name: "CSV", exact: true }).click();
+      358 |   const file = await download;
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase16-support-finance.spec.ts:355:239
+
+    Error Context: test-results\phase16-support-finance-Re-0a267-port-and-the-task-inspector-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase16-support-finance-Re-0a267-port-and-the-task-inspector-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase16-support-finance-Re-0a267-port-and-the-task-inspector-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+[1A[2K(node:36712) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K(node:36712) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[8/11] [chromium] › tests\e2e\phase16-support-finance.spec.ts:381:1 › Backup preflight stays unavailable without gateway configuration
+[1A[2K[9/11] [chromium] › tests\e2e\phase16-support-finance.spec.ts:397:1 › Late-package Head authorization stays separate from independent Accounting settlement
+[1A[2K[10/11] [chromium] › tests\e2e\phase16-support-finance.spec.ts:443:1 › Accounting retains ordinary Member workspaces, requires an Office and cannot settle its own cash
+[1A[2K[11/11] [chromium] › tests\e2e\phase16-support-finance.spec.ts:469:1 › Backup uncertain start verifies the job list and a failed job permits an explicit new attempt
+[1A[2K  1 failed
+    [chromium] › tests\e2e\phase16-support-finance.spec.ts:334:1 › Reports retain seven lenses, filtered CSV export and the task inspector 
+  10 passed (57.4s)

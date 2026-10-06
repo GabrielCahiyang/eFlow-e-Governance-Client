@@ -1,0 +1,61 @@
+
+Running 5 tests using 1 worker
+
+
+
+[1A[2K(node:31580) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K(node:31580) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[1/5] [chromium] › tests\e2e\admin-unification.spec.ts:11:3 › super_admin sessions expose the unified Admin management surfaces
+[1A[2K[2/5] [chromium] › tests\e2e\admin-unification.spec.ts:11:3 › admin sessions expose the unified Admin management surfaces
+[1A[2K[3/5] [chromium] › tests\e2e\phase16-support-finance.spec.ts:311:1 › Reports retain seven lenses, filtered CSV export and the task inspector
+[1A[2K[4/5] [chromium] › tests\e2e\phase16-support-finance.spec.ts:365:1 › Late-package Head authorization stays separate from independent Accounting settlement
+[1A[2K  1) [chromium] › tests\e2e\phase16-support-finance.spec.ts:365:1 › Late-package Head authorization stays separate from independent Accounting settlement 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByRole('alertdialog')
+    Expected string: [32m"This does not settle the advance"[39m
+    Received: <element(s) not found>
+    Timeout: 5000ms
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('alertdialog')[22m
+
+
+      374 |     .click();
+      375 |   const review = page.getByRole("alertdialog");
+    > 376 |   await expect(review).toContainText("This does not settle the advance");
+          |                        ^
+      377 |   await review
+      378 |     .getByRole("button", { name: "Authorize package", exact: true })
+      379 |     .click();
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase16-support-finance.spec.ts:376:24
+
+    Error Context: test-results\phase16-support-finance-La-3f9cd-ndent-Accounting-settlement-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase16-support-finance-La-3f9cd-ndent-Accounting-settlement-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase16-support-finance-La-3f9cd-ndent-Accounting-settlement-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+[1A[2K(node:4140) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:4140) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[1A[2K[5/5] [chromium] › tests\e2e\phase16-support-finance.spec.ts:437:1 › Backup uncertain start verifies the job list and a failed job permits an explicit new attempt
+[1A[2K  1 failed
+    [chromium] › tests\e2e\phase16-support-finance.spec.ts:365:1 › Late-package Head authorization stays separate from independent Accounting settlement 
+  4 passed (47.5s)

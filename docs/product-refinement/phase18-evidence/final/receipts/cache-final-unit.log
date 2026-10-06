@@ -1,0 +1,16 @@
+
+> @figma/my-make-file@0.0.1 test
+> vitest --configLoader runner run tests/unit/phase18ProjectCache.test.ts tests/unit/phase18NavigationCost.test.tsx tests/unit/phase18ReleaseGate.test.ts
+
+
+ RUN  v3.2.4 C:/Users/james/projects/eflow-e-Governance-Project
+
+ ✓ tests/unit/phase18ProjectCache.test.ts (3 tests) 5ms
+ ✓ tests/unit/phase18ReleaseGate.test.ts (6 tests) 6ms
+ ✓ tests/unit/phase18NavigationCost.test.tsx (2 tests) 35ms
+
+ Test Files  3 passed (3)
+      Tests  11 passed (11)
+   Start at  05:42:13
+   Duration  2.19s (transform 114ms, setup 0ms, collect 480ms, tests 46ms, environment 1.08s, prepare 905ms)
+

@@ -1,0 +1,12 @@
+
+Running 3 tests using 1 worker
+
+(node:43324) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:43324) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [chromium] › tests\e2e\phase3-project-table.spec.ts:4:1 › Head table keeps first-column task actions, task edits and inline subitems (7.7s)
+  ok 2 [chromium] › tests\e2e\phase3-project-table.spec.ts:45:1 › Member table protects structure and keeps detail access at 390px (4.5s)
+  ok 3 [chromium] › tests\e2e\phase3-project-table.spec.ts:62:1 › Inline tasks save on blur, keep adding with Shift+Enter, and retain failed drafts (5.1s)
+
+  3 passed (18.3s)

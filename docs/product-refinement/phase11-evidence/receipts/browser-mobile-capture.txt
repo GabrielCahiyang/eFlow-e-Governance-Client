@@ -1,0 +1,10 @@
+
+Running 1 test using 1 worker
+
+(node:35212) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35212) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [chromium] › tests\e2e\phase11-main-table.spec.ts:62:1 › mobile planning picker and explicit creation keep fields inside the viewport (6.5s)
+
+  1 passed (7.7s)

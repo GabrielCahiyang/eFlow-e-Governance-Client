@@ -1,0 +1,198 @@
+{
+  "scope": "Phase 10 project views over existing authorized project context",
+  "preferenceKey": "eflow_project_views_<projectId>",
+  "preferenceCompatibility": "Same key; promote Board/Dashboard/Offices to core, preserve contextual IDs, ignore unknown/malformed values",
+  "views": [
+    {
+      "id": "tasks",
+      "label": "Main table",
+      "previousDiscovery": "permanent",
+      "currentDiscovery": "core",
+      "canonicalQuery": "view=tasks",
+      "dataContract": "same existing project/view components and services",
+      "condition": "existing project access",
+      "retired": false
+    },
+    {
+      "id": "board",
+      "label": "Board",
+      "previousDiscovery": "optional",
+      "currentDiscovery": "core",
+      "canonicalQuery": "view=board",
+      "dataContract": "same existing project/view components and services",
+      "condition": "existing project access",
+      "retired": false
+    },
+    {
+      "id": "gantt",
+      "label": "Gantt",
+      "previousDiscovery": "permanent",
+      "currentDiscovery": "core",
+      "canonicalQuery": "view=gantt",
+      "dataContract": "same existing project/view components and services",
+      "condition": "existing project access",
+      "retired": false
+    },
+    {
+      "id": "calendar",
+      "label": "Calendar",
+      "previousDiscovery": "permanent",
+      "currentDiscovery": "core",
+      "canonicalQuery": "view=calendar",
+      "dataContract": "same existing project/view components and services",
+      "condition": "existing project access",
+      "retired": false
+    },
+    {
+      "id": "dashboard",
+      "label": "Project Dashboard",
+      "previousDiscovery": "optional",
+      "currentDiscovery": "core",
+      "canonicalQuery": "view=dashboard",
+      "dataContract": "same existing project/view components and services",
+      "condition": "existing project access",
+      "retired": false
+    },
+    {
+      "id": "offices",
+      "label": "Offices",
+      "previousDiscovery": "optional",
+      "currentDiscovery": "core",
+      "canonicalQuery": "view=offices",
+      "dataContract": "same existing project/view components and services",
+      "condition": "existing project access",
+      "retired": false
+    },
+    {
+      "id": "readiness",
+      "label": "Readiness & closeout",
+      "previousDiscovery": "optional",
+      "currentDiscovery": "contextual",
+      "canonicalQuery": "view=readiness",
+      "dataContract": "same existing project/view components and services",
+      "condition": "existing project access",
+      "retired": false
+    },
+    {
+      "id": "overview",
+      "label": "Overview",
+      "previousDiscovery": "permanent",
+      "currentDiscovery": "contextual",
+      "canonicalQuery": "view=overview",
+      "dataContract": "same existing project/view components and services",
+      "condition": "existing project access",
+      "retired": false
+    },
+    {
+      "id": "timeline",
+      "label": "Timeline",
+      "previousDiscovery": "permanent",
+      "currentDiscovery": "contextual",
+      "canonicalQuery": "view=timeline",
+      "dataContract": "same existing project/view components and services",
+      "condition": "existing project access",
+      "retired": false
+    },
+    {
+      "id": "reports",
+      "label": "Reports",
+      "previousDiscovery": "optional",
+      "currentDiscovery": "contextual",
+      "canonicalQuery": "view=reports",
+      "dataContract": "same existing project/view components and services",
+      "condition": "existing project access",
+      "retired": false
+    },
+    {
+      "id": "proposal_context",
+      "label": "Proposal Context",
+      "previousDiscovery": "optional",
+      "currentDiscovery": "contextual",
+      "canonicalQuery": "view=proposal_context",
+      "dataContract": "same existing project/view components and services",
+      "condition": "existing proposal source required for Add view discovery",
+      "retired": false
+    },
+    {
+      "id": "activity",
+      "label": "Activity",
+      "previousDiscovery": "optional",
+      "currentDiscovery": "contextual",
+      "canonicalQuery": "view=activity",
+      "dataContract": "same existing project/view components and services",
+      "condition": "existing project access",
+      "retired": false
+    },
+    {
+      "id": "reviews",
+      "label": "Reviews",
+      "previousDiscovery": "optional",
+      "currentDiscovery": "contextual",
+      "canonicalQuery": "view=reviews",
+      "dataContract": "same existing project/view components and services",
+      "condition": "existing project access",
+      "retired": false
+    },
+    {
+      "id": "workload",
+      "label": "Workload & Team",
+      "previousDiscovery": "optional",
+      "currentDiscovery": "contextual",
+      "canonicalQuery": "view=workload",
+      "dataContract": "same existing project/view components and services",
+      "condition": "existing project access",
+      "retired": false
+    },
+    {
+      "id": "budget",
+      "label": "Budget Overview",
+      "previousDiscovery": "optional",
+      "currentDiscovery": "contextual",
+      "canonicalQuery": "view=budget",
+      "dataContract": "same existing project/view components and services",
+      "condition": "existing budget data required for Add view discovery",
+      "retired": false
+    },
+    {
+      "id": "signoff",
+      "label": "Approval Status",
+      "previousDiscovery": "optional",
+      "currentDiscovery": "contextual",
+      "canonicalQuery": "view=signoff",
+      "dataContract": "same existing project/view components and services",
+      "condition": "existing project access",
+      "retired": false
+    },
+    {
+      "id": "evidence",
+      "label": "Evidence Register",
+      "previousDiscovery": "optional",
+      "currentDiscovery": "contextual",
+      "canonicalQuery": "view=evidence",
+      "dataContract": "same existing project/view components and services",
+      "condition": "existing project access",
+      "retired": false
+    },
+    {
+      "id": "decisions",
+      "label": "Decision History",
+      "previousDiscovery": "optional",
+      "currentDiscovery": "contextual",
+      "canonicalQuery": "view=decisions",
+      "dataContract": "same existing project/view components and services",
+      "condition": "existing project access",
+      "retired": false
+    }
+  ],
+  "aliases": {
+    "plan": "timeline",
+    "delivery": "timeline",
+    "work": "tasks",
+    "people": "workload",
+    "team": "workload",
+    "main_table": "tasks",
+    "main-table": "tasks",
+    "proposal-context": "proposal_context"
+  },
+  "retiredViews": []
+}

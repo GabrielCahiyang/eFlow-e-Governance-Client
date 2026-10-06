@@ -39,6 +39,19 @@ function useVibeSystemThemeClass(systemTheme: VibeSystemTheme) {
     const classes = document.body.classList;
     classes.remove("light-app-theme", "dark-app-theme", "black-app-theme");
     classes.add(`${systemTheme}-app-theme`);
+    // Vibe's scoped provider class is outside body-portaled modal content.
+    // Carry the same supported aliases to that documented system-theme boundary.
+    const style = document.body.style;
+    const previous = Object.entries(eflowVibeTheme.colors[systemTheme]).map(([name, value]) => {
+      const key = `--${name}`;
+      const original = style.getPropertyValue(key), priority = style.getPropertyPriority(key);
+      style.setProperty(key, value);
+      return { key, original, priority };
+    });
+    return () => previous.forEach(({key, original, priority}) => {
+      if (original) style.setProperty(key, original, priority);
+      else style.removeProperty(key);
+    });
   }, [systemTheme]);
 }
 

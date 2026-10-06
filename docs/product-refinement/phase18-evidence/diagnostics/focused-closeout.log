@@ -1,0 +1,166 @@
+
+Running 6 tests using 2 workers
+
+(node:2828) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:14436) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2828) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:14436) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  1 [chromium] › tests\e2e\navigation-v2.spec.ts:111:1 › failed inline task remains intact when shell navigation is canceled and logout clears local navigation preferences (6.4s)
+(node:19392) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:19392) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 2 [chromium] › tests\e2e\phase18-release.spec.ts:54:3 › accounting_staff: responsive canonical workspace and mobile navigation (10.6s)
+(node:12728) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:12728) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  3 [firefox] › tests\e2e\navigation-v2.spec.ts:111:1 › failed inline task remains intact when shell navigation is canceled and logout clears local navigation preferences (8.9s)
+(node:11044) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:11044) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 4 [firefox] › tests\e2e\phase18-release.spec.ts:54:3 › accounting_staff: responsive canonical workspace and mobile navigation (16.7s)
+(node:41228) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:41228) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  5 [webkit] › tests\e2e\navigation-v2.spec.ts:111:1 › failed inline task remains intact when shell navigation is canceled and logout clears local navigation preferences (11.1s)
+  ok 6 [webkit] › tests\e2e\phase18-release.spec.ts:54:3 › accounting_staff: responsive canonical workspace and mobile navigation (13.8s)
+
+
+  1) [chromium] › tests\e2e\navigation-v2.spec.ts:111:1 › failed inline task remains intact when shell navigation is canceled and logout clears local navigation preferences 
+
+    Error: Attempting to serialize unexpected value at position "emitTaskDelete": taskId => {
+        for (const [socket, topics] of taskSockets) for (const [topic, ids] of topics) if (ids.length) socket.send(JSON.stringify([null, null, topic, "postgres_changes", {
+          ids,
+          data: {
+            schema: "public",
+            table: "tasks",
+            type: "DELETE",
+            commit_timestamp: new Date().toISOString(),
+            columns: [{
+              name: "id",
+              type: "uuid"
+            }],
+            record: {},
+            old_record: {
+              id: taskId
+            },
+            errors: null
+          }
+        }]));
+      }
+
+      118 |   await page.getByRole('navigation',{name:'Global navigation'}).getByRole('button',{name:'Home',exact:true}).click();await page.getByRole('button',{name:'Discard',exact:true}).click();
+      119 |   await expect.poll(()=>new URL(page.url()).pathname).toBe('/overview');expect(requests).toBe(1);
+    > 120 |   await page.evaluate(({id,org,project})=>localStorage.setItem(`eflow:navigation:v1:${id}:${org}`,JSON.stringify([project])),records);
+          |              ^
+      121 |   const signouts:string[]=[];page.on('request',request=>{if(request.url().includes('/auth/v1/logout'))signouts.push(request.url());});
+      122 |   await page.getByRole('button',{name:'Open account menu',exact:true}).click();await page.getByRole('menuitem',{name:'Log out',exact:true}).click();
+      123 |   await expect(page.locator('#login-email')).toBeVisible();expect(signouts).toHaveLength(1);expect(new URL(signouts[0]).searchParams.get('scope')).toBe('local');
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\navigation-v2.spec.ts:120:14
+
+    Error Context: .phase18\focused-closeout-results\navigation-v2-failed-inlin-eb929-ocal-navigation-preferences-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\focused-closeout-results\navigation-v2-failed-inlin-eb929-ocal-navigation-preferences-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\focused-closeout-results\navigation-v2-failed-inlin-eb929-ocal-navigation-preferences-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [firefox] › tests\e2e\navigation-v2.spec.ts:111:1 › failed inline task remains intact when shell navigation is canceled and logout clears local navigation preferences 
+
+    Error: Attempting to serialize unexpected value at position "emitTaskDelete": taskId => {
+        for (const [socket, topics] of taskSockets) for (const [topic, ids] of topics) if (ids.length) socket.send(JSON.stringify([null, null, topic, "postgres_changes", {
+          ids,
+          data: {
+            schema: "public",
+            table: "tasks",
+            type: "DELETE",
+            commit_timestamp: new Date().toISOString(),
+            columns: [{
+              name: "id",
+              type: "uuid"
+            }],
+            record: {},
+            old_record: {
+              id: taskId
+            },
+            errors: null
+          }
+        }]));
+      }
+
+      118 |   await page.getByRole('navigation',{name:'Global navigation'}).getByRole('button',{name:'Home',exact:true}).click();await page.getByRole('button',{name:'Discard',exact:true}).click();
+      119 |   await expect.poll(()=>new URL(page.url()).pathname).toBe('/overview');expect(requests).toBe(1);
+    > 120 |   await page.evaluate(({id,org,project})=>localStorage.setItem(`eflow:navigation:v1:${id}:${org}`,JSON.stringify([project])),records);
+          |              ^
+      121 |   const signouts:string[]=[];page.on('request',request=>{if(request.url().includes('/auth/v1/logout'))signouts.push(request.url());});
+      122 |   await page.getByRole('button',{name:'Open account menu',exact:true}).click();await page.getByRole('menuitem',{name:'Log out',exact:true}).click();
+      123 |   await expect(page.locator('#login-email')).toBeVisible();expect(signouts).toHaveLength(1);expect(new URL(signouts[0]).searchParams.get('scope')).toBe('local');
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\navigation-v2.spec.ts:120:14
+
+    Error Context: .phase18\focused-closeout-results\navigation-v2-failed-inlin-eb929-ocal-navigation-preferences-firefox\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\focused-closeout-results\navigation-v2-failed-inlin-eb929-ocal-navigation-preferences-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\focused-closeout-results\navigation-v2-failed-inlin-eb929-ocal-navigation-preferences-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [webkit] › tests\e2e\navigation-v2.spec.ts:111:1 › failed inline task remains intact when shell navigation is canceled and logout clears local navigation preferences 
+
+    Error: Attempting to serialize unexpected value at position "emitTaskDelete": taskId => {
+        for (const [socket, topics] of taskSockets) for (const [topic, ids] of topics) if (ids.length) socket.send(JSON.stringify([null, null, topic, "postgres_changes", {
+          ids,
+          data: {
+            schema: "public",
+            table: "tasks",
+            type: "DELETE",
+            commit_timestamp: new Date().toISOString(),
+            columns: [{
+              name: "id",
+              type: "uuid"
+            }],
+            record: {},
+            old_record: {
+              id: taskId
+            },
+            errors: null
+          }
+        }]));
+      }
+
+      118 |   await page.getByRole('navigation',{name:'Global navigation'}).getByRole('button',{name:'Home',exact:true}).click();await page.getByRole('button',{name:'Discard',exact:true}).click();
+      119 |   await expect.poll(()=>new URL(page.url()).pathname).toBe('/overview');expect(requests).toBe(1);
+    > 120 |   await page.evaluate(({id,org,project})=>localStorage.setItem(`eflow:navigation:v1:${id}:${org}`,JSON.stringify([project])),records);
+          |              ^
+      121 |   const signouts:string[]=[];page.on('request',request=>{if(request.url().includes('/auth/v1/logout'))signouts.push(request.url());});
+      122 |   await page.getByRole('button',{name:'Open account menu',exact:true}).click();await page.getByRole('menuitem',{name:'Log out',exact:true}).click();
+      123 |   await expect(page.locator('#login-email')).toBeVisible();expect(signouts).toHaveLength(1);expect(new URL(signouts[0]).searchParams.get('scope')).toBe('local');
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\navigation-v2.spec.ts:120:14
+
+    Error Context: .phase18\focused-closeout-results\navigation-v2-failed-inlin-eb929-ocal-navigation-preferences-webkit\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\focused-closeout-results\navigation-v2-failed-inlin-eb929-ocal-navigation-preferences-webkit\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\focused-closeout-results\navigation-v2-failed-inlin-eb929-ocal-navigation-preferences-webkit\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    [chromium] › tests\e2e\navigation-v2.spec.ts:111:1 › failed inline task remains intact when shell navigation is canceled and logout clears local navigation preferences 
+    [firefox] › tests\e2e\navigation-v2.spec.ts:111:1 › failed inline task remains intact when shell navigation is canceled and logout clears local navigation preferences 
+    [webkit] › tests\e2e\navigation-v2.spec.ts:111:1 › failed inline task remains intact when shell navigation is canceled and logout clears local navigation preferences 
+  3 passed (49.0s)

@@ -5,11 +5,12 @@ export const STATUS_COLORS: Record<string,string> = {pending_assignment:'#7b8495
 export type TableSort = 'manual' | 'title' | 'deadline' | 'priority';
 export function visibleProjectTasks(tasks: Task[], query: string, status: string, owner: string, sort: TableSort): Task[] {
  const needle=query.toLocaleLowerCase().trim(); const priority={high:0,medium:1,low:2};
+ const manualTie=(a:Task,b:Task)=>(a.workspacePosition||0)-(b.workspacePosition||0) || a.createdAt-b.createdAt || a.id.localeCompare(b.id);
  return tasks.filter(t => !t.archivedAt && (!needle || [t.title,t.description,t.department,t.assigneeName,...(t.teamMemberNames||[])].some(v=>v?.toLocaleLowerCase().includes(needle))) && (!status || t.status===status) && (!owner || (t.assigneeId||t.assignedTo)===owner)).sort((a,b)=>{
-  if(sort==='title')return a.title.localeCompare(b.title);
-  if(sort==='priority')return priority[a.priority||'medium']-priority[b.priority||'medium'] || a.title.localeCompare(b.title);
-  if(sort==='deadline')return (a.deadline||a.dueDate||'9999').localeCompare(b.deadline||b.dueDate||'9999');
-  return (a.workspacePosition||0)-(b.workspacePosition||0) || a.createdAt-b.createdAt || a.id.localeCompare(b.id);
+  if(sort==='title')return a.title.localeCompare(b.title) || manualTie(a,b);
+  if(sort==='priority')return priority[a.priority||'medium']-priority[b.priority||'medium'] || a.title.localeCompare(b.title) || manualTie(a,b);
+  if(sort==='deadline')return (a.deadline||a.dueDate||'9999').localeCompare(b.deadline||b.dueDate||'9999') || manualTie(a,b);
+  return manualTie(a,b);
  });
 }
 export function tasksInGroup(tasks: Task[], group: ProjectGroup) { return tasks.filter(t=>t.groupId===group.id || (!t.groupId && group.isDefault)); }

@@ -1,0 +1,53 @@
+
+Running 1 test using 1 worker
+
+
+
+[1A[2K(node:40208) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K(node:40208) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[1/1] [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:68:1 › Project team removal previews active work and opens the shared task inspector only after discard
+[1A[2K[chromium] › tests\e2e\phase14-people-collaboration.spec.ts:68:1 › Project team removal previews active work and opens the shared task inspector only after discard
+Handoff keyboard state: {"prevented":true,"contained":true,"active":[{"connected":true,"same":true,"inert":false}],"busy":false}
+
+[1A[2K  1) [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:68:1 › Project team removal previews active work and opens the shared task inspector only after discard 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mnot[2m.[22mtoBeVisible[2m()[22m failed
+
+    Locator:  getByRole('dialog', { name: 'Task details: Prepare community assessment' })
+    Expected: not visible
+    Received: visible
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "not toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('dialog', { name: 'Task details: Prepare community assessment' })[22m
+    [2m    9 × locator resolved to <aside role="dialog" tabindex="-1" aria-modal="true" aria-label="Task details: Prepare community assessment" class="eflow-inspector fixed bottom-0 right-0 top-0 flex flex-col border-l outline-none w-full font-sans sm:w-[520px]" data-key-debug="{"prevented":true,"contained":true,"active":[{"connected":true,"same":true,"inert":false}],"busy":false}">…</aside>[22m
+    [2m      - unexpected value "visible"[22m
+
+
+      69 |  test.setTimeout(90_000);const r=await peopleFixture(page);r.projectOffices.push({id:'own',project_id:r.project,office_id:r.org,relationship_type:'lead',invitation_status:'joined'});r.officeMembers.push({project_office_id:'own',user_id:member});r.tasks[0].assigned_to=member;r.tasks[0].team_member_ids=[member];
+      70 |  await openOffices(page,r.project);await page.getByRole('button',{name:'Select own members',exact:true}).click();const inspector=page.getByRole('dialog',{name:'Planning Office’s project team'});await inspector.getByRole('checkbox',{name:/Maria Santos/}).uncheck();await expect(inspector.getByRole('alert')).toContainText('Reassign active work');await expect(inspector.getByRole('button',{name:'Save project team',exact:true})).toBeDisabled();
+    > 71 |  await page.setViewportSize({width:390,height:844});await page.screenshot({path:info.outputPath('membership-impact-mobile.png')});await inspector.getByRole('button',{name:'Prepare community assessment',exact:true}).click();const discard=page.getByRole('alertdialog',{name:'Discard unsaved changes?'});await discard.getByRole('button',{name:'Discard',exact:true}).click();const taskInspector=page.getByRole('dialog',{name:'Task details: Prepare community assessment'});await expect(taskInspector).toBeVisible();await expect(discard).not.toBeVisible();await expect(taskInspector.getByRole('button',{name:'Close task detail'})).toBeFocused();await taskInspector.press('Escape');console.log('Handoff keyboard state:',await taskInspector.getAttribute('data-key-debug'));await expect(taskInspector).not.toBeVisible();await expect(page.getByRole('textbox',{name:'Search project Offices'})).toBeFocused();
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ^
+      72 | });
+      73 | test('Failed project invitation delivery still creates one invitation and fresh-link copy failure has manual recovery',async({page},info)=>{
+      74 |  test.setTimeout(90_000);const r=await peopleFixture(page);r.projectOffices.push({id:'own',project_id:r.project,office_id:r.org,relationship_type:'lead',invitation_status:'joined'});r.organizations.push({id:partner,name:'Engineering Office',head_user_id:'foreign-head',is_active:true});const invites:any[]=[];let creates=0,rotations=0;
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase14-people-collaboration.spec.ts:71:798
+
+    Error Context: test-results\phase14-people-collaborati-5c442-nspector-only-after-discard-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase14-people-collaborati-5c442-nspector-only-after-discard-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase14-people-collaborati-5c442-nspector-only-after-discard-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K  1 failed
+    [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:68:1 › Project team removal previews active work and opens the shared task inspector only after discard 

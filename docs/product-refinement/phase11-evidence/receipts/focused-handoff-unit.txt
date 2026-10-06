@@ -1,0 +1,19 @@
+
+ RUN  v3.2.4 C:/Users/james/projects/eflow-e-Governance-Project
+
+ ✓ tests/unit/workspaceFoundation.test.tsx (4 tests) 1995ms
+   ✓ workspace interaction foundation > cancels with Escape and saves the next edit once despite Enter followed by blur  1092ms
+   ✓ workspace interaction foundation > separates the common action from its contextual menu  486ms
+ ✓ tests/unit/projectSubitems.test.tsx (13 tests) 5712ms
+   ✓ Project table subitem expansion > places task actions in the first cell and keeps detail access without drag controls  1848ms
+   ✓ Project table subitem expansion > keeps the first-column Add subitem action disabled for someone who is not the task lead  543ms
+   ✓ Project table subitem expansion > hands menu focus to the add field when subitems are already expanded  793ms
+   ✓ Project table subitem expansion > opens an empty nested table and saves the task lead’s subitem when focus leaves  314ms
+   ✓ Project table subitem expansion > preserves the for_review lock and keeps existing subitems readable  325ms
+   ✓ Project table subitem expansion > keeps a failed draft for retry and appends after the greatest saved position  409ms
+
+ Test Files  2 passed (2)
+      Tests  17 passed (17)
+   Start at  15:26:44
+   Duration  22.32s (transform 1.52s, setup 0ms, collect 23.89s, tests 7.71s, environment 5.04s, prepare 1.10s)
+

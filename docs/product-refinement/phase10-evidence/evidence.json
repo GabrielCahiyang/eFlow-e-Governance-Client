@@ -1,0 +1,314 @@
+{
+  "capturedAtUTC": "2026-10-06T06:32:25.851501+00:00",
+  "frontend": "http://127.0.0.1:5173",
+  "fixturePolicy": "Real frontend on the live port; synthetic intercepted auth/REST/gateway/realtime responses. No destructive live data mutation or deployed authorization proof.",
+  "checks": {
+    "typecheck": {
+      "command": "npm run check",
+      "exitCode": 0,
+      "result": "passed"
+    },
+    "unit": {
+      "command": "npm test",
+      "exitCode": 0,
+      "files": 173,
+      "tests": 667,
+      "result": "passed after final logic changes"
+    },
+    "build": {
+      "command": "npm run build",
+      "exitCode": 0,
+      "result": "passed after textarea CSS correction",
+      "warnings": "existing chunk-size, circular-export and mixed-import warnings"
+    },
+    "browserBroad": {
+      "tests": 32,
+      "result": "passed",
+      "suites": [
+        "phase10-project-workspace",
+        "project-workspace-controls",
+        "phase3-project-table",
+        "phase4-project-views",
+        "phase6-project-offices",
+        "phase7-readiness-staffing",
+        "navigation-v2"
+      ],
+      "timing": "before additional lifecycle focus assertions and alias prototype guard"
+    },
+    "browserFocusedFinal": {
+      "tests": 4,
+      "result": "passed after lifecycle focus fix; includes completion/deletion return-focus assertions"
+    },
+    "browserLayoutFinal": {
+      "tests": 3,
+      "result": "passed after textarea padding/border correction"
+    },
+    "mobileCapture": {
+      "tests": 1,
+      "result": "passed; settings screenshot fast-forwards finite CSS animations for a stable visual capture"
+    },
+    "distinctAcceptanceCases": 32,
+    "baseline": {
+      "tests": 2,
+      "result": "passed before Phase 10 source changes; desktop1440/mobile390"
+    },
+    "graph": {
+      "command": "npm run graph:update",
+      "exitCode": 0,
+      "nodes": 7065,
+      "edges": 21583,
+      "partialParserWarnings": 6,
+      "modelExtraction": false,
+      "liveDatabaseIntrospection": false,
+      "forcedReplacement": false
+    },
+    "whitespace": {
+      "command": "git diff --check",
+      "exitCode": 0,
+      "result": "passed"
+    }
+  },
+  "compatibility": {
+    "canonicalViews": 18,
+    "aliases": 8,
+    "retiredViews": 0,
+    "map": "view-crosswalk.json",
+    "databaseChangesInPhase10": false,
+    "authorityCorrectionInPhase10": false
+  },
+  "capabilityCoverage": {
+    "fixtureBrowser": [
+      "Head project settings/lifecycle errors and dirty guards",
+      "Member structural restrictions",
+      "shared Observer read-only identity/settings and participation",
+      "Lead versus collaborating Office controls",
+      "accounting_staff/admin/head/member navigation destinations and support grants",
+      "unassigned Office/zero projects"
+    ],
+    "unitSource": [
+      "closed/missing identity",
+      "pending duplicate/navigation locks",
+      "scoped participants/readiness retries",
+      "readiness race protection",
+      "project-scoped optional views and URL aliases",
+      "existing lifecycle and Office authority regression suites"
+    ],
+    "deferred": "G2 shared Task Lead staffing parity remains restricted by existing SQL; no new grant or deployment claim"
+  },
+  "receipts": [
+    {
+      "file": "receipts/baseline-browser.txt",
+      "sha256": "5c6389a6658b6f869f94f16d191121a20983c33a893f69a68ae6e6296a5275b4"
+    },
+    {
+      "file": "receipts/browser-broad.txt",
+      "sha256": "46cd1270be01bfd1f5ff33c1856fd891c3f75c8f9eb1e985ffb5baebb368fbd8"
+    },
+    {
+      "file": "receipts/browser-focus-final.txt",
+      "sha256": "9ac5662f678dd70ceecd40a9535e457aaa977483bcb1da96d4149b705dcd6aec"
+    },
+    {
+      "file": "receipts/browser-layout-final.txt",
+      "sha256": "9eb902013e1fc22a9bb62179c8aa2f2afdf779b1032fc63885475abb931c764c"
+    },
+    {
+      "file": "receipts/browser-mobile-capture.txt",
+      "sha256": "881724c34796e9f1cca3c985aa1ddea68136f7e7aefd2385d279b2f236d585d2"
+    },
+    {
+      "file": "receipts/build.txt",
+      "sha256": "b3aa5b9e41bb661d925af7831be2aafe928d90bc5dc7d1c78d5b8439ae7aea34"
+    },
+    {
+      "file": "receipts/corrected-browser-recheck.txt",
+      "sha256": "af715885158ad9949fb3721c64fcc8f7440cef002965b60dab467563cd37e6b6"
+    },
+    {
+      "file": "receipts/graph-update.txt",
+      "sha256": "2dfaa7953074dafcfb82325e8b3dfa47ab3ba9c9a3195fc7b0380a06f39f9beb"
+    },
+    {
+      "file": "receipts/initial-browser-diagnostic.txt",
+      "sha256": "c962ee61f67f627528cacd8d36375931fa1e0d16fbc56c830a9b96daeb8b7106"
+    },
+    {
+      "file": "receipts/lifecycle-focus-diagnostic.txt",
+      "sha256": "99beae9bd4dd5edf064e0a90d782579799afd76a0db322ec99e4b4ea85633105"
+    },
+    {
+      "file": "receipts/lifecycle-focus-recheck.txt",
+      "sha256": "ea28e3b8832a8c301fdffa364128766e80db74aa46d86d4285d49aac9e3f764a"
+    },
+    {
+      "file": "receipts/typecheck.txt",
+      "sha256": "659606cc1e46300d84aa709445df90c5152e824c89833ed71e658e03d3a53309"
+    },
+    {
+      "file": "receipts/unit.txt",
+      "sha256": "b798fa9fc3a82d8587ef1307df12e7fc2d3b3d0cdd7a57bdaf878c779bc44b10"
+    },
+    {
+      "file": "receipts/whitespace.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "diagnostics": [
+    "Initial browser run:14 passed/4 failed; metadata-error handling, heading accessibility and stale selectors corrected.",
+    "Added lifecycle focus assertion:3 passed/1 failed; fixed menu-to-existing-dialog focus handoff, then focused final4 passed.",
+    "Visual QA corrected missing textarea padding/border."
+  ],
+  "screenshots": [
+    {
+      "file": "screenshots/baseline/navigation-1440.png",
+      "source": "test-results/phase10-baseline/navigation-v2-responsive-n-f8731-ext-and-utilities-at-1440px-chromium/navigation-1440.png",
+      "sha256": "aada0ef3f3fe86a025b028fd7ec2a7d3197e32f4fde86b719fb34e737e1147af",
+      "frontend": "http://127.0.0.1:5173",
+      "data": "synthetic backend/auth fixtures",
+      "stage": "baseline before Phase 10 changes"
+    },
+    {
+      "file": "screenshots/baseline/navigation-390.png",
+      "source": "test-results/phase10-baseline/navigation-v2-responsive-n-c9edc-text-and-utilities-at-390px-chromium/navigation-390.png",
+      "sha256": "0e9a8d693f38da963338ebaa67a039f94686b8b83464e39acb92b3ea2ed9262b",
+      "frontend": "http://127.0.0.1:5173",
+      "data": "synthetic backend/auth fixtures",
+      "stage": "baseline before Phase 10 changes"
+    },
+    {
+      "file": "screenshots/final/project-workspace-desktop.png",
+      "source": "test-results/phase10-layout-final/phase10-project-workspace--aa443-ser-history-use-one-project-chromium/project-workspace-desktop.png",
+      "sha256": "ae896725452204600f2c8d72f3a9e1e810bb7965f0933fc837bbc1570e439802",
+      "frontend": "http://127.0.0.1:5173",
+      "data": "synthetic backend/auth fixtures",
+      "stage": "final acceptance/capture"
+    },
+    {
+      "file": "screenshots/final/project-settings-error-desktop.png",
+      "source": "test-results/phase10-layout-final/phase10-project-workspace--aa443-ser-history-use-one-project-chromium/project-settings-error-desktop.png",
+      "sha256": "b53bf098b1b1b0a87a0fff122a693839f033230a77575d393bc9170c095b3d6d",
+      "frontend": "http://127.0.0.1:5173",
+      "data": "synthetic backend/auth fixtures",
+      "stage": "final acceptance/capture"
+    },
+    {
+      "file": "screenshots/final/project-long-title-mobile.png",
+      "source": "test-results/phase10-layout-final/phase10-project-workspace--3acd4-y-stays-within-the-viewport-chromium/project-long-title-mobile.png",
+      "sha256": "460acda220e6243efcb9212ef5bc388f35f5e68e5d58e98b77c7ce5a2d7a84ae",
+      "frontend": "http://127.0.0.1:5173",
+      "data": "synthetic backend/auth fixtures",
+      "stage": "final acceptance/capture"
+    },
+    {
+      "file": "screenshots/final/project-workspace-mobile.png",
+      "source": "test-results/phase10-mobile-capture/phase10-project-workspace--71b42-ccess-requirements-at-390px-chromium/project-workspace-mobile.png",
+      "sha256": "db828eb08f097ec9519bd1070df17e648f9199334f3859807ffeb5916d4a5cf2",
+      "frontend": "http://127.0.0.1:5173",
+      "data": "synthetic backend/auth fixtures",
+      "stage": "final acceptance/capture"
+    },
+    {
+      "file": "screenshots/final/project-share-mobile.png",
+      "source": "test-results/phase10-mobile-capture/phase10-project-workspace--71b42-ccess-requirements-at-390px-chromium/project-share-mobile.png",
+      "sha256": "4a45e75e9d70817e0bf585b31b55f28ba750fece83087c5e1f306e45c51492d0",
+      "frontend": "http://127.0.0.1:5173",
+      "data": "synthetic backend/auth fixtures",
+      "stage": "final acceptance/capture"
+    },
+    {
+      "file": "screenshots/final/project-settings-mobile.png",
+      "source": "test-results/phase10-mobile-capture/phase10-project-workspace--71b42-ccess-requirements-at-390px-chromium/project-settings-mobile.png",
+      "sha256": "8cd7660c49df177987122a2267ae1c5babe938e27c2fb5b24fd8a3449732eb0c",
+      "frontend": "http://127.0.0.1:5173",
+      "data": "synthetic backend/auth fixtures",
+      "stage": "final acceptance/capture"
+    },
+    {
+      "file": "screenshots/final/board.png",
+      "source": "test-results/phase10-final/phase4-project-views-Phase-a15ed-endar-Dashboard-and-Offices-chromium/board.png",
+      "sha256": "a68220d0174891dc7e73aa48241efcac6c094a0d4e8560a3b4159839a243c7bd",
+      "frontend": "http://127.0.0.1:5173",
+      "data": "synthetic backend/auth fixtures",
+      "stage": "final acceptance/capture"
+    },
+    {
+      "file": "screenshots/final/gantt.png",
+      "source": "test-results/phase10-final/phase4-project-views-Phase-a15ed-endar-Dashboard-and-Offices-chromium/gantt.png",
+      "sha256": "27dc9c7e5ab3f98159da21430646baf57ae64efd08a5fcbbf0fb47519f8e2573",
+      "frontend": "http://127.0.0.1:5173",
+      "data": "synthetic backend/auth fixtures",
+      "stage": "final acceptance/capture"
+    },
+    {
+      "file": "screenshots/final/calendar.png",
+      "source": "test-results/phase10-final/phase4-project-views-Phase-a15ed-endar-Dashboard-and-Offices-chromium/calendar.png",
+      "sha256": "31db38d444a470bcd443c0b42da15e8fc0ccde8bf787897ed8030f8cc0a05bf4",
+      "frontend": "http://127.0.0.1:5173",
+      "data": "synthetic backend/auth fixtures",
+      "stage": "final acceptance/capture"
+    },
+    {
+      "file": "screenshots/final/dashboard.png",
+      "source": "test-results/phase10-final/phase4-project-views-Phase-a15ed-endar-Dashboard-and-Offices-chromium/dashboard.png",
+      "sha256": "8f2552250672d446855e0b3b980ae4d8f6a92c63ab168ac77cd98800c880af6c",
+      "frontend": "http://127.0.0.1:5173",
+      "data": "synthetic backend/auth fixtures",
+      "stage": "final acceptance/capture"
+    },
+    {
+      "file": "screenshots/final/offices.png",
+      "source": "test-results/phase10-final/phase4-project-views-Phase-a15ed-endar-Dashboard-and-Offices-chromium/offices.png",
+      "sha256": "f8cdde196c264425d5990161e75ba9897a3db67944019bf87b98d4d0cfeb0222",
+      "frontend": "http://127.0.0.1:5173",
+      "data": "synthetic backend/auth fixtures",
+      "stage": "final acceptance/capture"
+    },
+    {
+      "file": "screenshots/final/add-view-desktop.png",
+      "source": "test-results/phase10-final/project-workspace-controls-ec47e-turns-to-the-filtered-table-chromium/add-view-desktop.png",
+      "sha256": "e059d7ffbcd2f80e3d4d99914378237c5e750b34915fcd84db6fea8e1fd52b8e",
+      "frontend": "http://127.0.0.1:5173",
+      "data": "synthetic backend/auth fixtures",
+      "stage": "final acceptance/capture"
+    },
+    {
+      "file": "screenshots/final/add-view-mobile.png",
+      "source": "test-results/phase10-final/project-workspace-controls-f6743-s-remain-reachable-at-390px-chromium/add-view-mobile.png",
+      "sha256": "ade952987dcab70df81485d86d112ec3f78f77c6a24a13f27bba01433a47fbe6",
+      "frontend": "http://127.0.0.1:5173",
+      "data": "synthetic backend/auth fixtures",
+      "stage": "final acceptance/capture"
+    },
+    {
+      "file": "screenshots/final/expanded-subitems.png",
+      "source": "test-results/phase10-final/phase3-project-table-Head--a2c4f-k-edits-and-inline-subitems-chromium/expanded-subitems.png",
+      "sha256": "217baa9058be3e7c50330ab6587ff65b0aa012eb9278de83e803bd16c3e9df88",
+      "frontend": "http://127.0.0.1:5173",
+      "data": "synthetic backend/auth fixtures",
+      "stage": "final acceptance/capture"
+    },
+    {
+      "file": "screenshots/final/readiness-desktop.png",
+      "source": "test-results/phase10-final/phase7-readiness-staffing--27cfb-hecks-and-closeout-blockers-chromium/readiness-desktop.png",
+      "sha256": "ed87187d60670f2ed150e3757a15cadefe212f1b78911726c68dc1ac3b2952a3",
+      "frontend": "http://127.0.0.1:5173",
+      "data": "synthetic backend/auth fixtures",
+      "stage": "final acceptance/capture"
+    },
+    {
+      "file": "screenshots/final/navigation-320.png",
+      "source": "test-results/phase10-final/navigation-v2-responsive-n-7ba44-text-and-utilities-at-320px-chromium/navigation-320.png",
+      "sha256": "6f1d53ea94f6aea6c8ff797a63e2fc50987b88ce82faa140e5dd28c68a4bd017",
+      "frontend": "http://127.0.0.1:5173",
+      "data": "synthetic backend/auth fixtures",
+      "stage": "final acceptance/capture"
+    }
+  ],
+  "limits": [
+    "Some existing members/milestone/audit services return empty arrays on failure; preserved public contracts do not expose every failure.",
+    "No credential-backed RLS/JWT audit, native zoom or assistive-technology session was run.",
+    "Only configured Chromium engine was exercised.",
+    "Project favorites remain personal device-local preferences; no new sharing/workspace storage.",
+    "Changes remain local; no commit, push, deployment or live lifecycle mutation."
+  ]
+}

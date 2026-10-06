@@ -1,0 +1,14 @@
+// @vitest-environment jsdom
+import { act, cleanup, renderHook } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { CollaborationDraftSnapshot } from '../../src/app/features/interdepartment-collaboration';
+const calls=vi.hoisted(()=>({save:vi.fn()}));
+vi.mock('../../src/app/features/interdepartment-collaboration',()=>({autosaveCollaborationDraft:calls.save}));
+import { useProposalDraftPersistence } from '../../src/app/features/proposal-import/hooks/useProposalDraftPersistence';
+const snapshot=(title:string)=>({version:1,title,tasks:[],organizations:[],proposalId:'p',description:'',planningAnchor:'2026-10-06'} as CollaborationDraftSnapshot);
+beforeEach(()=>{vi.clearAllMocks();vi.useFakeTimers();calls.save.mockResolvedValue({});});afterEach(()=>{cleanup();vi.useRealTimers();});
+describe('Phase 15 persistent review',()=>{
+ it('does not warn for a saved draft but keeps failed autosave dirty and retries without regeneration',async()=>{const initial=snapshot('Saved'),next=snapshot('Edited');const view=renderHook(({value})=>useProposalDraftPersistence('actor','d',value,true,''),{initialProps:{value:initial}});act(()=>view.result.current.markSaved(initial));expect(view.result.current.dirty).toBe(false);calls.save.mockRejectedValueOnce(new Error('Write denied'));view.rerender({value:next});expect(view.result.current.dirty).toBe(true);await act(async()=>vi.advanceTimersByTimeAsync(900));expect(view.result.current.state).toBe('error');expect(view.result.current.dirty).toBe(true);await act(async()=>view.result.current.persist());expect(view.result.current.dirty).toBe(false);expect(calls.save).toHaveBeenCalledTimes(2);});
+ it('serializes older autosave and simultaneous explicit saves so current edits are stored last only once',async()=>{let finish!:(v:unknown)=>void;calls.save.mockImplementationOnce(()=>new Promise(r=>{finish=r;}));const old=snapshot('Old'),next=snapshot('New');const view=renderHook(({value})=>useProposalDraftPersistence('actor','d',value,true,''),{initialProps:{value:old}});await act(async()=>vi.advanceTimersByTimeAsync(900));expect(calls.save).toHaveBeenCalledOnce();view.rerender({value:next});let a!:Promise<void>,b!:Promise<void>;act(()=>{a=view.result.current.persist();b=view.result.current.persist();});expect(calls.save).toHaveBeenCalledOnce();await act(async()=>{finish({});await Promise.all([a,b]);});expect(calls.save).toHaveBeenCalledTimes(2);expect(calls.save.mock.calls[1][2].title).toBe('New');expect(view.result.current.dirty).toBe(false);});
+ it('keeps invalid reviews unsaved without sending their snapshot',async()=>{const view=renderHook(()=>useProposalDraftPersistence('actor','d',snapshot('Bad'),true,'Invalid effort'));await act(async()=>vi.advanceTimersByTimeAsync(1000));expect(view.result.current.error).toBe('Invalid effort');expect(view.result.current.dirty).toBe(true);expect(calls.save).not.toHaveBeenCalled();});
+});

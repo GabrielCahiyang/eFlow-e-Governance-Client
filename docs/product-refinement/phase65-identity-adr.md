@@ -1,0 +1,13 @@
+# Phase 6.5 identity decision
+
+Accepted for implementation, 6 October 2026. This is the explicit functional change requested by the user, separate from modularisation and the G2 contributor-authority correction.
+
+Use `project_office_identities` as an additive, project-scoped name/provenance layer. Keep `project_offices.office_id` and `tasks.org_id` canonical and non-null as before. An identity links immutably to one canonical participation record through a composite project/Office foreign key. Existing participation is backfilled without changing ownership, membership, invitations or execution state.
+
+The appointed Lead Head can retain names, invite local contacts, link directory records and propose task responsibility. Names and confirmed AI evidence establish planning intent only. `tasks.proposed_office_identity_id` blocks assignment, execution, submissions, funding and activation until the Lead Head resolves it through the existing unstarted/unassigned handover conditions and a joined canonical participant. Planning title/date/effort edits remain available. No global Office or Head is created by this flow.
+
+Local invitations use `project_office_identity` and a distinct `project_office_identity_id`, while `user_invitations.office_id` remains the inviter's canonical Office. Existing opaque-token claim, resend, delivery reservation and acceptance endpoints remain compatible. A new contact receives Member without global Office membership; existing active non-Admin identity is retained. Accepted local contacts receive project read context only. Directory linking checks their existing Office affiliation and never moves it. Linking waits for pending invitations to be revoked/accepted; the canonical Office's appointed Head then confirms collaborating participation. Observer identities cannot resolve task execution.
+
+All writes use explicit authenticated-actor RPC checks; exposed tables are read-only under RLS. Private baseline function copies retain old canonical behavior; public callable signatures remain compatible. New reviewed import RPC `phase65_import_project_work` calls Phase 5 validation/creation transactionally, persists local names and maps task intent before commit. Phase 5 remains callable and unchanged. Retry uses the same batch and identity IDs.
+
+Read-only preflight confirmed Phase 2/6/7 deployed definitions on the configured main project `ixnfphgjyelhckjwjkdv`; no records were read or mutated. CLI generated the new migration. Implementation verification uses disposable PostgreSQL with synthetic accounts. Deployment, email dispatch to real recipients and native delivery are separate release steps. Keep additive data on rollback; disable new flows and forward-fix, never drop pending identities.

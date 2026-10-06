@@ -1,6 +1,7 @@
 import { useId, useRef, useState, type ReactNode } from 'react';
 import { Plus } from 'lucide-react';
 import './inlineCreateRow.css';
+import { useNavigationBlocker } from '../../../shared/navigationGuard';
 
 interface InlineCreateRowProps {
   label: string;
@@ -17,12 +18,14 @@ export function InlineCreateRow({ label, itemName, maxLength, autoFocus, onCreat
   const [title, setTitle] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [refreshFailed, setRefreshFailed] = useState(false);
   const draft = useRef('');
   const saving = useRef(false);
   const input = useRef<HTMLInputElement>(null);
   const form = useRef<HTMLFormElement>(null);
   const hintId = useId();
   const errorId = useId();
+  useNavigationBlocker({label:`Unsaved ${itemName}`,dirty:Boolean(error && title.trim()),pending:busy,pendingCheck:()=>saving.current,onDiscard:()=>{draft.current='';setTitle('');setError('');}});
 
   async function save(keepAdding = false) {
     const nextTitle = draft.current.trim();
@@ -38,7 +41,7 @@ export function InlineCreateRow({ label, itemName, maxLength, autoFocus, onCreat
       setTitle('');
       if (onCreated) {
         try { await onCreated(); }
-        catch (error) { setError('Added, but could not refresh: ' + (error instanceof Error ? error.message : 'Please reload the view.')); }
+        catch (error) { setRefreshFailed(true); setError('Added, but could not refresh: ' + (error instanceof Error ? error.message : 'Please reload the view.')); }
       }
       if (keepAdding && form.current?.contains(document.activeElement)) input.current?.focus();
     } catch (error) {
@@ -77,6 +80,10 @@ export function InlineCreateRow({ label, itemName, maxLength, autoFocus, onCreat
       {busy && <span className="pt-inline-create__status" role="status">Adding…</span>}
     </div>
     <p id={hintId} className="pt-inline-create__hint">Press <strong>Shift + Enter</strong> to add another {itemName}</p>
-    {error && <p id={errorId} className="pt-inline-create__error" role="alert">{error}</p>}
+    {error && <p id={errorId} className="pt-inline-create__error" role="alert">{error}{refreshFailed && <button type="button" disabled={busy} onClick={() => {
+      if (!onCreated || saving.current) return;
+      saving.current = true; setBusy(true); onBusyChange?.(true);
+      void onCreated().then(() => { setRefreshFailed(false); setError(''); }).catch(caught => setError('Added, but could not refresh: ' + (caught instanceof Error ? caught.message : 'Please reload the view.'))).finally(() => { saving.current = false; setBusy(false); onBusyChange?.(false); });
+    }}>Retry refresh</button>}</p>}
   </form>;
 }

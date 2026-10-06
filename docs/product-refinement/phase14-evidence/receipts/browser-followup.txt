@@ -1,0 +1,13 @@
+
+Running 1 test using 1 worker
+
+
+
+[1A[2K(node:40924) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K(node:40924) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[1/1] [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:79:61 › Project Office governed retains read-only reasons and governance handoff
+[1A[2K  1 passed (6.8s)

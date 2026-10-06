@@ -1,0 +1,61 @@
+
+Running 12 tests using 1 worker
+
+
+
+[1A[2K(node:6580) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K(node:6580) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[1/12] [chromium] › tests\e2e\phase15-ai-governance.spec.ts:12:1 › Reviewed project sections preserve source and require one impact confirmation before creating work
+[1A[2K[2/12] [chromium] › tests\e2e\phase15-ai-governance.spec.ts:22:1 › PDF work-plan review saves only its persistent draft, keeps failed autosave edits and retries saving
+[1A[2K[3/12] [chromium] › tests\e2e\phase15-ai-governance.spec.ts:33:1 › Task inspector staffing retains selection after eligibility denial and assigns only after reviewed fresh context
+[1A[2K[4/12] [chromium] › tests\e2e\phase15-ai-governance.spec.ts:39:1 › Owner PDS review retries extraction, retains failed profile edits and confirms the saved summary separately
+[1A[2K[5/12] [chromium] › tests\e2e\phase15-ai-governance.spec.ts:46:1 › Official readiness blockers link to Office and task views, and material changes refresh current checks
+[1A[2K[6/12] [chromium] › tests\e2e\phase15-ai-governance.spec.ts:51:1 › Missing readiness deployment explains administrator recovery and governed projects retain Approval Status handoff
+[1A[2K[7/12] [chromium] › tests\e2e\phase5-project-import.spec.ts:26:1 › Phase 5 shows a spacious editable hierarchy and imports only after confirmation with safe retry
+[1A[2K  1) [chromium] › tests\e2e\phase5-project-import.spec.ts:26:1 › Phase 5 shows a spacious editable hierarchy and imports only after confirmation with safe retry 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThanOrEqual[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: >= [32m4[39m
+    Received:    [31m3[39m
+
+      48 |   const visibleRows = await review.locator('.pi-review-table tbody>tr').evaluateAll(rows => rows.filter(row => { const r = row.getBoundingClientRect(), body = row.closest('.pi-review-body')!.getBoundingClientRect(); return r.top >= body.top && r.bottom <= body.bottom; }).length);
+      49 |   await page.screenshot({ path: info.outputPath('review-desktop.png') });
+    > 50 |   expect(visibleRows).toBeGreaterThanOrEqual(4);
+         |                       ^
+      51 |   await review.getByRole('button', { name: 'Add to Project' }).click();
+      52 |   await expect(review.getByRole('alert')).toContainText('Confirm'); expect(imports).toHaveLength(0);
+      53 |   await review.getByLabel('Task name t1').fill('Prepare outreach evidence');
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase5-project-import.spec.ts:50:23
+
+    Error Context: test-results\phase5-project-import-Phas-c96be-onfirmation-with-safe-retry-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase5-project-import-Phas-c96be-onfirmation-with-safe-retry-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase5-project-import-Phas-c96be-onfirmation-with-safe-retry-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+[1A[2K(node:16528) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K(node:16528) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[8/12] [chromium] › tests\e2e\phase5-project-import.spec.ts:75:1 › Phase 5 mobile review fills the screen and scrolls inside its table
+[1A[2K[9/12] [chromium] › tests\e2e\phase5-project-import.spec.ts:91:1 › Phase 5 extracts readable PDF project text before generating a draft
+[1A[2K[10/12] [chromium] › tests\e2e\phase7-readiness-staffing.spec.ts:18:1 › Head confirms readiness; desktop and mobile retain readable checks and closeout blockers
+[1A[2K[11/12] [chromium] › tests\e2e\phase7-readiness-staffing.spec.ts:35:1 › Staffing is advisory until Head confirmation; roomy dialog supports keyboard selection and mobile footer
+[1A[2K[12/12] [chromium] › tests\e2e\phase7-readiness-staffing.spec.ts:59:1 › Member reads readiness without Head review, activation or staffing controls
+[1A[2K  1 failed
+    [chromium] › tests\e2e\phase5-project-import.spec.ts:26:1 › Phase 5 shows a spacious editable hierarchy and imports only after confirmation with safe retry 
+  11 passed (1.3m)

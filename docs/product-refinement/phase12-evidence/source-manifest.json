@@ -1,0 +1,455 @@
+{
+  "captured_at": "2026-10-06T08:47:31.589696+00:00",
+  "sources": [
+    {
+      "path": "src/app/components/Head/HeadDashboard.tsx",
+      "snapshot": "sources/src/app/components/Head/HeadDashboard.tsx",
+      "sha256": "2e0e7cf5abb8233b772737901ba3fe505e1bfee32e865c3f158cd6f6ffe0ae1c"
+    },
+    {
+      "path": "src/app/components/Member/EmployeeTaskWorkspace.tsx",
+      "snapshot": "sources/src/app/components/Member/EmployeeTaskWorkspace.tsx",
+      "sha256": "38af83362d29772b425e99e118efcd7f5741d771e9940277dd023da8cb41fd7d"
+    },
+    {
+      "path": "src/app/components/ui/FeatureDialog.tsx",
+      "snapshot": "sources/src/app/components/ui/FeatureDialog.tsx",
+      "sha256": "7c823b46563395b7baff9bfba7a9352dcf89eb3d9e3da4e0cd4eacfb0a99dded"
+    },
+    {
+      "path": "src/app/components/ui/useConfirmation.tsx",
+      "snapshot": "sources/src/app/components/ui/useConfirmation.tsx",
+      "sha256": "0139e87dbfc3cdcfbd4ccd998be03fc28b1560d764da00ca6f2b6e6b87ffc855"
+    },
+    {
+      "path": "src/app/components/workflow/ProgressUpdateForm.tsx",
+      "snapshot": "sources/src/app/components/workflow/ProgressUpdateForm.tsx",
+      "sha256": "251f70f3f97afa7fd7ea6f44de187d2c11dd4455c8b330f79daff4c9e3b69013"
+    },
+    {
+      "path": "src/app/components/workflow/SubmitForReviewForm.tsx",
+      "snapshot": "sources/src/app/components/workflow/SubmitForReviewForm.tsx",
+      "sha256": "42e221260a3646f675131b9c51a586bab9425d15ed849f8c64058a6041a07141"
+    },
+    {
+      "path": "src/app/components/workflow/SubtasksWorkspace.tsx",
+      "snapshot": "sources/src/app/components/workflow/SubtasksWorkspace.tsx",
+      "sha256": "b9c9f480ba0550058a659a4738935a763bf494a0ef8398907ad48cf2d2eea532"
+    },
+    {
+      "path": "src/app/components/workflow/TaskActivityTimeline.tsx",
+      "snapshot": "sources/src/app/components/workflow/TaskActivityTimeline.tsx",
+      "sha256": "d94aa47d5d0898418097f9a63ebcdcd82352dba98f304bcf470a5eeed512c170"
+    },
+    {
+      "path": "src/app/components/workflow/TaskDetailDrawer.tsx",
+      "snapshot": "sources/src/app/components/workflow/TaskDetailDrawer.tsx",
+      "sha256": "5e506a3894d2e64fb4a97918d7f8d80929b03fdd42c96acce4955ba94105f741"
+    },
+    {
+      "path": "src/app/components/workflow/TaskDiscussion.tsx",
+      "snapshot": "sources/src/app/components/workflow/TaskDiscussion.tsx",
+      "sha256": "830edd869b6525a5190c1f7daaf5bf48d4c7ae7b3026c08a4d7d220f4a50c536"
+    },
+    {
+      "path": "src/app/components/workflow/YouAreLeadingView.tsx",
+      "snapshot": "sources/src/app/components/workflow/YouAreLeadingView.tsx",
+      "sha256": "a93e90f7d09b8684500ef1595e0bab9978f919a94595def79b00843dbcb49392"
+    },
+    {
+      "path": "src/app/features/interdepartment-collaboration/components/CommittedProposalBoard.tsx",
+      "snapshot": "sources/src/app/features/interdepartment-collaboration/components/CommittedProposalBoard.tsx",
+      "sha256": "25c83bdfa3db08254423cdf21a5afacb8baf90116deb6bbd2c3fccdbda2b1eb9"
+    },
+    {
+      "path": "src/app/features/members/components/core-work/EmployeeDeadlines.tsx",
+      "snapshot": "sources/src/app/features/members/components/core-work/EmployeeDeadlines.tsx",
+      "sha256": "dcc6dd976be9f5ea14fee818a3c51e4d9b9ce7a50e28f33514a17d469bcde0ad"
+    },
+    {
+      "path": "src/app/features/members/components/core-work/EmployeeMyProjects.tsx",
+      "snapshot": "sources/src/app/features/members/components/core-work/EmployeeMyProjects.tsx",
+      "sha256": "a87a7954f963d6f9ef41b6e48bc9396c55ab708bc6be4e577223e509434a9e12"
+    },
+    {
+      "path": "src/app/features/members/components/core-work/EmployeeMyTasks.tsx",
+      "snapshot": "sources/src/app/features/members/components/core-work/EmployeeMyTasks.tsx",
+      "sha256": "a7968e903f78579b20f8954be4715ab134d6b9d02f9ab125d1c5eee890d834e3"
+    },
+    {
+      "path": "src/app/features/members/components/core-work/EmployeeTaskHistory.tsx",
+      "snapshot": "sources/src/app/features/members/components/core-work/EmployeeTaskHistory.tsx",
+      "sha256": "c164c3e91ce919456b572ddc4c715365989e0346d320091d0ddb7953615129dc"
+    },
+    {
+      "path": "src/app/features/project-offices/hooks/useProjectOffices.ts",
+      "snapshot": "sources/src/app/features/project-offices/hooks/useProjectOffices.ts",
+      "sha256": "f13c96be0c864b2818d2635363d3f40062bd744e590c74cd8023ff20d8f5682b"
+    },
+    {
+      "path": "src/app/features/project-offices/types.ts",
+      "snapshot": "sources/src/app/features/project-offices/types.ts",
+      "sha256": "5f3a08fceea3ff59760488e407301550b42caad760e9203c4ce867ba5519b5a5"
+    },
+    {
+      "path": "src/app/features/project-table/components/ProjectTableWorkspace.tsx",
+      "snapshot": "sources/src/app/features/project-table/components/ProjectTableWorkspace.tsx",
+      "sha256": "a4383f967f918fc411e04c557874430831642cb1a164fd524e161a47114e43fc"
+    },
+    {
+      "path": "src/app/features/project-views/components/ProjectFilterChips.tsx",
+      "snapshot": "sources/src/app/features/project-views/components/ProjectFilterChips.tsx",
+      "sha256": "0d1f5a2bfb3d328e7f3c76ed0cdb1bf14d4ace252650480a972360925a6d2a44"
+    },
+    {
+      "path": "src/app/features/project-views/components/ProjectGanttView.tsx",
+      "snapshot": "sources/src/app/features/project-views/components/ProjectGanttView.tsx",
+      "sha256": "a722608f7d755aae9eaae901e3702f28bec826e2d1c9cb64ee1b13d6124dd327"
+    },
+    {
+      "path": "src/app/features/project-views/components/ProjectInsightsView.tsx",
+      "snapshot": "sources/src/app/features/project-views/components/ProjectInsightsView.tsx",
+      "sha256": "265a6743a5237b70a310fda6264525a5e29ddc9003e494e7904e7d4b19cc0827"
+    },
+    {
+      "path": "src/app/features/project-views/components/ProjectOfficesView.tsx",
+      "snapshot": "sources/src/app/features/project-views/components/ProjectOfficesView.tsx",
+      "sha256": "5aa6657652df189706927944e0e0b81e663d3acfbdd6600e2884906284c5affd"
+    },
+    {
+      "path": "src/app/features/project-views/components/ProjectViewFilters.tsx",
+      "snapshot": "sources/src/app/features/project-views/components/ProjectViewFilters.tsx",
+      "sha256": "f898bd15edfb20ae77f8bf1512bd7af1535abb7aaa1ecb05d543dd24a5ac247f"
+    },
+    {
+      "path": "src/app/features/project-views/components/TaskDatesDialog.tsx",
+      "snapshot": "sources/src/app/features/project-views/components/TaskDatesDialog.tsx",
+      "sha256": "fa1a64e85f2cb258ce16e69de8f71ee110bc3585855e48087dc3dcdac285a4e0"
+    },
+    {
+      "path": "src/app/features/project-views/filterChips.css",
+      "snapshot": "sources/src/app/features/project-views/filterChips.css",
+      "sha256": "5da1e95168f80fed771c390f76a68eb48ac2197a5f7e7af0e46431ee063219ce"
+    },
+    {
+      "path": "src/app/features/project-views/hooks/useProjectPresentation.ts",
+      "snapshot": "sources/src/app/features/project-views/hooks/useProjectPresentation.ts",
+      "sha256": "6e4855d2b4e19ca385008b989e2fcf4582ab7984664a1f3a455ea214d64778f5"
+    },
+    {
+      "path": "src/app/features/project-views/hooks/useProjectReviewDates.ts",
+      "snapshot": "sources/src/app/features/project-views/hooks/useProjectReviewDates.ts",
+      "sha256": "160fcbca9700ac0ee8695efbe2b132dc2f112c5d9bd4c23e40e042bdcc2f0ba9"
+    },
+    {
+      "path": "src/app/features/project-views/hooks/useProjectViewActions.ts",
+      "snapshot": "sources/src/app/features/project-views/hooks/useProjectViewActions.ts",
+      "sha256": "21fde2a6547619ff55a1484a6663699df8f87e854d5494a7b01c9f281b725d71"
+    },
+    {
+      "path": "src/app/features/project-views/hooks/useProjectViewPreferences.ts",
+      "snapshot": "sources/src/app/features/project-views/hooks/useProjectViewPreferences.ts",
+      "sha256": "8c84b13fc776e354263df870145048e31ce9658a352a9dd15e43932f9c94f571"
+    },
+    {
+      "path": "src/app/features/project-views/index.ts",
+      "snapshot": "sources/src/app/features/project-views/index.ts",
+      "sha256": "3fdb68e98118ceb9255e7c2957c03aa6356ae01f16c384c9d49e3ac680d9faff"
+    },
+    {
+      "path": "src/app/features/project-views/preferences.ts",
+      "snapshot": "sources/src/app/features/project-views/preferences.ts",
+      "sha256": "a60bf6557d905c106efdfb5b2ef82c813afa19d95dcf7b1bd26fcca7a365d68f"
+    },
+    {
+      "path": "src/app/features/project-views/projectViews.css",
+      "snapshot": "sources/src/app/features/project-views/projectViews.css",
+      "sha256": "c63e90a835d5b94d48f8526f88e6d1af217f17b3cbd48d6cd37f9662359c32c5"
+    },
+    {
+      "path": "src/app/features/project-views/selectors.ts",
+      "snapshot": "sources/src/app/features/project-views/selectors.ts",
+      "sha256": "91f2d193b88eca75969501bedb6ba240f33ad946ae318aa5afeb74cc09219f87"
+    },
+    {
+      "path": "src/app/features/project-views/types.ts",
+      "snapshot": "sources/src/app/features/project-views/types.ts",
+      "sha256": "ae98a6b29c43da22af18ca0dc76fdc565e5204088ff6cd98e023e9a59846519d"
+    },
+    {
+      "path": "src/app/features/projects/components/project-command/ProjectCalendarView.tsx",
+      "snapshot": "sources/src/app/features/projects/components/project-command/ProjectCalendarView.tsx",
+      "sha256": "208692f979833a4877277a6a844ae7b00e5206fd631c5c9c438c8c7dd13c772d"
+    },
+    {
+      "path": "src/app/features/projects/components/project-command/ProjectCommandWorkspace.tsx",
+      "snapshot": "sources/src/app/features/projects/components/project-command/ProjectCommandWorkspace.tsx",
+      "sha256": "6ca272be7e3fe5cfc88eeb281ceb24d769d5810cf0449f3f79a995d6f0d9d563"
+    },
+    {
+      "path": "src/app/features/projects/components/project-command/ProjectWorkTab.tsx",
+      "snapshot": "sources/src/app/features/projects/components/project-command/ProjectWorkTab.tsx",
+      "sha256": "617b76bbc9f482d37e0e2d3b13180b9532c0d14f197672d9c055a16ec1aa46dd"
+    },
+    {
+      "path": "src/app/features/projects/components/ProjectsWorkspace.tsx",
+      "snapshot": "sources/src/app/features/projects/components/ProjectsWorkspace.tsx",
+      "sha256": "c62e1e590d4c0f0f2044d876f85d36ac90217b0dafc1b92b03f5dfa0f3cde986"
+    },
+    {
+      "path": "src/app/features/projects/selectors/projectViewContext.ts",
+      "snapshot": "sources/src/app/features/projects/selectors/projectViewContext.ts",
+      "sha256": "e276c47774f4a2a86223639b91c7802660005487aa7b7e2e6e279045413fb992"
+    },
+    {
+      "path": "src/app/features/reports/components/HeadReportsWorkspace.tsx",
+      "snapshot": "sources/src/app/features/reports/components/HeadReportsWorkspace.tsx",
+      "sha256": "69f7d5943da20059634731e9f650a94ef3d0c3736e8f2eff769104cd5fa29f31"
+    },
+    {
+      "path": "src/app/features/reviews/components/ReviewDecisionForm.tsx",
+      "snapshot": "sources/src/app/features/reviews/components/ReviewDecisionForm.tsx",
+      "sha256": "4406e28f2d01caaf1fa3c3c078b191f6cbc25afd03a0050ff73aee595c4e34a8"
+    },
+    {
+      "path": "src/app/features/reviews/components/SubmissionSummary.tsx",
+      "snapshot": "sources/src/app/features/reviews/components/SubmissionSummary.tsx",
+      "sha256": "ed77e13bde1f9ee8460c82cabaa7e3a3cfd3327f2b9d655b2e60a65ee5ae2d5a"
+    },
+    {
+      "path": "src/app/features/reviews/components/TaskReviewPanel.tsx",
+      "snapshot": "sources/src/app/features/reviews/components/TaskReviewPanel.tsx",
+      "sha256": "a995e2509e76cf9d57e76c080c621fac4c46a4179ead25838adb0e2ba4241896"
+    },
+    {
+      "path": "src/app/features/subtasks/hooks/useTaskSubtasks.ts",
+      "snapshot": "sources/src/app/features/subtasks/hooks/useTaskSubtasks.ts",
+      "sha256": "6c94a59688d0808853b8e413b92115730fe051033843d18415d735ed9c134a92"
+    },
+    {
+      "path": "src/app/features/task-inspector/components/InspectorEvidence.tsx",
+      "snapshot": "sources/src/app/features/task-inspector/components/InspectorEvidence.tsx",
+      "sha256": "63280112e55b0d4e147643ce23917ed23e07950b64a467f58fd926729b719b19"
+    },
+    {
+      "path": "src/app/features/task-inspector/components/InspectorHeader.tsx",
+      "snapshot": "sources/src/app/features/task-inspector/components/InspectorHeader.tsx",
+      "sha256": "99e65683da14ddd1ba0c207965f857398fe8c87d2ee25b75dd30506e2a984f42"
+    },
+    {
+      "path": "src/app/features/task-inspector/components/InspectorSummary.tsx",
+      "snapshot": "sources/src/app/features/task-inspector/components/InspectorSummary.tsx",
+      "sha256": "51a6f301249f1c64efc18d11f93d8d8327f747783274a131544ff1e08d568d1f"
+    },
+    {
+      "path": "src/app/features/task-inspector/components/InspectorTeam.tsx",
+      "snapshot": "sources/src/app/features/task-inspector/components/InspectorTeam.tsx",
+      "sha256": "5c4984a2f06da3f8da55fb488e8789bf6cfbfe32446937e639358a2640e41f6b"
+    },
+    {
+      "path": "src/app/features/task-inspector/components/TaskInspector.tsx",
+      "snapshot": "sources/src/app/features/task-inspector/components/TaskInspector.tsx",
+      "sha256": "d40b7b267411fe0f3b9875d9a315a1a17553bdff6b2ceca62d670c6b99e4910b"
+    },
+    {
+      "path": "src/app/features/task-inspector/hooks/useInspectorLifecycle.ts",
+      "snapshot": "sources/src/app/features/task-inspector/hooks/useInspectorLifecycle.ts",
+      "sha256": "b64f0229618d992e967530da0afa515f7b34604f5ca4b79eccda6cbd38d20550"
+    },
+    {
+      "path": "src/app/features/task-inspector/hooks/useTaskInspector.ts",
+      "snapshot": "sources/src/app/features/task-inspector/hooks/useTaskInspector.ts",
+      "sha256": "bbded4129046dc17750e72d4e1813263aa8a3888a424efa7c09b9f4665ef997d"
+    },
+    {
+      "path": "src/app/features/task-inspector/index.ts",
+      "snapshot": "sources/src/app/features/task-inspector/index.ts",
+      "sha256": "85cbc0d5ea7d3c16816efec6f755d5ad17d6a8533aeecbae1b12b885717809ca"
+    },
+    {
+      "path": "src/app/features/tasks/components/AdminTaskOversight.tsx",
+      "snapshot": "sources/src/app/features/tasks/components/AdminTaskOversight.tsx",
+      "sha256": "35c992b14d69a7410e486d22c84972b30c34274b917a17cc18e1ccf4ae5357f0"
+    },
+    {
+      "path": "src/app/features/tasks/components/taskDetailAccess.ts",
+      "snapshot": "sources/src/app/features/tasks/components/taskDetailAccess.ts",
+      "sha256": "b91a116bc61b15278cd438374e32e3d8cf238647be5aa0e7646456b58e9aecf8"
+    },
+    {
+      "path": "src/app/features/tasks/components/team/TaskTeamEditorDialog.tsx",
+      "snapshot": "sources/src/app/features/tasks/components/team/TaskTeamEditorDialog.tsx",
+      "sha256": "1c0105f379242dd227efa0561b3cc5b63675763d0845acd507bf07be5802d8f0"
+    },
+    {
+      "path": "src/app/features/tasks/index.ts",
+      "snapshot": "sources/src/app/features/tasks/index.ts",
+      "sha256": "6d572c2be4959a47a3bb9e0641b4bde39f5db991c89f72d68d9d4e8476725424"
+    },
+    {
+      "path": "src/app/features/tasks/services/taskTeamService.ts",
+      "snapshot": "sources/src/app/features/tasks/services/taskTeamService.ts",
+      "sha256": "577097e97346bdd5c200c30fa59b8232fc9bd9276ddb0ed74550b8d14e1b0898"
+    },
+    {
+      "path": "src/app/features/team-management/components/supervision/TeamSupervisionWorkspace.tsx",
+      "snapshot": "sources/src/app/features/team-management/components/supervision/TeamSupervisionWorkspace.tsx",
+      "sha256": "b59b21abaa848f10a3ae261620de41a23367ca199b9ace205200bbd2a5ccafef"
+    },
+    {
+      "path": "src/app/services/taskDiscussionService.ts",
+      "snapshot": "sources/src/app/services/taskDiscussionService.ts",
+      "sha256": "bb0f308f727423e160c858b6ead5486d4610dbd52ff186e5a67a37ccdb04428d"
+    },
+    {
+      "path": "src/app/shared/motion/InspectorPanel.tsx",
+      "snapshot": "sources/src/app/shared/motion/InspectorPanel.tsx",
+      "sha256": "53e11b4136a6bb3489d2d3d6a7e54a344bbe53f405c90d572fe57beccf523a9d"
+    },
+    {
+      "path": "src/app/shared/navigationGuard.ts",
+      "snapshot": "sources/src/app/shared/navigationGuard.ts",
+      "sha256": "75df8b5e08aaa074d878379a39d9b4c3bebcb14f597f4e8df34aa3d1cbb7fc23"
+    },
+    {
+      "path": "src/app/shared/useExplicitDraft.ts",
+      "snapshot": "sources/src/app/shared/useExplicitDraft.ts",
+      "sha256": "ebad9ee6506545a7a524aa9a2a24e5ad605e5ee63a5bf611c2f23d19e67ae00f"
+    },
+    {
+      "path": "supabase/migrations/20260821000006_task_team_removal_guard.sql",
+      "snapshot": "sources/supabase/migrations/20260821000006_task_team_removal_guard.sql",
+      "sha256": "78f206fcbc033f14e07b3a842cc2dff3f2693224fefadc9adcd5d77514efd743"
+    },
+    {
+      "path": "supabase/migrations/20261004140128_phase3_project_table_workspace.sql",
+      "snapshot": "sources/supabase/migrations/20261004140128_phase3_project_table_workspace.sql",
+      "sha256": "69c2b4d6e5d8cf21944d88cdd6e167278bbf79785275543e7892d9645804e1f0"
+    },
+    {
+      "path": "supabase/migrations/20261004174950_phase6_project_office_collaboration.sql",
+      "snapshot": "sources/supabase/migrations/20261004174950_phase6_project_office_collaboration.sql",
+      "sha256": "92e0635b45ae1dbe3d26aeec58cd5af8b817e27e4b2cb4c65e02f819e3d59bee"
+    },
+    {
+      "path": "supabase/migrations/20261004182453_phase6_shared_structure_guards.sql",
+      "snapshot": "sources/supabase/migrations/20261004182453_phase6_shared_structure_guards.sql",
+      "sha256": "c472ef02a7c0265bce3df298d4ed02c344c4ed169b2acb7b3112da7297d1fcd6"
+    },
+    {
+      "path": "tests/e2e/fixtures/projectWorkspace.ts",
+      "snapshot": "sources/tests/e2e/fixtures/projectWorkspace.ts",
+      "sha256": "c5769178e2472aab5d0a162b5e93cd323100a8b656e78f638150de9b48f2415e"
+    },
+    {
+      "path": "tests/e2e/phase12-shared-inspector.spec.ts",
+      "snapshot": "sources/tests/e2e/phase12-shared-inspector.spec.ts",
+      "sha256": "8a6f981e7f291c332b4024569aeb968b1b06ebbed0fbec88d4246395de649522"
+    },
+    {
+      "path": "tests/e2e/phase3-project-table.spec.ts",
+      "snapshot": "sources/tests/e2e/phase3-project-table.spec.ts",
+      "sha256": "75fa2da5edbc773130da9b3ad602a6063f736f93d41339a9bcf59e08940fcd30"
+    },
+    {
+      "path": "tests/e2e/phase4-project-views.spec.ts",
+      "snapshot": "sources/tests/e2e/phase4-project-views.spec.ts",
+      "sha256": "30beedaaf02257b01164f81129ff89e7b920f60082d6154111a2af949ef2c991"
+    },
+    {
+      "path": "tests/e2e/phase6-project-offices.spec.ts",
+      "snapshot": "sources/tests/e2e/phase6-project-offices.spec.ts",
+      "sha256": "288b3136eedf52b32b6a29a9d2b8a7da170a5dc33141916ebb8a3f7ecd469cf7"
+    },
+    {
+      "path": "tests/e2e/phase7-readiness-staffing.spec.ts",
+      "snapshot": "sources/tests/e2e/phase7-readiness-staffing.spec.ts",
+      "sha256": "f9425308cb30b6a37a1a6bdeadc164e52534cf2538cc580bc68db6df6a1e9820"
+    },
+    {
+      "path": "tests/e2e/project-workspace-controls.spec.ts",
+      "snapshot": "sources/tests/e2e/project-workspace-controls.spec.ts",
+      "sha256": "75f724e5dddc6c9c77295c4731f4e62c8df9fbedbb54b5b6c161152ebd9f38f3"
+    },
+    {
+      "path": "tests/unit/adminTaskReadOnly.test.ts",
+      "snapshot": "sources/tests/unit/adminTaskReadOnly.test.ts",
+      "sha256": "f8fadace94076dfa6c294cf110a9f54f6dcb1917b5cb2d7be29b6b273dbca7e4"
+    },
+    {
+      "path": "tests/unit/inspectorPanel.test.tsx",
+      "snapshot": "sources/tests/unit/inspectorPanel.test.tsx",
+      "sha256": "62297cebc465503a2e0a9a7002798ef9e2537d3ddc33bd2b5660bdd73a5307c6"
+    },
+    {
+      "path": "tests/unit/phase09StandingChannels.test.tsx",
+      "snapshot": "sources/tests/unit/phase09StandingChannels.test.tsx",
+      "sha256": "493474c46cffdbb15a46c465ad950f082adcf4db6d1bbdf2aa2596b5bbf55775"
+    },
+    {
+      "path": "tests/unit/phase12DialogFocus.test.tsx",
+      "snapshot": "sources/tests/unit/phase12DialogFocus.test.tsx",
+      "sha256": "861b675a1a8ba6eec7706bc2625e7d7605f58538b6310099d80ae3dbc72fb1f0"
+    },
+    {
+      "path": "tests/unit/phase12Evidence.test.tsx",
+      "snapshot": "sources/tests/unit/phase12Evidence.test.tsx",
+      "sha256": "f66728eaa7aa94b0e6c41191131fadf664873687d670c0bfe37a0193fc0209ff"
+    },
+    {
+      "path": "tests/unit/phase12InspectorDrafts.test.tsx",
+      "snapshot": "sources/tests/unit/phase12InspectorDrafts.test.tsx",
+      "sha256": "c569b77e0aadb1720bb3ea442dc911da390d954991504cff4d4ed44267a71c45"
+    },
+    {
+      "path": "tests/unit/phase12ProjectContext.test.ts",
+      "snapshot": "sources/tests/unit/phase12ProjectContext.test.ts",
+      "sha256": "0a796c8baddf277f4d072c32c17088ccd367f3e4bb5efa588e39128a51e55bb9"
+    },
+    {
+      "path": "tests/unit/phase12SubmissionDrafts.test.tsx",
+      "snapshot": "sources/tests/unit/phase12SubmissionDrafts.test.tsx",
+      "sha256": "eb1d27258e3ba4bb3cf6b4032cb795dd6df1f597d5a50981dfa4fc46ec6c0796"
+    },
+    {
+      "path": "tests/unit/phase12SubtaskScope.test.tsx",
+      "snapshot": "sources/tests/unit/phase12SubtaskScope.test.tsx",
+      "sha256": "7ab2035609f3523910f859be27ef41c7793e2239eafbb5b7f94903269d85c5ae"
+    },
+    {
+      "path": "tests/unit/projectOfficeAuthority.test.ts",
+      "snapshot": "sources/tests/unit/projectOfficeAuthority.test.ts",
+      "sha256": "3420a8ff9ce9ba13e2f2e0a7890591996c9dadb6eb1d166c645629bdd7ca5a01"
+    },
+    {
+      "path": "tests/unit/projectViewNavigation.test.tsx",
+      "snapshot": "sources/tests/unit/projectViewNavigation.test.tsx",
+      "sha256": "33141bff38b297b2b4a0f901c3ef3355dbd2c918a0f6a9a34be232e7313c438c"
+    },
+    {
+      "path": "tests/unit/projectViews.test.ts",
+      "snapshot": "sources/tests/unit/projectViews.test.ts",
+      "sha256": "66e06f584513f5b09d53e7bf3c4c15d714a01b8e3db77d2f7c9c0df5d302d356"
+    },
+    {
+      "path": "tests/unit/reviewRouting.test.ts",
+      "snapshot": "sources/tests/unit/reviewRouting.test.ts",
+      "sha256": "b11acd79f7ccb4cfd52c0950eea03a49a59154d1b27cb984ef3663a8f0f77de8"
+    },
+    {
+      "path": "tests/unit/taskDetailSubmissionReadiness.test.tsx",
+      "snapshot": "sources/tests/unit/taskDetailSubmissionReadiness.test.tsx",
+      "sha256": "18147cf4200a722d1169ec496ea5740b95c3375df96d6ec22d43ba20077183f9"
+    },
+    {
+      "path": "tests/unit/taskTeamEditorDialog.test.tsx",
+      "snapshot": "sources/tests/unit/taskTeamEditorDialog.test.tsx",
+      "sha256": "5ef3ce844c306906d1e46eda1c2db1fffc0732317ed082705a46dbdc794507cd"
+    },
+    {
+      "path": "tests/unit/taskTeamMembership.test.ts",
+      "snapshot": "sources/tests/unit/taskTeamMembership.test.ts",
+      "sha256": "b79de7ccd85044d1ac94fca8a6b5b6ec4e11a418c192d2109d1bca276ee4818d"
+    }
+  ]
+}

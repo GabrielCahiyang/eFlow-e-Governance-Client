@@ -3,17 +3,16 @@ import type { Task } from "../../../tasks";
 import type { TeamAttentionItem, TeamWorkflowFacts } from "../../../team-management";
 import type { DepartmentBudgetBundle } from "../../../budget";
 
-export type PermanentProjectView = "overview" | "tasks" | "timeline" | "gantt" | "calendar";
+export type PermanentProjectView = "tasks" | "board" | "gantt" | "calendar" | "dashboard" | "offices";
 
 export type OptionalProjectView =
   | "readiness"
-  | "board"
-  | "offices"
+  | "overview"
+  | "timeline"
   | "reports"
   | "proposal_context"
   | "activity"
   | "reviews"
-  | "dashboard"
   | "workload"
   | "budget"
   | "signoff"
@@ -31,8 +30,8 @@ export type ProjectCommandTab =
 
 export type ProjectScheduleHealth = "on_track" | "due_soon" | "overdue" | "at_risk" | "completed";
 
-export interface ProjectViewMeta {
-  id: OptionalProjectView;
+export interface ProjectViewMeta<T extends ProjectCommandTab = OptionalProjectView> {
+  id: T;
   label: string;
   category: "Project" | "Insights" | "Governance";
   description: string;

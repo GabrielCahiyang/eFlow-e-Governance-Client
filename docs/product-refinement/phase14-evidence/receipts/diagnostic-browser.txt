@@ -1,0 +1,319 @@
+
+Running 37 tests using 1 worker
+
+
+
+[1A[2K(node:29644) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K(node:29644) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[1/37] [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:9:1 › shared inspector keeps discussion drafts and returns focus to each view origin
+[1A[2K[2/37] [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:31:1 › date range is consistent across views and personal after reload
+[1A[2K[3/37] [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:43:1 › mobile observer inspector stays read only and traps and returns focus
+[1A[2K[4/37] [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:56:1 › Board keyboard action prevents duplicate requests and recovers from denial
+[1A[2K[5/37] [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:65:1 › shared Task Lead team mutations stay gated by G2 while details remain available
+[1A[2K[6/37] [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:73:1 › review drafts stay protected and evidence loading denial has an explicit retry
+[1A[2K[7/37] [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:86:1 › removed canonical task closes mutation controls and explains unavailable access
+[1A[2K[8/37] [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:94:1 › successful inspector lifecycle change returns focus to the refreshed Board card
+[1A[2K[9/37] [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:101:1 › mobile team dialog guards drafts and retains a denied member change
+[1A[2K[10/37] [chromium] › tests\e2e\phase13-personal-work.spec.ts:10:66 › head discovers personal work and keeps legacy task and subtask URLs
+[1A[2K[11/37] [chromium] › tests\e2e\phase13-personal-work.spec.ts:10:66 › member discovers personal work and keeps legacy task and subtask URLs
+[1A[2K[12/37] [chromium] › tests\e2e\phase13-personal-work.spec.ts:10:66 › accounting_staff discovers personal work and keeps legacy task and subtask URLs
+[1A[2K[13/37] [chromium] › tests\e2e\phase13-personal-work.spec.ts:23:1 › mobile personal inspector retains dirty discussion and returns focus
+[1A[2K[14/37] [chromium] › tests\e2e\phase13-personal-work.spec.ts:30:1 › My Work read failure is retryable and never a clear queue
+[1A[2K[15/37] [chromium] › tests\e2e\phase13-personal-work.spec.ts:36:1 › Inbox keeps independent task and subtask discovery and exposes partial source denial
+[1A[2K[16/37] [chromium] › tests\e2e\phase13-personal-work.spec.ts:45:1 › recent Updates verify read writes, retain denied read state and explain missing targets at 390px
+[1A[2K[17/37] [chromium] › tests\e2e\phase13-personal-work.spec.ts:56:1 › Admin Inbox does not acquire task, financial or review authority
+[1A[2K[18/37] [chromium] › tests\e2e\phase13-personal-work.spec.ts:61:1 › subtask discovery delegates a stable identity and guards review feedback across navigation
+[1A[2K[19/37] [chromium] › tests\e2e\phase13-personal-work.spec.ts:74:1 › Inbox update opening respects a revoked navigation grant
+[1A[2K[20/37] [chromium] › tests\e2e\phase13-personal-work.spec.ts:80:1 › Accounting updates retain both personal task and financial destinations
+[1A[2K[21/37] [chromium] › tests\e2e\phase13-personal-work.spec.ts:86:1 › personal inspector returns to search when its originating row disappears
+[1A[2K[22/37] [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:9:1 › Office Team lazy professional summary, keyboard focus return and narrow labeled rows
+[1A[2K  1) [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:9:1 › Office Team lazy professional summary, keyboard focus return and narrow labeled rows 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  getByRole('region', { name: 'Office Team', exact: true })
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  30000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 30000ms[22m
+    [2m  - waiting for getByRole('region', { name: 'Office Team', exact: true })[22m
+
+
+      12 |  await page.route(/\/professional-profile\//, route => { summaries++; return route.fulfill({ json: { profile: { user_id: member, confirmed_by_user: true, skills: ['Planning'], education: [], trainings: [], certifications: [], work_experience: [], specializations: [], competency_summary: 'Community facilitation' } } }); });
+      13 |  page.on('request', req => { if (/\/pds\//.test(req.url())) privateReads++; });
+    > 14 |  await page.goto('/team-supervision?page=Office%20Team'); const team = page.getByRole('region', { name: 'Office Team', exact: true }); await expect(team).toBeVisible({timeout:30_000});
+         |                                                                                                                                                           ^
+      15 |  await expect(team.getByRole('button', { name: /Maria Santos/ })).toBeVisible(); expect(summaries).toBe(0);
+      16 |  await page.screenshot({path:info.outputPath('office-team-desktop.png')});
+      17 |  const source = team.locator(`[data-member-id="${member}"]`); await source.press('Enter'); const inspector = page.getByRole('dialog', {name:'Maria Santos — Office member'});
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase14-people-collaboration.spec.ts:14:155
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase14-people-collaborati-753bb-urn-and-narrow-labeled-rows-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase14-people-collaborati-753bb-urn-and-narrow-labeled-rows-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+[1A[2K(node:42356) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[1A[2K(node:42356) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[23/37] [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:23:1 › Partial invitations retain failed rows and delivery failure does not cause duplicate creation
+[1A[2K[24/37] [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:42:1 › Office Team failure has retry and filter empty can clear without hiding invitations
+[1A[2K[25/37] [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:57:1 › Collaborating Head retains project selection on failure, guards dismissal and rechecks authority before retry
+[1A[2K[26/37] [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:68:1 › Project team removal previews active work and opens the shared task inspector only after discard
+[1A[2K  2) [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:68:1 › Project team removal previews active work and opens the shared task inspector only after discard 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  getByRole('dialog', { name: 'Task details: Prepare community assessment' })
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('dialog', { name: 'Task details: Prepare community assessment' })[22m
+
+
+      69 |  test.setTimeout(90_000);const r=await peopleFixture(page);r.projectOffices.push({id:'own',project_id:r.project,office_id:r.org,relationship_type:'lead',invitation_status:'joined'});r.officeMembers.push({project_office_id:'own',user_id:member});r.tasks[0].assigned_to=member;r.tasks[0].team_member_ids=[member];
+      70 |  await openOffices(page,r.project);await page.getByRole('button',{name:'Select own members',exact:true}).click();const inspector=page.getByRole('dialog',{name:'Planning Office’s project team'});await inspector.getByRole('checkbox',{name:/Maria Santos/}).uncheck();await expect(inspector.getByRole('alert')).toContainText('Reassign active work');await expect(inspector.getByRole('button',{name:'Save project team',exact:true})).toBeDisabled();
+    > 71 |  await page.setViewportSize({width:390,height:844});await page.screenshot({path:info.outputPath('membership-impact-mobile.png')});await inspector.getByRole('button',{name:'Prepare community assessment',exact:true}).click();const discard=page.getByRole('alertdialog',{name:'Discard unsaved changes?'});await discard.getByRole('button',{name:'Discard',exact:true}).click();await expect(page.getByRole('dialog',{name:'Task details: Prepare community assessment'})).toBeVisible();
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                               ^
+      72 | });
+      73 | test('Failed project invitation delivery still creates one invitation and fresh-link copy failure has manual recovery',async({page},info)=>{
+      74 |  test.setTimeout(90_000);const r=await peopleFixture(page);r.projectOffices.push({id:'own',project_id:r.project,office_id:r.org,relationship_type:'lead',invitation_status:'joined'});r.organizations.push({id:partner,name:'Engineering Office',head_user_id:'foreign-head',is_active:true});const invites:any[]=[];let creates=0,rotations=0;
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase14-people-collaboration.spec.ts:71:463
+
+    Error Context: test-results\phase14-people-collaborati-5c442-nspector-only-after-discard-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase14-people-collaborati-5c442-nspector-only-after-discard-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase14-people-collaborati-5c442-nspector-only-after-discard-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+[1A[2K(node:32748) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+
+[1A[2K(node:32748) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[1A[2K[27/37] [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:73:1 › Failed project invitation delivery still creates one invitation and fresh-link copy failure has manual recovery
+[1A[2K  3) [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:73:1 › Failed project invitation delivery still creates one invitation and fresh-link copy failure has manual recovery 
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: locator.selectOption: Test timeout of 90000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('dialog', { name: 'Let’s bring another Office in.' }).getByLabel('Office', { exact: true })[22m
+
+
+      74 |  test.setTimeout(90_000);const r=await peopleFixture(page);r.projectOffices.push({id:'own',project_id:r.project,office_id:r.org,relationship_type:'lead',invitation_status:'joined'});r.organizations.push({id:partner,name:'Engineering Office',head_user_id:'foreign-head',is_active:true});const invites:any[]=[];let creates=0,rotations=0;
+      75 |  await page.route('**/controlpanelEflow/api/invitations/**',route=>{const path=new URL(route.request().url()).pathname;if(path.endsWith('/project-office')){creates++;const payload=route.request().postDataJSON();expect(payload.account_role).toBeUndefined();r.projectOffices.push({id:'partner',project_id:r.project,office_id:partner,relationship_type:payload.access,invitation_status:'pending',contact_email:payload.email});const item={id:'project-invite',project_office_id:'partner',invitation_type:'project_office',email:payload.email,account_role:'member',status:'pending',email_delivery_status:'failed',delivery_error:'Mail unavailable',expires_at:'2030-01-01'};invites.push(item);return route.fulfill({json:item});}if(path.endsWith('/resend')){rotations++;expect(route.request().postDataJSON()).toEqual({copy_link:true});return route.fulfill({json:{...invites[0],invitation_url:'synthetic-private-link'}});}return route.fulfill({json:{invitations:invites}});});
+    > 76 |  await openOffices(page,r.project);await page.getByRole('button',{name:'Invite Office',exact:true}).click();const dialog=page.getByRole('dialog',{name:'Let’s bring another Office in.'});await dialog.getByLabel('Office',{exact:true}).selectOption(partner);await dialog.getByLabel('Head / contact email').fill('engineering@example.test');await dialog.getByRole('button',{name:'Invite Office',exact:true}).click();await page.getByRole('alertdialog',{name:'Invite this Office?'}).getByRole('button',{name:'Invite Office',exact:true}).click();await expect(dialog.getByRole('alert')).toContainText('Invitation created; email delivery failed');expect(creates).toBe(1);await expect(dialog.getByRole('button',{name:'Invite Office',exact:true})).toHaveCount(0);await dialog.getByRole('button',{name:'Done',exact:true}).click();
+         |                                                                                                                                                                                                                                          ^
+      77 |  await page.getByRole('button',{name:'Engineering Office',exact:true}).click();const inspector=page.getByRole('dialog',{name:'Engineering Office — project Office'});await inspector.getByRole('tab',{name:'Invitations',exact:true}).click();await expect(inspector).toContainText('Email: Failed');await page.evaluate(()=>Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async()=>{throw new Error('Unavailable');}}}));await inspector.getByRole('button',{name:'Copy fresh link',exact:true}).click();await page.getByRole('alertdialog',{name:'Create a fresh invitation link?'}).getByRole('button',{name:'Create fresh link',exact:true}).click();await expect(inspector.getByRole('alert')).toContainText('Clipboard copy failed');await expect(inspector.getByLabel('Fresh invitation link')).toHaveValue('synthetic-private-link');expect(rotations).toBe(1);await inspector.getByRole('button',{name:'Hide link'}).click();await page.screenshot({path:info.outputPath('invitation-clipboard-recovery-no-link.png')});
+      78 | });
+      79 | for(const kind of ['observer','closed','governed'] as const)test(`Project Office ${kind} retains read-only reasons and governance handoff`,async({page},info)=>{
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase14-people-collaboration.spec.ts:76:234
+
+    Error Context: test-results\phase14-people-collaborati-6d80d-failure-has-manual-recovery-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase14-people-collaborati-6d80d-failure-has-manual-recovery-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase14-people-collaborati-6d80d-failure-has-manual-recovery-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+[1A[2K(node:14564) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+
+[1A[2K(node:14564) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[1A[2K[28/37] [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:79:61 › Project Office observer retains read-only reasons and governance handoff
+[1A[2K  4) [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:79:61 › Project Office observer retains read-only reasons and governance handoff 
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: locator.press: Test timeout of 90000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('dialog', { name: 'Planning Office — project Office' })[22m
+
+
+      79 | for(const kind of ['observer','closed','governed'] as const)test(`Project Office ${kind} retains read-only reasons and governance handoff`,async({page},info)=>{
+      80 |  test.setTimeout(90_000);const r=await peopleFixture(page);r.projectOffices.push({id:'own',project_id:r.project,office_id:r.org,relationship_type:kind==='observer'?'observer':'lead',invitation_status:'joined'});if(kind==='closed')r.projects[0].status='completed';if(kind==='governed')r.projects[0].source_collaboration_draft_id='60000000-0000-4000-8000-000000000001';
+    > 81 |  await openOffices(page,r.project);const region=page.getByRole('region',{name:'Project Office collaboration'});await expect(region.getByRole('button',{name:'Select own members'})).toHaveCount(0);await region.getByRole('button',{name:'Planning Office',exact:true}).click();const inspector=page.getByRole('dialog',{name:'Planning Office — project Office'});await expect(inspector).toContainText(kind==='observer'?'Observers follow progress':kind==='closed'?'project is closed':'Proposal Context');await inspector.getByRole('tab',{name:'Project team',exact:true}).click();await expect(inspector.getByRole('checkbox')).toHaveCount(0);await inspector.press('Escape');await page.setViewportSize({width:320,height:844});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:info.outputPath(`office-${kind}-320.png`)});
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       ^
+      82 | });
+      83 |
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase14-people-collaboration.spec.ts:81:647
+
+    Error Context: test-results\phase14-people-collaborati-3ffdf-sons-and-governance-handoff-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase14-people-collaborati-3ffdf-sons-and-governance-handoff-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase14-people-collaborati-3ffdf-sons-and-governance-handoff-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K(node:34748) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+
+
+[1A[2K(node:34748) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[1A[2K[29/37] [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:79:61 › Project Office closed retains read-only reasons and governance handoff
+[1A[2K  5) [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:79:61 › Project Office closed retains read-only reasons and governance handoff 
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: locator.press: Test timeout of 90000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('dialog', { name: 'Planning Office — project Office' })[22m
+
+
+      79 | for(const kind of ['observer','closed','governed'] as const)test(`Project Office ${kind} retains read-only reasons and governance handoff`,async({page},info)=>{
+      80 |  test.setTimeout(90_000);const r=await peopleFixture(page);r.projectOffices.push({id:'own',project_id:r.project,office_id:r.org,relationship_type:kind==='observer'?'observer':'lead',invitation_status:'joined'});if(kind==='closed')r.projects[0].status='completed';if(kind==='governed')r.projects[0].source_collaboration_draft_id='60000000-0000-4000-8000-000000000001';
+    > 81 |  await openOffices(page,r.project);const region=page.getByRole('region',{name:'Project Office collaboration'});await expect(region.getByRole('button',{name:'Select own members'})).toHaveCount(0);await region.getByRole('button',{name:'Planning Office',exact:true}).click();const inspector=page.getByRole('dialog',{name:'Planning Office — project Office'});await expect(inspector).toContainText(kind==='observer'?'Observers follow progress':kind==='closed'?'project is closed':'Proposal Context');await inspector.getByRole('tab',{name:'Project team',exact:true}).click();await expect(inspector.getByRole('checkbox')).toHaveCount(0);await inspector.press('Escape');await page.setViewportSize({width:320,height:844});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:info.outputPath(`office-${kind}-320.png`)});
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       ^
+      82 | });
+      83 |
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase14-people-collaboration.spec.ts:81:647
+
+    Error Context: test-results\phase14-people-collaborati-48023-sons-and-governance-handoff-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase14-people-collaborati-48023-sons-and-governance-handoff-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase14-people-collaborati-48023-sons-and-governance-handoff-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+[1A[2K(node:3032) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K(node:3032) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[30/37] [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:79:61 › Project Office governed retains read-only reasons and governance handoff
+[1A[2K  6) [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:79:61 › Project Office governed retains read-only reasons and governance handoff 
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: locator.press: Test timeout of 90000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('dialog', { name: 'Planning Office — project Office' })[22m
+
+
+      79 | for(const kind of ['observer','closed','governed'] as const)test(`Project Office ${kind} retains read-only reasons and governance handoff`,async({page},info)=>{
+      80 |  test.setTimeout(90_000);const r=await peopleFixture(page);r.projectOffices.push({id:'own',project_id:r.project,office_id:r.org,relationship_type:kind==='observer'?'observer':'lead',invitation_status:'joined'});if(kind==='closed')r.projects[0].status='completed';if(kind==='governed')r.projects[0].source_collaboration_draft_id='60000000-0000-4000-8000-000000000001';
+    > 81 |  await openOffices(page,r.project);const region=page.getByRole('region',{name:'Project Office collaboration'});await expect(region.getByRole('button',{name:'Select own members'})).toHaveCount(0);await region.getByRole('button',{name:'Planning Office',exact:true}).click();const inspector=page.getByRole('dialog',{name:'Planning Office — project Office'});await expect(inspector).toContainText(kind==='observer'?'Observers follow progress':kind==='closed'?'project is closed':'Proposal Context');await inspector.getByRole('tab',{name:'Project team',exact:true}).click();await expect(page.getByRole('dialog',{name:'Planning Office’s project team'}).getByRole('checkbox')).toHaveCount(0);await page.getByRole('dialog',{name:'Planning Office’s project team'}).press('Escape');await page.setViewportSize({width:320,height:844});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:info.outputPath(`office-${kind}-320.png`)});
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       ^
+      82 | });
+      83 |
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase14-people-collaboration.spec.ts:81:647
+
+    Error Context: test-results\phase14-people-collaborati-2c90a-sons-and-governance-handoff-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase14-people-collaborati-2c90a-sons-and-governance-handoff-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase14-people-collaborati-2c90a-sons-and-governance-handoff-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+[1A[2K(node:26760) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[1A[2K(node:26760) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[31/37] [chromium] › tests\e2e\phase2-invitations.spec.ts:44:1 › Head invite dialog follows the split reference and supports keyboard dismissal
+[1A[2K[32/37] [chromium] › tests\e2e\phase2-invitations.spec.ts:63:1 › Member welcome persists skipped status and remains available from Help
+[1A[2K[33/37] [chromium] › tests\e2e\phase2-invitations.spec.ts:74:34 › Invited account screen at 1440px preserves locked Office and role
+[1A[2K[34/37] [chromium] › tests\e2e\phase2-invitations.spec.ts:74:34 › Invited account screen at 390px preserves locked Office and role
+[1A[2K[35/37] [chromium] › tests\e2e\phase6-project-offices.spec.ts:5:1 › Lead invites an Office and hands over responsibility without assigning its staff
+[1A[2K[36/37] [chromium] › tests\e2e\phase6-project-offices.spec.ts:46:1 › Collaborating Head sees a roomy own-Office member picker and only edits its own tasks
+[1A[2K  7) [chromium] › tests\e2e\phase6-project-offices.spec.ts:46:1 › Collaborating Head sees a roomy own-Office member picker and only edits its own tasks 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThanOrEqual[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: >= [32m4[39m
+    Received:    [31m3[39m
+
+      63 |  await expect(dialog).toContainText('Office Member 7');await expect(dialog).not.toContainText('Other Office Employee');
+      64 |  const visible=await dialog.locator('.po-member-list label').evaluateAll(rows=>rows.filter(row=>{const r=row.getBoundingClientRect(),p=row.parentElement!.getBoundingClientRect();return r.top>=p.top&&r.bottom<=p.bottom;}).length);
+    > 65 |  expect(visible).toBeGreaterThanOrEqual(4);
+         |                  ^
+      66 |  const saveBounds=(await dialog.getByRole('button',{name:'Save project team'}).boundingBox())!;
+      67 |  expect(saveBounds.y+saveBounds.height).toBeLessThanOrEqual(page.viewportSize()!.height);
+      68 |  await page.screenshot({path:info.outputPath('own-office-team-desktop.png')});
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase6-project-offices.spec.ts:65:18
+
+    Error Context: test-results\phase6-project-offices-Col-cffae-nd-only-edits-its-own-tasks-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase6-project-offices-Col-cffae-nd-only-edits-its-own-tasks-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase6-project-offices-Col-cffae-nd-only-edits-its-own-tasks-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K(node:31992) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+
+
+[1A[2K(node:31992) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[1A[2K[37/37] [chromium] › tests\e2e\phase6-project-offices.spec.ts:72:1 › Observer opens the project without editable owners or task planning
+[1A[2K  7 failed
+    [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:9:1 › Office Team lazy professional summary, keyboard focus return and narrow labeled rows 
+    [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:68:1 › Project team removal previews active work and opens the shared task inspector only after discard 
+    [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:73:1 › Failed project invitation delivery still creates one invitation and fresh-link copy failure has manual recovery 
+    [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:79:61 › Project Office observer retains read-only reasons and governance handoff 
+    [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:79:61 › Project Office closed retains read-only reasons and governance handoff 
+    [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:79:61 › Project Office governed retains read-only reasons and governance handoff 
+    [chromium] › tests\e2e\phase6-project-offices.spec.ts:46:1 › Collaborating Head sees a roomy own-Office member picker and only edits its own tasks 
+  30 passed (11.7m)

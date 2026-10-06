@@ -1,0 +1,136 @@
+{
+  "scope": "Observed intermediate build re-export/chunk warnings; this is not proof that source-level import cycles have been removed",
+  "finalBuildReexportWarnings": 0,
+  "records": [
+    {
+      "module": "src/app/features/project-views/selectors.ts",
+      "publicApi": "src/app/features/project-views/index.ts",
+      "exports": [
+        "calendarDay",
+        "matchesProjectDateRange",
+        "shiftedTaskDates",
+        "dayString",
+        "filterProjectViewTasks"
+      ],
+      "callers": [
+        "src/app/features/personal-work/selectors.ts",
+        "src/app/features/project-table/components/ProjectTableWorkspace.tsx",
+        "src/app/features/projects/components/project-command/ProjectCalendarView.tsx",
+        "src/app/features/projects/components/project-command/ProjectCommandWorkspace.tsx"
+      ],
+      "owner": "Web maintainer",
+      "finalDisposition": "Eager contracts co-located by the explicit workspace-contracts manual chunk; feature API remains preserved"
+    },
+    {
+      "module": "src/app/features/members/hooks/useDeptDirectoryEmployees.ts",
+      "publicApi": "src/app/features/members/index.ts",
+      "exports": [
+        "useDeptDirectoryEmployees"
+      ],
+      "callers": [
+        "src/app/features/team-management/components/supervision/HeadIAMWorkspace.tsx",
+        "src/app/features/tasks/hooks/useHeadTaskBoard.ts",
+        "src/app/features/interdepartment-collaboration/components/CollaborationPlanEditPanel.tsx",
+        "src/app/features/team-management/hooks/useDepartmentTeamAnalytics.ts",
+        "src/app/features/proposal-import/hooks/useProposalImportController.ts",
+        "src/app/features/proposal-import/hooks/useManualPlanController.ts",
+        "src/app/features/projects/components/ProjectsWorkspace.tsx"
+      ],
+      "owner": "Web maintainer",
+      "finalDisposition": "Eager contracts co-located by the explicit workspace-contracts manual chunk; feature API remains preserved"
+    },
+    {
+      "module": "src/app/features/team-management/hooks/useDepartmentTeamAnalytics.ts",
+      "publicApi": "src/app/features/team-management/index.ts",
+      "exports": [
+        "useDepartmentTeamAnalytics"
+      ],
+      "callers": [
+        "src/app/features/reports/components/HeadReportsWorkspace.tsx"
+      ],
+      "owner": "Web maintainer",
+      "finalDisposition": "Eager contracts co-located by the explicit workspace-contracts manual chunk; feature API remains preserved"
+    },
+    {
+      "module": "src/app/features/project-offices/hooks/useProjectOffices.ts",
+      "publicApi": "src/app/features/project-offices/index.ts",
+      "exports": [
+        "useProjectOfficeContext",
+        "useProjectOffices",
+        "ProjectOfficeContext"
+      ],
+      "callers": [
+        "src/app/features/project-table/components/ProjectTaskRow.tsx",
+        "src/app/features/project-table/components/ProjectTableWorkspace.tsx",
+        "src/app/features/project-views/hooks/useProjectViewActions.ts",
+        "src/app/features/projects/components/project-command/ProjectCommandWorkspace.tsx",
+        "src/app/features/task-inspector/components/TaskInspector.tsx"
+      ],
+      "owner": "Web maintainer",
+      "finalDisposition": "No re-export warning in final build; feature component loading remains deferred rather than manually co-located"
+    },
+    {
+      "module": "src/app/features/project-offices/services/projectOfficeService.ts",
+      "publicApi": "src/app/features/project-offices/index.ts",
+      "exports": [
+        "moveProjectOfficeTask"
+      ],
+      "callers": [
+        "src/app/features/project-table/components/ProjectTaskRow.tsx"
+      ],
+      "owner": "Web maintainer",
+      "finalDisposition": "No re-export warning in final build; feature component loading remains deferred rather than manually co-located"
+    },
+    {
+      "module": "src/app/features/project-table/selectors.ts",
+      "publicApi": "src/app/features/project-table/index.ts",
+      "exports": [
+        "canEditProjectTask",
+        "STATUS_COLORS"
+      ],
+      "callers": [
+        "src/app/features/project-views/selectors.ts",
+        "src/app/features/project-views/components/ProjectGanttView.tsx",
+        "src/app/features/project-views/components/ProjectInsightsView.tsx",
+        "src/app/features/projects/components/project-command/ProjectCalendarView.tsx",
+        "src/app/features/project-views/hooks/useProjectViewActions.ts"
+      ],
+      "owner": "Web maintainer",
+      "finalDisposition": "Eager contracts co-located by the explicit workspace-contracts manual chunk; feature API remains preserved"
+    },
+    {
+      "module": "src/app/features/project-table/services/workspaceService.ts",
+      "publicApi": "src/app/features/project-table/index.ts",
+      "exports": [
+        "patchWorkspaceTask"
+      ],
+      "callers": [
+        "src/app/features/project-views/hooks/useProjectViewActions.ts"
+      ],
+      "owner": "Web maintainer",
+      "finalDisposition": "Eager contracts co-located by the explicit workspace-contracts manual chunk; feature API remains preserved"
+    },
+    {
+      "module": "src/app/features/project-views/hooks/useProjectViewActions.ts",
+      "publicApi": "src/app/features/project-views/index.ts",
+      "exports": [
+        "useProjectViewActions"
+      ],
+      "callers": [
+        "src/app/features/projects/components/project-command/ProjectWorkTab.tsx",
+        "src/app/features/projects/components/project-command/ProjectCalendarView.tsx"
+      ],
+      "owner": "Web maintainer",
+      "finalDisposition": "Eager contracts co-located by the explicit workspace-contracts manual chunk; feature API remains preserved"
+    }
+  ],
+  "remainingLargeChunk": {
+    "chunk": {
+      "file": "assets/workspace-contracts-V1Rbo-xY.js",
+      "bytes": 3439257,
+      "gzipBytes": 996727
+    },
+    "owner": "Web maintainer and release owner",
+    "releaseDecision": "pending; no size warning threshold was raised"
+  }
+}

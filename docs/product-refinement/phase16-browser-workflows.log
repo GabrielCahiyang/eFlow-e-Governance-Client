@@ -1,0 +1,133 @@
+
+Running 8 tests using 1 worker
+
+
+
+[1A[2K(node:35996) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K(node:35996) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[1/8] [chromium] › tests\e2e\phase16-support-finance.spec.ts:9:1 › Admin Center keeps legacy pages, account inspection and unsaved account edits
+[1A[2K  1) [chromium] › tests\e2e\phase16-support-finance.spec.ts:9:1 › Admin Center keeps legacy pages, account inspection and unsaved account edits 
+
+    Error: expect.toBeVisible: Error: strict mode violation: getByRole('heading', { name: 'Admin Center', exact: true }) resolved to 2 elements:
+        1) <h2>Admin Center</h2> aka getByLabel('Workspace content').getByRole('heading', { name: 'Admin Center' })
+        2) <h1>Admin Center</h1> aka getByLabel('Active workspace').getByRole('heading', { name: 'Admin Center' })
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('heading', { name: 'Admin Center', exact: true })[22m
+
+
+      13 |   await expect(
+      14 |     page.getByRole("heading", { name: "Admin Center", exact: true }),
+    > 15 |   ).toBeVisible();
+         |     ^
+      16 |   await page
+      17 |     .getByRole("button", {
+      18 |       name: "Inspect account Directory colleague 1",
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase16-support-finance.spec.ts:15:5
+
+    Error Context: test-results\phase16-support-finance-Ad-6ea46-n-and-unsaved-account-edits-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase16-support-finance-Ad-6ea46-n-and-unsaved-account-edits-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase16-support-finance-Ad-6ea46-n-and-unsaved-account-edits-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+[1A[2K(node:12940) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:12940) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[1A[2K[2/8] [chromium] › tests\e2e\phase16-support-finance.spec.ts:59:1 › Account audit has bounded coverage, loaded filters, nested redaction and truthful unavailable reads on a phone
+[1A[2K  2) [chromium] › tests\e2e\phase16-support-finance.spec.ts:59:1 › Account audit has bounded coverage, loaded filters, nested redaction and truthful unavailable reads on a phone 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  getByText(/No events returned/)
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByText(/No events returned/)[22m
+
+
+      116 |     .getByRole("button", { name: "Refresh audit", exact: true })
+      117 |     .click();
+    > 118 |   await expect(page.getByText(/No events returned/)).toBeVisible();
+          |                                                      ^
+      119 |   await expect(
+      120 |     page.getByText(/empty result|failed read/, { exact: false }).first(),
+      121 |   ).toBeVisible();
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase16-support-finance.spec.ts:118:54
+
+    Error Context: test-results\phase16-support-finance-Ac-4d491-navailable-reads-on-a-phone-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase16-support-finance-Ac-4d491-navailable-reads-on-a-phone-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase16-support-finance-Ac-4d491-navailable-reads-on-a-phone-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+[1A[2K(node:40312) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:40312) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[1A[2K[3/8] [chromium] › tests\e2e\phase16-support-finance.spec.ts:129:1 › Accounting retains fiscal scope, exposes settlements, records one decision and inspects its balanced journal
+[1A[2K  3) [chromium] › tests\e2e\phase16-support-finance.spec.ts:129:1 › Accounting retains fiscal scope, exposes settlements, records one decision and inspects its balanced journal 
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 90000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('navigation', { name: 'Accounting views', exact: true }).getByRole('button', { name: 'Budget ledger', exact: true })[22m
+
+
+      181 |   await accountingNav(page)
+      182 |     .getByRole("button", { name: "Budget ledger", exact: true })
+    > 183 |     .click();
+          |      ^
+      184 |   await expect(
+      185 |     page.getByText("FY 2027 · Budget position", { exact: true }),
+      186 |   ).toBeVisible();
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase16-support-finance.spec.ts:183:6
+
+    Error Context: test-results\phase16-support-finance-Ac-e07b8-spects-its-balanced-journal-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase16-support-finance-Ac-e07b8-spects-its-balanced-journal-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase16-support-finance-Ac-e07b8-spects-its-balanced-journal-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+[1A[2K(node:35992) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:35992) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[1A[2K[4/8] [chromium] › tests\e2e\phase16-support-finance.spec.ts:195:1 › Uncertain settlement keeps its reason and requires verification before resubmission

@@ -1,0 +1,197 @@
+{
+  "scope": "Phase 10 implementation plus unchanged compatibility/authority and acceptance anchors; this is a source snapshot, not a commit diff. Checkout retains earlier phase changes.",
+  "files": [
+    {
+      "path": "src/app/features/projects/components/ProjectsWorkspace.tsx",
+      "sha256": "7ff582996442cd8c930f850efd0f1e2250fb544748be7c1fdb9ed975a0502b08"
+    },
+    {
+      "path": "src/app/features/projects/components/ProjectArchiveDialog.tsx",
+      "sha256": "5bbdbf3504b9af4bc194bebe0c583eca3990dc034f3c9696027679f868f94481"
+    },
+    {
+      "path": "src/app/features/projects/components/ProjectCompleteDialog.tsx",
+      "sha256": "9919da147edfb4b1c5449bda7f4f00359b000da61893f6d296ce8463a6c21369"
+    },
+    {
+      "path": "src/app/features/projects/components/ProjectDeleteDialog.tsx",
+      "sha256": "80e2e622e658200a3f9c1a3ff222f97c11186bd8a180c4d6f8e7b8460e14d925"
+    },
+    {
+      "path": "src/app/features/projects/components/project-command/ProjectCommandWorkspace.tsx",
+      "sha256": "605cc73aa8521fce88edf51d6ac5cd5a7fe3316c0b5123c6f1a6f0a0700df7c1"
+    },
+    {
+      "path": "src/app/features/projects/components/project-command/ProjectHeader.tsx",
+      "sha256": "32f80921acf6dde0f24f393caa8378a94e73159d5a42d8b5f103372d236c0f99"
+    },
+    {
+      "path": "src/app/features/projects/components/project-command/ProjectParticipants.tsx",
+      "sha256": "ec53933a187a208a03bc11977e486df8cb41e227e4ba5d483b599f2e1fc6c7ab"
+    },
+    {
+      "path": "src/app/features/projects/components/project-command/ProjectSettingsDialog.tsx",
+      "sha256": "29577f61c406ff6be0c19e0909dd2682162a344d20e0dab71fdcc2cdfd6d505a"
+    },
+    {
+      "path": "src/app/features/projects/components/project-command/ProjectUtilities.tsx",
+      "sha256": "af884a9016e554ea8e4a191fb6caf29ae70e7bd66442ecb8705bb1f99fdf7f9a"
+    },
+    {
+      "path": "src/app/features/projects/components/project-command/ProjectViewMenus.tsx",
+      "sha256": "ef0a3fa5ab4a507570ffaeb13a8b0664efdea4cde5d1e153be52bab7d56839c4"
+    },
+    {
+      "path": "src/app/features/projects/components/project-command/ProjectViewTabBar.tsx",
+      "sha256": "798b3ebc0f7dd039d49ceec5513e7c477f65d64b7d55cb3ba38cb3154663efe6"
+    },
+    {
+      "path": "src/app/features/projects/components/project-command/projectViewCatalog.ts",
+      "sha256": "dd473549045ef382d450bb57d064036d48ada21117f8aef9515054b87f36b03b"
+    },
+    {
+      "path": "src/app/features/projects/components/project-command/types.ts",
+      "sha256": "8be7c8e8d6180703be993206528b4b2a36a87bf3218cb8ed1e8ef3773f414c0f"
+    },
+    {
+      "path": "src/app/features/projects/components/project-command/projectIdentity.css",
+      "sha256": "bde7e75d51d147e71a8d57e0ff0317bb3a4915052e3ee968743285f51ae5f17c"
+    },
+    {
+      "path": "src/app/features/projects/hooks/useGuardedProjectDialog.ts",
+      "sha256": "bef4af9755e001af71761c7504af7c2e3221cbf7de22d2e7bd2a4e6b1ad0ef9e"
+    },
+    {
+      "path": "src/app/features/projects/hooks/useProjectCommandData.ts",
+      "sha256": "53ebcf81b67a7d69c5586b8843168e242c5548ef9df6e1b7530b8f80e3e91ee3"
+    },
+    {
+      "path": "src/app/features/projects/presentation/projectOperationError.ts",
+      "sha256": "3fe342353f4b6a060d6b73d6a63d36689246954fa9ba2d293f043fe170df8bd4"
+    },
+    {
+      "path": "src/app/features/project-readiness/components/ProjectReadinessPanel.tsx",
+      "sha256": "028039a118175f24b479f28d1b2bf7c4b5e1de187e3c2830353dc30005e9e2f3"
+    },
+    {
+      "path": "src/app/features/project-readiness/components/ProjectReadinessSummary.tsx",
+      "sha256": "6e7d5f539aca88cd304043ea68806c65f7009f63eb1f95deec163865725c7649"
+    },
+    {
+      "path": "src/app/features/project-readiness/index.ts",
+      "sha256": "37e5188f5226b3c6cfbc9a69064c3500a98e8b2a56c59b98f126c1cee20ce575"
+    },
+    {
+      "path": "src/app/shared/navigationPreferences.ts",
+      "sha256": "a7866b0861e28c405bf96eab268580bbc135f9058733bef73c92ac3db4b71b19"
+    },
+    {
+      "path": "src/app/shared/navigationGuard.ts",
+      "sha256": "75df8b5e08aaa074d878379a39d9b4c3bebcb14f597f4e8df34aa3d1cbb7fc23"
+    },
+    {
+      "path": "src/app/features/projects/presentation/projectPresentation.tsx",
+      "sha256": "627eaf8c4b7f12ded32ae4e473e022ea509da1b66c1683fc8c8e4506ff03260b"
+    },
+    {
+      "path": "src/app/features/projects/services/projectMutationService.ts",
+      "sha256": "571519c2cfa874b8d243888c2a86b36775eef2ca49fc3cbded892a8c1f278188"
+    },
+    {
+      "path": "src/app/features/projects/services/projectLifecycleService.ts",
+      "sha256": "6fb0c492d4f90ae783659ee2e404c6d8e9aa3fb6ce55fb16e6a10a194a3bdea7"
+    },
+    {
+      "path": "src/app/features/project-readiness/services/readinessService.ts",
+      "sha256": "b04ccd8edfbee9c5333ac04f4f9ee02e3eef0c5e2652c7a55b56cbf7ac9ab0a2"
+    },
+    {
+      "path": "src/app/features/projects/components/ProjectDetail.tsx",
+      "sha256": "0ad0700c1e39be6069eecdc07cd443dcd16e251974fe50011d590a9cf074d247"
+    },
+    {
+      "path": "src/app/features/projects/components/ProjectContextSidebar.tsx",
+      "sha256": "48b3d8135162ebe600e269c7d979ca39309c124efc884c931a07a35061872842"
+    },
+    {
+      "path": "src/app/components/ui/FeatureDialog.tsx",
+      "sha256": "35c7a1eced5a50392b6fa4e95b77ea74f4f1d93a28c97ba485f15de0009f2c27"
+    },
+    {
+      "path": "src/app/components/ui/workspace/ActionMenu.tsx",
+      "sha256": "2d56fcf264a237c560b5f5c619ca74ba3db39324b6acc1a68dc3303410acd5f0"
+    },
+    {
+      "path": "supabase/migrations/20260821000003_collaboration_runtime.sql",
+      "sha256": "8fcf93682615d53f3fd62b38f5f2512640723e55c60ba1e1f5b79048e94ead24"
+    },
+    {
+      "path": "supabase/migrations/20260831000003_project_completion_lifecycle.sql",
+      "sha256": "2d4bf3e54d53a793e8516d9fa2432e1dffe6a77cdfae038921422256fb469341"
+    },
+    {
+      "path": "supabase/migrations/20261004182453_phase6_shared_structure_guards.sql",
+      "sha256": "c472ef02a7c0265bce3df298d4ed02c344c4ed169b2acb7b3112da7297d1fcd6"
+    },
+    {
+      "path": "supabase/migrations/20261005170822_phase65_project_local_office_identity.sql",
+      "sha256": "8df2fc34cdce7ca2658c6313e49a9b824e13d1999e35df5c919f5b73f5a1e440"
+    },
+    {
+      "path": "tests/unit/phase10ProjectWorkspace.test.tsx",
+      "sha256": "393aa5582445b4fe0836771a9d2bd203238396385cf22a54bb18c735aad7d51f"
+    },
+    {
+      "path": "tests/unit/projectReadinessSummary.test.tsx",
+      "sha256": "e244bffd512df0467b049ce98f2720370bc3f73c02512da9fc18c1976b74c8e5"
+    },
+    {
+      "path": "tests/unit/projectViewNavigation.test.tsx",
+      "sha256": "33141bff38b297b2b4a0f901c3ef3355dbd2c918a0f6a9a34be232e7313c438c"
+    },
+    {
+      "path": "tests/unit/projectLifecycle.test.tsx",
+      "sha256": "2117205677802dcd6ec9a8c8d2a4d43be8024d88f6c1a7beb0193357a25d1753"
+    },
+    {
+      "path": "tests/unit/projectOfficeAuthority.test.ts",
+      "sha256": "3420a8ff9ce9ba13e2f2e0a7890591996c9dadb6eb1d166c645629bdd7ca5a01"
+    },
+    {
+      "path": "tests/unit/phase03ProjectPresentation.test.tsx",
+      "sha256": "4f6ab72cc6eadcd4b2e27fb486d61d7ce636063e7bf86cde63394c44c2491328"
+    },
+    {
+      "path": "tests/e2e/phase10-project-workspace.spec.ts",
+      "sha256": "947ca83e4a77ad41715e3f47d1ec4cfc154e4b016e2e3f40faf033d7b9e029c3"
+    },
+    {
+      "path": "tests/e2e/project-workspace-controls.spec.ts",
+      "sha256": "75f724e5dddc6c9c77295c4731f4e62c8df9fbedbb54b5b6c161152ebd9f38f3"
+    },
+    {
+      "path": "tests/e2e/phase3-project-table.spec.ts",
+      "sha256": "75fa2da5edbc773130da9b3ad602a6063f736f93d41339a9bcf59e08940fcd30"
+    },
+    {
+      "path": "tests/e2e/phase4-project-views.spec.ts",
+      "sha256": "3ba2dd5ab08672dcdb92f6f61b17f21cb2085ce8f33f60c08d6602010b0cecd8"
+    },
+    {
+      "path": "tests/e2e/phase6-project-offices.spec.ts",
+      "sha256": "288b3136eedf52b32b6a29a9d2b8a7da170a5dc33141916ebb8a3f7ecd469cf7"
+    },
+    {
+      "path": "tests/e2e/phase7-readiness-staffing.spec.ts",
+      "sha256": "f9425308cb30b6a37a1a6bdeadc164e52534cf2538cc580bc68db6df6a1e9820"
+    },
+    {
+      "path": "tests/e2e/navigation-v2.spec.ts",
+      "sha256": "71960296428838bf82c3cc70bee3bd93514a3b535de818daa0e3e1d8e8bed0a8"
+    },
+    {
+      "path": "tests/e2e/fixtures/projectWorkspace.ts",
+      "sha256": "536cb755d21af3d0174a3d2883eaf7f26be606b8c89b89555ddbef4a1209cb9c"
+    }
+  ]
+}

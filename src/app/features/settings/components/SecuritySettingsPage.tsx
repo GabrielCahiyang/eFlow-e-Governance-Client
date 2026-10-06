@@ -3,6 +3,7 @@ import { KeyRound, LockKeyhole, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { supabase } from '../../../../lib/supabase';
 import { Input } from '../../../components/ui/input';
+import { useNavigationBlocker } from '../../../shared/navigationGuard';
 import { ResultMessage, SectionHeading, Surface, inputClass, type Result } from './settingsPrimitives';
 
 export function SecuritySettingsPage() {
@@ -18,6 +19,7 @@ export function SecuritySettingsPage() {
     setNewPassword('');
     setConfirmation('');
   };
+  useNavigationBlocker({ label: 'Security', dirty: Boolean(currentPassword || newPassword || confirmation), pending: saving, onDiscard: clearPasswords });
 
   const changePassword = async (event: FormEvent) => {
     event.preventDefault();

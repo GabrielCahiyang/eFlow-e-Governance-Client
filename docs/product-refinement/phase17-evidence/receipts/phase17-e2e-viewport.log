@@ -1,0 +1,13 @@
+
+Running 4 tests using 1 worker
+
+(node:29456) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:29456) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [chromium] › tests\e2e\phase17-safety.spec.ts:24:1 › live legacy board retains details through Keep editing and discards only on acceptance (11.1s)
+  ok 2 [chromium] › tests\e2e\phase17-safety.spec.ts:51:1 › typed deletion at 320px cancels without a write then sends exactly one confirmed write (6.4s)
+  ok 3 [chromium] › tests\e2e\phase17-safety.spec.ts:93:1 › required task cancellation reason has no write on Escape and is sent once on acceptance (6.7s)
+  ok 4 [chromium] › tests\e2e\phase17-safety.spec.ts:130:1 › lost deletion response exposes verification and prevents another write (6.7s)
+
+  4 passed (32.3s)

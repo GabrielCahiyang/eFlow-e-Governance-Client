@@ -1,0 +1,226 @@
+{
+  "config": {
+    "configFile": "C:\\Users\\james\\projects\\eflow-e-Governance-Project\\playwright.config.ts",
+    "rootDir": "C:/Users/james/projects/eflow-e-Governance-Project/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "C:/Users/james/projects/eflow-e-Governance-Project/.phase18/navigation-cost-performance-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/Users/james/projects/eflow-e-Governance-Project/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/Users/james/projects/eflow-e-Governance-Project/.phase18/navigation-cost-performance-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "C:/Users/james/projects/eflow-e-Governance-Project/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/Users/james/projects/eflow-e-Governance-Project/.phase18/navigation-cost-performance-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "C:/Users/james/projects/eflow-e-Governance-Project/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.55.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "phase18-measurements.spec.ts",
+      "file": "phase18-measurements.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "production project 100 tasks: three measured samples",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6043,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T21:38:22.220Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "project-100",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGFnZSI6ICJuYXZpZ2F0aW9uLW9wdGltaXphdGlvbiIsCiAgInNpemUiOiAxMDAsCiAgImJyb3dzZXIiOiAiY2hyb21pdW0iLAogICJzYW1wbGVzIjogWwogICAgewogICAgICAicnVuIjogMCwKICAgICAgInJlYWR5TXMiOiA4MzkuNzAyNDk5OTk5OTk5OSwKICAgICAgImZpbHRlck1zIjogMTQ1LjQ5NjQsCiAgICAgICJyZXN0UmVhZHMiOiA1NywKICAgICAgImFzc2V0Qnl0ZXMiOiA0MTI4MjkyLAogICAgICAibm9kZXMiOiA2NTEzLAogICAgICAibWVtb3J5IjogMzczMDAwMDAKICAgIH0sCiAgICB7CiAgICAgICJydW4iOiAxLAogICAgICAicmVhZHlNcyI6IDgzOS4yMTk1MDAwMDAwMDAyLAogICAgICAiZmlsdGVyTXMiOiAxNDAuNzk4OTAwMDAwMDAwNjksCiAgICAgICJyZXN0UmVhZHMiOiA1NywKICAgICAgImFzc2V0Qnl0ZXMiOiA0MTI2MTI0LAogICAgICAibm9kZXMiOiA2NTEzLAogICAgICAibWVtb3J5IjogMzczMDAwMDAKICAgIH0sCiAgICB7CiAgICAgICJydW4iOiAyLAogICAgICAicmVhZHlNcyI6IDg1Ny4yMTc3OTk5OTk5OTk0LAogICAgICAiZmlsdGVyTXMiOiAxNjIuMjQ0Mzk5OTk5OTk5NiwKICAgICAgInJlc3RSZWFkcyI6IDU3LAogICAgICAiYXNzZXRCeXRlcyI6IDQxMjYxMjQsCiAgICAgICJub2RlcyI6IDY1MTMsCiAgICAgICJtZW1vcnkiOiAzNzMwMDAwMAogICAgfQogIF0KfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "54f5929b2cd53ee9dcfe-51a5f8b9ecdb6e2e98bc",
+          "file": "phase18-measurements.spec.ts",
+          "line": 9,
+          "column": 3
+        },
+        {
+          "title": "production project 1000 tasks: three measured samples",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 18917,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T21:38:28.391Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "project-1000",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGFnZSI6ICJuYXZpZ2F0aW9uLW9wdGltaXphdGlvbiIsCiAgInNpemUiOiAxMDAwLAogICJicm93c2VyIjogImNocm9taXVtIiwKICAic2FtcGxlcyI6IFsKICAgIHsKICAgICAgInJ1biI6IDAsCiAgICAgICJyZWFkeU1zIjogMzk3Ny4zMTM5OTk5OTk5OTg1LAogICAgICAiZmlsdGVyTXMiOiA4NDIuMjAwMDAwMDAwMDAwNywKICAgICAgInJlc3RSZWFkcyI6IDU3LAogICAgICAiYXNzZXRCeXRlcyI6IDQxMzcxMTEsCiAgICAgICJub2RlcyI6IDU5NjEzLAogICAgICAibWVtb3J5IjogMjM5MDAwMDAwCiAgICB9LAogICAgewogICAgICAicnVuIjogMSwKICAgICAgInJlYWR5TXMiOiAzNzcyLjk3MjA5OTk5OTk5OSwKICAgICAgImZpbHRlck1zIjogMTc3NS41MTE3MDAwMDAwMDI3LAogICAgICAicmVzdFJlYWRzIjogNTcsCiAgICAgICJhc3NldEJ5dGVzIjogNDEyNjEyNCwKICAgICAgIm5vZGVzIjogNTk2MTMsCiAgICAgICJtZW1vcnkiOiAyMzkwMDAwMDAKICAgIH0sCiAgICB7CiAgICAgICJydW4iOiAyLAogICAgICAicmVhZHlNcyI6IDM4NzIuMjU4Nzk5OTk5OTk5NiwKICAgICAgImZpbHRlck1zIjogOTczLjU2NzM5OTk5OTk5OTksCiAgICAgICJyZXN0UmVhZHMiOiA1NywKICAgICAgImFzc2V0Qnl0ZXMiOiA0MTI2MTI0LAogICAgICAibm9kZXMiOiA1OTYxMywKICAgICAgIm1lbW9yeSI6IDIzOTAwMDAwMAogICAgfQogIF0KfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "54f5929b2cd53ee9dcfe-12459234e588349dd0f2",
+          "file": "phase18-measurements.spec.ts",
+          "line": 9,
+          "column": 3
+        },
+        {
+          "title": "production Accounting journal scoped request count",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5350,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T21:38:47.315Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "accounting-journal",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdGFnZSI6ICJuYXZpZ2F0aW9uLW9wdGltaXphdGlvbiIsCiAgImJyb3dzZXIiOiAiY2hyb21pdW0iLAogICJzYW1wbGVzIjogWwogICAgewogICAgICAicnVuIjogMCwKICAgICAgInJlYWR5TXMiOiA4MTQuNDE2NDk5OTk5OTk5NCwKICAgICAgImpvdXJuYWxSZWFkcyI6IDEKICAgIH0sCiAgICB7CiAgICAgICJydW4iOiAxLAogICAgICAicmVhZHlNcyI6IDgxOC41NDE2MDAwMDAwMDA1LAogICAgICAiam91cm5hbFJlYWRzIjogMQogICAgfSwKICAgIHsKICAgICAgInJ1biI6IDIsCiAgICAgICJyZWFkeU1zIjogODE3LjQxMzg5OTk5OTk5OTYsCiAgICAgICJqb3VybmFsUmVhZHMiOiAxCiAgICB9CiAgXQp9"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "54f5929b2cd53ee9dcfe-d3b8dc1d284f917d0aec",
+          "file": "phase18-measurements.spec.ts",
+          "line": 101,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-06T21:38:21.390Z",
+    "duration": 31396.979,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

@@ -2,6 +2,7 @@ import * as React from "react";
 import * as Icons from "lucide-react";
 import { Modal } from "../../../components/ui/Modal";
 import { deleteProject } from "../services/projectService";
+import { useGuardedProjectDialog } from '../hooks/useGuardedProjectDialog';
 
 export function ProjectDeleteDialog({
   projectId,
@@ -20,6 +21,8 @@ export function ProjectDeleteDialog({
   const [reason, setReason] = React.useState("");
   const [deleting, setDeleting] = React.useState(false);
   const [error, setError] = React.useState("");
+  const inFlight = React.useRef(false);
+  const close = useGuardedProjectDialog({ open, dirty: Boolean(reason.trim() || confirmation.trim()), pending: deleting, pendingCheck: () => inFlight.current, label: 'Delete project', onClose, onDiscard: () => { setReason(''); setConfirmation(''); } });
 
   React.useEffect(() => {
     if (open) {
@@ -32,7 +35,8 @@ export function ProjectDeleteDialog({
   const canDelete = confirmation.trim() === projectTitle.trim() && reason.trim().length >= 5;
 
   const handleDelete = async () => {
-    if (!canDelete) return;
+    if (!canDelete || inFlight.current) return;
+    inFlight.current = true;
     setDeleting(true);
     setError("");
     try {
@@ -43,6 +47,7 @@ export function ProjectDeleteDialog({
         caught instanceof Error ? caught.message : "Project deletion failed.",
       );
     } finally {
+      inFlight.current = false;
       setDeleting(false);
     }
   };
@@ -50,14 +55,14 @@ export function ProjectDeleteDialog({
   return (
     <Modal
       isOpen={open}
-      onClose={deleting ? () => {} : onClose}
+      onClose={deleting ? () => {} : close}
       title="Permanently delete project"
       width="max-w-lg"
       footer={
         <div className="flex items-center justify-end gap-3 w-full">
           <button
             type="button"
-            onClick={onClose}
+            onClick={close}
             disabled={deleting}
             className="px-4 py-2 rounded-lg text-sm font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 transition-colors disabled:opacity-50 cursor-pointer"
           >
@@ -126,7 +131,7 @@ export function ProjectDeleteDialog({
 
         {/* Error message */}
         {error && (
-          <div className="flex items-center gap-2 p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium">
+          <div role="alert" className="flex items-center gap-2 p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium">
             <Icons.AlertCircle size={15} className="shrink-0 text-rose-500" />
             <span>{error}</span>
           </div>

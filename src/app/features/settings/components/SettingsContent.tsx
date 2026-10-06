@@ -5,6 +5,7 @@ import { NotificationSettingsPage } from './NotificationSettingsPage';
 import { ProfileSettingsPage } from './ProfileSettingsPage';
 import { SecuritySettingsPage } from './SecuritySettingsPage';
 import { PageHeader } from '../../../components/workflow/primitives';
+import { requestNavigation } from '../../../shared/navigationGuard';
 
 function resolvePage(page?: string): string {
   if (!page) return 'Profile';
@@ -13,7 +14,7 @@ function resolvePage(page?: string): string {
   return 'Profile';
 }
 
-export function SettingsContent({ activePage }: { activePage?: string }) {
+export function SettingsContent({ activePage, onNavigate }: { activePage?: string; onNavigate?: (section: string, page: string) => void }) {
   const [selectedPage, setSelectedPage] = useState<string>(() => resolvePage(activePage));
 
   useEffect(() => {
@@ -50,7 +51,7 @@ export function SettingsContent({ activePage }: { activePage?: string }) {
             return (
               <button
                 key={tab.id}
-                onClick={() => setSelectedPage(tab.id)}
+                onClick={() => onNavigate ? onNavigate('settings', tab.id) : void requestNavigation(() => setSelectedPage(tab.id))}
                 className={`flex items-center gap-2 border-b-2 px-4 py-3 text-[13px] font-medium transition-all duration-200 whitespace-nowrap
                   ${
                     active

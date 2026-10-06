@@ -1,0 +1,37 @@
+{
+  "reviewer": "Codex visual inspection of saved production-fixture screenshots",
+  "scope": "Representative screenshots only; automated geometry and axe audits cover the recorded width/browser matrix. No screen-reader or actual OS zoom session is claimed.",
+  "screenshots": [
+    {
+      "browser": "chromium",
+      "file": "phase18-release-head-respo-bc6bf-space-and-mobile-navigation-chromium/head-1024.png",
+      "observation": "Tablet header brand and utilities remain separate; filters wrap and task-table scrolling is contained in the workspace.",
+      "sha256": "588ab10ddaa9dc47292de7ca5cd76b24487f406d88102b8b1db2a2bbfcbebdd3"
+    },
+    {
+      "browser": "chromium",
+      "file": "phase18-release-accounting-7f76d-space-and-mobile-navigation-chromium/accounting_staff-320.png",
+      "observation": "Accounting view labels wrap into intact reachable buttons; Journal retains its current indicator and primary mobile navigation remains visible.",
+      "sha256": "7e6f6c0fb46a0e6d15117ba1309ddb7761b05651f62f24b799f6072689ae07d1"
+    },
+    {
+      "browser": "chromium",
+      "file": "phase18-release-dirty-disc-f5a22-n-restores-its-source-focus-chromium/dirty-forced-colors.png",
+      "observation": "Forced-color discussion retains the rotation draft and a visible text-input focus outline with inspector dismissal and Send controls available.",
+      "sha256": "c7db886984dd706f6b8c8f15808d4fbe75b175b886d04d0114392b1fc6784be0"
+    },
+    {
+      "browser": "firefox",
+      "file": "phase18-release-accounting-7f76d-space-and-mobile-navigation-firefox/accounting_staff-320.png",
+      "observation": "Accounting view labels remain separate and wrap consistently with Chromium; Journal has a clear current indicator and the mobile navigation remains visible.",
+      "sha256": "b4a9ef3699d54613105d86ba9aabe27db9e6ad131cb91927f30716497120dfae"
+    },
+    {
+      "browser": "webkit",
+      "file": "phase18-release-accounting-7f76d-space-and-mobile-navigation-webkit/accounting_staff-320.png",
+      "observation": "At 320 CSS pixels with WebKit's 2x device scale, Accounting labels remain intact, the current Journal indicator is visible and fiscal/mobile controls stay reachable.",
+      "sha256": "f9d5333dae31609de5b5d8e5651933f668d4c0facf69812d035b3ceaad5c2695"
+    }
+  ],
+  "finalArtifactVerification": "All five final-run PNGs are byte-identical to the saved screenshots visually inspected during the completed diagnostic matrix."
+}

@@ -55,7 +55,7 @@ describe("project dropdown lifecycle", () => {
   });
   it("moves archived projects out of the active list, retaining explicit history and restore", async () => {
     const { container, props } = sidebar([{ ...project, status: "archived" }]);
-    const archive = container.querySelector("details")!;
+    const archive = screen.getByText('Archived projects (1)').closest('details')!;
     expect(archive.open).toBe(false);
     expect(container.querySelector(".eflow-project-context__list")?.textContent).not.toContain("Project Issa");
     fireEvent.click(screen.getByText("Archived projects (1)"));

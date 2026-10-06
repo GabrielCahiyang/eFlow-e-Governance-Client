@@ -1,0 +1,4367 @@
+{
+  "baselineCommit": "a16d36e0b2c545c09a097801ff1345a26e39d030",
+  "sourceDate": "2026-10-06",
+  "scope": "Local dirty source including Phase 6.5; audit never contacts database",
+  "files": [
+    {
+      "file": "src/app/App.tsx",
+      "sha256": "c29e30d724ba11b978f4a13e0dad547adb048534f1ec4d9b89f2689921155f6f"
+    },
+    {
+      "file": "src/app/components/Auth/LoginPage.tsx",
+      "sha256": "42d3381366c3adc2159ad2bf6d84f9b79e36035238ce5c42454ecd8b0593b456"
+    },
+    {
+      "file": "src/app/components/Auth/loginPage.css",
+      "sha256": "dc5f392fa2491fb260da7a9b1c05e25443dfc89094317da5617583de3e3fd1a2"
+    },
+    {
+      "file": "src/app/components/Executive/ExecutiveContent.tsx",
+      "sha256": "df4bddc67c45687d959e95c0d3f502be2495f750fa4f57813d532eed82ef23b4"
+    },
+    {
+      "file": "src/app/components/Executive/FinancialOversightContent.tsx",
+      "sha256": "5d699b318a8cde246ee26f9cf9d857e95bce0e7b7571d5d3d3496516350d1694"
+    },
+    {
+      "file": "src/app/components/Executive/ImmutableAuditContent.tsx",
+      "sha256": "b39c3d0f4691fc68803515363481968ea86482431a74ec96b2aa2c09280f8f3c"
+    },
+    {
+      "file": "src/app/components/Executive/ProjectTransformContent.tsx",
+      "sha256": "24c90e26916d9afec6914d07b4d1b1bb4ec527227e9d9f71806e05b40b6f2501"
+    },
+    {
+      "file": "src/app/components/Finance/FinanceContent.tsx",
+      "sha256": "bec2ba616335232a1f4a84c120fb2acb3f679b9768610c1a62e4ed7068f4ea73"
+    },
+    {
+      "file": "src/app/components/HRMO/HRMOContent.tsx",
+      "sha256": "54cd01c433115429f391db6493d019e2a21afe31617c1dd624358d060547385b"
+    },
+    {
+      "file": "src/app/components/Head/ForReviewInbox.tsx",
+      "sha256": "6f072601ae6c578f6272a66636f402359b1bc4bd3d399edf64117dc2feba0331"
+    },
+    {
+      "file": "src/app/components/Head/HeadContent.tsx",
+      "sha256": "dcaf044c96c4c9405cd4c9661e891292643b1075fda4e9929cbbc456ef5306dd"
+    },
+    {
+      "file": "src/app/components/Head/HeadDashboard.tsx",
+      "sha256": "5bc3789aaa21da8cc3bd9adca87e4cc12e096e57962aa2c1035bcf0b4d58166e"
+    },
+    {
+      "file": "src/app/components/Head/HeadDashboardTaskRow.tsx",
+      "sha256": "0011cbb285841246c9760efb8e948296c0833d31596ea9bc015ab54ffd1ee727"
+    },
+    {
+      "file": "src/app/components/Head/ProposalImport.tsx",
+      "sha256": "8a2cf7251e8e862eb10116936bf6f7c7bbef9336db54506f680514edba70e4e4"
+    },
+    {
+      "file": "src/app/components/Layout/RolePageRouter.tsx",
+      "sha256": "4083fd62179bb9304cc9620033ef41d94a9bbd1f029876c5cfc8a1f5093fd948"
+    },
+    {
+      "file": "src/app/components/Layout/coreWorkflowNavigation.tsx",
+      "sha256": "4f9c4cb95ed3d5d9787578517e9ed2ecf6391686e08032aa20874f88b36e40cc"
+    },
+    {
+      "file": "src/app/components/Legislative/CommitteeAffairsContent.tsx",
+      "sha256": "2a4794d52ec980ac449024d9693f0c57f527083cd1bb453704fe5278c55b3fd3"
+    },
+    {
+      "file": "src/app/components/Legislative/CouncilorPanel.tsx",
+      "sha256": "b8a9224f3b7b40aa0c189441582e1e518103c7464d2c62fbce1f68f633a43eec"
+    },
+    {
+      "file": "src/app/components/Legislative/LegislativeContent.tsx",
+      "sha256": "4a67263384cd901c04f2b38565867c701f2d840f9d7c0905924b10718015701a"
+    },
+    {
+      "file": "src/app/components/Legislative/SessionManagementContent.tsx",
+      "sha256": "7e451aff2e4eff6d9f37792d0f2a096ef32c015afb7ff32ac528b28890710969"
+    },
+    {
+      "file": "src/app/components/Member/EmployeeCoreWork.tsx",
+      "sha256": "bb7097a5e1fc1252d4b4139f81a8401a0bd2fafaee12f7daca0d24d5f1316961"
+    },
+    {
+      "file": "src/app/components/Member/EmployeePerformanceView.tsx",
+      "sha256": "af002b674f716485c4a4bde759e1fc601ce1d337e7efdeb6c96dcc89c0a9eb00"
+    },
+    {
+      "file": "src/app/components/Member/EmployeeTaskWorkspace.tsx",
+      "sha256": "ac5c0b23d9b3c6321ecd250068030d82b7861d925cc0389505da042efd3d9f0e"
+    },
+    {
+      "file": "src/app/components/Member/MemberContent.tsx",
+      "sha256": "29c1a4c80db893f06213e8328f9293e56737c989f898a2d5d78d84090f5b00e8"
+    },
+    {
+      "file": "src/app/components/Member/ProfilePage.tsx",
+      "sha256": "cfd6db52e6aefa8f35832fd48f82e5cad07afee5055e97ed2f54be405c216882"
+    },
+    {
+      "file": "src/app/components/Settings/SettingsContent.tsx",
+      "sha256": "229ebc7e7020963c24df818cdb600ae7bd45209ab09e06f5bcc4f65731e0229d"
+    },
+    {
+      "file": "src/app/components/SuperAdmin/AdminAnnouncements.tsx",
+      "sha256": "8b1aecc4f29cc76daee990ce81c851889472828a67706f561780afa6cc33344c"
+    },
+    {
+      "file": "src/app/components/SuperAdmin/AdminAuditLog.tsx",
+      "sha256": "2aa5da96db07a81c7f3b6ae7d7086792c90edc72aa829bf2bf0d70101bff663b"
+    },
+    {
+      "file": "src/app/components/SuperAdmin/AdminPermissions.tsx",
+      "sha256": "54c09b7f654f7980ad0ef7b012cc804be5a1f386b672852ec664cc56066a2894"
+    },
+    {
+      "file": "src/app/components/SuperAdmin/AdminTasks.tsx",
+      "sha256": "4f2ff1f2b4c3974c1b1dd52b0431fc6a80876a19def04eb43b40adf69287fb23"
+    },
+    {
+      "file": "src/app/components/SuperAdmin/DashboardOverview.tsx",
+      "sha256": "c3eb4a99684bfa2e80c4a988117782da1ca94d1deaff6b1058ab8ffb030c3705"
+    },
+    {
+      "file": "src/app/components/SuperAdmin/DataHealthPanel.tsx",
+      "sha256": "3a7579274891130b344ee77dce4f0b25ca7ef12acac1897fe227b3b0fb134ee3"
+    },
+    {
+      "file": "src/app/components/SuperAdmin/MigrationTool.tsx",
+      "sha256": "e042ce9fca9d3bd392e64045c73d7830fa4770b48d310667e638d0bcb91306ed"
+    },
+    {
+      "file": "src/app/components/SuperAdmin/OrgTreeBuilder.tsx",
+      "sha256": "99eb779d2e6d1b40a17bb11b94f255888a591da0cb3dc40c4e367c39b4fa5b29"
+    },
+    {
+      "file": "src/app/components/SuperAdmin/SuperAdminContent.tsx",
+      "sha256": "131fc4b66eaa3678ac3e8f98a7561a262923a848d4e9004bb33c4c2720e6dc93"
+    },
+    {
+      "file": "src/app/components/SuperAdmin/SystemSettings.tsx",
+      "sha256": "267d6e5d926310a7b394836d22e9d09d9254a4b1bd488b0a12e5969ea5de7b50"
+    },
+    {
+      "file": "src/app/components/SuperAdmin/UserManagement.tsx",
+      "sha256": "86f7bfdb07d3b77319d97d57c3a252bcd295be46c11dbb3a37443c9184d7689c"
+    },
+    {
+      "file": "src/app/components/TeamLeader/TeamLeaderContent.tsx",
+      "sha256": "e938c162b347dc0dfa8d3f6f5894fd40f86edf4c59442d054f76ae1c7376cb2d"
+    },
+    {
+      "file": "src/app/components/figma/ImageWithFallback.tsx",
+      "sha256": "cdf8845a06582b6cb33734a39a58ee89cd55171f4c6ed812788c6d1fe92742a4"
+    },
+    {
+      "file": "src/app/components/ui/CallModal.tsx",
+      "sha256": "9c11de32c08eaa6eb2ec0cc8ddb44a839f84c19ee1aab224f57a2637b9346f67"
+    },
+    {
+      "file": "src/app/components/ui/ChatListDrawer.tsx",
+      "sha256": "e5d1f17fdac1529e9b84c0c9e74678628f05eb30a9a4ad288bd4e046e6b8b27d"
+    },
+    {
+      "file": "src/app/components/ui/DataTable.tsx",
+      "sha256": "22dd778ca95cdd80d0583ceda23a95c011713b19413fb9bd9ae6e7f611fed93d"
+    },
+    {
+      "file": "src/app/components/ui/EmptyState.tsx",
+      "sha256": "270ed45afe17444caa22820a722863c9164e3b04f6bf14e25c83557550fa7854"
+    },
+    {
+      "file": "src/app/components/ui/FeatureDialog.tsx",
+      "sha256": "10927ea43cf54caf52020763cd2e364c26fb51b33ca9d2e7fa5a8a40cec13e3c"
+    },
+    {
+      "file": "src/app/components/ui/FormField.tsx",
+      "sha256": "ad1fd87d11d9bc090f2f577b0123c1c171fc4d333fb0e38fd59e0a073b942e49"
+    },
+    {
+      "file": "src/app/components/ui/IncomingCallListener.tsx",
+      "sha256": "a4c0718703534cff7de4910de7069011c2273ebe727bc0e660f88516ff6c11f9"
+    },
+    {
+      "file": "src/app/components/ui/MetricCard.tsx",
+      "sha256": "00a17001168b88c4d0bb8cbbff5be5d8b2f9bd8d319248918f4bc08dab43e478"
+    },
+    {
+      "file": "src/app/components/ui/Modal.tsx",
+      "sha256": "75b183bcfe7aa96f1159b1534831b92bcaa9c6ba2377f3b93267a3505ce706b9"
+    },
+    {
+      "file": "src/app/components/ui/NotificationBell.tsx",
+      "sha256": "61fdb55bf7560961616d5b54bade91457d4c5be21758dbb824ebcc5ef940fb3d"
+    },
+    {
+      "file": "src/app/components/ui/RichTextEditor.tsx",
+      "sha256": "d2d831e10574baae1091c684f51d52352c9a96452af9e9a90dbed429c9c3e2b4"
+    },
+    {
+      "file": "src/app/components/ui/SimpleTableEditor.tsx",
+      "sha256": "22c20add15d538872349673e7c255ffe7eadd9b5e41336e26fc477abfdceb6a3"
+    },
+    {
+      "file": "src/app/components/ui/Toast.tsx",
+      "sha256": "b37411f115b2c9b9741b21e930b55ca14ac965068b6cc7c6557fac55863a0427"
+    },
+    {
+      "file": "src/app/components/ui/WorkspaceIllustration.tsx",
+      "sha256": "cf891f4f2a637e808ad6eaca2187e2d7e9020306076b1172b918194765c033df"
+    },
+    {
+      "file": "src/app/components/ui/accordion.tsx",
+      "sha256": "8e81071a29e955991f5646be795f1f713375f70dd341929b0c07364091e3b024"
+    },
+    {
+      "file": "src/app/components/ui/alert-dialog.tsx",
+      "sha256": "4e8ad76e738c5e144c905843f7d8bbc40b1dc6c2f9416716a3054fbc7d599724"
+    },
+    {
+      "file": "src/app/components/ui/alert.tsx",
+      "sha256": "734ea93f30f2d1a0b93b8c2e83beb474dfb5f59c29f38533482eec57d2b801ec"
+    },
+    {
+      "file": "src/app/components/ui/aspect-ratio.tsx",
+      "sha256": "94c4b2f3a322ae0eccfa63ddd1ad41ce6b728c7f050384d2d4bc40e8e3d5c53b"
+    },
+    {
+      "file": "src/app/components/ui/avatar.tsx",
+      "sha256": "98043caa32447ca64eecb4bd4ffa676a7310164ef50b1d80333ff478620da461"
+    },
+    {
+      "file": "src/app/components/ui/badge.tsx",
+      "sha256": "5ddf4d8a2d94f1b42bec94941faa85321b5d041c6364c2869d51cf390a81e28b"
+    },
+    {
+      "file": "src/app/components/ui/boxicons.tsx",
+      "sha256": "d3201b9ffd56e7586800dc339666fafa3ac5e4b9c76e14177c001e69cb3d680f"
+    },
+    {
+      "file": "src/app/components/ui/breadcrumb.tsx",
+      "sha256": "9087c1c3d8045fca49aa339699d9113396925d0195dceb1b9a0cdf0d4b8bb323"
+    },
+    {
+      "file": "src/app/components/ui/button.tsx",
+      "sha256": "9af45cf29f8af7f1d1b307a265ead98eb89bf9a257e42fb00ca276eba8698bc8"
+    },
+    {
+      "file": "src/app/components/ui/calendar.tsx",
+      "sha256": "4ac6ddf60c86548ecb6bab2f64c017ddae6394f89203014aeabb43a56d059c80"
+    },
+    {
+      "file": "src/app/components/ui/card.tsx",
+      "sha256": "d9d7c0dc1fa47ee3ff34979e242df0b9c8bba83a722d51853994bf86976d27a1"
+    },
+    {
+      "file": "src/app/components/ui/carousel.tsx",
+      "sha256": "4a283e58e9b7afa81f2c07d4f867c605e2f5f1595821b23689ab6d27f7a46f7a"
+    },
+    {
+      "file": "src/app/components/ui/chart.tsx",
+      "sha256": "d7c34d871c34bd16765c3981a1f4337b15827c5d0b060de133ff9154f26367cf"
+    },
+    {
+      "file": "src/app/components/ui/checkbox.tsx",
+      "sha256": "47f7ae71179d928dc27f338f275d8ff7414aa757c3f2028ec1cfe5ca04c9fb7d"
+    },
+    {
+      "file": "src/app/components/ui/collapsible.tsx",
+      "sha256": "aa1549be7ae83bdefb009ffad1a9c7ff09844250a8b17243ee4678c6a879791e"
+    },
+    {
+      "file": "src/app/components/ui/command.tsx",
+      "sha256": "839e1e2d90eddc02bc5f64a294d08310396dea2db03ac355992797d88ea0122e"
+    },
+    {
+      "file": "src/app/components/ui/context-menu.tsx",
+      "sha256": "e6bf478d29d7ff0bfffdb7d76429f9ffea4f7023ae2a6b62015a2134aa9e9257"
+    },
+    {
+      "file": "src/app/components/ui/dialog.tsx",
+      "sha256": "9d2889ebc5309c7348c98efd8725111b1c7d562f62940278dae8a8b7ee0361e5"
+    },
+    {
+      "file": "src/app/components/ui/drawer.tsx",
+      "sha256": "efae284ce47bf26d6843c01834b562148d7cfc06c17e532fec013e0a613a8113"
+    },
+    {
+      "file": "src/app/components/ui/dropdown-menu.tsx",
+      "sha256": "c4d81d686e1c9a974856aa508dd11bb895bc6ecff2402bda83a2109e8450c7e9"
+    },
+    {
+      "file": "src/app/components/ui/form.tsx",
+      "sha256": "c2c65c4adb9d8c25836f3884363d7bf9ec92f2207109cf9645a61d8fdaf13ee5"
+    },
+    {
+      "file": "src/app/components/ui/hover-card.tsx",
+      "sha256": "d546c082bac3f42413b81cb75c149147e2f1ab148232a7033392c522e70e0727"
+    },
+    {
+      "file": "src/app/components/ui/input-otp.tsx",
+      "sha256": "c750352be244b4f5182f05d710ec483ccb3936f1a29034721092f6c37cdb6e43"
+    },
+    {
+      "file": "src/app/components/ui/input.tsx",
+      "sha256": "303f07c6afd9bc0ec4c6f000040a678113dc7216c450bd530d717968324879d3"
+    },
+    {
+      "file": "src/app/components/ui/label.tsx",
+      "sha256": "8503b639cc9352f011e6db1c949ab092cf57dd712d59455406620e071a575ff1"
+    },
+    {
+      "file": "src/app/components/ui/menubar.tsx",
+      "sha256": "03f536d41ddf65617415860401147ba6220e04e3d26df126e11a19e4b1abc787"
+    },
+    {
+      "file": "src/app/components/ui/navigation-menu.tsx",
+      "sha256": "211c318ac8afe209571a9727b7ac79896f85ee938a2bdacb4d830369f9c123b4"
+    },
+    {
+      "file": "src/app/components/ui/pagination.tsx",
+      "sha256": "7bf83582f54c1da2cf197be52c802185c848bac05db21a8c46da4cf59df1c0a3"
+    },
+    {
+      "file": "src/app/components/ui/popover.tsx",
+      "sha256": "cb136dd80dbaa2fffb59ba6a7fa08e5388fd85746d811aacc4c1ca62968ea616"
+    },
+    {
+      "file": "src/app/components/ui/progress.tsx",
+      "sha256": "28ef75d7d31896eddb579f712c0d40ba06a048d0b5cc5074cc0104298d7dc30c"
+    },
+    {
+      "file": "src/app/components/ui/radio-group.tsx",
+      "sha256": "764abbbd9786f7e37d7a6b807072738214d85ad231b2e12c6b5c6d91d980d535"
+    },
+    {
+      "file": "src/app/components/ui/resizable.tsx",
+      "sha256": "3263f8066a298704b951f649cebcb1e7cba5d6cb602e63ecac05e8124aac7bc1"
+    },
+    {
+      "file": "src/app/components/ui/scroll-area.tsx",
+      "sha256": "a882348383b1c465253f5a02c5eda58e7cd7f331984da263c818d46a652aad9b"
+    },
+    {
+      "file": "src/app/components/ui/select.tsx",
+      "sha256": "97f69ad0364d0e69eb0f24b91e5402c58b0baa79140a0313c1734f1536b507b6"
+    },
+    {
+      "file": "src/app/components/ui/separator.tsx",
+      "sha256": "4c960bd3ca2e2c6627e215243e57bfbe6daa651520ab30c7f4c355345b2733a1"
+    },
+    {
+      "file": "src/app/components/ui/sheet.tsx",
+      "sha256": "bc241cc0420cbf851477c7ce7d776cc6712e281253bda3ee5f153622b76e5cdd"
+    },
+    {
+      "file": "src/app/components/ui/sidebar.tsx",
+      "sha256": "307897c33b89a2f104cd709f44000eabee0fea4cfad3f65ce5c3f4d25454353e"
+    },
+    {
+      "file": "src/app/components/ui/skeleton.tsx",
+      "sha256": "1d4cbb3f23d8f1960dd31b2280c92eaeaf3427397bc9c0b8c026f921fa219110"
+    },
+    {
+      "file": "src/app/components/ui/slider.tsx",
+      "sha256": "e2ea3b47b2e63801a664b81b6d8840d9e1db3fe064b8cabff1a6d95d26cb2407"
+    },
+    {
+      "file": "src/app/components/ui/sonner.tsx",
+      "sha256": "9dbb0ca919af53e53294dc0326628187ff45afa756c7caf6b162a7895db0e52a"
+    },
+    {
+      "file": "src/app/components/ui/switch.tsx",
+      "sha256": "79c87e44ac8b9f8237b58dde4e2a93dd5feed55b5673ec3ed6a110e6fb85243f"
+    },
+    {
+      "file": "src/app/components/ui/table.tsx",
+      "sha256": "2dde218e3257a05ce3e5c6d90f06020b2452c805380f7fb9e1770af45350d4a5"
+    },
+    {
+      "file": "src/app/components/ui/tabs.tsx",
+      "sha256": "ca860d8d756f91c4f938f9db856672248967d06316351a2ba86a44544009a045"
+    },
+    {
+      "file": "src/app/components/ui/textarea.tsx",
+      "sha256": "fc97505bbd8b1736b004739dbea44e6a00be68752f13dc5681279214c4a38470"
+    },
+    {
+      "file": "src/app/components/ui/toggle-group.tsx",
+      "sha256": "c5d52534ae0fe29cc3df82e30b61523193f05fe7775a6cdb60074ae10cc6da11"
+    },
+    {
+      "file": "src/app/components/ui/toggle.tsx",
+      "sha256": "602affbc61effcea938cc7d5c8fe22176cfccc09f3e6fbae37a0b2743f9c09b0"
+    },
+    {
+      "file": "src/app/components/ui/tooltip.tsx",
+      "sha256": "2a6e6f5c4853222af2274cf5c186eac7998c824d94caa1b750db3f329a4e4b42"
+    },
+    {
+      "file": "src/app/components/ui/use-mobile.ts",
+      "sha256": "f664fb30e3e4fe093448ac8e9572a1d718a133c9ed1ab5287fa864f146465496"
+    },
+    {
+      "file": "src/app/components/ui/useConfirmation.tsx",
+      "sha256": "855166961fbf6ad67fb5b205216c0d5c4d5486ed08b7fccee3fac266cc469738"
+    },
+    {
+      "file": "src/app/components/ui/utils.ts",
+      "sha256": "c0adf27efbfa148d5abcf99e860f8e3e6c8fc77a1f99e023c08ef4f12e6ece29"
+    },
+    {
+      "file": "src/app/components/ui/workspace/ActionMenu.tsx",
+      "sha256": "a8e0f38d9736380f1f693fb2b4038d6a0a07278e4d142b8c747a89b93acb71f1"
+    },
+    {
+      "file": "src/app/components/ui/workspace/EmptyWorkspaceState.tsx",
+      "sha256": "65dc76ece4f7a81ada72ba1d25a30b8e2484873482fa8bdd5ce59e68c924f020"
+    },
+    {
+      "file": "src/app/components/ui/workspace/InlineEditableText.tsx",
+      "sha256": "d4a27892f97b4bc23f0eaa42ffb33d548b6c265526a6b13f6ad958f3694a9400"
+    },
+    {
+      "file": "src/app/components/ui/workspace/PeopleAvatarStack.tsx",
+      "sha256": "537ab326f5f59ecf5f157b1b057d687d1aa81ec0f7256642654e1bdbd1d7c2e8"
+    },
+    {
+      "file": "src/app/components/ui/workspace/SplitActionButton.tsx",
+      "sha256": "7c30b70a016458254880423092ef5cc784982c0e078da0fe33870bad9f068eb2"
+    },
+    {
+      "file": "src/app/components/ui/workspace/StatusPill.tsx",
+      "sha256": "4ab6f0e5a0430834c0ee1cda2854b5b567f6d08367990693aad66635b2a7b3e8"
+    },
+    {
+      "file": "src/app/components/ui/workspace/WorkspaceHeader.tsx",
+      "sha256": "67383548d56f2562d5323e7fca14d33b050e1df77ab26788742a9e64aa76a026"
+    },
+    {
+      "file": "src/app/components/ui/workspace/WorkspacePopover.tsx",
+      "sha256": "db155634f35264527717e7be6c97624c03ce04529680b36c28b18504fa392955"
+    },
+    {
+      "file": "src/app/components/ui/workspace/WorkspaceShell.tsx",
+      "sha256": "c6417394d4bfb6d324c9e15860e72586d9e0feea2dd8a2331e4a8bbdf36b286b"
+    },
+    {
+      "file": "src/app/components/ui/workspace/WorkspaceSkeleton.tsx",
+      "sha256": "b628962691d26dfab30646dcd343e0e2d8286e5bbb9c2cd34b59f94240dbdce4"
+    },
+    {
+      "file": "src/app/components/ui/workspace/WorkspaceTabs.tsx",
+      "sha256": "faad2beabd18c8ecb74689bc7c6cd7f79566103f031d0d002b0f7f0c5fcaeb43"
+    },
+    {
+      "file": "src/app/components/ui/workspace/index.ts",
+      "sha256": "b9746472ca6e8f10457f1f6ad56af06bbba80c38db84640e6300df9c268556b7"
+    },
+    {
+      "file": "src/app/components/ui/workspaceIllustration.css",
+      "sha256": "8ff9a3a88ef7806b6504c4d343cf2ec4cb47f35a9a94cc5c9bfd9911abf04fee"
+    },
+    {
+      "file": "src/app/components/workflow/AnnouncementCenter.tsx",
+      "sha256": "636189310e21a3f3232d1a8dd9cb80b47b2ff439b78d981ba3a923dedf3839f6"
+    },
+    {
+      "file": "src/app/components/workflow/ProgressUpdateForm.tsx",
+      "sha256": "a9bffd17100926e97d5fccdb1ec5d2cff9404296ac2dafb860e2167ecd233a07"
+    },
+    {
+      "file": "src/app/components/workflow/ProjectsWorkspace.tsx",
+      "sha256": "b91f7e2bfeb16f87215351a156b2fd467972370d079d259a0b701c7f9c636f08"
+    },
+    {
+      "file": "src/app/components/workflow/ReportsWorkspace.tsx",
+      "sha256": "2fcc5da0b72d59914211b097b08ad2c15a9e95fb15d99cf955b99bf5cb9f0fbe"
+    },
+    {
+      "file": "src/app/components/workflow/StatusBadges.tsx",
+      "sha256": "f3415476c856bb38dd3844860a33fdf11dfdbc5b3e691835da082a2131f0fa24"
+    },
+    {
+      "file": "src/app/components/workflow/SubmitForReviewForm.tsx",
+      "sha256": "e2ce54e2df9dce9a14f65e3279e707045a1e41e9fbe8ed40dda5fd7c3fe67cee"
+    },
+    {
+      "file": "src/app/components/workflow/SubtasksWorkspace.tsx",
+      "sha256": "167e576161fcba38ce1ef94ab92d977b8437b8554e79c9930cb8acc876e875b7"
+    },
+    {
+      "file": "src/app/components/workflow/TaskActivityTimeline.tsx",
+      "sha256": "20e10bbf55dd67f3911b962dc2efe41adde4814d5cebda82a5507e66ac6eed0a"
+    },
+    {
+      "file": "src/app/components/workflow/TaskDetailDrawer.tsx",
+      "sha256": "e85215c25367870214f231a71fa31f64ac2461a63ce08cd08a465aca000cb21a"
+    },
+    {
+      "file": "src/app/components/workflow/TaskDiscussion.tsx",
+      "sha256": "05fc6347d07dbfa9eff3166acc40ae2a4d425b127eefa11a734e8c7eb0214323"
+    },
+    {
+      "file": "src/app/components/workflow/TaskReviewPanel.tsx",
+      "sha256": "f22c4d4ea52df845810be950a631c2256c5df1e83f08e2b6d28fedaf3e635c4b"
+    },
+    {
+      "file": "src/app/components/workflow/TaskSubtasksWidget.tsx",
+      "sha256": "503a6e5fb9a58176eb6f6c1bc8478c5952c346b3577f43a00aaa724ba17e2095"
+    },
+    {
+      "file": "src/app/components/workflow/WorkspaceLoadingSkeleton.tsx",
+      "sha256": "c90c5626be3eed38324721925b0c3bd9d0c8a08cf57237abf35bd88729f0a27e"
+    },
+    {
+      "file": "src/app/components/workflow/YouAreLeadingView.tsx",
+      "sha256": "baa9fe6538a684615c33a8f738bc4fe98c03ceb9000d2e10d791096e46a1b882"
+    },
+    {
+      "file": "src/app/components/workflow/primitives.tsx",
+      "sha256": "a7db23984cf2275cc8774cc3100f7337ba8ff2f0250bebd59f052b81e2c80a03"
+    },
+    {
+      "file": "src/app/contexts/AuthContext.tsx",
+      "sha256": "b3f94d958a566435690e342d8f5616cb9c6477a6ba522d6cc6a0d0f54de3d656"
+    },
+    {
+      "file": "src/app/contexts/UserPreferencesContext.tsx",
+      "sha256": "e9d818037d5176f95d0f1fd0cf445677e21949fcb846636d6a1eb708fe5f38f1"
+    },
+    {
+      "file": "src/app/features/administration/components/AdministrationWorkspace.tsx",
+      "sha256": "89acbe6a3dfb65b3688285cb45732e9f1b3443b1b96676c8146f5a63921b2bf9"
+    },
+    {
+      "file": "src/app/features/administration/components/data-tools/BackupExportWorkspace.tsx",
+      "sha256": "e6cfaa6265eb4bfd3321b763afe838fd7f24a900fe96bd1e9970908ea152e868"
+    },
+    {
+      "file": "src/app/features/administration/components/data-tools/BackupGatewayUnavailable.tsx",
+      "sha256": "327b267620eed3a0f83a5330145a7c22a835b62503fb3d8d01e0cf39cd675003"
+    },
+    {
+      "file": "src/app/features/administration/components/data-tools/BackupJobCard.tsx",
+      "sha256": "7e689126c436fb7c8a1f8c3f49abdfc8a0c66d38c7e783e34152f553700ab4c1"
+    },
+    {
+      "file": "src/app/features/administration/components/data-tools/index.ts",
+      "sha256": "325135bd7a89eb5ea2fd505d991fe5401e559f19f9c98d118abc7ea10316ec8a"
+    },
+    {
+      "file": "src/app/features/administration/components/migration/MigrationTool.tsx",
+      "sha256": "d2eed36fb941b8ad208cab2535c6466a0016db8a3ea895b3190244a5f0fd764c"
+    },
+    {
+      "file": "src/app/features/administration/components/migration/index.ts",
+      "sha256": "e73775e38f4abccc02fc75a8c3fa3910f4692734c738be2d3c994ae20b00dcb1"
+    },
+    {
+      "file": "src/app/features/administration/components/migration/useMigrationToolController.ts",
+      "sha256": "b52aaf74e64ad315f3d3fc5d4abd89767cf034f1451e7b3f6ca8a7a5c6ad404c"
+    },
+    {
+      "file": "src/app/features/administration/components/user-management/CreateUserModal.tsx",
+      "sha256": "23efe1fd36d5aa7395947b3430f32d506df770d496f8b2b671b801c56dbeef88"
+    },
+    {
+      "file": "src/app/features/administration/components/user-management/EditUserModal.tsx",
+      "sha256": "11834dcb8389ad4440f5aa37528ec0c0a4ac99dec26f9fa5576b807655c1b57e"
+    },
+    {
+      "file": "src/app/features/administration/components/user-management/PdsImportReview.tsx",
+      "sha256": "2dad22fbf82bc373eef8bc584bf4b7a24c4471e661bb9ff84a01e6eaea3210f5"
+    },
+    {
+      "file": "src/app/features/administration/components/user-management/UserDirectoryFiltersBar.tsx",
+      "sha256": "87f44bacd2edba4c869cf400c25840d8f3a1fc5b3649207bb3636e7223289483"
+    },
+    {
+      "file": "src/app/features/administration/components/user-management/UserManagement.tsx",
+      "sha256": "851dcd37dbf481c7eb0ae7bb3b3e6c23c470e51b76950e5905a060fda8130e31"
+    },
+    {
+      "file": "src/app/features/administration/components/user-management/UsersTab.tsx",
+      "sha256": "b4e16870aa0bd09b67cbc480507aa1ec3e980de56cd722dbb4bf1e50c79ad9ce"
+    },
+    {
+      "file": "src/app/features/administration/components/user-management/index.ts",
+      "sha256": "13144546b5b2ffb5384993db5277bfce6e0033d10472502d727785b4bd917c87"
+    },
+    {
+      "file": "src/app/features/administration/components/user-management/userManagementPrimitives.tsx",
+      "sha256": "f609c70883f73b52c6dfaeba33df6271980ae14f1997adeea13d803af594db41"
+    },
+    {
+      "file": "src/app/features/administration/index.ts",
+      "sha256": "0876f8da09f66fe23592c9fd7c2b49fe166c6374c1ab306e3f4295ede5d5776c"
+    },
+    {
+      "file": "src/app/features/administration/selectors/adminAccountProtection.ts",
+      "sha256": "7db0d9ef6caacbfc73538dc213d86dd5dcb6ce6b2d70ec69b3389f3450423ee3"
+    },
+    {
+      "file": "src/app/features/administration/selectors/userDirectory.ts",
+      "sha256": "8b72dd5d02457e6f2419768ac51c4779da161e8e215519b454d9d280f9c74987"
+    },
+    {
+      "file": "src/app/features/administration/services/backupService.ts",
+      "sha256": "b6a09b35125d5e91239d59e41f46e72d0b675f8c4520b7cf1c55b7fd364e34aa"
+    },
+    {
+      "file": "src/app/features/administration/services/leadershipConstraints.ts",
+      "sha256": "33a53ce5c4578106f24aa47968d63cb1e51d13d0b30aa3a534246fa34041bc95"
+    },
+    {
+      "file": "src/app/features/administration/services/managedUserLeadershipService.ts",
+      "sha256": "60975e8249649e9087fc4a578ffb743fd0251d16fa85453985a5f9f7a670a430"
+    },
+    {
+      "file": "src/app/features/administration/services/managedUserService.ts",
+      "sha256": "109fbf742ce340bc087ae03d737c1bcf457b9eb8f683c48ab29dfd83d2259839"
+    },
+    {
+      "file": "src/app/features/ai/components/AiRuntimeNotifier.tsx",
+      "sha256": "d9c715a0ca7fb44d1e7132cf3a8e116ec554a20e83ecea43b1ba0166194d7c4a"
+    },
+    {
+      "file": "src/app/features/ai/hooks/useAiRuntimeStatus.ts",
+      "sha256": "a7aef0be6898b5dfdc9bf6477b1fb98c9494b55caa002e81a165225328cd032a"
+    },
+    {
+      "file": "src/app/features/ai/index.ts",
+      "sha256": "888e20c755ddd0273bef0d965dfe26faf4bf21d2f007e2a81b1f65130da0f809"
+    },
+    {
+      "file": "src/app/features/ai/services/aiGatewayService.ts",
+      "sha256": "b37c24f67434f1916f2866b0d0dee6e83c3789f69fd540d983835962954fa572"
+    },
+    {
+      "file": "src/app/features/announcements/components/admin/AdminAnnouncements.tsx",
+      "sha256": "1e094b1a7ca22e8590009303632cad0bb1a1417466431893ae0a9526f34611a5"
+    },
+    {
+      "file": "src/app/features/announcements/components/admin/AnnouncementEditor.tsx",
+      "sha256": "5fd9d97ff95da743c5cbd96944b124ddad6bfaea38c8d037c05db6cf0037079a"
+    },
+    {
+      "file": "src/app/features/announcements/components/admin/announcementMeta.tsx",
+      "sha256": "2ed7a21dd900bdc8e22fb9830cf3f0eaacfd29aa8f191a78a0bfea9528e0716f"
+    },
+    {
+      "file": "src/app/features/announcements/components/admin/index.ts",
+      "sha256": "1cdb960679d9e90bd91249df4d4d6bba6693acf83e616ede6627a248a973aee9"
+    },
+    {
+      "file": "src/app/features/announcements/components/center/AnnouncementCenter.tsx",
+      "sha256": "101ac012a6298efe38b8282d17718c65b32cd9169414c91312fb9bb58cf1c5ba"
+    },
+    {
+      "file": "src/app/features/announcements/components/center/index.ts",
+      "sha256": "8d121971eb12cf0be6797ba964a787d44580da15e035449c1b2af86433830f7a"
+    },
+    {
+      "file": "src/app/features/announcements/hooks/useAnnouncementCenter.ts",
+      "sha256": "50f4c8277bff3764add6bf7477cbfac762480182ffb7b561c4b422ec147fc74c"
+    },
+    {
+      "file": "src/app/features/announcements/index.ts",
+      "sha256": "581f9128a50dc56dc67a58c4c2d69932bdfd043e44491f65306253d73e22af75"
+    },
+    {
+      "file": "src/app/features/app-shell/AppProviders.tsx",
+      "sha256": "c00a791e6a99a4dd342f7262a53566cb9b4045f5a109fe8eb40a705da86a2cc4"
+    },
+    {
+      "file": "src/app/features/app-shell/AuthenticatedApp.tsx",
+      "sha256": "036c8b0e63e0fb9083b5cd30026e063bfad257724c283a59c5f8627d2da042a8"
+    },
+    {
+      "file": "src/app/features/app-shell/EflowAppShell.tsx",
+      "sha256": "9239d65980fc74e1dcccb86476cbfdb753caa7771d3ef4708a76779f61e4e417"
+    },
+    {
+      "file": "src/app/features/app-shell/LoadingScreen.tsx",
+      "sha256": "2799187e44ef122970d633456406a09925252ac303bd96694693bbae27493ee5"
+    },
+    {
+      "file": "src/app/features/app-shell/QuickLoginListener.tsx",
+      "sha256": "4ad6b7469e82472cab63d1cefbcc03506e4ec55b2441f7f7e46748bc8de19802"
+    },
+    {
+      "file": "src/app/features/app-shell/components/EflowTopBar.tsx",
+      "sha256": "792b371ab9e8d087dbf25bcf10a115a3fc008b87901e08e1fa7b8674a2800394"
+    },
+    {
+      "file": "src/app/features/app-shell/components/ProductivitySidebar.tsx",
+      "sha256": "360a1423ed97caef2f171dd9b194439e20340aa5ddc29210289da0a6225b7789"
+    },
+    {
+      "file": "src/app/features/app-shell/eflowAppShell.css",
+      "sha256": "ec62abad0f5588941746c14b8d13a02f20eb1420775653f886ff1a039dd01e43"
+    },
+    {
+      "file": "src/app/features/app-shell/eflowNavigationIcons.tsx",
+      "sha256": "7d381c3189755725a942e776e6657102116d2e42205ac9721942134c4fef0654"
+    },
+    {
+      "file": "src/app/features/app-shell/index.ts",
+      "sha256": "dbb9ec345bc1dfb62f086a836ab00d9cff4d2fdc1f1a8584453479ef9515b90f"
+    },
+    {
+      "file": "src/app/features/app-shell/navigationActionAlerts.ts",
+      "sha256": "496933d4a57ac633386f09f7d27dc98b6126bec6f07fc5d7c714dbda32796c13"
+    },
+    {
+      "file": "src/app/features/app-shell/role.ts",
+      "sha256": "45eee877e4c3796588c63ac2c12ffc4d7c1480c4f0e62ee326841af70a27d3b3"
+    },
+    {
+      "file": "src/app/features/app-shell/usePendingPlanDrafts.ts",
+      "sha256": "97d7aa3e56bef1d9e6cce648152a9bd22037e6b0f7e5d89acf5d6adf52dec97d"
+    },
+    {
+      "file": "src/app/features/audit/components/AdminAuditLog.tsx",
+      "sha256": "72840ca3da87476d5f7b8390f854606234b5a6d69491446f4f6179119f011232"
+    },
+    {
+      "file": "src/app/features/audit/components/AuditDetailDrawer.tsx",
+      "sha256": "30e50a1df87d48e5c4e9773ea63e6f8247957ba5b306ecdde704b41abe54f79e"
+    },
+    {
+      "file": "src/app/features/audit/components/AuditEventFeed.tsx",
+      "sha256": "01f0ac7be37df407045758dd8ccdfdfb094fab4cf60ade0f097f015f80c820a8"
+    },
+    {
+      "file": "src/app/features/audit/index.ts",
+      "sha256": "2b8093a26c28d16fa7ec5c63a607c964c04e5f90008bfa713827aac31d9af6e5"
+    },
+    {
+      "file": "src/app/features/audit/presentation.ts",
+      "sha256": "80c3e273435118cb43777a584c142c318974983b8028e86866badbfef3ddd8a1"
+    },
+    {
+      "file": "src/app/features/authentication/index.ts",
+      "sha256": "14993ee464605c7ff2926e785a0a5a39b48b78567c7620e9db3f42a3fef893e3"
+    },
+    {
+      "file": "src/app/features/authentication/services/loginValidation.ts",
+      "sha256": "d71b29d12322e225278cd7037bedc2817ddfbb880c25ef7cea6132008d788f85"
+    },
+    {
+      "file": "src/app/features/authentication/workflow-preview/WorkflowDemo.tsx",
+      "sha256": "e978ad5fd16242e079102a264991800d9b1fc40495fc2fe902ed30c8772f145b"
+    },
+    {
+      "file": "src/app/features/authentication/workflow-preview/WorkflowPreview.tsx",
+      "sha256": "679856c8b72288d18b01ebec0776a9b8b335debe88fbf8f9151db373154efeb8"
+    },
+    {
+      "file": "src/app/features/authentication/workflow-preview/WorkflowPreviewPanel.tsx",
+      "sha256": "66621e2c80454f8bb7e14bd355c38bedf826f5776a1ecb8ce77e111a66d0d9e6"
+    },
+    {
+      "file": "src/app/features/authentication/workflow-preview/WorkflowWalkthrough.tsx",
+      "sha256": "9cb0e4f274ceb07fa707f95966bf2d2bd6c7c95b0077541c30439754b3401a76"
+    },
+    {
+      "file": "src/app/features/authentication/workflow-preview/previewWorkspace.ts",
+      "sha256": "e4999d007f1f38b0b3cdf85caa431518522f44f4973a1ffa99bd3ad0da9408f3"
+    },
+    {
+      "file": "src/app/features/authentication/workflow-preview/screens/ApprovalScreens.tsx",
+      "sha256": "c21db4ef56667d85d4431897bef2d4d4ba5431037b92e76a8ecc61c827092dc1"
+    },
+    {
+      "file": "src/app/features/authentication/workflow-preview/screens/BudgetScreens.tsx",
+      "sha256": "f6942638bcc2166c783f33edeb6528f3e8d705cf43f0b142650d6cdb86c0dda2"
+    },
+    {
+      "file": "src/app/features/authentication/workflow-preview/screens/CloseoutScreens.tsx",
+      "sha256": "9b3155b0d0637d4979ed23df39c61e0273c605874d3a19f629bba8c1b1af9397"
+    },
+    {
+      "file": "src/app/features/authentication/workflow-preview/screens/PreparationScreens.tsx",
+      "sha256": "0268235b4a5c739fa827dd6b2f91b818a04485d0e535702525ae100ca7e717f7"
+    },
+    {
+      "file": "src/app/features/authentication/workflow-preview/screens/PreviewControls.tsx",
+      "sha256": "64103944beed8f17aabffa6279bf3eed7ed69f69bd43edc0a300750ee7738891"
+    },
+    {
+      "file": "src/app/features/authentication/workflow-preview/screens/TaskScreens.tsx",
+      "sha256": "45a1d8d29a3ca3d4c49eca85c1171ad8ab09ef8a373a677baa8c7b96917a2f12"
+    },
+    {
+      "file": "src/app/features/authentication/workflow-preview/types.ts",
+      "sha256": "ed269e3f5a178527f6ab383fd1797b615d9f37ad12dea1d3374698d11c5f7da0"
+    },
+    {
+      "file": "src/app/features/authentication/workflow-preview/usePreviewSpotlight.ts",
+      "sha256": "c35f5da89993cc318d93c7380d77f0c1f9a6328321ec4da5706bf9013446f6fe"
+    },
+    {
+      "file": "src/app/features/authentication/workflow-preview/useWorkflowPlayback.ts",
+      "sha256": "8231c0a52a88a2ea37af85fda75a251e51ea433614cae9c309232e256f04c393"
+    },
+    {
+      "file": "src/app/features/authentication/workflow-preview/walkthroughSteps.ts",
+      "sha256": "7c2ea783e3ee549408098b3b5c3e7ecbda45838b540a9eb2fb689ed37f3b284c"
+    },
+    {
+      "file": "src/app/features/authentication/workflow-preview/workflowGuides.ts",
+      "sha256": "23495b33f54a3d8e112a35467ac750988a905e3993edbfc4ac53a52a413a00bb"
+    },
+    {
+      "file": "src/app/features/budget/components/AccountingSettlementQueue.tsx",
+      "sha256": "ce1919b886696c9590d6669618991e738555a85eec2562d75b991228fbeb7e35"
+    },
+    {
+      "file": "src/app/features/budget/components/AccountingStaffWorkspace.tsx",
+      "sha256": "82583ea1784f9baf4f3d1d6f217b9784a163a2ce260872f22292145046af7621"
+    },
+    {
+      "file": "src/app/features/budget/components/AccountingTrailPanel.tsx",
+      "sha256": "33fac457beef5ba8044c6603111c78990242bf11e7fd9e2bbb2e375a67dfdfe2"
+    },
+    {
+      "file": "src/app/features/budget/components/AnnualBudgetSetup.tsx",
+      "sha256": "7ab805e52d7373189462bf1e18f51dc13fa2e0c3818299bdb0968a61c3d457b8"
+    },
+    {
+      "file": "src/app/features/budget/components/ApprovalThresholdDialog.tsx",
+      "sha256": "ac73bf41310e3ddf1cd0122afd7dea56698c45a4725d012ed665171f4ee7102f"
+    },
+    {
+      "file": "src/app/features/budget/components/BudgetApprovalQueue.tsx",
+      "sha256": "14f003ea17b821ae67978e0f62123f784b4dd86419cff521ba8255fca7bd27a5"
+    },
+    {
+      "file": "src/app/features/budget/components/BudgetExpensesReport.tsx",
+      "sha256": "600cf3d9fa63188fad0ecac76f5ae1cd0845467cb863a7d73bd081b73174961b"
+    },
+    {
+      "file": "src/app/features/budget/components/BudgetFundingHierarchy.tsx",
+      "sha256": "7332ab9e5c8900b7bb8db5c11fd9cdfe528609cb5f4a1cc7db83a1f2681fa250"
+    },
+    {
+      "file": "src/app/features/budget/components/BudgetOperationalSignals.tsx",
+      "sha256": "ea9a2eeb285da6f39d81c4b4c7237b422cca8e21e5ce65601d398d2f2ea8fd88"
+    },
+    {
+      "file": "src/app/features/budget/components/BudgetPositionSummary.tsx",
+      "sha256": "295656744b7ac6b8d7e9c60abbfa1f82cee35e2622b81eab7348a0c60af3bde5"
+    },
+    {
+      "file": "src/app/features/budget/components/BudgetReleasesPanel.tsx",
+      "sha256": "3c58e48a86bf2fbdd9d2293f5592068ca4d1eeba0fa217ee6ce1a8f12eabf394"
+    },
+    {
+      "file": "src/app/features/budget/components/BudgetReviewInbox.tsx",
+      "sha256": "0d10e8c85e493a8d61bf98352445cdb9e48dc4677285ec96aafc56c3a93fa815"
+    },
+    {
+      "file": "src/app/features/budget/components/CashLiquidationDialog.tsx",
+      "sha256": "2b695e22a642132ad7ac593571f4e09fa732e17e31d30e51078fa634ca8a1e8b"
+    },
+    {
+      "file": "src/app/features/budget/components/CashReleaseOverrideDialog.tsx",
+      "sha256": "e038b9b4605ca394c2f0186a010354a4dd978dbe8076fe901580a77d23a4f8eb"
+    },
+    {
+      "file": "src/app/features/budget/components/CashRequestForm.tsx",
+      "sha256": "e2f97ab197e0e45d43ab36cfec38b4d403d0bd0d2df6d1b51a167d22c0a210e9"
+    },
+    {
+      "file": "src/app/features/budget/components/CashRequestTimeline.tsx",
+      "sha256": "a3393cb58f552d52c926c6d99d2ba3a5563e0b59d8b7edf35cb13019dc50ba50"
+    },
+    {
+      "file": "src/app/features/budget/components/CollaborationBudgetPanel.tsx",
+      "sha256": "df263ac819a4180de2bcc1ecf4e4c6228609370e81667bb4e08658890d5d0beb"
+    },
+    {
+      "file": "src/app/features/budget/components/DisbursementVoucherDialog.tsx",
+      "sha256": "8ca405957e17eac412bfe31bcb54dc05c0df497bb3e3ccdc4beb282e642c2a1c"
+    },
+    {
+      "file": "src/app/features/budget/components/FiscalYearControl.tsx",
+      "sha256": "a2aaa18c133e14f95a981bb7912ef41551360bd43fb64393004a0786bb675d65"
+    },
+    {
+      "file": "src/app/features/budget/components/GeneralJournalWorkspace.tsx",
+      "sha256": "c016accca9734c94b4b5296ea835ee63f3c6dc0436dc829757f57936cdf8a6e1"
+    },
+    {
+      "file": "src/app/features/budget/components/LockedBudgetControls.tsx",
+      "sha256": "7bbb7c9e0cbe7c4f0a173b0f45635c7e63019741297833af8a851e289ed83155"
+    },
+    {
+      "file": "src/app/features/budget/components/OfficeBudgetWorkspace.tsx",
+      "sha256": "b6e9e75bf9a9cda074b8d8f0477bde93ea84999f24d839df92b07677a6518495"
+    },
+    {
+      "file": "src/app/features/budget/components/ProposalBudgetEditor.tsx",
+      "sha256": "8c993efc0e1d72b0478db320273e67de37a1aae8a6ff6471dccdf988557cedaf"
+    },
+    {
+      "file": "src/app/features/budget/components/ProposalBudgetSection.tsx",
+      "sha256": "890435671f3a4b7158847ef8345aaae5a43ebe95ea4f6c9a8fc3755941651c7e"
+    },
+    {
+      "file": "src/app/features/budget/components/ProposalTaskBudgetSummary.tsx",
+      "sha256": "e1a18053c64f73c5258d658e824d1d60268d967ca510d0f6de685e4716f2fea0"
+    },
+    {
+      "file": "src/app/features/budget/components/TaskBudgetDialog.tsx",
+      "sha256": "e73614a8b867b035652fb7b4f817c8b026fb179f1725b7be4e42020ea16c1b86"
+    },
+    {
+      "file": "src/app/features/budget/components/TaskBudgetEditor.tsx",
+      "sha256": "1f13f62d6b4241e5edea0c78b0c4f2265a1de79f6bfd8de3c3921f5c672fc799"
+    },
+    {
+      "file": "src/app/features/budget/components/TaskCashClearancePanel.tsx",
+      "sha256": "69f9ef9c3d410cd7359965bbac9c640df7d40ca1b82e663d8e8fa73dac75f496"
+    },
+    {
+      "file": "src/app/features/budget/components/VoucherConfirmDialog.tsx",
+      "sha256": "818995cdbb77a8cef194e3bdc4924cc4670b134649a9221959a3947dc9ee2a4b"
+    },
+    {
+      "file": "src/app/features/budget/components/WorkBudgetCard.tsx",
+      "sha256": "552f7c92567c4e4d93a34d3088bced2fa86d39d1121316a42b8c18769c5cb84f"
+    },
+    {
+      "file": "src/app/features/budget/components/budgetUi.tsx",
+      "sha256": "888899f165818627bee9646998b8f40f40d6517c3e11169992f0ee19e1645a3a"
+    },
+    {
+      "file": "src/app/features/budget/constants.ts",
+      "sha256": "8d07a101b46854103a95628a596ec4daab6a7a9e82b9d2ac0bc8416c4d94ec54"
+    },
+    {
+      "file": "src/app/features/budget/hooks/useApprovalThreshold.ts",
+      "sha256": "a1f40510eff1a0845f46383ac3a92d7a085ac7e7c6405362d10e87ce7af26584"
+    },
+    {
+      "file": "src/app/features/budget/hooks/useDepartmentBudget.ts",
+      "sha256": "b0ab4e5ec7f560dcc7543bdb6b78b6c950fc066eca5c3e7e210952b0960305ea"
+    },
+    {
+      "file": "src/app/features/budget/hooks/useGeneralJournal.ts",
+      "sha256": "b154be74d2d8a736a06cccc77065f6b4b162113c7f3387c27a6a5f7e257b6ed9"
+    },
+    {
+      "file": "src/app/features/budget/hooks/useTaskCashClearance.ts",
+      "sha256": "4b229dbb55a5bb82dd9335cc6bcd0be8be41d0476ecc451d46ba57b67f92412b"
+    },
+    {
+      "file": "src/app/features/budget/hooks/useTaskFundingContext.ts",
+      "sha256": "5e7b5b7adb591667c27effd46c825280cb770ee68d372162f8aecbc9c073dbc3"
+    },
+    {
+      "file": "src/app/features/budget/index.ts",
+      "sha256": "3d4b0367ab80a5619a032edd9f64e3c340f0e35630ce1f2bb73447cf3a731265"
+    },
+    {
+      "file": "src/app/features/budget/selectors/budgetSelectors.ts",
+      "sha256": "deb59d9faa420f498aaba52b59ce91fbd759eb61144e79daeb0fc9f2696c2001"
+    },
+    {
+      "file": "src/app/features/budget/selectors/cashWorkflowRules.ts",
+      "sha256": "1b0979061722197edf5d19de883f3723c8adfd30b3273b154533d634fe724c7c"
+    },
+    {
+      "file": "src/app/features/budget/selectors/journalSelectors.ts",
+      "sha256": "2f6bfbfe3ceeb107b2daf3f8f5557758476ffe873278ed810450673e58503dd7"
+    },
+    {
+      "file": "src/app/features/budget/selectors/taskCashClearance.ts",
+      "sha256": "810917ebf03baea7d5ce0b03e0355fda53d81e25c76de9f4f41230b41fef7378"
+    },
+    {
+      "file": "src/app/features/budget/services/budgetMappers.ts",
+      "sha256": "1b24ce37eb3434edf24b6c947d1bd94f7ec09ac72f231d8a5b8c2f314f98f621"
+    },
+    {
+      "file": "src/app/features/budget/services/budgetService.ts",
+      "sha256": "0b0fa861b3dcd1bcd26a5627bab402061c6f0be0b62e9b0af90d7e781d111ae0"
+    },
+    {
+      "file": "src/app/features/budget/services/taskCashClearanceService.ts",
+      "sha256": "d62fa1d88c570e307957266c95a4ddf9743b77bd526cf0d5db269868dd57818c"
+    },
+    {
+      "file": "src/app/features/budget/types.ts",
+      "sha256": "aea946d634e31d8dc19186dcf330c17fe20cebf4c5e77d2c295927948f01ee15"
+    },
+    {
+      "file": "src/app/features/chat-calls/components/ActiveChatPanel.tsx",
+      "sha256": "d7d82659adac2cfaa7f487729840730a732a785b5da49abf213d9230eb8088a0"
+    },
+    {
+      "file": "src/app/features/chat-calls/components/ChatChannelList.tsx",
+      "sha256": "f0b21d2407b0f8398058c59bbdef4fc7afbaff83878cceb9b680dbe9b9aac854"
+    },
+    {
+      "file": "src/app/features/chat-calls/components/ChatDrawerContext.tsx",
+      "sha256": "3c10c2fec9a56481dcca18fef9ab9a44522e25496384338a034cfa2a0b87ae33"
+    },
+    {
+      "file": "src/app/features/chat-calls/components/ChatListDrawer.tsx",
+      "sha256": "85483de7900f3008625a2e9fec06db46e11e7a0e17cf4f9d9e1da65df6f42500"
+    },
+    {
+      "file": "src/app/features/chat-calls/components/ChatReactionsModal.tsx",
+      "sha256": "2cc8353257ce014e5f96ee12c442548f70c66fe0559bf01357fb8e373db67393"
+    },
+    {
+      "file": "src/app/features/chat-calls/components/ChatUnreadBadge.tsx",
+      "sha256": "24eca821653aa6d14f9be650666475565d960640424cb8bffc04c39f70d70289"
+    },
+    {
+      "file": "src/app/features/chat-calls/hooks/useChatDrawerController.ts",
+      "sha256": "08c80a502a0499b8f4b36b4c37cf1d1f0aa2c3d484dab2b15b566bc174d859ad"
+    },
+    {
+      "file": "src/app/features/chat-calls/index.ts",
+      "sha256": "d5fa86f03c6d0fecf5b53c9021427112c89bae0305d2ee3a4883948e69e264ce"
+    },
+    {
+      "file": "src/app/features/chat-calls/services/chatMessageCodec.ts",
+      "sha256": "a729af125b8ec2b73f450823f3082577232357ed56b3a5aa4e5ff3751cf5e541"
+    },
+    {
+      "file": "src/app/features/chat-calls/services/chatModerationService.ts",
+      "sha256": "7f2be6f630f76c4bb68811f085b80d851f95f6102d9a0e955466815bb76056ab"
+    },
+    {
+      "file": "src/app/features/chat-calls/services/chatPanelLayout.ts",
+      "sha256": "af31402e735ba33b28ae30f860d24dcc89b96ee0cab5b4b6e003646812378a2d"
+    },
+    {
+      "file": "src/app/features/guided-tours/components/GuidedTourCard.tsx",
+      "sha256": "a57c19bcb50af7e4bc5ac48b0af5d406fd93a56f21e0dff78293cda027ac286b"
+    },
+    {
+      "file": "src/app/features/guided-tours/components/GuidedTourOverlay.tsx",
+      "sha256": "fcca62f20dfe76dedd18f4deae43dd291d013300dd6bde8939be6726e7b5d40a"
+    },
+    {
+      "file": "src/app/features/guided-tours/components/GuidedTourProvider.tsx",
+      "sha256": "d30ff2f4518e561e3533c454f367181e2a53100f8ba0e53767c54c49a4696b11"
+    },
+    {
+      "file": "src/app/features/guided-tours/components/WalkthroughButtons.tsx",
+      "sha256": "9876b0eea155544fed5e4660dc1baf85206301f6c0a430b7741f9cac323ecf9e"
+    },
+    {
+      "file": "src/app/features/guided-tours/components/WelcomeTourPrompt.tsx",
+      "sha256": "7fbeee2190d00901a7f1b86abb5a29543be1798df5d155b93e66e81f1009da6c"
+    },
+    {
+      "file": "src/app/features/guided-tours/firstSteps.ts",
+      "sha256": "29047379482a83943f45c3c1ffa807cecfddfd78eaef69bfe26d05fecb1e059e"
+    },
+    {
+      "file": "src/app/features/guided-tours/hooks/useGuidedTourNarration.ts",
+      "sha256": "915aa1399a2d9390628789f75812ed06d0819bcd463ace4af4d6c214fc4b3bac"
+    },
+    {
+      "file": "src/app/features/guided-tours/hooks/useGuidedTourTarget.ts",
+      "sha256": "c25f0f90897f4737067793d9538d29acb5c3f3a7dfba75f6f2e8f32fb45900a4"
+    },
+    {
+      "file": "src/app/features/guided-tours/index.ts",
+      "sha256": "d2615b3976d7cea28b0070f0f9dcc141c2b610813c1d5995a7c5bd0348db8a37"
+    },
+    {
+      "file": "src/app/features/guided-tours/services/tourNarrationService.ts",
+      "sha256": "a068075e8546ff08d05b6eef393fd4564bbaa06018731c9834dcd63707e486e2"
+    },
+    {
+      "file": "src/app/features/guided-tours/services/tourProgressService.ts",
+      "sha256": "c1a4814299e372bf0a46d3777045b78da939db8eda365e1da97de8e7019c665e"
+    },
+    {
+      "file": "src/app/features/guided-tours/tourCatalog.ts",
+      "sha256": "cbcb31b82eaa8050d739bd39b6874aa69560ba75cfab3973b48a81706f257ba1"
+    },
+    {
+      "file": "src/app/features/guided-tours/types.ts",
+      "sha256": "69d82562fca9c44d14093418ca5d12745afab015abb39798498bd2eeef58c22c"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/components/ChangeRequestsPanel.tsx",
+      "sha256": "b80f88f433fee86faebb0fd335a4361465f9a7872b93fed9601797410e1de43c"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/components/CollaborationActionRail.tsx",
+      "sha256": "1387bdf7fa49a41bef5f4a3e8a37467dafeb6421a95e13bc780b4238776ea23c"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/components/CollaborationActivitySection.tsx",
+      "sha256": "5393abcbb40bff5dd875a800b0edb6010494e9030bbe856df493369c57b55187"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/components/CollaborationDecisionPanel.tsx",
+      "sha256": "f834d3dbd847cca11d5c871dcf484d5cf0a8ec903a916848f6874e362a3a3ce7"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/components/CollaborationDiscussion.tsx",
+      "sha256": "fe906648d884b636948cf8909594645ef577f71a2cea281088accc019f1b44bd"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/components/CollaborationDraftList.tsx",
+      "sha256": "4b82d2b7830095a9f9a6293f816528ebe461e171078977f5096bbb38a0f7e59a"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/components/CollaborationDraftWorkspace.tsx",
+      "sha256": "d7f17636c453ee5d746da63b44ff18452e98860deeadbc2975af739fd6b85971"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/components/CollaborationOverviewPanel.tsx",
+      "sha256": "1556c7114df43a4484932e0b0a6f38d0b30a772d3a590a43070228142b275f48"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/components/CollaborationPlanEditPanel.tsx",
+      "sha256": "3c9fcfb74b04ae0285bc199e3fc301f5b0ae24ae49064f8954ae6cc4d7496241"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/components/CollaborationPlanPanel.tsx",
+      "sha256": "ae3e62d4435f1e067c46210a47844d33d62d5f94777ff6f6bd6acbdefda9c7d2"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/components/CollaborationReadiness.tsx",
+      "sha256": "48f794f41f5265552fdb11ff07052c60ff638b856a58ff2a7b4dc72970543c64"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/components/CollaborationSourcePanel.tsx",
+      "sha256": "3d05440daeeeb34f9f0aeaae65ff19f8d17918fc3eb598497dc0a83b237a193c"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/components/CollaborationWorkspaceCollabTab.tsx",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/components/CollaborationWorkspaceHeader.tsx",
+      "sha256": "009236457e7d9dd9ef92cac8baa4c1764a20a898186b5aab5e9f1841a7238f64"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/components/CommittedProposalBoard.tsx",
+      "sha256": "d8de27dba6d959c5b7909bbec1a4311696510f9c16fb6f138e6a3da82cd5b66a"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/components/CommittedProposalDeliveryPanel.tsx",
+      "sha256": "36b4b61b0a4acbd03eb1fefce96c8aa12d84a2780aa24ca5bf5fd2621f91d636"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/components/DepartmentApprovalMatrix.tsx",
+      "sha256": "21e6290c0f9e72021a2265ab8fe63505773575943bbfdfbfdbaa65c4549a34ba"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/components/GovernanceWorkspace.tsx",
+      "sha256": "6659916ed3102afbaa2baa6236dc1555f28e54d29d47938c90e4e3cae7b27376"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/components/OrganizationParticipantsPanel.tsx",
+      "sha256": "62295780f77745f3768e9abaca944e67f4afaf99f1e6f9ff7007f75f90e60d10"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/components/OrganizationScopePicker.tsx",
+      "sha256": "313ebdcafd71fa0f700505ff68ba3721563c784930eb0129f86c5720cd664f09"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/components/ResponsibilityEditor.tsx",
+      "sha256": "817464bea0eabeb103c6de99ea6d4ab0d48dd718564f85287afa13d5a41b3689"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/components/RevisionTimeline.tsx",
+      "sha256": "1f4995968919e6a3259d8eb6e74e4f9e5483ea28e716a56f3b6d79ff3712e983"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/components/SourcePdfPreviewDialog.tsx",
+      "sha256": "4874a0ef6f2d7f1fa82111a0ca2a5e7d24c1135ad70d65e4c85c50da5d8111cb"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/components/StaffingReviewPanel.tsx",
+      "sha256": "44d9e7160da6eddbd4720fb52993f0b71ec1f450f65d8d9e0becad6137c5e49d"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/components/governance/GovernanceCloseoutPanel.tsx",
+      "sha256": "8f8ad4216d2d7300630499999c391fa190c53eb13692e5dc8a54c0f03ad4ffe7"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/components/governance/GovernanceRecordPanel.tsx",
+      "sha256": "e37e656f0be38b6c530a29b297d47f4005d95c47ac069adc6b341a34237397fc"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/components/governance/GovernanceRosterPanel.tsx",
+      "sha256": "5fd04959f0d54df73e1aca96b1e45f2c88173ed15f65506249edaaec9a9bac00"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/components/governance/GovernanceTimelinePanel.tsx",
+      "sha256": "3f291011bbfcc97fadf15f95cff1ed237e3e4472c73c042c896f086edc1a83a7"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/components/governance/TaskGovernanceRoutingPanel.tsx",
+      "sha256": "597d58960257b545dbd04793ce1026988e63262746500470430f88c971ba407a"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/constants.ts",
+      "sha256": "79b64f3ccac2199269b091b8dbae24a0cdf9905a2217c7036fed17ebe8f0c862"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/hooks/useCollaborationDraft.ts",
+      "sha256": "760b8b9812081d19ed8ea9f4b5c288c7ae7f8edf32d61b8aabe7783a1da410eb"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/hooks/useCollaborationDrafts.ts",
+      "sha256": "77bde27af529e3f0785afe3a0b788c834a19535cd7bc80504bb473d8b22bb025"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/hooks/useProposalGovernance.ts",
+      "sha256": "7faf24c856ab1d97a72977627aea2a9c0f6f282cb07d60c0c38149ccf0eee899"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/index.ts",
+      "sha256": "69663f3a0d902a2c594ae24faadf0ad87a67a103769afd00e9a27b9267c5c468"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/selectors/collaborationReadiness.ts",
+      "sha256": "67ca37021fcb153c4e9f14515d5d45c7ba154088eb0b552bb02ad4f40b0e4e79"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/selectors/deliveryBoard.ts",
+      "sha256": "b4961e8f5c20ad7b609b86d71995aa396436e6bb61e0fea78282f605aee6dedd"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/selectors/deliveryProgress.ts",
+      "sha256": "155625fe3ad10b96aad0af780580b93a1809b287c53c6fa7dc8f1e14495a0301"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/selectors/departmentApprovalRows.ts",
+      "sha256": "ca47d3ee0f7750908cb560f46f7a78e0dc01bd9334cebd5d9da7d8b7a41cb7b6"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/selectors/draftVisibility.ts",
+      "sha256": "8a27869bfc4b01dacd4ea9ce6cbdb672e97e21534818c032b8fffaa381af98c7"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/selectors/organizationEligibility.ts",
+      "sha256": "acb9c9ba6480796f2ddc48b38c8ca7123a0989ba0039da608feac87d54f37531"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/selectors/participationRole.ts",
+      "sha256": "f672f357fc9ba3c5e349a6ccc7cd5fb65c0cb66dba2996d47a0f220428e92019"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/selectors/reviewActions.ts",
+      "sha256": "81233fa4f041dfa6a69e149aa72ddab3f5c4642f7fc05207ec8a7d181fb10aac"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/selectors/revisionDiff.ts",
+      "sha256": "2a22569e0218e56dff6dc6ef0ecfd589ffd78ebee37a2123356eb2e0e4b2ff02"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/selectors/snapshotAdapter.ts",
+      "sha256": "7e24c210c34db2b4e38e99763e1ef408a5ecc9c12f91156dda274ef41202038c"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/services/approvalPortfolioService.ts",
+      "sha256": "42c815e48d11ac9fac3af4f35d0bf313701242926770bbe78f5e1d116331cf05"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/services/collaborationCandidateService.ts",
+      "sha256": "0457fa36a75303964e5b6a2966252df1a30b64051868796a061bcf78a59aaa45"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/services/collaborationCommitService.ts",
+      "sha256": "99757f474480719b8ad53b5a9edbbf1c4aff5629756353d4e715aee677792bb1"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/services/collaborationDraftEvents.ts",
+      "sha256": "23a7b1c6e95eae61dfef331d59391ae5697727bb65f9c4dff7858d6a74132f9a"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/services/collaborationDraftService.ts",
+      "sha256": "02de64c4ebf409a07340359aebde5fbcb3a2499fa1214509d51d7b5b948488aa"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/services/collaborationMappers.ts",
+      "sha256": "7e3a7bf655f04364e756504c0c0d875860580702b6ad8aafabbdad9a4029b655"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/services/collaborationReviewService.ts",
+      "sha256": "2c42499be109d924a792614e8746290ec71316dba7495557fd6e8dad62127299"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/services/governanceDecisionPacket.ts",
+      "sha256": "940629b330947cfd12f86fbc912878d8048080660603e64017336809232abe79"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/services/governanceLifecycleError.ts",
+      "sha256": "e4440e99e8220cc10d12b075ecfb0bd0810157fc3587b01c615cd992b8a6b091"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/services/governanceService.ts",
+      "sha256": "c100b31cb05daef645445494bc013bd8887aa8fae54551eda61b2fd33256d02c"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/services/saveReviewUpdate.ts",
+      "sha256": "53fada16051cbddae6d2d4a3b081cf8b6e851a9f2c79c94ae3ad58d61fac86b3"
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/types.ts",
+      "sha256": "272c0a2416ce705a70c82f5e46ad0a342ee0915217f04c737a4c7623a09d9ce8"
+    },
+    {
+      "file": "src/app/features/invitations/components/AcceptInvitationPage.tsx",
+      "sha256": "09630a4970c87295bbeb119c9ca41406fdd46b92b0aae4d71b7d3ea2fe8c1d3f"
+    },
+    {
+      "file": "src/app/features/invitations/components/InviteMemberDialog.tsx",
+      "sha256": "86ca4db9f92361babfc6c700e6f153ca2ca2e6b49503219e2df0fc6eb9fa1501"
+    },
+    {
+      "file": "src/app/features/invitations/index.ts",
+      "sha256": "a46058541cad882bc4338e85ad09bcc21fc6663a609fb0b537b1b143c081b278"
+    },
+    {
+      "file": "src/app/features/invitations/invitations.css",
+      "sha256": "3fb640876cbb6219a6263e65f6f15dcf411ea0ee0cd759da16702d3f95670c9c"
+    },
+    {
+      "file": "src/app/features/invitations/services/invitationService.ts",
+      "sha256": "9383711e971a876aceb62e5a113bb7ff9ea033bd58a2610c7c59fb1e08d83153"
+    },
+    {
+      "file": "src/app/features/invitations/types.ts",
+      "sha256": "e7ed08b90bd67443a96be5fc3a596cfd0adb62baafd775f989d589cf8b1f35a7"
+    },
+    {
+      "file": "src/app/features/members/components/core-work/EmployeeDeadlines.tsx",
+      "sha256": "fa496c5047de3f5e22919e729e5f25f1b43452124946e74a06cfd006ed242b70"
+    },
+    {
+      "file": "src/app/features/members/components/core-work/EmployeeMyProjects.tsx",
+      "sha256": "dbea582a611960730b008c82d582728cd8ba175dc3d72232ad5db5de75436602"
+    },
+    {
+      "file": "src/app/features/members/components/core-work/EmployeeMyTasks.tsx",
+      "sha256": "67a2958fb40efdf5505e959dc599817e64ddc64f373664e3135e43e1206acdec"
+    },
+    {
+      "file": "src/app/features/members/components/core-work/EmployeeTaskHistory.tsx",
+      "sha256": "645e48306044c6dcb16b63c203142f7513d4f64512bd13fbc3873158f000f6d3"
+    },
+    {
+      "file": "src/app/features/members/components/core-work/EmployeeWorkReport.tsx",
+      "sha256": "464d6606aecb28c423769b6455ba74cc8333942722feeeb7abd225a2e4da154e"
+    },
+    {
+      "file": "src/app/features/members/components/core-work/index.ts",
+      "sha256": "552834cf7abc2e07e7a67e864c1797f318c12821d19ce31f7258b659a408d437"
+    },
+    {
+      "file": "src/app/features/members/components/core-work/useMyTasks.ts",
+      "sha256": "62d8ab67378d7ba2075f0d3d8e115b6bd6427eb98c1577e20d33b3901e6cab3f"
+    },
+    {
+      "file": "src/app/features/members/hooks/useDeptDirectoryEmployees.ts",
+      "sha256": "87b4963a4a63eca65b06a92898076faf75b888c96c3a5dd4a42653b36f89a6ac"
+    },
+    {
+      "file": "src/app/features/members/index.ts",
+      "sha256": "d7ef28c3be684d53dc6ed348a42d0591939fca1846ab728b51868be0e26a8560"
+    },
+    {
+      "file": "src/app/features/members/services/departmentDirectoryEligibility.ts",
+      "sha256": "85c42ee7f493869a00d439dbbf64712c720a1901587c0bc3419a0108b3d75ea3"
+    },
+    {
+      "file": "src/app/features/members/services/departmentScope.ts",
+      "sha256": "f48456d39df752812c9fc495b8c9b1eed933263b71b8e2a9affd2956137893fb"
+    },
+    {
+      "file": "src/app/features/members/services/pds-parser/extractors.ts",
+      "sha256": "2019c12f51efeb925da5416c624a914081f8c434f82f91bd03c1266c9df690be"
+    },
+    {
+      "file": "src/app/features/members/services/pds-parser/index.ts",
+      "sha256": "0408187a6060c26a665268f0897b8af48f53cae01196c4274b19265af9fee2f4"
+    },
+    {
+      "file": "src/app/features/members/services/pds-parser/notes.ts",
+      "sha256": "fb51e60ae8f8ff097e0ae6e0ed8b8e6e66d2525f48cc2e0a68ff961a4f3a300b"
+    },
+    {
+      "file": "src/app/features/members/services/pds-parser/pdsParser.ts",
+      "sha256": "4eec15b8e8de3484b250f0eaee302557d5ce82ed71d1e8f1cb353531f43f44f3"
+    },
+    {
+      "file": "src/app/features/members/services/pds-parser/types.ts",
+      "sha256": "5ade278ff4633cc57b643d8b30a2349708e53b87819e3a31a43fa01f034677c2"
+    },
+    {
+      "file": "src/app/features/members/services/pds-parser/valueUtils.ts",
+      "sha256": "8850e3e4fcc2f4e198b385be3884901a8aa8090c2547a88fce8b401686dadc91"
+    },
+    {
+      "file": "src/app/features/members/services/pds-parser/workbookRows.ts",
+      "sha256": "dc342017699b1238618f6bea8a555c51f217eb2ff71be233117cf2f8ea6bee8b"
+    },
+    {
+      "file": "src/app/features/members/services/profileDirectoryAdapter.ts",
+      "sha256": "d4716ab4ab4dd8e2c4fb3ba9d9cfd3a196ac22d439020655574feaabf634b81f"
+    },
+    {
+      "file": "src/app/features/navigation/AccessDenied.tsx",
+      "sha256": "006b03e8a08e718254ef38be767ccf399cda3bb054829628cedb7b292c67dee3"
+    },
+    {
+      "file": "src/app/features/navigation/RoleContent.tsx",
+      "sha256": "f2b108faf016aed4c06d48b0f9454076b6d1987f819c5497355955e493d9de4b"
+    },
+    {
+      "file": "src/app/features/navigation/index.ts",
+      "sha256": "b880311ca6e2e300f0a96e3da48e475faddf116be5da3a335a8673f8e81adbbf"
+    },
+    {
+      "file": "src/app/features/navigation/navigationPermissions.ts",
+      "sha256": "5d5609a6202f479ea6828195cc2582361b49ffa1f6812fdf9976d58faa3f9785"
+    },
+    {
+      "file": "src/app/features/navigation/navigationUrl.ts",
+      "sha256": "2166d3000a82828f9761a32e66a267a737dd2f709546ae3253746d6c7c683aea"
+    },
+    {
+      "file": "src/app/features/navigation/roleNavigation.tsx",
+      "sha256": "f8262f33d4de82ccb3d2ef878cc653f54d2566d333f38235a775125d40aba070"
+    },
+    {
+      "file": "src/app/features/navigation/sidebarContent.tsx",
+      "sha256": "d5359997acebac1afefb3afee3aadb03487072f53a6bdf0baaf74278e827311d"
+    },
+    {
+      "file": "src/app/features/navigation/sidebarRoles/councilor_padSidebar.tsx",
+      "sha256": "f9e2f390bdcee0215e38facbcab621b547829cf399bb0ef5fe9ddba6b828c8bd"
+    },
+    {
+      "file": "src/app/features/navigation/sidebarRoles/deptheadSidebar.tsx",
+      "sha256": "cb670e2ba13875017e852287d3f21cc373a497c0481ddf355ef5230806c20049"
+    },
+    {
+      "file": "src/app/features/navigation/sidebarRoles/employeeSidebar.tsx",
+      "sha256": "683584034a3f067ff8b674b5851a66094613f50a760399b625041ce1070272b8"
+    },
+    {
+      "file": "src/app/features/navigation/sidebarRoles/executiveSidebar.tsx",
+      "sha256": "dc1c270a3466d9f75711e21c5b6c33348698e19bd3a6f5889b71e1137228051c"
+    },
+    {
+      "file": "src/app/features/navigation/sidebarRoles/financeSidebar.tsx",
+      "sha256": "80bc73baa32c9afc0f1586951f42af35bddd2e988fded06212a49fcafe691498"
+    },
+    {
+      "file": "src/app/features/navigation/sidebarRoles/hrmoSidebar.tsx",
+      "sha256": "95c519f6c157f67cacac2521e67cf1f6e488f52607a071656baa576eb71fd55e"
+    },
+    {
+      "file": "src/app/features/navigation/sidebarRoles/index.ts",
+      "sha256": "96dcd6ae78cc30956dd57619dc5a21e7616eb16c9b8b079db62fcaf03d541150"
+    },
+    {
+      "file": "src/app/features/navigation/sidebarRoles/legislativeSidebar.tsx",
+      "sha256": "baf0d9a8299da303ac45ae0124fa35b846d17b1f59046f6a223f22127c255397"
+    },
+    {
+      "file": "src/app/features/navigation/sidebarRoles/settingsSidebar.tsx",
+      "sha256": "2f49ae1f902a394b1c8926fb1cc4d47e117fe9aaa89225011029d6c1a445abb5"
+    },
+    {
+      "file": "src/app/features/navigation/sidebarRoles/superadminSidebar.tsx",
+      "sha256": "3fa3376709b99591a4a4a9fe6f89eaaec397766a21bdf91dfad0fe2e88bafd12"
+    },
+    {
+      "file": "src/app/features/navigation/sidebarRoles/teamleaderSidebar.tsx",
+      "sha256": "48daad751aef28456b6472cf9faf4ee18dce599a6520f57b687fb43b85534a8a"
+    },
+    {
+      "file": "src/app/features/navigation/sidebarTypes.ts",
+      "sha256": "2143cb29f0cc9af46762ad271d5621977acc7c7ae042e2c1aa2a5b7aa1dab06e"
+    },
+    {
+      "file": "src/app/features/navigation/useRoleNavigationState.ts",
+      "sha256": "cd00abad3947f1db201bac12378d0e5c0ce6cdfb1c23bd845871bd20e100fb1b"
+    },
+    {
+      "file": "src/app/features/notifications/hooks/useNotificationNavigationIntent.ts",
+      "sha256": "1f472acc5609c822500f6c6994ef6d2655a7ad2b34279e9c1a3b82b509627619"
+    },
+    {
+      "file": "src/app/features/notifications/index.ts",
+      "sha256": "43ae396a9ec19964d2255bbd999486771c7d4de03f4c67526b91858c54c262ea"
+    },
+    {
+      "file": "src/app/features/notifications/navigation.ts",
+      "sha256": "d092d4428fba97ede1fb601b0877557adcbae4ec0e1caa95cf9d0e3f1bd57ef1"
+    },
+    {
+      "file": "src/app/features/notifications/navigationIntent.ts",
+      "sha256": "08febdfb2c2e65ffe68dd7c189c68c63257ab63867318c786685100a9f61fc0f"
+    },
+    {
+      "file": "src/app/features/notifications/presentation.ts",
+      "sha256": "40b2cc996e6a1231dcea6071cdee4c223818bca7b5c49b70d9c87e9f8e8c6a99"
+    },
+    {
+      "file": "src/app/features/office-team/components/OfficeTeamWorkspace.tsx",
+      "sha256": "b1b9ba13078fad4babc3a8f1546c6ca5ef0a5c3e59397acc34a2ad3265194967"
+    },
+    {
+      "file": "src/app/features/office-team/index.ts",
+      "sha256": "44a2a53ef0ab9cd5490b5d33ef7afd2f349ffa92aa07c6490ae6c3ce6fca67d6"
+    },
+    {
+      "file": "src/app/features/office-team/officeTeam.css",
+      "sha256": "b50abdaaca71ab86abc81c9904c3ed22eb167264fa1e69ee528cc237d420bce4"
+    },
+    {
+      "file": "src/app/features/onboarding/checklist.ts",
+      "sha256": "0f0a35e24c2c492a0a6f77b94096293197bcf2a5e718bc076649ad527a2c9949"
+    },
+    {
+      "file": "src/app/features/onboarding/components/OnboardingWorkspace.tsx",
+      "sha256": "b842cdbb0b3aeb78a392bc3bf9578c02404d9ef580a76d4f4c528e4976c85b56"
+    },
+    {
+      "file": "src/app/features/onboarding/index.ts",
+      "sha256": "6b2aba2da40daa197f5c4b12e3353f3fe6c1064f93d7d5dae829b90c9018083f"
+    },
+    {
+      "file": "src/app/features/onboarding/onboarding.css",
+      "sha256": "ed3413d8467b266d57babb22edbb5b4bf783487b478894b0f07fe8070b2fd21f"
+    },
+    {
+      "file": "src/app/features/onboarding/services/onboardingService.ts",
+      "sha256": "b18eadef914a2f40e4cd7ee417fe85ac26e2a5710ebf349493e4b49da475e0e8"
+    },
+    {
+      "file": "src/app/features/onboarding/types.ts",
+      "sha256": "925020cf03b763f5c9c570666f4fa7502f4d7ec4956ccbf9bf346e09fc7414d5"
+    },
+    {
+      "file": "src/app/features/organization/components/org-tree/AssignHeadModal.tsx",
+      "sha256": "e8472f01b0edcda35b8995d16d63adf64b89a8b6dddf0d3ec4a159deba61a553"
+    },
+    {
+      "file": "src/app/features/organization/components/org-tree/ContextMenu.tsx",
+      "sha256": "d6e7ec46080d4bc5a3bbb82d24fdbb2dfff383016190448113f3919a1949701e"
+    },
+    {
+      "file": "src/app/features/organization/components/org-tree/LeadershipAssignmentFields.tsx",
+      "sha256": "d5767708d999b792bcdbb4c62084d879398004c2678512712aa4420cdb00d2b9"
+    },
+    {
+      "file": "src/app/features/organization/components/org-tree/OrgModal.tsx",
+      "sha256": "8dc72efe5309b73c26dfc77fbd09fe7576c75872576ee645b6b785866db107ce"
+    },
+    {
+      "file": "src/app/features/organization/components/org-tree/OrgTreeBuilder.tsx",
+      "sha256": "511def131da011afa0130d208473e2e9ecc5778bc61c7c552d0a4e87457d486d"
+    },
+    {
+      "file": "src/app/features/organization/components/org-tree/UndoNotifications.tsx",
+      "sha256": "3f35d0aedbeaba740c992abb6b4d23918e49fe58f67acf7704e5378c69d1e3cb"
+    },
+    {
+      "file": "src/app/features/organization/components/org-tree/UsersPanel.tsx",
+      "sha256": "2c2eb7c7666ab1f2fb0c5d094dbb71b284e7736c58f5298a0309c632bad0dfe3"
+    },
+    {
+      "file": "src/app/features/organization/components/org-tree/index.ts",
+      "sha256": "1c8c428bfcf1ddedcbdc3848940724c37c35acdcca161ba7c3d50554c1fe66e9"
+    },
+    {
+      "file": "src/app/features/organization/components/org-tree/orgTreeModel.tsx",
+      "sha256": "b5c658e49d1ddb06ac1a4a7d2047c92cf916d55a73b8c60f9e00b05675e97ce9"
+    },
+    {
+      "file": "src/app/features/organization/index.ts",
+      "sha256": "6f1fa6d2743c4127c792d5004bc66ba83603280f9bf2413065e38c79298c0b78"
+    },
+    {
+      "file": "src/app/features/organization/selectors.ts",
+      "sha256": "cbed33928472d4d71e4743ab33e81ba576bd1c0df3f9ebde9983045f27bfd628"
+    },
+    {
+      "file": "src/app/features/organization/services/leadershipService.ts",
+      "sha256": "35755dab3774aeecdf6f596edf160c9a05e0a33b7a1d565054545cf9ccb15c93"
+    },
+    {
+      "file": "src/app/features/permissions/components/OrganizationScopePanel.tsx",
+      "sha256": "48ada617f53291f9b325b07f6b6cecf04b45023ee24b8ab880302ec8d7fb88e2"
+    },
+    {
+      "file": "src/app/features/permissions/components/RoleDefaultsTab.tsx",
+      "sha256": "41ec89667b900619a15722288f919245a4d1086ef405db00aec2a5ff09bc8b40"
+    },
+    {
+      "file": "src/app/features/permissions/components/UserAccessTab.tsx",
+      "sha256": "cb63363e98dd1d50d0c040fb5010c9d40306f67c7c1d3c120b07227713cba99e"
+    },
+    {
+      "file": "src/app/features/permissions/constants.ts",
+      "sha256": "30da9a811e275d235d597f51d583ce8eced83ac3d1de02c81b8098f38b94bba5"
+    },
+    {
+      "file": "src/app/features/permissions/index.ts",
+      "sha256": "7875269d7f01e500beff52be0c8d94bb10bba143059f66ee51424da5cc8cb82e"
+    },
+    {
+      "file": "src/app/features/permissions/selectors.ts",
+      "sha256": "ce8e8746ec6ccb384361db3841b26b6137c411b0ef8baa01528f89424e389f3c"
+    },
+    {
+      "file": "src/app/features/permissions/services/permissionService.ts",
+      "sha256": "e7ad77dff9b8f146f3228672f3906b9da6ef98745cab0bb102fa919c1eb964cd"
+    },
+    {
+      "file": "src/app/features/permissions/types.ts",
+      "sha256": "e15888135a51c9ce5415214aa41572aab9e97e837a0649425fea552120003263"
+    },
+    {
+      "file": "src/app/features/productivity/components/ContributionSummaryCard.tsx",
+      "sha256": "3344f55f4e418816f90f69edaf1012b6a4710782eb7954ebaa24f4e54382f10a"
+    },
+    {
+      "file": "src/app/features/productivity/components/MonthlyLeaderboard.tsx",
+      "sha256": "647b4c50a684232c6e363a4075cfb79e01d68cd80af0aa17bb725a68fc959cfe"
+    },
+    {
+      "file": "src/app/features/productivity/components/MyMonthlyContributionCard.tsx",
+      "sha256": "16e38380380015ff49cb4626484e7062e627cae2f4eec5b82b5611f3d279b18e"
+    },
+    {
+      "file": "src/app/features/productivity/index.ts",
+      "sha256": "dd335c184dcc585d98d33ae6e8441fca75caed8d15ef1ab9bebb3cbe275c812d"
+    },
+    {
+      "file": "src/app/features/productivity/selectors/monthlyContributionSelectors.ts",
+      "sha256": "986fd1f0ba1bc0fbe853d7b1b1c8738552a55258abc6fa3395ab5de73306fd61"
+    },
+    {
+      "file": "src/app/features/productivity/services/productivitySnapshotService.ts",
+      "sha256": "053c3b3e2bf2f60800e897edf44e276b3c0cb5221fe33b39540a62d6e8834206"
+    },
+    {
+      "file": "src/app/features/productivity/types.ts",
+      "sha256": "3d1b55d3e651578006059affcd5981989de5ee7da5451c9af7c79a8a824e4aca"
+    },
+    {
+      "file": "src/app/features/professional-profile/components/ProfessionalProfilePanel.tsx",
+      "sha256": "f154a3c4d0aa7bc8cf8ff81875e1e8a8889cd6309cc1d7a5b9d0e129689afd84"
+    },
+    {
+      "file": "src/app/features/professional-profile/index.ts",
+      "sha256": "3a40632cf6da316e62c3615ebcf2ef25e01d6fb98ac7b64e52cd27d4f53c19ed"
+    },
+    {
+      "file": "src/app/features/professional-profile/professionalProfile.css",
+      "sha256": "6856034d2047f6aa2ae15724c59874a3129bb7910129f44ed8b5dba1fb567917"
+    },
+    {
+      "file": "src/app/features/professional-profile/services/professionalProfileService.ts",
+      "sha256": "c98c3a51f862c3905e99a5902e94786544d506d97e1b0eec506ec8fee8e2b023"
+    },
+    {
+      "file": "src/app/features/professional-profile/types.ts",
+      "sha256": "30c334619383a0b899b85f223e0fe8ef0268abc2e852265f75d4f0819053d113"
+    },
+    {
+      "file": "src/app/features/project-import/components/ImportTaskReview.tsx",
+      "sha256": "ec48c13bdb32c8ac7cda36a76c4361a592edc4e31f955cf01067c5c33b8b0e0e"
+    },
+    {
+      "file": "src/app/features/project-import/components/ProjectImportDialog.tsx",
+      "sha256": "c9401fd0978cdccd975246272655faa587a5eee8fbd5cdffbde74ab16fa48813"
+    },
+    {
+      "file": "src/app/features/project-import/components/ProjectImportHistory.tsx",
+      "sha256": "594a7013eabfe72359f79b48a2a5384e3bd067898a763da26722415d37378af2"
+    },
+    {
+      "file": "src/app/features/project-import/hooks/useProjectImport.ts",
+      "sha256": "5847e7009c6e71f4e5bd184758c0e67480de3e98d1d48c5377dbac486bc6cff4"
+    },
+    {
+      "file": "src/app/features/project-import/index.ts",
+      "sha256": "c79f621b0897bd309b6d05b91f04b66bd51947a567922ea6f77383f964f32d96"
+    },
+    {
+      "file": "src/app/features/project-import/projectImport.css",
+      "sha256": "c63a76ce0428ba47b10fe6cece7d98ce2e2b19e47d0c9ca11fc1b023afefc604"
+    },
+    {
+      "file": "src/app/features/project-import/selectors/draftValidation.ts",
+      "sha256": "87acfa6d843c0e27777c722259e53ddeae494580a548ef19ff348b58e3b02988"
+    },
+    {
+      "file": "src/app/features/project-import/services/documentService.ts",
+      "sha256": "cb7d7e4a32969d55cf56e74c41101c0530b4004c890dac2cf8fb421915705bce"
+    },
+    {
+      "file": "src/app/features/project-import/services/projectImportService.ts",
+      "sha256": "fa310acfa5ad6c33a2b3af78471e881cc01d3264c6657f87e1b0cd74d8a17082"
+    },
+    {
+      "file": "src/app/features/project-import/types.ts",
+      "sha256": "352dc43a3d14517150458bc9dc442c79e0bcca9804989e8bb76904701cc40d81"
+    },
+    {
+      "file": "src/app/features/project-offices/components/InviteOfficeDialog.tsx",
+      "sha256": "3fa3aa92e2cddc049814f8b6af1daebf136f01e795b0afbcfe5851c55a4b029c"
+    },
+    {
+      "file": "src/app/features/project-offices/components/LinkOfficeDialog.tsx",
+      "sha256": "c81586848b260240328aea3f325a8bf82bf27e842665751f5f45d996989eb8c0"
+    },
+    {
+      "file": "src/app/features/project-offices/components/LocalOfficeDialog.tsx",
+      "sha256": "cc31d9f2759ded463df264ef8a48649129ef00a298a2ac497be4c10f31ae31df"
+    },
+    {
+      "file": "src/app/features/project-offices/components/LocalOfficeSection.tsx",
+      "sha256": "8d8bc378fd53825918c91f8af0ba41afc0621df7f638fe0bbb85c1409f647130"
+    },
+    {
+      "file": "src/app/features/project-offices/components/OfficeMembersDialog.tsx",
+      "sha256": "cc57585439460e9ddd236f959b0e2e73a63296c6a0b9899d172d7ef8b7ead4d8"
+    },
+    {
+      "file": "src/app/features/project-offices/components/ProjectOfficePanel.tsx",
+      "sha256": "9906ea820e245daabf4b2d3f4c9cf7157d59b26d086e03f6ec0446d5642a788f"
+    },
+    {
+      "file": "src/app/features/project-offices/components/TaskOfficeControl.tsx",
+      "sha256": "88b9c1327008b7d3d4d802a1ea2ece8367f2758b85bbb0ba584d115b566178c6"
+    },
+    {
+      "file": "src/app/features/project-offices/hooks/useProjectOffices.ts",
+      "sha256": "55793ab028346bef897fbde51aeadfbbdd5b0ba901adabfb2bc6c972226566f5"
+    },
+    {
+      "file": "src/app/features/project-offices/index.ts",
+      "sha256": "571801657a5c94c78eba9e56bf0e930d033b728fecb58911b11b28b2a6827ad3"
+    },
+    {
+      "file": "src/app/features/project-offices/projectOffices.css",
+      "sha256": "64c70f316a6f5f89b73d6c747cb139ce57b8e98038ffb4879f5495f03b47210b"
+    },
+    {
+      "file": "src/app/features/project-offices/selectors.ts",
+      "sha256": "03eb957bd0585879df935c5b1d003a871bc2c59047882f4824eb33c9865171c9"
+    },
+    {
+      "file": "src/app/features/project-offices/services/officeIdentityService.ts",
+      "sha256": "6c9669f9e424fced80aa031b3a39a5a9736f4a9ac8c94521fdfdc8600f51970b"
+    },
+    {
+      "file": "src/app/features/project-offices/services/projectOfficeService.ts",
+      "sha256": "5e80eccc229b414924c95f4120a62dece502dc68bd9dd7c6729e795cf8d6a80b"
+    },
+    {
+      "file": "src/app/features/project-offices/types.ts",
+      "sha256": "17f49155899edc30136e517c1001fa9a3c43150ff3a7b7ff53e566e73df21889"
+    },
+    {
+      "file": "src/app/features/project-readiness/components/ProjectReadinessPanel.tsx",
+      "sha256": "8c854d26117e99db896fc56bd899412d5c1c32fcfb480864652c959656039e71"
+    },
+    {
+      "file": "src/app/features/project-readiness/index.ts",
+      "sha256": "f1adba17131282e8374ee425a57712ee3ed796a6a1285b7e1767d125df54a8a5"
+    },
+    {
+      "file": "src/app/features/project-readiness/readiness.css",
+      "sha256": "f8d42841837e65317e8c6640ad1c9a64b2ff7b26eac7923ac9c02ef44e73314f"
+    },
+    {
+      "file": "src/app/features/project-readiness/services/readinessService.ts",
+      "sha256": "b04ccd8edfbee9c5333ac04f4f9ee02e3eef0c5e2652c7a55b56cbf7ac9ab0a2"
+    },
+    {
+      "file": "src/app/features/project-readiness/types.ts",
+      "sha256": "4e60a8bfff2841b2fa863cb0ff65aec4a1998756f30878505f2308faec7d6269"
+    },
+    {
+      "file": "src/app/features/project-table/components/AiTaskDraftDialog.tsx",
+      "sha256": "12460fb9b0e341414c569c6d7bb41ed0e971c804e0b3b819369616cdcaa687ea"
+    },
+    {
+      "file": "src/app/features/project-table/components/CreateProjectDialog.tsx",
+      "sha256": "298b5a2370588accd371dddb92c4bdba74f4ff6833d1b88ab36285dc3fe132a6"
+    },
+    {
+      "file": "src/app/features/project-table/components/ImportTasksDialog.tsx",
+      "sha256": "f3648c5f638919ae20384cb62cd24eb47a1a5ae9a51f54e0f13b866798a96830"
+    },
+    {
+      "file": "src/app/features/project-table/components/InlineCreateRow.tsx",
+      "sha256": "b017b257af49e8f8648796f857aa6e818893b49bc5a4186949547248805fbfff"
+    },
+    {
+      "file": "src/app/features/project-table/components/PlanningCells.tsx",
+      "sha256": "5eda4f099ea0e2cc9241e02d5b0315cf7ef3aebc453b7965c19354af3aa546e9"
+    },
+    {
+      "file": "src/app/features/project-table/components/ProjectGroupTable.tsx",
+      "sha256": "da16fcb42db3cc15d93a789e9522b919993e592e85af32c833db4b30c22bb34a"
+    },
+    {
+      "file": "src/app/features/project-table/components/ProjectTableWorkspace.tsx",
+      "sha256": "78a155c268ffbb4e72caa1a66d6c7474319d4ca073fc101fa6b2641fe71a2e60"
+    },
+    {
+      "file": "src/app/features/project-table/components/ProjectTaskRow.tsx",
+      "sha256": "468bd881c5df97a3e192fb01b0e9518dbc9628a0efd5a8a8b5775342d375ad2c"
+    },
+    {
+      "file": "src/app/features/project-table/components/SubitemRows.tsx",
+      "sha256": "413aa4bc506ee0586454e379381fdef104520c3336873bf147093c0434d2f731"
+    },
+    {
+      "file": "src/app/features/project-table/components/TableToolbar.tsx",
+      "sha256": "956ec591049e157552f8695f8992c5fec3621ac2d51fa476e086790bce85473f"
+    },
+    {
+      "file": "src/app/features/project-table/components/inlineCreateRow.css",
+      "sha256": "b1c9b270788162f954bf5106678cc19b157919aada234f9894fdc130f10c9b42"
+    },
+    {
+      "file": "src/app/features/project-table/hooks/useProjectGroups.ts",
+      "sha256": "3fce51c0289521c22549756c396b262600e9275219bd91a6955e455712ca835c"
+    },
+    {
+      "file": "src/app/features/project-table/index.ts",
+      "sha256": "f32ce3c32a5641d1130efc5a9feab1836040a3eaa0836a54a5d9670ac2c00956"
+    },
+    {
+      "file": "src/app/features/project-table/projectTable.css",
+      "sha256": "344c1e495a44c5de04b8eefe82b7e7f2e83bfdf3bda246b1e01e4b2f86bf268d"
+    },
+    {
+      "file": "src/app/features/project-table/selectors.ts",
+      "sha256": "c9ba7ea82867fa82ea4f1aa4d1c3828d268f2ee307ff30aca1bbd1020f22ba0e"
+    },
+    {
+      "file": "src/app/features/project-table/services/workspaceService.ts",
+      "sha256": "55ec7cc48999ae78a4d65ac07c41deaa147f41f7021eb26971b15b436850b400"
+    },
+    {
+      "file": "src/app/features/project-table/types.ts",
+      "sha256": "d29368092426e755fa4dcc88f2aaecc9718666e5c19e6ace6be953413eb74da0"
+    },
+    {
+      "file": "src/app/features/project-views/components/ProjectGanttView.tsx",
+      "sha256": "00fee2250eebcd1ee7544985f956162f8ffd8798b296ec18c685246aea76fed0"
+    },
+    {
+      "file": "src/app/features/project-views/components/ProjectInsightsView.tsx",
+      "sha256": "51860aeb792c1b9fca284325dfd5d4e3f44eba10dc96a0070562fa546ac23283"
+    },
+    {
+      "file": "src/app/features/project-views/components/ProjectOfficesView.tsx",
+      "sha256": "17e3de90f4e49fe99d10cea9527d00ce0e418f96715a515913e1979e801b9cd0"
+    },
+    {
+      "file": "src/app/features/project-views/components/ProjectViewFilters.tsx",
+      "sha256": "538e73651ec857229300ce316044b6f9885f8abb8a491d2874c38247c21510db"
+    },
+    {
+      "file": "src/app/features/project-views/components/TaskDatesDialog.tsx",
+      "sha256": "e0887f5baff5f70dd960b5aec98a1ef1f994406469396aa3596bcffdc7572b86"
+    },
+    {
+      "file": "src/app/features/project-views/hooks/useProjectReviewDates.ts",
+      "sha256": "160fcbca9700ac0ee8695efbe2b132dc2f112c5d9bd4c23e40e042bdcc2f0ba9"
+    },
+    {
+      "file": "src/app/features/project-views/hooks/useProjectViewActions.ts",
+      "sha256": "f20c2a4a1e1b4e971bef06bf356a3280c18b7f4f9f9bac69b409a130f55b365e"
+    },
+    {
+      "file": "src/app/features/project-views/index.ts",
+      "sha256": "523d7f2b73a8a8ad99f4ddc4a559522646ecd7ca9caec7dfd6896fecce7fcb8f"
+    },
+    {
+      "file": "src/app/features/project-views/projectViews.css",
+      "sha256": "c63e90a835d5b94d48f8526f88e6d1af217f17b3cbd48d6cd37f9662359c32c5"
+    },
+    {
+      "file": "src/app/features/project-views/selectors.ts",
+      "sha256": "966fa213d507d2d273ecb6794d3057f2cd61697f25e5509111bbbc8406b0bcd8"
+    },
+    {
+      "file": "src/app/features/project-views/types.ts",
+      "sha256": "eb2d8bcd1924333af29cba2f74d5f32c8b3de7064817bf3579fac0d9b8289a57"
+    },
+    {
+      "file": "src/app/features/projects/components/CitywidePlansOverview.tsx",
+      "sha256": "9551853eb0241929eebf7a22332fc8159a094ca8dcd4f0f8667886074b9e9c3a"
+    },
+    {
+      "file": "src/app/features/projects/components/EmployeeProjectsWorkspace.tsx",
+      "sha256": "c0ceb0635bbd6b45ad94b076466390c93790115ee28a5e1c710e9731a85101be"
+    },
+    {
+      "file": "src/app/features/projects/components/HeadProjectsWorkspace.tsx",
+      "sha256": "b43cfc8386ffd7af2e08d39c08d5df9edcb09445fe16157c40b9dd091aa2ef8b"
+    },
+    {
+      "file": "src/app/features/projects/components/ProjectArchiveDialog.tsx",
+      "sha256": "aea91d5b2bc2db486c49011aead0eb765a9d24a9114c7d7995060260f24b0c4b"
+    },
+    {
+      "file": "src/app/features/projects/components/ProjectCard.tsx",
+      "sha256": "27ef9bfe9e22a6b5b04fccd43b065f967fedf45846d83965e33701cbc143625d"
+    },
+    {
+      "file": "src/app/features/projects/components/ProjectCompleteDialog.tsx",
+      "sha256": "a185d87e9eea5eb35304c6b1c61aeedd293be48dc78d0fd41638182676119a15"
+    },
+    {
+      "file": "src/app/features/projects/components/ProjectContextSidebar.tsx",
+      "sha256": "90aa37f480fa7e3e23996c9160908c3f21e8c9edaf8d26ba2ab57fbb4b066521"
+    },
+    {
+      "file": "src/app/features/projects/components/ProjectDeleteDialog.tsx",
+      "sha256": "734a4afc8f73e8e17e5f06e334dec73ca8c5dd37a0e769a43ac76326761efcc6"
+    },
+    {
+      "file": "src/app/features/projects/components/ProjectDetail.tsx",
+      "sha256": "0ad0700c1e39be6069eecdc07cd443dcd16e251974fe50011d590a9cf074d247"
+    },
+    {
+      "file": "src/app/features/projects/components/ProjectsPortfolioTable.tsx",
+      "sha256": "431543cb02344e24ba390a4c1c8e7a69c8b09ca648f402262f16661009fc2ce6"
+    },
+    {
+      "file": "src/app/features/projects/components/ProjectsWorkspace.tsx",
+      "sha256": "5226643acbd7e07d0525b0a7a4f8c9f8ae037ec76c4ab3d600e04081b6359e47"
+    },
+    {
+      "file": "src/app/features/projects/components/ProposalPortfolio.tsx",
+      "sha256": "f90fc335d2f1c905839f3fc508b8f74dd4fc3cf8552e5ce730709f9e9db2234d"
+    },
+    {
+      "file": "src/app/features/projects/components/model.ts",
+      "sha256": "5a273f18897f0c07edbb4747eb7297abc98ee2d33928f74a2d7b0bbfb8c6dee1"
+    },
+    {
+      "file": "src/app/features/projects/components/project-command/ProjectActivityTab.tsx",
+      "sha256": "71c81f4000b7f6ee3c5dae79945c571a7a032c54bffe907d1b38b56361350637"
+    },
+    {
+      "file": "src/app/features/projects/components/project-command/ProjectBudgetTab.tsx",
+      "sha256": "98a4201922513890947d0fda40a602f21e4e1d0835482cbee668281a744534e8"
+    },
+    {
+      "file": "src/app/features/projects/components/project-command/ProjectCalendarView.tsx",
+      "sha256": "61ade5c46d3599ac87ee16011bb5bce078e4aa655f061f24c9a13545a604deb3"
+    },
+    {
+      "file": "src/app/features/projects/components/project-command/ProjectCommandWorkspace.tsx",
+      "sha256": "3622bd8121076bc4087733b04ed676a5497b72c440cd90844da81c05eeea049f"
+    },
+    {
+      "file": "src/app/features/projects/components/project-command/ProjectDashboardTab.tsx",
+      "sha256": "4c826ce76db202f4ba5f4c2d759cf95c8196c45880e85d64f2a380b16a1611f9"
+    },
+    {
+      "file": "src/app/features/projects/components/project-command/ProjectDeliveryTab.tsx",
+      "sha256": "1a62bc8ba15eff93187323f9fd0bd7f8c1bb2615ee63eac6d13e141e415ebbcf"
+    },
+    {
+      "file": "src/app/features/projects/components/project-command/ProjectGovernanceTab.tsx",
+      "sha256": "2b3361dce89d080969493592e4c7b76cd5d1d7b8732866ebcd62c29a64e70e5b"
+    },
+    {
+      "file": "src/app/features/projects/components/project-command/ProjectHeader.tsx",
+      "sha256": "3b282d9eb464bd6816ad83e085eddd783c89bc9bf2953cee9aface13a7ba2c83"
+    },
+    {
+      "file": "src/app/features/projects/components/project-command/ProjectHealthStrip.tsx",
+      "sha256": "c5047d3357238b59399ee4f2d4550578d06ac96f974011d69c20655e6925d3c2"
+    },
+    {
+      "file": "src/app/features/projects/components/project-command/ProjectOverviewTab.tsx",
+      "sha256": "15d1a07790650ea8264a2149388f6114b0074cea908a1dbee820099846f6c7fb"
+    },
+    {
+      "file": "src/app/features/projects/components/project-command/ProjectPeopleTab.tsx",
+      "sha256": "815f6a3204aad2e7b58e1a391554e0002334bf5ad8e5131f79890f473b6acc0d"
+    },
+    {
+      "file": "src/app/features/projects/components/project-command/ProjectPlanInspector.tsx",
+      "sha256": "6a423d9eea73129e1860985468f1995dcb904f262c76fb9e4e18ced4b1e9cadc"
+    },
+    {
+      "file": "src/app/features/projects/components/project-command/ProjectPlanTab.tsx",
+      "sha256": "4f6c3a16ab94862b67c113c6ec18060445743e706ca7f93e7953bc45482fed4a"
+    },
+    {
+      "file": "src/app/features/projects/components/project-command/ProjectProposalContextTab.tsx",
+      "sha256": "06a5759da917c67fd65f606e3ba703677cfa1c8cfad6c8b9219c1c40e2e0ff94"
+    },
+    {
+      "file": "src/app/features/projects/components/project-command/ProjectReportsTab.tsx",
+      "sha256": "908d2c7ba206caa2cca512915a32b3891f8f5b9bbbc9a6e0a6d643ae2c61d5dd"
+    },
+    {
+      "file": "src/app/features/projects/components/project-command/ProjectReviewsTab.tsx",
+      "sha256": "2a2529f99879ec506479e060a51e4350e9c73b2bdac445b53d37622b8f2dc1e0"
+    },
+    {
+      "file": "src/app/features/projects/components/project-command/ProjectTeamTab.tsx",
+      "sha256": "44fa302f8a97ce3b2308e323cc3991b6000f840957d489d0a15fb61cf2966040"
+    },
+    {
+      "file": "src/app/features/projects/components/project-command/ProjectTimelineView.tsx",
+      "sha256": "479510899706648841b20228b5b07060e432e3ac8d2e8c9f8a58dc3a92b4f175"
+    },
+    {
+      "file": "src/app/features/projects/components/project-command/ProjectToolsInspector.tsx",
+      "sha256": "6766295aadf0c8c7a262e0f9dae1b05abbfb8947cacc64bc84af11956034d8b8"
+    },
+    {
+      "file": "src/app/features/projects/components/project-command/ProjectViewMenus.tsx",
+      "sha256": "376f129f963eb80dfac7af5bf3a55028201568b37cb56f5c43ba095d277198ca"
+    },
+    {
+      "file": "src/app/features/projects/components/project-command/ProjectViewTabBar.tsx",
+      "sha256": "952b704a8da3fb015cc03cefc3b0b2ff8d80b924d4e26b6dbc9eeb31ae65fdc5"
+    },
+    {
+      "file": "src/app/features/projects/components/project-command/ProjectWorkTab.tsx",
+      "sha256": "4a95204dca075c06e4d2e23da4e996bae86f0b9bd3e4f2e7278185bd9166b853"
+    },
+    {
+      "file": "src/app/features/projects/components/project-command/ProposalContextInspector.tsx",
+      "sha256": "f3d5778bc297e93ba67ee87ece55d34f630e9d987029ad742961e4599126bd75"
+    },
+    {
+      "file": "src/app/features/projects/components/project-command/projectViewCatalog.ts",
+      "sha256": "5a7afebfeea9d8f04eb324844b8ed29a7577bd84bfdfe182bbf9c97f1e3a5357"
+    },
+    {
+      "file": "src/app/features/projects/components/project-command/projectViewControls.css",
+      "sha256": "334bfb68473d386d5d206cc5220d80023f6067342c7b235e83383a5e82ba0469"
+    },
+    {
+      "file": "src/app/features/projects/components/project-command/types.ts",
+      "sha256": "f9595fac0a6ff320940616bccec86d5ad6411dcaaf0ce9fb2ef3b71b86641f2a"
+    },
+    {
+      "file": "src/app/features/projects/components/projectsVibe.css",
+      "sha256": "5bec5adef643a2232bff6c00616847d1b4608e84197f12da29ef14dc58145180"
+    },
+    {
+      "file": "src/app/features/projects/hooks/useProjectCommandData.ts",
+      "sha256": "2748a0c08fd3647ac973e77438b570f2c0dc058b9776bd5321b93ee0d7852c84"
+    },
+    {
+      "file": "src/app/features/projects/index.ts",
+      "sha256": "585ffa93ff8819e6701751885693ee5bac12f33738e355ca670119c271a3203b"
+    },
+    {
+      "file": "src/app/features/projects/presentation/projectPresentation.tsx",
+      "sha256": "627eaf8c4b7f12ded32ae4e473e022ea509da1b66c1683fc8c8e4506ff03260b"
+    },
+    {
+      "file": "src/app/features/projects/selectors/deadlines.ts",
+      "sha256": "f12f96e04aacff1a1dce45c22a99ac4fa48db38e7cd03228eb2f3d7cd9fb33bc"
+    },
+    {
+      "file": "src/app/features/projects/selectors/projectCommandSelectors.ts",
+      "sha256": "e73d2a1641ffcb3053961fe1f93b843381ae67ac96f5fe48cbf159ae7cf9c808"
+    },
+    {
+      "file": "src/app/features/projects/selectors/projectFinancialReportSelectors.ts",
+      "sha256": "578962f6e52edf9bf36092f685cea3072c58af8d4fb43a579486372aaaa94416"
+    },
+    {
+      "file": "src/app/features/projects/selectors/proposalPortfolioSelectors.ts",
+      "sha256": "aeca5e1eb57330c77aaaf915735f4bca59a5f5c0c628406f3a10d5835daa2648"
+    },
+    {
+      "file": "src/app/features/projects/services/emptyProjectCleanupService.ts",
+      "sha256": "15eb5add612ba28f70121cc72a338f794cedc802d033e9077f9cabf979dc0d09"
+    },
+    {
+      "file": "src/app/features/projects/services/milestoneService.ts",
+      "sha256": "59facb6367ab200da1a299a6ecaf42f0c4afc0293a6c560022b6aa6b970b1d83"
+    },
+    {
+      "file": "src/app/features/projects/services/projectActivityService.ts",
+      "sha256": "911b9da556d880d4981ce905794e4607010bb9e2c652a8921f40107d6c5e0799"
+    },
+    {
+      "file": "src/app/features/projects/services/projectLifecycleService.ts",
+      "sha256": "6fb0c492d4f90ae783659ee2e404c6d8e9aa3fb6ce55fb16e6a10a194a3bdea7"
+    },
+    {
+      "file": "src/app/features/projects/services/projectMappers.ts",
+      "sha256": "78f8766c5c032585d0f4c63182b020fcdd26992a6f4508a58dfbbbcff75d5ef0"
+    },
+    {
+      "file": "src/app/features/projects/services/projectMemberService.ts",
+      "sha256": "07a9eebf790f743473074c6a179757c4ba379b302465f54285501dfd0c34650c"
+    },
+    {
+      "file": "src/app/features/projects/services/projectMutationService.ts",
+      "sha256": "571519c2cfa874b8d243888c2a86b36775eef2ca49fc3cbded892a8c1f278188"
+    },
+    {
+      "file": "src/app/features/projects/services/projectQueryService.ts",
+      "sha256": "6c5667f8ba263da664216bd9eb3a5338c75bce2fcc679f0994cc4296c5347086"
+    },
+    {
+      "file": "src/app/features/projects/services/projectService.ts",
+      "sha256": "3729c783e69c8453c09028df3182754f81c1422143a50e4302977cf43a80bc60"
+    },
+    {
+      "file": "src/app/features/projects/services/proposalDeliveryService.ts",
+      "sha256": "de27dab888649594b4b200fa0683bd526ee8888ee7427cc4d48edf9aa28da018"
+    },
+    {
+      "file": "src/app/features/projects/services/types.ts",
+      "sha256": "1ff83562710a84b5b33b21e897c1425db703220f9eacb31251e814e670ec831b"
+    },
+    {
+      "file": "src/app/features/proposal-import/components/AssignmentExceptionNote.tsx",
+      "sha256": "1ce3af48e61cb0d9f485a1d53630f750f83a03cef1a33b6a7396b4e5d594286b"
+    },
+    {
+      "file": "src/app/features/proposal-import/components/AssignmentModal.tsx",
+      "sha256": "ba0f9c7f908d7e0aa7bff66efcce845125dd38c6246c9bd568ac20c5e215e0b4"
+    },
+    {
+      "file": "src/app/features/proposal-import/components/CreateWorkPlanDialog.tsx",
+      "sha256": "1fcb9d6eb4e6a4b8366f81d96cf29471a52962ca6a99b6401a400be935d9ab05"
+    },
+    {
+      "file": "src/app/features/proposal-import/components/DraftCockpit.tsx",
+      "sha256": "531a320c4cc3e7631f491fc3a0dfeb170d6e06368e937624c71b111a47849482"
+    },
+    {
+      "file": "src/app/features/proposal-import/components/DraftTaskRow.tsx",
+      "sha256": "4abb80392eee058d3df1b8d8bc0e383738d369e3619ebf5f5b043b471ec67f9f"
+    },
+    {
+      "file": "src/app/features/proposal-import/components/ManualPlanBuilder.tsx",
+      "sha256": "668f94da8e6f040815be244c96cb30e496e65d6f61eb8fa5dcacc0a7cbc7467c"
+    },
+    {
+      "file": "src/app/features/proposal-import/components/ProposalImport.tsx",
+      "sha256": "8573ef65b56a8f0472b0df775529b069cfb3a3921da6e82af2dfc13c2c056e98"
+    },
+    {
+      "file": "src/app/features/proposal-import/components/ProposalProcessingStatus.tsx",
+      "sha256": "5df85ea009e5e544ddeb77d8cc554fc040e5e416372151261e17027486e66143"
+    },
+    {
+      "file": "src/app/features/proposal-import/components/TaskAssignmentSummary.tsx",
+      "sha256": "eae11ee59105eeea8ff23d08da32303ee1c63545f67f52b628275a894ac5185e"
+    },
+    {
+      "file": "src/app/features/proposal-import/components/TeamCompositionNote.tsx",
+      "sha256": "7dda9dce611fd06682d38ff72c7c2eb44260371fb4112edb2bb92ece4752243b"
+    },
+    {
+      "file": "src/app/features/proposal-import/components/draftModel.ts",
+      "sha256": "71fb7ac5fc37546f44d0403da0e5c5b3141e99fa715c6af60e412d209bf2ea55"
+    },
+    {
+      "file": "src/app/features/proposal-import/hooks/useManualPlanController.ts",
+      "sha256": "19d16a721261a626303964c5fe85f367101cc1cc6b824051351096769a5848d1"
+    },
+    {
+      "file": "src/app/features/proposal-import/hooks/useProcessingGuard.ts",
+      "sha256": "d579173b596c5f7ef4b81d75ffd4ad58eca6667820b7b20bf6817c21b8c0f565"
+    },
+    {
+      "file": "src/app/features/proposal-import/hooks/useProposalImportController.ts",
+      "sha256": "f98c6198a837c07457678be51fa55a6f9e77ed0dca0248640724ee44cade3e88"
+    },
+    {
+      "file": "src/app/features/proposal-import/index.ts",
+      "sha256": "525fb3abba7959a19ea927f33c4f086840e597bd2b4bb45cbb8f5b553aa4e6ef"
+    },
+    {
+      "file": "src/app/features/proposal-import/selectors/candidateWorkload.ts",
+      "sha256": "20c9ebbab4a4773f67c73ff10220e300af822917bdb0d5b084a36bd114e99db1"
+    },
+    {
+      "file": "src/app/features/proposal-import/selectors/employeeMentions.ts",
+      "sha256": "1f9e18b6ec1c1b24ba6d8b610bbccadbd1feb88d2d1f0796834bc9ddba47635f"
+    },
+    {
+      "file": "src/app/features/proposal-import/services/commitProposalDrafts.ts",
+      "sha256": "6215b34cc0c76af527fcf8b9b5c3567d605425c8a61e097740904713cfd85d91"
+    },
+    {
+      "file": "src/app/features/proposal-import/services/decomposition/assignmentBalancer.ts",
+      "sha256": "437a774da0cc37225744ee0dce355ed2be30526f4e9ceb3ed4306fa0845cb952"
+    },
+    {
+      "file": "src/app/features/proposal-import/services/decomposition/hierarchyValidation.ts",
+      "sha256": "ed0174e2c2a66b7d37e26a2a16c2843a324fe52485d7f2a3054cc7c83e87d41a"
+    },
+    {
+      "file": "src/app/features/proposal-import/services/decomposition/index.ts",
+      "sha256": "b1b64d58f47844a5f9250a06cf74a2b7bfdebd1a4461b1dd19f3a2ffed4117ca"
+    },
+    {
+      "file": "src/app/features/proposal-import/services/decomposition/llmClient.ts",
+      "sha256": "5a63ab0415605eef75cb0689a402d109146aa9caa2ef36ee1020db603184747b"
+    },
+    {
+      "file": "src/app/features/proposal-import/services/decomposition/partDecomposition.ts",
+      "sha256": "1bc0a2882ac365f7c029fbc83dbcbc8fda2da75045c8d1539da63fac64ca0f79"
+    },
+    {
+      "file": "src/app/features/proposal-import/services/decomposition/recommendations.ts",
+      "sha256": "3916a677e78a69c7e1dffc60f01119355ef8e509722c11f7341c26a22ced9555"
+    },
+    {
+      "file": "src/app/features/proposal-import/services/decomposition/teamComposition.ts",
+      "sha256": "69a286f1f001f9bd8c547f0504eac3587705cf582abf4b4720c3f4ca87df18c4"
+    },
+    {
+      "file": "src/app/features/proposal-import/services/decomposition/textAnalysis.ts",
+      "sha256": "42b9aef8ab4e32314f3e2f7a0d9a08db1b7b0bb364b7984062e164eb64b54255"
+    },
+    {
+      "file": "src/app/features/proposal-import/services/decomposition/wholeDocumentDecomposition.ts",
+      "sha256": "f29681c55e679dccdec3d9080b6df0c2176f3b3b4b4f3afb76556e22fd96d22c"
+    },
+    {
+      "file": "src/app/features/proposal-import/services/draftAssignment.ts",
+      "sha256": "f565e7e5874e88979eb189c7bf69abc197949c37a78880eb14ea5f41fa961206"
+    },
+    {
+      "file": "src/app/features/proposal-import/services/manualPlanDraft.ts",
+      "sha256": "270344a2c0ea9356ad1967c0a2b284a66969c5d9aaa93c7666c0d7b80efef23c"
+    },
+    {
+      "file": "src/app/features/proposal-import/services/manualPlanValidation.ts",
+      "sha256": "e0ac336bfeca815d4692c54d6bf459c15e569290b642c322db5f325251875cf2"
+    },
+    {
+      "file": "src/app/features/proposal-import/services/parseLlmResult.ts",
+      "sha256": "c71121833107402d84abcf33a58d982a7aa593236c8964049906fd13d59e8e10"
+    },
+    {
+      "file": "src/app/features/proposal-import/services/pdfTextExtractor.ts",
+      "sha256": "513a27227f4cb316a1b53d42c2f47b91e0eb482d4e7dd5d4d2a47333e2b6aaf4"
+    },
+    {
+      "file": "src/app/features/proposal-import/services/proposalBudgetImport.ts",
+      "sha256": "086be22794e4cc8e7aecf035fe4b2c90e4d9ae2dd49ae2f4ee5b2b5d42f2e99c"
+    },
+    {
+      "file": "src/app/features/proposal-import/services/proposalValidationClient.ts",
+      "sha256": "ad90d92102b17bc8d6d7d73681144aaf509a5ef78578d0deca5cb9b287064078"
+    },
+    {
+      "file": "src/app/features/proposal-import/types.ts",
+      "sha256": "298c9ae3854cbdd7749bf199f3cea61a2426fa17718dfad68bc68fb4b9444565"
+    },
+    {
+      "file": "src/app/features/reports/components/DepartmentReportTable.tsx",
+      "sha256": "aa4a1d6e980d86381d6955287659ce195a238e88509cae0b4a76f6c5db643f66"
+    },
+    {
+      "file": "src/app/features/reports/components/HeadReportsWorkspace.tsx",
+      "sha256": "f25485abc9481736a62469ea82e8362773f137e1babd802fb089d7fb4fdf1564"
+    },
+    {
+      "file": "src/app/features/reports/components/ManagementBriefPanel.tsx",
+      "sha256": "b82152b1e870c185a20b851397186e2493b6d5096b9a9fcf7fb34798dcc83a46"
+    },
+    {
+      "file": "src/app/features/reports/constants.ts",
+      "sha256": "3d38679856f86d426e40e2fe1440ed9bc2dd4e140618c1c3febba07f59d05c32"
+    },
+    {
+      "file": "src/app/features/reports/index.ts",
+      "sha256": "463afc33994bdd9610d59d82e311e84fc8fe03e4aa7908ba35fce0fe851e815b"
+    },
+    {
+      "file": "src/app/features/reports/selectors/departmentReportSelectors.ts",
+      "sha256": "50493e7416d56cd8cdff0cc8e32e10fae86f70facd2f1620229296c5e949e0a1"
+    },
+    {
+      "file": "src/app/features/reports/selectors/reportRowHelpers.ts",
+      "sha256": "8684863e8d543d08c1070319bb3baf39a08b863244bae227363d35c401cb99b6"
+    },
+    {
+      "file": "src/app/features/reports/selectors/workReportRows.ts",
+      "sha256": "04f0da7e8df2abcb0c61330d4c086e4a3a4da93eb51fa10fc6096b001caf2891"
+    },
+    {
+      "file": "src/app/features/reports/selectors/workflowReportRows.ts",
+      "sha256": "2b444c740a940904b1516dec6ee8d9639f435f134fe68ad511127c69e071cdfc"
+    },
+    {
+      "file": "src/app/features/reports/services/formatting.ts",
+      "sha256": "efcf8f3c9547f76ea0f830b3b9a834bca383f328bbbebb6fe4718a425e6374c0"
+    },
+    {
+      "file": "src/app/features/reports/services/managementBriefService.ts",
+      "sha256": "6037a66968df25733bf800d470e4901d14cc6dce4c23d7a18907c9e0e9e5523b"
+    },
+    {
+      "file": "src/app/features/reports/types.ts",
+      "sha256": "5f19369fcdeb2e53477844a3935a81bfdd5e758bf0627f1618ae78b059b8c911"
+    },
+    {
+      "file": "src/app/features/reviews/components/ForReviewInbox.tsx",
+      "sha256": "c9d91e4f45ce2147f9757ef09f5323674fd6ac7f96a2342273f81fb82b341c64"
+    },
+    {
+      "file": "src/app/features/reviews/components/GovernanceReviewInbox.tsx",
+      "sha256": "0c723a7999f186d16e5924d2dc2ace6f4ed2f533a41969f322d1aae38e5e7aec"
+    },
+    {
+      "file": "src/app/features/reviews/components/ReviewDecisionForm.tsx",
+      "sha256": "86ab5568e2c440592e8b2bb6ce41941e50af18cfd6b59062aa369e43bde83d63"
+    },
+    {
+      "file": "src/app/features/reviews/components/ReviewKindSwitch.tsx",
+      "sha256": "2053413d10d37786865a25c8cc1d924d4d0b37b814ba0ce8d3fa07c51466d008"
+    },
+    {
+      "file": "src/app/features/reviews/components/SubmissionAttachments.tsx",
+      "sha256": "9f0896e4c724e70145f0aefc880ef1b24f53fec47b78838f168c597ac3c3ab02"
+    },
+    {
+      "file": "src/app/features/reviews/components/SubmissionHistory.tsx",
+      "sha256": "a20a7efd777ab088471391fc256fe56929c7a829c92a8daac6793b49f40f67d1"
+    },
+    {
+      "file": "src/app/features/reviews/components/SubmissionSummary.tsx",
+      "sha256": "464da2f645693124d42dc126985e894a6ef7643a8e652fd1d6736480cb97c065"
+    },
+    {
+      "file": "src/app/features/reviews/components/SubtaskReviewInbox.tsx",
+      "sha256": "b127a9e15226047bdf35ebc6ae98edcb0f316d23b89575b022ccc5c2e3d5bfe7"
+    },
+    {
+      "file": "src/app/features/reviews/components/TaskReviewPanel.tsx",
+      "sha256": "c0c4eb90b986a365b5e19cf2494c9fc4a043f43be998adb77d79418131284415"
+    },
+    {
+      "file": "src/app/features/reviews/components/TaskReviewStandards.tsx",
+      "sha256": "b29cf89eb87882809c580d0422aa69d4fd3004e08eade682d619fbdd89ce75be"
+    },
+    {
+      "file": "src/app/features/reviews/components/TaskSubtaskEvidenceSection.tsx",
+      "sha256": "c9543899c8f2e24262d3757a6f97379bb9499118cf0084484ca48335bf9e6ff3"
+    },
+    {
+      "file": "src/app/features/reviews/components/WorkPlanReviewInbox.tsx",
+      "sha256": "551dd9894fb85e96c1b628662108409739547f3d983f9e75046c181734b1ca38"
+    },
+    {
+      "file": "src/app/features/reviews/hooks/useTaskReviewEvidence.ts",
+      "sha256": "2670631b18d6026e629ab531bb9e75157dc94ce5a3d97dc0dc26b57a64c73d7d"
+    },
+    {
+      "file": "src/app/features/reviews/index.ts",
+      "sha256": "e3333e5af98923a6bff2ea0748ba6eb0039b39fad3b2661f7dad4f12dd819b69"
+    },
+    {
+      "file": "src/app/features/reviews/selectors.ts",
+      "sha256": "e3aeec8fe4fb9bea18cf010c87c355822ec701d4cf6de8e6504b475c61512167"
+    },
+    {
+      "file": "src/app/features/reviews/services/reviewService.ts",
+      "sha256": "146569006db78ef9102351e62715d034c8ec0f3b1684c2379e3c214f08836469"
+    },
+    {
+      "file": "src/app/features/reviews/services/taskReviewEvidenceService.ts",
+      "sha256": "eab8250e1b63b4799c7667108d1f845ebbfbe73748ef2b745f7a70f383a11238"
+    },
+    {
+      "file": "src/app/features/reviews/types.ts",
+      "sha256": "211187cd1bc0edb11c79b9a207da23f4d201681cdd9b1c4352c791b8b41a111b"
+    },
+    {
+      "file": "src/app/features/role-accounting/AccountingStaffContent.tsx",
+      "sha256": "e5d0050d21021f4c656b251ecc394584a82761f64dc16509c9f8df94cbcd36a4"
+    },
+    {
+      "file": "src/app/features/role-accounting/index.ts",
+      "sha256": "374ed878ce094ebf3591b5cc62a0377d119af5f9dfc7f93d4f2412214aaf6149"
+    },
+    {
+      "file": "src/app/features/role-executive/ExecutiveContent.tsx",
+      "sha256": "ff43b5d74f60cddf919a871c072624935fff6c76de0371edc56b74b89b7bcb30"
+    },
+    {
+      "file": "src/app/features/role-executive/components/AuditPrimitives.tsx",
+      "sha256": "b99502d0cf12e9d9a2b11f93cc527bbd3ed97d9fc0dce9446b1c003d4e63c475"
+    },
+    {
+      "file": "src/app/features/role-executive/components/BudgetExecutionPages.tsx",
+      "sha256": "b5cea316942338b5fe4a0bcfa3599edaa50d934e85a7017633d77f00a168992e"
+    },
+    {
+      "file": "src/app/features/role-executive/components/CircularEconomyPages.tsx",
+      "sha256": "cd24742329e3e0f8fd7728c2a2cbfee898c230e04b42bd427ef5f187ac972bd6"
+    },
+    {
+      "file": "src/app/features/role-executive/components/CryptographicLedger.tsx",
+      "sha256": "c1fde672e3504e7856a205603c03387be8a4c62b85a94103ccac672f4f307e38"
+    },
+    {
+      "file": "src/app/features/role-executive/components/EnforcementPages.tsx",
+      "sha256": "f60966c6aa8736940272c0a7788312704113469cbe1922622ceaa893fb1d5ea7"
+    },
+    {
+      "file": "src/app/features/role-executive/components/EnvironmentalRevenuePages.tsx",
+      "sha256": "1db4a92e0b55b4e09a8b3700e5c6362ca0345f1ab9cd9eadcc801970fdb3287e"
+    },
+    {
+      "file": "src/app/features/role-executive/components/ExecutivePrimitives.tsx",
+      "sha256": "a083b2cbbf0522db850e534633a527068856cc6d391f2e66f96f81fc84874fe0"
+    },
+    {
+      "file": "src/app/features/role-executive/components/FinancialDisbursements.tsx",
+      "sha256": "d8cbe3fa3fac7db4038cf8f95d5422f2619495409913ed454c7e070293f7e119"
+    },
+    {
+      "file": "src/app/features/role-executive/components/FinancialPrimitives.tsx",
+      "sha256": "426a1dd0cc53dba18853f830629c3386247512992ac695f58db285f047891ef0"
+    },
+    {
+      "file": "src/app/features/role-executive/components/InfrastructurePages.tsx",
+      "sha256": "f781efc8adee6642513fe15b69721f9a4e117a50a8bd0c114de1cfcf1b328006"
+    },
+    {
+      "file": "src/app/features/role-executive/components/IntelligencePages.tsx",
+      "sha256": "841456891398e3d4789ae89fb1afc1dae86654b5857e5bfc39c86286ecd8d945"
+    },
+    {
+      "file": "src/app/features/role-executive/components/OutstandingFundsPages.tsx",
+      "sha256": "54e9197f6963e440830bd9a81aa9bfa66490da03ca10d5f3d43e6170cbf30919"
+    },
+    {
+      "file": "src/app/features/role-executive/components/PortfolioHealthPages.tsx",
+      "sha256": "b69646fdd417cd26d2e337b46a9c3310b6fe6d0b6e1722d30bea6d642fc1a4b3"
+    },
+    {
+      "file": "src/app/features/role-executive/components/PortfolioInsightPages.tsx",
+      "sha256": "90ef8177208cc1b47de80f014745b66a41989eb24d06b85035ece41458186b5a"
+    },
+    {
+      "file": "src/app/features/role-executive/components/ProjectLiquidations.tsx",
+      "sha256": "8db3eaa8a923e5a714e5f36abbf727865999dcea1f2d80f529e31de97b166f54"
+    },
+    {
+      "file": "src/app/features/role-executive/components/ReturnedFunds.tsx",
+      "sha256": "18caf4e269dbca15dc73c59dee734aec13c933362b726208b682626802b6ccc2"
+    },
+    {
+      "file": "src/app/features/role-executive/components/SpendingRiskPages.tsx",
+      "sha256": "176f8538181cae53c222d9ae50af991217c99b44f0196d63487028638e08f787"
+    },
+    {
+      "file": "src/app/features/role-executive/components/TransformPrimitives.tsx",
+      "sha256": "f5d86611eed60142e7afd1cbaeab4f7b355e2166603cff8db038327dcda68e71"
+    },
+    {
+      "file": "src/app/features/role-executive/components/auditData.ts",
+      "sha256": "9ad532f19e1dbdceff8afbbfee0ecdda424f43fd39e6adf2a3563215413c433c"
+    },
+    {
+      "file": "src/app/features/role-executive/components/circular-economy/MarineLitterOverview.tsx",
+      "sha256": "c4d65859fc9f083eec3b575bff19a6c7201dc4b1ee372fe6b41bc64c4dfe30a2"
+    },
+    {
+      "file": "src/app/features/role-executive/components/circular-economy/PlasticRegulationCompliance.tsx",
+      "sha256": "857be9738a9ad315a680a97bdce6495203c6ecf02cccd80c90694ce7d79b84b9"
+    },
+    {
+      "file": "src/app/features/role-executive/components/circular-economy/SHInEOrmocInitiative.tsx",
+      "sha256": "7a1817fd13938dd6fbc53b415c708662ea6d7d03c6da04c896e1038c87cf3524"
+    },
+    {
+      "file": "src/app/features/role-executive/components/circular-economy/TrashTrapInterception.tsx",
+      "sha256": "92e70bc61f607578c7218688a39acf4933b47c6410afa612af7328506507b394"
+    },
+    {
+      "file": "src/app/features/role-executive/components/circular-economy/data.ts",
+      "sha256": "5d3656c8037d5d85aa98c6a30fdf622ec73c02089b13a8ce46fcce434c4a983e"
+    },
+    {
+      "file": "src/app/features/role-executive/components/circular-economy/index.ts",
+      "sha256": "c96c00d2e4307a884de9670c3e55d4d8ec7e4b0c41b61a3f0b46221ce5e6d24f"
+    },
+    {
+      "file": "src/app/features/role-executive/components/portfolio-health/BudgetBurnDown.tsx",
+      "sha256": "6449a280c804afbb001457d46b9a22be4789806516fd8a1ac816e0825b3d22b7"
+    },
+    {
+      "file": "src/app/features/role-executive/components/portfolio-health/CityProjectPulse.tsx",
+      "sha256": "d57301967578869aaa7e2563c6b2ecb8957a9f221312db5ddf632281cad4340c"
+    },
+    {
+      "file": "src/app/features/role-executive/components/portfolio-health/CriticalBottlenecks.tsx",
+      "sha256": "578055cd67d9e915f2d1c234dcd6513eab3eafd3c141815168334f972759ce8d"
+    },
+    {
+      "file": "src/app/features/role-executive/components/portfolio-health/PortfolioCompletionRates.tsx",
+      "sha256": "f57f8aba0be98eac8c0c1b8aed834e7e00622331a1efe208c7b508ffe44fa245"
+    },
+    {
+      "file": "src/app/features/role-executive/components/portfolio-health/data.ts",
+      "sha256": "e352731990f11671fed3e0001eb9016d1b6e973b76cd9bfb849d96782b4a5fb8"
+    },
+    {
+      "file": "src/app/features/role-executive/components/portfolio-health/index.ts",
+      "sha256": "28a884c46c929712cae30f3fca9a2730d5eaa2c27d96314473b8a4c58c3079ba"
+    },
+    {
+      "file": "src/app/features/role-executive/index.ts",
+      "sha256": "55285690d2e45fc5890aafdf18e6e8321047d2ad30ba90c51e721c838b792e75"
+    },
+    {
+      "file": "src/app/features/role-executive/pageRegistries.ts",
+      "sha256": "4981655a1feb5cd1f35bc4454fb7fa535506e01e5703223d61a70033476d4371"
+    },
+    {
+      "file": "src/app/features/role-finance/FinanceContent.tsx",
+      "sha256": "e63bcca1f71637aba0c187df4b2995670949a11f3422d4e4716236c89b6ead14"
+    },
+    {
+      "file": "src/app/features/role-finance/components/BlockchainCommits.tsx",
+      "sha256": "3ff90098eabd5e65c90d9f02d1e22239295d74233272ee66da3b488487f1a971"
+    },
+    {
+      "file": "src/app/features/role-finance/components/COATimelineFlags.tsx",
+      "sha256": "37c3c1a6bb137c80f7757f8f6c44cc831f77e2af06f99178572fe619d5f8b89f"
+    },
+    {
+      "file": "src/app/features/role-finance/components/CashAdvanceMatching.tsx",
+      "sha256": "f48461525f87a0fe1b3999ebdf5bd44c58f2dd88579188082b2ce0e159c9d616"
+    },
+    {
+      "file": "src/app/features/role-finance/components/CategoricalSlices.tsx",
+      "sha256": "1ac416b74b172bfe9d76e3b80fc0d4554858671b2be4ee07fbc6be1c9dd8ce6d"
+    },
+    {
+      "file": "src/app/features/role-finance/components/CryptographicVerification.tsx",
+      "sha256": "ab6d8f010fe5139ff3da638212c8b3801c915f62ae9d1b70da09d53b18361dc5"
+    },
+    {
+      "file": "src/app/features/role-finance/components/EarmarkedFunds.tsx",
+      "sha256": "1d5f9a4aa21bb27aad3e10ce203c3adc36d704f326d2c89d920fcd392856513e"
+    },
+    {
+      "file": "src/app/features/role-finance/components/ExactCostReview.tsx",
+      "sha256": "89e311302d2c1383742186cdf7e98896bb80489ccadce2e4daf55b1d515c8b5e"
+    },
+    {
+      "file": "src/app/features/role-finance/components/FundReleases.tsx",
+      "sha256": "41096847c321bb5006745058cb414bc0f3a3e34ef128baaf00535094f7e830e9"
+    },
+    {
+      "file": "src/app/features/role-finance/components/HashedLiquidations.tsx",
+      "sha256": "2f06b35fcb6d5eeef7a45722db967b79bc7124fb60e9579604d8274c90e96bdc"
+    },
+    {
+      "file": "src/app/features/role-finance/components/LGUPoolReturns.tsx",
+      "sha256": "aa7c6261aa0fec6813aa21235f697b720e1fd0ca61faeb1a32fd84c6e0c5c6b6"
+    },
+    {
+      "file": "src/app/features/role-finance/components/NonRepudiationRecords.tsx",
+      "sha256": "4b16186c1aedb08d48d74114ef272f43637ac4a092d13e85f5812b9c03e18923"
+    },
+    {
+      "file": "src/app/features/role-finance/components/ObligationRequests.tsx",
+      "sha256": "a1f188aeda3297eb0fb00fbaf296e69e96c6cccf7496038c0abc8537ef968a97"
+    },
+    {
+      "file": "src/app/features/role-finance/components/ProgrammaticBuckets.tsx",
+      "sha256": "6afdbd8b3e96f74be93eff4d6753f28b3819e4e615a674e7c2c3891272667658"
+    },
+    {
+      "file": "src/app/features/role-finance/components/PublicBiddingBypasses.tsx",
+      "sha256": "f3ea60870896273524793652cbd69eea30aa2be90f13cb973fc91d4c0b7565a8"
+    },
+    {
+      "file": "src/app/features/role-finance/components/ReceiptVerification.tsx",
+      "sha256": "754869061ee881970e92960d38c19e9f486d68242456e9dfba6eba66744ec1bf"
+    },
+    {
+      "file": "src/app/features/role-finance/components/ThirtyDayLiquidationAlerts.tsx",
+      "sha256": "1d59fb88b97e7d6b92e4ea4a4e25e24e081e48325f9958e135a3e8d4996d67ea"
+    },
+    {
+      "file": "src/app/features/role-finance/components/UnspentFunds.tsx",
+      "sha256": "0ed24789dc388a6e502293cf3a1206f01b08109ae7c47cf0e1b841844e4218a5"
+    },
+    {
+      "file": "src/app/features/role-finance/components/primitives.tsx",
+      "sha256": "9c6de4f9a8ef522977a2a98f0d7419a02d335b1b8a4dfed81f4b659cc735a641"
+    },
+    {
+      "file": "src/app/features/role-finance/index.ts",
+      "sha256": "a0067e89e776f0b90b3dc0ee0c1d70ff2ee3c0bdc09ae6cf05a814c695d62bcb"
+    },
+    {
+      "file": "src/app/features/role-head/HeadContent.tsx",
+      "sha256": "71884152cc0abf7cc43764bc5b5cd5b5a39c7d74fc02b09a55abe41213175394"
+    },
+    {
+      "file": "src/app/features/role-head/components/EmployeeInsights.tsx",
+      "sha256": "6215022ba1d450ddad6797e12807b90f1d05eca0763b10330afdad44fc5de00c"
+    },
+    {
+      "file": "src/app/features/role-head/components/PageHeader.tsx",
+      "sha256": "87a7f5f0148ab6d9271b2bbcde11afb53702d0b0a46e7de65543ae89a329c9b8"
+    },
+    {
+      "file": "src/app/features/role-head/components/TeamSupervision.tsx",
+      "sha256": "32382079ec25cdc106c1d5e2dd1da1e6080bba4cfc3ec1b7604b5f9b3f4f81a5"
+    },
+    {
+      "file": "src/app/features/role-head/index.ts",
+      "sha256": "0acec8abfc8097bf2553552625f22e180437c248800c925a7d750289f6ea699e"
+    },
+    {
+      "file": "src/app/features/role-head/legacy/ActionItemsExtraction.tsx",
+      "sha256": "211808d0df34a68c6a0845a0ba02785482f8b5f9f42ecb7f0feb2fc98fd5edbd"
+    },
+    {
+      "file": "src/app/features/role-head/legacy/AggregatedHealth.tsx",
+      "sha256": "30f78c330d100886786f79a59436e608cd9dabe04aa0779bc95a700a1085cf94"
+    },
+    {
+      "file": "src/app/features/role-head/legacy/BudgetStatus.tsx",
+      "sha256": "bad3cef095f12886765fe1e7562a0a09f6b878fa52a203bc2796eec82ae01daf"
+    },
+    {
+      "file": "src/app/features/role-head/legacy/ChainOfCommand.tsx",
+      "sha256": "c3c4363c657043a98cd6d4396ffd48eecf5d5ce44f2787948420a4ca6105b5ea"
+    },
+    {
+      "file": "src/app/features/role-head/legacy/DailySummary.tsx",
+      "sha256": "0c449cb479c13dc7dd94127c169f51b3cdd0a9cea7e7a35059b7391820c37aca"
+    },
+    {
+      "file": "src/app/features/role-head/legacy/DelayNodeAlerts.tsx",
+      "sha256": "3346b06c1fa77a34e8c28004b73b9d8246aa35a04007f62de4714a2644f42a47"
+    },
+    {
+      "file": "src/app/features/role-head/legacy/IdleTimeMinimization.tsx",
+      "sha256": "337bd943e3bc1f95eddf57b37ded5c3e0b215639c982a56d15947ad956aafa5d"
+    },
+    {
+      "file": "src/app/features/role-head/legacy/InterventionMandates.tsx",
+      "sha256": "59250e8f7a36b8217f33d328bf2ef5776b3a7ecca7fef12f62ea56446e4b9f6a"
+    },
+    {
+      "file": "src/app/features/role-head/legacy/LeaderAssignments.tsx",
+      "sha256": "c67876a255611b8772fcb963c816761b2212cd39d38128cad3fe3476132157ad"
+    },
+    {
+      "file": "src/app/features/role-head/legacy/LeaderExpenseReports.tsx",
+      "sha256": "c254d7b0d49ec51699f72fe09b1128c488dd0abe7a60d7a9a6e379aa7c01d55d"
+    },
+    {
+      "file": "src/app/features/role-head/legacy/ManualOverride.tsx",
+      "sha256": "162c667a4b89b869715baf32b929a06a4f52cf0071e60c9d680913d1212a517d"
+    },
+    {
+      "file": "src/app/features/role-head/legacy/OptimalDistributionMatrix.tsx",
+      "sha256": "88d96198f26ba4f6dab78b61142e91ea3b158cbbac878318025617c1d312161a"
+    },
+    {
+      "file": "src/app/features/role-head/legacy/OverrunPrevention.tsx",
+      "sha256": "7abddf07eec78e6461fe4dc517c9eff0531d321a3994f7c234df497d7e1ae994"
+    },
+    {
+      "file": "src/app/features/role-head/legacy/ProcessMiningGraphs.tsx",
+      "sha256": "bc7fd6ee9e17f2afe7a20bd248e06b2f685269a8c5362841cae6824c226d12fd"
+    },
+    {
+      "file": "src/app/features/role-head/legacy/RealTimeSpendTracking.tsx",
+      "sha256": "8234e6ccd961dfe8bd88b5427537e95b57e8fb7dcc3fd4a474c5575596c8c80e"
+    },
+    {
+      "file": "src/app/features/role-head/legacy/RedundancyFiltering.tsx",
+      "sha256": "e970814aa1da52c09c96ba6fc00f1e896c2b484e04cf99cdae4dc53c86d26938"
+    },
+    {
+      "file": "src/app/features/role-head/legacy/TeamAssignments.tsx",
+      "sha256": "353aa9ac8be211503e99531388eae5cdc06ac435df7b6eca42092f71dff98d27"
+    },
+    {
+      "file": "src/app/features/role-head/legacy/TimelineReview.tsx",
+      "sha256": "840ff15f6beb4815d97567fb7631e46c5d18182faba92c7e3f166639f053ec33"
+    },
+    {
+      "file": "src/app/features/role-head/legacy/aggregated-health/AggregatedHealthContext.tsx",
+      "sha256": "b53edaf14597315c463cc6cc3fc1d8ac49028d91b16b40c28a15957ac580d246"
+    },
+    {
+      "file": "src/app/features/role-head/legacy/aggregated-health/useAggregatedHealthController.ts",
+      "sha256": "acff5a8d166589b15d5892be09eb3131b8c97071e1dd764dcb7ab6e7592145de"
+    },
+    {
+      "file": "src/app/features/role-head/legacy/aggregated-health/views/CalendarHealthView.tsx",
+      "sha256": "77924db3ec4edfed944f89e5715bc4bf5c59a896ebecf6275f2f833bfb0ce5ec"
+    },
+    {
+      "file": "src/app/features/role-head/legacy/aggregated-health/views/DiagnosticPanel.tsx",
+      "sha256": "1c83755e8cbe71ca80042d6e257720ace1fdd9e0d7820aa499dfa732aa806230"
+    },
+    {
+      "file": "src/app/features/role-head/legacy/aggregated-health/views/GanttHealthView.tsx",
+      "sha256": "ab63b3a19ad75784e729ef7665953839946d2d53241f2fc75b836a3a89f82233"
+    },
+    {
+      "file": "src/app/features/role-head/legacy/aggregated-health/views/KanbanHealthView.tsx",
+      "sha256": "c95669b33ea4e33ba9cbc1c2d5d4c19e83e723a0d756b0b3ac2ef575da8bedbc"
+    },
+    {
+      "file": "src/app/features/role-head/legacy/aggregated-health/views/MapHealthView.tsx",
+      "sha256": "20b471111e67fc17736ec26575cf75ec134790f2aadd3f7b106c40943272a64a"
+    },
+    {
+      "file": "src/app/features/role-head/legacy/aggregated-health/views/ResourceHealthView.tsx",
+      "sha256": "9838694180d97da239ec44ce32251024ecb3d5c708ab16a49a28b6b7ac732bc5"
+    },
+    {
+      "file": "src/app/features/role-head/legacy/aggregated-health/views/TableHealthView.tsx",
+      "sha256": "303adc369b56de6f5e4ab8b0adb7ff9e0f0a84b1b56c738c500c68fc407bdcf6"
+    },
+    {
+      "file": "src/app/features/role-head/legacy/aggregatedHealthModel.tsx",
+      "sha256": "9e8a1ea26ab2df314547cb3f7191f09a8a08a78039d33fd2e5f5ade6cf37fa51"
+    },
+    {
+      "file": "src/app/features/role-head/legacy/idle-time/data.ts",
+      "sha256": "0ecf767a30df95951facde51a3744886a761c592d98e49307bd1de5aa2582a45"
+    },
+    {
+      "file": "src/app/features/role-head/legacy/index.ts",
+      "sha256": "b4b0c4390acd621b29f3ae66f6305c418617bf4d56cc8ed3588f96e74755eaff"
+    },
+    {
+      "file": "src/app/features/role-head/legacy/optimal-distribution/data.ts",
+      "sha256": "45e2f23deb2ab4fac3b443b2fa80921e188efca1c25ae611cbb2fe513bd64516"
+    },
+    {
+      "file": "src/app/features/role-head/legacy/primitives.tsx",
+      "sha256": "002d2fcbf0463140e84bcf319c95978047a0b0e31d9190ddcfda5d6603035812"
+    },
+    {
+      "file": "src/app/features/role-hrmo/HRMOContent.tsx",
+      "sha256": "b1e4e74cb3084c0bf529c8e2fba4eadeb0182b046ada79e90f31776812c9a968"
+    },
+    {
+      "file": "src/app/features/role-hrmo/components/AutomatedAlerts.tsx",
+      "sha256": "f664ecf9b68e70a3f2610e8b3f5efe4d34029720b4d67304f066ab4bf10adad3"
+    },
+    {
+      "file": "src/app/features/role-hrmo/components/CSCAppraisals.tsx",
+      "sha256": "6c3a4e953e17fdde0414ade8ee8d37f2f90580ecefc3d9f080cd41e359d3d500"
+    },
+    {
+      "file": "src/app/features/role-hrmo/components/DepartmentRiskFlags.tsx",
+      "sha256": "094ad7de9cc3b5010f0785e52876cfb9fca23aae50c5a142f674760abe5f343d"
+    },
+    {
+      "file": "src/app/features/role-hrmo/components/EflowDataIntegration.tsx",
+      "sha256": "8d57af08b2befd20f1aaf0037e22d51136d941308e61cd10a2627cb41f9a0f75"
+    },
+    {
+      "file": "src/app/features/role-hrmo/components/EquitableDistribution.tsx",
+      "sha256": "7ef2197b6748865f3db89c0d452c687343ff8e31da5a3579483943dbf9f15560"
+    },
+    {
+      "file": "src/app/features/role-hrmo/components/GAAllocationReview.tsx",
+      "sha256": "89bf506485b0e480b6cfd791f638e7dbb6eeb2f51baf0d13b9972ccdefa2e510"
+    },
+    {
+      "file": "src/app/features/role-hrmo/components/Monetization.tsx",
+      "sha256": "7a019b75ff0f99ae008fed56d6ee9ebc57f1b5755b024fc5fc4b6ae3f98506cd"
+    },
+    {
+      "file": "src/app/features/role-hrmo/components/OvertimeClaims.tsx",
+      "sha256": "5f6c98ca92f25fc015612b3a93c86be5210a4958254695bc228b6a07eaab7f8b"
+    },
+    {
+      "file": "src/app/features/role-hrmo/components/OverviewPages.tsx",
+      "sha256": "3b55971323ad5d3886bde793f0e576767d21cdf19520b283f79c490634e693b1"
+    },
+    {
+      "file": "src/app/features/role-hrmo/components/PayrollPreAudit.tsx",
+      "sha256": "6c3c1a39fb7f905d418e2c66e127a6bc16bc9b6453cf1fa99730de02b17c12fa"
+    },
+    {
+      "file": "src/app/features/role-hrmo/components/StressDebriefing.tsx",
+      "sha256": "1f6d3d0645f728595dc383a1cba01aaa529249cb04076a8c5bd0cc86a7c1962b"
+    },
+    {
+      "file": "src/app/features/role-hrmo/components/TaskCompletionRates.tsx",
+      "sha256": "a4a30e6b3c2dbb327118e330cffdde4f84ef0f597cb29583989bc00597a05b50"
+    },
+    {
+      "file": "src/app/features/role-hrmo/components/TerminalLeaveCredits.tsx",
+      "sha256": "4d5611b792a9fb95d03c8bb7079d3e16310afa8b91d0fcb7176f0a8717ce70b6"
+    },
+    {
+      "file": "src/app/features/role-hrmo/components/WellnessInterventions.tsx",
+      "sha256": "27069608d2b95c1506f18cb92bafabaedc70183d6d8bee1e8a24d1db927635ee"
+    },
+    {
+      "file": "src/app/features/role-hrmo/components/WorkloadVelocityOverview.tsx",
+      "sha256": "1a98644b08b95af2e2b4f09ceab199c74005d44c204a75c6ffec36da56b9bddc"
+    },
+    {
+      "file": "src/app/features/role-hrmo/components/primitives.tsx",
+      "sha256": "2b7545d21f2da5bf8428b1bd8592373d4f29fe49e8e81dc2973e550bcb2002cc"
+    },
+    {
+      "file": "src/app/features/role-hrmo/index.ts",
+      "sha256": "f7788d0adb997c5a808c59a38c32672852cce59c832d65eb4cb8c8d1cd56ea5b"
+    },
+    {
+      "file": "src/app/features/role-legislative/LegislativeContent.tsx",
+      "sha256": "fa628770a8eecf8dae9306f277a354561afd979301692be902af3d8e37fa6ac5"
+    },
+    {
+      "file": "src/app/features/role-legislative/committee/BudgetLegislation.tsx",
+      "sha256": "67864011b652ce644ce9fad231b5d9d02a721df27f4c5f82d892d60ac91a5aae"
+    },
+    {
+      "file": "src/app/features/role-legislative/committee/CommitteeChairmanships.tsx",
+      "sha256": "c4b900d06b037de2df41ff4846a13b192d9039737061b3f8629b0c741a20374a"
+    },
+    {
+      "file": "src/app/features/role-legislative/committee/CommitteePrimitives.tsx",
+      "sha256": "283ab5a776e2b8ff1e0457ade067cfb85d3890db63fa9b632966daabfed5ef85"
+    },
+    {
+      "file": "src/app/features/role-legislative/committee/ProposedMunicipalBudget.tsx",
+      "sha256": "d26f802f19d35dbfca0293ab699e1bfe3a148d15de9f2b2bff1ca40ce9c8cf88"
+    },
+    {
+      "file": "src/app/features/role-legislative/committee/WorkingDocuments.tsx",
+      "sha256": "e1f5f429675b9743c5ba1b982fac975682b70c7aa7abb080fb6b4eca298e2b60"
+    },
+    {
+      "file": "src/app/features/role-legislative/committee/index.ts",
+      "sha256": "2d78515a902c4ac24f3244767bc8f4225d1cec0c25666caeae50f0e56a62183a"
+    },
+    {
+      "file": "src/app/features/role-legislative/components/ActiveMeasuresPipeline.tsx",
+      "sha256": "41e4e1ff22aaf2e92385c4605aee3816628108b954030f220e7a9191df12a7f4"
+    },
+    {
+      "file": "src/app/features/role-legislative/components/AdoptedOrdinancesArchive.tsx",
+      "sha256": "29372dc8973552dafd61e567f82f3be6ea0239b7f8301ddedd5a12bb057f5d24"
+    },
+    {
+      "file": "src/app/features/role-legislative/components/CommitteeLevel.tsx",
+      "sha256": "7fe96a81fc90e5308e512d2a5ab7b427648db79c1d7f639616a76af7613cf728"
+    },
+    {
+      "file": "src/app/features/role-legislative/components/FirstReading.tsx",
+      "sha256": "b23760d306dc9ba508e9997cda5e3562d54fc2c6b07890689ba5c47ad244fc5c"
+    },
+    {
+      "file": "src/app/features/role-legislative/components/FullIndex.tsx",
+      "sha256": "ccddc317a484fab10ed5f5972c49b628daa914ee782741821212b0d534503f61"
+    },
+    {
+      "file": "src/app/features/role-legislative/components/MayoralApproval.tsx",
+      "sha256": "63809c09d8c1786db1c5cb7704df15bb7504475270664f91e3954feb2220d778"
+    },
+    {
+      "file": "src/app/features/role-legislative/components/SecondReading.tsx",
+      "sha256": "a3adf11c7ff82b76179ce62fe6466665a02e481565adf04fc326ce7be75947e3"
+    },
+    {
+      "file": "src/app/features/role-legislative/components/SemanticSearch.tsx",
+      "sha256": "5d1ea29fa811a9b8c9b38dc92e085029e554f271ae66fbb11997110bd6d81416"
+    },
+    {
+      "file": "src/app/features/role-legislative/components/ThirdReading.tsx",
+      "sha256": "76e232b7103720201d81727933e7248bd5fd36f68c2ea3a2eb34b8bd2a4a247d"
+    },
+    {
+      "file": "src/app/features/role-legislative/components/data.ts",
+      "sha256": "0f9d86bd11b5edc4d443a2d81542a5e014f0b162959cb3ac9ee707ebfdf34334"
+    },
+    {
+      "file": "src/app/features/role-legislative/components/primitives.tsx",
+      "sha256": "3c7ae1f17ab181b08070b3763d7b518d009c65b669a2f4b5bb152e3edfee0108"
+    },
+    {
+      "file": "src/app/features/role-legislative/councilor/ConfirmationPad.tsx",
+      "sha256": "364df56b61bb385954d3c14d971f69d317d4a2e6c3f297c7d6c44c744dcf9a9c"
+    },
+    {
+      "file": "src/app/features/role-legislative/councilor/CouncilorPanel.tsx",
+      "sha256": "b6717b1a4d1b84220b4cd358fcf75687cd6f05deb3ce0cbdf2a8c92274d6e820"
+    },
+    {
+      "file": "src/app/features/role-legislative/councilor/FocusReader.tsx",
+      "sha256": "a78ca1092a2de40838ea7c8e177b334bc2c46e7a7cfadda848a09fb9ae35e9a1"
+    },
+    {
+      "file": "src/app/features/role-legislative/councilor/InboxView.tsx",
+      "sha256": "96c3c2189a81d4d10e60bc71ff058a2a3a50c66f2b2fc64a1dece147cfdc1309"
+    },
+    {
+      "file": "src/app/features/role-legislative/councilor/councilorData.tsx",
+      "sha256": "2ef40786de7d2196383edc46c31afa272500ea90f18b826c2d23a024a66290e4"
+    },
+    {
+      "file": "src/app/features/role-legislative/councilor/index.ts",
+      "sha256": "0f9682d1a65eac8772315fae398ab4232fa72b488e595ecdc31a3ae11900eb14"
+    },
+    {
+      "file": "src/app/features/role-legislative/index.ts",
+      "sha256": "02773723646c1b62ab444f8bc11d9d35ed77f027e48de61d4ac73fe4385a627e"
+    },
+    {
+      "file": "src/app/features/role-legislative/session/SessionManagementContent.tsx",
+      "sha256": "f3ea97a2d97659d6e3c96ae369467ddf84cb9a57b835d656195fb8ea44e18a88"
+    },
+    {
+      "file": "src/app/features/role-legislative/session/components/AdjournmentControls.tsx",
+      "sha256": "9ba235b25e22bb2ebcb4fdcf894d01e548db59b5b42c69dcba07e203efbbfd48"
+    },
+    {
+      "file": "src/app/features/role-legislative/session/components/AgendaControls.tsx",
+      "sha256": "f0a9bd58c9e7ca325944795284c3433b709b4c77c251bc90ae48de04ca7aac65"
+    },
+    {
+      "file": "src/app/features/role-legislative/session/components/AgendaItemDrawer.tsx",
+      "sha256": "e43551602d7cbd893a23eafa04fa06432f4c8df645477f7db606ef8d62af9fbd"
+    },
+    {
+      "file": "src/app/features/role-legislative/session/components/ArchivedMinutes.tsx",
+      "sha256": "2db49a9df1f6f37835952e66f8b8d2cee7a5184dae15704f4ad0f049053003e0"
+    },
+    {
+      "file": "src/app/features/role-legislative/session/components/NLPTranscription.tsx",
+      "sha256": "f26d8645bdf5c7fa5ba3cdd9488b591de3b89f92835039a00ece13f930afc0bc"
+    },
+    {
+      "file": "src/app/features/role-legislative/session/components/SessionBroadcast.tsx",
+      "sha256": "8fbea1ae0ecf62d038932037dad2929b98ee8d1606869a6178b76f8fd425ab8a"
+    },
+    {
+      "file": "src/app/features/role-legislative/session/components/SessionSummaries.tsx",
+      "sha256": "c2138d8610c8c9df76c572c4542586915a665944f7b472947c831642d6dc5a8b"
+    },
+    {
+      "file": "src/app/features/role-legislative/session/components/agendaModel.ts",
+      "sha256": "3f83a3bf26705096759788ef7495b43ebdab166d59e70c23f1b3cd37a94f33be"
+    },
+    {
+      "file": "src/app/features/role-legislative/session/components/primitives.tsx",
+      "sha256": "8ab7b55d9b1f9fc7f53a0dbc089f192945d6490cb328d04dffd5e5423459d98e"
+    },
+    {
+      "file": "src/app/features/role-legislative/session/components/sessionData.ts",
+      "sha256": "5095cff253bac2a5cf35bae0108b4be094f60d21f4f801beea26fc765310c1cf"
+    },
+    {
+      "file": "src/app/features/role-legislative/session/hooks/useOrderOfBusiness.ts",
+      "sha256": "b8391aebd4aaaf55565316f4598e99a72f72b2a033046a61e6e6294063a432a6"
+    },
+    {
+      "file": "src/app/features/role-legislative/session/index.ts",
+      "sha256": "947055d95241ef502f322c0fcbcafc187dd09aba1dc141d513d172a7a18359d6"
+    },
+    {
+      "file": "src/app/features/session-security/SessionSecurityProvider.tsx",
+      "sha256": "b0a85cb0dda8cc59954565ff707db8dc4c51dc4e9a113c7d4ea6d4f61e1860ef"
+    },
+    {
+      "file": "src/app/features/session-security/components/InactivityWarningDialog.tsx",
+      "sha256": "b64ea76f7cedd7ca279a9647232dff68c430d1c14cbbb66aa296ecb58429db29"
+    },
+    {
+      "file": "src/app/features/session-security/constants.ts",
+      "sha256": "3a8cdeab7289285caf6abb93de16dfc14a352e850fc00fe831f22a6982c297ba"
+    },
+    {
+      "file": "src/app/features/session-security/index.ts",
+      "sha256": "42a16254c8eb813d2abfefcbfaec3fc20b35493aafc2c462af67269632bc3ee1"
+    },
+    {
+      "file": "src/app/features/session-security/services/sessionActivityStorage.ts",
+      "sha256": "b8d2641407b32bf1d97f3a8abe995ebfcb8796074446e63ce52d8b32b6434ffb"
+    },
+    {
+      "file": "src/app/features/session-security/services/sessionTimeline.ts",
+      "sha256": "03b2bf230e6a0c7e98dfd43af3923b399f7b6d94efc3c00f1626db6403f87224"
+    },
+    {
+      "file": "src/app/features/settings/components/AppearanceSettingsPage.tsx",
+      "sha256": "8d3c1de46d6f6ea82081df1014abc7634a614152c3f9ae3f7bb1939a67709590"
+    },
+    {
+      "file": "src/app/features/settings/components/NotificationSettingsPage.tsx",
+      "sha256": "ecff59a0a01fc528ce9f5e3bfd4a4e984bf5542904f21659c24e2fc1297381d0"
+    },
+    {
+      "file": "src/app/features/settings/components/ProfileSettingsPage.tsx",
+      "sha256": "7439b08005208eacf813d1ff44083aacaebc474fcffb6e9bcb914a476426e77b"
+    },
+    {
+      "file": "src/app/features/settings/components/SecuritySettingsPage.tsx",
+      "sha256": "cee1ea314cfe535b721c29b8bf57534881ad1b7ca2e70e0496e098185e4c7f07"
+    },
+    {
+      "file": "src/app/features/settings/components/SettingsContent.tsx",
+      "sha256": "3dd70f19ab45f1e266fbb577e4157a8628a6e27b59008b83772cb0217322368f"
+    },
+    {
+      "file": "src/app/features/settings/components/settingsPrimitives.tsx",
+      "sha256": "ecfa96cad36bc5429e89d57d9a21b2b61f8f6cfccdc00bf668a6919df8c1e43d"
+    },
+    {
+      "file": "src/app/features/settings/index.ts",
+      "sha256": "6a7b54e12c99045a7372cbc72bc2d8527b879f749f4c8d989a6510604de88baa"
+    },
+    {
+      "file": "src/app/features/staffing/components/StaffingDialog.tsx",
+      "sha256": "1840dcc31985a79319522fc3da0fc036ed486b8d1d313ad423596f0b321aa933"
+    },
+    {
+      "file": "src/app/features/staffing/index.ts",
+      "sha256": "e89e95153658ccc6b63d1f35621f14516ac4d57c177601c08440bc61754490fa"
+    },
+    {
+      "file": "src/app/features/staffing/services/staffingService.ts",
+      "sha256": "dd23ad96dd8746be9cec219a174bf222456a04268def1e05310f2b1a1e9ed891"
+    },
+    {
+      "file": "src/app/features/staffing/staffing.css",
+      "sha256": "87544ffbab0e27e12650114130e9b7d7693d548a6c46801da85e6ae8f3143844"
+    },
+    {
+      "file": "src/app/features/staffing/types.ts",
+      "sha256": "ab8c454f482cc1b4a8ee7e8e6e5e103f477362a49407a1613db219a71f0a1ea2"
+    },
+    {
+      "file": "src/app/features/subtasks/components/SubtaskDeadlineEditor.tsx",
+      "sha256": "dc0238ca7bc8bd65035316281ae7509a8828ae1e29af54b9c130f894937b45e6"
+    },
+    {
+      "file": "src/app/features/subtasks/components/SubtaskEvidenceLink.tsx",
+      "sha256": "3f0cd8ce7663f172558a365d9b7a89a6ffe135d51cdca136f368ef69d66f5431"
+    },
+    {
+      "file": "src/app/features/subtasks/components/SubtaskProgressForm.tsx",
+      "sha256": "a7091be5e579022463308113bfea0e8ece1e88930669fca7a481f8496a7a1fcb"
+    },
+    {
+      "file": "src/app/features/subtasks/components/SubtaskProgressHistory.tsx",
+      "sha256": "d776a057c340cd237d24fa3fd0b652965b57047babdddc64fad8fb61ac3bb492"
+    },
+    {
+      "file": "src/app/features/subtasks/components/SubtaskReviewerBadge.tsx",
+      "sha256": "ab2a7e3ceac94a264e40a2095c806b20930dc4e8ef63d997664d4681b08f0935"
+    },
+    {
+      "file": "src/app/features/subtasks/components/SubtaskSubmissionHistory.tsx",
+      "sha256": "12033ab7f9880d6031c405c3b8413cdb3ff4ad818bb5fb5e9f7a885f989e4778"
+    },
+    {
+      "file": "src/app/features/subtasks/components/SubtaskWorkDrawer.tsx",
+      "sha256": "bdcb65fb976fbf95b5fac626897548658ee316fa29857c850e69b3b834700e29"
+    },
+    {
+      "file": "src/app/features/subtasks/components/TaskSubtasksWidget.tsx",
+      "sha256": "66155e894b1e6aeb52831819fca8a03edb20fcd6b6f45237d4330a7d7f61af49"
+    },
+    {
+      "file": "src/app/features/subtasks/components/sequencing/SubtaskSequenceControls.tsx",
+      "sha256": "f17ed41da727ae7085341252067d2736b45690916fa6196236b3e1dde1cceb53"
+    },
+    {
+      "file": "src/app/features/subtasks/hooks/useSubtaskReviewerDirectory.ts",
+      "sha256": "21cba6521c532328a9c828da0604dc6abb169583c1037d420e1040fd3f165924"
+    },
+    {
+      "file": "src/app/features/subtasks/hooks/useTaskSubtasks.ts",
+      "sha256": "21adcc2c0c9839203349bd6d2da52b0bb8bceb333e75f529091a48920eaee893"
+    },
+    {
+      "file": "src/app/features/subtasks/index.ts",
+      "sha256": "10de6db521f7a9523a0e862de27ee574823a78d4548c57f066931ceeb59bd99f"
+    },
+    {
+      "file": "src/app/features/subtasks/selectors/deadlines.ts",
+      "sha256": "4b0cdbeb5fa30594f20e6ebe632f0a2a2d0bfac23a276a37e7850a12fbe4df7e"
+    },
+    {
+      "file": "src/app/features/subtasks/selectors/sequencing.ts",
+      "sha256": "ef0901ab264325bddd7b6491850f114d42ae7ab5442850e195b2185eb3654bf1"
+    },
+    {
+      "file": "src/app/features/subtasks/services/subtaskReviewerService.ts",
+      "sha256": "251b95dced7dc175d552af7243e3775d31d4716de3cca5f9c88d185604c47a3d"
+    },
+    {
+      "file": "src/app/features/subtasks/services/subtaskWorkflowService.ts",
+      "sha256": "55f876b1e0375ddde7e2eed799008b604e8533f85552c44d4cdf7cef28ad0063"
+    },
+    {
+      "file": "src/app/features/subtasks/types.ts",
+      "sha256": "491fb72923136680d156ee60f3e17ca93991b1ed667bcbab4db03e4fc82e26e9"
+    },
+    {
+      "file": "src/app/features/tasks/components/AdminTaskOversight.tsx",
+      "sha256": "2cc79133e1d4f319f78f64a207ba69f8cbeeaf34adefc4996b6d2bf5531a96a5"
+    },
+    {
+      "file": "src/app/features/tasks/components/AdminTaskOversightList.tsx",
+      "sha256": "6c01a77322b680845446af005ec6f6cbb0c5d12b323aad36de7bbf90cd560f44"
+    },
+    {
+      "file": "src/app/features/tasks/components/AdminTaskOversightRow.tsx",
+      "sha256": "1413b33710a2fe61bddc5d51c29f8452fab6d9c743373144d293acb79be8a7ab"
+    },
+    {
+      "file": "src/app/features/tasks/components/HeadTaskBoardView.tsx",
+      "sha256": "89804476f2d662e8cfe706a008f12898cae5d9f1c8ddd8447bde587d4f7c5bd8"
+    },
+    {
+      "file": "src/app/features/tasks/components/RecurringTaskTemplatesPanel.tsx",
+      "sha256": "f17a57f1b0b290514d981a683827e589536b834bdd3cba991922e1ad09d5cc13"
+    },
+    {
+      "file": "src/app/features/tasks/components/RecurringTemplateForm.tsx",
+      "sha256": "2fdd3450cb13cf02c43974f42d8bc938fedd9477e80acca88f245cac67714334"
+    },
+    {
+      "file": "src/app/features/tasks/components/TaskDepartmentLabel.tsx",
+      "sha256": "a3a08c17730fefa07d26f8609b43bd7786124f7cc4781e88b33b29bc49399762"
+    },
+    {
+      "file": "src/app/features/tasks/components/board/AssignmentModal.tsx",
+      "sha256": "df86924a7b0028b34f49ed65f74c34a1306a84c230d4d9fe15e030df97b72ae4"
+    },
+    {
+      "file": "src/app/features/tasks/components/board/CalendarBoardView.tsx",
+      "sha256": "07d48c68ad6cc9f47efd6d1dbb7a7d56d938ac88a8eb30c3919bc2b3ffb2177f"
+    },
+    {
+      "file": "src/app/features/tasks/components/board/DependenciesBoardView.tsx",
+      "sha256": "8fb869162c98b5fb7885949d75e07143956b3de675479072918d38495d5d9003"
+    },
+    {
+      "file": "src/app/features/tasks/components/board/HierarchyBoardView.tsx",
+      "sha256": "e820f3c85a0d9b9cf8127bd322a917e0022ab9d3d8767848248c7a1297e7a4e9"
+    },
+    {
+      "file": "src/app/features/tasks/components/board/HierarchyTaskRow.tsx",
+      "sha256": "0a33e8f7ef022e69d4f79a5cfa613a3a025ea8b2deb2719bf5fa55d2fceff875"
+    },
+    {
+      "file": "src/app/features/tasks/components/board/KanbanBoardView.tsx",
+      "sha256": "985f970d94ae19b1166cd049375d907322bbd49010626e5f295bbde239726eef"
+    },
+    {
+      "file": "src/app/features/tasks/components/board/ListBoardView.tsx",
+      "sha256": "83c4cf5e3bec3fc8668fa8b6bcbc33b7f56500ac5ca7faa5dbd8851f4c512874"
+    },
+    {
+      "file": "src/app/features/tasks/components/board/ListTaskRow.tsx",
+      "sha256": "6c8f854a5e5d10ccc9239e3edd627932142776fce3a65a2aea0d7c30dbbc5abb"
+    },
+    {
+      "file": "src/app/features/tasks/components/board/MondayBoard.tsx",
+      "sha256": "d099cb0ab726f2059b6fe52319cc04a74e8f562cd41f9c312024c19b96f274ff"
+    },
+    {
+      "file": "src/app/features/tasks/components/board/ScopedTaskKanban.tsx",
+      "sha256": "814441c5e43156dfb162d242b7ec577f2d5e570a67f791288ada622e5d448425"
+    },
+    {
+      "file": "src/app/features/tasks/components/board/TaskActivityHistoryView.tsx",
+      "sha256": "b6ab31e37a045d8023e80d4d2e90f577f497f0bd9be16b905e25e2909748e24c"
+    },
+    {
+      "file": "src/app/features/tasks/components/board/TaskBoardDialog.tsx",
+      "sha256": "690d93b1f6db2ea07ba9e2c5bb584357bf7c17ca3ae1b6a3af07df02dbcc70d0"
+    },
+    {
+      "file": "src/app/features/tasks/components/board/TaskChatSection.tsx",
+      "sha256": "60793a3047ca0984fde84917d891b35ae8c976a32daf41f15aefea2cd4174f35"
+    },
+    {
+      "file": "src/app/features/tasks/components/board/TaskEditorModal.tsx",
+      "sha256": "349739676c98ee9a8e625f308ae9423ca46b215ea315a3556223a9ff53dcd7aa"
+    },
+    {
+      "file": "src/app/features/tasks/components/board/TaskFeedback.tsx",
+      "sha256": "865c758563d281a88ba690dc18898d1492b6aeefe8f2dd5010b7310948c0e37c"
+    },
+    {
+      "file": "src/app/features/tasks/components/board/TaskManagementMenu.tsx",
+      "sha256": "14841c9984b726c6744692adbbcbd35b9cfde1c0d2b24f298f970b921d2c9489"
+    },
+    {
+      "file": "src/app/features/tasks/components/board/TaskSubmissionModals.tsx",
+      "sha256": "93004e47c5f7e861c7c8a36ac266b8238817382e4ce3f4054bd3974fba3bdd7e"
+    },
+    {
+      "file": "src/app/features/tasks/components/board/TimelineView.tsx",
+      "sha256": "4d84fc9a6cd8547e09ed9b7d86a20869bd335ff459a43ebcf1a760a422ed9bc9"
+    },
+    {
+      "file": "src/app/features/tasks/components/board/WorkloadBoardView.tsx",
+      "sha256": "952e2a99c5a0ed417861104c2f9c8e3a2d7d84857170791ec0f6c4e20b295be3"
+    },
+    {
+      "file": "src/app/features/tasks/components/board/model.tsx",
+      "sha256": "52777523b6cef5dece7c835fc7575f1de9b3d34f67c0536e41738ad35112348b"
+    },
+    {
+      "file": "src/app/features/tasks/components/board/task-chat/TaskChatSection.tsx",
+      "sha256": "6806daefb42cce5d6fbafc23c73378fa870e140ce7fe9b56ca051ee4e807d360"
+    },
+    {
+      "file": "src/app/features/tasks/components/board/task-chat/index.ts",
+      "sha256": "4e2486f343d33960291c1274d4d491d19ac0bfe027febcbd0f6db82e09933ae6"
+    },
+    {
+      "file": "src/app/features/tasks/components/board/task-chat/messageCodec.ts",
+      "sha256": "a729af125b8ec2b73f450823f3082577232357ed56b3a5aa4e5ff3751cf5e541"
+    },
+    {
+      "file": "src/app/features/tasks/components/board/task-chat/useTaskChat.ts",
+      "sha256": "d096a93e54a0e8fda1a641e20cff8159c0cac63410481b4993b350e3eee24bc8"
+    },
+    {
+      "file": "src/app/features/tasks/components/board/useHorizontalBoardViewport.ts",
+      "sha256": "951f640dc9f07e330c6bd2f5f1e870d7ddf5974e67ce9f873d860c673f7c3972"
+    },
+    {
+      "file": "src/app/features/tasks/components/board/useListBoardController.ts",
+      "sha256": "ab07f67c99a3c1e0c125648c1b99566463a49388af878ec4c7a1e92114ae5a17"
+    },
+    {
+      "file": "src/app/features/tasks/components/board/useMondayBoardController.ts",
+      "sha256": "90b3f03b2d0f605edb192a1c0a43c0203dfdc434d2f4ff63a2302ee94c8d3c9a"
+    },
+    {
+      "file": "src/app/features/tasks/components/taskDetailAccess.ts",
+      "sha256": "b91a116bc61b15278cd438374e32e3d8cf238647be5aa0e7646456b58e9aecf8"
+    },
+    {
+      "file": "src/app/features/tasks/components/team/TaskTeamEditorDialog.tsx",
+      "sha256": "31ef9b5df8b2f2466b7de6d10ae5fd1b67c87f7e4e701045f184bcc1d9b24cf9"
+    },
+    {
+      "file": "src/app/features/tasks/components/team/TaskTeamMemberList.tsx",
+      "sha256": "1263348d5bd8f0f7493e8522ea1d9f858103e504687c979e57acb96fed1aca85"
+    },
+    {
+      "file": "src/app/features/tasks/hooks/useHeadTaskBoard.ts",
+      "sha256": "ffaf521fcaf8fa0d2a2364b40f024c6d97fc0ab2b0dd47107d70e9fb133d4b7f"
+    },
+    {
+      "file": "src/app/features/tasks/index.ts",
+      "sha256": "e6583041771617f9ecdd86792c89b9399e874255aba6a10f82e8d22bff9b94a7"
+    },
+    {
+      "file": "src/app/features/tasks/presentation/TaskStatusLabel.tsx",
+      "sha256": "7a1b0a9d62fb6c4bd8590162733ef3eb301642ce786b0b03c2bb9511c5ce8712"
+    },
+    {
+      "file": "src/app/features/tasks/presentation/taskStatusPresentation.ts",
+      "sha256": "c62530a3d75066ed0630808455f00147aaa4b915886c8295e460c1d20a1ce3e7"
+    },
+    {
+      "file": "src/app/features/tasks/selectors/adminTaskProposalSelectors.ts",
+      "sha256": "8eb5df9042be9f1f4127addb569d46d8d579c4e1174a24f0449cf66a3ca1e0e0"
+    },
+    {
+      "file": "src/app/features/tasks/selectors/dataHealth.ts",
+      "sha256": "6921002ace9201ec2c796847146dc83bca178e8c44a0e06ad65ef539adca4dce"
+    },
+    {
+      "file": "src/app/features/tasks/selectors/deadlineInput.ts",
+      "sha256": "65e7cbb7250138b5662c9297d4b2498252849182a8796e0a86b837e2bbb95cd5"
+    },
+    {
+      "file": "src/app/features/tasks/selectors/deadlineWorkload.ts",
+      "sha256": "c466c9b9c87d3c29a5fd91321984763d0b3c6788e18ce493755064c15e9fd69f"
+    },
+    {
+      "file": "src/app/features/tasks/selectors/employeeDeadlineWorkload.ts",
+      "sha256": "a9fbda22e6b76fc8d15a84764c02e677906c47e9d16bd73fd4dc026f27f96e1a"
+    },
+    {
+      "file": "src/app/features/tasks/selectors/index.ts",
+      "sha256": "c546eab81a0e4b1c95bee5f0d8da54233a3ae1a07d0e4674fc4c2be70912ebc4"
+    },
+    {
+      "file": "src/app/features/tasks/selectors/leaderWorkspace.ts",
+      "sha256": "e13cb7a757607e871e44577aeaf6903a5388e87c64d313b9d89c7c03d4fe610b"
+    },
+    {
+      "file": "src/app/features/tasks/selectors/leadership.ts",
+      "sha256": "c4d9e8143327670fe932970eaea8f3882ed9f2b00f21d99e94fe421b8cf684bd"
+    },
+    {
+      "file": "src/app/features/tasks/selectors/lifecycle.ts",
+      "sha256": "1919e581b08a3d2e8c5b1841838b25deb9666cc0a3921f25924f796203f3a364"
+    },
+    {
+      "file": "src/app/features/tasks/selectors/metrics.ts",
+      "sha256": "61dd42100b9d10e2d2f8559dc7498e4291ca34b6c216704a0fd0f493f0fa04ac"
+    },
+    {
+      "file": "src/app/features/tasks/selectors/scope.ts",
+      "sha256": "bfd565280d5ae6ae7c39ab5c96db674151104f42589fe92ca0dfbde53aaf9f52"
+    },
+    {
+      "file": "src/app/features/tasks/selectors/submissionReadiness.ts",
+      "sha256": "e033d02e4fdd6149c9b88e9ed664cc7cfdfb79a5bd8bb0a84d9ff18620b6d044"
+    },
+    {
+      "file": "src/app/features/tasks/selectors/teamMembership.ts",
+      "sha256": "660ec09d7c9ba9c5fbef6f293a32b67cfb66073727e6c3cd492ab217a7e7b553"
+    },
+    {
+      "file": "src/app/features/tasks/services/leadershipReviewReadinessService.ts",
+      "sha256": "d019396360d78c44a2b320829bf11172558b355e71fc32ee3f5230afeb8ac4e7"
+    },
+    {
+      "file": "src/app/features/tasks/services/taskActivityService.ts",
+      "sha256": "98bd11d102d032c26d1333f96a0202e42e1e0e3e1118fc6f2552cc871e4fdccd"
+    },
+    {
+      "file": "src/app/features/tasks/services/taskArchiveService.ts",
+      "sha256": "9dcbc694721812066ef78b5b4e1ef22a7e61d4f0c2707630ae41a87358305243"
+    },
+    {
+      "file": "src/app/features/tasks/services/taskLifecycleService.ts",
+      "sha256": "7e2dd1b3d6e3f67b718756243d40118c5731a99d2a05f53d93adf3a3443b0d4f"
+    },
+    {
+      "file": "src/app/features/tasks/services/taskMaintenanceService.ts",
+      "sha256": "f17b859378af63c4996d2461852ba7bec203e9a3123f96c0493c9ccaa3e5ba46"
+    },
+    {
+      "file": "src/app/features/tasks/services/taskMapper.ts",
+      "sha256": "94360af98322c96ebf5d42a06ce83e09b9d3659023ddaad92a26cec82cbd212a"
+    },
+    {
+      "file": "src/app/features/tasks/services/taskMutationService.ts",
+      "sha256": "6f0f08997f8944dcb2e4e235e89c27b1e65479733dd3cf0d7a7a25ccef159490"
+    },
+    {
+      "file": "src/app/features/tasks/services/taskRealtimeService.ts",
+      "sha256": "48ba34c2592bad83fcced311907a129cf203b7ea21564d5a53d01a96b599ba7f"
+    },
+    {
+      "file": "src/app/features/tasks/services/taskReviewError.ts",
+      "sha256": "afb9269ea0e8bc9d957eb7196197e1d401ea43081340b2f721268ff6f86bda4f"
+    },
+    {
+      "file": "src/app/features/tasks/services/taskReviewLifecycleService.ts",
+      "sha256": "ed15251382e4c8aaaf3a1113a7a24a7f29b003193cdbaad96082ba618d6be4ed"
+    },
+    {
+      "file": "src/app/features/tasks/services/taskService.ts",
+      "sha256": "13583de594c668248e2678cb97a589788b731bf046827a8d88a74294be034c9f"
+    },
+    {
+      "file": "src/app/features/tasks/services/taskTeamService.ts",
+      "sha256": "577097e97346bdd5c200c30fa59b8232fc9bd9276ddb0ed74550b8d14e1b0898"
+    },
+    {
+      "file": "src/app/features/tasks/services/taskTemplateService.ts",
+      "sha256": "246a95c204f59611784f291e93fbc2ec3bbf6b593b38e6bee2805a0cc1410ef5"
+    },
+    {
+      "file": "src/app/features/tasks/taskConstants.ts",
+      "sha256": "bb709e95a1b03bc8cf863768844aacc0d54e7714c3e955e4af4efcbede591bf0"
+    },
+    {
+      "file": "src/app/features/tasks/taskTypes.ts",
+      "sha256": "1725303e9f57ee5d8fcb696169d9efe55f36e261057f5783e2c1dd40b85c513a"
+    },
+    {
+      "file": "src/app/features/tasks/types.ts",
+      "sha256": "6539530d237762e5e50240dd1be48d7599c576ff99565e9e88d4d840dc9273e7"
+    },
+    {
+      "file": "src/app/features/team-management/components/PeopleWorkspaceShell.tsx",
+      "sha256": "9fac2ed65d486941704f96277d4dad66f1ddd0db6f0f9750c6d2c6817c823922"
+    },
+    {
+      "file": "src/app/features/team-management/components/intelligence/EmployeeCoachingEditor.tsx",
+      "sha256": "6d7ae0b0eeef67ba3252a84707727c08297a49b8d859984f6c45936085981847"
+    },
+    {
+      "file": "src/app/features/team-management/components/intelligence/EmployeeIntelligencePanel.tsx",
+      "sha256": "966b7a5597ff924939cd4e99b32626528d1b8fe9d16986f8e172e5ff0f423e10"
+    },
+    {
+      "file": "src/app/features/team-management/components/intelligence/SkillCoveragePanel.tsx",
+      "sha256": "4677450d4486e07d22c777b915edba573ca8937ff2ee24dd366d6236618d3252"
+    },
+    {
+      "file": "src/app/features/team-management/components/intelligence/TeamHealthOverview.tsx",
+      "sha256": "1e272641e90bb8a0cb45adf53d64e9a181b41417e13451e5e5540ead06ddc1b7"
+    },
+    {
+      "file": "src/app/features/team-management/components/intelligence/TeamIntelligenceWorkspace.tsx",
+      "sha256": "decdf7320825c5b01a1cbf1e750a29a0e4975cf390906efbd9aca8a5953f8297"
+    },
+    {
+      "file": "src/app/features/team-management/components/supervision/HeadIAMWorkspace.tsx",
+      "sha256": "bd3ec9d2deba1ef48ca48313657167005d16d41a3fecf404c96b8343f049a1f7"
+    },
+    {
+      "file": "src/app/features/team-management/components/supervision/OfficeIdentityAccessPanel.tsx",
+      "sha256": "1cc7c3e188cc9b8f1f8bcc6cfc2453c40e1296ffc0a9fc268630aca63342b409"
+    },
+    {
+      "file": "src/app/features/team-management/components/supervision/OfficeIdentityAccessWorkspace.tsx",
+      "sha256": "cfc722dd48c1778af7c7697e347879b50f86ec99efe1ba9f7233a904a79127d5"
+    },
+    {
+      "file": "src/app/features/team-management/components/supervision/TeamAttentionQueue.tsx",
+      "sha256": "1c9fdd79087da806d67a9a99aa2bc01637151a49a55a2ba9dddd3208b9a47f4a"
+    },
+    {
+      "file": "src/app/features/team-management/components/supervision/TeamMemberBoard.tsx",
+      "sha256": "dab45e00966423c51a37c1ddc00ab0efa18a19cf57d565d06aa83249d932aef0"
+    },
+    {
+      "file": "src/app/features/team-management/components/supervision/TeamMemberOperationsPanel.tsx",
+      "sha256": "53d3aacb32c7ba1253248404c13afa6c25b0dfade15719a1d85f515c23b1326f"
+    },
+    {
+      "file": "src/app/features/team-management/components/supervision/TeamMemberWorkPanel.tsx",
+      "sha256": "fbf11c765b6351922130bee9fd4a712f388a146af7fb6d352728974ab7cbdee5"
+    },
+    {
+      "file": "src/app/features/team-management/components/supervision/TeamSupervisionWorkspace.tsx",
+      "sha256": "985726b25c22c6edadba436b217bb143d073bb3a2a635c1b4fd29d325b09c7fc"
+    },
+    {
+      "file": "src/app/features/team-management/constants.ts",
+      "sha256": "36eeb0585879554b4da53843b4800ca54d070d257e271890a0ea33723a24af02"
+    },
+    {
+      "file": "src/app/features/team-management/hooks/useDepartmentTeamAnalytics.ts",
+      "sha256": "63583fa0c3ac9fb8b4faa597425d2f2954c39fa4f8f1c5f9b6c676c7badf2101"
+    },
+    {
+      "file": "src/app/features/team-management/index.ts",
+      "sha256": "16e727e607d830eaa6acddab5f8d5f9f29c393e64f2c201c45ed52a7b529d505"
+    },
+    {
+      "file": "src/app/features/team-management/selectors/analyticsHelpers.ts",
+      "sha256": "4357dc5e571e0b0db9016ac594b9c81d2e92fe3f3636a00a41df33620c315a89"
+    },
+    {
+      "file": "src/app/features/team-management/selectors/attentionSelectors.ts",
+      "sha256": "ec7e393ec4cfbf0dfcb0ca5e7be131ee5cc20216cef919854c876c80f8fe040d"
+    },
+    {
+      "file": "src/app/features/team-management/selectors/healthSelectors.ts",
+      "sha256": "a498374e61b15e7cdef0043e169a571d6fcd53bc0dad39291b81698351f1afa2"
+    },
+    {
+      "file": "src/app/features/team-management/selectors/skillSelectors.ts",
+      "sha256": "f4113662576bb26442c93290ea9bf3894682851996ac8fd67d3e28af534a1298"
+    },
+    {
+      "file": "src/app/features/team-management/selectors/teamAnalyticsSelectors.ts",
+      "sha256": "331e55ac2a5b42e1bd8cb3a95e3feaab42008aa8a626f9387aad4fb1e503a2fc"
+    },
+    {
+      "file": "src/app/features/team-management/selectors/teamMemberSelectors.ts",
+      "sha256": "b221cfb0754e63e1aa90cebfd5d70d1697ff9ed5777f0fd4cf8cf7f44be7e1a6"
+    },
+    {
+      "file": "src/app/features/team-management/services/departmentIdentityService.ts",
+      "sha256": "96822b25141d5f77128f14b48e178fb49795568b59c2d19728190fd801f572c8"
+    },
+    {
+      "file": "src/app/features/team-management/services/teamSupervisionActions.ts",
+      "sha256": "8e291897ed605a5e6bcfd114f76db86215cb63a5e7f714aae15de188ed04f320"
+    },
+    {
+      "file": "src/app/features/team-management/services/teamWorkflowFactsService.ts",
+      "sha256": "6601108bc5b63106401e9bfb41dcc990be2203a79e2a682473fe21604133211a"
+    },
+    {
+      "file": "src/app/features/team-management/types.ts",
+      "sha256": "2176d2b7aa477f29d8997c21b5a3c04529db485945d839a35712b06b810c7332"
+    },
+    {
+      "file": "src/app/features/work-templates/components/ProjectTemplatesModal.tsx",
+      "sha256": "f69eff2293f43ce5f6dc496f5606c9e3054b31b2af227f24c221094564a57d74"
+    },
+    {
+      "file": "src/app/features/work-templates/components/SubtaskTemplateApplyDialog.tsx",
+      "sha256": "69ccfa36067dd2fde594d4e9e5d80b44cef02f4d446d7c174f70ebd9084766a8"
+    },
+    {
+      "file": "src/app/features/work-templates/components/SubtaskTemplateEditor.tsx",
+      "sha256": "f0a10b5459c756db50e7d2d872a79e1fb6f0443d6d7506129a7c449effd53f41"
+    },
+    {
+      "file": "src/app/features/work-templates/components/SubtaskTemplateLibrary.tsx",
+      "sha256": "a8318f62e78dd12c28376e8d258d4b88f924fca16179c6c71fa611976c5c3fe8"
+    },
+    {
+      "file": "src/app/features/work-templates/index.ts",
+      "sha256": "5b1a9e3e77348dedf606dcdab21014cd8782ef6757698ecc21279045af9a1bc4"
+    },
+    {
+      "file": "src/app/features/work-templates/selectors.ts",
+      "sha256": "e199b359d9bb4f91064d9a89afd7a947ad7d9d96079c48c28dabb8fb1d6de589"
+    },
+    {
+      "file": "src/app/features/work-templates/services/subtaskTemplateService.ts",
+      "sha256": "5bb34b8312374664ddcb09a3d872bca493b80e62738923c96a9baaacbe509c3e"
+    },
+    {
+      "file": "src/app/features/work-templates/types.ts",
+      "sha256": "429a2c9d700060f76b949a3d9a31c453c4b5a1fc948caeb50eaa8492d72b74c1"
+    },
+    {
+      "file": "src/app/hooks/useCurrentUserTasks.ts",
+      "sha256": "18a9ee92ac81ff35a7519b426c9e1da2201b9bce65c3d58d6d3ffee8943ecee0"
+    },
+    {
+      "file": "src/app/hooks/useFirebaseData.ts",
+      "sha256": "6a46b4c0fcc73274895bcdb8db2e3db0b5e9cd1fa9cc51ae165f7017b1c53356"
+    },
+    {
+      "file": "src/app/hooks/useSupabaseData.ts",
+      "sha256": "02018fe3076c78d15013f7938baee5b054aa7e5b4720a2c031d4501080c42dd1"
+    },
+    {
+      "file": "src/app/services/aiScoringEngine.ts",
+      "sha256": "2adbb6e59e3c6ea7943c35b0fbd37dd1e9923ba415a8958a1cba9468d0a6b722"
+    },
+    {
+      "file": "src/app/services/announcementService.ts",
+      "sha256": "6c07e1ae6f581cf65fd771dfa3c6b7ffc31fcf62dcc81dd9b07e19dde33eef4a"
+    },
+    {
+      "file": "src/app/services/auditService.ts",
+      "sha256": "e4b1ab099e6c589fea19a93af0e897f69b27f2b0702ebaef4732616b949dbf60"
+    },
+    {
+      "file": "src/app/services/callService.ts",
+      "sha256": "7b720afbff344356333c2ece37deaaf3e0d617a515ec9bc5df788bf8e9c6da1a"
+    },
+    {
+      "file": "src/app/services/chatService.ts",
+      "sha256": "29a65bcc87a8b96cfcdb96fdb92002d8d00d48cb7b83516c54fee642dcdca128"
+    },
+    {
+      "file": "src/app/services/eflowSeedData.ts",
+      "sha256": "b784727be60e5b30ef48f07dd463f74be248e69cdc9184c33733abc921a0ae22"
+    },
+    {
+      "file": "src/app/services/employeeNotesService.ts",
+      "sha256": "33acecabc9d7aa0dede052ea7b5de19fe47c8a69dc6effec6851c821f5083b25"
+    },
+    {
+      "file": "src/app/services/employeeService.ts",
+      "sha256": "144b1b7da98b197f585114e7e475ce258e96c246a7fe6053fc3bbf7da0add178"
+    },
+    {
+      "file": "src/app/services/llmService.ts",
+      "sha256": "0f8cb9d5fdf5705facce0f0f44659a1ee96ee214b88918667e943827aba273cb"
+    },
+    {
+      "file": "src/app/services/notificationService.ts",
+      "sha256": "1b89cd064a2b202dbb03a809561a0a7eb0ddf0782069f6cfa3390ffa9e0d71e1"
+    },
+    {
+      "file": "src/app/services/pdsParser.ts",
+      "sha256": "e56163b7793204c38c565c17e4ccfcf5fd95f9b1c166b7c109274de66b5ef791"
+    },
+    {
+      "file": "src/app/services/permissionService.ts",
+      "sha256": "93c9ccdbe836f2086e26e8b472d4d459492c32afe78c36bbf1acdd5614bcdb97"
+    },
+    {
+      "file": "src/app/services/projectService.ts",
+      "sha256": "950ff43785ddb328f04a4bd704eab01ab2381a2d3aab647f7aa90c5feffe7e72"
+    },
+    {
+      "file": "src/app/services/proposalDecompositionService.ts",
+      "sha256": "4f7e89cd0df270bd4836face5ddbbdec6b1089c312f8fcd6db69b77f3e565c35"
+    },
+    {
+      "file": "src/app/services/reportService.ts",
+      "sha256": "4ff67d78dc77a95e92807fc206bbe8b6fa922024db49af428be74658ad69f20b"
+    },
+    {
+      "file": "src/app/services/subtaskService.ts",
+      "sha256": "87360bbbdd032dea415071e05376d4801f7fce9a3d1d3b6fe8bd00d0fdbc9ef2"
+    },
+    {
+      "file": "src/app/services/taskDiscussionService.ts",
+      "sha256": "b40d989ed305eff64065abf2d0f74ce49a58a0c0190d9066d1b2036131c2e296"
+    },
+    {
+      "file": "src/app/services/taskSelectors.ts",
+      "sha256": "10db9ec5cc1f887f06e5a1955302b167f0f5ede78ac5769de83d51289819c548"
+    },
+    {
+      "file": "src/app/services/taskService.ts",
+      "sha256": "3fa3e2cef8728443fd19531a83148e5103d9fc3789fb86a3614b118a6a631cd3"
+    },
+    {
+      "file": "src/app/services/userSettingsService.ts",
+      "sha256": "110ef6705d4d32cb5037a05687a6c0f6f3831d25cc3bf479b84dfdd77106620d"
+    },
+    {
+      "file": "src/app/services/workflowService.ts",
+      "sha256": "194fab44ee8a741d3edcd017bffe8da2658996608b565fc6b7d0a2ca74fd89b4"
+    },
+    {
+      "file": "src/app/shared/controlPanelClient.ts",
+      "sha256": "e3f41f857a3ddc9c7479aed48269fe83f864c5d4ee9abffb387e46eca3687ba8"
+    },
+    {
+      "file": "src/app/shared/motion/EflowMotionProvider.tsx",
+      "sha256": "5bda148e371c70e23afb3a2ef7493c865d44cd5be6efe95ba8bdbefa8f5ef4fd"
+    },
+    {
+      "file": "src/app/shared/motion/InspectorPanel.tsx",
+      "sha256": "be893a50056b2f26429b891bce9205ff04561a7bbaaf1f6400cf0cbab7db87dc"
+    },
+    {
+      "file": "src/app/shared/motion/index.ts",
+      "sha256": "71868cf196d9f20e1b371581c211eb53569db6842c128e1834d7527a83fb2133"
+    },
+    {
+      "file": "src/app/shared/motion/motionTokens.ts",
+      "sha256": "503ee297c15d0193c6e73921a10a440a831cf4d20a5a590b5f888fcc73c10b02"
+    },
+    {
+      "file": "src/app/shared/navigationLock.ts",
+      "sha256": "df2f9f8aa3ab7de42c2e981e549b00494dc0468fa324cb56348d3ae7c88333e5"
+    },
+    {
+      "file": "src/app/shared/organizationLeadership.ts",
+      "sha256": "79ae839c006c969e937f4f58dd3bc0e6e908f4e71c8e799e9d3e2e773abb76c0"
+    },
+    {
+      "file": "src/app/shared/phase2Api.ts",
+      "sha256": "62b001565507beeb36b56dbe4806414ec730b5a9584885911fb7e41e126485ea"
+    },
+    {
+      "file": "src/app/shared/polygonClient.ts",
+      "sha256": "fa454b35ea579773020fc38fb3e606f32e3c08c855f9b9d2db79f7093c33799b"
+    },
+    {
+      "file": "src/app/shared/pygadClient.ts",
+      "sha256": "090d2cc750b0834ce87abf9693610059b663c3c3ef902f089d2ea7f0d9712dcd"
+    },
+    {
+      "file": "src/app/shared/quickLoginAccounts.ts",
+      "sha256": "4ae2f9554abed59d06ac22636936425661ed497472196d3ab4c361c7971397f4"
+    },
+    {
+      "file": "src/app/shared/roles.ts",
+      "sha256": "dbc34e7bedf89f1c12561fe8ddaa2f860a5f72e70195a2c9c5903951b837528c"
+    },
+    {
+      "file": "src/app/shared/scheduling/relativeSchedule.ts",
+      "sha256": "9b173fd85972a123761146a0f940d8c358eed0412c3fa4c6066b2b2e18f081e3"
+    },
+    {
+      "file": "src/app/shared/vibe/EflowVibeProvider.tsx",
+      "sha256": "b16de0b214ffa0f4b06cc041d12c2f8922618623a680e757b4faa73e0a76472d"
+    },
+    {
+      "file": "src/app/shared/vibe/eflowVibeTheme.ts",
+      "sha256": "90c5e4094f0b48257b24d31f1f7208228fd0539a06a1161bd1ec73294c347ab6"
+    },
+    {
+      "file": "src/app/shared/vibe/index.ts",
+      "sha256": "a246f429d6eb26e6101a0f8584f801c03baed97222380104d1dd3c84e4400bea"
+    },
+    {
+      "file": "src/app/types.ts",
+      "sha256": "8aa1cc4499c756708a06155ab8c2586e8ddf095d57ded28cc922357cd0fbddca"
+    },
+    {
+      "file": "src/components/EFlowMark.tsx",
+      "sha256": "8d8052d61903efc77bbe298780453b9e837a6b57b8ecbb6bee20f6424165932e"
+    },
+    {
+      "file": "src/firebase.ts",
+      "sha256": "19b1e3f5484678264bf6aaacc46ca7720a95bb220f9c19411abea81fb0a24cce"
+    },
+    {
+      "file": "src/lib/supabase.ts",
+      "sha256": "abbe90396dd2b3b1d0b517b21d5a95c03d34cbb26d0fcff3fabba2111871ef70"
+    },
+    {
+      "file": "src/lib/supabaseService.ts",
+      "sha256": "dcacd8ebd9d829d7268cad56228ca3825b11de5e6327dc7d3ad0cb0d04d63aab"
+    },
+    {
+      "file": "src/main.tsx",
+      "sha256": "4bcc6a429f4a4df5ec509d7da60e3e5d4265a8eb80354bf706dacb3b56ec5c4c"
+    },
+    {
+      "file": "src/pages/Login/Login.tsx",
+      "sha256": "9cb28f45981dd0975e049c7d76dc1596be12f5fba29c0316777e25a2061d8fad"
+    },
+    {
+      "file": "src/pages/Login/UsageScenariosModal.tsx",
+      "sha256": "83462296b839eb5f91abc080b67798e967043c51e06a612bb5eafbb98b52625a"
+    },
+    {
+      "file": "src/pages/Login/components/EFlowMark.tsx",
+      "sha256": "812ade546f296c84509bb40f2a6254d437b3783430b6aa1eb477a2a29eb11253"
+    },
+    {
+      "file": "src/pages/Login/components/LivingBoard.tsx",
+      "sha256": "7f14caeb8b5cb3bba5d67c9a4eaef7f71023e927add8cd109316c1a8a798a55f"
+    },
+    {
+      "file": "src/pages/Login/index.ts",
+      "sha256": "2f05caae301f3b4807ebf3ab841b06fdc3406133e89c87da08554905e0d1b291"
+    },
+    {
+      "file": "src/pages/Login/motion.ts",
+      "sha256": "1c80bb17d6e12de46010b26ce1ff57f9093ed82d1ff5dc0be587ec01d6b643f7"
+    },
+    {
+      "file": "src/pages/Login/useLoginForm.ts",
+      "sha256": "ef131cb53a47a96285059f13c93b18cd00e1645432e1c6312c460580d3316e81"
+    },
+    {
+      "file": "src/styles/default_theme.css",
+      "sha256": "0e3209ee34df1eca1705aa5652ef2834992bdd6e9c40e07a808e196424877fe0"
+    },
+    {
+      "file": "src/styles/defense-revisions.css",
+      "sha256": "2fbc28c2e9e0c806219b56654dca144aed38de63fcd87453df731cb3e447395e"
+    },
+    {
+      "file": "src/styles/globals.css",
+      "sha256": "9c6a7fb3084ad32f75621ddd431e6afa0fa3cf9e28f6ec6b4f0a35c0488b2162"
+    },
+    {
+      "file": "src/styles/index.css",
+      "sha256": "8316a5307b36e78130634d06fc65131b347cbcdcb59090b07b46f543f66f7c6a"
+    },
+    {
+      "file": "src/styles/workspace-foundation.css",
+      "sha256": "5af2b3bd7a2661527af047c884ff4f903d3274908d45d627abfd49f2372fae89"
+    },
+    {
+      "file": "src/vite-env.d.ts",
+      "sha256": "424faf9241dd699dda995b367ed36665732da1e6ec1f33b2fd40394488ecac92"
+    },
+    {
+      "file": "server/gateway_config.py",
+      "sha256": "38039c17bf6894591fa75e8e2fdb33d9e5f3766418b930b601e6c6f9959c331f"
+    },
+    {
+      "file": "server/gateway_dependencies.py",
+      "sha256": "613a22cca79da9bf64c1254ac8b6ed00a5b5ff480e4f7128005964832b0d30e0"
+    },
+    {
+      "file": "server/invitations/__init__.py",
+      "sha256": "c33592fc68bdec1d884ac4a4540dd4fc6a73d52d4c719415c9355b381dc44bc5"
+    },
+    {
+      "file": "server/invitations/local_offices.py",
+      "sha256": "78da0a0b53b58e4983c3f2ee031c506df45fa14f15ddcd958e7212be83ebe2f5"
+    },
+    {
+      "file": "server/invitations/service.py",
+      "sha256": "9902dd4743a41df4aa4f142f642b865f1fda5f78c863be4d19aec2400069b4ae"
+    },
+    {
+      "file": "server/main.py",
+      "sha256": "e6591b6aa1c4c90348d7ff7454b3aa718c216c5db1fe2631ac64bcf384ae30ca"
+    },
+    {
+      "file": "server/pds/__init__.py",
+      "sha256": "a3648a1c388760d3fac1f4f193614535c3e27c1af991758fa4b010dea5da92a3"
+    },
+    {
+      "file": "server/pds/parser.py",
+      "sha256": "c688eb15c28a8180a7f4ae1aebe0e18fe623178b5a529e305d9dc006529b99c2"
+    },
+    {
+      "file": "server/pds/worker.py",
+      "sha256": "93e63d8900b1b696030f1a26be7ea9db4e8e52d0a1f79882e865d0e6f6e6faed"
+    },
+    {
+      "file": "server/routers/__init__.py",
+      "sha256": "a9de3137a5534198d351905097e9354d1f1ba8af9efbb6ac828ffd7f1110b6bc"
+    },
+    {
+      "file": "server/routers/admin.py",
+      "sha256": "77295585c4c603abba2ab8ba82d7ac1433b9f9707ed6ca8d5acb7fc72aef7e0d"
+    },
+    {
+      "file": "server/routers/ai.py",
+      "sha256": "d0ceca157bbd2dc82e155dcc13f421fb231a4499ee966d79c16754f5e65fb1d5"
+    },
+    {
+      "file": "server/routers/backups.py",
+      "sha256": "bdadf764ccc2785dd87ee44afd4bea36f66f528fcf52a96c62a4cd3906bb6f37"
+    },
+    {
+      "file": "server/routers/collaboration.py",
+      "sha256": "113da0f184cc4f09d3215c7ee025902ef8e4a10999e78db0e47f655ebf7a5cde"
+    },
+    {
+      "file": "server/routers/invitations.py",
+      "sha256": "483cc0b2dcc420287ccfb3703aa6438f6bf393a972029b5b1055d788badddc43"
+    },
+    {
+      "file": "server/routers/notifications.py",
+      "sha256": "13bbc955663111c3451399b98ecb772740c8e7f4e321b7ff010f0368a5073d9d"
+    },
+    {
+      "file": "server/routers/onboarding.py",
+      "sha256": "df32823f6ef5bc94a619416e60f9951fc8328136b52f524e2960afc64df19666"
+    },
+    {
+      "file": "server/routers/professional_profiles.py",
+      "sha256": "adecd0810bdc62889c2b3d3d69bca868d2492bcad6dd5483656c696c133299a2"
+    },
+    {
+      "file": "server/routers/proposals.py",
+      "sha256": "21ca5dc714128e1062551f6bee5cf57b27a7b8cc211febda5dda64cd7f254066"
+    },
+    {
+      "file": "server/routers/staffing.py",
+      "sha256": "c836af574aab8f380aebae35fd3923e9916b8f01288bd6613895e6db122db81d"
+    },
+    {
+      "file": "server/services/__init__.py",
+      "sha256": "c4b12b9db9a813523becd2b3b9db219e355021e93e1e0491522aa3efec01eef1"
+    },
+    {
+      "file": "server/services/account_roles.py",
+      "sha256": "6823e6e12a980585c8b15f8ed55000ee9899dbae2336fdf3b9b9131511647583"
+    },
+    {
+      "file": "server/services/administrative_roles.py",
+      "sha256": "e0246f68215d35e8c7e05a880d636717cbdc8303c9b81c92100758031e9dee3d"
+    },
+    {
+      "file": "server/services/backup_manifest.py",
+      "sha256": "fe7ae45ed1a9583f223358f205898b635ac461a15c6b3a66ed5659aa3e40bc05"
+    },
+    {
+      "file": "server/services/backup_security.py",
+      "sha256": "c183bd70c4ec5b3bc441b603d483bdfdb1ffdb22cd76706ea55f93108085d9d7"
+    },
+    {
+      "file": "server/services/backup_service.py",
+      "sha256": "007a71d03bafc26e2daba9b82a6eaeb4c51f5f33396c4b6fc37d1ad7777ad4c0"
+    },
+    {
+      "file": "server/services/collaboration_ai.py",
+      "sha256": "914d7af3f2e144622e37b4c494d2510b0a9ada6774de5d1a8738d27b419cbdd2"
+    },
+    {
+      "file": "server/services/deadline_workload.py",
+      "sha256": "f8255d9718ce09cb0dcf7c53497770bedf5ea642865623f49ed375ac16211d4f"
+    },
+    {
+      "file": "server/services/email_delivery.py",
+      "sha256": "7bb5c75e32b77db034b158599452b9be58d905eacb30af75134c128deee2cb98"
+    },
+    {
+      "file": "server/services/phase2_config.py",
+      "sha256": "93291f3f4ad3a6369bf6071e43558a7f4f18ff6dec19f6d4fc6ab1ef05d9ae4f"
+    },
+    {
+      "file": "server/services/recent_auth.py",
+      "sha256": "ca377cad52c442fa0efbf3074dae7986af6f1ca35643ad1c89fcaf89f9ebd2f5"
+    },
+    {
+      "file": "server/services/staffing_context.py",
+      "sha256": "01e3b07de69808209a5495d224b49b5023fc946f8c49637c87802dc534b7e102"
+    },
+    {
+      "file": "server/start.py",
+      "sha256": "c0d8e4472ecac3f513bf03981b55a82905dc6d87b14a08530c3658e77ba53418"
+    },
+    {
+      "file": "server/start_ai_tunnel.py",
+      "sha256": "3f0cf5c9a63c12da2d736403250c1b2ff3324d90d9beaf9fb4deaaae5eb3a299"
+    },
+    {
+      "file": "server/tests/test_admin_unification.py",
+      "sha256": "771ac7b33d2a4b4b11bc2e7246a13cba5c08dcbea90a51775f5505eae2b1ed1b"
+    },
+    {
+      "file": "server/tests/test_backup_helpers.py",
+      "sha256": "eb4877d5740b5019f79466a626e3d7b2e05c1d05f3d8e416a518e95482420b0e"
+    },
+    {
+      "file": "server/tests/test_deadline_workload.py",
+      "sha256": "b04f9dfd689b3f6c857c7f7c3dbb2d0632993e8682a8d2bb4e3bd52b2309e352"
+    },
+    {
+      "file": "server/tests/test_phase2.py",
+      "sha256": "0538cb944631eedc20134310d86e51d165d35b8ed4944c1f4caa21de09ada6b9"
+    },
+    {
+      "file": "server/tests/test_phase5.py",
+      "sha256": "654d65ee04830a09fbe423e2d1fb1718eefd38a52f00e5516a5f3457c34d1d01"
+    },
+    {
+      "file": "server/tests/test_phase6.py",
+      "sha256": "0cb4fab0b5469893a6001b326e866082a0d0e2cd474d24d01d1fc71b3727caef"
+    },
+    {
+      "file": "server/tests/test_phase65.py",
+      "sha256": "6ae416918049d5cf506671ec97e60599f003efb35192e8be056d6bac34cde754"
+    },
+    {
+      "file": "server/tests/test_phase7.py",
+      "sha256": "01a2525f716d60ba6054e3e9ce3129f14fe006b3e5dfa86bf5388222ac4853cb"
+    },
+    {
+      "file": "supabase/migrations/20260711000000_personal_settings.sql",
+      "sha256": "865444e3fb1659bc059a427aafbb68edeb3bace483e71a534c5e9b13e7af4cfa"
+    },
+    {
+      "file": "supabase/migrations/20260712000000_core_workflow.sql",
+      "sha256": "2d62bc671853137b2ff8d9e79580b492a8c45d3ee9b662e710d3eefd13b284e0"
+    },
+    {
+      "file": "supabase/migrations/20260714000000_fix_projects_rls.sql",
+      "sha256": "46b746812d2870d8c1db51c2bc6198679d2ad2c94445cec30d29293d79c1ab10"
+    },
+    {
+      "file": "supabase/migrations/20260714000001_fix_chat_membership.sql",
+      "sha256": "aacaf845c761fb3d79766326fa103b67f233869af657074ac8a2cedf3e2a60b2"
+    },
+    {
+      "file": "supabase/migrations/20260715000000_task_lifecycle.sql",
+      "sha256": "177ae022c66e23859374a6d9ffe2cb82226f477ece20815615b6674da7196dac"
+    },
+    {
+      "file": "supabase/migrations/20260725000000_workflow_consistency.sql",
+      "sha256": "65d813c12aba18b3ae2706410e67de6b8c3263a52ac75e1165d76cd03cd9f56c"
+    },
+    {
+      "file": "supabase/migrations/20260807000000_task_review_hardening.sql",
+      "sha256": "1fced15f8feaadf850445b1e4c83ac179818c945eaa1ffa731b370cbc0783079"
+    },
+    {
+      "file": "supabase/migrations/20260807000001_task_planning_enhancements.sql",
+      "sha256": "79b336b9c24354e43f00720735a6e01fd957af3a0d1b3412e230d62fe609ace1"
+    },
+    {
+      "file": "supabase/migrations/20260807000002_recurring_task_templates.sql",
+      "sha256": "98b98e64216f79846dc37d11a7f326055257d94b0e52dcfb8e89025d8bbb3e7c"
+    },
+    {
+      "file": "supabase/migrations/20260807000003_ai_runtime_realtime.sql",
+      "sha256": "97472f28906aeac2c1212a666e636c550c21107a7d0068c6ca5835abaebc7687"
+    },
+    {
+      "file": "supabase/migrations/20260814000000_assistant_head_review_routing.sql",
+      "sha256": "2f7a0bbcf0ffbdae4753df94fb0e539d89a61b6c6c57cecacd49bbd009f3ee9d"
+    },
+    {
+      "file": "supabase/migrations/20260815000000_project_creation_rls.sql",
+      "sha256": "294e03a0fde2e8e3dc1666037b3ef48854b3c26ffaf833aebb7e41e3631639cb"
+    },
+    {
+      "file": "supabase/migrations/20260815000001_atomic_project_creation.sql",
+      "sha256": "d2d8432049382ab110fc538406d9501ddfc41f3e61d74187de11006321a1abe8"
+    },
+    {
+      "file": "supabase/migrations/20260815000002_atomic_task_creation.sql",
+      "sha256": "c41d72bdffb4b096026b73474b5042a40c2cf49990f4e562bfcdb548ccaeebfd"
+    },
+    {
+      "file": "supabase/migrations/20260815000003_restore_review_decision_rpc.sql",
+      "sha256": "3a34bfedbfd017e3ca7bdc9e6ef4c2213825ae4559c5101c79526a3a4d870fd0"
+    },
+    {
+      "file": "supabase/migrations/20260815000004_fix_review_audit_hash_extension.sql",
+      "sha256": "f0dea5e7de6bb1f6ffedffd00407a3757bb48f84fa4362e365c2f2bd85e8e612"
+    },
+    {
+      "file": "supabase/migrations/20260816000000_project_deletion.sql",
+      "sha256": "f41a0d27b949e1680198c47668f034e126e7174b915eaf7d0f8b80afdf9728df"
+    },
+    {
+      "file": "supabase/migrations/20260816000001_subtask_evidence_review.sql",
+      "sha256": "13451ca3d91e0a0b0e29d2cd1467b387308ccc506d4528b58771e5cecdd53797"
+    },
+    {
+      "file": "supabase/migrations/20260817000000_fix_task_chat_uuid_members.sql",
+      "sha256": "5340bf7965b4cffedba25aa192313ab661facdccb6ecef9f241978ffbe5f819b"
+    },
+    {
+      "file": "supabase/migrations/20260817000001_normalize_subtask_assignee_ids.sql",
+      "sha256": "5781eb3e7d32ae27449a394bb93de45b98c22db20b0d47850d2c5e0e93e1a988"
+    },
+    {
+      "file": "supabase/migrations/20260817000002_subtask_progress_leader_notifications.sql",
+      "sha256": "f18aebb0302d82627a0c1087c9557dfdb42ee412093a53e170b5fd8cd075d11f"
+    },
+    {
+      "file": "supabase/migrations/20260817000003_work_template_library.sql",
+      "sha256": "2753d8f67ab2421c011a6f4eeb9578b38a0d8832562263683d436f8b40fbe092"
+    },
+    {
+      "file": "supabase/migrations/20260819000000_sir_gerson_access_control.sql",
+      "sha256": "11839e5b504eb4cbbd6d4bacf0beeac5277584cc0103fefc29f78aa761a230a4"
+    },
+    {
+      "file": "supabase/migrations/20260819000001_ordered_subtasks.sql",
+      "sha256": "e5a2f18803cd91de1f788d8e0e5558b0819d0e470374c5bc2dd520266fb44a06"
+    },
+    {
+      "file": "supabase/migrations/20260819000002_monthly_productivity_leaderboard.sql",
+      "sha256": "30764870f99b91e76c5f485a1ae679d3c6b45d8b804a5816a56cf2e9d4c31956"
+    },
+    {
+      "file": "supabase/migrations/20260819000003_fix_project_deletion_task_links.sql",
+      "sha256": "1d5765b6e72bc87f617ab2bff8aa85b8fa13b0a966a34b5ddbdfe405ca1bc873"
+    },
+    {
+      "file": "supabase/migrations/20260819000004_subtask_execution_dependencies.sql",
+      "sha256": "cbf8abf6e3915371645967133dc3d7ccf8887a76f325b54c83ff1e8043819549"
+    },
+    {
+      "file": "supabase/migrations/20260819000005_proposal_portfolios_and_unique_leadership.sql",
+      "sha256": "c45e31770de0cb0d9448052b904fb70bde9c3eab336a3ffa050f93b9e8e510be"
+    },
+    {
+      "file": "supabase/migrations/20260819000006_super_admin_project_read_only.sql",
+      "sha256": "7476824f3443cc73dd7df137ae49e5acb28e69e2d2723f041b815a0d6326bc25"
+    },
+    {
+      "file": "supabase/migrations/20260819000007_super_admin_task_read_only.sql",
+      "sha256": "6e183ab195f3af374deb07231e124809f404e7961a148b39c9b56cf9a39da270"
+    },
+    {
+      "file": "supabase/migrations/20260820000001_hierarchical_deadlines.sql",
+      "sha256": "f83585d37f3c608a24acf6ac32d0e45b1eb1c2b82398973ed0aa1593cb623362"
+    },
+    {
+      "file": "supabase/migrations/20260821000000_collaboration_organizations.sql",
+      "sha256": "aa4ea0ca98d446505ea1a2c70eeeea8a2ae563ba288be82cab1519dda3fa2d12"
+    },
+    {
+      "file": "supabase/migrations/20260821000001_collaboration_drafts.sql",
+      "sha256": "9518079e0b1b14748412ce68decc044fd83009642c625b06a5ce7397bc75a42c"
+    },
+    {
+      "file": "supabase/migrations/20260821000002_collaboration_security.sql",
+      "sha256": "d26a161a38eb72bf5882bd02a7431264cb4e1b71ebb497fd2bf9ff452a924190"
+    },
+    {
+      "file": "supabase/migrations/20260821000003_collaboration_runtime.sql",
+      "sha256": "8fcf93682615d53f3fd62b38f5f2512640723e55c60ba1e1f5b79048e94ead24"
+    },
+    {
+      "file": "supabase/migrations/20260821000004_collaboration_commit.sql",
+      "sha256": "eb9d3921577ac7664ffd16a0e7f0396ac5e5c264e5f16af25b5e1156232da228"
+    },
+    {
+      "file": "supabase/migrations/20260821000005_collaboration_owner_auto_accept.sql",
+      "sha256": "0db55c064f57d0d339d2be05fdc3a6e51eeb14aa3e5d39e587767f835957953d"
+    },
+    {
+      "file": "supabase/migrations/20260821000006_task_team_removal_guard.sql",
+      "sha256": "78f206fcbc033f14e07b3a842cc2dff3f2693224fefadc9adcd5d77514efd743"
+    },
+    {
+      "file": "supabase/migrations/20260822000000_fix_task_team_assignment_array_types.sql",
+      "sha256": "cda2b09cd42a9d3f18de6d7d76dba424424b5424fb6831374d06182294e1aea6"
+    },
+    {
+      "file": "supabase/migrations/20260822000001_scope_organization_leadership_to_direct_members.sql",
+      "sha256": "fa6b82609ff737d0801adfd57a1c4e15b197d9e49c9d19e77f85fdf3d241a4c5"
+    },
+    {
+      "file": "supabase/migrations/20260822000002_governance_delivery_lifecycle.sql",
+      "sha256": "49d998f37795946fd80c839400f56e04f10759a9768d66833c15d3c9e8b827cb"
+    },
+    {
+      "file": "supabase/migrations/20260822000003_governance_approval_routing.sql",
+      "sha256": "754fe2edf869aaf484cd2b056dafbccf7a8755d8331aa419a9fc7b8bbe49b7e6"
+    },
+    {
+      "file": "supabase/migrations/20260822000004_task_governance_routes_and_storage.sql",
+      "sha256": "4de24b7b36797859e8e049cd0ba27740236f76e3e8714f96379eb53380184cc2"
+    },
+    {
+      "file": "supabase/migrations/20260822000005_advisory_collaboration_autosave.sql",
+      "sha256": "de9f02f6a8e96c362e2d0f73669b2e8d49b96962205ad7ba66ada1d9074d0103"
+    },
+    {
+      "file": "supabase/migrations/20260822000006_fix_interdepartment_department_review_routing.sql",
+      "sha256": "b3607b282b34a0c5a035dbb27a771d44ebecf8d76507682f2e62d505335b4720"
+    },
+    {
+      "file": "supabase/migrations/20260822000007_inherit_activity_responsibility.sql",
+      "sha256": "a27fff41779471f5cdbb7428fa73185910c17754c6785dff10dec6d0457bd01f"
+    },
+    {
+      "file": "supabase/migrations/20260822000008_department_budget_and_petty_cash.sql",
+      "sha256": "84e5a77ad7fc59a76cb6575211ebd86b3f4053308fe386a1918ecb7e278edfda"
+    },
+    {
+      "file": "supabase/migrations/20260822000009_single_department_publish_flow.sql",
+      "sha256": "905cc34df85eba605def2fa44ece8ca409965fc3bac56b1cc7830f67036afd26"
+    },
+    {
+      "file": "supabase/migrations/20260824000001_department_proposal_budget_enforcement.sql",
+      "sha256": "1e177748a9d94e8760068edf3207bffcc48e76af8e19cb9e6b829517528257c7"
+    },
+    {
+      "file": "supabase/migrations/20260824000002_owner_department_budget_for_all_proposals.sql",
+      "sha256": "68be0be6da5c9346d6d52ed85b8f1fb5ba1ff0e60987dfe2235cfbf8a9ceeb1c"
+    },
+    {
+      "file": "supabase/migrations/20260824000003_fix_governance_delegate_assignment_columns.sql",
+      "sha256": "fc96eda102ea2d91766651e1d021c010316077659585bb4792ddbb4140a78d75"
+    },
+    {
+      "file": "supabase/migrations/20260824000004_fix_employee_department_budget_access.sql",
+      "sha256": "5bb8bbb61210f0d1df840ccc76dc37be1c4957471d054a0a815b324b04518e5c"
+    },
+    {
+      "file": "supabase/migrations/20260824000005_normalize_proposal_task_leader_membership.sql",
+      "sha256": "5a8316c0a5d6a90d76c1172b8e0dba66fc623790fd6076b9b2be8427af6b8978"
+    },
+    {
+      "file": "supabase/migrations/20260824000006_publish_latest_department_proposal_revision.sql",
+      "sha256": "634f3abac3aa06f322a2454af0e367c32233f577c99439050573b7676c91e324"
+    },
+    {
+      "file": "supabase/migrations/20260824000007_task_budget_daily_petty_cash_workflow.sql",
+      "sha256": "51031cb6fdc85db11469266bed80b5215b2be5dffb099c2e44c1097cf2297ce0"
+    },
+    {
+      "file": "supabase/migrations/20260824000008_budget_controls_and_resubmission.sql",
+      "sha256": "698b6efec34319963f04ffa72bf3bde520d1d6f663975e97e5d50e7e166d8b31"
+    },
+    {
+      "file": "supabase/migrations/20260825000001_subtask_budget_distribution_guard.sql",
+      "sha256": "c51b2d3c7e5db07d96ff6701e466258f9a3a11378c089d903a611eb9fbcb6f21"
+    },
+    {
+      "file": "supabase/migrations/20260826000001_fix_subtask_budget_allocation_fiscal_reference.sql",
+      "sha256": "b00205a178c4dbb178cbdf6381710fbb2cca1d584a74710e49c6c0f8def231db"
+    },
+    {
+      "file": "supabase/migrations/20260826000002_task_leader_only_subtask_management.sql",
+      "sha256": "cdfb0f3e60cc1ec9c054e81f398ce84eb0216a57fb10c6eb3780f38c69a0cc07"
+    },
+    {
+      "file": "supabase/migrations/20260826000003_dynamic_task_funding.sql",
+      "sha256": "4ae60d91414e02f03ef4e650aa91d4a8623907c0403a53330e2402bcd5cbe798"
+    },
+    {
+      "file": "supabase/migrations/20260826000004_release_correction_holds_and_notify_reviewers.sql",
+      "sha256": "1e32e6886591f822a7dcf59fc4cf6c75372551279198758b578db14583447df1"
+    },
+    {
+      "file": "supabase/migrations/20260831000001_task_evidence_security.sql",
+      "sha256": "66154f71fadd1a091efa830d1183f2e0d017d7bdccc2c9358d50203f365bfacc"
+    },
+    {
+      "file": "supabase/migrations/20260831000002_cash_release_schedule_override.sql",
+      "sha256": "ac5d1c65cac30cefcb405b95f99dcad5df47b2e2543d95e6d92a18cf30717a77"
+    },
+    {
+      "file": "supabase/migrations/20260831000003_project_completion_lifecycle.sql",
+      "sha256": "2d4bf3e54d53a793e8516d9fa2432e1dffe6a77cdfae038921422256fb469341"
+    },
+    {
+      "file": "supabase/migrations/20260919000000_phase04_phase05_accounting.sql",
+      "sha256": "076177ef042a1df13f614bdde66cf4fbbf6f314f3b0a71c46e4fdd35b4bbb0aa"
+    },
+    {
+      "file": "supabase/migrations/20260919000001_fix_draft_budget_task_link_whitespace.sql",
+      "sha256": "c267fae6650f18121363280f8d252661110002b9f022322a834515c0801ef3fb"
+    },
+    {
+      "file": "supabase/migrations/20260919000002_fix_accounting_release_request_alias.sql",
+      "sha256": "d39162f1b3a4f4bd20a359a1599822d00e9ff37379494fd042c8dfc2b49ef839"
+    },
+    {
+      "file": "supabase/migrations/20260919000003_accounting_release_schedule_override.sql",
+      "sha256": "d4bacbd4682dc2bea39561e0d55856b5f529b923f710f17a19f79d9577ef4fce"
+    },
+    {
+      "file": "supabase/migrations/20260919000004_fix_accounting_document_number_trigger.sql",
+      "sha256": "6916040ce6c7a7d0c8eb4139871004b775c2c03cad9468896e5670e91dc0a04c"
+    },
+    {
+      "file": "supabase/migrations/20260925000000_task_discussion_realtime.sql",
+      "sha256": "79f49fd1a5d36370a7c3bbfa569b231991cd4cbcb44d0a1b872d42676d075de6"
+    },
+    {
+      "file": "supabase/migrations/20260925000001_cash_request_future_dates.sql",
+      "sha256": "1e58489be41124a12c1d82be6ef0c643ad2af997c8b60ee43fb2923a958566e4"
+    },
+    {
+      "file": "supabase/migrations/20260925000002_fifteen_day_liquidation_head_approval.sql",
+      "sha256": "ea8eaca52c0210581a16b25d7826d235ee15a405b551d7fe8504e883bb5b5f00"
+    },
+    {
+      "file": "supabase/migrations/20260926000000_phase09_standing_org_channels.sql",
+      "sha256": "ebe6d30c75d9b42791599048109e190b3bc4350a535227a5c30ea9e44d16658e"
+    },
+    {
+      "file": "supabase/migrations/20260927000000_fix_task_editor_assignment.sql",
+      "sha256": "a31e8b010bbaa553b325b8484595782bd4bda4ee605c092cbe232b731207c765"
+    },
+    {
+      "file": "supabase/migrations/20260928000000_cascade_commit_projects.sql",
+      "sha256": "055c95469504e090cb3e4cbb607b817f2b63f7e396a59735dd83c916da6199bd"
+    },
+    {
+      "file": "supabase/migrations/20260928000001_allow_zero_cost_proposals.sql",
+      "sha256": "35b28cb4ea738992527404e040a3ce53256a6068987480eadf71f26b900aa336"
+    },
+    {
+      "file": "supabase/migrations/20260928000002_collaboration_role_and_approval_stability.sql",
+      "sha256": "cde86384ab7a1ff59e02d6a35ade573b540f53ca8d2d595c16966b9002a66a46"
+    },
+    {
+      "file": "supabase/migrations/20260928000003_petty_cash_funding_requester_orgs.sql",
+      "sha256": "db185704f6745d5f087876fd3addbad0b610130ad3845997901149adef6c211d"
+    },
+    {
+      "file": "supabase/migrations/20260928000004_revocable_admin_role.sql",
+      "sha256": "cbe75b16b0486eaf53f0ad3f103045f6f7f4855489c04f93317778abef4cf664"
+    },
+    {
+      "file": "supabase/migrations/20260928000005_admin_leadership_profile_edits.sql",
+      "sha256": "49f2b11aca1cace8f711c58b9f7b52eb8f5ae9d12faccaecf683abe08f361ecc"
+    },
+    {
+      "file": "supabase/migrations/20260928000006_fix_collaboration_draft_creation_roles.sql",
+      "sha256": "24e09f3ac61fe912130ab8c29b844377292a69cc50c6a289fb7c4da96023a6d5"
+    },
+    {
+      "file": "supabase/migrations/20260928000007_fix_autosave_observer_role.sql",
+      "sha256": "a7bbb609d8250570fbe85289f28d281b159d2b2437b8599f8a2bd992c4ffa59e"
+    },
+    {
+      "file": "supabase/migrations/20260930000001_defense_revision_approval_and_duration.sql",
+      "sha256": "7bad4ab0ffa43747b128874a16224974674008591fd729870988ca2f0ad3e4e1"
+    },
+    {
+      "file": "supabase/migrations/20261003000000_unify_admin_identity.sql",
+      "sha256": "6a1b77f7106b75daaa46c848a7f6e69541f9cc74ba19f7068b509b914ebcd532"
+    },
+    {
+      "file": "supabase/migrations/20261003000001_access_items_and_employee_status.sql",
+      "sha256": "46708ea78bb93cd53605a7fa0cc5b6ed56d97a6c9dd846e1f6506b2b51d84e98"
+    },
+    {
+      "file": "supabase/migrations/20261003000002_dynamic_item_capabilities.sql",
+      "sha256": "79f9a163d8e33689bd5c2e0e53fa3ef7fc8669d825936612804a4ebdd79f81ad"
+    },
+    {
+      "file": "supabase/migrations/20261003000003_revert_phase_2.sql",
+      "sha256": "e1abead860e0ab3feb7bc366d642a302cd6d6e9256596811287ea8d238109f31"
+    },
+    {
+      "file": "supabase/migrations/20261003000004_simplified_roles_and_office_authority.sql",
+      "sha256": "4386ebb5789e48f5397ad33f2227cb8aa87ca6d141fc0b29a943bf36742a12e5"
+    },
+    {
+      "file": "supabase/migrations/20261004123126_phase2_invitation_onboarding_pds.sql",
+      "sha256": "35acc20cc235e67853d4bb3ce82e29e9f637b4cb5ce60dbc280786b07c86f785"
+    },
+    {
+      "file": "supabase/migrations/20261004132527_phase2_invitation_dispatch_limits.sql",
+      "sha256": "7410f0f8949714bd321312eacf7a5aae3560f0a62848338c3d2b927cfa233af5"
+    },
+    {
+      "file": "supabase/migrations/20261004133412_phase2_existing_identity_acceptance.sql",
+      "sha256": "eb0cef4a9d077fb56497aa52d392574823d10397b257ce174f21ad60c5d73f2a"
+    },
+    {
+      "file": "supabase/migrations/20261004140128_phase3_project_table_workspace.sql",
+      "sha256": "69c2b4d6e5d8cf21944d88cdd6e167278bbf79785275543e7892d9645804e1f0"
+    },
+    {
+      "file": "supabase/migrations/20261004164937_phase5_workspace_ai_import.sql",
+      "sha256": "970cc83af2d841bb85e297d0dbfa782f611ee4044a2783aa669727bee6f0656a"
+    },
+    {
+      "file": "supabase/migrations/20261004174950_phase6_project_office_collaboration.sql",
+      "sha256": "92e0635b45ae1dbe3d26aeec58cd5af8b817e27e4b2cb4c65e02f819e3d59bee"
+    },
+    {
+      "file": "supabase/migrations/20261004182453_phase6_shared_structure_guards.sql",
+      "sha256": "c472ef02a7c0265bce3df298d4ed02c344c4ed169b2acb7b3112da7297d1fcd6"
+    },
+    {
+      "file": "supabase/migrations/20261004194130_phase7_readiness_governance.sql",
+      "sha256": "382d3983a0ed54cd2261e319a887d3d69ebbe963d771e0a7c0ccb2ddf98d84a3"
+    },
+    {
+      "file": "supabase/migrations/20261005170822_phase65_project_local_office_identity.sql",
+      "sha256": "8df2fc34cdce7ca2658c6313e49a9b824e13d1999e35df5c919f5b73f5a1e440"
+    }
+  ],
+  "counts": {
+    "screens": 102,
+    "mutationCandidates": 714,
+    "componentConsumers": 772,
+    "tokens": 245,
+    "serverRoutes": 24,
+    "sqlDeclarations": 422
+  }
+}

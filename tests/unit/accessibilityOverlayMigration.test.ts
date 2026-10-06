@@ -22,7 +22,7 @@ const migratedOverlays = [
 describe("accessible direct-overlay migration", () => {
   it("provides the shared dialog contract to feature-owned layouts", () => {
     expect(featureDialog).toContain("<Dialog open={open}");
-    expect(featureDialog).toContain("onOpenChange={(nextOpen) => !nextOpen && onClose()}");
+    expect(featureDialog).toContain("onOpenChange={(nextOpen) => !nextOpen && !preventClose && onClose()}");
     expect(featureDialog).toContain("<DialogTitle");
     expect(featureDialog).toContain("<DialogDescription");
     expect(dialog).toContain("showCloseButton");

@@ -48,3 +48,6 @@ graph.json
 .phase2-work/
 .phase3-work/
 .codex-tmp/
+
+# Local Phase 18 preview and measurement artifacts
+.phase18/

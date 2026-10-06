@@ -1,0 +1,238 @@
+{
+  "phase": 11,
+  "captured_at": "2026-10-06T07:40:11.284673+00:00",
+  "frontend": "http://127.0.0.1:5173",
+  "backend": "Synthetic intercepted auth, REST, gateway and realtime fixtures. No credential-backed deployed authorization audit.",
+  "source_snapshot": "Includes edited sources and unchanged compatibility dependencies; earlier phases contain separate historical snapshots.",
+  "checks": {
+    "typecheck": "passed",
+    "unit": "685 tests / 175 files passed",
+    "build": "passed with existing warnings",
+    "browser": "24 distinct Chromium cases passed across confirmed and responsive reruns. The 24-case receipt has 23 passes and the subsequently corrected mobile case; see browser-responsive.txt and browser-table-smoke.txt.",
+    "graph": "7111 nodes / 21843 edges; six existing partial extraction warnings",
+    "whitespace": "passed"
+  },
+  "gates": {
+    "G2": "Shared Task Lead team mutation remains gated; existing details inspection retained.",
+    "bulk": "Deferred: no approved eligibility/partial-success mutation contract.",
+    "Phase12": "Existing task drawer reused; no second inspector."
+  },
+  "receipts": [
+    "receipts/baseline-browser.txt",
+    "receipts/browser-mobile-capture.txt",
+    "receipts/browser-responsive.txt",
+    "receipts/browser-table-smoke.txt",
+    "receipts/browser.txt",
+    "receipts/build.txt",
+    "receipts/check.txt",
+    "receipts/diagnostic-browser-contention.txt",
+    "receipts/diagnostic-browser-handoff.txt",
+    "receipts/diagnostic-browser-initial.txt",
+    "receipts/diagnostic-browser-layout.txt",
+    "receipts/diagnostic-editor-unit.txt",
+    "receipts/diagnostic-unit-collection.txt",
+    "receipts/focused-handoff-unit.txt",
+    "receipts/graph.txt",
+    "receipts/unit.txt",
+    "receipts/whitespace.txt"
+  ],
+  "captures": [
+    {
+      "path": "before/phase3-project-table-Head--a2c4f-k-edits-and-inline-subitems-chromium/expanded-subitems.png",
+      "sha256": "63dce870f458d53eeb8a1d8a53cd352e29526526b995fa34de509b3555dd163a"
+    },
+    {
+      "path": "before/phase3-project-table-Head--a2c4f-k-edits-and-inline-subitems-chromium/main-table.png",
+      "sha256": "cb89010d6569149b0c43dcf5d3ebcb619817f486918479395c7ce41c84d4dcba"
+    },
+    {
+      "path": "before/phase3-project-table-Inlin-730e8-er-and-retain-failed-drafts-chromium/inline-task-draft.png",
+      "sha256": "ccd92c1e2a18507e7969a6164fa66784043fa2c4dbaebd4417e2ba9dba3d787b"
+    },
+    {
+      "path": "before/phase3-project-table-Membe-1157c-eeps-detail-access-at-390px-chromium/main-table-mobile.png",
+      "sha256": "99ec98ed78307fd27f787e913ae55ee8e47ee763e1668bc492297b037899d409"
+    },
+    {
+      "path": "after/phase10-project-workspace--3acd4-y-stays-within-the-viewport-chromium/project-long-title-mobile.png",
+      "sha256": "4ab58a6c6dfa2d1fadfdf6863d2d4b140f8dc85446933d7fa468d21265616cba"
+    },
+    {
+      "path": "after/phase10-project-workspace--71b42-ccess-requirements-at-390px-chromium/project-settings-mobile.png",
+      "sha256": "8cd7660c49df177987122a2267ae1c5babe938e27c2fb5b24fd8a3449732eb0c"
+    },
+    {
+      "path": "after/phase10-project-workspace--71b42-ccess-requirements-at-390px-chromium/project-share-mobile.png",
+      "sha256": "d0f4e39ed39fb35e9ae2584439cd606702dc50ad9df10243d11dc5608861c368"
+    },
+    {
+      "path": "after/phase10-project-workspace--71b42-ccess-requirements-at-390px-chromium/project-workspace-mobile.png",
+      "sha256": "7982099a385bff853abd010262ac55451a4a2f9ff0d7a1870f091e8e0b0a8ff9"
+    },
+    {
+      "path": "after/phase10-project-workspace--aa443-ser-history-use-one-project-chromium/project-settings-error-desktop.png",
+      "sha256": "3ad1b922ae84616d1594ac60702f68a6d0b7bdde2b58ef461d8aa8dfc347fb8f"
+    },
+    {
+      "path": "after/phase10-project-workspace--aa443-ser-history-use-one-project-chromium/project-workspace-desktop.png",
+      "sha256": "b0e1a33f31c85731d26b212aa46b44526d839325f441c1fe80c66523332f42aa"
+    },
+    {
+      "path": "after/phase11-main-table-column--81782-ask-context-persist-locally-chromium/sticky-columns-desktop.png",
+      "sha256": "12151ea32b68537c3b5ffc1e733b34186f1847366638a48c91d1d0b8bbb9727e"
+    },
+    {
+      "path": "after/phase11-main-table-column--81782-ask-context-persist-locally-chromium/table-layout-desktop.png",
+      "sha256": "53e1523bf29763c2c99960255d8a41924f792ab41d06f117f4a39571aebf2737"
+    },
+    {
+      "path": "after/phase11-main-table-date-an-01dc9-nied-edits-for-scoped-retry-chromium/timeline-error-desktop.png",
+      "sha256": "73cd9006a672ba7e8fce7b3aa4304d9cf8674e793acd5436a2f79721147a0004"
+    },
+    {
+      "path": "after/phase11-main-table-filter--aea2c-g-canonical-manual-ordering-chromium/filters-desktop.png",
+      "sha256": "a39a910709e755ddd2fe2648657817a3556b193ff826947ea370e7206ccab31c"
+    },
+    {
+      "path": "after/phase11-main-table-group-c-d17ef-s-impact-and-retries-denial-chromium/group-deletion-error-desktop.png",
+      "sha256": "eea9e1ae336956fde04f68564b151f6980a35a1590e2d392a2abe7abaa93dbe6"
+    },
+    {
+      "path": "after/phase11-main-table-group-c-d17ef-s-impact-and-retries-denial-chromium/new-group-draft-desktop.png",
+      "sha256": "2f5a8d817931d68e758c015076169f669f2d354149b63ccff1db2aee679e45b1"
+    },
+    {
+      "path": "after/phase11-main-table-Head-ow-fdffb-denied-assignment-for-retry-chromium/owner-error-desktop.png",
+      "sha256": "f02b6f731f64f1ee95a168ab5f2024d75ebd7a2a8dc7b97b9740e682b928f6ef"
+    },
+    {
+      "path": "after/phase11-main-table-task-te-cf174-ontext-leaves-room-for-work-chromium/sticky-subitems-mobile.png",
+      "sha256": "d2b2c7f6ade6b9061a19fa234fa9542c2e38945c64e454a2a76463ee75dd26cc"
+    },
+    {
+      "path": "after/phase3-project-table-Head--a2c4f-k-edits-and-inline-subitems-chromium/expanded-subitems.png",
+      "sha256": "39b6be0e8073eaac2c492fa581be6a50beb1df77b703da6bda6bfdab843fc27c"
+    },
+    {
+      "path": "after/phase3-project-table-Head--a2c4f-k-edits-and-inline-subitems-chromium/main-table.png",
+      "sha256": "29f8707e9b87576f22a05865cb48706b9107c4da11bdedea8b725cb090017182"
+    },
+    {
+      "path": "after/phase3-project-table-Inlin-730e8-er-and-retain-failed-drafts-chromium/inline-task-draft.png",
+      "sha256": "83311635e3ac898953b0223084fe05f41fcfc2cfee458ebb8917ce25130efe60"
+    },
+    {
+      "path": "after/phase3-project-table-Membe-1157c-eeps-detail-access-at-390px-chromium/main-table-mobile.png",
+      "sha256": "d169d38756f0cfd663accda738afa1d8f71ce81caa5c88a65b307c364c3b932e"
+    },
+    {
+      "path": "after/phase4-project-views-Membe-07cbd-ut-structural-date-controls-chromium/gantt-mobile.png",
+      "sha256": "9a26619504b32e11509e6ddab36cae399c88f149ed604bab24cb0d3d52f41471"
+    },
+    {
+      "path": "after/phase4-project-views-Phase-a15ed-endar-Dashboard-and-Offices-chromium/board.png",
+      "sha256": "f8ebf0b788606b494814855564c03276a22bb53b9c44a3bf17e360bbaaeb150e"
+    },
+    {
+      "path": "after/phase4-project-views-Phase-a15ed-endar-Dashboard-and-Offices-chromium/calendar.png",
+      "sha256": "35234220e67557ddc1ffb03666d13769a682802a33af3d40c42744095653f036"
+    },
+    {
+      "path": "after/phase4-project-views-Phase-a15ed-endar-Dashboard-and-Offices-chromium/dashboard.png",
+      "sha256": "d927e151cd408896b284a48cda340e97327eaa3607a9b60498dcc7d59867540d"
+    },
+    {
+      "path": "after/phase4-project-views-Phase-a15ed-endar-Dashboard-and-Offices-chromium/gantt.png",
+      "sha256": "4812f8db81f89eb5fa34d118fcbf6f8499d059aa5fb5df3ab08931632f43b96d"
+    },
+    {
+      "path": "after/phase4-project-views-Phase-a15ed-endar-Dashboard-and-Offices-chromium/offices.png",
+      "sha256": "a3331187ea45e3af850f9faa19005412f70f09ac4aa1ad7bb05fc02b341aad54"
+    },
+    {
+      "path": "after/phase6-project-offices-Col-cffae-nd-only-edits-its-own-tasks-chromium/own-office-team-desktop.png",
+      "sha256": "0f452fd5e616bac4ea84ddb03e806cd0f553013d7a171f9b5feaebcaab9945cb"
+    },
+    {
+      "path": "after/phase6-project-offices-Col-cffae-nd-only-edits-its-own-tasks-chromium/own-office-team-mobile.png",
+      "sha256": "95a121018ea122072062701fff9226273c3322e7fe23076c37ee9dbe1fe74ff3"
+    },
+    {
+      "path": "after/phase6-project-offices-Lea-30856-without-assigning-its-staff-chromium/invite-office-desktop.png",
+      "sha256": "9985eeeb21c65ef664e19bc018a6e10567634dbf5c5301170be732165f1ee591"
+    },
+    {
+      "path": "after/phase6-project-offices-Lea-30856-without-assigning-its-staff-chromium/office-workspace-desktop.png",
+      "sha256": "a6660baf01fe8fff0af610cf063748bf26b81ad5ab09bc380f16895875b3a4aa"
+    },
+    {
+      "path": "after/project-workspace-controls-ec47e-turns-to-the-filtered-table-chromium/add-view-desktop.png",
+      "sha256": "18265c77c9b1084d40722898c297adc8036370508447a11f791f44bfe5c6ff5c"
+    },
+    {
+      "path": "after/project-workspace-controls-ec47e-turns-to-the-filtered-table-chromium/project-controls-desktop.png",
+      "sha256": "44c25aa30512645abceac2f59c8874280b67e2187b3e77bb025f3caf1920ad5e"
+    },
+    {
+      "path": "after/project-workspace-controls-f6743-s-remain-reachable-at-390px-chromium/add-view-mobile.png",
+      "sha256": "a66137c584f585d24633fe009797b19ae7d49cc3015bc5045cd75860941aa8ab"
+    },
+    {
+      "path": "after/project-workspace-controls-f6743-s-remain-reachable-at-390px-chromium/project-controls-mobile.png",
+      "sha256": "5cbe8b02f4f1b22aa99128b9f8c96f2cc3f46405a15dc13fb2cb1d51053215d6"
+    },
+    {
+      "path": "after-responsive/phase11-main-table-column--81782-ask-context-persist-locally-chromium/sticky-columns-desktop.png",
+      "sha256": "2c163792d636209b9c76fbdfa2b4554eeac5e4c993097892b99e57937d04098b"
+    },
+    {
+      "path": "after-responsive/phase11-main-table-column--81782-ask-context-persist-locally-chromium/table-layout-desktop.png",
+      "sha256": "c48d07822e80a8a2e24a0de81dd3b76fae2699f297ed88820f0794e1b8565045"
+    },
+    {
+      "path": "after-responsive/phase11-main-table-mobile--04a2b--fields-inside-the-viewport-chromium/new-task-draft-mobile.png",
+      "sha256": "cba85e6b3dca87789019ed4d2d1333ba1d732499f3763a94f386eced54d01b5e"
+    },
+    {
+      "path": "after-responsive/phase11-main-table-mobile--04a2b--fields-inside-the-viewport-chromium/timeline-draft-mobile.png",
+      "sha256": "865a90250fd0c98eae28bd05977d864ac2eec4d6d6919c40ac105cbb875b667b"
+    },
+    {
+      "path": "after-responsive/phase11-main-table-task-te-cf174-ontext-leaves-room-for-work-chromium/sticky-subitems-mobile.png",
+      "sha256": "287c47b80b4ac484c82d79cb89d2bdf2893bb3469cfe4594cc8e2c21cc53f942"
+    },
+    {
+      "path": "after-table-smoke/phase3-project-table-Head--a2c4f-k-edits-and-inline-subitems-chromium/expanded-subitems.png",
+      "sha256": "f6261328227aa1711bfc1075dd19b19a0c6302cf78831f09eb300a4ca6c90381"
+    },
+    {
+      "path": "after-table-smoke/phase3-project-table-Head--a2c4f-k-edits-and-inline-subitems-chromium/main-table.png",
+      "sha256": "3d2d8cb994db51921670bf066aa112d41452702ddc75ba43312e818e23578149"
+    },
+    {
+      "path": "after-table-smoke/phase3-project-table-Inlin-730e8-er-and-retain-failed-drafts-chromium/inline-task-draft.png",
+      "sha256": "a999c9f30eec6272785f8ba10d7787c531043e420d4808291212b9a9f55c7c7f"
+    },
+    {
+      "path": "after-table-smoke/phase3-project-table-Membe-1157c-eeps-detail-access-at-390px-chromium/main-table-mobile.png",
+      "sha256": "f268038527707b83569bdf5ef1ac3f11e579f997f9ec20e04e2f9b438542910a"
+    },
+    {
+      "path": "after-table-smoke/project-workspace-controls-f6743-s-remain-reachable-at-390px-chromium/add-view-mobile.png",
+      "sha256": "d812f52924113888b578efe4584a959f1995e44a55418865099c5e8abfcc0f26"
+    },
+    {
+      "path": "after-table-smoke/project-workspace-controls-f6743-s-remain-reachable-at-390px-chromium/project-controls-mobile.png",
+      "sha256": "a8a4ac11bc194b2ffa80897132df0409b34cc371654bc9080521c51dde0f3f41"
+    },
+    {
+      "path": "after-mobile-final/phase11-main-table-mobile--04a2b--fields-inside-the-viewport-chromium/new-task-draft-mobile.png",
+      "sha256": "c8259a1f1d399588a51137b3b75113d8e496ded4f300f17c3714d13708a86f71"
+    },
+    {
+      "path": "after-mobile-final/phase11-main-table-mobile--04a2b--fields-inside-the-viewport-chromium/timeline-draft-mobile.png",
+      "sha256": "23781e24a1dd7352b0f3f37a83074cbb0a83397c9da0e0e01b7f992e8e1047de"
+    }
+  ],
+  "source_manifest": "source-manifest.json"
+}

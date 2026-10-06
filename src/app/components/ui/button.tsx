@@ -11,7 +11,7 @@ const buttonVariants = cva(
       variant: {
         default: "bg-primary text-primary-foreground hover:bg-primary/90",
         destructive:
-          "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
+          "bg-destructive text-destructive-foreground hover:bg-destructive/90 focus-visible:ring-destructive/20",
         outline:
           "border bg-background text-foreground hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
         secondary:
@@ -34,25 +34,49 @@ const buttonVariants = cva(
   },
 );
 
-function Button({
+type ButtonProps = React.ComponentProps<"button"> & VariantProps<typeof buttonVariants> & {
+  asChild?: boolean;
+  pending?: boolean;
+  disabledReason?: string;
+};
+
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function Button({
   className,
   variant,
-  size,
+  size = "default",
   asChild = false,
+  pending = false,
+  disabledReason,
+  disabled,
+  onClick,
   ...props
-}: React.ComponentProps<"button"> &
-  VariantProps<typeof buttonVariants> & {
-    asChild?: boolean;
-  }) {
+}, ref) {
   const Comp = asChild ? Slot : "button";
+  const unavailable = disabled || pending;
+  const reasonId = React.useId();
 
   return (
+    <>
     <Comp
-      data-slot="button"
-      className={cn(buttonVariants({ variant, size, className }))}
       {...props}
+      ref={ref}
+      data-slot="button"
+      data-size={size}
+      disabled={unavailable}
+      aria-disabled={unavailable || undefined}
+      aria-busy={pending || undefined}
+      aria-describedby={unavailable && disabledReason ? [props["aria-describedby"], reasonId].filter(Boolean).join(" ") : props["aria-describedby"]}
+      title={unavailable ? disabledReason || props.title : props.title}
+      onClick={(event) => { if (unavailable) { event.preventDefault(); return; } onClick?.(event); }}
+      className={cn(buttonVariants({ variant, size, className }))}
     />
+    {unavailable && disabledReason && <span id={reasonId} className="sr-only">{disabledReason}</span>}
+    </>
   );
-}
+});
 
-export { Button, buttonVariants };
+const IconButton = React.forwardRef<HTMLButtonElement, Omit<ButtonProps, "asChild"> & { label: string }>(function IconButton({ label, ...props }, ref) {
+  return <Button type="button" size="icon" {...props} ref={ref} aria-label={label} />;
+});
+
+export { Button, IconButton, buttonVariants };

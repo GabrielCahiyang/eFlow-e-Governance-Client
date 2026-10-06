@@ -1,0 +1,18 @@
+
+ RUN  v3.2.4 C:/Users/james/projects/eflow-e-Governance-Project
+
+ ✓ tests/unit/phase14Participation.test.ts (2 tests) 7ms
+ ✓ tests/unit/phase14StaffingAuthority.test.ts (4 tests) 11ms
+ ✓ tests/unit/phase14PeoplePresentation.test.ts (3 tests) 6ms
+ ✓ tests/unit/phase14InvitationManagement.test.tsx (3 tests) 27ms
+ ✓ tests/unit/phase14InspectorHandoff.test.tsx (1 test) 83ms
+ ✓ tests/unit/phase14MembershipDrafts.test.tsx (5 tests) 233ms
+ ✓ tests/unit/phase14InvitationDrafts.test.tsx (3 tests) 313ms
+ ✓ tests/unit/phase14ProfessionalPrivacy.test.tsx (2 tests) 686ms
+   ✓ Phase 14 lazy professional privacy and drafts > never fetches another member private PDS and retries a denied summary without claiming missing data  426ms
+
+ Test Files  8 passed (8)
+      Tests  23 passed (23)
+   Start at  19:21:22
+   Duration  6.58s (transform 582ms, setup 0ms, collect 6.36s, tests 1.36s, environment 4.88s, prepare 1.71s)
+

@@ -1,0 +1,321 @@
+[
+  {
+    "role": "admin",
+    "scenario": "Sidebar keyboard expansion",
+    "density": "expanded",
+    "focusInside": true
+  },
+  {
+    "role": "admin",
+    "width": 390,
+    "scenario": "Mobile Escape",
+    "dialogs": 1,
+    "focus": null
+  },
+  {
+    "role": "admin",
+    "width": 320,
+    "scenario": "Mobile Escape",
+    "dialogs": 1,
+    "focus": null
+  },
+  {
+    "role": "admin",
+    "scenario": "Back/forward route",
+    "back": "/users"
+  },
+  {
+    "role": "admin",
+    "scenario": "Forward + refresh",
+    "route": "/users"
+  },
+  {
+    "role": "head",
+    "scenario": "Sidebar keyboard expansion",
+    "density": "expanded",
+    "focusInside": true
+  },
+  {
+    "role": "head",
+    "width": 390,
+    "scenario": "Mobile Escape",
+    "dialogs": 1,
+    "focus": null
+  },
+  {
+    "role": "head",
+    "width": 320,
+    "scenario": "Mobile Escape",
+    "dialogs": 1,
+    "focus": null
+  },
+  {
+    "role": "head",
+    "scenario": "Back/forward route",
+    "back": "/overview"
+  },
+  {
+    "role": "head",
+    "scenario": "Forward + refresh",
+    "route": "/projects"
+  },
+  {
+    "role": "member",
+    "scenario": "Sidebar keyboard expansion",
+    "density": "expanded",
+    "focusInside": true
+  },
+  {
+    "role": "member",
+    "width": 390,
+    "scenario": "Mobile Escape",
+    "dialogs": 1,
+    "focus": null
+  },
+  {
+    "role": "member",
+    "width": 320,
+    "scenario": "Mobile Escape",
+    "dialogs": 1,
+    "focus": null
+  },
+  {
+    "role": "member",
+    "scenario": "Back/forward route",
+    "back": "/tasks"
+  },
+  {
+    "role": "member",
+    "scenario": "Forward + refresh",
+    "route": "/projects"
+  },
+  {
+    "role": "accounting_staff",
+    "scenario": "Sidebar keyboard expansion",
+    "density": "expanded",
+    "focusInside": true
+  },
+  {
+    "role": "accounting_staff",
+    "width": 390,
+    "scenario": "Mobile Escape",
+    "dialogs": 1,
+    "focus": null
+  },
+  {
+    "role": "accounting_staff",
+    "width": 320,
+    "scenario": "Mobile Escape",
+    "dialogs": 1,
+    "focus": null
+  },
+  {
+    "role": "accounting_staff",
+    "scenario": "Back/forward route",
+    "back": "/tasks"
+  },
+  {
+    "role": "accounting_staff",
+    "scenario": "Forward + refresh",
+    "route": "/projects"
+  },
+  {
+    "role": "member",
+    "scenario": "Task Lead destinations",
+    "leading": 1,
+    "reviews": 1
+  },
+  {
+    "scenario": "Explicit support grant",
+    "section": "users",
+    "sidebar": 1,
+    "tabs": [
+      "All Users"
+    ],
+    "body": "Make yourself at home\n1 of 6 steps complete\nGetting Started\nAdministration\n\nManage accounts, office assignments, access, and system support.\n\nAll Users\nADMINISTRATION · IDENTITY & ACCESS\nUser Management\n\nManage accounts, roles, organizations, and individual access.\n\nAccount directory\n\nIdentity, role, organization, workload, and access are managed from one workspace.\n\nCreate user\nAll organizations\nAudit Office\nAll roles\nMember\nAccounting Staff\nHead\nAdmin\nAll statuses\nActive\nInactive\nName · A–Z\nNa"
+  },
+  {
+    "scenario": "Explicit support grant",
+    "section": "org_tree",
+    "sidebar": 1,
+    "tabs": [
+      "All Users"
+    ],
+    "body": "Make yourself at home\n1 of 6 steps complete\nGetting Started\nAdministration\n\nManage accounts, office assignments, access, and system support.\n\nAll Users\nADMINISTRATION · IDENTITY & ACCESS\nUser Management\n\nManage accounts, roles, organizations, and individual access.\n\nAccount directory\n\nIdentity, role, organization, workload, and access are managed from one workspace.\n\nCreate user\nAll organizations\nAudit Office\nAll roles\nMember\nAccounting Staff\nHead\nAdmin\nAll statuses\nActive\nInactive\nName · A–Z\nNa"
+  },
+  {
+    "scenario": "Explicit support grant",
+    "section": "audit",
+    "sidebar": 1,
+    "tabs": [
+      "All Users"
+    ],
+    "body": "Make yourself at home\n1 of 6 steps complete\nGetting Started\nAdministration\n\nManage accounts, office assignments, access, and system support.\n\nAll Users\nADMINISTRATION · IDENTITY & ACCESS\nUser Management\n\nManage accounts, roles, organizations, and individual access.\n\nAccount directory\n\nIdentity, role, organization, workload, and access are managed from one workspace.\n\nCreate user\nAll organizations\nAudit Office\nAll roles\nMember\nAccounting Staff\nHead\nAdmin\nAll statuses\nActive\nInactive\nName · A–Z\nNa"
+  },
+  {
+    "scenario": "Explicit support grant",
+    "section": "administration",
+    "sidebar": 1,
+    "tabs": [
+      "All Users"
+    ],
+    "body": "Make yourself at home\n1 of 6 steps complete\nGetting Started\nAdministration\n\nManage accounts, office assignments, access, and system support.\n\nAll Users\nADMINISTRATION · IDENTITY & ACCESS\nUser Management\n\nManage accounts, roles, organizations, and individual access.\n\nAccount directory\n\nIdentity, role, organization, workload, and access are managed from one workspace.\n\nCreate user\nAll organizations\nAudit Office\nAll roles\nMember\nAccounting Staff\nHead\nAdmin\nAll statuses\nActive\nInactive\nName · A–Z\nNa"
+  },
+  {
+    "scenario": "Explicit support grant",
+    "section": "migration",
+    "sidebar": 1,
+    "tabs": [
+      "All Users"
+    ],
+    "body": "Make yourself at home\n1 of 6 steps complete\nGetting Started\nAdministration\n\nManage accounts, office assignments, access, and system support.\n\nAll Users\nADMINISTRATION · IDENTITY & ACCESS\nUser Management\n\nManage accounts, roles, organizations, and individual access.\n\nAccount directory\n\nIdentity, role, organization, workload, and access are managed from one workspace.\n\nCreate user\nAll organizations\nAudit Office\nAll roles\nMember\nAccounting Staff\nHead\nAdmin\nAll statuses\nActive\nInactive\nName · A–Z\nNa"
+  },
+  {
+    "scenario": "Observer task edit blocked",
+    "disabled": true
+  },
+  {
+    "scenario": "Observer task edit blocked",
+    "disabled": true
+  },
+  {
+    "role": "admin",
+    "scenario": "Utility Escape after transition",
+    "screenId": "utility.notifications",
+    "focus": "No new notifications",
+    "dialogs": 1
+  },
+  {
+    "role": "admin",
+    "scenario": "Utility Escape after transition",
+    "screenId": "utility.chat",
+    "focus": "Close messages",
+    "dialogs": 1
+  },
+  {
+    "role": "admin",
+    "scenario": "Utility Escape after transition",
+    "screenId": "settings.profile",
+    "focus": null,
+    "dialogs": 0
+  },
+  {
+    "role": "admin",
+    "width": 390,
+    "scenario": "Mobile Escape after transition",
+    "dialogs": 0,
+    "focus": null
+  },
+  {
+    "role": "admin",
+    "width": 320,
+    "scenario": "Mobile Escape after transition",
+    "dialogs": 0,
+    "focus": null
+  },
+  {
+    "role": "head",
+    "scenario": "Utility Escape after transition",
+    "screenId": "utility.notifications",
+    "focus": "No new notifications",
+    "dialogs": 1
+  },
+  {
+    "role": "head",
+    "scenario": "Utility Escape after transition",
+    "screenId": "utility.chat",
+    "focus": "Close messages",
+    "dialogs": 1
+  },
+  {
+    "role": "head",
+    "scenario": "Utility Escape after transition",
+    "screenId": "settings.profile",
+    "focus": null,
+    "dialogs": 0
+  },
+  {
+    "role": "head",
+    "width": 390,
+    "scenario": "Mobile Escape after transition",
+    "dialogs": 0,
+    "focus": null
+  },
+  {
+    "role": "head",
+    "width": 320,
+    "scenario": "Mobile Escape after transition",
+    "dialogs": 0,
+    "focus": null
+  },
+  {
+    "role": "member",
+    "scenario": "Utility Escape after transition",
+    "screenId": "utility.notifications",
+    "focus": "No new notifications",
+    "dialogs": 1
+  },
+  {
+    "role": "member",
+    "scenario": "Utility Escape after transition",
+    "screenId": "utility.chat",
+    "focus": "Close messages",
+    "dialogs": 1
+  },
+  {
+    "role": "member",
+    "scenario": "Utility Escape after transition",
+    "screenId": "settings.profile",
+    "focus": null,
+    "dialogs": 0
+  },
+  {
+    "role": "member",
+    "width": 390,
+    "scenario": "Mobile Escape after transition",
+    "dialogs": 0,
+    "focus": null
+  },
+  {
+    "role": "member",
+    "width": 320,
+    "scenario": "Mobile Escape after transition",
+    "dialogs": 0,
+    "focus": null
+  },
+  {
+    "role": "accounting_staff",
+    "scenario": "Utility Escape after transition",
+    "screenId": "utility.notifications",
+    "focus": "No new notifications",
+    "dialogs": 1
+  },
+  {
+    "role": "accounting_staff",
+    "scenario": "Utility Escape after transition",
+    "screenId": "utility.chat",
+    "focus": "Close messages",
+    "dialogs": 1
+  },
+  {
+    "role": "accounting_staff",
+    "scenario": "Utility Escape after transition",
+    "screenId": "settings.profile",
+    "focus": null,
+    "dialogs": 0
+  },
+  {
+    "role": "accounting_staff",
+    "width": 390,
+    "scenario": "Mobile Escape after transition",
+    "dialogs": 0,
+    "focus": null
+  },
+  {
+    "role": "accounting_staff",
+    "width": 320,
+    "scenario": "Mobile Escape after transition",
+    "dialogs": 0,
+    "focus": null
+  }
+]

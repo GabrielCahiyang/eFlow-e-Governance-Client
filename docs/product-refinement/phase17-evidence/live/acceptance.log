@@ -1,0 +1,46 @@
+
+Running 34 tests using 1 worker
+
+
+
+[1A[2K(node:12984) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K(node:12984) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[1/34] [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:9:1 › shared inspector keeps discussion drafts and returns focus to each view origin
+[1A[2K[2/34] [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:31:1 › date range is consistent across views and personal after reload
+[1A[2K[3/34] [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:43:1 › mobile observer inspector stays read only and traps and returns focus
+[1A[2K[4/34] [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:56:1 › Board keyboard action prevents duplicate requests and recovers from denial
+[1A[2K[5/34] [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:65:1 › shared Task Lead team mutations stay gated by G2 while details remain available
+[1A[2K[6/34] [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:73:1 › review drafts stay protected and evidence loading denial has an explicit retry
+[1A[2K[7/34] [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:86:1 › removed canonical task closes mutation controls and explains unavailable access
+[1A[2K[8/34] [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:94:1 › successful inspector lifecycle change returns focus to the refreshed Board card
+[1A[2K[9/34] [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:101:1 › mobile team dialog guards drafts and retains a denied member change
+[1A[2K[10/34] [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:9:1 › Office Team lazy professional summary, keyboard focus return and narrow labeled rows
+[1A[2K[11/34] [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:23:1 › Partial invitations retain failed rows and delivery failure does not cause duplicate creation
+[1A[2K[12/34] [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:42:1 › Office Team failure has retry and filter empty can clear without hiding invitations
+[1A[2K[13/34] [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:57:1 › Collaborating Head retains project selection on failure, guards dismissal and rechecks authority before retry
+[1A[2K[14/34] [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:68:1 › Project team removal previews active work and opens the shared task inspector only after discard
+[1A[2K[15/34] [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:73:1 › Failed project invitation delivery still creates one invitation and fresh-link copy failure has manual recovery
+[1A[2K[16/34] [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:79:61 › Project Office observer retains read-only reasons and governance handoff
+[1A[2K[17/34] [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:79:61 › Project Office closed retains read-only reasons and governance handoff
+[1A[2K[18/34] [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:79:61 › Project Office governed retains read-only reasons and governance handoff
+[1A[2K[19/34] [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:83:1 › Project Office read failure retries honestly and retains an inspector draft through refresh denial
+[1A[2K[20/34] [chromium] › tests\e2e\phase16-support-finance.spec.ts:10:1 › Admin Center keeps legacy pages, account inspection and unsaved account edits
+[1A[2K[21/34] [chromium] › tests\e2e\phase16-support-finance.spec.ts:65:1 › Account audit has bounded coverage, loaded filters, nested redaction and truthful unavailable reads on a phone
+[1A[2K[22/34] [chromium] › tests\e2e\phase16-support-finance.spec.ts:135:1 › Accounting retains fiscal scope, exposes settlements, records one decision and inspects its balanced journal
+[1A[2K[23/34] [chromium] › tests\e2e\phase16-support-finance.spec.ts:201:1 › Uncertain settlement keeps its reason and requires verification before resubmission
+[1A[2K[24/34] [chromium] › tests\e2e\phase16-support-finance.spec.ts:238:1 › Journal correction has guarded lines, explicit posting and a retained uncertainty receipt on a phone
+[1A[2K[25/34] [chromium] › tests\e2e\phase16-support-finance.spec.ts:307:1 › Release handover uses its existing physical confirmation and blocks an uncertain repeat
+[1A[2K[26/34] [chromium] › tests\e2e\phase16-support-finance.spec.ts:338:1 › Reports retain seven lenses, filtered CSV export and the task inspector
+[1A[2K[27/34] [chromium] › tests\e2e\phase16-support-finance.spec.ts:399:1 › Backup preflight stays unavailable without gateway configuration
+[1A[2K[28/34] [chromium] › tests\e2e\phase16-support-finance.spec.ts:415:1 › Late-package Head authorization stays separate from independent Accounting settlement
+[1A[2K[29/34] [chromium] › tests\e2e\phase16-support-finance.spec.ts:461:1 › Accounting retains ordinary Member workspaces, requires an Office and cannot settle its own cash
+[1A[2K[30/34] [chromium] › tests\e2e\phase16-support-finance.spec.ts:487:1 › Backup uncertain start verifies the job list and a failed job permits an explicit new attempt
+[1A[2K[31/34] [chromium] › tests\e2e\phase17-safety.spec.ts:24:1 › live legacy board retains details through Keep editing and discards only on acceptance
+[1A[2K[32/34] [chromium] › tests\e2e\phase17-safety.spec.ts:51:1 › typed deletion at 320px cancels without a write then sends exactly one confirmed write
+[1A[2K[33/34] [chromium] › tests\e2e\phase17-safety.spec.ts:90:1 › required task cancellation reason has no write on Escape and is sent once on acceptance
+[1A[2K[34/34] [chromium] › tests\e2e\phase17-safety.spec.ts:127:1 › lost deletion response exposes verification and prevents another write
+[1A[2K  34 passed (3.9m)

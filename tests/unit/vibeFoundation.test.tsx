@@ -130,7 +130,8 @@ describe("Vibe foundation", () => {
     expect(screen.getByTestId("vibe-child").textContent).toBe("eFlow child");
     expect(container.querySelector("[class*='eflow-vibe']")).toBeTruthy();
     expect(document.body.className).toContain("dark-app-theme");
-    expect(document.head.textContent).toContain("--primary-color: #57c8bd");
+    expect(document.body.style.getPropertyValue("--primary-color")).toBe("var(--eflow-primary)");
+    expect(document.head.textContent).toContain("--primary-color: var(--eflow-primary)");
 
     rerender(
       <EflowVibeThemeProvider preference="light">
@@ -139,6 +140,7 @@ describe("Vibe foundation", () => {
     );
     expect(document.body.className).toContain("light-app-theme");
     expect(document.body.className).not.toContain("dark-app-theme");
+    expect(document.body.style.getPropertyValue("--primary-color")).toBe("var(--eflow-primary)");
   });
 
   it("renders representative Vibe components with focus, table, and dialog behavior", async () => {

@@ -1,0 +1,73 @@
+
+Running 24 tests using 1 worker
+
+(node:2408) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2408) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [chromium] › tests\e2e\phase10-project-workspace.spec.ts:9:1 › project identity, settings retry, favorites and browser history use one project (7.8s)
+  ok  2 [chromium] › tests\e2e\phase10-project-workspace.spec.ts:38:1 › existing lifecycle dialogs retain notes, server denials and deletion impact (8.0s)
+  ok  3 [chromium] › tests\e2e\phase10-project-workspace.spec.ts:53:1 › Observer utilities stay read-only and sharing keeps current access requirements at 390px (4.9s)
+  ok  4 [chromium] › tests\e2e\phase10-project-workspace.spec.ts:63:1 › participant failure retries its source and long project identity stays within the viewport (7.6s)
+  ok  5 [chromium] › tests\e2e\phase11-main-table.spec.ts:6:1 › column widths, alignment, visibility and sticky task context persist locally (7.8s)
+  ok  6 [chromium] › tests\e2e\phase11-main-table.spec.ts:18:1 › date and dependency drafts guard close and retain denied edits for scoped retry (8.0s)
+  ok  7 [chromium] › tests\e2e\phase11-main-table.spec.ts:27:1 › filter chips clear one or all without changing canonical manual ordering (4.5s)
+  ok  8 [chromium] › tests\e2e\phase11-main-table.spec.ts:35:1 › group creation guards its draft and empty deletion confirms impact and retries denial (8.2s)
+  ok  9 [chromium] › tests\e2e\phase11-main-table.spec.ts:43:1 › task team entry reuses existing details and mobile sticky context leaves room for work (5.8s)
+  ok 10 [chromium] › tests\e2e\phase11-main-table.spec.ts:48:1 › shared Task Lead team action explains the unresolved authority gate (5.3s)
+  ok 11 [chromium] › tests\e2e\phase11-main-table.spec.ts:52:1 › Observer inspection and closed-project table retain read-only controls (5.9s)
+  ok 12 [chromium] › tests\e2e\phase11-main-table.spec.ts:56:1 › Head owner appointment confirms impact and retains denied assignment for retry (7.4s)
+  x  13 [chromium] › tests\e2e\phase11-main-table.spec.ts:62:1 › mobile planning picker and explicit creation keep fields inside the viewport (9.3s)
+(node:41784) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:41784) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 14 [chromium] › tests\e2e\phase3-project-table.spec.ts:4:1 › Head table keeps first-column task actions, task edits and inline subitems (7.4s)
+  ok 15 [chromium] › tests\e2e\phase3-project-table.spec.ts:45:1 › Member table protects structure and keeps detail access at 390px (4.4s)
+  ok 16 [chromium] › tests\e2e\phase3-project-table.spec.ts:62:1 › Inline tasks save on blur, keep adding with Shift+Enter, and retain failed drafts (5.1s)
+  ok 17 [chromium] › tests\e2e\phase4-project-views.spec.ts:11:1 › Phase 4 shares filters and edits across Board, Gantt, Calendar, Dashboard and Offices (8.1s)
+  ok 18 [chromium] › tests\e2e\phase4-project-views.spec.ts:93:1 › Member can inspect views at 390px without structural date controls (4.8s)
+  ok 19 [chromium] › tests\e2e\phase6-project-offices.spec.ts:5:1 › Lead invites an Office and hands over responsibility without assigning its staff (7.4s)
+  ok 20 [chromium] › tests\e2e\phase6-project-offices.spec.ts:45:1 › Collaborating Head sees a roomy own-Office member picker and only edits its own tasks (5.8s)
+  ok 21 [chromium] › tests\e2e\phase6-project-offices.spec.ts:71:1 › Observer opens the project without editable owners or task planning (5.3s)
+  ok 22 [chromium] › tests\e2e\project-workspace-controls.spec.ts:19:1 › Project actions open visible menus and dialogs, and the board returns to the filtered table (7.0s)
+  ok 23 [chromium] › tests\e2e\project-workspace-controls.spec.ts:73:1 › View picker, board return and first-column task actions remain reachable at 390px (4.9s)
+  ok 24 [chromium] › tests\e2e\project-workspace-controls.spec.ts:104:1 › Overflow views stay selectable and closable outside the mobile tab scroller (7.8s)
+
+
+  1) [chromium] › tests\e2e\phase11-main-table.spec.ts:62:1 › mobile planning picker and explicit creation keep fields inside the viewport 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  locator('.pt-planning-editor')
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for locator('.pt-planning-editor')[22m
+
+
+      61 |
+      62 | test('mobile planning picker and explicit creation keep fields inside the viewport',async({page},info)=>{
+    > 63 |  await fixture(page,'head',true);await page.setViewportSize({width:390,height:844});const scroll=page.locator('.pt-table-scroll').first();const dates=page.getByRole('button',{name:'Edit dates for '+title,exact:true});await scroll.evaluate(element=>element.scrollLeft=element.scrollWidth);await dates.scrollIntoViewIfNeeded();const bounds=await dates.boundingBox(),viewport=await scroll.boundingBox();await page.mouse.click(Math.min(bounds!.x+bounds!.width,viewport!.x+viewport!.width)-16,bounds!.y+bounds!.height/2);const editor=page.locator('.pt-planning-editor');await expect(editor).toBeVisible();const box=await editor.boundingBox();expect(box!.x).toBeGreaterThanOrEqual(0);expect(box!.x+box!.width).toBeLessThanOrEqual(390);await editor.getByLabel('Due date',{exact:true}).fill('2026-10-14');await page.screenshot({path:info.outputPath('timeline-draft-mobile.png')});await page.keyboard.press('Escape');await page.getByRole('button',{name:'Discard',exact:true}).click();await expect(editor).toHaveCount(0);
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           ^
+      64 |  await page.getByRole('button',{name:'New task',exact:true}).click();const create=page.getByRole('dialog',{name:'New task',exact:true});await create.getByRole('textbox',{name:'Task name',exact:true}).fill('Retained mobile task');await page.screenshot({path:info.outputPath('new-task-draft-mobile.png')});const input=await create.getByRole('textbox',{name:'Task name',exact:true}).boundingBox();expect(input!.x+input!.width).toBeLessThanOrEqual(390);await create.getByRole('button',{name:'Cancel',exact:true}).click();await page.getByRole('button',{name:'Discard',exact:true}).click();await expect(create).toHaveCount(0);expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+      65 | });
+      66 |
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase11-main-table.spec.ts:63:587
+
+    Error Context: test-results\phase11-browser-confirmed\phase11-main-table-mobile--04a2b--fields-inside-the-viewport-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase11-browser-confirmed\phase11-main-table-mobile--04a2b--fields-inside-the-viewport-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase11-browser-confirmed\phase11-main-table-mobile--04a2b--fields-inside-the-viewport-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › tests\e2e\phase11-main-table.spec.ts:62:1 › mobile planning picker and explicit creation keep fields inside the viewport 
+  23 passed (2.7m)

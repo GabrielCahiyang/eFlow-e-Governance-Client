@@ -1,0 +1,10 @@
+src/app/features/administration/components/user-management/AccountInspector.tsx 63ms
+src/app/features/administration/components/user-management/UsersTab.tsx 73ms
+src/app/features/budget/components/AccountingSettlementQueue.tsx 53ms
+src/app/features/budget/financialReceipts.ts 13ms
+src/app/features/navigation/navigationUrl.ts 20ms
+tests/unit/navigationUrl.test.ts 12ms
+tests/unit/phase16Contracts.test.ts 15ms
+tests/e2e/phase16-support-finance.spec.ts 49ms
+tests/e2e/fixtures/phase16Financial.ts 21ms
+tests/e2e/admin-unification.spec.ts 12ms

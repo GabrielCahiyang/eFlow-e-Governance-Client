@@ -1,0 +1,14 @@
+[
+  {
+    "id": "aria-valid-attr-value",
+    "impact": "critical",
+    "nodes": [
+      {
+        "target": [
+          "#radix-\\:r7\\:-trigger-All\\ Users"
+        ],
+        "detail": "Fix all of the following:\n  Invalid ARIA attribute value: aria-controls=\"radix-:r7:-content-All Users\""
+      }
+    ]
+  }
+]

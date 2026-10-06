@@ -1,0 +1,15 @@
+
+Running 2 tests using 2 workers
+
+(node:28580) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:34992) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:28580) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:34992) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 2 [chromium] › tests\e2e\design-system-foundation.spec.ts:6:3 › foundation themes, scroll affordance and control bounds at 320px (3.2s)
+  ok 1 [chromium] › tests\e2e\foundation-admin-directory.spec.ts:3:40 › Admin directory and form preserve authority, associations and pending drafts at 320px (9.7s)
+
+  2 passed (10.7s)

@@ -1,0 +1,289 @@
+[
+  {
+    "file": "foundation-zoom-equivalent-200.png",
+    "scenario": "design-system-foundation-d-a0add-nt-zoom-equivalent-viewport-chromium",
+    "width": 1440,
+    "height": 1000,
+    "sha256": "d824204bd162923f208897baa5dabf571daaf5d8a5a75b0813b2f330caa06920"
+  },
+  {
+    "file": "foundation-dark-390.png",
+    "scenario": "design-system-foundation-f-4cb42-and-control-bounds-at-390px-chromium",
+    "width": 390,
+    "height": 900,
+    "sha256": "8cea3e6ac16df59161e050bdf4cbef356930fa721b588b901dce8b5e71b6f869"
+  },
+  {
+    "file": "foundation-light-390.png",
+    "scenario": "design-system-foundation-f-4cb42-and-control-bounds-at-390px-chromium",
+    "width": 390,
+    "height": 900,
+    "sha256": "d1602f6f786f949931816ad0e1c9240fedb9094968886433a27b3b5e1ede131b"
+  },
+  {
+    "file": "foundation-system-390.png",
+    "scenario": "design-system-foundation-f-4cb42-and-control-bounds-at-390px-chromium",
+    "width": 390,
+    "height": 900,
+    "sha256": "d2ce7175cd90045edf8baf2b83e3f5bb2cdb2fd75977d3735d5cdacbfc33dae2"
+  },
+  {
+    "file": "foundation-dark-1440.png",
+    "scenario": "design-system-foundation-f-807a1-nd-control-bounds-at-1440px-chromium",
+    "width": 1440,
+    "height": 900,
+    "sha256": "a06732b15749ba5bda0859f4c3d0025a6c075bb0c8415aaa9bd351995fccd6c8"
+  },
+  {
+    "file": "foundation-light-1440.png",
+    "scenario": "design-system-foundation-f-807a1-nd-control-bounds-at-1440px-chromium",
+    "width": 1440,
+    "height": 900,
+    "sha256": "aac94053acf12d1e77524015bac61a3aeeed2afd07c231b249f9637514806c56"
+  },
+  {
+    "file": "foundation-system-1440.png",
+    "scenario": "design-system-foundation-f-807a1-nd-control-bounds-at-1440px-chromium",
+    "width": 1440,
+    "height": 900,
+    "sha256": "56a70ba363a29eb1bb372adb17b280e0deb36c1bf605b614b27717ae17b8bc12"
+  },
+  {
+    "file": "foundation-dark-320.png",
+    "scenario": "design-system-foundation-f-b32c0-and-control-bounds-at-320px-chromium",
+    "width": 320,
+    "height": 900,
+    "sha256": "6d6f65c5fe66283128578065d08bdd96a4b0757d35da9f4fc6e829b975f9503c"
+  },
+  {
+    "file": "foundation-light-320.png",
+    "scenario": "design-system-foundation-f-b32c0-and-control-bounds-at-320px-chromium",
+    "width": 320,
+    "height": 900,
+    "sha256": "0b0e6a5794eedb4f2ae2eef73e7af4765330816698b88f792b61fc15f6dd0be3"
+  },
+  {
+    "file": "foundation-system-320.png",
+    "scenario": "design-system-foundation-f-b32c0-and-control-bounds-at-320px-chromium",
+    "width": 320,
+    "height": 900,
+    "sha256": "a523f7ea6278c69f16de0b812c61a7b9e6b06087bdb1654cdbd0fc8017d73efa"
+  },
+  {
+    "file": "foundation-dark-768.png",
+    "scenario": "design-system-foundation-f-f8a0b-and-control-bounds-at-768px-chromium",
+    "width": 768,
+    "height": 900,
+    "sha256": "bbbcfbb9e6ba30c9d6e533fc992e34c3c8d4d8763337bb8b5b39a858339204c9"
+  },
+  {
+    "file": "foundation-light-768.png",
+    "scenario": "design-system-foundation-f-f8a0b-and-control-bounds-at-768px-chromium",
+    "width": 768,
+    "height": 900,
+    "sha256": "c10cc63c442e5a25592613d0e34406759c6bd66a8a5d53c062530aedfd003338"
+  },
+  {
+    "file": "foundation-system-768.png",
+    "scenario": "design-system-foundation-f-f8a0b-and-control-bounds-at-768px-chromium",
+    "width": 768,
+    "height": 900,
+    "sha256": "667122741c243a715ecde287d3d240bfee807d8a9da9434c449219820c756c49"
+  },
+  {
+    "file": "confirmation-Vibe-modal.png",
+    "scenario": "design-system-foundation-n-168fb-discard-focus-in-Vibe-modal-chromium",
+    "width": 1280,
+    "height": 720,
+    "sha256": "574257a31655603e1477c21a07f2c7958417bce6af8002de6a06bfb3bd4a2b12"
+  },
+  {
+    "file": "overlay-Vibe-modal.png",
+    "scenario": "design-system-foundation-n-168fb-discard-focus-in-Vibe-modal-chromium",
+    "width": 1280,
+    "height": 720,
+    "sha256": "1240663b278065c3628bea783b56229534a53d04c57e60478dc4d935ebe88154"
+  },
+  {
+    "file": "confirmation-feature-dialog.png",
+    "scenario": "design-system-foundation-n-3653a-ard-focus-in-feature-dialog-chromium",
+    "width": 1280,
+    "height": 720,
+    "sha256": "139de295b1dad33e59682894037572d538c53aeda9abf6271581de64b7753288"
+  },
+  {
+    "file": "overlay-feature-dialog.png",
+    "scenario": "design-system-foundation-n-3653a-ard-focus-in-feature-dialog-chromium",
+    "width": 1280,
+    "height": 720,
+    "sha256": "1240663b278065c3628bea783b56229534a53d04c57e60478dc4d935ebe88154"
+  },
+  {
+    "file": "confirmation-inspector.png",
+    "scenario": "design-system-foundation-n-8c1f5--discard-focus-in-inspector-chromium",
+    "width": 1280,
+    "height": 720,
+    "sha256": "01fdfeb59322ed5aab749eec6ef597ca88cf469709435b34cb5a15ea7ceea79d"
+  },
+  {
+    "file": "overlay-inspector.png",
+    "scenario": "design-system-foundation-n-8c1f5--discard-focus-in-inspector-chromium",
+    "width": 1280,
+    "height": 720,
+    "sha256": "2cac517ddc0d1a4773c7c2993060f5f507186c58c57388438d3c569816f8a576"
+  },
+  {
+    "file": "admin-directory-768.png",
+    "scenario": "foundation-admin-directory-a328c-and-pending-drafts-at-768px-chromium",
+    "width": 768,
+    "height": 900,
+    "sha256": "c50e4feb49b6599c1960e8885d04e24ab95d26d54d9625408849f0035f61e59b"
+  },
+  {
+    "file": "admin-form-768.png",
+    "scenario": "foundation-admin-directory-a328c-and-pending-drafts-at-768px-chromium",
+    "width": 768,
+    "height": 900,
+    "sha256": "3b1b17fb9cef9df851d20548288f7c9105b92c0809c5a90b4476f3be3a012731"
+  },
+  {
+    "file": "admin-directory-320.png",
+    "scenario": "foundation-admin-directory-ab740-and-pending-drafts-at-320px-chromium",
+    "width": 320,
+    "height": 900,
+    "sha256": "27ac9ce29b9dcb2444c04ebddd36d891a3602d53c45940720e6a40ad26a43855"
+  },
+  {
+    "file": "admin-form-320.png",
+    "scenario": "foundation-admin-directory-ab740-and-pending-drafts-at-320px-chromium",
+    "width": 320,
+    "height": 900,
+    "sha256": "d02ac3c6d05cfb7b0edea557197353f538eaf0582138dc8e2500744fdbc368c9"
+  },
+  {
+    "file": "admin-directory-1440.png",
+    "scenario": "foundation-admin-directory-bf305-nd-pending-drafts-at-1440px-chromium",
+    "width": 1440,
+    "height": 900,
+    "sha256": "398439248e332f57aa6497835887237441472bbc548f4ced188b243e0a3bfd38"
+  },
+  {
+    "file": "admin-form-1440.png",
+    "scenario": "foundation-admin-directory-bf305-nd-pending-drafts-at-1440px-chromium",
+    "width": 1440,
+    "height": 900,
+    "sha256": "1ec85cb13b6fbec5dc61892617548cdf1bb50753e257c25888b24122921fda6b"
+  },
+  {
+    "file": "admin-directory-390.png",
+    "scenario": "foundation-admin-directory-cff53-and-pending-drafts-at-390px-chromium",
+    "width": 390,
+    "height": 900,
+    "sha256": "92243eee7fcdb410b5efbb3b3019a48456e966cfc90daa03a994ef2c7b49b8de"
+  },
+  {
+    "file": "admin-form-390.png",
+    "scenario": "foundation-admin-directory-cff53-and-pending-drafts-at-390px-chromium",
+    "width": 390,
+    "height": 900,
+    "sha256": "4dd97ad9e553138279d8e9d22475ddf8d1ae4a209eeddb89484cb9136b656b26"
+  },
+  {
+    "file": "expanded-subitems.png",
+    "scenario": "phase3-project-table-Head--a2c4f-k-edits-and-inline-subitems-chromium",
+    "width": 1440,
+    "height": 1000,
+    "sha256": "f51bff46a4983f8c518c72835fc730b5c4963153cc11560d5cdd15dd0991ddae"
+  },
+  {
+    "file": "main-table.png",
+    "scenario": "phase3-project-table-Head--a2c4f-k-edits-and-inline-subitems-chromium",
+    "width": 1440,
+    "height": 1000,
+    "sha256": "b59573d3e82f02612e42ae264945165de47b77f9b78e6803e9588e17086ab4d4"
+  },
+  {
+    "file": "inline-task-draft.png",
+    "scenario": "phase3-project-table-Inlin-730e8-er-and-retain-failed-drafts-chromium",
+    "width": 1440,
+    "height": 1000,
+    "sha256": "316f3ae7de58dfbe1501eadf0e0c2bfe97bda0a817e92246607611e862690e14"
+  },
+  {
+    "file": "main-table-mobile.png",
+    "scenario": "phase3-project-table-Membe-1157c-eeps-detail-access-at-390px-chromium",
+    "width": 390,
+    "height": 844,
+    "sha256": "94cc93b6c8f37c7c4b12100a457d679533f8b1dd64ee0bd9ca559027e5583d19"
+  },
+  {
+    "file": "gantt-mobile.png",
+    "scenario": "phase4-project-views-Membe-07cbd-ut-structural-date-controls-chromium",
+    "width": 390,
+    "height": 844,
+    "sha256": "7fc7c26e999e1cd235bdea24a891b92e023de6cca0f72a00b9232869ce488e82"
+  },
+  {
+    "file": "board.png",
+    "scenario": "phase4-project-views-Phase-a15ed-endar-Dashboard-and-Offices-chromium",
+    "width": 1440,
+    "height": 1000,
+    "sha256": "5bc7a89486346563fa96482210a91946de55cc30badd3fb5e8864198e7946605"
+  },
+  {
+    "file": "calendar.png",
+    "scenario": "phase4-project-views-Phase-a15ed-endar-Dashboard-and-Offices-chromium",
+    "width": 1440,
+    "height": 1000,
+    "sha256": "cd7d57c3e7b2437358fc0aba6ba4695720e0e8edb8ee06602893803e53797985"
+  },
+  {
+    "file": "dashboard.png",
+    "scenario": "phase4-project-views-Phase-a15ed-endar-Dashboard-and-Offices-chromium",
+    "width": 1440,
+    "height": 1000,
+    "sha256": "a83f90ae51335e6555991f6fff90f389d6304e40bf7eb80ef707c5556ec82c67"
+  },
+  {
+    "file": "gantt.png",
+    "scenario": "phase4-project-views-Phase-a15ed-endar-Dashboard-and-Offices-chromium",
+    "width": 1440,
+    "height": 1000,
+    "sha256": "47a5f65051fe59d8c5cbba879f0b46f327a2d82c4004465bc3638585b354f10b"
+  },
+  {
+    "file": "offices.png",
+    "scenario": "phase4-project-views-Phase-a15ed-endar-Dashboard-and-Offices-chromium",
+    "width": 1440,
+    "height": 1000,
+    "sha256": "5931defe03d8ccce88b2375b786a90612f53d1ea85e415c885edcb6306ef057e"
+  },
+  {
+    "file": "add-view-desktop.png",
+    "scenario": "project-workspace-controls-ec47e-turns-to-the-filtered-table-chromium",
+    "width": 1440,
+    "height": 1000,
+    "sha256": "d54fe00cacd32365d1c161296c7b7b9eca25befd0b4ed19a16888a7f9dcdd61f"
+  },
+  {
+    "file": "project-controls-desktop.png",
+    "scenario": "project-workspace-controls-ec47e-turns-to-the-filtered-table-chromium",
+    "width": 1440,
+    "height": 1000,
+    "sha256": "aaa8de31d29859ac01db559ed605caf75ff772396f2044bc47b06b90215e90e4"
+  },
+  {
+    "file": "add-view-mobile.png",
+    "scenario": "project-workspace-controls-f6743-s-remain-reachable-at-390px-chromium",
+    "width": 390,
+    "height": 844,
+    "sha256": "7de99b8282a303ba1dc0a7e86c91351d0654550f0a2e53015e64504dd3b3a8fc"
+  },
+  {
+    "file": "project-controls-mobile.png",
+    "scenario": "project-workspace-controls-f6743-s-remain-reachable-at-390px-chromium",
+    "width": 390,
+    "height": 844,
+    "sha256": "55a163d218268c1c31f35966d7a1c76ec98d878746a7d813f8bad2dea5d2cd50"
+  }
+]

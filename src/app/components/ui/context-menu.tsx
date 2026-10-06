@@ -4,6 +4,7 @@ import * as React from "react";
 import * as ContextMenuPrimitive from "@radix-ui/react-context-menu";
 import { CheckIcon, ChevronRightIcon, CircleIcon } from "lucide-react";
 
+import { useOverlayPopoverLayer } from "./OverlayPopoverLayer";
 import { cn } from "./utils";
 
 function ContextMenu({
@@ -79,8 +80,10 @@ function ContextMenuSubTrigger({
 
 function ContextMenuSubContent({
   className,
+  style,
   ...props
 }: React.ComponentProps<typeof ContextMenuPrimitive.SubContent>) {
+  const popoverLayer = useOverlayPopoverLayer();
   return (
     <ContextMenuPrimitive.SubContent
       data-slot="context-menu-sub-content"
@@ -89,14 +92,17 @@ function ContextMenuSubContent({
         className,
       )}
       {...props}
+      style={{ ...style, zIndex: popoverLayer || style?.zIndex }}
     />
   );
 }
 
 function ContextMenuContent({
   className,
+  style,
   ...props
 }: React.ComponentProps<typeof ContextMenuPrimitive.Content>) {
+  const popoverLayer = useOverlayPopoverLayer();
   return (
     <ContextMenuPrimitive.Portal>
       <ContextMenuPrimitive.Content
@@ -106,6 +112,7 @@ function ContextMenuContent({
           className,
         )}
         {...props}
+        style={{ ...style, zIndex: popoverLayer || style?.zIndex }}
       />
     </ContextMenuPrimitive.Portal>
   );

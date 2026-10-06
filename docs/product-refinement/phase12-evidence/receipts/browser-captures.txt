@@ -1,0 +1,14 @@
+Command: Playwright: phase4-project-views; workers=1; waits for confirmation removal before capture
+Exit code: 0
+
+
+Running 2 tests using 1 worker
+
+(node:35464) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35464) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [chromium] › tests\e2e\phase4-project-views.spec.ts:11:1 › Phase 4 shares filters and edits across Board, Gantt, Calendar, Dashboard and Offices (12.6s)
+  ok 2 [chromium] › tests\e2e\phase4-project-views.spec.ts:101:1 › Member can inspect views at 390px without structural date controls (4.7s)
+
+  2 passed (18.5s)

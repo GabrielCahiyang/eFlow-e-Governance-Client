@@ -1,0 +1,38 @@
+[
+  {
+    "id": "button-name",
+    "impact": "critical",
+    "nodes": [
+      {
+        "target": [
+          ".w-\\[155px\\]"
+        ],
+        "detail": "Fix any of the following:\n  Element does not have inner text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+      }
+    ]
+  },
+  {
+    "id": "color-contrast",
+    "impact": "serious",
+    "nodes": [
+      {
+        "target": [
+          ".contentText_61cf023805"
+        ],
+        "detail": "Fix any of the following:\n  Element has insufficient color contrast of 1.8 (foreground color: #ffffff, background color: #66ccff, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+      },
+      {
+        "target": [
+          ".eflow-getting-started-banner > div > span"
+        ],
+        "detail": "Fix any of the following:\n  Element has insufficient color contrast of 3.52 (foreground color: #6b8983, background color: #f1f8f7, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1"
+      },
+      {
+        "target": [
+          ".eflow-getting-started-banner > button"
+        ],
+        "detail": "Fix any of the following:\n  Element has insufficient color contrast of 4.4 (foreground color: #087f8c, background color: #f1f8f7, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+      }
+    ]
+  }
+]

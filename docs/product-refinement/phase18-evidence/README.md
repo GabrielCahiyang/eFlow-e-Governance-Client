@@ -1,0 +1,13 @@
+# Phase 18 evidence
+
+Use [evidence.json](evidence.json) for the verified run IDs, input/artifact hashes and limits. Performance acceptance remains failed as recorded in [the release issue](../phase18-performance-issue.md). Source copies are selected implementation/fixture files; the complete application-input fingerprint map records all frontend source inputs. Build asset manifests record the local artifacts; the large generated artifacts remain ignored under `.phase18/`.
+
+- `baseline/performance-valid-report.json` retains the historical three-sample DOM-ready baseline for 100/1,000 tasks and the journal. Earlier `baseline/performance-report.json` is diagnostic only: its locator/filter setup was invalid. The 5,000-task baseline timeout provides no valid median.
+- `baseline/performance-recheck-report.json` and `final/performance-report.json` use the same `paint-ready-v2` driver in this continuation. Initial row/font paint completes before filtering begins. They supply paired medians for `final/performance-comparison.json`; the 10% budget is unchanged and the filtering gate fails. All samples and outliers are retained. Baseline source fingerprints cover 24 selected files; the frozen artifact has complete file hashes, but a complete pre-change source snapshot was not captured.
+- `baseline/accessibility/` and `baseline/secondary-accessibility/` contain pre-change production-artifact audits. Their failures are recorded observations, not waived final rules.
+- `final/` contains final logs, regression fixtures, accessibility findings, screenshots, measurements and local rollback receipts. Timing comparisons use the same locked Chromium build and local intercepted fixture profile with other build/test work stopped. A measurement is retained even when it fails the budget; it is not evidence of full release acceptance.
+- `diagnostics/` retains failed and interrupted runs, DOM-ready timing reports, CPU profiles and the independent input/commit/paint driver and logs. They are not counted as browser acceptance. The shared-cache Firefox startup failed; a fresh isolated locked browser worked. A test-source import, PDF stream compatibility, focus behavior, tablet overlap and test title encoding were corrected before the final browser run.
+
+All browser records are synthetic. These receipts do not certify deployed permissions, private-document delivery, external financial or invitation effects, native devices, assistive-technology sessions or actual deployment rollback.
+
+Inherited logs at the `final/` root retain the previous interrupted attempt's history. The manifest identifies the authoritative continuation receipts under `final/receipts/`; use its counts and artifact hashes when reviewing the current result.

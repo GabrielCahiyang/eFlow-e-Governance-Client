@@ -1,0 +1,199 @@
+{
+  "phase": 12,
+  "captured_at": "2026-10-06T08:47:31.589696+00:00",
+  "frontend": "http://127.0.0.1:5173",
+  "backend": "Synthetic intercepted auth, REST, gateway and realtime fixtures. No deployed RLS audit or live database writes.",
+  "source_snapshot": "source-manifest.json; edited sources and compatibility dependencies, with current hashes. Earlier phases retain historical snapshots.",
+  "historical_baseline": "../phase11-evidence/evidence.json; no pristine Phase 12 before-state was captured.",
+  "checks": {
+    "typecheck": "passed",
+    "unit": "708 tests / 181 files passed",
+    "build": "passed; existing bundle-size warnings",
+    "browser": "23 Chromium cases passed, including 9 Phase 12 cases; 2 view cases passed again after screenshot timing improvement",
+    "graph": "7159 nodes / 22109 edges; six existing partial-extraction warnings",
+    "whitespace": "passed"
+  },
+  "gates": {
+    "G2": "Shared-project non-Head Task Lead team mutation remains gated; responsible Office Head authority is unchanged.",
+    "database": "No schema, RLS, Python endpoint, API payload or existing service return contract changes.",
+    "schedule": "Every established schedule change receives impact confirmation; the brief supplies no numeric materiality threshold."
+  },
+  "limitations": [
+    "Browser network responses are synthetic fixtures.",
+    "Native zoom and assistive-technology sessions were not run.",
+    "Changes remain local, uncommitted and unpushed."
+  ],
+  "receipts": [
+    {
+      "path": "receipts/browser-captures.txt",
+      "sha256": "0a57c001a4974f90f3ea9d575551286dc7ffae0fb8a1620e1e0cd94187c5531f",
+      "diagnostic": false
+    },
+    {
+      "path": "receipts/browser.txt",
+      "sha256": "516e38da8f5fcd59f3aa87bd14de8a280bfcf5c47f32c87169c0864a3b701a2c",
+      "diagnostic": false
+    },
+    {
+      "path": "receipts/build.txt",
+      "sha256": "26fb70c3a4e0eda6ba89a4c861d7aa8b19db0949cef90d747566c62f2fc2ce1b",
+      "diagnostic": false
+    },
+    {
+      "path": "receipts/check.txt",
+      "sha256": "256d8f4b2ac60faa9df4f3c6ab07a8fd61f6db0442eb3ba7d856060073757462",
+      "diagnostic": false
+    },
+    {
+      "path": "receipts/diagnostic-assignment-interceptor.txt",
+      "sha256": "49b953f49c2b9f42b0e9daf3d7ffb09db20b1bc6fe4ec2eb951cca8ac570f038",
+      "diagnostic": true
+    },
+    {
+      "path": "receipts/diagnostic-browser-initial.txt",
+      "sha256": "d5a2d56da43484b2194e2c6c1e047c506e5d8a258823ba764dffda6ea2c239df",
+      "diagnostic": true
+    },
+    {
+      "path": "receipts/diagnostic-nested-dialog-focus.txt",
+      "sha256": "b5e19568b234f9ad310d3abdcc6d1e84c1393396380e500f647f9a16e37a14a1",
+      "diagnostic": true
+    },
+    {
+      "path": "receipts/diagnostic-office-context.txt",
+      "sha256": "a320bc278cf88595b7d8c2e3ee9f3ade539e8e8490c0800fedd928ab952e717f",
+      "diagnostic": true
+    },
+    {
+      "path": "receipts/graph.txt",
+      "sha256": "567d3eb77700835dbfd653c078beaec8315429039380a6f950b84cac02527bb4",
+      "diagnostic": false
+    },
+    {
+      "path": "receipts/unit.txt",
+      "sha256": "c66070f79830f723a9efcd112c088c770d7bfeed7637d6dc318a9d9fea2d1ad6",
+      "diagnostic": false
+    },
+    {
+      "path": "receipts/whitespace.txt",
+      "sha256": "6d6d0744dc2fcbfa98ef24e17471a87d75bf08696e926e0e947c9d319efb4283",
+      "diagnostic": false
+    }
+  ],
+  "captures": [
+    {
+      "path": "after/phase12-shared-inspector-m-3a946-ains-a-denied-member-change-chromium/team-mobile-denial.png",
+      "sha256": "6a2ca501ac7c19480ddc22632aaf3783e7498333d2871b5df1e4819533239722"
+    },
+    {
+      "path": "after/phase12-shared-inspector-m-bb4ba-and-traps-and-returns-focus-chromium/inspector-mobile.png",
+      "sha256": "c1d8d13b4aab15c7f918f5137d3cbe63af27674393bf5a7d422242d5a44c9272"
+    },
+    {
+      "path": "after/phase12-shared-inspector-s-08ea3-le-details-remain-available-chromium/shared-lead-gate.png",
+      "sha256": "5cbef82a0fc88ac6bec6e7f8c1d43dbd6fedbff9cfa318d12aa5389ead6cce9f"
+    },
+    {
+      "path": "after/phase12-shared-inspector-s-5c03f-s-focus-to-each-view-origin-chromium/office-origin.png",
+      "sha256": "c6ef5bd64874067507c58d53094141b28d74b6865eeec457a51f884c8b3b3ba5"
+    },
+    {
+      "path": "after/phase3-project-table-Head--a2c4f-k-edits-and-inline-subitems-chromium/expanded-subitems.png",
+      "sha256": "613c495df4cb2315cd86eba0bfc70728eacb75f939a046f599ea351a71163bee"
+    },
+    {
+      "path": "after/phase3-project-table-Head--a2c4f-k-edits-and-inline-subitems-chromium/main-table.png",
+      "sha256": "5525e2b79960e64183de750c4f0165afc117272a211d13d20a0f4c09726c1079"
+    },
+    {
+      "path": "after/phase3-project-table-Inlin-730e8-er-and-retain-failed-drafts-chromium/inline-task-draft.png",
+      "sha256": "7052f59508eb66e5cc37e2ea76695acbb8291f3fb85279cede8a4a8a30ddea93"
+    },
+    {
+      "path": "after/phase3-project-table-Membe-1157c-eeps-detail-access-at-390px-chromium/main-table-mobile.png",
+      "sha256": "009044a8adb1c09b84f12ade812d9f5b0b42ab3e11991b56611ce7db30cf7309"
+    },
+    {
+      "path": "after/phase4-project-views-Membe-07cbd-ut-structural-date-controls-chromium/gantt-mobile.png",
+      "sha256": "5d30554c4f77c618a6cb43fa43a183ad1d044997a055d86ae5d623bd3979b0c9"
+    },
+    {
+      "path": "after/phase4-project-views-Phase-a15ed-endar-Dashboard-and-Offices-chromium/board.png",
+      "sha256": "cbfce9d4fb4ded7b51b033346f23f64f9075ab24d1a4a9f011e71cf83c0f6c55"
+    },
+    {
+      "path": "after/phase4-project-views-Phase-a15ed-endar-Dashboard-and-Offices-chromium/calendar.png",
+      "sha256": "9b56096bb0a3fb6eb92b973e35359e7220834d363b6980899c3d242fa15ee48a"
+    },
+    {
+      "path": "after/phase4-project-views-Phase-a15ed-endar-Dashboard-and-Offices-chromium/dashboard.png",
+      "sha256": "db02f92436dd2367b6fb9e64abe4295c2b32fd09284ac6b84c2256b29f81b6f5"
+    },
+    {
+      "path": "after/phase4-project-views-Phase-a15ed-endar-Dashboard-and-Offices-chromium/gantt.png",
+      "sha256": "12ac46f35506be24609941a6ea5a93e0031126ddd16694215a5ca611b1ce58be"
+    },
+    {
+      "path": "after/phase4-project-views-Phase-a15ed-endar-Dashboard-and-Offices-chromium/offices.png",
+      "sha256": "7a1703f2354ecb8e9bee6d71d281cd633f739855ca2e4218fc32846bbda27095"
+    },
+    {
+      "path": "after/phase6-project-offices-Col-cffae-nd-only-edits-its-own-tasks-chromium/own-office-team-desktop.png",
+      "sha256": "e885fee13f40d1d2ab39388ca055e7e10917e9ce824635427e095e0a0e4a0efd"
+    },
+    {
+      "path": "after/phase6-project-offices-Col-cffae-nd-only-edits-its-own-tasks-chromium/own-office-team-mobile.png",
+      "sha256": "aabe3a411bbbedbb49e2b86d730e0a264266411c0d04cc31fb6b6fc764c64655"
+    },
+    {
+      "path": "after/phase6-project-offices-Lea-30856-without-assigning-its-staff-chromium/invite-office-desktop.png",
+      "sha256": "a7d1a68cf5e0e31c89948435540263994c49ad92b7b8ff7eee8b36d3ff3f8b33"
+    },
+    {
+      "path": "after/phase6-project-offices-Lea-30856-without-assigning-its-staff-chromium/office-workspace-desktop.png",
+      "sha256": "f04aac2b78a7229f62b6ff3468fd73b93cc64d95f2bb8ceb5589a28b5a9e1b96"
+    },
+    {
+      "path": "after/phase7-readiness-staffing--27cfb-hecks-and-closeout-blockers-chromium/readiness-desktop.png",
+      "sha256": "5c71e47e79b87443a272aed67b5a6545bf2f7775d357a7cc0c401935ff128c77"
+    },
+    {
+      "path": "after/phase7-readiness-staffing--27cfb-hecks-and-closeout-blockers-chromium/readiness-mobile.png",
+      "sha256": "8a49ee778c88fcbb0714bd981337044c65db76c3dcc38c75a96864b5c2f0756b"
+    },
+    {
+      "path": "after/phase7-readiness-staffing--2eefa-selection-and-mobile-footer-chromium/staffing-desktop.png",
+      "sha256": "fb7040b0df4e90132275baed9a278269403f26ea50856b5d796a72da1d083b8c"
+    },
+    {
+      "path": "after/phase7-readiness-staffing--2eefa-selection-and-mobile-footer-chromium/staffing-mobile.png",
+      "sha256": "145c6385d89f3cd08caa01a64035aa7f83e09ae97556106cc1f952c6f9da4a9f"
+    },
+    {
+      "path": "after/project-workspace-controls-ec47e-turns-to-the-filtered-table-chromium/add-view-desktop.png",
+      "sha256": "567d8cfdea6c470196a059fbb757c79eb33b2b509a47c7655ac83042c4b7aede"
+    },
+    {
+      "path": "after/project-workspace-controls-ec47e-turns-to-the-filtered-table-chromium/project-controls-desktop.png",
+      "sha256": "dcd5aacd923b2f5b8de5d958a6123c5e51989bbc2f124f7403e92aa744bb58a8"
+    },
+    {
+      "path": "after/project-workspace-controls-f6743-s-remain-reachable-at-390px-chromium/add-view-mobile.png",
+      "sha256": "d1be8a6cadaa0fbcc33ee859788d2e1ae6bc49d5bb5b2fa4049b8f451a6ba901"
+    },
+    {
+      "path": "after/project-workspace-controls-f6743-s-remain-reachable-at-390px-chromium/project-controls-mobile.png",
+      "sha256": "f00b72a62a7f953d55d30f9330bd1d9ce4e4d4bf7e1461281e8ef84c0019fe55"
+    }
+  ],
+  "visual_review": [
+    "after/phase12-shared-inspector-m-3a946-ains-a-denied-member-change-chromium/team-mobile-denial.png",
+    "after/phase12-shared-inspector-m-bb4ba-and-traps-and-returns-focus-chromium/inspector-mobile.png",
+    "after/phase4-project-views-Phase-a15ed-endar-Dashboard-and-Offices-chromium/gantt.png",
+    "after/phase4-project-views-Phase-a15ed-endar-Dashboard-and-Offices-chromium/calendar.png"
+  ],
+  "source_manifest": {
+    "path": "source-manifest.json",
+    "sha256": "63ea9df84b89887dafd31407f223b45bab087e587e560d82b8d15035b79df47b"
+  }
+}

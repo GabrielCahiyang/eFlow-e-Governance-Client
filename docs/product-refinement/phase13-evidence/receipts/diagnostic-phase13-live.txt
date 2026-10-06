@@ -1,0 +1,135 @@
+Diagnostic only, superseded by passing final receipts.
+
+
+Running 8 tests using 1 worker
+
+(node:32984) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:32984) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  1 [chromium] › tests\e2e\phase13-personal-work.spec.ts:10:66 › head discovers personal work and keeps legacy task and subtask URLs (10.6s)
+(node:42888) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:42888) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 2 [chromium] › tests\e2e\phase13-personal-work.spec.ts:10:66 › member discovers personal work and keeps legacy task and subtask URLs (5.6s)
+  ok 3 [chromium] › tests\e2e\phase13-personal-work.spec.ts:10:66 › accounting_staff discovers personal work and keeps legacy task and subtask URLs (5.3s)
+  ok 4 [chromium] › tests\e2e\phase13-personal-work.spec.ts:23:1 › mobile personal inspector retains dirty discussion and returns focus (5.3s)
+  x  5 [chromium] › tests\e2e\phase13-personal-work.spec.ts:30:1 › My Work read failure is retryable and never a clear queue (9.1s)
+(node:17632) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:17632) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 6 [chromium] › tests\e2e\phase13-personal-work.spec.ts:36:1 › Inbox keeps independent task and subtask discovery and exposes partial source denial (4.3s)
+  x  7 [chromium] › tests\e2e\phase13-personal-work.spec.ts:45:1 › recent Updates verify read writes, retain denied read state and explain missing targets at 390px (9.5s)
+(node:35152) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35152) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 8 [chromium] › tests\e2e\phase13-personal-work.spec.ts:56:1 › Admin Inbox does not acquire task, financial or review authority (4.1s)
+
+
+  1) [chromium] › tests\e2e\phase13-personal-work.spec.ts:10:66 › head discovers personal work and keeps legacy task and subtask URLs 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  getByRole('heading', { name: 'Task Board', exact: true })
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('heading', { name: 'Task Board', exact: true })[22m
+
+
+      18 |  await page.screenshot({path:info.outputPath(`${role}-my-work.png`),fullPage:true,animations:'disabled'});
+      19 |  await page.getByRole('button',{name:'My subtasks',exact:true}).click();await expect.poll(()=>new URL(page.url()).pathname).toBe('/subtasks');
+    > 20 |  await page.goto(role==='head'?'/tasks?page=Task%20Board':'/tasks?page=My%20Tasks');await expect(page.getByRole('heading',{name:role==='head'?'Task Board':'My Tasks',exact:true})).toBeVisible();
+         |                                                                                                                                                                                     ^
+      21 |  expect(records.tasks).toHaveLength(3);
+      22 | });
+      23 | test('mobile personal inspector retains dirty discussion and returns focus',async({page},info)=>{
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase13-personal-work.spec.ts:20:181
+
+    Error Context: test-results\phase13-live\phase13-personal-work-head-b2785-egacy-task-and-subtask-URLs-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase13-live\phase13-personal-work-head-b2785-egacy-task-and-subtask-URLs-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase13-live\phase13-personal-work-head-b2785-egacy-task-and-subtask-URLs-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › tests\e2e\phase13-personal-work.spec.ts:30:1 › My Work read failure is retryable and never a clear queue 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByRole('alert')
+    Expected string: [32m"Personal read interrupted"[39m
+    Received: <element(s) not found>
+    Timeout: 5000ms
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('alert')[22m
+
+
+      31 |  await projectWorkspaceFixture(page,'member',false,{landingOnly:true});await personal(page,'My Work');let denied=true;
+      32 |  await page.route('**/rest/v1/tasks?**',route=>denied?route.fulfill({status:503,json:{message:'Personal read interrupted'}}):route.fallback());
+    > 33 |  await page.getByRole('button',{name:'Refresh work',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Personal read interrupted');await expect(page.locator('[data-personal-task]')).toHaveCount(0);
+         |                                                                                                                ^
+      34 |  denied=false;await page.getByRole('button',{name:'Retry',exact:true}).click();await expect(page.locator('[data-personal-task]')).toHaveCount(2);
+      35 | });
+      36 | test('Inbox keeps independent task and subtask discovery and exposes partial source denial',async({page},info)=>{
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase13-personal-work.spec.ts:33:112
+
+    Error Context: test-results\phase13-live\phase13-personal-work-My-W-4b090-ble-and-never-a-clear-queue-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase13-live\phase13-personal-work-My-W-4b090-ble-and-never-a-clear-queue-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase13-live\phase13-personal-work-My-W-4b090-ble-and-never-a-clear-queue-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [chromium] › tests\e2e\phase13-personal-work.spec.ts:45:1 › recent Updates verify read writes, retain denied read state and explain missing targets at 390px 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByRole('alert')
+    Expected string: [32m"outside your access"[39m
+    Received: <element(s) not found>
+    Timeout: 5000ms
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('alert')[22m
+
+
+      51 |  denied=false;await first.getByRole('button',{name:'Mark read',exact:true}).click();await expect(first.getByText('Read',{exact:true})).toBeVisible();expect(writes).toBe(2);
+      52 |  await first.getByRole('button',{name:'Open update',exact:true}).click();await expect(page.getByRole('dialog',{name:'Task details: '+title})).toBeVisible();await page.keyboard.press('Escape');
+    > 53 |  await feed.getByRole('listitem').filter({hasText:'Deleted task'}).getByRole('button',{name:'Open update',exact:true}).click();await expect(page.getByRole('alert')).toContainText('outside your access');
+         |                                                                                                                                                                      ^
+      54 |  await page.screenshot({path:info.outputPath('inbox-updates-mobile.png'),fullPage:true,animations:'disabled'});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+      55 | });
+      56 | test('Admin Inbox does not acquire task, financial or review authority',async({page},info)=>{
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase13-personal-work.spec.ts:53:166
+
+    Error Context: test-results\phase13-live\phase13-personal-work-rece-70df9-in-missing-targets-at-390px-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase13-live\phase13-personal-work-rece-70df9-in-missing-targets-at-390px-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase13-live\phase13-personal-work-rece-70df9-in-missing-targets-at-390px-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    [chromium] › tests\e2e\phase13-personal-work.spec.ts:10:66 › head discovers personal work and keeps legacy task and subtask URLs 
+    [chromium] › tests\e2e\phase13-personal-work.spec.ts:30:1 › My Work read failure is retryable and never a clear queue 
+    [chromium] › tests\e2e\phase13-personal-work.spec.ts:45:1 › recent Updates verify read writes, retain denied read state and explain missing targets at 390px 
+  5 passed (58.3s)

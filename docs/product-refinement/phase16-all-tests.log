@@ -1,0 +1,4083 @@
+
+> @figma/my-make-file@0.0.1 test
+> vitest --configLoader runner run
+
+
+ RUN  v3.2.4 C:/Users/james/projects/eflow-e-Governance-Project
+
+ ✓ tests/unit/workspaceFoundation.test.tsx (4 tests) 1722ms
+   ✓ workspace interaction foundation > cancels with Escape and saves the next edit once despite Enter followed by blur  958ms
+   ✓ workspace interaction foundation > separates the common action from its contextual menu  406ms
+ ✓ tests/unit/designSystemFoundation.test.tsx (7 tests) 1886ms
+   ✓ design foundation compatibility contracts > keeps compound controls' explicit IDs on the control rather than its wrapper  580ms
+   ✓ design foundation compatibility contracts > cancels without mutation and requires an exact phrase or resolved blockers  607ms
+ ✓ tests/unit/defenseRevisionInteractions.test.tsx (9 tests) 1625ms
+   ✓ PDF operation lock > ignores close and Escape during processing and allows closing after release  1096ms
+   ✓ resend approval interactions > preserves the confirmation after failure and permits retry without duplicate clicks  475ms
+ ✓ tests/unit/phase10ProjectWorkspace.test.tsx (8 tests) 2551ms
+   ✓ Phase 10 project workspace > keeps missing identity readable and closed title editing disabled  769ms
+   ✓ Phase 10 project workspace > retains failed settings, retries once and marks only the saved draft clean  498ms
+   ✓ Phase 10 project workspace > denies metadata saves for read-only and closed contexts  306ms
+   ✓ Phase 10 project workspace > validates dates and blocks switching or duplicate saves while a request is pending  581ms
+ ✓ tests/unit/taskTeamEditorDialog.test.tsx (4 tests) 3985ms
+   ✓ task team editor > shows the complete team and refuses to remove a member with unfinished subtask work  1292ms
+   ✓ Phase 12 task team safety > keeps a team draft on cancelled dismissal, then discards only after acceptance  798ms
+   ✓ Phase 12 task team safety > uses an impact dialog once and retains selected members after a server denial  989ms
+   ✓ Phase 12 task team safety > refuses to overwrite a team changed remotely while a draft is open  904ms
+ ✓ tests/unit/projectViewNavigation.test.tsx (6 tests) 3759ms
+   ✓ project view navigation > exposes and persists a Board view entered through a shortcut or direct URL  1014ms
+   ✓ project view navigation > renders Add view outside a clipping ancestor and respects conditional views  740ms
+   ✓ project view navigation > closes the view picker with Escape  326ms
+   ✓ project view navigation > keeps an active overflow view selected and exposes the displaced view in More  1074ms
+   ✓ project view navigation > keeps saved views scoped to their project when the project changes  326ms
+ ✓ tests/unit/projectSubitems.test.tsx (13 tests) 4775ms
+   ✓ Project table subitem expansion > places task actions in the first cell and keeps detail access without drag controls  1495ms
+   ✓ Project table subitem expansion > keeps the first-column Add subitem action disabled for someone who is not the task lead  409ms
+   ✓ Project table subitem expansion > hands menu focus to the add field when subitems are already expanded  752ms
+ ✓ tests/unit/projectLifecycle.test.tsx (10 tests) 4839ms
+   ✓ project dropdown lifecycle > restores project creation and retains project switching and Planning navigation without work plan creation  1082ms
+   ✓ project dropdown lifecycle > offers completion but disables archive for active work  682ms
+   ✓ project dropdown lifecycle > offers archive instead of completion after completion  414ms
+   ✓ project dropdown lifecycle > moves archived projects out of the active list, retaining explicit history and restore  466ms
+   ✓ project completion confirmation > checks without changing anything, and cancel never completes  367ms
+   ✓ project completion confirmation > lists exact task, cash and governance blockers and opens the affected record  423ms
+   ✓ project completion confirmation > completes only the chosen project after explicit confirmation  404ms
+   ✓ project completion confirmation > fails closed when checks cannot load  360ms
+   ✓ project completion confirmation > refreshes blockers if the server rejects a stale ready screen  526ms
+ ❯ tests/unit/cashReleaseOverride.test.tsx (7 tests | 5 failed) 8488ms
+   ✓ schedule override confirmation > opens details without making a financial call and cancels safely  1289ms
+   ✓ schedule override confirmation > requires a reason and releases only the selected tranche after confirmation  591ms
+   × schedule override confirmation > keeps the popup open with the server ceiling error and preserves the reason 1507ms
+     → Unable to find role="alert"
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mdata-scroll-locked[39m=[32m"1"[39m
+  [33mstyle[39m=[32m"pointer-events: none;"[39m
+[36m>[39m
+  [36m<span[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+    [33mdata-radix-focus-guard[39m=[32m""[39m
+    [33mstyle[39m=[32m"outline: none; opacity: 0; position: fixed; pointer-events: none;"[39m
+    [33mtabindex[39m=[32m"0"[39m
+  [36m/>[39m
+  [36m<div[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+  [36m>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"space-y-4"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"grid gap-3 sm:grid-cols-3"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"rounded-xl border p-3 border-amber-200 bg-amber-50"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"text-[11px] uppercase tracking-[0.12em] text-neutral-500"[39m
+          [36m>[39m
+            [0mCash to release[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mt-1 text-right text-[16px] font-semibold tabular-nums text-amber-900"[39m
+          [36m>[39m
+            [0m₱5,000.00[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mt-0.5 text-[11px] text-neutral-500"[39m
+          [36m>[39m
+            [0m1 scheduled tranche[0m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"rounded-xl border p-3 border-amber-200 bg-amber-50"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"text-[11px] uppercase tracking-[0.12em] text-neutral-500"[39m
+          [36m>[39m
+            [0mDue now[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mt-1 text-right text-[16px] font-semibold tabular-nums text-amber-900"[39m
+          [36m>[39m
+            [0m₱5,000.00[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mt-0.5 text-[11px] text-neutral-500"[39m
+          [36m>[39m
+            [0m1 tranche ready for release[0m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"rounded-xl border p-3 border-neutral-200 bg-white"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"text-[11px] uppercase tracking-[0.12em] text-neutral-500"[39m
+          [36m>[39m
+            [0mScheduled later[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mt-1 text-right text-[16px] font-semibold tabular-nums text-neutral-950"[39m
+          [36m>[39m
+            [0m0[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mt-0.5 text-[11px] text-neutral-500"[39m
+          [36m>[39m
+            [0mFuture release tranches[0m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<section[39m
+        [33mclass[39m=[32m"overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm"[39m
+      [36m>[39m
+        [36m<header[39m
+          [33mclass[39m=[32m"flex items-center gap-2 border-b border-neutral-100 px-4 py-3"[39m
+        [36m>[39m
+          [36m<svg[39m
+            [33mclass[39m=[32m"lucide lucide-banknote"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"14"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"14"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<rect[39m
+              [33mheight[39m=[32m"12"[39m
+              [33mrx[39m=[32m"2"[39m
+              [33mwidth[39m=[32m"20"[39m
+              [33mx[39m=[32m"2"[39m
+              [33my[39m=[32m"6"[39m
+            [36m/>[39m
+            [36m<circle[39m
+              [33mcx[39m=[32m"12"[39m
+              [33mcy[39m=[32m"12"[39m
+              [33mr[39m=[32m"2"[39m
+            [36m/>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M6 12h.01M18 12h.01"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+          [36m<h3[39m
+            [33mclass[39m=[32m"text-[14px] font-semibold"[39m
+          [36m>[39m
+            [0mVoucher & release schedule[0m
+          [36m</h3>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"ml-auto text-[12px] text-neutral-500"[39m
+          [36m>[39m
+            [0mDaily ceiling is enforced by the server[0m
+          [36m</span>[39m
+        [36m</header>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"grid items-center gap-3 border-b border-neutral-100 p-4 last:border-0 md:grid-cols-[1fr_auto_auto_auto]"[39m
+        [36m>[39m
+          [36m<div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"text-[12px] font-medium"[39m
+            [36m>[39m
+              [0mPC-[0m
+              [0m00006[0m
+              [0m ·[0m
+              [0m [0m
+              [0mOrder Food[0m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"mt-1 text-[11px] text-neutral-500"[39m
+            [36m>[39m
+              [0mRecipient:[0m
+              [0m [0m
+              [0mGabriel Cahiyang[0m
+              [0m [0m
+              [0m· scheduled [0m
+              [0m2026-08-31[0m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"mt-1 font-mono text-[11px] text-neutral-500"[39m
+            [36m>[39m
+              [0mVoucher number assigned by the accounting migration[0m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"rounded-full px-2 py-1 text-[11px] font-medium capitalize bg-neutral-100 text-neutral-600"[39m
+          [36m>[39m
+            [0mscheduled[0m
+          [36m</span>[39m
+          [36m<strong[39m
+            [33mclass[39m=[32m"text-[13px] tabular-nums"[39m
+          [36m>[39m
+            [0m₱5,000.00[0m
+          [36m</strong>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex justify-end"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"inline-flex h-8 items-center gap-1 rounded-lg bg-emerald-700 px-3 text-[12px] text-white disabled:opacity-40"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33mclass[39m=[32m"lucide lucide-banknote"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"10"[39m
+                [33mstroke[39m=[32m"curre...
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mdata-scroll-locked[39m=[32m"1"[39m
+  [33mstyle[39m=[32m"pointer-events: none;"[39m
+[36m>[39m
+  [36m<span[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+    [33mdata-radix-focus-guard[39m=[32m""[39m
+    [33mstyle[39m=[32m"outline: none; opacity: 0; position: fixed; pointer-events: none;"[39m
+    [33mtabindex[39m=[32m"0"[39m
+  [36m/>[39m
+  [36m<div[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+  [36m>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"space-y-4"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"grid gap-3 sm:grid-cols-3"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"rounded-xl border p-3 border-amber-200 bg-amber-50"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"text-[11px] uppercase tracking-[0.12em] text-neutral-500"[39m
+          [36m>[39m
+            [0mCash to release[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mt-1 text-right text-[16px] font-semibold tabular-nums text-amber-900"[39m
+          [36m>[39m
+            [0m₱5,000.00[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mt-0.5 text-[11px] text-neutral-500"[39m
+          [36m>[39m
+            [0m1 scheduled tranche[0m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"rounded-xl border p-3 border-amber-200 bg-amber-50"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"text-[11px] uppercase tracking-[0.12em] text-neutral-500"[39m
+          [36m>[39m
+            [0mDue now[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mt-1 text-right text-[16px] font-semibold tabular-nums text-amber-900"[39m
+          [36m>[39m
+            [0m₱5,000.00[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mt-0.5 text-[11px] text-neutral-500"[39m
+          [36m>[39m
+            [0m1 tranche ready for release[0m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"rounded-xl border p-3 border-neutral-200 bg-white"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"text-[11px] uppercase tracking-[0.12em] text-neutral-500"[39m
+          [36m>[39m
+            [0mScheduled later[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mt-1 text-right text-[16px] font-semibold tabular-nums text-neutral-950"[39m
+          [36m>[39m
+            [0m0[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mt-0.5 text-[11px] text-neutral-500"[39m
+          [36m>[39m
+            [0mFuture release tranches[0m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<section[39m
+        [33mclass[39m=[32m"overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm"[39m
+      [36m>[39m
+        [36m<header[39m
+          [33mclass[39m=[32m"flex items-center gap-2 border-b border-neutral-100 px-4 py-3"[39m
+        [36m>[39m
+          [36m<svg[39m
+            [33mclass[39m=[32m"lucide lucide-banknote"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"14"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"14"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<rect[39m
+              [33mheight[39m=[32m"12"[39m
+              [33mrx[39m=[32m"2"[39m
+              [33mwidth[39m=[32m"20"[39m
+              [33mx[39m=[32m"2"[39m
+              [33my[39m=[32m"6"[39m
+            [36m/>[39m
+            [36m<circle[39m
+              [33mcx[39m=[32m"12"[39m
+              [33mcy[39m=[32m"12"[39m
+              [33mr[39m=[32m"2"[39m
+            [36m/>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M6 12h.01M18 12h.01"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+          [36m<h3[39m
+            [33mclass[39m=[32m"text-[14px] font-semibold"[39m
+          [36m>[39m
+            [0mVoucher & release schedule[0m
+          [36m</h3>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"ml-auto text-[12px] text-neutral-500"[39m
+          [36m>[39m
+            [0mDaily ceiling is enforced by the server[0m
+          [36m</span>[39m
+        [36m</header>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"grid items-center gap-3 border-b border-neutral-100 p-4 last:border-0 md:grid-cols-[1fr_auto_auto_auto]"[39m
+        [36m>[39m
+          [36m<div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"text-[12px] font-medium"[39m
+            [36m>[39m
+              [0mPC-[0m
+              [0m00006[0m
+              [0m ·[0m
+              [0m [0m
+              [0mOrder Food[0m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"mt-1 text-[11px] text-neutral-500"[39m
+            [36m>[39m
+              [0mRecipient:[0m
+              [0m [0m
+              [0mGabriel Cahiyang[0m
+              [0m [0m
+              [0m· scheduled [0m
+              [0m2026-08-31[0m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"mt-1 font-mono text-[11px] text-neutral-500"[39m
+            [36m>[39m
+              [0mVoucher number assigned by the accounting migration[0m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"rounded-full px-2 py-1 text-[11px] font-medium capitalize bg-neutral-100 text-neutral-600"[39m
+          [36m>[39m
+            [0mscheduled[0m
+          [36m</span>[39m
+          [36m<strong[39m
+            [33mclass[39m=[32m"text-[13px] tabular-nums"[39m
+          [36m>[39m
+            [0m₱5,000.00[0m
+          [36m</strong>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex justify-end"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"inline-flex h-8 items-center gap-1 rounded-lg bg-emerald-700 px-3 text-[12px] text-white disabled:opacity-40"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33mclass[39m=[32m"lucide lucide-banknote"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"10"[39m
+                [33mstroke[39m=[32m"curre...
+   × schedule override confirmation > prevents double confirmation and dismissal while the request is pending 723ms
+     → Unable to find an accessible element with the role "dialog"
+
+Here are the accessible roles:
+
+  banner:
+
+  Name "":
+  [36m<header[39m
+    [33mclass[39m=[32m"flex items-center gap-2 border-b border-neutral-100 px-4 py-3"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<header[39m
+    [33mclass[39m=[32m"flex items-center gap-2 border-b border-neutral-100 px-4 py-3"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  heading:
+
+  Name "Voucher & release schedule":
+  [36m<h3[39m
+    [33mclass[39m=[32m"text-[14px] font-semibold"[39m
+  [36m/>[39m
+
+  Name "Liquidation timeline":
+  [36m<h3[39m
+    [33mclass[39m=[32m"text-[14px] font-semibold"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  strong:
+
+  Name "":
+  [36m<strong[39m
+    [33mclass[39m=[32m"text-[13px] tabular-nums"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  button:
+
+  Name "Mark released":
+  [36m<button[39m
+    [33mclass[39m=[32m"inline-flex h-8 items-center gap-1 rounded-lg bg-emerald-700 px-3 text-[12px] text-white disabled:opacity-40"[39m
+  [36m/>[39m
+
+  Name "Override schedule":
+  [36m<button[39m
+    [33mclass[39m=[32m"ml-2 inline-flex h-8 items-center gap-1 rounded-lg border border-amber-300 bg-amber-50 px-3 text-[12px] text-amber-900 disabled:opacity-40"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mstyle[39m=[32m""[39m
+[36m>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"space-y-4"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"grid gap-3 sm:grid-cols-3"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"rounded-xl border p-3 border-amber-200 bg-amber-50"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"text-[11px] uppercase tracking-[0.12em] text-neutral-500"[39m
+          [36m>[39m
+            [0mCash to release[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mt-1 text-right text-[16px] font-semibold tabular-nums text-amber-900"[39m
+          [36m>[39m
+            [0m₱5,000.00[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mt-0.5 text-[11px] text-neutral-500"[39m
+          [36m>[39m
+            [0m1 scheduled tranche[0m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"rounded-xl border p-3 border-amber-200 bg-amber-50"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"text-[11px] uppercase tracking-[0.12em] text-neutral-500"[39m
+          [36m>[39m
+            [0mDue now[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mt-1 text-right text-[16px] font-semibold tabular-nums text-amber-900"[39m
+          [36m>[39m
+            [0m₱5,000.00[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mt-0.5 text-[11px] text-neutral-500"[39m
+          [36m>[39m
+            [0m1 tranche ready for release[0m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"rounded-xl border p-3 border-neutral-200 bg-white"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"text-[11px] uppercase tracking-[0.12em] text-neutral-500"[39m
+          [36m>[39m
+            [0mScheduled later[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mt-1 text-right text-[16px] font-semibold tabular-nums text-neutral-950"[39m
+          [36m>[39m
+            [0m0[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mt-0.5 text-[11px] text-neutral-500"[39m
+          [36m>[39m
+            [0mFuture release tranches[0m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<section[39m
+        [33mclass[39m=[32m"overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm"[39m
+      [36m>[39m
+        [36m<header[39m
+          [33mclass[39m=[32m"flex items-center gap-2 border-b border-neutral-100 px-4 py-3"[39m
+        [36m>[39m
+          [36m<svg[39m
+            [33mclass[39m=[32m"lucide lucide-banknote"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"14"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"14"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<rect[39m
+              [33mheight[39m=[32m"12"[39m
+              [33mrx[39m=[32m"2"[39m
+              [33mwidth[39m=[32m"20"[39m
+              [33mx[39m=[32m"2"[39m
+              [33my[39m=[32m"6"[39m
+            [36m/>[39m
+            [36m<circle[39m
+              [33mcx[39m=[32m"12"[39m
+              [33mcy[39m=[32m"12"[39m
+              [33mr[39m=[32m"2"[39m
+            [36m/>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M6 12h.01M18 12h.01"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+          [36m<h3[39m
+            [33mclass[39m=[32m"text-[14px] font-semibold"[39m
+          [36m>[39m
+            [0mVoucher & release schedule[0m
+          [36m</h3>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"ml-auto text-[12px] text-neutral-500"[39m
+          [36m>[39m
+            [0mDaily ceiling is enforced by the server[0m
+          [36m</span>[39m
+        [36m</header>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"grid items-center gap-3 border-b border-neutral-100 p-4 last:border-0 md:grid-cols-[1fr_auto_auto_auto]"[39m
+        [36m>[39m
+          [36m<div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"text-[12px] font-medium"[39m
+            [36m>[39m
+              [0mPC-[0m
+              [0m00006[0m
+              [0m ·[0m
+              [0m [0m
+              [0mOrder Food[0m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"mt-1 text-[11px] text-neutral-500"[39m
+            [36m>[39m
+              [0mRecipient:[0m
+              [0m [0m
+              [0mGabriel Cahiyang[0m
+              [0m [0m
+              [0m· scheduled [0m
+              [0m2026-08-31[0m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"mt-1 font-mono text-[11px] text-neutral-500"[39m
+            [36m>[39m
+              [0mVoucher number assigned by the accounting migration[0m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"rounded-full px-2 py-1 text-[11px] font-medium capitalize bg-neutral-100 text-neutral-600"[39m
+          [36m>[39m
+            [0mscheduled[0m
+          [36m</span>[39m
+          [36m<strong[39m
+            [33mclass[39m=[32m"text-[13px] tabular-nums"[39m
+          [36m>[39m
+            [0m₱5,000.00[0m
+          [36m</strong>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex justify-end"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"inline-flex h-8 items-center gap-1 rounded-lg bg-emerald-700 px-3 text-[12px] text-white disabled:opacity-40"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33mclass[39m=[32m"lucide lucide-banknote"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"10"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"10"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<rect[39m
+                  [33mheight[39m=[32m"12"[39m
+                  [33mrx[39m=[32m"2"[39m
+                  [33mwidth[39m=[32m"20"[39m
+                  [33mx[39m=[32m"2"[39m
+                  [33my[39m=[32m"6"[39m
+                [36m/>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"12"[39m
+                  [33mcy[39m=[32m"12"[39m
+                  [33mr[39m=[32m"2"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M6 12h.01M18 12h.01"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+              [0m Mark released[0m
+            [36m</button>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"ml-2 inline-flex h-8 items-center gap-1 rounded-lg border border-amber-300 bg-amber-50 px-3 text-[12px] text-amber-900 disabled:opacity-40"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33mclass[39m=[32m"lucide lucide-clock3 lucide-clock-3"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"10"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"10"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"12"[39m
+                  [33mcy[39m=[32m"12"[39m
+                  [33mr[39m=[32m"10"[39m
+                [36m/>[39m
+                [36m<polyline[39m
+                  [33mpoints[39m=[32m"12 6 12 12 16.5 12"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+              [0m Override schedule[0m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</section>[39m
+      [36m<section[39m
+        [33mclass[39m=[32m"overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm"[39m
+      [36m>[39m
+        [36m<header[39m
+          [33mclass[39m=[32m"flex items-center gap-2 border-b border-neutral-100 px-4 py-3"[39m
+        [36m>[39m
+          [36m<svg[39m
+            [33mclass[39m=[32m"lucide lucide-receipt-text"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"14"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"14"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"[39m
+            [36m/>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M14 8H8"[39m
+            [36m/>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M16 12H8"[39m
+            [36m/>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M13 16H8"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+          [36m<h3[39m
+            [33mclass[39m=[32m"text-[14px] font-semibold"[39m
+          [36m>[39m
+            [0mLiquidation timeline[0m
+          [36m</h3>[39m
+        [36m</header>[39m
+      [36m</section>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+   × schedule override confirmation > does not retry a committed release when only the list refresh fails 1398ms
+     → Unable to find an element with the text: /Cash was recorded as released, but the list could not refresh/. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mdata-scroll-locked[39m=[32m"1"[39m
+  [33mstyle[39m=[32m"pointer-events: none;"[39m
+[36m>[39m
+  [36m<span[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+    [33mdata-radix-focus-guard[39m=[32m""[39m
+    [33mstyle[39m=[32m"outline: none; opacity: 0; position: fixed; pointer-events: none;"[39m
+    [33mtabindex[39m=[32m"0"[39m
+  [36m/>[39m
+  [36m<div[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+  [36m>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"space-y-4"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"grid gap-3 sm:grid-cols-3"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"rounded-xl border p-3 border-amber-200 bg-amber-50"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"text-[11px] uppercase tracking-[0.12em] text-neutral-500"[39m
+          [36m>[39m
+            [0mCash to release[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mt-1 text-right text-[16px] font-semibold tabular-nums text-amber-900"[39m
+          [36m>[39m
+            [0m₱5,000.00[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mt-0.5 text-[11px] text-neutral-500"[39m
+          [36m>[39m
+            [0m1 scheduled tranche[0m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"rounded-xl border p-3 border-amber-200 bg-amber-50"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"text-[11px] uppercase tracking-[0.12em] text-neutral-500"[39m
+          [36m>[39m
+            [0mDue now[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mt-1 text-right text-[16px] font-semibold tabular-nums text-amber-900"[39m
+          [36m>[39m
+            [0m₱5,000.00[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mt-0.5 text-[11px] text-neutral-500"[39m
+          [36m>[39m
+            [0m1 tranche ready for release[0m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"rounded-xl border p-3 border-neutral-200 bg-white"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"text-[11px] uppercase tracking-[0.12em] text-neutral-500"[39m
+          [36m>[39m
+            [0mScheduled later[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mt-1 text-right text-[16px] font-semibold tabular-nums text-neutral-950"[39m
+          [36m>[39m
+            [0m0[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mt-0.5 text-[11px] text-neutral-500"[39m
+          [36m>[39m
+            [0mFuture release tranches[0m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<section[39m
+        [33mclass[39m=[32m"overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm"[39m
+      [36m>[39m
+        [36m<header[39m
+          [33mclass[39m=[32m"flex items-center gap-2 border-b border-neutral-100 px-4 py-3"[39m
+        [36m>[39m
+          [36m<svg[39m
+            [33mclass[39m=[32m"lucide lucide-banknote"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"14"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"14"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<rect[39m
+              [33mheight[39m=[32m"12"[39m
+              [33mrx[39m=[32m"2"[39m
+              [33mwidth[39m=[32m"20"[39m
+              [33mx[39m=[32m"2"[39m
+              [33my[39m=[32m"6"[39m
+            [36m/>[39m
+            [36m<circle[39m
+              [33mcx[39m=[32m"12"[39m
+              [33mcy[39m=[32m"12"[39m
+              [33mr[39m=[32m"2"[39m
+            [36m/>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M6 12h.01M18 12h.01"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+          [36m<h3[39m
+            [33mclass[39m=[32m"text-[14px] font-semibold"[39m
+          [36m>[39m
+            [0mVoucher & release schedule[0m
+          [36m</h3>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"ml-auto text-[12px] text-neutral-500"[39m
+          [36m>[39m
+            [0mDaily ceiling is enforced by the server[0m
+          [36m</span>[39m
+        [36m</header>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"grid items-center gap-3 border-b border-neutral-100 p-4 last:border-0 md:grid-cols-[1fr_auto_auto_auto]"[39m
+        [36m>[39m
+          [36m<div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"text-[12px] font-medium"[39m
+            [36m>[39m
+              [0mPC-[0m
+              [0m00006[0m
+              [0m ·[0m
+              [0m [0m
+              [0mOrder Food[0m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"mt-1 text-[11px] text-neutral-500"[39m
+            [36m>[39m
+              [0mRecipient:[0m
+              [0m [0m
+              [0mGabriel Cahiyang[0m
+              [0m [0m
+              [0m· scheduled [0m
+              [0m2026-08-31[0m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"mt-1 font-mono text-[11px] text-neutral-500"[39m
+            [36m>[39m
+              [0mVoucher number assigned by the accounting migration[0m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"rounded-full px-2 py-1 text-[11px] font-medium capitalize bg-neutral-100 text-neutral-600"[39m
+          [36m>[39m
+            [0mscheduled[0m
+          [36m</span>[39m
+          [36m<strong[39m
+            [33mclass[39m=[32m"text-[13px] tabular-nums"[39m
+          [36m>[39m
+            [0m₱5,000.00[0m
+          [36m</strong>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex justify-end"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"inline-flex h-8 items-center gap-1 rounded-lg bg-emerald-700 px-3 text-[12px] text-white disabled:opacity-40"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33mclass[39m=[32m"lucide lucide-banknote"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"10"[39m
+                [33mstroke[39m=[32m"curre...
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mdata-scroll-locked[39m=[32m"1"[39m
+  [33mstyle[39m=[32m"pointer-events: none;"[39m
+[36m>[39m
+  [36m<span[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+    [33mdata-radix-focus-guard[39m=[32m""[39m
+    [33mstyle[39m=[32m"outline: none; opacity: 0; position: fixed; pointer-events: none;"[39m
+    [33mtabindex[39m=[32m"0"[39m
+  [36m/>[39m
+  [36m<div[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+  [36m>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"space-y-4"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"grid gap-3 sm:grid-cols-3"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"rounded-xl border p-3 border-amber-200 bg-amber-50"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"text-[11px] uppercase tracking-[0.12em] text-neutral-500"[39m
+          [36m>[39m
+            [0mCash to release[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mt-1 text-right text-[16px] font-semibold tabular-nums text-amber-900"[39m
+          [36m>[39m
+            [0m₱5,000.00[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mt-0.5 text-[11px] text-neutral-500"[39m
+          [36m>[39m
+            [0m1 scheduled tranche[0m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"rounded-xl border p-3 border-amber-200 bg-amber-50"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"text-[11px] uppercase tracking-[0.12em] text-neutral-500"[39m
+          [36m>[39m
+            [0mDue now[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mt-1 text-right text-[16px] font-semibold tabular-nums text-amber-900"[39m
+          [36m>[39m
+            [0m₱5,000.00[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mt-0.5 text-[11px] text-neutral-500"[39m
+          [36m>[39m
+            [0m1 tranche ready for release[0m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"rounded-xl border p-3 border-neutral-200 bg-white"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"text-[11px] uppercase tracking-[0.12em] text-neutral-500"[39m
+          [36m>[39m
+            [0mScheduled later[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mt-1 text-right text-[16px] font-semibold tabular-nums text-neutral-950"[39m
+          [36m>[39m
+            [0m0[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"mt-0.5 text-[11px] text-neutral-500"[39m
+          [36m>[39m
+            [0mFuture release tranches[0m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<section[39m
+        [33mclass[39m=[32m"overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm"[39m
+      [36m>[39m
+        [36m<header[39m
+          [33mclass[39m=[32m"flex items-center gap-2 border-b border-neutral-100 px-4 py-3"[39m
+        [36m>[39m
+          [36m<svg[39m
+            [33mclass[39m=[32m"lucide lucide-banknote"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"14"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"14"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<rect[39m
+              [33mheight[39m=[32m"12"[39m
+              [33mrx[39m=[32m"2"[39m
+              [33mwidth[39m=[32m"20"[39m
+              [33mx[39m=[32m"2"[39m
+              [33my[39m=[32m"6"[39m
+            [36m/>[39m
+            [36m<circle[39m
+              [33mcx[39m=[32m"12"[39m
+              [33mcy[39m=[32m"12"[39m
+              [33mr[39m=[32m"2"[39m
+            [36m/>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M6 12h.01M18 12h.01"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+          [36m<h3[39m
+            [33mclass[39m=[32m"text-[14px] font-semibold"[39m
+          [36m>[39m
+            [0mVoucher & release schedule[0m
+          [36m</h3>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"ml-auto text-[12px] text-neutral-500"[39m
+          [36m>[39m
+            [0mDaily ceiling is enforced by the server[0m
+          [36m</span>[39m
+        [36m</header>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"grid items-center gap-3 border-b border-neutral-100 p-4 last:border-0 md:grid-cols-[1fr_auto_auto_auto]"[39m
+        [36m>[39m
+          [36m<div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"text-[12px] font-medium"[39m
+            [36m>[39m
+              [0mPC-[0m
+              [0m00006[0m
+              [0m ·[0m
+              [0m [0m
+              [0mOrder Food[0m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"mt-1 text-[11px] text-neutral-500"[39m
+            [36m>[39m
+              [0mRecipient:[0m
+              [0m [0m
+              [0mGabriel Cahiyang[0m
+              [0m [0m
+              [0m· scheduled [0m
+              [0m2026-08-31[0m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"mt-1 font-mono text-[11px] text-neutral-500"[39m
+            [36m>[39m
+              [0mVoucher number assigned by the accounting migration[0m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"rounded-full px-2 py-1 text-[11px] font-medium capitalize bg-neutral-100 text-neutral-600"[39m
+          [36m>[39m
+            [0mscheduled[0m
+          [36m</span>[39m
+          [36m<strong[39m
+            [33mclass[39m=[32m"text-[13px] tabular-nums"[39m
+          [36m>[39m
+            [0m₱5,000.00[0m
+          [36m</strong>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex justify-end"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"inline-flex h-8 items-center gap-1 rounded-lg bg-emerald-700 px-3 text-[12px] text-white disabled:opacity-40"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33mclass[39m=[32m"lucide lucide-banknote"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"10"[39m
+                [33mstroke[39m=[32m"curre...
+   × schedule override confirmation > retains the normal release path and hides release controls from employees 1422ms
+     → expected "spy" to be called with arguments: [ 'release-6', …(1) ]
+
+Number of calls: 0
+
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body[39m
+    [33mdata-scroll-locked[39m=[32m"1"[39m
+    [33mstyle[39m=[32m"pointer-events: none;"[39m
+  [36m>[39m
+    [36m<span[39m
+      [33maria-hidden[39m=[32m"true"[39m
+      [33mdata-aria-hidden[39m=[32m"true"[39m
+      [33mdata-radix-focus-guard[39m=[32m""[39m
+      [33mstyle[39m=[32m"outline: none; opacity: 0; position: fixed; pointer-events: none;"[39m
+      [33mtabindex[39m=[32m"0"[39m
+    [36m/>[39m
+    [36m<div[39m
+      [33maria-hidden[39m=[32m"true"[39m
+      [33mdata-aria-hidden[39m=[32m"true"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"space-y-4"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"grid gap-3 sm:grid-cols-3"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"rounded-xl border p-3 border-amber-200 bg-amber-50"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"text-[11px] uppercase tracking-[0.12em] text-neutral-500"[39m
+            [36m>[39m
+              [0mCash to release[0m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"mt-1 text-right text-[16px] font-semibold tabular-nums text-amber-900"[39m
+            [36m>[39m
+              [0m₱5,000.00[0m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"mt-0.5 text-[11px] text-neutral-500"[39m
+            [36m>[39m
+              [0m1 scheduled tranche[0m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"rounded-xl border p-3 border-amber-200 bg-amber-50"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"text-[11px] uppercase tracking-[0.12em] text-neutral-500"[39m
+            [36m>[39m
+              [0mDue now[0m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"mt-1 text-right text-[16px] font-semibold tabular-nums text-amber-900"[39m
+            [36m>[39m
+              [0m₱5,000.00[0m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"mt-0.5 text-[11px] text-neutral-500"[39m
+            [36m>[39m
+              [0m1 tranche ready for release[0m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"rounded-xl border p-3 border-neutral-200 bg-white"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"text-[11px] uppercase tracking-[0.12em] text-neutral-500"[39m
+            [36m>[39m
+              [0mScheduled later[0m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"mt-1 text-right text-[16px] font-semibold tabular-nums text-neutral-950"[39m
+            [36m>[39m
+              [0m0[0m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"mt-0.5 text-[11px] text-neutral-500"[39m
+            [36m>[39m
+              [0mFuture release tranches[0m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<section[39m
+          [33mclass[39m=[32m"overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm"[39m
+        [36m>[39m
+          [36m<header[39m
+            [33mclass[39m=[32m"flex items-center gap-2 border-b border-neutral-100 px-4 py-3"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33mclass[39m=[32m"lucide lucide-banknote"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"14"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"2"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"14"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<rect[39m
+                [33mheight[39m=[32m"12"[39m
+                [33mrx[39m=[32m"2"[39m
+                [33mwidth[39m=[32m"20"[39m
+                [33mx[39m=[32m"2"[39m
+                [33my[39m=[32m"6"[39m
+              [36m/>[39m
+              [36m<circle[39m
+                [33mcx[39m=[32m"12"[39m
+                [33mcy[39m=[32m"12"[39m
+                [33mr[39m=[32m"2"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M6 12h.01M18 12h.01"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [36m<h3[39m
+              [33mclass[39m=[32m"text-[14px] font-semibold"[39m
+            [36m>[39m
+              [0mVoucher & release schedule[0m
+            [36m</h3>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"ml-auto text-[12px] text-neutral-500"[39m
+            [36m>[39m
+              [0mDaily ceiling is enforced by the server[0m
+            [36m</span>[39m
+          [36m</header>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"grid items-center gap-3 border-b border-neutral-100 p-4 last:border-0 md:grid-cols-[1fr_auto_auto_auto]"[39m
+          [36m>[39m
+            [36m<div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"text-[12px] font-medium"[39m
+              [36m>[39m
+                [0mPC-[0m
+                [0m00006[0m
+                [0m ·[0m
+                [0m [0m
+                [0mOrder Food[0m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"mt-1 text-[11px] text-neutral-500"[39m
+              [36m>[39m
+                [0mRecipient:[0m
+                [0m [0m
+                [0mGabriel Cahiyang[0m
+                [0m [0m
+                [0m· scheduled [0m
+                [0m2026-08-31[0m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"mt-1 font-mono text-[11px] text-neutral-500"[39m
+              [36m>[39m
+                [0mVoucher number assigned by the accounting migration[0m
+              [36m</div>[39m
+            [36m</div>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"rounded-full px-2 py-1 text-[11px] font-medium capitalize bg-neutral-100 text-neutral-600"[39m
+            [36m>[39m
+              [0mscheduled[0m
+            [36m</span>[39m
+            [36m<strong[39m
+              [33mclass[39m=[32m"text-[13px] tabular-nums"[39m
+            [36m>[39m
+              [0m₱5,000.00[0m
+            [36m</strong>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex justify-end"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33mclass[39m=[32m"i...
+   × schedule override confirmation > lets Accounting Staff issue cheques and use audited schedule overrides 1556ms
+     → expected "spy" to be called with arguments: [ 'release-6', …(1) ]
+
+Number of calls: 0
+
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body[39m
+    [33mdata-scroll-locked[39m=[32m"1"[39m
+    [33mstyle[39m=[32m"pointer-events: none;"[39m
+  [36m>[39m
+    [36m<span[39m
+      [33maria-hidden[39m=[32m"true"[39m
+      [33mdata-aria-hidden[39m=[32m"true"[39m
+      [33mdata-radix-focus-guard[39m=[32m""[39m
+      [33mstyle[39m=[32m"outline: none; opacity: 0; position: fixed; pointer-events: none;"[39m
+      [33mtabindex[39m=[32m"0"[39m
+    [36m/>[39m
+    [36m<div[39m
+      [33maria-hidden[39m=[32m"true"[39m
+      [33mdata-aria-hidden[39m=[32m"true"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"space-y-4"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"grid gap-3 sm:grid-cols-3"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"rounded-xl border p-3 border-amber-200 bg-amber-50"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"text-[11px] uppercase tracking-[0.12em] text-neutral-500"[39m
+            [36m>[39m
+              [0mCash to release[0m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"mt-1 text-right text-[16px] font-semibold tabular-nums text-amber-900"[39m
+            [36m>[39m
+              [0m₱5,000.00[0m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"mt-0.5 text-[11px] text-neutral-500"[39m
+            [36m>[39m
+              [0m1 scheduled tranche[0m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"rounded-xl border p-3 border-amber-200 bg-amber-50"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"text-[11px] uppercase tracking-[0.12em] text-neutral-500"[39m
+            [36m>[39m
+              [0mDue now[0m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"mt-1 text-right text-[16px] font-semibold tabular-nums text-amber-900"[39m
+            [36m>[39m
+              [0m₱5,000.00[0m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"mt-0.5 text-[11px] text-neutral-500"[39m
+            [36m>[39m
+              [0m1 tranche ready for release[0m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"rounded-xl border p-3 border-neutral-200 bg-white"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"text-[11px] uppercase tracking-[0.12em] text-neutral-500"[39m
+            [36m>[39m
+              [0mScheduled later[0m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"mt-1 text-right text-[16px] font-semibold tabular-nums text-neutral-950"[39m
+            [36m>[39m
+              [0m0[0m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"mt-0.5 text-[11px] text-neutral-500"[39m
+            [36m>[39m
+              [0mFuture release tranches[0m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<section[39m
+          [33mclass[39m=[32m"overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm"[39m
+        [36m>[39m
+          [36m<header[39m
+            [33mclass[39m=[32m"flex items-center gap-2 border-b border-neutral-100 px-4 py-3"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33mclass[39m=[32m"lucide lucide-banknote"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"14"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"2"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"14"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<rect[39m
+                [33mheight[39m=[32m"12"[39m
+                [33mrx[39m=[32m"2"[39m
+                [33mwidth[39m=[32m"20"[39m
+                [33mx[39m=[32m"2"[39m
+                [33my[39m=[32m"6"[39m
+              [36m/>[39m
+              [36m<circle[39m
+                [33mcx[39m=[32m"12"[39m
+                [33mcy[39m=[32m"12"[39m
+                [33mr[39m=[32m"2"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M6 12h.01M18 12h.01"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [36m<h3[39m
+              [33mclass[39m=[32m"text-[14px] font-semibold"[39m
+            [36m>[39m
+              [0mVoucher & release schedule[0m
+            [36m</h3>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"ml-auto text-[12px] text-neutral-500"[39m
+            [36m>[39m
+              [0mDaily ceiling is enforced by the server[0m
+            [36m</span>[39m
+          [36m</header>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"grid items-center gap-3 border-b border-neutral-100 p-4 last:border-0 md:grid-cols-[1fr_auto_auto_auto]"[39m
+          [36m>[39m
+            [36m<div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"text-[12px] font-medium"[39m
+              [36m>[39m
+                [0mPC-[0m
+                [0m00006[0m
+                [0m ·[0m
+                [0m [0m
+                [0mOrder Food[0m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"mt-1 text-[11px] text-neutral-500"[39m
+              [36m>[39m
+                [0mRecipient:[0m
+                [0m [0m
+                [0mGabriel Cahiyang[0m
+                [0m [0m
+                [0m· scheduled [0m
+                [0m2026-08-31[0m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"mt-1 font-mono text-[11px] text-neutral-500"[39m
+              [36m>[39m
+                [0mVoucher number assigned by the accounting migration[0m
+              [36m</div>[39m
+            [36m</div>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"rounded-full px-2 py-1 text-[11px] font-medium capitalize bg-neutral-100 text-neutral-600"[39m
+            [36m>[39m
+              [0mscheduled[0m
+            [36m</span>[39m
+            [36m<strong[39m
+              [33mclass[39m=[32m"text-[13px] tabular-nums"[39m
+            [36m>[39m
+              [0m₱5,000.00[0m
+            [36m</strong>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex justify-end"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33mclass[39m=[32m"i...
+ ✓ tests/unit/proposalBudgetEditor.test.tsx (1 test) 1631ms
+   ✓ proposal budget editor > groups multiple particulars under one category and fixes the fund source  1629ms
+ ✓ tests/unit/subtaskAssigneePicker.test.ts (3 tests) 2200ms
+   ✓ subtask assignee picker > closes when the manager left-clicks outside the picker  1134ms
+   ✓ subtask assignee picker > starts a to-do parent automatically when its lead creates a subtask  374ms
+   ✓ subtask assignee picker > lets the Team Lead create independent work with no ordered prerequisite  690ms
+ ✓ tests/unit/phase02AccountMenu.test.tsx (1 test) 2336ms
+   ✓ Phase 02 account utility > shows human-readable account context and retains settings and logout actions  2334ms
+ ✓ tests/unit/collaborationDeliveryBoard.test.tsx (6 tests) 2281ms
+   ✓ committed proposal delivery board > selects the opened approval tab and preserves the published task label for office plans  1038ms
+   ✓ committed proposal delivery board > shows Board only after a proposal has been published  444ms
+   ✓ committed proposal delivery board > confirms publication of a office-only proposal without collaboration review controls  644ms
+ ✓ tests/unit/phase02AuthPresentation.test.tsx (2 tests) 2019ms
+   ✓ Phase 02 auth presentation > uses Vibe inputs while retaining the existing login automation identifiers and submit behavior  1472ms
+   ✓ Phase 02 auth presentation > opens the Usage scenarios menu from the Vibe menu button  546ms
+ ✓ tests/unit/phase14ProfessionalPrivacy.test.tsx (2 tests) 1211ms
+   ✓ Phase 14 lazy professional privacy and drafts > never fetches another member private PDS and retries a denied summary without claiming missing data  686ms
+   ✓ Phase 14 lazy professional privacy and drafts > only guards changed own profile drafts and retains denied save fields  522ms
+ ✓ tests/unit/userManagementDeletion.test.tsx (1 test) 1457ms
+   ✓ User Management deletion > requires explicit confirmation before permanently deleting an account  1455ms
+ ✓ tests/unit/reviewCashClearance.test.tsx (9 tests) 964ms
+ ✓ tests/unit/taskManagementMenu.test.ts (4 tests) 1258ms
+   ✓ task management overflow menu > keeps management actions in the overflow and closes after selection  1060ms
+ ✓ tests/unit/phase15ProfessionalReview.test.tsx (3 tests) 1140ms
+   ✓ Phase 15 owner review and confirmation > requires an explicit review before confirming and receipts success despite a later read failure  892ms
+ ✓ tests/unit/phase02AppShell.test.tsx (2 tests) 1363ms
+   ✓ Phase 02 productivity sidebar > keeps the registered destination and page callback intact  1208ms
+ ✓ tests/unit/phase14InvitationDrafts.test.tsx (3 tests) 662ms
+   ✓ Phase 14 invitation drafts > retains only unsuccessful rows after partial creation and retries without duplicating successful invitations  430ms
+ ✓ tests/unit/guidedTourInteraction.test.ts (3 tests) 1604ms
+   ✓ guided page walkthrough > opens from the page toolbar and advances without changing page data  1088ms
+   ✓ guided page walkthrough > optionally narrates each step and stops immediately when switched off  300ms
+ ✓ tests/unit/phase02MobileNavigation.test.tsx (1 test) 1667ms
+   ✓ Phase 02 mobile navigation > opens the accessible navigation drawer and closes it after a destination is selected  1665ms
+ ✓ tests/unit/vibeFoundation.test.tsx (3 tests) 1026ms
+   ✓ Vibe foundation > renders representative Vibe components with focus, table, and dialog behavior  953ms
+ ✓ tests/unit/taskSubmissionReadiness.test.ts (2 tests) 497ms
+   ✓ parent task review readiness > blocks Head submission until every subtask is approved  371ms
+ ✓ tests/unit/localOfficeDialog.test.tsx (4 tests) 720ms
+   ✓ project-local Office creation > retains an Office name without requiring a canonical record or contact  314ms
+ ✓ tests/unit/loginWorkflowPreview.test.tsx (10 tests) 12009ms
+   ✓ login workflow guides > opens an unsigned-in guide, navigates backward/forward, scrubs to archive, and starts fresh on reopen  6160ms
+   ✓ login workflow guides > changes example screens when a highlighted control is clicked, without leaving the login panel  2519ms
+   ✓ login workflow guides > provides one real spotlight target for every demo screen and preserves the workflow order  857ms
+   ✓ uses the walkthrough voice, keeps it enabled across steps, and cancels on off and close  2354ms
+ ✓ tests/unit/generalJournalDatePicker.test.tsx (1 test) 1160ms
+   ✓ General Journal calendar controls > opens the native picker from both the header and adjustment view  1158ms
+ ✓ tests/unit/phase11Editors.test.tsx (12 tests) 766ms
+ ✓ tests/unit/sharedUiVibeAdapters.test.tsx (2 tests) 1210ms
+   ✓ shared Vibe UI adapters > keeps the legacy modal API while exposing an accessible Vibe dialog  1098ms
+ ✓ tests/unit/inlineCreateRow.test.tsx (11 tests) 530ms
+ ✓ tests/unit/departmentIdentityAccess.test.tsx (3 tests) 1028ms
+   ✓ office Identity & Access > can assign more than one employee without replacing the first  914ms
+ ✓ tests/unit/committedProposalArchiveRollback.test.tsx (1 test) 1153ms
+   ✓ committed proposal archive > restores the archive action if the server rejects the archive  1151ms
+ ✓ tests/unit/phase12DialogFocus.test.tsx (2 tests) 488ms
+ ✓ tests/unit/phase13SubtaskDrafts.test.tsx (3 tests) 296ms
+ ✓ tests/unit/userDirectoryFilters.test.tsx (2 tests) 1063ms
+   ✓ user account directory filters > updates filters and exposes a compact reset action  1031ms
+ ✓ tests/unit/phase16FinancialScope.test.tsx (4 tests) 490ms
+ ✓ tests/unit/phase12InspectorDrafts.test.tsx (3 tests) 314ms
+ ✓ tests/unit/phase14MembershipDrafts.test.tsx (5 tests) 470ms
+ ✓ tests/unit/inspectorPanel.test.tsx (6 tests) 425ms
+ ✓ tests/unit/projectAiDraft.test.tsx (2 tests) 358ms
+ ✓ tests/unit/assignmentModal.test.ts (1 test) 216ms
+ ✓ tests/unit/manualTaskEditing.test.tsx (1 test) 1290ms
+   ✓ manual proposal task editing > exposes and saves every field required by draft validation  1288ms
+ ✓ tests/unit/phase12SubmissionDrafts.test.tsx (1 test) 238ms
+ ✓ tests/unit/taskBoardListActions.test.tsx (2 tests) 848ms
+   ✓ Task board list actions > shows Submit to the task lead when a legacy record stores the lead as a recommendation  748ms
+ ✓ tests/unit/accountingSettlementAuthority.test.tsx (6 tests) 2077ms
+   ✓ Accounting settlement authority > waits for Head authorization before settling a late package  1075ms
+   ✓ Accounting settlement authority > enables Accounting settlement after Head authorizes the late package  548ms
+ ✓ tests/unit/phase13PersonalFeed.test.tsx (4 tests) 291ms
+ ✓ tests/unit/foundationThemePersistence.test.tsx (1 test) 244ms
+ ✓ tests/unit/budgetPositionSummary.test.tsx (1 test) 266ms
+ ✓ tests/unit/phase14InspectorHandoff.test.tsx (1 test) 161ms
+ ✓ tests/unit/taskDetailSubmissionReadiness.test.tsx (2 tests) 159ms
+ ✓ tests/unit/projectReadinessSummary.test.tsx (3 tests) 995ms
+   ✓ project readiness summary > presents actual confirmed checks and retries only readiness after a failure  877ms
+ ✓ tests/unit/phase09StandingChannels.test.tsx (6 tests) 71ms
+ ✓ tests/unit/notificationBellNavigation.test.ts (1 test) 134ms
+ ✓ tests/unit/kanbanHorizontalViewport.test.ts (2 tests) 907ms
+   ✓ Kanban horizontal viewport > provides explicit left and right viewing controls  807ms
+ ✓ tests/unit/assignmentExceptionNote.test.ts (1 test) 115ms
+ ✓ tests/unit/teamCompositionNote.test.ts (1 test) 113ms
+ ✓ tests/unit/authStartup.test.tsx (3 tests) 109ms
+ ✓ tests/unit/phase11TableLayout.test.tsx (5 tests) 1113ms
+   ✓ Phase 11 local table layout > supports keyboard width adjustments and announces bounds  866ms
+ ✓ tests/unit/subtaskReviewerBadge.test.tsx (2 tests) 54ms
+ ✓ tests/unit/financialReviewSwitch.test.tsx (2 tests) 1175ms
+   ✓ financial review navigation > keeps financial approvals inside the Head review workspace  1170ms
+ ✓ tests/unit/phase14InvitationManagement.test.tsx (3 tests) 38ms
+ ✓ tests/unit/phase15ImportSafety.test.tsx (4 tests) 56ms
+ ✓ tests/unit/organizationContextMenu.test.ts (1 test) 41ms
+ ✓ tests/unit/phase15DraftPersistence.test.tsx (3 tests) 43ms
+ ✓ tests/unit/adminUserDirectory.test.tsx (1 test) 1451ms
+   ✓ Admin user directory > shows Admin accounts and gives Admin authority over leadership accounts  1449ms
+ ✓ tests/unit/phase15StaffingReview.test.tsx (3 tests) 38ms
+ ✓ tests/unit/chatUnreadBadge.test.tsx (1 test) 37ms
+ ✓ tests/unit/subtaskCache.test.ts (4 tests) 29ms
+ ✓ tests/unit/taskEditorSave.test.tsx (2 tests) 32ms
+ ✓ tests/unit/departmentBudgetRealtime.test.tsx (1 test) 24ms
+ ✓ tests/unit/redesignFoundation.test.ts (3 tests) 274ms
+ ✓ tests/unit/phase12SubtaskScope.test.tsx (1 test) 25ms
+ ✓ tests/unit/approvalTierThreshold.test.ts (4 tests) 7ms
+ ✓ tests/unit/aiProcessingProgress.test.ts (1 test) 58ms
+ ✓ tests/unit/pdsImport.test.ts (1 test) 54ms
+ ✓ tests/unit/adminTaskProposalSelectors.test.ts (3 tests) 25ms
+ ✓ tests/unit/organizationTreeLayout.test.ts (2 tests) 22ms
+ ✓ tests/unit/taskBoardProjectFilter.test.ts (5 tests) 28ms
+ ✓ tests/unit/navigationV2.test.tsx (16 tests) 372ms
+stderr | tests/unit/proposalImport.test.ts > proposal LLM response parsing > does not create a local proposal when DeepSeek is unavailable
+Proposal decomposition failed: Error: AI service unavailable
+    at C:\Users\james\projects\eflow-e-Governance-Project\tests\unit\proposalImport.test.ts:41:48
+    at file:///C:/Users/james/projects/eflow-e-Governance-Project/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11
+    at file:///C:/Users/james/projects/eflow-e-Governance-Project/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26
+    at file:///C:/Users/james/projects/eflow-e-Governance-Project/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///C:/Users/james/projects/eflow-e-Governance-Project/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)
+    at runTest (file:///C:/Users/james/projects/eflow-e-Governance-Project/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at runSuite (file:///C:/Users/james/projects/eflow-e-Governance-Project/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)
+    at runSuite (file:///C:/Users/james/projects/eflow-e-Governance-Project/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)
+
+stdout | tests/unit/proposalImport.test.ts > proposal LLM response parsing > rejects malformed DeepSeek output instead of fabricating a hierarchy
+[Decomposition DEBUG] Raw LLM response content:
+ not JSON
+
+stderr | tests/unit/proposalImport.test.ts > proposal LLM response parsing > rejects malformed DeepSeek output instead of fabricating a hierarchy
+Proposal decomposition failed: Error: DeepSeek returned a response that could not be parsed into a proposal hierarchy.
+    at Module.decomposeWholeDocument (C:\Users\james\projects\eflow-e-Governance-Project\src\app\features\proposal-import\services\decomposition\wholeDocumentDecomposition.ts:145:13)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+ ✓ tests/unit/proposalImport.test.ts (4 tests) 19ms
+ ✓ tests/unit/leaderWorkspaceFilters.test.ts (2 tests) 20ms
+ ✓ tests/unit/phase1Terminology.test.ts (1 test) 3011ms
+   ✓ active production terminology > keeps legacy vocabulary out of display copy while preserving database and employment identifiers  3008ms
+ ✓ tests/unit/proposalValidationClient.test.ts (2 tests) 15ms
+ ✓ tests/unit/submissionHistory.test.ts (1 test) 90ms
+ ✓ tests/unit/navigationUrl.test.ts (5 tests) 163ms
+ ✓ tests/unit/taskMutationService.test.ts (7 tests) 16ms
+ ✓ tests/unit/cashReviewFocus.test.tsx (1 test) 84ms
+ ✓ tests/unit/phase12Evidence.test.tsx (1 test) 106ms
+ ✓ tests/unit/phase03ProjectPresentation.test.tsx (5 tests) 78ms
+ ✓ tests/unit/subtaskProgressHistory.test.ts (1 test) 99ms
+ ✓ tests/unit/taskCashClearanceService.test.ts (4 tests) 14ms
+ ✓ tests/unit/sessionSecurity.test.ts (5 tests) 12ms
+ ✓ tests/unit/chatModeration.test.ts (7 tests) 13ms
+ ✓ tests/unit/taskCashClearance.test.ts (14 tests) 14ms
+ ✓ tests/unit/reviewEvidenceDetails.test.ts (2 tests) 147ms
+ ✓ tests/unit/phase13CheckedFeeds.test.ts (5 tests) 13ms
+ ✓ tests/unit/projectImportDraft.test.ts (6 tests) 13ms
+ ✓ tests/unit/phase16Contracts.test.ts (12 tests) 15ms
+ ✓ tests/unit/phase0607Enhancements.test.ts (6 tests) 17ms
+ ✓ tests/unit/phase14StaffingAuthority.test.ts (4 tests) 13ms
+ ✓ tests/unit/officeIdentityImport.test.ts (4 tests) 11ms
+ ✓ tests/unit/guidedTourNarration.test.ts (2 tests) 6ms
+ ✓ tests/unit/guidedTourProgress.test.ts (2 tests) 7ms
+ ✓ tests/unit/deadlineWorkload.test.ts (5 tests) 10ms
+ ✓ tests/unit/organizationLeadership.test.ts (5 tests) 7ms
+ ✓ tests/unit/projectLifecycleService.test.ts (5 tests) 10ms
+ ✓ tests/unit/phase12ProjectContext.test.ts (11 tests) 15ms
+ ✓ tests/unit/projectViews.test.ts (10 tests) 16ms
+ ✓ tests/unit/projectTable.test.ts (8 tests) 13ms
+ ✓ tests/unit/taskTeamMembership.test.ts (6 tests) 13ms
+ ✓ tests/unit/phase13PersonalWork.test.ts (10 tests) 20ms
+ ✓ tests/unit/monthlyContributionLeaderboard.test.ts (4 tests) 11ms
+ ✓ tests/unit/manualPlanDraft.test.ts (3 tests) 12ms
+ ✓ tests/unit/proposalAssignmentBalancing.test.ts (7 tests) 27ms
+ ✓ tests/unit/proposalGovernanceLifecycle.test.ts (6 tests) 19ms
+ ✓ tests/unit/interdepartmentCollaboration.test.ts (21 tests) 35ms
+ ✓ tests/unit/cashReleaseOverrideService.test.ts (4 tests) 10ms
+ ✓ tests/unit/notificationNavigation.test.ts (8 tests) 9ms
+ ✓ tests/unit/departmentBudgetMigration.test.ts (17 tests) 11ms
+ ✓ tests/unit/collaborationResubmission.test.ts (4 tests) 10ms
+ ✓ tests/unit/phase04TaskBoardPresentation.test.ts (8 tests) 7ms
+ ✓ tests/unit/teamAnalytics.test.ts (3 tests) 22ms
+ ✓ tests/unit/subtaskSequencing.test.ts (6 tests) 8ms
+ ✓ tests/unit/taskSelectors.test.ts (4 tests) 9ms
+ ✓ tests/unit/onboardingResponse.test.ts (3 tests) 8ms
+ ✓ tests/unit/navigation.test.ts (7 tests) 11ms
+ ✓ tests/unit/managedUserService.test.ts (2 tests) 9ms
+ ✓ tests/unit/budgetSelectors.test.ts (9 tests) 17ms
+ ✓ tests/unit/hierarchicalDeadlines.test.ts (4 tests) 10ms
+ ✓ tests/unit/adminTaskReadOnly.test.ts (5 tests) 8ms
+ ✓ tests/unit/emptyProjectCleanup.test.ts (2 tests) 9ms
+ ✓ tests/unit/cashWorkflowRules.test.ts (4 tests) 8ms
+ ✓ tests/unit/controlPanelClient.test.ts (6 tests) 10ms
+ ✓ tests/unit/phase14Participation.test.ts (2 tests) 8ms
+ ✓ tests/unit/projectCommandSelectors.test.ts (6 tests) 21ms
+ ✓ tests/unit/cashWorkflowGuardMigrations.test.ts (3 tests) 7ms
+ ✓ tests/unit/adminProjectReadOnly.test.ts (4 tests) 7ms
+ ✓ tests/unit/staffRecommendations.test.ts (2 tests) 9ms
+ ✓ tests/unit/accessibilityOverlayMigration.test.ts (3 tests) 7ms
+ ✓ tests/unit/phase05OperationsPresentation.test.ts (6 tests) 7ms
+ ✓ tests/unit/taskNormalization.test.ts (2 tests) 6ms
+ ✓ tests/unit/phase14PeoplePresentation.test.ts (3 tests) 6ms
+ ✓ tests/unit/phase04AccountingMigration.test.ts (4 tests) 6ms
+ ✓ tests/unit/taskDiscussionRealtime.test.ts (2 tests) 7ms
+ ✓ tests/unit/reviewRouting.test.ts (6 tests) 6ms
+ ✓ tests/unit/projectOfficeAuthority.test.ts (3 tests) 6ms
+ ✓ tests/unit/chatPanelLayout.test.ts (2 tests) 5ms
+ ✓ tests/unit/relativeSchedule.test.ts (4 tests) 5ms
+ ✓ tests/unit/semanticTealActions.test.ts (3 tests) 5ms
+ ✓ tests/unit/profileDirectoryAdapter.test.ts (2 tests) 6ms
+ ✓ tests/unit/draftAssignment.test.ts (3 tests) 6ms
+ ✓ tests/unit/pageLocalSurfaceStandardization.test.ts (3 tests) 5ms
+ ✓ tests/unit/phase2Onboarding.test.ts (2 tests) 5ms
+ ✓ tests/unit/remainingPhaseCoverage.test.ts (3 tests) 6ms
+ ✓ tests/unit/sirGersonBaseline.test.ts (3 tests) 6ms
+ ✓ tests/unit/reportFormatting.test.ts (2 tests) 6ms
+ ✓ tests/unit/governanceWorkspaceAccess.test.ts (4 tests) 6ms
+ ✓ tests/unit/notificationPresentation.test.ts (4 tests) 5ms
+ ✓ tests/unit/subtaskExecutionMigration.test.ts (2 tests) 6ms
+ ✓ tests/unit/phase1Roles.test.ts (20 tests) 17ms
+ ✓ tests/unit/workPlanCreationUx.test.ts (5 tests) 6ms
+ ✓ tests/unit/workflowPrimitiveDelegation.test.ts (3 tests) 5ms
+ ✓ tests/unit/permissions.test.ts (4 tests) 6ms
+ ✓ tests/unit/guidedTourCatalog.test.ts (2 tests) 11ms
+ ❯ tests/unit/budgetDesignSystemPresentation.test.ts (4 tests | 1 failed) 20ms
+   × budget design-system presentation > uses the shared dialog foundation for liquidation and approval decisions 15ms
+     → expected 'import { useEffect, useMemo, useRef, …' to contain '<Dialog open'
+   ✓ budget design-system presentation > keeps financial surfaces on canonical cards and right-aligned tabular values 1ms
+   ✓ budget design-system presentation > uses a compact, tokenized accounting inspector with tabular journal amounts 0ms
+   ✓ budget design-system presentation > uses teal selectable funding options and a non-card funding status 1ms
+ ✓ tests/unit/departmentDirectoryEligibility.test.ts (3 tests) 5ms
+ ✓ tests/unit/departmentApprovalRows.test.ts (2 tests) 6ms
+ ✓ tests/unit/accountingRoleNavigation.test.tsx (3 tests) 8ms
+ ✓ tests/unit/deptHeadDashboardPresentation.test.ts (2 tests) 5ms
+ ✓ tests/unit/leadershipUniqueness.test.ts (3 tests) 5ms
+ ✓ tests/unit/backupGatewayContract.test.ts (2 tests) 4ms
+ ✓ tests/unit/neutralSurfacePresentation.test.ts (1 test) 5ms
+ ✓ tests/unit/accountingJournal.test.ts (3 tests) 6ms
+ ✓ tests/unit/proposalPortfolioMigration.test.ts (3 tests) 5ms
+ ✓ tests/unit/dataToolsNavigation.test.ts (1 test) 4ms
+ ✓ tests/unit/phase15ReadinessResolution.test.ts (2 tests) 5ms
+ ✓ tests/unit/governanceLifecycleError.test.ts (2 tests) 5ms
+ ✓ tests/unit/reviewDecisionError.test.ts (2 tests) 5ms
+ ✓ tests/unit/adminRoleMigration.test.ts (2 tests) 5ms
+ ✓ tests/unit/projectDepartmentFilter.test.ts (2 tests) 5ms
+ ✓ tests/unit/departmentScope.test.ts (2 tests) 5ms
+ ✓ tests/unit/leaderReviewWorkspace.test.ts (2 tests) 4ms
+ ✓ tests/unit/quickLoginAccounts.test.ts (2 tests) 5ms
+ ✓ tests/unit/appShell.test.ts (1 test) 5ms
+ ✓ tests/unit/adminAccountProtection.test.ts (2 tests) 4ms
+ ✓ tests/unit/projectDeletionMigration.test.ts (1 test) 5ms
+ ✓ tests/unit/proposalPortfolioGrouping.test.ts (5 tests) 13ms
+ ✓ tests/unit/navigationActionAlerts.test.ts (3 tests) 7ms
+ ✓ tests/unit/projectFinancialReport.test.ts (1 test) 10ms
+ ✓ tests/unit/proposalServerPipeline.test.ts (1 test) 8ms
+ ✓ tests/unit/proposalBudgetImport.test.ts (2 tests) 6ms
+ ✓ tests/unit/teamSupervisionAssignment.test.ts (2 tests) 6ms
+ ✓ tests/unit/managedUserLeadershipService.test.ts (1 test) 6ms
+ ✓ tests/unit/committedProposalDelivery.test.ts (3 tests) 7ms
+ ✓ tests/unit/departmentReports.test.ts (3 tests) 10ms
+ ✓ tests/unit/subtaskTemplateSafety.test.ts (4 tests) 5ms
+ ✓ tests/unit/auditPresentation.test.ts (3 tests) 6ms
+ ✓ tests/unit/projectFigmaBoard.test.ts (1 test) 5ms
+ ✓ tests/unit/loginValidation.test.ts (1 test) 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/budgetDesignSystemPresentation.test.ts > budget design-system presentation > uses the shared dialog foundation for liquidation and approval decisions
+AssertionError: expected 'import { useEffect, useMemo, useRef, …' to contain '<Dialog open'
+
+- Expected
++ Received
+
+- <Dialog open
++ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
++ import { Button } from "@vibe/core";
++ import { AnimatePresence } from "motion/react";
++ import * as m from "motion/react-m";
++ import { Banknote, Check, FileCheck2, WalletCards, X } from "lucide-react";
++ import {
++   BxSliderAlt,
++   BxsBolt,
++   BxsCheckShield,
++ } from "../../../components/ui/boxicons";
++ import { Textarea } from "../../../components/ui/textarea";
++ import {
++   Dialog,
++   DialogContent,
++   DialogDescription,
++   DialogFooter,
++   DialogHeader,
++   DialogTitle,
++ } from "../../../components/ui/dialog";
++ import { useAuth } from "../../../contexts/AuthContext";
++ import { motionTransition } from "../../../shared/motion/motionTokens";
++ import type { DepartmentBudgetBundle } from "../types";
++ import {
++   createReceiptSignedUrl,
++   authorizeLateLiquidation,
++   decidePettyCashLiquidation,
++   decidePettyCashLiquidationLeaderReview,
++   decidePettyCashLeaderReview,
++   decidePettyCashRequest,
++   decideWorkBudgetAllocation,
++   markPettyCashReleased,
++ } from "../services/budgetService";
++ import { BudgetEmpty, peso, StatusPill } from "./budgetUi";
++ import { useApprovalThreshold } from "../hooks/useApprovalThreshold";
++ import { ApprovalThresholdDialog } from "./ApprovalThresholdDialog";
++ import { isLiquidationLate } from "../selectors/cashWorkflowRules";
++
++ import { useConfirmation } from "../../../components/ui/useConfirmation";
++ import { useExplicitDraft } from "../../../shared/useExplicitDraft";
++ import { requestNavigation } from "../../../shared/navigationGuard";
++ import {
++   financialOutcome,
++   recordFinancialOutcome,
++   financialFailureIsUncertain,
++   financialErrorMessage,
++ } from "../financialReceipts";
++ type RejectionTarget = {
++   id: string;
++   kind:
++     | "allocation"
++     | "request_leader"
++     | "request_department"
++     | "liquidation_leader"
++     | "liquidation_department";
++   title: string;
++ };
++
++ export function BudgetApprovalQueue({
++   data,
++   onChanged,
++   focusRecordId,
++ }: {
++   data: DepartmentBudgetBundle;
++   onChanged: () => Promise<void>;
++   focusRecordId?: string;
++ }) {
++   const { userProfile, can } = useAuth();
++   const currentUserId = userProfile?.id || "";
++   const orgId =
++     userProfile?.org_id ||
++     userProfile?.departmentId ||
++     data.summary?.orgId ||
++     "";
++   const isDepartmentApprover = ["head", "head"].includes(
++     userProfile?.role || "",
++   );
++   const isHead = ["head", "head"].includes(userProfile?.role || "");
++   const canSettle =
++     userProfile?.role === "accounting_staff" &&
++     can("accounting.settle_liquidation");
++   const canRelease =
++     userProfile?.role === "accounting_staff" && can("accounting.release_cash");
++   const { threshold, setThreshold, defaultThreshold } =
++     useApprovalThreshold(orgId);
++   const [thresholdDialogOpen, setThresholdDialogOpen] = useState(false);
++   const [batchBusy, setBatchBusy] = useState(false);
++   const [busy, setBusy] = useState("");
++   const [message, setMessage] = useState("");
++   const [rejection, setRejection] = useState<RejectionTarget | null>(null);
++   const pendingAllocations = data.allocations.filter(
++     (item) =>
++       isDepartmentApprover &&
++       item.status === "pending" &&
++       item.requestedBy !== currentUserId,
++   );
++   const pendingRequests = data.requests.filter(
++     (item) =>
++       (isDepartmentApprover &&
++         item.status === "pending_department_approval" &&
++         item.requesterId !== currentUserId) ||
++       (item.status === "pending_leader_review" &&
++         item.taskLeaderId === currentUserId &&
++         item.requesterId !== currentUserId),
++   );
++   const tier1DepartmentRequests = isDepartmentApprover
++     ? pendingRequests.filter(
++         (item) =>
++           item.status === "pending_department_approval" &&
++           item.requestedAmount <= threshold,
++       )
++     : [];
++   const pendingLiquidations = data.liquidations.filter((item) => {
++     const request = data.requests.find(
++       (candidate) => candidate.id === item.requestId,
++     );
++     const lateAuthorization =
++       isHead && isLiquidationLate(request, item) && !item.departmentDecidedAt;
++     return (
++       ((lateAuthorization || canSettle) &&
++         item.status === "pending_department_settlement" &&
++         request?.cashRecipientId !== currentUserId &&
++         request?.requesterId !== currentUserId &&
++         request?.taskLeaderId !== currentUserId) ||
++       (item.status === "pending_leader_review" &&
++         request?.taskLeaderId === currentUserId &&
++         request?.cashRecipientId !== currentUserId)
++     );
++   });
++   const dueReleases = data.releases.filter(
++     (item) =>
++       canRelease &&
++       item.status === "scheduled" &&
++       item.scheduledDate <= new Date().toISOString().slice(0, 10),
++   );
++   const requestById = useMemo(
++     () => new Map(data.requests.map((item) => [item.id, item])),
++     [data.requests],
++   );
++   const commitmentById = useMemo(
++     () => new Map(data.commitments.map((item) => [item.id, item])),
++     [data.commitments],
++   );
++   const lineById = useMemo(
++     () => new Map(data.allocationLines.map((item) => [item.id, item])),
++     [data.allocationLines],
++   );
++   useEffect(() => {
++     if (!focusRecordId) return;
++     const timer = window.setTimeout(
++       () =>
++         document
++           .getElementById(`financial-record-${focusRecordId}`)
++           ?.scrollIntoView({ behavior: "smooth", block: "center" }),
++       120,
++     );
++     return () => window.clearTimeout(timer);
++   }, [focusRecordId]);
++
++   const confirmation = useConfirmation();
++   const pending = useRef(false);
++   const draft = useExplicitDraft(
++     "Financial review",
++     false,
++     Boolean(busy || batchBusy),
++     () => {},
++   );
++   const act = async (id: string, operation: () => Promise<void>) => {
++     const item = data.liquidations.find((row) => row.id === id);
++     const request = data.requests.find(
++       (row) => row.id === (item?.requestId || id),
++     );
++     const key = `approval:${currentUserId}:${id}:${item?.status || request?.status || "pending"}:${item?.departmentDecidedAt || ""}`;
++     if (pending.current || financialOutcome(key)) {
++       setMessage(
++         "This decision has a pending, saved or uncertain result. Refresh financial history before continuing.",
++       );
++       return false;
++     }
++     pending.current = true;
++     draft.pendingRef.current = true;
++     setBusy(id);
++     setMessage("");
++     try {
++       if (
++         !rejection &&
++         !(await confirmation.confirm({
++           title:
++             item && isHead
++               ? "Authorize late liquidation package?"
++               : "Record financial decision?",
++           description: `${request?.cashRecipientName || request?.requesterName || "Authorized work"} · ${request?.taskTitle || id}. ${item ? `${item.liquidationNumber || item.id} · version ${item.version} · expense ${peso.format(item.declaredSpent)} · returned ${peso.format(item.returnedAmount)} · ${item.receipts.length} evidence records. ${isHead ? "Head authorization permits a separate independent Accounting settlement. This does not settle the advance." : "Independent Accounting settlement records a balanced posting."}` : "Existing funding, independent-person and release limits remain in force."}`,
++           actionLabel:
++             item && isHead ? "Authorize package" : "Confirm decision",
++         }))
++       )
++         return false;
++       await operation();
++       recordFinancialOutcome(key, "saved");
++       setMessage(
++         `Financial decision recorded for ${item?.liquidationNumber || request?.requestNumber || id}.`,
++       );
++       await onChanged();
++       return true;
++     } catch (error) {
++       if (!financialOutcome(key) && financialFailureIsUncertain(error))
++         recordFinancialOutcome(key, "uncertain");
++       setMessage(
++         financialErrorMessage(error) +
++           (financialOutcome(key)
++             ? " Verify current financial history; do not repeat the decision."
++             : " Review retained."),
++       );
++       return false;
++     } finally {
++       pending.current = false;
++       draft.pendingRef.current = false;
++       setBusy("");
++     }
++   };
++
++   const confirmRejection = async (reason: string) => {
++     if (!rejection) return;
++     const operation =
++       rejection.kind === "allocation"
++         ? () => decideWorkBudgetAllocation(rejection.id, false, reason)
++         : rejection.kind === "request_leader"
++           ? () => decidePettyCashLeaderReview(rejection.id, false, reason)
++           : rejection.kind === "request_department"
++             ? () => decidePettyCashRequest(rejection.id, false, reason)
++             : rejection.kind === "liquidation_leader"
++               ? () =>
++                   decidePettyCashLiquidationLeaderReview(
++                     rejection.id,
++                     false,
++                     reason,
++                   )
++               : () =>
++                   isHead
++                     ? authorizeLateLiquidation(rejection.id, false, reason)
++                     : decidePettyCashLiquidation(rejection.id, false, reason);
++     if (await act(rejection.id, operation)) setRejection(null);
++   };
++
++   const handleBatchAuthorizeTier1 = async () => {
++     if (pending.current || batchBusy || !tier1DepartmentRequests.length) return;
++     pending.current = true;
++     draft.pendingRef.current = true;
++     setBatchBusy(true);
++     setMessage("");
++     try {
++       if (
++         !(await confirmation.confirm({
++           title: "Authorize selected funding requests?",
++           description: `${tier1DepartmentRequests.length} requests totaling ${peso.format(tier1DepartmentRequests.reduce((sum, item) => sum + item.requestedAmount, 0))}. Each request remains subject to server fiscal limits and independent-person rules.`,
++           actionLabel: "Authorize requests",
++           impact: (
++             <ul>
++               {tier1DepartmentRequests.map((item) => (
++                 <li key={item.id}>
++                   {item.requestNumber}: {item.purpose} ·{" "}
++                   {peso.format(item.requestedAmount)}
++                 </li>
++               ))}
++             </ul>
++           ),
++         }))
++       )
++         return;
++       for (const item of tier1DepartmentRequests) {
++         const key = `approval:${currentUserId}:${item.id}:pending_department_approval:`;
++         if (financialOutcome(key)) continue;
++         try {
++           await decidePettyCashRequest(
++             item.id,
++             true,
++             "Fast-track fiscal authorization approved",
++           );
++           recordFinancialOutcome(key, "saved");
++         } catch (caught) {
++           if (financialFailureIsUncertain(caught))
++             recordFinancialOutcome(key, "uncertain");
++           throw caught;
++         }
++       }
++       await onChanged();
++     } catch (error) {
++       setMessage(
++         error instanceof Error
++           ? error.message
++           : "Some requests could not be fast-track authorized.",
++       );
++     } finally {
++       pending.current = false;
++       draft.pendingRef.current = false;
++       setBatchBusy(false);
++     }
++   };
++
++   if (
++     !pendingAllocations.length &&
++     !pendingRequests.length &&
++     !pendingLiquidations.length &&
++     !dueReleases.length
++   ) {
++     return (
++       <div className="space-y-4">
++         {confirmation.dialog}
++         {isDepartmentApprover && (
++           <div className="flex flex-wrap items-center justify-between gap-3 rounded-[10px] border border-border bg-card px-4 py-3 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
++             <div className="flex items-center gap-2.5">
++               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-neutral-100 text-neutral-700">
++                 <BxSliderAlt size={16} />
++               </div>
++               <div>
++                 <div className="flex items-center gap-2">
++                   <span className="text-[11.5px] font-semibold text-neutral-900">
++                     Approval Governance Threshold
++                   </span>
++                   <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[9px] font-semibold text-emerald-800">
++                     Fast-Track Limit: {peso.format(threshold)}
++                   </span>
++                 </div>
++                 <p className="mt-0.5 text-[10px] text-neutral-500">
++                   Requests ≤ {peso.format(threshold)} are flagged as Tier 1
++                   (Fast-Track). Larger amounts require full multi-tier
++                   governance.
++                 </p>
++               </div>
++             </div>
++             <Button
++               kind="secondary"
++               size="small"
++               onClick={() => setThresholdDialogOpen(true)}
++             >
++               <BxSliderAlt size={13} className="mr-1" />
++               Adjust Threshold
++             </Button>
++           </div>
++         )}
++         <BudgetEmpty
++           title="Approval inbox is clear"
++           description="New task-linked cash requests, release actions, and receipt settlements will appear here."
++         />
++         {thresholdDialogOpen && (
++           <ApprovalThresholdDialog
++             currentThreshold={threshold}
++             defaultThreshold={defaultThreshold}
++             onClose={() => setThresholdDialogOpen(false)}
++             onSave={setThreshold}
++           />
++         )}
++       </div>
++     );
++   }
++
++   return (
++     <div className="space-y-4">
++       {message && (
++         <button
++           type="button"
++           className="rounded-lg border p-3 text-sm"
++           onClick={() => void onChanged()}
++         >
++           Refresh financial history
++         </button>
++       )}
++       {message && (
++         <div className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-[12px] text-rose-700">
++           {message}
++         </div>
++       )}
++
++       {isDepartmentApprover && (
++         <div className="flex flex-wrap items-center justify-between gap-3 rounded-[10px] border border-border bg-card px-4 py-3 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
++           <div className="flex items-center gap-2.5">
++             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-neutral-100 text-neutral-700">
++               <BxSliderAlt size={16} />
++             </div>
++             <div>
++               <div className="flex items-center gap-2">
++                 <span className="text-[11.5px] font-semibold text-neutral-900">
++                   Approval Governance Threshold
++                 </span>
++                 <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[9px] font-semibold text-emerald-800">
++                   Fast-Track Limit: {peso.format(threshold)}
++                 </span>
++               </div>
++               <p className="mt-0.5 text-[10px] text-neutral-500">
++                 Requests ≤ {peso.format(threshold)} are flagged as Tier 1
++                 (Fast-Track). Larger amounts require full multi-tier governance.
++               </p>
++             </div>
++           </div>
++           <Button
++             kind="secondary"
++             size="small"
++             onClick={() => setThresholdDialogOpen(true)}
++           >
++             <BxSliderAlt size={13} className="mr-1" />
++             Adjust Threshold
++           </Button>
++         </div>
++       )}
++
++       {pendingAllocations.length > 0 && (
++         <QueueSection
++           icon={<WalletCards size={14} />}
++           title="Legacy subtask allocation proposals"
++           count={pendingAllocations.length}
++         >
++           {pendingAllocations.map((item) => (
++             <QueueRow
++               key={item.id}
++               recordId={item.id}
++               focused={focusRecordId === item.id}
++               title={item.reason}
++               meta={`Requested allocation · ${peso.format(item.amount)}`}
++               status={item.status}
++               actions={
++                 <DecisionButtons
++                   busy={busy === item.id}
++                   onApprove={() =>
++                     void act(item.id, () =>
++                       decideWorkBudgetAllocation(
++                         item.id,
++                         true,
++                         "Approved for the assigned work",
++                       ),
++                     )
++                   }
++                   onReject={() =>
++                     setRejection({
++                       id: item.id,
++                       kind: "allocation",
++                       title: "Decline subtask budget",
++                     })
++                   }
++                 />
++               }
++             />
++           ))}
++         </QueueSection>
++       )}
++
++       {pendingRequests.length > 0 && (
++         <QueueSection
++           icon={<WalletCards size={14} />}
++           title="Task-linked cash requests"
++           count={pendingRequests.length}
++           action={
++             isDepartmentApprover && tier1DepartmentRequests.length > 1 ? (
++               <Button
++                 kind="primary"
++                 color="positive"
++                 size="small"
++                 disabled={batchBusy || Boolean(busy)}
++                 loading={batchBusy}
++                 onClick={() => void handleBatchAuthorizeTier1()}
++               >
++                 <BxsBolt size={12} className="mr-1" />
++                 Quick Authorize All Tier 1 ({tier1DepartmentRequests.length})
++               </Button>
++             ) : undefined
++           }
++         >
++           {pendingRequests.map((item) => {
++             const line = item.allocationLineId
++               ? lineById.get(item.allocationLineId)
++               : undefined;
++             const attachments = data.requestAttachments.filter(
++               (attachment) => attachment.requestId === item.id,
++             );
++             const hierarchy = [
++               commitmentById.get(item.commitmentId)?.title,
++               item.taskTitle,
++               item.subtaskTitle,
++             ]
++               .filter(Boolean)
++               .join(" → ");
++             const isTier1 = item.requestedAmount <= threshold;
++             const isLeaderReview = item.status === "pending_leader_review";
++             const tierBadge = isTier1 ? (
++               <span className="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 px-1.5 py-0.5 text-[9px] font-medium text-emerald-800">
++                 <BxsBolt size={10} className="text-emerald-700" />
++                 Tier 1 · Fast-Track (≤ {peso.format(threshold)})
++               </span>
++             ) : (
++               <span className="inline-flex items-center gap-1 rounded-md border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[9px] font-medium text-amber-800">
++                 <BxsCheckShield size={10} className="text-amber-700" />
++                 Tier 2 · Escalated (&gt; {peso.format(threshold)})
++               </span>
++             );
++             const approveLabel = isLeaderReview
++               ? isTier1
++                 ? "Endorse (Fast-Track)"
++                 : "Endorse to Head"
++               : isTier1
++                 ? "Quick Authorize"
++                 : "Authorize";
++
++             return (
++               <QueueRow
++                 key={item.id}
++                 recordId={item.id}
++                 focused={focusRecordId === item.id}
++                 title={`FR-${String(item.requestNumber).padStart(5, "0")} · ${hierarchy || "Funded work"}`}
++                 meta={`${item.requesterName || "Member"} · ${item.purpose} · ${peso.format(item.requestedAmount)} · ${isLeaderReview ? "Operational endorsement" : "Fiscal authorization"}${line ? ` · ${line.category} / ${line.particular} / ${line.fundSource}` : ""}`}
++                 status={item.status}
++                 tierBadge={tierBadge}
++                 details={
++                   attachments.length ? (
++                     <div className="mt-2 flex flex-wrap gap-1.5">
++                       {attachments.map((attachment) => (
++                         <button
++                           key={attachment.id}
++                           type="button"
++                           onClick={async () =>
++                             window.open(
++                               await createReceiptSignedUrl(attachment.filePath),
++                               "_blank",
++                               "noopener,noreferrer",
++                             )
++                           }
++                           className="rounded-md border border-neutral-200 bg-white px-2 py-1 text-[8.8px] text-neutral-600"
++                         >
++                           {attachment.fileName}
++                         </button>
++                       ))}
++                     </div>
++                   ) : undefined
++                 }
++                 actions={
++                   <DecisionButtons
++                     busy={busy === item.id || batchBusy}
++                     approveLabel={approveLabel}
++                     onApprove={() =>
++                       void act(item.id, () =>
++                         isLeaderReview
++                           ? decidePettyCashLeaderReview(
++                               item.id,
++                               true,
++                               isTier1
++                                 ? "Operationally endorsed under fast-track limit"
++                                 : "Operationally endorsed for fiscal authorization",
++                             )
++                           : decidePettyCashRequest(
++                               item.id,
++                               true,
++                               isTier1
++                                 ? "Fast-track fiscal authorization approved"
++                                 : "Fiscal authorization approved",
++                             ),
++                       )
++                     }
++                     onReject={() =>
++                       setRejection({
++                         id: item.id,
++                         kind: isLeaderReview
++                           ? "request_leader"
++                           : "request_department",
++                         title: isLeaderReview
++                           ? "Return cash request"
++                           : "Decline cash request",
++                       })
++                     }
++                   />
++                 }
++               />
++             );
++           })}
++         </QueueSection>
++       )}
++
++       {pendingLiquidations.length > 0 && (
++         <QueueSection
++           icon={<FileCheck2 size={14} />}
++           title="Receipt liquidations"
++           count={pendingLiquidations.length}
++         >
++           {pendingLiquidations.map((item) => {
++             const request = requestById.get(item.requestId);
++             const late = isLiquidationLate(request, item);
++             const needsHead =
++               late &&
++               !item.departmentDecidedAt &&
++               item.status === "pending_department_settlement";
++             return (
++               <div
++                 id={`financial-record-${item.id}`}
++                 key={item.id}
++                 className={`border-b border-neutral-100 p-4 last:border-0 ${focusRecordId === item.id ? "bg-blue-50 ring-1 ring-inset ring-blue-200" : ""}`}
++               >
++                 <div className="flex flex-wrap items-start justify-between gap-3">
++                   <div>
++                     <div className="text-[11.5px] font-medium text-neutral-900">
++                       {request &&
++                         `FR-${String(request.requestNumber).padStart(5, "0")} · `}
++                       {[
++                         request
++                           ? commitmentById.get(request.commitmentId)?.title
++                           : undefined,
++                         request?.taskTitle,
++                         request?.subtaskTitle,
++                       ]
++                         .filter(Boolean)
++                         .join(" → ") || "Cash liquidation"}
++                     </div>
++                     <div className="mt-1 text-[10px] text-neutral-500">
++                       {request?.requesterName} · spent{" "}
++                       {peso.format(item.declaredSpent)} · return{" "}
++                       {peso.format(item.returnedAmount)}
++                     </div>
++                     {late && (
++                       <div className="mt-1 inline-flex rounded-md border border-rose-200 bg-rose-50 px-2 py-1 text-[11px] font-medium text-rose-700">
++                         Submitted after the liquidation deadline · Head approval
++                         required
++                       </div>
++                     )}
++                     <div className="mt-1 text-[10px] text-neutral-600">
++                       {item.note}
++                     </div>
++                   </div>
++                   <DecisionButtons
++                     busy={busy === item.id}
++                     approveDisabled={needsHead && !isHead}
++                     approveLabel={
++                       item.status === "pending_leader_review"
++                         ? "Submit to Accounting"
++                         : needsHead
++                           ? "Approve late liquidation"
++                           : "Settle liquidation"
++                     }
++                     onApprove={() =>
++                       void act(item.id, () =>
++                         item.status === "pending_leader_review"
++                           ? decidePettyCashLiquidationLeaderReview(
++                               item.id,
++                               true,
++                               "Receipts endorsed for office settlement",
++                             )
++                           : needsHead && isHead
++                             ? authorizeLateLiquidation(
++                                 item.id,
++                                 true,
++                                 "Late package authorized for independent accounting settlement",
++                               )
++                             : decidePettyCashLiquidation(
++                                 item.id,
++                                 true,
++                                 "Receipts verified and settled",
++                               ),
++                       )
++                     }
++                     onReject={() =>
++                       setRejection({
++                         id: item.id,
++                         kind:
++                           item.status === "pending_leader_review"
++                             ? "liquidation_leader"
++                             : "liquidation_department",
++                         title: "Request receipt corrections",
++                       })
++                     }
++                   />
++                 </div>
++                 <div className="mt-3 flex flex-wrap gap-2">
++                   {item.receipts.map((receipt) => (
++                     <button
++                       key={receipt.id}
++                       onClick={async () =>
++                         window.open(
++                           await createReceiptSignedUrl(receipt.filePath),
++                           "_blank",
++                           "noopener,noreferrer",
++                         )
++                       }
++                       className="rounded-lg border border-neutral-200 bg-neutral-50 px-2.5 py-2 text-left text-[9.5px] text-neutral-600 hover:border-neutral-300"
++                     >
++                       <strong>{receipt.vendor}</strong> ·{" "}
++                       {peso.format(receipt.amount)}
++                       <br />
++                       {receipt.fileName}
++                     </button>
++                   ))}
++                 </div>
++               </div>
++             );
++           })}
++         </QueueSection>
++       )}
++
++       {dueReleases.length > 0 && (
++         <QueueSection
++           icon={<Banknote size={14} />}
++           title="Cash releases due"
++           count={dueReleases.length}
++         >
++           {dueReleases.map((release) => {
++             const request = requestById.get(release.requestId);
++             return (
++               <QueueRow
++                 key={release.id}
++                 recordId={release.id}
++                 focused={focusRecordId === release.id}
++                 title={`FR-${String(request?.requestNumber || 0).padStart(5, "0")} · ${[request ? commitmentById.get(request.commitmentId)?.title : undefined, request?.taskTitle, request?.subtaskTitle].filter(Boolean).join(" → ") || "Funded work"}`}
++                 meta={`${release.scheduledDate} · recipient ${request?.cashRecipientName || request?.requesterName || "Member"} · ${peso.format(release.amount)}`}
++                 status={release.status}
++                 actions={
++                   <button
++                     disabled={busy === release.id}
++                     onClick={() =>
++                       void act(release.id, () =>
++                         markPettyCashReleased(release.id),
++                       )
++                     }
++                     className="inline-flex h-8 items-center gap-1 rounded-lg bg-emerald-700 px-3 text-[9.5px] text-white disabled:opacity-40"
++                   >
++                     <Check size={11} /> Record release
++                   </button>
++                 }
++               />
++             );
++           })}
++         </QueueSection>
++       )}
++
++       {rejection && (
++         <RejectionDialog
++           title={rejection.title}
++           busy={busy === rejection.id}
++           onClose={() => setRejection(null)}
++           onConfirm={confirmRejection}
++         />
++       )}
++
++       {thresholdDialogOpen && (
++         <ApprovalThresholdDialog
++           currentThreshold={threshold}
++           defaultThreshold={defaultThreshold}
++           onClose={() => setThresholdDialogOpen(false)}
++           onSave={setThreshold}
++         />
++       )}
++     </div>
++   );
++ }
++
++ function QueueSection({
++   icon,
++   title,
++   count,
++   children,
++   action,
++ }: {
++   icon: ReactNode;
++   title: string;
++   count: number;
++   children: ReactNode;
++   action?: ReactNode;
++ }) {
++   return (
++     <section className="overflow-hidden rounded-[10px] border border-border bg-card shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
++       <header className="flex items-center gap-2 border-b border-border px-4 py-3">
++         <span className="text-muted-foreground">{icon}</span>
++         <h3 className="text-[12px] font-semibold text-foreground">{title}</h3>
++         <div className="ml-auto flex items-center gap-2">
++           {action}
++           <span className="rounded-full bg-amber-50 px-2 py-1 text-[11px] text-amber-700">
++             {count}
++           </span>
++         </div>
++       </header>
++       <div className="divide-y divide-border/70">
++         <AnimatePresence initial={false} mode="popLayout">
++           {children}
++         </AnimatePresence>
++       </div>
++     </section>
++   );
++ }
++
++ function QueueRow({
++   recordId,
++   title,
++   meta,
++   status,
++   actions,
++   details,
++   focused = false,
++   tierBadge,
++ }: {
++   recordId: string;
++   title: string;
++   meta: string;
++   status: string;
++   actions: ReactNode;
++   details?: ReactNode;
++   focused?: boolean;
++   tierBadge?: ReactNode;
++ }) {
++   return (
++     <m.div
++       id={`financial-record-${recordId}`}
++       layout
++       initial={{ opacity: 0, y: 4 }}
++       animate={{ opacity: 1, y: 0 }}
++       exit={{ opacity: 0, scale: 0.98 }}
++       transition={motionTransition.productive}
++       className={`flex flex-wrap items-center gap-3 p-4 ${focused ? "bg-accent ring-1 ring-inset ring-primary/25" : ""}`}
++     >
++       <div className="min-w-0 flex-1">
++         <div className="flex flex-wrap items-center gap-2">
++           <div className="truncate text-[11.5px] font-medium text-neutral-900">
++             {title}
++           </div>
++           <StatusPill status={status} />
++           {tierBadge}
++         </div>
++         <div className="mt-1 text-[12px] text-neutral-500">{meta}</div>
++         {details}
++       </div>
++       {actions}
++     </m.div>
++   );
++ }
++
++ function DecisionButtons({
++   busy,
++   onApprove,
++   onReject,
++   approveLabel = "Approve",
++   approveDisabled = false,
++ }: {
++   busy: boolean;
++   onApprove: () => void;
++   onReject: () => void;
++   approveLabel?: string;
++   approveDisabled?: boolean;
++ }) {
++   return (
++     <div className="flex items-center gap-1.5">
++       <Button
++         kind="tertiary"
++         color="negative"
++         size="small"
++         disabled={busy}
++         onClick={onReject}
++       >
++         <X size={11} className="mr-1" />
++         Decline
++       </Button>
++       <Button
++         kind="primary"
++         size="small"
++         disabled={busy || approveDisabled}
++         loading={busy}
++         onClick={onApprove}
++       >
++         <Check size={11} className="mr-1" />
++         {approveLabel}
++       </Button>
++     </div>
++   );
++ }
++
++ function RejectionDialog({
++   title,
++   busy,
++   onClose,
++   onConfirm,
++ }: {
++   title: string;
++   busy: boolean;
++   onClose: () => void;
++   onConfirm: (reason: string) => Promise<void>;
++ }) {
++   const [reason, setReason] = useState("");
++   const rejectionDraft = useExplicitDraft(
++     "Financial decision reason",
++     Boolean(reason.trim()),
++     busy,
++     () => setReason(""),
++   );
++   void rejectionDraft;
++   const close = () => {
++     void requestNavigation(onClose);
++   };
++   return (
++     <Dialog
++       open
++       onOpenChange={(open) => {
++         if (!open) onClose();
++       }}
++     >
++       <DialogContent className="gap-0 overflow-hidden p-0 sm:max-w-[480px]">
++         <DialogHeader className="border-b border-border px-5 py-4 pr-12">
++           <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-destructive">
++             Decision required
++           </div>
++           <DialogTitle className="text-[18px]">{title}</DialogTitle>
++           <DialogDescription>
++             Record a clear reason so the requester knows exactly what to
++             correct.
++           </DialogDescription>
++         </DialogHeader>
++         <div className="px-5 py-4">
++           <Textarea
++             autoFocus
++             rows={4}
++             value={reason}
++             onChange={(event) => setReason(event.target.value)}
++             placeholder="Reason or required correction"
++             className="text-[12px]"
++           />
++         </div>
++         <DialogFooter className="border-t border-border px-5 py-4 sm:justify-end">
++           <Button kind="secondary" size="small" disabled={busy} onClick={close}>
++             Cancel
++           </Button>
++           <Button
++             kind="primary"
++             color="negative"
++             size="small"
++             disabled={busy || !reason.trim()}
++             loading={busy}
++             onClick={() => void onConfirm(reason.trim())}
++           >
++             Confirm decision
++           </Button>
++         </DialogFooter>
++       </DialogContent>
++     </Dialog>
++   );
++ }
++
+
+ ❯ tests/unit/budgetDesignSystemPresentation.test.ts:20:27
+     18|     expect(cashLiquidation).toContain("sm:max-w-[640px]");
+     19|     expect(cashLiquidation).toContain('inputClassName="text-right tabu…
+     20|     expect(approvalQueue).toContain("<Dialog open");
+       |                           ^
+     21|     expect(approvalQueue).toContain("Decision required");
+     22|     expect(approvalQueue).not.toContain('fixed inset-0 z-[80] bg-neutr…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  tests/unit/cashReleaseOverride.test.tsx > schedule override confirmation > keeps the popup open with the server ceiling error and preserves the reason
+TestingLibraryElementError: Unable to find role="alert"
+
+Ignored nodes: comments, script, style
+<body
+  data-scroll-locked="1"
+  style="pointer-events: none;"
+>
+  <span
+    aria-hidden="true"
+    data-aria-hidden="true"
+    data-radix-focus-guard=""
+    style="outline: none; opacity: 0; position: fixed; pointer-events: none;"
+    tabindex="0"
+  />
+  <div
+    aria-hidden="true"
+    data-aria-hidden="true"
+  >
+    <div
+      class="space-y-4"
+    >
+      <div
+        class="grid gap-3 sm:grid-cols-3"
+      >
+        <div
+          class="rounded-xl border p-3 border-amber-200 bg-amber-50"
+        >
+          <div
+            class="text-[11px] uppercase tracking-[0.12em] text-neutral-500"
+          >
+            Cash to release
+          </div>
+          <div
+            class="mt-1 text-right text-[16px] font-semibold tabular-nums text-amber-900"
+          >
+            ₱5,000.00
+          </div>
+          <div
+            class="mt-0.5 text-[11px] text-neutral-500"
+          >
+            1 scheduled tranche
+          </div>
+        </div>
+        <div
+          class="rounded-xl border p-3 border-amber-200 bg-amber-50"
+        >
+          <div
+            class="text-[11px] uppercase tracking-[0.12em] text-neutral-500"
+          >
+            Due now
+          </div>
+          <div
+            class="mt-1 text-right text-[16px] font-semibold tabular-nums text-amber-900"
+          >
+            ₱5,000.00
+          </div>
+          <div
+            class="mt-0.5 text-[11px] text-neutral-500"
+          >
+            1 tranche ready for release
+          </div>
+        </div>
+        <div
+          class="rounded-xl border p-3 border-neutral-200 bg-white"
+        >
+          <div
+            class="text-[11px] uppercase tracking-[0.12em] text-neutral-500"
+          >
+            Scheduled later
+          </div>
+          <div
+            class="mt-1 text-right text-[16px] font-semibold tabular-nums text-neutral-950"
+          >
+            0
+          </div>
+          <div
+            class="mt-0.5 text-[11px] text-neutral-500"
+          >
+            Future release tranches
+          </div>
+        </div>
+      </div>
+      <section
+        class="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm"
+      >
+        <header
+          class="flex items-center gap-2 border-b border-neutral-100 px-4 py-3"
+        >
+          <svg
+            class="lucide lucide-banknote"
+            fill="none"
+            height="14"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="14"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <rect
+              height="12"
+              rx="2"
+              width="20"
+              x="2"
+              y="6"
+            />
+            <circle
+              cx="12"
+              cy="12"
+              r="2"
+            />
+            <path
+              d="M6 12h.01M18 12h.01"
+            />
+          </svg>
+          <h3
+            class="text-[14px] font-semibold"
+          >
+            Voucher & release schedule
+          </h3>
+          <span
+            class="ml-auto text-[12px] text-neutral-500"
+          >
+            Daily ceiling is enforced by the server
+          </span>
+        </header>
+        <div
+          class="grid items-center gap-3 border-b border-neutral-100 p-4 last:border-0 md:grid-cols-[1fr_auto_auto_auto]"
+        >
+          <div>
+            <div
+              class="text-[12px] font-medium"
+            >
+              PC-
+              00006
+               ·
+               
+              Order Food
+            </div>
+            <div
+              class="mt-1 text-[11px] text-neutral-500"
+            >
+              Recipient:
+               
+              Gabriel Cahiyang
+               
+              · scheduled 
+              2026-08-31
+            </div>
+            <div
+              class="mt-1 font-mono text-[11px] text-neutral-500"
+            >
+              Voucher number assigned by the accounting migration
+            </div>
+          </div>
+          <span
+            class="rounded-full px-2 py-1 text-[11px] font-medium capitalize bg-neutral-100 text-neutral-600"
+          >
+            scheduled
+          </span>
+          <strong
+            class="text-[13px] tabular-nums"
+          >
+            ₱5,000.00
+          </strong>
+          <div
+            class="flex justify-end"
+          >
+            <button
+              class="inline-flex h-8 items-center gap-1 rounded-lg bg-emerald-700 px-3 text-[12px] text-white disabled:opacity-40"
+            >
+              <svg
+                class="lucide lucide-banknote"
+                fill="none"
+                height="10"
+                stroke="curre...
+
+Ignored nodes: comments, script, style
+<body
+  data-scroll-locked="1"
+  style="pointer-events: none;"
+>
+  <span
+    aria-hidden="true"
+    data-aria-hidden="true"
+    data-radix-focus-guard=""
+    style="outline: none; opacity: 0; position: fixed; pointer-events: none;"
+    tabindex="0"
+  />
+  <div
+    aria-hidden="true"
+    data-aria-hidden="true"
+  >
+    <div
+      class="space-y-4"
+    >
+      <div
+        class="grid gap-3 sm:grid-cols-3"
+      >
+        <div
+          class="rounded-xl border p-3 border-amber-200 bg-amber-50"
+        >
+          <div
+            class="text-[11px] uppercase tracking-[0.12em] text-neutral-500"
+          >
+            Cash to release
+          </div>
+          <div
+            class="mt-1 text-right text-[16px] font-semibold tabular-nums text-amber-900"
+          >
+            ₱5,000.00
+          </div>
+          <div
+            class="mt-0.5 text-[11px] text-neutral-500"
+          >
+            1 scheduled tranche
+          </div>
+        </div>
+        <div
+          class="rounded-xl border p-3 border-amber-200 bg-amber-50"
+        >
+          <div
+            class="text-[11px] uppercase tracking-[0.12em] text-neutral-500"
+          >
+            Due now
+          </div>
+          <div
+            class="mt-1 text-right text-[16px] font-semibold tabular-nums text-amber-900"
+          >
+            ₱5,000.00
+          </div>
+          <div
+            class="mt-0.5 text-[11px] text-neutral-500"
+          >
+            1 tranche ready for release
+          </div>
+        </div>
+        <div
+          class="rounded-xl border p-3 border-neutral-200 bg-white"
+        >
+          <div
+            class="text-[11px] uppercase tracking-[0.12em] text-neutral-500"
+          >
+            Scheduled later
+          </div>
+          <div
+            class="mt-1 text-right text-[16px] font-semibold tabular-nums text-neutral-950"
+          >
+            0
+          </div>
+          <div
+            class="mt-0.5 text-[11px] text-neutral-500"
+          >
+            Future release tranches
+          </div>
+        </div>
+      </div>
+      <section
+        class="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm"
+      >
+        <header
+          class="flex items-center gap-2 border-b border-neutral-100 px-4 py-3"
+        >
+          <svg
+            class="lucide lucide-banknote"
+            fill="none"
+            height="14"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="14"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <rect
+              height="12"
+              rx="2"
+              width="20"
+              x="2"
+              y="6"
+            />
+            <circle
+              cx="12"
+              cy="12"
+              r="2"
+            />
+            <path
+              d="M6 12h.01M18 12h.01"
+            />
+          </svg>
+          <h3
+            class="text-[14px] font-semibold"
+          >
+            Voucher & release schedule
+          </h3>
+          <span
+            class="ml-auto text-[12px] text-neutral-500"
+          >
+            Daily ceiling is enforced by the server
+          </span>
+        </header>
+        <div
+          class="grid items-center gap-3 border-b border-neutral-100 p-4 last:border-0 md:grid-cols-[1fr_auto_auto_auto]"
+        >
+          <div>
+            <div
+              class="text-[12px] font-medium"
+            >
+              PC-
+              00006
+               ·
+               
+              Order Food
+            </div>
+            <div
+              class="mt-1 text-[11px] text-neutral-500"
+            >
+              Recipient:
+               
+              Gabriel Cahiyang
+               
+              · scheduled 
+              2026-08-31
+            </div>
+            <div
+              class="mt-1 font-mono text-[11px] text-neutral-500"
+            >
+              Voucher number assigned by the accounting migration
+            </div>
+          </div>
+          <span
+            class="rounded-full px-2 py-1 text-[11px] font-medium capitalize bg-neutral-100 text-neutral-600"
+          >
+            scheduled
+          </span>
+          <strong
+            class="text-[13px] tabular-nums"
+          >
+            ₱5,000.00
+          </strong>
+          <div
+            class="flex justify-end"
+          >
+            <button
+              class="inline-flex h-8 items-center gap-1 rounded-lg bg-emerald-700 px-3 text-[12px] text-white disabled:opacity-40"
+            >
+              <svg
+                class="lucide lucide-banknote"
+                fill="none"
+                height="10"
+                stroke="curre...
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ tests/unit/cashReleaseOverride.test.tsx:57:18
+     55|     fireEvent.change(screen.getByLabelText("Override reason"), { targe…
+     56|     fireEvent.click(confirm());
+     57|     await screen.findByRole("alert");
+       |                  ^
+     58|     expect(screen.getByRole("alert").textContent).toContain("Daily rel…
+     59|     expect((screen.getByLabelText("Override reason") as HTMLTextAreaEl…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  tests/unit/cashReleaseOverride.test.tsx > schedule override confirmation > prevents double confirmation and dismissal while the request is pending
+TestingLibraryElementError: Unable to find an accessible element with the role "dialog"
+
+Here are the accessible roles:
+
+  banner:
+
+  Name "":
+  <header
+    class="flex items-center gap-2 border-b border-neutral-100 px-4 py-3"
+  />
+
+  Name "":
+  <header
+    class="flex items-center gap-2 border-b border-neutral-100 px-4 py-3"
+  />
+
+  --------------------------------------------------
+  heading:
+
+  Name "Voucher & release schedule":
+  <h3
+    class="text-[14px] font-semibold"
+  />
+
+  Name "Liquidation timeline":
+  <h3
+    class="text-[14px] font-semibold"
+  />
+
+  --------------------------------------------------
+  strong:
+
+  Name "":
+  <strong
+    class="text-[13px] tabular-nums"
+  />
+
+  --------------------------------------------------
+  button:
+
+  Name "Mark released":
+  <button
+    class="inline-flex h-8 items-center gap-1 rounded-lg bg-emerald-700 px-3 text-[12px] text-white disabled:opacity-40"
+  />
+
+  Name "Override schedule":
+  <button
+    class="ml-2 inline-flex h-8 items-center gap-1 rounded-lg border border-amber-300 bg-amber-50 px-3 text-[12px] text-amber-900 disabled:opacity-40"
+  />
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+<body
+  style=""
+>
+  <div>
+    <div
+      class="space-y-4"
+    >
+      <div
+        class="grid gap-3 sm:grid-cols-3"
+      >
+        <div
+          class="rounded-xl border p-3 border-amber-200 bg-amber-50"
+        >
+          <div
+            class="text-[11px] uppercase tracking-[0.12em] text-neutral-500"
+          >
+            Cash to release
+          </div>
+          <div
+            class="mt-1 text-right text-[16px] font-semibold tabular-nums text-amber-900"
+          >
+            ₱5,000.00
+          </div>
+          <div
+            class="mt-0.5 text-[11px] text-neutral-500"
+          >
+            1 scheduled tranche
+          </div>
+        </div>
+        <div
+          class="rounded-xl border p-3 border-amber-200 bg-amber-50"
+        >
+          <div
+            class="text-[11px] uppercase tracking-[0.12em] text-neutral-500"
+          >
+            Due now
+          </div>
+          <div
+            class="mt-1 text-right text-[16px] font-semibold tabular-nums text-amber-900"
+          >
+            ₱5,000.00
+          </div>
+          <div
+            class="mt-0.5 text-[11px] text-neutral-500"
+          >
+            1 tranche ready for release
+          </div>
+        </div>
+        <div
+          class="rounded-xl border p-3 border-neutral-200 bg-white"
+        >
+          <div
+            class="text-[11px] uppercase tracking-[0.12em] text-neutral-500"
+          >
+            Scheduled later
+          </div>
+          <div
+            class="mt-1 text-right text-[16px] font-semibold tabular-nums text-neutral-950"
+          >
+            0
+          </div>
+          <div
+            class="mt-0.5 text-[11px] text-neutral-500"
+          >
+            Future release tranches
+          </div>
+        </div>
+      </div>
+      <section
+        class="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm"
+      >
+        <header
+          class="flex items-center gap-2 border-b border-neutral-100 px-4 py-3"
+        >
+          <svg
+            class="lucide lucide-banknote"
+            fill="none"
+            height="14"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="14"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <rect
+              height="12"
+              rx="2"
+              width="20"
+              x="2"
+              y="6"
+            />
+            <circle
+              cx="12"
+              cy="12"
+              r="2"
+            />
+            <path
+              d="M6 12h.01M18 12h.01"
+            />
+          </svg>
+          <h3
+            class="text-[14px] font-semibold"
+          >
+            Voucher & release schedule
+          </h3>
+          <span
+            class="ml-auto text-[12px] text-neutral-500"
+          >
+            Daily ceiling is enforced by the server
+          </span>
+        </header>
+        <div
+          class="grid items-center gap-3 border-b border-neutral-100 p-4 last:border-0 md:grid-cols-[1fr_auto_auto_auto]"
+        >
+          <div>
+            <div
+              class="text-[12px] font-medium"
+            >
+              PC-
+              00006
+               ·
+               
+              Order Food
+            </div>
+            <div
+              class="mt-1 text-[11px] text-neutral-500"
+            >
+              Recipient:
+               
+              Gabriel Cahiyang
+               
+              · scheduled 
+              2026-08-31
+            </div>
+            <div
+              class="mt-1 font-mono text-[11px] text-neutral-500"
+            >
+              Voucher number assigned by the accounting migration
+            </div>
+          </div>
+          <span
+            class="rounded-full px-2 py-1 text-[11px] font-medium capitalize bg-neutral-100 text-neutral-600"
+          >
+            scheduled
+          </span>
+          <strong
+            class="text-[13px] tabular-nums"
+          >
+            ₱5,000.00
+          </strong>
+          <div
+            class="flex justify-end"
+          >
+            <button
+              class="inline-flex h-8 items-center gap-1 rounded-lg bg-emerald-700 px-3 text-[12px] text-white disabled:opacity-40"
+            >
+              <svg
+                class="lucide lucide-banknote"
+                fill="none"
+                height="10"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="10"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect
+                  height="12"
+                  rx="2"
+                  width="20"
+                  x="2"
+                  y="6"
+                />
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="2"
+                />
+                <path
+                  d="M6 12h.01M18 12h.01"
+                />
+              </svg>
+               Mark released
+            </button>
+            <button
+              class="ml-2 inline-flex h-8 items-center gap-1 rounded-lg border border-amber-300 bg-amber-50 px-3 text-[12px] text-amber-900 disabled:opacity-40"
+            >
+              <svg
+                class="lucide lucide-clock3 lucide-clock-3"
+                fill="none"
+                height="10"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="10"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="10"
+                />
+                <polyline
+                  points="12 6 12 12 16.5 12"
+                />
+              </svg>
+               Override schedule
+            </button>
+          </div>
+        </div>
+      </section>
+      <section
+        class="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm"
+      >
+        <header
+          class="flex items-center gap-2 border-b border-neutral-100 px-4 py-3"
+        >
+          <svg
+            class="lucide lucide-receipt-text"
+            fill="none"
+            height="14"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="14"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"
+            />
+            <path
+              d="M14 8H8"
+            />
+            <path
+              d="M16 12H8"
+            />
+            <path
+              d="M13 16H8"
+            />
+          </svg>
+          <h3
+            class="text-[14px] font-semibold"
+          >
+            Liquidation timeline
+          </h3>
+        </header>
+      </section>
+    </div>
+  </div>
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ tests/unit/cashReleaseOverride.test.tsx:71:19
+     69|     fireEvent.click(confirm()); fireEvent.click(confirm());
+     70|     fireEvent.click(screen.getByRole("button", { name: "Close", exact:…
+     71|     expect(screen.getByRole("dialog")).toBeTruthy();
+       |                   ^
+     72|     expect(mocks.override).toHaveBeenCalledOnce();
+     73|     await act(async () => finish());
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  tests/unit/cashReleaseOverride.test.tsx > schedule override confirmation > does not retry a committed release when only the list refresh fails
+TestingLibraryElementError: Unable to find an element with the text: /Cash was recorded as released, but the list could not refresh/. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body
+  data-scroll-locked="1"
+  style="pointer-events: none;"
+>
+  <span
+    aria-hidden="true"
+    data-aria-hidden="true"
+    data-radix-focus-guard=""
+    style="outline: none; opacity: 0; position: fixed; pointer-events: none;"
+    tabindex="0"
+  />
+  <div
+    aria-hidden="true"
+    data-aria-hidden="true"
+  >
+    <div
+      class="space-y-4"
+    >
+      <div
+        class="grid gap-3 sm:grid-cols-3"
+      >
+        <div
+          class="rounded-xl border p-3 border-amber-200 bg-amber-50"
+        >
+          <div
+            class="text-[11px] uppercase tracking-[0.12em] text-neutral-500"
+          >
+            Cash to release
+          </div>
+          <div
+            class="mt-1 text-right text-[16px] font-semibold tabular-nums text-amber-900"
+          >
+            ₱5,000.00
+          </div>
+          <div
+            class="mt-0.5 text-[11px] text-neutral-500"
+          >
+            1 scheduled tranche
+          </div>
+        </div>
+        <div
+          class="rounded-xl border p-3 border-amber-200 bg-amber-50"
+        >
+          <div
+            class="text-[11px] uppercase tracking-[0.12em] text-neutral-500"
+          >
+            Due now
+          </div>
+          <div
+            class="mt-1 text-right text-[16px] font-semibold tabular-nums text-amber-900"
+          >
+            ₱5,000.00
+          </div>
+          <div
+            class="mt-0.5 text-[11px] text-neutral-500"
+          >
+            1 tranche ready for release
+          </div>
+        </div>
+        <div
+          class="rounded-xl border p-3 border-neutral-200 bg-white"
+        >
+          <div
+            class="text-[11px] uppercase tracking-[0.12em] text-neutral-500"
+          >
+            Scheduled later
+          </div>
+          <div
+            class="mt-1 text-right text-[16px] font-semibold tabular-nums text-neutral-950"
+          >
+            0
+          </div>
+          <div
+            class="mt-0.5 text-[11px] text-neutral-500"
+          >
+            Future release tranches
+          </div>
+        </div>
+      </div>
+      <section
+        class="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm"
+      >
+        <header
+          class="flex items-center gap-2 border-b border-neutral-100 px-4 py-3"
+        >
+          <svg
+            class="lucide lucide-banknote"
+            fill="none"
+            height="14"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="14"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <rect
+              height="12"
+              rx="2"
+              width="20"
+              x="2"
+              y="6"
+            />
+            <circle
+              cx="12"
+              cy="12"
+              r="2"
+            />
+            <path
+              d="M6 12h.01M18 12h.01"
+            />
+          </svg>
+          <h3
+            class="text-[14px] font-semibold"
+          >
+            Voucher & release schedule
+          </h3>
+          <span
+            class="ml-auto text-[12px] text-neutral-500"
+          >
+            Daily ceiling is enforced by the server
+          </span>
+        </header>
+        <div
+          class="grid items-center gap-3 border-b border-neutral-100 p-4 last:border-0 md:grid-cols-[1fr_auto_auto_auto]"
+        >
+          <div>
+            <div
+              class="text-[12px] font-medium"
+            >
+              PC-
+              00006
+               ·
+               
+              Order Food
+            </div>
+            <div
+              class="mt-1 text-[11px] text-neutral-500"
+            >
+              Recipient:
+               
+              Gabriel Cahiyang
+               
+              · scheduled 
+              2026-08-31
+            </div>
+            <div
+              class="mt-1 font-mono text-[11px] text-neutral-500"
+            >
+              Voucher number assigned by the accounting migration
+            </div>
+          </div>
+          <span
+            class="rounded-full px-2 py-1 text-[11px] font-medium capitalize bg-neutral-100 text-neutral-600"
+          >
+            scheduled
+          </span>
+          <strong
+            class="text-[13px] tabular-nums"
+          >
+            ₱5,000.00
+          </strong>
+          <div
+            class="flex justify-end"
+          >
+            <button
+              class="inline-flex h-8 items-center gap-1 rounded-lg bg-emerald-700 px-3 text-[12px] text-white disabled:opacity-40"
+            >
+              <svg
+                class="lucide lucide-banknote"
+                fill="none"
+                height="10"
+                stroke="curre...
+
+Ignored nodes: comments, script, style
+<body
+  data-scroll-locked="1"
+  style="pointer-events: none;"
+>
+  <span
+    aria-hidden="true"
+    data-aria-hidden="true"
+    data-radix-focus-guard=""
+    style="outline: none; opacity: 0; position: fixed; pointer-events: none;"
+    tabindex="0"
+  />
+  <div
+    aria-hidden="true"
+    data-aria-hidden="true"
+  >
+    <div
+      class="space-y-4"
+    >
+      <div
+        class="grid gap-3 sm:grid-cols-3"
+      >
+        <div
+          class="rounded-xl border p-3 border-amber-200 bg-amber-50"
+        >
+          <div
+            class="text-[11px] uppercase tracking-[0.12em] text-neutral-500"
+          >
+            Cash to release
+          </div>
+          <div
+            class="mt-1 text-right text-[16px] font-semibold tabular-nums text-amber-900"
+          >
+            ₱5,000.00
+          </div>
+          <div
+            class="mt-0.5 text-[11px] text-neutral-500"
+          >
+            1 scheduled tranche
+          </div>
+        </div>
+        <div
+          class="rounded-xl border p-3 border-amber-200 bg-amber-50"
+        >
+          <div
+            class="text-[11px] uppercase tracking-[0.12em] text-neutral-500"
+          >
+            Due now
+          </div>
+          <div
+            class="mt-1 text-right text-[16px] font-semibold tabular-nums text-amber-900"
+          >
+            ₱5,000.00
+          </div>
+          <div
+            class="mt-0.5 text-[11px] text-neutral-500"
+          >
+            1 tranche ready for release
+          </div>
+        </div>
+        <div
+          class="rounded-xl border p-3 border-neutral-200 bg-white"
+        >
+          <div
+            class="text-[11px] uppercase tracking-[0.12em] text-neutral-500"
+          >
+            Scheduled later
+          </div>
+          <div
+            class="mt-1 text-right text-[16px] font-semibold tabular-nums text-neutral-950"
+          >
+            0
+          </div>
+          <div
+            class="mt-0.5 text-[11px] text-neutral-500"
+          >
+            Future release tranches
+          </div>
+        </div>
+      </div>
+      <section
+        class="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm"
+      >
+        <header
+          class="flex items-center gap-2 border-b border-neutral-100 px-4 py-3"
+        >
+          <svg
+            class="lucide lucide-banknote"
+            fill="none"
+            height="14"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="14"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <rect
+              height="12"
+              rx="2"
+              width="20"
+              x="2"
+              y="6"
+            />
+            <circle
+              cx="12"
+              cy="12"
+              r="2"
+            />
+            <path
+              d="M6 12h.01M18 12h.01"
+            />
+          </svg>
+          <h3
+            class="text-[14px] font-semibold"
+          >
+            Voucher & release schedule
+          </h3>
+          <span
+            class="ml-auto text-[12px] text-neutral-500"
+          >
+            Daily ceiling is enforced by the server
+          </span>
+        </header>
+        <div
+          class="grid items-center gap-3 border-b border-neutral-100 p-4 last:border-0 md:grid-cols-[1fr_auto_auto_auto]"
+        >
+          <div>
+            <div
+              class="text-[12px] font-medium"
+            >
+              PC-
+              00006
+               ·
+               
+              Order Food
+            </div>
+            <div
+              class="mt-1 text-[11px] text-neutral-500"
+            >
+              Recipient:
+               
+              Gabriel Cahiyang
+               
+              · scheduled 
+              2026-08-31
+            </div>
+            <div
+              class="mt-1 font-mono text-[11px] text-neutral-500"
+            >
+              Voucher number assigned by the accounting migration
+            </div>
+          </div>
+          <span
+            class="rounded-full px-2 py-1 text-[11px] font-medium capitalize bg-neutral-100 text-neutral-600"
+          >
+            scheduled
+          </span>
+          <strong
+            class="text-[13px] tabular-nums"
+          >
+            ₱5,000.00
+          </strong>
+          <div
+            class="flex justify-end"
+          >
+            <button
+              class="inline-flex h-8 items-center gap-1 rounded-lg bg-emerald-700 px-3 text-[12px] text-white disabled:opacity-40"
+            >
+              <svg
+                class="lucide lucide-banknote"
+                fill="none"
+                height="10"
+                stroke="curre...
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ tests/unit/cashReleaseOverride.test.tsx:81:18
+     79|     fireEvent.change(screen.getByLabelText("Override reason"), { targe…
+     80|     fireEvent.click(confirm());
+     81|     await screen.findByText(/Cash was recorded as released, but the li…
+       |                  ^
+     82|     expect(screen.queryByRole("dialog")).toBeNull();
+     83|     expect(mocks.override).toHaveBeenCalledOnce();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  tests/unit/cashReleaseOverride.test.tsx > schedule override confirmation > retains the normal release path and hides release controls from employees
+AssertionError: expected "spy" to be called with arguments: [ 'release-6', …(1) ]
+
+Number of calls: 0
+
+
+Ignored nodes: comments, script, style
+<html>
+  <head />
+  <body
+    data-scroll-locked="1"
+    style="pointer-events: none;"
+  >
+    <span
+      aria-hidden="true"
+      data-aria-hidden="true"
+      data-radix-focus-guard=""
+      style="outline: none; opacity: 0; position: fixed; pointer-events: none;"
+      tabindex="0"
+    />
+    <div
+      aria-hidden="true"
+      data-aria-hidden="true"
+    >
+      <div
+        class="space-y-4"
+      >
+        <div
+          class="grid gap-3 sm:grid-cols-3"
+        >
+          <div
+            class="rounded-xl border p-3 border-amber-200 bg-amber-50"
+          >
+            <div
+              class="text-[11px] uppercase tracking-[0.12em] text-neutral-500"
+            >
+              Cash to release
+            </div>
+            <div
+              class="mt-1 text-right text-[16px] font-semibold tabular-nums text-amber-900"
+            >
+              ₱5,000.00
+            </div>
+            <div
+              class="mt-0.5 text-[11px] text-neutral-500"
+            >
+              1 scheduled tranche
+            </div>
+          </div>
+          <div
+            class="rounded-xl border p-3 border-amber-200 bg-amber-50"
+          >
+            <div
+              class="text-[11px] uppercase tracking-[0.12em] text-neutral-500"
+            >
+              Due now
+            </div>
+            <div
+              class="mt-1 text-right text-[16px] font-semibold tabular-nums text-amber-900"
+            >
+              ₱5,000.00
+            </div>
+            <div
+              class="mt-0.5 text-[11px] text-neutral-500"
+            >
+              1 tranche ready for release
+            </div>
+          </div>
+          <div
+            class="rounded-xl border p-3 border-neutral-200 bg-white"
+          >
+            <div
+              class="text-[11px] uppercase tracking-[0.12em] text-neutral-500"
+            >
+              Scheduled later
+            </div>
+            <div
+              class="mt-1 text-right text-[16px] font-semibold tabular-nums text-neutral-950"
+            >
+              0
+            </div>
+            <div
+              class="mt-0.5 text-[11px] text-neutral-500"
+            >
+              Future release tranches
+            </div>
+          </div>
+        </div>
+        <section
+          class="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm"
+        >
+          <header
+            class="flex items-center gap-2 border-b border-neutral-100 px-4 py-3"
+          >
+            <svg
+              class="lucide lucide-banknote"
+              fill="none"
+              height="14"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="14"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <rect
+                height="12"
+                rx="2"
+                width="20"
+                x="2"
+                y="6"
+              />
+              <circle
+                cx="12"
+                cy="12"
+                r="2"
+              />
+              <path
+                d="M6 12h.01M18 12h.01"
+              />
+            </svg>
+            <h3
+              class="text-[14px] font-semibold"
+            >
+              Voucher & release schedule
+            </h3>
+            <span
+              class="ml-auto text-[12px] text-neutral-500"
+            >
+              Daily ceiling is enforced by the server
+            </span>
+          </header>
+          <div
+            class="grid items-center gap-3 border-b border-neutral-100 p-4 last:border-0 md:grid-cols-[1fr_auto_auto_auto]"
+          >
+            <div>
+              <div
+                class="text-[12px] font-medium"
+              >
+                PC-
+                00006
+                 ·
+                 
+                Order Food
+              </div>
+              <div
+                class="mt-1 text-[11px] text-neutral-500"
+              >
+                Recipient:
+                 
+                Gabriel Cahiyang
+                 
+                · scheduled 
+                2026-08-31
+              </div>
+              <div
+                class="mt-1 font-mono text-[11px] text-neutral-500"
+              >
+                Voucher number assigned by the accounting migration
+              </div>
+            </div>
+            <span
+              class="rounded-full px-2 py-1 text-[11px] font-medium capitalize bg-neutral-100 text-neutral-600"
+            >
+              scheduled
+            </span>
+            <strong
+              class="text-[13px] tabular-nums"
+            >
+              ₱5,000.00
+            </strong>
+            <div
+              class="flex justify-end"
+            >
+              <button
+                class="i...
+ ❯ tests/unit/cashReleaseOverride.test.tsx:91:47
+     89|     fireEvent.click(screen.getByRole("checkbox"));
+     90|     fireEvent.click(screen.getByRole("button", { name: /Confirm & Reco…
+     91|     await waitFor(() => expect(mocks.release).toHaveBeenCalledWith("re…
+       |                                               ^
+     92|     expect(mocks.override).not.toHaveBeenCalled();
+     93|     mocks.role = "member";
+ ❯ runWithExpensiveErrorDiagnosticsDisabled node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  tests/unit/cashReleaseOverride.test.tsx > schedule override confirmation > lets Accounting Staff issue cheques and use audited schedule overrides
+AssertionError: expected "spy" to be called with arguments: [ 'release-6', …(1) ]
+
+Number of calls: 0
+
+
+Ignored nodes: comments, script, style
+<html>
+  <head />
+  <body
+    data-scroll-locked="1"
+    style="pointer-events: none;"
+  >
+    <span
+      aria-hidden="true"
+      data-aria-hidden="true"
+      data-radix-focus-guard=""
+      style="outline: none; opacity: 0; position: fixed; pointer-events: none;"
+      tabindex="0"
+    />
+    <div
+      aria-hidden="true"
+      data-aria-hidden="true"
+    >
+      <div
+        class="space-y-4"
+      >
+        <div
+          class="grid gap-3 sm:grid-cols-3"
+        >
+          <div
+            class="rounded-xl border p-3 border-amber-200 bg-amber-50"
+          >
+            <div
+              class="text-[11px] uppercase tracking-[0.12em] text-neutral-500"
+            >
+              Cash to release
+            </div>
+            <div
+              class="mt-1 text-right text-[16px] font-semibold tabular-nums text-amber-900"
+            >
+              ₱5,000.00
+            </div>
+            <div
+              class="mt-0.5 text-[11px] text-neutral-500"
+            >
+              1 scheduled tranche
+            </div>
+          </div>
+          <div
+            class="rounded-xl border p-3 border-amber-200 bg-amber-50"
+          >
+            <div
+              class="text-[11px] uppercase tracking-[0.12em] text-neutral-500"
+            >
+              Due now
+            </div>
+            <div
+              class="mt-1 text-right text-[16px] font-semibold tabular-nums text-amber-900"
+            >
+              ₱5,000.00
+            </div>
+            <div
+              class="mt-0.5 text-[11px] text-neutral-500"
+            >
+              1 tranche ready for release
+            </div>
+          </div>
+          <div
+            class="rounded-xl border p-3 border-neutral-200 bg-white"
+          >
+            <div
+              class="text-[11px] uppercase tracking-[0.12em] text-neutral-500"
+            >
+              Scheduled later
+            </div>
+            <div
+              class="mt-1 text-right text-[16px] font-semibold tabular-nums text-neutral-950"
+            >
+              0
+            </div>
+            <div
+              class="mt-0.5 text-[11px] text-neutral-500"
+            >
+              Future release tranches
+            </div>
+          </div>
+        </div>
+        <section
+          class="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm"
+        >
+          <header
+            class="flex items-center gap-2 border-b border-neutral-100 px-4 py-3"
+          >
+            <svg
+              class="lucide lucide-banknote"
+              fill="none"
+              height="14"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="14"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <rect
+                height="12"
+                rx="2"
+                width="20"
+                x="2"
+                y="6"
+              />
+              <circle
+                cx="12"
+                cy="12"
+                r="2"
+              />
+              <path
+                d="M6 12h.01M18 12h.01"
+              />
+            </svg>
+            <h3
+              class="text-[14px] font-semibold"
+            >
+              Voucher & release schedule
+            </h3>
+            <span
+              class="ml-auto text-[12px] text-neutral-500"
+            >
+              Daily ceiling is enforced by the server
+            </span>
+          </header>
+          <div
+            class="grid items-center gap-3 border-b border-neutral-100 p-4 last:border-0 md:grid-cols-[1fr_auto_auto_auto]"
+          >
+            <div>
+              <div
+                class="text-[12px] font-medium"
+              >
+                PC-
+                00006
+                 ·
+                 
+                Order Food
+              </div>
+              <div
+                class="mt-1 text-[11px] text-neutral-500"
+              >
+                Recipient:
+                 
+                Gabriel Cahiyang
+                 
+                · scheduled 
+                2026-08-31
+              </div>
+              <div
+                class="mt-1 font-mono text-[11px] text-neutral-500"
+              >
+                Voucher number assigned by the accounting migration
+              </div>
+            </div>
+            <span
+              class="rounded-full px-2 py-1 text-[11px] font-medium capitalize bg-neutral-100 text-neutral-600"
+            >
+              scheduled
+            </span>
+            <strong
+              class="text-[13px] tabular-nums"
+            >
+              ₱5,000.00
+            </strong>
+            <div
+              class="flex justify-end"
+            >
+              <button
+                class="i...
+ ❯ tests/unit/cashReleaseOverride.test.tsx:108:47
+    106|     fireEvent.click(screen.getByRole("checkbox"));
+    107|     fireEvent.click(screen.getByRole("button", { name: /Confirm & Reco…
+    108|     await waitFor(() => expect(mocks.release).toHaveBeenCalledWith("re…
+       |                                               ^
+    109|   });
+    110| });
+ ❯ runWithExpensiveErrorDiagnosticsDisabled node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  2 failed | 198 passed (200)
+      Tests  6 failed | 778 passed (784)
+   Start at  21:39:59
+   Duration  91.56s (transform 29.79s, setup 0ms, collect 985.95s, tests 97.47s, environment 121.08s, prepare 41.59s)
+

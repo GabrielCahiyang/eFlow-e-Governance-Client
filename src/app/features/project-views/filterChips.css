@@ -1,0 +1,6 @@
+.pv-filter-chips { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin:0 0 12px; font-size:12px; color:var(--eflow-text-secondary); }
+.pv-filter-chips:empty { display:none; }
+.pv-filter-chips button { display:inline-flex; align-items:center; gap:8px; padding:6px 10px; min-height:32px; background:var(--eflow-selected); border:1px solid var(--eflow-border); border-radius:var(--eflow-radius-control); color:var(--eflow-text); max-width:100%; overflow-wrap:anywhere; text-align:left; }
+.pv-filter-chips button svg { flex-shrink:0; }
+.pv-filter-chips button:focus-visible { outline:2px solid var(--eflow-primary); outline-offset:2px; }
+@media(max-width:767px) { .pv-filter-chips button { min-height:var(--eflow-touch-target); } }

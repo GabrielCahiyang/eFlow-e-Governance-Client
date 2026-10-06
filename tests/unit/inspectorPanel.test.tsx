@@ -4,6 +4,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { useReducedMotionConfig } from "motion/react";
 import { EflowMotionProvider, InspectorPanel } from "../../src/app/shared/motion";
+import { createPortal } from "react-dom";
 
 afterEach(() => {
   cleanup();
@@ -23,6 +24,37 @@ function renderInspector(open: boolean, onClose = vi.fn()) {
 }
 
 describe("InspectorPanel", () => {
+  it('skips hidden and inert descendants when entering and wrapping keyboard focus',async()=>{
+    render(<EflowMotionProvider><InspectorPanel open onClose={()=>{}} ariaLabel="Visible actions"><div style={{display:'none'}}><button>Hidden first</button></div><button>Visible first</button><button>Visible last</button><div ref={node=>{node?.setAttribute("inert", "");}}><button>Inert last</button></div></InspectorPanel></EflowMotionProvider>);
+    await waitFor(()=>expect(document.activeElement).toBe(screen.getByRole('button',{name:'Visible first'})));
+    screen.getByRole('button',{name:'Visible last'}).focus();
+    fireEvent.keyDown(document.activeElement!,{key:'Tab'});
+    expect(document.activeElement).toBe(screen.getByRole('button',{name:'Visible first'}));
+  });
+ it('restores focus through the origin resolver when a refreshed source node was removed',async()=>{
+  const source=document.createElement('button');document.body.appendChild(source);source.focus();const fallback=vi.fn();
+  const view=render(<EflowMotionProvider><InspectorPanel open onClose={()=>{}} returnFocus={source} onReturnFocus={fallback} ariaLabel="Refreshed task"><button>Task action</button></InspectorPanel></EflowMotionProvider>);
+  source.remove();view.unmount();await waitFor(()=>expect(fallback).toHaveBeenCalledOnce());
+ });
+
+  it("leaves nested portal keys with their owner and releases locks on unmount", async () => {
+    const root = document.createElement("div");root.id="root";document.body.appendChild(root);
+    document.body.style.overflow="clip";root.setAttribute("aria-hidden","false");
+    const close = vi.fn();
+    const view=render(<EflowMotionProvider><InspectorPanel open onClose={close} ariaLabel="Portal owner"><button>Parent control</button>{createPortal(<button>Nested picker</button>,document.body)}</InspectorPanel></EflowMotionProvider>);
+    fireEvent.keyDown(screen.getByRole("button",{name:"Nested picker"}),{key:"Escape"});expect(close).not.toHaveBeenCalled();
+    view.unmount();expect(root.inert).toBe(false);expect(root.getAttribute("aria-hidden")).toBe("false");expect(document.body.style.overflow).toBe("clip");
+  });
+  it("keeps the application locked until the final inspector closes", async () => {
+    const root=document.createElement("div");root.id="root";document.body.appendChild(root);
+    const close=vi.fn(),nestedClose=vi.fn();
+    const first=renderInspector(true,close);
+    const second=render(<EflowMotionProvider><InspectorPanel open layer={60} onClose={nestedClose} ariaLabel="Nested inspector"><button>Child control</button></InspectorPanel></EflowMotionProvider>);
+    fireEvent.keyDown(screen.getByRole("dialog",{name:"Task inspector"}),{key:"Escape"});expect(close).not.toHaveBeenCalled();
+    fireEvent.keyDown(screen.getByRole("dialog",{name:"Nested inspector"}),{key:"Escape"});expect(nestedClose).toHaveBeenCalledOnce();
+    second.unmount();expect(root.inert).toBe(true);expect(document.body.style.overflow).toBe("hidden");
+    first.unmount();expect(root.inert).toBe(false);expect(document.body.style.overflow).toBe("");
+  });
   it("locks the application and closes from Escape", async () => {
     const appRoot = document.createElement("div");
     appRoot.id = "root";

@@ -1,0 +1,351 @@
+
+> @figma/my-make-file@0.0.1 test
+> vitest --configLoader runner run tests/unit/accountingSettlementAuthority.test.tsx tests/unit/accountingRoleNavigation.test.tsx tests/unit/adminUserDirectory.test.tsx tests/unit/adminAccountProtection.test.ts tests/unit/financialReviewSwitch.test.tsx tests/unit/accountingJournal.test.ts tests/unit/auditPresentation.test.ts tests/unit/departmentReports.test.ts tests/unit/reportFormatting.test.ts
+
+
+ RUN  v3.2.4 C:/Users/james/projects/eflow-e-Governance-Project
+
+ ✓ tests/unit/accountingJournal.test.ts (3 tests) 5ms
+ ✓ tests/unit/reportFormatting.test.ts (2 tests) 6ms
+ ✓ tests/unit/adminAccountProtection.test.ts (2 tests) 4ms
+ ✓ tests/unit/accountingRoleNavigation.test.tsx (3 tests) 5ms
+ ✓ tests/unit/financialReviewSwitch.test.tsx (2 tests) 623ms
+   ✓ financial review navigation > keeps financial approvals inside the Head review workspace  620ms
+ ✓ tests/unit/adminUserDirectory.test.tsx (1 test) 734ms
+   ✓ Admin user directory > shows Admin accounts and gives Admin authority over leadership accounts  732ms
+ ❯ tests/unit/accountingSettlementAuthority.test.tsx (6 tests | 1 failed) 1950ms
+   ✓ Accounting settlement authority > waits for Head authorization before settling a late package  480ms
+   × Accounting settlement authority > enables Accounting settlement after Head authorizes the late package 1217ms
+     → expected "spy" to be called once, but got 0 times
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body[39m
+    [33mdata-scroll-locked[39m=[32m"1"[39m
+    [33mstyle[39m=[32m"pointer-events: none;"[39m
+  [36m>[39m
+    [36m<span[39m
+      [33maria-hidden[39m=[32m"true"[39m
+      [33mdata-aria-hidden[39m=[32m"true"[39m
+      [33mdata-radix-focus-guard[39m=[32m""[39m
+      [33mstyle[39m=[32m"outline: none; opacity: 0; position: fixed; pointer-events: none;"[39m
+      [33mtabindex[39m=[32m"0"[39m
+    [36m/>[39m
+    [36m<div[39m
+      [33maria-hidden[39m=[32m"true"[39m
+      [33mdata-aria-hidden[39m=[32m"true"[39m
+    [36m>[39m
+      [36m<section[39m
+        [33mclass[39m=[32m"overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm"[39m
+      [36m>[39m
+        [36m<header[39m
+          [33mclass[39m=[32m"flex items-center gap-2 border-b border-neutral-100 p-4"[39m
+        [36m>[39m
+          [36m<svg[39m
+            [33mclass[39m=[32m"lucide lucide-receipt-text"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"15"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"15"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"[39m
+            [36m/>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M14 8H8"[39m
+            [36m/>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M16 12H8"[39m
+            [36m/>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M13 16H8"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+          [36m<div>[39m
+            [36m<h2[39m
+              [33mclass[39m=[32m"text-[12px] font-semibold"[39m
+            [36m>[39m
+              [0mAccounting settlement queue[0m
+            [36m</h2>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"mt-0.5 text-[9.5px] text-neutral-500"[39m
+            [36m>[39m
+              [0mVerify immutable evidence, returned change, and the balanced posting before settlement.[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [36m<span[39m
+            [33mclass[39m=[32m"ml-auto"[39m
+            [33mdata-testid[39m=[32m"label"[39m
+            [33mdata-vibe[39m=[32m"Label"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"typography_8610ab18ee onInverted_abc37c37f2 start_58170bedfc singleLineEllipsis_0840ec5330 text_ae943ef6a0 text2Normal_b975f18536 label_26a431b635 kindFill_8717215925 colorDark_3a861e6f86"[39m
+              [33mdata-testid[39m=[32m"text"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"typography_8610ab18ee inherit_22953a59be start_58170bedfc singleLineEllipsis_0840ec5330 text_ae943ef6a0 text2Normal_b975f18536"[39m
+                [33mdata-testid[39m=[32m"text"[39m
+              [36m>[39m
+                [0m1 pending[0m
+              [36m</span>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"legWrapper_a228376dc7"[39m
+              [36m/>[39m
+            [36m</span>[39m
+          [36m</span>[39m
+        [36m</header>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"space-y-3 p-4"[39m
+        [36m>[39m
+          [36m<article[39m
+            [33mclass[39m=[32m"rounded-xl border border-neutral-200 p-4"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"flex flex-col gap-3 lg:flex-row lg:items-start"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"min-w-0 flex-1"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"flex flex-wrap items-center gap-2"[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"font-mono text-[9.5px] text-blue-700"[39m
+                  [36m>[39m
+                    [0mLIQ v2[0m
+                  [36m</span>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"text-[11px] font-semibold text-neutral-900"[39m
+                  [36m>[39m
+                    [0mOrder Food[0m
+                  [36m</span>[39m
+                [36m</div>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"mt-1 text-[9.5px] text-neutral-500"[39m
+                [36m>[39m
+                  [0mCrisostomo Ibarra[0m
+                  [0m ·[0m
+                  [0m [0m
+                  [0mFood down payment[0m
+                [36m</p>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"mt-3 flex flex-wrap gap-2"[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m""[39m
+                    [33mdata-testid[39m=[32m"label"[39m
+                    [33mdata-vibe[39m=[32m"Label"[39m
+                  [36m>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"typography_8610ab18ee onInverted_abc37c37f2 start_58170bedfc singleLineEllipsis_0840ec5330 text_ae943ef6a0 text2Normal_b975f18536 label_26a431b635 kindFill_8717215925 colorDark_3a861e6f86"[39m
+                      [33mdata-testid[39m=[32m"text"[39m
+                    [36m>[39m
+                      [36m<span[39m
+                        [33mclass[39m=[32m"typography_8610ab18ee inherit_22953a59be start_58170bedfc singleLineEllipsis_0840ec5330 text_ae943ef6a0 text2Normal_b975f18536"[39m
+                        [33mdata-testid[39m=[32m"text"[39m
+                      [36m>[39m
+                        [0m₱8,500.00 expense[0m
+                      [36m</span>[39m
+                      [36m<span[39m
+                        [33mclass[39m=[32m"legWrapper_a228376dc7"[39m
+                      [36m/>[39m
+                    [36m</span>[39m
+                  [36m</span>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m""[39m
+                    [33mdata-testid[39m=[32m"label"[39m
+                    [33mdata-vibe[39m=[32m"Label"[39m
+                  [36m>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"typography_8610ab18ee onPrimary_7e039f1c8d start_58170bedfc singleLineEllipsis_0840ec5330 text_ae943ef6a0 text2Normal_b975f18536 label_26a431b635 kindFill_8717215925 colorPositive_236918cd0f"[39m
+                      [33mdata-testid[39m=[32m"text"[39m
+                    [36m>[39m
+                      [36m<span[39m
+   ...
+   ✓ Accounting settlement authority > prevents head from executing accounting settlement even with a permission override 68ms
+   ✓ Accounting settlement authority > prevents admin from executing accounting settlement even with a permission override 62ms
+   ✓ Accounting settlement authority > prevents member from executing accounting settlement even with a permission override 59ms
+   ✓ Accounting settlement authority > preserves independent settlement and explicit permission denial 63ms
+ ✓ tests/unit/auditPresentation.test.ts (3 tests) 6ms
+ ✓ tests/unit/departmentReports.test.ts (3 tests) 8ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/accountingSettlementAuthority.test.tsx > Accounting settlement authority > enables Accounting settlement after Head authorizes the late package
+AssertionError: expected "spy" to be called once, but got 0 times
+
+Ignored nodes: comments, script, style
+<html>
+  <head />
+  <body
+    data-scroll-locked="1"
+    style="pointer-events: none;"
+  >
+    <span
+      aria-hidden="true"
+      data-aria-hidden="true"
+      data-radix-focus-guard=""
+      style="outline: none; opacity: 0; position: fixed; pointer-events: none;"
+      tabindex="0"
+    />
+    <div
+      aria-hidden="true"
+      data-aria-hidden="true"
+    >
+      <section
+        class="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm"
+      >
+        <header
+          class="flex items-center gap-2 border-b border-neutral-100 p-4"
+        >
+          <svg
+            class="lucide lucide-receipt-text"
+            fill="none"
+            height="15"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="15"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"
+            />
+            <path
+              d="M14 8H8"
+            />
+            <path
+              d="M16 12H8"
+            />
+            <path
+              d="M13 16H8"
+            />
+          </svg>
+          <div>
+            <h2
+              class="text-[12px] font-semibold"
+            >
+              Accounting settlement queue
+            </h2>
+            <p
+              class="mt-0.5 text-[9.5px] text-neutral-500"
+            >
+              Verify immutable evidence, returned change, and the balanced posting before settlement.
+            </p>
+          </div>
+          <span
+            class="ml-auto"
+            data-testid="label"
+            data-vibe="Label"
+          >
+            <span
+              class="typography_8610ab18ee onInverted_abc37c37f2 start_58170bedfc singleLineEllipsis_0840ec5330 text_ae943ef6a0 text2Normal_b975f18536 label_26a431b635 kindFill_8717215925 colorDark_3a861e6f86"
+              data-testid="text"
+            >
+              <span
+                class="typography_8610ab18ee inherit_22953a59be start_58170bedfc singleLineEllipsis_0840ec5330 text_ae943ef6a0 text2Normal_b975f18536"
+                data-testid="text"
+              >
+                1 pending
+              </span>
+              <span
+                class="legWrapper_a228376dc7"
+              />
+            </span>
+          </span>
+        </header>
+        <div
+          class="space-y-3 p-4"
+        >
+          <article
+            class="rounded-xl border border-neutral-200 p-4"
+          >
+            <div
+              class="flex flex-col gap-3 lg:flex-row lg:items-start"
+            >
+              <div
+                class="min-w-0 flex-1"
+              >
+                <div
+                  class="flex flex-wrap items-center gap-2"
+                >
+                  <span
+                    class="font-mono text-[9.5px] text-blue-700"
+                  >
+                    LIQ v2
+                  </span>
+                  <span
+                    class="text-[11px] font-semibold text-neutral-900"
+                  >
+                    Order Food
+                  </span>
+                </div>
+                <p
+                  class="mt-1 text-[9.5px] text-neutral-500"
+                >
+                  Crisostomo Ibarra
+                   ·
+                   
+                  Food down payment
+                </p>
+                <div
+                  class="mt-3 flex flex-wrap gap-2"
+                >
+                  <span
+                    class=""
+                    data-testid="label"
+                    data-vibe="Label"
+                  >
+                    <span
+                      class="typography_8610ab18ee onInverted_abc37c37f2 start_58170bedfc singleLineEllipsis_0840ec5330 text_ae943ef6a0 text2Normal_b975f18536 label_26a431b635 kindFill_8717215925 colorDark_3a861e6f86"
+                      data-testid="text"
+                    >
+                      <span
+                        class="typography_8610ab18ee inherit_22953a59be start_58170bedfc singleLineEllipsis_0840ec5330 text_ae943ef6a0 text2Normal_b975f18536"
+                        data-testid="text"
+                      >
+                        ₱8,500.00 expense
+                      </span>
+                      <span
+                        class="legWrapper_a228376dc7"
+                      />
+                    </span>
+                  </span>
+                  <span
+                    class=""
+                    data-testid="label"
+                    data-vibe="Label"
+                  >
+                    <span
+                      class="typography_8610ab18ee onPrimary_7e039f1c8d start_58170bedfc singleLineEllipsis_0840ec5330 text_ae943ef6a0 text2Normal_b975f18536 label_26a431b635 kindFill_8717215925 colorPositive_236918cd0f"
+                      data-testid="text"
+                    >
+                      <span
+   ...
+ ❯ tests/unit/accountingSettlementAuthority.test.tsx:32:41
+     30|     render(<AccountingSettlementQueue data={bundle(true)} onChanged={c…
+     31|     fireEvent.click(screen.getByRole("button", { name: /Settle & post/…
+     32|     await waitFor(() => expect(changed).toHaveBeenCalledOnce());
+       |                                         ^
+     33|     expect(settle).toHaveBeenCalledWith("liquidation-2", true, expect.…
+     34|   });
+ ❯ runWithExpensiveErrorDiagnosticsDisabled node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 8 passed (9)
+      Tests  1 failed | 24 passed (25)
+   Start at  21:31:51
+   Duration  13.86s (transform 5.42s, setup 0ms, collect 43.30s, tests 3.34s, environment 3.87s, prepare 1.97s)
+

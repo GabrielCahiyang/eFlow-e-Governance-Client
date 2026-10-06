@@ -1,0 +1,11 @@
+
+Running 1 test using 1 worker
+
+(node:36420) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:36420) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Profiled filter milliseconds: [33m1022.5848999999998[39m
+  ok 1 [chromium] › .phase18\filter-profile.spec.ts:5:1 › profile filter commit and paint at 1000 tasks (10.9s)
+
+  1 passed (12.0s)

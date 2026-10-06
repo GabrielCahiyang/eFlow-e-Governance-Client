@@ -1,0 +1,6 @@
+{
+  "node": "v22.17.0",
+  "head": "a16d36e0b2c545c09a097801ff1345a26e39d030",
+  "baselineLockSHA256": "87e367309ebf2089f8d53f008a74978d2dbc6a03d8a1795d55a7708a369569bf",
+  "note": "Working tree includes earlier phases; copied production dist predates Phase18 remediation. Full fingerprint manifest records pre-change UI sources. Lock includes pinned axe audit tooling."
+}

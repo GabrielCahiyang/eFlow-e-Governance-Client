@@ -3,6 +3,7 @@
 import * as React from "react";
 import * as PopoverPrimitive from "@radix-ui/react-popover";
 
+import { useOverlayPopoverLayer } from "./OverlayPopoverLayer";
 import { cn } from "./utils";
 
 function Popover({
@@ -21,8 +22,10 @@ function PopoverContent({
   className,
   align = "center",
   sideOffset = 4,
+  style,
   ...props
 }: React.ComponentProps<typeof PopoverPrimitive.Content>) {
+  const popoverLayer = useOverlayPopoverLayer();
   return (
     <PopoverPrimitive.Portal>
       <PopoverPrimitive.Content
@@ -34,6 +37,7 @@ function PopoverContent({
           className,
         )}
         {...props}
+        style={{ ...style, zIndex: popoverLayer || style?.zIndex }}
       />
     </PopoverPrimitive.Portal>
   );

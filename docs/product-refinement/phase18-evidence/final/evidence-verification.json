@@ -1,0 +1,13 @@
+{
+  "recordedAt": "2026-10-06T22:54:37.857Z",
+  "result": "pass",
+  "fingerprints": 1444,
+  "documentLinks": 18,
+  "reviewedScreenshots": 5,
+  "browserCases": 345,
+  "unitTests": 840,
+  "accessibilityAudits": 123,
+  "seriousCriticalFindings": 0,
+  "performanceGate": "fail (preserved as release issue)",
+  "scope": "Current local inputs, locked artifact fingerprints, complete browser report, documentation links and evidence consistency"
+}

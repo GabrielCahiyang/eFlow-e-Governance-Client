@@ -1,0 +1,127 @@
+{
+  "config": {
+    "configFile": "C:\\Users\\james\\projects\\eflow-e-Governance-Project\\playwright.config.ts",
+    "rootDir": "C:/Users/james/projects/eflow-e-Governance-Project/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "C:/Users/james/projects/eflow-e-Governance-Project/.phase18/perf-baseline-stress",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/Users/james/projects/eflow-e-Governance-Project/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.55.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "phase18-measurements.spec.ts",
+      "file": "phase18-measurements.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "production project 5000 tasks: three measured samples",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 185225,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 180000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 180000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 180000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "C:\\Users\\james\\projects\\eflow-e-Governance-Project\\tests\\e2e\\phase18-measurements.spec.ts",
+                        "column": 56,
+                        "line": 21
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.pt-task-row').first()\nExpected string: \u001b[32m\"Benchmark task 0\"\u001b[39m\nReceived: <element(s) not found>\nTimeout: 90000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 90000ms\u001b[22m\n\u001b[2m  - waiting for locator('.pt-task-row').first()\u001b[22m\n\n\n  19 |     const start = performance.now();\n  20 |     await page.goto(`/projects?page=Projects&project=${data.project}&view=tasks`);\n> 21 |     await expect(page.locator('.pt-task-row').first()).toContainText('Benchmark task 0', { timeout: 90_000 });\n     |                                                        ^\n  22 |     await expect(page.locator('.pt-task-row')).toHaveCount(size);\n  23 |     const readyMs = performance.now() - start;\n  24 |     const dom = await page.evaluate(() => ({ nodes: document.querySelectorAll('*').length, memory: (performance as Performance & { memory?: { usedJSHeapSize: number } }).memory?.usedJSHeapSize }));\n    at C:\\Users\\james\\projects\\eflow-e-Governance-Project\\tests\\e2e\\phase18-measurements.spec.ts:21:56"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T15:56:50.043Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\james\\projects\\eflow-e-Governance-Project\\.phase18\\perf-baseline-stress\\phase18-measurements-produ-1fa6b-asks-three-measured-samples-chromium\\trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "54f5929b2cd53ee9dcfe-25fcbd808000543c2adb",
+          "file": "phase18-measurements.spec.ts",
+          "line": 8,
+          "column": 39
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-06T15:56:49.284Z",
+    "duration": 186398.194,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

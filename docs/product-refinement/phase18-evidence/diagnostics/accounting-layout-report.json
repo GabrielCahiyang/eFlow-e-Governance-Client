@@ -1,0 +1,345 @@
+{
+  "config": {
+    "configFile": "C:\\Users\\james\\projects\\eflow-e-Governance-Project\\playwright.release.config.ts",
+    "rootDir": "C:/Users/james/projects/eflow-e-Governance-Project/tests/e2e",
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 2
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "C:/Users/james/projects/eflow-e-Governance-Project/.phase18/accounting-layout-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/Users/james/projects/eflow-e-Governance-Project/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "/(?:phase(?:1-authority|2-invitations|3-project-table|5-project-import|6-project-offices|7-readiness-staffing|10-project-workspace|11-main-table|12-shared-inspector|13-personal-work|14-people-collaboration|15-ai-governance|16-support-finance|17-safety|18-release|18-preview|18-surfaces)|project-workspace-controls|admin-unification|navigation-v2)\\.spec\\.ts/"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/Users/james/projects/eflow-e-Governance-Project/.phase18/accounting-layout-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "C:/Users/james/projects/eflow-e-Governance-Project/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "/(?:phase(?:1-authority|2-invitations|3-project-table|5-project-import|6-project-offices|7-readiness-staffing|10-project-workspace|11-main-table|12-shared-inspector|13-personal-work|14-people-collaboration|15-ai-governance|16-support-finance|17-safety|18-release|18-preview|18-surfaces)|project-workspace-controls|admin-unification|navigation-v2)\\.spec\\.ts/"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/Users/james/projects/eflow-e-Governance-Project/.phase18/accounting-layout-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "C:/Users/james/projects/eflow-e-Governance-Project/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "/(?:phase(?:1-authority|2-invitations|3-project-table|5-project-import|6-project-offices|7-readiness-staffing|10-project-workspace|11-main-table|12-shared-inspector|13-personal-work|14-people-collaboration|15-ai-governance|16-support-finance|17-safety|18-release|18-preview|18-surfaces)|project-workspace-controls|admin-unification|navigation-v2)\\.spec\\.ts/"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.55.0",
+    "workers": 2,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "phase18-release.spec.ts",
+      "file": "phase18-release.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "accounting_staff: responsive canonical workspace and mobile navigation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10752,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T21:28:32.358Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "accounting_staff-320-a11y",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "accounting_staff-320-layout",
+                      "contentType": "application/json",
+                      "body": "eyJvdmVyZmxvdyI6ZmFsc2UsIndpZHRoIjozMjB9"
+                    },
+                    {
+                      "name": "accounting_staff-390-a11y",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "accounting_staff-390-layout",
+                      "contentType": "application/json",
+                      "body": "eyJvdmVyZmxvdyI6ZmFsc2UsIndpZHRoIjozOTB9"
+                    },
+                    {
+                      "name": "accounting_staff-768-a11y",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "accounting_staff-768-layout",
+                      "contentType": "application/json",
+                      "body": "eyJvdmVyZmxvdyI6ZmFsc2UsIndpZHRoIjo3Njh9"
+                    },
+                    {
+                      "name": "accounting_staff-1024-a11y",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "accounting_staff-1024-layout",
+                      "contentType": "application/json",
+                      "body": "eyJvdmVyZmxvdyI6ZmFsc2UsIndpZHRoIjoxMDI0fQ=="
+                    },
+                    {
+                      "name": "accounting_staff-1440-a11y",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "accounting_staff-1440-layout",
+                      "contentType": "application/json",
+                      "body": "eyJvdmVyZmxvdyI6ZmFsc2UsIndpZHRoIjoxNDQwfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "64730d9af7df6eeeed95-5c4c52c5269ff1a6258c",
+          "file": "phase18-release.spec.ts",
+          "line": 54,
+          "column": 3
+        },
+        {
+          "title": "accounting_staff: responsive canonical workspace and mobile navigation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 15730,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T21:28:32.359Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "accounting_staff-320-a11y",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "accounting_staff-320-layout",
+                      "contentType": "application/json",
+                      "body": "eyJvdmVyZmxvdyI6ZmFsc2UsIndpZHRoIjozMjB9"
+                    },
+                    {
+                      "name": "accounting_staff-390-a11y",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "accounting_staff-390-layout",
+                      "contentType": "application/json",
+                      "body": "eyJvdmVyZmxvdyI6ZmFsc2UsIndpZHRoIjozOTB9"
+                    },
+                    {
+                      "name": "accounting_staff-768-a11y",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "accounting_staff-768-layout",
+                      "contentType": "application/json",
+                      "body": "eyJvdmVyZmxvdyI6ZmFsc2UsIndpZHRoIjo3Njh9"
+                    },
+                    {
+                      "name": "accounting_staff-1024-a11y",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "accounting_staff-1024-layout",
+                      "contentType": "application/json",
+                      "body": "eyJvdmVyZmxvdyI6ZmFsc2UsIndpZHRoIjoxMDI0fQ=="
+                    },
+                    {
+                      "name": "accounting_staff-1440-a11y",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "accounting_staff-1440-layout",
+                      "contentType": "application/json",
+                      "body": "eyJvdmVyZmxvdyI6ZmFsc2UsIndpZHRoIjoxNDQwfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "64730d9af7df6eeeed95-d42189f98abf5cb46743",
+          "file": "phase18-release.spec.ts",
+          "line": 54,
+          "column": 3
+        },
+        {
+          "title": "accounting_staff: responsive canonical workspace and mobile navigation",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 5881,
+                  "error": {
+                    "message": "Error: Accounting view labels must fit their own reachable buttons\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m",
+                    "stack": "Error: Accounting view labels must fit their own reachable buttons\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n    at C:\\Users\\james\\projects\\eflow-e-Governance-Project\\tests\\e2e\\phase18-release.spec.ts:100:90",
+                    "location": {
+                      "file": "C:\\Users\\james\\projects\\eflow-e-Governance-Project\\tests\\e2e\\phase18-release.spec.ts",
+                      "column": 90,
+                      "line": 100
+                    },
+                    "snippet": "   98 |           return text.left >= bounds.left && text.right <= bounds.right && bounds.right <= innerWidth;\n   99 |         }));\n> 100 |         expect(labelsFit, \"Accounting view labels must fit their own reachable buttons\").toBe(true);\n      |                                                                                          ^\n  101 |       }\n  102 |       await audit(page, info, `${role}-${width}`);\n  103 |       await page.screenshot({"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\james\\projects\\eflow-e-Governance-Project\\tests\\e2e\\phase18-release.spec.ts",
+                        "column": 90,
+                        "line": 100
+                      },
+                      "message": "Error: Accounting view labels must fit their own reachable buttons\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\n   98 |           return text.left >= bounds.left && text.right <= bounds.right && bounds.right <= innerWidth;\n   99 |         }));\n> 100 |         expect(labelsFit, \"Accounting view labels must fit their own reachable buttons\").toBe(true);\n      |                                                                                          ^\n  101 |       }\n  102 |       await audit(page, info, `${role}-${width}`);\n  103 |       await page.screenshot({\n    at C:\\Users\\james\\projects\\eflow-e-Governance-Project\\tests\\e2e\\phase18-release.spec.ts:100:90"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T21:28:45.159Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\james\\projects\\eflow-e-Governance-Project\\.phase18\\accounting-layout-results\\phase18-release-accounting-7f76d-space-and-mobile-navigation-webkit\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\james\\projects\\eflow-e-Governance-Project\\.phase18\\accounting-layout-results\\phase18-release-accounting-7f76d-space-and-mobile-navigation-webkit\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\james\\projects\\eflow-e-Governance-Project\\tests\\e2e\\phase18-release.spec.ts",
+                    "column": 90,
+                    "line": 100
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "64730d9af7df6eeeed95-5d4311e30bea885cc937",
+          "file": "phase18-release.spec.ts",
+          "line": 54,
+          "column": 3
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-06T21:28:30.139Z",
+    "duration": 21349.069,
+    "expected": 2,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

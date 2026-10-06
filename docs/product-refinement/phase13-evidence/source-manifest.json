@@ -1,0 +1,315 @@
+{
+  "captured_at": "2026-10-06T09:22:55.906161+00:00",
+  "sources": [
+    {
+      "path": "playwright.config.ts",
+      "snapshot": "sources/playwright.config.ts",
+      "sha256": "e056dcaef59490aae34175f27b0241392d5d088aa3b03b641ccbba4e2203b138"
+    },
+    {
+      "path": "src/app/components/workflow/SubtasksWorkspace.tsx",
+      "snapshot": "sources/src/app/components/workflow/SubtasksWorkspace.tsx",
+      "sha256": "52015ceca761b77c5101b2a48c0fe0854ab65cdb4c0d6887b798b8f64b419c6e"
+    },
+    {
+      "path": "src/app/features/action-center/components/ActionCenter.tsx",
+      "snapshot": "sources/src/app/features/action-center/components/ActionCenter.tsx",
+      "sha256": "304562b404f7c2f1d1ce4a2020386fa834661cfb1b9892d922176199c0133e2e"
+    },
+    {
+      "path": "src/app/features/action-center/components/UpdatesFeed.tsx",
+      "snapshot": "sources/src/app/features/action-center/components/UpdatesFeed.tsx",
+      "sha256": "30236d1a18c699d30bab064fadca63f2d0d1994260d739365c0818de9b4d4a78"
+    },
+    {
+      "path": "src/app/features/action-center/hooks/usePersonalFeed.ts",
+      "snapshot": "sources/src/app/features/action-center/hooks/usePersonalFeed.ts",
+      "sha256": "d00596b776fbef5900127778cc2c9c3a7539212b4ee2bffac6e240d4daacb8ab"
+    },
+    {
+      "path": "src/app/features/action-center/index.ts",
+      "snapshot": "sources/src/app/features/action-center/index.ts",
+      "sha256": "3e70eb8195ba0fbdd072731b37db39b11f429cccde3bd89cd156e159a479a678"
+    },
+    {
+      "path": "src/app/features/action-center/selectors.ts",
+      "snapshot": "sources/src/app/features/action-center/selectors.ts",
+      "sha256": "f1ec9727cc001f55135dc7b9e678b3934244c5becd6c7381a71b3a791366db33"
+    },
+    {
+      "path": "src/app/features/action-center/services/updateDestination.ts",
+      "snapshot": "sources/src/app/features/action-center/services/updateDestination.ts",
+      "sha256": "5228a50d55c49f6ae435ca1c9c47a95da60485275629dcf99623e017f692ae8e"
+    },
+    {
+      "path": "src/app/features/app-shell/components/MobileNavigationBar.tsx",
+      "snapshot": "sources/src/app/features/app-shell/components/MobileNavigationBar.tsx",
+      "sha256": "0ed30857dcb7fe17decb7e37e6d5c7eabbcf23705edadf94f5204c85a47f5515"
+    },
+    {
+      "path": "src/app/features/app-shell/components/ProductivitySidebar.tsx",
+      "snapshot": "sources/src/app/features/app-shell/components/ProductivitySidebar.tsx",
+      "sha256": "11c21de79d6f5c74e3a2eb66083e688647f4160a178320aedbfe91edc58f62a4"
+    },
+    {
+      "path": "src/app/features/app-shell/EflowAppShell.tsx",
+      "snapshot": "sources/src/app/features/app-shell/EflowAppShell.tsx",
+      "sha256": "574ea7014b07bfa020e843d0758883eb275a84c4f648b6719d4f4507d17b5705"
+    },
+    {
+      "path": "src/app/features/invitations/services/invitationService.ts",
+      "snapshot": "sources/src/app/features/invitations/services/invitationService.ts",
+      "sha256": "9383711e971a876aceb62e5a113bb7ff9ea033bd58a2610c7c59fb1e08d83153"
+    },
+    {
+      "path": "src/app/features/navigation/navigationPermissions.ts",
+      "snapshot": "sources/src/app/features/navigation/navigationPermissions.ts",
+      "sha256": "edb27bcfde6bb81ad842a504afa48987c76fc12dd59a34330a7c1dea7078f7cd"
+    },
+    {
+      "path": "src/app/features/navigation/navigationUrl.ts",
+      "snapshot": "sources/src/app/features/navigation/navigationUrl.ts",
+      "sha256": "10abb50132caa5df325fc0fb25b3837788675aaeb6a1b7ead8a06bfc69266912"
+    },
+    {
+      "path": "src/app/features/navigation/presentationNavigation.ts",
+      "snapshot": "sources/src/app/features/navigation/presentationNavigation.ts",
+      "sha256": "ae57d7b490d0790d61066d11e13da5ef9d84a2959db1f48a140a50cfeeeadeec"
+    },
+    {
+      "path": "src/app/features/navigation/RoleContent.tsx",
+      "snapshot": "sources/src/app/features/navigation/RoleContent.tsx",
+      "sha256": "fb75604b3c35fdbc4d647fc38c6eb9305229ed3577ebccdcaf4a757fcfcbcdbd"
+    },
+    {
+      "path": "src/app/features/navigation/roleNavigation.tsx",
+      "snapshot": "sources/src/app/features/navigation/roleNavigation.tsx",
+      "sha256": "1edae3722d91641377e7e57e64e7d3a53066fb3b1777572af16c1791b4a9026b"
+    },
+    {
+      "path": "src/app/features/navigation/sidebarContent.tsx",
+      "snapshot": "sources/src/app/features/navigation/sidebarContent.tsx",
+      "sha256": "d0cfd43cf528a44d5d2a0233e02f395df754da7918d069877dfe5cb806b3a68c"
+    },
+    {
+      "path": "src/app/features/navigation/useRoleNavigationState.ts",
+      "snapshot": "sources/src/app/features/navigation/useRoleNavigationState.ts",
+      "sha256": "027a08fa7b5fb8e4055aa3cb3d191104ce6a295d9d6220665569cddea238633c"
+    },
+    {
+      "path": "src/app/features/notifications/hooks/useNotificationNavigationIntent.ts",
+      "snapshot": "sources/src/app/features/notifications/hooks/useNotificationNavigationIntent.ts",
+      "sha256": "1f472acc5609c822500f6c6994ef6d2655a7ad2b34279e9c1a3b82b509627619"
+    },
+    {
+      "path": "src/app/features/notifications/index.ts",
+      "snapshot": "sources/src/app/features/notifications/index.ts",
+      "sha256": "43ae396a9ec19964d2255bbd999486771c7d4de03f4c67526b91858c54c262ea"
+    },
+    {
+      "path": "src/app/features/notifications/navigation.ts",
+      "snapshot": "sources/src/app/features/notifications/navigation.ts",
+      "sha256": "ab0c49a35c032fabe958f3bd8e9fd160b08438e950ff29b0c34b90b2c6bf2bce"
+    },
+    {
+      "path": "src/app/features/notifications/navigationIntent.ts",
+      "snapshot": "sources/src/app/features/notifications/navigationIntent.ts",
+      "sha256": "08febdfb2c2e65ffe68dd7c189c68c63257ab63867318c786685100a9f61fc0f"
+    },
+    {
+      "path": "src/app/features/personal-work/components/PersonalWorkWorkspace.tsx",
+      "snapshot": "sources/src/app/features/personal-work/components/PersonalWorkWorkspace.tsx",
+      "sha256": "5d8b04e8e2c29e4a44218f8f7d7a6364acc0b1881a60950eb31cdaf552e11058"
+    },
+    {
+      "path": "src/app/features/personal-work/index.ts",
+      "snapshot": "sources/src/app/features/personal-work/index.ts",
+      "sha256": "c119581f9378ede05d37e7ce08a81ae4afb26ffdcc71a31aceaa1b8941938652"
+    },
+    {
+      "path": "src/app/features/personal-work/selectors.ts",
+      "snapshot": "sources/src/app/features/personal-work/selectors.ts",
+      "sha256": "d657bcd419b9760372c57912cf978772368ffd57653b54c2a4c8bdd5fdfedb66"
+    },
+    {
+      "path": "src/app/features/project-offices/services/projectOfficeService.ts",
+      "snapshot": "sources/src/app/features/project-offices/services/projectOfficeService.ts",
+      "sha256": "5e80eccc229b414924c95f4120a62dece502dc68bd9dd7c6729e795cf8d6a80b"
+    },
+    {
+      "path": "src/app/features/project-readiness/services/readinessService.ts",
+      "snapshot": "sources/src/app/features/project-readiness/services/readinessService.ts",
+      "sha256": "b04ccd8edfbee9c5333ac04f4f9ee02e3eef0c5e2652c7a55b56cbf7ac9ab0a2"
+    },
+    {
+      "path": "src/app/features/reviews/components/ForReviewInbox.tsx",
+      "snapshot": "sources/src/app/features/reviews/components/ForReviewInbox.tsx",
+      "sha256": "48565414af9822756a0040ac6ec3ca348330e1fddb2767ae8b49ff05a3f4aa78"
+    },
+    {
+      "path": "src/app/features/reviews/components/SubtaskReviewInbox.tsx",
+      "snapshot": "sources/src/app/features/reviews/components/SubtaskReviewInbox.tsx",
+      "sha256": "209fc33a2b52fde1c0c54852a46c75484422c927856ae7154a306fc25c857f51"
+    },
+    {
+      "path": "src/app/features/reviews/selectors.ts",
+      "snapshot": "sources/src/app/features/reviews/selectors.ts",
+      "sha256": "e3aeec8fe4fb9bea18cf010c87c355822ec701d4cf6de8e6504b475c61512167"
+    },
+    {
+      "path": "src/app/features/subtasks/components/SubtaskProgressForm.tsx",
+      "snapshot": "sources/src/app/features/subtasks/components/SubtaskProgressForm.tsx",
+      "sha256": "67ec2d6b8c2dbae547d1985c6d8b25400bd1c99f8ea4159140bb56b5ea7adaae"
+    },
+    {
+      "path": "src/app/features/subtasks/components/SubtaskWorkDrawer.tsx",
+      "snapshot": "sources/src/app/features/subtasks/components/SubtaskWorkDrawer.tsx",
+      "sha256": "f5e2d9d81de00715386d2837fc612fdf2db3ffc4e6826f5e3c479bd602e14d20"
+    },
+    {
+      "path": "src/app/features/subtasks/services/subtaskWorkflowService.ts",
+      "snapshot": "sources/src/app/features/subtasks/services/subtaskWorkflowService.ts",
+      "sha256": "c71832d00dc7cee22825a1f4acd37aef747982aa7199ea0a5057e18a19d95cb5"
+    },
+    {
+      "path": "src/app/features/task-inspector/components/TaskInspector.tsx",
+      "snapshot": "sources/src/app/features/task-inspector/components/TaskInspector.tsx",
+      "sha256": "d40b7b267411fe0f3b9875d9a315a1a17553bdff6b2ceca62d670c6b99e4910b"
+    },
+    {
+      "path": "src/app/features/task-inspector/hooks/useTaskInspector.ts",
+      "snapshot": "sources/src/app/features/task-inspector/hooks/useTaskInspector.ts",
+      "sha256": "bbded4129046dc17750e72d4e1813263aa8a3888a424efa7c09b9f4665ef997d"
+    },
+    {
+      "path": "src/app/features/task-inspector/index.ts",
+      "snapshot": "sources/src/app/features/task-inspector/index.ts",
+      "sha256": "85cbc0d5ea7d3c16816efec6f755d5ad17d6a8533aeecbae1b12b885717809ca"
+    },
+    {
+      "path": "src/app/features/tasks/selectors/leadership.ts",
+      "snapshot": "sources/src/app/features/tasks/selectors/leadership.ts",
+      "sha256": "c4d9e8143327670fe932970eaea8f3882ed9f2b00f21d99e94fe421b8cf684bd"
+    },
+    {
+      "path": "src/app/features/tasks/selectors/teamMembership.ts",
+      "snapshot": "sources/src/app/features/tasks/selectors/teamMembership.ts",
+      "sha256": "660ec09d7c9ba9c5fbef6f293a32b67cfb66073727e6c3cd492ab217a7e7b553"
+    },
+    {
+      "path": "src/app/features/tasks/services/taskRealtimeService.ts",
+      "snapshot": "sources/src/app/features/tasks/services/taskRealtimeService.ts",
+      "sha256": "f16499b5f9e37ea7f77a26a7b95ed6c75eacb26bafdd09c955be727e8ba5eef1"
+    },
+    {
+      "path": "src/app/features/tasks/taskTypes.ts",
+      "snapshot": "sources/src/app/features/tasks/taskTypes.ts",
+      "sha256": "1725303e9f57ee5d8fcb696169d9efe55f36e261057f5783e2c1dd40b85c513a"
+    },
+    {
+      "path": "src/app/hooks/useCurrentUserTasks.ts",
+      "snapshot": "sources/src/app/hooks/useCurrentUserTasks.ts",
+      "sha256": "a2a7297f614640a3db39e5b2ce16b22ec5ea122f2a0dfd301b7d87a87360be0d"
+    },
+    {
+      "path": "src/app/hooks/useSupabaseData.ts",
+      "snapshot": "sources/src/app/hooks/useSupabaseData.ts",
+      "sha256": "db45677bd90c175f00e45007f138496930b4cf11289b4547402c97a3d20683ef"
+    },
+    {
+      "path": "src/app/services/notificationService.ts",
+      "snapshot": "sources/src/app/services/notificationService.ts",
+      "sha256": "3cec56588dc6dc01c06c12097646efc911d0029cddd9fe8b15e16f725718abc6"
+    },
+    {
+      "path": "src/app/shared/motion/InspectorPanel.tsx",
+      "snapshot": "sources/src/app/shared/motion/InspectorPanel.tsx",
+      "sha256": "53e11b4136a6bb3489d2d3d6a7e54a344bbe53f405c90d572fe57beccf523a9d"
+    },
+    {
+      "path": "src/app/shared/navigationGuard.ts",
+      "snapshot": "sources/src/app/shared/navigationGuard.ts",
+      "sha256": "75df8b5e08aaa074d878379a39d9b4c3bebcb14f597f4e8df34aa3d1cbb7fc23"
+    },
+    {
+      "path": "src/app/shared/navigationHistory.ts",
+      "snapshot": "sources/src/app/shared/navigationHistory.ts",
+      "sha256": "858a7ed4521733eac4f577954ba07baf592e8607a38c3976ea9d407ed280f68b"
+    },
+    {
+      "path": "src/app/shared/useExplicitDraft.ts",
+      "snapshot": "sources/src/app/shared/useExplicitDraft.ts",
+      "sha256": "ebad9ee6506545a7a524aa9a2a24e5ad605e5ee63a5bf611c2f23d19e67ae00f"
+    },
+    {
+      "path": "supabase/fresh_schema.sql",
+      "snapshot": "sources/supabase/fresh_schema.sql",
+      "sha256": "6a3a8c8212e87904af8fc714d6d0caa1dd8a2264c387a5341db3e70fe1eced5c"
+    },
+    {
+      "path": "supabase/migrations/20260831000001_task_evidence_security.sql",
+      "snapshot": "sources/supabase/migrations/20260831000001_task_evidence_security.sql",
+      "sha256": "66154f71fadd1a091efa830d1183f2e0d017d7bdccc2c9358d50203f365bfacc"
+    },
+    {
+      "path": "supabase/migrations/20261004174950_phase6_project_office_collaboration.sql",
+      "snapshot": "sources/supabase/migrations/20261004174950_phase6_project_office_collaboration.sql",
+      "sha256": "92e0635b45ae1dbe3d26aeec58cd5af8b817e27e4b2cb4c65e02f819e3d59bee"
+    },
+    {
+      "path": "tests/e2e/fixtures/projectWorkspace.ts",
+      "snapshot": "sources/tests/e2e/fixtures/projectWorkspace.ts",
+      "sha256": "b7e807827bd45cd7b18eaeadad2a5a004e3b6553c7b2e8544e136df66ae046b0"
+    },
+    {
+      "path": "tests/e2e/navigation-v2.spec.ts",
+      "snapshot": "sources/tests/e2e/navigation-v2.spec.ts",
+      "sha256": "71960296428838bf82c3cc70bee3bd93514a3b535de818daa0e3e1d8e8bed0a8"
+    },
+    {
+      "path": "tests/e2e/phase12-shared-inspector.spec.ts",
+      "snapshot": "sources/tests/e2e/phase12-shared-inspector.spec.ts",
+      "sha256": "8a6f981e7f291c332b4024569aeb968b1b06ebbed0fbec88d4246395de649522"
+    },
+    {
+      "path": "tests/e2e/phase13-personal-work.spec.ts",
+      "snapshot": "sources/tests/e2e/phase13-personal-work.spec.ts",
+      "sha256": "0634175e069b8bb21cc7e06bfaddb989b757102ce9a832a4fbfb05fd8a6ddaab"
+    },
+    {
+      "path": "tests/unit/navigationV2.test.tsx",
+      "snapshot": "sources/tests/unit/navigationV2.test.tsx",
+      "sha256": "4deadbe6af7dfe121a56afbf8f10567a4d2a5b5ab4e758e71548dab623d7775f"
+    },
+    {
+      "path": "tests/unit/phase13CheckedFeeds.test.ts",
+      "snapshot": "sources/tests/unit/phase13CheckedFeeds.test.ts",
+      "sha256": "89617121f03fdceeff2dde35f242625a737245d680a897fe5e1119a6f6a5bbbe"
+    },
+    {
+      "path": "tests/unit/phase13PersonalFeed.test.tsx",
+      "snapshot": "sources/tests/unit/phase13PersonalFeed.test.tsx",
+      "sha256": "d7bf1cb661abce495bc035327c1958613eb5ae9ba5960b4a2990af6cd063053d"
+    },
+    {
+      "path": "tests/unit/phase13PersonalWork.test.ts",
+      "snapshot": "sources/tests/unit/phase13PersonalWork.test.ts",
+      "sha256": "6ad739538f44cff8ddddc5e1fd5ec07a7a23eab86551d9eeaa6a13a9ad80fb7e"
+    },
+    {
+      "path": "tests/unit/phase13SubtaskDrafts.test.tsx",
+      "snapshot": "sources/tests/unit/phase13SubtaskDrafts.test.tsx",
+      "sha256": "e61f30a229a7041843e81bb72399341bf2292236a4ec3b0609b1732d6562e2c1"
+    },
+    {
+      "path": "vite.config.ts",
+      "snapshot": "sources/vite.config.ts",
+      "sha256": "84b63826de1852f0e41d9ff54c99384315eb6ed4fa34ff9026368d3dd60639f4"
+    },
+    {
+      "path": "vitest.config.ts",
+      "snapshot": "sources/vitest.config.ts",
+      "sha256": "44ac8df61ae80118873477b12efc578ff0fbc5257e059eac548f4ce03441543f"
+    }
+  ]
+}

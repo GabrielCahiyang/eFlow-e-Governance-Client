@@ -109,7 +109,10 @@ export function ProjectViewTabBar({
       </div>
       {/* Fixed action lane; menus render in portals outside every scrolling ancestor. */}
       <ProjectViewMenus openViews={openViews} overflowViews={overflowOptionalViews} onOpenView={viewId => {
-        setSavedViews({ projectId, views: openViews.includes(viewId) ? openViews : [...openViews, viewId] });
+        if (OPTIONAL_VIEWS_CATALOG.some(view => view.id === viewId)) {
+          const optionalId = viewId as OptionalProjectView;
+          setSavedViews({ projectId, views: openViews.includes(optionalId) ? openViews : [...openViews, optionalId] });
+        }
         onSelectTab(viewId);
       }} onCloseView={closeView} hasProposalContext={hasProposalContext} hasBudgetData={hasBudgetData} />
     </div>

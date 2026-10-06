@@ -1,0 +1,38 @@
+Diagnostic only, superseded by passing final receipts.
+
+
+ RUN  v3.2.4 C:/Users/james/projects/eflow-e-Governance-Project
+
+ ✓ tests/unit/phase13CheckedFeeds.test.ts (5 tests) 8ms
+ ✓ tests/unit/phase13PersonalFeed.test.tsx (3 tests) 247ms
+ ❯ tests/unit/phase13SubtaskDrafts.test.tsx (3 tests | 2 failed) 235ms
+   × delegated subtask evidence drafts > keeps typed evidence and discards only after an accepted navigation guard 84ms
+     → Invalid Chai property: toHaveValue
+   × delegated subtask evidence drafts > deduplicates saves, blocks navigation while pending and retains failures 115ms
+     → Invalid Chai property: toBeDisabled
+   ✓ delegated subtask evidence drafts > marks successful saves clean and resets fields without duplicating workflow writes 34ms
+ ✓ tests/unit/navigationV2.test.tsx (16 tests) 205ms
+ ✓ tests/unit/phase13PersonalWork.test.ts (9 tests) 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/phase13SubtaskDrafts.test.tsx > delegated subtask evidence drafts > keeps typed evidence and discards only after an accepted navigation guard
+Error: Invalid Chai property: toHaveValue
+ ❯ tests/unit/phase13SubtaskDrafts.test.tsx:15:277
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/unit/phase13SubtaskDrafts.test.tsx > delegated subtask evidence drafts > deduplicates saves, blocks navigation while pending and retains failures
+Error: Invalid Chai property: toBeDisabled
+ ❯ tests/unit/phase13SubtaskDrafts.test.tsx:20:359
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 4 passed (5)
+      Tests  2 failed | 34 passed (36)
+   Start at  17:04:10
+   Duration  9.52s (transform 3.46s, setup 0ms, collect 14.34s, tests 702ms, environment 3.61s, prepare 974ms)
+

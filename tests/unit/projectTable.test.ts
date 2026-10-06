@@ -19,6 +19,12 @@ describe('Project table over canonical work', () => {
     expect(visibleProjectTasks(tasks, '', '', '', 'manual').map(t => t.id)).toEqual(['b', 'c', 'a']);
     expect(visibleProjectTasks(tasks, '', '', '', 'deadline').map(t => t.id)).toEqual(['c', 'b', 'a']);
   });
+  it('uses canonical order for tied sort values without making team membership an owner match',()=>{
+    const tasks=[task('b',{title:'Same',workspacePosition:2,teamMemberIds:['member']}),task('a',{title:'Same',workspacePosition:1}),task('hidden',{title:'Same',archivedAt:2})];
+    for(const sort of ['title','deadline','priority'] as const)expect(visibleProjectTasks(tasks,'','','',sort).map(t=>t.id)).toEqual(['a','b']);
+    expect(visibleProjectTasks(tasks,'','','member','manual')).toEqual([]);
+    expect(tasks.map(t=>t.id)).toEqual(['b','a','hidden']);
+  });
   it('allows structural edits only for the responsible Head on open work', () => {
     expect(canEditProjectTask(task('a'), true, 'office')).toBe(true);
     expect(canEditProjectTask(task('a'), false, 'office')).toBe(false);

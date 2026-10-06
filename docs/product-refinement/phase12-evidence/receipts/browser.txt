@@ -1,0 +1,35 @@
+Command: Playwright: phase12-shared-inspector, phase4-project-views, phase3-project-table, project-workspace-controls, phase6-project-offices, phase7-readiness-staffing; workers=1
+Exit code: 0
+
+
+Running 23 tests using 1 worker
+
+(node:33024) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:33024) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:9:1 › shared inspector keeps discussion drafts and returns focus to each view origin (16.2s)
+  ok  2 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:31:1 › date range is consistent across views and personal after reload (5.6s)
+  ok  3 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:43:1 › mobile observer inspector stays read only and traps and returns focus (4.6s)
+  ok  4 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:56:1 › Board keyboard action prevents duplicate requests and recovers from denial (4.2s)
+  ok  5 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:65:1 › shared Task Lead team mutations stay gated by G2 while details remain available (5.8s)
+  ok  6 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:73:1 › review drafts stay protected and evidence loading denial has an explicit retry (7.6s)
+  ok  7 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:86:1 › removed canonical task closes mutation controls and explains unavailable access (4.3s)
+  ok  8 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:94:1 › successful inspector lifecycle change returns focus to the refreshed Board card (4.3s)
+  ok  9 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:101:1 › mobile team dialog guards drafts and retains a denied member change (8.2s)
+  ok 10 [chromium] › tests\e2e\phase3-project-table.spec.ts:4:1 › Head table keeps first-column task actions, task edits and inline subitems (7.0s)
+  ok 11 [chromium] › tests\e2e\phase3-project-table.spec.ts:45:1 › Member table protects structure and keeps detail access at 390px (4.4s)
+  ok 12 [chromium] › tests\e2e\phase3-project-table.spec.ts:62:1 › Inline tasks save on blur, keep adding with Shift+Enter, and retain failed drafts (5.1s)
+  ok 13 [chromium] › tests\e2e\phase4-project-views.spec.ts:11:1 › Phase 4 shares filters and edits across Board, Gantt, Calendar, Dashboard and Offices (11.1s)
+  ok 14 [chromium] › tests\e2e\phase4-project-views.spec.ts:99:1 › Member can inspect views at 390px without structural date controls (4.7s)
+  ok 15 [chromium] › tests\e2e\phase6-project-offices.spec.ts:5:1 › Lead invites an Office and hands over responsibility without assigning its staff (7.4s)
+  ok 16 [chromium] › tests\e2e\phase6-project-offices.spec.ts:45:1 › Collaborating Head sees a roomy own-Office member picker and only edits its own tasks (5.7s)
+  ok 17 [chromium] › tests\e2e\phase6-project-offices.spec.ts:71:1 › Observer opens the project without editable owners or task planning (5.3s)
+  ok 18 [chromium] › tests\e2e\phase7-readiness-staffing.spec.ts:18:1 › Head confirms readiness; desktop and mobile retain readable checks and closeout blockers (4.8s)
+  ok 19 [chromium] › tests\e2e\phase7-readiness-staffing.spec.ts:35:1 › Staffing is advisory until Head confirmation; roomy dialog supports keyboard selection and mobile footer (6.2s)
+  ok 20 [chromium] › tests\e2e\phase7-readiness-staffing.spec.ts:59:1 › Member reads readiness without Head review, activation or staffing controls (4.1s)
+  ok 21 [chromium] › tests\e2e\project-workspace-controls.spec.ts:19:1 › Project actions open visible menus and dialogs, and the board returns to the filtered table (6.8s)
+  ok 22 [chromium] › tests\e2e\project-workspace-controls.spec.ts:73:1 › View picker, board return and first-column task actions remain reachable at 390px (4.9s)
+  ok 23 [chromium] › tests\e2e\project-workspace-controls.spec.ts:104:1 › Overflow views stay selectable and closable outside the mobile tab scroller (7.9s)
+
+  23 passed (2.5m)

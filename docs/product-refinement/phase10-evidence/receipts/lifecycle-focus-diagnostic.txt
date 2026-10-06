@@ -1,0 +1,55 @@
+
+Running 4 tests using 1 worker
+
+(node:32192) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:32192) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [chromium] › tests\e2e\phase10-project-workspace.spec.ts:9:1 › project identity, settings retry, favorites and browser history use one project (10.4s)
+  x  2 [chromium] › tests\e2e\phase10-project-workspace.spec.ts:38:1 › existing lifecycle dialogs retain notes, server denials and deletion impact (11.5s)
+(node:34304) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:34304) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 3 [chromium] › tests\e2e\phase10-project-workspace.spec.ts:53:1 › Observer utilities stay read-only and sharing keeps current access requirements at 390px (5.3s)
+  ok 4 [chromium] › tests\e2e\phase10-project-workspace.spec.ts:63:1 › participant failure retries its source and long project identity stays within the viewport (10.0s)
+
+
+  1) [chromium] › tests\e2e\phase10-project-workspace.spec.ts:38:1 › existing lifecycle dialogs retain notes, server denials and deletion impact 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeFocused[2m()[22m failed
+
+    Locator:  getByRole('button', { name: 'Project actions', exact: true })
+    Expected: focused
+    Received: inactive
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeFocused" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('button', { name: 'Project actions', exact: true })[22m
+    [2m    7 × locator resolved to <button type="button" id="radix-:r12:" data-size="icon" data-slot="button" data-state="closed" aria-haspopup="menu" aria-expanded="false" aria-label="Project actions" class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-semibold transition-[background-color,border-color,color,box-shadow] duration-120 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border…>…</button>[22m
+    [2m      - unexpected value "inactive"[22m
+
+
+      44 |   await complete.getByRole('button',{name:'Cancel',exact:true}).click();await page.getByRole('button',{name:'Keep editing',exact:true}).click();await expect(complete.getByLabel('Completion note (optional)')).toHaveValue('Retained closeout note');
+      45 |   await complete.getByRole('button',{name:'Cancel',exact:true}).click();await page.getByRole('button',{name:'Discard',exact:true}).click();await expect(complete).toHaveCount(0);
+    > 46 |   await expect(page.getByRole('button',{name:'Project actions',exact:true})).toBeFocused();
+         |                                                                              ^
+      47 |   await projectAction(page,'Delete project');const deletion=page.getByRole('dialog',{name:'Permanently delete project',exact:true});await expect(deletion).toContainText('Existing tasks and audit history remain');
+      48 |   await deletion.getByLabel('Reason for deletion').fill('Retained reason');await deletion.getByRole('button',{name:'Cancel',exact:true}).click();await page.getByRole('button',{name:'Keep editing',exact:true}).click();await expect(deletion.getByLabel('Reason for deletion')).toHaveValue('Retained reason');
+      49 |   await deletion.getByRole('button',{name:'Cancel',exact:true}).click();await page.getByRole('button',{name:'Discard',exact:true}).click();expect(mutations).toBe(1);
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase10-project-workspace.spec.ts:46:78
+
+    Error Context: test-results\phase10-focus-final\phase10-project-workspace--bebd5-denials-and-deletion-impact-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase10-focus-final\phase10-project-workspace--bebd5-denials-and-deletion-impact-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase10-focus-final\phase10-project-workspace--bebd5-denials-and-deletion-impact-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › tests\e2e\phase10-project-workspace.spec.ts:38:1 › existing lifecycle dialogs retain notes, server denials and deletion impact 
+  3 passed (39.8s)

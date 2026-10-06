@@ -1,0 +1,13 @@
+
+Running 1 test using 1 worker
+
+
+
+[1A[2K(node:13628) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K(node:13628) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[1/1] [chromium] › tests\e2e\phase16-support-finance.spec.ts:338:1 › Reports retain seven lenses, filtered CSV export and the task inspector
+[1A[2K  1 passed (6.0s)

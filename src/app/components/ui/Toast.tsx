@@ -1,6 +1,8 @@
 // ─── Global Toast Notification System ────────────────────────────
 import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
 
+import { createPortal } from "react-dom";
+
 type ToastType = "success" | "error" | "warning" | "info";
 
 interface ToastItem {
@@ -33,11 +35,11 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     <ToastContext.Provider value={{ toast: addToast }}>
       {children}
       {/* Toast stack */}
-      <div className="fixed top-4 right-4 z-[9999] flex flex-col gap-2 pointer-events-none">
+      {typeof document !== "undefined" && createPortal(<div aria-live="polite" aria-atomic="false" className="eflow-toast-stack fixed top-4 right-4 flex flex-col gap-2 pointer-events-none">
         {toasts.map((t) => (
           <ToastNotification key={t.id} item={t} onDismiss={() => removeToast(t.id)} />
         ))}
-      </div>
+      </div>, document.body)}
     </ToastContext.Provider>
   );
 }
@@ -45,13 +47,6 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 export function useToast() {
   return useContext(ToastContext);
 }
-
-const typeStyles: Record<ToastType, { bg: string; icon: string; border: string }> = {
-  success: { bg: "bg-emerald-50", icon: "text-emerald-600", border: "border-emerald-200" },
-  error: { bg: "bg-red-50", icon: "text-red-600", border: "border-red-200" },
-  warning: { bg: "bg-amber-50", icon: "text-amber-600", border: "border-amber-200" },
-  info: { bg: "bg-primary/10", icon: "text-primary", border: "border-primary/20" },
-};
 
 const typeIcons: Record<ToastType, string> = {
   success: "M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z",
@@ -61,7 +56,6 @@ const typeIcons: Record<ToastType, string> = {
 };
 
 function ToastNotification({ item, onDismiss }: { item: ToastItem; onDismiss: () => void }) {
-  const style = typeStyles[item.type];
 
   useEffect(() => {
     const t = setTimeout(onDismiss, 4000);
@@ -70,12 +64,14 @@ function ToastNotification({ item, onDismiss }: { item: ToastItem; onDismiss: ()
 
   return (
     <div
-      className={`pointer-events-auto max-w-sm rounded-[10px] border px-4 py-3 shadow-[0_4px_8px_rgba(0,0,0,0.20)] flex items-start gap-3 animate-[toast-in_0.18s_ease-out] ${style.bg} ${style.border}`}
+      role={item.type === "error" ? "alert" : "status"}
+      data-tone={item.type}
+      className={`eflow-toast eflow-feedback pointer-events-auto max-w-sm rounded-[10px] border px-4 py-3 shadow-[0_4px_8px_rgba(0,0,0,0.20)] flex items-start gap-3 animate-[toast-in_0.18s_ease-out] `}
     >
-      <svg viewBox="0 0 16 16" className={`w-4 h-4 shrink-0 mt-0.5 ${style.icon}`} fill="currentColor">
+      <svg viewBox="0 0 16 16" className={`w-4 h-4 shrink-0 mt-0.5 `} fill="currentColor">
         <path d={typeIcons[item.type]} />
       </svg>
-      <span className="flex-1 text-[13px] font-normal text-foreground">
+      <span className="flex-1 text-[13px] font-normal">
         {item.message}
       </span>
       <button

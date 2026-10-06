@@ -1,0 +1,11 @@
+
+> @figma/my-make-file@0.0.1 safety:update
+> node scripts/phase17-safety-registry.mjs --update
+
+Updated Phase 17 registry: 2788 candidates, 0 newly triaged, 46 owned gate groups.
+
+> @figma/my-make-file@0.0.1 safety:check
+> node scripts/phase17-safety-registry.mjs --self-test && node scripts/phase17-safety-registry.mjs --check
+
+Registry scanner: 6 regression assertions passed.
+Checked Phase 17 registry: 2788 candidates, 0 newly triaged, 46 owned gate groups.

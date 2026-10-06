@@ -5,6 +5,7 @@ import { ChatChannelList } from "./ChatChannelList";
 import { ChatDrawerProvider, useChatDrawer } from "./ChatDrawerContext";
 import { ChatReactionsModal } from "./ChatReactionsModal";
 import { ChatUnreadBadge } from "./ChatUnreadBadge";
+import { usePanelDismissal } from '../../../shared/usePanelDismissal';
 
 export interface ChatListDrawerProps {
   userId?: string;
@@ -17,6 +18,7 @@ function ChatDrawerRoot() {
     open, setOpen, activeChannelId, buttonRef, panelRef, panelPos, panelSize,
     isFullscreen, startResize, unreadTotal, outgoingCall, setOutgoingCall,
   } = useChatDrawer();
+  usePanelDismissal(open, panelRef, buttonRef, () => setOpen(false));
 
   return (
     <div className="relative">
@@ -43,7 +45,7 @@ function ChatDrawerRoot() {
                   inset: 0,
                   width: "100vw",
                   height: "100vh",
-                  zIndex: 9999,
+                  zIndex: 'var(--eflow-layer-inspector)',
                   borderRadius: 0,
                 }
               : {
@@ -52,7 +54,7 @@ function ChatDrawerRoot() {
                   top: panelPos?.y ?? 80,
                   width: panelSize.w,
                   height: panelSize.h,
-                  zIndex: 9999,
+                  zIndex: 'var(--eflow-layer-inspector)',
                   minWidth: "min(280px, calc(100vw - 16px))",
                   minHeight: "min(320px, calc(100dvh - 16px))",
                 }
@@ -60,6 +62,7 @@ function ChatDrawerRoot() {
           aria-label="Messages"
           className="bg-white border border-neutral-200 shadow-2xl overflow-hidden flex flex-col rounded-xl max-h-[calc(100dvh-16px)] max-w-[calc(100vw-16px)]"
           role="dialog"
+          tabIndex={-1}
         >
 
           {!activeChannelId ? <ChatChannelList /> : <ActiveChatPanel />}

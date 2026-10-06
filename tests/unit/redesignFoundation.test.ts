@@ -29,12 +29,13 @@ describe("redesign foundation", () => {
   it("keeps Vibe tokens, Figtree loading, and global box sizing at the root", () => {
     const entrypoint = readFileSync(join(sourceRoot, "main.tsx"), "utf8");
     const styles = readFileSync(join(sourceRoot, "styles", "index.css"), "utf8");
-    const globals = readFileSync(join(sourceRoot, "styles", "globals.css"), "utf8");
+    const tokens = readFileSync(join(sourceRoot, "styles", "foundation-tokens.css"), "utf8");
 
     expect(entrypoint).toContain('import "@vibe/core/tokens"');
     expect(entrypoint).toContain('@fontsource-variable/figtree/wght.css');
     expect(styles).toContain("box-sizing: border-box");
-    expect(globals).toContain("Figtree Variable");
+    expect(tokens).toContain("Figtree Variable");
+    expect(styles).toContain("@import './foundation-tokens.css'");
   });
 
   it("keeps the application motion policy user-aware", () => {

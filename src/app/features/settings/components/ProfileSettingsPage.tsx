@@ -4,6 +4,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { clearProfileAvatar, getProfileAvatarUrl, replaceProfileAvatar, updateOwnProfile } from '../../../services/userSettingsService';
 import { fetchAllOrgs } from '../../../../lib/supabaseService';
 import { Input } from '../../../components/ui/input';
+import { useNavigationBlocker } from '../../../shared/navigationGuard';
 import { IdentityItem, ResultMessage, SectionHeading, SettingsLoading, Surface, formatRole, initials, inputClass, type Result } from './settingsPrimitives';
 
 export function ProfileSettingsPage() {
@@ -18,6 +19,7 @@ export function ProfileSettingsPage() {
   const [nameResult, setNameResult] = useState<Result>(null);
   const [avatarResult, setAvatarResult] = useState<Result>(null);
   const fileInput = useRef<HTMLInputElement>(null);
+  useNavigationBlocker({ label: 'Profile', dirty: nameDirty && displayName !== (userProfile?.full_name ?? ''), pending: nameSaving || avatarSaving, onDiscard: () => { setNameDirty(false); setDisplayName(userProfile?.full_name ?? ''); } });
 
   useEffect(() => {
     if (!nameDirty) setDisplayName(userProfile?.full_name ?? '');

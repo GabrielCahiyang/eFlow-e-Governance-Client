@@ -1,0 +1,24 @@
+Command: Playwright: phase13-personal-work; port 5173; all 12 current cases including focus fallback
+Exit code: 0
+
+
+Running 12 tests using 1 worker
+
+(node:26928) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:26928) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [chromium] › tests\e2e\phase13-personal-work.spec.ts:10:66 › head discovers personal work and keeps legacy task and subtask URLs (5.8s)
+  ok  2 [chromium] › tests\e2e\phase13-personal-work.spec.ts:10:66 › member discovers personal work and keeps legacy task and subtask URLs (5.6s)
+  ok  3 [chromium] › tests\e2e\phase13-personal-work.spec.ts:10:66 › accounting_staff discovers personal work and keeps legacy task and subtask URLs (5.4s)
+  ok  4 [chromium] › tests\e2e\phase13-personal-work.spec.ts:23:1 › mobile personal inspector retains dirty discussion and returns focus (5.3s)
+  ok  5 [chromium] › tests\e2e\phase13-personal-work.spec.ts:30:1 › My Work read failure is retryable and never a clear queue (4.1s)
+  ok  6 [chromium] › tests\e2e\phase13-personal-work.spec.ts:36:1 › Inbox keeps independent task and subtask discovery and exposes partial source denial (4.3s)
+  ok  7 [chromium] › tests\e2e\phase13-personal-work.spec.ts:45:1 › recent Updates verify read writes, retain denied read state and explain missing targets at 390px (4.4s)
+  ok  8 [chromium] › tests\e2e\phase13-personal-work.spec.ts:56:1 › Admin Inbox does not acquire task, financial or review authority (4.0s)
+  ok  9 [chromium] › tests\e2e\phase13-personal-work.spec.ts:61:1 › subtask discovery delegates a stable identity and guards review feedback across navigation (5.8s)
+  ok 10 [chromium] › tests\e2e\phase13-personal-work.spec.ts:74:1 › Inbox update opening respects a revoked navigation grant (4.1s)
+  ok 11 [chromium] › tests\e2e\phase13-personal-work.spec.ts:80:1 › Accounting updates retain both personal task and financial destinations (6.0s)
+  ok 12 [chromium] › tests\e2e\phase13-personal-work.spec.ts:86:1 › personal inspector returns to search when its originating row disappears (4.2s)
+
+  12 passed (1.0m)

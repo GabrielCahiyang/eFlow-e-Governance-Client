@@ -1,0 +1,5 @@
+import {expect,test} from '@playwright/test';
+import {projectWorkspaceFixture} from './fixtures/projectWorkspace';
+import {phase16FinancialFixture} from './fixtures/phase16Financial';
+test('restored artifact opens canonical table and task inspector',async({page})=>{const r=await projectWorkspaceFixture(page,'head',false,{landingOnly:true});await page.goto('/projects?page=Projects&project='+r.project+'&view=tasks');await expect(page.getByRole('region',{name:'Project main table'})).toBeVisible();await page.getByRole('button',{name:'Open Prepare community assessment',exact:true}).click();await expect(page.getByRole('dialog',{name:'Task details: Prepare community assessment'})).toBeVisible();});
+test('restored artifact opens the scoped Accounting journal',async({page})=>{await phase16FinancialFixture(page);await page.goto('/general-journal?page=General%20Journal');await expect(page.getByRole('button',{name:'Refresh journal',exact:true})).toBeVisible();await expect(page.getByText('No journal entries match',{exact:true})).toBeVisible();});

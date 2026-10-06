@@ -1,0 +1,47 @@
+# Phase 18 - Responsive, Accessibility, Performance and Release Hardening
+
+## Implemented changes
+
+Continued on 7 October 2026 after the previous chat stopped during acceptance. Phase 18 remains incomplete: local browser and build receipts are recorded below, but the measured filtering regression and remaining release conditions still require resolution for the full definition of done. This receipt records implementation and local validation; committing or pushing the changes does not certify a production release.
+
+The four-role web shell and secondary Office Team, Reports and Inbox surfaces keep their existing routes, role visibility and mutation contracts. Visible scrollbars, token-based contrast fixes, named progress controls, safe tab-panel IDs and valid filter semantics address the recorded baseline accessibility findings. Task inspector focus skips hidden/inert controls; reduced motion covers portaled panels; button activation captures an opener before a dialog changes focus. Mobile CSS hides the desktop navigation immediately during resize. Tablet header utilities collapse the system walkthrough control and hide secondary identity text, retaining actions and avoiding brand overlap; a geometry assertion complements the automated accessibility rules. Keyboard/draft regressions retain existing Keep editing/Discard behavior.
+
+Accounting owns one journal hook and passes that scoped result to its journal view. Returning from settlement explicitly refreshes the journal. Actor/Office/year changes withhold old rows, stale callbacks cannot replace a new scope, foreign line events do not trigger reads, and related entry/line bursts share a cancellable refresh. Database/API contracts are unchanged.
+
+Visual review found overlapping Accounting navigation labels at 320px that axe did not report. Feature-scoped navigation styles now wrap intact buttons, preserve the current-view indicator and keyboard focus, and retain touch-sized targets. Browser acceptance measures label bounds inside each button at every audited width and waits for WebKit resize layout to settle.
+
+Closed dependency cells no longer build a task-choice form for every row. Choices mount when the editor opens; draft and cycle checks remain. Representative measurements, DOM counts and approximate Chromium heap figures are recorded separately; virtualization was not introduced.
+
+Planning editors share one unload listener while retaining every registered guard, its latest pending check and confirmation revision. Tests verify that removing clean rows retains another editor's dirty/busy protection. The paired final comparison uses the frozen prior artifact with other automated work stopped. Filtering still exceeds the unchanged 10% guard at 100 and 1,000 tasks; [the release issue](phase18-performance-issue.md) retains the samples, methodology and investigation limits. Faster initial rendering does not waive this failure.
+
+Project command snapshots now belong to an authenticated actor, Office and role, with a fresh scope token after identity changes. Auth transitions and logout clear registered caches, including failed remote sign-out and same-user login. Late responses cannot refill a retired scope, even if the same actor returns. Project details remount on an authority-context change; revisiting a project within the same context retains the existing warm-cache behavior. Database calls and public hook results remain unchanged.
+
+Feature public APIs defer major views and inspectors with preserved props. A failed code module has a local retry and a guarded page reload. Retry reads the same-build public module manifest and validates asset paths before importing a fresh URL; it caches code only. The existing navigation guard retains another dirty form when reload is declined. Measured public-export dependency cycles are grouped explicitly; [the path and owner record](phase18-evidence/final/bundle-cycle-record.json) retains the intermediate warnings and final disposition. The build still reports a large shared chunk requiring a release decision; zero chunk-cycle warnings does not prove that source import cycles are removed.
+
+PDF extraction now consumes text-stream chunks through `getReader`, avoiding a missing async-stream iterator in the locked WebKit build. Reader locks and PDF resources release on success and failure. Tests verify identical page/chunk text joining and cleanup. Private document contents are not logged.
+
+## Validation and evidence
+
+Acceptance counts, source/build hashes, screenshots, accessibility findings and timing samples are in [the frozen evidence manifest](phase18-evidence/evidence.json). The [local gates](phase18-release-gates.md) and [preview/rollback instructions](phase18-rehearsal.md) distinguish verified browser behavior from deployment acceptance.
+
+The final local unit suite passed 840 tests in 214 files. Type checking, production build, client-secret verification and the safety scanner passed; the scanner checked 2,792 conservative candidates in the same 46 owned groups. Offline PostgreSQL rehearsals passed 37 authority and 84 Office-identity assertions, and 53 mocked server tests passed. Graphify was refreshed with its four existing partial-parser warnings retained.
+
+The complete production-preview gate passed all 345 cases: the same 115 cases in Chromium, Firefox and WebKit, with zero skips, failures or retries. The final local run used three workers; the CI configuration retains two. All 123 accessibility audits are frozen with their full findings. Five representative screenshots were visually reviewed, and final-run hashes match those reviewed bytes. The preceding completed run's 343 passes and two WebKit fixture failures, plus their traces, remain separate diagnostic evidence.
+
+The isolated 5,000-task stress run completed three paint-ready samples with medians of 43.8 seconds to route readiness and 7.5 seconds to filtered paint. Its timed-out baseline gives no valid improvement percentage, and this scale is not approved for production. Evidence verification passed 1,444 local input/artifact fingerprints, 18 documentation links and all five reviewed screenshot hashes; [the verification receipt](phase18-evidence/final/evidence-verification.json) retains the result.
+
+The release runner requires critical production-preview cases to pass in Chromium, Firefox and WebKit without skips or flaky retries. The CI workflow is prepared with synthetic public client configuration. A hosted CI receipt has not been produced. Browser fixtures use synthetic authentication and intercept backend calls; they do not certify live RLS, invitation email, payments or raw-PDS delivery.
+
+The release configuration now includes the required earlier project, import, Office, staffing, invitation and Admin smoke files, plus personal-work, navigation and four-role authority fixtures. Acceptance requires the same 115-case selection in each browser, rejects empty/incomplete reports and runner errors, disables baseline audit mode, forbids focused-only tests, and permits no retries. Nine unit regressions exercise report and matrix acceptance. Earlier tests were updated to the canonical grouped Admin labels and scoped My Work navigation; logout passes only serializable fixture identities to the browser. Personal Work navigation fixtures select the intended surface from the configured viewport and await visibility, avoiding WebKit's stale desktop-layout observation immediately after resize; dirty-discussion and focus assertions remain. Permission-revocation checks cover both current and legacy audit reader URLs.
+
+Local Firefox needed an isolated browser download because launching the shared cache failed with Windows `spawn UNKNOWN`. The locked Firefox build launches from `.phase18/browsers`; the optional `EFLOW_FIREFOX_EXECUTABLE` setting selects that path locally. CI retains the normal browser installation. The global browser cache was not modified.
+
+The first cross-browser run and focused failures are diagnostic evidence, not acceptance. They exposed a production-incompatible source-import test fixture, missing journal refresh on reentry, browser-specific focus loss and the PDF stream issue. The task-removal fixture now sends an SDK-compatible Phoenix v2 `postgres_changes` event. A narrow-layout check polls for the resize to settle before checking document overflow; it does not disable the check.
+
+## Remaining release conditions
+
+The [100/1,000-task filtering issue](phase18-performance-issue.md) exceeds the unchanged 10% budget and has no release exception. It remains a local blocker even when the browser correctness matrix passes.
+
+The large shared chunk, supported high-volume task count and actual network/React/long-task/peak-memory profiles require the release owners' decisions. Automated accessibility and keyboard evidence do not certify NVDA, VoiceOver, native Safari, actual OS zoom or native Mobile A/B. G2 shared-project Task Lead authority, Phase 6.5 deployed identity, universal audit persistence and earlier owned safety claims retain their existing gates.
+
+Local restoration of the frozen prior artifact is rehearsed independently. Actual deployment rollback still needs the deployed revision/artifact and the release operator's environment. Keep old hashed assets and their matching public view manifest through the UI rollback window; retain canonical records and migrations. These validation runs did not deploy the application or apply a database migration.

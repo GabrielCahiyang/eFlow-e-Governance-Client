@@ -1,0 +1,22 @@
+import { test, expect } from '@playwright/test';
+import fs from 'node:fs';
+import { projectWorkspaceFixture } from '../tests/e2e/fixtures/projectWorkspace';
+test.setTimeout(120_000);
+test('profile filter commit and paint at 1000 tasks', async ({ page }) => {
+  const data = await projectWorkspaceFixture(page, 'head', false, { landingOnly: true });
+  const seed = data.tasks[0];
+  data.tasks.splice(0, data.tasks.length, ...Array.from({ length: 1000 }, (_, i) => ({ ...seed, id: `40000000-0000-4000-8000-${String(i+1).padStart(12,'0')}`, title: `Benchmark task ${i}`, workspace_position: i, description: 'Representative project task with supporting details.' })));
+  await page.goto(`/projects?page=Projects&project=${data.project}&view=tasks`);
+  await expect(page.locator('.pt-task-row')).toHaveCount(1000);
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send('Profiler.enable');
+  await cdp.send('Profiler.setSamplingInterval', { interval: 100 });
+  await cdp.send('Profiler.start');
+  const start = performance.now();
+  await page.getByRole('textbox', { name: 'Search project tasks', exact: true }).fill('Benchmark task 999');
+  await expect(page.locator('.pt-task-row')).toHaveCount(1);
+  await page.evaluate(() => new Promise<void>(done => requestAnimationFrame(() => requestAnimationFrame(() => done()))));
+  const { profile } = await cdp.send('Profiler.stop');
+  fs.writeFileSync(`.phase18/filter-${process.env.EFLOW_PERF_STAGE}.cpuprofile`, JSON.stringify(profile));
+  console.log('Profiled filter milliseconds:', performance.now()-start);
+});

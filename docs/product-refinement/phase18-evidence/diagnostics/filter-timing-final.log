@@ -1,0 +1,13 @@
+
+Running 1 test using 1 worker
+
+(node:28876) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:28876) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"stage":"final","run":0,"fillMs":1308.3247999999985,"assertMs":26.739300000001094,"commitMs":171.19999998807907,"paintMs":215.30000001192093}
+{"stage":"final","run":1,"fillMs":1286.037400000001,"assertMs":13.795099999999366,"commitMs":162,"paintMs":198.80000001192093}
+{"stage":"final","run":2,"fillMs":880.8571999999986,"assertMs":12.810199999999895,"commitMs":131,"paintMs":154.5}
+  ok 1 [chromium] › .phase18\filter-timing.spec.ts:4:1 › diagnose filter input, commit, paint and automation costs (27.3s)
+
+  1 passed (28.4s)

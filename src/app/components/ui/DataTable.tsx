@@ -1,6 +1,7 @@
 // ─── Reusable DataTable Component ────────────────────────────────
 import React, { useState, useMemo } from "react";
 import { EmptyState, Search, Skeleton, Text } from "@vibe/core";
+import { FeedbackState } from "./FeedbackState";
 
 export interface Column<T> {
   key: string;
@@ -9,6 +10,7 @@ export interface Column<T> {
   sortable?: boolean;
   sortValue?: (item: T) => string | number;
   width?: string;
+  action?: boolean;
 }
 
 interface DataTableProps<T> {
@@ -23,6 +25,10 @@ interface DataTableProps<T> {
   emptyIcon?: React.ReactNode;
   toolbar?: React.ReactNode;
   totalRecords?: number;
+  density?: "comfortable" | "compact";
+  ariaLabel?: string;
+  error?: string;
+  onRetry?: () => void;
 }
 
 export function DataTable<T>({
@@ -37,6 +43,10 @@ export function DataTable<T>({
   emptyIcon,
   toolbar,
   totalRecords,
+  density = "comfortable",
+  ariaLabel = "Data table",
+  error,
+  onRetry,
 }: DataTableProps<T>) {
   const [search, setSearch] = useState("");
   const [sortKey, setSortKey] = useState<string | null>(null);
@@ -72,12 +82,12 @@ export function DataTable<T>({
   };
 
   return (
-    <section className="min-w-0 overflow-hidden rounded-[10px] border border-border bg-card text-card-foreground shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]" aria-label="Data table">
+    <section className="eflow-data-table min-w-0 overflow-hidden rounded-[10px] border border-border bg-card text-card-foreground shadow-sm" data-density={density} aria-label={ariaLabel} aria-busy={loading || undefined}>
       {/* Search */}
-      {searchFilter && (
+      {(searchFilter || toolbar) && (
         <div className="border-b border-border px-5 py-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="min-w-0 w-full flex-1 sm:min-w-[260px]">
+          <div className="eflow-table-toolbar">
+            {searchFilter && <div className="min-w-0 w-full flex-1 sm:min-w-[260px]">
               <Search
                 value={search}
                 onChange={setSearch}
@@ -87,20 +97,22 @@ export function DataTable<T>({
                 showClearIcon
                 size="small"
               />
-            </div>
+            </div>}
             {toolbar}
           </div>
         </div>
       )}
 
       {/* Table */}
-      <div className="overflow-x-auto" role="region" aria-label="Scrollable data table" tabIndex={0}>
+      {error && <FeedbackState tone="error" title="Unable to load records" onRetry={onRetry} pending={loading}>{error}</FeedbackState>}
+      <div className="eflow-scroll-region overflow-x-auto" role="region" aria-label={`Scrollable ${ariaLabel.toLowerCase()}`} tabIndex={0}>
         <table className="w-full min-w-[720px]">
           <thead>
             <tr className="border-b border-border bg-muted">
               {columns.map((col) => (
                 <th
                   key={col.key}
+                  data-action={col.action || undefined}
                   aria-sort={
                     col.sortable && sortKey === col.key
                       ? sortDir === "asc" ? "ascending" : "descending"
@@ -138,7 +150,7 @@ export function DataTable<T>({
                   ))}
                 </tr>
               ))
-            ) : filtered.length === 0 ? (
+            ) : error ? null : filtered.length === 0 ? (
               <tr>
                 <td colSpan={columns.length} className="px-5 py-12 text-center">
                   <EmptyState
@@ -153,9 +165,11 @@ export function DataTable<T>({
               filtered.map((item) => (
                 <tr
                   key={keyExtractor(item)}
-                  onClick={onRowClick ? () => onRowClick(item) : undefined}
+                  onClick={onRowClick ? (event) => {
+                    if (!(event.target as HTMLElement).closest("button,a,input,select,textarea,[role='button'],[role='checkbox']")) onRowClick(item);
+                  } : undefined}
                   onKeyDown={onRowClick ? (event) => {
-                    if (event.key === "Enter" || event.key === " ") {
+                    if (event.target === event.currentTarget && (event.key === "Enter" || event.key === " ")) {
                       event.preventDefault();
                       onRowClick(item);
                     }
@@ -167,7 +181,7 @@ export function DataTable<T>({
                   }`}
                 >
                   {columns.map((col) => (
-                    <td key={col.key} className="px-5 py-3">
+                    <td key={col.key} data-action={col.action || undefined} className="px-5 py-3">
                       {col.render(item)}
                     </td>
                   ))}
@@ -179,7 +193,7 @@ export function DataTable<T>({
       </div>
 
       {/* Row count */}
-      {!loading && (
+      {!loading && !error && (
         <div className="border-t border-border px-5 py-3">
           <Text type="text3" color="secondary">
             <span className="tabular-nums">{filtered.length} of {totalRecords ?? data.length}</span> records

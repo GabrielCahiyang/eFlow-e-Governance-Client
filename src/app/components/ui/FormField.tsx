@@ -6,18 +6,29 @@ interface FormFieldProps {
   error?: string;
   children: React.ReactNode;
   required?: boolean;
+  controlId?: string;
+  description?: string;
 }
 
-export function FormField({ label, error, children, required }: FormFieldProps) {
+export function FormField({ label, error, children, required, controlId, description }: FormFieldProps) {
+  const generatedId = React.useId();
+  const element = React.isValidElement<React.InputHTMLAttributes<HTMLInputElement>>(children) ? children : null;
+  const labelable = element && element.type !== React.Fragment && (typeof element.type !== "string" || ["input", "select", "textarea", "button", "meter", "output", "progress"].includes(element.type));
+  const control = labelable ? element : null;
+  const id = controlId || control?.props.id || `field-${generatedId}`;
+  const descriptionId = description ? `${id}-description` : undefined;
+  const errorId = error ? `${id}-error` : undefined;
+  const describedBy = [control?.props["aria-describedby"], descriptionId, errorId].filter(Boolean).join(" ") || undefined;
   return (
-    <div className="flex flex-col gap-1.5">
-      <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+    <div className="eflow-form-field">
+      <label className="eflow-field-label" htmlFor={id}>
         {label}
-        {required && <span className="text-red-500 ml-0.5">*</span>}
+        {required && <span className="eflow-field-required" aria-hidden="true"> *</span>}
       </label>
-      {children}
+      {control ? React.cloneElement(control, { id, "aria-describedby": describedBy, "aria-invalid": error ? true : control.props["aria-invalid"], "aria-required": required || control.props["aria-required"] }) : children}
+      {description && <span id={descriptionId} className="eflow-field-description">{description}</span>}
       {error && (
-        <span className="text-[11px] font-normal text-red-500">{error}</span>
+        <span id={errorId} role="alert" className="eflow-field-error">{error}</span>
       )}
     </div>
   );
@@ -28,10 +39,11 @@ interface TextInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 }
 
 export function TextInput({ hasError, className = "", ...props }: TextInputProps) {
+  const invalid = hasError || props["aria-invalid"] === true || props["aria-invalid"] === "true";
   return (
     <input
-      className={`h-10 w-full rounded-lg border bg-input-background px-3 text-[13px] font-normal text-foreground placeholder:text-muted-foreground outline-none transition-all ${
-        hasError
+      className={`eflow-form-input h-10 w-full rounded-lg border bg-input-background px-3 text-[13px] font-normal text-foreground placeholder:text-muted-foreground outline-none transition-all ${
+        invalid
           ? "border-destructive focus:border-destructive focus:ring-2 focus:ring-destructive/10"
           : "border-border hover:border-neutral-400 focus:border-ring focus:ring-2 focus:ring-ring/15"
       } ${className}`}
@@ -47,10 +59,11 @@ interface SelectInputProps extends React.SelectHTMLAttributes<HTMLSelectElement>
 }
 
 export function SelectInput({ hasError, options, placeholder, className = "", ...props }: SelectInputProps) {
+  const invalid = hasError || props["aria-invalid"] === true || props["aria-invalid"] === "true";
   return (
     <select
-      className={`h-10 w-full cursor-pointer appearance-none rounded-lg border bg-input-background bg-no-repeat bg-[right_12px_center] bg-[length:12px] px-3 text-[13px] font-normal text-foreground outline-none transition-all ${
-        hasError
+      className={`eflow-form-input h-10 w-full cursor-pointer appearance-none rounded-lg border bg-input-background bg-no-repeat bg-[right_12px_center] bg-[length:12px] px-3 text-[13px] font-normal text-foreground outline-none transition-all ${
+        invalid
           ? "border-destructive focus:border-destructive focus:ring-2 focus:ring-destructive/10"
           : "border-border hover:border-neutral-400 focus:border-ring focus:ring-2 focus:ring-ring/15"
       } ${className}`}

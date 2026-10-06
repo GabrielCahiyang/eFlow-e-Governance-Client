@@ -1,0 +1,3 @@
+export interface StaffingCandidate {id: string; name: string; skills: string[]; training: string[]; education: string[]; experience: string[]; specializations: string[]; certifications: string[]; experience_summary: string; activeTasks: number; remainingHours: number; unknownEffortTasks: number}
+export interface StaffingContext {task: {id: string; title: string; description: string; skills: string[]; estimatedHours?: number}; candidates: StaffingCandidate[]; excludedUnconfirmed: number}
+export interface StaffRecommendation {userId: string; evidence: string[]; activeTasks: number; remainingHours: number; unknownEffortTasks: number}

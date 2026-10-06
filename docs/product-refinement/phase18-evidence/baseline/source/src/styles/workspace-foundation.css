@@ -1,0 +1,39 @@
+.eflow-workspace { min-width: 0; min-height: 100%; background: var(--workspace-surface); color: var(--workspace-text); border-radius: var(--workspace-radius); font-family: var(--eflow-font); }
+.eflow-app-shell, .eflow-app-shell__workspace { background: var(--workspace-bg); }
+.eflow-workspace-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; padding: 20px 24px; border-bottom: 1px solid var(--workspace-border); }
+.eflow-workspace-header h1 { font-size: 22px; font-weight: 600; margin: 0; }
+.eflow-workspace-header p, .eflow-empty-workspace p { font-size: 13px; color: var(--workspace-muted); margin-top: 6px; }
+.eflow-workspace-actions { display: flex; gap: 8px; align-items: center; }
+.eflow-workspace-tabs { display: flex; gap: 8px; overflow-x: auto; border-bottom: 1px solid var(--workspace-border); padding: 0 16px; }
+.eflow-workspace-tab { white-space: nowrap; min-height: 40px; padding: 8px 12px; border-bottom: 2px solid transparent; color: var(--workspace-muted); font-size: 13px; transition: color 150ms, background 150ms; }
+.eflow-workspace-tab[data-state=active] { color: var(--workspace-primary); border-bottom-color: var(--workspace-primary); }
+.eflow-workspace-tab:hover, .eflow-inline-text:hover { background: var(--workspace-hover); }
+.eflow-workspace-tab:disabled { opacity: .5; }
+.eflow-workspace-panel { min-width: 0; padding: 16px; }
+.eflow-workspace-popover { border: 1px solid var(--workspace-border); border-radius: 11px; background: var(--workspace-surface); color: var(--workspace-text); box-shadow: var(--workspace-shadow-popover); }
+.eflow-split-action { display: inline-flex; align-items: stretch; }
+.eflow-split-action > button:first-child { border-radius: var(--workspace-radius) 0 0 var(--workspace-radius); min-height: 36px; }
+.eflow-split-action-menu { min-width: 34px; display: grid; place-items: center; color: var(--eflow-on-primary); background: var(--workspace-primary); border-left: 1px solid rgb(255 255 255 / 35%); border-radius: 0 var(--workspace-radius) var(--workspace-radius) 0; }
+.eflow-split-action-menu:disabled { opacity: .5; cursor: not-allowed; }
+.eflow-inline-text { border: 1px solid transparent; border-radius: 5px; padding: 3px 6px; text-align: left; font: inherit; }
+.eflow-inline-editor input { font: inherit; padding: 3px 6px; border: 1px solid var(--workspace-primary); border-radius: 5px; background: var(--workspace-surface); color: var(--workspace-text); max-width: 100%; }
+.eflow-inline-editor [role=alert] { display: block; font-size: 12px; color: #b42318; }
+.eflow-status-pill { display: inline-flex; align-items: center; min-height: 24px; padding: 2px 10px; border-radius: 5px; font-size: 12px; background: var(--workspace-hover); color: var(--workspace-text); }
+.eflow-status-pill--positive { background: var(--eflow-positive-bg); color: var(--eflow-positive-text); }
+.eflow-status-pill--warning { background: var(--eflow-warning-bg); color: var(--eflow-warning-text); }
+.eflow-status-pill--negative { background: var(--eflow-negative-bg); color: var(--eflow-negative-text); }
+.eflow-avatar-stack { display: inline-flex; }
+.eflow-avatar-stack > span { display: grid; place-items: center; height: 30px; width: 30px; border: 2px solid var(--workspace-surface); border-radius: 50%; background: var(--workspace-hover); color: var(--workspace-text); font-size: 10px; margin-left: -6px; overflow: hidden; }
+.eflow-avatar-stack > span:first-child { margin-left: 0; }
+.eflow-avatar-stack img { width: 100%; height: 100%; object-fit: cover; }
+.eflow-workspace-skeleton { padding: 24px; }
+.eflow-skeleton-title, .eflow-skeleton-row { background: var(--workspace-hover); border-radius: 5px; animation: workspace-pulse 1.5s ease-in-out infinite; }
+.eflow-skeleton-title { width: 35%; height: 24px; margin-bottom: 20px; }
+.eflow-skeleton-row { height: 40px; margin-top: 8px; }
+.eflow-empty-workspace { padding: 40px 24px; text-align: center; }
+.eflow-empty-workspace h2 { font-size: 17px; font-weight: 600; }
+.eflow-empty-workspace > :last-child { margin-top: 12px; }
+.eflow-workspace :focus-visible, .eflow-split-action :focus-visible { outline: 2px solid var(--workspace-primary); outline-offset: 2px; }
+@keyframes workspace-pulse { 50% { opacity: .5; } }
+@media (prefers-reduced-motion: reduce) { .eflow-skeleton-title, .eflow-skeleton-row { animation: none; } .eflow-workspace-tab { transition: none; } }
+@media (max-width: 640px) { .eflow-workspace-header { padding: 16px; } .eflow-workspace-panel { padding: 12px; } }

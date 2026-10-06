@@ -1,0 +1,1962 @@
+
+> @figma/my-make-file@0.0.1 test:e2e:release
+> node scripts/run-web-release.mjs
+
+
+Running 183 tests using 2 workers
+
+(node:39796) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:39944) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:39944) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:39796) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok   2 [chromium] › tests\e2e\phase10-project-workspace.spec.ts:9:1 › project identity, settings retry, favorites and browser history use one project (9.1s)
+  ok   1 [chromium] › tests\e2e\phase11-main-table.spec.ts:6:1 › column widths, alignment, visibility and sticky task context persist locally (10.2s)
+  ok   3 [chromium] › tests\e2e\phase10-project-workspace.spec.ts:38:1 › existing lifecycle dialogs retain notes, server denials and deletion impact (9.9s)
+  ok   4 [chromium] › tests\e2e\phase11-main-table.spec.ts:18:1 › date and dependency drafts guard close and retain denied edits for scoped retry (10.3s)
+  ok   5 [chromium] › tests\e2e\phase10-project-workspace.spec.ts:53:1 › Observer utilities stay read-only and sharing keeps current access requirements at 390px (6.6s)
+  ok   6 [chromium] › tests\e2e\phase11-main-table.spec.ts:27:1 › filter chips clear one or all without changing canonical manual ordering (6.4s)
+  ok   7 [chromium] › tests\e2e\phase10-project-workspace.spec.ts:63:1 › participant failure retries its source and long project identity stays within the viewport (9.5s)
+  ok   8 [chromium] › tests\e2e\phase11-main-table.spec.ts:35:1 › group creation guards its draft and empty deletion confirms impact and retries denial (9.8s)
+  ok  10 [chromium] › tests\e2e\phase11-main-table.spec.ts:43:1 › task team entry reuses existing details and mobile sticky context leaves room for work (7.1s)
+  ok  11 [chromium] › tests\e2e\phase11-main-table.spec.ts:48:1 › shared Task Lead team action explains the unresolved authority gate (6.4s)
+  ok  12 [chromium] › tests\e2e\phase11-main-table.spec.ts:52:1 › Observer inspection and closed-project table retain read-only controls (8.6s)
+  ok   9 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:9:1 › shared inspector keeps discussion drafts and returns focus to each view origin (24.4s)
+  ok  14 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:31:1 › date range is consistent across views and personal after reload (7.3s)
+  ok  13 [chromium] › tests\e2e\phase11-main-table.spec.ts:56:1 › Head owner appointment confirms impact and retains denied assignment for retry (8.7s)
+  ok  15 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:43:1 › mobile observer inspector stays read only and traps and returns focus (5.9s)
+  ok  16 [chromium] › tests\e2e\phase11-main-table.spec.ts:62:1 › mobile planning picker and explicit creation keep fields inside the viewport (7.9s)
+  ok  17 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:56:1 › Board keyboard action prevents duplicate requests and recovers from denial (5.3s)
+  ok  18 [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:9:1 › Office Team lazy professional summary, keyboard focus return and narrow labeled rows (7.6s)
+  ok  19 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:65:1 › shared Task Lead team mutations stay gated by G2 while details remain available (7.2s)
+  ok  20 [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:23:1 › Partial invitations retain failed rows and delivery failure does not cause duplicate creation (8.6s)
+  ok  21 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:73:1 › review drafts stay protected and evidence loading denial has an explicit retry (9.8s)
+  ok  22 [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:42:1 › Office Team failure has retry and filter empty can clear without hiding invitations (5.1s)
+  x   23 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:86:1 › removed canonical task closes mutation controls and explains unavailable access (5.2s)
+(node:26752) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:26752) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  24 [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:57:1 › Collaborating Head retains project selection on failure, guards dismissal and rechecks authority before retry (7.5s)
+  ok  25 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:94:1 › successful inspector lifecycle change returns focus to the refreshed Board card (4.7s)
+  ok  26 [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:68:1 › Project team removal previews active work and opens the shared task inspector only after discard (5.0s)
+  ok  27 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:101:1 › mobile team dialog guards drafts and retains a denied member change (7.1s)
+  ok  28 [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:73:1 › Failed project invitation delivery still creates one invitation and fresh-link copy failure has manual recovery (6.1s)
+  ok  30 [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:79:61 › Project Office observer retains read-only reasons and governance handoff (4.0s)
+  ok  29 [chromium] › tests\e2e\phase15-ai-governance.spec.ts:12:1 › Reviewed project sections preserve source and require one impact confirmation before creating work (6.9s)
+  ok  31 [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:79:61 › Project Office closed retains read-only reasons and governance handoff (3.9s)
+  ok  33 [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:79:61 › Project Office governed retains read-only reasons and governance handoff (3.8s)
+  ok  32 [chromium] › tests\e2e\phase15-ai-governance.spec.ts:22:1 › PDF work-plan review saves only its persistent draft, keeps failed autosave edits and retries saving (6.9s)
+  ok  34 [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:83:1 › Project Office read failure retries honestly and retains an inspector draft through refresh denial (4.7s)
+  ok  35 [chromium] › tests\e2e\phase15-ai-governance.spec.ts:33:1 › Task inspector staffing retains selection after eligibility denial and assigns only after reviewed fresh context (6.1s)
+  ok  36 [chromium] › tests\e2e\phase16-support-finance.spec.ts:10:1 › Admin Center keeps legacy pages, account inspection and unsaved account edits (5.7s)
+  ok  37 [chromium] › tests\e2e\phase15-ai-governance.spec.ts:39:1 › Owner PDS review retries extraction, retains failed profile edits and confirms the saved summary separately (5.7s)
+  ok  38 [chromium] › tests\e2e\phase16-support-finance.spec.ts:65:1 › Account audit has bounded coverage, loaded filters, nested redaction and truthful unavailable reads on a phone (3.6s)
+  ok  39 [chromium] › tests\e2e\phase15-ai-governance.spec.ts:46:1 › Official readiness blockers link to Office and task views, and material changes refresh current checks (3.6s)
+  ok  41 [chromium] › tests\e2e\phase15-ai-governance.spec.ts:51:1 › Missing readiness deployment explains administrator recovery and governed projects retain Approval Status handoff (4.0s)
+  ok  42 [chromium] › tests\e2e\phase17-safety.spec.ts:24:1 › live legacy board retains details through Keep editing and discards only on acceptance (4.8s)
+  ok  43 [chromium] › tests\e2e\phase17-safety.spec.ts:51:1 › typed deletion at 320px cancels without a write then sends exactly one confirmed write (4.6s)
+  ok  44 [chromium] › tests\e2e\phase17-safety.spec.ts:93:1 › required task cancellation reason has no write on Escape and is sent once on acceptance (4.6s)
+  ok  45 [chromium] › tests\e2e\phase17-safety.spec.ts:130:1 › lost deletion response exposes verification and prevents another write (4.5s)
+  ok  46 [chromium] › tests\e2e\phase18-preview.spec.ts:3:1 › production task-inspector chunk failure retains context and retries without a page reload (3.8s)
+  ok  47 [chromium] › tests\e2e\phase18-release.spec.ts:38:3 › head: responsive canonical workspace and mobile navigation (10.3s)
+  x   40 [chromium] › tests\e2e\phase16-support-finance.spec.ts:135:1 › Accounting retains fiscal scope, exposes settlements, records one decision and inspects its balanced journal (45.7s)
+  ok  48 [chromium] › tests\e2e\phase18-release.spec.ts:38:3 › member: responsive canonical workspace and mobile navigation (7.6s)
+(node:15668) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15668) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  50 [chromium] › tests\e2e\phase16-support-finance.spec.ts:201:1 › Uncertain settlement keeps its reason and requires verification before resubmission (5.4s)
+  ok  49 [chromium] › tests\e2e\phase18-release.spec.ts:38:3 › accounting_staff: responsive canonical workspace and mobile navigation (7.7s)
+  ok  51 [chromium] › tests\e2e\phase16-support-finance.spec.ts:238:1 › Journal correction has guarded lines, explicit posting and a retained uncertainty receipt on a phone (5.2s)
+  ok  52 [chromium] › tests\e2e\phase18-release.spec.ts:38:3 › admin: responsive canonical workspace and mobile navigation (7.1s)
+  ok  53 [chromium] › tests\e2e\phase16-support-finance.spec.ts:307:1 › Release handover uses its existing physical confirmation and blocks an uncertain repeat (3.7s)
+  ok  55 [chromium] › tests\e2e\phase16-support-finance.spec.ts:338:1 › Reports retain seven lenses, filtered CSV export and the task inspector (4.5s)
+  ok  54 [chromium] › tests\e2e\phase18-release.spec.ts:105:1 › task inspector remains usable across rotation, keyboard dismissal and zoom reflow (7.2s)
+  ok  56 [chromium] › tests\e2e\phase16-support-finance.spec.ts:399:1 › Backup preflight stays unavailable without gateway configuration (3.3s)
+  ok  57 [chromium] › tests\e2e\phase18-release.spec.ts:134:1 › empty projects have labeled creation and navigation (3.6s)
+  ok  59 [chromium] › tests\e2e\phase18-release.spec.ts:149:1 › dirty discussion survives rotation and forced colors, then restores its source focus (4.2s)
+(node:42584) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  58 [chromium] › tests\e2e\phase16-support-finance.spec.ts:415:1 › Late-package Head authorization stays separate from independent Accounting settlement (7.5s)
+(node:42584) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   61 [firefox] › tests\e2e\phase10-project-workspace.spec.ts:9:1 › project identity, settings retry, favorites and browser history use one project (4ms)
+(node:31432) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:31432) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   62 [firefox] › tests\e2e\phase10-project-workspace.spec.ts:38:1 › existing lifecycle dialogs retain notes, server denials and deletion impact (3ms)
+(node:36796) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:36796) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   63 [firefox] › tests\e2e\phase10-project-workspace.spec.ts:53:1 › Observer utilities stay read-only and sharing keeps current access requirements at 390px (3ms)
+(node:42944) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:42944) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   64 [firefox] › tests\e2e\phase10-project-workspace.spec.ts:63:1 › participant failure retries its source and long project identity stays within the viewport (4ms)
+(node:41204) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:41204) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  60 [chromium] › tests\e2e\phase16-support-finance.spec.ts:461:1 › Accounting retains ordinary Member workspaces, requires an Office and cannot settle its own cash (4.2s)
+  x   66 [firefox] › tests\e2e\phase11-main-table.spec.ts:6:1 › column widths, alignment, visibility and sticky task context persist locally (5ms)
+(node:36508) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:36508) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   67 [firefox] › tests\e2e\phase11-main-table.spec.ts:18:1 › date and dependency drafts guard close and retain denied edits for scoped retry (3ms)
+(node:39492) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:39492) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   68 [firefox] › tests\e2e\phase11-main-table.spec.ts:27:1 › filter chips clear one or all without changing canonical manual ordering (3ms)
+(node:16164) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:16164) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   69 [firefox] › tests\e2e\phase11-main-table.spec.ts:35:1 › group creation guards its draft and empty deletion confirms impact and retries denial (4ms)
+(node:6092) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  65 [chromium] › tests\e2e\phase16-support-finance.spec.ts:487:1 › Backup uncertain start verifies the job list and a failed job permits an explicit new attempt (3.6s)
+(node:6092) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   70 [firefox] › tests\e2e\phase11-main-table.spec.ts:43:1 › task team entry reuses existing details and mobile sticky context leaves room for work (3ms)
+(node:18592) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35240) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18592) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35240) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   72 [firefox] › tests\e2e\phase12-shared-inspector.spec.ts:9:1 › shared inspector keeps discussion drafts and returns focus to each view origin (3ms)
+  x   71 [firefox] › tests\e2e\phase11-main-table.spec.ts:48:1 › shared Task Lead team action explains the unresolved authority gate (3ms)
+(node:15192) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:28612) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15192) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:28612) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   74 [firefox] › tests\e2e\phase12-shared-inspector.spec.ts:31:1 › date range is consistent across views and personal after reload (3ms)
+  x   73 [firefox] › tests\e2e\phase11-main-table.spec.ts:52:1 › Observer inspection and closed-project table retain read-only controls (3ms)
+(node:24164) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15512) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15512) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:24164) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   75 [firefox] › tests\e2e\phase12-shared-inspector.spec.ts:43:1 › mobile observer inspector stays read only and traps and returns focus (3ms)
+  x   76 [firefox] › tests\e2e\phase11-main-table.spec.ts:56:1 › Head owner appointment confirms impact and retains denied assignment for retry (3ms)
+(node:27804) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:37400) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:27804) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:37400) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   78 [firefox] › tests\e2e\phase12-shared-inspector.spec.ts:56:1 › Board keyboard action prevents duplicate requests and recovers from denial (3ms)
+  x   77 [firefox] › tests\e2e\phase11-main-table.spec.ts:62:1 › mobile planning picker and explicit creation keep fields inside the viewport (5ms)
+(node:28412) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:36016) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:28412) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:36016) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   79 [firefox] › tests\e2e\phase12-shared-inspector.spec.ts:65:1 › shared Task Lead team mutations stay gated by G2 while details remain available (3ms)
+  x   80 [firefox] › tests\e2e\phase14-people-collaboration.spec.ts:9:1 › Office Team lazy professional summary, keyboard focus return and narrow labeled rows (5ms)
+(node:40332) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:14980) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:40332) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:14980) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   81 [firefox] › tests\e2e\phase12-shared-inspector.spec.ts:73:1 › review drafts stay protected and evidence loading denial has an explicit retry (3ms)
+  x   82 [firefox] › tests\e2e\phase14-people-collaboration.spec.ts:23:1 › Partial invitations retain failed rows and delivery failure does not cause duplicate creation (3ms)
+(node:16516) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:24616) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:16516) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:24616) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   83 [firefox] › tests\e2e\phase12-shared-inspector.spec.ts:86:1 › removed canonical task closes mutation controls and explains unavailable access (3ms)
+  x   84 [firefox] › tests\e2e\phase14-people-collaboration.spec.ts:42:1 › Office Team failure has retry and filter empty can clear without hiding invitations (5ms)
+(node:43916) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:8680) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:43916) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:8680) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   86 [firefox] › tests\e2e\phase14-people-collaboration.spec.ts:57:1 › Collaborating Head retains project selection on failure, guards dismissal and rechecks authority before retry (3ms)
+  x   85 [firefox] › tests\e2e\phase12-shared-inspector.spec.ts:94:1 › successful inspector lifecycle change returns focus to the refreshed Board card (3ms)
+(node:32400) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35072) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35072) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:32400) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   88 [firefox] › tests\e2e\phase14-people-collaboration.spec.ts:68:1 › Project team removal previews active work and opens the shared task inspector only after discard (3ms)
+  x   87 [firefox] › tests\e2e\phase12-shared-inspector.spec.ts:101:1 › mobile team dialog guards drafts and retains a denied member change (3ms)
+(node:28792) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:39804) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:39804) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:28792) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   89 [firefox] › tests\e2e\phase15-ai-governance.spec.ts:12:1 › Reviewed project sections preserve source and require one impact confirmation before creating work (2ms)
+  x   90 [firefox] › tests\e2e\phase14-people-collaboration.spec.ts:73:1 › Failed project invitation delivery still creates one invitation and fresh-link copy failure has manual recovery (3ms)
+(node:31340) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2264) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:31340) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2264) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   91 [firefox] › tests\e2e\phase15-ai-governance.spec.ts:22:1 › PDF work-plan review saves only its persistent draft, keeps failed autosave edits and retries saving (3ms)
+  x   92 [firefox] › tests\e2e\phase14-people-collaboration.spec.ts:79:61 › Project Office observer retains read-only reasons and governance handoff (4ms)
+(node:10168) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:42544) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:10168) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:42544) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   94 [firefox] › tests\e2e\phase14-people-collaboration.spec.ts:79:61 › Project Office closed retains read-only reasons and governance handoff (3ms)
+  x   93 [firefox] › tests\e2e\phase15-ai-governance.spec.ts:33:1 › Task inspector staffing retains selection after eligibility denial and assigns only after reviewed fresh context (3ms)
+(node:44008) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:36672) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:44008) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:36672) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   95 [firefox] › tests\e2e\phase14-people-collaboration.spec.ts:79:61 › Project Office governed retains read-only reasons and governance handoff (3ms)
+  x   96 [firefox] › tests\e2e\phase15-ai-governance.spec.ts:39:1 › Owner PDS review retries extraction, retains failed profile edits and confirms the saved summary separately (3ms)
+(node:31540) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:17764) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:31540) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:17764) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   97 [firefox] › tests\e2e\phase14-people-collaboration.spec.ts:83:1 › Project Office read failure retries honestly and retains an inspector draft through refresh denial (3ms)
+  x   98 [firefox] › tests\e2e\phase15-ai-governance.spec.ts:46:1 › Official readiness blockers link to Office and task views, and material changes refresh current checks (3ms)
+(node:18364) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:32168) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:32168) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18364) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   99 [firefox] › tests\e2e\phase15-ai-governance.spec.ts:51:1 › Missing readiness deployment explains administrator recovery and governed projects retain Approval Status handoff (3ms)
+  x  100 [firefox] › tests\e2e\phase16-support-finance.spec.ts:10:1 › Admin Center keeps legacy pages, account inspection and unsaved account edits (3ms)
+(node:11144) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:21288) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:11144) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:21288) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  101 [firefox] › tests\e2e\phase17-safety.spec.ts:24:1 › live legacy board retains details through Keep editing and discards only on acceptance (3ms)
+  x  102 [firefox] › tests\e2e\phase16-support-finance.spec.ts:65:1 › Account audit has bounded coverage, loaded filters, nested redaction and truthful unavailable reads on a phone (5ms)
+(node:42072) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:9588) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:42072) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:9588) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  103 [firefox] › tests\e2e\phase17-safety.spec.ts:51:1 › typed deletion at 320px cancels without a write then sends exactly one confirmed write (3ms)
+  x  104 [firefox] › tests\e2e\phase16-support-finance.spec.ts:135:1 › Accounting retains fiscal scope, exposes settlements, records one decision and inspects its balanced journal (4ms)
+(node:26124) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:17620) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:26124) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:17620) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  105 [firefox] › tests\e2e\phase17-safety.spec.ts:93:1 › required task cancellation reason has no write on Escape and is sent once on acceptance (3ms)
+  x  106 [firefox] › tests\e2e\phase16-support-finance.spec.ts:201:1 › Uncertain settlement keeps its reason and requires verification before resubmission (3ms)
+(node:15032) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:7032) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15032) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:7032) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  107 [firefox] › tests\e2e\phase17-safety.spec.ts:130:1 › lost deletion response exposes verification and prevents another write (3ms)
+  x  108 [firefox] › tests\e2e\phase16-support-finance.spec.ts:238:1 › Journal correction has guarded lines, explicit posting and a retained uncertainty receipt on a phone (4ms)
+(node:820) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:26908) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:820) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:26908) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  109 [firefox] › tests\e2e\phase18-preview.spec.ts:3:1 › production task-inspector chunk failure retains context and retries without a page reload (2ms)
+  x  110 [firefox] › tests\e2e\phase16-support-finance.spec.ts:307:1 › Release handover uses its existing physical confirmation and blocks an uncertain repeat (3ms)
+(node:12728) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:40692) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:12728) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:40692) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  111 [firefox] › tests\e2e\phase16-support-finance.spec.ts:338:1 › Reports retain seven lenses, filtered CSV export and the task inspector (3ms)
+  x  112 [firefox] › tests\e2e\phase18-release.spec.ts:38:3 › head: responsive canonical workspace and mobile navigation (3ms)
+(node:12276) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:32344) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:12276) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:32344) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  113 [firefox] › tests\e2e\phase16-support-finance.spec.ts:399:1 › Backup preflight stays unavailable without gateway configuration (3ms)
+  x  114 [firefox] › tests\e2e\phase18-release.spec.ts:38:3 › member: responsive canonical workspace and mobile navigation (3ms)
+(node:15836) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18808) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15836) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  115 [firefox] › tests\e2e\phase16-support-finance.spec.ts:415:1 › Late-package Head authorization stays separate from independent Accounting settlement (3ms)
+(node:18808) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:42572) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  116 [firefox] › tests\e2e\phase18-release.spec.ts:38:3 › accounting_staff: responsive canonical workspace and mobile navigation (4ms)
+(node:32800) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:42572) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  117 [firefox] › tests\e2e\phase16-support-finance.spec.ts:461:1 › Accounting retains ordinary Member workspaces, requires an Office and cannot settle its own cash (2ms)
+(node:32800) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:17164) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  118 [firefox] › tests\e2e\phase18-release.spec.ts:38:3 › admin: responsive canonical workspace and mobile navigation (3ms)
+(node:37856) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:17164) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  119 [firefox] › tests\e2e\phase16-support-finance.spec.ts:487:1 › Backup uncertain start verifies the job list and a failed job permits an explicit new attempt (3ms)
+(node:37856) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:28096) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  120 [firefox] › tests\e2e\phase18-release.spec.ts:105:1 › task inspector remains usable across rotation, keyboard dismissal and zoom reflow (3ms)
+(node:3596) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:28096) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3596) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  122 [firefox] › tests\e2e\phase18-release.spec.ts:134:1 › empty projects have labeled creation and navigation (3ms)
+(node:10708) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:10708) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  123 [firefox] › tests\e2e\phase18-release.spec.ts:149:1 › dirty discussion survives rotation and forced colors, then restores its source focus (4ms)
+(node:16556) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:16556) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 121 [webkit] › tests\e2e\phase10-project-workspace.spec.ts:9:1 › project identity, settings retry, favorites and browser history use one project (14.7s)
+  ok 124 [webkit] › tests\e2e\phase11-main-table.spec.ts:6:1 › column widths, alignment, visibility and sticky task context persist locally (13.3s)
+  ok 125 [webkit] › tests\e2e\phase10-project-workspace.spec.ts:38:1 › existing lifecycle dialogs retain notes, server denials and deletion impact (16.1s)
+  ok 126 [webkit] › tests\e2e\phase11-main-table.spec.ts:18:1 › date and dependency drafts guard close and retain denied edits for scoped retry (19.1s)
+  x  127 [webkit] › tests\e2e\phase10-project-workspace.spec.ts:53:1 › Observer utilities stay read-only and sharing keeps current access requirements at 390px (10.9s)
+(node:3652) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3652) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 128 [webkit] › tests\e2e\phase11-main-table.spec.ts:27:1 › filter chips clear one or all without changing canonical manual ordering (9.3s)
+  ok 129 [webkit] › tests\e2e\phase10-project-workspace.spec.ts:63:1 › participant failure retries its source and long project identity stays within the viewport (7.9s)
+  ok 130 [webkit] › tests\e2e\phase11-main-table.spec.ts:35:1 › group creation guards its draft and empty deletion confirms impact and retries denial (21.7s)
+  ok 132 [webkit] › tests\e2e\phase11-main-table.spec.ts:43:1 › task team entry reuses existing details and mobile sticky context leaves room for work (9.7s)
+  x  131 [webkit] › tests\e2e\phase12-shared-inspector.spec.ts:9:1 › shared inspector keeps discussion drafts and returns focus to each view origin (29.8s)
+(node:13328) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:13328) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 133 [webkit] › tests\e2e\phase11-main-table.spec.ts:48:1 › shared Task Lead team action explains the unresolved authority gate (7.3s)
+  ok 134 [webkit] › tests\e2e\phase12-shared-inspector.spec.ts:31:1 › date range is consistent across views and personal after reload (8.4s)
+  ok 135 [webkit] › tests\e2e\phase11-main-table.spec.ts:52:1 › Observer inspection and closed-project table retain read-only controls (9.5s)
+  ok 136 [webkit] › tests\e2e\phase12-shared-inspector.spec.ts:43:1 › mobile observer inspector stays read only and traps and returns focus (6.1s)
+  ok 138 [webkit] › tests\e2e\phase12-shared-inspector.spec.ts:56:1 › Board keyboard action prevents duplicate requests and recovers from denial (6.0s)
+  ok 137 [webkit] › tests\e2e\phase11-main-table.spec.ts:56:1 › Head owner appointment confirms impact and retains denied assignment for retry (12.5s)
+  ok 139 [webkit] › tests\e2e\phase12-shared-inspector.spec.ts:65:1 › shared Task Lead team mutations stay gated by G2 while details remain available (8.0s)
+  ok 140 [webkit] › tests\e2e\phase11-main-table.spec.ts:62:1 › mobile planning picker and explicit creation keep fields inside the viewport (8.5s)
+  ok 142 [webkit] › tests\e2e\phase14-people-collaboration.spec.ts:9:1 › Office Team lazy professional summary, keyboard focus return and narrow labeled rows (8.9s)
+  ok 141 [webkit] › tests\e2e\phase12-shared-inspector.spec.ts:73:1 › review drafts stay protected and evidence loading denial has an explicit retry (15.7s)
+  x  144 [webkit] › tests\e2e\phase12-shared-inspector.spec.ts:86:1 › removed canonical task closes mutation controls and explains unavailable access (6.6s)
+(node:15344) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15344) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 143 [webkit] › tests\e2e\phase14-people-collaboration.spec.ts:23:1 › Partial invitations retain failed rows and delivery failure does not cause duplicate creation (14.0s)
+  ok 145 [webkit] › tests\e2e\phase12-shared-inspector.spec.ts:94:1 › successful inspector lifecycle change returns focus to the refreshed Board card (7.5s)
+  ok 146 [webkit] › tests\e2e\phase14-people-collaboration.spec.ts:42:1 › Office Team failure has retry and filter empty can clear without hiding invitations (7.0s)
+  ok 148 [webkit] › tests\e2e\phase14-people-collaboration.spec.ts:57:1 › Collaborating Head retains project selection on failure, guards dismissal and rechecks authority before retry (13.5s)
+  x  147 [webkit] › tests\e2e\phase12-shared-inspector.spec.ts:101:1 › mobile team dialog guards drafts and retains a denied member change (15.6s)
+(node:25684) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:25684) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 149 [webkit] › tests\e2e\phase14-people-collaboration.spec.ts:68:1 › Project team removal previews active work and opens the shared task inspector only after discard (8.1s)
+  ok 150 [webkit] › tests\e2e\phase15-ai-governance.spec.ts:12:1 › Reviewed project sections preserve source and require one impact confirmation before creating work (15.3s)
+  ok 151 [webkit] › tests\e2e\phase14-people-collaboration.spec.ts:73:1 › Failed project invitation delivery still creates one invitation and fresh-link copy failure has manual recovery (13.8s)
+  x  153 [webkit] › tests\e2e\phase14-people-collaboration.spec.ts:79:61 › Project Office observer retains read-only reasons and governance handoff (7.4s)
+(node:38980) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38980) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  154 [webkit] › tests\e2e\phase14-people-collaboration.spec.ts:79:61 › Project Office closed retains read-only reasons and governance handoff (7.5s)
+(node:16276) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:16276) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  155 [webkit] › tests\e2e\phase14-people-collaboration.spec.ts:79:61 › Project Office governed retains read-only reasons and governance handoff (6.6s)
+(node:28524) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:28524) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  152 [webkit] › tests\e2e\phase15-ai-governance.spec.ts:22:1 › PDF work-plan review saves only its persistent draft, keeps failed autosave edits and retries saving (37.9s)
+(node:33728) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:33728) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 156 [webkit] › tests\e2e\phase14-people-collaboration.spec.ts:83:1 › Project Office read failure retries honestly and retains an inspector draft through refresh denial (11.3s)
+  ok 157 [webkit] › tests\e2e\phase15-ai-governance.spec.ts:33:1 › Task inspector staffing retains selection after eligibility denial and assigns only after reviewed fresh context (14.1s)
+  ok 158 [webkit] › tests\e2e\phase16-support-finance.spec.ts:10:1 › Admin Center keeps legacy pages, account inspection and unsaved account edits (12.8s)
+  ok 160 [webkit] › tests\e2e\phase16-support-finance.spec.ts:65:1 › Account audit has bounded coverage, loaded filters, nested redaction and truthful unavailable reads on a phone (5.3s)
+  ok 159 [webkit] › tests\e2e\phase15-ai-governance.spec.ts:39:1 › Owner PDS review retries extraction, retains failed profile edits and confirms the saved summary separately (11.6s)
+  ok 162 [webkit] › tests\e2e\phase15-ai-governance.spec.ts:46:1 › Official readiness blockers link to Office and task views, and material changes refresh current checks (7.4s)
+  ok 163 [webkit] › tests\e2e\phase15-ai-governance.spec.ts:51:1 › Missing readiness deployment explains administrator recovery and governed projects retain Approval Status handoff (6.8s)
+  ok 164 [webkit] › tests\e2e\phase17-safety.spec.ts:24:1 › live legacy board retains details through Keep editing and discards only on acceptance (11.9s)
+  ok 165 [webkit] › tests\e2e\phase17-safety.spec.ts:51:1 › typed deletion at 320px cancels without a write then sends exactly one confirmed write (6.6s)
+  x  161 [webkit] › tests\e2e\phase16-support-finance.spec.ts:135:1 › Accounting retains fiscal scope, exposes settlements, records one decision and inspects its balanced journal (45.8s)
+(node:22092) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:22092) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 166 [webkit] › tests\e2e\phase17-safety.spec.ts:93:1 › required task cancellation reason has no write on Escape and is sent once on acceptance (10.3s)
+  ok 167 [webkit] › tests\e2e\phase16-support-finance.spec.ts:201:1 › Uncertain settlement keeps its reason and requires verification before resubmission (10.0s)
+  ok 168 [webkit] › tests\e2e\phase17-safety.spec.ts:130:1 › lost deletion response exposes verification and prevents another write (10.5s)
+  ok 169 [webkit] › tests\e2e\phase16-support-finance.spec.ts:238:1 › Journal correction has guarded lines, explicit posting and a retained uncertainty receipt on a phone (8.1s)
+  ok 170 [webkit] › tests\e2e\phase18-preview.spec.ts:3:1 › production task-inspector chunk failure retains context and retries without a page reload (6.6s)
+  ok 171 [webkit] › tests\e2e\phase16-support-finance.spec.ts:307:1 › Release handover uses its existing physical confirmation and blocks an uncertain repeat (8.2s)
+  x  172 [webkit] › tests\e2e\phase18-release.spec.ts:38:3 › head: responsive canonical workspace and mobile navigation (11.5s)
+(node:8304) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:8304) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 173 [webkit] › tests\e2e\phase16-support-finance.spec.ts:338:1 › Reports retain seven lenses, filtered CSV export and the task inspector (8.1s)
+  ok 175 [webkit] › tests\e2e\phase16-support-finance.spec.ts:399:1 › Backup preflight stays unavailable without gateway configuration (5.3s)
+  x  174 [webkit] › tests\e2e\phase18-release.spec.ts:38:3 › member: responsive canonical workspace and mobile navigation (10.9s)
+(node:39164) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:39164) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 176 [webkit] › tests\e2e\phase16-support-finance.spec.ts:415:1 › Late-package Head authorization stays separate from independent Accounting settlement (14.7s)
+  x  177 [webkit] › tests\e2e\phase18-release.spec.ts:38:3 › accounting_staff: responsive canonical workspace and mobile navigation (11.3s)
+(node:32172) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:32172) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 178 [webkit] › tests\e2e\phase16-support-finance.spec.ts:461:1 › Accounting retains ordinary Member workspaces, requires an Office and cannot settle its own cash (6.3s)
+  x  179 [webkit] › tests\e2e\phase18-release.spec.ts:38:3 › admin: responsive canonical workspace and mobile navigation (10.7s)
+(node:26592) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 180 [webkit] › tests\e2e\phase16-support-finance.spec.ts:487:1 › Backup uncertain start verifies the job list and a failed job permits an explicit new attempt (7.1s)
+(node:26592) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 181 [webkit] › tests\e2e\phase18-release.spec.ts:105:1 › task inspector remains usable across rotation, keyboard dismissal and zoom reflow (8.4s)
+  ok 182 [webkit] › tests\e2e\phase18-release.spec.ts:134:1 › empty projects have labeled creation and navigation (4.6s)
+  ok 183 [webkit] › tests\e2e\phase18-release.spec.ts:149:1 › dirty discussion survives rotation and forced colors, then restores its source focus (5.3s)
+
+
+  1) [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:86:1 › removed canonical task closes mutation controls and explains unavailable access 
+
+    Error: page.evaluate: TypeError: Failed to fetch dynamically imported module: http://127.0.0.1:5184/src/app/features/tasks/index.ts
+
+      87 |  const records=await projectWorkspaceFixture(page,'head',true);await view(page,'Board');await page.locator('.eflow-figma-task-card').filter({hasText:title}).first().click();
+      88 |  await expect(page.getByRole('dialog',{name:'Task details: '+title})).toBeVisible();records.tasks.splice(0,1);
+    > 89 |  await page.evaluate(async()=>{const source='/src/app/features/tasks/index.ts';const api=await import(source);await api.notifyTaskListeners();});
+         |             ^
+      90 |  const unavailable=page.getByRole('dialog',{name:'Task unavailable',exact:true});await expect(unavailable).toBeVisible();await expect(unavailable).toContainText('removed or your access changed');
+      91 |  await expect(page.getByRole('button',{name:'Start work',exact:true})).toHaveCount(0);await unavailable.getByRole('button',{name:'Close task details',exact:true}).click();await expect(unavailable).not.toBeVisible();
+      92 | });
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase12-shared-inspector.spec.ts:89:13
+
+    Error Context: .phase18\release-results\phase12-shared-inspector-r-614ad-explains-unavailable-access-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase12-shared-inspector-r-614ad-explains-unavailable-access-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase12-shared-inspector-r-614ad-explains-unavailable-access-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › tests\e2e\phase16-support-finance.spec.ts:135:1 › Accounting retains fiscal scope, exposes settlements, records one decision and inspects its balanced journal 
+
+    [31mTest timeout of 45000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: 'Inspect journal LIQ-2026-12-v2', exact: true })[22m
+
+
+      169 |       exact: true,
+      170 |     })
+    > 171 |     .click();
+          |      ^
+      172 |   const inspector = page.getByRole("dialog", {
+      173 |     name: "Journal entry LIQ-2026-12-v2",
+      174 |     exact: true,
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase16-support-finance.spec.ts:171:6
+
+    Error Context: .phase18\release-results\phase16-support-finance-Ac-e07b8-spects-its-balanced-journal-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase16-support-finance-Ac-e07b8-spects-its-balanced-journal-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase16-support-finance-Ac-e07b8-spects-its-balanced-journal-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [firefox] › tests\e2e\phase10-project-workspace.spec.ts:9:1 › project identity, settings retry, favorites and browser history use one project 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-uqk7tX -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase10-project-workspace--aa443-ser-history-use-one-project-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase10-project-workspace--aa443-ser-history-use-one-project-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [firefox] › tests\e2e\phase10-project-workspace.spec.ts:38:1 › existing lifecycle dialogs retain notes, server denials and deletion impact 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-zi5l0Y -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase10-project-workspace--bebd5-denials-and-deletion-impact-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase10-project-workspace--bebd5-denials-and-deletion-impact-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [firefox] › tests\e2e\phase10-project-workspace.spec.ts:53:1 › Observer utilities stay read-only and sharing keeps current access requirements at 390px 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-Ncp8Al -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase10-project-workspace--71b42-ccess-requirements-at-390px-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase10-project-workspace--71b42-ccess-requirements-at-390px-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [firefox] › tests\e2e\phase10-project-workspace.spec.ts:63:1 › participant failure retries its source and long project identity stays within the viewport 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-p3aLtO -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase10-project-workspace--3acd4-y-stays-within-the-viewport-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase10-project-workspace--3acd4-y-stays-within-the-viewport-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) [firefox] › tests\e2e\phase11-main-table.spec.ts:6:1 › column widths, alignment, visibility and sticky task context persist locally 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-OczL4q -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase11-main-table-column--81782-ask-context-persist-locally-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase11-main-table-column--81782-ask-context-persist-locally-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) [firefox] › tests\e2e\phase11-main-table.spec.ts:18:1 › date and dependency drafts guard close and retain denied edits for scoped retry 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-CJMKE9 -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase11-main-table-date-an-01dc9-nied-edits-for-scoped-retry-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase11-main-table-date-an-01dc9-nied-edits-for-scoped-retry-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) [firefox] › tests\e2e\phase11-main-table.spec.ts:27:1 › filter chips clear one or all without changing canonical manual ordering 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-G2sOn5 -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase11-main-table-filter--aea2c-g-canonical-manual-ordering-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase11-main-table-filter--aea2c-g-canonical-manual-ordering-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) [firefox] › tests\e2e\phase11-main-table.spec.ts:35:1 › group creation guards its draft and empty deletion confirms impact and retries denial 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-ym2ZOL -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase11-main-table-group-c-d17ef-s-impact-and-retries-denial-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase11-main-table-group-c-d17ef-s-impact-and-retries-denial-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) [firefox] › tests\e2e\phase11-main-table.spec.ts:43:1 › task team entry reuses existing details and mobile sticky context leaves room for work 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-C7t191 -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase11-main-table-task-te-cf174-ontext-leaves-room-for-work-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase11-main-table-task-te-cf174-ontext-leaves-room-for-work-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) [firefox] › tests\e2e\phase11-main-table.spec.ts:48:1 › shared Task Lead team action explains the unresolved authority gate 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-iiTe8d -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase11-main-table-shared--c2cb5-e-unresolved-authority-gate-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase11-main-table-shared--c2cb5-e-unresolved-authority-gate-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) [firefox] › tests\e2e\phase11-main-table.spec.ts:52:1 › Observer inspection and closed-project table retain read-only controls 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-ivYBqj -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase11-main-table-Observe-a7490-e-retain-read-only-controls-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase11-main-table-Observe-a7490-e-retain-read-only-controls-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) [firefox] › tests\e2e\phase11-main-table.spec.ts:56:1 › Head owner appointment confirms impact and retains denied assignment for retry 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-L24g90 -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase11-main-table-Head-ow-fdffb-denied-assignment-for-retry-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase11-main-table-Head-ow-fdffb-denied-assignment-for-retry-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) [firefox] › tests\e2e\phase11-main-table.spec.ts:62:1 › mobile planning picker and explicit creation keep fields inside the viewport 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-5MPHot -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase11-main-table-mobile--04a2b--fields-inside-the-viewport-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase11-main-table-mobile--04a2b--fields-inside-the-viewport-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16) [firefox] › tests\e2e\phase12-shared-inspector.spec.ts:9:1 › shared inspector keeps discussion drafts and returns focus to each view origin 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-3cwc4c -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase12-shared-inspector-s-5c03f-s-focus-to-each-view-origin-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase12-shared-inspector-s-5c03f-s-focus-to-each-view-origin-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  17) [firefox] › tests\e2e\phase12-shared-inspector.spec.ts:31:1 › date range is consistent across views and personal after reload 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-On7SdJ -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase12-shared-inspector-d-a99e3-s-and-personal-after-reload-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase12-shared-inspector-d-a99e3-s-and-personal-after-reload-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18) [firefox] › tests\e2e\phase12-shared-inspector.spec.ts:43:1 › mobile observer inspector stays read only and traps and returns focus 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-xGN9dy -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase12-shared-inspector-m-bb4ba-and-traps-and-returns-focus-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase12-shared-inspector-m-bb4ba-and-traps-and-returns-focus-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  19) [firefox] › tests\e2e\phase12-shared-inspector.spec.ts:56:1 › Board keyboard action prevents duplicate requests and recovers from denial 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-3e4TAB -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase12-shared-inspector-B-de9bb-ts-and-recovers-from-denial-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase12-shared-inspector-B-de9bb-ts-and-recovers-from-denial-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  20) [firefox] › tests\e2e\phase12-shared-inspector.spec.ts:65:1 › shared Task Lead team mutations stay gated by G2 while details remain available 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-Xxbcv3 -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase12-shared-inspector-s-08ea3-le-details-remain-available-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase12-shared-inspector-s-08ea3-le-details-remain-available-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  21) [firefox] › tests\e2e\phase12-shared-inspector.spec.ts:73:1 › review drafts stay protected and evidence loading denial has an explicit retry 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-PIz6bl -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase12-shared-inspector-r-1fa2c-enial-has-an-explicit-retry-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase12-shared-inspector-r-1fa2c-enial-has-an-explicit-retry-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  22) [firefox] › tests\e2e\phase12-shared-inspector.spec.ts:86:1 › removed canonical task closes mutation controls and explains unavailable access 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-I9WtxA -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase12-shared-inspector-r-614ad-explains-unavailable-access-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase12-shared-inspector-r-614ad-explains-unavailable-access-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  23) [firefox] › tests\e2e\phase12-shared-inspector.spec.ts:94:1 › successful inspector lifecycle change returns focus to the refreshed Board card 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-9aNzRT -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase12-shared-inspector-s-b5c94-to-the-refreshed-Board-card-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase12-shared-inspector-s-b5c94-to-the-refreshed-Board-card-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  24) [firefox] › tests\e2e\phase12-shared-inspector.spec.ts:101:1 › mobile team dialog guards drafts and retains a denied member change 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-SOo0k2 -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase12-shared-inspector-m-3a946-ains-a-denied-member-change-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase12-shared-inspector-m-3a946-ains-a-denied-member-change-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  25) [firefox] › tests\e2e\phase14-people-collaboration.spec.ts:9:1 › Office Team lazy professional summary, keyboard focus return and narrow labeled rows 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-IvMG28 -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase14-people-collaborati-753bb-urn-and-narrow-labeled-rows-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase14-people-collaborati-753bb-urn-and-narrow-labeled-rows-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  26) [firefox] › tests\e2e\phase14-people-collaboration.spec.ts:23:1 › Partial invitations retain failed rows and delivery failure does not cause duplicate creation 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-fRxgiK -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase14-people-collaborati-b558c-ot-cause-duplicate-creation-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase14-people-collaborati-b558c-ot-cause-duplicate-creation-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  27) [firefox] › tests\e2e\phase14-people-collaboration.spec.ts:42:1 › Office Team failure has retry and filter empty can clear without hiding invitations 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-5po5ce -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase14-people-collaborati-01d78--without-hiding-invitations-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase14-people-collaborati-01d78--without-hiding-invitations-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  28) [firefox] › tests\e2e\phase14-people-collaboration.spec.ts:57:1 › Collaborating Head retains project selection on failure, guards dismissal and rechecks authority before retry 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-YITyMn -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase14-people-collaborati-05a86-ecks-authority-before-retry-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase14-people-collaborati-05a86-ecks-authority-before-retry-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  29) [firefox] › tests\e2e\phase14-people-collaboration.spec.ts:68:1 › Project team removal previews active work and opens the shared task inspector only after discard 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-9EUEoS -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase14-people-collaborati-5c442-nspector-only-after-discard-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase14-people-collaborati-5c442-nspector-only-after-discard-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  30) [firefox] › tests\e2e\phase14-people-collaboration.spec.ts:73:1 › Failed project invitation delivery still creates one invitation and fresh-link copy failure has manual recovery 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-imWL57 -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase14-people-collaborati-6d80d-failure-has-manual-recovery-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase14-people-collaborati-6d80d-failure-has-manual-recovery-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  31) [firefox] › tests\e2e\phase14-people-collaboration.spec.ts:79:61 › Project Office observer retains read-only reasons and governance handoff 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-z25V54 -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase14-people-collaborati-3ffdf-sons-and-governance-handoff-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase14-people-collaborati-3ffdf-sons-and-governance-handoff-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  32) [firefox] › tests\e2e\phase14-people-collaboration.spec.ts:79:61 › Project Office closed retains read-only reasons and governance handoff 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-eAKF0w -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase14-people-collaborati-48023-sons-and-governance-handoff-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase14-people-collaborati-48023-sons-and-governance-handoff-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  33) [firefox] › tests\e2e\phase14-people-collaboration.spec.ts:79:61 › Project Office governed retains read-only reasons and governance handoff 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-VZOpYe -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase14-people-collaborati-2c90a-sons-and-governance-handoff-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase14-people-collaborati-2c90a-sons-and-governance-handoff-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  34) [firefox] › tests\e2e\phase14-people-collaboration.spec.ts:83:1 › Project Office read failure retries honestly and retains an inspector draft through refresh denial 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-TKpex2 -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase14-people-collaborati-df4f5-raft-through-refresh-denial-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase14-people-collaborati-df4f5-raft-through-refresh-denial-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  35) [firefox] › tests\e2e\phase15-ai-governance.spec.ts:12:1 › Reviewed project sections preserve source and require one impact confirmation before creating work 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-k1FQJn -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase15-ai-governance-Revi-f219a-mation-before-creating-work-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase15-ai-governance-Revi-f219a-mation-before-creating-work-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  36) [firefox] › tests\e2e\phase15-ai-governance.spec.ts:22:1 › PDF work-plan review saves only its persistent draft, keeps failed autosave edits and retries saving 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-aG9EGm -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase15-ai-governance-PDF--58171-ve-edits-and-retries-saving-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase15-ai-governance-PDF--58171-ve-edits-and-retries-saving-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  37) [firefox] › tests\e2e\phase15-ai-governance.spec.ts:33:1 › Task inspector staffing retains selection after eligibility denial and assigns only after reviewed fresh context 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-EULhlb -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase15-ai-governance-Task-580b6-fter-reviewed-fresh-context-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase15-ai-governance-Task-580b6-fter-reviewed-fresh-context-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  38) [firefox] › tests\e2e\phase15-ai-governance.spec.ts:39:1 › Owner PDS review retries extraction, retains failed profile edits and confirms the saved summary separately 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-RmO1gM -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase15-ai-governance-Owne-d7219-he-saved-summary-separately-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase15-ai-governance-Owne-d7219-he-saved-summary-separately-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  39) [firefox] › tests\e2e\phase15-ai-governance.spec.ts:46:1 › Official readiness blockers link to Office and task views, and material changes refresh current checks 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-Cg8riM -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase15-ai-governance-Offi-fa8b9-nges-refresh-current-checks-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase15-ai-governance-Offi-fa8b9-nges-refresh-current-checks-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  40) [firefox] › tests\e2e\phase15-ai-governance.spec.ts:51:1 › Missing readiness deployment explains administrator recovery and governed projects retain Approval Status handoff 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-oCwqq3 -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase15-ai-governance-Miss-3967d-ain-Approval-Status-handoff-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase15-ai-governance-Miss-3967d-ain-Approval-Status-handoff-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  41) [firefox] › tests\e2e\phase16-support-finance.spec.ts:10:1 › Admin Center keeps legacy pages, account inspection and unsaved account edits 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-GMgKJZ -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase16-support-finance-Ad-6ea46-n-and-unsaved-account-edits-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase16-support-finance-Ad-6ea46-n-and-unsaved-account-edits-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  42) [firefox] › tests\e2e\phase16-support-finance.spec.ts:65:1 › Account audit has bounded coverage, loaded filters, nested redaction and truthful unavailable reads on a phone 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-akn3m8 -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase16-support-finance-Ac-4d491-navailable-reads-on-a-phone-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase16-support-finance-Ac-4d491-navailable-reads-on-a-phone-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  43) [firefox] › tests\e2e\phase16-support-finance.spec.ts:135:1 › Accounting retains fiscal scope, exposes settlements, records one decision and inspects its balanced journal 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-DpyXqb -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase16-support-finance-Ac-e07b8-spects-its-balanced-journal-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase16-support-finance-Ac-e07b8-spects-its-balanced-journal-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  44) [firefox] › tests\e2e\phase16-support-finance.spec.ts:201:1 › Uncertain settlement keeps its reason and requires verification before resubmission 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-pHJqX5 -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase16-support-finance-Un-b716a-ication-before-resubmission-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase16-support-finance-Un-b716a-ication-before-resubmission-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  45) [firefox] › tests\e2e\phase16-support-finance.spec.ts:238:1 › Journal correction has guarded lines, explicit posting and a retained uncertainty receipt on a phone 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-0SL9e9 -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase16-support-finance-Jo-8744f-ertainty-receipt-on-a-phone-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase16-support-finance-Jo-8744f-ertainty-receipt-on-a-phone-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  46) [firefox] › tests\e2e\phase16-support-finance.spec.ts:307:1 › Release handover uses its existing physical confirmation and blocks an uncertain repeat 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-4cbWFx -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase16-support-finance-Re-23d38--blocks-an-uncertain-repeat-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase16-support-finance-Re-23d38--blocks-an-uncertain-repeat-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  47) [firefox] › tests\e2e\phase16-support-finance.spec.ts:338:1 › Reports retain seven lenses, filtered CSV export and the task inspector 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-lOD20I -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase16-support-finance-Re-0a267-port-and-the-task-inspector-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase16-support-finance-Re-0a267-port-and-the-task-inspector-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  48) [firefox] › tests\e2e\phase16-support-finance.spec.ts:399:1 › Backup preflight stays unavailable without gateway configuration 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-SFi0G0 -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase16-support-finance-Ba-3842e-thout-gateway-configuration-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase16-support-finance-Ba-3842e-thout-gateway-configuration-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  49) [firefox] › tests\e2e\phase16-support-finance.spec.ts:415:1 › Late-package Head authorization stays separate from independent Accounting settlement 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-uEBOQj -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase16-support-finance-La-3f9cd-ndent-Accounting-settlement-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase16-support-finance-La-3f9cd-ndent-Accounting-settlement-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  50) [firefox] › tests\e2e\phase16-support-finance.spec.ts:461:1 › Accounting retains ordinary Member workspaces, requires an Office and cannot settle its own cash 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-y7kHBs -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase16-support-finance-Ac-0274a--cannot-settle-its-own-cash-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase16-support-finance-Ac-0274a--cannot-settle-its-own-cash-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  51) [firefox] › tests\e2e\phase16-support-finance.spec.ts:487:1 › Backup uncertain start verifies the job list and a failed job permits an explicit new attempt 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-M0fodl -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase16-support-finance-Ba-aef63-its-an-explicit-new-attempt-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase16-support-finance-Ba-aef63-its-an-explicit-new-attempt-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  52) [firefox] › tests\e2e\phase17-safety.spec.ts:24:1 › live legacy board retains details through Keep editing and discards only on acceptance 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-CpmfgA -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase17-safety-live-legacy-4f1aa-discards-only-on-acceptance-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase17-safety-live-legacy-4f1aa-discards-only-on-acceptance-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  53) [firefox] › tests\e2e\phase17-safety.spec.ts:51:1 › typed deletion at 320px cancels without a write then sends exactly one confirmed write 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-Wj4hYb -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase17-safety-typed-delet-611dc-exactly-one-confirmed-write-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase17-safety-typed-delet-611dc-exactly-one-confirmed-write-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  54) [firefox] › tests\e2e\phase17-safety.spec.ts:93:1 › required task cancellation reason has no write on Escape and is sent once on acceptance 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-rx1zQF -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase17-safety-required-ta-24841--is-sent-once-on-acceptance-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase17-safety-required-ta-24841--is-sent-once-on-acceptance-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  55) [firefox] › tests\e2e\phase17-safety.spec.ts:130:1 › lost deletion response exposes verification and prevents another write 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-Sqjnrs -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase17-safety-lost-deleti-a12b9--and-prevents-another-write-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase17-safety-lost-deleti-a12b9--and-prevents-another-write-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  56) [firefox] › tests\e2e\phase18-preview.spec.ts:3:1 › production task-inspector chunk failure retains context and retries without a page reload 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-cOXR96 -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase18-preview-production-478f2-tries-without-a-page-reload-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase18-preview-production-478f2-tries-without-a-page-reload-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  57) [firefox] › tests\e2e\phase18-release.spec.ts:38:3 › head: responsive canonical workspace and mobile navigation 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-zbuOy7 -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase18-release-head-respo-bc6bf-space-and-mobile-navigation-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase18-release-head-respo-bc6bf-space-and-mobile-navigation-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  58) [firefox] › tests\e2e\phase18-release.spec.ts:38:3 › member: responsive canonical workspace and mobile navigation 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-xA98aG -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase18-release-member-res-41e22-space-and-mobile-navigation-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase18-release-member-res-41e22-space-and-mobile-navigation-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  59) [firefox] › tests\e2e\phase18-release.spec.ts:38:3 › accounting_staff: responsive canonical workspace and mobile navigation 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-Pe5DVL -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase18-release-accounting-7f76d-space-and-mobile-navigation-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase18-release-accounting-7f76d-space-and-mobile-navigation-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  60) [firefox] › tests\e2e\phase18-release.spec.ts:38:3 › admin: responsive canonical workspace and mobile navigation 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-B6gwG8 -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase18-release-admin-resp-c6663-space-and-mobile-navigation-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase18-release-admin-resp-c6663-space-and-mobile-navigation-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  61) [firefox] › tests\e2e\phase18-release.spec.ts:105:1 › task inspector remains usable across rotation, keyboard dismissal and zoom reflow 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-uesSwI -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase18-release-task-inspe-964b0-d-dismissal-and-zoom-reflow-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase18-release-task-inspe-964b0-d-dismissal-and-zoom-reflow-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  62) [firefox] › tests\e2e\phase18-release.spec.ts:134:1 › empty projects have labeled creation and navigation 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-lYJbUq -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase18-release-empty-proj-cdf7d-led-creation-and-navigation-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase18-release-empty-proj-cdf7d-led-creation-and-navigation-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  63) [firefox] › tests\e2e\phase18-release.spec.ts:149:1 › dirty discussion survives rotation and forced colors, then restores its source focus 
+
+    Error: browserType.launch: spawn UNKNOWN
+    Call log:
+    [2m  - <launching> C:\Users\james\AppData\Local\ms-playwright\firefox-1490\firefox\firefox.exe -no-remote -headless -profile C:\Users\james\AppData\Local\Temp\playwright_firefoxdev_profile-nKbinj -juggler-pipe -silent[22m
+
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase18-release-dirty-disc-f5a22-n-restores-its-source-focus-firefox\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase18-release-dirty-disc-f5a22-n-restores-its-source-focus-firefox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  64) [webkit] › tests\e2e\phase10-project-workspace.spec.ts:53:1 › Observer utilities stay read-only and sharing keeps current access requirements at 390px 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeFocused[2m()[22m failed
+
+    Locator:  getByRole('button', { name: 'Invite / share', exact: true })
+    Expected: focused
+    Received: inactive
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeFocused" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('button', { name: 'Invite / share', exact: true })[22m
+    [2m    9 × locator resolved to <button data-slot="button" data-size="default" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-semibold transition-[background-color,border-color,color,box-shadow] duration-120 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 aria-invalid:ring-2 aria-inval…>…</button>[22m
+    [2m      - unexpected value "inactive"[22m
+
+
+      57 |   await page.getByRole('menuitem',{name:'Project settings',exact:true}).click();const settings=page.getByRole('dialog',{name:'Project settings',exact:true});await expect(settings.getByLabel('Project name')).toBeDisabled();await expect(settings.getByRole('button',{name:'Save changes'})).toHaveCount(0);await page.screenshot({path:info.outputPath('project-settings-mobile.png'),animations:'disabled'});await settings.getByRole('contentinfo').getByRole('button',{name:'Close',exact:true}).click();
+      58 |   await page.getByRole('button',{name:'Invite / share',exact:true}).click();const share=page.getByRole('dialog',{name:'Share project',exact:true});await expect(share).toContainText('copying it does not invite anyone or grant permissions');await expect(share.getByLabel('Project link')).toHaveValue(/project=20000000/);
+    > 59 |   expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);await page.screenshot({path:info.outputPath('project-share-mobile.png')});await page.keyboard.press('Escape');await expect(page.getByRole('button',{name:'Invite / share',exact:true})).toBeFocused();
+         |                                                                                                                                                                                                                                                                                          ^
+      60 |   await page.screenshot({path:info.outputPath('project-workspace-mobile.png'),fullPage:true});
+      61 | });
+      62 |
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase10-project-workspace.spec.ts:59:282
+
+    Error Context: .phase18\release-results\phase10-project-workspace--71b42-ccess-requirements-at-390px-webkit\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase10-project-workspace--71b42-ccess-requirements-at-390px-webkit\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase10-project-workspace--71b42-ccess-requirements-at-390px-webkit\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  65) [webkit] › tests\e2e\phase12-shared-inspector.spec.ts:9:1 › shared inspector keeps discussion drafts and returns focus to each view origin 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeFocused[2m()[22m failed
+
+    Locator:  getByRole('button', { name: 'Gantt task Prepare community assessment', exact: true })
+    Expected: focused
+    Received: inactive
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeFocused" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('button', { name: 'Gantt task Prepare community assessment', exact: true })[22m
+    [2m    5 × locator resolved to <button class="pv-gantt-bar-title" aria-label="Gantt task Prepare community assessment" title="Prepare community assessment: 2026-10-03 → 2026-10-09" data-task-inspector-source="40000000-0000-4000-8000-000000000001">Prepare community assessment</button>[22m
+    [2m      - unexpected value "inactive"[22m
+
+
+      25 |   await inspector.getByRole('button',{name:'Close task detail'}).click();
+      26 |   await page.getByRole('button',{name:'Discard',exact:true}).click(); await expect(inspector).not.toBeVisible();
+    > 27 |   await expect(trigger).toBeFocused();
+         |                         ^
+      28 |  }
+      29 |  await page.screenshot({path:info.outputPath('office-origin.png'),fullPage:true,animations:'disabled'});
+      30 | });
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase12-shared-inspector.spec.ts:27:25
+
+    Error Context: .phase18\release-results\phase12-shared-inspector-s-5c03f-s-focus-to-each-view-origin-webkit\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase12-shared-inspector-s-5c03f-s-focus-to-each-view-origin-webkit\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase12-shared-inspector-s-5c03f-s-focus-to-each-view-origin-webkit\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  66) [webkit] › tests\e2e\phase12-shared-inspector.spec.ts:86:1 › removed canonical task closes mutation controls and explains unavailable access 
+
+    Error: page.evaluate: TypeError: Importing a module script failed.
+
+      87 |  const records=await projectWorkspaceFixture(page,'head',true);await view(page,'Board');await page.locator('.eflow-figma-task-card').filter({hasText:title}).first().click();
+      88 |  await expect(page.getByRole('dialog',{name:'Task details: '+title})).toBeVisible();records.tasks.splice(0,1);
+    > 89 |  await page.evaluate(async()=>{const source='/src/app/features/tasks/index.ts';const api=await import(source);await api.notifyTaskListeners();});
+         |             ^
+      90 |  const unavailable=page.getByRole('dialog',{name:'Task unavailable',exact:true});await expect(unavailable).toBeVisible();await expect(unavailable).toContainText('removed or your access changed');
+      91 |  await expect(page.getByRole('button',{name:'Start work',exact:true})).toHaveCount(0);await unavailable.getByRole('button',{name:'Close task details',exact:true}).click();await expect(unavailable).not.toBeVisible();
+      92 | });
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase12-shared-inspector.spec.ts:89:13
+
+    Error Context: .phase18\release-results\phase12-shared-inspector-r-614ad-explains-unavailable-access-webkit\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase12-shared-inspector-r-614ad-explains-unavailable-access-webkit\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase12-shared-inspector-r-614ad-explains-unavailable-access-webkit\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  67) [webkit] › tests\e2e\phase12-shared-inspector.spec.ts:101:1 › mobile team dialog guards drafts and retains a denied member change 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeFocused[2m()[22m failed
+
+    Locator:  getByRole('dialog', { name: 'Task details: Prepare community assessment' }).getByRole('button', { name: 'Manage', exact: true })
+    Expected: focused
+    Received: inactive
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeFocused" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('dialog', { name: 'Task details: Prepare community assessment' }).getByRole('button', { name: 'Manage', exact: true })[22m
+    [2m    6 × locator resolved to <button type="button" class="inline-flex items-center gap-1 rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-[9.5px] font-medium text-neutral-600 hover:text-neutral-900">…</button>[22m
+    [2m      - unexpected value "inactive"[22m
+
+
+      110 |  await expect(team).toContainText('Task team access denied');expect(records.tasks[0].team_member_ids).toEqual([records.id]);
+      111 |  await page.screenshot({path:info.outputPath('team-mobile-denial.png'),fullPage:true,animations:'disabled'});
+    > 112 |  await team.getByRole('button',{name:'Cancel',exact:true}).click();await page.getByRole('button',{name:'Discard',exact:true}).click();await expect(team).not.toBeVisible();await expect(inspector.getByRole('button',{name:'Manage',exact:true})).toBeFocused();
+          |                                                                                                                                                                                                                                                   ^
+      113 | });
+      114 |
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase12-shared-inspector.spec.ts:112:243
+
+    Error Context: .phase18\release-results\phase12-shared-inspector-m-3a946-ains-a-denied-member-change-webkit\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase12-shared-inspector-m-3a946-ains-a-denied-member-change-webkit\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase12-shared-inspector-m-3a946-ains-a-denied-member-change-webkit\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  68) [webkit] › tests\e2e\phase14-people-collaboration.spec.ts:79:61 › Project Office observer retains read-only reasons and governance handoff 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+      79 | for(const kind of ['observer','closed','governed'] as const)test(`Project Office ${kind} retains read-only reasons and governance handoff`,async({page},info)=>{
+      80 |  test.setTimeout(90_000);const r=await peopleFixture(page);r.projectOffices.push({id:'own',project_id:r.project,office_id:r.org,relationship_type:kind==='observer'?'observer':'lead',invitation_status:'joined'});if(kind==='closed')r.projects[0].status='completed';if(kind==='governed')r.projects[0].source_collaboration_draft_id='60000000-0000-4000-8000-000000000001';
+    > 81 |  await openOffices(page,r.project);const region=page.getByRole('region',{name:'Project Office collaboration'});await expect(region.getByRole('button',{name:'Select own members'})).toHaveCount(0);await region.getByRole('button',{name:'Planning Office',exact:true}).click();const inspector=page.getByRole('dialog',{name:'Planning Office — project Office'});await expect(inspector).toContainText(kind==='observer'?'Observers follow progress':kind==='closed'?'project is closed':'Proposal Context');await inspector.getByRole('tab',{name:'Project team',exact:true}).click();await expect(page.getByRole('dialog',{name:'Planning Office’s project team'}).getByRole('checkbox')).toHaveCount(0);await page.getByRole('dialog',{name:'Planning Office’s project team'}).press('Escape');await page.setViewportSize({width:320,height:844});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:info.outputPath(`office-${kind}-320.png`)});
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          ^
+      82 | });
+      83 | test('Project Office read failure retries honestly and retains an inspector draft through refresh denial',async({page},info)=>{
+      84 |  test.setTimeout(90_000);const r=await peopleFixture(page);r.projectOffices.push({id:'own',project_id:r.project,office_id:r.org,relationship_type:'lead',invitation_status:'joined'});let denied=true;
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase14-people-collaboration.spec.ts:81:906
+
+    Error Context: .phase18\release-results\phase14-people-collaborati-3ffdf-sons-and-governance-handoff-webkit\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase14-people-collaborati-3ffdf-sons-and-governance-handoff-webkit\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase14-people-collaborati-3ffdf-sons-and-governance-handoff-webkit\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  69) [webkit] › tests\e2e\phase14-people-collaboration.spec.ts:79:61 › Project Office closed retains read-only reasons and governance handoff 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+      79 | for(const kind of ['observer','closed','governed'] as const)test(`Project Office ${kind} retains read-only reasons and governance handoff`,async({page},info)=>{
+      80 |  test.setTimeout(90_000);const r=await peopleFixture(page);r.projectOffices.push({id:'own',project_id:r.project,office_id:r.org,relationship_type:kind==='observer'?'observer':'lead',invitation_status:'joined'});if(kind==='closed')r.projects[0].status='completed';if(kind==='governed')r.projects[0].source_collaboration_draft_id='60000000-0000-4000-8000-000000000001';
+    > 81 |  await openOffices(page,r.project);const region=page.getByRole('region',{name:'Project Office collaboration'});await expect(region.getByRole('button',{name:'Select own members'})).toHaveCount(0);await region.getByRole('button',{name:'Planning Office',exact:true}).click();const inspector=page.getByRole('dialog',{name:'Planning Office — project Office'});await expect(inspector).toContainText(kind==='observer'?'Observers follow progress':kind==='closed'?'project is closed':'Proposal Context');await inspector.getByRole('tab',{name:'Project team',exact:true}).click();await expect(page.getByRole('dialog',{name:'Planning Office’s project team'}).getByRole('checkbox')).toHaveCount(0);await page.getByRole('dialog',{name:'Planning Office’s project team'}).press('Escape');await page.setViewportSize({width:320,height:844});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:info.outputPath(`office-${kind}-320.png`)});
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          ^
+      82 | });
+      83 | test('Project Office read failure retries honestly and retains an inspector draft through refresh denial',async({page},info)=>{
+      84 |  test.setTimeout(90_000);const r=await peopleFixture(page);r.projectOffices.push({id:'own',project_id:r.project,office_id:r.org,relationship_type:'lead',invitation_status:'joined'});let denied=true;
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase14-people-collaboration.spec.ts:81:906
+
+    Error Context: .phase18\release-results\phase14-people-collaborati-48023-sons-and-governance-handoff-webkit\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase14-people-collaborati-48023-sons-and-governance-handoff-webkit\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase14-people-collaborati-48023-sons-and-governance-handoff-webkit\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  70) [webkit] › tests\e2e\phase14-people-collaboration.spec.ts:79:61 › Project Office governed retains read-only reasons and governance handoff 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+      79 | for(const kind of ['observer','closed','governed'] as const)test(`Project Office ${kind} retains read-only reasons and governance handoff`,async({page},info)=>{
+      80 |  test.setTimeout(90_000);const r=await peopleFixture(page);r.projectOffices.push({id:'own',project_id:r.project,office_id:r.org,relationship_type:kind==='observer'?'observer':'lead',invitation_status:'joined'});if(kind==='closed')r.projects[0].status='completed';if(kind==='governed')r.projects[0].source_collaboration_draft_id='60000000-0000-4000-8000-000000000001';
+    > 81 |  await openOffices(page,r.project);const region=page.getByRole('region',{name:'Project Office collaboration'});await expect(region.getByRole('button',{name:'Select own members'})).toHaveCount(0);await region.getByRole('button',{name:'Planning Office',exact:true}).click();const inspector=page.getByRole('dialog',{name:'Planning Office — project Office'});await expect(inspector).toContainText(kind==='observer'?'Observers follow progress':kind==='closed'?'project is closed':'Proposal Context');await inspector.getByRole('tab',{name:'Project team',exact:true}).click();await expect(page.getByRole('dialog',{name:'Planning Office’s project team'}).getByRole('checkbox')).toHaveCount(0);await page.getByRole('dialog',{name:'Planning Office’s project team'}).press('Escape');await page.setViewportSize({width:320,height:844});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:info.outputPath(`office-${kind}-320.png`)});
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          ^
+      82 | });
+      83 | test('Project Office read failure retries honestly and retains an inspector draft through refresh denial',async({page},info)=>{
+      84 |  test.setTimeout(90_000);const r=await peopleFixture(page);r.projectOffices.push({id:'own',project_id:r.project,office_id:r.org,relationship_type:'lead',invitation_status:'joined'});let denied=true;
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase14-people-collaboration.spec.ts:81:906
+
+    Error Context: .phase18\release-results\phase14-people-collaborati-2c90a-sons-and-governance-handoff-webkit\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase14-people-collaborati-2c90a-sons-and-governance-handoff-webkit\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase14-people-collaborati-2c90a-sons-and-governance-handoff-webkit\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  71) [webkit] › tests\e2e\phase15-ai-governance.spec.ts:22:1 › PDF work-plan review saves only its persistent draft, keeps failed autosave edits and retries saving 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  getByRole('dialog', { name: 'Create a work plan' }).getByRole('button', { name: 'Edit task', exact: true }).first()
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  30000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 30000ms[22m
+    [2m  - waiting for getByRole('dialog', { name: 'Create a work plan' }).getByRole('button', { name: 'Edit task', exact: true }).first()[22m
+
+
+      28 |  await page.route('**/rest/v1/rpc/autosave_collaboration_draft',route=>{saves++;if(saves===1)return route.fulfill({status:403,json:{code:'42501',message:'Draft update denied'}});saved={...saved,working_snapshot:route.request().postDataJSON().p_snapshot};return route.fulfill({json:[saved]});});
+      29 |  page.on('request',req=>{if(/assign_task_with_details|phase3_create_task|phase5_import_project_work|phase65_import_project_work|commit_collaboration/.test(req.url()))operational++;});
+    > 30 |  await page.goto('/projects?page=Projects');await page.getByRole('button',{name:'Create project options'}).last().click();await page.getByRole('menuitem',{name:'Import proposal',exact:true}).click();const dialog=page.getByRole('dialog',{name:'Create a work plan'});await dialog.locator('#proposal-import-file').setInputFiles({name:'plan.pdf',mimeType:'application/pdf',buffer:pdf(source)});await expect(dialog.getByRole('button',{name:'Edit task',exact:true}).first()).toBeVisible({timeout:30_000});expect(creates).toBe(1);expect(operational).toBe(0);
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      ^
+      31 |  const sections=dialog.getByRole('navigation',{name:'Review sections'});await sections.getByRole('button',{name:/Timeline and budget/}).click();await expect(dialog.getByText(/not authorized or settled funds/).first()).toBeVisible();await sections.getByRole('button',{name:/Hierarchy and tasks/}).click();await dialog.getByRole('button',{name:'Edit task',exact:true}).first().click();await dialog.getByLabel('Task title').first().fill('Reviewed assessment');await expect(dialog.getByRole('alert')).toContainText('Draft update denied');await dialog.getByRole('button',{name:'Retry saving draft'}).click();await expect(dialog.getByText('Current draft saved')).toBeVisible();expect(saves).toBe(2);expect(operational).toBe(0);await page.setViewportSize({width:390,height:844});await page.screenshot({path:info.outputPath('workplan-review-mobile.png')});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+      32 | });
+      33 | test('Task inspector staffing retains selection after eligibility denial and assigns only after reviewed fresh context',async({page},info)=>{
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase15-ai-governance.spec.ts:30:470
+
+    Error Context: .phase18\release-results\phase15-ai-governance-PDF--58171-ve-edits-and-retries-saving-webkit\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase15-ai-governance-PDF--58171-ve-edits-and-retries-saving-webkit\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase15-ai-governance-PDF--58171-ve-edits-and-retries-saving-webkit\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  72) [webkit] › tests\e2e\phase16-support-finance.spec.ts:135:1 › Accounting retains fiscal scope, exposes settlements, records one decision and inspects its balanced journal 
+
+    [31mTest timeout of 45000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: 'Inspect journal LIQ-2026-12-v2', exact: true })[22m
+
+
+      169 |       exact: true,
+      170 |     })
+    > 171 |     .click();
+          |      ^
+      172 |   const inspector = page.getByRole("dialog", {
+      173 |     name: "Journal entry LIQ-2026-12-v2",
+      174 |     exact: true,
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase16-support-finance.spec.ts:171:6
+
+    Error Context: .phase18\release-results\phase16-support-finance-Ac-e07b8-spects-its-balanced-journal-webkit\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase16-support-finance-Ac-e07b8-spects-its-balanced-journal-webkit\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase16-support-finance-Ac-e07b8-spects-its-balanced-journal-webkit\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  73) [webkit] › tests\e2e\phase18-release.spec.ts:38:3 › head: responsive canonical workspace and mobile navigation 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeFocused[2m()[22m failed
+
+    Locator:  getByRole('navigation', { name: 'Mobile primary navigation' }).getByRole('button', { name: 'More', exact: true })
+    Expected: focused
+    Received: inactive
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeFocused" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('navigation', { name: 'Mobile primary navigation' }).getByRole('button', { name: 'More', exact: true })[22m
+    [2m    9 × locator resolved to <button type="button">…</button>[22m
+    [2m      - unexpected value "inactive"[22m
+
+
+       98 |           await expect(
+       99 |             bar.getByRole("button", { name: "More", exact: true }),
+    > 100 |           ).toBeFocused();
+          |             ^
+      101 |       }
+      102 |     }
+      103 |   });
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase18-release.spec.ts:100:13
+
+    Error Context: .phase18\release-results\phase18-release-head-respo-bc6bf-space-and-mobile-navigation-webkit\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase18-release-head-respo-bc6bf-space-and-mobile-navigation-webkit\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase18-release-head-respo-bc6bf-space-and-mobile-navigation-webkit\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  74) [webkit] › tests\e2e\phase18-release.spec.ts:38:3 › member: responsive canonical workspace and mobile navigation 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeFocused[2m()[22m failed
+
+    Locator:  getByRole('navigation', { name: 'Mobile primary navigation' }).getByRole('button', { name: 'More', exact: true })
+    Expected: focused
+    Received: inactive
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeFocused" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('navigation', { name: 'Mobile primary navigation' }).getByRole('button', { name: 'More', exact: true })[22m
+    [2m    9 × locator resolved to <button type="button">…</button>[22m
+    [2m      - unexpected value "inactive"[22m
+
+
+       98 |           await expect(
+       99 |             bar.getByRole("button", { name: "More", exact: true }),
+    > 100 |           ).toBeFocused();
+          |             ^
+      101 |       }
+      102 |     }
+      103 |   });
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase18-release.spec.ts:100:13
+
+    Error Context: .phase18\release-results\phase18-release-member-res-41e22-space-and-mobile-navigation-webkit\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase18-release-member-res-41e22-space-and-mobile-navigation-webkit\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase18-release-member-res-41e22-space-and-mobile-navigation-webkit\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  75) [webkit] › tests\e2e\phase18-release.spec.ts:38:3 › accounting_staff: responsive canonical workspace and mobile navigation 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeFocused[2m()[22m failed
+
+    Locator:  getByRole('navigation', { name: 'Mobile primary navigation' }).getByRole('button', { name: 'More', exact: true })
+    Expected: focused
+    Received: inactive
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeFocused" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('navigation', { name: 'Mobile primary navigation' }).getByRole('button', { name: 'More', exact: true })[22m
+    [2m    9 × locator resolved to <button type="button" aria-current="page">…</button>[22m
+    [2m      - unexpected value "inactive"[22m
+
+
+       98 |           await expect(
+       99 |             bar.getByRole("button", { name: "More", exact: true }),
+    > 100 |           ).toBeFocused();
+          |             ^
+      101 |       }
+      102 |     }
+      103 |   });
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase18-release.spec.ts:100:13
+
+    Error Context: .phase18\release-results\phase18-release-accounting-7f76d-space-and-mobile-navigation-webkit\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase18-release-accounting-7f76d-space-and-mobile-navigation-webkit\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase18-release-accounting-7f76d-space-and-mobile-navigation-webkit\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  76) [webkit] › tests\e2e\phase18-release.spec.ts:38:3 › admin: responsive canonical workspace and mobile navigation 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeFocused[2m()[22m failed
+
+    Locator:  getByRole('navigation', { name: 'Mobile primary navigation' }).getByRole('button', { name: 'More', exact: true })
+    Expected: focused
+    Received: inactive
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeFocused" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('navigation', { name: 'Mobile primary navigation' }).getByRole('button', { name: 'More', exact: true })[22m
+    [2m    9 × locator resolved to <button type="button" aria-current="page">…</button>[22m
+    [2m      - unexpected value "inactive"[22m
+
+
+       98 |           await expect(
+       99 |             bar.getByRole("button", { name: "More", exact: true }),
+    > 100 |           ).toBeFocused();
+          |             ^
+      101 |       }
+      102 |     }
+      103 |   });
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase18-release.spec.ts:100:13
+
+    Error Context: .phase18\release-results\phase18-release-admin-resp-c6663-space-and-mobile-navigation-webkit\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\release-results\phase18-release-admin-resp-c6663-space-and-mobile-navigation-webkit\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\release-results\phase18-release-admin-resp-c6663-space-and-mobile-navigation-webkit\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  76 failed
+    [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:86:1 › removed canonical task closes mutation controls and explains unavailable access 
+    [chromium] › tests\e2e\phase16-support-finance.spec.ts:135:1 › Accounting retains fiscal scope, exposes settlements, records one decision and inspects its balanced journal 
+    [firefox] › tests\e2e\phase10-project-workspace.spec.ts:9:1 › project identity, settings retry, favorites and browser history use one project 
+    [firefox] › tests\e2e\phase10-project-workspace.spec.ts:38:1 › existing lifecycle dialogs retain notes, server denials and deletion impact 
+    [firefox] › tests\e2e\phase10-project-workspace.spec.ts:53:1 › Observer utilities stay read-only and sharing keeps current access requirements at 390px 
+    [firefox] › tests\e2e\phase10-project-workspace.spec.ts:63:1 › participant failure retries its source and long project identity stays within the viewport 
+    [firefox] › tests\e2e\phase11-main-table.spec.ts:6:1 › column widths, alignment, visibility and sticky task context persist locally 
+    [firefox] › tests\e2e\phase11-main-table.spec.ts:18:1 › date and dependency drafts guard close and retain denied edits for scoped retry 
+    [firefox] › tests\e2e\phase11-main-table.spec.ts:27:1 › filter chips clear one or all without changing canonical manual ordering 
+    [firefox] › tests\e2e\phase11-main-table.spec.ts:35:1 › group creation guards its draft and empty deletion confirms impact and retries denial 
+    [firefox] › tests\e2e\phase11-main-table.spec.ts:43:1 › task team entry reuses existing details and mobile sticky context leaves room for work 
+    [firefox] › tests\e2e\phase11-main-table.spec.ts:48:1 › shared Task Lead team action explains the unresolved authority gate 
+    [firefox] › tests\e2e\phase11-main-table.spec.ts:52:1 › Observer inspection and closed-project table retain read-only controls 
+    [firefox] › tests\e2e\phase11-main-table.spec.ts:56:1 › Head owner appointment confirms impact and retains denied assignment for retry 
+    [firefox] › tests\e2e\phase11-main-table.spec.ts:62:1 › mobile planning picker and explicit creation keep fields inside the viewport 
+    [firefox] › tests\e2e\phase12-shared-inspector.spec.ts:9:1 › shared inspector keeps discussion drafts and returns focus to each view origin 
+    [firefox] › tests\e2e\phase12-shared-inspector.spec.ts:31:1 › date range is consistent across views and personal after reload 
+    [firefox] › tests\e2e\phase12-shared-inspector.spec.ts:43:1 › mobile observer inspector stays read only and traps and returns focus 
+    [firefox] › tests\e2e\phase12-shared-inspector.spec.ts:56:1 › Board keyboard action prevents duplicate requests and recovers from denial 
+    [firefox] › tests\e2e\phase12-shared-inspector.spec.ts:65:1 › shared Task Lead team mutations stay gated by G2 while details remain available 
+    [firefox] › tests\e2e\phase12-shared-inspector.spec.ts:73:1 › review drafts stay protected and evidence loading denial has an explicit retry 
+    [firefox] › tests\e2e\phase12-shared-inspector.spec.ts:86:1 › removed canonical task closes mutation controls and explains unavailable access 
+    [firefox] › tests\e2e\phase12-shared-inspector.spec.ts:94:1 › successful inspector lifecycle change returns focus to the refreshed Board card 
+    [firefox] › tests\e2e\phase12-shared-inspector.spec.ts:101:1 › mobile team dialog guards drafts and retains a denied member change 
+    [firefox] › tests\e2e\phase14-people-collaboration.spec.ts:9:1 › Office Team lazy professional summary, keyboard focus return and narrow labeled rows 
+    [firefox] › tests\e2e\phase14-people-collaboration.spec.ts:23:1 › Partial invitations retain failed rows and delivery failure does not cause duplicate creation 
+    [firefox] › tests\e2e\phase14-people-collaboration.spec.ts:42:1 › Office Team failure has retry and filter empty can clear without hiding invitations 
+    [firefox] › tests\e2e\phase14-people-collaboration.spec.ts:57:1 › Collaborating Head retains project selection on failure, guards dismissal and rechecks authority before retry 
+    [firefox] › tests\e2e\phase14-people-collaboration.spec.ts:68:1 › Project team removal previews active work and opens the shared task inspector only after discard 
+    [firefox] › tests\e2e\phase14-people-collaboration.spec.ts:73:1 › Failed project invitation delivery still creates one invitation and fresh-link copy failure has manual recovery 
+    [firefox] › tests\e2e\phase14-people-collaboration.spec.ts:79:61 › Project Office observer retains read-only reasons and governance handoff 
+    [firefox] › tests\e2e\phase14-people-collaboration.spec.ts:79:61 › Project Office closed retains read-only reasons and governance handoff 
+    [firefox] › tests\e2e\phase14-people-collaboration.spec.ts:79:61 › Project Office governed retains read-only reasons and governance handoff 
+    [firefox] › tests\e2e\phase14-people-collaboration.spec.ts:83:1 › Project Office read failure retries honestly and retains an inspector draft through refresh denial 
+    [firefox] › tests\e2e\phase15-ai-governance.spec.ts:12:1 › Reviewed project sections preserve source and require one impact confirmation before creating work 
+    [firefox] › tests\e2e\phase15-ai-governance.spec.ts:22:1 › PDF work-plan review saves only its persistent draft, keeps failed autosave edits and retries saving 
+    [firefox] › tests\e2e\phase15-ai-governance.spec.ts:33:1 › Task inspector staffing retains selection after eligibility denial and assigns only after reviewed fresh context 
+    [firefox] › tests\e2e\phase15-ai-governance.spec.ts:39:1 › Owner PDS review retries extraction, retains failed profile edits and confirms the saved summary separately 
+    [firefox] › tests\e2e\phase15-ai-governance.spec.ts:46:1 › Official readiness blockers link to Office and task views, and material changes refresh current checks 
+    [firefox] › tests\e2e\phase15-ai-governance.spec.ts:51:1 › Missing readiness deployment explains administrator recovery and governed projects retain Approval Status handoff 
+    [firefox] › tests\e2e\phase16-support-finance.spec.ts:10:1 › Admin Center keeps legacy pages, account inspection and unsaved account edits 
+    [firefox] › tests\e2e\phase16-support-finance.spec.ts:65:1 › Account audit has bounded coverage, loaded filters, nested redaction and truthful unavailable reads on a phone 
+    [firefox] › tests\e2e\phase16-support-finance.spec.ts:135:1 › Accounting retains fiscal scope, exposes settlements, records one decision and inspects its balanced journal 
+    [firefox] › tests\e2e\phase16-support-finance.spec.ts:201:1 › Uncertain settlement keeps its reason and requires verification before resubmission 
+    [firefox] › tests\e2e\phase16-support-finance.spec.ts:238:1 › Journal correction has guarded lines, explicit posting and a retained uncertainty receipt on a phone 
+    [firefox] › tests\e2e\phase16-support-finance.spec.ts:307:1 › Release handover uses its existing physical confirmation and blocks an uncertain repeat 
+    [firefox] › tests\e2e\phase16-support-finance.spec.ts:338:1 › Reports retain seven lenses, filtered CSV export and the task inspector 
+    [firefox] › tests\e2e\phase16-support-finance.spec.ts:399:1 › Backup preflight stays unavailable without gateway configuration 
+    [firefox] › tests\e2e\phase16-support-finance.spec.ts:415:1 › Late-package Head authorization stays separate from independent Accounting settlement 
+    [firefox] › tests\e2e\phase16-support-finance.spec.ts:461:1 › Accounting retains ordinary Member workspaces, requires an Office and cannot settle its own cash 
+    [firefox] › tests\e2e\phase16-support-finance.spec.ts:487:1 › Backup uncertain start verifies the job list and a failed job permits an explicit new attempt 
+    [firefox] › tests\e2e\phase17-safety.spec.ts:24:1 › live legacy board retains details through Keep editing and discards only on acceptance 
+    [firefox] › tests\e2e\phase17-safety.spec.ts:51:1 › typed deletion at 320px cancels without a write then sends exactly one confirmed write 
+    [firefox] › tests\e2e\phase17-safety.spec.ts:93:1 › required task cancellation reason has no write on Escape and is sent once on acceptance 
+    [firefox] › tests\e2e\phase17-safety.spec.ts:130:1 › lost deletion response exposes verification and prevents another write 
+    [firefox] › tests\e2e\phase18-preview.spec.ts:3:1 › production task-inspector chunk failure retains context and retries without a page reload 
+    [firefox] › tests\e2e\phase18-release.spec.ts:38:3 › head: responsive canonical workspace and mobile navigation 
+    [firefox] › tests\e2e\phase18-release.spec.ts:38:3 › member: responsive canonical workspace and mobile navigation 
+    [firefox] › tests\e2e\phase18-release.spec.ts:38:3 › accounting_staff: responsive canonical workspace and mobile navigation 
+    [firefox] › tests\e2e\phase18-release.spec.ts:38:3 › admin: responsive canonical workspace and mobile navigation 
+    [firefox] › tests\e2e\phase18-release.spec.ts:105:1 › task inspector remains usable across rotation, keyboard dismissal and zoom reflow 
+    [firefox] › tests\e2e\phase18-release.spec.ts:134:1 › empty projects have labeled creation and navigation 
+    [firefox] › tests\e2e\phase18-release.spec.ts:149:1 › dirty discussion survives rotation and forced colors, then restores its source focus 
+    [webkit] › tests\e2e\phase10-project-workspace.spec.ts:53:1 › Observer utilities stay read-only and sharing keeps current access requirements at 390px 
+    [webkit] › tests\e2e\phase12-shared-inspector.spec.ts:9:1 › shared inspector keeps discussion drafts and returns focus to each view origin 
+    [webkit] › tests\e2e\phase12-shared-inspector.spec.ts:86:1 › removed canonical task closes mutation controls and explains unavailable access 
+    [webkit] › tests\e2e\phase12-shared-inspector.spec.ts:101:1 › mobile team dialog guards drafts and retains a denied member change 
+    [webkit] › tests\e2e\phase14-people-collaboration.spec.ts:79:61 › Project Office observer retains read-only reasons and governance handoff 
+    [webkit] › tests\e2e\phase14-people-collaboration.spec.ts:79:61 › Project Office closed retains read-only reasons and governance handoff 
+    [webkit] › tests\e2e\phase14-people-collaboration.spec.ts:79:61 › Project Office governed retains read-only reasons and governance handoff 
+    [webkit] › tests\e2e\phase15-ai-governance.spec.ts:22:1 › PDF work-plan review saves only its persistent draft, keeps failed autosave edits and retries saving 
+    [webkit] › tests\e2e\phase16-support-finance.spec.ts:135:1 › Accounting retains fiscal scope, exposes settlements, records one decision and inspects its balanced journal 
+    [webkit] › tests\e2e\phase18-release.spec.ts:38:3 › head: responsive canonical workspace and mobile navigation 
+    [webkit] › tests\e2e\phase18-release.spec.ts:38:3 › member: responsive canonical workspace and mobile navigation 
+    [webkit] › tests\e2e\phase18-release.spec.ts:38:3 › accounting_staff: responsive canonical workspace and mobile navigation 
+    [webkit] › tests\e2e\phase18-release.spec.ts:38:3 › admin: responsive canonical workspace and mobile navigation 
+  107 passed (10.3m)

@@ -1,7 +1,8 @@
 // ─── Admin: System Settings ────────────────────────────────
 // Reads/writes system_config table in Supabase.
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useNavigationBlocker } from '../../shared/navigationGuard';
 import { fetchAllConfig, updateConfig } from "../../../lib/supabaseService";
 import { useToast } from "../ui/Toast";
 import { useAiRuntimeStatus } from "../../features/ai";
@@ -22,6 +23,9 @@ export function SystemSettings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<Record<string, string>>({});
+  const [savedForm, setSavedForm] = useState<Record<string, string>>({});
+  const inFlight = useRef(false);
+  useNavigationBlocker({label:'System Settings',dirty:canManageSettings && JSON.stringify(form)!==JSON.stringify(savedForm),pending:saving,onDiscard:()=>setForm(savedForm)});
 
   useEffect(() => {
     fetchAllConfig()
@@ -29,12 +33,15 @@ export function SystemSettings() {
         const formData: Record<string, string> = {};
         data.forEach((c) => { formData[c.key] = c.value; });
         setForm(formData);
+        setSavedForm(formData);
         setLoading(false);
       })
       .catch(() => setLoading(false));
   }, []);
 
   const handleSave = async () => {
+    if (inFlight.current || !canManageSettings) return;
+    inFlight.current = true;
     setSaving(true);
     try {
       for (const [key, value] of Object.entries(form)) {
@@ -42,9 +49,11 @@ export function SystemSettings() {
         await updateConfig(key, value);
       }
       toast("Settings saved successfully", "success");
+      setSavedForm(form);
     } catch (err: any) {
       toast(err?.message || "Failed to save settings", "error");
     } finally {
+      inFlight.current = false;
       setSaving(false);
     }
   };

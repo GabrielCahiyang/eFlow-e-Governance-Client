@@ -6,6 +6,7 @@ import React, {
   useState,
 } from "react";
 import ReactDOM from "react-dom";
+import { usePanelDismissal } from '../../shared/usePanelDismissal';
 import { ArrowUpRight, Bell, CheckCheck, Maximize2, Minimize2, X } from "lucide-react";
 import {
   markAllNotificationsRead,
@@ -49,7 +50,7 @@ export function NotificationBell({
 }: {
   userId?: string;
   role?: string;
-  onNavigate?: (section: string, page: string) => void;
+  onNavigate?: (section: string, page: string) => void | Promise<boolean | void>;
   className?: string;
   compact?: boolean;
 }) {
@@ -57,6 +58,7 @@ export function NotificationBell({
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  const dismissPanel = usePanelDismissal(open, panelRef, buttonRef, () => setOpen(false));
 
   // ── Free-form panel position/size ────────────────────────────────────
   const [panelPos, setPanelPos] = useState<{ x: number; y: number } | null>(
@@ -156,8 +158,8 @@ export function NotificationBell({
   useEffect(() => {
     if (!open || panelPos !== null || !buttonRef.current) return;
     const rect = buttonRef.current.getBoundingClientRect();
-    const left = rect.right > 0 ? rect.right + 12 : 80;
-    const top = Math.max(8, rect.top - 350);
+    const left = Math.max(8, Math.min(rect.right > 0 ? rect.right + 12 : 80, window.innerWidth - Math.min(panelSize.w, window.innerWidth - 16) - 8));
+    const top = Math.max(8, Math.min(rect.top - 350, window.innerHeight - Math.min(panelSize.h, window.innerHeight - 16) - 8));
     setPanelPos({ x: left, y: top });
   }, [open, panelPos]);
 
@@ -204,8 +206,9 @@ export function NotificationBell({
       }
 
       if (destination && onNavigate) {
+        const accepted = await onNavigate(destination.section, destination.page);
+        if (accepted === false) return;
         queueNotificationNavigationIntent(destination.intent);
-        onNavigate(destination.section, destination.page);
         setOpen(false);
       }
     },
@@ -222,7 +225,7 @@ export function NotificationBell({
         inset: 0,
         width: "100vw",
         height: "100vh",
-        zIndex: 9999,
+        zIndex: 'var(--eflow-layer-inspector)',
         borderRadius: 0,
       }
     : {
@@ -231,9 +234,10 @@ export function NotificationBell({
         top: panelPos?.y ?? 80,
         width: panelSize.w,
         height: panelSize.h,
-        zIndex: 9999,
-        minWidth: 280,
-        minHeight: 300,
+        zIndex: 'var(--eflow-layer-inspector)',
+        maxWidth: 'calc(100vw - 16px)', maxHeight: 'calc(100dvh - 16px)',
+        minWidth: 'min(280px, calc(100vw - 16px))',
+        minHeight: 'min(300px, calc(100dvh - 16px))',
       };
 
   const panel = open
@@ -241,6 +245,7 @@ export function NotificationBell({
         <div
           ref={panelRef}
           role="dialog"
+          tabIndex={-1}
           aria-label="Notifications"
           style={panelComputedStyle}
           className="flex flex-col overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-2xl"
@@ -291,7 +296,7 @@ export function NotificationBell({
               </button>
               <button
                 type="button"
-                onClick={() => setOpen(false)}
+                onClick={dismissPanel}
                 aria-label="Close notifications"
                 className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition hover:bg-accent hover:text-accent-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                 title="Close"
@@ -387,6 +392,7 @@ export function NotificationBell({
           type="button"
           aria-expanded={open}
           aria-haspopup="dialog"
+          aria-label={open ? 'Close notifications' : 'Open notifications'}
           onClick={() => setOpen((value) => !value)}
           className={`relative flex items-center justify-center rounded-lg border border-border bg-card text-muted-foreground transition hover:bg-accent hover:text-accent-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ${buttonSize}`}
           title={

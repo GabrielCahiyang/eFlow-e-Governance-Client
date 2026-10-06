@@ -1,0 +1,45 @@
+
+Running 32 tests using 2 workers
+
+(node:36732) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:40860) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:36732) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:40860) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [chromium] › tests\e2e\phase10-project-workspace.spec.ts:9:1 › project identity, settings retry, favorites and browser history use one project (17.9s)
+  ok  2 [chromium] › tests\e2e\navigation-v2.spec.ts:10:75 › head retains its landing and authorized destinations through global/context navigation (23.9s)
+  ok  3 [chromium] › tests\e2e\phase10-project-workspace.spec.ts:37:1 › existing lifecycle dialogs retain notes, server denials and deletion impact (12.2s)
+  ok  4 [chromium] › tests\e2e\navigation-v2.spec.ts:10:75 › member retains its landing and authorized destinations through global/context navigation (18.7s)
+  ok  5 [chromium] › tests\e2e\phase10-project-workspace.spec.ts:50:1 › Observer utilities stay read-only and sharing keeps current access requirements at 390px (14.7s)
+  ok  6 [chromium] › tests\e2e\navigation-v2.spec.ts:10:75 › accounting_staff retains its landing and authorized destinations through global/context navigation (14.2s)
+  ok  7 [chromium] › tests\e2e\phase10-project-workspace.spec.ts:60:1 › participant failure retries its source and long project identity stays within the viewport (20.0s)
+  ok  8 [chromium] › tests\e2e\navigation-v2.spec.ts:10:75 › admin retains its landing and authorized destinations through global/context navigation (13.0s)
+  ok  9 [chromium] › tests\e2e\phase3-project-table.spec.ts:4:1 › Head table keeps first-column task actions, task edits and inline subitems (12.5s)
+  ok 11 [chromium] › tests\e2e\phase3-project-table.spec.ts:45:1 › Member table protects structure and keeps detail access at 390px (8.1s)
+  ok 10 [chromium] › tests\e2e\navigation-v2.spec.ts:35:1 › individual support grants reach the named screen and denied routes load no audit records (16.3s)
+  ok 12 [chromium] › tests\e2e\phase3-project-table.spec.ts:62:1 › Inline tasks save on blur, keep adding with Shift+Enter, and retain failed drafts (9.4s)
+  ok 13 [chromium] › tests\e2e\navigation-v2.spec.ts:49:1 › search and favorites retain a shared inter-Office observer project without offering creation (10.6s)
+  ok 15 [chromium] › tests\e2e\navigation-v2.spec.ts:67:1 › creation menu uses existing handlers, retains failed drafts and discards only after confirmation (9.0s)
+  ok 14 [chromium] › tests\e2e\phase4-project-views.spec.ts:11:1 › Phase 4 shares filters and edits across Board, Gantt, Calendar, Dashboard and Offices (14.7s)
+  ok 16 [chromium] › tests\e2e\navigation-v2.spec.ts:91:1 › dirty Security editor keeps navigation and browser history until explicit discard (8.6s)
+  ok 17 [chromium] › tests\e2e\phase4-project-views.spec.ts:93:1 › Member can inspect views at 390px without structural date controls (8.5s)
+  ok 18 [chromium] › tests\e2e\navigation-v2.spec.ts:111:1 › failed inline task remains intact when shell navigation is canceled and logout clears local navigation preferences (8.6s)
+  ok 20 [chromium] › tests\e2e\navigation-v2.spec.ts:127:1 › unassigned Office and zero projects remain usable without exposing stale context (6.8s)
+  ok 19 [chromium] › tests\e2e\phase6-project-offices.spec.ts:5:1 › Lead invites an Office and hands over responsibility without assigning its staff (12.6s)
+  ok 21 [chromium] › tests\e2e\navigation-v2.spec.ts:140:40 › responsive navigation, project context and utilities at 1440px (5.5s)
+  ok 22 [chromium] › tests\e2e\phase6-project-offices.spec.ts:45:1 › Collaborating Head sees a roomy own-Office member picker and only edits its own tasks (7.6s)
+  ok 23 [chromium] › tests\e2e\navigation-v2.spec.ts:140:40 › responsive navigation, project context and utilities at 768px (6.3s)
+  ok 24 [chromium] › tests\e2e\phase6-project-offices.spec.ts:71:1 › Observer opens the project without editable owners or task planning (6.9s)
+  ok 25 [chromium] › tests\e2e\navigation-v2.spec.ts:140:40 › responsive navigation, project context and utilities at 390px (6.2s)
+  ok 26 [chromium] › tests\e2e\phase7-readiness-staffing.spec.ts:18:1 › Head confirms readiness; desktop and mobile retain readable checks and closeout blockers (5.6s)
+  ok 27 [chromium] › tests\e2e\navigation-v2.spec.ts:140:40 › responsive navigation, project context and utilities at 320px (6.1s)
+  ok 28 [chromium] › tests\e2e\phase7-readiness-staffing.spec.ts:35:1 › Staffing is advisory until Head confirmation; roomy dialog supports keyboard selection and mobile footer (8.4s)
+  ok 29 [chromium] › tests\e2e\project-workspace-controls.spec.ts:19:1 › Project actions open visible menus and dialogs, and the board returns to the filtered table (8.6s)
+  ok 30 [chromium] › tests\e2e\phase7-readiness-staffing.spec.ts:59:1 › Member reads readiness without Head review, activation or staffing controls (4.9s)
+  ok 31 [chromium] › tests\e2e\project-workspace-controls.spec.ts:73:1 › View picker, board return and first-column task actions remain reachable at 390px (6.3s)
+  ok 32 [chromium] › tests\e2e\project-workspace-controls.spec.ts:104:1 › Overflow views stay selectable and closable outside the mobile tab scroller (8.3s)
+
+  32 passed (3.0m)

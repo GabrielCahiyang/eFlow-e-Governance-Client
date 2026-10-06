@@ -1,0 +1,57 @@
+Diagnostic only; superseded by final passing receipts.
+
+
+Running 9 tests using 1 worker
+
+(node:7804) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:7804) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:9:1 › shared inspector keeps discussion drafts and returns focus to each view origin (15.0s)
+  ok 2 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:31:1 › date range is consistent across views and personal after reload (5.6s)
+  ok 3 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:43:1 › mobile observer inspector stays read only and traps and returns focus (4.7s)
+  ok 4 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:56:1 › Board keyboard action prevents duplicate requests and recovers from denial (4.4s)
+  ok 5 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:65:1 › shared Task Lead team mutations stay gated by G2 while details remain available (5.8s)
+  ok 6 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:73:1 › review drafts stay protected and evidence loading denial has an explicit retry (7.6s)
+  ok 7 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:86:1 › removed canonical task closes mutation controls and explains unavailable access (4.5s)
+  ok 8 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:94:1 › successful inspector lifecycle change returns focus to the refreshed Board card (4.4s)
+  x  9 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:101:1 › mobile team dialog guards drafts and retains a denied member change (13.0s)
+
+
+  1) [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:101:1 › mobile team dialog guards drafts and retains a denied member change 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeFocused[2m()[22m failed
+
+    Locator:  getByRole('dialog', { name: 'Task details: Prepare community assessment' }).getByRole('button', { name: 'Manage', exact: true })
+    Expected: focused
+    Received: inactive
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeFocused" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('dialog', { name: 'Task details: Prepare community assessment' }).getByRole('button', { name: 'Manage', exact: true })[22m
+    [2m    6 × locator resolved to <button type="button" class="inline-flex items-center gap-1 rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-[9.5px] font-medium text-neutral-600 hover:text-neutral-900">…</button>[22m
+    [2m      - unexpected value "inactive"[22m
+
+
+      110 |  await expect(team).toContainText('Task team access denied');expect(records.tasks[0].team_member_ids).toEqual([records.id]);
+      111 |  await page.screenshot({path:info.outputPath('team-mobile-denial.png'),fullPage:true,animations:'disabled'});
+    > 112 |  await team.getByRole('button',{name:'Cancel',exact:true}).click();await page.getByRole('button',{name:'Discard',exact:true}).click();await expect(team).not.toBeVisible();await expect(inspector.getByRole('button',{name:'Manage',exact:true})).toBeFocused();
+          |                                                                                                                                                                                                                                                   ^
+      113 | });
+      114 |
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase12-shared-inspector.spec.ts:112:243
+
+    Error Context: test-results\phase12-inspector-verified\phase12-shared-inspector-m-3a946-ains-a-denied-member-change-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase12-inspector-verified\phase12-shared-inspector-m-3a946-ains-a-denied-member-change-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase12-inspector-verified\phase12-shared-inspector-m-3a946-ains-a-denied-member-change-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:101:1 › mobile team dialog guards drafts and retains a denied member change 
+  8 passed (1.1m)

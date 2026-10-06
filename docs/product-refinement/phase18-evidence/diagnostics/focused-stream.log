@@ -1,0 +1,86 @@
+
+Running 24 tests using 2 workers
+
+(node:38980) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:33640) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38980) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:33640) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  2 [chromium] › tests\e2e\phase14-people-collaboration.spec.ts:79:61 › Project Office observer retains read-only reasons and governance handoff (4.3s)
+  ok  3 [chromium] › tests\e2e\phase15-ai-governance.spec.ts:22:1 › PDF work-plan review saves only its persistent draft, keeps failed autosave edits and retries saving (7.2s)
+  ok  1 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:9:1 › shared inspector keeps discussion drafts and returns focus to each view origin (17.2s)
+  ok  5 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:86:1 › removed canonical task closes mutation controls and explains unavailable access (5.1s)
+(node:11556) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:11556) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  4 [chromium] › tests\e2e\phase18-release.spec.ts:38:3 › head: responsive canonical workspace and mobile navigation (21.5s)
+  ok  7 [chromium] › tests\e2e\phase18-release.spec.ts:38:3 › member: responsive canonical workspace and mobile navigation (20.4s)
+  ok  6 [firefox] › tests\e2e\phase12-shared-inspector.spec.ts:9:1 › shared inspector keeps discussion drafts and returns focus to each view origin (36.9s)
+  ok  8 [chromium] › tests\e2e\phase18-release.spec.ts:38:3 › accounting_staff: responsive canonical workspace and mobile navigation (15.8s)
+  ok  9 [firefox] › tests\e2e\phase12-shared-inspector.spec.ts:86:1 › removed canonical task closes mutation controls and explains unavailable access (8.7s)
+  ok 11 [firefox] › tests\e2e\phase14-people-collaboration.spec.ts:79:61 › Project Office observer retains read-only reasons and governance handoff (8.9s)
+  ok 10 [chromium] › tests\e2e\phase18-release.spec.ts:38:3 › admin: responsive canonical workspace and mobile navigation (19.9s)
+  ok 12 [firefox] › tests\e2e\phase15-ai-governance.spec.ts:22:1 › PDF work-plan review saves only its persistent draft, keeps failed autosave edits and retries saving (14.0s)
+(node:41620) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:41620) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:36304) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:36304) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 14 [firefox] › tests\e2e\phase18-release.spec.ts:38:3 › head: responsive canonical workspace and mobile navigation (27.5s)
+  ok 15 [firefox] › tests\e2e\phase18-release.spec.ts:38:3 › member: responsive canonical workspace and mobile navigation (11.1s)
+  ok 16 [firefox] › tests\e2e\phase18-release.spec.ts:38:3 › accounting_staff: responsive canonical workspace and mobile navigation (9.7s)
+  ok 17 [firefox] › tests\e2e\phase18-release.spec.ts:38:3 › admin: responsive canonical workspace and mobile navigation (9.3s)
+(node:16272) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:16272) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 13 [webkit] › tests\e2e\phase12-shared-inspector.spec.ts:9:1 › shared inspector keeps discussion drafts and returns focus to each view origin (1.1m)
+  x  18 [webkit] › tests\e2e\phase14-people-collaboration.spec.ts:79:61 › Project Office observer retains read-only reasons and governance handoff (6.9s)
+(node:43068) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:43068) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 19 [webkit] › tests\e2e\phase12-shared-inspector.spec.ts:86:1 › removed canonical task closes mutation controls and explains unavailable access (6.9s)
+  ok 20 [webkit] › tests\e2e\phase15-ai-governance.spec.ts:22:1 › PDF work-plan review saves only its persistent draft, keeps failed autosave edits and retries saving (12.2s)
+  ok 21 [webkit] › tests\e2e\phase18-release.spec.ts:38:3 › head: responsive canonical workspace and mobile navigation (12.3s)
+  ok 22 [webkit] › tests\e2e\phase18-release.spec.ts:38:3 › member: responsive canonical workspace and mobile navigation (10.6s)
+  ok 23 [webkit] › tests\e2e\phase18-release.spec.ts:38:3 › accounting_staff: responsive canonical workspace and mobile navigation (9.4s)
+  ok 24 [webkit] › tests\e2e\phase18-release.spec.ts:38:3 › admin: responsive canonical workspace and mobile navigation (9.5s)
+
+
+  1) [webkit] › tests\e2e\phase14-people-collaboration.spec.ts:79:61 › Project Office observer retains read-only reasons and governance handoff 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+      79 | for(const kind of ['observer','closed','governed'] as const)test(`Project Office ${kind} retains read-only reasons and governance handoff`,async({page},info)=>{
+      80 |  test.setTimeout(90_000);const r=await peopleFixture(page);r.projectOffices.push({id:'own',project_id:r.project,office_id:r.org,relationship_type:kind==='observer'?'observer':'lead',invitation_status:'joined'});if(kind==='closed')r.projects[0].status='completed';if(kind==='governed')r.projects[0].source_collaboration_draft_id='60000000-0000-4000-8000-000000000001';
+    > 81 |  await openOffices(page,r.project);const region=page.getByRole('region',{name:'Project Office collaboration'});await expect(region.getByRole('button',{name:'Select own members'})).toHaveCount(0);await region.getByRole('button',{name:'Planning Office',exact:true}).click();const inspector=page.getByRole('dialog',{name:'Planning Office — project Office'});await expect(inspector).toContainText(kind==='observer'?'Observers follow progress':kind==='closed'?'project is closed':'Proposal Context');await inspector.getByRole('tab',{name:'Project team',exact:true}).click();await expect(page.getByRole('dialog',{name:'Planning Office’s project team'}).getByRole('checkbox')).toHaveCount(0);await page.getByRole('dialog',{name:'Planning Office’s project team'}).press('Escape');await page.setViewportSize({width:320,height:844});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:info.outputPath(`office-${kind}-320.png`)});
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          ^
+      82 | });
+      83 | test('Project Office read failure retries honestly and retains an inspector draft through refresh denial',async({page},info)=>{
+      84 |  test.setTimeout(90_000);const r=await peopleFixture(page);r.projectOffices.push({id:'own',project_id:r.project,office_id:r.org,relationship_type:'lead',invitation_status:'joined'});let denied=true;
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase14-people-collaboration.spec.ts:81:906
+
+    Error Context: .phase18\focused-stream\phase14-people-collaborati-3ffdf-sons-and-governance-handoff-webkit\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\focused-stream\phase14-people-collaborati-3ffdf-sons-and-governance-handoff-webkit\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\focused-stream\phase14-people-collaborati-3ffdf-sons-and-governance-handoff-webkit\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [webkit] › tests\e2e\phase14-people-collaboration.spec.ts:79:61 › Project Office observer retains read-only reasons and governance handoff 
+  23 passed (3.7m)

@@ -1,0 +1,23 @@
+
+Running 14 tests using 1 worker
+
+(node:32688) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:32688) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [chromium] › tests\e2e\navigation-v2.spec.ts:10:75 › head retains its landing and authorized destinations through global/context navigation (6.8s)
+  ok  2 [chromium] › tests\e2e\navigation-v2.spec.ts:10:75 › member retains its landing and authorized destinations through global/context navigation (6.1s)
+  ok  3 [chromium] › tests\e2e\navigation-v2.spec.ts:10:75 › accounting_staff retains its landing and authorized destinations through global/context navigation (6.2s)
+  ok  4 [chromium] › tests\e2e\navigation-v2.spec.ts:10:75 › admin retains its landing and authorized destinations through global/context navigation (6.0s)
+  ok  5 [chromium] › tests\e2e\navigation-v2.spec.ts:35:1 › individual support grants reach the named screen and denied routes load no audit records (6.8s)
+  ok  6 [chromium] › tests\e2e\navigation-v2.spec.ts:49:1 › search and favorites retain a shared inter-Office observer project without offering creation (5.7s)
+  ok  7 [chromium] › tests\e2e\navigation-v2.spec.ts:67:1 › creation menu uses existing handlers, retains failed drafts and discards only after confirmation (6.0s)
+  ok  8 [chromium] › tests\e2e\navigation-v2.spec.ts:91:1 › dirty Security editor keeps navigation and browser history until explicit discard (5.6s)
+  ok  9 [chromium] › tests\e2e\navigation-v2.spec.ts:111:1 › failed inline task remains intact when shell navigation is canceled and logout clears local navigation preferences (5.7s)
+  ok 10 [chromium] › tests\e2e\navigation-v2.spec.ts:127:1 › unassigned Office and zero projects remain usable without exposing stale context (4.9s)
+  ok 11 [chromium] › tests\e2e\navigation-v2.spec.ts:140:40 › responsive navigation, project context and utilities at 1440px (4.4s)
+  ok 12 [chromium] › tests\e2e\navigation-v2.spec.ts:140:40 › responsive navigation, project context and utilities at 768px (4.9s)
+  ok 13 [chromium] › tests\e2e\navigation-v2.spec.ts:140:40 › responsive navigation, project context and utilities at 390px (4.8s)
+  ok 14 [chromium] › tests\e2e\navigation-v2.spec.ts:140:40 › responsive navigation, project context and utilities at 320px (4.9s)
+
+  14 passed (1.3m)

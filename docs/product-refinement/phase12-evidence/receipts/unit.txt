@@ -1,0 +1,307 @@
+Command: npm test
+Exit code: 0
+
+
+> @figma/my-make-file@0.0.1 test
+> vitest --configLoader runner run
+
+
+ RUN  v3.2.4 C:/Users/james/projects/eflow-e-Governance-Project
+
+ ✓ tests/unit/designSystemFoundation.test.tsx (7 tests) 2429ms
+   ✓ design foundation compatibility contracts > keeps compound controls' explicit IDs on the control rather than its wrapper  852ms
+   ✓ design foundation compatibility contracts > cancels without mutation and requires an exact phrase or resolved blockers  780ms
+ ✓ tests/unit/workspaceFoundation.test.tsx (4 tests) 1913ms
+   ✓ workspace interaction foundation > cancels with Escape and saves the next edit once despite Enter followed by blur  983ms
+   ✓ workspace interaction foundation > separates the common action from its contextual menu  581ms
+ ✓ tests/unit/defenseRevisionInteractions.test.tsx (9 tests) 1764ms
+   ✓ PDF operation lock > ignores close and Escape during processing and allows closing after release  992ms
+   ✓ resend approval interactions > preserves the confirmation after failure and permits retry without duplicate clicks  715ms
+ ✓ tests/unit/phase10ProjectWorkspace.test.tsx (8 tests) 2691ms
+   ✓ Phase 10 project workspace > keeps missing identity readable and closed title editing disabled  723ms
+   ✓ Phase 10 project workspace > retains failed settings, retries once and marks only the saved draft clean  692ms
+   ✓ Phase 10 project workspace > validates dates and blocks switching or duplicate saves while a request is pending  588ms
+ ✓ tests/unit/projectViewNavigation.test.tsx (6 tests) 4534ms
+   ✓ project view navigation > exposes and persists a Board view entered through a shortcut or direct URL  1138ms
+   ✓ project view navigation > renders Add view outside a clipping ancestor and respects conditional views  791ms
+   ✓ project view navigation > closes the view picker with Escape  385ms
+   ✓ project view navigation > keeps an active overflow view selected and exposes the displaced view in More  1374ms
+   ✓ project view navigation > returns to Main table when the only optional view is closed with the keyboard  366ms
+   ✓ project view navigation > keeps saved views scoped to their project when the project changes  477ms
+ ✓ tests/unit/phase02AccountMenu.test.tsx (1 test) 2858ms
+   ✓ Phase 02 account utility > shows human-readable account context and retains settings and logout actions  2856ms
+ ✓ tests/unit/cashReleaseOverride.test.tsx (7 tests) 4963ms
+   ✓ schedule override confirmation > opens details without making a financial call and cancels safely  1282ms
+   ✓ schedule override confirmation > requires a reason and releases only the selected tranche after confirmation  676ms
+   ✓ schedule override confirmation > keeps the popup open with the server ceiling error and preserves the reason  531ms
+   ✓ schedule override confirmation > prevents double confirmation and dismissal while the request is pending  731ms
+   ✓ schedule override confirmation > does not retry a committed release when only the list refresh fails  499ms
+   ✓ schedule override confirmation > retains the normal release path and hides release controls from employees  553ms
+   ✓ schedule override confirmation > lets Accounting Staff issue cheques and use audited schedule overrides  689ms
+ ✓ tests/unit/phase02AuthPresentation.test.tsx (2 tests) 2198ms
+   ✓ Phase 02 auth presentation > uses Vibe inputs while retaining the existing login automation identifiers and submit behavior  1680ms
+   ✓ Phase 02 auth presentation > opens the Usage scenarios menu from the Vibe menu button  516ms
+ ✓ tests/unit/taskTeamEditorDialog.test.tsx (4 tests) 4847ms
+   ✓ task team editor > shows the complete team and refuses to remove a member with unfinished subtask work  1472ms
+   ✓ Phase 12 task team safety > keeps a team draft on cancelled dismissal, then discards only after acceptance  958ms
+   ✓ Phase 12 task team safety > uses an impact dialog once and retains selected members after a server denial  1241ms
+   ✓ Phase 12 task team safety > refuses to overwrite a team changed remotely while a draft is open  1175ms
+ ✓ tests/unit/projectSubitems.test.tsx (13 tests) 5666ms
+   ✓ Project table subitem expansion > places task actions in the first cell and keeps detail access without drag controls  1528ms
+   ✓ Project table subitem expansion > keeps the first-column Add subitem action disabled for someone who is not the task lead  590ms
+   ✓ Project table subitem expansion > hands menu focus to the add field when subitems are already expanded  778ms
+   ✓ Project table subitem expansion > opens an empty nested table and saves the task lead’s subitem when focus leaves  328ms
+   ✓ Project table subitem expansion > keeps order, owners, progress, dates, and evidence drawer access  360ms
+   ✓ Project table subitem expansion > preserves the for_review lock and keeps existing subitems readable  330ms
+   ✓ Project table subitem expansion > preserves the completed lock and keeps existing subitems readable  330ms
+   ✓ Project table subitem expansion > keeps a failed draft for retry and appends after the greatest saved position  357ms
+ ✓ tests/unit/projectLifecycle.test.tsx (10 tests) 5619ms
+   ✓ project dropdown lifecycle > restores project creation and retains project switching and Planning navigation without work plan creation  1130ms
+   ✓ project dropdown lifecycle > offers completion but disables archive for active work  807ms
+   ✓ project dropdown lifecycle > offers archive instead of completion after completion  594ms
+   ✓ project dropdown lifecycle > moves archived projects out of the active list, retaining explicit history and restore  552ms
+   ✓ project completion confirmation > checks without changing anything, and cancel never completes  432ms
+   ✓ project completion confirmation > lists exact task, cash and governance blockers and opens the affected record  520ms
+   ✓ project completion confirmation > completes only the chosen project after explicit confirmation  439ms
+   ✓ project completion confirmation > fails closed when checks cannot load  410ms
+   ✓ project completion confirmation > refreshes blockers if the server rejects a stale ready screen  550ms
+ ✓ tests/unit/reviewCashClearance.test.tsx (9 tests) 1370ms
+   ✓ cash-aware review decision > shows the exact blocker before approval and opens its receipt package in the correct fiscal year  318ms
+ ✓ tests/unit/phase02MobileNavigation.test.tsx (1 test) 1961ms
+   ✓ Phase 02 mobile navigation > opens the accessible navigation drawer and closes it after a destination is selected  1959ms
+ ✓ tests/unit/subtaskAssigneePicker.test.ts (3 tests) 2881ms
+   ✓ subtask assignee picker > closes when the manager left-clicks outside the picker  1565ms
+   ✓ subtask assignee picker > starts a to-do parent automatically when its lead creates a subtask  449ms
+   ✓ subtask assignee picker > lets the Team Lead create independent work with no ordered prerequisite  864ms
+ ✓ tests/unit/collaborationDeliveryBoard.test.tsx (6 tests) 2923ms
+   ✓ committed proposal delivery board > selects the opened approval tab and preserves the published task label for office plans  1331ms
+   ✓ committed proposal delivery board > shows Board only after a proposal has been published  529ms
+   ✓ committed proposal delivery board > confirms publication of a office-only proposal without collaboration review controls  849ms
+ ✓ tests/unit/loginWorkflowPreview.test.tsx (10 tests) 11994ms
+   ✓ login workflow guides > opens an unsigned-in guide, navigates backward/forward, scrubs to archive, and starts fresh on reopen  6185ms
+   ✓ login workflow guides > changes example screens when a highlighted control is clicked, without leaving the login panel  2313ms
+   ✓ login workflow guides > provides one real spotlight target for every demo screen and preserves the workflow order  1087ms
+   ✓ uses the walkthrough voice, keeps it enabled across steps, and cancels on off and close  2269ms
+ ✓ tests/unit/userManagementDeletion.test.tsx (1 test) 1732ms
+   ✓ User Management deletion > requires explicit confirmation before permanently deleting an account  1730ms
+ ✓ tests/unit/accountingSettlementAuthority.test.tsx (6 tests) 1740ms
+   ✓ Accounting settlement authority > waits for Head authorization before settling a late package  950ms
+ ✓ tests/unit/adminUserDirectory.test.tsx (1 test) 1475ms
+   ✓ Admin user directory > shows Admin accounts and gives Admin authority over leadership accounts  1473ms
+ ✓ tests/unit/guidedTourInteraction.test.ts (3 tests) 1784ms
+   ✓ guided page walkthrough > opens from the page toolbar and advances without changing page data  1107ms
+   ✓ guided page walkthrough > advances only once when Enter activates the focused Next button  338ms
+   ✓ guided page walkthrough > optionally narrates each step and stops immediately when switched off  335ms
+ ✓ tests/unit/phase02AppShell.test.tsx (2 tests) 1481ms
+   ✓ Phase 02 productivity sidebar > keeps the registered destination and page callback intact  1339ms
+ ✓ tests/unit/taskManagementMenu.test.ts (4 tests) 1361ms
+   ✓ task management overflow menu > keeps management actions in the overflow and closes after selection  1184ms
+ ✓ tests/unit/financialReviewSwitch.test.tsx (2 tests) 1151ms
+   ✓ financial review navigation > keeps financial approvals inside the Head review workspace  1147ms
+ ✓ tests/unit/proposalBudgetEditor.test.tsx (1 test) 1916ms
+   ✓ proposal budget editor > groups multiple particulars under one category and fixes the fund source  1914ms
+ ✓ tests/unit/committedProposalArchiveRollback.test.tsx (1 test) 1266ms
+   ✓ committed proposal archive > restores the archive action if the server rejects the archive  1265ms
+ ✓ tests/unit/phase11Editors.test.tsx (12 tests) 924ms
+ ✓ tests/unit/localOfficeDialog.test.tsx (4 tests) 959ms
+   ✓ project-local Office creation > retains an Office name without requiring a canonical record or contact  430ms
+ ✓ tests/unit/vibeFoundation.test.tsx (3 tests) 1241ms
+   ✓ Vibe foundation > renders representative Vibe components with focus, table, and dialog behavior  1183ms
+ ✓ tests/unit/inlineCreateRow.test.tsx (11 tests) 674ms
+ ✓ tests/unit/departmentIdentityAccess.test.tsx (3 tests) 1056ms
+   ✓ office Identity & Access > can assign more than one employee without replacing the first  944ms
+ ✓ tests/unit/phase12DialogFocus.test.tsx (2 tests) 576ms
+   ✓ Phase 12 nested dialog return focus > captures the opener before a child search field autofocuses  348ms
+ ✓ tests/unit/taskSubmissionReadiness.test.ts (2 tests) 596ms
+   ✓ parent task review readiness > blocks Head submission until every subtask is approved  496ms
+ ✓ tests/unit/projectAiDraft.test.tsx (2 tests) 547ms
+   ✓ Reviewed project AI suggestions > passes generated titles to human review without creating or assigning work  431ms
+ ✓ tests/unit/inspectorPanel.test.tsx (6 tests) 424ms
+ ✓ tests/unit/budgetPositionSummary.test.tsx (1 test) 369ms
+   ✓ BudgetPositionSummary > shows the current fiscal position and routes each exposure to its existing workflow  367ms
+ ✓ tests/unit/sharedUiVibeAdapters.test.tsx (2 tests) 1252ms
+   ✓ shared Vibe UI adapters > keeps the legacy modal API while exposing an accessible Vibe dialog  1107ms
+ ✓ tests/unit/phase12InspectorDrafts.test.tsx (3 tests) 448ms
+ ✓ tests/unit/generalJournalDatePicker.test.tsx (1 test) 1233ms
+   ✓ General Journal calendar controls > opens the native picker from both the header and adjustment view  1230ms
+ ✓ tests/unit/userDirectoryFilters.test.tsx (2 tests) 1158ms
+   ✓ user account directory filters > updates filters and exposes a compact reset action  1137ms
+ ✓ tests/unit/phase12SubmissionDrafts.test.tsx (1 test) 357ms
+   ✓ Phase 12 successful saves and other drafts > marks committed evidence clean while protecting an unrelated progress draft on inspector closure  354ms
+ ✓ tests/unit/foundationThemePersistence.test.tsx (1 test) 385ms
+   ✓ follows system appearance and rolls back a rejected preference save  384ms
+ ✓ tests/unit/taskDetailSubmissionReadiness.test.tsx (2 tests) 204ms
+ ✓ tests/unit/assignmentModal.test.ts (1 test) 299ms
+ ✓ tests/unit/assignmentExceptionNote.test.ts (1 test) 129ms
+ ✓ tests/unit/manualTaskEditing.test.tsx (1 test) 1161ms
+   ✓ manual proposal task editing > exposes and saves every field required by draft validation  1158ms
+ ✓ tests/unit/taskBoardListActions.test.tsx (2 tests) 768ms
+   ✓ Task board list actions > shows Submit to the task lead when a legacy record stores the lead as a recommendation  704ms
+ ✓ tests/unit/authStartup.test.tsx (3 tests) 125ms
+ ✓ tests/unit/teamCompositionNote.test.ts (1 test) 143ms
+ ✓ tests/unit/kanbanHorizontalViewport.test.ts (2 tests) 748ms
+   ✓ Kanban horizontal viewport > provides explicit left and right viewing controls  643ms
+ ✓ tests/unit/notificationBellNavigation.test.ts (1 test) 164ms
+ ✓ tests/unit/phase09StandingChannels.test.tsx (6 tests) 96ms
+ ✓ tests/unit/projectReadinessSummary.test.tsx (3 tests) 983ms
+   ✓ project readiness summary > presents actual confirmed checks and retries only readiness after a failure  877ms
+ ✓ tests/unit/phase11TableLayout.test.tsx (5 tests) 893ms
+   ✓ Phase 11 local table layout > supports keyboard width adjustments and announces bounds  668ms
+ ✓ tests/unit/subtaskReviewerBadge.test.tsx (2 tests) 60ms
+ ✓ tests/unit/organizationContextMenu.test.ts (1 test) 49ms
+ ✓ tests/unit/chatUnreadBadge.test.tsx (1 test) 37ms
+ ✓ tests/unit/taskEditorSave.test.tsx (2 tests) 36ms
+ ✓ tests/unit/subtaskCache.test.ts (4 tests) 29ms
+ ✓ tests/unit/approvalTierThreshold.test.ts (4 tests) 8ms
+ ✓ tests/unit/redesignFoundation.test.ts (3 tests) 207ms
+ ✓ tests/unit/departmentBudgetRealtime.test.tsx (1 test) 27ms
+ ✓ tests/unit/phase12SubtaskScope.test.tsx (1 test) 27ms
+ ✓ tests/unit/navigationV2.test.tsx (16 tests) 450ms
+   ✓ registered dirty navigation > keeps the editor URL on canceled back, then replays accepted back without dropping forward history  326ms
+ ✓ tests/unit/adminTaskProposalSelectors.test.ts (3 tests) 27ms
+ ✓ tests/unit/taskBoardProjectFilter.test.ts (5 tests) 28ms
+ ✓ tests/unit/pdsImport.test.ts (1 test) 58ms
+ ✓ tests/unit/aiProcessingProgress.test.ts (1 test) 23ms
+ ✓ tests/unit/permissions.test.ts (4 tests) 26ms
+ ✓ tests/unit/organizationTreeLayout.test.ts (2 tests) 23ms
+ ✓ tests/unit/leaderWorkspaceFilters.test.ts (2 tests) 22ms
+ ✓ tests/unit/navigationUrl.test.ts (5 tests) 136ms
+ ✓ tests/unit/phase1Terminology.test.ts (1 test) 3635ms
+   ✓ active production terminology > keeps legacy vocabulary out of display copy while preserving database and employment identifiers  3633ms
+stderr | tests/unit/proposalImport.test.ts > proposal LLM response parsing > does not create a local proposal when DeepSeek is unavailable
+Proposal decomposition failed: Error: AI service unavailable
+    at C:\Users\james\projects\eflow-e-Governance-Project\tests\unit\proposalImport.test.ts:41:48
+    at file:///C:/Users/james/projects/eflow-e-Governance-Project/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11
+    at file:///C:/Users/james/projects/eflow-e-Governance-Project/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26
+    at file:///C:/Users/james/projects/eflow-e-Governance-Project/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///C:/Users/james/projects/eflow-e-Governance-Project/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)
+    at runTest (file:///C:/Users/james/projects/eflow-e-Governance-Project/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at runSuite (file:///C:/Users/james/projects/eflow-e-Governance-Project/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)
+    at runSuite (file:///C:/Users/james/projects/eflow-e-Governance-Project/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)
+
+stdout | tests/unit/proposalImport.test.ts > proposal LLM response parsing > rejects malformed DeepSeek output instead of fabricating a hierarchy
+[Decomposition DEBUG] Raw LLM response content:
+ not JSON
+
+stderr | tests/unit/proposalImport.test.ts > proposal LLM response parsing > rejects malformed DeepSeek output instead of fabricating a hierarchy
+Proposal decomposition failed: Error: DeepSeek returned a response that could not be parsed into a proposal hierarchy.
+    at Module.decomposeWholeDocument (C:\Users\james\projects\eflow-e-Governance-Project\src\app\features\proposal-import\services\decomposition\wholeDocumentDecomposition.ts:145:13)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+ ✓ tests/unit/proposalImport.test.ts (4 tests) 19ms
+ ✓ tests/unit/taskMutationService.test.ts (7 tests) 17ms
+ ✓ tests/unit/cashReviewFocus.test.tsx (1 test) 81ms
+ ✓ tests/unit/proposalValidationClient.test.ts (2 tests) 16ms
+ ✓ tests/unit/taskCashClearance.test.ts (14 tests) 14ms
+ ✓ tests/unit/subtaskProgressHistory.test.ts (1 test) 85ms
+ ✓ tests/unit/taskCashClearanceService.test.ts (4 tests) 14ms
+ ✓ tests/unit/phase12Evidence.test.tsx (1 test) 169ms
+ ✓ tests/unit/reviewEvidenceDetails.test.ts (2 tests) 180ms
+ ✓ tests/unit/phase03ProjectPresentation.test.tsx (5 tests) 68ms
+ ✓ tests/unit/projectImportDraft.test.ts (6 tests) 14ms
+ ✓ tests/unit/chatModeration.test.ts (7 tests) 15ms
+ ✓ tests/unit/submissionHistory.test.ts (1 test) 76ms
+ ✓ tests/unit/cashReleaseOverrideService.test.ts (4 tests) 19ms
+ ✓ tests/unit/projectLifecycleService.test.ts (5 tests) 13ms
+ ✓ tests/unit/officeIdentityImport.test.ts (4 tests) 12ms
+ ✓ tests/unit/sessionSecurity.test.ts (5 tests) 12ms
+ ✓ tests/unit/navigation.test.ts (7 tests) 11ms
+ ✓ tests/unit/departmentBudgetMigration.test.ts (17 tests) 12ms
+ ✓ tests/unit/emptyProjectCleanup.test.ts (2 tests) 9ms
+ ✓ tests/unit/deadlineWorkload.test.ts (5 tests) 11ms
+ ✓ tests/unit/taskSelectors.test.ts (4 tests) 10ms
+ ✓ tests/unit/guidedTourProgress.test.ts (2 tests) 6ms
+ ✓ tests/unit/guidedTourNarration.test.ts (2 tests) 5ms
+ ✓ tests/unit/collaborationResubmission.test.ts (4 tests) 11ms
+ ✓ tests/unit/phase1Roles.test.ts (20 tests) 13ms
+ ✓ tests/unit/phase0607Enhancements.test.ts (6 tests) 12ms
+ ✓ tests/unit/notificationNavigation.test.ts (8 tests) 9ms
+ ✓ tests/unit/managedUserService.test.ts (2 tests) 10ms
+ ✓ tests/unit/cashWorkflowRules.test.ts (4 tests) 8ms
+ ✓ tests/unit/guidedTourCatalog.test.ts (2 tests) 8ms
+ ✓ tests/unit/staffRecommendations.test.ts (2 tests) 7ms
+ ✓ tests/unit/hierarchicalDeadlines.test.ts (4 tests) 7ms
+ ✓ tests/unit/phase12ProjectContext.test.ts (11 tests) 17ms
+ ✓ tests/unit/projectViews.test.ts (10 tests) 18ms
+ ✓ tests/unit/proposalPortfolioGrouping.test.ts (5 tests) 14ms
+ ✓ tests/unit/onboardingResponse.test.ts (3 tests) 8ms
+ ✓ tests/unit/budgetSelectors.test.ts (9 tests) 15ms
+ ✓ tests/unit/monthlyContributionLeaderboard.test.ts (4 tests) 9ms
+ ✓ tests/unit/projectTable.test.ts (8 tests) 11ms
+ ✓ tests/unit/teamAnalytics.test.ts (3 tests) 13ms
+ ✓ tests/unit/proposalAssignmentBalancing.test.ts (7 tests) 21ms
+ ✓ tests/unit/proposalGovernanceLifecycle.test.ts (6 tests) 11ms
+ ✓ tests/unit/subtaskSequencing.test.ts (6 tests) 8ms
+ ✓ tests/unit/interdepartmentCollaboration.test.ts (21 tests) 25ms
+ ✓ tests/unit/organizationLeadership.test.ts (5 tests) 7ms
+ ✓ tests/unit/adminTaskReadOnly.test.ts (5 tests) 8ms
+ ✓ tests/unit/accountingRoleNavigation.test.tsx (3 tests) 7ms
+ ✓ tests/unit/phase05OperationsPresentation.test.ts (6 tests) 7ms
+ ✓ tests/unit/manualPlanDraft.test.ts (3 tests) 10ms
+ ✓ tests/unit/phase04TaskBoardPresentation.test.ts (8 tests) 7ms
+ ✓ tests/unit/semanticTealActions.test.ts (3 tests) 6ms
+ ✓ tests/unit/adminProjectReadOnly.test.ts (4 tests) 8ms
+ ✓ tests/unit/pageLocalSurfaceStandardization.test.ts (3 tests) 5ms
+ ✓ tests/unit/cashWorkflowGuardMigrations.test.ts (3 tests) 6ms
+ ✓ tests/unit/reportFormatting.test.ts (2 tests) 6ms
+ ✓ tests/unit/accessibilityOverlayMigration.test.ts (3 tests) 7ms
+ ✓ tests/unit/profileDirectoryAdapter.test.ts (2 tests) 6ms
+ ✓ tests/unit/taskDiscussionRealtime.test.ts (2 tests) 6ms
+ ✓ tests/unit/budgetDesignSystemPresentation.test.ts (4 tests) 6ms
+ ✓ tests/unit/projectOfficeAuthority.test.ts (3 tests) 6ms
+ ✓ tests/unit/reviewRouting.test.ts (6 tests) 6ms
+ ✓ tests/unit/projectCommandSelectors.test.ts (6 tests) 9ms
+ ✓ tests/unit/sirGersonBaseline.test.ts (3 tests) 7ms
+ ✓ tests/unit/accountingJournal.test.ts (3 tests) 6ms
+ ✓ tests/unit/controlPanelClient.test.ts (6 tests) 7ms
+ ✓ tests/unit/workflowPrimitiveDelegation.test.ts (3 tests) 6ms
+ ✓ tests/unit/workPlanCreationUx.test.ts (5 tests) 6ms
+ ✓ tests/unit/notificationPresentation.test.ts (4 tests) 6ms
+ ✓ tests/unit/taskNormalization.test.ts (2 tests) 6ms
+ ✓ tests/unit/remainingPhaseCoverage.test.ts (3 tests) 6ms
+ ✓ tests/unit/governanceWorkspaceAccess.test.ts (4 tests) 6ms
+ ✓ tests/unit/departmentApprovalRows.test.ts (2 tests) 5ms
+ ✓ tests/unit/phase04AccountingMigration.test.ts (4 tests) 6ms
+ ✓ tests/unit/departmentDirectoryEligibility.test.ts (3 tests) 5ms
+ ✓ tests/unit/phase2Onboarding.test.ts (2 tests) 6ms
+ ✓ tests/unit/proposalPortfolioMigration.test.ts (3 tests) 6ms
+ ✓ tests/unit/relativeSchedule.test.ts (4 tests) 6ms
+ ✓ tests/unit/chatPanelLayout.test.ts (2 tests) 6ms
+ ✓ tests/unit/projectDepartmentFilter.test.ts (2 tests) 5ms
+ ✓ tests/unit/neutralSurfacePresentation.test.ts (1 test) 5ms
+ ✓ tests/unit/draftAssignment.test.ts (3 tests) 7ms
+ ✓ tests/unit/deptHeadDashboardPresentation.test.ts (2 tests) 5ms
+ ✓ tests/unit/adminRoleMigration.test.ts (2 tests) 5ms
+ ✓ tests/unit/subtaskExecutionMigration.test.ts (2 tests) 6ms
+ ✓ tests/unit/departmentScope.test.ts (2 tests) 17ms
+ ✓ tests/unit/governanceLifecycleError.test.ts (2 tests) 5ms
+ ✓ tests/unit/quickLoginAccounts.test.ts (2 tests) 5ms
+ ✓ tests/unit/adminAccountProtection.test.ts (2 tests) 5ms
+ ✓ tests/unit/reviewDecisionError.test.ts (2 tests) 5ms
+ ✓ tests/unit/appShell.test.ts (1 test) 5ms
+ ✓ tests/unit/leadershipUniqueness.test.ts (3 tests) 5ms
+ ✓ tests/unit/leaderReviewWorkspace.test.ts (2 tests) 4ms
+ ✓ tests/unit/dataToolsNavigation.test.ts (1 test) 5ms
+ ✓ tests/unit/taskTeamMembership.test.ts (6 tests) 9ms
+ ✓ tests/unit/backupGatewayContract.test.ts (2 tests) 5ms
+ ✓ tests/unit/projectDeletionMigration.test.ts (1 test) 4ms
+ ✓ tests/unit/departmentReports.test.ts (3 tests) 9ms
+ ✓ tests/unit/managedUserLeadershipService.test.ts (1 test) 7ms
+ ✓ tests/unit/auditPresentation.test.ts (3 tests) 6ms
+ ✓ tests/unit/projectFinancialReport.test.ts (1 test) 5ms
+ ✓ tests/unit/committedProposalDelivery.test.ts (3 tests) 5ms
+ ✓ tests/unit/proposalServerPipeline.test.ts (1 test) 5ms
+ ✓ tests/unit/loginValidation.test.ts (1 test) 3ms
+ ✓ tests/unit/proposalBudgetImport.test.ts (2 tests) 4ms
+ ✓ tests/unit/teamSupervisionAssignment.test.ts (2 tests) 4ms
+ ✓ tests/unit/subtaskTemplateSafety.test.ts (4 tests) 3ms
+ ✓ tests/unit/navigationActionAlerts.test.ts (3 tests) 4ms
+ ✓ tests/unit/projectFigmaBoard.test.ts (1 test) 2ms
+
+ Test Files  181 passed (181)
+      Tests  708 passed (708)
+   Start at  16:38:15
+   Duration  90.81s (transform 59.11s, setup 0ms, collect 905.42s, tests 98.87s, environment 148.19s, prepare 58.92s)
+

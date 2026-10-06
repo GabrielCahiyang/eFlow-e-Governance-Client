@@ -1,0 +1,19 @@
+
+Running 10 tests using 1 worker
+
+(node:20300) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:20300) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [chromium] › tests\e2e\phase15-ai-governance.spec.ts:12:1 › Reviewed project sections preserve source and require one impact confirmation before creating work (55.0s)
+  ok  2 [chromium] › tests\e2e\phase15-ai-governance.spec.ts:22:1 › PDF work-plan review saves only its persistent draft, keeps failed autosave edits and retries saving (15.9s)
+  ok  3 [chromium] › tests\e2e\phase15-ai-governance.spec.ts:33:1 › Task inspector staffing retains selection after eligibility denial and assigns only after reviewed fresh context (13.2s)
+  ok  4 [chromium] › tests\e2e\phase15-ai-governance.spec.ts:39:1 › Owner PDS review retries extraction, retains failed profile edits and confirms the saved summary separately (8.8s)
+  ok  5 [chromium] › tests\e2e\phase15-ai-governance.spec.ts:46:1 › Official readiness blockers link to Office and task views, and material changes refresh current checks (6.0s)
+  ok  6 [chromium] › tests\e2e\phase15-ai-governance.spec.ts:51:1 › Missing readiness deployment explains administrator recovery and governed projects retain Approval Status handoff (6.1s)
+  ok  7 [chromium] › tests\e2e\phase17-safety.spec.ts:24:1 › live legacy board retains details through Keep editing and discards only on acceptance (7.3s)
+  ok  8 [chromium] › tests\e2e\phase17-safety.spec.ts:51:1 › typed deletion at 320px cancels without a write then sends exactly one confirmed write (10.0s)
+  ok  9 [chromium] › tests\e2e\phase17-safety.spec.ts:93:1 › required task cancellation reason has no write on Escape and is sent once on acceptance (6.8s)
+  ok 10 [chromium] › tests\e2e\phase17-safety.spec.ts:130:1 › lost deletion response exposes verification and prevents another write (7.2s)
+
+  10 passed (2.3m)

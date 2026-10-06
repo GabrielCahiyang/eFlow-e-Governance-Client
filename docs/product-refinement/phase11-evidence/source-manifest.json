@@ -1,0 +1,182 @@
+[
+  {
+    "path": "src/app/components/ui/workspace/ActionMenu.tsx",
+    "sha256": "84e49e70c979cb18f3e1de410a23dc57419d0615b5aaee67204a2cd80381e884"
+  },
+  {
+    "path": "src/app/components/ui/workspace/SplitActionButton.tsx",
+    "sha256": "888f19548720f2308ed3ffa828858e00be1cf41ce40335071b42f83b3940eb3e"
+  },
+  {
+    "path": "src/app/features/project-table/columnLayout.ts",
+    "sha256": "e5ea7215da1233a9a9790472b48803eb651ad65e9a4751e9df8d1134634b6f9d"
+  },
+  {
+    "path": "src/app/features/project-table/planningDraft.ts",
+    "sha256": "08c8237d981897e675a3e75d07b1f10eb34f3281ff9a2465d94f3298ad218432"
+  },
+  {
+    "path": "src/app/features/project-table/groupDeletion.ts",
+    "sha256": "35d060dc4217ea8f72a94b57675c0f83f62b2edf7dc65e193dedfbcc9b5227cc"
+  },
+  {
+    "path": "src/app/features/project-table/tableLayout.css",
+    "sha256": "435b2b7766fb9cac83902d28ed7e03ccfe965db124761d984dfc1cd8782f2f98"
+  },
+  {
+    "path": "src/app/features/project-table/cellEditors.css",
+    "sha256": "acd3653f2d979b1345c45bf6c357e3f6930646b14870ade5f09798e3ff2cc60c"
+  },
+  {
+    "path": "src/app/features/project-table/selectors.ts",
+    "sha256": "03fa8072557eaa0a4bb630b477de300eb3c6eaebbec00d14e541eab1d7b9e884"
+  },
+  {
+    "path": "src/app/features/project-table/hooks/useTableLayout.ts",
+    "sha256": "652005db2b49fe6906295430d4d9aab39d485a16dde73a575104bb7f261b7fd7"
+  },
+  {
+    "path": "src/app/features/project-table/hooks/usePlanningEditor.ts",
+    "sha256": "92481a7341770e37c045648c170a09e03b7b3acedfc1a46d3d43123611e63546"
+  },
+  {
+    "path": "src/app/features/project-table/hooks/useGroupDeletion.tsx",
+    "sha256": "1b1f75cb3793c711e6fb70dfef9c6a49b1f5a0dad46c7d45375da3c15fe8193f"
+  },
+  {
+    "path": "src/app/features/project-table/components/ColumnResizer.tsx",
+    "sha256": "e92756a26808f2e4903ea678385487ebc70880993c9aaf201925bf99ad0d393b"
+  },
+  {
+    "path": "src/app/features/project-table/components/TableColumnHeader.tsx",
+    "sha256": "5372116d2c7e89b2616f1c500c3564adcf1248841f0cc3b7f0c4693777ae798a"
+  },
+  {
+    "path": "src/app/features/project-table/components/AsyncSelectCell.tsx",
+    "sha256": "12df8f5154ab40206ad57742caec66837c5dcd915835ea7bc8ca9ddd5027d27d"
+  },
+  {
+    "path": "src/app/features/project-table/components/NumberCell.tsx",
+    "sha256": "3424b72ba94b13a4a2e9f637024e9680821181e7f1f6af52eba4a8e4a0911eec"
+  },
+  {
+    "path": "src/app/features/project-table/components/TimelineCell.tsx",
+    "sha256": "4d654616d93a934378a4d979dd9d731f451b5d80a3791225a7962722cb57822d"
+  },
+  {
+    "path": "src/app/features/project-table/components/DependencyCell.tsx",
+    "sha256": "7f5d8bb9cf74f9837ce782414e9d3c54828b8fe483234c89c003b2bee1a670a9"
+  },
+  {
+    "path": "src/app/features/project-table/components/PlanningCells.tsx",
+    "sha256": "499c6efc5054c20a2a36f822bbe3a9781bdc79835869953aba437daa69905622"
+  },
+  {
+    "path": "src/app/features/project-table/components/ProjectTaskCells.tsx",
+    "sha256": "e8b83ca6848020a6f7021d09be647d751b2a26c4b6c2a1f98f4777d95af4f896"
+  },
+  {
+    "path": "src/app/features/project-table/components/CreateWorkDialog.tsx",
+    "sha256": "1c561775c6a2561c2f919901cb363f6a388c303aaf409ac52f1eea8ef2c967d9"
+  },
+  {
+    "path": "src/app/features/project-table/components/ProjectTaskRow.tsx",
+    "sha256": "73f433e4f0e84fd58fb40cbc462383f5b543671e5e96a2b9016ff61adf614e76"
+  },
+  {
+    "path": "src/app/features/project-table/components/ProjectGroupTable.tsx",
+    "sha256": "262640f4f35da6181de6f8e4c1f2b3d830cb403b754982ea74542ebd0b9055c0"
+  },
+  {
+    "path": "src/app/features/project-table/components/ProjectTableWorkspace.tsx",
+    "sha256": "7fea17298fb2e91b166d1e4d20db92dd87823e5c851b72e3d1612df861cc0080"
+  },
+  {
+    "path": "src/app/features/project-table/components/TableToolbar.tsx",
+    "sha256": "25607545f3de5d83062ef0a84cfd63104634d545ea8912f0be4fc9a3c5572def"
+  },
+  {
+    "path": "src/app/features/project-table/components/InlineCreateRow.tsx",
+    "sha256": "23378abf9c2b74f7a38f569054c121a1c06ab061676a04daf876f27daaa3d107"
+  },
+  {
+    "path": "src/app/features/project-views/components/ProjectViewFilters.tsx",
+    "sha256": "d0e5bf39aac0a4f77c1faffaa2a949ef196d7d7b37950d7072729c6b4b174b91"
+  },
+  {
+    "path": "src/app/features/project-views/components/ProjectFilterChips.tsx",
+    "sha256": "5d5c163f53d57d67ef76e2965dd92c073bcec6970ac206b36f6644f07d6d2b12"
+  },
+  {
+    "path": "src/app/features/project-views/filterChips.css",
+    "sha256": "5da1e95168f80fed771c390f76a68eb48ac2197a5f7e7af0e46431ee063219ce"
+  },
+  {
+    "path": "src/app/features/project-table/services/workspaceService.ts",
+    "sha256": "55ec7cc48999ae78a4d65ac07c41deaa147f41f7021eb26971b15b436850b400"
+  },
+  {
+    "path": "src/app/features/project-table/components/SubitemRows.tsx",
+    "sha256": "413aa4bc506ee0586454e379381fdef104520c3336873bf147093c0434d2f731"
+  },
+  {
+    "path": "src/app/features/project-table/types.ts",
+    "sha256": "d29368092426e755fa4dcc88f2aaecc9718666e5c19e6ace6be953413eb74da0"
+  },
+  {
+    "path": "src/app/shared/navigationGuard.ts",
+    "sha256": "75df8b5e08aaa074d878379a39d9b4c3bebcb14f597f4e8df34aa3d1cbb7fc23"
+  },
+  {
+    "path": "src/app/components/workflow/TaskDetailDrawer.tsx",
+    "sha256": "e85215c25367870214f231a71fa31f64ac2461a63ce08cd08a465aca000cb21a"
+  },
+  {
+    "path": "tests/unit/phase11Editors.test.tsx",
+    "sha256": "9477d95e20c2e0c4ac7dfccdd4effaddbffedcf324ac60e9923d7460e50f654f"
+  },
+  {
+    "path": "tests/unit/phase11TableLayout.test.tsx",
+    "sha256": "354175d376292af9f7eff5d39b53d51b5ffddfbd6f2ceeee2f8b687bd53f59ff"
+  },
+  {
+    "path": "tests/unit/projectTable.test.ts",
+    "sha256": "e1af16a7882c6b1d28413ffcc384eb626758218ca80aa7c23e2163bae9d420f2"
+  },
+  {
+    "path": "tests/unit/projectSubitems.test.tsx",
+    "sha256": "41b9bd14369d3df7f67e7b596e6113140492deb286985913de9e711835f14601"
+  },
+  {
+    "path": "tests/unit/inlineCreateRow.test.tsx",
+    "sha256": "503441dd8a305a8ee7a0364c2db9be6d66c775d32935a8b731931055de6ed12a"
+  },
+  {
+    "path": "tests/unit/workspaceFoundation.test.tsx",
+    "sha256": "270a7e12c743eb5b3cb91e6b2560ce18bdd3ab3f8f279d562dfcfabc25a883b3"
+  },
+  {
+    "path": "tests/e2e/phase11-main-table.spec.ts",
+    "sha256": "cabf6f482672fe1a2d90e35edcf48ecd4e11918a7cfb266cde657ffe9a366c18"
+  },
+  {
+    "path": "tests/e2e/fixtures/projectWorkspace.ts",
+    "sha256": "c5769178e2472aab5d0a162b5e93cd323100a8b656e78f638150de9b48f2415e"
+  },
+  {
+    "path": "supabase/migrations/20261004140128_phase3_project_table_workspace.sql",
+    "sha256": "69c2b4d6e5d8cf21944d88cdd6e167278bbf79785275543e7892d9645804e1f0"
+  },
+  {
+    "path": "supabase/migrations/20261004174950_phase6_project_office_collaboration.sql",
+    "sha256": "92e0635b45ae1dbe3d26aeec58cd5af8b817e27e4b2cb4c65e02f819e3d59bee"
+  },
+  {
+    "path": "supabase/migrations/20261004182453_phase6_shared_structure_guards.sql",
+    "sha256": "c472ef02a7c0265bce3df298d4ed02c344c4ed169b2acb7b3112da7297d1fcd6"
+  },
+  {
+    "path": "supabase/migrations/20260821000006_task_team_removal_guard.sql",
+    "sha256": "78f206fcbc033f14e07b3a842cc2dff3f2693224fefadc9adcd5d77514efd743"
+  }
+]

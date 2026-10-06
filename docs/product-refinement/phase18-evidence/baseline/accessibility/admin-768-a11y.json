@@ -1,0 +1,26 @@
+[
+  {
+    "id": "aria-valid-attr-value",
+    "impact": "critical",
+    "nodes": [
+      {
+        "target": [
+          "#radix-\\:r7\\:-trigger-All\\ Users"
+        ],
+        "detail": "Fix all of the following:\n  Invalid ARIA attribute value: aria-controls=\"radix-:r7:-content-All Users\""
+      }
+    ]
+  },
+  {
+    "id": "color-contrast",
+    "impact": "serious",
+    "nodes": [
+      {
+        "target": [
+          ".contentText_61cf023805"
+        ],
+        "detail": "Fix any of the following:\n  Element has insufficient color contrast of 1.8 (foreground color: #ffffff, background color: #66ccff, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+      }
+    ]
+  }
+]

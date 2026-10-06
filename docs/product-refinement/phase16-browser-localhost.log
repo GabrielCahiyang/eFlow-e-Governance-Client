@@ -1,0 +1,54 @@
+
+Running 12 tests using 1 worker
+
+
+
+[1A[2K(node:34772) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K(node:34772) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[1/12] [chromium] › tests\e2e\admin-mobile-dialogs.spec.ts:4:1 › Admin user management remains usable on a narrow phone
+[1A[2K[2/12] [chromium] › tests\e2e\admin-mobile-dialogs.spec.ts:21:1 › workspace proposal import and existing manual planning remain reachable in the phone drawer
+[1A[2K[3/12] [chromium] › tests\e2e\admin-unification.spec.ts:11:3 › super_admin sessions expose the unified Admin management surfaces
+[1A[2K  1) [chromium] › tests\e2e\admin-unification.spec.ts:11:3 › super_admin sessions expose the unified Admin management surfaces 
+
+    Error: expect.toBeVisible: Error: strict mode violation: getByRole('heading', { name: 'User Management', exact: true }) resolved to 2 elements:
+        1) <h3>User Management</h3> aka getByLabel('Workspace destinations').getByRole('heading', { name: 'User Management' })
+        2) <h1 class="text-[22px] font-semibold tracking-tight text-neutral-950">User Management</h1> aka getByLabel('Active workspace').getByRole('heading', { name: 'User Management' })
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('heading', { name: 'User Management', exact: true })[22m
+
+
+      34 |     await sidebar.hover();
+      35 |     await sidebar.getByRole("button", { name: "All Users", exact: true }).click();
+    > 36 |     await expect(page.getByRole("heading", { name: "User Management", exact: true })).toBeVisible();
+         |                                                                                       ^
+      37 |     await page.getByRole("button", { name: "Create user" }).click();
+      38 |     const dialog = page.getByRole("dialog", { name: "Create New User" });
+      39 |     await expect(dialog).toBeVisible();
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\admin-unification.spec.ts:36:87
+
+    Error Context: test-results\admin-unification-super-ad-d9e7e-d-Admin-management-surfaces-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\admin-unification-super-ad-d9e7e-d-Admin-management-surfaces-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\admin-unification-super-ad-d9e7e-d-Admin-management-surfaces-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+[1A[2K(node:6604) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:6604) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[1A[2K[4/12] [chromium] › tests\e2e\admin-unification.spec.ts:11:3 › admin sessions expose the unified Admin management surfaces

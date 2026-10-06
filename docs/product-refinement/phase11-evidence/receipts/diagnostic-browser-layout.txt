@@ -1,0 +1,82 @@
+
+Running 7 tests using 1 worker
+
+(node:32008) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:32008) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  1 [chromium] › tests\e2e\phase11-main-table.spec.ts:6:1 › column widths, alignment, visibility and sticky task context persist locally (8.0s)
+(node:33552) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:33552) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 2 [chromium] › tests\e2e\phase11-main-table.spec.ts:18:1 › date and dependency drafts guard close and retain denied edits for scoped retry (8.6s)
+  ok 3 [chromium] › tests\e2e\phase11-main-table.spec.ts:27:1 › filter chips clear one or all without changing canonical manual ordering (4.6s)
+  x  4 [chromium] › tests\e2e\phase11-main-table.spec.ts:35:1 › group creation guards its draft and empty deletion confirms impact and retries denial (1.5m)
+(node:33588) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:33588) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 5 [chromium] › tests\e2e\phase11-main-table.spec.ts:43:1 › task team entry reuses existing details and mobile sticky context leaves room for work (1.0m)
+  ok 6 [chromium] › tests\e2e\phase11-main-table.spec.ts:48:1 › shared Task Lead team action explains the unresolved authority gate (5.2s)
+  ok 7 [chromium] › tests\e2e\phase11-main-table.spec.ts:52:1 › Observer inspection and closed-project table retain read-only controls (5.5s)
+
+
+  1) [chromium] › tests\e2e\phase11-main-table.spec.ts:6:1 › column widths, alignment, visibility and sticky task context persist locally 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m0[39m
+    Received: [31m5[39m
+
+      12 |  await row.getByRole('button',{name:'Actions for '+title,exact:true}).click();await expect(page.getByRole('menuitem',{name:'Task team & contributors',exact:true})).toBeVisible();await page.keyboard.press('Escape');await page.screenshot({path:info.outputPath('sticky-columns-desktop.png')});
+      13 |  await scroll.evaluate(element=>element.scrollLeft=0);await page.getByRole('button',{name:'Column actions for Budget estimate'}).click();await page.getByRole('menuitem',{name:'Hide column',exact:true}).click();await page.reload();await expect(table.getByRole('separator',{name:'Resize Task column'})).toHaveAttribute('aria-valuenow','352');await expect(table.getByRole('columnheader',{name:'Budget estimate',exact:true})).toHaveCount(0);
+    > 14 |  await page.getByRole('button',{name:'Columns',exact:true}).click();await page.getByRole('button',{name:'Reset column widths',exact:true}).click();await page.keyboard.press('Escape');await expect(table.getByRole('separator',{name:'Resize Task column'})).toHaveAttribute('aria-valuenow','320');await expect(table.getByRole('columnheader',{name:'Budget estimate',exact:true})).toHaveCount(0);expect(writes).toBe(0);expect(records.tasks.map(task=>task.workspace_position)).toEqual([0,1,2]);
+         |                                                                                                                                                                                                                                                                                                                                                                                                                      ^
+      15 |  await page.screenshot({path:info.outputPath('table-layout-desktop.png'),fullPage:true});
+      16 | });
+      17 |
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase11-main-table.spec.ts:14:406
+
+    Error Context: test-results\phase11-browser-recheck\phase11-main-table-column--81782-ask-context-persist-locally-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase11-browser-recheck\phase11-main-table-column--81782-ask-context-persist-locally-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase11-browser-recheck\phase11-main-table-column--81782-ask-context-persist-locally-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › tests\e2e\phase11-main-table.spec.ts:35:1 › group creation guards its draft and empty deletion confirms impact and retries denial 
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: locator.fill: Test timeout of 90000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('dialog', { name: 'New group', exact: true }).getByLabel('Group name', { exact: true })[22m
+
+
+      35 | test('group creation guards its draft and empty deletion confirms impact and retries denial',async({page},info)=>{
+      36 |  test.setTimeout(90_000);const records=await fixture(page,'head');await page.getByRole('button',{name:'Group actions for To do',exact:true}).click();await expect(page.getByRole('menuitem',{name:'Delete empty group',exact:true})).toBeDisabled();await expect(page.getByText('The default group must remain available for project work.')).toBeVisible();await page.keyboard.press('Escape');await expect(page.getByRole('menu')).toHaveCount(0);
+    > 37 |  await page.getByRole('button',{name:'New group',exact:true}).click();const create=page.getByRole('dialog',{name:'New group',exact:true});await expect(create).toBeVisible({timeout:5000});await create.getByRole('textbox',{name:'Group name',exact:true}).fill('Follow-up');await create.getByRole('button',{name:'Cancel',exact:true}).click();await page.getByRole('button',{name:'Keep editing',exact:true}).click();await expect(create.getByRole('textbox',{name:'Group name',exact:true})).toHaveValue('Follow-up');await create.getByRole('button',{name:'Add group',exact:true}).click();await expect(create).toHaveCount(0);await expect(page.getByRole('button',{name:'Group actions for Follow-up',exact:true})).toBeVisible();
+         |                                                                                                                                                                                              ^
+      38 |  let attempts=0;await page.route('**/rest/v1/project_groups?**',route=>{if(route.request().method()!=='DELETE')return route.fallback();attempts++;if(attempts===1)return route.fulfill({status:403,json:{message:'Synthetic group denial'}});const id=new URL(route.request().url()).searchParams.get('id')!.slice(3);const index=records.groups.findIndex(group=>group.id===id);records.groups.splice(index,1);return route.fulfill({json:[{id}]});});
+      39 |  await page.getByRole('button',{name:'Group actions for Follow-up',exact:true}).click();await page.getByRole('menuitem',{name:'Delete empty group',exact:true}).click();const confirm=page.getByRole('alertdialog',{name:'Delete Follow-up?',exact:true});await expect(confirm).toContainText('No tasks or task history will be deleted');await confirm.getByRole('button',{name:'Cancel',exact:true}).click();expect(attempts).toBe(0);
+      40 |  await page.getByRole('button',{name:'Group actions for Follow-up',exact:true}).click();await page.getByRole('menuitem',{name:'Delete empty group',exact:true}).click();await confirm.getByRole('button',{name:'Delete group',exact:true}).click();const error=page.getByRole('alert').filter({hasText:'Synthetic group denial'});await expect(error).toBeVisible();await page.screenshot({path:info.outputPath('group-deletion-error-desktop.png')});await error.getByRole('button',{name:'Retry deletion',exact:true}).click();await confirm.getByRole('button',{name:'Delete group',exact:true}).click();await expect(page.getByRole('button',{name:'Group actions for Follow-up',exact:true})).toHaveCount(0);expect(attempts).toBe(2);
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase11-main-table.spec.ts:37:190
+
+    Error Context: test-results\phase11-browser-recheck\phase11-main-table-group-c-d17ef-s-impact-and-retries-denial-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase11-browser-recheck\phase11-main-table-group-c-d17ef-s-impact-and-retries-denial-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase11-browser-recheck\phase11-main-table-group-c-d17ef-s-impact-and-retries-denial-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [chromium] › tests\e2e\phase11-main-table.spec.ts:6:1 › column widths, alignment, visibility and sticky task context persist locally 
+    [chromium] › tests\e2e\phase11-main-table.spec.ts:35:1 › group creation guards its draft and empty deletion confirms impact and retries denial 
+  5 passed (3.2m)

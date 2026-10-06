@@ -1,0 +1,90 @@
+Diagnostic only; superseded by final passing receipts.
+
+
+Running 5 tests using 1 worker
+
+(node:11308) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:11308) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  1 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:9:1 › shared inspector keeps discussion drafts and returns focus to each view origin (11.1s)
+(node:13788) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:13788) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 2 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:30:1 › date range is consistent across views and personal after reload (5.8s)
+  x  3 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:42:1 › mobile observer inspector stays read only and traps and returns focus (9.5s)
+(node:38764) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38764) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 4 [chromium] › tests\e2e\phase4-project-views.spec.ts:11:1 › Phase 4 shares filters and edits across Board, Gantt, Calendar, Dashboard and Offices (11.3s)
+  ok 5 [chromium] › tests\e2e\phase4-project-views.spec.ts:99:1 › Member can inspect views at 390px without structural date controls (4.6s)
+
+
+  1) [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:9:1 › shared inspector keeps discussion drafts and returns focus to each view origin 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  getByRole('dialog', { name: 'Task details: Prepare community assessment' })
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('dialog', { name: 'Task details: Prepare community assessment' })[22m
+
+
+      14 |   const trigger = name==='Board' ? page.locator('.eflow-figma-task-card').filter({hasText:title}).first() : name==='Gantt' ? page.getByRole('button',{name:'Gantt task '+title,exact:true}) : name==='Calendar' ? page.locator('.fc-daygrid-event').filter({hasText:title}).first() : name==='Project Dashboard' ? page.locator('.pv-deadline-list button').filter({hasText:title}).first() : page.locator('.pv-office-row').getByRole('button',{name:title,exact:true});
+      15 |   await trigger.focus(); await trigger.click();
+    > 16 |   const inspector = page.getByRole('dialog',{name:'Task details: '+title}); await expect(inspector).toBeVisible();
+         |                                                                                                     ^
+      17 |   await expect(inspector.getByRole('tab',{name:'Evidence',exact:true})).toBeVisible();
+      18 |   await expect(inspector.getByLabel('Task team and subtasks')).toBeVisible();
+      19 |   await inspector.getByRole('tab',{name:'Discussion',exact:true}).click();
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase12-shared-inspector.spec.ts:16:101
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase12-views\phase12-shared-inspector-s-5c03f-s-focus-to-each-view-origin-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase12-views\phase12-shared-inspector-s-5c03f-s-focus-to-each-view-origin-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:42:1 › mobile observer inspector stays read only and traps and returns focus 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  getByRole('dialog', { name: 'Task details: Prepare community assessment' })
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('dialog', { name: 'Task details: Prepare community assessment' })[22m
+
+
+      44 |  await view(page,'Board');
+      45 |  const trigger=page.locator('.eflow-figma-task-card').filter({hasText:title}).first(); await trigger.focus(); await trigger.press('Enter');
+    > 46 |  const inspector=page.getByRole('dialog',{name:'Task details: '+title}); await expect(inspector).toBeVisible();
+         |                                                                                                  ^
+      47 |  await expect(inspector.getByText('Read-only oversight record')).toBeVisible();
+      48 |  await inspector.getByRole('tab',{name:'Discussion',exact:true}).click(); await expect(inspector.getByRole('textbox')).toHaveCount(0);
+      49 |  await inspector.getByRole('tab',{name:'Evidence',exact:true}).click();
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase12-shared-inspector.spec.ts:46:98
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase12-views\phase12-shared-inspector-m-bb4ba-and-traps-and-returns-focus-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase12-views\phase12-shared-inspector-m-bb4ba-and-traps-and-returns-focus-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:9:1 › shared inspector keeps discussion drafts and returns focus to each view origin 
+    [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:42:1 › mobile observer inspector stays read only and traps and returns focus 
+  3 passed (45.7s)

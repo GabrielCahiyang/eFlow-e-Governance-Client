@@ -1,0 +1,117 @@
+Diagnostic only, superseded by passing final receipts.
+
+
+Running 32 tests using 1 worker
+
+(node:36124) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:36124) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [chromium] › tests\e2e\navigation-v2.spec.ts:10:75 › head retains its landing and authorized destinations through global/context navigation (7.3s)
+  ok  2 [chromium] › tests\e2e\navigation-v2.spec.ts:10:75 › member retains its landing and authorized destinations through global/context navigation (8.9s)
+  ok  3 [chromium] › tests\e2e\navigation-v2.spec.ts:10:75 › accounting_staff retains its landing and authorized destinations through global/context navigation (5.9s)
+  ok  4 [chromium] › tests\e2e\navigation-v2.spec.ts:10:75 › admin retains its landing and authorized destinations through global/context navigation (6.1s)
+  ok  5 [chromium] › tests\e2e\navigation-v2.spec.ts:35:1 › individual support grants reach the named screen and denied routes load no audit records (6.9s)
+  ok  6 [chromium] › tests\e2e\navigation-v2.spec.ts:49:1 › search and favorites retain a shared inter-Office observer project without offering creation (5.8s)
+  ok  7 [chromium] › tests\e2e\navigation-v2.spec.ts:67:1 › creation menu uses existing handlers, retains failed drafts and discards only after confirmation (5.8s)
+  ok  8 [chromium] › tests\e2e\navigation-v2.spec.ts:91:1 › dirty Security editor keeps navigation and browser history until explicit discard (5.7s)
+  ok  9 [chromium] › tests\e2e\navigation-v2.spec.ts:111:1 › failed inline task remains intact when shell navigation is canceled and logout clears local navigation preferences (5.8s)
+  ok 10 [chromium] › tests\e2e\navigation-v2.spec.ts:127:1 › unassigned Office and zero projects remain usable without exposing stale context (5.0s)
+  ok 11 [chromium] › tests\e2e\navigation-v2.spec.ts:140:40 › responsive navigation, project context and utilities at 1440px (4.5s)
+  x  12 [chromium] › tests\e2e\navigation-v2.spec.ts:140:40 › responsive navigation, project context and utilities at 768px (34.0s)
+(node:42412) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:42412) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 13 [chromium] › tests\e2e\navigation-v2.spec.ts:140:40 › responsive navigation, project context and utilities at 390px (5.2s)
+  ok 14 [chromium] › tests\e2e\navigation-v2.spec.ts:140:40 › responsive navigation, project context and utilities at 320px (4.9s)
+  ok 15 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:9:1 › shared inspector keeps discussion drafts and returns focus to each view origin (14.3s)
+  ok 16 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:31:1 › date range is consistent across views and personal after reload (5.8s)
+  ok 17 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:43:1 › mobile observer inspector stays read only and traps and returns focus (4.6s)
+  ok 18 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:56:1 › Board keyboard action prevents duplicate requests and recovers from denial (4.4s)
+  ok 19 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:65:1 › shared Task Lead team mutations stay gated by G2 while details remain available (5.9s)
+  ok 20 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:73:1 › review drafts stay protected and evidence loading denial has an explicit retry (7.9s)
+  ok 21 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:86:1 › removed canonical task closes mutation controls and explains unavailable access (4.4s)
+  ok 22 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:94:1 › successful inspector lifecycle change returns focus to the refreshed Board card (4.3s)
+  ok 23 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:101:1 › mobile team dialog guards drafts and retains a denied member change (8.3s)
+  ok 24 [chromium] › tests\e2e\phase13-personal-work.spec.ts:10:66 › head discovers personal work and keeps legacy task and subtask URLs (5.4s)
+  ok 25 [chromium] › tests\e2e\phase13-personal-work.spec.ts:10:66 › member discovers personal work and keeps legacy task and subtask URLs (5.5s)
+  ok 26 [chromium] › tests\e2e\phase13-personal-work.spec.ts:10:66 › accounting_staff discovers personal work and keeps legacy task and subtask URLs (5.3s)
+  ok 27 [chromium] › tests\e2e\phase13-personal-work.spec.ts:23:1 › mobile personal inspector retains dirty discussion and returns focus (5.2s)
+  ok 28 [chromium] › tests\e2e\phase13-personal-work.spec.ts:30:1 › My Work read failure is retryable and never a clear queue (4.0s)
+  ok 29 [chromium] › tests\e2e\phase13-personal-work.spec.ts:36:1 › Inbox keeps independent task and subtask discovery and exposes partial source denial (4.1s)
+  ok 30 [chromium] › tests\e2e\phase13-personal-work.spec.ts:45:1 › recent Updates verify read writes, retain denied read state and explain missing targets at 390px (4.4s)
+  ok 31 [chromium] › tests\e2e\phase13-personal-work.spec.ts:56:1 › Admin Inbox does not acquire task, financial or review authority (3.9s)
+  x  32 [chromium] › tests\e2e\phase13-personal-work.spec.ts:61:1 › subtask discovery delegates a stable identity and guards review feedback across navigation (6.0s)
+
+
+  1) [chromium] › tests\e2e\navigation-v2.spec.ts:140:40 › responsive navigation, project context and utilities at 768px 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  locator('.eflow-productivity-sidebar').first()
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  30000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 30000ms[22m
+    [2m  - waiting for locator('.eflow-productivity-sidebar').first()[22m
+
+
+       at fixtures\projectWorkspace.ts:76
+
+      74 |     return {tasks,projects,groups,subtasks,id,org,project,profiles,organizations,projectOffices,officeMembers,profile};
+      75 |   }
+    > 76 |   if ((page.viewportSize()?.width || 1280) >= 768) { await expect(sidebar).toBeVisible({timeout:30_000}); await sidebar.getByRole('button', { name: 'Workspaces', exact: true }).press('Enter'); }
+         |                                                                            ^
+      77 |   else await page.getByRole('navigation', { name: 'Mobile primary navigation' }).getByRole('button', { name: 'Projects', exact: true }).click();
+      78 |   await expect(page.getByRole('region', { name: 'Project main table' })).toBeVisible({ timeout: 30_000 });
+      79 |   await expect(page.getByRole('button', { name: 'Edit task Prepare community assessment' })).toBeVisible();
+        at projectWorkspaceFixture (C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\fixtures\projectWorkspace.ts:76:76)
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\navigation-v2.spec.ts:142:51
+
+    Error Context: test-results\phase13-browser\navigation-v2-responsive-n-6793f-text-and-utilities-at-768px-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase13-browser\navigation-v2-responsive-n-6793f-text-and-utilities-at-768px-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase13-browser\navigation-v2-responsive-n-6793f-text-and-utilities-at-768px-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › tests\e2e\phase13-personal-work.spec.ts:61:1 › subtask discovery delegates a stable identity and guards review feedback across navigation 
+
+    Error: expect.toBeVisible: Error: strict mode violation: getByRole('heading', { name: 'Inbox', exact: true }) resolved to 2 elements:
+        1) <h2>Inbox</h2> aka getByLabel('Workspace content').getByRole('heading', { name: 'Inbox' })
+        2) <h1 class="text-2xl font-semibold">Inbox</h1> aka getByLabel('Personal Inbox').getByRole('heading', { name: 'Inbox' })
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('heading', { name: 'Inbox', exact: true })[22m
+
+
+      68 |  await page.route('**/rest/v1/rpc/decide_subtask_review',route=>{decisions++;return route.fulfill({status:403,json:{message:'Review decision denied'}});});await page.getByRole('button',{name:'Request changes',exact:true}).click();await expect(page.getByText('Review decision denied',{exact:false})).toBeVisible();await expect(feedback).toHaveValue('Correct the evidence');expect(decisions).toBe(1);
+      69 |  await page.screenshot({path:info.outputPath('delegated-review-draft.png'),fullPage:true,animations:'disabled'});
+    > 70 |  await personalNavigationAttempt(page);await page.getByRole('button',{name:'Discard',exact:true}).click();await expect(page.getByRole('heading',{name:'Inbox',exact:true})).toBeVisible();
+         |                                                                                                                                                                             ^
+      71 | });
+      72 | async function personalNavigationAttempt(page:Page) {await page.getByRole('navigation',{name:'Global navigation'}).getByRole('button',{name:'Inbox',exact:true}).click();}
+      73 |
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase13-personal-work.spec.ts:70:173
+
+    Error Context: test-results\phase13-browser\phase13-personal-work-subt-3f7d8--feedback-across-navigation-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase13-browser\phase13-personal-work-subt-3f7d8--feedback-across-navigation-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase13-browser\phase13-personal-work-subt-3f7d8--feedback-across-navigation-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [chromium] › tests\e2e\navigation-v2.spec.ts:140:40 › responsive navigation, project context and utilities at 768px 
+    [chromium] › tests\e2e\phase13-personal-work.spec.ts:61:1 › subtask discovery delegates a stable identity and guards review feedback across navigation 
+  30 passed (3.7m)

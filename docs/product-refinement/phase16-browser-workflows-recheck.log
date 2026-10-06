@@ -1,0 +1,135 @@
+
+Running 8 tests using 1 worker
+
+
+
+[1A[2K(node:12208) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K(node:12208) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[1/8] [chromium] › tests\e2e\phase16-support-finance.spec.ts:9:1 › Admin Center keeps legacy pages, account inspection and unsaved account edits
+[1A[2K  1) [chromium] › tests\e2e\phase16-support-finance.spec.ts:9:1 › Admin Center keeps legacy pages, account inspection and unsaved account edits 
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: locator.fill: Test timeout of 90000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('dialog', { name: /Edit User/ }).getByLabel('Full Name', { exact: true })[22m
+
+
+      29 |     .click();
+      30 |   const edit = page.getByRole("dialog", { name: /Edit User/ });
+    > 31 |   await edit.getByLabel("Full Name", { exact: true }).fill("Draft identity");
+         |                                                       ^
+      32 |   await edit.getByRole("button", { name: "Cancel", exact: true }).click();
+      33 |   const discard = page.getByRole("alertdialog");
+      34 |   await expect(discard).toBeVisible();
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase16-support-finance.spec.ts:31:55
+
+    Error Context: test-results\phase16-support-finance-Ad-6ea46-n-and-unsaved-account-edits-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase16-support-finance-Ad-6ea46-n-and-unsaved-account-edits-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase16-support-finance-Ad-6ea46-n-and-unsaved-account-edits-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+[1A[2K(node:42712) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+
+[1A[2K(node:42712) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[1A[2K[2/8] [chromium] › tests\e2e\phase16-support-finance.spec.ts:59:1 › Account audit has bounded coverage, loaded filters, nested redaction and truthful unavailable reads on a phone
+[1A[2K[3/8] [chromium] › tests\e2e\phase16-support-finance.spec.ts:129:1 › Accounting retains fiscal scope, exposes settlements, records one decision and inspects its balanced journal
+[1A[2K  2) [chromium] › tests\e2e\phase16-support-finance.spec.ts:129:1 › Accounting retains fiscal scope, exposes settlements, records one decision and inspects its balanced journal 
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 90000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('navigation', { name: 'Accounting views', exact: true }).getByRole('button', { name: 'Budget ledger', exact: true })[22m
+
+
+      181 |   await accountingNav(page)
+      182 |     .getByRole("button", { name: "Budget ledger", exact: true })
+    > 183 |     .click();
+          |      ^
+      184 |   await expect(
+      185 |     page.getByText("FY 2027 · Budget position", { exact: true }),
+      186 |   ).toBeVisible();
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase16-support-finance.spec.ts:183:6
+
+    Error Context: test-results\phase16-support-finance-Ac-e07b8-spects-its-balanced-journal-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase16-support-finance-Ac-e07b8-spects-its-balanced-journal-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase16-support-finance-Ac-e07b8-spects-its-balanced-journal-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+[1A[2K(node:38984) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+
+[1A[2K(node:38984) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[1A[2K[4/8] [chromium] › tests\e2e\phase16-support-finance.spec.ts:195:1 › Uncertain settlement keeps its reason and requires verification before resubmission
+[1A[2K[5/8] [chromium] › tests\e2e\phase16-support-finance.spec.ts:232:1 › Journal correction has guarded lines, explicit posting and a retained uncertainty receipt on a phone
+[1A[2K[6/8] [chromium] › tests\e2e\phase16-support-finance.spec.ts:280:1 › Release handover uses its existing physical confirmation and blocks an uncertain repeat
+[1A[2K[7/8] [chromium] › tests\e2e\phase16-support-finance.spec.ts:311:1 › Reports retain seven lenses, filtered CSV export and the task inspector
+[1A[2K  3) [chromium] › tests\e2e\phase16-support-finance.spec.ts:311:1 › Reports retain seven lenses, filtered CSV export and the task inspector 
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 90000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: /Open task.*Prepare community assessment/ })[22m
+
+
+      333 |   await page
+      334 |     .getByRole("button", { name: /Open task.*Prepare community assessment/ })
+    > 335 |     .click();
+          |      ^
+      336 |   await expect(
+      337 |     page.getByRole("dialog", { name: /Task details:/ }),
+      338 |   ).toBeVisible();
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase16-support-finance.spec.ts:335:6
+
+    Error Context: test-results\phase16-support-finance-Re-0a267-port-and-the-task-inspector-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase16-support-finance-Re-0a267-port-and-the-task-inspector-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase16-support-finance-Re-0a267-port-and-the-task-inspector-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+[1A[2K(node:28776) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:28776) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[1A[2K[8/8] [chromium] › tests\e2e\phase16-support-finance.spec.ts:342:1 › Backup preflight stays unavailable without gateway configuration
+[1A[2K  3 failed
+    [chromium] › tests\e2e\phase16-support-finance.spec.ts:9:1 › Admin Center keeps legacy pages, account inspection and unsaved account edits 
+    [chromium] › tests\e2e\phase16-support-finance.spec.ts:129:1 › Accounting retains fiscal scope, exposes settlements, records one decision and inspects its balanced journal 
+    [chromium] › tests\e2e\phase16-support-finance.spec.ts:311:1 › Reports retain seven lenses, filtered CSV export and the task inspector 
+  5 passed (5.3m)

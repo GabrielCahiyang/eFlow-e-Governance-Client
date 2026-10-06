@@ -1,0 +1,180 @@
+
+Running 18 tests using 2 workers
+
+(node:34928) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:13032) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:34928) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:13032) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  2 [chromium] › tests\e2e\phase3-project-table.spec.ts:4:1 › Head table keeps first-column task actions, task edits and inline subitems (10.3s)
+  x   1 [chromium] › tests\e2e\phase10-project-workspace.spec.ts:9:1 › project identity, settings retry, favorites and browser history use one project (13.4s)
+(node:10932) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:10932) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  3 [chromium] › tests\e2e\phase3-project-table.spec.ts:45:1 › Member table protects structure and keeps detail access at 390px (5.2s)
+  ok  5 [chromium] › tests\e2e\phase3-project-table.spec.ts:62:1 › Inline tasks save on blur, keep adding with Shift+Enter, and retain failed drafts (6.4s)
+  ok  4 [chromium] › tests\e2e\phase10-project-workspace.spec.ts:37:1 › existing lifecycle dialogs retain notes, server denials and deletion impact (7.8s)
+  x   7 [chromium] › tests\e2e\phase10-project-workspace.spec.ts:50:1 › Observer utilities stay read-only and sharing keeps current access requirements at 390px (5.3s)
+(node:40520) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:40520) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  6 [chromium] › tests\e2e\phase4-project-views.spec.ts:11:1 › Phase 4 shares filters and edits across Board, Gantt, Calendar, Dashboard and Offices (10.5s)
+  ok  9 [chromium] › tests\e2e\phase4-project-views.spec.ts:93:1 › Member can inspect views at 390px without structural date controls (6.7s)
+  x   8 [chromium] › tests\e2e\phase10-project-workspace.spec.ts:60:1 › participant failure retries its source and long project identity stays within the viewport (12.9s)
+(node:32476) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:32476) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 10 [chromium] › tests\e2e\phase6-project-offices.spec.ts:5:1 › Lead invites an Office and hands over responsibility without assigning its staff (14.3s)
+  ok 12 [chromium] › tests\e2e\phase6-project-offices.spec.ts:45:1 › Collaborating Head sees a roomy own-Office member picker and only edits its own tasks (11.5s)
+  ok 13 [chromium] › tests\e2e\phase6-project-offices.spec.ts:71:1 › Observer opens the project without editable owners or task planning (9.1s)
+  ok 14 [chromium] › tests\e2e\project-workspace-controls.spec.ts:19:1 › Project actions open visible menus and dialogs, and the board returns to the filtered table (11.5s)
+  x  11 [chromium] › tests\e2e\phase7-readiness-staffing.spec.ts:18:1 › Head confirms readiness; desktop and mobile retain readable checks and closeout blockers (13.2s)
+(node:40748) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:40748) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 15 [chromium] › tests\e2e\project-workspace-controls.spec.ts:73:1 › View picker, board return and first-column task actions remain reachable at 390px (9.1s)
+  ok 16 [chromium] › tests\e2e\phase7-readiness-staffing.spec.ts:35:1 › Staffing is advisory until Head confirmation; roomy dialog supports keyboard selection and mobile footer (13.1s)
+  ok 17 [chromium] › tests\e2e\project-workspace-controls.spec.ts:104:1 › Overflow views stay selectable and closable outside the mobile tab scroller (11.3s)
+  ok 18 [chromium] › tests\e2e\phase7-readiness-staffing.spec.ts:59:1 › Member reads readiness without Head review, activation or staffing controls (6.5s)
+
+
+  1) [chromium] › tests\e2e\phase10-project-workspace.spec.ts:9:1 › project identity, settings retry, favorites and browser history use one project 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByRole('dialog', { name: 'Project settings', exact: true }).getByRole('alert')
+    Expected string: [32m"S[7mynthetic metadata denial[27m"[39m
+    Received string: [31m"S[7mettings could not be savedCould not save project settings. Your changes are retained. Retry with Save changes.[27m"[39m
+    Timeout: 5000ms
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('dialog', { name: 'Project settings', exact: true }).getByRole('alert')[22m
+    [2m    9 × locator resolved to <div role="alert" data-tone="error" class="eflow-feedback">…</div>[22m
+    [2m      - unexpected value "Settings could not be savedCould not save project settings. Your changes are retained. Retry with Save changes."[22m
+
+
+      24 |     Object.assign(records.projects[0],route.request().postDataJSON());return route.fulfill({json:null});
+      25 |   });
+    > 26 |   await settings.getByRole('button',{name:'Save changes',exact:true}).click(); await expect(settings.getByRole('alert')).toContainText('Synthetic metadata denial');
+         |                                                                                                                          ^
+      27 |   await expect(settings.getByLabel('Description')).toHaveValue('Retained metadata revision');
+      28 |   await settings.getByRole('button',{name:'Save changes',exact:true}).click(); await expect(settings.getByRole('status')).toContainText('Project settings saved.');
+      29 |   expect(attempts).toBe(2);expect(patches[1]).toEqual({description:'Retained metadata revision'});
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase10-project-workspace.spec.ts:26:122
+
+    Error Context: test-results\phase10-acceptance\phase10-project-workspace--aa443-ser-history-use-one-project-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase10-acceptance\phase10-project-workspace--aa443-ser-history-use-one-project-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase10-acceptance\phase10-project-workspace--aa443-ser-history-use-one-project-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › tests\e2e\phase10-project-workspace.spec.ts:50:1 › Observer utilities stay read-only and sharing keeps current access requirements at 390px 
+
+    Error: locator.click: Error: strict mode violation: getByRole('dialog', { name: 'Project settings', exact: true }).getByRole('button', { name: 'Close', exact: true }) resolved to 2 elements:
+        1) <button type="button" data-slot="button" data-size="default" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-semibold transition-[background-color,border-color,color,box-shadow] duration-120 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 aria-invalid:rin…>Close</button> aka getByRole('contentinfo').getByRole('button', { name: 'Close' })
+        2) <button type="button" class="ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-md opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4">…</button> aka getByRole('button', { name: 'Close' }).nth(1)
+
+    Call log:
+    [2m  - waiting for getByRole('dialog', { name: 'Project settings', exact: true }).getByRole('button', { name: 'Close', exact: true })[22m
+
+
+      52 |   await expect(page.getByRole('button',{name:'Edit project name',exact:true})).toBeDisabled();
+      53 |   await page.getByRole('button',{name:'Project actions',exact:true}).click();await expect(page.getByRole('menuitem',{name:/Delete project|Mark project complete|Archive project/})).toHaveCount(0);
+    > 54 |   await page.getByRole('menuitem',{name:'Project settings',exact:true}).click();const settings=page.getByRole('dialog',{name:'Project settings',exact:true});await expect(settings.getByLabel('Project name')).toBeDisabled();await expect(settings.getByRole('button',{name:'Save changes'})).toHaveCount(0);await settings.getByRole('button',{name:'Close',exact:true}).click();
+         |                                                                                                                                                                                                                                                                                                                                                                            ^
+      55 |   await page.getByRole('button',{name:'Invite / share',exact:true}).click();const share=page.getByRole('dialog',{name:'Share project',exact:true});await expect(share).toContainText('copying it does not invite anyone or grant permissions');await expect(share.getByLabel('Project link')).toHaveValue(/project=20000000/);
+      56 |   expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);await page.screenshot({path:info.outputPath('project-share-mobile.png')});await page.keyboard.press('Escape');await expect(page.getByRole('button',{name:'Invite / share',exact:true})).toBeFocused();
+      57 |   await page.screenshot({path:info.outputPath('project-workspace-mobile.png'),fullPage:true});
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase10-project-workspace.spec.ts:54:364
+
+    Error Context: test-results\phase10-acceptance\phase10-project-workspace--71b42-ccess-requirements-at-390px-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase10-acceptance\phase10-project-workspace--71b42-ccess-requirements-at-390px-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase10-acceptance\phase10-project-workspace--71b42-ccess-requirements-at-390px-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [chromium] › tests\e2e\phase10-project-workspace.spec.ts:60:1 › participant failure retries its source and long project identity stays within the viewport 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByRole('alert').filter({ hasText: 'Project participants unavailable' })
+    Expected string: [32m"Participant source unavailable"[39m
+    Received: <element(s) not found>
+    Timeout: 5000ms
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('alert').filter({ hasText: 'Project participants unavailable' })[22m
+
+
+      61 |   test.setTimeout(90_000);const records=await projectWorkspaceFixture(page,'head');records.projects[0].title='A very long community project identity with several participating Offices and a detailed public service delivery title';
+      62 |   let failures=true;let officeReads=0;await page.route('**/rest/v1/project_offices?**',route=>{officeReads++;return failures?route.fulfill({status:503,json:{message:'Participant source unavailable'}}):route.fallback();});
+    > 63 |   await page.reload();const error=page.getByRole('alert').filter({hasText:'Project participants unavailable'});await expect(error).toContainText('Participant source unavailable');failures=false;await error.getByRole('button',{name:'Retry',exact:true}).click();await expect(error).toHaveCount(0);expect(officeReads).toBeGreaterThanOrEqual(2);
+         |                                                                                                                                    ^
+      64 |   await page.setViewportSize({width:390,height:844});await expect(page.getByRole('heading',{name:/A very long community/})).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);await page.screenshot({path:info.outputPath('project-long-title-mobile.png'),fullPage:true});
+      65 |   await page.goto('/projects?page=Projects&project='+records.project+'&view=work');await expect(page.getByRole('tab',{name:'Main table',exact:true})).toHaveAttribute('aria-selected','true');
+      66 |   await page.goto('/projects?page=Projects&project='+records.project+'&view=people');await expect(page.getByRole('tab',{name:'Workload & Team',exact:true})).toHaveAttribute('aria-selected','true');
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase10-project-workspace.spec.ts:63:132
+
+    Error Context: test-results\phase10-acceptance\phase10-project-workspace--3acd4-y-stays-within-the-viewport-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase10-acceptance\phase10-project-workspace--3acd4-y-stays-within-the-viewport-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase10-acceptance\phase10-project-workspace--3acd4-y-stays-within-the-viewport-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [chromium] › tests\e2e\phase7-readiness-staffing.spec.ts:18:1 › Head confirms readiness; desktop and mobile retain readable checks and closeout blockers 
+
+    Error: expect.toContainText: Error: strict mode violation: getByRole('region', { name: 'Project readiness and closeout' }).getByRole('status') resolved to 2 elements:
+        1) <p role="status" class="p7-notice">Project activated. All current readiness checks p…</p> aka getByText('Project activated. All')
+        2) <div role="status" aria-label="Loading readiness">…</div> aka getByRole('status', { name: 'Loading readiness' })
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('region', { name: 'Project readiness and closeout' }).getByRole('status')[22m
+
+
+      27 |  await page.screenshot({path:info.outputPath('readiness-desktop.png')});
+      28 |  await panel.getByRole('button',{name:'Activate project',exact:true}).click();await expect.poll(()=>flow.activated).toBe(1);expect(flow.closed).toBe(0);
+    > 29 |  await expect(panel.getByRole('status')).toContainText('activated');
+         |                                          ^
+      30 |  await page.setViewportSize({width:390,height:844});await expect(panel).toBeVisible();
+      31 |  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+      32 |  const checks=await panel.locator('.p7-check').evaluateAll(rows=>rows.map(row=>({width:row.getBoundingClientRect().width,height:row.getBoundingClientRect().height})));expect(checks.every(c=>c.width>=280&&c.height>=100)).toBe(true);
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase7-readiness-staffing.spec.ts:29:42
+
+    Error Context: test-results\phase10-acceptance\phase7-readiness-staffing--27cfb-hecks-and-closeout-blockers-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase10-acceptance\phase7-readiness-staffing--27cfb-hecks-and-closeout-blockers-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase10-acceptance\phase7-readiness-staffing--27cfb-hecks-and-closeout-blockers-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    [chromium] › tests\e2e\phase10-project-workspace.spec.ts:9:1 › project identity, settings retry, favorites and browser history use one project 
+    [chromium] › tests\e2e\phase10-project-workspace.spec.ts:50:1 › Observer utilities stay read-only and sharing keeps current access requirements at 390px 
+    [chromium] › tests\e2e\phase10-project-workspace.spec.ts:60:1 › participant failure retries its source and long project identity stays within the viewport 
+    [chromium] › tests\e2e\phase7-readiness-staffing.spec.ts:18:1 › Head confirms readiness; desktop and mobile retain readable checks and closeout blockers 
+  14 passed (2.0m)

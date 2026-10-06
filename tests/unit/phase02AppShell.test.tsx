@@ -18,14 +18,14 @@ const navigationItems: ShellNavigationItem[] = [
     id: "dashboard",
     icon: null,
     label: "Overview",
-    group: "Office",
+    group: "home",
     pages: [{ label: "Dashboard" }],
   },
   {
     id: "tasks",
     icon: null,
     label: "Tasks",
-    group: "Office",
+    group: "workspaces",
     pages: [{ label: "My Tasks" }, { label: "Task Board" }],
   },
 ];
@@ -41,6 +41,7 @@ function SidebarFixture({ onPageSelect = vi.fn() }: { onPageSelect?: (section: s
         activePage={selection.page}
         activeSection={selection.section}
         navigationItems={navigationItems}
+        role="head"
         onPageSelect={(section, page) => {
           onPageSelect(section, page);
           setSelection({ section, page });
@@ -56,25 +57,25 @@ describe("Phase 02 productivity sidebar", () => {
     render(<SidebarFixture onPageSelect={onPageSelect} />);
     fireEvent.mouseEnter(screen.getByRole("complementary", { name: "Primary navigation" }));
 
-    fireEvent.click(screen.getByRole("button", { name: "Tasks" }));
+    fireEvent.click(screen.getByRole("button", { name: "Workspaces" }));
     expect(onPageSelect).toHaveBeenCalledWith("tasks", "My Tasks");
 
     fireEvent.click(screen.getByRole("button", { name: "Task Board" }));
     expect(onPageSelect).toHaveBeenLastCalledWith("tasks", "Task Board");
-    expect(screen.getByRole("button", { name: "Tasks" }).getAttribute("aria-pressed")).toBe("true");
+    expect(screen.getByRole("button", { name: "Task Board" }).getAttribute("aria-current")).toBe("page");
   });
 
-  it("reveals the labelled navigation on hover without manual toggle buttons", () => {
+  it("keeps labelled global destinations available without hover", () => {
     render(<SidebarFixture />);
 
     const sidebar = screen.getByRole("complementary", { name: "Primary navigation" });
-    expect(sidebar.getAttribute("data-navigation-density")).toBe("compact");
+    expect(sidebar.getAttribute("data-navigation-density")).toBe("expanded");
 
     fireEvent.mouseEnter(sidebar);
     expect(sidebar.getAttribute("data-navigation-density")).toBe("expanded");
-    expect(screen.getByRole("button", { name: "Tasks" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Workspaces" })).toBeTruthy();
 
     fireEvent.mouseLeave(sidebar);
-    expect(sidebar.getAttribute("data-navigation-density")).toBe("compact");
+    expect(sidebar.getAttribute("data-navigation-density")).toBe("expanded");
   });
 });

@@ -2,6 +2,7 @@ import * as React from "react";
 import * as Icons from "lucide-react";
 import { Modal } from "../../../components/ui/Modal";
 import { archiveProject, restoreProject } from "../services/projectService";
+import { useGuardedProjectDialog } from '../hooks/useGuardedProjectDialog';
 
 export function ProjectArchiveDialog({
   projectId,
@@ -21,6 +22,8 @@ export function ProjectArchiveDialog({
   const [reason, setReason] = React.useState("");
   const [submitting, setSubmitting] = React.useState(false);
   const [error, setError] = React.useState("");
+  const inFlight = React.useRef(false);
+  const close = useGuardedProjectDialog({ open, dirty: Boolean(reason.trim()), pending: submitting, pendingCheck: () => inFlight.current, label: isArchived ? 'Restore project' : 'Archive project', onClose, onDiscard: () => setReason('') });
 
   React.useEffect(() => {
     if (open) {
@@ -30,6 +33,8 @@ export function ProjectArchiveDialog({
   }, [open, projectId]);
 
   const handleSubmit = async () => {
+    if (inFlight.current) return;
+    inFlight.current = true;
     setSubmitting(true);
     setError("");
     try {
@@ -44,6 +49,7 @@ export function ProjectArchiveDialog({
         caught instanceof Error ? caught.message : `Failed to ${isArchived ? "restore" : "archive"} project.`,
       );
     } finally {
+      inFlight.current = false;
       setSubmitting(false);
     }
   };
@@ -51,14 +57,14 @@ export function ProjectArchiveDialog({
   return (
     <Modal
       isOpen={open}
-      onClose={submitting ? () => {} : onClose}
+      onClose={submitting ? () => {} : close}
       title={isArchived ? "Restore project" : "Archive project"}
       width="max-w-lg"
       footer={
         <div className="flex items-center justify-end gap-3 w-full">
           <button
             type="button"
-            onClick={onClose}
+            onClick={close}
             disabled={submitting}
             className="px-4 py-2 rounded-lg text-sm font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 transition-colors disabled:opacity-50 cursor-pointer"
           >

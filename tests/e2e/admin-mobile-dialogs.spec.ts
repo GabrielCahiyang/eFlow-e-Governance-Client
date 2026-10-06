@@ -1,70 +1,34 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from '@playwright/test';
+import { projectWorkspaceFixture } from './fixtures/projectWorkspace';
 
-test("Admin user management remains usable on a narrow phone", async ({ page }) => {
-  await page.setViewportSize({ width: 320, height: 740 });
-  await page.goto("/", { waitUntil: "domcontentloaded" });
-
-  const quickLogin = page.getByRole("button", { name: "Choose a development account" });
-  test.skip(!(await quickLogin.isVisible()), "Local development account shortcuts are unavailable.");
-  await quickLogin.click();
-  await page.getByRole("menuitem", { name: /^Admin —/ }).click();
-  await page.getByRole("button", { name: "Open navigation" }).waitFor();
-  const dismissTour = page.getByRole("button", { name: "Maybe later" });
-  await dismissTour.waitFor({ timeout: 3000 }).then(() => dismissTour.click()).catch(() => {});
-
-  await page.getByRole("button", { name: "Open navigation" }).click();
-  const sidebar = page.locator(".eflow-mobile-navigation .eflow-productivity-sidebar");
-  const navItem = sidebar.locator('[data-tour-section="users"] .eflow-productivity-sidebar__item');
-  const activeSurface = sidebar.locator('[data-tour-section="users"] .eflow-productivity-sidebar__active-surface');
-  await expect(navItem).toBeVisible();
-  const [sidebarBounds, itemBounds, surfaceBounds] = await Promise.all([
-    sidebar.boundingBox(), navItem.boundingBox(), activeSurface.boundingBox(),
-  ]);
-  expect(sidebarBounds).not.toBeNull();
-  expect(itemBounds).not.toBeNull();
-  expect(surfaceBounds).not.toBeNull();
-  expect(sidebarBounds!.x).toBeLessThanOrEqual(1);
-  expect(itemBounds!.x).toBeGreaterThanOrEqual(sidebarBounds!.x);
-  expect(surfaceBounds!.x).toBeGreaterThanOrEqual(sidebarBounds!.x);
-  expect(Math.abs(surfaceBounds!.x - itemBounds!.x)).toBeLessThanOrEqual(2);
-  expect(Math.abs(surfaceBounds!.width - itemBounds!.width)).toBeLessThanOrEqual(2);
-  await page.locator('.eflow-mobile-navigation [data-tour-section="users"] .eflow-productivity-sidebar__item').click();
-  await page.locator('.eflow-mobile-navigation [data-tour-section="users"] .eflow-productivity-sidebar__subpage', { hasText: "All Users" }).click();
-  await page.getByRole("button", { name: "Create user" }).click();
-  const userDialog = page.getByRole("dialog", { name: "Create New User" });
-  await expect(userDialog).toBeVisible();
-  const userBounds = await userDialog.boundingBox();
-  expect(userBounds).not.toBeNull();
-  expect(userBounds!.x).toBeGreaterThanOrEqual(0);
-  expect(userBounds!.x + userBounds!.width).toBeLessThanOrEqual(320);
-  await expect(userDialog.getByPlaceholder("Juan Dela Cruz")).toBeVisible();
-  await userDialog.getByRole("button", { name: "Close dialog" }).click();
-
-  await page.getByRole("button", { name: "Open navigation" }).click();
-  await expect(sidebar.locator('[data-tour-section="projects"]')).toHaveCount(0);
-  await expect(sidebar.locator('[data-tour-section="dashboard"]')).toHaveCount(0);
+test('Admin user management remains usable on a narrow phone',async({page},info)=>{
+  test.setTimeout(90_000); await page.setViewportSize({width:320,height:740});
+  await projectWorkspaceFixture(page,'admin');
+  await page.getByRole('button',{name:'Open navigation',exact:true}).click();
+  const drawer=page.getByRole('dialog',{name:'Navigation',exact:true});
+  const destination=drawer.getByRole('button',{name:'All Users',exact:true});
+  await expect(destination).toHaveAttribute('aria-current','page');
+  await expect(drawer.getByRole('button',{name:'Workspaces',exact:true})).toHaveCount(0);
+  const bounds=(await destination.boundingBox())!; expect(bounds.x).toBeGreaterThanOrEqual(0);expect(bounds.x+bounds.width).toBeLessThanOrEqual(320);
+  await destination.click(); await page.getByRole('button',{name:'Create user',exact:true}).click();
+  const dialog=page.getByRole('dialog',{name:'Create New User',exact:true}); await expect(dialog).toBeVisible();
+  const dialogBounds=(await dialog.boundingBox())!;expect(dialogBounds.x).toBeGreaterThanOrEqual(0);expect(dialogBounds.x+dialogBounds.width).toBeLessThanOrEqual(320);
+  await expect(dialog.getByPlaceholder('Juan Dela Cruz')).toBeVisible();
+  await page.screenshot({path:info.outputPath('admin-mobile-dialog.png')});
+  await dialog.getByRole('button',{name:'Close dialog',exact:true}).click();
 });
 
-test("office work-plan creation remains available and fits a narrow phone", async ({ page }) => {
-  await page.setViewportSize({ width: 320, height: 740 });
-  await page.goto("/", { waitUntil: "domcontentloaded" });
-  const quickLogin = page.getByRole("button", { name: "Choose a development account" });
-  test.skip(!(await quickLogin.isVisible()), "Local development account shortcuts are unavailable.");
-  await quickLogin.click();
-  await page.getByRole("menuitem", { name: /^BPLO Head —/ }).click();
-  await page.getByRole("button", { name: "Open navigation" }).waitFor();
-  const dismissTour = page.getByRole("button", { name: "Maybe later" });
-  await dismissTour.waitFor({ timeout: 3000 }).then(() => dismissTour.click()).catch(() => {});
-  await page.getByRole("button", { name: "Open navigation" }).click();
-  await page.locator('.eflow-mobile-navigation [data-tour-section="projects"] .eflow-productivity-sidebar__item').click();
-  await page.getByRole("button", { name: "Create work plan" }).first().click();
-  const planDialog = page.getByRole("dialog", { name: "Create a work plan" });
-  await expect(planDialog).toBeVisible();
-  const planInput = planDialog.getByPlaceholder(/2026 Coastal/i);
-  await expect(planInput).toBeVisible();
-  expect((await planInput.boundingBox())!.width).toBeGreaterThan(150);
-  await planDialog.getByRole("button", { name: "Import proposal", exact: true }).click();
-  await expect(planDialog.getByText("Drop a government proposal PDF here", { exact: true })).toBeVisible();
-  await planDialog.getByRole("button", { name: "Close dialog" }).click();
-  await expect(planDialog).toHaveCount(0);
+test('workspace proposal import and existing manual planning remain reachable in the phone drawer',async({page},info)=>{
+  test.setTimeout(90_000);await page.setViewportSize({width:320,height:740});
+  await projectWorkspaceFixture(page,'head');
+  await page.getByRole('navigation',{name:'Mobile primary navigation'}).getByRole('button',{name:'More',exact:true}).click();
+  await page.getByRole('dialog',{name:'Navigation',exact:true}).getByRole('button',{name:'Add to workspace',exact:true}).click();
+  await page.getByRole('menuitem',{name:'Import proposal',exact:true}).click();
+  const dialog=page.getByRole('dialog',{name:'Create a work plan',exact:true});await expect(dialog).toBeVisible();
+  await expect(dialog.getByText('Drop a government proposal PDF here',{exact:true})).toBeVisible();
+  await dialog.getByRole('button',{name:'New work plan',exact:true}).click();
+  const input=dialog.getByPlaceholder(/2026 Coastal/i);await expect(input).toBeVisible(); expect((await input.boundingBox())!.width).toBeGreaterThan(150);
+  await page.screenshot({path:info.outputPath('planning-mobile-dialog.png')});
+  await dialog.getByRole('button',{name:'Close dialog',exact:true}).click();await expect(dialog).toHaveCount(0);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });

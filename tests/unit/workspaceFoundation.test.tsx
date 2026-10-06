@@ -37,6 +37,6 @@ describe('workspace interaction foundation',()=>{
   const primary=vi.fn(),secondary=vi.fn();render(<SplitActionButton label="New task" onClick={primary} actions={[{id:'template',label:'Use template',onSelect:secondary}]}/>);
   fireEvent.click(screen.getByRole('button',{name:'New task',exact:true}));expect(primary).toHaveBeenCalledOnce();
   fireEvent.keyDown(screen.getByRole('button',{name:'New task options'}),{key:'Enter'});
-  fireEvent.click(await screen.findByRole('menuitem',{name:'Use template'}));expect(secondary).toHaveBeenCalledOnce();expect(primary).toHaveBeenCalledOnce();
+  fireEvent.click(await screen.findByRole('menuitem',{name:'Use template'}));await waitFor(()=>expect(secondary).toHaveBeenCalledOnce());expect(document.activeElement).toBe(screen.getByRole('button',{name:'New task options'}));expect(primary).toHaveBeenCalledOnce();
  });
 });

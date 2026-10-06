@@ -1,0 +1,32 @@
+
+ RUN  v3.2.4 C:/Users/james/projects/eflow-e-Governance-Project
+
+ ✓ tests/unit/phase15ReadinessResolution.test.ts (2 tests) 4ms
+ ✓ tests/unit/phase15DraftPersistence.test.tsx (3 tests) 26ms
+ ❯ tests/unit/phase15ImportSafety.test.tsx (4 tests | 1 failed) 38ms
+   ✓ Phase 15 import concurrency and receipts > counts included work without making proposed Offices operational 3ms
+   ✓ Phase 15 import concurrency and receipts > deduplicates generation before React renders and ignores a departed context 14ms
+   × Phase 15 import concurrency and receipts > locks the same batch and reviewed values on ambiguous save, then receipts a committed result even if refresh throws 9ms
+     → expected "spy" to be called 2 times, but got 3 times
+   ✓ Phase 15 import concurrency and receipts > deduplicates the same save while its RPC is pending 11ms
+ ✓ tests/unit/phase15StaffingReview.test.tsx (3 tests) 22ms
+ ✓ tests/unit/phase15ProfessionalReview.test.tsx (3 tests) 524ms
+   ✓ Phase 15 owner review and confirmation > requires an explicit review before confirming and receipts success despite a later read failure  425ms
+ ✓ tests/unit/phase14ProfessionalPrivacy.test.tsx (2 tests) 537ms
+   ✓ Phase 14 lazy professional privacy and drafts > never fetches another member private PDS and retries a denied summary without claiming missing data  332ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/phase15ImportSafety.test.tsx > Phase 15 import concurrency and receipts > locks the same batch and reviewed values on ambiguous save, then receipts a committed result even if refresh throws
+AssertionError: expected "spy" to be called 2 times, but got 3 times
+ ❯ tests/unit/phase15ImportSafety.test.tsx:15:614
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 5 passed (6)
+      Tests  1 failed | 16 passed (17)
+   Start at  20:37:07
+   Duration  5.88s (transform 579ms, setup 0ms, collect 8.88s, tests 1.15s, environment 5.37s, prepare 1.68s)
+

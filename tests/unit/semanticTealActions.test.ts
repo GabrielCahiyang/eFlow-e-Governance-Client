@@ -20,7 +20,7 @@ describe("semantic teal primary actions", () => {
     expect(settingsProfile).toContain("bg-primary px-4 text-[12px] font-semibold text-primary-foreground");
     expect(taskHierarchy).toContain("bg-primary px-2 py-0.5 text-[10px] text-primary-foreground");
     expect(taskHierarchy).not.toContain("bg-blue-500 text-white px-2 py-0.5");
-    expect(projectViewControls).toContain('background:var(--workspace-primary, #087f8c)');
+    expect(projectViewControls).toContain('background:var(--workspace-primary, var(--eflow-primary))');
   });
 
   it("uses teal for collaboration and legislative calls to action while retaining semantic blue elsewhere", () => {

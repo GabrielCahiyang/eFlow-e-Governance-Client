@@ -1,0 +1,91 @@
+Diagnostic only; superseded by final passing receipts.
+
+
+Running 3 tests using 1 worker
+
+(node:30132) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:30132) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  1 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:9:1 › shared inspector keeps discussion drafts and returns focus to each view origin (17.2s)
+(node:30136) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:30136) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 2 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:30:1 › date range is consistent across views and personal after reload (5.8s)
+  x  3 [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:42:1 › mobile observer inspector stays read only and traps and returns focus (9.8s)
+
+
+  1) [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:9:1 › shared inspector keeps discussion drafts and returns focus to each view origin 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeFocused[2m()[22m failed
+
+    Locator:  locator('.fc-daygrid-event').filter({ hasText: 'Prepare community assessment' }).first()
+    Expected: focused
+    Received: inactive
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeFocused" with timeout 5000ms[22m
+    [2m  - waiting for locator('.fc-daygrid-event').filter({ hasText: 'Prepare community assessment' }).first()[22m
+    [2m    9 × locator resolved to <a tabindex="0" class="fc-event fc-event-draggable fc-event-start fc-event-end fc-event-future eflow-cal-event eflow-cal-event--task eflow-cal-event--in-progress fc-daygrid-event fc-daygrid-block-event fc-h-event">…</a>[22m
+    [2m      - unexpected value "inactive"[22m
+
+
+      24 |   await inspector.getByRole('button',{name:'Close task detail'}).click();
+      25 |   await page.getByRole('button',{name:'Discard',exact:true}).click(); await expect(inspector).not.toBeVisible();
+    > 26 |   await expect(trigger).toBeFocused();
+         |                         ^
+      27 |  }
+      28 |  await page.screenshot({path:info.outputPath('office-origin.png'),fullPage:true,animations:'disabled'});
+      29 | });
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase12-shared-inspector.spec.ts:26:25
+
+    Error Context: test-results\phase12-live\phase12-shared-inspector-s-5c03f-s-focus-to-each-view-origin-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase12-live\phase12-shared-inspector-s-5c03f-s-focus-to-each-view-origin-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase12-live\phase12-shared-inspector-s-5c03f-s-focus-to-each-view-origin-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:42:1 › mobile observer inspector stays read only and traps and returns focus 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mnot[2m.[22mtoBeVisible[2m()[22m failed
+
+    Locator:  getByRole('dialog', { name: 'Task details: Prepare community assessment' })
+    Expected: not visible
+    Received: visible
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "not toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('dialog', { name: 'Task details: Prepare community assessment' })[22m
+    [2m    9 × locator resolved to <aside role="dialog" tabindex="-1" aria-modal="true" aria-label="Task details: Prepare community assessment" class="eflow-inspector fixed bottom-0 right-0 top-0 flex flex-col border-l outline-none w-full font-sans sm:w-[520px]">…</aside>[22m
+    [2m      - unexpected value "visible"[22m
+
+
+      50 |  await page.screenshot({path:info.outputPath('inspector-mobile.png'),fullPage:true,animations:'disabled'});
+      51 |  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+    > 52 |  await page.keyboard.press('Escape'); await expect(inspector).not.toBeVisible(); await expect(trigger).toBeFocused();
+         |                                                                   ^
+      53 | });
+      54 |
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase12-shared-inspector.spec.ts:52:67
+
+    Error Context: test-results\phase12-live\phase12-shared-inspector-m-bb4ba-and-traps-and-returns-focus-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase12-live\phase12-shared-inspector-m-bb4ba-and-traps-and-returns-focus-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase12-live\phase12-shared-inspector-m-bb4ba-and-traps-and-returns-focus-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:9:1 › shared inspector keeps discussion drafts and returns focus to each view origin 
+    [chromium] › tests\e2e\phase12-shared-inspector.spec.ts:42:1 › mobile observer inspector stays read only and traps and returns focus 
+  1 passed (35.4s)

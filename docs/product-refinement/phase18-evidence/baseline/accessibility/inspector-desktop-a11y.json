@@ -1,0 +1,74 @@
+[
+  {
+    "id": "aria-progressbar-name",
+    "impact": "serious",
+    "nodes": [
+      {
+        "target": [
+          ".bar_ddf4f43ec0"
+        ],
+        "detail": "Fix any of the following:\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute"
+      }
+    ]
+  },
+  {
+    "id": "color-contrast",
+    "impact": "serious",
+    "nodes": [
+      {
+        "target": [
+          ".tracking-wider.text-\\[11px\\].uppercase"
+        ],
+        "detail": "Fix any of the following:\n  Element has insufficient color contrast of 2.58 (foreground color: #a1a1a1, background color: #ffffff, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1"
+      },
+      {
+        "target": [
+          "div:nth-child(1) > .mb-0\\.5.tracking-wider.text-\\[10\\.5px\\]"
+        ],
+        "detail": "Fix any of the following:\n  Element has insufficient color contrast of 2.58 (foreground color: #a1a1a1, background color: #ffffff, font size: 7.9pt (10.5px), font weight: normal). Expected contrast ratio of 4.5:1"
+      },
+      {
+        "target": [
+          "div:nth-child(2) > .mb-0\\.5.tracking-wider.text-\\[10\\.5px\\]"
+        ],
+        "detail": "Fix any of the following:\n  Element has insufficient color contrast of 2.58 (foreground color: #a1a1a1, background color: #ffffff, font size: 7.9pt (10.5px), font weight: normal). Expected contrast ratio of 4.5:1"
+      },
+      {
+        "target": [
+          ".font-normal.text-\\[10\\.5px\\].text-neutral-400"
+        ],
+        "detail": "Fix any of the following:\n  Element has insufficient color contrast of 2.58 (foreground color: #a1a1a1, background color: #ffffff, font size: 7.9pt (10.5px), font weight: normal). Expected contrast ratio of 4.5:1"
+      },
+      {
+        "target": [
+          "div:nth-child(3) > .mb-0\\.5.tracking-wider.text-\\[10\\.5px\\]"
+        ],
+        "detail": "Fix any of the following:\n  Element has insufficient color contrast of 2.58 (foreground color: #a1a1a1, background color: #ffffff, font size: 7.9pt (10.5px), font weight: normal). Expected contrast ratio of 4.5:1"
+      },
+      {
+        "target": [
+          ".text-\\[8px\\]"
+        ],
+        "detail": "Fix any of the following:\n  Element has insufficient color contrast of 3.19 (foreground color: #e17100, background color: #ffffff, font size: 6.0pt (8px), font weight: normal). Expected contrast ratio of 4.5:1"
+      },
+      {
+        "target": [
+          ".tracking-\\[0\\.12em\\]"
+        ],
+        "detail": "Fix any of the following:\n  Element has insufficient color contrast of 2.58 (foreground color: #a1a1a1, background color: #ffffff, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1"
+      },
+      {
+        "target": [
+          ".text-\\[8\\.5px\\].bg-neutral-100.px-1\\.5"
+        ],
+        "detail": "Fix any of the following:\n  Element has insufficient color contrast of 4.34 (foreground color: #737373, background color: #f5f5f5, font size: 6.4pt (8.5px), font weight: normal). Expected contrast ratio of 4.5:1"
+      },
+      {
+        "target": [
+          "span[title=\"No due date assigned\"]"
+        ],
+        "detail": "Fix any of the following:\n  Element has insufficient color contrast of 4.34 (foreground color: #737373, background color: #f5f5f5, font size: 6.4pt (8.5px), font weight: normal). Expected contrast ratio of 4.5:1"
+      }
+    ]
+  }
+]

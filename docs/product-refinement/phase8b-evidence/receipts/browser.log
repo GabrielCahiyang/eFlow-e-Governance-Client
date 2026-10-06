@@ -1,0 +1,34 @@
+
+Running 21 tests using 2 workers
+
+(node:37392) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:31748) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:31748) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:37392) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [chromium] › tests\e2e\design-system-foundation.spec.ts:6:3 › foundation themes, scroll affordance and control bounds at 1440px (2.9s)
+  ok  3 [chromium] › tests\e2e\design-system-foundation.spec.ts:6:3 › foundation themes, scroll affordance and control bounds at 768px (1.7s)
+  ok  4 [chromium] › tests\e2e\design-system-foundation.spec.ts:6:3 › foundation themes, scroll affordance and control bounds at 390px (1.7s)
+  ok  5 [chromium] › tests\e2e\design-system-foundation.spec.ts:6:3 › foundation themes, scroll affordance and control bounds at 320px (1.8s)
+  ok  2 [chromium] › tests\e2e\foundation-admin-directory.spec.ts:3:40 › Admin directory and form preserve authority, associations and pending drafts at 1440px (9.5s)
+  ok  6 [chromium] › tests\e2e\design-system-foundation.spec.ts:25:67 › nested picker, pending retry and discard focus in inspector (5.0s)
+  ok  7 [chromium] › tests\e2e\foundation-admin-directory.spec.ts:3:40 › Admin directory and form preserve authority, associations and pending drafts at 768px (8.4s)
+  ok  8 [chromium] › tests\e2e\design-system-foundation.spec.ts:25:67 › nested picker, pending retry and discard focus in Vibe modal (5.0s)
+  ok 10 [chromium] › tests\e2e\design-system-foundation.spec.ts:25:67 › nested picker, pending retry and discard focus in feature dialog (5.1s)
+  ok 11 [chromium] › tests\e2e\design-system-foundation.spec.ts:36:1 › Vibe popup is clickable outside its clipping ancestor (719ms)
+  ok 12 [chromium] › tests\e2e\design-system-foundation.spec.ts:38:1 › dialogs and pickers fit a 200 percent zoom-equivalent viewport (958ms)
+  ok  9 [chromium] › tests\e2e\foundation-admin-directory.spec.ts:3:40 › Admin directory and form preserve authority, associations and pending drafts at 390px (8.2s)
+  ok 13 [chromium] › tests\e2e\phase3-project-table.spec.ts:4:1 › Head table keeps first-column task actions, task edits and inline subitems (8.2s)
+  ok 14 [chromium] › tests\e2e\foundation-admin-directory.spec.ts:3:40 › Admin directory and form preserve authority, associations and pending drafts at 320px (8.6s)
+  ok 15 [chromium] › tests\e2e\phase3-project-table.spec.ts:45:1 › Member table protects structure and keeps detail access at 390px (4.9s)
+  ok 17 [chromium] › tests\e2e\phase3-project-table.spec.ts:62:1 › Inline tasks save on blur, keep adding with Shift+Enter, and retain failed drafts (6.0s)
+  ok 16 [chromium] › tests\e2e\phase4-project-views.spec.ts:11:1 › Phase 4 shares filters and edits across Board, Gantt, Calendar, Dashboard and Offices (10.2s)
+  ok 19 [chromium] › tests\e2e\phase4-project-views.spec.ts:93:1 › Member can inspect views at 390px without structural date controls (5.4s)
+  ok 18 [chromium] › tests\e2e\project-workspace-controls.spec.ts:19:1 › Project actions open visible menus and dialogs, and the board returns to the filtered table (7.6s)
+  ok 20 [chromium] › tests\e2e\project-workspace-controls.spec.ts:73:1 › View picker, board return and first-column task actions remain reachable at 390px (5.0s)
+  ok 21 [chromium] › tests\e2e\project-workspace-controls.spec.ts:103:1 › Overflow views stay selectable and closable outside the mobile tab scroller (7.7s)
+
+  21 passed (1.1m)

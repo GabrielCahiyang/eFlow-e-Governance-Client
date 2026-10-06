@@ -1,0 +1,13 @@
+/* Radix tabs have text children; Vibe tabs receive padding on their inner div.
+   Keep the Admin workspace independent of the global project Vibe tab overrides. */
+.eflow-admin-workspace .eflow-workspace-tabs > .eflow-workspace-tab[role="tab"] {
+  flex-shrink: 0;
+  height: auto;
+  min-height: 40px;
+  padding: 8px 14px;
+}
+.eflow-admin-workspace .eflow-workspace-tabs > .eflow-workspace-tab[role="tab"][data-state="active"] {
+  background: var(--workspace-hover) !important;
+  color: var(--workspace-primary) !important;
+  border-bottom-color: var(--workspace-primary) !important;
+}

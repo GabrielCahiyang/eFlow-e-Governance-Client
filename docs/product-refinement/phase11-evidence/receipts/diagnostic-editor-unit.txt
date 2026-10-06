@@ -1,0 +1,1370 @@
+
+ RUN  v3.2.4 C:/Users/james/projects/eflow-e-Governance-Project
+
+ ✓ tests/unit/inlineCreateRow.test.tsx (11 tests) 235ms
+ ✓ tests/unit/phase11Editors.test.tsx (12 tests) 343ms
+ ❯ tests/unit/projectSubitems.test.tsx (13 tests | 2 failed) 3334ms
+   × Project table subitem expansion > places task actions in the first cell and keeps detail access without drag controls 1372ms
+     → Unable to find role="menuitem" and name "Move up"
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mdata-scroll-locked[39m=[32m"1"[39m
+  [33mstyle[39m=[32m"pointer-events: none;"[39m
+[36m>[39m
+  [36m<span[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+    [33mdata-radix-focus-guard[39m=[32m""[39m
+    [33mstyle[39m=[32m"outline: none; opacity: 0; position: fixed; pointer-events: none;"[39m
+    [33mtabindex[39m=[32m"0"[39m
+  [36m/>[39m
+  [36m<div[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+  [36m>[39m
+    [36m<table>[39m
+      [36m<tbody>[39m
+        [36m<tr[39m
+          [33mclass[39m=[32m"pt-task-row"[39m
+        [36m>[39m
+          [36m<td[39m
+            [33mclass[39m=[32m"pt-row-actions-cell"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-controls[39m=[32m"radix-:r2:"[39m
+              [33maria-expanded[39m=[32m"true"[39m
+              [33maria-haspopup[39m=[32m"menu"[39m
+              [33maria-label[39m=[32m"Actions for Prepare assessment"[39m
+              [33mclass[39m=[32m"pt-row-actions-button"[39m
+              [33mdata-slot[39m=[32m"dropdown-menu-trigger"[39m
+              [33mdata-state[39m=[32m"open"[39m
+              [33mid[39m=[32m"radix-:r1:"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33mclass[39m=[32m"lucide lucide-ellipsis"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"16"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"16"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"12"[39m
+                  [33mcy[39m=[32m"12"[39m
+                  [33mr[39m=[32m"1"[39m
+                [36m/>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"19"[39m
+                  [33mcy[39m=[32m"12"[39m
+                  [33mr[39m=[32m"1"[39m
+                [36m/>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"5"[39m
+                  [33mcy[39m=[32m"12"[39m
+                  [33mr[39m=[32m"1"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+            [36m</button>[39m
+          [36m</td>[39m
+          [36m<td[39m
+            [33mclass[39m=[32m"pt-task-name"[39m
+          [36m>[39m
+            [36m<div>[39m
+              [36m<button[39m
+                [33maria-controls[39m=[32m"pt-subitems-task"[39m
+                [33maria-expanded[39m=[32m"true"[39m
+                [33maria-label[39m=[32m"Subitems for Prepare assessment"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33mclass[39m=[32m"lucide lucide-chevron-down"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"15"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"15"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m6 9 6 6 6-6"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+              [36m</button>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Edit task Prepare assessment"[39m
+                [33mclass[39m=[32m"eflow-inline-text"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0mPrepare assessment[0m
+              [36m</button>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Open Prepare assessment"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33mclass[39m=[32m"lucide lucide-panel-right"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"15"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"15"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<rect[39m
+                    [33mheight[39m=[32m"18"[39m
+                    [33mrx[39m=[32m"2"[39m
+                    [33mwidth[39m=[32m"18"[39m
+                    [33mx[39m=[32m"3"[39m
+                    [33my[39m=[32m"3"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M15 3v18"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+              [36m</button>[39m
+            [36m</div>[39m
+          [36m</td>[39m
+        [36m</tr>[39m
+        [36m<tr[39m
+          [33mclass[39m=[32m"pt-subitems-row"[39m
+        [36m>[39m
+          [36m<td[39m
+            [33mcolspan[39m=[32m"2"[39m
+          [36m>[39m
+            [36m<section[39m
+              [33maria-label[39m=[32m"Subitems for Prepare assessment"[39m
+              [33mclass[39m=[32m"pt-subitems"[39m
+              [33mid[39m=[32m"pt-subitems-task"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"pt-subitems-table-scroll"[39m
+              [36m>[39m
+                [36m<table[39m
+                  [33maria-label[39m=[32m"Prepare assessment subitems"[39m
+                [36m>[39m
+                  [36m<thead>[39m
+                    [36m<tr>[39m
+                      [36m<th[39m
+                        [33mscope[39m=[32m"col"[39m
+                      [36m>[39m
+                        [0mSubitem[0m
+                      [36m</th>[39m
+                      [36m<th[39m
+                        [33mscope[39m=[32m"col"[39m
+                      [36m>[39m
+                        [0mOwner[0m
+                      [36m</th>[39m
+                      [36m<th[39m
+                        [33mscope[39m=[32m"col"[39m
+                      [36m>[39m
+    ...
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mdata-scroll-locked[39m=[32m"1"[39m
+  [33mstyle[39m=[32m"pointer-events: none;"[39m
+[36m>[39m
+  [36m<span[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+    [33mdata-radix-focus-guard[39m=[32m""[39m
+    [33mstyle[39m=[32m"outline: none; opacity: 0; position: fixed; pointer-events: none;"[39m
+    [33mtabindex[39m=[32m"0"[39m
+  [36m/>[39m
+  [36m<div[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+  [36m>[39m
+    [36m<table>[39m
+      [36m<tbody>[39m
+        [36m<tr[39m
+          [33mclass[39m=[32m"pt-task-row"[39m
+        [36m>[39m
+          [36m<td[39m
+            [33mclass[39m=[32m"pt-row-actions-cell"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-controls[39m=[32m"radix-:r2:"[39m
+              [33maria-expanded[39m=[32m"true"[39m
+              [33maria-haspopup[39m=[32m"menu"[39m
+              [33maria-label[39m=[32m"Actions for Prepare assessment"[39m
+              [33mclass[39m=[32m"pt-row-actions-button"[39m
+              [33mdata-slot[39m=[32m"dropdown-menu-trigger"[39m
+              [33mdata-state[39m=[32m"open"[39m
+              [33mid[39m=[32m"radix-:r1:"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33mclass[39m=[32m"lucide lucide-ellipsis"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"16"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"16"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"12"[39m
+                  [33mcy[39m=[32m"12"[39m
+                  [33mr[39m=[32m"1"[39m
+                [36m/>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"19"[39m
+                  [33mcy[39m=[32m"12"[39m
+                  [33mr[39m=[32m"1"[39m
+                [36m/>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"5"[39m
+                  [33mcy[39m=[32m"12"[39m
+                  [33mr[39m=[32m"1"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+            [36m</button>[39m
+          [36m</td>[39m
+          [36m<td[39m
+            [33mclass[39m=[32m"pt-task-name"[39m
+          [36m>[39m
+            [36m<div>[39m
+              [36m<button[39m
+                [33maria-controls[39m=[32m"pt-subitems-task"[39m
+                [33maria-expanded[39m=[32m"true"[39m
+                [33maria-label[39m=[32m"Subitems for Prepare assessment"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33mclass[39m=[32m"lucide lucide-chevron-down"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"15"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"15"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m6 9 6 6 6-6"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+              [36m</button>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Edit task Prepare assessment"[39m
+                [33mclass[39m=[32m"eflow-inline-text"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0mPrepare assessment[0m
+              [36m</button>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Open Prepare assessment"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33mclass[39m=[32m"lucide lucide-panel-right"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"15"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"15"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<rect[39m
+                    [33mheight[39m=[32m"18"[39m
+                    [33mrx[39m=[32m"2"[39m
+                    [33mwidth[39m=[32m"18"[39m
+                    [33mx[39m=[32m"3"[39m
+                    [33my[39m=[32m"3"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M15 3v18"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+              [36m</button>[39m
+            [36m</div>[39m
+          [36m</td>[39m
+        [36m</tr>[39m
+        [36m<tr[39m
+          [33mclass[39m=[32m"pt-subitems-row"[39m
+        [36m>[39m
+          [36m<td[39m
+            [33mcolspan[39m=[32m"2"[39m
+          [36m>[39m
+            [36m<section[39m
+              [33maria-label[39m=[32m"Subitems for Prepare assessment"[39m
+              [33mclass[39m=[32m"pt-subitems"[39m
+              [33mid[39m=[32m"pt-subitems-task"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"pt-subitems-table-scroll"[39m
+              [36m>[39m
+                [36m<table[39m
+                  [33maria-label[39m=[32m"Prepare assessment subitems"[39m
+                [36m>[39m
+                  [36m<thead>[39m
+                    [36m<tr>[39m
+                      [36m<th[39m
+                        [33mscope[39m=[32m"col"[39m
+                      [36m>[39m
+                        [0mSubitem[0m
+                      [36m</th>[39m
+                      [36m<th[39m
+                        [33mscope[39m=[32m"col"[39m
+                      [36m>[39m
+                        [0mOwner[0m
+                      [36m</th>[39m
+                      [36m<th[39m
+                        [33mscope[39m=[32m"col"[39m
+                      [36m>[39m
+    ...
+   × Project table subitem expansion > keeps the first-column Add subitem action disabled for someone who is not the task lead 1127ms
+     → Unable to find role="menuitem" and name "Add subitem"
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mdata-scroll-locked[39m=[32m"1"[39m
+  [33mstyle[39m=[32m"pointer-events: none;"[39m
+[36m>[39m
+  [36m<span[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+    [33mdata-radix-focus-guard[39m=[32m""[39m
+    [33mstyle[39m=[32m"outline: none; opacity: 0; position: fixed; pointer-events: none;"[39m
+    [33mtabindex[39m=[32m"0"[39m
+  [36m/>[39m
+  [36m<div[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+  [36m>[39m
+    [36m<table>[39m
+      [36m<tbody>[39m
+        [36m<tr[39m
+          [33mclass[39m=[32m"pt-task-row"[39m
+        [36m>[39m
+          [36m<td[39m
+            [33mclass[39m=[32m"pt-row-actions-cell"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-controls[39m=[32m"radix-:rd:"[39m
+              [33maria-expanded[39m=[32m"true"[39m
+              [33maria-haspopup[39m=[32m"menu"[39m
+              [33maria-label[39m=[32m"Actions for Prepare assessment"[39m
+              [33mclass[39m=[32m"pt-row-actions-button"[39m
+              [33mdata-slot[39m=[32m"dropdown-menu-trigger"[39m
+              [33mdata-state[39m=[32m"open"[39m
+              [33mid[39m=[32m"radix-:rc:"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33mclass[39m=[32m"lucide lucide-ellipsis"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"16"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"16"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"12"[39m
+                  [33mcy[39m=[32m"12"[39m
+                  [33mr[39m=[32m"1"[39m
+                [36m/>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"19"[39m
+                  [33mcy[39m=[32m"12"[39m
+                  [33mr[39m=[32m"1"[39m
+                [36m/>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"5"[39m
+                  [33mcy[39m=[32m"12"[39m
+                  [33mr[39m=[32m"1"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+            [36m</button>[39m
+          [36m</td>[39m
+          [36m<td[39m
+            [33mclass[39m=[32m"pt-task-name"[39m
+          [36m>[39m
+            [36m<div>[39m
+              [36m<button[39m
+                [33maria-controls[39m=[32m"pt-subitems-task"[39m
+                [33maria-expanded[39m=[32m"true"[39m
+                [33maria-label[39m=[32m"Subitems for Prepare assessment"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33mclass[39m=[32m"lucide lucide-chevron-down"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"15"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"15"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m6 9 6 6 6-6"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+              [36m</button>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Edit task Prepare assessment"[39m
+                [33mclass[39m=[32m"eflow-inline-text"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0mPrepare assessment[0m
+              [36m</button>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Open Prepare assessment"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33mclass[39m=[32m"lucide lucide-panel-right"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"15"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"15"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<rect[39m
+                    [33mheight[39m=[32m"18"[39m
+                    [33mrx[39m=[32m"2"[39m
+                    [33mwidth[39m=[32m"18"[39m
+                    [33mx[39m=[32m"3"[39m
+                    [33my[39m=[32m"3"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M15 3v18"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+              [36m</button>[39m
+            [36m</div>[39m
+          [36m</td>[39m
+        [36m</tr>[39m
+        [36m<tr[39m
+          [33mclass[39m=[32m"pt-subitems-row"[39m
+        [36m>[39m
+          [36m<td[39m
+            [33mcolspan[39m=[32m"2"[39m
+          [36m>[39m
+            [36m<section[39m
+              [33maria-label[39m=[32m"Subitems for Prepare assessment"[39m
+              [33mclass[39m=[32m"pt-subitems"[39m
+              [33mid[39m=[32m"pt-subitems-task"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"pt-subitems-table-scroll"[39m
+              [36m>[39m
+                [36m<table[39m
+                  [33maria-label[39m=[32m"Prepare assessment subitems"[39m
+                [36m>[39m
+                  [36m<thead>[39m
+                    [36m<tr>[39m
+                      [36m<th[39m
+                        [33mscope[39m=[32m"col"[39m
+                      [36m>[39m
+                        [0mSubitem[0m
+                      [36m</th>[39m
+                      [36m<th[39m
+                        [33mscope[39m=[32m"col"[39m
+                      [36m>[39m
+                        [0mOwner[0m
+                      [36m</th>[39m
+                      [36m<th[39m
+                        [33mscope[39m=[32m"col"[39m
+                      [36m>[39m
+    ...
+
+Ignored nodes: comments, script, style
+[36m<body[39m
+  [33mdata-scroll-locked[39m=[32m"1"[39m
+  [33mstyle[39m=[32m"pointer-events: none;"[39m
+[36m>[39m
+  [36m<span[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+    [33mdata-radix-focus-guard[39m=[32m""[39m
+    [33mstyle[39m=[32m"outline: none; opacity: 0; position: fixed; pointer-events: none;"[39m
+    [33mtabindex[39m=[32m"0"[39m
+  [36m/>[39m
+  [36m<div[39m
+    [33maria-hidden[39m=[32m"true"[39m
+    [33mdata-aria-hidden[39m=[32m"true"[39m
+  [36m>[39m
+    [36m<table>[39m
+      [36m<tbody>[39m
+        [36m<tr[39m
+          [33mclass[39m=[32m"pt-task-row"[39m
+        [36m>[39m
+          [36m<td[39m
+            [33mclass[39m=[32m"pt-row-actions-cell"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-controls[39m=[32m"radix-:rd:"[39m
+              [33maria-expanded[39m=[32m"true"[39m
+              [33maria-haspopup[39m=[32m"menu"[39m
+              [33maria-label[39m=[32m"Actions for Prepare assessment"[39m
+              [33mclass[39m=[32m"pt-row-actions-button"[39m
+              [33mdata-slot[39m=[32m"dropdown-menu-trigger"[39m
+              [33mdata-state[39m=[32m"open"[39m
+              [33mid[39m=[32m"radix-:rc:"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33mclass[39m=[32m"lucide lucide-ellipsis"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"16"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"16"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"12"[39m
+                  [33mcy[39m=[32m"12"[39m
+                  [33mr[39m=[32m"1"[39m
+                [36m/>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"19"[39m
+                  [33mcy[39m=[32m"12"[39m
+                  [33mr[39m=[32m"1"[39m
+                [36m/>[39m
+                [36m<circle[39m
+                  [33mcx[39m=[32m"5"[39m
+                  [33mcy[39m=[32m"12"[39m
+                  [33mr[39m=[32m"1"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+            [36m</button>[39m
+          [36m</td>[39m
+          [36m<td[39m
+            [33mclass[39m=[32m"pt-task-name"[39m
+          [36m>[39m
+            [36m<div>[39m
+              [36m<button[39m
+                [33maria-controls[39m=[32m"pt-subitems-task"[39m
+                [33maria-expanded[39m=[32m"true"[39m
+                [33maria-label[39m=[32m"Subitems for Prepare assessment"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33mclass[39m=[32m"lucide lucide-chevron-down"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"15"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"15"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"m6 9 6 6 6-6"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+              [36m</button>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Edit task Prepare assessment"[39m
+                [33mclass[39m=[32m"eflow-inline-text"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0mPrepare assessment[0m
+              [36m</button>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Open Prepare assessment"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33mclass[39m=[32m"lucide lucide-panel-right"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"15"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"15"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<rect[39m
+                    [33mheight[39m=[32m"18"[39m
+                    [33mrx[39m=[32m"2"[39m
+                    [33mwidth[39m=[32m"18"[39m
+                    [33mx[39m=[32m"3"[39m
+                    [33my[39m=[32m"3"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M15 3v18"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+              [36m</button>[39m
+            [36m</div>[39m
+          [36m</td>[39m
+        [36m</tr>[39m
+        [36m<tr[39m
+          [33mclass[39m=[32m"pt-subitems-row"[39m
+        [36m>[39m
+          [36m<td[39m
+            [33mcolspan[39m=[32m"2"[39m
+          [36m>[39m
+            [36m<section[39m
+              [33maria-label[39m=[32m"Subitems for Prepare assessment"[39m
+              [33mclass[39m=[32m"pt-subitems"[39m
+              [33mid[39m=[32m"pt-subitems-task"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"pt-subitems-table-scroll"[39m
+              [36m>[39m
+                [36m<table[39m
+                  [33maria-label[39m=[32m"Prepare assessment subitems"[39m
+                [36m>[39m
+                  [36m<thead>[39m
+                    [36m<tr>[39m
+                      [36m<th[39m
+                        [33mscope[39m=[32m"col"[39m
+                      [36m>[39m
+                        [0mSubitem[0m
+                      [36m</th>[39m
+                      [36m<th[39m
+                        [33mscope[39m=[32m"col"[39m
+                      [36m>[39m
+                        [0mOwner[0m
+                      [36m</th>[39m
+                      [36m<th[39m
+                        [33mscope[39m=[32m"col"[39m
+                      [36m>[39m
+    ...
+   ✓ Project table subitem expansion > hands menu focus to the add field when subitems are already expanded 217ms
+   ✓ Project table subitem expansion > opens an empty nested table and saves the task lead’s subitem when focus leaves 77ms
+   ✓ Project table subitem expansion > lets the task lead set a due date before focus leaves the add row 69ms
+   ✓ Project table subitem expansion > keeps order, owners, progress, dates, and evidence drawer access 72ms
+   ✓ Project table subitem expansion > explains why an Office Head who is not the task lead cannot add 54ms
+   ✓ Project table subitem expansion > explains the assignment step for tasks without a lead 24ms
+   ✓ Project table subitem expansion > preserves the for_review lock and keeps existing subitems readable 67ms
+   ✓ Project table subitem expansion > preserves the completed lock and keeps existing subitems readable 61ms
+   ✓ Project table subitem expansion > preserves the cancelled lock and keeps existing subitems readable 67ms
+   ✓ Project table subitem expansion > preserves observer access even when the viewer is the assigned lead 27ms
+   ✓ Project table subitem expansion > keeps a failed draft for retry and appends after the greatest saved position 98ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/projectSubitems.test.tsx > Project table subitem expansion > places task actions in the first cell and keeps detail access without drag controls
+TestingLibraryElementError: Unable to find role="menuitem" and name "Move up"
+
+Ignored nodes: comments, script, style
+<body
+  data-scroll-locked="1"
+  style="pointer-events: none;"
+>
+  <span
+    aria-hidden="true"
+    data-aria-hidden="true"
+    data-radix-focus-guard=""
+    style="outline: none; opacity: 0; position: fixed; pointer-events: none;"
+    tabindex="0"
+  />
+  <div
+    aria-hidden="true"
+    data-aria-hidden="true"
+  >
+    <table>
+      <tbody>
+        <tr
+          class="pt-task-row"
+        >
+          <td
+            class="pt-row-actions-cell"
+          >
+            <button
+              aria-controls="radix-:r2:"
+              aria-expanded="true"
+              aria-haspopup="menu"
+              aria-label="Actions for Prepare assessment"
+              class="pt-row-actions-button"
+              data-slot="dropdown-menu-trigger"
+              data-state="open"
+              id="radix-:r1:"
+              type="button"
+            >
+              <svg
+                class="lucide lucide-ellipsis"
+                fill="none"
+                height="16"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="1"
+                />
+                <circle
+                  cx="19"
+                  cy="12"
+                  r="1"
+                />
+                <circle
+                  cx="5"
+                  cy="12"
+                  r="1"
+                />
+              </svg>
+            </button>
+          </td>
+          <td
+            class="pt-task-name"
+          >
+            <div>
+              <button
+                aria-controls="pt-subitems-task"
+                aria-expanded="true"
+                aria-label="Subitems for Prepare assessment"
+                type="button"
+              >
+                <svg
+                  class="lucide lucide-chevron-down"
+                  fill="none"
+                  height="15"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="15"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="m6 9 6 6 6-6"
+                  />
+                </svg>
+              </button>
+              <button
+                aria-label="Edit task Prepare assessment"
+                class="eflow-inline-text"
+                type="button"
+              >
+                Prepare assessment
+              </button>
+              <button
+                aria-label="Open Prepare assessment"
+                type="button"
+              >
+                <svg
+                  class="lucide lucide-panel-right"
+                  fill="none"
+                  height="15"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="15"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <rect
+                    height="18"
+                    rx="2"
+                    width="18"
+                    x="3"
+                    y="3"
+                  />
+                  <path
+                    d="M15 3v18"
+                  />
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr
+          class="pt-subitems-row"
+        >
+          <td
+            colspan="2"
+          >
+            <section
+              aria-label="Subitems for Prepare assessment"
+              class="pt-subitems"
+              id="pt-subitems-task"
+            >
+              <div
+                class="pt-subitems-table-scroll"
+              >
+                <table
+                  aria-label="Prepare assessment subitems"
+                >
+                  <thead>
+                    <tr>
+                      <th
+                        scope="col"
+                      >
+                        Subitem
+                      </th>
+                      <th
+                        scope="col"
+                      >
+                        Owner
+                      </th>
+                      <th
+                        scope="col"
+                      >
+    ...
+
+Ignored nodes: comments, script, style
+<body
+  data-scroll-locked="1"
+  style="pointer-events: none;"
+>
+  <span
+    aria-hidden="true"
+    data-aria-hidden="true"
+    data-radix-focus-guard=""
+    style="outline: none; opacity: 0; position: fixed; pointer-events: none;"
+    tabindex="0"
+  />
+  <div
+    aria-hidden="true"
+    data-aria-hidden="true"
+  >
+    <table>
+      <tbody>
+        <tr
+          class="pt-task-row"
+        >
+          <td
+            class="pt-row-actions-cell"
+          >
+            <button
+              aria-controls="radix-:r2:"
+              aria-expanded="true"
+              aria-haspopup="menu"
+              aria-label="Actions for Prepare assessment"
+              class="pt-row-actions-button"
+              data-slot="dropdown-menu-trigger"
+              data-state="open"
+              id="radix-:r1:"
+              type="button"
+            >
+              <svg
+                class="lucide lucide-ellipsis"
+                fill="none"
+                height="16"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="1"
+                />
+                <circle
+                  cx="19"
+                  cy="12"
+                  r="1"
+                />
+                <circle
+                  cx="5"
+                  cy="12"
+                  r="1"
+                />
+              </svg>
+            </button>
+          </td>
+          <td
+            class="pt-task-name"
+          >
+            <div>
+              <button
+                aria-controls="pt-subitems-task"
+                aria-expanded="true"
+                aria-label="Subitems for Prepare assessment"
+                type="button"
+              >
+                <svg
+                  class="lucide lucide-chevron-down"
+                  fill="none"
+                  height="15"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="15"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="m6 9 6 6 6-6"
+                  />
+                </svg>
+              </button>
+              <button
+                aria-label="Edit task Prepare assessment"
+                class="eflow-inline-text"
+                type="button"
+              >
+                Prepare assessment
+              </button>
+              <button
+                aria-label="Open Prepare assessment"
+                type="button"
+              >
+                <svg
+                  class="lucide lucide-panel-right"
+                  fill="none"
+                  height="15"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="15"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <rect
+                    height="18"
+                    rx="2"
+                    width="18"
+                    x="3"
+                    y="3"
+                  />
+                  <path
+                    d="M15 3v18"
+                  />
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr
+          class="pt-subitems-row"
+        >
+          <td
+            colspan="2"
+          >
+            <section
+              aria-label="Subitems for Prepare assessment"
+              class="pt-subitems"
+              id="pt-subitems-task"
+            >
+              <div
+                class="pt-subitems-table-scroll"
+              >
+                <table
+                  aria-label="Prepare assessment subitems"
+                >
+                  <thead>
+                    <tr>
+                      <th
+                        scope="col"
+                      >
+                        Subitem
+                      </th>
+                      <th
+                        scope="col"
+                      >
+                        Owner
+                      </th>
+                      <th
+                        scope="col"
+                      >
+    ...
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ tests/unit/projectSubitems.test.tsx:52:26
+     50|     expect(row.querySelector('[draggable]')).toBeNull();
+     51|     fireEvent.keyDown(actions, { key: 'Enter' });
+     52|     expect((await screen.findByRole('menuitem', { name: 'Move up', exa…
+       |                          ^
+     53|     fireEvent.click(screen.getByRole('menuitem', { name: 'Task details…
+     54|     expect(mocks.open).toHaveBeenCalledOnce();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/unit/projectSubitems.test.tsx > Project table subitem expansion > keeps the first-column Add subitem action disabled for someone who is not the task lead
+TestingLibraryElementError: Unable to find role="menuitem" and name "Add subitem"
+
+Ignored nodes: comments, script, style
+<body
+  data-scroll-locked="1"
+  style="pointer-events: none;"
+>
+  <span
+    aria-hidden="true"
+    data-aria-hidden="true"
+    data-radix-focus-guard=""
+    style="outline: none; opacity: 0; position: fixed; pointer-events: none;"
+    tabindex="0"
+  />
+  <div
+    aria-hidden="true"
+    data-aria-hidden="true"
+  >
+    <table>
+      <tbody>
+        <tr
+          class="pt-task-row"
+        >
+          <td
+            class="pt-row-actions-cell"
+          >
+            <button
+              aria-controls="radix-:rd:"
+              aria-expanded="true"
+              aria-haspopup="menu"
+              aria-label="Actions for Prepare assessment"
+              class="pt-row-actions-button"
+              data-slot="dropdown-menu-trigger"
+              data-state="open"
+              id="radix-:rc:"
+              type="button"
+            >
+              <svg
+                class="lucide lucide-ellipsis"
+                fill="none"
+                height="16"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="1"
+                />
+                <circle
+                  cx="19"
+                  cy="12"
+                  r="1"
+                />
+                <circle
+                  cx="5"
+                  cy="12"
+                  r="1"
+                />
+              </svg>
+            </button>
+          </td>
+          <td
+            class="pt-task-name"
+          >
+            <div>
+              <button
+                aria-controls="pt-subitems-task"
+                aria-expanded="true"
+                aria-label="Subitems for Prepare assessment"
+                type="button"
+              >
+                <svg
+                  class="lucide lucide-chevron-down"
+                  fill="none"
+                  height="15"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="15"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="m6 9 6 6 6-6"
+                  />
+                </svg>
+              </button>
+              <button
+                aria-label="Edit task Prepare assessment"
+                class="eflow-inline-text"
+                type="button"
+              >
+                Prepare assessment
+              </button>
+              <button
+                aria-label="Open Prepare assessment"
+                type="button"
+              >
+                <svg
+                  class="lucide lucide-panel-right"
+                  fill="none"
+                  height="15"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="15"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <rect
+                    height="18"
+                    rx="2"
+                    width="18"
+                    x="3"
+                    y="3"
+                  />
+                  <path
+                    d="M15 3v18"
+                  />
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr
+          class="pt-subitems-row"
+        >
+          <td
+            colspan="2"
+          >
+            <section
+              aria-label="Subitems for Prepare assessment"
+              class="pt-subitems"
+              id="pt-subitems-task"
+            >
+              <div
+                class="pt-subitems-table-scroll"
+              >
+                <table
+                  aria-label="Prepare assessment subitems"
+                >
+                  <thead>
+                    <tr>
+                      <th
+                        scope="col"
+                      >
+                        Subitem
+                      </th>
+                      <th
+                        scope="col"
+                      >
+                        Owner
+                      </th>
+                      <th
+                        scope="col"
+                      >
+    ...
+
+Ignored nodes: comments, script, style
+<body
+  data-scroll-locked="1"
+  style="pointer-events: none;"
+>
+  <span
+    aria-hidden="true"
+    data-aria-hidden="true"
+    data-radix-focus-guard=""
+    style="outline: none; opacity: 0; position: fixed; pointer-events: none;"
+    tabindex="0"
+  />
+  <div
+    aria-hidden="true"
+    data-aria-hidden="true"
+  >
+    <table>
+      <tbody>
+        <tr
+          class="pt-task-row"
+        >
+          <td
+            class="pt-row-actions-cell"
+          >
+            <button
+              aria-controls="radix-:rd:"
+              aria-expanded="true"
+              aria-haspopup="menu"
+              aria-label="Actions for Prepare assessment"
+              class="pt-row-actions-button"
+              data-slot="dropdown-menu-trigger"
+              data-state="open"
+              id="radix-:rc:"
+              type="button"
+            >
+              <svg
+                class="lucide lucide-ellipsis"
+                fill="none"
+                height="16"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="1"
+                />
+                <circle
+                  cx="19"
+                  cy="12"
+                  r="1"
+                />
+                <circle
+                  cx="5"
+                  cy="12"
+                  r="1"
+                />
+              </svg>
+            </button>
+          </td>
+          <td
+            class="pt-task-name"
+          >
+            <div>
+              <button
+                aria-controls="pt-subitems-task"
+                aria-expanded="true"
+                aria-label="Subitems for Prepare assessment"
+                type="button"
+              >
+                <svg
+                  class="lucide lucide-chevron-down"
+                  fill="none"
+                  height="15"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="15"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="m6 9 6 6 6-6"
+                  />
+                </svg>
+              </button>
+              <button
+                aria-label="Edit task Prepare assessment"
+                class="eflow-inline-text"
+                type="button"
+              >
+                Prepare assessment
+              </button>
+              <button
+                aria-label="Open Prepare assessment"
+                type="button"
+              >
+                <svg
+                  class="lucide lucide-panel-right"
+                  fill="none"
+                  height="15"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="15"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <rect
+                    height="18"
+                    rx="2"
+                    width="18"
+                    x="3"
+                    y="3"
+                  />
+                  <path
+                    d="M15 3v18"
+                  />
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr
+          class="pt-subitems-row"
+        >
+          <td
+            colspan="2"
+          >
+            <section
+              aria-label="Subitems for Prepare assessment"
+              class="pt-subitems"
+              id="pt-subitems-task"
+            >
+              <div
+                class="pt-subitems-table-scroll"
+              >
+                <table
+                  aria-label="Prepare assessment subitems"
+                >
+                  <thead>
+                    <tr>
+                      <th
+                        scope="col"
+                      >
+                        Subitem
+                      </th>
+                      <th
+                        scope="col"
+                      >
+                        Owner
+                      </th>
+                      <th
+                        scope="col"
+                      >
+    ...
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ tests/unit/projectSubitems.test.tsx:60:26
+     58|     show({ assigneeId: 'lead' });
+     59|     fireEvent.keyDown(screen.getByRole('button', { name: 'Actions for …
+     60|     expect((await screen.findByRole('menuitem', { name: 'Add subitem',…
+       |                          ^
+     61|     expect(screen.queryByRole('textbox', { name: 'Add subitem to Prepa…
+     62|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  2 failed | 34 passed (36)
+   Start at  15:11:23
+   Duration  7.59s (transform 418ms, setup 0ms, collect 4.05s, tests 3.91s, environment 2.30s, prepare 626ms)
+

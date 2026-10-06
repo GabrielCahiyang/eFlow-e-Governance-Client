@@ -1,0 +1,7 @@
+Command: npm run check
+Exit code: 0
+
+
+> @figma/my-make-file@0.0.1 check
+> tsc --noEmit
+

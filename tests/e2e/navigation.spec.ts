@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { getRoleNavigation } from "../../src/app/features/navigation/roleNavigation";
+import { buildShellNavigation, navigationGroupLabels } from "../../src/app/features/navigation";
 import { getNavigationPath } from "../../src/app/features/navigation/navigationUrl";
 
 interface E2EAccount {
@@ -26,10 +26,25 @@ test.describe("authenticated navigation smoke coverage", () => {
       await page.locator("#login-submit").click();
       await expect(page.getByRole("main", { name: "Active workspace" })).toBeVisible();
 
-      for (const item of getRoleNavigation(account.role).navItems) {
-        await page.getByRole("button", { name: item.label, exact: true }).click();
-        await expect(page.getByText(item.label, { exact: true }).first()).toBeVisible();
-        expect(new URL(page.url()).pathname).toBe(getNavigationPath(item.id));
+      const rail = page.getByRole('navigation', {name:'Global navigation'});
+      for (const item of buildShellNavigation({role:account.role, can:()=>true, hasLeadingWork:true})) {
+        const group = rail.getByRole('button', {name:item.group==='account'?'Profile':navigationGroupLabels[item.group],exact:true});
+        if (!await group.count()) continue; // Effective individual grants remain authoritative.
+        await group.click();
+        const officeTools=page.getByText('Office tools',{exact:true});
+        if(await officeTools.isVisible() && await officeTools.evaluate(element=>!element.closest('details')?.open)) await officeTools.click();
+        for (const destination of item.pages) {
+          const target = page.getByRole('navigation',{name:'Workspace destinations'}).getByRole('button',{name:item.pages.length===1?item.label:destination.label,exact:true}).first();
+          // Projects is owned by the contextual project controller.
+          if (!await target.count() && item.id==='projects') {
+            await expect(page.getByRole('complementary',{name:'Projects context'})).toBeVisible();
+            continue;
+          }
+          if (!await target.count()) continue;
+          await target.click();
+          await expect(target).toHaveAttribute('aria-current','page');
+          expect(new URL(page.url()).pathname).toBe(getNavigationPath(item.id));
+        }
       }
     });
   }

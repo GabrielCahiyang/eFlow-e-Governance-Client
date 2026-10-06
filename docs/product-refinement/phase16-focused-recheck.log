@@ -1,0 +1,22 @@
+
+> @figma/my-make-file@0.0.1 test
+> vitest --configLoader runner run tests/unit/cashReleaseOverride.test.tsx tests/unit/budgetDesignSystemPresentation.test.ts tests/unit/phase16Contracts.test.ts tests/unit/phase16FinancialScope.test.tsx tests/unit/accountingSettlementAuthority.test.tsx
+
+
+ RUN  v3.2.4 C:/Users/james/projects/eflow-e-Governance-Project
+
+ ✓ tests/unit/budgetDesignSystemPresentation.test.ts (4 tests) 4ms
+ ✓ tests/unit/phase16FinancialScope.test.tsx (4 tests) 482ms
+ ✓ tests/unit/phase16Contracts.test.ts (12 tests) 6ms
+ ✓ tests/unit/accountingSettlementAuthority.test.tsx (6 tests) 914ms
+   ✓ Accounting settlement authority > waits for Head authorization before settling a late package  408ms
+ ✓ tests/unit/cashReleaseOverride.test.tsx (7 tests) 2379ms
+   ✓ schedule override confirmation > opens details without making a financial call and cancels safely  638ms
+   ✓ schedule override confirmation > requires a reason and releases only the selected tranche after confirmation  347ms
+   ✓ schedule override confirmation > lets Accounting Staff issue cheques and use audited schedule overrides  328ms
+
+ Test Files  5 passed (5)
+      Tests  33 passed (33)
+   Start at  21:43:11
+   Duration  8.65s (transform 397ms, setup 0ms, collect 14.65s, tests 3.79s, environment 3.52s, prepare 1.33s)
+

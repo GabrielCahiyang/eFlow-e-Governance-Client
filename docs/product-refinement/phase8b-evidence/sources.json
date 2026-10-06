@@ -1,0 +1,114 @@
+[
+  {
+    "path": "src/styles/foundation-tokens.css",
+    "sha256": "961949df0e7d4d96a1c179b7c2b443c24a753b9352903cb41c71cb7f95933860"
+  },
+  {
+    "path": "src/styles/foundation-controls.css",
+    "sha256": "bb81b7dbaddbf8bc780ebf7ab6b04493764f8f87b195bfa27f617b8d0636fd19"
+  },
+  {
+    "path": "src/styles/default_theme.css",
+    "sha256": "949a4a7bf8ed62fb31fc33473c5a139ee04d22222a69c1093c72ce13303389a1"
+  },
+  {
+    "path": "src/styles/globals.css",
+    "sha256": "65f7e7607803442a888965cd45c5873d338d0c02f58603641883f4ece2a2262c"
+  },
+  {
+    "path": "src/styles/index.css",
+    "sha256": "d8a22b791ad9883fcfe208b645273d213f24802522aeb3b66992c917dc82ae84"
+  },
+  {
+    "path": "src/styles/workspace-foundation.css",
+    "sha256": "fc6aa17806863197dde35ea7b228cfc3c2b7729cf0af7c453e77f64592bcec66"
+  },
+  {
+    "path": "src/app/shared/vibe/eflowVibeTheme.ts",
+    "sha256": "d3a0384d853c34b988cae55f8dfdfef836d306055012b5a14e7871324c0b83fe"
+  },
+  {
+    "path": "src/app/shared/vibe/EflowVibeProvider.tsx",
+    "sha256": "e895111dda9e96d4f4eb296439f90dae43ea98930fa7c3371ac89c6f817ff69c"
+  },
+  {
+    "path": "src/app/shared/motion/InspectorPanel.tsx",
+    "sha256": "a8995d73935ed6abee4ab15b8ad02a96f8b70e7a744d59cbbc67444466bd8882"
+  },
+  {
+    "path": "src/app/components/ui/FormField.tsx",
+    "sha256": "90eb8a8c6343c8850e81a8b9df71cb143aa47a5d7e891155fa5011cf3ade150d"
+  },
+  {
+    "path": "src/app/components/ui/button.tsx",
+    "sha256": "fea5d3a3196ac9090f79605ae680f37669560733c6cd254942aefa4a5b5d1b65"
+  },
+  {
+    "path": "src/app/components/ui/FeedbackState.tsx",
+    "sha256": "9e80f9bceaa637536ea7a2dba3b9c9b6a50a99be104219c50efe1fe03b7d2b53"
+  },
+  {
+    "path": "src/app/components/ui/OverlayPopoverLayer.tsx",
+    "sha256": "8879abc82f345cd6c04465a4b67d479c592f41d8e3eff18b01318ec8f334576b"
+  },
+  {
+    "path": "src/app/components/ui/DataTable.tsx",
+    "sha256": "60b156169087960a19a031516b245a3ad2eaa26e14c42f0343443fff10b580fa"
+  },
+  {
+    "path": "src/app/components/ui/Modal.tsx",
+    "sha256": "29db556f02d80e8098d6fa18217b6e6787da0d415a71f32bb76a4768e8363b5b"
+  },
+  {
+    "path": "src/app/components/ui/FeatureDialog.tsx",
+    "sha256": "35c7a1eced5a50392b6fa4e95b77ea74f4f1d93a28c97ba485f15de0009f2c27"
+  },
+  {
+    "path": "src/app/components/ui/useConfirmation.tsx",
+    "sha256": "ee9b8da2772679ba95b3acad0ea925022f2b81c16f0b49258b052003a646230e"
+  },
+  {
+    "path": "src/app/components/ui/Toast.tsx",
+    "sha256": "0962c311e397e3b908d0ef8ebe89dd6636713622a7cfe21e69e0eb7314510bc9"
+  },
+  {
+    "path": "src/app/components/ui/popover.tsx",
+    "sha256": "6556f660f2b1b7fcd1e365ffa4c9aa6123815e5dfe12a37abec7af0f62d50cbf"
+  },
+  {
+    "path": "src/app/components/ui/select.tsx",
+    "sha256": "bcdce921ab8dbc22a999ff9a673ce917796e2691bc79d56927aac1c565214257"
+  },
+  {
+    "path": "src/app/components/ui/dropdown-menu.tsx",
+    "sha256": "e3c40d4cf4a23957412f00f867959f2b18876fde7bea4f16f3ec06a2d7a4632c"
+  },
+  {
+    "path": "src/app/components/ui/context-menu.tsx",
+    "sha256": "65621228254c550d9e465042e8206f03758d8e344827f7ab7f04a523c8f4f24b"
+  },
+  {
+    "path": "src/app/components/ui/workspace/ActionMenu.tsx",
+    "sha256": "2d56fcf264a237c560b5f5c619ca74ba3db39324b6acc1a68dc3303410acd5f0"
+  },
+  {
+    "path": "src/app/features/project-table/projectTable.css",
+    "sha256": "6443beda3899fae53313c2a65a36d837308a8d19c18fe886c4beb62fc2e0edc9"
+  },
+  {
+    "path": "src/app/features/projects/components/project-command/projectViewControls.css",
+    "sha256": "154541618e3915da8cc7fab96b2070e343cdb74cc151ce810503de521f79c888"
+  },
+  {
+    "path": "src/app/features/administration/components/user-management/UsersTab.tsx",
+    "sha256": "836869d8b42910365986e471123e6044e2c796bb9526a0d836141642b244a622"
+  },
+  {
+    "path": "src/app/features/administration/components/user-management/CreateUserModal.tsx",
+    "sha256": "1689c377caec2e82473058eeedd95d688ee4c38af397290996e5b958c0cabeb4"
+  },
+  {
+    "path": "src/app/features/administration/components/user-management/EditUserModal.tsx",
+    "sha256": "c70f0a0c6002adf4d34a9ad61a9cb9a3581b662f09086f659478e5cce750eade"
+  }
+]

@@ -5,6 +5,9 @@ import * as m from "motion/react-m";
 import { motionTransition } from "../../../shared/motion";
 import { tasksForProject } from "../../tasks";
 import type { Project, ProjectMember } from "../services/types";
+import { Star } from 'lucide-react';
+import { ActionMenu } from '../../../components/ui/workspace';
+import { useNavigationFavorites, useNavigationDisclosure } from '../../../shared/navigationPreferences';
 
 /**
  * The project context keeps project switching and the people responsible for
@@ -15,6 +18,9 @@ export function ProjectContextSidebar({
   activeProjectId,
   canAdd,
   onCreateProject,
+  onImportProposal,
+  userId = '',
+  contextId = '',
   canArchive = false,
   canComplete = false,
   canDelete = true,
@@ -37,6 +43,9 @@ export function ProjectContextSidebar({
   activeProjectId?: string;
   canAdd: boolean;
   onCreateProject?: () => void;
+  onImportProposal?: () => void;
+  userId?: string;
+  contextId?: string;
   canArchive?: boolean;
   canComplete?: boolean;
   canDelete?: boolean;
@@ -62,6 +71,8 @@ export function ProjectContextSidebar({
 }) {
   const [contextMenuProjectId, setContextMenuProjectId] = React.useState<string | null>(null);
   const [mobileDetailsOpen, setMobileDetailsOpen] = React.useState(false);
+  const { favorites, toggle } = useNavigationFavorites(userId, contextId, projects.map(project => project.id));
+  const disclosure = useNavigationDisclosure(userId, contextId);
   const contextProjects = projects.filter((project) => project.status !== "archived");
   const archivedProjects = projects.filter((project) => project.status === "archived");
   const selectedProject = projects.find((project) => project.id === activeProjectId);
@@ -105,6 +116,7 @@ export function ProjectContextSidebar({
                 </span>
                 <span className="eflow-project-context__project-name">{project.title}</span>
               </button>
+              {userId && <button type="button" className="eflow-project-context__favorite" aria-label={`${favorites.has(project.id) ? 'Remove' : 'Add'} ${project.title} ${favorites.has(project.id) ? 'from' : 'to'} favorites`} aria-pressed={favorites.has(project.id)} onClick={() => toggle(project.id)}><Star size={15} fill={favorites.has(project.id) ? 'currentColor' : 'none'} /></button>}
               {(canComplete || canArchive || canDelete) && (
                 <Dialog
                   aria-label={`${project.title} actions`}
@@ -176,13 +188,14 @@ export function ProjectContextSidebar({
   return (
     <aside className={`eflow-project-context ${mobileDetailsOpen ? 'eflow-project-context--details-open' : ''}`} aria-label="Projects context">
       <button type="button" className="pt-context-details-toggle" aria-expanded={mobileDetailsOpen} onClick={()=>setMobileDetailsOpen(!mobileDetailsOpen)}>{mobileDetailsOpen ? 'Hide planning and people' : 'Show planning and people'}</button>
-      <div className="eflow-project-context__section">
+      <details className="eflow-project-context__favorites" open={disclosure.isOpen('favorites')} onToggle={event => disclosure.setOpen('favorites', event.currentTarget.open)}><summary>Favorites <small>On this device</small></summary><div className="eflow-project-context__list">{favorites.size ? renderProjects(projects.filter(project => favorites.has(project.id))) : <p className="eflow-project-context__empty">Star a project for quick access.</p>}</div></details>
+      <details className="eflow-project-context__section" open={disclosure.isOpen('projects')} onToggle={event => disclosure.setOpen('projects', event.currentTarget.open)}><summary>Projects</summary>
         <button
           className="eflow-project-context__title"
           onClick={onOpenPortfolio}
           type="button"
         >
-          <span>Projects</span>
+          <span>Open projects</span>
         </button>
         {departmentFilter && (
           <label className="eflow-project-context__department-filter">
@@ -208,12 +221,13 @@ export function ProjectContextSidebar({
         {canAdd && onCreateProject && (
           <div className="eflow-project-context__create">
             <Button className="eflow-project-context__add" kind="primary" leftIcon={Add} onClick={onCreateProject} size="small">Create project</Button>
+            <ActionMenu trigger={<button type="button" className="eflow-project-context__add-menu" aria-label="Add to workspace">+</button>} actions={[{ id: 'project', label: 'Project', onSelect: onCreateProject }, ...(onImportProposal ? [{ id: 'import', label: 'Import proposal', onSelect: onImportProposal }] : [])]} />
           </div>
         )}
-      </div>
+      </details>
 
-      <div className="eflow-project-context__planning">
-        <h2>Planning</h2>
+      <details className="eflow-project-context__planning" open={disclosure.isOpen('planning')} onToggle={event => disclosure.setOpen('planning', event.currentTarget.open)}>
+        <summary>Planning</summary>
         <m.button
           className={planningView === "drafts" ? "eflow-project-context__planning-item--active" : ""}
           type="button"
@@ -250,10 +264,10 @@ export function ProjectContextSidebar({
           {planningCounts.signoff > 0 && <span className="relative inline-flex h-2 w-2" title="Work plans awaiting approval"><span className="absolute inset-0 animate-ping rounded-full bg-amber-400 opacity-70 motion-reduce:animate-none" /><span className="relative h-2 w-2 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.75)]" /></span>}
           <strong>{planningCounts.signoff}</strong>
         </m.button>
-      </div>
+      </details>
 
-      <div className="eflow-project-context__members">
-        <h2>Team Members</h2>
+      <details className="eflow-project-context__members" open={disclosure.isOpen('people')} onToggle={event => disclosure.setOpen('people', event.currentTarget.open)}>
+        <summary>Team Members</summary>
         {members.length ? members.map((member) => (
           <div className="eflow-project-context__member" key={member.id}>
             <span className="eflow-project-context__avatar" aria-hidden="true">
@@ -265,7 +279,7 @@ export function ProjectContextSidebar({
             </span>
           </div>
         )) : <p className="eflow-project-context__empty">Project members will appear here.</p>}
-      </div>
+      </details>
     </aside>
   );
 }

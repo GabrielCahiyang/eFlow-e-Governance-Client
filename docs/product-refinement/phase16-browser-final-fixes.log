@@ -1,0 +1,50 @@
+
+Running 5 tests using 1 worker
+
+
+
+[1A[2K(node:29140) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K(node:29140) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[1/5] [chromium] › tests\e2e\phase16-support-finance.spec.ts:10:1 › Admin Center keeps legacy pages, account inspection and unsaved account edits
+[1A[2K  1) [chromium] › tests\e2e\phase16-support-finance.spec.ts:10:1 › Admin Center keeps legacy pages, account inspection and unsaved account edits 
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: locator.fill: Test timeout of 90000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('dialog', { name: /Edit User/ }).getByLabel('Full Name', { exact: true })[22m
+
+
+      31 |   const edit = page.getByRole("dialog", { name: /Edit User/ });
+      32 |   await expect(edit).toBeVisible({timeout:10000});
+    > 33 |   await edit.getByLabel("Full Name", { exact: true }).fill("Draft identity");
+         |                                                       ^
+      34 |   await edit.getByRole("button", { name: "Cancel", exact: true }).click();
+      35 |   const discard = page.getByRole("alertdialog");
+      36 |   await expect(discard).toBeVisible();
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase16-support-finance.spec.ts:33:55
+
+    Error Context: test-results\phase16-support-finance-Ad-6ea46-n-and-unsaved-account-edits-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase16-support-finance-Ad-6ea46-n-and-unsaved-account-edits-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase16-support-finance-Ad-6ea46-n-and-unsaved-account-edits-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+[1A[2K(node:42800) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:42800) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[1A[2K[2/5] [chromium] › tests\e2e\phase16-support-finance.spec.ts:313:1 › Reports retain seven lenses, filtered CSV export and the task inspector

@@ -1,0 +1,440 @@
+{
+  "phase": 14,
+  "captured_at": "2026-10-06T11:48:25.444421+00:00",
+  "sources": [
+    {
+      "path": "docs/product-refinement/audit/current-to-target.md",
+      "snapshot": "source/docs/product-refinement/audit/current-to-target.md",
+      "sha256": "31592e66515a0ff97f2fa4e12953e9fe64eade4015cf9e4b3c0338516ac1bdf9"
+    },
+    {
+      "path": "docs/product-refinement/phase-14-people-collaboration.md",
+      "snapshot": "source/docs/product-refinement/phase-14-people-collaboration.md",
+      "sha256": "d8ddf01c2a306ee01f1ec0347793dc1e2d9da42863787bd8482f121e7139d116"
+    },
+    {
+      "path": "docs/product-refinement/phase14-delivery.md",
+      "snapshot": "source/docs/product-refinement/phase14-delivery.md",
+      "sha256": "81acf78f6d7c38c0e150365eb8fc4799b783be36d77dd91862eb207ac703566c"
+    },
+    {
+      "path": "docs/product-refinement/phase14-people-contracts.md",
+      "snapshot": "source/docs/product-refinement/phase14-people-contracts.md",
+      "sha256": "6a7b50368d6e543691124f028582e0295a2ade76ff1d0bd0b3c99aff77bfdddd"
+    },
+    {
+      "path": "docs/product-refinement/README.md",
+      "snapshot": "source/docs/product-refinement/README.md",
+      "sha256": "a21030e1745a2bf9ff7d9b2480ceb2482bf5bd40a2274a10216db6678e3b18b9"
+    },
+    {
+      "path": "package.json",
+      "snapshot": "source/package.json",
+      "sha256": "11575272f2a7a8874f5c55b247d8b3e6a5b72af335b34d11bc823b8a4f65fc3b"
+    },
+    {
+      "path": "playwright.config.ts",
+      "snapshot": "source/playwright.config.ts",
+      "sha256": "e056dcaef59490aae34175f27b0241392d5d088aa3b03b641ccbba4e2203b138"
+    },
+    {
+      "path": "README.md",
+      "snapshot": "source/README.md",
+      "sha256": "428ab170465b812cbb4a0f9dcfee55ba3c205399302bf43bf06296513768d2da"
+    },
+    {
+      "path": "server/invitations/service.py",
+      "snapshot": "source/server/invitations/service.py",
+      "sha256": "9902dd4743a41df4aa4f142f642b865f1fda5f78c863be4d19aec2400069b4ae"
+    },
+    {
+      "path": "server/routers/invitations.py",
+      "snapshot": "source/server/routers/invitations.py",
+      "sha256": "483cc0b2dcc420287ccfb3703aa6438f6bf393a972029b5b1055d788badddc43"
+    },
+    {
+      "path": "server/routers/professional_profiles.py",
+      "snapshot": "source/server/routers/professional_profiles.py",
+      "sha256": "adecd0810bdc62889c2b3d3d69bca868d2492bcad6dd5483656c696c133299a2"
+    },
+    {
+      "path": "server/tests/test_phase2.py",
+      "snapshot": "source/server/tests/test_phase2.py",
+      "sha256": "0538cb944631eedc20134310d86e51d165d35b8ed4944c1f4caa21de09ada6b9"
+    },
+    {
+      "path": "server/tests/test_phase6.py",
+      "snapshot": "source/server/tests/test_phase6.py",
+      "sha256": "0cb4fab0b5469893a6001b326e866082a0d0e2cd474d24d01d1fc71b3727caef"
+    },
+    {
+      "path": "src/app/features/action-center/components/ActionCenter.tsx",
+      "snapshot": "source/src/app/features/action-center/components/ActionCenter.tsx",
+      "sha256": "7175d4b94014841ed3d29cbd650bc6ea28af53b682a5f885f795d9c0cd7956bc"
+    },
+    {
+      "path": "src/app/features/guided-tours/tourCatalog.ts",
+      "snapshot": "source/src/app/features/guided-tours/tourCatalog.ts",
+      "sha256": "4e20c307ec9dfe0ece777287cd07f04f8f13d2213cb379be1c71b5ed2910718a"
+    },
+    {
+      "path": "src/app/features/invitations/components/AcceptInvitationPage.tsx",
+      "snapshot": "source/src/app/features/invitations/components/AcceptInvitationPage.tsx",
+      "sha256": "09630a4970c87295bbeb119c9ca41406fdd46b92b0aae4d71b7d3ea2fe8c1d3f"
+    },
+    {
+      "path": "src/app/features/invitations/components/InviteMemberDialog.tsx",
+      "snapshot": "source/src/app/features/invitations/components/InviteMemberDialog.tsx",
+      "sha256": "e147e6f72be18bc562e9d862492774aaa67d9a5bf6ca95b9e09a42f692f30569"
+    },
+    {
+      "path": "src/app/features/invitations/hooks/useInvitationManagement.tsx",
+      "snapshot": "source/src/app/features/invitations/hooks/useInvitationManagement.tsx",
+      "sha256": "8de35f690fc3fb464f6f4e29784b76d7a2111bac8b44774f86770a6ec3c4b2d4"
+    },
+    {
+      "path": "src/app/features/invitations/index.ts",
+      "snapshot": "source/src/app/features/invitations/index.ts",
+      "sha256": "7370d41b135fd3fbb90a5282fd0f14674a2ad32ddc3514d58f6107317f4dd7ee"
+    },
+    {
+      "path": "src/app/features/invitations/invitations.css",
+      "snapshot": "source/src/app/features/invitations/invitations.css",
+      "sha256": "3fb640876cbb6219a6263e65f6f15dcf411ea0ee0cd759da16702d3f95670c9c"
+    },
+    {
+      "path": "src/app/features/invitations/presentation.ts",
+      "snapshot": "source/src/app/features/invitations/presentation.ts",
+      "sha256": "8e18dcd4799be04a80a21145c13e808db122b0cf32809bd12b5d7e6cb6902b02"
+    },
+    {
+      "path": "src/app/features/invitations/services/invitationService.ts",
+      "snapshot": "source/src/app/features/invitations/services/invitationService.ts",
+      "sha256": "9383711e971a876aceb62e5a113bb7ff9ea033bd58a2610c7c59fb1e08d83153"
+    },
+    {
+      "path": "src/app/features/invitations/types.ts",
+      "snapshot": "source/src/app/features/invitations/types.ts",
+      "sha256": "e7ed08b90bd67443a96be5fc3a596cfd0adb62baafd775f989d589cf8b1f35a7"
+    },
+    {
+      "path": "src/app/features/office-team/components/InvitationTable.tsx",
+      "snapshot": "source/src/app/features/office-team/components/InvitationTable.tsx",
+      "sha256": "a5dfc474de3aff2376da2aef561793417e3a0996ee6297a72f1278a7f47605ef"
+    },
+    {
+      "path": "src/app/features/office-team/components/OfficeMemberInspector.tsx",
+      "snapshot": "source/src/app/features/office-team/components/OfficeMemberInspector.tsx",
+      "sha256": "ba938c575d7661f765905d7315ff15e3380d06c04404388702bdc9d228253809"
+    },
+    {
+      "path": "src/app/features/office-team/components/OfficeTeamTable.tsx",
+      "snapshot": "source/src/app/features/office-team/components/OfficeTeamTable.tsx",
+      "sha256": "4a1385dbe9ffc1d8d177d7566a174751414df4dc6feb45841c4d17dad0ed6f35"
+    },
+    {
+      "path": "src/app/features/office-team/components/OfficeTeamWorkspace.tsx",
+      "snapshot": "source/src/app/features/office-team/components/OfficeTeamWorkspace.tsx",
+      "sha256": "f866c9ae3a29eb3cd00c68e8ad6535f31f952bde2683eebd20e3a0ff7751a14e"
+    },
+    {
+      "path": "src/app/features/office-team/hooks/useOfficeTeam.ts",
+      "snapshot": "source/src/app/features/office-team/hooks/useOfficeTeam.ts",
+      "sha256": "870d00de0e15566d7ec3d70a73db2811f34a2bb9285a5f3f22c5cc41a49464bd"
+    },
+    {
+      "path": "src/app/features/office-team/index.ts",
+      "snapshot": "source/src/app/features/office-team/index.ts",
+      "sha256": "44a2a53ef0ab9cd5490b5d33ef7afd2f349ffa92aa07c6490ae6c3ce6fca67d6"
+    },
+    {
+      "path": "src/app/features/office-team/officeTeam.css",
+      "snapshot": "source/src/app/features/office-team/officeTeam.css",
+      "sha256": "b50abdaaca71ab86abc81c9904c3ed22eb167264fa1e69ee528cc237d420bce4"
+    },
+    {
+      "path": "src/app/features/office-team/selectors.ts",
+      "snapshot": "source/src/app/features/office-team/selectors.ts",
+      "sha256": "4fca535e4ff15ff0bc7cce7b1917394669a32887d8c2a4d5acc138423627bc57"
+    },
+    {
+      "path": "src/app/features/office-team/types.ts",
+      "snapshot": "source/src/app/features/office-team/types.ts",
+      "sha256": "b1f3cb14b5d2ecdfa6ea1d83e52c074c2a658635ff6b03e64e1a7ccedd64903a"
+    },
+    {
+      "path": "src/app/features/professional-profile/components/ProfessionalProfilePanel.tsx",
+      "snapshot": "source/src/app/features/professional-profile/components/ProfessionalProfilePanel.tsx",
+      "sha256": "5c5f794bf970fd51346a2ec3ed0b0445179918654c6797636f6a6311012e2c2d"
+    },
+    {
+      "path": "src/app/features/professional-profile/index.ts",
+      "snapshot": "source/src/app/features/professional-profile/index.ts",
+      "sha256": "3a40632cf6da316e62c3615ebcf2ef25e01d6fb98ac7b64e52cd27d4f53c19ed"
+    },
+    {
+      "path": "src/app/features/professional-profile/professionalProfile.css",
+      "snapshot": "source/src/app/features/professional-profile/professionalProfile.css",
+      "sha256": "6856034d2047f6aa2ae15724c59874a3129bb7910129f44ed8b5dba1fb567917"
+    },
+    {
+      "path": "src/app/features/professional-profile/services/professionalProfileService.ts",
+      "snapshot": "source/src/app/features/professional-profile/services/professionalProfileService.ts",
+      "sha256": "c98c3a51f862c3905e99a5902e94786544d506d97e1b0eec506ec8fee8e2b023"
+    },
+    {
+      "path": "src/app/features/professional-profile/types.ts",
+      "snapshot": "source/src/app/features/professional-profile/types.ts",
+      "sha256": "30c334619383a0b899b85f223e0fe8ef0268abc2e852265f75d4f0819053d113"
+    },
+    {
+      "path": "src/app/features/project-offices/components/InviteOfficeDialog.tsx",
+      "snapshot": "source/src/app/features/project-offices/components/InviteOfficeDialog.tsx",
+      "sha256": "df59363edf09bf4796350edcef2dca1d74eb71b5a65216ee786bfb2c54e2aae2"
+    },
+    {
+      "path": "src/app/features/project-offices/components/LinkOfficeDialog.tsx",
+      "snapshot": "source/src/app/features/project-offices/components/LinkOfficeDialog.tsx",
+      "sha256": "c81586848b260240328aea3f325a8bf82bf27e842665751f5f45d996989eb8c0"
+    },
+    {
+      "path": "src/app/features/project-offices/components/LocalOfficeDialog.tsx",
+      "snapshot": "source/src/app/features/project-offices/components/LocalOfficeDialog.tsx",
+      "sha256": "a018fcc2a4171a9f993cd99dc3de97b736af94fe751b146c1e26b9be55026b1f"
+    },
+    {
+      "path": "src/app/features/project-offices/components/LocalOfficeSection.tsx",
+      "snapshot": "source/src/app/features/project-offices/components/LocalOfficeSection.tsx",
+      "sha256": "8d8bc378fd53825918c91f8af0ba41afc0621df7f638fe0bbb85c1409f647130"
+    },
+    {
+      "path": "src/app/features/project-offices/components/OfficeMembersEditor.tsx",
+      "snapshot": "source/src/app/features/project-offices/components/OfficeMembersEditor.tsx",
+      "sha256": "178f7489bf5dc0f1d72939d6c5d622c2b339c525889f2d4f7044d5893d050a6e"
+    },
+    {
+      "path": "src/app/features/project-offices/components/ProjectOfficeInspector.tsx",
+      "snapshot": "source/src/app/features/project-offices/components/ProjectOfficeInspector.tsx",
+      "sha256": "975590f84609043502cb2486c315ed65b555d7a0252477dc3bb5d45cb7012c06"
+    },
+    {
+      "path": "src/app/features/project-offices/components/ProjectOfficePanel.tsx",
+      "snapshot": "source/src/app/features/project-offices/components/ProjectOfficePanel.tsx",
+      "sha256": "f170b1a3508a2d29ae47e2ac8d87f12c06bd7199a7f89dbd56062f1d0a4cff8f"
+    },
+    {
+      "path": "src/app/features/project-offices/components/ProjectOfficeTable.tsx",
+      "snapshot": "source/src/app/features/project-offices/components/ProjectOfficeTable.tsx",
+      "sha256": "460ab92decb2237219c1a84b53ae2235bd65c949c8a95260fb6de7021d5d9938"
+    },
+    {
+      "path": "src/app/features/project-offices/components/TaskOfficeControl.tsx",
+      "snapshot": "source/src/app/features/project-offices/components/TaskOfficeControl.tsx",
+      "sha256": "88b9c1327008b7d3d4d802a1ea2ece8367f2758b85bbb0ba584d115b566178c6"
+    },
+    {
+      "path": "src/app/features/project-offices/hooks/useOfficeParticipationDetails.ts",
+      "snapshot": "source/src/app/features/project-offices/hooks/useOfficeParticipationDetails.ts",
+      "sha256": "0e15ce260733f3ce14398013d55e3d404f99686a9f9cec6373455b7533ac9e39"
+    },
+    {
+      "path": "src/app/features/project-offices/hooks/useProjectOffices.ts",
+      "snapshot": "source/src/app/features/project-offices/hooks/useProjectOffices.ts",
+      "sha256": "f13c96be0c864b2818d2635363d3f40062bd744e590c74cd8023ff20d8f5682b"
+    },
+    {
+      "path": "src/app/features/project-offices/index.ts",
+      "snapshot": "source/src/app/features/project-offices/index.ts",
+      "sha256": "571801657a5c94c78eba9e56bf0e930d033b728fecb58911b11b28b2a6827ad3"
+    },
+    {
+      "path": "src/app/features/project-offices/presentation.ts",
+      "snapshot": "source/src/app/features/project-offices/presentation.ts",
+      "sha256": "7eb2bdc0317a32b1013468dc2eeab4b2697353fe442269e2ce5667674e6ce70b"
+    },
+    {
+      "path": "src/app/features/project-offices/projectOffices.css",
+      "snapshot": "source/src/app/features/project-offices/projectOffices.css",
+      "sha256": "7fdff8490e931519457b6b3ba0ba43f2c18192348dd22297b45f652759b7aae0"
+    },
+    {
+      "path": "src/app/features/project-offices/selectors.ts",
+      "snapshot": "source/src/app/features/project-offices/selectors.ts",
+      "sha256": "6296fb9e3aa78251abde4bcc19e195d96fafc388fe71932e753144e4d885ebb8"
+    },
+    {
+      "path": "src/app/features/project-offices/services/officeIdentityService.ts",
+      "snapshot": "source/src/app/features/project-offices/services/officeIdentityService.ts",
+      "sha256": "6c9669f9e424fced80aa031b3a39a5a9736f4a9ac8c94521fdfdc8600f51970b"
+    },
+    {
+      "path": "src/app/features/project-offices/services/projectOfficeService.ts",
+      "snapshot": "source/src/app/features/project-offices/services/projectOfficeService.ts",
+      "sha256": "5e80eccc229b414924c95f4120a62dece502dc68bd9dd7c6729e795cf8d6a80b"
+    },
+    {
+      "path": "src/app/features/project-offices/services/staffingAuthority.ts",
+      "snapshot": "source/src/app/features/project-offices/services/staffingAuthority.ts",
+      "sha256": "44d6194493735125e5ac950b711424e714cfb69b75b20b626dfad6f1da17aee0"
+    },
+    {
+      "path": "src/app/features/project-offices/types.ts",
+      "snapshot": "source/src/app/features/project-offices/types.ts",
+      "sha256": "5f3a08fceea3ff59760488e407301550b42caad760e9203c4ce867ba5519b5a5"
+    },
+    {
+      "path": "src/app/features/projects/components/project-command/ProjectCommandWorkspace.tsx",
+      "snapshot": "source/src/app/features/projects/components/project-command/ProjectCommandWorkspace.tsx",
+      "sha256": "52c3b06f9e9b96dc5b95d4b22786bfaf89763fb7d280b84270e1fb4c8a10eeec"
+    },
+    {
+      "path": "src/app/features/role-head/HeadContent.tsx",
+      "snapshot": "source/src/app/features/role-head/HeadContent.tsx",
+      "sha256": "71884152cc0abf7cc43764bc5b5cd5b5a39c7d74fc02b09a55abe41213175394"
+    },
+    {
+      "path": "src/app/features/task-inspector/hooks/useTaskInspector.ts",
+      "snapshot": "source/src/app/features/task-inspector/hooks/useTaskInspector.ts",
+      "sha256": "96b036fac432d7b38e38c20d0dd3aec23c0d722490ff3207b7ca31a9da9eb0c4"
+    },
+    {
+      "path": "src/app/shared/motion/InspectorPanel.tsx",
+      "snapshot": "source/src/app/shared/motion/InspectorPanel.tsx",
+      "sha256": "7cb11f090024fc237d3d4f783baf10eb2c39cd1c2bbf65cfe0a6b003ae817e1c"
+    },
+    {
+      "path": "src/app/shared/navigationGuard.ts",
+      "snapshot": "source/src/app/shared/navigationGuard.ts",
+      "sha256": "75df8b5e08aaa074d878379a39d9b4c3bebcb14f597f4e8df34aa3d1cbb7fc23"
+    },
+    {
+      "path": "src/app/shared/officeAuthority.ts",
+      "snapshot": "source/src/app/shared/officeAuthority.ts",
+      "sha256": "cab968a204efb4fb85e4191e8ad4c5d42bf006f710ab22cf39c8127fdf587e06"
+    },
+    {
+      "path": "src/app/shared/useExplicitDraft.ts",
+      "snapshot": "source/src/app/shared/useExplicitDraft.ts",
+      "sha256": "ebad9ee6506545a7a524aa9a2a24e5ad605e5ee63a5bf611c2f23d19e67ae00f"
+    },
+    {
+      "path": "src/styles/people-management.css",
+      "snapshot": "source/src/styles/people-management.css",
+      "sha256": "627ce760c178ff123dea36177913cba6b938e1c38948062b27e403b0d1b17af5"
+    },
+    {
+      "path": "supabase/migrations/20261004123126_phase2_invitation_onboarding_pds.sql",
+      "snapshot": "source/supabase/migrations/20261004123126_phase2_invitation_onboarding_pds.sql",
+      "sha256": "35acc20cc235e67853d4bb3ce82e29e9f637b4cb5ce60dbc280786b07c86f785"
+    },
+    {
+      "path": "supabase/migrations/20261004132527_phase2_invitation_dispatch_limits.sql",
+      "snapshot": "source/supabase/migrations/20261004132527_phase2_invitation_dispatch_limits.sql",
+      "sha256": "7410f0f8949714bd321312eacf7a5aae3560f0a62848338c3d2b927cfa233af5"
+    },
+    {
+      "path": "supabase/migrations/20261004133412_phase2_existing_identity_acceptance.sql",
+      "snapshot": "source/supabase/migrations/20261004133412_phase2_existing_identity_acceptance.sql",
+      "sha256": "eb0cef4a9d077fb56497aa52d392574823d10397b257ce174f21ad60c5d73f2a"
+    },
+    {
+      "path": "supabase/migrations/20261004174950_phase6_project_office_collaboration.sql",
+      "snapshot": "source/supabase/migrations/20261004174950_phase6_project_office_collaboration.sql",
+      "sha256": "92e0635b45ae1dbe3d26aeec58cd5af8b817e27e4b2cb4c65e02f819e3d59bee"
+    },
+    {
+      "path": "supabase/migrations/20261004182453_phase6_shared_structure_guards.sql",
+      "snapshot": "source/supabase/migrations/20261004182453_phase6_shared_structure_guards.sql",
+      "sha256": "c472ef02a7c0265bce3df298d4ed02c344c4ed169b2acb7b3112da7297d1fcd6"
+    },
+    {
+      "path": "supabase/migrations/20261005170822_phase65_project_local_office_identity.sql",
+      "snapshot": "source/supabase/migrations/20261005170822_phase65_project_local_office_identity.sql",
+      "sha256": "8df2fc34cdce7ca2658c6313e49a9b824e13d1999e35df5c919f5b73f5a1e440"
+    },
+    {
+      "path": "tests/e2e/fixtures/projectWorkspace.ts",
+      "snapshot": "source/tests/e2e/fixtures/projectWorkspace.ts",
+      "sha256": "b7e807827bd45cd7b18eaeadad2a5a004e3b6553c7b2e8544e136df66ae046b0"
+    },
+    {
+      "path": "tests/e2e/phase12-shared-inspector.spec.ts",
+      "snapshot": "source/tests/e2e/phase12-shared-inspector.spec.ts",
+      "sha256": "8a6f981e7f291c332b4024569aeb968b1b06ebbed0fbec88d4246395de649522"
+    },
+    {
+      "path": "tests/e2e/phase13-personal-work.spec.ts",
+      "snapshot": "source/tests/e2e/phase13-personal-work.spec.ts",
+      "sha256": "0634175e069b8bb21cc7e06bfaddb989b757102ce9a832a4fbfb05fd8a6ddaab"
+    },
+    {
+      "path": "tests/e2e/phase14-people-collaboration.spec.ts",
+      "snapshot": "source/tests/e2e/phase14-people-collaboration.spec.ts",
+      "sha256": "6681a52b93bb1a104b6255d063edee382ccfd228904c32e5b57d879015fa5aed"
+    },
+    {
+      "path": "tests/e2e/phase2-invitations.spec.ts",
+      "snapshot": "source/tests/e2e/phase2-invitations.spec.ts",
+      "sha256": "e4c9a8441d02e972b07d05e4ab0036d6c8751a7c0f43b68ed1d5a3c06b892b50"
+    },
+    {
+      "path": "tests/e2e/phase6-project-offices.spec.ts",
+      "snapshot": "source/tests/e2e/phase6-project-offices.spec.ts",
+      "sha256": "5b1e96c3723b16b8f96b585562cfdaaf27364a65ef051065d9b147937c1adfb2"
+    },
+    {
+      "path": "tests/e2e/phase65-office-identities.spec.ts",
+      "snapshot": "source/tests/e2e/phase65-office-identities.spec.ts",
+      "sha256": "359b84bb24ed3ecc81903a70d6ce73e50770d2605e462f10df79f0ae4f75a129"
+    },
+    {
+      "path": "tests/unit/phase14InspectorHandoff.test.tsx",
+      "snapshot": "source/tests/unit/phase14InspectorHandoff.test.tsx",
+      "sha256": "55ee87102cfc38f2f954c936f87f1205432762b55599879aafa131ed5ef68ba7"
+    },
+    {
+      "path": "tests/unit/phase14InvitationDrafts.test.tsx",
+      "snapshot": "source/tests/unit/phase14InvitationDrafts.test.tsx",
+      "sha256": "055383beac6bb8852401eeae417c8cbd3e85cf5ff256b50cefc78402ed0722a9"
+    },
+    {
+      "path": "tests/unit/phase14InvitationManagement.test.tsx",
+      "snapshot": "source/tests/unit/phase14InvitationManagement.test.tsx",
+      "sha256": "cd31db400223bd66ecb34e46a4606305b4682d608dd631327a74981f7cd31844"
+    },
+    {
+      "path": "tests/unit/phase14MembershipDrafts.test.tsx",
+      "snapshot": "source/tests/unit/phase14MembershipDrafts.test.tsx",
+      "sha256": "5fdbe324933c21354b4411de327f8b3b0d95fa09ebabc11e0153205b995916e0"
+    },
+    {
+      "path": "tests/unit/phase14Participation.test.ts",
+      "snapshot": "source/tests/unit/phase14Participation.test.ts",
+      "sha256": "7f9335b56d9ccb81d5726d2194610fcbe43f2fb8aa3dbb3526aaea8223c51c6a"
+    },
+    {
+      "path": "tests/unit/phase14PeoplePresentation.test.ts",
+      "snapshot": "source/tests/unit/phase14PeoplePresentation.test.ts",
+      "sha256": "a89754f0ec8f407a6062fa680b64608b3eaa4e92ddf4a6a582a80c68a1a8c54a"
+    },
+    {
+      "path": "tests/unit/phase14ProfessionalPrivacy.test.tsx",
+      "snapshot": "source/tests/unit/phase14ProfessionalPrivacy.test.tsx",
+      "sha256": "3e566c4b037173cac4ab8fe4dcce91243382b4a6519a95e480daf5bf335025fd"
+    },
+    {
+      "path": "tests/unit/phase14StaffingAuthority.test.ts",
+      "snapshot": "source/tests/unit/phase14StaffingAuthority.test.ts",
+      "sha256": "f3f4cf9c6c4b93b8001fb93a92d66d82d90a701b03d99fd0550a52e77c3416c4"
+    },
+    {
+      "path": "vite.config.ts",
+      "snapshot": "source/vite.config.ts",
+      "sha256": "84b63826de1852f0e41d9ff54c99384315eb6ed4fa34ff9026368d3dd60639f4"
+    }
+  ],
+  "deleted_legacy": [
+    "src/app/features/project-offices/components/OfficeMembersDialog.tsx"
+  ],
+  "note": "Snapshot of relevant local source and unchanged contract references. Other prior-phase workspace changes are not attributed to Phase 14."
+}

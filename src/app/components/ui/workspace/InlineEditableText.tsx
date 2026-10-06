@@ -1,7 +1,9 @@
 import { useEffect, useId, useRef, useState } from "react";
+import { useNavigationBlocker } from '../../../shared/navigationGuard';
 export function InlineEditableText({value, onSave, label, disabled = false, maxLength = 200}: {value: string; onSave: (value: string) => Promise<void> | void; label: string; disabled?: boolean; maxLength?: number}) {
   const [editing,setEditing] = useState(false), [draft,setDraft] = useState(value), [error,setError] = useState(""), [saving,setSaving] = useState(false);
   const input = useRef<HTMLInputElement>(null), pending = useRef(false), cancelBlur = useRef(false), errorId = useId();
+  useNavigationBlocker({label:`Unsaved ${label}`,dirty:editing && Boolean(error) && draft!==value,pending:saving,pendingCheck:()=>pending.current,onDiscard:()=>{cancelBlur.current=true;setDraft(value);setError('');setEditing(false);}});
   useEffect(() => { if (!editing) setDraft(value); }, [editing,value]);
   useEffect(() => { if(editing) { input.current?.focus(); input.current?.select(); } }, [editing]);
   const save = async () => {

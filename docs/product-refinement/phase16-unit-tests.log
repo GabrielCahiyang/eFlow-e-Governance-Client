@@ -1,0 +1,17 @@
+
+> @figma/my-make-file@0.0.1 test
+> vitest --configLoader runner run tests/unit/phase16Contracts.test.ts tests/unit/phase16FinancialScope.test.tsx tests/unit/accountingSettlementAuthority.test.tsx
+
+
+ RUN  v3.2.4 C:/Users/james/projects/eflow-e-Governance-Project
+
+ ✓ tests/unit/phase16FinancialScope.test.tsx (4 tests) 485ms
+ ✓ tests/unit/phase16Contracts.test.ts (12 tests) 9ms
+ ✓ tests/unit/accountingSettlementAuthority.test.tsx (6 tests) 941ms
+   ✓ Accounting settlement authority > waits for Head authorization before settling a late package  454ms
+
+ Test Files  3 passed (3)
+      Tests  22 passed (22)
+   Start at  21:34:54
+   Duration  6.87s (transform 277ms, setup 0ms, collect 9.05s, tests 1.43s, environment 2.50s, prepare 623ms)
+

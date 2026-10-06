@@ -1,0 +1,85 @@
+
+Running 3 tests using 1 worker
+
+
+
+[1A[2K(node:37080) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K(node:37080) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[1/3] [chromium] › tests\e2e\phase16-support-finance.spec.ts:10:1 › Admin Center keeps legacy pages, account inspection and unsaved account edits
+[1A[2K  1) [chromium] › tests\e2e\phase16-support-finance.spec.ts:10:1 › Admin Center keeps legacy pages, account inspection and unsaved account edits 
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: locator.fill: Test timeout of 90000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('dialog', { name: /Edit User/ }).getByLabel('Full Name', { exact: true })[22m
+
+
+      30 |     .click();
+      31 |   const edit = page.getByRole("dialog", { name: /Edit User/ });
+    > 32 |   await edit.getByLabel("Full Name", { exact: true }).fill("Draft identity");
+         |                                                       ^
+      33 |   await edit.getByRole("button", { name: "Cancel", exact: true }).click();
+      34 |   const discard = page.getByRole("alertdialog");
+      35 |   await expect(discard).toBeVisible();
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase16-support-finance.spec.ts:32:55
+
+    Error Context: test-results\phase16-support-finance-Ad-6ea46-n-and-unsaved-account-edits-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase16-support-finance-Ad-6ea46-n-and-unsaved-account-edits-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase16-support-finance-Ad-6ea46-n-and-unsaved-account-edits-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+
+
+[1A[2K(node:14876) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:14876) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[1A[2K[2/3] [chromium] › tests\e2e\phase16-support-finance.spec.ts:130:1 › Accounting retains fiscal scope, exposes settlements, records one decision and inspects its balanced journal
+[1A[2K[3/3] [chromium] › tests\e2e\phase16-support-finance.spec.ts:312:1 › Reports retain seven lenses, filtered CSV export and the task inspector
+[1A[2K  2) [chromium] › tests\e2e\phase16-support-finance.spec.ts:312:1 › Reports retain seven lenses, filtered CSV export and the task inspector 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mnot[2m.[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+    Expected substring: not [32m"Coordinate Office briefing"[39m
+    Received string:        [31m"﻿Work item,Parent / transition,Person,Role,Project,Status,Priority / severity,Progress,Signal,Event date,Due date,Detail[39m
+    [31mConfirm participants,No description,Team member,Team Lead,Community outreach,completed,low,100%,-1d remaining,\"Oct 6, 2026\",\"Oct 5, 2026\",0/0 subtasks approved[39m
+    [31m[7mCoordinate Office briefing[27m,No description,Team member,Team Lead,Community outreach,todo,medium,0%,6d remaining,\"Oct 6, 2026\",\"Oct 12, 2026\",0/0 subtasks approved[39m
+    [31mPrepare community assessment,No description,Team member,Team Lead,Community outreach,in progress,high,40%,3d remaining,\"Oct 6, 2026\",\"Oct 9, 2026\",0/0 subtasks approved"[39m
+
+      332 |   const file = await download;
+      333 |   expect(file.suggestedFilename()).toMatch(/\.csv$/);
+    > 334 |   const csv = await readFile((await file.path())!, "utf8"); expect(csv).toContain("Prepare community assessment"); expect(csv).not.toContain("Coordinate Office briefing"); expect(csv.split(/\r?\n/)).toHaveLength(2);
+          |                                                                                                                                    ^
+      335 |   await page
+      336 |     .getByRole("button", { name: "Prepare community assessment", exact: true })
+      337 |     .click();
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase16-support-finance.spec.ts:334:132
+
+    Error Context: test-results\phase16-support-finance-Re-0a267-port-and-the-task-inspector-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase16-support-finance-Re-0a267-port-and-the-task-inspector-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase16-support-finance-Re-0a267-port-and-the-task-inspector-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K  2 failed
+    [chromium] › tests\e2e\phase16-support-finance.spec.ts:10:1 › Admin Center keeps legacy pages, account inspection and unsaved account edits 
+    [chromium] › tests\e2e\phase16-support-finance.spec.ts:312:1 › Reports retain seven lenses, filtered CSV export and the task inspector 
+  1 passed (1.9m)

@@ -1,0 +1,29 @@
+.pt-table-scroll { --pt-action-width:44px; --pt-effective-title-width:var(--pt-title-width,320px); scroll-padding-inline-start:calc(var(--pt-action-width) + var(--pt-effective-title-width)); }
+.pt-group table.pt-main-grid { width:calc(var(--pt-action-width) + var(--pt-effective-title-width) + var(--pt-data-width)); table-layout:fixed; }
+.pt-main-grid th,.pt-main-grid td { box-sizing:border-box; }
+.pt-main-grid .pt-row-actions-col,.pt-main-grid .pt-row-actions-cell { width:var(--pt-action-width); min-width:var(--pt-action-width); z-index:4; }
+.pt-main-grid .pt-title-col,.pt-main-grid .pt-task-name,.pt-main-grid .pt-summary-title { position:sticky; left:var(--pt-action-width); min-width:0!important; width:var(--pt-effective-title-width); z-index:2; }
+.pt-main-grid .pt-title-col { z-index:3; }
+.pt-main-grid .pt-task-name>div { min-width:0; width:100%; }
+.pt-main-grid .pt-task-name .eflow-inline-text { min-width:0; max-width:none!important; padding:9px 3px; }
+.pt-main-grid .pt-task-name .eflow-inline-editor { min-width:0; }
+.pt-main-grid .pt-task-name .eflow-inline-editor input { min-width:0; width:100%; }
+.pt-main-grid .pt-task-name>div>button { flex-shrink:0; }
+.pt-main-grid .pt-cell { overflow-wrap:anywhere; }
+.pt-task-row:focus-within>td { background:var(--eflow-selected); }
+.pt-main-grid th { padding-right:16px; }
+.pt-main-grid th>span { gap:4px; white-space:normal; }
+.pt-main-grid .pt-title-col .pt-column-menu { position:absolute; right:16px; top:50%; transform:translateY(-50%); }
+.pt-main-grid .pt-column-resizer { position:absolute; right:0; top:0; bottom:0; width:12px; padding:0; border:0; background:transparent; cursor:col-resize; touch-action:none; z-index:5; }
+.pt-column-resizer:hover,.pt-column-resizer:focus-visible { background:var(--eflow-selected)!important; outline:2px solid var(--eflow-primary); outline-offset:-2px; }
+.pt-main-grid .pt-add-title { padding-left:12px; }
+.pt-main-grid .pt-subitems-row>td { padding-left:calc(var(--pt-action-width) + 12px); }
+.pt-main-grid .pt-subitems { position:sticky; left:calc(var(--pt-action-width) + 12px); width:min(960px,calc(100cqw - var(--pt-action-width) - 36px)); }
+@media(max-width:767px) {
+ .pt-table-scroll { --pt-action-width:56px; --pt-effective-title-width:min(var(--pt-title-width,320px),clamp(140px,calc(100vw - 210px),180px)); }
+ .pt-main-grid .pt-row-actions-button { min-width:40px; width:40px; }
+ .pt-main-grid .pt-task-name>div { gap:2px; }
+ .pt-main-grid .pt-task-name>div>button { min-width:24px; padding:2px; }
+ .pt-main-grid .pt-task-name .eflow-inline-text { white-space:normal; font-size:12px; line-height:1.4; }
+ .pt-main-grid .pt-date,.pt-main-grid .pt-dependencies { max-width:160px; white-space:normal; line-height:1.4; }
+}

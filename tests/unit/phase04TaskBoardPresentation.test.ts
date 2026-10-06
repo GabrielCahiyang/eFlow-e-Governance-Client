@@ -28,10 +28,10 @@ describe("Phase 04 task board presentation", () => {
     expect(mondayBoard).toContain("role=\"menu\"");
   });
 
-  it("keeps the desktop sidebar hover from reflowing the workspace", () => {
-    expect(appShellCss).toContain("flex: 0 0 68px;");
-    expect(appShellCss).toContain("overflow: visible;");
-    expect(appShellCss).toContain(".eflow-app-shell__desktop-navigation .eflow-productivity-sidebar:not(.eflow-productivity-sidebar--compact)");
+  it("uses a stable labelled rail and context panel without hover expansion", () => {
+    const navigationCss = readFileSync('src/app/features/app-shell/navigationV2.css', 'utf8');
+    expect(navigationCss).toContain('flex: 0 0 324px;');
+    expect(appShellCss).not.toContain('.eflow-productivity-sidebar--compact');
   });
 
   it("visually distinguishes the pinned task-board view bar and Add view action", () => {

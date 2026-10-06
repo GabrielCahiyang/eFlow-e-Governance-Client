@@ -1,0 +1,51 @@
+
+Running 3 tests using 2 workers
+
+(node:32312) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:28328) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:28328) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:32312) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 2 [chromium] › tests\e2e\phase18-release.spec.ts:54:3 › accounting_staff: responsive canonical workspace and mobile navigation (10.8s)
+(node:15740) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15740) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [firefox] › tests\e2e\phase18-release.spec.ts:54:3 › accounting_staff: responsive canonical workspace and mobile navigation (15.7s)
+  x  3 [webkit] › tests\e2e\phase18-release.spec.ts:54:3 › accounting_staff: responsive canonical workspace and mobile navigation (5.9s)
+
+
+  1) [webkit] › tests\e2e\phase18-release.spec.ts:54:3 › accounting_staff: responsive canonical workspace and mobile navigation 
+
+    Error: Accounting view labels must fit their own reachable buttons
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+       98 |           return text.left >= bounds.left && text.right <= bounds.right && bounds.right <= innerWidth;
+       99 |         }));
+    > 100 |         expect(labelsFit, "Accounting view labels must fit their own reachable buttons").toBe(true);
+          |                                                                                          ^
+      101 |       }
+      102 |       await audit(page, info, `${role}-${width}`);
+      103 |       await page.screenshot({
+        at C:\Users\james\projects\eflow-e-Governance-Project\tests\e2e\phase18-release.spec.ts:100:90
+
+    Error Context: .phase18\accounting-layout-results\phase18-release-accounting-7f76d-space-and-mobile-navigation-webkit\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    .phase18\accounting-layout-results\phase18-release-accounting-7f76d-space-and-mobile-navigation-webkit\trace.zip
+    Usage:
+
+        npx playwright show-trace .phase18\accounting-layout-results\phase18-release-accounting-7f76d-space-and-mobile-navigation-webkit\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [webkit] › tests\e2e\phase18-release.spec.ts:54:3 › accounting_staff: responsive canonical workspace and mobile navigation 
+  2 passed (21.3s)

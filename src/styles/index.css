@@ -2,9 +2,11 @@
 @import 'tailwindcss' source(none);
 @source '../../**/*.{js,ts,jsx,tsx}';
 @import 'tw-animate-css';
+@import './foundation-tokens.css';
 @import './default_theme.css';
 @import './globals.css';
 @import './workspace-foundation.css';
+@import './foundation-controls.css';
 
 *,
 *::before,

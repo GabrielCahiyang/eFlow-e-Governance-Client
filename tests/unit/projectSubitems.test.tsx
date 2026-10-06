@@ -51,7 +51,7 @@ describe('Project table subitem expansion', () => {
     fireEvent.keyDown(actions, { key: 'Enter' });
     expect((await screen.findByRole('menuitem', { name: 'Move up', exact: true })).getAttribute('aria-disabled')).toBe('true');
     fireEvent.click(screen.getByRole('menuitem', { name: 'Task details, evidence & review' }));
-    expect(mocks.open).toHaveBeenCalledOnce();
+    await waitFor(()=>expect(mocks.open).toHaveBeenCalledOnce());
   });
 
   it('keeps the first-column Add subitem action disabled for someone who is not the task lead', async () => {

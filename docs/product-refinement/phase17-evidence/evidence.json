@@ -1,0 +1,480 @@
+{
+  "phase": 17,
+  "name": "Validation, Confirmation and Safety Hardening",
+  "created_at": "2026-10-06T15:29:22.859223+00:00",
+  "status": "local_ui_hardening_implemented_with_owned_release_gates",
+  "uncommitted": true,
+  "deployed": false,
+  "checks": {
+    "typescript": "passed",
+    "unit_tests": 808,
+    "unit_files": 204,
+    "unit_command": "npm test -- --maxWorkers=8",
+    "live_base_url": "http://localhost:5173",
+    "live_distinct_cases": 40,
+    "browser": "Chromium",
+    "runs": [
+      {
+        "folder": "live",
+        "passed": 34,
+        "source_state": "Before final focus/task-source/governance/announcement receipt refinements"
+      },
+      {
+        "folder": "final-live",
+        "passed": 10,
+        "source_state": "After those refinements; before task feedback relocation"
+      },
+      {
+        "folder": "viewport",
+        "passed": 4,
+        "source_state": "Final product source; keyboard focus and viewport acceptance strengthened"
+      }
+    ],
+    "build_seconds": 15.58,
+    "registry_scanner_assertions": 6,
+    "registry_candidates": 2785,
+    "registry_owned_feature_groups": 46,
+    "sql_authority_assertions": 37,
+    "sql_identity_assertions": 84,
+    "graph_nodes": 7407,
+    "graph_clustered_edges": 23545,
+    "graph_parser_limitations": 6,
+    "graph_unsupported_extension_exclusions": 36
+  },
+  "limits": [
+    "All unresolved registry candidates remain owned blocked release claims; this is not complete mutation authority/audit certification.",
+    "Synthetic auth and intercepted backend browser fixtures; no actual live record mutations or deployed RLS proof.",
+    "Outcome holds are session-only and clear on remount/reload; no persisted idempotency.",
+    "G2 Task Lead and Phase 6.5 deployment gates remain separate capability work.",
+    "Existing build circular-export/large-chunk warnings and Graphify parser exclusions remain.",
+    "No Phase 17 before-source snapshot; no universal before/after pixel claim.",
+    "Native devices, additional browser engines and assistive-technology sessions not exercised."
+  ],
+  "registry": {
+    "path": "docs/product-refinement/phase17-registry/mutations.json",
+    "sha256": "c6db50dcf102913df93c37a414c985eed90f57483cdf6cd6e849f95e0b7ed0e2",
+    "dispositions": {
+      "blocked-release-claim": 2785
+    }
+  },
+  "sources": [
+    {
+      "path": "src/app/components/ui/useConfirmation.tsx",
+      "snapshot": "docs/product-refinement/phase17-evidence/source/src/app/components/ui/useConfirmation.tsx",
+      "sha256": "503d23d246dd56e0fccdc39e27feabf5e15f8728f856b44d662ead54b2b43bfb"
+    },
+    {
+      "path": "src/app/components/ui/workspace/ActionMenu.tsx",
+      "snapshot": "docs/product-refinement/phase17-evidence/source/src/app/components/ui/workspace/ActionMenu.tsx",
+      "sha256": "f5c40f5e246d6fa608a54f51d3c8658d52b0e549c7c60118c059a3194af9c9dd"
+    },
+    {
+      "path": "src/app/shared/navigationGuard.ts",
+      "snapshot": "docs/product-refinement/phase17-evidence/source/src/app/shared/navigationGuard.ts",
+      "sha256": "db4634474298907ecffd819084aab1ae4b0af0f94262becce157cde9a9f8c42c"
+    },
+    {
+      "path": "src/app/shared/useExplicitDraft.ts",
+      "snapshot": "docs/product-refinement/phase17-evidence/source/src/app/shared/useExplicitDraft.ts",
+      "sha256": "f7fe5c90a1f08bb8c18839ae9b30bb951bc15e1a5c41e717fdb7d706e9b3006e"
+    },
+    {
+      "path": "src/app/shared/useReviewedMutation.ts",
+      "snapshot": "docs/product-refinement/phase17-evidence/source/src/app/shared/useReviewedMutation.ts",
+      "sha256": "b3006623e41558f0f9c3477fb5e4d1cd354ac32eda0941071acb3e01443c8f06"
+    },
+    {
+      "path": "src/app/features/tasks/components/board/useTaskLifecycleActions.tsx",
+      "snapshot": "docs/product-refinement/phase17-evidence/source/src/app/features/tasks/components/board/useTaskLifecycleActions.tsx",
+      "sha256": "516b883a94576a8855c214014c50ee5c4ff2f312f93d43dba3cd3bdcbde5eeb6"
+    },
+    {
+      "path": "src/app/features/tasks/components/board/useMondayBoardController.ts",
+      "snapshot": "docs/product-refinement/phase17-evidence/source/src/app/features/tasks/components/board/useMondayBoardController.ts",
+      "sha256": "3b751bb6afa67db2091224c610860cd7f83fd409f2f21d18a371ae5c8494bd4f"
+    },
+    {
+      "path": "src/app/features/tasks/components/board/MondayBoard.tsx",
+      "snapshot": "docs/product-refinement/phase17-evidence/source/src/app/features/tasks/components/board/MondayBoard.tsx",
+      "sha256": "bc1e1dcc0d23576a7241ea0d2e7c1a089402f435f8ee0a57be28d9b06a86d836"
+    },
+    {
+      "path": "src/app/features/tasks/components/board/TaskManagementMenu.tsx",
+      "snapshot": "docs/product-refinement/phase17-evidence/source/src/app/features/tasks/components/board/TaskManagementMenu.tsx",
+      "sha256": "251f4b4f998e93bf379085eaf1b4f3f9440c5e3484d7521120a012ef4d5830ee"
+    },
+    {
+      "path": "src/app/features/tasks/components/board/TaskEditorModal.tsx",
+      "snapshot": "docs/product-refinement/phase17-evidence/source/src/app/features/tasks/components/board/TaskEditorModal.tsx",
+      "sha256": "e3daab390079b38ab07dbcb71a024b14b4df18daaff9e62fe2909b79d84d6af6"
+    },
+    {
+      "path": "src/app/features/tasks/components/team/TaskTeamEditorDialog.tsx",
+      "snapshot": "docs/product-refinement/phase17-evidence/source/src/app/features/tasks/components/team/TaskTeamEditorDialog.tsx",
+      "sha256": "3d6392be5a9c947f16a371fcc02fb60752c256c5dae8a81df78a269547a903d5"
+    },
+    {
+      "path": "src/app/features/interdepartment-collaboration/components/StaffingReviewPanel.tsx",
+      "snapshot": "docs/product-refinement/phase17-evidence/source/src/app/features/interdepartment-collaboration/components/StaffingReviewPanel.tsx",
+      "sha256": "e091294928d2229e3d6c219ab8b64774546f869791b20675d518cf25b0355fda"
+    },
+    {
+      "path": "src/app/features/interdepartment-collaboration/components/OrganizationScopePicker.tsx",
+      "snapshot": "docs/product-refinement/phase17-evidence/source/src/app/features/interdepartment-collaboration/components/OrganizationScopePicker.tsx",
+      "sha256": "cbde76b2311afdf40fc01b96ee13dedd88408fba3c852dfa450f5d29b1910097"
+    },
+    {
+      "path": "src/app/features/interdepartment-collaboration/components/GovernanceWorkspace.tsx",
+      "snapshot": "docs/product-refinement/phase17-evidence/source/src/app/features/interdepartment-collaboration/components/GovernanceWorkspace.tsx",
+      "sha256": "23862e5d04465f28e55b6b702329d7096c713ddb81c8d718c51f34a4d7e15aba"
+    },
+    {
+      "path": "src/app/features/interdepartment-collaboration/hooks/useGovernanceSafety.tsx",
+      "snapshot": "docs/product-refinement/phase17-evidence/source/src/app/features/interdepartment-collaboration/hooks/useGovernanceSafety.tsx",
+      "sha256": "4e8ee8b7c2c0f25eaa0b1a82f79a1d3a8d6357bf806604f8c7bebfa28ca9c67d"
+    },
+    {
+      "path": "src/app/features/interdepartment-collaboration/components/governance/GovernanceRosterPanel.tsx",
+      "snapshot": "docs/product-refinement/phase17-evidence/source/src/app/features/interdepartment-collaboration/components/governance/GovernanceRosterPanel.tsx",
+      "sha256": "3aef778d18a69654191e59fd335b98191ef6cdb1ed12e494d98b686204202094"
+    },
+    {
+      "path": "src/app/features/interdepartment-collaboration/components/governance/GovernanceRecordPanel.tsx",
+      "snapshot": "docs/product-refinement/phase17-evidence/source/src/app/features/interdepartment-collaboration/components/governance/GovernanceRecordPanel.tsx",
+      "sha256": "fa56a4ebb545619d885a3e4f68e55695123bd8bea0bae7677172ae306a977c8d"
+    },
+    {
+      "path": "src/app/features/interdepartment-collaboration/components/governance/GovernanceCloseoutPanel.tsx",
+      "snapshot": "docs/product-refinement/phase17-evidence/source/src/app/features/interdepartment-collaboration/components/governance/GovernanceCloseoutPanel.tsx",
+      "sha256": "918fe1ffc341f2ec80e408ed8e2d35beff7dec0cf65a8dba88ef30f15591032e"
+    },
+    {
+      "path": "src/app/features/interdepartment-collaboration/components/CollaborationDraftWorkspace.tsx",
+      "snapshot": "docs/product-refinement/phase17-evidence/source/src/app/features/interdepartment-collaboration/components/CollaborationDraftWorkspace.tsx",
+      "sha256": "f93284c96b516a5683318b0dbf904610556f7762459652f985e5411d91a2ca44"
+    },
+    {
+      "path": "src/app/features/budget/components/CashRequestTimeline.tsx",
+      "snapshot": "docs/product-refinement/phase17-evidence/source/src/app/features/budget/components/CashRequestTimeline.tsx",
+      "sha256": "6e5a91eda42fe8dcd8d8a072754315869d14b33b8fc61fe68098a0859bda933e"
+    },
+    {
+      "path": "src/app/features/budget/components/WorkBudgetCard.tsx",
+      "snapshot": "docs/product-refinement/phase17-evidence/source/src/app/features/budget/components/WorkBudgetCard.tsx",
+      "sha256": "cb4132105ad39483c04be706b3e500524a6f4445c0fa4a704a3cfab424657037"
+    },
+    {
+      "path": "src/app/features/invitations/hooks/useInvitationManagement.tsx",
+      "snapshot": "docs/product-refinement/phase17-evidence/source/src/app/features/invitations/hooks/useInvitationManagement.tsx",
+      "sha256": "f2fc21eeb383e4a4ec072c152f3361d257df6d9fb59ebbed1e682ec0bf4db367"
+    },
+    {
+      "path": "src/app/features/announcements/components/admin/AdminAnnouncements.tsx",
+      "snapshot": "docs/product-refinement/phase17-evidence/source/src/app/features/announcements/components/admin/AdminAnnouncements.tsx",
+      "sha256": "7c070f351e86382231b6f83a8e108ada57dc0b204e0757a95d6302c5be3bf9fd"
+    },
+    {
+      "path": "src/app/features/announcements/components/admin/AnnouncementEditor.tsx",
+      "snapshot": "docs/product-refinement/phase17-evidence/source/src/app/features/announcements/components/admin/AnnouncementEditor.tsx",
+      "sha256": "57e4cdcf444613db0f7429e3d0d4bff1116e2f6ea46119339f5f8f2b0e2111c4"
+    },
+    {
+      "path": "src/app/features/tasks/components/RecurringTaskTemplatesPanel.tsx",
+      "snapshot": "docs/product-refinement/phase17-evidence/source/src/app/features/tasks/components/RecurringTaskTemplatesPanel.tsx",
+      "sha256": "dac761c9da2bd63fd6849f8e692b146836918b38bf216c7a5cfae31a8813c942"
+    },
+    {
+      "path": "src/app/features/tasks/components/RecurringTemplateForm.tsx",
+      "snapshot": "docs/product-refinement/phase17-evidence/source/src/app/features/tasks/components/RecurringTemplateForm.tsx",
+      "sha256": "0ff47cbd821834e6b6bbed242caf7f91bc0942fbc158a343e707ba3f80c83d51"
+    },
+    {
+      "path": "src/app/features/work-templates/components/SubtaskTemplateLibrary.tsx",
+      "snapshot": "docs/product-refinement/phase17-evidence/source/src/app/features/work-templates/components/SubtaskTemplateLibrary.tsx",
+      "sha256": "07b7b94ff98f07909404e5f4723e58c9790ed3ac2c9766a7f3744ff91744ddb2"
+    },
+    {
+      "path": "src/app/features/work-templates/components/SubtaskTemplateEditor.tsx",
+      "snapshot": "docs/product-refinement/phase17-evidence/source/src/app/features/work-templates/components/SubtaskTemplateEditor.tsx",
+      "sha256": "f94b0373928ac903c529ae102c817d3ef6d5250366aab144d793103bd4f2397d"
+    },
+    {
+      "path": "src/app/features/proposal-import/components/DraftTaskRow.tsx",
+      "snapshot": "docs/product-refinement/phase17-evidence/source/src/app/features/proposal-import/components/DraftTaskRow.tsx",
+      "sha256": "4dd2ca8f673622733ed292fd8d4759b187878dfaf0aa9247766695c991457f12"
+    },
+    {
+      "path": "src/app/features/guided-tours/tourCatalog.ts",
+      "snapshot": "docs/product-refinement/phase17-evidence/source/src/app/features/guided-tours/tourCatalog.ts",
+      "sha256": "24630bfdbfbb744cf5411578c12d3501662738f0f48e164961a286c44982696e"
+    },
+    {
+      "path": "scripts/phase17-safety-registry.mjs",
+      "snapshot": "docs/product-refinement/phase17-evidence/source/scripts/phase17-safety-registry.mjs",
+      "sha256": "261f116e8b893d75e966cc039ac1285f0472ffc9dcb3f1201282b0bde51f2082"
+    },
+    {
+      "path": "package.json",
+      "snapshot": "docs/product-refinement/phase17-evidence/source/package.json",
+      "sha256": "7e1a4e40bc2512a6f5d9027c893d674aa4526196d557f13d4a01ef3d82c3d568"
+    },
+    {
+      "path": "tests/unit/phase17Safety.test.tsx",
+      "snapshot": "docs/product-refinement/phase17-evidence/source/tests/unit/phase17Safety.test.tsx",
+      "sha256": "c8032dd2734b58a61f7a63cc57dbaf0eba7391b2da68d900b3eb958eef8c2909"
+    },
+    {
+      "path": "tests/unit/phase17StaffingSafety.test.tsx",
+      "snapshot": "docs/product-refinement/phase17-evidence/source/tests/unit/phase17StaffingSafety.test.tsx",
+      "sha256": "36beaec16532e8b85c1174dbebc4b66c6adaa68c76210e8172fbe14ec61f7d28"
+    },
+    {
+      "path": "tests/unit/phase17FinancialCancellation.test.tsx",
+      "snapshot": "docs/product-refinement/phase17-evidence/source/tests/unit/phase17FinancialCancellation.test.tsx",
+      "sha256": "04004d4b174c3ba9f46637514039b6a638f651c9899be543792700a28cf9f4fe"
+    },
+    {
+      "path": "tests/unit/phase17GovernanceSafety.test.tsx",
+      "snapshot": "docs/product-refinement/phase17-evidence/source/tests/unit/phase17GovernanceSafety.test.tsx",
+      "sha256": "3a0ca8077bfd2c1c7014073446734779fa96bfe1e9556bfea754524153bd2b4f"
+    },
+    {
+      "path": "tests/unit/taskTeamEditorDialog.test.tsx",
+      "snapshot": "docs/product-refinement/phase17-evidence/source/tests/unit/taskTeamEditorDialog.test.tsx",
+      "sha256": "b6a8759f6d7692e9e071864222a7a4085373f7d98729ad52697d8bdce8da4e39"
+    },
+    {
+      "path": "tests/unit/taskEditorSave.test.tsx",
+      "snapshot": "docs/product-refinement/phase17-evidence/source/tests/unit/taskEditorSave.test.tsx",
+      "sha256": "1539576c81be653ca9f5b7df8bd1c98f80b3253155c43eba83601168da2eec45"
+    },
+    {
+      "path": "tests/unit/taskBoardListActions.test.tsx",
+      "snapshot": "docs/product-refinement/phase17-evidence/source/tests/unit/taskBoardListActions.test.tsx",
+      "sha256": "d724a1465674e5b9d921558bac7961bc3e269e9e1914791924d73bd0fb6978db"
+    },
+    {
+      "path": "tests/unit/taskManagementMenu.test.ts",
+      "snapshot": "docs/product-refinement/phase17-evidence/source/tests/unit/taskManagementMenu.test.ts",
+      "sha256": "74577c33cdac193304eac26d9430062d6b357e94e9b445aa2a71e5c362fda886"
+    },
+    {
+      "path": "tests/unit/departmentBudgetMigration.test.ts",
+      "snapshot": "docs/product-refinement/phase17-evidence/source/tests/unit/departmentBudgetMigration.test.ts",
+      "sha256": "1dd2ccf0ab4ef940088a05da20ee2aa22b124fda8dfcd49bf9f80b96bbef8177"
+    },
+    {
+      "path": "tests/e2e/phase17-safety.spec.ts",
+      "snapshot": "docs/product-refinement/phase17-evidence/source/tests/e2e/phase17-safety.spec.ts",
+      "sha256": "656f957c1dd3d10ce4a397390c428d2ddea36af7a4516792db5ac5a1ca36ef91"
+    }
+  ],
+  "receipts": [
+    {
+      "path": "docs/product-refinement/phase17-evidence/receipts/phase17-authority.log",
+      "sha256": "bdca30a4ac90c54cc16098c269ac28bccbfd4f72e7a3394cce1939b9dd995948"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/receipts/phase17-build-final.log",
+      "sha256": "57477260f51091ab6ec413cf8bffd7ba4fef5c876f4c94e701cb2ddbf046bf08"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/receipts/phase17-check.log",
+      "sha256": "659606cc1e46300d84aa709445df90c5152e824c89833ed71e658e03d3a53309"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/receipts/phase17-e2e-final.log",
+      "sha256": "c981df4a54ec99631a70f13ed7b526ea0061083ed611d93480a36cdc98fba4b3"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/receipts/phase17-e2e-viewport.log",
+      "sha256": "acaefffd80c6e946b52e9df96ed45d3d34258d652e28e82fd45adfff79494097"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/receipts/phase17-e2e.log",
+      "sha256": "c0697965a3aa3d87e00adde65227480479ad1def0e66288622e37436b40bb923"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/receipts/phase17-graph.log",
+      "sha256": "12634ba5f5e326e5fdef6d7f183d47d32e9afd596147e94ce1bc228e93673173"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/receipts/phase17-identity.log",
+      "sha256": "99821c81523d69d22535416d93f5aff6d51f930de1317d9f3551ac192caa5957"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/receipts/phase17-registry.log",
+      "sha256": "ad5b33178df2d9133aa1e115968205743fa6190f836670fa29210c524228c500"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/receipts/phase17-unit-final.log",
+      "sha256": "009d6b0bbc42a607d7d07abd114a8d9c824634e9067160eea5577b555e5c2570"
+    }
+  ],
+  "screenshots": [
+    {
+      "path": "docs/product-refinement/phase17-evidence/live/phase12-shared-inspector-m-3a946-ains-a-denied-member-change-chromium--team-mobile-denial.png",
+      "sha256": "fb54ba7ff6d32cb106b768f24b8e4a55b3f9974f16cce0ef2b31ace068c1668e"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/live/phase12-shared-inspector-m-bb4ba-and-traps-and-returns-focus-chromium--inspector-mobile.png",
+      "sha256": "c1d8d13b4aab15c7f918f5137d3cbe63af27674393bf5a7d422242d5a44c9272"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/live/phase12-shared-inspector-s-08ea3-le-details-remain-available-chromium--shared-lead-gate.png",
+      "sha256": "72b4701989baa773ca5ce9a64c9f27f34639fdcd8af4a5c131e2e7d8bc197648"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/live/phase12-shared-inspector-s-5c03f-s-focus-to-each-view-origin-chromium--office-origin.png",
+      "sha256": "827fcd06b509751e3753918be55053855ac11492145937c5a2534e4bf12a8df9"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/live/phase14-people-collaborati-05a86-ecks-authority-before-retry-chromium--project-offices-table-desktop.png",
+      "sha256": "80a13dde88118575b10053a54c3bd895b86a58c391617af91e339c3336079cc5"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/live/phase14-people-collaborati-05a86-ecks-authority-before-retry-chromium--project-offices-table-mobile.png",
+      "sha256": "f81b25e9278433520d60056e9195fae2f090160c8dfb11df4a8a6d92534335cb"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/live/phase14-people-collaborati-2c90a-sons-and-governance-handoff-chromium--office-governed-320.png",
+      "sha256": "91707fe5c9f80b2998dceaf84a37b489bdecfd064bf5fe184c70dba61e4a6efb"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/live/phase14-people-collaborati-3ffdf-sons-and-governance-handoff-chromium--office-observer-320.png",
+      "sha256": "d9e1b5a0d56d1eab762103474450fd5ec60fff1cb8c3cc9dda53e931d9be6348"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/live/phase14-people-collaborati-48023-sons-and-governance-handoff-chromium--office-closed-320.png",
+      "sha256": "d2c6fdc5059dbb7d84d69b113f0429fb2bc5d43fe05203324227888607b47005"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/live/phase14-people-collaborati-5c442-nspector-only-after-discard-chromium--membership-impact-mobile.png",
+      "sha256": "2ef516ce9a00e79bf47c29fbf0ca5752dcf4cac4e875c1b738fcbe0aac1e2b02"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/live/phase14-people-collaborati-6d80d-failure-has-manual-recovery-chromium--invitation-clipboard-recovery-no-link.png",
+      "sha256": "0f342be79973fe171b761019d3dbb436c1bdc6033120d23eeef9e052f5178092"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/live/phase14-people-collaborati-753bb-urn-and-narrow-labeled-rows-chromium--member-inspector-320.png",
+      "sha256": "f635bdef2c3c493d938cf366aa1fbe30c43eb0bf8e9263279b74ef62b1e0cec2"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/live/phase14-people-collaborati-753bb-urn-and-narrow-labeled-rows-chromium--member-inspector-390.png",
+      "sha256": "d1fd09e08bd576074f0693d6dd7138ae38ed5925cdd2b4900a21aef24c7b4794"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/live/phase14-people-collaborati-753bb-urn-and-narrow-labeled-rows-chromium--office-team-desktop.png",
+      "sha256": "6424e48ca213477a6f5191a54691b3b0574c14081640e0a9fdfbe788d26b3dd1"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/live/phase14-people-collaborati-753bb-urn-and-narrow-labeled-rows-chromium--professional-summary-desktop.png",
+      "sha256": "2a3f8211c79e159bcd303517b2a9cd51cc443bb57e68e4f31650450a87972d39"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/live/phase14-people-collaborati-b558c-ot-cause-duplicate-creation-chromium--invitation-validity-delivery-mobile.png",
+      "sha256": "4d67aaceb688644e682ca89a5b4afd34e012913bd0b5ace906ef9fe0bfd19e49"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/live/phase14-people-collaborati-df4f5-raft-through-refresh-denial-chromium--membership-draft-source-retry.png",
+      "sha256": "3e631300f75b6e987a364b9e96adcaff8f535cb857cc7025b9845a702b11e874"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/live/phase16-support-finance-Ac-4d491-navailable-reads-on-a-phone-chromium--audit-phone.png",
+      "sha256": "ceb1087b7294b3e69f94da745e3d6843f7038b1958e031696b2940246c860c99"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/live/phase16-support-finance-Ac-e07b8-spects-its-balanced-journal-chromium--settlement-journal.png",
+      "sha256": "8700ed043a48362c5e1ad909789ea50d889c53dd48df1e901efba894cf456486"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/live/phase16-support-finance-Ad-6ea46-n-and-unsaved-account-edits-chromium--admin-access.png",
+      "sha256": "b9f200719f4f0b88f9e9a2da3d3796407bd8cb8b56ea46d55683030d50ad9ce2"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/live/phase16-support-finance-Ba-3842e-thout-gateway-configuration-chromium--backup-preflight.png",
+      "sha256": "09934dbeb3f150bcd11790334ffd67d2a5379f8f0b62978a85db5bed8dded882"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/live/phase16-support-finance-Ba-aef63-its-an-explicit-new-attempt-chromium--backup-receipts.png",
+      "sha256": "1ce8cb27ce23ef2584ce65cce0f123cd0ce622ad431e3358277352b3739c1ecc"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/live/phase16-support-finance-Jo-8744f-ertainty-receipt-on-a-phone-chromium--journal-phone.png",
+      "sha256": "ee2d6ecd5b3f4ff03849bf6a84f547b4da3794f4b128d650161af51f21ce00e4"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/live/phase16-support-finance-Re-0a267-port-and-the-task-inspector-chromium--report-task.png",
+      "sha256": "c5818e7ec66584bc18150c1e0430aa4fab0765ac52d1049c204dce8685ce3f44"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/live/phase17-safety-live-legacy-4f1aa-discards-only-on-acceptance-chromium--retained-task-draft.png",
+      "sha256": "dc17a5938a732f70e1df98432bd08cb34a62850c7327a99aa4e7e6d253313eb0"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/live/phase17-safety-lost-deleti-a12b9--and-prevents-another-write-chromium--uncertain-deletion-held.png",
+      "sha256": "725d9d2d10fff5546b69d115a33a55f6cdf717cdb413ce66223d02c608158b5b"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/live/phase17-safety-required-ta-24841--is-sent-once-on-acceptance-chromium--task-cancellation-receipt.png",
+      "sha256": "ea45e6aeabd6ad7406e1be2c01df5cb775bf81b2b5177780e0f9d27228359f28"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/live/phase17-safety-typed-delet-611dc-exactly-one-confirmed-write-chromium--mobile-typed-task-deletion.png",
+      "sha256": "1b10977a536431661c9290c24c0be3843a433763bd28a4944cdb081a1be5290b"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/final-live/phase15-ai-governance-Offi-fa8b9-nges-refresh-current-checks-chromium--readiness-resolution-mobile.png",
+      "sha256": "6213be867e3cb61d0ef057e711cc9b829c11c9b1eeba0760c08815cbaab3f020"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/final-live/phase15-ai-governance-Owne-d7219-he-saved-summary-separately-chromium--profile-draft-320.png",
+      "sha256": "c157d8bfe12e45c21155859e47018a64ced0c3df0ff0a244d1a24fc99bf42956"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/final-live/phase15-ai-governance-PDF--58171-ve-edits-and-retries-saving-chromium--workplan-review-mobile.png",
+      "sha256": "94332210f917f099de9a7493345551d65270ab0ab66fd922ed3321547cc79895"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/final-live/phase15-ai-governance-Revi-f219a-mation-before-creating-work-chromium--import-review-320.png",
+      "sha256": "222bcdbc8016607e0025c970578bf888b40eecc54e5857ec6e1949158022e58f"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/final-live/phase15-ai-governance-Task-580b6-fter-reviewed-fresh-context-chromium--staffing-denial-mobile.png",
+      "sha256": "536fae4a8c963d1fa690e5dc91bd74db7003bdffe042a22e1d380c95422aa7bb"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/final-live/phase17-safety-live-legacy-4f1aa-discards-only-on-acceptance-chromium--retained-task-draft.png",
+      "sha256": "5e12f79ec20023df7a188f9b69f05b4c748de08dce1004c4f65ba0a0c5c32843"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/final-live/phase17-safety-lost-deleti-a12b9--and-prevents-another-write-chromium--uncertain-deletion-held.png",
+      "sha256": "93faf91d34345c1da0b33fdef950b618a0228494e1f3ddd50ecd780bea0ff28e"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/final-live/phase17-safety-required-ta-24841--is-sent-once-on-acceptance-chromium--task-cancellation-receipt.png",
+      "sha256": "9908dedde11adbcf0e4e32d1a6bd6223b3899463bf6e9899acf076a61434eba5"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/final-live/phase17-safety-typed-delet-611dc-exactly-one-confirmed-write-chromium--mobile-typed-task-deletion.png",
+      "sha256": "1b10977a536431661c9290c24c0be3843a433763bd28a4944cdb081a1be5290b"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/viewport/phase17-safety-live-legacy-4f1aa-discards-only-on-acceptance-chromium--retained-task-draft.png",
+      "sha256": "47843cc357a21d415bdb38769a90b7deebe729e0faccd7be58206dd9772dad0a"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/viewport/phase17-safety-lost-deleti-a12b9--and-prevents-another-write-chromium--uncertain-deletion-held.png",
+      "sha256": "53368015c8bc353a5f8839fa5ac242be7c17711015c4c90edfa33d26a6b3e347"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/viewport/phase17-safety-required-ta-24841--is-sent-once-on-acceptance-chromium--task-cancellation-receipt.png",
+      "sha256": "4b0ad9f0a17a1d9e077530c7708458e61714075abbfcd7bb174c914660cb48c5"
+    },
+    {
+      "path": "docs/product-refinement/phase17-evidence/viewport/phase17-safety-typed-delet-611dc-exactly-one-confirmed-write-chromium--mobile-typed-task-deletion.png",
+      "sha256": "1b10977a536431661c9290c24c0be3843a433763bd28a4944cdb081a1be5290b"
+    }
+  ]
+}

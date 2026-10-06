@@ -1,0 +1,20 @@
+
+Running 7 tests using 2 workers
+
+(node:35388) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:39304) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35388) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:39304) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [chromium] › tests\e2e\phase7-readiness-staffing.spec.ts:18:1 › Head confirms readiness; desktop and mobile retain readable checks and closeout blockers (7.7s)
+  ok 2 [chromium] › tests\e2e\phase10-project-workspace.spec.ts:9:1 › project identity, settings retry, favorites and browser history use one project (9.8s)
+  ok 3 [chromium] › tests\e2e\phase7-readiness-staffing.spec.ts:35:1 › Staffing is advisory until Head confirmation; roomy dialog supports keyboard selection and mobile footer (8.5s)
+  ok 4 [chromium] › tests\e2e\phase10-project-workspace.spec.ts:37:1 › existing lifecycle dialogs retain notes, server denials and deletion impact (8.1s)
+  ok 5 [chromium] › tests\e2e\phase7-readiness-staffing.spec.ts:59:1 › Member reads readiness without Head review, activation or staffing controls (4.6s)
+  ok 6 [chromium] › tests\e2e\phase10-project-workspace.spec.ts:50:1 › Observer utilities stay read-only and sharing keeps current access requirements at 390px (5.6s)
+  ok 7 [chromium] › tests\e2e\phase10-project-workspace.spec.ts:60:1 › participant failure retries its source and long project identity stays within the viewport (10.1s)
+
+  7 passed (35.0s)

@@ -1,0 +1,17 @@
+.pt-inline-cell { min-width:0; }
+.pt-inline-cell small { white-space:normal; }
+.pt-group .pt-inline-cell small[role=status] { color:var(--eflow-text-secondary); }
+.pt-inline-cell small button { margin:4px 0 0; padding:4px 8px; border:1px solid var(--eflow-border); border-radius:var(--eflow-radius-sm); color:var(--eflow-primary); background:var(--eflow-surface); }
+.pt-group .pt-inline-cell small.pt-cell-saved { color:var(--eflow-positive-text); }
+.pt-planning-editor { width:min(380px,calc(100vw - 24px)); max-height:var(--radix-popover-content-available-height); overflow-y:auto; }
+.pt-planning-form { display:grid; gap:14px; min-width:0; font-size:13px; }
+.pt-planning-form strong { font-size:15px; }
+.pt-planning-form p { white-space:normal; font-size:12px; line-height:1.5; color:var(--eflow-text-secondary); }
+.pt-planning-form [role=alert] { color:var(--eflow-negative-text); }
+.pt-planning-form [role=status] { color:var(--eflow-positive-text); }
+.pt-planning-form .pt-dependency-options label { display:flex; align-items:center; gap:10px; min-height:36px; white-space:normal; line-height:1.5; }
+.pt-planning-form .pt-dependency-options input { flex-shrink:0; }
+.pt-small-dialog>.pt-planning-form { padding:24px; overflow-y:auto; }
+.pt-small-dialog.pt-create-work-dialog { padding:0!important; gap:0!important; }
+.pt-planning-actions { display:flex; justify-content:flex-end; gap:10px; }
+.pt-inline-create__error button { margin-left:8px; padding:6px 10px; border:1px solid var(--eflow-border); border-radius:var(--eflow-radius-sm); background:var(--eflow-surface); color:var(--eflow-primary); }

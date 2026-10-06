@@ -4,6 +4,7 @@ import * as React from "react";
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
 import { CheckIcon, ChevronRightIcon, CircleIcon } from "lucide-react";
 
+import { useOverlayPopoverLayer } from "./OverlayPopoverLayer";
 import { cn } from "./utils";
 
 function DropdownMenu({
@@ -34,8 +35,10 @@ function DropdownMenuTrigger({
 function DropdownMenuContent({
   className,
   sideOffset = 4,
+  style,
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Content>) {
+  const popoverLayer = useOverlayPopoverLayer();
   return (
     <DropdownMenuPrimitive.Portal>
       <DropdownMenuPrimitive.Content
@@ -46,6 +49,7 @@ function DropdownMenuContent({
           className,
         )}
         {...props}
+        style={{ ...style, zIndex: popoverLayer || style?.zIndex }}
       />
     </DropdownMenuPrimitive.Portal>
   );
@@ -224,8 +228,10 @@ function DropdownMenuSubTrigger({
 
 function DropdownMenuSubContent({
   className,
+  style,
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.SubContent>) {
+  const popoverLayer = useOverlayPopoverLayer();
   return (
     <DropdownMenuPrimitive.SubContent
       data-slot="dropdown-menu-sub-content"
@@ -234,6 +240,7 @@ function DropdownMenuSubContent({
         className,
       )}
       {...props}
+      style={{ ...style, zIndex: popoverLayer || style?.zIndex }}
     />
   );
 }

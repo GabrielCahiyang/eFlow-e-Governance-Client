@@ -1,0 +1,3 @@
+All 112 source and frozen snapshot hashes match.
+All receipt and screenshot hashes match.
+Delivery links and secret-file exclusion checked.
