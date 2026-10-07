@@ -42,6 +42,7 @@ export function AdministrationWorkspace({
       permission: "navigation.user_management",
       content: <UserManagement initialTab="users" />,
     },
+    {id:'Locked out accounts',label:'Locked out accounts',permission:'navigation.user_management',content:<UserManagement initialTab="locked-accounts"/>},
     {
       id: "Role Defaults",
       label: "Role Defaults",

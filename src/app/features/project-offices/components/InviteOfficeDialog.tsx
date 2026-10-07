@@ -7,6 +7,7 @@ import { requestNavigation } from '../../../shared/navigationGuard';
 import type { Organization, UserProfile } from '../../../types';
 import { inviteProjectOffice } from '../services/projectOfficeService';
 import type { ProjectOffice } from '../types';
+import { projectOfficeError } from '../presentation';
 
 export function InviteOfficeDialog({ open, onClose, projectId, projectTitle, offices, organizations, profiles, initialOffice, onSent }: {
   open: boolean; onClose: () => void; projectId: string; projectTitle: string; offices: ProjectOffice[];
@@ -33,7 +34,7 @@ export function InviteOfficeDialog({ open, onClose, projectId, projectTitle, off
           setSent(true); guard.markClean(); if (result.delivery_error) setError('Invitation created; email delivery failed. Use Resend or Copy fresh link in the Office inspector.');
           await refreshSaved();
         }
-        catch (e) { setError(e instanceof Error ? e.message : 'Could not invite this Office.'); }
+        catch (e) { setError(projectOfficeError(e, 'Could not invite this Office.')); }
         finally { guard.pendingRef.current = false; setBusy(false); }
       }}>
         {sent ? <div role="status" className="po-success"><h3>Invitation sent</h3><p>Invitation created. The contact accepts through its private link; email delivery is shown separately in the Office inspector. No employee is assigned automatically.</p><button type="button" onClick={close}>Done</button>{error && <button type="button" disabled={busy} onClick={() => void refreshSaved()}>Retry loading</button>}</div> : <>

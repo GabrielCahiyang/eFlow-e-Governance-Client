@@ -126,7 +126,7 @@ export function LockedBudgetControls({
         </div>
         {canManage && summary.status === "locked" && (
           <div className="flex gap-2">
-            <button
+            {!data.sectionsAvailable && <button
               onClick={() => {
                 setMode("adjust");
                 setAmount(summary.approvedAmount);
@@ -134,7 +134,7 @@ export function LockedBudgetControls({
               className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-neutral-200 px-3 text-[10px]"
             >
               <PencilLine size={11} /> Adjust appropriation
-            </button>
+            </button>}
             <button
               onClick={() => setMode("close")}
               className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-3 text-[10px] text-amber-800"

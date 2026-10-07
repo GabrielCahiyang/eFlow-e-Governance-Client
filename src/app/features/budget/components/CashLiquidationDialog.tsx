@@ -15,6 +15,8 @@ import {
 import type { PettyCashRequest, ReceiptDraft } from "../types";
 import { submitPettyCashLiquidation } from "../services/budgetService";
 import { peso } from "./budgetUi";
+import { ReceiptItemEditor } from "./ReceiptItemEditor";
+import { moneyCents } from "../selectors/budgetSections";
 import {
   getPhilippineCalendarDate,
   isLiquidationCurrentlyOverdue,
@@ -30,15 +32,18 @@ export function CashLiquidationDialog({ request, orgId, perReceiptLimit, liquida
   onSaved: () => Promise<void>;
 }) {
   const approved = request.releasedAmount || 0;
-  const [spent, setSpent] = useState(approved);
+  const sources=request.fundingLines||[];
+  const itemized=sources.length>0;
+  const [enteredSpent, setSpent] = useState(approved);
   const [note, setNote] = useState("");
-  const [receipts, setReceipts] = useState<ReceiptDraft[]>([blankReceipt(approved)]);
+  const [receipts, setReceipts] = useState<ReceiptDraft[]>([{...blankReceipt(itemized?0:approved),...(itemized?{items:[]}: {})}]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [refundReceiptNumber, setRefundReceiptNumber] = useState("");
   const [refundDate, setRefundDate] = useState(getPhilippineCalendarDate());
   const idempotencyKey = useRef(crypto.randomUUID());
   const receiptTotal = receipts.reduce((sum, receipt) => sum + (Number(receipt.amount) || 0), 0);
+  const spent=itemized?receiptTotal:enteredSpent;
   const overdue = isLiquidationCurrentlyOverdue(request);
   const update = (id: string, patch: Partial<ReceiptDraft>) => setReceipts((current) => current.map((item) => item.id === id ? { ...item, ...patch } : item));
 
@@ -57,7 +62,8 @@ export function CashLiquidationDialog({ request, orgId, perReceiptLimit, liquida
 
   const invalid = busy || spent < 0 || spent > approved || Math.abs(receiptTotal - spent) > .009 || !note.trim()
     || (approved - spent > .009 && (!refundReceiptNumber.trim() || !refundDate))
-    || receipts.some((item) => !item.vendor.trim() || !item.description.trim() || !item.file
+    || receipts.some((item) => !item.vendor.trim() || (!item.description.trim()&&!item.items?.length) || !item.file
+      || item.items?.some(i=>i.quantity<=0||!i.unit.trim()||!i.particular.trim()||!i.purpose.trim()||i.amount<=0||!sources.some(s=>s.allocationLineId===i.allocationLineId))
       || (item.amount > perReceiptLimit && (!allowReceiptOverride || !item.overrideReason?.trim())));
 
   return (
@@ -82,7 +88,7 @@ export function CashLiquidationDialog({ request, orgId, perReceiptLimit, liquida
           />
 
           <div className="grid gap-3 sm:grid-cols-2">
-            <Field label="Actual amount spent" type="number" value={spent} onChange={(value) => setSpent(Number(value))} inputClassName="text-right tabular-nums" />
+            {itemized?<div className="text-[12px]">Actual spending from purchased items<output className="mt-2 block text-[16px] font-semibold">{peso.format(spent)}</output></div>:<Field label="Actual amount spent" type="number" value={spent} onChange={(value) => setSpent(Number(value))} inputClassName="text-right tabular-nums" />}
             <div className="rounded-lg border border-border bg-muted/35 p-3 text-right">
               <div className="text-[10px] font-medium uppercase tracking-[0.1em] text-muted-foreground">Receipt total</div>
               <div className={`mt-1 text-[16px] font-semibold tabular-nums ${Math.abs(receiptTotal - spent) > .009 ? "text-destructive" : "text-primary"}`}>{peso.format(receiptTotal)}</div>
@@ -100,7 +106,7 @@ export function CashLiquidationDialog({ request, orgId, perReceiptLimit, liquida
                   <Field label="Vendor / payee" value={receipt.vendor} onChange={(value) => update(receipt.id, { vendor: value })} />
                   <Field label="OR/AR number" value={receipt.receiptNumber} onChange={(value) => update(receipt.id, { receiptNumber: value })} />
                   <Field label="Receipt date" type="date" value={receipt.receiptDate} onChange={(value) => update(receipt.id, { receiptDate: value })} />
-                  <Field label="Amount" type="number" value={receipt.amount || ""} onChange={(value) => update(receipt.id, { amount: Number(value) })} inputClassName="text-right tabular-nums" />
+                  {itemized?<div className="text-[12px]">Receipt total<output className="mt-2 block font-semibold">{peso.format(receipt.amount)}</output></div>:<Field label="Amount" type="number" value={receipt.amount || ""} onChange={(value) => update(receipt.id, { amount: Number(value) })} inputClassName="text-right tabular-nums" />}
                   <label className="sm:col-span-2">
                     <span className="text-[11px] font-medium text-muted-foreground">Expense description</span>
                     <Input value={receipt.description} onChange={(event) => update(receipt.id, { description: event.target.value })} className="mt-1 h-9 text-[12px]" />
@@ -116,11 +122,12 @@ export function CashLiquidationDialog({ request, orgId, perReceiptLimit, liquida
                     <Input type="file" accept="image/jpeg,image/png,image/webp,application/pdf" onChange={(event) => update(receipt.id, { file: event.target.files?.[0] })} className="mt-1 h-auto py-1 text-[11px]" />
                   </label>
                 </div>
+                {itemized&&<ReceiptItemEditor items={receipt.items||[]} sources={sources} disabled={busy} onChange={items=>update(receipt.id,{items,amount:items.reduce((sum,i)=>sum+(Number.isFinite(i.amount)&&i.amount<=90000000000?moneyCents(i.amount):0),0)/100})}/>}
               </div>
             ))}
           </div>
 
-          <Button kind="secondary" size="small" onClick={() => setReceipts((current) => [...current, blankReceipt(0)])}><Plus size={13} className="mr-1" /> Add receipt</Button>
+          <Button kind="secondary" size="small" onClick={() => setReceipts((current) => [...current, {...blankReceipt(0),...(itemized?{items:[]}: {})}])}><Plus size={13} className="mr-1" /> Add receipt</Button>
 
           {approved - spent > .009 && (
             <m.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="grid gap-3 rounded-lg border border-primary/25 bg-primary/5 p-3 sm:grid-cols-2">

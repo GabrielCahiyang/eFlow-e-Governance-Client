@@ -49,7 +49,6 @@ export function Login() {
     errorMessage,
     fieldErrors,
     capsLockActive,
-    cooldownSeconds,
     shakeField,
     isSubmitDisabled,
     handleEmailBlur,
@@ -158,7 +157,7 @@ export function Login() {
                     onChange={setEmail}
                     onBlur={handleEmailBlur}
                     onKeyDown={handleKeyDown}
-                    disabled={state === "submitting" || state === "account_locked"}
+                    disabled={state === "submitting"}
                     validation={
                       fieldErrors.email
                         ? { status: "error", text: fieldErrors.email }
@@ -189,7 +188,7 @@ export function Login() {
                       onChange={setPassword}
                       onBlur={handlePasswordBlur}
                       onKeyDown={handleKeyDown}
-                      disabled={state === "submitting" || state === "account_locked"}
+                      disabled={state === "submitting"}
                       validation={
                         fieldErrors.password
                           ? { status: "error", text: fieldErrors.password }
@@ -266,7 +265,7 @@ export function Login() {
                   className={styles.submitButton}
                 >
                   {state === "account_locked"
-                    ? `Locked (${cooldownSeconds}s)`
+                    ? 'Try signing in again'
                     : "Log in"}
                 </Button>
               </motion.div>

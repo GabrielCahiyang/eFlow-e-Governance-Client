@@ -5,6 +5,7 @@ export { ProjectCommandWorkspace } from "./components/project-command/ProjectCom
 export * from "./selectors/projectCommandSelectors";
 export * from "./selectors/proposalPortfolioSelectors";
 export * from "./selectors/deadlines";
+export { isProjectDraft, isOpenProject } from './selectors/projectPublication';
 export type { ProjectScope } from "./components/model";
 export * from "./services/projectService";
 export {

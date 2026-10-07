@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { KeyRound, LockKeyhole, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { supabase } from '../../../../lib/supabase';
+import { signInWithAccountProtection } from '../../authentication';
 import { Input } from '../../../components/ui/input';
 import { useNavigationBlocker } from '../../../shared/navigationGuard';
 import { ResultMessage, SectionHeading, Surface, inputClass, type Result } from './settingsPrimitives';
@@ -48,11 +49,7 @@ export function SecuritySettingsPage() {
 
     setSaving(true);
     try {
-      const { error: reauthError } = await supabase.auth.signInWithPassword({
-        email: user.email,
-        password: currentPassword,
-      });
-      if (reauthError) throw new Error('Your current password could not be verified.');
+      await signInWithAccountProtection(user.email, currentPassword);
 
       const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
       if (updateError) throw updateError;

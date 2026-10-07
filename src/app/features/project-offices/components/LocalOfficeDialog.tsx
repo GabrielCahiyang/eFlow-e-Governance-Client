@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogDescription, DialogTitle } from '../../../
 import { saveOfficeIdentity, inviteOfficeIdentity } from '../services/officeIdentityService';
 import type { OfficeIdentity } from '../types';
 import { useNavigationBlocker } from '../../../shared/navigationGuard';
+import { projectOfficeError } from '../presentation';
 
 export function LocalOfficeDialog({ projectId, initialName = '', evidence = '', identity, onClose, onSaved }: {
   projectId: string; initialName?: string; evidence?: string; identity?: OfficeIdentity;
@@ -34,7 +35,7 @@ export function LocalOfficeDialog({ projectId, initialName = '', evidence = '', 
           setDone(invite.delivery_error ? 'Office and invitation saved. Email delivery failed; use Resend or Copy fresh link in Project Offices.' : 'Office saved and contact invited. Directory linking and Head confirmation remain required.');
         } else setDone('Office name saved. Invite a contact when you are ready.');
         try { await onSaved(); } catch { setError('Saved, but could not refresh. Close this dialog and retry loading Project Offices.'); }
-      } catch (reason) { setError((identitySaved.current ? 'Office name is saved. Check Project Offices for the contact invitation before retrying. ' : '') + (reason instanceof Error ? reason.message : 'Could not save this Office. Your draft is retained.')); }
+      } catch (reason) { setError((identitySaved.current ? 'Office name is saved. Check Project Offices for the contact invitation before retrying. ' : '') + projectOfficeError(reason, 'Could not save this Office. Your draft is retained.')); }
       finally { setBusy(false); inFlight.current = false; }
     }}>
       {done ? <><p role="status">{done}</p><button type="button" className="po-primary" onClick={onClose}>Done</button></> : <>

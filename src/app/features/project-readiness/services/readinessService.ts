@@ -13,3 +13,7 @@ export async function activateReadyProject(projectId: string) {
   await readinessRpc<void>('phase7_activate_project', {p_project: projectId});
   await notifyProjectListeners();
 }
+export async function publishReadyProject(projectId: string) {
+  await readinessRpc<void>('publish_project', {p_project:projectId});
+  await notifyProjectListeners();
+}

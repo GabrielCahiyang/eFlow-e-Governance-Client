@@ -55,6 +55,8 @@ import {
 import { notifyProjectListeners } from "../services/projectService";
 import "./projectsVibe.css";
 import { CreateProjectDialog } from '../../project-table';
+import { isProjectDraft, isOpenProject } from '../selectors/projectPublication';
+import { ProjectDraftList } from './ProjectDraftList';
 
 export interface WorkspaceEditorTab {
   id: string;
@@ -119,6 +121,9 @@ export function ProjectsWorkspace({
   const [activeTabId, setActiveTabId] = React.useState<string>("portfolio");
   const [projectWorkspaceTab, setProjectWorkspaceTab] = React.useState<ProjectCommandTab>("tasks");
   const [quickProjectOpen, setQuickProjectOpen] = React.useState(false);
+  // Creation broadcasts data before React commits it. URL listeners must not
+  // treat that newly returned, authorized ID as an unavailable deep link.
+  const createdProjectNavigation = React.useRef<string | null>(null);
   const [requestedProjectTool, setRequestedProjectTool] = React.useState<{ projectId: string; tool: ProjectTool } | null>(null);
   const [contextProjectMembers, setContextProjectMembers] = React.useState<ProjectMember[]>([]);
   const [deleteTarget, setDeleteTarget] = React.useState<{ id: string; title: string } | null>(null);
@@ -190,9 +195,10 @@ export function ProjectsWorkspace({
 
   const approvalPortfolioDrafts = React.useMemo(() => collaboration.drafts.filter((draft) => matchesProjectDepartment(draft.ownerOrgId, departmentFilter)), [collaboration.drafts, departmentFilter]);
   const active = React.useMemo(
-    () => inScope.filter((p) => p.status !== "archived"),
+    () => inScope.filter(isOpenProject),
     [inScope],
   );
+  const projectDrafts = React.useMemo(() => inScope.filter(project => isProjectDraft(project) && project.status !== 'archived'), [inScope]);
 
   const summaries = React.useMemo(() => {
     const map = new Map();
@@ -214,7 +220,7 @@ export function ProjectsWorkspace({
         return [...current, { id: tabId, type: "project", projectId, title }];
       });
       setActiveTabId(tabId);
-      setWorkspaceView("portfolio");
+      setWorkspaceView(isProjectDraft(project) ? 'drafts' : 'portfolio');
       if (historyMode) {
         const params = new URLSearchParams(window.location.search);
         const view = params.get('project') === projectId ? params.get('view') || projectWorkspaceTab : 'tasks';
@@ -303,11 +309,11 @@ export function ProjectsWorkspace({
   const planningCounts = React.useMemo(() => {
     const owned = visibleCollaborationDrafts.filter((draft) => readOnly || draft.ownerOrgId === currentOrgId);
     return {
-      workplans: owned.length,
+      workplans: owned.length + projectDrafts.length,
       signoff: owned.filter((draft) => draft.status === "in_review").length,
       actionable: readOnly ? 0 : owned.filter((draft) => draft.status === "ready_to_commit" || draft.status === "changes_requested").length,
     };
-  }, [currentOrgId, readOnly, visibleCollaborationDrafts]);
+  }, [currentOrgId, readOnly, visibleCollaborationDrafts, projectDrafts]);
 
   const changeDepartmentFilter = React.useCallback((nextDepartmentId: string) => {
     setDepartmentFilter(nextDepartmentId);
@@ -322,7 +328,12 @@ export function ProjectsWorkspace({
   const activeProject = activeTab.type === "project" && activeTab.projectId
     ? dbProjects.find((p) => p.id === activeTab.projectId)
     : undefined;
-  const unavailableProject = React.useCallback(() => {
+  React.useEffect(() => {
+    if (activeProject) setWorkspaceView(isProjectDraft(activeProject) ? 'drafts' : 'portfolio');
+    if (activeProject?.id === createdProjectNavigation.current) createdProjectNavigation.current = null;
+  },[activeProject?.id,activeProject?.publicationState]);
+  const unavailableProject = React.useCallback((projectId: string) => {
+    if (projectId === createdProjectNavigation.current) return;
     setContextNotice('That project is no longer in your available content. Select an available project to continue.');
     const url = new URL(window.location.href);
     if (activeProject) { url.searchParams.set('project', activeProject.id); url.searchParams.set('view', projectWorkspaceTab); }
@@ -342,9 +353,9 @@ export function ProjectsWorkspace({
     if (!scope.includeAllAccessibleWork && !hasAutoOpenedRef.current && active.length > 0 && activeTabId === "portfolio" && workspaceView === "portfolio") {
       hasAutoOpenedRef.current = true;
       const requestedId = new URLSearchParams(window.location.search).get('project');
-      openProject(active.find(p=>p.id===requestedId)?.id || active[0].id);
+      openProject(inScope.find(p=>p.id===requestedId)?.id || active[0].id);
     }
-  }, [active, activeTabId, openProject, workspaceView, scope.includeAllAccessibleWork]);
+  }, [active, activeTabId, openProject, workspaceView, scope.includeAllAccessibleWork, inScope]);
 
   React.useEffect(() => {
     if (activeTab.type === "project" && activeProject) {
@@ -443,14 +454,23 @@ export function ProjectsWorkspace({
         onRestoreProject={(id, title) => setArchiveTarget({ id, title, isArchived: true })}
         onDeleteProject={(id, title) => setDeleteTarget({ id, title })}
         profiles={profiles}
-        projects={inScope}
+        projects={inScope.filter(project => !isProjectDraft(project))}
         summaries={summaries}
         tasks={tasks}
         projectMembers={contextProjectMembers}
         planningCounts={planningCounts}
         planningView={workspaceView}
         onOpenPlanning={(view) => {
-          void requestNavigation(() => { setActiveTabId('portfolio'); setWorkspaceView(view); navigationHost?.closeNavigation(); });
+          void requestNavigation(() => {
+            const url = new URL(window.location.href);
+            url.searchParams.delete('project');
+            url.searchParams.delete('view');
+            replaceNavigationHistory(`${url.pathname}${url.search}${url.hash}`);
+            setContextNotice('');
+            setActiveTabId('portfolio');
+            setWorkspaceView(view === 'signoff' ? 'drafts' : view);
+            navigationHost?.closeNavigation();
+          });
         }}
         departmentFilter={scope.includeAllAccessibleWork ? {
           value: departmentFilter,
@@ -528,14 +548,15 @@ export function ProjectsWorkspace({
           <div className="eflow-projects-surface animate-in fade-in duration-150">
             {workspaceView !== "portfolio" && (
               <div className="eflow-project-planning-heading">
-                <span className="eflow-project-view-heading__eyebrow"><Icons.FileClock size={14} /> Planning workspace</span>
-                <h2>{workspaceView === "drafts" ? "Drafts" : "Waiting for approval"}</h2>
-                <p>{workspaceView === "drafts" ? "Draft plans in preparation and collaboration workspaces you own." : "Owned work plans currently waiting on partner decisions."}</p>
+                <span className="eflow-project-view-heading__eyebrow"><Icons.FileClock size={14} /> Draft workspace</span>
+                <h2>Drafts</h2>
+                <p>Projects and plans stay here until the owning Office Head publishes them. Partner reviews remain inside each plan.</p>
               </div>
             )}
 
             {workspaceView !== "portfolio" ? (
-              collaboration.loading ? (
+              <><ProjectDraftList projects={projectDrafts} onOpen={id => openProject(id,'push')} />
+              {collaboration.loading ? (
                 <div className="space-y-3 rounded-2xl border border-neutral-200 bg-white p-5" aria-live="polite" role="status">
                   <Skeleton type="text" width={190} />
                   <Skeleton type="text" width={280} />
@@ -549,19 +570,19 @@ export function ProjectsWorkspace({
                 >
                   {collaboration.error}
                 </div>
-              ) : (
+              ) : projectDrafts.length > 0 && visibleCollaborationDrafts.length === 0 ? null : (
                 <CollaborationDraftList
                   drafts={visibleCollaborationDrafts}
                   organizations={orgs}
                   currentOrgId={currentOrgId}
-                  mode={workspaceView === "drafts" ? "owned" : "waiting"}
+                  mode="owned"
                   accessibleOrgIds={collaboration.membershipOrgIds}
                   showAll={readOnly && scope.includeAllAccessibleWork}
                   onOpen={(draftId) => openProposal(draftId, workspaceView === "drafts" ? "overview" : "approvals")}
                 />
-              )
+              )}</>
             ) : scope.includeAllAccessibleWork ? (
-              <CitywidePlansOverview projects={inScope} drafts={approvalPortfolioDrafts} organizations={orgs} profiles={profiles} onOpenProject={openProject} onOpenPlan={(id) => openProposal(id, "approvals")} />
+              <CitywidePlansOverview projects={inScope.filter(project => !isProjectDraft(project))} drafts={approvalPortfolioDrafts} organizations={orgs} profiles={profiles} onOpenProject={openProject} onOpenPlan={(id) => openProposal(id, "approvals")} />
             ) : (
               <div className="flex flex-col items-center justify-center py-20 text-center">
                 <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-teal-50 text-teal-700 mb-4 shadow-sm">
@@ -597,7 +618,7 @@ export function ProjectsWorkspace({
           }}
         />
       )}
-      {access.canCreate && quickProjectOpen && <CreateProjectDialog open officeId={currentOrgId} onClose={()=>setQuickProjectOpen(false)} onCreated={project=>{writeNavigationLocation('projects','Projects','push',{project:project.id,view:'tasks'});setTabs(current=>[...current.filter(t=>t.id!==`project-${project.id}`),{id:`project-${project.id}`,type:'project',projectId:project.id,title:project.title}]);setActiveTabId(`project-${project.id}`);setWorkspaceView('portfolio');setProjectWorkspaceTab('tasks');hasAutoOpenedRef.current=true;}}/>}
+      {access.canCreate && quickProjectOpen && <CreateProjectDialog open officeId={currentOrgId} onClose={()=>setQuickProjectOpen(false)} onCreated={project=>{createdProjectNavigation.current=project.id;setContextNotice('');writeNavigationLocation('projects','Projects','push',{project:project.id,view:'tasks'});setTabs(current=>[...current.filter(t=>t.id!==`project-${project.id}`),{id:`project-${project.id}`,type:'project',projectId:project.id,title:project.title}]);setActiveTabId(`project-${project.id}`);setWorkspaceView('drafts');setProjectWorkspaceTab('tasks');hasAutoOpenedRef.current=true;}}/>}
 
       {templatesOpen && (
         <ProjectTemplatesModal

@@ -1,0 +1,36 @@
+import {test,expect} from '@playwright/test';
+import {projectWorkspaceFixture} from './fixtures/projectWorkspace';
+test('new project stays in Drafts, missing details block publication, legacy project stays open',async({page})=>{
+ test.setTimeout(60000);
+ const fixture=await projectWorkspaceFixture(page,'head');
+ const draftId='20000000-0000-4000-8000-000000000099';
+ await page.route('**/rest/v1/rpc/create_project_with_details',async route=>{
+  const payload=route.request().postDataJSON().p_payload;
+  const row={...payload,id:draftId,publication_state:'draft',status:'planning',created_by:fixture.id,created_at:new Date().toISOString(),updated_at:new Date().toISOString()};
+  fixture.projects.unshift(row);
+  fixture.groups.push({id:'30000000-0000-4000-8000-000000000099',project_id:draftId,title:'To do',position:0,is_default:true});
+  await route.fulfill({json:row});
+ });
+ await page.route('**/rest/v1/rpc/phase7_project_readiness',route=>route.fulfill({json:{projectId:draftId,stage:'Draft',governed:false,canPublish:true,ready:false,canActivate:false,checks:[{key:'project_description',label:'Project purpose filled in',ok:false,detail:'Project description/purpose cannot be blank.'},{key:'work',label:'Delivery work exists',ok:false,detail:'Add at least one task.'}]}}));
+ await page.route('**/rest/v1/rpc/phase7_closeout_summary',route=>route.fulfill({json:{tasks:0,completed:0,cancelled:0,budgetEstimate:0,offices:1,evidence:0,contributors:1,startDate:null,targetDate:null,financial:{requested:0,approved:0,settled:0,open:0}}}));
+ await page.route('**/rest/v1/rpc/project_completion_readiness',route=>route.fulfill({json:{canComplete:false,blockers:[]}}));
+ const sidebar=page.getByRole('complementary',{name:'Projects context'});
+ await expect(sidebar.locator('summary').filter({hasText:/^Planning$/})).toHaveCount(0);
+ await expect(sidebar.getByRole('button',{name:/Waiting for approval/})).toHaveCount(0);
+ await expect(sidebar.getByRole('button',{name:'Community outreach',exact:true})).toBeVisible();
+ await sidebar.getByRole('button',{name:'Create project',exact:true}).click();
+ await page.locator('#pt-project-name').fill('New draft project');
+ await page.getByRole('dialog').getByRole('button',{name:'Create project →',exact:true}).click();
+ await expect(page.getByText('Draft · Not published',{exact:true})).toBeVisible({timeout:30000});
+ await expect(sidebar.getByRole('button',{name:'New draft project',exact:true})).toHaveCount(0);
+ await expect(page.getByText('Project unavailable',{exact:true})).toHaveCount(0);
+ await sidebar.getByRole('button',{name:/^Drafts/}).click();
+ await expect(page.getByRole('region',{name:'Draft projects'}).getByText('New draft project',{exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'Open draft',exact:true}).click();
+ await page.getByRole('button',{name:'Review & publish',exact:true}).click();
+ await expect(page.getByRole('button',{name:'Publish project',exact:true})).toBeDisabled();
+ await expect(page.getByRole('heading',{name:'Cannot publish yet'})).toBeVisible();
+ await expect(page.getByRole('button',{name:'Edit project details'})).toBeVisible();
+ await page.reload();
+ await expect(page.getByText('Draft · Not published',{exact:true})).toBeVisible({timeout:30000});
+});

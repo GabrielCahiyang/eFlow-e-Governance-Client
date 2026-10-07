@@ -32,6 +32,7 @@ export const superadminSidebar: Record<string, SidebarContent> = {
                 icon: <Carbon.Security size={16} className="text-neutral-900" />,
                 label: "Role Defaults",
               },
+              { icon:<Carbon.Security size={16}/>, label:'Locked out accounts' },
               {
                 icon: <Carbon.UserAccess size={16} className="text-neutral-900" />,
                 label: "User Access",

@@ -197,6 +197,7 @@ export function ManualPlanBuilder({
           </section>
         ) : (
           <DraftCockpit
+            fundingOrgId={collaborationOrganizations.find(item=>item.participationRole==="owner")?.orgId}
             source="manual"
             proposalTitle={planTitle || "Untitled plan"}
             draftTasks={draftTasks}

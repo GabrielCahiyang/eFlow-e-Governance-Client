@@ -7,6 +7,7 @@ import {
 import { invitationCanManage } from "../presentation";
 import type { Invitation } from "../types";
 import { useNavigationBlocker } from "../../../shared/navigationGuard";
+import { userFacingError } from "../../../shared/userFacingError";
 export function useInvitationManagement(
   scope: string,
   refresh: () => Promise<void>,
@@ -116,7 +117,7 @@ export function useInvitationManagement(
         setError(
           started
             ? "Invitation result needs verification. Refresh and check the current status and dispatch count before retrying."
-            : (reason as Error).message || "Invitation action failed.",
+            : userFacingError(reason, "Invitation action failed."),
         );
     } finally {
       pending.current = false;

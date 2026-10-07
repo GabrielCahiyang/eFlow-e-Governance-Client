@@ -28,6 +28,7 @@ export function DraftCockpit({
   validationMessages = {},
   source = "ai",
   proposalTitle: proposalTitleOverride,
+  fundingOrgId,
   onAddProgram,
   onAddProject,
   onAddActivity,
@@ -51,6 +52,7 @@ export function DraftCockpit({
   validationMessages?: Record<string, string>;
   source?: "ai" | "manual";
   proposalTitle?: string;
+  fundingOrgId?: string;
   onAddProgram?: () => void;
   onAddProject?: (programIdx: number) => void;
   onAddActivity?: (programIdx: number, projectIdx: number) => void;
@@ -423,7 +425,8 @@ export function DraftCockpit({
                     {/* Tasks list */}
                     <div className="divide-y divide-neutral-100">
                       {activity.tasks.map((dt) => (
-                        <DraftTaskRow
+                          <DraftTaskRow
+                            fundingOrgId={fundingOrgId}
                           key={dt.key}
                           dt={dt}
                           employees={employees}

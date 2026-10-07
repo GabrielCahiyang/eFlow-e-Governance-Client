@@ -226,8 +226,7 @@ export function ProjectContextSidebar({
         )}
       </details>
 
-      <details className="eflow-project-context__planning" open={disclosure.isOpen('planning')} onToggle={event => disclosure.setOpen('planning', event.currentTarget.open)}>
-        <summary>Planning</summary>
+      <div className="eflow-project-context__planning" aria-label="Draft navigation">
         <m.button
           className={planningView === "drafts" ? "eflow-project-context__planning-item--active" : ""}
           type="button"
@@ -246,25 +245,7 @@ export function ProjectContextSidebar({
           {planningCounts.actionable > 0 && <span className="relative inline-flex h-2 w-2" title="Drafts need your action"><span className="absolute inset-0 animate-ping rounded-full bg-amber-400 opacity-70 motion-reduce:animate-none" /><span className="relative h-2 w-2 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.75)]" /></span>}
           <strong>{planningCounts.workplans}</strong>
         </m.button>
-        <m.button
-          className={planningView === "signoff" ? "eflow-project-context__planning-item--active" : ""}
-          type="button"
-          onClick={() => onOpenPlanning("signoff")}
-          whileTap={{ scale: 0.98 }}
-        >
-          {planningView === "signoff" && (
-            <m.span
-              aria-hidden="true"
-              className="eflow-project-context__planning-active-surface"
-              layoutId="eflow-project-context-active-planning"
-              transition={motionTransition.navigation}
-            />
-          )}
-          <span>Waiting for approval</span>
-          {planningCounts.signoff > 0 && <span className="relative inline-flex h-2 w-2" title="Work plans awaiting approval"><span className="absolute inset-0 animate-ping rounded-full bg-amber-400 opacity-70 motion-reduce:animate-none" /><span className="relative h-2 w-2 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.75)]" /></span>}
-          <strong>{planningCounts.signoff}</strong>
-        </m.button>
-      </details>
+      </div>
 
       <details className="eflow-project-context__members" open={disclosure.isOpen('people')} onToggle={event => disclosure.setOpen('people', event.currentTarget.open)}>
         <summary>Team Members</summary>

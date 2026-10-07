@@ -48,6 +48,7 @@ export function getSidebarContent(
           title: "Administration",
           items: [
             { label: "All Users", isActive: true },
+            { label: 'Locked out accounts' },
             { label: "Role Defaults" },
             { label: "User Access" },
             { label: "Office Structure" },

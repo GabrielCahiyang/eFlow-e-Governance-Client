@@ -26,9 +26,10 @@ export function ProjectHeader({ project, organizations, profiles, metrics, edita
       <div className="eflow-project-identity__identity">
         <p className="eflow-project-identity__office">{organization?.name || 'Office not set'} · {owner?.full_name || 'Owner unavailable'}</p>
         {!hideTitle && <h1 aria-label={project.title}>{onTitleChange ? <InlineEditableText value={project.title} label="project name" disabled={!editable || closed} onSave={saveTitle} /> : project.title}</h1>}
-        <div className="eflow-project-identity__signals"><ProjectLifecycleLabel status={project.status} />{metrics && <ProjectScheduleLabel health={metrics.scheduleHealth} empty={!project.targetDate && !metrics.nextDeadline} />}</div>
+        <div className="eflow-project-identity__signals">{project.publicationState === 'draft' ? <span>Draft · Not published</span> : <ProjectLifecycleLabel status={project.status} />}{metrics && <ProjectScheduleLabel health={metrics.scheduleHealth} empty={!project.targetDate && !metrics.nextDeadline} />}</div>
         {metrics && <p>{metrics.taskCompleted} / {metrics.taskTotal} tasks completed · {metrics.progress}% complete{metrics.overdue ? ` · ${metrics.overdue} overdue` : ''}</p>}
         {participants}
+        {project.publishedAt && <p>Published {new Date(project.publishedAt).toLocaleString()} by {profiles?.find(profile=>profile.id===project.publishedBy)?.full_name || 'the owning Office Head'}.</p>}
       </div>
       {utilities}
     </div>
@@ -36,7 +37,7 @@ export function ProjectHeader({ project, organizations, profiles, metrics, edita
       <div><span>Readiness</span>{readinessSummary || <p>Review required checks before activation or closeout.</p>}</div>
       <div className="eflow-project-identity__context-actions">
         {onOffices && <Button variant="outline" onClick={onOffices}>Project Offices</Button>}
-        {onReadiness && <Button variant="secondary" onClick={onReadiness}>Readiness &amp; closeout</Button>}
+        {onReadiness && <Button variant="secondary" onClick={onReadiness}>{project.publicationState === 'draft' ? 'Review & publish' : 'Readiness & closeout'}</Button>}
       </div>
     </div>
     {closed && <p role="status">{project.status === 'archived' ? 'Archived' : 'Completed'} project details are read-only. History and reports remain available.</p>}

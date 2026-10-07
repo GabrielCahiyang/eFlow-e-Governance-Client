@@ -3,7 +3,9 @@ import type { Task } from '../tasks';
 import type { Invitation } from '../invitations';
 import { isAppointedOfficeHead } from '../../shared/officeAuthority';
 import type { ProjectOffice } from './types';
+import { userFacingError } from '../../shared/userFacingError';
 export const officeRelationship = (o: ProjectOffice) => o.relationship_type === 'lead' ? 'Lead Office' : o.relationship_type === 'observer' ? 'Observer · read only' : 'Collaborating Office';
+export const projectOfficeError = (reason: unknown, fallback: string) => userFacingError(reason, fallback);
 export function officeParticipation(o: ProjectOffice, invitation?: Invitation) {
   if (o.invitation_status === 'joined') return 'Joined';
   if (o.invitation_status === 'awaiting_head') return 'Awaiting Office Head confirmation';

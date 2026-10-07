@@ -1,6 +1,7 @@
 /** One support-page contract for discovery and direct content resolution. */
 export const administrativePages = [
   { label: 'All Users', section: 'users', permission: 'navigation.user_management' },
+  { label: 'Locked out accounts', section: 'users', permission: 'navigation.user_management', adminOnly: true },
   { label: 'Role Defaults', section: 'users', permission: 'navigation.user_management', adminOnly: true },
   { label: 'User Access', section: 'users', permission: 'navigation.user_management', adminOnly: true },
   { label: 'Office Structure', section: 'org_tree', permission: 'navigation.organization' },

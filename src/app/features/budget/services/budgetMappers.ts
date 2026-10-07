@@ -19,6 +19,7 @@ export const mapBudgetSummary = (row: Record<string, unknown>): DepartmentBudget
   id: String(row.id), orgId: String(row.orgId), fiscalYear: number(row.fiscalYear),
   status: String(row.status) as DepartmentBudgetSummary["status"],
   approvedAmount: number(row.approvedAmount), committedAmount: number(row.committedAmount),
+  heldAmount: number(row.heldAmount), budgetReleasedAmount: number(row.budgetReleasedAmount ?? row.approvedAmount),
   spentAmount: number(row.spentAmount), availableAmount: number(row.availableAmount),
   commitmentRemaining: number(row.commitmentRemaining), pettyCashLimit: number(row.pettyCashLimit),
   pettyCashRequestLimit: number(row.pettyCashRequestLimit), pettyCashReserved: number(row.pettyCashReserved),
@@ -41,7 +42,7 @@ export const mapBudgetLine = (row: Record<string, unknown>): DepartmentBudgetLin
 });
 
 export const mapCommitment = (row: Record<string, unknown>): BudgetCommitment => ({
-  id: String(row.id), fiscalBudgetId: String(row.fiscal_budget_id), proposalDraftId: String(row.proposal_draft_id),
+  id: String(row.id), fiscalBudgetId: String(row.fiscal_budget_id), proposalDraftId: String(row.proposal_draft_id || ""),
   proposalRevisionId: row.proposal_revision_id ? String(row.proposal_revision_id) : undefined,
   title: String(row.title || "Untitled proposal"), amount: number(row.amount),
   status: String(row.status) as BudgetCommitment["status"], createdAt: millis(row.created_at) || 0,
@@ -63,6 +64,7 @@ export const mapAllocation = (row: Record<string, unknown>): WorkBudgetAllocatio
 
 export const mapAllocationLine = (row: Record<string, unknown>): WorkBudgetAllocationLine => ({
   id: String(row.id), allocationId: String(row.allocation_id),
+  budgetPartitionId: row.budget_partition_id ? String(row.budget_partition_id) : undefined,
   draftTaskKey: row.draft_task_key ? String(row.draft_task_key) : undefined,
   expenseClass: String(row.expense_class || "Other Expenses"), category: String(row.category || ""),
   particular: String(row.particular || ""), quantity: number(row.quantity || 1), unit: String(row.unit || "item"),
@@ -72,6 +74,7 @@ export const mapAllocationLine = (row: Record<string, unknown>): WorkBudgetAlloc
 
 export const mapRequest = (row: Record<string, unknown>): PettyCashRequest => ({
   id: String(row.id), requestNumber: number(row.request_number), fiscalBudgetId: String(row.fiscal_budget_id),
+  pcvNumber: row.pcv_number ? number(row.pcv_number) : undefined, pcvDate: row.pcv_date ? String(row.pcv_date) : undefined,
   commitmentId: String(row.commitment_id), allocationId: String(row.allocation_id),
   allocationLineId: row.allocation_line_id ? String(row.allocation_line_id) : undefined,
   orgId: String(row.org_id),

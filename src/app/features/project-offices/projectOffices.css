@@ -13,3 +13,9 @@
 @media(max-width:640px){.po-table-wrap{border:0}.po-office-table thead{display:none}.po-office-table,.po-office-table tbody,.po-office-table tr,.po-office-table td,.po-office-table tbody th{display:block;width:100%}.po-office-table tr{border:1px solid #dfe3eb;border-radius:8px;margin-bottom:12px;padding:12px 6px}.po-office-table td,.po-office-table tbody th{border:0;padding:6px 10px}.po-office-table td::before{content:attr(data-label);display:block;color:#637183;font-size:11px;margin-bottom:4px}.po-office-table td:nth-child(3){max-width:100%}.po-office-toolbar label{width:100%}.po-office-toolbar input,.po-office-toolbar select{width:100%}.po-member-editor footer{bottom:-20px}.po-member-editor .po-member-list label{gap:8px;padding:10px}.po-member-editor .po-member-list label>span:last-child{display:none}.po-member-editor .po-member-list small{overflow-wrap:anywhere}.po-member-editor .po-member-list label>span:nth-child(3){min-width:0}.po-member-editor .po-membership-impact{padding:10px}}
 
 @media(max-width:640px){.po-office-table thead{display:block;position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);clip-path:inset(50%);white-space:nowrap}}
+.po-actions-cell{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.po-withdraw-btn{background:#fff5f5!important;border-color:#fca5a5!important;color:#b91c1c!important;display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:8px 12px!important;min-height:36px!important}
+.po-withdraw-btn:hover:not(:disabled){background:#fee2e2!important;border-color:#f87171!important}
+.po-withdraw-btn:focus-visible{outline:2px solid #b91c1c!important;outline-offset:2px}
+.po-office-detail{display:block;width:100%;margin-top:6px;color:#637183;font-size:12px;font-weight:400;line-height:1.5;overflow-wrap:anywhere}
+.po-office-responsibilities{width:100%;padding-left:16px;margin:8px 0}.po-office-responsibilities li{margin:8px 0}.po-office-responsibilities button{margin-top:6px}

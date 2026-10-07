@@ -2,6 +2,7 @@ import { supabase } from "../../../../lib/supabase";
 import type { AccountingAccount, BudgetLineInput, DepartmentBudgetBundle, GeneralJournalEntry, JournalAdjustmentLineInput, ReceiptDraft, TaskFundingContext } from "../types";
 import { mapAdjustment, mapAllocation, mapAllocationLine, mapBudgetLine, mapBudgetSummary, mapCommitment, mapLedger, mapLiquidation, mapReceipt, mapRelease, mapRequest } from "./budgetMappers";
 import { assertCashNeededByIsCurrentOrFuture } from "../selectors/cashWorkflowRules";
+import { fetchBudgetSections } from "./budgetSectionService";
 
 const throwIf = (error: { message: string } | null) => { if (error) throw new Error(error.message); };
 
@@ -25,7 +26,8 @@ export async function fetchDepartmentBudgetBundle(orgId: string, fiscalYear: num
     throw new Error(summaryResult.error.message);
   }
   const summary = summaryResult.data ? mapBudgetSummary(summaryResult.data as Record<string, unknown>) : null;
-  if (!summary) return { summary: null, lines: [], commitments: [], allocations: [], allocationLines: [], requests: [], requestAttachments: [], releases: [], liquidations: [], ledger: [], adjustments: [] };
+  const sectionData = await fetchBudgetSections(orgId, fiscalYear);
+  if (!summary) return { ...sectionData, summary: null, lines: [], commitments: [], allocations: [], allocationLines: [], requests: [], requestAttachments: [], releases: [], liquidations: [], ledger: [], adjustments: [] };
   const [linesResult, commitmentsResult, requestsResult, ledgerResult, adjustmentsResult] = await Promise.all([
     supabase.from("department_budget_lines").select("*").eq("fiscal_budget_id", summary.id).order("position"),
     supabase.from("budget_commitments").select("*").eq("fiscal_budget_id", summary.id).order("created_at", { ascending: false }),
@@ -89,8 +91,16 @@ export async function fetchDepartmentBudgetBundle(orgId: string, fiscalYear: num
     ? await supabase.from("petty_cash_receipts").select("*").in("liquidation_id", liquidationIds)
     : { data: [], error: null };
   throwIf(receiptsResult.error);
-  const receipts = (receiptsResult.data || []).map((row) => mapReceipt(row as Record<string, unknown>));
+  const receiptIds = (receiptsResult.data || []).map(r=>String(r.id));
+  const [cashLinesResult,itemsResult] = await Promise.all([
+    requestIds.length ? supabase.from("petty_cash_request_lines").select("*").in("request_id",requestIds) : Promise.resolve({data:[],error:null}),
+    receiptIds.length ? supabase.from("petty_cash_receipt_items").select("*").in("receipt_id",receiptIds).order("position") : Promise.resolve({data:[],error:null}),
+  ]);
+  for(const result of [cashLinesResult,itemsResult]) if(result.error&&!isMissingSchemaObject(result.error.message))throwIf(result.error);
+  requests.forEach(r=>{r.fundingLines=(cashLinesResult.data||[]).filter(l=>l.request_id===r.id).map(l=>({allocationLineId:String(l.allocation_line_id),amount:Number(l.amount),sourceName:String((allocationLinesResult.data||[]).find(s=>s.id===l.allocation_line_id)?.category||"Approved source")}));});
+  const receipts = (receiptsResult.data || []).map(row=>({...mapReceipt(row as Record<string,unknown>),items:(itemsResult.data||[]).filter(i=>i.receipt_id===row.id).map(i=>({id:String(i.id),allocationLineId:String(i.allocation_line_id),quantity:Number(i.quantity),unit:String(i.unit),particular:String(i.particular),purpose:String(i.purpose),amount:Number(i.amount),accountName:String(i.account_name),accountLabel:i.account_label?String(i.account_label):undefined}))}));
   return {
+    ...sectionData,
     summary,
     lines: (linesResult.data || []).map((row) => mapBudgetLine(row as Record<string, unknown>)),
     commitments,
@@ -166,6 +176,9 @@ export async function fetchTaskFundingContext(taskId: string, subtaskId?: string
   const lines = Array.isArray(row.lines) ? row.lines as Array<Record<string, unknown>> : [];
   return {
     funded: Boolean(row.funded),
+    supportsItemizedCash: Boolean(row.supportsItemizedCash),
+    fiscalYear: row.fiscalYear ? Number(row.fiscalYear) : undefined,
+    fundingOrgId: row.fundingOrgId ? String(row.fundingOrgId) : undefined,
     taskId: String(row.taskId || taskId),
     subtaskId: row.subtaskId ? String(row.subtaskId) : undefined,
     taskAllocationId: row.taskAllocationId ? String(row.taskAllocationId) : undefined,
@@ -395,12 +408,17 @@ export async function submitPettyCashLiquidation(input: { orgId: string; request
     }
     const payload = input.receipts.map((receipt, index) => ({
       vendor: receipt.vendor, receiptNumber: receipt.receiptNumber, receiptDate: receipt.receiptDate,
-      description: receipt.description, amount: receipt.amount, overrideReason: receipt.overrideReason, ...uploaded[index],
+      description: receipt.description.trim() || receipt.items?.map(i=>i.particular).join(", ") || "", amount: receipt.amount, overrideReason: receipt.overrideReason, ...uploaded[index],
+      ...(receipt.items ? {items:receipt.items} : {}),
     }));
     // Once PostgreSQL is called, a transport failure cannot prove the command
     // rolled back. Keep the stable files so an idempotent retry can reconcile.
     rpcStarted = true;
-    const { data, error } = await supabase.rpc("submit_accounting_cash_liquidation", {
+    const itemized = input.receipts.some(r=>r.items!==undefined);
+    const { data, error } = itemized ? await supabase.rpc("submit_itemized_cash_liquidation", {
+      p_request:input.requestId,p_spent:input.spent,p_note:input.note,p_receipts:payload,p_key:idempotencyKey,
+      p_refund_number:input.refundReceiptNumber?.trim()||null,p_refund_date:input.refundDate||null,
+    }) : await supabase.rpc("submit_accounting_cash_liquidation", {
       p_request_id: input.requestId, p_declared_spent: input.spent, p_note: input.note, p_receipts: payload,
       p_idempotency_key: idempotencyKey,
       p_refund_receipt_number: input.refundReceiptNumber?.trim() || null,
@@ -408,7 +426,7 @@ export async function submitPettyCashLiquidation(input: { orgId: string; request
     });
     // Older deployments can lack the accounting wrapper while still having the
     // contextual liquidation command. It is equivalent when no cash is returned.
-    if (error?.code === "PGRST202" && !input.refundReceiptNumber?.trim()) {
+    if (error?.code === "PGRST202" && !itemized && !input.refundReceiptNumber?.trim()) {
       const fallback = await supabase.rpc("submit_contextual_cash_liquidation", {
         p_request_id: input.requestId, p_declared_spent: input.spent, p_note: input.note,
         p_receipts: payload, p_idempotency_key: idempotencyKey,

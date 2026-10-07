@@ -20,6 +20,7 @@ import {
   PERMISSIONS_CHANGED_STORAGE_KEY,
 } from '../features/permissions/constants';
 import { controlPanelFetch } from '../shared/controlPanelClient';
+import { signInWithAccountProtection } from '../features/authentication';
 import type { UserProfile, UserRole } from '../types';
 
 // ─── Error message mapper ────────────────────────────────────────
@@ -239,12 +240,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
 
 
-      const { error: authError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (authError) throw new Error(mapSupabaseAuthError(authError.message));
+      await signInWithAccountProtection(email, password);
 
       // Verify profile exists and is active
       const { data: sessionData } = await supabase.auth.getUser();

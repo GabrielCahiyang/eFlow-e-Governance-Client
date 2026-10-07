@@ -662,6 +662,7 @@ export function CollaborationDraftWorkspace({
               <CollaborationBudgetPanel
                 snapshot={snapshot}
                 fundingOwnerName={ownerOrg?.name}
+                fundingOrgId={draft.ownerOrgId}
                 editable={
                   isOwner &&
                   !["committed", "archived", "deleted"].includes(draft.status)

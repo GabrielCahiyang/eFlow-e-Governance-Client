@@ -6,6 +6,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { signInWithAccountProtection } from '../../../authentication';
 import {
   Archive,
   CheckCircle2,
@@ -45,7 +46,6 @@ import {
 import { BackupJobCard } from "./BackupJobCard";
 import { BackupGatewayUnavailable } from "./BackupGatewayUnavailable";
 import { useAuth } from "../../../../contexts/AuthContext";
-import { supabase } from "../../../../../lib/supabase";
 
 import { useExplicitDraft } from "../../../../shared/useExplicitDraft";
 import { requestNavigation } from "../../../../shared/navigationGuard";
@@ -162,12 +162,7 @@ export function BackupExportWorkspace() {
         throw new Error(
           "Your signed-in email could not be verified. Sign in again before exporting.",
         );
-      const { error: reauthError } = await supabase.auth.signInWithPassword({
-        email: user.email,
-        password: reauthPassword,
-      });
-      if (reauthError)
-        throw new Error("Password confirmation failed. No backup was started.");
+      await signInWithAccountProtection(user.email, reauthPassword);
       submitted = true;
       uncertainStarts.set(user.id, {
         ids: overview?.jobs.map((job) => job.id) || [],

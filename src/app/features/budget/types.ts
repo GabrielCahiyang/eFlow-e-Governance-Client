@@ -25,6 +25,7 @@ export type PettyCashStatus =
 
 export interface BudgetLineInput {
   id: string;
+  budgetPartitionId?: string;
   draftTaskKey?: string;
   expenseClass: string;
   category: string;
@@ -74,6 +75,8 @@ export interface DepartmentBudgetSummary {
   fiscalYear: number;
   status: FiscalBudgetStatus;
   approvedAmount: number;
+  heldAmount?: number;
+  budgetReleasedAmount?: number;
   committedAmount: number;
   spentAmount: number;
   availableAmount: number;
@@ -98,6 +101,20 @@ export interface DepartmentBudgetSummary {
 
 export interface DepartmentBudgetLine extends BudgetLineInput {
   fiscalBudgetId: string;
+}
+
+export interface BudgetSection {
+  id: string;
+  parentId?: string;
+  name: string;
+  accountCode?: string;
+  journalAccountCode?: string;
+  amount: number;
+  heldAmount: number;
+  position: number;
+  retired?: boolean;
+  committedAmount?: number;
+  spentAmount?: number;
 }
 
 export interface BudgetCommitment {
@@ -136,6 +153,9 @@ export interface WorkBudgetAllocationLine extends BudgetLineInput {
 export interface PettyCashRequest {
   id: string;
   requestNumber: number;
+  pcvNumber?: number;
+  pcvDate?: string;
+  fundingLines?: CashFundingLine[];
   fiscalBudgetId: string;
   commitmentId: string;
   allocationId: string;
@@ -202,6 +222,13 @@ export interface PettyCashReceipt {
   mimeType: string;
   fileSize: number;
   overrideReason?: string;
+  items?: ReceiptItem[];
+}
+
+export interface CashFundingLine { allocationLineId: string; amount: number; sourceName?: string }
+export interface ReceiptItem {
+  id: string; allocationLineId: string; quantity: number; unit: string;
+  particular: string; amount: number; purpose: string; accountName?: string; accountLabel?: string;
 }
 
 export interface CashRequestAttachment {
@@ -320,6 +347,9 @@ export interface SubtaskFundingCap {
 
 export interface TaskFundingContext {
   funded: boolean;
+  supportsItemizedCash?: boolean;
+  fiscalYear?: number;
+  fundingOrgId?: string;
   taskId: string;
   subtaskId?: string;
   taskAllocationId?: string;
@@ -332,6 +362,10 @@ export interface TaskFundingContext {
 
 export interface DepartmentBudgetBundle {
   summary: DepartmentBudgetSummary | null;
+  sections?: BudgetSection[];
+  sectionsAvailable?: boolean;
+  itemizedCashAvailable?: boolean;
+  sectionsVersion?: number;
   lines: DepartmentBudgetLine[];
   commitments: BudgetCommitment[];
   allocations: WorkBudgetAllocation[];
@@ -354,6 +388,7 @@ export interface ReceiptDraft {
   amount: number;
   overrideReason?: string;
   file?: File;
+  items?: ReceiptItem[];
 }
 
 export interface CashReviewFocus {

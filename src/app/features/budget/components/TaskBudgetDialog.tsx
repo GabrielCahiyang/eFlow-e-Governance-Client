@@ -1,6 +1,9 @@
 import { FeatureDialog } from "../../../components/ui/FeatureDialog";
 import type { BudgetLineInput, TaskBudgetDecision } from "../types";
 import { TaskBudgetEditor } from "./TaskBudgetEditor";
+import { useDepartmentBudget } from "../hooks/useDepartmentBudget";
+import { sectionLeaves } from "../selectors/budgetSections";
+import { getCurrentFiscalYear } from "../constants";
 
 export function TaskBudgetDialog({
   open,
@@ -10,6 +13,8 @@ export function TaskBudgetDialog({
   noCostReason,
   lines,
   fundingSource,
+  fundingOrgId,
+  fiscalYear = getCurrentFiscalYear(),
   readOnly = false,
   onChange,
   onClose,
@@ -21,10 +26,13 @@ export function TaskBudgetDialog({
   noCostReason?: string;
   lines: BudgetLineInput[];
   fundingSource?: string;
+  fundingOrgId?: string;
+  fiscalYear?: number;
   readOnly?: boolean;
   onChange: (patch: { budgetDecision: TaskBudgetDecision; budgetNoCostReason?: string; budgetLines: BudgetLineInput[] }) => void;
   onClose: () => void;
 }) {
+  const annual=useDepartmentBudget(open ? fundingOrgId : undefined,fiscalYear);
   return (
     <FeatureDialog
       open={open}
@@ -56,6 +64,7 @@ export function TaskBudgetDialog({
             fundingSource={fundingSource}
             readOnly={readOnly}
             value={{ decision, noCostReason, lines }}
+            partitions={sectionLeaves(annual.sections||[])}
             onChange={(next) =>
               onChange({
                 budgetDecision: next.decision,

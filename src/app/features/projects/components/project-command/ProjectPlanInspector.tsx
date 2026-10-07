@@ -383,10 +383,10 @@ export function ProjectPlanInspector({
                       }
                       className="eflow-control text-xs"
                     >
-                      <option value="planning">Planning</option>
-                      <option value="active">Active</option>
+                      <option value="planning">{project.publicationState === 'draft' ? 'Draft' : 'Planning'}</option>
+                      {project.publicationState !== 'draft' && <option value="active">Active</option>}
                       <option value="on_hold">On hold</option>
-                      <option value="completed">Completed</option>
+                      {project.publicationState !== 'draft' && <option value="completed">Completed</option>}
                     </select>
                   </Field>
                   <Field label="Priority">
