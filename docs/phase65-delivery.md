@@ -1,5 +1,7 @@
 # Phase 6.5 implementation receipt
 
+Current live deployment and acceptance status is recorded in the [7 October 2026 addendum](phase65-live-deployment-2026-10-07.md). The original implementation and rehearsal receipt below is preserved as historical evidence.
+
 Implemented locally on 6 October 2026 against baseline `a16d36e`, with a successful rollback-only hosted rehearsal. The additive identity ADR is [here](product-refinement/phase65-identity-adr.md); the Mobile A source contract is [here](phase65-mobile-contract.md). **No migration has been permanently applied to either Supabase project.** This receipt records implementation and verification, not a production release.
 
 ## Delivered behavior

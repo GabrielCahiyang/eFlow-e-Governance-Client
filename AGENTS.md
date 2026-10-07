@@ -1,5 +1,11 @@
 # eFlow contribution rules
 
+## Current hosted target
+
+- Hosted implementation, deployment, and acceptance target only `ixnfphgjyelhckjwjkdv` unless the user explicitly changes the target. The former rehearsal project is historical evidence, not the continuation destination.
+- Preserve deployed migration timestamps. Use an isolated migration workspace populated from live history before applying a reviewed pending migration; never push the historical repository folder or repair live history to match local filenames.
+- Follow the dated Phase 6.5 live deployment addendum for current deployment and acceptance status. Keep historical rehearsal receipts intact.
+
 ## Preserve behaviour
 
 - This repository is in a no-feature-loss modularisation program. Treat current screens, sidebar destinations, role visibility, permissions, Supabase calls, backend routes, and user workflows as compatibility contracts.

@@ -34,4 +34,15 @@ class Phase7Tests(unittest.TestCase):
   for org,status,owner in [('foreign','pending_assignment',None),('own','in_progress',None),('own','todo','member')]:
    fake=MagicMock();fake.table.return_value.select.return_value.eq.return_value.limit.return_value.execute.return_value.data=[{'id':TASK,'org_id':org,'status':status,'assigned_to':owner}]
    with patch.object(service,'require_head'),patch.object(service,'supabase_admin',fake),self.assertRaises(HTTPException):service.build_staffing_context(TASK,SimpleNamespace(id='head',org_id='own'))
+ def test_proposed_office_blocks_context_and_ai_before_candidate_lookup(self):
+  fake=MagicMock()
+  fake.table.return_value.select.return_value.eq.return_value.limit.return_value.execute.return_value.data=[{'id':TASK,'org_id':'own','status':'pending_assignment','assigned_to':None,'proposed_office_identity_id':'proposed-office'}]
+  user=SimpleNamespace(id='head',org_id='own')
+  request=routes.ChatRequest(model='test',messages=[{'role':'user','content':'staff'}],workspace_staffing={'taskId':TASK})
+  with patch.object(service,'require_head'),patch.object(service,'supabase_admin',fake):
+   for action in (lambda:service.build_staffing_context(TASK,user),lambda:routes.checked_chat_payload(request,user)):
+    with self.assertRaises(HTTPException) as error:action()
+    self.assertEqual(error.exception.status_code,409)
+  fake.rpc.assert_not_called()
+  self.assertEqual([call.args[0] for call in fake.table.call_args_list],['tasks','tasks'])
 if __name__=='__main__':unittest.main()

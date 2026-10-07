@@ -1,5 +1,7 @@
 # Local continuation: 2026-10-03
 
+**Current continuation update — 7 October 2026:** hosted implementation and acceptance target only `ixnfphgjyelhckjwjkdv`. Follow the [Phase 6.5 live deployment addendum](phase65-live-deployment-2026-10-07.md) for the current ledger, deployment and acceptance gates. The dated observations below describe earlier machines and rehearsal work; preserve them without treating the former rehearsal project as a current destination.
+
 This checkout resumes Phase 1 from commit `3c92e54`. The referenced ChatGPT conversation stopped during restore setup; [Phase 1 delivery](phase1-delivery.md) records the subsequently completed isolated restore and migration rehearsal. Do not restart that restore based on the older conversation.
 
 ## Current hosted state

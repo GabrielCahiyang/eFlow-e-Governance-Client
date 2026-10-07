@@ -1,0 +1,79 @@
+{
+  "project_ref": "ixnfphgjyelhckjwjkdv",
+  "production_preview": "http://127.0.0.1:5176",
+  "network_interception": false,
+  "traces": false,
+  "persisted_browser_state": false,
+  "passed_checks": 14,
+  "checks": [
+    {
+      "name": "UI unresolved owner disabled",
+      "passed": true
+    },
+    {
+      "name": "UI unresolved execution disabled",
+      "passed": true
+    },
+    {
+      "name": "live capability loaded and missing-installation warning cleared",
+      "passed": true
+    },
+    {
+      "name": "live named Office visible after reload",
+      "passed": true
+    },
+    {
+      "name": "real Head workspace reload",
+      "passed": true
+    },
+    {
+      "name": "live role shell collaborating_head",
+      "passed": true
+    },
+    {
+      "name": "live role shell admin",
+      "passed": true
+    },
+    {
+      "name": "live role shell member_task_lead",
+      "passed": true
+    },
+    {
+      "name": "UI proposed responsibility explains staffing execution evidence funding guard",
+      "passed": true
+    },
+    {
+      "name": "UI proposed Recommend staff unavailable",
+      "passed": true
+    },
+    {
+      "name": "UI proposed Start work unavailable",
+      "passed": true
+    },
+    {
+      "name": "UI proposed Submit for review unavailable",
+      "passed": true
+    },
+    {
+      "name": "UI proposed Request cash unavailable",
+      "passed": true
+    },
+    {
+      "name": "live Observer authenticated shell",
+      "passed": true
+    }
+  ],
+  "open_gates": [
+    "Cross-Office task/control probes were not consistently successful."
+  ],
+  "direct_authenticated_comparison": {
+    "collaborating_head": {
+      "project_tasks_visible": 6,
+      "project_groups_visible": 1
+    },
+    "observer": {
+      "project_tasks_visible": 6,
+      "project_groups_visible": 1
+    }
+  }
+}

@@ -22,10 +22,27 @@ test('Phase 4 shares filters and edits across Board, Gantt, Calendar, Dashboard 
   await openView(page, 'Board');
   await expect(page.locator('.pv-board-card')).toHaveCount(1);
   const card = page.getByLabel('Board card Coordinate Office briefing', { exact: true });
-  await card.dragTo(page.getByRole('region', { name: 'FOR REVIEW lane', exact: true }));
+  const moveCard = async (lane: string) => {
+    const target = page.getByRole('region', { name: lane, exact: true });
+    if (info.project.name === 'webkit' && process.platform === 'win32') {
+      // Windows Playwright WebKit's native drag transport discards custom MIME
+      // data. Exercise the same DOM handlers with an explicit transfer object;
+      // Chromium and Firefox still exercise the native pointer drag.
+      const transfer = await page.evaluateHandle(() => new DataTransfer());
+      await card.dispatchEvent('dragstart', { dataTransfer: transfer });
+      await target.dispatchEvent('dragover', { dataTransfer: transfer });
+      await target.dispatchEvent('drop', { dataTransfer: transfer });
+      await card.dispatchEvent('dragend', { dataTransfer: transfer });
+      await transfer.dispose();
+    } else {
+      const bounds = (await card.boundingBox())!;
+      await card.dragTo(target, { sourcePosition: { x: bounds.width - 4, y: bounds.height - 4 } });
+    }
+  };
+  await moveCard('FOR REVIEW lane');
   await expect(page.getByRole('alert')).toContainText('required evidence');
   expect(transitions).toEqual([]);
-  await card.dragTo(page.getByRole('region', { name: 'IN PROGRESS lane', exact: true }));
+  await moveCard('IN PROGRESS lane');
   await expect(page.getByRole('region', { name: 'IN PROGRESS lane', exact: true }).getByLabel('Board card Coordinate Office briefing', { exact: true })).toBeVisible();
   expect(transitions).toEqual(['in_progress']);
   await openView(page, 'Main table');

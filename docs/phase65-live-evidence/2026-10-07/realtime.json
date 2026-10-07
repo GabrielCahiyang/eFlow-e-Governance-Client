@@ -1,0 +1,9 @@
+{
+  "project_ref": "ixnfphgjyelhckjwjkdv",
+  "authenticated": true,
+  "persisted_session": false,
+  "subscription": "postgres_changes UPDATE public.project_office_identities",
+  "delivery_verified": true,
+  "workflow": "Supported save of unchanged identity name",
+  "tokens_logged": false
+}

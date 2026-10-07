@@ -1,0 +1,28 @@
+{
+  "project_ref": "ixnfphgjyelhckjwjkdv",
+  "original_authority_and_work": {
+    "profiles": {
+      "original_rows": 18,
+      "differences": 0,
+      "original_rows_present": 18
+    },
+    "organizations": {
+      "original_rows": 10,
+      "differences": 0,
+      "original_rows_present": 10
+    },
+    "tasks": {
+      "original_rows": 6,
+      "differences": 0,
+      "original_rows_present": 6
+    },
+    "projects": {
+      "original_rows": 4,
+      "differences": 0,
+      "original_rows_present": 4
+    }
+  },
+  "financial_tables_unchanged": 17,
+  "financial_differences": [],
+  "acceptance_fixtures_excluded_by_original_record_ids": true
+}

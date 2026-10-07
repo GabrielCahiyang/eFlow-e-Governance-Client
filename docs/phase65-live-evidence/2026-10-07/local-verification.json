@@ -1,0 +1,40 @@
+{
+  "client_typecheck": true,
+  "unit_files": 214,
+  "unit_tests": 840,
+  "production_build": true,
+  "client_secret_verification": true,
+  "phase1_disposable_sql_assertions": 37,
+  "phase65_disposable_sql_assertions": 84,
+  "phase_gateway_tests": 35,
+  "all_gateway_tests": 54,
+  "synthetic_production_browser_cases": 75,
+  "browsers": [
+    "Chromium",
+    "Firefox",
+    "Windows WebKit"
+  ],
+  "failures": 0,
+  "local_restore": {
+    "feasible": true,
+    "auth_users": 21,
+    "profiles": 18,
+    "provider_extension_implementation_exclusions": 28,
+    "full_backup_archive_unmodified": true
+  },
+  "restored_exact_migration": {
+    "target": "127.0.0.1:55465/phase65_restore",
+    "exact_migration_applied": true,
+    "ledger_version": "20261005170822",
+    "ledger_entries": 1,
+    "readiness_fingerprints_unchanged": 12,
+    "enabled_guards": 9,
+    "backfilled_identities": 4,
+    "private_evidence_schema_present": true,
+    "live_writes": false
+  },
+  "alignment_source_sha256": {
+    "server\\services\\staffing_context.py": "7601f8a00336ff4ef7b3f5f14541d63c28510a1520f14dabc7a030aac5909efe",
+    "server\\tests\\test_phase7.py": "5c6b48710114f7b6b0895b174d35cc8c7f1de12a3f44f32d2dc45748b0359984"
+  }
+}

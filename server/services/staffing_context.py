@@ -22,12 +22,14 @@ def compact_profile(profile):
 
 def build_staffing_context(task_id, user):
     require_head(user)
-    rows = supabase_admin.table('tasks').select('id,title,description,tags,org_id,linked_project_id,status,assigned_to,deleted_at,archived_at,estimated_hours').eq('id', task_id).limit(1).execute().data or []
+    rows = supabase_admin.table('tasks').select('id,title,description,tags,org_id,linked_project_id,status,assigned_to,deleted_at,archived_at,estimated_hours,proposed_office_identity_id').eq('id', task_id).limit(1).execute().data or []
     if not rows:
         raise HTTPException(404, 'Task not found.')
     task = rows[0]
     if task.get('org_id') != user.org_id or task.get('deleted_at') or task.get('archived_at') or task['status'] not in ('pending_assignment', 'todo') or task.get('assigned_to'):
         raise HTTPException(403, 'Recommend staff only for unassigned, unstarted work in your own Office.')
+    if task.get('proposed_office_identity_id'):
+        raise HTTPException(409, 'Resolve proposed Office responsibility before recommending staff.')
     if not supabase_admin.rpc('can_manage_task', {'target_task': task_id, 'caller_id': user.id}).execute().data:
         raise HTTPException(403, 'Your Office must join this project before recommending its staff.')
     project_id = task.get('linked_project_id')

@@ -1,0 +1,897 @@
+{
+  "project_ref": "ixnfphgjyelhckjwjkdv",
+  "started_at": "2026-10-07T03:37:52.146993+00:00",
+  "completed_at": "2026-10-07T03:53:30.304423+00:00",
+  "status": "partial: expiration and stable cross-Office browser gates open",
+  "unique_passed_checks": 142,
+  "checks": [
+    {
+      "name": "genuine login admin",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "genuine login lead_head",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "genuine login collaborating_head",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "genuine login member_task_lead",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "read projects",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "existing standalone planning project",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "read organizations",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Lead and collaborating Head appointments verified",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "phase65_save_office_identity",
+      "passed": true,
+      "detail": {
+        "http_status": 200
+      }
+    },
+    {
+      "name": "named Office remains unlinked",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "read project_office_identities",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "named Office survives reload",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "save denied admin",
+      "passed": true,
+      "detail": {
+        "http_status": 403
+      }
+    },
+    {
+      "name": "save denied collaborating_head",
+      "passed": true,
+      "detail": {
+        "http_status": 403
+      }
+    },
+    {
+      "name": "save denied member_task_lead",
+      "passed": true,
+      "detail": {
+        "http_status": 403
+      }
+    },
+    {
+      "name": "save denied None",
+      "passed": true,
+      "detail": {
+        "http_status": 401
+      }
+    },
+    {
+      "name": "authenticated direct identity insert denied",
+      "passed": true,
+      "detail": {
+        "http_status": 403
+      }
+    },
+    {
+      "name": "read project_groups",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "phase3_create_task",
+      "passed": true,
+      "detail": {
+        "http_status": 200
+      }
+    },
+    {
+      "name": "phase65_propose_task_office",
+      "passed": true,
+      "detail": {
+        "http_status": 204
+      }
+    },
+    {
+      "name": "direct execution blocked",
+      "passed": true,
+      "detail": {
+        "http_status": 403
+      }
+    },
+    {
+      "name": "direct staffing blocked",
+      "passed": true,
+      "detail": {
+        "http_status": 403
+      }
+    },
+    {
+      "name": "phase3_patch_task",
+      "passed": true,
+      "detail": {
+        "http_status": 200
+      }
+    },
+    {
+      "name": "phase7_project_readiness",
+      "passed": true,
+      "detail": {
+        "http_status": 200
+      }
+    },
+    {
+      "name": "unresolved readiness blocker appears",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "gateway staffing blocked",
+      "passed": true,
+      "detail": {
+        "http_status": 409
+      }
+    },
+    {
+      "name": "proposed direct task_submissions denied",
+      "passed": true,
+      "detail": {
+        "http_status": 403
+      }
+    },
+    {
+      "name": "proposed task_submissions database authorization rejection",
+      "passed": true,
+      "detail": {
+        "code": "42501"
+      }
+    },
+    {
+      "name": "proposed direct work_budget_allocations denied",
+      "passed": true,
+      "detail": {
+        "http_status": 403
+      }
+    },
+    {
+      "name": "proposed work_budget_allocations database authorization rejection",
+      "passed": true,
+      "detail": {
+        "code": "42501"
+      }
+    },
+    {
+      "name": "proposed direct petty_cash_requests denied",
+      "passed": true,
+      "detail": {
+        "http_status": 400
+      }
+    },
+    {
+      "name": "proposed direct petty_cash_requests corrected probe denied",
+      "passed": true,
+      "detail": {
+        "http_status": 403
+      }
+    },
+    {
+      "name": "proposed petty_cash_requests database authorization rejection",
+      "passed": true,
+      "detail": {
+        "code": "42501"
+      }
+    },
+    {
+      "name": "cross-project proposed responsibility denied",
+      "passed": true,
+      "detail": {
+        "http_status": 400
+      }
+    },
+    {
+      "name": "supported Admin creates required Member fixture",
+      "passed": true,
+      "detail": {
+        "http_status": 200
+      }
+    },
+    {
+      "name": "Member fixture genuine login",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Member cannot save identity",
+      "passed": true,
+      "detail": {
+        "http_status": 403
+      }
+    },
+    {
+      "name": "invitation persists separately from delivery failure",
+      "passed": true,
+      "detail": {
+        "http_status": 200
+      }
+    },
+    {
+      "name": "pending invitation prevents directory link",
+      "passed": true,
+      "detail": {
+        "http_status": 400
+      }
+    },
+    {
+      "name": "resend cooldown enforced",
+      "passed": true,
+      "detail": {
+        "http_status": 409
+      }
+    },
+    {
+      "name": "supported resend rotates invitation",
+      "passed": true,
+      "detail": {
+        "http_status": 200
+      }
+    },
+    {
+      "name": "wrong-email acceptance denied",
+      "passed": true,
+      "detail": {
+        "http_status": 403
+      }
+    },
+    {
+      "name": "verified Member acceptance",
+      "passed": true,
+      "detail": {
+        "http_status": 200
+      }
+    },
+    {
+      "name": "accepted invitation retry is idempotent",
+      "passed": true,
+      "detail": {
+        "http_status": 200
+      }
+    },
+    {
+      "name": "incompatible contact affiliation denied",
+      "passed": true,
+      "detail": {
+        "http_status": 403
+      }
+    },
+    {
+      "name": "phase65_link_office_identity",
+      "passed": true,
+      "detail": {
+        "http_status": 204
+      }
+    },
+    {
+      "name": "read project_offices",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "ordinary contact requires collaborating Head confirmation",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "handover blocked before Head confirmation",
+      "passed": true,
+      "detail": {
+        "http_status": 400
+      }
+    },
+    {
+      "name": "Member cannot confirm Office participation",
+      "passed": true,
+      "detail": {
+        "http_status": 403
+      }
+    },
+    {
+      "name": "phase6_confirm_office",
+      "passed": true,
+      "detail": {
+        "http_status": 204
+      }
+    },
+    {
+      "name": "phase6_set_members",
+      "passed": true,
+      "detail": {
+        "http_status": 204
+      }
+    },
+    {
+      "name": "Lead cannot staff another Office",
+      "passed": true,
+      "detail": {
+        "http_status": 403
+      }
+    },
+    {
+      "name": "canonical identity linking is immutable",
+      "passed": true,
+      "detail": {
+        "http_status": 400
+      }
+    },
+    {
+      "name": "phase65_resolve_task_office",
+      "passed": true,
+      "detail": {
+        "http_status": 204
+      }
+    },
+    {
+      "name": "read tasks",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "handover clears proposal without assigning personnel",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "resolved readiness blocker disappears",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "supported Admin deactivation of test-only identity",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "inactive identity gateway denial",
+      "passed": true,
+      "detail": {
+        "http_status": 403
+      }
+    },
+    {
+      "name": "inactive identity direct authenticated denial",
+      "passed": true,
+      "detail": {
+        "http_status": 403
+      }
+    },
+    {
+      "name": "anonymous REST table denied",
+      "passed": true,
+      "detail": {
+        "http_status": 401
+      }
+    },
+    {
+      "name": "anonymous gateway denied",
+      "passed": true,
+      "detail": {
+        "http_status": 401
+      }
+    },
+    {
+      "name": "canonical Office team gateway compatible",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "canonical project invitation listing compatible",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "phase7_closeout_summary",
+      "passed": true,
+      "detail": {
+        "http_status": 200
+      }
+    },
+    {
+      "name": "get_project_completion_readiness",
+      "passed": true,
+      "detail": {
+        "http_status": 200
+      }
+    },
+    {
+      "name": "Admin operational authority remains absent",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "phase65_import_project_work",
+      "passed": true,
+      "detail": {
+        "http_status": 200
+      }
+    },
+    {
+      "name": "canonical import retry does not duplicate work",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "read subtasks",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "proposed staffing /ai/jobs blocked before AI call",
+      "passed": true,
+      "detail": {
+        "http_status": 409
+      }
+    },
+    {
+      "name": "proposed staffing /ai/chat blocked before AI call",
+      "passed": true,
+      "detail": {
+        "http_status": 409
+      }
+    },
+    {
+      "name": "proposed direct subtasks denied",
+      "passed": true,
+      "detail": {
+        "http_status": 403
+      }
+    },
+    {
+      "name": "proposed subtasks authorization guard",
+      "passed": true,
+      "detail": {
+        "code": "42501"
+      }
+    },
+    {
+      "name": "proposed direct subtask_progress_updates denied",
+      "passed": true,
+      "detail": {
+        "http_status": 403
+      }
+    },
+    {
+      "name": "proposed subtask_progress_updates authorization guard",
+      "passed": true,
+      "detail": {
+        "code": "42501"
+      }
+    },
+    {
+      "name": "proposed direct subtask_submissions denied",
+      "passed": true,
+      "detail": {
+        "http_status": 403
+      }
+    },
+    {
+      "name": "proposed subtask_submissions authorization guard",
+      "passed": true,
+      "detail": {
+        "code": "42501"
+      }
+    },
+    {
+      "name": "supported Admin creates required Observer fixture",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Observer genuine login",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "observer invitation persists with restricted delivery",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "revocation invitation persists with restricted delivery",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "observer supported resend",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "revocation supported resend",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "current Observer token validates",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "supported revocation preserves invitation history",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "revoked invitation acceptance denied",
+      "passed": true,
+      "detail": {
+        "http_status": 400
+      }
+    },
+    {
+      "name": "revoked invitation resend denied",
+      "passed": true,
+      "detail": {
+        "http_status": 409
+      }
+    },
+    {
+      "name": "second Observer resend rotates token",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "old rotated token validation denied",
+      "passed": true,
+      "detail": {
+        "http_status": 400
+      }
+    },
+    {
+      "name": "Observer verified acceptance",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Observer canonical participation joined read-only",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Observer can read project",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Observer identity edits denied",
+      "passed": true,
+      "detail": {
+        "http_status": 403
+      }
+    },
+    {
+      "name": "Observer work creation denied",
+      "passed": true,
+      "detail": {
+        "http_status": 403
+      }
+    },
+    {
+      "name": "Observer cannot receive proposed execution responsibility",
+      "passed": true,
+      "detail": {
+        "http_status": 400
+      }
+    },
+    {
+      "name": "Observer can_manage_task remains false",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Observer can_contribute_task remains false",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Observer staffing gateway denied",
+      "passed": true,
+      "detail": {
+        "http_status": 403
+      }
+    },
+    {
+      "name": "Observer participation cannot receive execution staffing",
+      "passed": true,
+      "detail": {
+        "http_status": 403
+      }
+    },
+    {
+      "name": "read user_invitations",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "revocation row retained",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "accounting separation lead_head",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "accounting separation member_task_lead",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "accounting separation admin",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "test-only Member reactivated for contextual authority",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "only responsible Head assigns QA Task Lead",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "contextual Task Lead can_contribute_task",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "contextual Task Lead can_manage_subtasks",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "contextual Task Lead can_manage_task",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "contextual Task Lead creates planning subitem",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "assign_task",
+      "passed": true,
+      "detail": {
+        "http_status": 200
+      }
+    },
+    {
+      "name": "test-only Member returned to inactive fixture",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "QA workflow created no financial requests",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "all QA proposed responsibility markers resolved",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "test-only Member activated for evidence lifecycle",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "create_project_with_details",
+      "passed": true,
+      "detail": {
+        "http_status": 200
+      }
+    },
+    {
+      "name": "phase7_review_project",
+      "passed": true,
+      "detail": {
+        "http_status": 204
+      }
+    },
+    {
+      "name": "controlled lifecycle readiness permits activation",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "phase7_activate_project",
+      "passed": true,
+      "detail": {
+        "http_status": 204
+      }
+    },
+    {
+      "name": "unfinished QA work blocks closeout",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "transition_task_status",
+      "passed": true,
+      "detail": {
+        "http_status": 200
+      }
+    },
+    {
+      "name": "genuine Member uploads private completion evidence",
+      "passed": true,
+      "detail": {
+        "http_status": 200
+      }
+    },
+    {
+      "name": "submit_task_for_review",
+      "passed": true,
+      "detail": {
+        "http_status": 200
+      }
+    },
+    {
+      "name": "Member cannot approve own completion evidence",
+      "passed": true,
+      "detail": {
+        "http_status": 403
+      }
+    },
+    {
+      "name": "Admin cannot operationally approve evidence",
+      "passed": true,
+      "detail": {
+        "http_status": 403
+      }
+    },
+    {
+      "name": "responsible Head can obtain private evidence access",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "private signed evidence bytes verified",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "foreign Observer cannot access private completion evidence",
+      "passed": true,
+      "detail": {
+        "http_status": 400
+      }
+    },
+    {
+      "name": "decide_task_review",
+      "passed": true,
+      "detail": {
+        "http_status": 200
+      }
+    },
+    {
+      "name": "read task_submissions",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "canonical approved submission retained",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "approved evidence object replacement denied",
+      "passed": true,
+      "detail": {
+        "http_status": 400
+      }
+    },
+    {
+      "name": "approved submission history unchanged after RLS-filtered PATCH",
+      "passed": true,
+      "detail": {
+        "http_status": 204,
+        "behavior": "RLS excludes immutable history from UPDATE; zero rows changed"
+      }
+    },
+    {
+      "name": "approved evidence enables controlled closeout",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "closeout counts approved evidence and completed work",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "complete_project",
+      "passed": true,
+      "detail": {
+        "http_status": 204
+      }
+    },
+    {
+      "name": "archive_completed_project",
+      "passed": true,
+      "detail": {
+        "http_status": 204
+      }
+    },
+    {
+      "name": "QA lifecycle project archived through supported workflow",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Member retained as inactive fixture after lifecycle",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "final QA responsibility markers resolved",
+      "passed": true,
+      "detail": null
+    }
+  ],
+  "open_gates": [
+    "An actual expired invitation token was unavailable. The supported gateway minimum TTL is one hour; no invitation timestamps were altered.",
+    "Stable cross-Office browser task/control acceptance is incomplete; direct authenticated task and group visibility passed."
+  ],
+  "limitations": [
+    "Successful financial allocation, release and settlement were not performed; accounting separation, zero financial side effects and proposed funding denials were verified.",
+    "Native Safari pointer drag was not verified on Windows.",
+    "Public frontend and gateway hosting are a separate release."
+  ],
+  "investigations": [
+    {
+      "name": "gateway proposed staffing context",
+      "initial_http_status": 200,
+      "resolution": "Added proposed responsibility guard and regression coverage for context and AI."
+    }
+  ],
+  "excluded_g2_observations": [
+    {
+      "operation": "Lead Head re-proposes work already handed to another Office",
+      "http_status": 403,
+      "resolution": "Existing Office scope denial retained; no permission change."
+    }
+  ]
+}

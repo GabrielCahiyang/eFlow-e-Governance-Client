@@ -29,7 +29,7 @@ test('Head confirms readiness; desktop and mobile retain readable checks and clo
  await expect(panel.getByRole('status').filter({hasText:'Project activated.'})).toContainText('activated');
  await page.setViewportSize({width:390,height:844});await expect(panel).toBeVisible();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
- const checks=await panel.locator('.p7-check').evaluateAll(rows=>rows.map(row=>({width:row.getBoundingClientRect().width,height:row.getBoundingClientRect().height})));expect(checks.every(c=>c.width>=280&&c.height>=100)).toBe(true);
+ await expect.poll(async()=>panel.locator('.p7-check').evaluateAll(rows=>rows.every(row=>{const bounds=row.getBoundingClientRect();return bounds.width>=280&&bounds.height>=100;}))).toBe(true);
  await panel.scrollIntoViewIfNeeded();await page.screenshot({path:info.outputPath('readiness-mobile.png')});expect(errors).toEqual([]);
 });
 test('Staffing is advisory until Head confirmation; roomy dialog supports keyboard selection and mobile footer',async({page},info)=>{

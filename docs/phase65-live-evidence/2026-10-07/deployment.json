@@ -1,0 +1,74 @@
+{
+  "project_ref": "ixnfphgjyelhckjwjkdv",
+  "verified_at": "2026-10-07T03:37:40.161126+00:00",
+  "source_commit": "516bae28b185cfe08d8c962b0bb677f9768660d5",
+  "migration_sha256": "8df2fc34cdce7ca2658c6313e49a9b824e13d1999e35df5c919f5b73f5a1e440",
+  "ledger": [
+    {
+      "version": "20261003000004",
+      "name": "simplified_roles_and_office_authority"
+    },
+    {
+      "version": "20261004123126",
+      "name": "phase2_invitation_onboarding_pds"
+    },
+    {
+      "version": "20261004132527",
+      "name": "phase2_invitation_dispatch_limits"
+    },
+    {
+      "version": "20261004133412",
+      "name": "phase2_existing_identity_acceptance"
+    },
+    {
+      "version": "20261004140128",
+      "name": "phase3_project_table_workspace"
+    },
+    {
+      "version": "20261004164937",
+      "name": "phase5_workspace_ai_import"
+    },
+    {
+      "version": "20261004181549",
+      "name": "phase6_project_office_collaboration"
+    },
+    {
+      "version": "20261004182806",
+      "name": "phase6_shared_structure_guards"
+    },
+    {
+      "version": "20261004194130",
+      "name": "phase7_readiness_governance"
+    },
+    {
+      "version": "20261005170822",
+      "name": "phase65_project_local_office_identity"
+    }
+  ],
+  "prerequisites_compatible": true,
+  "prerequisite_object_differences": [],
+  "existing_tables_equal": 89,
+  "canonical_differences": [],
+  "readiness_fingerprints_unchanged": 12,
+  "backfill": {
+    "identities": 4,
+    "matching": 4
+  },
+  "enabled_execution_guards": 9,
+  "authenticated_table_grants": [
+    "SELECT"
+  ],
+  "rls": true,
+  "select_policy_count": 1,
+  "realtime_publication": 1,
+  "private_schema_usage": {
+    "anon": false,
+    "authenticated": false,
+    "service_role": true
+  },
+  "private_compatibility_copies_equal": 7,
+  "public_rpc_count": 6,
+  "anonymous_rpc_execution": false,
+  "authenticated_rpc_count": 5,
+  "service_role_rpc_count": 6
+}

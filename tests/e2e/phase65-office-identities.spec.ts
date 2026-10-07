@@ -71,7 +71,9 @@ test('named Office survives reload and separates invitation persistence from fai
   await page.setViewportSize({ width: 320, height: 740 });
   await expect.poll(async () => (await contact.boundingBox())!.width).toBeLessThanOrEqual(320);
   const bounds = (await contact.boundingBox())!;
-  expect(bounds.width).toBeLessThanOrEqual(320); expect(bounds.y).toBeGreaterThanOrEqual(0);
+  // Firefox can report a fraction of a CSS pixel above zero after viewport
+  // reflow. Keep the viewport bound without treating raster rounding as overflow.
+  expect(bounds.width).toBeLessThanOrEqual(320); expect(bounds.y).toBeGreaterThanOrEqual(-0.5);
   const button = contact.getByRole('button', { name: 'Save & invite contact', exact: true });
   await button.scrollIntoViewIfNeeded();
   await expect(button).toBeVisible();
