@@ -5,6 +5,10 @@ import type { TeamAttentionItem, TeamWorkflowFacts } from "../../team-management
 import type { DepartmentReportRow } from "../types";
 import { displayStatus, employeeName, taskDue, taskProject } from "./reportRowHelpers";
 
+function subtaskPath(subtask: TeamWorkflowFacts['subtasks'][number], all: Map<string,TeamWorkflowFacts['subtasks'][number]>):string {
+ const parts=[subtask.title],seen=new Set([subtask.id]);let parent=subtask.parentSubtaskId;
+ while(parent&&!seen.has(parent)){seen.add(parent);const item=all.get(parent);if(!item){parts.unshift('Unavailable ancestor');break;}parts.unshift(item.title);parent=item.parentSubtaskId;}return parts.join(' / ');
+}
 type WorkflowContext = {
   tasks: Task[];
   projects: Project[];
@@ -25,7 +29,7 @@ export function buildReviewRows(context: WorkflowContext): DepartmentReportRow[]
     return {
       id: `review:${submission.id}`,
       kind: "reviews",
-      title: subtask?.title || task?.title || "Unknown work item",
+      title: (subtask?subtaskPath(subtask,subtaskById):undefined) || task?.title || "Unknown work item",
       parent: subtask ? task?.title || "Unknown task" : "Task submission",
       project: linked.title,
       projectId: linked.id,
@@ -57,7 +61,7 @@ export function buildEvidenceRows(context: WorkflowContext): DepartmentReportRow
       id: `evidence:${evidence.id}`,
       kind: "evidence",
       title: evidence.fileName,
-      parent: subtask?.title || task?.title || "Unknown work item",
+      parent: (subtask?subtaskPath(subtask,subtaskById):undefined) || task?.title || "Unknown work item",
       project: linked.title,
       projectId: linked.id,
       person: submission?.submitterName || "Uploader",

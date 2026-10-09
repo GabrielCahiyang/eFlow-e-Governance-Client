@@ -1,8 +1,11 @@
+import {readAllRows} from '../../../shared/readAllRows';
 import { supabase } from '../../../../lib/supabase';
 import { rowToProject } from './projectMappers';
 import type { Project } from './types';
+import { registerAuthCacheReset } from '../../../shared/authCacheReset';
 
 const projectListeners = new Set<(projects: Project[]) => void>();
+const projectErrorListeners=new Set<(error:Error)=>void>();
 // Keep the latest project snapshot in memory so navigating away from and back
 // to Plans & Projects does not blank the workspace while the same query runs
 // again. Realtime events still invalidate and refresh this snapshot.
@@ -11,6 +14,14 @@ let projectCache: Project[] | null = null;
 let projectCacheUpdatedAt = 0;
 let projectLoadPromise: Promise<Project[]> | null = null;
 let projectRealtimeChannel: ReturnType<typeof supabase.channel> | null = null;
+let cacheGeneration = 0;
+registerAuthCacheReset(() => {
+  ++cacheGeneration;
+  projectCache = null; projectCacheUpdatedAt = 0; projectLoadPromise = null;
+  projectListeners.forEach(callback => callback([]));
+  if (projectRealtimeChannel) void supabase.removeChannel(projectRealtimeChannel);
+  projectRealtimeChannel = null;
+});
 
 function broadcastProjects(projects: Project[]) {
   projectCache = projects;
@@ -20,36 +31,32 @@ function broadcastProjects(projects: Project[]) {
   });
 }
 
-export async function fetchAllProjects(): Promise<Project[]> {
-  const { data, error } = await supabase
-    .from('projects')
-    .select('*')
-    .order('created_at', { ascending: false });
-  if (error) {
-    // Table may not exist yet (migration not applied) — degrade gracefully.
-    if (error.code === '42P01') return [];
-    console.error('Failed to fetch projects:', error);
-    return [];
-  }
-  return (data || []).map(rowToProject);
+async function fetchCompleteProjects():Promise<Project[]>{
+ const data=await readAllRows<Record<string,unknown>>((from,to)=>supabase.from('projects').select('*',{count:'exact'}).order('created_at',{ascending:false}).order('id',{ascending:true}).range(from,to));return data.map(rowToProject);
+}
+export async function fetchAllProjects():Promise<Project[]>{
+ try{return await fetchCompleteProjects();}catch(error){console.error('Failed to fetch projects:',error);return [];}
 }
 
 export async function notifyProjectListeners() {
   if (projectLoadPromise) return projectLoadPromise;
-  projectLoadPromise = fetchAllProjects()
+  const generation = cacheGeneration;
+  projectLoadPromise = fetchCompleteProjects()
     .then((projects) => {
-      broadcastProjects(projects);
+      if (generation === cacheGeneration) broadcastProjects(projects);
       return projects;
     })
     .catch((error) => {
       console.error('Failed to refresh projects:', error);
+      if(generation===cacheGeneration)projectErrorListeners.forEach(callback=>callback(error instanceof Error?error:new Error('Project facts unavailable.')));
       return projectCache || [];
     })
-    .finally(() => { projectLoadPromise = null; });
+    .finally(() => { if (generation === cacheGeneration) projectLoadPromise = null; });
   return projectLoadPromise;
 }
 
-export function subscribeToProjects(callback: (projects: Project[]) => void): () => void {
+export function subscribeToProjects(callback: (projects: Project[]) => void,onError?:(error:Error)=>void): () => void {
+  if(onError)projectErrorListeners.add(onError);
   projectListeners.add(callback);
 
   if (projectCache) callback(projectCache);
@@ -71,6 +78,7 @@ export function subscribeToProjects(callback: (projects: Project[]) => void): ()
 
   return () => {
     projectListeners.delete(callback);
+    if(onError)projectErrorListeners.delete(onError);
     if (projectListeners.size === 0 && projectRealtimeChannel) {
       void supabase.removeChannel(projectRealtimeChannel);
       projectRealtimeChannel = null;

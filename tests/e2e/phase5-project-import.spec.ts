@@ -52,7 +52,7 @@ test('Phase 5 shows a spacious editable hierarchy and imports only after confirm
   await expect(review.getByRole('alert')).toContainText('Confirm'); expect(imports).toHaveLength(0);
   await review.getByLabel('Task name t1').fill('Prepare outreach evidence');
   await review.getByLabel('Description t1', { exact: true }).fill('Prepare the full evidence package for review.');
-  await review.getByLabel('Hours t1', { exact: true }).fill('16');
+  await review.getByLabel('Estimated hours t1', { exact: true }).fill('16');
   await review.getByLabel('Include Prepare outreach step 8').uncheck();
   await review.locator('.pi-responsibilities').getByRole('checkbox').check();
   await review.locator('.pi-details-button').first().click();

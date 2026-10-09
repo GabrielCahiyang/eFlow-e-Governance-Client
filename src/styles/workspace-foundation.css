@@ -1,4 +1,4 @@
-.eflow-workspace { min-width: 0; min-height: 100%; background: var(--workspace-surface); color: var(--workspace-text); border-radius: var(--workspace-radius); font-family: var(--eflow-font); }
+.eflow-workspace { min-width: 0; min-height: 0; background: var(--workspace-surface); color: var(--workspace-text); border-radius: var(--workspace-radius); font-family: var(--eflow-font); }
 .eflow-app-shell, .eflow-app-shell__workspace { background: var(--workspace-bg); }
 .eflow-workspace-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; padding: 20px 24px; border-bottom: 1px solid var(--workspace-border); }
 .eflow-workspace-header h1 { font-size: 22px; font-weight: 600; margin: 0; }
@@ -17,15 +17,22 @@
 .eflow-split-action-menu:disabled { opacity: .5; cursor: not-allowed; }
 .eflow-inline-text { border: 1px solid transparent; border-radius: 5px; padding: 3px 6px; text-align: left; font: inherit; }
 .eflow-inline-editor input { font: inherit; padding: 3px 6px; border: 1px solid var(--workspace-primary); border-radius: 5px; background: var(--workspace-surface); color: var(--workspace-text); max-width: 100%; }
-.eflow-inline-editor [role=alert] { display: block; font-size: 12px; color: #b42318; }
+.eflow-inline-editor [role=alert] { display: block; font-size: 12px; color: var(--eflow-negative-text); }
 .eflow-status-pill { display: inline-flex; align-items: center; min-height: 24px; padding: 2px 10px; border-radius: 5px; font-size: 12px; background: var(--workspace-hover); color: var(--workspace-text); }
 .eflow-status-pill--positive { background: var(--eflow-positive-bg); color: var(--eflow-positive-text); }
 .eflow-status-pill--warning { background: var(--eflow-warning-bg); color: var(--eflow-warning-text); }
 .eflow-status-pill--negative { background: var(--eflow-negative-bg); color: var(--eflow-negative-text); }
-.eflow-avatar-stack { display: inline-flex; }
-.eflow-avatar-stack > span { display: grid; place-items: center; height: 30px; width: 30px; border: 2px solid var(--workspace-surface); border-radius: 50%; background: var(--workspace-hover); color: var(--workspace-text); font-size: 10px; margin-left: -6px; overflow: hidden; }
-.eflow-avatar-stack > span:first-child { margin-left: 0; }
+.eflow-status-pill--info { background: var(--eflow-info-bg); color: var(--eflow-info-text); }
+.eflow-status-pill { max-width: 100%; white-space: normal; overflow-wrap: anywhere; line-height: 1.5; }
+.eflow-avatar-stack { display: inline-flex; align-items: center; gap: 2px; }
+.eflow-avatar { display: grid; place-items: center; height: 32px; width: 32px; border: 2px solid var(--workspace-surface); border-radius: 50%; background: var(--workspace-hover); color: var(--workspace-text); font-size: 12px; overflow: hidden; }
 .eflow-avatar-stack img { width: 100%; height: 100%; object-fit: cover; }
+.eflow-people { display: flex; flex-wrap: wrap; align-items: center; gap: var(--eflow-space-2); min-width: 0; }
+.eflow-people__list-trigger { min-height: var(--eflow-control-height); padding: 4px 8px; border: 1px solid var(--eflow-border); border-radius: var(--eflow-radius-control); color: var(--eflow-text-secondary); }
+.eflow-people__list { max-height: 50dvh; overflow-y: auto; overflow-wrap: anywhere; }
+.eflow-people__list li { padding-block: 4px; }
+.eflow-workspace-tooltip { max-width: min(320px, calc(100vw - 24px)); overflow-wrap: anywhere; }
+.eflow-avatar-empty { color: var(--eflow-text-muted); font-size: var(--eflow-text-xs); }
 .eflow-workspace-skeleton { padding: 24px; }
 .eflow-skeleton-title, .eflow-skeleton-row { background: var(--workspace-hover); border-radius: 5px; animation: workspace-pulse 1.5s ease-in-out infinite; }
 .eflow-skeleton-title { width: 35%; height: 24px; margin-bottom: 20px; }
@@ -40,6 +47,23 @@
 
 /* Compatibility for remaining inspector metadata and library status labels. */
 .eflow-inspector .text-neutral-400, .eflow-inspector .text-neutral-500 { color: var(--eflow-text-muted); }
-.eflow-inspector .text-amber-600 { color: #92400e; }
-.eflow-project-label--light, .eflow-project-label--light * { color: #172b29; }
+.eflow-inspector .text-amber-600 { color: var(--eflow-warning-text); }
 .pv-filter-count { color: var(--eflow-text-muted); }
+
+/* Vibe Label's supported className adapter covers both text layers. */
+.eflow-project-status-label { display: inline-flex; min-width: 0; max-width: 100%; }
+.eflow-project-label { background: var(--eflow-secondary) !important; color: var(--eflow-text-secondary) !important; white-space: normal; }
+.eflow-project-label * { color: inherit !important; }
+.eflow-project-label--info { background: var(--eflow-info-bg) !important; color: var(--eflow-info-text) !important; }
+.eflow-project-label--positive { background: var(--eflow-positive-bg) !important; color: var(--eflow-positive-text) !important; }
+.eflow-project-label--warning { background: var(--eflow-warning-bg) !important; color: var(--eflow-warning-text) !important; }
+.eflow-project-label--negative { background: var(--eflow-negative-bg) !important; color: var(--eflow-negative-text) !important; }
+
+.eflow-role-content { flex: 1 0 auto; min-width: 0; min-height: 0; background: var(--eflow-surface); }
+.eflow-role-content__surface { border-radius: 0; }
+.eflow-role-content__surface--padded { padding: var(--eflow-content-padding); }
+.eflow-page-content { min-width: 0; padding: var(--eflow-content-padding); background: var(--eflow-surface); color: var(--eflow-text); }
+.eflow-role-content__surface--padded > .eflow-page-content { padding: 0; }
+.eflow-workspace-actions { flex-wrap: wrap; min-width: 0; }
+.eflow-workspace-header > * { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
+@media (max-width: 767px) { .eflow-people__list-trigger { min-height: var(--eflow-touch-target); } }

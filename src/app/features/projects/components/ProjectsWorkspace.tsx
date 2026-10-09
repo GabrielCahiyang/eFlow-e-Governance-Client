@@ -1,11 +1,11 @@
 import * as React from "react";
-import { createPortal } from 'react-dom';
 import { useWorkspaceNavigationHost } from '../../../shared/WorkspaceNavigationContext';
 import { requestNavigation } from '../../../shared/navigationGuard';
 import { writeNavigationLocation } from '../../navigation';
 import { replaceNavigationHistory } from '../../../shared/navigationHistory';
 import { FeedbackState } from '../../../components/ui/FeedbackState';
 import { useProjectLocation } from '../hooks/useProjectLocation';
+import { readProjectPlanningView, useProjectPlanningLocation } from '../hooks/useProjectPlanningLocation';
 import { CitywidePlansOverview } from "./CitywidePlansOverview";
 import * as Icons from "lucide-react";
 import { Skeleton } from "@vibe/core";
@@ -15,8 +15,6 @@ import { useDeptDirectoryEmployees } from "../../members";
 import { isTaskLead } from "../../tasks";
 import { ProjectTemplatesModal } from "../../work-templates";
 import { useNotificationNavigationIntent } from "../../notifications";
-import { fetchProjectMembers } from "../services/projectMemberService";
-import type { ProjectMember } from "../services/types";
 import {
   useProjectsData,
   useOrgs,
@@ -28,6 +26,7 @@ import { useToast } from "../../../components/ui/Toast";
 import { ProjectArchiveDialog } from "./ProjectArchiveDialog";
 import { ProjectCompleteDialog } from "./ProjectCompleteDialog";
 import { ProjectContextSidebar } from "./ProjectContextSidebar";
+import { ProjectWorkspaceActions } from './ProjectWorkspaceActions';
 import { TaskDetailDrawer } from "../../task-inspector";
 import { ProjectDeleteDialog } from "./ProjectDeleteDialog";
 import { ProjectDetail } from "./ProjectDetail";
@@ -40,7 +39,6 @@ import {
   resolveProjectWorkspaceAccess,
   type ProjectScope,
 } from "./model";
-import { buildProjectPortfolioSummary } from "../selectors/projectCommandSelectors";
 import {
   CollaborationDraftList,
   CollaborationDraftWorkspace,
@@ -55,6 +53,7 @@ import {
 import { notifyProjectListeners } from "../services/projectService";
 import "./projectsVibe.css";
 import { CreateProjectDialog } from '../../project-table';
+import { useWorkspaceScope } from '../../workspaces';
 
 export interface WorkspaceEditorTab {
   id: string;
@@ -92,7 +91,12 @@ export function ProjectsWorkspace({
   proposalGrouping?: boolean;
   readOnly?: boolean;
 }) {
-  const { projects: dbProjects, loading: projectsLoading } = useProjectsData();
+  const { projects: availableProjects, loading: projectsLoading } = useProjectsData();
+  const workspaceScope = useWorkspaceScope();
+  const createdNavigationRef = React.useRef<string | undefined>(undefined);
+  const dbProjects = React.useMemo(() => workspaceScope
+    ? availableProjects.filter(project=>workspaceScope.officeProjectIds.includes(project.id))
+    : availableProjects, [availableProjects,workspaceScope]);
   const { tasks, loading: tasksLoading } = useTasks();
   const { orgs } = useOrgs();
   const { profiles } = useProfiles();
@@ -120,7 +124,6 @@ export function ProjectsWorkspace({
   const [projectWorkspaceTab, setProjectWorkspaceTab] = React.useState<ProjectCommandTab>("tasks");
   const [quickProjectOpen, setQuickProjectOpen] = React.useState(false);
   const [requestedProjectTool, setRequestedProjectTool] = React.useState<{ projectId: string; tool: ProjectTool } | null>(null);
-  const [contextProjectMembers, setContextProjectMembers] = React.useState<ProjectMember[]>([]);
   const [deleteTarget, setDeleteTarget] = React.useState<{ id: string; title: string } | null>(null);
   const [archiveTarget, setArchiveTarget] = React.useState<{ id: string; title: string; isArchived: boolean } | null>(null);
   const [completeTarget, setCompleteTarget] = React.useState<{ id: string; title: string } | null>(null);
@@ -130,10 +133,16 @@ export function ProjectsWorkspace({
 
   const [workspaceView, setWorkspaceView] = React.useState<
     "portfolio" | "drafts" | "signoff"
-  >("portfolio");
+  >(readProjectPlanningView);
+  const restorePlanningView = React.useCallback((view: 'portfolio' | 'drafts' | 'signoff') => {
+    setWorkspaceView(view);
+    if (view !== 'portfolio') setActiveTabId('portfolio');
+  }, []);
+  const openPlanning = useProjectPlanningLocation(restorePlanningView);
   const [creationMode, setCreationMode] = React.useState<WorkPlanCreationMode | null>(null);
   const [templatesOpen, setTemplatesOpen] = React.useState(false);
-  const access = resolveProjectWorkspaceAccess(readOnly, can);
+  const baseAccess = resolveProjectWorkspaceAccess(readOnly, can);
+  const access = { ...baseAccess, canCreate: baseAccess.canCreate && (!workspaceScope || workspaceScope.workspace.office_id === (userProfile?.org_id || userProfile?.departmentId)) };
   const collaboration = useCollaborationDrafts();
   const activeCollaborationDrafts = React.useMemo(
     () => collaboration.drafts.filter(isActiveCollaborationDraft),
@@ -194,14 +203,6 @@ export function ProjectsWorkspace({
     [inScope],
   );
 
-  const summaries = React.useMemo(() => {
-    const map = new Map();
-    for (const project of inScope) {
-      map.set(project.id, buildProjectPortfolioSummary(project, tasks));
-    }
-    return map;
-  }, [inScope, tasks]);
-
   // Tab management handlers
   const openProject = React.useCallback(
     (projectId: string, historyMode: 'push' | 'replace' | false = 'replace') => {
@@ -239,6 +240,10 @@ export function ProjectsWorkspace({
         return [...current, { id: tabId, type: "proposal", draftId, title, initialCollaborationTab }];
       });
       setActiveTabId(tabId);
+      setWorkspaceView('portfolio');
+      const url = new URL(window.location.href);
+      url.searchParams.delete('project'); url.searchParams.delete('view'); url.searchParams.delete('plans');
+      replaceNavigationHistory(`${url.pathname}${url.search}${url.hash}`);
     },
     [collaboration.drafts],
   );
@@ -300,15 +305,6 @@ export function ProjectsWorkspace({
       !task.archivedAt &&
       !["for_review", "completed", "cancelled"].includes(task.status),
   );
-  const planningCounts = React.useMemo(() => {
-    const owned = visibleCollaborationDrafts.filter((draft) => readOnly || draft.ownerOrgId === currentOrgId);
-    return {
-      workplans: owned.length,
-      signoff: owned.filter((draft) => draft.status === "in_review").length,
-      actionable: readOnly ? 0 : owned.filter((draft) => draft.status === "ready_to_commit" || draft.status === "changes_requested").length,
-    };
-  }, [currentOrgId, readOnly, visibleCollaborationDrafts]);
-
   const changeDepartmentFilter = React.useCallback((nextDepartmentId: string) => {
     setDepartmentFilter(nextDepartmentId);
     setTabs((current) => current.filter((tab) => tab.pinned));
@@ -322,14 +318,16 @@ export function ProjectsWorkspace({
   const activeProject = activeTab.type === "project" && activeTab.projectId
     ? dbProjects.find((p) => p.id === activeTab.projectId)
     : undefined;
-  const unavailableProject = React.useCallback(() => {
+  const unavailableProject = React.useCallback((id?:string) => {
+    if(id && createdNavigationRef.current===id)return;
     setContextNotice('That project is no longer in your available content. Select an available project to continue.');
     const url = new URL(window.location.href);
     if (activeProject) { url.searchParams.set('project', activeProject.id); url.searchParams.set('view', projectWorkspaceTab); }
     else { url.searchParams.delete('project'); url.searchParams.delete('view'); }
     replaceNavigationHistory(`${url.pathname}${url.search}${url.hash}`);
   }, [activeProject, projectWorkspaceTab]);
-  useProjectLocation({ projects: dbProjects, loading: projectsLoading, activeProjectId: activeProject?.id, onOpen: openProject, onUnavailable: unavailableProject });
+  React.useEffect(()=>{if(dbProjects.some(project=>project.id===createdNavigationRef.current))createdNavigationRef.current=undefined;},[dbProjects]);
+  useProjectLocation({ projects: dbProjects, loading: projectsLoading, activeProjectId: activeProject?.id, onOpen: openProject, onUnavailable: unavailableProject, workspaceId: workspaceScope?.workspace.id });
   React.useEffect(() => {
     if (projectsLoading || !activeTab.projectId || activeProject) return;
     setTabs(current => current.filter(tab => tab.projectId !== activeTab.projectId));
@@ -373,24 +371,6 @@ export function ProjectsWorkspace({
     }
   }, [activeProject?.id, requestedProjectTool]);
 
-  React.useEffect(() => {
-    let cancelled = false;
-    if (!activeProject?.id) {
-      setContextProjectMembers([]);
-      return;
-    }
-    void fetchProjectMembers(activeProject.id)
-      .then((members) => {
-        if (!cancelled) setContextProjectMembers(members);
-      })
-      .catch(() => {
-        if (!cancelled) setContextProjectMembers([]);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [activeProject?.id]);
-
   if (loading)
     return (
       <div
@@ -425,9 +405,9 @@ export function ProjectsWorkspace({
         onCreateProject={() => { navigationHost?.closeNavigation(); setQuickProjectOpen(true); }}
         onImportProposal={() => { navigationHost?.closeNavigation(); setCreationMode('import'); }}
         userId={currentUserId}
-        contextId={currentOrgId || 'unassigned'}
+        contextId={workspaceScope?.workspace.id || currentOrgId || 'unassigned'}
         canArchive={access.canArchive}
-        canComplete={access.canManage}
+        canComplete={access.canManage && userProfile?.role === 'head' && userProfile.is_active !== false}
         canDelete={access.canDelete}
         onOpenPortfolio={() => { void requestNavigation(() => {
           if (!scope.includeAllAccessibleWork && active[0]) {
@@ -442,16 +422,7 @@ export function ProjectsWorkspace({
         onCompleteProject={(id, title) => setCompleteTarget({ id, title })}
         onRestoreProject={(id, title) => setArchiveTarget({ id, title, isArchived: true })}
         onDeleteProject={(id, title) => setDeleteTarget({ id, title })}
-        profiles={profiles}
         projects={inScope}
-        summaries={summaries}
-        tasks={tasks}
-        projectMembers={contextProjectMembers}
-        planningCounts={planningCounts}
-        planningView={workspaceView}
-        onOpenPlanning={(view) => {
-          void requestNavigation(() => { setActiveTabId('portfolio'); setWorkspaceView(view); navigationHost?.closeNavigation(); });
-        }}
         departmentFilter={scope.includeAllAccessibleWork ? {
           value: departmentFilter,
           options: departmentFilterOptions,
@@ -461,8 +432,13 @@ export function ProjectsWorkspace({
   );
   return (
     <div className="eflow-ide-workspace">
-      {navigationHost ? navigationHost.projectHost && createPortal(projectNavigation, navigationHost.projectHost) : projectNavigation}
+      {!navigationHost && projectNavigation}
       <div className="eflow-ide-workspace__content">
+      <ProjectWorkspaceActions canCreate={access.canCreate} onCreate={() => setQuickProjectOpen(true)} onWorkPlan={() => setCreationMode('manual')}
+        onImport={() => setCreationMode('import')} onTemplates={() => setTemplatesOpen(true)}
+        onSavedPlans={() => { void requestNavigation(() => openPlanning('drafts')); }}
+        onReviewPlans={() => { void requestNavigation(() => openPlanning('signoff')); }}
+        departmentFilter={scope.includeAllAccessibleWork ? { value: departmentFilter, options: departmentFilterOptions, onChange: value => { void requestNavigation(() => changeDepartmentFilter(value)); } } : undefined} />
       {contextNotice && <FeedbackState tone="warning" title="Project unavailable">{contextNotice}<button type="button" onClick={() => setContextNotice('')}>Dismiss</button></FeedbackState>}
       {/* The workspace is intentionally continuous: global rail → project context → page. */}
       <div className="flex-1 min-w-0 bg-white">
@@ -483,10 +459,10 @@ export function ProjectsWorkspace({
               canDelete={access.canDelete}
               canReviewTasks={access.canReviewTasks}
               canExport={access.canExport}
-              favoriteContextId={currentOrgId || 'unassigned'}
+              favoriteContextId={workspaceScope?.workspace.id || currentOrgId || 'unassigned'}
               authorizedProjectIds={inScope.map(project => project.id)}
               lifecycleActions={{
-                complete: access.canManage ? () => setCompleteTarget({ id: activeProject.id, title: activeProject.title }) : undefined,
+                complete: access.canManage && userProfile?.role === 'head' && userProfile.is_active !== false ? () => setCompleteTarget({ id: activeProject.id, title: activeProject.title }) : undefined,
                 archive: access.canArchive ? () => setArchiveTarget({ id: activeProject.id, title: activeProject.title, isArchived: false }) : undefined,
                 restore: access.canArchive ? () => setArchiveTarget({ id: activeProject.id, title: activeProject.title, isArchived: true }) : undefined,
                 delete: access.canDelete ? () => setDeleteTarget({ id: activeProject.id, title: activeProject.title }) : undefined,
@@ -597,7 +573,7 @@ export function ProjectsWorkspace({
           }}
         />
       )}
-      {access.canCreate && quickProjectOpen && <CreateProjectDialog open officeId={currentOrgId} onClose={()=>setQuickProjectOpen(false)} onCreated={project=>{writeNavigationLocation('projects','Projects','push',{project:project.id,view:'tasks'});setTabs(current=>[...current.filter(t=>t.id!==`project-${project.id}`),{id:`project-${project.id}`,type:'project',projectId:project.id,title:project.title}]);setActiveTabId(`project-${project.id}`);setWorkspaceView('portfolio');setProjectWorkspaceTab('tasks');hasAutoOpenedRef.current=true;}}/>}
+      {access.canCreate && quickProjectOpen && <CreateProjectDialog open officeId={currentOrgId} officeName={orgs.find(org=>org.id===currentOrgId)?.name} ownerName={userProfile?.full_name} onClose={()=>setQuickProjectOpen(false)} onCreated={project=>{createdNavigationRef.current=project.id;workspaceScope?.includeCreatedOfficeProject?.(project);writeNavigationLocation('projects','Projects','push',{project:project.id,view:'tasks'});setTabs(current=>[...current.filter(t=>t.id!==`project-${project.id}`),{id:`project-${project.id}`,type:'project',projectId:project.id,title:project.title}]);setActiveTabId(`project-${project.id}`);setWorkspaceView('portfolio');setProjectWorkspaceTab('tasks');hasAutoOpenedRef.current=true;}}/>}
 
       {templatesOpen && (
         <ProjectTemplatesModal
@@ -630,6 +606,7 @@ export function ProjectsWorkspace({
         key={completeTarget.id}
         projectId={completeTarget.id}
         projectTitle={completeTarget.title}
+        project={inScope.find(project=>project.id===completeTarget.id)}
         onClose={() => setCompleteTarget(null)}
         onSuccess={() => { setCompleteTarget(null); toast("Project completed. You can now archive it from the project dropdown.", "success"); }}
         onOpenTask={(taskId) => {
@@ -640,6 +617,7 @@ export function ProjectsWorkspace({
           setCompleteTarget(null); setCompletionTaskId(taskId);
         }}
         onOpenGovernance={(draftId) => { setCompleteTarget(null); openProposal(draftId, "governance"); }}
+        onResolve={view=>{const id=completeTarget.id;setCompleteTarget(null);openProject(id,false);setProjectWorkspaceTab(view);writeNavigationLocation('projects','Projects','push',{project:id,view});}}
       />}
       {completionTaskId && <TaskDetailDrawer task={tasks.find((task) => task.id === completionTaskId) || null} onClose={() => setCompletionTaskId(null)} canReview={access.canReviewTasks} />}
 

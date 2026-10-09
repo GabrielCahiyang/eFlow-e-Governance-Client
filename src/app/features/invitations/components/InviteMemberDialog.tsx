@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Paperclip, Trash2 } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '../../../components/ui/dialog';
 import { WorkspaceIllustration } from '../../../components/ui/WorkspaceIllustration';
 import { useConfirmation } from '../../../components/ui/useConfirmation';
@@ -7,6 +7,7 @@ import { useExplicitDraft } from '../../../shared/useExplicitDraft';
 import { requestNavigation } from '../../../shared/navigationGuard';
 import { uploadPds } from '../../professional-profile';
 import { sendInvitations } from '../services/invitationService';
+import {InvitationPersonFields} from './InvitationPersonFields';
 import type { InvitedRole } from '../types';
 import '../invitations.css';
 
@@ -53,11 +54,10 @@ export function InviteMemberDialog({ officeName, open, onOpenChange, onSent }: {
   }
   return <><Dialog open={open} onOpenChange={value => { if (!value) close(); }}><DialogContent className="eflow-invite-dialog">
     <form className="eflow-invite-form" onSubmit={send}><div><DialogTitle className="eflow-invite-title">Now, let’s bring the team in.</DialogTitle><DialogDescription>Invite people to {officeName}. They’ll create their own eFlow account.</DialogDescription></div>
-      <div className="eflow-invite-rows">{rows.map((row, index) => <fieldset key={row.id} className="eflow-invite-row" disabled={busy}><legend className="sr-only">Person {index + 1}</legend><div className="eflow-invite-inputs">
-        <label className="sr-only" htmlFor={`email-${row.id}`}>Email address {index + 1}</label><input id={`email-${row.id}`} type="email" autoComplete="email" placeholder="Add email here" value={row.email} maxLength={254} onChange={event => change(row.id, { email: event.target.value })} />
-        <label className="sr-only" htmlFor={`role-${row.id}`}>Role {index + 1}</label><select id={`role-${row.id}`} value={row.account_role} onChange={event => change(row.id, { account_role: event.target.value as InvitedRole })}><option value="member">Member</option><option value="accounting_staff">Accounting Staff</option></select>
-        {rows.length > 1 && <button type="button" className="eflow-icon-button" aria-label={`Remove person ${index + 1}`} onClick={() => setRows(current => current.filter(item => item.id !== row.id))}><Trash2 size={16} /></button>}
-      </div><label className="eflow-pds-attachment"><Paperclip size={14} /><span>{row.file?.name || 'Attach PDS PDF'} <small>Optional · up to 10 MB</small></span><input type="file" accept="application/pdf,.pdf" aria-label={`PDS PDF ${index + 1}`} onChange={event => { const file = event.target.files?.[0]; if (file && (file.size > 10485760 || !file.name.toLowerCase().endsWith('.pdf'))) { setMessage('Choose a PDF smaller than 10 MB.'); event.target.value = ''; return; } change(row.id, { file }); }} /></label></fieldset>)}</div>
+      <div className="eflow-invite-rows">{rows.map((row, index) => <InvitationPersonFields compact key={row.id} id={row.id} index={index} email={row.email} file={row.file} disabled={busy} onEmail={email=>change(row.id,{email})} onFile={file=>change(row.id,{file})} onError={setMessage}>
+        <label className="sr-only" htmlFor={`role-${row.id}`}>Role {index+1}</label><select id={`role-${row.id}`} value={row.account_role} onChange={event=>change(row.id,{account_role:event.target.value as InvitedRole})}><option value="member">Member</option><option value="accounting_staff">Accounting Staff</option></select>
+        {rows.length>1&&<button type="button" className="eflow-icon-button" aria-label={`Remove person ${index+1}`} onClick={()=>setRows(current=>current.filter(item=>item.id!==row.id))}><Trash2 size={16}/></button>}
+        </InvitationPersonFields>)}</div>
       {rows.length < 5 && <button type="button" className="eflow-text-button" disabled={busy} onClick={() => setRows(current => [...current, emptyRow()])}><Plus size={17} /> Add another person</button>}
       {message && <p role="alert" className="eflow-form-error" id="invite-errors">{message}</p>}
       {receipt && <p role="status">{receipt}</p>}

@@ -10,7 +10,7 @@ import {
   subscribeToProfiles,
   getDescendantOrgIds,
 } from '../../lib/supabaseService';
-import { subscribeToProjects, type Project } from '../services/projectService';
+import { subscribeToProjects,notifyProjectListeners, type Project } from '../services/projectService';
 import { subscribeToTasks, type Task } from '../services/taskService';
 import { notifyTaskListeners } from '../features/tasks';
 import { operationalMetrics } from '../services/taskSelectors';
@@ -83,12 +83,13 @@ export function useProfiles() {
 
 // ─── useTasksData ────────────────────────────────────────────────
 // Realtime operational tasks (deleted rows already excluded server-side).
-export function useTasksData() {
+export function useTasksData(enabled = true) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
+    if (!enabled) { setTasks([]); setLoading(false); return; }
     let cancelled = false;
     const unsub = subscribeToTasks((data) => {
       if (cancelled) return;
@@ -97,9 +98,9 @@ export function useTasksData() {
       setLoading(false);
     }, (caught) => { if (!cancelled) { setError(caught); setLoading(false); } });
     return () => { cancelled = true; unsub(); };
-  }, []);
+  }, [enabled]);
 
-  return { tasks, loading, error, setError, retry: () => { setLoading(true); void notifyTaskListeners(); } };
+  return { tasks: enabled ? tasks : [], loading: enabled && loading, error: enabled ? error : null, setError, retry: () => { if(enabled){setLoading(true); void notifyTaskListeners();} } };
 }
 
 // ─── useDashboardMetrics ─────────────────────────────────────────
@@ -144,22 +145,24 @@ export function useDashboardMetrics(): { metrics: DashboardMetrics; loading: boo
 // ─── useProjectsData ─────────────────────────────────────────────
 // Realtime operational projects. RLS already scopes what the server returns;
 // this hook just wires the subscription into React.
-export function useProjectsData() {
+export function useProjectsData(enabled = true) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error,setError]=useState<Error|null>(null);
 
   useEffect(() => {
+    if (!enabled) { setProjects([]); setLoading(false); return; }
     let cancelled = false;
     const unsub = subscribeToProjects((data) => {
       if (!cancelled) {
         setProjects(data);
-        setLoading(false);
+        setError(null);setLoading(false);
       }
-    });
+    },reason=>{if(!cancelled){setError(reason);setLoading(false);}});
     return () => { cancelled = true; unsub(); };
-  }, []);
+  }, [enabled]);
 
-  return { projects, loading };
+  return { projects: enabled ? projects : [], loading: enabled && loading,error:enabled?error:null,retry:()=>{if(enabled){setLoading(true);void notifyProjectListeners();}} };
 }
 
 // ─── useScopedOrgIds ─────────────────────────────────────────────

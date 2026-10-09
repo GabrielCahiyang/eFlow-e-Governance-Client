@@ -9,9 +9,9 @@ export async function fetchProjectOffices(projectId: string) {
   if (error) throw new Error(error.message);
   const offices = (data || []) as ProjectOffice[];
   if (!offices.length) return { offices, members: [] as ProjectOfficeMember[] };
-  const membership = await supabase.from('project_office_members').select('project_office_id,user_id').in('project_office_id', offices.map(o => o.id));
+  const membership = await supabase.from('project_office_members').select('*').in('project_office_id', offices.map(o => o.id));
   if (membership.error) throw new Error(membership.error.message);
-  return { offices, members: (membership.data || []) as ProjectOfficeMember[] };
+  return { offices, members: (membership.data || []).filter(m=>!m.access_ended_at&&(!m.access_end||new Date(m.access_end).getTime()>Date.now())) as ProjectOfficeMember[] };
 }
 export const inviteProjectOffice = (projectId: string, officeId: string, email: string, access: 'collaborating' | 'observer') =>
   phase2Request<Invitation>('/invitations/project-office', jsonRequest('POST', { project_id: projectId, office_id: officeId, email, access }));
@@ -42,4 +42,11 @@ export async function fetchConfirmedOfficeProposals(projectId: string): Promise<
     if (o.confirmed && typeof o.name === 'string' && typeof o.officeId === 'string' && !found.has(o.officeId || o.name)) found.set(o.officeId || o.name, { name: o.name, officeId: o.officeId, evidence: o.evidence || '' });
   }
   return [...found.values()];
+}
+
+/** The legacy operation remains public; R7 callers additionally compare the locked roster. */
+export async function selectProjectOfficeMembersChecked(id:string,users:string[],expected:string[],request:string){
+ const {data,error}=await supabase.rpc('r7_select_office_members',{p_office:id,p_users:users,p_expected:expected,p_request:request});
+ if(error?.code==='PGRST202'){await selectProjectOfficeMembers(id,users);return;}
+ if(error)throw new Error(error.message);if(!Array.isArray(data))throw new Error('Missing membership receipt. Retry the same request before editing.');
 }

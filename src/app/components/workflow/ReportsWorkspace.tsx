@@ -4,7 +4,9 @@
 // limited to their authorized scope. No new global administrative report route.
 
 import { useMemo, useRef, useState } from "react";
-import { Tab, TabList, TabsContext } from "@vibe/core";
+import { WorkspaceHeader, WorkspaceTabs } from "../ui/workspace";
+import { Button } from "../ui/button";
+import "../ui/workspace/analyticalWorkspace.css";
 import { AnimatePresence } from "motion/react";
 import * as m from "motion/react-m";
 import {
@@ -29,7 +31,7 @@ import {
   Cell,
   CartesianGrid,
 } from "recharts";
-import { useTasks } from "../../hooks/useFirebaseData";
+import { useTasksData } from "../../hooks/useSupabaseData";
 import { useOrgs } from "../../hooks/useSupabaseData";
 import type { Task } from "../../services/taskService";
 import { isOverdue } from "../../services/taskSelectors";
@@ -40,7 +42,6 @@ import {
   type ReportColumn,
 } from "../../services/reportService";
 import {
-  PageHeader,
   StatCard,
   Card,
   WSelect,
@@ -70,7 +71,7 @@ export function ReportsWorkspace({
   scope: ProjectScope;
   eyebrow: string;
 }) {
-  const { tasks, loading } = useTasks();
+  const { tasks, loading, error, retry } = useTasksData();
   const { orgs } = useOrgs();
   const [view, setView] = useState<ReportView>("status");
   const [orgFilter, setOrgFilter] = useState("all");
@@ -226,9 +227,9 @@ export function ReportsWorkspace({
         filters: filtersMeta,
         totals: {
           Tasks: rows.length,
-          Completed: completed,
-          "Completion rate": `${completionRate}%`,
-          Overdue: overdueTasks.length,
+          Completed: rows.filter((t) => t.status === "completed").length,
+          "Completion rate": `${rows.length ? Math.round((rows.filter((t) => t.status === "completed").length / rows.length) * 100) : 0}%`,
+          Overdue: rows.filter(isOverdue).length,
         },
       };
       if (kind === "csv") exportCsv(rows, cols, meta);
@@ -263,28 +264,32 @@ export function ReportsWorkspace({
       icon: <AlertTriangle size={13} />,
     },
   ] as const;
-  const activeReportTab = reportTabs.findIndex((tab) => tab.id === view);
 
   return (
-    <div className="min-h-full min-w-0 p-3 sm:p-8">
-      <p className="mb-3 rounded-lg border bg-white p-3 text-sm">
+    <div className="eflow-page-content eflow-analytics min-w-0">
+      <p className="mb-3 rounded-lg border bg-card p-3 text-sm">
         Report scope: {scopeLabel}
       </p>
-      <PageHeader
-        eyebrow={eyebrow}
+      <WorkspaceHeader
         title="Reports"
-        subtitle="Analyze progress, productivity, and risk — then export exactly what you see."
+        description={`${eyebrow} - Analyze progress, productivity and risk, then export filtered authorized rows.`}
         actions={
           <ExportMenu
             onCsv={() => doExport("csv")}
             onPdf={() => doExport("pdf")}
-            disabled={scoped.length === 0}
+            disabled={scoped.length === 0 || !!error}
           />
         }
       />
 
+      {error && (
+        <div role="alert" className="eflow-analytics-error">
+          Report source unavailable: {error.message}. Missing facts are
+          unavailable.<Button onClick={retry}>Retry report facts</Button>
+        </div>
+      )}
       {/* Filters */}
-      <div className="mb-4 flex flex-row flex-wrap items-center gap-3 rounded-xl border border-neutral-200 bg-white p-3">
+      <div className="eflow-analytics-filters">
         {scope.includeAllAccessibleWork && (
           <div className="w-52">
             <WSelect
@@ -331,25 +336,25 @@ export function ReportsWorkspace({
       <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           label="Tasks in scope"
-          value={scoped.length}
+          value={error ? "Unavailable" : scoped.length}
           icon={<BarChart3 size={15} />}
         />
         <StatCard
           label="Completion rate"
-          value={`${completionRate}%`}
+          value={error ? "Unavailable" : `${completionRate}%`}
           tone="good"
           hint={`${completed} completed`}
           icon={<TrendingUp size={15} />}
         />
         <StatCard
           label="Overdue"
-          value={overdueTasks.length}
+          value={error ? "Unavailable" : overdueTasks.length}
           tone={overdueTasks.length ? "bad" : "good"}
           icon={<AlertTriangle size={15} />}
         />
         <StatCard
           label="Members"
-          value={productivity.length}
+          value={error ? "Unavailable" : productivity.length}
           icon={<Users size={15} />}
         />
       </div>
@@ -361,360 +366,389 @@ export function ReportsWorkspace({
         aria-label="Report views"
         tabIndex={0}
       >
-        <TabsContext activeTabId={activeReportTab} id="reports-workspace-tabs">
-          <TabList id="reports-workspace-tab-list">
-            {reportTabs.map((tab) => (
-              <Tab
-                active={view === tab.id}
-                id={tab.id}
-                key={tab.id}
-                onClick={() => setView(tab.id)}
-              >
-                <span className="inline-flex items-center gap-1.5">
-                  {tab.icon}
-                  {tab.label}
-                </span>
-              </Tab>
-            ))}
-          </TabList>
-        </TabsContext>
+        <WorkspaceTabs
+          value={view}
+          onValueChange={(value) => setView(value as ReportView)}
+          label="Report views"
+          tabs={reportTabs.map((tab) => ({
+            ...tab,
+            content:
+              tab.id === view ? (
+                <>
+                  <AnimatePresence initial={false} mode="wait">
+                    <m.div
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      initial={{ opacity: 0 }}
+                      key={`${view}-${scoped.length === 0 ? "empty" : "content"}`}
+                      transition={{
+                        duration: motionDuration.productiveMedium,
+                        ease: motionEase.state,
+                      }}
+                    >
+                      {scoped.length === 0 ? (
+                        <div className="bg-card border border-border rounded-xl">
+                          <SectionEmpty
+                            icon={<BarChart3 size={30} />}
+                            title={
+                              error
+                                ? "Report source unavailable"
+                                : "No data for these filters"
+                            }
+                            description="Adjust the filters to see report data."
+                          />
+                        </div>
+                      ) : view === "status" ? (
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                          <Card
+                            title="Tasks by status"
+                            className="lg:col-span-2"
+                          >
+                            <div className="h-[280px]">
+                              <ResponsiveContainer width="100%" height="100%">
+                                <BarChart
+                                  data={statusCounts}
+                                  margin={{
+                                    top: 8,
+                                    right: 8,
+                                    bottom: 8,
+                                    left: 8,
+                                  }}
+                                >
+                                  <CartesianGrid
+                                    strokeDasharray="3 3"
+                                    stroke="#f0f0f0"
+                                    vertical={false}
+                                  />
+                                  <XAxis
+                                    dataKey="label"
+                                    tick={{ fontSize: 11, fill: "#9ca3af" }}
+                                    axisLine={false}
+                                    tickLine={false}
+                                  />
+                                  <YAxis
+                                    tick={{ fontSize: 11, fill: "#9ca3af" }}
+                                    axisLine={false}
+                                    tickLine={false}
+                                    allowDecimals={false}
+                                  />
+                                  <Tooltip
+                                    contentStyle={{
+                                      fontSize: 12,
+                                      borderRadius: 8,
+                                      border: "1px solid #e5e7eb",
+                                    }}
+                                  />
+                                  <Bar dataKey="count" radius={[6, 6, 0, 0]}>
+                                    {statusCounts.map((s) => (
+                                      <Cell
+                                        key={s.status}
+                                        fill={
+                                          STATUS_COLORS[s.status] || "#94a3b8"
+                                        }
+                                      />
+                                    ))}
+                                  </Bar>
+                                </BarChart>
+                              </ResponsiveContainer>
+                            </div>
+                          </Card>
+                          <Card title="Distribution">
+                            <div className="h-[220px]">
+                              <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                  <Pie
+                                    data={statusCounts}
+                                    dataKey="count"
+                                    nameKey="label"
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={45}
+                                    outerRadius={80}
+                                    paddingAngle={2}
+                                  >
+                                    {statusCounts.map((s) => (
+                                      <Cell
+                                        key={s.status}
+                                        fill={
+                                          STATUS_COLORS[s.status] || "#94a3b8"
+                                        }
+                                      />
+                                    ))}
+                                  </Pie>
+                                  <Tooltip
+                                    contentStyle={{
+                                      fontSize: 12,
+                                      borderRadius: 8,
+                                    }}
+                                  />
+                                </PieChart>
+                              </ResponsiveContainer>
+                            </div>
+                            <div className="space-y-1.5 mt-2">
+                              {statusCounts.map((s) => (
+                                <div
+                                  key={s.status}
+                                  className="flex items-center gap-2 text-[11.5px]"
+                                >
+                                  <span
+                                    className="w-2.5 h-2.5 rounded-full"
+                                    style={{
+                                      background:
+                                        STATUS_COLORS[s.status] || "#94a3b8",
+                                    }}
+                                  />
+                                  <span className="text-muted-foreground capitalize flex-1">
+                                    {s.label}
+                                  </span>
+                                  <span className="text-foreground font-medium tabular-nums">
+                                    {s.count}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </Card>
+                        </div>
+                      ) : view === "overdue" ? (
+                        <Card
+                          bodyClassName="p-0"
+                          title={`Overdue tasks (${overdueTasks.length})`}
+                        >
+                          {overdueTasks.length === 0 ? (
+                            <SectionEmpty
+                              icon={<Clock size={28} />}
+                              title="Nothing overdue"
+                              description="All tasks in scope are on schedule."
+                            />
+                          ) : (
+                            <div className="overflow-x-auto">
+                              <table className="w-full">
+                                <thead>
+                                  <tr className="bg-muted border-b border-border">
+                                    {[
+                                      "Task",
+                                      "Assignee",
+                                      "Status",
+                                      "Deadline",
+                                      "Days late",
+                                    ].map((h) => (
+                                      <th
+                                        key={h}
+                                        className="px-4 py-2.5 text-left text-[10px] font-medium uppercase tracking-wider text-muted-foreground"
+                                      >
+                                        {h}
+                                      </th>
+                                    ))}
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {overdueTasks.map((t) => {
+                                    const late = Math.floor(
+                                      (Date.now() -
+                                        new Date(
+                                          t.deadline || t.dueDate!,
+                                        ).getTime()) /
+                                        86400000,
+                                    );
+                                    return (
+                                      <tr
+                                        key={t.id}
+                                        className="border-b border-neutral-50"
+                                      >
+                                        <td className="px-4 py-2.5 text-[12px] font-medium text-foreground">
+                                          {t.title}
+                                        </td>
+                                        <td className="px-4 py-2.5 text-[12px] text-muted-foreground">
+                                          {t.assigneeName || "Unassigned"}
+                                        </td>
+                                        <td className="px-4 py-2.5">
+                                          <TaskStatusBadge
+                                            status={t.status}
+                                            size="sm"
+                                          />
+                                        </td>
+                                        <td className="px-4 py-2.5 text-[12px] text-muted-foreground">
+                                          {formatDate(t.deadline || t.dueDate)}
+                                        </td>
+                                        <td className="px-4 py-2.5">
+                                          <span className="text-[12px] font-semibold text-red-600 tabular-nums">
+                                            {late}d
+                                          </span>
+                                        </td>
+                                      </tr>
+                                    );
+                                  })}
+                                </tbody>
+                              </table>
+                            </div>
+                          )}
+                        </Card>
+                      ) : view === "productivity" ? (
+                        <Card
+                          bodyClassName="p-0"
+                          title="Member productivity"
+                          subtitle="Outcome-focused performance for the selected period."
+                        >
+                          {productivity.length === 0 ? (
+                            <SectionEmpty
+                              icon={<Users size={28} />}
+                              title="No assigned work"
+                            />
+                          ) : (
+                            <div className="overflow-x-auto">
+                              <table className="w-full">
+                                <thead>
+                                  <tr className="bg-muted border-b border-border">
+                                    {[
+                                      "Member",
+                                      "Completed",
+                                      "Active",
+                                      "In review",
+                                      "Overdue",
+                                      "Completion mix",
+                                    ].map((h) => (
+                                      <th
+                                        key={h}
+                                        className="px-4 py-2.5 text-left text-[10px] font-medium uppercase tracking-wider text-muted-foreground"
+                                      >
+                                        {h}
+                                      </th>
+                                    ))}
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {productivity.map((p) => (
+                                    <tr
+                                      key={p.id}
+                                      className="border-b border-neutral-50"
+                                    >
+                                      <td className="px-4 py-2.5 text-[12px] font-medium text-foreground">
+                                        {p.name}
+                                      </td>
+                                      <td className="px-4 py-2.5 text-[12px] text-emerald-600 font-medium tabular-nums">
+                                        {p.completed}
+                                      </td>
+                                      <td className="px-4 py-2.5 text-[12px] text-foreground tabular-nums">
+                                        {p.active}
+                                      </td>
+                                      <td className="px-4 py-2.5 text-[12px] text-amber-600 tabular-nums">
+                                        {p.review}
+                                      </td>
+                                      <td className="px-4 py-2.5 text-[12px] text-red-600 tabular-nums">
+                                        {p.overdue}
+                                      </td>
+                                      <td className="px-4 py-2.5 w-[200px]">
+                                        <div className="h-2 bg-muted rounded-full overflow-hidden">
+                                          <div
+                                            className="h-full bg-emerald-500 rounded-full"
+                                            style={{
+                                              width: `${(p.completed / Math.max(1, p.completed + p.active)) * 100}%`,
+                                            }}
+                                          />
+                                        </div>
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          )}
+                        </Card>
+                      ) : (
+                        <Card
+                          title="Workload distribution"
+                          subtitle="Current assigned work and review pressure by member."
+                        >
+                          {productivity.length === 0 ? (
+                            <SectionEmpty
+                              icon={<Gauge size={28} />}
+                              title="No assigned work"
+                            />
+                          ) : (
+                            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                              {productivity.map((person) => {
+                                const assigned = person.active + person.review;
+                                const ratio = Math.min(1, assigned / 8);
+                                const loadLabel =
+                                  assigned >= 8
+                                    ? "High load"
+                                    : assigned >= 4
+                                      ? "Balanced"
+                                      : "Available";
+                                const tone =
+                                  assigned >= 8
+                                    ? "bg-rose-500"
+                                    : assigned >= 4
+                                      ? "bg-amber-500"
+                                      : "bg-emerald-500";
+                                return (
+                                  <article
+                                    key={person.id}
+                                    className="rounded-xl border border-border bg-muted/40 p-4"
+                                  >
+                                    <div className="flex items-start justify-between gap-3">
+                                      <div>
+                                        <h4 className="text-[12px] font-semibold text-foreground">
+                                          {person.name}
+                                        </h4>
+                                        <p className="mt-0.5 text-[10px] text-muted-foreground">
+                                          {assigned} active assignments ·{" "}
+                                          {person.review} in review
+                                        </p>
+                                      </div>
+                                      <span className="rounded-full bg-card px-2 py-1 text-[9px] font-semibold text-muted-foreground shadow-sm">
+                                        {loadLabel}
+                                      </span>
+                                    </div>
+                                    <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-muted">
+                                      <div
+                                        className={`h-full rounded-full ${tone}`}
+                                        style={{
+                                          width: `${Math.max(8, ratio * 100)}%`,
+                                        }}
+                                      />
+                                    </div>
+                                    <div className="mt-3 grid grid-cols-3 gap-2 text-center">
+                                      <div>
+                                        <div className="text-[14px] font-semibold text-foreground">
+                                          {person.active}
+                                        </div>
+                                        <div className="text-[8.5px] uppercase text-muted-foreground">
+                                          Active
+                                        </div>
+                                      </div>
+                                      <div>
+                                        <div className="text-[14px] font-semibold text-amber-600">
+                                          {person.review}
+                                        </div>
+                                        <div className="text-[8.5px] uppercase text-muted-foreground">
+                                          Review
+                                        </div>
+                                      </div>
+                                      <div>
+                                        <div className="text-[14px] font-semibold text-rose-600">
+                                          {person.overdue}
+                                        </div>
+                                        <div className="text-[8.5px] uppercase text-muted-foreground">
+                                          Overdue
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </article>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </Card>
+                      )}
+                    </m.div>
+                  </AnimatePresence>
+                </>
+              ) : null,
+          }))}
+        />
       </div>
 
-      <AnimatePresence initial={false} mode="wait">
-        <m.div
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          initial={{ opacity: 0 }}
-          key={`${view}-${scoped.length === 0 ? "empty" : "content"}`}
-          transition={{
-            duration: motionDuration.productiveMedium,
-            ease: motionEase.state,
-          }}
-        >
-          {scoped.length === 0 ? (
-            <div className="bg-white border border-neutral-200 rounded-xl">
-              <SectionEmpty
-                icon={<BarChart3 size={30} />}
-                title="No data for these filters"
-                description="Adjust the filters to see report data."
-              />
-            </div>
-          ) : view === "status" ? (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-              <Card title="Tasks by status" className="lg:col-span-2">
-                <div className="h-[280px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
-                      data={statusCounts}
-                      margin={{ top: 8, right: 8, bottom: 8, left: 8 }}
-                    >
-                      <CartesianGrid
-                        strokeDasharray="3 3"
-                        stroke="#f0f0f0"
-                        vertical={false}
-                      />
-                      <XAxis
-                        dataKey="label"
-                        tick={{ fontSize: 11, fill: "#9ca3af" }}
-                        axisLine={false}
-                        tickLine={false}
-                      />
-                      <YAxis
-                        tick={{ fontSize: 11, fill: "#9ca3af" }}
-                        axisLine={false}
-                        tickLine={false}
-                        allowDecimals={false}
-                      />
-                      <Tooltip
-                        contentStyle={{
-                          fontSize: 12,
-                          borderRadius: 8,
-                          border: "1px solid #e5e7eb",
-                        }}
-                      />
-                      <Bar dataKey="count" radius={[6, 6, 0, 0]}>
-                        {statusCounts.map((s) => (
-                          <Cell
-                            key={s.status}
-                            fill={STATUS_COLORS[s.status] || "#94a3b8"}
-                          />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </Card>
-              <Card title="Distribution">
-                <div className="h-[220px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={statusCounts}
-                        dataKey="count"
-                        nameKey="label"
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={45}
-                        outerRadius={80}
-                        paddingAngle={2}
-                      >
-                        {statusCounts.map((s) => (
-                          <Cell
-                            key={s.status}
-                            fill={STATUS_COLORS[s.status] || "#94a3b8"}
-                          />
-                        ))}
-                      </Pie>
-                      <Tooltip
-                        contentStyle={{ fontSize: 12, borderRadius: 8 }}
-                      />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-                <div className="space-y-1.5 mt-2">
-                  {statusCounts.map((s) => (
-                    <div
-                      key={s.status}
-                      className="flex items-center gap-2 text-[11.5px]"
-                    >
-                      <span
-                        className="w-2.5 h-2.5 rounded-full"
-                        style={{
-                          background: STATUS_COLORS[s.status] || "#94a3b8",
-                        }}
-                      />
-                      <span className="text-neutral-600 capitalize flex-1">
-                        {s.label}
-                      </span>
-                      <span className="text-neutral-900 font-medium tabular-nums">
-                        {s.count}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-            </div>
-          ) : view === "overdue" ? (
-            <Card
-              bodyClassName="p-0"
-              title={`Overdue tasks (${overdueTasks.length})`}
-            >
-              {overdueTasks.length === 0 ? (
-                <SectionEmpty
-                  icon={<Clock size={28} />}
-                  title="Nothing overdue"
-                  description="All tasks in scope are on schedule."
-                />
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="bg-neutral-50 border-b border-neutral-200">
-                        {[
-                          "Task",
-                          "Assignee",
-                          "Status",
-                          "Deadline",
-                          "Days late",
-                        ].map((h) => (
-                          <th
-                            key={h}
-                            className="px-4 py-2.5 text-left text-[10px] font-medium uppercase tracking-wider text-neutral-400"
-                          >
-                            {h}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {overdueTasks.map((t) => {
-                        const late = Math.floor(
-                          (Date.now() -
-                            new Date(t.deadline || t.dueDate!).getTime()) /
-                            86400000,
-                        );
-                        return (
-                          <tr key={t.id} className="border-b border-neutral-50">
-                            <td className="px-4 py-2.5 text-[12px] font-medium text-neutral-900">
-                              {t.title}
-                            </td>
-                            <td className="px-4 py-2.5 text-[12px] text-neutral-600">
-                              {t.assigneeName || "Unassigned"}
-                            </td>
-                            <td className="px-4 py-2.5">
-                              <TaskStatusBadge status={t.status} size="sm" />
-                            </td>
-                            <td className="px-4 py-2.5 text-[12px] text-neutral-600">
-                              {formatDate(t.deadline || t.dueDate)}
-                            </td>
-                            <td className="px-4 py-2.5">
-                              <span className="text-[12px] font-semibold text-red-600 tabular-nums">
-                                {late}d
-                              </span>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </Card>
-          ) : view === "productivity" ? (
-            <Card
-              bodyClassName="p-0"
-              title="Member productivity"
-              subtitle="Outcome-focused performance for the selected period."
-            >
-              {productivity.length === 0 ? (
-                <SectionEmpty
-                  icon={<Users size={28} />}
-                  title="No assigned work"
-                />
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="bg-neutral-50 border-b border-neutral-200">
-                        {[
-                          "Member",
-                          "Completed",
-                          "Active",
-                          "In review",
-                          "Overdue",
-                          "Completion mix",
-                        ].map((h) => (
-                          <th
-                            key={h}
-                            className="px-4 py-2.5 text-left text-[10px] font-medium uppercase tracking-wider text-neutral-400"
-                          >
-                            {h}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {productivity.map((p) => (
-                        <tr key={p.id} className="border-b border-neutral-50">
-                          <td className="px-4 py-2.5 text-[12px] font-medium text-neutral-900">
-                            {p.name}
-                          </td>
-                          <td className="px-4 py-2.5 text-[12px] text-emerald-600 font-medium tabular-nums">
-                            {p.completed}
-                          </td>
-                          <td className="px-4 py-2.5 text-[12px] text-neutral-700 tabular-nums">
-                            {p.active}
-                          </td>
-                          <td className="px-4 py-2.5 text-[12px] text-amber-600 tabular-nums">
-                            {p.review}
-                          </td>
-                          <td className="px-4 py-2.5 text-[12px] text-red-600 tabular-nums">
-                            {p.overdue}
-                          </td>
-                          <td className="px-4 py-2.5 w-[200px]">
-                            <div className="h-2 bg-neutral-100 rounded-full overflow-hidden">
-                              <div
-                                className="h-full bg-emerald-500 rounded-full"
-                                style={{
-                                  width: `${(p.completed / Math.max(1, p.completed + p.active)) * 100}%`,
-                                }}
-                              />
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </Card>
-          ) : (
-            <Card
-              title="Workload distribution"
-              subtitle="Current assigned work and review pressure by member."
-            >
-              {productivity.length === 0 ? (
-                <SectionEmpty
-                  icon={<Gauge size={28} />}
-                  title="No assigned work"
-                />
-              ) : (
-                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                  {productivity.map((person) => {
-                    const assigned = person.active + person.review;
-                    const ratio = Math.min(1, assigned / 8);
-                    const loadLabel =
-                      assigned >= 8
-                        ? "High load"
-                        : assigned >= 4
-                          ? "Balanced"
-                          : "Available";
-                    const tone =
-                      assigned >= 8
-                        ? "bg-rose-500"
-                        : assigned >= 4
-                          ? "bg-amber-500"
-                          : "bg-emerald-500";
-                    return (
-                      <article
-                        key={person.id}
-                        className="rounded-xl border border-neutral-200 bg-neutral-50/60 p-4"
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <h4 className="text-[12px] font-semibold text-neutral-900">
-                              {person.name}
-                            </h4>
-                            <p className="mt-0.5 text-[10px] text-neutral-500">
-                              {assigned} active assignments · {person.review} in
-                              review
-                            </p>
-                          </div>
-                          <span className="rounded-full bg-white px-2 py-1 text-[9px] font-semibold text-neutral-600 shadow-sm">
-                            {loadLabel}
-                          </span>
-                        </div>
-                        <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-neutral-200">
-                          <div
-                            className={`h-full rounded-full ${tone}`}
-                            style={{ width: `${Math.max(8, ratio * 100)}%` }}
-                          />
-                        </div>
-                        <div className="mt-3 grid grid-cols-3 gap-2 text-center">
-                          <div>
-                            <div className="text-[14px] font-semibold text-neutral-900">
-                              {person.active}
-                            </div>
-                            <div className="text-[8.5px] uppercase text-neutral-400">
-                              Active
-                            </div>
-                          </div>
-                          <div>
-                            <div className="text-[14px] font-semibold text-amber-600">
-                              {person.review}
-                            </div>
-                            <div className="text-[8.5px] uppercase text-neutral-400">
-                              Review
-                            </div>
-                          </div>
-                          <div>
-                            <div className="text-[14px] font-semibold text-rose-600">
-                              {person.overdue}
-                            </div>
-                            <div className="text-[8.5px] uppercase text-neutral-400">
-                              Overdue
-                            </div>
-                          </div>
-                        </div>
-                      </article>
-                    );
-                  })}
-                </div>
-              )}
-            </Card>
-          )}
-        </m.div>
-      </AnimatePresence>
       {pdfPreview && (
         <div
           className="fixed inset-0 z-[100] flex items-center justify-center bg-neutral-950/55 p-3 sm:p-6"
@@ -722,13 +756,13 @@ export function ReportsWorkspace({
           aria-modal="true"
           aria-label={`${pdfPreview.title} PDF preview`}
         >
-          <div className="flex h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-2xl">
-            <header className="flex items-center justify-between gap-3 border-b border-neutral-200 px-4 py-3 sm:px-5">
+          <div className="flex h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl">
+            <header className="flex items-center justify-between gap-3 border-b border-border px-4 py-3 sm:px-5">
               <div>
-                <h2 className="text-[14px] font-semibold text-neutral-900">
+                <h2 className="text-[14px] font-semibold text-foreground">
                   {pdfPreview.title}
                 </h2>
-                <p className="text-[10.5px] text-neutral-500">
+                <p className="text-[10.5px] text-muted-foreground">
                   PDF preview · print or save without leaving eFlow
                 </p>
               </div>
@@ -745,7 +779,7 @@ export function ReportsWorkspace({
                 <button
                   type="button"
                   onClick={() => setPdfPreview(null)}
-                  className="rounded-lg p-2 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900"
+                  className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
                   aria-label="Close PDF preview"
                 >
                   <X size={17} />
@@ -756,7 +790,7 @@ export function ReportsWorkspace({
               ref={previewFrameRef}
               title={`${pdfPreview.title} report preview`}
               srcDoc={pdfPreview.html}
-              className="min-h-0 flex-1 bg-neutral-100"
+              className="min-h-0 flex-1 bg-muted"
               sandbox="allow-same-origin allow-modals"
             />
           </div>

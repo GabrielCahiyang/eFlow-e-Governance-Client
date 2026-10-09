@@ -1,3 +1,4 @@
+import { openProjectAction, openCompletionRequirements } from './fixtures/projectActions';
 import { test, expect } from '@playwright/test';
 import { projectWorkspaceFixture } from './fixtures/projectWorkspace';
 const partner='10000000-0000-4000-8000-000000000002';
@@ -21,7 +22,7 @@ test('Lead invites an Office and hands over responsibility without assigning its
  const sidebar=page.locator('.eflow-productivity-sidebar').first();await sidebar.hover();
  await sidebar.getByRole('button',{name:'Workspaces',exact:true}).first().press('Enter');
  await expect(page.getByRole('region',{name:'Project main table'})).toBeVisible({timeout:30000});
- await page.getByRole('button',{name:'Project Offices',exact:true}).click();
+ await openProjectAction(page,'Project Offices');
  await expect(page.getByRole('region',{name:'Project Office collaboration'})).toBeVisible({timeout:30000});
  await page.getByRole('button',{name:'Invite Office',exact:true}).click();
  const dialog=page.getByRole('dialog',{name:'Let’s bring another Office in.'});
@@ -57,7 +58,7 @@ test('Collaborating Head sees a roomy own-Office member picker and only edits it
  await expect(page.getByRole('region',{name:'Project main table'})).toBeVisible({timeout:30000});
  await expect(page.getByRole('combobox',{name:'Owner for Prepare community assessment'})).toBeEnabled();
  await expect(page.getByRole('combobox',{name:'Owner for Coordinate Office briefing'})).toBeDisabled();
- await page.getByRole('button',{name:'Project Offices',exact:true}).click();
+ await openProjectAction(page,'Project Offices');
  await page.getByRole('button',{name:'Select own members',exact:true}).click();
  const dialog=page.getByRole('dialog',{name:'Planning Office’s project team'});
  await expect(dialog).toContainText('Office Member 7');await expect(dialog).not.toContainText('Other Office Employee');
@@ -80,7 +81,7 @@ test('Observer opens the project without editable owners or task planning',async
  await expect(page.getByRole('region',{name:'Project main table'})).toBeVisible({timeout:30000});
  await expect(page.getByRole('combobox',{name:'Owner for Prepare community assessment'})).toBeDisabled();
  await expect(page.getByRole('button',{name:'New task',exact:true})).toHaveCount(0);
- await page.getByRole('button',{name:'Project Offices',exact:true}).click();
+ await openProjectAction(page,'Project Offices');
  await expect(page.getByRole('region',{name:'Project Office collaboration'})).toContainText('Observer · read only');
  await expect(page.getByRole('button',{name:'Invite Office',exact:true})).toHaveCount(0);
 });

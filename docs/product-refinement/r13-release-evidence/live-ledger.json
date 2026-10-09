@@ -1,0 +1,127 @@
+{
+  "hostedTarget": "ixnfphgjyelhckjwjkdv",
+  "readAt": "2026-10-08T15:40:53.595191+00:00",
+  "operation": "read-only migration statements and current withdrawal definition/ACL",
+  "hostedWrites": false,
+  "pendingRefinementMigrationsInstalled": false,
+  "entries": [
+    {
+      "version": "20261003000004",
+      "name": "simplified_roles_and_office_authority",
+      "replaySha256": "b96e6d305e091958b956034b07d63cde8447b924f3322765b3bd038b750503f1",
+      "completeLedgerSql": true
+    },
+    {
+      "version": "20261004123126",
+      "name": "phase2_invitation_onboarding_pds",
+      "replaySha256": "129c97d205abad39d60bda18717d29bc0052105b0dbad49cc00276ff33aae594",
+      "completeLedgerSql": true
+    },
+    {
+      "version": "20261004132527",
+      "name": "phase2_invitation_dispatch_limits",
+      "replaySha256": "6c9cffc456586534668c493ed76e2487eba36c42335373b6d70e55456ac7665f",
+      "completeLedgerSql": true
+    },
+    {
+      "version": "20261004133412",
+      "name": "phase2_existing_identity_acceptance",
+      "replaySha256": "defcd5bbfbfab6773efb2629ae1e1418d4b9794f7d3defec426440871aa83660",
+      "completeLedgerSql": true
+    },
+    {
+      "version": "20261004140128",
+      "name": "phase3_project_table_workspace",
+      "replaySha256": "8bd6c7dcee509422a057a5fd5250333cf2385931703a480999186ed361846be9",
+      "completeLedgerSql": true
+    },
+    {
+      "version": "20261004164937",
+      "name": "phase5_workspace_ai_import",
+      "replaySha256": "b65476e0ec0dfd0af4d975b1b77645f9af661c3e8e101c354f01c0d06c7e4e92",
+      "completeLedgerSql": true
+    },
+    {
+      "version": "20261004181549",
+      "name": "phase6_project_office_collaboration",
+      "replaySha256": "a437a14c801f5389062d53a229848e009dc99710c450701a4ba4cd9a0883c82f",
+      "completeLedgerSql": true
+    },
+    {
+      "version": "20261004182806",
+      "name": "phase6_shared_structure_guards",
+      "replaySha256": "5c93907494f3d5e1f354b616c28b802a75a3d4596eb72ece31b8af83128012cf",
+      "completeLedgerSql": true
+    },
+    {
+      "version": "20261004194130",
+      "name": "phase7_readiness_governance",
+      "replaySha256": "28e01038152b858d8334862d9fe9275f4dc5a75afc4f1f6e1fb6733890c43681",
+      "completeLedgerSql": true
+    },
+    {
+      "version": "20261005170822",
+      "name": "phase65_project_local_office_identity",
+      "replaySha256": "372e7e7d4d3c592a3d2ad19d44f8a03ae32d08464b6d1f7481b4e32d3020c4d8",
+      "completeLedgerSql": true
+    },
+    {
+      "version": "20261007152648",
+      "name": "office_budget_dynamic_sections",
+      "replaySha256": "a3227913bfac49209fe242bf9da9e49034d5df397654e4ddabcd69511b8e9650",
+      "completeLedgerSql": true
+    },
+    {
+      "version": "20261007153615",
+      "name": "office_budget_partition_funding",
+      "replaySha256": "b38397169963c45e57c50efc8d224d608bccfbe621a2304edf1eb57490e320d8",
+      "completeLedgerSql": true
+    },
+    {
+      "version": "20261007175525",
+      "name": "project_office_removal_and_history",
+      "replaySha256": "20444564e200dfde2dc28107621865fded7bd1f02a1268cba519705c52e32b4d",
+      "completeLedgerSql": true
+    },
+    {
+      "version": "20261007191654",
+      "name": "account_login_lockout",
+      "replaySha256": "7d6190a405ac1eb4c201bc020361e1d5bb9e0af6958005af213c8d0dd3f1d6a9",
+      "completeLedgerSql": true
+    },
+    {
+      "version": "20261007195837",
+      "name": "login_gateway_discovery",
+      "replaySha256": "a7eed7aac4799d4fc9d54c88c1b1d8579cfcaea87e09dc32d8c605c8f238e99c",
+      "completeLedgerSql": true
+    },
+    {
+      "version": "20261007201249",
+      "name": "project_draft_publication",
+      "replaySha256": "e2bc6622d1f8c014c6f2e08c17a1ac0774b819f83acc31ec86a2c4b98f410d44",
+      "completeLedgerSql": true
+    },
+    {
+      "version": "20261007203525",
+      "name": "project_publication_history_retention",
+      "replaySha256": "c48ac7865ef869a3639e6764bdf07289ea2521ff0dc6db4a11e40cac43ed7180",
+      "completeLedgerSql": true
+    },
+    {
+      "version": "20261008004900",
+      "name": "withdraw_office_invitation",
+      "replaySha256": "da3f78792d2408115f5b5b1b111cc885cda0945a9ea9b33accd4e613be23064a",
+      "completeLedgerSql": false
+    }
+  ],
+  "withdrawalSnapshot": {
+    "source": "pg_get_functiondef(public.phase6_withdraw_office_invitation(uuid))",
+    "sha256": "38a1d412e43e6a51bc5950435772f2c0df9177683bd6d1643573a395c12140ab",
+    "executeRoles": [
+      "postgres",
+      "authenticated",
+      "service_role"
+    ],
+    "note": "Current definition is separate from the placeholder ledger; no history repair performed."
+  }
+}

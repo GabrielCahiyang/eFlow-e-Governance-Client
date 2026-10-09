@@ -1,4 +1,5 @@
 import { lazyFeature } from "../../shared/lazyFeature";
+export {subscribeToProgressUpdates,type ProgressUpdate} from '../../services/taskDiscussionService';
 // Compatibility bridge: new consumers import task behavior from this feature.
 export * from "./services/taskService";
 export * from "./selectors";
@@ -72,3 +73,5 @@ export { notifyTaskListeners } from "./services/taskRealtimeService";
 export { TaskActivityTimeline } from "../../components/workflow/TaskActivityTimeline";
 export { TaskDiscussion } from "../../components/workflow/TaskDiscussion";
 export { ProgressUpdateForm } from "../../components/workflow/ProgressUpdateForm";
+
+export {rowToTask} from './services/taskMapper';

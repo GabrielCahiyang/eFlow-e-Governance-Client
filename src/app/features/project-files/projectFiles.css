@@ -1,0 +1,7 @@
+.r6-file-library { min-width: 0; overflow-wrap: anywhere; }
+.r6-file-library button { padding: 6px 10px; border: 1px solid var(--eflow-border, #d1d5db); border-radius: 6px; font-size: 12px; text-align: left; max-width: 100%; }
+.r6-file-library button:hover:not(:disabled) { background: var(--eflow-surface-muted, #f3f4f6); }
+.r6-file-library button:disabled { opacity: .55; cursor: not-allowed; }
+.r6-file-library input[type=file] { display: block; width: 100%; min-width: 0; margin-top: 6px; font-size: 12px; overflow: hidden; }
+.r6-file-library [aria-label="Insert project document"] > div { flex-wrap: wrap; align-items: center; }
+.r6-file-library button:focus-visible, .r6-file-library input:focus-visible { outline: 2px solid var(--eflow-focus-ring, #007f75); outline-offset: 2px; }

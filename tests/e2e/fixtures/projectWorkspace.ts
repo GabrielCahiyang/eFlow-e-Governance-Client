@@ -14,6 +14,8 @@ export async function projectWorkspaceFixture(
     overrides?: Record<string, boolean>;
     shared?: boolean;
     empty?: boolean;
+    compactLayout?: boolean;
+    theme?: 'light' | 'dark';
   } = {},
 ) {
   const id = options.actorId || "00000000-0000-4000-8000-000000000001",
@@ -184,6 +186,11 @@ export async function projectWorkspaceFixture(
       ),
     { id, role },
   );
+  // Existing-user scenarios retain their explicit all-visible layout. R5 also tests absent preferences.
+  await page.addInitScript(({ project, compact }) => {
+    const key = 'eflow_project_columns_' + project;
+    if (!compact && localStorage.getItem(key) === null) localStorage.setItem(key, '[]');
+  }, { project, compact: !!options.compactLayout });
   const taskSockets = new Map<WebSocketRoute, Map<string, number[]>>();
   await page.routeWebSocket(/\/realtime\/v1\//, (socket) => {
     if (!options.taskChanges) return;
@@ -268,6 +275,12 @@ export async function projectWorkspaceFixture(
       single = req.headers().accept?.includes("vnd.pgrst.object");
     let body: unknown = [];
     const payload = req.postData() ? req.postDataJSON() : {};
+    if(table?.startsWith('r9_'))return route.fulfill({status:404,json:{code:'PGRST202',message:'R9 migration not installed in this legacy fixture'}});
+    if(table?.startsWith('r8_'))return route.fulfill({status:404,json:{code:'PGRST202',message:'R8 migration not installed in this legacy fixture'}});
+    if(table?.startsWith('r7_'))return route.fulfill({status:404,json:{code:'PGRST202',message:'R7 migration not installed in this legacy fixture'}});
+    if (table === 'r6_list_project_files') body = {can_write:role!=='admin'&&!options.shared&&!['completed','archived'].includes(String(projects[0]?.status)),files:[]};
+    if (table === 'r3_list_workspaces') body = options.unassigned ? [] : organizations.map(o=>({id:o.id,name:o.name,kind:'office',office_id:o.id,owner_id:null,state:'active',timezone:'Asia/Singapore'}));
+    if (table === 'r3_select_workspace') body = {workspace:{id:payload.p_workspace,name:organizations.find(o=>o.id===payload.p_workspace)?.name || office.name,kind:'office',office_id:payload.p_workspace,owner_id:null,state:'active',timezone:'Asia/Singapore'},projects:projects.map(p=>({...p,kind:'office',home_workspace_id:p.org_id}))};
     if (table === "profiles") body = single ? profile : profiles;
     if (table === "organizations") body = single ? office : organizations;
     if (table === "project_offices") body = projectOffices;
@@ -303,11 +316,12 @@ export async function projectWorkspaceFixture(
     if (table === "organization_approver_ids")
       body = role === "head" ? [id] : [];
     if (table === "user_preferences")
-      body = { user_id: id, theme: "light", created_at: now, updated_at: now };
+      body = { user_id: id, theme: options.theme || "light", created_at: now, updated_at: now };
     if (table === "user_permission_overrides")
       body = Object.entries(options.overrides || {}).map(
         ([permission, allowed]) => ({ user_id: id, permission, allowed }),
       );
+    if(table==="department_budget_summary")body=null;
     if (table === "projects") body = single ? projects[0] : projects;
     if (table === "tasks") body = tasks;
     if (table === "subtasks") {
@@ -389,7 +403,10 @@ export async function projectWorkspaceFixture(
       });
       body = row;
     }
-    await route.fulfill({ json: body, headers: { "content-range": "0-2/3" } });
+    const full=Array.isArray(body)?body:undefined;
+    const offset=Number(url.searchParams.get('offset')||0),limit=Number(url.searchParams.get('limit')||full?.length||0);
+    if(full&&req.method()==='GET')body=full.slice(offset,offset+limit);
+    await route.fulfill({json:body,headers:full?{"access-control-expose-headers":"content-range","content-range":`${offset}-${Math.max(offset,offset+(body as unknown[]).length-1)}/${full.length}`}:{}});
   });
   await page.route(/\/controlpanelEflow\//, (route) => {
     const path = new URL(route.request().url()).pathname;

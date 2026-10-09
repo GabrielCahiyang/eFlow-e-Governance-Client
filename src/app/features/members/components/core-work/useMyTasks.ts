@@ -1,8 +1,8 @@
 import { useCurrentUserTasks } from '../../../../hooks/useCurrentUserTasks';
 
 export function useMyTasks() {
-  const { tasks, loading } = useCurrentUserTasks();
-  return { mine: tasks, loading };
+  const { tasks, loading,error,retry } = useCurrentUserTasks();
+  return { mine: tasks, loading,error,retry };
 }
 
 // ══════════════════════ My Tasks ══════════════════════════════════

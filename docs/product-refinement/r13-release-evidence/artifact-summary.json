@@ -1,0 +1,1025 @@
+{
+  "id": "619ee6b73bd779c5410827e9a53ad350d3906f516ac558bd8889baca01337911",
+  "createdAt": "2026-10-08T22:45:48.608Z",
+  "gitHead": "d13714628ba19f09f1226812f10bffb17bdcb854",
+  "hostedTarget": "ixnfphgjyelhckjwjkdv",
+  "deployed": false,
+  "scope": "Local production frontend and matching gateway source; not a deployed container or production backup.",
+  "inventoryCounts": {
+    "source": 1541,
+    "frontend": 48,
+    "gateway": 49,
+    "migrations": 104
+  },
+  "frontend": [
+    {
+      "path": "dist/assets/departmentIdentityService-DmAdmlxv.js",
+      "bytes": 493,
+      "sha256": "a8d84c0b2924449097eaef5b511273857444d76fc6c3f31a73d62db714290d25"
+    },
+    {
+      "path": "dist/assets/EmployeeDeadlines-DSYP4f3h.js",
+      "bytes": 2975,
+      "sha256": "16671d0f1f1f855feb628a3bd1fc327f677645705e8dbb3d1dea402590dfb7a3"
+    },
+    {
+      "path": "dist/assets/EmployeeMyProjects-Co3RogQP.js",
+      "bytes": 2679,
+      "sha256": "96531d523c75a586c7b0438d77ccd4b91ebcf95bf8dd787bf6171eb717e809d7"
+    },
+    {
+      "path": "dist/assets/EmployeeMyTasks-BMNQadVC.js",
+      "bytes": 3092,
+      "sha256": "9071548d971659ebd7de3b825597ddad8b84eeb609fb63665ff30bbc5426cf5d"
+    },
+    {
+      "path": "dist/assets/EmployeeTaskHistory-CIy90sf8.js",
+      "bytes": 2519,
+      "sha256": "3cfb2c0f60e88e2fb4ab23f2b4a1da34c6162673814ad52f23925c4d9e3ea79f"
+    },
+    {
+      "path": "dist/assets/EmployeeWorkReport-Bzw-g_D3.js",
+      "bytes": 3878,
+      "sha256": "fff2832b655a1601bceedee46bc75c830a28447097885e3f5e465ab4a1f74a33"
+    },
+    {
+      "path": "dist/assets/figtree-latin-ext-wght-italic-iruAYCqh.woff2",
+      "bytes": 10544,
+      "sha256": "79773a0eeba5906a985ff9bc308b21ad19ff9b9f8b4cb9b3ed77e80389f9e373"
+    },
+    {
+      "path": "dist/assets/figtree-latin-ext-wght-normal-BDFhNWBr.woff2",
+      "bytes": 10232,
+      "sha256": "c96d7b7b085414ae99598c1cbd72b09c8aa6d4732d7a120c408a044f46425428"
+    },
+    {
+      "path": "dist/assets/figtree-latin-wght-italic-BTI1zcOO.woff2",
+      "bytes": 21148,
+      "sha256": "6c07603b2f702b4cad079965664be011e81d6ad26f1087a2af5fc984fd760ea9"
+    },
+    {
+      "path": "dist/assets/figtree-latin-wght-normal-B3oYxpP2.woff2",
+      "bytes": 20016,
+      "sha256": "93a68eaa293304b947a167d0f7d0e00a1a8b5cf4972dc0da3da2094359a33e9a"
+    },
+    {
+      "path": "dist/assets/ForReviewInbox-Dd-uFK04.js",
+      "bytes": 30287,
+      "sha256": "88f578ef8c63dca2ebf405d10fea7d1ceee555ae0b4b45f6b7d259b234b5be6e"
+    },
+    {
+      "path": "dist/assets/HeadDashboard-VDKVlkbV.js",
+      "bytes": 12516,
+      "sha256": "0a9039ca33a0ff799be5dff0a66dff561b90dd8df8f8f6c68b07117ee0f4e36a"
+    },
+    {
+      "path": "dist/assets/index-CIHsgkzl.js",
+      "bytes": 24632,
+      "sha256": "16d17ae66508fec873446651584613a2b4dfa583c21b9c5f2c239fdcaa07d31e"
+    },
+    {
+      "path": "dist/assets/index-CNst69Fl.css",
+      "bytes": 3186,
+      "sha256": "b65e48e083aac4791199c5b72573002eac2af0bfbc4d3591722d6c145729fc80"
+    },
+    {
+      "path": "dist/assets/index-CU9zIvIt.css",
+      "bytes": 371827,
+      "sha256": "7c02f5315f3ec3ff19685413eb320146960ecbbd7288981471e87c2967f09709"
+    },
+    {
+      "path": "dist/assets/index-CxVixuJ2.js",
+      "bytes": 11089,
+      "sha256": "b457a509f55b9630c620ffe9db650404a683bd4df740826976760d5bb880b821"
+    },
+    {
+      "path": "dist/assets/index-DsX5FFne.css",
+      "bytes": 2168,
+      "sha256": "ba8c1965d87677e1ff3c4b4a6f0fe43aa0b8a212475721387a8bbdb47ee4cda4"
+    },
+    {
+      "path": "dist/assets/index-DthHP1Bp.js",
+      "bytes": 258561,
+      "sha256": "426a1fd77e97355c3aca6e3e0241dcffd0fa74d6b02c00052b1bfd624b893ac1"
+    },
+    {
+      "path": "dist/assets/index-DU31-0AW.js",
+      "bytes": 338757,
+      "sha256": "f4cd3f3c2b87b39c746ac70729f26793416678865b7cae842d33dafa412ee388"
+    },
+    {
+      "path": "dist/assets/index-DW-iWRox.js",
+      "bytes": 204,
+      "sha256": "4e2f2ef0bf4426ddd56435644e996f0d5e967dccd1ed2ba57fb43f4c07729c5e"
+    },
+    {
+      "path": "dist/assets/index-DXycF3jJ.js",
+      "bytes": 238448,
+      "sha256": "681f782f3692865d70cad854a163036c6aa65fcdac62d033d3f148a72aab7072"
+    },
+    {
+      "path": "dist/assets/index-PHRWFyLV.js",
+      "bytes": 463,
+      "sha256": "f45cccf8f2067b8c60c5f0aa5d0b383381678eb9c00eb1ac66c781f7f488580e"
+    },
+    {
+      "path": "dist/assets/MemberContent-D0FAgJSY.js",
+      "bytes": 8834,
+      "sha256": "af66ac54cdcb951de6bcf64965ce77b83517684e11fbea482ede48fc83516ee6"
+    },
+    {
+      "path": "dist/assets/OfficeIdentityAccessWorkspace-GJAyKqEL.js",
+      "bytes": 15886,
+      "sha256": "7b50d9d710c838f7cacabe7a94365be0dc3678121e6071a34f0d6a36a9f3dec3"
+    },
+    {
+      "path": "dist/assets/OrganizationScopePanel-B3oOs80y.js",
+      "bytes": 5970,
+      "sha256": "c5f9f5a1bfa02a38b4d6f1625f5bc4a2b2ca63744df8abf084dd8c272bd1c1bc"
+    },
+    {
+      "path": "dist/assets/pdf-D-oSvAqu.js",
+      "bytes": 458388,
+      "sha256": "c7532355932f96cf8f6896b79b0f295ebed82d911ab33ca58047648332d9203b"
+    },
+    {
+      "path": "dist/assets/pdf.worker.min-iDqQPrd3.mjs",
+      "bytes": 1232303,
+      "sha256": "52fadd5b81b6abd1eb665bab0c3749a8ad6a293fcb6ee9d9e0309f29d4f82619"
+    },
+    {
+      "path": "dist/assets/ProfilePage-Ctc2I8yv.js",
+      "bytes": 22771,
+      "sha256": "2c151814e717c8f4896d8dc1afbdbe8d02c8e6ec4c600d0cb7f69d940996adab"
+    },
+    {
+      "path": "dist/assets/ProjectGanttView-Cr1Z-dYP.js",
+      "bytes": 7821,
+      "sha256": "a5999f0096778ccf2666474e03bd271545b3dc3c304577cf3e0b80e5491388d5"
+    },
+    {
+      "path": "dist/assets/ProjectInsightsView-Dwq9vc4i.js",
+      "bytes": 5490,
+      "sha256": "2661edeaf3717e1246a32c78b2f2e173548cd405c0472e232647221d4c4873f4"
+    },
+    {
+      "path": "dist/assets/ProjectOfficePanel-B2VQDIZw.js",
+      "bytes": 28838,
+      "sha256": "767fab8ad4842970dff0723285f7e40965d2dd38c64859f7707bc4cbd7d2932a"
+    },
+    {
+      "path": "dist/assets/ProjectOfficesView-DAwElSf-.js",
+      "bytes": 1547,
+      "sha256": "7ecd0af270be14d7d8509c7744620eecc7301bd6aabbceecef6c33b7c4cdacfc"
+    },
+    {
+      "path": "dist/assets/ProjectTableWorkspace-BTVa7fue.js",
+      "bytes": 71679,
+      "sha256": "4d54a12ead715e4b598d2167bdf4d7b7a7acd963aef56a73f1cf3bb16ebf6699"
+    },
+    {
+      "path": "dist/assets/ProjectTableWorkspace-CnHJWoS7.css",
+      "bytes": 19454,
+      "sha256": "9a5c315c900773fe253327f66b297b5abfbb754b2830d10b7dd8469879463a70"
+    },
+    {
+      "path": "dist/assets/RolePageRouter-ByjvQOSQ.js",
+      "bytes": 14849,
+      "sha256": "fe74d5e172349ab30b4bcbffacb617c9d05f1aa147e5fff8db68f008c0a8a731"
+    },
+    {
+      "path": "dist/assets/StaffingDialog-Bao-Vu5k.js",
+      "bytes": 7542,
+      "sha256": "6dcca808f69f3b8d1bc1d3ae2d72ca1d4e8ed3037a621bb38bad540f4aff06bc"
+    },
+    {
+      "path": "dist/assets/StaffingDialog-BNh9t39_.css",
+      "bytes": 3313,
+      "sha256": "a33597e6ddd2b433a384e1d0228d1b73636b621a253eab85defdf76baa61bc6a"
+    },
+    {
+      "path": "dist/assets/SubtasksWorkspace-BCe_M6Z5.js",
+      "bytes": 9451,
+      "sha256": "ff3efada5dfb1db6179803b74e3f5299e9817e5c29010c86d9bad4aafa484af8"
+    },
+    {
+      "path": "dist/assets/TaskDatesDialog-DF6m6Dkf.js",
+      "bytes": 1654,
+      "sha256": "786705dd60dc823c9c1d3fba37421a0fc8495073d8c380f02e008d856d30ffb2"
+    },
+    {
+      "path": "dist/assets/TaskInspector-xms9I-Rq.js",
+      "bytes": 21841,
+      "sha256": "9d6166c7fd5a74ca80cb232be5c050f91f217461b8fdfc50e32a24b02833e6f2"
+    },
+    {
+      "path": "dist/assets/TaskOfficeControl-CKthMUHI.js",
+      "bytes": 3040,
+      "sha256": "cfcb8b4c3b176d01acfc612efc7b0cd248f2d2cb12e60dd470e1d679b3f7eb27"
+    },
+    {
+      "path": "dist/assets/useMyTasks-DEvYWzra.js",
+      "bytes": 169,
+      "sha256": "e6e62b5fc808b6a38a236f12a43fc835563622983fc57db64eb59b9a3f724f2a"
+    },
+    {
+      "path": "dist/assets/WorkBudgetCard-B2nYrWs9.js",
+      "bytes": 31692,
+      "sha256": "b96c07a9d89039adc9749f67736da68e64397c8585ab12ea5a7a01d4f0045a8f"
+    },
+    {
+      "path": "dist/assets/workspace-contracts-B8kbjncK.css",
+      "bytes": 158737,
+      "sha256": "ab99b3505b9f3b079ffb495aabdb3b766af1497ed1baa840e2042bd85dfcafc4"
+    },
+    {
+      "path": "dist/assets/workspace-contracts-D2Ibwc5E.js",
+      "bytes": 3587735,
+      "sha256": "c294aaa8d32218419701be60b2b996dbec25ca5aaaea5e79a912d53299ab9eda"
+    },
+    {
+      "path": "dist/eflow-view-modules.json",
+      "bytes": 1468,
+      "sha256": "2ce33fee36e0509010b66018276915d0b32a64140c48636d058afc40506563b5"
+    },
+    {
+      "path": "dist/icon.svg",
+      "bytes": 1086,
+      "sha256": "bd3f67b4c7faab40d05de66a02ce0f30a49e45bd80b92e5137b3bece83af9c09"
+    },
+    {
+      "path": "dist/index.html",
+      "bytes": 849,
+      "sha256": "54e398c45346b92fe58a535c146acd83a05d0236d39c7fa789bfc47bb5a1130e"
+    }
+  ],
+  "gateway": [
+    {
+      "path": "server/gateway_config.py",
+      "bytes": 2293,
+      "sha256": "38039c17bf6894591fa75e8e2fdb33d9e5f3766418b930b601e6c6f9959c331f"
+    },
+    {
+      "path": "server/gateway_dependencies.py",
+      "bytes": 7361,
+      "sha256": "613a22cca79da9bf64c1254ac8b6ed00a5b5ff480e4f7128005964832b0d30e0"
+    },
+    {
+      "path": "server/invitations/__init__.py",
+      "bytes": 35,
+      "sha256": "c33592fc68bdec1d884ac4a4540dd4fc6a73d52d4c719415c9355b381dc44bc5"
+    },
+    {
+      "path": "server/invitations/local_offices.py",
+      "bytes": 2656,
+      "sha256": "78da0a0b53b58e4983c3f2ee031c506df45fa14f15ddcd958e7212be83ebe2f5"
+    },
+    {
+      "path": "server/invitations/project_members.py",
+      "bytes": 4711,
+      "sha256": "9e62afc27eee8481a82e419ceb833c831dacd752459526ff9a5912d696846937"
+    },
+    {
+      "path": "server/invitations/service.py",
+      "bytes": 10872,
+      "sha256": "9902dd4743a41df4aa4f142f642b865f1fda5f78c863be4d19aec2400069b4ae"
+    },
+    {
+      "path": "server/main.py",
+      "bytes": 2301,
+      "sha256": "c28714716dfbfec4aa43b50f9a8f87d2ee16d376f1ad38fd0c57ea17514dad37"
+    },
+    {
+      "path": "server/pds/__init__.py",
+      "bytes": 58,
+      "sha256": "a3648a1c388760d3fac1f4f193614535c3e27c1af991758fa4b010dea5da92a3"
+    },
+    {
+      "path": "server/pds/parser.py",
+      "bytes": 4006,
+      "sha256": "c688eb15c28a8180a7f4ae1aebe0e18fe623178b5a529e305d9dc006529b99c2"
+    },
+    {
+      "path": "server/pds/worker.py",
+      "bytes": 3404,
+      "sha256": "93e63d8900b1b696030f1a26be7ea9db4e8e52d0a1f79882e865d0e6f6e6faed"
+    },
+    {
+      "path": "server/requirements.txt",
+      "bytes": 150,
+      "sha256": "ee372a5dda8fdfb910c8ee8f0ee59a723b6e9f7cc7ca27de92bac5df76066938"
+    },
+    {
+      "path": "server/routers/__init__.py",
+      "bytes": 52,
+      "sha256": "a9de3137a5534198d351905097e9354d1f1ba8af9efbb6ac828ffd7f1110b6bc"
+    },
+    {
+      "path": "server/routers/admin_configuration.py",
+      "bytes": 464,
+      "sha256": "5c891800871ae9d64931e01ba749de94ee41c43cb42585f2372d6c281c122a5f"
+    },
+    {
+      "path": "server/routers/admin.py",
+      "bytes": 8013,
+      "sha256": "77295585c4c603abba2ab8ba82d7ac1433b9f9707ed6ca8d5acb7fc72aef7e0d"
+    },
+    {
+      "path": "server/routers/ai.py",
+      "bytes": 8930,
+      "sha256": "d0ceca157bbd2dc82e155dcc13f421fb231a4499ee966d79c16754f5e65fb1d5"
+    },
+    {
+      "path": "server/routers/backups.py",
+      "bytes": 3418,
+      "sha256": "bdadf764ccc2785dd87ee44afd4bea36f66f528fcf52a96c62a4cd3906bb6f37"
+    },
+    {
+      "path": "server/routers/collaboration.py",
+      "bytes": 1936,
+      "sha256": "113da0f184cc4f09d3215c7ee025902ef8e4a10999e78db0e47f655ebf7a5cde"
+    },
+    {
+      "path": "server/routers/invitations.py",
+      "bytes": 9477,
+      "sha256": "483cc0b2dcc420287ccfb3703aa6438f6bf393a972029b5b1055d788badddc43"
+    },
+    {
+      "path": "server/routers/notifications.py",
+      "bytes": 2903,
+      "sha256": "13bbc955663111c3451399b98ecb772740c8e7f4e321b7ff010f0368a5073d9d"
+    },
+    {
+      "path": "server/routers/onboarding.py",
+      "bytes": 2520,
+      "sha256": "df32823f6ef5bc94a619416e60f9951fc8328136b52f524e2960afc64df19666"
+    },
+    {
+      "path": "server/routers/professional_profiles.py",
+      "bytes": 9982,
+      "sha256": "d3c8a22223ecf6612e174488f191230537f4f8acff075448e51eb635fd831a68"
+    },
+    {
+      "path": "server/routers/project_invitations.py",
+      "bytes": 1515,
+      "sha256": "68aabb50f43c687483ed9df21f486495d7bd10c691ddf8e63e5dc3cc150bfc87"
+    },
+    {
+      "path": "server/routers/proposals.py",
+      "bytes": 829,
+      "sha256": "21ca5dc714128e1062551f6bee5cf57b27a7b8cc211febda5dda64cd7f254066"
+    },
+    {
+      "path": "server/routers/staffing.py",
+      "bytes": 413,
+      "sha256": "c836af574aab8f380aebae35fd3923e9916b8f01288bd6613895e6db122db81d"
+    },
+    {
+      "path": "server/services/__init__.py",
+      "bytes": 64,
+      "sha256": "c4b12b9db9a813523becd2b3b9db219e355021e93e1e0491522aa3efec01eef1"
+    },
+    {
+      "path": "server/services/account_roles.py",
+      "bytes": 769,
+      "sha256": "6823e6e12a980585c8b15f8ed55000ee9899dbae2336fdf3b9b9131511647583"
+    },
+    {
+      "path": "server/services/admin_configuration_health.py",
+      "bytes": 2400,
+      "sha256": "8090f4d4196b03966a0f6a22093eabb9b9718ef515caeceba21b0c10ab4f142b"
+    },
+    {
+      "path": "server/services/administrative_roles.py",
+      "bytes": 284,
+      "sha256": "e0246f68215d35e8c7e05a880d636717cbdc8303c9b81c92100758031e9dee3d"
+    },
+    {
+      "path": "server/services/backup_manifest.py",
+      "bytes": 1205,
+      "sha256": "fe7ae45ed1a9583f223358f205898b635ac461a15c6b3a66ed5659aa3e40bc05"
+    },
+    {
+      "path": "server/services/backup_security.py",
+      "bytes": 2461,
+      "sha256": "c183bd70c4ec5b3bc441b603d483bdfdb1ffdb22cd76706ea55f93108085d9d7"
+    },
+    {
+      "path": "server/services/backup_service.py",
+      "bytes": 18317,
+      "sha256": "007a71d03bafc26e2daba9b82a6eaeb4c51f5f33396c4b6fc37d1ad7777ad4c0"
+    },
+    {
+      "path": "server/services/collaboration_ai.py",
+      "bytes": 9493,
+      "sha256": "914d7af3f2e144622e37b4c494d2510b0a9ada6774de5d1a8738d27b419cbdd2"
+    },
+    {
+      "path": "server/services/deadline_workload.py",
+      "bytes": 3302,
+      "sha256": "f8255d9718ce09cb0dcf7c53497770bedf5ea642865623f49ed375ac16211d4f"
+    },
+    {
+      "path": "server/services/email_delivery.py",
+      "bytes": 5482,
+      "sha256": "b77b3aaaf0af989713631cd5c1d8fd20f11b7c8df2e4d2e7956f185cde49e6ab"
+    },
+    {
+      "path": "server/services/phase2_config.py",
+      "bytes": 828,
+      "sha256": "93291f3f4ad3a6369bf6071e43558a7f4f18ff6dec19f6d4fc6ab1ef05d9ae4f"
+    },
+    {
+      "path": "server/services/recent_auth.py",
+      "bytes": 1106,
+      "sha256": "ca377cad52c442fa0efbf3074dae7986af6f1ca35643ad1c89fcaf89f9ebd2f5"
+    },
+    {
+      "path": "server/services/staffing_context.py",
+      "bytes": 5408,
+      "sha256": "7601f8a00336ff4ef7b3f5f14541d63c28510a1520f14dabc7a030aac5909efe"
+    },
+    {
+      "path": "server/start_ai_tunnel.py",
+      "bytes": 6991,
+      "sha256": "3f0cf5c9a63c12da2d736403250c1b2ff3324d90d9beaf9fb4deaaae5eb3a299"
+    },
+    {
+      "path": "server/start.py",
+      "bytes": 5770,
+      "sha256": "c0d8e4472ecac3f513bf03981b55a82905dc6d87b14a08530c3658e77ba53418"
+    },
+    {
+      "path": "server/tests/test_admin_unification.py",
+      "bytes": 8368,
+      "sha256": "771ac7b33d2a4b4b11bc2e7246a13cba5c08dcbea90a51775f5505eae2b1ed1b"
+    },
+    {
+      "path": "server/tests/test_backup_helpers.py",
+      "bytes": 3698,
+      "sha256": "eb4877d5740b5019f79466a626e3d7b2e05c1d05f3d8e416a518e95482420b0e"
+    },
+    {
+      "path": "server/tests/test_deadline_workload.py",
+      "bytes": 1584,
+      "sha256": "b04f9dfd689b3f6c857c7f7c3dbb2d0632993e8682a8d2bb4e3bd52b2309e352"
+    },
+    {
+      "path": "server/tests/test_phase2.py",
+      "bytes": 8009,
+      "sha256": "0538cb944631eedc20134310d86e51d165d35b8ed4944c1f4caa21de09ada6b9"
+    },
+    {
+      "path": "server/tests/test_phase5.py",
+      "bytes": 4336,
+      "sha256": "654d65ee04830a09fbe423e2d1fb1718eefd38a52f00e5516a5f3457c34d1d01"
+    },
+    {
+      "path": "server/tests/test_phase6.py",
+      "bytes": 3643,
+      "sha256": "0cb4fab0b5469893a6001b326e866082a0d0e2cd474d24d01d1fc71b3727caef"
+    },
+    {
+      "path": "server/tests/test_phase65.py",
+      "bytes": 4645,
+      "sha256": "6ae416918049d5cf506671ec97e60599f003efb35192e8be056d6bac34cde754"
+    },
+    {
+      "path": "server/tests/test_phase7.py",
+      "bytes": 4412,
+      "sha256": "5c6b48710114f7b6b0895b174d35cc8c7f1de12a3f44f32d2dc45748b0359984"
+    },
+    {
+      "path": "server/tests/test_r12_configuration_health.py",
+      "bytes": 4575,
+      "sha256": "72a82aa5fe866cc42b8e71fd9b8738b2280d3ab49856406582d35b70ce0aefca"
+    },
+    {
+      "path": "server/tests/test_r8_invitations.py",
+      "bytes": 7951,
+      "sha256": "9b640a2e3eb6a47f3770b63e7d8f11ec53eff4d855643711f9d4711c6f60ff9e"
+    }
+  ],
+  "migrations": [
+    {
+      "path": "supabase/migrations/20260711000000_personal_settings.sql",
+      "bytes": 5478,
+      "sha256": "865444e3fb1659bc059a427aafbb68edeb3bace483e71a534c5e9b13e7af4cfa"
+    },
+    {
+      "path": "supabase/migrations/20260712000000_core_workflow.sql",
+      "bytes": 30462,
+      "sha256": "2d62bc671853137b2ff8d9e79580b492a8c45d3ee9b662e710d3eefd13b284e0"
+    },
+    {
+      "path": "supabase/migrations/20260714000000_fix_projects_rls.sql",
+      "bytes": 531,
+      "sha256": "46b746812d2870d8c1db51c2bc6198679d2ad2c94445cec30d29293d79c1ab10"
+    },
+    {
+      "path": "supabase/migrations/20260714000001_fix_chat_membership.sql",
+      "bytes": 1375,
+      "sha256": "aacaf845c761fb3d79766326fa103b67f233869af657074ac8a2cedf3e2a60b2"
+    },
+    {
+      "path": "supabase/migrations/20260715000000_task_lifecycle.sql",
+      "bytes": 19417,
+      "sha256": "177ae022c66e23859374a6d9ffe2cb82226f477ece20815615b6674da7196dac"
+    },
+    {
+      "path": "supabase/migrations/20260725000000_workflow_consistency.sql",
+      "bytes": 47686,
+      "sha256": "65d813c12aba18b3ae2706410e67de6b8c3263a52ac75e1165d76cd03cd9f56c"
+    },
+    {
+      "path": "supabase/migrations/20260807000000_task_review_hardening.sql",
+      "bytes": 29948,
+      "sha256": "1fced15f8feaadf850445b1e4c83ac179818c945eaa1ffa731b370cbc0783079"
+    },
+    {
+      "path": "supabase/migrations/20260807000001_task_planning_enhancements.sql",
+      "bytes": 9786,
+      "sha256": "79b336b9c24354e43f00720735a6e01fd957af3a0d1b3412e230d62fe609ace1"
+    },
+    {
+      "path": "supabase/migrations/20260807000002_recurring_task_templates.sql",
+      "bytes": 7943,
+      "sha256": "98b98e64216f79846dc37d11a7f326055257d94b0e52dcfb8e89025d8bbb3e7c"
+    },
+    {
+      "path": "supabase/migrations/20260807000003_ai_runtime_realtime.sql",
+      "bytes": 659,
+      "sha256": "97472f28906aeac2c1212a666e636c550c21107a7d0068c6ca5835abaebc7687"
+    },
+    {
+      "path": "supabase/migrations/20260814000000_assistant_head_review_routing.sql",
+      "bytes": 11935,
+      "sha256": "2f7a0bbcf0ffbdae4753df94fb0e539d89a61b6c6c57cecacd49bbd009f3ee9d"
+    },
+    {
+      "path": "supabase/migrations/20260815000000_project_creation_rls.sql",
+      "bytes": 1512,
+      "sha256": "294e03a0fde2e8e3dc1666037b3ef48854b3c26ffaf833aebb7e41e3631639cb"
+    },
+    {
+      "path": "supabase/migrations/20260815000001_atomic_project_creation.sql",
+      "bytes": 4508,
+      "sha256": "d2d8432049382ab110fc538406d9501ddfc41f3e61d74187de11006321a1abe8"
+    },
+    {
+      "path": "supabase/migrations/20260815000002_atomic_task_creation.sql",
+      "bytes": 5713,
+      "sha256": "c41d72bdffb4b096026b73474b5042a40c2cf49990f4e562bfcdb548ccaeebfd"
+    },
+    {
+      "path": "supabase/migrations/20260815000003_restore_review_decision_rpc.sql",
+      "bytes": 6938,
+      "sha256": "3a34bfedbfd017e3ca7bdc9e6ef4c2213825ae4559c5101c79526a3a4d870fd0"
+    },
+    {
+      "path": "supabase/migrations/20260815000004_fix_review_audit_hash_extension.sql",
+      "bytes": 5993,
+      "sha256": "f0dea5e7de6bb1f6ffedffd00407a3757bb48f84fa4362e365c2f2bd85e8e612"
+    },
+    {
+      "path": "supabase/migrations/20260816000000_project_deletion.sql",
+      "bytes": 3639,
+      "sha256": "f41a0d27b949e1680198c47668f034e126e7174b915eaf7d0f8b80afdf9728df"
+    },
+    {
+      "path": "supabase/migrations/20260816000001_subtask_evidence_review.sql",
+      "bytes": 22651,
+      "sha256": "13451ca3d91e0a0b0e29d2cd1467b387308ccc506d4528b58771e5cecdd53797"
+    },
+    {
+      "path": "supabase/migrations/20260817000000_fix_task_chat_uuid_members.sql",
+      "bytes": 1766,
+      "sha256": "5340bf7965b4cffedba25aa192313ab661facdccb6ecef9f241978ffbe5f819b"
+    },
+    {
+      "path": "supabase/migrations/20260817000001_normalize_subtask_assignee_ids.sql",
+      "bytes": 1659,
+      "sha256": "5781eb3e7d32ae27449a394bb93de45b98c22db20b0d47850d2c5e0e93e1a988"
+    },
+    {
+      "path": "supabase/migrations/20260817000002_subtask_progress_leader_notifications.sql",
+      "bytes": 2575,
+      "sha256": "f18aebb0302d82627a0c1087c9557dfdb42ee412093a53e170b5fd8cd075d11f"
+    },
+    {
+      "path": "supabase/migrations/20260817000003_work_template_library.sql",
+      "bytes": 27577,
+      "sha256": "2753d8f67ab2421c011a6f4eeb9578b38a0d8832562263683d436f8b40fbe092"
+    },
+    {
+      "path": "supabase/migrations/20260819000000_sir_gerson_access_control.sql",
+      "bytes": 14955,
+      "sha256": "11839e5b504eb4cbbd6d4bacf0beeac5277584cc0103fefc29f78aa761a230a4"
+    },
+    {
+      "path": "supabase/migrations/20260819000001_ordered_subtasks.sql",
+      "bytes": 5019,
+      "sha256": "e5a2f18803cd91de1f788d8e0e5558b0819d0e470374c5bc2dd520266fb44a06"
+    },
+    {
+      "path": "supabase/migrations/20260819000002_monthly_productivity_leaderboard.sql",
+      "bytes": 9283,
+      "sha256": "30764870f99b91e76c5f485a1ae679d3c6b45d8b804a5816a56cf2e9d4c31956"
+    },
+    {
+      "path": "supabase/migrations/20260819000003_fix_project_deletion_task_links.sql",
+      "bytes": 3009,
+      "sha256": "1d5765b6e72bc87f617ab2bff8aa85b8fa13b0a966a34b5ddbdfe405ca1bc873"
+    },
+    {
+      "path": "supabase/migrations/20260819000004_subtask_execution_dependencies.sql",
+      "bytes": 4949,
+      "sha256": "cbf8abf6e3915371645967133dc3d7ccf8887a76f325b54c83ff1e8043819549"
+    },
+    {
+      "path": "supabase/migrations/20260819000005_proposal_portfolios_and_unique_leadership.sql",
+      "bytes": 14282,
+      "sha256": "c45e31770de0cb0d9448052b904fb70bde9c3eab336a3ffa050f93b9e8e510be"
+    },
+    {
+      "path": "supabase/migrations/20260819000006_super_admin_project_read_only.sql",
+      "bytes": 885,
+      "sha256": "7476824f3443cc73dd7df137ae49e5acb28e69e2d2723f041b815a0d6326bc25"
+    },
+    {
+      "path": "supabase/migrations/20260819000007_super_admin_task_read_only.sql",
+      "bytes": 932,
+      "sha256": "6e183ab195f3af374deb07231e124809f404e7961a148b39c9b56cf9a39da270"
+    },
+    {
+      "path": "supabase/migrations/20260820000001_hierarchical_deadlines.sql",
+      "bytes": 22291,
+      "sha256": "f83585d37f3c608a24acf6ac32d0e45b1eb1c2b82398973ed0aa1593cb623362"
+    },
+    {
+      "path": "supabase/migrations/20260821000000_collaboration_organizations.sql",
+      "bytes": 9440,
+      "sha256": "aa4ea0ca98d446505ea1a2c70eeeea8a2ae563ba288be82cab1519dda3fa2d12"
+    },
+    {
+      "path": "supabase/migrations/20260821000001_collaboration_drafts.sql",
+      "bytes": 26078,
+      "sha256": "9518079e0b1b14748412ce68decc044fd83009642c625b06a5ce7397bc75a42c"
+    },
+    {
+      "path": "supabase/migrations/20260821000002_collaboration_security.sql",
+      "bytes": 41262,
+      "sha256": "d26a161a38eb72bf5882bd02a7431264cb4e1b71ebb497fd2bf9ff452a924190"
+    },
+    {
+      "path": "supabase/migrations/20260821000003_collaboration_runtime.sql",
+      "bytes": 15048,
+      "sha256": "8fcf93682615d53f3fd62b38f5f2512640723e55c60ba1e1f5b79048e94ead24"
+    },
+    {
+      "path": "supabase/migrations/20260821000004_collaboration_commit.sql",
+      "bytes": 20441,
+      "sha256": "eb9d3921577ac7664ffd16a0e7f0396ac5e5c264e5f16af25b5e1156232da228"
+    },
+    {
+      "path": "supabase/migrations/20260821000005_collaboration_owner_auto_accept.sql",
+      "bytes": 17755,
+      "sha256": "0db55c064f57d0d339d2be05fdc3a6e51eeb14aa3e5d39e587767f835957953d"
+    },
+    {
+      "path": "supabase/migrations/20260821000006_task_team_removal_guard.sql",
+      "bytes": 2027,
+      "sha256": "78f206fcbc033f14e07b3a842cc2dff3f2693224fefadc9adcd5d77514efd743"
+    },
+    {
+      "path": "supabase/migrations/20260822000000_fix_task_team_assignment_array_types.sql",
+      "bytes": 4841,
+      "sha256": "cda2b09cd42a9d3f18de6d7d76dba424424b5424fb6831374d06182294e1aea6"
+    },
+    {
+      "path": "supabase/migrations/20260822000001_scope_organization_leadership_to_direct_members.sql",
+      "bytes": 1934,
+      "sha256": "fa6b82609ff737d0801adfd57a1c4e15b197d9e49c9d19e77f85fdf3d241a4c5"
+    },
+    {
+      "path": "supabase/migrations/20260822000002_governance_delivery_lifecycle.sql",
+      "bytes": 38506,
+      "sha256": "49d998f37795946fd80c839400f56e04f10759a9768d66833c15d3c9e8b827cb"
+    },
+    {
+      "path": "supabase/migrations/20260822000003_governance_approval_routing.sql",
+      "bytes": 21227,
+      "sha256": "754fe2edf869aaf484cd2b056dafbccf7a8755d8331aa419a9fc7b8bbe49b7e6"
+    },
+    {
+      "path": "supabase/migrations/20260822000004_task_governance_routes_and_storage.sql",
+      "bytes": 8732,
+      "sha256": "4de24b7b36797859e8e049cd0ba27740236f76e3e8714f96379eb53380184cc2"
+    },
+    {
+      "path": "supabase/migrations/20260822000005_advisory_collaboration_autosave.sql",
+      "bytes": 3896,
+      "sha256": "de9f02f6a8e96c362e2d0f73669b2e8d49b96962205ad7ba66ada1d9074d0103"
+    },
+    {
+      "path": "supabase/migrations/20260822000006_fix_interdepartment_department_review_routing.sql",
+      "bytes": 3503,
+      "sha256": "b3607b282b34a0c5a035dbb27a771d44ebecf8d76507682f2e62d505335b4720"
+    },
+    {
+      "path": "supabase/migrations/20260822000007_inherit_activity_responsibility.sql",
+      "bytes": 3464,
+      "sha256": "a27fff41779471f5cdbb7428fa73185910c17754c6785dff10dec6d0457bd01f"
+    },
+    {
+      "path": "supabase/migrations/20260822000008_department_budget_and_petty_cash.sql",
+      "bytes": 51038,
+      "sha256": "84e5a77ad7fc59a76cb6575211ebd86b3f4053308fe386a1918ecb7e278edfda"
+    },
+    {
+      "path": "supabase/migrations/20260822000009_single_department_publish_flow.sql",
+      "bytes": 2407,
+      "sha256": "905cc34df85eba605def2fa44ece8ca409965fc3bac56b1cc7830f67036afd26"
+    },
+    {
+      "path": "supabase/migrations/20260824000001_department_proposal_budget_enforcement.sql",
+      "bytes": 4527,
+      "sha256": "1e177748a9d94e8760068edf3207bffcc48e76af8e19cb9e6b829517528257c7"
+    },
+    {
+      "path": "supabase/migrations/20260824000002_owner_department_budget_for_all_proposals.sql",
+      "bytes": 8320,
+      "sha256": "68be0be6da5c9346d6d52ed85b8f1fb5ba1ff0e60987dfe2235cfbf8a9ceeb1c"
+    },
+    {
+      "path": "supabase/migrations/20260824000003_fix_governance_delegate_assignment_columns.sql",
+      "bytes": 8685,
+      "sha256": "fc96eda102ea2d91766651e1d021c010316077659585bb4792ddbb4140a78d75"
+    },
+    {
+      "path": "supabase/migrations/20260824000004_fix_employee_department_budget_access.sql",
+      "bytes": 999,
+      "sha256": "5bb8bbb61210f0d1df840ccc76dc37be1c4957471d054a0a815b324b04518e5c"
+    },
+    {
+      "path": "supabase/migrations/20260824000005_normalize_proposal_task_leader_membership.sql",
+      "bytes": 4464,
+      "sha256": "5a8316c0a5d6a90d76c1172b8e0dba66fc623790fd6076b9b2be8427af6b8978"
+    },
+    {
+      "path": "supabase/migrations/20260824000006_publish_latest_department_proposal_revision.sql",
+      "bytes": 2467,
+      "sha256": "634f3abac3aa06f322a2454af0e367c32233f577c99439050573b7676c91e324"
+    },
+    {
+      "path": "supabase/migrations/20260824000007_task_budget_daily_petty_cash_workflow.sql",
+      "bytes": 57234,
+      "sha256": "51031cb6fdc85db11469266bed80b5215b2be5dffb099c2e44c1097cf2297ce0"
+    },
+    {
+      "path": "supabase/migrations/20260824000008_budget_controls_and_resubmission.sql",
+      "bytes": 20865,
+      "sha256": "698b6efec34319963f04ffa72bf3bde520d1d6f663975e97e5d50e7e166d8b31"
+    },
+    {
+      "path": "supabase/migrations/20260825000001_subtask_budget_distribution_guard.sql",
+      "bytes": 11366,
+      "sha256": "c51b2d3c7e5db07d96ff6701e466258f9a3a11378c089d903a611eb9fbcb6f21"
+    },
+    {
+      "path": "supabase/migrations/20260826000001_fix_subtask_budget_allocation_fiscal_reference.sql",
+      "bytes": 4273,
+      "sha256": "b00205a178c4dbb178cbdf6381710fbb2cca1d584a74710e49c6c0f8def231db"
+    },
+    {
+      "path": "supabase/migrations/20260826000002_task_leader_only_subtask_management.sql",
+      "bytes": 796,
+      "sha256": "cdfb0f3e60cc1ec9c054e81f398ce84eb0216a57fb10c6eb3780f38c69a0cc07"
+    },
+    {
+      "path": "supabase/migrations/20260826000003_dynamic_task_funding.sql",
+      "bytes": 53018,
+      "sha256": "4ae60d91414e02f03ef4e650aa91d4a8623907c0403a53330e2402bcd5cbe798"
+    },
+    {
+      "path": "supabase/migrations/20260826000004_release_correction_holds_and_notify_reviewers.sql",
+      "bytes": 4725,
+      "sha256": "1e32e6886591f822a7dcf59fc4cf6c75372551279198758b578db14583447df1"
+    },
+    {
+      "path": "supabase/migrations/20260831000001_task_evidence_security.sql",
+      "bytes": 31903,
+      "sha256": "66154f71fadd1a091efa830d1183f2e0d017d7bdccc2c9358d50203f365bfacc"
+    },
+    {
+      "path": "supabase/migrations/20260831000002_cash_release_schedule_override.sql",
+      "bytes": 13916,
+      "sha256": "ac5d1c65cac30cefcb405b95f99dcad5df47b2e2543d95e6d92a18cf30717a77"
+    },
+    {
+      "path": "supabase/migrations/20260831000003_project_completion_lifecycle.sql",
+      "bytes": 10556,
+      "sha256": "2d4bf3e54d53a793e8516d9fa2432e1dffe6a77cdfae038921422256fb469341"
+    },
+    {
+      "path": "supabase/migrations/20260919000000_phase04_phase05_accounting.sql",
+      "bytes": 47685,
+      "sha256": "076177ef042a1df13f614bdde66cf4fbbf6f314f3b0a71c46e4fdd35b4bbb0aa"
+    },
+    {
+      "path": "supabase/migrations/20260919000001_fix_draft_budget_task_link_whitespace.sql",
+      "bytes": 1112,
+      "sha256": "c267fae6650f18121363280f8d252661110002b9f022322a834515c0801ef3fb"
+    },
+    {
+      "path": "supabase/migrations/20260919000002_fix_accounting_release_request_alias.sql",
+      "bytes": 5593,
+      "sha256": "d39162f1b3a4f4bd20a359a1599822d00e9ff37379494fd042c8dfc2b49ef839"
+    },
+    {
+      "path": "supabase/migrations/20260919000003_accounting_release_schedule_override.sql",
+      "bytes": 6117,
+      "sha256": "d4bacbd4682dc2bea39561e0d55856b5f529b923f710f17a19f79d9577ef4fce"
+    },
+    {
+      "path": "supabase/migrations/20260919000004_fix_accounting_document_number_trigger.sql",
+      "bytes": 1357,
+      "sha256": "6916040ce6c7a7d0c8eb4139871004b775c2c03cad9468896e5670e91dc0a04c"
+    },
+    {
+      "path": "supabase/migrations/20260925000000_task_discussion_realtime.sql",
+      "bytes": 350,
+      "sha256": "79f49fd1a5d36370a7c3bbfa569b231991cd4cbcb44d0a1b872d42676d075de6"
+    },
+    {
+      "path": "supabase/migrations/20260925000001_cash_request_future_dates.sql",
+      "bytes": 902,
+      "sha256": "1e58489be41124a12c1d82be6ef0c643ad2af997c8b60ee43fb2923a958566e4"
+    },
+    {
+      "path": "supabase/migrations/20260925000002_fifteen_day_liquidation_head_approval.sql",
+      "bytes": 2559,
+      "sha256": "ea8eaca52c0210581a16b25d7826d235ee15a405b551d7fe8504e883bb5b5f00"
+    },
+    {
+      "path": "supabase/migrations/20260926000000_phase09_standing_org_channels.sql",
+      "bytes": 2814,
+      "sha256": "ebe6d30c75d9b42791599048109e190b3bc4350a535227a5c30ea9e44d16658e"
+    },
+    {
+      "path": "supabase/migrations/20260927000000_fix_task_editor_assignment.sql",
+      "bytes": 4686,
+      "sha256": "a31e8b010bbaa553b325b8484595782bd4bda4ee605c092cbe232b731207c765"
+    },
+    {
+      "path": "supabase/migrations/20260928000000_cascade_commit_projects.sql",
+      "bytes": 515,
+      "sha256": "055c95469504e090cb3e4cbb607b817f2b63f7e396a59735dd83c916da6199bd"
+    },
+    {
+      "path": "supabase/migrations/20260928000001_allow_zero_cost_proposals.sql",
+      "bytes": 9908,
+      "sha256": "35b28cb4ea738992527404e040a3ce53256a6068987480eadf71f26b900aa336"
+    },
+    {
+      "path": "supabase/migrations/20260928000002_collaboration_role_and_approval_stability.sql",
+      "bytes": 11892,
+      "sha256": "cde86384ab7a1ff59e02d6a35ade573b540f53ca8d2d595c16966b9002a66a46"
+    },
+    {
+      "path": "supabase/migrations/20260928000003_petty_cash_funding_requester_orgs.sql",
+      "bytes": 10041,
+      "sha256": "db185704f6745d5f087876fd3addbad0b610130ad3845997901149adef6c211d"
+    },
+    {
+      "path": "supabase/migrations/20260928000004_revocable_admin_role.sql",
+      "bytes": 5848,
+      "sha256": "cbe75b16b0486eaf53f0ad3f103045f6f7f4855489c04f93317778abef4cf664"
+    },
+    {
+      "path": "supabase/migrations/20260928000005_admin_leadership_profile_edits.sql",
+      "bytes": 2084,
+      "sha256": "49f2b11aca1cace8f711c58b9f7b52eb8f5ae9d12faccaecf683abe08f361ecc"
+    },
+    {
+      "path": "supabase/migrations/20260928000006_fix_collaboration_draft_creation_roles.sql",
+      "bytes": 9078,
+      "sha256": "24e09f3ac61fe912130ab8c29b844377292a69cc50c6a289fb7c4da96023a6d5"
+    },
+    {
+      "path": "supabase/migrations/20260928000007_fix_autosave_observer_role.sql",
+      "bytes": 4253,
+      "sha256": "a7bbb609d8250570fbe85289f28d281b159d2b2437b8599f8a2bd992c4ffa59e"
+    },
+    {
+      "path": "supabase/migrations/20260930000001_defense_revision_approval_and_duration.sql",
+      "bytes": 32838,
+      "sha256": "7bad4ab0ffa43747b128874a16224974674008591fd729870988ca2f0ad3e4e1"
+    },
+    {
+      "path": "supabase/migrations/20261003000000_unify_admin_identity.sql",
+      "bytes": 11068,
+      "sha256": "6a1b77f7106b75daaa46c848a7f6e69541f9cc74ba19f7068b509b914ebcd532"
+    },
+    {
+      "path": "supabase/migrations/20261003000001_access_items_and_employee_status.sql",
+      "bytes": 17049,
+      "sha256": "46708ea78bb93cd53605a7fa0cc5b6ed56d97a6c9dd846e1f6506b2b51d84e98"
+    },
+    {
+      "path": "supabase/migrations/20261003000002_dynamic_item_capabilities.sql",
+      "bytes": 9656,
+      "sha256": "79f9a163d8e33689bd5c2e0e53fa3ef7fc8669d825936612804a4ebdd79f81ad"
+    },
+    {
+      "path": "supabase/migrations/20261003000003_revert_phase_2.sql",
+      "bytes": 7166,
+      "sha256": "e1abead860e0ab3feb7bc366d642a302cd6d6e9256596811287ea8d238109f31"
+    },
+    {
+      "path": "supabase/migrations/20261003000004_simplified_roles_and_office_authority.sql",
+      "bytes": 130354,
+      "sha256": "4386ebb5789e48f5397ad33f2227cb8aa87ca6d141fc0b29a943bf36742a12e5"
+    },
+    {
+      "path": "supabase/migrations/20261004123126_phase2_invitation_onboarding_pds.sql",
+      "bytes": 22484,
+      "sha256": "35acc20cc235e67853d4bb3ce82e29e9f637b4cb5ce60dbc280786b07c86f785"
+    },
+    {
+      "path": "supabase/migrations/20261004132527_phase2_invitation_dispatch_limits.sql",
+      "bytes": 1844,
+      "sha256": "7410f0f8949714bd321312eacf7a5aae3560f0a62848338c3d2b927cfa233af5"
+    },
+    {
+      "path": "supabase/migrations/20261004133412_phase2_existing_identity_acceptance.sql",
+      "bytes": 427,
+      "sha256": "eb0cef4a9d077fb56497aa52d392574823d10397b257ce174f21ad60c5d73f2a"
+    },
+    {
+      "path": "supabase/migrations/20261004140128_phase3_project_table_workspace.sql",
+      "bytes": 15944,
+      "sha256": "69c2b4d6e5d8cf21944d88cdd6e167278bbf79785275543e7892d9645804e1f0"
+    },
+    {
+      "path": "supabase/migrations/20261004164937_phase5_workspace_ai_import.sql",
+      "bytes": 10357,
+      "sha256": "970cc83af2d841bb85e297d0dbfa782f611ee4044a2783aa669727bee6f0656a"
+    },
+    {
+      "path": "supabase/migrations/20261004174950_phase6_project_office_collaboration.sql",
+      "bytes": 30593,
+      "sha256": "92e0635b45ae1dbe3d26aeec58cd5af8b817e27e4b2cb4c65e02f819e3d59bee"
+    },
+    {
+      "path": "supabase/migrations/20261004182453_phase6_shared_structure_guards.sql",
+      "bytes": 4222,
+      "sha256": "c472ef02a7c0265bce3df298d4ed02c344c4ed169b2acb7b3112da7297d1fcd6"
+    },
+    {
+      "path": "supabase/migrations/20261004194130_phase7_readiness_governance.sql",
+      "bytes": 17979,
+      "sha256": "382d3983a0ed54cd2261e319a887d3d69ebbe963d771e0a7c0ccb2ddf98d84a3"
+    },
+    {
+      "path": "supabase/migrations/20261005170822_phase65_project_local_office_identity.sql",
+      "bytes": 34213,
+      "sha256": "8df2fc34cdce7ca2658c6313e49a9b824e13d1999e35df5c919f5b73f5a1e440"
+    },
+    {
+      "path": "supabase/migrations/20261007120000_r3_personal_workspaces.sql",
+      "bytes": 29844,
+      "sha256": "3fcef092bb86f6dc00bddeffc0b0ecb4f7904069e58fa05de06093408c756d9c"
+    },
+    {
+      "path": "supabase/migrations/20261008030659_r6_project_file_library.sql",
+      "bytes": 15592,
+      "sha256": "792ad15a0b55af935978e5196c0b66ac5e3f76e113cb2555c34ccc4cd713569a"
+    },
+    {
+      "path": "supabase/migrations/20261008035748_r7_project_members_and_nested_work.sql",
+      "bytes": 77265,
+      "sha256": "ca8087b49f7847b46ce911b8468dc66846b60b9152177fee9cda3463c0a637c4"
+    },
+    {
+      "path": "supabase/migrations/20261008060756_r8_approved_project_invitations.sql",
+      "bytes": 40016,
+      "sha256": "88ff4b93959196473da8cb4ec7305dbd2e627441a335ccb10c323102e5aa3456"
+    },
+    {
+      "path": "supabase/migrations/20261008081855_r9_project_access_lifecycle.sql",
+      "bytes": 53878,
+      "sha256": "ccbeafb72c94811200ea54c2d6ef3a58834a7ee98534487ffb2b241cf1fe2082"
+    },
+    {
+      "path": "supabase/migrations/20261008123723_r11_project_activity_snapshots.sql",
+      "bytes": 8046,
+      "sha256": "f6b3bd8aa920b64a309b2808da3d637b3799094e49850bdd275ac06209c3d230"
+    },
+    {
+      "path": "supabase/migrations/20261008134347_r12_presentation_settings.sql",
+      "bytes": 2956,
+      "sha256": "7ebbe91ea4fff43367a626dd372052461790b7fcca931acdc12f7e5a413d10eb"
+    }
+  ]
+}

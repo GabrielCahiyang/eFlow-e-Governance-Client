@@ -14,9 +14,9 @@ describe('Project Office authority',()=>{
   expect(canStaffProjectOffice({...office,relationship_type:'observer'},head,organizations)).toBe(false);
   expect(canStaffProjectOffice({...office,invitation_status:'awaiting_head'},head,organizations)).toBe(false);
  });
- it('Offers the own Office Head and selected active members, excluding other Office employees',()=>{
+ it('Offers selected active members in every Office, including the lead Office',()=>{
   const people=[head,{id:'selected',org_id:'cpdo',role:'member',is_active:true},{id:'unselected',org_id:'cpdo',role:'member',is_active:true},{id:'other',org_id:'ledipo',role:'member',is_active:true},{id:'inactive',org_id:'cpdo',is_active:false}] as UserProfile[];
-  expect(projectOfficePeople(office,[{project_office_id:'participation',user_id:'selected'}],people,organizations).map(p=>p.id)).toEqual(['head','selected']);
+  expect(projectOfficePeople(office,[{project_office_id:'participation',user_id:'selected'}],people,organizations).map(p=>p.id)).toEqual(['selected']);
  });
  it('Prevents Office handover once work or staffing has started',()=>{
   const task={status:'pending_assignment',teamMemberIds:[]} as unknown as Task;

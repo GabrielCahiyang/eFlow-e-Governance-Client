@@ -2,16 +2,16 @@ import { test, expect } from '@playwright/test';
 import { projectWorkspaceFixture } from './fixtures/projectWorkspace';
 
 const routes = {
-  head: [['Home','Overview','/overview'],['Workspaces','Tasks','/tasks'],['Workspaces','Office Budget','/office-budget'],['Workspaces','Office Team','/team-supervision'],['Workspaces','Identity & Access','/identity-and-access'],['Workspaces','Team Intelligence','/team-intelligence'],['Workspaces','Reports','/reports'],['My Work','My Subtasks','/subtasks'],['Inbox','Reviews','/reviews'],['Inbox','Announcements','/announcements']],
-  member: [['My Work','My Tasks','/tasks'],['My Work',"Work I'm Leading",'/leading'],['My Work','My Subtasks','/subtasks'],['My Work','Deadlines','/deadlines'],['My Work','Task History','/task-history'],['My Work','Performance','/performance'],['My Work','Work Report','/reports'],['Inbox','Leader Reviews','/reviews'],['Inbox','Announcements','/announcements']],
-  accounting_staff: [['My Work','My Tasks','/tasks'],['My Work','My Subtasks','/subtasks'],['Accounting','Accounting Overview','/accounting-overview'],['Accounting','Voucher & Cash Releases','/voucher-cash-releases'],['Accounting','General Journal','/general-journal'],['Accounting','Financial Audit Trail','/financial-audit-trail'],['Accounting','Office Budget Ledgers','/office-budget-ledgers']],
+  head: [['Workspaces','Workspace Overview','/overview'],['Workspaces','Tasks','/tasks'],['Workspaces','Office Budget','/office-budget'],['Workspaces','Office Team','/team-supervision'],['Workspaces','Identity & Access','/identity-and-access'],['Workspaces','Team Intelligence','/team-intelligence'],['Workspaces','Reports','/reports'],['My Work','Assigned work','/my-work'],['My Work','Leading','/my-work'],['My Work','Subtasks','/my-work'],['My Work','History','/my-work'],['Inbox','Reviews','/reviews'],['Inbox','Announcements','/announcements']],
+  member: [['My Work','Assigned work','/my-work'],['My Work','Leading','/my-work'],['My Work','Subtasks','/my-work'],['My Work','History','/my-work'],['Workspaces','Workspace Overview','/overview'],['Inbox','Leader Reviews','/reviews'],['Inbox','Announcements','/announcements']],
+  accounting_staff: [['My Work','Assigned work','/my-work'],['My Work','Leading','/my-work'],['My Work','Subtasks','/my-work'],['My Work','History','/my-work'],['Accounting','Accounting Overview','/accounting-overview'],['Accounting','Voucher & Cash Releases','/voucher-cash-releases'],['Accounting','General Journal','/general-journal'],['Accounting','Financial Audit Trail','/financial-audit-trail'],['Accounting','Office Budget Ledgers','/office-budget-ledgers']],
   admin: [['Admin Center','All Users','/users'],['Admin Center','Role Defaults','/users'],['Admin Center','User Access','/users'],['Admin Center','Office Structure','/users'],['Admin Center','Account Audit','/users'],['Admin Center','System Settings','/users'],['Admin Center','Backup & Export','/users']],
 } as const;
 for (const role of ['head','member','accounting_staff','admin'] as const) test(`${role} retains its landing and authorized destinations through global/context navigation`, async ({page},info) => {
   test.setTimeout(150_000);
   await page.setViewportSize({width:1440,height:950});
   await projectWorkspaceFixture(page,role,false,{landingOnly:true,leading:role !== 'head'});
-  expect(new URL(page.url()).pathname).toBe({head:'/overview',member:'/tasks',accounting_staff:'/accounting-overview',admin:'/users'}[role]);
+  expect(new URL(page.url()).pathname).toBe({head:'/overview',member:'/my-work',accounting_staff:'/accounting-overview',admin:'/users'}[role]);
   const rail=page.getByRole('navigation',{name:'Global navigation'});
   if (role==='head') {
     await rail.getByRole('button',{name:'My Work',exact:true}).click();
@@ -20,13 +20,11 @@ for (const role of ['head','member','accounting_staff','admin'] as const) test(`
   if (role==='admin') await expect(rail.getByRole('button',{name:'Workspaces',exact:true})).toHaveCount(0);
   for (const [group,label,path] of routes[role]) {
     await rail.getByRole('button',{name:group,exact:true}).click();
-    const officeTools = page.getByText('Office tools', {exact:true});
-    if (await officeTools.isVisible() && await officeTools.evaluate(element => !element.closest('details')?.open)) await officeTools.click();
     const target=page.getByRole('navigation',{name:'Workspace destinations'}).getByRole('button',{name:label,exact:true}).first();
     if (await target.count()) await target.click();
     await expect.poll(()=>new URL(page.url()).pathname).toBe(path);
     await expect(page.getByRole('heading',{name:'Access denied',exact:true})).toHaveCount(0);
-    if (group!=='Home') await expect(target).toHaveAttribute('aria-current','page');
+    if (group) await expect(target).toHaveAttribute('aria-current','page');
   }
   await page.reload(); await expect(rail).toBeVisible();
   await page.screenshot({path:info.outputPath(`${role}-navigation.png`),fullPage:true});
@@ -49,13 +47,13 @@ test('individual support grants reach the named screen and denied routes load no
 test('search and favorites retain a shared inter-Office observer project without offering creation', async ({page},info) => {
   test.setTimeout(90_000);
   const records=await projectWorkspaceFixture(page,'member',false,{shared:true});
-  const context=page.getByRole('complementary',{name:'Projects context'});
+  const context=page.getByRole('region',{name:'Projects',exact:true});
   await expect(context.getByRole('button',{name:'Community outreach',exact:true})).toBeVisible();
   await expect(context.getByRole('button',{name:'Create project',exact:true})).toHaveCount(0);
   await context.getByRole('button',{name:'Add Community outreach to favorites',exact:true}).click();
   await page.reload();
   await expect(context.getByRole('button',{name:'Remove Community outreach from favorites',exact:true}).first()).toHaveAttribute('aria-pressed','true');
-  await page.getByRole('navigation',{name:'Global navigation'}).getByRole('button',{name:'Search',exact:true}).click();
+  await page.getByRole('button',{name:'Search workspace',exact:true}).click();
   await page.getByRole('textbox',{name:'Search navigation and projects'}).fill('Community outreach');
   await page.getByRole('dialog',{name:'Search available content'}).getByRole('button',{name:'Community outreach Project',exact:true}).click();
   await expect(page.getByRole('region',{name:'Project main table'})).toBeVisible();
@@ -67,11 +65,11 @@ test('search and favorites retain a shared inter-Office observer project without
 test('creation menu uses existing handlers, retains failed drafts and discards only after confirmation', async ({page}) => {
   test.setTimeout(90_000);
   await projectWorkspaceFixture(page,'head');
-  const context=page.getByRole('complementary',{name:'Projects context'});
-  await context.getByRole('button',{name:'Add to workspace',exact:true}).click();
+  const context=page.getByRole('region',{name:'Projects',exact:true});
+  await page.getByRole('button',{name:'Projects and proposals',exact:true}).click();
   await expect(page.getByRole('menuitem',{name:'Import proposal',exact:true})).toBeVisible();
   await expect(page.getByRole('menuitem',{name:/Folder|Dashboard|My Work/})).toHaveCount(0);
-  await page.getByRole('menuitem',{name:'Project',exact:true}).click();
+  await page.getByRole('menuitem',{name:'Create project',exact:true}).click();
   await page.getByLabel('Project name',{exact:true}).fill('Retained project draft');
   let requests=0;
   await page.route('**/rest/v1/rpc/create_project_with_details',async route=>{ requests++; if(requests===1) await route.fulfill({status:503,json:{message:'Synthetic temporary creation failure'}}); else await route.fallback(); });
@@ -83,7 +81,7 @@ test('creation menu uses existing handlers, retains failed drafts and discards o
   await expect(page.getByRole('dialog',{name:'Let’s start working together',exact:true})).toHaveCount(0);
   expect(requests).toBe(2);
   await expect(context.getByRole('button',{name:'Retained project draft',exact:true})).toBeVisible();
-  await context.getByRole('button',{name:'Create project',exact:true}).click(); await page.getByLabel('Project name',{exact:true}).fill('Discarded draft');
+  await page.getByRole('button',{name:'Projects and proposals',exact:true}).click(); await page.getByRole('menuitem',{name:'Create project',exact:true}).click(); await page.getByLabel('Project name',{exact:true}).fill('Discarded draft');
   await page.getByRole('button',{name:'Cancel',exact:true}).click(); await page.getByRole('button',{name:'Discard',exact:true}).click();
   expect(requests).toBe(2);
 });
@@ -113,9 +111,9 @@ test('failed inline task remains intact when shell navigation is canceled and lo
   let requests=0;await page.route('**/rest/v1/rpc/phase3_create_task',route=>{requests++;return route.fulfill({status:503,json:{message:'Retain this failed task'}});});
   const input=page.getByRole('textbox',{name:'Add task to To do',exact:true});await input.fill('Failed draft');await input.press('Tab');
   await expect(page.getByRole('alert')).toContainText('Retain this failed task');
-  await page.getByRole('navigation',{name:'Global navigation'}).getByRole('button',{name:'Home',exact:true}).click();
+  await page.getByRole('navigation',{name:'Workspace destinations'}).getByRole('button',{name:'Workspace Overview',exact:true}).click();
   await page.getByRole('button',{name:'Keep editing',exact:true}).click();await expect(input).toHaveValue('Failed draft');expect(requests).toBe(1);
-  await page.getByRole('navigation',{name:'Global navigation'}).getByRole('button',{name:'Home',exact:true}).click();await page.getByRole('button',{name:'Discard',exact:true}).click();
+  await page.getByRole('navigation',{name:'Workspace destinations'}).getByRole('button',{name:'Workspace Overview',exact:true}).click();await page.getByRole('button',{name:'Discard',exact:true}).click();
   await expect.poll(()=>new URL(page.url()).pathname).toBe('/overview');expect(requests).toBe(1);
   await page.evaluate(({id,org,project})=>localStorage.setItem(`eflow:navigation:v1:${id}:${org}`,JSON.stringify([project])),{id:records.id,org:records.org,project:records.project});
   const signouts:string[]=[];page.on('request',request=>{if(request.url().includes('/auth/v1/logout'))signouts.push(request.url());});
@@ -127,10 +125,10 @@ test('failed inline task remains intact when shell navigation is canceled and lo
 test('unassigned Office and zero projects remain usable without exposing stale context',async({page})=>{
   test.setTimeout(90_000);
   await projectWorkspaceFixture(page,'member',false,{landingOnly:true,unassigned:true,empty:true});
-  await expect(page.getByRole('region',{name:'Workspace content'}).getByText('Organization not assigned',{exact:true})).toBeVisible();
+  await expect(page.getByRole('region',{name:'Workspace content'}).getByRole('button',{name:'Organization not assigned Workspace',exact:true})).toBeVisible();
   await page.getByRole('navigation',{name:'Global navigation'}).getByRole('button',{name:'Workspaces',exact:true}).click();
   await expect(page.getByText('No active projects.',{exact:true})).toBeVisible();
-  await expect(page.getByRole('complementary',{name:'Projects context'}).getByRole('button',{name:'Create project',exact:true})).toHaveCount(0);
+  await expect(page.getByRole('region',{name:'Projects',exact:true}).getByRole('button',{name:'Create project',exact:true})).toHaveCount(0);
   await page.goto('/projects?page=Projects&project=unavailable-record&view=offices');
   await expect(page.getByRole('status').filter({hasText:'Project unavailable'})).toContainText('That project is no longer in your available content. Select an available project to continue.');
   await expect.poll(()=>new URL(page.url()).searchParams.has('project')).toBe(false);
@@ -146,7 +144,7 @@ for(const width of [1440,768,390,320]) test(`responsive navigation, project cont
     const more=page.getByRole('navigation',{name:'Mobile primary navigation'}).getByRole('button',{name:'More',exact:true});
     await more.click(); const drawer=page.getByRole('dialog',{name:'Navigation',exact:true});
     await expect(drawer.getByRole('button',{name:'Community outreach',exact:true})).toBeVisible();
-    await expect(drawer.getByRole('button',{name:'Create project',exact:true})).toBeVisible();
+    await expect(drawer.getByRole('button',{name:'Add or hide workspace sections',exact:true})).toBeVisible();
     for(let i=0;i<12;i++) {await page.keyboard.press('Tab'); expect(await drawer.evaluate(element=>element.contains(document.activeElement))).toBe(true);}
     await page.screenshot({path:info.outputPath(`navigation-drawer-${width}.png`)});
     await page.keyboard.press('Escape'); await expect(drawer).toHaveCount(0); await expect(more).toBeFocused();

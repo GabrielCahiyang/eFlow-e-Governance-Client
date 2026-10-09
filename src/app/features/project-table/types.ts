@@ -8,7 +8,7 @@ export interface WorkspaceTaskPatch {
 }
 export const PROJECT_COLUMNS: {id: ProjectColumn; label: string}[] = [
  {id:'office',label:'Office'}, {id:'owner',label:'Owner'}, {id:'status',label:'Status'},
- {id:'priority',label:'Priority'}, {id:'timeline',label:'Timeline / Due date'},
- {id:'effort',label:'Effort'}, {id:'dependencies',label:'Dependencies'},
+ {id:'timeline',label:'Due date'}, {id:'priority',label:'Priority'},
+ {id:'effort',label:'Estimated hours'}, {id:'dependencies',label:'Dependencies'},
  {id:'budget',label:'Budget estimate'}, {id:'progress',label:'Progress'},
 ];

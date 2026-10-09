@@ -5,6 +5,7 @@ export interface SubtaskTemplateItem {
   id?: string;
   title: string;
   position: number;
+  parentSubtaskId?: string;
 }
 
 export interface SubtaskTemplate {

@@ -33,6 +33,7 @@ export function SubtaskWorkDrawer({
   prerequisite,
   readOnly = false,
   canManageDeadline = false,
+  currentReviewerId,
   onClose,
 }: {
   subtask: Subtask | null;
@@ -40,12 +41,14 @@ export function SubtaskWorkDrawer({
   prerequisite?: Subtask | null;
   readOnly?: boolean;
   canManageDeadline?: boolean;
+  currentReviewerId?: string;
   onClose: () => void;
 }) {
   const [current, setCurrent] = useState(subtask);
   const [submissions, setSubmissions] = useState<SubtaskSubmission[]>([]);
   const [progressUpdates, setProgressUpdates] = useState<SubtaskProgressUpdate[]>([]);
-  const reviewerIds = current?.reviewerId ? [current.reviewerId] : [];
+  const visibleReviewer=current?.status==='for_review'&&currentReviewerId?currentReviewerId:current?.reviewerId;
+  const reviewerIds = visibleReviewer ? [visibleReviewer] : [];
   const { reviewersById, loading: reviewerLoading } = useSubtaskReviewerDirectory(reviewerIds);
 
   const scopeRef = useRef(subtask?.id); scopeRef.current = subtask?.id;
@@ -124,10 +127,10 @@ export function SubtaskWorkDrawer({
                 <div className="mt-0.5 flex items-center gap-1 text-neutral-700"><Calendar size={12} /> {formatDate(parentTask?.deadline || parentTask?.dueDate)} {due?.label ? `· ${due.label}` : ""}</div>
               </div>
             </div>
-            {current.reviewerId && (
+            {visibleReviewer && (
               <div className="mt-3 border-t border-neutral-200 pt-3">
                 <SubtaskReviewerBadge
-                  reviewer={reviewersById[current.reviewerId]}
+                  reviewer={reviewersById[visibleReviewer]}
                   status={current.status}
                   loading={reviewerLoading}
                 />

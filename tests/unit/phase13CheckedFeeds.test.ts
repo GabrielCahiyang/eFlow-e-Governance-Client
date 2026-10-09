@@ -1,6 +1,6 @@
 import { beforeEach,describe,expect,it,vi } from 'vitest';
 const db=vi.hoisted(()=>({responses:{} as Record<string,unknown>,calls:[] as unknown[][]}));
-vi.mock('../../src/lib/supabase',()=>({supabase:{from:(table:string)=>{
+vi.mock('../../src/lib/supabase',()=>({supabase:{rpc:()=>Promise.resolve({data:null,error:{code:'PGRST202',message:'Legacy fixture'}}),from:(table:string)=>{
  const chain:any={};for(const method of ['select','update','eq','order','limit','in'])chain[method]=(...args:unknown[])=>{db.calls.push([table,method,...args]);return chain;};
  chain.then=(resolve:any,reject:any)=>Promise.resolve(db.responses[table] || {data:[],error:null}).then(resolve,reject);return chain;
 }}}));

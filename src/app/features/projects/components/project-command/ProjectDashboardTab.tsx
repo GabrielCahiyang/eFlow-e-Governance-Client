@@ -382,7 +382,7 @@ export function ProjectDashboardTab({
               </h3>
             </div>
 
-            {activity.length === 0 ? (
+            {data.activityError?<p role="alert">Recent audit activity unavailable: {data.activityError}</p>:activity.length === 0 ? (
               <div className="py-6 text-center text-xs text-neutral-400">
                 No recent activity logged.
               </div>

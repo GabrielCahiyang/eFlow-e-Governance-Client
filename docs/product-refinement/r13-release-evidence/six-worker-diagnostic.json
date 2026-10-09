@@ -1,0 +1,59 @@
+{
+  "candidate": "f710d7251eeee200e500f35eee46f6cd91efb9bb22c211eb440b21a1d2ac2a19",
+  "workers": 6,
+  "completed": false,
+  "interruptedAfterRequiredFailures": true,
+  "retry": 0,
+  "passedBeforeInterruption": {
+    "chromium": 188,
+    "firefox": 183,
+    "webkit": 24
+  },
+  "failures": [
+    {
+      "case": "workspace-refinement-r1-R1-52c01--content-contained-at-390px-firefox",
+      "lastRoute": null,
+      "errors": [
+        "Error: Timeout 5000ms exceeded while waiting on the predicate",
+        "Error: locator.evaluate: Test ended."
+      ],
+      "traceSha256": "02e41e939546da8c1a0a74629f05f8588f520393afb86e5eb7c2501bc35ff788"
+    },
+    {
+      "case": "workspace-refinement-r1-R1-54161-content-contained-at-1024px-firefox",
+      "lastRoute": null,
+      "errors": [
+        "Error: Timeout 15000ms exceeded while waiting on the predicate"
+      ],
+      "traceSha256": "fdf193eca48fa691f9b359060af2a360da81c4d85cee6cb2125efb29ced9ad4f"
+    },
+    {
+      "case": "workspace-refinement-r1-R1-5a226-content-contained-at-1440px-firefox",
+      "lastRoute": null,
+      "errors": [
+        "Error: Timeout 15000ms exceeded while waiting on the predicate"
+      ],
+      "traceSha256": "f2da70389457e18ccc949c3102c99887fb14817047204a1b73cc5ed38802d805"
+    },
+    {
+      "case": "workspace-refinement-r1-R1-6eea3--content-contained-at-768px-firefox",
+      "lastRoute": null,
+      "errors": [
+        "Error: Test timeout of 300000ms exceeded",
+        "Error: locator.evaluate: Test ended."
+      ],
+      "traceSha256": "fbfaebbae7d8c8e1c376edb419833c46360c2a52f0da994b8dad88915c1b6515"
+    },
+    {
+      "case": "workspace-refinement-r1-R1-884f8--content-contained-at-320px-firefox",
+      "lastRoute": null,
+      "errors": [
+        "Error: Timeout 15000ms exceeded while waiting on the predicate",
+        "Error: page.evaluate: Test ended."
+      ],
+      "traceSha256": "ff451320a69b8f4b7c34b5edc18c995eab2f68ca73dc26bcce7f3dc4c6543187"
+    }
+  ],
+  "rawLogSha256": "0c6f488a69d230aec5740cb5051cff7b5b3ad357a135c9f192d70021d72a78bb",
+  "interpretation": "Five Firefox long-view sweeps failed with stalled evaluations. Prior two-worker focused sweeps passed; contention is a hypothesis, not a proved cause. Complete configured two-worker gate required. Assertions and candidate bytes are unchanged."
+}

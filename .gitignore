@@ -51,3 +51,4 @@ graph.json
 
 # Local Phase 18 preview and measurement artifacts
 .phase18/
+.refinement/

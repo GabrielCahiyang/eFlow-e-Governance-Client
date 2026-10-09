@@ -79,9 +79,9 @@ for (const role of ["head", "member", "accounting_staff", "admin"] as const)
           page.getByText("Account directory", { exact: true }),
         ).toBeVisible();
       } else {
-        await page.goto("/tasks?page=My%20Tasks");
+        await page.goto("/my-work");
         await expect(
-          page.getByRole("heading", { name: "My Work", exact: true }),
+          page.getByRole("main", { name: "Active workspace" }).getByRole("heading", { name: "My Work", exact: true, level: 1 }),
         ).toBeVisible();
       }
     }
@@ -191,7 +191,7 @@ test("dirty discussion survives rotation and forced colors, then restores its so
     name: "Task details: Prepare community assessment",
     exact: true,
   });
-  await inspector.getByRole("tab", { name: "Discussion", exact: true }).click();
+  await inspector.getByRole("tab", { name: "Updates", exact: true }).click();
   const input = inspector.getByRole("textbox", {
     name: "Task discussion comment",
   });

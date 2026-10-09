@@ -1,5 +1,5 @@
 import type React from 'react';
-import { Activity, Board, Calendar, Chart, CheckList, CreditCard, Dashboard, Description, Security, Table, Team, Timeline, Versioning } from '@vibe/icons';
+import { Activity, Board, Calendar, Chart, CheckList, CreditCard, Dashboard, Description, Table, Team, Timeline } from '@vibe/icons';
 import type { PermanentProjectView, ProjectCommandTab, ProjectViewMeta } from './types';
 
 export const PERMANENT_TABS: { id: PermanentProjectView; label: string }[] = [
@@ -16,7 +16,7 @@ export const CORE_VIEWS_CATALOG: ProjectViewMeta<PermanentProjectView>[] = PERMA
 }));
 
 export const OPTIONAL_VIEWS_CATALOG: ProjectViewMeta[] = [
-  { id:'readiness', label:'Readiness & closeout', category:'Governance', description:'Review structure, Office participation, task owners, schedule and financial closeout.' },
+  { id:'members', label:'Members', category:'Project', description:'Selected project people, Office responsibilities and effective access.' },
   { id:'overview', label:'Overview', category:'Project', description:'Project delivery summary, milestones and attention items.' },
   { id:'timeline', label:'Timeline', category:'Project', description:'Existing milestone planning and schedule tools.' },
   // Project
@@ -48,12 +48,6 @@ export const OPTIONAL_VIEWS_CATALOG: ProjectViewMeta[] = [
 
   // Insights
   {
-    id: "workload",
-    label: "Workload & Team",
-    category: "Insights",
-    description: "Team member allocation, deliverable ownership, and delivery health.",
-  },
-  {
     id: "budget",
     label: "Budget Overview",
     category: "Insights",
@@ -62,29 +56,11 @@ export const OPTIONAL_VIEWS_CATALOG: ProjectViewMeta[] = [
   },
 
   // Governance
-  {
-    id: "signoff",
-    label: "Approval Status",
-    category: "Governance",
-    description: "Office endorsement matrix, approval status, and approval quorum.",
-  },
-  {
-    id: "evidence",
-    label: "Evidence Register",
-    category: "Governance",
-    description: "Directory of uploaded work artifacts, attachments, and completions.",
-  },
-  {
-    id: "decisions",
-    label: "Decision History",
-    category: "Governance",
-    description: "Formal change requests, approval notes, and milestone decisions.",
-  },
 ];
 
 /** Existing URL/prop aliases resolve to the same project view; unknown values are ignored. */
 export function resolveProjectView(value: string | null | undefined): ProjectCommandTab | null {
-  const aliases: Record<string, ProjectCommandTab> = { plan: 'timeline', delivery: 'timeline', work: 'tasks', people: 'workload', team: 'workload', main_table: 'tasks', 'main-table': 'tasks', 'proposal-context': 'proposal_context' };
+  const aliases: Record<string, ProjectCommandTab> = { plan: 'timeline', delivery: 'timeline', work: 'tasks', people: 'offices', team: 'offices', workload: 'offices', readiness: 'overview', signoff: 'offices', evidence: 'reviews', decisions: 'activity', main_table: 'tasks', 'main-table': 'tasks', 'proposal-context': 'proposal_context' };
   if (!value) return null;
   return Object.prototype.hasOwnProperty.call(aliases, value) ? aliases[value] : ([...PERMANENT_TABS, ...OPTIONAL_VIEWS_CATALOG].some(view => view.id === value) ? value as ProjectCommandTab : null);
 }
@@ -96,15 +72,12 @@ export const VIEW_ICONS: Record<string, React.ComponentType<{ size?: number; cla
   gantt: Timeline,
   board: Board,
   offices: Team,
+  members: Team,
   calendar: Calendar,
   reports: Table,
   proposal_context: Description,
   activity: Activity,
   reviews: CheckList,
   dashboard: Chart,
-  workload: Team,
   budget: CreditCard,
-  signoff: Security,
-  evidence: CheckList,
-  decisions: Versioning,
 };

@@ -8,6 +8,7 @@ import { mapRoleToPanel } from "./role";
 import { runTaskMaintenance } from "../tasks";
 import { SessionSecurityProvider } from "../session-security";
 import { runDepartmentBudgetMaintenance } from "../budget";
+import {ShareRedemptionPage,ShareManagementPage} from '../project-access';
 import { AcceptInvitationPage } from "../invitations";
 
 export function AuthenticatedApp() {
@@ -15,7 +16,7 @@ export function AuthenticatedApp() {
   const { loading: preferencesLoading } = useUserPreferences();
 
   useEffect(() => {
-    if (!user || window.location.pathname === '/accept-invite') return;
+    if (!user || ['/accept-invite','/accept-project-invite','/project-share','/manage-project-share'].includes(window.location.pathname)) return;
     void runTaskMaintenance().catch((error) => {
       console.warn("Task maintenance could not run:", error);
     });
@@ -24,9 +25,11 @@ export function AuthenticatedApp() {
     });
   }, [user]);
 
-  if (window.location.pathname === '/accept-invite') return <AcceptInvitationPage />;
+  if (['/accept-invite','/accept-project-invite'].includes(window.location.pathname)) return <AcceptInvitationPage />;
   if (loading || permissionsLoading || (user && preferencesLoading)) return <LoadingScreen />;
   if (!user || !userProfile) return <LoginPage />;
+  if (window.location.pathname === '/project-share') return <ShareRedemptionPage/>;
+  if (window.location.pathname === '/manage-project-share') return <ShareManagementPage/>;
 
   return (
     <SessionSecurityProvider>

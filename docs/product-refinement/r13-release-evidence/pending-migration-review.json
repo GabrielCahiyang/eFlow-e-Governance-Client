@@ -1,0 +1,46 @@
+{
+  "candidate": "619ee6b73bd779c5410827e9a53ad350d3906f516ac558bd8889baca01337911",
+  "hostedTarget": "ixnfphgjyelhckjwjkdv",
+  "preparedOnly": true,
+  "applied": false,
+  "sourceFiles": [
+    {
+      "path": "supabase/migrations/20261007120000_r3_personal_workspaces.sql",
+      "bytes": 29844,
+      "sha256": "3fcef092bb86f6dc00bddeffc0b0ecb4f7904069e58fa05de06093408c756d9c"
+    },
+    {
+      "path": "supabase/migrations/20261008030659_r6_project_file_library.sql",
+      "bytes": 15592,
+      "sha256": "792ad15a0b55af935978e5196c0b66ac5e3f76e113cb2555c34ccc4cd713569a"
+    },
+    {
+      "path": "supabase/migrations/20261008035748_r7_project_members_and_nested_work.sql",
+      "bytes": 77265,
+      "sha256": "ca8087b49f7847b46ce911b8468dc66846b60b9152177fee9cda3463c0a637c4"
+    },
+    {
+      "path": "supabase/migrations/20261008060756_r8_approved_project_invitations.sql",
+      "bytes": 40016,
+      "sha256": "88ff4b93959196473da8cb4ec7305dbd2e627441a335ccb10c323102e5aa3456"
+    },
+    {
+      "path": "supabase/migrations/20261008081855_r9_project_access_lifecycle.sql",
+      "bytes": 53878,
+      "sha256": "ccbeafb72c94811200ea54c2d6ef3a58834a7ee98534487ffb2b241cf1fe2082"
+    },
+    {
+      "path": "supabase/migrations/20261008123723_r11_project_activity_snapshots.sql",
+      "bytes": 8046,
+      "sha256": "f6b3bd8aa920b64a309b2808da3d637b3799094e49850bdd275ac06209c3d230"
+    },
+    {
+      "path": "supabase/migrations/20261008134347_r12_presentation_settings.sql",
+      "bytes": 2956,
+      "sha256": "7ebbe91ea4fff43367a626dd372052461790b7fcca931acdc12f7e5a413d10eb"
+    }
+  ],
+  "compatibility": "Cumulative local replay passed; genuine current-schema, separate-session and concurrency acceptance remain open.",
+  "deploymentWorkspace": "Use only an isolated workspace populated from actual live ledger timestamps. These repository files are review inputs, not authorization to push the historical migration directory.",
+  "historicalReplayLimitation": "The latest live withdrawal ledger stores incomplete placeholder SQL. Preserve its version/name and receipt; resolve recovery with the operator without repairing live history."
+}

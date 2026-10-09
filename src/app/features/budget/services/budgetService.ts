@@ -1,3 +1,4 @@
+import {budgetReportRead} from './budgetReportReads';
 import { supabase } from "../../../../lib/supabase";
 import type { AccountingAccount, BudgetLineInput, DepartmentBudgetBundle, GeneralJournalEntry, JournalAdjustmentLineInput, ReceiptDraft, TaskFundingContext } from "../types";
 import { mapAdjustment, mapAllocation, mapAllocationLine, mapBudgetLine, mapBudgetSummary, mapCommitment, mapLedger, mapLiquidation, mapReceipt, mapRelease, mapRequest } from "./budgetMappers";
@@ -24,14 +25,15 @@ export async function fetchDepartmentBudgetBundle(orgId: string, fiscalYear: num
     if (/not found|schema cache/i.test(summaryResult.error.message)) throw new Error("Apply the office budget migration, then refresh this page.");
     throw new Error(summaryResult.error.message);
   }
+  if(summaryResult.data&&(Array.isArray(summaryResult.data)||!summaryResult.data.id||!summaryResult.data.orgId))throw new Error('Office financial scope could not be verified. Retry budget facts.');
   const summary = summaryResult.data ? mapBudgetSummary(summaryResult.data as Record<string, unknown>) : null;
   if (!summary) return { summary: null, lines: [], commitments: [], allocations: [], allocationLines: [], requests: [], requestAttachments: [], releases: [], liquidations: [], ledger: [], adjustments: [] };
   const [linesResult, commitmentsResult, requestsResult, ledgerResult, adjustmentsResult] = await Promise.all([
-    supabase.from("department_budget_lines").select("*").eq("fiscal_budget_id", summary.id).order("position"),
-    supabase.from("budget_commitments").select("*").eq("fiscal_budget_id", summary.id).order("created_at", { ascending: false }),
-    supabase.from("petty_cash_requests").select("*").eq("fiscal_budget_id", summary.id).order("created_at", { ascending: false }),
-    supabase.from("budget_ledger_entries").select("*").eq("fiscal_budget_id", summary.id).order("created_at", { ascending: false }).limit(100),
-    supabase.from("department_budget_adjustments").select("*").eq("fiscal_budget_id", summary.id).order("created_at", { ascending: false }),
+    budgetReportRead(()=>supabase.from("department_budget_lines").select("*",{count:"exact"}).eq("fiscal_budget_id", summary.id).order("position").order("id",{ascending:true}), undefined, "position", true),
+    budgetReportRead(()=>supabase.from("budget_commitments").select("*",{count:"exact"}).eq("fiscal_budget_id", summary.id).order("created_at", { ascending: false }).order("id",{ascending:true}), undefined, "created_at", false),
+    budgetReportRead(()=>supabase.from("petty_cash_requests").select("*",{count:"exact"}).eq("fiscal_budget_id", summary.id).order("created_at", { ascending: false }).order("id",{ascending:true}), undefined, "created_at", false),
+    budgetReportRead(()=>supabase.from("budget_ledger_entries").select("*",{count:"exact"}).eq("fiscal_budget_id", summary.id).order("created_at", { ascending: false }).order("id",{ascending:true}), undefined, "created_at", false),
+    budgetReportRead(()=>supabase.from("department_budget_adjustments").select("*",{count:"exact"}).eq("fiscal_budget_id", summary.id).order("created_at", { ascending: false }).order("id",{ascending:true}), undefined, "created_at", false),
   ]);
   [linesResult.error, commitmentsResult.error, requestsResult.error, ledgerResult.error].forEach(throwIf);
   if (adjustmentsResult.error && !isMissingSchemaObject(adjustmentsResult.error.message)) throwIf(adjustmentsResult.error);
@@ -42,9 +44,9 @@ export async function fetchDepartmentBudgetBundle(orgId: string, fiscalYear: num
   const taskIds = uniqueIds(requestRows.map((row) => row.task_id));
   const subtaskIds = uniqueIds(requestRows.map((row) => row.subtask_id));
   const [profilesResult, tasksResult, requestSubtasksResult] = await Promise.all([
-    profileIds.length ? supabase.from("profiles").select("id,full_name").in("id", profileIds) : Promise.resolve({ data: [], error: null }),
-    taskIds.length ? supabase.from("tasks").select("id,title").in("id", taskIds) : Promise.resolve({ data: [], error: null }),
-    subtaskIds.length ? supabase.from("subtasks").select("id,title").in("id", subtaskIds) : Promise.resolve({ data: [], error: null }),
+    profileIds.length ? budgetReportRead(selected=>supabase.from("profiles").select("id,full_name",{count:"exact"}).in("id", selected).order("id",{ascending:true}), profileIds) : Promise.resolve({ data: [], error: null }),
+    taskIds.length ? budgetReportRead(selected=>supabase.from("tasks").select("id,title",{count:"exact"}).in("id", selected).order("id",{ascending:true}), taskIds) : Promise.resolve({ data: [], error: null }),
+    subtaskIds.length ? budgetReportRead(selected=>supabase.from("subtasks").select("id,title",{count:"exact"}).in("id", selected).order("id",{ascending:true}), subtaskIds) : Promise.resolve({ data: [], error: null }),
   ]);
   throwIf(profilesResult.error); throwIf(tasksResult.error); throwIf(requestSubtasksResult.error);
   const profileById = rowMap(profilesResult.data || []);
@@ -60,17 +62,17 @@ export async function fetchDepartmentBudgetBundle(orgId: string, fiscalYear: num
   }));
   const requestIds = requests.map((item) => item.id);
   const [allocationsResult, liquidationsResult, releasesResult, requestAttachmentsResult] = await Promise.all([
-    commitmentIds.length ? supabase.from("work_budget_allocations").select("*").in("commitment_id", commitmentIds).order("requested_at", { ascending: false }) : Promise.resolve({ data: [], error: null }),
-    requestIds.length ? supabase.from("petty_cash_liquidations").select("*").in("request_id", requestIds).order("submitted_at", { ascending: false }) : Promise.resolve({ data: [], error: null }),
-    requestIds.length ? supabase.from("petty_cash_releases").select("*").in("request_id", requestIds).order("scheduled_date", { ascending: false }) : Promise.resolve({ data: [], error: null }),
-    requestIds.length ? supabase.from("petty_cash_request_attachments").select("*").in("request_id", requestIds).order("created_at", { ascending: false }) : Promise.resolve({ data: [], error: null }),
+    commitmentIds.length ? budgetReportRead(selected=>supabase.from("work_budget_allocations").select("*",{count:"exact"}).in("commitment_id", selected).order("requested_at", { ascending: false }).order("id",{ascending:true}), commitmentIds, "requested_at", false) : Promise.resolve({ data: [], error: null }),
+    requestIds.length ? budgetReportRead(selected=>supabase.from("petty_cash_liquidations").select("*",{count:"exact"}).in("request_id", selected).order("submitted_at", { ascending: false }).order("id",{ascending:true}), requestIds, "submitted_at", false) : Promise.resolve({ data: [], error: null }),
+    requestIds.length ? budgetReportRead(selected=>supabase.from("petty_cash_releases").select("*",{count:"exact"}).in("request_id", selected).order("scheduled_date", { ascending: false }).order("id",{ascending:true}), requestIds, "scheduled_date", false) : Promise.resolve({ data: [], error: null }),
+    requestIds.length ? budgetReportRead(selected=>supabase.from("petty_cash_request_attachments").select("*",{count:"exact"}).in("request_id", selected).order("created_at", { ascending: false }).order("id",{ascending:true}), requestIds, "created_at", false) : Promise.resolve({ data: [], error: null }),
   ]);
   throwIf(allocationsResult.error); throwIf(liquidationsResult.error); throwIf(releasesResult.error);
   if (requestAttachmentsResult.error && !isMissingSchemaObject(requestAttachmentsResult.error.message)) throwIf(requestAttachmentsResult.error);
   const allocationRows = (allocationsResult.data || []) as Array<Record<string, unknown>>;
   const allocationSubtaskIds = uniqueIds(allocationRows.map((row) => row.subtask_id));
   const allocationSubtasksResult = allocationSubtaskIds.length
-    ? await supabase.from("subtasks").select("id,title,assigned_to_ids").in("id", allocationSubtaskIds)
+    ? await budgetReportRead(selected=>supabase.from("subtasks").select("id,title,assigned_to_ids",{count:"exact"}).in("id", selected).order("id",{ascending:true}), allocationSubtaskIds)
     : { data: [], error: null };
   throwIf(allocationSubtasksResult.error);
   const allocationSubtaskById = rowMap(allocationSubtasksResult.data || []);
@@ -80,13 +82,13 @@ export async function fetchDepartmentBudgetBundle(orgId: string, fiscalYear: num
   }));
   const allocationIds = allocations.map((item) => item.id);
   const allocationLinesResult = allocationIds.length
-    ? await supabase.from("work_budget_allocation_lines").select("*").in("allocation_id", allocationIds).order("position")
+    ? await budgetReportRead(selected=>supabase.from("work_budget_allocation_lines").select("*",{count:"exact"}).in("allocation_id", selected).order("position").order("id",{ascending:true}), allocationIds, "position", true)
     : { data: [], error: null };
   throwIf(allocationLinesResult.error);
   const liquidationRows = liquidationsResult.data || [];
   const liquidationIds = liquidationRows.map((row) => String((row as Record<string, unknown>).id));
   const receiptsResult = liquidationIds.length
-    ? await supabase.from("petty_cash_receipts").select("*").in("liquidation_id", liquidationIds)
+    ? await budgetReportRead(selected=>supabase.from("petty_cash_receipts").select("*",{count:"exact"}).in("liquidation_id", selected).order("id",{ascending:true}), liquidationIds)
     : { data: [], error: null };
   throwIf(receiptsResult.error);
   const receipts = (receiptsResult.data || []).map((row) => mapReceipt(row as Record<string, unknown>));
@@ -109,7 +111,6 @@ export async function fetchDepartmentBudgetBundle(orgId: string, fiscalYear: num
     schemaWarnings: adjustmentsResult.error ? ["The latest fiscal controls update has not been applied to the live system."] : [],
   };
 }
-
 export async function saveDepartmentFiscalBudget(input: {
   orgId: string; fiscalYear: number; pettyCashLimit: number; requestLimit: number;
   liquidationDueDays?: number; allowReceiptLimitOverride?: boolean;

@@ -11,18 +11,18 @@ export function personalTaskRelation(task: Task, userId?: string): string {
   return 'Recommended lead';
 }
 /** Local calendar days; week runs Monday–Sunday. Completed uses the existing updatedAt proxy. */
-export function selectPersonalWork(tasks: Task[], userId: string | undefined, bucket: WorkBucket, query = '', now = new Date()): Task[] {
+export function selectPersonalWork(tasks: Task[], userId: string | undefined, bucket: WorkBucket, query = '', now = new Date(), assignedBranches:readonly string[]=[]): Task[] {
   const today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) / 86400000;
   const monday = today - (now.getDay() + 6) % 7;
   const needle = query.trim().toLocaleLowerCase();
   return tasks.filter(task => {
-    if (!isPersonalTask(task, userId) || task.archivedAt || task.status === 'cancelled') return false;
+    if ((!isPersonalTask(task, userId)&&!assignedBranches.includes(task.id)) || task.archivedAt || task.status === 'cancelled') return false;
     if (bucket === 'Recently completed') {
       const updated = new Date(task.updatedAt);
       const day = Date.UTC(updated.getFullYear(), updated.getMonth(), updated.getDate()) / 86400000;
       if (task.status !== 'completed' || day < today - 6 || day > today) return false;
     } else if (task.status === 'completed') return false;
-    if (bucket === 'Assigned to me' && task.assigneeId !== userId && !task.teamMemberIds?.includes(userId || '')) return false;
+    if (bucket === 'Assigned to me' && task.assigneeId !== userId && !task.teamMemberIds?.includes(userId || '')&&!assignedBranches.includes(task.id)) return false;
     if (bucket === 'Leading' && !isTaskLead(task, userId)) return false;
     const due = calendarDay(task.deadline || task.dueDate);
     if (bucket === 'Due today' && due !== today) return false;

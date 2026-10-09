@@ -1,66 +1,67 @@
-import { useConfirmation } from '../../../components/ui/useConfirmation';
-import { readinessResolution, closeoutResolution, type ReadinessDestination } from '../resolution';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Button, Skeleton } from '@vibe/core';
-import * as m from 'motion/react-m';
-import { CheckCircle2, Circle, ShieldCheck } from 'lucide-react';
-import { supabase } from '../../../../lib/supabase';
-import { completeProject, archiveCompletedProject, fetchProjectCompletionReadiness, type ProjectCompletionReadiness, type Project } from '../../projects';
-import { fetchReadiness, fetchCloseoutSummary, reviewProject, activateReadyProject } from '../services/readinessService';
-import type { ProjectReadiness, CloseoutSummary, ReviewKind } from '../types';
-import '../readiness.css';
+import { Button } from '../../../components/ui/button';
+import { FeedbackState } from '../../../components/ui/FeedbackState';
+import { useConfirmation } from '../../../components/ui/useConfirmation';
 import { useNavigationBlocker } from '../../../shared/navigationGuard';
-import { useReadinessSummaryContext } from './ProjectReadinessSummary';
+import { supabase } from '../../../../lib/supabase';
+import type { Project } from '../../projects';
+import { fetchReadiness, reviewProject, activateReadyProject } from '../services/readinessService';
+import { readinessResolution, type ReadinessDestination } from '../resolution';
+import type { ProjectReadiness, ReviewKind } from '../types';
+import '../readiness.css';
 
-export function ProjectReadinessPanel({ project, canManage, onOpenTask, onOpenOffices, onResolve, refreshKey }: {project: Project; canManage: boolean; onOpenTask: (id: string) => void; onOpenOffices?: () => void; onResolve?: (view: ReadinessDestination) => void; refreshKey?: string}) {
-  const confirmation = useConfirmation();
-  const updateSummary = useReadinessSummaryContext()?.update;
-  const [readiness, setReadiness] = useState<ProjectReadiness | null>(null);
-  const [summary, setSummary] = useState<CloseoutSummary | null>(null);
-  const [completion, setCompletion] = useState<ProjectCompletionReadiness | null>(null);
-  const [loading, setLoading] = useState(true), [busy, setBusy] = useState(false), [error, setError] = useState(''), [notice, setNotice] = useState('');
-  const [note, setNote] = useState('');
-  const requestVersion = useRef(0);
-  const mutationPending = useRef(false);
-  useNavigationBlocker({label:'Project closeout note',dirty:Boolean(note.trim()) && !['completed','archived'].includes(project.status),pending:busy,pendingCheck:()=>mutationPending.current,onDiscard:()=>setNote('')});
-  useEffect(() => { setNote(''); setNotice(''); }, [project.id]);
-  const refresh = useCallback(async () => {
-    const version = ++requestVersion.current;
-    try {
-      const [r, s, c] = await Promise.all([fetchReadiness(project.id), fetchCloseoutSummary(project.id), canManage ? fetchProjectCompletionReadiness(project.id) : Promise.resolve(null)]);
-      if (version !== requestVersion.current) return;
-      setReadiness(r); setSummary(s); setCompletion(c); setError('');
-      updateSummary?.(r);
-    } catch (e) { if (version === requestVersion.current) setError(e instanceof Error ? e.message : 'Could not load project checks.'); }
-    finally { if (version === requestVersion.current) setLoading(false); }
-  }, [project.id, canManage, updateSummary]);
-  useEffect(() => {
-    setReadiness(null); setSummary(null); setCompletion(null); setLoading(true);
-    void refresh();
-    const channel = supabase.channel('readiness-' + project.id).on('postgres_changes', {event:'*', schema:'public', table:'project_readiness_reviews', filter:'project_id=eq.'+project.id}, () => {void refresh();}).subscribe();
-    return () => {++requestVersion.current; void supabase.removeChannel(channel);};
-  }, [project.id, project.status, refreshKey, refresh]);
-  const run = async (action: () => Promise<void>, message: string, review?: Parameters<typeof confirmation.confirm>[0]) => {
-    if (mutationPending.current) return;
-    mutationPending.current = true;
-    setBusy(true); setError(''); setNotice('');
-    try { if (review && !await confirmation.confirm(review)) return; await action(); setNotice(message); await refresh(); }
-    catch (e) {await refresh(); setError(e instanceof Error ? e.message : 'This action could not finish.');}
-    finally {mutationPending.current=false;setBusy(false);}
-  };
-  const closed = ['completed','archived'].includes(project.status);
-  return <m.section className="p7-panel" aria-label="Project readiness and closeout" initial={{opacity:0}} animate={{opacity:1}}>
-    {confirmation.dialog}<header className="p7-heading"><div><span className="p7-eyebrow">Delivery governance</span><h2><ShieldCheck size={24}/>Readiness & closeout</h2><p>Confirm the plan before activation. Material scope, Office, schedule or budget changes require another review.</p></div><Button kind="secondary" size="small" onClick={()=>void refresh()} disabled={busy || loading || error.includes('not installed yet')}>Refresh checks</Button></header>
-    {error && <div role="alert" className="p7-error">{error}{error.includes('not installed yet') ? <p>Ask an administrator to install the existing readiness database update. This panel cannot install it.</p> : <p>Refresh checks to verify the current result before another action.</p>}</div>}
-    {notice && <p role="status" className="p7-notice">{notice}</p>}
-    {loading ? <div role="status" aria-label="Loading readiness"><Skeleton type="rectangle" size="custom" height={320} fullWidth/></div> : readiness && summary && <>
-      <div className="p7-stage"><strong>{readiness.stage}</strong><span>{readiness.checks.filter(c=>c.ok).length} of {readiness.checks.length} readiness checks confirmed</span></div>
-      {readiness.governed && <p className="p7-notice">This project uses the existing proposal endorsement and approval workflow. Continue its sign-offs in Approval Status. {onResolve && <button className="p7-link" onClick={()=>onResolve('signoff')}>Open Approval Status</button>}</p>}
-      <div className="p7-checks">{readiness.checks.map(check=>{const resolution=readinessResolution(check.key, readiness.governed);return <article key={check.key} className={'p7-check '+(check.ok?'p7-check--done':'')}><div className="p7-check-content">{check.ok?<CheckCircle2 size={22} aria-label="Confirmed"/>:<Circle size={22} aria-label="Needs attention"/>}<div><h3>{check.label}</h3><p>{check.detail}</p></div></div>{canManage && !closed && !readiness.governed && ['structure','dates','budget'].includes(check.key) && <Button kind="secondary" size="small" disabled={busy || !!error || check.ok} onClick={()=>void run(()=>reviewProject(project.id,check.key as ReviewKind),check.label+' confirmed.')}>{check.ok?'Reviewed':'Confirm review'}</Button>}{!check.ok && resolution && (onResolve || resolution.view==='offices' && onOpenOffices) && <Button kind="secondary" size="small" onClick={()=>onResolve ? onResolve(resolution.view) : onOpenOffices?.()}>{resolution.label}</Button>}</article>;})}</div>
-      {canManage && !closed && !readiness.governed && <div className="p7-actions"><p>Confirm structure in Main table, responsibilities in Offices, dates in Gantt, and estimates in Budget Overview. {!readiness.canActivate && <span>{project.status==='active' ? 'The project is already active.' : 'Activation is unavailable until every current check is confirmed.'}</span>}</p><Button disabled={busy || !!error || !readiness.canActivate} onClick={()=>void run(async()=>{const current=await fetchReadiness(project.id);if(!current.canActivate || current.governed)throw new Error('Readiness changed. Review the current blockers before activation.');await activateReadyProject(project.id);},'Project activated. All current readiness checks passed.',{title:'Activate this project?',description:`Activate “${project.title}” for delivery. The server rechecks current reviews, Office participation, schedule and required owners.`,actionLabel:'Activate project',impact:<p>{readiness.checks.filter(check=>check.ok).length} of {readiness.checks.length} current checks confirmed. AI cannot activate the project.</p>})}>{project.status==='active'?'Project active':'Activate project'}</Button></div>}
-      <div className="p7-closeout"><h3>Closeout summary</h3><div className="p7-stats">{[['Completed tasks',`${summary.completed} / ${summary.tasks-summary.cancelled}`],['Joined Offices',summary.offices],['Approved submissions',summary.evidence],['Contributors',summary.contributors],['Estimated budget',summary.budgetEstimate.toLocaleString()],['Open cash requests',summary.financial.open]].map(([label,value])=><article key={label}><span>{label}</span><strong>{value}</strong></article>)}</div><p>Timeline: {summary.startDate || 'Not set'} → {summary.targetDate || 'Not set'}. Requested: {summary.financial.requested.toLocaleString()}; approved: {summary.financial.approved.toLocaleString()}; settled requests: {summary.financial.settled}. Estimates are separate from approved funds.</p></div>
-      {completion && !closed && <div className="p7-completion"><h3>{completion.canComplete?'Ready for Head closeout':'Closeout blockers'}</h3>{completion.blockers.length>0?<ul>{completion.blockers.map((b,i)=>{const resolution=closeoutResolution(b.kind);return <li key={b.kind+b.id+i}><strong>{b.title}</strong><p>{b.detail}</p>{b.taskId && <button className="p7-link" onClick={()=>onOpenTask(b.taskId!)}>Open task</button>}{!b.taskId && resolution && onResolve && <button className="p7-link" onClick={()=>onResolve(resolution.view)}>{resolution.label}</button>}</li>;})}</ul>:<p>Required work, approved submissions, governance and financial settlement checks have passed.</p>}<label>Closeout note<textarea value={note} disabled={busy} onChange={e=>setNote(e.target.value)} placeholder="Record the delivered outcome and any handover notes." rows={3} maxLength={4000}/></label><Button disabled={busy || !!error || !completion.canComplete || !note.trim()} onClick={()=>void run(async()=>{const current=await fetchProjectCompletionReadiness(project.id);if(!current.canComplete)throw new Error('Closeout blockers changed. Resolve them before closing the project.');await completeProject(project.id,note);setNote('');},'Project closed with an audit record.',{title:'Close this project?',description:`Close “${project.title}” with an audit record. Work, evidence, governance and financial settlement are rechecked by the server.`,actionLabel:'Close project',danger:true,impact:<p>Closeout note: {note}</p>})}>Close project</Button><p>{!completion.canComplete ? 'Resolve all official closeout blockers first.' : !note.trim() ? 'Enter a closeout note before closing the project.' : 'The Head confirms closeout after all required checks pass.'}</p></div>}
-      {canManage && project.status==='completed' && <div className="p7-actions"><p>This project is closed. Archive it when the handover is complete.</p><Button kind="secondary" disabled={busy} onClick={()=>void run(()=>archiveCompletedProject(project.id,'Phase 7 closeout'),'Project archived.',{title:'Archive completed project?',description:`Archive “${project.title}” after handover. Its existing record and history remain accessible.`,actionLabel:'Archive project',danger:true})}>Archive project</Button></div>}
-    </>}
-  </m.section>;
+/** Required reviews and activation, embedded in the retained Head completion workflow. */
+export function ProjectReadinessPanel({ project, canManage, onResolve, refreshKey = '', onUpdated }: {
+ project: Project; canManage: boolean; onResolve?: (view: ReadinessDestination) => void; refreshKey?: string; onUpdated?: () => void;
+}) {
+ const confirmation = useConfirmation();
+ const [state, setState] = useState<{key:string; data?:ProjectReadiness; error?:string}>({key:''});
+ const [busy,setBusy] = useState(false), [notice,setNotice] = useState('');
+ const version = useRef(0), pending = useRef(false);
+ const key = `${project.id}:${project.updatedAt}:${project.status}:${refreshKey}`;
+ const closed = ['completed','archived'].includes(project.status);
+ useNavigationBlocker({label:'Project readiness review',dirty:false,pending:busy,pendingCheck:()=>pending.current,onDiscard:()=>{}});
+ const refresh = useCallback(async () => {
+  const request = ++version.current; setState({key});
+  try {
+   const data = await fetchReadiness(project.id);
+   if (request !== version.current) return;
+   if(data.projectId !== project.id || !Array.isArray(data.checks)) throw new Error('Invalid project readiness response.');
+   setState({key,data});
+  } catch(error) { if(request===version.current)setState({key,error:error instanceof Error?error.message:'Could not load readiness reviews.'}); }
+ },[project.id,key]);
+ useEffect(()=>{
+  void refresh();
+  const channel = supabase.channel('readiness-'+project.id).on('postgres_changes',{event:'*',schema:'public',table:'project_readiness_reviews',filter:'project_id=eq.'+project.id},()=>{void refresh();onUpdated?.();}).subscribe();
+  return()=>{++version.current;void supabase.removeChannel(channel);};
+ },[refresh,project.id]);
+ const current = state.key===key ? state : {key};
+ const data = current.data;
+ const run = async (action:()=>Promise<void | false>,message:string) => {
+  if(pending.current || !canManage || closed || !data || current.error)return;
+  pending.current=true;setBusy(true);setNotice('');
+  try {if(await action()===false)return;setNotice(message);await refresh();onUpdated?.();}
+  catch(error){await refresh();setState(previous=>({...previous,error:error instanceof Error?error.message:'Review failed. Refresh before retrying.'}));}
+  finally{pending.current=false;setBusy(false);}
+ };
+ return <section className="r4-requirements" aria-label="Project readiness reviews">
+  {confirmation.dialog}<header><h3>Plan reviews and activation</h3><Button type="button" variant="outline" disabled={busy} onClick={()=>void refresh()}>Refresh plan reviews</Button></header>
+  <p>Material scope, Office, schedule or budget changes require a current review.</p>
+  {current.error && <FeedbackState tone="error" title="Plan reviews unavailable">{current.error}</FeedbackState>}
+  {!data && !current.error && <p role="status">Loading plan reviews…</p>}
+  {notice && <p role="status">{notice}</p>}
+  {data && <>
+   <p>{data.stage} · {data.checks.filter(check=>check.ok).length} of {data.checks.length} checks confirmed</p>
+   {data.governed && <p>Proposal endorsement and approval remain in Proposal Context. {onResolve && <button type="button" className="p7-link" onClick={()=>onResolve('proposal_context')}>Open proposal review</button>}</p>}
+   <ul>{data.checks.map(check=>{const resolution=readinessResolution(check.key,data.governed);return <li key={check.key}>
+    <strong>{check.label} · {check.ok?'Confirmed':'Needs attention'}</strong><p>{check.detail}</p>
+    <div>{canManage && !closed && !data.governed && ['structure','dates','budget'].includes(check.key) && <Button type="button" variant="outline" disabled={busy||Boolean(current.error)||check.ok} onClick={()=>void run(()=>reviewProject(project.id,check.key as ReviewKind),check.label+' confirmed.')}>{check.ok?'Reviewed':'Confirm review'}</Button>}
+     {!check.ok && resolution && onResolve && <Button type="button" variant="ghost" disabled={busy} onClick={()=>onResolve(resolution.view)}>{resolution.label}</Button>}</div>
+   </li>;})}</ul>
+   {canManage && !closed && !data.governed && <Button type="button" disabled={busy||Boolean(current.error)||!data.canActivate} onClick={()=>void run(async()=>{
+    if(!await confirmation.confirm({title:'Activate this project?',description:`Activate “${project.title}” for delivery. Current reviews, Office participation, schedule and owners are rechecked by the server.`,actionLabel:'Activate project'}))return false;
+    const current=await fetchReadiness(project.id);if(!current.canActivate||current.governed)throw new Error('Readiness changed. Review the current checks before activation.');await activateReadyProject(project.id);
+   },'Project activated.')}>{project.status==='active'?'Project active':'Activate project'}</Button>}
+  </>}
+ </section>;
 }

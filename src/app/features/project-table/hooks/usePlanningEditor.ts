@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { requestNavigation, useNavigationBlocker } from '../../../shared/navigationGuard';
 
-export function usePlanningEditor<T>(initial: () => T, label: string) {
+export function usePlanningEditor<T>(initial: () => T, label: string, options: { closeOnSuccess?: boolean } = {}) {
   const [open, setOpen] = useState(false), [draft, setDraft] = useState(initial), [saved, setSaved] = useState(initial);
   const [error, setError] = useState(''), [notice, setNotice] = useState(''), [pending, setPending] = useState(false);
   const inFlight = useRef(false);
@@ -15,7 +15,10 @@ export function usePlanningEditor<T>(initial: () => T, label: string) {
     submit: async (operation: (value: T) => Promise<void>, message: string) => {
       if (inFlight.current || !dirty) return;
       inFlight.current = true; setPending(true); setError(''); setNotice('');
-      try { await operation(draft); setSaved(draft); setNotice(message); }
+      try {
+        await operation(draft); setSaved(draft); setNotice(message);
+        if (options.closeOnSuccess) setOpen(false);
+      }
       catch (caught) { setError(caught instanceof Error ? caught.message : 'Could not save. Your changes are retained.'); }
       finally { inFlight.current = false; setPending(false); }
     },

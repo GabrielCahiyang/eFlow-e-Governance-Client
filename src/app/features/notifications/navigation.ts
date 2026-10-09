@@ -42,14 +42,14 @@ function quotedLabels(value: string): string[] {
 function destinationForTask(role: string) {
   if (role === "admin") return null;
   if (role === "head") return { section: "tasks", page: "Task Board" };
-  if (role === "member" || role === "teamleader") {
+  if (role === "member" || role === "accounting_staff" || role === "teamleader") {
     return { section: "tasks", page: "My Tasks" };
   }
   return null;
 }
 
 function destinationForSubtask(role: string) {
-  if (role === "head" || role === "member" || role === "teamleader") {
+  if (role === "head" || role === "member" || role === "accounting_staff" || role === "teamleader") {
     return { section: "subtasks", page: "My Subtasks" };
   }
   return destinationForTask(role);
@@ -57,21 +57,21 @@ function destinationForSubtask(role: string) {
 
 function destinationForReview(role: string) {
   if (role === "head") return { section: "reviews", page: "For Review" };
-  if (role === "member" || role === "teamleader") {
+  if (role === "member" || role === "accounting_staff" || role === "teamleader") {
     return { section: "reviews", page: "Leader Reviews" };
   }
   return destinationForTask(role);
 }
 
 function destinationForAnnouncement(role: string) {
-  if (["admin", "head", "member", "teamleader"].includes(role)) {
+  if (["admin", "head", "member", "accounting_staff", "teamleader"].includes(role)) {
     return { section: "announcements", page: "Announcements" };
   }
   return null;
 }
 
 function destinationForProject(role: string) {
-  if (["admin", "head", "member", "teamleader"].includes(role)) {
+  if (["head", "member", "accounting_staff", "teamleader"].includes(role)) {
     return { section: "projects", page: "Projects" };
   }
   return null;
@@ -86,7 +86,7 @@ function destinationForBudget(notification: Notification, role: string) {
   if (role === "head") {
     return { section: "reviews", page: "For Review" };
   }
-  if (role === "member" || role === "teamleader") {
+  if (role === "member" || role === "accounting_staff" || role === "teamleader") {
     if (notification.type.includes("leader_review")) {
       return { section: "reviews", page: "Leader Reviews" };
     }
@@ -113,6 +113,7 @@ function makeDestination(
       projectId: notification.projectId,
       proposalId: notification.proposalId,
       entityLabel,
+      entityId: notification.workNodeId,
       financialRecordId: notification.financialRecordId,
       financialRecordType: notification.financialRecordType,
     },
@@ -168,14 +169,14 @@ export function resolveNotificationDestination(
   if (notification.type === "burnout_warning") {
     const route = role === "head"
       ? { section: "intelligence", page: "Team Intelligence" }
-      : role === "member" || role === "teamleader"
+      : role === "member" || role === "accounting_staff" || role === "teamleader"
         ? { section: "performance", page: "Performance" }
         : null;
     return makeDestination(notification, route, "team_intelligence", "Open workload insight");
   }
 
   if (isSubtask && title.includes("progress updated")) {
-    const route = role === "head" || role === "member" || role === "teamleader"
+    const route = role === "head" || role === "member" || role === "accounting_staff" || role === "teamleader"
       ? { section: "leading", page: "Leading Work" }
       : destinationForTask(role);
     return makeDestination(
@@ -231,6 +232,9 @@ export function resolveNotificationDestination(
     );
   }
 
+  if (notification.projectId && role === 'head' && notification.title.startsWith('Project invitation')) {
+    return makeDestination(notification, {section:'reviews',page:'For Review'}, 'project', 'Review membership invitations', messageLabels[0]);
+  }
   if (notification.projectId) {
     return makeDestination(
       notification,

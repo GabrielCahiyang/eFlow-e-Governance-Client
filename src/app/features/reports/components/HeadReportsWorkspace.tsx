@@ -15,7 +15,6 @@ import { useDepartmentTeamAnalytics } from "../../team-management";
 import {
   Card,
   ExportMenu,
-  PageHeader,
   SearchInput,
   SectionEmpty,
   WSelect,
@@ -36,6 +35,8 @@ import {
 } from "../../productivity";
 
 import { departmentReportColumns } from "../exportColumns";
+import { WorkspaceHeader } from "../../../components/ui/workspace";
+import "../../../components/ui/workspace/analyticalWorkspace.css";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useOrgs } from "../../../hooks/useSupabaseData";
 import { Button } from "../../../components/ui/button";
@@ -198,18 +199,22 @@ export function HeadReportsWorkspace() {
   };
 
   return (
-    <div className="min-h-full min-w-0 bg-muted/20 p-3 sm:p-8">
-      <PageHeader
-        eyebrow="Dept. Head · Reports"
+    <div className="eflow-page-content eflow-analytics min-w-0">
+      <WorkspaceHeader
         title="Reports"
-        subtitle="Operational, contribution, review, evidence, and risk reports from one permission-scoped source of truth."
+        description="Office reports · Operational, contribution, review, evidence and risk lenses in your authorized scope."
         actions={
           <>
-            <ManagementBriefPanel title={definition.title} rows={rows} />
+            <ManagementBriefPanel
+              title={definition.title}
+              rows={analytics.error ? [] : rows}
+            />
             <ExportMenu
               onCsv={() => exportRows("csv")}
               onPdf={() => exportRows("pdf")}
-              disabled={rows.length === 0}
+              disabled={
+                rows.length === 0 || !!analytics.error || analytics.refreshing
+              }
             />
           </>
         }
@@ -247,7 +252,7 @@ export function HeadReportsWorkspace() {
       </div>
       {analytics.refreshing && <p role="status">Refreshing report facts…</p>}
       {analytics.error && (
-        <div className="mb-4 rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-[12px] text-destructive">
+        <div role="alert" className="eflow-analytics-error">
           Some workflow facts could not be loaded: {analytics.error}. Totals and
           exports reflect only loaded records; missing facts are not zero
           activity. Use Refresh report facts to retry.
@@ -262,10 +267,14 @@ export function HeadReportsWorkspace() {
       ) : (
         <>
           <div className="mb-4">
-            <ContributionSummaryCard
-              rows={contributionRows}
-              title="Office contribution this month"
-            />
+            {analytics.error ? (
+              <p>Office contribution facts unavailable.</p>
+            ) : (
+              <ContributionSummaryCard
+                rows={contributionRows}
+                title="Office contribution this month"
+              />
+            )}
           </div>
 
           <div className="grid grid-cols-1 xl:grid-cols-[250px_minmax(0,1fr)] gap-4">
@@ -302,22 +311,22 @@ export function HeadReportsWorkspace() {
               >
                 <ReportMetric
                   label="Visible rows"
-                  value={rows.length}
+                  value={analytics.error ? "Unavailable" : rows.length}
                   icon={<BarChart3 size={14} />}
                 />
                 <ReportMetric
                   label="People"
-                  value={uniquePeople}
+                  value={analytics.error ? "Unavailable" : uniquePeople}
                   icon={<Users size={14} />}
                 />
                 <ReportMetric
                   label="Projects"
-                  value={uniqueProjects}
+                  value={analytics.error ? "Unavailable" : uniqueProjects}
                   icon={<BriefcaseBusiness size={14} />}
                 />
                 <ReportMetric
                   label="Urgent signals"
-                  value={urgent}
+                  value={analytics.error ? "Unavailable" : urgent}
                   icon={<AlertTriangle size={14} />}
                   tone={urgent ? "bad" : "good"}
                 />
@@ -328,7 +337,7 @@ export function HeadReportsWorkspace() {
                 subtitle={definition.description}
                 bodyClassName="p-0"
               >
-                <div className="sticky top-3 z-10 space-y-2 border-b border-border bg-card/95 p-3 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-card/80">
+                <div className="eflow-analytics-filters sticky top-3 z-10 space-y-2 border-b border-border bg-card/95 p-3">
                   <div className="flex flex-wrap gap-2">
                     <SearchInput
                       value={search}
@@ -416,7 +425,11 @@ export function HeadReportsWorkspace() {
                 ) : (
                   <SectionEmpty
                     icon={<BarChart3 size={28} />}
-                    title="No report rows match"
+                    title={
+                      analytics.error
+                        ? "Report facts unavailable"
+                        : "No report rows match"
+                    }
                     description="Change the people, project, status, date, or search filters."
                   />
                 )}
@@ -445,7 +458,7 @@ function ReportMetric({
   icon: ReactNode;
   label: string;
   tone?: "neutral" | "good" | "bad";
-  value: number;
+  value: number | string;
 }) {
   const valueClass =
     tone === "bad"

@@ -1,0 +1,17 @@
+{
+  "candidate": "619ee6b73bd779c5410827e9a53ad350d3906f516ac558bd8889baca01337911",
+  "scope": "Synthetic Chromium fixture screenshots; automated all-width/theme checks are retained in the browser receipt. Actual zoom, native Safari and screen-reader acceptance remain open.",
+  "reviewed": [
+    {
+      "path": ".refinement/diagnostics/final-first-complete/results/workspace-refinement-r13-R-75ef7-five-widths-and-both-themes-chromium/r13-personal-project-dark-320.png",
+      "sha256": "d00fc46e6d213472bc02aba19280fca4fe829593a351eadadc55195213cfdfbc"
+    },
+    {
+      "path": ".refinement/diagnostics/final-first-complete/results/workspace-refinement-r13-R-f691f-five-widths-and-both-themes-chromium/r13-Admin-settings-light-1440.png",
+      "sha256": "ef3829f4f583a1b854e4ba9d174eb6aeaa22865462f43c57429f3d9a0d2b51de"
+    }
+  ],
+  "findings": "Personal selected controls are legible in dark mobile layout. Admin settings fields and navigation remain aligned within the desktop workspace. The inner content regions retain their scrolling.",
+  "reviewedInputCandidate": "5a6777ef88d6cf0e0550387eb20cb932e7ff56e2f31e391834473c47827a9df0",
+  "matchingFrontendBytes": true
+}

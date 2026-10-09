@@ -18,6 +18,12 @@ def owned_document(document_id: str, user):
     if not rows:
         raise HTTPException(404, 'PDS document not found.')
     document = rows[0]
+    if document.get('project_request_id') and document['user_id'] != user.id:
+        if document['uploaded_by'] != user.id:
+            raise HTTPException(403, 'This PDS is private to its owner and authorized uploader.')
+        from invitations.project_members import pds_context
+        pds_context(user, document['project_request_id'])
+        return document
     if document['user_id'] != user.id:
         if document['uploaded_by'] != user.id or document['office_id'] != user.org_id:
             raise HTTPException(403, 'This PDS is private to its owner and authorized uploader.')
@@ -25,14 +31,20 @@ def owned_document(document_id: str, user):
     return document
 
 @router.post('/pds/upload')
-async def upload_pds(request: Request, invitation_id: UUID | None = None, user=Depends(require_user)):
+async def upload_pds(request: Request, invitation_id: UUID | None = None, project_request_id: UUID | None = None, user=Depends(require_user)):
     if request.headers.get('content-type', '').split(';')[0] != 'application/pdf':
         raise HTTPException(415, 'Upload a PDF file.')
     filename = PurePath(unquote(request.headers.get('x-file-name', 'PDS.pdf')).replace('\\', '/')).name[:150]
     if not filename.lower().endswith('.pdf'):
         raise HTTPException(415, 'Upload a PDF file.')
     invited_user = None
-    if invitation_id:
+    if invitation_id and project_request_id:
+        raise HTTPException(422, 'Choose one invitation scope.')
+    if project_request_id:
+        from invitations.project_members import pds_context
+        context = pds_context(user, str(project_request_id))
+        office, invited_user = context['office_id'], context['accepted_by']
+    elif invitation_id:
         require_head(user)
         items = supabase_admin.table('user_invitations').select('office_id,status,accepted_by').eq('id', str(invitation_id)).limit(1).execute().data or []
         if not items or items[0]['office_id'] != user.org_id or items[0]['status'] not in ('pending', 'accepted'):
@@ -51,16 +63,35 @@ async def upload_pds(request: Request, invitation_id: UUID | None = None, user=D
         validate_pdf(bytes(payload))
     except ValueError as exc:
         raise HTTPException(422, str(exc)) from exc
+    digest = hashlib.sha256(payload).hexdigest()
+    def existing_attachment():
+        if not project_request_id:
+            return None
+        rows = supabase_admin.table('user_pds_documents').select(DOCUMENT_FIELDS).eq('project_request_id', str(project_request_id)).eq('uploaded_by', user.id).eq('content_sha256', digest).limit(1).execute().data or []
+        return rows[0] if rows else None
+    existing = existing_attachment()
+    if existing:
+        return existing
     document_id = str(uuid4())
-    directory = 'invitations/' + str(invitation_id) if invitation_id else 'users/' + user.id
+    directory = 'project-requests/' + str(project_request_id) if project_request_id else 'invitations/' + str(invitation_id) if invitation_id else 'users/' + user.id
     path = f'office/{office}/{directory}/{document_id}.pdf'
     storage = supabase_admin.storage.from_('pds-documents')
     try:
         storage.upload(path, bytes(payload), {'content-type': 'application/pdf', 'upsert': 'false'})
-        row = supabase_admin.table('user_pds_documents').insert({'id': document_id, 'user_id': invited_user, 'invitation_id': str(invitation_id) if invitation_id else None, 'office_id': office, 'storage_path': path, 'original_filename': filename, 'mime_type': 'application/pdf', 'file_size': len(payload), 'uploaded_by': user.id, 'content_sha256': hashlib.sha256(payload).hexdigest()}).execute().data[0]
+        values = {'id': document_id, 'user_id': invited_user, 'invitation_id': str(invitation_id) if invitation_id else None, 'office_id': office, 'storage_path': path, 'original_filename': filename, 'mime_type': 'application/pdf', 'file_size': len(payload), 'uploaded_by': user.id, 'content_sha256': digest}
+        if project_request_id:
+            values['project_request_id'] = str(project_request_id)
+        row = supabase_admin.table('user_pds_documents').insert(values).execute().data[0]
     except Exception as exc:
         try:
             storage.remove([path])
+        except Exception:
+            pass
+        # A concurrent/lost-response retry can find the already committed upload.
+        try:
+            existing = existing_attachment()
+            if existing:
+                return existing
         except Exception:
             pass
         raise HTTPException(503, 'PDS upload could not finish. Please retry.') from exc

@@ -4,6 +4,7 @@ export { WorkspaceTabs, type WorkspaceTab } from "./WorkspaceTabs";
 export { ActionMenu, type WorkspaceAction } from "./ActionMenu";
 export { SplitActionButton } from "./SplitActionButton";
 export { WorkspacePopover } from "./WorkspacePopover";
+export { WorkspaceTooltip } from "./WorkspaceTooltip";
 export { InlineEditableText } from "./InlineEditableText";
 export { StatusPill } from "./StatusPill";
 export { PeopleAvatarStack, type WorkspacePerson } from "./PeopleAvatarStack";

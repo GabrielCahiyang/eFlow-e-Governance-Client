@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { requestNavigation } from '../../../shared/navigationGuard';
-export interface TaskInspectorOrigin { view: string; returnFocus?: HTMLElement | null; restoreFocus?: () => void }
+export interface TaskInspectorOrigin { view: string; section?: 'details'; returnFocus?: HTMLElement | null; restoreFocus?: () => void }
 /** Only identity and origin live here. Task records always come from the authorized caller. */
 export function useTaskInspector(scope: string) {
  const [selection, setSelection] = useState<{ taskId: string; origin: TaskInspectorOrigin } | null>(null);

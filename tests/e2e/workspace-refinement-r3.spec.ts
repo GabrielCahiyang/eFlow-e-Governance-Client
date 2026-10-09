@@ -1,0 +1,103 @@
+import { test,expect } from '@playwright/test';
+import { personalWorkspaceFixture } from './fixtures/personalWorkspace';
+import { projectWorkspaceFixture } from './fixtures/projectWorkspace';
+
+for(const width of [320,390,1440])test(`R3 personal creation, isolation and workspace history at ${width}px`,async({page},info)=>{
+ test.setTimeout(120_000);await page.setViewportSize({width,height:950});
+ const fixture=await personalWorkspaceFixture(page);
+ const openNavigation=async()=>{if(width<1024)await page.getByRole('navigation',{name:'Mobile primary navigation'}).getByRole('button',{name:'More',exact:true}).click();};
+ await openNavigation();await page.getByRole('button',{name:'Planning Office Workspace',exact:true}).click();
+ await page.getByRole('button',{name:'Create workspace',exact:true}).click();
+ const createWorkspace=page.getByRole('dialog',{name:'Create personal workspace'});
+ await createWorkspace.getByRole('textbox',{name:'Workspace name'}).fill('Private research');
+ await createWorkspace.getByRole('button',{name:'Create workspace',exact:true}).click();
+ if(width<1024)await page.keyboard.press('Escape');
+ await expect(page.getByRole('heading',{name:'Private research',exact:true})).toBeVisible();
+ await expect(page.getByRole('button',{name:'Office tools',exact:true})).toHaveCount(0);
+ if(width>=1024)await expect(page.getByRole('navigation',{name:'Global navigation'}).getByRole('button',{name:'Inbox',exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'Create personal project',exact:true}).click();
+ const createProject=page.getByRole('dialog',{name:'Create personal project'});
+ await expect(createProject).toContainText('Private research · Personal · Owner: Alex Rivera');
+ fixture.setFailProject(true);await createProject.getByRole('textbox',{name:'Project name'}).fill('My private project');
+ await createProject.getByRole('button',{name:'Create project',exact:true}).click();await expect(createProject.getByRole('alert')).toContainText('Could not create');
+ fixture.setFailProject(false);await createProject.getByRole('button',{name:'Create project',exact:true}).dblclick();
+ await expect(page.getByRole('region',{name:'Selected personal project'}).getByRole('heading',{name:'My private project',exact:true})).toBeVisible();
+ const createCalls=fixture.calls.filter(c=>c.operation==='r3_create_personal_project');expect(createCalls).toHaveLength(2);expect(createCalls[0].payload.p_request).toBe(createCalls[1].payload.p_request);
+ await page.getByRole('textbox',{name:'Task name',exact:true}).fill('Personal research task');await page.getByRole('button',{name:'Add task',exact:true}).click();
+ await expect(page.getByRole('heading',{name:'Personal research task',exact:true})).toBeVisible();
+ await expect(page.getByRole('button',{name:'Complete personal project',exact:true})).toBeDisabled();
+ await page.getByRole('button',{name:'Record progress',exact:true}).click();await expect(page.getByRole('region',{name:'Selected personal project'})).toContainText('25%');
+ await page.getByRole('button',{name:'Mark done',exact:true}).click();await expect(page.getByRole('button',{name:'Complete personal project',exact:true})).toBeEnabled();
+ await page.reload();await expect(page.getByRole('region',{name:'Selected personal project'})).toContainText('Personal research task');
+ await openNavigation();await page.getByRole('button',{name:'Private research Workspace',exact:true}).click();
+ await page.getByRole('region',{name:'Available workspaces',exact:true}).getByRole('button',{name:'Planning Office Office',exact:true}).click();
+ if(width<1024)await page.keyboard.press('Escape');
+ await expect(page.getByRole('region',{name:'Project main table'})).toBeVisible();
+ await openNavigation();await expect(page.getByRole('region',{name:'Projects',exact:true}).getByRole('button',{name:'My private project',exact:true})).toHaveCount(0);
+ if(width<1024)await page.keyboard.press('Escape');
+ await page.goBack();await expect(page.getByRole('heading',{name:'Private research',exact:true})).toBeVisible();
+ await page.goForward();await expect(page.getByRole('region',{name:'Project main table'})).toBeVisible();
+ await openNavigation();await page.getByRole('button',{name:'Planning Office Workspace',exact:true}).click();
+ await page.getByRole('textbox',{name:'Find workspace'}).fill('Private');await page.getByRole('region',{name:'My workspaces',exact:true}).getByRole('button',{name:'Private research Personal · Alex Rivera',exact:true}).click();
+ if(width<1024)await page.keyboard.press('Escape');
+ await page.getByRole('navigation',{name:'Personal projects'}).getByRole('button',{name:'My private project active',exact:true}).click();
+ await expect(page.getByRole('region',{name:'Selected personal project'})).toContainText('Personal research task');
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+ await page.screenshot({path:info.outputPath(`r3-personal-${width}.png`),fullPage:true});
+});
+
+test('R3 explicit shortcut retains its home, dirty drafts cancel switching, and revoked content clears',async({page})=>{
+ test.setTimeout(120_000);await page.setViewportSize({width:1440,height:950});const fixture=await personalWorkspaceFixture(page,{seed:true});
+ await page.goto(`/projects?workspace=${fixture.personalId}&project=${fixture.projectId}`);
+ await expect(page.getByRole('region',{name:'Selected personal project'})).toBeVisible();
+ await page.getByRole('combobox',{name:'Person',exact:true}).selectOption('00000000-0000-4000-8000-000000000002');
+ await page.getByRole('button',{name:'Grant project access',exact:true}).click();await expect(page.getByRole('region',{name:'Personal project membership'})).toContainText('Jordan Reviewer');
+ await page.getByRole('textbox',{name:'Task name',exact:true}).fill('Needs review');
+ await page.getByRole('combobox',{name:'Independent review',exact:true}).selectOption('00000000-0000-4000-8000-000000000002');
+ await page.getByRole('button',{name:'Add task',exact:true}).click();await expect(page.getByRole('button',{name:'Submit for review',exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'Submit for review',exact:true}).click();await expect(page.getByRole('button',{name:'Complete personal project',exact:true})).toBeDisabled();
+ await expect(page.getByRole('button',{name:'Approve personal work',exact:true})).toHaveCount(0);
+ await page.getByRole('checkbox',{name:/Show an explicit shortcut/}).check();
+ await page.getByRole('textbox',{name:'Task name',exact:true}).fill('Unsaved personal draft');
+ await page.getByRole('button',{name:'Private research Workspace',exact:true}).click();
+ await page.getByRole('region',{name:'Available workspaces',exact:true}).getByRole('button',{name:'Planning Office Office',exact:true}).click();
+ await page.getByRole('alertdialog',{name:'Discard unsaved changes?'}).getByRole('button',{name:'Keep editing',exact:true}).click();
+ await expect(page.getByRole('textbox',{name:'Task name',exact:true})).toHaveValue('Unsaved personal draft');expect(new URL(page.url()).searchParams.get('workspace')).toBe(fixture.personalId);
+ await page.getByRole('textbox',{name:'Task name',exact:true}).fill('');
+ // A shortcut is a navigation pointer, never an Office project record.
+ await page.goto(`/projects?workspace=${fixture.org}`);await expect(page.getByRole('region',{name:'Projects',exact:true}).getByRole('button',{name:'Private project',exact:true})).toBeVisible();
+ await page.getByRole('region',{name:'Projects',exact:true}).getByRole('button',{name:'Private project',exact:true}).click();
+ await expect.poll(()=>new URL(page.url()).searchParams.get('workspace')).toBe(fixture.personalId);
+ await expect(page.getByRole('region',{name:'Selected personal project'})).toContainText('Needs review');
+ fixture.revoke();await page.evaluate(()=>window.dispatchEvent(new Event('focus')));
+ await expect(page.getByRole('region',{name:'Selected personal project'})).toHaveCount(0);
+ await expect(page.getByRole('heading',{name:'Private research',exact:true})).toHaveCount(0);
+ await expect(page.getByRole('alert').filter({hasText:/membership has ended/})).toBeVisible();
+ expect(fixture.projects.some(p=>p.id===fixture.projectId)).toBe(false);
+});
+
+test('R3 preserves immediate Office creation while workspace refresh is delayed',async({page})=>{
+ test.setTimeout(90_000);await page.setViewportSize({width:1440,height:950});const fixture=await projectWorkspaceFixture(page,'head');
+ let committed=false;
+ page.on('request',request=>{if(request.url().includes('/rpc/create_project_with_details'))committed=true;});
+ await page.route('**/rest/v1/rpc/r3_select_workspace',async route=>{if(committed)await new Promise(resolve=>setTimeout(resolve,600));await route.fallback();});
+ await page.getByRole('button',{name:'Projects and proposals',exact:true}).click();await page.getByRole('menuitem',{name:'Create project',exact:true}).click();
+ const dialog=page.getByRole('dialog',{name:'Let’s start working together',exact:true});await expect(dialog).toContainText('Workspace: Planning Office · Office · Creating Head: Alex Rivera');
+ await dialog.getByRole('textbox',{name:'Project name',exact:true}).fill('Office creation after R3');await dialog.getByRole('button',{name:'Create project →',exact:true}).click();
+ await expect(dialog).toHaveCount(0);await expect(page.getByRole('region',{name:'Project main table'})).toBeVisible();
+ const created=fixture.projects.find(p=>p.title==='Office creation after R3')!;
+ await expect.poll(()=>new URL(page.url()).searchParams.get('project')).toBe(created.id);
+ await expect(page.getByRole('heading',{name:'Office creation after R3',exact:true})).toBeVisible();
+ await expect(page.getByRole('button',{name:'Edit task Prepare community assessment',exact:true})).toHaveCount(0);
+});
+
+test('R3 retains Accounting and Inbox and returns their actions to the canonical Office',async({page})=>{
+ test.setTimeout(90_000);await page.setViewportSize({width:1440,height:950});const fixture=await personalWorkspaceFixture(page,{seed:true,role:'accounting_staff'});
+ await page.goto(`/projects?workspace=${fixture.personalId}&project=${fixture.projectId}`);await expect(page.getByRole('region',{name:'Selected personal project'})).toBeVisible();
+ const rail=page.getByRole('navigation',{name:'Global navigation'});await rail.getByRole('button',{name:'Accounting',exact:true}).click();
+ await expect.poll(()=>new URL(page.url()).searchParams.get('workspace')).toBe(fixture.org);await expect.poll(()=>new URL(page.url()).pathname).toBe('/accounting-overview');
+ await expect(page.getByRole('button',{name:'Planning Office Workspace',exact:true})).toBeVisible();await expect(page.locator('.r3-personal-workspace')).toHaveCount(0);
+ await page.goto(`/projects?workspace=${fixture.personalId}&project=${fixture.projectId}`);await expect(page.getByRole('region',{name:'Selected personal project'})).toBeVisible();
+ await rail.getByRole('button',{name:'Inbox',exact:true}).click();await expect.poll(()=>new URL(page.url()).searchParams.get('workspace')).toBe(fixture.org);await expect.poll(()=>new URL(page.url()).pathname).toBe('/inbox');
+ await expect(page.getByRole('heading',{name:'Access denied',exact:true})).toHaveCount(0);
+});

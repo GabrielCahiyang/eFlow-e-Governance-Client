@@ -1,4 +1,5 @@
 import { supabase } from "../../../../lib/supabase";
+import {readAllRows} from '../../../shared/readAllRows';
 import type { ProjectActivityItem } from "../components/project-command/types";
 
 function presentAuditAction(action: string, entityType: string): string {
@@ -19,8 +20,8 @@ function presentAuditAction(action: string, entityType: string): string {
 export async function fetchProjectAuditActivity(entityIds: string[]): Promise<ProjectActivityItem[]> {
   const ids = Array.from(new Set(entityIds.filter(Boolean)));
   if (ids.length === 0) return [];
-  const { data, error } = await supabase.from("audit_events").select("id,entity_type,entity_id,action,reason,actor_name,created_at").in("entity_id", ids).order("created_at", { ascending: false }).limit(250);
-  if (error) return [];
+  const data:Record<string,unknown>[]=[];
+  for(let offset=0;offset<ids.length;offset+=100)data.push(...await readAllRows<Record<string,unknown>>((from,to)=>supabase.from('audit_events').select('id,entity_type,entity_id,action,reason,actor_name,created_at',{count:'exact'}).in('entity_id',ids.slice(offset,offset+100)).order('id',{ascending:true}).range(from,to)));
   return (data || []).map((row) => ({
     id: `audit:${row.id}`,
     kind: "project" as const,
@@ -29,5 +30,5 @@ export async function fetchProjectAuditActivity(entityIds: string[]): Promise<Pr
     actorName: String(row.actor_name || "System"),
     occurredAt: new Date(String(row.created_at)).getTime(),
     taskId: row.entity_type === "task" ? String(row.entity_id) : undefined,
-  }));
+  })).sort((a,b)=>b.occurredAt-a.occurredAt||b.id.localeCompare(a.id));
 }

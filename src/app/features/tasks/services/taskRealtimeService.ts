@@ -1,12 +1,26 @@
 import { supabase } from "../../../../lib/supabase";
+import {readAllRows} from '../../../shared/readAllRows';
 import type { Task } from "../taskTypes";
 import { rowToTask } from "./taskMapper";
+import { registerAuthCacheReset } from '../../../shared/authCacheReset';
 
 const taskListeners = new Set<(tasks: Task[]) => void>();
 const taskErrorListeners = new Set<(error: Error) => void>();
 let taskCache: Task[] | null = null;
 let taskLoadPromise: Promise<void> | null = null;
-let taskRealtimeChannel: ReturnType<typeof supabase.channel> | null = null;
+const ACCESS_EVENT='eflow-project-access-changed';
+if(typeof window!=='undefined') {
+  const refreshActive = () => { if(taskListeners.size)void notifyTaskListeners(); };
+  window.addEventListener(ACCESS_EVENT,refreshActive);
+  window.addEventListener('focus',refreshActive);
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refreshActive();});
+}
+let accessRefreshTimer:ReturnType<typeof setInterval>|null=null;
+let cacheGeneration = 0;
+registerAuthCacheReset(() => {
+  ++cacheGeneration; taskCache=null; taskLoadPromise=null;
+  taskListeners.forEach(callback=>callback([]));
+});
 
 function broadcastTasks(tasks: Task[]) {
   taskCache = tasks;
@@ -17,22 +31,23 @@ function broadcastTasks(tasks: Task[]) {
 
 export async function notifyTaskListeners() {
   if (taskLoadPromise) return taskLoadPromise;
+  const generation=cacheGeneration;
   taskLoadPromise = (async () => {
-    const { data, error } = await supabase
+    const data = await readAllRows<Record<string,unknown>>((from,to)=>supabase
       .from('tasks')
-      .select('*')
+      .select('*',{count:'exact'})
       .is('deleted_at', null)
-      .order('created_at', { ascending: false });
-    if (error) throw new Error(error.message);
-    if (data) {
+      .order('created_at', { ascending: false }).order('id',{ascending:true}).range(from,to));
+    if (data && generation===cacheGeneration) {
       broadcastTasks(data.map(rowToTask));
     }
   })()
     .catch((error) => {
+      if(generation!==cacheGeneration)return;
       console.error('Error loading tasks:', error);
       taskErrorListeners.forEach(callback => callback(error instanceof Error ? error : new Error('Could not load tasks.')));
     })
-    .finally(() => { taskLoadPromise = null; });
+    .finally(() => { if(generation===cacheGeneration)taskLoadPromise = null; });
   return taskLoadPromise;
 }
 
@@ -86,51 +101,17 @@ export const seedTasksIfEmpty = async () => {
 
 export const subscribeToTasks = (callback: (tasks: Task[]) => void, onError?: (error: Error) => void) => {
   taskListeners.add(callback);
+  if(!accessRefreshTimer)accessRefreshTimer=setInterval(()=>void notifyTaskListeners(),15_000);
   if (onError) taskErrorListeners.add(onError);
   if (taskCache) callback(taskCache);
   else void notifyTaskListeners();
 
-  if (!taskRealtimeChannel) {
-    taskRealtimeChannel = supabase
-      .channel('tasks-changes-shared')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'tasks' },
-        (payload) => {
-          if (!taskCache) {
-            void notifyTaskListeners();
-            return;
-          }
-          const nextRows = [...taskCache];
-          const row = payload.new as Record<string, unknown>;
-          const oldRow = payload.old as Record<string, unknown>;
-          const changedId = (row.id || oldRow.id) as string | undefined;
-          if (!changedId) {
-            void notifyTaskListeners();
-            return;
-          }
-          const existingIndex = nextRows.findIndex((task) => task.id === changedId);
-          if (payload.eventType === 'DELETE' || row.deleted_at) {
-            if (existingIndex >= 0) nextRows.splice(existingIndex, 1);
-          } else {
-            const mapped = rowToTask(row);
-            if (existingIndex >= 0) nextRows[existingIndex] = mapped;
-            else nextRows.push(mapped);
-          }
-          nextRows.sort((a, b) => b.createdAt - a.createdAt);
-          broadcastTasks(nextRows);
-        },
-      )
-      .subscribe();
-  }
+  // Protected task updates use authorized reads; grants can expire without a row event.
 
   return () => {
     taskListeners.delete(callback);
     if (onError) taskErrorListeners.delete(onError);
-    if (taskListeners.size === 0 && taskRealtimeChannel) {
-      void supabase.removeChannel(taskRealtimeChannel);
-      taskRealtimeChannel = null;
-    }
+    if(taskListeners.size===0&&accessRefreshTimer){clearInterval(accessRefreshTimer);accessRefreshTimer=null;}
   };
 };
 

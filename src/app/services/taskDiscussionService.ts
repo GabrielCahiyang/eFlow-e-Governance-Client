@@ -200,24 +200,33 @@ function rowToProgress(row: Record<string, unknown>): ProgressUpdate {
 }
 
 export async function fetchProgressUpdates(taskId: string): Promise<ProgressUpdate[]> {
+  try { return await fetchProgressUpdatesStrict(taskId); } catch { return []; }
+}
+export async function fetchProgressUpdatesStrict(taskId: string): Promise<ProgressUpdate[]> {
   const { data, error } = await supabase
     .from('task_progress_updates')
     .select('*')
     .eq('task_id', taskId)
     .order('created_at', { ascending: false });
-  if (error) return [];
+  if (error) throw new Error(error.message);
   return (data || []).map(rowToProgress);
 }
 
-export function subscribeToProgressUpdates(taskId: string, callback: (p: ProgressUpdate[]) => void): () => void {
-  const load = () => fetchProgressUpdates(taskId).then(callback);
+export function subscribeToProgressUpdates(taskId: string, callback: (p: ProgressUpdate[]) => void, onError?: (message: string) => void): () => void {
+  let active = true, sequence = 0;
+  const load = async () => {
+    const current = ++sequence;
+    try { const updates = await fetchProgressUpdatesStrict(taskId); if(active && current === sequence) callback(updates); }
+    catch(reason) { if(active && current === sequence) { if(onError) onError(reason instanceof Error ? reason.message : 'Could not load progress.'); else callback([]); } }
+  };
   load();
   const channelId = `progress-${taskId}-${Math.random().toString(36).slice(2)}`;
   const channel = supabase
     .channel(channelId)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'task_progress_updates', filter: `task_id=eq.${taskId}` }, () => load())
-    .subscribe();
-  return () => { supabase.removeChannel(channel); };
+    .subscribe(status => { if(status === 'SUBSCRIBED') void load(); });
+  window.addEventListener('focus', load);
+  return () => { active = false; ++sequence; window.removeEventListener('focus', load); supabase.removeChannel(channel); };
 }
 
 export const BLOCKER_CATEGORIES = [

@@ -14,7 +14,10 @@ test("Admin Center keeps legacy pages, account inspection and unsaved account ed
   await expect(
     page.getByRole("heading", { name: "Admin Center", exact: true, level: 1 }),
   ).toBeVisible();
-  const people = page.getByRole("tab", { name: "People", exact: true });
+  const people = page.getByRole("tab", {
+    name: "People & onboarding",
+    exact: true,
+  });
   expect(
     await people.evaluate((element) =>
       Number.parseFloat(getComputedStyle(element).paddingLeft),
@@ -49,7 +52,9 @@ test("Admin Center keeps legacy pages, account inspection and unsaved account ed
     .getByRole("alertdialog")
     .getByRole("button", { name: /Discard/ })
     .click();
-  await page.getByRole("tab", { name: "Roles & Access", exact: true }).click();
+  await page
+    .getByRole("tab", { name: "Roles & permissions", exact: true })
+    .click();
   await expect(
     page.getByRole("heading", { name: "Role Defaults", exact: true }),
   ).toBeVisible();
@@ -72,6 +77,7 @@ test("Account audit has bounded coverage, loaded filters, nested redaction and t
     unavailable
       ? route.fulfill({ status: 400, json: { message: "Read unavailable" } })
       : route.fulfill({
+          headers: { "content-range": "0-0/1", "access-control-expose-headers":"content-range" },
           json: [
             {
               id: "audit-one",
@@ -121,9 +127,13 @@ test("Account audit has bounded coverage, loaded filters, nested redaction and t
   await page
     .getByRole("button", { name: "Refresh audit", exact: true })
     .click();
-  await expect(page.getByText(/No events returned/)).toBeVisible();
   await expect(
-    page.getByText(/empty result|failed read/, { exact: false }).first(),
+    page.getByText("Audit unavailable", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page
+      .getByText(/Administrative audit could not be read/, { exact: false })
+      .first(),
   ).toBeVisible();
   expect(
     await page.evaluate(
@@ -290,10 +300,10 @@ test("Journal correction has guarded lines, explicit posting and a retained unce
       const box = await dialog.boundingBox();
       return Boolean(
         box &&
-          box.x >= -1 &&
-          box.y >= -1 &&
-          box.x + box.width <= 390 + 1 &&
-          box.y + box.height <= 844 + 1,
+        box.x >= -1 &&
+        box.y >= -1 &&
+        box.x + box.width <= 390 + 1 &&
+        box.y + box.height <= 844 + 1,
       );
     })
     .toBe(true);
@@ -479,7 +489,10 @@ test("Accounting retains ordinary Member workspaces, requires an Office and cann
   Object.assign(fixture.profile, { org_id: null });
   await page.goto("/accounting-overview?page=Accounting%20Overview");
   await expect(
-    page.getByText("Office assignment required", { exact: true }),
+    page.getByText(
+      "Select a project in this shared Office context, or return to your Office to use Office tools.",
+      { exact: true },
+    ),
   ).toBeVisible();
   await expect(accountingNav(page)).toHaveCount(0);
 });

@@ -1,0 +1,194 @@
+{
+  "candidate": "a9c1c7fb84dfc8e89950effa3207767433817d5913a20589ecf09de0630e8b18",
+  "measuredBeforeWorkflowIntegrityTest": "a595b457711acd3228ea5193918ab8ebeb8a19d305f465f62d15e4a43b940344",
+  "matchingFrontendAndGatewayBytes": true,
+  "playwright": "1.55.0",
+  "platform": "win32",
+  "release": "10.0.26200",
+  "cpu": "12th Gen Intel(R) Core(TM) i5-12500H",
+  "cpuThreads": 16,
+  "timingModel": "paint-ready-v2",
+  "samplesPerDataset": 3,
+  "workers": 1,
+  "transport": "127.0.0.1 immutable Vite production preview; backend routes intercepted by committed synthetic fixtures",
+  "sequence": [
+    "historical baseline",
+    "candidate"
+  ],
+  "otherTestsAndBuildsRunning": false,
+  "ownedDevelopmentServerStopped": true,
+  "baselineInventory": [
+    {
+      "path": ".phase18/baseline-dist/assets/employeeNotesService-5H74ZyQh.js",
+      "bytes": 946,
+      "sha256": "a9c346cbbc49d45070f1168cfce13790183695ceda561674b04fdbfe59e1863c"
+    },
+    {
+      "path": ".phase18/baseline-dist/assets/figtree-latin-ext-wght-italic-iruAYCqh.woff2",
+      "bytes": 10544,
+      "sha256": "79773a0eeba5906a985ff9bc308b21ad19ff9b9f8b4cb9b3ed77e80389f9e373"
+    },
+    {
+      "path": ".phase18/baseline-dist/assets/figtree-latin-ext-wght-normal-BDFhNWBr.woff2",
+      "bytes": 10232,
+      "sha256": "c96d7b7b085414ae99598c1cbd72b09c8aa6d4732d7a120c408a044f46425428"
+    },
+    {
+      "path": ".phase18/baseline-dist/assets/figtree-latin-wght-italic-BTI1zcOO.woff2",
+      "bytes": 21148,
+      "sha256": "6c07603b2f702b4cad079965664be011e81d6ad26f1087a2af5fc984fd760ea9"
+    },
+    {
+      "path": ".phase18/baseline-dist/assets/figtree-latin-wght-normal-B3oYxpP2.woff2",
+      "bytes": 20016,
+      "sha256": "93a68eaa293304b947a167d0f7d0e00a1a8b5cf4972dc0da3da2094359a33e9a"
+    },
+    {
+      "path": ".phase18/baseline-dist/assets/index-9GEAcVIQ.css",
+      "bytes": 16239,
+      "sha256": "5e99234da06ab51897ba5def8bbf3a63d0255ad8522554152289bbd406c67f63"
+    },
+    {
+      "path": ".phase18/baseline-dist/assets/index-B5iP_oD4.js",
+      "bytes": 5555,
+      "sha256": "a25ac24c24ad578a045164231d62bdf94683071829eddc53e557a156a47b5acc"
+    },
+    {
+      "path": ".phase18/baseline-dist/assets/index-B7M5zOYW.js",
+      "bytes": 283765,
+      "sha256": "23d6dcd2fe2a38453e5cc5d000a0bb6c6765353b90f1018e27510274ae24deeb"
+    },
+    {
+      "path": ".phase18/baseline-dist/assets/index-BBv5wNKo.js",
+      "bytes": 11215,
+      "sha256": "db721878548dea006773f344ccfbde9d720566da28bc1b106b93557f755b7e50"
+    },
+    {
+      "path": ".phase18/baseline-dist/assets/index-BVLKghVn.js",
+      "bytes": 15940,
+      "sha256": "5e9b238b38e61ded6941a696626a8e6a6b8b302f4e7bedaa1da7cee6e2200e22"
+    },
+    {
+      "path": ".phase18/baseline-dist/assets/index-CBaaEg9y.css",
+      "bytes": 507860,
+      "sha256": "a00b778a777dac9c4a735bae64211a6aa1ee1ee54023fa31862f53ef19e0319d"
+    },
+    {
+      "path": ".phase18/baseline-dist/assets/index-Cspuq4Z2.js",
+      "bytes": 2200340,
+      "sha256": "7418d7eca6a0c7f1f3f0c4cdc56b88462f12d8ba56fcc79d946e2b9786c5d781"
+    },
+    {
+      "path": ".phase18/baseline-dist/assets/index-CTPcGVyA.js",
+      "bytes": 719490,
+      "sha256": "7137b76d8a4e6dbbd9fecd43bd3568f897885c6341a99390363c47ba279bb252"
+    },
+    {
+      "path": ".phase18/baseline-dist/assets/index-DQ4qm-zd.css",
+      "bytes": 2152,
+      "sha256": "30ef866cb01cee096cd80bfc815907984ed459366ce99fdf6aea098137cffe1b"
+    },
+    {
+      "path": ".phase18/baseline-dist/assets/key-round-BAn1H7uI.js",
+      "bytes": 528,
+      "sha256": "008edacba30904be3e43cbc58540fd0f288fd19038084a999f70ee5cc017fa73"
+    },
+    {
+      "path": ".phase18/baseline-dist/assets/landmark-CahhJeJO.js",
+      "bytes": 580,
+      "sha256": "b37429efc098bb9d21edf563f214c1f64f30d49096ec09776e1400373c0abd18"
+    },
+    {
+      "path": ".phase18/baseline-dist/assets/mail-DA2Qdf_O.js",
+      "bytes": 388,
+      "sha256": "05e621829fdba11ae980718f05e45db498c17b08ab1c6af44b57b67f1d5e9c25"
+    },
+    {
+      "path": ".phase18/baseline-dist/assets/MemberContent-7qNc-LvO.js",
+      "bytes": 21143,
+      "sha256": "ab68513b68f93b114fef944c2e1d7c697906810928f21af9b7e1868299957e03"
+    },
+    {
+      "path": ".phase18/baseline-dist/assets/Modal--VC8qtYZ.js",
+      "bytes": 2133,
+      "sha256": "e561ce612cfdcd8aa6a3dd69dff6968f6e45edac8210f74e08cf778f000f5082"
+    },
+    {
+      "path": ".phase18/baseline-dist/assets/OfficeBudgetWorkspace-Cgk1CjHu.js",
+      "bytes": 98835,
+      "sha256": "0cc147f2e27617787d7c82d01fd0c5433b16e2394572c67b4d8f4ae113a03736"
+    },
+    {
+      "path": ".phase18/baseline-dist/assets/OrganizationScopePanel-tmBev0-z.js",
+      "bytes": 6531,
+      "sha256": "da15576516afe28186a4daafaeb95fe414f9288124d47d303e994019e6827d2b"
+    },
+    {
+      "path": ".phase18/baseline-dist/assets/pdf-D-oSvAqu.js",
+      "bytes": 458388,
+      "sha256": "c7532355932f96cf8f6896b79b0f295ebed82d911ab33ca58047648332d9203b"
+    },
+    {
+      "path": ".phase18/baseline-dist/assets/pdf.worker.min-iDqQPrd3.mjs",
+      "bytes": 1232303,
+      "sha256": "52fadd5b81b6abd1eb665bab0c3749a8ad6a293fcb6ee9d9e0309f29d4f82619"
+    },
+    {
+      "path": ".phase18/baseline-dist/assets/ProgressUpdateForm-BuVoI4Dr.js",
+      "bytes": 88666,
+      "sha256": "00494e56dc30dd7ad71b8e326c0f7a887ceaf9be85299c5c9d001c9245348e0d"
+    },
+    {
+      "path": ".phase18/baseline-dist/assets/RolePageRouter-C0TCmFmX.js",
+      "bytes": 1079091,
+      "sha256": "c2652f2175e799e39908fb0a344e45cc774faa960ba0923802777fcced7be1ca"
+    },
+    {
+      "path": ".phase18/baseline-dist/assets/scale-Bz4V2-2Z.js",
+      "bytes": 541,
+      "sha256": "cf7d479962c33f1990958f0c4320a278017e7b54766752e77e8c59fdbf01e22a"
+    },
+    {
+      "path": ".phase18/baseline-dist/assets/selectors-D60r8t01.js",
+      "bytes": 4567,
+      "sha256": "cba924e3cf7a31a2b3add397b0ec6310deaee8cea0947f6a48fa8520d7d77b89"
+    },
+    {
+      "path": ".phase18/baseline-dist/assets/SettingsContent-CPDsN8xE.js",
+      "bytes": 25214,
+      "sha256": "1ae1c8d50e7a1410901deed6541da444d97d627706e7a52567a0714838bc98e3"
+    },
+    {
+      "path": ".phase18/baseline-dist/assets/useCurrentUserTasks-DPJEKEIn.js",
+      "bytes": 366,
+      "sha256": "27606b1bf32820b2646aecce38ac608a9a98ba8cede816711f40d0cd0ec2e349"
+    },
+    {
+      "path": ".phase18/baseline-dist/assets/useFirebaseData-DlrD9Xz5.js",
+      "bytes": 2516,
+      "sha256": "f40ba576e8249c479f11a9c9e6f616c94ea80f11fc0392ef4c5f0fd7627da417"
+    },
+    {
+      "path": ".phase18/baseline-dist/assets/WorkspaceLoadingSkeleton-DulPeulN.js",
+      "bytes": 34819,
+      "sha256": "c7725204ece5052c4e928beae5f90a2c5d0ea5763b97456b3f6e8238c2dbeb27"
+    },
+    {
+      "path": ".phase18/baseline-dist/assets/WorkspaceTabs-CPuzsLaV.js",
+      "bytes": 4206,
+      "sha256": "8086a7a1615cdaa5ae4af0f1eed47908fb8b2dabb0e37c7b936d3fa711c21179"
+    },
+    {
+      "path": ".phase18/baseline-dist/icon.svg",
+      "bytes": 1086,
+      "sha256": "bd3f67b4c7faab40d05de66a02ce0f30a49e45bd80b92e5137b3bece83af9c09"
+    },
+    {
+      "path": ".phase18/baseline-dist/index.html",
+      "bytes": 667,
+      "sha256": "4386918d50a3ba391957c3db6be2453bdbf9a1b7b385aeee7f0a20e39fb6d729"
+    }
+  ],
+  "scope": "Local synthetic measurement; no hosted network, concurrent gateway, WAN, supported-scale approval or throughput certification.",
+  "chromiumBuild": "140.0.7339.16"
+}

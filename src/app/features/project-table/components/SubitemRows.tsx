@@ -1,7 +1,8 @@
+import {supportsNestedWork} from '../../nested-work';
 import { useState } from 'react';
 import { PanelRight } from 'lucide-react';
 import { InlineEditableText } from '../../../components/ui/workspace';
-import { createSubtask, updateSubtask, parentTaskDueDate, type Subtask } from '../../subtasks';
+import { TaskSubtasksWidget, createSubtask, updateSubtask, parentTaskDueDate, type Subtask } from '../../subtasks';
 import { TASK_STATUS_LABELS, type Task } from '../../tasks';
 import type { UserProfile } from '../../../types';
 import { STATUS_COLORS } from '../selectors';
@@ -19,7 +20,7 @@ interface SubitemRowsProps {
   refresh: () => Promise<void>;
 }
 
-export function SubitemRows({ task, subtasks, columns, profiles, canAdd, unavailableReason, onOpen, onOpenTask, refresh }: SubitemRowsProps) {
+function LegacySubitemRows({ task, subtasks, columns, profiles, canAdd, unavailableReason, onOpen, onOpenTask, refresh }: SubitemRowsProps) {
   const parentDue = parentTaskDueDate(task.deadline, task.dueDate);
   const [dueDate, setDueDate] = useState(parentDue || '');
   const [busy, setBusy] = useState(false);
@@ -65,3 +66,8 @@ export function SubitemRows({ task, subtasks, columns, profiles, canAdd, unavail
   </td></tr>;
 }
 
+
+export function SubitemRows(props: SubitemRowsProps) {
+ if(!supportsNestedWork(props.task))return <LegacySubitemRows {...props}/>;
+ return <tr className="pt-subitems-row"><td colSpan={props.columns}><section className="pt-nested-work" id={'pt-subitems-'+props.task.id} aria-label={'Subitems for '+props.task.title}><TaskSubtasksWidget taskId={props.task.id} parentTask={props.task} canManage={props.canAdd} fallback={<table><tbody><LegacySubitemRows {...props}/></tbody></table>} allowedAssignees={props.profiles.map(p=>({id:p.id,name:p.full_name}))}/></section></td></tr>;
+}

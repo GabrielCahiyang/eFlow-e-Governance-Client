@@ -348,7 +348,7 @@ export function BackupExportWorkspace() {
 
   if (error && !overview) {
     return (
-      <div className="min-h-full bg-neutral-50/40 p-6 sm:p-8">
+      <div className="eflow-page-content">
         <PageHeader
           eyebrow="Admin · Data Tools"
           title="Backup & Export"
@@ -364,7 +364,7 @@ export function BackupExportWorkspace() {
   }
 
   return (
-    <div className="min-h-full bg-neutral-50/40 p-6 sm:p-8">
+    <div className="eflow-page-content">
       <PageHeader
         eyebrow="Admin · Data Tools"
         title="Backup & Export"

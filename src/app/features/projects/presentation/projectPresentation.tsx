@@ -5,7 +5,8 @@ import type { ProjectScheduleHealth } from "../components/project-command/types"
 type LabelColor =
   "primary" | "positive" | "working_orange" | "dark" | "negative";
 function Label({text, color}: {text: string; color: LabelColor}) {
-  return <VibeLabel text={text} color={color} labelClassName={color === "working_orange" || color === "positive" ? "eflow-project-label--light" : undefined}/>;
+  const tone = { primary: "info", positive: "positive", working_orange: "warning", dark: "neutral", negative: "negative" }[color];
+  return <VibeLabel text={text} color={color} labelClassName={`eflow-project-label eflow-project-label--${tone}`}/>;
 }
 const lifecycle: Record<ProjectStatus, { text: string; color: LabelColor }> = {
   planning: { text: "Planning", color: "primary" },

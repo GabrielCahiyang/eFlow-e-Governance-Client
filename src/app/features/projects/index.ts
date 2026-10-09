@@ -17,3 +17,4 @@ export type {
   EmptyProjectCleanupOutcome,
 } from "./services/emptyProjectCleanupService";
 export type { ProjectCommandData } from './components/project-command/types';
+export {ProjectActivityHistory} from './components/project-command/ProjectActivityTab';

@@ -47,6 +47,7 @@ export interface Notification {
   proposalId?: string;
   orgId?: string;
   entityType?: string;
+  workNodeId?: string;
   financialRecordId?: string;
   financialRecordType?: string;
   read: boolean;
@@ -70,6 +71,7 @@ function rowToNotif(row: Record<string, unknown>): Notification {
     proposalId: (row.proposal_id as string) || undefined,
     orgId: (row.org_id as string) || undefined,
     entityType: (row.entity_type as string) || undefined,
+    workNodeId: (row.work_node_id as string) || undefined,
     financialRecordId: (row.financial_record_id as string) || undefined,
     financialRecordType: (row.financial_record_type as string) || undefined,
     read: (row.read as boolean) || false,

@@ -1,3 +1,27 @@
+import { supportsNestedWork, WorkTree, type WorkNode, type WorkTreeSnapshot } from '../../nested-work';
+import { fetchSubtask } from '../services/subtaskWorkflowService';
+import { FeatureDialog } from '../../../components/ui/FeatureDialog';
+import { requestNavigation } from '../../../shared/navigationGuard';
+import { SubtaskReviewInbox } from '../../reviews';
+
+export function TaskSubtasksWidget(props: Parameters<typeof LegacyTaskSubtasksWidget>[0] & {fallback?:import('react').ReactNode}) {
+ const [opened,setOpened]=useState<{item:Subtask;node:WorkNode;prerequisite:Subtask|null}>(),[review,setReview]=useState<WorkNode>(),[error,setError]=useState('');
+ const {user}=useAuth();
+ const scope=useRef(`${user?.id}:${props.taskId}`);scope.current=`${user?.id}:${props.taskId}`;
+ useEffect(()=>{setOpened(undefined);setReview(undefined);setError('');},[user?.id,props.taskId]);
+ if(!props.parentTask||!supportsNestedWork(props.parentTask))return <LegacyTaskSubtasksWidget {...props}/>;
+ async function open(node:WorkNode,tree:WorkTreeSnapshot){const key=scope.current;try{
+  const rows=tree.nodes.map(n=>({id:n.id,taskId:props.taskId,parentSubtaskId:n.parent_subtask_id||undefined,siblingOrder:n.sibling_order,position:n.sibling_order,title:n.title,isCompleted:n.status==='completed',isStandalone:n.is_standalone}));
+  const current=rows.find(n=>n.id===node.id)!;const prior=getSubtaskPrerequisite(current,rows);
+  const [item,prerequisite]=await Promise.all([fetchSubtask(node.id),prior?fetchSubtask(prior.id):Promise.resolve(null)]);
+  if(scope.current===key&&item)setOpened({item,node,prerequisite});
+ }catch(reason){if(scope.current===key)setError((reason as Error).message);}}
+ return <><WorkTree rootId={props.taskId} fallback={props.fallback||<LegacyTaskSubtasksWidget {...props}/>} onOpenOfficeNode={(node,tree)=>void open(node,tree)} onReviewOfficeNode={setReview}/>
+ {error&&<p role="alert">{error}</p>}
+ {opened&&<SubtaskWorkDrawer subtask={opened.item} currentReviewerId={opened.node.current_reviewer||undefined} prerequisite={opened.prerequisite} parentTask={props.parentTask} readOnly={!opened.node.can_work} canManageDeadline={false} onClose={()=>setOpened(undefined)}/>}
+ {review&&<FeatureDialog title="Subitem evidence review" onClose={()=>void requestNavigation(()=>setReview(undefined))}><SubtaskReviewInbox embedded onShowTasks={()=>setReview(undefined)} focus={{notificationId:`r7:${review.id}`,kind:'subtask_review',taskId:props.taskId,entityId:review.id}}/></FeatureDialog>}
+ </>;
+}
 // ─── TaskSubtasksWidget ──────────────────────────────────────────
 // Standalone subtask checklist with multi-user assignment, completion toggle, and realtime updates.
 // Reused across TaskDetailDrawer, YouAreLeadingView, and MondayBoard.
@@ -27,7 +51,7 @@ import {
 import { getSubtaskDeadlineState, parentTaskDueDate } from "../selectors/deadlines";
 import { useTaskSubtasks } from "../hooks/useTaskSubtasks";
 
-export function TaskSubtasksWidget({
+function LegacyTaskSubtasksWidget({
   taskId,
   allowedAssignees,
   canManage = false,

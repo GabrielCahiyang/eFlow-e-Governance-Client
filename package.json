@@ -18,6 +18,15 @@
     "verify:live-schema": "node scripts/verify-live-task-schema.mjs",
     "verify:phase1-authority": "node scripts/verify-phase1-authority-sql.mjs",
     "verify:phase65-identity": "node scripts/verify-phase65-identity-sql.mjs",
+    "verify:r3-workspaces": "node scripts/verify-r3-workspaces-sql.mjs",
+    "verify:r7-hierarchy": "node scripts/verify-r7-hierarchy-sql.mjs",
+    "verify:r8-invitations": "node scripts/verify-r8-invitations-sql.mjs",
+    "verify:r11-activity": "node scripts/verify-r11-activity-sql.mjs",
+    "verify:r12-settings": "node scripts/verify-r12-settings-sql.mjs",
+    "verify:r13-integrated": "node scripts/verify-r9-access-sql.mjs --integrated-refinement",
+    "verify:r9-access": "node scripts/verify-r9-access-sql.mjs",
+    "verify:r9-compatibility": "node scripts/verify-r9-compatibility-sql.mjs",
+    "verify:r6-files": "node scripts/verify-r6-files-sql.mjs",
     "graph:setup": "node scripts/graphify.mjs setup",
     "graph:build": "node scripts/graphify.mjs build",
     "graph:update": "node scripts/graphify.mjs update",
@@ -27,7 +36,9 @@
     "graph:open": "node scripts/graphify.mjs open",
     "safety:update": "node scripts/phase17-safety-registry.mjs --update",
     "safety:check": "node scripts/phase17-safety-registry.mjs --self-test && node scripts/phase17-safety-registry.mjs --check",
-    "test:e2e:release": "node scripts/run-web-release.mjs"
+    "test:e2e:release": "node scripts/run-web-release.mjs",
+    "test:e2e:refinement": "node scripts/run-refinement-release.mjs",
+    "release:freeze-refinement": "node scripts/refinement-artifact.mjs"
   },
   "dependencies": {
     "@carbon/icons-react": "^11.78.0",

@@ -100,6 +100,9 @@
 }
 
 .eflow-topbar__brand-org {
+  max-width: min(32vw, 320px);
+  overflow: hidden;
+  text-overflow: ellipsis;
   color: var(--secondary-text-color);
   font: var(--font-text2-medium);
   white-space: nowrap;
@@ -115,9 +118,13 @@
 }
 
 .eflow-app-shell__workspace {
+  display: flex;
+  flex-direction: column;
   flex: 1 1 auto;
+  min-height: 0;
   min-width: 0;
-  overflow: hidden;
+  overflow: auto;
+  overscroll-behavior-y: contain;
   border: 1px solid
     color-mix(in srgb, var(--layout-border-color) 82%, transparent);
   border-radius: 14px;
@@ -143,7 +150,7 @@
     color-mix(
       in srgb,
       var(--primary-color, #007f80) 25%,
-      var(--layout-border-color, #e5e7eb)
+      var(--layout-border-color, var(--eflow-border))
     );
   border-radius: 0 0 14px 14px;
   box-shadow:
@@ -172,20 +179,20 @@
   border-color: var(--primary-color, #007f80);
   box-shadow: 0 5px 12px
     color-mix(in srgb, var(--primary-color, #007f80) 28%, transparent);
-  color: #fff;
+  color: var(--eflow-on-primary);
 }
 
 .eflow-task-board__toolbar--pinned .eflow-task-board__add-view:hover,
 .eflow-task-board__toolbar--pinned
   .eflow-task-board__add-view[aria-expanded="true"] {
-  background: color-mix(in srgb, var(--primary-color, #007f80) 88%, #000);
-  border-color: color-mix(in srgb, var(--primary-color, #007f80) 88%, #000);
-  color: #fff;
+  background: var(--eflow-primary-hover);
+  border-color: var(--eflow-primary-hover);
+  color: var(--eflow-on-primary);
 }
 
 .eflow-task-board__view-tabs {
   align-items: center;
-  border-bottom: 1px solid var(--layout-border-color, #e5e7eb);
+  border-bottom: 1px solid var(--layout-border-color, var(--eflow-border));
   display: flex;
   gap: 8px;
   justify-content: flex-start;
@@ -214,7 +221,7 @@
 
 .eflow-task-board__view-tabs-actions {
   align-items: center;
-  background: var(--primary-background-color, #fff);
+  background: var(--primary-background-color, var(--eflow-surface));
   display: flex;
   flex: 0 0 auto;
   gap: 4px;
@@ -228,10 +235,10 @@
 
 .eflow-task-board__more-button {
   align-items: center;
-  background: #fff;
+  background: var(--eflow-surface);
   border: 1px solid transparent;
   border-radius: 10px 10px 0 0;
-  color: var(--secondary-text-color, #676879);
+  color: var(--secondary-text-color, var(--eflow-text-muted));
   display: inline-flex;
   font-size: 13px;
   font-weight: 500;
@@ -247,9 +254,9 @@
 
 .eflow-task-board__more-button:hover,
 .eflow-task-board__more-button[aria-expanded="true"] {
-  background: #f4f4f4;
-  border-color: #d7d7d7;
-  color: #181818;
+  background: var(--eflow-subtle);
+  border-color: var(--eflow-border);
+  color: var(--eflow-text);
 }
 
 @media (max-width: 767px) {

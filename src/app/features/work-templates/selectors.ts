@@ -1,6 +1,7 @@
 import type { Subtask } from "../../services/subtaskService";
 
 export function getSubtaskReplacementBlocker(subtasks: Subtask[]): string | null {
+  if(subtasks.some(s=>s.parentSubtaskId))return "Nested work cannot be replaced by a flat checklist. Use the checked subtree actions.";
   const protectedSubtask = subtasks.find(
     (subtask) =>
       subtask.status !== "todo" ||

@@ -15,6 +15,9 @@ const colors = {
   "secondary-text-color": "var(--eflow-text-muted)",
   "primary-background-color": "var(--eflow-surface)",
   "secondary-background-color": "var(--eflow-subtle)",
+  "primary-background-hover-color": "var(--eflow-subtle)",
+  "allgrey-background-color": "var(--eflow-canvas)",
+  "layout-border-color": "var(--eflow-border)",
   "ui-border-color": "var(--eflow-border)",
 } as const;
 export const eflowVibeTheme = { name: "eflow-vibe", colors: { light: colors, dark: colors } } as const;

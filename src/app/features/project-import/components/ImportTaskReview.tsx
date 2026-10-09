@@ -6,7 +6,7 @@ export function ImportTaskReview({ tasks, allTasks, offices, disabled, onChange 
   tasks: ImportTask[]; allTasks: ImportTask[]; offices: ProposedOffice[]; disabled: boolean; onChange: (key: string, value: Partial<ImportTask>) => void;
 }) {
   const [expanded, setExpanded] = useState<string[]>([]);
-  return <div className="pi-table-scroll"><table className="pi-review-table"><thead><tr><th scope="col">Include</th><th scope="col">Task and deliverable</th><th scope="col">Priority</th><th scope="col">Timeline</th><th scope="col">Hours</th><th scope="col">Proposed responsibility</th></tr></thead><tbody>
+  return <div className="pi-table-scroll"><table className="pi-review-table"><thead><tr><th scope="col">Include</th><th scope="col">Task and deliverable</th><th scope="col">Priority</th><th scope="col">Timeline</th><th scope="col">Estimated hours</th><th scope="col">Proposed responsibility</th></tr></thead><tbody>
     {tasks.map(task => <Fragment key={task.key}>
       <tr className={!task.included ? 'pi-omitted' : ''}>
         <td><input type="checkbox" aria-label={`Include ${task.title}`} checked={task.included} disabled={disabled} onChange={e => onChange(task.key, { included: e.target.checked })}/></td>
@@ -14,7 +14,7 @@ export function ImportTaskReview({ tasks, allTasks, offices, disabled, onChange 
           <button type="button" className="pi-details-button" aria-expanded={expanded.includes(task.key)} onClick={() => setExpanded(prev => prev.includes(task.key) ? prev.filter(k => k !== task.key) : [...prev, task.key])}>{expanded.includes(task.key) ? <ChevronDown size={15}/> : <ChevronRight size={15}/>} {task.subitems.length} subitems · dependencies · source</button></td>
         <td><select aria-label={`Priority ${task.key}`} value={task.priority} disabled={disabled} onChange={e => onChange(task.key, { priority: e.target.value as ImportTask['priority'] })}><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select></td>
         <td className="pi-dates"><label>Start<input type="date" value={task.startDate} disabled={disabled} onChange={e => onChange(task.key, { startDate: e.target.value })}/></label><label>Due<input type="date" value={task.dueDate} disabled={disabled} onChange={e => onChange(task.key, { dueDate: e.target.value })}/></label></td>
-        <td><input type="number" aria-label={`Hours ${task.key}`} value={task.estimatedHours} min={0} max={100000} disabled={disabled} onChange={e => onChange(task.key, { estimatedHours: Number(e.target.value) })}/></td>
+        <td><input type="number" aria-label={`Estimated hours ${task.key}`} value={task.estimatedHours} min={0} max={100000} disabled={disabled} onChange={e => onChange(task.key, { estimatedHours: Number(e.target.value) })}/></td>
         <td><select aria-label={`Office responsibility ${task.key}`} value={task.officeKey} disabled={disabled} onChange={e => onChange(task.key, { officeKey: e.target.value })}><option value="">No proposal</option>{offices.map(o => <option key={o.key} value={o.key}>{o.name}</option>)}</select><small>People remain unassigned.</small></td>
       </tr>
       {expanded.includes(task.key) && <tr><td/><td colSpan={5}><div className="pi-expanded">

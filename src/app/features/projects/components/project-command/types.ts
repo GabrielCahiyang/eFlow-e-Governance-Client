@@ -6,18 +6,14 @@ import type { DepartmentBudgetBundle } from "../../../budget";
 export type PermanentProjectView = "tasks" | "board" | "gantt" | "calendar" | "dashboard" | "offices";
 
 export type OptionalProjectView =
-  | "readiness"
+  | "members"
   | "overview"
   | "timeline"
   | "reports"
   | "proposal_context"
   | "activity"
   | "reviews"
-  | "workload"
-  | "budget"
-  | "signoff"
-  | "evidence"
-  | "decisions";
+  | "budget";
 
 export type ProjectCommandTab =
   | PermanentProjectView
@@ -26,7 +22,9 @@ export type ProjectCommandTab =
   | "team"
   | "plan"
   | "work"
-  | "people";
+  | "people"
+  // Retired identifiers are accepted only at compatibility boundaries.
+  | "readiness" | "workload" | "signoff" | "evidence" | "decisions";
 
 export type ProjectScheduleHealth = "on_track" | "due_soon" | "overdue" | "at_risk" | "completed";
 
@@ -75,6 +73,7 @@ export interface ProjectCommandData {
   attention: TeamAttentionItem[];
   metrics: ProjectCommandMetrics;
   activity: ProjectActivityItem[];
+  activityError?:string;
   financial: DepartmentBudgetBundle;
   financialLoading: boolean;
   financialError: string;

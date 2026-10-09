@@ -22,6 +22,7 @@ const PersonalWorkWorkspace = lazyFeature(
   undefined,
   "PersonalWorkWorkspace",
 );
+const WorkspaceOverview=lazyFeature(()=>import('../personal-work').then(m=>({default:m.WorkspaceOverview})),undefined,'WorkspaceOverview');
 const ActionCenter = lazyFeature(
   () =>
     import("../action-center").then((module) => ({
@@ -76,25 +77,21 @@ interface RoleContentProps {
   activePage?: string;
   hasLeadingWork?: boolean;
   leadershipLoading?: boolean;
-  onNavigate?: (section: string, page: string) => void;
+  onNavigate?: (section: string, page: string,projectId?:string) => void;
 }
 
 function PageFrame({
   children,
   padded = true,
-  dark = false,
 }: {
   children: ReactNode;
   padded?: boolean;
-  dark?: boolean;
 }) {
   return (
-    <div
-      className={`h-full min-h-0 flex-1 overflow-hidden ${dark ? "bg-neutral-50 dark:bg-slate-950" : "bg-neutral-50"}`}
-    >
+    <div className="eflow-role-content">
       <WorkspaceShell
         data-tour-page-content
-        className={`h-full min-w-0 overflow-y-auto ${padded ? "p-3 sm:p-6" : ""}`}
+        className={`eflow-role-content__surface ${padded ? "eflow-role-content__surface--padded" : ""}`}
       >
         {children}
       </WorkspaceShell>
@@ -123,6 +120,7 @@ export function RoleContent({
         </p>
       </PageFrame>
     );
+  if (activeSection==='dashboard'&&role!=='admin') return <Suspense fallback={<RoleLoading/>}><PageFrame><WorkspaceOverview onNavigate={onNavigate}/></PageFrame></Suspense>;
   if (activeSection === "personal_work") {
     if (role === "admin" || (!can("navigation.tasks") && !hasLeadingWork))
       return (
@@ -133,7 +131,7 @@ export function RoleContent({
     return (
       <Suspense fallback={<RoleLoading />}>
         <PageFrame>
-          <PersonalWorkWorkspace />
+          <PersonalWorkWorkspace page={activePage} onNavigate={onNavigate}/>
         </PageFrame>
       </Suspense>
     );
@@ -154,7 +152,7 @@ export function RoleContent({
     !isAdministrativeNavigationSection(activeSection)
   ) {
     return (
-      <PageFrame>
+      <PageFrame padded={false}>
         <AdministrationWorkspace />
       </PageFrame>
     );
@@ -162,7 +160,7 @@ export function RoleContent({
   if (activeSection === "settings") {
     return (
       <Suspense fallback={<RoleLoading />}>
-        <PageFrame padded={false} dark>
+        <PageFrame padded={false}>
           <SettingsContent activePage={activePage} onNavigate={onNavigate} />
         </PageFrame>
       </Suspense>
@@ -202,7 +200,7 @@ export function RoleContent({
   if (role !== "admin" && isAdministrativeNavigationSection(activeSection)) {
     return (
       <Suspense fallback={<RoleLoading />}>
-        <PageFrame>
+        <PageFrame padded={false}>
           <AdministrationWorkspace
             activeSection={activeSection}
             activePage={activePage}
@@ -217,7 +215,7 @@ export function RoleContent({
   switch (role) {
     case "admin":
       content = (
-        <PageFrame padded={!isProjectsWorkspace}>
+        <PageFrame padded={false}>
           <AdministrationWorkspace
             activeSection={activeSection}
             activePage={activePage}

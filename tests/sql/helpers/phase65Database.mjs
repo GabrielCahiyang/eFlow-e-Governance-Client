@@ -1,10 +1,11 @@
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
+import { resolve } from 'node:path';
 import { PGlite } from '@electric-sql/pglite';
 import { ltree } from '@electric-sql/pglite/contrib/ltree';
 import { pgcrypto } from '@electric-sql/pglite/contrib/pgcrypto';
 
 /** Disposable real PostgreSQL; no environment variables, accounts or network. */
-export async function phase65Database() {
+export async function phase65Database({ liveHistoryDirectory, withdrawalSnapshot } = {}) {
  const db = await PGlite.create({ extensions: { ltree, pgcrypto } });
  try {
   const fixture = JSON.parse(await readFile(new URL('../phase1-deployed-schema.json', import.meta.url), 'utf8'));
@@ -42,8 +43,19 @@ export async function phase65Database() {
    '20261004194130_phase7_readiness_governance.sql',
    '20261005170822_phase65_project_local_office_identity.sql',
   ];
-  for (const name of migrations) {
-   try { await db.exec(await readFile(new URL('../../../supabase/migrations/' + name, import.meta.url), 'utf8')); }
+  const selected = liveHistoryDirectory ? (await readdir(liveHistoryDirectory)).filter(name => /^\d{14}_[a-z0-9_]+\.sql$/.test(name)).sort() : migrations;
+  if (liveHistoryDirectory && (selected.length !== 18 || selected.at(-1) !== '20261008004900_withdraw_office_invitation.sql')) throw new Error('Expected the reviewed 18-entry R13 live ledger; inspect changed history before replay.');
+  for (const name of selected) {
+   try {
+    // The latest ledger statement is a placeholder. Keep that receipt intact;
+    // use a separately read, explicitly supplied current definition for local
+    // compatibility only. This helper never connects to or repairs a ledger.
+    if (liveHistoryDirectory && name === '20261008004900_withdraw_office_invitation.sql') {
+     if (!withdrawalSnapshot) throw new Error('Incomplete withdrawal ledger SQL requires a reviewed current-definition snapshot.');
+     await db.exec(await readFile(withdrawalSnapshot, 'utf8'));
+     await db.exec('revoke all on function public.phase6_withdraw_office_invitation(uuid) from public, anon; grant execute on function public.phase6_withdraw_office_invitation(uuid) to authenticated, service_role;');
+    } else await db.exec(await readFile(liveHistoryDirectory ? resolve(liveHistoryDirectory, name) : new URL('../../../supabase/migrations/' + name, import.meta.url), 'utf8'));
+   }
    catch (error) { error.message = name + ': ' + error.message; throw error; }
   }
   return db;

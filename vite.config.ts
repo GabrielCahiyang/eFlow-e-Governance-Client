@@ -10,7 +10,7 @@ function viewModuleManifest(): Plugin {
   return {
     name: "eflow-view-module-manifest",
     generateBundle(_options, bundle) {
-      const names = new Set(["AccountingStaffContent", "ActionCenter", "AdministrationWorkspace", "EmployeeDeadlines", "EmployeeMyProjects", "EmployeeMyTasks", "EmployeeTaskHistory", "EmployeeWorkReport", "ForReviewInbox", "HeadContent", "LeaderReviewInbox", "MemberContent", "MondayBoard", "OfficeIdentityAccessWorkspace", "PersonalWorkWorkspace", "ProfilePage", "ProjectGanttView", "ProjectInsightsView", "ProjectOfficePanel", "ProjectOfficesView", "ProjectTableWorkspace", "SettingsContent", "StaffingDialog", "SubtaskWorkDrawer", "SubtasksWorkspace", "TaskDatesDialog", "TaskInspector", "TaskOfficeControl", "WorkBudgetCard"]);
+      const names = new Set(["AccountingStaffContent", "ActionCenter", "AdministrationWorkspace", "EmployeeDeadlines", "EmployeeMyProjects", "EmployeeMyTasks", "EmployeeTaskHistory", "EmployeeWorkReport", "ForReviewInbox", "HeadContent", "LeaderReviewInbox", "MemberContent", "MondayBoard", "OfficeIdentityAccessWorkspace", "PersonalWorkWorkspace", "WorkspaceOverview", "ProfilePage", "ProjectGanttView", "ProjectInsightsView", "ProjectOfficePanel", "ProjectOfficesView", "ProjectTableWorkspace", "SettingsContent", "StaffingDialog", "SubtaskWorkDrawer", "SubtasksWorkspace", "TaskDatesDialog", "TaskInspector", "TaskOfficeControl", "WorkBudgetCard"]);
       const modules: Record<string, string> = {};
       for (const entry of Object.values(bundle)) {
         if (entry.type !== "chunk") continue;

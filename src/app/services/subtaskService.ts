@@ -20,6 +20,9 @@ export interface Subtask {
   completedAt?: number;
   assignedTo?: string;
   assignedToIds: string[];
+  parentSubtaskId?: string;
+  leadId?: string;
+  siblingOrder?: number;
   position: number;
   isStandalone: boolean;
   dueDate?: string;
@@ -53,6 +56,9 @@ export function rowToSubtask(row: Record<string, unknown>): Subtask {
     completedAt: row.completed_at ? new Date(row.completed_at as string).getTime() : undefined,
     assignedTo: (row.assigned_to as string) || (assignedToIds[0] || undefined),
     assignedToIds,
+    parentSubtaskId: (row.parent_subtask_id as string) || undefined,
+    leadId: (row.lead_id as string) || undefined,
+    siblingOrder: typeof row.sibling_order === 'number' ? row.sibling_order : undefined,
     position: (row.position as number) || 0,
     isStandalone: row.is_standalone === true,
     dueDate: (row.due_date as string) || undefined,

@@ -1,0 +1,23 @@
+.r3-workspace-selector { display:flex;flex-direction:column;gap:12px;max-height:65dvh;overflow:auto;min-width:240px;max-width:min(360px,calc(100vw - 48px)); }
+.r3-workspace-selector h3 { font-size:12px;color:var(--eflow-text-muted);margin:4px 0; }
+.r3-workspace-choice { display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:8px;border-radius:6px; }
+.r3-workspace-choice[aria-current],.r3-project-list button[aria-current] { background:var(--eflow-selected); }
+.r3-workspace-choice span,.r3-project-list button { min-width:0;overflow-wrap:anywhere; }
+.r3-workspace-choice small,.r3-project-list small { display:block;font-size:11px;color:var(--eflow-text-muted); }
+.r3-workspace-choice[aria-current] small,.r3-project-list button[aria-current] small { color:var(--eflow-on-selected); }
+.r3-create-dialog { max-width:520px; }
+.r3-create-dialog form { padding:24px;display:flex;flex-direction:column;gap:16px;overflow:auto; }
+.r3-create-dialog footer { display:flex;gap:12px;justify-content:flex-end; }
+.r3-personal-workspace { display:flex;flex-direction:column;gap:18px;padding:24px; }
+.r3-personal-workspace p { color:var(--eflow-text-muted);font-size:13px; }
+.r3-personal-workspace h2 { font-size:18px; }.r3-personal-workspace h3 { font-size:15px; }
+.r3-project-list { display:flex;gap:8px;flex-wrap:wrap; }
+.r3-project-list button { padding:10px 14px;border:1px solid var(--eflow-border,#dce4e1);border-radius:8px;text-align:left; }
+.r3-task-create,.r3-members-form { display:flex;flex-wrap:wrap;gap:12px;align-items:end;margin:16px 0; }
+.r3-task-create .eflow-form-field,.r3-members-form .eflow-form-field { flex:1 1 180px;min-width:0; }
+.r3-task-list { display:flex;flex-direction:column; }.r3-task-row { display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:16px 0;border-bottom:1px solid var(--eflow-border,#dce4e1); }
+.r3-task-actions { display:flex;gap:8px;align-items:center;flex-wrap:wrap; }
+.r3-personal-workspace button { min-height:34px;border-radius:6px; }.r3-task-actions button,.r3-members-form button { padding:6px 12px;border:1px solid var(--eflow-border,#dce4e1); }
+.r3-personal-workspace li { display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:6px 0; }
+.r3-shortcut-choice { display:flex;align-items:flex-start;gap:8px;max-width:650px;font-size:13px; }
+@media(max-width:600px) { .r3-personal-workspace {padding:16px;}.r3-task-create,.r3-members-form {flex-direction:column;align-items:stretch;}.r3-task-create .eflow-form-field,.r3-members-form .eflow-form-field {flex:auto;} }

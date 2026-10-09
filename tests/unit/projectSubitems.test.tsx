@@ -45,7 +45,7 @@ describe('Project table subitem expansion', () => {
     const row = container.querySelector<HTMLTableRowElement>('.pt-task-row')!;
     const actions = within(row).getByRole('button', { name: 'Actions for Prepare assessment' });
     expect(row.cells[0].contains(actions)).toBe(true);
-    expect(row.cells).toHaveLength(2);
+    expect(row.cells).toHaveLength(3);
     expect(within(row).queryByRole('button', { name: /^Drag / })).toBeNull();
     expect(row.querySelector('[draggable]')).toBeNull();
     fireEvent.keyDown(actions, { key: 'Enter' });

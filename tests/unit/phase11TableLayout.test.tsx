@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { act, cleanup, fireEvent, render, renderHook, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { normalizeColumnWidths, normalizeHiddenColumns, DEFAULT_COLUMN_WIDTHS } from '../../src/app/features/project-table/columnLayout';
+import { normalizeColumnWidths, normalizeHiddenColumns, DEFAULT_COLUMN_WIDTHS, COMPACT_HIDDEN_COLUMNS, COMPACT_COLUMN_WIDTHS } from '../../src/app/features/project-table/columnLayout';
 import { useTableLayout } from '../../src/app/features/project-table/hooks/useTableLayout';
 import { ColumnResizer } from '../../src/app/features/project-table/components/ColumnResizer';
 import { ProjectFilterChips } from '../../src/app/features/project-views/components/ProjectFilterChips';
@@ -13,6 +13,7 @@ describe('Phase 11 local table layout',()=>{
   expect(normalizeHiddenColumns(['task','owner','owner','office','unknown'])).toEqual(['office','owner']);
  });
  it('keeps visibility and widths scoped through project switching and reset',()=>{
+  localStorage.setItem('eflow_project_columns_a','[]');
   localStorage.setItem('eflow_project_columns_b','["status"]');
   const view=renderHook(({projectId})=>useTableLayout(projectId),{initialProps:{projectId:'a'}});
   act(()=>{view.result.current.toggleColumn('owner');view.result.current.resizeColumn('task',500);});
@@ -22,10 +23,31 @@ describe('Phase 11 local table layout',()=>{
   expect(view.result.current.widths.task).toBe(500);expect(view.result.current.hidden).toEqual(['owner']);
   act(()=>view.result.current.resetWidths());expect(view.result.current.widths).toEqual(DEFAULT_COLUMN_WIDTHS);expect(view.result.current.hidden).toEqual(['owner']);
  });
+ it.each([null, 'broken', '{}', 'null', '[2]'])('starts compact for absent or malformed preferences (%s)',saved=>{
+  if(saved!==null)localStorage.setItem('eflow_project_columns_a',saved);
+  const view=renderHook(()=>useTableLayout('a'));
+  expect(view.result.current.hidden).toEqual(COMPACT_HIDDEN_COLUMNS);
+  expect(view.result.current.widths).toEqual(COMPACT_COLUMN_WIDTHS);
+ });
+ it('preserves explicit all-visible and partial layouts and supports an intentional compact reset',()=>{
+  localStorage.setItem('eflow_project_columns_a','[]');
+  localStorage.setItem('eflow_project_table_layout_v1_a',JSON.stringify({version:1,widths:{task:480,effort:160}}));
+  const view=renderHook(()=>useTableLayout('a'));
+  expect(view.result.current.hidden).toEqual([]);expect(view.result.current.widths).toMatchObject({task:480,effort:160});
+  act(()=>view.result.current.resetCompact());
+  expect(view.result.current.hidden).toEqual(COMPACT_HIDDEN_COLUMNS);expect(view.result.current.widths).toEqual(COMPACT_COLUMN_WIDTHS);
+  act(()=>{view.result.current.showColumn('effort');view.result.current.showColumn('effort');});
+  expect(view.result.current.hidden).toEqual(COMPACT_HIDDEN_COLUMNS.filter(id=>id!=='effort'));
+  expect(localStorage.getItem('eflow_project_columns_a')).toBe(JSON.stringify(view.result.current.hidden));
+  localStorage.setItem('eflow_project_table_layout_v1_c',JSON.stringify({version:1,widths:{task:480,timeline:250}}));
+  view.unmount();
+  const widthsOnly=renderHook(()=>useTableLayout('c'));
+  expect(widthsOnly.result.current.hidden).toEqual(COMPACT_HIDDEN_COLUMNS);expect(widthsOnly.result.current.widths).toMatchObject({task:480,timeline:250});
+ });
  it('works in memory when browser storage is unavailable',()=>{
   vi.spyOn(Storage.prototype,'getItem').mockImplementation(()=>{throw new Error('Blocked');});vi.spyOn(Storage.prototype,'setItem').mockImplementation(()=>{throw new Error('Blocked');});
   const view=renderHook(()=>useTableLayout('a'));act(()=>{view.result.current.hideColumn('effort');view.result.current.resizeColumn('task',480);});
-  expect(view.result.current.hidden).toEqual(['effort']);expect(view.result.current.widths.task).toBe(480);
+  expect(view.result.current.hidden).toEqual(COMPACT_HIDDEN_COLUMNS);expect(view.result.current.widths.task).toBe(480);
  });
  it('supports keyboard width adjustments and announces bounds',()=>{
   const change=vi.fn();render(<ColumnResizer column="task" label="Task" width={320} onResize={change}/>);

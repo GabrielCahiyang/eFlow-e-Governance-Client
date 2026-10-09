@@ -17,6 +17,10 @@ vi.mock("../../src/app/hooks/useSupabaseData", () => ({
   useProjectsData: () => ({ projects: [] }),
   useOrgs: () => ({ orgs: [], loading: false }),
 }));
+vi.mock('../../src/app/features/workspaces/services/workspaceService', async () => {
+  const actual = await vi.importActual<typeof import('../../src/app/features/workspaces/services/workspaceService')>('../../src/app/features/workspaces/services/workspaceService');
+  return { ...actual, listWorkspaces: async () => { throw new actual.WorkspaceApiUnavailable('R3 migration pending'); } };
+});
 
 vi.mock("../../src/app/features/guided-tours", () => ({
   GuidedTourProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,

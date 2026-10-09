@@ -1,18 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useProfiles, useOrgs } from "../../../hooks/useSupabaseData";
 import { DataTable, type Column } from "../../../components/ui/DataTable";
 import { Button } from "../../../components/ui/button";
 import { FeedbackState } from "../../../components/ui/FeedbackState";
-import {
-  PageHeader,
-  SearchInput,
-  WSelect,
-} from "../../../components/workflow/primitives";
-import {
-  fetchAuditEvents,
-  subscribeToAuditEvents,
-  type AuditEvent,
-} from "../../../services/auditService";
+import { SearchInput, WSelect } from "../../../components/workflow/primitives";
+import type { AuditEvent } from "../../../services/auditService";
+import { useAdministrativeAuditWindow } from "../hooks/useAdministrativeAuditWindow";
+import { WorkspaceHeader } from "../../../components/ui/workspace";
 import {
   humanizeAuditAction,
   humanizeEntityType,
@@ -22,49 +16,15 @@ import { EMPTY_AUDIT_FILTERS, filterAuditEvents } from "../auditFilters";
 import { AuditDetailDrawer } from "./AuditDetailDrawer";
 
 export function AdminAuditLog() {
-  const [events, setEvents] = useState<AuditEvent[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const { events, total, loading, refreshing, error, refresh } =
+    useAdministrativeAuditWindow();
   const [filters, setFilters] = useState(EMPTY_AUDIT_FILTERS);
   const [selected, setSelected] = useState<AuditEvent | null>(null);
   const { profiles } = useProfiles();
   const { orgs } = useOrgs();
-  const mounted = useRef(true);
-  const refreshPending = useRef(false);
-  const revision = useRef(0);
   useEffect(() => {
-    mounted.current = true;
-    const stop = subscribeToAuditEvents(
-      (next) => {
-        if (mounted.current) {
-          revision.current++;
-          setEvents(next);
-          setLoading(false);
-        }
-      },
-      { limit: 500 },
-    );
-    return () => {
-      mounted.current = false;
-      stop();
-    };
-  }, []);
-  const refresh = async () => {
-    if (refreshPending.current) return;
-    refreshPending.current = true;
-    setRefreshing(true);
-    const version = revision.current;
-    try {
-      const next = await fetchAuditEvents({ limit: 500 });
-      if (mounted.current && version === revision.current) {
-        setEvents(next);
-        setLoading(false);
-      }
-    } finally {
-      refreshPending.current = false;
-      if (mounted.current) setRefreshing(false);
-    }
-  };
+    if (error) setSelected(null);
+  }, [error]);
   const profileNames = useMemo(
     () => new Map(profiles.map((profile) => [profile.id, profile.full_name])),
     [profiles],
@@ -125,10 +85,9 @@ export function AdminAuditLog() {
   ];
   return (
     <div className="min-w-0 space-y-4 p-3 sm:p-6">
-      <PageHeader
-        eyebrow="Admin Center · Audit"
+      <WorkspaceHeader
         title="Account Audit"
-        subtitle="Accounts, access, Office assignments and administrative support history."
+        description="Accounts, access, Office assignments and administrative support history."
         actions={
           <Button
             variant="outline"
@@ -140,11 +99,18 @@ export function AdminAuditLog() {
         }
       />
       <FeedbackState tone="info" title="Latest 500 permitted events">
-        Filters apply to this bounded set, not complete history. The current
-        reader returns an empty set for both an empty audit and a failed read;
-        it cannot confirm that no events exist. Admin access covers
-        administrative records only.
+        Filters apply to this bounded set, not complete global history.{" "}
+        {total === undefined
+          ? "Authorized count is unavailable."
+          : `${events.length} loaded of ${total} permitted records${total > events.length ? "; older records are outside this window." : "; this read covers the permitted set."}`}{" "}
+        Admin access covers administrative records only. Project Activity has
+        its own R11 history contract.
       </FeedbackState>
+      {error && (
+        <FeedbackState tone="error" title="Audit unavailable">
+          {error}
+        </FeedbackState>
+      )}
       <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
         <SearchInput
           value={filters.query}
@@ -235,7 +201,9 @@ export function AdminAuditLog() {
         </Button>
       </div>
       <p role="status" className="text-xs text-muted-foreground">
-        {filtered.length} matching · {events.length} loaded
+        {error
+          ? "Coverage unavailable"
+          : `${filtered.length} matching · ${events.length} loaded`}
         {refreshing ? " · Refreshing…" : ""}
       </p>
       <DataTable
@@ -248,7 +216,9 @@ export function AdminAuditLog() {
         emptyMessage={
           events.length
             ? "No loaded events match. Clear filters to see the loaded set."
-            : "No events returned. Audit history may be empty or unavailable; refresh to check the current reader."
+            : error
+              ? "Audit unavailable. Refresh to retry."
+              : "No permitted administrative events."
         }
       />
       {selected && (

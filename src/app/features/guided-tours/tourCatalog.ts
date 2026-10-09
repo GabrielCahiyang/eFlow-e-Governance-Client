@@ -56,14 +56,14 @@ export function getSystemTourSteps(
     {
       id: "system-navigation",
       title: "Your navigation",
-      description: "The global rail groups your authorized destinations. Choose a group, then a page in its context panel. On a small screen, use the bottom navigation and More to open this panel.",
+      description: "The global rail groups your authorized destinations. Office tools and the project tree stay available across pages. Search workspace finds your available destinations and projects. The adjacent plus shows or hides sections; collapse keeps the global rail available. On a small screen, use the bottom navigation and More to open this panel.",
       target: "[data-tour-id='primary-navigation']",
     },
     ...sections.map((section) => ({
       id: `system-section-${section.id}`,
       title: section.label,
       description: getSectionGuidance(section.id, section.label),
-      target: `[data-tour-section='${section.id}']`,
+      target: () => document.querySelector<HTMLElement>(`[data-tour-section='${section.id}']`) || document.querySelector<HTMLElement>("[data-tour-id='primary-navigation']"),
       beforeShow: () => navigate(section.id, section.page),
     })),
     {
@@ -102,10 +102,10 @@ export function getSystemTourSteps(
 export function getPageTourSteps(section: string, page?: string): GuidedTourStep[] {
   const label = page || section;
   if (section === 'projects' && page === 'Projects') return [
-    {id:'project-context',title:'Choose or create a project',description:'Choose a project in Workspaces, or open More on a small screen to see the project tree. Star a project for quick access on this device. Authorized Create project and Add to workspace use the existing creation and proposal import flows.',target:() => document.querySelector<HTMLElement>('.eflow-project-context') || document.querySelector<HTMLElement>("[aria-label='Mobile primary navigation']") || document.querySelector<HTMLElement>('[data-tour-page-content]')},
+    {id:'project-context',title:'Choose or create a project',description:'Choose a project in Workspaces, or open More on a small screen to see the project tree. Star a project for quick access on this device. Use Projects and proposals for authorized creation, proposal import, saved work plans and proposal review. The plus beside the workspace selector changes visible sections.',target:() => document.querySelector<HTMLElement>("[aria-label='Workspace content']") || document.querySelector<HTMLElement>("[aria-label='Mobile primary navigation']") || document.querySelector<HTMLElement>('[data-tour-page-content]')},
     {id:'project-main-table',title:'Your main working table',description:'Groups organize tasks; expand a task to see its subitems. Your changes use the same records as evidence, reviews and budget workflows.',target:"[data-tour-id='project-main-table']"},
     {id:'project-table-tools',title:'Add and find work',description:'Use New task to add tasks, groups or reviewed document work. Import proposal from Create project options saves a work-plan draft for later approval. Review sections preserve your edits; adding work to this project requires an impact confirmation. Search, filter, sort and choose visible columns within your existing access.',target:"[data-tour-id='project-table-toolbar']"},
-    {id:'project-replay',title:'Continue working, or revisit this guide',description:'Open task details for evidence, review and funding. Eligible Office Heads can review staffing suggestions before assigning an owner. Readiness checks link to the views where blockers are resolved; governed projects keep Approval Status. Tab Walkthrough reopens this guide.',target:"[data-tour-id='page-walkthrough']"},
+    {id:'project-replay',title:'Continue working, or revisit this guide',description:'Open task details for evidence, review and funding. Eligible Office Heads can review staffing suggestions before assigning an owner. Office Heads can open View completion requirements for plan reviews and blockers; governed projects keep Proposal Context. Tab Walkthrough reopens this guide.',target:"[data-tour-id='page-walkthrough']"},
   ];
   if (section === 'team' && page === 'Office Team') return [
     { id: 'office-team', title: 'Your Office Team', description: 'Search active account members and invitation validity separately from email delivery. Open a member for the authorized professional summary. Project participation and task teams stay in their own inspectors.', target: "[data-tour-id='office-team']" },

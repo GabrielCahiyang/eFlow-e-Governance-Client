@@ -11,6 +11,7 @@ import { getCurrentFiscalYear, getTaskScopedBudgetBundle, useDepartmentBudget } 
 import { useAuth } from "../../../contexts/AuthContext";
 import { createProjectCommandCache, type ProjectCommandCacheScope } from "../services/projectCommandCache";
 import { registerAuthCacheReset } from "../../../shared/authCacheReset";
+import { useWorkspaceScope } from '../../workspaces';
 
 const EMPTY_FACTS: TeamWorkflowFacts = { subtasks: [], progress: [], submissions: [], statusHistory: [], evidence: [] };
 
@@ -53,7 +54,8 @@ function updateProjectCommandCache(
 
 export function useProjectCommandData(project: Project, tasks: Task[]): ProjectCommandData & { retryWorkflowFacts: () => void } {
   const { user, userProfile } = useAuth();
-  const scope = projectCommandCache.selectScope(`${userProfile?.id || user?.id || ''}:${userProfile?.org_id || userProfile?.departmentId || ''}:${userProfile?.role || ''}`);
+  const workspace = useWorkspaceScope();
+  const scope = projectCommandCache.selectScope(`${userProfile?.id || user?.id || ''}:${workspace?.workspace.id || userProfile?.org_id || userProfile?.departmentId || ''}:${userProfile?.role || ''}`);
   const budget = useDepartmentBudget(project.orgId || tasks.find((task) => task.orgId)?.orgId || "", getCurrentFiscalYear());
   const taskKey = useMemo(() => tasks.map((task) => task.id).sort().join(","), [tasks]);
   const cached = getCachedProjectCommandData(scope, project.id, taskKey);
@@ -68,6 +70,7 @@ export function useProjectCommandData(project: Project, tasks: Task[]): ProjectC
   const [error, setError] = useState("");
   const [factsRevision, setFactsRevision] = useState(0);
   const [projectEvents, setProjectEvents] = useState<ProjectActivityItem[]>(() => cached?.projectEvents || []);
+  const [activityError,setActivityError]=useState('');
 
   const refreshMembers = useCallback(async () => {
     const nextMembers = await fetchProjectMembers(project.id);
@@ -111,11 +114,14 @@ export function useProjectCommandData(project: Project, tasks: Task[]): ProjectC
   }, [scope, project.id, taskKey, factsRevision]);
 
   useEffect(() => {
+    let live=true;setActivityError('');
     const entityIds = [project.id, ...tasks.map((task) => task.id), ...milestones.map((milestone) => milestone.id)];
     void fetchProjectAuditActivity(entityIds).then((events) => {
+      if(!live)return;
       setProjectEvents(events);
       updateProjectCommandCache(scope, project.id, taskKey, { projectEvents: events });
-    });
+    }).catch(reason=>{if(live){setProjectEvents([]);setActivityError(reason instanceof Error?reason.message:'Audit history unavailable');}});
+    return()=>{live=false;};
   }, [scope, milestones, project.id, project.updatedAt, taskKey]);
 
   const attention = useMemo(() => buildTeamAttentionItems(tasks, facts), [facts, tasks]);
@@ -126,6 +132,6 @@ export function useProjectCommandData(project: Project, tasks: Task[]): ProjectC
   return {
     project, tasks, milestones, members, facts, attention, metrics, activity,
     financial, financialLoading: budget.loading, financialError: budget.error,
-    loading, error, refreshMembers, retryWorkflowFacts: () => setFactsRevision(revision => revision + 1),
+    loading, error, activityError, refreshMembers, retryWorkflowFacts: () => setFactsRevision(revision => revision + 1),
   };
 }

@@ -1,0 +1,167 @@
+{
+  "candidate": "619ee6b73bd779c5410827e9a53ad350d3906f516ac558bd8889baca01337911",
+  "result": "failed",
+  "stats": {
+    "startTime": "2026-10-08T22:46:07.780Z",
+    "duration": 2338253.6139999996,
+    "expected": 563,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  },
+  "perBrowser": {
+    "chromium": {
+      "total": 188,
+      "passed": 188
+    },
+    "firefox": {
+      "total": 188,
+      "passed": 188
+    },
+    "webkit": {
+      "total": 188,
+      "passed": 187
+    }
+  },
+  "rawReportSha256": "d5c5ccacd479873fba082d2d7be37560ae17bf988b153db23e7baae8bf5dcd82",
+  "errors": 0,
+  "retries": 0,
+  "acceptanceReceiptWritten": false,
+  "sourceAndArchivedArtifactHashesVerified": true,
+  "failures": [
+    {
+      "file": "phase15-ai-governance.spec.ts",
+      "title": "Task inspector staffing retains selection after eligibility denial and assigns only after reviewed fresh context",
+      "browser": "webkit",
+      "status": "unexpected",
+      "retries": [
+        0
+      ],
+      "durationMs": 14042,
+      "error": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 1\nReceived: 0"
+    }
+  ],
+  "workloadJourneys": [
+    {
+      "file": "workspace-refinement-r11.spec.ts",
+      "title": "R11 complete Activity at 390px with stable paging and full-history print",
+      "browser": "chromium",
+      "status": "expected",
+      "retries": [
+        0
+      ],
+      "durationMs": 6788
+    },
+    {
+      "file": "workspace-refinement-r11.spec.ts",
+      "title": "R11 complete Activity at 1440px with stable paging and full-history print",
+      "browser": "chromium",
+      "status": "expected",
+      "retries": [
+        0
+      ],
+      "durationMs": 6972
+    },
+    {
+      "file": "workspace-refinement-r11.spec.ts",
+      "title": "R11 complete Activity at 390px with stable paging and full-history print",
+      "browser": "firefox",
+      "status": "expected",
+      "retries": [
+        0
+      ],
+      "durationMs": 7068
+    },
+    {
+      "file": "workspace-refinement-r11.spec.ts",
+      "title": "R11 complete Activity at 1440px with stable paging and full-history print",
+      "browser": "firefox",
+      "status": "expected",
+      "retries": [
+        0
+      ],
+      "durationMs": 7284
+    },
+    {
+      "file": "workspace-refinement-r11.spec.ts",
+      "title": "R11 complete Activity at 390px with stable paging and full-history print",
+      "browser": "webkit",
+      "status": "expected",
+      "retries": [
+        0
+      ],
+      "durationMs": 10735
+    },
+    {
+      "file": "workspace-refinement-r11.spec.ts",
+      "title": "R11 complete Activity at 1440px with stable paging and full-history print",
+      "browser": "webkit",
+      "status": "expected",
+      "retries": [
+        0
+      ],
+      "durationMs": 18678
+    },
+    {
+      "file": "workspace-refinement-r7.spec.ts",
+      "title": "R7 eight-level work and people picker stay reachable at 320px",
+      "browser": "chromium",
+      "status": "expected",
+      "retries": [
+        0
+      ],
+      "durationMs": 4119
+    },
+    {
+      "file": "workspace-refinement-r7.spec.ts",
+      "title": "R7 eight-level work and people picker stay reachable at 390px",
+      "browser": "chromium",
+      "status": "expected",
+      "retries": [
+        0
+      ],
+      "durationMs": 4153
+    },
+    {
+      "file": "workspace-refinement-r7.spec.ts",
+      "title": "R7 eight-level work and people picker stay reachable at 320px",
+      "browser": "firefox",
+      "status": "expected",
+      "retries": [
+        0
+      ],
+      "durationMs": 5893
+    },
+    {
+      "file": "workspace-refinement-r7.spec.ts",
+      "title": "R7 eight-level work and people picker stay reachable at 390px",
+      "browser": "firefox",
+      "status": "expected",
+      "retries": [
+        0
+      ],
+      "durationMs": 5872
+    },
+    {
+      "file": "workspace-refinement-r7.spec.ts",
+      "title": "R7 eight-level work and people picker stay reachable at 320px",
+      "browser": "webkit",
+      "status": "expected",
+      "retries": [
+        0
+      ],
+      "durationMs": 7602
+    },
+    {
+      "file": "workspace-refinement-r7.spec.ts",
+      "title": "R7 eight-level work and people picker stay reachable at 390px",
+      "browser": "webkit",
+      "status": "expected",
+      "retries": [
+        0
+      ],
+      "durationMs": 7521
+    }
+  ],
+  "scope": "Complete synthetic production browser matrix, two workers. 563/564 passed; WebKit staffing retry case failed its single-assignment assertion. No full browser or hosted acceptance pass."
+}

@@ -22,6 +22,7 @@ export interface ReportColumn<T> {
 }
 
 export interface ReportMeta {
+  timezone?:string;
   title: string;
   subtitle?: string;
   filters?: Record<string, string>;
@@ -72,6 +73,7 @@ export function exportCsv<T>(rows: T[], columns: ReportColumn<T>[], meta: Report
 // The same document powers the in-app preview and the legacy print action.
 export function buildReportHtml<T>(rows: T[], columns: ReportColumn<T>[], meta: ReportMeta): string {
   const generatedAt = new Date().toLocaleString('en-PH', {
+    timeZone:meta.timezone,timeZoneName:'short',
     year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
   });
 
@@ -121,7 +123,8 @@ export function buildReportHtml<T>(rows: T[], columns: ReportColumn<T>[], meta: 
     td { border-bottom:1px solid #f0f0f0; padding:7px 8px; }
     tr:nth-child(even) td { background:#fafafa; }
     .footer { margin-top:18px; color:#9ca3af; font-size:10px; }
-    @media print { body { margin: 12mm; } @page { size: A4 landscape; } }
+    thead { display:table-header-group; } tr { break-inside:avoid; }
+    @media print { body { margin:0; } @page { size:A4 landscape; margin:12mm; @bottom-right { content:"Page " counter(page) " of " counter(pages); font-size:9pt; } } }
   </style></head>
   <body>
     <div class="brand"><div class="mark">eF</div><div class="name">eFlow · Ormoc City e-Governance</div></div>

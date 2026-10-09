@@ -17,6 +17,18 @@ const task:Task={id:'task',title:'Assessment',orgId:'office',status:'todo',deadl
 const group={id:'group',projectId:'project',title:'Work',color:'#579bfc',position:1,isDefault:false};
 afterEach(()=>{cleanup();vi.restoreAllMocks();});beforeEach(()=>{vi.clearAllMocks();mocks.task.mockResolvedValue({id:'created'});mocks.group.mockResolvedValue(group);mocks.remove.mockResolvedValue(undefined);mocks.confirm.mockResolvedValue(true);});
 describe('Phase 11 edit and creation contracts',()=>{
+ it('closes only an opted-in date editor after success and retains denied or pending drafts',async()=>{
+  const editor=renderHook(()=>usePlanningEditor(()=>({end:'2026-10-09'}),'Dates',{closeOnSuccess:true}));
+  act(()=>editor.result.current.onOpenChange(true));act(()=>editor.result.current.setDraft({end:'2026-10-14'}));
+  const denied=vi.fn().mockRejectedValue(new Error('Denied'));
+  await act(async()=>editor.result.current.submit(denied,'Saved.'));
+  expect(editor.result.current.open).toBe(true);expect(editor.result.current.draft.end).toBe('2026-10-14');expect(editor.result.current.error).toBe('Denied');
+  let finish!:()=>void;const save=vi.fn(()=>new Promise<void>(resolve=>{finish=resolve;}));let operation!:Promise<void>;
+  act(()=>{operation=editor.result.current.submit(save,'Saved.');});
+  await act(async()=>editor.result.current.submit(save,'Saved.'));expect(save).toHaveBeenCalledOnce();expect(editor.result.current.open).toBe(true);
+  expect(await requestNavigation(vi.fn())).toBe(false);
+  await act(async()=>{finish();await operation;});expect(editor.result.current.open).toBe(false);expect(editor.result.current.dirty).toBe(false);
+ });
  it('changes date without stripping its canonical due time or offset and validates amounts',()=>{
   expect(timelineDraft(task)).toEqual({start:'',end:'2026-10-09'});
   expect(timelinePatch(task,{start:'2026-10-01',end:'2026-10-12'})).toEqual({start_date:'2026-10-01',deadline:'2026-10-12T17:45:00+08:00'});
@@ -61,7 +73,7 @@ describe('Phase 11 edit and creation contracts',()=>{
   await act(async()=>editor.result.current.onOpenChange(false));expect(editor.result.current.open).toBe(true);expect(editor.result.current.draft).toEqual(['changed']);
   let finish!:()=>void;const save=vi.fn(()=>new Promise<void>(r=>{finish=r;}));let operation!:Promise<void>;
   act(()=>{operation=editor.result.current.submit(save,'Saved.');});await act(async()=>editor.result.current.submit(save,'Saved.'));expect(save).toHaveBeenCalledOnce();expect(await requestNavigation(vi.fn())).toBe(false);
-  await act(async()=>{finish();await operation;});expect(editor.result.current.dirty).toBe(false);
+  await act(async()=>{finish();await operation;});expect(editor.result.current.dirty).toBe(false);expect(editor.result.current.open).toBe(true);
   act(()=>editor.result.current.setDraft(['another']));accepted=true;await act(async()=>editor.result.current.onOpenChange(false));expect(editor.result.current.open).toBe(false);uninstall();
  });
  it('retains explicit planning errors and retries the same draft',async()=>{

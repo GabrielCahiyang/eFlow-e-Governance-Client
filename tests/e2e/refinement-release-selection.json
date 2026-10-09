@@ -1,0 +1,754 @@
+[
+  {
+    "file": "admin-unification.spec.ts",
+    "title": "super_admin sessions expose the unified Admin management surfaces"
+  },
+  {
+    "file": "admin-unification.spec.ts",
+    "title": "admin sessions expose the unified Admin management surfaces"
+  },
+  {
+    "file": "navigation-v2.spec.ts",
+    "title": "head retains its landing and authorized destinations through global/context navigation"
+  },
+  {
+    "file": "navigation-v2.spec.ts",
+    "title": "member retains its landing and authorized destinations through global/context navigation"
+  },
+  {
+    "file": "navigation-v2.spec.ts",
+    "title": "accounting_staff retains its landing and authorized destinations through global/context navigation"
+  },
+  {
+    "file": "navigation-v2.spec.ts",
+    "title": "admin retains its landing and authorized destinations through global/context navigation"
+  },
+  {
+    "file": "navigation-v2.spec.ts",
+    "title": "individual support grants reach the named screen and denied routes load no audit records"
+  },
+  {
+    "file": "navigation-v2.spec.ts",
+    "title": "search and favorites retain a shared inter-Office observer project without offering creation"
+  },
+  {
+    "file": "navigation-v2.spec.ts",
+    "title": "creation menu uses existing handlers, retains failed drafts and discards only after confirmation"
+  },
+  {
+    "file": "navigation-v2.spec.ts",
+    "title": "dirty Security editor keeps navigation and browser history until explicit discard"
+  },
+  {
+    "file": "navigation-v2.spec.ts",
+    "title": "failed inline task remains intact when shell navigation is canceled and logout clears local navigation preferences"
+  },
+  {
+    "file": "navigation-v2.spec.ts",
+    "title": "unassigned Office and zero projects remain usable without exposing stale context"
+  },
+  {
+    "file": "navigation-v2.spec.ts",
+    "title": "responsive navigation, project context and utilities at 1440px"
+  },
+  {
+    "file": "navigation-v2.spec.ts",
+    "title": "responsive navigation, project context and utilities at 768px"
+  },
+  {
+    "file": "navigation-v2.spec.ts",
+    "title": "responsive navigation, project context and utilities at 390px"
+  },
+  {
+    "file": "navigation-v2.spec.ts",
+    "title": "responsive navigation, project context and utilities at 320px"
+  },
+  {
+    "file": "phase1-authority.spec.ts",
+    "title": "admin has canonical navigation and an intact workspace"
+  },
+  {
+    "file": "phase1-authority.spec.ts",
+    "title": "head has canonical navigation and an intact workspace"
+  },
+  {
+    "file": "phase1-authority.spec.ts",
+    "title": "member has canonical navigation and an intact workspace"
+  },
+  {
+    "file": "phase1-authority.spec.ts",
+    "title": "accounting_staff has canonical navigation and an intact workspace"
+  },
+  {
+    "file": "phase10-project-workspace.spec.ts",
+    "title": "project identity, settings retry, favorites and browser history use one project"
+  },
+  {
+    "file": "phase10-project-workspace.spec.ts",
+    "title": "existing lifecycle dialogs retain notes, server denials and deletion impact"
+  },
+  {
+    "file": "phase10-project-workspace.spec.ts",
+    "title": "Observer utilities stay read-only and sharing keeps current access requirements at 390px"
+  },
+  {
+    "file": "phase10-project-workspace.spec.ts",
+    "title": "participant failure retries its source and long project identity stays within the viewport"
+  },
+  {
+    "file": "phase11-main-table.spec.ts",
+    "title": "column widths, alignment, visibility and sticky task context persist locally"
+  },
+  {
+    "file": "phase11-main-table.spec.ts",
+    "title": "date and dependency drafts guard close and retain denied edits for scoped retry"
+  },
+  {
+    "file": "phase11-main-table.spec.ts",
+    "title": "filter chips clear one or all without changing canonical manual ordering"
+  },
+  {
+    "file": "phase11-main-table.spec.ts",
+    "title": "group creation guards its draft and empty deletion confirms impact and retries denial"
+  },
+  {
+    "file": "phase11-main-table.spec.ts",
+    "title": "task team entry reuses existing details and mobile sticky context leaves room for work"
+  },
+  {
+    "file": "phase11-main-table.spec.ts",
+    "title": "shared Task Lead team action explains the unresolved authority gate"
+  },
+  {
+    "file": "phase11-main-table.spec.ts",
+    "title": "Observer inspection and closed-project table retain read-only controls"
+  },
+  {
+    "file": "phase11-main-table.spec.ts",
+    "title": "Head owner appointment confirms impact and retains denied assignment for retry"
+  },
+  {
+    "file": "phase11-main-table.spec.ts",
+    "title": "mobile planning picker and explicit creation keep fields inside the viewport"
+  },
+  {
+    "file": "phase12-shared-inspector.spec.ts",
+    "title": "shared inspector keeps discussion drafts and returns focus to each view origin"
+  },
+  {
+    "file": "phase12-shared-inspector.spec.ts",
+    "title": "date range is consistent across views and personal after reload"
+  },
+  {
+    "file": "phase12-shared-inspector.spec.ts",
+    "title": "mobile observer inspector stays read only and traps and returns focus"
+  },
+  {
+    "file": "phase12-shared-inspector.spec.ts",
+    "title": "Board keyboard action prevents duplicate requests and recovers from denial"
+  },
+  {
+    "file": "phase12-shared-inspector.spec.ts",
+    "title": "shared Task Lead team mutations stay gated by G2 while details remain available"
+  },
+  {
+    "file": "phase12-shared-inspector.spec.ts",
+    "title": "review drafts stay protected and evidence loading denial has an explicit retry"
+  },
+  {
+    "file": "phase12-shared-inspector.spec.ts",
+    "title": "removed canonical task closes mutation controls and explains unavailable access"
+  },
+  {
+    "file": "phase12-shared-inspector.spec.ts",
+    "title": "successful inspector lifecycle change returns focus to the refreshed Board card"
+  },
+  {
+    "file": "phase12-shared-inspector.spec.ts",
+    "title": "mobile team dialog guards drafts and retains a denied member change"
+  },
+  {
+    "file": "phase13-personal-work.spec.ts",
+    "title": "head discovers personal work and keeps legacy task and subtask URLs"
+  },
+  {
+    "file": "phase13-personal-work.spec.ts",
+    "title": "member discovers personal work and keeps legacy task and subtask URLs"
+  },
+  {
+    "file": "phase13-personal-work.spec.ts",
+    "title": "accounting_staff discovers personal work and keeps legacy task and subtask URLs"
+  },
+  {
+    "file": "phase13-personal-work.spec.ts",
+    "title": "mobile personal inspector retains dirty discussion and returns focus"
+  },
+  {
+    "file": "phase13-personal-work.spec.ts",
+    "title": "My Work read failure is retryable and never a clear queue"
+  },
+  {
+    "file": "phase13-personal-work.spec.ts",
+    "title": "Inbox keeps independent task and subtask discovery and exposes partial source denial"
+  },
+  {
+    "file": "phase13-personal-work.spec.ts",
+    "title": "recent Updates verify read writes, retain denied read state and explain missing targets at 390px"
+  },
+  {
+    "file": "phase13-personal-work.spec.ts",
+    "title": "Admin Inbox does not acquire task, financial or review authority"
+  },
+  {
+    "file": "phase13-personal-work.spec.ts",
+    "title": "subtask discovery delegates a stable identity and guards review feedback across navigation"
+  },
+  {
+    "file": "phase13-personal-work.spec.ts",
+    "title": "Inbox update opening respects a revoked navigation grant"
+  },
+  {
+    "file": "phase13-personal-work.spec.ts",
+    "title": "Accounting updates retain both personal task and financial destinations"
+  },
+  {
+    "file": "phase13-personal-work.spec.ts",
+    "title": "personal inspector returns to search when its originating row disappears"
+  },
+  {
+    "file": "phase14-people-collaboration.spec.ts",
+    "title": "Office Team lazy professional summary, keyboard focus return and narrow labeled rows"
+  },
+  {
+    "file": "phase14-people-collaboration.spec.ts",
+    "title": "Partial invitations retain failed rows and delivery failure does not cause duplicate creation"
+  },
+  {
+    "file": "phase14-people-collaboration.spec.ts",
+    "title": "Office Team failure has retry and filter empty can clear without hiding invitations"
+  },
+  {
+    "file": "phase14-people-collaboration.spec.ts",
+    "title": "Collaborating Head retains project selection on failure, guards dismissal and rechecks authority before retry"
+  },
+  {
+    "file": "phase14-people-collaboration.spec.ts",
+    "title": "Project team removal previews active work and opens the shared task inspector only after discard"
+  },
+  {
+    "file": "phase14-people-collaboration.spec.ts",
+    "title": "Failed project invitation delivery still creates one invitation and fresh-link copy failure has manual recovery"
+  },
+  {
+    "file": "phase14-people-collaboration.spec.ts",
+    "title": "Project Office observer retains read-only reasons and governance handoff"
+  },
+  {
+    "file": "phase14-people-collaboration.spec.ts",
+    "title": "Project Office closed retains read-only reasons and governance handoff"
+  },
+  {
+    "file": "phase14-people-collaboration.spec.ts",
+    "title": "Project Office governed retains read-only reasons and governance handoff"
+  },
+  {
+    "file": "phase14-people-collaboration.spec.ts",
+    "title": "Project Office read failure retries honestly and retains an inspector draft through refresh denial"
+  },
+  {
+    "file": "phase15-ai-governance.spec.ts",
+    "title": "Reviewed project sections preserve source and require one impact confirmation before creating work"
+  },
+  {
+    "file": "phase15-ai-governance.spec.ts",
+    "title": "PDF work-plan review saves only its persistent draft, keeps failed autosave edits and retries saving"
+  },
+  {
+    "file": "phase15-ai-governance.spec.ts",
+    "title": "Task inspector staffing retains selection after eligibility denial and assigns only after reviewed fresh context"
+  },
+  {
+    "file": "phase15-ai-governance.spec.ts",
+    "title": "Owner PDS review retries extraction, retains failed profile edits and confirms the saved summary separately"
+  },
+  {
+    "file": "phase15-ai-governance.spec.ts",
+    "title": "Official readiness blockers link to Office and task views, and material changes refresh current checks"
+  },
+  {
+    "file": "phase15-ai-governance.spec.ts",
+    "title": "Missing readiness deployment explains administrator recovery and governed projects retain Proposal Context handoff"
+  },
+  {
+    "file": "phase16-support-finance.spec.ts",
+    "title": "Admin Center keeps legacy pages, account inspection and unsaved account edits"
+  },
+  {
+    "file": "phase16-support-finance.spec.ts",
+    "title": "Account audit has bounded coverage, loaded filters, nested redaction and truthful unavailable reads on a phone"
+  },
+  {
+    "file": "phase16-support-finance.spec.ts",
+    "title": "Accounting retains fiscal scope, exposes settlements, records one decision and inspects its balanced journal"
+  },
+  {
+    "file": "phase16-support-finance.spec.ts",
+    "title": "Uncertain settlement keeps its reason and requires verification before resubmission"
+  },
+  {
+    "file": "phase16-support-finance.spec.ts",
+    "title": "Journal correction has guarded lines, explicit posting and a retained uncertainty receipt on a phone"
+  },
+  {
+    "file": "phase16-support-finance.spec.ts",
+    "title": "Release handover uses its existing physical confirmation and blocks an uncertain repeat"
+  },
+  {
+    "file": "phase16-support-finance.spec.ts",
+    "title": "Reports retain seven lenses, filtered CSV export and the task inspector"
+  },
+  {
+    "file": "phase16-support-finance.spec.ts",
+    "title": "Backup preflight stays unavailable without gateway configuration"
+  },
+  {
+    "file": "phase16-support-finance.spec.ts",
+    "title": "Late-package Head authorization stays separate from independent Accounting settlement"
+  },
+  {
+    "file": "phase16-support-finance.spec.ts",
+    "title": "Accounting retains ordinary Member workspaces, requires an Office and cannot settle its own cash"
+  },
+  {
+    "file": "phase16-support-finance.spec.ts",
+    "title": "Backup uncertain start verifies the job list and a failed job permits an explicit new attempt"
+  },
+  {
+    "file": "phase17-safety.spec.ts",
+    "title": "live legacy board retains details through Keep editing and discards only on acceptance"
+  },
+  {
+    "file": "phase17-safety.spec.ts",
+    "title": "typed deletion at 320px cancels without a write then sends exactly one confirmed write"
+  },
+  {
+    "file": "phase17-safety.spec.ts",
+    "title": "required task cancellation reason has no write on Escape and is sent once on acceptance"
+  },
+  {
+    "file": "phase17-safety.spec.ts",
+    "title": "lost deletion response exposes verification and prevents another write"
+  },
+  {
+    "file": "phase18-preview.spec.ts",
+    "title": "production task-inspector chunk failure retains context and retries without a page reload"
+  },
+  {
+    "file": "phase18-release.spec.ts",
+    "title": "head: responsive canonical workspace and mobile navigation"
+  },
+  {
+    "file": "phase18-release.spec.ts",
+    "title": "member: responsive canonical workspace and mobile navigation"
+  },
+  {
+    "file": "phase18-release.spec.ts",
+    "title": "accounting_staff: responsive canonical workspace and mobile navigation"
+  },
+  {
+    "file": "phase18-release.spec.ts",
+    "title": "admin: responsive canonical workspace and mobile navigation"
+  },
+  {
+    "file": "phase18-release.spec.ts",
+    "title": "task inspector remains usable across rotation, keyboard dismissal and zoom reflow"
+  },
+  {
+    "file": "phase18-release.spec.ts",
+    "title": "empty projects have labeled creation and navigation"
+  },
+  {
+    "file": "phase18-release.spec.ts",
+    "title": "dirty discussion survives rotation and forced colors, then restores its source focus"
+  },
+  {
+    "file": "phase18-surfaces.spec.ts",
+    "title": "Office Team: accessible responsive secondary workspace"
+  },
+  {
+    "file": "phase18-surfaces.spec.ts",
+    "title": "Reports: accessible responsive secondary workspace"
+  },
+  {
+    "file": "phase18-surfaces.spec.ts",
+    "title": "Inbox: accessible responsive secondary workspace"
+  },
+  {
+    "file": "phase2-invitations.spec.ts",
+    "title": "Head invite dialog follows the split reference and supports keyboard dismissal"
+  },
+  {
+    "file": "phase2-invitations.spec.ts",
+    "title": "Member welcome persists skipped status and remains available from Help"
+  },
+  {
+    "file": "phase2-invitations.spec.ts",
+    "title": "Invited account screen at 1440px preserves locked Office and role"
+  },
+  {
+    "file": "phase2-invitations.spec.ts",
+    "title": "Invited account screen at 390px preserves locked Office and role"
+  },
+  {
+    "file": "phase3-project-table.spec.ts",
+    "title": "Head table keeps first-column task actions, task edits and inline subitems"
+  },
+  {
+    "file": "phase3-project-table.spec.ts",
+    "title": "Member table protects structure and keeps detail access at 390px"
+  },
+  {
+    "file": "phase3-project-table.spec.ts",
+    "title": "Inline tasks save on blur, keep adding with Shift+Enter, and retain failed drafts"
+  },
+  {
+    "file": "phase5-project-import.spec.ts",
+    "title": "Phase 5 shows a spacious editable hierarchy and imports only after confirmation with safe retry"
+  },
+  {
+    "file": "phase5-project-import.spec.ts",
+    "title": "Phase 5 mobile review fills the screen and scrolls inside its table"
+  },
+  {
+    "file": "phase5-project-import.spec.ts",
+    "title": "Phase 5 extracts readable PDF project text before generating a draft"
+  },
+  {
+    "file": "phase6-project-offices.spec.ts",
+    "title": "Lead invites an Office and hands over responsibility without assigning its staff"
+  },
+  {
+    "file": "phase6-project-offices.spec.ts",
+    "title": "Collaborating Head sees a roomy own-Office member picker and only edits its own tasks"
+  },
+  {
+    "file": "phase6-project-offices.spec.ts",
+    "title": "Observer opens the project without editable owners or task planning"
+  },
+  {
+    "file": "phase65-office-identities.spec.ts",
+    "title": "named Office survives reload and separates invitation persistence from failed delivery on mobile"
+  },
+  {
+    "file": "phase65-office-identities.spec.ts",
+    "title": "proposed responsibility locks execution until directory linking, Head confirmation and explicit handover"
+  },
+  {
+    "file": "phase65-office-identities.spec.ts",
+    "title": "linking a name before contact acceptance keeps the canonical invitation workflow reachable"
+  },
+  {
+    "file": "phase7-readiness-staffing.spec.ts",
+    "title": "Head confirms readiness; desktop and mobile retain readable checks and closeout blockers"
+  },
+  {
+    "file": "phase7-readiness-staffing.spec.ts",
+    "title": "Staffing is advisory until Head confirmation; roomy dialog supports keyboard selection and mobile footer"
+  },
+  {
+    "file": "phase7-readiness-staffing.spec.ts",
+    "title": "Member reads readiness without Head review, activation or staffing controls"
+  },
+  {
+    "file": "project-workspace-controls.spec.ts",
+    "title": "Project actions open visible menus and dialogs, and the board returns to the filtered table"
+  },
+  {
+    "file": "project-workspace-controls.spec.ts",
+    "title": "View picker, board return and first-column task actions remain reachable at 390px"
+  },
+  {
+    "file": "project-workspace-controls.spec.ts",
+    "title": "Overflow views stay selectable and closable outside the mobile tab scroller"
+  },
+  {
+    "file": "workspace-refinement-r1.spec.ts",
+    "title": "R1 actual project views keep long content contained at 320px"
+  },
+  {
+    "file": "workspace-refinement-r1.spec.ts",
+    "title": "R1 actual project views keep long content contained at 390px"
+  },
+  {
+    "file": "workspace-refinement-r1.spec.ts",
+    "title": "R1 actual project views keep long content contained at 768px"
+  },
+  {
+    "file": "workspace-refinement-r1.spec.ts",
+    "title": "R1 actual project views keep long content contained at 1024px"
+  },
+  {
+    "file": "workspace-refinement-r1.spec.ts",
+    "title": "R1 actual project views keep long content contained at 1440px"
+  },
+  {
+    "file": "workspace-refinement-r10.spec.ts",
+    "title": "R10 cross-workspace feed retains four destinations, filters, context, history and Back/Forward"
+  },
+  {
+    "file": "workspace-refinement-r10.spec.ts",
+    "title": "R10 nested inspectors open the selected branch, protect drafts and restore focus at 320px dark"
+  },
+  {
+    "file": "workspace-refinement-r10.spec.ts",
+    "title": "R10 personal root execution opens in context and protects its staffing draft"
+  },
+  {
+    "file": "workspace-refinement-r10.spec.ts",
+    "title": "R10 access removal drops actionable work while authorized completed history remains"
+  },
+  {
+    "file": "workspace-refinement-r10.spec.ts",
+    "title": "R10 Home opens scoped Overview with real totals and personal content stays separate"
+  },
+  {
+    "file": "workspace-refinement-r10.spec.ts",
+    "title": "R10 source denial preserves partial work and withholds incomplete Overview totals until retry"
+  },
+  {
+    "file": "workspace-refinement-r10.spec.ts",
+    "title": "R10 Admin Home keeps the administrative landing and acquires no operational work"
+  },
+  {
+    "file": "workspace-refinement-r10.spec.ts",
+    "title": "R10 retained Office tools return from a personal workspace to the canonical Office"
+  },
+  {
+    "file": "workspace-refinement-r11.spec.ts",
+    "title": "R11 complete Activity at 390px with stable paging and full-history print"
+  },
+  {
+    "file": "workspace-refinement-r11.spec.ts",
+    "title": "R11 complete Activity at 1440px with stable paging and full-history print"
+  },
+  {
+    "file": "workspace-refinement-r11.spec.ts",
+    "title": "R11 filtering resets pages, current-page print is explicit, and failures never print a partial history"
+  },
+  {
+    "file": "workspace-refinement-r11.spec.ts",
+    "title": "R11 project register retains hierarchy, filters, CSV and task drillthrough"
+  },
+  {
+    "file": "workspace-refinement-r11.spec.ts",
+    "title": "R11 missing workflow facts withhold register metrics and exports"
+  },
+  {
+    "file": "workspace-refinement-r11.spec.ts",
+    "title": "R11 missing Activity deployment is explicit and archived history stays read-only"
+  },
+  {
+    "file": "workspace-refinement-r11.spec.ts",
+    "title": "R11 personal project Activity uses the same authorized contract and print context"
+  },
+  {
+    "file": "workspace-refinement-r12.spec.ts",
+    "title": "R12 nine categories and truthful configuration at 390px"
+  },
+  {
+    "file": "workspace-refinement-r12.spec.ts",
+    "title": "R12 nine categories and truthful configuration at 1440px"
+  },
+  {
+    "file": "workspace-refinement-r12.spec.ts",
+    "title": "R12 settings guard drafts, update actual branding and verify an uncertain save without a new request"
+  },
+  {
+    "file": "workspace-refinement-r12.spec.ts",
+    "title": "R12 settings read and stale-edit failures remain correctable; no deployment is explicit"
+  },
+  {
+    "file": "workspace-refinement-r12.spec.ts",
+    "title": "R12 authorized audit count is distinct from its 500-row window and unpermissioned members cannot open Admin settings"
+  },
+  {
+    "file": "workspace-refinement-r13.spec.ts",
+    "title": "R13 personal project accessibility in five widths and both themes"
+  },
+  {
+    "file": "workspace-refinement-r13.spec.ts",
+    "title": "R13 Admin settings accessibility in five widths and both themes"
+  },
+  {
+    "file": "workspace-refinement-r2.spec.ts",
+    "title": "R2 persistent sections and workspace controls at 320px"
+  },
+  {
+    "file": "workspace-refinement-r2.spec.ts",
+    "title": "R2 persistent sections and workspace controls at 390px"
+  },
+  {
+    "file": "workspace-refinement-r2.spec.ts",
+    "title": "R2 persistent sections and workspace controls at 768px"
+  },
+  {
+    "file": "workspace-refinement-r2.spec.ts",
+    "title": "R2 persistent sections and workspace controls at 1024px"
+  },
+  {
+    "file": "workspace-refinement-r2.spec.ts",
+    "title": "R2 persistent sections and workspace controls at 1440px"
+  },
+  {
+    "file": "workspace-refinement-r2.spec.ts",
+    "title": "R2 keeps project creation and saved proposal workflows distinct from section adding"
+  },
+  {
+    "file": "workspace-refinement-r3.spec.ts",
+    "title": "R3 personal creation, isolation and workspace history at 320px"
+  },
+  {
+    "file": "workspace-refinement-r3.spec.ts",
+    "title": "R3 personal creation, isolation and workspace history at 390px"
+  },
+  {
+    "file": "workspace-refinement-r3.spec.ts",
+    "title": "R3 personal creation, isolation and workspace history at 1440px"
+  },
+  {
+    "file": "workspace-refinement-r3.spec.ts",
+    "title": "R3 explicit shortcut retains its home, dirty drafts cancel switching, and revoked content clears"
+  },
+  {
+    "file": "workspace-refinement-r3.spec.ts",
+    "title": "R3 preserves immediate Office creation while workspace refresh is delayed"
+  },
+  {
+    "file": "workspace-refinement-r3.spec.ts",
+    "title": "R3 retains Accounting and Inbox and returns their actions to the canonical Office"
+  },
+  {
+    "file": "workspace-refinement-r4.spec.ts",
+    "title": "R4 uncluttered header and project Overview at 320px"
+  },
+  {
+    "file": "workspace-refinement-r4.spec.ts",
+    "title": "R4 uncluttered header and project Overview at 390px"
+  },
+  {
+    "file": "workspace-refinement-r4.spec.ts",
+    "title": "R4 uncluttered header and project Overview at 1440px"
+  },
+  {
+    "file": "workspace-refinement-r4.spec.ts",
+    "title": "R4 retired links canonicalize to retained views across reload and history"
+  },
+  {
+    "file": "workspace-refinement-r4.spec.ts",
+    "title": "R4 Head resolves requirements while Complete is disabled, then stale rejection and eligible completion stay safe"
+  },
+  {
+    "file": "workspace-refinement-r5.spec.ts",
+    "title": "new layouts are compact; the searchable catalogue shares visibility across groups and reloads"
+  },
+  {
+    "file": "workspace-refinement-r5.spec.ts",
+    "title": "explicit all-visible layouts and widths survive; catalogue explains all-visible state"
+  },
+  {
+    "file": "workspace-refinement-r5.spec.ts",
+    "title": "dates retain network failures and pending drafts, submit once, close on persisted success and restore focus"
+  },
+  {
+    "file": "workspace-refinement-r5.spec.ts",
+    "title": "group counts, naming, color and inline creation retain their operations"
+  },
+  {
+    "file": "workspace-refinement-r5.spec.ts",
+    "title": "catalogue and sticky task actions stay inside 320 and 390px light/dark workspaces"
+  },
+  {
+    "file": "workspace-refinement-r6.spec.ts",
+    "title": "R6 compact header has exactly three tabs, expandable metadata and authorized workflow files"
+  },
+  {
+    "file": "workspace-refinement-r6.spec.ts",
+    "title": "R6 guarded upload retries a committed file once and keeps successful metadata and object identity"
+  },
+  {
+    "file": "workspace-refinement-r6.spec.ts",
+    "title": "R6 eligible review is contextual and its draft is guarded"
+  },
+  {
+    "file": "workspace-refinement-r6.spec.ts",
+    "title": "R6 observer keeps files/history readable and has no document or review mutations"
+  },
+  {
+    "file": "workspace-refinement-r6.spec.ts",
+    "title": "R6 archived keeps files/history readable and has no document or review mutations"
+  },
+  {
+    "file": "workspace-refinement-r6.spec.ts",
+    "title": "R6 personal project and task file reads retain their personal home and clear on scope switch"
+  },
+  {
+    "file": "workspace-refinement-r7.spec.ts",
+    "title": "R7 Members is an Add view and uses the same project-only Office selection and engagement terms"
+  },
+  {
+    "file": "workspace-refinement-r7.spec.ts",
+    "title": "R7 nested creation preserves one request after lost receipt and guards unsaved navigation"
+  },
+  {
+    "file": "workspace-refinement-r7.spec.ts",
+    "title": "R7 eight-level work and people picker stay reachable at 320px"
+  },
+  {
+    "file": "workspace-refinement-r7.spec.ts",
+    "title": "R7 eight-level work and people picker stay reachable at 390px"
+  },
+  {
+    "file": "workspace-refinement-r7.spec.ts",
+    "title": "R7 a Member root lead can choose contributors while root transfer stays absent"
+  },
+  {
+    "file": "workspace-refinement-r7.spec.ts",
+    "title": "R7 current authority refresh keeps the draft and blocks a revoked branch"
+  },
+  {
+    "file": "workspace-refinement-r8.spec.ts",
+    "title": "R8 request creates no dispatch and approval enables explicit sending"
+  },
+  {
+    "file": "workspace-refinement-r8.spec.ts",
+    "title": "R8 request form works at 320px in dark mode with no page overflow"
+  },
+  {
+    "file": "workspace-refinement-r8.spec.ts",
+    "title": "R8 project guest acceptance preserves recipient and project scope at 1440px"
+  },
+  {
+    "file": "workspace-refinement-r8.spec.ts",
+    "title": "R8 project guest acceptance preserves recipient and project scope at 390px"
+  },
+  {
+    "file": "workspace-refinement-r8.spec.ts",
+    "title": "R8 expired or revoked project links show recovery without account creation"
+  },
+  {
+    "file": "workspace-refinement-r9.spec.ts",
+    "title": "R9 creates a recipient-bound share offer with separate redemption and access terms"
+  },
+  {
+    "file": "workspace-refinement-r9.spec.ts",
+    "title": "R9 cancellation makes no write; confirmation removes complete server impact"
+  },
+  {
+    "file": "workspace-refinement-r9.spec.ts",
+    "title": "R9 concurrent assignment conflict requires a refreshed preview at 320px in dark mode"
+  },
+  {
+    "file": "workspace-refinement-r9.spec.ts",
+    "title": "R9 revoked or wrong-recipient shares fail after verified sign-in"
+  }
+]

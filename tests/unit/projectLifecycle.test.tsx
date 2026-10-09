@@ -2,7 +2,8 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Project } from "../../src/app/features/projects/services/types";
-const api = vi.hoisted(() => ({ readiness: vi.fn(), complete: vi.fn() }));
+const api = vi.hoisted(() => ({ readiness: vi.fn(), complete: vi.fn(), actor: { id:'head',role:'head',is_active:true,org_id:'office' } }));
+vi.mock('../../src/app/contexts/AuthContext',()=>({useAuth:()=>({userProfile:api.actor})}));
 vi.mock("../../src/app/features/projects/services/projectLifecycleService", () => ({ fetchProjectCompletionReadiness: api.readiness, completeProject: api.complete }));
 vi.mock("../../src/app/features/tasks", () => ({ tasksForProject: (tasks: unknown[]) => tasks }));
 import { ProjectCompleteDialog } from "../../src/app/features/projects/components/ProjectCompleteDialog";
@@ -20,19 +21,19 @@ function sidebar(projects: Project[], managed = true) {
   const view = render(<ProjectContextSidebar {...props} />);
   return { ...view, props };
 }
-beforeEach(() => { vi.clearAllMocks(); api.readiness.mockReset().mockResolvedValue(ready); api.complete.mockReset().mockResolvedValue(undefined); });
+beforeEach(() => { vi.clearAllMocks();api.actor.role='head';api.actor.is_active=true; api.readiness.mockReset().mockResolvedValue(ready); api.complete.mockReset().mockResolvedValue(undefined); });
 afterEach(cleanup);
 
 describe("project dropdown lifecycle", () => {
-  it("restores project creation and retains project switching and Planning navigation without work plan creation", () => {
+  it("retains project creation and switching while removing duplicate Planning navigation", () => {
     const { props } = sidebar([project]);
     fireEvent.click(screen.getByRole("button", { name: "Create project", exact: true }));
     expect(props.onCreateProject).toHaveBeenCalledOnce();
     expect(screen.queryByRole("button", { name: "Create work plan", exact: true })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Project Issa", exact: true }));
     expect(props.onOpenProject).toHaveBeenCalledWith(project.id);
-    fireEvent.click(screen.getByRole("button", { name: /^Drafts/ }));
-    expect(props.onOpenPlanning).toHaveBeenCalledWith("drafts");
+    expect(screen.queryByRole("button", { name: /^Drafts/ })).toBeNull();
+    expect(screen.queryByText("Team Members")).toBeNull();
   });
 
   it("offers completion but disables archive for active work", async () => {
@@ -42,6 +43,7 @@ describe("project dropdown lifecycle", () => {
     fireEvent.mouseEnter(archive); fireEvent.click(archive);
     expect(props.onArchiveProject).not.toHaveBeenCalled();
     const complete = screen.getByRole("menuitem", { name: "Mark project complete" });
+    await waitFor(()=>expect(complete.getAttribute('aria-disabled')).not.toBe('true'));
     fireEvent.mouseEnter(complete); fireEvent.click(complete);
     await waitFor(() => expect(props.onCompleteProject).toHaveBeenCalledWith(project.id, project.title));
   });
@@ -74,6 +76,12 @@ describe("project dropdown lifecycle", () => {
 });
 
 describe("project completion confirmation", () => {
+  it('refuses directly opened completion for a non-Head without loading private checks',async()=>{
+    api.actor.role='member';dialog();
+    await screen.findByText('Only an authorized Office Head can complete this project.');
+    expect(api.readiness).not.toHaveBeenCalled();expect((screen.getByRole('button',{name:'Confirm completion'}) as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.click(screen.getByRole('button',{name:'Confirm completion'}));expect(api.complete).not.toHaveBeenCalled();
+  });
   it("checks without changing anything, and cancel never completes", async () => {
     const props = dialog();
     await screen.findByText(/All completion checks passed/);

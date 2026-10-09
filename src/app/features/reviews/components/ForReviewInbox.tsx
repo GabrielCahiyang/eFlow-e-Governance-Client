@@ -7,6 +7,7 @@
 // 4. Subtasks & Budget reviews
 
 import { requestNavigation } from '../../../shared/navigationGuard';
+import {ProjectInvitationApprovalQueue} from '../../project-invitations';
 import { useEffect, useMemo, useState } from "react";
 import { Dropdown, Search as VibeSearch, Skeleton } from "@vibe/core";
 import {
@@ -263,6 +264,7 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
 
   return (
     <div className="eflow-operational-workspace min-h-full p-4 sm:p-8">
+      {scope==='department'&&<ProjectInvitationApprovalQueue/>}
       <PageHeader
         eyebrow={
           scope === "leading"

@@ -11,14 +11,20 @@ export function WorkspaceTabs({
   value,
   onValueChange,
   label = "Workspace views",
+  orientation = "horizontal",
+  className,
 }: {
   tabs: WorkspaceTab[];
   value: string;
   onValueChange: (value: string) => void;
   label?: string;
+  orientation?: "horizontal" | "vertical";
+  className?: string;
 }) {
   return (
     <Tabs.Root
+      orientation={orientation}
+      className={className}
       value={encodeURIComponent(value)}
       onValueChange={(next) => onValueChange(decodeURIComponent(next))}
     >

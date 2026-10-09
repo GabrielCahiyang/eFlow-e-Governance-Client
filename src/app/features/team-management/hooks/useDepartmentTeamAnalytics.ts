@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { useTasks } from "../../../hooks/useFirebaseData";
 import {
   useProjectsData,
+  useTasksData,
   useScopedOrgIds,
 } from "../../../hooks/useSupabaseData";
 import { useDeptDirectoryEmployees } from "../../members";
@@ -27,8 +27,18 @@ type DirectoryOptions = NonNullable<
 export function useDepartmentTeamAnalytics(
   directoryOptions: DirectoryOptions = {},
 ) {
-  const { tasks, loading: tasksLoading } = useTasks();
-  const { projects, loading: projectsLoading } = useProjectsData();
+  const {
+    tasks,
+    loading: tasksLoading,
+    error: taskError,
+    retry: retryTasks,
+  } = useTasksData();
+  const {
+    projects,
+    loading: projectsLoading,
+    error: projectError,
+    retry: retryProjects,
+  } = useProjectsData();
   const { scopedOrgIds } = useScopedOrgIds();
   const directory = useDeptDirectoryEmployees({
     includeDepartmentHeads: true,
@@ -114,8 +124,12 @@ export function useDepartmentTeamAnalytics(
       projectsLoading ||
       directory.directoryLoading ||
       (factsLoading && !hasFacts),
-    error: factsError,
+    error: taskError?.message || projectError?.message || factsError,
     refreshing: factsLoading && hasFacts,
-    refresh: () => setRefreshVersion((version) => version + 1),
+    refresh: () => {
+      retryProjects();
+      retryTasks();
+      setRefreshVersion((version) => version + 1);
+    },
   };
 }

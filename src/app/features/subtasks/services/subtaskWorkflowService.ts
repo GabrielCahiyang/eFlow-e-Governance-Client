@@ -185,7 +185,14 @@ async function readPendingSubtaskReviews(
     .eq("status", "pending")
     .order("submitted_at", { ascending: true });
   if (!includeAll) request = request.eq("reviewer_id", reviewerId);
-  const { data: submissionRows, error } = await request;
+  let response;
+  if(!includeAll){
+    response=await supabase.rpc('r7_pending_subtask_reviews');
+    if(response.error?.code==='PGRST202')response=await request;
+  }else response=await request;
+  const error=response.error;
+  const submissionRows=response.data as Record<string,unknown>[] | null;
+  if(submissionRows&&!Array.isArray(submissionRows))throw new Error('Invalid current-reviewer response.');
   if (error && strict) throw new Error(error.message);
   if (error || !submissionRows?.length) return [];
 

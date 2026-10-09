@@ -11,6 +11,6 @@ export function canHandoverTask(task: Task, hasSubitems: boolean) {
 }
 export function projectOfficePeople(office: ProjectOffice | undefined, members: ProjectOfficeMember[], profiles: UserProfile[], organizations: Organization[]) {
   if (!office) return [];
-  const head = organizations.find(o => o.id === office.office_id)?.head_user_id;
-  return profiles.filter(p => p.is_active && p.role !== 'admin' && p.org_id === office.office_id && (office.relationship_type === 'lead' || p.id === head || members.some(m => m.project_office_id === office.id && m.user_id === p.id)));
+  void organizations;
+  return profiles.filter(p => p.is_active && p.role !== 'admin' && p.org_id === office.office_id && members.some(m => m.project_office_id === office.id && m.user_id === p.id));
 }

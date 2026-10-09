@@ -1,0 +1,103 @@
+{
+  "stats": {
+    "startTime": "2026-10-08T16:43:11.002Z",
+    "duration": 34923.820999999996,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "records": [
+    {
+      "stage": "r13-final-candidate",
+      "timingModel": "paint-ready-v2",
+      "size": 100,
+      "browser": "chromium",
+      "samples": [
+        {
+          "run": 0,
+          "readyMs": 1043.0996,
+          "filterMs": 129.13370000000032,
+          "restReads": 158,
+          "assetBytes": 4312453,
+          "nodes": 6637,
+          "memory": 60300000
+        },
+        {
+          "run": 1,
+          "readyMs": 1004.4436999999998,
+          "filterMs": 121.8770999999997,
+          "restReads": 158,
+          "assetBytes": 4360257,
+          "nodes": 6637,
+          "memory": 60300000
+        },
+        {
+          "run": 2,
+          "readyMs": 938.7964999999995,
+          "filterMs": 177.1857,
+          "restReads": 158,
+          "assetBytes": 4360257,
+          "nodes": 6637,
+          "memory": 60300000
+        }
+      ]
+    },
+    {
+      "stage": "r13-final-candidate",
+      "timingModel": "paint-ready-v2",
+      "size": 1000,
+      "browser": "chromium",
+      "samples": [
+        {
+          "run": 0,
+          "readyMs": 4513.586099999999,
+          "filterMs": 1779.4839999999986,
+          "restReads": 1158,
+          "assetBytes": 4338216,
+          "nodes": 60636,
+          "memory": 225000000
+        },
+        {
+          "run": 1,
+          "readyMs": 4437.592199999999,
+          "filterMs": 1720.4143000000004,
+          "restReads": 1158,
+          "assetBytes": 4338216,
+          "nodes": 60636,
+          "memory": 225000000
+        },
+        {
+          "run": 2,
+          "readyMs": 4475.4614,
+          "filterMs": 1708.3186000000023,
+          "restReads": 1158,
+          "assetBytes": 4292745,
+          "nodes": 60636,
+          "memory": 225000000
+        }
+      ]
+    },
+    {
+      "stage": "r13-final-candidate",
+      "browser": "chromium",
+      "samples": [
+        {
+          "run": 0,
+          "readyMs": 821.4521999999997,
+          "journalReads": 1
+        },
+        {
+          "run": 1,
+          "readyMs": 824.6860000000015,
+          "journalReads": 1
+        },
+        {
+          "run": 2,
+          "readyMs": 812.5170999999973,
+          "journalReads": 1
+        }
+      ]
+    }
+  ]
+}

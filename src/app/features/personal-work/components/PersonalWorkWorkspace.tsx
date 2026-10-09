@@ -1,49 +1,311 @@
-import { useEffect, useState } from 'react';
-import { useAuth } from '../../../contexts/AuthContext';
-import { useProjectsData } from '../../../hooks/useSupabaseData';
-import { formatDate } from '../../../components/workflow/primitives';
-import { useCurrentUserTasks } from '../../../hooks/useCurrentUserTasks';
-import { isTaskLead } from '../../tasks';
-import { TaskInspector, useTaskInspector } from '../../task-inspector';
-import { canUserReviewTask } from '../../reviews';
-import { requestNavigation } from '../../../shared/navigationGuard';
-import { pushNavigationHistory } from '../../../shared/navigationHistory';
-import { Button } from '../../../components/ui/button';
-import { FeedbackState } from '../../../components/ui/FeedbackState';
-import { TaskStatusBadge } from '../../../components/workflow/StatusBadges';
-import { selectPersonalWork, workBuckets, personalTaskRelation, type WorkBucket } from '../selectors';
-import { getNavigationUrl } from '../../navigation';
-
-export function PersonalWorkWorkspace() {
-  const { userProfile } = useAuth();
-  const { tasks, loading, error, retry, userId } = useCurrentUserTasks();
-  const [bucket, setBucket] = useState<WorkBucket>('All my work');
-  const [query, setQuery] = useState('');
-  const inspector = useTaskInspector(`personal:${userId}`);
-  useEffect(() => { setQuery(''); setBucket('All my work'); }, [userId]);
-  const { projects } = useProjectsData();
-  const contextTasks = tasks.map(task => ({...task,projectTitle:projects.find(project => project.id === task.linkedProjectId)?.title || task.projectTitle}));
-  const rows = selectPersonalWork(contextTasks, userId, bucket, query);
-  const selected = tasks.find(task => task.id === inspector.taskId) || null;
-  const navigate = (section: string, page: string) => void requestNavigation(() => pushNavigationHistory(getNavigationUrl(section,page)));
-  return <section className="space-y-5 min-w-0" aria-label="My Work">
-    <header><p className="text-xs text-muted-foreground">Personal workspace</p><h1 className="text-2xl font-semibold">My Work</h1><p className="text-sm text-muted-foreground mt-1">Your assigned work, team contributions and tasks you lead across accessible projects.</p></header>
-    <div className="flex flex-wrap gap-2">
-      <Button variant="outline" onClick={() => navigate('subtasks', 'My Subtasks')}>My subtasks</Button>
-      <Button variant="outline" onClick={() => navigate('inbox','Inbox')}>Open Inbox</Button>
-    </div>
-    <div className="flex flex-wrap gap-2" role="group" aria-label="Personal work filters">{workBuckets.map(value => <Button key={value} variant={value === bucket ? 'default' : 'outline'} aria-pressed={value === bucket} onClick={() => void requestNavigation(() => setBucket(value))}>{value}</Button>)}</div>
-    <div className="flex flex-wrap items-end gap-3">
-      <label className="flex-1 min-w-0 text-sm">Search work<input type="search" id="personal-work-search" aria-label="Search personal work" className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2" value={query} onChange={event => { const value = event.target.value; void requestNavigation(() => setQuery(value)); }} /></label>
-      {query && <Button variant="ghost" onClick={() => void requestNavigation(() => setQuery(''))}>Clear search</Button>}
-      <Button variant="outline" disabled={loading} onClick={retry}>Refresh work</Button>
-    </div>
-    {loading ? <p role="status">Loading personal work…</p> : error ? <FeedbackState tone="error" title="Personal work could not be refreshed" onRetry={retry}>{error.message}</FeedbackState> : <>
-      <p className="text-sm text-muted-foreground" role="status">{rows.length} tasks · {bucket}{bucket === 'Recently completed' ? ' · last 7 calendar days, by last update' : ''}</p>
-      {!rows.length ? <FeedbackState title={query ? 'No matching tasks' : 'No tasks in this filter'}>Choose another filter or clear your search. Cancelled and archived tasks remain in Task History.</FeedbackState> : <ul className="rounded-lg border border-border divide-y divide-border bg-card">{rows.map(task => <li key={task.id}><button className="w-full text-left px-4 py-3 flex items-start gap-3 hover:bg-muted/50" data-personal-task={task.id} onClick={event => inspector.openTask(task.id,{view:'My Work', returnFocus:event.currentTarget, restoreFocus:() => (document.querySelector<HTMLElement>(`[data-personal-task="${task.id}"]`) || document.getElementById("personal-work-search"))?.focus()})}>
-        <span className="flex-1 min-w-0"><span className="block font-medium break-words">{task.title}</span><span className="block text-xs text-muted-foreground mt-1 break-words">{task.projectTitle || task.activityTitle || 'Office work'} · {task.teamName || task.department || 'Assigned Office'} · {personalTaskRelation(task,userId)}</span><span className="block text-xs text-muted-foreground mt-1">Due {task.deadline || task.dueDate ? formatDate(task.deadline || task.dueDate) : 'date not set'} · {task.percentComplete || 0}% complete</span></span><TaskStatusBadge status={task.status} size="sm" />
-      </button></li>)}</ul>}
-    </>}
-    <TaskInspector task={selected} taskId={inspector.taskId || undefined} origin={inspector.origin} onClose={inspector.close} readOnly={!!error} canDiscuss canPostProgress canSubmitForReview={!!selected && isTaskLead(selected,userId)} canReview={!!selected && canUserReviewTask(selected,userId,userProfile?.role)} />
-  </section>;
+import { useEffect, useState } from "react";
+import { useAuth } from "../../../contexts/AuthContext";
+import { WorkspaceHeader, ActionMenu } from "../../../components/ui/workspace";
+import { FeedbackState } from "../../../components/ui/FeedbackState";
+import { requestNavigation } from "../../../shared/navigationGuard";
+import {
+  NAVIGATION_LOCATION_EVENT,
+  pushNavigationHistory,
+} from "../../../shared/navigationHistory";
+import { writeNavigationLocation } from "../../navigation";
+import { useWorkFeed } from "../hooks/useWorkFeed";
+import { workDestinations, dateFilters, type WorkDestination } from "../types";
+import { selectWorkRows } from "../workSelectors";
+import { WorkList } from "./WorkList";
+import { WorkInspector, useWorkInspector } from "./WorkInspector";
+import "../personalWork.css";
+import { readWorkFilters as readFilters } from "../workLocation";
+export function PersonalWorkWorkspace({
+  page = "Assigned work",
+  onNavigate,
+}: {
+  page?: string;
+  onNavigate?: (section: string, page: string) => void;
+}) {
+  const { user, userProfile, can } = useAuth();
+  const userId = user?.id || "";
+  return (
+    <PersonalWorkContent
+      key={userId}
+      userId={userId}
+      role={userProfile?.role || "member"}
+      page={page}
+      can={can}
+      onNavigate={onNavigate}
+    />
+  );
+}
+function PersonalWorkContent({
+  userId,
+  role,
+  page,
+  can,
+  onNavigate,
+}: {
+  userId: string;
+  role: string;
+  page: string;
+  can: (permission: string) => boolean;
+  onNavigate?: (section: string, page: string) => void;
+}) {
+  const feed = useWorkFeed(userId);
+  const inspector = useWorkInspector();
+  const [filters, setFilters] = useState(readFilters);
+  useEffect(() => {
+    const sync = () => setFilters(readFilters());
+    window.addEventListener("popstate", sync);
+    window.addEventListener(NAVIGATION_LOCATION_EVENT, sync);
+    return () => {
+      window.removeEventListener("popstate", sync);
+      window.removeEventListener(NAVIGATION_LOCATION_EVENT, sync);
+    };
+  }, []);
+  const destination = workDestinations.includes(page as WorkDestination)
+    ? (page as WorkDestination)
+    : "Assigned work";
+  const update = (next: Partial<ReturnType<typeof readFilters>>) =>
+    void requestNavigation(() => {
+      const values = { ...filters, ...next };
+      const url = new URL(window.location.href);
+      url.searchParams.set("page", destination);
+      for (const [key, value] of Object.entries({
+        date: values.date === "All my work" ? "" : values.date,
+        q: values.query,
+        workScope: values.workspace,
+        recent: values.recent ? "1" : "",
+      })) {
+        if (value) url.searchParams.set(key, value);
+        else url.searchParams.delete(key);
+      }
+      pushNavigationHistory(`${url.pathname}${url.search}`);
+    });
+  const navigate = (section: string, page: string) =>
+    void requestNavigation(() =>
+      onNavigate
+        ? onNavigate(section, page)
+        : writeNavigationLocation(section, page),
+    );
+  const rows = selectWorkRows(
+    feed.data?.rows || [],
+    destination,
+    filters.date,
+    filters.query,
+    filters.workspace,
+    filters.recent,
+  );
+  const partial = !!feed.data?.issues.length;
+  const reportPage = role === "head" ? "Reports" : "Work Report";
+  return (
+    <section className="r10-workspace" aria-label="My Work">
+      <WorkspaceHeader
+        title="My Work"
+        description="Your work across accessible Office and personal workspaces. Workspace selection does not limit this feed."
+        actions={
+          <>
+            <button
+              type="button"
+              disabled={feed.loading}
+              onClick={() => void feed.refresh()}
+            >
+              Refresh work
+            </button>
+            <ActionMenu
+              tooltip="Retained personal tools"
+              trigger={<button type="button">Work tools</button>}
+              actions={[
+                {
+                  id: "inbox",
+                  label: "Open Inbox",
+                  onSelect: () => navigate("inbox", "Inbox"),
+                },
+                ...(can("navigation.tasks")
+                  ? [
+                      {
+                        id: "tasks",
+                        label:
+                          role === "head"
+                            ? "Office task board"
+                            : "Task workspace",
+                        onSelect: () =>
+                          navigate(
+                            "tasks",
+                            role === "head" ? "Task Board" : "My Tasks",
+                          ),
+                      },
+                    ]
+                  : []),
+                ...(role !== "head" && can("navigation.tasks")
+                  ? [
+                      {
+                        id: "deadlines",
+                        label: "Deadline calendar",
+                        onSelect: () => navigate("deadlines", "Deadlines"),
+                      },
+                    ]
+                  : []),
+                ...(can("navigation.reports")
+                  ? [
+                      {
+                        id: "reports",
+                        label: reportPage,
+                        onSelect: () => navigate("reports", reportPage),
+                      },
+                    ]
+                  : []),
+                ...(role !== "head" && can("navigation.reports")
+                  ? [
+                      {
+                        id: "performance",
+                        label: "Performance",
+                        onSelect: () => navigate("performance", "Performance"),
+                      },
+                    ]
+                  : []),
+                ...(role !== "head" && can("navigation.tasks")
+                  ? [
+                      {
+                        id: "history",
+                        label: "Task history details",
+                        onSelect: () => navigate("history", "Task History"),
+                      },
+                    ]
+                  : []),
+              ]}
+            />
+          </>
+        }
+      />
+      <nav className="r10-destinations" aria-label="My Work destinations">
+        {workDestinations.map((value) => (
+          <button
+            type="button"
+            key={value}
+            aria-current={destination === value ? "page" : undefined}
+            onClick={() => navigate("personal_work", value)}
+          >
+            {value}
+          </button>
+        ))}
+      </nav>
+      <div className="r10-toolbar">
+        <label>
+          Search work
+          <input
+            id="personal-work-search"
+            aria-label="Search personal work"
+            type="search"
+            value={filters.query}
+            onChange={(e) => update({ query: e.target.value })}
+          />
+        </label>
+        <label>
+          Workspace scope
+          <select
+            value={filters.workspace}
+            onChange={(e) => update({ workspace: e.target.value })}
+          >
+            <option value="">All accessible workspaces</option>
+            {feed.data?.workspaces.map((w) => (
+              <option key={w.id} value={w.id}>
+                {w.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        {filters.query && (
+          <button type="button" onClick={() => update({ query: "" })}>
+            Clear search
+          </button>
+        )}
+      </div>
+      <div
+        className="r10-date-filters"
+        role="group"
+        aria-label="Work date filters"
+      >
+        {dateFilters.map((value) => (
+          <button
+            type="button"
+            key={value}
+            aria-pressed={filters.date === value}
+            onClick={() => update({ date: value })}
+          >
+            {value}
+          </button>
+        ))}
+        {destination === "History" && (
+          <label>
+            <input
+              type="checkbox"
+              checked={filters.recent}
+              onChange={(e) => update({ recent: e.target.checked })}
+            />
+            Recently completed · last 7 days by last update
+          </label>
+        )}
+      </div>
+      <p className="r10-help">
+        Dates use each work item's workspace timezone. History includes
+        authorized completed, cancelled and archived work; personal completion
+        dates are unavailable.
+      </p>
+      {feed.error && (
+        <FeedbackState
+          tone="error"
+          title="My Work could not be loaded"
+          onRetry={() => void feed.refresh()}
+        >
+          {feed.error}
+        </FeedbackState>
+      )}
+      {partial && (
+        <div role="alert">
+          <strong>
+            Some work sources are unavailable. Counts cover loaded sources.
+          </strong>
+          <ul>
+            {feed.data?.issues.map((issue, i) => (
+              <li key={i}>{issue}</li>
+            ))}
+          </ul>
+          <button type="button" onClick={() => void feed.refresh()}>
+            Retry work sources
+          </button>
+        </div>
+      )}
+      {feed.data?.unavailable.map((notice, i) => (
+        <p role="status" key={i}>
+          {notice}
+        </p>
+      ))}
+      {feed.loading && !feed.data ? (
+        <p role="status">Loading your work…</p>
+      ) : (
+        <>
+          <p role="status">
+            {rows.length} {partial ? "loaded " : ""}items · {destination} ·{" "}
+            {filters.date}
+            {feed.loading ? " · Refreshing access…" : ""}
+          </p>
+          {rows.length ? (
+            <WorkList rows={rows} onOpen={inspector.open} />
+          ) : (
+            <FeedbackState
+              title={
+                filters.query ? "No matching work" : "No work in this view"
+              }
+            >
+              Choose another destination, date filter or workspace. Review and
+              invitation actions are in Inbox and Members.
+            </FeedbackState>
+          )}
+        </>
+      )}
+      <WorkInspector
+        selected={inspector.selection}
+        current={feed.data?.rows || []}
+        onClose={inspector.close}
+      />
+    </section>
+  );
 }

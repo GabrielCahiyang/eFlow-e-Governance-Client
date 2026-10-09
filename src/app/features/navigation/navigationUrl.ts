@@ -123,14 +123,35 @@ function getValidPage(
   requestedPage: string | undefined,
   getInitialPage: (section: string) => string | undefined,
 ): string | undefined {
+  if (section === "users") return resolveSupportPage(section, requestedPage);
   if (
     section !== "users" &&
     ["org_tree", "audit", "administration", "migration"].includes(section)
   )
-    return resolveSupportPage(section);
+    return resolveSupportPage(section, requestedPage);
   if (section === "settings" && requestedPage?.toLowerCase() === "settings")
     return "Appearance";
   if (!requestedPage) return getInitialPage(section);
+  if (section === "personal_work" && requestedPage === "My Work")
+    return "Assigned work";
+  if (section === "personal_work" && requestedPage === "Recently completed")
+    return "History";
+  if (
+    section === "personal_work" &&
+    [
+      "All my work",
+      "Assigned to me",
+      "Due today",
+      "Due this week",
+      "Overdue",
+    ].includes(requestedPage)
+  )
+    return "Assigned work";
+  if (
+    section === "dashboard" &&
+    ["Dashboard", "Overview", "Home"].includes(requestedPage)
+  )
+    return "Workspace Overview";
   const pages = getSidebarContent(role, section).sections.flatMap((group) =>
     group.items.map((item) => item.label),
   );
@@ -159,9 +180,23 @@ export function readNavigationLocation(
     };
     const supportPage =
       legacySupport[url.pathname.split("/").filter(Boolean)[0] || ""];
-    if (supportPage) return { section: "users", page: supportPage };
+    if (supportPage)
+      return {
+        section: "users",
+        page:
+          supportPage === "System Settings"
+            ? resolveSupportPage("administration", getPageFromUrl(url))
+            : supportPage,
+      };
   }
   const candidates = getRoleNavigationCandidates(role);
+  if (
+    role !== "admin" &&
+    ["home", "dashboard", "overview"].includes(
+      url.pathname.split("/").filter(Boolean)[0] || "",
+    )
+  )
+    return { section: "dashboard", page: "Workspace Overview" };
   const section =
     getSectionFromPath(url.pathname, candidates) || defaultSection;
   return {
@@ -179,9 +214,14 @@ export function writeNavigationLocation(
   if (typeof window === "undefined") return;
 
   const url = new URL(window.location.href);
+  if (section !== "personal_work")
+    for (const key of ["date", "q", "workScope", "recent"])
+      url.searchParams.delete(key);
   const preserveBudgetView =
     section === "budget" && url.pathname === getNavigationPath("budget");
   url.pathname = getNavigationPath(section);
+  if (section !== "projects" || context?.project)
+    url.searchParams.delete("plans");
   if (context?.project) url.searchParams.set("project", context.project);
   if (context?.view) url.searchParams.set("view", context.view);
   // A project invitation carries its workspace tab through account startup.

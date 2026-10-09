@@ -4,3 +4,4 @@ export { listInvitations, resendInvitation, revokeInvitation } from './services/
 export type { Invitation, InvitedRole } from './types';
 export { useInvitationManagement } from './hooks/useInvitationManagement';
 export { invitationValidity, invitationCanManage, deliveryLabel } from './presentation';
+export {InvitationPersonFields} from './components/InvitationPersonFields';

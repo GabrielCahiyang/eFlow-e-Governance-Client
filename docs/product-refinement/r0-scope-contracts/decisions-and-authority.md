@@ -1,0 +1,78 @@
+# R0 decisions and authority — r0-v1
+
+All target decisions below are frozen defaults for later phases. “Current” refers to the audited source and the dated deployment receipt; “target” does not grant access today.
+
+## Product decisions
+
+| ID | Frozen target rule | Owner / evidence |
+| --- | --- | --- |
+| D01 | Close the date picker only after a known persisted success; keep saved dates visible. On failure retain draft/error/focus. Isolate this success policy from other consumers of `usePlanningEditor`. | R5; `TimelineCell.tsx`, `hooks/usePlanningEditor.ts` |
+| D02 | Display **Estimated hours**. Keep column ID `effort`, payload `estimated_hours`, values, imports and preferences compatible. | R5; project-table `types.ts`, `ProjectTaskCells.tsx` |
+| D03 | Remove global Home/Search and sidebar Planning/Drafts/Waiting for approval/Team Members. Keep project status Planning, records, import/edit recovery, review/security/finance state machines and required onboarding. Use workspace search, contextual import/recovery and Members/Invitations replacements. | R2/R4; navigation register |
+| D04 | Remove the five requested optional project views and the readiness header strip. Keep Overview, Main table, Board, Gantt, Calendar, Project Dashboard, Offices, Timeline, Reports, Proposal Context, Activity, Reviews and Budget Overview with their existing eligibility. Members is added in R7. No implicit removal of Proposal Context or budget/governance actions. | R4; `projectViewCatalog.ts` |
+| D05 | Keep independent content/sidebar vertical scrolling and table-local horizontal scrolling. Use existing eFlow tokens/adapters and Vibe tooltips; retain keyboard/touch labels. | R1; settings/surface register |
+| D06 | One project has one authoritative home workspace. Office workspace identity links a real canonical Office; personal workspace identity has an active non-Admin owner. Explicit sharing creates access/shortcuts, not duplicate project records or automatic Office affiliation. Existing cross-Office project participation remains separate from home placement. | R3 |
+| D07 | Active Head, Member and Accounting Staff may own a personal workspace in addition to Office contexts. Admin remains a platform role without automatic operational ownership. Workspace ownership grants only personal-scope management, never Office Head/reviewer/finance rights. Office creation/leadership remains governed by its existing authority. | R3; `canOpenNavigationSection`, core workflow navigation |
+| D08 | Personal projects have an explicit personal workflow mode. The owner appoints root work leads and resolves staffing/closeout. Personal progress can be recorded by an assigned worker; it is not an official Office approval. Where a submission requests independent review, use an appointed other active project member; self-review is denied and closure waits for required review. Office projects retain all official readiness/evidence/governance/financial rules. No Office cash workflow is created by owning a personal project. | R3/R7/R9; new capability |
+| D09 | Project staffing uses explicit selected project memberships, including the lead Office. Preserve currently staffed people through a reviewed membership backfill before removing the lead-Office eligibility exception. Head oversight and otherwise authorized Office reads remain; adding personnel to one project does not add them to another. | R7; Phase 6 `phase6_set_members`, task eligibility guard |
+| D10 | The responsible Office Head appoints/transfers the root Task Lead. A current Task Lead can change eligible contributors on its own work through a new narrow delta operation and appoint child leads. A Subitem Lead may organize its own descendants and appoint leads below itself. Neither may replace an ancestor/root lead, change Office/project identity, appoint an Office Head, or edit siblings/foreign branches. Root transfer uses the Head. | R7; existing shared team restriction versus requested delegated team work |
+| D11 | Root task depth is 0; direct subitems are depth 1; maximum subitem depth is **8**. All descendants stay in the same root task/project. Reject self-parenting, cycles, depth overflow and inconsistent roots, including reparenting a subtree that would exceed the limit. Depth 8 is a target guard, not a proven production scale. Declare supported dataset size only after R13 measurements. | R7 |
+| D12 | Preserve stored task/manual progress. Display a separate descendant completion summary over non-cancelled leaf subitems; do not overwrite manual progress or double-count parent/child budgets. A parent cannot complete until every required non-cancelled descendant completes its applicable review and the parent's own requirements pass. A cancelled branch follows existing cancellation checks, including outstanding cash. | R7/R11; lifecycle and subtask guards |
+| D13 | A child worker's reviewer is the nearest eligible appointed ancestor lead, or the responsible Head if that lead is the submitter/ineligible. Keep official root-task Head review and current cash authorization/Accounting execution separation. Lead reassignment changes future reviewer routing; old decisions remain attributable. Revoked lead chains cannot confer stale descendant-management powers. | R7/R9; existing reviewer contracts |
+| D14 | Owner/Lead Invite by email creates a **request**, not an invitation token, email or membership. Responsible Office Head approves Office-project guest requests. Request/approval does not itself assign work. Acceptance activates a project membership; an eligible actor assigns task/subitem work separately. | R8 |
+| D15 | Personal workspace external-member requests use the designated sponsoring Office Head. An owner without such a sponsor cannot dispatch external invites until a sponsoring Head is designated; they may select already onboarded eligible people through an authorized membership workflow. Personal ownership alone never bypasses the user's pre-send Head approval requirement. | R3/R8 |
+| D16 | Engagement labels start with **Permanent, Job Order, OJT, Consultant, Other**. Permanent is project membership without a date expiry; all other types are temporary and require an access-end date or an explicit “until project close” term. Type is metadata, not a role. Office guest membership can be sponsored by its responsible Head without rewriting an existing person's canonical Office/account role. New guests receive Member scope, not Head/Admin/Accounting privileges. | R7/R8/R9/R12 |
+| D17 | Temporary access ends at the earliest of its end timestamp, project completion, project archive, or explicit revocation. Store instants in UTC; explain dates in the selected workspace timezone. An end-date selection means the end of that local date, converted to an exclusive UTC boundary. Retain identity, authorship, evidence and other projects. Reopening/restoring does not reactivate an expired/revoked grant; renewed approval is required. Permanent members retain only their existing authorized closed-project read access. | R9 |
+| D18 | Share is authenticated, recipient-bound access. Default redemption lifetime is **7 days**, configurable **1–30 days**. Share offers Viewer or Project member; access-end terms are separate from token redemption expiry. New Viewer grants are temporary until their stated end/project close; Project member grants carry D16 terms. Only the Lead Office Head creates Office-project offers; existing participating-Office selection and external invitation approval still apply to new editing membership. The designated sponsor Head issues personal-scope external offers. Redemption preserves existing independent rights, which the modal explains; a Viewer offer cannot silently downgrade an existing editor. Copy ordinary URL remains available without claiming it grants access. | R9; current Share has no grant |
+| D19 | Confirmed project member removal clears that person's current task/subitem assignments and delegated lead authority in one transaction, then removes project membership. Sole Task/Subitem Lead is not a removal blocker: unfinished work becomes **Needs reassignment** and invalid execution is blocked until assigned. Require replacement only for mandatory workspace/Office ownership. Preserve submitted records and authorship. | R9; current unfinished-work refusal changes explicitly |
+| D20 | Reusable-file “global use” means an **authorized project library** in this program. Workspace-wide/internet-wide sharing is excluded unless the user amends scope. Existing workflow evidence keeps its restrictions/immutability; raw PDS stays private. General documents cannot automatically satisfy official evidence requirements. File insertion links a recorded permitted source; sharing does not copy away its source restrictions. | R6 |
+| D21 | Complete is enabled only after authoritative readiness succeeds. Its disabled reason is visible. A Head-accessible **View completion requirements** action stays enabled while Complete is blocked; it contains review/activation and resolution controls. Personal closeout uses D08; it cannot invoke Office Head RPCs with artificial privileges. Removing standalone governance/evidence/history views preserves their required actions in authorized contextual panels. | R4/R9; readiness retirement contract |
+
+## Common authorization preconditions
+
+All consequential target operations check an authenticated, verified identity; active eFlow profile; current scoped membership/appointment; project state; expiry/revocation; node ancestry; Office responsibility where applicable; and operation-specific permission. Anonymous, inactive, unrelated, expired, or revoked actors are denied. New grants do not use user-editable profile/JWT metadata as authority. Recheck at request approval, dispatch, acceptance, mutation and signed-download creation.
+
+Head means the currently appointed Head, not a title string or stale recommendation. Effective Task Lead prefers the actual `assigned_to` over a stale recommendation, preserving the existing selector. Admin support visibility is distinct from project management. A permission to open a navigation page is not permission to mutate its records.
+
+## Account and contextual roles
+
+| Actor | Current boundary to preserve | Target additions |
+| --- | --- | --- |
+| Admin | Permitted account/Office/grant/settings/audit/backup support; no automatic operational task review/staffing/finance | Effective configuration/diagnostics; no new Head power |
+| Appointed Head | Own Office staffing/review; Lead Office project management where currently permitted | Approve guest requests, project sharing/removal, narrow delegation supervision |
+| Accounting Staff | Personal work plus authorized Accounting execution; no Head identity/review authority | Personal workspace; project contribution only under valid work scope |
+| Member | Assigned/contributor work, permitted personal reports and profile workflows | Personal workspace; requested guest/project membership and contextual delegation |
+| Task Lead | Existing own-task contribution/subtask management; shared general task management still Head-controlled | Own-task contributor delta and descendant lead appointment, subject to D10 |
+| Subitem Lead | New contextual appointment; no current permanent account role | Own-node/descendant team/lead operations through valid ancestor chain |
+| Observer/Viewer | Project read according to existing/new grants; not automatic private-evidence access | Read-only target share grant; no workflow mutations |
+| Personal workspace owner | New contextual role for an eligible non-Admin | Own personal scope management; sponsor Head still required for external dispatch |
+| Expired/revoked/inactive actor | No consequential access | No bypass through stale tabs, prior ownership, cached grants, tokens or direct APIs |
+
+## Target action matrix
+
+**A** = allowed only within the stated current scope/preconditions; **D** = denied; **N** = separately implemented new scoped operation. “Head” is responsible Office Head except sharing/completion, which use Lead Office Head. Contributor status alone is never lead authority.
+
+| Action | Admin | Head | Task Lead | Subitem Lead | Assigned Member / Accounting Staff | Viewer | Personal owner |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Manage platform accounts/settings | A with actual capability | D unless existing explicit administrative grant | D | D | D unless existing explicit administrative grant | D | D |
+| Create/manage own personal workspace | D by operational-role boundary | N | N as eligible account | N as eligible account | N | N only as eligible account outside viewed project | N |
+| Select own-Office project roster | D | A/N current project only | D | D | D | D | N for personal scope, no Office affiliation edits |
+| Appoint/replace root Office Task Lead | D | A | D | D | D | D | N personal root only |
+| Add/remove eligible work contributors | D | A/N own Office work | N own task/branch | N own branch | D | D | N own personal scope |
+| Appoint child/descendant lead | D | N own Office | N descendants | N descendants | D | D | N personal scope |
+| Start/progress/comment/submit work | D operationally | A when eligible | A | N/A assigned scope | A assigned/contributor scope | D | N personal assigned scope |
+| Review own evidence | D | D | D | D | D | D | D |
+| Review another's work | D | A existing reviewer scope | A/N eligible child review | N eligible child review | D unless separately appointed eligible reviewer in personal mode | D | N personal independent reviewer only |
+| Create external invitation request | D | N | N own node | N own node | N only when also the effective owner/Lead | D | N, requires sponsor |
+| Approve/send Office-project external invitation | D | N responsible appointed Head | D | D | D | D | D unless also sponsor Head |
+| Create/revoke Office-project share offer | D | N Lead Office Head | D | D | D | D | D; sponsor Head required for external personal offer |
+| Remove Office-project selected member | D | N own Office, atomic impact-confirmed | D | D | D | D | N personal roster only |
+| Complete/archive Office project | D | A Lead Office, fresh guards | D | D | D | D | D |
+| Complete/archive personal project | D | N if personal owner | N if personal owner | N if personal owner | N if personal owner | D | N D08/D17 |
+| Authorize cash / execute release or settlement | D operationally | A existing Head authorization | A existing delegated endorsement only | D unless existing reviewed financial scope | Accounting: A execution; Member: own permitted requests | D | D from ownership alone |
+| Read raw PDS | D from platform role alone | Existing approved upload/backend scope only; no roster browsing | D | D | A own private PDS | D | D except own |
+| Read project library / official evidence | No automatic operational grant | A authorized library/reviewer scope | A authorized scope | N/A authorized scope | A authorized scope | N library only; evidence requires independent current right | N personal library; no Office evidence bypass |
+
+## Required negative cases
+
+Every new capability tests other Office Head, foreign project/branch, sibling/ancestor changes, inactive profile, expired grant, revoked appointment, Observer editing, Admin operational escalation, stale recommendation, changing contributor plus root/Office identity in one request, self-review, wrong-email acceptance, altered request terms after approval, post-close redemption and cancelled confirmation. These are later server/UI acceptance requirements, not new rights implemented by R0.

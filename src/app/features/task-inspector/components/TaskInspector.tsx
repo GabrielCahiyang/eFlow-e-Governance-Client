@@ -1,29 +1,25 @@
+import {WorkActivity} from '../../nested-work';
 import { StaffingDialog, staffingEntryReason } from '../../staffing';
 import { useOrgs } from '../../../hooks/useSupabaseData';
 import { InspectorHeader } from './InspectorHeader';
-// ─── TaskDetailDrawer ────────────────────────────────────────────
-// Right slide-out task detail reused across Dept Head, Admin, and Employee
-// surfaces. Tabs: Overview · Activity (immutable timeline) · Discussion ·
-// Review (reviewers only). Which tabs/actions appear is driven by props so the
-// same component serves every role.
-
 import { useState } from "react";
-import { InspectorEvidence } from './InspectorEvidence';
+import { InspectorFiles } from './InspectorFiles';
+import { InspectorProgressUpdates } from './InspectorProgressUpdates';
+import { InspectorExecution } from './InspectorExecution';
+import { TaskDepartmentLabel } from '../../tasks';
+import { TaskStatusBadge, PriorityPill } from '../../../components/workflow/StatusBadges';
 import { InspectorSummary } from './InspectorSummary';
 import { InspectorTeam } from './InspectorTeam';
 import { requestNavigation } from '../../../shared/navigationGuard';
 import { useInspectorLifecycle } from '../hooks/useInspectorLifecycle';
 import { ProjectOfficeContext, useProjectOffices, useProjectOfficeContext } from '../../project-offices';
-import { Button } from "@vibe/core";
 import { type Task } from "../../tasks";
 import { useAuth } from "../../../contexts/AuthContext";
 import { ProjectStatusBadge } from "../../../components/workflow/StatusBadges";
 import { relativeDays } from "../../../components/workflow/primitives";
 import { TaskActivityTimeline } from "../../tasks";
 import { TaskDiscussion } from "../../tasks";
-import { TaskReviewPanel } from "../../reviews";
-import { ProgressUpdateForm } from "../../tasks";
-import { SubmitForReviewForm } from "../../reviews";
+import { TaskReviewPanel, canUserReviewTask } from "../../reviews";
 import { useTasks } from "../../../hooks/useFirebaseData";
 import { useProfiles, useProjectsData } from "../../../hooks/useSupabaseData";
 import { isTaskLead } from "../../tasks";
@@ -32,7 +28,7 @@ import { TaskTeamEditorDialog } from "../../tasks";
 import { useTaskSubtasks } from "../../subtasks";
 import { InspectorPanel } from "../../../shared/motion";
 
-type Tab = "overview" | "activity" | "discussion" | "evidence" | "review";
+type Tab = "updates" | "files" | "activity";
 
 function TaskInspectorContent({
   task,
@@ -56,7 +52,9 @@ function TaskInspectorContent({
   onChanged?: () => void;
   origin?: import("../hooks/useTaskInspector").TaskInspectorOrigin;
 }) {
-  const [selectedTab, setTab] = useState<Tab>("overview");
+  const [selectedTab, setTab] = useState<Tab>("updates");
+  const [detailsOpen, setDetailsOpen] = useState(origin?.section === 'details');
+  const [reviewOpen, setReviewOpen] = useState(false);
   const lifecycle = useInspectorLifecycle(task, onChanged, onClose);
   const officeState = useProjectOfficeContext();
   const { orgs } = useOrgs();
@@ -98,24 +96,17 @@ function TaskInspectorContent({
 
   // Task Leaders can start, resume, and submit parent work without posting
   // parent-level progress updates (those belong to individual subtasks).
-  const canManageLifecycle = capabilities.canPostProgress || capabilities.canSubmitForReview;
+  const canManageLifecycle = Boolean(capabilities.canPostProgress || capabilities.canSubmitForReview);
   const canResume = rejected && canManageLifecycle && isOwnerOrLead;
   const canStart = canManageLifecycle && isOwnerOrLead && task.status === "todo";
   const canSubmit =
     canManageLifecycle && isOwnerOrLead && task.status === "in_progress";
   const rel = relativeDays(task.deadline || task.dueDate);
-  const percent = task.percentComplete ?? 0;
 
 
-  const tabs: { id: Tab; label: string; show: boolean }[] = [
-    { id: "overview", label: "Overview", show: true },
-    { id: "activity", label: "Activity", show: true },
-    { id: "discussion", label: "Discussion", show: true },
-    { id: "evidence", label: "Evidence", show: true },
-    { id: "review", label: "Review", show: effectiveCanReview && task.status === "for_review" },
-  ];
-  const visibleTabs = tabs.filter((item) => item.show);
-  const tab = visibleTabs.some(item => item.id === selectedTab) ? selectedTab : "overview";
+  const visibleTabs = [{id:'updates',label:'Updates'},{id:'files',label:'Files'},{id:'activity',label:'Activity'}];
+  const tab = selectedTab;
+  const reviewAvailable = effectiveCanReview && task.status === 'for_review' && canUserReviewTask(task, user?.id, userProfile?.role);
 
   return (
     <>
@@ -128,87 +119,33 @@ function TaskInspectorContent({
         ariaLabel={`Task details: ${task.title}`}
         className="w-full font-sans sm:w-[520px]"
       >
-        <InspectorHeader task={task} tab={tab} tabs={visibleTabs} onTab={id => setTab(id as Tab)} onClose={onClose} busy={lifecycle.busy}/>
+        <InspectorHeader task={task} tab={tab} tabs={visibleTabs} onTab={id => {setTab(id as Tab);setReviewOpen(false);}} onClose={onClose} busy={lifecycle.busy} actions={<>
+          <button type="button" className="eflow-text-button" aria-expanded={detailsOpen} aria-controls={`task-details-${task.id}`} onClick={() => {if(detailsOpen)void requestNavigation(() => setDetailsOpen(false));else setDetailsOpen(true);}}>Details</button>
+          {reviewAvailable && <button type="button" className="eflow-text-button" aria-expanded={reviewOpen} onClick={() => void requestNavigation(() => setReviewOpen(!reviewOpen))}>{reviewOpen?'Close review':'Review submission'}</button>}
+        </>}/>
 
         {/* Body */}
         <div id={`task-panel-${task.id}`} role="tabpanel" aria-labelledby={`task-${task.id}-${tab}`} className="flex-1 min-h-0 overflow-y-auto p-4">
           {lifecycle.error && <p role="alert" className="pv-error">{lifecycle.error} Retry the action when resolved.</p>}
           {teamBlocked && currentUserIsLead && !readOnly && <p role="status" className="po-help">In shared projects, only the responsible Office Head can change the task team. Ask your Office Head to update members.</p>}
           {executionBlocked && <p role="status" className="po-help">Proposed Office responsibility: directory linking, Office Head confirmation and explicit handover in Project Offices are required before staffing, execution, evidence or funding.</p>}
-          {tab === "overview" && (
-            <div className="space-y-4">
-              <section aria-label="Advisory staffing"><h3>Staffing suggestions</h3>{staffingReason ? <p className="po-help">{staffingReason}</p> : <><p className="po-help">Review confirmed professional evidence and Office workload before appointing an owner.</p><button className="eflow-text-button" onClick={() => void requestNavigation(() => setStaffingOpen(true))}>Recommend staff</button></>}</section>
-              <InspectorSummary task={task} readOnly={readOnly} dependencies={dependencies} canManageSubtasks={canManageSubtasks} overdue={rel.overdue}/>
+          {readOnly && !detailsOpen && <p role="status" className="text-sm text-neutral-500 mb-3">Read-only oversight record</p>}
+          {detailsOpen && <section id={`task-details-${task.id}`} aria-label="Task details" className="space-y-4 rounded-lg border border-neutral-200 p-3 mb-4">
+            <div className="flex gap-2 flex-wrap"><TaskStatusBadge status={task.status} rejected={rejected}/><PriorityPill priority={task.priority}/></div>
+            <TaskDepartmentLabel task={task}/>
+            <InspectorSummary task={task} readOnly={readOnly} dependencies={dependencies} canManageSubtasks={canManageSubtasks} overdue={rel.overdue}/>
+            <InspectorTeam task={task} profiles={profiles} projectTitle={operationalProject?.title} canManageTaskTeam={canManageTaskTeam} canManageSubtasks={canManageSubtasks} currentUserIsLead={currentUserIsLead} onManage={() => setTeamEditorOpen(true)}/>
+            <section aria-label="Advisory staffing"><h3>Staffing suggestions</h3>{staffingReason ? <p className="po-help">{staffingReason}</p> : <><p className="po-help">Review confirmed professional evidence and Office workload before appointing an owner.</p><button className="eflow-text-button" onClick={() => void requestNavigation(() => setStaffingOpen(true))}>Recommend staff</button></>}</section>
+          </section>}
+          {reviewOpen && reviewAvailable && <section aria-label="Submission review" className="mb-4"><TaskReviewPanel task={task} canReview onDone={() => { onChanged?.(); void requestNavigation(onClose); }}/></section>}
+          {tab === 'updates' && !(reviewOpen && reviewAvailable) && <div className="space-y-5">
+            <InspectorExecution task={task} subtasks={taskSubtasks} canStart={canStart} canResume={canResume} canSubmit={canSubmit} canPostProgress={capabilities.canPostProgress} busy={lifecycle.busy} onStart={lifecycle.start} onChanged={onChanged} onSubmitted={() => { onChanged?.(); void requestNavigation(onClose); }}/>
+            <section aria-label="Task discussion"><h3 className="text-sm font-semibold mb-2">Discussion</h3><TaskDiscussion taskId={task.id} canParticipate={capabilities.canDiscuss}/></section>
+            <InspectorProgressUpdates taskId={task.id}/>
+          </div>}
+          {tab === 'files' && <InspectorFiles task={task} readOnly={readOnly || executionBlocked}/>}
+          {tab === 'activity' && <><TaskActivityTimeline taskId={task.id} projectId={task.linkedProjectId}/><WorkActivity roots={[task.id]}/></>}
 
-
-              {canStart && (
-                <div className="rounded-xl border border-blue-200 bg-blue-50 p-3">
-                  <div className="text-[12px] font-medium text-blue-900">
-                    This task is ready to begin.
-                  </div>
-                  <p className="mt-0.5 text-[11px] text-blue-700">
-                    Starting it updates every board view to In Progress.
-                  </p>
-                  <Button
-                    onClick={lifecycle.start}
-                    disabled={lifecycle.busy}
-                    className="mt-2"
-                    size="small"
-                  >
-                    {lifecycle.busy ? "Starting…" : "Start work"}
-                  </Button>
-                </div>
-              )}
-
-              <InspectorTeam task={task} profiles={profiles} projectTitle={operationalProject?.title} canManageTaskTeam={canManageTaskTeam} canManageSubtasks={canManageSubtasks} currentUserIsLead={currentUserIsLead} onManage={() => setTeamEditorOpen(true)}/>
-
-
-              {rejected && (
-                <div className="bg-rose-50 border border-rose-200 rounded-lg p-3">
-                  <div className="text-[11px] font-medium text-rose-700 uppercase tracking-wide mb-0.5">
-                    Updates needed
-                  </div>
-                  {task.rejectionNote && (
-                    <div className="text-[12.5px] font-normal text-rose-900">{task.rejectionNote}</div>
-                  )}
-                  {canResume && (
-                    <Button
-                      onClick={lifecycle.start}
-                      disabled={lifecycle.busy}
-                      className="mt-2"
-                      size="small"
-                    >
-                      {lifecycle.busy ? "Resuming…" : "Resume work"}
-                    </Button>
-                  )}
-                </div>
-              )}
-
-              <InspectorEvidence task={task}/>
-
-              {capabilities.canPostProgress && (
-                <ProgressUpdateForm taskId={task.id} initialPercent={percent} onSaved={onChanged} />
-              )}
-
-              {canSubmit && (
-                <SubmitForReviewForm
-                  task={task}
-                  subtasks={taskSubtasks}
-                  onSubmitted={() => {
-                    onChanged?.();
-                    void requestNavigation(onClose);
-                  }}
-                />
-              )}
-            </div>
-          )}
-
-          {tab === "evidence" && <TaskReviewPanel task={task} canReview={false} showDecision={false}/>}
-          {tab === "activity" && <TaskActivityTimeline taskId={task.id} />}
-          {tab === "discussion" && <TaskDiscussion taskId={task.id} canParticipate={capabilities.canDiscuss} />}
-          {tab === "review" && effectiveCanReview && (
-            <TaskReviewPanel task={task} canReview={effectiveCanReview} onDone={() => { onChanged?.(); void requestNavigation(onClose); }} />
-          )}
         </div>
       </InspectorPanel>
       {staffingOpen && !staffingReason && <StaffingDialog task={task} onClose={() => setStaffingOpen(false)} onAssigned={onChanged}/>}
@@ -235,8 +172,8 @@ export function TaskInspector(props: Parameters<typeof TaskInspectorContent>[0])
  if (loading === false && (!props.task || !canonical || props.task.linkedProjectId && canonical.linkedProjectId !== props.task.linkedProjectId)) return <InspectorPanel open onClose={props.onClose} returnFocus={props.origin?.returnFocus} onReturnFocus={props.origin?.restoreFocus} ariaLabel="Task unavailable" className="w-full sm:w-[520px]"><div className="p-5"><h2>Task unavailable</h2><p>This task was removed or your access changed. Reopen it from an authorized workspace.</p><button onClick={props.onClose}>Close task details</button></div></InspectorPanel>;
  if (!props.task) return null;
  const accountReadOnly = !userProfile || userProfile.is_active === false || userProfile.role === 'admin';
- if (!(canonical || props.task).linkedProjectId) return <TaskInspectorContent key={props.task.id} {...props} task={canonical || props.task} readOnly={props.readOnly || accountReadOnly}/>;
- return <ScopedTaskInspector key={props.task.id} {...props} task={canonical || props.task} context={context} userId={user?.id || ''} profile={userProfile}/>;
+ if (!(canonical || props.task).linkedProjectId) return <TaskInspectorContent key={props.task.id+user?.id} {...props} task={canonical || props.task} readOnly={props.readOnly || accountReadOnly}/>;
+ return <ScopedTaskInspector key={props.task.id+user?.id} {...props} task={canonical || props.task} context={context} userId={user?.id || ''} profile={userProfile}/>;
 }
 function ScopedTaskInspector({context, userId, profile, ...props}: Parameters<typeof TaskInspectorContent>[0] & {context: ReturnType<typeof useProjectOfficeContext>;userId:string;profile:ReturnType<typeof useAuth>['userProfile']}) {
  if (context.projectId === props.task?.linkedProjectId) return <ResolvedTaskInspector {...props} userId={userId} profile={profile} offices={context}/>;

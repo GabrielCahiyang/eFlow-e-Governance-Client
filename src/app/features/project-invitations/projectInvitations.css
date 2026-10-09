@@ -1,0 +1,10 @@
+.r8-invitations,.r8-form{display:grid;gap:12px;min-width:0;max-width:100%;color:var(--eflow-text)}
+.r8-invitations article{border:1px solid var(--eflow-border);padding:16px;border-radius:8px;min-width:0;overflow-wrap:anywhere}
+.r8-invitations button,.r8-form button{white-space:normal;max-width:100%;padding:8px 12px;border:1px solid var(--eflow-border);border-radius:6px}
+.r8-actions,.r8-form footer{display:flex;flex-wrap:wrap;gap:8px}.r8-form form,.r8-form fieldset,.r8-form label{display:grid;gap:8px;min-width:0}.r8-form fieldset{padding:12px;border:1px solid var(--eflow-border)}
+.r8-form input,.r8-form select,.r8-form textarea{min-width:0;width:100%;box-sizing:border-box;background:var(--eflow-surface);color:inherit;border:1px solid var(--eflow-border);padding:8px}.r8-form input[type=checkbox]{width:auto}.r8-invitations dd{margin-inline-start:12px}.r8-invitations [role=alert],.r8-form [role=alert]{white-space:pre-wrap;color:var(--eflow-danger,#b42318)}
+
+.r8-request-dialog>.r8-form{overflow:auto;padding:20px;min-height:0}.r8-invitations input[type=file]{max-width:100%}
+
+.r8-invitations button:focus-visible,.r8-form button:focus-visible,.r8-form input:focus-visible,.r8-form select:focus-visible,.r8-form textarea:focus-visible{outline:2px solid var(--eflow-focus);outline-offset:2px}.r8-invitations button:disabled,.r8-form button:disabled{opacity:.5}
+.r8-form .eflow-pds-attachment{display:flex;font-size:.8125rem;color:var(--eflow-text-muted)}.r8-form .eflow-pds-attachment small{color:var(--eflow-text-muted)}

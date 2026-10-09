@@ -3,14 +3,14 @@ import { canOpenNavigationSection, isAdministrativeNavigationSection } from './n
 import { getSidebarContent } from './sidebarContent';
 import { getAuthorizedSupportPages, resolveSupportPage } from './administrativePages';
 
-export type NavigationGroupId = 'home' | 'my-work' | 'workspaces' | 'inbox' | 'accounting' | 'admin-center' | 'account';
+export type NavigationGroupId = 'my-work' | 'workspaces' | 'inbox' | 'accounting' | 'admin-center' | 'account';
 export interface ShellNavigationItem extends RoleNavItem {
   group: NavigationGroupId;
   pages: { label: string }[];
   hasAlert?: boolean;
 }
 export const navigationGroupLabels: Record<NavigationGroupId, string> = {
-  home: 'Home', 'my-work': 'My Work', workspaces: 'Workspaces', inbox: 'Inbox',
+  'my-work': 'My Work', workspaces: 'Workspaces', inbox: 'Inbox',
   accounting: 'Accounting', 'admin-center': 'Admin Center', account: 'Profile & Settings',
 };
 export const navigationGroupDescriptions: Partial<Record<NavigationGroupId, string>> = {
@@ -24,7 +24,7 @@ export function getPresentationGroup(role: string, section: string): NavigationG
   if (section === 'settings') return 'account';
   if (section === 'users' || section === 'permissions' || isAdministrativeNavigationSection(section)) return 'admin-center';
   if (section.startsWith('accounting_')) return 'accounting';
-  if (section === 'dashboard' || section === 'command') return 'home';
+  if (section === 'dashboard' || section === 'command') return 'workspaces';
   if (section === 'inbox' || section === 'reviews' || section === 'announcements') return 'inbox';
   if (['projects', 'budget', 'team', 'identity', 'intelligence'].includes(section) || (role === 'head' && ['tasks', 'reports'].includes(section))) return 'workspaces';
   return 'my-work';
@@ -40,7 +40,7 @@ export function buildShellNavigation({ role, persistedRole = role, can, hasLeadi
       let pages = getSidebarContent(role, item.id).sections.flatMap(group => group.items.map(page => ({ label: page.label })));
       if (item.id === 'users') pages = getAuthorizedSupportPages(role, can).filter(page => role === 'admin' || page.section === 'users').map(page => ({ label: page.label }));
       else if (isAdministrativeNavigationSection(item.id)) pages = [{ label: resolveSupportPage(item.id) || item.label }];
-      return { ...item, group: getPresentationGroup(role, item.id), pages: pages.length ? pages : [{ label: item.label }], hasAlert: item.id === 'projects' ? alerts.projects : item.id === 'reviews' ? alerts.reviews : false };
+      return { ...item, label: item.id === 'dashboard' ? 'Workspace Overview' : item.label, group: getPresentationGroup(role, item.id), pages: pages.length ? pages : [{ label: item.label }], hasAlert: item.id === 'projects' ? alerts.projects : item.id === 'reviews' ? alerts.reviews : false };
     });
 }
 

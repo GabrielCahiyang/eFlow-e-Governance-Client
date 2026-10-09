@@ -27,7 +27,12 @@ for (const size of [100, 1000, 5000])
       const samples = [];
       for (let run = 0; run < 3; run++) {
         await page.evaluate(
-          (key) => localStorage.removeItem(key),
+          (key) => {
+            // R3 scopes filters to the workspace. Clear both the historical
+            // key and its workspace variants before each unfiltered sample.
+            for (const stored of Object.keys(localStorage))
+              if (stored === key || stored.startsWith(`${key}:workspace:`)) localStorage.removeItem(stored);
+          },
           `eflow_project_views_v1_${data.id}_${data.project}`,
         );
         let reads = 0,
@@ -48,7 +53,9 @@ for (const size of [100, 1000, 5000])
         await page.goto(
           `/projects?page=Projects&project=${data.project}&view=tasks`,
         );
-        await expect(page.locator(".pt-task-row").first()).toContainText(
+        // R7's current reader and the historical reader order these rows
+        // differently. Wait for the same task and full population in both.
+        await expect(page.locator(".pt-task-row").filter({ hasText: "Benchmark task 0" })).toContainText(
           "Benchmark task 0",
           { timeout: 90_000 },
         );

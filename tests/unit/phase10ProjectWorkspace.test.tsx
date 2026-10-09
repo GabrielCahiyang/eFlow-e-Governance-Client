@@ -16,13 +16,13 @@ afterEach(cleanup);
 describe('Phase 10 project workspace', () => {
   it('keeps six core views and resolves every legacy view alias without dropping tools', () => {
     expect(PERMANENT_TABS.map(view=>view.id)).toEqual(['tasks','board','gantt','calendar','dashboard','offices']);
-    for(const [alias,canonical] of Object.entries({plan:'timeline',delivery:'timeline',work:'tasks',people:'workload',team:'workload'})) expect(resolveProjectView(alias)).toBe(canonical);
+    for(const [alias,canonical] of Object.entries({plan:'timeline',delivery:'timeline',work:'tasks',people:'offices',team:'offices'})) expect(resolveProjectView(alias)).toBe(canonical);
     for(const view of [...PERMANENT_TABS,...OPTIONAL_VIEWS_CATALOG]) expect(resolveProjectView(view.id)).toBe(view.id);
     for(const value of ['not-a-view', 'constructor', '__proto__', 'toString']) expect(resolveProjectView(value)).toBeNull();
   });
   it('keeps missing identity readable and closed title editing disabled', () => {
     render(<ProjectHeader project={{...project,status:'archived'}} organizations={[]} profiles={[]} editable onTitleChange={api.update} />);
-    expect(screen.getByText('Office not set · Owner unavailable')).toBeTruthy();
+    expect(screen.getByText('Office not set')).toBeTruthy();
     expect((screen.getByRole('button',{name:'Edit project name'}) as HTMLButtonElement).disabled).toBe(true);
     expect(screen.getByLabelText('Project lifecycle: Archived')).toBeTruthy();
   });

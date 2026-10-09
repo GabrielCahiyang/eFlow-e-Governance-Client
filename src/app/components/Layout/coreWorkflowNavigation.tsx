@@ -268,7 +268,7 @@ const CORE_WORKFLOW_NAVIGATION: Record<string, CoreRoleNavigation> = {
     ],
   },
   member: {
-    defaultSection: "tasks",
+    defaultSection: "personal_work",
     navItems: EMPLOYEE_NAV_ITEMS,
   },
 };

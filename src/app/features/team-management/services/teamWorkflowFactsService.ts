@@ -1,4 +1,5 @@
 import { supabase } from "../../../../lib/supabase";
+import {readAllRows} from '../../../shared/readAllRows';
 import { rowToSubtask } from "../../subtasks";
 import type {
   TaskStatusFact,
@@ -88,20 +89,14 @@ export async function fetchTeamWorkflowFacts(taskIds: string[]): Promise<TeamWor
   const uniqueTaskIds = Array.from(new Set(taskIds.filter(Boolean)));
   if (uniqueTaskIds.length === 0) return emptyFacts();
 
-  const [subtasksResult, taskProgressResult, subtaskProgressResult, taskSubmissionResult, subtaskSubmissionResult, historyResult, taskEvidenceResult, subtaskEvidenceResult] = await Promise.all([
-    supabase.from("subtasks").select("*").in("task_id", uniqueTaskIds),
-    supabase.from("task_progress_updates").select("*").in("task_id", uniqueTaskIds).order("created_at", { ascending: false }),
-    supabase.from("subtask_progress_updates").select("*").in("task_id", uniqueTaskIds).order("created_at", { ascending: false }),
-    supabase.from("task_submissions").select("*").in("task_id", uniqueTaskIds).order("submitted_at", { ascending: false }),
-    supabase.from("subtask_submissions").select("*").in("task_id", uniqueTaskIds).order("submitted_at", { ascending: false }),
-    supabase.from("task_status_history").select("*").in("task_id", uniqueTaskIds).order("created_at", { ascending: false }),
-    supabase.from("task_attachments").select("*").in("task_id", uniqueTaskIds).order("created_at", { ascending: false }),
-    supabase.from("subtask_submission_attachments").select("*").in("task_id", uniqueTaskIds).order("created_at", { ascending: false }),
-  ]);
-
-  const failed = [subtasksResult, taskProgressResult, subtaskProgressResult, taskSubmissionResult, subtaskSubmissionResult, historyResult, taskEvidenceResult, subtaskEvidenceResult]
-    .find((result) => result.error);
-  if (failed?.error) throw new Error(failed.error.message);
+  const tables=['subtasks','task_progress_updates','subtask_progress_updates','task_submissions','subtask_submissions','task_status_history','task_attachments','subtask_submission_attachments'];
+  // Chunk identifiers as well as result pages to keep PostgREST URLs bounded.
+  const sources=await Promise.all(tables.map(async table=>{
+   const rows:Record<string,unknown>[]=[];
+   for(let offset=0;offset<uniqueTaskIds.length;offset+=100)rows.push(...await readAllRows<Record<string,unknown>>((from,to)=>supabase.from(table).select('*',{count:'exact'}).in('task_id',uniqueTaskIds.slice(offset,offset+100)).order('id',{ascending:true}).range(from,to)));
+   return {data:rows};
+  }));
+  const [subtasksResult,taskProgressResult,subtaskProgressResult,taskSubmissionResult,subtaskSubmissionResult,historyResult,taskEvidenceResult,subtaskEvidenceResult]=sources;
 
   return {
     subtasks: (subtasksResult.data || []).map((row: Record<string, unknown>) => rowToSubtask(row)),
@@ -142,16 +137,16 @@ export function subscribeToTeamWorkflowFacts(
   };
 
   void load();
-  const channel = supabase.channel(`team-workflow-facts-${Math.random().toString(36).slice(2)}`);
-  ["subtasks", "task_progress_updates", "subtask_progress_updates", "task_submissions", "subtask_submissions", "task_status_history", "task_attachments", "subtask_submission_attachments"]
-    .forEach((table) => {
-      channel.on("postgres_changes", { event: "*", schema: "public", table }, queueLoad);
-    });
-  channel.subscribe();
+  // Refresh against current RLS even when an expired recipient receives no row event.
+  const poll=window.setInterval(queueLoad,15_000);
+  window.addEventListener('focus',queueLoad);
+  window.addEventListener('eflow-project-access-changed',queueLoad);
 
   return () => {
     disposed = true;
     window.clearTimeout(reloadTimer);
-    void supabase.removeChannel(channel);
+    window.clearInterval(poll);
+    window.removeEventListener('focus',queueLoad);
+    window.removeEventListener('eflow-project-access-changed',queueLoad);
   };
 }

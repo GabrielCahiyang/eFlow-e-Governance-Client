@@ -1,0 +1,51 @@
+{
+  "playwright": "1.55.0",
+  "firefoxRevision": "1490",
+  "firefoxVersion": "141.0",
+  "platform": "Windows",
+  "document": "Static routed HTML with no application JavaScript",
+  "setup": "replaceState({step:0}); pushState({step:1},\"\",\"?view=reviews\"); pushState({step:2},\"\",\"?view=activity\")",
+  "pageReload": {
+    "before": {
+      "length": 3,
+      "state": {
+        "step": 2
+      }
+    },
+    "after": {
+      "length": 4,
+      "state": null
+    },
+    "back": {
+      "view": "activity",
+      "state": {
+        "step": 2
+      }
+    },
+    "expectedPreviousView": "reviews",
+    "passed": false
+  },
+  "nativeReload": {
+    "operation": "Promise.all([page.waitForEvent(\"load\"),page.evaluate(()=>location.reload())])",
+    "before": {
+      "length": 3,
+      "state": {
+        "step": 2
+      }
+    },
+    "after": {
+      "length": 3,
+      "state": {
+        "step": 2
+      }
+    },
+    "back": {
+      "view": "reviews",
+      "state": {
+        "step": 1
+      }
+    },
+    "passed": true
+  },
+  "conclusion": "Use native reload in R4 history regression; preserve one-step Back/Forward assertions without application changes."
+}

@@ -1,0 +1,61 @@
+{
+  "stats": {
+    "startTime": "2026-10-08T16:34:22.780Z",
+    "duration": 35780.017,
+    "expected": 6,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "cases": [
+    {
+      "file": "phase18-rollback.spec.ts",
+      "title": "restored artifact opens canonical table and task inspector",
+      "browser": "chromium",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 5586
+    },
+    {
+      "file": "phase18-rollback.spec.ts",
+      "title": "restored artifact opens the scoped Accounting journal",
+      "browser": "chromium",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 5458
+    },
+    {
+      "file": "phase18-rollback.spec.ts",
+      "title": "restored artifact opens canonical table and task inspector",
+      "browser": "firefox",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 11258
+    },
+    {
+      "file": "phase18-rollback.spec.ts",
+      "title": "restored artifact opens the scoped Accounting journal",
+      "browser": "firefox",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 7989
+    },
+    {
+      "file": "phase18-rollback.spec.ts",
+      "title": "restored artifact opens canonical table and task inspector",
+      "browser": "webkit",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 10889
+    },
+    {
+      "file": "phase18-rollback.spec.ts",
+      "title": "restored artifact opens the scoped Accounting journal",
+      "browser": "webkit",
+      "status": "passed",
+      "retry": 0,
+      "durationMs": 8827
+    }
+  ],
+  "scope": "Historical frozen frontend restored locally with synthetic backend fixtures; not matching gateway restoration, protected database/Storage recovery or hosting rollback."
+}

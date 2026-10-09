@@ -1,12 +1,135 @@
 /* Radix tabs have text children; Vibe tabs receive padding on their inner div.
    Keep the Admin workspace independent of the global project Vibe tab overrides. */
-.eflow-admin-workspace .eflow-workspace-tabs > .eflow-workspace-tab[role="tab"] {
+.eflow-admin-categories {
+  display: grid;
+  grid-template-columns: 230px minmax(0, 1fr);
+  gap: 20px;
+  min-width: 0;
+}
+.eflow-admin-categories > .eflow-workspace-tabs {
+  flex-direction: column;
+  align-self: start;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px;
+  gap: 4px;
+}
+.eflow-admin-categories > .eflow-workspace-tabs > .eflow-workspace-tab {
+  width: 100%;
+  justify-content: flex-start;
+  text-align: left;
+  white-space: normal;
+  border: 0;
+  border-radius: 6px;
+}
+.eflow-admin-categories > .eflow-workspace-panel {
+  min-width: 0;
+  padding-top: 0;
+}
+.eflow-admin-configuration {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+  min-width: 0;
+  padding: 18px;
+  color: var(--foreground);
+}
+.eflow-admin-configuration .eflow-workspace-header h1 {
+  font-size: 20px;
+}
+.eflow-admin-configuration input {
+  display: block;
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--foreground);
+  border-radius: 6px;
+  margin-top: 6px;
+}
+.eflow-admin-settings-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
+  max-width: 650px;
+}
+.eflow-admin-settings-form label {
+  font-size: 13px;
+  font-weight: 600;
+}
+.eflow-admin-settings-form small {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted-foreground);
+  font-weight: 400;
+}
+.eflow-admin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.eflow-admin-card {
+  padding: 18px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  min-width: 0;
+}
+.eflow-admin-card h2 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.eflow-admin-card p {
+  color: var(--muted-foreground);
+  font-size: 13px;
+  line-height: 1.6;
+  margin-top: 10px;
+  overflow-wrap: anywhere;
+}
+.eflow-admin-health-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.eflow-admin-configuration table {
+  min-width: 720px;
+}
+.eflow-admin-configuration td {
+  min-width: 160px;
+}
+@media (max-width: 767px) {
+  .eflow-admin-categories {
+    display: block;
+  }
+  .eflow-admin-categories > .eflow-workspace-tabs {
+    flex-direction: row;
+    overflow: auto;
+    flex-wrap: nowrap;
+    max-width: 100%;
+  }
+  .eflow-admin-categories > .eflow-workspace-tabs > .eflow-workspace-tab {
+    width: auto;
+    max-width: 200px;
+  }
+  .eflow-admin-configuration {
+    padding: 12px 0;
+  }
+  .eflow-admin-health-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.eflow-admin-workspace
+  .eflow-workspace-tabs
+  > .eflow-workspace-tab[role="tab"] {
   flex-shrink: 0;
   height: auto;
   min-height: 40px;
   padding: 8px 14px;
 }
-.eflow-admin-workspace .eflow-workspace-tabs > .eflow-workspace-tab[role="tab"][data-state="active"] {
+.eflow-admin-workspace
+  .eflow-workspace-tabs
+  > .eflow-workspace-tab[role="tab"][data-state="active"] {
   background: var(--workspace-hover) !important;
   color: var(--workspace-primary) !important;
   border-bottom-color: var(--workspace-primary) !important;

@@ -1,0 +1,11 @@
+# R8 project invitation contract
+
+R8 is additive to R3/R7. Owner pickers and project Members submit project requests; existing Office and Office collaboration invitations keep their endpoints and acceptance behavior. A request has no token, mail or access grant. The responsible appointed Head approves immutable email, project/node, skills, engagement and access terms. Personal owners explicitly nominate a sponsoring Office; its current Head approves. Approval alone neither sends mail nor assigns work.
+
+Dispatch rechecks the current requester, approving Head, project, participating Office and node. Tokens are hashed, rotated on resend, recipient-bound and time-limited. Approval, creation, provider acceptance, PDS processing, onboarding and effective membership are distinct. Provider acceptance is not proof of delivery. Lost or failed deliveries retry the selected person only, after cooldown. Acceptance is idempotent and preserves an existing account's role and canonical Office; a new identity is an unaffiliated Member. Membership activation never assigns a task.
+
+Raw PDS uses the existing private bucket and extraction/manual recovery. Only its owner and currently authorized original uploader can obtain raw content. Requested skills are invitation context, not verified professional qualifications or account authority. Private documents cannot become project library files.
+
+Server email channels are independent: application invitations use Resend (`RESEND_API_KEY`, `EFLOW_EMAIL_FROM`, `EFLOW_APP_URL`); legacy notifications use Gmail SMTP (`SMTP_EMAIL`, `SMTP_APP_PASSWORD`); Supabase Auth SMTP is configured in the hosted Auth service. No credentials belong in the browser. The rehearsal Resend sender remains test-recipient-only until a verified domain is configured.
+
+Primary configuration references checked for R8: [Resend domain verification](https://resend.com/docs/dashboard/domains/introduction), [Supabase Auth SMTP](https://supabase.com/docs/guides/auth/auth-smtp). Configure the real HTTPS application URL and Auth redirect allowlist together. Genuine non-test mailbox receipt and identity-correct acceptance remain a separate hosted acceptance gate; mocks and provider IDs cannot satisfy it. Sole hosted target: `ixnfphgjyelhckjwjkdv`; migration history preservation remains mandatory.

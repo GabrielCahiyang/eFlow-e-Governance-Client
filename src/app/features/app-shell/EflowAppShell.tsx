@@ -4,9 +4,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import {
   buildShellNavigation,
-  getDefaultSection,
   getRoleNavigationCandidates,
   getSidebarContent,
+  getNavigationPath,
   RoleContent,
   useRoleNavigationState,
 } from "../navigation";
@@ -30,6 +30,7 @@ import "./navigationV2.css";
 import { getNavigationActionAlerts } from "./navigationActionAlerts";
 import { usePendingPlanDrafts } from "./usePendingPlanDrafts";
 import { OnboardingWorkspace } from "../onboarding";
+import { PersonalWorkspace, WorkspaceScopeContext, WorkspaceSelector, useWorkspaceState, buildWorkspaceNavigation } from '../workspaces';
 
 interface EflowAppShellProps {
   role: string;
@@ -37,14 +38,21 @@ interface EflowAppShellProps {
 
 export function EflowAppShell({ role }: EflowAppShellProps) {
   const { can, user, userProfile } = useAuth();
-  const { tasks, loading: tasksLoading } = useTasksData();
-  const { projects, loading: projectsLoading } = useProjectsData();
-  const { orgs } = useOrgs();
   const userId = user?.id;
-  const planDrafts = usePendingPlanDrafts(userId);
+  const officeId = userProfile?.org_id || userProfile?.departmentId || '';
+  const operational = ['head','member','accounting_staff'].includes(userProfile?.role || role);
+  const workspaceState = useWorkspaceState(userId || '', officeId, operational && userProfile?.is_active !== false);
+  const currentWorkspace = workspaceState.snapshot?.workspace;
+  const personal = currentWorkspace?.kind === 'personal';
+  const officeContext = currentWorkspace?.kind === 'office' && currentWorkspace.office_id !== officeId;
+  const { tasks, loading: tasksLoading } = useTasksData(!personal && !workspaceState.loading);
+  const { projects, loading: projectsLoading } = useProjectsData(!personal && !workspaceState.loading);
+  const officeProjectRevision = projects.map(project=>`${project.id}:${project.status}:${project.title}`).join('|');
+  useEffect(()=>{ if(currentWorkspace?.kind==='office') void workspaceState.refresh(); },[officeProjectRevision]);
+  const { orgs } = useOrgs();
+  const planDrafts = usePendingPlanDrafts(personal ? undefined : userId);
   const [isMobileNavigationOpen, setMobileNavigationOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [projectHost, setProjectHost] = useState<HTMLDivElement | null>(null);
   const desktop = useMediaQuery("(min-width: 1024px)");
   const getInitialPage = useCallback(
     (section: string) => {
@@ -83,7 +91,7 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
     role: userProfile?.role,
     orgId: userProfile?.org_id || userProfile?.departmentId,
   });
-  const navigationItems = useMemo(
+  const roleNavigationItems = useMemo(
     () =>
       buildShellNavigation({
         role,
@@ -101,6 +109,7 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
       actionAlerts.reviews,
     ],
   );
+  const navigationItems = useMemo(() => buildWorkspaceNavigation(roleNavigationItems,personal,Boolean(officeContext)),[roleNavigationItems,personal,officeContext]);
   const workspaceName = useMemo(() => {
     const orgId = userProfile?.org_id || userProfile?.departmentId;
     return (
@@ -111,6 +120,15 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
 
   const handlePageSelect = useCallback(
     async (section: string, page: string, projectId?: string) => {
+      const shortcut = workspaceState.snapshot?.projects.find(project => project.id === projectId && project.shortcut);
+      if (shortcut?.home_workspace_id) {
+        const accepted=await workspaceState.select(shortcut.home_workspace_id,{pathname:'/projects',page:'Projects',project:shortcut.id,view:'tasks'});
+        if(accepted){setMobileNavigationOpen(false);setSearchOpen(false);}return accepted;
+      }
+      if(officeId && (personal && !['dashboard','projects','personal_work','settings'].includes(section) || officeContext && !['dashboard','projects','personal_work','settings'].includes(section))){
+        const accepted=await workspaceState.select(officeId,{pathname:getNavigationPath(section),page});
+        if(accepted){setMobileNavigationOpen(false);setSearchOpen(false);}return accepted;
+      }
       const accepted = await selectPageAsync(
         section,
         page,
@@ -122,7 +140,7 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
       }
       return accepted;
     },
-    [selectPageAsync],
+    [selectPageAsync, workspaceState.snapshot, workspaceState.select,personal,officeContext,officeId],
   );
 
   const tourSections = navigationItems.map((item) => ({
@@ -130,12 +148,6 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
     label: item.label,
     page: getInitialPage(item.id) || item.label,
   }));
-  const onHome = () => {
-    const section = getDefaultSection(role);
-    const item =
-      navigationItems.find((item) => item.id === section) || navigationItems[0];
-    if (item) void handlePageSelect(item.id, item.pages[0].label);
-  };
   const openSearch = () => {
     setMobileNavigationOpen(false);
     setSearchOpen(true);
@@ -150,21 +162,28 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
   };
   const closeNavigation = useCallback(() => setMobileNavigationOpen(false), []);
   const workspaceHost = useMemo(
-    () => ({ projectHost, closeNavigation }),
-    [projectHost, closeNavigation],
+    () => ({ closeNavigation }),
+    [closeNavigation],
   );
   const sidebarProps = {
     activePage,
     activeSection,
     navigationItems,
     onPageSelect: handlePageSelect,
-    workspaceName,
+    workspaceName: currentWorkspace?.name || (workspaceState.error && workspaceState.requested !== officeId ? 'Workspace unavailable' : workspaceName),
     role,
-    onHome,
     onSearch: openSearch,
     onHelp: openHelp,
-    setProjectHost,
+    userId: userId || '',
+    workspaceId: currentWorkspace?.id || workspaceState.requested || officeId || 'unassigned',
+    projects: workspaceState.snapshot?.projects || (workspaceState.unavailable && !new URLSearchParams(window.location.search).has('workspace') ? projects : []),
+    projectsLoading: operational && workspaceState.loading || projectsLoading,
+    workspaceKind: currentWorkspace?.kind,
+    workspaceSelector: operational ? <WorkspaceSelector name={currentWorkspace?.name || (workspaceState.error && workspaceState.requested !== officeId ? 'Workspace unavailable' : workspaceName)} currentId={currentWorkspace?.id} workspaces={workspaceState.workspaces} recent={workspaceState.recent} userId={userId || ''} ownerName={userProfile?.full_name || 'You'} loading={workspaceState.loading} error={workspaceState.error} available={!workspaceState.unavailable} onSelect={async id=>{const accepted=await workspaceState.select(id);if(accepted){setMobileNavigationOpen(false);setSearchOpen(false);}return accepted;}} onCreated={()=>{setMobileNavigationOpen(false);setSearchOpen(false);}} onRefresh={workspaceState.refresh} /> : undefined,
   };
+  const explicitWorkspace = new URLSearchParams(window.location.search).has('workspace');
+  const blockedScope = activeSection!=='personal_work'&&operational && (workspaceState.loading || (!currentWorkspace && (explicitWorkspace || Boolean(workspaceState.error && !workspaceState.unavailable))));
+  const workspaceScope = currentWorkspace ? { workspace: currentWorkspace, userId: userId || '', officeProjectIds: (workspaceState.snapshot?.projects || []).filter(p=>p.kind==='office').map(p=>p.id), projectIds: (workspaceState.snapshot?.projects || []).filter(p=>!p.shortcut).map(p=>p.id), includeCreatedOfficeProject: workspaceState.includeCreatedOfficeProject } : null;
 
   return (
     <TaskDepartmentProvider
@@ -203,20 +222,24 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
                 </div>
               )}
               <main
-                className="eflow-app-shell__workspace"
+                className="eflow-app-shell__workspace eflow-scroll-region"
                 aria-label="Active workspace"
                 id="eflow-active-workspace"
                 tabIndex={-1}
               >
                 <OnboardingWorkspace onNavigate={handlePageSelect} />
-                <RoleContent
+                {blockedScope ? <div className="eflow-workspace" role={workspaceState.error ? 'alert' : 'status'}><p>{workspaceState.error || (workspaceState.loading ? 'Loading workspace…' : 'Create or select a workspace to continue.')}</p><button type="button" onClick={()=>void workspaceState.refresh()}>Retry workspace</button></div>
+                  : personal && !['dashboard','personal_work','settings','inbox','users','permissions','org_tree','audit','administration','migration'].includes(activeSection) ? <PersonalWorkspace key={`${userId}:${currentWorkspace.id}`} workspace={currentWorkspace} projects={workspaceState.snapshot?.projects || []} userId={userId || ''} ownerName={userProfile?.full_name || 'You'} officeId={officeId} section={activeSection} onOpen={id=>void handlePageSelect('projects','Projects',id)} onRefresh={workspaceState.refresh} />
+                  : officeContext && !['dashboard','personal_work','projects','settings'].includes(activeSection) ? <div className="eflow-workspace"><p>Select a project in this shared Office context, or return to your Office to use Office tools.</p><button type="button" onClick={()=>void workspaceState.select(officeId)}>Return to my Office</button></div>
+                  : <WorkspaceScopeContext.Provider value={workspaceScope}><RoleContent
+                  key={`${userId}:${currentWorkspace?.id || officeId || 'unassigned'}`}
                   activePage={activePage}
                   activeSection={activeSection}
                   hasLeadingWork={hasLeadingWork}
                   leadershipLoading={tasksLoading}
                   role={role}
                   onNavigate={handlePageSelect}
-                />
+                /></WorkspaceScopeContext.Provider>}
               </main>
             </div>
             {!desktop && (
@@ -225,7 +248,6 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
                 role={role}
                 activeSection={activeSection}
                 onNavigate={handlePageSelect}
-                onHome={onHome}
                 onMore={() => setMobileNavigationOpen(true)}
               />
             )}
@@ -241,7 +263,6 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
                 <ProductivitySidebar
                   {...sidebarProps}
                   mobile
-                  setProjectHost={!desktop ? setProjectHost : undefined}
                 />
               </div>
             </FeatureDialog>
@@ -249,8 +270,8 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
           {searchOpen && (
             <NavigationSearchDialog
               items={navigationItems}
-              projects={projects}
-              loading={projectsLoading}
+              projects={sidebarProps.projects}
+              loading={sidebarProps.projectsLoading}
               onClose={() => setSearchOpen(false)}
               onSelect={handlePageSelect}
             />

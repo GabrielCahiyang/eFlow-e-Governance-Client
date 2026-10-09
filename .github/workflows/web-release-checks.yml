@@ -3,7 +3,7 @@ on: [push, pull_request, workflow_dispatch]
 jobs:
   web:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 90
     env:
       # Synthetic public client configuration. Tests intercept all backend calls.
       VITE_SUPABASE_URL: https://eflow-fixture.supabase.co
@@ -21,9 +21,21 @@ jobs:
       - run: npm run build
       - run: npm run verify:client-secrets
       - run: npm run safety:check
+      - run: npm run verify:phase1-authority && npm run verify:phase65-identity
+      - run: npm run verify:r3-workspaces && npm run verify:r6-files && npm run verify:r7-hierarchy
+      - run: npm run verify:r8-invitations && npm run verify:r9-access && npm run verify:r9-compatibility
+      - run: npm run verify:r11-activity && npm run verify:r12-settings
+      - run: npm run verify:r13-integrated
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r server/requirements.txt
+      - run: python -m unittest discover -s server/tests
+      - run: npm run release:freeze-refinement
       - name: Production preview
         run: |
-          npx vite preview --host 127.0.0.1 --port 5174 --strictPort > /tmp/eflow-preview.log 2>&1 &
+          CANDIDATE_ID=$(node --input-type=module -e "import fs from 'node:fs'; console.log(JSON.parse(fs.readFileSync('.refinement/candidate.json', 'utf8')).id)")
+          npx vite preview --host 127.0.0.1 --port 5174 --strictPort --outDir ".refinement/artifacts/$CANDIDATE_ID/frontend" > /tmp/eflow-preview.log 2>&1 &
           node --input-type=module <<'JS'
           for (let attempt = 0; attempt < 60; attempt++) {
             try { if ((await fetch('http://127.0.0.1:5174')).ok) process.exit(0); } catch {}
@@ -32,7 +44,7 @@ jobs:
           throw new Error('Production preview did not become ready');
           JS
       - name: Critical three-browser gate
-        run: npm run test:e2e:release
+        run: npm run test:e2e:refinement
         env:
           EFLOW_E2E_BASE_URL: http://127.0.0.1:5174
       - uses: actions/upload-artifact@v4
@@ -42,3 +54,8 @@ jobs:
           path: |
             .phase18/release-report.json
             .phase18/release-results/
+            .refinement/release-report.json
+            .refinement/release-results/
+            .refinement/acceptance.json
+            .refinement/candidate.json
+            .refinement/artifacts/

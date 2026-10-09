@@ -5,6 +5,8 @@ export interface SequencedItem {
 
 export interface ExecutableSequenceItem extends SequencedItem {
   taskId?: string;
+  parentSubtaskId?: string;
+  siblingOrder?: number;
   title: string;
   isCompleted: boolean;
   isStandalone?: boolean;
@@ -20,11 +22,12 @@ export function getSubtaskPrerequisite<T extends ExecutableSequenceItem>(
     .filter((candidate) =>
       candidate.id !== subtask.id
       && (!subtask.taskId || !candidate.taskId || candidate.taskId === subtask.taskId)
+      && (candidate.parentSubtaskId || null) === (subtask.parentSubtaskId || null)
       && !candidate.isStandalone
-      && candidate.position < subtask.position
+      && (candidate.siblingOrder ?? candidate.position) < (subtask.siblingOrder ?? subtask.position)
       && !candidate.isCompleted,
     )
-    .sort((left, right) => left.position - right.position)[0] || null;
+    .sort((left, right) => (left.siblingOrder ?? left.position) - (right.siblingOrder ?? right.position))[0] || null;
 }
 
 export function getSequentialStepNumber<T extends ExecutableSequenceItem>(
@@ -35,7 +38,8 @@ export function getSequentialStepNumber<T extends ExecutableSequenceItem>(
   return siblings.filter((candidate) =>
     (!subtask.taskId || !candidate.taskId || candidate.taskId === subtask.taskId)
     && !candidate.isStandalone
-    && candidate.position <= subtask.position
+    && (candidate.parentSubtaskId || null) === (subtask.parentSubtaskId || null)
+    && (candidate.siblingOrder ?? candidate.position) <= (subtask.siblingOrder ?? subtask.position)
   ).length;
 }
 

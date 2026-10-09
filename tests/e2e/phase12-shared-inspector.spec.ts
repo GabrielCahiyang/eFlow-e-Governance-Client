@@ -15,13 +15,14 @@ test('shared inspector keeps discussion drafts and returns focus to each view or
   const trigger = name==='Board' ? page.locator('.eflow-figma-task-card').filter({hasText:title}).first() : name==='Gantt' ? page.getByRole('button',{name:'Gantt task '+title,exact:true}) : name==='Calendar' ? page.locator('.fc-daygrid-event').filter({hasText:title}).first() : name==='Project Dashboard' ? page.locator('.pv-deadline-list button').filter({hasText:title}).first() : page.locator('.pv-office-row details button').filter({hasText:title});
   await trigger.focus(); await trigger.click();
   const inspector = page.getByRole('dialog',{name:'Task details: '+title}); await expect(inspector).toBeVisible();
-  await expect(inspector.getByRole('tab',{name:'Evidence',exact:true})).toBeVisible();
+  await expect(inspector.getByRole('tab',{name:'Files',exact:true})).toBeVisible();
+  await inspector.getByRole('button',{name:'Details',exact:true}).click();
   await expect(inspector.getByLabel('Task team and subtasks')).toBeVisible();
-  await inspector.getByRole('tab',{name:'Discussion',exact:true}).click();
+  await inspector.getByRole('tab',{name:'Updates',exact:true}).click();
   await inspector.getByRole('textbox',{name:'Task discussion comment'}).fill('Unsaved discussion from '+name);
   await inspector.getByRole('button',{name:'Close task detail'}).click();
   await page.getByRole('button',{name:'Keep editing',exact:true}).click();
-  await expect(inspector.getByRole('textbox')).toHaveValue('Unsaved discussion from '+name);
+  await expect(inspector.getByRole('textbox',{name:'Task discussion comment'})).toHaveValue('Unsaved discussion from '+name);
   await inspector.getByRole('button',{name:'Close task detail'}).click();
   await page.getByRole('button',{name:'Discard',exact:true}).click(); await expect(inspector).not.toBeVisible();
   await expect(trigger).toBeFocused();
@@ -46,8 +47,8 @@ test('mobile observer inspector stays read only and traps and returns focus',asy
  const trigger=page.locator('.eflow-figma-task-card').filter({hasText:title}).first(); await trigger.focus(); await trigger.press('Enter');
  const inspector=page.getByRole('dialog',{name:'Task details: '+title}); await expect(inspector).toBeVisible();
  await expect(inspector.getByText('Read-only oversight record')).toBeVisible();
- await inspector.getByRole('tab',{name:'Discussion',exact:true}).click(); await expect(inspector.getByRole('textbox')).toHaveCount(0);
- await inspector.getByRole('tab',{name:'Evidence',exact:true}).click();
+ await inspector.getByRole('tab',{name:'Updates',exact:true}).click(); await expect(inspector.getByRole('textbox')).toHaveCount(0);
+ await inspector.getByRole('tab',{name:'Files',exact:true}).click();
  await page.screenshot({path:info.outputPath('inspector-mobile.png'),fullPage:true,animations:'disabled'});
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  await page.keyboard.press('Escape'); await expect(inspector).not.toBeVisible(); await expect(trigger).toBeFocused();
@@ -73,20 +74,22 @@ test('shared Task Lead team mutations stay gated by G2 while details remain avai
 test('review drafts stay protected and evidence loading denial has an explicit retry',async({page})=>{
  const records=await projectWorkspaceFixture(page,'head',true);Object.assign(records.tasks[0],{status:'for_review',reviewer_id:records.id});
  await page.reload();await view(page,'Board');await page.locator('.eflow-figma-task-card').filter({hasText:title}).first().click();
- const inspector=page.getByRole('dialog',{name:'Task details: '+title});await inspector.getByRole('tab',{name:'Review',exact:true}).click();
+ const inspector=page.getByRole('dialog',{name:'Task details: '+title});await inspector.getByRole('button',{name:'Review submission',exact:true}).click();
  await inspector.getByRole('button',{name:'Request changes',exact:true}).click();await inspector.getByRole('textbox').fill('Review draft retained');
- await inspector.getByRole('tab',{name:'Evidence',exact:true}).click();await page.getByRole('button',{name:'Keep editing',exact:true}).click();await expect(inspector.getByRole('textbox')).toHaveValue('Review draft retained');
- await inspector.getByRole('tab',{name:'Evidence',exact:true}).click();await page.getByRole('button',{name:'Discard',exact:true}).click();
+ await inspector.getByRole('tab',{name:'Files',exact:true}).click();await page.getByRole('button',{name:'Keep editing',exact:true}).click();await expect(inspector.getByRole('textbox')).toHaveValue('Review draft retained');
+ await inspector.getByRole('tab',{name:'Files',exact:true}).click();await page.getByRole('button',{name:'Discard',exact:true}).click();
  await inspector.getByRole('button',{name:'Close task detail'}).click();
  await page.route('**/rest/v1/task_submissions?**',route=>route.fulfill({status:403,json:{message:'Evidence denied',code:'42501'}}));
- await page.locator('.eflow-figma-task-card').filter({hasText:title}).first().click();await inspector.getByRole('tab',{name:'Evidence',exact:true}).click();
- await expect(inspector.getByRole('alert')).toContainText('Evidence denied');await page.unroute('**/rest/v1/task_submissions?**');await inspector.getByRole('button',{name:'Retry evidence'}).click();await expect(inspector.getByRole('alert')).toHaveCount(0);
+ await page.locator('.eflow-figma-task-card').filter({hasText:title}).first().click();await inspector.getByRole('tab',{name:'Files',exact:true}).click();
+ await expect(inspector.getByRole('alert')).toContainText('Evidence denied');await page.unroute('**/rest/v1/task_submissions?**');await inspector.getByRole('button',{name:'Retry workflow files'}).click();await expect(inspector.getByRole('alert')).toHaveCount(0);
 });
 
 test('removed canonical task closes mutation controls and explains unavailable access',async({page})=>{
  const records=await projectWorkspaceFixture(page,'head',true,{taskChanges:true});await view(page,'Board');await page.locator('.eflow-figma-task-card').filter({hasText:title}).first().click();
  await expect(page.getByRole('dialog',{name:'Task details: '+title})).toBeVisible();records.tasks.splice(0,1);
  records.emitTaskDelete('40000000-0000-4000-8000-000000000001');
+ // R9 protected feeds revalidate on focus rather than retaining task subscriptions.
+ await page.evaluate(() => window.dispatchEvent(new Event('focus')));
  const unavailable=page.getByRole('dialog',{name:'Task unavailable',exact:true});await expect(unavailable).toBeVisible();await expect(unavailable).toContainText('removed or your access changed');
  await expect(page.getByRole('button',{name:'Start work',exact:true})).toHaveCount(0);await unavailable.getByRole('button',{name:'Close task details',exact:true}).click();await expect(unavailable).not.toBeVisible();
 });
@@ -102,7 +105,7 @@ test('mobile team dialog guards drafts and retains a denied member change',async
  test.setTimeout(90000);await page.setViewportSize({width:390,height:844});const records=await projectWorkspaceFixture(page,'head',true);
  records.profiles.push({...records.profile,id:'00000000-0000-4000-8000-000000000088',role:'member',full_name:'Sam Contributor'});
  await page.reload();await view(page,'Board');await page.locator('.eflow-figma-task-card').filter({hasText:title}).first().click();
- const inspector=page.getByRole('dialog',{name:'Task details: '+title});await inspector.getByRole('button',{name:'Manage',exact:true}).click();
+ const inspector=page.getByRole('dialog',{name:'Task details: '+title});await inspector.getByRole('button',{name:'Details',exact:true}).click();await inspector.getByRole('button',{name:'Manage',exact:true}).click();
  const team=page.getByRole('dialog',{name:'Manage members',exact:true});await team.getByRole('button',{name:/Sam Contributor/}).click();
  await team.getByRole('button',{name:'Cancel',exact:true}).click();await page.getByRole('button',{name:'Keep editing',exact:true}).click();await expect(team).toBeVisible();
  await page.route('**/rpc/assign_task_with_details',route=>route.fulfill({status:403,json:{message:'Task team access denied',code:'42501'}}));

@@ -16,6 +16,7 @@ async function signInFixture(page: Page, role: string) {
   await page.route("**/rest/v1/**", async route => {
     const url = new URL(route.request().url());
     const table = url.pathname.split("/").at(-1);
+    if (table?.startsWith("r3_")) return route.fulfill({ status: 404, json: { code: "PGRST202", message: "R3 is not installed in this legacy authority fixture" } });
     const single = route.request().headers().accept?.includes("vnd.pgrst.object");
     let data: unknown = [];
     if (table === "profiles") data = single ? profile : [profile];
@@ -47,9 +48,9 @@ for (const role of ["admin", "head", "member", "accounting_staff"]) {
       for (const section of ["dashboard", "projects", "tasks", "reviews", "team", "accounting_releases"]) {
         await expect(sidebar.locator(`[data-tour-section="${section}"]`)).toHaveCount(0);
       }
-      await expect(page.getByRole("tab", { name: "Backup", exact: true })).toBeVisible();
+      await expect(page.getByRole("tab", { name: "Backup & export", exact: true })).toBeVisible();
       await page.getByRole("banner", { name: "Workspace utilities" }).hover();
-      await page.getByRole("tab", { name: "Roles & Access", exact: true }).click();
+      await page.getByRole("tab", { name: "Roles & permissions", exact: true }).click();
       await expect(page.getByRole("tab", { name: "Role Defaults", exact: true })).toHaveAttribute("aria-selected", "true");
       await expect(page.getByRole("columnheader", { name: "Admin", exact: true })).toHaveCount(2);
       await expect(page.getByRole("columnheader", { name: "Head", exact: true })).toHaveCount(2);
@@ -57,7 +58,7 @@ for (const role of ["admin", "head", "member", "accounting_staff"]) {
       const allowed = page.getByRole("button", { name: "Admin: Allowed", exact: true });
       await expect(allowed).toHaveCount(9);
       for (const button of await allowed.all()) await expect(button).toBeDisabled();
-      await page.getByRole("tab", { name: "People", exact: true }).click();
+      await page.getByRole("tab", { name: "People & onboarding", exact: true }).click();
       await page.getByRole("button", { name: "Create user", exact: true }).click();
       const dialog = page.getByRole("dialog", { name: "Create New User" });
       await expect(dialog.getByRole("option", { name: "Member", exact: true })).toHaveCount(1);
@@ -76,7 +77,8 @@ for (const role of ["admin", "head", "member", "accounting_staff"]) {
         await expect(sidebar.locator('[data-tour-section="accounting_journal"]')).toBeVisible();
       }
       await sidebar.getByRole('button', {name:'Workspaces',exact:true}).click();
-      await expect(page.getByRole("complementary", { name: "Projects context" })).toBeVisible();
+      await expect(page.getByRole("region", { name: "Workspace content" })).toBeVisible();
+      await expect(page.getByRole("button", { name: "Projects and proposals", exact: true })).toBeVisible();
       await expect(page.getByText("Something went wrong", { exact: true })).toHaveCount(0);
     }
     await page.screenshot({ path: testInfo.outputPath(`${role}.png`), fullPage: true });

@@ -17,6 +17,7 @@ import { OnboardingHelpButton } from "../../onboarding";
 import { requestNavigation } from "../../../shared/navigationGuard";
 import { ActionMenu } from "../../../components/ui/workspace";
 import { Button as MenuTriggerButton } from "../../../components/ui/button";
+import { usePresentationBranding } from "../../administration";
 
 interface EflowTopBarProps {
   activePage?: string;
@@ -128,6 +129,7 @@ export function EflowTopBar({
 }: EflowTopBarProps) {
   const { user, userProfile } = useAuth();
   const compactUtilities = useMediaQuery("(max-width: 1199px)");
+  const branding = usePresentationBranding(user?.id);
 
   return (
     <header className="eflow-topbar" aria-label="Workspace utilities">
@@ -145,7 +147,7 @@ export function EflowTopBar({
         <div className="eflow-topbar__brand-lockup" data-tour-id="brand">
           <EFlowMark variant="default" height={36} />
           <div className="eflow-topbar__brand-divider" aria-hidden="true" />
-          <span className="eflow-topbar__brand-org">LGU Ormoc City</span>
+          <span className="eflow-topbar__brand-org" title={`eFlow version ${branding.app_version}`}>{branding.organization_name} · v{branding.app_version}</span>
         </div>
       </div>
 

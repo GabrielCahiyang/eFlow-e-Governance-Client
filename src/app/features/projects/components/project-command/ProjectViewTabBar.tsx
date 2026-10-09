@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { Tab, TabList, TabsContext } from "@vibe/core";
 import { CloseSmall } from "@vibe/icons";
 import { ProjectViewMenus } from "./ProjectViewMenus";
-import { OPTIONAL_VIEWS_CATALOG, PERMANENT_TABS } from "./projectViewCatalog";
+import { OPTIONAL_VIEWS_CATALOG, PERMANENT_TABS, resolveProjectView } from "./projectViewCatalog";
+import { useWorkspaceScope } from '../../../workspaces';
 import type { OptionalProjectView, ProjectCommandTab } from "./types";
 
 export { OPTIONAL_VIEWS_CATALOG, PERMANENT_TABS } from "./projectViewCatalog";
@@ -15,9 +16,9 @@ export interface ProjectViewTabBarProps {
   hasBudgetData?: boolean;
 }
 
-function loadOpenViews(projectId: string): OptionalProjectView[] {
+function loadOpenViews(projectId: string, key: string): OptionalProjectView[] {
   try {
-    const parsed = JSON.parse(localStorage.getItem(`eflow_project_views_${projectId}`) || "[]");
+    const parsed = JSON.parse(localStorage.getItem(key) || localStorage.getItem(`eflow_project_views_${projectId}`) || "[]");
     return Array.isArray(parsed)
       ? [...new Set<OptionalProjectView>(parsed.filter(id => OPTIONAL_VIEWS_CATALOG.some(view => view.id === id)))]
       : [];
@@ -27,12 +28,15 @@ function loadOpenViews(projectId: string): OptionalProjectView[] {
 }
 
 export function ProjectViewTabBar({
-  projectId, activeTab, onSelectTab, hasProposalContext = false, hasBudgetData = false,
+  projectId, activeTab: requestedTab, onSelectTab, hasProposalContext = false, hasBudgetData = false,
 }: ProjectViewTabBarProps) {
-  const [savedViews, setSavedViews] = useState(() => ({ projectId, views: loadOpenViews(projectId) }));
+  const scope = useWorkspaceScope();
+  const key = `eflow_project_views_${projectId}` + (scope ? `:${scope.userId}:${scope.workspace.id}` : '');
+  const activeTab = resolveProjectView(requestedTab) || 'tasks';
+  const [savedViews, setSavedViews] = useState(() => ({ key, views: loadOpenViews(projectId,key) }));
   const tabBarRef = useRef<HTMLDivElement>(null);
   const focusAfterClose = useRef(false);
-  const storedViews = savedViews.projectId === projectId ? savedViews.views : loadOpenViews(projectId);
+  const storedViews = savedViews.key === key ? savedViews.views : loadOpenViews(projectId,key);
   const activeOptional = OPTIONAL_VIEWS_CATALOG.find(view => view.id === activeTab)?.id;
   // Shortcuts and direct URLs must expose the selected view in the same tab bar.
   const openViews = activeOptional && !storedViews.includes(activeOptional)
@@ -41,14 +45,14 @@ export function ProjectViewTabBar({
 
   useEffect(() => {
     const views = viewSignature ? viewSignature.split(",") as OptionalProjectView[] : [];
-    setSavedViews(current => current.projectId === projectId && current.views.join(",") === viewSignature
-      ? current : { projectId, views });
+    setSavedViews(current => current.key === key && current.views.join(",") === viewSignature
+      ? current : { key, views });
     try {
-      localStorage.setItem(`eflow_project_views_${projectId}`, JSON.stringify(views));
+      localStorage.setItem(key, JSON.stringify(views));
     } catch {
       // View preferences remain usable when browser storage is unavailable.
     }
-  }, [projectId, viewSignature]);
+  }, [key, viewSignature]);
 
   useEffect(() => {
     if (focusAfterClose.current) {
@@ -58,7 +62,7 @@ export function ProjectViewTabBar({
   }, [activeTab, viewSignature]);
 
   const closeView = (viewId: OptionalProjectView) => {
-    setSavedViews({ projectId, views: openViews.filter(id => id !== viewId) });
+    setSavedViews({ key, views: openViews.filter(id => id !== viewId) });
     if (activeTab === viewId) {
       focusAfterClose.current = true;
       const index = openViews.indexOf(viewId);
@@ -111,7 +115,7 @@ export function ProjectViewTabBar({
       <ProjectViewMenus openViews={openViews} overflowViews={overflowOptionalViews} onOpenView={viewId => {
         if (OPTIONAL_VIEWS_CATALOG.some(view => view.id === viewId)) {
           const optionalId = viewId as OptionalProjectView;
-          setSavedViews({ projectId, views: openViews.includes(optionalId) ? openViews : [...openViews, optionalId] });
+          setSavedViews({ key, views: openViews.includes(optionalId) ? openViews : [...openViews, optionalId] });
         }
         onSelectTab(viewId);
       }} onCloseView={closeView} hasProposalContext={hasProposalContext} hasBudgetData={hasBudgetData} />

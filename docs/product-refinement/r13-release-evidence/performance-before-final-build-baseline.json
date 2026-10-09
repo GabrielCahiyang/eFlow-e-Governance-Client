@@ -1,0 +1,103 @@
+{
+  "stats": {
+    "startTime": "2026-10-08T16:29:11.332Z",
+    "duration": 39197.795000000006,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "records": [
+    {
+      "stage": "r13-final-baseline",
+      "timingModel": "paint-ready-v2",
+      "size": 100,
+      "browser": "chromium",
+      "samples": [
+        {
+          "run": 0,
+          "readyMs": 939.3618999999999,
+          "filterMs": 116.65279999999984,
+          "restReads": 52,
+          "assetBytes": 3916374,
+          "nodes": 6516,
+          "memory": 68000000
+        },
+        {
+          "run": 1,
+          "readyMs": 955.6708000000008,
+          "filterMs": 126.67640000000029,
+          "restReads": 52,
+          "assetBytes": 4101304,
+          "nodes": 6516,
+          "memory": 68000000
+        },
+        {
+          "run": 2,
+          "readyMs": 791.9146000000001,
+          "filterMs": 134.2482,
+          "restReads": 52,
+          "assetBytes": 3916374,
+          "nodes": 6516,
+          "memory": 68000000
+        }
+      ]
+    },
+    {
+      "stage": "r13-final-baseline",
+      "timingModel": "paint-ready-v2",
+      "size": 1000,
+      "browser": "chromium",
+      "samples": [
+        {
+          "run": 0,
+          "readyMs": 6857.169399999999,
+          "filterMs": 828.9511999999995,
+          "restReads": 52,
+          "assetBytes": 3916374,
+          "nodes": 59616,
+          "memory": 1280000000
+        },
+        {
+          "run": 1,
+          "readyMs": 8112.5062,
+          "filterMs": 836.1569999999992,
+          "restReads": 52,
+          "assetBytes": 3824070,
+          "nodes": 59616,
+          "memory": 1280000000
+        },
+        {
+          "run": 2,
+          "readyMs": 6241.807799999999,
+          "filterMs": 811.2557000000015,
+          "restReads": 52,
+          "assetBytes": 3916374,
+          "nodes": 59616,
+          "memory": 1280000000
+        }
+      ]
+    },
+    {
+      "stage": "r13-final-baseline",
+      "browser": "chromium",
+      "samples": [
+        {
+          "run": 0,
+          "readyMs": 803.7215999999971,
+          "journalReads": 2
+        },
+        {
+          "run": 1,
+          "readyMs": 743.9994999999981,
+          "journalReads": 2
+        },
+        {
+          "run": 2,
+          "readyMs": 749.001599999996,
+          "journalReads": 2
+        }
+      ]
+    }
+  ]
+}

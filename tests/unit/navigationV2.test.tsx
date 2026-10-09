@@ -22,7 +22,7 @@ describe('Phase 9 discovery compatibility', () => {
     const can = () => false;
     expect(buildShellNavigation({role:'head',can,hasLeadingWork:false}).some(item => item.id === 'leading')).toBe(false);
     const leader = buildShellNavigation({role:'member',can,hasLeadingWork:true});
-    expect(leader.map(item => item.id)).toEqual(['personal_work','inbox','leading','reviews']);
+    expect(leader.map(item => item.id)).toEqual(['personal_work','inbox','dashboard','leading','reviews']);
     expect(leader.some(item => ['team','identity'].includes(item.id))).toBe(false);
   });
   it.each(['unknown', 'superadmin', 'employee', 'task_lead'])('does not invent an account navigation for %s', role => {

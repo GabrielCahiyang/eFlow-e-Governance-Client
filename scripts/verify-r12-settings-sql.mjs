@@ -1,0 +1,37 @@
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import {phase65Database} from '../tests/sql/helpers/phase65Database.mjs';
+const id=n=>`00000000-0000-4000-8000-${String(n).padStart(12,'0')}`;
+let db,checks=0;
+const value=async(sql,args=[])=>Object.values((await db.query(sql,args)).rows[0])[0];
+const check=(v,label)=>{assert.ok(v,label);checks++;};
+const deny=async(sql,args=[])=>{await assert.rejects(db.query(sql,args));checks++;};
+const actor=async n=>{await db.exec('reset role');await value("select set_config('request.jwt.claim.sub',$1,false)",[n?id(n):'']);await db.exec('set role authenticated');};
+try {
+ db=await phase65Database();
+ await db.exec(await readFile(new URL('../supabase/migrations/20261008134347_r12_presentation_settings.sql',import.meta.url),'utf8'));
+ await db.exec(`insert into auth.users(id,email,email_confirmed_at) values ${[1,2,3].map(n=>`('${id(n)}','r12${n}@example.test',now())`).join(',')};
+ insert into profiles(id,full_name,email,employee_id,role,is_active) values ${[1,2,3].map(n=>`('${id(n)}','R12 Person ${n}','r12${n}@example.test','R12-${n}','${n===1?'admin':'member'}',${n!==3})`).join(',')};`);
+ const initial={organization_name:null,app_version:null},values={organization_name:'Reviewed City',app_version:'2.1.0'};
+ await db.exec("delete from system_config where key in ('organization_name','app_version')");
+ const save=(request,expected=initial,newValues=values)=>value('select r12_save_presentation_settings($1,$2::jsonb,$3::jsonb)',[request,JSON.stringify(expected),JSON.stringify(newValues)]);
+ await actor(1);
+ assert.deepEqual(await save(id(10)),values);checks++;
+ check(await value("select count(*)=2 from system_config where key in ('organization_name','app_version')"),'Both settings saved');
+ check(await value("select count(*)=1 from audit_events where action='settings.presentation.updated'"),'One audited change');
+ await save(id(10));check(await value("select count(*)=1 from audit_events where action='settings.presentation.updated'"),'Lost-response retry has no duplicate audit');
+ for(const candidate of [{...values,organization_name:''},{...values,organization_name:'x'.repeat(121)},{...values,app_version:'<script>'},{...values,timezone:'UTC'},{...values,organization_name:42}])await deny('select r12_save_presentation_settings($1,$2::jsonb,$3::jsonb)',[id(20),JSON.stringify(values),JSON.stringify(candidate)]);
+ await deny('select r12_save_presentation_settings($1,$2::jsonb,$3::jsonb)',[id(10),JSON.stringify(initial),JSON.stringify({...values,app_version:'3'})]);
+ await deny('select r12_save_presentation_settings($1,$2::jsonb,$3::jsonb)',[id(11),JSON.stringify(initial),JSON.stringify({...values,app_version:'3'})]);
+ check(await value("select value='2.1.0' from system_config where key='app_version'"),'Rejected edits preserve data');
+ await actor(2);await deny('select r12_save_presentation_settings($1,$2::jsonb,$3::jsonb)',[id(30),JSON.stringify(values),JSON.stringify(values)]);
+ await actor(3);await deny('select r12_save_presentation_settings($1,$2::jsonb,$3::jsonb)',[id(31),JSON.stringify(values),JSON.stringify(values)]);
+ await actor(null);await deny('select r12_save_presentation_settings($1,$2::jsonb,$3::jsonb)',[id(32),JSON.stringify(values),JSON.stringify(values)]);
+ await db.exec('reset role');
+ check(!(await value("select has_function_privilege('anon','public.r12_save_presentation_settings(uuid,jsonb,jsonb)','execute')")),'Anonymous execute revoked');
+ check(!(await value("select prosecdef from pg_proc where proname='r12_save_presentation_settings'")),'Settings RPC preserves source RLS');
+ await db.exec(`insert into user_permission_overrides(user_id,permission,allowed) values('${id(2)}','settings.manage',true)`);
+ await actor(2);check((await save(id(40),values,{...values,app_version:'2.2'})).app_version==='2.2','Existing explicitly granted settings capability retained');
+ check(!(await value("select has_permission(auth.uid(),'accounting.release_cash')")),'Settings support grants no financial authority');
+ console.log(`R12 disposable PostgreSQL: ${checks} assertions passed`);
+}finally{await db?.close();}

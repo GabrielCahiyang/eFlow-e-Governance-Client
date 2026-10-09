@@ -1,3 +1,4 @@
+import { openProjectAction, openCompletionRequirements } from './fixtures/projectActions';
 import { test, expect, type Page } from '@playwright/test';
 import { projectWorkspaceFixture } from './fixtures/projectWorkspace';
 const kinds=['structure','dates','budget'];
@@ -18,18 +19,18 @@ async function readinessFixture(page: Page, records: Awaited<ReturnType<typeof p
 test('Head confirms readiness; desktop and mobile retain readable checks and closeout blockers',async({page},info)=>{
  test.setTimeout(120000);await page.setViewportSize({width:1440,height:1000});const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
  const records=await projectWorkspaceFixture(page,'head');const flow=await readinessFixture(page,records);
- await page.getByRole('button',{name:'Readiness & closeout',exact:true}).click();
- const panel=page.getByRole('region',{name:'Project readiness and closeout'});await expect(panel).toBeVisible();
+ await openCompletionRequirements(page);
+ const panel=page.getByRole('region',{name:'Project readiness reviews'});await expect(panel).toBeVisible();
  await expect(panel.getByRole('button',{name:'Activate project',exact:true})).toBeDisabled();
- await expect(panel.getByRole('button',{name:'Close project',exact:true})).toBeDisabled();
- for(const label of ['Project structure reviewed','Project dates confirmed','Budget information reviewed']) {const check=panel.locator('.p7-check').filter({has:page.getByRole('heading',{name:label,exact:true})});await check.getByRole('button',{name:'Confirm review',exact:true}).click();await expect(check.getByRole('button',{name:'Reviewed',exact:true})).toBeVisible();}
+ await expect(page.getByRole('dialog',{name:'Mark project complete',exact:true}).getByRole('button',{name:'Confirm completion',exact:true})).toBeDisabled();
+ for(const label of ['Project structure reviewed','Project dates confirmed','Budget information reviewed']) {const check=panel.locator('li').filter({hasText:label});await check.getByRole('button',{name:'Confirm review',exact:true}).click();await expect(check.getByRole('button',{name:'Reviewed',exact:true})).toBeVisible();}
  await expect(panel.getByRole('button',{name:'Activate project',exact:true})).toBeEnabled();
  await page.screenshot({path:info.outputPath('readiness-desktop.png')});
  await panel.getByRole('button',{name:'Activate project',exact:true}).click();await page.getByRole('alertdialog',{name:'Activate this project?'}).getByRole('button',{name:'Activate project',exact:true}).click();await expect.poll(()=>flow.activated).toBe(1);expect(flow.closed).toBe(0);
  await expect(panel.getByRole('status').filter({hasText:'Project activated.'})).toContainText('activated');
  await page.setViewportSize({width:390,height:844});await expect(panel).toBeVisible();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
- await expect.poll(async()=>panel.locator('.p7-check').evaluateAll(rows=>rows.every(row=>{const bounds=row.getBoundingClientRect();return bounds.width>=280&&bounds.height>=100;}))).toBe(true);
+ await expect.poll(async()=>panel.locator('li').evaluateAll(rows=>rows.every(row=>{const bounds=row.getBoundingClientRect();return bounds.width>200&&bounds.height>50;}))).toBe(true);
  await panel.scrollIntoViewIfNeeded();await page.screenshot({path:info.outputPath('readiness-mobile.png')});expect(errors).toEqual([]);
 });
 test('Staffing is advisory until Head confirmation; roomy dialog supports keyboard selection and mobile footer',async({page},info)=>{
@@ -58,6 +59,6 @@ test('Staffing is advisory until Head confirmation; roomy dialog supports keyboa
 });
 test('Member reads readiness without Head review, activation or staffing controls',async({page})=>{
  const records=await projectWorkspaceFixture(page,'member');await readinessFixture(page,records);
- await page.getByRole('button',{name:'Readiness & closeout',exact:true}).click();const panel=page.getByRole('region',{name:'Project readiness and closeout'});await expect(panel).toBeVisible();
+ await openProjectAction(page,'Project settings');await page.getByText('Plan reviews',{exact:true}).click();const panel=page.getByRole('region',{name:'Project readiness reviews'});await expect(panel).toBeVisible();
  await expect(panel.getByRole('button',{name:'Confirm review'})).toHaveCount(0);await expect(panel.getByRole('button',{name:'Activate project'})).toHaveCount(0);await expect(panel.getByRole('button',{name:'Close project'})).toHaveCount(0);
 });

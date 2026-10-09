@@ -3,11 +3,11 @@ import { Button, Dialog, DialogContentContainer, IconButton, Menu, MenuItem } fr
 import { Add, Archive, Check, Delete, MoreActions, Work } from "@vibe/icons";
 import * as m from "motion/react-m";
 import { motionTransition } from "../../../shared/motion";
-import { tasksForProject } from "../../tasks";
-import type { Project, ProjectMember } from "../services/types";
+import type { Project } from "../services/types";
 import { Star } from 'lucide-react';
 import { ActionMenu } from '../../../components/ui/workspace';
 import { useNavigationFavorites, useNavigationDisclosure } from '../../../shared/navigationPreferences';
+import { useProjectCompletionAvailability } from '../hooks/useProjectCompletionAvailability';
 
 /**
  * The project context keeps project switching and the people responsible for
@@ -30,14 +30,7 @@ export function ProjectContextSidebar({
   onCompleteProject,
   onRestoreProject,
   onDeleteProject,
-  profiles,
   projects,
-  summaries,
-  tasks,
-  projectMembers,
-  planningCounts,
-  planningView,
-  onOpenPlanning,
   departmentFilter,
 }: {
   activeProjectId?: string;
@@ -55,14 +48,7 @@ export function ProjectContextSidebar({
   onArchiveProject?: (projectId: string, projectTitle: string) => void;
   onRestoreProject?: (projectId: string, projectTitle: string) => void;
   onDeleteProject?: (projectId: string, projectTitle: string) => void;
-  profiles: any[];
   projects: Project[];
-  summaries: Map<string, any>;
-  tasks: any[];
-  projectMembers: ProjectMember[];
-  planningCounts: { workplans: number; signoff: number; actionable: number };
-  planningView: "portfolio" | "drafts" | "signoff";
-  onOpenPlanning: (view: "drafts" | "signoff") => void;
   departmentFilter?: {
     value: string;
     options: { value: string; label: string }[];
@@ -70,26 +56,12 @@ export function ProjectContextSidebar({
   };
 }) {
   const [contextMenuProjectId, setContextMenuProjectId] = React.useState<string | null>(null);
+  const completion = useProjectCompletionAvailability(projects.find(project=>project.id===contextMenuProjectId),canComplete,`${userId}:${contextId}`);
   const [mobileDetailsOpen, setMobileDetailsOpen] = React.useState(false);
   const { favorites, toggle } = useNavigationFavorites(userId, contextId, projects.map(project => project.id));
   const disclosure = useNavigationDisclosure(userId, contextId);
   const contextProjects = projects.filter((project) => project.status !== "archived");
   const archivedProjects = projects.filter((project) => project.status === "archived");
-  const selectedProject = projects.find((project) => project.id === activeProjectId);
-  const selectedTasks = selectedProject ? tasksForProject(tasks, selectedProject.id) : [];
-  const selectedSummary = selectedProject ? summaries.get(selectedProject.id) : undefined;
-  const contributorIds = new Set(
-    selectedProject
-      ? [
-          ...projectMembers.map((member) => member.userId),
-          selectedProject.ownerId,
-          ...(selectedSummary?.leadIds || []),
-          ...selectedTasks.flatMap((task: any) => [task.assigneeId, ...(task.teamMemberIds || [])]),
-        ]
-      : contextProjects.flatMap((project) => [project.ownerId, ...(summaries.get(project.id)?.leadIds || [])]),
-  );
-  const members = profiles.filter((profile) => contributorIds.has(profile.id));
-
   const renderProjects = (items: Project[]) => items.map((project) => (
             <m.div
               layout="position"
@@ -122,9 +94,11 @@ export function ProjectContextSidebar({
                   aria-label={`${project.title} actions`}
                   content={(
                     <DialogContentContainer>
+                      {canComplete && !['completed','archived'].includes(project.status) && !completion.enabled && <p role="status" className="eflow-project-completion-reason">{completion.reason}</p>}
                       <Menu id={`project-context-menu-${project.id}`}>
+                        {canComplete && !["completed", "archived"].includes(project.status) && <MenuItem title="View completion requirements" onClick={()=>{setContextMenuProjectId(null);onCompleteProject?.(project.id,project.title);}} />}
                         {canComplete && !["completed", "archived"].includes(project.status) && (
-                          <MenuItem title="Mark project complete" icon={Check} onClick={() => { setContextMenuProjectId(null); onCompleteProject?.(project.id, project.title); }} />
+                          <MenuItem title="Mark project complete" disabled={!completion.enabled} disableReason={completion.reason} icon={Check} onClick={() => { if(completion.enabled){setContextMenuProjectId(null); onCompleteProject?.(project.id, project.title);} }} />
                         )}
                         {canArchive && (project.status === "archived" ? (
                           <MenuItem
@@ -187,7 +161,7 @@ export function ProjectContextSidebar({
 
   return (
     <aside className={`eflow-project-context ${mobileDetailsOpen ? 'eflow-project-context--details-open' : ''}`} aria-label="Projects context">
-      <button type="button" className="pt-context-details-toggle" aria-expanded={mobileDetailsOpen} onClick={()=>setMobileDetailsOpen(!mobileDetailsOpen)}>{mobileDetailsOpen ? 'Hide planning and people' : 'Show planning and people'}</button>
+      <button type="button" className="pt-context-details-toggle" aria-expanded={mobileDetailsOpen} onClick={()=>setMobileDetailsOpen(!mobileDetailsOpen)}>{mobileDetailsOpen ? 'Hide project context' : 'Show project context'}</button>
       <details className="eflow-project-context__favorites" open={disclosure.isOpen('favorites')} onToggle={event => disclosure.setOpen('favorites', event.currentTarget.open)}><summary>Favorites <small>On this device</small></summary><div className="eflow-project-context__list">{favorites.size ? renderProjects(projects.filter(project => favorites.has(project.id))) : <p className="eflow-project-context__empty">Star a project for quick access.</p>}</div></details>
       <details className="eflow-project-context__section" open={disclosure.isOpen('projects')} onToggle={event => disclosure.setOpen('projects', event.currentTarget.open)}><summary>Projects</summary>
         <button
@@ -226,60 +200,6 @@ export function ProjectContextSidebar({
         )}
       </details>
 
-      <details className="eflow-project-context__planning" open={disclosure.isOpen('planning')} onToggle={event => disclosure.setOpen('planning', event.currentTarget.open)}>
-        <summary>Planning</summary>
-        <m.button
-          className={planningView === "drafts" ? "eflow-project-context__planning-item--active" : ""}
-          type="button"
-          onClick={() => onOpenPlanning("drafts")}
-          whileTap={{ scale: 0.98 }}
-        >
-          {planningView === "drafts" && (
-            <m.span
-              aria-hidden="true"
-              className="eflow-project-context__planning-active-surface"
-              layoutId="eflow-project-context-active-planning"
-              transition={motionTransition.navigation}
-            />
-          )}
-          <span>Drafts</span>
-          {planningCounts.actionable > 0 && <span className="relative inline-flex h-2 w-2" title="Drafts need your action"><span className="absolute inset-0 animate-ping rounded-full bg-amber-400 opacity-70 motion-reduce:animate-none" /><span className="relative h-2 w-2 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.75)]" /></span>}
-          <strong>{planningCounts.workplans}</strong>
-        </m.button>
-        <m.button
-          className={planningView === "signoff" ? "eflow-project-context__planning-item--active" : ""}
-          type="button"
-          onClick={() => onOpenPlanning("signoff")}
-          whileTap={{ scale: 0.98 }}
-        >
-          {planningView === "signoff" && (
-            <m.span
-              aria-hidden="true"
-              className="eflow-project-context__planning-active-surface"
-              layoutId="eflow-project-context-active-planning"
-              transition={motionTransition.navigation}
-            />
-          )}
-          <span>Waiting for approval</span>
-          {planningCounts.signoff > 0 && <span className="relative inline-flex h-2 w-2" title="Work plans awaiting approval"><span className="absolute inset-0 animate-ping rounded-full bg-amber-400 opacity-70 motion-reduce:animate-none" /><span className="relative h-2 w-2 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.75)]" /></span>}
-          <strong>{planningCounts.signoff}</strong>
-        </m.button>
-      </details>
-
-      <details className="eflow-project-context__members" open={disclosure.isOpen('people')} onToggle={event => disclosure.setOpen('people', event.currentTarget.open)}>
-        <summary>Team Members</summary>
-        {members.length ? members.map((member) => (
-          <div className="eflow-project-context__member" key={member.id}>
-            <span className="eflow-project-context__avatar" aria-hidden="true">
-              {(member.full_name || member.fullName || member.email || "?").split(/\s+/).map((name: string) => name[0]).join("").slice(0, 2).toUpperCase()}
-            </span>
-            <span className="eflow-project-context__member-copy">
-              <strong>{member.full_name || member.fullName || member.email}</strong>
-            <small>{selectedProject && projectMembers.find((projectMember) => projectMember.userId === member.id)?.role || (contextProjects.some((project) => project.ownerId === member.id) ? "Project owner" : contextProjects.some((project) => (summaries.get(project.id)?.leadIds || []).includes(member.id)) ? "Delivery lead" : "Project contributor")}</small>
-            </span>
-          </div>
-        )) : <p className="eflow-project-context__empty">Project members will appear here.</p>}
-      </details>
     </aside>
   );
 }

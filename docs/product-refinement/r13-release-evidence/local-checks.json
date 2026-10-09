@@ -1,0 +1,51 @@
+{
+  "candidate": "619ee6b73bd779c5410827e9a53ad350d3906f516ac558bd8889baca01337911",
+  "recordedAt": "2026-10-08T22:47:09.079Z",
+  "checks": [
+    {
+      "name": "TypeScript",
+      "status": "passed",
+      "rawReceiptSha256": "659606cc1e46300d84aa709445df90c5152e824c89833ed71e658e03d3a53309"
+    },
+    {
+      "name": "Frontend unit suite",
+      "status": "passed",
+      "files": 238,
+      "tests": 974,
+      "rawReceiptSha256": "9e825568bdab8b775e5ae377c941bb7e4804515bfeb400eb427aa14afd695f77"
+    },
+    {
+      "name": "Production build",
+      "status": "passed",
+      "seconds": 17.07,
+      "rawReceiptSha256": "d1fb389213076ba7629c326f504f6f7760f7198d53ad21cab6567c4d6333c221"
+    },
+    {
+      "name": "Gateway unittest suite",
+      "status": "passed",
+      "tests": 70,
+      "rawReceiptSha256": "495b24664a62c6ed3d389a6d16f2bf111a60ffc4f1a5950f0968df188ef17fb1"
+    },
+    {
+      "name": "Ten PostgreSQL regression runners",
+      "status": "passed",
+      "assertionsIncludingOverlap": 674,
+      "rawReceiptSha256": "29005d4e8862be287ee935bcb8eb0856312c47c20dda65562c5deb15c3d4bf71"
+    },
+    {
+      "name": "Cumulative R3-R12 repository baseline",
+      "status": "passed",
+      "assertions": 86,
+      "rawReceiptSha256": "e0987013f39f957ea85fe1ab53cebe8c2ae805623e028d29d865af70f47a4d37"
+    },
+    {
+      "name": "Cumulative R3-R12 live-definition replay",
+      "status": "passed",
+      "assertions": 86,
+      "rawReceiptSha256": "e0987013f39f957ea85fe1ab53cebe8c2ae805623e028d29d865af70f47a4d37"
+    }
+  ],
+  "sqlScope": "Disposable PostgreSQL, synthetic authenticated actors; migration-definition replay is not a full current live clone, JWT/network Storage or independent concurrency proof.",
+  "deployed": false,
+  "inputChange": "Latest source change is solely the R10 end-to-end heading locator. Application/unit/gateway/SQL inputs remain unchanged; TypeScript and build rerun."
+}

@@ -10,22 +10,25 @@ async function personal(page:Page,destination:'My Work'|'Inbox') {
  await expect(page.getByRole('heading',{name:destination,exact:true,level:1})).toBeVisible();
 }
 for(const role of ['head','member','accounting_staff'] as const) test(`${role} discovers personal work and keeps legacy task and subtask URLs`,async({page},info)=>{
- const records=await projectWorkspaceFixture(page,role,false,{landingOnly:true});
+ test.setTimeout(90000);const records=await projectWorkspaceFixture(page,role,false,{landingOnly:true});Object.assign(records.subtasks[0],{assigned_to_ids:[records.id]});
  await personal(page,'My Work');
+ await page.getByRole('button',{name:'Refresh work',exact:true}).click();
  await expect(page.locator('[data-personal-task]')).toHaveCount(2);
- await page.getByRole('button',{name:'Leading',exact:true}).click();await expect(page.locator('[data-personal-task]')).toHaveCount(2);
- await page.getByRole('button',{name:'Recently completed',exact:true}).click();await expect(page.locator('[data-personal-task]')).toHaveCount(1);
- await page.getByRole('button',{name:'All my work',exact:true}).click();await page.getByRole('searchbox',{name:'Search personal work'}).fill('briefing');await expect(page.locator('[data-personal-task]')).toHaveCount(1);
+ const destinations=page.getByRole('navigation',{name:'My Work destinations'});
+ await destinations.getByRole('button',{name:'Leading',exact:true}).click();await expect(page.locator('[data-personal-task]')).toHaveCount(2);
+ await destinations.getByRole('button',{name:'History',exact:true}).click();await page.getByRole('checkbox',{name:/Recently completed/}).check();await expect(page.locator('[data-personal-task]')).toHaveCount(1);
+ await destinations.getByRole('button',{name:'Assigned work',exact:true}).click();await page.getByRole('button',{name:'All my work',exact:true}).click();await page.getByRole('searchbox',{name:'Search personal work'}).fill('briefing');await expect(page.locator('[data-personal-task]')).toHaveCount(1);
  await page.getByRole('button',{name:'Clear search',exact:true}).click();
  await page.screenshot({path:info.outputPath(`${role}-my-work.png`),fullPage:true,animations:'disabled'});
- await page.getByRole('button',{name:'My subtasks',exact:true}).click();await expect.poll(()=>new URL(page.url()).pathname).toBe('/subtasks');
+ await destinations.getByRole('button',{name:'Subtasks',exact:true}).click();await expect(page.locator('[data-work-key^="office-node:"]')).toHaveCount(1);
+ await page.goto('/subtasks');await expect.poll(()=>new URL(page.url()).pathname).toBe('/subtasks');
  await page.goto(role==='head'?'/tasks?page=Task%20Board':'/tasks?page=My%20Tasks');await expect(page.getByRole('heading',{name:role==='head'?'Board':'My Tasks',exact:true})).toBeVisible();
  expect(records.tasks).toHaveLength(3);
 });
 test('mobile personal inspector retains dirty discussion and returns focus',async({page},info)=>{
  await projectWorkspaceFixture(page,'member',false,{landingOnly:true});await page.setViewportSize({width:390,height:844});await personal(page,'My Work');
- const origin=page.locator('[data-personal-task]').filter({hasText:title});await origin.click();const inspector=page.getByRole('dialog',{name:'Task details: '+title});await inspector.getByRole('tab',{name:'Discussion',exact:true}).click();
- await inspector.getByRole('textbox',{name:'Task discussion comment'}).fill('Personal work draft');await page.keyboard.press('Escape');await page.getByRole('button',{name:'Keep editing',exact:true}).click();await expect(inspector.getByRole('textbox')).toHaveValue('Personal work draft');
+ const origin=page.locator('[data-personal-task]').filter({hasText:title});await origin.click();const inspector=page.getByRole('dialog',{name:'Task details: '+title});await inspector.getByRole('tab',{name:'Updates',exact:true}).click();
+ await inspector.getByRole('textbox',{name:'Task discussion comment'}).fill('Personal work draft');await page.keyboard.press('Escape');await page.getByRole('button',{name:'Keep editing',exact:true}).click();await expect(inspector.getByRole('textbox',{name:'Task discussion comment'})).toHaveValue('Personal work draft');
  await page.screenshot({path:info.outputPath('personal-inspector-mobile.png'),fullPage:true,animations:'disabled'});
  await page.keyboard.press('Escape');await page.getByRole('button',{name:'Discard',exact:true}).click();await expect(origin).toBeFocused();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });
@@ -33,14 +36,14 @@ test('My Work read failure is retryable and never a clear queue',async({page})=>
  await projectWorkspaceFixture(page,'member',false,{landingOnly:true});await personal(page,'My Work');let denied=true;
  await page.route('**/rest/v1/tasks?**',route=>denied?route.fulfill({status:403,json:{message:'Personal read interrupted'}}):route.fallback());
  await page.getByRole('button',{name:'Refresh work',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Personal read interrupted');await expect(page.locator('[data-personal-task]')).toHaveCount(0);
- denied=false;await page.getByRole('button',{name:'Retry',exact:true}).click();await expect(page.locator('[data-personal-task]')).toHaveCount(2);
+ denied=false;await page.getByRole('button',{name:'Retry work sources',exact:true}).click();await expect(page.locator('[data-personal-task]')).toHaveCount(2);
 });
 test('Inbox keeps independent task and subtask discovery and exposes partial source denial',async({page},info)=>{
  const records=await projectWorkspaceFixture(page,'head',false,{landingOnly:true});Object.assign(records.tasks[0],{status:'for_review',reviewer_id:records.id,assigned_to:'00000000-0000-4000-8000-000000000099'});
  let denied=true;await page.route('**/rest/v1/subtask_submissions?**',route=>denied?route.fulfill({status:403,json:{message:'Subtask feed denied'}}):route.fulfill({json:[]}));
  await personal(page,'Inbox');await page.getByRole('button',{name:'Refresh actions',exact:true}).click();await expect(page.locator('[data-action-key]')).toHaveCount(1);await expect(page.getByRole('alert')).toContainText('Subtask feed denied');
  await page.screenshot({path:info.outputPath('inbox-partial-error.png'),fullPage:true,animations:'disabled'});
- await page.locator('[data-action-key]').click();const inspector=page.getByRole('dialog',{name:'Task details: '+title});await expect(inspector.getByRole('tab',{name:'Review',exact:true})).toBeVisible();await page.keyboard.press('Escape');
+ await page.locator('[data-action-key]').click();const inspector=page.getByRole('dialog',{name:'Task details: '+title});await expect(inspector.getByRole('button',{name:'Review submission',exact:true})).toBeVisible();await page.keyboard.press('Escape');
  denied=false;await page.getByRole('button',{name:'Retry',exact:true}).click();await expect(page.getByRole('alert')).toHaveCount(0);
  await expect(page.getByRole('button',{name:/^Approve/,exact:false})).toHaveCount(0);
 });

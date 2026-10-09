@@ -1,0 +1,24 @@
+{
+  "candidate": "f710d7251eeee200e500f35eee46f6cd91efb9bb22c211eb440b21a1d2ac2a19",
+  "completed": true,
+  "workers": 2,
+  "stats": {
+    "startTime": "2026-10-08T17:29:47.918Z",
+    "duration": 2339381.914,
+    "expected": 563,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  },
+  "rawReportSha256": "00d6211ebc869a8244cdffa8f3a52b03df5bcdbf265e7e82ddaeae76b936542c",
+  "failures": [
+    {
+      "file": "workspace-refinement-r10.spec.ts",
+      "title": "R10 Admin Home keeps the administrative landing and acquires no operational work",
+      "browser": "webkit",
+      "retry": 0,
+      "error": "Error: expect.toBeVisible: Error: strict mode violation: getByRole('heading', { name: 'User Management', exact: true }) resolved to 2 elements:\n    1) <h3>User Management</h3> aka getByLabel('Workspace destinations').getByRole('heading', { name: 'User Management' })\n    2) <h1 class=\"text-[22px] font-semibold tracking-tight text-neutral-950\">User Management</h1> aka getByLabel('Active workspace').getByRole('heading', { name: 'User Management' })\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'User Management', exact: true })\n"
+    }
+  ],
+  "scope": "Complete pre-locator-fix diagnostic. All five Firefox long-view sweeps passed. WebKit Admin page heading was ambiguous with a sidebar h3; corrected locator requires h1. A fresh complete gate on the new candidate remains necessary."
+}

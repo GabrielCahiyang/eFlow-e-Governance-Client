@@ -85,7 +85,7 @@ test("typed deletion at 320px cancels without a write then sends exactly one con
     .getByRole("button", { name: "Delete task", exact: true })
     .click();
   await expect(
-    page.getByText(`Task “${title}” deleted.`, { exact: true }),
+    page.getByRole('status').filter({ hasText: `Task “${title}” deleted.` }),
   ).toBeVisible();
   expect(deletes).toBe(1);
 });

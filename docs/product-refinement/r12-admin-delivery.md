@@ -1,0 +1,38 @@
+# R12 local delivery - Admin Center and effective configuration
+
+Implemented and verified locally 8 October 2026. Admin Center now has nine categories with shared responsive navigation: People/onboarding, Offices/leadership, Roles/permissions, Workspaces/project access policy, Application settings, Email/integrations, Runtime/AI health, Audit and Backup/export. Existing page IDs, role filtering, account inspection/editing, grant pages, dirty guards, Office appointment workflows and backup safeguards remain. [The configuration contract](r12-configuration-contract.md) records feature ownership, all 13 inventory entries and their actual consumers.
+
+Organization name and version now affect the workspace utility bar. The settings screen reads only those two keys and saves through an additive validated RPC with existing capability/RLS checks, atomic updates/audit, expected-value conflict detection and stable-request retry verification. Pending/failed/uncertain saves, read retry, explicit missing installation and dirty navigation are visible. Confirmed saves refresh branding immediately; other sessions refresh on focus or within 60 seconds. No global timezone/session behavior is invented: those legacy values are explicitly dormant/read-only, and workspace calendars/Auth retain their existing authorities.
+
+Email diagnostics use a new authenticated Admin-only gateway GET endpoint. The screen distinguishes application invitations through Resend, notification SMTP, Supabase Auth SMTP and app redirects. It exposes only safe configuration facts, sender domain, app origin, bounded invitation TTL and operator hints. Provider verification remains unknown. No email, provider probe, token, full mailbox address, environment dump or secret editor is included. Runtime health reuses existing advisory status and shows a safe endpoint origin with operator ownership.
+
+Global Account Audit remains a bounded latest-500 view. Exact permitted count, truncation and local-filter scope are explicit. Failed/count-inconsistent reads clear stale rows and report unavailable rather than claiming empty/complete history. Initial, realtime and manual refreshes share request ordering, preventing older responses from replacing current results. Existing detail secret redaction remains; R11 complete project Activity is separate.
+
+## Verification
+
+- `npm run check` and `npm run build` passed. Existing static/dynamic import and shared-chunk size warnings remain. R13 / historical Phase 18 performance and full release acceptance stay open.
+- Full frontend suite: **234 files / 970 tests passed**. Twelve new R12 tests cover category/URL/permission contracts, allowlisted settings reads, validation, real branding effects and actor changes, read-only/dirty forms, known conflict recovery, uncertain stable-payload retries, checked empty/count/truncation/failure and out-of-order audit refreshes. Existing account, Office authority and financial regressions remain in the full suite.
+- Full gateway suite: **70 tests passed**, including six new R12 tests for missing configuration, redaction, rehearsal sender, rejected credential/query/fragment/remote-HTTP redirects, localhost/TTL and actual FastAPI Admin dependency allow/deny. Anonymous/Head/Member/Accounting denials and existing account/backup tests pass.
+- Disposable authenticated PostgreSQL: **19 assertions passed** with `npm run verify:r12-settings`. Both values and one audit event save atomically; identical retry creates no duplicate event; altered retry, invalid/extra/numeric fields and stale expected values are rejected without modifying confirmed data. Anonymous, inactive and ungranted actors are denied; an existing explicit settings grant works without granting Accounting authority. Function invocation privileges and security-invoker behavior are checked. No hosted database was contacted or changed. Independent live concurrency remains a hosted gate.
+- Production-build Chromium: **23 distinct cases passed** across five R12, seven R11 and eleven Phase 16 support/report/finance/backup cases. R12 covers 390/1440 px categories, matrix, dormant session controls, separate health channels, deep-link refresh/Back, health failure, dark mobile layout, dirty keep/discard, actual branding, unknown-result verification, read retry, conflict correction, missing RPC, 500-of-801 coverage and genuine separate synthetic Member-session UI denial.
+- The broader browser batch passed 22 cases; its remaining fixture incorrectly attempted another login in an already authenticated page. The corrected case uses an independent Member browser context and passed a focused retest against the same application build. Earlier fixture count-header and backup-message expectations were corrected; no runtime permission adjustment was required.
+- Desktop/mobile/dark health, saved branding and bounded audit screenshots were visually inspected. No page-wide overflow appeared at the tested widths; wide inventories/tables scroll locally. Broader keyboard, assistive-technology, browser and responsive acceptance remains R13 work.
+- Graphify refreshed locally: **8,367 nodes / 26,563 final reclustered edges**. The four known parser warnings remain for guided-tours/productivity/work-templates public indexes and ProjectTaskRow; no forced graph shrink or hosted introspection.
+- `git diff --check`, `npm run verify:client-secrets` and local document-link verification passed. Prior phase changes remain intact. The task's temporary local preview is stopped at handoff.
+
+## Deployment gate and rollback
+
+R12 is delivered for the local application and server-contract scope. The additive [presentation settings migration](../../supabase/migrations/20261008134347_r12_presentation_settings.sql) is prepared and **not applied**. The new gateway endpoint is implemented locally and **not deployed**. The UI explicitly handles missing migration/gateway configuration. Full hosted setting/audit/RLS/session, concurrent-save, provider, non-test email and mailbox acceptance remain open in the [acceptance checklist](acceptance-test-checklist.md). No invitation was sent or provider configuration changed.
+
+The sole future hosted target remains `ixnfphgjyelhckjwjkdv`. Follow the dated Phase 6.5 live addendum, preserve deployed migration timestamps and use an isolated migration workspace populated from live history. Do not push the historical repository migration folder or repair live history to local filenames. R3/R6/R7/R8/R9/R11 installation gates, R8 verified-domain/non-test mailbox gates and historical acceptance evidence remain unchanged.
+
+Rollback the presentation and gateway diagnostic entry points deliberately. Stop R12 write callers before dropping only the additive R12 RPC after review; preserve existing configuration values, audit receipts, roles, operational/financial data and historical timestamps. If restoring branding values, make an explicitly authorized, audited change through the installed contract rather than deleting configuration/history. Generic legacy configuration APIs remain compatible; they do not acquire the new RPC's validation or serialization merely because it exists.
+
+**R13 is the next phase:** integrated regression, genuine hosted acceptance and controlled rollout. It is not implemented by this receipt.
+
+## Evidence
+
+- [Desktop delivery diagnostics](r12-admin-evidence/r12-health-1440.png)
+- [Mobile dark delivery diagnostics](r12-admin-evidence/r12-health-390.png)
+- [Confirmed save and actual utility-bar branding](r12-admin-evidence/r12-settings-saved.png)
+- [Explicit 500-of-801 audit window](r12-admin-evidence/r12-audit-window.png)

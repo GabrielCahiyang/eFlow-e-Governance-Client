@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from "react";
 import { hasDirtyNavigation, requestNavigation } from '../../../../shared/navigationGuard';
-import { NAVIGATION_LOCATION_EVENT, pushNavigationHistory } from '../../../../shared/navigationHistory';
+import { NAVIGATION_LOCATION_EVENT, pushNavigationHistory, replaceNavigationHistory } from '../../../../shared/navigationHistory';
 import { Skeleton } from "@vibe/core";
 import type { Organization } from "../../../../types";
 import { useProfiles } from "../../../../hooks/useSupabaseData";
@@ -16,13 +16,11 @@ import { ProjectOverviewTab } from "./ProjectOverviewTab";
 import { ProjectWorkTab } from "./ProjectWorkTab";
 import { ProjectTimelineView } from "./ProjectTimelineView";
 import { ProjectCalendarView } from "./ProjectCalendarView";
-import { ProjectTeamTab } from "./ProjectTeamTab";
 import { ProjectReportsTab } from "./ProjectReportsTab";
 import { ProjectReviewsTab } from "./ProjectReviewsTab";
 import { ProjectActivityTab } from "./ProjectActivityTab";
 import { ProjectDashboardTab } from "./ProjectDashboardTab";
 import { ProjectProposalContextTab } from "./ProjectProposalContextTab";
-import { ProjectGovernanceTab } from "./ProjectGovernanceTab";
 import { ProjectBudgetTab } from "./ProjectBudgetTab";
 import { ProjectViewTabBar } from "./ProjectViewTabBar";
 import { resolveProjectView } from "./projectViewCatalog";
@@ -33,8 +31,8 @@ import { updateProject } from '../../services/projectMutationService';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { ProjectViewFilters, ProjectGanttView, ProjectOfficesView, ProjectInsightsView, useProjectViewPreferences, filterProjectViewTasks } from '../../../project-views';
 import { scopeProjectViewData } from '../../selectors/projectViewContext';
+import { ProjectMembers } from '../../../project-members';
 import { ProjectOfficeContext, ProjectOfficePanel, useProjectOffices, canStaffProjectOffice } from '../../../project-offices';
-import { ProjectReadinessPanel, ProjectReadinessSummary, ProjectReadinessSummaryProvider } from '../../../project-readiness';
 
 export interface ProjectCommandWorkspaceProps {
   project: Project;
@@ -72,17 +70,17 @@ export function ProjectCommandWorkspace({
   lifecycleActions = {}, favoriteContextId = "unassigned", authorizedProjectIds = [],
 }: ProjectCommandWorkspaceProps) {
   const { tasks } = useTasks();
-  const { profiles } = useProfiles();
+  const { profiles, loading: profilesLoading } = useProfiles();
   const { userProfile } = useAuth();
   const officeState = useProjectOffices(project.id);
   const canManage = requestedManage && (project.sourceCollaborationDraftId ? true : userProfile?.role === 'head' && userProfile.org_id === project.orgId);
   const shared = officeState.offices.some(o => o.relationship_type !== 'lead');
   const ownOffice = officeState.offices.find(o => o.office_id === userProfile?.org_id);
   const ownWorkAccess = !officeState.error && (!shared || ownOffice?.invitation_status === 'joined' && ownOffice.relationship_type !== 'observer' && (ownOffice.relationship_type === 'lead' || canStaffProjectOffice(ownOffice, userProfile, orgs) || officeState.members.some(m => m.project_office_id === ownOffice.id && m.user_id === userProfile?.id)));
-  const [tab, setTabState] = useState<ProjectCommandTab>(() => resolveProjectView(typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("view") : null) || initialTool || initialTab);
+  const [tab, setTabState] = useState<ProjectCommandTab>(() => resolveProjectView(typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("view") : null) || resolveProjectView(initialTool || initialTab) || 'tasks');
   const inspector = useTaskInspector(project.id + ':' + (userProfile?.id || ''));
   const openTaskId = inspector.taskId;
-  const setOpenTaskId = (id: string) => inspector.openTask(id, { view: tab, restoreFocus: () => {
+  const setOpenTaskId = (id: string, section?: 'details') => inspector.openTask(id, { view: tab, section, restoreFocus: () => {
     const target = document.querySelector<HTMLElement>(`[data-task-inspector-source="${CSS.escape(id)}"]`) || document.querySelector<HTMLElement>('[role="tab"][aria-selected="true"]');
     target?.focus();
   } });
@@ -99,12 +97,17 @@ export function ProjectCommandWorkspace({
       if (hasDirtyNavigation()) return;
       const next = resolveProjectView(new URLSearchParams(window.location.search).get("view"));
       const projectId = new URLSearchParams(window.location.search).get("project");
-      if (next && (!projectId || projectId === project.id)) setTabState(next);
+      if (next && (!projectId || projectId === project.id)) {
+        setTabState(next);
+        const url = new URL(window.location.href);
+        if(url.searchParams.get('view') !== next){url.searchParams.set('view',next);onWorkspaceTabChange?.(next);replaceNavigationHistory(`${url.pathname}${url.search}${url.hash}`);}
+      }
     };
+    onPopState();
     window.addEventListener("popstate", onPopState);
     window.addEventListener(NAVIGATION_LOCATION_EVENT, onPopState);
     return () => { window.removeEventListener("popstate", onPopState); window.removeEventListener(NAVIGATION_LOCATION_EVENT, onPopState); };
-  }, [project.id]);
+  }, [project.id, onWorkspaceTabChange]);
 
   const projectTasks = useMemo(
     () => tasksForProject(tasks, project.id),
@@ -138,11 +141,11 @@ export function ProjectCommandWorkspace({
   );
 
   return (
-    <ProjectOfficeContext.Provider value={officeState}><ProjectReadinessSummaryProvider projectId={project.id} refreshKey={`${project.updatedAt}:${project.status}:${projectTasks.map(task => `${task.id}:${task.updatedAt}`).join(',')}:${JSON.stringify(officeState.offices)}`}><div className="eflow-project-command space-y-4 font-sans">
+    <ProjectOfficeContext.Provider value={officeState}><div className="eflow-project-command space-y-4 font-sans">
       <ProjectHeader project={project} organizations={orgs} profiles={profiles} metrics={data.metrics} editable={canManage} onTitleChange={title => updateProject(project.id, { title })}
-        participants={<ProjectParticipants offices={officeState} profiles={profiles} contributorIds={[project.ownerId || '', ...data.members.map(member => member.userId), ...officeState.members.map(member => member.user_id), ...projectTasks.flatMap(task => [task.assigneeId || '', ...(task.teamMemberIds || [])])]} />}
+        participants={<ProjectParticipants scope={`${userProfile?.id}:${favoriteContextId}:${project.id}`} profilesLoading={profilesLoading} offices={officeState} profiles={profiles} contributorIds={[project.ownerId || '', ...data.members.map(member => member.userId), ...officeState.members.map(member => member.user_id), ...projectTasks.flatMap(task => [task.assigneeId || '', ...(task.teamMemberIds || [])])]} />}
         utilities={<ProjectUtilities project={project} canManage={canManage} lifecycle={canManage ? lifecycleActions : {}} userId={authorizedProjectIds.length ? userProfile?.id || '' : ''} contextId={favoriteContextId} authorizedProjectIds={authorizedProjectIds} view={activeTabId} onOpenOffices={() => selectTab('offices')} />}
-        readinessSummary={<ProjectReadinessSummary />} onOffices={() => selectTab('offices')} onReadiness={() => selectTab('readiness')} />
+        />
       {/* Extensible Workspace Tab Bar (Permanent core views + optional dynamic views) */}
       <ProjectViewTabBar
         projectId={project.id}
@@ -184,7 +187,7 @@ export function ProjectCommandWorkspace({
         </div>
       ) : (
         <div className="pt-1">
-          {activeTabId === "readiness" && <ProjectReadinessPanel project={project} canManage={canManage} onOpenTask={setOpenTaskId} onOpenOffices={()=>selectTab('offices')} onResolve={view=>selectTab(view)} refreshKey={`${project.updatedAt}:${projectTasks.map(task=>`${task.id}:${task.updatedAt}`).join(',')}:${JSON.stringify(officeState.offices)}`}/>}
+
           {activeTabId === "overview" && (
             <ProjectOverviewTab
               data={data}
@@ -206,6 +209,7 @@ export function ProjectCommandWorkspace({
           )}
           {activeTabId === "gantt" && <ProjectGanttView data={viewData} allTasks={projectTasks} canManage={canManage} onOpenTask={setOpenTaskId} onOpenPlan={() => selectTab('timeline')}/>}
           {activeTabId === "offices" && <><ProjectOfficePanel projectId={project.id} projectTitle={project.title} projectStatus={project.status} leadOffice={project.orgId || ''} governed={!!project.sourceCollaborationDraftId} organizations={orgs} profiles={profiles} tasks={projectTasks} onOpenTask={(id, afterOpen) => inspector.openTask(id, { view: 'offices', restoreFocus: () => document.getElementById('project-office-search')?.focus() }, afterOpen)} onProposalContext={() => selectTab('proposal_context')}/><ProjectOfficesView tasks={visibleTasks} offices={orgs} onOpenTask={setOpenTaskId} onSelectOffice={office => selectTab('tasks', office)}/></>}
+          {activeTabId === 'members' && <ProjectMembers projectId={project.id} projectStatus={project.status} profiles={profiles} tasks={projectTasks} onOpenTask={setOpenTaskId}/>}
           {activeTabId === "timeline" && (
             <ProjectTimelineView
               data={viewData}
@@ -230,6 +234,7 @@ export function ProjectCommandWorkspace({
             <ProjectReportsTab
               data={data}
               canExport={canExport}
+              onOpenTask={setOpenTaskId}
             />
           )}
           {activeTabId === "proposal_context" && (
@@ -251,40 +256,13 @@ export function ProjectCommandWorkspace({
           {activeTabId === "dashboard" && (
             <><ProjectInsightsView data={viewData} profiles={profiles} offices={orgs} onOpenTask={setOpenTaskId}/><details className="pv-details"><summary>Delivery details, milestones and recent activity</summary><ProjectDashboardTab data={viewData} onOpenTask={setOpenTaskId}/></details></>
           )}
-          {activeTabId === "workload" && (
-            <ProjectTeamTab
-              data={data}
-              profiles={profiles}
-              canManage={canManage && project.status !== "archived"}
-            />
-          )}
+
           {activeTabId === "budget" && (
             <ProjectBudgetTab data={data} />
           )}
-          {activeTabId === "signoff" && (
-            <ProjectGovernanceTab
-              data={data}
-              view="signoff"
-              organizations={orgs}
-              onOpenTask={setOpenTaskId}
-            />
-          )}
-          {activeTabId === "evidence" && (
-            <ProjectGovernanceTab
-              data={data}
-              view="evidence"
-              organizations={orgs}
-              onOpenTask={setOpenTaskId}
-            />
-          )}
-          {activeTabId === "decisions" && (
-            <ProjectGovernanceTab
-              data={data}
-              view="decisions"
-              organizations={orgs}
-              onOpenTask={setOpenTaskId}
-            />
-          )}
+
+
+
         </div>
       )}
 
@@ -299,6 +277,6 @@ export function ProjectCommandWorkspace({
         readOnly={['completed','archived'].includes(project.status) || userProfile?.role==='admin' || !ownWorkAccess || !!openTask && shared && openTask.orgId !== userProfile?.org_id}
       />
 
-    </div></ProjectReadinessSummaryProvider></ProjectOfficeContext.Provider>
+    </div></ProjectOfficeContext.Provider>
   );
 }

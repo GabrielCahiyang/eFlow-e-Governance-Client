@@ -65,6 +65,7 @@ export async function saveSubtaskTemplate(
   orgId: string,
   draft: SubtaskTemplateDraft,
 ): Promise<SubtaskTemplate> {
+  if(draft.items.some(item=>item.parentSubtaskId))throw new Error("Nested work needs a hierarchy template format. This checklist format cannot flatten parent links.");
   const { data, error } = await supabase.rpc("save_subtask_template", {
     p_template_id: draft.id || null,
     p_payload: {

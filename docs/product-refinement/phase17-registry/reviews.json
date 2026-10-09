@@ -9,11 +9,6 @@
     "gate": "S17-shared-legacy",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
-  "A17-c0b0b09784805fba": {
-    "disposition": "blocked-release-claim",
-    "gate": "S17-shared-legacy",
-    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
-  },
   "A17-dbe3bfb95710bdad": {
     "disposition": "blocked-release-claim",
     "gate": "S17-shared-legacy",
@@ -644,6 +639,31 @@
     "gate": "S17-administration",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
+  "A17-748dd9101f1d2757": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-administration",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-589bc879eaa37eb1": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-administration",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-62a2c50a386a35b5": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-administration",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-ee91dbd042662316": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-administration",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-4197c696f3b479ee": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-administration",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
   "A17-493960db577897cf": {
     "disposition": "blocked-release-claim",
     "gate": "S17-administration",
@@ -794,11 +814,6 @@
     "gate": "S17-app-shell",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
-  "A17-50e48c2e340ff8fb": {
-    "disposition": "blocked-release-claim",
-    "gate": "S17-app-shell",
-    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
-  },
   "A17-5bc2c59fabf1a672": {
     "disposition": "blocked-release-claim",
     "gate": "S17-app-shell",
@@ -824,12 +839,77 @@
     "gate": "S17-app-shell",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
+  "A17-282d7a1691520286": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-app-shell",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-bad74d38e7dc2461": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-app-shell",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
   "A17-d5543399891dedfa": {
     "disposition": "blocked-release-claim",
     "gate": "S17-app-shell",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
+  "A17-f4bfd3f63cd84cac": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-app-shell",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-63aba0c9a53192df": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-app-shell",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-b7995f78612b121e": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-app-shell",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-61c4003f062b141c": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-app-shell",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-2f313d6b3bf71ecc": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-app-shell",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-f570be0dd5a02894": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-app-shell",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-8088745880589323": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-app-shell",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-95b224b4a99a10a7": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-app-shell",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-22477628d76c1106": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-app-shell",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
   "A17-bb34a010024c6c4d": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-audit",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-03d209a0e34567fe": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-audit",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-0658e21339963204": {
     "disposition": "blocked-release-claim",
     "gate": "S17-audit",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
@@ -1070,21 +1150,6 @@
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
   "A17-dbe0879e26d559f2": {
-    "disposition": "blocked-release-claim",
-    "gate": "S17-budget",
-    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
-  },
-  "A17-d2d17c5c3918f074": {
-    "disposition": "blocked-release-claim",
-    "gate": "S17-budget",
-    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
-  },
-  "A17-92c8648931b47dd0": {
-    "disposition": "blocked-release-claim",
-    "gate": "S17-budget",
-    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
-  },
-  "A17-6c2af997be39eda8": {
     "disposition": "blocked-release-claim",
     "gate": "S17-budget",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
@@ -3129,7 +3194,7 @@
     "gate": "S17-invitations",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
-  "A17-9604bf61a9951c00": {
+  "A17-617773ca295342aa": {
     "disposition": "blocked-release-claim",
     "gate": "S17-invitations",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
@@ -3139,7 +3204,7 @@
     "gate": "S17-invitations",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
-  "A17-9ae4c4eab6068c30": {
+  "A17-ea0c6780bca58e5c": {
     "disposition": "blocked-release-claim",
     "gate": "S17-invitations",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
@@ -3154,12 +3219,27 @@
     "gate": "S17-invitations",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
-  "A17-6883b4420c88ef0b": {
+  "A17-80ce43ba8132d2c0": {
     "disposition": "blocked-release-claim",
     "gate": "S17-invitations",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
   "A17-9bb3f8b8a57cdcfa": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-invitations",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-85b75471268c9eba": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-invitations",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-1b210867df50213e": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-invitations",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-1228df24f7e45710": {
     "disposition": "blocked-release-claim",
     "gate": "S17-invitations",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
@@ -3214,6 +3294,16 @@
     "gate": "S17-navigation",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
+  "A17-3733751fb3180fdb": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-navigation",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-c9143f25b8260021": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-navigation",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
   "A17-b6289590741f36b1": {
     "disposition": "blocked-release-claim",
     "gate": "S17-navigation",
@@ -3225,6 +3315,16 @@
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
   "A17-bc803c13a09bf01f": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-navigation",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-d08d4663c33ff5c7": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-navigation",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-19320086a17794e1": {
     "disposition": "blocked-release-claim",
     "gate": "S17-navigation",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
@@ -3249,6 +3349,96 @@
     "gate": "S17-navigation",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
+  "A17-b1f43aca2337d056": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-nested-work",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-0477077f5e5611b9": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-nested-work",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-24fdc5ae350434ee": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-nested-work",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-059bfa6bf3415d57": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-nested-work",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-6d5f7fdbd1453d4e": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-nested-work",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-fcd37bac7ab2278d": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-nested-work",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-46f2ff0ef106247c": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-nested-work",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-2740c3c6fff12e06": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-nested-work",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-385b51cf0993ede9": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-nested-work",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-265626c11536c824": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-nested-work",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-232ce12696160a05": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-nested-work",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-22ae7b1f59083b5e": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-nested-work",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-cb153421907b3b12": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-nested-work",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-0f2c7826d183bf9d": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-nested-work",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-e9d3c595225cad41": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-nested-work",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-4ab415e5cf1074be": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-nested-work",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-e77675b52a7d0de6": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-nested-work",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-aa05055baef5e8d2": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-nested-work",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
   "A17-ae5ff0b0a9fe2945": {
     "disposition": "blocked-release-claim",
     "gate": "S17-notifications",
@@ -3265,6 +3455,11 @@
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
   "A17-eb552088634962b4": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-notifications",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-b78a5263b518f5c4": {
     "disposition": "blocked-release-claim",
     "gate": "S17-notifications",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
@@ -3594,6 +3789,106 @@
     "gate": "S17-permissions",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
+  "A17-09164c74e0eb9a0d": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-personal-work",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-a3646215504b69f3": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-personal-work",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-04e5d71c07d0dfb4": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-personal-work",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-f21ee8ac65f5d52b": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-personal-work",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-7c0204c7b8936337": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-personal-work",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-68282c8c27b33ccb": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-personal-work",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-ec195d11e6cf828f": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-personal-work",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-691fabf5e1ef4c20": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-personal-work",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-3cb1a19bfa751f0c": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-personal-work",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-9efc81e2c308cc28": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-personal-work",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-379064389d899dbe": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-personal-work",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-08629311192377a2": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-personal-work",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-4a388ba53433d934": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-personal-work",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-ff0b447bd1486eee": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-personal-work",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-ecae0c736211ca4c": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-personal-work",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-d6a1d07d4b6333c5": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-personal-work",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-0946a11f12a58e3c": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-personal-work",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-548aedb3b90aba02": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-personal-work",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-2425e4dfa76a88f4": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-personal-work",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-a855b14b52243cbd": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-personal-work",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
   "A17-6283be867a14a33d": {
     "disposition": "blocked-release-claim",
     "gate": "S17-productivity",
@@ -3632,6 +3927,171 @@
   "A17-59b0144c96590248": {
     "disposition": "blocked-release-claim",
     "gate": "S17-professional-profile",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-f31aaaa224d57124": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-access",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-7373ac0c6a51c86a": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-access",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-5ffe9344a746a037": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-access",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-6b15ddd8d6eb793c": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-access",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-286cfad2013c0ba4": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-access",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-cc9d6808110161c8": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-access",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-5acf2b143e38db3e": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-access",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-7460fa7b7800ce9e": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-access",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-903c743d9eff94bc": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-access",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-7dbb9aff41cdcf27": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-access",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-6a42e4e9e4742e3b": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-access",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-a48a78219eb74454": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-access",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-0e1e80d9b4d8a6cc": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-access",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-c8a1993d063d92d7": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-access",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-b7d5bf050b0fb79b": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-access",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-3b3e1b2ba8993d61": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-access",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-a9cf2044a6a6b83f": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-access",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-621072f96f1dc7a0": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-access",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-b1c4354585338ea1": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-access",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-012ef60d0756ef22": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-access",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-30606f787f8da2ef": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-access",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-374033fa527cdafe": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-files",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-8285ba555675eed1": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-files",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-28d0fddae13880ef": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-files",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-1727fc5043aa2a79": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-files",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-9dfb7ee26d186f80": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-files",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-b6853ecb2f5fbad2": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-files",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-b36a548a141d3747": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-files",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-5cebf0a3ade094a8": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-files",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-41839880eeb83ec4": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-files",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-f06b92171ac1c56b": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-files",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-f92643d28f321eee": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-files",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-b1b2240950ae4105": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-files",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
   "A17-b3978a5ab8815203": {
@@ -3744,6 +4204,196 @@
     "gate": "S17-project-import",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
+  "A17-8693da90c39282b2": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-invitations",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-2b3efd1d488e5fe7": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-invitations",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-799a895cf8c3ba9f": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-invitations",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-4e989985f62c661d": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-invitations",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-cbaa0f5f68552c2b": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-invitations",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-d583cfa974b6c840": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-invitations",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-1405e0fd2eda494a": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-invitations",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-fab3d578751d3fe8": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-invitations",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-02287a7afdb5d615": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-invitations",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-42cae34bc62b5e7d": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-invitations",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-b6ab941cec010060": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-invitations",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-8362e3ad86445432": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-invitations",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-4d436e45c5f332d4": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-invitations",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-619a6b47da2ccf23": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-invitations",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-76077a5f958c16b4": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-invitations",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-e89022743252ab6e": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-invitations",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-f055f96c7368d1d1": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-invitations",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-7fe66ffc630103f3": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-invitations",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-c648db72d4e0c571": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-invitations",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-7a2bb5e2cc4c4f5f": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-invitations",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-e83352d8336d6898": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-invitations",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-93c16d65fb233aa7": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-invitations",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-9f9f9d537e34b88e": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-invitations",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-889d945829a82d01": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-invitations",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-2a687ede4cf6649d": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-invitations",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-8ba9f422c5c12a6e": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-invitations",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-a7b009ec259598c8": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-invitations",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-ddf09f2cf9c32d06": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-invitations",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-ec47ccacee303681": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-members",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-3b4c1f3144828d9e": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-members",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-b6a627cb80be9f8f": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-members",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-27a0c96005f7aa91": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-members",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-a7d979dd32c2f6c8": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-members",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-8dc0ae608afb9c75": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-members",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-8cbc563d8ade6de6": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-members",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-b7893e5ba4dae33b": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-members",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-fcfc6501081959bd": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-members",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-7b85c5c4fa2c32a1": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-members",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
   "A17-e457659d70d3bcf3": {
     "disposition": "blocked-release-claim",
     "gate": "S17-project-offices",
@@ -3854,6 +4504,11 @@
     "gate": "S17-project-offices",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
+  "A17-88f5a07e2b1af959": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-offices",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
   "A17-a8da7058cf283e09": {
     "disposition": "blocked-release-claim",
     "gate": "S17-project-offices",
@@ -3959,17 +4614,22 @@
     "gate": "S17-project-offices",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
-  "A17-dddf427caf603c54": {
+  "A17-d9541c3c83c17708": {
     "disposition": "blocked-release-claim",
-    "gate": "S17-project-readiness",
+    "gate": "S17-project-offices",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
-  "A17-142e4e06c34850fc": {
+  "A17-10f5296d25fc482e": {
     "disposition": "blocked-release-claim",
     "gate": "S17-project-readiness",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
   "A17-098baf0b218d297a": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-readiness",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-c409b7b98a73c4f1": {
     "disposition": "blocked-release-claim",
     "gate": "S17-project-readiness",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
@@ -3994,47 +4654,12 @@
     "gate": "S17-project-readiness",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
-  "A17-a0bfcc7025e3088e": {
-    "disposition": "blocked-release-claim",
-    "gate": "S17-project-readiness",
-    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
-  },
   "A17-d74d56c28a639147": {
     "disposition": "blocked-release-claim",
     "gate": "S17-project-readiness",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
   "A17-e65812b6dfe0cc24": {
-    "disposition": "blocked-release-claim",
-    "gate": "S17-project-readiness",
-    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
-  },
-  "A17-5068dc173c15571f": {
-    "disposition": "blocked-release-claim",
-    "gate": "S17-project-readiness",
-    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
-  },
-  "A17-e7b4a06d0cb88f6b": {
-    "disposition": "blocked-release-claim",
-    "gate": "S17-project-readiness",
-    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
-  },
-  "A17-b279603f19512093": {
-    "disposition": "blocked-release-claim",
-    "gate": "S17-project-readiness",
-    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
-  },
-  "A17-e1bfbfa121256f71": {
-    "disposition": "blocked-release-claim",
-    "gate": "S17-project-readiness",
-    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
-  },
-  "A17-58ac3ae864034690": {
-    "disposition": "blocked-release-claim",
-    "gate": "S17-project-readiness",
-    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
-  },
-  "A17-59dd9e9c8c344e8a": {
     "disposition": "blocked-release-claim",
     "gate": "S17-project-readiness",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
@@ -4052,6 +4677,11 @@
   "A17-dba3eafe32d2d012": {
     "disposition": "blocked-release-claim",
     "gate": "S17-project-readiness",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-0dae3631d21a9df9": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-table",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
   "A17-949b4337f363eda8": {
@@ -4389,6 +5019,11 @@
     "gate": "S17-project-table",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
+  "A17-945741944c01476f": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-project-table",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
   "A17-c22c12cf5e50418e": {
     "disposition": "blocked-release-claim",
     "gate": "S17-project-table",
@@ -4614,6 +5249,61 @@
     "gate": "S17-project-views",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
+  "A17-fc21aab4177216f6": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-projects",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-fd4d89ebff56aded": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-projects",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-0eb54fad10a2c822": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-projects",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-7a511a85483440f7": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-projects",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-a53e44e0d1e9e2fe": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-projects",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-930e8cd529168ec4": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-projects",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-122dd514c8a0a90e": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-projects",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-93dc21d488d2a087": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-projects",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-5d431d8aea512695": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-projects",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-94ff2f522f059e04": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-projects",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-6e449af873847277": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-projects",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
   "A17-94cd2a949ecd8d2e": {
     "disposition": "blocked-release-claim",
     "gate": "S17-projects",
@@ -4654,7 +5344,17 @@
     "gate": "S17-projects",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
+  "A17-3e253da5387baf3b": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-projects",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
   "A17-a439b6dba1b98f6c": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-projects",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-ef2a6fcd6424d8f2": {
     "disposition": "blocked-release-claim",
     "gate": "S17-projects",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
@@ -4665,6 +5365,11 @@
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
   "A17-e430aa1f08c89fac": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-projects",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-6a9a0c120358b79d": {
     "disposition": "blocked-release-claim",
     "gate": "S17-projects",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
@@ -4689,22 +5394,17 @@
     "gate": "S17-projects",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
-  "A17-ad5bb90f3e5efed3": {
-    "disposition": "blocked-release-claim",
-    "gate": "S17-projects",
-    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
-  },
-  "A17-bce0636470bc788f": {
-    "disposition": "blocked-release-claim",
-    "gate": "S17-projects",
-    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
-  },
   "A17-af84528428236426": {
     "disposition": "blocked-release-claim",
     "gate": "S17-projects",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
   "A17-b8c0bbddb70a6691": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-projects",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-3f5a4f264546e5c6": {
     "disposition": "blocked-release-claim",
     "gate": "S17-projects",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
@@ -4759,11 +5459,6 @@
     "gate": "S17-projects",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
-  "A17-7943315fc2a57d71": {
-    "disposition": "blocked-release-claim",
-    "gate": "S17-projects",
-    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
-  },
   "A17-893d7f85b3983fea": {
     "disposition": "blocked-release-claim",
     "gate": "S17-projects",
@@ -4774,7 +5469,22 @@
     "gate": "S17-projects",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
-  "A17-68c512279d959dbb": {
+  "A17-8160778056226b3b": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-projects",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-7943315fc2a57d71": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-projects",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-d5952ba42090f214": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-projects",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-fc93d936be803a9f": {
     "disposition": "blocked-release-claim",
     "gate": "S17-projects",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
@@ -4784,7 +5494,32 @@
     "gate": "S17-projects",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
+  "A17-1a698c2926777d94": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-projects",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
   "A17-1dc163739f52c161": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-projects",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-abc67b94e467f65d": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-projects",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-e148d7beec6cb86d": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-projects",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-5175ec8e4980c753": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-projects",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-01aa3255d8894bb2": {
     "disposition": "blocked-release-claim",
     "gate": "S17-projects",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
@@ -4824,7 +5559,22 @@
     "gate": "S17-projects",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
+  "A17-6e6e7501604ad7db": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-projects",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
   "A17-e0aa6b5d497c72fe": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-projects",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-1d37842551d6388b": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-projects",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-e5cf140b2e562d35": {
     "disposition": "blocked-release-claim",
     "gate": "S17-projects",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
@@ -4839,7 +5589,7 @@
     "gate": "S17-projects",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
-  "A17-6e6e7501604ad7db": {
+  "A17-e929310513c716dd": {
     "disposition": "blocked-release-claim",
     "gate": "S17-projects",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
@@ -4964,12 +5714,17 @@
     "gate": "S17-projects",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
-  "A17-de974e059b101cc6": {
+  "A17-7293f1177e0b4587": {
     "disposition": "blocked-release-claim",
     "gate": "S17-projects",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
-  "A17-56452973f53c6859": {
+  "A17-e308791d6041f405": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-projects",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-b6edf6e6fb2f157d": {
     "disposition": "blocked-release-claim",
     "gate": "S17-projects",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
@@ -5019,12 +5774,7 @@
     "gate": "S17-projects",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
-  "A17-c79ebaa544c594cc": {
-    "disposition": "blocked-release-claim",
-    "gate": "S17-projects",
-    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
-  },
-  "A17-5d9f09f90e075d5a": {
+  "A17-ae2e2f303fc8ee12": {
     "disposition": "blocked-release-claim",
     "gate": "S17-projects",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
@@ -5040,6 +5790,11 @@
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
   "A17-e5e3445da3669fd2": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-projects",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-aacf9e67994948eb": {
     "disposition": "blocked-release-claim",
     "gate": "S17-projects",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
@@ -5189,6 +5944,16 @@
     "gate": "S17-projects",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
+  "A17-fca637a4c72ea1c4": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-projects",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-d50c2a283765a6fe": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-projects",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
   "A17-7238b6ac900cb4ca": {
     "disposition": "blocked-release-claim",
     "gate": "S17-projects",
@@ -5205,6 +5970,31 @@
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
   "A17-a70e59a908c18bc3": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-projects",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-a052cd2e2cfaf666": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-projects",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-307578e67d3d83f4": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-projects",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-40d8e9410f2cdba2": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-projects",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-a8d4876c3133a07a": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-projects",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-356063ad6d60c80d": {
     "disposition": "blocked-release-claim",
     "gate": "S17-projects",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
@@ -5379,7 +6169,17 @@
     "gate": "S17-projects",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
+  "A17-34597c553f2c7f31": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-projects",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
   "A17-5f4a7a888c83fd23": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-projects",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-6b19161f983059ae": {
     "disposition": "blocked-release-claim",
     "gate": "S17-projects",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
@@ -6159,7 +6959,12 @@
     "gate": "S17-subtasks",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
-  "A17-7f44cdf770b1952c": {
+  "A17-eb3a1ff216ba20d0": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-subtasks",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-fab500c51e5cffcb": {
     "disposition": "blocked-release-claim",
     "gate": "S17-subtasks",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
@@ -6279,6 +7084,11 @@
     "gate": "S17-subtasks",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
+  "A17-652d8a932d5fe264": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-subtasks",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
   "A17-ae66e55166f29e22": {
     "disposition": "blocked-release-claim",
     "gate": "S17-subtasks",
@@ -6324,12 +7134,12 @@
     "gate": "S17-task-inspector",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
-  "A17-f5556588bc651dff": {
+  "A17-26466705193d7cf8": {
     "disposition": "blocked-release-claim",
     "gate": "S17-task-inspector",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
-  "A17-26466705193d7cf8": {
+  "A17-f5556588bc651dff": {
     "disposition": "blocked-release-claim",
     "gate": "S17-task-inspector",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
@@ -6350,6 +7160,21 @@
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
   "A17-428ebf1482feb559": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-task-inspector",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-f3abec488eb0e289": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-task-inspector",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-3a16597d31bbc2f0": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-task-inspector",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-b172f6c8b30cdd91": {
     "disposition": "blocked-release-claim",
     "gate": "S17-task-inspector",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
@@ -7049,11 +7874,6 @@
     "gate": "S17-tasks",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
-  "A17-11e8ba4e8b5aa848": {
-    "disposition": "blocked-release-claim",
-    "gate": "S17-tasks",
-    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
-  },
   "A17-10080eebb1c917e1": {
     "disposition": "blocked-release-claim",
     "gate": "S17-tasks",
@@ -7244,7 +8064,12 @@
     "gate": "S17-team-management",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
-  "A17-335409f465b390f8": {
+  "A17-6e6f5ebca2014824": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-team-management",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-824487c42f17020f": {
     "disposition": "blocked-release-claim",
     "gate": "S17-team-management",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
@@ -7339,6 +8164,241 @@
     "gate": "S17-work-templates",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
+  "A17-c8213afa939cfd3c": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-4cb8da14dbc86f44": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-3d5db09dfe2fc460": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-c98ed60c0ea40bdb": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-a9a579cdeda17585": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-b17638e45ffe9ff3": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-66f1cb6ee828a152": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-877dc057f7686011": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-736a20990d3373aa": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-77f9af201136b75a": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-b524540e48df85e3": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-050273dfb4a66ac7": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-cf9fd7e919577adb": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-0423c06014e23774": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-866e051dcaf0c5f5": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-2e483f4eaf049fc4": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-f80cfd09c47780bd": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-443f8c6b140cd532": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-acae37b5c79c1350": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-9b2824a73ff8f2a5": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-26317bad33b11dab": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-7b48db6fac86ad52": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-d9345139afdcd65c": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-1ee43d6d0dc80205": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-38da910edd6e118f": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-9430ca30216f0847": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-ab02f2fbd5021017": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-7cea9c30003e4d98": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-22a3b09b090c6fc0": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-edbfc77f3d0215cf": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-865f257ec3b6919f": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-68c988d07de93c2b": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-886cb49a0c702ea2": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-d26a19a6f60d3eed": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-d89013bc8657d7b8": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-abffe886ba05a4eb": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-c047d80880d0e2a9": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-f521010394fbc595": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-ed5ca36cc069490a": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-140ed26b78293741": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-e9f052eb5713aa58": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-3bd606f9ad9bfa74": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-ce2857aabdf84605": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-f2bc5ace0e4ea96c": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-851aae75b7687dc8": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-3d4a18de4c8ec3cc": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-33bcd71a9f442e50": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-workspaces",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
   "A17-774f4cfd5b0cb756": {
     "disposition": "blocked-release-claim",
     "gate": "S17-shared-legacy",
@@ -7354,7 +8414,17 @@
     "gate": "S17-shared-legacy",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
+  "A17-95d2f3b9ef8276d1": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-shared-legacy",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
   "A17-a2c56bbc846d5285": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-shared-legacy",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-0f6531d93847515f": {
     "disposition": "blocked-release-claim",
     "gate": "S17-shared-legacy",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
@@ -7735,6 +8805,16 @@
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
   "A17-92a818e49a53c345": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-shared-legacy",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-835da38aeb7d47d8": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-shared-legacy",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-701ba5324e4ef187": {
     "disposition": "blocked-release-claim",
     "gate": "S17-shared-legacy",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
@@ -13699,6 +14779,66 @@
     "gate": "S17-gateway",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
+  "A17-9bc627495fa976db": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-gateway",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-0f457d8bb8c32ee6": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-gateway",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-1647fb3c77337605": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-gateway",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-f961cb650fd434e4": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-gateway",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-a11734b9c4a623dd": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-gateway",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-5a68654d832bc61e": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-gateway",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-59a8e2594f208d8c": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-gateway",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-8685f883e0d544c0": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-gateway",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-87bf0666e257f980": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-gateway",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-dfecbf0edf486b74": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-gateway",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-d35bd9e4b64495b7": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-gateway",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
+  "A17-cf32a866556fa12c": {
+    "disposition": "blocked-release-claim",
+    "gate": "S17-gateway",
+    "reason": "Effective authority, audit and recovery not verified; see the owned gate."
+  },
   "A17-2b9c8835c16e79ed": {
     "disposition": "blocked-release-claim",
     "gate": "S17-gateway",
@@ -13914,7 +15054,7 @@
     "gate": "S17-gateway",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."
   },
-  "A17-2fdd1b61ec9045c0": {
+  "A17-b8a240efd3b30bc3": {
     "disposition": "blocked-release-claim",
     "gate": "S17-gateway",
     "reason": "Effective authority, audit and recovery not verified; see the owned gate."

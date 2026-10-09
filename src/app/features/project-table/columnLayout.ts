@@ -10,6 +10,8 @@ export const COLUMN_LAYOUT: Record<ResizableColumn, { width: number; min: number
 };
 export type ColumnWidths = Record<ResizableColumn, number>;
 export const DEFAULT_COLUMN_WIDTHS = Object.fromEntries(Object.entries(COLUMN_LAYOUT).map(([id, value]) => [id, value.width])) as ColumnWidths;
+export const COMPACT_HIDDEN_COLUMNS: ProjectColumn[] = ['office', 'effort', 'dependencies', 'budget', 'progress'];
+export const COMPACT_COLUMN_WIDTHS: ColumnWidths = { ...DEFAULT_COLUMN_WIDTHS, task: 280, timeline: 180 };
 export function boundedColumnWidth(id: ResizableColumn, value: unknown) {
   const rule = COLUMN_LAYOUT[id];
   return typeof value === 'number' && Number.isFinite(value) ? Math.round(Math.min(rule.max, Math.max(rule.min, value))) : rule.width;

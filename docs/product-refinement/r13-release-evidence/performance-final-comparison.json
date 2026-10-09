@@ -1,0 +1,58 @@
+{
+  "timingModel": "paint-ready-v2",
+  "budgetPercent": 10,
+  "measurements": [
+    {
+      "dataset": "project-100",
+      "field": "readyMs",
+      "baselineMedian": 937.1923000000006,
+      "candidateMedian": 1004.4436999999998,
+      "changePercent": 7.175837872334112,
+      "passed": true
+    },
+    {
+      "dataset": "project-100",
+      "field": "filterMs",
+      "baselineMedian": 119.49119999999948,
+      "candidateMedian": 129.13370000000032,
+      "changePercent": 8.069631905948626,
+      "passed": true
+    },
+    {
+      "dataset": "project-1000",
+      "field": "readyMs",
+      "baselineMedian": 7428.961799999999,
+      "candidateMedian": 4475.4614,
+      "changePercent": -39.75657002301452,
+      "passed": true
+    },
+    {
+      "dataset": "project-1000",
+      "field": "filterMs",
+      "baselineMedian": 824.6545999999944,
+      "candidateMedian": 1720.4143000000004,
+      "changePercent": 108.62240991561949,
+      "passed": false
+    },
+    {
+      "dataset": "accounting-journal",
+      "field": "readyMs",
+      "baselineMedian": 747.2238999999972,
+      "candidateMedian": 821.4521999999997,
+      "changePercent": 9.933876579697575,
+      "passed": true
+    },
+    {
+      "dataset": "accounting-journal",
+      "field": "journalReads",
+      "baselineMedian": 2,
+      "candidateMedian": 1,
+      "changePercent": -50,
+      "passed": true
+    }
+  ],
+  "passed": false,
+  "failedGates": [
+    "project-1000:filterMs"
+  ]
+}

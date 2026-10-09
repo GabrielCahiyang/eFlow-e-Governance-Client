@@ -14,6 +14,8 @@ async function signInFixture(page: Page, role: string, fresh = false) {
   await page.route("**/rest/v1/**", async route => {
     const url = new URL(route.request().url());
     const table = url.pathname.split("/").at(-1);
+    // This Phase 2 fixture exercises legacy onboarding without R3 workspace data.
+    if (table?.startsWith('r3_')) return route.fulfill({status:404,json:{code:'PGRST202',message:'R3 not installed in this legacy onboarding fixture'}});
     const single = route.request().headers().accept?.includes("vnd.pgrst.object");
     let data: unknown = [];
     if (table === "profiles") data = single ? profile : [profile];
@@ -44,11 +46,9 @@ async function signInFixture(page: Page, role: string, fresh = false) {
 test('Head invite dialog follows the split reference and supports keyboard dismissal', async ({ page }, info) => {
   test.setTimeout(90_000); await page.setViewportSize({ width: 1440, height: 1000 });
   await signInFixture(page, 'head');
-  const sidebar = page.locator('.eflow-productivity-sidebar').first();
-  await sidebar.hover();
-  await sidebar.getByRole('button', {name:'Workspaces',exact:true}).click();
-  await sidebar.getByText('Office tools', {exact:true}).click();
-  await sidebar.getByRole('button', {name:'Office Team',exact:true}).click();
+  // R2 retires the people destination from the sidebar; its authorized
+  // Office onboarding page remains a compatibility entry point.
+  await page.goto('/team?page=Office%20Team');
   await page.getByRole('button', { name: 'Invite Member', exact: true }).first().click();
   const dialog = page.getByRole('dialog', { name: /^Now, let/ });
   await expect(dialog).toBeVisible();

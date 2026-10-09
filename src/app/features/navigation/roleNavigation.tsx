@@ -46,7 +46,8 @@ export function getRoleNavigationCandidates(role: string): RoleNavItem[] {
   try { canonical = normalizeUserRole(role); } catch { return []; }
   if (canonical === "admin") return [...personalDestinations(canonical), ...base];
   const existing = new Set(base.map(item => item.id));
-  return [...personalDestinations(canonical), ...base, ...administrativeDestinations.filter(item => !existing.has(item.id))];
+  const overview:RoleNavItem[] = existing.has('dashboard')?[]:[{id:'dashboard',label:'Workspace Overview',icon:<Folder size={16}/> }];
+  return [...personalDestinations(canonical), ...overview, ...base, ...administrativeDestinations.filter(item => !existing.has(item.id))];
 }
 
 /** A Task Lead gains contextual destinations while actually leading visible work. */

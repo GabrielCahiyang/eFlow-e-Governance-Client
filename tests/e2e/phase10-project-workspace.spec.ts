@@ -11,7 +11,7 @@ test('project identity, settings retry, favorites and browser history use one pr
   const records=await projectWorkspaceFixture(page,'head',true);
   for(const name of ['Main table','Board','Gantt','Calendar','Project Dashboard','Offices']) await expect(page.getByRole('tab',{name,exact:true})).toBeVisible();
   await page.getByRole('button',{name:'Add project to favorites',exact:true}).click();
-  await expect(page.getByRole('complementary',{name:'Projects context'}).getByRole('button',{name:'Remove Community outreach from favorites',exact:true}).first()).toHaveAttribute('aria-pressed','true');
+  await expect(page.getByRole('region',{name:'Favorites',exact:true}).getByRole('button',{name:'Remove Community outreach from favorites',exact:true})).toHaveAttribute('aria-pressed','true');
   await page.getByRole('tab',{name:'Board',exact:true}).click();
   await projectAction(page,'Project settings'); const settings=page.getByRole('dialog',{name:'Project settings',exact:true});
   await settings.getByLabel('Description',{exact:true}).fill('Retained metadata revision');
@@ -55,7 +55,7 @@ test('Observer utilities stay read-only and sharing keeps current access require
   await expect(page.getByRole('button',{name:'Edit project name',exact:true})).toBeDisabled();
   await page.getByRole('button',{name:'Project actions',exact:true}).click();await expect(page.getByRole('menuitem',{name:/Delete project|Mark project complete|Archive project/})).toHaveCount(0);
   await page.getByRole('menuitem',{name:'Project settings',exact:true}).click();const settings=page.getByRole('dialog',{name:'Project settings',exact:true});await expect(settings.getByLabel('Project name')).toBeDisabled();await expect(settings.getByRole('button',{name:'Save changes'})).toHaveCount(0);await page.screenshot({path:info.outputPath('project-settings-mobile.png'),animations:'disabled'});await settings.getByRole('contentinfo').getByRole('button',{name:'Close',exact:true}).click();
-  await page.getByRole('button',{name:'Invite / share',exact:true}).click();const share=page.getByRole('dialog',{name:'Share project',exact:true});await expect(share).toContainText('copying it does not invite anyone or grant permissions');await expect(share.getByLabel('Project link')).toHaveValue(/project=20000000/);
+  await page.getByRole('button',{name:'Invite / share',exact:true}).click();const share=page.getByRole('dialog',{name:'Share project',exact:true});await expect(share).toContainText('Ordinary navigation links require existing access and grant no permissions.');await expect(share.getByLabel('Project navigation link')).toHaveValue(/project=20000000/);
   expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);await page.screenshot({path:info.outputPath('project-share-mobile.png')});await page.keyboard.press('Escape');await expect(page.getByRole('button',{name:'Invite / share',exact:true})).toBeFocused();
   await page.screenshot({path:info.outputPath('project-workspace-mobile.png'),fullPage:true});
 });
@@ -66,5 +66,5 @@ test('participant failure retries its source and long project identity stays wit
   await page.reload();const error=page.getByRole('alert').filter({hasText:'Project participants unavailable'});await expect(error).toContainText('Participant source unavailable');failures=false;await error.getByRole('button',{name:'Retry',exact:true}).click();await expect(error).toHaveCount(0);expect(officeReads).toBeGreaterThanOrEqual(2);
   await page.setViewportSize({width:390,height:844});await expect(page.getByRole('heading',{name:/A very long community/})).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);await page.screenshot({path:info.outputPath('project-long-title-mobile.png'),fullPage:true});
   await page.goto('/projects?page=Projects&project='+records.project+'&view=work');await expect(page.getByRole('tab',{name:'Main table',exact:true})).toHaveAttribute('aria-selected','true');
-  await page.goto('/projects?page=Projects&project='+records.project+'&view=people');await expect(page.getByRole('tab',{name:'Workload & Team',exact:true})).toHaveAttribute('aria-selected','true');
+  await page.goto('/projects?page=Projects&project='+records.project+'&view=people');await expect(page.getByRole('tab',{name:'Offices',exact:true})).toHaveAttribute('aria-selected','true');
 });

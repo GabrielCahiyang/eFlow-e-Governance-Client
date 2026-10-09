@@ -116,20 +116,20 @@ html {
    those neutral-only utilities to the Figma semantic foundation so every
    existing route inherits the same canvas, hierarchy, and card treatment
    without touching workflow-specific JSX or state logic. */
-.eflow-app-shell .bg-white { background-color: var(--card) !important; }
-.eflow-app-shell .bg-neutral-50 { background-color: var(--muted) !important; }
-.eflow-app-shell .bg-neutral-100 { background-color: var(--secondary) !important; }
-.eflow-app-shell .bg-neutral-200 { background-color: var(--border) !important; }
-.eflow-app-shell .border-neutral-100,
-.eflow-app-shell .border-neutral-200,
-.eflow-app-shell .border-neutral-300 { border-color: var(--border) !important; }
-.eflow-app-shell .text-neutral-900,
-.eflow-app-shell .text-neutral-800,
-.eflow-app-shell .text-neutral-700 { color: var(--foreground) !important; }
-.eflow-app-shell .text-neutral-600,
-.eflow-app-shell .text-neutral-500 { color: var(--secondary-foreground) !important; }
-.eflow-app-shell .text-neutral-400,
-.eflow-app-shell .text-neutral-300 { color: var(--muted-foreground) !important; }
+:is(.eflow-app-shell, .eflow-inspector, .eflow-foundation-surface) .bg-white { background-color: var(--card) !important; }
+:is(.eflow-app-shell, .eflow-inspector, .eflow-foundation-surface) .bg-neutral-50 { background-color: var(--muted) !important; }
+:is(.eflow-app-shell, .eflow-inspector, .eflow-foundation-surface) .bg-neutral-100 { background-color: var(--secondary) !important; }
+:is(.eflow-app-shell, .eflow-inspector, .eflow-foundation-surface) .bg-neutral-200 { background-color: var(--border) !important; }
+:is(.eflow-app-shell, .eflow-inspector, .eflow-foundation-surface) .border-neutral-100,
+:is(.eflow-app-shell, .eflow-inspector, .eflow-foundation-surface) .border-neutral-200,
+:is(.eflow-app-shell, .eflow-inspector, .eflow-foundation-surface) .border-neutral-300 { border-color: var(--border) !important; }
+:is(.eflow-app-shell, .eflow-inspector, .eflow-foundation-surface) .text-neutral-900,
+:is(.eflow-app-shell, .eflow-inspector, .eflow-foundation-surface) .text-neutral-800,
+:is(.eflow-app-shell, .eflow-inspector, .eflow-foundation-surface) .text-neutral-700 { color: var(--foreground) !important; }
+:is(.eflow-app-shell, .eflow-inspector, .eflow-foundation-surface) .text-neutral-600,
+:is(.eflow-app-shell, .eflow-inspector, .eflow-foundation-surface) .text-neutral-500 { color: var(--secondary-foreground) !important; }
+:is(.eflow-app-shell, .eflow-inspector, .eflow-foundation-surface) .text-neutral-400,
+:is(.eflow-app-shell, .eflow-inspector, .eflow-foundation-surface) .text-neutral-300 { color: var(--muted-foreground) !important; }
 
 .eflow-app-shell .rounded-xl { border-radius: 10px; }
 .eflow-app-shell .rounded-2xl {
@@ -206,21 +206,21 @@ html {
 /* The product predates tokenized surfaces in several dashboard modules. These
    compatibility rules let the stored theme preference cover the shared shell,
    navigation, cards, and inputs while individual modules retain their design. */
-.dark .bg-white { background-color: #111827 !important; }
-.dark .bg-neutral-50 { background-color: #0b1120 !important; }
-.dark .bg-neutral-100 { background-color: #1e293b !important; }
-.dark .bg-neutral-200 { background-color: #334155 !important; }
+.dark .bg-white { background-color: var(--eflow-surface) !important; }
+.dark .bg-neutral-50 { background-color: var(--eflow-canvas) !important; }
+.dark .bg-neutral-100 { background-color: var(--eflow-secondary) !important; }
+.dark .bg-neutral-200 { background-color: var(--eflow-border) !important; }
 .dark .border-neutral-100,
-.dark .border-neutral-200 { border-color: #263246 !important; }
+.dark .border-neutral-200 { border-color: var(--eflow-border) !important; }
 .dark .text-neutral-900,
 .dark .text-neutral-800,
-.dark .text-neutral-700 { color: #e5edf9 !important; }
+.dark .text-neutral-700 { color: var(--eflow-text) !important; }
 .dark .text-neutral-600,
-.dark .text-neutral-500 { color: #9aa9c0 !important; }
-.dark .text-neutral-400 { color: #75839a !important; }
+.dark .text-neutral-500 { color: var(--eflow-text-secondary) !important; }
+.dark .text-neutral-400 { color: var(--eflow-text-muted) !important; }
 .dark input:not([type="checkbox"]):not([type="radio"]),
 .dark textarea,
-.dark select { background-color: #111827; color: #e5edf9; }
+.dark select { background-color: var(--eflow-surface); color: var(--eflow-text); }
 
 /* Vibe owns popup positioning and portals. Only the shared overlay tier is adapted. */
 .monday-style-dialog-content-wrapper { z-index:var(--eflow-layer-popover); }

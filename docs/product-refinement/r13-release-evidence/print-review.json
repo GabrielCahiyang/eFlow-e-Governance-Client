@@ -1,0 +1,26 @@
+{
+  "candidate": "619ee6b73bd779c5410827e9a53ad350d3906f516ac558bd8889baca01337911",
+  "pdf": {
+    "path": ".refinement/diagnostics/final-first-complete/results/workspace-refinement-r11-R-2afff-ging-and-full-history-print-chromium/r11-complete-history.pdf",
+    "sha256": "309ad8754e5c984550e3a3255c26990e9e1b5f4d0681ec4f7351ca2de974225b",
+    "pages": 15,
+    "eventRows": 310,
+    "uniqueEventRows": 310,
+    "firstEvent": "310",
+    "lastEvent": "1",
+    "headersEveryPage": true,
+    "tagged": false
+  },
+  "visualReview": {
+    "pages": [
+      1,
+      8,
+      15
+    ],
+    "renderer": "Bundled Poppler pdftoppm",
+    "result": "Legible aligned columns, repeated headers, full source IDs and final event/footer; no clipping or overlapping rows on reviewed pages."
+  },
+  "scope": "Synthetic Chromium headless export; no physical printer, native Safari, tagged-PDF accessibility or hosted real-data print certification.",
+  "reviewedInputCandidate": "5a6777ef88d6cf0e0550387eb20cb932e7ff56e2f31e391834473c47827a9df0",
+  "matchingFrontendBytes": true
+}

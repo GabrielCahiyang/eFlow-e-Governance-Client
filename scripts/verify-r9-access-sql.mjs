@@ -1,0 +1,128 @@
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import {phase65Database} from '../tests/sql/helpers/phase65Database.mjs';
+const id=n=>`00000000-0000-4000-8000-${String(n).padStart(12,'0')}`;
+let db,checks=0,currentActor=null,attempt=9000;
+const value=async(sql,args=[])=>{
+ if(sql.startsWith('select submit_subtask_for_review')){
+  const payload=JSON.parse(args[1]);payload.id??=id(attempt++);
+  await db.exec('reset role');
+  for(const file of payload.attachments??[]){
+   file.filePath=`subtasks/${args[0]}/${payload.id}/${file.fileName}`;
+   await db.query('insert into storage.objects(bucket_id,name,owner_id,metadata) values($1,$2,$3,$4::jsonb)', ['task-attachments',file.filePath,id(currentActor),JSON.stringify({size:12,mimetype:'application/pdf'})]);
+  }
+  await db.exec('set role authenticated');args=[args[0],JSON.stringify(payload)];
+ }
+ return Object.values((await db.query(sql,args)).rows[0])[0];
+};
+const check=(value,label)=>{assert.ok(value,label);checks++;};
+const deny=async(sql,args=[])=>{await assert.rejects(db.query(sql,args));checks++;};
+const actor=async n=>{currentActor=n;await db.exec('reset role');await value("select set_config('request.jwt.claim.sub',$1,false)",[n?id(n):'']);await db.exec('set role authenticated');};
+try{
+ const option=name=>process.argv.find(value=>value.startsWith(name+'='))?.slice(name.length+1);
+ db=await phase65Database({liveHistoryDirectory:option('--live-history'),withdrawalSnapshot:option('--withdrawal-snapshot')});
+ await db.exec(`create table storage.objects(id uuid primary key default gen_random_uuid(),bucket_id text,name text,owner_id text,metadata jsonb,created_at timestamptz default now(),unique(bucket_id,name));
+ alter table storage.objects enable row level security;grant usage on schema storage to authenticated;grant all on storage.objects to authenticated;
+ insert into storage.buckets(id,name,public) values('task-attachments','task-attachments',false);
+ insert into organizations(id,name,slug,path,org_type) values('${id(90)}','Office','office','office','department'),('${id(91)}','Foreign','foreign','foreign','department');
+ insert into auth.users(id,email,email_confirmed_at) values ${Array.from({length:10},(_,i)=>i+1).map(n=>`('${id(n)}','p${n}@example.test',${n===9?'null':'now()'})`).join(',')};
+ insert into profiles(id,full_name,email,employee_id,role,is_active,org_id) values ${Array.from({length:10},(_,i)=>i+1).map(n=>`('${id(n)}','Person ${n}','p${n}@example.test','${n}','${n===1?'admin':'member'}',${n===8?'false':'true'},'${n===7?id(91):id(90)}')`).join(',')};`);
+ await value("select set_config('request.jwt.claim.sub',$1,false)",[id(1)]);await value('select set_organization_leadership($1,$2,null)',[id(90),id(2)]);await value('select set_organization_leadership($1,$2,null)',[id(91),id(7)]);
+ await value("select set_config('request.jwt.claim.sub',$1,false)",[id(2)]);
+ const project=await value('select (create_project_with_details($1::jsonb)).id',[JSON.stringify({title:'Nested work',org_id:id(90),status:'planning'})]);
+ const group=await value('select id from project_groups where project_id=$1 order by position limit 1',[project]);
+ const root=await value('select (phase3_create_task($1,$2,$3)).id',[project,group,'Root']);
+ await db.exec('set session_replication_role=replica');await db.query("update tasks set status='todo',assigned_to=$1,team_member_ids=$2::uuid[],due_date='2026-12-31',percent_complete=37,recommendation_lead_id=$4 where id=$3",[id(3),[id(3),id(4)],root,id(5)]);
+ await db.query("insert into subtasks(id,task_id,title,position,assigned_to,assigned_to_ids,created_by,due_date) values($1,$2,'Legacy flat',0,$3,$4::uuid[],$5,'2026-12-20')",[id(100),root,id(4),[id(4)],id(3)]);await db.exec('set session_replication_role=origin');
+ const original=await value('select to_jsonb(t) from tasks t where id=$1',[root]);
+ for(const file of ['20260831000001_task_evidence_security.sql','20261007120000_r3_personal_workspaces.sql','20261008030659_r6_project_file_library.sql','20261008035748_r7_project_members_and_nested_work.sql','20261008060756_r8_approved_project_invitations.sql','20261008081855_r9_project_access_lifecycle.sql'])await db.exec(await readFile(new URL('../supabase/migrations/'+file,import.meta.url),'utf8'));
+
+ if(process.argv.includes('--integrated-refinement')) for(const file of ['20261008123723_r11_project_activity_snapshots.sql','20261008134347_r12_presentation_settings.sql']) await db.exec(await readFile(new URL('../supabase/migrations/'+file,import.meta.url),'utf8'));
+ await actor(2);
+ const grant=(n,email,access='viewer',engagement='Permanent',end=null,close=false,p=project)=>value('select r9_grant_access($1,$2,$3,$4,$5,$6,$7)',[id(n),p,email,access,engagement,end,close]);
+ const g=await grant(5000,'p7@example.test');check(g.access==='viewer','Lead Head grants Viewer');check((await grant(5000,'p7@example.test')).id===g.id,'Stable grant retry');
+ await actor(7);check(!await value('select can_see_project($1,$2)',[project,id(7)]),'Offer alone grants zero access');await value('select r9_open_share($1)',[g.id]);check(await value('select can_see_project($1,$2)',[project,id(7)]),'Viewer reads project');check(await value('select can_see_task($1,$2)',[root,id(7)]),'Viewer reads permitted root');check(!await value('select can_contribute_task($1,$2)',[root,id(7)]),'Viewer cannot execute');check(await value('select eflow_r6.access($1)',[project]),'Viewer reads general files');check(!await value('select eflow_r6.access($1,true)',[project]),'Viewer cannot upload');check((await value('select r9_open_share($1)',[g.id])).project===project,'Recipient opens share');
+ await deny('select r9_grant_access($1,$2,$3,$4,$5,null,false)',[id(5001),project,'p4@example.test','member','Permanent']);await actor(4);await deny('select r9_open_share($1)',[g.id]);await deny('select r9_removal_preview($1,$2,$3)',[project,id(3),id(90)]);
+ await actor(2);await value('select r9_revoke_grant($1)',[g.id]);await actor(7);check(!await value('select can_see_project($1,$2)',[project,id(7)]),'Revoked Viewer loses read');await deny('select r9_open_share($1)',[g.id]);
+ await actor(2);for(const email of ['p7@example.test','p8@example.test','p9@example.test','new@example.test'])await deny('select r9_grant_access($1,$2,$3,$4,$5,null,false)',[id(5002),project,email,'member','Permanent']);
+ const preview=()=>value('select r9_removal_preview($1,$2,$3)',[project,id(3),id(90)]);
+ let impact=await preview();check(impact.tasks.length===1,'Preview includes assigned task');check(await value('select assigned_to=$1 from tasks where id=$2',[id(3),root]),'Preview changes nothing');
+ const tree=await value('select r7_work_tree($1)',[root]);await value('select r7_work_command($1,$2,$3,$4,$5::jsonb)',[root,tree.revision,id(5100),'create',JSON.stringify({id:id(101),title:'Nested Lead',lead:id(3),people:[id(3)],standalone:true})]);
+ await deny('select r9_remove_person($1,$2,$3,$4,$5)',[project,id(3),id(90),impact.fingerprint,id(5200)]);check(await value('select assigned_to=$1 from tasks where id=$2',[id(3),root]),'Stale review rolls back');
+ impact=await preview();const result=await value('select r9_remove_person($1,$2,$3,$4,$5)',[project,id(3),id(90),impact.fingerprint,id(5200)]);check(result.removed===id(3),'Reviewed removal succeeds');check(JSON.stringify(await value('select r9_remove_person($1,$2,$3,$4,$5)',[project,id(3),id(90),impact.fingerprint,id(5200)]))===JSON.stringify(result),'Lost response retry');
+ check(await value('select assigned_to is null and recommendation_lead_id is null and not ($1=any(team_member_ids)) and percent_complete=37 from tasks where id=$2',[id(3),root]),'Clears staffing, preserves progress');check(await value('select count(*)=0 from subtasks where task_id=$1 and (lead_id=$2 or assigned_to=$2 or $2=any(assigned_to_ids))',[root,id(3)]),'Every descendant target assignment cleared');check(await value('select count(*)=2 from subtasks where task_id=$1',[root]),'Descendant history retained');
+ await actor(3);check(!await value('select can_see_project($1,$2)',[project,id(3)]),'Removed member loses access');check(!await value('select can_contribute_task($1,$2)',[root,id(3)]),'Removed Lead cannot execute');await deny('select r7_work_tree($1)',[root]);
+ await actor(2);const memberGrant=await grant(5300,'p3@example.test','member');await actor(3);await value('select r9_open_share($1)',[memberGrant.id]);check(await value('select can_see_project($1,$2)',[project,id(3)]),'Explicit reapproval restores read');check(!await value('select can_contribute_task($1,$2)',[root,id(3)]),'Reapproval cannot restore old assignments');await actor(2);await deny('select r9_revoke_grant($1)',[memberGrant.id]);
+ const temporary=await grant(5301,'p7@example.test','viewer','OJT',null,true);await db.exec('reset role;set session_replication_role=replica');await db.query("update projects set status='completed' where id=$1",[project]);await db.query("update tasks set status='completed' where linked_project_id=$1",[project]);await db.query("update subtasks set status='completed',is_completed=true where task_id=$1",[root]);await db.exec('set session_replication_role=origin');await db.query("update projects set status='archived' where id=$1",[project]);check(await value('select revoked_at is not null from project_access_grants where id=$1',[temporary.id]),'Close materializes ended temporary grant');
+ await db.exec('set session_replication_role=replica');await db.query("update projects set status='planning' where id=$1",[project]);await db.exec('set session_replication_role=origin');await actor(7);await deny('select r9_open_share($1)',[temporary.id]);
+ await actor(2);const dated=await grant(5302,'p7@example.test','viewer','OJT',new Date(Date.now()+60000).toISOString());await db.exec('reset role');await db.query("update project_access_grants set access_end=now()-interval '1 second' where id=$1",[dated.id]);await actor(7);await deny('select r9_open_share($1)',[dated.id]);check(!await value('select can_see_task($1,$2)',[root,id(7)]),'Expiry denies root read');
+ await actor(2);const personal=await value('select r3_create_workspace($1,$2,$3)',[id(6000),'Personal','Asia/Singapore']);const pp=await value('select r3_create_personal_project($1,$2,$3)',[personal.id,id(6001),'Personal access']);const personalGrant=await grant(6002,'p4@example.test','member','Permanent',null,false,pp.id);await actor(4);await value('select r9_open_share($1)',[personalGrant.id]);check(await value('select eflow_r3.project_access($1,true)',[pp.id]),'Personal member bounded edit eligibility');
+ await actor(2);await value('select r3_personal_project_command($1,$2,$3::jsonb,$4)',[pp.id,'create_task',JSON.stringify({title:'Personal root',lead_id:id(4)}),id(6003)]);const pi=await value('select r9_removal_preview($1,$2,null)',[pp.id,id(4)]);check(pi.tasks.length===1,'Personal preview includes assigned root');await value('select r9_remove_person($1,$2,null,$3,$4)',[pp.id,id(4),pi.fingerprint,id(6004)]);check(await value('select lead_id is null from personal_tasks where project_id=$1',[pp.id]),'Sole Lead removed without replacement');await deny('select r9_removal_preview($1,$2,null)',[pp.id,id(2)]);await actor(4);check(!await value('select eflow_r3.project_access($1)',[pp.id]),'Personal removal denies project');
+ // Real authorized file reads and mutations, expiry cleanup and transaction rollback.
+ await actor(2);
+ const renewal=await value('select (create_project_with_details($1::jsonb)).id',[JSON.stringify({title:'Renewal scope',org_id:id(90),status:'planning'})]);
+ const ro=await value('select id from project_offices where project_id=$1',[renewal]);
+ await value('select phase6_set_members($1,$2::uuid[])',[ro,[id(2),id(3),id(4)]]);
+ const rg=await value('select id from project_groups where project_id=$1 order by position limit 1',[renewal]);
+ const rt=await value('select (phase3_create_task($1,$2,$3)).id',[renewal,rg,'Unloaded root']);
+ await db.exec('reset role;set session_replication_role=replica');await db.query("update tasks set assigned_to=$1,team_member_ids=$2::uuid[],status='todo',due_date='2026-12-31' where id=$3",[id(3),[id(3),id(4)],rt]);await db.exec('set session_replication_role=origin');await actor(2);
+ const file=id(7100),filePayload={id:file,name:'History.pdf',size:12,type:'application/pdf',sha256:'a'.repeat(64)};
+ await value('select r6_project_file_command($1,null,$2,$3::jsonb)',[renewal,'reserve',JSON.stringify(filePayload)]);
+ await db.query("insert into storage.objects(bucket_id,name,owner_id,metadata) values('project-library',$1,$2,$3::jsonb)",[file+'/document',id(2),JSON.stringify({size:12,mimetype:'application/pdf'})]);await value('select r6_project_file_command($1,null,$2,$3::jsonb)',[renewal,'commit',JSON.stringify({id:file})]);
+ const viewer=await grant(7101,'p7@example.test','viewer','Permanent',null,true,renewal);await actor(7);await value('select r9_open_share($1)',[viewer.id]);
+ check((await db.query("select id from storage.objects where name=$1",[file+'/document'])).rows.length===1,'Viewer can authorize fresh permitted library signing');
+ await deny('select r6_project_file_command($1,null,$2,$3::jsonb)',[renewal,'reserve',JSON.stringify({...filePayload,id:id(7102)})]);
+ const vt=await value('select r7_work_tree($1)',[rt]);await deny('select r7_work_command($1,$2,$3,$4,$5::jsonb)',[rt,vt.revision,id(7103),'contributors',JSON.stringify({people:[id(7)]})]);
+ await actor(2);await value('select r9_revoke_grant($1)',[viewer.id]);await actor(7);
+ check((await db.query("select id from storage.objects where name=$1",[file+'/document'])).rows.length===0,'Revocation denies fresh storage read/signing authorization');await deny('select r6_list_project_files($1,null)',[renewal]);
+ await actor(2);for(const ttl of [0,31])await deny('select r9_grant_access($1,$2,$3,$4,$5,null,true,$6)',[id(7110+ttl),renewal,'p7@example.test','viewer','Permanent',ttl]);
+ const staleIssuer=await grant(7150,'p7@example.test','viewer','Permanent',null,true,renewal);
+ await db.exec('reset role');await db.query('update organizations set head_user_id=$1 where id=$2',[id(5),id(90)]);await actor(7);await deny('select r9_open_share($1)',[staleIssuer.id]);await db.exec('reset role');await db.query('update organizations set head_user_id=$1 where id=$2',[id(2),id(90)]);
+ await db.query("update project_office_members set engagement='OJT',access_end=now()-interval '1 second' where project_office_id=$1 and user_id=$2",[ro,id(3)]);await actor(3);
+ check(!await value('select can_see_project($1,$2)',[renewal,id(3)]),'Clock expiry denies selected member even broad Office fallback');await deny('select save_subtask_progress($1,20,null,null,null,$2,null,null)',[id(100),'Expired mutation']);
+ await actor(2);const oldTerms=await value("select jsonb_build_object('engagement',engagement,'access_end',access_end,'until_close',until_close,'access_ended_at',access_ended_at) from project_office_members where project_office_id=$1 and user_id=$2",[ro,id(3)]);
+ const renewed=await value('select r9_member_terms($1,$2,$3,$4,null,false,$5::jsonb,$6)',[renewal,id(3),id(90),'Permanent',JSON.stringify(oldTerms),id(7200)]);check(renewed.access_ended_at===null,'Renewal receipt reflects fresh effective terms');check(await value('select assigned_to is null and not ($1=any(team_member_ids)) from tasks where id=$2',[id(3),rt]),'Expiry renewal clears stale root appointments');
+ await actor(3);check(await value('select can_see_project($1,$2)',[renewal,id(3)]),'Explicit current Head renewal restores bounded read');check(!await value('select can_contribute_task($1,$2)',[rt,id(3)]),'Renewed member remains unassigned');
+ await actor(2);const ri=await value('select r9_removal_preview($1,$2,$3)',[renewal,id(4),id(90)]);
+ await db.exec('reset role');await db.exec("create function public.r9_test_failure() returns trigger language plpgsql as $$begin raise exception 'Injected late failure';end$$;create trigger z_r9_test_failure before update on public.project_office_members for each row execute function public.r9_test_failure();");await actor(2);
+ await deny('select r9_remove_person($1,$2,$3,$4,$5)',[renewal,id(4),id(90),ri.fingerprint,id(7201)]);
+ check(await value('select $1=any(team_member_ids) from tasks where id=$2',[id(4),rt]),'Late membership failure rolls staffing back atomically');
+ await db.exec('reset role');check(!await value('select exists(select 1 from eflow_r9.receipts where request=$1)',[id(7201)]),'Failed transaction writes no success receipt');await db.exec('drop trigger z_r9_test_failure on public.project_office_members;drop function public.r9_test_failure()');await actor(2);
+ await deny('select phase6_set_members($1,$2::uuid[])',[ro,[id(2),id(3)]]);
+ const selected=[id(2),id(3)],selection=await value('select r9_selection_preview($1,$2::uuid[])',[ro,selected]);check(selection.removed.some(x=>x.tasks.some(t=>t.id===rt)),'Selection preview includes all project work');await value('select r9_select_members($1,$2::uuid[],$3,$4)',[ro,selected,selection.fingerprint,id(7202)]);check(await value('select not ($1=any(team_member_ids)) from tasks where id=$2',[id(4),rt]),'Atomic selection reconciles contributor removal');
+ await actor(4);check(!await value('select can_see_project($1,$2)',[renewal,id(4)]),'Batch removal denies fresh project read');
+ // Approved R8 reacceptance also clears expired guest assignments.
+ await actor(2);let invite=await value('select r8_submit_request($1,$2,null,null,$3,$4,$5,$6,$7,null,true)',[id(7300),renewal,id(90),'p7@example.test','Guest context',['Analysis'],'Consultant']);invite=await value('select r8_decide_request($1,$2,$3)',[invite.id,invite.revision,'approved']);await db.exec('reset role');
+ await value('select r8_reserve_dispatch($1,$2,$3,$4,168,false)',[id(2),invite.id,invite.revision,'f'.repeat(64)]);await value('select r8_accept($1,$2,$3)',['f'.repeat(64),id(7),'Foreign Head']);
+ await db.exec('set session_replication_role=replica');await db.query('update tasks set assigned_to=$1,team_member_ids=$2::uuid[] where id=$3',[id(7),[id(7)],rt]);await db.exec('set session_replication_role=origin');await db.query("update project_guest_members set access_end=now()-interval '1 second' where project_id=$1 and user_id=$2",[renewal,id(7)]);await actor(2);
+ let reinvite=await value('select r8_submit_request($1,$2,null,null,$3,$4,$5,$6,$7,null,true)',[id(7301),renewal,id(90),'p7@example.test','Renew guest',[],'Consultant']);reinvite=await value('select r8_decide_request($1,$2,$3)',[reinvite.id,reinvite.revision,'approved']);await db.exec('reset role');await value('select r8_reserve_dispatch($1,$2,$3,$4,168,false)',[id(2),reinvite.id,reinvite.revision,'e'.repeat(64)]);await value('select r8_accept($1,$2,$3)',['e'.repeat(64),id(7),'Foreign Head']);
+ check(await value('select assigned_to is null and not ($1=any(team_member_ids)) from tasks where id=$2',[id(7),rt]),'Fresh approved guest acceptance clears old expired staffing');await actor(7);check(await value('select can_see_project($1,$2)',[renewal,id(7)]),'Fresh guest approval restores current access');
+ await deny('select * from eflow_r9.mutations');await deny('insert into project_access_grants(id,project_id,recipient,access,engagement,created_by) values($1,$2,$3,$4,$5,$3)',[id(9000),project,id(4),'member','Permanent']);
+ await actor(4);const sw=await value('select r3_create_workspace($1,$2,$3)',[id(7400),'Sponsored scope','Asia/Singapore']);const sp=await value('select r3_create_personal_project($1,$2,$3)',[sw.id,id(7401),'Private project']);
+ await deny('select r9_grant_access($1,$2,$3,$4,$5,null,true)',[id(7402),sp.id,'p7@example.test','viewer','Permanent']);await value('select r8_designate_sponsor($1,$2)',[sw.id,id(90)]);await actor(2);
+ check(!await value('select eflow_r3.project_access($1)',[sp.id]),'Sponsor Head receives no general personal project read');check((await value('select r9_project_access($1)',[sp.id])).can_share,'Sponsor Head has narrow issuer capability');
+ const sponsored=await grant(7403,'p7@example.test','viewer','Permanent',null,true,sp.id);await actor(7);await value('select r9_open_share($1)',[sponsored.id]);check(await value('select eflow_r3.project_access($1)',[sp.id]),'Sponsor-issued Viewer grants only chosen personal scope');await deny('select r3_personal_project_command($1,$2,$3::jsonb,$4)',[sp.id,'create_task',JSON.stringify({title:'Unauthorized',lead_id:id(7)}),id(7404)]);
+ await actor(4);await value('select r3_personal_project_command($1,$2,$3::jsonb,$4)',[sp.id,'set_member',JSON.stringify({user_id:id(5),access:'member',state:'active'}),id(7410)]);await value('select r3_personal_project_command($1,$2,$3::jsonb,$4)',[sp.id,'create_task',JSON.stringify({title:'Expired personal Lead',lead_id:id(5)}),id(7411)]);
+ await db.exec('reset role');await db.query("update personal_project_members set engagement='OJT',access_end=now()-interval '1 second',access_ended_at=now(),state='revoked' where project_id=$1 and user_id=$2",[sp.id,id(5)]);await actor(4);
+ const personalTerms=await value("select jsonb_build_object('engagement',engagement,'access_end',access_end,'until_close',until_close,'access_ended_at',access_ended_at) from personal_project_members where project_id=$1 and user_id=$2",[sp.id,id(5)]);const pr=await value('select r9_member_terms($1,$2,null,$3,null,false,$4::jsonb,$5)',[sp.id,id(5),'Permanent',JSON.stringify(personalTerms),id(7412)]);check(pr.state==='active'&&pr.access_ended_at===null,'Personal renewal receipt reflects current active membership');check(await value('select bool_and(lead_id is null) from personal_tasks where project_id=$1',[sp.id]),'Personal renewal leaves expired work unassigned');await actor(5);check(await value('select eflow_r3.project_access($1)',[sp.id]),'Owner reapproval restores personal read');
+ await actor(2);const dead=await grant(7450,'p7@example.test','viewer','Permanent',null,true,renewal);await db.exec('reset role');await db.query("update project_access_grants set redeem_expires_at=now()-interval '1 second' where id=$1",[dead.id]);await actor(7);await deny('select r9_open_share($1)',[dead.id]);
+ await db.exec('reset role');check(await value('select count(*)=0 from eflow_r9.mutations'),'Private cleanup markers never outlive operations');check(await value('select exists(select 1 from eflow_r9.events where project_id=$1 and action=$2)',[renewal,'assignments_cleared']),'Immutable cleanup history remains');
+ await actor(2);const changedRecipient=await grant(7460,'p5@example.test','member','Permanent',null,false,renewal);await db.exec('reset role;set session_replication_role=replica');await db.query('update profiles set org_id=$1 where id=$2',[id(91),id(5)]);await db.exec('set session_replication_role=origin');await actor(5);await deny('select r9_open_share($1)',[changedRecipient.id]);await db.exec('reset role;set session_replication_role=replica');await db.query('update profiles set org_id=$1 where id=$2',[id(90),id(5)]);await db.exec('set session_replication_role=origin');
+ await db.exec('set session_replication_role=replica');await db.query("update projects set status='completed' where id=$1",[renewal]);await db.exec('set session_replication_role=origin');await actor(3);
+ check(await value('select can_see_project($1,$2)',[renewal,id(3)]),'Permanent renewed member retains authorized closed history');check(!await value('select can_contribute_task($1,$2)',[rt,id(3)]),'Closed permanent history creates no execution authority');
+ if(process.argv.includes('--integrated-refinement')) {
+  await actor(2);
+  const history=await value('select r11_project_activity($1)',[renewal]);
+  check(history.total>0&&history.events.length>0,'Cumulative Activity includes access and invitation history');
+  await actor(4);await deny('select r11_project_activity($1)',[renewal]);
+  await actor(1);
+  const expected=await value("select jsonb_build_object('organization_name',(select value from system_config where key='organization_name'),'app_version',(select value from system_config where key='app_version'))");
+  const settings={organization_name:'R13 synthetic candidate',app_version:'13.0'};
+  const save=()=>value('select r12_save_presentation_settings($1,$2::jsonb,$3::jsonb)',[id(7500),JSON.stringify(expected),JSON.stringify(settings)]);
+  const saved=await save();check(saved.organization_name===settings.organization_name&&saved.app_version===settings.app_version,'Presentation save after complete refinement installation');
+  await save();check(await value("select count(*)=1 from audit_events where metadata->>'request_id'=$1",[id(7500)]),'Cumulative settings retry has one audit receipt');
+  check(!await value('select can_contribute_task($1,$2)',[rt,id(1)]),'Configuration Admin still has no operational execution rights');
+  console.log(`R13 cumulative R3-R12 PostgreSQL: ${checks} checks passed; no hosted writes.`);
+ } else
+ console.log(`R9 access SQL verified: ${checks} checks passed.`);
+}finally{await db?.close();}

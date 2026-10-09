@@ -8,12 +8,14 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from gateway_config import settings
 from routers.admin import router as admin_router
+from routers.admin_configuration import router as admin_configuration_router
 from routers.ai import router as ai_router
 from routers.proposals import router as proposals_router
 from routers.notifications import router as notifications_router
 from routers.backups import router as backups_router
 from routers.collaboration import router as collaboration_router
 from routers.invitations import router as invitations_router, team_router
+from routers.project_invitations import router as project_invitations_router
 from routers.professional_profiles import router as professional_profiles_router
 from routers.onboarding import router as onboarding_router
 from routers.staffing import router as staffing_router
@@ -49,10 +51,12 @@ async def health():
 app.include_router(ai_router)
 app.include_router(proposals_router)
 app.include_router(admin_router)
+app.include_router(admin_configuration_router)
 app.include_router(notifications_router)
 app.include_router(backups_router)
 app.include_router(collaboration_router)
 app.include_router(invitations_router)
+app.include_router(project_invitations_router)
 app.include_router(team_router)
 app.include_router(professional_profiles_router)
 app.include_router(onboarding_router)

@@ -18,7 +18,7 @@ const navigationItems: ShellNavigationItem[] = [
     id: "dashboard",
     icon: null,
     label: "Overview",
-    group: "home",
+    group: "workspaces",
     pages: [{ label: "Dashboard" }],
   },
   {
@@ -58,7 +58,7 @@ describe("Phase 02 productivity sidebar", () => {
     fireEvent.mouseEnter(screen.getByRole("complementary", { name: "Primary navigation" }));
 
     fireEvent.click(screen.getByRole("button", { name: "Workspaces" }));
-    expect(onPageSelect).toHaveBeenCalledWith("tasks", "My Tasks");
+    expect(onPageSelect).toHaveBeenCalledWith("dashboard", "Dashboard");
 
     fireEvent.click(screen.getByRole("button", { name: "Task Board" }));
     expect(onPageSelect).toHaveBeenLastCalledWith("tasks", "Task Board");

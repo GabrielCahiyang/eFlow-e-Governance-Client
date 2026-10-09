@@ -73,7 +73,7 @@ export function buildProjectActivity(facts: TeamWorkflowFacts, projectEvents: Pr
     ...facts.statusHistory.map((item) => ({ id: `status:${item.id}`, kind: "status" as const, title: `Task moved to ${item.toStatus.replace(/_/g, " ")}`, detail: item.note || "Status updated", actorName: item.actorName, occurredAt: item.createdAt, taskId: item.taskId })),
     ...facts.progress.map((item) => ({ id: `progress:${item.id}`, kind: "progress" as const, title: item.kind === "subtask" ? "Subtask progress updated" : "Task progress updated", detail: item.blocker || item.note || item.nextStep || `${item.percentComplete || 0}% complete`, actorName: item.authorName, occurredAt: item.createdAt, taskId: item.taskId })),
     ...facts.submissions.map((item) => ({ id: `submission:${item.id}`, kind: "submission" as const, title: `${item.kind === "subtask" ? "Subtask" : "Task"} ${item.status === "pending" ? "submitted for review" : item.status.replace(/_/g, " ")}`, detail: item.feedback || `Attempt ${item.version}`, actorName: item.submitterName, occurredAt: item.decidedAt || item.submittedAt, taskId: item.taskId })),
-  ].sort((a, b) => b.occurredAt - a.occurredAt);
+  ].sort((a, b) => b.occurredAt - a.occurredAt || b.id.localeCompare(a.id));
 }
 
 export interface ProjectWorkGroup {

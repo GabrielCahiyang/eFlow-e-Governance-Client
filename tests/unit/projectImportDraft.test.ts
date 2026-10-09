@@ -34,7 +34,7 @@ describe('Phase 5 reviewed workspace import', () => {
     draft.groups[0].tasks[0].dueDate = '2026-02-30';
     expect(() => validateProjectImportDraft(draft, false)).toThrow('dates');
     draft.groups[0].tasks[0].dueDate = ''; draft.groups[0].tasks[0].estimatedHours = -1;
-    expect(() => validateProjectImportDraft(draft, false)).toThrow('Effort');
+    expect(() => validateProjectImportDraft(draft, false)).toThrow('Estimated hours');
   });
   it('allows reviewing project metadata without silently applying it', () => {
     const draft = parseProjectImportDraft(JSON.stringify(fixture()), source); draft.offices[0].confirmed = true;

@@ -21,6 +21,7 @@ import {
   type ProgressUpdate,
 } from "../../services/taskDiscussionService";
 import { InitialsAvatar } from "./StatusBadges";
+import {fetchProjectFileEvents,type ProjectFileEvent} from '../../features/project-files';
 
 interface SystemEvent {
   id: string;
@@ -33,7 +34,8 @@ interface SystemEvent {
 
 type TimelineItem =
   | { kind: "system"; at: number; data: SystemEvent }
-  | { kind: "progress"; at: number; data: ProgressUpdate };
+  | { kind: "progress"; at: number; data: ProgressUpdate }
+  | { kind: "file"; at: number; data: ProjectFileEvent };
 
 const STATUS_ICON: Record<string, React.ReactNode> = {
   pending_assignment: <Circle size={13} />,
@@ -66,17 +68,23 @@ function timeAgo(ts: number): string {
   return new Date(ts).toLocaleDateString("en-PH", { month: "short", day: "numeric" });
 }
 
-export function TaskActivityTimeline({ taskId }: { taskId: string }) {
+export function TaskActivityTimeline({ taskId,projectId }: { taskId: string;projectId?:string }) {
   const [events, setEvents] = useState<SystemEvent[]>([]);
   const [progress, setProgress] = useState<ProgressUpdate[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [loadError, setLoadError] = useState('');
+  const [progressError, setProgressError] = useState('');
+  const [fileEvents,setFileEvents]=useState<ProjectFileEvent[]>([]),[fileError,setFileError]=useState('');
   const [retry, setRetry] = useState(0);
+  useEffect(()=>{let active=true;setFileEvents([]);setFileError('');
+    if(projectId)void fetchProjectFileEvents(projectId,taskId).then(events=>{if(active)setFileEvents(events);}).catch(reason=>{if(active)setFileError(reason instanceof Error?reason.message:'Project file history unavailable.');});
+    return()=>{active=false;};
+  },[projectId,taskId,retry]);
 
   useEffect(() => {
     let active = true;
-    setEvents([]); setProgress([]); setLoading(true); setLoadError('');
+    setEvents([]); setProgress([]); setLoading(true); setLoadError(''); setProgressError('');
     const loadHistory = async () => {
       const { data, error } = await supabase
         .from("task_status_history")
@@ -109,7 +117,7 @@ export function TaskActivityTimeline({ taskId }: { taskId: string }) {
       )
       .subscribe();
 
-    const unsubProgress = subscribeToProgressUpdates(taskId, (p) => { if (active) setProgress(p); });
+    const unsubProgress = subscribeToProgressUpdates(taskId, (p) => { if (active) {setProgress(p);setProgressError('');} }, message => {if(active){setProgress([]);setProgressError(message);}});
 
     return () => {
       active = false;
@@ -121,7 +129,8 @@ export function TaskActivityTimeline({ taskId }: { taskId: string }) {
   const items: TimelineItem[] = [
     ...events.map((e) => ({ kind: "system" as const, at: e.at, data: e })),
     ...progress.map((p) => ({ kind: "progress" as const, at: p.createdAt, data: p })),
-  ].sort((a, b) => b.at - a.at);
+    ...fileEvents.map(f=>({kind:'file' as const,at:f.at,data:f})),
+  ].sort((a, b) => b.at - a.at || b.data.id.localeCompare(a.data.id));
 
   if (loading) {
     return (
@@ -136,9 +145,10 @@ export function TaskActivityTimeline({ taskId }: { taskId: string }) {
     );
   }
 
-  if (loadError) return <div role="alert"><p>{loadError}</p><button onClick={() => setRetry(value => value + 1)}>Retry activity</button></div>;
+  if (loadError || progressError) return <div role="alert"><p>{loadError || progressError}</p><button onClick={() => setRetry(value => value + 1)}>Retry activity</button></div>;
 
   if (items.length === 0) {
+    if(fileError)return <div role="alert"><p>{fileError} Existing workflow history has no events.</p><button onClick={()=>setRetry(r=>r+1)}>Retry file history</button></div>;
     return (
       <div className="text-center py-8 text-[12px] font-normal text-neutral-400">
         No activity yet.
@@ -148,6 +158,7 @@ export function TaskActivityTimeline({ taskId }: { taskId: string }) {
 
   return (
     <div className="relative pl-1">
+      {fileError&&<div role="alert"><p>{fileError} Existing workflow history is shown below.</p><button onClick={()=>setRetry(r=>r+1)}>Retry file history</button></div>}
       <div className="absolute left-[15px] top-2 bottom-2 w-px bg-neutral-100" />
       <div className="space-y-3">
         {items.map((item) =>
@@ -171,7 +182,7 @@ export function TaskActivityTimeline({ taskId }: { taskId: string }) {
                 </div>
               </div>
             </div>
-          ) : (
+          ) : item.kind === 'progress' ? (
             <div key={`p-${item.data.id}`} className="relative flex gap-3">
               <div className="relative z-10 w-7 h-7 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600 shrink-0">
                 <Gauge size={13} />
@@ -215,7 +226,7 @@ export function TaskActivityTimeline({ taskId }: { taskId: string }) {
                 </div>
               </div>
             </div>
-          ),
+          ) : <div key={`f-${item.data.id}`} className="relative flex gap-3 text-sm"><div className="w-7 h-7 rounded-full bg-neutral-100 shrink-0 flex items-center justify-center"><Circle size={13}/></div><div><p><strong>{item.data.actorName}</strong> {item.data.action} a project document.</p><time className="text-xs text-neutral-500">{timeAgo(item.at)}</time></div></div>,
         )}
       </div>
     </div>

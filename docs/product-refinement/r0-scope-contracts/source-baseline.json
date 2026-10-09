@@ -1,0 +1,272 @@
+{
+  "contractVersion": "r0-v1",
+  "clientDate": "2026-10-07",
+  "clientTimezone": "Asia/Singapore",
+  "sourceCommit": "d13714628ba19f09f1226812f10bffb17bdcb854",
+  "scope": "Selected source, migration, and controlling-document fingerprints; no live state or secrets",
+  "hostedTarget": "ixnfphgjyelhckjwjkdv",
+  "graphReportCommit": "a16d36e0",
+  "graphFreshness": "Predecessor map; actual current source inspected",
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "62ea8a447dd5db3984a6941f51c204874215f90d58cfad392edf2ca39eb5dd71"
+    },
+    {
+      "path": "package.json",
+      "sha256": "50e2a508cafb6997f85d0d44adf62d0204e8d4f2cb657f20f3c57fe5f1428ea8"
+    },
+    {
+      "path": "docs/phase65-live-deployment-2026-10-07.md",
+      "sha256": "bedceff0cc014010e6f87be727645483ea1ba958ed842fb13a53de9d45e65afd"
+    },
+    {
+      "path": "docs/product-refinement/phase18-performance-issue.md",
+      "sha256": "8eb66bff6bc5cdf00cd52d052996c789b7437915b701c4d47cdc203cded8b464"
+    },
+    {
+      "path": "src/app/components/Layout/coreWorkflowNavigation.tsx",
+      "sha256": "4f9c4cb95ed3d5d9787578517e9ed2ecf6391686e08032aa20874f88b36e40cc"
+    },
+    {
+      "path": "src/app/features/navigation/navigationUrl.ts",
+      "sha256": "d902faa3287e784c3b44a2421993048b481185d00f667451c7fd97409095bbcf"
+    },
+    {
+      "path": "src/app/features/navigation/navigationPermissions.ts",
+      "sha256": "edb27bcfde6bb81ad842a504afa48987c76fc12dd59a34330a7c1dea7078f7cd"
+    },
+    {
+      "path": "src/app/features/navigation/presentationNavigation.ts",
+      "sha256": "ae57d7b490d0790d61066d11e13da5ef9d84a2959db1f48a140a50cfeeeadeec"
+    },
+    {
+      "path": "src/app/features/navigation/administrativePages.ts",
+      "sha256": "e9077d22f91ad4ee4caabcf3090a92f9b97c3e2649ec3faa415011e87f69d2cf"
+    },
+    {
+      "path": "src/app/features/navigation/RoleContent.tsx",
+      "sha256": "d62c10758635995c70b7745154e786afe7cd060a438881fdc0c631dbd01ce4c8"
+    },
+    {
+      "path": "src/app/features/app-shell/EflowAppShell.tsx",
+      "sha256": "e4ac6cc6d29e1a112d01424f99c5400248bf181c7003872bf3ea983911cb8b1e"
+    },
+    {
+      "path": "src/app/features/app-shell/components/GlobalNavigation.tsx",
+      "sha256": "e153d26af836f6cb56e6149ae5cef0d3fa5d21e08833eb19fb6ea34320716743"
+    },
+    {
+      "path": "src/app/features/app-shell/components/MobileNavigationBar.tsx",
+      "sha256": "0ed30857dcb7fe17decb7e37e6d5c7eabbcf23705edadf94f5204c85a47f5515"
+    },
+    {
+      "path": "src/app/features/app-shell/components/WorkspaceNavigationPanel.tsx",
+      "sha256": "993e0e973424147b3ac22a924a81a1300e402e1feeec850a36a7951ccfe06faa"
+    },
+    {
+      "path": "src/app/shared/navigationPreferences.ts",
+      "sha256": "a7866b0861e28c405bf96eab268580bbc135f9058733bef73c92ac3db4b71b19"
+    },
+    {
+      "path": "src/app/features/projects/components/ProjectContextSidebar.tsx",
+      "sha256": "48b3d8135162ebe600e269c7d979ca39309c124efc884c931a07a35061872842"
+    },
+    {
+      "path": "src/app/features/projects/components/project-command/projectViewCatalog.ts",
+      "sha256": "dd473549045ef382d450bb57d064036d48ada21117f8aef9515054b87f36b03b"
+    },
+    {
+      "path": "src/app/features/projects/components/project-command/ProjectViewTabBar.tsx",
+      "sha256": "798b3ebc0f7dd039d49ceec5513e7c477f65d64b7d55cb3ba38cb3154663efe6"
+    },
+    {
+      "path": "src/app/features/projects/components/project-command/ProjectHeader.tsx",
+      "sha256": "32f80921acf6dde0f24f393caa8378a94e73159d5a42d8b5f103372d236c0f99"
+    },
+    {
+      "path": "src/app/features/projects/components/project-command/ProjectUtilities.tsx",
+      "sha256": "af884a9016e554ea8e4a191fb6caf29ae70e7bd66442ecb8705bb1f99fdf7f9a"
+    },
+    {
+      "path": "src/app/features/projects/components/project-command/ProjectSettingsDialog.tsx",
+      "sha256": "29577f61c406ff6be0c19e0909dd2682162a344d20e0dab71fdcc2cdfd6d505a"
+    },
+    {
+      "path": "src/app/features/projects/components/ProjectCompleteDialog.tsx",
+      "sha256": "9919da147edfb4b1c5449bda7f4f00359b000da61893f6d296ce8463a6c21369"
+    },
+    {
+      "path": "src/app/features/projects/services/projectLifecycleService.ts",
+      "sha256": "6fb0c492d4f90ae783659ee2e404c6d8e9aa3fb6ce55fb16e6a10a194a3bdea7"
+    },
+    {
+      "path": "src/app/features/projects/services/projectActivityService.ts",
+      "sha256": "911b9da556d880d4981ce905794e4607010bb9e2c652a8921f40107d6c5e0799"
+    },
+    {
+      "path": "src/app/features/project-readiness/services/readinessService.ts",
+      "sha256": "b04ccd8edfbee9c5333ac04f4f9ee02e3eef0c5e2652c7a55b56cbf7ac9ab0a2"
+    },
+    {
+      "path": "src/app/features/project-readiness/resolution.ts",
+      "sha256": "4d79214cac1c97ae5f1fa40ebbf7751257648a898bd531d4c98a10fc6c2ae3b1"
+    },
+    {
+      "path": "src/app/features/project-readiness/components/ProjectReadinessPanel.tsx",
+      "sha256": "0a6e1d266191d0c621f22857cc9f11f95b8558b47550d99a6705ce30de31e8e1"
+    },
+    {
+      "path": "src/app/features/project-offices/services/staffingAuthority.ts",
+      "sha256": "44d6194493735125e5ac950b711424e714cfb69b75b20b626dfad6f1da17aee0"
+    },
+    {
+      "path": "src/app/features/project-offices/selectors.ts",
+      "sha256": "6296fb9e3aa78251abde4bcc19e195d96fafc388fe71932e753144e4d885ebb8"
+    },
+    {
+      "path": "src/app/features/project-offices/components/OfficeMembersEditor.tsx",
+      "sha256": "178f7489bf5dc0f1d72939d6c5d622c2b339c525889f2d4f7044d5893d050a6e"
+    },
+    {
+      "path": "src/app/features/tasks/selectors/teamMembership.ts",
+      "sha256": "660ec09d7c9ba9c5fbef6f293a32b67cfb66073727e6c3cd492ab217a7e7b553"
+    },
+    {
+      "path": "src/app/features/tasks/services/taskTeamService.ts",
+      "sha256": "577097e97346bdd5c200c30fa59b8232fc9bd9276ddb0ed74550b8d14e1b0898"
+    },
+    {
+      "path": "src/app/services/subtaskService.ts",
+      "sha256": "87360bbbdd032dea415071e05376d4801f7fce9a3d1d3b6fe8bd00d0fdbc9ef2"
+    },
+    {
+      "path": "src/app/features/task-inspector/components/TaskInspector.tsx",
+      "sha256": "54068b2f8b978dc0d8f9e39a8f5d7e0a2f182b86d4bfa8df360a7f7ff0cf6630"
+    },
+    {
+      "path": "src/app/features/project-table/types.ts",
+      "sha256": "d29368092426e755fa4dcc88f2aaecc9718666e5c19e6ace6be953413eb74da0"
+    },
+    {
+      "path": "src/app/features/project-table/components/TimelineCell.tsx",
+      "sha256": "4d654616d93a934378a4d979dd9d731f451b5d80a3791225a7962722cb57822d"
+    },
+    {
+      "path": "src/app/features/project-table/hooks/usePlanningEditor.ts",
+      "sha256": "92481a7341770e37c045648c170a09e03b7b3acedfc1a46d3d43123611e63546"
+    },
+    {
+      "path": "src/app/features/project-table/hooks/useTableLayout.ts",
+      "sha256": "652005db2b49fe6906295430d4d9aab39d485a16dde73a575104bb7f261b7fd7"
+    },
+    {
+      "path": "src/app/features/notifications/navigation.ts",
+      "sha256": "ab0c49a35c032fabe958f3bd8e9fd160b08438e950ff29b0c34b90b2c6bf2bce"
+    },
+    {
+      "path": "src/app/features/notifications/navigationIntent.ts",
+      "sha256": "08febdfb2c2e65ffe68dd7c189c68c63257ab63867318c786685100a9f61fc0f"
+    },
+    {
+      "path": "src/app/features/guided-tours/tourCatalog.ts",
+      "sha256": "24630bfdbfbb744cf5411578c12d3501662738f0f48e164961a286c44982696e"
+    },
+    {
+      "path": "src/app/features/invitations/types.ts",
+      "sha256": "e7ed08b90bd67443a96be5fc3a596cfd0adb62baafd775f989d589cf8b1f35a7"
+    },
+    {
+      "path": "src/app/features/invitations/components/AcceptInvitationPage.tsx",
+      "sha256": "09630a4970c87295bbeb119c9ca41406fdd46b92b0aae4d71b7d3ea2fe8c1d3f"
+    },
+    {
+      "path": "src/app/features/personal-work/selectors.ts",
+      "sha256": "d657bcd419b9760372c57912cf978772368ffd57653b54c2a4c8bdd5fdfedb66"
+    },
+    {
+      "path": "src/app/features/administration/components/AdministrationWorkspace.tsx",
+      "sha256": "99d53fb0d77d4693872dd8788cec6fd18018bdf7125b60ce1c95af1135f37afe"
+    },
+    {
+      "path": "src/app/features/administration/components/data-tools/BackupExportWorkspace.tsx",
+      "sha256": "94e7fa9c3961a2679b4755dd62d25ffd96422e6c6403774edc2cc3e788bacb01"
+    },
+    {
+      "path": "src/app/components/SuperAdmin/SystemSettings.tsx",
+      "sha256": "16ba9a3d0977112efc6e7bad9c35270858f2cbce0ef708d8ee72ddf8368a6b58"
+    },
+    {
+      "path": "src/app/shared/controlPanelClient.ts",
+      "sha256": "e3f41f857a3ddc9c7479aed48269fe83f864c5d4ee9abffb387e46eca3687ba8"
+    },
+    {
+      "path": "src/app/features/ai/services/aiGatewayService.ts",
+      "sha256": "b37c24f67434f1916f2866b0d0dee6e83c3789f69fd540d983835962954fa572"
+    },
+    {
+      "path": "src/lib/supabaseService.ts",
+      "sha256": "dcacd8ebd9d829d7268cad56228ca3825b11de5e6327dc7d3ad0cb0d04d63aab"
+    },
+    {
+      "path": "src/styles/foundation-tokens.css",
+      "sha256": "961949df0e7d4d96a1c179b7c2b443c24a753b9352903cb41c71cb7f95933860"
+    },
+    {
+      "path": "src/styles/workspace-foundation.css",
+      "sha256": "8c34744a230453f9d87929a14d8d0d6596e9e49888c3d9a3edea8fb043a4688c"
+    },
+    {
+      "path": "src/app/features/projects/components/projectsVibe.css",
+      "sha256": "5bec5adef643a2232bff6c00616847d1b4608e84197f12da29ef14dc58145180"
+    },
+    {
+      "path": "server/gateway_dependencies.py",
+      "sha256": "613a22cca79da9bf64c1254ac8b6ed00a5b5ff480e4f7128005964832b0d30e0"
+    },
+    {
+      "path": "server/routers/invitations.py",
+      "sha256": "483cc0b2dcc420287ccfb3703aa6438f6bf393a972029b5b1055d788badddc43"
+    },
+    {
+      "path": "server/invitations/service.py",
+      "sha256": "9902dd4743a41df4aa4f142f642b865f1fda5f78c863be4d19aec2400069b4ae"
+    },
+    {
+      "path": "server/services/phase2_config.py",
+      "sha256": "93291f3f4ad3a6369bf6071e43558a7f4f18ff6dec19f6d4fc6ab1ef05d9ae4f"
+    },
+    {
+      "path": "server/services/email_delivery.py",
+      "sha256": "7bb5c75e32b77db034b158599452b9be58d905eacb30af75134c128deee2cb98"
+    },
+    {
+      "path": "server/routers/notifications.py",
+      "sha256": "13bbc955663111c3451399b98ecb772740c8e7f4e321b7ff010f0368a5073d9d"
+    },
+    {
+      "path": "server/routers/ai.py",
+      "sha256": "d0ceca157bbd2dc82e155dcc13f421fb231a4499ee966d79c16754f5e65fb1d5"
+    },
+    {
+      "path": "supabase/migrations/20261004174950_phase6_project_office_collaboration.sql",
+      "sha256": "92e0635b45ae1dbe3d26aeec58cd5af8b817e27e4b2cb4c65e02f819e3d59bee"
+    },
+    {
+      "path": "supabase/migrations/20261004182453_phase6_shared_structure_guards.sql",
+      "sha256": "c472ef02a7c0265bce3df298d4ed02c344c4ed169b2acb7b3112da7297d1fcd6"
+    },
+    {
+      "path": "supabase/migrations/20261004194130_phase7_readiness_governance.sql",
+      "sha256": "382d3983a0ed54cd2261e319a887d3d69ebbe963d771e0a7c0ccb2ddf98d84a3"
+    },
+    {
+      "path": "supabase/migrations/20260831000003_project_completion_lifecycle.sql",
+      "sha256": "2d4bf3e54d53a793e8516d9fa2432e1dffe6a77cdfae038921422256fb469341"
+    },
+    {
+      "path": "supabase/migrations/20261005170822_phase65_project_local_office_identity.sql",
+      "sha256": "8df2fc34cdce7ca2658c6313e49a9b824e13d1999e35df5c919f5b73f5a1e440"
+    }
+  ]
+}

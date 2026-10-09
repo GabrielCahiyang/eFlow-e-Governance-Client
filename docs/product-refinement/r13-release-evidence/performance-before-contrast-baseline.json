@@ -1,0 +1,103 @@
+{
+  "stats": {
+    "startTime": "2026-10-08T15:33:38.256Z",
+    "duration": 38023.708,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "records": [
+    {
+      "stage": "r13-baseline",
+      "timingModel": "paint-ready-v2",
+      "size": 100,
+      "browser": "chromium",
+      "samples": [
+        {
+          "run": 0,
+          "readyMs": 974.2363999999998,
+          "filterMs": 120.64980000000014,
+          "restReads": 52,
+          "assetBytes": 3916374,
+          "nodes": 6516,
+          "memory": 76600000
+        },
+        {
+          "run": 1,
+          "readyMs": 989.1509000000005,
+          "filterMs": 134.11809999999969,
+          "restReads": 52,
+          "assetBytes": 4101304,
+          "nodes": 6516,
+          "memory": 76600000
+        },
+        {
+          "run": 2,
+          "readyMs": 821.1124,
+          "filterMs": 160.23909999999978,
+          "restReads": 52,
+          "assetBytes": 4101304,
+          "nodes": 6516,
+          "memory": 76600000
+        }
+      ]
+    },
+    {
+      "stage": "r13-baseline",
+      "timingModel": "paint-ready-v2",
+      "size": 1000,
+      "browser": "chromium",
+      "samples": [
+        {
+          "run": 0,
+          "readyMs": 6266.8447,
+          "filterMs": 827.6164000000008,
+          "restReads": 52,
+          "assetBytes": 3916374,
+          "nodes": 59616,
+          "memory": 1000000000
+        },
+        {
+          "run": 1,
+          "readyMs": 7349.517400000001,
+          "filterMs": 849.0093000000015,
+          "restReads": 52,
+          "assetBytes": 3916374,
+          "nodes": 59616,
+          "memory": 1000000000
+        },
+        {
+          "run": 2,
+          "readyMs": 6092.469399999998,
+          "filterMs": 834.8938999999991,
+          "restReads": 52,
+          "assetBytes": 3819691,
+          "nodes": 59616,
+          "memory": 1000000000
+        }
+      ]
+    },
+    {
+      "stage": "r13-baseline",
+      "browser": "chromium",
+      "samples": [
+        {
+          "run": 0,
+          "readyMs": 752.4623999999967,
+          "journalReads": 2
+        },
+        {
+          "run": 1,
+          "readyMs": 749.5822000000044,
+          "journalReads": 2
+        },
+        {
+          "run": 2,
+          "readyMs": 752.2626000000018,
+          "journalReads": 2
+        }
+      ]
+    }
+  ]
+}

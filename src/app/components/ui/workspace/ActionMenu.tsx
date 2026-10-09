@@ -1,4 +1,5 @@
 import { useId, type ReactElement, type ReactNode } from "react";
+import { WorkspaceTooltip } from "./WorkspaceTooltip";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -19,16 +20,18 @@ export function ActionMenu({
   actions,
   onCloseAutoFocus,
   side = "bottom",
+  tooltip,
 }: {
   trigger: ReactElement;
   actions: WorkspaceAction[];
   onCloseAutoFocus?: (event: Event) => void;
   side?: "top" | "bottom";
+  tooltip?: string;
 }) {
   const menuId = useId();
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
+      {tooltip ? <WorkspaceTooltip content={tooltip}><DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger></WorkspaceTooltip> : <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>}
       <DropdownMenuContent
         data-placement={side}
         side={side}

@@ -47,9 +47,9 @@ describe('project view navigation', () => {
   });
 
   it('keeps an active overflow view selected and exposes the displaced view in More', async () => {
-    localStorage.setItem('eflow_project_views_project-a', JSON.stringify(['overview', 'timeline', 'reports', 'activity', 'reviews', 'workload']));
-    render(<Views initial="workload" />);
-    expect(screen.getByRole('tab', { name: 'Workload & Team', exact: true }).getAttribute('aria-selected')).toBe('true');
+    localStorage.setItem('eflow_project_views_project-a', JSON.stringify(['overview', 'timeline', 'reports', 'activity', 'proposal_context', 'reviews']));
+    render(<Views initial="reviews" />);
+    expect(screen.getByRole('tab', { name: 'Reviews', exact: true }).getAttribute('aria-selected')).toBe('true');
     fireEvent.keyDown(screen.getByRole('button', { name: 'More (2)' }), { key: 'Enter' });
     fireEvent.click(await screen.findByRole('menuitem', { name: 'Activity', exact: true }));
     expect(screen.getByRole('tab', { name: 'Activity', exact: true }).getAttribute('aria-selected')).toBe('true');

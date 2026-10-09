@@ -11,7 +11,12 @@ import { UserManagement } from "./user-management";
 import { BackupExportWorkspace } from "./data-tools";
 import { OrgTreeBuilder } from "../../organization";
 import { AdminAuditLog } from "../../audit";
-import { SystemSettings } from "../../../components/SuperAdmin/SystemSettings";
+import { ApplicationSettings } from "../configuration/ApplicationSettings";
+import { ConfigurationMatrix } from "../configuration/ConfigurationMatrix";
+import { EmailIntegrations } from "../configuration/EmailIntegrations";
+import { RuntimeHealth } from "../configuration/RuntimeHealth";
+import { useMediaQuery } from "../../../shared/useMediaQuery";
+import "../../../components/ui/workspace/analyticalWorkspace.css";
 import { requestNavigation } from "../../../shared/navigationGuard";
 import {
   getAuthorizedSupportPages,
@@ -29,6 +34,7 @@ export function AdministrationWorkspace({
   onNavigate?: (section: string, page: string) => void;
 }) {
   const { userProfile, can } = useAuth();
+  const compact = useMediaQuery("(max-width: 767px)");
   const initial = resolveSupportPage(activeSection, activePage) || "All Users";
   const [page, setPage] = useState<string>(initial);
   useEffect(() => {
@@ -70,7 +76,30 @@ export function AdministrationWorkspace({
       id: "System Settings",
       label: "System Settings",
       permission: "navigation.system_settings",
-      content: <SystemSettings />,
+      content: <ApplicationSettings />,
+    },
+    {
+      id: "Workspace Policy",
+      label: "Workspaces & project access policy",
+      permission: "navigation.system_settings",
+      content: (
+        <ConfigurationMatrix
+          area="workspace"
+          title="Workspaces & project access policy"
+        />
+      ),
+    },
+    {
+      id: "Email & Integrations",
+      label: "Email & integrations",
+      permission: "navigation.system_settings",
+      content: <EmailIntegrations />,
+    },
+    {
+      id: "Runtime / AI Health",
+      label: "Runtime / AI health",
+      permission: "navigation.system_settings",
+      content: <RuntimeHealth />,
     },
     {
       id: "Backup & Export",
@@ -108,18 +137,18 @@ export function AdministrationWorkspace({
       label:
         (
           {
-            "All Users": "People",
-            "Office Structure": "Offices",
+            "All Users": "People & onboarding",
+            "Office Structure": "Offices & leadership",
             "Account Audit": "Audit",
-            "System Settings": "System",
-            "Backup & Export": "Backup",
+            "System Settings": "Application settings",
+            "Backup & Export": "Backup & export",
           } as Record<string, string>
         )[tab.id] || tab.label,
     }));
   if (accessTabs.length)
     grouped.splice(2, 0, {
       id: "access",
-      label: "Roles & Access",
+      label: "Roles & permissions",
       permission: "navigation.user_management",
       content: (
         <WorkspaceTabs
@@ -135,14 +164,30 @@ export function AdministrationWorkspace({
         />
       ),
     });
+  const categoryOrder = [
+    "All Users",
+    "Office Structure",
+    "access",
+    "Workspace Policy",
+    "System Settings",
+    "Email & Integrations",
+    "Runtime / AI Health",
+    "Account Audit",
+    "Backup & Export",
+  ];
+  grouped.sort(
+    (a, b) => categoryOrder.indexOf(a.id) - categoryOrder.indexOf(b.id),
+  );
   return (
     <WorkspaceShell className="eflow-admin-workspace">
       <WorkspaceHeader
         title="Admin Center"
-        description="Accounts, Offices, access and system support. Operational and financial decisions remain with their authorized roles."
+        description="Platform support, effective configuration and operator health. Operational staffing, review and financial decisions retain their existing authorities."
       />
       <WorkspaceTabs
         label="Administration tools"
+        orientation={compact ? "horizontal" : "vertical"}
+        className="eflow-admin-categories"
         tabs={grouped}
         value={accessTabs.some((tab) => tab.id === page) ? "access" : page}
         onValueChange={(value) =>

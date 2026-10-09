@@ -43,6 +43,7 @@
   --eflow-space-5: 20px;
   --eflow-space-6: 24px;
   --eflow-space-8: 32px;
+  --eflow-content-padding: 24px;
   --eflow-radius-sm: 5px;
   --eflow-radius-control: 8px;
   --eflow-radius-surface: 10px;
@@ -164,6 +165,7 @@
   --workspace-shadow-popover: var(--eflow-shadow-popover);
 }
 .dark { --font-weight-medium: 500; }
+@media (max-width: 639px) { :root { --eflow-content-padding: 12px; } }
 @media (prefers-reduced-motion: reduce) {
   :root { --eflow-motion-fast: 0ms; --eflow-motion-enter: 0ms; --eflow-motion-navigation: 0ms; }
 }

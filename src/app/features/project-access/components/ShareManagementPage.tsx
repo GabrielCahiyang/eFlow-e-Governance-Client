@@ -1,0 +1,2 @@
+import {ProjectAccessPanel} from './ProjectAccessPanel';
+export function ShareManagementPage(){const project=new URLSearchParams(window.location.search).get('project');return <main className="r9-share-page"><h1>Manage project sharing</h1><p>The current appointed sponsoring Head issues personal external offers. This issuer link grants no membership or general project access.</p>{project?<ProjectAccessPanel project={project}/>:<p>Request the project’s issuer link from its owner.</p>}<a href="/">Return to eFlow</a></main>;}

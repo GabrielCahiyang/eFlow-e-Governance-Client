@@ -2,3 +2,5 @@
 @media(max-width:1100px){.p7-checks{grid-template-columns:1fr}.p7-check{min-height:100px}}@media(max-width:640px){.p7-panel{padding:18px}.p7-heading,.p7-actions{flex-direction:column;align-items:stretch}.p7-check{align-items:flex-start;flex-wrap:wrap}.p7-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.p7-stats article{padding:14px}.p7-heading h2{font-size:21px}}
 
 .p7-check{flex-wrap:wrap}.p7-check-content{flex:1 1 220px}.p7-check>button{max-width:100%;white-space:normal}.p7-completion textarea:disabled{opacity:.65}
+
+.r4-requirements{padding:16px;border:1px solid var(--eflow-border);border-radius:var(--eflow-radius-sm);color:var(--eflow-text)}.r4-requirements header{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}.r4-requirements h3{font-size:16px;font-weight:600}.r4-requirements p{font-size:13px;line-height:1.6;overflow-wrap:anywhere;margin:8px 0}.r4-requirements ul{list-style:none;padding:0;margin:14px 0}.r4-requirements li{padding:12px 0;border-top:1px solid var(--eflow-border);font-size:13px}.r4-requirements li>div{display:flex;gap:8px;flex-wrap:wrap}
