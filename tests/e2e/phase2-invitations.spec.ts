@@ -6,7 +6,7 @@ async function signInFixture(page: Page, role: string, fresh = false) {
   const user = { id, aud: "authenticated", role: "authenticated", email: "phase1@example.test", app_metadata: { provider: "email", providers: ["email"] }, user_metadata: {}, created_at: new Date().toISOString() };
   const profile = { id, full_name: "Phase One Tester", email: user.email, role, org_id: officeId, is_active: true, employee_id: "TEST-001", skills: {}, created_at: user.created_at, updated_at: user.created_at };
   const office = { id: officeId, name: "Fixture Office", slug: "fixture_office", path: "fixture_office", org_type: "department", is_active: true, head_user_id: role === "head" ? id : null };
-  const token = [Buffer.from('{"alg":"HS256","typ":"JWT"}').toString("base64url"), Buffer.from(JSON.stringify({ sub: id, aud: "authenticated", role: "authenticated", exp: Math.floor(Date.now() / 1000) + 3600 })).toString("base64url"), "synthetic"].join(".");
+  const token = [Buffer.from('{"alg":"HS256","typ":"JWT"}').toString("base64url"), Buffer.from(JSON.stringify({ sub: id, aud: "authenticated", role: "authenticated", exp: Math.floor(Date.now() / 1000) + 3600 })).toString("base64url"), Buffer.from("synthetic-signature").toString("base64url")].join(".");
   await page.routeWebSocket(/\/realtime\/v1\//, () => {});
   await page.route("**/auth/v1/**", async route => {
     await route.fulfill({ json: route.request().url().includes("/token") ? { access_token: token, refresh_token: "synthetic-refresh", token_type: "bearer", expires_in: 3600, user } : user });
@@ -28,6 +28,11 @@ async function signInFixture(page: Page, role: string, fresh = false) {
   await page.route(/\/controlpanelEflow\//, async route => {
     const url = route.request().url();
     let body: unknown = { success: true };
+    if (new URL(url).pathname.endsWith('/auth/login')) {
+      expect(route.request().method()).toBe('POST');
+      expect(route.request().postDataJSON()).toEqual({email:user.email,password:'synthetic-password'});
+      body = {access_token:token,refresh_token:'synthetic-refresh'};
+    }
     if (url.includes('/onboarding/me')) { if (route.request().method() === 'PATCH') { const patch = route.request().postDataJSON(); record = { ...record, ...patch, state: { ...record.state, ...patch } }; } body = record; }
     if (url.endsWith('/office-team')) body = { office_name: office.name, members: [profile] };
     if (url.endsWith('/invitations')) body = route.request().method() === 'POST' ? { results: [{ email: 'teammate@example.test', invitation: { id: 'invite', email: 'teammate@example.test', account_role: 'member', status: 'pending', created_at: user.created_at, expires_at: new Date(Date.now() + 604800000).toISOString(), email_delivery_status: 'sent', send_count: 1 } }] } : { invitations: [] };

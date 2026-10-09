@@ -1,6 +1,6 @@
 import { useReviewedMutation } from "../../../shared/useReviewedMutation";
 import { FeedbackState } from "../../../components/ui/FeedbackState";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Banknote,
   Loader2,
@@ -25,6 +25,8 @@ import type { PettyCashRequest } from "../types";
 import { peso } from "./budgetUi";
 import { CashRequestForm } from "./CashRequestForm";
 import { CashRequestTimeline } from "./CashRequestTimeline";
+import { DirectWorkFunding } from "./DirectWorkFunding";
+import { isOpenDirectFundingWork } from "../selectors/directFundingEligibility";
 
 interface WorkBudgetCardProps {
   task: Task;
@@ -76,7 +78,9 @@ export function WorkBudgetCard({
   const { userProfile } = useAuth();
   const orgId =
     task.orgId || userProfile?.org_id || userProfile?.departmentId || "";
-  const budget = useDepartmentBudget(orgId, getCurrentFiscalYear());
+  const [fundingYear,setFundingYear]=useState(getCurrentFiscalYear());
+  const [fundingOffice,setFundingOffice]=useState(orgId);
+  const budget = useDepartmentBudget(fundingOffice, fundingYear);
   const version = useMemo(
     () =>
       [
@@ -91,6 +95,7 @@ export function WorkBudgetCard({
     [budget.allocations, budget.requests],
   );
   const funding = useTaskFundingContext(task.id, subtask?.id, version);
+  useEffect(()=>{setFundingYear(funding.context?.fiscalYear||getCurrentFiscalYear());setFundingOffice(funding.context?.fundingOrgId||orgId);},[funding.context?.fiscalYear,funding.context?.fundingOrgId,orgId]);
   const [requestOpen, setRequestOpen] = useState(false);
   const [correction, setCorrection] = useState<PettyCashRequest>();
   const [capOpen, setCapOpen] = useState(false);
@@ -276,6 +281,7 @@ export function WorkBudgetCard({
   return (
     <section className="rounded-[10px] border border-border bg-card p-3 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
       {safety.dialog}
+      {canManage&&isOpenDirectFundingWork(task)&&!subtask&&!context?.funded&&!funding.loading&&userProfile?.role==="head"&&userProfile.is_active!==false&&userProfile.org_id===orgId&&orgId===fundingOffice&&<DirectWorkFunding key={task.id} data={budget} tasks={[task]} onChanged={refresh} />}
       {safety.message && (
         <FeedbackState tone={safety.tone} title="Cap result">
           <p>{safety.message}</p>
@@ -520,7 +526,7 @@ export function WorkBudgetCard({
       {(requestOpen || correction) && context && (
         <CashRequestForm
           context={context}
-          orgId={orgId}
+          orgId={fundingOffice}
           taskId={task.id}
           subtaskId={subtask?.id}
           currentUserId={currentUserId}
@@ -541,7 +547,7 @@ export function WorkBudgetCard({
         data={budget}
         requests={requests}
         currentUserId={currentUserId}
-        orgId={orgId}
+        orgId={fundingOffice}
         onCorrect={(request) => {
           setCorrection(request);
           setRequestOpen(false);

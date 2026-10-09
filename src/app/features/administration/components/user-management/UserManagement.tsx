@@ -2,14 +2,16 @@ import { useEffect, useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { RoleDefaultsTab, UserAccessTab } from "../../../permissions";
 import { UsersTab } from "./UsersTab";
+import { LockedAccountsTab } from './LockedAccountsTab';
 
 import { requestNavigation } from "../../../../shared/navigationGuard";
-export type UserManagementTab = "users" | "role-defaults" | "user-access";
+export type UserManagementTab = "users" | "role-defaults" | "user-access" | "locked-accounts";
 
 const PAGE_COPY: Record<
   UserManagementTab,
   { title: string; description: string }
 > = {
+  'locked-accounts': {title:'Locked out accounts',description:'Configure failed sign-in limits and unlock accounts. Only Admin can make changes.'},
   users: {
     title: "User Management",
     description:
@@ -70,6 +72,7 @@ export function UserManagement({
       </header>
 
       {tab === "users" ? <UsersTab onOpenAccess={openAccess} /> : null}
+      {tab === 'locked-accounts' ? <LockedAccountsTab/> : null}
       {tab === "role-defaults" ? <RoleDefaultsTab /> : null}
       {tab === "user-access" ? (
         <UserAccessTab

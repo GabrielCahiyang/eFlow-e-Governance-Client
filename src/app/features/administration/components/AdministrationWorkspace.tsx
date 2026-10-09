@@ -18,6 +18,7 @@ import { RuntimeHealth } from "../configuration/RuntimeHealth";
 import { useMediaQuery } from "../../../shared/useMediaQuery";
 import "../../../components/ui/workspace/analyticalWorkspace.css";
 import { requestNavigation } from "../../../shared/navigationGuard";
+import { Button } from "../../../components/ui/button";
 import {
   getAuthorizedSupportPages,
   resolveSupportPage,
@@ -48,6 +49,7 @@ export function AdministrationWorkspace({
       permission: "navigation.user_management",
       content: <UserManagement initialTab="users" />,
     },
+    {id:'Locked out accounts',label:'Locked out accounts',permission:'navigation.user_management',content:<UserManagement initialTab="locked-accounts"/>},
     {
       id: "Role Defaults",
       label: "Role Defaults",
@@ -130,10 +132,31 @@ export function AdministrationWorkspace({
   const accessTabs = tabs.filter((tab) =>
     ["Role Defaults", "User Access"].includes(tab.id),
   );
+  const peopleTabs = tabs.filter((tab) =>
+    ["All Users", "Locked out accounts"].includes(tab.id),
+  );
   const grouped = tabs
-    .filter((tab) => !["Role Defaults", "User Access"].includes(tab.id))
+    .filter((tab) => !["Role Defaults", "User Access", "Locked out accounts"].includes(tab.id))
     .map((tab) => ({
       ...tab,
+      content: tab.id === "All Users" && peopleTabs.length > 1 ? (
+        <div className="space-y-5">
+          <div role="group" aria-label="People views" className="flex flex-wrap gap-2">
+            {peopleTabs.map((view) => (
+              <Button
+                key={view.id}
+                type="button"
+                variant={page === view.id ? "secondary" : "outline"}
+                aria-pressed={page === view.id}
+                onClick={() => select(view.id)}
+              >
+                {view.id === "All Users" ? "Accounts" : view.label}
+              </Button>
+            ))}
+          </div>
+          {(peopleTabs.find((view) => view.id === page) || peopleTabs[0]).content}
+        </div>
+      ) : tab.content,
       label:
         (
           {
@@ -189,7 +212,7 @@ export function AdministrationWorkspace({
         orientation={compact ? "horizontal" : "vertical"}
         className="eflow-admin-categories"
         tabs={grouped}
-        value={accessTabs.some((tab) => tab.id === page) ? "access" : page}
+        value={accessTabs.some((tab) => tab.id === page) ? "access" : peopleTabs.some((tab) => tab.id === page) ? "All Users" : page}
         onValueChange={(value) =>
           select(value === "access" ? accessTabs[0].id : value)
         }

@@ -1,5 +1,13 @@
 [
   {
+    "file": "account-lockout.spec.ts",
+    "title": "Admin changes the limit and must confirm before unlocking"
+  },
+  {
+    "file": "account-lockout.spec.ts",
+    "title": "Head has no lockout management destination"
+  },
+  {
     "file": "admin-unification.spec.ts",
     "title": "super_admin sessions expose the unified Admin management surfaces"
   },
@@ -62,6 +70,14 @@
   {
     "file": "navigation-v2.spec.ts",
     "title": "responsive navigation, project context and utilities at 320px"
+  },
+  {
+    "file": "office-budget-sections.spec.ts",
+    "title": "unavailable sections never display an existing saved budget as zero"
+  },
+  {
+    "file": "office-budget-sections.spec.ts",
+    "title": "locked section adjustments update the counter and persist without duplicated writes"
   },
   {
     "file": "phase1-authority.spec.ts",
@@ -458,6 +474,14 @@
   {
     "file": "phase7-readiness-staffing.spec.ts",
     "title": "Member reads readiness without Head review, activation or staffing controls"
+  },
+  {
+    "file": "project-office-recovery-removal.spec.ts",
+    "title": "Offices quietly recover reads and remove revoked and accepted named entries"
+  },
+  {
+    "file": "project-office-single-table.spec.ts",
+    "title": "Project Offices retains one table and one Lead Office through repeated refreshes"
   },
   {
     "file": "project-workspace-controls.spec.ts",

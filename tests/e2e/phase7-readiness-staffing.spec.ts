@@ -41,7 +41,7 @@ test('Staffing is advisory until Head confirmation; roomy dialog supports keyboa
  await page.route('**/controlpanelEflow/api/staffing/**',route=>route.fulfill({json:{task:{id:records.tasks[0].id,title:records.tasks[0].title,description:'Prepare assessment',skills:['Community assessment']},candidates,excludedUnconfirmed:2}}));
  await page.route('**/controlpanelEflow/api/ai/status',route=>route.fulfill({json:{ai_endpoint:'http://127.0.0.1:5190/controlpanelEflow/api',ai_endpoint_status:'online',ai_endpoint_heartbeat:new Date().toISOString()}}));
  await page.route('**/controlpanelEflow/api/ai/jobs',route=>{expect(route.request().postDataJSON().workspace_staffing.taskId).toBe(records.tasks[0].id);return route.fulfill({status:202,json:{job_id:'staffing-job',status:'completed',position:null,jobs_ahead:0,queue_depth:0,result:{message:{content:JSON.stringify({schemaVersion:1,recommendations:candidates.map(p=>({userId:p.id,evidence:['Community assessment','Survey methods']}))})}}}});});
- await page.route('**/rest/v1/rpc/assign_task_with_details',route=>{assigned++;Object.assign(records.tasks[0],{assigned_to:route.request().postDataJSON().p_assignee,status:'todo'});return route.fulfill({json:[records.tasks[0]]});});
+ await page.route('**/rest/v1/rpc/assign_task_with_details',route=>{assigned++;const payload=route.request().postDataJSON();Object.assign(records.tasks[0],{assigned_to:payload.p_assignee,assignee_name:payload.p_assignee_name,status:'todo'});return route.fulfill({json:[records.tasks[0]]});});
  await page.goto('/projects?page=Projects&project='+records.project+'&view=tasks');await expect(page.getByRole('region',{name:'Project main table'})).toBeVisible({timeout:30000});
  await page.getByRole('button',{name:'Actions for Prepare community assessment'}).click();await page.getByRole('menuitem',{name:'Recommend staff',exact:true}).click();
  const dialog=page.getByRole('dialog',{name:'Recommend staff',exact:true});await expect(dialog).toContainText('4 eligible confirmed profiles');
@@ -55,7 +55,18 @@ test('Staffing is advisory until Head confirmation; roomy dialog supports keyboa
  const footer=(await dialog.getByRole('button',{name:'Confirm owner'}).boundingBox())!;expect(footer.y+footer.height).toBeLessThanOrEqual(844);expect(footer.x+footer.width).toBeLessThanOrEqual(390);
  const mobileBounds=(await dialog.boundingBox())!;expect(Math.round(mobileBounds.width)).toBe(390);expect(Math.round(mobileBounds.height)).toBe(844);
  await dialog.locator('.p7-staff-card').first().scrollIntoViewIfNeeded();await page.screenshot({path:info.outputPath('staffing-mobile.png')});
- await dialog.getByRole('radio').first().check();await dialog.getByRole('button',{name:'Confirm owner'}).click();await page.getByRole('alertdialog',{name:'Assign recommended owner?'}).getByRole('button',{name:'Assign owner',exact:true}).click();await expect(dialog).not.toBeVisible();expect(assigned).toBe(1);
+ await dialog.getByRole('radio').first().check();await dialog.getByRole('button',{name:'Confirm owner'}).click();
+ const assignmentResponse=page.waitForResponse(response=>response.request().method()==='POST'&&new URL(response.url()).pathname.endsWith('/rpc/assign_task_with_details'));
+ await page.getByRole('alertdialog',{name:'Assign recommended owner?'}).getByRole('button',{name:'Assign owner',exact:true}).click();
+ const response=await assignmentResponse;
+ expect(response.status()).toBe(200);
+ expect(response.request().postDataJSON()).toMatchObject({p_task_id:records.tasks[0].id,p_assignee:candidates[0].id,p_assignee_name:candidates[0].name,p_team_member_ids:[candidates[0].id]});
+ await expect(page.getByRole('dialog',{name:'Recommend staff',exact:true,includeHidden:true})).toHaveCount(0);
+ await page.getByRole('button',{name:'Open Prepare community assessment',exact:true}).click();
+ const inspector=page.getByRole('dialog',{name:'Task details: Prepare community assessment'});
+ await inspector.getByRole('button',{name:'Details',exact:true}).click();
+ await expect(inspector.getByText('Assignee',{exact:true}).locator('..')).toContainText(candidates[0].name);
+ expect(assigned).toBe(1);
 });
 test('Member reads readiness without Head review, activation or staffing controls',async({page})=>{
  const records=await projectWorkspaceFixture(page,'member');await readinessFixture(page,records);

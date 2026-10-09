@@ -26,6 +26,10 @@ import { GeneralJournalWorkspace } from "./GeneralJournalWorkspace";
 import { AccountingTrailPanel } from "./AccountingTrailPanel";
 import { WorkspaceLoadingSkeleton } from "../../../components/workflow/WorkspaceLoadingSkeleton";
 import { BudgetPositionSummary } from "./BudgetPositionSummary";
+import { DirectWorkFunding } from "./DirectWorkFunding";
+import { BudgetPartitionOverview } from "./BudgetPartitionOverview";
+import { BudgetAccountMappings } from "./BudgetAccountMappings";
+import { PettyCashVoucherRegister } from "./PettyCashVoucherRegister";
 
 type Tab =
   | "overview"
@@ -34,6 +38,7 @@ type Tab =
   | "approvals"
   | "releases"
   | "expenses"
+  | "vouchers"
   | "journal"
   | "audit";
 type BudgetArea = "overview" | "planning" | "requests" | "ledger";
@@ -48,6 +53,7 @@ const areaTabs: Record<BudgetArea, Array<{ id: Tab; label: string }>> = {
     { id: "approvals", label: "Funding Requests" },
     { id: "releases", label: "Releases & Settlement" },
     { id: "expenses", label: "Expenses" },
+    { id: "vouchers", label: "Petty Cash Vouchers" },
   ],
   ledger: [
     { id: "journal", label: "General Journal" },
@@ -60,7 +66,7 @@ const areaForTab = (tab: Tab): BudgetArea =>
     ? "overview"
     : tab === "annual" || tab === "funding"
       ? "planning"
-      : tab === "approvals" || tab === "releases" || tab === "expenses"
+      : tab === "approvals" || tab === "releases" || tab === "expenses" || tab === "vouchers"
         ? "requests"
         : "ledger";
 
@@ -72,6 +78,7 @@ const tabFromUrl = (value: string | null): Tab | null => {
     "approvals",
     "releases",
     "expenses",
+    "vouchers",
     "journal",
     "audit",
   ];
@@ -349,6 +356,7 @@ export function OfficeBudgetWorkspace({
                 )}
                 {tab === "annual" && (
                   <AnnualBudgetSetup
+                    key={`${orgId}:${fiscalYear}`}
                     orgId={orgId}
                     fiscalYear={fiscalYear}
                     data={budget}
@@ -357,10 +365,14 @@ export function OfficeBudgetWorkspace({
                   />
                 )}
                 {tab === "funding" && (
+                  <div className="space-y-4">
+                  {canPrepare && <DirectWorkFunding data={budget} tasks={tasks.filter(task=>task.orgId===orgId)} onChanged={budget.refresh} />}
                   <BudgetFundingHierarchy
                     data={budget}
                     tasks={tasks.filter((task) => task.orgId === orgId)}
                   />
+                  {["head","accounting_staff"].includes(userProfile?.role||"")&&<BudgetAccountMappings data={budget} onChanged={budget.refresh}/>}
+                  </div>
                 )}
                 {tab === "approvals" && (
                   <BudgetApprovalQueue
@@ -375,6 +387,7 @@ export function OfficeBudgetWorkspace({
                   />
                 )}
                 {tab === "expenses" && <BudgetExpensesReport data={budget} />}
+                {tab === "vouchers" && <PettyCashVoucherRegister data={budget} />}
                 {tab === "journal" && (
                   <GeneralJournalWorkspace
                     orgId={orgId}
@@ -427,6 +440,7 @@ function Overview({
         summary={summary}
         onNavigate={onNavigate}
       />
+      <BudgetPartitionOverview data={data} />
       {underTarget && (
         <div className="flex gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4">
           <AlertTriangle size={18} className="shrink-0 text-amber-700" />

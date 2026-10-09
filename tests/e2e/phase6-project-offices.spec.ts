@@ -10,6 +10,13 @@ test('Lead invites an Office and hands over responsibility without assigning its
  r.organizations.push({id:partner,name:'City Engineering Office',head_user_id:partnerHead,is_active:true,path:'engineering_office',slug:'engineering_office',org_type:'department'});
  r.projectOffices.push({id:'lead',project_id:r.project,office_id:r.org,relationship_type:'lead',invitation_status:'joined'});
  let sent:any, handover:any;const invites:any[]=[];
+ await page.route('**/rest/v1/user_invitations?**',route=>{
+  const query=new URL(route.request().url()).searchParams;
+  expect(query.get('invitation_type')).toBe('eq.project_office');
+  expect(query.get('select')).not.toMatch(/token|invitation_url|acceptance_claim/);
+  const targets=(query.get('project_office_id')||'').slice(4,-1).split(',');
+  return route.fulfill({json:invites.filter(invite=>targets.includes(invite.project_office_id))});
+ });
  await page.route('**/rest/v1/rpc/phase6_responsible_office',async route=>{
   handover=route.request().postDataJSON();Object.assign(r.tasks[0],{org_id:handover.p_office});await route.fulfill({json:null});
  });

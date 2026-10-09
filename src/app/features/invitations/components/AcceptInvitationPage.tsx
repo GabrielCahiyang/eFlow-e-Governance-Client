@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../../../lib/supabase';
+import { signInWithAccountProtection } from '../../authentication';
 import { EFlowMark } from '../../../../components/EFlowMark';
 import { WorkspaceIllustration } from '../../../components/ui/WorkspaceIllustration';
 import { acceptInvitation, createInvitedAccount, validateInvitation } from '../services/invitationService';
@@ -37,16 +38,14 @@ export function AcceptInvitationPage() {
         try { await create(token, name, password, attemptId); }
         catch (creationError) {
           // Recover a committed create-account response lost in transit without creating twice.
-          const recovery = await supabase.auth.signInWithPassword({ email: invite.email, password });
-          if (recovery.error) throw creationError;
+          try { await signInWithAccountProtection(invite.email, password); }
+          catch { throw creationError; }
           await accept(token, name);
         }
-        const login = await supabase.auth.signInWithPassword({ email: invite.email, password });
-        if (login.error) throw new Error('Your account is ready. Sign in to continue.');
+        await signInWithAccountProtection(invite.email, password);
       } else {
         if (!email) {
-          const login = await supabase.auth.signInWithPassword({ email: invite.email, password });
-          if (login.error) throw new Error('Check your password and sign in with the invited email.');
+          await signInWithAccountProtection(invite.email, password);
         }
         await accept(token, name);
       }

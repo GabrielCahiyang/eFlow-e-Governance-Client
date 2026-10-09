@@ -1,5 +1,6 @@
 import { supabase } from "../../lib/supabase";
 import { fetchConfig } from "../../lib/supabaseService";
+import { SESSION_REFRESH_MESSAGE } from "./userFacingError";
 
 const RETRYABLE_GATEWAY_STATUSES = new Set([502, 503, 504, 530]);
 
@@ -174,20 +175,20 @@ export function isAiServiceUnavailableError(
   return error instanceof AiServiceUnavailableError;
 }
 
-async function getAccessToken(): Promise<string> {
+async function getAccessToken(forceRefresh = false): Promise<string> {
   const { data, error } = await supabase.auth.getSession();
   if (error) throw error;
   let session = data.session;
   const expiresSoon = Boolean(
     session?.expires_at && session.expires_at * 1_000 <= Date.now() + 60_000,
   );
-  if (expiresSoon) {
+  if (forceRefresh || expiresSoon) {
     const { data: refreshed, error: refreshError } = await supabase.auth.refreshSession();
-    if (refreshError) throw new Error("Your session has expired. Please sign in again.");
+    if (refreshError) throw new Error(SESSION_REFRESH_MESSAGE);
     session = refreshed.session;
   }
   const token = session?.access_token;
-  if (!token) throw new Error("Your session has expired. Please sign in again.");
+  if (!token) throw new Error(SESSION_REFRESH_MESSAGE);
   return token;
 }
 
@@ -240,24 +241,32 @@ export async function controlPanelFetch(
   // Refresh the signed-in user's token before reading system_config. Its RLS
   // policy returns an empty endpoint for an expired session, which previously
   // sent a remote browser to its own local /api route.
-  const accessToken = await getAccessToken();
+  let accessToken = await getAccessToken();
   const resolveBase = options.requireAiOnline
     ? resolveAiControlPanelBase
     : resolveControlPanelBase;
   const firstBase = await resolveBase();
 
   try {
-    const response = await authenticatedFetch(
+    let response = await authenticatedFetch(
       firstBase,
       path,
       init,
       accessToken,
       options.timeoutMs,
     );
+    // A token can be revoked or rotated before its local expiry time. Recover
+    // once with the current Supabase session before surfacing an auth error.
+    if (response.status === 401) {
+      accessToken = await getAccessToken(true);
+      response = await authenticatedFetch(firstBase, path, init, accessToken, options.timeoutMs);
+      if (response.status === 401) throw new Error(SESSION_REFRESH_MESSAGE);
+    }
     if (!retryOnEndpointChange || !RETRYABLE_GATEWAY_STATUSES.has(response.status)) {
       return response;
     }
   } catch (error) {
+    if (error instanceof Error && error.message === SESSION_REFRESH_MESSAGE) throw error;
     if (!retryOnEndpointChange || (error instanceof DOMException && error.name === "AbortError")) {
       throw error;
     }

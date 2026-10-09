@@ -188,6 +188,7 @@ export default function ProposalImport({
                   onChange={setCollaborationOrganizations}
                 />
               </div>} work={<DraftCockpit
+                fundingOrgId={collaborationOrganizations.find(item=>item.participationRole==="owner")?.orgId}
                 draftTasks={draftTasks}
                 employees={
                   allEmployees.length > 0 ? allEmployees : deptEmployees

@@ -11,6 +11,7 @@ async function identityFixture(page: Page, r: Records) {
   r.projectOffices.push({ id: 'lead', project_id: r.project, office_id: r.org, relationship_type: 'lead', invitation_status: 'joined' });
   r.organizations.push({ id: partner, name: 'City Engineering Office', head_user_id: 'other-head', is_active: true, slug: 'engineering', path: 'engineering', org_type: 'department' });
   await page.route('**/rest/v1/project_office_identities*', route => route.fulfill({ json: identities }));
+  await page.route('**/rest/v1/user_invitations*', route => route.fulfill({ json: invitations }));
   await page.route('**/rest/v1/tasks*', route => {
     const query = new URL(route.request().url()).searchParams;
     return route.fulfill({ json: query.has('proposed_office_identity_id') ? r.tasks.filter(t => t.proposed_office_identity_id) : r.tasks });
@@ -64,8 +65,8 @@ test('named Office survives reload and separates invitation persistence from fai
   await dialog.getByRole('button', { name: 'Done', exact: true }).click();
   await table(page, r);
   await openProjectAction(page,'Project Offices');
-  const card = page.locator('.po-local-card').filter({ hasText: 'Office not in the directory' });
-  await expect(card).toContainText('Unlinked · planning only');
+  const card = page.locator('.po-office-table tbody tr').filter({ hasText: 'Office not in the directory' });
+  await expect(card).toContainText('Planning only');
   await card.getByRole('button', { name: 'Invite contact', exact: true }).click();
   const contact = page.getByRole('dialog', { name: 'Invite Office contact' });
   await contact.getByLabel('Contact email', { exact: true }).fill('contact@example.test');
@@ -113,7 +114,7 @@ test('proposed responsibility locks execution until directory linking, Head conf
   await openCompletionRequirements(page);
   await expect(page.getByRole('button', { name: 'Activate project', exact: true })).toBeDisabled();
   await page.getByRole('button', { name: 'Resolve in Project Offices', exact: true }).click();
-  const card = page.locator('.po-local-card').filter({ hasText: 'Engineering source Office' });
+  const card = page.locator('.po-office-table tbody tr').filter({ hasText: 'Engineering source Office' });
   await expect(card.getByRole('button', { name: 'Resolve task responsibility' })).toBeDisabled();
   await card.getByRole('button', { name: 'Link directory Office' }).click();
   const link = page.getByRole('dialog', { name: 'Link Engineering source Office' });
@@ -122,6 +123,8 @@ test('proposed responsibility locks execution until directory linking, Head conf
   await expect(link.getByRole('status')).toContainText('Office linked');
   await link.getByRole('button', { name: 'Done', exact: true }).click();
   await expect(card).toContainText('Awaiting Office Head confirmation');
+  await expect(card).toHaveCount(1);
+  await expect(page.locator('.po-office-table tbody tr')).toHaveCount(2);
   await expect(card.getByRole('button', { name: 'Resolve task responsibility' })).toBeDisabled();
   r.projectOffices.find(o => o.id === 'partner')!.invitation_status = 'joined';
   await table(page, r);
@@ -142,13 +145,13 @@ test('linking a name before contact acceptance keeps the canonical invitation wo
   const r = await projectWorkspaceFixture(page, 'head'), local = await identityFixture(page, r);
   local.identities.push({ id: 'local-office', project_id: r.project, display_name: 'Named Office', canonical_office_id: null, project_office_id: null, contact_email: '', contact_status: 'none', relationship_type: 'collaborating', provenance: { source: 'manual' } });
   await table(page, r); await openProjectAction(page,'Project Offices');
-  await page.locator('.po-local-card').getByRole('button', { name: 'Link directory Office' }).click();
+  await page.locator('.po-office-table tbody tr').filter({ hasText: 'Named Office' }).getByRole('button', { name: 'Link directory Office' }).click();
   const link = page.getByRole('dialog', { name: 'Link Named Office' });
   await link.getByLabel('Directory Office').selectOption(partner);
   await link.getByRole('button', { name: 'Confirm Office link' }).click();
   await expect(link.getByRole('status')).toContainText('Office linked');
   await link.getByRole('button', { name: 'Done', exact: true }).click();
-  await expect(page.locator('.po-local-card')).toContainText('Contact invitation required');
+  await expect(page.locator('.po-office-table tbody tr').filter({ hasText: 'Named Office' })).toContainText('Contact invitation required');
   await page.locator('.po-office-table').getByRole('button', { name: 'City Engineering Office', exact: true }).click();
   await page.getByRole('dialog', { name: 'City Engineering Office — project Office' }).getByRole('button', { name: 'Invite Office contact' }).click();
   const invite = page.getByRole('dialog', { name: 'Let’s bring another Office in.' });

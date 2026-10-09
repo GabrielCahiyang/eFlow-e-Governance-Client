@@ -88,6 +88,13 @@ test('R3 preserves immediate Office creation while workspace refresh is delayed'
  const created=fixture.projects.find(p=>p.title==='Office creation after R3')!;
  await expect.poll(()=>new URL(page.url()).searchParams.get('project')).toBe(created.id);
  await expect(page.getByRole('heading',{name:'Office creation after R3',exact:true})).toBeVisible();
+  await expect(page.getByRole('button',{name:'Drafts',exact:true})).toHaveCount(0);
+  await expect(page.getByRole('button',{name:'Publish project',exact:true})).toHaveCount(0);
+  // Previously stored publication metadata cannot hide an ordinary project.
+  Object.assign(created,{publication_state:'draft'});
+  await page.reload();
+  await expect(page.getByRole('heading',{name:'Office creation after R3',exact:true})).toBeVisible();
+  await expect(page.getByRole('region',{name:'Project main table'})).toBeVisible();
  await expect(page.getByRole('button',{name:'Edit task Prepare community assessment',exact:true})).toHaveCount(0);
 });
 

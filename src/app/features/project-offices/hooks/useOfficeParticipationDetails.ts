@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Invitation } from '../../invitations';
 import type { OfficeProposal } from '../types';
 import { fetchConfirmedOfficeProposals, projectOfficeInvitations } from '../services/projectOfficeService';
+import { projectOfficeReadError } from '../presentation';
+import { useQuietOfficeRefresh } from './useQuietOfficeRefresh';
 export function useOfficeParticipationDetails(projectId: string, canInvite: boolean) {
   const [invitations, setInvitations] = useState<Invitation[]>([]), [proposals, setProposals] = useState<OfficeProposal[]>([]), [error, setError] = useState('');
   const version = useRef(0);
@@ -13,8 +15,9 @@ export function useOfficeParticipationDetails(projectId: string, canInvite: bool
     if (request !== version.current || activeScope.current !== projectId) return;
     if (invites.status === 'fulfilled') setInvitations(invites.value.invitations || []);
     if (source.status === 'fulfilled') setProposals(source.value);
-    setError([invites, source].filter(r => r.status === 'rejected').map(r => (r as PromiseRejectedResult).reason.message || 'Office invitation history unavailable.').join(' '));
+    setError(projectOfficeReadError([invites, source].filter(r => r.status === 'rejected').map(r => (r as PromiseRejectedResult).reason), 'Office invitation history unavailable.'));
   }, [projectId, canInvite]);
+  useQuietOfficeRefresh(refresh, !!error, `${projectId}:${canInvite}`);
   useEffect(() => { setInvitations([]); setProposals([]); setError(''); void refresh(); return () => { ++version.current; }; }, [refresh]);
   return { invitations, proposals, error, refresh };
 }

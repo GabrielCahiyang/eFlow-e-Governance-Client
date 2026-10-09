@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { validateLoginFields } from "../../app/features/authentication";
-import { supabase } from "../../lib/supabase";
+import { validateLoginFields, signInWithAccountProtection } from "../../app/features/authentication";
 import { useAuth } from "../../app/contexts/AuthContext";
 import { SESSION_NOTICE_KEY } from "../../app/features/session-security/constants";
 import { clearAllSessionActivity } from "../../app/features/session-security/services/sessionActivityStorage";
@@ -42,9 +41,6 @@ export interface UseLoginFormReturn {
   resetForm: () => void;
 }
 
-const MAX_FAILED_ATTEMPTS = 5;
-const LOCKOUT_DURATION_SECONDS = 60;
-
 export function useLoginForm(): UseLoginFormReturn {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -57,11 +53,10 @@ export function useLoginForm(): UseLoginFormReturn {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [capsLockActive, setCapsLockActive] = useState(false);
-  const [cooldownSeconds, setCooldownSeconds] = useState(0);
+  const cooldownSeconds = 0; // Compatibility only: account locks never expire on the client.
   const [shakeField, setShakeField] = useState<"email" | "password" | null>(null);
 
-  const failedAttemptsRef = useRef(0);
-  const cooldownTimerRef = useRef<number | null>(null);
+  const submittingRef = useRef(false);
 
   // Safely attempt useAuth if mounted within AuthProvider
   let authContext: ReturnType<typeof useAuth> | null = null;
@@ -92,30 +87,6 @@ export function useLoginForm(): UseLoginFormReturn {
     };
   }, []);
 
-  // Cooldown countdown timer for account_locked state
-  useEffect(() => {
-    if (state === "account_locked" && cooldownSeconds > 0) {
-      cooldownTimerRef.current = window.setInterval(() => {
-        setCooldownSeconds((prev) => {
-          if (prev <= 1) {
-            clearInterval(cooldownTimerRef.current ?? undefined);
-            setState("idle");
-            setErrorMessage(null);
-            failedAttemptsRef.current = 0;
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
-
-    return () => {
-      if (cooldownTimerRef.current) {
-        clearInterval(cooldownTimerRef.current);
-      }
-    };
-  }, [state, cooldownSeconds]);
-
   // Caps Lock listener via keyboard events
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (typeof e.getModifierState === "function") {
@@ -136,7 +107,7 @@ export function useLoginForm(): UseLoginFormReturn {
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
 
-    if (state === "account_locked") {
+    if (submittingRef.current) {
       return;
     }
 
@@ -162,6 +133,7 @@ export function useLoginForm(): UseLoginFormReturn {
     setFieldErrors({});
 
     setState("submitting");
+    submittingRef.current = true;
 
     try {
       if (typeof localStorage !== "undefined") {
@@ -173,28 +145,15 @@ export function useLoginForm(): UseLoginFormReturn {
       if (authContext && typeof authContext.login === "function") {
         await authContext.login(trimmedEmail, password);
       } else {
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email: trimmedEmail,
-          password,
-        });
-
-        if (signInError) {
-          throw signInError;
-        }
+        await signInWithAccountProtection(trimmedEmail, password);
       }
 
       setState("success");
-      failedAttemptsRef.current = 0;
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
-      failedAttemptsRef.current += 1;
-
-      if (failedAttemptsRef.current >= MAX_FAILED_ATTEMPTS) {
+      if (msg.includes('Your account is locked')) {
         setState("account_locked");
-        setCooldownSeconds(LOCKOUT_DURATION_SECONDS);
-        setErrorMessage(
-          `Too many failed attempts. Security cooldown active. Please wait ${LOCKOUT_DURATION_SECONDS}s.`
-        );
+        setErrorMessage('Your account is locked. Contact an Admin to unlock it.');
         return;
       }
 
@@ -202,6 +161,7 @@ export function useLoginForm(): UseLoginFormReturn {
         msg.includes("Invalid login credentials") ||
         msg.includes("invalid_credentials") ||
         msg.includes("Invalid email or password")
+        || msg.includes("Email or password is incorrect")
       ) {
         setState("invalid_credentials");
         setErrorMessage("Email or password is incorrect.");
@@ -216,10 +176,12 @@ export function useLoginForm(): UseLoginFormReturn {
           ? "Confirm your email address before signing in."
           : "Unable to sign in right now. Please try again.");
       }
-    }
+    } finally { submittingRef.current = false; }
   };
 
   const loginWithCredentials = async (loginEmail: string, loginPass: string) => {
+    if (submittingRef.current) return;
+    submittingRef.current = true;
     setEmail(loginEmail);
     setPassword(loginPass);
     setState("submitting");
@@ -235,20 +197,17 @@ export function useLoginForm(): UseLoginFormReturn {
       if (authContext && typeof authContext.login === "function") {
         await authContext.login(loginEmail, loginPass);
       } else {
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email: loginEmail,
-          password: loginPass,
-        });
-        if (signInError) throw signInError;
+        await signInWithAccountProtection(loginEmail, loginPass);
       }
 
       setState("success");
-      failedAttemptsRef.current = 0;
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
-      setState("invalid_credentials");
-      setErrorMessage(msg || "Failed to log in with development account.");
-    }
+      const locked = msg.includes('Your account is locked');
+      const invalid = /incorrect|Invalid email or password|Invalid login credentials/.test(msg);
+      setState(locked ? 'account_locked' : invalid ? 'invalid_credentials' : 'server_error');
+      setErrorMessage(locked ? 'Your account is locked. Contact an Admin to unlock it.' : invalid ? 'Email or password is incorrect.' : 'Unable to sign in right now. Please try again shortly.');
+    } finally { submittingRef.current = false; }
   };
 
   const resetForm = useCallback(() => {
@@ -261,7 +220,7 @@ export function useLoginForm(): UseLoginFormReturn {
 
   // CTA is disabled only when form is empty or during active submit / lockout
   const isSubmitDisabled =
-    !email.trim() || !password || state === "submitting" || state === "account_locked";
+    !email.trim() || !password || state === "submitting";
 
   return {
     email,

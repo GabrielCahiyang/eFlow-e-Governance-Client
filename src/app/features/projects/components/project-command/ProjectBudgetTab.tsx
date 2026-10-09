@@ -50,7 +50,7 @@ export function ProjectBudgetTab({ data }: { data: ProjectCommandData }) {
             {peso.format(summary.approvedAmount)}
           </div>
           <div className="mt-2 text-xs text-neutral-500">
-            Departmental allocation budget
+            Approved funding for this project's tasks
           </div>
         </div>
 
@@ -62,7 +62,7 @@ export function ProjectBudgetTab({ data }: { data: ProjectCommandData }) {
             {peso.format(summary.spentAmount)}
           </div>
           <div className="mt-2 text-xs text-neutral-500">
-            Committed and disbursed funds
+            Verified spending after receipt settlement
           </div>
         </div>
 
@@ -74,7 +74,7 @@ export function ProjectBudgetTab({ data }: { data: ProjectCommandData }) {
             {peso.format(summary.availableAmount)}
           </div>
           <div className="mt-2 text-xs text-neutral-500">
-            Available financial headroom
+            Task funds not reserved or spent
           </div>
         </div>
       </div>

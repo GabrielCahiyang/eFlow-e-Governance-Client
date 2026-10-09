@@ -9,7 +9,7 @@ import type { UserProfile } from '../../../types';
 import type { Task } from '../../tasks';
 import { selectProjectOfficeMembersChecked } from '../services/projectOfficeService';
 import { readStaffingAuthority } from '../services/staffingAuthority';
-import { membershipDiff, removalWork } from '../presentation';
+import { membershipDiff, removalWork, projectOfficeError } from '../presentation';
 import type { ProjectOffice, ProjectOfficeMember } from '../types';
 export function OfficeMembersEditor({ office, profiles, members, tasks, actorId, disabledReason, onCancel, onSaved, onOpenTask }: { office: Pick<ProjectOffice, 'id' | 'project_id' | 'office_id'>; profiles: UserProfile[]; members: ProjectOfficeMember[]; tasks: Task[]; actorId: string; disabledReason: string; onCancel: () => void; onSaved: () => Promise<void>; onOpenTask?: (id: string) => void }) {
   const savedRequest=useRef<{id:string;users:string[];expected:string[];fingerprint?:string} | undefined>(undefined);
@@ -44,11 +44,11 @@ export function OfficeMembersEditor({ office, profiles, members, tasks, actorId,
       if(!savedRequest.current)savedRequest.current={id:crypto.randomUUID(),users:[...selected],expected:[...checked],fingerprint:impact?.fingerprint};
       if(savedRequest.current.fingerprint)await saveSelection(office.id,savedRequest.current.users,savedRequest.current.fingerprint,savedRequest.current.id);else await selectProjectOfficeMembersChecked(office.id,savedRequest.current.users,savedRequest.current.expected,savedRequest.current.id);
       setSaved(true); setBaseline(selected); guard.markClean(); await refreshAfterSave();
-    } catch (e) { setError((e as Error).message); }
+    } catch (e) { setError(projectOfficeError(e, 'Could not save the project team.')); }
     finally { guard.pendingRef.current = false; setBusy(false); }
   }
   async function reloadSelection() {
-    void requestNavigation(async () => { savedRequest.current=undefined;guard.pendingRef.current = true; setBusy(true); setError(''); try { const ids = await readStaffingAuthority(office.project_id, office.id, actorId); setSelected(ids); setBaseline(ids); } catch (e) { setError((e as Error).message); } finally { guard.pendingRef.current = false; setBusy(false); } });
+    void requestNavigation(async () => { savedRequest.current=undefined;guard.pendingRef.current = true; setBusy(true); setError(''); try { const ids = await readStaffingAuthority(office.project_id, office.id, actorId); setSelected(ids); setBaseline(ids); } catch (e) { setError(projectOfficeError(e, 'Could not reload the project team.')); } finally { guard.pendingRef.current = false; setBusy(false); } });
   }
   return <section aria-label="Own Office project team" className="po-member-editor">
     <p className="po-help">Select your own Office members. Project access keeps account roles unchanged; task execution teams are managed in the task inspector.</p>

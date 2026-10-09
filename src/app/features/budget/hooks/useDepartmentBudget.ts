@@ -121,6 +121,7 @@ export function useDepartmentBudget(
       );
     if (budgetId) {
       channel = channel
+        .on("postgres_changes", { event: "*", schema: "public", table: "office_budget_sections", filter: `fiscal_budget_id=eq.${budgetId}` }, refresh)
         .on(
           "postgres_changes",
           {
@@ -190,11 +191,16 @@ export function useDepartmentBudget(
           refresh,
         );
     }
+    if (data.itemizedCashAvailable) {
+      channel = channel
+        .on("postgres_changes", { event: "*", schema: "public", table: "petty_cash_request_lines" }, refresh)
+        .on("postgres_changes", { event: "*", schema: "public", table: "petty_cash_receipt_items" }, refresh);
+    }
     channel.subscribe();
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [data.summary?.id, fiscalYear, orgId, refresh]);
+  }, [data.summary?.id, data.itemizedCashAvailable, fiscalYear, orgId, refresh]);
   return {
     ...(loadedScope === scope ? data : EMPTY),
     loading: Boolean(orgId) && loadedScope !== scope,

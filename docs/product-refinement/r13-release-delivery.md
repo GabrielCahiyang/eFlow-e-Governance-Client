@@ -1,5 +1,7 @@
 # R13 local release verification and rollout preparation
 
+9 October merge addendum: [refinement/teammate integration](merge-integration-2026-10-09.md) records the user's publication exception, compatible feature integration and current merge checks. The receipts and counts below describe the earlier R13 candidate and remain historical evidence.
+
 Status: local verification tooling and regression fixes implemented; final candidate browser and performance runs completed with required failures retained. **Full R13 release acceptance remains open.** No hosted migration, frontend/gateway deployment, invitation dispatch or provider change was performed. Git publication is handled separately from deployment acceptance.
 
 The [candidate/rollout contract](r13-release-contract.md) defines reproducible source, SQL, gateway, browser, performance and recovery gates. The three-browser selection contains **188 distinct production flows / 564 cases**, including all historical Phase 18 release flows, Phase 6.5 identities, R1 actual-project reflow and R2-R13 refinements. The separate R1 development harness passed **18 cases** with no skips, retries or failures. The runner requires exact selected identities in each browser, verifies the archived frontend/gateway and served frontend bytes, rejects source changes during acceptance and clears stale success receipts before a new attempt.

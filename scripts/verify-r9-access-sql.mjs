@@ -20,7 +20,9 @@ const deny=async(sql,args=[])=>{await assert.rejects(db.query(sql,args));checks+
 const actor=async n=>{currentActor=n;await db.exec('reset role');await value("select set_config('request.jwt.claim.sub',$1,false)",[n?id(n):'']);await db.exec('set role authenticated');};
 try{
  const option=name=>process.argv.find(value=>value.startsWith(name+'='))?.slice(name.length+1);
- db=await phase65Database({liveHistoryDirectory:option('--live-history'),withdrawalSnapshot:option('--withdrawal-snapshot')});
+ const merged=process.argv.includes('--repository-continuation');
+ db=await phase65Database({liveHistoryDirectory:option('--live-history'),withdrawalSnapshot:option('--withdrawal-snapshot'),repositoryContinuation:merged});
+ if(merged) await db.exec(await readFile(new URL('../supabase/migrations/20261009120000_refinement_project_creation_compatibility.sql',import.meta.url),'utf8'));
  await db.exec(`create table storage.objects(id uuid primary key default gen_random_uuid(),bucket_id text,name text,owner_id text,metadata jsonb,created_at timestamptz default now(),unique(bucket_id,name));
  alter table storage.objects enable row level security;grant usage on schema storage to authenticated;grant all on storage.objects to authenticated;
  insert into storage.buckets(id,name,public) values('task-attachments','task-attachments',false);
@@ -36,6 +38,7 @@ try{
  await db.query("insert into subtasks(id,task_id,title,position,assigned_to,assigned_to_ids,created_by,due_date) values($1,$2,'Legacy flat',0,$3,$4::uuid[],$5,'2026-12-20')",[id(100),root,id(4),[id(4)],id(3)]);await db.exec('set session_replication_role=origin');
  const original=await value('select to_jsonb(t) from tasks t where id=$1',[root]);
  for(const file of ['20260831000001_task_evidence_security.sql','20261007120000_r3_personal_workspaces.sql','20261008030659_r6_project_file_library.sql','20261008035748_r7_project_members_and_nested_work.sql','20261008060756_r8_approved_project_invitations.sql','20261008081855_r9_project_access_lifecycle.sql'])await db.exec(await readFile(new URL('../supabase/migrations/'+file,import.meta.url),'utf8'));
+ if(merged) await db.exec(await readFile(new URL('../supabase/migrations/20261009120100_refinement_office_removal_guest_termination.sql',import.meta.url),'utf8'));
 
  if(process.argv.includes('--integrated-refinement')) for(const file of ['20261008123723_r11_project_activity_snapshots.sql','20261008134347_r12_presentation_settings.sql']) await db.exec(await readFile(new URL('../supabase/migrations/'+file,import.meta.url),'utf8'));
  await actor(2);

@@ -26,6 +26,8 @@ jobs:
       - run: npm run verify:r8-invitations && npm run verify:r9-access && npm run verify:r9-compatibility
       - run: npm run verify:r11-activity && npm run verify:r12-settings
       - run: npm run verify:r13-integrated
+      - run: npm run verify:merge-projects && npm run verify:merge-offices && npm run verify:merge-integrated
+      - run: npm run verify:budget-sections && npm run verify:login-security
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'

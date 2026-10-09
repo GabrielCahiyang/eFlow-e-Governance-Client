@@ -171,7 +171,7 @@ export async function projectWorkspaceFixture(
         exp: Math.floor(Date.now() / 1000) + 3600,
       }),
     ).toString("base64url"),
-    "synthetic",
+    Buffer.from("synthetic-signature").toString("base64url"),
   ].join(".");
   await page.addInitScript(
     ({ id, role }) =>
@@ -440,6 +440,7 @@ export async function projectWorkspaceFixture(
             : { success: true };
     return route.fulfill({ json: body });
   });
+  await page.route('**/controlpanelEflow/api/auth/login', route => route.fulfill({json:{access_token:token,refresh_token:'synthetic'}}));
   await page.goto("/");
   await page.locator("#login-email").fill(user.email);
   await page.locator("#login-password").fill("synthetic-password");

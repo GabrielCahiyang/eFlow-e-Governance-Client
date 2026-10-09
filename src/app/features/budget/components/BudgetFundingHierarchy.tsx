@@ -13,7 +13,7 @@ export function BudgetFundingHierarchy({ data, tasks }: FundingHierarchyProps) {
   if (!data.commitments.length) {
     return (
       <BudgetEmpty
-        title="No funded proposals"
+        title="No funded work"
         description="Drafts do not consume funds. Publishing a proposal reserves its approved task budgets once and creates the operational allocations shown here."
       />
     );
@@ -53,7 +53,7 @@ function ProposalFundingCard({
         <div className="min-w-0 flex-1">
           <div className="truncate text-[12px] font-semibold">{commitment.title}</div>
           <div className="mt-1 text-[12px] text-neutral-500">
-            {taskAllocations.length} funded task(s) · reserved at publication
+            {taskAllocations.length} funded task(s) · {commitment.proposalDraftId ? "reserved at publication" : "direct work authorization"}
           </div>
         </div>
         <FundingMetric label="Actual" value={settled} />

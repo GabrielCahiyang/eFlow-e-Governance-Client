@@ -18,11 +18,13 @@ export function CollaborationBudgetPanel({
   snapshot,
   editable,
   fundingOwnerName,
+  fundingOrgId,
   onSave,
 }: {
   snapshot: CollaborationDraftSnapshot;
   editable: boolean;
   fundingOwnerName?: string;
+  fundingOrgId?: string;
   onSave: (
     snapshot: CollaborationDraftSnapshot,
     summary: string,
@@ -190,6 +192,8 @@ export function CollaborationBudgetPanel({
       {openTask && (
         <TaskBudgetDialog
           open
+          fundingOrgId={fundingOrgId}
+          fiscalYear={budget.fiscalYear}
           taskKey={openTask.key}
           taskTitle={openTask.title}
           decision={openTask.budgetDecision || "missing"}

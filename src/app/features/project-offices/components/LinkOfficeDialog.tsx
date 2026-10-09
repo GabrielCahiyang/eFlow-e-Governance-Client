@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogDescription, DialogTitle } from '../../../
 import type { Organization } from '../../../types';
 import type { OfficeIdentity } from '../types';
 import { linkOfficeIdentity } from '../services/officeIdentityService';
+import { projectOfficeError } from '../presentation';
 
 export function LinkOfficeDialog({ identity, organizations, leadOffice, onClose, onLinked }: {
   identity: OfficeIdentity; organizations: Organization[]; leadOffice: string; onClose: () => void; onLinked: () => Promise<void>;
@@ -16,7 +17,7 @@ export function LinkOfficeDialog({ identity, organizations, leadOffice, onClose,
     {done ? <><p role="status">Office linked. Confirm participation before resolving task responsibility.</p><button type="button" onClick={onClose}>Done</button></> : <form onSubmit={async event => {
       event.preventDefault(); if (inFlight.current) return; inFlight.current = true; setBusy(true); setError('');
       try { await linkOfficeIdentity(identity.id, office); setDone(true); try { await onLinked(); } catch { setError('Linked, but could not refresh. Retry loading Project Offices.'); } }
-      catch (reason) { setError(reason instanceof Error ? reason.message : 'Could not link this Office.'); }
+      catch (reason) { setError(projectOfficeError(reason, 'Could not link this Office.')); }
       finally { setBusy(false); inFlight.current = false; }
     }}>
       <label>Directory Office<select required value={office} disabled={busy} onChange={event => setOffice(event.target.value)}><option value="">Choose an Office</option>{organizations.filter(o => o.is_active && o.id !== leadOffice).map(o => <option value={o.id} key={o.id}>{o.name}</option>)}</select></label>

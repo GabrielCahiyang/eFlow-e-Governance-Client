@@ -1,0 +1,230 @@
+{
+  "recordedAt": "2026-10-09T04:32:36.721Z",
+  "parents": [
+    "bc3930c3401d8f41b393d6417bac719656ec32a9",
+    "d780ab521f9f16592a0437fca3b59344546926b7"
+  ],
+  "publicationChoice": "Retain local immediate Planning project creation and original readiness/activation; no frontend draft-publication gate.",
+  "candidate": "526ffdc9abe0754066ce56215cd05358701f3a6b06f5ed64c1ddf5cff4178545",
+  "scope": "Synthetic local production browser acceptance and disposable SQL verification; hosted deployment and R13 performance/native acceptance remain separate.",
+  "hostedTarget": "ixnfphgjyelhckjwjkdv",
+  "deployed": false,
+  "frontend": {
+    "files": 254,
+    "tests": 1049,
+    "result": "passed"
+  },
+  "gateway": {
+    "tests": 85,
+    "result": "passed"
+  },
+  "sql": {
+    "projectCreation": 26,
+    "officeRemovalAccessPrivacy": 58,
+    "cumulativeRefinementAndTeammateHistory": 86,
+    "budgetSections": 41,
+    "loginSecurity": 32,
+    "historicalOfficeRemoval": 19,
+    "result": "passed",
+    "countsOverlap": true,
+    "hostedWrites": false
+  },
+  "browser": {
+    "candidate": "526ffdc9abe0754066ce56215cd05358701f3a6b06f5ed64c1ddf5cff4178545",
+    "completedAt": "2026-10-09T04:32:28.470Z",
+    "browsers": [
+      "chromium",
+      "firefox",
+      "webkit"
+    ],
+    "casesPerBrowser": 194,
+    "result": "passed",
+    "scope": "Synthetic local production browser matrix; hosted acceptance remains separate.",
+    "totals": {
+      "chromium": {
+        "passed": 194,
+        "retries": 0
+      },
+      "firefox": {
+        "passed": 194,
+        "retries": 0
+      },
+      "webkit": {
+        "passed": 194,
+        "retries": 0
+      }
+    },
+    "stats": {
+      "startTime": "2026-10-09T03:51:19.931Z",
+      "duration": 2467607.012,
+      "expected": 582,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "reportSha256": "2e74f15ad86f698dc1d49c22043901edd7477396b6d3474d636a5c4ea6137285",
+    "selectionSha256": "d4a92d5e687503916f90cbaebdf01e4d34aec74239027cf69d90c03811bb3b14"
+  },
+  "firefox": {
+    "playwright": "1.55.0",
+    "pinned": {
+      "revision": "1490",
+      "version": "141.0",
+      "mozillaBuildId": "20250730074330"
+    },
+    "filesCompared": 48,
+    "filesIdentical": true,
+    "importantFiles": [
+      {
+        "path": "application.ini",
+        "sha256": "ec842a079817e116833325ec79580c787dd0156b9b480f0c8c759fd71e2f46f6"
+      },
+      {
+        "path": "firefox.exe",
+        "sha256": "77c879267e322e528aa4af28dde92cbc9735a79f12254230f99c99ae21011789"
+      },
+      {
+        "path": "mozglue.dll",
+        "sha256": "99224df83e9286d368efdd994ac985fd6e3c1ed1c1af0937ab8654680fe5d902"
+      },
+      {
+        "path": "msvcp140.dll",
+        "sha256": "0f885b509a685d2bbfa652fed26b5fb31d88fbdab0a978c641d1c7b8aa460aa9"
+      },
+      {
+        "path": "nss3.dll",
+        "sha256": "7337dd9651cde536ea587569afeb502ed08bc206e7c7aa2abbd795af801eb532"
+      },
+      {
+        "path": "vcruntime140_1.dll",
+        "sha256": "1f2d41c4aa5db0bc33ebf7b66d72943a817d7ce6cbe880502a9403823633093f"
+      },
+      {
+        "path": "vcruntime140.dll",
+        "sha256": "d5e4d9a3e835fa679450145d6a7d94e36573a509317111904d9b3712c30d9066"
+      },
+      {
+        "path": "xul.dll",
+        "sha256": "a2769486bd5a3f91543e6e08843fdf0cadeaec8445691354b064c2a682b2c960"
+      }
+    ],
+    "isolatedLaunch": {
+      "passed": true,
+      "version": "141.0",
+      "text": "Firefox probe"
+    },
+    "selectedWith": "Existing EFLOW_FIREFOX_EXECUTABLE override to the identical pinned build in the local isolated cache.",
+    "defaultPathFailure": "Windows activation-context failure; exact underlying path/access cause remains unproven.",
+    "sourceOrDependencyChanges": false
+  },
+  "historicalMigrations": [
+    {
+      "path": "supabase/migrations/20261007152648_office_budget_dynamic_sections.sql",
+      "bytes": 14627,
+      "sha256": "c509dc3d9f2273c1f16d7d7edcb09465ea466d2329ea6ac624948b4372b16d2a",
+      "gitBlobSha256": "9360575ee8acc7d5202ad768c2fd426ae8496e22aa11a9472463a5f9ca947562",
+      "checkoutLineEndingsOnly": true
+    },
+    {
+      "path": "supabase/migrations/20261007153615_office_budget_partition_funding.sql",
+      "bytes": 16492,
+      "sha256": "37170a596f4ea86d628f8ee56cf278618c204674d406c13f9648841d6cf742a0",
+      "gitBlobSha256": "5d6867fc1bcd4b35d8f5f71652dbfb0d16b4e067ea84739f15260a72c6742de2",
+      "checkoutLineEndingsOnly": true
+    },
+    {
+      "path": "supabase/migrations/20261007154917_petty_cash_vouchers_items.sql",
+      "bytes": 25866,
+      "sha256": "856ef52643f82a99e7f6763e04453e6c40286af7513f36c79d02ee671ece85c6",
+      "gitBlobSha256": "5b660d77d8de7d7b0d556729a1cd81d1b3d4ad64aff7e59656a977e75c24e097",
+      "checkoutLineEndingsOnly": true
+    },
+    {
+      "path": "supabase/migrations/20261007160031_office_budget_ledgers.sql",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gitBlobSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "checkoutLineEndingsOnly": false
+    },
+    {
+      "path": "supabase/migrations/20261007175525_project_office_removal_and_history.sql",
+      "bytes": 9035,
+      "sha256": "aeb1027871d59f5fb33c92c703055014ae8b7c2c7c3d3589b5f1d4be0b686581",
+      "gitBlobSha256": "077b53489cbe8f7394414250584ad851442bd23e8462c429cb11060010ad65cd",
+      "checkoutLineEndingsOnly": true
+    },
+    {
+      "path": "supabase/migrations/20261007191654_account_login_lockout.sql",
+      "bytes": 9590,
+      "sha256": "0efc060b33463f3898ab4d90802338595681eeeaa5624d69c9fb3610e741cb4a",
+      "gitBlobSha256": "0ca2850532b6cf1bdbc96da262003b35cf4184b2d31ba8cf10eebd5ac01417f4",
+      "checkoutLineEndingsOnly": true
+    },
+    {
+      "path": "supabase/migrations/20261007195837_login_gateway_discovery.sql",
+      "bytes": 476,
+      "sha256": "5092a6b14d435c47edbdcda44c6020997b9d2d91d646dcabaf59304b1e118ec0",
+      "gitBlobSha256": "994c8bafd6a75f6d93bac52888b5826686d11b2c63a167430c0b3d20381c355e",
+      "checkoutLineEndingsOnly": true
+    },
+    {
+      "path": "supabase/migrations/20261007201249_project_draft_publication.sql",
+      "bytes": 7874,
+      "sha256": "e28502425f42e632b286c55c4a4db3bf24eb05794ffd28de416a8d8fef42ffef",
+      "gitBlobSha256": "ac2478594010bc978d946666edf10ffed52e0372ad360d9e1fcb704c3d09a10c",
+      "checkoutLineEndingsOnly": true
+    },
+    {
+      "path": "supabase/migrations/20261007203525_project_publication_history_retention.sql",
+      "bytes": 356,
+      "sha256": "1f9f1921d82d7dc4b878b9d5562c2ef94b76ced7f7bec36bf3e8e27ba585a633",
+      "gitBlobSha256": "f85e14ee479211969a55c25de499d8db6c2bb40b07e88978072660adc3224945",
+      "checkoutLineEndingsOnly": true
+    },
+    {
+      "path": "supabase/migrations/20261008004900_withdraw_office_invitation.sql",
+      "bytes": 2602,
+      "sha256": "590a727212eaea66a40b04ce9486ff11780d70c7b3580f3e9bc70e5010ee063b",
+      "gitBlobSha256": "b8e38d6bd1026ca0de45dac5545d482fb07795374c1697c49ea969f68c618683",
+      "checkoutLineEndingsOnly": true
+    }
+  ],
+  "pendingMergeCompatibility": [
+    {
+      "path": "supabase/migrations/20261009120000_refinement_project_creation_compatibility.sql",
+      "bytes": 2705,
+      "sha256": "00f6a581b18b85a643883cfcfa1e1dbace37a976222a55075fbc62de886f9c52"
+    },
+    {
+      "path": "supabase/migrations/20261009120100_refinement_office_removal_guest_termination.sql",
+      "bytes": 8840,
+      "sha256": "06bc465aa0e8d594cd1ef19f1c3a45d8f0cc406219c373744c7c41a4792f773c"
+    }
+  ],
+  "logHashes": [
+    {
+      "path": ".refinement/merge-check-final.log",
+      "sha256": "659606cc1e46300d84aa709445df90c5152e824c89833ed71e658e03d3a53309"
+    },
+    {
+      "path": ".refinement/merge-unit-final.log",
+      "sha256": "77122e2c5c933fbf166a5a5ad59129aaf30bc363821b64b7dc3ab6d4ff1126e4"
+    },
+    {
+      "path": ".refinement/merge-build-final.log",
+      "sha256": "eb59848098141297a4d2cea4d6a0baaf5d5b5427534e800f4707f84d1343032b"
+    },
+    {
+      "path": ".refinement/merge-safety-final.log",
+      "sha256": "aacbfe388f042a776c0c5c3084f0ef9a64ed98bef40957912fa995a073638d8c"
+    },
+    {
+      "path": ".refinement/merge-client-secrets-final.log",
+      "sha256": "7094c0499c5384397d9f5c9ca4660f69a22e240a312217ee04bbaabd0c62bd36"
+    },
+    {
+      "path": ".refinement/merge-browser-accepted.log",
+      "sha256": "910451df1b41ddfd0b4306381bc59aed98c2fdbac4cfbfb4cf4720917bddaddd"
+    }
+  ]
+}

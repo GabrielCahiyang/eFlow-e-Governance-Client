@@ -1,14 +1,15 @@
 import { supabase } from '../../../../lib/supabase';
 import { fetchProjectOffices } from './projectOfficeService';
+import { withSupabaseSessionRetry } from '../../../shared/supabaseSession';
 /** Checked reads supplement the UI; phase6_set_members remains the final authority. */
 export async function readStaffingAuthority(projectId: string, officeId: string, actorId: string) {
   const state = await fetchProjectOffices(projectId);
   const office = state.offices.find(o => o.id === officeId);
   if (!office) throw new Error('This Office participation is no longer available.');
   const [project, organization, actor] = await Promise.all([
-    supabase.from('projects').select('status,source_collaboration_draft_id').eq('id', projectId).maybeSingle(),
-    supabase.from('organizations').select('head_user_id').eq('id', office.office_id).maybeSingle(),
-    supabase.from('profiles').select('role,is_active,org_id').eq('id', actorId).maybeSingle(),
+    withSupabaseSessionRetry(() => supabase.from('projects').select('status,source_collaboration_draft_id').eq('id', projectId).maybeSingle()),
+    withSupabaseSessionRetry(() => supabase.from('organizations').select('head_user_id').eq('id', office.office_id).maybeSingle()),
+    withSupabaseSessionRetry(() => supabase.from('profiles').select('role,is_active,org_id').eq('id', actorId).maybeSingle()),
   ]);
   for (const result of [project, organization, actor]) if (result.error) throw new Error(result.error.message);
   if (!project.data || ['completed','archived'].includes(project.data.status) || project.data.source_collaboration_draft_id) throw new Error('Project is closed or governed. Reopen its current participation workflow.');

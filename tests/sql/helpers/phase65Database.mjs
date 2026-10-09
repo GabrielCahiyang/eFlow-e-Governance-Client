@@ -5,7 +5,8 @@ import { ltree } from '@electric-sql/pglite/contrib/ltree';
 import { pgcrypto } from '@electric-sql/pglite/contrib/pgcrypto';
 
 /** Disposable real PostgreSQL; no environment variables, accounts or network. */
-export async function phase65Database({ liveHistoryDirectory, withdrawalSnapshot } = {}) {
+export async function phase65Database({ liveHistoryDirectory, withdrawalSnapshot, repositoryContinuation = false } = {}) {
+ if (repositoryContinuation && liveHistoryDirectory) throw new Error('Choose repository continuation or live-history replay, not both.');
  const db = await PGlite.create({ extensions: { ltree, pgcrypto } });
  try {
   const fixture = JSON.parse(await readFile(new URL('../phase1-deployed-schema.json', import.meta.url), 'utf8'));
@@ -43,7 +44,21 @@ export async function phase65Database({ liveHistoryDirectory, withdrawalSnapshot
    '20261004194130_phase7_readiness_governance.sql',
    '20261005170822_phase65_project_local_office_identity.sql',
   ];
-  const selected = liveHistoryDirectory ? (await readdir(liveHistoryDirectory)).filter(name => /^\d{14}_[a-z0-9_]+\.sql$/.test(name)).sort() : migrations;
+  // Local integration only: these historical files keep their recorded names.
+  // Deployment must still use a separate workspace populated from live history.
+  const continuation = [
+   '20261007152648_office_budget_dynamic_sections.sql',
+   '20261007153615_office_budget_partition_funding.sql',
+   '20261007154917_petty_cash_vouchers_items.sql',
+   '20261007160031_office_budget_ledgers.sql',
+   '20261007175525_project_office_removal_and_history.sql',
+   '20261007191654_account_login_lockout.sql',
+   '20261007195837_login_gateway_discovery.sql',
+   '20261007201249_project_draft_publication.sql',
+   '20261007203525_project_publication_history_retention.sql',
+   '20261008004900_withdraw_office_invitation.sql',
+  ];
+  const selected = liveHistoryDirectory ? (await readdir(liveHistoryDirectory)).filter(name => /^\d{14}_[a-z0-9_]+\.sql$/.test(name)).sort() : [...migrations, ...(repositoryContinuation ? continuation : [])];
   if (liveHistoryDirectory && (selected.length !== 18 || selected.at(-1) !== '20261008004900_withdraw_office_invitation.sql')) throw new Error('Expected the reviewed 18-entry R13 live ledger; inspect changed history before replay.');
   for (const name of selected) {
    try {

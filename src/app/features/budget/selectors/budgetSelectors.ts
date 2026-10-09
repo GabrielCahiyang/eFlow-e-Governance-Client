@@ -9,6 +9,7 @@ import type {
   TaskBudgetDecision,
   WorkBudgetAllocation,
 } from "../types";
+import { moneyCents } from "./budgetSections";
 
 export function getTaskScopedBudgetBundle(data: DepartmentBudgetBundle, taskIds: string[]): DepartmentBudgetBundle {
   const taskIdSet = new Set(taskIds);
@@ -21,8 +22,16 @@ export function getTaskScopedBudgetBundle(data: DepartmentBudgetBundle, taskIds:
     ...allocations.map((item) => item.commitmentId),
     ...requests.map((item) => item.commitmentId),
   ]);
+  const fundedAmount = allocations.filter(a => !a.subtaskId && a.status === "approved")
+    .reduce((sum,a) => sum + moneyCents(a.amount),0) / 100;
+  const spentAmount = requests.filter(r => r.status === "settled").reduce((sum,r) => sum + moneyCents(r.actualSpent || 0),0) / 100;
   return {
     ...data,
+    summary: data.summary ? { ...data.summary, approvedAmount: fundedAmount, committedAmount: fundedAmount,
+      heldAmount: 0, budgetReleasedAmount: fundedAmount, spentAmount, availableAmount: getAllocationCashPosition(fundedAmount,requests).remaining, commitmentRemaining: fundedAmount - spentAmount,
+      pettyCashSpent: spentAmount, pettyCashReserved: getAllocationCashPosition(fundedAmount,requests).reserved } : null,
+    sections: undefined,
+    lines: data.allocationLines.filter(l=>allocations.some(a=>a.id===l.allocationId&&!a.subtaskId&&a.status==="approved")).map(l=>({...l,fiscalBudgetId:data.summary?.id||""})),
     commitments: data.commitments.filter((item) => commitmentIds.has(item.id)),
     allocations,
     allocationLines: data.allocationLines.filter((item) => allocationIds.has(item.allocationId)),

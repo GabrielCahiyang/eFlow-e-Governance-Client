@@ -13,7 +13,7 @@ export interface OfficeIdentity {
   relationship_type: 'lead' | 'collaborating' | 'observer';
   contact_email: string; contact_user_id: string | null;
   contact_status: 'none' | 'invited' | 'accepted' | 'revoked';
-  provenance: { source?: string; evidence?: string };
+  provenance: { source?: string; evidence?: string; removed?: boolean; removedAt?: string; removedBy?: string };
 }
 export interface ProjectOfficeState {
   projectId?: string;

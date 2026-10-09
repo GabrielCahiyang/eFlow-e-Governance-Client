@@ -18,6 +18,9 @@ export interface Project {
   sourceCollaborationDraftId?: string;
   sourceCollaborationRevisionId?: string;
   status: ProjectStatus;
+  publicationState?: 'draft' | 'published';
+  publishedAt?: number;
+  publishedBy?: string;
   priority: ProjectPriority;
   startDate?: string;
   targetDate?: string;

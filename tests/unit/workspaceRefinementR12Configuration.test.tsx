@@ -32,7 +32,7 @@ vi.mock("../../src/app/shared/navigationGuard", () => ({
 }));
 vi.mock(
   "../../src/app/features/administration/components/user-management",
-  () => ({ UserManagement: () => <div>Retained people tools</div> }),
+  () => ({ UserManagement: ({initialTab}: {initialTab:string}) => <div>Retained people tools: {initialTab}</div> }),
 );
 vi.mock("../../src/app/features/administration/components/data-tools", () => ({
   BackupExportWorkspace: () => <div>Retained backup tools</div>,
@@ -107,6 +107,22 @@ describe("R12 effective administration", () => {
         (x) => x.label === "Role Defaults",
       ),
     ).toBe(false);
+  });
+  it("keeps locked account management inside People and restricts it to Admin", () => {
+    render(<AdministrationWorkspace activePage="Locked out accounts" />);
+    expect(screen.getAllByRole("tab")).toHaveLength(9);
+    expect(screen.getByRole("tab", {name:"People & onboarding"}).getAttribute("aria-selected")).toBe("true");
+    expect(screen.getByText("Retained people tools: locked-accounts")).toBeTruthy();
+    expect(screen.getByRole("button", {name:"Locked out accounts",exact:true}).getAttribute("aria-pressed")).toBe("true");
+    expect(resolveSupportPage("users","Locked out accounts")).toBe("Locked out accounts");
+    for(const role of ["head","member","accounting_staff"])
+      expect(getAuthorizedSupportPages(role,()=>true).some(page=>page.label==="Locked out accounts")).toBe(false);
+    expect(getAuthorizedSupportPages("admin",()=>true).some(page=>page.label==="Locked out accounts")).toBe(true);
+    cleanup();
+    api.role="head";
+    render(<AdministrationWorkspace activePage="Locked out accounts" />);
+    expect(screen.queryByText("Retained people tools: locked-accounts")).toBeNull();
+    expect(screen.queryByRole("button",{name:"Locked out accounts",exact:true})).toBeNull();
   });
   it("saves only validated presentation keys and documents dormant session/timezone controls", async () => {
     render(<ApplicationSettings />);

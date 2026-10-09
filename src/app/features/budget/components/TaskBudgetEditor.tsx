@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { Banknote, CircleDollarSign, Plus, Trash2 } from "lucide-react";
 import { createBudgetLine, PROPOSAL_EXPENSE_CLASSES, PROPOSAL_FUND_SOURCE } from "../constants";
 import { getBudgetLineAmount, groupProposalBudgetLines, normalizeTaskBudgetLines } from "../selectors/budgetSelectors";
-import type { BudgetLineInput, TaskBudgetDecision } from "../types";
+import type { BudgetLineInput, BudgetSection, TaskBudgetDecision } from "../types";
 import { peso } from "./budgetUi";
 
 export interface TaskBudgetValue {
@@ -16,12 +16,14 @@ export function TaskBudgetEditor({
   value,
   fundingSource = PROPOSAL_FUND_SOURCE,
   readOnly = false,
+  partitions = [],
   onChange,
 }: {
   taskKey: string;
   value: TaskBudgetValue;
   fundingSource?: string;
   readOnly?: boolean;
+  partitions?: BudgetSection[];
   onChange: (value: TaskBudgetValue) => void;
 }) {
   const lines = normalizeTaskBudgetLines(taskKey, value.lines || []);
@@ -80,7 +82,7 @@ export function TaskBudgetEditor({
               <div className="flex items-center justify-end gap-2"><span className="text-[10px] font-semibold tabular-nums">{peso.format(category.amount)}</span>{!readOnly && <button type="button" onClick={() => removeIds(ids)} className="rounded-lg p-2 text-neutral-400 hover:bg-rose-50 hover:text-rose-600" aria-label={`Remove ${category.category}`}><Trash2 size={12} /></button>}</div>
             </header>
             <div className="divide-y divide-neutral-100">
-              {category.particulars.map((line) => <ParticularRow key={line.id} line={line} readOnly={readOnly} onPatch={(patch) => patchIds(new Set([line.id]), patch)} onRemove={() => removeIds(new Set([line.id]))} />)}
+              {category.particulars.map((line) => <div key={line.id}><ParticularRow line={line} readOnly={readOnly} onPatch={(patch) => patchIds(new Set([line.id]), patch)} onRemove={() => removeIds(new Set([line.id]))} />{partitions.length>0 && <label className="block px-3 pb-3"><span className="text-[11px] text-muted-foreground">Annual funding account</span><select disabled={readOnly} value={line.budgetPartitionId||""} onChange={e=>patchIds(new Set([line.id]),{budgetPartitionId:e.target.value})} className={inputClass}><option value="">Choose the account that authorizes this item</option>{partitions.map(s=><option key={s.id} value={s.id}>{s.name} · {peso.format(s.amount-s.heldAmount-(s.committedAmount||0))} available</option>)}</select></label>}</div>)}
             </div>
             {!readOnly && <button type="button" onClick={() => updateLines([...lines, { ...createBudgetLine(lines.length, taskKey), expenseClass: expense.expenseClass, category: category.category, fundSource: fundingSource }])} className="m-3 inline-flex items-center gap-1.5 rounded-lg border border-dashed border-neutral-300 px-3 py-2 text-[9.5px] text-neutral-600 hover:border-emerald-300 hover:bg-emerald-50"><Plus size={11} /> Add particular</button>}
           </section>;

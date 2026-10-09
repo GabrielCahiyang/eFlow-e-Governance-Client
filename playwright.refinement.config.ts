@@ -8,6 +8,7 @@ export default defineConfig(release, {
     release.testMatch!,
     /workspace-refinement-r(?:[1-9]|1[0-3])\.spec\.ts/,
     /phase65-office-identities\.spec\.ts/,
+    /(?:account-lockout|office-budget-sections|project-office-recovery-removal|project-office-single-table)\.spec\.ts/,
   ],
   grepInvert: /R1 foundation scroll, badges and tooltip focus|R1 main content and sidebar reach their final item/,
   reporter: [

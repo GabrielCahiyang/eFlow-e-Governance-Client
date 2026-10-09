@@ -31,6 +31,7 @@ export function DraftTaskRow({
   onDelete,
   onOpenModal,
   validationMessages = {},
+  fundingOrgId,
 }: {
   dt: DraftTask;
   employees: Employee[];
@@ -39,6 +40,7 @@ export function DraftTaskRow({
   onDelete: (key: string) => void;
   onOpenModal: (key: string) => void;
   validationMessages?: Record<string, string>;
+  fundingOrgId?: string;
 }) {
   const [editing, setEditing] = useState(false);
   const [budgetOpen, setBudgetOpen] = useState(false);
@@ -412,6 +414,7 @@ export function DraftTaskRow({
       </div>
       <TaskBudgetDialog
         open={budgetOpen}
+        fundingOrgId={fundingOrgId}
         taskKey={dt.key}
         taskTitle={dt.title || "Untitled task"}
         decision={dt.budgetDecision || "missing"}
