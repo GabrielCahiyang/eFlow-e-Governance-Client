@@ -26,9 +26,10 @@ export function WorkList({
                 {row.workspaceName} · {row.projectTitle}
                 {row.rootTitle ? ` · ${row.rootTitle}` : ""}
               </small>
+              {row.workContext&&<small aria-label="Work path">{row.workContext.pathLabel}</small>}
               <small>
                 {row.relation}
-                {row.node ? ` · Depth ${row.node.depth}` : ""} ·{" "}
+                {row.workContext?` · Lead: ${row.workContext.leadName||'Needs reassignment'} · Contributors (${row.workContext.contributors.length})`:""} ·{" "}
                 {row.kind.startsWith("personal") ? "Personal" : "Office"}
                 {row.officeName ? ` · ${row.officeName}` : ""}
               </small>

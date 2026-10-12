@@ -208,7 +208,7 @@ export function NotificationBell({
       if (destination && onNavigate) {
         const accepted = await onNavigate(destination.section, destination.page);
         if (accepted === false) return;
-        queueNotificationNavigationIntent(destination.intent);
+        queueNotificationNavigationIntent(destination.intent,userId);
         setOpen(false);
       }
     },

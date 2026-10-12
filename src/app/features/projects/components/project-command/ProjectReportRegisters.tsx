@@ -3,6 +3,7 @@ import { Open } from "@vibe/icons";
 import { Eye, ReceiptText } from "lucide-react";
 import { createReceiptSignedUrl, peso } from "../../../budget";
 import { getSubtaskEvidenceUrl } from "../../../subtasks";
+import {buildWorkRecordDisplayMetadata} from '../../../nested-work';
 import type { ProjectExecutionFinancialRow } from "../../selectors/projectFinancialReportSelectors";
 import { financialOfficeUnavailable } from "../../selectors/projectReportAvailability";
 import type { ProjectCommandData } from "./types";
@@ -180,6 +181,7 @@ export function ExecutionRow({
 }
 
 export function ReceiptRegister({ data }: { data: ProjectCommandData }) {
+  const metadata=buildWorkRecordDisplayMetadata(data.tasks,data.facts.subtasks);
   const requestById = new Map(
     data.financial.requests.map((request) => [request.id, request]),
   );
@@ -219,8 +221,9 @@ export function ReceiptRegister({ data }: { data: ProjectCommandData }) {
                     request
                       ? commitmentById.get(request.commitmentId)?.title
                       : undefined,
-                    request?.taskTitle,
-                    request?.subtaskTitle,
+                    request?.subtaskId && metadata.get(request.subtaskId)?.rootId===request.taskId
+                      ? metadata.get(request.subtaskId)?.pathLabel
+                      : [request?.taskTitle,request?.subtaskTitle].filter(Boolean).join(' / '),
                   ]
                     .filter(Boolean)
                     .join(" → ") || "Funded work item"}

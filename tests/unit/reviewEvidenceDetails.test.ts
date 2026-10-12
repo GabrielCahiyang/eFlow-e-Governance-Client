@@ -10,6 +10,7 @@ vi.mock("../../src/app/features/subtasks/components/SubtaskEvidenceLink", () => 
 
 import { TaskReviewStandards } from "../../src/app/features/reviews/components/TaskReviewStandards";
 import { TaskSubtaskEvidenceSection } from "../../src/app/features/reviews/components/TaskSubtaskEvidenceSection";
+import {SubtaskSubmissionHistory} from '../../src/app/features/subtasks/components/SubtaskSubmissionHistory';
 
 afterEach(cleanup);
 
@@ -28,6 +29,22 @@ const parentTask = {
 };
 
 describe("Head review evidence details", () => {
+  it('keeps the actual historical decider separate from a replacement pending reviewer',()=>{
+    const base={id:'old',taskId:'task-1',subtaskId:'node',version:1,submitterId:'author',submitterName:'Original author',reviewerId:'original-reviewer',note:'Original note',submittedAt:1,attachments:[]};
+    render(createElement(SubtaskSubmissionHistory,{currentReviewerName:'Replacement reviewer',submissions:[{...base,status:'approved',decidedById:'actual-actor',decidedByName:'Original decider',decisionFeedback:'Recorded feedback',decidedAt:2},{...base,id:'new',version:2,status:'pending'}]}));
+    expect(screen.getByText('Historical decision by Original decider')).toBeTruthy();
+    expect(screen.getByText('Current reviewer: Replacement reviewer')).toBeTruthy();
+    expect(screen.getByText('Original decider: Recorded feedback')).toBeTruthy();
+    expect(screen.queryByText('Replacement reviewer: Recorded feedback')).toBeNull();
+  });
+  it('shows the appointed Lead even when absent from workers and deduplicates displayed contributors',()=>{
+    const task={...parentTask,assigneeId:'lead',assigneeName:'Appointed Lead'};
+    const node={id:'node',taskId:'task-1',title:'Node',leadId:'lead',assignedToIds:['employee-1','lead','employee-1'],position:0,status:'completed' as const,percentComplete:100,isCompleted:true,source:'manual' as const,createdAt:1,updatedAt:1};
+    render(createElement(TaskSubtaskEvidenceSection,{task,loading:false,evidence:[{subtask:node,progressUpdates:[],submissions:[]}]}));
+    expect(screen.getByText(/Lead: Appointed Lead · Contributors \(1\): Gabriel Cahiyang/)).toBeTruthy();
+    expect(screen.getByText('Prepare the detailed work plan / Node')).toBeTruthy();
+    expect(node.assignedToIds).toEqual(['employee-1','lead','employee-1']);
+  });
   it("shows completion standards and dependency state", () => {
     render(createElement(TaskReviewStandards, {
       task: parentTask,

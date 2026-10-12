@@ -1,7 +1,15 @@
 // @vitest-environment jsdom
-import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, renderHook, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-const api = vi.hoisted(() => ({ load: vi.fn() }));
+const api = vi.hoisted(() => ({ load: vi.fn(), open:vi.fn() }));
+vi.mock('../../src/app/contexts/AuthContext',()=>({useAuth:()=>({user:{id:'me'},userProfile:{id:'me',role:'member'}})}));
+vi.mock('../../src/app/features/subtasks',async()=>({
+  ...await vi.importActual<typeof import('../../src/app/features/subtasks')>('../../src/app/features/subtasks'),
+  SubitemInspector:(props:{itemId:string;rootTask:{id:string};readOnly?:boolean})=>{
+    api.open(props);
+    return <section aria-label="Canonical item"><output>{props.itemId}</output><textarea aria-label="Retained item draft" readOnly={props.readOnly}/></section>;
+  },
+}));
 vi.mock(
   "../../src/app/features/personal-work/services/workFeedService",
   () => ({ loadWorkFeed: api.load }),
@@ -10,6 +18,10 @@ vi.mock("../../src/app/features/project-access", () => ({
   ACCESS_CHANGED_EVENT: "eflow-project-access-changed",
 }));
 import { useWorkFeed } from "../../src/app/features/personal-work/hooks/useWorkFeed";
+import { WorkInspector } from '../../src/app/features/personal-work/components/WorkInspector';
+import { WorkList } from '../../src/app/features/personal-work/components/WorkList';
+import { buildSubtaskDisplayMetadata } from '../../src/app/features/nested-work';
+import type { WorkRow } from '../../src/app/features/personal-work/types';
 const data = {
   rows: [{ key: "old" }],
   projects: [],
@@ -29,6 +41,36 @@ afterEach(() => {
   vi.resetAllMocks();
 });
 describe("R10 access-sensitive feed lifecycle", () => {
+  const item=():WorkRow=>({key:'office-node:deep',id:'deep',rootId:'root',title:'Same',kind:'office-node',projectTitle:'Project',workspaceName:'Office',
+    timezone:'Asia/Singapore',status:'todo',due:'2026-10-21',progress:10,mine:true,leading:true,actionable:true,history:false,relation:'Subitem Lead',
+    task:{id:'root',title:'Root',status:'todo',linkedProjectId:'project',orgId:'office',assigneeId:'other',createdAt:1,updatedAt:1}});
+  it('NW9.2 opens canonical Office identity without a fabricated Subtask and retains drafts when feed access is revoked',()=>{
+    const row=item(),selected={row,element:document.createElement('button')};
+    const view=render(<WorkInspector selected={selected} current={[row]} onClose={()=>{}}/>);
+    expect(api.open.mock.lastCall?.[0]).toMatchObject({itemId:'deep',rootTask:{id:'root'},readOnly:false,origin:{view:'My Work',returnFocus:selected.element}});
+    fireEvent.change(screen.getByLabelText('Retained item draft'),{target:{value:'Retain draft'}});
+    view.rerender(<WorkInspector selected={selected} current={[]} onClose={()=>{}}/>);
+    expect(api.open.mock.lastCall?.[0]).toMatchObject({itemId:'deep',readOnly:true});
+    expect((screen.getByLabelText('Retained item draft') as HTMLTextAreaElement).value).toBe('Retain draft');
+    view.rerender(<WorkInspector selected={selected} current={[{...row,actionable:false}]} onClose={()=>{}}/>);
+    expect(api.open.mock.lastCall?.[0].readOnly).toBe(true);
+    view.rerender(<WorkInspector selected={selected} current={[{...row,mine:false,actionable:true}]} onClose={()=>{}}/>);
+    expect(api.open.mock.lastCall?.[0].readOnly).toBe(true);
+    expect(row.subtask).toBeUndefined();
+  });
+  it('NW9.2 displays permitted path, explicit Lead/count and item date instead of technical Depth',()=>{
+    const row=item();
+    row.workContext=buildSubtaskDisplayMetadata([
+      {id:'ancestor',taskId:'root',title:'Permitted ancestor',position:0,assignedToIds:[]},
+      {id:'deep',taskId:'root',title:'Same',parentSubtaskId:'ancestor',leadId:'me',position:0,assignedToIds:['worker','worker'],dueDate:'2026-10-21'},
+    ],{rootId:'root',rootTitle:'Root',people:[{id:'me',name:'Current Lead'},{id:'worker',name:'Contributor'}]}).get('deep');
+    const open=vi.fn();render(<WorkList rows={[row]} onOpen={open}/>);
+    expect(screen.getByLabelText('Work path').textContent).toBe('Root / Permitted ancestor / Same');
+    expect(screen.getByText(/Lead: Current Lead · Contributors \(1\)/)).toBeTruthy();
+    expect(screen.getByText('21 Oct 2026')).toBeTruthy();
+    expect(screen.queryByText(/Depth \d/)).toBeNull();
+    const button=screen.getByRole('button');fireEvent.click(button);expect(open).toHaveBeenCalledWith(row,button);
+  });
   it("does not confuse an empty selected project scope with an unrestricted fallback", async () => {
     const workspace = {
       id: "office",

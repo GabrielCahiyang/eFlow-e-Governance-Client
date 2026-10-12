@@ -1,25 +1,24 @@
-import { supportsNestedWork, WorkTree, type WorkNode, type WorkTreeSnapshot } from '../../nested-work';
-import { fetchSubtask } from '../services/subtaskWorkflowService';
-import { FeatureDialog } from '../../../components/ui/FeatureDialog';
-import { requestNavigation } from '../../../shared/navigationGuard';
-import { SubtaskReviewInbox } from '../../reviews';
+import { supportsNestedWork, isCurrentWorkSnapshot, WorkTree, type WorkNode, type WorkTreeSnapshot, type WorkTreeController } from '../../nested-work';
+import type {TaskInspectorOrigin} from '../../task-inspector';
+import {SubitemInspector} from './SubitemInspector';
 
-export function TaskSubtasksWidget(props: Parameters<typeof LegacyTaskSubtasksWidget>[0] & {fallback?:import('react').ReactNode}) {
- const [opened,setOpened]=useState<{item:Subtask;node:WorkNode;prerequisite:Subtask|null}>(),[review,setReview]=useState<WorkNode>(),[error,setError]=useState('');
+export function TaskSubtasksWidget(props: Parameters<typeof LegacyTaskSubtasksWidget>[0] & {fallback?:import('react').ReactNode;controller?:WorkTreeController;createRequest?:number;createFocusTarget?:HTMLElement;executionBlocked?:boolean;collapsedIds?:Set<string>;onCollapsedIdsChange?:(next:Set<string>)=>void}) {
+ const [opened,setOpened]=useState<{id:string;section:'work'|'review';origin:TaskInspectorOrigin}>();
  const {user}=useAuth();
- const scope=useRef(`${user?.id}:${props.taskId}`);scope.current=`${user?.id}:${props.taskId}`;
- useEffect(()=>{setOpened(undefined);setReview(undefined);setError('');},[user?.id,props.taskId]);
- if(!props.parentTask||!supportsNestedWork(props.parentTask))return <LegacyTaskSubtasksWidget {...props}/>;
- async function open(node:WorkNode,tree:WorkTreeSnapshot){const key=scope.current;try{
-  const rows=tree.nodes.map(n=>({id:n.id,taskId:props.taskId,parentSubtaskId:n.parent_subtask_id||undefined,siblingOrder:n.sibling_order,position:n.sibling_order,title:n.title,isCompleted:n.status==='completed',isStandalone:n.is_standalone}));
-  const current=rows.find(n=>n.id===node.id)!;const prior=getSubtaskPrerequisite(current,rows);
-  const [item,prerequisite]=await Promise.all([fetchSubtask(node.id),prior?fetchSubtask(prior.id):Promise.resolve(null)]);
-  if(scope.current===key&&item)setOpened({item,node,prerequisite});
- }catch(reason){if(scope.current===key)setError((reason as Error).message);}}
- return <><WorkTree rootId={props.taskId} fallback={props.fallback||<LegacyTaskSubtasksWidget {...props}/>} onOpenOfficeNode={(node,tree)=>void open(node,tree)} onReviewOfficeNode={setReview}/>
- {error&&<p role="alert">{error}</p>}
- {opened&&<SubtaskWorkDrawer subtask={opened.item} currentReviewerId={opened.node.current_reviewer||undefined} prerequisite={opened.prerequisite} parentTask={props.parentTask} readOnly={!opened.node.can_work} canManageDeadline={false} onClose={()=>setOpened(undefined)}/>}
- {review&&<FeatureDialog title="Subitem evidence review" onClose={()=>void requestNavigation(()=>setReview(undefined))}><SubtaskReviewInbox embedded onShowTasks={()=>setReview(undefined)} focus={{notificationId:`r7:${review.id}`,kind:'subtask_review',taskId:props.taskId,entityId:review.id}}/></FeatureDialog>}
+ const readOnly=!!props.readOnly||!!props.parentTask?.archivedAt||!!props.parentTask?.proposedOfficeIdentityId;
+ useEffect(()=>setOpened(undefined),[user?.id,props.taskId]);
+ if(!props.parentTask||!supportsNestedWork(props.parentTask))return <LegacyTaskSubtasksWidget {...props} readOnly={readOnly}/>;
+ const supplied=props.controller,data=supplied?.data;
+ if(supplied&&(supplied.actorId!==(user?.id||null)||supplied.rootId!==props.taskId||data&&(data.root.id!==props.taskId||data.root.project!==props.parentTask.linkedProjectId||data.root.kind==='office'&&data.root.office!==props.parentTask.orgId||!isCurrentWorkSnapshot(data,{actorId:user?.id||null,rootId:props.taskId,projectId:data.root.project,officeId:data.root.office,kind:data.root.kind,revision:data.revision}))))return <p role="alert">Work is unavailable in the current actor or task scope.</p>;
+ const open=(node:WorkNode,_tree:WorkTreeSnapshot,section:'work'|'review')=>{
+  const element=document.activeElement instanceof HTMLElement?document.activeElement:null;
+  setOpened({id:node.id,section,origin:{view:'Work',section:'work',returnFocus:element,restoreFocus:()=>{
+   const replacement=[...document.querySelectorAll<HTMLElement>('[data-work-open]')].find(button=>button.dataset.workOpen===node.id);
+   (replacement||props.createFocusTarget)?.focus();
+  }}});
+ };
+ return <><WorkTree rootId={props.taskId} controller={props.controller} createRequest={props.createRequest} createFocusTarget={props.createFocusTarget} collapsedIds={props.collapsedIds} onCollapsedIdsChange={props.onCollapsedIdsChange} executionBlocked={props.executionBlocked} readOnly={readOnly} fallback={props.fallback||<LegacyTaskSubtasksWidget {...props} readOnly={readOnly}/>} onOpenOfficeNode={(node,tree)=>open(node,tree,'work')} onReviewOfficeNode={(node,tree)=>open(node,tree,'review')}/>
+ {opened&&<SubitemInspector key={opened.id} rootTask={props.parentTask} itemId={opened.id} controller={props.controller} initialSection={opened.section} origin={opened.origin} executionBlocked={props.executionBlocked} readOnly={readOnly} onClose={()=>setOpened(undefined)}/>}
  </>;
 }
 // ─── TaskSubtasksWidget ──────────────────────────────────────────
@@ -38,7 +37,7 @@ import {
 import { useAuth } from "../../../contexts/AuthContext";
 import { useToast } from "../../../components/ui/Toast";
 import { startTaskIfTodo, type Task } from "../../../services/taskService";
-import { SubtaskWorkDrawer } from "./SubtaskWorkDrawer";
+import { LegacySubtaskWorkDrawer } from "./LegacySubtaskWorkDrawer";
 import { SubtaskSequenceControls } from "./sequencing/SubtaskSequenceControls";
 import { formatDate } from "../../../components/workflow/primitives";
 import {
@@ -55,16 +54,20 @@ function LegacyTaskSubtasksWidget({
   taskId,
   allowedAssignees,
   canManage = false,
+  readOnly = false,
   parentTask,
   startParentOnCreate = false,
 }: {
   taskId: string;
   allowedAssignees?: { id: string; name: string; initials?: string }[];
   canManage?: boolean;
+  readOnly?:boolean;
   parentTask?: Task;
   startParentOnCreate?: boolean;
 }) {
-  const { subtasks, setSubtasks } = useTaskSubtasks(taskId);
+  canManage=canManage&&!readOnly;
+  const { user, userProfile } = useAuth();
+  const { subtasks, setSubtasks } = useTaskSubtasks(taskId,user?.id||null);
   const [newTitle, setNewTitle] = useState("");
   const [newStandalone, setNewStandalone] = useState(false);
   const [newDueDate, setNewDueDate] = useState(() => parentTaskDueDate(parentTask?.deadline, parentTask?.dueDate) || "");
@@ -74,7 +77,6 @@ function LegacyTaskSubtasksWidget({
   const [draggedSubtaskId, setDraggedSubtaskId] = useState<string | null>(null);
   const [reordering, setReordering] = useState(false);
   const pickerRefs = useRef<Record<string, HTMLDivElement | null>>({});
-  const { user, userProfile } = useAuth();
   const { toast } = useToast();
 
   const parentDue = parentTaskDueDate(parentTask?.deadline, parentTask?.dueDate);
@@ -481,11 +483,11 @@ function LegacyTaskSubtasksWidget({
           <Plus size={13} /> Add
         </button>
       </div>}
-      <SubtaskWorkDrawer
+      <LegacySubtaskWorkDrawer
         subtask={openSubtask}
         parentTask={parentTask}
         prerequisite={openSubtask ? getSubtaskPrerequisite(openSubtask, subtasks) : null}
-        readOnly={canManage}
+        readOnly={readOnly||canManage}
         canManageDeadline={canManage}
         onClose={() => setOpenSubtask(null)}
       />

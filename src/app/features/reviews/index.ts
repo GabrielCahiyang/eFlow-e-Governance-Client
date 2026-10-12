@@ -42,3 +42,5 @@ export const LeaderReviewInbox = lazyFeature(
   undefined,
   "LeaderReviewInbox",
 );
+
+export { SubitemReviewDetail, type SubitemReviewDetailProps, type SubitemReviewContext } from "./components/SubitemReviewDetail";

@@ -40,7 +40,7 @@ export function parseProjectImportDraft(raw: string, source: string): ProjectImp
             estimatedHours: t.estimatedHours, startDate: string(t.startDate, 10), dueDate: string(t.dueDate, 10), officeKey: string(t.officeKey, 80),
             dependencies: array(t.dependencies, 100).map(v => string(v, 80)), sourceQuote: quote && compact(source).includes(compact(quote)) ? quote : '', included: true,
             advisory: t.advisory ? object(t.advisory) : undefined,
-            subitems: array(t.subitems, 30).map(value => { const s = object(value); if(s.parentSubtaskId||s.parent_subtask_id||s.children||s.subitems)throw new Error("Nested imports require a hierarchy format; parent links cannot be flattened."); return { title: string(s.title, 300), dueDate: string(s.dueDate, 10) }; }),
+            subitems: array(t.subitems, 30).map(value => { const s = object(value); if(Object.keys(s).some(key=>["parentSubtaskId","parent_subtask_id","children","subitems"].includes(key)))throw new Error("Nested imports require a hierarchy format; parent links cannot be flattened."); return { title: string(s.title, 300), dueDate: string(s.dueDate, 10) }; }),
           };
         }),
       };

@@ -19,6 +19,7 @@
     "verify:phase1-authority": "node scripts/verify-phase1-authority-sql.mjs",
     "verify:phase65-identity": "node scripts/verify-phase65-identity-sql.mjs",
     "verify:r3-workspaces": "node scripts/verify-r3-workspaces-sql.mjs",
+    "verify:nw-correction": "node scripts/verify-nested-work-correction-sql.mjs",
     "verify:r7-hierarchy": "node scripts/verify-r7-hierarchy-sql.mjs",
     "verify:r8-invitations": "node scripts/verify-r8-invitations-sql.mjs",
     "verify:r11-activity": "node scripts/verify-r11-activity-sql.mjs",

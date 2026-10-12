@@ -1,4 +1,6 @@
 import { withEmployeeDeadlineWorkload } from "../../selectors/employeeDeadlineWorkload";
+import {supportsNestedWork} from '../../../nested-work';
+import type {LegacyEditorStaffingScope} from './TaskEditorSubtasks';
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   type Task,
@@ -350,7 +352,7 @@ export function useMondayBoardController({
   }, [taskEditorOpen, taskEditorTaskId, editingTask]);
 
   // ── Manual Composer state ─────────────────────────────────────
-  const handleTaskEditorSave = async () => {
+  const handleTaskEditorSave = async (legacy?:LegacyEditorStaffingScope) => {
     if (!onUpdateTask || !editingTask || !taskEditorDraft) return;
     if (!taskEditorDraft.title.trim()) {
       setTaskEditorError("Task title is required.");
@@ -366,8 +368,9 @@ export function useMondayBoardController({
     }
 
     const memberIds = uniqueValues(taskEditorDraft.teamMemberIds);
+    const canonicalStaffing=supportsNestedWork(editingTask)&&!(legacy?.code==='PGRST202'&&legacy.rootId===editingTask.id&&!!currentUserId&&legacy.actorId===currentUserId);
     const resolvedLeadId =
-      (taskEditorDraft.leadMemberId &&
+      canonicalStaffing?(editingTask.assigneeId||""):(taskEditorDraft.leadMemberId &&
         memberIds.includes(taskEditorDraft.leadMemberId) &&
         taskEditorDraft.leadMemberId) ||
       memberIds[0] ||
@@ -441,15 +444,23 @@ export function useMondayBoardController({
         : "",
     };
 
-    if (editingTask.status === "pending_assignment" && memberIds.length > 0) {
+    // Supported people changes are checked work commands. A metadata save must
+    // not infer an appointment or reapply a stale compatibility worker array.
+    if(canonicalStaffing){
+      delete payload.teamMemberIds;delete payload.teamMemberNames;
+      delete payload.assigneeId;delete payload.assigneeName;
+      delete payload.recommendedEmployeeIds;delete payload.teamId;delete payload.teamName;
+    }
+
+    if (!canonicalStaffing&&editingTask.status === "pending_assignment" && memberIds.length > 0) {
       payload.status = "todo";
     }
 
     if (editorGuard.pendingRef.current || lifecycle.pending) return;
     editorGuard.pendingRef.current = true;
-    const responsibilityChanged =
+    const responsibilityChanged = !canonicalStaffing&&(
       resolvedLeadId !== (editingTask.assigneeId || "") ||
-      (editingTask.teamMemberIds || []).some((id) => !memberIds.includes(id));
+      (editingTask.teamMemberIds || []).some((id) => !memberIds.includes(id)));
     setTaskEditorSaving(true);
     setTaskEditorError("");
     try {

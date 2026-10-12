@@ -22,6 +22,7 @@ export function CashRequestForm({
   correction,
   onCancel,
   onSaved,
+  readOnly = false,
 }: {
   context: TaskFundingContext;
   orgId: string;
@@ -31,6 +32,7 @@ export function CashRequestForm({
   correction?: PettyCashRequest;
   onCancel: () => void;
   onSaved: () => Promise<void>;
+  readOnly?: boolean;
 }) {
   const defaultLineId = correction?.allocationLineId || context.cap?.allocationLineId || context.lines.find((line) => line.available > 0)?.id || context.lines[0]?.id || "";
   const [lineId, setLineId] = useState(defaultLineId);
@@ -51,7 +53,7 @@ export function CashRequestForm({
   );
 
   const submit = async () => {
-    if (!selectedLine) return;
+    if (readOnly || busy || !selectedLine) return;
     if (pastNeededBy) {
       setError("Needed-by date cannot be earlier than today.");
       return;
@@ -87,7 +89,7 @@ export function CashRequestForm({
   };
 
   return (
-    <div className="mt-3 space-y-3 rounded-xl border border-emerald-200 bg-white p-3">
+    <fieldset disabled={readOnly || busy} className="mt-3 space-y-3 rounded-xl border border-emerald-200 bg-white p-3">
       <div>
         <div className="text-[10.5px] font-semibold text-neutral-900">{correction ? "Correct cash request" : "What needs to be purchased?"}</div>
         <div className="mt-0.5 text-[9px] text-neutral-500">
@@ -141,9 +143,9 @@ export function CashRequestForm({
       {error && <div className="rounded-lg bg-rose-50 p-2.5 text-[9.5px] text-rose-700">{error}</div>}
       <div className="flex justify-end gap-2">
         <button type="button" onClick={onCancel} className="h-8 rounded-lg border border-neutral-200 px-3 text-[9.5px]">Cancel</button>
-        <button type="button" disabled={busy || pastNeededBy || !selectedLine || amount <= 0 || amount > requestable || !purpose.trim() || extraLines.some(l=>!l.allocationLineId||l.amount<=0||l.amount>(context.lines.find(s=>s.id===l.allocationLineId)?.available||0)) || new Set([lineId,...extraLines.map(l=>l.allocationLineId)]).size!==extraLines.length+1} onClick={() => void submit()} className="inline-flex h-8 items-center gap-1 rounded-lg bg-emerald-700 px-3 text-[9.5px] text-white disabled:opacity-40"><Send size={10} /> {busy ? "Submitting…" : correction ? "Resubmit" : "Request cash"}</button>
+        <button type="button" disabled={readOnly || busy || pastNeededBy || !selectedLine || amount <= 0 || amount > requestable || !purpose.trim() || extraLines.some(l=>!l.allocationLineId||l.amount<=0||l.amount>(context.lines.find(s=>s.id===l.allocationLineId)?.available||0)) || new Set([lineId,...extraLines.map(l=>l.allocationLineId)]).size!==extraLines.length+1} onClick={() => void submit()} className="inline-flex h-8 items-center gap-1 rounded-lg bg-emerald-700 px-3 text-[9.5px] text-white disabled:opacity-40"><Send size={10} /> {busy ? "Submitting…" : correction ? "Resubmit" : "Request cash"}</button>
       </div>
-    </div>
+    </fieldset>
   );
 }
 

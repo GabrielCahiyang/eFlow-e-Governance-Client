@@ -35,12 +35,18 @@ export function hasDirtyNavigation() {
 }
 /** Only registered dirty editors prompt. Inline autosave and ordinary navigation do not. */
 export async function requestNavigation(action: () => void): Promise<boolean> {
+  return requestGuardedNavigation(action);
+}
+/** A child dialog can close its own draft without discarding its parent's work. */
+async function requestGuardedNavigation(action: () => void, owner?: symbol): Promise<boolean> {
   if (isNavigationLocked() || deciding) return false;
-  const current = [...guards.entries()].map(([token, read]) => ({
+  const registered = [...guards.entries()].map(([token, read]) => ({
     token,
     guard: read(),
   }));
-  if (current.some(({ guard }) => guard.pending)) return false;
+  if (registered.some(({ guard }) => guard.pending)) return false;
+  if (owner && !guards.has(owner)) return false;
+  const current = owner ? registered.filter(({ token }) => token === owner) : registered;
   const dirty = current.filter(({ guard }) => guard.dirty);
   if (!dirty.length) {
     action();
@@ -72,7 +78,7 @@ export async function requestNavigation(action: () => void): Promise<boolean> {
     if (
       [...guards.entries()].some(
         ([token, read]) =>
-          read().dirty && !dirty.some((entry) => entry.token === token),
+          (!owner || token === owner) && read().dirty && !dirty.some((entry) => entry.token === token),
       )
     )
       return false;
@@ -87,9 +93,9 @@ export async function requestNavigation(action: () => void): Promise<boolean> {
 }
 export function useNavigationBlocker(guard: Guard) {
   const latest = useRef(guard);
+  const token = useRef(Symbol("dirty editor")).current;
   latest.current = guard;
   useEffect(() => {
-    const token = Symbol("dirty editor");
     if (!guards.size) window.addEventListener("beforeunload", beforeUnload);
     guards.set(token, () => ({
       ...latest.current,
@@ -102,4 +108,5 @@ export function useNavigationBlocker(guard: Guard) {
       if (!guards.size) window.removeEventListener("beforeunload", beforeUnload);
     };
   }, []);
+  return (action: () => void) => requestGuardedNavigation(action, token);
 }

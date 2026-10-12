@@ -34,7 +34,8 @@ import '../projectTable.css';
 import '../tableLayout.css';
 import { matchesProjectDateRange, type ProjectViewFilterState } from '../../project-views';
 import { useProjectOfficeContext, canStaffProjectOffice } from '../../project-offices';
-export function ProjectTableWorkspace({data,profiles,orgs,canManage,onOpenTask,onOpenLegacyBoard,sharedFilters,onFiltersChange}:{data:ProjectCommandData;profiles:UserProfile[];orgs:Organization[];canManage:boolean;onOpenTask:(id:string,section?:'details')=>void;onOpenLegacyBoard:()=>void;sharedFilters?:ProjectViewFilterState;onFiltersChange?:(value:ProjectViewFilterState)=>void}){
+import type { TaskInspectorOrigin } from '../../task-inspector';
+export function ProjectTableWorkspace({data,profiles,orgs,canManage,onOpenTask,onOpenLegacyBoard,sharedFilters,onFiltersChange}:{data:ProjectCommandData;profiles:UserProfile[];orgs:Organization[];canManage:boolean;onOpenTask:(id:string,section?:TaskInspectorOrigin['section'])=>void;onOpenLegacyBoard:()=>void;sharedFilters?:ProjectViewFilterState;onFiltersChange?:(value:ProjectViewFilterState)=>void}){
  const {user,userProfile}=useAuth();const userId=user?.id||userProfile?.id||'',officeId=userProfile?.org_id||userProfile?.departmentId||'';
  const officeState=useProjectOfficeContext();
  const ownOffice=officeState.offices.find(o=>o.office_id===officeId);
@@ -56,7 +57,10 @@ export function ProjectTableWorkspace({data,profiles,orgs,canManage,onOpenTask,o
  const [importRevision,setImportRevision]=useState(0);
 
  const [subtasks,setSubtasks]=useState(data.facts.subtasks),[openSubitem,setOpenSubitem]=useState<Subtask|null>(null);
+ const [openSubitemReadOnly,setOpenSubitemReadOnly]=useState(false);
 
+ const [subitemOrigin,setSubitemOrigin]=useState<TaskInspectorOrigin>();
+ const open=(item:Subtask,readOnly=false)=>{setSubitemOrigin({view:"Main Table",returnFocus:document.activeElement instanceof HTMLElement?document.activeElement:null,restoreFocus:()=>document.querySelector<HTMLElement>('[aria-label="Project main table"] button')?.focus()});setOpenSubitemReadOnly(readOnly);setOpenSubitem(item);};
  const layout=useTableLayout(data.project.id);const hidden=layout.hidden;
 
  useEffect(()=>setSubtasks(data.facts.subtasks),[data.facts.subtasks]);
@@ -74,6 +78,7 @@ export function ProjectTableWorkspace({data,profiles,orgs,canManage,onOpenTask,o
  const refreshCreatedGroup=async()=>{try{await refresh();setRefreshFailed(false);}catch(e){setRefreshFailed(true);setNotice('Group added, but could not refresh: '+(e instanceof Error?e.message:'Please reload.'));}};
 
  const parentTask=openSubitem?data.tasks.find(t=>t.id===openSubitem.taskId):undefined;
+ const subitemReadOnly=openSubitemReadOnly||userProfile?.role==='admin'||['completed','archived'].includes(data.project.status)||!!parentTask?.archivedAt||!!parentTask?.proposedOfficeIdentityId||['for_review','completed','cancelled'].includes(parentTask?.status||'');
 
  return <section className="pt-workspace" aria-label="Project main table" data-tour-id="project-main-table">
 
@@ -88,7 +93,7 @@ export function ProjectTableWorkspace({data,profiles,orgs,canManage,onOpenTask,o
 
    {(query||status||owner||sharedFilters?.office)&&!tasks.length&&<p className="pt-empty-filter">No tasks match these filters. Clear filters to see all project work.</p>}
 
-   {groups.map(group=><ProjectGroupTable key={group.id} group={group} groups={groups} tasks={tasksInGroup(tasks,group)} allTasks={data.tasks} subtasks={subtasks} columns={columns} profiles={profiles} orgs={orgs} canManage={editable} canStaff={canStaff} locked={['completed','archived'].includes(data.project.status)} officeId={officeId} userId={userId} projectId={data.project.id} onOpen={onOpenTask} onOpenSubitem={setOpenSubitem} refreshSubitems={refreshSubitems} refreshGroups={refresh} onHideColumn={layout.hideColumn} onAddColumn={layout.showColumn} widths={layout.widths} onResize={layout.resizeColumn} sort={sort} onSort={setSort} reorderable={editable&&!query&&!status&&!owner&&!sharedFilters?.office&&!sharedFilters?.dateFrom&&!sharedFilters?.dateTo&&sort==='manual'&&tasksInGroup(data.tasks,group).every(t=>t.orgId===officeId)} run={run}/>)}
+   {groups.map(group=><ProjectGroupTable key={group.id} group={group} groups={groups} tasks={tasksInGroup(tasks,group)} allTasks={data.tasks} subtasks={subtasks} columns={columns} profiles={profiles} orgs={orgs} canManage={editable} canStaff={canStaff} locked={['completed','archived'].includes(data.project.status)} officeId={officeId} userId={userId} projectId={data.project.id} onOpen={onOpenTask} onOpenSubitem={open} refreshSubitems={refreshSubitems} refreshGroups={refresh} onHideColumn={layout.hideColumn} onAddColumn={layout.showColumn} widths={layout.widths} onResize={layout.resizeColumn} sort={sort} onSort={setSort} reorderable={editable&&!query&&!status&&!owner&&!sharedFilters?.office&&!sharedFilters?.dateFrom&&!sharedFilters?.dateTo&&sort==='manual'&&tasksInGroup(data.tasks,group).every(t=>t.orgId===officeId)} run={run}/>)}
 
    {editable&&<button className="pt-add-group" onClick={()=>setGroupOpen(true)}><Plus size={17}/>Add new group</button>}
 
@@ -102,7 +107,7 @@ export function ProjectTableWorkspace({data,profiles,orgs,canManage,onOpenTask,o
 
   {taskOpen&&<CreateWorkDialog key={'new-task-'+data.project.id} kind="task" projectId={data.project.id} groups={groups} onClose={()=>setTaskOpen(false)}/>}
 
-  {openSubitem&&<SubtaskWorkDrawer key={openSubitem.id} subtask={openSubitem} parentTask={parentTask} readOnly={userProfile?.role==='admin'} canManageDeadline={!!parentTask&&(parentTask.assigneeId===userId||editable)} onClose={()=>{setOpenSubitem(null);void run(refreshSubitems);}}/>}
+  {openSubitem&&(parentTask?<SubtaskWorkDrawer key={openSubitem.id} subtask={openSubitem} parentTask={parentTask} origin={subitemOrigin} readOnly={subitemReadOnly} canManageDeadline={!subitemReadOnly&&(parentTask.assigneeId===userId||editable)} onClose={()=>{setOpenSubitem(null);void run(refreshSubitems);}}/>:<p role="alert">Current parent task access is unavailable. <button type="button" onClick={()=>setOpenSubitem(null)}>Close subitem</button></p>)}
 
  </section>;
 

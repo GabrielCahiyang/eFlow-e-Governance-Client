@@ -3,8 +3,8 @@ import { useAuth } from "../../../contexts/AuthContext";
 import { TaskInspector } from "../../task-inspector";
 import { isTaskLead } from "../../tasks";
 import { canUserReviewTask } from "../../reviews";
-import { SubtaskWorkDrawer, getSubtaskPrerequisite } from "../../subtasks";
-import { WorkTree } from "../../nested-work";
+import { SubitemInspector, SubtaskWorkDrawer, getSubtaskPrerequisite } from "../../subtasks";
+import { WorkTree, supportsNestedWork } from "../../nested-work";
 import { PersonalWorkInspector } from "../../workspaces";
 import { FeatureDialog } from "../../../components/ui/FeatureDialog";
 import { requestNavigation } from "../../../shared/navigationGuard";
@@ -48,7 +48,7 @@ export function WorkInspector({
   if (!selected) return null;
   const row = current.find((r) => r.key === selected.row.key) || selected.row;
   const unavailable = !current.some((r) => r.key === row.key);
-  const readOnly = unavailable || row.history || !row.actionable;
+  const readOnly = unavailable || row.history || !row.actionable || (selected.row.mine&&!row.mine);
   if (row.kind === "office-task")
     return (
       <TaskInspector
@@ -74,6 +74,10 @@ export function WorkInspector({
         }
       />
     );
+  if (row.kind === "office-node"&&row.task&&supportsNestedWork(row.task))
+    return <SubitemInspector key={row.key} rootTask={row.task} itemId={row.id} readOnly={readOnly}
+      origin={{view:"My Work",returnFocus:selected.element,restoreFocus:()=>document.getElementById("personal-work-search")?.focus()}}
+      onClose={onClose}/>;
   if (row.kind === "office-node")
     return (
       <SubtaskWorkDrawer
@@ -81,8 +85,9 @@ export function WorkInspector({
         subtask={row.subtask || null}
         parentTask={row.task}
         readOnly={
-          readOnly || (!!row.node && !row.node.can_work && !row.node.can_review)
+          readOnly || ((!row.task || !supportsNestedWork(row.task)) && !!row.node && !row.node.can_work && !row.node.can_review)
         }
+        origin={{view:"My Work",returnFocus:selected.element,restoreFocus:()=>document.getElementById("personal-work-search")?.focus()}}
         currentReviewerId={row.node?.current_reviewer || undefined}
         prerequisite={
           row.tree && row.subtask

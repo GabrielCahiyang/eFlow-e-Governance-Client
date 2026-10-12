@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   resolveNotificationDestination,
+  resolveNotificationSubitem,
 } from "../../src/app/features/notifications";
 import type { Notification } from "../../src/app/services/notificationService";
 
@@ -19,6 +20,24 @@ function notification(
 }
 
 describe("notification navigation", () => {
+  it('routes canonical Subitems even when the notification copy does not say subtask',()=>{
+    expect(resolveNotificationDestination(notification({type:'assignment',title:'New work appointment',message:'Work changed.',taskId:'root',workNodeId:'depth-eight',projectId:'project'}),'member')).toMatchObject({section:'subtasks',intent:{kind:'subtask',taskId:'root',entityId:'depth-eight'}});
+    expect(resolveNotificationDestination(notification({type:'approval_needed',title:'Evidence ready for review',message:'Work changed.',taskId:'root',workNodeId:'depth-eight'}),'head')).toMatchObject({section:'reviews',intent:{kind:'subtask_review',entityId:'depth-eight'}});
+  });
+  it('resolves canonical IDs before stale labels and never redirects a missing ID to a same-title sibling',()=>{
+    const rows=[{id:'one',taskId:'root',title:'Same'},{id:'eight',taskId:'root',title:'Same'},{id:'foreign',taskId:'other-root',title:'Same'}];
+    const intent={notificationId:'canonical',kind:'subtask' as const,taskId:'root',entityId:'eight',entityLabel:'Old label'};
+    expect(resolveNotificationSubitem(intent,rows)).toEqual({status:'resolved',item:rows[1]});
+    expect(resolveNotificationSubitem({...intent,entityId:'missing',entityLabel:'Same'},rows)).toEqual({status:'unavailable'});
+    expect(resolveNotificationSubitem({...intent,entityId:'foreign'},rows)).toEqual({status:'unavailable'});
+    expect(resolveNotificationSubitem({...intent,entityId:undefined,entityLabel:'Same'},rows)).toEqual({status:'ambiguous'});
+    expect(resolveNotificationSubitem({...intent,entityId:undefined,entityLabel:undefined},[rows[0]])).toEqual({status:'unavailable'});
+    expect(resolveNotificationSubitem({...intent,entityId:undefined,entityLabel:' same '},[rows[1],rows[2]])).toEqual({status:'resolved',item:rows[1]});
+  });
+  it('keeps financial record destinations even when they carry a canonical work node',()=>{
+    expect(resolveNotificationDestination(notification({type:'petty_cash_liquidation',title:'Subtask liquidation',taskId:'root',workNodeId:'eight',financialRecordId:'cash',financialRecordType:'petty_cash_liquidation'}),'accounting_staff')).toMatchObject({section:'accounting_releases',intent:{kind:'budget',entityId:'eight',financialRecordId:'cash',financialRecordType:'petty_cash_liquidation'}});
+    expect(resolveNotificationDestination(notification({type:'assignment',title:'Subtask assignment',taskId:'root',workNodeId:'eight'}),'admin')).toBeNull();
+  });
   it("opens the exact office task review queue", () => {
     expect(resolveNotificationDestination(notification({
       type: "approval_needed",

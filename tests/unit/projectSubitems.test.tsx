@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Task } from '../../src/app/features/tasks';
 import type { Subtask } from '../../src/app/features/subtasks';
@@ -9,7 +9,7 @@ const mocks = vi.hoisted(() => ({
   create: vi.fn(), update: vi.fn(), refresh: vi.fn(), open: vi.fn(), openSubitem: vi.fn(),
   officeState: { offices: [] as Record<string, unknown>[], members: [], error: '' },
 }));
-vi.mock('../../src/app/contexts/AuthContext', () => ({ useAuth: () => ({ userProfile: { id: 'viewer', role: 'head', org_id: 'office' } }) }));
+vi.mock('../../src/app/contexts/AuthContext', () => ({ useAuth: () => ({ user: { id: 'viewer' }, userProfile: { id: 'viewer', role: 'head', org_id: 'office' } }) }));
 vi.mock('../../src/app/features/subtasks', async () => {
   const { parentTaskDueDate } = await import('../../src/app/features/subtasks/selectors/deadlines');
   return { createSubtask: mocks.create, updateSubtask: mocks.update, parentTaskDueDate };
@@ -40,6 +40,15 @@ beforeEach(() => { vi.clearAllMocks(); mocks.officeState.offices = []; mocks.off
 afterEach(cleanup);
 
 describe('Project table subitem expansion', () => {
+  it('opens the legacy Task team menu directly in Work after the menu focus handoff', async () => {
+    show();
+    const trigger = screen.getByRole('button', { name: 'Actions for Prepare assessment' });
+    trigger.focus(); fireEvent.keyDown(trigger, { key: 'Enter' });
+    fireEvent.click(await screen.findByRole('menuitem', { name: 'Task team & contributors', exact: true }));
+    await waitFor(() => expect(mocks.open).toHaveBeenCalledWith('work'));
+    expect(mocks.open).toHaveBeenCalledOnce(); expect(document.activeElement).toBe(trigger);
+    expect(mocks.create).not.toHaveBeenCalled(); expect(mocks.update).not.toHaveBeenCalled();
+  });
   it('places task actions in the first cell and keeps detail access without drag controls', async () => {
     const { container } = show();
     const row = container.querySelector<HTMLTableRowElement>('.pt-task-row')!;
@@ -106,7 +115,7 @@ describe('Project table subitem expansion', () => {
     expect(within(table).getByText('40%')).toBeTruthy();
     expect(within(table).getByText('2026-10-10')).toBeTruthy();
     fireEvent.click(within(table).getByRole('button', { name: 'Open subitem First step' }));
-    expect(mocks.openSubitem).toHaveBeenCalledWith(first);
+    expect(mocks.openSubitem).toHaveBeenCalledWith(first,false);
   });
 
   it('explains why an Office Head who is not the task lead cannot add', () => {
@@ -151,4 +160,28 @@ describe('Project table subitem expansion', () => {
     await waitFor(() => expect(mocks.refresh).toHaveBeenCalledOnce());
     expect(mocks.create).toHaveBeenLastCalledWith('task', 'Next step', { position: 4, dueDate: '2026-10-12' });
   });
+});
+
+
+// Supported hierarchy acceptance is separate from the excluded legacy cases above.
+import { WorkHierarchy, type WorkTreeSnapshot } from '../../src/app/features/nested-work';
+import { rememberWorkCapabilityContext } from '../../src/app/features/nested-work/selectors/capabilities';
+function hierarchySnapshot():WorkTreeSnapshot {
+ const allowed={allowed:true,reason_code:null} as const;
+ const data:WorkTreeSnapshot={root:{id:'root',project:'project',office:'office',kind:'office',open:true,lead:'viewer',people:['viewer'],due:null,capabilities:{create_child:allowed}},revision:3,can_manage:true,can_transfer:true,leaf_total:1,leaf_completed:0,people:[{id:'viewer',name:'Maria with a very long authorized project name',eligible:true}],nodes:Array.from({length:8},(_,index)=>({id:'node-'+index,task_id:'root',parent_subtask_id:index?'node-'+(index-1):null,lead_id:index===7?null:index===6?'historical':'viewer',assigned_to_ids:[],title:'Work '+(index+1),sibling_order:0,depth:index+1,due_date:null,is_standalone:true,status:index===7?'changes_requested':'todo',percent_complete:index===7?43:0,can_manage:true,can_work:true,can_order:true,can_appoint:true,can_review:false,capabilities:{edit_details:allowed}}))};rememberWorkCapabilityContext(data,'viewer');return data;
+}
+describe('NW6.4 Main Table hierarchy accessibility',()=>{
+ it('renders native headers, capped deep paths and readable historical/unassigned states',()=>{
+  const data=hierarchySnapshot();const action=vi.fn();const {container}=render(<WorkHierarchy snapshot={data} readOnly={false} executionBlocked={false} authorityFresh collapsedIds={new Set()} onCollapsedIdsChange={vi.fn()} onOpenNode={vi.fn()} onRequestAction={action}/>);
+  const table=screen.getByRole('table',{name:'Subitem hierarchy'});expect(within(table).getAllByRole('columnheader').map(header=>header.textContent)).toEqual(['Subitem','Lead','Contributors','Status','Due','Progress','Actions']);expect(screen.queryByRole('treegrid')).toBeNull();
+  expect([...container.querySelectorAll<HTMLElement>('.nw-hierarchy-title')].map(element=>element.style.getPropertyValue('--nw-indent'))).toEqual(['0','1','2','3','3','3','3','3']);expect(screen.getByLabelText('Path for Work 8').textContent).toBe(data.nodes.map(node=>node.title).join(' / '));expect(screen.getByText('Previously assigned person',{exact:false})).toBeTruthy();expect(screen.getByText('Needs reassignment',{exact:false})).toBeTruthy();expect(screen.getByText('Changes requested')).toBeTruthy();expect(within(screen.getByRole('group',{name:'Progress for Work 8'})).getByRole('progressbar',{name:'43% complete'}).getAttribute('aria-valuenow')).toBe('43');expect(action).not.toHaveBeenCalled();
+ });
+ it('reports controlled disclosure state and preserves the exact authorized parent',()=>{
+  const data=hierarchySnapshot(),change=vi.fn(),open=vi.fn();const props={snapshot:data,readOnly:true,executionBlocked:true,authorityFresh:true,collapsedIds:new Set<string>(),onCollapsedIdsChange:change,onOpenNode:open,onRequestAction:vi.fn()};const view=render(<WorkHierarchy {...props}/>);
+  const collapse=screen.getByRole('button',{name:'Collapse children of Work 1'});expect(collapse.getAttribute('aria-expanded')).toBe('true');fireEvent.click(collapse);expect([...change.mock.calls[0][0]]).toEqual(['node-0']);view.rerender(<WorkHierarchy {...props} collapsedIds={new Set(['node-0'])}/>);expect(screen.getByRole('button',{name:'Expand children of Work 1'}).getAttribute('aria-expanded')).toBe('false');expect(screen.queryByRole('button',{name:'Work 8',exact:true})).toBeNull();fireEvent.click(screen.getByRole('button',{name:'Work 1',exact:true}));expect(open).toHaveBeenCalledWith('node-0');expect(data.nodes[1].parent_subtask_id).toBe('node-0');
+ });
+ it('switches composition without leaving a hidden desktop table or losing disclosure state',()=>{
+  let mobile=false;let notify=()=>{};const media={get matches(){return mobile;},addEventListener:(_type:string,callback:()=>void)=>{notify=callback;},removeEventListener:vi.fn()};const original=window.matchMedia;window.matchMedia=vi.fn(()=>media as unknown as MediaQueryList);
+  try{const data=hierarchySnapshot();const props={snapshot:data,readOnly:true,executionBlocked:true,authorityFresh:true,collapsedIds:new Set(['node-0']),onCollapsedIdsChange:vi.fn(),onOpenNode:vi.fn(),onRequestAction:vi.fn()};const view=render(<WorkHierarchy {...props}/>);expect(screen.getByRole('table',{name:'Subitem hierarchy'})).toBeTruthy();mobile=true;act(()=>notify());view.rerender(<WorkHierarchy {...props}/>);expect(screen.queryByRole('table',{name:'Subitem hierarchy'})).toBeNull();expect(screen.getByRole('list',{name:'Subitem hierarchy'})).toBeTruthy();expect(screen.getByRole('button',{name:'Expand children of Work 1'}).getAttribute('aria-expanded')).toBe('false');expect(screen.queryByRole('button',{name:'Work 8',exact:true})).toBeNull();}finally{window.matchMedia=original;}
+ });
 });

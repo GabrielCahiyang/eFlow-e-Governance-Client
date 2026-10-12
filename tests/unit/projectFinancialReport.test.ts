@@ -44,6 +44,6 @@ describe("project financial report hierarchy", () => {
     const rows = buildProjectExecutionFinancialRows(tasks, subtasks, financial, facts);
     expect(rows).toHaveLength(2);
     expect(rows[0]).toMatchObject({ level: "task", workItem: "Run workshop", accountability: "Task Leader", budgetAmount: 10_000, reservedAmount: 1_000 });
-    expect(rows[1]).toMatchObject({ level: "subtask", workItem: "Buy materials", accountability: "Member One", budgetMode: "cap", budgetAmount: 3_000, reservedAmount: 1_000, availableAmount: 2_000, receiptCount: 1, evidenceCount: 1 });
+    expect(rows[1]).toMatchObject({ level: "subtask", workItem: "Run workshop / Buy materials", accountability: "Lead: Needs reassignment · Contributors (1): Member One", budgetMode: "cap", budgetAmount: 3_000, reservedAmount: 1_000, availableAmount: 2_000, receiptCount: 1, evidenceCount: 1 });
   });
 });

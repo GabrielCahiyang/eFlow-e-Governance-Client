@@ -1,0 +1,93 @@
+-- Reviewed R0-R13 Dashboard SQL Editor bundle, 9 October 2026.
+-- TARGET ONLY: https://supabase.com/dashboard/project/ixnfphgjyelhckjwjkdv/sql/new
+-- No existing migration records are repaired, renamed or overwritten.
+-- Native backup restore rehearsal remains unverified (Windows blocks initdb.exe).
+-- Run the ENTIRE file as postgres; do not select individual statements.
+
+-- Read-only. Run in a separate query after 02-apply.sql succeeds.
+select check_name,case when coalesce(ok,false) then 'PASS' else 'FAIL' end as result from (values
+ ('01 installed history matches all 27 reviewed entries',(not exists(with expected(version,name) as (values
+('20261003000004','simplified_roles_and_office_authority'),
+('20261004123126','phase2_invitation_onboarding_pds'),
+('20261004132527','phase2_invitation_dispatch_limits'),
+('20261004133412','phase2_existing_identity_acceptance'),
+('20261004140128','phase3_project_table_workspace'),
+('20261004164937','phase5_workspace_ai_import'),
+('20261004181549','phase6_project_office_collaboration'),
+('20261004182806','phase6_shared_structure_guards'),
+('20261004194130','phase7_readiness_governance'),
+('20261005170822','phase65_project_local_office_identity'),
+('20261007152648','office_budget_dynamic_sections'),
+('20261007153615','office_budget_partition_funding'),
+('20261007175525','project_office_removal_and_history'),
+('20261007191654','account_login_lockout'),
+('20261007195837','login_gateway_discovery'),
+('20261007201249','project_draft_publication'),
+('20261007203525','project_publication_history_retention'),
+('20261008004900','withdraw_office_invitation'),
+('20261007120000','r3_personal_workspaces'),
+('20261008030659','r6_project_file_library'),
+('20261008035748','r7_project_members_and_nested_work'),
+('20261008060756','r8_approved_project_invitations'),
+('20261008081855','r9_project_access_lifecycle'),
+('20261008123723','r11_project_activity_snapshots'),
+('20261008134347','r12_presentation_settings'),
+('20261009120000','refinement_project_creation_compatibility'),
+('20261009120100','refinement_office_removal_guest_termination')
+) select version,name from expected except select version,name from supabase_migrations.schema_migrations)
+ and not exists(with expected(version,name) as (values
+('20261003000004','simplified_roles_and_office_authority'),
+('20261004123126','phase2_invitation_onboarding_pds'),
+('20261004132527','phase2_invitation_dispatch_limits'),
+('20261004133412','phase2_existing_identity_acceptance'),
+('20261004140128','phase3_project_table_workspace'),
+('20261004164937','phase5_workspace_ai_import'),
+('20261004181549','phase6_project_office_collaboration'),
+('20261004182806','phase6_shared_structure_guards'),
+('20261004194130','phase7_readiness_governance'),
+('20261005170822','phase65_project_local_office_identity'),
+('20261007152648','office_budget_dynamic_sections'),
+('20261007153615','office_budget_partition_funding'),
+('20261007175525','project_office_removal_and_history'),
+('20261007191654','account_login_lockout'),
+('20261007195837','login_gateway_discovery'),
+('20261007201249','project_draft_publication'),
+('20261007203525','project_publication_history_retention'),
+('20261008004900','withdraw_office_invitation'),
+('20261007120000','r3_personal_workspaces'),
+('20261008030659','r6_project_file_library'),
+('20261008035748','r7_project_members_and_nested_work'),
+('20261008060756','r8_approved_project_invitations'),
+('20261008081855','r9_project_access_lifecycle'),
+('20261008123723','r11_project_activity_snapshots'),
+('20261008134347','r12_presentation_settings'),
+('20261009120000','refinement_project_creation_compatibility'),
+('20261009120100','refinement_office_removal_guest_termination')
+) select version,name from supabase_migrations.schema_migrations except select version,name from expected))),
+ ('02 nine new history records contain exact reviewed SQL',(not exists(with expected(version,name,source_md5) as (values
+('20261007120000','r3_personal_workspaces','5fd71aab83703fbabb3be743c1878d0a'),
+('20261008030659','r6_project_file_library','051a9bd284f4e47d47072a88e3274688'),
+('20261008035748','r7_project_members_and_nested_work','d5b8be8925bfd24a0120bdcf97736735'),
+('20261008060756','r8_approved_project_invitations','fd23d53b11d96a2b8e21db2e364133a3'),
+('20261008081855','r9_project_access_lifecycle','07919b53fc71f22e6fde89a8c0eb5ca6'),
+('20261008123723','r11_project_activity_snapshots','922c3e5db9704950c9c18691a80802a6'),
+('20261008134347','r12_presentation_settings','206836b07a68d64977d54d77bc70bb61'),
+('20261009120000','refinement_project_creation_compatibility','56698997d74d4ec6e6ea61ea80171826'),
+('20261009120100','refinement_office_removal_guest_termination','f58bee3f2c6968923cba704da1001418')
+) select 1 from expected e left join supabase_migrations.schema_migrations m on m.version=e.version where m.name is distinct from e.name or coalesce(array_length(m.statements,1),0)<>1 or md5(m.statements[1]) is distinct from e.source_md5))),
+ ('03 R11 Activity RPC installed',(to_regprocedure('public.r11_project_activity(uuid,uuid,integer,integer,text,text,timestamptz,timestamptz)') is not null)),
+ ('04 R11 authenticated execution allowed',(has_function_privilege('authenticated',to_regprocedure('public.r11_project_activity(uuid,uuid,integer,integer,text,text,timestamptz,timestamptz)'),'execute'))),
+ ('05 R11 anonymous execution denied',(not has_function_privilege('anon',to_regprocedure('public.r11_project_activity(uuid,uuid,integer,integer,text,text,timestamptz,timestamptz)'),'execute'))),
+ ('06 R11 uses invoker authority and fixed search path',(exists(select 1 from pg_proc where oid=to_regprocedure('public.r11_project_activity(uuid,uuid,integer,integer,text,text,timestamptz,timestamptz)') and not prosecdef and proconfig @> array['search_path=""']))),
+ ('07 R11 snapshot RLS enabled',(exists(select 1 from pg_class where oid=to_regclass('eflow_r11.snapshots') and relrowsecurity))),
+ ('08 R11 event view respects source RLS',(exists(select 1 from pg_class where oid=to_regclass('eflow_r11.events') and reloptions @> array['security_invoker=true']))),
+ ('09 R12 settings RPC installed',(to_regprocedure('public.r12_save_presentation_settings(uuid,jsonb,jsonb)') is not null)),
+ ('10 R12 anonymous execution denied',(not has_function_privilege('anon',to_regprocedure('public.r12_save_presentation_settings(uuid,jsonb,jsonb)'),'execute'))),
+ ('11 all 17 new public tables have RLS',((select count(*) from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relname in ('office_project_homes','personal_project_members','personal_project_shortcuts','personal_projects','personal_subtasks','personal_tasks','personal_work_events','project_access_grants','project_guest_members','project_invitation_events','project_invitation_requests','project_library_events','project_library_files','project_library_links','work_tree_events','workspace_members','workspaces') and c.relrowsecurity)=17)),
+ ('12 project library bucket is private',(exists(select 1 from storage.buckets where id='project-library' and not public))),
+ ('13 immediate publication workflow preserved',(not exists(select 1 from public.projects where publication_state='draft') and exists(select 1 from pg_attrdef d join pg_attribute a on a.attrelid=d.adrelid and a.attnum=d.adnum where d.adrelid='public.projects'::regclass and a.attname='publication_state' and pg_get_expr(d.adbin,d.adrelid)='''published''::text'))),
+ ('14 original readiness restored',(replace(replace(pg_get_functiondef('eflow_phase7.readiness(uuid)'::regprocedure),'eflow_phase7.readiness','FUNCTION_NAME'),chr(13),'')=replace(replace(pg_get_functiondef('eflow_publication.baseline_readiness(uuid)'::regprocedure),'eflow_publication.baseline_readiness','FUNCTION_NAME'),chr(13),''))),
+ ('15 removed Office termination installed',(to_regprocedure('eflow_office_management.end_refinement_access(uuid,uuid,uuid)') is not null)),
+ ('16 removed Office private helper not publicly executable',(not has_function_privilege('anon',to_regprocedure('eflow_office_management.end_refinement_access(uuid,uuid,uuid)'),'execute') and not has_function_privilege('authenticated',to_regprocedure('eflow_office_management.end_refinement_access(uuid,uuid,uuid)'),'execute'))),
+ ('17 existing project timestamp trigger enabled',(exists(select 1 from pg_trigger where tgrelid='public.projects'::regclass and tgname='projects_touch' and tgenabled in ('O','A','R'))))
+) checks(check_name,ok) order by check_name;

@@ -5,7 +5,7 @@ import { Skeleton } from "@vibe/core";
 import type { Organization } from "../../../../types";
 import { useProfiles } from "../../../../hooks/useSupabaseData";
 import { useTasks } from "../../../../hooks/useFirebaseData";
-import { TaskDetailDrawer, useTaskInspector } from "../../../task-inspector";
+import { TaskDetailDrawer, useTaskInspector, type TaskInspectorOrigin } from "../../../task-inspector";
 import { tasksForProject } from "../../../../services/taskSelectors";
 import type { Project } from "../../services/projectService";
 import { useProjectCommandData } from "../../hooks/useProjectCommandData";
@@ -80,7 +80,7 @@ export function ProjectCommandWorkspace({
   const [tab, setTabState] = useState<ProjectCommandTab>(() => resolveProjectView(typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("view") : null) || resolveProjectView(initialTool || initialTab) || 'tasks');
   const inspector = useTaskInspector(project.id + ':' + (userProfile?.id || ''));
   const openTaskId = inspector.taskId;
-  const setOpenTaskId = (id: string, section?: 'details') => inspector.openTask(id, { view: tab, section, restoreFocus: () => {
+  const setOpenTaskId = (id: string, section?: TaskInspectorOrigin['section']) => inspector.openTask(id, { view: tab, section, restoreFocus: () => {
     const target = document.querySelector<HTMLElement>(`[data-task-inspector-source="${CSS.escape(id)}"]`) || document.querySelector<HTMLElement>('[role="tab"][aria-selected="true"]');
     target?.focus();
   } });

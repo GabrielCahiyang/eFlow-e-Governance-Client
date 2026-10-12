@@ -102,6 +102,27 @@ describe('authenticated application startup', () => {
     });
   });
 
+  it.each(['consumer', 'provider'] as const)('shares the live session after re-evaluating the %s module', async (reloadedSide) => {
+    const reloaded = await vi.importActual<typeof import('../../src/app/contexts/AuthContext')>(
+      '../../src/app/contexts/AuthContext.tsx?auth-context-regression',
+    );
+    const Provider = reloadedSide === 'provider' ? reloaded.AuthProvider : AuthProvider;
+    const useSession = reloadedSide === 'consumer' ? reloaded.useAuth : useAuth;
+    function ReloadedProbe() {
+      const { loading, userProfile } = useSession();
+      return <p>{loading ? 'Reloaded consumer loading' : userProfile?.full_name ?? 'Session cleared'}</p>;
+    }
+    render(<Provider><ReloadedProbe /></Provider>);
+    act(() => { authListener?.('INITIAL_SESSION', { user: { id: 'user-1' } }); });
+    await waitFor(() => expect(resolveProfile).not.toBeNull());
+    await act(async () => {
+      resolveProfile?.({ data: { id: 'user-1', full_name: 'Shared session user', role: 'member', is_active: true }, error: null });
+    });
+    expect(await screen.findByText('Shared session user')).toBeTruthy();
+    act(() => { authListener?.('SIGNED_OUT', null); });
+    expect(await screen.findByText('Session cleared')).toBeTruthy();
+  });
+
   it.each(['admin', 'super_admin'])('refreshes %s sessions and removes access after deactivation', async (role) => {
     render(<AuthProvider><AuthProbe /></AuthProvider>);
     act(() => { authListener?.('INITIAL_SESSION', { user: { id: 'admin-1' } }); });

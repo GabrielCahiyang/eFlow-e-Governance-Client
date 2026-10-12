@@ -12,4 +12,11 @@ describe('Phase 12 canonical subtask scope',()=>{
   act(()=>old([{id:'late',taskId:'a'}]));expect(result.current.subtasks).toEqual([]);
   act(()=>feed.callbacks.b([{id:'current',taskId:'b'}]));expect(result.current.subtasks.map(row=>row.id)).toEqual(['current']);
  });
+ it('resubscribes on account changes at the same task and ignores the former account callback',()=>{
+  const view=renderHook(({actor})=>useTaskSubtasks('same-task',actor),{initialProps:{actor:'first'}});
+  act(()=>feed.callbacks['same-task']([{id:'first-row',taskId:'same-task'}]));expect(view.result.current.subtasks.map(row=>row.id)).toEqual(['first-row']);
+  const first=feed.callbacks['same-task'];view.rerender({actor:'second'});expect(view.result.current.subtasks).toEqual([]);
+  act(()=>first([{id:'private-late-row',taskId:'same-task'}]));expect(view.result.current.subtasks).toEqual([]);
+  act(()=>feed.callbacks['same-task']([{id:'second-row',taskId:'same-task'}]));expect(view.result.current.subtasks.map(row=>row.id)).toEqual(['second-row']);
+ });
 });

@@ -1,4 +1,5 @@
 import type { Subtask } from "../../services/subtaskService";
+import type { WorkNodeDisplayMetadata } from "../nested-work";
 
 export interface SubtaskSubmissionAttachment {
   id?: string;
@@ -25,6 +26,8 @@ export interface SubtaskProgressUpdate {
 }
 
 export interface SubtaskSubmission {
+  /** Current item context only; recorded submitter/reviewer remain authoritative. */
+  workContext?: WorkNodeDisplayMetadata;
   id: string;
   subtaskId: string;
   taskId: string;
@@ -36,6 +39,9 @@ export interface SubtaskSubmission {
   status: "pending" | "approved" | "changes_requested";
   decisionFeedback?: string;
   decidedByName?: string;
+  /** Actual recorded decision identity/time; never the current queue reviewer. */
+  decidedById?: string;
+  decidedAt?: number;
   submittedAt: number;
   attachments: SubtaskSubmissionAttachment[];
 }

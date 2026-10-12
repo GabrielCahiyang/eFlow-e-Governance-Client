@@ -1,6 +1,6 @@
 import { isTaskLead, type Task } from "../../tasks";
-import { rowToSubtask, type Subtask } from "../../subtasks";
-import type { WorkTreeSnapshot } from "../../nested-work";
+import type { Subtask } from "../../subtasks";
+import {buildWorkNodeDisplayMetadata,mergeWorkDisplayMetadata,type WorkTreeSnapshot} from "../../nested-work";
 import type { WorkRow, WorkSnapshot } from "../types";
 type OfficeContext = Pick<
   WorkRow,
@@ -67,14 +67,12 @@ export function appendOfficeRows(
       tree,
     });
     if (tree) {
+      const metadata=buildWorkNodeDisplayMetadata(tree.nodes,{rootId:task.id,rootTitle:task.title,people:tree.people});
       for (const node of tree.nodes) {
-        const sub =
-          subtaskMap.get(node.id) ||
-          rowToSubtask({
-            ...node,
-            assigned_to: node.lead_id,
-            is_completed: node.status === "completed",
-          });
+        const workContext=metadata.get(node.id);
+        if(!workContext)continue;
+        const record=subtaskMap.get(node.id);
+        const sub=record?.taskId===task.id?mergeWorkDisplayMetadata(record,workContext):undefined;
         const mine =
           node.lead_id === userId || node.assigned_to_ids.includes(userId);
         out.rows.push({
@@ -84,11 +82,12 @@ export function appendOfficeRows(
           rootId: task.id,
           title: node.title,
           rootTitle: task.title,
+          workContext,
           kind: "office-node",
           status: node.status,
           due: node.due_date,
           progress: node.percent_complete,
-          updatedAt: subtaskMap.get(node.id)?.updatedAt,
+          updatedAt: sub?.updatedAt,
           mine,
           leading: node.lead_id === userId && eligible,
           actionable: tree.root.open && (!mine || eligible),

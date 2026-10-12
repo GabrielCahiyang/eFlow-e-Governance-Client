@@ -1,5 +1,5 @@
 import { fetchPersonalProject } from "../../workspaces";
-import { fetchWorkTree, WorkTreeUnavailable } from "../../nested-work";
+import { buildWorkNodeDisplayMetadata, fetchWorkTree, WorkTreeUnavailable } from "../../nested-work";
 import type { WorkSnapshot } from "../types";
 import { settledMap, message } from "./workSourceReads";
 /** Personal projects use their own membership and completion contract. */
@@ -70,8 +70,11 @@ export async function appendPersonalRows(out: WorkSnapshot, userId: string) {
         personal: snapshot,
         tree,
       });
-      if (tree)
+      if (tree){
+        const metadata=buildWorkNodeDisplayMetadata(tree.nodes,{rootId:task.id,rootTitle:task.title,people:tree.people});
         for (const node of tree.nodes) {
+          const workContext=metadata.get(node.id);
+          if(!workContext)continue;
           const mine =
             node.lead_id === userId || node.assigned_to_ids.includes(userId);
           out.rows.push({
@@ -81,6 +84,7 @@ export async function appendPersonalRows(out: WorkSnapshot, userId: string) {
             rootId: task.id,
             title: node.title,
             rootTitle: task.title,
+            workContext,
             kind: "personal-node",
             status: node.status,
             due: node.due_date,
@@ -99,6 +103,7 @@ export async function appendPersonalRows(out: WorkSnapshot, userId: string) {
             personal: snapshot,
           });
         }
+      }
     });
   }
 }

@@ -1,6 +1,6 @@
 import type { Task } from "../tasks";
 import type { Subtask } from "../subtasks";
-import type { WorkNode, WorkTreeSnapshot } from "../nested-work";
+import type { WorkNode, WorkTreeSnapshot, WorkNodeDisplayMetadata } from "../nested-work";
 import type {
   PersonalSnapshot,
   PersonalTask,
@@ -22,6 +22,8 @@ export const dateFilters = [
 ] as const;
 export type WorkDateFilter = (typeof dateFilters)[number];
 export interface WorkRow {
+  /** Optional authorized item context, populated by downstream feed integration. */
+  workContext?: WorkNodeDisplayMetadata;
   key: string;
   id: string;
   rootId: string;

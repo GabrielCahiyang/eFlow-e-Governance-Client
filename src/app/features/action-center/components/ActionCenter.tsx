@@ -4,7 +4,7 @@ import { useTasksData } from '../../../hooks/useSupabaseData';
 import { fetchPersonalSubtaskReviews, fetchTaskSubtasks } from '../../subtasks';
 import { TaskInspector, useTaskInspector } from '../../task-inspector';
 import { canUserReviewTask } from '../../reviews';
-import { queueNotificationNavigationIntent, type NotificationNavigationIntent } from '../../notifications';
+import { queueNotificationNavigationIntent, resolveNotificationSubitem, fetchNotificationSubitem, type NotificationNavigationIntent } from '../../notifications';
 import type { Notification } from '../../../services/notificationService';
 import { requestNavigation } from '../../../shared/navigationGuard';
 import { pushNavigationHistory } from '../../../shared/navigationHistory';
@@ -28,7 +28,7 @@ export function ActionCenter({role,hasLeadingWork=false}: {role:string;hasLeadin
   useEffect(()=>{setNotice('');setCategory(role === 'admin'?'updates':'actions');},[user?.id,role]);
   const actions = personalReviewActions(error?[]:tasks,subtasks.error?[]:subtasks.rows,user?.id,role);
   const navigate = (section: string,page: string,intent?:NotificationNavigationIntent) => void requestNavigation(()=>{
-    if(intent) queueNotificationNavigationIntent(intent);
+    if(intent) queueNotificationNavigationIntent(intent,user?.id);
     pushNavigationHistory(getNavigationUrl(section,page));
   });
   const openAction = (item: ActionItem) => {
@@ -45,21 +45,26 @@ export function ActionCenter({role,hasLeadingWork=false}: {role:string;hasLeadin
     const recipient = user?.id, href = window.location.href;
     const destination=resolveInboxUpdateDestination(item,role);
     setNotice('');
-    if(item.taskId && !tasks.some(task=>task.id===item.taskId)) {setNotice('The referenced task is unavailable, deleted or outside your access. Open your current work or review queue.');return;}
+    if(item.taskId && !tasks.some(task=>task.id===item.taskId)&&!(destination?.intent.entityId&&['subtask','leading_task','subtask_review'].includes(destination.intent.kind))) {setNotice('The referenced task is unavailable, deleted or outside your access. Open your current work or review queue.');return;}
     if(!destination || !canOpenNavigationSection(role,destination.section,can,hasLeadingWork && ['leading','reviews'].includes(destination.section))) {setNotice('This update has no available destination under your current access. Your current queues remain available.');return;}
-    if(item.taskId && destination && ['task','leading_task','task_review'].includes(destination.intent.kind)) {
+    if(item.taskId && destination && ['task','leading_task','task_review'].includes(destination.intent.kind) && !destination.intent.entityId) {
       inspector.openTask(item.taskId,{view:'Inbox Updates',restoreFocus:() => (document.querySelector<HTMLElement>(`[data-update-id="${item.id}"]`) || document.getElementById('inbox-updates'))?.focus()});return;
     }
-    if (['subtask','subtask_review'].includes(destination.intent.kind)) {
+    if (['subtask','subtask_review'].includes(destination.intent.kind) || (destination.intent.kind==='leading_task'&&destination.intent.entityId)) {
       try {
-        const label = destination.intent.entityLabel?.trim().toLowerCase();
+        if(destination.intent.entityId&&destination.intent.kind!=='subtask_review'){
+          await fetchNotificationSubitem(destination.intent,recipient||'',tasks.find(task=>task.id===item.taskId));
+          if(recipientRef.current!==recipient||window.location.href!==href)return;
+          navigate(destination.section,destination.page,destination.intent);return;
+        }
         const children = destination.intent.kind === 'subtask_review'
           ? subtasks.rows.map(row => row.subtask)
           : item.taskId ? await fetchTaskSubtasks(item.taskId) : [];
         if (recipientRef.current !== recipient || window.location.href !== href) return;
-        const matches = children.filter(child => child.taskId === item.taskId && !!label && child.title.trim().toLowerCase() === label && (destination.intent.kind === 'subtask_review' || child.assignedToIds.includes(recipient || '') || child.assignedTo === recipient));
-        if(matches.length !== 1) {setNotice('The referenced subtask is unavailable or its older label is ambiguous. Open the current subtask queue or inspect its accessible parent task.');return;}
-        destination.intent.entityId = matches[0].id;
+        const eligible=children.filter(child=>child.taskId===item.taskId&&(destination.intent.kind==='subtask_review'||child.assignedToIds.includes(recipient||'')||child.assignedTo===recipient||child.leadId===recipient||destination.intent.kind==='leading_task'));
+        const target=resolveNotificationSubitem(destination.intent,eligible);
+        if(target.status!=='resolved') {setNotice('The referenced subtask is unavailable or its older label is ambiguous. Open the current subtask queue or inspect its accessible parent task.');return;}
+        destination.intent.entityId = target.item.id;
       } catch(caught) {setNotice(caught instanceof Error ? caught.message : 'The subtask destination could not be checked.');return;}
     }
     navigate(destination.section,destination.page,destination.intent);

@@ -13,3 +13,5 @@ export {
   type TaskInspectorOrigin,
 } from "./hooks/useTaskInspector";
 export { ProjectStatusBadge } from "../../components/workflow/StatusBadges";
+export { TASK_INSPECTOR_SECTIONS, resolveTaskInspectorSection } from './types';
+export type { TaskInspectorSection } from './types';

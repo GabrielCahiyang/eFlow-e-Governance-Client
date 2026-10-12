@@ -1,0 +1,24 @@
+.nw-hierarchy { color: var(--eflow-text); min-width: 0; }
+.nw-hierarchy-toolbar { display: flex; justify-content: flex-end; margin-bottom: var(--eflow-space-2); }
+.nw-hierarchy-table-scroll { overflow-x: auto; }
+.nw-hierarchy-table { width: 100%; border-collapse: collapse; text-align: left; }
+.nw-hierarchy-table th, .nw-hierarchy-table td { padding: var(--eflow-table-compact-y) var(--eflow-space-3); border-bottom: 1px solid var(--eflow-border); vertical-align: top; }
+.nw-hierarchy-table th { color: var(--eflow-text-secondary); }
+.nw-hierarchy-table td:first-child { min-width: 16rem; }
+.nw-hierarchy-table td:nth-child(2), .nw-hierarchy-table td:nth-child(3) { min-width: 9rem; }
+.nw-hierarchy-title { padding-inline-start: calc(var(--nw-indent) * var(--eflow-space-3)); }
+.nw-hierarchy-title-line { display: flex; align-items: flex-start; gap: var(--eflow-space-1); }
+.nw-hierarchy .nw-hierarchy-control, .nw-hierarchy .nw-hierarchy-open { color: inherit; background: var(--eflow-surface); border: 1px solid var(--eflow-border); border-radius: var(--eflow-radius-control); min-height: var(--eflow-control-compact); padding: var(--eflow-space-1) var(--eflow-space-2); cursor: pointer; }
+.nw-hierarchy .nw-hierarchy-control:focus-visible, .nw-hierarchy .nw-hierarchy-open:focus-visible { outline: var(--eflow-focus-width) solid var(--eflow-primary); outline-offset: var(--eflow-focus-offset); }
+.nw-hierarchy-disclosure, .nw-hierarchy-leaf { flex: 0 0 var(--eflow-control-compact); width: var(--eflow-control-compact); }
+.nw-hierarchy .nw-hierarchy-open { border-color: transparent; background: transparent; font-weight: 600; text-align: left; overflow-wrap: anywhere; }
+.nw-hierarchy-path, .nw-hierarchy-context { color: var(--eflow-text-muted); font-size: var(--eflow-text-xs); margin-top: var(--eflow-space-1); overflow-wrap: anywhere; }
+.nw-hierarchy-progress { min-width: 7rem; }
+.nw-hierarchy [data-selected-work="true"] { background: var(--eflow-selected); }
+.nw-hierarchy-mobile { list-style: none; margin: 0; padding: 0; }
+.nw-hierarchy-mobile > li { display: grid; min-width: 0; gap: var(--eflow-space-2); padding: var(--eflow-space-3); border-bottom: 1px solid var(--eflow-border); }
+.nw-hierarchy-mobile-meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--eflow-space-2); }
+@media (max-width: 639px) {
+ .nw-hierarchy .nw-hierarchy-control, .nw-hierarchy .nw-hierarchy-open { min-height: var(--eflow-touch-target); }
+ .nw-hierarchy-disclosure, .nw-hierarchy-leaf { flex-basis: var(--eflow-touch-target); width: var(--eflow-touch-target); }
+}

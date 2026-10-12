@@ -1,4 +1,4 @@
-import {supportsNestedWork} from '../../nested-work';
+import {supportsNestedWork,type WorkTreeController} from '../../nested-work';
 import { useState } from 'react';
 import { PanelRight } from 'lucide-react';
 import { InlineEditableText } from '../../../components/ui/workspace';
@@ -14,13 +14,19 @@ interface SubitemRowsProps {
   columns: number;
   profiles: UserProfile[];
   canAdd: boolean;
+  readOnly?:boolean;
+  controller?:WorkTreeController;
+  createRequest?:number;
+  createFocusTarget?:HTMLElement;
+  collapsedIds?:Set<string>;
+  onCollapsedIdsChange?:(next:Set<string>)=>void;
   unavailableReason: string;
-  onOpen: (subtask: Subtask) => void;
+  onOpen: (subtask: Subtask, readOnly?:boolean) => void;
   onOpenTask: () => void;
   refresh: () => Promise<void>;
 }
 
-function LegacySubitemRows({ task, subtasks, columns, profiles, canAdd, unavailableReason, onOpen, onOpenTask, refresh }: SubitemRowsProps) {
+function LegacySubitemRows({ task, subtasks, columns, profiles, canAdd, readOnly=false, unavailableReason, onOpen, onOpenTask, refresh }: SubitemRowsProps) {
   const parentDue = parentTaskDueDate(task.deadline, task.dueDate);
   const [dueDate, setDueDate] = useState(parentDue || '');
   const [busy, setBusy] = useState(false);
@@ -38,7 +44,7 @@ function LegacySubitemRows({ task, subtasks, columns, profiles, canAdd, unavaila
             return <tr className="pt-subitem" key={subtask.id}>
               <td><div className="pt-subitem-name">
                 <InlineEditableText value={subtask.title} label={'subitem ' + subtask.title} disabled={!canAdd || busy || subtask.status === 'completed'} onSave={async title => { await updateSubtask(subtask.id, { title }); await refresh(); }}/>
-                <button type="button" aria-label={'Open subitem ' + subtask.title} onClick={() => onOpen(subtask)}><PanelRight size={15}/></button>
+                <button type="button" aria-label={'Open subitem ' + subtask.title} onClick={() => onOpen(subtask,readOnly)}><PanelRight size={15}/></button>
               </div></td>
               <td className="pt-subitem-owner" title={owners || 'Unassigned'}>{owners || 'Unassigned'}</td>
               <td className="pt-subitem-status" style={{ background: STATUS_COLORS[subtask.status] }}>{TASK_STATUS_LABELS[subtask.status]}</td>
@@ -68,6 +74,7 @@ function LegacySubitemRows({ task, subtasks, columns, profiles, canAdd, unavaila
 
 
 export function SubitemRows(props: SubitemRowsProps) {
- if(!supportsNestedWork(props.task))return <LegacySubitemRows {...props}/>;
- return <tr className="pt-subitems-row"><td colSpan={props.columns}><section className="pt-nested-work" id={'pt-subitems-'+props.task.id} aria-label={'Subitems for '+props.task.title}><TaskSubtasksWidget taskId={props.task.id} parentTask={props.task} canManage={props.canAdd} fallback={<table><tbody><LegacySubitemRows {...props}/></tbody></table>} allowedAssignees={props.profiles.map(p=>({id:p.id,name:p.full_name}))}/></section></td></tr>;
+ const readOnly=!!props.readOnly||!!props.task.archivedAt||!!props.task.proposedOfficeIdentityId;
+ if(!supportsNestedWork(props.task))return <LegacySubitemRows {...props} readOnly={readOnly} canAdd={props.canAdd&&!readOnly}/>;
+ return <tr className="pt-subitems-row"><td colSpan={props.columns}><section className="pt-nested-work" id={'pt-subitems-'+props.task.id} aria-label={'Subitems for '+props.task.title}><TaskSubtasksWidget taskId={props.task.id} parentTask={props.task} canManage={props.canAdd&&!readOnly} readOnly={readOnly} controller={props.controller} createRequest={props.createRequest} createFocusTarget={props.createFocusTarget} collapsedIds={props.collapsedIds} onCollapsedIdsChange={props.onCollapsedIdsChange} fallback={<table><tbody><LegacySubitemRows {...props} readOnly={readOnly} canAdd={props.canAdd&&!readOnly}/></tbody></table>} allowedAssignees={props.profiles.map(p=>({id:p.id,name:p.full_name}))}/></section></td></tr>;
 }

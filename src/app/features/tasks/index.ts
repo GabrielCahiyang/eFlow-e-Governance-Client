@@ -75,3 +75,5 @@ export { TaskDiscussion } from "../../components/workflow/TaskDiscussion";
 export { ProgressUpdateForm } from "../../components/workflow/ProgressUpdateForm";
 
 export {rowToTask} from './services/taskMapper';
+
+export { fetchTaskById } from "./services/taskRealtimeService";

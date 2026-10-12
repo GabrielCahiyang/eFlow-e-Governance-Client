@@ -1,5 +1,6 @@
 import { supabase } from "../../../../lib/supabase";
 import { rowToSubtask, type Subtask } from "../../../services/subtaskService";
+import {addSubtaskReviewDisplayContext,readSubtaskReviewRows} from './subtaskReviewContextService';
 import type {
   SubtaskReviewItem,
   SubtaskProgressUpdate,
@@ -116,22 +117,27 @@ function mapSubmission(
     status: row.status as SubtaskSubmission["status"],
     decisionFeedback: (row.decision_feedback as string) || undefined,
     decidedByName: (row.decided_by_name as string) || undefined,
+    decidedById: (row.decided_by as string) || undefined,
+    decidedAt: row.decided_at ? timestamp(row.decided_at) : undefined,
     submittedAt: timestamp(row.submitted_at),
     attachments,
   };
 }
 
-export async function fetchSubtaskSubmissions(subtaskId: string): Promise<SubtaskSubmission[]> {
-  const { data: rows, error } = await supabase
+async function readSubtaskSubmissions(subtaskId: string, rootId?: string): Promise<SubtaskSubmission[]> {
+  let query = supabase
     .from("subtask_submissions")
     .select("*")
-    .eq("subtask_id", subtaskId)
-    .order("version", { ascending: false });
+    .eq("subtask_id", subtaskId);
+  if (rootId) query = query.eq("task_id", rootId);
+  const { data: rows, error } = await query.order("version", { ascending: false });
+  if (error && rootId) throw new Error(error.message);
   if (error) return [];
   const ids = (rows || []).map((row) => row.id as string);
-  const { data: attachmentRows } = ids.length
+  const { data: attachmentRows, error: attachmentError } = ids.length
     ? await supabase.from("subtask_submission_attachments").select("*").in("submission_id", ids)
-    : { data: [] as Record<string, unknown>[] };
+    : { data: [] as Record<string, unknown>[], error: null };
+  if (attachmentError && rootId) throw new Error(attachmentError.message);
   return (rows || []).map((row) =>
     mapSubmission(
       row,
@@ -148,14 +154,16 @@ export async function fetchSubtaskSubmissions(subtaskId: string): Promise<Subtas
   );
 }
 
-export async function fetchSubtaskProgressUpdates(
-  subtaskId: string,
+async function readSubtaskProgressUpdates(
+  subtaskId: string, rootId?: string,
 ): Promise<SubtaskProgressUpdate[]> {
-  const { data, error } = await supabase
+  let query = supabase
     .from("subtask_progress_updates")
     .select("*")
-    .eq("subtask_id", subtaskId)
-    .order("created_at", { ascending: false });
+    .eq("subtask_id", subtaskId);
+  if (rootId) query = query.eq("task_id", rootId);
+  const { data, error } = await query.order("created_at", { ascending: false });
+  if (error && rootId) throw new Error(error.message);
   if (error) return [];
   return (data || []).map((row) => ({
     id: row.id as string,
@@ -172,6 +180,27 @@ export async function fetchSubtaskProgressUpdates(
     attachmentName: (row.attachment_name as string) || undefined,
     createdAt: timestamp(row.created_at),
   }));
+}
+
+// Existing public reads retain their historical return values and error behavior.
+export function fetchSubtaskSubmissions(subtaskId: string): Promise<SubtaskSubmission[]> {
+  return readSubtaskSubmissions(subtaskId);
+}
+export function fetchSubtaskProgressUpdates(subtaskId: string): Promise<SubtaskProgressUpdate[]> {
+  return readSubtaskProgressUpdates(subtaskId);
+}
+
+/** Strict canonical Inspector read. RLS still decides access; no parent lookup. */
+export async function fetchSubitemInspectorRecord(rootId: string, itemId: string) {
+  const {data, error} = await supabase.from('subtasks').select('*').eq('task_id', rootId).eq('id', itemId).maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!data || data.id !== itemId || data.task_id !== rootId) throw new Error('Subitem unavailable. It was removed or is no longer accessible.');
+  const [submissions, progressUpdates] = await Promise.all([
+    readSubtaskSubmissions(itemId, rootId), readSubtaskProgressUpdates(itemId, rootId),
+  ]);
+  if (submissions.some(row => row.taskId !== rootId || row.subtaskId !== itemId)
+    || progressUpdates.some(row => row.taskId !== rootId || row.subtaskId !== itemId)) throw new Error('Could not verify subitem history.');
+  return {subtask: rowToSubtask(data), submissions, progressUpdates};
 }
 
 async function readPendingSubtaskReviews(
@@ -199,24 +228,24 @@ async function readPendingSubtaskReviews(
   const subtaskIds = submissionRows.map((row) => row.subtask_id as string);
   const submissionIds = submissionRows.map((row) => row.id as string);
   const [{ data: subtaskRows, error: subtaskError }, { data: attachmentRows, error: attachmentError }] = await Promise.all([
-    supabase.from("subtasks").select("*").in("id", subtaskIds),
-    supabase.from("subtask_submission_attachments").select("*").in("submission_id", submissionIds),
+    readSubtaskReviewRows('subtasks','*','id',subtaskIds),
+    readSubtaskReviewRows('subtask_submission_attachments','*','submission_id',submissionIds),
   ]);
   if (strict && (subtaskError || attachmentError)) throw new Error((subtaskError || attachmentError)!.message);
   const taskIds = Array.from(new Set((subtaskRows || []).map((row) => row.task_id as string)));
   const { data: taskRows, error: taskError } = taskIds.length
-    ? await supabase.from("tasks").select("id,title,project_title,linked_project_id").in("id", taskIds)
+    ? await readSubtaskReviewRows('tasks','id,title,project_title,linked_project_id','id',taskIds)
     : { data: [] as Record<string, unknown>[] };
   const projectIds = Array.from(new Set(
     (taskRows || []).map((row) => row.linked_project_id as string).filter(Boolean),
   ));
   const { data: projectRows, error: projectError } = projectIds.length
-    ? await supabase.from("projects").select("id,title").in("id", projectIds)
+    ? await readSubtaskReviewRows('projects','id,title','id',projectIds)
     : { data: [] as Record<string, unknown>[] };
 
   if (strict && (taskError || projectError)) throw new Error((taskError || projectError)!.message);
-  return submissionRows.flatMap((submissionRow) => {
-    const rawSubtask = (subtaskRows || []).find((row) => row.id === submissionRow.subtask_id);
+  const items=submissionRows.flatMap((submissionRow) => {
+    const rawSubtask = (subtaskRows || []).find((row) => row.id === submissionRow.subtask_id && row.task_id === submissionRow.task_id);
     if (!rawSubtask) return [];
     const task = (taskRows || []).find((row) => row.id === rawSubtask.task_id);
     const attachments = (attachmentRows || [])
@@ -238,6 +267,8 @@ async function readPendingSubtaskReviews(
         undefined,
     }];
   });
+  try {return await addSubtaskReviewDisplayContext(items,taskRows||[]);}
+  catch(caught){if(strict)throw caught;return [];}
 }
 
 export function fetchPendingSubtaskReviews(reviewerId: string, includeAll = false): Promise<SubtaskReviewItem[]> {
@@ -264,21 +295,37 @@ export function subscribeToPendingSubtaskReviews(
   const channel = supabase
     .channel(`subtask-reviews-${reviewerId}-${Math.random().toString(36).slice(2)}`)
     .on("postgres_changes", { event: "*", schema: "public", table: "subtask_submissions" }, load)
+    .on("postgres_changes", { event: "*", schema: "public", table: "subtasks" }, load)
+    .on("postgres_changes", { event: "*", schema: "public", table: "tasks" }, load)
     .subscribe();
-  return () => { active = false; ++sequence; supabase.removeChannel(channel); };
+  const poll=window.setInterval(load,15_000);
+  window.addEventListener('focus',load);
+  window.addEventListener('eflow-project-access-changed',load);
+  const auth=supabase.auth?.onAuthStateChange?.(()=>{void load();});
+  return () => { active = false; ++sequence;window.clearInterval(poll);window.removeEventListener('focus',load);window.removeEventListener('eflow-project-access-changed',load);auth?.data.subscription.unsubscribe();supabase.removeChannel(channel); };
 }
 
 export async function decideSubtaskReview(
   subtaskId: string,
   approve: boolean,
   feedback?: string,
+  expectedActorId?: string,
 ): Promise<void> {
   if (!approve && !feedback?.trim()) throw new Error("Feedback is required when requesting changes.");
-  const { error } = await supabase.rpc("decide_subtask_review", {
+  // Bind this explicit draft decision to its originating account. Session data
+  // rejects client identity changes; the server still validates JWT/authority.
+  let token:string|undefined;
+  if(expectedActorId){
+    const {data,error}=await supabase.auth.getSession();
+    if(error||data.session?.user.id!==expectedActorId||!data.session.access_token)throw new Error('Your account changed. Revalidate this review before deciding.');
+    token=data.session.access_token;
+  }
+  const request = supabase.rpc("decide_subtask_review", {
     p_subtask_id: subtaskId,
     p_approve: approve,
     p_feedback: feedback?.trim() || null,
   });
+  const {error}=await (token?request.setHeader('Authorization',`Bearer ${token}`):request);
   if (error) {
     if (error.code === "PGRST202" || missingUpgrade(error.message)) {
       throw new Error("Apply the subtask evidence-review database migration, then try again.");

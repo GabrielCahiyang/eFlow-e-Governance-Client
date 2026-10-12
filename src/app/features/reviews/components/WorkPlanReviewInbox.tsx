@@ -30,7 +30,7 @@ function timeAgo(ts?: number): string {
 }
 
 export function WorkPlanReviewInbox({ onNavigate }: { onNavigate?: (section: string, page: string) => void }) {
-  const { userProfile } = useAuth();
+  const { user,userProfile } = useAuth();
   const { orgs } = useOrgs();
   const collaboration = useCollaborationDrafts();
   const [query, setQuery] = useState("");
@@ -79,7 +79,7 @@ export function WorkPlanReviewInbox({ onNavigate }: { onNavigate?: (section: str
       notificationId: `review-draft-${draftId}-${Date.now()}`,
       kind: "collaboration",
       proposalId: draftId,
-    });
+    },user?.id);
     if (onNavigate) {
       onNavigate("projects", "Projects");
     } else {

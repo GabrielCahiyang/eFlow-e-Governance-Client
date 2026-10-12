@@ -29,7 +29,7 @@ function timeAgo(ts?: number): string {
 }
 
 export function GovernanceReviewInbox({ onNavigate }: { onNavigate?: (section: string, page: string) => void }) {
-  const { userProfile } = useAuth();
+  const { user,userProfile } = useAuth();
   const { includeAllAccessibleWork } = useScopedOrgIds();
   const { orgs } = useOrgs();
   const collaboration = useCollaborationDrafts();
@@ -80,7 +80,7 @@ export function GovernanceReviewInbox({ onNavigate }: { onNavigate?: (section: s
       notificationId: `gov-draft-${draftId}-${Date.now()}`,
       kind: "collaboration",
       proposalId: draftId,
-    });
+    },user?.id);
     if (onNavigate) {
       onNavigate("projects", "Projects");
     } else {

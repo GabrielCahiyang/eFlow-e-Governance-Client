@@ -1,0 +1,118 @@
+{
+  "target": "ixnfphgjyelhckjwjkdv",
+  "verified_at_utc": "2026-10-09 14:06:08 UTC",
+  "installed_migration_entries": 27,
+  "installation_checks": [
+    {
+      "check_name": "01 installed history matches all 27 reviewed entries",
+      "result": "PASS"
+    },
+    {
+      "check_name": "02 nine new history records contain exact reviewed SQL",
+      "result": "PASS"
+    },
+    {
+      "check_name": "03 R11 Activity RPC installed",
+      "result": "PASS"
+    },
+    {
+      "check_name": "04 R11 authenticated execution allowed",
+      "result": "PASS"
+    },
+    {
+      "check_name": "05 R11 anonymous execution denied",
+      "result": "PASS"
+    },
+    {
+      "check_name": "06 R11 uses invoker authority and fixed search path",
+      "result": "PASS"
+    },
+    {
+      "check_name": "07 R11 snapshot RLS enabled",
+      "result": "PASS"
+    },
+    {
+      "check_name": "08 R11 event view respects source RLS",
+      "result": "PASS"
+    },
+    {
+      "check_name": "09 R12 settings RPC installed",
+      "result": "PASS"
+    },
+    {
+      "check_name": "10 R12 anonymous execution denied",
+      "result": "PASS"
+    },
+    {
+      "check_name": "11 all 17 new public tables have RLS",
+      "result": "PASS"
+    },
+    {
+      "check_name": "12 project library bucket is private",
+      "result": "PASS"
+    },
+    {
+      "check_name": "13 immediate publication workflow preserved",
+      "result": "PASS"
+    },
+    {
+      "check_name": "14 original readiness restored",
+      "result": "PASS"
+    },
+    {
+      "check_name": "15 removed Office termination installed",
+      "result": "PASS"
+    },
+    {
+      "check_name": "16 removed Office private helper not publicly executable",
+      "result": "PASS"
+    },
+    {
+      "check_name": "17 existing project timestamp trigger enabled",
+      "result": "PASS"
+    }
+  ],
+  "execution": "User reports Dashboard SQL Editor application; assistant independently performed read-only hosted verification.",
+  "assistant_live_schema_writes": false,
+  "native_backup_restore_rehearsal_passed": false,
+  "full_release_acceptance": false,
+  "security_advisors": [
+    {
+      "name": "rls_enabled_no_policy",
+      "level": "INFO",
+      "count": 20,
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy"
+    },
+    {
+      "name": "function_search_path_mutable",
+      "level": "WARN",
+      "count": 9,
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0011_function_search_path_mutable"
+    },
+    {
+      "name": "extension_in_public",
+      "level": "WARN",
+      "count": 1,
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0014_extension_in_public"
+    },
+    {
+      "name": "anon_security_definer_function_executable",
+      "level": "WARN",
+      "count": 85,
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0028_anon_security_definer_function_executable"
+    },
+    {
+      "name": "authenticated_security_definer_function_executable",
+      "level": "WARN",
+      "count": 187,
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable"
+    },
+    {
+      "name": "auth_leaked_password_protection",
+      "level": "WARN",
+      "count": 1,
+      "remediation": "https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection"
+    }
+  ],
+  "security_review_notes": "Seven new R3 public SECURITY DEFINER APIs retain anonymous EXECUTE under hosted default privileges; migration functions require a current eligible actor. This read-only schema check does not establish real-session authorization acceptance. Private internal tables without client policies are deny-by-default; existing security advisories remain open."
+}

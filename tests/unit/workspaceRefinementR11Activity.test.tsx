@@ -33,6 +33,7 @@ import { activityDateBound } from "../../src/app/features/projects/activity/acti
 import { DEFAULT_ACTIVITY_FILTERS } from "../../src/app/features/projects/activity/types";
 import { ProjectActivityTab } from "../../src/app/features/projects/components/project-command/ProjectActivityTab";
 import type { ProjectCommandData } from "../../src/app/features/projects/components/project-command/types";
+import {buildActivityPrint} from '../../src/app/features/projects/activity/activityPrint';
 const filters = { ...DEFAULT_ACTIVITY_FILTERS, timezone: "Asia/Singapore" };
 const source = Array.from({ length: 310 }, (_, index) => ({
   event_id: `progress:task:${String(310 - index).padStart(4, "0")}`,
@@ -87,6 +88,26 @@ beforeEach(() => {
 });
 afterEach(cleanup);
 describe("R11 Activity completeness", () => {
+  it('shares recorded deleted-item paths and people with UI and revalidated print without extra reads',async()=>{
+    const before={root:{id:'task',project:'project',office:'office',kind:'office'},people:[{id:'old',name:'Former Lead'}],nodes:[{id:'parent',task_id:'task',title:'Former parent',parent_subtask_id:null,sibling_order:0,assigned_to_ids:[]},{id:'deleted',task_id:'task',title:'Deleted child',parent_subtask_id:'parent',sibling_order:0,lead_id:'old',assigned_to_ids:['old']}]};
+    const work={id:'recorded',root_id:'task',node_id:'deleted',command:'delete',actor_name:'Historical actor',occurred_at:'2026-10-01T10:00:00Z',before_data:before,after_data:{...before,nodes:before.nodes.slice(0,1)}};
+    const raw={snapshot:'work-snapshot',asOf:new Date().toISOString(),expiresAt:new Date(Date.now()+3600000).toISOString(),page:0,size:25,total:1,more:false,events:[{event_id:'work:recorded',kind:'project',title:'delete',detail:'Deleted child',actor_name:work.actor_name,occurred_at:work.occurred_at,task_id:'task',work_event:work}]};
+    api.rpc.mockResolvedValue({data:raw,error:null});
+    render(<ProjectActivityTab data={{project:{id:'project',title:'Project'}} as ProjectCommandData}/>);
+    await screen.findByText('Subitem deleted');expect(screen.getByText(/Former parent \/ Deleted child/)).toBeTruthy();expect(screen.getByText(/Lead: Former Lead/)).toBeTruthy();
+    fireEvent.click(screen.getByRole('button',{name:'Prepare print'}));const preview=await screen.findByTitle('Activity print document');
+    for(const value of ['Subitem deleted','Former parent / Deleted child','Lead: Former Lead','Historical actor'])expect(preview.getAttribute('srcdoc')).toContain(value);
+    expect(api.rpc).toHaveBeenCalledTimes(2);expect(api.rpc).toHaveBeenLastCalledWith('r11_project_activity',expect.objectContaining({p_snapshot:'work-snapshot',p_size:25,p_page:0}));
+  });
+  it('marks missing historical metadata and rejects mismatched actor/root/context without changing event kinds',async()=>{
+    const raw={snapshot:'legacy',asOf:new Date().toISOString(),expiresAt:new Date(Date.now()+3600000).toISOString(),page:0,size:25,total:1,more:false,events:[{event_id:'work:recorded',kind:'project',title:'root lead',detail:'Root task people',actor_name:'Recorded actor',occurred_at:'2026-10-01',task_id:'task'}]};
+    api.rpc.mockResolvedValueOnce({data:raw,error:null});const legacy=await fetchActivityPage('project',filters);expect(legacy.events[0].title).toBe('Task Lead transferred');expect(legacy.events[0].detail).toContain('Historical changed fields unavailable');expect(legacy.events[0].kind).toBe('project');
+    expect(buildActivityPrint(legacy.events,'Project','Office','Asia/Singapore',filters,legacy,'page')).toContain('Task Lead transferred');
+    const work={id:'recorded',root_id:'task',node_id:null,command:'root_lead',actor_name:'Recorded actor',occurred_at:'2026-10-01',before_data:null,after_data:null};
+    for(const patch of [{actor_name:'Other actor'},{root_id:'foreign'},{before_data:{root:{project:'foreign'}}}]){
+      api.rpc.mockResolvedValueOnce({data:{...raw,events:[{...raw.events[0],work_event:{...work,...patch}}]},error:null});await expect(fetchActivityPage('project',filters)).rejects.toThrow('Invalid historical work context');
+    }
+  });
   it("uses the backend contract and reaches every event with stable identities", async () => {
     const first = await fetchActivityPage("project", filters);
     expect(first.total).toBe(310);

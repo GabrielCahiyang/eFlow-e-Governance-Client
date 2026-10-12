@@ -5,7 +5,7 @@ import type { Organization, UserProfile } from '../../../types';
 import type { ProjectColumn, WorkspaceTaskPatch } from '../types';
 import { STATUS_COLORS } from '../selectors';
 import { TimelineCell, DependencyCell, NumberCell } from './PlanningCells';
-import { supportsNestedWork, WorkRootOwner } from '../../nested-work';
+import { supportsNestedWork, WorkRootOwner, type WorkTreeController } from '../../nested-work';
 import { AsyncSelectCell } from './AsyncSelectCell';
 import '../cellEditors.css';
 
@@ -20,12 +20,12 @@ function OwnerCell({ task, people, profiles, disabled, write }: { task: Task; pe
   </div>{dialog}</>;
 }
 
-export function ProjectTaskCell({ column, task, tasks, profiles, people, orgs, editable, busy, canSetOffice, hasStaffedSubitems, statuses, save, write }: {
-  column: ProjectColumn; task: Task; tasks: Task[]; profiles: UserProfile[]; people: UserProfile[]; orgs: Organization[]; editable: boolean; busy: boolean; canSetOffice: boolean; hasStaffedSubitems: boolean; statuses: Task['status'][]; save: (patch: WorkspaceTaskPatch) => Promise<void>; write: (operation: () => Promise<void>) => Promise<void>;
+export function ProjectTaskCell({ column, task, tasks, profiles, people, orgs, editable, busy, readOnly=false, controller, canSetOffice, hasStaffedSubitems, statuses, save, write }: {
+  column: ProjectColumn; task: Task; tasks: Task[]; profiles: UserProfile[]; people: UserProfile[]; orgs: Organization[]; editable: boolean; busy: boolean; readOnly?:boolean; controller?:WorkTreeController; canSetOffice: boolean; hasStaffedSubitems: boolean; statuses: Task['status'][]; save: (patch: WorkspaceTaskPatch) => Promise<void>; write: (operation: () => Promise<void>) => Promise<void>;
 }) {
   const disabled = !editable || busy;
   if (column === 'office') return <TaskOfficeControl task={task} organizations={orgs} canManage={canSetOffice} hasStaffedSubitems={hasStaffedSubitems}/>;
-  if (column === 'owner') {const legacy=<OwnerCell task={task} profiles={profiles} people={people} disabled={disabled || !!task.proposedOfficeIdentityId || task.status === 'for_review'} write={write}/>;return supportsNestedWork(task)?<WorkRootOwner rootId={task.id} readOnly={busy} fallback={legacy}/>:legacy;}
+  if (column === 'owner') {const legacy=<OwnerCell task={task} profiles={profiles} people={people} disabled={disabled || !!task.proposedOfficeIdentityId || task.status === 'for_review'} write={write}/>;return supportsNestedWork(task)?<WorkRootOwner rootId={task.id} controller={controller} readOnly={readOnly || busy || !!task.proposedOfficeIdentityId || !!task.archivedAt || ['for_review','completed','cancelled'].includes(task.status)} fallback={legacy}/>:legacy;}
   if (column === 'status') return <AsyncSelectCell className="pt-status" style={{ background: STATUS_COLORS[task.status], color: ["todo", "in_progress", "completed"].includes(task.status) ? "#172b29" : "#ffffff" }} value={task.status} label={'Status for ' + task.title} disabled={statuses.length < 2 || busy} onSave={status => write(() => updateTaskStatus(task.id, status as Task['status']))}>{statuses.map(status => <option key={status} value={status}>{TASK_STATUS_LABELS[status]}</option>)}</AsyncSelectCell>;
   if (column === 'priority') return <AsyncSelectCell className={'pt-priority pt-priority--' + task.priority} value={task.priority || 'medium'} label={'Priority for ' + task.title} disabled={disabled} onSave={priority => save({ priority: priority as Task['priority'] })}>{['low','medium','high'].map(value => <option key={value} value={value}>{value[0].toUpperCase() + value.slice(1)}</option>)}</AsyncSelectCell>;
   if (column === 'timeline') return <TimelineCell task={task} disabled={disabled} save={save}/>;

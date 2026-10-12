@@ -1,6 +1,7 @@
 import { supabase } from "../../../../lib/supabase";
 import {readAllRows} from '../../../shared/readAllRows';
 import { rowToSubtask } from "../../subtasks";
+import {buildSubtaskDisplayMetadata,mergeWorkDisplayMetadata,deduplicateWorkPersonIds,type WorkPerson} from '../../nested-work';
 import type {
   TaskStatusFact,
   TeamWorkflowFacts,
@@ -51,6 +52,8 @@ function toSubmission(row: Record<string, unknown>, kind: "task" | "subtask"): W
     submitterId: row.submitter_id as string,
     submitterName: row.submitter_name as string || "User",
     reviewerId: row.reviewer_id as string || row.decided_by as string || undefined,
+    decisionAuthorId: row.decided_by as string || undefined,
+    decisionAuthorName: row.decided_by_name as string || undefined,
     status: row.status as WorkflowSubmissionStatus,
     feedback: row.decision_feedback as string || undefined,
     submittedAt: toTime(row.submitted_at) || Date.now(),
@@ -98,8 +101,21 @@ export async function fetchTeamWorkflowFacts(taskIds: string[]): Promise<TeamWor
   }));
   const [subtasksResult,taskProgressResult,subtaskProgressResult,taskSubmissionResult,subtaskSubmissionResult,historyResult,taskEvidenceResult,subtaskEvidenceResult]=sources;
 
+  const subtasks=subtasksResult.data.map(row=>rowToSubtask(row));
+  const scoped=subtasks.filter(item=>uniqueTaskIds.includes(item.taskId));
+  const personIds=deduplicateWorkPersonIds(scoped.flatMap(item=>[...(item.leadId?[item.leadId]:[]),...item.assignedToIds]));
+  // Resolve only staffing IDs in authorized facts, through current profile RLS.
+  // Missing permitted names use the shared display fallback; read errors remain errors.
+  const people:WorkPerson[]=[];
+  for(let offset=0;offset<personIds.length;offset+=100){
+    const selected=personIds.slice(offset,offset+100);
+    const profiles=await readAllRows<{id:string;full_name:string|null}>((from,to)=>supabase.from('profiles').select('id,full_name',{count:'exact'}).in('id',selected).order('id',{ascending:true}).range(from,to));
+    for(const profile of profiles)if(selected.includes(profile.id)&&profile.full_name)people.push({id:profile.id,name:profile.full_name});
+  }
+  const metadata=new Map(uniqueTaskIds.flatMap(rootId=>[...buildSubtaskDisplayMetadata(scoped,{rootId,people})]));
+
   return {
-    subtasks: (subtasksResult.data || []).map((row: Record<string, unknown>) => rowToSubtask(row)),
+    subtasks: subtasks.map(item=>mergeWorkDisplayMetadata(item,metadata.get(item.id))),
     progress: [
       ...(taskProgressResult.data || []).map((row: Record<string, unknown>) => toProgress(row, "task")),
       ...(subtaskProgressResult.data || []).map((row: Record<string, unknown>) => toProgress(row, "subtask")),

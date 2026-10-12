@@ -1,14 +1,10 @@
 import type { Employee } from "../../members";
+import {buildWorkRecordDisplayMetadata} from '../../nested-work';
 import type { Project } from "../../projects";
 import type { Task } from "../../tasks";
 import type { TeamAttentionItem, TeamWorkflowFacts } from "../../team-management";
 import type { DepartmentReportRow } from "../types";
-import { displayStatus, employeeName, taskDue, taskProject } from "./reportRowHelpers";
-
-function subtaskPath(subtask: TeamWorkflowFacts['subtasks'][number], all: Map<string,TeamWorkflowFacts['subtasks'][number]>):string {
- const parts=[subtask.title],seen=new Set([subtask.id]);let parent=subtask.parentSubtaskId;
- while(parent&&!seen.has(parent)){seen.add(parent);const item=all.get(parent);if(!item){parts.unshift('Unavailable ancestor');break;}parts.unshift(item.title);parent=item.parentSubtaskId;}return parts.join(' / ');
-}
+import { displayStatus, employeeName, itemDue, taskDue, taskProject } from "./reportRowHelpers";
 type WorkflowContext = {
   tasks: Task[];
   projects: Project[];
@@ -21,15 +17,19 @@ export function buildReviewRows(context: WorkflowContext): DepartmentReportRow[]
   const { tasks, projects, employees, facts, now } = context;
   const taskById = new Map(tasks.map((task) => [task.id, task]));
   const subtaskById = new Map(facts.subtasks.map((subtask) => [subtask.id, subtask]));
+  const metadata=buildWorkRecordDisplayMetadata(tasks,facts.subtasks,employees);
   return facts.submissions.map((submission) => {
     const task = taskById.get(submission.taskId);
-    const subtask = submission.subtaskId ? subtaskById.get(submission.subtaskId) : undefined;
+    const candidate = submission.subtaskId ? subtaskById.get(submission.subtaskId) : undefined;
+    const subtask=candidate?.taskId===task?.id?candidate:undefined;
+    const assignedReviewer=employeeName(submission.reviewerId,employees,task);
+    const decisionAuthor=submission.decisionAuthorName || (submission.decisionAuthorId?employeeName(submission.decisionAuthorId,employees,task):submission.status==='pending'?'Not decided':'Not recorded');
     const linked = task ? taskProject(task, projects) : { title: "Unknown project", id: undefined };
     const reviewHours = Math.round((((submission.decidedAt || now) - submission.submittedAt) / 3_600_000) * 10) / 10;
     return {
       id: `review:${submission.id}`,
       kind: "reviews",
-      title: (subtask?subtaskPath(subtask,subtaskById):undefined) || task?.title || "Unknown work item",
+      title: submission.subtaskId ? metadata.get(subtask?.id||'')?.pathLabel || "Unavailable work item" : task?.title || "Unknown work item",
       parent: subtask ? task?.title || "Unknown task" : "Task submission",
       project: linked.title,
       projectId: linked.id,
@@ -39,29 +39,34 @@ export function buildReviewRows(context: WorkflowContext): DepartmentReportRow[]
       status: displayStatus(submission.status),
       priority: task?.priority || "medium",
       eventAt: submission.submittedAt,
-      dueAt: task ? taskDue(task) : undefined,
+      dueAt: submission.subtaskId ? itemDue(subtask?.dueDate) : task ? taskDue(task) : undefined,
       metric: `Attempt ${submission.version} · ${reviewHours}h ${submission.decidedAt ? "to decision" : "waiting"}`,
-      detail: submission.feedback || (submission.status === "pending" ? "Awaiting reviewer decision" : "No decision feedback recorded"),
+      assignedReviewer,
+      decisionAuthor,
+      detail: `${submission.feedback || (submission.status === "pending" ? "Awaiting reviewer decision" : "No decision feedback recorded")} · Assigned reviewer: ${assignedReviewer} · Recorded decision author: ${decisionAuthor}`,
       taskId: task?.id,
     };
   });
 }
 
 export function buildEvidenceRows(context: WorkflowContext): DepartmentReportRow[] {
-  const { tasks, projects, facts } = context;
+  const { tasks, projects, employees, facts } = context;
   const taskById = new Map(tasks.map((task) => [task.id, task]));
   const subtaskById = new Map(facts.subtasks.map((subtask) => [subtask.id, subtask]));
   const submissionById = new Map(facts.submissions.map((submission) => [submission.id, submission]));
+  const metadata=buildWorkRecordDisplayMetadata(tasks,facts.subtasks,employees);
   return facts.evidence.map((evidence) => {
     const task = taskById.get(evidence.taskId);
-    const submission = evidence.submissionId ? submissionById.get(evidence.submissionId) : undefined;
-    const subtask = submission?.subtaskId ? subtaskById.get(submission.subtaskId) : undefined;
+    const attempt = evidence.submissionId ? submissionById.get(evidence.submissionId) : undefined;
+    const submission=attempt?.taskId===evidence.taskId?attempt:undefined;
+    const candidate = submission?.subtaskId ? subtaskById.get(submission.subtaskId) : undefined;
+    const subtask=candidate?.taskId===task?.id?candidate:undefined;
     const linked = task ? taskProject(task, projects) : { title: "Unknown project", id: undefined };
     return {
       id: `evidence:${evidence.id}`,
       kind: "evidence",
       title: evidence.fileName,
-      parent: (subtask?subtaskPath(subtask,subtaskById):undefined) || task?.title || "Unknown work item",
+      parent: evidence.kind==='subtask' ? metadata.get(subtask?.id||'')?.pathLabel || "Unavailable work item" : task?.title || "Unknown work item",
       project: linked.title,
       projectId: linked.id,
       person: submission?.submitterName || "Uploader",
@@ -70,7 +75,7 @@ export function buildEvidenceRows(context: WorkflowContext): DepartmentReportRow
       status: displayStatus(submission?.status || "attached"),
       priority: task?.priority || "medium",
       eventAt: evidence.createdAt,
-      dueAt: task ? taskDue(task) : undefined,
+      dueAt: evidence.kind==='subtask' ? itemDue(subtask?.dueDate) : task ? taskDue(task) : undefined,
       metric: evidence.fileSize ? `${Math.max(1, Math.round(evidence.fileSize / 1024))} KB` : "File attached",
       detail: evidence.mimeType || "Unknown file type",
       taskId: task?.id,
@@ -82,14 +87,17 @@ export function buildRiskRows(context: WorkflowContext, attention: TeamAttention
   const { tasks, projects, employees } = context;
   const taskById = new Map(tasks.map((task) => [task.id, task]));
   const subtaskById = new Map(context.facts.subtasks.map((subtask) => [subtask.id, subtask]));
+  const metadata=buildWorkRecordDisplayMetadata(tasks,context.facts.subtasks,employees);
   return attention.map((item) => {
     const task = taskById.get(item.taskId);
+    const candidate=item.subtaskId?subtaskById.get(item.subtaskId):undefined;
+    const subtask=candidate?.taskId===task?.id?candidate:undefined;
     const linked = task ? taskProject(task, projects) : { title: "Unknown project", id: undefined };
     return {
       id: `risk:${item.id}`,
       kind: "risks",
       title: item.title,
-      parent: item.subtaskId ? subtaskById.get(item.subtaskId)?.title || item.taskTitle : item.taskTitle,
+      parent: item.subtaskId ? metadata.get(subtask?.id||'')?.pathLabel || "Unavailable work item" : item.taskTitle,
       project: linked.title,
       projectId: linked.id,
       person: item.employeeIds.map((id) => employeeName(id, employees, task)).join(", ") || "Unassigned",
@@ -98,7 +106,7 @@ export function buildRiskRows(context: WorkflowContext, attention: TeamAttention
       status: displayStatus(item.kind),
       priority: item.severity,
       eventAt: item.occurredAt || task?.updatedAt,
-      dueAt: task ? taskDue(task) : undefined,
+      dueAt: item.subtaskId ? itemDue(subtask?.dueDate) : task ? taskDue(task) : undefined,
       metric: item.severity,
       detail: item.detail,
       taskId: item.taskId,

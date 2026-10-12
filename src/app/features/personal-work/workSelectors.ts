@@ -45,6 +45,7 @@ export function selectWorkRows(
           [
             row.title,
             row.rootTitle,
+            row.workContext?.pathLabel,
             row.projectTitle,
             row.workspaceName,
             row.officeName,

@@ -32,6 +32,8 @@ interface WorkBudgetCardProps {
   task: Task;
   subtask?: Subtask;
   canManage?: boolean;
+  readOnly?: boolean;
+  authorityPending?: boolean;
 }
 
 const ACTIVE_REQUEST_STATES = new Set([
@@ -74,6 +76,8 @@ export function WorkBudgetCard({
   task,
   subtask,
   canManage = false,
+  readOnly = false,
+  authorityPending = false,
 }: WorkBudgetCardProps) {
   const { userProfile } = useAuth();
   const orgId =
@@ -84,6 +88,7 @@ export function WorkBudgetCard({
   const version = useMemo(
     () =>
       [
+        getTaskLeadId(task),
         ...budget.allocations.map(
           (item) => `${item.id}:${item.status}:${item.amount}`,
         ),
@@ -92,7 +97,7 @@ export function WorkBudgetCard({
             `${item.id}:${item.status}:${item.requestedAmount}:${item.updatedAt}`,
         ),
       ].join("|"),
-    [budget.allocations, budget.requests],
+    [task.assigneeId, task.recommendationLeadId, budget.allocations, budget.requests],
   );
   const funding = useTaskFundingContext(task.id, subtask?.id, version);
   useEffect(()=>{setFundingYear(funding.context?.fiscalYear||getCurrentFiscalYear());setFundingOffice(funding.context?.fundingOrgId||orgId);},[funding.context?.fiscalYear,funding.context?.fundingOrgId,orgId]);
@@ -112,17 +117,18 @@ export function WorkBudgetCard({
     subtask?.assignedToIds.includes(currentUserId),
   );
   const context = funding.context;
+  const fundingCurrent = !context?.taskLeaderId || context.taskLeaderId === getTaskLeadId(task);
   const safety = useReviewedMutation(
     `${task.id}:${subtask?.id || ""}:${currentUserId}`,
   );
   const latestCap = useRef({ context, canManageCap: false, blocked: false });
   const canRequest = Boolean(
-    context?.funded &&
+    !readOnly && !authorityPending && fundingCurrent && !funding.loading && !budget.loading && context?.funded &&
       budget.summary?.status === "locked" &&
       (subtask ? isAssignedContributor || isTaskLeader : isTaskLeader),
   );
   const canManageCap = Boolean(
-    subtask && canManage && isTaskLeader && context?.funded,
+    !readOnly && !authorityPending && fundingCurrent && !funding.loading && !budget.loading && subtask && canManage && isTaskLeader && context?.funded,
   );
   const requests = budget.requests.filter(
     (request) =>
@@ -184,7 +190,7 @@ export function WorkBudgetCard({
   };
 
   const openCap = () => {
-    if (!context) return;
+    if (!context || !canManageCap || capHasActiveRequest) return;
     setError("");
     setCapLineId(
       context.cap?.allocationLineId ||
@@ -199,7 +205,7 @@ export function WorkBudgetCard({
   };
 
   const saveCap = async () => {
-    if (!subtask) return;
+    if (!subtask || busy || !latestCap.current.canManageCap || latestCap.current.blocked) return;
     setBusy(true);
     setError("");
     try {
@@ -281,7 +287,7 @@ export function WorkBudgetCard({
   return (
     <section className="rounded-[10px] border border-border bg-card p-3 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
       {safety.dialog}
-      {canManage&&isOpenDirectFundingWork(task)&&!subtask&&!context?.funded&&!funding.loading&&userProfile?.role==="head"&&userProfile.is_active!==false&&userProfile.org_id===orgId&&orgId===fundingOffice&&<DirectWorkFunding key={task.id} data={budget} tasks={[task]} onChanged={refresh} />}
+      {!readOnly&&!authorityPending&&canManage&&isOpenDirectFundingWork(task)&&!subtask&&!context?.funded&&!funding.loading&&userProfile?.role==="head"&&userProfile.is_active!==false&&userProfile.org_id===orgId&&orgId===fundingOffice&&<DirectWorkFunding key={task.id} data={budget} tasks={[task]} onChanged={refresh} />}
       {safety.message && (
         <FeedbackState tone={safety.tone} title="Cap result">
           <p>{safety.message}</p>
@@ -448,7 +454,7 @@ export function WorkBudgetCard({
       ) : null}
 
       {capOpen && context && subtask && (
-        <div className="mt-3 space-y-2 rounded-xl border border-emerald-200 bg-white p-3">
+        <fieldset disabled={!canManageCap || capHasActiveRequest || busy} className="mt-3 min-w-0 space-y-2 rounded-xl border border-emerald-200 bg-white p-3">
           <div>
             <div className="text-[10px] font-semibold">
               {context.cap
@@ -501,7 +507,7 @@ export function WorkBudgetCard({
             <button
               type="button"
               disabled={
-                busy ||
+                busy || !canManageCap || capHasActiveRequest ||
                 !capLineId ||
                 capAmount <= 0 ||
                 capAmount > capMaximum ||
@@ -520,7 +526,7 @@ export function WorkBudgetCard({
           >
             Cancel
           </button>
-        </div>
+        </fieldset>
       )}
 
       {(requestOpen || correction) && context && (
@@ -531,6 +537,7 @@ export function WorkBudgetCard({
           subtaskId={subtask?.id}
           currentUserId={currentUserId}
           correction={correction}
+          readOnly={!canRequest}
           onCancel={() => {
             setRequestOpen(false);
             setCorrection(undefined);
@@ -548,7 +555,9 @@ export function WorkBudgetCard({
         requests={requests}
         currentUserId={currentUserId}
         orgId={fundingOffice}
+        canCorrect={canRequest}
         onCorrect={(request) => {
+          if (!canRequest) return;
           setCorrection(request);
           setRequestOpen(false);
         }}

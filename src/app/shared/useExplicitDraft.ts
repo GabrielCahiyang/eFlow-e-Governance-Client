@@ -18,9 +18,10 @@ export function useExplicitDraft(
   };
   const current = useRef(guard);
   current.current = guard;
-  useNavigationBlocker(guard);
+  const requestClose = useNavigationBlocker(guard);
   return {
     pendingRef,
+    requestClose,
     markClean: () => {
       current.current.dirty = false;
       current.current.pending = false;

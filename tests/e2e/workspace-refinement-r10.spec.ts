@@ -2,7 +2,7 @@ import { test, expect, type Page } from "@playwright/test";
 import { personalWorkspaceFixture } from "./fixtures/personalWorkspace";
 import { projectWorkspaceFixture } from "./fixtures/projectWorkspace";
 
-async function workFixture(page: Page,dark=false) {
+async function workFixture(page: Page,dark=false,leadOnly=false) {
   const records = await personalWorkspaceFixture(page, { seed: true,theme:dark?'dark':'light' });
   const dueToday = new Intl.DateTimeFormat("en-CA", {
     timeZone: "Asia/Singapore",
@@ -47,7 +47,7 @@ async function workFixture(page: Page,dark=false) {
       kind === "office"
         ? "Depth eight Office evidence"
         : "Private research child",
-    assigned_to_ids: [records.id],
+    assigned_to_ids: leadOnly?["00000000-0000-4000-8000-000000000099"]:[records.id],
     sibling_order: 0,
     depth: 8,
     due_date: dueToday,
@@ -68,9 +68,12 @@ async function workFixture(page: Page,dark=false) {
     return [...ancestors,selected];
   };
   const officeBranch=branch(officeNode,false),personalBranch=branch(personalNode,true);
+  // Current authority maps accompany the existing synthetic branch flags.
+  const capability=(allowed:boolean)=>({allowed,reason_code:allowed?null:'branch_denied'});
+  const nodeCapabilities=(canWork:boolean)=>({manage_contributors:capability(false),appoint_lead:capability(false),create_child:capability(false),order_children:capability(false),edit_details:capability(false),move:capability(false),delete:capability(false),execute:capability(canWork),submit:capability(canWork),review:capability(false)});
   records.subtasks.push({
     ...officeNode,
-    assigned_to: records.id,
+    assigned_to: leadOnly?"00000000-0000-4000-8000-000000000099":records.id,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   });
@@ -106,7 +109,7 @@ async function workFixture(page: Page,dark=false) {
           revision: 1,
           can_manage: false,
           can_transfer: false,
-          nodes: assigned?(personal?personalBranch:officeBranch).map(n=>ended&&n.id===officeNode.id?{...n,lead_id:null,assigned_to_ids:[],can_work:false}:n):[],
+          nodes: assigned?(personal?personalBranch:officeBranch).map(n=>{const current=ended&&n.id===officeNode.id?{...n,lead_id:null,assigned_to_ids:[],can_work:false}:n;return {...current,capabilities:nodeCapabilities(current.can_work)};}):[],
           people: [{ id: records.id, name: "Alex Rivera", eligible: !ended },{id:'00000000-0000-4000-8000-000000000099',name:'Other colleague',eligible:true}],
           leaf_total: assigned ? 1 : 0,
           leaf_completed: 0,
@@ -162,8 +165,11 @@ test("R10 cross-workspace feed retains four destinations, filters, context, hist
     .click();
   await expect(page.locator("[data-work-key]")).toHaveCount(2);
   await expect(page.locator('[data-work-key^="office-node:"]')).toContainText(
-    "Depth 8",
+    "Office ancestor 7 / Depth eight Office evidence",
   );
+  await expect(page.locator('[data-work-key^="office-node:"]')).not.toContainText('Depth 8');
+  await expect(page.locator('[data-work-key^="office-node:"]')).toContainText('Lead: Alex Rivera');
+  await expect(page.locator('[data-work-key^="office-node:"]')).toContainText('Contributors (0)');
   await page.getByRole("button", { name: "Today", exact: true }).click();
   await expect(page.locator("[data-work-key]")).toHaveCount(2);
   await page
@@ -234,12 +240,8 @@ test("R10 nested inspectors open the selected branch, protect drafts and restore
   await expect(inspector.locator('[data-selected-work="true"]')).toContainText(
     "Private research child",
   );
-  await inspector
-    .getByRole("button", {
-      name: "Progress Private research child",
-      exact: true,
-    })
-    .click();
+  await inspector.getByRole('button',{name:'Actions for Private research child',exact:true}).click();
+  await page.getByRole('menuitem',{name:'Update progress',exact:true}).click();
   await inspector.getByLabel("Note / feedback").fill("Unsaved nested progress");
   await page.keyboard.press("Escape");
   await page.getByRole("button", { name: "Keep editing", exact: true }).click();
@@ -328,7 +330,7 @@ test("R10 Home opens scoped Overview with real totals and personal content stays
     overview.getByRole("button", { name: "Active projects", exact: false }),
   ).toContainText("1");
   await expect(
-    overview.getByRole("button", { name: "Private project", exact: false }),
+    overview.getByRole("region", { name: "Workspace projects", exact: true }).getByRole("button", { name: "Private project", exact: false }),
   ).toBeVisible();
   await expect(overview).not.toContainText("Community outreach");
   await expect(page.getByText("Getting Started", { exact: true })).toHaveCount(
@@ -341,7 +343,7 @@ test("R10 Home opens scoped Overview with real totals and personal content stays
   await page.goto(`/overview?workspace=${records.org}`);
   await expect(overview).toContainText("Planning Office");
   await expect(
-    overview.getByRole("button", { name: "Community outreach", exact: false }),
+    overview.getByRole("region", { name: "Workspace projects", exact: true }).getByRole("button", { name: "Community outreach", exact: false }),
   ).toBeVisible();
   await expect(overview).not.toContainText("Private project");
   await page.screenshot({
@@ -420,4 +422,26 @@ test('R10 retained Office tools return from a personal workspace to the canonica
  await page.getByRole('button',{name:'Work tools',exact:true}).click();await page.getByRole('menuitem',{name:'Deadline calendar',exact:true}).click();
  await expect(page.getByRole('heading',{name:'Deadlines',exact:true,level:1})).toBeVisible();
  expect(new URL(page.url()).searchParams.get('workspace')).toBe(records.org);
+});
+
+test('NW9.2 Lead-only depth-eight Office work is searchable and executes by canonical ID without root or cash authority',async({page})=>{
+ const records=await workFixture(page,false,true);
+ await page.getByRole('navigation',{name:'My Work destinations'}).getByRole('button',{name:'Leading',exact:true}).click();
+ await page.getByRole('searchbox',{name:'Search personal work'}).fill('Office ancestor 6');
+ const item=page.locator(`[data-work-key="office-node:${records.officeNode.id}"]`);
+ await expect(page.locator('[data-work-key]')).toHaveCount(1);
+ await expect(item).toContainText('Office ancestor 7 / Depth eight Office evidence');
+ await expect(item).toContainText('Lead: Alex Rivera');await expect(item).toContainText('Contributors (1)');
+ await expect(page.locator(`[data-work-key="office-task:${records.tasks[0].id}"]`)).toHaveCount(0);
+ await item.click();
+ const inspector=page.getByRole('dialog',{name:'Subtask details: Depth eight Office evidence'});
+ await expect(inspector.getByRole('button',{name:'Save update',exact:true})).toBeEnabled();
+ await expect(inspector.getByRole('button',{name:'Request cash',exact:true})).toHaveCount(0);
+ await expect(inspector.getByRole('button',{name:'Task work actions',exact:true})).toHaveCount(0);
+ await inspector.getByLabel('Progress note (optional)').fill('Lead-only draft');
+ await page.keyboard.press('Escape');await page.getByRole('button',{name:'Keep editing',exact:true}).click();
+ await expect(inspector.getByLabel('Progress note (optional)')).toHaveValue('Lead-only draft');
+ records.end();await page.evaluate(()=>window.dispatchEvent(new Event('eflow-project-access-changed')));
+ await expect(inspector.getByRole('button',{name:'Save update',exact:true})).toBeDisabled();
+ await expect(inspector.getByLabel('Progress note (optional)')).toHaveValue('Lead-only draft');
 });

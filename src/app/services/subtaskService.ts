@@ -3,11 +3,15 @@
 
 import { supabase } from '../../lib/supabase';
 import { createNotification } from './notificationService';
+import type { WorkNodeDisplayMetadata } from '../features/nested-work';
+import {registerAuthCacheReset} from '../shared/authCacheReset';
 
 export type SubtaskSource = 'ai_extracted' | 'template' | 'manual';
 export type SubtaskStatus = 'todo' | 'in_progress' | 'for_review' | 'changes_requested' | 'completed';
 
 export interface Subtask {
+  /** Optional current authorized display context; not persisted workflow data. */
+  workContext?: WorkNodeDisplayMetadata;
   id: string;
   taskId: string;
   title: string;
@@ -74,6 +78,8 @@ export function rowToSubtask(row: Record<string, unknown>): Subtask {
 
 // ─── In-Memory Subtask Cache ──────────────────────────────────────
 export const subtaskMemoryCache = new Map<string, Subtask[]>();
+let cacheGeneration=0;
+registerAuthCacheReset(()=>clearSubtaskCache());
 
 export function getCachedSubtasks(taskId: string): Subtask[] | undefined {
   return subtaskMemoryCache.get(taskId);
@@ -87,17 +93,20 @@ export function clearSubtaskCache(taskId?: string): void {
   if (taskId) {
     subtaskMemoryCache.delete(taskId);
   } else {
+    cacheGeneration++;
     subtaskMemoryCache.clear();
   }
 }
 
 export async function fetchTaskSubtasks(taskId: string): Promise<Subtask[]> {
+  const generation=cacheGeneration;
   const { data, error } = await supabase
     .from('subtasks')
     .select('*')
     .eq('task_id', taskId)
     .order('position', { ascending: true });
-  if (error) throw new Error(error.message);
+  if (error) throw Object.assign(new Error(error.message),{code:error.code});
+  if(generation!==cacheGeneration)throw new Error('Subtask context changed. Read current work again.');
   const subtasks = (data || []).map(rowToSubtask);
   subtaskMemoryCache.set(taskId, subtasks);
   return subtasks;
@@ -108,6 +117,7 @@ export async function fetchTaskSubtasks(taskId: string): Promise<Subtask[]> {
  * and leaves the existing per-task cache and mutation contracts untouched.
  */
 export async function fetchSubtasksForTasks(taskIds: string[]): Promise<Subtask[]> {
+  const generation=cacheGeneration;
   const ids = Array.from(new Set(taskIds.filter(Boolean)));
   if (ids.length === 0) return [];
   const { data, error } = await supabase
@@ -116,6 +126,7 @@ export async function fetchSubtasksForTasks(taskIds: string[]): Promise<Subtask[
     .in('task_id', ids)
     .order('position', { ascending: true });
   if (error) throw new Error(error.message);
+  if(generation!==cacheGeneration)throw new Error('Subtask context changed. Read current work again.');
   const subtasks = (data || []).map(rowToSubtask);
   const byTask = new Map<string, Subtask[]>();
   for (const subtask of subtasks) {
@@ -134,6 +145,9 @@ export function subscribeToSubtasks(
   taskId: string,
   callback: (subtasks: Subtask[]) => void,
 ): () => void {
+  const generation=cacheGeneration;
+  let active=true;
+  const currentSubscription=()=>active&&generation===cacheGeneration;
   const cached = subtaskMemoryCache.get(taskId);
   if (cached) {
     callback(cached);
@@ -142,8 +156,11 @@ export function subscribeToSubtasks(
   const load = async () => {
     try {
       const items = await fetchTaskSubtasks(taskId);
-      callback(items);
-    } catch {
+      if(currentSubscription())callback(items);
+    } catch (reason) {
+      if(!currentSubscription())return;
+      const error=reason as {code?:string;message?:string};
+      if(['42501','PGRST301','PGRST302','PGRST303'].includes(error.code||''))subtaskMemoryCache.delete(taskId);
       callback(subtaskMemoryCache.get(taskId) || []);
     }
   };
@@ -156,6 +173,7 @@ export function subscribeToSubtasks(
       'postgres_changes',
       { event: '*', schema: 'public', table: 'subtasks', filter: `task_id=eq.${taskId}` },
       (payload) => {
+        if(!currentSubscription())return;
         const current = subtaskMemoryCache.get(taskId) || [];
         if (payload.eventType === 'INSERT' && payload.new) {
           const newSubtask = rowToSubtask(payload.new as Record<string, unknown>);
@@ -185,6 +203,7 @@ export function subscribeToSubtasks(
     .subscribe();
 
   return () => {
+    active=false;
     void supabase.removeChannel(channel);
   };
 }
@@ -378,7 +397,7 @@ export async function setSubtaskDueDate(
     p_reason: reason?.trim() || null,
   });
   if (error) {
-    if (error.code === 'PGRST202' || error.message.includes('set_subtask_due_date')) {
+    if (error.code === 'PGRST202') {
       throw new Error('Apply the hierarchical deadline database migration, then try again.');
     }
     throw new Error(error.message);

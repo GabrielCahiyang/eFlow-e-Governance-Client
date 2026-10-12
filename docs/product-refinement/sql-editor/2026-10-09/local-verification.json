@@ -1,0 +1,84 @@
+{
+  "target": "ixnfphgjyelhckjwjkdv",
+  "passed": true,
+  "assertions": 33,
+  "installation_checks": [
+    {
+      "check_name": "01 installed history matches all 27 reviewed entries",
+      "result": "PASS"
+    },
+    {
+      "check_name": "02 nine new history records contain exact reviewed SQL",
+      "result": "PASS"
+    },
+    {
+      "check_name": "03 R11 Activity RPC installed",
+      "result": "PASS"
+    },
+    {
+      "check_name": "04 R11 authenticated execution allowed",
+      "result": "PASS"
+    },
+    {
+      "check_name": "05 R11 anonymous execution denied",
+      "result": "PASS"
+    },
+    {
+      "check_name": "06 R11 uses invoker authority and fixed search path",
+      "result": "PASS"
+    },
+    {
+      "check_name": "07 R11 snapshot RLS enabled",
+      "result": "PASS"
+    },
+    {
+      "check_name": "08 R11 event view respects source RLS",
+      "result": "PASS"
+    },
+    {
+      "check_name": "09 R12 settings RPC installed",
+      "result": "PASS"
+    },
+    {
+      "check_name": "10 R12 anonymous execution denied",
+      "result": "PASS"
+    },
+    {
+      "check_name": "11 all 17 new public tables have RLS",
+      "result": "PASS"
+    },
+    {
+      "check_name": "12 project library bucket is private",
+      "result": "PASS"
+    },
+    {
+      "check_name": "13 immediate publication workflow preserved",
+      "result": "PASS"
+    },
+    {
+      "check_name": "14 original readiness restored",
+      "result": "PASS"
+    },
+    {
+      "check_name": "15 removed Office termination installed",
+      "result": "PASS"
+    },
+    {
+      "check_name": "16 removed Office private helper not publicly executable",
+      "result": "PASS"
+    },
+    {
+      "check_name": "17 existing project timestamp trigger enabled",
+      "result": "PASS"
+    }
+  ],
+  "atomic_failure_rollback_verified": true,
+  "unexpected_existing_row_change_rolled_back": true,
+  "history_mismatch_rejected": true,
+  "rerun_rejected": true,
+  "source_history_exact": true,
+  "authorized_activity_verified": true,
+  "anonymous_activity_denied": true,
+  "scope": "Disposable PGlite PostgreSQL engine with synthetic records and reviewed live migration SQL; not a native restore of the hosted backup and not a hosted acceptance receipt",
+  "live_writes": false
+}

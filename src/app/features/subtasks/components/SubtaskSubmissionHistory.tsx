@@ -3,7 +3,7 @@ import { formatDate } from "../../../components/workflow/primitives";
 import type { SubtaskSubmission } from "../types";
 import { SubtaskEvidenceLink } from "./SubtaskEvidenceLink";
 
-export function SubtaskSubmissionHistory({ submissions }: { submissions: SubtaskSubmission[] }) {
+export function SubtaskSubmissionHistory({ submissions,currentReviewerName }: { submissions: SubtaskSubmission[];reviewerFallback?:string;currentReviewerName?:string }) {
   if (submissions.length === 0) return null;
   return (
     <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
@@ -28,10 +28,12 @@ export function SubtaskSubmissionHistory({ submissions }: { submissions: Subtask
               ))}
             </div>
             <div className="mt-2 text-[10px] text-neutral-400">{formatDate(submission.submittedAt)}</div>
+            <p className="mt-1 text-[11px] text-neutral-500">{submission.status==='pending'?`Current reviewer: ${currentReviewerName||'Current reviewer unavailable'}`:`Historical decision by ${submission.decidedByName||'Reviewer unavailable'}`}</p>
+            {submission.decidedAt&&<div className="text-[10px] text-neutral-400">Decision: {formatDate(submission.decidedAt)}</div>}
             {submission.decisionFeedback && (
               <div className="mt-2 flex gap-2 rounded-lg border border-rose-200 bg-rose-50 p-2 text-[11px] text-rose-800">
                 <MessageSquareWarning size={13} className="mt-0.5 shrink-0" />
-                <span>{submission.decidedByName || "Team Leader"}: {submission.decisionFeedback}</span>
+                <span>{submission.decidedByName || 'Reviewer unavailable'}: {submission.decisionFeedback}</span>
               </div>
             )}
           </div>

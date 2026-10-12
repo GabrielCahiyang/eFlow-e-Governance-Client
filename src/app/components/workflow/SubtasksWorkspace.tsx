@@ -2,7 +2,7 @@
 // Dedicated Subtasks Workspace for viewing, filtering, and checking off
 // subtasks assigned to the user across all department projects and tasks.
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo,useRef } from "react";
 import { Dropdown, Search as VibeSearch } from "@vibe/core";
 import {
   ListChecks,
@@ -21,8 +21,10 @@ import { supabase } from "../../../lib/supabase";
 import { useAuth } from "../../contexts/AuthContext";
 import { useTasksData } from "../../hooks/useSupabaseData";
 import { rowToSubtask, type Subtask } from "../../services/subtaskService";
-import { SubtaskWorkDrawer } from "../../features/subtasks/components/SubtaskWorkDrawer";
-import { useNotificationNavigationIntent } from "../../features/notifications";
+import { SubtaskWorkDrawer } from "../../features/subtasks";
+import type {TaskInspectorOrigin} from "../../features/task-inspector";
+import { useNotificationNavigationIntent,resolveNotificationSubitem,fetchNotificationSubitem } from "../../features/notifications";
+import {requestNavigation} from '../../shared/navigationGuard';
 import type { Task } from "../../services/taskService";
 import {
   PageHeader,
@@ -56,6 +58,10 @@ const subtaskStatusOptions = [
 ];
 
 export function SubtasksWorkspace() {
+  const {user}=useAuth();
+  return <ActorSubtasksWorkspace key={user?.id}/>;
+}
+function ActorSubtasksWorkspace() {
   const { user } = useAuth();
   const { tasks: allTasks, loading: tasksLoading } = useTasksData();
   const [subtasks, setSubtasks] = useState<(Subtask & { parentTask?: Task })[]>([]);
@@ -66,30 +72,41 @@ export function SubtasksWorkspace() {
   const [activeTaskDetail, setActiveTaskDetail] = useState<Task | null>(null);
   const [activeSubtask, setActiveSubtask] = useState<(Subtask & { parentTask?: Task }) | null>(null);
   const [focusError, setFocusError] = useState("");
+  const [sourceError,setSourceError]=useState('');
+  const [exactTarget,setExactTarget]=useState<string>();
+  const exactCurrent=useRef<{rootId:string;itemId:string}|undefined>(undefined);
+  const [subitemOrigin,setSubitemOrigin]=useState<TaskInspectorOrigin>();
+  const captureOrigin=(element:HTMLElement|null)=>setSubitemOrigin({view:"Subtasks",section:'work',returnFocus:element,restoreFocus:()=>document.querySelector<HTMLInputElement>('[aria-label="Search subtasks"]')?.focus()});
   const reviewerIds = useMemo(() => subtasks.map((subtask) => subtask.reviewerId), [subtasks]);
   const { reviewersById, loading: reviewersLoading } = useSubtaskReviewerDirectory(reviewerIds);
 
   useNotificationNavigationIntent(
     (intent) => intent.kind === "subtask",
-    (intent) => {
+    async (intent,isCurrent) => {
       if (loading || tasksLoading) return false;
-      const label = intent.entityLabel?.trim().toLowerCase();
-      const matches = subtasks.filter((subtask) =>
-        (!intent.entityId || subtask.id === intent.entityId)
-        && (!intent.taskId || subtask.taskId === intent.taskId)
-        && (!label || subtask.title.trim().toLowerCase() === label),
-      );
-      if (matches.length === 1) {setActiveSubtask(matches[0]);setFocusError("");}
-      else {setActiveSubtask(null);setFocusError("The referenced subtask is unavailable or ambiguous. Choose a current assigned subtask below.");}
-      return true;
+      let target=resolveNotificationSubitem(intent,sourceError?[]:subtasks);
+      let exact=false;
+      if(!sourceError&&target.status==='unavailable'&&intent.entityId&&intent.taskId){
+        try{target={status:'resolved',item:await fetchNotificationSubitem(intent,user?.id||'',allTasks.find(task=>task.id===intent.taskId))};exact=true;}
+        catch{/* A denied/missing exact read remains an unavailable target. */}
+        if(!isCurrent())return false;
+      }
+      const opener=document.activeElement instanceof HTMLElement?document.activeElement:null;
+      return requestNavigation(()=>{
+        if(!isCurrent())return;
+        if(target.status==='resolved'&&target.item.parentTask){captureOrigin(opener);exactCurrent.current=exact?{rootId:target.item.taskId,itemId:target.item.id}:undefined;setExactTarget(exact?JSON.stringify([target.item.taskId,target.item.id]):undefined);setActiveSubtask(target.item);setFocusError('');}
+        else {setActiveSubtask(null);setFocusError("The referenced subtask is unavailable or ambiguous. Choose a current assigned subtask below.");}
+      });
     },
-    [loading, tasksLoading, subtasks],
+    [loading, tasksLoading, subtasks,sourceError,allTasks],
   );
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!user?.id) {setSubtasks([]);setLoading(false);return;}
+    let active=true,sequence=0;
 
     const loadSubtasks = async () => {
+      const run=++sequence;
       setLoading(true);
       try {
         const { data, error } = await supabase
@@ -99,6 +116,8 @@ export function SubtasksWorkspace() {
           .order("position", { ascending: true });
 
         if (error) throw error;
+        if(!Array.isArray(data))throw new Error('Could not verify current subtask access.');
+        if(!active||run!==sequence)return;
 
         if (data) {
           // Filter subtasks where assigned_to_ids contains user.id or assigned_to === user.id
@@ -108,7 +127,7 @@ export function SubtasksWorkspace() {
               : row.assigned_to
               ? [row.assigned_to as string]
               : [];
-            return ids.includes(user.id);
+            return ids.includes(user.id)||row.lead_id===user.id;
           });
 
           // Map with parent task
@@ -130,15 +149,26 @@ export function SubtasksWorkspace() {
           });
 
           setSubtasks(mapped);
+          setSourceError('');
+          const exact=exactCurrent.current;
+          if(exact&&!mapped.some(item=>item.taskId===exact.rootId&&item.id===exact.itemId)){
+            try{
+              const record=await fetchNotificationSubitem({notificationId:'current-subitem',kind:'subtask',taskId:exact.rootId,entityId:exact.itemId},user.id,taskMap.get(exact.rootId));
+              if(active&&run===sequence)setActiveSubtask(current=>current?.id===exact.itemId&&current.taskId===exact.rootId?record:current);
+            }catch{if(active&&run===sequence){exactCurrent.current=undefined;setExactTarget(undefined);}}
+          }
         }
       } catch (err) {
-        console.error("Failed to load user subtasks:", err);
+        if(active&&run===sequence){setSubtasks([]);setSourceError(err instanceof Error?err.message:(err as {message?:string}|null)?.message||'Could not verify current subtask access.');}
       } finally {
-        setLoading(false);
+        if(active&&run===sequence)setLoading(false);
       }
     };
 
     loadSubtasks();
+    const poll=window.setInterval(loadSubtasks,15_000);
+    window.addEventListener('focus',loadSubtasks);
+    window.addEventListener('eflow-project-access-changed',loadSubtasks);
 
     // Subscribe to realtime subtasks updates
     const channel = supabase
@@ -151,6 +181,8 @@ export function SubtasksWorkspace() {
       .subscribe();
 
     return () => {
+      active=false;++sequence;
+      window.clearInterval(poll);window.removeEventListener('focus',loadSubtasks);window.removeEventListener('eflow-project-access-changed',loadSubtasks);
       supabase.removeChannel(channel);
     };
   }, [user?.id, allTasks]);
@@ -220,7 +252,7 @@ export function SubtasksWorkspace() {
   const reviewCount = subtasks.filter((st) => st.status === "for_review").length;
   const overdueCount = subtasks.filter((st) => getSubtaskDeadlineState(st).tone === "overdue").length;
 
-  if (loading || tasksLoading) {
+  if ((loading || tasksLoading)&&!activeSubtask&&!activeTaskDetail) {
     return (
       <div className="p-8">
         <LoadingState label="Loading your assigned subtasks…" />
@@ -231,6 +263,7 @@ export function SubtasksWorkspace() {
   return (
     <div className="eflow-operational-workspace min-h-full p-4 sm:p-8">
       {focusError && <p role="alert" className="mb-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm">{focusError}</p>}
+      {sourceError&&<p role="alert">{sourceError}</p>}
       <PageHeader
         eyebrow="My Workspace · Subtasks"
         title="My Subtask Checklist"
@@ -349,7 +382,7 @@ export function SubtasksWorkspace() {
                     <button
                       type="button"
                       key={st.id}
-                      onClick={() => setActiveSubtask(st)}
+                      onClick={event => {captureOrigin(event.currentTarget);exactCurrent.current=undefined;setExactTarget(undefined);setActiveSubtask(st);}}
                       className={`flex w-full min-w-0 flex-wrap items-center gap-2 rounded-xl border px-3 py-2.5 text-left transition-colors sm:flex-nowrap sm:gap-3 ${
                         st.isCompleted
                           ? "bg-neutral-50/70 border-neutral-100"
@@ -441,9 +474,12 @@ export function SubtasksWorkspace() {
       />
       <SubtaskWorkDrawer
         subtask={activeSubtask}
+        origin={subitemOrigin}
+        initialSection="work"
+        readOnly={loading||tasksLoading||!!sourceError||(!subtasks.some(item=>item.id===activeSubtask?.id)&&exactTarget!==JSON.stringify([activeSubtask?.taskId,activeSubtask?.id]))}
         parentTask={activeSubtask?.parentTask}
         prerequisite={activeSubtask ? getSubtaskPrerequisite(activeSubtask, subtasks) : null}
-        onClose={() => setActiveSubtask(null)}
+        onClose={() => {exactCurrent.current=undefined;setExactTarget(undefined);setActiveSubtask(null);}}
       />
     </div>
   );

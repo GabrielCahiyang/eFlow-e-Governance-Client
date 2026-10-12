@@ -20,8 +20,10 @@ export interface NotificationNavigationIntent {
   projectId?: string;
   proposalId?: string;
   entityLabel?: string;
-  /** New discovery uses stable subtask IDs; legacy notifications keep label routing. */
+  /** Canonical item identity takes precedence over an older display label. */
   entityId?: string;
+  /** Notification item entrances use the canonical Inspector's existing sections. */
+  inspectorSection?:'work'|'review';
   financialRecordId?: string;
   financialRecordType?: string;
 }
@@ -31,6 +33,17 @@ export interface NotificationDestination {
   page: string;
   label: string;
   intent: NotificationNavigationIntent;
+}
+
+/** Resolve only supplied authorized records. An ID never falls back to a label. */
+export function resolveNotificationSubitem<T extends {id:string;taskId:string;title:string}>(
+  intent:NotificationNavigationIntent, items:readonly T[],
+):{status:'resolved';item:T}|{status:'unavailable'|'ambiguous'} {
+  const label=intent.entityLabel?.trim().toLowerCase();
+  if(!intent.entityId&&!label)return {status:'unavailable'};
+  const matches=items.filter(item=>(!intent.taskId||item.taskId===intent.taskId)
+    &&(intent.entityId?item.id===intent.entityId:item.title.trim().toLowerCase()===label));
+  return matches.length===1?{status:'resolved',item:matches[0]}:{status:matches.length?'ambiguous':'unavailable'};
 }
 
 function quotedLabels(value: string): string[] {
@@ -114,6 +127,7 @@ function makeDestination(
       proposalId: notification.proposalId,
       entityLabel,
       entityId: notification.workNodeId,
+      inspectorSection:notification.workNodeId&&['subtask','subtask_review','leading_task'].includes(kind)?kind==='subtask_review'?'review':'work':undefined,
       financialRecordId: notification.financialRecordId,
       financialRecordType: notification.financialRecordType,
     },
@@ -131,7 +145,7 @@ export function resolveNotificationDestination(
 ): NotificationDestination | null {
   const title = notification.title.trim().toLowerCase();
   const messageLabels = quotedLabels(notification.message || "");
-  const isSubtask = title.includes("subtask");
+  const isSubtask = !!notification.workNodeId || title.includes("subtask");
 
   if (
     notification.type.startsWith("budget_")

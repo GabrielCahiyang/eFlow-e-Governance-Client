@@ -36,13 +36,33 @@ async function filesFixture(page:Page,role:'head'|'member'|'admin'='head',shared
  return {records,files,signing,get uploads(){return uploads;}};
 }
 async function open(page:Page){await page.getByRole('button',{name:'Open '+title,exact:true}).click();return page.getByRole('dialog',{name:'Task details: '+title});}
+test('NW7.3 Activity preserves canonical progress and recorded delegation authors with independent retry',async({page})=>{
+ const {records}=await filesFixture(page);let denied=true;const reads:any[]=[];
+ await page.route('**/rpc/r7_work_activity',route=>{
+  reads.push(route.request().postDataJSON());
+  return denied?route.fulfill({status:403,json:{code:'42501',message:'Delegation history unavailable'}}):route.fulfill({json:{more:false,events:[{
+   id:'historical-event',root_id:records.tasks[0].id,node_id:records.subtasks[0].id,command:'staff',actor_name:'Recorded delegation author',occurred_at:'2026-10-02T00:00:00Z',
+   before_data:{nodes:[]},after_data:{nodes:[{id:records.subtasks[0].id,title:'Historical branch title'}]},
+  }]}});
+ });
+ const inspector=await open(page);await inspector.getByRole('tab',{name:'Activity',exact:true}).click();
+ await expect(inspector.getByText('Survey started',{exact:true})).toBeVisible();
+ await expect(inspector.getByRole('button',{name:'Retry delegation history'})).toBeVisible();
+ await expect(inspector).toContainText('Delegation history unavailable');
+ denied=false;await inspector.getByRole('button',{name:'Retry delegation history'}).click();
+ const history=inspector.getByRole('region',{name:'Delegation history'});
+ await expect(history).toContainText('Recorded delegation author');await expect(history).toContainText('Historical branch title');
+ expect(reads).toHaveLength(2);expect(reads.every(read=>JSON.stringify(read.p_roots)===JSON.stringify([records.tasks[0].id]))).toBe(true);
+ await expect(inspector.getByText('Survey started',{exact:true})).toBeVisible();
+});
 test.beforeEach(async({page})=>{test.setTimeout(90000);await page.setViewportSize({width:1440,height:1000});});
+// Historical title retained for refinement-release-selection; the section contract is now six tabs.
 test('R6 compact header has exactly three tabs, expandable metadata and authorized workflow files',async({page},info)=>{
  const fixture=await filesFixture(page);const inspector=await open(page);
- await expect(inspector.getByRole('tab')).toHaveText(['Updates','Files','Activity']);await expect(inspector.getByRole('button',{name:'Details',exact:true})).toHaveAttribute('aria-expanded','false');
+ await expect(inspector.getByRole('tab')).toHaveText(['Overview','Work','Updates','Files','Activity','Review']);await expect(inspector.getByRole('tab',{name:'Work',exact:true})).toHaveAttribute('aria-selected','false');
  await expect(inspector.getByLabel('Task team and subtasks')).toHaveCount(0);await expect(inspector.getByText('Survey started')).toBeVisible();
- await inspector.getByRole('button',{name:'Details',exact:true}).first().click();await expect(inspector.getByLabel('Task team and subtasks')).toBeVisible();await expect(inspector).toContainText('Estimated hours');
- await inspector.getByRole('button',{name:'Details',exact:true}).first().click();await inspector.getByRole('tab',{name:'Files',exact:true}).click();
+ await inspector.getByRole('tab',{name:'Work',exact:true}).first().click();await expect(inspector.getByLabel('Task team and subtasks')).toBeVisible();await inspector.getByRole('tab',{name:'Overview',exact:true}).click();await expect(inspector).toContainText('Estimated hours');await expect(inspector.getByLabel('Task team and subtasks')).toHaveCount(0);
+ await inspector.getByRole('tab',{name:'Work',exact:true}).first().click();await inspector.getByRole('tab',{name:'Files',exact:true}).click();
  await expect(inspector.getByRole('button',{name:'Approved evidence.pdf',exact:true})).toBeVisible();await expect(inspector.getByRole('button',{name:'Subitem evidence.pdf',exact:true})).toBeVisible();
  await expect(inspector).toContainText('Submission 1 (approved)');await expect(inspector).toContainText('Team member');await expect(inspector.getByRole('button',{name:'Progress photo.png',exact:true})).toBeVisible();
  await page.screenshot({path:info.outputPath('r6-files-desktop.png'),fullPage:true,animations:'disabled'});
@@ -63,15 +83,15 @@ test('R6 guarded upload retries a committed file once and keeps successful metad
 });
 test('R6 eligible review is contextual and its draft is guarded',async({page},info)=>{
  const {records}=await filesFixture(page);Object.assign(records.tasks[0],{status:'for_review',reviewer_id:records.id});await page.reload();await expect(page.getByRole('table',{name:'To do tasks',exact:true})).toBeVisible({timeout:30000});
- const inspector=await open(page);await expect(inspector.getByRole('tab')).toHaveText(['Updates','Files','Activity']);await inspector.getByRole('button',{name:'Review submission',exact:true}).click();
- await inspector.getByRole('button',{name:'Request changes',exact:true}).click();await inspector.getByRole('textbox').fill('Review correction');await inspector.getByRole('button',{name:'Close review',exact:true}).click();
+ const inspector=await open(page);await expect(inspector.getByRole('tab')).toHaveText(['Overview','Work','Updates','Files','Activity','Review']);await inspector.getByRole('tab',{name:'Review',exact:true}).click();
+ await inspector.getByRole('button',{name:'Request changes',exact:true}).click();await inspector.getByRole('textbox').fill('Review correction');await inspector.getByRole('tab',{name:'Updates',exact:true}).click();
  await page.getByRole('button',{name:'Keep editing',exact:true}).click();await expect(inspector.getByRole('textbox')).toHaveValue('Review correction');await page.screenshot({path:info.outputPath('r6-contextual-review.png'),fullPage:true,animations:'disabled'});
- await inspector.getByRole('button',{name:'Close review',exact:true}).click();await page.getByRole('button',{name:'Discard',exact:true}).click();await expect(inspector.getByLabel('Submission review')).toHaveCount(0);
+ await inspector.getByRole('tab',{name:'Updates',exact:true}).click();await page.getByRole('button',{name:'Discard',exact:true}).click();await expect(inspector.getByLabel('Submission review')).toHaveCount(0);
 });
 for(const actor of ['observer','archived'] as const)test(`R6 ${actor} keeps files/history readable and has no document or review mutations`,async({page},info)=>{
  const {records}=await filesFixture(page,actor==='observer'?'member':'head',actor==='observer');
  if(actor==='archived'){records.projects[0].status='archived';await page.reload();await expect(page.getByRole('table',{name:'To do tasks',exact:true})).toBeVisible({timeout:30000});}
- const inspector=await open(page);await expect(inspector.getByText('Read-only oversight record')).toBeVisible();await expect(inspector.getByRole('button',{name:'Review submission',exact:true})).toHaveCount(0);
+ const inspector=await open(page);await expect(inspector.getByText('Read-only oversight record')).toBeVisible();await inspector.getByRole('tab',{name:'Review',exact:true}).click();await expect(inspector.getByRole('button',{name:'Approve',exact:true})).toHaveCount(0);await expect(inspector.getByRole('button',{name:'Request changes',exact:true})).toHaveCount(0);
  await inspector.getByRole('tab',{name:'Files',exact:true}).click();await expect(inspector.getByRole('button',{name:'Approved evidence.pdf',exact:true})).toBeVisible();await expect(inspector.getByLabel('Upload a project document')).toHaveCount(0);
  await inspector.getByRole('tab',{name:'Activity',exact:true}).click();await expect(inspector.getByText('Survey started')).toBeVisible();
  if(actor==='observer'){await page.setViewportSize({width:320,height:740});await page.screenshot({path:info.outputPath('r6-observer-activity-320.png'),fullPage:true,animations:'disabled'});}

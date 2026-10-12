@@ -1,10 +1,11 @@
 import type { Employee } from "../../members";
+import {buildWorkRecordDisplayMetadata} from '../../nested-work';
 import type { Project } from "../../projects";
 import type { Task } from "../../tasks";
 import { isOverdue, projectStats } from "../../tasks";
 import { taskParticipantIds, type TeamWorkflowFacts } from "../../team-management";
 import type { DepartmentReportRow } from "../types";
-import { displayStatus, employeeName, taskDue, taskProject } from "./reportRowHelpers";
+import { displayStatus, employeeName, itemDue, taskDue, taskProject } from "./reportRowHelpers";
 
 const DAY = 86_400_000;
 
@@ -35,6 +36,7 @@ export function buildProjectRows(projects: Project[], tasks: Task[], employees: 
 export function buildContributionRows(tasks: Task[], projects: Project[], employees: Employee[], facts: TeamWorkflowFacts): DepartmentReportRow[] {
   const rows: DepartmentReportRow[] = [];
   const taskById = new Map(tasks.map((task) => [task.id, task]));
+  const metadata=buildWorkRecordDisplayMetadata(tasks,facts.subtasks,employees);
   tasks.forEach((task) => {
     const linked = taskProject(task, projects);
     taskParticipantIds(task).forEach((personId) => rows.push({
@@ -61,21 +63,23 @@ export function buildContributionRows(tasks: Task[], projects: Project[], employ
     const task = taskById.get(subtask.taskId);
     if (!task) return;
     const linked = taskProject(task, projects);
-    subtask.assignedToIds.forEach((personId) => rows.push({
+    const context=metadata.get(subtask.id);
+    if(!context||context.rootId!==task.id)return;
+    context.participantIds.forEach((personId) => rows.push({
       id: `subtask-contribution:${subtask.id}:${personId}`,
       kind: "contributions",
-      title: subtask.title,
+      title: context.pathLabel,
       parent: task.title,
       project: linked.title,
       projectId: linked.id,
-      person: employeeName(personId, employees, task),
+      person: personId===context.leadId?context.leadName!:context.contributors.find(person=>person.id===personId)!.name,
       personId,
-      role: "Subtask contributor",
+      role: personId===context.leadId?"Subitem Lead":"Subtask contributor",
       status: displayStatus(subtask.status),
       priority: task.priority || "medium",
       progress: subtask.percentComplete,
       eventAt: subtask.updatedAt,
-      dueAt: taskDue(task),
+      dueAt: itemDue(subtask.dueDate),
       metric: `${subtask.percentComplete}% subtask progress`,
       detail: `Contribution under “${task.title}”`,
       taskId: task.id,

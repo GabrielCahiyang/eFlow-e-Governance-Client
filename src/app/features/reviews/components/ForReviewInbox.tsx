@@ -220,6 +220,8 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
       } else if (intent.kind === "subtask_review") {
         setSubtaskFocus(intent);
         setReviewKind("subtasks");
+        // The Subitem queue owns fresh target resolution and completion.
+        return false;
       } else if (intent.kind === "collaboration") {
         setReviewKind("workplans");
       } else {

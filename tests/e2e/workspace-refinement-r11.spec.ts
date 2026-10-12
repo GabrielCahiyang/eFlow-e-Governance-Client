@@ -3,6 +3,23 @@ import { projectWorkspaceFixture } from "./fixtures/projectWorkspace";
 import { personalWorkspaceFixture } from "./fixtures/personalWorkspace";
 import { readFile } from "node:fs/promises";
 test.setTimeout(90_000);
+test('NW9.6 historical work paths and Lead changes agree in Activity and bounded print',async({page})=>{
+ const f=await projectWorkspaceFixture(page,'member'),root=String(f.tasks[0].id);
+ const nodes=Array.from({length:8},(_,i)=>({id:'historical-'+i,task_id:root,title:'Old level '+(i+1),parent_subtask_id:i?'historical-'+(i-1):null,sibling_order:0,lead_id:'old',assigned_to_ids:['old','worker'],due_date:null,is_standalone:true,status:'todo',percent_complete:0}));
+ const before={root:{id:root,project:f.project,office:f.org,kind:'office',lead:'old',people:['old','worker']},nodes,people:[{id:'old',name:'Former Lead'},{id:'new',name:'Replacement Lead'},{id:'worker',name:'Recorded contributor'}]};
+ const after={...before,nodes:nodes.map(node=>({...node,title:node.id==='historical-0'?'Moved ancestor':node.title,lead_id:node.id==='historical-7'?'new':node.lead_id}))};
+ const path=nodes.map(node=>node.title).join(' / '),moved=['Moved ancestor',...nodes.slice(1).map(node=>node.title)].join(' / ');
+ let denied=false;const calls:any[]=[];
+ const events=['move','staff','delete','order'].map((command,i)=>({event_id:'work:history-'+i,kind:'project',title:command,detail:'Old level 8',actor_name:'Historical actor',occurred_at:'2026-10-12T00:00:00Z',task_id:root,work_event:{id:'history-'+i,root_id:root,node_id:command==='order'?null:'historical-7',command,actor_name:'Historical actor',occurred_at:'2026-10-12T00:00:00Z',before_data:before,after_data:command==='delete'?{...after,nodes:after.nodes.slice(0,7)}:command==='order'?{...after,nodes:after.nodes.map(node=>({...node,sibling_order:1}))}:after}}));
+ await page.route('**/rest/v1/rpc/r11_project_activity',route=>{calls.push(route.request().postDataJSON());return denied?route.fulfill({status:403,json:{code:'42501',message:'Current historical access denied'}}):route.fulfill({json:{snapshot:'historical-snapshot',asOf:new Date().toISOString(),expiresAt:new Date(Date.now()+3600000).toISOString(),page:0,size:25,total:events.length,more:false,events}});});
+ await page.goto(`/projects?workspace=${f.org}&project=${f.project}&view=activity`);
+ const history=page.getByRole('region',{name:'Project activity',exact:true});
+ for(const value of ['Subitem moved','Subitem Lead transferred','Subitem deleted','Subitems reordered',path,moved,'Former Lead → Replacement Lead','Position: 1 → 2','Historical actor'])await expect(history).toContainText(value);
+ await history.getByRole('button',{name:'Prepare print'}).click();const document=page.frameLocator('iframe[title="Activity print document"]');await expect(document.locator('tbody tr')).toHaveCount(4);
+ for(const value of [path,moved,'Former Lead → Replacement Lead','Position: 1 → 2','Historical actor'])await expect(document.locator('body')).toContainText(value);
+ expect(calls).toHaveLength(2);expect(calls[1]).toMatchObject({p_snapshot:'historical-snapshot',p_size:25,p_page:0});
+ await page.getByRole('button',{name:'Close print preview'}).click();denied=true;await history.getByRole('button',{name:'Refresh history'}).click();await expect(history.getByRole('alert')).toContainText('Current historical access denied');await expect(history.locator('tbody tr')).toHaveCount(0);
+});
 async function historyFixture(page: Page) {
   const fixture = await projectWorkspaceFixture(page, "member");
   const state = {
@@ -300,6 +317,42 @@ test("R11 missing workflow facts withhold register metrics and exports", async (
   ).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Export CSV" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Export PDF" })).toHaveCount(0);
+});
+
+test('NW9.3 register shares depth-eight paths, appointed Lead and item dates with CSV/PDF',async({page})=>{
+  const f=await projectWorkspaceFixture(page,'head');
+  const lead='00000000-0000-4000-8000-000000000071',worker='00000000-0000-4000-8000-000000000072';
+  f.profiles.push({...f.profile,id:lead,full_name:'Appointed Lead',role:'member'},{...f.profile,id:worker,full_name:'Distinct worker',role:'member'});
+  const template=f.subtasks[0];
+  f.subtasks.splice(0,f.subtasks.length,...Array.from({length:8},(_,i)=>({...template,id:`50000000-0000-4000-8000-${String(i+71).padStart(12,'0')}`,
+    parent_subtask_id:i?`50000000-0000-4000-8000-${String(i+70).padStart(12,'0')}`:null,title:'Duplicate title',lead_id:lead,
+    assigned_to_ids:i===7?[worker,lead,worker]:[],due_date:i===7?'2026-10-21':null,position:0,sibling_order:0,percent_complete:i===7?65:0})));
+  await page.goto(`/projects?workspace=${f.org}&project=${f.project}&view=reports`);
+  const report=page.getByRole('region',{name:'Project execution and financial register',exact:true});
+  await report.getByLabel('Search register').fill('Appointed Lead');
+  const rows=report.getByRole('region',{name:'Execution register rows'}).locator('tbody tr');
+  await expect(rows).toHaveCount(9);
+  const path=['Prepare community assessment',...Array(8).fill('Duplicate title')].join(' / ');
+  const deep=rows.last();
+  await expect(deep).toContainText(path);
+  await expect(deep).toContainText('Lead: Appointed Lead · Contributors (1): Distinct worker');
+  await expect(deep).toContainText('2026-10-21');
+  await expect(deep).toContainText('65%');
+  await expect(rows.nth(1)).toContainText('Contributors (0): No contributors');
+  await expect(rows.nth(1)).toContainText('No deadline');
+  await expect(rows.first()).toContainText('40%');
+  const downloaded=page.waitForEvent('download');
+  await report.getByRole('button',{name:'Export CSV'}).click();
+  const csv=await readFile((await (await downloaded).path())!,'utf8');
+  for(const value of [path,'Lead: Appointed Lead · Contributors (1): Distinct worker','2026-10-21'])expect(csv).toContain(value);
+  expect(csv).not.toContain('Coordinate Office briefing');
+  const popup=page.waitForEvent('popup');
+  await report.getByRole('button',{name:'Export PDF'}).click();
+  const pdf=await popup;
+  await expect(pdf.locator('tbody tr')).toHaveCount(9);
+  for(const value of [path,'Lead: Appointed Lead · Contributors (1): Distinct worker','2026-10-21'])await expect(pdf.locator('body')).toContainText(value);
+  await expect(pdf.locator('body')).not.toContainText('Coordinate Office briefing');
+  await pdf.close();
 });
 test("R11 missing Activity deployment is explicit and archived history stays read-only", async ({
   page,

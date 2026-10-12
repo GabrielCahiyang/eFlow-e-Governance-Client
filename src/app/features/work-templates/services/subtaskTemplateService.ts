@@ -10,14 +10,18 @@ import type {
 const missingSchemaMessage =
   "Apply the work-template database migration, then refresh this page.";
 
+// These public adapters still accept only flat checklist payloads. Reject the
+// same hierarchy keys as the installed server guards before selecting fields.
+function assertFlatItems(items:readonly object[]) {
+  if(items.some(item=>Object.entries(item).some(([key,value])=>value!==undefined&&['parentSubtaskId','parent_subtask_id','children','subitems'].includes(key))))
+    throw new Error("Nested work needs a hierarchy template format. This checklist format cannot flatten parent links.");
+}
+
 function isMissingSchema(error: { code?: string; message?: string }) {
   return (
     error.code === "PGRST202" ||
     error.code === "PGRST205" ||
-    error.code === "42P01" ||
-    Boolean(error.message?.includes("subtask_templates")) ||
-    Boolean(error.message?.includes("save_subtask_template")) ||
-    Boolean(error.message?.includes("apply_subtask_template"))
+    error.code === "42P01"
   );
 }
 
@@ -65,7 +69,7 @@ export async function saveSubtaskTemplate(
   orgId: string,
   draft: SubtaskTemplateDraft,
 ): Promise<SubtaskTemplate> {
-  if(draft.items.some(item=>item.parentSubtaskId))throw new Error("Nested work needs a hierarchy template format. This checklist format cannot flatten parent links.");
+  assertFlatItems(draft.items);
   const { data, error } = await supabase.rpc("save_subtask_template", {
     p_template_id: draft.id || null,
     p_payload: {
@@ -123,6 +127,7 @@ export async function applySubtaskTemplate(input: {
   mode: SubtaskTemplateApplyMode;
   items: AppliedSubtaskTemplateItem[];
 }): Promise<SubtaskTemplateApplyResult> {
+  assertFlatItems(input.items);
   const { data, error } = await supabase.rpc("apply_subtask_template", {
     p_template_id: input.templateId,
     p_task_id: input.taskId,

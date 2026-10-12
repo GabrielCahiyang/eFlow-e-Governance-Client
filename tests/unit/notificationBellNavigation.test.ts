@@ -28,13 +28,20 @@ vi.mock("../../src/app/services/notificationService", () => ({
 }));
 
 import { NotificationBell } from "../../src/app/components/ui/NotificationBell";
+import {completeNotificationNavigationIntent,peekNotificationNavigationIntent} from '../../src/app/features/notifications/navigationIntent';
 
 afterEach(() => {
   cleanup();
+  const pending=peekNotificationNavigationIntent();if(pending)completeNotificationNavigationIntent(pending.notificationId);
   vi.clearAllMocks();
 });
 
 describe("notification bell navigation", () => {
+  it('does not queue or close a notification when its navigation is declined',async()=>{
+    const navigate=vi.fn().mockResolvedValue(false);render(createElement(NotificationBell,{userId:'user-1',role:'head',onNavigate:navigate}));
+    fireEvent.click(screen.getByTitle('1 unread notifications'));fireEvent.click(screen.getByText('Subtask evidence ready for review').closest('button')!);
+    await waitFor(()=>expect(navigate).toHaveBeenCalledWith('reviews','For Review'));expect(peekNotificationNavigationIntent()).toBeNull();expect(screen.getByText('Open subtask review')).toBeTruthy();expect(markRead).toHaveBeenCalledWith('user-1','notification-1');
+  });
   it("marks an alert read, closes the panel, and opens its role destination", async () => {
     const navigate = vi.fn();
     render(createElement(NotificationBell, {

@@ -46,6 +46,23 @@ describe('Phase 9 discovery compatibility', () => {
 });
 
 describe('registered dirty navigation', () => {
+  it('closes a clean child without discarding its dirty parent; global navigation still guards the parent',async()=>{
+    const parentDiscard=vi.fn(),childDiscard=vi.fn(),close=vi.fn(),confirm=vi.fn().mockResolvedValue(false),uninstall=installNavigationConfirmation(confirm);
+    renderHook(()=>useNavigationBlocker({label:'Parent metadata',dirty:true,onDiscard:parentDiscard}));
+    const child=renderHook(()=>useNavigationBlocker({label:'Child people',dirty:false,onDiscard:childDiscard}));
+    try{expect(await child.result.current(close)).toBe(true);expect(close).toHaveBeenCalledOnce();expect(confirm).not.toHaveBeenCalled();expect(parentDiscard).not.toHaveBeenCalled();expect(childDiscard).not.toHaveBeenCalled();expect(await requestNavigation(vi.fn())).toBe(false);expect(confirm).toHaveBeenCalledWith(['Parent metadata']);}finally{uninstall();}
+  });
+  it('accepts or rejects only the child discard while preserving the parent draft',async()=>{
+    const parentDiscard=vi.fn(),childDiscard=vi.fn(),close=vi.fn(),confirm=vi.fn().mockResolvedValueOnce(false).mockResolvedValueOnce(true),uninstall=installNavigationConfirmation(confirm);
+    renderHook(()=>useNavigationBlocker({label:'Parent metadata',dirty:true,onDiscard:parentDiscard}));
+    const child=renderHook(()=>useNavigationBlocker({label:'Child people',dirty:true,onDiscard:childDiscard}));
+    try{expect(await child.result.current(close)).toBe(false);expect(close).not.toHaveBeenCalled();expect(childDiscard).not.toHaveBeenCalled();expect(await child.result.current(close)).toBe(true);expect(confirm).toHaveBeenNthCalledWith(1,['Child people']);expect(confirm).toHaveBeenNthCalledWith(2,['Child people']);expect(childDiscard).toHaveBeenCalledOnce();expect(close).toHaveBeenCalledOnce();expect(parentDiscard).not.toHaveBeenCalled();}finally{uninstall();}
+  });
+  it('retains global pending protection and refuses a stale child close after unmount',async()=>{
+    const action=vi.fn();const parent=renderHook(({pending})=>useNavigationBlocker({label:'Parent',dirty:true,pending,onDiscard:vi.fn()}),{initialProps:{pending:true}});
+    const child=renderHook(()=>useNavigationBlocker({label:'Child',dirty:false,onDiscard:vi.fn()}));const close=child.result.current;
+    expect(await close(action)).toBe(false);parent.rerender({pending:false});child.unmount();expect(await close(action)).toBe(false);expect(action).not.toHaveBeenCalled();
+  });
   it('prompts only for dirty forms and preserves state on Keep editing', async () => {
     const discard = vi.fn(), action = vi.fn(), confirm = vi.fn().mockResolvedValue(false);
     const uninstall = installNavigationConfirmation(confirm);

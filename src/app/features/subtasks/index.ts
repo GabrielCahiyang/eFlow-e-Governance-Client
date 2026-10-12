@@ -9,6 +9,8 @@ export const SubtasksWorkspace = lazyFeature(
   "SubtasksWorkspace",
 );
 export { TaskSubtasksWidget } from "./components/TaskSubtasksWidget";
+export { SubitemInspector, type SubitemInspectorProps } from "./components/SubitemInspector";
+export type { SubtaskWorkDrawerProps } from "./components/SubtaskWorkDrawer";
 export const SubtaskWorkDrawer = lazyFeature(
   () =>
     import("./components/SubtaskWorkDrawer").then((module) => ({
@@ -29,3 +31,5 @@ export * from "./selectors/sequencing";
 export * from "./selectors/deadlines";
 export * from "./hooks/useTaskSubtasks";
 export * from "./hooks/useSubtaskReviewerDirectory";
+
+export { SubtaskEvidenceLink } from "./components/SubtaskEvidenceLink";

@@ -12,10 +12,14 @@ export function SubtaskProgressForm({
   subtask,
   prerequisite,
   onSaved,
+  readOnly = false,
+  canSubmit = true,
 }: {
   subtask: Subtask;
   prerequisite?: Subtask | null;
   onSaved: () => void;
+  readOnly?: boolean;
+  canSubmit?: boolean;
 }) {
   const [percent, setPercent] = useState(subtask.percentComplete);
   const [blockerCategory, setBlockerCategory] = useState("None");
@@ -64,7 +68,7 @@ export function SubtaskProgressForm({
 
   const isSubmission = percent === 100;
   const handleSave = async () => {
-    if (draft.pendingRef.current) return;
+    if (readOnly || draft.pendingRef.current || isSubmission && !canSubmit) return;
     draft.pendingRef.current = true;
     setSaving(true);
     setError("");
@@ -96,7 +100,7 @@ export function SubtaskProgressForm({
   };
 
   return (
-    <fieldset disabled={saving} className="min-w-0 rounded-xl border border-neutral-200 bg-white p-3">
+    <fieldset disabled={saving || readOnly} className="min-w-0 rounded-xl border border-neutral-200 bg-white p-3">
       {subtask.status === "changes_requested" && (
         <div className="mb-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-[11.5px] text-rose-800">
           Changes were requested. Update the work and submit a new evidence attempt.
@@ -172,7 +176,7 @@ export function SubtaskProgressForm({
         <button
           type="button"
           onClick={handleSave}
-          disabled={saving || (isSubmission && (!note.trim() || files.length === 0))}
+          disabled={saving || readOnly || (isSubmission && (!canSubmit || !note.trim() || files.length === 0))}
           className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg bg-neutral-900 px-3 text-[11.5px] font-medium text-white hover:bg-neutral-800 disabled:opacity-40"
         >
           <Send size={13} /> {saving ? "Saving…" : isSubmission ? "Submit for review" : "Save update"}

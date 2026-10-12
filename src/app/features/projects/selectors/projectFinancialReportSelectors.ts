@@ -1,5 +1,6 @@
 import type { DepartmentBudgetBundle } from "../../budget";
 import { getAllocationCashPosition } from "../../budget";
+import {buildWorkRecordDisplayMetadata} from '../../nested-work';
 import type { Subtask } from "../../subtasks";
 import type { Task } from "../../tasks";
 import type { TeamWorkflowFacts } from "../../team-management";
@@ -31,6 +32,8 @@ export function buildProjectExecutionFinancialRows(
   facts?: TeamWorkflowFacts,
 ): ProjectExecutionFinancialRow[] {
   const rows: ProjectExecutionFinancialRow[] = [];
+  const metadata=buildWorkRecordDisplayMetadata(tasks,subtasks);
+  const subtaskById=new Map(subtasks.map(item=>[item.id,item]));
   for (const task of tasks) {
     const taskAllocation = financial.allocations.find(
       (item) =>
@@ -76,9 +79,9 @@ export function buildProjectExecutionFinancialRows(
         ).length || 0,
     });
 
-    for (const subtask of orderedSubtasks(
-      subtasks.filter((item) => item.taskId === task.id),
-    )) {
+    for (const context of metadata.values()) {
+      if(context.rootId!==task.id)continue;
+      const subtask=subtaskById.get(context.nodeId)!;
       const cap = financial.allocations.find(
         (item) => item.subtaskId === subtask.id && item.status === "approved",
       );
@@ -86,24 +89,18 @@ export function buildProjectExecutionFinancialRows(
         (item) => item.subtaskId === subtask.id,
       );
       const position = getAllocationCashPosition(cap?.amount || 0, requests);
-      const memberNames = subtask.assignedToIds
-        .map((memberId) => {
-          const index = task.teamMemberIds?.indexOf(memberId) ?? -1;
-          return index >= 0 ? task.teamMemberNames?.[index] : undefined;
-        })
-        .filter((name): name is string => Boolean(name));
       rows.push({
         id: subtask.id,
         parentTaskId: task.id,
         level: "subtask",
-        workItem: subtaskReportPath(subtask, subtasks),
-        accountability: memberNames.join(", ") || "Assigned contributor",
+        workItem: context.pathLabel,
+        accountability: `Lead: ${context.leadName || "Needs reassignment"} · Contributors (${context.contributors.length}): ${context.contributors.map(person=>person.name).join(', ') || "No contributors"}`,
         status: subtask.status,
         progress:
           subtask.status === "completed" ? 100 : subtask.percentComplete,
-        deadline: subtask.dueDate || task.deadline || task.dueDate || "",
+        deadline: subtask.dueDate || "",
         schedule: scheduleState(
-          subtask.dueDate || task.deadline || task.dueDate,
+          subtask.dueDate,
           subtask.status === "completed",
         ),
         budgetMode: cap ? "cap" : "shared",
@@ -156,45 +153,4 @@ function scheduleState(
   if (due < now) return "overdue";
   if (due - now <= 3 * 86_400_000) return "due_soon";
   return "scheduled";
-}
-
-function subtaskReportPath(item: Subtask, subtasks: Subtask[]): string {
-  const byId = new Map(subtasks.map((s) => [s.id, s])),
-    seen = new Set([item.id]),
-    parts = [item.title];
-  let parent = item.parentSubtaskId;
-  while (parent && !seen.has(parent)) {
-    seen.add(parent);
-    const ancestor = byId.get(parent);
-    if (!ancestor) {
-      parts.unshift("Unavailable ancestor");
-      break;
-    }
-    parts.unshift(ancestor.title);
-    parent = ancestor.parentSubtaskId;
-  }
-  return parts.join(" / ");
-}
-function orderedSubtasks(items: Subtask[]): Subtask[] {
-  const result: Subtask[] = [],
-    visited = new Set<string>(),
-    ids = new Set(items.map((s) => s.id));
-  const visit = (item: Subtask) => {
-    if (visited.has(item.id)) return;
-    visited.add(item.id);
-    result.push(item);
-    items
-      .filter((s) => s.parentSubtaskId === item.id)
-      .sort(order)
-      .forEach(visit);
-  };
-  const order = (a: Subtask, b: Subtask) =>
-    (a.siblingOrder ?? a.position) - (b.siblingOrder ?? b.position) ||
-    a.id.localeCompare(b.id);
-  items
-    .filter((s) => !s.parentSubtaskId || !ids.has(s.parentSubtaskId))
-    .sort(order)
-    .forEach(visit);
-  items.sort(order).forEach(visit);
-  return result;
 }

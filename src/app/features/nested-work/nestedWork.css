@@ -3,3 +3,22 @@
 .r7-work{color:var(--eflow-text)}.r7-chips span{color:var(--eflow-on-selected)}.r7-work input:not([type=checkbox]),.r7-work select,.r7-work textarea{background:var(--eflow-surface);color:var(--eflow-text)}
 
 .r7-work button{white-space:normal;max-width:100%;overflow-wrap:anywhere}
+
+.r7-root-owner{display:grid;gap:4px;max-width:100%;white-space:normal;overflow-wrap:anywhere;line-height:1.4}
+.r7-root-owner>.r7-chips:empty{display:none}
+.r7-root-owner .r7-chips,.r7-root-owner .r7-chips span{min-width:0;max-width:100%;box-sizing:border-box}
+.r7-root-owner>button{justify-self:start}
+
+/* The Main Table owns its density; nested work retains a local scroll region. */
+.pt-nested-work .r7-work{font-size:var(--eflow-text-sm);padding:var(--eflow-space-3)}
+.pt-nested-work .nw-hierarchy-table th,.pt-nested-work .nw-hierarchy-table td{padding:var(--eflow-table-compact-y) var(--eflow-space-3);line-height:1.4;white-space:normal;vertical-align:top;height:auto}
+.pt-nested-work .nw-hierarchy-table td:first-child{width:38%;min-width:18rem}
+.pt-nested-work .nw-hierarchy-open{font-weight:500}
+.pt-nested-work .nw-hierarchy-table [data-selected-work="true"]>td{background:var(--eflow-selected)}
+.nw-read-summary{display:grid;gap:var(--eflow-space-2);padding:var(--eflow-space-3);border:1px solid var(--eflow-border);border-radius:var(--eflow-radius-control)}
+
+/* Keep desktop status/date/action labels whole; overflow stays in the nested scroll region. */
+.pt-nested-work .nw-hierarchy-table td:nth-child(4),.pt-nested-work .nw-hierarchy-table td:nth-child(5){white-space:nowrap}
+.pt-nested-work .nw-hierarchy-table td:last-child{min-width:6rem}
+.pt-nested-work .nw-hierarchy-table .nw-hierarchy-control{white-space:nowrap;min-width:max-content}
+.pt-nested-work .nw-hierarchy-table .eflow-status-pill{white-space:nowrap;max-width:none}

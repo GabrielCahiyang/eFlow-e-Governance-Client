@@ -43,7 +43,7 @@ test('Inbox keeps independent task and subtask discovery and exposes partial sou
  let denied=true;await page.route('**/rest/v1/subtask_submissions?**',route=>denied?route.fulfill({status:403,json:{message:'Subtask feed denied'}}):route.fulfill({json:[]}));
  await personal(page,'Inbox');await page.getByRole('button',{name:'Refresh actions',exact:true}).click();await expect(page.locator('[data-action-key]')).toHaveCount(1);await expect(page.getByRole('alert')).toContainText('Subtask feed denied');
  await page.screenshot({path:info.outputPath('inbox-partial-error.png'),fullPage:true,animations:'disabled'});
- await page.locator('[data-action-key]').click();const inspector=page.getByRole('dialog',{name:'Task details: '+title});await expect(inspector.getByRole('button',{name:'Review submission',exact:true})).toBeVisible();await page.keyboard.press('Escape');
+ await page.locator('[data-action-key]').click();const inspector=page.getByRole('dialog',{name:'Task details: '+title});await inspector.getByRole('tab',{name:'Review',exact:true}).click();await expect(inspector.getByRole('button',{name:'Approve',exact:true})).toBeVisible();await page.keyboard.press('Escape');
  denied=false;await page.getByRole('button',{name:'Retry',exact:true}).click();await expect(page.getByRole('alert')).toHaveCount(0);
  await expect(page.getByRole('button',{name:/^Approve/,exact:false})).toHaveCount(0);
 });

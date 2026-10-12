@@ -27,6 +27,7 @@ export function CashRequestTimeline({
   orgId,
   onCorrect,
   onChanged,
+  canCorrect: allowCorrection = true,
 }: {
   data: DepartmentBudgetBundle;
   requests: PettyCashRequest[];
@@ -34,6 +35,7 @@ export function CashRequestTimeline({
   orgId: string;
   onCorrect: (request: PettyCashRequest) => void;
   onChanged: () => Promise<void>;
+  canCorrect?: boolean;
 }) {
   const [busy, setBusy] = useState("");
   const safety = useReviewedMutation(`${orgId}:${currentUserId}`);
@@ -138,7 +140,7 @@ export function CashRequestTimeline({
             item.recipientId === currentUserId &&
             !item.acknowledgedAt,
         );
-        const canCorrect =
+        const canCorrect = allowCorrection &&
           request.requesterId === currentUserId &&
           ["leader_changes_requested", "department_changes_requested"].includes(
             request.status,
@@ -306,7 +308,8 @@ export function CashRequestTimeline({
                 {canCorrect && (
                   <button
                     type="button"
-                    onClick={() => onCorrect(request)}
+                    disabled={!canCorrect}
+                    onClick={() => {if(canCorrect)onCorrect(request);}}
                     className="inline-flex h-7 items-center gap-1 rounded-md border border-amber-200 bg-amber-50 px-2 text-[8.8px] text-amber-800"
                   >
                     <RotateCcw size={9} /> Correct

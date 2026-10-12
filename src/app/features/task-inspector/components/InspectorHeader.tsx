@@ -2,7 +2,8 @@ import { useRef } from 'react';
 import { X } from 'lucide-react';
 import type { Task } from '../../tasks';
 import { requestNavigation } from '../../../shared/navigationGuard';
-export function InspectorHeader({task, tab, tabs, onTab, onClose, busy, actions}: {task: Task; tab:string; tabs:{id:string;label:string}[];onTab:(id:string)=>void;onClose:()=>void;busy:boolean;actions?:React.ReactNode}) {
+import type { TaskInspectorSection } from '../types';
+export function InspectorHeader({task, tab, tabs, onTab, onClose, busy, actions}: {task: Task; tab:TaskInspectorSection; tabs:ReadonlyArray<{id:TaskInspectorSection;label:string}>;onTab:(id:TaskInspectorSection)=>void;onClose:()=>void;busy:boolean;actions?:React.ReactNode}) {
  const controls = useRef<(HTMLButtonElement|null)[]>([]);
  return <header className="p-4 border-b border-neutral-100 shrink-0">
   <div className="flex items-start justify-between gap-2"><h2 className="min-w-0 text-base font-semibold text-neutral-900 leading-snug">{task.title}</h2><button type="button" className="p-2 rounded-md hover:bg-neutral-100" aria-label="Close task detail" disabled={busy} onClick={()=>{void requestNavigation(onClose);}}><X size={18}/></button></div>

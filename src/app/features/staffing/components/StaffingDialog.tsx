@@ -6,18 +6,23 @@ import { Button, Skeleton } from '@vibe/core';
 import * as m from 'motion/react-m';
 import { Modal } from '../../../components/ui/Modal';
 import { type Task } from '../../tasks';
+import { supportsNestedWork, WorkRootStaffingDialog, type WorkTreeController } from '../../nested-work';
 import '../staffing.css';
-export function StaffingDialog({task, onClose, onAssigned}: {task: Task; onClose: () => void; onAssigned?: () => void}) {
+export function StaffingDialog({task, onClose, onAssigned, controller}: {task: Task; onClose: () => void; onAssigned?: () => void | Promise<void>; controller?: WorkTreeController}) {
   const state = useStaffingReview(task, onAssigned, onClose);
   const { context, rows, loading, busy, error, progress, selected, setSelected, saved, assigning } = state;
   const confirmation = useConfirmation();
-  const guard = useExplicitDraft('Staffing recommendation selection', !!selected && !saved, assigning, () => setSelected(''));
+  const guard = useExplicitDraft('Staffing recommendation selection', !!selected && !saved && !state.appointment, assigning, () => setSelected(''));
   guard.pendingRef.current = assigning && state.pending.current;
   const close = () => void requestNavigation(onClose);
   const generate = state.generate;
-  const confirm = () => state.confirm(person => confirmation.confirm({ title: 'Assign recommended owner?', description: `Assign ${person} as owner of “${task.title}”. AI is advisory; current Office and task eligibility are checked again before assignment.`, actionLabel: 'Assign owner', impact: <p>Responsible Office stays unchanged. The selected person joins this task’s team.</p> }));
+  const supported = supportsNestedWork(task);
+  const confirm = () => state.confirm(person => confirmation.confirm(supported
+    ? {title:'Review recommended Task Lead?',description:`Review ${person} for “${task.title}”. AI is advisory; current profile and selected project membership are checked before opening the appointment editor.`,actionLabel:'Review appointment',impact:<p>The appointment editor shows current permissions, workers and descendant impact before you save. Responsible Office stays unchanged.</p>}
+    : { title: 'Assign recommended owner?', description: `Assign ${person} as owner of “${task.title}”. AI is advisory; current Office and task eligibility are checked again before assignment.`, actionLabel: 'Assign owner', impact: <p>Responsible Office stays unchanged. The selected person joins this task’s team.</p> }));
+  if (state.appointment) return <WorkRootStaffingDialog rootId={task.id} controller={controller} preselectedLeadId={state.appointment.leadId} onClose={state.cancelAppointment} onChanged={state.appointmentSaved}/>;
   return <Modal isOpen onClose={close} title="Recommend staff" width="max-w5xl" preventClose={assigning} overlayClassName="p7-staff-dialog" bodyClassName="p7-staff-body" footer={<div className="p7-staff-footer"><p>Choose a recommendation, then confirm its owner. AI never assigns automatically.</p><Button kind="secondary" onClick={close} disabled={assigning}>Cancel</Button><Button disabled={busy||loading||saved||!selected||!rows.some(row=>row.userId===selected)} onClick={()=>void confirm()}>Confirm owner</Button></div>}>
-    <div className="p7-staff">{confirmation.dialog}{saved && <p role="status">Owner assigned.</p>}<header><span className="p7-staff-eyebrow">Office Head decision</span><h2>{task.title}</h2><p>Recommendations compare confirmed professional profiles with task requirements and current Office workload.</p></header>
+    <div className="p7-staff">{confirmation.dialog}{saved && <p role="status">{supported?'Lead appointed.':'Owner assigned.'}</p>}<header><span className="p7-staff-eyebrow">Office Head decision</span><h2>{task.title}</h2><p>Recommendations compare confirmed professional profiles with task requirements and current Office workload.</p></header>
       {error&&<div className="p7-staff-error" role="alert">{error}<button className="eflow-text-button" disabled={busy||loading||saved} onClick={()=>void state.refresh()}>Refresh eligible context</button></div>}
       {loading?<div role="status" aria-label="Loading eligible profiles"><Skeleton type="rectangle" size="custom" height={320} fullWidth/></div>:context&&<>
         <div className="p7-staff-context"><strong>{context.candidates.length} eligible confirmed profiles</strong><details className="p7-staff-notes"><summary>Profile and workload notes</summary><p>{context.excludedUnconfirmed} profiles excluded until confirmed. Remaining hours are estimates; unknown effort and availability require the Head’s judgment. Sensitive PDS fields are excluded.</p></details><Button disabled={busy||!context.candidates.length} onClick={()=>void generate()}>{rows.length?'Refresh recommendations':'Generate recommendations'}</Button></div>

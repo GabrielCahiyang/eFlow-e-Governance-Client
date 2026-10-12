@@ -13,6 +13,7 @@ import {
   SubtaskSubmissionHistory,
 } from "../../subtasks";
 import type { TaskSubtaskReviewEvidence } from "../types";
+import {buildWorkRecordDisplayMetadata} from '../../nested-work';
 
 const STATUS = {
   todo: { label: "To do", tone: "bg-neutral-100 text-neutral-600" },
@@ -31,13 +32,6 @@ function Metric({ label, value, icon }: { label: string; value: number; icon: Re
   );
 }
 
-function contributorNames(task: Task, ids: string[]): string[] {
-  return ids.map((id) => {
-    const index = task.teamMemberIds?.indexOf(id) ?? -1;
-    return index >= 0 ? task.teamMemberNames?.[index] : undefined;
-  }).filter((name): name is string => Boolean(name));
-}
-
 export function TaskSubtaskEvidenceSection({
   task,
   evidence,
@@ -49,6 +43,7 @@ export function TaskSubtaskEvidenceSection({
   loading: boolean;
   error?: string;
 }) {
+  const contexts=buildWorkRecordDisplayMetadata([task],evidence.map(item=>item.subtask));
   const approvedCount = evidence.filter(({ subtask }) => subtask.status === "completed").length;
   const updateCount = evidence.reduce((total, item) => total + item.progressUpdates.length, 0);
   const evidenceCount = evidence.reduce(
@@ -91,7 +86,7 @@ export function TaskSubtaskEvidenceSection({
         <div className="mt-4 space-y-4">
           {evidence.map(({ subtask, progressUpdates, submissions }, index) => {
             const status = STATUS[subtask.status] || STATUS.todo;
-            const names = contributorNames(task, subtask.assignedToIds);
+            const context=contexts.get(subtask.id);
             return (
               <article key={subtask.id} className="overflow-hidden rounded-xl border border-neutral-200">
                 <header className="border-b border-neutral-100 bg-neutral-50/80 p-3">
@@ -99,8 +94,9 @@ export function TaskSubtaskEvidenceSection({
                     <div className="min-w-0">
                       <div className="text-[9.5px] uppercase tracking-wider text-neutral-400">Step {subtask.position + 1} · {index + 1} of {evidence.length}</div>
                       <h4 className="mt-0.5 text-[13px] font-semibold text-neutral-900">{subtask.title}</h4>
+                      {context&&<p className="mt-1 break-words text-[11px] text-neutral-500">{context.pathLabel}</p>}
                       <div className="mt-1 flex items-center gap-1.5 text-[10.5px] text-neutral-500">
-                        <UsersRound size={12} /> {names.join(", ") || "Assigned team member"}
+                        <UsersRound size={12} /> Lead: {context?.leadName||'Needs reassignment'} · Contributors ({context?.contributors.length||0}): {context?.contributors.map(person=>person.name).join(', ')||'No contributors'}
                       </div>
                     </div>
                     <div className="flex items-center gap-2">

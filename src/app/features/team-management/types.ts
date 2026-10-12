@@ -27,6 +27,9 @@ export interface WorkflowSubmissionFact {
   submitterId: string;
   submitterName: string;
   reviewerId?: string;
+  /** Recorded decision actor; reviewerId retains its legacy assignment fallback. */
+  decisionAuthorId?: string;
+  decisionAuthorName?: string;
   status: WorkflowSubmissionStatus;
   feedback?: string;
   submittedAt: number;

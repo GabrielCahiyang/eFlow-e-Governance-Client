@@ -1,0 +1,72 @@
+{
+  "target": "ixnfphgjyelhckjwjkdv",
+  "prepared_at": "2026-10-09T13:50:14.402Z",
+  "history_count": 18,
+  "pending_count": 9,
+  "transaction": "One atomic transaction; only outer BEGIN/COMMIT wrappers removed from execution copies",
+  "existing_history_unchanged": true,
+  "source_history_recording": "New entries store the exact original reviewed SQL in statements[1]",
+  "backup_restore_rehearsal_passed": false,
+  "original_rows_check": "Existing public, eflow_*, private, auth.users and Storage metadata rows compared inside the transaction; only approved publication normalization, subtask timestamp touches, additive roster and bucket backfill allowed",
+  "migrations": [
+    {
+      "name": "20261007120000_r3_personal_workspaces.sql",
+      "source": "supabase/migrations/20261007120000_r3_personal_workspaces.sql",
+      "sha256": "3fcef092bb86f6dc00bddeffc0b0ecb4f7904069e58fa05de06093408c756d9c"
+    },
+    {
+      "name": "20261008030659_r6_project_file_library.sql",
+      "source": "supabase/migrations/20261008030659_r6_project_file_library.sql",
+      "sha256": "792ad15a0b55af935978e5196c0b66ac5e3f76e113cb2555c34ccc4cd713569a"
+    },
+    {
+      "name": "20261008035748_r7_project_members_and_nested_work.sql",
+      "source": "supabase/migrations/20261008035748_r7_project_members_and_nested_work.sql",
+      "sha256": "ca8087b49f7847b46ce911b8468dc66846b60b9152177fee9cda3463c0a637c4"
+    },
+    {
+      "name": "20261008060756_r8_approved_project_invitations.sql",
+      "source": "supabase/migrations/20261008060756_r8_approved_project_invitations.sql",
+      "sha256": "88ff4b93959196473da8cb4ec7305dbd2e627441a335ccb10c323102e5aa3456"
+    },
+    {
+      "name": "20261008081855_r9_project_access_lifecycle.sql",
+      "source": "supabase/migrations/20261008081855_r9_project_access_lifecycle.sql",
+      "sha256": "ccbeafb72c94811200ea54c2d6ef3a58834a7ee98534487ffb2b241cf1fe2082"
+    },
+    {
+      "name": "20261008123723_r11_project_activity_snapshots.sql",
+      "source": "supabase/migrations/20261008123723_r11_project_activity_snapshots.sql",
+      "sha256": "f6b3bd8aa920b64a309b2808da3d637b3799094e49850bdd275ac06209c3d230"
+    },
+    {
+      "name": "20261008134347_r12_presentation_settings.sql",
+      "source": "supabase/migrations/20261008134347_r12_presentation_settings.sql",
+      "sha256": "7ebbe91ea4fff43367a626dd372052461790b7fcca931acdc12f7e5a413d10eb"
+    },
+    {
+      "name": "20261009120000_refinement_project_creation_compatibility.sql",
+      "source": "supabase/migrations/20261009120000_refinement_project_creation_compatibility.sql",
+      "sha256": "00f6a581b18b85a643883cfcfa1e1dbace37a976222a55075fbc62de886f9c52"
+    },
+    {
+      "name": "20261009120100_refinement_office_removal_guest_termination.sql",
+      "source": "supabase/migrations/20261009120100_refinement_office_removal_guest_termination.sql",
+      "sha256": "06bc465aa0e8d594cd1ef19f1c3a45d8f0cc406219c373744c7c41a4792f773c"
+    }
+  ],
+  "files": {
+    "01-preflight.sql": {
+      "bytes": 4219,
+      "sha256": "3d9633b425cd04cc348bd18bef68e62e5cb28061eec95e98aed261ff1c07b12c"
+    },
+    "02-apply.sql": {
+      "bytes": 577073,
+      "sha256": "0d2f3b407746994bd17e8c9f0d0c892b7776c32054205a9bd8b5d584ccc922a0"
+    },
+    "03-verify.sql": {
+      "bytes": 8493,
+      "sha256": "c9736242841781cfd6a6de361449d392fa9137dc5999ba37e6caeb0139139a8f"
+    }
+  }
+}

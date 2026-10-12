@@ -6,6 +6,16 @@ async function view(page: Page, name: string) {
  else { await page.getByRole('button', {name: 'Add view', exact: true}).click(); await page.getByRole('button', {name: new RegExp('^'+name+'\\b')}).last().click(); }
 }
 const title = 'Prepare community assessment';
+test('NW7.3 legacy Task team menu lands directly in Work with existing staffing controls',async({page})=>{
+ const records=await projectWorkspaceFixture(page,'head',true);
+ records.tasks[0].source_collaboration_draft_id='71000000-0000-4000-8000-000000000001';await page.reload();
+ await page.getByRole('button',{name:'Actions for '+title,exact:true}).click();
+ await page.getByRole('menuitem',{name:'Task team & contributors',exact:true}).click();
+ const inspector=page.getByRole('dialog',{name:'Task details: '+title});
+ await expect(inspector.getByRole('tab',{name:'Work',exact:true})).toHaveAttribute('aria-selected','true');
+ await expect(inspector.getByRole('button',{name:'Manage',exact:true})).toBeVisible();
+ await expect(inspector.getByRole('region',{name:'Task details',exact:true})).toHaveCount(0);
+});
 test('shared inspector keeps discussion drafts and returns focus to each view origin', async ({page}, info) => {
  test.setTimeout(120000);
  await page.setViewportSize({width: 1440,height:1000}); await projectWorkspaceFixture(page,'head',true);
@@ -15,11 +25,16 @@ test('shared inspector keeps discussion drafts and returns focus to each view or
   const trigger = name==='Board' ? page.locator('.eflow-figma-task-card').filter({hasText:title}).first() : name==='Gantt' ? page.getByRole('button',{name:'Gantt task '+title,exact:true}) : name==='Calendar' ? page.locator('.fc-daygrid-event').filter({hasText:title}).first() : name==='Project Dashboard' ? page.locator('.pv-deadline-list button').filter({hasText:title}).first() : page.locator('.pv-office-row details button').filter({hasText:title});
   await trigger.focus(); await trigger.click();
   const inspector = page.getByRole('dialog',{name:'Task details: '+title}); await expect(inspector).toBeVisible();
+  await expect(inspector.getByRole('tab')).toHaveText(['Overview','Work','Updates','Files','Activity','Review']);
   await expect(inspector.getByRole('tab',{name:'Files',exact:true})).toBeVisible();
-  await inspector.getByRole('button',{name:'Details',exact:true}).click();
+  await inspector.getByRole('tab',{name:'Work',exact:true}).click();
   await expect(inspector.getByLabel('Task team and subtasks')).toBeVisible();
   await inspector.getByRole('tab',{name:'Updates',exact:true}).click();
   await inspector.getByRole('textbox',{name:'Task discussion comment'}).fill('Unsaved discussion from '+name);
+  await inspector.getByRole('tab',{name:'Updates',exact:true}).focus();
+  await page.keyboard.press('Home');await page.getByRole('button',{name:'Keep editing',exact:true}).click();
+  await expect(inspector.getByRole('tab',{name:'Updates',exact:true})).toHaveAttribute('aria-selected','true');
+  await expect(inspector.getByRole('textbox',{name:'Task discussion comment'})).toHaveValue('Unsaved discussion from '+name);
   await inspector.getByRole('button',{name:'Close task detail'}).click();
   await page.getByRole('button',{name:'Keep editing',exact:true}).click();
   await expect(inspector.getByRole('textbox',{name:'Task discussion comment'})).toHaveValue('Unsaved discussion from '+name);
@@ -65,16 +80,29 @@ test('Board keyboard action prevents duplicate requests and recovers from denial
 });
 test('shared Task Lead team mutations stay gated by G2 while details remain available',async({page},info)=>{
  const records=await projectWorkspaceFixture(page,'member',true,{shared:true});
+ // G2 governs the preserved excluded-work adapter; supported work uses NW3 capabilities.
+ records.tasks[0].source_collaboration_draft_id='71000000-0000-4000-8000-000000000001';
  records.projectOffices[0].relationship_type='collaborating'; records.officeMembers.push({project_office_id:records.projectOffices[0].id,user_id:records.id});
  await page.reload();await view(page,'Board');await page.locator('.eflow-figma-task-card').filter({hasText:title}).first().click();
  const inspector=page.getByRole('dialog',{name:'Task details: '+title});await expect(inspector).toContainText('only the responsible Office Head can change the task team');
  await expect(inspector.getByRole('button',{name:'Manage',exact:true})).toHaveCount(0);await expect(inspector.getByText('Read-only oversight record')).toHaveCount(0);
  await page.screenshot({path:info.outputPath('shared-lead-gate.png'),fullPage:true,animations:'disabled'});
 });
+
+test('NW7.1 Work keeps supported staffing fail closed when current capabilities are unavailable',async({page})=>{
+ const records=await projectWorkspaceFixture(page,'member',true,{shared:true});
+ records.projectOffices[0].relationship_type='collaborating';records.officeMembers.push({project_office_id:records.projectOffices[0].id,user_id:records.id});
+ await page.reload();await view(page,'Board');await page.locator('.eflow-figma-task-card').filter({hasText:title}).first().click();
+ const inspector=page.getByRole('dialog',{name:'Task details: '+title});await inspector.getByRole('tab',{name:'Work',exact:true}).click();
+ await expect(inspector.getByLabel('Task team and subtasks')).toBeVisible();
+ await expect(inspector).not.toContainText('only the responsible Office Head can change the task team');
+ await expect(inspector.getByRole('button',{name:'Manage',exact:true})).toHaveCount(0);
+ await expect(inspector.getByRole('button',{name:'Choose task lead and contributors',exact:true})).toHaveCount(0);
+});
 test('review drafts stay protected and evidence loading denial has an explicit retry',async({page})=>{
  const records=await projectWorkspaceFixture(page,'head',true);Object.assign(records.tasks[0],{status:'for_review',reviewer_id:records.id});
  await page.reload();await view(page,'Board');await page.locator('.eflow-figma-task-card').filter({hasText:title}).first().click();
- const inspector=page.getByRole('dialog',{name:'Task details: '+title});await inspector.getByRole('button',{name:'Review submission',exact:true}).click();
+ const inspector=page.getByRole('dialog',{name:'Task details: '+title});await inspector.getByRole('tab',{name:'Review',exact:true}).click();
  await inspector.getByRole('button',{name:'Request changes',exact:true}).click();await inspector.getByRole('textbox').fill('Review draft retained');
  await inspector.getByRole('tab',{name:'Files',exact:true}).click();await page.getByRole('button',{name:'Keep editing',exact:true}).click();await expect(inspector.getByRole('textbox')).toHaveValue('Review draft retained');
  await inspector.getByRole('tab',{name:'Files',exact:true}).click();await page.getByRole('button',{name:'Discard',exact:true}).click();
@@ -104,8 +132,10 @@ test('successful inspector lifecycle change returns focus to the refreshed Board
 test('mobile team dialog guards drafts and retains a denied member change',async({page},info)=>{
  test.setTimeout(90000);await page.setViewportSize({width:390,height:844});const records=await projectWorkspaceFixture(page,'head',true);
  records.profiles.push({...records.profile,id:'00000000-0000-4000-8000-000000000088',role:'member',full_name:'Sam Contributor'});
+ // Exercise the original legacy dialog, not the supported canonical staffing dialog.
+ records.tasks[0].source_collaboration_draft_id='71000000-0000-4000-8000-000000000001';
  await page.reload();await view(page,'Board');await page.locator('.eflow-figma-task-card').filter({hasText:title}).first().click();
- const inspector=page.getByRole('dialog',{name:'Task details: '+title});await inspector.getByRole('button',{name:'Details',exact:true}).click();await inspector.getByRole('button',{name:'Manage',exact:true}).click();
+ const inspector=page.getByRole('dialog',{name:'Task details: '+title});await inspector.getByRole('tab',{name:'Work',exact:true}).click();await inspector.getByRole('button',{name:'Manage',exact:true}).click();
  const team=page.getByRole('dialog',{name:'Manage members',exact:true});await team.getByRole('button',{name:/Sam Contributor/}).click();
  await team.getByRole('button',{name:'Cancel',exact:true}).click();await page.getByRole('button',{name:'Keep editing',exact:true}).click();await expect(team).toBeVisible();
  await page.route('**/rpc/assign_task_with_details',route=>route.fulfill({status:403,json:{message:'Task team access denied',code:'42501'}}));

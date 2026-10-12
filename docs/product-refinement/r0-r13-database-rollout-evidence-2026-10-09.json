@@ -1,0 +1,156 @@
+{
+  "target": "ixnfphgjyelhckjwjkdv",
+  "status": "prepared_restore_rehearsal_blocked",
+  "live_schema_writes": false,
+  "history_repairs": false,
+  "installed_history": [
+    {
+      "version": "20261003000004",
+      "name": "simplified_roles_and_office_authority"
+    },
+    {
+      "version": "20261004123126",
+      "name": "phase2_invitation_onboarding_pds"
+    },
+    {
+      "version": "20261004132527",
+      "name": "phase2_invitation_dispatch_limits"
+    },
+    {
+      "version": "20261004133412",
+      "name": "phase2_existing_identity_acceptance"
+    },
+    {
+      "version": "20261004140128",
+      "name": "phase3_project_table_workspace"
+    },
+    {
+      "version": "20261004164937",
+      "name": "phase5_workspace_ai_import"
+    },
+    {
+      "version": "20261004181549",
+      "name": "phase6_project_office_collaboration"
+    },
+    {
+      "version": "20261004182806",
+      "name": "phase6_shared_structure_guards"
+    },
+    {
+      "version": "20261004194130",
+      "name": "phase7_readiness_governance"
+    },
+    {
+      "version": "20261005170822",
+      "name": "phase65_project_local_office_identity"
+    },
+    {
+      "version": "20261007152648",
+      "name": "office_budget_dynamic_sections"
+    },
+    {
+      "version": "20261007153615",
+      "name": "office_budget_partition_funding"
+    },
+    {
+      "version": "20261007175525",
+      "name": "project_office_removal_and_history"
+    },
+    {
+      "version": "20261007191654",
+      "name": "account_login_lockout"
+    },
+    {
+      "version": "20261007195837",
+      "name": "login_gateway_discovery"
+    },
+    {
+      "version": "20261007201249",
+      "name": "project_draft_publication"
+    },
+    {
+      "version": "20261007203525",
+      "name": "project_publication_history_retention"
+    },
+    {
+      "version": "20261008004900",
+      "name": "withdraw_office_invitation"
+    }
+  ],
+  "pending": [
+    {
+      "name": "20261007120000_r3_personal_workspaces.sql",
+      "source": "supabase/migrations/20261007120000_r3_personal_workspaces.sql",
+      "sha256": "3fcef092bb86f6dc00bddeffc0b0ecb4f7904069e58fa05de06093408c756d9c"
+    },
+    {
+      "name": "20261008030659_r6_project_file_library.sql",
+      "source": "supabase/migrations/20261008030659_r6_project_file_library.sql",
+      "sha256": "792ad15a0b55af935978e5196c0b66ac5e3f76e113cb2555c34ccc4cd713569a"
+    },
+    {
+      "name": "20261008035748_r7_project_members_and_nested_work.sql",
+      "source": "supabase/migrations/20261008035748_r7_project_members_and_nested_work.sql",
+      "sha256": "ca8087b49f7847b46ce911b8468dc66846b60b9152177fee9cda3463c0a637c4"
+    },
+    {
+      "name": "20261008060756_r8_approved_project_invitations.sql",
+      "source": "supabase/migrations/20261008060756_r8_approved_project_invitations.sql",
+      "sha256": "88ff4b93959196473da8cb4ec7305dbd2e627441a335ccb10c323102e5aa3456"
+    },
+    {
+      "name": "20261008081855_r9_project_access_lifecycle.sql",
+      "source": "supabase/migrations/20261008081855_r9_project_access_lifecycle.sql",
+      "sha256": "ccbeafb72c94811200ea54c2d6ef3a58834a7ee98534487ffb2b241cf1fe2082"
+    },
+    {
+      "name": "20261008123723_r11_project_activity_snapshots.sql",
+      "source": "supabase/migrations/20261008123723_r11_project_activity_snapshots.sql",
+      "sha256": "f6b3bd8aa920b64a309b2808da3d637b3799094e49850bdd275ac06209c3d230"
+    },
+    {
+      "name": "20261008134347_r12_presentation_settings.sql",
+      "source": "supabase/migrations/20261008134347_r12_presentation_settings.sql",
+      "sha256": "7ebbe91ea4fff43367a626dd372052461790b7fcca931acdc12f7e5a413d10eb"
+    },
+    {
+      "name": "20261009120000_refinement_project_creation_compatibility.sql",
+      "source": "supabase/migrations/20261009120000_refinement_project_creation_compatibility.sql",
+      "sha256": "00f6a581b18b85a643883cfcfa1e1dbace37a976222a55075fbc62de886f9c52"
+    },
+    {
+      "name": "20261009120100_refinement_office_removal_guest_termination.sql",
+      "source": "supabase/migrations/20261009120100_refinement_office_removal_guest_termination.sql",
+      "sha256": "06bc465aa0e8d594cd1ef19f1c3a45d8f0cc406219c373744c7c41a4792f773c"
+    }
+  ],
+  "dry_run_exact_pending_selection": true,
+  "dry_run_roles": [],
+  "dry_run_seeds": [],
+  "backup": {
+    "created_at": "2026-10-09T13:25:52.845566+00:00",
+    "consistent_snapshot": true,
+    "archive_readable": true,
+    "fully_decompressed": true,
+    "files": {
+      "database.dump": {
+        "bytes": 2108474,
+        "sha256": "0aa75463e5d642bedb83efc178e62f891381e5ad22af57ac71ab81212ca41d12"
+      },
+      "roles.sql": {
+        "bytes": 5699,
+        "sha256": "034f5b5df44d7e02a426deac03c3df9bec5b469392282f3d6bdd55a76ef39079"
+      },
+      "rows-before.private.json": {
+        "bytes": 1033355,
+        "sha256": "e6ea1e474b47445e5686c3f4cf0b94b068f96dc9eaf977a3cb5149328bd7513d"
+      }
+    }
+  },
+  "restore_rehearsal": {
+    "passed": false,
+    "error": "Windows Application Control rejected initdb.exe (WinError 4551)",
+    "approved_runtime_required": "PostgreSQL 17; no policy changes attempted"
+  },
+  "full_release_acceptance": false
+}

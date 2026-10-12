@@ -1,6 +1,7 @@
 import { supabase } from "../../../../lib/supabase";
 import type { ActivityFilters, ActivityPage } from "./types";
 import { activityDateBound } from "./activityDates";
+import {isWorkEventRecord,presentWorkEvent,workEventTitle} from '../../nested-work';
 
 export async function fetchActivityPage(
   project: string,
@@ -52,11 +53,25 @@ export async function fetchActivityPage(
       !Number.isFinite(Date.parse(String(row.occurred_at)))
     )
       throw new Error("Invalid history event received.");
+    let title=String(row.title||''),detail=String(row.detail||'');
+    if(row.event_id.startsWith('work:')){
+      if(row.work_event!==undefined&&row.work_event!==null){
+        const work=row.work_event;
+        if(!isWorkEventRecord(work)||row.event_id!==`work:${work.id}`||row.task_id!==work.root_id||row.actor_name!==work.actor_name||Date.parse(String(row.occurred_at))!==Date.parse(work.occurred_at)
+          ||[work.before_data,work.after_data].some(snapshot=>snapshot?.root&&snapshot.root.project!==project))throw new Error('Invalid historical work context received.');
+        const presentation=presentWorkEvent(work);title=presentation.title;detail=presentation.detail;
+      }else{
+        // Older installations/frozen snapshots retain their original rows, but
+        // cannot establish former paths or people. Never fetch current context.
+        title=workEventTitle(title.replace(/ /g,'_'));
+        detail=[detail,'Historical changed fields unavailable'].filter(Boolean).join(' · ');
+      }
+    }else if(row.work_event!==undefined&&row.work_event!==null)throw new Error('Invalid historical work context received.');
     return {
       id: row.event_id,
       kind: row.kind,
-      title: String(row.title || ""),
-      detail: String(row.detail || ""),
+      title,
+      detail,
       actorName: String(row.actor_name || "System"),
       occurredAt: Date.parse(String(row.occurred_at)),
       taskId: row.task_id ? String(row.task_id) : undefined,

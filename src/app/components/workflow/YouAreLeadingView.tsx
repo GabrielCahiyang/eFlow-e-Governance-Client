@@ -32,7 +32,11 @@ import {
 import { TaskStatusBadge, PriorityPill, InitialsAvatar } from "./StatusBadges";
 import { TaskSubtasksWidget } from "./TaskSubtasksWidget";
 import { TaskDetailDrawer } from "../../features/task-inspector";
-import { useNotificationNavigationIntent } from "../../features/notifications";
+import { useNotificationNavigationIntent,fetchNotificationSubitem } from "../../features/notifications";
+import {SubtaskWorkDrawer} from '../../features/subtasks';
+import type {Subtask} from '../../services/subtaskService';
+import type {TaskInspectorOrigin} from '../../features/task-inspector';
+import {requestNavigation} from '../../shared/navigationGuard';
 import {
   buildLeaderTaskScopeOptions,
   getLeaderTaskScopeOption,
@@ -49,12 +53,19 @@ const leadingStatusOptions = [
 ];
 
 export function YouAreLeadingView() {
+  const {user}=useAuth();
+  return <ActorLeadingView key={user?.id}/>;
+}
+function ActorLeadingView() {
   const { user } = useAuth();
   const { tasks, loading } = useTasks();
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [scopeFilter, setScopeFilter] = useState("all");
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [selectedSubitem,setSelectedSubitem]=useState<(Subtask&{parentTask:Task})|null>(null);
+  const [origin,setOrigin]=useState<TaskInspectorOrigin>();
+  const [focusError,setFocusError]=useState('');
 
   // Explicit lead assignments win; legacy tasks fall back to their first member.
   const leadingTasks = useMemo(() => {
@@ -75,13 +86,25 @@ export function YouAreLeadingView() {
 
   useNotificationNavigationIntent(
     (intent) => intent.kind === "leading_task",
-    (intent) => {
+    async (intent,isCurrent) => {
       if (loading) return false;
+      if(intent.entityId){
+        const root=tasks.find(task=>task.id===intent.taskId);
+        const opener=document.activeElement instanceof HTMLElement?document.activeElement:null;
+        try{
+          const record=await fetchNotificationSubitem(intent,user?.id||'',root);
+          if(!isCurrent())return false;
+          return requestNavigation(()=>{if(isCurrent()){setSelectedTask(null);setSelectedSubitem(record);setOrigin({view:'Leading Work',section:'work',returnFocus:opener,restoreFocus:()=>document.querySelector<HTMLInputElement>("[aria-label=\"Search tasks you're leading\"]")?.focus()});setFocusError('');}});
+        }catch(caught){
+          if(!isCurrent())return false;
+          return requestNavigation(()=>{if(isCurrent()){setSelectedSubitem(null);setFocusError(caught instanceof Error?caught.message:'The referenced subitem is unavailable.');}});
+        }
+      }
       const match = leadingTasks.find((task) => task.id === intent.taskId);
-      if (match) setSelectedTask(match);
+      if (match) {setSelectedSubitem(null);setSelectedTask(match);}
       return true;
     },
-    [leadingTasks, loading],
+    [leadingTasks, loading,tasks],
   );
 
   const filteredTasks = useMemo(() => {
@@ -343,6 +366,8 @@ export function YouAreLeadingView() {
       )}
 
       {/* Task Drawer */}
+      {focusError&&<p role="alert">{focusError}</p>}
+      <SubtaskWorkDrawer subtask={selectedSubitem} parentTask={selectedSubitem?.parentTask} origin={origin} initialSection="work" onClose={()=>setSelectedSubitem(null)}/>
       <TaskDetailDrawer
         task={selectedTask}
         onClose={() => setSelectedTask(null)}

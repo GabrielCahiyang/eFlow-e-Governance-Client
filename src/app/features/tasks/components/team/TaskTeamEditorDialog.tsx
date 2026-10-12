@@ -18,6 +18,17 @@ import {
 } from "../../selectors/teamMembership";
 import { updateTaskTeamMembers } from "../../services/taskTeamService";
 import type { Task } from "../../taskTypes";
+import {supportsNestedWork,WorkRootStaffingDialog,type WorkTreeController} from '../../../nested-work';
+
+interface TaskTeamEditorDialogProps {
+  task:Task|null;profiles:UserProfile[];subtasks:Subtask[];responsibleOrgId?:string;onClose:()=>void;readOnly?:boolean;controller?:WorkTreeController;
+}
+export function TaskTeamEditorDialog(props:TaskTeamEditorDialogProps) {
+  if(!props.task)return null;
+  const readOnly=!!props.readOnly||!!props.task.archivedAt||['for_review','completed','cancelled'].includes(props.task.status);
+  if(supportsNestedWork(props.task))return <WorkRootStaffingDialog rootId={props.task.id} controller={props.controller} contributorsOnly readOnly={readOnly} onClose={props.onClose}/>;
+  return <LegacyTaskTeamEditorDialog {...props} readOnly={readOnly}/>;
+}
 
 interface TeamCandidate {
   id: string;
@@ -38,18 +49,20 @@ const initials = (name: string) =>
 const roleLabel = (role: string) =>
   role.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 
-export function TaskTeamEditorDialog({
+function LegacyTaskTeamEditorDialog({
   task,
   profiles,
   subtasks,
   responsibleOrgId,
   onClose,
+  readOnly = false,
 }: {
   task: Task | null;
   profiles: UserProfile[];
   subtasks: Subtask[];
   responsibleOrgId?: string;
   onClose: () => void;
+  readOnly?: boolean;
 }) {
   const { toast } = useToast();
   const [baselineIds, setBaselineIds] = useState<string[]>([]);
@@ -65,8 +78,8 @@ export function TaskTeamEditorDialog({
   );
   const latestTask = useRef(task);
   latestTask.current = task;
-  const latestContext = useRef({ profiles, subtasks, responsibleOrgId });
-  latestContext.current = { profiles, subtasks, responsibleOrgId };
+  const latestContext = useRef({ profiles, subtasks, responsibleOrgId,readOnly });
+  latestContext.current = { profiles, subtasks, responsibleOrgId,readOnly };
   const { confirm, dialog, cancel } = useConfirmation();
   const dirty =
     selectedIds.length !== baselineIds.length ||
@@ -162,6 +175,7 @@ export function TaskTeamEditorDialog({
   });
 
   const toggle = (candidate: TeamCandidate) => {
+    if(readOnly||saving)return;
     const selected = selectedIds.includes(candidate.id);
     if (selected) {
       const blocker = blockers.get(candidate.id);
@@ -179,7 +193,7 @@ export function TaskTeamEditorDialog({
   };
 
   const save = async () => {
-    if (!task || draftGuard.pendingRef.current || !dirty || uncertainty.current)
+    if (!task || readOnly || draftGuard.pendingRef.current || !dirty || uncertainty.current)
       return;
     draftGuard.pendingRef.current = true;
     const accepted = await confirm({
@@ -245,6 +259,7 @@ export function TaskTeamEditorDialog({
     let saved = false;
     try {
       const context = latestContext.current;
+      if(context.readOnly)throw new Error('This task is read-only in the current view.');
       if (context.responsibleOrgId !== responsibleOrgId)
         throw new Error(
           "The responsible organization changed. Close and reopen to review the current team.",
@@ -349,7 +364,7 @@ export function TaskTeamEditorDialog({
                     key={candidate.id}
                     type="button"
                     onClick={() => toggle(candidate)}
-                    disabled={saving || (!selected && !candidate.canBeAdded)}
+                    disabled={readOnly || saving || (!selected && !candidate.canBeAdded)}
                     className={`flex w-full items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition ${selected ? "border-violet-200 bg-violet-50" : "border-transparent hover:border-neutral-200 hover:bg-neutral-50"} disabled:cursor-not-allowed disabled:opacity-40`}
                   >
                     <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-neutral-900 text-[10px] font-semibold text-white">
@@ -421,7 +436,7 @@ export function TaskTeamEditorDialog({
             <Button
               kind="primary"
               loading={saving}
-              disabled={saving || !dirty || uncertain}
+              disabled={readOnly || saving || !dirty || uncertain}
               onClick={() => void save()}
               size="small"
             >

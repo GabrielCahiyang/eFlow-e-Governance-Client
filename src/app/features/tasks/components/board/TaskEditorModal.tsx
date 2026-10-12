@@ -3,30 +3,12 @@ import { Trash2, Users, X } from "lucide-react";
 import { Button } from "../../../../components/ui/button";
 import type { Employee } from "../../../../services/employeeService";
 import type { Task } from "../../../../services/taskService";
-import { TaskSubtasksWidget } from "../../../subtasks";
+import { TaskEditorSubtasks,TaskEditorWorkOwner,TaskEditorRootPeople,TaskEditorSaveButton,type LegacyEditorStaffingScope } from "./TaskEditorSubtasks";
+import {supportsNestedWork} from '../../../nested-work';
 import { TaskBoardDialog } from "./TaskBoardDialog";
 import { TaskChatSection } from "./TaskChatSection";
 import type { TaskEditorDraft } from "./model";
 
-function TaskSubtasksSection({
-  taskId,
-  employees,
-}: {
-  taskId: string;
-  employees: Employee[];
-}) {
-  return (
-    <TaskSubtasksWidget
-      taskId={taskId}
-      allowedAssignees={employees.map((employee) => ({
-        id: employee.id,
-        name: employee.name,
-        initials: employee.initials,
-      }))}
-      canManage
-    />
-  );
-}
 // ─── Draft Task Row ───────────────────────────────────────────────
 
 export function TaskEditorModal({
@@ -52,7 +34,7 @@ export function TaskEditorModal({
   draft: TaskEditorDraft | null;
   onChange: (patch: Partial<TaskEditorDraft>) => void;
   onClose: () => void;
-  onSave: () => void;
+  onSave: (legacy?:LegacyEditorStaffingScope) => void;
   onDelete: () => void;
   onCancelTask: () => void;
   onOpenTeamEditor: () => void;
@@ -74,11 +56,11 @@ export function TaskEditorModal({
     teamMembers[0]?.name ||
     "Unassigned";
   const reviewerCandidates = employees.filter(
-    (employee) => employee.id !== draft.leadMemberId,
+    (employee) => employee.id !== (supportsNestedWork(task)?task.assigneeId:draft.leadMemberId),
   );
 
   return (
-    <TaskBoardDialog
+    <TaskEditorWorkOwner task={task}><TaskBoardDialog
       eyebrow="Task editor"
       maxWidthClassName="max-w-[640px]"
       onClose={onClose}
@@ -107,9 +89,7 @@ export function TaskEditorModal({
             <Button onClick={onClose} variant="outline">
               Cancel
             </Button>
-            <Button disabled={saving} onClick={onSave}>
-              {saving ? "Saving..." : "Save changes"}
-            </Button>
+            <TaskEditorSaveButton task={task} saving={saving} onSave={onSave}/>
           </div>
         </div>
       }
@@ -297,6 +277,7 @@ export function TaskEditorModal({
         </div>
 
         <div className="rounded-[14px] border border-border bg-muted/50 p-3">
+          <TaskEditorRootPeople task={task} readOnly={saving} fallback={
           <div className="flex items-center justify-between gap-2">
             <div>
               <div className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">
@@ -320,6 +301,7 @@ export function TaskEditorModal({
               Edit Team
             </button>
           </div>
+          }/>
           <div className="mt-3 grid gap-3 border-t border-neutral-200 pt-3 md:grid-cols-2">
             <label className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">
               Primary Reviewer
@@ -421,13 +403,13 @@ export function TaskEditorModal({
           </div>
         )}
 
-        <TaskSubtasksSection taskId={task.id} employees={employees} />
+        <TaskEditorSubtasks task={task} employees={employees} readOnly={saving} />
         <TaskChatSection
           taskId={task.id}
           currentUserId={currentUserId}
           currentUserName={currentUserName}
         />
       </div>
-    </TaskBoardDialog>
+    </TaskBoardDialog></TaskEditorWorkOwner>
   );
 }

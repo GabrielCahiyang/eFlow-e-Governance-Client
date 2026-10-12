@@ -6,7 +6,79 @@ import { selectPersonalWork,personalTaskRelation } from '../../src/app/features/
 import { personalReviewActions } from '../../src/app/features/action-center/selectors';
 import type { SubtaskReviewItem } from '../../src/app/features/subtasks';
 import { buildShellNavigation,readNavigationLocation,getSidebarContent } from '../../src/app/features/navigation';
+import {buildSubtaskDisplayMetadata,mergeWorkDisplayMetadata} from '../../src/app/features/nested-work';
+import {rowToSubtask,type SubtaskSubmission} from '../../src/app/features/subtasks';
+import type {WorkRow} from '../../src/app/features/personal-work/types';
+import {selectWorkRows} from '../../src/app/features/personal-work/workSelectors';
 const now=new Date(2026,9,6,12), task=(id:string,patch:Partial<Task>={}):Task=>({id,title:id,status:'todo',assigneeId:'me',createdAt:1,updatedAt:now.getTime(),...patch});
+describe('NW9.2 personal path filtering preserves actor and workspace boundaries',()=>{
+ it('searches the displayed path without admitting unassigned siblings or foreign workspaces',()=>{
+  const context=buildSubtaskDisplayMetadata([{id:'parent',taskId:'root',title:'Allowed ancestor',position:0,assignedToIds:[]},
+   {id:'item',taskId:'root',title:'Same',parentSubtaskId:'parent',leadId:'me',position:0,assignedToIds:['worker'],dueDate:'2026-10-06'}],
+   {rootId:'root',rootTitle:'Private root',people:[{id:'me',name:'Personal Lead'}]}).get('item');
+  const row:WorkRow={id:'item',key:'personal-node:item',rootId:'root',title:'Same',kind:'personal-node',projectTitle:'Research',workspaceId:'private',
+   workspaceName:'Private',timezone:'Asia/Singapore',status:'todo',due:'2026-10-06',progress:0,mine:true,leading:true,actionable:true,history:false,relation:'Subitem Lead',workContext:context};
+  const rows=[row,{...row,id:'sibling',key:'personal-node:sibling',mine:false},{...row,id:'foreign',key:'personal-node:foreign',workspaceId:'foreign'}];
+  expect(selectWorkRows(rows,'Subtasks','All my work','allowed ancestor','private').map(row=>row.id)).toEqual(['item']);
+  expect(selectWorkRows(rows,'Leading','All my work',context!.pathLabel,'private').map(row=>row.id)).toEqual(['item']);
+  expect(selectWorkRows(rows,'Assigned work','All my work','allowed ancestor')).toEqual([]);
+  expect(selectWorkRows([{...row,actionable:false}],'Subtasks','All my work')).toEqual([]);
+ });
+});
+describe('NW9.1 optional authorized personal/workflow context',()=>{
+ const raw={id:'item',task_id:'root',title:'Same',parent_subtask_id:'parent',lead_id:'lead',assigned_to:'worker',assigned_to_ids:['worker'],
+  status:'changes_requested',percent_complete:30,source:'template',position:4,sibling_order:2,is_standalone:true,due_date:'2026-10-21',
+  created_by:'original-author',created_at:'2026-10-01T01:00:00Z',updated_at:'2026-10-02T02:00:00Z',
+  reviewer_id:'original-reviewer',latest_submission_id:'submission',completed_by:'original-completer',completed_at:'2026-10-01T02:00:00Z',
+  due_date_change_reason:'Recorded reason',due_date_changed_by:'date-author',due_date_changed_at:'2026-10-02T01:00:00Z'};
+ const scope={rootId:'root',rootTitle:'Task',people:[{id:'lead',name:'Appointed Lead'},{id:'worker',name:'Worker'}]};
+ it('adds metadata to a full authorized record without rewriting history, timestamps, worker fields or due dates',()=>{
+  const full=rowToSubtask(raw),parent=rowToSubtask({...raw,id:'parent',parent_subtask_id:null,due_date:'2026-10-20'});
+  const contexts=buildSubtaskDisplayMetadata([full,parent],scope);
+  const merged=mergeWorkDisplayMetadata(full,contexts.get(full.id));
+  const {workContext,...originalFields}=merged;
+  expect(originalFields).toEqual(full);
+  expect(workContext).toMatchObject({nodeId:'item',parentId:'parent',dueDate:'2026-10-21',leadId:'lead',
+   pathLabel:'Task / Same / Same',participantIds:['lead','worker']});
+  expect('workContext' in full).toBe(false);
+  expect(merged.assignedToIds).toBe(full.assignedToIds);
+ });
+ it('retains legacy records without optional metadata and ignores untrusted wire metadata',()=>{
+  const legacy=rowToSubtask({...raw,parent_subtask_id:null,lead_id:null,workContext:{pathLabel:'SECRET wire title'}});
+  expect('workContext' in legacy).toBe(false);
+  expect(mergeWorkDisplayMetadata(legacy,undefined)).toBe(legacy);
+  expect(legacy).toMatchObject({parentSubtaskId:undefined,leadId:undefined,assignedTo:'worker',assignedToIds:['worker']});
+  expect(buildSubtaskDisplayMetadata([legacy],scope).get('item')).toMatchObject({parentId:null,leadId:null,leadName:null});
+ });
+ it('clears stale or foreign context after a denied refresh without looking up a parent',()=>{
+  const full=rowToSubtask(raw),metadata=buildSubtaskDisplayMetadata([full],scope).get('item')!;
+  expect(metadata).toMatchObject({context:'missing_parent',pathLabel:'Parent context unavailable / Same'});
+  const merged=mergeWorkDisplayMetadata(full,metadata);
+  for(const context of [undefined,{...metadata,nodeId:'duplicate-title-item'},{...metadata,rootId:'foreign'}]){
+   const cleared=mergeWorkDisplayMetadata(merged,context);
+   expect(cleared.workContext).toBeUndefined();
+   const {workContext,...fields}=cleared;
+   expect(fields).toEqual(full);
+  }
+ });
+ it('keeps submission IDs/authorship and WorkRow IDs in their distinct contracts',()=>{
+  const full=rowToSubtask(raw),context=buildSubtaskDisplayMetadata([full],scope).get('item');
+  const submission:SubtaskSubmission={id:'submission',subtaskId:'item',taskId:'root',version:2,submitterId:'recorded-author',
+   submitterName:'Original author',reviewerId:'recorded-reviewer',note:'Evidence',status:'approved',decidedByName:'Original decision author',submittedAt:1,attachments:[]};
+  const withContext:SubtaskSubmission={...submission,workContext:context};
+  const {workContext,...history}=withContext;
+  expect(history).toEqual(submission);
+  expect(withContext.id).not.toBe(workContext?.nodeId);
+  const row:WorkRow={id:'item',key:'office-node:item',rootId:'root',title:'Same',kind:'office-node',projectTitle:'Project',workspaceName:'Office',
+   timezone:'Asia/Singapore',status:'changes_requested',progress:30,mine:true,leading:false,actionable:false,history:false,relation:'Contributor',subtask:full};
+  const decorated:WorkRow={...row,workContext:context};
+  const {workContext:display,...rowFields}=decorated;
+  expect(rowFields).toEqual(row);
+  expect(display?.nodeId).toBe(row.id);
+  expect(decorated.leading).toBe(false);
+  expect(decorated.actionable).toBe(false);
+ });
+});
 describe('Phase 13 personal discovery',()=>{
  it('separates membership, assignment and stale AI recommendations from effective leadership',()=>{
   const tasks=[task('lead'),task('member',{assigneeId:'other',teamMemberIds:['me']}),task('suggestion',{assigneeId:'other',recommendationLeadId:'me'}),task('foreign',{assigneeId:'other'})];

@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
 import {phase65Database} from '../tests/sql/helpers/phase65Database.mjs';
 const id=n=>`00000000-0000-4000-8000-${String(n).padStart(12,'0')}`;
 let db,checks=0,currentActor=null,attempt=9000;
@@ -47,7 +48,39 @@ try{
  await db.exec('set session_replication_role=origin');
  await actor(3);
  const page=(snapshot=null,index=0,size=25,kind='all',search='',from=null,to=null)=>value('select r11_project_activity($1,$2,$3,$4,$5,$6,$7,$8)',[project,snapshot,index,size,kind,search,from,to]);
+ // Review the additive projection separately: compare every pre-existing
+ // column/value and retain an actual frozen snapshot made before installation.
+ const legacy=await page(),legacyWork=(await page(legacy.snapshot,Math.floor((legacy.total-1)/25))).events.find(e=>e.event_id.startsWith('work:'));
+ const originalProjection=(await db.query('select * from eflow_r11.events where project_id=$1 order by event_id collate "C"',[project])).rows;
+ await db.exec('reset role');
+ const projectionFile='20261012231500_nested_work_activity_projection.sql',projectionSql=await readFile(new URL('../supabase/migrations/'+projectionFile,import.meta.url),'utf8');
+ await db.exec(projectionSql);console.log(`installed ${projectionFile} sha256=${createHash('sha256').update(projectionSql).digest('hex')}`);
+ await actor(3);
+ const additiveProjection=(await db.query('select * from eflow_r11.events where project_id=$1 order by event_id collate "C"',[project])).rows;
+ check(JSON.stringify(additiveProjection.map(({work_event,...existing})=>existing))===JSON.stringify(originalProjection),'Every existing projection field/value remains identical');
+ const priorSnapshot=await page(legacy.snapshot,Math.floor((legacy.total-1)/25));
+ check(priorSnapshot.snapshot===legacy.snapshot&&priorSnapshot.asOf===legacy.asOf&&priorSnapshot.total===legacy.total,'Old frozen snapshot retains membership/time and remains readable');
+ check(JSON.stringify(priorSnapshot.events.find(e=>e.event_id.startsWith('work:')))===JSON.stringify(legacyWork),'Old work row is not silently enriched or rewritten');
+ check(additiveProjection.filter(e=>!e.event_id.startsWith('work:')).every(e=>e.work_event===null),'Non-work sources receive null metadata');
+ const recorded=additiveProjection.find(e=>e.event_id==='work:'+id(34500));
+ check(recorded.work_event.id===id(34500)&&recorded.work_event.root_id===root&&recorded.work_event.node_id===id(100)&&recorded.work_event.command==='progress'&&recorded.work_event.actor_name==='Lead'&&recorded.work_event.before_data===null&&recorded.work_event.after_data.nodes[0].title==='Nested branch','Recorded event metadata is projected exactly, including unavailable before context');
+ await db.exec('reset role;set session_replication_role=replica');
+ const historicalBefore={root:{id:root,project,office:id(90),kind:'office',lead:id(3),people:[id(3),id(4)]},people:[{id:id(3),name:'Former Lead'},{id:id(4),name:'Recorded worker'},{id:id(5),name:'Replacement Lead'}],nodes:[{id:id(100),task_id:root,title:'Former ancestor',parent_subtask_id:null,sibling_order:0,lead_id:id(3),assigned_to_ids:[id(4)]},{id:id(101),task_id:root,title:'Deleted or moved child',parent_subtask_id:id(100),sibling_order:0,lead_id:id(3),assigned_to_ids:[id(4)]}]};
+ for(const [i,command] of ['delete','move','staff','order'].entries()){
+  const after={...historicalBefore,nodes:command==='delete'?historicalBefore.nodes.slice(0,1):historicalBefore.nodes.map(n=>({...n,title:n.id===id(100)?'Moved ancestor':n.title,lead_id:command==='staff'?id(5):n.lead_id,sibling_order:command==='order'?1:n.sibling_order}))};
+  await db.query("insert into work_tree_events(id,root_id,project_id,actor_id,actor_name,command,node_id,before_data,after_data,occurred_at) values($1,$2,$3,$4,'Historical actor',$5,$6,$7::jsonb,$8::jsonb,'2026-10-12')",[id(34600+i),root,project,id(3),command,command==='order'?null:id(101),JSON.stringify(historicalBefore),JSON.stringify(after)]);
+ }
+ await db.exec('set session_replication_role=origin');await actor(3);
  let first=await page();check(first.total>310,'All >250 events reachable');check(first.events.length===25&&first.more,'Default page contract');
+ for(const [i,command] of ['delete','move','staff','order'].entries()){
+  const event=first.events.find(e=>e.event_id==='work:'+id(34600+i));
+  check(event?.kind==='project'&&event.work_event.command===command,'Historical '+command+' retains an existing kind and command');
+  assert.deepEqual(event.work_event.before_data,historicalBefore,'Historical '+command+' retains every recorded path/people value');checks++;
+ }
+ // Changing today's hierarchy/profile cannot rewrite sealed historical data.
+ await db.exec('reset role;set session_replication_role=replica');await db.query("update subtasks set title='Current unrelated title' where id=$1",[id(100)]);await db.query("update profiles set full_name='Current renamed actor' where id=$1",[id(3)]);await db.exec('set session_replication_role=origin');await actor(3);
+ const historicReload=await page(first.snapshot);
+ check(historicReload.events.find(e=>e.event_id==='work:'+id(34602)).work_event.before_data.people[0].name==='Former Lead'&&historicReload.events.find(e=>e.event_id==='work:'+id(34600)).work_event.before_data.nodes[1].title==='Deleted or moved child','Frozen history retains old names and deleted-item path after current profile/tree edits');
  const expected=(await db.query('select event_id from eflow_r11.events where project_id=$1 order by occurred_at desc,event_id collate "C" desc',[project])).rows.map(r=>r.event_id);
  const snapshot=first.snapshot;
  // New events including a backdated insert, plus a mutable decision, cannot shift this snapshot.
@@ -78,6 +111,10 @@ try{
  await db.exec('reset role');await db.exec('create policy r11_test_deny on task_progress_updates as restrictive for select to authenticated using(false)');await actor(3);await deny('select r11_project_activity($1,$2)',[project,refreshed.snapshot]);
  await db.exec('reset role');
  const functions=(await db.query("select prosecdef from pg_proc where proname='r11_project_activity'")).rows;check(functions.length===1&&!functions[0].prosecdef,'RPC cannot bypass source RLS');
+ await db.exec('create policy nw96_deny_work_metadata on work_tree_events as restrictive for select to authenticated using(false)');await actor(3);
+ await deny('select r11_project_activity($1,$2)',[project,first.snapshot]);
+ check(!(await page()).events.some(e=>e.event_id.startsWith('work:')),'Revoked work source exposes neither events nor metadata in new snapshots');
+ await db.exec('reset role');
  check((await db.query("select reloptions from pg_class where oid='eflow_r11.events'::regclass")).rows[0].reloptions.includes('security_invoker=true'),'Merged view respects source policies');
  check(!(await value("select has_function_privilege('anon','public.r11_project_activity(uuid,uuid,integer,integer,text,text,timestamptz,timestamptz)','execute')")),'Anonymous RPC denied');
  await actor(3);

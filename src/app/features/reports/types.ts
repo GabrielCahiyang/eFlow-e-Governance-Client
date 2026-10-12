@@ -23,6 +23,8 @@ export interface DepartmentReportRow {
   dueAt?: number;
   metric: string;
   detail: string;
+  assignedReviewer?: string;
+  decisionAuthor?: string;
   taskId?: string;
   projectId?: string;
 }

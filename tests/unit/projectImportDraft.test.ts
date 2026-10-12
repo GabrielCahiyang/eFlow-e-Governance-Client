@@ -8,6 +8,12 @@ const fixture = () => ({ schemaVersion: 1, project: { title: 'Outreach', descrip
 ] }], warnings: [] });
 
 describe('Phase 5 reviewed workspace import', () => {
+  it.each(['parentSubtaskId','parent_subtask_id','children','subitems'])('rejects unsupported %s before normalization can strip it',key=>{
+    for(const value of ['parent',null,'',[]]){
+      const raw=fixture();Object.assign(raw.groups[0].tasks[0].subitems[0],{[key]:value});
+      expect(()=>parseProjectImportDraft(JSON.stringify(raw),source)).toThrow('parent links cannot be flattened');
+    }
+  });
   it('preserves hierarchy and descriptions while dropping model authority fields', () => {
     const draft = parseProjectImportDraft(JSON.stringify(fixture()), source);
     expect(draft.groups[0].tasks[0].subitems[0].title).toBe('Gather data');

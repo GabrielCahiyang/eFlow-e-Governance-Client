@@ -21,3 +21,8 @@ export function taskProject(task: Task, projects: Project[]) {
 export function taskDue(task: Task): number | undefined {
   return parseDueDate(task) ?? undefined;
 }
+
+export function itemDue(date?:string):number|undefined {
+  const time=date?new Date(date).getTime():NaN;
+  return Number.isFinite(time)?time:undefined;
+}
