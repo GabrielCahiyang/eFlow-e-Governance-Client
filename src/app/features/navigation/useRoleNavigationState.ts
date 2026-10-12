@@ -66,12 +66,16 @@ export function useRoleNavigationState(
   }, [getInitialPage, role]);
 
   const selectPageAsync = useCallback(
-    (section: string, page: string, context?: { project?: string; view?: string }) => requestNavigation(() => {
+    async (section: string, page: string, context?: { project?: string; view?: string;parameters?:Record<string,string>;isCurrent?:()=>boolean }) => {
+      let moved=false;
+      const accepted=await requestNavigation(() => {
+      if(context?.isCurrent?.()===false)return;
+      moved=true;
       currentLocation.current = { section, page };
       setActiveSection(section);
       setActivePage(page);
       writeNavigationLocation(section, page, "push", context);
-    }),
+    });return accepted&&moved;},
     [],
   );
 

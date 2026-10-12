@@ -140,7 +140,7 @@ export function RoleContent({
     return (
       <Suspense fallback={<RoleLoading />}>
         <PageFrame>
-          <ActionCenter role={role} hasLeadingWork={hasLeadingWork} />
+          <ActionCenter role={role} hasLeadingWork={hasLeadingWork} page={activePage} onNavigate={onNavigate} />
         </PageFrame>
       </Suspense>
     );

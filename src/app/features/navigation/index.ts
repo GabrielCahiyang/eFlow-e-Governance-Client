@@ -20,3 +20,4 @@ export { getSidebarContent } from "./sidebarContent";
 export * from './presentationNavigation';
 export * from './administrativePages';
 export { AccessDenied } from './AccessDenied';
+export {navigationParameters,type NavigationRestore} from './queryContext';

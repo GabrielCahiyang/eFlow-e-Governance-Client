@@ -19,10 +19,11 @@ export interface WorkHierarchyProps {
  /** Display descendants of this canonical parent using the complete snapshot. */
  branchParentId?:string;
  branchActions?:boolean;
+ presentation?:'standard'|'project-table';
 }
 const mobileQuery='(max-width: 639px)';
 /** Presentation only: one supplied authorized snapshot, no tree/service ownership. */
-export function WorkHierarchy({snapshot,readOnly,executionBlocked,authorityFresh,focusedNodeId,collapsedIds,onCollapsedIdsChange,onOpenNode,onRequestAction,officeReviewAvailable=true,branchParentId,branchActions=false}:WorkHierarchyProps) {
+export function WorkHierarchy({snapshot,readOnly,executionBlocked,authorityFresh,focusedNodeId,collapsedIds,onCollapsedIdsChange,onOpenNode,onRequestAction,officeReviewAvailable=true,branchParentId,branchActions=false,presentation='standard'}:WorkHierarchyProps) {
  const {user}=useAuth();
  const context={actorId:user?.id||null,rootId:snapshot.root.id,projectId:snapshot.root.project,officeId:snapshot.root.office,kind:snapshot.root.kind,revision:snapshot.revision,readOnly,executionBlocked};
  const snapshotCurrent=isCurrentWorkSnapshot(snapshot,context);
@@ -70,7 +71,7 @@ export function WorkHierarchy({snapshot,readOnly,executionBlocked,authorityFresh
  const props={rows,people:snapshot.people,collapsedIds:display.collapsedIds,focusedNodeId,onToggle:toggle,onOpenNode};
  if(!snapshotCurrent||branchParentId&&!byId.has(branchParentId))return <section className="nw-hierarchy" aria-label="Subitem work"><p role="alert">Verify current work access. Reload the work.</p></section>;
  return <section ref={section} className="nw-hierarchy" aria-label="Subitem work">
-  <div className="nw-hierarchy-toolbar"><WorkNodeActionMenu label={branchParentId?'Child work actions':'Task work actions'} actions={actionsFor(branchParentId).filter(action=>!branchParentId||(branchActions?!['open','review'].includes(action.id):['create','order'].includes(action.id)))}/></div>
-  {!rows.length?<p>No subitems yet.</p>:mobile?<WorkTreeMobileList {...props}/>:<WorkTreeTable {...props}/>}
+  <div className="nw-hierarchy-toolbar"><WorkNodeActionMenu compact={presentation==='project-table'} label={branchParentId?'Child work actions':'Task work actions'} actions={actionsFor(branchParentId).filter(action=>!branchParentId||(branchActions?!['open','review'].includes(action.id):['create','order'].includes(action.id)))}/></div>
+  {presentation==='project-table'?<WorkTreeTable {...props} tableSurface createAction={actionsFor(branchParentId).find(action=>action.id==='create')}/>:!rows.length?<p>No subitems yet.</p>:mobile?<WorkTreeMobileList {...props}/>:<WorkTreeTable {...props}/>}
  </section>;
 }

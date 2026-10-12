@@ -15,13 +15,14 @@ for (const role of ['head','member','accounting_staff','admin'] as const) test(`
   const rail=page.getByRole('navigation',{name:'Global navigation'});
   if (role==='head') {
     await rail.getByRole('button',{name:'My Work',exact:true}).click();
-    await expect(page.getByRole('navigation',{name:'Workspace destinations'}).getByRole('button',{name:"Work I'm Leading",exact:true})).toHaveCount(0);
+    await expect(page.getByRole('navigation',{name:'My Work destinations'}).getByRole('button',{name:"Work I'm Leading",exact:true})).toHaveCount(0);
   }
   if (role==='admin') await expect(rail.getByRole('button',{name:'Workspaces',exact:true})).toHaveCount(0);
   for (const [group,label,path] of routes[role]) {
     await rail.getByRole('button',{name:group,exact:true}).click();
-    const target=page.getByRole('navigation',{name:'Workspace destinations'}).getByRole('button',{name:label,exact:true}).first();
-    if (await target.count()) await target.click();
+    const contextName=group==='Workspaces'?'Workspace destinations':`${group} destinations`;
+    const target=page.getByRole('navigation',{name:contextName}).getByRole('button',{name:label,exact:true});
+    await expect(target).toBeVisible();await target.click();
     await expect.poll(()=>new URL(page.url()).pathname).toBe(path);
     await expect(page.getByRole('heading',{name:'Access denied',exact:true})).toHaveCount(0);
     if (group) await expect(target).toHaveAttribute('aria-current','page');
@@ -90,7 +91,7 @@ test('dirty Security editor keeps navigation and browser history until explicit 
   test.setTimeout(90_000);
   await projectWorkspaceFixture(page,'member');
   await page.getByRole('navigation',{name:'Global navigation'}).getByRole('button',{name:'Profile',exact:true}).click();
-  await page.getByRole('navigation',{name:'Workspace destinations'}).getByRole('button',{name:'Security',exact:true}).click();
+  await page.getByRole('navigation',{name:'Profile & Settings destinations'}).getByRole('button',{name:'Security',exact:true}).click();
   await page.getByLabel('Current password',{exact:true}).fill('synthetic-unsaved');
   await page.getByRole('button',{name:'Open account menu',exact:true}).press('ArrowDown');
   await page.getByRole('menuitem',{name:'Log out',exact:true}).focus(); await page.keyboard.press('Enter');
@@ -125,8 +126,8 @@ test('failed inline task remains intact when shell navigation is canceled and lo
 test('unassigned Office and zero projects remain usable without exposing stale context',async({page})=>{
   test.setTimeout(90_000);
   await projectWorkspaceFixture(page,'member',false,{landingOnly:true,unassigned:true,empty:true});
-  await expect(page.getByRole('region',{name:'Workspace content'}).getByRole('button',{name:'Organization not assigned Workspace',exact:true})).toBeVisible();
   await page.getByRole('navigation',{name:'Global navigation'}).getByRole('button',{name:'Workspaces',exact:true}).click();
+  await expect(page.getByRole('region',{name:'Workspace content'}).getByRole('button',{name:'Organization not assigned Workspace',exact:true})).toBeVisible();
   await expect(page.getByText('No active projects.',{exact:true})).toBeVisible();
   await expect(page.getByRole('region',{name:'Projects',exact:true}).getByRole('button',{name:'Create project',exact:true})).toHaveCount(0);
   await page.goto('/projects?page=Projects&project=unavailable-record&view=offices');
@@ -144,7 +145,7 @@ for(const width of [1440,768,390,320]) test(`responsive navigation, project cont
     const more=page.getByRole('navigation',{name:'Mobile primary navigation'}).getByRole('button',{name:'More',exact:true});
     await more.click(); const drawer=page.getByRole('dialog',{name:'Navigation',exact:true});
     await expect(drawer.getByRole('button',{name:'Community outreach',exact:true})).toBeVisible();
-    await expect(drawer.getByRole('button',{name:'Add or hide workspace sections',exact:true})).toBeVisible();
+    await expect(drawer.getByRole('button',{name:'Workspace options',exact:true})).toBeVisible();
     for(let i=0;i<12;i++) {await page.keyboard.press('Tab'); expect(await drawer.evaluate(element=>element.contains(document.activeElement))).toBe(true);}
     await page.screenshot({path:info.outputPath(`navigation-drawer-${width}.png`)});
     await page.keyboard.press('Escape'); await expect(drawer).toHaveCount(0); await expect(more).toBeFocused();

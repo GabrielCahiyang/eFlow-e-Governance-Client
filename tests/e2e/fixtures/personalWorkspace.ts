@@ -2,8 +2,8 @@ import { expect, type Page } from '@playwright/test';
 import { projectWorkspaceFixture } from './projectWorkspace';
 
 /** Synthetic browser API. Database authorization is separately exercised by verify:r3-workspaces. */
-export async function personalWorkspaceFixture(page:Page, options:{seed?:boolean;denied?:boolean;role?:'member'|'accounting_staff';theme?:'light'|'dark'}={}) {
- const office=await projectWorkspaceFixture(page,options.role||'member',false,{landingOnly:true,theme:options.theme});
+export async function personalWorkspaceFixture(page:Page, options:{seed?:boolean;denied?:boolean;role?:'member'|'accounting_staff';theme?:'light'|'dark';overrides?:Record<string,boolean>}={}) {
+ const office=await projectWorkspaceFixture(page,options.role||'member',false,{landingOnly:true,theme:options.theme,overrides:options.overrides});
  const personalId='70000000-0000-4000-8000-000000000001';
  const projectId='71000000-0000-4000-8000-000000000001';
  const reviewer='00000000-0000-4000-8000-000000000002';

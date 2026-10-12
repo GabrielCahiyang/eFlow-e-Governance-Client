@@ -21,3 +21,15 @@
 .r3-personal-workspace li { display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:6px 0; }
 .r3-shortcut-choice { display:flex;align-items:flex-start;gap:8px;max-width:650px;font-size:13px; }
 @media(max-width:600px) { .r3-personal-workspace {padding:16px;}.r3-task-create,.r3-members-form {flex-direction:column;align-items:stretch;}.r3-task-create .eflow-form-field,.r3-members-form .eflow-form-field {flex:auto;} }
+.eflow-workspace-switcher-controls{display:flex;align-items:center;gap:var(--eflow-space-2);width:100%;min-width:0}
+.eflow-workspace-switcher-controls>.eflow-workspace-selector{flex:1;min-width:0;border:1px solid var(--eflow-border);border-radius:var(--eflow-radius-control);padding:0 var(--eflow-space-2);background:var(--eflow-surface)}
+.eflow-workspace-create{display:flex;align-items:center;justify-content:center;min-width:var(--eflow-control-height);min-height:var(--eflow-control-height);border:1px solid var(--eflow-border);border-radius:var(--eflow-radius-control)}
+.eflow-workspace-create:hover{background:var(--eflow-subtle)}
+.r3-workspace-choice:hover{background:var(--eflow-subtle)}
+.r3-workspace-choice>span{flex:1}
+.r3-workspace-choice>svg{flex-shrink:0}
+.r3-workspace-utilities{border-top:1px solid var(--eflow-border);padding-top:var(--eflow-space-2);display:flex;flex-direction:column;gap:var(--eflow-space-1)}
+.r3-workspace-utilities button{display:flex;align-items:center;gap:var(--eflow-space-2);width:100%;min-height:var(--eflow-control-height);padding:var(--eflow-space-2);border-radius:var(--eflow-radius-control);text-align:left}
+.r3-workspace-utilities button:hover{background:var(--eflow-subtle)}
+.r3-workspace-refresh{color:var(--eflow-text-secondary);font-size:var(--eflow-text-xs)}
+.r3-workspace-selector .eflow-form-input:focus-visible{outline:none;box-shadow:0 0 0 2px var(--eflow-primary)}

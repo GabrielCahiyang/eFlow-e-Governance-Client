@@ -54,8 +54,7 @@ function LegacySubitemRows({ task, subtasks, columns, profiles, canAdd, readOnly
           })}
           {!subtasks.length && !canAdd && <tr><td colSpan={5} className="pt-subitems-empty">No subitems yet.</td></tr>}
         </tbody>
-      </table></div>
-      {canAdd && <div className="pt-subitem-add">
+      {canAdd && <tfoot><tr><td colSpan={5}><div className="pt-subitem-add">
         <InlineCreateRow autoFocus label={'Add subitem to ' + task.title} itemName="subitem" maxLength={200}
           onCreate={async title => {
             if (!canAdd) throw new Error(unavailableReason);
@@ -66,7 +65,8 @@ function LegacySubitemRows({ task, subtasks, columns, profiles, canAdd, readOnly
           }} onCreated={refresh} onBusyChange={setBusy}
           extraFields={saving => <input type="date" aria-label={'Due date for new subitem to ' + task.title}
             value={dueDate} max={parentDue} readOnly={saving} onChange={event => setDueDate(event.target.value)}/>} />
-      </div>}
+      </div></td></tr></tfoot>}
+      </table></div>
       {!canAdd && <div className="pt-subitems-access"><p>{unavailableReason}</p><button type="button" onClick={onOpenTask}>Task details</button></div>}
     </section>
   </td></tr>;
@@ -76,5 +76,5 @@ function LegacySubitemRows({ task, subtasks, columns, profiles, canAdd, readOnly
 export function SubitemRows(props: SubitemRowsProps) {
  const readOnly=!!props.readOnly||!!props.task.archivedAt||!!props.task.proposedOfficeIdentityId;
  if(!supportsNestedWork(props.task))return <LegacySubitemRows {...props} readOnly={readOnly} canAdd={props.canAdd&&!readOnly}/>;
- return <tr className="pt-subitems-row"><td colSpan={props.columns}><section className="pt-nested-work" id={'pt-subitems-'+props.task.id} aria-label={'Subitems for '+props.task.title}><TaskSubtasksWidget taskId={props.task.id} parentTask={props.task} canManage={props.canAdd&&!readOnly} readOnly={readOnly} controller={props.controller} createRequest={props.createRequest} createFocusTarget={props.createFocusTarget} collapsedIds={props.collapsedIds} onCollapsedIdsChange={props.onCollapsedIdsChange} fallback={<table><tbody><LegacySubitemRows {...props} readOnly={readOnly} canAdd={props.canAdd&&!readOnly}/></tbody></table>} allowedAssignees={props.profiles.map(p=>({id:p.id,name:p.full_name}))}/></section></td></tr>;
+ return <tr className="pt-subitems-row"><td colSpan={props.columns}><section className="pt-nested-work" id={'pt-subitems-'+props.task.id} aria-label={'Subitems for '+props.task.title}><TaskSubtasksWidget presentation="project-table" taskId={props.task.id} parentTask={props.task} canManage={props.canAdd&&!readOnly} readOnly={readOnly} controller={props.controller} createRequest={props.createRequest} createFocusTarget={props.createFocusTarget} collapsedIds={props.collapsedIds} onCollapsedIdsChange={props.onCollapsedIdsChange} fallback={<table><tbody><LegacySubitemRows {...props} readOnly={readOnly} canAdd={props.canAdd&&!readOnly}/></tbody></table>} allowedAssignees={props.profiles.map(p=>({id:p.id,name:p.full_name}))}/></section></td></tr>;
 }

@@ -1,133 +1,78 @@
 import {
-  Activity,
-  Announcement,
-  Board,
-  Bolt,
-  Calendar,
-  Chart,
-  CheckList,
-  CreditCard,
-  Dashboard,
-  Doc,
-  Download,
-  Files,
-  Folder,
-  Gantt,
-  Globe,
-  Graph,
-  Group,
-  Health,
-  Home,
-  Idea,
-  Inbox,
-  Key,
-  Locked,
-  MondayDoc,
-  Person,
-  PersonRound,
-  Robot,
-  Recurring,
-  Security,
-  Settings,
-  SettingsKnobs,
-  Subitems,
-  Table,
-  Team,
-  Timeline,
-  Update,
-  Versioning,
-  Work,
-  Workflow,
-  Workspace,
-} from "@vibe/icons";
+  Activity, ArchiveRestore, BadgeCheck, Bell, BookOpen, BrainCircuit, CalendarClock,
+  ChartColumnIncreasing, ChartNoAxesCombined, CircleAlert, ClipboardCheck,
+  ClipboardList, Coins, Compass, Contact, ContactRound, Cpu, DatabaseBackup,
+  FileText, Files, Fingerprint, FlagTriangleRight, FolderOpen, GanttChart,
+  Gauge, GitBranch, HandCoins, Heart, HeartPulse, History, KeyRound,
+  Landmark, LayoutDashboard, ListTree, Lock, LockKeyhole, Logs, Mail,
+  Megaphone, Monitor, Network, Newspaper, Palette, PanelsTopLeft, Pin,
+  Presentation, ReceiptText, ScrollText, ShieldBan, ShieldEllipsis,
+  SlidersHorizontal, SquareCheckBig, TableProperties, TrendingUp, UserCog,
+  UserRound, UsersRound, Vote, WalletCards, Waypoints, Workflow, Cog,
+  type LucideIcon,
+} from 'lucide-react';
 
-type VibeIcon = typeof Workspace;
-
-/**
- * Every section id used across ALL roles has a UNIQUE icon.
- * No two entries share the same component — each icon is semantically
- * chosen for what the section actually does.
- *
- * Audit coverage (all roles):
- *   superadmin:   dashboard, projects, tasks, reports, announcements, users,
- *                 org_tree, audit, administration, migration
- *   depthead:     dashboard, projects, tasks, budget, leading, subtasks,
- *                 reviews, team, identity, intelligence, reports, announcements
- *   employee:     tasks, projects, leading, subtasks, reviews, deadlines,
- *                 history, performance, reports, announcements
- *   accounting_staff: accounting_overview, accounting_releases,
- *                 accounting_journal, accounting_audit, accounting_budgets
- *   executive:    portfolio, transform, financial, audit
- *   legislative:  legdash, session, committee, councilor
- *   hrmo:         workforce, wellness, compliance
- *   finance:      projfin, liquidation, crypto
- *   legacy:       command, leader, deptportfolio, mywork, workspace
- */
-const navigationIcons: Record<string, VibeIcon> = {
-  // ── Shared ──────────────────────────────────────────────────────
-  dashboard:           Dashboard,      // role overview / home
-  announcements:       Announcement,   // broadcast announcements
-
-  // ── Project & task workflow ──────────────────────────────────────
-  projects:            Folder,         // plans & projects
-  tasks:               Board,          // task board / kanban
-  subtasks:            Subitems,       // my subtasks
-  leading:             Bolt,           // work I'm leading
-  reviews:             Inbox,          // for-review queue
-  deadlines:           Calendar,       // deadline calendar
-  history:             Versioning,     // task history / audit log
-  performance:         Activity,       // employee performance metrics
-  reports:             Graph,          // reports & analytics
-
-  // ── Department head ─────────────────────────────────────────────
-  budget:              CreditCard,     // department budget
-  team:                Team,           // team supervision
-  identity:            Key,            // identity & access
-  intelligence:        Idea,           // team intelligence
-
-  // ── Accounting workspace (5 unique tabs) ─────────────────────────
-  accounting_overview: Chart,          // accounting overview / summary
-  accounting_releases: Download,       // voucher & cash releases (outflow)
-  accounting_journal:  Doc,            // general journal ledger entries
-  accounting_audit:    CheckList,      // financial audit trail
-  accounting_budgets:  Table,          // department budget ledger table
-
-  // ── Super-admin ──────────────────────────────────────────────────
-  users:               Group,          // user management / directory
-  org_tree:            Globe,          // org structure & hierarchy
-  audit:               Security,       // system audit trail
-  administration:      Settings,       // system settings
-  migration:           Recurring,      // data tools / backup
-
-  // ── Executive ────────────────────────────────────────────────────
-  portfolio:           Gantt,          // city project portfolio timeline
-  transform:           Workflow,       // project transformation tracker
-  financial:           Files,          // financial oversight (exec-level)
-
-  // ── Legislative ──────────────────────────────────────────────────
-  legdash:             MondayDoc,      // legislative measures pipeline
-  session:             Timeline,       // session order of business
-  committee:           PersonRound,    // committee affairs
-  councilor:           Person,         // councilor home workspace
-
-  // ── HRMO ─────────────────────────────────────────────────────────
-  workforce:           Health,         // workforce / burnout intelligence
-  wellness:            Update,         // wellness & attendance alerts
-  compliance:          Locked,         // CSC compliance & appraisals
-
-  // ── Finance ──────────────────────────────────────────────────────
-  projfin:             SettingsKnobs,  // project finance buckets
-  liquidation:         Work,           // liquidation & receipt verification
-  crypto:              Robot,          // immutable hashed ledger
-
-  // ── Legacy sections ──────────────────────────────────────────────
-  command:             Home,           // command center (legacy depthead)
-  leader:              Bolt,           // leader workspace (legacy — same as leading)
-  deptportfolio:       Workspace,      // department portfolio (legacy)
-  mywork:              Dashboard,      // my work hub (legacy employee)
-  workspace:           Workspace,      // generic fallback
+/** Destination leaves have their own meaning even when they share a section. */
+const destinationIcons: Record<string, LucideIcon> = {
+  'Assigned work': ClipboardList,
+  Leading: FlagTriangleRight,
+  Subtasks: ListTree,
+  History,
+  'Needs action': CircleAlert,
+  Updates: Newspaper,
+  'All Users': ContactRound,
+  'Locked out accounts': LockKeyhole,
+  'Role Defaults': SlidersHorizontal,
+  'User Access': UserCog,
+  'Office Structure': Network,
+  'Account Audit': Logs,
+  'System Settings': Cog,
+  'Workspace Policy': ShieldEllipsis,
+  'Email & Integrations': Mail,
+  'Runtime / AI Health': Cpu,
+  'Backup & Export': DatabaseBackup,
+  'Accounting Overview': ChartNoAxesCombined,
+  'Voucher & Cash Releases': HandCoins,
+  Settlements: ReceiptText,
+  'General Journal': BookOpen,
+  'Financial Audit Trail': ScrollText,
+  'Office Budget Ledgers': TableProperties,
+  'Workspace Overview': Gauge,
+  'Team Supervision': UsersRound,
+  'Office Team': Contact,
+  'Identity & Access': KeyRound,
+  'Team Intelligence': BrainCircuit,
+  'My Tasks': SquareCheckBig,
+  'Task Board': SquareCheckBig,
+  'Leading Work': Compass,
+  'My Subtasks': GitBranch,
+  'Task History': ArchiveRestore,
+  Profile: UserRound,
+  Appearance: Palette,
+  Notifications: Bell,
+  Security: Fingerprint,
 };
 
-export function getEflowNavigationIcon(section: string): VibeIcon {
-  return navigationIcons[section] ?? Workspace;
+/** Keep existing section/legacy callers supported; icons never imply authority. */
+const sectionIcons: Record<string, LucideIcon> = {
+  personal_work: ClipboardList, inbox: CircleAlert, dashboard: LayoutDashboard,
+  announcements: Megaphone, projects: FolderOpen, tasks: SquareCheckBig,
+  subtasks: GitBranch, leading: Compass, reviews: ClipboardCheck,
+  deadlines: CalendarClock, history: ArchiveRestore, performance: TrendingUp,
+  reports: ChartColumnIncreasing, budget: Coins, team: UsersRound,
+  identity: KeyRound, intelligence: BrainCircuit, accounting_overview: ChartNoAxesCombined,
+  accounting_releases: HandCoins, accounting_journal: BookOpen,
+  accounting_audit: ScrollText, accounting_budgets: TableProperties,
+  users: ContactRound, org_tree: Network, audit: Logs, administration: Cog,
+  migration: DatabaseBackup, settings: UserRound,
+  portfolio: GanttChart, transform: Workflow, financial: Files,
+  legdash: FileText, session: Presentation, committee: Landmark, councilor: Vote,
+  workforce: HeartPulse, wellness: Heart, compliance: ShieldBan,
+  projfin: WalletCards, liquidation: BadgeCheck, crypto: Lock,
+  command: Gauge, leader: Pin, deptportfolio: Waypoints, mywork: Activity,
+  workspace: Monitor,
+};
+
+export function getEflowNavigationIcon(section: string, page?: string): LucideIcon {
+  return (page && destinationIcons[page]) || sectionIcons[section] || PanelsTopLeft;
 }

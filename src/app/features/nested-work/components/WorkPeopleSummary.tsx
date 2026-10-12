@@ -13,7 +13,8 @@ export interface WorkPeopleSummaryProps {
 /** Display only. No membership, authority or appointment is inferred here. */
 export function WorkPeopleSummary({leadId,contributorIds,people,compact=false,part}:WorkPeopleSummaryProps) {
  const contributors=displayedWorkContributorIds(leadId,contributorIds);
- return <div className="r7-work grid min-w-0 gap-1 break-words" data-compact={compact||undefined}>
+ const title=part==='lead'?(leadId?resolveWorkPersonName(people,leadId):'Needs reassignment'):contributors.map(id=>resolveWorkPersonName(people,id)).join(', ')||'No contributors';
+ return <div className="r7-work grid min-w-0 gap-1 break-words" data-compact={compact||undefined} title={compact&&part?title:undefined}>
   {part!=='contributors'&&<div><strong>Lead: </strong>{leadId?resolveWorkPersonName(people,leadId):'Needs reassignment'}</div>}
   {part!=='lead'&&<div><strong>Contributors ({contributors.length}): </strong>
    {!contributors.length?'No contributors':compact

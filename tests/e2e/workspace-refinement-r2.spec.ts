@@ -21,14 +21,13 @@ for (const width of [320, 390, 768, 1024, 1440]) test(`R2 persistent sections an
   await open();
   await expect(panel.getByRole('button',{name:'Office tools',exact:true})).toHaveAttribute('aria-expanded','true');
   await panel.getByRole('button',{name:'Add Community outreach to favorites',exact:true}).click();
-  await panel.getByRole('button',{name:'Add or hide workspace sections',exact:true}).click();
-  await page.getByRole('checkbox',{name:'Favorites',exact:true}).uncheck();
+  await panel.getByRole('button',{name:'Workspace options',exact:true}).click();
+  await page.getByRole('menuitem',{name:'Hide Favorites',exact:true}).click();
   await expect(panel.getByRole('region',{name:'Favorites',exact:true})).toHaveCount(0);
-  await page.getByRole('checkbox',{name:'Favorites',exact:true}).check();
-  await page.keyboard.press('Escape');
-  // Popover dismissal restores focus to its tooltip trigger. Move focus and
-  // pointer away before targeting a control underneath the hoverable tooltip.
-  await expect(panel.getByRole('button',{name:'Add or hide workspace sections',exact:true})).toBeFocused();
+  await panel.getByRole('button',{name:'Workspace options',exact:true}).click();
+  await page.getByRole('menuitem',{name:'Show Favorites',exact:true}).click();
+  // The new overflow actions retain section state and restore their own trigger.
+  await expect(panel.getByRole('button',{name:'Workspace options',exact:true})).toBeFocused();
   await page.keyboard.press('Tab');
   await page.mouse.move(width-8,0);
   await expect(page.getByRole('tooltip').filter({hasText:'Show or hide workspace sections'})).toBeHidden();

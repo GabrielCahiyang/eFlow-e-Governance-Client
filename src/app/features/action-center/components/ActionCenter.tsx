@@ -8,7 +8,8 @@ import { queueNotificationNavigationIntent, resolveNotificationSubitem, fetchNot
 import type { Notification } from '../../../services/notificationService';
 import { requestNavigation } from '../../../shared/navigationGuard';
 import { pushNavigationHistory } from '../../../shared/navigationHistory';
-import { canOpenNavigationSection, getNavigationUrl } from '../../navigation';
+import { canOpenNavigationSection, getNavigationUrl,writeNavigationLocation } from '../../navigation';
+import {useInboxCategory} from '../hooks/useInboxCategory';
 import { Button } from '../../../components/ui/button';
 import { FeedbackState } from '../../../components/ui/FeedbackState';
 import { usePersonalFeed } from '../hooks/usePersonalFeed';
@@ -16,16 +17,17 @@ import { personalReviewActions, type ActionItem } from '../selectors';
 import { resolveInboxUpdateDestination } from '../services/updateDestination';
 import { UpdatesFeed } from './UpdatesFeed';
 
-export function ActionCenter({role,hasLeadingWork=false}: {role:string;hasLeadingWork?:boolean}) {
+export function ActionCenter({role,hasLeadingWork=false,page='Inbox',onNavigate}: {role:string;hasLeadingWork?:boolean;page?:string;onNavigate?:(section:string,page:string)=>void}) {
   const {user,can} = useAuth();
   const {tasks,loading,error,retry} = useTasksData();
-  const [category,setCategory] = useState<'actions'|'updates'>('actions');
+  const category=useInboxCategory(page,role);
+  const setCategory=(next:'actions'|'updates')=>{const destination=next==='updates'?'Updates':'Needs action';if(onNavigate)onNavigate('inbox',destination);else void requestNavigation(()=>writeNavigationLocation('inbox',destination));};
   const [notice,setNotice] = useState('');
   const canReview = role !== 'admin' && (can('navigation.reviews') || hasLeadingWork);
   const subtasks = usePersonalFeed(user?.id,fetchPersonalSubtaskReviews,canReview);
   const inspector = useTaskInspector(`inbox:${user?.id}`);
   const selected = tasks.find(task=>task.id===inspector.taskId) || null;
-  useEffect(()=>{setNotice('');setCategory(role === 'admin'?'updates':'actions');},[user?.id,role]);
+  useEffect(()=>{setNotice('');},[user?.id,role]);
   const actions = personalReviewActions(error?[]:tasks,subtasks.error?[]:subtasks.rows,user?.id,role);
   const navigate = (section: string,page: string,intent?:NotificationNavigationIntent) => void requestNavigation(()=>{
     if(intent) queueNotificationNavigationIntent(intent,user?.id);
@@ -34,7 +36,7 @@ export function ActionCenter({role,hasLeadingWork=false}: {role:string;hasLeadin
   const openAction = (item: ActionItem) => {
     if(item.source==='task-review') {
       if(!tasks.some(task=>task.id===item.taskId && canUserReviewTask(task,user?.id,role) && task.status==='for_review')) {setNotice('This submission was withdrawn or is no longer yours to review. Refresh the queue.');return;}
-      inspector.openTask(item.taskId,{view:'Inbox',restoreFocus:()=>(document.querySelector<HTMLElement>(`[data-action-key="${item.key}"]`) || document.getElementById("inbox-refresh-actions") || document.getElementById("inbox-updates"))?.focus()});
+      inspector.openTask(item.taskId,{view:'Inbox',restoreFocus:()=>(document.querySelector<HTMLElement>(`[data-action-key="${item.key}"]`) || document.getElementById("inbox-refresh-actions") || document.getElementById('inbox-updates-context') || document.getElementById("inbox-updates"))?.focus()});
     } else {
       if(!personalReviewActions([],subtasks.rows,user?.id,role).some(row=>row.key===item.key)){setNotice('This subtask submission is no longer yours to review. Refresh the queue.');return;}
       navigate('reviews','For Review',{notificationId:item.key,kind:'subtask_review',taskId:item.taskId,entityLabel:item.entityLabel,entityId:item.entityId});
@@ -48,7 +50,7 @@ export function ActionCenter({role,hasLeadingWork=false}: {role:string;hasLeadin
     if(item.taskId && !tasks.some(task=>task.id===item.taskId)&&!(destination?.intent.entityId&&['subtask','leading_task','subtask_review'].includes(destination.intent.kind))) {setNotice('The referenced task is unavailable, deleted or outside your access. Open your current work or review queue.');return;}
     if(!destination || !canOpenNavigationSection(role,destination.section,can,hasLeadingWork && ['leading','reviews'].includes(destination.section))) {setNotice('This update has no available destination under your current access. Your current queues remain available.');return;}
     if(item.taskId && destination && ['task','leading_task','task_review'].includes(destination.intent.kind) && !destination.intent.entityId) {
-      inspector.openTask(item.taskId,{view:'Inbox Updates',restoreFocus:() => (document.querySelector<HTMLElement>(`[data-update-id="${item.id}"]`) || document.getElementById('inbox-updates'))?.focus()});return;
+      inspector.openTask(item.taskId,{view:'Inbox Updates',restoreFocus:() => (document.querySelector<HTMLElement>(`[data-update-id="${item.id}"]`) || document.getElementById('inbox-updates-context') || document.getElementById('inbox-updates'))?.focus()});return;
     }
     if (['subtask','subtask_review'].includes(destination.intent.kind) || (destination.intent.kind==='leading_task'&&destination.intent.entityId)) {
       try {
@@ -71,7 +73,7 @@ export function ActionCenter({role,hasLeadingWork=false}: {role:string;hasLeadin
   };
   return <section className="space-y-5 min-w-0" aria-label="Personal Inbox">
     <header><p className="text-xs text-muted-foreground">Personal action center</p><h1 className="text-2xl font-semibold">Inbox</h1><p className="text-sm text-muted-foreground mt-1">Discover work that needs your attention. Each decision stays with its existing workflow.</p></header>
-    <div className="flex flex-wrap gap-2" role="group" aria-label="Inbox categories"><Button aria-pressed={category==='actions'} variant={category==='actions'?'default':'outline'} onClick={()=>void requestNavigation(()=>setCategory('actions'))}>Needs action</Button><Button id="inbox-updates" aria-pressed={category==='updates'} variant={category==='updates'?'default':'outline'} onClick={()=>void requestNavigation(()=>setCategory('updates'))}>Updates</Button></div>
+    <div className="flex flex-wrap gap-2" role="group" aria-label="Inbox categories"><Button aria-pressed={category==='actions'} variant={category==='actions'?'default':'outline'} onClick={()=>setCategory('actions')}>Needs action</Button><Button id="inbox-updates" aria-pressed={category==='updates'} variant={category==='updates'?'default':'outline'} onClick={()=>setCategory('updates')}>Updates</Button></div>
     {notice && <FeedbackState tone="warning" title="Update destination unavailable">{notice}</FeedbackState>}
     {category==='updates'?<UpdatesFeed onOpen={item => void openUpdate(item)}/>:<>
       {!canReview?<FeedbackState title="No review queue under your current access">Updates remain available. Account roles do not grant operational approval authority.</FeedbackState>:<>

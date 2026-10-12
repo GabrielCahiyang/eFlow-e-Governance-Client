@@ -83,3 +83,14 @@
 @media (max-width: 1023px) {
   .eflow-workspace-navigation__controls > button, .eflow-workspace-navigation__selector-row > button, .eflow-workspace-projects__favorite, .eflow-workspace-section__disclosure { min-height: 44px; }
 }
+.eflow-context-heading{display:flex;align-items:center;justify-content:space-between;gap:var(--eflow-space-2);min-height:var(--eflow-control-height);margin-bottom:var(--eflow-space-2)}
+.eflow-context-heading>strong{font-size:var(--eflow-text-sm);font-weight:600;flex:1}
+.eflow-context-heading>div{display:flex;align-items:center;gap:var(--eflow-space-1)}
+.eflow-context-heading button{display:flex;align-items:center;justify-content:center;min-width:32px;min-height:var(--eflow-control-height);border-radius:var(--eflow-radius-sm)}
+.eflow-context-heading button:hover{background:var(--eflow-subtle)}
+.eflow-workspace-navigation__selector-row{margin-bottom:var(--eflow-space-2)}
+.eflow-workspace-navigation__controls{margin-bottom:var(--eflow-space-2)}
+.eflow-context-error{padding:var(--eflow-space-3);color:var(--eflow-negative-text);background:var(--eflow-negative-bg)}
+@media(min-width:1024px){.eflow-app-shell:has([data-context-rail="inbox"] .eflow-workspace-navigation__destinations) [aria-label="Inbox categories"]{display:none}}
+@media(min-width:1024px){.eflow-app-shell:has([data-context-rail="my-work"] .eflow-workspace-navigation__destinations) .r10-destinations{display:none}}
+.eflow-workspace-navigation__destinations>.eflow-workspace-section:first-child{border-top:0}

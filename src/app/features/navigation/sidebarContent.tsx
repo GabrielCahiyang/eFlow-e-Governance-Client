@@ -18,12 +18,7 @@ export function getSidebarContent(
       sections: [
         {
           title: "Personal",
-          items: [
-            {
-              label: section === "inbox" ? "Inbox" : "My Work",
-              isActive: true,
-            },
-          ],
+          items: ['Inbox','Needs action','Updates'].map((label,i)=>({label,isActive:i===0})),
         },
       ],
     };

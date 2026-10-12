@@ -215,3 +215,33 @@
 /* Retain group color as an accent while titles remain readable. */
 .pt-group > header .eflow-inline-editable { color: var(--eflow-text); }
 .pt-group > header button[aria-label^="Edit group"] { color: var(--eflow-text); }
+.pt-main-grid .pt-subitems-row>td{padding:var(--eflow-space-2) var(--eflow-space-3) var(--eflow-space-3) calc(var(--pt-action-width) + var(--eflow-space-2));background:var(--eflow-subtle)}
+.pt-nested-work{position:sticky;left:calc(var(--pt-action-width) + var(--eflow-space-2));width:calc(100cqw - var(--pt-action-width) - var(--eflow-space-5));min-width:0;border-inline-start:3px solid var(--group-color);background:var(--eflow-surface)}
+.pt-nested-work [data-work-presentation="project-table"]{padding:0;font-size:var(--eflow-text-sm)}
+.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-toolbar{position:absolute;right:var(--eflow-space-1);top:var(--eflow-space-1);z-index:3;margin:0}
+.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy{position:relative}
+.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table{width:100%;min-width:960px;table-layout:fixed;box-shadow:none}
+.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table th,.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table td{padding:var(--eflow-table-compact-y) var(--eflow-table-cell-x);border-inline-end:1px solid var(--eflow-border);border-bottom:1px solid var(--eflow-border);height:auto;line-height:var(--eflow-line-height);vertical-align:middle;background:var(--eflow-surface);font-size:var(--eflow-text-sm)}
+.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table th{background:var(--eflow-subtle);font-weight:500;white-space:nowrap}
+.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table th:first-child,.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table td:first-child{width:min(var(--pt-effective-title-width,280px),280px);min-width:0}
+.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table th:last-child{width:64px;font-size:0}
+.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table td:last-child{min-width:0}
+.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-title-line{align-items:center;flex-wrap:nowrap}
+.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-open{background:transparent;border:0;padding:0;min-width:0;text-align:left;font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-control{background:transparent;border:0;padding:0;min-width:24px;max-width:32px}
+.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-path{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+.pt-nested-work [data-work-presentation="project-table"] tr:focus-within>td,.pt-nested-work [data-work-presentation="project-table"] tr[data-selected-work]>td{background:var(--eflow-selected)}
+.pt-nested-work [data-work-presentation="project-table"] .nw-inline-create{display:flex;align-items:center;gap:var(--eflow-space-2);border:0;background:transparent;color:var(--eflow-text-secondary);padding:0;min-height:var(--eflow-control-compact);font-size:var(--eflow-text-sm)}
+.pt-nested-work [data-work-presentation="project-table"] .nw-inline-create-row td{text-align:left;background:var(--eflow-surface)}
+.pt-nested-work [data-work-presentation="project-table"] .nw-inline-create:not(:disabled):hover{color:var(--eflow-primary)}
+.pt-nested-work [data-work-presentation="project-table"] .r7-form{margin:var(--eflow-space-2);box-shadow:none}
+.pt-main-grid .pt-subitems{box-shadow:none;border-radius:0;border-inline-start:3px solid var(--group-color)}
+.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table th:first-child,.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table td:first-child{position:sticky;left:0;z-index:2}
+.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table td:last-child{position:sticky;right:0;z-index:2}
+.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-control{display:inline-flex;align-items:center;justify-content:center}
+.pt-nested-work [data-work-presentation="project-table"] td .r7-work{padding:0;font-size:inherit}
+.pt-nested-work [data-work-presentation="project-table"] td .r7-work strong{display:none}
+.pt-nested-work [data-work-presentation="project-table"] td .r7-work>div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:767px){.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table th:first-child,.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table td:first-child{position:static}}
+.pt-subitems tfoot .pt-subitem-add{box-sizing:border-box;width:min(100%,calc(100cqw - 64px));position:sticky;left:0;background:var(--eflow-surface)}
+@media(max-width:639px){.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-control{min-width:var(--eflow-touch-target);max-width:none}.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-open{min-width:var(--eflow-touch-target)}}

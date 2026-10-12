@@ -19,6 +19,10 @@ export const navigationGroupDescriptions: Partial<Record<NavigationGroupId, stri
   workspaces: 'Existing Office context and all projects you can access, including shared projects.',
   'admin-center': 'Account and system support under your granted permissions.',
 };
+export function getContextEntry(items:ShellNavigationItem[],group:NavigationGroupId,activeSection:string){
+ const preferred=group==='my-work'?'personal_work':group==='inbox'?'inbox':group==='workspaces'?'projects':'';
+ return items.find(item=>item.id===preferred)||items.find(item=>item.group===group&&item.id===activeSection)||items.find(item=>item.group===group);
+}
 
 export function getPresentationGroup(role: string, section: string): NavigationGroupId {
   if (section === 'settings') return 'account';

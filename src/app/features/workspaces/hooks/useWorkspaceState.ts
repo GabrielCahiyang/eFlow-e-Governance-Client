@@ -43,7 +43,7 @@ export function useWorkspaceState(userId: string, officeId: string, enabled: boo
     const focus=()=>void refresh(); window.addEventListener('focus',focus);window.addEventListener(ACCESS_CHANGED_EVENT,focus);
     return ()=>{ ++generation.current; window.clearInterval(interval); window.removeEventListener('focus',focus);window.removeEventListener(ACCESS_CHANGED_EVENT,focus); };
   },[refresh]);
-  const select=useCallback((id:string,destination?:WorkspaceDestination)=>requestNavigation(()=>writeWorkspaceLocation(id,true,'push',destination)),[]);
+  const select=useCallback(async(id:string,destination?:WorkspaceDestination)=>{let moved=false;const accepted=await requestNavigation(()=>{if(destination?.isCurrent?.()===false)return;moved=true;writeWorkspaceLocation(id,true,'push',destination);});return accepted&&moved;},[]);
   const includeCreatedOfficeProject=useCallback((project:{id:string;title:string;status:string;orgId?:string})=>{
     // Only a committed legacy create receipt in the current canonical Office may bridge refresh latency.
     setState(previous=>{

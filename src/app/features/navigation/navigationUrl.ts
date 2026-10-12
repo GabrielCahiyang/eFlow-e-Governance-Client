@@ -8,6 +8,7 @@ import {
   replaceNavigationHistory,
 } from "../../shared/navigationHistory";
 import { resolveSupportPage } from "./administrativePages";
+import {navigationParameters} from './queryContext';
 
 export const NAVIGATION_PAGE_QUERY = "page";
 
@@ -209,7 +210,7 @@ export function writeNavigationLocation(
   section: string,
   page?: string,
   mode: "push" | "replace" = "push",
-  context?: { project?: string; view?: string },
+  context?: { project?: string; view?: string;parameters?:Record<string,string>;isCurrent?:()=>boolean },
 ): void {
   if (typeof window === "undefined") return;
 
@@ -233,6 +234,8 @@ export function writeNavigationLocation(
   if (section !== "projects") url.searchParams.delete("project");
   if (page) url.searchParams.set(NAVIGATION_PAGE_QUERY, page);
   else url.searchParams.delete(NAVIGATION_PAGE_QUERY);
+  if(context?.parameters)for(const key of ['project','view','plans','date','q','workScope','recent'])if(!Object.prototype.hasOwnProperty.call(context.parameters,key))url.searchParams.delete(key);
+  for(const [key,value] of Object.entries(navigationParameters(context?.parameters)))url.searchParams.set(key,value);
 
   const nextLocation = `${url.pathname}${url.search}${url.hash}`;
   if (

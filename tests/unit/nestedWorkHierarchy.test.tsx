@@ -27,6 +27,17 @@ if(!globalThis.ResizeObserver)globalThis.ResizeObserver=class {observe(){}unobse
 async function openMenu(name:string){fireEvent.keyDown(screen.getByRole('button',{name}),{key:'Enter'});return screen.findByRole('menu');}
 
 describe('one supplied work hierarchy composition',()=>{
+ it('renders an empty Main Table surface and inline root create through the existing capability action',()=>{
+  const data=tree([]);data.root.capabilities!.create_child=allow;const initial=props(data);render(<WorkHierarchy {...initial} presentation="project-table"/>);
+  expect(screen.getByRole('table').getAttribute('data-density')).toBe('compact');const add=screen.getByRole('button',{name:'Add subitem',exact:true});expect(add.closest('tfoot')).toBeTruthy();fireEvent.click(add);expect(initial.onRequestAction).toHaveBeenCalledWith('create',undefined);expect(api.save).not.toHaveBeenCalled();
+ });
+ it('keeps an own-branch create capability from granting the Main Table root footer',()=>{
+  const data=tree([node('Own branch',null,{capabilities:{...node('x').capabilities!,create_child:allow}})]);const initial=props(data);render(<WorkHierarchy {...initial} presentation="project-table"/>);expect(screen.queryByRole('button',{name:'Add subitem',exact:true})).toBeNull();expect(screen.getByRole('button',{name:'Actions for Own branch'})).toBeTruthy();
+ });
+ it('uses the canonical branch parent for an authorized inline child footer and retains readOnly/stale gates',()=>{
+  const data=tree([node('Parent',null,{capabilities:{...node('x').capabilities!,create_child:allow}})]),initial=props(data);const view=render(<WorkHierarchy {...initial} branchParentId="Parent" presentation="project-table"/>);fireEvent.click(screen.getByRole('button',{name:'Add subitem',exact:true}));expect(initial.onRequestAction).toHaveBeenCalledWith('create','Parent');
+  view.rerender(<WorkHierarchy {...initial} branchParentId="Parent" presentation="project-table" authorityFresh={false}/>);expect(screen.getByRole('button',{name:'Add subitem',exact:true}).hasAttribute('disabled')).toBe(true);view.rerender(<WorkHierarchy {...initial} branchParentId="Parent" presentation="project-table" readOnly/>);expect(screen.queryByRole('button',{name:'Add subitem',exact:true})).toBeNull();
+ });
  it('uses native table columns, stable traversal, explicit people, shared status/date/progress and no reads',()=>{
   const data=tree([node('Child','Parent'),node('Parent')]),before=JSON.stringify(data);
   render(<WorkHierarchy {...props(data)}/>);

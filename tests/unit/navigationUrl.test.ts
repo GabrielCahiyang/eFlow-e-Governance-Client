@@ -27,6 +27,11 @@ afterEach(() => {
 });
 
 describe("navigation URL contract", () => {
+  it('rejects an obsolete accepted navigation and restores only safe display parameters',async()=>{
+    const {result}=renderHook(()=>useRoleNavigationState('head',getInitialPage));let moved=true;
+    await act(async()=>{moved=await result.current.selectPageAsync('projects','Projects',{project:'stale',isCurrent:()=>false});});expect(moved).toBe(false);expect(window.location.pathname).toBe('/overview');
+    await act(async()=>{expect(await result.current.selectPageAsync('projects','Projects',{project:'current',parameters:{project:'current',workspace:'office',view:'tasks',token:'never',subtask:'never'} as Record<string,string>})).toBe(true);});const query=new URLSearchParams(window.location.search);expect(query.get('project')).toBe('current');expect(query.get('workspace')).toBe('office');expect(query.get('token')).toBeNull();expect(query.get('subtask')).toBeNull();
+  });
   it("uses readable section paths and a stable page query", () => {
     expect(getNavigationPath("reviews")).toBe("/reviews");
     expect(getNavigationPath("dashboard")).toBe("/overview");

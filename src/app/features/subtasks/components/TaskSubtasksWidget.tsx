@@ -2,7 +2,7 @@ import { supportsNestedWork, isCurrentWorkSnapshot, WorkTree, type WorkNode, typ
 import type {TaskInspectorOrigin} from '../../task-inspector';
 import {SubitemInspector} from './SubitemInspector';
 
-export function TaskSubtasksWidget(props: Parameters<typeof LegacyTaskSubtasksWidget>[0] & {fallback?:import('react').ReactNode;controller?:WorkTreeController;createRequest?:number;createFocusTarget?:HTMLElement;executionBlocked?:boolean;collapsedIds?:Set<string>;onCollapsedIdsChange?:(next:Set<string>)=>void}) {
+export function TaskSubtasksWidget(props: Parameters<typeof LegacyTaskSubtasksWidget>[0] & {presentation?:'standard'|'project-table';fallback?:import('react').ReactNode;controller?:WorkTreeController;createRequest?:number;createFocusTarget?:HTMLElement;executionBlocked?:boolean;collapsedIds?:Set<string>;onCollapsedIdsChange?:(next:Set<string>)=>void}) {
  const [opened,setOpened]=useState<{id:string;section:'work'|'review';origin:TaskInspectorOrigin}>();
  const {user}=useAuth();
  const readOnly=!!props.readOnly||!!props.parentTask?.archivedAt||!!props.parentTask?.proposedOfficeIdentityId;
@@ -17,7 +17,7 @@ export function TaskSubtasksWidget(props: Parameters<typeof LegacyTaskSubtasksWi
    (replacement||props.createFocusTarget)?.focus();
   }}});
  };
- return <><WorkTree rootId={props.taskId} controller={props.controller} createRequest={props.createRequest} createFocusTarget={props.createFocusTarget} collapsedIds={props.collapsedIds} onCollapsedIdsChange={props.onCollapsedIdsChange} executionBlocked={props.executionBlocked} readOnly={readOnly} fallback={props.fallback||<LegacyTaskSubtasksWidget {...props} readOnly={readOnly}/>} onOpenOfficeNode={(node,tree)=>open(node,tree,'work')} onReviewOfficeNode={(node,tree)=>open(node,tree,'review')}/>
+ return <><WorkTree presentation={props.presentation} rootId={props.taskId} controller={props.controller} createRequest={props.createRequest} createFocusTarget={props.createFocusTarget} collapsedIds={props.collapsedIds} onCollapsedIdsChange={props.onCollapsedIdsChange} executionBlocked={props.executionBlocked} readOnly={readOnly} fallback={props.fallback||<LegacyTaskSubtasksWidget {...props} readOnly={readOnly}/>} onOpenOfficeNode={(node,tree)=>open(node,tree,'work')} onReviewOfficeNode={(node,tree)=>open(node,tree,'review')}/>
  {opened&&<SubitemInspector key={opened.id} rootTask={props.parentTask} itemId={opened.id} controller={props.controller} initialSection={opened.section} origin={opened.origin} executionBlocked={props.executionBlocked} readOnly={readOnly} onClose={()=>setOpened(undefined)}/>}
  </>;
 }
