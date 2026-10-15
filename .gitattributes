@@ -1,0 +1,6 @@
+# Preserve reviewed financial SQL bytes/checksums across Windows checkouts.
+# Do not normalize historical or Nested Work migration files.
+supabase/migrations/20261015125031_financial_cash_compatibility.sql text eol=lf
+supabase/migrations/20261015142837_financial_journal_and_refund_integrity.sql text eol=lf
+docs/sql-editor/2026-10-15-financial-cash-compatibility.sql text eol=lf
+docs/sql-editor/2026-10-15-financial-integrity-follow-up.sql text eol=lf

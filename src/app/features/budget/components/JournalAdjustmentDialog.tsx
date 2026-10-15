@@ -292,6 +292,7 @@ export function JournalAdjustmentDialog({
               <p>
                 Confirm the reference, accounts, and amount. This entry cannot
                 be edited or deleted after posting.
+                {' '}Use at most two decimal places; debit and credit totals must match exactly.
               </p>
             </div>
           </div>

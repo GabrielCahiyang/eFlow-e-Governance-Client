@@ -6,8 +6,8 @@ export async function fetchBudgetSections(orgId: string, fiscalYear: number) {
   const { data, error } = await supabase.rpc("get_office_budget_sections", { p_org_id: orgId, p_fiscal_year: fiscalYear });
   if (error?.code === "PGRST202") return { sections: [], sectionsAvailable: false, itemizedCashAvailable: false, sectionsVersion: 0 };
   if (error) throw new Error(error.message);
-  const row = data as { sections?: BudgetSection[]; version?: number } | null;
-  return { sections: (row?.sections || []).map(s => ({ ...s, parentId: s.parentId || undefined, accountCode: s.accountCode || undefined })), sectionsAvailable: Array.isArray(row?.sections), itemizedCashAvailable: Boolean(row?.sections?.some(s => "journalAccountCode" in s)), sectionsVersion: row?.version || 0 };
+  const row = data as { sections?: BudgetSection[]; version?: number; itemizedCashAvailable?: boolean } | null;
+  return { sections: (row?.sections || []).map(s => ({ ...s, parentId: s.parentId || undefined, accountCode: s.accountCode || undefined })), sectionsAvailable: Array.isArray(row?.sections), itemizedCashAvailable: row?.itemizedCashAvailable ?? Boolean(row?.sections?.some(s => "journalAccountCode" in s)), sectionsVersion: row?.version || 0 };
 }
 
 export async function saveBudgetSections(input: {

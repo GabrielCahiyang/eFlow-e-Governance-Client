@@ -8,8 +8,20 @@ export function getJournalTotals(entries: GeneralJournalEntry[]) {
   }, { debit: 0, credit: 0, delta: 0 });
 }
 
-export function isBalancedJournalLines(lines: JournalAdjustmentLineInput[], tolerance = .009) {
-  const totals = lines.reduce((sum, line) => ({ debit: sum.debit + Number(line.debit || 0), credit: sum.credit + Number(line.credit || 0) }), { debit: 0, credit: 0 });
-  return totals.debit > 0 && Math.abs(totals.debit - totals.credit) <= tolerance
-    && lines.length >= 2 && lines.every((line) => Boolean(line.accountCode) && ((line.debit > 0) !== (line.credit > 0)));
+export function isBalancedJournalLines(lines: JournalAdjustmentLineInput[], _tolerance = .009) {
+  // Retain the optional argument for compatibility, but never let a tolerance
+  // authorize fractions that numeric(16,2) would silently round on persistence.
+  let debit = 0, credit = 0;
+  const cents = (value: number) => {
+    const scaled = value * 100, rounded = Math.round(scaled);
+    return Number.isFinite(value) && value >= 0 && Number.isSafeInteger(rounded)
+      && value === Number((rounded / 100).toFixed(2)) ? rounded : NaN;
+  };
+  for (const line of lines) {
+    const d = cents(line.debit), c = cents(line.credit);
+    if (!line.accountCode.trim() || !Number.isFinite(d) || !Number.isFinite(c) || ((d > 0) === (c > 0))) return false;
+    debit += d; credit += c;
+    if (!Number.isSafeInteger(debit) || !Number.isSafeInteger(credit)) return false;
+  }
+  return lines.length >= 2 && debit > 0 && debit === credit;
 }

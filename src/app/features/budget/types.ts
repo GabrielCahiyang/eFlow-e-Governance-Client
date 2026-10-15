@@ -154,6 +154,7 @@ export interface PettyCashRequest {
   id: string;
   requestNumber: number;
   pcvNumber?: number;
+  pcvLegacy?: boolean;
   pcvDate?: string;
   fundingLines?: CashFundingLine[];
   fiscalBudgetId: string;

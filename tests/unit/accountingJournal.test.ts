@@ -32,4 +32,27 @@ describe("double-entry journal invariants", () => {
   it("accepts a balanced multi-line correction", () => {
     expect(isBalancedJournalLines([{ accountCode: "50299990", debit: 800, credit: 0 }, { accountCode: "10102020", debit: 200, credit: 0 }, { accountCode: "19901030", debit: 0, credit: 1000 }])).toBe(true);
   });
+
+  it("rejects sub-cent input even when unrounded totals balance", () => {
+    expect(isBalancedJournalLines([
+      { accountCode: "50299990", debit: 100.004, credit: 0 },
+      { accountCode: "50299990", debit: 100.004, credit: 0 },
+      { accountCode: "10102020", debit: 0, credit: 200.008 },
+    ])).toBe(false);
+  });
+
+  it("sums exact cents despite ordinary JavaScript floating point", () => {
+    expect(isBalancedJournalLines([
+      { accountCode: "50299990", debit: .1, credit: 0 },
+      { accountCode: "50299990", debit: .2, credit: 0 },
+      { accountCode: "10102020", debit: 0, credit: .3 },
+    ])).toBe(true);
+  });
+
+  it.each([NaN, Infinity, -Infinity, -.01, .001])("rejects invalid money %s", amount => {
+    expect(isBalancedJournalLines([
+      { accountCode: "50299990", debit: amount, credit: 0 },
+      { accountCode: "10102020", debit: 0, credit: amount },
+    ], 100)).toBe(false);
+  });
 });

@@ -1,0 +1,95 @@
+{
+  "date": "2026-10-15",
+  "target_project_ref": "ixnfphgjyelhckjwjkdv",
+  "status": "follow_up_prepared_locally_not_deployed",
+  "migration_version": "20261015142837",
+  "migration_file": "supabase/migrations/20261015142837_financial_journal_and_refund_integrity.sql",
+  "migration_sha256": "fde5e5db2f88b489f37e09f1e89eb9f3446d1659e053110e53b182610ab7b467",
+  "sql_editor_file": "docs/sql-editor/2026-10-15-financial-integrity-follow-up.sql",
+  "sql_editor_sha256": "71b12532a3d7c947122439467feed43608c9e7adbd3570e5a5a9a6157254824b",
+  "saved_operator_package_matches_generator": true,
+  "hosted_catalog_check": {
+    "checked_at_utc": "2026-10-15T14:51:23.867129+00:00",
+    "read_only": true,
+    "base_version_installed": "20261015125031",
+    "follow_up_installed": false,
+    "nw_impact_lock_present_at_initial_check": false,
+    "base_recorded_source_raw_sha256": "eb477cf4b9f7a2ebdd4f858f823672c928a32aa8c39ffa79ceccaab16394e42d",
+    "base_recorded_source_crlf_count": 568,
+    "base_recorded_source_lf_normalized_sha256": "e786df31a639771f86d81e180fa269fa9ea30f0c8e5455e2c9d561a7c3415e4e",
+    "base_installed_source_modified": false,
+    "hosted_writes_performed": false
+  },
+  "integrity_regression": {
+    "command": "node scripts/verify-financial-integrity.mjs",
+    "passed": true,
+    "assertions": 89,
+    "both_original_bugs_reproduced_before_patch": true,
+    "crlf_installed_base_verified": true,
+    "both_nw_install_orders_verified": true,
+    "public_function_oids_and_acl_preserved": true,
+    "historical_financial_rows_preserved": true,
+    "failed_migration_history_write_rolls_back_patch": true,
+    "duplicate_operator_paste_rejected": true,
+    "changed_liquidation_payloads_rejected_atomically": true,
+    "identical_historical_and_settled_retries_are_read_only": true,
+    "correction_version_and_legacy_settlement_complete": true,
+    "private_snapshot_and_helper_execution_denied": true
+  },
+  "base_financial_regression_with_patch": {
+    "command": "node scripts/verify-financial-compatibility.mjs --with-integrity",
+    "passed": true,
+    "assertions": 484,
+    "baseline_versions_reconstructed": 27,
+    "unchanged_nw_migrations_applied": 9
+  },
+  "original_preservation_regression": {
+    "command": "node scripts/verify-financial-preservation.mjs",
+    "passed": true,
+    "assertions": 61
+  },
+  "independent_postgresql_concurrency": {
+    "command": "server/.venv/Scripts/python.exe scripts/verify-financial-concurrency.py",
+    "passed": true,
+    "assertions": 18,
+    "postgres_version": 17,
+    "localhost_only": true,
+    "competing_changed_refund_payloads_serialize": true,
+    "identical_liquidation_retries_return_one_version": true,
+    "temporary_cluster_removed": true
+  },
+  "historical_budget_sections_regression": {
+    "command": "npm run verify:budget-sections",
+    "passed": true,
+    "assertions": 41
+  },
+  "full_unit_suite": {
+    "command": "npm test -- --maxWorkers=2 --testTimeout=15000 --reporter=dot",
+    "passed": true,
+    "test_files": 291,
+    "tests": 1756,
+    "duration_seconds": 1312.92,
+    "existing_assertions_weakened_or_removed": false
+  },
+  "focused_frontend_tests": {"passed": true, "files": 4, "tests": 16},
+  "chromium_browser": {
+    "passed": true,
+    "tests": 7,
+    "production_preview": true,
+    "backend_fixture_intercepted": true,
+    "output_directory": ".codex-tmp/financial-integrity-browser",
+    "preview_server_stopped": true
+  },
+  "typescript_check": "passed",
+  "production_build": {"passed": true, "transformed_modules": 6222, "existing_chunk_warnings": true},
+  "client_secret_scan": "passed",
+  "graph_update": {"passed": true, "existing_parser_warning_files": 4},
+  "remaining_acceptance_gates": [
+    "User-authorized installation of follow-up on designated hosted target",
+    "Hosted real-user JWT and cross-Office RLS acceptance",
+    "Storage provider upload/signing/download byte verification",
+    "Historical paper document provenance and approved reconciliation",
+    "Production backup and restoration acceptance",
+    "NW owner review of separate CRLF rollout matching issue"
+  ]
+}

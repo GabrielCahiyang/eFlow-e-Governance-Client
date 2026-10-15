@@ -75,6 +75,7 @@ export const mapAllocationLine = (row: Record<string, unknown>): WorkBudgetAlloc
 export const mapRequest = (row: Record<string, unknown>): PettyCashRequest => ({
   id: String(row.id), requestNumber: number(row.request_number), fiscalBudgetId: String(row.fiscal_budget_id),
   pcvNumber: row.pcv_number ? number(row.pcv_number) : undefined, pcvDate: row.pcv_date ? String(row.pcv_date) : undefined,
+  pcvLegacy: row.pcv_legacy === undefined ? undefined : row.pcv_legacy === true,
   commitmentId: String(row.commitment_id), allocationId: String(row.allocation_id),
   allocationLineId: row.allocation_line_id ? String(row.allocation_line_id) : undefined,
   orgId: String(row.org_id),

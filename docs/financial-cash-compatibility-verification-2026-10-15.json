@@ -1,0 +1,146 @@
+{
+  "date": "2026-10-15",
+  "target_project_ref": "ixnfphgjyelhckjwjkdv",
+  "status": "prepared_for_user_installation_not_deployed",
+  "migration_version": "20261015125031",
+  "migration_file": "supabase/migrations/20261015125031_financial_cash_compatibility.sql",
+  "migration_sha256": "e786df31a639771f86d81e180fa269fa9ea30f0c8e5455e2c9d561a7c3415e4e",
+  "sql_editor_file": "docs/sql-editor/2026-10-15-financial-cash-compatibility.sql",
+  "sql_editor_sha256": "157f71a747e0a7ea37900185b2bfa7882c00198a46953827ebd87534aeca3639",
+  "sql_editor_package_matches_generator": true,
+  "hosted_catalog_reconfirmation": {
+    "read_only": true,
+    "installed_versions": 27,
+    "new_financial_version_installed": false,
+    "new_cash_request_writer_absent": true,
+    "new_request_lines_table_absent": true,
+    "hosted_writes_performed": false
+  },
+  "financial_sql_regression": {
+    "command": "node scripts/verify-financial-compatibility.mjs",
+    "passed": true,
+    "assertions": 484,
+    "baseline_versions_reconstructed": 27,
+    "unchanged_nw_corrections_installed": 9,
+    "creation_example": {
+      "funding_sources": [80, 20],
+      "request_total": 100,
+      "funding_lines_total": 100,
+      "creation_audit_total": 100,
+      "creation_notification_total": 100
+    },
+    "correction_example": {
+      "funding_sources": [60, 30],
+      "corrected_total": 90,
+      "original_creation_audit_preserved": 100,
+      "new_correction_audit_total": 90,
+      "correction_notification_total": 90
+    },
+    "settlement_example": {
+      "expense_debits": [50, 20],
+      "cash_refund_debit": 20,
+      "advance_credit": 90,
+      "balanced": true
+    },
+    "partial_authorization_cents_and_source_limits": true,
+    "notification_failure_rolls_back_financial_rows": true,
+    "privileges_rls_and_immutability_checked": true
+  },
+  "historical_and_operator_package_regression": {
+    "command": "node scripts/verify-financial-preservation.mjs",
+    "passed": true,
+    "assertions": 61,
+    "existing_pcv_number_date_receipts_items_journals_events_preserved": true,
+    "missing_derived_lines_reconstructed_from_recorded_payload": true,
+    "counter_reconciliation_has_new_audit_event": true,
+    "old_incorrect_audit_is_not_silently_rewritten": true,
+    "sql_editor_history_failure_rolls_back_entire_installation": true,
+    "duplicate_operator_paste_changes_nothing": true,
+    "previous_migration_rows_unchanged": true
+  },
+  "native_concurrency_regression": {
+    "command": "server/.venv/Scripts/python.exe scripts/verify-financial-concurrency.py",
+    "passed": true,
+    "assertions": 12,
+    "postgres_major_version": 17,
+    "independent_postgres_sessions": true,
+    "localhost_only": true,
+    "cases": [
+      "same-key creation returns one request, audit, notification and command receipt",
+      "competing reservations cannot overspend their funding source",
+      "competing correction commands cannot both change one returned request",
+      "concurrent authorizations get distinct PCVs and consistent counter high-water"
+    ],
+    "temporary_database_removed": true
+  },
+  "total_new_database_assertions": 557,
+  "unchanged_historical_financial_regression": {
+    "command": "npm run verify:budget-sections",
+    "passed": true,
+    "assertions": 41
+  },
+  "focused_frontend_tests": {
+    "passed": true,
+    "files": 2,
+    "tests": 12
+  },
+  "production_browser_smoke": {
+    "command": "EFLOW_E2E=1 EFLOW_E2E_BASE_URL=http://127.0.0.1:5175 npx playwright test tests/e2e/office-budget-sections.spec.ts tests/e2e/financial-compatibility.spec.ts --project=chromium --timeout=60000 --workers=1 --output=.codex-tmp/financial-browser-preview",
+    "passed": true,
+    "tests": 3,
+    "target": "local production preview",
+    "cases": [
+      "historical unnumbered receipt remains visible without invented PCV/date",
+      "missing section capability preserves saved annual amount",
+      "locked section adjustment persists without duplicated writes"
+    ],
+    "development_loading_failures_preserved_in": "test-results/"
+  },
+  "repository_gates": {
+    "typescript_check_passed": true,
+    "production_build_passed": true,
+    "client_secret_scan_passed": true,
+    "git_diff_whitespace_check_passed": true,
+    "graph_update_completed": true,
+    "graph_existing_parser_warning_files": [
+      "src/app/features/guided-tours/index.ts",
+      "src/app/features/productivity/index.ts",
+      "src/app/features/project-table/components/ProjectTaskRow.tsx",
+      "src/app/features/work-templates/index.ts"
+    ],
+    "first_full_unit_run": {
+      "command": "npm test",
+      "passed_tests": 1742,
+      "failed_tests": 7,
+      "failed_files": 5,
+      "note": "Timing failures during concurrent full-suite/build/development-browser load; the five affected files passed separately with their original assertions and default timeouts."
+    },
+    "affected_file_confirmation": {
+      "passed": true,
+      "files": 5,
+      "tests": 25,
+      "original_default_timeouts": true
+    },
+    "reduced_parallel_full_unit_run": {
+      "command": "npm test -- --maxWorkers=2 --testTimeout=15000 --reporter=dot",
+      "status": "passed",
+      "passed_files": 291,
+      "passed_tests": 1749,
+      "failed_tests": 0,
+      "duration_seconds": 1289.37,
+      "assertions_and_existing_test_sources_unchanged": true
+    }
+  },
+  "history_and_scope": {
+    "historical_financial_migration_unchanged": true,
+    "all_nine_nw_correction_files_unchanged": true,
+    "other_checkouts_or_threads_modified": false,
+    "nw_execution_text_normalizes_crlf_to_lf_without_source_edits": true
+  },
+  "remaining_operator_acceptance": [
+    "user installation on the reviewed target and read-only verification",
+    "genuine hosted JWT/RLS and Storage provider upload/signing/download bytes",
+    "real historical paper voucher provenance and any explicit historical reconciliation",
+    "recoverable production backup and NW11 rollout acceptance"
+  ]
+}
