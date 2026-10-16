@@ -1,4 +1,4 @@
-import { useEffect, useRef, type KeyboardEvent, type ReactNode } from "react";
+import { useLayoutEffect, useRef, type KeyboardEvent, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, useReducedMotion } from "motion/react";
 import * as m from "motion/react-m";
@@ -98,7 +98,7 @@ export function InspectorPanel({
   restoreFocus.current = onReturnFocus;
   const returnFocusRef = useRef<HTMLElement | null>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!open) return;
     returnFocusRef.current =
       returnFocus ||
@@ -112,13 +112,27 @@ export function InspectorPanel({
       panel.removeAttribute("aria-hidden");
       inspectorStack.push(panel);
     }
-    const focusFrame = window.requestAnimationFrame(() => {
+    const focusPanel = () => {
+      const currentPanel = panelRef.current;
+      if (!currentPanel) return;
+      const active = document.activeElement;
+      // Entry focus must not replace a choice already made in this Inspector
+      // or a newly opened child dialog while its frame was pending.
+      if (
+        active instanceof HTMLElement && availableForFocus(active) &&
+        ((active !== currentPanel && currentPanel.contains(active)) ||
+          (active !== returnFocusRef.current &&
+            active.closest('[role="dialog"], [role="alertdialog"]')))
+      ) return;
       const firstFocusable = Array.from(
-        panelRef.current?.querySelectorAll<HTMLElement>(focusableSelector) ||
-          [],
+        currentPanel.querySelectorAll<HTMLElement>(focusableSelector),
       ).find(availableForFocus);
-      (firstFocusable || panelRef.current)?.focus();
-    });
+      (firstFocusable || currentPanel).focus();
+    };
+    // Own keyboard input as soon as the visible panel commits. Keep the frame
+    // fallback for controls that become available after its initial layout.
+    focusPanel();
+    const focusFrame = window.requestAnimationFrame(focusPanel);
 
     return () => {
       window.cancelAnimationFrame(focusFrame);

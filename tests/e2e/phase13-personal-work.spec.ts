@@ -16,8 +16,8 @@ for(const role of ['head','member','accounting_staff'] as const) test(`${role} d
  await expect(page.locator('[data-personal-task]')).toHaveCount(2);
  const destinations=page.getByRole('navigation',{name:'My Work destinations'});
  await destinations.getByRole('button',{name:'Leading',exact:true}).click();await expect(page.locator('[data-personal-task]')).toHaveCount(2);
- await destinations.getByRole('button',{name:'History',exact:true}).click();await page.getByRole('checkbox',{name:/Recently completed/}).check();await expect(page.locator('[data-personal-task]')).toHaveCount(1);
- await destinations.getByRole('button',{name:'Assigned work',exact:true}).click();await page.getByRole('button',{name:'All my work',exact:true}).click();await page.getByRole('searchbox',{name:'Search personal work'}).fill('briefing');await expect(page.locator('[data-personal-task]')).toHaveCount(1);
+ await destinations.getByRole('button',{name:'History',exact:true}).click();await page.getByRole('button',{name:/^Filters/}).click();await page.getByRole('checkbox',{name:/Recently completed/}).check();await page.getByRole('button',{name:'Done',exact:true}).click();await expect(page.locator('[data-personal-task]')).toHaveCount(1);
+ await destinations.getByRole('button',{name:'Assigned work',exact:true}).click();await page.getByRole('button',{name:/^Filters/}).click();await page.getByRole('button',{name:'All my work',exact:true}).click();await page.getByRole('button',{name:'Done',exact:true}).click();await page.getByRole('searchbox',{name:'Search personal work'}).fill('briefing');await expect(page.locator('[data-personal-task]')).toHaveCount(1);
  await page.getByRole('button',{name:'Clear search',exact:true}).click();
  await page.screenshot({path:info.outputPath(`${role}-my-work.png`),fullPage:true,animations:'disabled'});
  await destinations.getByRole('button',{name:'Subtasks',exact:true}).click();await expect(page.locator('[data-work-key^="office-node:"]')).toHaveCount(1);

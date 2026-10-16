@@ -5,6 +5,7 @@ import {rememberWorkCapabilityContext} from '../selectors/capabilities';
 import {workRpcFailure} from './workRequestOutcome';
 import {WorkRequestFailure} from '../types/editor';
 import {isWorkEventRecord} from '../selectors/workEventPresentation';
+import {notifyTaskListeners} from '../../tasks';
 export class WorkTreeUnavailable extends Error {}
 // Identity is only for rejecting stale client presentation. The RPC remains the
 // authority. Context failures must not change existing reads/receipt contracts.
@@ -37,6 +38,11 @@ export async function saveWorkTree(root:string,request:WorkRequest):Promise<Work
  if(error)throw workRpcFailure(error);
  if(data?.root?.id!==root||!Array.isArray(data.nodes))throw new WorkRequestFailure('unknown_result','No work receipt was returned. Retry the same request.');
  await rememberResponse(data,before);
+ // These commands also change the existing Office task record. Refresh its
+ // authorized subscribers from the confirmed receipt, without changing the
+ // command outcome if a secondary read fails or issuing another mutation.
+ if(data.root.kind==='office'&&['root_lead','contributors'].includes(request.command))
+  await Promise.allSettled([Promise.resolve().then(notifyTaskListeners)]);
  return data as WorkTreeSnapshot;
 }
 

@@ -93,10 +93,10 @@ describe('one supplied work hierarchy composition',()=>{
  it('routes node reorder to its own child list and root reorder to parent:null using complete hidden IDs',async()=>{
   const data=tree([node('Parent',null,{capabilities:{order_children:allow}}),node('Hidden B','Parent',{sibling_order:2}),node('Hidden A','Parent',{sibling_order:1})]);data.root.capabilities={order_children:allow};
   const input=props(data);input.collapsedIds=new Set(['Parent']);render(<WorkHierarchy {...input}/>);
-  await openMenu('Actions for Parent');fireEvent.click(screen.getByRole('menuitem',{name:'Reorder children'}));expect(input.onRequestAction).toHaveBeenLastCalledWith('order','Parent');
+  await openMenu('Actions for Parent');fireEvent.click(screen.getByRole('menuitem',{name:'Reorder children'}));await waitFor(()=>expect(input.onRequestAction).toHaveBeenLastCalledWith('order','Parent'));
   const nodeDraft=captureWorkEditorBaseline(data,{command:'order',parent:'Parent'},'actor','request');expect(nodeDraft.fields.order).toEqual(['Hidden A','Hidden B']);
   expect(workEditorPayload(nodeDraft,nodeDraft.fields)).toEqual({parent:'Parent',order:['Hidden A','Hidden B']});
-  await openMenu('Task work actions');fireEvent.click(screen.getByRole('menuitem',{name:'Reorder children'}));expect(input.onRequestAction).toHaveBeenLastCalledWith('order',undefined);
+  await openMenu('Task work actions');fireEvent.click(screen.getByRole('menuitem',{name:'Reorder children'}));await waitFor(()=>expect(input.onRequestAction).toHaveBeenLastCalledWith('order',undefined));
   const rootDraft=captureWorkEditorBaseline(data,{command:'order',parent:null},'actor','request');expect(rootDraft.fields.parent).toBe('');expect(rootDraft.fields.order).toEqual(['Parent']);
   expect(workEditorPayload(rootDraft,rootDraft.fields)).toEqual({parent:null,order:['Parent']});
   expect(data.nodes).toHaveLength(3);expect(api.save).not.toHaveBeenCalled();
@@ -115,9 +115,9 @@ describe('one supplied work hierarchy composition',()=>{
  it('keeps Office evidence/review callbacks and exposes personal commands only through their capabilities',async()=>{
   const office=tree([node('Parent',null,{capabilities:{execute:allow,submit:allow,review:allow}})]),input=props(office),view=render(<WorkHierarchy {...input}/>);
   await openMenu('Actions for Parent');expect(screen.queryByRole('menuitem',{name:'Update progress'})).toBeNull();expect(screen.queryByRole('menuitem',{name:'Submit for review'})).toBeNull();
-  fireEvent.click(screen.getByRole('menuitem',{name:'Review'}));expect(input.onRequestAction).toHaveBeenCalledWith('review','Parent');
+  fireEvent.click(screen.getByRole('menuitem',{name:'Review'}));await waitFor(()=>expect(input.onRequestAction).toHaveBeenCalledWith('review','Parent'));
   const personal=tree(office.nodes);personal.root={...personal.root,kind:'personal',office:null};rememberWorkCapabilityContext(personal,api.actor);
-  view.rerender(<WorkHierarchy {...input} snapshot={personal}/>);await openMenu('Actions for Parent');fireEvent.click(screen.getByRole('menuitem',{name:'Update progress'}));expect(input.onRequestAction).toHaveBeenLastCalledWith('progress','Parent');
+  view.rerender(<WorkHierarchy {...input} snapshot={personal}/>);await openMenu('Actions for Parent');fireEvent.click(screen.getByRole('menuitem',{name:'Update progress'}));await waitFor(()=>expect(input.onRequestAction).toHaveBeenLastCalledWith('progress','Parent'));
   view.rerender(<WorkHierarchy {...input} snapshot={personal} executionBlocked/>);await openMenu('Actions for Parent');expect(screen.queryByRole('menuitem',{name:'Update progress'})).toBeNull();expect(screen.queryByRole('menuitem',{name:'Submit for review'})).toBeNull();expect(screen.getByRole('menuitem',{name:'Review'})).toBeTruthy();
  });
  it('shows an empty state without inventing structure authority',()=>{render(<WorkHierarchy {...props(tree([]))}/>);expect(screen.getByText('No subitems yet.')).toBeTruthy();expect(screen.queryByRole('button')).toBeNull();});

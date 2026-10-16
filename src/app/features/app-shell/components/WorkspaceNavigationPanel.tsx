@@ -1,5 +1,5 @@
 import { Archive, Building2, ChevronDown, ChevronRight, Folder, MoreHorizontal, Search, Star, Wrench } from 'lucide-react';
-import { navigationGroupLabels, type NavigationGroupId, type ShellNavigationItem } from '../../navigation';
+import { type NavigationGroupId, type ShellNavigationItem } from '../../navigation';
 import { ActionMenu, WorkspacePopover } from '../../../components/ui/workspace';
 import { useNavigationFavorites } from '../../../shared/navigationPreferences';
 import { getEflowNavigationIcon } from '../eflowNavigationIcons';
@@ -8,12 +8,13 @@ import { WorkspaceProjectLinks, type WorkspaceProjectLink } from './WorkspacePro
 import { useEffect, useState, type ReactNode } from 'react';
 import { NAVIGATION_LOCATION_EVENT } from '../../../shared/navigationHistory';
 import {ContextRailHeader} from './ContextRailHeader';
+import { groupOfficeTools } from '../officeToolGroups';
 
 const sections = {
   'office-tools': { label: 'Office tools', Icon: Wrench }, favorites: { label: 'Favorites', Icon: Star },
   projects: { label: 'Projects', Icon: Folder }, archived: { label: 'Archived projects', Icon: Archive },
 };
-export function WorkspaceNavigationPanel({ group, items, activeSection, activePage, workspaceName, userId, workspaceId, projects, projectsLoading, onPageSelect, onSearch, preference, mobile, workspaceSelector, workspaceKind }: {
+export function WorkspaceNavigationPanel({ items, activeSection, activePage, workspaceName, userId, workspaceId, projects, projectsLoading, onPageSelect, onSearch, preference, mobile, workspaceSelector, workspaceKind }: {
   group: NavigationGroupId; items: ShellNavigationItem[]; activeSection: string; activePage?: string; workspaceName: string;
   userId: string; workspaceId: string; projects: WorkspaceProjectLink[]; projectsLoading: boolean;
   onPageSelect: (section: string, page: string, projectId?: string) => void; onSearch: () => void;
@@ -33,13 +34,10 @@ export function WorkspaceNavigationPanel({ group, items, activeSection, activePa
   const collapsed = preference.value.collapsed && !mobile;
   const availableSections = (Object.keys(sections) as WorkspaceSectionId[]).filter(id => id === 'office-tools'
     ? items.some(item => item.group === 'workspaces' && item.id !== 'projects') : canOpenProjects);
-  const contextItems = group === 'account' ? [{ id: 'settings', label: 'Account', group, icon: null, pages: ['Profile', 'Appearance', 'Notifications', 'Security'].map(label => ({ label })) }]
-    : items.filter(item => item.group === group && group !== 'workspaces'&&(group!=='my-work'||item.id==='personal_work'));
-  const destinations = (destinations: typeof contextItems) => destinations.map(item => {
+  const destinations = (destinations: ShellNavigationItem[]) => destinations.map(item => {
     return <div key={item.id} data-tour-section={item.id}>
-      {item.pages.length > 1 && <h3>{item.label}</h3>}
-      {item.pages.map(page => {const Icon=getEflowNavigationIcon(item.id,page.label);return <button className="eflow-workspace-navigation__destination" type="button" key={page.label} aria-label={item.pages.length === 1 ? item.label : page.label} aria-current={activeSection === item.id && activePage === page.label ? 'page' : undefined} onClick={() => onPageSelect(item.id, page.label)}>
-        <Icon size={17} aria-hidden="true" /><span>{item.pages.length === 1 ? item.label : page.label}</span>{'hasAlert' in item && item.hasAlert && <span className="eflow-navigation-alert" aria-label="Actions pending" />}
+      {item.pages.map(page => {const Icon=getEflowNavigationIcon(item.id,page.label);const label=workspaceKind !== 'personal' && item.id === 'tasks' && item.pages.length === 1 ? 'Office tasks' : item.pages.length === 1 ? item.label : page.label;return <button className="eflow-workspace-navigation__destination" type="button" key={page.label} aria-label={label} aria-current={activeSection === item.id && activePage === page.label ? 'page' : undefined} onClick={() => onPageSelect(item.id, page.label)}>
+        <Icon size={17} aria-hidden="true" /><span>{label}</span>{'hasAlert' in item && item.hasAlert && <span className="eflow-navigation-alert" aria-label="Actions pending" />}
       </button>;})}
     </div>;
   });
@@ -47,7 +45,9 @@ export function WorkspaceNavigationPanel({ group, items, activeSection, activePa
     activeProjectId={activeSection === 'projects' ? selectedProjectId : undefined}
     onOpen={id => onPageSelect('projects', 'Projects', id)} onToggleFavorite={toggle} />;
   const sectionBody = (id: WorkspaceSectionId) => {
-    if (id === 'office-tools') return destinations(items.filter(item => item.group === 'workspaces' && item.id !== 'projects'));
+    if (id === 'office-tools') return workspaceKind === 'personal'
+      ? destinations(items.filter(item => item.group === 'workspaces' && item.id !== 'projects'))
+      : groupOfficeTools(items).map(group => <div key={group.label}><h3>{group.label}</h3>{destinations(group.items)}</div>);
     if (projectsLoading) return <p role="status">Loading projects…</p>;
     const subset = allowedProjects.filter(project => id === 'favorites' ? favorites.has(project.id) : (project.status === 'archived') === (id === 'archived'));
     return <>{id === 'projects' && <button className="eflow-workspace-navigation__destination" type="button" data-tour-section="projects" onClick={() => onPageSelect('projects', 'Projects')}><Folder size={17} /><span>Open projects</span></button>}
@@ -56,7 +56,6 @@ export function WorkspaceNavigationPanel({ group, items, activeSection, activePa
   return <section className="eflow-workspace-navigation eflow-scroll-region" aria-label="Workspace content" data-context-rail="workspaces">
     <header className="eflow-workspace-navigation__header">
       <ContextRailHeader title="Workspace" collapsed={collapsed} mobile={mobile} onCollapse={()=>preference.setCollapsed(!collapsed)} utilities={<ActionMenu trigger={<button type="button" aria-label="Workspace options"><MoreHorizontal size={18}/></button>} actions={[
-        {id:'search',label:'Search workspace',onSelect:onSearch},
         ...availableSections.map(id=>({id,label:`${preference.value.sections.includes(id)?'Hide':'Show'} ${scopedSections[id].label}`,onSelect:()=>preference.toggleSection(id)})),
       ]}/>}/>
       {!collapsed && <div className="eflow-workspace-navigation__selector-row">
@@ -65,12 +64,11 @@ export function WorkspaceNavigationPanel({ group, items, activeSection, activePa
         </WorkspacePopover>)}
       </div>}
       <div className="eflow-workspace-navigation__controls">
-        {!collapsed && <><button type="button" className="eflow-workspace-navigation__destination" onClick={onSearch}><Search size={17} /><span>Search workspace</span></button>
+        {!collapsed && <><button type="button" className="eflow-workspace-navigation__destination" onClick={onSearch}><Search size={17} /><span>Find pages and projects</span></button>
           </>}
       </div>
     </header>
     {!collapsed && <nav aria-label="Workspace destinations" className="eflow-workspace-navigation__destinations">
-      {contextItems.length > 0 && <section aria-label={navigationGroupLabels[group]}><h2>{navigationGroupLabels[group]}</h2>{destinations(contextItems)}</section>}
       {preference.value.sections.filter(id => availableSections.includes(id)).map(id => {
         const { label, Icon } = scopedSections[id]; const open = !preference.value.closed.includes(id);
         return <section key={id} aria-label={label} className="eflow-workspace-section">

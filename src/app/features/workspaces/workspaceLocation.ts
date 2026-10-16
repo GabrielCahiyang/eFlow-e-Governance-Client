@@ -1,5 +1,5 @@
 import { pushNavigationHistory, replaceNavigationHistory } from '../../shared/navigationHistory';
-import {navigationParameters} from '../navigation';
+import {destinationNavigationParameters,getNavigationSectionFromPath,navigationDisplayKeys} from '../navigation';
 
 export const WORKSPACE_QUERY = 'workspace';
 const key = (user: string) => `eflow:workspaces:v1:${user}`;
@@ -19,10 +19,10 @@ export function writeWorkspaceLocation(id: string, switchContext = true, mode: '
   url.searchParams.set(WORKSPACE_QUERY,id);
   if (switchContext) {
     url.pathname='/projects'; url.searchParams.set('page','Projects');
-    for (const key of ['project','view','plans','task','subtask','proposal']) url.searchParams.delete(key);
+    for (const key of [...navigationDisplayKeys.filter(key=>key!=='workspace'),'task','subtask','proposal']) url.searchParams.delete(key);
     url.hash='';
   }
   if(destination){url.pathname=destination.pathname;url.searchParams.set('page',destination.page);if(destination.project)url.searchParams.set('project',destination.project);if(destination.view)url.searchParams.set('view',destination.view);}
-  for(const [key,value] of Object.entries(navigationParameters(destination?.parameters)))url.searchParams.set(key,value);
+  for(const [key,value] of Object.entries(destinationNavigationParameters(getNavigationSectionFromPath(url.pathname)||'',destination?.parameters,destination?.page)))if(key!==WORKSPACE_QUERY)url.searchParams.set(key,value);
   (mode === 'push' ? pushNavigationHistory : replaceNavigationHistory)(`${url.pathname}${url.search}${url.hash}`);
 }

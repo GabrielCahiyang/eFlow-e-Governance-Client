@@ -1,0 +1,19 @@
+{
+  "head": "545245e353ad04ac47e24f95a71e06cf736ca0f8",
+  "scope": "P4, preserving approved P0-P3",
+  "typecheck": "passed: .codex-tmp/global-ui-p4/check-final.log",
+  "unitFull": { "files": 295, "passed": 1771, "failed": 0, "log": ".codex-tmp/global-ui-p4/unit-bounded.log" },
+  "unitFinalAffected": { "files": 6, "passed": 30, "failed": 0, "log": ".codex-tmp/global-ui-p4/unit-final-focused.log" },
+  "build": "passed: .codex-tmp/global-ui-p4/build-final.log; existing chunk/import warnings",
+  "browserBroader": { "passed": 151, "failed": 1, "skipped": 0, "log": ".codex-tmp/global-ui-p4/browser-accepted.log", "report": ".codex-tmp/global-ui-p4/browser-accepted.json", "failure": "Unchanged P1 account-return case timed out; manual return and final isolated case passed. This earlier failure is not counted as a pass." },
+  "browserFinalAffected": { "passed": 24, "failed": 0, "skipped": 0, "flaky": 0, "projects": ["chromium", "webkit"], "log": ".codex-tmp/global-ui-p4/browser-final-focused.log", "report": ".codex-tmp/global-ui-p4/browser-final-focused.json", "suites": ["global-ui-p4", "global-ui-p1 account-return", "workspace-refinement-r7 NW9.7"] },
+  "graphify": { "status": "passed", "nodes": 9550, "communities": 405, "partialExtractionWarnings": ["guided-tours/index", "productivity/index", "ProjectTaskRow", "work-templates/index"], "log": ".codex-tmp/global-ui-p4/graph-update.log" },
+  "manualScreenshots": 32,
+  "protectedFilesUnchanged": 4342,
+  "applicationAndTestFiles": 26,
+  "hostedOperationalWrites": 0,
+  "migrations": 0,
+  "deployment": false,
+  "authorityChanges": false,
+  "limits": ["Synthetic local accounts; genuine hosted/JWT/RLS/Storage/provider acceptance unverified", "Firefox earlier spawn UNKNOWN", "Protected dark shared-header wordmark contrast", "Earlier P1 account-return timeout, final unchanged case passed both engines", "P5a/P5b/P6/P7 remain pending"]
+}

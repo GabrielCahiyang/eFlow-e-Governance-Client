@@ -1,12 +1,7 @@
 import { useState } from "react";
 import { useEffect } from "react";
-import { Tab, TabList, TabsContext } from "@vibe/core";
 import {
   AlertTriangle,
-  Archive,
-  BookOpenCheck,
-  Landmark,
-  WalletCards,
 } from "lucide-react";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useTasks } from "../../../hooks/useFirebaseData";
@@ -30,75 +25,30 @@ import { DirectWorkFunding } from "./DirectWorkFunding";
 import { BudgetPartitionOverview } from "./BudgetPartitionOverview";
 import { BudgetAccountMappings } from "./BudgetAccountMappings";
 import { PettyCashVoucherRegister } from "./PettyCashVoucherRegister";
+import { WorkspaceHeader } from '../../../components/ui/workspace';
+import { FeedbackState } from '../../../components/ui/FeedbackState';
+import { writeNavigationLocation, readRouteFiscalYear } from '../../navigation';
+import { NAVIGATION_LOCATION_EVENT } from '../../../shared/navigationHistory';
 
-type Tab =
-  | "overview"
-  | "annual"
-  | "funding"
-  | "approvals"
-  | "releases"
-  | "expenses"
-  | "vouchers"
-  | "journal"
-  | "audit";
-type BudgetArea = "overview" | "planning" | "requests" | "ledger";
-
-const areaTabs: Record<BudgetArea, Array<{ id: Tab; label: string }>> = {
-  overview: [{ id: "overview", label: "Overview" }],
-  planning: [
-    { id: "annual", label: "Annual Budget" },
-    { id: "funding", label: "Proposal & Task Funding" },
-  ],
-  requests: [
-    { id: "approvals", label: "Funding Requests" },
-    { id: "releases", label: "Releases & Settlement" },
-    { id: "expenses", label: "Expenses" },
-    { id: "vouchers", label: "Petty Cash Vouchers" },
-  ],
-  ledger: [
-    { id: "journal", label: "General Journal" },
-    { id: "audit", label: "Accounting Trail" },
-  ],
-};
-
-const areaForTab = (tab: Tab): BudgetArea =>
-  tab === "overview"
-    ? "overview"
-    : tab === "annual" || tab === "funding"
-      ? "planning"
-      : tab === "approvals" || tab === "releases" || tab === "expenses" || tab === "vouchers"
-        ? "requests"
-        : "ledger";
-
-const tabFromUrl = (value: string | null): Tab | null => {
-  const valid: Tab[] = [
-    "overview",
-    "annual",
-    "funding",
-    "approvals",
-    "releases",
-    "expenses",
-    "vouchers",
-    "journal",
-    "audit",
-  ];
-  return value && valid.includes(value as Tab) ? (value as Tab) : null;
-};
+import { BudgetViewControl } from './BudgetViewControl';
+import { readBudgetView as tabFromUrl, type BudgetView as Tab } from '../budgetViews';
 
 import { requestNavigation } from "../../../shared/navigationGuard";
-export function OfficeBudgetWorkspace({
-  fiscalYear: suppliedYear,
-  embedded = false,
-}: { fiscalYear?: number; embedded?: boolean } = {}) {
+type BudgetOwner = { budget: ReturnType<typeof useDepartmentBudget>; journal: ReturnType<typeof useGeneralJournal> };
+type OfficeBudgetProps = { fiscalYear?: number; embedded?: boolean; dataOwner?: BudgetOwner };
+type BudgetContentProps = BudgetOwner & { orgId: string; fiscalYear: number; embedded: boolean; tab: Tab; setTab: (tab: Tab) => void; setFiscalYear: (year: number) => void };
+
+export function OfficeBudgetWorkspace(props: OfficeBudgetProps = {}) {
   const { userProfile } = useAuth();
-  const orgId = userProfile?.org_id || userProfile?.departmentId || "";
+  const orgId = userProfile?.org_id || userProfile?.departmentId || '';
+  return <OfficeBudgetRoute key={`${userProfile?.id}:${userProfile?.role}:${orgId}`} {...props} orgId={orgId} actorId={userProfile?.id} />;
+}
+
+function OfficeBudgetRoute({ fiscalYear: suppliedYear, embedded = false, dataOwner, orgId, actorId }: OfficeBudgetProps & { orgId: string; actorId?: string }) {
   const [fiscalYearState, setFiscalYearState] = useState(() => {
     if (typeof window !== "undefined") {
-      const value = Number(
-        new URLSearchParams(window.location.search).get("fy"),
-      );
-      if (Number.isInteger(value) && value >= 2000 && value <= 2200)
-        return value;
+      const value = readRouteFiscalYear(new URLSearchParams(window.location.search).get('fy'));
+      if (value !== undefined) return value;
     }
     return getCurrentFiscalYear();
   });
@@ -113,17 +63,11 @@ export function OfficeBudgetWorkspace({
   const fiscalYear = suppliedYear ?? fiscalYearState;
   const tab = tabState;
   const updateBudgetUrl = (nextTab: Tab, nextYear: number) => {
-    if (embedded || typeof window === "undefined") return;
+    if (typeof window === "undefined") return;
     const url = new URL(window.location.href);
-    url.pathname = "/office-budget";
-    url.searchParams.set("page", "Office Budget");
-    url.searchParams.set("view", nextTab);
-    url.searchParams.set("fy", String(nextYear));
-    window.history.pushState(
-      { page: "Office Budget", view: nextTab, fy: nextYear },
-      "",
-      `${url.pathname}?${url.searchParams.toString()}`,
-    );
+    writeNavigationLocation(embedded ? 'accounting_budgets' : 'budget', embedded ? 'Office Budget Ledgers' : 'Office Budget', 'push', {
+      parameters: { ...Object.fromEntries(url.searchParams), view: nextTab, fy: String(nextYear) },
+    });
   };
   const setTab = (next: Tab) => {
     void requestNavigation(() => {
@@ -138,22 +82,31 @@ export function OfficeBudgetWorkspace({
     });
   };
   useEffect(() => {
-    if (embedded) return;
     const onPopState = () => {
       const params = new URLSearchParams(window.location.search);
       const nextTab = tabFromUrl(params.get("view"));
-      const nextYear = Number(params.get("fy"));
-      if (nextTab) setTabState(nextTab);
-      if (Number.isInteger(nextYear) && nextYear >= 2000 && nextYear <= 2200)
-        setFiscalYearState(nextYear);
+      const nextYear = readRouteFiscalYear(params.get('fy'));
+      setTabState(nextTab || 'overview');
+      setFiscalYearState(nextYear ?? getCurrentFiscalYear());
     };
     window.addEventListener("popstate", onPopState);
-    return () => window.removeEventListener("popstate", onPopState);
+    window.addEventListener(NAVIGATION_LOCATION_EVENT, onPopState);
+    return () => { window.removeEventListener("popstate", onPopState); window.removeEventListener(NAVIGATION_LOCATION_EVENT, onPopState); };
   }, [embedded]);
-  const budget = useDepartmentBudget(orgId, fiscalYear);
-  const journal = useGeneralJournal(orgId, fiscalYear);
+  const content = { orgId, fiscalYear, embedded, tab, setTab, setFiscalYear };
+  return dataOwner ? <OfficeBudgetContent {...content} {...dataOwner} /> : <StandaloneOfficeBudgetContent {...content} actorId={actorId} />;
+}
+
+function StandaloneOfficeBudgetContent(props: Omit<BudgetContentProps, keyof BudgetOwner> & { actorId?: string }) {
+  const budget = useDepartmentBudget(props.orgId, props.fiscalYear);
+  const journal = useGeneralJournal(props.orgId, props.fiscalYear, props.actorId);
+  return <OfficeBudgetContent {...props} budget={budget} journal={journal} />;
+}
+
+function OfficeBudgetContent({ orgId, fiscalYear, embedded, tab, setTab, setFiscalYear, budget, journal }: BudgetContentProps) {
+  const { userProfile } = useAuth();
   const { tasks } = useTasks();
-  const canPrepare = ["head", "head"].includes(userProfile?.role || "");
+  const canPrepare = userProfile?.role === 'head';
   const pendingCount =
     budget.allocations.filter((item) => item.status === "pending").length +
     budget.requests.filter(
@@ -173,35 +126,20 @@ export function OfficeBudgetWorkspace({
   const { utilization, underTarget } = utilizationSignal;
   if (!orgId)
     return (
-      <div className="p-8 text-[12px] text-neutral-500">
-        Your account needs an organization before a office budget can be opened.
+      <div className="p-8 text-sm text-muted-foreground">
+        Your account needs an organization before an Office budget can be opened.
       </div>
     );
-  const activeArea = areaForTab(tab);
-  const areaIndex = ["overview", "planning", "requests", "ledger"].indexOf(
-    activeArea,
-  );
   return (
-    <div className="eflow-budget-workspace min-h-full bg-neutral-50 p-4 font-normal sm:p-8">
+    <div className={`eflow-budget-workspace min-h-full bg-background text-foreground font-normal ${embedded ? "eflow-budget-embedded" : "p-4 sm:p-8"}`}>
       <div className="mx-auto max-w-[1500px] space-y-5">
-        <header className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
-          <div>
-            <div className="text-[12px] uppercase tracking-[0.18em] text-neutral-500">
-              Office · Fiscal control
-            </div>
-            <h1 className="mt-1 text-[24px] font-semibold text-neutral-950">
-              Office Budget
-            </h1>
-            <p className="mt-1 max-w-3xl text-[14px] leading-relaxed text-neutral-600">
-              Annual appropriation → proposal → task funding → contextual cash
-              request → receipts → verified expense. Every amount remains
-              traceable to the work that authorized it.
-            </p>
-            <div className="mt-2 flex items-center gap-2 text-[12px] text-neutral-500">
+        {!embedded && <WorkspaceHeader title="Office Budget" description="Annual appropriation → proposal → task funding → contextual cash request → receipts → verified expense. Every amount remains traceable to the work that authorized it." actions={
+            <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
               <span
-                className={`rounded-full px-2 py-1 capitalize ${budget.summary?.status === "locked" ? "bg-emerald-50 text-emerald-700" : budget.summary?.status === "closed" ? "bg-neutral-100 text-neutral-600" : "bg-amber-50 text-amber-700"}`}
+                className="eflow-budget-status"
+                data-status={budget.summary?.status || (budget.error ? 'unavailable' : 'unconfigured')}
               >
-                {budget.summary?.status || "Not configured"}
+                {budget.summary?.status || (budget.error ? "Unavailable" : "Not configured")}
               </span>
               {budget.summary?.updatedAt && (
                 <span>
@@ -209,12 +147,12 @@ export function OfficeBudgetWorkspace({
                 </span>
               )}
             </div>
-          </div>
-        </header>
+        } />}
+        {embedded && <div className="eflow-budget-ledger-status"><span className="eflow-budget-status" data-status={budget.summary?.status || (budget.error ? "unavailable" : "unconfigured")}>{budget.summary?.status || (budget.error ? "Unavailable" : "Not configured")}</span>{budget.summary?.updatedAt && <span>Updated {new Date(budget.summary.updatedAt).toLocaleString()}</span>}</div>}
         {budget.error && (
-          <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-[12px] text-rose-700">
+          <FeedbackState tone="error" title="Budget data unavailable" onRetry={() => void budget.refresh()}>
             {budget.error}
-          </div>
+          </FeedbackState>
         )}
         {budget.schemaWarnings?.map((warning) => (
           <div
@@ -241,94 +179,12 @@ export function OfficeBudgetWorkspace({
           />
         ) : (
           <>
-            <div
-              aria-label="Budget fiscal scope and view filters"
-              className="sticky top-3 z-20 rounded-2xl border border-neutral-200 bg-white/95 p-1.5 shadow-lg backdrop-blur supports-[backdrop-filter]:bg-white/80"
-            >
-              <div className="flex flex-wrap items-center gap-3 border-b border-neutral-100 px-3 py-2">
-                <div className="min-w-0 flex-1">
-                  <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-500">
-                    Fiscal scope &amp; views
-                  </div>
-                  <div className="mt-0.5 text-[12px] text-neutral-600">
-                    FY {fiscalYear} ·{" "}
-                    {activeArea === "overview"
-                      ? "Budget position"
-                      : activeArea === "planning"
-                        ? "Planning and allocation"
-                        : activeArea === "requests"
-                          ? "Requests and settlement"
-                          : "Ledger and audit"}
-                  </div>
-                </div>
-                {!embedded && (
-                  <FiscalYearControl
-                    compact
-                    value={fiscalYear}
-                    onChange={setFiscalYear}
-                  />
-                )}
-              </div>
-              <TabsContext activeTabId={areaIndex} id="office-budget-areas">
-                <TabList id="office-budget-area-list">
-                  <Tab
-                    active={activeArea === "overview"}
-                    id="budget-overview"
-                    onClick={() => setTab("overview")}
-                  >
-                    <span className="inline-flex items-center gap-1.5">
-                      <Landmark size={14} /> Overview
-                    </span>
-                  </Tab>
-                  <Tab
-                    active={activeArea === "planning"}
-                    id="budget-planning"
-                    onClick={() => setTab("annual")}
-                  >
-                    <span className="inline-flex items-center gap-1.5">
-                      <BookOpenCheck size={14} /> Planning &amp; Allocation
-                    </span>
-                  </Tab>
-                  <Tab
-                    active={activeArea === "requests"}
-                    id="budget-requests"
-                    onClick={() => setTab("approvals")}
-                  >
-                    <span className="inline-flex items-center gap-1.5">
-                      <WalletCards size={14} /> Requests &amp; Settlement
-                      {pendingCount ? ` · ${pendingCount}` : ""}
-                    </span>
-                  </Tab>
-                  <Tab
-                    active={activeArea === "ledger"}
-                    id="budget-ledger"
-                    onClick={() => setTab("journal")}
-                  >
-                    <span className="inline-flex items-center gap-1.5">
-                      <Archive size={14} /> Ledger &amp; Audit
-                    </span>
-                  </Tab>
-                </TabList>
-              </TabsContext>
-              {areaTabs[activeArea].length > 1 && (
-                <div
-                  className="mt-1 flex min-w-0 gap-1 overflow-x-auto border-t border-neutral-100 pt-1"
-                  aria-label={`${activeArea} budget views`}
-                >
-                  {areaTabs[activeArea].map((item) => (
-                    <button
-                      key={item.id}
-                      type="button"
-                      onClick={() => setTab(item.id)}
-                      className={`whitespace-nowrap rounded-lg px-3 py-2 text-[12px] font-medium transition ${tab === item.id ? "bg-neutral-100 text-neutral-950" : "text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900"}`}
-                    >
-                      {item.label}
-                    </button>
-                  ))}
-                </div>
-              )}
+            <div aria-label="Budget fiscal scope and view filters" className="eflow-budget-view-toolbar sticky top-3 z-20">
+              <BudgetViewControl value={tab} onChange={setTab} />
+              {!embedded && <FiscalYearControl compact value={fiscalYear} onChange={setFiscalYear} />}
+              <small>{budget.error ? 'Pending financial actions unavailable' : `Pending financial actions: ${pendingCount}`} · FY {fiscalYear}</small>
             </div>
-            {!budget.summary && tab !== "annual" ? (
+            {!budget.summary && budget.error && tab !== "annual" ? null : !budget.summary && tab !== "annual" ? (
               <BudgetEmpty
                 title={`No ${fiscalYear} annual budget yet`}
                 description="The Head must create and lock the annual budget before proposals and task-level cash requests can be funded."
@@ -390,6 +246,7 @@ export function OfficeBudgetWorkspace({
                 {tab === "vouchers" && <PettyCashVoucherRegister data={budget} />}
                 {tab === "journal" && (
                   <GeneralJournalWorkspace
+                    journal={journal}
                     orgId={orgId}
                     fiscalYear={fiscalYear}
                     fiscalBudgetId={budget.summary?.id}
@@ -457,7 +314,7 @@ function Overview({
         </div>
       )}
       <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
-        <div className="flex justify-between text-[12px] text-neutral-500">
+        <div className="flex justify-between text-sm text-muted-foreground">
           <span>Annual utilization</span>
           <span className="tabular-nums">{utilization.toFixed(1)}%</span>
         </div>
@@ -467,7 +324,7 @@ function Overview({
             style={{ width: `${Math.min(100, utilization)}%` }}
           />
         </div>
-        <div className="mt-3 text-[12px] text-neutral-500">
+        <div className="mt-3 text-sm text-muted-foreground">
           Actual spending as a share of the approved annual authority.
           Commitments and cash awaiting settlement are shown above as separate
           operational exposures.

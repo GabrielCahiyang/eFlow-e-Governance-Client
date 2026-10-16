@@ -5,6 +5,7 @@ const cashLiquidation = readFileSync("src/app/features/budget/components/CashLiq
 const approvalQueue = readFileSync("src/app/features/budget/components/BudgetApprovalQueue.tsx", "utf8");
 const accountingTrail = readFileSync("src/app/features/budget/components/AccountingTrailPanel.tsx", "utf8");
 const accountingWorkspace = readFileSync("src/app/features/budget/components/AccountingStaffWorkspace.tsx", "utf8");
+const accountingStyles = readFileSync("src/app/features/budget/accountingWorkspace.css", "utf8");
 const expensesReport = readFileSync("src/app/features/budget/components/BudgetExpensesReport.tsx", "utf8");
 const positionSummary = readFileSync("src/app/features/budget/components/BudgetPositionSummary.tsx", "utf8");
 const budgetUi = readFileSync("src/app/features/budget/components/budgetUi.tsx", "utf8");
@@ -28,7 +29,9 @@ describe("budget design-system presentation", () => {
     expect(expensesReport).toContain('rounded-[10px] border border-border bg-card');
     expect(expensesReport).toContain('text-right font-semibold tabular-nums text-foreground');
     expect(expensesReport).toContain('text-right text-primary tabular-nums');
-    expect(accountingWorkspace).toContain('text-right text-[20px] font-semibold tabular-nums text-foreground');
+    expect(accountingWorkspace).toContain('<WorkspaceHeader');
+    expect(accountingStyles).toContain('font-variant-numeric:tabular-nums');
+    expect(accountingStyles).toContain('background:var(--eflow-surface)');
     expect(positionSummary).toContain('rounded-[10px] border border-border bg-card');
   });
 

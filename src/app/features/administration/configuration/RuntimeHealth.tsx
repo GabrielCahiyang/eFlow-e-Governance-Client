@@ -32,6 +32,7 @@ export function RuntimeHealth() {
         </p>
       </article>
       <ConfigurationMatrix
+        embedded
         area="runtime"
         title="Runtime, audit and backup configuration"
       />

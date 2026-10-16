@@ -5,7 +5,7 @@ import { projectWorkspaceFixture } from './fixtures/projectWorkspace';
 for(const width of [320,390,1440])test(`R3 personal creation, isolation and workspace history at ${width}px`,async({page},info)=>{
  test.setTimeout(120_000);await page.setViewportSize({width,height:950});
  const fixture=await personalWorkspaceFixture(page);
- if(width<1024)await page.getByRole('navigation',{name:'Mobile primary navigation'}).getByRole('button',{name:'Projects',exact:true}).click();else await page.getByRole('navigation',{name:'Global navigation'}).getByRole('button',{name:'Workspaces',exact:true}).click();
+ if(width<1024)await page.getByRole('navigation',{name:'Mobile primary navigation'}).getByRole('button',{name:'Workspaces',exact:true}).click();else await page.getByRole('navigation',{name:'Global navigation'}).getByRole('button',{name:'Workspaces',exact:true}).click();
  await expect(page.getByRole('region',{name:'Project main table'})).toBeVisible();
  const openNavigation=async()=>{if(width<1024)await page.getByRole('navigation',{name:'Mobile primary navigation'}).getByRole('button',{name:'More',exact:true}).click();};
  await openNavigation();await page.getByRole('button',{name:'Planning Office Workspace',exact:true}).click();

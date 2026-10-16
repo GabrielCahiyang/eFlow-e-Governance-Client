@@ -137,6 +137,7 @@ function SettingsForm({ canManage }: { canManage: boolean }) {
         </>
       )}
       <ConfigurationMatrix
+        embedded
         area="application"
         title="Application configuration status"
       />

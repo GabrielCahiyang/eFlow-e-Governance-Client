@@ -1,4 +1,4 @@
-import {useEffect,useRef,useState,type ReactNode} from 'react';
+import {useEffect,useLayoutEffect,useRef,useState,type ReactNode} from 'react';
 import {useAuth} from '../../../contexts/AuthContext';
 import {useWorkTree} from '../hooks/useWorkTree';
 import {WorkTreeEditor,type WorkEdit} from './WorkTreeEditor';
@@ -44,7 +44,20 @@ function WorkTreeContent({rootId,branchParentId,branchActions=false,presentation
   const allowed=selectRootWorkCapability(data,'create_child',{actorId:user?.id||null,rootId,projectId:data.root.project,officeId:data.root.office,kind:data.root.kind,revision:data.revision,readOnly,executionBlocked}).allowed;
   if(allowed)void requestNavigation(()=>{returnFocus.current=createFocusTarget||null;setEdit({command:'create',parent:null});});
  },[createRequest,createFocusTarget,data,tree.authorityFresh,tree.pending,readOnly,executionBlocked,rootId,user?.id]);
- useEffect(()=>{if(edit){const frame=requestAnimationFrame(()=>section.current?.querySelector<HTMLInputElement>('.r7-form input:not([disabled]),.r7-form select:not([disabled]),.r7-form button:not([disabled])')?.focus());return()=>cancelAnimationFrame(frame);}},[edit]);
+ useLayoutEffect(()=>{
+  if(!edit)return;
+  const form=section.current?.querySelector<HTMLFormElement>('.r7-form'),entryFocus=document.activeElement;
+  const focusEditor=()=>{
+   if(!form?.isConnected)return;
+   const active=document.activeElement;
+   // Entry must precede typing; its fallback must not take focus from a
+   // selected field or a newer dialog/menu that now owns the interaction.
+   if(form.contains(active)||active!==entryFocus&&active?.closest('[role="dialog"],[role="alertdialog"],[role="menu"]'))return;
+   form.querySelector<HTMLElement>('input:not([disabled]),select:not([disabled]),button:not([disabled])')?.focus();
+  };
+  focusEditor();
+  const frame=requestAnimationFrame(focusEditor);return()=>cancelAnimationFrame(frame);
+ },[edit]);
  const finish=()=>{setEdit(undefined);requestAnimationFrame(()=>{const opener=returnFocus.current;if(opener?.isConnected&&!(opener instanceof HTMLButtonElement&&opener.disabled)){opener.focus();return;}if(presentation==='project-table'){waitingForFocus.current=true;section.current?.focus();}});};
  useEffect(()=>{if(!waitingForFocus.current||edit||!tree.authorityFresh)return;waitingForFocus.current=false;const opener=returnFocus.current;if(document.activeElement===section.current&&opener?.isConnected&&!(opener instanceof HTMLButtonElement&&opener.disabled))opener.focus();},[tree.authorityFresh,edit,data]);
  const openNode=(id:string)=>{const node=data?.nodes.find(item=>item.id===id);if(!node||!data||!isBranchNode(id))return;void requestNavigation(()=>{if(data.root.kind==='office'&&onOpenOfficeNode)onOpenOfficeNode(node,data);else setOpened(id);});};

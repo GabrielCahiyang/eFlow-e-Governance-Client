@@ -1,0 +1,8 @@
+.eflow-topbar__help-trigger{min-height:40px;gap:var(--eflow-space-2);color:var(--eflow-text-secondary)}
+.eflow-help-menu [role=menuitem]{min-height:40px}
+.eflow-guided-tour-card{color:var(--eflow-text);overflow-y:auto}
+.eflow-guided-tour-card button:focus-visible{outline:2px solid var(--eflow-primary);outline-offset:2px}
+@media(max-width:1023px){.eflow-topbar__help-trigger,.eflow-guided-tour-card button{min-height:var(--eflow-touch-target)}.eflow-topbar__help-trigger{min-width:44px;padding:8px}.eflow-guided-tour-card button[aria-label="Exit walkthrough"]{min-width:44px}}
+@media(max-width:767px){.eflow-topbar__help-trigger>span{display:none}.eflow-topbar button{min-width:44px!important;width:44px!important;min-height:44px;padding-inline:8px!important}.eflow-topbar__wordmark{height:clamp(18px,calc(27vw - 68px),36px)!important}}
+@media(max-width:1023px){.eflow-help-menu [role=menuitem]{min-height:var(--eflow-touch-target)}}
+@media(prefers-reduced-motion:reduce){.eflow-help-menu{animation:none!important;transition:none!important}}

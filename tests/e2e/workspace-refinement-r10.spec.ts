@@ -149,7 +149,7 @@ test("R10 cross-workspace feed retains four destinations, filters, context, hist
   page,
 }, info) => {
   const records = await workFixture(page);
-  const destinations = page.getByRole("navigation", {
+  const destinations = page.getByRole('region',{name:'My Work content',exact:true}).getByRole("navigation", {
     name: "My Work destinations",
   });
   await expect(destinations.getByRole("button")).toHaveCount(4);
@@ -157,20 +157,26 @@ test("R10 cross-workspace feed retains four destinations, filters, context, hist
   await expect(page.locator('[data-work-key^="personal-task:"]')).toContainText(
     "Private research",
   );
+  await page.getByRole('button',{name:/^Filters/}).click();
   await page.getByLabel("Workspace scope").selectOption(records.org);
   await expect(page.locator("[data-work-key]")).toHaveCount(1);
   await page.getByLabel("Workspace scope").selectOption("");
+  await page.getByRole('button',{name:'Done',exact:true}).click();
   await destinations
     .getByRole("button", { name: "Subtasks", exact: true })
     .click();
   await expect(page.locator("[data-work-key]")).toHaveCount(2);
-  await expect(page.locator('[data-work-key^="office-node:"]')).toContainText(
+  const officeRow=page.locator('li').filter({has:page.locator('[data-work-key^="office-node:"]')});
+  await officeRow.getByText('Details',{exact:true}).click();
+  await expect(officeRow).toContainText(
     "Office ancestor 7 / Depth eight Office evidence",
   );
   await expect(page.locator('[data-work-key^="office-node:"]')).not.toContainText('Depth 8');
   await expect(page.locator('[data-work-key^="office-node:"]')).toContainText('Lead: Alex Rivera');
   await expect(page.locator('[data-work-key^="office-node:"]')).toContainText('Contributors (0)');
+  await page.getByRole('button',{name:/^Filters/}).click();
   await page.getByRole("button", { name: "Today", exact: true }).click();
+  await page.getByRole('button',{name:'Done',exact:true}).click();
   await expect(page.locator("[data-work-key]")).toHaveCount(2);
   await page
     .getByRole("searchbox", { name: "Search personal work" })
@@ -182,12 +188,16 @@ test("R10 cross-workspace feed retains four destinations, filters, context, hist
   await page.goForward();
   await expect(page.getByRole("searchbox")).toHaveValue("Office evidence");
   await page.getByRole("button", { name: "Clear search" }).click();
+  await page.getByRole('button',{name:/^Filters/}).click();
   await page.getByRole("button", { name: "All my work", exact: true }).click();
+  await page.getByRole('button',{name:'Done',exact:true}).click();
   await destinations
     .getByRole("button", { name: "History", exact: true })
     .click();
   await expect(page.locator("[data-work-key]")).toHaveCount(1);
+  await page.getByRole('button',{name:/^Filters/}).click();
   await page.getByRole("checkbox", { name: /Recently completed/ }).check();
+  await page.getByRole('button',{name:'Done',exact:true}).click();
   await expect(page.locator("[data-work-key]")).toHaveCount(1);
   await page.screenshot({
     path: info.outputPath("r10-history-desktop.png"),
@@ -196,15 +206,15 @@ test("R10 cross-workspace feed retains four destinations, filters, context, hist
   await destinations
     .getByRole("button", { name: "Assigned work", exact: true })
     .click();
-  await page.getByRole("button", { name: "Work tools" }).click();
+  await page.getByText('More work tools',{exact:true}).filter({visible:true}).click();
   for (const tool of [
     "Deadline calendar",
     "Performance",
     "Work Report",
-    "Open Inbox",
+    "Task workspace",
   ])
     await expect(
-      page.getByRole("menuitem", { name: tool, exact: true }),
+      page.getByRole("button", { name: tool, exact: true }),
     ).toBeVisible();
 });
 
@@ -215,7 +225,7 @@ test("R10 nested inspectors open the selected branch, protect drafts and restore
   const records = await workFixture(page,true);
   await page.setViewportSize({ width: 320, height: 950 });
   await page.evaluate(() => document.documentElement.classList.add("dark"));
-  const destinations = page.getByRole("navigation", {
+  const destinations = page.getByRole('region',{name:'My Work',exact:true}).getByRole("navigation", {
     name: "My Work destinations",
   });
   await destinations
@@ -409,7 +419,7 @@ test("R10 Admin Home keeps the administrative landing and acquires no operationa
   await projectWorkspaceFixture(page, "admin", false, { landingOnly: true });
   await page.goto("/home");
   await expect(
-    page.getByRole("heading", { name: "User Management", exact: true, level: 1 }),
+    page.getByRole("heading", { name: "All Users", exact: true, level: 1 }),
   ).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "My Work", exact: true, level: 1 }),
@@ -419,7 +429,7 @@ test("R10 Admin Home keeps the administrative landing and acquires no operationa
 test('R10 retained Office tools return from a personal workspace to the canonical Office',async({page})=>{
  const records=await workFixture(page);await page.goto(`/my-work?workspace=${records.personalId}`);
  await expect(page.getByRole('heading',{name:'My Work',exact:true,level:1})).toBeVisible();
- await page.getByRole('button',{name:'Work tools',exact:true}).click();await page.getByRole('menuitem',{name:'Deadline calendar',exact:true}).click();
+ await page.getByText('More work tools',{exact:true}).filter({visible:true}).click();await page.getByRole('button',{name:'Deadline calendar',exact:true}).click();
  await expect(page.getByRole('heading',{name:'Deadlines',exact:true,level:1})).toBeVisible();
  expect(new URL(page.url()).searchParams.get('workspace')).toBe(records.org);
 });
@@ -430,7 +440,8 @@ test('NW9.2 Lead-only depth-eight Office work is searchable and executes by cano
  await page.getByRole('searchbox',{name:'Search personal work'}).fill('Office ancestor 6');
  const item=page.locator(`[data-work-key="office-node:${records.officeNode.id}"]`);
  await expect(page.locator('[data-work-key]')).toHaveCount(1);
- await expect(item).toContainText('Office ancestor 7 / Depth eight Office evidence');
+ const itemRow=page.locator('li').filter({has:item});await itemRow.getByText('Details',{exact:true}).click();
+ await expect(itemRow).toContainText('Office ancestor 7 / Depth eight Office evidence');
  await expect(item).toContainText('Lead: Alex Rivera');await expect(item).toContainText('Contributors (1)');
  await expect(page.locator(`[data-work-key="office-task:${records.tasks[0].id}"]`)).toHaveCount(0);
  await item.click();

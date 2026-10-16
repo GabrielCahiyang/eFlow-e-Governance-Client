@@ -1,0 +1,21 @@
+src/app/components/ui/workspace/ActionMenu.tsx
+src/app/features/app-shell/EflowAppShell.tsx
+src/app/features/app-shell/components/EflowTopBar.tsx
+src/app/features/guided-tours/components/GuidedTourCard.tsx
+src/app/features/guided-tours/components/GuidedTourOverlay.tsx
+src/app/features/guided-tours/components/GuidedTourProvider.tsx
+src/app/features/guided-tours/components/WorkspaceHelpMenu.tsx
+src/app/features/guided-tours/guidedTourPresentation.css
+src/app/features/guided-tours/index.ts
+src/app/features/guided-tours/tourCatalog.ts
+src/app/features/onboarding/components/OnboardingWorkspace.tsx
+src/app/features/onboarding/onboarding.css
+tests/e2e/global-ui-p6.spec.ts
+tests/e2e/phase15-ai-governance.spec.ts
+tests/e2e/phase2-invitations.spec.ts
+tests/unit/globalUiP6.test.tsx
+tests/unit/guidedTourCatalog.test.ts
+tests/unit/guidedTourInteraction.test.ts
+tests/unit/phase02AccountMenu.test.tsx
+
+Documentation: P6 receipt/evidence, audit handoff and overnight-execution-status.md

@@ -6,6 +6,8 @@ import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { GuidedTourProvider, PageWalkthroughButton } from "../../src/app/features/guided-tours";
 
 beforeAll(() => {
+  class MockResizeObserver { observe() {} disconnect() {} unobserve() {} }
+  vi.stubGlobal('ResizeObserver',MockResizeObserver);
   Object.defineProperty(HTMLElement.prototype, "scrollIntoView", { configurable: true, value: vi.fn() });
   class MockSpeechSynthesisUtterance {
     text: string;
@@ -36,6 +38,22 @@ afterEach(() => {
 });
 
 describe("guided page walkthrough", () => {
+  it("contains modal keyboard focus and restores its original launcher", () => {
+    render(createElement(GuidedTourProvider, {userId:'',role:'member',activeSection:'tasks',activePage:'My Tasks',sections:[],onNavigate:vi.fn(),children:createElement(PageWalkthroughButton)}));
+    const launcher = screen.getByRole('button',{name:'Walkthrough'});
+    launcher.focus(); fireEvent.click(launcher);
+    const dialog = screen.getByRole('dialog',{name:'Guided walkthrough'});
+    const controls = Array.from(dialog.querySelectorAll<HTMLButtonElement>('button:not([disabled])'));
+    const first = controls[0], last = controls.at(-1)!;
+    expect(document.activeElement).toBe(last);
+    launcher.focus(); expect(document.activeElement).toBe(last);
+    const urgent = document.createElement('div'); urgent.setAttribute('role','alertdialog');
+    const urgentButton = document.createElement('button'); urgent.append(urgentButton); document.body.append(urgent);
+    urgentButton.focus(); fireEvent.keyDown(window,{key:'Escape'}); expect(document.activeElement).toBe(urgentButton); expect(screen.getByRole('dialog',{name:'Guided walkthrough'})).toBeTruthy(); urgent.remove(); last.focus();
+    fireEvent.keyDown(window,{key:'Tab'}); expect(document.activeElement).toBe(first);
+    fireEvent.keyDown(window,{key:'Tab',shiftKey:true}); expect(document.activeElement).toBe(last);
+    fireEvent.keyDown(window,{key:'Escape'}); expect(screen.queryByRole('dialog',{name:'Guided walkthrough'})).toBeNull(); expect(document.activeElement).toBe(launcher);
+  });
   it("opens from the page toolbar and advances without changing page data", () => {
     render(createElement(GuidedTourProvider, {
       userId: "",

@@ -1,8 +1,7 @@
+import '../permissionPresentation.css';
 import { isAdminRole } from "../../../shared/roles";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  Check,
-  CircleMinus,
   RotateCcw,
   Search,
   Shield,
@@ -50,7 +49,7 @@ function AccessRows({
 }) {
   return (
     <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white">
-      <div className="border-b border-neutral-100 bg-neutral-50/70 px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-neutral-500">
+      <div className="border-b border-neutral-100 bg-neutral-50/70 px-4 py-3 text-[12px] font-semibold uppercase tracking-[0.12em] text-neutral-500">
         {title}
       </div>
       <div className="divide-y divide-neutral-100">
@@ -63,22 +62,18 @@ function AccessRows({
           return (
             <div
               key={permission}
-              className="flex items-center gap-3 px-4 py-3 hover:bg-neutral-50/60"
+              className="eflow-access-row"
             >
-              <div
-                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${allowed ? "bg-emerald-50 text-emerald-700" : "bg-neutral-100 text-neutral-400"}`}
-              >
-                {allowed ? <Check size={14} /> : <CircleMinus size={14} />}
-              </div>
+
               <div className="min-w-0 flex-1">
-                <div className="text-[11.5px] font-medium text-neutral-900">
+                <div id={`access-${title.replace(/ /g, "-")}-${permission}`} className="text-[13px] font-medium text-neutral-900">
                   {
                     PERMISSION_LABELS[
                       permission as keyof typeof PERMISSION_LABELS
                     ]
                   }
                 </div>
-                <div className="mt-0.5 text-[9.5px] text-neutral-400">
+                <div className="mt-0.5 text-[12px] text-neutral-400">
                   Role default: {inherited ? "Allowed" : "Denied"}
                   {override
                     ? ` · Individual ${override.allowed ? "allow" : "deny"}`
@@ -86,15 +81,16 @@ function AccessRows({
                 </div>
               </div>
               <span
-                className={`rounded-full px-2 py-1 text-[9px] font-semibold uppercase tracking-wide ${allowed ? "bg-emerald-50 text-emerald-700" : "bg-neutral-100 text-neutral-500"}`}
+                className={`rounded-full px-2 py-1 text-[12px] font-semibold uppercase tracking-wide ${allowed ? "bg-emerald-50 text-emerald-700" : "bg-neutral-100 text-neutral-500"}`}
               >
                 {allowed ? "Allowed" : "Denied"}
               </span>
               <Tooltip content="Cycle through role default, individual allow, and individual deny">
                 <button
                   type="button"
+                  aria-describedby={`access-${title.replace(/ /g, "-")}-${permission}`}
                   onClick={() => onCycle(permission)}
-                  className={`inline-flex min-w-[88px] items-center justify-center gap-1 rounded-lg border px-2.5 py-1.5 text-[9.5px] font-medium transition-colors ${override ? "border-teal-200 bg-teal-50 text-teal-800 hover:bg-teal-100" : "border-neutral-200 text-neutral-600 hover:border-teal-200 hover:bg-teal-50"}`}
+                  className={`inline-flex min-w-[88px] items-center justify-center gap-1 rounded-lg border px-2.5 py-1.5 text-[12px] font-medium transition-colors ${override ? "border-teal-200 bg-teal-50 text-teal-800 hover:bg-teal-100" : "border-neutral-200 text-neutral-600 hover:border-teal-200 hover:bg-teal-50"}`}
                 >
                   {override ? <RotateCcw size={11} /> : null}
                   {!override
@@ -259,7 +255,7 @@ export function UserAccessTab({
   };
 
   return (
-    <div className="grid min-h-[650px] gap-4 xl:grid-cols-[280px_minmax(0,1fr)]">
+    <div className="eflow-permissions-surface eflow-access-workspace grid min-h-[650px] gap-4 xl:grid-cols-[280px_minmax(0,1fr)]">
       {confirmation.dialog}
       <aside className="overflow-hidden rounded-2xl border border-neutral-200 bg-white">
         <div className="space-y-2 border-b border-neutral-100 p-3">
@@ -271,8 +267,8 @@ export function UserAccessTab({
             <input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search users…"
-              className="h-9 w-full rounded-xl border border-neutral-200 bg-neutral-50 pl-9 pr-3 text-[11px] outline-none focus:border-neutral-400"
+              aria-label="Search account access" placeholder="Search name, email, role or Office…"
+              className="h-9 w-full rounded-xl border border-neutral-200 bg-neutral-50 pl-9 pr-3 text-[12px] outline-none focus:border-neutral-400"
             />
           </div>
           <WSelect
@@ -288,11 +284,12 @@ export function UserAccessTab({
             <button
               key={profile.id}
               type="button"
+              aria-pressed={profile.id === activeUserId}
               onClick={() => chooseUser(profile.id)}
               className={`mb-1 flex w-full items-center gap-2.5 rounded-xl p-2.5 text-left transition-colors ${profile.id === activeUserId ? "bg-neutral-900 text-white" : "hover:bg-neutral-100"}`}
             >
               <span
-                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold ${profile.id === activeUserId ? "bg-white/15" : "bg-neutral-100 text-neutral-600"}`}
+                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[12px] font-semibold ${profile.id === activeUserId ? "bg-white/15" : "bg-neutral-100 text-neutral-600"}`}
               >
                 {profile.full_name
                   .split(" ")
@@ -302,11 +299,11 @@ export function UserAccessTab({
                   .toUpperCase()}
               </span>
               <span className="min-w-0">
-                <span className="block truncate text-[11px] font-semibold">
+                <span className="block text-[13px] font-semibold">
                   {profile.full_name}
                 </span>
                 <span
-                  className={`block truncate text-[9.5px] ${profile.id === activeUserId ? "text-neutral-300" : "text-neutral-400"}`}
+                  className={`block truncate text-[12px] ${profile.id === activeUserId ? "text-neutral-300" : "text-neutral-400"}`}
                 >
                   {orgMap[profile.org_id || ""] || "No organization"} ·{" "}
                   {profile.role.replace(/_/g, " ")}
@@ -315,7 +312,7 @@ export function UserAccessTab({
             </button>
           ))}
           {filteredUsers.length === 0 ? (
-            <p className="py-10 text-center text-[11px] text-neutral-400">
+            <p className="py-10 text-center text-[12px] text-neutral-400">
               No active users match this search.
             </p>
           ) : null}
@@ -329,7 +326,7 @@ export function UserAccessTab({
             <p className="mt-3 text-[12px] font-medium text-neutral-600">
               Choose a user to inspect final access
             </p>
-            <p className="mt-1 text-[10.5px] text-neutral-400">
+            <p className="mt-1 text-[12px] text-neutral-400">
               Role defaults, individual exceptions, and organization scope are
               shown together.
             </p>
@@ -383,7 +380,7 @@ export function UserAccessTab({
                   <h2 className="text-[16px] font-semibold">
                     {selected.full_name}
                   </h2>
-                  <p className="mt-0.5 text-[10.5px] text-neutral-500">
+                  <p className="mt-0.5 text-[12px] text-neutral-500">
                     {selected.role.replace(/_/g, " ")} ·{" "}
                     {orgMap[selected.org_id || ""] || "No organization"}
                   </p>
@@ -412,7 +409,7 @@ export function UserAccessTab({
                 </div>
               </div>
             </div>
-            <div className="mt-4 flex items-center gap-2 border-t border-teal-100 pt-3 text-[9.5px] text-neutral-500">
+            <div className="mt-4 flex items-center gap-2 border-t border-teal-100 pt-3 text-[12px] text-neutral-500">
               <Shield size={12} /> Effective access = individual exception →
               role default → safe fallback. Data remains protected by
               organization scope.

@@ -1,10 +1,24 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import { ArrowLeft } from "lucide-react";
 import { RoleDefaultsTab, UserAccessTab } from "../../../permissions";
 import { UsersTab } from "./UsersTab";
 import { LockedAccountsTab } from './LockedAccountsTab';
 
 import { requestNavigation } from "../../../../shared/navigationGuard";
+import { writeNavigationLocation } from '../../../navigation';
+import { WorkspaceHeader } from '../../../../components/ui/workspace';
+import { Button } from '../../../../components/ui/button';
+import { DEFAULT_USER_DIRECTORY_FILTERS, type UserDirectoryFilters } from '../../selectors/userDirectory';
+import type { DataTableViewState } from '../../../../components/ui/DataTable';
+export interface AccountDirectoryNavigation {
+  actorId: string;
+  selectedUserId: string;
+  returnAccountId?: string;
+  fromDirectory: boolean;
+  returnFocus: boolean;
+  filters: UserDirectoryFilters;
+  table: DataTableViewState;
+}
 export type UserManagementTab = "users" | "role-defaults" | "user-access" | "locked-accounts";
 
 const PAGE_COPY: Record<
@@ -13,7 +27,7 @@ const PAGE_COPY: Record<
 > = {
   'locked-accounts': {title:'Locked out accounts',description:'Configure failed sign-in limits and unlock accounts. Only Admin can make changes.'},
   users: {
-    title: "User Management",
+    title: "All Users",
     description:
       "Manage accounts, roles, organizations, and individual access.",
   },
@@ -29,54 +43,73 @@ const PAGE_COPY: Record<
 
 export function UserManagement({
   initialTab = "users",
+  directoryNavigation,
+  onDirectoryNavigationChange,
 }: {
   initialTab?: UserManagementTab;
+  directoryNavigation?: AccountDirectoryNavigation;
+  onDirectoryNavigationChange?: Dispatch<SetStateAction<AccountDirectoryNavigation>>;
 }) {
-  const [tab, setTab] = useState<UserManagementTab>(initialTab);
-  const [selectedUserId, setSelectedUserId] = useState("");
+  const [localTab, setTab] = useState<UserManagementTab>(initialTab);
+  const tab = directoryNavigation ? initialTab : localTab;
+  const [localSelectedUserId, setLocalSelectedUserId] = useState('');
+  const [localReturnAccountId, setLocalReturnAccountId] = useState('');
+  const [localFromDirectory, setLocalFromDirectory] = useState(false);
+  const [localReturnFocus, setLocalReturnFocus] = useState(false);
+  const [localFilters, setLocalFilters] = useState(DEFAULT_USER_DIRECTORY_FILTERS);
+  const [localTable, setLocalTable] = useState<DataTableViewState>({ search: '', sortKey: null, sortDir: 'asc' });
+  const selectedUserId = directoryNavigation?.selectedUserId ?? localSelectedUserId;
+  const fromDirectory = directoryNavigation?.fromDirectory ?? localFromDirectory;
+  const returnFocus = directoryNavigation?.returnFocus ?? localReturnFocus;
+  const setSelectedUserId = (id: string) => {
+    if (directoryNavigation && onDirectoryNavigationChange) onDirectoryNavigationChange(current => ({ ...current, selectedUserId: id }));
+    else setLocalSelectedUserId(id);
+  };
   useEffect(() => setTab(initialTab), [initialTab]);
   const copy = PAGE_COPY[tab];
 
   const openAccess = (userId: string) => {
-    setSelectedUserId(userId);
-    setTab("user-access");
+    void requestNavigation(() => {
+      if (directoryNavigation && onDirectoryNavigationChange) onDirectoryNavigationChange(current => ({ ...current, selectedUserId: userId, returnAccountId: userId, fromDirectory: true, returnFocus: false }));
+      else { setLocalSelectedUserId(userId); setLocalReturnAccountId(userId); setLocalFromDirectory(true); setLocalReturnFocus(false); }
+      setTab('user-access');
+      writeNavigationLocation('users', 'User Access');
+    });
   };
 
   return (
     <div className="min-h-full space-y-5">
-      <header>
-        <div className="text-[9.5px] font-semibold uppercase tracking-[0.16em] text-neutral-400">
-          Administration · Identity & Access
-        </div>
-        <div className="mt-1 flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h1 className="text-[22px] font-semibold tracking-tight text-neutral-950">
-              {copy.title}
-            </h1>
-            <p className="mt-1 max-w-2xl text-[11.5px] leading-relaxed text-neutral-500">
-              {copy.description}
-            </p>
-          </div>
-          {initialTab === "users" && tab === "user-access" ? (
-            <button
+      <WorkspaceHeader title={copy.title} description={copy.description} actions={
+          fromDirectory && tab === "user-access" ? (
+            <Button variant="outline"
               type="button"
               onClick={() => {
-                void requestNavigation(() => setTab("users"));
+                void requestNavigation(() => {
+                  if (directoryNavigation && onDirectoryNavigationChange) onDirectoryNavigationChange(current => ({ ...current, returnFocus: true }));
+                  else setLocalReturnFocus(true);
+                  setTab('users'); writeNavigationLocation('users', 'All Users');
+                });
               }}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-neutral-200 bg-white px-3 py-2 text-[10.5px] font-semibold text-neutral-700 shadow-sm hover:bg-neutral-50"
             >
               <ArrowLeft size={13} /> Back to accounts
-            </button>
-          ) : null}
-        </div>
-      </header>
+            </Button>
+          ) : null
+      } />
 
-      {tab === "users" ? <UsersTab onOpenAccess={openAccess} /> : null}
+      {tab === 'users' ? <UsersTab
+        onOpenAccess={openAccess}
+        directoryFilters={directoryNavigation?.filters ?? localFilters}
+        onDirectoryFiltersChange={directoryNavigation && onDirectoryNavigationChange ? filters => onDirectoryNavigationChange(current => ({ ...current, filters })) : setLocalFilters}
+        tableViewState={directoryNavigation?.table ?? localTable}
+        onTableViewStateChange={directoryNavigation && onDirectoryNavigationChange ? table => onDirectoryNavigationChange(current => ({ ...current, table })) : setLocalTable}
+        focusAccountId={returnFocus ? directoryNavigation?.returnAccountId || localReturnAccountId || selectedUserId : undefined}
+        onFocusReturned={() => { if (directoryNavigation && onDirectoryNavigationChange) onDirectoryNavigationChange(current => ({ ...current, fromDirectory: false, returnFocus: false })); else { setLocalFromDirectory(false); setLocalReturnFocus(false); } }}
+      /> : null}
       {tab === 'locked-accounts' ? <LockedAccountsTab/> : null}
       {tab === "role-defaults" ? <RoleDefaultsTab /> : null}
       {tab === "user-access" ? (
         <UserAccessTab
-          selectedUserId={selectedUserId || undefined}
+          selectedUserId={directoryNavigation ? selectedUserId : selectedUserId || undefined}
           onSelectedUserIdChange={setSelectedUserId}
         />
       ) : null}

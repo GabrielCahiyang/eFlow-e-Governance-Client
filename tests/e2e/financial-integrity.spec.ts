@@ -3,7 +3,7 @@ import {phase16FinancialFixture} from './fixtures/phase16Financial';
 
 test('journal cents validation blocks fractions before any financial write',async({page})=>{
   const {state}=await phase16FinancialFixture(page);
-  await page.getByRole('navigation',{name:'Accounting views',exact:true}).getByRole('button',{name:'Journal',exact:true}).click();
+  await page.getByRole('navigation',{name:'Accounting destinations',exact:true}).getByRole('button',{name:'General Journal',exact:true}).click();
   await page.getByRole('button',{name:'Post adjustment',exact:true}).click();
   const dialog=page.getByRole('dialog',{name:'Post correcting journal entry',exact:true});
   await dialog.getByLabel('Reference number',{exact:true}).fill('CENTS-QA');

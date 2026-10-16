@@ -47,7 +47,7 @@ export async function verifyNestedWorkCompletion({db,project,root:dependency,per
   await actor(3);
  };
  const cash=async(node,key)=>setup(`insert into petty_cash_requests(id,request_number,fiscal_budget_id,commitment_id,allocation_id,org_id,funding_org_id,requester_org_id,task_id,subtask_id,requester_id,purpose,requested_amount,status)
-  values($1,$2,$3,$3,$3,$4,$4,$4,$5,$6,$7,'Historical cash blocker control',10,'released')`,[id(key),key,id(9990),id(90),root,node,id(6)]);
+  overriding system value values($1,$2,$3,$3,$3,$4,$4,$4,$5,$6,$7,'Historical cash blocker control',10,'released')`,[id(key),key,id(9990),id(90),root,node,id(6)]);
 
  await db.exec('reset role');
  const catalog=()=>value(`select jsonb_agg(jsonb_build_object('name',oid::regprocedure::text,'body',prosrc,'acl',proacl,'config',proconfig,'definer',prosecdef,'args',pg_get_function_arguments(oid),'result',pg_get_function_result(oid)) order by oid) from pg_proc where pronamespace in ('public'::regnamespace,'eflow_r7'::regnamespace,'eflow_r3'::regnamespace,'eflow_r9'::regnamespace,'eflow_evidence'::regnamespace)`);

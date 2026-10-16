@@ -1,0 +1,54 @@
+{
+  "head": "545245e353ad04ac47e24f95a71e06cf736ca0f8",
+  "phase": "P2 baseline includes approved uncommitted P0/P1",
+  "files": [
+    {
+      "path": "src/app/features/personal-work/components/PersonalWorkWorkspace.tsx",
+      "sha256": "6c99348a063db15244a025cb0f32942af8a6384eeb01441f386f29e32eb7f7ec"
+    },
+    {
+      "path": "src/app/features/personal-work/components/WorkList.tsx",
+      "sha256": "3e393c967fc8d354dab3e0837fcf7c9ade4165153b8498b6a127402debf3e904"
+    },
+    {
+      "path": "src/app/features/personal-work/personalWork.css",
+      "sha256": "dcfb158649182ce31c44e4a2345f48aa39d550030b786c00b6271b14383ee544"
+    },
+    {
+      "path": "src/app/features/app-shell/components/ContextRail.tsx",
+      "sha256": "94416e1743de67e6b9787404848ea75bfa4ea30298ed8380bdd81554054e6eb5"
+    },
+    {
+      "path": "src/app/features/app-shell/navigationV2.css",
+      "sha256": "16b27cbabce17437f7f38f7af66948d5a6ac561a99f7ac7956177f3fad789739"
+    },
+    {
+      "path": "src/app/features/navigation/RoleContent.tsx",
+      "sha256": "d09da8d75167d1315fc195301db6bfd6e9e5927770b519461940509d77043e2e"
+    },
+    {
+      "path": "src/app/features/navigation/index.ts",
+      "sha256": "de507e2cd286e6fb5b07a7c6889431a37640c74fd746eeafc3f113e9f212a333"
+    },
+    {
+      "path": "src/app/features/personal-work/services/workFeedService.ts",
+      "sha256": "116172feb3ba300ab505578f13e13e2f8082c8a891875d6fed59eb76e0ae72c1"
+    },
+    {
+      "path": "src/app/features/personal-work/workSelectors.ts",
+      "sha256": "b8dd4a54ccef210792fb3a37fb4e5a57edd76de03b731fd5849583e1c50c0697"
+    },
+    {
+      "path": "src/app/features/navigation/navigationPermissions.ts",
+      "sha256": "edb27bcfde6bb81ad842a504afa48987c76fc12dd59a34330a7c1dea7078f7cd"
+    },
+    {
+      "path": "src/app/features/app-shell/eflowNavigationIcons.tsx",
+      "sha256": "c4883d6c0156eeace85a8a5c0d8286c97ac43e70acc45bd2c6988ad5ccd595f7"
+    },
+    {
+      "path": "src/app/features/workspaces/components/WorkspaceSelector.tsx",
+      "sha256": "83f115f05eee780c05635a1982ff1b09a8dac230c9e67dbbe80d3a2185091acc"
+    }
+  ]
+}

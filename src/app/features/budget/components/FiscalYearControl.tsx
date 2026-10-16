@@ -18,49 +18,49 @@ export function FiscalYearControl({ value, onChange, compact = false, orgId }: {
   return (
     <div ref={root} className="relative">
       <div
-        className={`inline-flex items-center rounded-xl border border-neutral-200 bg-white shadow-sm ${compact ? "h-9" : "h-10"}`}
+        className={`inline-flex items-center max-sm:!h-11 rounded-xl border border-border bg-card text-card-foreground shadow-sm ${compact ? "h-9" : "h-10"}`}
         aria-label="Fiscal year control"
       >
         <button
           type="button"
           aria-label={`Open fiscal year ${value - 1}`}
           onClick={() => onChange(value - 1)}
-          className="flex h-full w-9 items-center justify-center rounded-l-xl text-neutral-400 transition hover:bg-neutral-50 hover:text-neutral-800"
+          className="flex h-full w-9 max-sm:min-w-11 items-center justify-center rounded-l-xl text-muted-foreground transition hover:bg-muted hover:text-foreground"
         >
           <ChevronLeft size={13} />
         </button>
         <button
           type="button"
           onClick={() => setOpen((shown) => !shown)}
-          className="flex h-full min-w-[145px] items-center justify-center gap-2 border-x border-neutral-100 px-3 text-left"
+          className="flex h-full min-w-[145px] items-center justify-center gap-2 border-x border-border px-3 text-left"
         >
-          <CalendarRange size={13} className="text-blue-600" />
+          <CalendarRange size={13} className="text-primary" />
           <span className="flex-1">
-            <span className="block text-[10px] uppercase tracking-[.14em] text-neutral-500">
+            <span className="block text-[10px] uppercase tracking-[.14em] text-muted-foreground">
               Fiscal year
             </span>
-            <span className="block text-[12px] font-semibold leading-none text-neutral-900">
+            <span className="block text-[12px] font-semibold leading-none text-foreground">
               FY {value}{value === current ? " · Current" : ""}
             </span>
           </span>
           <ChevronDown
             size={12}
-            className={`text-neutral-400 transition ${open ? "rotate-180" : ""}`}
+            className={`text-muted-foreground transition ${open ? "rotate-180" : ""}`}
           />
         </button>
         <button
           type="button"
           aria-label={`Open fiscal year ${value + 1}`}
           onClick={() => onChange(value + 1)}
-          className="flex h-full w-9 items-center justify-center rounded-r-xl text-neutral-400 transition hover:bg-neutral-50 hover:text-neutral-800"
+          className="flex h-full w-9 max-sm:min-w-11 items-center justify-center rounded-r-xl text-muted-foreground transition hover:bg-muted hover:text-foreground"
         >
           <ChevronRight size={13} />
         </button>
       </div>
 
       {open && (
-        <div className="absolute right-0 top-[calc(100%+.45rem)] z-50 w-64 overflow-hidden rounded-xl border border-neutral-200 bg-white p-1.5 shadow-xl">
-          <div className="px-2 py-1.5 text-[10px] uppercase tracking-[.14em] text-neutral-500">
+        <div className="absolute right-0 top-[calc(100%+.45rem)] z-50 w-64 overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground p-1.5 shadow-xl">
+          <div className="px-2 py-1.5 text-[10px] uppercase tracking-[.14em] text-muted-foreground">
             Configured fiscal years
           </div>
           {years.map((year) => {
@@ -73,13 +73,13 @@ export function FiscalYearControl({ value, onChange, compact = false, orgId }: {
                   onChange(year);
                   setOpen(false);
                 }}
-                className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left hover:bg-neutral-50"
+                className="flex w-full max-sm:min-h-11 items-center gap-2 rounded-lg px-2.5 py-2 text-left hover:bg-muted"
               >
                 <span className="flex-1">
                   <span className="block text-[12px] font-medium">
                     FY {year}{year === current ? " · Current" : ""}
                   </span>
-                  <span className="mt-0.5 block text-[11px] capitalize text-neutral-500">
+                  <span className="mt-0.5 block text-[11px] capitalize text-muted-foreground">
                     {option
                       ? `${option.status} · ${peso.format(option.amount)}`
                       : year > current
@@ -87,7 +87,7 @@ export function FiscalYearControl({ value, onChange, compact = false, orgId }: {
                         : "Not configured"}
                   </span>
                 </span>
-                {year === value && <Check size={13} className="text-blue-600" />}
+                {year === value && <Check size={13} className="text-primary" />}
               </button>
             );
           })}

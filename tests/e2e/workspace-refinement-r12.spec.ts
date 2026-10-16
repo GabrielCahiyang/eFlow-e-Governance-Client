@@ -1,6 +1,13 @@
 import { test, expect, type Page } from "@playwright/test";
 import { projectWorkspaceFixture } from "./fixtures/projectWorkspace";
 test.setTimeout(60_000);
+async function supportNav(page: Page) {
+  const nav=page.getByRole('navigation',{name:'Admin Center destinations',exact:true});
+  if ((page.viewportSize()?.width || 1440) < 1024 && !await nav.isVisible()) await page.getByRole('button',{name:'Open navigation',exact:true}).click();
+  await expect(nav).toBeVisible();
+  return nav;
+}
+
 async function adminFixture(page: Page) {
   await projectWorkspaceFixture(page, "admin", false, { landingOnly: true });
   const state = {
@@ -84,7 +91,7 @@ async function adminFixture(page: Page) {
   return state;
 }
 for (const width of [390, 1440])
-  test(`R12 nine categories and truthful configuration at ${width}px`, async ({
+  test(`R12 authorized support leaves and truthful configuration at ${width}px`, async ({
     page,
   }, info) => {
     await page.setViewportSize({ width, height: 950 });
@@ -93,8 +100,8 @@ for (const width of [390, 1440])
     await expect(
       page.getByRole("heading", { name: "System Settings", exact: true }),
     ).toBeVisible();
-    const nav = page.getByRole("tablist", { name: "Administration tools" });
-    await expect(nav.getByRole("tab")).toHaveCount(9);
+    const nav = await supportNav(page);
+    await expect(nav.getByRole("button")).toHaveCount(11);
     await expect(page.getByLabel(/Organization Name/)).toHaveValue(
       "Original City",
     );
@@ -103,11 +110,11 @@ for (const width of [390, 1440])
     ).toBeVisible();
     await expect(page.getByLabel("Session Timeout (minutes)")).toHaveCount(0);
     for (const name of [
-      "Workspaces & project access policy",
-      "Runtime / AI health",
-      "Email & integrations",
+      "Workspace Policy",
+      "Runtime / AI Health",
+      "Email & Integrations",
     ])
-      await nav.getByRole("tab", { name, exact: true }).click();
+      await (await supportNav(page)).getByRole("button", { name, exact: true }).click();
     await expect(
       page.getByRole("heading", {
         name: "Application invitations (Resend)",
@@ -132,8 +139,8 @@ for (const width of [390, 1440])
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth),
     ).toBeLessThanOrEqual(width);
-    await nav
-      .getByRole("tab", { name: "Backup & export", exact: true })
+    await (await supportNav(page))
+      .getByRole("button", { name: "Backup & Export", exact: true })
       .click();
     await expect(
       page.getByRole("heading", { name: "Backup & Export", exact: true }),
@@ -161,8 +168,8 @@ test("R12 settings guard drafts, update actual branding and verify an uncertain 
   const name = page.getByLabel(/Organization Name/);
   await expect(name).toHaveValue("Original City");
   await name.fill("Reviewed City");
-  await page
-    .getByRole("tab", { name: "Email & integrations", exact: true })
+  await (await supportNav(page))
+    .getByRole("button", { name: "Email & Integrations", exact: true })
     .click();
   const discard = page.getByRole("alertdialog");
   await expect(discard).toBeVisible();
@@ -191,8 +198,8 @@ test("R12 settings guard drafts, update actual branding and verify an uncertain 
   );
   await page.screenshot({ path: info.outputPath("r12-settings-saved.png") });
   await name.fill("Unsaved City");
-  await page
-    .getByRole("tab", { name: "Email & integrations", exact: true })
+  await (await supportNav(page))
+    .getByRole("button", { name: "Email & Integrations", exact: true })
     .click();
   await page
     .getByRole("alertdialog")

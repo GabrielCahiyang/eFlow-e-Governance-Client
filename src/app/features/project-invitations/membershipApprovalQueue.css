@@ -1,0 +1,20 @@
+.eflow-membership-approvals{display:grid;gap:var(--eflow-space-3);min-width:0;color:var(--eflow-text)}
+.eflow-membership-approvals>header{display:flex;align-items:start;justify-content:space-between;gap:var(--eflow-space-3);flex-wrap:wrap}
+.eflow-membership-approvals h2{font-size:var(--eflow-text-base);font-weight:600}
+.eflow-membership-approvals p{font-size:var(--eflow-text-sm);color:var(--eflow-text-secondary);line-height:1.6;overflow-wrap:anywhere}
+.eflow-membership-approvals>header>div{flex:1 1 300px;min-width:0}
+.eflow-membership-approvals>details{border:1px solid var(--eflow-border);border-radius:var(--eflow-radius-surface);background:var(--eflow-surface);overflow:hidden;min-width:0}
+.eflow-membership-approvals summary{padding:var(--eflow-space-3) var(--eflow-space-4);cursor:pointer;font-size:var(--eflow-text-sm);font-weight:600;overflow-wrap:anywhere;min-height:44px}
+.eflow-membership-approvals summary small{font-weight:400;color:var(--eflow-text-muted);margin-inline-start:var(--eflow-space-2)}
+.eflow-membership-approvals summary:hover{background:var(--eflow-subtle)}
+.eflow-membership-approvals summary:focus-visible{outline:2px solid var(--eflow-primary);outline-offset:-2px}
+.eflow-membership-approvals__project{border-top:1px solid var(--eflow-border);padding:var(--eflow-space-4)}
+.eflow-membership-approvals .r8-invitations{font-size:var(--eflow-text-sm)}
+.eflow-membership-approvals .r8-invitations h3,.eflow-membership-approvals .r8-invitations h4{font-weight:600;overflow-wrap:anywhere}
+.eflow-membership-approvals .r8-invitations article{background:var(--eflow-surface);display:grid;gap:var(--eflow-space-2)}
+.eflow-membership-approvals .r8-invitations dl{display:grid;grid-template-columns:100px minmax(0,1fr);gap:var(--eflow-space-1) var(--eflow-space-2)}
+.eflow-membership-approvals .r8-invitations dt{color:var(--eflow-text-muted)}
+.eflow-membership-approvals .r8-invitations dd{margin:0;overflow-wrap:anywhere}
+.eflow-membership-approvals .r8-invitations button{background:var(--eflow-surface);color:var(--eflow-text);min-height:var(--eflow-control-height)}
+.eflow-membership-approvals .r8-invitations button:hover:not(:disabled){background:var(--eflow-subtle)}
+@media(max-width:1023px){.eflow-membership-approvals button,.eflow-membership-approvals .r8-invitations button{min-height:44px}.eflow-membership-approvals__project{padding:var(--eflow-space-3)}.eflow-membership-approvals .r8-invitations dl{grid-template-columns:80px minmax(0,1fr)}}

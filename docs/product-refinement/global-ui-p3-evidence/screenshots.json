@@ -1,0 +1,221 @@
+{
+  "method": "Direct manual CUA browser capture; synthetic local authorized-role fixtures; no external fallback; no image manipulation",
+  "screenshots": [
+    {
+      "file": "accounting-reviews-dark-desktop.jpg",
+      "role": "accounting",
+      "theme": "dark",
+      "width": 1439,
+      "height": 950,
+      "sha256": "b789af8723068aed151b939acf3dd26529c1abb239191441cec9c321483bbb26",
+      "description": "accounting reviews dark desktop"
+    },
+    {
+      "file": "accounting-updates-light-390.jpg",
+      "role": "accounting",
+      "theme": "light",
+      "width": 390,
+      "height": 899,
+      "sha256": "666d136c181d05d47b25e6a00bedb67a19996f03f188151e3e82283b8571e49f",
+      "description": "accounting updates light 390"
+    },
+    {
+      "file": "admin-updates-dark-390-empty.jpg",
+      "role": "admin",
+      "theme": "dark",
+      "width": 390,
+      "height": 899,
+      "sha256": "89754b5d365a94ea836594ea98fb91902a28b360cd5ed7b1ae9de2ab0ab080c6",
+      "description": "admin updates dark 390 empty"
+    },
+    {
+      "file": "admin-updates-light-desktop-empty.jpg",
+      "role": "admin",
+      "theme": "light",
+      "width": 1439,
+      "height": 950,
+      "sha256": "ac5338c0ef669968e3732651d8f66a0706a6bf3d3c371226b0d893c0cc1e3225",
+      "description": "admin updates light desktop empty"
+    },
+    {
+      "file": "head-inbox-dark-collapsed.jpg",
+      "role": "head",
+      "theme": "dark",
+      "width": 1439,
+      "height": 950,
+      "sha256": "29d3d7baf2cffa8cf78e96efadffff486288b3764111b27143611b43db0438ea",
+      "description": "head inbox dark collapsed"
+    },
+    {
+      "file": "head-inbox-dark-desktop.jpg",
+      "role": "head",
+      "theme": "dark",
+      "width": 1439,
+      "height": 950,
+      "sha256": "5aba8a9653576f125bb6649a5799261b918887ca9fb6484f8415f8a942d0faee",
+      "description": "head inbox dark desktop"
+    },
+    {
+      "file": "head-inbox-light-320-empty.jpg",
+      "role": "head",
+      "theme": "light",
+      "width": 320,
+      "height": 900,
+      "sha256": "9996aaa78ae889e526054f728a8f4abbe4ba22d68196bf42ec6821c91149c594",
+      "description": "head inbox light 320 empty"
+    },
+    {
+      "file": "head-inbox-light-390.jpg",
+      "role": "head",
+      "theme": "light",
+      "width": 390,
+      "height": 899,
+      "sha256": "31a93e6d81ab7a21ff29f114e43e028c8310331b0abd9d94bd449d9223ae32af",
+      "description": "head inbox light 390"
+    },
+    {
+      "file": "head-inbox-light-desktop.jpg",
+      "role": "head",
+      "theme": "light",
+      "width": 1439,
+      "height": 950,
+      "sha256": "8c62f7730e647aea8fe3c31a3078fb9cdd82bd5d5f86bf91938816d93797a7c6",
+      "description": "head inbox light desktop"
+    },
+    {
+      "file": "head-inbox-light-mobile-drawer.jpg",
+      "role": "head",
+      "theme": "light",
+      "width": 390,
+      "height": 899,
+      "sha256": "5f07fb0518a1f781d24c6cafd8619e69929f4ca50023328c9bf2e3f65d4529b2",
+      "description": "head inbox light mobile drawer"
+    },
+    {
+      "file": "head-membership-dark-320-controls.jpg",
+      "role": "head",
+      "theme": "dark",
+      "width": 320,
+      "height": 900,
+      "sha256": "aea7238a68d31f11c01d725bcc1de6d10d6857d1b796be0ff5499049ff4954be",
+      "description": "head membership dark 320 controls"
+    },
+    {
+      "file": "head-membership-dark-320-dispatch.jpg",
+      "role": "head",
+      "theme": "dark",
+      "width": 320,
+      "height": 900,
+      "sha256": "b1738b86d67b3879508930f7823430013f5d5d9260e553704b601b20cea5e495",
+      "description": "head membership dark 320 dispatch"
+    },
+    {
+      "file": "head-membership-dark-320.jpg",
+      "role": "head",
+      "theme": "dark",
+      "width": 320,
+      "height": 900,
+      "sha256": "70fbf481980dea5654c17d6de51e599de29a10a8da71fb21c3b6f65c9ecdcc4c",
+      "description": "head membership dark 320"
+    },
+    {
+      "file": "head-membership-dark-desktop-unavailable.jpg",
+      "role": "head",
+      "theme": "dark",
+      "width": 1439,
+      "height": 950,
+      "sha256": "fe5f74124a2eb825ad15f8b7589252ac2a9fb8bec1bbbb213f64c5718cb98cd4",
+      "description": "head membership dark desktop unavailable"
+    },
+    {
+      "file": "head-membership-dark-desktop.jpg",
+      "role": "head",
+      "theme": "dark",
+      "width": 1439,
+      "height": 950,
+      "sha256": "85d8ae9b49432ff5a94207503c990bf665e5f74c43cc6f356532784e496a86e7",
+      "description": "head membership dark desktop"
+    },
+    {
+      "file": "head-membership-light-320.jpg",
+      "role": "head",
+      "theme": "light",
+      "width": 320,
+      "height": 900,
+      "sha256": "8e62b517080b1b2968aed225d7d7ed245ae4e02c7b00093a7fd77b312a3c8aa1",
+      "description": "head membership light 320"
+    },
+    {
+      "file": "head-membership-light-768-empty.jpg",
+      "role": "head",
+      "theme": "light",
+      "width": 768,
+      "height": 950,
+      "sha256": "c27b3fd355fa5e22add33929155c1938862510cdce594c3bfeb25a51508de93a",
+      "description": "head membership light 768 empty"
+    },
+    {
+      "file": "head-membership-light-desktop.jpg",
+      "role": "head",
+      "theme": "light",
+      "width": 1439,
+      "height": 950,
+      "sha256": "2672209358018b7d718ee1171fdc9d94a4c94c54c4d76db09974412ec893b65d",
+      "description": "head membership light desktop"
+    },
+    {
+      "file": "head-review-selector-light-320.jpg",
+      "role": "head",
+      "theme": "light",
+      "width": 320,
+      "height": 900,
+      "sha256": "769b3db4aadf64348d8ab2f86851b7c8717f13e3f7250856353b18e62b4dbf34",
+      "description": "head review selector light 320"
+    },
+    {
+      "file": "head-task-review-dark-desktop.jpg",
+      "role": "head",
+      "theme": "dark",
+      "width": 1439,
+      "height": 950,
+      "sha256": "6369dc88f73c0c8cc2ac7ed0777bf9b5f8286e92b5cc46c9fcb4cc8835bb88ed",
+      "description": "head task review dark desktop"
+    },
+    {
+      "file": "head-task-review-light-320.jpg",
+      "role": "head",
+      "theme": "light",
+      "width": 320,
+      "height": 900,
+      "sha256": "9e836fcf4c63a698af562a99d9e0acf06112ff6e406175a52e028a3b0f655603",
+      "description": "head task review light 320"
+    },
+    {
+      "file": "head-task-review-light-desktop.jpg",
+      "role": "head",
+      "theme": "light",
+      "width": 1439,
+      "height": 950,
+      "sha256": "9c01aba740a866cd70df48bebf45d37fe513a0888ae4415d9c3cb0e81f467eb9",
+      "description": "head task review light desktop"
+    },
+    {
+      "file": "member-inbox-light-desktop.jpg",
+      "role": "member",
+      "theme": "light",
+      "width": 1439,
+      "height": 950,
+      "sha256": "4cd0a569dda5085e02f682a544f090e058e674c3caa36c0afd3a4fa94e23efc5",
+      "description": "member inbox light desktop"
+    },
+    {
+      "file": "member-reviews-dark-390.jpg",
+      "role": "member",
+      "theme": "dark",
+      "width": 390,
+      "height": 899,
+      "sha256": "b0c651866b41eb777d279ce11addb7401c44266956cc7b94ff97c76d26619e74",
+      "description": "member reviews dark 390"
+    }
+  ]
+}

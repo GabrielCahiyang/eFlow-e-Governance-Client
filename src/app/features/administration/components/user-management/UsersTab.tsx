@@ -1,12 +1,12 @@
 import { isAdminRole } from "../../../../shared/roles";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AlertTriangle, KeyRound, Plus, Trash2 } from "lucide-react";
 import { useOrgs, useProfiles } from "../../../../hooks/useSupabaseData";
 import { toggleUserActive } from "../../../../../lib/supabaseService";
 import { useAuth } from "../../../../contexts/AuthContext";
 import { Button } from "../../../../components/ui/button";
 import { FeedbackState } from "../../../../components/ui/FeedbackState";
-import { DataTable, type Column } from "../../../../components/ui/DataTable";
+import { DataTable, type Column, type DataTableViewState } from "../../../../components/ui/DataTable";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -39,8 +39,20 @@ import { useConfirmation } from "../../../../components/ui/useConfirmation";
 import { useExplicitDraft } from "../../../../shared/useExplicitDraft";
 export function UsersTab({
   onOpenAccess,
+  directoryFilters,
+  onDirectoryFiltersChange,
+  tableViewState,
+  onTableViewStateChange,
+  focusAccountId,
+  onFocusReturned,
 }: {
   onOpenAccess: (userId: string) => void;
+  directoryFilters?: UserDirectoryFilters;
+  onDirectoryFiltersChange?: (filters: UserDirectoryFilters) => void;
+  tableViewState?: DataTableViewState;
+  onTableViewStateChange?: (state: DataTableViewState) => void;
+  focusAccountId?: string;
+  onFocusReturned?: () => void;
 }) {
   const { profiles, loading } = useProfiles();
   const { orgs } = useOrgs();
@@ -64,9 +76,17 @@ export function UsersTab({
   );
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
-  const [filters, setFilters] = useState<UserDirectoryFilters>(
+  const [localFilters, setLocalFilters] = useState<UserDirectoryFilters>(
     DEFAULT_USER_DIRECTORY_FILTERS,
   );
+  const filters = directoryFilters ?? localFilters;
+  const setFilters = onDirectoryFiltersChange ?? setLocalFilters;
+  useEffect(() => {
+    if (loading || !focusAccountId) return;
+    const button = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-account-access-id]')).find(button => button.dataset.accountAccessId === focusAccountId);
+    if (button && !button.disabled) button.focus();
+    onFocusReturned?.();
+  }, [loading, focusAccountId, onFocusReturned]);
   const orgOptions = useMemo(
     () =>
       orgs
@@ -183,7 +203,7 @@ export function UsersTab({
             <button
               type="button"
               aria-label={`Inspect account ${profile.full_name}`}
-              className="text-left text-[11.5px] font-medium text-primary underline-offset-2 hover:underline"
+              className="text-left text-[13px] font-medium text-primary underline-offset-2 hover:underline"
               onClick={(event) => {
                 event.stopPropagation();
                 setInspected(profile);
@@ -191,7 +211,7 @@ export function UsersTab({
             >
               {profile.full_name}
             </button>
-            <div className="text-[9.5px] text-muted-foreground">
+            <div className="text-[12px] text-muted-foreground">
               {profile.email}
             </div>
           </div>
@@ -206,12 +226,19 @@ export function UsersTab({
       render: (profile) => <RoleBadge role={profile.role} />,
     },
     {
+      key: "status",
+      header: "Status",
+      sortable: true,
+      sortValue: (profile) => (profile.is_active ? 1 : 0),
+      render: (profile) => <StatusBadge active={profile.is_active} />,
+    },
+    {
       key: "organization",
       header: "Organization",
       sortable: true,
       sortValue: (profile) => orgMap[profile.org_id || ""] || "",
       render: (profile) => (
-        <span className="text-[11px] text-secondary-foreground">
+        <span className="text-[13px] text-secondary-foreground">
           {orgMap[profile.org_id || ""] || "—"}
         </span>
       ),
@@ -222,13 +249,6 @@ export function UsersTab({
       sortable: true,
       sortValue: (profile) => profile.workload,
       render: (profile) => <WorkloadBar value={profile.workload} />,
-    },
-    {
-      key: "status",
-      header: "Status",
-      sortable: true,
-      sortValue: (profile) => (profile.is_active ? 1 : 0),
-      render: (profile) => <StatusBadge active={profile.is_active} />,
     },
     {
       key: "actions",
@@ -249,6 +269,7 @@ export function UsersTab({
           <div className="flex items-center justify-end gap-1.5">
             <Button
               type="button"
+              data-account-access-id={profile.id}
               onClick={(event) => {
                 event.stopPropagation();
                 onOpenAccess(profile.id);
@@ -313,7 +334,7 @@ export function UsersTab({
               disabled={!lifecycleManageable || profile.id === userProfile?.id}
               variant="outline"
               size="sm"
-              className="eflow-directory-action text-destructive"
+              className="eflow-directory-action text-[var(--eflow-negative-text)]"
               title={
                 protectedTitle ||
                 (profile.id === userProfile?.id
@@ -332,15 +353,6 @@ export function UsersTab({
   return (
     <div className="eflow-foundation-surface eflow-directory space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="min-w-0">
-          <h3 className="text-[14px] font-semibold text-foreground">
-            Account directory
-          </h3>
-          <p className="mt-0.5 text-[10.5px] text-muted-foreground">
-            Identity, role, organization, workload, and access are managed from
-            one workspace.
-          </p>
-        </div>
         <Button
           type="button"
           onClick={() => setShowCreate(true)}
@@ -409,6 +421,8 @@ export function UsersTab({
         }}
         loading={loading}
         searchPlaceholder="Search by name, email, role, or organization…"
+        viewState={tableViewState}
+        onViewStateChange={onTableViewStateChange}
         searchFilter={(profile, query) =>
           profile.full_name.toLowerCase().includes(query) ||
           profile.email.toLowerCase().includes(query) ||

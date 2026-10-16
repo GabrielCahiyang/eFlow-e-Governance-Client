@@ -82,21 +82,11 @@ beforeEach(() => {
 });
 afterEach(cleanup);
 describe("R12 effective administration", () => {
-  it("retains nine categories and resolves support aliases without widening access", () => {
+  it("retains authorized support leaves without a second destination selector", () => {
     render(<AdministrationWorkspace />);
-    expect(screen.getAllByRole("tab")).toHaveLength(9);
-    for (const name of [
-      "People & onboarding",
-      "Offices & leadership",
-      "Roles & permissions",
-      "Workspaces & project access policy",
-      "Application settings",
-      "Email & integrations",
-      "Runtime / AI health",
-      "Audit",
-      "Backup & export",
-    ])
-      expect(screen.getByRole("tab", { name, exact: true })).toBeTruthy();
+    expect(screen.queryByRole("tablist")).toBeNull();
+    expect(screen.getByText('Retained people tools: users')).toBeTruthy();
+    expect(getAuthorizedSupportPages('admin',()=>true).map(page=>page.label)).toEqual(['All Users','Locked out accounts','Role Defaults','User Access','Office Structure','Account Audit','System Settings','Workspace Policy','Email & Integrations','Runtime / AI Health','Backup & Export']);
     expect(resolveSupportPage("administration", "Email & Integrations")).toBe(
       "Email & Integrations",
     );
@@ -108,12 +98,11 @@ describe("R12 effective administration", () => {
       ),
     ).toBe(false);
   });
-  it("keeps locked account management inside People and restricts it to Admin", () => {
+  it("keeps locked account management as its authorized leaf and restricts it to Admin", () => {
     render(<AdministrationWorkspace activePage="Locked out accounts" />);
-    expect(screen.getAllByRole("tab")).toHaveLength(9);
-    expect(screen.getByRole("tab", {name:"People & onboarding"}).getAttribute("aria-selected")).toBe("true");
+    expect(screen.queryByRole("tablist")).toBeNull();
     expect(screen.getByText("Retained people tools: locked-accounts")).toBeTruthy();
-    expect(screen.getByRole("button", {name:"Locked out accounts",exact:true}).getAttribute("aria-pressed")).toBe("true");
+    expect(screen.queryByRole("group",{name:'People views'})).toBeNull();
     expect(resolveSupportPage("users","Locked out accounts")).toBe("Locked out accounts");
     for(const role of ["head","member","accounting_staff"])
       expect(getAuthorizedSupportPages(role,()=>true).some(page=>page.label==="Locked out accounts")).toBe(false);

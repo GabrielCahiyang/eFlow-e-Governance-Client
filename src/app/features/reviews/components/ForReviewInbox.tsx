@@ -7,6 +7,10 @@
 // 4. Subtasks & Budget reviews
 
 import { requestNavigation } from '../../../shared/navigationGuard';
+import { writeNavigationLocation } from '../../navigation';
+import { canOpenMembershipReview, resolveReviewView } from '../reviewView';
+import '../reviewWorkspace.css';
+import { NAVIGATION_LOCATION_EVENT } from '../../../shared/navigationHistory';
 import {ProjectInvitationApprovalQueue} from '../../project-invitations';
 import { useEffect, useMemo, useState } from "react";
 import { Dropdown, Search as VibeSearch, Skeleton } from "@vibe/core";
@@ -79,6 +83,8 @@ export interface ForReviewInboxProps {
 }
 
 export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
+  const { user, userProfile } = useAuth();
+  const canReviewMembership = canOpenMembershipReview(scope, userProfile?.role);
   const { tasks, loading: tasksLoading } = useTasks();
   const { includeAllAccessibleWork } = useScopedOrgIds();
   const { projects, loading: projectsLoading } = useProjectsData();
@@ -90,37 +96,42 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
   const [reviewKind, setReviewKindState] = useState<ReviewKind>(() => {
     if (typeof window !== "undefined") {
       const view = new URLSearchParams(window.location.search).get("view");
-      if (["tasks", "subtasks", "budget", "workplans", "governance"].includes(view || "")) return view as ReviewKind;
+      return resolveReviewView(view, scope, userProfile?.role);
     }
     return getInitialReviewWorkspaceKind(scope);
   });
   const [subtaskFocus, setSubtaskFocus] = useState<NotificationNavigationIntent | null>(null);
   const [budgetFocus, setBudgetFocus] = useState<NotificationNavigationIntent | null>(null);
   const [cashReviewFocus, setCashReviewFocus] = useState<CashReviewFocus | null>(null);
+  const [membershipFocus, setMembershipFocus] = useState<string | undefined>();
 
-  const { user, userProfile } = useAuth();
   const canReviewBudget = canOpenBudgetReviewWorkspace(scope, userProfile?.role);
 
   const setReviewKind = (next: ReviewKind) => { void requestNavigation(() => {
-    setReviewKindState(next);
+    const view = resolveReviewView(next, scope, userProfile?.role);
+    setReviewKindState(view);
     if (typeof window === "undefined") return;
     const url = new URL(window.location.href);
-    url.pathname = "/reviews";
-    url.searchParams.set("page", "For Review");
-    url.searchParams.set("view", next);
-    window.history.pushState({ page: "For Review", view: next }, "", `${url.pathname}?${url.searchParams.toString()}`);
+    writeNavigationLocation('reviews', 'For Review', 'push', { parameters: { ...Object.fromEntries(url.searchParams), view } });
   }); };
 
   useEffect(() => {
     const onPopState = () => {
-      const view = new URLSearchParams(window.location.search).get("view");
-      if (["tasks", "subtasks", "budget", "workplans", "governance"].includes(view || "")) {
-        setReviewKindState(view as ReviewKind);
+      if (window.location.pathname !== '/reviews') return;
+      const url = new URL(window.location.href), view = url.searchParams.get("view");
+      const resolved = resolveReviewView(view, scope, userProfile?.role);
+      setReviewKindState(resolved);
+      if (userProfile?.role && view && view !== resolved) {
+        writeNavigationLocation('reviews', scope === 'leading' ? 'Leader Reviews' : 'For Review', 'replace', { parameters: { ...Object.fromEntries(url.searchParams), view: resolved } });
       }
     };
+    onPopState();
     window.addEventListener("popstate", onPopState);
-    return () => window.removeEventListener("popstate", onPopState);
-  }, []);
+    window.addEventListener(NAVIGATION_LOCATION_EVENT, onPopState);
+    return () => { window.removeEventListener("popstate", onPopState); window.removeEventListener(NAVIGATION_LOCATION_EVENT, onPopState); };
+  }, [scope, user?.id, userProfile?.role]);
+
+  useEffect(() => { setMembershipFocus(undefined); }, [user?.id, scope]);
 
   const currentOrgId = userProfile?.org_id || userProfile?.departmentId || "";
   const accessibleOrgIds = useMemo(
@@ -210,8 +221,13 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
       intent.kind === "task_review" ||
       intent.kind === "subtask_review" ||
       intent.kind === "budget" ||
+      intent.kind === "membership_review" ||
       intent.kind === "collaboration",
     (intent) => {
+      if (intent.kind === 'membership_review') {
+        if (canReviewMembership) { setMembershipFocus(intent.projectId); setReviewKind('membership'); }
+        return true;
+      }
       if (tasksLoading || projectsLoading) return false;
       if (intent.kind === "budget" && canReviewBudget) {
         setCashReviewFocus(null);
@@ -231,7 +247,7 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
       }
       return true;
     },
-    [canReviewBudget, projectsLoading, queue, tasksLoading],
+    [canReviewBudget, canReviewMembership, projectsLoading, queue, tasksLoading],
   );
 
   const canReviewSelected = Boolean(
@@ -251,7 +267,7 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
     error: subtaskEvidenceError,
   } = useTaskReviewEvidence(selected?.id);
 
-  if (tasksLoading || projectsLoading) {
+  if ((tasksLoading || projectsLoading) && reviewKind !== 'membership') {
     return (
       <div className="space-y-4 p-8" aria-live="polite" role="status">
         <Skeleton type="text" width={220} />
@@ -265,8 +281,7 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
   }
 
   return (
-    <div className="eflow-operational-workspace min-h-full p-4 sm:p-8">
-      {scope==='department'&&<ProjectInvitationApprovalQueue/>}
+    <div className="eflow-operational-workspace eflow-review-workspace min-h-full min-w-0 p-4 sm:p-8">
       <PageHeader
         eyebrow={
           scope === "leading"
@@ -277,26 +292,19 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
         }
         title="For Review"
         subtitle="Validate submitted work, collaborate on proposals, and keep the pipeline moving."
-        actions={
-          <div className="flex w-full min-w-0 flex-col items-stretch gap-2 sm:w-auto sm:items-end">
-            <ReviewKindSwitch
-              active={reviewKind}
-              includeBudget={canReviewBudget}
-              counts={reviewCounts}
-              onChange={setReviewKind}
-            />
-            <div className="flex min-h-7 justify-end">
-              {reviewKind === "tasks" && (
-                <div className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-700">
-                  <Inbox size={14} /> {queue.length} awaiting review
+        actions={reviewKind === 'tasks' ? (
+                <div className="inline-flex items-center gap-1.5 rounded-full border border-border bg-[var(--eflow-warning-bg)] px-3 py-1.5 text-xs font-semibold text-[var(--eflow-warning-text)]">
+                  <Inbox size={14} /> {queue.length} {query.trim() ? 'matching submissions' : 'awaiting review'}
                 </div>
-              )}
-            </div>
-          </div>
-        }
+        ) : undefined}
       />
 
+      <div className="mb-4 min-w-0">
+        <ReviewKindSwitch active={reviewKind} includeBudget={canReviewBudget} includeMembership={canReviewMembership} counts={reviewCounts} onChange={setReviewKind} />
+      </div>
+
       {/* Review Category Content */}
+      {reviewKind === 'membership' && canReviewMembership && <ProjectInvitationApprovalQueue focusProjectId={membershipFocus} />}
       {reviewKind === "budget" && canReviewBudget && (
         <BudgetReviewInbox
           key={`${cashReviewFocus?.orgId || "default"}:${cashReviewFocus?.fiscalYear || "current"}`}
@@ -316,20 +324,20 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
           {queue.length === 0 && !query ? (
             <div className="rounded-[10px] border border-border bg-card shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
               <SectionEmpty
-                icon={<CheckCircle2 size={36} className="text-emerald-500" />}
+                icon={<CheckCircle2 size={36} className="text-[var(--eflow-positive-text)]" />}
                 title="Inbox zero"
-                description="No submissions are waiting for review. Great job keeping up!"
+                description="No task submissions are waiting for your review. Other review types remain available above."
               />
             </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-[minmax(300px,380px)_1fr] gap-4">
               {/* Queue */}
               <div className="flex flex-col overflow-hidden rounded-[10px] border border-border bg-card shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
-                <div className="flex flex-col gap-2 border-b border-border bg-muted/40 px-5 py-3 sm:flex-row sm:items-center">
-                  <VibeSearch value={query} onChange={setQuery} onClear={() => setQuery("")} placeholder="Search submissions…" inputAriaLabel="Search review submissions" showClearIcon size="small" className="flex-1" />
+                <div className="flex flex-col gap-2 border-b border-border bg-muted/40 px-4 py-3">
+                  <VibeSearch value={query} onChange={setQuery} onClear={() => setQuery("")} placeholder="Search submissions…" inputAriaLabel="Search review submissions" showClearIcon size="small" className="eflow-review-search w-full" />
                   <Dropdown
                     aria-label="Sort review submissions"
-                    className="w-full sm:w-[160px]"
+                    className="w-full"
                     clearable={false}
                     value={reviewSortOptions.find((option) => option.value === sort)}
                     onChange={(option) => setSort(String(option.value))}
@@ -337,9 +345,9 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
                     size="small"
                   />
                 </div>
-                <div className="divide-y divide-neutral-100 overflow-y-auto max-h-[calc(100vh-260px)]">
+                <div className="divide-y divide-border overflow-y-auto max-h-[calc(100vh-260px)]">
                   {queue.length === 0 ? (
-                    <div className="py-10 text-center text-xs text-neutral-400">No matches for “{query}”.</div>
+                    <div className="py-10 text-center text-xs text-muted-foreground">No matches for “{query}”.</div>
                   ) : (
                     queue.map((t) => {
                       const isSel = t.id === selectedId;
@@ -348,22 +356,23 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
                       return (
                         <button
                           key={t.id}
+                          aria-current={isSel ? "true" : undefined}
                           onClick={() => setSelectedId(t.id)}
                           className={`flex w-full cursor-pointer gap-3 p-3.5 text-left transition-colors ${isSel ? "bg-primary/5" : "hover:bg-muted/60"}`}
                         >
                           <InitialsAvatar name={t.assigneeName} size={32} />
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
-                              <span className="text-xs font-bold text-neutral-900 truncate flex-1">
+                              <span className="text-sm font-semibold text-foreground break-words flex-1">
                                 {t.title}
                               </span>
                               <PriorityPill priority={t.priority} />
                             </div>
-                            <div className="text-[11px] text-neutral-500 truncate mt-0.5">
+                            <div className="text-[11px] text-muted-foreground truncate mt-0.5">
                               {t.assigneeName || "Unassigned"}{t.teamMemberNames && t.teamMemberNames.length > 1 ? ` + ${t.teamMemberNames.length - 1}` : ""}
                               {projectTitle ? ` · ${projectTitle}` : ""}
                             </div>
-                            <div className="flex items-center gap-1 text-[10.5px] text-neutral-400 mt-1">
+                            <div className="flex items-center gap-1 text-[10.5px] text-muted-foreground mt-1">
                               <Clock size={10} /> {timeAgo(submittedAt)}
                               {t.rejectionNote && (
                                 <span className="ml-1 text-rose-500 font-semibold">· resubmitted</span>
@@ -385,8 +394,8 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
                     <div className="rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
                       <div className="flex items-start justify-between gap-3 mb-3">
                         <div className="min-w-0">
-                          <h2 className="text-base font-bold text-neutral-900">{selected.title}</h2>
-                          <div className="flex items-center gap-3 mt-1.5 text-xs text-neutral-500 flex-wrap">
+                          <h2 className="text-base font-bold text-foreground">{selected.title}</h2>
+                          <div className="flex items-center gap-3 mt-1.5 text-xs text-muted-foreground flex-wrap">
                             <span className="flex items-center gap-1"><InitialsAvatar name={selected.assigneeName} size={18} /> {selected.teamMemberNames && selected.teamMemberNames.length > 0 ? selected.teamMemberNames.join(", ") : selected.assigneeName || "Unassigned"}</span>
                             {selected.teamName && <span className="flex items-center gap-1"><Building2 size={12} /> {selected.teamName}</span>}
                             {(projects.find((project) => project.id === selected.linkedProjectId)?.title || selected.projectTitle) && (
@@ -399,21 +408,21 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
                       </div>
 
                       {selected.description && (
-                        <div className="text-xs text-neutral-600 mb-3 whitespace-pre-wrap leading-relaxed">
+                        <div className="text-xs text-muted-foreground mb-3 whitespace-pre-wrap leading-relaxed">
                           {selected.description}
                         </div>
                       )}
 
                       {latestProgress && (
-                        <div className="mb-3 rounded-[14px] border border-blue-100 bg-blue-50/50 p-3">
-                          <div className="flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-wide text-blue-700 mb-1">
+                        <div className="mb-3 rounded-[14px] border border-border bg-[var(--eflow-info-bg)] p-3">
+                          <div className="flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-wide text-[var(--eflow-info-text)] mb-1">
                             <Gauge size={12} /> Latest progress · {latestProgress.percentComplete ?? "—"}%
                           </div>
                           {latestProgress.nextStep && (
-                            <div className="text-xs text-neutral-700"><b className="font-semibold">Next:</b> {latestProgress.nextStep}</div>
+                            <div className="text-xs text-foreground"><b className="font-semibold">Next:</b> {latestProgress.nextStep}</div>
                           )}
                           {latestProgress.note && (
-                            <div className="text-xs text-neutral-600 mt-0.5">{latestProgress.note}</div>
+                            <div className="text-xs text-muted-foreground mt-0.5">{latestProgress.note}</div>
                           )}
                         </div>
                       )}
@@ -431,12 +440,12 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
 
                     <div className="rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
                       <div className="mb-3 flex items-start gap-2.5">
-                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700">
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--eflow-positive-bg)] text-[var(--eflow-positive-text)]">
                           <ClipboardCheck size={16} />
                         </span>
                         <div>
-                          <div className="text-xs font-bold uppercase tracking-wide text-neutral-900">Final task submission</div>
-                          <div className="mt-0.5 text-xs text-neutral-500">Review the completion note, parent-task attachments, and all previous attempts.</div>
+                          <div className="text-xs font-bold uppercase tracking-wide text-foreground">Final task submission</div>
+                          <div className="mt-0.5 text-xs text-muted-foreground">Review the completion note, parent-task attachments, and all previous attempts.</div>
                         </div>
                       </div>
                       <TaskReviewPanel
@@ -449,16 +458,16 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
                     </div>
 
                     <div className="rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
-                      <div className="text-xs font-bold uppercase tracking-wide text-neutral-900 mb-0.5">Complete task timeline</div>
-                      <div className="mb-3 text-xs text-neutral-500">Status changes and structured parent-task progress updates, newest first.</div>
+                      <div className="text-xs font-bold uppercase tracking-wide text-foreground mb-0.5">Complete task timeline</div>
+                      <div className="mb-3 text-xs text-muted-foreground">Status changes and structured parent-task progress updates, newest first.</div>
                       <TaskActivityTimeline taskId={selected.id} />
                     </div>
 
                     {canReviewSelected && (
                       <div className="rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
                         <div className="mb-3">
-                          <div className="text-xs font-bold uppercase tracking-wide text-neutral-900">Head review decision</div>
-                          <div className="mt-0.5 text-xs text-neutral-500">Approve only after checking the completion standards, subtask execution records, evidence files, and final submission.</div>
+                          <div className="text-xs font-bold uppercase tracking-wide text-foreground">Review decision</div>
+                          <div className="mt-0.5 text-xs text-muted-foreground">Approve only after checking the completion standards, subtask execution records, evidence files, and final submission.</div>
                         </div>
                         <ReviewDecisionForm taskId={selected.id} onDone={() => { /* realtime removes it from queue */ }}
                           onOpenFinancialReview={canReviewBudget ? (focus) => {

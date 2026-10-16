@@ -1,0 +1,15 @@
+.eflow-local-workflow-tabs {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+}
+.eflow-local-workflow-tabs [role="tablist"] {
+  width: max-content !important;
+  max-width: none;
+  height: auto;
+}
+.eflow-local-workflow-tabs [role="tab"] {
+  flex: 0 0 auto;
+  min-height: var(--eflow-touch-target);
+  white-space: nowrap;
+}

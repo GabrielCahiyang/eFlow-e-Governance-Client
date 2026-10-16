@@ -1,4 +1,5 @@
-import { defineConfig, devices } from "@playwright/test";
+import { defineConfig, devices, firefox } from "@playwright/test";
+import { resolveBrowserExecutable } from "./tests/helpers/browserExecutable";
 
 const enabled = process.env.EFLOW_E2E === "1";
 
@@ -24,7 +25,11 @@ export default defineConfig({
       name: "firefox",
       use: {
         ...devices["Desktop Firefox"],
-        launchOptions: { executablePath: process.env.EFLOW_FIREFOX_EXECUTABLE },
+        launchOptions: {
+          executablePath: resolveBrowserExecutable(
+            process.env.EFLOW_FIREFOX_EXECUTABLE || firefox.executablePath(),
+          ),
+        },
       },
     },
     { name: "webkit", use: { ...devices["Desktop Safari"] } },

@@ -243,5 +243,6 @@
 .pt-nested-work [data-work-presentation="project-table"] td .r7-work strong{display:none}
 .pt-nested-work [data-work-presentation="project-table"] td .r7-work>div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media(max-width:767px){.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table th:first-child,.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table td:first-child{position:static}}
-.pt-subitems tfoot .pt-subitem-add{box-sizing:border-box;width:min(100%,calc(100cqw - 64px));position:sticky;left:0;background:var(--eflow-surface)}
+/* Include both nested cell borders in the sticky footer's width budget. */
+.pt-subitems tfoot .pt-subitem-add{box-sizing:border-box;width:min(100%,calc(100cqw - 66px));position:sticky;left:0;background:var(--eflow-surface)}
 @media(max-width:639px){.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-control{min-width:var(--eflow-touch-target);max-width:none}.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-open{min-width:var(--eflow-touch-target)}}

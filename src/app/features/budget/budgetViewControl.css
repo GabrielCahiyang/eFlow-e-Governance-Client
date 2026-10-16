@@ -1,0 +1,13 @@
+.eflow-budget-view-control{display:grid;gap:var(--eflow-space-1);min-width:0;flex:1 1 280px}
+.eflow-budget-view-control>span{font-size:var(--eflow-text-xs);color:var(--eflow-text-muted)}
+.eflow-budget-view-control [data-slot=select-trigger]{background:var(--eflow-surface);border-color:var(--eflow-border);color:var(--eflow-text);min-height:var(--eflow-control-height)}
+.eflow-budget-view-options [data-slot=select-item]{white-space:normal;overflow-wrap:anywhere}
+.eflow-budget-view-toolbar{display:flex;align-items:end;gap:var(--eflow-space-3);flex-wrap:wrap;padding:var(--eflow-space-3);border:1px solid var(--eflow-border);border-radius:var(--eflow-radius-surface);background:var(--eflow-surface)}
+.eflow-budget-view-toolbar>small{flex-basis:100%;color:var(--eflow-text-muted);font-size:var(--eflow-text-xs)}
+.eflow-budget-workspace .eflow-workspace-header{padding:0 0 var(--eflow-space-5)}
+.eflow-budget-status{border-radius:var(--eflow-radius-control);padding:var(--eflow-space-1) var(--eflow-space-2);font-size:var(--eflow-text-xs);text-transform:capitalize;background:var(--eflow-warning-bg);color:var(--eflow-warning-text)}
+.eflow-budget-status[data-status=locked]{background:var(--eflow-positive-bg);color:var(--eflow-positive-text)}
+.eflow-budget-status[data-status=closed]{background:var(--eflow-subtle);color:var(--eflow-text-muted)}
+.eflow-budget-status[data-status=unavailable]{background:var(--eflow-negative-bg);color:var(--eflow-negative-text)}
+@media(max-width:1023px){.eflow-budget-view-control [data-slot=select-trigger],.eflow-budget-view-toolbar button{min-height:44px}.eflow-budget-view-toolbar [aria-label="Fiscal year control"]{height:44px}}
+@media(max-width:1023px){.eflow-budget-workspace input:not([type=checkbox]),.eflow-budget-workspace select{min-height:var(--eflow-touch-target)}}

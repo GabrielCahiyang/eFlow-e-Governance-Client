@@ -1,0 +1,690 @@
+[
+  {
+    "label": "member-dark-desktop",
+    "background": "rgb(20, 46, 42)",
+    "font": "\"Figtree Variable\", Figtree, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+    "foreground": "rgb(255, 255, 255)",
+    "headings": [
+      "My Work"
+    ],
+    "height": 950,
+    "overflow": false,
+    "theme": "dark",
+    "utilities": [
+      {
+        "height": 40,
+        "label": "Open help",
+        "right": 1137.7250289916992,
+        "width": 69.13750457763672
+      },
+      {
+        "height": 35,
+        "label": "Open notifications",
+        "right": 1189.5250244140625,
+        "width": 35
+      },
+      {
+        "height": 28,
+        "label": "Open messages",
+        "right": 1221.5250244140625,
+        "width": 28
+      },
+      {
+        "height": 40,
+        "label": "Open account menu",
+        "right": 1355.0500259399414,
+        "width": 89.5250015258789
+      }
+    ],
+    "width": 1440,
+    "wordmarkContrast": 14.443154704754004
+  },
+  {
+    "label": "member-dark-320",
+    "background": "rgb(20, 46, 42)",
+    "font": "\"Figtree Variable\", Figtree, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+    "foreground": "rgb(255, 255, 255)",
+    "headings": [
+      "My Work"
+    ],
+    "height": 740,
+    "overflow": false,
+    "theme": "dark",
+    "utilities": [
+      {
+        "height": 44,
+        "label": "Open navigation",
+        "right": 52,
+        "width": 44
+      },
+      {
+        "height": 44,
+        "label": "Open help",
+        "right": 172,
+        "width": 44
+      },
+      {
+        "height": 44,
+        "label": "Open notifications",
+        "right": 218,
+        "width": 44
+      },
+      {
+        "height": 44,
+        "label": "Open messages",
+        "right": 266,
+        "width": 44
+      },
+      {
+        "height": 44,
+        "label": "Open account menu",
+        "right": 312,
+        "width": 44
+      }
+    ],
+    "width": 320,
+    "wordmarkContrast": 14.443154704754004
+  },
+  {
+    "label": "member-light-320",
+    "background": "rgb(255, 255, 255)",
+    "font": "\"Figtree Variable\", Figtree, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+    "foreground": "rgb(1, 0, 107)",
+    "headings": [
+      "My Work"
+    ],
+    "height": 740,
+    "overflow": false,
+    "theme": "light",
+    "utilities": [
+      {
+        "height": 44,
+        "label": "Open navigation",
+        "right": 52,
+        "width": 44
+      },
+      {
+        "height": 44,
+        "label": "Open help",
+        "right": 172,
+        "width": 44
+      },
+      {
+        "height": 44,
+        "label": "Open notifications",
+        "right": 218,
+        "width": 44
+      },
+      {
+        "height": 44,
+        "label": "Open messages",
+        "right": 266,
+        "width": 44
+      },
+      {
+        "height": 44,
+        "label": "Open account menu",
+        "right": 312,
+        "width": 44
+      }
+    ],
+    "width": 320,
+    "wordmarkContrast": 17.30391820585606
+  },
+  {
+    "label": "member-light-desktop",
+    "background": "rgb(255, 255, 255)",
+    "font": "\"Figtree Variable\", Figtree, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+    "foreground": "rgb(1, 0, 107)",
+    "headings": [
+      "My Work"
+    ],
+    "height": 950,
+    "overflow": false,
+    "theme": "light",
+    "utilities": [
+      {
+        "height": 40,
+        "label": "Open help",
+        "right": 1137.7250289916992,
+        "width": 69.13750457763672
+      },
+      {
+        "height": 35,
+        "label": "Open notifications",
+        "right": 1189.5250244140625,
+        "width": 35
+      },
+      {
+        "height": 28,
+        "label": "Open messages",
+        "right": 1221.5250244140625,
+        "width": 28
+      },
+      {
+        "height": 40,
+        "label": "Open account menu",
+        "right": 1355.0500259399414,
+        "width": 89.5250015258789
+      }
+    ],
+    "width": 1440,
+    "wordmarkContrast": 17.30391820585606
+  },
+  {
+    "label": "head-dark-desktop",
+    "background": "rgb(20, 46, 42)",
+    "font": "\"Figtree Variable\", Figtree, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+    "foreground": "rgb(255, 255, 255)",
+    "headings": [
+      "Office Budget"
+    ],
+    "height": 950,
+    "overflow": false,
+    "theme": "dark",
+    "utilities": [
+      {
+        "height": 40,
+        "label": "Open help",
+        "right": 1137.7250289916992,
+        "width": 69.13750457763672
+      },
+      {
+        "height": 35,
+        "label": "Open notifications",
+        "right": 1189.5250244140625,
+        "width": 35
+      },
+      {
+        "height": 28,
+        "label": "Open messages",
+        "right": 1221.5250244140625,
+        "width": 28
+      },
+      {
+        "height": 40,
+        "label": "Open account menu",
+        "right": 1355.0500259399414,
+        "width": 89.5250015258789
+      }
+    ],
+    "width": 1440,
+    "wordmarkContrast": 14.443154704754004
+  },
+  {
+    "label": "head-dark-390",
+    "background": "rgb(20, 46, 42)",
+    "font": "\"Figtree Variable\", Figtree, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+    "foreground": "rgb(255, 255, 255)",
+    "headings": [
+      "Office Budget"
+    ],
+    "height": 844,
+    "overflow": false,
+    "theme": "dark",
+    "utilities": [
+      {
+        "height": 44,
+        "label": "Open navigation",
+        "right": 52,
+        "width": 44
+      },
+      {
+        "height": 44,
+        "label": "Open help",
+        "right": 242.40000915527344,
+        "width": 44
+      },
+      {
+        "height": 44,
+        "label": "Open notifications",
+        "right": 288.40000915527344,
+        "width": 44
+      },
+      {
+        "height": 44,
+        "label": "Open messages",
+        "right": 336.3999938964844,
+        "width": 44
+      },
+      {
+        "height": 44,
+        "label": "Open account menu",
+        "right": 382.3999938964844,
+        "width": 44
+      }
+    ],
+    "width": 390,
+    "wordmarkContrast": 14.443154704754004
+  },
+  {
+    "label": "head-light-390",
+    "background": "rgb(255, 255, 255)",
+    "font": "\"Figtree Variable\", Figtree, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+    "foreground": "rgb(1, 0, 107)",
+    "headings": [
+      "Office Budget"
+    ],
+    "height": 844,
+    "overflow": false,
+    "theme": "light",
+    "utilities": [
+      {
+        "height": 44,
+        "label": "Open navigation",
+        "right": 52,
+        "width": 44
+      },
+      {
+        "height": 44,
+        "label": "Open help",
+        "right": 242.40000915527344,
+        "width": 44
+      },
+      {
+        "height": 44,
+        "label": "Open notifications",
+        "right": 288.40000915527344,
+        "width": 44
+      },
+      {
+        "height": 44,
+        "label": "Open messages",
+        "right": 336.3999938964844,
+        "width": 44
+      },
+      {
+        "height": 44,
+        "label": "Open account menu",
+        "right": 382.3999938964844,
+        "width": 44
+      }
+    ],
+    "width": 390,
+    "wordmarkContrast": 17.30391820585606
+  },
+  {
+    "label": "head-light-desktop",
+    "background": "rgb(255, 255, 255)",
+    "font": "\"Figtree Variable\", Figtree, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+    "foreground": "rgb(1, 0, 107)",
+    "headings": [
+      "Office Budget"
+    ],
+    "height": 950,
+    "overflow": false,
+    "theme": "light",
+    "utilities": [
+      {
+        "height": 40,
+        "label": "Open help",
+        "right": 1137.7250289916992,
+        "width": 69.13750457763672
+      },
+      {
+        "height": 35,
+        "label": "Open notifications",
+        "right": 1189.5250244140625,
+        "width": 35
+      },
+      {
+        "height": 28,
+        "label": "Open messages",
+        "right": 1221.5250244140625,
+        "width": 28
+      },
+      {
+        "height": 40,
+        "label": "Open account menu",
+        "right": 1355.0500259399414,
+        "width": 89.5250015258789
+      }
+    ],
+    "width": 1440,
+    "wordmarkContrast": 17.30391820585606
+  },
+  {
+    "label": "admin-dark-desktop",
+    "background": "rgb(20, 46, 42)",
+    "font": "\"Figtree Variable\", Figtree, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+    "foreground": "rgb(255, 255, 255)",
+    "headings": [
+      "All Users"
+    ],
+    "height": 950,
+    "overflow": false,
+    "theme": "dark",
+    "utilities": [
+      {
+        "height": 40,
+        "label": "Open help",
+        "right": 1137.7250289916992,
+        "width": 69.13750457763672
+      },
+      {
+        "height": 35,
+        "label": "Open notifications",
+        "right": 1189.5250244140625,
+        "width": 35
+      },
+      {
+        "height": 28,
+        "label": "Open messages",
+        "right": 1221.5250244140625,
+        "width": 28
+      },
+      {
+        "height": 40,
+        "label": "Open account menu",
+        "right": 1355.0500259399414,
+        "width": 89.5250015258789
+      }
+    ],
+    "width": 1440,
+    "wordmarkContrast": 14.443154704754004
+  },
+  {
+    "label": "admin-dark-320",
+    "background": "rgb(20, 46, 42)",
+    "font": "\"Figtree Variable\", Figtree, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+    "foreground": "rgb(255, 255, 255)",
+    "headings": [
+      "All Users"
+    ],
+    "height": 740,
+    "overflow": false,
+    "theme": "dark",
+    "utilities": [
+      {
+        "height": 44,
+        "label": "Open navigation",
+        "right": 52,
+        "width": 44
+      },
+      {
+        "height": 44,
+        "label": "Open help",
+        "right": 172,
+        "width": 44
+      },
+      {
+        "height": 44,
+        "label": "Open notifications",
+        "right": 218,
+        "width": 44
+      },
+      {
+        "height": 44,
+        "label": "Open messages",
+        "right": 266,
+        "width": 44
+      },
+      {
+        "height": 44,
+        "label": "Open account menu",
+        "right": 312,
+        "width": 44
+      }
+    ],
+    "width": 320,
+    "wordmarkContrast": 14.443154704754004
+  },
+  {
+    "label": "admin-light-desktop",
+    "background": "rgb(255, 255, 255)",
+    "font": "\"Figtree Variable\", Figtree, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+    "foreground": "rgb(1, 0, 107)",
+    "headings": [
+      "All Users"
+    ],
+    "height": 950,
+    "overflow": false,
+    "theme": "light",
+    "utilities": [
+      {
+        "height": 40,
+        "label": "Open help",
+        "right": 1137.7250289916992,
+        "width": 69.13750457763672
+      },
+      {
+        "height": 35,
+        "label": "Open notifications",
+        "right": 1189.5250244140625,
+        "width": 35
+      },
+      {
+        "height": 28,
+        "label": "Open messages",
+        "right": 1221.5250244140625,
+        "width": 28
+      },
+      {
+        "height": 40,
+        "label": "Open account menu",
+        "right": 1355.0500259399414,
+        "width": 89.5250015258789
+      }
+    ],
+    "width": 1440,
+    "wordmarkContrast": 17.30391820585606
+  },
+  {
+    "label": "admin-light-320",
+    "background": "rgb(255, 255, 255)",
+    "font": "\"Figtree Variable\", Figtree, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+    "foreground": "rgb(1, 0, 107)",
+    "headings": [
+      "All Users"
+    ],
+    "height": 740,
+    "overflow": false,
+    "theme": "light",
+    "utilities": [
+      {
+        "height": 44,
+        "label": "Open navigation",
+        "right": 52,
+        "width": 44
+      },
+      {
+        "height": 44,
+        "label": "Open help",
+        "right": 172,
+        "width": 44
+      },
+      {
+        "height": 44,
+        "label": "Open notifications",
+        "right": 218,
+        "width": 44
+      },
+      {
+        "height": 44,
+        "label": "Open messages",
+        "right": 266,
+        "width": 44
+      },
+      {
+        "height": 44,
+        "label": "Open account menu",
+        "right": 312,
+        "width": 44
+      }
+    ],
+    "width": 320,
+    "wordmarkContrast": 17.30391820585606
+  },
+  {
+    "label": "accounting-dark-desktop",
+    "background": "rgb(20, 46, 42)",
+    "font": "\"Figtree Variable\", Figtree, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+    "foreground": "rgb(255, 255, 255)",
+    "headings": [
+      "General Journal"
+    ],
+    "height": 950,
+    "overflow": false,
+    "theme": "dark",
+    "utilities": [
+      {
+        "height": 40,
+        "label": "Open help",
+        "right": 1106.4125289916992,
+        "width": 69.13750457763672
+      },
+      {
+        "height": 35,
+        "label": "Open notifications",
+        "right": 1158.2125244140625,
+        "width": 35
+      },
+      {
+        "height": 28,
+        "label": "Open messages",
+        "right": 1190.2125244140625,
+        "width": 28
+      },
+      {
+        "height": 40,
+        "label": "Open account menu",
+        "right": 1323.7375259399414,
+        "width": 89.5250015258789
+      }
+    ],
+    "width": 1440,
+    "wordmarkContrast": 14.443154704754004
+  },
+  {
+    "label": "accounting-dark-390",
+    "background": "rgb(20, 46, 42)",
+    "font": "\"Figtree Variable\", Figtree, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+    "foreground": "rgb(255, 255, 255)",
+    "headings": [
+      "General Journal"
+    ],
+    "height": 844,
+    "overflow": false,
+    "theme": "dark",
+    "utilities": [
+      {
+        "height": 44,
+        "label": "Open navigation",
+        "right": 52,
+        "width": 44
+      },
+      {
+        "height": 44,
+        "label": "Open help",
+        "right": 242.40000915527344,
+        "width": 44
+      },
+      {
+        "height": 44,
+        "label": "Open notifications",
+        "right": 288.40000915527344,
+        "width": 44
+      },
+      {
+        "height": 44,
+        "label": "Open messages",
+        "right": 336.3999938964844,
+        "width": 44
+      },
+      {
+        "height": 44,
+        "label": "Open account menu",
+        "right": 382.3999938964844,
+        "width": 44
+      }
+    ],
+    "width": 390,
+    "wordmarkContrast": 14.443154704754004
+  },
+  {
+    "label": "accounting-light-390",
+    "background": "rgb(255, 255, 255)",
+    "font": "\"Figtree Variable\", Figtree, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+    "foreground": "rgb(1, 0, 107)",
+    "headings": [
+      "General Journal"
+    ],
+    "height": 844,
+    "overflow": false,
+    "theme": "light",
+    "utilities": [
+      {
+        "height": 44,
+        "label": "Open navigation",
+        "right": 52,
+        "width": 44
+      },
+      {
+        "height": 44,
+        "label": "Open help",
+        "right": 242.40000915527344,
+        "width": 44
+      },
+      {
+        "height": 44,
+        "label": "Open notifications",
+        "right": 288.40000915527344,
+        "width": 44
+      },
+      {
+        "height": 44,
+        "label": "Open messages",
+        "right": 336.3999938964844,
+        "width": 44
+      },
+      {
+        "height": 44,
+        "label": "Open account menu",
+        "right": 382.3999938964844,
+        "width": 44
+      }
+    ],
+    "width": 390,
+    "wordmarkContrast": 17.30391820585606
+  },
+  {
+    "label": "accounting-light-desktop",
+    "background": "rgb(255, 255, 255)",
+    "font": "\"Figtree Variable\", Figtree, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+    "foreground": "rgb(1, 0, 107)",
+    "headings": [
+      "General Journal"
+    ],
+    "height": 950,
+    "overflow": false,
+    "theme": "light",
+    "utilities": [
+      {
+        "height": 40,
+        "label": "Open help",
+        "right": 1106.4125289916992,
+        "width": 69.13750457763672
+      },
+      {
+        "height": 35,
+        "label": "Open notifications",
+        "right": 1158.2125244140625,
+        "width": 35
+      },
+      {
+        "height": 28,
+        "label": "Open messages",
+        "right": 1190.2125244140625,
+        "width": 28
+      },
+      {
+        "height": 40,
+        "label": "Open account menu",
+        "right": 1323.7375259399414,
+        "width": 89.5250015258789
+      }
+    ],
+    "width": 1440,
+    "wordmarkContrast": 17.30391820585606
+  }
+]

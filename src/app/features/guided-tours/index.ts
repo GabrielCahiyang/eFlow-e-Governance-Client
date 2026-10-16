@@ -1,5 +1,6 @@
 export { GuidedTourProvider, useGuidedTour } from "./components/GuidedTourProvider";
 export { PageWalkthroughButton, SystemWalkthroughButton } from "./components/WalkthroughButtons";
+export { WorkspaceHelpMenu } from "./components/WorkspaceHelpMenu";
 export { GuidedTourCard } from "./components/GuidedTourCard";
 export { useGuidedTourNarration } from "./hooks/useGuidedTourNarration";
 export { getPageTourSteps, getSectionGuidance, getSystemTourSteps } from "./tourCatalog";

@@ -1,0 +1,49 @@
+{
+  "head": "545245e353ad04ac47e24f95a71e06cf736ca0f8",
+  "githubHead": "545245e353ad04ac47e24f95a71e06cf736ca0f8",
+  "preExistingChanges": [
+    "docs/product-refinement/global-ui-ux-simplification-audit-2026-10-13.md"
+  ],
+  "files": [
+    {
+      "path": "src/app/features/app-shell/components/ContextRail.tsx",
+      "sha256": "b809e7ce3605e8ad92fc3e4ebd75327219d57778179e03240460ffbcbb6d2271"
+    },
+    {
+      "path": "src/app/features/app-shell/components/WorkspaceNavigationPanel.tsx",
+      "sha256": "005d5b78fa60d673a88f9f557ddab8eb9789a5f3be4a9a0f05cd66d70dc70c0e"
+    },
+    {
+      "path": "src/app/features/app-shell/eflowNavigationIcons.tsx",
+      "sha256": "c4883d6c0156eeace85a8a5c0d8286c97ac43e70acc45bd2c6988ad5ccd595f7"
+    },
+    {
+      "path": "src/app/features/app-shell/components/ContextRailHeader.tsx",
+      "sha256": "f912abdac67759380e0e8851dce5c77449455cc7b727463168a944dc2ad5ce9d"
+    },
+    {
+      "path": "src/app/features/workspaces/components/WorkspaceSelector.tsx",
+      "sha256": "83f115f05eee780c05635a1982ff1b09a8dac230c9e67dbbe80d3a2185091acc"
+    },
+    {
+      "path": "src/app/components/ui/workspace/WorkspacePopover.tsx",
+      "sha256": "2d785fb26771757ee26351bde6cf33ea8f37d62979824b628e74a8286e53f5b1"
+    },
+    {
+      "path": "src/app/features/workspaces/workspaces.css",
+      "sha256": "7e6dc5fbc62d10c8b0ce05a1b5a29d1901122962068e35a53b0daecd361e164c"
+    },
+    {
+      "path": "src/app/features/navigation/navigationPermissions.ts",
+      "sha256": "edb27bcfde6bb81ad842a504afa48987c76fc12dd59a34330a7c1dea7078f7cd"
+    },
+    {
+      "path": "src/app/features/personal-work/services/workFeedService.ts",
+      "sha256": "116172feb3ba300ab505578f13e13e2f8082c8a891875d6fed59eb76e0ae72c1"
+    },
+    {
+      "path": "supabase/migrations/20261010144145_nested_work_office_review_routing.sql",
+      "sha256": "9993a5ed5ecca0acdf756eee2bb5b32b2619b678711229af792dfdf532dc38fc"
+    }
+  ]
+}

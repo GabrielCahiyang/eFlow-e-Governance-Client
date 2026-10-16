@@ -1,0 +1,186 @@
+[
+  {
+    "file": "before-help-admin-light-320.jpg",
+    "width": 320,
+    "height": 950,
+    "sha256": "378691E81EC141B205D546278735FA03DC48F64CFDA9598F038A2350E817401D",
+    "disposition": "Earlier defect, not final acceptance",
+    "source": "Synthetic localhost-only role contract"
+  },
+  {
+    "file": "before-help-head-light-collapsed.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "12CAFF77E97E8C4950F1F866223A9A697B4EE5093694A2AE6D43F7613AF3FBD8",
+    "disposition": "Earlier defect, not final acceptance",
+    "source": "Synthetic localhost-only role contract"
+  },
+  {
+    "file": "before-help-member-dark-320.jpg",
+    "width": 320,
+    "height": 568,
+    "sha256": "251E4DD39C781012ECB817E5D7654690EE2247A8DF9B6D08F8A4BC227B1B58C8",
+    "disposition": "Earlier defect, not final acceptance",
+    "source": "Synthetic localhost-only role contract"
+  },
+  {
+    "file": "first-run-member-dark-320-short.jpg",
+    "width": 320,
+    "height": 568,
+    "sha256": "A439BAB89985689AA20CC1630872940E7A00950B9AC39B6631061F420DD54306",
+    "disposition": "Final P6 direct CUA capture",
+    "source": "Synthetic localhost-only role contract"
+  },
+  {
+    "file": "first-run-member-dark-desktop.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "77E48F46BDA97AC13468B76C88A85B9E80C19A498914F99856A42822637C3F06",
+    "disposition": "Final P6 direct CUA capture",
+    "source": "Synthetic localhost-only role contract"
+  },
+  {
+    "file": "getting-started-accounting-dark-390.jpg",
+    "width": 390,
+    "height": 949,
+    "sha256": "7AB12596A17199B845E728712B780C1B475D08D911E89647FC98F61767436E9F",
+    "disposition": "Final P6 direct CUA capture",
+    "source": "Synthetic localhost-only role contract"
+  },
+  {
+    "file": "getting-started-member-dark-320-footer.jpg",
+    "width": 320,
+    "height": 568,
+    "sha256": "D98296B6A58B04759CAE133CEB6E17BA58CACD820034DF767CCFAF3D52CA5C2C",
+    "disposition": "Final P6 direct CUA capture",
+    "source": "Synthetic localhost-only role contract"
+  },
+  {
+    "file": "getting-started-member-dark-320-short.jpg",
+    "width": 320,
+    "height": 568,
+    "sha256": "C6EA120EEFE478467B314955FA77F5B6B0255B035B5889557CF052C07F95E10B",
+    "disposition": "Final P6 direct CUA capture",
+    "source": "Synthetic localhost-only role contract"
+  },
+  {
+    "file": "getting-started-member-dark-desktop.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "9D910F6E026B5567E3D0365CF4214974B14EDB906BD627A35B909650723A54E3",
+    "disposition": "Final P6 direct CUA capture",
+    "source": "Synthetic localhost-only role contract"
+  },
+  {
+    "file": "guide-admin-light-desktop.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "1E082D2581805CE7169E171A42539F8BCB4FC8582B19278EC673B0E03E45691E",
+    "disposition": "Final P6 direct CUA capture",
+    "source": "Synthetic localhost-only role contract"
+  },
+  {
+    "file": "guide-member-dark-320-short.jpg",
+    "width": 320,
+    "height": 568,
+    "sha256": "75C48DC9329FBA61A44C1EF1737390A2710235EC48A0BC302915F1C6BE0B55EC",
+    "disposition": "Final P6 direct CUA capture",
+    "source": "Synthetic localhost-only role contract"
+  },
+  {
+    "file": "help-accounting-dark-390.jpg",
+    "width": 390,
+    "height": 949,
+    "sha256": "3BB1DE8394D1A81C079FDC90A3563F563504C81DA1A0C9DF67B4C54B5888180B",
+    "disposition": "Final P6 direct CUA capture",
+    "source": "Synthetic localhost-only role contract"
+  },
+  {
+    "file": "help-accounting-light-768.jpg",
+    "width": 768,
+    "height": 950,
+    "sha256": "6DDF8E8BBF4CD31A495D98807D422423E3838D20B171790C02E030E2B879F626",
+    "disposition": "Final P6 direct CUA capture",
+    "source": "Synthetic localhost-only role contract"
+  },
+  {
+    "file": "help-admin-dark-desktop.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "2186D1E871D36F0B7525DFEA9E01FB7B8B6E37116561EB716CC0405C064B63A1",
+    "disposition": "Final P6 direct CUA capture",
+    "source": "Synthetic localhost-only role contract"
+  },
+  {
+    "file": "help-admin-light-320.jpg",
+    "width": 320,
+    "height": 950,
+    "sha256": "E8552D948BE5667EC356CE2CD530EA2239CE1B2177B7FC38A182393F080BA27C",
+    "disposition": "Final P6 direct CUA capture",
+    "source": "Synthetic localhost-only role contract"
+  },
+  {
+    "file": "help-admin-light-desktop.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "B0B54381C60CAEB09F496409D71CBDC25F0C848F172765ED9C962A1FD6C16640",
+    "disposition": "Final P6 direct CUA capture",
+    "source": "Synthetic localhost-only role contract"
+  },
+  {
+    "file": "help-head-dark-desktop.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "B2386367A944CE8E93292A49F803BDEE23A8EDDE49987AC81CA49459E8648C67",
+    "disposition": "Final P6 direct CUA capture",
+    "source": "Synthetic localhost-only role contract"
+  },
+  {
+    "file": "help-head-light-768.jpg",
+    "width": 768,
+    "height": 950,
+    "sha256": "E92EE55DF6C4BFD3569B30F1B388B09E25AFAA847450E11606425D26B8F9F92C",
+    "disposition": "Final P6 direct CUA capture",
+    "source": "Synthetic localhost-only role contract"
+  },
+  {
+    "file": "help-head-light-collapsed.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "26461B8E41571AAB4B89706D25D1D3DC89ABAD872F3AEC31898CC19813187926",
+    "disposition": "Final P6 direct CUA capture",
+    "source": "Synthetic localhost-only role contract"
+  },
+  {
+    "file": "help-member-dark-320.jpg",
+    "width": 320,
+    "height": 568,
+    "sha256": "BFFC2AC9AC6D0E5252F5444815B7F54AA627732F5165814840034E2F5400DAC6",
+    "disposition": "Final P6 direct CUA capture",
+    "source": "Synthetic localhost-only role contract"
+  },
+  {
+    "file": "help-member-dark-desktop.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "B96735698698DA5D07820A9B0EAF3D501457CE2D9EB912112C4ECBAC24E49B9D",
+    "disposition": "Final P6 direct CUA capture",
+    "source": "Synthetic localhost-only role contract"
+  },
+  {
+    "file": "help-member-light-320-from-drawer.jpg",
+    "width": 320,
+    "height": 950,
+    "sha256": "CD1AFEBBDF1787B43002EE98E0CC9D670BAA306B27D8E73FAD24FEBB7CB992EB",
+    "disposition": "Final P6 direct CUA capture",
+    "source": "Synthetic localhost-only role contract"
+  },
+  {
+    "file": "system-tour-member-light-320.jpg",
+    "width": 320,
+    "height": 950,
+    "sha256": "A3941C5F57EE4EE7E6304BC0FEEB3E3A5CB6C9DCD11BD9B169C5C506BAF0BC91",
+    "disposition": "Final P6 direct CUA capture",
+    "source": "Synthetic localhost-only role contract"
+  }
+]

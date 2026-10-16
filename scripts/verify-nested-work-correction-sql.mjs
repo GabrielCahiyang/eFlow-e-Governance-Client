@@ -4,12 +4,18 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { phase65Database } from '../tests/sql/helpers/phase65Database.mjs';
+import { PGlite } from '@electric-sql/pglite';
+import { ltree } from '@electric-sql/pglite/contrib/ltree';
+import { pgcrypto } from '@electric-sql/pglite/contrib/pgcrypto';
+import { financialBaselineSql, baselineMigrations, financialMigration, financialIntegrityMigration } from '../tests/sql/helpers/financialCompatibilityDatabase.mjs';
 import { verifyOwnLeadExecution } from '../tests/sql/helpers/nestedWorkExecution.mjs';
 import { verifyOfficeReviewRouting } from '../tests/sql/helpers/nestedWorkReview.mjs';
 import { verifyNestedWorkCompletion } from '../tests/sql/helpers/nestedWorkCompletion.mjs';
 import { verifyNestedWorkOperationSafety } from '../tests/sql/helpers/nestedWorkOperationSafety.mjs';
 import { verifyNestedWorkImpact } from '../tests/sql/helpers/nestedWorkImpact.mjs';
 import { verifyNestedWorkMaterialDate } from '../tests/sql/helpers/nestedWorkMaterialDate.mjs';
+import { correctionEvidence } from '../tests/sql/helpers/nestedWorkCorrectionEvidence.mjs';
+import { verifyNestedWorkFinal } from '../tests/sql/helpers/nestedWorkFinalVerification.mjs';
 
 // Reviewed order from NW1.3. Never glob pending migrations or rewrite old runners.
 const integration = [
@@ -45,6 +51,8 @@ const id = n => `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`;
 const rootKeys = ['manage_contributors','appoint_lead','create_child','order_children'];
 const nodeKeys = [...rootKeys,'edit_details','move','delete','execute','submit','review'];
 let db, root, request = 8000, checks = 0;
+const currentFinance = process.argv.includes('--current-finance-baseline');
+const evidence = correctionEvidence({currentFinance});
 const value = async (sql, args = []) => Object.values((await db.query(sql, args)).rows[0])[0];
 const check = (condition, label) => { assert.ok(condition, label); checks++; };
 const equal = (actual, expected, label) => { assert.deepEqual(actual, expected, label); checks++; };
@@ -90,27 +98,47 @@ const install = async file => {
  const sql = await readFile(new URL('../supabase/migrations/' + file, import.meta.url), 'utf8');
  if (baselineHashes[file]) equal(createHash('md5').update(sql.replace(/\r/g, '')).digest('hex'), baselineHashes[file], 'NW1 effective baseline ' + file);
  await db.exec(sql);
+ evidence.installed(file, sql);
  console.log(`installed ${file} sha256=${createHash('sha256').update(sql).digest('hex')}`);
 };
 
 try {
- console.log('Stage NW2.1 / NW-F01: phase65Database({repositoryContinuation:true}); 20 helper migrations, explicit integration/correction manifest; no hosted writes.');
+ console.log(currentFinance
+  ? 'Stage NW2.1 / NW-F01: current installed 29-version baseline source equivalents; explicit staged backfill, both finance corrections, all original NW scenarios; no hosted writes.'
+  : 'Stage NW2.1 / NW-F01: phase65Database({repositoryContinuation:true}); 20 helper migrations, explicit integration/correction manifest; no hosted writes.');
  const helper = await readFile(new URL('../tests/sql/helpers/phase65Database.mjs',import.meta.url),'utf8');
  equal(createHash('sha256').update(helper).digest('hex'),'2cc398014076fd5e2b9c20b4b698e54851c5fb9aa0719597e26cf9f877f4ae70','NW1.3 helper unchanged');
+ if (currentFinance) {
+  // Stop before R7 so the unchanged legacy-data/backfill scenarios still run.
+  // These are the installed baseline source equivalents, without the rejected
+  // historical PCV installer. Record every actual source, including evidence.
+  db = await PGlite.create({extensions:{ltree,pgcrypto}});
+  const staged = baselineMigrations.slice(0,20);
+  await db.exec(await financialBaselineSql({migrations:staged}));
+  for (const file of staged) {
+   if(file==='20261007120000_r3_personal_workspaces.sql') {
+    const security='20260831000001_task_evidence_security.sql';
+    evidence.installed(security,await readFile(new URL('../supabase/migrations/'+security,import.meta.url)),'current baseline evidence contract');
+   }
+   evidence.installed(file,await readFile(new URL('../supabase/migrations/'+file,import.meta.url)),'current installed baseline source equivalent');
+  }
+ } else {
  db = await phase65Database({ repositoryContinuation: true });
  for (const list of ['migrations','continuation']) {
   const files = [...helper.match(new RegExp(`const ${list} = \\[([\\s\\S]*?)\\];`))[1].matchAll(/'(\d{14}_[a-z0-9_]+\.sql)'/g)].map(match=>match[1]);
   equal(files.length,10,'reviewed helper '+list+' count');
   for (const file of files) {
    const sql=await readFile(new URL('../supabase/migrations/'+file,import.meta.url));
+   evidence.installed(file, sql, 'phase65Database');
    console.log(`helper installed ${file} sha256=${createHash('sha256').update(sql).digest('hex')}`);
   }
  }
+ }
  await install(integration[0]);
- await db.exec(`create table storage.objects(id uuid primary key default gen_random_uuid(),bucket_id text,name text,owner_id text,metadata jsonb,created_at timestamptz default now(),unique(bucket_id,name));
+ if(!currentFinance) await db.exec(`create table storage.objects(id uuid primary key default gen_random_uuid(),bucket_id text,name text,owner_id text,metadata jsonb,created_at timestamptz default now(),unique(bucket_id,name));
   alter table storage.objects enable row level security;grant usage on schema storage to authenticated;grant all on storage.objects to authenticated;
-  insert into storage.buckets(id,name,public) values('task-attachments','task-attachments',false);
-  insert into organizations(id,name,slug,path,org_type) values('${id(90)}','Office A','office_a','office_a','department'),('${id(91)}','Office B','office_b','office_b','department');
+  insert into storage.buckets(id,name,public) values('task-attachments','task-attachments',false);`);
+ await db.exec(`insert into organizations(id,name,slug,path,org_type) values('${id(90)}','Office A','office_a','office_a','department'),('${id(91)}','Office B','office_b','office_b','department');
   insert into auth.users(id,email,email_confirmed_at) values ${Array.from({length:24},(_,i)=>i+1).map(n=>`('${id(n)}','p${n}@example.test',${n===9?'null':'now()'})`).join(',')};
   insert into profiles(id,full_name,email,employee_id,role,is_active,org_id) values ${Array.from({length:24},(_,i)=>i+1).map(n=>`('${id(n)}','${[5,6].includes(n)?'Same name':'Person '+n}','p${n}@example.test','${n}','${n===1?'admin':'member'}',${n===8?'false':'true'},'${n===7?id(91):id(90)}')`).join(',')};`);
  await value("select set_config('request.jwt.claim.sub',$1,false)", [id(1)]);
@@ -126,7 +154,11 @@ try {
  await db.query("insert into subtasks(id,task_id,title,position,assigned_to,assigned_to_ids,created_by,due_date) values($1,$2,'Legacy flat control',0,$3,$4::uuid[],$5,'2026-12-20')", [id(100),root,id(4),[id(4)],id(3)]);
  await db.exec('set session_replication_role=origin');
  const originalRoot = await value('select to_jsonb(t) from tasks t where id=$1', [root]);
- for (const file of integration.slice(1)) await install(file);
+ for (const file of (currentFinance ? baselineMigrations.slice(20) : integration.slice(1))) await install(file);
+ if(currentFinance) {
+  await install(financialMigration);
+  await install(financialIntegrityMigration);
+ }
  equal(await value('select to_jsonb(t) from tasks t where id=$1', [root]), originalRoot, 'backfill preserves manual progress/root');
  await actor(2);
  const office = await value('select id from project_offices where project_id=$1 and office_id=$2', [project,id(90)]);
@@ -285,16 +317,22 @@ try {
  await command('review',{id:id(7410),approve:true});
  root=officeRoot;
  console.log(`NW2.1 stage: ${checks} assertions passed before NW2.2 installation.`);
- checks += await verifyOwnLeadExecution({db,root,project,office,personalProject:personal.id,applyCorrection:()=>install(corrections[1])});
+ await evidence.stage('NW2.1 capability baseline', async () => checks);
+ checks += await evidence.stage('verifyOwnLeadExecution', () => verifyOwnLeadExecution({db,root,project,office,personalProject:personal.id,applyCorrection:()=>install(corrections[1])}));
  console.log(`NW2.2 stage: ${checks} assertions passed before NW4.1 installation.`);
- checks += await verifyOfficeReviewRouting({db,root,project,office,personalProject:personal.id,applyCorrection:()=>install(corrections[2])});
+ checks += await evidence.stage('verifyOfficeReviewRouting', () => verifyOfficeReviewRouting({db,root,project,office,personalProject:personal.id,applyCorrection:()=>install(corrections[2])}));
  console.log(`NW4.1 correction PostgreSQL: ${checks} total assertions passed before NW4.2 completion matrix.`);
- checks += await verifyNestedWorkCompletion({db,root,project,personalProject:personal.id,applyCorrection:()=>install(corrections[3])});
+ checks += await evidence.stage('verifyNestedWorkCompletion', () => verifyNestedWorkCompletion({db,root,project,personalProject:personal.id,applyCorrection:()=>install(corrections[3])}));
  console.log(`NW4.2 correction PostgreSQL: ${checks} total assertions passed before NW5.1 installation.`);
- checks += await verifyNestedWorkOperationSafety({db,project,personalProject:personal.id,applyCorrection:()=>install(corrections[4]),applyRemoval:()=>install(corrections[5])});
+ checks += await evidence.stage('verifyNestedWorkOperationSafety', () => verifyNestedWorkOperationSafety({db,project,personalProject:personal.id,applyCorrection:()=>install(corrections[4]),applyRemoval:()=>install(corrections[5])}));
  console.log(`NW5.1 correction PostgreSQL: ${checks} total assertions passed before NW5.2 installation.`);
- checks += await verifyNestedWorkImpact({db,project,applyCorrection:()=>install(corrections[6])});
+ checks += await evidence.stage('verifyNestedWorkImpact', () => verifyNestedWorkImpact({db,project,applyCorrection:()=>install(corrections[6])}));
  console.log(`NW5.2 correction PostgreSQL: ${checks} total assertions passed. Genuine JWT/Storage transport remains deferred.`);
- checks += await verifyNestedWorkMaterialDate({db,project,personalProject:personal.id,applyCorrection:()=>install(corrections[7])});
+ checks += await evidence.stage('verifyNestedWorkMaterialDate', () => verifyNestedWorkMaterialDate({db,project,personalProject:personal.id,applyCorrection:()=>install(corrections[7])}));
  console.log(`NW5.5 correction PostgreSQL: ${checks} total assertions passed. Genuine JWT/Storage transport remains deferred.`);
+ await db.exec('reset role');
+ await install('20261012231500_nested_work_activity_projection.sql');
+ const final = await verifyNestedWorkFinal({db,project,office});
+ checks += await evidence.stage('NW10.1 final combined definitions', async () => final.assertions);
+ await evidence.finish(db, checks, final.scenarios);
 } finally { await db?.close(); }

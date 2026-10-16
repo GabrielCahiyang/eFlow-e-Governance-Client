@@ -1,0 +1,39 @@
+{
+  "head": "545245e353ad04ac47e24f95a71e06cf736ca0f8",
+  "baseline": "approved P0/P1 working tree",
+  "check": "passed",
+  "build": "passed",
+  "unit": {
+    "files": 293,
+    "sha256": "67953fa50c6cfed5d5856dc27e42302a45c5108d98285e6fd0b2b1ca55c92f29",
+    "tests": 1761,
+    "result": "passed"
+  },
+  "affectedBrowserSuites": {
+    "startTime": "2026-10-13T12:02:31.981Z",
+    "duration": 318180.841,
+    "expected": 68,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "finalP2BrowserSuite": {
+    "startTime": "2026-10-13T12:20:04.042Z",
+    "duration": 93862.578,
+    "expected": 18,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "browserProjects": [
+    "chromium",
+    "webkit"
+  ],
+  "runsOverlap": true,
+  "graph": "passed with four existing parser warnings",
+  "manual": "local synthetic role/account API with no external fallback",
+  "hostedWrites": false,
+  "deployment": false,
+  "laterPhasesStarted": false,
+  "mobileFilterControls": "320 px / 900 px: Done and Clear filters 44 px high; panel bottom 884.4 px; Done bottom 869.6 px"
+}

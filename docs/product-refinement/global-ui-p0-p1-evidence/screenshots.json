@@ -1,0 +1,114 @@
+[
+  {
+    "file": "manual-accounting-dark.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "68cebdde55b816f98682dfe98999f2d7b1c8214ddf30ea814f9306117d6d7321",
+    "bytes": 103276
+  },
+  {
+    "file": "manual-accounting-light.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "125fc799678eae9481302b3d07f2be70f47f2c0f52082ea169e05ddfe9c3388f",
+    "bytes": 88712
+  },
+  {
+    "file": "manual-accounting-mobile-dark.jpg",
+    "width": 390,
+    "height": 899,
+    "sha256": "14a1604b11bfc2536be197df8e1147a6c3a1f8d7af7415e2dbe8ff1a2c60beb7",
+    "bytes": 43252
+  },
+  {
+    "file": "manual-admin-access-light.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "6da0b4831d23bfac0f66f8605b1735c94de3fe5e62eba203f20318798b92a9f9",
+    "bytes": 112424
+  },
+  {
+    "file": "manual-admin-mobile-dark.jpg",
+    "width": 390,
+    "height": 899,
+    "sha256": "0ab462c7248701d17d48a5f209d69cdc7ee2243ccffc0e3bc5fc8f7c0c1a7f7c",
+    "bytes": 38746
+  },
+  {
+    "file": "manual-admin-return-light.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "e4d774575549e91cdb0a54c14099eb5893d034f0cbfdbbf4e432dd8c34fd95b4",
+    "bytes": 92867
+  },
+  {
+    "file": "manual-head-768-dark.jpg",
+    "width": 768,
+    "height": 950,
+    "sha256": "138a1eec084cf7ce141fd2ee88275ec4686d60b5d2da88cab32df612f410d76b",
+    "bytes": 32338
+  },
+  {
+    "file": "manual-head-content-dark.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "e6eba44f3bf844a5b4e5f91d5d54033b8a22cc4dc2c27cd2dec9334c692d7193",
+    "bytes": 78573
+  },
+  {
+    "file": "manual-head-drawer-390.jpg",
+    "width": 390,
+    "height": 899,
+    "sha256": "0e39ab127a029977c0b709a00b2cfe87834ea6cae2511efd84368c0bab7cf791",
+    "bytes": 13683
+  },
+  {
+    "file": "manual-head-light.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "714204af049c1522e74cf56d6ddd04d9be470b56f49b1bde1b299f576cbdde7e",
+    "bytes": 54823
+  },
+  {
+    "file": "manual-head-mobile-390.jpg",
+    "width": 390,
+    "height": 899,
+    "sha256": "ea9afe859673a15abb32c5be75b6d27a03ee7efb664de949ae6fedd86643d289",
+    "bytes": 30789
+  },
+  {
+    "file": "manual-member-collapsed-dark.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "bd0f7cc954d325912b182ba8a9eedaf406cb440d610fe29828577d2cc7e2c690",
+    "bytes": 62783
+  },
+  {
+    "file": "manual-member-drawer-320-dark.jpg",
+    "width": 320,
+    "height": 900,
+    "sha256": "31f01e46965062bca8fea3fd6d5fcf0b29fcb7cac9cf0af59263f678fa10a558",
+    "bytes": 13930
+  },
+  {
+    "file": "manual-member-empty-dark.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "6588aae5557066190765bf86bef8a99c996b9f389ae2ac7fe6b5f1b2976765b8",
+    "bytes": 65987
+  },
+  {
+    "file": "manual-member-mobile-light.jpg",
+    "width": 390,
+    "height": 899,
+    "sha256": "6dda0805d7c8b6fba66179ac4ecd40d4d8a9333878d77b29a0bdfc926fecaca9",
+    "bytes": 15890
+  },
+  {
+    "file": "manual-preserved-switcher-390.jpg",
+    "width": 390,
+    "height": 899,
+    "sha256": "db1ce953e64b226785412b06756ae6f0e0cedb73c737af6834e9aa0de9dbe4cc",
+    "bytes": 28421
+  }
+]

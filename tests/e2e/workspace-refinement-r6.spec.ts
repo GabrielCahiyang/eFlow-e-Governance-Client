@@ -42,7 +42,7 @@ test('NW7.3 Activity preserves canonical progress and recorded delegation author
   reads.push(route.request().postDataJSON());
   return denied?route.fulfill({status:403,json:{code:'42501',message:'Delegation history unavailable'}}):route.fulfill({json:{more:false,events:[{
    id:'historical-event',root_id:records.tasks[0].id,node_id:records.subtasks[0].id,command:'staff',actor_name:'Recorded delegation author',occurred_at:'2026-10-02T00:00:00Z',
-   before_data:{nodes:[]},after_data:{nodes:[{id:records.subtasks[0].id,title:'Historical branch title'}]},
+   before_data:{root:{id:records.tasks[0].id,project:records.project,office:records.org,kind:'office'},nodes:[]},after_data:{root:{id:records.tasks[0].id,project:records.project,office:records.org,kind:'office'},nodes:[{id:records.subtasks[0].id,task_id:records.tasks[0].id,parent_subtask_id:null,depth:1,sibling_order:0,lead_id:records.id,assigned_to_ids:[],title:'Historical branch title'}]},
   }]}});
  });
  const inspector=await open(page);await inspector.getByRole('tab',{name:'Activity',exact:true}).click();

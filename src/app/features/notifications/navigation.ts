@@ -9,6 +9,7 @@ export type NotificationIntentKind =
   | "announcement"
   | "team_intelligence"
   | "project"
+  | "membership_review"
   | "proposal"
   | "collaboration"
   | "budget";
@@ -247,7 +248,7 @@ export function resolveNotificationDestination(
   }
 
   if (notification.projectId && role === 'head' && notification.title.startsWith('Project invitation')) {
-    return makeDestination(notification, {section:'reviews',page:'For Review'}, 'project', 'Review membership invitations', messageLabels[0]);
+    return makeDestination(notification, {section:'reviews',page:'For Review'}, 'membership_review', 'Review membership invitations', messageLabels[0]);
   }
   if (notification.projectId) {
     return makeDestination(

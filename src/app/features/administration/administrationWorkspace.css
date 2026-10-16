@@ -1,31 +1,3 @@
-/* Radix tabs have text children; Vibe tabs receive padding on their inner div.
-   Keep the Admin workspace independent of the global project Vibe tab overrides. */
-.eflow-admin-categories {
-  display: grid;
-  grid-template-columns: 230px minmax(0, 1fr);
-  gap: 20px;
-  min-width: 0;
-}
-.eflow-admin-categories > .eflow-workspace-tabs {
-  flex-direction: column;
-  align-self: start;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 6px;
-  gap: 4px;
-}
-.eflow-admin-categories > .eflow-workspace-tabs > .eflow-workspace-tab {
-  width: 100%;
-  justify-content: flex-start;
-  text-align: left;
-  white-space: normal;
-  border: 0;
-  border-radius: 6px;
-}
-.eflow-admin-categories > .eflow-workspace-panel {
-  min-width: 0;
-  padding-top: 0;
-}
 .eflow-admin-configuration {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -35,7 +7,7 @@
   color: var(--foreground);
 }
 .eflow-admin-configuration .eflow-workspace-header h1 {
-  font-size: 20px;
+  font-size: var(--eflow-text-title);
 }
 .eflow-admin-configuration input {
   display: block;
@@ -99,19 +71,6 @@
   min-width: 160px;
 }
 @media (max-width: 767px) {
-  .eflow-admin-categories {
-    display: block;
-  }
-  .eflow-admin-categories > .eflow-workspace-tabs {
-    flex-direction: row;
-    overflow: auto;
-    flex-wrap: nowrap;
-    max-width: 100%;
-  }
-  .eflow-admin-categories > .eflow-workspace-tabs > .eflow-workspace-tab {
-    width: auto;
-    max-width: 200px;
-  }
   .eflow-admin-configuration {
     padding: 12px 0;
   }
@@ -119,18 +78,35 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
-.eflow-admin-workspace
-  .eflow-workspace-tabs
-  > .eflow-workspace-tab[role="tab"] {
-  flex-shrink: 0;
-  height: auto;
-  min-height: 40px;
-  padding: 8px 14px;
-}
-.eflow-admin-workspace
-  .eflow-workspace-tabs
-  > .eflow-workspace-tab[role="tab"][data-state="active"] {
-  background: var(--workspace-hover) !important;
-  color: var(--workspace-primary) !important;
-  border-bottom-color: var(--workspace-primary) !important;
-}
+
+.eflow-admin-workspace{padding:var(--eflow-content-padding);overflow-wrap:anywhere}
+.eflow-admin-workspace .eflow-workspace-header{padding:0 0 var(--eflow-space-5)}
+.eflow-admin-workspace .eflow-admin-configuration,.eflow-admin-workspace .eflow-page-content{padding:0}
+.eflow-admin-workspace .eflow-workspace-actions{flex-wrap:wrap}
+.eflow-admin-workspace [class*=bg-white]{background:var(--eflow-surface)}
+.eflow-admin-workspace [class*=bg-neutral-]{background:var(--eflow-subtle)}
+.eflow-admin-workspace [class*=text-neutral-]{color:var(--eflow-text-secondary)}
+.eflow-admin-workspace [class*=text-neutral-8],.eflow-admin-workspace [class*=text-neutral-9]{color:var(--eflow-text)}
+.eflow-admin-workspace [class*=border-neutral-]{border-color:var(--eflow-border)}
+.eflow-admin-workspace [class*=bg-amber-50]{background:var(--eflow-warning-bg)}
+.eflow-admin-workspace [class*=text-amber-]{color:var(--eflow-warning-text)}
+.eflow-admin-workspace [class*=bg-blue-50]{background:var(--eflow-info-bg)}
+.eflow-admin-workspace [class*=text-blue-]{color:var(--eflow-info-text)}
+.eflow-admin-workspace input,.eflow-admin-workspace select,.eflow-admin-workspace textarea{background:var(--eflow-surface);color:var(--eflow-text)}
+.eflow-admin-workspace button:focus-visible,.eflow-admin-workspace [tabindex]:focus-visible{outline:2px solid var(--eflow-primary);outline-offset:-2px}
+.eflow-admin-section-header h2{font-size:var(--eflow-text-base);font-weight:600}
+.eflow-admin-section-header p{font-size:var(--eflow-text-sm);color:var(--eflow-text-muted);margin-top:var(--eflow-space-2)}
+.eflow-admin-office-map{height:calc(100dvh - 160px);min-height:640px}
+.eflow-admin-workspace .eflow-directory>.flex{justify-content:flex-end}
+.eflow-account-role,.eflow-account-status{display:inline-flex;align-items:center;padding:var(--eflow-space-1) var(--eflow-space-2);border-radius:var(--eflow-radius-sm);font-size:var(--eflow-text-xs);font-weight:500;white-space:nowrap;background:var(--eflow-subtle);color:var(--eflow-text-secondary)}
+.eflow-account-role:is([data-role=admin],[data-role=head],[data-role=accounting_staff]){background:var(--eflow-info-bg);color:var(--eflow-info-text)}
+.eflow-account-status[data-active=true]{background:var(--eflow-positive-bg);color:var(--eflow-positive-text)}
+.eflow-directory table{min-width:1100px}
+.eflow-directory table th:nth-child(2),.eflow-directory table td:nth-child(2){min-width:140px}
+.eflow-directory table th:nth-child(3),.eflow-directory table td:nth-child(3){min-width:100px}
+.eflow-directory table th:nth-child(4),.eflow-directory table td:nth-child(4){min-width:130px}
+.eflow-directory table th:nth-child(5),.eflow-directory table td:nth-child(5){min-width:100px}
+.eflow-admin-workspace .eflow-table-toolbar select{font-size:var(--eflow-text-xs)}
+@media(max-width:1023px){.eflow-admin-workspace{padding:var(--eflow-space-4)}.eflow-admin-workspace button,.eflow-admin-workspace input:not([type=checkbox]),.eflow-admin-workspace select{min-height:var(--eflow-touch-target)}}
+@media(max-width:640px){.eflow-directory table{table-layout:fixed}.eflow-directory table th:first-child,.eflow-directory table td:first-child{width:240px}.eflow-directory [data-action]{position:static!important;width:240px!important;min-width:240px}.eflow-directory td[data-action]>div{flex-wrap:wrap;justify-content:flex-start}}
+@media(max-width:1023px){.eflow-admin-office-map button[aria-label]{min-width:var(--eflow-touch-target)}}

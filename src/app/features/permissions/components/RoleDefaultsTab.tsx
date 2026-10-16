@@ -1,6 +1,7 @@
+import '../permissionPresentation.css';
 import { isAdminRole } from "../../../shared/roles";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Check, LockKeyhole, MonitorCog, ShieldCheck } from "lucide-react";
+import { LockKeyhole, MonitorCog, ShieldCheck } from "lucide-react";
 import { useToast } from "../../../components/ui/Toast";
 import {
   ACTION_PERMISSION_KEYS,
@@ -15,6 +16,7 @@ import {
 } from "../services/permissionService";
 import type { RolePermissionRow } from "../types";
 import { Tooltip } from "@vibe/core";
+import { Button } from "../../../components/ui/button";
 
 function PermissionSection({
   title,
@@ -43,7 +45,7 @@ function PermissionSection({
           <h3 className="text-[14px] font-semibold text-neutral-900">
             {title}
           </h3>
-          <p className="mt-0.5 text-[11px] text-neutral-500">{description}</p>
+          <p className="mt-0.5 text-[12px] text-neutral-500">{description}</p>
         </div>
       </div>
       <div
@@ -58,7 +60,7 @@ function PermissionSection({
               <th
                 scope="col"
                 role="columnheader"
-                className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-[0.13em] text-neutral-400"
+                className="px-5 py-3 text-left text-[12px] font-semibold uppercase tracking-[0.13em] text-neutral-400"
               >
                 Capability
               </th>
@@ -67,7 +69,7 @@ function PermissionSection({
                   key={role.key}
                   scope="col"
                   role="columnheader"
-                  className="px-4 py-3 text-center text-[10px] font-semibold uppercase tracking-[0.12em] text-neutral-400"
+                  className="px-4 py-3 text-center text-[12px] font-semibold uppercase tracking-[0.12em] text-neutral-400"
                 >
                   {role.label}
                 </th>
@@ -80,7 +82,7 @@ function PermissionSection({
                 key={permission}
                 className="border-b border-neutral-50 last:border-0 hover:bg-neutral-50/60"
               >
-                <td className="px-5 py-3">
+                <th scope="row" className="px-5 py-3 text-left font-normal">
                   <div className="text-[12px] font-medium text-neutral-900">
                     {
                       PERMISSION_LABELS[
@@ -88,10 +90,10 @@ function PermissionSection({
                       ]
                     }
                   </div>
-                  <div className="mt-0.5 font-mono text-[9.5px] text-neutral-400">
+                  <div className="mt-0.5 font-mono text-[12px] text-neutral-400">
                     {permission}
                   </div>
-                </td>
+                </th>
                 {MANAGED_ROLES.map((role) => {
                   const enabled = rolePermissionAllowed(
                     role.key,
@@ -111,21 +113,18 @@ function PermissionSection({
                         }
                       >
                         <span className="inline-flex">
-                          <button
+                          <Button
                             type="button"
                             aria-label={`${role.label}: ${enabled ? "Allowed" : "Denied"}`}
+                            aria-pressed={enabled}
                             disabled={locked}
                             onClick={() => onToggle(role.key, permission)}
-                            className={`relative h-6 w-11 rounded-full border transition-all duration-200 ${enabled ? "border-teal-700 bg-teal-700" : "border-neutral-300 bg-neutral-200"} ${locked ? "cursor-not-allowed opacity-55" : "hover:border-teal-600 hover:shadow-sm"}`}
+                            variant={enabled ? 'secondary' : 'outline'}
+                            className="eflow-role-permission"
                           >
-                            <span
-                              className={`absolute top-[3px] flex h-4 w-4 items-center justify-center rounded-full bg-white shadow-sm transition-transform duration-200 ${enabled ? "translate-x-[22px]" : "translate-x-[3px]"}`}
-                            >
-                              {enabled ? (
-                                <Check size={9} className="text-teal-800" />
-                              ) : null}
-                            </span>
-                          </button>
+                            {locked && <LockKeyhole size={13} aria-hidden="true" />}
+                            {enabled ? 'Allowed' : 'Denied'}
+                          </Button>
                         </span>
                       </Tooltip>
                     </td>
@@ -210,7 +209,7 @@ export function RoleDefaultsTab() {
     );
 
   return (
-    <div className="space-y-4">
+    <div className="eflow-permissions-surface space-y-4">
       {confirmation.dialog}
       <p className="text-xs text-muted-foreground">
         Displayed access uses role fallbacks when the current reader returns no
@@ -241,7 +240,7 @@ export function RoleDefaultsTab() {
           <div className="text-[12px] font-semibold text-blue-950">
             Role defaults are the baseline
           </div>
-          <p className="mt-0.5 text-[11px] leading-relaxed text-blue-800/80">
+          <p className="mt-0.5 text-[12px] leading-relaxed text-blue-800/80">
             Individual allows or denies can be added from User Access. Those
             exceptions never change anyone else with the same role.
           </p>

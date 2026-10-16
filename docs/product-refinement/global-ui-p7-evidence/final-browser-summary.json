@@ -1,0 +1,24 @@
+[
+  {
+    "run": "browser-final",
+    "stats": {
+      "startTime": "2026-10-14T04:12:48.761Z",
+      "duration": 149772.621,
+      "expected": 32,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    }
+  },
+  {
+    "run": "browser-regression",
+    "stats": {
+      "startTime": "2026-10-14T04:15:34.510Z",
+      "duration": 577383.944,
+      "expected": 170,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    }
+  }
+]

@@ -1,39 +1,47 @@
-.eflow-accounting-views {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 8px;
-  min-width: 0;
-  border-bottom: 1px solid var(--workspace-border);
-}
-
-.eflow-accounting-view {
-  flex: 0 0 auto;
-  min-height: 40px;
-  padding: 8px 12px;
-  white-space: nowrap;
-  border-bottom: 2px solid transparent;
-  border-radius: 6px 6px 0 0;
-  color: var(--workspace-muted);
-  font-size: 13px;
-}
-
-.eflow-accounting-view:hover {
-  background: var(--workspace-hover);
-}
-
-.eflow-accounting-view[aria-current="page"] {
-  color: var(--workspace-primary);
-  background: var(--workspace-hover);
-  border-bottom-color: var(--workspace-primary);
-}
-
-.eflow-accounting-view:focus-visible {
-  outline: 2px solid var(--workspace-primary);
-  outline-offset: -2px;
-}
-
-@media (max-width: 767px) {
-  .eflow-accounting-view {
-    min-height: var(--eflow-touch-target);
-  }
-}
+.eflow-accounting-workspace{padding:var(--eflow-space-6)}
+.eflow-app-shell__workspace:has(.eflow-accounting-workspace){background:var(--background)}
+.eflow-financial-status{background:var(--eflow-subtle);color:var(--eflow-text-secondary);border-color:transparent;font-weight:500;white-space:normal;overflow-wrap:anywhere}
+.eflow-financial-status[data-tone=positive]{background:var(--eflow-positive-bg);color:var(--eflow-positive-text)}
+.eflow-financial-status[data-tone=info]{background:var(--eflow-info-bg);color:var(--eflow-info-text)}
+.eflow-financial-status[data-tone=negative]{background:var(--eflow-negative-bg);color:var(--eflow-negative-text)}
+.eflow-accounting-workspace .eflow-workspace-header{padding:0 0 var(--eflow-space-5)}
+.eflow-accounting-destination-host{display:grid;gap:var(--eflow-space-1);max-width:360px}
+.eflow-accounting-destination-host>span{font-size:var(--eflow-text-xs);color:var(--eflow-text-muted)}
+.eflow-accounting-destination-host [data-slot=select-trigger]{width:100%;min-height:40px;background:var(--eflow-surface);border-color:var(--eflow-border);color:var(--eflow-text)}
+@media(min-width:1024px){.eflow-app-shell:has([data-context-rail="accounting"] .eflow-workspace-navigation__destinations) .eflow-accounting-destination-host{display:none}}
+body:has(.eflow-mobile-navigation-dialog [data-context-rail="accounting"] .eflow-workspace-navigation__destinations) .eflow-accounting-destination-host{display:none}
+.eflow-accounting-overview{display:grid;gap:var(--eflow-space-4)}
+.eflow-accounting-summary{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border:1px solid var(--eflow-border);border-radius:var(--eflow-radius-surface);overflow:hidden;background:var(--eflow-surface)}
+.eflow-accounting-summary article{min-width:0;padding:var(--eflow-space-4);border-right:1px solid var(--eflow-border)}
+.eflow-accounting-summary article:last-child{border-right:0}
+.eflow-accounting-summary h2{display:flex;align-items:center;gap:var(--eflow-space-2);font-size:var(--eflow-text-xs);font-weight:500;color:var(--eflow-text-secondary)}
+.eflow-accounting-summary h2 svg{flex-shrink:0}
+.eflow-accounting-summary strong{display:block;margin:var(--eflow-space-3) 0 var(--eflow-space-1);font-size:20px;font-weight:600;font-variant-numeric:tabular-nums}
+.eflow-accounting-summary p,.eflow-accounting-settlement-handoff p,.eflow-accounting-help{font-size:var(--eflow-text-sm);color:var(--eflow-text-muted)}
+.eflow-accounting-settlement-handoff{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--eflow-space-3);padding:var(--eflow-space-4);border:1px solid var(--eflow-border);border-radius:var(--eflow-radius-surface);background:var(--eflow-surface)}
+.eflow-accounting-settlement-handoff>div{flex:1 1 300px;min-width:0}
+.eflow-accounting-settlement-handoff h2{font-size:var(--eflow-text-base);font-weight:600;margin-bottom:var(--eflow-space-1)}
+.eflow-accounting-help{border:1px solid var(--eflow-border);border-radius:var(--eflow-radius-surface);padding:var(--eflow-space-4)}
+.eflow-accounting-help summary{cursor:pointer;color:var(--eflow-text-secondary);font-weight:500;min-height:24px}
+.eflow-accounting-help p{margin-top:var(--eflow-space-3);line-height:1.6}
+.eflow-budget-embedded{padding:0}
+.eflow-budget-ledger-status{display:flex;flex-wrap:wrap;align-items:center;gap:var(--eflow-space-2);font-size:var(--eflow-text-xs);color:var(--eflow-text-muted)}
+:is(.eflow-accounting-workspace,.eflow-budget-workspace) [class*=bg-white]{background:var(--eflow-surface)}
+:is(.eflow-accounting-workspace,.eflow-budget-workspace) [class*=bg-neutral-]{background:var(--eflow-subtle)}
+:is(.eflow-accounting-workspace,.eflow-budget-workspace) [class*=text-neutral-]{color:var(--eflow-text-secondary)}
+:is(.eflow-accounting-workspace,.eflow-budget-workspace) :is([class*=text-neutral-8],[class*=text-neutral-9]){color:var(--eflow-text)}
+:is(.eflow-accounting-workspace,.eflow-budget-workspace) [class*=border-neutral-]{border-color:var(--eflow-border)}
+:is(.eflow-accounting-workspace,.eflow-budget-workspace) :is([class*=bg-amber-50],[class*=bg-amber-100]){background:var(--eflow-warning-bg)}
+:is(.eflow-accounting-workspace,.eflow-budget-workspace) [class*=text-amber-]{color:var(--eflow-warning-text)}
+:is(.eflow-accounting-workspace,.eflow-budget-workspace) [class*=bg-blue-50]{background:var(--eflow-info-bg)}
+:is(.eflow-accounting-workspace,.eflow-budget-workspace) [class*=text-blue-]{color:var(--eflow-info-text)}
+:is(.eflow-accounting-workspace,.eflow-budget-workspace) [class*=bg-emerald-50]{background:var(--eflow-positive-bg)}
+:is(.eflow-accounting-workspace,.eflow-budget-workspace) [class*=text-emerald-]{color:var(--eflow-positive-text)}
+:is(.eflow-accounting-workspace,.eflow-budget-workspace) :is([class*=bg-rose-50],[class*=bg-red-50]){background:var(--eflow-negative-bg)}
+:is(.eflow-accounting-workspace,.eflow-budget-workspace) :is([class*=text-rose-],[class*=text-red-]){color:var(--eflow-negative-text)}
+:is(.eflow-accounting-workspace,.eflow-budget-workspace) :is(input,select,textarea){background:var(--eflow-surface);color:var(--eflow-text);border-color:var(--eflow-border)}
+.eflow-accounting-workspace :is(h2,h3,p){overflow-wrap:anywhere}
+.eflow-accounting-workspace :is(button,input:not([type=checkbox]),select){min-height:40px}
+@media(max-width:1279px){.eflow-accounting-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.eflow-accounting-summary article{border-bottom:1px solid var(--eflow-border)}}
+@media(max-width:1023px){.eflow-accounting-workspace{padding:var(--eflow-space-4)}.eflow-accounting-workspace :is(button,input:not([type=checkbox]),select),.eflow-accounting-help summary{min-height:var(--eflow-touch-target)}.eflow-accounting-destination-host [data-slot=select-trigger]{min-height:var(--eflow-touch-target)}}
+@media(max-width:480px){.eflow-accounting-summary{grid-template-columns:minmax(0,1fr)}.eflow-accounting-summary article{border-right:0}.eflow-accounting-summary article:last-child{border-bottom:0}}

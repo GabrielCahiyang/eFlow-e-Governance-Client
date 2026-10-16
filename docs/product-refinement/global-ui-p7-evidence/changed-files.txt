@@ -1,0 +1,7 @@
+src/app/features/administration/components/user-management/UsersTab.tsx
+src/app/features/app-shell/components/EflowTopBar.tsx
+tests/e2e/global-ui-p7.spec.ts
+tests/e2e/phase18-release.spec.ts
+tests/unit/phase02AccountMenu.test.tsx
+
+Documentation: P7 receipt/evidence, audit handoff and overnight-execution-status.md

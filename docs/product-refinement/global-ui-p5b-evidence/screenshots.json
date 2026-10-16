@@ -1,0 +1,149 @@
+[
+  {
+    "file": "accounting-budget-dark-390.jpg",
+    "width": 390,
+    "height": 949,
+    "sha256": "52ADD499BD8BC3F65EA50459BA74FF8944EE16861EF4F0F5D7B0DA9378B9126B",
+    "source": "Direct CUA JPEG; synthetic localhost-only role contract"
+  },
+  {
+    "file": "accounting-budget-journal-dark-390.jpg",
+    "width": 390,
+    "height": 949,
+    "sha256": "439A36E59A0B6EE14D3289DFA84067C6F4457C32813D82E0EB389F4557E43BCA",
+    "source": "Direct CUA JPEG; synthetic localhost-only role contract"
+  },
+  {
+    "file": "accounting-budget-light-320.jpg",
+    "width": 320,
+    "height": 950,
+    "sha256": "DB6F605A8E3AA2F96DAB0F94D294C263B762C77B35C518C26BF1DF80210CFA06",
+    "source": "Direct CUA JPEG; synthetic localhost-only role contract"
+  },
+  {
+    "file": "accounting-budget-light-collapsed.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "9E7EFC3B430248345C4B09D3106DD7513DD3CBBF816CB8617A035167B39FF77F",
+    "source": "Direct CUA JPEG; synthetic localhost-only role contract"
+  },
+  {
+    "file": "accounting-budget-light-desktop.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "469FE7C6ADF875CEC69E1D300BEF96041F2CA0C1EE04CD051D733E37489A4DD6",
+    "source": "Direct CUA JPEG; synthetic localhost-only role contract"
+  },
+  {
+    "file": "accounting-budget-options-dark-390.jpg",
+    "width": 390,
+    "height": 949,
+    "sha256": "3C977F170AC8FB36ACA18CD1BFB26DBCCC6BFC462C06361A50351DC98222E6B0",
+    "source": "Direct CUA JPEG; synthetic localhost-only role contract"
+  },
+  {
+    "file": "accounting-destinations-light-320.jpg",
+    "width": 320,
+    "height": 950,
+    "sha256": "5D080D25A870352BEA2FB28A264D588F62740C8394787E19A3CFA8D5373A570A",
+    "source": "Direct CUA JPEG; synthetic localhost-only role contract"
+  },
+  {
+    "file": "accounting-history-dark-desktop.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "CD375C4F645ADA749F30BDE69709001FE60C2C01281CCCB504B0007D8A0D245F",
+    "source": "Direct CUA JPEG; synthetic localhost-only role contract"
+  },
+  {
+    "file": "accounting-navigation-dark-768.jpg",
+    "width": 768,
+    "height": 1024,
+    "sha256": "C4AC2F1445B9ED5642BFE64A6FECF8EACE00C61384A171E7387C9DA8256885F3",
+    "source": "Direct CUA JPEG; synthetic localhost-only role contract"
+  },
+  {
+    "file": "accounting-overview-dark-390.jpg",
+    "width": 390,
+    "height": 949,
+    "sha256": "EA2EDAD500ACDC58DBEB3A1F59DCA9EDD813DF1A134B500B4F9CA2B99006650B",
+    "source": "Direct CUA JPEG; synthetic localhost-only role contract"
+  },
+  {
+    "file": "accounting-overview-dark-desktop.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "8F0768BF7A2F0CC47D3C0EE4F4590C1AC01CB71A7685FF6DA47CCA285EFC539F",
+    "source": "Direct CUA JPEG; synthetic localhost-only role contract"
+  },
+  {
+    "file": "accounting-overview-light-desktop.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "0DB647705EFBC3366328F2DD346AF4FD0D6DDC8C383585883764F714EECF0BBB",
+    "source": "Direct CUA JPEG; synthetic localhost-only role contract"
+  },
+  {
+    "file": "accounting-overview-unavailable-light-768.jpg",
+    "width": 768,
+    "height": 1024,
+    "sha256": "242E67F2558B94F0754F264C21A38EE565980E5BD871A1A140F13EEA34E2B8C6",
+    "source": "Direct CUA JPEG; synthetic localhost-only role contract"
+  },
+  {
+    "file": "accounting-releases-light-320.jpg",
+    "width": 320,
+    "height": 950,
+    "sha256": "16307DB2D30E9E1CBBE0F1CF9B9B260E72510FD83A2A58802F711CFCFEDDF589",
+    "source": "Direct CUA JPEG; synthetic localhost-only role contract"
+  },
+  {
+    "file": "accounting-settlements-dark-390.jpg",
+    "width": 390,
+    "height": 949,
+    "sha256": "7D33342DB3FE1B8D7B3601C1DCE3CF82DE3FF515BA6673AC0C6150EC078BA04E",
+    "source": "Direct CUA JPEG; synthetic localhost-only role contract"
+  },
+  {
+    "file": "accounting-settlements-dark-768.jpg",
+    "width": 768,
+    "height": 1024,
+    "sha256": "366303A900973FAAF7EBBEEED40D7377C4B48E6FE06622CC0F8A0FE3EE72EB44",
+    "source": "Direct CUA JPEG; synthetic localhost-only role contract"
+  },
+  {
+    "file": "accounting-settlements-empty-dark-768.jpg",
+    "width": 768,
+    "height": 1024,
+    "sha256": "CCFE0EA26B635FB5AF83CADBB818FF030BFB7B9FBB7B53B763ABD0C6C21D8BEA",
+    "source": "Direct CUA JPEG; synthetic localhost-only role contract"
+  },
+  {
+    "file": "accounting-settlements-light-320.jpg",
+    "width": 320,
+    "height": 950,
+    "sha256": "EA37F7DFBA27CC453F4A9079E7834B0AF29DAFCA0AA3F1FCAE6D7E99650BCFF8",
+    "source": "Direct CUA JPEG; synthetic localhost-only role contract"
+  },
+  {
+    "file": "accounting-settlements-light-desktop.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "702D86003267E0B8DE226BBA3966AE56B810FEF6E06FD46339723874418CF697",
+    "source": "Direct CUA JPEG; synthetic localhost-only role contract"
+  },
+  {
+    "file": "head-budget-history-dark-320.jpg",
+    "width": 320,
+    "height": 950,
+    "sha256": "31873C951D19FB85C065278CBF5B371E4C7E93F769CDBB43C3803CF6A4985FA6",
+    "source": "Direct CUA JPEG; synthetic localhost-only role contract"
+  },
+  {
+    "file": "head-budget-journal-light-768.jpg",
+    "width": 768,
+    "height": 1024,
+    "sha256": "BDA8EA38CC7D42718A93A56CECEFE30F8F84A77BACCBA3F3B1848D7234A61451",
+    "source": "Direct CUA JPEG; synthetic localhost-only role contract"
+  }
+]

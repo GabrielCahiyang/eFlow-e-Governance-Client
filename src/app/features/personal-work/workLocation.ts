@@ -1,4 +1,5 @@
 import { dateFilters, type WorkDateFilter } from "./types";
+export type WorkFilters = ReturnType<typeof readWorkFilters>;
 /** Old bucket bookmarks retain their filter when the sidebar moves to four destinations. */
 export function readWorkFilters(search = window.location.search) {
   const params = new URLSearchParams(search),

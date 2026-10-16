@@ -68,8 +68,9 @@ describe("Phase 04 task board presentation", () => {
     expect(subtaskReviewInbox).toContain('embedded ? "space-y-4" : "eflow-operational-workspace min-h-full p-4 sm:p-8"');
   });
 
-  it("keeps the review tabs in a stable header column", () => {
-    expect(reviewInbox).toContain('className="flex w-full min-w-0 flex-col items-stretch gap-2 sm:w-auto sm:items-end"');
-    expect(reviewInbox).toContain('className="flex min-h-7 justify-end"');
+  it("keeps one local review selector below the heading without squeezing its description", () => {
+    expect(reviewInbox).toContain('className="mb-4 min-w-0"');
+    expect(reviewInbox).toContain('<ReviewKindSwitch active={reviewKind}');
+    expect(reviewInbox.match(/<ReviewKindSwitch /g)).toHaveLength(1);
   });
 });

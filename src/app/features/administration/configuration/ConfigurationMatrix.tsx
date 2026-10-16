@@ -4,9 +4,11 @@ import { StatusPill, WorkspaceHeader } from "../../../components/ui/workspace";
 export function ConfigurationMatrix({
   area,
   title,
+  embedded = false,
 }: {
   area?: ConfigurationArea;
   title: string;
+  embedded?: boolean;
 }) {
   const [search, setSearch] = useState("");
   const rows = configurationItems.filter(
@@ -18,10 +20,10 @@ export function ConfigurationMatrix({
   );
   return (
     <section className="eflow-admin-configuration">
-      <WorkspaceHeader
+      {embedded ? <header className="eflow-admin-section-header"><h2>{title}</h2><p>Implementation contracts and effective consumers. Hosted deployment and provider verification require their own acceptance receipts.</p></header> : <WorkspaceHeader
         title={title}
         description="Implementation contracts and effective consumers. Hosted deployment and provider verification require their own acceptance receipts."
-      />
+      />}
       <label className="eflow-field-label">
         Search configuration
         <input

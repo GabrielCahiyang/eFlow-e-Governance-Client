@@ -4,25 +4,29 @@ import { projectWorkspaceFixture } from "./fixtures/projectWorkspace";
 import { phase16FinancialFixture } from "./fixtures/phase16Financial";
 
 test.setTimeout(45_000);
-const accountingNav = (page: import("@playwright/test").Page) =>
-  page.getByRole("navigation", { name: "Accounting views", exact: true });
+const accountingNav = async (page: import("@playwright/test").Page) => {
+  const rail = page.getByRole('navigation', {name:'Accounting destinations',exact:true});
+  if ((page.viewportSize()?.width || 1440) < 1024 && !await rail.isVisible()) await page.getByRole('button',{name:'Open navigation',exact:true}).click();
+  await expect(rail).toBeVisible();
+  return rail;
+};
 
 test("Admin Center keeps legacy pages, account inspection and unsaved account edits", async ({
   page,
 }, info) => {
   await projectWorkspaceFixture(page, "admin");
   await expect(
-    page.getByRole("heading", { name: "Admin Center", exact: true, level: 1 }),
+    page.getByRole("heading", { name: "All Users", exact: true, level: 1 }),
   ).toBeVisible();
-  const people = page.getByRole("tab", {
-    name: "People & onboarding",
+  const people = page.getByRole("navigation", {name:"Admin Center destinations"}).getByRole("button", {
+    name: "All Users",
     exact: true,
   });
   expect(
     await people.evaluate((element) =>
-      Number.parseFloat(getComputedStyle(element).paddingLeft),
+      element.getBoundingClientRect().height,
     ),
-  ).toBeGreaterThanOrEqual(12);
+  ).toBeGreaterThanOrEqual(40);
   await page
     .getByRole("button", {
       name: "Inspect account Directory colleague 1",
@@ -53,13 +57,13 @@ test("Admin Center keeps legacy pages, account inspection and unsaved account ed
     .getByRole("button", { name: /Discard/ })
     .click();
   await page
-    .getByRole("tab", { name: "Roles & permissions", exact: true })
+    .getByRole("navigation", {name:"Admin Center destinations"}).getByRole("button", { name: "Role Defaults", exact: true })
     .click();
   await expect(
     page.getByRole("heading", { name: "Role Defaults", exact: true }),
   ).toBeVisible();
   await page
-    .getByRole("tab", { name: "Individual Access", exact: true })
+    .getByRole("navigation", {name:"Admin Center destinations"}).getByRole("button", { name: "User Access", exact: true })
     .click();
   await expect(
     page.getByRole("heading", { name: "User Access", exact: true }),
@@ -146,8 +150,8 @@ test("Accounting retains fiscal scope, exposes settlements, records one decision
   page,
 }, info) => {
   const { state } = await phase16FinancialFixture(page);
-  await expect(accountingNav(page)).toBeVisible();
-  await accountingNav(page)
+  await expect(await accountingNav(page)).toBeVisible();
+  await (await accountingNav(page))
     .getByRole("button", { name: "Settlements", exact: true })
     .click();
   await page.reload();
@@ -170,8 +174,8 @@ test("Accounting retains fiscal scope, exposes settlements, records one decision
       (write) => write.rpc === "settle_accounting_liquidation",
     ),
   ).toHaveLength(1);
-  await accountingNav(page)
-    .getByRole("button", { name: "Journal", exact: true })
+  await (await accountingNav(page))
+    .getByRole("button", { name: "General Journal", exact: true })
     .click();
   await page
     .getByRole("button", {
@@ -194,14 +198,15 @@ test("Accounting retains fiscal scope, exposes settlements, records one decision
   await expect(
     page.getByRole("button", { name: "Open fiscal year 2028", exact: true }),
   ).toBeVisible();
-  await accountingNav(page)
-    .getByRole("button", { name: "Budget ledger", exact: true })
+  await (await accountingNav(page))
+    .getByRole("button", { name: "Office Budget Ledgers", exact: true })
     .click();
   await expect(
-    page.getByText("FY 2027 · Budget position", { exact: true }),
+    page.getByRole('main').getByText("Planning Office · FY 2027", { exact: true }),
   ).toBeVisible();
-  await accountingNav(page)
-    .getByRole("button", { name: "Releases", exact: true })
+  await expect(page.getByRole('region',{name:'Budget position summary',exact:true})).toBeVisible();
+  await (await accountingNav(page))
+    .getByRole("button", { name: "Voucher & Cash Releases", exact: true })
     .click();
   await expect(
     page.getByRole("button", { name: "Open fiscal year 2028", exact: true }),
@@ -213,7 +218,7 @@ test("Uncertain settlement keeps its reason and requires verification before res
 }) => {
   const { state } = await phase16FinancialFixture(page);
   state.failSettlement = true;
-  await accountingNav(page)
+  await (await accountingNav(page))
     .getByRole("button", { name: "Settlements", exact: true })
     .click();
   await page
@@ -251,8 +256,8 @@ test("Journal correction has guarded lines, explicit posting and a retained unce
   await page.setViewportSize({ width: 390, height: 844 });
   const { state } = await phase16FinancialFixture(page);
   state.failJournal = true;
-  await accountingNav(page)
-    .getByRole("button", { name: "Journal", exact: true })
+  await (await accountingNav(page))
+    .getByRole("button", { name: "General Journal", exact: true })
     .click();
   await page
     .getByRole("button", { name: "Post adjustment", exact: true })
@@ -319,8 +324,8 @@ test("Release handover uses its existing physical confirmation and blocks an unc
 }) => {
   const { state } = await phase16FinancialFixture(page);
   state.failRelease = true;
-  await accountingNav(page)
-    .getByRole("button", { name: "Releases", exact: true })
+  await (await accountingNav(page))
+    .getByRole("button", { name: "Voucher & Cash Releases", exact: true })
     .click();
   await page
     .getByRole("button", { name: "Mark released", exact: true })
@@ -449,7 +454,7 @@ test("Late-package Head authorization stays separate from independent Accounting
   const accountingContext = await browser.newContext();
   const accountingPage = await accountingContext.newPage();
   await phase16FinancialFixture(accountingPage, "accounting_staff", state);
-  await accountingNav(accountingPage)
+  await (await accountingNav(accountingPage))
     .getByRole("button", { name: "Settlements", exact: true })
     .click();
   await accountingPage
@@ -474,7 +479,7 @@ test("Accounting retains ordinary Member workspaces, requires an Office and cann
   const { state, fixture } = await phase16FinancialFixture(page);
   state.requests[0].requester_id = fixture.id;
   state.requests[0].cash_recipient_id = fixture.id;
-  await accountingNav(page)
+  await (await accountingNav(page))
     .getByRole("button", { name: "Settlements", exact: true })
     .click();
   await expect(
@@ -494,7 +499,7 @@ test("Accounting retains ordinary Member workspaces, requires an Office and cann
       { exact: true },
     ),
   ).toBeVisible();
-  await expect(accountingNav(page)).toHaveCount(0);
+  await expect(page.getByRole("combobox", {name:"Accounting destination",exact:true})).toHaveCount(0);
 });
 
 test("Backup uncertain start verifies the job list and a failed job permits an explicit new attempt", async ({

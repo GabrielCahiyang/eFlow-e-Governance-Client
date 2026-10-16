@@ -1,4 +1,5 @@
 import { expect, type Page, type WebSocketRoute } from "@playwright/test";
+import { establishLocalNetwork } from "./localNetwork";
 
 // Synthetic browser records; every backend request is intercepted.
 export async function projectWorkspaceFixture(
@@ -441,9 +442,18 @@ export async function projectWorkspaceFixture(
     return route.fulfill({ json: body });
   });
   await page.route('**/controlpanelEflow/api/auth/login', route => route.fulfill({json:{access_token:token,refresh_token:'synthetic'}}));
+  await establishLocalNetwork(page);
   await page.goto("/");
   await page.locator("#login-email").fill(user.email);
   await page.locator("#login-password").fill("synthetic-password");
+  // Opacity-zero staggered entrances are considered visible by locator
+  // actionability. Wait for the actual visible entrance before the same click.
+  await expect.poll(() => page.locator("#login-submit").evaluate(element => {
+    for (let current: HTMLElement | null = element as HTMLElement; current; current = current.parentElement) {
+      if (Number(getComputedStyle(current).opacity) !== 1) return false;
+    }
+    return true;
+  })).toBe(true);
   await page.locator("#login-submit").click();
   await expect(page.locator(".eflow-app-shell")).toBeVisible({
     timeout: 30_000,
@@ -481,7 +491,7 @@ export async function projectWorkspaceFixture(
       });
     await page.goto("/users?page=All%20Users");
     await expect(
-      page.getByText("Account directory", { exact: true }),
+      page.getByRole("heading", { name: "All Users", exact: true, level: 1 }),
     ).toBeVisible();
     return {
       emitTaskDelete,
@@ -507,7 +517,7 @@ export async function projectWorkspaceFixture(
   } else
     await page
       .getByRole("navigation", { name: "Mobile primary navigation" })
-      .getByRole("button", { name: "Projects", exact: true })
+      .getByRole("button", { name: "Workspaces", exact: true })
       .click();
   await expect(
     page.getByRole("region", { name: "Project main table" }),

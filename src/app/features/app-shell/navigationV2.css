@@ -17,6 +17,7 @@
 .eflow-workspace-navigation__destinations { padding: 8px; }
 .eflow-workspace-navigation__office-tools summary { padding: 8px; min-height: 40px; font-size: 13px; color: var(--eflow-text-secondary); cursor: pointer; }
 .eflow-workspace-navigation__destinations h3 { font-size: 11px; color: var(--eflow-text-muted); padding: 12px 8px 4px; }
+.eflow-context-current-tool { border-top: 1px solid var(--eflow-border); margin-top: var(--eflow-space-2); padding-top: var(--eflow-space-1); }
 .eflow-workspace-navigation__destination { display: flex; align-items: center; gap: 8px; min-height: 40px; width: 100%; text-align: left; padding: 8px; border-radius: var(--eflow-radius-sm); color: var(--eflow-text-secondary); font-size: 13px; }
 .eflow-workspace-navigation__destination > span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .eflow-workspace-navigation__destination svg { flex: 0 0 auto; }
@@ -31,8 +32,10 @@
 .eflow-project-context__create { display: flex; align-items: center; gap: 4px; }
 .eflow-project-context__add-menu { min-width: 40px; min-height: 40px; border: 1px solid var(--eflow-border); border-radius: 6px; font-size: 20px; }
 .eflow-mobile-navigation-bar { display: none; }
+.eflow-mobile-navigation-bar span { max-width: 100%; overflow-wrap: anywhere; line-height: 1.2; }
 .eflow-navigation-search { width: min(560px, calc(100vw - 24px)); }
 .eflow-navigation-search__header { padding: 24px; }
+.eflow-support-group h3 { padding: var(--eflow-space-3) var(--eflow-space-2) var(--eflow-space-2); color: var(--eflow-text-muted); font-size: var(--eflow-text-xs); font-weight: 500; }
 .eflow-navigation-search__header h2 { display: flex; align-items: center; gap: 8px; font-size: 18px; margin-bottom: 8px; }
 .eflow-navigation-search__header p, .eflow-navigation-search__results p { color: var(--eflow-text-muted); font-size: 12px; margin-bottom: 12px; }
 .eflow-navigation-search__results { padding: 0 24px 24px; overflow-y: auto; min-height: 0; }
@@ -92,5 +95,6 @@
 .eflow-workspace-navigation__controls{margin-bottom:var(--eflow-space-2)}
 .eflow-context-error{padding:var(--eflow-space-3);color:var(--eflow-negative-text);background:var(--eflow-negative-bg)}
 @media(min-width:1024px){.eflow-app-shell:has([data-context-rail="inbox"] .eflow-workspace-navigation__destinations) [aria-label="Inbox categories"]{display:none}}
-@media(min-width:1024px){.eflow-app-shell:has([data-context-rail="my-work"] .eflow-workspace-navigation__destinations) .r10-destinations{display:none}}
+@media(min-width:1024px){.eflow-app-shell:has([data-context-rail="my-work"] .eflow-workspace-navigation__destinations) .r10-destination-host{display:none}}
+body:has(.eflow-mobile-navigation-dialog [data-context-rail="my-work"] .eflow-workspace-navigation__destinations) .r10-destination-host{display:none}
 .eflow-workspace-navigation__destinations>.eflow-workspace-section:first-child{border-top:0}

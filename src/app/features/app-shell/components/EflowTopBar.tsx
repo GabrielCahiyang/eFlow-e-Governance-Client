@@ -1,19 +1,16 @@
-import { useMediaQuery } from "../../../shared/useMediaQuery";
 import { Avatar, IconButton, Tooltip } from "@vibe/core";
 import { LogOut, Menu as MenuIcon, Person, Settings } from "@vibe/icons";
 import { useEffect, useState } from "react";
 import { useAuth } from "../../../contexts/AuthContext";
+import { useUserPreferences } from "../../../contexts/UserPreferencesContext";
+import { useMediaQuery } from "../../../shared/useMediaQuery";
 import { ChatListDrawer } from "../../chat-calls";
-import {
-  PageWalkthroughButton,
-  SystemWalkthroughButton,
-} from "../../guided-tours";
+import { WorkspaceHelpMenu } from "../../guided-tours";
 import { getProfileAvatarUrl } from "../../../services/userSettingsService";
 import { getRoleLabel } from "../../../shared/roles";
 import { IncomingCallListener } from "../../../components/ui/IncomingCallListener";
 import { NotificationBell } from "../../../components/ui/NotificationBell";
 import { EFlowMark } from "../../../../components/EFlowMark";
-import { OnboardingHelpButton } from "../../onboarding";
 import { requestNavigation } from "../../../shared/navigationGuard";
 import { ActionMenu } from "../../../components/ui/workspace";
 import { Button as MenuTriggerButton } from "../../../components/ui/button";
@@ -25,6 +22,9 @@ interface EflowTopBarProps {
   onOpenMobileNavigation: () => void;
   onPageSelect: (section: string, page: string) => void;
   role: string;
+  helpOpen: boolean;
+  onHelpOpenChange: (open: boolean, trigger?: HTMLElement | null) => void;
+  helpReturnFocusTarget?: HTMLElement | null;
 }
 
 function getInitials(name?: string) {
@@ -126,9 +126,14 @@ export function EflowTopBar({
   onOpenMobileNavigation,
   onPageSelect,
   role,
+  helpOpen,
+  onHelpOpenChange,
+  helpReturnFocusTarget,
 }: EflowTopBarProps) {
   const { user, userProfile } = useAuth();
-  const compactUtilities = useMediaQuery("(max-width: 1199px)");
+  const { theme } = useUserPreferences();
+  const systemDark = useMediaQuery("(prefers-color-scheme: dark)");
+  const dark = theme === "dark" || (theme === "system" && systemDark);
   const branding = usePresentationBranding(user?.id);
 
   return (
@@ -145,16 +150,14 @@ export function EflowTopBar({
           />
         </Tooltip>
         <div className="eflow-topbar__brand-lockup" data-tour-id="brand">
-          <EFlowMark variant="default" height={36} />
+          <EFlowMark variant={dark ? "white" : "default"} height={36} className="eflow-topbar__wordmark" />
           <div className="eflow-topbar__brand-divider" aria-hidden="true" />
           <span className="eflow-topbar__brand-org" title={`eFlow version ${branding.app_version}`}>{branding.organization_name} · v{branding.app_version}</span>
         </div>
       </div>
 
       <div className="eflow-topbar__utilities">
-        {userProfile?.role !== "admin" && <OnboardingHelpButton />}
-        <PageWalkthroughButton />
-        <SystemWalkthroughButton collapsed={compactUtilities} />
+        <WorkspaceHelpMenu open={helpOpen} onOpenChange={onHelpOpenChange} role={userProfile?.role || role} returnFocusTarget={helpReturnFocusTarget} />
         {user?.id && (
           <div
             className="eflow-topbar__communications"

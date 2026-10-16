@@ -21,6 +21,7 @@ export function FeatureDialog({
   overlayClassName = "",
   showCloseButton = true,
   preventClose = false,
+  onCloseAutoFocus,
 }: {
   open?: boolean;
   onClose: () => void;
@@ -31,6 +32,7 @@ export function FeatureDialog({
   overlayClassName?: string;
   showCloseButton?: boolean;
   preventClose?: boolean;
+  onCloseAutoFocus?: (event: Event) => void;
 }) {
   const returnFocus = useRef<HTMLElement | null>(null);
   const previouslyOpen = useRef(false);
@@ -47,6 +49,8 @@ export function FeatureDialog({
         aria-busy={preventClose || undefined}
         onOpenAutoFocus={() => { if (!returnFocus.current?.isConnected) returnFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null; }}
         onCloseAutoFocus={(event) => {
+          onCloseAutoFocus?.(event);
+          if (event.defaultPrevented) return;
           event.preventDefault();
           if (returnFocus.current?.isConnected && !returnFocus.current.closest("[inert]")) { returnFocus.current.focus(); }
         }}

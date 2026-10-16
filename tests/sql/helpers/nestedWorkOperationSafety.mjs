@@ -100,7 +100,10 @@ export async function verifyNestedWorkOperationSafety({db,project,personalProjec
  await db.exec('reset role');
  const fundingSource=await readFile(new URL('../../../supabase/migrations/20260826000003_dynamic_task_funding.sql',import.meta.url),'utf8');
  const ledgerIndex=fundingSource.match(/create unique index if not exists budget_ledger_command_idempotency_uni[\s\S]*?;/)?.[0];ok(ledgerIndex,'original ledger arbiter located');await db.exec(ledgerIndex);
- await db.exec('alter table petty_cash_requests alter column request_number add generated always as identity;');
+ // Historical fixtures omit identity metadata; the current installed baseline
+ // already has it. Never replace or relax an existing generated identity.
+ if(!await value("select attidentity<>'' from pg_attribute where attrelid='petty_cash_requests'::regclass and attname='request_number'"))
+  await db.exec('alter table petty_cash_requests alter column request_number add generated always as identity;');
  await newRoot('NW5.1 genuine funded history');const funded=await create(null,'Cap branch'),fundedChild=await create(funded,'Cash work'),clean=await create(null,'Unfunded control');
  await actor(2);
  const settings={dailyReleaseLimit:30000,perReceiptLimit:5000,liquidationDueDays:15,allowReceiptOverride:false,threshold:75,notes:'Local NW5 history'};

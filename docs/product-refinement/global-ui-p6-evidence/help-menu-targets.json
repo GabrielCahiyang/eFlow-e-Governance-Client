@@ -1,0 +1,155 @@
+[
+  {
+    "role": "admin",
+    "theme": "light",
+    "width": 1440,
+    "file": "help-admin-light-desktop",
+    "targets": [
+      {
+        "height": 40,
+        "label": "Guide for this page"
+      },
+      {
+        "height": 40,
+        "label": "Tour of eFlow"
+      }
+    ]
+  },
+  {
+    "role": "admin",
+    "theme": "dark",
+    "width": 1440,
+    "file": "help-admin-dark-desktop",
+    "targets": [
+      {
+        "height": 40,
+        "label": "Guide for this page"
+      },
+      {
+        "height": 40,
+        "label": "Tour of eFlow"
+      }
+    ]
+  },
+  {
+    "role": "head",
+    "theme": "light",
+    "width": 768,
+    "file": "help-head-light-768",
+    "targets": [
+      {
+        "height": 44,
+        "label": "Getting started"
+      },
+      {
+        "height": 44,
+        "label": "Guide for this page"
+      },
+      {
+        "height": 44,
+        "label": "Tour of eFlow"
+      }
+    ]
+  },
+  {
+    "role": "head",
+    "theme": "dark",
+    "width": 1440,
+    "file": "help-head-dark-desktop",
+    "targets": [
+      {
+        "height": 40,
+        "label": "Getting started"
+      },
+      {
+        "height": 40,
+        "label": "Guide for this page"
+      },
+      {
+        "height": 40,
+        "label": "Tour of eFlow"
+      }
+    ]
+  },
+  {
+    "role": "member",
+    "theme": "light",
+    "width": 320,
+    "file": "help-member-light-320-from-drawer",
+    "drawer": true,
+    "targets": [
+      {
+        "height": 44,
+        "label": "Getting started"
+      },
+      {
+        "height": 44,
+        "label": "Guide for this page"
+      },
+      {
+        "height": 44,
+        "label": "Tour of eFlow"
+      }
+    ]
+  },
+  {
+    "role": "member",
+    "theme": "dark",
+    "width": 1440,
+    "file": "help-member-dark-desktop",
+    "targets": [
+      {
+        "height": 40,
+        "label": "Getting started"
+      },
+      {
+        "height": 40,
+        "label": "Guide for this page"
+      },
+      {
+        "height": 40,
+        "label": "Tour of eFlow"
+      }
+    ]
+  },
+  {
+    "role": "accounting_staff",
+    "theme": "light",
+    "width": 768,
+    "file": "help-accounting-light-768",
+    "targets": [
+      {
+        "height": 44,
+        "label": "Getting started"
+      },
+      {
+        "height": 44,
+        "label": "Guide for this page"
+      },
+      {
+        "height": 44,
+        "label": "Tour of eFlow"
+      }
+    ]
+  },
+  {
+    "role": "accounting_staff",
+    "theme": "dark",
+    "width": 390,
+    "file": "help-accounting-dark-390",
+    "targets": [
+      {
+        "height": 44,
+        "label": "Getting started"
+      },
+      {
+        "height": 44,
+        "label": "Guide for this page"
+      },
+      {
+        "height": 44,
+        "label": "Tour of eFlow"
+      }
+    ]
+  }
+]

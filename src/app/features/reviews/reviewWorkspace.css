@@ -1,0 +1,24 @@
+.eflow-review-workspace{color:var(--eflow-text)}
+@layer utilities{.eflow-review-workspace h1{font-size:var(--eflow-text-title)!important;line-height:1.4!important;font-weight:600}}
+.eflow-review-kind-select{display:none}
+.eflow-review-kind-select [data-slot=select-trigger]{border:1px solid var(--eflow-border);background:var(--eflow-surface);color:var(--eflow-text)}
+@media(max-width:1023px){.eflow-review-kind-tabs{display:none}.eflow-review-kind-select{display:block;margin-bottom:var(--eflow-space-4)}.eflow-review-kind-select [data-slot=select-trigger]{min-height:44px}}
+.eflow-review-workspace [class*=bg-white]{background:var(--eflow-surface)}
+.eflow-review-workspace textarea{background:var(--eflow-surface);color:var(--eflow-text)}
+.eflow-review-workspace [class*=bg-blue-50]{background:var(--eflow-info-bg)}
+.eflow-review-workspace [class*=text-blue-7]{color:var(--eflow-info-text)}
+.eflow-review-workspace [class*=bg-emerald-50]{background:var(--eflow-positive-bg)}
+.eflow-review-workspace [class*=text-emerald-7]{color:var(--eflow-positive-text)}
+.eflow-review-workspace [class*=bg-amber-50]{background:var(--eflow-warning-bg)}
+.eflow-review-workspace [class*=text-amber-7]{color:var(--eflow-warning-text)}
+.eflow-review-workspace [class*=bg-rose-50]{background:var(--eflow-negative-bg)}
+.eflow-review-workspace [class*=text-rose-7]{color:var(--eflow-negative-text)}
+.eflow-review-workspace [class*=text-neutral-]{color:var(--eflow-text-secondary)}
+.eflow-review-workspace [class*=text-neutral-9]{color:var(--eflow-text)}
+.eflow-review-workspace [class*=bg-neutral-]{background:var(--eflow-subtle)}
+.eflow-review-workspace [class*=border-neutral-]{border-color:var(--eflow-border)}
+.eflow-review-workspace [class*=divide-neutral-]>:not(:last-child){border-color:var(--eflow-border)}
+.eflow-review-workspace button:focus-visible{outline:2px solid var(--eflow-primary);outline-offset:-2px}
+.eflow-review-workspace .eflow-local-workflow-tabs{margin-top:var(--eflow-space-3)}
+@media(max-width:1023px){.eflow-review-workspace button:not([role=tab]){min-height:44px}.eflow-review-workspace [aria-label="Sort review submissions"]{min-height:44px}}
+@media(max-width:1023px){.eflow-review-workspace .eflow-review-search{height:44px;min-height:44px}}

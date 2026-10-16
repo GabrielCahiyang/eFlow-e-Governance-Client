@@ -13,6 +13,26 @@ function sidebar(section:string,page:string,onPageSelect=vi.fn(),user='head'){
  return <EflowVibeThemeProvider preference="light"><ProductivitySidebar role="head" activeSection={section} activePage={page} navigationItems={items} onPageSelect={onPageSelect} userId={user} workspaceId="office" workspaceName="LEDIPO" projects={[{id:'p',title:'Project tree entry',status:'planning'}]}/></EflowVibeThemeProvider>;
 }
 describe('approved primary/context isolation',()=>{
+ it('keeps a granted Office calendar handoff reachable from the global My Work feed in a personal workspace',()=>{
+  const authorized=buildShellNavigation({role:'member',can:()=>true,hasLeadingWork:true});
+  const scoped=buildWorkspaceNavigation(authorized,true,false), select=vi.fn();
+  render(<EflowVibeThemeProvider preference="light"><ProductivitySidebar role="member" activeSection="personal_work" activePage="Assigned work" navigationItems={scoped} personalToolItems={authorized} onPageSelect={select} workspaceKind="personal" /></EflowVibeThemeProvider>);
+  fireEvent.click(screen.getByText('More work tools'));fireEvent.click(screen.getByRole('button',{name:'Deadline calendar',exact:true}));
+  expect(select).toHaveBeenCalledWith('deadlines','Deadlines');
+  expect(screen.queryByRole('button',{name:'Office Budget',exact:true})).toBeNull();
+ });
+ it('identifies only the current authorized legacy tool without exposing all retained routes',()=>{
+  const memberItems=buildShellNavigation({role:'member',can:()=>true,hasLeadingWork:true});
+  const legacy=memberItems.find(item=>item.id==='deadlines')!;
+  const view=render(<EflowVibeThemeProvider preference="light"><ProductivitySidebar role="member" activeSection="deadlines" activePage={legacy.pages[0].label} navigationItems={memberItems} onPageSelect={vi.fn()} /></EflowVibeThemeProvider>);
+  const work=screen.getByRole('navigation',{name:'My Work destinations'});
+  expect(within(work).getAllByRole('button').filter(button=>!button.closest('details'))).toHaveLength(5);
+  expect(work.querySelector('details')?.hasAttribute('open')).toBe(false);
+  expect(within(work).getByRole('button',{name:legacy.label}).getAttribute('aria-current')).toBe('page');
+  view.rerender(<EflowVibeThemeProvider preference="light"><ProductivitySidebar role="member" activeSection="personal_work" activePage="Assigned work" navigationItems={memberItems} onPageSelect={vi.fn()} /></EflowVibeThemeProvider>);
+  expect(within(screen.getByRole('navigation',{name:'My Work destinations'})).getAllByRole('button').filter(button=>!button.closest('details'))).toHaveLength(4);
+  expect(screen.queryByText('Current tool')).toBeNull();
+ });
  it('retains existing authorized Inbox destinations when a personal workspace is selected',()=>{
   const personal=buildWorkspaceNavigation(items,true,false);expect(personal.filter(item=>item.group==='inbox').map(item=>item.id)).toEqual(items.filter(item=>item.group==='inbox').map(item=>item.id));expect(personal.filter(item=>item.group==='workspaces').map(item=>item.id)).toEqual(['dashboard','projects']);
  });

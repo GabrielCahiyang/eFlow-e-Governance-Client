@@ -53,14 +53,14 @@ for (const storedRole of ["super_admin", "admin"]) {
     await expect(
       page.getByRole("heading", { name: "User Access", exact: true }),
     ).toBeVisible();
-    await expect(page.getByPlaceholder("Search users…")).toBeVisible();
+    await expect(page.getByRole("textbox",{name:"Search account access",exact:true})).toBeVisible();
     await sidebar.hover();
     await sidebar
       .getByRole("button", { name: "All Users", exact: true })
       .click();
     await expect(
       page.getByRole("heading", {
-        name: "User Management",
+        name: "All Users",
         exact: true,
         level: 1,
       }),

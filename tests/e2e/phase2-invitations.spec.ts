@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { establishLocalNetwork } from "./fixtures/localNetwork";
 
 async function signInFixture(page: Page, role: string, fresh = false) {
   const id = "00000000-0000-4000-8000-000000000001";
@@ -38,6 +39,7 @@ async function signInFixture(page: Page, role: string, fresh = false) {
     if (url.endsWith('/invitations')) body = route.request().method() === 'POST' ? { results: [{ email: 'teammate@example.test', invitation: { id: 'invite', email: 'teammate@example.test', account_role: 'member', status: 'pending', created_at: user.created_at, expires_at: new Date(Date.now() + 604800000).toISOString(), email_delivery_status: 'sent', send_count: 1 } }] } : { invitations: [] };
     await route.fulfill({ json: body });
   });
+  await establishLocalNetwork(page);
   await page.goto("/", { waitUntil: "domcontentloaded" });
   await page.locator("#login-email").fill(user.email);
   await page.locator("#login-password").fill("synthetic-password");
@@ -71,7 +73,7 @@ test('Member welcome persists skipped status and remains available from Help', a
   await expect(dialog).toBeVisible();
   await dialog.getByRole('button', { name: 'Skip for now', exact: true }).click();
   await expect(dialog).not.toBeVisible();
-  await page.getByRole('button', { name: 'Help and Getting Started', exact: true }).click();
+  await page.getByRole('button', { name: 'Open help', exact: true }).click(); await page.getByRole('menuitem', {name:'Getting started',exact:true}).click();
   await expect(page.getByRole('dialog', { name: 'Help & Getting Started' })).toBeVisible();
   await page.screenshot({ path: info.outputPath('getting-started.png') });
 });

@@ -8,7 +8,7 @@ import {
   replaceNavigationHistory,
 } from "../../shared/navigationHistory";
 import { resolveSupportPage } from "./administrativePages";
-import {navigationParameters} from './queryContext';
+import {destinationNavigationParameters,navigationDisplayKeys} from './queryContext';
 
 export const NAVIGATION_PAGE_QUERY = "page";
 
@@ -79,6 +79,13 @@ function slugify(value: string): string {
 
 export function getNavigationPath(section: string): string {
   return `/${SECTION_PATHS[section] || slugify(section)}`;
+}
+
+export function getNavigationSectionFromPath(pathname: string): string | undefined {
+  const segment = pathname.split('/').filter(Boolean)[0]?.toLowerCase();
+  if (segment === 'department-budget') return 'budget';
+  if (segment === 'department-budget-ledgers') return 'accounting_budgets';
+  return Object.entries(SECTION_PATHS).find(([section, path]) => segment === path || segment === section)?.[0];
 }
 
 function getSectionFromPath(
@@ -215,27 +222,21 @@ export function writeNavigationLocation(
   if (typeof window === "undefined") return;
 
   const url = new URL(window.location.href);
-  if (section !== "personal_work")
-    for (const key of ["date", "q", "workScope", "recent"])
-      url.searchParams.delete(key);
-  const preserveBudgetView =
-    section === "budget" && url.pathname === getNavigationPath("budget");
+  const previousSection = getNavigationSectionFromPath(url.pathname);
+  const currentParameters = Object.fromEntries(url.searchParams);
+  const source = context?.parameters ?? (previousSection === section ? currentParameters :
+    previousSection?.startsWith('accounting_') && section.startsWith('accounting_') ? { fy: currentParameters.fy } : {});
+  const parameters = destinationNavigationParameters(section, {
+    ...source,
+    ...(context?.project ? { project: context.project } : {}),
+    ...(context?.view ? { view: context.view } : {}),
+  }, currentParameters.page || page);
   url.pathname = getNavigationPath(section);
-  if (section !== "projects" || context?.project)
-    url.searchParams.delete("plans");
-  if (context?.project) url.searchParams.set("project", context.project);
-  if (context?.view) url.searchParams.set("view", context.view);
-  // A project invitation carries its workspace tab through account startup.
-  if (
-    !preserveBudgetView &&
-    (section !== "projects" || !url.searchParams.has("project"))
-  )
-    url.searchParams.delete("view");
-  if (section !== "projects") url.searchParams.delete("project");
+  for (const key of navigationDisplayKeys) if (key !== 'workspace') url.searchParams.delete(key);
+  if (context?.project) delete parameters.plans;
   if (page) url.searchParams.set(NAVIGATION_PAGE_QUERY, page);
   else url.searchParams.delete(NAVIGATION_PAGE_QUERY);
-  if(context?.parameters)for(const key of ['project','view','plans','date','q','workScope','recent'])if(!Object.prototype.hasOwnProperty.call(context.parameters,key))url.searchParams.delete(key);
-  for(const [key,value] of Object.entries(navigationParameters(context?.parameters)))url.searchParams.set(key,value);
+  for(const [key,value] of Object.entries(parameters))url.searchParams.set(key,value);
 
   const nextLocation = `${url.pathname}${url.search}${url.hash}`;
   if (

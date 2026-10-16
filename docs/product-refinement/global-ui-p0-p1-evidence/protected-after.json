@@ -1,0 +1,65 @@
+{
+  "approvedHead": "545245e353ad04ac47e24f95a71e06cf736ca0f8",
+  "files": [
+    {
+      "path": "src/app/features/app-shell/components/ContextRail.tsx",
+      "baselineSha256": "b809e7ce3605e8ad92fc3e4ebd75327219d57778179e03240460ffbcbb6d2271",
+      "currentSha256": "94416e1743de67e6b9787404848ea75bfa4ea30298ed8380bdd81554054e6eb5",
+      "unchanged": false
+    },
+    {
+      "path": "src/app/features/app-shell/components/WorkspaceNavigationPanel.tsx",
+      "baselineSha256": "005d5b78fa60d673a88f9f557ddab8eb9789a5f3be4a9a0f05cd66d70dc70c0e",
+      "currentSha256": "107bd2f76f2fcb8d9a3dc9b788c3793be208d69399c0cd4c395814dc45e80d4d",
+      "unchanged": false
+    },
+    {
+      "path": "src/app/features/app-shell/eflowNavigationIcons.tsx",
+      "baselineSha256": "c4883d6c0156eeace85a8a5c0d8286c97ac43e70acc45bd2c6988ad5ccd595f7",
+      "currentSha256": "c4883d6c0156eeace85a8a5c0d8286c97ac43e70acc45bd2c6988ad5ccd595f7",
+      "unchanged": true
+    },
+    {
+      "path": "src/app/features/app-shell/components/ContextRailHeader.tsx",
+      "baselineSha256": "f912abdac67759380e0e8851dce5c77449455cc7b727463168a944dc2ad5ce9d",
+      "currentSha256": "f912abdac67759380e0e8851dce5c77449455cc7b727463168a944dc2ad5ce9d",
+      "unchanged": true
+    },
+    {
+      "path": "src/app/features/workspaces/components/WorkspaceSelector.tsx",
+      "baselineSha256": "83f115f05eee780c05635a1982ff1b09a8dac230c9e67dbbe80d3a2185091acc",
+      "currentSha256": "83f115f05eee780c05635a1982ff1b09a8dac230c9e67dbbe80d3a2185091acc",
+      "unchanged": true
+    },
+    {
+      "path": "src/app/components/ui/workspace/WorkspacePopover.tsx",
+      "baselineSha256": "2d785fb26771757ee26351bde6cf33ea8f37d62979824b628e74a8286e53f5b1",
+      "currentSha256": "2d785fb26771757ee26351bde6cf33ea8f37d62979824b628e74a8286e53f5b1",
+      "unchanged": true
+    },
+    {
+      "path": "src/app/features/workspaces/workspaces.css",
+      "baselineSha256": "7e6dc5fbc62d10c8b0ce05a1b5a29d1901122962068e35a53b0daecd361e164c",
+      "currentSha256": "7e6dc5fbc62d10c8b0ce05a1b5a29d1901122962068e35a53b0daecd361e164c",
+      "unchanged": true
+    },
+    {
+      "path": "src/app/features/navigation/navigationPermissions.ts",
+      "baselineSha256": "edb27bcfde6bb81ad842a504afa48987c76fc12dd59a34330a7c1dea7078f7cd",
+      "currentSha256": "edb27bcfde6bb81ad842a504afa48987c76fc12dd59a34330a7c1dea7078f7cd",
+      "unchanged": true
+    },
+    {
+      "path": "src/app/features/personal-work/services/workFeedService.ts",
+      "baselineSha256": "116172feb3ba300ab505578f13e13e2f8082c8a891875d6fed59eb76e0ae72c1",
+      "currentSha256": "116172feb3ba300ab505578f13e13e2f8082c8a891875d6fed59eb76e0ae72c1",
+      "unchanged": true
+    },
+    {
+      "path": "supabase/migrations/20261010144145_nested_work_office_review_routing.sql",
+      "baselineSha256": "9993a5ed5ecca0acdf756eee2bb5b32b2619b678711229af792dfdf532dc38fc",
+      "currentSha256": "9993a5ed5ecca0acdf756eee2bb5b32b2619b678711229af792dfdf532dc38fc",
+      "unchanged": true
+    }
+  ]
+}

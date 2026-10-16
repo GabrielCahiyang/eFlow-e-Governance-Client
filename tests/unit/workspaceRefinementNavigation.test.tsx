@@ -29,7 +29,7 @@ describe('R2 persistent workspace navigation', () => {
     expect(office.getAttribute('aria-expanded')).toBe('true');
     for (const label of ['Home','Search','Planning','Drafts','Waiting for approval','Team Members']) expect(screen.queryByRole('button',{name:label,exact:true})).toBeNull();
     expect(screen.getByRole('button',{name:'LEDIPO Workspace'})).toBeTruthy();
-    expect(screen.getByRole('button',{name:'Search workspace'})).toBeTruthy();
+    expect(screen.getByRole('button',{name:'Find pages and projects'})).toBeTruthy();
   });
   it('collapses/restores without unmounting the global rail and persists the choice', async () => {
     const view = render(sidebar());

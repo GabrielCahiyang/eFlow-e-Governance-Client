@@ -76,6 +76,13 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
   const planDrafts = usePendingPlanDrafts(personal ? undefined : userId);
   const [isMobileNavigationOpen, setMobileNavigationOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const searchOpenRef = useRef(searchOpen);
+  searchOpenRef.current = searchOpen;
+  const searchReturnFocus = useRef<HTMLElement | null>(null);
+  const [helpOpen, setHelpOpen] = useState(false);
+  const helpOpenRef = useRef(helpOpen);
+  helpOpenRef.current = helpOpen;
+  const helpReturnFocus = useRef<HTMLElement | null>(null);
   const desktop = useMediaQuery("(min-width: 1024px)");
 
   // Keep the browser tab useful as users move between role-specific menus.
@@ -187,17 +194,21 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
     page: getInitialPage(item.id) || item.label,
   }));
   const openSearch = () => {
+    searchReturnFocus.current = isMobileNavigationOpen
+      ? document.querySelector<HTMLElement>('button[aria-label="Open navigation"]')
+      : document.activeElement instanceof HTMLElement ? document.activeElement : null;
     setMobileNavigationOpen(false);
     setSearchOpen(true);
   };
-  const openHelp = () => {
+  const changeHelpOpen = (open: boolean, trigger?: HTMLElement | null) => {
+    if (!open) { setHelpOpen(false); return; }
+    helpReturnFocus.current = isMobileNavigationOpen
+      ? document.querySelector<HTMLElement>('button[aria-label="Open navigation"]')
+      : trigger || (document.activeElement instanceof HTMLElement ? document.activeElement : null);
     setMobileNavigationOpen(false);
-    document
-      .querySelector<HTMLButtonElement>(
-        '[data-tour-id="system-walkthrough"] button',
-      )
-      ?.click();
+    setHelpOpen(true);
   };
+  const openHelp = () => changeHelpOpen(true);
   const closeNavigation = useCallback(() => setMobileNavigationOpen(false), []);
   const workspaceHost = useMemo(
     () => ({ closeNavigation }),
@@ -214,6 +225,7 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
     activePage,
     activeSection,
     navigationItems,
+    personalToolItems: roleNavigationItems,
     onPageSelect: handlePageSelect,
     workspaceName: currentWorkspace?.name || (workspaceState.error && workspaceState.requested !== officeId ? 'Workspace unavailable' : workspaceName),
     role,
@@ -259,6 +271,9 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
               onOpenMobileNavigation={() => setMobileNavigationOpen(true)}
               onPageSelect={handlePageSelect}
               role={role}
+              helpOpen={helpOpen}
+              onHelpOpenChange={changeHelpOpen}
+              helpReturnFocusTarget={helpReturnFocus.current}
             />
             <div className="eflow-app-shell__body">
               {desktop && (
@@ -304,6 +319,7 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
             <FeatureDialog
               title="Navigation"
               onClose={closeNavigation}
+              onCloseAutoFocus={event => { if (searchOpenRef.current || helpOpenRef.current) event.preventDefault(); }}
               contentClassName="eflow-mobile-navigation-dialog"
             >
               <div className="eflow-mobile-navigation">
@@ -320,6 +336,7 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
               projects={sidebarProps.projects}
               loading={sidebarProps.projectsLoading}
               onClose={() => setSearchOpen(false)}
+              returnFocusTarget={searchReturnFocus.current}
               onSelect={handlePageSelect}
             />
           )}

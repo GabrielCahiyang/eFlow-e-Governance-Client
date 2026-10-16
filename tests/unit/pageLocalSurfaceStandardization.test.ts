@@ -35,7 +35,7 @@ describe("page-local surface standardization", () => {
     expect(taskList).toContain("border-b border-border bg-muted/40 px-5 py-3");
     expect(taskEditor).toContain("rounded-[14px] border border-border bg-muted/50 p-3");
     expect(reviewInbox).toContain(card);
-    expect(reviewInbox).toContain("border-b border-border bg-muted/40 px-5 py-3");
+    expect(reviewInbox).toContain("border-b border-border bg-muted/40 px-4 py-3");
     expect(reviewInbox).toContain('isSel ? "bg-primary/5"');
   });
 });

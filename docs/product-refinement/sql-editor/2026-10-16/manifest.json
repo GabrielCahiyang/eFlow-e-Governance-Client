@@ -1,0 +1,1719 @@
+{
+  "schemaVersion": 1,
+  "preparedAt": "2026-10-15T23:16:36.179Z",
+  "target": "ixnfphgjyelhckjwjkdv",
+  "candidate": "591302e923d9e1286f7379979406d254391dc814a9063c5fb6ff22f341b11976",
+  "gitHead": "fbc88d76a933b33a2c50d13d2430f27ad6fd72dc",
+  "route": "Manual SQL Editor; no CLI push executed or authorized",
+  "readiness": "BLOCKED_ON_RECOVERY_RUNTIME_SECURITY_GATES",
+  "newVersion": "20261015230935",
+  "newName": "nested_work_verified_corrections",
+  "pendingMigrationCount": 1,
+  "nineSourceCorrections": [
+    {
+      "order": 1,
+      "file": "20261010103936_nested_work_capabilities_and_execution.sql",
+      "sha256": "6df279188ff3cb4306b19d0aba17cfbdc96daaa6f0bb4c9ae2eec6da0455dc9c",
+      "removedOuterTransaction": true,
+      "statements": 4
+    },
+    {
+      "order": 2,
+      "file": "20261010105440_nested_work_own_lead_execution.sql",
+      "sha256": "7f36fea512aa28ce00e322e21ef4d226095dff87d3d074172b802300eb2fe3c9",
+      "removedOuterTransaction": true,
+      "statements": 2
+    },
+    {
+      "order": 3,
+      "file": "20261010144145_nested_work_office_review_routing.sql",
+      "sha256": "9993a5ed5ecca0acdf756eee2bb5b32b2619b678711229af792dfdf532dc38fc",
+      "removedOuterTransaction": true,
+      "statements": 2
+    },
+    {
+      "order": 4,
+      "file": "20261010161650_nested_work_approval_consistency.sql",
+      "sha256": "58fceb9b3d629ecbd35533ebe9ca30c9e0ccd7e2d07909ad3ad06806b01c6a02",
+      "removedOuterTransaction": true,
+      "statements": 11
+    },
+    {
+      "order": 5,
+      "file": "20261010164510_nested_work_operation_safety.sql",
+      "sha256": "82d72c71808ca6111979016ffc067aa74378d8535a87c3bcc3425045d99d3fe0",
+      "removedOuterTransaction": true,
+      "statements": 17
+    },
+    {
+      "order": 6,
+      "file": "20261010172348_nested_work_r9_staffing_removal.sql",
+      "sha256": "efe8559aa96c36a6b057e05ee4487b7711ddc46a0cc4a7796c3c8e07080815ec",
+      "removedOuterTransaction": true,
+      "statements": 9
+    },
+    {
+      "order": 7,
+      "file": "20261010175812_nested_work_checked_confirmation.sql",
+      "sha256": "43b0c624ae81fda5b59398f00ce1a4b0f96f61ff934a8c8be261ccd3e4c31708",
+      "removedOuterTransaction": true,
+      "statements": 14
+    },
+    {
+      "order": 8,
+      "file": "20261011071015_nested_work_material_date_preview.sql",
+      "sha256": "6200c5ecff31e2032be121fe2f4ac7c6f76564c4e4b6d4b3a30d7a39c26f7f5d",
+      "removedOuterTransaction": true,
+      "statements": 4
+    },
+    {
+      "order": 9,
+      "file": "20261012231500_nested_work_activity_projection.sql",
+      "sha256": "c9bac7d726bf10b33fa35b0f3b8fb2e451635cb19971234dab91ca679b3a55eb",
+      "removedOuterTransaction": false,
+      "statements": 1
+    }
+  ],
+  "alreadyInstalledFinance": [
+    {
+      "version": "20261015125031",
+      "name": "financial_cash_compatibility",
+      "file": "20261015125031_financial_cash_compatibility.sql",
+      "sha256": "eb477cf4b9f7a2ebdd4f858f823672c928a32aa8c39ffa79ceccaab16394e42d",
+      "statementCount": 1
+    },
+    {
+      "version": "20261015142837",
+      "name": "financial_journal_and_refund_integrity",
+      "file": "20261015142837_financial_journal_and_refund_integrity.sql",
+      "sha256": "87a5d7c150ca186db9145d6433cec76f6366de44a2bef9d05344ac0406833781",
+      "statementCount": 1
+    }
+  ],
+  "installedHistory": [
+    {
+      "version": "20261003000004",
+      "name": "simplified_roles_and_office_authority",
+      "file": "20261003000004_simplified_roles_and_office_authority.sql",
+      "sha256": "ce668412fb34f3044863e9c00b98606b9ac37afe5372e66f381a6dc2c6873a60",
+      "statementCount": 84
+    },
+    {
+      "version": "20261004123126",
+      "name": "phase2_invitation_onboarding_pds",
+      "file": "20261004123126_phase2_invitation_onboarding_pds.sql",
+      "sha256": "e16abcc2a6840f6db46108b27c9d1d83b7af50b038be342c1006c90ee437ad2e",
+      "statementCount": 47
+    },
+    {
+      "version": "20261004132527",
+      "name": "phase2_invitation_dispatch_limits",
+      "file": "20261004132527_phase2_invitation_dispatch_limits.sql",
+      "sha256": "21e2893cd2cda5f013b6d67a0192b2a3224c67ba5d3cdada8dc9ede95c464db7",
+      "statementCount": 5
+    },
+    {
+      "version": "20261004133412",
+      "name": "phase2_existing_identity_acceptance",
+      "file": "20261004133412_phase2_existing_identity_acceptance.sql",
+      "sha256": "5eae446a6ba6fcedc9312de1fadf3fbb4b91ec7bbf82989d674552335b516cb0",
+      "statementCount": 5
+    },
+    {
+      "version": "20261004140128",
+      "name": "phase3_project_table_workspace",
+      "file": "20261004140128_phase3_project_table_workspace.sql",
+      "sha256": "2f8e7bbd431fc442800bc5e9a9007a47533813fd8e154a4e9268cd834c22bce0",
+      "statementCount": 43
+    },
+    {
+      "version": "20261004164937",
+      "name": "phase5_workspace_ai_import",
+      "file": "20261004164937_phase5_workspace_ai_import.sql",
+      "sha256": "aaef5b0910e9a7b7025c6eabd7061f8bb4841a58c041a853d65c0e950fef1247",
+      "statementCount": 1
+    },
+    {
+      "version": "20261004181549",
+      "name": "phase6_project_office_collaboration",
+      "file": "20261004181549_phase6_project_office_collaboration.sql",
+      "sha256": "48d0238c4937bce5cc2b080f063a0ac40db59291121c6c1a3f6ee91e1a3b221d",
+      "statementCount": 1
+    },
+    {
+      "version": "20261004182806",
+      "name": "phase6_shared_structure_guards",
+      "file": "20261004182806_phase6_shared_structure_guards.sql",
+      "sha256": "b251de68f5db46d7b4fa3e9e314cad3504bebd21112cae7f651b3815b894b09f",
+      "statementCount": 1
+    },
+    {
+      "version": "20261004194130",
+      "name": "phase7_readiness_governance",
+      "file": "20261004194130_phase7_readiness_governance.sql",
+      "sha256": "e32e9237fa1b3eb216c7b0930d5c5aedbfb9471d926978e0dafd2b970e7342ab",
+      "statementCount": 1
+    },
+    {
+      "version": "20261005170822",
+      "name": "phase65_project_local_office_identity",
+      "file": "20261005170822_phase65_project_local_office_identity.sql",
+      "sha256": "4bbc660c02dbd18ac32ce5c2ac374b1dd0529142c2faca76f7624992fabbbfaa",
+      "statementCount": 69
+    },
+    {
+      "version": "20261007120000",
+      "name": "r3_personal_workspaces",
+      "file": "20261007120000_r3_personal_workspaces.sql",
+      "sha256": "3fcef092bb86f6dc00bddeffc0b0ecb4f7904069e58fa05de06093408c756d9c",
+      "statementCount": 1
+    },
+    {
+      "version": "20261007152648",
+      "name": "office_budget_dynamic_sections",
+      "file": "20261007152648_office_budget_dynamic_sections.sql",
+      "sha256": "6a5a14649123506d2dedc6a797747e5f2d406d23f4cd4287d00136c68fe525ee",
+      "statementCount": 29
+    },
+    {
+      "version": "20261007153615",
+      "name": "office_budget_partition_funding",
+      "file": "20261007153615_office_budget_partition_funding.sql",
+      "sha256": "1fd39f9e30c7cdfa8dc59f6fe964132e6cf6714ff06f0d65e83542e4fcdf024c",
+      "statementCount": 26
+    },
+    {
+      "version": "20261007175525",
+      "name": "project_office_removal_and_history",
+      "file": "20261007175525_project_office_removal_and_history.sql",
+      "sha256": "49ce2de44f5f9b5a4b4bf5eb7d00cbbfd2edd43fc5ff52d4e807303a8d8ef574",
+      "statementCount": 26
+    },
+    {
+      "version": "20261007191654",
+      "name": "account_login_lockout",
+      "file": "20261007191654_account_login_lockout.sql",
+      "sha256": "1506d61ac4c85e4af9f2d7108b2e1b70fb4d03a3c9ee685b9cdfc53798a3166c",
+      "statementCount": 21
+    },
+    {
+      "version": "20261007195837",
+      "name": "login_gateway_discovery",
+      "file": "20261007195837_login_gateway_discovery.sql",
+      "sha256": "23777d875e1247c817bd51a5851acbb79379ddac2a7fe0fcd7427a82dad22ef8",
+      "statementCount": 3
+    },
+    {
+      "version": "20261007201249",
+      "name": "project_draft_publication",
+      "file": "20261007201249_project_draft_publication.sql",
+      "sha256": "505e049a4a9b074aaa8d530ae9ba7756be84fac4560506861acbba1b2e0b9e43",
+      "statementCount": 19
+    },
+    {
+      "version": "20261007203525",
+      "name": "project_publication_history_retention",
+      "file": "20261007203525_project_publication_history_retention.sql",
+      "sha256": "bf4d01f38f52959090fbbc8ea73301eda06fd32bc605f28a2efa9427441d7670",
+      "statementCount": 4
+    },
+    {
+      "version": "20261008004900",
+      "name": "withdraw_office_invitation",
+      "file": "20261008004900_withdraw_office_invitation.sql",
+      "sha256": "501e069bbce2dde3f70c89ea7567c59f099b41248b4ef2acb05f74b726a47cf4",
+      "statementCount": 1
+    },
+    {
+      "version": "20261008030659",
+      "name": "r6_project_file_library",
+      "file": "20261008030659_r6_project_file_library.sql",
+      "sha256": "792ad15a0b55af935978e5196c0b66ac5e3f76e113cb2555c34ccc4cd713569a",
+      "statementCount": 1
+    },
+    {
+      "version": "20261008035748",
+      "name": "r7_project_members_and_nested_work",
+      "file": "20261008035748_r7_project_members_and_nested_work.sql",
+      "sha256": "ca8087b49f7847b46ce911b8468dc66846b60b9152177fee9cda3463c0a637c4",
+      "statementCount": 1
+    },
+    {
+      "version": "20261008060756",
+      "name": "r8_approved_project_invitations",
+      "file": "20261008060756_r8_approved_project_invitations.sql",
+      "sha256": "88ff4b93959196473da8cb4ec7305dbd2e627441a335ccb10c323102e5aa3456",
+      "statementCount": 1
+    },
+    {
+      "version": "20261008081855",
+      "name": "r9_project_access_lifecycle",
+      "file": "20261008081855_r9_project_access_lifecycle.sql",
+      "sha256": "ccbeafb72c94811200ea54c2d6ef3a58834a7ee98534487ffb2b241cf1fe2082",
+      "statementCount": 1
+    },
+    {
+      "version": "20261008123723",
+      "name": "r11_project_activity_snapshots",
+      "file": "20261008123723_r11_project_activity_snapshots.sql",
+      "sha256": "f6b3bd8aa920b64a309b2808da3d637b3799094e49850bdd275ac06209c3d230",
+      "statementCount": 1
+    },
+    {
+      "version": "20261008134347",
+      "name": "r12_presentation_settings",
+      "file": "20261008134347_r12_presentation_settings.sql",
+      "sha256": "7ebbe91ea4fff43367a626dd372052461790b7fcca931acdc12f7e5a413d10eb",
+      "statementCount": 1
+    },
+    {
+      "version": "20261009120000",
+      "name": "refinement_project_creation_compatibility",
+      "file": "20261009120000_refinement_project_creation_compatibility.sql",
+      "sha256": "00f6a581b18b85a643883cfcfa1e1dbace37a976222a55075fbc62de886f9c52",
+      "statementCount": 1
+    },
+    {
+      "version": "20261009120100",
+      "name": "refinement_office_removal_guest_termination",
+      "file": "20261009120100_refinement_office_removal_guest_termination.sql",
+      "sha256": "06bc465aa0e8d594cd1ef19f1c3a45d8f0cc406219c373744c7c41a4792f773c",
+      "statementCount": 1
+    },
+    {
+      "version": "20261015125031",
+      "name": "financial_cash_compatibility",
+      "file": "20261015125031_financial_cash_compatibility.sql",
+      "sha256": "eb477cf4b9f7a2ebdd4f858f823672c928a32aa8c39ffa79ceccaab16394e42d",
+      "statementCount": 1
+    },
+    {
+      "version": "20261015142837",
+      "name": "financial_journal_and_refund_integrity",
+      "file": "20261015142837_financial_journal_and_refund_integrity.sql",
+      "sha256": "87a5d7c150ca186db9145d6433cec76f6366de44a2bef9d05344ac0406833781",
+      "statementCount": 1
+    }
+  ],
+  "baselinePins": {
+    "target": "ixnfphgjyelhckjwjkdv",
+    "readOnly": true,
+    "hostedWrites": false,
+    "currentRole": "postgres",
+    "database": "postgres",
+    "serverVersionNum": "170006",
+    "controlSystemReadable": true,
+    "clusterSystemIdentifier": "7642734024280108049",
+    "coreSha256Available": true,
+    "catalogFingerprints": {
+      "core": "802d57a27822aad7d58315093570d3cb4d904dfeaacc37203872dd4d1a5b8acb",
+      "recovery": "f7e99b18898ac3492f8911a57590531a80c0bf21758a14c42652225329a77ab5"
+    },
+    "canonicalization": "Exclude captured_at_utc; sort each top-level JSON array by canonical JSONB text, then hash canonical JSONB object text"
+  },
+  "metadataSha256": "84793fe595411e0bcedabd51e1e1addb8d4a9d50355d2389946c1d84c44b2e7a",
+  "recoveryMetadataSha256": "96741426b9f40c1622ac9b1eb2c50884f01ec6ed7d8ff25617350c120d2fa8a0",
+  "queries": {
+    "core": "a5d54a294d883b5b8183268387f185941c5ffc4073cf74e2d662e6d686f49bfd",
+    "recovery": "61c5dc95587d8a159413acb166cbd9cf132f5f489c50e83fae1ec2a73cba765e"
+  },
+  "payloadSha256": "0c5254e1f70bbc42f4cfc838b4081bb746a9a7cc12168208149a6cd426063e05",
+  "migrationBodySha256": "595cbbd2cb92335d004c323d18926a89c793e4baceb932e637e5ad5b0b1e67cf",
+  "ledgerStatementsSha256": "f81d71f9326d4c5b3a7db9feeb48d0ec7cefe1c6d129957b20af27bf5c6852c7",
+  "ledgerStatementCount": 67,
+  "postconditionObjects": [
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "eflow_budget",
+        "name": "cash_request_v2",
+        "identity_arguments": "p_task uuid, p_subtask uuid, p_lines jsonb, p_purpose text, p_needed_by date, p_key uuid, p_existing uuid"
+      },
+      "sha256": "c06072928ad18775425809eaf4969ba5805d2a9a8997cd8a74a7d6642032c47e"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "eflow_budget",
+        "name": "fund_work",
+        "identity_arguments": "p_task_id uuid, p_fiscal_year integer, p_lines jsonb, p_reason text, p_authorization_key uuid"
+      },
+      "sha256": "7f6c4537126c3acf2d9b6bbe4dc399cab3fca1e47513837ac20dfc56b360d63c"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "eflow_budget",
+        "name": "legacy_resubmit_cash",
+        "identity_arguments": "p_request_id uuid, p_allocation_line_id uuid, p_amount numeric, p_purpose text, p_needed_by date"
+      },
+      "sha256": "d1d178996b500bc02ecc1fa4e6e9b332f476c4b2ea47d279667728819a37e985"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "eflow_budget",
+        "name": "submit_items",
+        "identity_arguments": "p_request uuid, p_spent numeric, p_note text, p_receipts jsonb, p_key uuid, p_refund_number text, p_refund_date date"
+      },
+      "sha256": "bc642d45d0443a65728155f083591e4c3aa9193a2a154b81327e6798f3680427"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "eflow_evidence",
+        "name": "can_upload",
+        "identity_arguments": "p_name text"
+      },
+      "sha256": "c1dc43c1674e1bf086736fe0b9b0dfe4e218a351e8b7446ec31b1a3743b4b445"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "eflow_evidence",
+        "name": "guard_attempt",
+        "identity_arguments": ""
+      },
+      "sha256": "864abdf49624312adc001d67f3a3970ffa4e320c4ce19961e18ed3f9b8a61ddc"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "eflow_evidence",
+        "name": "guard_progress",
+        "identity_arguments": ""
+      },
+      "sha256": "666e14f31bbf7b2ed9b65b939a5ee0802da0a48b4e07dca7fbb5c33be38057af"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "eflow_evidence",
+        "name": "seal_file",
+        "identity_arguments": "p_name text, p_task uuid, p_subtask uuid, p_attempt text, p_kind text, p_reference uuid"
+      },
+      "sha256": "a986701dbe468587bb18fa2aab7e992ba28d4c1e9d0a34066424de261ae0e7a6"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "eflow_r7",
+        "name": "check_completion_commit",
+        "identity_arguments": ""
+      },
+      "sha256": "d83d2ea720661fe13b7b84ac36ce36648e0536441658779dc188a0804e04dd1d"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "eflow_r7",
+        "name": "checked_command",
+        "identity_arguments": "p_root uuid, p_revision integer, p_request uuid, p_command text, p_payload jsonb, p_impact_fingerprint text"
+      },
+      "sha256": "3689ad0548b2b45030a08d0f4e92997a862f40b04fbc6b53da604cd89588aec1"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "eflow_r7",
+        "name": "command",
+        "identity_arguments": "p_root uuid, p_revision integer, p_request uuid, p_command text, p_payload jsonb"
+      },
+      "sha256": "7691d8ac52a389ffcdcec7404d598e666e2a4f7eb71b6a9c251468038799b570"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "eflow_r7",
+        "name": "date_impact",
+        "identity_arguments": "p_root uuid, p_payload jsonb"
+      },
+      "sha256": "40cb803f48175f9425871f22333ebf3a4beac6cb277ae6cb04ffb8106ea90be8"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "eflow_r7",
+        "name": "guard_operation_write",
+        "identity_arguments": ""
+      },
+      "sha256": "b5069827bb979a7dd2f46c12645e7ea67dbdde5cae1726aae06afba0bafe4241"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "eflow_r7",
+        "name": "history_facts",
+        "identity_arguments": "p_root uuid, p_ids uuid[]"
+      },
+      "sha256": "573a6791387a2044ef60dd3d78bcbe0bf2b2a7ac2b532f194dc277dfe209fc82"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "eflow_r7",
+        "name": "history_roots",
+        "identity_arguments": "p_row jsonb"
+      },
+      "sha256": "f8fa27ef2f7a007ae407485b73f5128aea272e869ec250685f954313bc52d04d"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "eflow_r7",
+        "name": "impact_fingerprint",
+        "identity_arguments": "p_root uuid, p_command text, p_payload jsonb, p_impact jsonb"
+      },
+      "sha256": "f758c0a7f7834ff5e70b440148b9eda18afeafbfdecda0be10fbf2f8b2279e5e"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "eflow_r7",
+        "name": "lock_completion",
+        "identity_arguments": "p_root uuid"
+      },
+      "sha256": "d3691c14170abfc3cffb651494f9b82033abea9cea645be1e47815a695da693e"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "eflow_r7",
+        "name": "lock_completion_write",
+        "identity_arguments": ""
+      },
+      "sha256": "f032192e13d08172e4b4c56de6addbf29b10f4aa6c8fb6e8fcc3e6ac61bc69b3"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "eflow_r7",
+        "name": "lock_impact",
+        "identity_arguments": "p_root uuid"
+      },
+      "sha256": "9f4ba38308ee23591930c5a525c0696522487519e244323f7b3d7835b34abe1a"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "eflow_r7",
+        "name": "node_work",
+        "identity_arguments": "p_node uuid, p_user uuid"
+      },
+      "sha256": "359262e3f8a85d8b111becb4c70107f4a4531973734c78467f78d663eebd51f7"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "eflow_r7",
+        "name": "operation_capabilities",
+        "identity_arguments": "p_root uuid, p_node uuid"
+      },
+      "sha256": "896e04cb6aac59b6c3815a55dbda14a483f9564b0fbe30ab0c75acea7c507911"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "eflow_r7",
+        "name": "operation_impact",
+        "identity_arguments": "p_root uuid, p_command text, p_payload jsonb"
+      },
+      "sha256": "663aabd8ecdfaf61512c3553eff2f80ff1b75e8e0e722a5cfe3029de642ecd29"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "eflow_r7",
+        "name": "require_completed_descendants",
+        "identity_arguments": "p_root uuid, p_target uuid"
+      },
+      "sha256": "91355d17290d04f54512dc571c2d0431d6774b267d8270b8bfa5e36f94078864"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "eflow_r7",
+        "name": "require_operation",
+        "identity_arguments": "p_root uuid, p_command text, p_payload jsonb"
+      },
+      "sha256": "8fd71e304f8208c5363ca2e826c85eb04a6c3420efcf4bd1e788080c64d67ea9"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "eflow_r7",
+        "name": "reviewer",
+        "identity_arguments": "p_node uuid, p_submitter uuid"
+      },
+      "sha256": "90c02f5e0c6f5bc61966bd3925ecdcb408d89bc408c4a2aed07f6c4ab833a762"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "eflow_r7",
+        "name": "serialize_history",
+        "identity_arguments": ""
+      },
+      "sha256": "3b1b56584947ded40a803c36229795b9fa66448e23b73dcc7b645e81e1efd324"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "eflow_r7",
+        "name": "snapshot",
+        "identity_arguments": "p_root uuid"
+      },
+      "sha256": "27aeee18976cd8923aaf49660b04984ce4c3686991be8e10363d842f41597125"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "eflow_r7",
+        "name": "subtree_ids",
+        "identity_arguments": "p_root uuid, p_node uuid"
+      },
+      "sha256": "01f74d98e0172fbdddf5abf07bebb46de0b695f9e07e25faf79f436970381139"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "eflow_r7",
+        "name": "work_impact",
+        "identity_arguments": "p_root uuid, p_revision integer, p_command text, p_payload jsonb"
+      },
+      "sha256": "50a29b61d63e3fcc8c7e33761e2ef4ef95d1d3c64e76bfee2977074f75c6c10d"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "eflow_r7",
+        "name": "work_path",
+        "identity_arguments": "p_root uuid, p_node uuid"
+      },
+      "sha256": "b63afb27b9cd5dbcaa0feeb098d8dc834242f20a658254297ccc176508ff5e7e"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "eflow_r9",
+        "name": "clear_removed_staff",
+        "identity_arguments": "p_project uuid, p_user uuid, p_office uuid, p_request uuid, p_fingerprint text"
+      },
+      "sha256": "2c0c7436f038aa86164904fe7fd9167ee03cff728e3c587a24683c888ef8253a"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "eflow_r9",
+        "name": "guard_staffing_removal",
+        "identity_arguments": ""
+      },
+      "sha256": "f6e82dd29f2c4582ee60c1a77ce1b2a7331548e854ffc945ab71ddc2bab0a1db"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "eflow_r9",
+        "name": "lock_removal_work",
+        "identity_arguments": "p_project uuid, p_office uuid"
+      },
+      "sha256": "d8c9d533fe39ff441dcb68e6cf751c0025c00abab2cc58091fc03ae757aa6f9a"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "eflow_r9",
+        "name": "remove_person",
+        "identity_arguments": "p_project uuid, p_user uuid, p_office uuid, p_fingerprint text, p_request uuid"
+      },
+      "sha256": "be5f7964abef0f627e55637717d0c7df3bd415db486b110ce1de391b73cd8efa"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "eflow_r9",
+        "name": "staffing_removal_allowed",
+        "identity_arguments": "p_table text, p_old jsonb, p_new jsonb"
+      },
+      "sha256": "3c5124f285474c4eabe082ff021cb34dcfeed9041680ee2cf2904899687be5bc"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "public",
+        "name": "acknowledge_petty_cash_release",
+        "identity_arguments": "p_release_id uuid"
+      },
+      "sha256": "64dd4b823fa2a8a65e2e16ebdcb24c0f6b229f4cafe9bd723f40aacbb8a4c715"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "public",
+        "name": "add_cash_request_attachment",
+        "identity_arguments": "p_request_id uuid, p_file_name text, p_file_path text, p_mime_type text, p_file_size bigint"
+      },
+      "sha256": "76d76b117eea3f6ef687865406821fa26faa0cdd7c279a7f2bace309881c9415"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "public",
+        "name": "cancel_contextual_cash_request",
+        "identity_arguments": "p_request_id uuid, p_reason text"
+      },
+      "sha256": "d1708c4fc5119e22049d7a7fe822dbe4bc26b20911d1b7ea4936d1e988415e77"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "public",
+        "name": "claim_task_evidence_cleanup",
+        "identity_arguments": "p_object_name text, p_bucket_id text"
+      },
+      "sha256": "05c652ecd1f47af4db652dd35f0679bf036502281321815756641de9c2468cac"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "public",
+        "name": "create_contextual_cash_request",
+        "identity_arguments": "p_task_id uuid, p_subtask_id uuid, p_allocation_line_id uuid, p_amount numeric, p_purpose text, p_needed_by date, p_idempotency_key uuid"
+      },
+      "sha256": "8a9ed600e9d5f51e913bf0c4f14b2916198c6316ac850f5d7416415b05270b5d"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "public",
+        "name": "create_petty_cash_request",
+        "identity_arguments": "p_allocation_id uuid, p_amount numeric, p_purpose text, p_needed_by date"
+      },
+      "sha256": "aef1dff89b6b3df3647ebd1939b2bd0439f4328dddf48b8e13c9a48ce7d93b0c"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "public",
+        "name": "create_petty_cash_request",
+        "identity_arguments": "p_allocation_id uuid, p_amount numeric, p_purpose text, p_needed_by date, p_subtask_id uuid"
+      },
+      "sha256": "8b3e6b3e9d106af500296fb744e2f69458b90e04db5a82d755535fd9d8d80150"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "public",
+        "name": "create_subtask_budget_allocation",
+        "identity_arguments": "p_task_id uuid, p_subtask_id uuid, p_parent_allocation_line_id uuid, p_amount numeric, p_reason text"
+      },
+      "sha256": "28d4ade4e408f41a38a79d9fc313d935bb3ed7eb0aca40997a849856cbea5f31"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "public",
+        "name": "create_work_budget_allocation",
+        "identity_arguments": "p_task_id uuid, p_subtask_id uuid, p_amount numeric, p_reason text"
+      },
+      "sha256": "83f935f4c867ae917440a4e5eea40147f8eeeac3adec91bd2e2d29d71bc26822"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "public",
+        "name": "decide_petty_cash_leader_review",
+        "identity_arguments": "p_request_id uuid, p_approve boolean, p_reason text"
+      },
+      "sha256": "7d3b8c2ecdedf14d57dc5882df59d97544819d13c1ac110fca8c33eb8e25f0dc"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "public",
+        "name": "decide_petty_cash_liquidation",
+        "identity_arguments": "p_liquidation_id uuid, p_approve boolean, p_reason text"
+      },
+      "sha256": "142bcff30939475ab58419434a3a738a9f25bd7efca3f1648a8d9fd49140807b"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "public",
+        "name": "decide_petty_cash_liquidation_leader_review",
+        "identity_arguments": "p_liquidation_id uuid, p_approve boolean, p_reason text"
+      },
+      "sha256": "bfb8bfbbab0530a194ab1b9bd8b32ba1f37f675ab370777ce09448e6c80c6b46"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "public",
+        "name": "decide_petty_cash_request",
+        "identity_arguments": "p_request_id uuid, p_approve boolean, p_reason text"
+      },
+      "sha256": "55da5eaed4477d5d04b9ceae52b3d9fc65bf24234f5ac17586a98ddfc7d1ea4c"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "public",
+        "name": "decide_subtask_review",
+        "identity_arguments": "p_subtask_id uuid, p_approve boolean, p_feedback text"
+      },
+      "sha256": "a9cbc7be9712483cd1c40aeb8ee640462b9cbde5481dd90258552cd38d9a70f5"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "public",
+        "name": "decide_task_review",
+        "identity_arguments": "p_task_id uuid, p_approve boolean, p_feedback text, p_audit_hash text"
+      },
+      "sha256": "86dbd37194c1af308896dbce0d55bf4c7066469cf638e202a05718cc423bf46a"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "public",
+        "name": "decide_work_budget_allocation",
+        "identity_arguments": "p_allocation_id uuid, p_approve boolean, p_reason text"
+      },
+      "sha256": "94ea1d3fad42be37e2e26aa7cd79f092fb4e2ff773d7f46b98f7bc8a4a4e094a"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "public",
+        "name": "delete_subtask_budget_allocation",
+        "identity_arguments": "p_allocation_id uuid"
+      },
+      "sha256": "7f220e2a2cd65f7a075436fab36c51de22d0947908eb9cb35c68831d39214ecc"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "public",
+        "name": "guard_subtask_contributor_update",
+        "identity_arguments": ""
+      },
+      "sha256": "d167daca1aefb10447cb1d57413184678a96168120c9e66929f0667e4a1607a1"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "public",
+        "name": "guard_subtask_mutation",
+        "identity_arguments": ""
+      },
+      "sha256": "4d9ae0958e9306b83e23315855cd6c9c1e84c6054c5129cfe876c26c706bac85"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "public",
+        "name": "nw_work_command",
+        "identity_arguments": "p_root uuid, p_revision integer, p_request uuid, p_command text, p_payload jsonb, p_impact_fingerprint text"
+      },
+      "sha256": "d06741da514a5f13cdf5e94d9adf0e5d3f9f8b8850caf224e63d59d97134cd1a"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "public",
+        "name": "nw_work_impact",
+        "identity_arguments": "p_root uuid, p_revision integer, p_command text, p_payload jsonb"
+      },
+      "sha256": "ee072f4c7a602ca982f20563398386ddbac7763c6166539075a0ecf115f42cc9"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "public",
+        "name": "override_accounting_petty_cash_release_schedule",
+        "identity_arguments": "p_release_id uuid, p_reason text, p_release_method text, p_cheque_number text"
+      },
+      "sha256": "7a98daddd516ce569ee5634bccdcc47e2c3c71d17e27d119e42769ac3d9cf2a5"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "public",
+        "name": "record_accounting_petty_cash_release",
+        "identity_arguments": "p_release_id uuid, p_release_method text, p_cheque_number text"
+      },
+      "sha256": "14a76be661f6b9b6c9e5b63cf9c33cc241878b10dd67ad38d5d9267fbda0de45"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "public",
+        "name": "record_petty_cash_release_internal",
+        "identity_arguments": "p_release_id uuid, p_override_reason text"
+      },
+      "sha256": "a9240767f78d7309304c9e620ed7c9ed280aba3cb8e320b06e930454ed84c71f"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "public",
+        "name": "remove_subtask_budget_cap",
+        "identity_arguments": "p_cap_allocation_id uuid, p_reason text, p_idempotency_key uuid"
+      },
+      "sha256": "cf107bf0e05dd158750c7e7f398d6ba731af7a1d88e83789d4addebccd583836"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "public",
+        "name": "resubmit_contextual_cash_request",
+        "identity_arguments": "p_request_id uuid, p_allocation_line_id uuid, p_amount numeric, p_purpose text, p_needed_by date"
+      },
+      "sha256": "bac8081bd850d06fce018bb20a8e912d0b0127a557cca3df47a8e6313fe31848"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "public",
+        "name": "route_organization_leadership_review",
+        "identity_arguments": ""
+      },
+      "sha256": "f498756bf47b486817c3033d27b4bd49a9902d8113ff19d9b1fec3ca5dbc1c29"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "public",
+        "name": "save_subtask_progress",
+        "identity_arguments": "p_subtask_id uuid, p_percent_complete integer, p_blocker_category text, p_blocker text, p_next_step text, p_note text, p_attachment_path text, p_attachment_name text"
+      },
+      "sha256": "31f2c93f9a25a4b91d962dca4d2f6b901910fc9988042c4bd90081f19d29eb20"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "public",
+        "name": "schedule_petty_cash_releases",
+        "identity_arguments": "p_request_id uuid, p_actor uuid"
+      },
+      "sha256": "5ebe87784ac26975576ba4195ddb0e51ebfe8f9eb13ee173effe9c06e4ecb707"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "public",
+        "name": "set_subtask_budget_cap",
+        "identity_arguments": "p_task_id uuid, p_subtask_id uuid, p_parent_allocation_line_id uuid, p_amount numeric, p_reason text, p_idempotency_key uuid"
+      },
+      "sha256": "59f3f0b77b2a9e8072118b5bb6ad4c3f647a6dbfdf9eea5dd238c4f090f852ab"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "public",
+        "name": "settle_accounting_liquidation",
+        "identity_arguments": "p_liquidation_id uuid, p_approve boolean, p_reason text"
+      },
+      "sha256": "bf1debc2953fedc673f12b3ac40aa06afd16281a2ac3e06122372bb6ba381e2b"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "public",
+        "name": "submit_accounting_cash_liquidation",
+        "identity_arguments": "p_request_id uuid, p_declared_spent numeric, p_note text, p_receipts jsonb, p_idempotency_key uuid, p_refund_receipt_number text, p_refund_date date"
+      },
+      "sha256": "0a1b200f0fa05e4d17da8d0a4284b0d8d03cdb6b49bf70d1c6a65b9b0996b7fb"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "public",
+        "name": "submit_contextual_cash_liquidation",
+        "identity_arguments": "p_request_id uuid, p_declared_spent numeric, p_note text, p_receipts jsonb, p_idempotency_key uuid"
+      },
+      "sha256": "130492008eef7b3fe053602c00f75214e8ed9aa605f06189025dc2f1d7f28d71"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "public",
+        "name": "submit_petty_cash_liquidation",
+        "identity_arguments": "p_request_id uuid, p_declared_spent numeric, p_note text, p_receipts jsonb"
+      },
+      "sha256": "02a8b938ec536cb01f7789351153d09bcfa38d92a542160d42bdab5657756e34"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "public",
+        "name": "submit_subtask_for_review",
+        "identity_arguments": "p_subtask_id uuid, p_submission jsonb"
+      },
+      "sha256": "3f134cee2fff7d5ce35e12059db4094caed975a30cee2b075d8f7dd997a10b8d"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "public",
+        "name": "submit_task_for_review",
+        "identity_arguments": "p_task_id uuid, p_submission jsonb"
+      },
+      "sha256": "ae9a28f3af654cfd74150bd29eb8bbe9b31caafea43aebcea1cc1b0d4b1a899e"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "public",
+        "name": "sync_task_chat_channel",
+        "identity_arguments": ""
+      },
+      "sha256": "f7c0b9c228199f7febfb6c65e0e71bdef4910f8b65e4abe83649112574015600"
+    },
+    {
+      "section": "functions",
+      "identity": {
+        "schema": "public",
+        "name": "validate_task_reviewers",
+        "identity_arguments": ""
+      },
+      "sha256": "124473d914d01656a83a49f59fa9485919eef3e989033fbe64edcfa3de8e4f29"
+    },
+    {
+      "section": "tables",
+      "identity": {
+        "schema": "eflow_r7",
+        "name": "completion_locks"
+      },
+      "sha256": "8aef89a63702bb98090dd69a4ac2dd86043d1e819452e442d294a5acf2ba54f4"
+    },
+    {
+      "section": "tables",
+      "identity": {
+        "schema": "eflow_r9",
+        "name": "staffing_removals"
+      },
+      "sha256": "762c637c407d47ce4a0c583748b7c069569ac5b4c56e3a47b8a55bea701b4da9"
+    },
+    {
+      "section": "columns",
+      "identity": {
+        "schema": "eflow_r11",
+        "table": "events",
+        "column": "work_event"
+      },
+      "sha256": "94ae44f7c83dc83b49bceee88fb72416a25bd92995edd29c71ab9eeea87b34d5"
+    },
+    {
+      "section": "columns",
+      "identity": {
+        "schema": "eflow_r7",
+        "table": "completion_locks",
+        "column": "root_id"
+      },
+      "sha256": "2c94528624e87eb45acf8ff79a0132cde7f86be04540f05123c8e23292aaa82d"
+    },
+    {
+      "section": "columns",
+      "identity": {
+        "schema": "eflow_r7",
+        "table": "completion_locks",
+        "column": "version"
+      },
+      "sha256": "0711cea53d924525db0246de80590168e6f101575e9b36c9a8c9af365e275d07"
+    },
+    {
+      "section": "columns",
+      "identity": {
+        "schema": "eflow_r7",
+        "table": "completion_locks",
+        "column": "approval_xid"
+      },
+      "sha256": "76a8d99909c338770168c2b5c7e2f6487d88783b55d852de3cacfcd1b9ac6c0f"
+    },
+    {
+      "section": "columns",
+      "identity": {
+        "schema": "eflow_r7",
+        "table": "completion_locks",
+        "column": "approved_ids"
+      },
+      "sha256": "cd3978fdbe8ea5e9f33b5e41e0aa82ec7c8a70c76b1e5ded311618ba37027058"
+    },
+    {
+      "section": "columns",
+      "identity": {
+        "schema": "eflow_r9",
+        "table": "staffing_removals",
+        "column": "tx"
+      },
+      "sha256": "862105036ae110f44da92c19f7fd0fbc28e8c319051b82cf23d15749ec55733d"
+    },
+    {
+      "section": "columns",
+      "identity": {
+        "schema": "eflow_r9",
+        "table": "staffing_removals",
+        "column": "actor"
+      },
+      "sha256": "d3e3ed12a1d73afe80e76897722f7b4f3ad5b1e34576d9ce1eb5b103f2ce13a6"
+    },
+    {
+      "section": "columns",
+      "identity": {
+        "schema": "eflow_r9",
+        "table": "staffing_removals",
+        "column": "project_id"
+      },
+      "sha256": "cf41594e0b5b3d7cab80cbe9098c3d3024cf17413f5211d7c0747239f98ca20f"
+    },
+    {
+      "section": "columns",
+      "identity": {
+        "schema": "eflow_r9",
+        "table": "staffing_removals",
+        "column": "office_id"
+      },
+      "sha256": "83d72235e318e36abddc9642eb6d2fa1bab4f9a863407d336721baf9993dbff9"
+    },
+    {
+      "section": "columns",
+      "identity": {
+        "schema": "eflow_r9",
+        "table": "staffing_removals",
+        "column": "removed_user"
+      },
+      "sha256": "330ddf37f6d69c2eb0dac19a8be9723c53dda68bdc5118380e9423c54b8e95f9"
+    },
+    {
+      "section": "columns",
+      "identity": {
+        "schema": "eflow_r9",
+        "table": "staffing_removals",
+        "column": "request_id"
+      },
+      "sha256": "2f2b99267f30bd6324fb046a28bc6414f652b95f21cbc9d7cc79ff515255a5e2"
+    },
+    {
+      "section": "columns",
+      "identity": {
+        "schema": "eflow_r9",
+        "table": "staffing_removals",
+        "column": "fingerprint"
+      },
+      "sha256": "6999d484529b60ec6c1853c48ff1543f143b621da4234a464297fb2ec34fe59e"
+    },
+    {
+      "section": "columns",
+      "identity": {
+        "schema": "eflow_r9",
+        "table": "staffing_removals",
+        "column": "relation_name"
+      },
+      "sha256": "46320660e21100eee04b9cdbbb51f91c5ae746e9fccaf8cfbb674c6e1e06e760"
+    },
+    {
+      "section": "columns",
+      "identity": {
+        "schema": "eflow_r9",
+        "table": "staffing_removals",
+        "column": "row_id"
+      },
+      "sha256": "1b22abc56804d01ee7ad656be2c965119c55066d58a4f99d8a9e3b5a4d33cb4a"
+    },
+    {
+      "section": "columns",
+      "identity": {
+        "schema": "eflow_r9",
+        "table": "staffing_removals",
+        "column": "before_row"
+      },
+      "sha256": "c5670ec2c4b4c71c0583dd4a47b739a58b0096dbb08aea9754603f5abd7adec4"
+    },
+    {
+      "section": "columns",
+      "identity": {
+        "schema": "eflow_r9",
+        "table": "staffing_removals",
+        "column": "after_row"
+      },
+      "sha256": "bcec53e42a46bd3180a19fde8eadac0bc8a8ee6017836103c40ac9b79f0ba62b"
+    },
+    {
+      "section": "constraints",
+      "identity": {
+        "schema": "eflow_r7",
+        "table": "completion_locks",
+        "name": "completion_locks_approval_xid_not_null"
+      },
+      "sha256": "21fa450d01e1914b9b3ae0d250a4b3791cfcba99ec1c8fa3528b08eaeccb16b2"
+    },
+    {
+      "section": "constraints",
+      "identity": {
+        "schema": "eflow_r7",
+        "table": "completion_locks",
+        "name": "completion_locks_approved_ids_not_null"
+      },
+      "sha256": "28d35627f89d956e52a8fbf9abca8da17be4437d5b3bc203456f7b4224d250bc"
+    },
+    {
+      "section": "constraints",
+      "identity": {
+        "schema": "eflow_r7",
+        "table": "completion_locks",
+        "name": "completion_locks_pkey"
+      },
+      "sha256": "3da00e3fbf8cf087ece53a03ef10fdc11a5460df143de29867ab2351ff2c3081"
+    },
+    {
+      "section": "constraints",
+      "identity": {
+        "schema": "eflow_r7",
+        "table": "completion_locks",
+        "name": "completion_locks_root_id_not_null"
+      },
+      "sha256": "added4f38c84a6a19b6a820cdb727213bd59acde34f2421734731b3f2aded6b0"
+    },
+    {
+      "section": "constraints",
+      "identity": {
+        "schema": "eflow_r7",
+        "table": "completion_locks",
+        "name": "completion_locks_version_not_null"
+      },
+      "sha256": "c6bec85e29a379549940e65b64f1f707491c9914b5522b99df71c8bc647327f4"
+    },
+    {
+      "section": "constraints",
+      "identity": {
+        "schema": "eflow_r9",
+        "table": "staffing_removals",
+        "name": "staffing_removals_actor_not_null"
+      },
+      "sha256": "44e1f4a411ecf35f91efdaaf04e6b28f0534c8287369c320a7514fb3e3e4df5e"
+    },
+    {
+      "section": "constraints",
+      "identity": {
+        "schema": "eflow_r9",
+        "table": "staffing_removals",
+        "name": "staffing_removals_after_row_not_null"
+      },
+      "sha256": "b6d718451ea8ad97982dae47e4cc833e292a2b6903f9632fd9d50bee598c0e6c"
+    },
+    {
+      "section": "constraints",
+      "identity": {
+        "schema": "eflow_r9",
+        "table": "staffing_removals",
+        "name": "staffing_removals_before_row_not_null"
+      },
+      "sha256": "595869e55e9c44811429874f72183947f3ec722d17bc368543a0899a32495afa"
+    },
+    {
+      "section": "constraints",
+      "identity": {
+        "schema": "eflow_r9",
+        "table": "staffing_removals",
+        "name": "staffing_removals_fingerprint_not_null"
+      },
+      "sha256": "e5faaf87974bdb073109e0fdbe9fea918289d52a3bc470d4d02cb95cc7e6f10c"
+    },
+    {
+      "section": "constraints",
+      "identity": {
+        "schema": "eflow_r9",
+        "table": "staffing_removals",
+        "name": "staffing_removals_pkey"
+      },
+      "sha256": "405a0c38deb9ce08faa8dcab9fa03a72aa62894fd5b61dd7c68cd55d90106598"
+    },
+    {
+      "section": "constraints",
+      "identity": {
+        "schema": "eflow_r9",
+        "table": "staffing_removals",
+        "name": "staffing_removals_project_id_not_null"
+      },
+      "sha256": "b2fb0acfdb33ec5f469fe96578f1df2370159e394a69b2bfc22bd3ccae900ad0"
+    },
+    {
+      "section": "constraints",
+      "identity": {
+        "schema": "eflow_r9",
+        "table": "staffing_removals",
+        "name": "staffing_removals_relation_name_not_null"
+      },
+      "sha256": "7eb0104b7751bccc51d7816b29ed6610abce99328bb8e19bbb516f354b575ad7"
+    },
+    {
+      "section": "constraints",
+      "identity": {
+        "schema": "eflow_r9",
+        "table": "staffing_removals",
+        "name": "staffing_removals_removed_user_not_null"
+      },
+      "sha256": "b7427ac98e83f90b36506fe85ad769c541b0ec30f214b63180c51f402f9b8940"
+    },
+    {
+      "section": "constraints",
+      "identity": {
+        "schema": "eflow_r9",
+        "table": "staffing_removals",
+        "name": "staffing_removals_request_id_not_null"
+      },
+      "sha256": "901b03a299f7753ef7eb35d6876867b321df4af90a0191d501b65ee6b667f116"
+    },
+    {
+      "section": "constraints",
+      "identity": {
+        "schema": "eflow_r9",
+        "table": "staffing_removals",
+        "name": "staffing_removals_row_id_not_null"
+      },
+      "sha256": "4facd32005237e91baf85315760a05d618ce10d6e9964094b123a5d9aa3c9e52"
+    },
+    {
+      "section": "constraints",
+      "identity": {
+        "schema": "eflow_r9",
+        "table": "staffing_removals",
+        "name": "staffing_removals_tx_not_null"
+      },
+      "sha256": "731e6a79a8b4d386e503225209fec7b669d3c3dd889b5368542f4b545776811f"
+    },
+    {
+      "section": "constraints",
+      "identity": {
+        "schema": "public",
+        "table": "personal_subtasks",
+        "name": "nw42_completion_commit"
+      },
+      "sha256": "15974313491a3a50c028cd16f7cd880f67ee3469ffc1256487e8e4449b364cc5"
+    },
+    {
+      "section": "constraints",
+      "identity": {
+        "schema": "public",
+        "table": "personal_tasks",
+        "name": "nw42_completion_commit"
+      },
+      "sha256": "4633b593e61bab37fedf586f5c30fae72bc473518aebdbd9e3b77ebf5cc4f89e"
+    },
+    {
+      "section": "constraints",
+      "identity": {
+        "schema": "public",
+        "table": "subtask_submissions",
+        "name": "nw42_completion_commit"
+      },
+      "sha256": "de606ec71a1a5e544e79d67c3b246d67e201edede9f54579c8641652273bc763"
+    },
+    {
+      "section": "constraints",
+      "identity": {
+        "schema": "public",
+        "table": "subtasks",
+        "name": "nw42_completion_commit"
+      },
+      "sha256": "b2ef5fac1ebed9527139502e616edbd6e4755226d7fac3d37336347948c072f0"
+    },
+    {
+      "section": "constraints",
+      "identity": {
+        "schema": "public",
+        "table": "tasks",
+        "name": "nw42_completion_commit"
+      },
+      "sha256": "8d486cddbedb4bd13099a91d733bfffa4e80b5699c6eea3606c7097efa12c81e"
+    },
+    {
+      "section": "triggers",
+      "identity": {
+        "schema": "eflow_evidence",
+        "table": "attempts",
+        "name": "a_nw52_history_serialization"
+      },
+      "sha256": "e87cc82672ef98a28fc49b49fb70b8e787fcbde4f00c574252e7bc88b589b891"
+    },
+    {
+      "section": "triggers",
+      "identity": {
+        "schema": "eflow_evidence",
+        "table": "objects",
+        "name": "a_nw52_history_serialization"
+      },
+      "sha256": "61d4492355ab2d544bb1d76681f0a9ebba65d4b0feb6dc450096643958e4cecd"
+    },
+    {
+      "section": "triggers",
+      "identity": {
+        "schema": "public",
+        "table": "budget_ledger_entries",
+        "name": "a_nw52_history_serialization"
+      },
+      "sha256": "89479d8e76a723c84dce769872e578775ed2bc63b058eea9adc28853e23094af"
+    },
+    {
+      "section": "triggers",
+      "identity": {
+        "schema": "public",
+        "table": "personal_subtasks",
+        "name": "a0_nw51_staffing_boundary"
+      },
+      "sha256": "7404268fca1695133425e195d5ea66cf37180579065d2992218a34d663ab156e"
+    },
+    {
+      "section": "triggers",
+      "identity": {
+        "schema": "public",
+        "table": "personal_subtasks",
+        "name": "nw42_completion_commit"
+      },
+      "sha256": "37a8d977bff417ec3fe264dc27842645ad34881f399ad98b133dafa9a44ec156"
+    },
+    {
+      "section": "triggers",
+      "identity": {
+        "schema": "public",
+        "table": "personal_subtasks",
+        "name": "nw42_completion_lock"
+      },
+      "sha256": "bc4371c3cc42e0469b1bc1f38100bd4e86d2387c6f132e735da826a25c303612"
+    },
+    {
+      "section": "triggers",
+      "identity": {
+        "schema": "public",
+        "table": "personal_subtasks",
+        "name": "nw51_operation_safety"
+      },
+      "sha256": "519d237e9edb5521312bfc3909bec3230c99dc0e861b4fce56cbf3b4172f1cb7"
+    },
+    {
+      "section": "triggers",
+      "identity": {
+        "schema": "public",
+        "table": "personal_tasks",
+        "name": "a0_nw51_staffing_boundary"
+      },
+      "sha256": "64fa2400e9595938c6980b57bd8aed0d0d3eac3fc96f3dccd446230c56734053"
+    },
+    {
+      "section": "triggers",
+      "identity": {
+        "schema": "public",
+        "table": "personal_tasks",
+        "name": "nw42_completion_commit"
+      },
+      "sha256": "c8ab530c380b2fd6e3e1c67041325a7d87e1889bfa822c216d6b37142514f221"
+    },
+    {
+      "section": "triggers",
+      "identity": {
+        "schema": "public",
+        "table": "personal_tasks",
+        "name": "nw42_completion_lock"
+      },
+      "sha256": "5689656de9bbe6f7afcfb2f084f4118445078010f7be816ca065e47f43f3fbee"
+    },
+    {
+      "section": "triggers",
+      "identity": {
+        "schema": "public",
+        "table": "personal_tasks",
+        "name": "nw51_operation_safety"
+      },
+      "sha256": "8da6bcf0f7670e768c9ec81b347a8c52c987f0fa2f842ee9a310216ab3dd92f4"
+    },
+    {
+      "section": "triggers",
+      "identity": {
+        "schema": "public",
+        "table": "petty_cash_liquidations",
+        "name": "a_nw52_history_serialization"
+      },
+      "sha256": "2052b4a3e748b8bfe555b2b5d33abed93dbd76eed834f58a22385d6bbbd9e78c"
+    },
+    {
+      "section": "triggers",
+      "identity": {
+        "schema": "public",
+        "table": "petty_cash_receipt_items",
+        "name": "a_nw52_history_serialization"
+      },
+      "sha256": "d770a7337cb94f22f75532b9f0281384b2fc9c6c74dab6ee7517c96162ee8a3b"
+    },
+    {
+      "section": "triggers",
+      "identity": {
+        "schema": "public",
+        "table": "petty_cash_receipts",
+        "name": "a_nw52_history_serialization"
+      },
+      "sha256": "ed794e238c110e0835d5bf37eac3bf4bea77ad9df4a822110b1db7eedf3bb988"
+    },
+    {
+      "section": "triggers",
+      "identity": {
+        "schema": "public",
+        "table": "petty_cash_releases",
+        "name": "a_nw52_history_serialization"
+      },
+      "sha256": "43dc874beec024301759cb035368128fd41e727c97c3f98a7a4ecc6f086d0cbe"
+    },
+    {
+      "section": "triggers",
+      "identity": {
+        "schema": "public",
+        "table": "petty_cash_request_attachments",
+        "name": "a_nw52_history_serialization"
+      },
+      "sha256": "741955286e35db156a6e85403471689d67ecf0275bf89fced1aba96a7023af56"
+    },
+    {
+      "section": "triggers",
+      "identity": {
+        "schema": "public",
+        "table": "petty_cash_request_lines",
+        "name": "a_nw52_history_serialization"
+      },
+      "sha256": "2eaf877eb2f9fecf4e2f06b956123c4ca6ee507c6b526f183d259e3ca87c9ae4"
+    },
+    {
+      "section": "triggers",
+      "identity": {
+        "schema": "public",
+        "table": "petty_cash_requests",
+        "name": "a_nw52_history_serialization"
+      },
+      "sha256": "9874f53e06867d2d288a3f8c0756fb1fe70eb91afdb30f9bc03f9bc970daada1"
+    },
+    {
+      "section": "triggers",
+      "identity": {
+        "schema": "public",
+        "table": "subtask_progress_updates",
+        "name": "a_nw52_history_serialization"
+      },
+      "sha256": "35a39aaaeefafaa6ae104b36ca2e07c6d247cd2f6bb8e00373161820255cc405"
+    },
+    {
+      "section": "triggers",
+      "identity": {
+        "schema": "public",
+        "table": "subtask_submission_attachments",
+        "name": "a_nw52_history_serialization"
+      },
+      "sha256": "04e22670db527cdb3b5dd4abc161f4ef480d19659c2bf62871707782d9cdcafe"
+    },
+    {
+      "section": "triggers",
+      "identity": {
+        "schema": "public",
+        "table": "subtask_submissions",
+        "name": "a_nw52_history_serialization"
+      },
+      "sha256": "300e9ce008969bd63b171321a99fbc7ea2ad75a3d621ce2af05400b0c512e4a6"
+    },
+    {
+      "section": "triggers",
+      "identity": {
+        "schema": "public",
+        "table": "subtask_submissions",
+        "name": "nw42_completion_commit"
+      },
+      "sha256": "045159099c5c13aea8c0282e23721274f45d76b8296f2ad88e3ddd4c573ffdfb"
+    },
+    {
+      "section": "triggers",
+      "identity": {
+        "schema": "public",
+        "table": "subtask_submissions",
+        "name": "nw42_completion_lock"
+      },
+      "sha256": "aa254cbf53f8c65ff2a24921b10a49d84b47c76b732c3e7ed24811f5d6e137f7"
+    },
+    {
+      "section": "triggers",
+      "identity": {
+        "schema": "public",
+        "table": "subtasks",
+        "name": "a0_nw51_staffing_boundary"
+      },
+      "sha256": "eae5927998c540bec0901da8aa4bb303e69c1f836d411fc2a712245969c5c4f6"
+    },
+    {
+      "section": "triggers",
+      "identity": {
+        "schema": "public",
+        "table": "subtasks",
+        "name": "nw42_completion_commit"
+      },
+      "sha256": "599cdbc92aafc20484f468871a9e3a010f2a110f660ffb20f39df80069f2c747"
+    },
+    {
+      "section": "triggers",
+      "identity": {
+        "schema": "public",
+        "table": "subtasks",
+        "name": "nw42_completion_lock"
+      },
+      "sha256": "4febe2325693bd5c115c0c4686dd39fcbc1690a82fe08c5b71b990ad372a554b"
+    },
+    {
+      "section": "triggers",
+      "identity": {
+        "schema": "public",
+        "table": "subtasks",
+        "name": "nw51_operation_safety"
+      },
+      "sha256": "6946bc39e2b7b49fceed3eb511680401b990ac3860a23de2d44f96aed1f8bb6c"
+    },
+    {
+      "section": "triggers",
+      "identity": {
+        "schema": "public",
+        "table": "task_attachments",
+        "name": "a_nw52_history_serialization"
+      },
+      "sha256": "bc6f4e81d1d7780bac6555740187fc3a55243cc1d20b0c8f7270b8187c4eb8f0"
+    },
+    {
+      "section": "triggers",
+      "identity": {
+        "schema": "public",
+        "table": "task_submissions",
+        "name": "a_nw52_history_serialization"
+      },
+      "sha256": "e689884a2ead2de688bb6a7c52a084467e93e758f1ddc2769de7a12f098337cf"
+    },
+    {
+      "section": "triggers",
+      "identity": {
+        "schema": "public",
+        "table": "tasks",
+        "name": "a0_nw51_staffing_boundary"
+      },
+      "sha256": "9fc013b03e2cf265a9137427347271b626ea7a8925e6d128d64255f5c197934e"
+    },
+    {
+      "section": "triggers",
+      "identity": {
+        "schema": "public",
+        "table": "tasks",
+        "name": "nw42_completion_commit"
+      },
+      "sha256": "f931564843f1e2084a50246c007b54bc6c73522ebcb20013668359b9b2cdbf21"
+    },
+    {
+      "section": "triggers",
+      "identity": {
+        "schema": "public",
+        "table": "tasks",
+        "name": "nw42_completion_lock"
+      },
+      "sha256": "793bbe6adbb97f1e7508832899074a26433f0bdce3b79bfe9ea1934d405ce98c"
+    },
+    {
+      "section": "triggers",
+      "identity": {
+        "schema": "public",
+        "table": "tasks",
+        "name": "nw51_operation_safety"
+      },
+      "sha256": "98274e64c38a53c15eacf0f692b5cc6cdf3a788fceeffc1efdfb0cbb2ba6e59e"
+    },
+    {
+      "section": "triggers",
+      "identity": {
+        "schema": "public",
+        "table": "work_budget_allocation_lines",
+        "name": "a_nw52_history_serialization"
+      },
+      "sha256": "28c688c8d78f0345bf94ecb64b8be04db1c8975c4c200285a34a8e38c09e0278"
+    },
+    {
+      "section": "triggers",
+      "identity": {
+        "schema": "public",
+        "table": "work_budget_allocations",
+        "name": "a_nw52_history_serialization"
+      },
+      "sha256": "2779c5fa113dad6c53d88ef1daeb2cb88f8b41a9c8137efb6a13279d8fbed239"
+    },
+    {
+      "section": "triggers",
+      "identity": {
+        "schema": "public",
+        "table": "work_tree_events",
+        "name": "a_nw52_history_serialization"
+      },
+      "sha256": "5cc882893bed17c2c94b6893805e8a17b055ed9d7b6e8325fc18e590ff640916"
+    }
+  ],
+  "activityViewSha256": "510d8b6c37304c0c06670ffb332f1dc1c1a68915d3d277c0d92a1274d4037b86",
+  "files": [
+    {
+      "file": "01-read-only-preflight.sql",
+      "bytes": 5678,
+      "sha256": "d5fe31bb3fb79b336bbc280ecf37800ddd275f3c818e455c8b82d8edc79920a8"
+    },
+    {
+      "file": "02-apply-20261015230935.sql",
+      "bytes": 458283,
+      "sha256": "bb6610a074aac0c2af9aa9f478792495257c87e4596fa2870f8326738ccb406a"
+    },
+    {
+      "file": "03-read-only-installation-check.sql",
+      "bytes": 94240,
+      "sha256": "13c921115ba5aeeddb52c280a9bff2c7fd22c1e355357a0161aea0310c1682d3"
+    }
+  ],
+  "localVerification": {
+    "tests": [
+      {
+        "name": "Frozen nine-source payload installs on actual-definition/ACL-overlay synthetic baseline",
+        "passed": true,
+        "objects": 148,
+        "actualFunctionsOverlaid": 490
+      },
+      {
+        "name": "Injected late failure rolls back every correction and leaves all 29 ledger rows unchanged",
+        "passed": true
+      },
+      {
+        "name": "Altered authority function configuration is rejected and the full transaction rolls back",
+        "passed": true
+      },
+      {
+        "name": "Atomic equivalent with explicitly local target/catalog pins matches every nine-file postcondition and preserves original 29 history rows",
+        "passed": true
+      },
+      {
+        "name": "Duplicate execution fails closed before applying sources",
+        "passed": true
+      },
+      {
+        "name": "Wrong cluster rejected without schema/history changes",
+        "passed": true
+      },
+      {
+        "name": "History drift rejected before pending corrections",
+        "passed": true
+      }
+    ],
+    "usesSyntheticData": true,
+    "actualFunctionsOverlaid": 490,
+    "productionTargetPreflightPending": true,
+    "nativeRestoreProof": false,
+    "hostedJwtOrRlsOrStorageProof": false
+  },
+  "rollback": "All nine bodies, guards, postconditions and new history insertion share one SQL Editor transaction. A committed package requires reviewed forward repair; do not reinstall broad legacy authority or delete history.",
+  "deployed": false,
+  "privateBackup": null,
+  "storageBackup": null,
+  "realRestoreReceipt": null,
+  "runningGatewayIdentity": null
+}

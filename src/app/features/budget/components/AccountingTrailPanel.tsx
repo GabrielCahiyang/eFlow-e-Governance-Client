@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { AttentionBox, Button, Label, Search as VibeSearch } from "@vibe/core";
+import { AttentionBox, Button, Search as VibeSearch } from "@vibe/core";
+import { Badge } from "../../../components/ui/badge";
 import * as m from "motion/react-m";
 import { ArrowRight, Clock3, FileSearch, ShieldCheck, X } from "lucide-react";
 import { FeatureDialog } from "../../../components/ui/FeatureDialog";
@@ -63,10 +64,7 @@ export function AccountingTrailPanel({
         <div className="mt-4 flex flex-wrap items-center gap-2">
           {FLOW.map((stage, index) => (
             <div key={stage} className="flex items-center gap-2">
-              <Label
-                color={stage === "Settlement" ? "positive" : "dark"}
-                text={stage}
-              />
+              <Badge variant="outline" className="eflow-financial-status" data-tone={stage === "Settlement" ? "positive" : "neutral"}>{stage}</Badge>
               {index < FLOW.length - 1 && (
                 <ArrowRight size={11} className="text-muted-foreground/60" />
               )}
@@ -118,7 +116,7 @@ export function AccountingTrailPanel({
                       {entry.entryType.split("_").join(" ")}
                     </span>
                     {entry.previousState && entry.newState && (
-                      <span className="text-[11px] text-muted-foreground">
+                      <span className="text-[12px] text-muted-foreground">
                         {entry.previousState} → {entry.newState}
                       </span>
                     )}
@@ -126,7 +124,7 @@ export function AccountingTrailPanel({
                   <p className="mt-1 truncate text-[12px] text-muted-foreground">
                     {entry.description}
                   </p>
-                  <p className="mt-1 text-[11px] text-muted-foreground">
+                  <p className="mt-1 text-[12px] text-muted-foreground">
                     {new Date(entry.createdAt).toLocaleString()} ·{" "}
                     {entry.actorRole
                       ? entry.actorRole.split("_").join(" ")
@@ -160,7 +158,7 @@ export function AccountingTrailPanel({
           <aside className="h-full w-full overflow-y-auto border-l border-border bg-card p-5">
               <header className="flex items-start justify-between gap-3">
                 <div>
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
+                  <div className="text-[12px] font-semibold uppercase tracking-[0.14em] text-primary">
                     Financial audit event
                   </div>
                   <h2 className="mt-1 text-[18px] font-semibold capitalize text-foreground">
@@ -207,15 +205,15 @@ export function AccountingTrailPanel({
                   value={selected.correlationKey || "Not supplied"}
                 />
                 <div>
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                  <div className="text-[12px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                     Metadata
                   </div>
-                  <pre className="mt-2 overflow-x-auto rounded-lg bg-[#152020] p-3 text-[11px] leading-relaxed text-neutral-100">
+                  <pre className="mt-2 overflow-x-auto rounded-lg bg-[#152020] p-3 text-[12px] leading-relaxed text-neutral-100">
                     {JSON.stringify(selected.metadata || {}, null, 2)}
                   </pre>
                 </div>
                 <div>
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                  <div className="text-[12px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                     Linked journal rows
                   </div>
                   {linkedJournal.length ? (
@@ -224,7 +222,7 @@ export function AccountingTrailPanel({
                         key={entry.id}
                         className="mt-2 rounded-lg border border-border bg-card p-3"
                       >
-                        <div className="font-mono text-[11px] text-muted-foreground">
+                        <div className="font-mono text-[12px] text-muted-foreground">
                           {entry.referenceNumber}
                         </div>
                         {entry.lines.map((line) => (
@@ -263,7 +261,7 @@ export function AccountingTrailPanel({
 function Detail({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-lg border border-border bg-card p-3">
-      <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+      <div className="text-[12px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
         {label}
       </div>
       <div className="mt-1 break-words text-[12px] text-foreground">

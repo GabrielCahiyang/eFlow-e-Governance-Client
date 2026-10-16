@@ -14,6 +14,7 @@ export function WorkList({
     <ul className="r10-work-list" aria-label={label}>
       {rows.map((row) => (
         <li key={row.key}>
+          <div className="r10-work-row">
           <button
             type="button"
             data-work-key={row.key}
@@ -23,23 +24,21 @@ export function WorkList({
             <span className="r10-work-title">
               <strong>{row.title}</strong>
               <small>
-                {row.workspaceName} · {row.projectTitle}
-                {row.rootTitle ? ` · ${row.rootTitle}` : ""}
+                {row.kind.startsWith('personal') ? 'Personal' : 'Office'} · {row.workspaceName} · {row.projectTitle}
+                {row.workContext?.path.length ? ` · ${row.workContext.path[row.workContext.path.length - 2]?.title || row.rootTitle || ''}` : row.rootTitle ? ` · ${row.rootTitle}` : ''}
               </small>
-              {row.workContext&&<small aria-label="Work path">{row.workContext.pathLabel}</small>}
-              <small>
+            </span>
+            <span className="r10-work-people">
+              <span className={row.relation === 'Needs reassignment' || row.workContext && !row.workContext.leadName ? 'r10-reassignment' : undefined}>
                 {row.relation}
-                {row.workContext?` · Lead: ${row.workContext.leadName||'Needs reassignment'} · Contributors (${row.workContext.contributors.length})`:""} ·{" "}
-                {row.kind.startsWith("personal") ? "Personal" : "Office"}
-                {row.officeName ? ` · ${row.officeName}` : ""}
-              </small>
+              </span>
+              {row.workContext && <small>Lead: {row.workContext.leadName || 'Needs reassignment'} · Contributors ({row.workContext.contributors.length})</small>}
             </span>
             <span className="r10-work-due">
               {workDateLabel(row.due, row.timezone)}
-              <small>{row.timezone}</small>
             </span>
             <StatusPill
-              label={row.status.replace(/_/g, " ")}
+              label={row.status === 'todo' ? 'To do' : row.status.replace(/_/g, ' ').replace(/^./, letter => letter.toUpperCase())}
               tone={
                 row.status === "completed"
                   ? "positive"
@@ -50,8 +49,20 @@ export function WorkList({
                       : "neutral"
               }
             />
-            <span className="r10-work-progress">{row.progress}%</span>
+            <span className="r10-work-progress" aria-label={`Progress ${row.progress}%`}>{row.progress}%</span>
           </button>
+          <details className="r10-row-details">
+            <summary aria-label={`Work context for ${row.title}`}>Details</summary>
+            <dl>
+              <div><dt>Workspace</dt><dd>{row.kind.startsWith('personal') ? 'Personal' : 'Office'} · {row.workspaceName}{row.officeName ? ` · ${row.officeName}` : ''}</dd></div>
+              <div><dt>Project</dt><dd>{row.projectTitle}</dd></div>
+              <div><dt>Work path</dt><dd aria-label="Work path">{row.workContext?.pathLabel || [row.rootTitle, row.title].filter(Boolean).join(' / ')}</dd></div>
+              <div><dt>Your relation</dt><dd>{row.relation}</dd></div>
+              {row.workContext && <><div><dt>Lead</dt><dd>{row.workContext.leadName || 'Needs reassignment'}</dd></div><div><dt>Contributors ({row.workContext.contributors.length})</dt><dd>{row.workContext.contributors.map(person => person.name).join(', ') || 'No contributors assigned'}</dd></div></>}
+              <div><dt>Date timezone</dt><dd>{row.timezone}</dd></div>
+            </dl>
+          </details>
+          </div>
         </li>
       ))}
     </ul>

@@ -1,0 +1,170 @@
+[
+  {
+    "file": "admin-access-dark-320.jpg",
+    "width": 320,
+    "height": 950,
+    "sha256": "C40F60ABB0AD6AF92CBBC0F02E3C044AFE04D7DEF64EAA5BAF7E1ABB4AC89331",
+    "source": "Direct CUA JPEG, synthetic local role contract; no hosted access"
+  },
+  {
+    "file": "admin-access-dark-desktop.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "299E27DBC37A1E2FBEC21F807087BF68D8D13D0645043B40B16680CBB06B5A34",
+    "source": "Direct CUA JPEG, synthetic local role contract; no hosted access"
+  },
+  {
+    "file": "admin-access-empty-light-390.jpg",
+    "width": 390,
+    "height": 899,
+    "sha256": "283B8E53462C51BEDB22B4339B34FFCFB678D5E29E8D092E2DE8C7E0881E5413",
+    "source": "Direct CUA JPEG, synthetic local role contract; no hosted access"
+  },
+  {
+    "file": "admin-access-light-320.jpg",
+    "width": 320,
+    "height": 900,
+    "sha256": "29CBBD743F3987A136FBD3D024579501E139FBDA14537EF204139BF5A644F922",
+    "source": "Direct CUA JPEG, synthetic local role contract; no hosted access"
+  },
+  {
+    "file": "admin-access-light-desktop.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "2B41714A975D6818BD22A29470385BFB37A720838FE823B383CF8158EA8E905E",
+    "source": "Direct CUA JPEG, synthetic local role contract; no hosted access"
+  },
+  {
+    "file": "admin-account-actions-dark-320.jpg",
+    "width": 320,
+    "height": 950,
+    "sha256": "3BA76FD51FB5507C3DF4D79F70CE30DB8C1509856A04B06FC76D8BDF8371E0FC",
+    "source": "Direct CUA JPEG, synthetic local role contract; no hosted access"
+  },
+  {
+    "file": "admin-accounts-dark-320.jpg",
+    "width": 320,
+    "height": 950,
+    "sha256": "6F5D6D083736156DCEB326E909BD116DA9423043B08B3AAC887A4F98B4DF15EE",
+    "source": "Direct CUA JPEG, synthetic local role contract; no hosted access"
+  },
+  {
+    "file": "admin-accounts-light-collapsed.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "EBA8C7FEC31C3A3F68D667D89B6D82C878D547EFB0D756B23AC706572106850D",
+    "source": "Direct CUA JPEG, synthetic local role contract; no hosted access"
+  },
+  {
+    "file": "admin-accounts-light-desktop.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "6349FF2A75867D9F08A40FD554AA461F49897C8D5E5B39FC3E9FF7FA014FCBCC",
+    "source": "Direct CUA JPEG, synthetic local role contract; no hosted access"
+  },
+  {
+    "file": "admin-audit-empty-light-desktop.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "87153D678D237F5C7CD7DBBC9D96C5C7745D480A97D1F2BDFC664CC5D2350508",
+    "source": "Direct CUA JPEG, synthetic local role contract; no hosted access"
+  },
+  {
+    "file": "admin-audit-unavailable-light-768.jpg",
+    "width": 768,
+    "height": 1024,
+    "sha256": "C9C3351CBE4F10C2F040D2184CEE4B161F6929EF8E747105F15C6DCFB4091A58",
+    "source": "Direct CUA JPEG, synthetic local role contract; no hosted access"
+  },
+  {
+    "file": "admin-backup-unavailable-dark-768.jpg",
+    "width": 768,
+    "height": 1024,
+    "sha256": "30C92B62A5CAE03F54C80213142DA738C795CF6DEBB560896B4251DD51CBA97E",
+    "source": "Direct CUA JPEG, synthetic local role contract; no hosted access"
+  },
+  {
+    "file": "admin-locked-empty-light-390.jpg",
+    "width": 390,
+    "height": 899,
+    "sha256": "8F52FD5ADBF7338C1246236EA462E753C12FBD73EC5B1F4B606D2D52F52EA2AA",
+    "source": "Direct CUA JPEG, synthetic local role contract; no hosted access"
+  },
+  {
+    "file": "admin-navigation-dark-320.jpg",
+    "width": 320,
+    "height": 900,
+    "sha256": "E8D588CC101DC89B90D1417C130D4F0E9FEAADCC9B8CB996B73B07FE00C7E273",
+    "source": "Direct CUA JPEG, synthetic local role contract; no hosted access"
+  },
+  {
+    "file": "admin-office-structure-dark-320.jpg",
+    "width": 320,
+    "height": 900,
+    "sha256": "037A4D177C5895356947CEF8DAA47F746F0539EE60FAEE3865204452F3C5F82A",
+    "source": "Direct CUA JPEG, synthetic local role contract; no hosted access"
+  },
+  {
+    "file": "admin-office-structure-dark-desktop.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "22445CDB49CFFE9A207AE1765B44466CFBF4A74E7047A8F024ACF2A3B0BE2C07",
+    "source": "Direct CUA JPEG, synthetic local role contract; no hosted access"
+  },
+  {
+    "file": "admin-role-defaults-dark-320.jpg",
+    "width": 320,
+    "height": 900,
+    "sha256": "3323562A05B187841E413BB1786A0C0598CE5A57D91320A5F174BC225C452F33",
+    "source": "Direct CUA JPEG, synthetic local role contract; no hosted access"
+  },
+  {
+    "file": "admin-role-defaults-dark-desktop.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "4845517A2A744A052136B32387086F9EAA66F7AF991EE00A306022A790527B4E",
+    "source": "Direct CUA JPEG, synthetic local role contract; no hosted access"
+  },
+  {
+    "file": "admin-role-defaults-light-320.jpg",
+    "width": 320,
+    "height": 950,
+    "sha256": "7739C384AF9026B06B829635EB867D86AF191CC102098E22B152A2FE36975CDB",
+    "source": "Direct CUA JPEG, synthetic local role contract; no hosted access"
+  },
+  {
+    "file": "admin-role-defaults-light-desktop.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "2A316CB4A84F141E452534A32B198732DAB80F77D0BABB08810F33740AC12E89",
+    "source": "Direct CUA JPEG, synthetic local role contract; no hosted access"
+  },
+  {
+    "file": "admin-settings-light-768.jpg",
+    "width": 768,
+    "height": 1024,
+    "sha256": "F828658674F158A50E67044313B87E3B0F69CCA491668F078BCFDB7D41D0E9F5",
+    "source": "Direct CUA JPEG, synthetic local role contract; no hosted access"
+  },
+  {
+    "file": "support-accounting_staff-configuration-light-desktop.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "E4EB7254071F3EC7DE98F42B416609E539CC2EADE4F8DC314F2E8B05D7147647",
+    "source": "Direct CUA JPEG, synthetic local role contract; no hosted access"
+  },
+  {
+    "file": "support-head-configuration-light-desktop.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "75E42F3ED74DEEB66BF6243CE7AD0B51A0732B62F239709976226AA344194669",
+    "source": "Direct CUA JPEG, synthetic local role contract; no hosted access"
+  },
+  {
+    "file": "support-member-configuration-light-desktop.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "5BEC7560D1BDBD69BCA967B13357821AB5B69882DFD4F39D32203A7E2B8D66F4",
+    "source": "Direct CUA JPEG, synthetic local role contract; no hosted access"
+  }
+]

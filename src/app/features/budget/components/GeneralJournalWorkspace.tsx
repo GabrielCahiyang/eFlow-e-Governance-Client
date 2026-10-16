@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import {
   AttentionBox,
   Button,
-  Label,
   Loader,
   Search as VibeSearch,
 } from "@vibe/core";
@@ -22,6 +21,8 @@ import type { GeneralJournalEntry } from "../types";
 import { peso } from "./budgetUi";
 import { JournalAdjustmentDialog } from "./JournalAdjustmentDialog";
 import { JournalEntryInspector } from "./JournalEntryInspector";
+import { Badge } from "../../../components/ui/badge";
+import "../accountingWorkspace.css";
 interface JournalWorkspaceProps {
   orgId?: string;
   fiscalYear?: number;
@@ -230,7 +231,7 @@ function GeneralJournalView({
             tabIndex={0}
           >
             <table className="w-full min-w-[900px] border-collapse text-left">
-              <thead className="bg-neutral-50 text-[11px] uppercase tracking-wider text-neutral-500">
+              <thead className="bg-neutral-50 text-[12px] uppercase tracking-wider text-neutral-500">
                 <tr>
                   <th className="px-4 py-3">Date / JEV</th>
                   <th className="px-4 py-3">Reference</th>
@@ -260,14 +261,14 @@ function GeneralJournalView({
                                   `${entry.entryDate}T00:00:00`,
                                 ).toLocaleDateString()}
                               </div>
-                              <div className="mt-1 font-mono text-[11px] text-neutral-400">
+                              <div className="mt-1 font-mono text-[12px] text-neutral-400">
                                 JEV-{fiscalYear}-
                                 {String(entry.entryNumber).padStart(6, "0")}
                               </div>
                             </>
                           )}
                         </td>
-                        <td className="px-4 py-3 font-mono text-[11px] text-neutral-700">
+                        <td className="px-4 py-3 font-mono text-[12px] text-neutral-700">
                           {index === 0 ? (
                             <button
                               type="button"
@@ -291,7 +292,7 @@ function GeneralJournalView({
                           <div className="text-[12px] font-medium text-neutral-800">
                             {line.accountTitle}
                           </div>
-                          <div className="mt-0.5 font-mono text-[11px] text-neutral-400">
+                          <div className="mt-0.5 font-mono text-[12px] text-neutral-400">
                             {line.accountCode}
                           </div>
                         </td>
@@ -301,7 +302,7 @@ function GeneralJournalView({
                         <td className="px-4 py-3 text-right text-[12px] tabular-nums">
                           {line.credit ? peso.format(line.credit) : "—"}
                         </td>
-                        <td className="max-w-[260px] px-4 py-3 text-[11px] text-neutral-500">
+                        <td className="max-w-[260px] px-4 py-3 text-[12px] text-neutral-500">
                           {index === 0 && (
                             <>
                               <div>{entry.memo}</div>
@@ -328,18 +329,7 @@ function GeneralJournalView({
                     {peso.format(totals.credit)}
                   </td>
                   <td className="px-4 py-3">
-                    <Label
-                      color={
-                        Math.abs(totals.delta) <= 0.009
-                          ? "positive"
-                          : "negative"
-                      }
-                      text={
-                        Math.abs(totals.delta) <= 0.009
-                          ? "Balanced"
-                          : `Delta ${peso.format(totals.delta)}`
-                      }
-                    />
+                    <Badge variant="outline" className="eflow-financial-status" data-tone={Math.abs(totals.delta) <= 0.009 ? "positive" : "negative"}>{Math.abs(totals.delta) <= 0.009 ? "Balanced" : `Delta ${peso.format(totals.delta)}`}</Badge>
                   </td>
                 </tr>
               </tfoot>
@@ -406,7 +396,7 @@ function JournalMetric({
       layout
       className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm"
     >
-      <div className="flex items-center gap-2 text-[11px] uppercase tracking-wider text-neutral-500">
+      <div className="flex items-center gap-2 text-[12px] uppercase tracking-wider text-neutral-500">
         {icon}
         {label}
       </div>
@@ -416,7 +406,7 @@ function JournalMetric({
         {value}
       </div>
       <div
-        className={`mt-1 text-right text-[11px] ${good ? "text-emerald-700" : "text-rose-600"}`}
+        className={`mt-1 text-right text-[12px] ${good ? "text-emerald-700" : "text-rose-600"}`}
       >
         {note}
       </div>
@@ -446,7 +436,7 @@ function JournalDateInput({
         value={value}
         onClick={openDatePicker}
         onChange={(event) => onChange(event.target.value)}
-        className="h-8 w-full min-w-0 cursor-pointer rounded-lg border border-neutral-200 bg-white pl-8 pr-2 text-[10px]"
+        className="h-8 w-full min-w-0 cursor-pointer rounded-lg border border-neutral-200 bg-white pl-8 pr-2 text-[12px]"
       />
     </label>
   );

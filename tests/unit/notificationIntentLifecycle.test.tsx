@@ -10,6 +10,23 @@ const key=(actor:string)=>`eflow.notification-intent.v1:${actor}`;
 beforeEach(()=>{cleanup();auth.actor='actor-a';const pending=store.peekNotificationNavigationIntent();if(pending)store.completeNotificationNavigationIntent(pending.notificationId);sessionStorage.clear();});
 afterEach(()=>{cleanup();vi.restoreAllMocks();const pending=store.peekNotificationNavigationIntent();if(pending)store.completeNotificationNavigationIntent(pending.notificationId);sessionStorage.clear();});
 describe('NW9.5 unfinished navigation lifecycle',()=>{
+ it('retries an unfinished asynchronous loading result after a source refresh that arrived in flight',async()=>{
+  let finish!:(handled:boolean)=>void;
+  const handle=vi.fn().mockImplementationOnce(()=>new Promise<boolean>(resolve=>{finish=resolve;})).mockReturnValue(true);
+  store.queueNotificationNavigationIntent(target,'actor-a');
+  const view=renderHook(({ready})=>useNotificationNavigationIntent(()=>true,handle,[ready]),{initialProps:{ready:false}});
+  view.rerender({ready:true});expect(handle).toHaveBeenCalledOnce();
+  await act(async()=>finish(false));expect(handle).toHaveBeenCalledTimes(2);expect(store.peekNotificationNavigationIntent('actor-a')).toBeNull();
+ });
+ it('keeps one asynchronous canonical resolution across source dependency refreshes',async()=>{
+  let finish!:(handled:boolean)=>void,current!:()=>boolean;
+  const handle=vi.fn((_intent:unknown,isCurrent:()=>boolean)=>{current=isCurrent;return new Promise<boolean>(resolve=>{finish=resolve;});});
+  store.queueNotificationNavigationIntent(target,'actor-a');
+  const view=renderHook(({revision})=>useNotificationNavigationIntent(()=>true,handle,[revision]),{initialProps:{revision:0}});
+  view.rerender({revision:1});view.rerender({revision:2});
+  expect(handle).toHaveBeenCalledOnce();expect(current()).toBe(true);
+  await act(async()=>finish(true));expect(store.peekNotificationNavigationIntent('actor-a')).toBeNull();
+ });
  it('owns canonical intent identity and restores only its account after a module reload; completion clears persisted state',async()=>{
   const original={...target};store.queueNotificationNavigationIntent(original,'actor-a');original.entityId='wrong';
   expect(store.peekNotificationNavigationIntent('actor-a')?.entityId).toBe('eight');expect(store.peekNotificationNavigationIntent('actor-b')).toBeNull();

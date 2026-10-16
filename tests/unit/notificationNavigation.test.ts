@@ -20,6 +20,12 @@ function notification(
 }
 
 describe("notification navigation", () => {
+  it('targets Head membership approvals without stealing ordinary project notifications', () => {
+    const invitation = notification({ type: 'system', title: 'Project invitation approval requested', projectId: 'project-one' });
+    expect(resolveNotificationDestination(invitation, 'head')).toMatchObject({ section: 'reviews', intent: { kind: 'membership_review', projectId: 'project-one' } });
+    expect(resolveNotificationDestination(invitation, 'member')).toMatchObject({ section: 'projects', intent: { kind: 'project' } });
+    expect(resolveNotificationDestination(notification({ projectId: 'project-one', title: 'Project changed' }), 'head')).toMatchObject({ section: 'projects', intent: { kind: 'project' } });
+  });
   it('routes canonical Subitems even when the notification copy does not say subtask',()=>{
     expect(resolveNotificationDestination(notification({type:'assignment',title:'New work appointment',message:'Work changed.',taskId:'root',workNodeId:'depth-eight',projectId:'project'}),'member')).toMatchObject({section:'subtasks',intent:{kind:'subtask',taskId:'root',entityId:'depth-eight'}});
     expect(resolveNotificationDestination(notification({type:'approval_needed',title:'Evidence ready for review',message:'Work changed.',taskId:'root',workNodeId:'depth-eight'}),'head')).toMatchObject({section:'reviews',intent:{kind:'subtask_review',entityId:'depth-eight'}});

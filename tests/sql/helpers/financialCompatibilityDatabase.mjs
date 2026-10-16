@@ -51,7 +51,7 @@ export const nwCorrections=[
 ];
 export const migrationSource=name=>readFile(new URL('../../../supabase/migrations/'+name,import.meta.url),'utf8');
 
-export async function financialBaselineSql(){
+export async function financialBaselineSql({migrations=baselineMigrations}={}){
   const f=JSON.parse(await readFile(new URL('../phase1-deployed-schema.json',import.meta.url),'utf8'));
   let sql=`create extension ltree;create schema extensions;create extension pgcrypto with schema extensions;
     create schema auth;create table auth.users(id uuid primary key,email text,email_confirmed_at timestamptz);
@@ -83,7 +83,7 @@ export async function financialBaselineSql(){
     create unique index general_journal_source_idx on public.general_journal_entries(source_type,source_id) where source_id is not null;
     create unique index petty_cash_releases_voucher_number_idx on public.petty_cash_releases(voucher_number) where voucher_number is not null;
     create unique index petty_cash_liquidations_number_idx on public.petty_cash_liquidations(liquidation_number) where liquidation_number is not null;`;
-  for(const name of baselineMigrations){
+  for(const name of migrations){
     if(name==='20261007120000_r3_personal_workspaces.sql')sql+=await migrationSource('20260831000001_task_evidence_security.sql');
     sql+=await migrationSource(name);
   }

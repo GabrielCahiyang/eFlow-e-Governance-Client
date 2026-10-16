@@ -22,7 +22,8 @@ test('workspace proposal import and existing manual planning remain reachable in
   test.setTimeout(90_000);await page.setViewportSize({width:320,height:740});
   await projectWorkspaceFixture(page,'head');
   await page.getByRole('navigation',{name:'Mobile primary navigation'}).getByRole('button',{name:'More',exact:true}).click();
-  await page.getByRole('dialog',{name:'Navigation',exact:true}).getByRole('button',{name:'Add to workspace',exact:true}).click();
+  await page.getByRole('dialog',{name:'Navigation',exact:true}).getByRole('button',{name:'Open projects',exact:true}).click();
+  await page.getByRole('button',{name:'Projects and proposals',exact:true}).click();
   await page.getByRole('menuitem',{name:'Import proposal',exact:true}).click();
   const dialog=page.getByRole('dialog',{name:'Create a work plan',exact:true});await expect(dialog).toBeVisible();
   await expect(dialog.getByText('Drop a government proposal PDF here',{exact:true})).toBeVisible();

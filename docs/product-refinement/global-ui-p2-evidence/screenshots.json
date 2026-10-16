@@ -1,0 +1,114 @@
+[
+  {
+    "file": "accounting-filters-desktop-dark.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "27f3f8bfbda69b5d6a58aa6b81246c5b7faa314016ddfd0eeeb966a5991effd1",
+    "bytes": 77092
+  },
+  {
+    "file": "accounting-mobile-dark.jpg",
+    "width": 390,
+    "height": 899,
+    "sha256": "9a0fec08be59cffb055c6af34b20c9bd60dfb0011fcaa122689dd0e57b1d6ce3",
+    "bytes": 43692
+  },
+  {
+    "file": "accounting-scope-768-light.jpg",
+    "width": 768,
+    "height": 950,
+    "sha256": "f41f90b650d302c1eb973a78699c7092249d3da0f93eb89eaf82a9b07bd6f054",
+    "bytes": 47449
+  },
+  {
+    "file": "admin-boundary-desktop-light.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "f854abb25e4a5b9f3fdae40ef397dd23717e972dbc7295b08413d1da522f38a2",
+    "bytes": 91530
+  },
+  {
+    "file": "admin-boundary-mobile-dark.jpg",
+    "width": 390,
+    "height": 899,
+    "sha256": "b5ddcac61a1095093221282c5365ac9ff5c924694b8c10555b349b3f7c40d865",
+    "bytes": 38860
+  },
+  {
+    "file": "head-branch-desktop-dark.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "71e98c67f4004e1c56522012af5045863d5ec18a1ca2efbe55bc304a3d230487",
+    "bytes": 87233
+  },
+  {
+    "file": "head-drawer-320-dark.jpg",
+    "width": 320,
+    "height": 900,
+    "sha256": "b1ff75c21c80185d819356979424ca23c988a473aa83d4336fbd8bf4194ec201",
+    "bytes": 12159
+  },
+  {
+    "file": "head-history-filters-320-dark.jpg",
+    "width": 320,
+    "height": 900,
+    "sha256": "6890b5acdb6b6f4f3d4733b925e5af987a898db51a9a6512437cfba80db066ca",
+    "bytes": 35242
+  },
+  {
+    "file": "head-leading-desktop-light.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "bb1a7b27b6d37286571f327b984c79fda128c0aef2f10cd2aaa0b75016496968",
+    "bytes": 86710
+  },
+  {
+    "file": "member-branch-details-light.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "52c2673ff8610a86538b31829e0804c6c02e4df10a94b0a38aa201b43c8526ba",
+    "bytes": 90285
+  },
+  {
+    "file": "member-branch-mobile-light.jpg",
+    "width": 390,
+    "height": 899,
+    "sha256": "1b3f7af13d92e3637c39c6362000636563750c357eaf2ee93af57009356ebc98",
+    "bytes": 48112
+  },
+  {
+    "file": "member-collapsed-light.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "cebc11fc1302fa8422f53b9abc395f5ae2a024af034ccb018a4ddbb222a760da",
+    "bytes": 87934
+  },
+  {
+    "file": "member-desktop-light.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "d5450dcaf2c2742524e821d95dab7c3878687779bd4d71fd69e6b23df83dc052",
+    "bytes": 66761
+  },
+  {
+    "file": "member-empty-390-dark.jpg",
+    "width": 390,
+    "height": 899,
+    "sha256": "e7dd4037e0f30f31e50c74e2411777808db3c20e66b59d53a54e3b66121721ed",
+    "bytes": 26402
+  },
+  {
+    "file": "member-filters-mobile-light.jpg",
+    "width": 390,
+    "height": 899,
+    "sha256": "78e5e99497708d11ba42461b8e66ac0d9bbe44091f1430d95f5eb7fd035c64b4",
+    "bytes": 36478
+  },
+  {
+    "file": "member-tools-light.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "d94547db39d43e50ff7bd828571e48cf06999f3a4dc40d291df9c100179a02e7",
+    "bytes": 70871
+  }
+]

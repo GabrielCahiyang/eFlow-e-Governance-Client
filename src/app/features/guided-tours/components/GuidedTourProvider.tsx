@@ -7,6 +7,7 @@ import { GuidedTourOverlay } from "./GuidedTourOverlay";
 import { WelcomeTourPrompt } from "./WelcomeTourPrompt";
 import { suggestedFirstSteps } from "../firstSteps";
 import { readOnboarding, saveOnboarding } from "../../onboarding";
+import { requestNavigation } from "../../../shared/navigationGuard";
 
 interface GuidedTourContextValue {
   isTourActive: boolean;
@@ -42,6 +43,7 @@ export function GuidedTourProvider({
   const initializedFor = useRef("");
   const remoteReady = useRef(false);
   const remoteWrites = useRef(Promise.resolve());
+  const returnFocus = useRef<HTMLElement | null>(null);
   const startupState = useRef({ sections, onNavigate, begin: null as BeginTour | null });
 
   const updateProgress = useCallback((mutate: (current: GuidedTourProgress) => GuidedTourProgress) => {
@@ -57,6 +59,7 @@ export function GuidedTourProvider({
 
   const begin = useCallback((kind: GuidedTourKind, nextSteps: GuidedTourStep[], startIndex = 0, section = activeSection, page = activePage) => {
     if (nextSteps.length === 0) return;
+    if (!returnFocus.current) returnFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const safeIndex = Math.min(Math.max(startIndex, 0), nextSteps.length - 1);
     setWelcomeOpen(false);
     setTourKind(kind);
@@ -65,8 +68,15 @@ export function GuidedTourProvider({
     updateProgress((current) => ({ ...current, welcomed: true, activeTour: { kind, index: safeIndex, section, page } }));
   }, [activePage, activeSection, updateProgress]);
 
+  useEffect(() => {
+    if (tourKind || !returnFocus.current) return;
+    const target = returnFocus.current;
+    returnFocus.current = null;
+    if (target.isConnected && !target.closest('[inert]')) target.focus({ preventScroll: true });
+  }, [tourKind]);
+
   const startSystemTour = useCallback(() => {
-    begin("system", getSystemTourSteps(sections, onNavigate), 0);
+    void requestNavigation(() => begin("system", getSystemTourSteps(sections, onNavigate), 0));
   }, [begin, onNavigate, sections]);
 
   const startPageTour = useCallback(() => {

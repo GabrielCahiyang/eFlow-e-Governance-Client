@@ -21,6 +21,7 @@ import { useConfirmation } from "../../../components/ui/useConfirmation";
 import { useExplicitDraft } from "../../../shared/useExplicitDraft";
 import { requestNavigation } from "../../../shared/navigationGuard";
 import { Button as ActionButton } from "../../../components/ui/button";
+import { Badge } from "../../../components/ui/badge";
 import { fetchDepartmentBudgetBundle } from "../services/budgetService";
 import {
   financialOutcome,
@@ -215,13 +216,13 @@ export function AccountingSettlementQueue({
   return (
     <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
       {confirmation.dialog}
-      <header className="flex items-center gap-2 border-b border-neutral-100 p-4">
+      <header className="flex flex-wrap items-center gap-2 border-b border-neutral-100 p-4">
         <ReceiptText size={15} />
         <div>
           <h2 className="text-[12px] font-semibold">
             Accounting settlement queue
           </h2>
-          <p className="mt-0.5 text-[9.5px] text-neutral-500">
+          <p className="mt-0.5 text-[12px] text-neutral-500">
             Verify immutable evidence, returned change, and the balanced posting
             before settlement.
           </p>
@@ -276,43 +277,27 @@ export function AccountingSettlementQueue({
                   <div className="flex flex-col gap-3 lg:flex-row lg:items-start">
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-mono text-[9.5px] text-blue-700">
+                        <span className="font-mono text-[12px] text-blue-700">
                           {item.liquidationNumber || `LIQ v${item.version}`}
                         </span>
-                        <span className="text-[11px] font-semibold text-neutral-900">
+                        <span className="text-[12px] font-semibold text-neutral-900">
                           {request?.subtaskTitle ||
                             request?.taskTitle ||
                             "Funded work"}
                         </span>
                       </div>
-                      <p className="mt-1 text-[9.5px] text-neutral-500">
+                      <p className="mt-1 text-[12px] text-neutral-500">
                         {request?.requesterName || "Recipient"} ·{" "}
                         {request?.purpose}
                       </p>
                       <div className="mt-3 flex flex-wrap gap-2">
-                        <Label
-                          color="dark"
-                          text={`${peso.format(item.declaredSpent)} expense`}
-                        />
-                        <Label
-                          color={item.returnedAmount ? "positive" : "dark"}
-                          text={`${peso.format(item.returnedAmount)} returned`}
-                        />
+                        <Badge variant="outline" className="eflow-financial-status">{peso.format(item.declaredSpent)} expense</Badge>
+                        <Badge variant="outline" className="eflow-financial-status" data-tone={item.returnedAmount ? "positive" : "neutral"}>{peso.format(item.returnedAmount)} returned</Badge>
                         {item.refundReceiptNumber && (
-                          <Label
-                            color="primary"
-                            text={`Refund OR ${item.refundReceiptNumber}`}
-                          />
+                          <Badge variant="outline" className="eflow-financial-status" data-tone="info">Refund OR {item.refundReceiptNumber}</Badge>
                         )}
                         {late && (
-                          <Label
-                            color={awaitingHead ? "negative" : "positive"}
-                            text={
-                              awaitingHead
-                                ? "Late · Head approval required"
-                                : "Late · Head approved"
-                            }
-                          />
+                          <Badge variant="outline" className="eflow-financial-status" data-tone={awaitingHead ? "negative" : "positive"}>{awaitingHead ? "Late · Head approval required" : "Late · Head approved"}</Badge>
                         )}
                       </div>
                       <div className="mt-3 flex flex-wrap gap-2">
@@ -329,7 +314,7 @@ export function AccountingSettlementQueue({
                         ))}
                       </div>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       <Button
                         kind="secondary"
                         size="small"
@@ -343,7 +328,7 @@ export function AccountingSettlementQueue({
                       </Button>
                       <Button
                         kind="primary"
-                        color="positive"
+                        color="primary"
                         size="small"
                         loading={busy === item.id}
                         disabled={Boolean(busy) || awaitingHead || !canDecide}
@@ -362,7 +347,7 @@ export function AccountingSettlementQueue({
                     </p>
                   )}
                   {awaitingHead && (
-                    <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[9.5px] text-amber-900">
+                    <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[12px] text-amber-900">
                       The Head must authorize this late package in Financial
                       Approvals before Accounting Staff can settle it.
                     </div>
@@ -373,14 +358,14 @@ export function AccountingSettlementQueue({
                       animate={{ opacity: 1, height: "auto" }}
                       className="mt-4 border-t border-neutral-100 pt-4"
                     >
-                      <label className="text-[9.5px] text-neutral-500">
+                      <label className="text-[12px] text-neutral-500">
                         Required correction
                         <textarea
                           aria-label="Required liquidation correction"
                           value={reason}
                           onChange={(event) => setReason(event.target.value)}
                           rows={2}
-                          className="mt-1 w-full rounded-lg border border-neutral-200 p-2 text-[10px]"
+                          className="mt-1 w-full rounded-lg border border-neutral-200 p-2 text-[12px]"
                         />
                       </label>
                       <div className="mt-2 flex justify-end gap-2">
@@ -418,10 +403,10 @@ export function AccountingSettlementQueue({
         ) : (
           <div className="py-8 text-center">
             <CheckCircle2 size={28} className="mx-auto text-emerald-500" />
-            <h3 className="mt-2 text-[11.5px] font-semibold">
+            <h3 className="mt-2 text-[12px] font-semibold">
               Settlement queue is clear
             </h3>
-            <p className="mt-1 text-[9.5px] text-neutral-500">
+            <p className="mt-1 text-[12px] text-neutral-500">
               Leader-endorsed liquidations will appear here.
             </p>
           </div>

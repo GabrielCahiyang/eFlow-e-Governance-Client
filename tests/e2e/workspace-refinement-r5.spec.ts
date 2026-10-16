@@ -125,9 +125,11 @@ test('catalogue and sticky task actions stay inside 320 and 390px light/dark wor
     const bounds = (await catalogue.boundingBox())!; expect(bounds.x).toBeGreaterThanOrEqual(0); expect(bounds.x + bounds.width).toBeLessThanOrEqual(width);
     await page.screenshot({ path: info.outputPath('r5-catalogue-' + width + '.png'), animations: 'disabled' });
     await page.keyboard.press('Escape');
+    await expect(catalogue).toHaveCount(0);
     const actions = table.getByRole('button', { name: 'Actions for ' + title, exact: true });
     const actionBounds = (await actions.boundingBox())!; expect(actionBounds.x).toBeGreaterThanOrEqual(0); expect(actionBounds.x + actionBounds.width).toBeLessThanOrEqual(width);
-    await actions.click(); await expect(page.getByRole('menuitem', { name: 'Add subitem', exact: true })).toBeEnabled(); await page.keyboard.press('Escape');
+    await actions.click(); await expect(page.getByRole('menuitem', { name: 'Add subitem', exact: true })).toBeEnabled();
+    const menu=page.getByRole('menu',{name:'Actions for '+title,exact:true});await expect(menu).toBeFocused();await page.keyboard.press('Escape');await expect(menu).toHaveCount(0);await expect(actions).toBeFocused();
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
   }
 });

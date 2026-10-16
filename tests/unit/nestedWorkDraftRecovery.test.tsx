@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import {act,cleanup,fireEvent,render,renderHook,screen,waitFor} from '@testing-library/react';
 import {afterEach,beforeEach,describe,expect,it,vi} from 'vitest';
-async function chooseWorkAction(label:string, action:string){const trigger=await screen.findByRole('button',{name:label,exact:true});fireEvent.keyDown(trigger,{key:'Enter'});fireEvent.click(await screen.findByRole('menuitem',{name:action,exact:true}));}
+async function chooseWorkAction(label:string, action:string){const trigger=await screen.findByRole('button',{name:label,exact:true});fireEvent.keyDown(trigger,{key:'Enter'});fireEvent.click(await screen.findByRole('menuitem',{name:action,exact:true}));await screen.findByLabelText('Subitem title');}
 
 const api=vi.hoisted(()=>({actor:'actor' as string|null,load:vi.fn(),save:vi.fn()}));
 vi.mock('../../src/app/contexts/AuthContext',()=>({useAuth:()=>({user:api.actor?{id:api.actor}:null})}));
@@ -112,6 +112,6 @@ describe('NW5.4 current reads and owners',()=>{
   let resolve!:(data:WorkTreeSnapshot)=>void;api.load.mockImplementationOnce(()=>new Promise(yes=>{resolve=yes;}));const hook=renderHook(({root})=>useWorkTree(root),{initialProps:{root:'root'}});hook.rerender({root:'other'});await waitFor(()=>expect(hook.result.current.data?.root.id).toBe('other'));await act(async()=>resolve(tree()));expect(hook.result.current.data?.root.id).toBe('other');
  });
  it('continues polling while a dirty editor is open',async()=>{
-  vi.useFakeTimers();render(<WorkTree rootId="root"/>);await act(async()=>{});fireEvent.keyDown(screen.getByRole('button',{name:'Task work actions'}),{key:'Enter'});fireEvent.click(screen.getByRole('menuitem',{name:'Add subitem',exact:true}));fireEvent.change(screen.getByLabelText('Subitem title'),{target:{value:'Polling'}});await act(async()=>vi.advanceTimersByTime(15000));expect(api.load).toHaveBeenCalledTimes(2);expect(screen.getByDisplayValue('Polling')).toBeTruthy();
+  vi.useFakeTimers();render(<WorkTree rootId="root"/>);await act(async()=>{});fireEvent.keyDown(screen.getByRole('button',{name:'Task work actions'}),{key:'Enter'});fireEvent.click(screen.getByRole('menuitem',{name:'Add subitem',exact:true}));await act(async()=>vi.advanceTimersByTime(0));fireEvent.change(screen.getByLabelText('Subitem title'),{target:{value:'Polling'}});await act(async()=>vi.advanceTimersByTime(15000));expect(api.load).toHaveBeenCalledTimes(2);expect(screen.getByDisplayValue('Polling')).toBeTruthy();
  });
 });

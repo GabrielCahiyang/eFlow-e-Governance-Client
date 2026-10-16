@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { useReducedMotionConfig } from "motion/react";
 import { EflowMotionProvider, InspectorPanel } from "../../src/app/shared/motion";
@@ -24,6 +24,38 @@ function renderInspector(open: boolean, onClose = vi.fn()) {
 }
 
 describe("InspectorPanel", () => {
+  it('owns immediate keyboard input before the deferred entry frame',()=>{
+    const frames:FrameRequestCallback[]=[];
+    const frame=vi.spyOn(window,'requestAnimationFrame').mockImplementation(callback=>{frames.push(callback);return frames.length;});
+    const cancel=vi.spyOn(window,'cancelAnimationFrame').mockImplementation(()=>{}),close=vi.fn();
+    try {
+      render(<EflowMotionProvider><InspectorPanel open onClose={close} ariaLabel="Immediate keyboard entry"><button>Immediate entry control</button></InspectorPanel></EflowMotionProvider>);
+      expect(document.activeElement).toBe(screen.getByRole('button',{name:'Immediate entry control'}));
+      fireEvent.keyDown(document.activeElement!,{key:'Escape'});expect(close).toHaveBeenCalledOnce();
+    } finally {frame.mockRestore();cancel.mockRestore();}
+  });
+  it('keeps focus chosen inside the Inspector before its entry frame runs',()=>{
+    const frames:FrameRequestCallback[]=[];
+    const frame=vi.spyOn(window,'requestAnimationFrame').mockImplementation(callback=>{frames.push(callback);return frames.length;});
+    const cancel=vi.spyOn(window,'cancelAnimationFrame').mockImplementation(()=>{});
+    try {
+      render(<EflowMotionProvider><InspectorPanel open onClose={()=>{}} ariaLabel="Entry race"><button>First entry action</button><textarea aria-label="Current draft note"/></InspectorPanel></EflowMotionProvider>);
+      const note=screen.getByRole('textbox',{name:'Current draft note'});note.focus();fireEvent.input(note,{target:{value:'Keep current draft'}});
+      act(()=>{for(const callback of [...frames])callback(performance.now());});
+      expect(document.activeElement).toBe(note);expect((note as HTMLTextAreaElement).value).toBe('Keep current draft');
+    } finally {frame.mockRestore();cancel.mockRestore();}
+  });
+  it('does not let an older Inspector entry frame steal its child Inspector focus',()=>{
+    const frames:FrameRequestCallback[]=[];
+    const frame=vi.spyOn(window,'requestAnimationFrame').mockImplementation(callback=>{frames.push(callback);return frames.length;});
+    const cancel=vi.spyOn(window,'cancelAnimationFrame').mockImplementation(()=>{});
+    try {
+      render(<EflowMotionProvider><InspectorPanel open onClose={()=>{}} ariaLabel="Parent entry"><button>Parent first action</button><InspectorPanel open onClose={()=>{}} ariaLabel="Child entry"><button>Child first action</button><textarea aria-label="Child draft note"/></InspectorPanel></InspectorPanel></EflowMotionProvider>);
+      const note=screen.getByRole('textbox',{name:'Child draft note'});note.focus();
+      act(()=>{for(const callback of [...frames])callback(performance.now());});
+      expect(document.activeElement).toBe(note);
+    } finally {frame.mockRestore();cancel.mockRestore();}
+  });
   it('skips hidden and inert descendants when entering and wrapping keyboard focus',async()=>{
     render(<EflowMotionProvider><InspectorPanel open onClose={()=>{}} ariaLabel="Visible actions"><div style={{display:'none'}}><button>Hidden first</button></div><button>Visible first</button><button>Visible last</button><div ref={node=>{node?.setAttribute("inert", "");}}><button>Inert last</button></div></InspectorPanel></EflowMotionProvider>);
     await waitFor(()=>expect(document.activeElement).toBe(screen.getByRole('button',{name:'Visible first'})));

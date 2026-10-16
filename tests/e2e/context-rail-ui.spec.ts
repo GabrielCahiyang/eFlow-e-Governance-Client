@@ -8,7 +8,7 @@ test('global Lead discovery and Inbox routes retain a selected personal workspac
 async function context(page:Page,name:'Workspace'|'My Work'|'Inbox'){
  await expect(page.getByRole('region',{name:`${name} content`,exact:true})).toBeVisible();
  for(const other of ['Workspace','My Work','Inbox'].filter(value=>value!==name))await expect(page.getByRole('region',{name:`${other} content`,exact:true})).toHaveCount(0);
- if(name!=='Workspace'){await expect(page.getByRole('button',{name:'Search workspace',exact:true})).toHaveCount(0);for(const section of ['Office tools','Favorites','Projects','Archived projects'])await expect(page.getByRole('region',{name:section,exact:true})).toHaveCount(0);}
+ if(name!=='Workspace'){await expect(page.getByRole('button',{name:'Find pages and projects',exact:true})).toHaveCount(0);for(const section of ['Office tools','Favorites','Projects','Archived projects'])await expect(page.getByRole('region',{name:section,exact:true})).toHaveCount(0);}
 }
 test('approved rails follow routes, refresh, history and accepted context preferences',async({page},info)=>{
  test.setTimeout(90000);const records=await projectWorkspaceFixture(page,'head',true);await context(page,'Workspace');

@@ -1,0 +1,226 @@
+[
+  {
+    "file": "accounting-budget-annual-light-desktop.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "C014F5798EB53B27AFD3CF9219BD6A71600D159B41D1E6C0C4DD36D40A84C631",
+    "source": "Direct CUA browser screenshot; synthetic local fixture"
+  },
+  {
+    "file": "admin-denied-office-team-light-desktop.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "5E65256EE00FC79BF57F01C605FE00E023BC7542476F05699292846514CE3C7D",
+    "source": "Direct CUA browser screenshot; synthetic local fixture"
+  },
+  {
+    "file": "head-budget-annual-light-320.jpg",
+    "width": 320,
+    "height": 950,
+    "sha256": "9B32BA052E1206A682FC17D569F7CFD905F0C5140183D8F0F9C2776A962029A7",
+    "source": "Direct CUA browser screenshot; synthetic local fixture"
+  },
+  {
+    "file": "head-budget-dark-desktop-empty.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "F89DE1A00D0D9B1A7E27448DA715C4DA9EC1C64C8BBD031FE4AE3738D1AFE291",
+    "source": "Direct CUA browser screenshot; synthetic local fixture"
+  },
+  {
+    "file": "head-budget-dark-desktop-unavailable.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "1A7F1EFB0B254DC06680A305DDCC8458912D21268191BADB2E1F0E80DCA528DB",
+    "source": "Direct CUA browser screenshot; synthetic local fixture"
+  },
+  {
+    "file": "head-budget-funding-dark-320.jpg",
+    "width": 320,
+    "height": 950,
+    "sha256": "F6E493E1D32150DE923BD80B04495EDA388DDCE8292928EF4AD97F597455C43F",
+    "source": "Direct CUA browser screenshot; synthetic local fixture"
+  },
+  {
+    "file": "head-budget-funding-dark-collapsed.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "35D8F9C5473B02706E3869529D9FBA2225B99DCAACCA511084A8D04274F766C2",
+    "source": "Direct CUA browser screenshot; synthetic local fixture"
+  },
+  {
+    "file": "head-budget-funding-dark-desktop.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "30AAA670195A93C11022A39ACE4A088CBA9E5A7F43B53FA370058DC3446CABA5",
+    "source": "Direct CUA browser screenshot; synthetic local fixture"
+  },
+  {
+    "file": "head-budget-funding-light-320.jpg",
+    "width": 320,
+    "height": 950,
+    "sha256": "F81585F5D9E8378518F118FBA03F9D84626C4BA0EFD4B127AC82BE89D9B763F5",
+    "source": "Direct CUA browser screenshot; synthetic local fixture"
+  },
+  {
+    "file": "head-budget-funding-light-desktop.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "0B59DF7A1980908A5BF65717D6F861BF1DF286C4A1AB1770D6C567A1D357117B",
+    "source": "Direct CUA browser screenshot; synthetic local fixture"
+  },
+  {
+    "file": "head-budget-journal-dark-320.jpg",
+    "width": 320,
+    "height": 950,
+    "sha256": "B870F69CB026CB2D6A9FBE3A412E07811A42C1BBF6BD7E3F094E6CCEF37BB3C7",
+    "source": "Direct CUA browser screenshot; synthetic local fixture"
+  },
+  {
+    "file": "head-budget-light-768-empty.jpg",
+    "width": 768,
+    "height": 950,
+    "sha256": "6ABA49652915F604C1BC06F44241F56842362D409341914BB08F04B6B7023B9D",
+    "source": "Direct CUA browser screenshot; synthetic local fixture"
+  },
+  {
+    "file": "head-budget-picker-dark-320.jpg",
+    "width": 320,
+    "height": 950,
+    "sha256": "B779BD0F4BD6CF82B069ED900C5079AA81DB8299ACC6F165913D600339C124C9",
+    "source": "Direct CUA browser screenshot; synthetic local fixture"
+  },
+  {
+    "file": "head-budget-picker-light-320.jpg",
+    "width": 320,
+    "height": 950,
+    "sha256": "F54C1BE531AA3C7B4AB4251F4AD514826CDAD06F2FE76B3FCF02908919186D62",
+    "source": "Direct CUA browser screenshot; synthetic local fixture"
+  },
+  {
+    "file": "head-budget-picker-light-desktop.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "745E9EEFBD04AE6986992352AFF0B6D3CBF6BD5427433B666ACF5B6B1160EE49",
+    "source": "Direct CUA browser screenshot; synthetic local fixture"
+  },
+  {
+    "file": "head-find-pages-dark-320.jpg",
+    "width": 320,
+    "height": 950,
+    "sha256": "40BBDA898DC8BC4EB953CF401D69026E5F461BDB231954953F2471633F447BD4",
+    "source": "Direct CUA browser screenshot; synthetic local fixture"
+  },
+  {
+    "file": "head-identity-dark-320.jpg",
+    "width": 320,
+    "height": 950,
+    "sha256": "3117D3420AD24B667B0DEB9DEC1F5A8B7486E5E219B5B4B93624E9882EE678F8",
+    "source": "Direct CUA browser screenshot; synthetic local fixture"
+  },
+  {
+    "file": "head-identity-dark-desktop.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "50FF70C0A95B735DA422BB3B2E70BBCAB2403C84403480593F56B570366BE3CF",
+    "source": "Direct CUA browser screenshot; synthetic local fixture"
+  },
+  {
+    "file": "head-identity-light-320.jpg",
+    "width": 320,
+    "height": 950,
+    "sha256": "590062DF44B82E395E067B1F385A769CF703181DC3AC9DAD3ADB3FCE79CAF7AD",
+    "source": "Direct CUA browser screenshot; synthetic local fixture"
+  },
+  {
+    "file": "head-identity-light-desktop.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "2A14EE2E1A659F427A0AA943B76CAFF8CA6FDA2DECD24B145C5478FDEF872676",
+    "source": "Direct CUA browser screenshot; synthetic local fixture"
+  },
+  {
+    "file": "head-intelligence-dark-320-no-results.jpg",
+    "width": 320,
+    "height": 950,
+    "sha256": "14B012BC5131A834FF83BCCF10B2413715278C6F188A11C0D40D2D87D4FE62D4",
+    "source": "Direct CUA browser screenshot; synthetic local fixture"
+  },
+  {
+    "file": "head-intelligence-dark-320.jpg",
+    "width": 320,
+    "height": 950,
+    "sha256": "63282F3BFA3C772A6B5FEFD86BFDBDC7957BD0754A0ABFB902549B1871004E18",
+    "source": "Direct CUA browser screenshot; synthetic local fixture"
+  },
+  {
+    "file": "head-office-drawer-light-768.jpg",
+    "width": 768,
+    "height": 950,
+    "sha256": "C4B1DA152B09D6351BF69F8B692CE9497294695ED335393A52B810D902EC0623",
+    "source": "Direct CUA browser screenshot; synthetic local fixture"
+  },
+  {
+    "file": "head-office-invitations-dark-320.jpg",
+    "width": 320,
+    "height": 950,
+    "sha256": "6832D922B2E3508F9F209B41DE77AD40ECB032F037420C74516637AC6EE9A9BF",
+    "source": "Direct CUA browser screenshot; synthetic local fixture"
+  },
+  {
+    "file": "head-office-invitations-dark-desktop.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "D726D1A63B831E97648D18B1AA8F0298269D5D27341354B8DC82140BDB3A9A27",
+    "source": "Direct CUA browser screenshot; synthetic local fixture"
+  },
+  {
+    "file": "head-office-invitations-light-320.jpg",
+    "width": 320,
+    "height": 950,
+    "sha256": "3F17EE7BCE21424692D179324709D39FC63BF82900BF1F3E7D046B1ABD633AB9",
+    "source": "Direct CUA browser screenshot; synthetic local fixture"
+  },
+  {
+    "file": "head-office-team-dark-320.jpg",
+    "width": 320,
+    "height": 950,
+    "sha256": "EF9A0174665D94A9B9FBD78C6735086E1DD38A97B0A24D73AD849E1BCFF289E8",
+    "source": "Direct CUA browser screenshot; synthetic local fixture"
+  },
+  {
+    "file": "head-office-team-dark-desktop-empty.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "6DE56AA139485D69A26486DF6A4C1DBDE5DF542B2F6C945B8686EBD3EF0954B6",
+    "source": "Direct CUA browser screenshot; synthetic local fixture"
+  },
+  {
+    "file": "head-office-team-dark-desktop.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "0B5B7BBF55CE6D2E1965EC34D85E0DDA020BC9B9465B47E79034930BC0C1CAC8",
+    "source": "Direct CUA browser screenshot; synthetic local fixture"
+  },
+  {
+    "file": "head-office-team-light-320.jpg",
+    "width": 320,
+    "height": 950,
+    "sha256": "22347048EB5945A2C9DF854709941DD0382BD36CE144472B0AC2DDA198F96D35",
+    "source": "Direct CUA browser screenshot; synthetic local fixture"
+  },
+  {
+    "file": "head-supervision-dark-320.jpg",
+    "width": 320,
+    "height": 950,
+    "sha256": "1D0DE3D55FECAB04E6722911BBF349D39532BA51B79901B8BB7F359B474CF400",
+    "source": "Direct CUA browser screenshot; synthetic local fixture"
+  },
+  {
+    "file": "member-denied-budget-dark-desktop.jpg",
+    "width": 1439,
+    "height": 950,
+    "sha256": "675939D4778C8E7809DA9A7F3EC2D84710C86F93E40EDEF457169F08C8A53FA2",
+    "source": "Direct CUA browser screenshot; synthetic local fixture"
+  }
+]

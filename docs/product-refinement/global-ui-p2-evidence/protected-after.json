@@ -1,0 +1,78 @@
+{
+  "baseline": "P0/P1 approved local working tree",
+  "head": "545245e353ad04ac47e24f95a71e06cf736ca0f8",
+  "files": [
+    {
+      "path": "src/app/features/personal-work/components/PersonalWorkWorkspace.tsx",
+      "baselineSha256": "6c99348a063db15244a025cb0f32942af8a6384eeb01441f386f29e32eb7f7ec",
+      "currentSha256": "cb248248dc365965002a0a8f80c6af557c46eb6ee2163f4b2dbd399bea89bf07",
+      "unchanged": false
+    },
+    {
+      "path": "src/app/features/personal-work/components/WorkList.tsx",
+      "baselineSha256": "3e393c967fc8d354dab3e0837fcf7c9ade4165153b8498b6a127402debf3e904",
+      "currentSha256": "195b4c73504f2df36ea2965753ed945e102d8bb137f0b2a535b9c67088ecd2e9",
+      "unchanged": false
+    },
+    {
+      "path": "src/app/features/personal-work/personalWork.css",
+      "baselineSha256": "dcfb158649182ce31c44e4a2345f48aa39d550030b786c00b6271b14383ee544",
+      "currentSha256": "d4a1e78da0a65eaf3fe7c59fc12801dfffe5d7cd1eb7f250d14906c2537bb5c3",
+      "unchanged": false
+    },
+    {
+      "path": "src/app/features/app-shell/components/ContextRail.tsx",
+      "baselineSha256": "94416e1743de67e6b9787404848ea75bfa4ea30298ed8380bdd81554054e6eb5",
+      "currentSha256": "8f9532515f92740fbae64de83cf6cea9756ad269a50961db530c0e85108d0e01",
+      "unchanged": false
+    },
+    {
+      "path": "src/app/features/app-shell/navigationV2.css",
+      "baselineSha256": "16b27cbabce17437f7f38f7af66948d5a6ac561a99f7ac7956177f3fad789739",
+      "currentSha256": "c5dcb4c0fd29e1498d3c154519138435f5d89b14834c1ff745afb2c7d1bbfb1e",
+      "unchanged": false
+    },
+    {
+      "path": "src/app/features/navigation/RoleContent.tsx",
+      "baselineSha256": "d09da8d75167d1315fc195301db6bfd6e9e5927770b519461940509d77043e2e",
+      "currentSha256": "a68abebd87d1b6b04b027e67071fe071a885b2fbcd22054d90892b9fdea1e1da",
+      "unchanged": false
+    },
+    {
+      "path": "src/app/features/navigation/index.ts",
+      "baselineSha256": "de507e2cd286e6fb5b07a7c6889431a37640c74fd746eeafc3f113e9f212a333",
+      "currentSha256": "efe7a841037efa9ec1f6e745c57537c42254222a4c29bdf29cb30f99125563b2",
+      "unchanged": false
+    },
+    {
+      "path": "src/app/features/personal-work/services/workFeedService.ts",
+      "baselineSha256": "116172feb3ba300ab505578f13e13e2f8082c8a891875d6fed59eb76e0ae72c1",
+      "currentSha256": "116172feb3ba300ab505578f13e13e2f8082c8a891875d6fed59eb76e0ae72c1",
+      "unchanged": true
+    },
+    {
+      "path": "src/app/features/personal-work/workSelectors.ts",
+      "baselineSha256": "b8dd4a54ccef210792fb3a37fb4e5a57edd76de03b731fd5849583e1c50c0697",
+      "currentSha256": "b8dd4a54ccef210792fb3a37fb4e5a57edd76de03b731fd5849583e1c50c0697",
+      "unchanged": true
+    },
+    {
+      "path": "src/app/features/navigation/navigationPermissions.ts",
+      "baselineSha256": "edb27bcfde6bb81ad842a504afa48987c76fc12dd59a34330a7c1dea7078f7cd",
+      "currentSha256": "edb27bcfde6bb81ad842a504afa48987c76fc12dd59a34330a7c1dea7078f7cd",
+      "unchanged": true
+    },
+    {
+      "path": "src/app/features/app-shell/eflowNavigationIcons.tsx",
+      "baselineSha256": "c4883d6c0156eeace85a8a5c0d8286c97ac43e70acc45bd2c6988ad5ccd595f7",
+      "currentSha256": "c4883d6c0156eeace85a8a5c0d8286c97ac43e70acc45bd2c6988ad5ccd595f7",
+      "unchanged": true
+    },
+    {
+      "path": "src/app/features/workspaces/components/WorkspaceSelector.tsx",
+      "baselineSha256": "83f115f05eee780c05635a1982ff1b09a8dac230c9e67dbbe80d3a2185091acc",
+      "currentSha256": "83f115f05eee780c05635a1982ff1b09a8dac230c9e67dbbe80d3a2185091acc",
+      "unchanged": true
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "file": "src/app/features/app-shell/components/EflowTopBar.tsx",
+  "comparison": "Entire AccountMenu function, HEAD to P6",
+  "identical": true,
+  "sha256": "1EB5D2283D96FC01802F3C214EF81E597931A38CD4A08C6C90988B45FE265BFE"
+}

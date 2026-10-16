@@ -197,12 +197,12 @@ function PeopleTab({
           )}
 
           <VibeSearch
-            className="w-full max-w-md"
+            className="eflow-people-search w-full max-w-md"
             clearIconLabel="Clear people search"
             inputAriaLabel="Search office people"
             onChange={setQuery}
             onClear={() => setQuery("")}
-            placeholder="Search office people…"
+            placeholder="Search name, email or job title…"
             showClearIcon
             size="small"
             value={query}
@@ -439,7 +439,7 @@ function UserAccessTab({
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search dept members…"
+              aria-label="Search Office account access" placeholder="Search name, email, role or Office…"
               className="h-9 w-full rounded-xl border border-neutral-200 bg-neutral-50 pl-9 pr-3 text-[11px] outline-none focus:border-neutral-400"
             />
           </div>
@@ -676,7 +676,7 @@ export function HeadIAMWorkspace() {
         <AttentionBox
           type="warning"
           title="Office unavailable"
-          text="Your account must be attached to a office before access assignments can be managed."
+          text="Your account must be attached to an Office before access assignments can be managed."
         />
       </div>
     );

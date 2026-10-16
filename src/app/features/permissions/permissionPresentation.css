@@ -1,0 +1,24 @@
+.eflow-permissions-surface{color:var(--eflow-text);min-width:0;overflow-wrap:anywhere}
+.eflow-permissions-surface [class*=bg-white]{background:var(--eflow-surface)}
+.eflow-permissions-surface [class*=bg-neutral-]{background:var(--eflow-subtle)}
+.eflow-permissions-surface [class*=border-neutral-]{border-color:var(--eflow-border)}
+.eflow-permissions-surface [class*=text-neutral-]{color:var(--eflow-text-secondary)}
+.eflow-permissions-surface [class*=text-neutral-8],.eflow-permissions-surface [class*=text-neutral-9]{color:var(--eflow-text)}
+.eflow-permissions-surface [class*=bg-emerald-50]{background:var(--eflow-positive-bg)}
+.eflow-permissions-surface [class*=text-emerald-7]{color:var(--eflow-positive-text)}
+.eflow-permissions-surface [class*=bg-blue-50]{background:var(--eflow-info-bg)}
+.eflow-permissions-surface [class*=text-blue-]{color:var(--eflow-info-text)}
+.eflow-permissions-surface [class*=bg-teal-]{background:var(--eflow-selected)}
+.eflow-permissions-surface [class*=text-teal-]{color:var(--eflow-on-selected)}
+.eflow-permissions-surface input,.eflow-permissions-surface select,.eflow-permissions-surface textarea{background:var(--eflow-surface);color:var(--eflow-text);font:inherit}
+.eflow-permissions-surface button:focus-visible{outline:2px solid var(--eflow-primary);outline-offset:-2px}
+.eflow-role-permission{min-width:86px;min-height:var(--eflow-control-height)}
+.eflow-access-workspace>aside button[aria-pressed=true]{background:var(--eflow-selected);color:var(--eflow-on-selected)}
+.eflow-access-workspace>aside button[aria-pressed=true] [class*=text-neutral-]{color:inherit}
+.eflow-access-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:var(--eflow-space-3);padding:var(--eflow-table-compact-y) var(--eflow-space-4)}
+.eflow-access-row:hover{background:var(--eflow-subtle)}
+.eflow-access-row button{min-height:var(--eflow-control-height);color:var(--eflow-text);border-color:var(--eflow-border)}
+.eflow-access-workspace>aside>div:last-child{max-height:590px}
+.eflow-access-workspace .h-11.w-11{flex-shrink:0}
+@media(max-width:1023px){.eflow-permissions-surface button,.eflow-permissions-surface input:not([type=checkbox]),.eflow-permissions-surface select{min-height:var(--eflow-touch-target)}.eflow-access-workspace>aside>div:last-child{max-height:220px}}
+@media(max-width:640px){.eflow-access-row{grid-template-columns:1fr auto;gap:var(--eflow-space-2)}.eflow-access-row>div:first-child{grid-column:1/-1}}

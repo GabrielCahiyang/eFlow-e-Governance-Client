@@ -76,7 +76,7 @@ for (const role of ["head", "member", "accounting_staff", "admin"] as const)
       } else if (role === "admin") {
         await page.goto("/users?page=All%20Users");
         await expect(
-          page.getByText("Account directory", { exact: true }),
+          page.getByRole("heading", { name: "All Users", exact: true, level: 1 }),
         ).toBeVisible();
       } else {
         await page.goto("/my-work");
@@ -88,15 +88,22 @@ for (const role of ["head", "member", "accounting_staff", "admin"] as const)
     for (const width of widths) {
       await page.setViewportSize({ width, height: 900 });
       if (role === "accounting_staff" && !baseline) {
-        const views = page.getByRole("navigation", { name: "Accounting views" });
-        await expect(views.getByRole("button", { name: "Journal", exact: true })).toHaveAttribute("aria-current", "page");
-        await expect.poll(() => views.getByRole("button").evaluateAll(buttons => buttons.every(button => {
-          const range = document.createRange();
-          range.selectNodeContents(button);
-          const text = range.getBoundingClientRect();
-          const bounds = button.getBoundingClientRect();
-          return text.left >= bounds.left && text.right <= bounds.right && bounds.right <= innerWidth;
-        })), { message: "Accounting view labels must fit their own reachable buttons" }).toBe(true);
+        if (width >= 1024) {
+          const views = page.getByRole("navigation", { name: "Accounting destinations" });
+          await expect(views.getByRole("button", { name: "General Journal", exact: true })).toHaveAttribute("aria-current", "page");
+          await expect.poll(() => views.getByRole("button").evaluateAll(buttons => buttons.every(button => {
+            const range = document.createRange();
+            range.selectNodeContents(button);
+            const text = range.getBoundingClientRect();
+            const bounds = button.getBoundingClientRect();
+            return text.left >= bounds.left && text.right <= bounds.right && bounds.right <= innerWidth;
+          })), { message: "Accounting destination labels must fit their reachable rail buttons" }).toBe(true);
+        } else {
+          const picker = page.getByRole('combobox', {name:'Accounting destination',exact:true});
+          await expect(picker).toBeVisible();
+          await expect(picker).toContainText('Journal');
+          expect(await picker.evaluate(e=>e.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44);
+        }
       }
       await audit(page, info, `${role}-${width}`);
       await page.screenshot({

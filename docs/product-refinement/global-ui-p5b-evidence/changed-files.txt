@@ -1,0 +1,17 @@
+src/app/features/budget/accountingWorkspace.css
+src/app/features/budget/components/AccountingDestinationControl.tsx
+src/app/features/budget/components/AccountingOverview.tsx
+src/app/features/budget/components/AccountingSettlementQueue.tsx
+src/app/features/budget/components/AccountingStaffWorkspace.tsx
+src/app/features/budget/components/AccountingTrailPanel.tsx
+src/app/features/budget/components/BudgetReleasesPanel.tsx
+src/app/features/budget/components/GeneralJournalWorkspace.tsx
+src/app/features/budget/components/OfficeBudgetWorkspace.tsx
+tests/e2e/fixtures/globalUiP5b.ts
+tests/e2e/global-ui-p5b.spec.ts
+tests/e2e/phase16-support-finance.spec.ts
+tests/e2e/phase18-release.spec.ts
+tests/unit/budgetDesignSystemPresentation.test.ts
+tests/unit/globalUiP5b.test.tsx
+
+Documentation: this evidence directory, P5b receipt, audit handoff and overnight-execution-status.md

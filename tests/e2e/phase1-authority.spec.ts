@@ -1,4 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
+import { establishLocalNetwork } from "./fixtures/localNetwork";
+import { projectWorkspaceFixture } from "./fixtures/projectWorkspace";
 
 // Exercise the real app with synthetic accounts. Every backend request is intercepted.
 // This fixture cannot authenticate to, read from, or mutate the deployed database.
@@ -33,6 +35,7 @@ async function signInFixture(page: Page, role: string) {
     }
     return route.fulfill({json:{success:true}});
   });
+  await establishLocalNetwork(page);
   await page.goto("/", { waitUntil: "domcontentloaded" });
   await page.locator("#login-email").fill(user.email);
   await page.locator("#login-password").fill("synthetic-password");
@@ -41,6 +44,37 @@ async function signInFixture(page: Page, role: string) {
   const later = page.getByRole("button", { name: "Maybe later", exact: true });
   await later.waitFor({ timeout: 3000 }).then(() => later.click()).catch(() => {});
 }
+
+test("local synthetic transport preserves offline sign-in denial and online recovery", async ({ page }) => {
+  let loginRequests = 0;
+  page.on("request", request => {
+    if (new URL(request.url()).pathname.endsWith("/api/auth/login")) loginRequests++;
+  });
+  await projectWorkspaceFixture(page, "member", false, { landingOnly: true });
+  expect(await page.evaluate(() => navigator.onLine)).toBe(true);
+  expect(loginRequests).toBe(1);
+
+  await page.evaluate(() => localStorage.clear());
+  await page.reload();
+  await expect(page.locator("#login-submit")).toBeVisible();
+  await page.context().setOffline(true);
+  expect(await page.evaluate(() => navigator.onLine)).toBe(false);
+  await page.locator("#login-email").fill("workspace@example.test");
+  await page.locator("#login-password").fill("synthetic-password");
+  await page.locator("#login-submit").click();
+  await expect(page.getByText("No network connection. Check your internet connection.", { exact: true })).toBeVisible();
+  await expect(page.locator(".eflow-app-shell")).toHaveCount(0);
+  expect(loginRequests).toBe(1);
+
+  // Firefox's network emulator changes navigator state without online events;
+  // verify actual user resubmission, including clearance of the offline error.
+  await page.context().setOffline(false);
+  expect(await page.evaluate(() => navigator.onLine)).toBe(true);
+  await page.locator("#login-submit").click();
+  await expect(page.locator(".eflow-app-shell")).toBeVisible();
+  await expect(page.getByText("No network connection. Check your internet connection.", { exact: true })).toHaveCount(0);
+  expect(loginRequests).toBe(2);
+});
 
 for (const role of ["admin", "head", "member", "accounting_staff"]) {
   test(`${role} has canonical navigation and an intact workspace`, async ({ page }, testInfo) => {
@@ -55,17 +89,17 @@ for (const role of ["admin", "head", "member", "accounting_staff"]) {
       for (const section of ["dashboard", "projects", "tasks", "reviews", "team", "accounting_releases"]) {
         await expect(sidebar.locator(`[data-tour-section="${section}"]`)).toHaveCount(0);
       }
-      await expect(page.getByRole("tab", { name: "Backup & export", exact: true })).toBeVisible();
+      await expect(sidebar.getByRole("button", { name: "Backup & Export", exact: true })).toBeVisible();
       await page.getByRole("banner", { name: "Workspace utilities" }).hover();
-      await page.getByRole("tab", { name: "Roles & permissions", exact: true }).click();
-      await expect(page.getByRole("tab", { name: "Role Defaults", exact: true })).toHaveAttribute("aria-selected", "true");
+      await sidebar.getByRole("button", { name: "Role Defaults", exact: true }).click();
+      await expect(sidebar.getByRole("button", { name: "Role Defaults", exact: true })).toHaveAttribute("aria-current", "page");
       await expect(page.getByRole("columnheader", { name: "Admin", exact: true })).toHaveCount(2);
       await expect(page.getByRole("columnheader", { name: "Head", exact: true })).toHaveCount(2);
       await expect(page.getByRole("columnheader", { name: "Member", exact: true })).toHaveCount(2);
       const allowed = page.getByRole("button", { name: "Admin: Allowed", exact: true });
       await expect(allowed).toHaveCount(9);
       for (const button of await allowed.all()) await expect(button).toBeDisabled();
-      await page.getByRole("tab", { name: "People & onboarding", exact: true }).click();
+      await sidebar.getByRole("button", { name: "All Users", exact: true }).click();
       await page.getByRole("button", { name: "Create user", exact: true }).click();
       const dialog = page.getByRole("dialog", { name: "Create New User" });
       await expect(dialog.getByRole("option", { name: "Member", exact: true })).toHaveCount(1);

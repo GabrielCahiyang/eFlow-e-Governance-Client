@@ -65,9 +65,12 @@ describe("R10 access-sensitive feed lifecycle", () => {
       {id:'deep',taskId:'root',title:'Same',parentSubtaskId:'ancestor',leadId:'me',position:0,assignedToIds:['worker','worker'],dueDate:'2026-10-21'},
     ],{rootId:'root',rootTitle:'Root',people:[{id:'me',name:'Current Lead'},{id:'worker',name:'Contributor'}]}).get('deep');
     const open=vi.fn();render(<WorkList rows={[row]} onOpen={open}/>);
+    fireEvent.click(screen.getByText('Details'));
     expect(screen.getByLabelText('Work path').textContent).toBe('Root / Permitted ancestor / Same');
     expect(screen.getByText(/Lead: Current Lead · Contributors \(1\)/)).toBeTruthy();
     expect(screen.getByText('21 Oct 2026')).toBeTruthy();
+    expect(screen.getByText('Contributor')).toBeTruthy();
+    expect(screen.getByText(row.timezone)).toBeTruthy();
     expect(screen.queryByText(/Depth \d/)).toBeNull();
     const button=screen.getByRole('button');fireEvent.click(button);expect(open).toHaveBeenCalledWith(row,button);
   });

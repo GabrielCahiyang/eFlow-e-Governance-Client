@@ -1,26 +1,31 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../../../contexts/AuthContext";
-import { WorkspaceHeader, ActionMenu } from "../../../components/ui/workspace";
+import { WorkspaceHeader } from "../../../components/ui/workspace";
+import { Button } from "../../../components/ui/button";
+import { RefreshCw } from "lucide-react";
 import { FeedbackState } from "../../../components/ui/FeedbackState";
 import { requestNavigation } from "../../../shared/navigationGuard";
 import {
   NAVIGATION_LOCATION_EVENT,
   pushNavigationHistory,
 } from "../../../shared/navigationHistory";
-import { writeNavigationLocation } from "../../navigation";
+import { writeNavigationLocation, buildShellNavigation, getSidebarContent, PersonalWorkTools } from "../../navigation";
 import { useWorkFeed } from "../hooks/useWorkFeed";
-import { workDestinations, dateFilters, type WorkDestination } from "../types";
+import { workDestinations, type WorkDestination } from "../types";
 import { selectWorkRows } from "../workSelectors";
 import { WorkList } from "./WorkList";
 import { WorkInspector, useWorkInspector } from "./WorkInspector";
+import { WorkFilters } from "./WorkFilters";
 import "../personalWork.css";
 import { readWorkFilters as readFilters } from "../workLocation";
 export function PersonalWorkWorkspace({
   page = "Assigned work",
   onNavigate,
+  hasLeadingWork,
 }: {
   page?: string;
   onNavigate?: (section: string, page: string) => void;
+  hasLeadingWork?: boolean;
 }) {
   const { user, userProfile, can } = useAuth();
   const userId = user?.id || "";
@@ -32,6 +37,7 @@ export function PersonalWorkWorkspace({
       page={page}
       can={can}
       onNavigate={onNavigate}
+      hasLeadingWork={hasLeadingWork}
     />
   );
 }
@@ -41,12 +47,14 @@ function PersonalWorkContent({
   page,
   can,
   onNavigate,
+  hasLeadingWork,
 }: {
   userId: string;
   role: string;
   page: string;
   can: (permission: string) => boolean;
   onNavigate?: (section: string, page: string) => void;
+  hasLeadingWork?: boolean;
 }) {
   const feed = useWorkFeed(userId);
   const inspector = useWorkInspector();
@@ -79,12 +87,10 @@ function PersonalWorkContent({
       }
       pushNavigationHistory(`${url.pathname}${url.search}`);
     });
-  const navigate = (section: string, page: string) =>
-    void requestNavigation(() =>
-      onNavigate
-        ? onNavigate(section, page)
-        : writeNavigationLocation(section, page),
-    );
+  const navigate = (section: string, page: string) => {
+    if (onNavigate) onNavigate(section, page);
+    else void requestNavigation(() => writeNavigationLocation(section, page));
+  };
   const rows = selectWorkRows(
     feed.data?.rows || [],
     destination,
@@ -94,89 +100,27 @@ function PersonalWorkContent({
     filters.recent,
   );
   const partial = !!feed.data?.issues.length;
-  const reportPage = role === "head" ? "Reports" : "Work Report";
+  const navigationItems = buildShellNavigation({ role, can, hasLeadingWork: hasLeadingWork ?? !!feed.data?.rows.some(row => row.leading && row.actionable) });
+  const destinations = getSidebarContent(role, 'personal_work').sections.flatMap(section => section.items);
   return (
     <section className="r10-workspace" aria-label="My Work">
       <WorkspaceHeader
         title="My Work"
-        description="Your work across accessible Office and personal workspaces. Workspace selection does not limit this feed."
+        description="Tasks and subitems across your accessible workspaces."
         actions={
-          <>
-            <button
+            <Button
               type="button"
+              variant="outline"
               disabled={feed.loading}
               onClick={() => void feed.refresh()}
             >
-              Refresh work
-            </button>
-            <ActionMenu
-              tooltip="Retained personal tools"
-              trigger={<button type="button">Work tools</button>}
-              actions={[
-                {
-                  id: "inbox",
-                  label: "Open Inbox",
-                  onSelect: () => navigate("inbox", "Inbox"),
-                },
-                ...(can("navigation.tasks")
-                  ? [
-                      {
-                        id: "tasks",
-                        label:
-                          role === "head"
-                            ? "Office task board"
-                            : "Task workspace",
-                        onSelect: () =>
-                          navigate(
-                            "tasks",
-                            role === "head" ? "Task Board" : "My Tasks",
-                          ),
-                      },
-                    ]
-                  : []),
-                ...(role !== "head" && can("navigation.tasks")
-                  ? [
-                      {
-                        id: "deadlines",
-                        label: "Deadline calendar",
-                        onSelect: () => navigate("deadlines", "Deadlines"),
-                      },
-                    ]
-                  : []),
-                ...(can("navigation.reports")
-                  ? [
-                      {
-                        id: "reports",
-                        label: reportPage,
-                        onSelect: () => navigate("reports", reportPage),
-                      },
-                    ]
-                  : []),
-                ...(role !== "head" && can("navigation.reports")
-                  ? [
-                      {
-                        id: "performance",
-                        label: "Performance",
-                        onSelect: () => navigate("performance", "Performance"),
-                      },
-                    ]
-                  : []),
-                ...(role !== "head" && can("navigation.tasks")
-                  ? [
-                      {
-                        id: "history",
-                        label: "Task history details",
-                        onSelect: () => navigate("history", "Task History"),
-                      },
-                    ]
-                  : []),
-              ]}
-            />
-          </>
+              <RefreshCw size={16} aria-hidden="true" />Refresh work
+            </Button>
         }
       />
+      <div className="r10-destination-host">
       <nav className="r10-destinations" aria-label="My Work destinations">
-        {workDestinations.map((value) => (
+        {destinations.map(({ label: value }) => (
           <button
             type="button"
             key={value}
@@ -187,68 +131,9 @@ function PersonalWorkContent({
           </button>
         ))}
       </nav>
-      <div className="r10-toolbar">
-        <label>
-          Search work
-          <input
-            id="personal-work-search"
-            aria-label="Search personal work"
-            type="search"
-            value={filters.query}
-            onChange={(e) => update({ query: e.target.value })}
-          />
-        </label>
-        <label>
-          Workspace scope
-          <select
-            value={filters.workspace}
-            onChange={(e) => update({ workspace: e.target.value })}
-          >
-            <option value="">All accessible workspaces</option>
-            {feed.data?.workspaces.map((w) => (
-              <option key={w.id} value={w.id}>
-                {w.name}
-              </option>
-            ))}
-          </select>
-        </label>
-        {filters.query && (
-          <button type="button" onClick={() => update({ query: "" })}>
-            Clear search
-          </button>
-        )}
+      <PersonalWorkTools items={navigationItems} destination={destination} onSelect={navigate} />
       </div>
-      <div
-        className="r10-date-filters"
-        role="group"
-        aria-label="Work date filters"
-      >
-        {dateFilters.map((value) => (
-          <button
-            type="button"
-            key={value}
-            aria-pressed={filters.date === value}
-            onClick={() => update({ date: value })}
-          >
-            {value}
-          </button>
-        ))}
-        {destination === "History" && (
-          <label>
-            <input
-              type="checkbox"
-              checked={filters.recent}
-              onChange={(e) => update({ recent: e.target.checked })}
-            />
-            Recently completed · last 7 days by last update
-          </label>
-        )}
-      </div>
-      <p className="r10-help">
-        Dates use each work item's workspace timezone. History includes
-        authorized completed, cancelled and archived work; personal completion
-        dates are unavailable.
-      </p>
+      <WorkFilters filters={filters} destination={destination} workspaces={feed.data?.workspaces || []} onChange={update} />
       {feed.error && (
         <FeedbackState
           tone="error"
@@ -282,9 +167,8 @@ function PersonalWorkContent({
         <p role="status">Loading your work…</p>
       ) : (
         <>
-          <p role="status">
-            {rows.length} {partial ? "loaded " : ""}items · {destination} ·{" "}
-            {filters.date}
+          <p role="status" className="r10-result-count">
+            {rows.length} {partial ? "loaded " : ""}items · {destination}
             {feed.loading ? " · Refreshing access…" : ""}
           </p>
           {rows.length ? (
@@ -292,11 +176,10 @@ function PersonalWorkContent({
           ) : (
             <FeedbackState
               title={
-                filters.query ? "No matching work" : "No work in this view"
+                filters.query || filters.date !== 'All my work' || filters.workspace || destination === 'History' && filters.recent ? "No matching work" : "No work in this view"
               }
             >
-              Choose another destination, date filter or workspace. Review and
-              invitation actions are in Inbox and Members.
+              {filters.query || filters.date !== 'All my work' || filters.workspace || destination === 'History' && filters.recent ? <><p>Try a different search or filter.</p><Button type="button" variant="outline" onClick={() => update({ query: '', date: 'All my work', workspace: '', recent: false })}>Clear search and filters</Button></> : 'Assigned tasks and subitems will appear here when they are available to you.'}
             </FeedbackState>
           )}
         </>

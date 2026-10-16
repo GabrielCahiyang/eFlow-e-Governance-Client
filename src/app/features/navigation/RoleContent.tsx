@@ -131,7 +131,7 @@ export function RoleContent({
     return (
       <Suspense fallback={<RoleLoading />}>
         <PageFrame>
-          <PersonalWorkWorkspace page={activePage} onNavigate={onNavigate}/>
+          <PersonalWorkWorkspace page={activePage} onNavigate={onNavigate} hasLeadingWork={hasLeadingWork}/>
         </PageFrame>
       </Suspense>
     );

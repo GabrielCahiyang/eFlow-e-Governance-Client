@@ -57,6 +57,8 @@ begin
  loop
   if to_regprocedure(sig) is null then raise exception 'NW2.2 prerequisite function missing: %',sig; end if;
   definition := replace(pg_get_functiondef(sig::regprocedure),chr(13),'');
+  before_text := replace(before_text,chr(13),'');
+  after_text := replace(after_text,chr(13),'');
   if (length(definition)-length(replace(definition,before_text,'')))/length(before_text)<>1 then
    raise exception 'NW2.2 assignment anchor changed: %; inspect effective baseline',sig;
   end if;

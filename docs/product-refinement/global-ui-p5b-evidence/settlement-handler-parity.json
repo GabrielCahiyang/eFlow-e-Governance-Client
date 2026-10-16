@@ -1,0 +1,6 @@
+{
+  "source": "src/app/features/budget/components/AccountingSettlementQueue.tsx",
+  "comparison": "HEAD to final working source, auth/eligibility/state/confirmation/decision/verification/evidence-signing block before JSX",
+  "identical": true,
+  "sha256": "C60C86EA0FC96139E66E6E7441ADFC43A48D3F9092AC2F6814774E34FE796AC7"
+}

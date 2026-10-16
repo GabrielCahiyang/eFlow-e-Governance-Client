@@ -76,7 +76,7 @@ async function hierarchyFixture(page:Page,role:'head'|'member'|'admin'='head',de
  if(role==='admin'){
   // Admin's navigation boundary excludes project work, even via a direct URL.
   await page.goto(`/projects?workspace=${records.org}&project=${records.project}`);
-  await expect(page.getByText('Account directory',{exact:true})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'All Users',exact:true,level:1})).toBeVisible();
  }else{await page.reload();if(actorCase==='Subitem Lead'||actorCase==='Contributor')await expect(page.getByRole('button',{name:'Subitems for '+title,exact:true})).toBeVisible({timeout:30000});else await expect(page.getByRole('button',{name:'Choose task lead and contributors'}).first()).toBeVisible({timeout:30000});}
  return {records,nodes,members,commands,previews,treeReads,changeHistory(){historyVersion++;},set materialDate(value:boolean){materialDate=value;},set impactBlocked(value:boolean){impactBlocked=value;},set lostCheckedReceipt(value:boolean){lostCheckedReceipt=value;},blockReads(){readGate=new Promise<void>(resolve=>{releaseReadGate=resolve;});},releaseReads(){readGate=undefined;releaseReadGate();},set readFailure(value:'offline'|'denied'|null){readFailure=value;},set closed(value:boolean){closed=value;records.projects[0].status=value?'archived':'planning';},set revoked(value:boolean){revoked=value;}};
 }
@@ -96,7 +96,7 @@ for(const actorCase of ['Head','Task Lead','Subitem Lead','Contributor'] as cons
 });
 test('NW9.7 board editor shares canonical staffing and deep work while retaining metadata',async({page})=>{
  const fixture=await hierarchyFixture(page,'head',8);
- await page.getByRole('navigation',{name:'Workspace destinations'}).getByRole('button',{name:'Tasks',exact:true}).click();
+ await page.getByRole('navigation',{name:'Workspace destinations'}).getByRole('button',{name:'Office tasks',exact:true}).click();
  await workAction(page,'Open actions for '+title,'Edit task details');
  const editor=page.getByRole('dialog',{name:title,exact:true});await expect(editor).toBeVisible();
  await expect(editor.getByRole('button',{name:'Edit Team',exact:true})).toHaveCount(0);
@@ -239,7 +239,7 @@ for(const mode of ['contributor','admin','closed','failed','proposed'] as const)
  if(mode==='proposed')fixture.records.tasks[0].proposed_office_identity_id='90000000-0000-4000-8000-000000000001';
  await page.reload();
  if(mode==='admin'){
-  await expect(page.getByText('Account directory',{exact:true})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'All Users',exact:true,level:1})).toBeVisible();
   await expect(page.getByRole('button',{name:'Open '+title,exact:true})).toHaveCount(0);
   await expect(page.getByRole('dialog',{name:'Task details: '+title})).toHaveCount(0);
   expect(fixture.commands).toHaveLength(0);return;
@@ -494,7 +494,12 @@ test('NW9.4 standalone queue searches authorized depth-eight context and keeps f
  await expect(detail.getByRole('navigation',{name:'Review work path'})).toHaveText(path);
  await expect(detail).toContainText('Current reviewer: Alex Rivera');
  await expect(detail).toContainText('Lead: Alex Rivera · Contributors (1): Bob selected for project');
+ // Verify the debounced filter has actually applied before beginning a
+ // feedback draft; a late filter request must not be mistaken for revocation.
+ await page.getByLabel('Search subtask evidence',{exact:true}).fill('No matching authorized review path');
+ await expect(detail).toHaveCount(0);
  await page.getByLabel('Search subtask evidence',{exact:true}).fill(path);
+ await expect(detail.getByRole('navigation',{name:'Review work path'})).toHaveText(path);
  await expect(detail).toContainText('Immutable evidence note');
  await expect(detail.getByRole('link',{name:'private-proof.pdf'})).toHaveAttribute('href',/synthetic/);
  await detail.getByPlaceholder('Explain what needs correction…').fill('Keep authorized review feedback');

@@ -1,6 +1,16 @@
 import { test, expect } from '@playwright/test';
 import { projectWorkspaceFixture as fixture } from './fixtures/projectWorkspace';
 const title='Prepare community assessment';
+
+// Retain the original flat/G2 team entrance contract on a deliberately excluded
+// governed root. Supported canonical staffing is separately covered by R7/NW.
+async function legacyTeamFixture(page: Parameters<typeof fixture>[0], role: Parameters<typeof fixture>[1], phase4=false, options: Parameters<typeof fixture>[3]={}) {
+ const records=await fixture(page,role,phase4,options);
+ Object.assign(records.tasks[0],{source_collaboration_draft_id:'90000000-0000-4000-8000-000000000011'});
+ await page.reload();
+ await expect(page.getByRole('table',{name:'To do tasks',exact:true})).toBeVisible({timeout:30_000});
+ return records;
+}
 test.beforeEach(async({page})=>{test.setTimeout(90_000);await page.setViewportSize({width:1440,height:1000});});
 
 test('column widths, alignment, visibility and sticky task context persist locally',async({page},info)=>{
@@ -41,16 +51,16 @@ test('group creation guards its draft and empty deletion confirms impact and ret
 });
 
 test('task team entry reuses existing details and mobile sticky context leaves room for work',async({page},info)=>{
- test.setTimeout(90_000);await fixture(page,'member');await page.getByRole('button',{name:'Actions for '+title,exact:true}).click();await page.getByRole('menuitem',{name:'Task team & contributors',exact:true}).click();await expect(page.getByRole('button',{name:'Manage',exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'Close task detail',exact:true})).toBeFocused();await page.keyboard.press('Escape');await expect(page.getByRole('button',{name:'Close task detail',exact:true})).toHaveCount(0);
+ test.setTimeout(90_000);await legacyTeamFixture(page,'member');await page.getByRole('button',{name:'Actions for '+title,exact:true}).click();await page.getByRole('menuitem',{name:'Task team & contributors',exact:true}).click();await expect(page.getByRole('button',{name:'Manage',exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'Close task detail',exact:true})).toBeFocused();await page.keyboard.press('Escape');await expect(page.getByRole('button',{name:'Close task detail',exact:true})).toHaveCount(0);
  await page.setViewportSize({width:390,height:844});const scroll=page.locator('.pt-table-scroll').first();await scroll.evaluate(element=>element.scrollLeft=600);const row=page.locator('.pt-task-row').first(),bounds=await scroll.boundingBox(),name=await row.locator('.pt-task-name').boundingBox();expect(name!.width).toBeLessThanOrEqual(220);expect(name!.x+name!.width).toBeLessThan(bounds!.x+bounds!.width-50);await row.getByRole('button',{name:'Actions for '+title,exact:true}).click();await expect(page.getByRole('menuitem',{name:'Add subitem',exact:true})).toBeVisible();await page.getByRole('menuitem',{name:'Add subitem',exact:true}).click();const input=page.getByRole('textbox',{name:'Add subitem to '+title,exact:true});await expect(input).toBeFocused();const box=await input.boundingBox();expect(box!.x+box!.width).toBeLessThanOrEqual(390);expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);await page.screenshot({path:info.outputPath('sticky-subitems-mobile.png'),fullPage:true});
 });
 
 test('shared Task Lead team action explains the unresolved authority gate',async({page})=>{
- const records=await fixture(page,'member',false,{shared:true});records.projectOffices[0].relationship_type='collaborator';records.officeMembers.push({id:'membership',project_office_id:records.projectOffices[0].id,user_id:records.id,is_active:true});await page.reload();await expect(page.getByRole('table',{name:'To do tasks',exact:true})).toBeVisible({timeout:30_000});await page.getByRole('button',{name:'Actions for '+title,exact:true}).click();const team=page.getByRole('menuitem',{name:'Task team & contributors',exact:true});await expect(team).toBeDisabled();await expect(team).toContainText('responsible Office Head');await expect(page.getByRole('menuitem',{name:'Task details, evidence & review',exact:true})).toBeEnabled();
+ const records=await legacyTeamFixture(page,'member',false,{shared:true});records.projectOffices[0].relationship_type='collaborator';records.officeMembers.push({id:'membership',project_office_id:records.projectOffices[0].id,user_id:records.id,is_active:true});await page.reload();await expect(page.getByRole('table',{name:'To do tasks',exact:true})).toBeVisible({timeout:30_000});await page.getByRole('button',{name:'Actions for '+title,exact:true}).click();const team=page.getByRole('menuitem',{name:'Task team & contributors',exact:true});await expect(team).toBeDisabled();await expect(team).toContainText('responsible Office Head');await expect(page.getByRole('menuitem',{name:'Task details, evidence & review',exact:true})).toBeEnabled();
 });
 
 test('Observer inspection and closed-project table retain read-only controls',async({page})=>{
- const records=await fixture(page,'member',false,{shared:true});await expect(page.getByRole('combobox',{name:'Owner for '+title,exact:true})).toBeDisabled();await page.getByRole('button',{name:'Actions for '+title,exact:true}).click();await page.getByRole('menuitem',{name:'Task team & contributors',exact:true}).click();await expect(page.getByRole('button',{name:'Close task detail',exact:true})).toBeFocused();await expect(page.getByRole('button',{name:'Manage',exact:true})).toHaveCount(0);await page.keyboard.press('Escape');await expect(page.getByRole('button',{name:'Close task detail',exact:true})).toHaveCount(0);records.projects[0].status='completed';await page.reload();await expect(page.getByRole('table',{name:'To do tasks',exact:true})).toBeVisible({timeout:30_000});await expect(page.getByRole('button',{name:'Edit task '+title,exact:true})).toBeDisabled();await expect(page.getByRole('spinbutton',{name:'Estimated hours for '+title,exact:true})).toBeDisabled();await expect(page.getByRole('button',{name:'New task',exact:true})).toHaveCount(0);
+ const records=await legacyTeamFixture(page,'member',false,{shared:true});await expect(page.getByRole('combobox',{name:'Owner for '+title,exact:true})).toBeDisabled();await page.getByRole('button',{name:'Actions for '+title,exact:true}).click();await page.getByRole('menuitem',{name:'Task team & contributors',exact:true}).click();await expect(page.getByRole('button',{name:'Close task detail',exact:true})).toBeFocused();await expect(page.getByRole('button',{name:'Manage',exact:true})).toHaveCount(0);await page.keyboard.press('Escape');await expect(page.getByRole('button',{name:'Close task detail',exact:true})).toHaveCount(0);records.projects[0].status='completed';await page.reload();await expect(page.getByRole('table',{name:'To do tasks',exact:true})).toBeVisible({timeout:30_000});await expect(page.getByRole('button',{name:'Edit task '+title,exact:true})).toBeDisabled();await expect(page.getByRole('spinbutton',{name:'Estimated hours for '+title,exact:true})).toBeDisabled();await expect(page.getByRole('button',{name:'New task',exact:true})).toHaveCount(0);
 });
 
 test('Head owner appointment confirms impact and retains denied assignment for retry',async({page},info)=>{

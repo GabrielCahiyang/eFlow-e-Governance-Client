@@ -2,7 +2,7 @@
 import {act,cleanup,fireEvent,render,screen,waitFor} from '@testing-library/react';
 import {afterEach,beforeEach,describe,it,expect,vi} from 'vitest';
 import {installNavigationConfirmation,requestNavigation} from '../../src/app/shared/navigationGuard';
-async function chooseWorkAction(label:string, action:string){const trigger=await screen.findByRole('button',{name:label,exact:true});fireEvent.keyDown(trigger,{key:'Enter'});fireEvent.click(await screen.findByRole('menuitem',{name:action,exact:true}));}
+async function chooseWorkAction(label:string, action:string){const trigger=await screen.findByRole('button',{name:label,exact:true});fireEvent.keyDown(trigger,{key:'Enter'});fireEvent.click(await screen.findByRole('menuitem',{name:action,exact:true}));await screen.findByLabelText('Subitem title');}
 
 const mocks=vi.hoisted(()=>({actor:'lead',load:vi.fn(),save:vi.fn(),impact:vi.fn()}));
 vi.mock('../../src/app/contexts/AuthContext',()=>({useAuth:()=>({user:{id:mocks.actor}})}));
@@ -25,6 +25,24 @@ const tree=(patch:Partial<WorkTreeSnapshot>={}):WorkTreeSnapshot=>{
 };
 beforeEach(()=>{sessionStorage.clear();vi.resetAllMocks();mocks.actor='lead';mocks.load.mockResolvedValue(tree());mocks.impact.mockImplementation(async(_root,request)=>nestedWorkImpactFixture(tree(),request));});afterEach(()=>{cleanup();vi.useRealTimers();});
 describe('R7 checked nested-work UI',()=>{
+ for(const selected of ['initial','date','child-dialog'] as const)it(`keeps ${selected} editor focus stable across a deferred entry frame`,async()=>{
+  const frames:FrameRequestCallback[]=[];
+  const frame=vi.spyOn(window,'requestAnimationFrame').mockImplementation(callback=>{frames.push(callback);return frames.length;});
+  const cancel=vi.spyOn(window,'cancelAnimationFrame').mockImplementation(()=>{});
+  let child:HTMLElement|undefined;
+  try {
+   render(<WorkTree rootId="root" createRequest={1} controller={{rootId:'root',actorId:'lead',data:tree(),loading:false,error:'',unavailable:false,authorityFresh:true,refreshPending:false,pending:false,reload:vi.fn(),save:vi.fn()}}/>);
+   const title=await screen.findByLabelText('Subitem title');
+   if(selected==='initial')expect(document.activeElement).toBe(title);
+   const date=screen.getByLabelText('Subitem due date') as HTMLInputElement;
+   if(selected==='date'){date.focus();fireEvent.change(date,{target:{value:'2026-10-08'}});}
+   if(selected==='child-dialog'){child=document.createElement('div');child.setAttribute('role','alertdialog');child.innerHTML='<button>Current review control</button>';document.body.appendChild(child);child.querySelector('button')!.focus();}
+   const chosen=document.activeElement;
+   act(()=>{for(const callback of [...frames])callback(performance.now());});
+   expect(document.activeElement).toBe(chosen);
+   if(selected==='date'){expect(date.value).toBe('2026-10-08');expect((title as HTMLInputElement).value).toBe('');}
+  } finally {child?.remove();frame.mockRestore();cancel.mockRestore();}
+ });
  it('keeps loaded owners visible during refresh and coalesces overlapping focus reads',async()=>{
   let resolve:(data:WorkTreeSnapshot)=>void=()=>{};
   render(<WorkRootOwner rootId="root"/>);await screen.findByText('Current Lead');

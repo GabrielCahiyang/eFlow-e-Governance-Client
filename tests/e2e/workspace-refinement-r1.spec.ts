@@ -75,7 +75,13 @@ for (const width of [320, 390, 768, 1024, 1440]) test(`R1 actual project views k
     for (const view of ["tasks", "board", "gantt", "calendar", "dashboard", "offices", "readiness", "overview", "timeline", "reports", "activity", "reviews", "workload", "signoff", "evidence", "decisions", "budget", "proposal_context"]) {
       await page.goto(`/projects?page=Projects&project=${data.project}&view=${view}`);
       await expect(page.locator(".eflow-project-command")).toBeVisible({ timeout: 30_000 });
-      await expect(page.getByRole("heading", { name: /Long community service project/ })).toBeVisible();
+      // Bound Firefox's traversal on the large SVG Timeline while retaining
+      // the unique, named, visible heading contract explicitly.
+      const heading = page.locator(".eflow-project-command h1").filter({ hasText: /Long community service project/ });
+      await expect(heading).toHaveCount(1);
+      await expect(heading).toHaveRole("heading");
+      await expect(heading).toHaveAccessibleName(/Long community service project/);
+      await expect(heading).toBeVisible();
       await expect.poll(() => page.evaluate(() => document.documentElement.classList.contains("dark")), { timeout: 15_000 }).toBe(theme === "dark");
       await expect(page.locator(".eflow-project-command > [role=status]")).toHaveCount(0);
       // Firefox's role locator stalls on the large Timeline after scrolling.

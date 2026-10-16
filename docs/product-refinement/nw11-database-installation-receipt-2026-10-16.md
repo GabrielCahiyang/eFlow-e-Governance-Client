@@ -1,0 +1,35 @@
+# NW11 database installation receipt — 16 October 2026
+
+**Database step completed by the user and independently verified read-only. Runtime deployment/acceptance remains pending; full NW11 is not complete. Do not run any apply file again.**
+
+Target **ixnfphgjyelhckjwjkdv**, PostgreSQL **17.6**. Installed new version **20261015230935**, name **nested_work_verified_corrections**, exactly once. Actual history now has **30** entries; all **29 previous version/name/statement-array records are exactly unchanged**. The new entry contains **67 statements**, SHA-256 **67fc3c7190d1c4bfdf8fe45f5f9f3c4880655e5adec2195c78d9eab57dbfecb7**, matching the reviewed revision-3 package. Both existing financial fixes remain installed, with no reapplication or history repair. [Actual verification receipt](../../.refinement/nw11-installation-20261016/hosted-installation-verification.json).
+
+The user supplied apply and verification result screenshots. Some displayed status/version text is cropped; full values were independently confirmed from the actual database at **11:19 Singapore time** on 16 October. [Preserved apply screenshot](../../.refinement/nw11-installation-20261016/user-apply-success.png), [preserved verification screenshot](../../.refinement/nw11-installation-20261016/user-verification-success.png), [attributed screenshot hashes and catalog comparison](../../.refinement/nw11-installation-20261016/before-after-contract-comparison.json). User-run SQL application is distinct from the agent's actions: the agent used catalog-only repeatable-read/read-only inspection, always rolled back, and made no hosted writes.
+
+The delivered R3 read-only checker passes all **150 catalog postconditions plus the exact Activity view definition**: 73 function contracts, 2 private tables, 16 information-schema column contracts, 16 direct column-attribute contracts (including all14 NOT NULL rules), 7 ordinary/constraint-trigger entries and 36 triggers. Actual function count is **514**. Function bodies/arguments/defaults/results/owner/definer/search-path/EXECUTE flags are covered by the retained fingerprints with declared paired-CRLF canonicalization. The statement checksum matches exactly; no larger SQL selection, reduced tests or function-policy substitution is inferred.
+
+Independent actual before/after comparison also verifies every catalog object outside the reviewed changes:
+
+| Catalog section | Unchanged existing objects | Reviewed objects | Result |
+| --- | ---: | ---: | --- |
+| functions | 441 | 73 | pass |
+| tables | 138 | 2 | pass |
+| columns | 1351 | 16 | pass |
+| constraints | 698 | 7 | pass |
+| triggers | 176 | 36 | pass |
+| policies | 195 | 0 | pass |
+| bucket_configuration | 2 | 0 | pass |
+
+All **195 policies** remain exactly unchanged. Role memberships, schema/default grants and all **seven bucket configurations** retain recovery-contract SHA **f7e99b18898ac3492f8911a57590531a80c0bf21758a14c42652225329a77ab5**. This certifies catalog/configuration preservation, not private financial/work-row contents, Auth sessions, Storage object bytes, signed access or live RLS behavior. No application/Auth rows or object bytes were queried. No data-restoration or fresh-backup claim is made.
+
+Exact command: server/.venv/Scripts/python.exe .refinement/nw11-installation-20261016/verify-installed.py. It verifies all three delivered-file hashes, strict project/session endpoint and cluster identity, PostgreSQL17, transaction_read_only=on, then runs every delivered verification statement inside one repeatable-read/read-only transaction. Only the outer BEGIN READ ONLY/ROLLBACK delimiters are removed because the driver supplies that same protected transaction. The original SQL verification statements and all checks are unchanged. It captures catalog/history/config only, compares the old29 history rows exactly, checks the new67 statement hash and unchanged recovery fingerprint, then rolls back/closes. **Exit0.** [Log](../../.refinement/nw11-installation-20261016/hosted-verification-attempt1.log).
+
+Second command: node .refinement/nw11-installation-20261016/compare-installed-baseline.mjs. **Exit0**, every unreviewed raw catalog row unchanged, all reviewed150/view checks already confirmed, two operator screenshots preserved. [Result](../../.refinement/nw11-installation-20261016/before-after-contract-comparison.json). No SQL migration, refresh of protected data, publication, grant/account change, private export or operational recovery occurred through agent tooling.
+
+A NEW ignored installed-history workspace was populated from these exact **30 actual version/name/statement arrays**, preserving deployed timestamps and raw statement hashes, **zero pending migrations**. [Workspace receipt](../../.refinement/nw11-installation-20261016/installed-workspace-receipt.json). This is source/history provenance, not a recoverable database backup. Do not push the repository historical folder, rerun the old29 baseline preflight or repair live history to match local names. R1/R2/R3 preparation manifests remain immutable historical preparation evidence; the current installed receipt supersedes their pending status. Applied SQL and manifest bytes remain unchanged.
+
+NW10.1–NW10.4 remain locally verified against frozen candidate **591302e923d9e1286f7379979406d254391dc814a9063c5fb6ff22f341b11976**, main/HEAD **fbc88d76a933b33a2c50d13d2430f27ad6fd72dc**. Source/archive identity is unchanged; no successful SQL/unit/build/browser/performance suite was repeated. Existing dirty source remains preserved, staging empty, no commit or push. Current candidate inventory includes 53 frontend assets, 52 gateway source files and 127 repository migration references; those artifacts are not proof of the current hosted runtime.
+
+**Remaining NW11:** identify actual running frontend/gateway and compatible recovery builds/config/dependencies, obtain any required publication authorization, and perform scoped genuine-session acceptance (Head, Task/Subitem Leads, contributor, sibling/deeper scope, Admin/Viewer, foreign Office, revoked/expired/guest access, concurrency/retry, financial/evidence and actual Storage access). Use the [acceptance matrix](nw11-acceptance-matrix-2026-10-15.md); no account/invitation changes or production-record mutations are implied by this receipt. Fresh backup/private/Auth/Storage recovery and real native restore remain unverified under the user's earlier direct-manual exception, and inherited security findings remain open. The PG17 WASM model did not close the native restoration gate. [Current readiness](nw11-1-readiness-checklist-2026-10-16.md).
+
+**Exact next action:** identify the frontend URL and gateway endpoint/environment and bind actual runtime identities to the frozen candidate before planning any publish or live acceptance. The user was asked for those public/local URLs, without credentials. No additional migration is pending for the nine reviewed NW corrections. Never reapply the now-installed integration or either installed finance migration. NW11 database portion is complete; full runtime/acceptance and recovery are not.

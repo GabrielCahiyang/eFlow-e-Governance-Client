@@ -56,7 +56,7 @@ export function getSystemTourSteps(
     {
       id: "system-navigation",
       title: "Your navigation",
-      description: "The global rail groups your authorized destinations. Office tools and the project tree stay available across pages. Search workspace finds your available destinations and projects. The adjacent plus shows or hides sections; collapse keeps the global rail available. On a small screen, use the bottom navigation and More to open this panel.",
+      description: "The global rail groups your authorized destinations. The adjacent context sidebar selects a destination. Workspaces keeps Office tools and the project tree together; Find pages and projects searches authorized destinations and loaded projects. Collapse keeps the global rail available. On a small screen, use bottom navigation and More to open the panel.",
       target: "[data-tour-id='primary-navigation']",
     },
     ...sections.map((section) => ({
@@ -69,8 +69,8 @@ export function getSystemTourSteps(
     {
       id: "system-page-help",
       title: "Help for every page",
-      description: "Select Walkthrough on any page for instructions focused on that workspace. You can replay page guidance whenever needed.",
-      target: "[data-tour-id='page-walkthrough']",
+      description: "Open Help and choose Guide for this page for instructions focused on that workspace. You can replay page guidance whenever needed.",
+      target: "[data-tour-id='workspace-help']",
     },
     {
       id: "system-communication",
@@ -81,8 +81,8 @@ export function getSystemTourSteps(
     {
       id: "system-restart",
       title: "Replay the system tour",
-      description: "Start Walkthrough at any time to repeat this complete role-specific tour from the beginning.",
-      target: "[data-tour-id='system-walkthrough']",
+      description: "Open Help and choose Tour of eFlow to repeat this complete role-specific tour from the beginning.",
+      target: "[data-tour-id='workspace-help']",
     },
     {
       id: "system-settings",
@@ -105,7 +105,7 @@ export function getPageTourSteps(section: string, page?: string): GuidedTourStep
     {id:'project-context',title:'Choose or create a project',description:'Choose a project in Workspaces, or open More on a small screen to see the project tree. Star a project for quick access on this device. Use Projects and proposals for authorized creation, proposal import, saved work plans and proposal review. The plus beside the workspace selector changes visible sections.',target:() => document.querySelector<HTMLElement>("[aria-label='Workspace content']") || document.querySelector<HTMLElement>("[aria-label='Mobile primary navigation']") || document.querySelector<HTMLElement>('[data-tour-page-content]')},
     {id:'project-main-table',title:'Your main working table',description:'Groups organize tasks; expand a task to see its subitems. Your changes use the same records as evidence, reviews and budget workflows.',target:"[data-tour-id='project-main-table']"},
     {id:'project-table-tools',title:'Add and find work',description:'Use New task to add tasks, groups or reviewed document work. Import proposal from Create project options saves a work-plan draft for later approval. Review sections preserve your edits; adding work to this project requires an impact confirmation. Search, filter, sort and choose visible columns within your existing access.',target:"[data-tour-id='project-table-toolbar']"},
-    {id:'project-replay',title:'Continue working, or revisit this guide',description:'Open task details for evidence, review and funding. Eligible Office Heads can review staffing suggestions before assigning an owner. Office Heads can open View completion requirements for plan reviews and blockers; governed projects keep Proposal Context. Tab Walkthrough reopens this guide.',target:"[data-tour-id='page-walkthrough']"},
+    {id:'project-replay',title:'Continue working, or revisit this guide',description:'Open task details for evidence, review and funding. Eligible Office Heads can review staffing suggestions before assigning an owner. Office Heads can open View completion requirements for plan reviews and blockers; governed projects keep Proposal Context. Help → Guide for this page reopens this guide.',target:"[data-tour-id='workspace-help']"},
   ];
   if (section === 'team' && page === 'Office Team') return [
     { id: 'office-team', title: 'Your Office Team', description: 'Search active account members and invitation validity separately from email delivery. Open a member for the authorized professional summary. Project participation and task teams stay in their own inspectors.', target: "[data-tour-id='office-team']" },
@@ -134,7 +134,7 @@ export function getPageTourSteps(section: string, page?: string): GuidedTourStep
       id: "page-help",
       title: "Walkthrough available anytime",
       description: "You can reopen this page guide whenever you need a reminder. Completing or skipping the guide never changes operational data.",
-      target: "[data-tour-id='page-walkthrough']",
+      target: "[data-tour-id='workspace-help']",
     },
   ];
 }

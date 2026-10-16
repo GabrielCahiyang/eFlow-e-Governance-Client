@@ -3,7 +3,6 @@ import * as React from "react";
 import {
   Background,
   BackgroundVariant,
-  Controls,
   ReactFlow,
   ReactFlowProvider,
   useEdgesState,
@@ -33,7 +32,6 @@ import {
   resolveNodeCollisions,
 } from "./orgTreeModel";
 import {
-  Building2,
   Focus,
   LayoutDashboard,
   Plus,
@@ -43,6 +41,7 @@ import {
 import { Tooltip } from "@vibe/core";
 
 import { useConfirmation } from "../../../../components/ui/useConfirmation";
+import { WorkspaceHeader } from '../../../../components/ui/workspace';
 function OrgTreeBuilderInner() {
   const { orgs, loading: orgsLoading } = useOrgs();
   const { profiles, loading: profilesLoading } = useProfiles();
@@ -311,7 +310,7 @@ function OrgTreeBuilderInner() {
     <>
       {" "}
       {confirmation.dialog}
-      <div className="flex flex-1 h-full overflow-hidden">
+      <div className="eflow-admin-office-map flex flex-1 h-full overflow-hidden">
         {/* Main canvas area */}
         <div className="flex-1 min-w-0 flex flex-col relative">
           <UndoNotifications
@@ -321,17 +320,8 @@ function OrgTreeBuilderInner() {
           />
 
           {/* Toolbar */}
+          <WorkspaceHeader title="Office Structure" description="Right-click a node to edit it, add a child, or manage leadership." />
           <div className="flex flex-wrap items-center gap-2 border-b border-neutral-200 bg-white px-4 py-3 shrink-0">
-            <div className="mr-auto min-w-[220px]">
-              <div className="flex items-center gap-2 text-[13px] font-semibold text-neutral-900">
-                <Building2 size={16} className="text-teal-700" /> Organization
-                structure
-              </div>
-              <p className="mt-0.5 text-[9.5px] text-neutral-500">
-                Right-click a node to edit it, add a child, or manage
-                leadership.
-              </p>
-            </div>
             <button
               onClick={() => {
                 setAddingParentId(undefined);
@@ -408,7 +398,6 @@ function OrgTreeBuilderInner() {
                 size={1}
                 color="#e5e5e5"
               />
-              <Controls showInteractive={false} />
             </ReactFlow>
           </div>
         </div>

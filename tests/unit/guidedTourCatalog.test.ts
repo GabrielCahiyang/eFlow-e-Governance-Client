@@ -22,6 +22,6 @@ describe("guided tour manifests", () => {
     expect(steps).toHaveLength(4);
     expect(steps[1].description).toContain("Groups organize tasks");
     expect(steps[1].target).toBe("[data-tour-id='project-main-table']");
-    expect(steps.at(-1)?.target).toBe("[data-tour-id='page-walkthrough']");
+    expect(steps.at(-1)?.target).toBe("[data-tour-id='workspace-help']");
   });
 });

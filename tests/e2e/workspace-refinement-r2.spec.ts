@@ -11,10 +11,10 @@ for (const width of [320, 390, 768, 1024, 1440]) test(`R2 persistent sections an
   await expect(panel.getByRole('button',{name:'Planning Office Workspace',exact:true})).toBeVisible();
   for(const label of ['Home','Search','Planning','Drafts','Waiting for approval','Team Members']) await expect(page.locator('.eflow-productivity-sidebar').getByRole('button',{name:label,exact:true})).toHaveCount(0);
   await expect(panel.getByRole('button',{name:'Office tools',exact:true})).toHaveAttribute('aria-expanded','true');
-  await panel.getByRole('button',{name:'Tasks',exact:true}).click();
+  await panel.getByRole('button',{name:'Office tasks',exact:true}).click();
   await expect.poll(()=>new URL(page.url()).pathname).toBe('/tasks');
   await open();
-  await expect(panel.getByRole('button',{name:'Tasks',exact:true})).toHaveAttribute('aria-current','page');
+  await expect(panel.getByRole('button',{name:'Office tasks',exact:true})).toHaveAttribute('aria-current','page');
   await expect(panel.getByRole('button',{name:'Community outreach',exact:true})).toBeVisible();
   await panel.getByRole('button',{name:'Reports',exact:true}).click();
   await expect.poll(()=>new URL(page.url()).pathname).toBe('/reports');
@@ -34,9 +34,9 @@ for (const width of [320, 390, 768, 1024, 1440]) test(`R2 persistent sections an
   await expect(page.locator('[data-testid="tooltip"]').filter({hasText:'Show or hide workspace sections'})).toHaveCount(0);
   expect(await panel.locator('.eflow-workspace-section').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('aria-label')))).toEqual(['Office tools','Projects','Archived projects','Favorites']);
   await expect(panel.getByRole('region',{name:'Favorites',exact:true}).getByRole('button',{name:'Community outreach',exact:true})).toBeVisible();
-  await panel.getByRole('button',{name:'Search workspace',exact:true}).click();
+  await panel.getByRole('button',{name:'Find pages and projects',exact:true}).click();
   await page.getByRole('textbox',{name:'Search navigation and projects'}).fill('Community outreach');
-  await page.getByRole('dialog',{name:'Search available content'}).getByRole('button',{name:'Community outreach Project',exact:true}).click();
+  await page.getByRole('dialog',{name:'Find pages and projects'}).getByRole('button',{name:'Community outreach Project',exact:true}).click();
   await expect(page.getByRole('region',{name:'Project main table'})).toBeVisible();
   if(width>=1024) {
     await panel.getByRole('button',{name:'Collapse workspace sidebar'}).click();

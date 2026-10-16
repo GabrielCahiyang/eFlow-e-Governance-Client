@@ -134,14 +134,14 @@ export function BudgetReleasesPanel({
                   PC-{String(request?.requestNumber || 0).padStart(5, "0")} ·{" "}
                   {request?.subtaskTitle || request?.taskTitle || "Funded work"}
                 </div>
-                <div className="mt-1 text-[11px] text-neutral-500">
+                <div className="mt-1 text-[12px] text-neutral-500">
                   Recipient:{" "}
                   {request?.cashRecipientName ||
                     request?.requesterName ||
                     "Assigned recipient"}{" "}
                   · scheduled {release.scheduledDate}
                 </div>
-                <div className="mt-1 font-mono text-[11px] text-neutral-500">
+                <div className="mt-1 font-mono text-[12px] text-neutral-500">
                   {release.voucherNumber ||
                     "Voucher number assigned by the accounting migration"}
                   {release.status === "released"
@@ -149,7 +149,7 @@ export function BudgetReleasesPanel({
                     : ""}
                 </div>
                 {release.releasedAt && (
-                  <div className="mt-1 text-[11px] text-neutral-500">
+                  <div className="mt-1 text-[12px] text-neutral-500">
                     Released {new Date(release.releasedAt).toLocaleString()}
                   </div>
                 )}
@@ -226,11 +226,11 @@ export function BudgetReleasesPanel({
                   <div className="text-[12px] font-medium">
                     {request.subtaskTitle || request.taskTitle || "Funded work"}
                   </div>
-                  <div className="mt-1 text-[11px] text-neutral-500">
+                  <div className="mt-1 text-[12px] text-neutral-500">
                     {request.requesterName} · {request.purpose}
                   </div>
                 </div>
-                <div className="text-[11px] text-neutral-500">
+                <div className="text-[12px] text-neutral-500">
                   <Clock3 size={10} className="mr-1 inline" />
                   {request.liquidationDueAt
                     ? `Due ${new Date(request.liquidationDueAt).toLocaleDateString()}`
@@ -238,7 +238,7 @@ export function BudgetReleasesPanel({
                 </div>
                 <div className="text-right">
                   <StatusPill status={request.status} />
-                  <div className="mt-1 text-[11px] text-neutral-500">
+                  <div className="mt-1 text-[12px] text-neutral-500">
                     {latest
                       ? `${peso.format(latest.declaredSpent)} spent · ${peso.format(latest.returnedAmount)} returned`
                       : `${peso.format(request.releasedAmount || 0)} released`}
@@ -306,7 +306,7 @@ function ReleaseSummaryCard({
     <div
       className={`rounded-xl border p-3 ${urgent ? "border-amber-200 bg-amber-50" : "border-neutral-200 bg-white"}`}
     >
-      <div className="text-[11px] uppercase tracking-[0.12em] text-neutral-500">
+      <div className="text-[12px] uppercase tracking-[0.12em] text-neutral-500">
         {label}
       </div>
       <div
@@ -314,7 +314,7 @@ function ReleaseSummaryCard({
       >
         {value}
       </div>
-      <div className="mt-0.5 text-[11px] text-neutral-500">{note}</div>
+      <div className="mt-0.5 text-[12px] text-neutral-500">{note}</div>
     </div>
   );
 }

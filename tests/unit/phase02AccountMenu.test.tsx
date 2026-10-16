@@ -4,10 +4,11 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { EflowVibeThemeProvider } from "../../src/app/shared/vibe";
 
-const account = vi.hoisted(() => ({ logout: vi.fn() }));
+const account = vi.hoisted(() => ({ logout: vi.fn(), theme: "light", systemDark: false }));
 
 // Account menu fixture represents a desktop viewport.
-vi.mock("../../src/app/shared/useMediaQuery", () => ({ useMediaQuery: () => false }));
+vi.mock("../../src/app/shared/useMediaQuery", () => ({ useMediaQuery: () => account.systemDark }));
+vi.mock("../../src/app/contexts/UserPreferencesContext", () => ({ useUserPreferences: () => ({ theme: account.theme }) }));
 
 vi.mock("../../src/app/contexts/AuthContext", () => ({
   useAuth: () => ({
@@ -39,13 +40,26 @@ vi.mock("../../src/app/features/chat-calls", () => ({
 }));
 
 vi.mock("../../src/app/features/guided-tours", () => ({
-  PageWalkthroughButton: () => <button type="button">Walkthrough</button>,
-  SystemWalkthroughButton: () => <button type="button">Start walkthrough</button>,
+  WorkspaceHelpMenu: () => <button type="button">Help</button>,
 }));
 
 import { EflowTopBar } from "../../src/app/features/app-shell/components/EflowTopBar";
 
 describe("Phase 02 account utility", () => {
+  it.each([
+    ["light", false, "#01006B"],
+    ["light", true, "#01006B"],
+    ["dark", false, "#ffffff"],
+    ["dark", true, "#ffffff"],
+    ["system", false, "#01006B"],
+    ["system", true, "#ffffff"],
+  ])("keeps the existing wordmark readable for %s with system dark %s", (theme, systemDark, color) => {
+    account.theme = String(theme); account.systemDark = Boolean(systemDark);
+    const view = render(<EflowVibeThemeProvider preference="light"><EflowTopBar onOpenMobileNavigation={() => undefined} onPageSelect={() => undefined} role="head" helpOpen={false} onHelpOpenChange={() => undefined} /></EflowVibeThemeProvider>);
+    expect(view.container.querySelector('.eflow-topbar__wordmark svg path')?.getAttribute('fill')).toBe(color);
+    view.unmount(); account.theme = "light"; account.systemDark = false;
+  });
+
   it("shows human-readable account context and retains settings and logout actions", async () => {
     const onPageSelect = vi.fn();
     render(
@@ -56,6 +70,8 @@ describe("Phase 02 account utility", () => {
           onOpenMobileNavigation={() => undefined}
           onPageSelect={onPageSelect}
           role="head"
+          helpOpen={false}
+          onHelpOpenChange={() => undefined}
         />
       </EflowVibeThemeProvider>,
     );

@@ -13,6 +13,7 @@ export interface Column<T> {
   action?: boolean;
 }
 
+export interface DataTableViewState { search: string; sortKey: string | null; sortDir: 'asc' | 'desc' }
 interface DataTableProps<T> {
   data: T[];
   columns: Column<T>[];
@@ -29,6 +30,8 @@ interface DataTableProps<T> {
   ariaLabel?: string;
   error?: string;
   onRetry?: () => void;
+  viewState?: DataTableViewState;
+  onViewStateChange?: (state: DataTableViewState) => void;
 }
 
 export function DataTable<T>({
@@ -47,10 +50,13 @@ export function DataTable<T>({
   ariaLabel = "Data table",
   error,
   onRetry,
+  viewState,
+  onViewStateChange,
 }: DataTableProps<T>) {
-  const [search, setSearch] = useState("");
-  const [sortKey, setSortKey] = useState<string | null>(null);
-  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+  const [localViewState, setLocalViewState] = useState<DataTableViewState>({ search: '', sortKey: null, sortDir: 'asc' });
+  const { search, sortKey, sortDir } = viewState ?? localViewState;
+  const updateView = (next: Partial<DataTableViewState>) => (onViewStateChange ?? setLocalViewState)({ ...(viewState ?? localViewState), ...next });
+  const setSearch = (search: string) => updateView({ search });
 
   const filtered = useMemo(() => {
     let result = data;
@@ -74,10 +80,9 @@ export function DataTable<T>({
 
   const handleSort = (key: string) => {
     if (sortKey === key) {
-      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+      updateView({ sortDir: sortDir === 'asc' ? 'desc' : 'asc' });
     } else {
-      setSortKey(key);
-      setSortDir("asc");
+      updateView({ sortKey: key, sortDir: 'asc' });
     }
   };
 

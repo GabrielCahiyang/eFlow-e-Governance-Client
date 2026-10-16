@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
-import { PageHeader } from "../../../components/workflow/primitives";
+import { WorkspaceHeader } from "../../../components/ui/workspace";
+import '../peopleWorkspace.css';
 
 export function PeopleWorkspaceShell({
   title,
@@ -14,7 +15,7 @@ export function PeopleWorkspaceShell({
 }) {
   return (
     <section aria-label="People workspace" className="eflow-people-workspace min-h-full min-w-0 p-3 sm:p-8">
-      <PageHeader eyebrow="People · Office" title={title} subtitle={subtitle} actions={actions} />
+      <WorkspaceHeader title={title} description={subtitle} actions={actions} />
       {children}
     </section>
   );

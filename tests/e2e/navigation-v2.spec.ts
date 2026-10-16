@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { projectWorkspaceFixture } from './fixtures/projectWorkspace';
 
 const routes = {
-  head: [['Workspaces','Workspace Overview','/overview'],['Workspaces','Tasks','/tasks'],['Workspaces','Office Budget','/office-budget'],['Workspaces','Office Team','/team-supervision'],['Workspaces','Identity & Access','/identity-and-access'],['Workspaces','Team Intelligence','/team-intelligence'],['Workspaces','Reports','/reports'],['My Work','Assigned work','/my-work'],['My Work','Leading','/my-work'],['My Work','Subtasks','/my-work'],['My Work','History','/my-work'],['Inbox','Reviews','/reviews'],['Inbox','Announcements','/announcements']],
+  head: [['Workspaces','Workspace Overview','/overview'],['Workspaces','Office tasks','/tasks'],['Workspaces','Office Budget','/office-budget'],['Workspaces','Office Team','/team-supervision'],['Workspaces','Identity & Access','/identity-and-access'],['Workspaces','Team Intelligence','/team-intelligence'],['Workspaces','Reports','/reports'],['My Work','Assigned work','/my-work'],['My Work','Leading','/my-work'],['My Work','Subtasks','/my-work'],['My Work','History','/my-work'],['Inbox','Reviews','/reviews'],['Inbox','Announcements','/announcements']],
   member: [['My Work','Assigned work','/my-work'],['My Work','Leading','/my-work'],['My Work','Subtasks','/my-work'],['My Work','History','/my-work'],['Workspaces','Workspace Overview','/overview'],['Inbox','Leader Reviews','/reviews'],['Inbox','Announcements','/announcements']],
   accounting_staff: [['My Work','Assigned work','/my-work'],['My Work','Leading','/my-work'],['My Work','Subtasks','/my-work'],['My Work','History','/my-work'],['Accounting','Accounting Overview','/accounting-overview'],['Accounting','Voucher & Cash Releases','/voucher-cash-releases'],['Accounting','General Journal','/general-journal'],['Accounting','Financial Audit Trail','/financial-audit-trail'],['Accounting','Office Budget Ledgers','/office-budget-ledgers']],
   admin: [['Admin Center','All Users','/users'],['Admin Center','Role Defaults','/users'],['Admin Center','User Access','/users'],['Admin Center','Office Structure','/users'],['Admin Center','Account Audit','/users'],['Admin Center','System Settings','/users'],['Admin Center','Backup & Export','/users']],
@@ -35,9 +35,9 @@ test('individual support grants reach the named screen and denied routes load no
   test.setTimeout(90_000);
   await projectWorkspaceFixture(page,'member',false,{landingOnly:true,overrides:{'navigation.audit':true}});
   await page.getByRole('navigation',{name:'Global navigation'}).getByRole('button',{name:'Admin Center',exact:true}).click();
-  await expect(page.getByRole('tab',{name:'Audit',exact:true})).toHaveAttribute('aria-selected','true');
-  await expect(page.getByRole('tab',{name:'People',exact:true})).toHaveCount(0);
-  await page.goto('/audit?page=Audit'); await expect(page.getByRole('tab',{name:'Audit',exact:true})).toHaveAttribute('aria-selected','true');
+  await expect(page.getByRole('navigation',{name:'Admin Center destinations'}).getByRole('button',{name:'Account Audit',exact:true})).toHaveAttribute('aria-current','page');
+  await expect(page.getByRole('button',{name:'All Users',exact:true})).toHaveCount(0);
+  await page.goto('/audit?page=Audit'); await expect(page.getByRole('navigation',{name:'Admin Center destinations'}).getByRole('button',{name:'Account Audit',exact:true})).toHaveAttribute('aria-current','page');
   await page.goto('/organization?page=Org%20Structure'); await expect(page.getByRole('heading',{name:'Access denied',exact:true})).toBeVisible();
   await page.route('**/rest/v1/user_permission_overrides**',route=>route.fulfill({json:[]}));
   const auditRequests:string[]=[]; page.on('request',request=>{if (/audit_(logs|events)/.test(request.url())) auditRequests.push(request.url());});
@@ -54,9 +54,9 @@ test('search and favorites retain a shared inter-Office observer project without
   await context.getByRole('button',{name:'Add Community outreach to favorites',exact:true}).click();
   await page.reload();
   await expect(context.getByRole('button',{name:'Remove Community outreach from favorites',exact:true}).first()).toHaveAttribute('aria-pressed','true');
-  await page.getByRole('button',{name:'Search workspace',exact:true}).click();
+  await page.getByRole('button',{name:'Find pages and projects',exact:true}).click();
   await page.getByRole('textbox',{name:'Search navigation and projects'}).fill('Community outreach');
-  await page.getByRole('dialog',{name:'Search available content'}).getByRole('button',{name:'Community outreach Project',exact:true}).click();
+  await page.getByRole('dialog',{name:'Find pages and projects'}).getByRole('button',{name:'Community outreach Project',exact:true}).click();
   await expect(page.getByRole('region',{name:'Project main table'})).toBeVisible();
   expect(new URL(page.url()).searchParams.get('project')).toBe(records.project);
   await expect(page.getByRole('button',{name:'New task',exact:true})).toHaveCount(0);

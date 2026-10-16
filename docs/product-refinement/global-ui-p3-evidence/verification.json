@@ -1,0 +1,55 @@
+{
+  "head": "545245e353ad04ac47e24f95a71e06cf736ca0f8",
+  "scope": "P3 only, preserving approved P0/P1/P2",
+  "typecheck": "passed",
+  "unit": {
+    "files": 294,
+    "passed": 1768,
+    "failed": 0,
+    "log": ".codex-tmp/global-ui-p3/unit-accepted.log"
+  },
+  "build": "passed; existing chunk/import warnings",
+  "browser": {
+    "passed": 108,
+    "failed": 0,
+    "skipped": 0,
+    "projects": [
+      "chromium",
+      "webkit"
+    ],
+    "baseURL": "http://127.0.0.1:5179",
+    "suites": [
+      "global-ui-p1",
+      "global-ui-p2",
+      "global-ui-p3",
+      "phase13-personal-work",
+      "workspace-refinement-r8",
+      "context-rail-ui"
+    ],
+    "log": ".codex-tmp/global-ui-p3/browser-accepted.log"
+  },
+  "manualScreenshots": 24,
+  "protectedFilesUnchanged": 4313,
+  "hostedWrites": 0,
+  "migrations": 0,
+  "deployment": false,
+  "authorityChanges": false,
+  "limits": [
+    "Synthetic local accounts; genuine hosted account/JWT/RLS/Storage/provider acceptance unverified",
+    "Firefox unavailable from earlier spawn UNKNOWN",
+    "Existing dark wordmark contrast issue retained in protected shared header",
+    "P4-P7 unstarted"
+  ],
+  "graphify": {
+    "status": "passed",
+    "nodes": 9539,
+    "communities": 411,
+    "preExistingPartialExtractionWarnings": [
+      "guided-tours/index.ts",
+      "productivity/index.ts",
+      "project-table/components/ProjectTaskRow.tsx",
+      "work-templates/index.ts"
+    ],
+    "log": ".codex-tmp/global-ui-p3/graph.log"
+  }
+}

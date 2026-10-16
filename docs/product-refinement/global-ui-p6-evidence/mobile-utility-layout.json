@@ -1,0 +1,32 @@
+{
+  "controls": [
+    {
+      "height": 44,
+      "label": "Open navigation",
+      "width": 44
+    },
+    {
+      "height": 44,
+      "label": "Open help",
+      "width": 44
+    },
+    {
+      "height": 44,
+      "label": "Open notifications",
+      "width": 44
+    },
+    {
+      "height": 44,
+      "label": "Open messages",
+      "width": 44
+    },
+    {
+      "height": 44,
+      "label": "Open account menu",
+      "width": 44
+    }
+  ],
+  "leadingRight": 122.0625,
+  "utilitiesRight": 312,
+  "width": 320
+}

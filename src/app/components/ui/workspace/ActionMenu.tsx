@@ -21,21 +21,27 @@ export function ActionMenu({
   onCloseAutoFocus,
   side = "bottom",
   tooltip,
+  open,
+  onOpenChange,
+  contentClassName = "",
 }: {
   trigger: ReactElement;
   actions: WorkspaceAction[];
   onCloseAutoFocus?: (event: Event) => void;
   side?: "top" | "bottom";
   tooltip?: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  contentClassName?: string;
 }) {
   const menuId = useId();
   return (
-    <DropdownMenu>
+    <DropdownMenu open={open} onOpenChange={onOpenChange}>
       {tooltip ? <WorkspaceTooltip content={tooltip}><DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger></WorkspaceTooltip> : <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>}
       <DropdownMenuContent
         data-placement={side}
         side={side}
-        className="eflow-workspace-popover"
+        className={`eflow-workspace-popover ${contentClassName}`}
         align="end"
         onCloseAutoFocus={onCloseAutoFocus}
       >

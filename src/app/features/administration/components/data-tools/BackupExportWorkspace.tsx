@@ -26,10 +26,10 @@ import {
 } from "lucide-react";
 
 import { useToast } from "../../../../components/ui/Toast";
+import { WorkspaceHeader } from '../../../../components/ui/workspace';
 import {
   Card,
   LoadingState,
-  PageHeader,
   StatCard,
   WButton,
   WSelect,
@@ -344,10 +344,9 @@ export function BackupExportWorkspace() {
   if (error && !overview) {
     return (
       <div className="eflow-page-content">
-        <PageHeader
-          eyebrow="Admin · Data Tools"
+        <WorkspaceHeader
           title="Backup & Export"
-          subtitle="Create an audited, checksummed export of the live eFlow Supabase schema and operational data."
+          description="Create an audited, checksummed export of the live eFlow Supabase schema and operational data."
         />
         <BackupGatewayUnavailable
           error={error}
@@ -360,10 +359,9 @@ export function BackupExportWorkspace() {
 
   return (
     <div className="eflow-page-content">
-      <PageHeader
-        eyebrow="Admin · Data Tools"
+      <WorkspaceHeader
         title="Backup & Export"
-        subtitle="Create an audited, checksummed export of the live eFlow Supabase schema and operational data."
+        description="Create an audited, checksummed export of the live eFlow Supabase schema and operational data."
         actions={
           <WButton
             icon={

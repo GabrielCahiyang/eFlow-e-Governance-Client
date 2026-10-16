@@ -29,7 +29,7 @@ export function TeamMemberBoard({
       <aside className="min-w-0 overflow-hidden rounded-xl border border-neutral-200 bg-white xl:sticky xl:top-4">
         <div className="border-b border-neutral-100 p-3">
           <label className="text-[12px] font-semibold text-neutral-800" htmlFor="team-member-search">Members</label>
-          <div className="relative mt-2"><Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" /><input id="team-member-search" value={search} onChange={(event) => onSearch(event.target.value)} placeholder="Search members…" className="h-9 w-full rounded-lg border border-neutral-200 bg-white pl-9 pr-3 text-[12px] outline-none transition focus:border-neutral-500" /></div>
+          <div className="relative mt-2"><Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" /><input id="team-member-search" value={search} onChange={(event) => onSearch(event.target.value)} placeholder="Search name, job title or Office…" className="h-9 w-full rounded-lg border border-neutral-200 bg-white pl-9 pr-3 text-[12px] outline-none transition focus:border-neutral-500" /></div>
         </div>
         <div className="max-h-[calc(100vh-250px)] overflow-y-auto p-2">
           {filtered.map((employee) => {
@@ -50,7 +50,7 @@ export function TeamMemberBoard({
     <div>
       <div className="relative mb-3">
         <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
-        <input value={search} onChange={(event) => onSearch(event.target.value)} placeholder="Search team members…" className="h-9 w-full rounded-lg border border-neutral-200 bg-white pl-9 pr-3 text-[12px] outline-none transition focus:border-neutral-400" />
+        <input value={search} onChange={(event) => onSearch(event.target.value)} aria-label="Search Office people by name, job title or Office" placeholder="Search name, job title or Office…" className="h-9 w-full rounded-lg border border-neutral-200 bg-white pl-9 pr-3 text-[12px] outline-none transition focus:border-neutral-400" />
       </div>
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 2xl:grid-cols-3">
         {filtered.map((employee) => {

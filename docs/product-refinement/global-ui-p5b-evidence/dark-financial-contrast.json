@@ -1,0 +1,32 @@
+[
+  {
+    "background": "rgb(27, 57, 53)",
+    "foreground": "rgb(215, 230, 225)",
+    "ratio": 9.680841604955251,
+    "text": "₱8,500.00 expense"
+  },
+  {
+    "background": "rgb(23, 60, 48)",
+    "foreground": "rgb(162, 232, 198)",
+    "ratio": 8.63213653921692,
+    "text": "₱1,500.00 returned"
+  },
+  {
+    "background": "rgb(25, 57, 75)",
+    "foreground": "rgb(182, 222, 245)",
+    "ratio": 8.538458965254437,
+    "text": "Refund OR OR-12"
+  },
+  {
+    "background": "rgb(23, 60, 48)",
+    "foreground": "rgb(162, 232, 198)",
+    "ratio": 8.63213653921692,
+    "text": "Late · Head approved"
+  },
+  {
+    "background": "rgb(87, 200, 189)",
+    "foreground": "rgb(14, 38, 36)",
+    "ratio": 7.87183303932893,
+    "text": " Settle & post"
+  }
+]

@@ -63,7 +63,7 @@ export function TeamIntelligenceWorkspace() {
             </TabList>
           </TabsContext>
         </div>
-        {view === "people" && <VibeSearch className="w-64 max-w-full" clearIconLabel="Clear people search" inputAriaLabel="Search people or skills" onChange={setSearch} onClear={() => setSearch("")} placeholder="Search people or skills…" showClearIcon size="small" value={search} />}
+        {view === "people" && <VibeSearch className="eflow-people-search w-64 max-w-full" clearIconLabel="Clear people search" inputAriaLabel="Search Office people, job titles or note tags" onChange={setSearch} onClear={() => setSearch("")} placeholder="Search name, job title or note tag…" showClearIcon size="small" value={search} />}
       </div>
 
       {view === "overview" && <div className="space-y-4"><TeamHealthOverview health={analytics.health} members={analytics.memberMetrics} /><AttentionBox title="How to read this page" text="Metrics are derived from task and subtask participation, progress, submissions, and decisions. They support supervision and assignment decisions but do not constitute an automatic performance rating. Open Member 360 to inspect source activity before making a judgment." type="primary" /></div>}
@@ -72,7 +72,7 @@ export function TeamIntelligenceWorkspace() {
         <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-[250px_minmax(0,1fr)]">
           <aside className="rounded-xl border border-neutral-200 bg-white p-2 xl:sticky xl:top-4">
             {filteredEmployees.map((employee) => { const metric = analytics.memberMetrics.find((row) => row.employeeId === employee.id); return <button aria-pressed={selectedEmployeeId === employee.id} key={employee.id} type="button" onClick={() => setSelectedEmployeeId(employee.id)} className={`mb-1 flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left transition ${selectedEmployeeId === employee.id ? "bg-neutral-100" : "hover:bg-neutral-50"}`}><Avatar aria-label={employee.name} size="small" text={employee.initials || "??"} /><div className="min-w-0 flex-1"><div className="truncate text-[13px] font-medium text-neutral-800">{employee.name}</div><div className="truncate text-[12px] text-neutral-500">{employee.jobTitle}</div></div><span className={`eflow-tabular text-[12px] font-medium ${metric && metric.workloadSignal >= TEAM_WORKLOAD_HIGH_THRESHOLD ? "text-red-600" : metric && metric.workloadSignal >= TEAM_WORKLOAD_ELEVATED_THRESHOLD ? "text-amber-600" : "text-emerald-600"}`}>{metric?.workloadSignal ?? 0}</span></button>; })}
-            {filteredEmployees.length === 0 && <SectionEmpty title="No matching people" description="Try a different name, role, or skill." />}
+            {filteredEmployees.length === 0 && <SectionEmpty title="No matching people" description="Try a different name, job title or note tag." />}
           </aside>
           {selectedEmployee && selectedMetric ? <EmployeeIntelligencePanel employee={selectedEmployee} metric={selectedMetric} note={notes[selectedEmployee.id]} storedSkills={storedSkillsFor(selectedEmployee)} facts={analytics.facts} tasks={analytics.tasks} updatedBy={analytics.userProfile?.uid} /> : <div className="rounded-xl border border-dashed border-neutral-200"><SectionEmpty title="Select an member" description="Choose a person to inspect their source activity and delivery context." /></div>}
         </div>

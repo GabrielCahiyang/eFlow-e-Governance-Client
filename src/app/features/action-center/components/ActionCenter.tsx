@@ -16,6 +16,8 @@ import { usePersonalFeed } from '../hooks/usePersonalFeed';
 import { personalReviewActions, type ActionItem } from '../selectors';
 import { resolveInboxUpdateDestination } from '../services/updateDestination';
 import { UpdatesFeed } from './UpdatesFeed';
+import { PersonalActionRows } from './PersonalActionRows';
+import '../inbox.css';
 
 export function ActionCenter({role,hasLeadingWork=false,page='Inbox',onNavigate}: {role:string;hasLeadingWork?:boolean;page?:string;onNavigate?:(section:string,page:string)=>void}) {
   const {user,can} = useAuth();
@@ -71,9 +73,9 @@ export function ActionCenter({role,hasLeadingWork=false,page='Inbox',onNavigate}
     }
     navigate(destination.section,destination.page,destination.intent);
   };
-  return <section className="space-y-5 min-w-0" aria-label="Personal Inbox">
-    <header><p className="text-xs text-muted-foreground">Personal action center</p><h1 className="text-2xl font-semibold">Inbox</h1><p className="text-sm text-muted-foreground mt-1">Discover work that needs your attention. Each decision stays with its existing workflow.</p></header>
-    <div className="flex flex-wrap gap-2" role="group" aria-label="Inbox categories"><Button aria-pressed={category==='actions'} variant={category==='actions'?'default':'outline'} onClick={()=>setCategory('actions')}>Needs action</Button><Button id="inbox-updates" aria-pressed={category==='updates'} variant={category==='updates'?'default':'outline'} onClick={()=>setCategory('updates')}>Updates</Button></div>
+  return <section className="eflow-personal-inbox space-y-5 min-w-0" aria-label="Personal Inbox">
+    <header><p className="text-xs text-muted-foreground">Personal action center</p><h1 className="text-2xl font-semibold">Inbox</h1><p className="text-sm text-muted-foreground mt-1">{category==='updates'?'Recent updates from your work and projects.':'Task and subtask submissions that need your review.'}</p></header>
+    <div className="inbox-destination-host flex flex-wrap gap-2" role="group" aria-label="Inbox categories"><Button aria-current={category==='actions'?'page':undefined} aria-pressed={category==='actions'} variant={category==='actions'?'default':'outline'} onClick={()=>setCategory('actions')}>Needs action</Button><Button id="inbox-updates" aria-current={category==='updates'?'page':undefined} aria-pressed={category==='updates'} variant={category==='updates'?'default':'outline'} onClick={()=>setCategory('updates')}>Updates</Button></div>
     {notice && <FeedbackState tone="warning" title="Update destination unavailable">{notice}</FeedbackState>}
     {category==='updates'?<UpdatesFeed onOpen={item => void openUpdate(item)}/>:<>
       {!canReview?<FeedbackState title="No review queue under your current access">Updates remain available. Account roles do not grant operational approval authority.</FeedbackState>:<>
@@ -81,13 +83,12 @@ export function ActionCenter({role,hasLeadingWork=false,page='Inbox',onNavigate}
         {error && <FeedbackState tone="error" title="Task reviews could not be loaded" onRetry={retry}>{error.message}</FeedbackState>}
         {subtasks.error && <FeedbackState tone="error" title="Subtask reviews could not be loaded" onRetry={subtasks.retry}>{subtasks.error}</FeedbackState>}
         {loading || subtasks.loading ? <p role="status">Refreshing review sources…</p>:null}
-        {!actions.length && !loading && !subtasks.loading && !error && !subtasks.error && <FeedbackState title="No personal task or subtask reviews pending">Other review queues remain with their workflow owners below.</FeedbackState>}
-        <ul className="rounded-lg border border-border divide-y divide-border bg-card">{actions.map(item=><li key={item.key}><button data-action-key={item.key} onClick={()=>openAction(item)} className="w-full text-left px-4 py-3 hover:bg-muted/50"><span className="block font-medium break-words">{item.title}</span><span className="block text-xs text-muted-foreground mt-1 break-words">{item.source==='task-review'?'Task review':'Subtask review'} · {item.context}</span><span className="block text-xs text-primary mt-2">Open review</span></button></li>)}</ul>
-        <div className="space-y-2"><h2 className="font-medium">Other workflow queues</h2><p className="text-sm text-muted-foreground">Funding, workplan and governance eligibility and counts are checked in their own queues.</p><Button variant="outline" onClick={()=>navigate('reviews','For Review')}>Open all review queues</Button></div>
+        {!actions.length && !loading && !subtasks.loading && !error && !subtasks.error && <FeedbackState title="No personal task or subtask reviews pending">Work plans, governance, financial and eligible membership approvals remain in Reviews.</FeedbackState>}
+        <PersonalActionRows items={actions} onOpen={openAction} />
+        <div className="inbox-workflow-fallback"><Button variant="outline" onClick={()=>navigate('reviews','For Review')}>Open all review queues</Button></div>
       </>}
-      {role==='accounting_staff' && can('navigation.accounting_overview') && <Button variant="outline" onClick={()=>navigate('accounting_overview','Accounting Overview')}>Open Accounting</Button>}
+      {role==='accounting_staff' && can('navigation.accounting_overview') && <div className="inbox-workflow-fallback"><Button variant="outline" onClick={()=>navigate('accounting_overview','Accounting Overview')}>Open Accounting</Button></div>}
     </>}
-    {role !== 'admin' && <section className="rounded-lg border border-border p-4 space-y-3" aria-label="Invitation workflow handoffs"><h2 className="font-medium">Invitations and Office participation</h2><p className="text-sm text-muted-foreground">Accept an invitation through its private email link. Review project participation in Project Offices; a collaborating Office’s Head confirms participation before selecting its team.</p><div className="flex flex-wrap gap-2">{role === 'head' && canOpenNavigationSection(role,'team',can) && <Button variant="outline" onClick={()=>navigate('team','Office Team')}>Open Office Team</Button>}{canOpenNavigationSection(role,'projects',can) && <Button variant="outline" onClick={()=>navigate('projects','Projects')}>Open project participation</Button>}</div></section>}
     <TaskInspector task={selected} taskId={inspector.taskId || undefined} origin={inspector.origin} onClose={inspector.close} readOnly={role==='admin' || !!error} canDiscuss canReview={!!selected && canReview && canUserReviewTask(selected,user?.id,role)} />
   </section>;
 }
