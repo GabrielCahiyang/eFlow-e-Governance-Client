@@ -152,7 +152,7 @@ export function EflowTopBar({
         <div className="eflow-topbar__brand-lockup" data-tour-id="brand">
           <EFlowMark variant={dark ? "white" : "default"} height={36} className="eflow-topbar__wordmark" />
           <div className="eflow-topbar__brand-divider" aria-hidden="true" />
-          <span className="eflow-topbar__brand-org" title={`eFlow version ${branding.app_version}`}>{branding.organization_name} · v{branding.app_version}</span>
+          <span className="eflow-topbar__brand-org">{branding.organization_name}</span>
         </div>
       </div>
 

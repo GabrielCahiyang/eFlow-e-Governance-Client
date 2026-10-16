@@ -56,6 +56,7 @@ test('explicit all-visible layouts and widths survive; catalogue explains all-vi
 });
 
 test('dates retain network failures and pending drafts, submit once, close on persisted success and restore focus', async ({ page }, info) => {
+  await page.clock.setSystemTime(new Date('2026-10-01T04:00:00Z'));
   const records = await fixture(page, 'head', true, { compactLayout: true });
   records.tasks[0].deadline = '2026-10-09T17:45:00+08:00'; await page.reload(); await expect(page.getByRole('table', { name: 'To do tasks', exact: true })).toBeVisible({ timeout: 30_000 });
   let attempts = 0, finish!: () => void;

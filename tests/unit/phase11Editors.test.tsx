@@ -30,15 +30,15 @@ describe('Phase 11 edit and creation contracts',()=>{
   await act(async()=>{finish();await operation;});expect(editor.result.current.open).toBe(false);expect(editor.result.current.dirty).toBe(false);
  });
  it('changes date without stripping its canonical due time or offset and validates amounts',()=>{
-  expect(timelineDraft(task)).toEqual({start:'',end:'2026-10-09'});
-  expect(timelinePatch(task,{start:'2026-10-01',end:'2026-10-12'})).toEqual({start_date:'2026-10-01',deadline:'2026-10-12T17:45:00+08:00'});
+  expect(timelineDraft(task)).toEqual({start:'',end:'2026-10-09',time:'17:45'});
+  expect(timelinePatch(task,{start:'2026-10-01',end:'2026-10-12'},new Date('2026-10-01T00:00:00+08:00'))).toEqual({start_date:'2026-10-01',deadline:'2026-10-12T17:45:00+08:00'});
   expect(timelinePatch(task,{start:'',end:''})).toEqual({start_date:null,deadline:''});
-  expect(()=>timelinePatch(task,{start:'2026-10-20',end:'2026-10-09'})).toThrow('Start date');
+  expect(()=>timelinePatch(task,{start:'2026-10-20',end:'2026-10-09'})).toThrow('before the start date');
   expect(()=>numericPatch('estimated_hours','100001')).toThrow('amount');expect(()=>numericPatch('budget_impact','Infinity')).toThrow('amount');
  });
  it('explains default, nonempty including archived, and unauthorized deletion blockers',()=>{
   expect(groupDeleteBlocker({...group,isDefault:true},[],true)).toContain('default');
-  expect(groupDeleteBlocker(group,[{...task,groupId:group.id,archivedAt:1}],true)).toContain('archived');
+  expect(groupDeleteBlocker(group,[{...task,groupId:group.id,archivedAt:1}],true)).toContain('Archived');
   expect(groupDeleteBlocker(group,[],false)).toContain('Head');expect(groupDeleteBlocker(group,[],true)).toBeUndefined();
  });
  it('retains failed numeric values and retries only their patch',async()=>{

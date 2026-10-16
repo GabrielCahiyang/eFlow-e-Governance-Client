@@ -29,7 +29,7 @@ const PAGE_COPY: Record<
   users: {
     title: "All Users",
     description:
-      "Manage accounts, roles, organizations, and individual access.",
+      "Manage LEDIPO accounts, roles, and individual access. Invite other Offices within a project.",
   },
   "role-defaults": {
     title: "Role Defaults",
@@ -37,7 +37,7 @@ const PAGE_COPY: Record<
   },
   "user-access": {
     title: "User Access",
-    description: "Manage individual access exceptions and organization scope.",
+    description: "Manage individual access exceptions. External Office collaboration is managed per project.",
   },
 };
 

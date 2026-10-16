@@ -14,11 +14,69 @@
         #root {
           height: 100%;
         }
+        .eflow-loading {
+          --loading-brand: #01006b;
+          --loading-text: #182b35;
+          --loading-muted: #61727d;
+          position: relative;
+          isolation: isolate;
+          min-height: 100vh;
+          min-height: 100dvh;
+          width: 100%;
+          display: grid;
+          place-items: center;
+          overflow: hidden;
+          box-sizing: border-box;
+          padding: 56px 24px 90px;
+          color: var(--loading-text);
+          background: radial-gradient(ellipse at 50% 39%, #e6f4f5 0%, #f5f8fc 42%, #fafbfc 75%);
+          font-family: "Figtree Variable", system-ui, sans-serif;
+        }
+        .eflow-loading::before {
+          content: "";
+          position: absolute;
+          z-index: -1;
+          inset: 0;
+          opacity: .2;
+          background-image: radial-gradient(#90a9ba .7px, transparent .7px);
+          background-size: 24px 24px;
+          mask-image: radial-gradient(ellipse at center, #000, transparent 65%);
+        }
+        .eflow-loading-content {
+          display: flex;
+          align-items: center;
+          flex-direction: column;
+          width: 100%;
+          max-width: 360px;
+          text-align: center;
+          animation: eflow-loading-enter .3s ease-out both;
+        }
+        .eflow-loading-logo { height: 58px; margin-bottom: 16px; }
+        .eflow-loading-logo > div { cursor: default; }
+        .eflow-loading-logo svg { display: block; height: 100%; width: auto; }
+        .eflow-loading-logo svg > path,
+        .eflow-loading-logo svg g path:last-child { fill: var(--loading-brand); }
+        .eflow-loading-organization { color: var(--loading-muted); font-size: 11px; letter-spacing: .15em; text-transform: uppercase; }
+        .eflow-loading h1 { font-size: clamp(20px, 4.8vw, 24px); font-weight: 600; line-height: 1.3; letter-spacing: -.025em; margin: 42px 0 24px; }
+        .eflow-loading-track { width: 168px; height: 3px; border-radius: 8px; overflow: hidden; background: #dce7ee; }
+        .eflow-loading-track span { display: block; width: 45%; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #0073ea, #0c8c88); animation: eflow-loading-sweep 1.6s ease-in-out infinite; }
+        .eflow-loading p { font-size: 13px; line-height: 1.5; color: var(--loading-muted); margin: 16px 0 0; }
+        .eflow-loading-footer { position: absolute; bottom: max(28px, env(safe-area-inset-bottom)); left: 24px; right: 24px; text-align: center; color: var(--loading-muted); font-size: 11px; line-height: 1.6; }
+        .eflow-loading-ring { transform-box: fill-box; transform-origin: center; animation: eflow-loading-spin 1.1s linear infinite; }
+        .dark .eflow-loading { --loading-brand: #f2f5ff; --loading-text: #edf5fa; --loading-muted: #9aaebb; background: radial-gradient(ellipse at 50% 39%, #112e3c, #101b2b 48%, #0e1723 85%); }
+        .dark .eflow-loading-track { background: #2b3c4e; }
+        @keyframes eflow-loading-spin { to { transform: rotate(360deg); } }
+        @keyframes eflow-loading-sweep { 0% { transform: translateX(-105%); } 100% { transform: translateX(330%); } }
+        @keyframes eflow-loading-enter { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+        @media (prefers-reduced-motion: reduce) {
+          .eflow-loading-content, .eflow-loading-ring, .eflow-loading-track span { animation: none; }
+          .eflow-loading-track span { width: 100%; opacity: .6; }
+        }
       </style>
     </head>
 
     <body>
-      <div id="root"></div>
+      <div id="root"><main class="eflow-loading" aria-busy="true" aria-label="Loading eFlow"><div class="eflow-loading-content"><div class="eflow-loading-logo"><svg role="img" aria-label="eFlow" viewBox="0 0 328 88.6632" xmlns="http://www.w3.org/2000/svg"><path d="M248.957 75.7231L228.263 18.3341H243.943L261.117 67.7228H253.65L271.571 18.3341H285.652L303.039 67.7228H295.572L313.279 18.3341H328L307.199 75.7231H291.092L275.838 33.3747H280.745L264.957 75.7231H248.957Z" fill="#01006b"/><path d="M139.926 75.0031V3.97116e-05H156.593V75.0031H139.926Z" fill="#01006b"/><path d="M72.7346 75.0031V0.333407H129.164V14.2006H90.0153V75.0031H72.7346ZM88.7353 47.802V33.9348H124.577V47.802H88.7353Z" fill="#01006b"/><path d="M32.748 75.8565C26.2055 75.8565 20.4453 74.5764 15.4673 72.0163C10.5604 69.4562 6.75583 65.9716 4.0535 61.5626C1.35117 57.0824 0 51.9977 0 46.3086C0 40.5484 1.31561 35.4637 3.94683 31.0547C6.64916 26.5745 10.3115 23.0899 14.9339 20.6009C19.5563 18.0408 24.7832 16.7608 30.6146 16.7608C36.2326 16.7608 41.2817 17.9697 45.7618 20.3876C50.3131 22.7343 53.9044 26.1478 56.5356 30.628C59.1668 35.0371 60.4824 40.335 60.4824 46.522C60.4824 47.162 60.4469 47.9087 60.3758 48.762C60.3046 49.5443 60.2335 50.291 60.1624 51.0021H13.5472V41.2951H51.4154L45.0151 44.1752C45.0151 41.1884 44.4107 38.5927 43.2017 36.3882C41.9928 34.1837 40.3216 32.4769 38.1882 31.268C36.0548 29.988 33.5658 29.3479 30.7212 29.3479C27.8767 29.3479 25.3521 29.988 23.1476 31.268C21.0142 32.4769 19.343 34.2192 18.1341 36.4949C16.9251 38.6994 16.3207 41.3306 16.3207 44.3885V46.9486C16.3207 50.0777 16.9962 52.8511 18.3474 55.269C19.7697 57.6157 21.7253 59.4291 24.2143 60.7092C26.7744 61.9181 29.7612 62.5226 33.1747 62.5226C36.2326 62.5226 38.8993 62.0604 41.175 61.1359C43.5218 60.2114 45.6552 58.8247 47.5752 56.9757L56.4289 66.5761C53.7977 69.5629 50.4909 71.8741 46.5085 73.5097C42.5262 75.0742 37.9393 75.8565 32.748 75.8565Z" fill="#01006b"/><g class="eflow-loading-ring"><path d="M178.883 70.189C184.722 75.0887 192.354 77.3663 200.099 76.5208C207.845 75.6754 215.069 71.7762 220.184 65.6809C225.298 59.5856 227.884 51.7936 227.371 44.019C226.859 36.2444 223.291 29.1241 217.452 24.2245L215.164 31.0171L208.741 34.6053C211.943 37.2919 213.899 41.196 214.18 45.4589C214.461 49.7218 213.043 53.9942 210.239 57.3363C207.435 60.6784 203.473 62.8164 199.226 63.2799C194.98 63.7435 190.795 62.4947 187.593 59.8081L181.183 63.3406L178.883 70.189Z" fill="#0073ea"/><path d="M216.136 23.0895C209.899 17.8559 201.885 15.258 193.858 15.8672C185.831 16.4765 178.449 20.2431 173.334 26.3383C168.219 32.4336 165.792 40.3583 166.586 48.3691C167.38 56.3798 171.33 63.8204 177.567 69.0541L179.774 62.1613L186.278 58.6732C182.858 55.8035 180.692 51.7238 180.257 47.3314C179.821 42.9391 181.152 38.5939 183.957 35.2518C186.761 31.9097 190.809 29.8444 195.21 29.5104C199.612 29.1763 204.005 30.6007 207.425 33.4704L213.974 30.0536L216.136 23.0895Z" fill="#01006b"/></g></svg></div><span class="eflow-loading-organization">LGU Ormoc City</span><h1>Getting things ready</h1><div class="eflow-loading-track" aria-hidden="true"><span></span></div><p role="status" aria-live="polite">Loading eFlow…</p></div><span class="eflow-loading-footer" aria-hidden="true">A little less busywork. A little more flow.</span></main></div>
       <script type="module" src="/src/main.tsx"></script>
     </body>
   </html>

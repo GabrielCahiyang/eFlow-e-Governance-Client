@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../../../../contexts/AuthContext";
 import {
   FormField,
@@ -23,31 +23,34 @@ import {
 } from "../../../members";
 import { FileSpreadsheet, Plus, X } from "lucide-react";
 import { PdsImportReview } from "./PdsImportReview";
+import { ledipoOffice } from '../../selectors/ledipoOffice';
 
 import { useExplicitDraft } from "../../../../shared/useExplicitDraft";
 import { requestNavigation } from "../../../../shared/navigationGuard";
 export function CreateUserModal({
   isOpen,
   onClose,
-  orgOptions,
   organizations,
   profiles,
 }: {
   isOpen: boolean;
   onClose: () => void;
-  orgOptions: { value: string; label: string }[];
   organizations: Organization[];
   profiles: UserProfile[];
 }) {
   const { createManagedUser, userProfile } = useAuth();
   const { toast } = useToast();
+  const homeOffice = ledipoOffice(organizations);
+  const homeOfficeId = homeOffice?.id || '';
+  const orgOptions = homeOffice ? [{value: homeOffice.id, label: homeOffice.name}] : [];
   const [form, setForm] = useState({
     fullName: "",
     email: "",
     password: "",
     role: "member" as UserRole,
-    orgId: "",
+    orgId: homeOfficeId,
   });
+  useEffect(() => { setForm(current => ({ ...current, orgId: homeOfficeId })); }, [homeOfficeId]);
   const savePending = useRef(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -76,7 +79,7 @@ export function CreateUserModal({
       email: "",
       password: "",
       role: "member",
-      orgId: "",
+      orgId: homeOfficeId,
     });
     setErrors({});
     setActiveTab("basic");
@@ -93,7 +96,6 @@ export function CreateUserModal({
         form.fullName ||
           form.email ||
           form.password ||
-          form.orgId ||
           form.role !== "member" ||
           skillInput ||
           Object.keys(skills).length ||
@@ -156,7 +158,7 @@ export function CreateUserModal({
         pdsPreview.details.personal.email ||
         pdsPreview.profile.email ||
         current.email,
-      orgId: pdsPreview.profile.departmentId || current.orgId,
+      orgId: homeOfficeId,
       role: pdsPreview.profile.role,
     }));
     setSkills((current) => ({
@@ -185,7 +187,7 @@ export function CreateUserModal({
     if (!form.email.trim()) errs.email = "Required";
     if (!form.password || form.password.length < 6)
       errs.password = "Min 6 characters";
-    if (!form.orgId) errs.orgId = "Required";
+    if (!homeOfficeId || form.orgId !== homeOfficeId) errs.orgId = "LEDIPO could not be identified. Reload the Office data before creating an account.";
     if (!roleOptions.some(({ value }) => value === form.role))
       errs.role = "You cannot assign this role.";
     if (leadershipConflict) errs.role = leadershipConflict;
@@ -408,14 +410,8 @@ export function CreateUserModal({
                   hasError={Boolean(errors.role || leadershipConflict)}
                 />
               </FormField>
-              <FormField label="Organization" error={errors.orgId} required>
-                <SelectInput
-                  value={form.orgId}
-                  onChange={(e) => setForm({ ...form, orgId: e.target.value })}
-                  options={orgOptions}
-                  placeholder="Select organization"
-                  hasError={!!errors.orgId}
-                />
+              <FormField label="Office" error={errors.orgId} description="New accounts belong to LEDIPO. Invite external Offices from their project." required>
+                <TextInput value={homeOffice?.name || ''} readOnly placeholder="Loading LEDIPO…" hasError={!!errors.orgId}/>
               </FormField>
             </div>
           </div>

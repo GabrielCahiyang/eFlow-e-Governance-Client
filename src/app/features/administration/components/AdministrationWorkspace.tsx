@@ -4,7 +4,6 @@ import { WorkspaceShell } from '../../../components/ui/workspace';
 import { UserManagement } from './user-management';
 import { useAccountDirectoryNavigation } from '../hooks/useAccountDirectoryNavigation';
 import { BackupExportWorkspace } from './data-tools';
-import { OrgTreeBuilder } from '../../organization';
 import { AdminAuditLog } from '../../audit';
 import { ApplicationSettings } from '../configuration/ApplicationSettings';
 import { ConfigurationMatrix } from '../configuration/ConfigurationMatrix';
@@ -29,7 +28,6 @@ export function AdministrationWorkspace({ activeSection = 'users', activePage }:
     'Locked out accounts': <UserManagement initialTab="locked-accounts" />,
     'Role Defaults': <UserManagement initialTab="role-defaults" />,
     'User Access': <UserManagement initialTab="user-access" {...directoryProps} />,
-    'Office Structure': <OrgTreeBuilder />,
     'Account Audit': <AdminAuditLog />,
     'System Settings': <ApplicationSettings />,
     'Workspace Policy': <ConfigurationMatrix area="workspace" title="Workspaces & project access policy" />,

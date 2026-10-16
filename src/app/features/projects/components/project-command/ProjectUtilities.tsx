@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { MoreHorizontal, Share2, Star } from 'lucide-react';
 import { ActionMenu, WorkspaceTooltip, type WorkspaceAction } from '../../../../components/ui/workspace';
 import { Button } from '../../../../components/ui/button';
-import { FeatureDialog } from '../../../../components/ui/FeatureDialog';
+import { Modal } from '../../../../components/ui/Modal';
 import {ProjectAccessPanel} from '../../../project-access';
 import { requestNavigation } from '../../../../shared/navigationGuard';
 import { useNavigationFavorites } from '../../../../shared/navigationPreferences';
@@ -38,9 +38,9 @@ export function ProjectUtilities({ project, canManage, lifecycle, userId, contex
     <Button variant="outline" onClick={() => { setShareOpen(true); }}><Share2 size={16} />Invite / share</Button>
     <ActionMenu tooltip="Project actions" trigger={<Button ref={menuTrigger} variant="outline" size="icon" aria-label="Project actions"><MoreHorizontal size={20} /></Button>} actions={actions} />
     {settingsOpen && <ProjectSettingsDialog project={project} canManage={canManage} onClose={() => { setSettingsOpen(false); requestAnimationFrame(() => menuTrigger.current?.focus()); }} />}
-    {shareOpen && <FeatureDialog title="Share project" onClose={() => void requestNavigation(() => setShareOpen(false))} contentClassName="eflow-project-share">
+    {shareOpen && <Modal isOpen title="Share project" description={project.title} width="max-w-3xl" onClose={() => void requestNavigation(() => setShareOpen(false))}>
       <ProjectAccessPanel project={project.id}/>
       <p>Ordinary navigation links require existing access and grant no permissions.</p><label>Project navigation link<input readOnly value={new URL(`/projects?page=Projects&project=${encodeURIComponent(project.id)}&view=${encodeURIComponent(view)}`,window.location.origin).href}/></label><Button onClick={()=>{const url=new URL(`/projects?page=Projects&project=${encodeURIComponent(project.id)}&view=${encodeURIComponent(view)}`,window.location.origin).href;void navigator.clipboard.writeText(url).then(()=>setCopyNotice('Navigation link copied.')).catch(()=>setCopyNotice('Select and copy the navigation link.'));}}>Copy navigation link</Button>{copyNotice&&<p role="status">{copyNotice}</p>}
-    </FeatureDialog>}
+    </Modal>}
   </div>;
 }

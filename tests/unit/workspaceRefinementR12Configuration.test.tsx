@@ -86,7 +86,7 @@ describe("R12 effective administration", () => {
     render(<AdministrationWorkspace />);
     expect(screen.queryByRole("tablist")).toBeNull();
     expect(screen.getByText('Retained people tools: users')).toBeTruthy();
-    expect(getAuthorizedSupportPages('admin',()=>true).map(page=>page.label)).toEqual(['All Users','Locked out accounts','Role Defaults','User Access','Office Structure','Account Audit','System Settings','Workspace Policy','Email & Integrations','Runtime / AI Health','Backup & Export']);
+    expect(getAuthorizedSupportPages('admin',()=>true).map(page=>page.label)).toEqual(['All Users','Locked out accounts','Role Defaults','User Access','Account Audit','System Settings','Workspace Policy','Email & Integrations','Runtime / AI Health','Backup & Export']);
     expect(resolveSupportPage("administration", "Email & Integrations")).toBe(
       "Email & Integrations",
     );
@@ -116,6 +116,7 @@ describe("R12 effective administration", () => {
   it("saves only validated presentation keys and documents dormant session/timezone controls", async () => {
     render(<ApplicationSettings />);
     await screen.findByDisplayValue("Original City");
+    expect(screen.queryByLabelText(/Version String/)).toBeNull();
     expect(screen.queryByLabelText("Session Timeout (minutes)")).toBeNull();
     expect(
       screen.getByText(

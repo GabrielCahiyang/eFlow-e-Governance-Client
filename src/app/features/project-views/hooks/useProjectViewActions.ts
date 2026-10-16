@@ -1,7 +1,7 @@
 import { useConfirmation } from '../../../components/ui/useConfirmation';
 import { useNavigationBlocker } from '../../../shared/navigationGuard';
 import { useRef, useState } from 'react';
-import { patchWorkspaceTask, type WorkspaceTaskPatch } from '../../project-table';
+import { patchWorkspaceTask, timelineDraft, timelineError, type WorkspaceTaskPatch } from '../../project-table';
 import { updateTaskStatus, type Task, type TaskStatus } from '../../tasks';
 import { useAuth } from '../../../contexts/AuthContext';
 import { isHeadWorkspaceRole } from '../../../shared/roles';
@@ -31,6 +31,12 @@ export function useProjectViewActions(project: { orgId?: string; status: string 
   const canMove = (task: Task) => !projectBoardMoveError(task, 'in_progress', userId, canEditDates(task), readOnly) && task.status !== 'in_progress';
   const saveDates = async (task: Task, patch: WorkspaceTaskPatch) => {
     if (!canEditDates(task)) throw new Error('Only the responsible Office Head can change this task schedule.');
+    const dateError = timelineError(task, timelineDraft({ ...task,
+      startDate: patch.start_date === undefined ? task.startDate : patch.start_date || '',
+      deadline: patch.deadline === undefined ? task.deadline : patch.deadline,
+      dueDate: patch.deadline === undefined ? task.dueDate : '',
+    }));
+    if (dateError) throw new Error(dateError);
     if (schedulePending.current) throw new Error('A schedule change is already pending.');
     schedulePending.current = true;
     try {

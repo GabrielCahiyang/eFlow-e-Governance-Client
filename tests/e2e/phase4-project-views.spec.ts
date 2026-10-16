@@ -9,6 +9,7 @@ async function openView(page: Page, name: string) {
 }
 
 test('Phase 4 shares filters and edits across Board, Gantt, Calendar, Dashboard and Offices', async ({ page }, info) => {
+  await page.clock.setSystemTime(new Date('2026-10-01T04:00:00Z'));
   test.setTimeout(120_000);
   await page.setViewportSize({ width: 1440, height: 1000 });
   const records = await projectWorkspaceFixture(page, 'head', true);
@@ -83,7 +84,7 @@ test('Phase 4 shares filters and edits across Board, Gantt, Calendar, Dashboard 
   await dates.getByRole('button', { name: 'Save dates' }).click();
   await page.getByRole('button', { name: 'Apply schedule', exact: true }).click();
   await expect(dates).not.toBeVisible();
-  await expect.poll(() => records.tasks[0].deadline).toBe('2026-10-14');
+  await expect.poll(() => records.tasks[0].deadline).toMatch(/^2026-10-14T23:59:00[+-]\d{2}:\d{2}$/);
   const calendarEvent = page.locator('.fc-daygrid-event').filter({ hasText: 'Prepare community assessment' }).first();
   await calendarEvent.scrollIntoViewIfNeeded();
   const eventBounds = (await calendarEvent.boundingBox())!;
@@ -93,7 +94,7 @@ test('Phase 4 shares filters and edits across Board, Gantt, Calendar, Dashboard 
   await page.mouse.move(targetBounds.x + targetBounds.width / 2, eventBounds.y + eventBounds.height / 2, { steps: 12 });
   await page.mouse.up();
   await page.getByRole('button', { name: 'Apply schedule', exact: true }).click();
-  await expect.poll(() => records.tasks[0].deadline).toBe('2026-10-15');
+  await expect.poll(() => records.tasks[0].deadline).toMatch(/^2026-10-15T23:59:00[+-]\d{2}:\d{2}$/);
   await expect(page.getByRole('alertdialog', { includeHidden: true })).toHaveCount(0);
   await page.screenshot({ path: info.outputPath('calendar.png'), fullPage: true, animations: 'disabled' });
   await openView(page, 'Main table');

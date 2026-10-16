@@ -4,6 +4,10 @@
 .pt-inline-cell small button { margin:4px 0 0; padding:4px 8px; border:1px solid var(--eflow-border); border-radius:var(--eflow-radius-sm); color:var(--eflow-primary); background:var(--eflow-surface); }
 .pt-group .pt-inline-cell small.pt-cell-saved { color:var(--eflow-positive-text); }
 .pt-planning-editor { width:min(380px,calc(100vw - 24px)); max-height:var(--radix-popover-content-available-height); overflow-y:auto; }
+@media (max-width:640px) {
+ [data-radix-popper-content-wrapper]:has(>.pt-timeline-editor) { position:fixed!important; inset:50% auto auto 50%!important; transform:translate(-50%,-50%)!important; }
+ .pt-timeline-editor { width:calc(100vw - 24px); max-height:calc(100dvh - 32px); overflow-y:auto; }
+}
 .pt-planning-form { display:grid; gap:14px; min-width:0; font-size:13px; }
 .pt-planning-form strong { font-size:15px; }
 .pt-planning-form p { white-space:normal; font-size:12px; line-height:1.5; color:var(--eflow-text-secondary); }

@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from '../../../components/ui/dialog';
-import { WorkspaceIllustration } from '../../../components/ui/WorkspaceIllustration';
+import { useEffect, useRef, useState } from 'react';
+import { Button } from '@vibe/core';
+import { Modal } from '../../../components/ui/Modal';
+import { FormField, TextInput, SelectInput } from '../../../components/ui/FormField';
 import { useConfirmation } from '../../../components/ui/useConfirmation';
 import { useExplicitDraft } from '../../../shared/useExplicitDraft';
 import { requestNavigation } from '../../../shared/navigationGuard';
@@ -13,6 +14,7 @@ export function InviteOfficeDialog({ open, onClose, projectId, projectTitle, off
   open: boolean; onClose: () => void; projectId: string; projectTitle: string; offices: ProjectOffice[];
   organizations: Organization[]; profiles: UserProfile[]; initialOffice: string; onSent: () => Promise<void>;
 }) {
+  const formRef = useRef<HTMLFormElement>(null);
   const [office, setOffice] = useState(initialOffice), [email, setEmail] = useState(''), [access, setAccess] = useState<'collaborating' | 'observer'>('collaborating');
   const [busy, setBusy] = useState(false), [error, setError] = useState(''), [sent, setSent] = useState(false);
   const confirmation = useConfirmation();
@@ -24,9 +26,9 @@ export function InviteOfficeDialog({ open, onClose, projectId, projectTitle, off
     const head = organizations.find(o => o.id === office)?.head_user_id;
     setEmail(profiles.find(p => p.id === head)?.email || '');
   }, [office, profiles, organizations]);
-  return <><Dialog open={open} onOpenChange={value => { if (!value) close(); }}><DialogContent className="po-invite-dialog">
-    <section className="po-invite-content"><DialogTitle>Let’s bring another Office in.</DialogTitle><DialogDescription>Invite an Office to {projectTitle}. Its Head chooses its own personnel.</DialogDescription>
-      <form onSubmit={async e => {
+  return <><Modal isOpen={open} onClose={close} preventClose={busy} title="Let’s bring another Office in." description={`Invite an Office to ${projectTitle}. Its Head chooses its own personnel.`} width="max-w-2xl"
+    footer={sent ? <Button onClick={close}>Done</Button> : <><Button kind="tertiary" onClick={close} disabled={busy}>Remind me later</Button><Button disabled={!office || !email || busy} loading={busy} onClick={() => formRef.current?.requestSubmit()}>Invite Office</Button></>}>
+      <form ref={formRef} className="eflow-head-dialog-form" onSubmit={async e => {
         e.preventDefault(); if (guard.pendingRef.current || sent) return; guard.pendingRef.current = true;
         try {
           if (!await confirmation.confirm({title:'Invite this Office?',description:`${organizations.find(o => o.id === office)?.name || 'Office'} · ${email} · ${access === 'observer' ? 'Observer (read only)' : 'Collaborating Office'}. Account roles stay unchanged.`,actionLabel:'Invite Office'})) return;
@@ -37,15 +39,13 @@ export function InviteOfficeDialog({ open, onClose, projectId, projectTitle, off
         catch (e) { setError(projectOfficeError(e, 'Could not invite this Office.')); }
         finally { guard.pendingRef.current = false; setBusy(false); }
       }}>
-        {sent ? <div role="status" className="po-success"><h3>Invitation sent</h3><p>Invitation created. The contact accepts through its private link; email delivery is shown separately in the Office inspector. No employee is assigned automatically.</p><button type="button" onClick={close}>Done</button>{error && <button type="button" disabled={busy} onClick={() => void refreshSaved()}>Retry loading</button>}</div> : <>
-          <label>Office<select required value={office} disabled={busy} onChange={e => setOffice(e.target.value)}><option value="">Choose an Office</option>{available.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}</select></label>
-          <label>Head / contact email<input required type="email" maxLength={254} placeholder="head@office.gov.ph" value={email} disabled={busy} onChange={e => setEmail(e.target.value)}/></label>
-          <label>Project access<select value={access} disabled={busy} onChange={e => setAccess(e.target.value as typeof access)}><option value="collaborating">Collaborating Office</option><option value="observer">Observer · read only</option></select></label>
+        {sent ? <div role="status" className="po-success"><h3>Invitation sent</h3><p>Invitation created. The contact accepts through its private link; email delivery is shown separately in the Office inspector. No employee is assigned automatically.</p>{error && <Button type="button" kind="secondary" disabled={busy} onClick={() => void refreshSaved()}>Retry loading</Button>}</div> : <>
+          <FormField label="Office" required><SelectInput required value={office} disabled={busy} onChange={e => setOffice(e.target.value)} options={[{value:'',label:'Choose an Office'},...available.map(o=>({value:o.id,label:o.name}))]}/></FormField>
+          <FormField label="Head / contact email" required><TextInput required type="email" maxLength={254} placeholder="head@office.gov.ph" value={email} disabled={busy} onChange={e => setEmail(e.target.value)}/></FormField>
+          <FormField label="Project access"><SelectInput value={access} disabled={busy} onChange={e => setAccess(e.target.value as typeof access)} options={[{value:'collaborating',label:'Collaborating Office'},{value:'observer',label:'Observer · read only'}]}/></FormField>
           <p className="po-help">Project access keeps account roles unchanged. A collaborating Office’s appointed Head confirms participation before choosing its staff.</p>
-          <footer><button type="button" onClick={close} disabled={busy}>Remind me later</button><button className="po-primary" disabled={!office || !email || busy}>{busy ? 'Sending…' : 'Invite Office'}</button></footer>
         </>}
         {error && <p role="alert" className="po-error">{error}</p>}
       </form>
-    </section><WorkspaceIllustration/>
-  </DialogContent></Dialog>{confirmation.dialog}</>;
+  </Modal>{confirmation.dialog}</>;
 }

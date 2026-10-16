@@ -164,7 +164,7 @@ describe('controlled contributor field',()=>{
   render(<WorkContributorsField {...contributorProps}/>);
   expect(screen.queryByRole('button',{name:'Add contributor Historical Person'})).toBeNull();
   expect(screen.queryByRole('button',{name:'Add contributor Unverified Person'})).toBeNull();
-  fireEvent.change(screen.getByRole('searchbox',{name:'Find project people'}),{target:{value:'  APPROVED  '}});
+  fireEvent.change(screen.getByRole('searchbox',{name:'Find people'}),{target:{value:'  APPROVED  '}});
   expect(screen.getByRole('button',{name:'Add contributor Approved Guest'})).toBeTruthy();
   expect(screen.queryByRole('button',{name:'Add contributor Replacement Lead'})).toBeNull();
  });

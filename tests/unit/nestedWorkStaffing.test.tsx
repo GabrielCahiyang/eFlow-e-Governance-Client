@@ -10,6 +10,7 @@ import {WorkStaffingDialog,fetchWorkTree,type WorkStaffingController,type WorkTr
 import {installNavigationConfirmation} from '../../src/app/shared/navigationGuard';
 import {clearedStaffingAppointments,createStaffingRequest,scopedInvitationRequestAllowed,staffingNodePath} from '../../src/app/features/nested-work/selectors/staffing';
 import type {StaffingBaseline} from '../../src/app/features/nested-work/selectors/staffing';
+import {WorkRequestFailure} from '../../src/app/features/nested-work/types/editor';
 import {nestedWorkImpactFixture} from '../fixtures/nestedWorkImpact';
 
 const allow:WorkCapabilityEntry={allowed:true,reason_code:null},deny:WorkCapabilityEntry={allowed:false,reason_code:'branch_denied'},noAppointment:WorkCapabilityEntry={allowed:false,reason_code:'appointment_denied'};
@@ -23,12 +24,41 @@ async function verified(data=tree(),actor='actor'){
 }
 const controller=(data:WorkTreeSnapshot,save=vi.fn().mockResolvedValue(data))=>({rootId:'root',actorId:'actor',data,loading:false,save} satisfies WorkStaffingController);
 const leadControl=()=>screen.getByRole('combobox',{name:'Appointed Lead'});
-const saveButton=()=>screen.getByRole('button',{name:'Save work changes'});
-async function acceptTransfer(){fireEvent.click(await screen.findByRole('button',{name:'Transfer Lead',exact:true}));}
+const saveButton=()=>screen.getByRole('button',{name:'Save changes'});
+async function acceptTransfer(){fireEvent.click(await screen.findByRole('button',{name:/^(Assign lead|Change lead)$/,exact:true}));}
 const baseline:StaffingBaseline={actorId:'actor',rootId:'root',projectId:'project',officeId:'office',kind:'office',nodeId:null,revision:7,leadId:'actor',workerIds:['actor','member']};
 beforeEach(()=>{sessionStorage.clear();vi.clearAllMocks();});afterEach(()=>cleanup());
 
 describe('canonical staffing dialog capability and commands',()=>{
+ it('lets the Head choose a first lead and add collaborators in the same save',async()=>{
+  const raw=tree();raw.root.lead=null;raw.root.people=[];raw.nodes=[];raw.root.capabilities={appoint_lead:allow,manage_contributors:{allowed:false,reason_code:'lifecycle_blocked'}};
+  const ctrl=controller(await verified(raw));render(<WorkStaffingDialog controller={ctrl} nodeId={null} onClose={vi.fn()} onChanged={vi.fn()}/>);
+  expect((screen.getByRole('button',{name:'Add contributor Existing Contributor'}) as HTMLButtonElement).disabled).toBe(true);
+  fireEvent.change(leadControl(),{target:{value:'next'}});
+  const add=screen.getByRole('button',{name:'Add contributor Existing Contributor'});
+  expect((add as HTMLButtonElement).disabled).toBe(false);fireEvent.click(add);fireEvent.click(saveButton());
+  const review=await screen.findByRole('alertdialog');expect(review.textContent).toContain('Make Replacement Lead the lead for this task?');
+  expect(review.textContent).not.toMatch(/descendant|routing|fingerprint|historical authorship|0 subitems/);
+  await acceptTransfer();await waitFor(()=>expect(ctrl.save).toHaveBeenCalledOnce());
+  expect(ctrl.save.mock.calls[0][0]).toMatchObject({command:'root_lead',payload:{lead:'next',people:['member','next']}});
+ });
+ it('does not turn a contributor permission denial into an initial appointment permission',async()=>{
+  const raw=tree();raw.root.lead=null;raw.root.people=[];raw.nodes=[];raw.root.capabilities={appoint_lead:allow,manage_contributors:deny};
+  render(<WorkStaffingDialog controller={controller(await verified(raw))} nodeId={null} onClose={vi.fn()} onChanged={vi.fn()}/>);
+  fireEvent.change(leadControl(),{target:{value:'next'}});
+  expect((screen.getByRole('button',{name:'Add contributor Existing Contributor'}) as HTMLButtonElement).disabled).toBe(true);
+ });
+ it('unlocks a confirmed failed save while keeping the chosen people',async()=>{
+  const save=vi.fn().mockRejectedValueOnce(new WorkRequestFailure('confirmed_failure','tasks_assignment_consistent constraint')).mockResolvedValue(tree()),ctrl=controller(await verified(),save);
+  render(<WorkStaffingDialog controller={ctrl} nodeId={null} onClose={vi.fn()} onChanged={vi.fn()}/>);
+  fireEvent.click(screen.getByRole('button',{name:'Add contributor Replacement Lead'}));fireEvent.click(saveButton());
+  await screen.findByText('Could not save this team. Please try again.');
+  expect((screen.getByRole('button',{name:'Remove contributor Replacement Lead'}) as HTMLButtonElement).disabled).toBe(false);
+  expect(screen.queryByText('Saving…')).toBeNull();expect(screen.queryByRole('button',{name:'Try again'})).toBeNull();
+  fireEvent.click(saveButton());await waitFor(()=>expect(save).toHaveBeenCalledTimes(2));
+  expect(save.mock.calls[0][0].id).not.toBe(save.mock.calls[1][0].id);
+  expect(save.mock.calls[1][0].payload).toEqual(save.mock.calls[0][0].payload);
+ });
  it('lets a shared Task Lead edit contributors without enabling root transfer from legacy flags',async()=>{
   const data=await verified(),ctrl=controller(data),changed=vi.fn();render(<WorkStaffingDialog controller={ctrl} nodeId={null} onClose={vi.fn()} onChanged={changed}/>);
   expect((leadControl() as HTMLSelectElement).disabled).toBe(true);
@@ -46,15 +76,15 @@ describe('canonical staffing dialog capability and commands',()=>{
  it('allows an eligible ancestor to transfer a descendant, discloses exact clearing and preserves workers',async()=>{
   const raw=tree();raw.nodes[0].capabilities!.appoint_lead=allow;const data=await verified(raw),ctrl=controller(data);render(<WorkStaffingDialog controller={ctrl} nodeId="branch" onClose={vi.fn()} onChanged={vi.fn()}/>);
   fireEvent.change(leadControl(),{target:{value:'next'}});fireEvent.click(saveButton());const impact=await screen.findByRole('alertdialog');
-  expect(impact.textContent).toContain('2 descendant Lead appointments will be cleared');expect(impact.textContent).toContain('Parent branch / Child work · child');expect(impact.textContent).toContain('Completed work remains historical');
-  expect(impact.textContent).toContain('Retained workers: Current Lead, Existing Contributor');expect(impact.textContent).toContain('Current reviewer: Current Lead');expect(impact.textContent).not.toContain('Other branch · other');expect(ctrl.save).not.toHaveBeenCalled();
+  expect(impact.textContent).toContain('2 subtasks will need a new lead:');expect(impact.textContent).toContain('Parent branch / Child work — Existing Contributor');expect(impact.textContent).toContain('completed work is kept');
+  expect(impact.textContent).toContain('Also on this task: Current Lead, Existing Contributor');expect(impact.textContent).toContain('Pending reviews will be checked again.');expect(impact.textContent).not.toContain('Other branch · other');expect(ctrl.save).not.toHaveBeenCalled();
   await acceptTransfer();await waitFor(()=>expect(ctrl.save).toHaveBeenCalledOnce());
   expect(ctrl.save.mock.calls[0][0]).toMatchObject({command:'staff',revision:7,payload:{id:'branch',lead:'next',people:['actor','member','next']}});
  });
  it('maps root Lead change to root_lead and includes compatibility workers, without identity fields',async()=>{
   const raw=tree();raw.root.capabilities!.appoint_lead=allow;const data=await verified(raw),ctrl=controller(data);render(<WorkStaffingDialog controller={ctrl} nodeId={null} onClose={vi.fn()} onChanged={vi.fn()}/>);
   fireEvent.change(leadControl(),{target:{value:'next'}});fireEvent.click(saveButton());
-  expect((await screen.findByRole('alertdialog')).textContent).toContain('4 descendant Lead appointments will be cleared');await acceptTransfer();await waitFor(()=>expect(ctrl.save).toHaveBeenCalledOnce());
+  expect((await screen.findByRole('alertdialog')).textContent).toContain('4 subtasks will need a new lead:');await acceptTransfer();await waitFor(()=>expect(ctrl.save).toHaveBeenCalledOnce());
   expect(ctrl.save.mock.calls[0][0].payload).toEqual({lead:'next',people:['actor','member','next']});expect(ctrl.save.mock.calls[0][0].command).toBe('root_lead');
  });
  it('allows initial root appointment through appointment capability without contributor permission',async()=>{
@@ -133,19 +163,19 @@ describe('fresh authority, checked confirmation and request outcomes',()=>{
   const ctrl=controller(await verified(),save),changed=vi.fn();render(<WorkStaffingDialog controller={ctrl} nodeId={null} onClose={vi.fn()} onChanged={changed}/>);
   fireEvent.click(screen.getByRole('button',{name:'Add contributor Replacement Lead'}));const submit=saveButton();fireEvent.click(submit);fireEvent.click(submit);expect(save).toHaveBeenCalledOnce();
   await act(async()=>reject(new Error('Receipt interrupted')));await screen.findByText(/Receipt interrupted/);
-  expect((leadControl() as HTMLSelectElement).disabled).toBe(true);fireEvent.click(screen.getByRole('button',{name:'Retry saved request'}));await waitFor(()=>expect(save).toHaveBeenCalledTimes(2));
+  expect((leadControl() as HTMLSelectElement).disabled).toBe(true);fireEvent.click(screen.getByRole('button',{name:'Try again'}));await waitFor(()=>expect(save).toHaveBeenCalledTimes(2));
   expect(save.mock.calls[1][0]).toBe(save.mock.calls[0][0]);expect(save.mock.calls[1][0].revision).toBe(7);expect(changed).toHaveBeenCalledOnce();
  });
  it('allows the same uncertain request receipt retry after a fresh revision advances',async()=>{
   const save=vi.fn().mockRejectedValueOnce(new Error('Receipt interrupted')).mockResolvedValue(tree()),ctrl=controller(await verified(),save),props={controller:ctrl,nodeId:null,onClose:vi.fn(),onChanged:vi.fn()};const view=render(<WorkStaffingDialog {...props}/>);
   fireEvent.click(screen.getByRole('button',{name:'Add contributor Replacement Lead'}));fireEvent.click(saveButton());await screen.findByText(/Receipt interrupted/);
   const raw=tree();raw.revision=8;raw.root.people.push('next');view.rerender(<WorkStaffingDialog {...props} controller={{...ctrl,data:await verified(raw)}}/>);
-  fireEvent.click(screen.getByRole('button',{name:'Retry saved request'}));await waitFor(()=>expect(save).toHaveBeenCalledTimes(2));expect(save.mock.calls[1][0]).toBe(save.mock.calls[0][0]);
+  fireEvent.click(screen.getByRole('button',{name:'Try again'}));await waitFor(()=>expect(save).toHaveBeenCalledTimes(2));expect(save.mock.calls[1][0]).toBe(save.mock.calls[0][0]);
  });
  it('does not save a second time when a confirmed receipt is followed by refresh failure',async()=>{
   const ctrl=controller(await verified()),changed=vi.fn().mockRejectedValue(new Error('Refresh interrupted'));render(<WorkStaffingDialog controller={ctrl} nodeId={null} onClose={vi.fn()} onChanged={changed}/>);
   fireEvent.click(screen.getByRole('button',{name:'Add contributor Replacement Lead'}));fireEvent.click(saveButton());await screen.findByText(/People were saved, but/);
-  expect(screen.getByText('People saved.')).toBeTruthy();expect(screen.queryByRole('button',{name:'Retry saved request'})).toBeNull();expect(ctrl.save).toHaveBeenCalledOnce();
+  expect(screen.getByText('People saved.')).toBeTruthy();expect(screen.queryByRole('button',{name:'Try again'})).toBeNull();expect(ctrl.save).toHaveBeenCalledOnce();
  });
  it('blocks an expired replacement discovered during transfer confirmation',async()=>{
   const raw=tree();raw.root.capabilities!.appoint_lead=allow;const ctrl=controller(await verified(raw)),props={controller:ctrl,nodeId:null,onClose:vi.fn(),onChanged:vi.fn()};const view=render(<WorkStaffingDialog {...props}/>);

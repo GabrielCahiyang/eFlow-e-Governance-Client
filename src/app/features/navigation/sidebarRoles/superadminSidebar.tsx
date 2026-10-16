@@ -41,21 +41,6 @@ export const superadminSidebar: Record<string, SidebarContent> = {
           },
         ],
       },
-      org_tree: {
-        title: "Org Structure",
-        sections: [
-          {
-            title: "Management",
-            items: [
-              {
-                icon: <Carbon.Folder size={16} className="text-neutral-900" />,
-                label: "Org Structure",
-                isActive: true,
-              },
-            ],
-          },
-        ],
-      },
       projects: {
         title: "Plans & Projects",
         sections: [

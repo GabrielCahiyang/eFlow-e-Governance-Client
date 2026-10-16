@@ -25,7 +25,6 @@ function personalDestinations(role: string): RoleNavItem[] {
 
 const administrativeDestinations: RoleNavItem[] = [
   { id: "users", icon: <UserMultiple size={16} />, label: "User Management" },
-  { id: "org_tree", icon: <Folder size={16} />, label: "Office Structure" },
   { id: "audit", icon: <Report size={16} />, label: "Account Audit" },
   { id: "administration", icon: <Settings size={16} />, label: "System Settings" },
   { id: "migration", icon: <Renew size={16} />, label: "Backup & Export" },

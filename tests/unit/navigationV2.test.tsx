@@ -32,7 +32,8 @@ describe('Phase 9 discovery compatibility', () => {
     const can = (permission: string) => permission === 'navigation.audit' || permission === 'navigation.user_management';
     expect(getAuthorizedSupportPages('member',can).map(page => page.label)).toEqual(['All Users','Account Audit']);
     expect(buildShellNavigation({role:'member',can}).find(item => item.id === 'audit')?.pages).toEqual([{label:'Account Audit'}]);
-    expect(resolveSupportPage('org_tree','Org Structure')).toBe('Office Structure');
+    expect(resolveSupportPage('org_tree','Org Structure')).toBe('All Users');
+    expect(getAuthorizedSupportPages('admin', () => true).some(page => page.label === 'Office Structure')).toBe(false);
     expect(resolveSupportPage('users','Backup & Export')).toBe('Backup & Export');
   });
   it('searches authorized loaded content and never exposes projects to Admin or a denied account', () => {

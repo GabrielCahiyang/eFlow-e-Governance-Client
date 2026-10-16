@@ -18,6 +18,9 @@ export const PAGE_PERMISSION_KEYS = [
   "navigation.department_budgets",
 ] as const;
 
+/** Office Structure is retired; retain its stored key for service compatibility. */
+export const VISIBLE_PAGE_PERMISSION_KEYS = PAGE_PERMISSION_KEYS.filter(key => key !== 'navigation.organization');
+
 export const ACTION_PERMISSION_KEYS = [
   "projects.create",
   "projects.archive",

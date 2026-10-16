@@ -85,7 +85,27 @@ export default defineConfig(({ mode }) => {
         "@": path.resolve(configDir, "./src"),
       },
     },
+    // This repository also contains archived HTML, Python environments and
+    // local graph output. Only the application HTML is a dependency entry.
+    optimizeDeps: {
+      entries: ["index.html"],
+    },
     server: {
+      watch: {
+        ignored: [
+          "**/.venv/**",
+          "**/.graphify-venv/**",
+          "**/.phase2-work/**",
+          "**/.phase3-work/**",
+          "**/.codex-tmp/**",
+          "**/.vs/**",
+          "**/graphify-out/**",
+          "**/docs/**",
+          "**/artifacts/**",
+          "**/test-results/**",
+          "**/tmp/**",
+        ],
+      },
       proxy: {
         // Every local backend call now enters through the JWT-protected eFlow
         // gateway. Port 8321 is deliberately never a Vite proxy target.

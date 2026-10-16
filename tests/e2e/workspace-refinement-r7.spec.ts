@@ -28,7 +28,7 @@ async function hierarchyFixture(page:Page,role:'head'|'member'|'admin'='head',de
  if(actorCase)await page.route('**/rest/v1/subtasks?*',async route=>{const query=new URL(route.request().url()).searchParams,id=query.get('id')?.replace(/^eq\./,''),task=query.get('task_id');const rows=records.subtasks.filter(row=>(!id||row.id===id)&&(!task?.startsWith('eq.')||row.task_id===task.slice(3)));return route.fulfill({json:route.request().headers().accept?.includes('vnd.pgrst.object')?rows[0]||null:rows});});
  const capability=(allowed:boolean,reason='branch_denied')=>({allowed,reason_code:allowed?null:closed?'lifecycle_blocked':revoked?'branch_denied':reason});
  const snapshot=(id:string)=>surfaceSnapshot({root:{id,project:records.project,office:records.org,lead:id===root?records.tasks[0].assigned_to??(unassignedRoot?null:records.id):records.id,kind:'office',open:!closed,people:records.tasks[0].team_member_ids||[records.id],due:'2026-10-09',capabilities:{
-  manage_contributors:capability(role!=='admin'&&!closed&&!revoked&&!(unassignedRoot&&id===root),'lifecycle_blocked'),
+  manage_contributors:capability(role!=='admin'&&!closed&&!revoked&&!(unassignedRoot&&id===root&&!records.tasks[0].assigned_to),'lifecycle_blocked'),
   appoint_lead:capability(role==='head'&&!closed&&!revoked,'appointment_denied'),
   create_child:capability(role!=='admin'&&!closed&&!revoked),order_children:capability(role!=='admin'&&!closed&&!revoked)}},revision,can_manage:role!=='admin'&&!closed&&!revoked,can_transfer:role==='head'&&!closed&&!revoked,nodes:id===root?nodes.map(n=>({...n,can_manage:n.can_manage&&!closed&&!revoked,can_work:n.can_work&&!closed&&!revoked,capabilities:{
    manage_contributors:capability(role!=='admin'&&!closed&&!revoked),appoint_lead:capability(role!=='admin'&&!closed&&!revoked,'appointment_denied'),
@@ -64,7 +64,7 @@ async function hierarchyFixture(page:Page,role:'head'|'member'|'admin'='head',de
    if(payload.p_command==='create')nodes.push({...nodes[0],id:value.id,title:value.title,parent_subtask_id:value.parent,lead_id:value.lead,assigned_to_ids:value.people,due_date:value.due,depth:value.parent?(nodes.find(n=>n.id===value.parent)?.depth||0)+1:1,sibling_order:0});
    if(payload.p_command==='contributors')Object.assign(records.tasks[0],{team_member_ids:value.people});
    if(payload.p_command==='edit')Object.assign(nodes.find(node=>node.id===value.id)!,{title:value.title,due_date:value.due,is_standalone:value.standalone});
-   if(payload.p_command==='root_lead')Object.assign(records.tasks[0],{assigned_to:value.lead,team_member_ids:value.people});
+   if(payload.p_command==='root_lead')Object.assign(records.tasks[0],{assigned_to:value.lead,team_member_ids:value.people,...(records.tasks[0].status==='pending_assignment'?{status:'todo'}:{})});
    if(payload.p_command==='staff')Object.assign(nodes.find(node=>node.id===value.id)!,{lead_id:value.lead,assigned_to_ids:value.people});
    if(op==='nw_work_command'&&['root_lead','staff'].includes(payload.p_command))for(const node of nodes.filter(node=>node.id!==value.id))node.lead_id=null;
    if(payload.p_command==='delete'){const selected=new Set([value.id]);for(let i=0;i<8;i++)for(const node of nodes)if(selected.has(node.parent_subtask_id))selected.add(node.id);nodes.splice(0,nodes.length,...nodes.filter(node=>!selected.has(node.id)));}
@@ -81,6 +81,31 @@ async function hierarchyFixture(page:Page,role:'head'|'member'|'admin'='head',de
  return {records,nodes,members,commands,previews,treeReads,changeHistory(){historyVersion++;},set materialDate(value:boolean){materialDate=value;},set impactBlocked(value:boolean){impactBlocked=value;},set lostCheckedReceipt(value:boolean){lostCheckedReceipt=value;},blockReads(){readGate=new Promise<void>(resolve=>{releaseReadGate=resolve;});},releaseReads(){readGate=undefined;releaseReadGate();},set readFailure(value:'offline'|'denied'|null){readFailure=value;},set closed(value:boolean){closed=value;records.projects[0].status=value?'archived':'planning';},set revoked(value:boolean){revoked=value;}};
 }
 async function workAction(page:Page,trigger:string,action:string){await page.getByRole('button',{name:trigger,exact:true}).click();await page.getByRole('menuitem',{name:action,exact:true}).click();}
+
+test('Head assigns the first lead and contributor with a short confirmation on desktop and phone',async({page})=>{
+ test.setTimeout(90000);
+ const fixture=await hierarchyFixture(page,'head',0,true);
+ await page.getByRole('button',{name:'Choose task lead and contributors',exact:true}).first().click();
+ const editor=page.getByRole('dialog',{name:'Task lead and contributors',exact:true});
+ await editor.getByLabel('Appointed Lead').selectOption(bob);
+ const add=editor.getByRole('button',{name:'Add contributor Alex Rivera',exact:true});
+ await expect(add).toBeEnabled();await add.click();
+ await expect(editor.getByRole('button',{name:'Remove contributor Alex Rivera',exact:true})).toBeEnabled();
+ await page.screenshot({path:'.codex-tmp/task-team-fix/team-desktop.png'});
+ await page.setViewportSize({width:390,height:844});
+ expect(await editor.evaluate(el=>el.scrollWidth<=el.clientWidth)).toBe(true);
+ await expect(editor.getByRole('button',{name:'Save changes',exact:true})).toBeInViewport();
+ await page.screenshot({path:'.codex-tmp/task-team-fix/team-mobile.png'});
+ await editor.getByRole('button',{name:'Save changes',exact:true}).click();
+ const confirm=page.getByRole('alertdialog',{name:'Assign a lead?'});
+ await expect(confirm).toContainText('Make Bob selected for project the lead for this task?');
+ expect((await confirm.innerText()).split(/\s+/).length).toBeLessThan(50);
+ await confirm.getByRole('button',{name:'Assign lead',exact:true}).click();
+ await expect(editor).toHaveCount(0);
+ expect(fixture.commands).toHaveLength(1);
+ expect(fixture.commands[0]).toMatchObject({p_command:'root_lead',p_payload:{lead:bob,people:[fixture.records.id,bob]}});
+ expect(fixture.records.tasks[0].status).toBe('todo');
+});
 test('approved inline add preserves keyboard focus through a delayed authority refresh',async({page})=>{
  const fixture=await hierarchyFixture(page);await page.getByRole('button',{name:'Subitems for '+title,exact:true}).click();const work=page.getByRole('region',{name:'Nested project work'}),add=work.getByRole('button',{name:'Add subitem',exact:true});await add.click();await expect(work.getByRole('form',{name:'Nested work changes'})).toBeVisible();fixture.blockReads();await work.getByRole('button',{name:'Cancel changes',exact:true}).click();await expect(work.getByRole('form',{name:'Nested work changes'})).toHaveCount(0);
  // A quiet read retains the verified same-actor snapshot. It must not invent a
@@ -351,8 +376,8 @@ test('NW5.5 material date cancellation and changed-history denial retain the dra
 });
 
 test('NW5.5 Lead transfer binds disclosed staffing to authoritative checked impact',async({page})=>{
- const fixture=await hierarchyFixture(page);await page.getByRole('button',{name:'Subitems for '+title,exact:true}).click();const tree=page.getByRole('region',{name:'Nested project work'});await workAction(page,'Actions for Depth 1 work','Choose people');const editor=page.getByRole('dialog',{name:'Subitem Lead and contributors'});await editor.getByLabel('Appointed Lead').selectOption(bob);await editor.getByRole('button',{name:'Save work changes'}).click();const review=page.getByRole('alertdialog',{name:'Transfer Lead appointment?'});
- await expect(review).toContainText('Bob selected for project');await expect(review).toContainText('1 child Lead appointments will be cleared');await expect(review).toContainText('Retained workers:');expect(fixture.commands).toHaveLength(0);await review.getByRole('button',{name:'Transfer Lead',exact:true}).click();await expect(editor).toHaveCount(0);expect(fixture.commands[0]).toMatchObject({p_command:'staff',p_payload:{lead:bob,people:[fixture.records.id,bob]}});expect(fixture.commands[0].p_impact_fingerprint).toBeTruthy();expect(fixture.nodes[1].lead_id).toBeNull();
+ const fixture=await hierarchyFixture(page);await page.getByRole('button',{name:'Subitems for '+title,exact:true}).click();const tree=page.getByRole('region',{name:'Nested project work'});await workAction(page,'Actions for Depth 1 work','Choose people');const editor=page.getByRole('dialog',{name:'Subitem Lead and contributors'});await editor.getByLabel('Appointed Lead').selectOption(bob);await editor.getByRole('button',{name:'Save changes'}).click();const review=page.getByRole('alertdialog',{name:'Change lead?'});
+ await expect(review).toContainText('Bob selected for project');await expect(review).toContainText('1 subtask will need a new lead:');await expect(review).toContainText('Also on this task:');expect(fixture.commands).toHaveLength(0);await review.getByRole('button',{name:'Change lead',exact:true}).click();await expect(editor).toHaveCount(0);expect(fixture.commands[0]).toMatchObject({p_command:'staff',p_payload:{lead:bob,people:[fixture.records.id,bob]}});expect(fixture.commands[0].p_impact_fingerprint).toBeTruthy();expect(fixture.nodes[1].lead_id).toBeNull();
 });
 
 test('NW5.5 sibling ordering uses labelled keyboard controls and the full authorized sequence',async({page})=>{

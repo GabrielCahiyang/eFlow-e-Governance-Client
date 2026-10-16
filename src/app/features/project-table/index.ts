@@ -17,3 +17,4 @@ export {
 } from "./selectors";
 export type { TableSort } from "./selectors";
 export { patchWorkspaceTask } from "./services/workspaceService";
+export { timelineDraft, timelinePatch, timelineError, todayDate } from "./planningDraft";

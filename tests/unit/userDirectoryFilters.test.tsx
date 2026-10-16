@@ -22,7 +22,7 @@ const profile = (id: string, fullName: string, orgId: string, active = true, wor
 
 function Harness() {
   const [value, setValue] = useState<UserDirectoryFilters>(DEFAULT_USER_DIRECTORY_FILTERS);
-  return <UserDirectoryFiltersBar value={value} organizations={[{ value: "bplo", label: "BPLO" }, { value: "ledipo", label: "LEDIPO" }]} onChange={setValue} />;
+  return <UserDirectoryFiltersBar value={value} onChange={setValue} />;
 }
 
 describe("user account directory filters", () => {
@@ -41,10 +41,12 @@ describe("user account directory filters", () => {
 
   it("updates filters and exposes a compact reset action", () => {
     render(<Harness />);
-    fireEvent.change(screen.getByRole("combobox", { name: "Filter users by organization" }), { target: { value: "ledipo" } });
+    expect(screen.queryByRole('combobox', { name: 'Filter users by organization' })).toBeNull();
+    expect(screen.queryByRole('option', { name: 'Office · A–Z' })).toBeNull();
+    fireEvent.change(screen.getByRole("combobox", { name: "Filter users by status" }), { target: { value: "active" } });
     expect(screen.getByRole("button", { name: "Reset" })).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Reset" }));
-    expect((screen.getByRole("combobox", { name: "Filter users by organization" }) as HTMLSelectElement).value).toBe("all");
+    expect((screen.getByRole("combobox", { name: "Filter users by status" }) as HTMLSelectElement).value).toBe("all");
     expect(screen.queryByRole("button", { name: "Reset" })).toBeNull();
   });
 });

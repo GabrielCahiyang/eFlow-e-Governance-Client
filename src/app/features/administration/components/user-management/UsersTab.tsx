@@ -79,7 +79,9 @@ export function UsersTab({
   const [localFilters, setLocalFilters] = useState<UserDirectoryFilters>(
     DEFAULT_USER_DIRECTORY_FILTERS,
   );
-  const filters = directoryFilters ?? localFilters;
+  const storedFilters = directoryFilters ?? localFilters;
+  // Old directory bookmarks must not invisibly keep a removed department filter.
+  const filters = useMemo(() => ({ ...storedFilters, organizationId: 'all', sort: storedFilters.sort.startsWith('organization-') ? 'name-asc' as const : storedFilters.sort }), [storedFilters]);
   const setFilters = onDirectoryFiltersChange ?? setLocalFilters;
   useEffect(() => {
     if (loading || !focusAccountId) return;
@@ -87,14 +89,6 @@ export function UsersTab({
     if (button && !button.disabled) button.focus();
     onFocusReturned?.();
   }, [loading, focusAccountId, onFocusReturned]);
-  const orgOptions = useMemo(
-    () =>
-      orgs
-        .filter((org) => org.is_active)
-        .map((org) => ({ value: org.id, label: org.name }))
-        .sort((left, right) => left.label.localeCompare(right.label)),
-    [orgs],
-  );
   const orgMap = useMemo(
     () => Object.fromEntries(orgs.map((org) => [org.id, org.name])),
     [orgs],
@@ -433,7 +427,6 @@ export function UsersTab({
         toolbar={
           <UserDirectoryFiltersBar
             value={filters}
-            organizations={orgOptions}
             onChange={setFilters}
           />
         }
@@ -441,7 +434,6 @@ export function UsersTab({
       <CreateUserModal
         isOpen={showCreate}
         onClose={() => setShowCreate(false)}
-        orgOptions={orgOptions}
         organizations={orgs}
         profiles={visibleProfiles}
       />
@@ -449,7 +441,6 @@ export function UsersTab({
         isOpen={Boolean(editUser)}
         onClose={() => setEditUser(null)}
         user={editUser}
-        orgOptions={orgOptions}
         organizations={orgs}
         profiles={visibleProfiles}
       />

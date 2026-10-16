@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, type SetStateAction } from 'react';
 import { requestNavigation, useNavigationBlocker } from '../../../shared/navigationGuard';
 
 export function usePlanningEditor<T>(initial: () => T, label: string, options: { closeOnSuccess?: boolean } = {}) {
@@ -7,7 +7,7 @@ export function usePlanningEditor<T>(initial: () => T, label: string, options: {
   const inFlight = useRef(false);
   const dirty = open && JSON.stringify(draft) !== JSON.stringify(saved);
   useNavigationBlocker({ label, dirty, pending, pendingCheck: () => inFlight.current, onDiscard: () => { setDraft(saved); setError(''); setOpen(false); } });
-  return { open, draft, setDraft, error, notice, pending, dirty,
+  return { open, draft, setDraft: (value: SetStateAction<T>) => { setDraft(value); setError(''); setNotice(''); }, error, notice, pending, dirty,
     onOpenChange: (next: boolean) => {
       if (next) { const current = initial(); setDraft(current); setSaved(current); setError(''); setNotice(''); setOpen(true); }
       else void requestNavigation(() => { if (!dirty) setOpen(false); });

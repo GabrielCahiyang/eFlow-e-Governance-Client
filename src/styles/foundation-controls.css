@@ -35,9 +35,21 @@
 .eflow-confirmation-body { min-width: 0; max-height: 60dvh; overflow: auto; }
 .eflow-confirmation-body ul { list-style: disc; padding-left: var(--eflow-space-5); margin-block: var(--eflow-space-3); }
 .eflow-confirmation-blockers { color: var(--eflow-negative-text); background: var(--eflow-negative-bg); padding: var(--eflow-space-3); border-radius: var(--eflow-radius-control); }
-.eflow-vibe-modal-layout { min-height: 0; }
-.eflow-vibe-modal-content { min-height: 0; overscroll-behavior: contain; }
-.eflow-responsive-modal { color: var(--eflow-text); }
+.eflow-vibe-modal-layout { flex: 1; min-width: 0; min-height: 0; width: 100%; overflow: hidden; }
+.eflow-vibe-modal-content { min-width: 0; min-height: 0; width: 100%; overscroll-behavior: contain; overflow-wrap: anywhere; }
+.eflow-vibe-modal-header [id$="_desc"] { width: 100%; min-width: 0; align-items: flex-start; }
+.eflow-vibe-modal-header [id$="_desc"] > span { display: block; max-width: 100%; min-width: 0; white-space: normal; overflow: visible; overflow-wrap: anywhere; -webkit-line-clamp: unset; }
+.eflow-responsive-modal { min-width: 0; color: var(--eflow-text); }
+.eflow-vibe-modal-footer { display: flex; flex: none; flex-wrap: wrap; justify-content: flex-end; gap: 8px; padding: 16px 24px; border-top: 1px solid var(--eflow-border); background: var(--eflow-surface); }
+.eflow-dialog-surface > *, .eflow-vibe-modal-content form, .eflow-vibe-modal-content fieldset { min-width: 0; }
+.eflow-vibe-modal-content input:not([type=checkbox]):not([type=radio]), .eflow-vibe-modal-content select, .eflow-vibe-modal-content textarea { max-width: 100%; }
+.eflow-head-dialog-form { display: grid; gap: 20px; min-width: 0; }
+.eflow-head-dialog-form textarea.eflow-form-input { width: 100%; padding: 10px 12px; border: 1px solid var(--eflow-border); border-radius: var(--eflow-radius-control); background: var(--eflow-surface); font-size: 14px; line-height: 1.5; resize: vertical; }
+.eflow-head-dialog-form .eflow-project-settings__fields { padding: 0; overflow: visible; }
+@media (max-width: 639px) {
+  .eflow-vibe-modal-footer { padding: 12px 16px; }
+  .eflow-vibe-modal-footer > button { flex: 1 1 auto; }
+}
 .eflow-toast-stack { z-index: var(--eflow-layer-toast); max-width: calc(100vw - 32px); }
 .eflow-foundation-surface { color: var(--eflow-text); background: var(--eflow-surface); }
 .eflow-directory-action { min-height: var(--eflow-control-compact); font-size: var(--eflow-text-xs); }

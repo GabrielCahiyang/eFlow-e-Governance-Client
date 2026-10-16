@@ -5,7 +5,7 @@ const reasons:Record<WorkCapabilityReasonCode|'capability_unavailable',string>={
  read_only:'This work is read-only in the current view.',
  branch_denied:'You do not have permission for this action on this work.',
  appointment_denied:'You do not have permission to appoint this Lead.',
- lifecycle_blocked:'The current work state or execution prerequisites block this action.',
+ lifecycle_blocked:'This task is not ready for this change yet.',
  history_blocked:'Existing work history or commitments block this change.',
  capability_unavailable:'Action availability could not be verified. Reload the work.',
 };

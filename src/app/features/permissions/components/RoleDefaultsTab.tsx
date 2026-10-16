@@ -6,7 +6,7 @@ import { useToast } from "../../../components/ui/Toast";
 import {
   ACTION_PERMISSION_KEYS,
   MANAGED_ROLES,
-  PAGE_PERMISSION_KEYS,
+  VISIBLE_PAGE_PERMISSION_KEYS as PAGE_PERMISSION_KEYS,
   PERMISSION_LABELS,
 } from "../constants";
 import { rolePermissionAllowed } from "../selectors";

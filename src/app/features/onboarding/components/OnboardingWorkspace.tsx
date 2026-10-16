@@ -1,6 +1,6 @@
 import { requestNavigation } from '../../../shared/navigationGuard';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Check, HelpCircle, ArrowRight } from 'lucide-react';
+import { Check, ArrowRight } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '../../../components/ui/dialog';
 import { Button } from '../../../components/ui/button';
 import { WorkspaceIllustration } from '../../../components/ui/WorkspaceIllustration';
@@ -12,8 +12,6 @@ import { readOnboarding, saveOnboarding } from '../services/onboardingService';
 import { onboardingChecklist } from '../checklist';
 import type { ChecklistStep, OnboardingRecord } from '../types';
 import '../onboarding.css';
-
-export function OnboardingHelpButton() { return <button type="button" className="eflow-onboarding-help" aria-label="Help and Getting Started" title="Help and Getting Started" onClick={() => window.dispatchEvent(new Event('eflow-open-getting-started'))}><HelpCircle size={19} /></button>; }
 
 export function OnboardingWorkspace({ onNavigate }: { onNavigate: (section: string, page: string) => void }) {
   const { user, userProfile } = useAuth(); const { orgs } = useOrgs();

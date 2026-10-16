@@ -11,6 +11,16 @@ beforeEach(() => {
   service.invite.mockResolvedValue({ id: 'invite' });
 });
 describe('project-local Office creation', () => {
+  it('invites an Office by name within a project without a global department record', async () => {
+    render(<LocalOfficeDialog projectId="project" inviteOnly onClose={vi.fn()} onSaved={vi.fn().mockResolvedValue(undefined)}/>);
+    const send=screen.getByRole('button',{name:'Save & invite contact'});
+    fireEvent.change(screen.getByRole('textbox',{name:'Office name'}),{target:{value:'External Office'}});
+    expect(send.getAttribute('aria-disabled')).toBe('true');
+    fireEvent.change(screen.getByRole('textbox',{name:'Contact email'}),{target:{value:'contact@example.test'}});
+    fireEvent.click(send);
+    await waitFor(()=>expect(service.invite).toHaveBeenCalledWith('stable-office','contact@example.test','collaborating'));
+    expect(service.save).toHaveBeenCalledWith('project',expect.any(String),'External Office','');
+  });
   it('retains an Office name without requiring a canonical record or contact', async () => {
     const refresh = vi.fn().mockResolvedValue(undefined);
     render(<LocalOfficeDialog projectId="project" onClose={vi.fn()} onSaved={refresh}/>);

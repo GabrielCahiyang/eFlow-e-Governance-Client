@@ -14,7 +14,7 @@ test('Admin changes the limit and must confirm before unlocking',async({page})=>
   await page.goto('/users?page=Locked%20out%20accounts');
   await expect(page.getByRole('heading',{name:'Locked out accounts',exact:true})).toBeVisible({timeout:30000});
   const categories=page.getByRole('navigation',{name:'Admin Center destinations'});
-  await expect(categories.getByRole('button')).toHaveCount(11);
+  await expect(categories.getByRole('button')).toHaveCount(10);
   await expect(categories.getByRole('button',{name:'Locked out accounts',exact:true})).toHaveAttribute('aria-current','page');
   await expect(page.getByText('locked@example.test',{exact:true})).toBeVisible();
   await page.getByRole('spinbutton',{name:'Failed attempts before lockout'}).fill('5');

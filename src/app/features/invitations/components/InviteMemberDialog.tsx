@@ -1,7 +1,6 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
-import { Dialog, DialogContent, DialogDescription, DialogTitle } from '../../../components/ui/dialog';
-import { WorkspaceIllustration } from '../../../components/ui/WorkspaceIllustration';
+import { Modal, ModalButton } from '../../../components/ui/Modal';
 import { useConfirmation } from '../../../components/ui/useConfirmation';
 import { useExplicitDraft } from '../../../shared/useExplicitDraft';
 import { requestNavigation } from '../../../shared/navigationGuard';
@@ -19,6 +18,7 @@ export function InviteMemberDialog({ officeName, open, onOpenChange, onSent }: {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
   const [receipt, setReceipt] = useState('');
+  const formRef = useRef<HTMLFormElement>(null);
   const confirmation = useConfirmation();
   const reset = () => { setRows([emptyRow(), emptyRow()]); setMessage(''); setReceipt(''); };
   const guard = useExplicitDraft('Office invitations', open && rows.some(row => !!row.email.trim() || !!row.file || row.account_role !== 'member'), open && busy, reset);
@@ -52,8 +52,9 @@ export function InviteMemberDialog({ officeName, open, onOpenChange, onSent }: {
     } catch (error) { setMessage((error as Error).message); }
     finally { guard.pendingRef.current = false; setBusy(false); }
   }
-  return <><Dialog open={open} onOpenChange={value => { if (!value) close(); }}><DialogContent className="eflow-invite-dialog">
-    <form className="eflow-invite-form" onSubmit={send}><div><DialogTitle className="eflow-invite-title">Now, let’s bring the team in.</DialogTitle><DialogDescription>Invite people to {officeName}. They’ll create their own eFlow account.</DialogDescription></div>
+  return <><Modal isOpen={open} onClose={close} preventClose={busy} title="Now, let’s bring the team in." description={`Invite people to ${officeName}. They’ll create their own eFlow account.`} width="max-w-3xl"
+    footer={<><ModalButton disabled={busy} onClick={close}>Remind me later</ModalButton><ModalButton variant="primary" pending={busy} disabled={!rows.some(row=>row.email.trim())} onClick={()=>formRef.current?.requestSubmit()}>Send invitations</ModalButton></>}>
+    <form ref={formRef} className="eflow-head-dialog-form" onSubmit={send}>
       <div className="eflow-invite-rows">{rows.map((row, index) => <InvitationPersonFields compact key={row.id} id={row.id} index={index} email={row.email} file={row.file} disabled={busy} onEmail={email=>change(row.id,{email})} onFile={file=>change(row.id,{file})} onError={setMessage}>
         <label className="sr-only" htmlFor={`role-${row.id}`}>Role {index+1}</label><select id={`role-${row.id}`} value={row.account_role} onChange={event=>change(row.id,{account_role:event.target.value as InvitedRole})}><option value="member">Member</option><option value="accounting_staff">Accounting Staff</option></select>
         {rows.length>1&&<button type="button" className="eflow-icon-button" aria-label={`Remove person ${index+1}`} onClick={()=>setRows(current=>current.filter(item=>item.id!==row.id))}><Trash2 size={16}/></button>}
@@ -61,7 +62,6 @@ export function InviteMemberDialog({ officeName, open, onOpenChange, onSent }: {
       {rows.length < 5 && <button type="button" className="eflow-text-button" disabled={busy} onClick={() => setRows(current => [...current, emptyRow()])}><Plus size={17} /> Add another person</button>}
       {message && <p role="alert" className="eflow-form-error" id="invite-errors">{message}</p>}
       {receipt && <p role="status">{receipt}</p>}
-      <footer className="eflow-invite-footer"><button type="button" className="eflow-text-button" disabled={busy} onClick={close}>Remind me later</button><button type="submit" className="eflow-primary-button" aria-describedby={message ? 'invite-errors' : undefined} disabled={busy || !rows.some(row => row.email.trim())}>{busy ? 'Sending…' : 'Send invitations'}</button></footer>
-    </form><WorkspaceIllustration />
-  </DialogContent></Dialog>{confirmation.dialog}</>;
+    </form>
+  </Modal>{confirmation.dialog}</>;
 }

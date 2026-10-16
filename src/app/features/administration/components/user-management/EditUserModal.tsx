@@ -30,14 +30,12 @@ export function EditUserModal({
   isOpen,
   onClose,
   user: editUser,
-  orgOptions,
   organizations,
   profiles,
 }: {
   isOpen: boolean;
   onClose: () => void;
   user: UserProfile | null;
-  orgOptions: { value: string; label: string }[];
   organizations: Organization[];
   profiles: UserProfile[];
 }) {
@@ -264,14 +262,8 @@ export function EditUserModal({
                   }
                 />
               </FormField>
-              <FormField label="Organization">
-                <SelectInput
-                  value={form.orgId}
-                  onChange={(e) => setForm({ ...form, orgId: e.target.value })}
-                  options={orgOptions}
-                  placeholder="Select organization"
-                  disabled={leadershipLocked || editUser.id === userProfile?.id}
-                />
+              <FormField label="Office" description="External Office access is managed through project invitations.">
+                <TextInput value={organizations.find(office => office.id === form.orgId)?.name || 'Unassigned'} readOnly/>
               </FormField>
             </div>
             {lastAdmin ? (

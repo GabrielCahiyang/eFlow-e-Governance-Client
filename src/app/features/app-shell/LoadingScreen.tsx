@@ -1,27 +1,20 @@
-import { Avatar, Loader } from "@vibe/core";
-import { Workspace } from "@vibe/icons";
+import { EFlowMark } from "../../../components/EFlowMark";
 
 export function LoadingScreen() {
   return (
     <main
       aria-busy="true"
       aria-label="Loading eFlow"
-      className="flex min-h-screen w-full items-center justify-center"
-      style={{ background: "var(--allgrey-background-color)", color: "var(--primary-text-color)", fontFamily: "var(--font-family)" }}
+      className="eflow-loading"
     >
-      <div className="flex flex-col items-center gap-4 text-center">
-        <Avatar
-          aria-hidden
-          backgroundColor="primary"
-          icon={Workspace}
-          size="large"
-          type="icon"
-        />
-        <div className="flex items-center gap-2">
-          <Loader size="small" />
-          <span style={{ color: "var(--secondary-text-color)", font: "var(--font-text2-normal)" }}>Loading eFlow…</span>
-        </div>
+      <div className="eflow-loading-content">
+        <div className="eflow-loading-logo"><EFlowMark height={58} state="submitting" /></div>
+        <span className="eflow-loading-organization">LGU Ormoc City</span>
+        <h1>Getting things ready</h1>
+        <div className="eflow-loading-track" aria-hidden="true"><span /></div>
+        <p role="status" aria-live="polite">Loading eFlow…</p>
       </div>
+      <span className="eflow-loading-footer" aria-hidden="true">A little less busywork. A little more flow.</span>
     </main>
   );
 }

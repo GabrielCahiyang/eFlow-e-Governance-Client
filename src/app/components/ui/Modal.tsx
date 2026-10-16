@@ -6,6 +6,7 @@ import {
   ModalContent,
   ModalHeader,
 } from "@vibe/core";
+import { modalWidth } from './modalSizing';
 
 interface ModalProps {
   isOpen: boolean;
@@ -13,6 +14,7 @@ interface ModalProps {
   onClose: () => void;
   /** Optional title. The child content may provide its own branded header. */
   title?: string;
+  description?: string;
   ariaLabel?: string;
   children: ReactNode;
   footer?: ReactNode;
@@ -39,6 +41,7 @@ export function Modal({
   preventClose = false,
   onClose,
   title,
+  description,
   ariaLabel,
   children,
   footer,
@@ -64,18 +67,19 @@ export function Modal({
       className={`eflow-responsive-modal ${preventClose ? "eflow-modal-locked" : ""} ${overlayClassName}`}
       useFixedPosition
       zIndex={modalLayer}
+      style={{ width: `min(${modalWidth(width)}px, calc(100vw - 32px))`, minWidth: 0, maxWidth: 'calc(100vw - 32px)', maxHeight: 'calc(100dvh - 32px)' }}
     >
       <ModalBasicLayout className={`eflow-vibe-modal-layout ${className}`}>
-        <ModalHeader title={accessibleTitle} />
+        <ModalHeader className="eflow-vibe-modal-header" title={accessibleTitle} {...(description ? { description } : {})} />
         <ModalContent className={`eflow-vibe-modal-content ${bodyClassName}`}>
           {children}
         </ModalContent>
       </ModalBasicLayout>
 
       {footer && (
-        <div className="flex shrink-0 items-center justify-end gap-2 border-t border-border px-5 py-4">
+        <footer className="eflow-vibe-modal-footer">
           {footer}
-        </div>
+        </footer>
       )}
     </VibeModal>
   );

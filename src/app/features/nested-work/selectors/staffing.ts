@@ -13,10 +13,17 @@ export function captureStaffingBaseline(data:WorkTreeSnapshot,nodeId:string|null
   nodeId,revision:data.revision,leadId:nodeId?node?.lead_id||null:data.root.lead,
   workerIds:deduplicateWorkPersonIds(nodeId?node?.assigned_to_ids||[]:data.root.kind==='office'?data.root.people:[])};
 }
-export function staffingCapabilities(data:WorkTreeSnapshot|undefined,nodeId:string|null,context:WorkCapabilityContext) {
+export function staffingCapabilities(data:WorkTreeSnapshot|undefined,nodeId:string|null,context:WorkCapabilityContext,draftLead?:string|null) {
  const select=(action:'appoint_lead'|'manage_contributors')=>nodeId
   ?selectNodeWorkCapability(data,nodeId,action,context):selectRootWorkCapability(data,action,context);
- return {appointment:select('appoint_lead'),contributors:select('manage_contributors')};
+ const appointment=select('appoint_lead'),contributors=select('manage_contributors');
+ const currentLead=nodeId?data?.nodes.find(node=>node.id===nodeId)?.lead_id:data?.root.lead;
+ // Initial appointment commands save the Lead and team together. This does not
+ // authorize a standalone contributors command or override any other denial.
+ const initialTeam=!!data&&data.root.kind==='office'&&!currentLead&&!!draftLead
+  &&appointment.allowed&&contributors.reason_code==='lifecycle_blocked'
+  &&eligibleWorkPeople(data.people).some(person=>person.id===draftLead);
+ return {appointment,contributors:initialTeam?{allowed:true,reason_code:null,disabledReason:null} as const:contributors};
 }
 
 /** R8's scoped requester uses the existing server branch predicate. This is
@@ -32,8 +39,9 @@ export function scopedInvitationRequestAllowed(data:WorkTreeSnapshot|undefined,n
 const sameIds=(a:readonly string[],b:readonly string[])=>JSON.stringify([...new Set(a)].sort())===JSON.stringify([...new Set(b)].sort());
 
 export function staffingDraftError(data:WorkTreeSnapshot|undefined,context:WorkCapabilityContext,baseline:StaffingBaseline,leadId:string|null,workerIds:readonly string[],retry=false):string|null {
- const caps=staffingCapabilities(data,baseline.nodeId,context),changedLead=leadId!==baseline.leadId;
+ const caps=staffingCapabilities(data,baseline.nodeId,context,leadId),changedLead=leadId!==baseline.leadId;
  if(context.actorId!==baseline.actorId||context.rootId!==baseline.rootId||context.projectId!==baseline.projectId||context.officeId!==baseline.officeId||context.kind!==baseline.kind)return 'The work scope changed. Reopen staffing in the current scope.';
+ if(!leadId&&caps.appointment.allowed)return 'Choose a lead first.';
  const required=changedLead?caps.appointment:caps.contributors;
  if(!required.allowed)return required.disabledReason;
  if(!sameIds(workerIds,baseline.workerIds)&&!caps.contributors.allowed)return caps.contributors.disabledReason;

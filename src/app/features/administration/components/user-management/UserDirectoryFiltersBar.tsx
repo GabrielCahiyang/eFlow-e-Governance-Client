@@ -13,11 +13,9 @@ const selectClass = "h-9 rounded-xl border border-neutral-200 bg-neutral-50 px-3
 
 export function UserDirectoryFiltersBar({
   value,
-  organizations,
   onChange,
 }: {
   value: UserDirectoryFilters;
-  organizations: { value: string; label: string }[];
   onChange: (next: UserDirectoryFilters) => void;
 }) {
   const update = <K extends keyof UserDirectoryFilters>(key: K, nextValue: UserDirectoryFilters[K]) => {
@@ -26,10 +24,6 @@ export function UserDirectoryFiltersBar({
 
   return (
     <div className="flex flex-wrap items-center gap-2" data-testid="user-directory-filters">
-      <select aria-label="Filter users by organization" value={value.organizationId} onChange={(event) => update("organizationId", event.target.value)} className={`${selectClass} max-w-[200px]`}>
-        <option value="all">All organizations</option>
-        {organizations.map((organization) => <option key={organization.value} value={organization.value}>{organization.label}</option>)}
-      </select>
       <select aria-label="Filter users by role" value={value.role} onChange={(event) => update("role", event.target.value as UserRole | "all")} className={selectClass}>
         <option value="all">All roles</option>
         {ROLE_OPTIONS.map((role) => <option key={role.value} value={role.value}>{role.label}</option>)}
@@ -42,8 +36,6 @@ export function UserDirectoryFiltersBar({
       <select aria-label="Sort users" value={value.sort} onChange={(event) => update("sort", event.target.value as UserDirectorySort)} className={`${selectClass} min-w-[165px]`}>
         <option value="name-asc">Name · A–Z</option>
         <option value="name-desc">Name · Z–A</option>
-        <option value="organization-asc">Office · A–Z</option>
-        <option value="organization-desc">Office · Z–A</option>
         <option value="workload-desc">Highest workload</option>
       </select>
       {hasUserDirectoryFilters(value) && (

@@ -180,7 +180,7 @@ export function readNavigationLocation(
   const url = new URL(window.location.href);
   if (role === "admin") {
     const legacySupport: Record<string, string> = {
-      organization: "Office Structure",
+      organization: "All Users",
       audit: "Account Audit",
       "system-settings": "System Settings",
       "data-tools": "Backup & Export",

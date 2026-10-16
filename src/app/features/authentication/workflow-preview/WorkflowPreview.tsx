@@ -1,10 +1,14 @@
 import { useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { ArrowUpRight, Building2, GitBranch } from "lucide-react";
-import { WorkflowPreviewPanel } from "./WorkflowPreviewPanel";
+import { lazyFeature } from "../../../shared/lazyFeature";
 import { WORKFLOW_GUIDES } from "./workflowGuides";
 import type { WorkflowKind } from "./types";
 import styles from "./WorkflowPreview.module.scss";
+
+const WorkflowPreviewPanel = lazyFeature(() =>
+  import("./WorkflowPreviewPanel").then((module) => ({ default: module.WorkflowPreviewPanel })),
+);
 
 function FlowButton({ kind }: { kind: WorkflowKind }) {
   const [open, setOpen] = useState(false);

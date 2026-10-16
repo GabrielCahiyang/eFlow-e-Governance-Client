@@ -73,22 +73,6 @@ function SettingsForm({ canManage }: { canManage: boolean }) {
                   are unchanged.
                 </small>
               </label>
-              <label>
-                Version String
-                <input
-                  maxLength={40}
-                  required
-                  disabled={!canManage || pending || uncertain}
-                  value={form.app_version || ""}
-                  onChange={(e) =>
-                    setForm({ ...form, app_version: e.target.value })
-                  }
-                />
-                <small>
-                  Displayed with the organization in the utility bar; does not
-                  change deployed code.
-                </small>
-              </label>
               <div className="eflow-admin-actions">
                 <Button
                   type="submit"

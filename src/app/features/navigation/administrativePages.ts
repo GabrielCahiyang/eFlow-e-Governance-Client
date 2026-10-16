@@ -27,12 +27,6 @@ export const administrativePages = [
     permission: "navigation.user_management",
     adminOnly: true,
   },
-  {
-    label: "Office Structure",
-    supportGroup: "Offices",
-    section: "org_tree",
-    permission: "navigation.organization",
-  },
   { label: "Account Audit", supportGroup: "Audit", section: "audit", permission: "navigation.audit" },
   {
     label: "System Settings",
@@ -67,7 +61,7 @@ export const administrativePages = [
 ] as const;
 
 /** Presentation order only; the authorized page contract remains above. */
-export const supportGroupOrder = ['People', 'Offices', 'Access', 'Configuration', 'Audit', 'Data'] as const;
+export const supportGroupOrder = ['People', 'Access', 'Configuration', 'Audit', 'Data'] as const;
 export function getSupportPageGroup(label: string) {
   return administrativePages.find(page => page.label === label)?.supportGroup;
 }
@@ -83,6 +77,7 @@ export function getAuthorizedSupportPages(
 }
 
 export function resolveSupportPage(section: string, page?: string) {
+  if (section === 'org_tree' || page === 'Office Structure' || page === 'Org Structure') return 'All Users';
   if (section === "permissions") return "Role Defaults";
   if (section !== "users")
     return (

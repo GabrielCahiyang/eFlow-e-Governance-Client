@@ -64,7 +64,7 @@ describe('Phase 10 project workspace', () => {
     fireEvent.click(screen.getByRole('button',{name:'Save changes'})); expect(api.update).not.toHaveBeenCalled();
     expect(screen.getByLabelText('Target date').getAttribute('aria-invalid')).toBe('true');
     fireEvent.change(screen.getByLabelText('Target date'),{target:{value:'2026-10-12'}});
-    fireEvent.click(screen.getByRole('button',{name:'Save changes'})); fireEvent.submit(screen.getByRole('button',{name:'Save changes'}).closest('form')!);
+    fireEvent.click(screen.getByRole('button',{name:'Save changes'})); fireEvent.submit((screen.getByRole('button',{name:'Save changes'}) as HTMLButtonElement).form!);
     expect(api.update).toHaveBeenCalledOnce(); expect(await requestNavigation(vi.fn())).toBe(false);
     await act(async()=>finish()); await screen.findByText('Project settings saved.');
   });

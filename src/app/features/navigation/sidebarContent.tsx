@@ -48,7 +48,6 @@ export function getSidebarContent(
             { label: 'Locked out accounts' },
             { label: "Role Defaults" },
             { label: "User Access" },
-            { label: "Office Structure" },
             { label: "Account Audit" },
             { label: "System Settings" },
             { label: "Backup & Export" },

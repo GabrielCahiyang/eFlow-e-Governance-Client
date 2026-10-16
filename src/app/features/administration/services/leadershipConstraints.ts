@@ -12,5 +12,5 @@ export function getLeadershipSlotConflict({role,orgId,currentUserId,organization
     ? organization.head_user_id : profiles.find(profile => profile.id !== currentUserId && profile.is_active && profile.org_id === orgId && profile.role === "head")?.id;
   if (!occupantId) return null;
   const occupant = profiles.find(profile => profile.id === occupantId);
-  return organization.name + " already has " + (occupant?.full_name || "an assigned user") + " as Head. Replace that person through Office Structure first.";
+  return organization.name + " already has " + (occupant?.full_name || "an assigned user") + " as Head. Update the current Head's role in User Management before appointing a replacement.";
 }

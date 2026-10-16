@@ -12,7 +12,7 @@ import { useAuth } from "../../../contexts/AuthContext";
 import { useToast } from "../../../components/ui/Toast";
 import {
   ACTION_PERMISSION_KEYS,
-  PAGE_PERMISSION_KEYS,
+  VISIBLE_PAGE_PERMISSION_KEYS as PAGE_PERMISSION_KEYS,
   PERMISSION_LABELS,
 } from "../constants";
 import { resolvePermissions, rolePermissionAllowed } from "../selectors";
@@ -22,7 +22,6 @@ import {
   setUserOverride,
 } from "../services/permissionService";
 import type { RolePermissionRow, UserOverrideRow } from "../types";
-import { OrganizationScopePanel } from "./OrganizationScopePanel";
 import { Tooltip } from "@vibe/core";
 import { WSelect } from "../../../components/workflow/primitives";
 
@@ -327,8 +326,8 @@ export function UserAccessTab({
               Choose a user to inspect final access
             </p>
             <p className="mt-1 text-[12px] text-neutral-400">
-              Role defaults, individual exceptions, and organization scope are
-              shown together.
+              Role defaults and individual exceptions are shown together.
+              External Offices join through project invitations.
             </p>
           </div>
         </div>
@@ -411,8 +410,8 @@ export function UserAccessTab({
             </div>
             <div className="mt-4 flex items-center gap-2 border-t border-teal-100 pt-3 text-[12px] text-neutral-500">
               <Shield size={12} /> Effective access = individual exception →
-              role default → safe fallback. Data remains protected by
-              organization scope.
+              role default → safe fallback. External Office access is managed
+              within each project.
             </div>
           </header>
           <fieldset disabled={busy} className="min-w-0">
@@ -437,15 +436,6 @@ export function UserAccessTab({
               onCycle={cycle}
             />
           </fieldset>
-          {userProfile ? (
-            <OrganizationScopePanel
-              key={selected.id}
-              userId={selected.id}
-              homeOrgId={selected.org_id}
-              actorId={userProfile.id}
-              organizations={orgs}
-            />
-          ) : null}
         </div>
       )}
     </div>

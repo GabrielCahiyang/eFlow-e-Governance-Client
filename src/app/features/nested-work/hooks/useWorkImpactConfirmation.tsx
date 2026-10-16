@@ -6,7 +6,7 @@ import type {WorkImpact,WorkRequest} from '../types';
 
 export function useWorkImpactConfirmation(rootId:string){
  const [impact,setImpact]=useState<WorkImpact>(),confirmation=useConfirmation();
- async function review(request:WorkRequest,options:{title:string;actionLabel:string;description:string;danger?:boolean;dateChange?:boolean;alwaysConfirm?:boolean;details?:ReactNode|((impact:WorkImpact)=>ReactNode);isCurrent?:()=>boolean}){
+ async function review(request:WorkRequest,options:{title:string;actionLabel:string;description:string;danger?:boolean;dateChange?:boolean;alwaysConfirm?:boolean;showSummary?:boolean;details?:ReactNode|((impact:WorkImpact)=>ReactNode);isCurrent?:()=>boolean}){
   const preview=await fetchWorkImpact(rootId,request);
   if(options.isCurrent&&!options.isCurrent())throw new Error('Work or authority changed while checking impact. Review current work again.');
   setImpact(preview);
@@ -16,7 +16,7 @@ export function useWorkImpactConfirmation(rootId:string){
    if(preview.allowed&&!preview.requires_date_confirmation&&!options.alwaysConfirm)return preview.fingerprint;
   }
   const details=typeof options.details==='function'?options.details(preview):options.details;
-  const accepted=await confirmation.confirm({...options,blockers:workImpactBlockers(preview),impact:<><WorkImpactSummary impact={preview}/>{details}</>});
+  const accepted=await confirmation.confirm({...options,blockers:workImpactBlockers(preview),impact:<>{options.showSummary!==false&&<WorkImpactSummary impact={preview}/>} {details}</>});
   if(accepted&&options.isCurrent&&!options.isCurrent())throw new Error('Work or authority changed during confirmation. Review current work again.');
   return accepted&&preview.allowed?preview.fingerprint:null;
  }

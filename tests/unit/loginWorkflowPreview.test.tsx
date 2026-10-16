@@ -1,11 +1,17 @@
 // @vitest-environment jsdom
 import { act, cleanup, fireEvent, render, renderHook, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { WorkflowPreview } from "../../src/app/features/authentication";
 import { WORKFLOW_GUIDES } from "../../src/app/features/authentication/workflow-preview/workflowGuides";
 import { WORKFLOW_WALKTHROUGHS } from "../../src/app/features/authentication/workflow-preview/walkthroughSteps";
 import { WorkflowDemo } from "../../src/app/features/authentication/workflow-preview/WorkflowDemo";
 import { useWorkflowPlayback, WORKFLOW_STEP_DURATION } from "../../src/app/features/authentication/workflow-preview/useWorkflowPlayback";
+
+// Module-download isolation is covered by startup-loading.spec.ts and the
+// import-boundary test. Prepare code before timing these interaction assertions.
+beforeAll(async () => {
+  await import("../../src/app/features/authentication/workflow-preview/WorkflowPreviewPanel");
+}, 60000);
 
 afterEach(() => { cleanup(); vi.useRealTimers(); vi.unstubAllGlobals(); });
 
@@ -27,10 +33,10 @@ describe("login workflow guides", () => {
     }
   });
 
-  it("opens an unsigned-in guide, navigates backward/forward, scrubs to archive, and starts fresh on reopen", () => {
+  it("opens an unsigned-in guide, navigates backward/forward, scrubs to archive, and starts fresh on reopen", async () => {
     render(<WorkflowPreview />);
     fireEvent.click(screen.getByRole("button", { name: /Interdepartmental flow/ }));
-    expect(screen.getByRole("dialog", { name: "Interdepartmental flow" })).toBeTruthy();
+    expect(await screen.findByRole("dialog", { name: "Interdepartmental flow" }, { timeout: 10000 })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Create a proposal" })).toBeTruthy();
     expect((screen.getByRole("button", { name: "Previous step" }) as HTMLButtonElement).disabled).toBe(true);
     fireEvent.click(screen.getByRole("button", { name: "Next step" }));
@@ -43,14 +49,15 @@ describe("login workflow guides", () => {
     fireEvent.click(screen.getByRole("button", { name: "Close flow preview" }));
     expect(screen.queryByRole("dialog")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: /Within-office flow/ }));
-    expect(screen.getByRole("dialog", { name: "Within-office flow" })).toBeTruthy();
+    expect(await screen.findByRole("dialog", { name: "Within-office flow" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Create a proposal" })).toBeTruthy();
     expect(screen.queryByRole("button", { name: /Step .*Request department approvals/ })).toBeNull();
   }, 60000);
 
-  it("changes example screens when a highlighted control is clicked, without leaving the login panel", () => {
+  it("changes example screens when a highlighted control is clicked, without leaving the login panel", async () => {
     const view = render(<WorkflowPreview />);
     fireEvent.click(screen.getByRole("button", { name: /Interdepartmental flow/ }));
+    await screen.findByRole("dialog", { name: "Interdepartmental flow" });
     expect(view.baseElement.querySelector('[data-preview-screen="start"]')).toBeTruthy();
     expect(screen.queryByText("What to do")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Create work plan", exact: true }));
@@ -183,8 +190,7 @@ it("shows the real workspaces and the complete yearly-budget-to-voucher route in
   }
 });
 
-it("uses the walkthrough voice, keeps it enabled across steps, and cancels on off and close", () => {
-  vi.useFakeTimers();
+it("uses the walkthrough voice, keeps it enabled across steps, and cancels on off and close", async () => {
   class Utterance {
     text: string; onstart?: () => void; onend?: () => void; onerror?: () => void;
     constructor(text: string) { this.text = text; }
@@ -195,6 +201,8 @@ it("uses the walkthrough voice, keeps it enabled across steps, and cancels on of
   vi.stubGlobal("speechSynthesis", speech);
   render(<WorkflowPreview />);
   fireEvent.click(screen.getByRole("button", { name: /Within-office flow/ }));
+  await screen.findByRole("dialog", { name: "Within-office flow" });
+  vi.useFakeTimers();
   expect(screen.getByRole("switch", { name: "Turn AI voice on" }).getAttribute("aria-checked")).toBe("false");
   fireEvent.click(screen.getByRole("switch", { name: "Turn AI voice on" }));
   act(() => vi.advanceTimersByTime(350));

@@ -1,6 +1,6 @@
 @import "./defense-revisions.css";
 @import 'tailwindcss' source(none);
-@source '../../**/*.{js,ts,jsx,tsx}';
+@source '../**/*.{js,ts,jsx,tsx}';
 @import 'tw-animate-css';
 @import './foundation-tokens.css';
 @import './default_theme.css';

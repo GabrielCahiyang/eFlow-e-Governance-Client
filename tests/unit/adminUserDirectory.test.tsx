@@ -39,6 +39,11 @@ import { UsersTab } from "../../src/app/features/administration/components/user-
 afterEach(cleanup);
 
 describe("Admin user directory", () => {
+  it('ignores legacy department filters after removal of the department selector', () => {
+    render(<UsersTab onOpenAccess={vi.fn()} directoryFilters={{organizationId:'removed-office',role:'all',status:'all',sort:'organization-desc'}}/>);
+    expect(screen.getByText('Cheryl Gallo')).toBeTruthy();
+    expect(screen.getByText('Andres Manili')).toBeTruthy();
+  });
   it("shows Admin accounts and gives Admin authority over leadership accounts", () => {
     render(<UsersTab onOpenAccess={vi.fn()} />);
 

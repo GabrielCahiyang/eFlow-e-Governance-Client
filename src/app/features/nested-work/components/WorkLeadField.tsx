@@ -10,10 +10,11 @@ export interface WorkLeadFieldProps {
  /** Fresh appoint_lead result from the NW2 adapter for this root/node. */
  appointmentCapability:WorkActionAvailability|undefined;
  busy:boolean;
+ busyReason?:string;
  onChange:(leadId:string,retainedContributorIds:string[])=>void;
 }
 
-export function WorkLeadField({leadId,contributorIds,people,appointmentCapability,busy,onChange}:WorkLeadFieldProps) {
+export function WorkLeadField({leadId,contributorIds,people,appointmentCapability,busy,busyReason,onChange}:WorkLeadFieldProps) {
  const id=useId(),eligible=eligibleWorkPeople(people);
  const disabled=busy||appointmentCapability?.allowed!==true||appointmentCapability.reason_code!==null;
  const reason=appointmentCapability?.disabledReason||'Lead appointment availability could not be verified. Reload the work.';
@@ -30,7 +31,7 @@ export function WorkLeadField({leadId,contributorIds,people,appointmentCapabilit
    {eligible.map(person=><option key={person.id} value={person.id}>{resolveWorkPersonName(people,person.id)}</option>)}
   </select>
   {!leadId&&<p className="r7-help">Needs reassignment</p>}
-  {disabled&&<p id={`${id}-reason`} className="r7-help">{busy?'People changes are being saved.':reason}</p>}
+  {disabled&&<p id={`${id}-reason`} className="r7-help">{busy?busyReason||'Saving…':reason}</p>}
   {!eligible.length&&<p className="r7-help">No eligible project people are available. Review eligible people in project Members.</p>}
  </fieldset>;
 }

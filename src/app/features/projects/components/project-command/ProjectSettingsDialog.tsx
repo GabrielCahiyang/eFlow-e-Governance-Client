@@ -1,5 +1,5 @@
-import { useRef, useState } from 'react';
-import { FeatureDialog } from '../../../../components/ui/FeatureDialog';
+import { useId, useRef, useState } from 'react';
+import { Modal } from '../../../../components/ui/Modal';
 import { Button } from '../../../../components/ui/button';
 import { FeedbackState } from '../../../../components/ui/FeedbackState';
 import { FormField, TextInput, SelectInput } from '../../../../components/ui/FormField';
@@ -15,6 +15,7 @@ function editableDetails(project: Project) {
 
 /** Existing project metadata only; lifecycle, ownership and Office access use their own workflows. */
 export function ProjectSettingsDialog({ project, canManage, onClose }: { project: Project; canManage: boolean; onClose: () => void }) {
+  const formId = useId();
   const [draft, setDraft] = useState(() => editableDetails(project));
   const [saved, setSaved] = useState(() => editableDetails(project));
   const [pending, setPending] = useState(false), [error, setError] = useState(''), [notice, setNotice] = useState('');
@@ -38,9 +39,9 @@ export function ProjectSettingsDialog({ project, canManage, onClose }: { project
     } catch (caught) { setError(projectOperationError(caught, 'Could not save project settings. Your changes are retained.')); }
     finally { inFlight.current = false; setPending(false); }
   };
-  return <FeatureDialog title="Project settings" onClose={close} preventClose={pending} contentClassName="eflow-project-settings">
-    <form onSubmit={event => { event.preventDefault(); void save(); }}>
-      <header><h2>Project settings</h2><p>{project.title}</p></header>
+  return <Modal isOpen title="Project settings" description={project.title} onClose={close} preventClose={pending} width="max-w-2xl"
+    footer={<><Button type="button" variant="outline" disabled={pending} onClick={close}>Close</Button>{editable && <Button type="submit" form={formId} pending={pending} disabled={!dirty}>Save changes</Button>}</>}>
+    <form id={formId} className="eflow-head-dialog-form" onSubmit={event => { event.preventDefault(); void save(); }}>
       <div className="eflow-project-settings__fields">
         {!editable && <FeedbackState title={closed ? 'Closed project' : 'Read-only project'}>{closed ? 'Completed and archived project details are read-only. History and reports remain available.' : 'Only authorized project managers can edit these details.'}</FeedbackState>}
         <FormField label="Project name" required error={error === 'Enter a project name.' ? error : undefined}><TextInput value={draft.title} maxLength={200} disabled={!editable || pending} onChange={event => setDraft({ ...draft, title: event.target.value })} /></FormField>
@@ -55,7 +56,6 @@ export function ProjectSettingsDialog({ project, canManage, onClose }: { project
         {error && <FeedbackState tone="error" title="Settings could not be saved">{error} Retry with Save changes.</FeedbackState>}
         {notice && <FeedbackState tone="success" title={notice} />}
       </div>
-      <footer><Button type="button" variant="outline" disabled={pending} onClick={close}>Close</Button>{editable && <Button type="submit" pending={pending} disabled={!dirty}>Save changes</Button>}</footer>
     </form>
-  </FeatureDialog>;
+  </Modal>;
 }
