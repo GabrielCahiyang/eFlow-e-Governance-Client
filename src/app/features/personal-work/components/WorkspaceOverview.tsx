@@ -9,6 +9,8 @@ import { useWorkFeed } from "../hooks/useWorkFeed";
 import { workspaceSummary } from "../workSelectors";
 import { WorkList } from "./WorkList";
 import { WorkInspector, useWorkInspector } from "./WorkInspector";
+import {HeadWorkspaceDashboard} from './head-overview/HeadWorkspaceDashboard';
+import {ViewLoadingState} from '../../../components/ui/ViewLoadingState';
 import "../personalWork.css";
 const HeadInsights = lazy(() =>
   import("../../../components/Head/HeadDashboard").then((m) => ({
@@ -58,6 +60,11 @@ export function WorkspaceOverview({
           ),
     );
   const filtered = summary?.[focus] || [];
+  if (userProfile?.role === 'head' && workspace.kind === 'office' && workspace.office_id === (userProfile.org_id || userProfile.departmentId)) return <>
+    <HeadWorkspaceDashboard name={workspace.name} data={data} loading={feed.loading} error={feed.error} onRefresh={()=>void feed.refresh()} onNavigate={navigate} onOpen={inspector.open} canReports={can('navigation.reports')}/>
+    <div className="head-home__more"><button type="button" className="eflow-button" aria-expanded={insights} onClick={()=>void requestNavigation(()=>setInsights(value=>!value))}>Office insights</button>{insights&&<Suspense fallback={<ViewLoadingState/>}><HeadInsights/></Suspense>}</div>
+    <WorkInspector selected={inspector.selection} current={data?.rows||[]} onClose={inspector.close}/>
+  </>;
   return (
     <section className="r10-workspace" aria-label="Workspace Overview">
       <WorkspaceHeader

@@ -43,7 +43,7 @@ describe('NW4.2 Main Table collapse preserves required descendant readiness',()=
   expect(screen.getByText(`0 of ${depth} subtasks approved`)).toBeTruthy();expect((screen.getByRole('button',{name:'Submit for Review'}) as HTMLButtonElement).disabled).toBe(true);
   fireEvent.click(screen.getByRole('button',{name:'Cancel'}));
   fireEvent.click(toggle);await screen.findByRole('button',{name:'Required depth '+depth,exact:true});
-  expect(screen.getByText(/Subitems with no children: 0\/1 reviewed/)).toBeTruthy();
+  expect(screen.getByText(/Final steps approved: 0 of 1/)).toBeTruthy();
   fireEvent.click(screen.getByRole('button',{name:'Check readiness'}));
   expect((screen.getByRole('button',{name:'Submit for Review'}) as HTMLButtonElement).disabled).toBe(true);
   fireEvent.click(screen.getByRole('button',{name:'Cancel'}));

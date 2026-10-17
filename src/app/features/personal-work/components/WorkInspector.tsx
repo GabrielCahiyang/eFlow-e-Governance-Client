@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../../../contexts/AuthContext";
 import { TaskInspector } from "../../task-inspector";
 import { isTaskLead } from "../../tasks";
@@ -9,11 +9,12 @@ import { PersonalWorkInspector } from "../../workspaces";
 import { FeatureDialog } from "../../../components/ui/FeatureDialog";
 import { requestNavigation } from "../../../shared/navigationGuard";
 import type { WorkRow } from "../types";
-export function useWorkInspector() {
+export function useWorkInspector(scope?: string) {
   const [selection, setSelection] = useState<{
     row: WorkRow;
     element: HTMLElement;
   }>();
+  useEffect(()=>{setSelection(undefined);},[scope]);
   const open = (row: WorkRow, element: HTMLElement) =>
     void requestNavigation(() => setSelection({ row, element }));
   const close = () => {
@@ -39,10 +40,12 @@ export function WorkInspector({
   selected,
   current,
   onClose,
+  presentation = 'drawer',
 }: {
   selected: ReturnType<typeof useWorkInspector>["selection"];
   current: WorkRow[];
   onClose: () => void;
+  presentation?: 'drawer' | 'page';
 }) {
   const { user, userProfile } = useAuth();
   if (!selected) return null;
@@ -52,10 +55,12 @@ export function WorkInspector({
   if (row.kind === "office-task")
     return (
       <TaskInspector
+        presentation={presentation}
         task={row.task || null}
         taskId={row.id}
         origin={{
           view: "My Work",
+          section: presentation==='page'?'work':undefined,
           returnFocus: selected.element,
           restoreFocus: () =>
             document.getElementById("personal-work-search")?.focus(),

@@ -57,7 +57,7 @@ function PersonalWorkContent({
   hasLeadingWork?: boolean;
 }) {
   const feed = useWorkFeed(userId);
-  const inspector = useWorkInspector();
+  const inspector = useWorkInspector(page);
   const [filters, setFilters] = useState(readFilters);
   useEffect(() => {
     const sync = () => setFilters(readFilters());
@@ -102,8 +102,10 @@ function PersonalWorkContent({
   const partial = !!feed.data?.issues.length;
   const navigationItems = buildShellNavigation({ role, can, hasLeadingWork: hasLeadingWork ?? !!feed.data?.rows.some(row => row.leading && row.actionable) });
   const destinations = getSidebarContent(role, 'personal_work').sections.flatMap(section => section.items);
+  const taskPageOpen=inspector.selection?.row.kind==='office-task';
   return (
     <section className="r10-workspace" aria-label="My Work">
+      <div className="r10-work-list-view" hidden={taskPageOpen}>
       <WorkspaceHeader
         title="My Work"
         description="Tasks and subitems across your accessible workspaces."
@@ -184,7 +186,9 @@ function PersonalWorkContent({
           )}
         </>
       )}
+      </div>
       <WorkInspector
+        presentation={taskPageOpen?'page':'drawer'}
         selected={inspector.selection}
         current={feed.data?.rows || []}
         onClose={inspector.close}

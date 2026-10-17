@@ -27,10 +27,10 @@ for(const role of ['head','member','accounting_staff'] as const) test(`${role} d
 });
 test('mobile personal inspector retains dirty discussion and returns focus',async({page},info)=>{
  await projectWorkspaceFixture(page,'member',false,{landingOnly:true});await page.setViewportSize({width:390,height:844});await personal(page,'My Work');
- const origin=page.locator('[data-personal-task]').filter({hasText:title});await origin.click();const inspector=page.getByRole('dialog',{name:'Task details: '+title});await inspector.getByRole('tab',{name:'Updates',exact:true}).click();
- await inspector.getByRole('textbox',{name:'Task discussion comment'}).fill('Personal work draft');await page.keyboard.press('Escape');await page.getByRole('button',{name:'Keep editing',exact:true}).click();await expect(inspector.getByRole('textbox',{name:'Task discussion comment'})).toHaveValue('Personal work draft');
+ const origin=page.locator('[data-personal-task]').filter({hasText:title});await origin.click();const inspector=page.getByRole('region',{name:'Task details: '+title});await inspector.getByRole('tab',{name:'Updates',exact:true}).click();
+ await inspector.getByRole('textbox',{name:'Task discussion comment'}).fill('Personal work draft');await inspector.getByRole('button',{name:'Back to My Work'}).click();await page.getByRole('button',{name:'Keep editing',exact:true}).click();await expect(inspector.getByRole('textbox',{name:'Task discussion comment'})).toHaveValue('Personal work draft');
  await page.screenshot({path:info.outputPath('personal-inspector-mobile.png'),fullPage:true,animations:'disabled'});
- await page.keyboard.press('Escape');await page.getByRole('button',{name:'Discard',exact:true}).click();await expect(origin).toBeFocused();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ await inspector.getByRole('button',{name:'Back to My Work'}).click();await page.getByRole('button',{name:'Discard',exact:true}).click();await expect(origin).toBeFocused();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });
 test('My Work read failure is retryable and never a clear queue',async({page})=>{
  await projectWorkspaceFixture(page,'member',false,{landingOnly:true});await personal(page,'My Work');let denied=true;
@@ -89,5 +89,5 @@ test('Accounting updates retain both personal task and financial destinations',a
 });
 
 test('personal inspector returns to search when its originating row disappears',async({page})=>{
- await projectWorkspaceFixture(page,'member',false,{landingOnly:true});await personal(page,'My Work');const source=page.locator('[data-personal-task]').filter({hasText:title});await source.click();await expect(page.getByRole('dialog',{name:'Task details: '+title})).toBeVisible();await source.evaluate(element=>element.remove());await page.keyboard.press('Escape');await expect(page.getByRole('searchbox',{name:'Search personal work'})).toBeFocused();
+ await projectWorkspaceFixture(page,'member',false,{landingOnly:true});await personal(page,'My Work');const source=page.locator('[data-personal-task]').filter({hasText:title});await source.click();const task=page.getByRole('region',{name:'Task details: '+title});await expect(task).toBeVisible();await source.evaluate(element=>element.remove());await task.getByRole('button',{name:'Back to My Work'}).click();await expect(page.getByRole('searchbox',{name:'Search personal work'})).toBeFocused();
 });

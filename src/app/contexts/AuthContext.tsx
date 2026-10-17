@@ -1,6 +1,7 @@
 import { normalizeUserRole } from "../shared/roles";
 import { clearNavigationPreferences } from '../shared/navigationPreferences';
 import { resetAuthCaches } from '../shared/authCacheReset';
+import { replaceNavigationHistory } from '../shared/navigationHistory';
 import React, {
   useContext,
   useState,
@@ -257,6 +258,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       resetAuthCaches();
       if (navigationUserId) clearNavigationPreferences(navigationUserId);
+      if (!['/activate-account','/accept-invite','/accept-project-invite','/project-share','/manage-project-share'].includes(window.location.pathname)) replaceNavigationHistory('/');
       activeUserIdRef.current = null;
       setUser(null);
       setUserProfile(null);

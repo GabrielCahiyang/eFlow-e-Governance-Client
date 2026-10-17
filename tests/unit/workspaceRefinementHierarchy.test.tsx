@@ -98,7 +98,7 @@ describe('R7 checked nested-work UI',()=>{
  });
  it('clears stale roots and ignores late reads across scope changes',async()=>{
   let resolve:(data:WorkTreeSnapshot)=>void=()=>{};mocks.load.mockImplementationOnce(()=>new Promise(yes=>{resolve=yes;})).mockResolvedValue(tree({root:{...tree().root,id:'other'},nodes:[],leaf_total:0}));
-  const {rerender}=render(<WorkTree rootId="root"/>);rerender(<WorkTree rootId="other"/>);await screen.findByText('Subitems with no children: 0/0 reviewed · Task progress is managed separately.');
+  const {rerender}=render(<WorkTree rootId="root"/>);rerender(<WorkTree rootId="other"/>);await screen.findByText('Final steps approved: 0 of 0. Task progress is tracked separately.');
   await act(async()=>resolve(tree()));expect(screen.queryByText('Branch')).toBeNull();
  });
  it('uses the legacy adapter only for an explicitly missing RPC, and fails closed on denial',async()=>{

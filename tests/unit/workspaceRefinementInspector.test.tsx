@@ -35,6 +35,47 @@ function NavigationProbe(){
  const [section,setSection]=useState<TaskInspectorSection>('updates');
  return <InspectorHeader task={state.task as never} tab={section} tabs={TASK_INSPECTOR_SECTIONS} onTab={setSection} onClose={()=>{}} busy={false}/>;
 }
+
+describe('My Work task page',()=>{
+ it('uses the main content region with all six sections and no drawer',async()=>{
+  const close=vi.fn();
+  render(<TaskInspector presentation="page" task={state.task as never} origin={{view:'My Work',section:'work'}} onClose={close}/>);
+  expect(screen.getByRole('region',{name:'Task details: Assessment'})).toBeTruthy();
+  expect(screen.getByRole('heading',{name:'Assessment',level:1})).toBeTruthy();
+  expect(screen.queryByRole('dialog')).toBeNull();expect(state.panel).not.toHaveBeenCalled();
+  expect(screen.getAllByRole('tab')).toHaveLength(6);
+  expect(screen.queryByRole('region',{name:'Advisory staffing'})).toBeNull();
+  await act(async()=>fireEvent.click(screen.getByRole('tab',{name:'Files',exact:true})));
+  expect(screen.getByText('Writable files')).toBeTruthy();
+  const files=screen.getByRole('tab',{name:'Files',exact:true});files.focus();
+  await act(async()=>fireEvent.keyDown(files,{key:'ArrowRight'}));
+  const activity=screen.getByRole('tab',{name:'Activity',exact:true});
+  expect(activity.getAttribute('aria-selected')).toBe('true');expect(document.activeElement).toBe(activity);
+  expect(activity.getAttribute('aria-controls')).toBe(screen.getByRole('tabpanel').id);
+  await act(async()=>fireEvent.click(screen.getByRole('button',{name:'Back to My Work'})));
+  expect(close).toHaveBeenCalledOnce();
+ });
+ it('retains dirty drafts when a return to My Work is canceled',async()=>{
+  const close=vi.fn(),uninstall=installNavigationConfirmation(vi.fn().mockResolvedValue(false));
+  const blocker=renderHook(()=>useNavigationBlocker({dirty:true,label:'Task draft',onDiscard:vi.fn()}));
+  try{
+   render(<TaskInspector presentation="page" task={state.task as never} onClose={close}/>);
+   await act(async()=>fireEvent.click(screen.getByRole('button',{name:'Back to My Work'})));
+   expect(close).not.toHaveBeenCalled();expect(screen.getByRole('region',{name:'Task details: Assessment'})).toBeTruthy();
+   await act(async()=>fireEvent.click(screen.getByRole('tab',{name:'Files',exact:true})));
+   const active=screen.getByRole('tab',{name:'Updates',exact:true});
+   expect(active.getAttribute('aria-selected')).toBe('true');expect(screen.getByRole('tab',{name:'Files',exact:true}).getAttribute('aria-selected')).toBe('false');
+   active.focus();await act(async()=>fireEvent.keyDown(active,{key:'ArrowRight'}));
+   expect(active.getAttribute('aria-selected')).toBe('true');expect(document.activeElement).toBe(active);
+  }finally{blocker.unmount();uninstall();}
+ });
+ it('keeps the return path available when task access is lost',()=>{
+  state.taskVisible=false;
+  render(<TaskInspector presentation="page" taskId="task" onClose={vi.fn()}/>);
+  expect(screen.getByRole('region',{name:'Task unavailable'})).toBeTruthy();
+  expect(screen.getByRole('button',{name:'Back to My Work'})).toBeTruthy();expect(screen.queryByRole('dialog')).toBeNull();
+ });
+});
 describe('NW7.1 section contract and guarded keyboard navigation',()=>{
  it('resolves historical aliases while preserving explicit sections and the Updates default',()=>{
   expect(resolveTaskInspectorSection('details')).toBe('overview');expect(resolveTaskInspectorSection('team')).toBe('work');

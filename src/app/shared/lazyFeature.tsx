@@ -1,5 +1,6 @@
 import { retryViewModule } from "./retryViewModule";
 import { requestNavigation } from "./navigationGuard";
+import { ViewLoadingState } from '../components/ui/ViewLoadingState';
 import {
   Component,
   Suspense,
@@ -81,11 +82,7 @@ export function lazyFeature<T extends ComponentType<any>>(
         }}
       >
         <Suspense
-          fallback={
-            <div role="status" className="p-4 text-sm text-muted-foreground">
-              Loading view…
-            </div>
-          }
+          fallback={<ViewLoadingState/>}
         >
           <View {...props} />
         </Suspense>

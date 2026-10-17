@@ -1,0 +1,34 @@
+import {test,expect} from '@playwright/test';
+import {projectWorkspaceFixture} from './fixtures/projectWorkspace';
+import {nestedWorkStaffingFixture} from './fixtures/nestedWorkStaffing';
+
+test('My Work opens a full task page, keeps subitems readable and returns to Leading',async({page},info)=>{
+ test.setTimeout(120_000);
+ await page.setViewportSize({width:1440,height:1000});
+ const records=await projectWorkspaceFixture(page,'head',false,{landingOnly:true});
+ await nestedWorkStaffingFixture(page,records);
+ await page.getByRole('navigation',{name:'Global navigation'}).getByRole('button',{name:'My Work',exact:true}).click();
+ await page.getByRole('navigation',{name:'My Work destinations'}).getByRole('button',{name:'Leading',exact:true}).click();
+ const source=page.locator('[data-personal-task]').filter({hasText:'Prepare community assessment'});
+ await expect(source).toBeVisible({timeout:30_000});await source.click();
+ const task=page.getByRole('region',{name:'Task details: Prepare community assessment',exact:true});
+ await expect(task).toBeVisible({timeout:30_000});await expect(task.getByRole('heading',{name:'Task team',exact:true})).toBeVisible();
+ await expect(page.getByRole('dialog')).toHaveCount(0);
+ await expect(page.getByRole('navigation',{name:'Global navigation'})).toBeVisible();
+ await expect(task.getByRole('table',{name:'Subitem hierarchy'})).toBeVisible();
+ const bounds=(await task.boundingBox())!;expect(bounds.width).toBeGreaterThan(900);
+ await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ await expect(task.getByRole('button',{name:'Actions for Gather supporting evidence'})).toHaveCSS('white-space','nowrap');
+ await page.screenshot({path:info.outputPath('my-work-task-page-desktop.png'),fullPage:true});
+ await task.getByRole('tab',{name:'Files',exact:true}).click();await expect(task.getByRole('tab',{name:'Files',exact:true})).toHaveAttribute('aria-selected','true');
+ await task.getByRole('tab',{name:'Work',exact:true}).click();
+ await page.setViewportSize({width:390,height:844});
+ await expect(task.getByRole('list',{name:'Subitem hierarchy'})).toBeVisible();
+ await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ await page.screenshot({path:info.outputPath('my-work-task-page-phone.png'),fullPage:true});
+ await task.getByRole('list',{name:'Subitem hierarchy'}).scrollIntoViewIfNeeded();
+ await page.screenshot({path:info.outputPath('my-work-subitems-phone.png'),fullPage:true});
+ await task.getByRole('button',{name:'Back to My Work',exact:true}).click();
+ await expect(task).toHaveCount(0);await expect(source).toBeFocused();
+ await expect(page.getByRole('heading',{name:'My Work',exact:true,level:1})).toBeVisible();
+});

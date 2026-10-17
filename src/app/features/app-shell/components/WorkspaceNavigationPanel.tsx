@@ -50,8 +50,7 @@ export function WorkspaceNavigationPanel({ items, activeSection, activePage, wor
       : groupOfficeTools(items).map(group => <div key={group.label}><h3>{group.label}</h3>{destinations(group.items)}</div>);
     if (projectsLoading) return <p role="status">Loading projects…</p>;
     const subset = allowedProjects.filter(project => id === 'favorites' ? favorites.has(project.id) : (project.status === 'archived') === (id === 'archived'));
-    return <>{id === 'projects' && <button className="eflow-workspace-navigation__destination" type="button" data-tour-section="projects" onClick={() => onPageSelect('projects', 'Projects')}><Folder size={17} /><span>Open projects</span></button>}
-      {projectLinks(subset)}{!subset.length && <p>{id === 'favorites' ? 'Star a project for quick access.' : id === 'archived' ? 'No archived projects.' : 'No active projects.'}</p>}</>;
+    return <>{projectLinks(subset)}{!subset.length && <p>{id === 'favorites' ? 'Star a project for quick access.' : id === 'archived' ? 'No archived projects.' : 'No active projects.'}</p>}</>;
   };
   return <section className="eflow-workspace-navigation eflow-scroll-region" aria-label="Workspace content" data-context-rail="workspaces">
     <header className="eflow-workspace-navigation__header">
@@ -71,7 +70,7 @@ export function WorkspaceNavigationPanel({ items, activeSection, activePage, wor
     {!collapsed && <nav aria-label="Workspace destinations" className="eflow-workspace-navigation__destinations">
       {preference.value.sections.filter(id => availableSections.includes(id)).map(id => {
         const { label, Icon } = scopedSections[id]; const open = !preference.value.closed.includes(id);
-        return <section key={id} aria-label={label} className="eflow-workspace-section">
+        return <section key={id} aria-label={label} className="eflow-workspace-section" data-tour-section={id === 'projects' ? 'projects' : undefined}>
           <button type="button" className="eflow-workspace-section__disclosure" aria-expanded={open} aria-controls={`workspace-section-${id}`} onClick={() => preference.toggleDisclosure(id)}>
             {open ? <ChevronDown size={15} /> : <ChevronRight size={15} />}<Icon size={17} /><span>{label}</span>
           </button>

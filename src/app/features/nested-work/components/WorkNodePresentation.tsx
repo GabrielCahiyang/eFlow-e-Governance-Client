@@ -17,7 +17,7 @@ export function WorkNodeTitle({row,collapsed,onToggle,onOpenNode}:{row:WorkHiera
    {display.hasChildren?<button type="button" className="nw-hierarchy-control nw-hierarchy-disclosure" aria-label={`${collapsed?'Expand':'Collapse'} children of ${node.title}`} aria-expanded={!collapsed} onClick={onToggle}><span aria-hidden="true">{collapsed?'▸':'▾'}</span></button>:<span className="nw-hierarchy-leaf" aria-hidden="true"/>}
    <button type="button" className="nw-hierarchy-open" title={display.pathLabel} data-work-open={node.id} onClick={onOpenNode}>{node.title}</button>
   </div>
-  <p className="nw-hierarchy-path" aria-label={`Path for ${node.title}`}>{display.pathLabel}</p>
+  {display.pathLabel!==node.title&&<p className="nw-hierarchy-path" aria-label={`Path for ${node.title}`}>{display.pathLabel}</p>}
   {display.context&&<p className="nw-hierarchy-context">{display.context==='missing_parent'?'Parent context unavailable':'Hierarchy context incomplete'}</p>}
  </div>;
 }

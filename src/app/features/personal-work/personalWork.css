@@ -6,9 +6,9 @@
 .r10-workspace .eflow-workspace-header {
   padding: 0 0 20px;
 }
-.r10-workspace button,
-.r10-workspace select,
-.r10-workspace input,
+.r10-work-list-view button,
+.r10-work-list-view select,
+.r10-work-list-view input,
 .r10-personal-inspector > button {
   border: 1px solid var(--eflow-border);
   background: var(--eflow-surface);

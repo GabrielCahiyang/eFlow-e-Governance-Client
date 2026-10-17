@@ -5,10 +5,13 @@ test("shows a loading status before application JavaScript is available", async 
   await page.route(/\/(?:src\/main\.tsx|assets\/index-[\w-]+\.js)(?:\?|$)/,
     route => route.abort());
   await page.goto("/", { waitUntil: "domcontentloaded" });
-  await expect(page.getByRole("status")).toHaveText("Loading eFlow…");
+  await expect(page.getByRole("status")).toHaveText("Getting things ready");
   await expect(page.getByRole("status")).toBeVisible();
   await expect(page.getByRole("img", { name: "eFlow", exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Getting things ready" })).toBeVisible();
+  await expect(page.locator('.eflow-loading')).toHaveCSS('background-color','rgb(255, 255, 255)');
+  await expect(page.getByText('LGU Ormoc City',{exact:true})).toHaveCount(0);
+  await expect(page.getByText('Loading eFlow…',{exact:true})).toHaveCount(0);
   await page.screenshot({ path: info.outputPath("loader-desktop.png") });
   await page.setViewportSize({ width: 390, height: 844 });
   const logo = await page.getByRole("img", { name: "eFlow", exact: true }).boundingBox();
@@ -18,6 +21,7 @@ test("shows a loading status before application JavaScript is available", async 
   await page.emulateMedia({ reducedMotion: "reduce" });
   await expect(page.locator(".eflow-loading-ring")).toHaveCSS("animation-name", "none");
   await page.evaluate(() => document.documentElement.classList.add('dark'));
+  await expect(page.locator('.eflow-loading')).toHaveCSS('background-color','rgb(255, 255, 255)');
   await page.screenshot({ path: info.outputPath("loader-dark.png") });
 });
 

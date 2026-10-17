@@ -41,5 +41,5 @@ export function AuthenticatedApp() {
   if (window.location.pathname === '/project-share') return <ShareRedemptionPage/>;
   if (window.location.pathname === '/manage-project-share') return <ShareManagementPage/>;
 
-  return <SignedInApp role={mapRoleToPanel(userProfile.role)} />;
+  return <SignedInApp key={`${user.id}:${userProfile.role}`} actorId={user.id} role={mapRoleToPanel(userProfile.role)} />;
 }

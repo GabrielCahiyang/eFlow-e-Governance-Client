@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { act, renderHook, waitFor } from "@testing-library/react";
+import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   getNavigationPath,
@@ -23,10 +23,30 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  cleanup();
   window.history.replaceState({}, "", "/");
 });
 
 describe("navigation URL contract", () => {
+  it('lands a new account on its own home instead of the previous Admin page',()=>{
+    window.history.replaceState({eflowActorId:'admin',eflowActorRole:'admin'},'', '/users?page=All+Users&workspace=old-office');
+    const {result}=renderHook(()=>useRoleNavigationState('head',getInitialPage,'head'));
+    expect(result.current.activeSection).toBe('dashboard');
+    expect(window.location.pathname).toBe('/overview');
+    expect(new URLSearchParams(window.location.search).has('workspace')).toBe(false);
+    expect(window.history.state.eflowActorId).toBe('head');
+  });
+  it('keeps the same account’s authorized project deep link on reload',()=>{
+    window.history.replaceState({eflowActorId:'head',eflowActorRole:'head'},'', '/projects?page=Projects&project=current&view=tasks');
+    const {result}=renderHook(()=>useRoleNavigationState('head',getInitialPage,'head'));
+    expect(result.current.activeSection).toBe('projects');
+    expect(new URLSearchParams(window.location.search).get('project')).toBe('current');
+  });
+  it('starts at the new role’s home when the account role changes',()=>{
+    window.history.replaceState({eflowActorId:'same-user',eflowActorRole:'admin'},'', '/users?page=All+Users');
+    const {result}=renderHook(()=>useRoleNavigationState('head',getInitialPage,'same-user'));
+    expect(result.current.activeSection).toBe('dashboard');
+  });
   it('rejects an obsolete accepted navigation and restores only safe display parameters',async()=>{
     const {result}=renderHook(()=>useRoleNavigationState('head',getInitialPage));let moved=true;
     await act(async()=>{moved=await result.current.selectPageAsync('projects','Projects',{project:'stale',isCurrent:()=>false});});expect(moved).toBe(false);expect(window.location.pathname).toBe('/overview');

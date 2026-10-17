@@ -3,6 +3,7 @@ import { hasDirtyNavigation, requestNavigation } from '../../shared/navigationGu
 import { NAVIGATION_LOCATION_EVENT, replaceNavigationHistory } from '../../shared/navigationHistory';
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getDefaultSection } from "./roleNavigation";
+import {claimNavigationIdentity,isForeignNavigationActor} from '../../shared/navigationIdentity';
 import {
   readNavigationLocation,
   type NavigationLocation,
@@ -12,14 +13,20 @@ import {
 export function useRoleNavigationState(
   role: string,
   getInitialPage: (section: string) => string | undefined,
+  actorId?: string,
 ) {
+  const readLocation = () => {
+    const differentActor = actorId && typeof window !== 'undefined' && isForeignNavigationActor(actorId,role);
+    const section = getDefaultSection(role);
+    return differentActor ? {section, page: getInitialPage(section)} : readNavigationLocation(role, getInitialPage);
+  };
   const [activeSection, setActiveSection] = useState(() => {
     if (typeof window === "undefined") return getDefaultSection(role);
-    return readNavigationLocation(role, getInitialPage).section;
+    return readLocation().section;
   });
   const [activePage, setActivePage] = useState<string | undefined>(() => {
     if (typeof window === "undefined") return getInitialPage(getDefaultSection(role));
-    return readNavigationLocation(role, getInitialPage).page;
+    return readLocation().page;
   });
 
   const currentLocation = useRef<NavigationLocation>({ section: activeSection, page: activePage });
@@ -31,7 +38,8 @@ export function useRoleNavigationState(
     let waitingForRestore: (() => void) | undefined;
     const syncFromUrl = () => {
       if (isNavigationLocked()) { writeNavigationLocation(currentLocation.current.section, currentLocation.current.page, "replace"); return; }
-      const next = readNavigationLocation(role, getInitialPage);
+      if(actorId) claimNavigationIdentity(actorId,role);
+      const next = readLocation();
       currentLocation.current = next;
       setActiveSection(next.section);
       setActivePage(next.page);
@@ -63,7 +71,7 @@ export function useRoleNavigationState(
     window.addEventListener('popstate', onPopState, true);
     window.addEventListener(NAVIGATION_LOCATION_EVENT, syncFromUrl);
     return () => { window.removeEventListener('popstate', onPopState, true); window.removeEventListener(NAVIGATION_LOCATION_EVENT, syncFromUrl); };
-  }, [getInitialPage, role]);
+  }, [getInitialPage, role, actorId]);
 
   const selectPageAsync = useCallback(
     async (section: string, page: string, context?: { project?: string; view?: string;parameters?:Record<string,string>;isCurrent?:()=>boolean }) => {

@@ -1,5 +1,6 @@
 import { focusActivatedButton } from "../../shared/focusActivatedButton";
 import { TaskDepartmentProvider } from "../tasks";
+import {ViewLoadingState} from '../../components/ui/ViewLoadingState';
 import { useCallback, useEffect, useMemo, useState,useRef } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import {
@@ -64,6 +65,7 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
   const { activePage, activeSection, selectPageAsync } = useRoleNavigationState(
     role,
     getInitialPage,
+    userId,
   );
   // Global discovery keeps the same authorized Office source regardless of the
   // selected workspace. This flag discovers appointments; it grants no action.
@@ -289,7 +291,7 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
               >
                 <OnboardingWorkspace onNavigate={handlePageSelect} />
                 {contextError&&<p role="alert" className="eflow-context-error">{contextError}</p>}
-                {blockedScope ? <div className="eflow-workspace" role={workspaceState.error ? 'alert' : 'status'}><p>{workspaceState.error || (workspaceState.loading ? 'Loading workspace…' : 'Create or select a workspace to continue.')}</p><button type="button" onClick={()=>void workspaceState.refresh()}>Retry workspace</button></div>
+                {blockedScope ? workspaceState.loading&&!workspaceState.error ? <ViewLoadingState/> : <div className="eflow-workspace" role={workspaceState.error ? 'alert' : 'status'}><p>{workspaceState.error || 'Create or select a workspace to continue.'}</p><button type="button" onClick={()=>void workspaceState.refresh()}>Retry workspace</button></div>
                   : personal && !['dashboard','personal_work','settings','inbox','users','permissions','org_tree','audit','administration','migration'].includes(activeSection) ? <PersonalWorkspace key={`${userId}:${currentWorkspace.id}`} workspace={currentWorkspace} projects={workspaceState.snapshot?.projects || []} userId={userId || ''} ownerName={userProfile?.full_name || 'You'} officeId={officeId} section={activeSection} onOpen={id=>void handlePageSelect('projects','Projects',id)} onRefresh={workspaceState.refresh} />
                   : officeContext && !['dashboard','personal_work','inbox','projects','settings'].includes(activeSection) ? <div className="eflow-workspace"><p>Select a project in this shared Office context, or return to your Office to use Office tools.</p><button type="button" onClick={()=>void workspaceState.select(officeId)}>Return to my Office</button></div>
                   : <WorkspaceScopeContext.Provider value={workspaceScope}><RoleContent

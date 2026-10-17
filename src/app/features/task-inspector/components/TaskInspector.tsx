@@ -26,7 +26,8 @@ import { isTaskLead } from "../../tasks";
 import { resolveSubtaskManagementCapability, resolveTaskDetailCapabilities } from "../../tasks";
 import { TaskTeamEditorDialog } from "../../tasks";
 import { useTaskSubtasks } from "../../subtasks";
-import { InspectorPanel } from "../../../shared/motion";
+import { InspectorSurface } from './InspectorSurface';
+import { TaskPageHeader } from './TaskPageHeader';
 import { TASK_INSPECTOR_SECTIONS, resolveTaskInspectorSection, type TaskInspectorOrigin, type TaskInspectorSection } from '../types';
 
 function TaskInspectorContent({
@@ -40,6 +41,7 @@ function TaskInspectorContent({
   onChanged,
   origin,
   controller,
+  presentation = 'drawer',
 }: {
   task?: Task | null;
   taskId?: string;
@@ -52,6 +54,7 @@ function TaskInspectorContent({
   onChanged?: () => void;
   origin?: TaskInspectorOrigin;
   controller?: WorkTreeController;
+  presentation?: 'drawer' | 'page';
 }) {
   const [selectedTab, setTab] = useState<TaskInspectorSection>(() => resolveTaskInspectorSection(origin?.section));
   const lifecycle = useInspectorLifecycle(task || null, onChanged, onClose);
@@ -109,7 +112,8 @@ function TaskInspectorContent({
 
   return (
     <>
-      <InspectorPanel
+      <InspectorSurface
+        presentation={presentation}
         open={Boolean(task)}
         returnFocus={origin?.returnFocus}
         onReturnFocus={origin?.restoreFocus}
@@ -118,10 +122,10 @@ function TaskInspectorContent({
         ariaLabel={`Task details: ${task.title}`}
         className="w-full font-sans sm:w-[520px]"
       >
-        <InspectorHeader task={task} tab={tab} tabs={visibleTabs} onTab={setTab} onClose={onClose} busy={lifecycle.busy}/>
+        {presentation==='page'?<TaskPageHeader task={task} projectTitle={operationalProject?.title||task.projectTitle} tab={tab} tabs={visibleTabs} onTab={setTab} onClose={onClose} busy={lifecycle.busy}/>:<InspectorHeader task={task} tab={tab} tabs={visibleTabs} onTab={setTab} onClose={onClose} busy={lifecycle.busy}/>}
 
         {/* Body */}
-        <div id={`task-panel-${task.id}`} role="tabpanel" aria-labelledby={`task-${task.id}-${tab}`} className="flex-1 min-h-0 overflow-y-auto p-4">
+        <div id={`task-panel-${task.id}`} role="tabpanel" aria-labelledby={`task-${task.id}-${tab}`} className={presentation==='page'?'task-page__body':'flex-1 min-h-0 overflow-y-auto p-4'}>
           {lifecycle.error && <p role="alert" className="pv-error">{lifecycle.error} Retry the action when resolved.</p>}
           {teamBlocked && currentUserIsLead && !readOnly && <p role="status" className="po-help">In shared projects, only the responsible Office Head can change the task team. Ask your Office Head to update members.</p>}
           {executionBlocked && <p role="status" className="po-help">Proposed Office responsibility: directory linking, Office Head confirmation and explicit handover in Project Offices are required before staffing, execution, evidence or funding.</p>}
@@ -131,7 +135,7 @@ function TaskInspectorContent({
             <TaskDepartmentLabel task={task}/>
             <InspectorSummary task={task} projectTitle={operationalProject?.title} readOnly={readOnly} dependencies={dependencies} canManageSubtasks={canManageSubtasks} overdue={rel.overdue} authorityPending={!!controller&&(!controller.authorityFresh||controller.refreshPending||controller.pending)} fundingTask={controller?.data?{...task,assigneeId:controller.data.root.lead||undefined,recommendationLeadId:undefined}:undefined} budgetReadOnly={readOnly||!!task.archivedAt||executionBlocked||!!controller&&controller.data?.people.find(person=>person.id===user?.id)?.eligible!==true}/>
           </section>}
-          {tab === 'work' && <InspectorWork task={task} profiles={profiles} projectTitle={operationalProject?.title} controller={controller} canManageTaskTeam={canManageTaskTeam} canManageSubtasks={canManageSubtasks} currentUserIsLead={currentUserIsLead} readOnly={readOnly || executionBlocked || lifecycle.busy} onManage={() => setTeamEditorOpen(true)} staffingReason={staffingReason} onRecommend={() => setStaffingOpen(true)}/>}
+          {tab === 'work' && <InspectorWork presentation={presentation} task={task} profiles={profiles} projectTitle={operationalProject?.title} controller={controller} canManageTaskTeam={canManageTaskTeam} canManageSubtasks={canManageSubtasks} currentUserIsLead={currentUserIsLead} readOnly={readOnly || executionBlocked || lifecycle.busy} onManage={() => setTeamEditorOpen(true)} staffingReason={staffingReason} onRecommend={() => setStaffingOpen(true)}/>}
           {tab === 'updates' && <div className="space-y-5">
             <InspectorExecution task={task} subtasks={taskSubtasks} canStart={canStart} canResume={canResume} canSubmit={canSubmit} canPostProgress={capabilities.canPostProgress} busy={lifecycle.busy} onStart={lifecycle.start} onChanged={onChanged} onSubmitted={() => { onChanged?.(); void requestNavigation(onClose); }}/>
             <section aria-label="Task discussion"><h3 className="text-sm font-semibold mb-2">Discussion</h3><TaskDiscussion taskId={task.id} canParticipate={capabilities.canDiscuss}/></section>
@@ -142,7 +146,7 @@ function TaskInspectorContent({
           {tab === 'review' && <section aria-label="Submission review" className="mb-4"><TaskReviewPanel task={task} canReview={reviewAvailable} showDecision={reviewAvailable} onDone={() => { onChanged?.(); void requestNavigation(onClose); }}/></section>}
 
         </div>
-      </InspectorPanel>
+      </InspectorSurface>
       {staffingOpen && !staffingReason && <StaffingDialog task={task} controller={controller} onClose={() => setStaffingOpen(false)} onAssigned={onChanged}/>}
       <TaskTeamEditorDialog
         task={teamEditorOpen && canManageTaskTeam ? task : null}
@@ -173,7 +177,7 @@ export function TaskInspector(props: TaskInspectorProps) {
  const taskId = props.taskId || props.task?.id;
  if (!taskId) return null;
  const canonical = tasks.find(task => task.id === taskId);
- if (loading === false && (!canonical || props.task?.linkedProjectId && canonical.linkedProjectId !== props.task.linkedProjectId)) return <InspectorPanel open onClose={() => { void requestNavigation(props.onClose); }} returnFocus={props.origin?.returnFocus} onReturnFocus={props.origin?.restoreFocus} ariaLabel="Task unavailable" className="w-full sm:w-[520px]"><div className="p-5"><h2>Task unavailable</h2><p>This task was removed or your access changed. Reopen it from an authorized workspace.</p><button onClick={() => { void requestNavigation(props.onClose); }}>Close task details</button></div></InspectorPanel>;
+ if (loading === false && (!canonical || props.task?.linkedProjectId && canonical.linkedProjectId !== props.task.linkedProjectId)) return <InspectorSurface presentation={props.presentation} open onClose={() => { void requestNavigation(props.onClose); }} returnFocus={props.origin?.returnFocus} onReturnFocus={props.origin?.restoreFocus} ariaLabel="Task unavailable" className="w-full sm:w-[520px]"><div className="p-5"><h2>Task unavailable</h2><p>This task was removed or your access changed. Reopen it from an authorized workspace.</p><button onClick={() => { void requestNavigation(props.onClose); }}>{props.presentation==='page'?'Back to My Work':'Close task details'}</button></div></InspectorSurface>;
  const task = canonical || props.task;
  if (!task) return null;
  const accountReadOnly = !userProfile || userProfile.is_active === false || userProfile.role === 'admin';
