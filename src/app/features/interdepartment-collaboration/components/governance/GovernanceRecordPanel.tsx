@@ -1,3 +1,5 @@
+import { getPhilippineCalendarDate, historicalDateError } from '../../../../shared/calendarDates';
+import { attachmentError, EVIDENCE_ACCEPT } from '../../../../shared/fileValidation';
 import { useExplicitDraft } from "../../../../shared/useExplicitDraft";
 import * as React from "react";
 import { Download, ExternalLink, FileCheck2, Upload } from "lucide-react";
@@ -37,6 +39,13 @@ export function GovernanceRecordPanel({
   const [meetingDate, setMeetingDate] = React.useState("");
   const [endorsement, setEndorsement] = React.useState("");
   const [file, setFile] = React.useState<File>();
+  const [validationError, setValidationError] = React.useState('');
+  const saveRecord = () => {
+    const issue = !resolution.trim() ? 'Resolution number is required.' : historicalDateError(meetingDate, 'Meeting date') || attachmentError(file ? [file] : [], { maxCount: 1 });
+    if (issue || resolution.length > 100 || endorsement.length > 2000) { setValidationError(issue || 'Use a resolution number up to 100 characters and a note up to 2,000.'); return; }
+    setValidationError('');
+    void onSaveRecord({ resolutionNumber: resolution, meetingDate, endorsement, minutesFile: file });
+  };
 
   const canonical = React.useMemo(
     () => ({
@@ -197,6 +206,7 @@ export function GovernanceRecordPanel({
           <div className="mt-2 grid gap-2 sm:grid-cols-2">
             <input
               aria-label="Resolution number"
+              maxLength={100}
               value={resolution}
               onChange={(event) => setResolution(event.target.value)}
               placeholder="Resolution number"
@@ -204,7 +214,7 @@ export function GovernanceRecordPanel({
             />
             <input
               aria-label="Meeting date"
-              type="date"
+              type="date" max={getPhilippineCalendarDate()}
               value={meetingDate}
               onChange={(event) => setMeetingDate(event.target.value)}
               className="h-9 rounded-lg border border-primary/25 bg-white px-3 text-[10px] outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
@@ -212,6 +222,7 @@ export function GovernanceRecordPanel({
           </div>
           <textarea
             aria-label="Endorsement or decision note"
+            maxLength={2000}
             value={endorsement}
             onChange={(event) => setEndorsement(event.target.value)}
             rows={2}
@@ -223,26 +234,20 @@ export function GovernanceRecordPanel({
             {file?.name || current?.minutesFileName || "Attach signed minutes"}
             <input
               type="file"
-              accept=".pdf,image/*,.doc,.docx"
+              accept={EVIDENCE_ACCEPT}
               className="hidden"
-              onChange={(event) => setFile(event.target.files?.[0])}
+              onChange={event => { const chosen = event.target.files?.[0]; const issue = attachmentError(chosen ? [chosen] : [], { maxCount: 1 }); setValidationError(issue); if (!issue) setFile(chosen); event.target.value = ''; }}
             />
           </label>
           <button
             type="button"
-            disabled={busy}
-            onClick={() =>
-              void onSaveRecord({
-                resolutionNumber: resolution,
-                meetingDate,
-                endorsement,
-                minutesFile: file,
-              })
-            }
+            disabled={busy || !resolution.trim() || !meetingDate}
+            onClick={saveRecord}
             className="ml-2 rounded-lg bg-primary px-3 py-2 text-[10px] text-primary-foreground transition hover:bg-primary/90 disabled:opacity-40"
           >
             Save formal record
           </button>
+          {validationError && <p role="alert" className="mt-2 text-destructive">{validationError}</p>}
         </div>
       )}
     </section>

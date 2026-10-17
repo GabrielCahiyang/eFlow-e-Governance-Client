@@ -4,16 +4,8 @@ import type {
   PettyCashRequest,
 } from "../types";
 
-const MANILA_DATE_FORMAT = new Intl.DateTimeFormat("en-CA", {
-  timeZone: "Asia/Manila",
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
-});
-
-export function getPhilippineCalendarDate(date = new Date()) {
-  return MANILA_DATE_FORMAT.format(date);
-}
+import { getPhilippineCalendarDate } from '../../../shared/calendarDates';
+export { getPhilippineCalendarDate } from '../../../shared/calendarDates';
 
 export function isPastCashNeededBy(
   neededBy?: string,

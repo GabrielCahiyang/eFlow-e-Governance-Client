@@ -10,8 +10,8 @@ test('Admin user management remains usable on a narrow phone',async({page},info)
   await expect(destination).toHaveAttribute('aria-current','page');
   await expect(drawer.getByRole('button',{name:'Workspaces',exact:true})).toHaveCount(0);
   const bounds=(await destination.boundingBox())!; expect(bounds.x).toBeGreaterThanOrEqual(0);expect(bounds.x+bounds.width).toBeLessThanOrEqual(320);
-  await destination.click(); await page.getByRole('button',{name:'Create user',exact:true}).click();
-  const dialog=page.getByRole('dialog',{name:'Create New User',exact:true}); await expect(dialog).toBeVisible();
+  await destination.click(); await page.getByRole('button',{name:'Create LEDIPO User',exact:true}).click();
+  const dialog=page.getByRole('dialog',{name:'Create LEDIPO User',exact:true}); await expect(dialog).toBeVisible();
   const dialogBounds=(await dialog.boundingBox())!;expect(dialogBounds.x).toBeGreaterThanOrEqual(0);expect(dialogBounds.x+dialogBounds.width).toBeLessThanOrEqual(320);
   await expect(dialog.getByPlaceholder('Juan Dela Cruz')).toBeVisible();
   await page.screenshot({path:info.outputPath('admin-mobile-dialog.png')});

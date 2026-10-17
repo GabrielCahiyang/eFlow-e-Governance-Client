@@ -56,6 +56,7 @@ export function SubtaskTemplateApplyDialog({
     const normalizedItems = items
       .map((item) => ({ ...item, title: item.title.trim() }))
       .filter((item) => item.title);
+    if (normalizedItems.some(item => item.title.length > 250)) { setError('Checklist item titles must be 250 characters or fewer.'); return; }
     if (!taskId) { setError("Select a task you lead."); return; }
     if (normalizedItems.length === 0) { setError("Keep at least one checklist item."); return; }
     if (mode === "replace" && replacementBlocker) { setError(replacementBlocker); return; }
@@ -153,7 +154,8 @@ export function SubtaskTemplateApplyDialog({
               <div key={index} className="rounded-xl border border-neutral-200 bg-white p-3">
                 <div className="flex items-center gap-2">
                   <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-[10px] text-neutral-500">{index + 1}</span>
-                  <input value={item.title} onChange={(event) => setItems((current) => current.map((entry, itemIndex) => itemIndex === index ? { ...entry, title: event.target.value } : entry))} className="h-9 flex-1 rounded-lg border border-neutral-200 px-2.5 text-[12px] outline-none focus:border-neutral-400" />
+                  <input maxLength={250}
+                  value={item.title} onChange={(event) => setItems((current) => current.map((entry, itemIndex) => itemIndex === index ? { ...entry, title: event.target.value } : entry))} className="h-9 flex-1 rounded-lg border border-neutral-200 px-2.5 text-[12px] outline-none focus:border-neutral-400" />
                   <button disabled={items.length === 1} onClick={() => setItems((current) => current.filter((_, itemIndex) => itemIndex !== index))} className="rounded-lg p-2 text-neutral-400 hover:bg-rose-50 hover:text-rose-600 disabled:opacity-30"><Trash2 size={13} /></button>
                 </div>
                 <div className="mt-2 flex flex-wrap items-center gap-1.5 pl-8">

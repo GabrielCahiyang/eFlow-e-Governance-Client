@@ -1,3 +1,4 @@
+import { MoneyInput } from '../../../components/ui/MoneyInput';
 import { useEffect, useRef, useState } from "react";
 import {
   AlertTriangle,
@@ -306,13 +307,13 @@ export function AnnualBudgetSetup({
         </div>
         <div className="mt-4 grid gap-4 md:grid-cols-4">
           <NumberField
-            label="Daily cash release ceiling"
+            money label="Daily cash release ceiling"
             value={pettyLimit}
             onChange={setPettyLimit}
             disabled={!canEdit || locked}
           />
           <NumberField
-            label="Per-receipt review threshold"
+            money label="Per-receipt review threshold"
             value={requestLimit}
             onChange={setRequestLimit}
             disabled={!canEdit || locked}
@@ -402,9 +403,9 @@ function NumberField({
   label,
   value,
   onChange,
-  disabled,
+  disabled, money = false,
 }: {
-  label: string;
+  label: string; money?: boolean;
   value: number;
   onChange: (value: number) => void;
   disabled: boolean;
@@ -412,15 +413,14 @@ function NumberField({
   return (
     <label>
       <span className="text-[12px] text-neutral-600">{label}</span>
-      <input
-        type="number"
+      {money ? <MoneyInput
         min={0}
         step="0.01"
         disabled={disabled}
         value={value}
-        onChange={(event) => onChange(Number(event.target.value))}
+        onValueChange={raw => onChange(Number(raw))}
         className="mt-1 h-10 w-full rounded-xl border border-neutral-200 px-3 text-[12px] tabular-nums disabled:bg-neutral-50"
-      />
+      /> : <input type="number" min={0} step="0.01" disabled={disabled} value={value} onChange={event => onChange(Number(event.target.value))} className="mt-1 h-10 w-full rounded-xl border border-neutral-200 px-3 text-[12px]" />}
     </label>
   );
 }

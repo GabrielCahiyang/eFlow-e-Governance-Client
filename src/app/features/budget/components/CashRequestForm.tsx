@@ -1,3 +1,4 @@
+import { MoneyInput } from '../../../components/ui/MoneyInput';
 import { useMemo, useRef, useState } from "react";
 import { Paperclip, Send } from "lucide-react";
 import type { CashFundingLine, PettyCashRequest, TaskFundingContext } from "../types";
@@ -99,7 +100,7 @@ export function CashRequestForm({
         </div>
       </div>
       {context.supportsItemizedCash && <div className="space-y-2">
-        {extraLines.map((line,i)=><div key={i} className="grid gap-2 sm:grid-cols-[1fr_120px_auto]"><select aria-label={`Additional funding source ${i+1}`} value={line.allocationLineId} onChange={e=>setExtraLines(rows=>rows.map((r,j)=>i===j?{...r,allocationLineId:e.target.value}:r))} className="h-9 rounded-lg border px-2 text-[12px]"><option value="">Choose another approved source</option>{context.lines.map(l=><option key={l.id} value={l.id}>{l.category} · {peso.format(l.available)} available</option>)}</select><input aria-label={`Additional funding amount ${i+1}`} type="number" min="0" step="0.01" value={line.amount||""} onChange={e=>setExtraLines(rows=>rows.map((r,j)=>i===j?{...r,amount:Number(e.target.value)}:r))} className="h-9 rounded-lg border px-2 text-right text-[12px]"/><button type="button" onClick={()=>setExtraLines(rows=>rows.filter((_,j)=>i!==j))} className="text-[12px]">Remove</button></div>)}
+        {extraLines.map((line,i)=><div key={i} className="grid gap-2 sm:grid-cols-[1fr_120px_auto]"><select aria-label={`Additional funding source ${i+1}`} value={line.allocationLineId} onChange={e=>setExtraLines(rows=>rows.map((r,j)=>i===j?{...r,allocationLineId:e.target.value}:r))} className="h-9 rounded-lg border px-2 text-[12px]"><option value="">Choose another approved source</option>{context.lines.map(l=><option key={l.id} value={l.id}>{l.category} · {peso.format(l.available)} available</option>)}</select><MoneyInput aria-label={`Additional funding amount ${i+1}`} min="0" step="0.01" value={line.amount||""} onValueChange={raw => setExtraLines(rows=>rows.map((r,j)=>i===j?{...r,amount:Number(raw)}:r))} className="h-9 rounded-lg border px-2 text-right text-[12px]"/><button type="button" onClick={()=>setExtraLines(rows=>rows.filter((_,j)=>i!==j))} className="text-[12px]">Remove</button></div>)}
         {!context.cap&&<button type="button" onClick={()=>setExtraLines(rows=>[...rows,{allocationLineId:"",amount:0}])} className="rounded-lg border px-3 py-2 text-[12px]">Add another approved funding line</button>}
         <p className="text-[12px] font-semibold">Request total: {peso.format(amount+extraLines.reduce((sum,l)=>sum+l.amount,0))}</p>
       </div>}
@@ -150,5 +151,5 @@ export function CashRequestForm({
 }
 
 function Field({ label, value, onChange, type = "text", min, invalid = false }: { label: string; value: string | number; onChange: (value: string) => void; type?: string; min?: string; invalid?: boolean }) {
-  return <label><span className="text-[9.5px] text-neutral-500">{label}</span><input aria-invalid={invalid || undefined} type={type} min={type === "number" ? 0 : min} step={type === "number" ? "0.01" : undefined} value={value} onChange={(event) => onChange(event.target.value)} className={`mt-1 h-9 w-full rounded-lg border px-2.5 text-[10px] ${invalid ? "border-rose-300 bg-rose-50" : "border-neutral-200"}`} /></label>;
+  return <label><span className="text-[9.5px] text-neutral-500">{label}</span>{type === "number" ? <MoneyInput min={0.01} value={value} onValueChange={onChange} className="mt-1 h-9 w-full rounded-lg border border-neutral-200 px-2.5 text-[10px]" /> : <input aria-invalid={invalid || undefined} type={type} min={min} value={value} onChange={(event) => onChange(event.target.value)} className={`mt-1 h-9 w-full rounded-lg border px-2.5 text-[10px] ${invalid ? "border-rose-300 bg-rose-50" : "border-neutral-200"}`} />}</label>;
 }

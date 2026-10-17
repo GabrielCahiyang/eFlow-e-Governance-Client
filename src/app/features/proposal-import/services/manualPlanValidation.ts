@@ -1,6 +1,7 @@
 import type { DraftTask } from "../components/draftModel";
 import { getProposalBudgetReadiness } from "../../budget";
 import { isValidCalendarDeadline, taskEstimateError } from "../../tasks";
+import { scheduledDateError } from '../../../shared/calendarDates';
 
 export interface ManualPlanValidationIssue {
   id: string;
@@ -30,6 +31,9 @@ export function validateManualPlanDraft({
   }
 
   enabledTasks.forEach((task) => {
+    const activityDateIssue = scheduledDateError(task.activitySchedule || '', {label: 'Activity date'});
+    if (activityDateIssue) issues.push({id: `${task.key}-activity-date`, message: activityDateIssue});
+    if (task.activityTitle.length > 250) issues.push({id: `${task.key}-activity-title`, message: 'Activity name must be 250 characters or fewer.'});
     if (!task.programTitle.trim()) {
       issues.push({ id: `${task.key}-program`, message: "Program name is required." });
     }

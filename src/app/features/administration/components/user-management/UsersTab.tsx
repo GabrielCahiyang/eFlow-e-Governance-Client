@@ -19,6 +19,7 @@ import {
 import { useToast } from "../../../../components/ui/Toast";
 import type { UserProfile } from "../../../../types";
 import { CreateUserModal } from "./CreateUserModal";
+import { PendingActivationsTable } from './PendingActivationsTable';
 import { EditUserModal } from "./EditUserModal";
 import { UserDirectoryFiltersBar } from "./UserDirectoryFiltersBar";
 import {
@@ -63,6 +64,9 @@ export function UsersTab({
   const [lifecycleResult, setLifecycleResult] = useState("");
   const [lifecycleError, setLifecycleError] = useState("");
   const [showCreate, setShowCreate] = useState(false);
+  const [showInvite, setShowInvite] = useState(false);
+  const [activationRevision, setActivationRevision] = useState(0);
+  useEffect(() => { setShowCreate(false); setShowInvite(false); }, [userProfile?.id]);
   const [editUser, setEditUser] = useState<UserProfile | null>(null);
   const [deleteUser, setDeleteUser] = useState<UserProfile | null>(null);
   const deletePending = useRef(false);
@@ -357,10 +361,12 @@ export function UsersTab({
               : "The users.manage capability is required"
           }
         >
-          <Plus size={14} /> Create user
+          <Plus size={14} /> Create LEDIPO User
         </Button>
+        <Button type="button" variant="outline" disabled={!canManageUsers || !isAdminRole(userProfile?.role)} onClick={() => setShowInvite(true)}>Invite eFlow User</Button>
       </div>
       {confirmation.dialog}
+      {canManageUsers && isAdminRole(userProfile?.role) && userProfile?.is_active !== false && <PendingActivationsTable key={`${userProfile?.id}:${userProfile?.role}`} actorId={userProfile?.id || ''} revision={activationRevision}/>}
       {lifecycleResult && (
         <FeedbackState tone="success" title="Saved account change">
           {lifecycleResult}
@@ -432,11 +438,14 @@ export function UsersTab({
         }
       />
       <CreateUserModal
+        key={`ledipo-create:${userProfile?.id}`}
         isOpen={showCreate}
         onClose={() => setShowCreate(false)}
         organizations={orgs}
         profiles={visibleProfiles}
+        onCreated={() => setActivationRevision(n => n + 1)}
       />
+      <CreateUserModal key={`office-invite:${userProfile?.id}`} mode="office_invite" isOpen={showInvite} onClose={() => setShowInvite(false)} organizations={orgs} profiles={visibleProfiles} onCreated={() => setActivationRevision(n => n + 1)}/>
       <EditUserModal
         isOpen={Boolean(editUser)}
         onClose={() => setEditUser(null)}

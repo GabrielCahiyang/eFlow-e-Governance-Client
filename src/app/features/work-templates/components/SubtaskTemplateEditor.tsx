@@ -50,6 +50,7 @@ export function SubtaskTemplateEditor({
         position,
       }))
       .filter((item) => item.title);
+    if (draft.title.length > 120 || draft.description.length > 1000 || items.some(item => item.title.length > 250)) { setError('Use a name up to 120 characters, a description up to 1,000 and item titles up to 250.'); return; }
     if (!draft.title.trim()) {
       setError("Template name is required.");
       return;
@@ -104,6 +105,7 @@ export function SubtaskTemplateEditor({
           <label className="block text-[10.5px] text-neutral-500">
             Template name
             <input
+              maxLength={120}
               value={draft.title}
               onChange={(event) =>
                 setDraft((current) => ({
@@ -118,6 +120,7 @@ export function SubtaskTemplateEditor({
           <label className="block text-[10.5px] text-neutral-500">
             Description
             <textarea
+              maxLength={1000}
               value={draft.description}
               onChange={(event) =>
                 setDraft((current) => ({
@@ -180,7 +183,8 @@ export function SubtaskTemplateEditor({
                     {index + 1}
                   </span>
                   <input
-                    value={item.title}
+                    maxLength={250}
+                  value={item.title}
                     onChange={(event) =>
                       setDraft((current) => ({
                         ...current,

@@ -5,6 +5,7 @@ import { LoginPage } from "../../components/Auth/LoginPage";
 import { LoadingScreen } from "./LoadingScreen";
 import { mapRoleToPanel } from "./role";
 import { lazyFeature } from "../../shared/lazyFeature";
+import { ActivateAccountPage } from '../account-activation';
 
 const SignedInApp = lazyFeature(() =>
   import("./SignedInApp").then((module) => ({ default: module.SignedInApp })),
@@ -24,7 +25,7 @@ export function AuthenticatedApp() {
   const { loading: preferencesLoading } = useUserPreferences();
 
   useEffect(() => {
-    if (!user || ['/accept-invite','/accept-project-invite','/project-share','/manage-project-share'].includes(window.location.pathname)) return;
+    if (!user || ['/activate-account','/accept-invite','/accept-project-invite','/project-share','/manage-project-share'].includes(window.location.pathname)) return;
     void import("../tasks").then((module) => module.runTaskMaintenance()).catch((error) => {
       console.warn("Task maintenance could not run:", error);
     });
@@ -33,6 +34,7 @@ export function AuthenticatedApp() {
     });
   }, [user]);
 
+  if (window.location.pathname === '/activate-account') return <ActivateAccountPage />;
   if (['/accept-invite','/accept-project-invite'].includes(window.location.pathname)) return <AcceptInvitationPage />;
   if (loading || permissionsLoading || (user && preferencesLoading)) return <LoadingScreen />;
   if (!user || !userProfile) return <LoginPage />;

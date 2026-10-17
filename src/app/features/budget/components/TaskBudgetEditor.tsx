@@ -1,3 +1,4 @@
+import { MoneyInput } from '../../../components/ui/MoneyInput';
 import type { ReactNode } from "react";
 import { Banknote, CircleDollarSign, Plus, Trash2 } from "lucide-react";
 import { createBudgetLine, PROPOSAL_EXPENSE_CLASSES, PROPOSAL_FUND_SOURCE } from "../constants";
@@ -78,7 +79,7 @@ export function TaskBudgetEditor({
           return <section key={`${expense.id}:${category.id}`} className="overflow-hidden rounded-xl border border-neutral-200 bg-white">
             <header className="grid gap-2 border-b border-neutral-100 bg-neutral-50 p-3 sm:grid-cols-[.8fr_1fr_auto]">
               <select disabled={readOnly} value={expense.expenseClass} onChange={(event) => patchIds(ids, { expenseClass: event.target.value })} className="h-9 rounded-lg border border-neutral-200 bg-white px-2.5 text-[10px] disabled:bg-neutral-50">{PROPOSAL_EXPENSE_CLASSES.map((item) => <option key={item}>{item}</option>)}</select>
-              <input disabled={readOnly} value={category.category} onChange={(event) => patchIds(ids, { category: event.target.value })} placeholder="Category, e.g. Workshop and Consultation" className="h-9 rounded-lg border border-neutral-200 bg-white px-2.5 text-[10px] disabled:bg-neutral-50" />
+              <input disabled={readOnly} value={category.category} maxLength={120} onChange={(event) => patchIds(ids, { category: event.target.value })} placeholder="Category, e.g. Workshop and Consultation" className="h-9 rounded-lg border border-neutral-200 bg-white px-2.5 text-[10px] disabled:bg-neutral-50" />
               <div className="flex items-center justify-end gap-2"><span className="text-[10px] font-semibold tabular-nums">{peso.format(category.amount)}</span>{!readOnly && <button type="button" onClick={() => removeIds(ids)} className="rounded-lg p-2 text-neutral-400 hover:bg-rose-50 hover:text-rose-600" aria-label={`Remove ${category.category}`}><Trash2 size={12} /></button>}</div>
             </header>
             <div className="divide-y divide-neutral-100">
@@ -100,10 +101,10 @@ function DecisionCard({ active, disabled, title, note, onClick }: { active: bool
 function ParticularRow({ line, readOnly, onPatch, onRemove }: { line: BudgetLineInput; readOnly: boolean; onPatch: (patch: Partial<BudgetLineInput>) => void; onRemove: () => void }) {
   const amount = getBudgetLineAmount(line);
   return <div className="grid grid-cols-2 gap-2 p-3 md:grid-cols-[minmax(120px,1fr)_68px_64px_88px_88px_30px] md:items-end">
-    <Field label="Particular"><input disabled={readOnly} value={line.particular} onChange={(event) => onPatch({ particular: event.target.value })} placeholder="Exact item or service" className={inputClass} /></Field>
+    <Field label="Particular"><input disabled={readOnly} value={line.particular} maxLength={200} onChange={(event) => onPatch({ particular: event.target.value })} placeholder="Exact item or service" className={inputClass} /></Field>
     <Field label="Quantity"><input disabled={readOnly} type="number" min={0} step="0.01" value={line.quantity ?? 1} onChange={(event) => onPatch({ quantity: Number(event.target.value), amount: Number(event.target.value) * Number(line.unitCost || 0) })} className={inputClass} /></Field>
     <Field label="Unit"><input disabled={readOnly} value={line.unit || "item"} onChange={(event) => onPatch({ unit: event.target.value })} className={inputClass} /></Field>
-    <Field label="Unit cost"><input disabled={readOnly} type="number" min={0} step="0.01" value={line.unitCost || ""} onChange={(event) => onPatch({ unitCost: Number(event.target.value), amount: Number(line.quantity || 0) * Number(event.target.value) })} className={`${inputClass} text-right`} /></Field>
+    <Field label="Unit cost"><MoneyInput disabled={readOnly} min={0.01} max={9999999999} step="0.01" value={line.unitCost || ""} onValueChange={raw => onPatch({ unitCost: Number(raw), amount: Number(line.quantity || 0) * Number(raw) })} className={`${inputClass} text-right`} /></Field>
     <Field label="Amount"><div className="flex h-9 items-center justify-end rounded-lg border border-neutral-200 bg-neutral-50 px-2.5 text-[10px] font-medium tabular-nums">{peso.format(amount)}</div></Field>
     {!readOnly && <button type="button" onClick={onRemove} className="mb-0.5 rounded-lg p-2 text-neutral-400 hover:bg-rose-50 hover:text-rose-600" aria-label="Remove particular"><Trash2 size={12} /></button>}
   </div>;

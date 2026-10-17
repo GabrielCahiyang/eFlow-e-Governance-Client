@@ -2,6 +2,13 @@ import type {NodeWorkAction,WorkActionAvailability,WorkCapabilityContext,WorkReq
 import type {WorkEdit,WorkEditorBaseline,WorkEditorFields} from '../types/editor';
 import {selectNodeWorkCapability,selectRootWorkCapability} from './capabilities';
 import {compatibilityWorkWorkerIds} from './people';
+import {scheduledDateError} from '../../../shared/calendarDates';
+
+export function workEditorDateError(data:WorkTreeSnapshot,baseline:WorkEditorBaseline,fields:WorkEditorFields):string {
+ if(!['create','edit'].includes(baseline.command))return '';
+ const latest=data.nodes.find(item=>item.id===fields.parent)?.due_date||data.root.due||'';
+ return scheduledDateError(fields.due,{original:baseline.command==='edit'?baseline.fields.due:'',latest,label:'Subitem due date'});
+}
 
 export function captureWorkEditorBaseline(data:WorkTreeSnapshot,edit:WorkEdit,actorId:string|null,createdId:string):WorkEditorBaseline {
  const node=data.nodes.find(item=>item.id===edit.node?.id)||edit.node;

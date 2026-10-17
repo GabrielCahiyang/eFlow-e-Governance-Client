@@ -1,3 +1,5 @@
+import { getPhilippineCalendarDate, historicalDateError } from '../../../shared/calendarDates';
+import { MoneyInput } from '../../../components/ui/MoneyInput';
 import * as m from "motion/react-m";
 import { useRef, useState } from "react";
 import { AttentionBox, Button } from "@vibe/core";
@@ -51,7 +53,7 @@ export function JournalAdjustmentDialog({
   const { userProfile, can } = useAuth();
   const confirmation = useConfirmation();
   const pending = useRef(false);
-  const initialDate = useRef(new Date().toISOString().slice(0, 10));
+  const initialDate = useRef(getPhilippineCalendarDate());
   const initialLines = useRef(
     JSON.stringify([
       { accountCode: accounts[0]?.code || "", debit: 0, credit: 0 },
@@ -66,7 +68,7 @@ export function JournalAdjustmentDialog({
   const [reference, setReference] = useState("");
   const [memo, setMemo] = useState("");
   const [entryDate, setEntryDate] = useState(
-    new Date().toISOString().slice(0, 10),
+    getPhilippineCalendarDate(),
   );
   const [lines, setLines] = useState<JournalAdjustmentLineInput[]>([
     { accountCode: accounts[0]?.code || "", debit: 0, credit: 0 },
@@ -147,6 +149,8 @@ export function JournalAdjustmentDialog({
       ),
     );
   const submit = async () => {
+    const dateIssue = historicalDateError(entryDate, "Entry date");
+    if (dateIssue || reference.length > 64 || memo.length > 500) { setError(dateIssue || "Reference must be 64 characters or fewer; memo 500 or fewer."); return; }
     if (
       pending.current ||
       !reference.trim() ||
@@ -299,18 +303,18 @@ export function JournalAdjustmentDialog({
           <div className="grid gap-3 sm:grid-cols-2">
             <Field
               label="Entry date"
-              type="date"
+              type="date" max={getPhilippineCalendarDate()}
               value={entryDate}
               onChange={setEntryDate}
             />
             <Field
-              label="Reference number"
+              label="Reference number" maxLength={64}
               value={reference}
               onChange={setReference}
             />
           </div>
           <Field
-            label="Memo / correction reason"
+            label="Memo / correction reason" maxLength={500}
             value={memo}
             onChange={setMemo}
           />
@@ -340,37 +344,31 @@ export function JournalAdjustmentDialog({
                 </label>
                 <label className="min-w-0 text-[10px] text-neutral-600">
                   Debit
-                  <input
+                  <MoneyInput
                     aria-label={`Debit line ${index + 1}`}
-                    type="number"
                     min="0"
                     step="0.01"
                     placeholder="0.00"
                     value={line.debit || ""}
-                    onChange={(event) =>
-                      update(index, {
-                        debit: Number(event.target.value),
-                        credit: event.target.value ? 0 : line.credit,
-                      })
-                    }
+                    onValueChange={raw => update(index, {
+                        debit: Number(raw),
+                        credit: raw ? 0 : line.credit,
+                      })}
                     className="mt-1 h-9 w-full min-w-0 rounded-lg border border-neutral-200 px-2 text-[10px]"
                   />
                 </label>
                 <label className="min-w-0 text-[10px] text-neutral-600">
                   Credit
-                  <input
+                  <MoneyInput
                     aria-label={`Credit line ${index + 1}`}
-                    type="number"
                     min="0"
                     step="0.01"
                     placeholder="0.00"
                     value={line.credit || ""}
-                    onChange={(event) =>
-                      update(index, {
-                        credit: Number(event.target.value),
-                        debit: event.target.value ? 0 : line.debit,
-                      })
-                    }
+                    onValueChange={raw => update(index, {
+                        credit: Number(raw),
+                        debit: raw ? 0 : line.debit,
+                      })}
                     className="mt-1 h-9 w-full min-w-0 rounded-lg border border-neutral-200 px-2 text-[10px]"
                   />
                 </label>
@@ -434,12 +432,12 @@ function Field({
   label,
   value,
   onChange,
-  type = "text",
+  type = "text", max, maxLength,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
-  type?: string;
+  type?: string; max?: string; maxLength?: number;
 }) {
   return (
     <label className="text-[10px] text-neutral-600">
@@ -454,6 +452,7 @@ function Field({
         )}
         <input
           aria-label={label}
+          max={max} maxLength={maxLength}
           type={type}
           value={value}
           onClick={type === "date" ? openDatePicker : undefined}

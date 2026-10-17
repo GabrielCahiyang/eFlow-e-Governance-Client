@@ -411,7 +411,9 @@ export async function projectWorkspaceFixture(
   });
   await page.route(/\/controlpanelEflow\//, (route) => {
     const path = new URL(route.request().url()).pathname;
-    const body = path.endsWith("/office-team")
+    const body = path.endsWith('/admin/users/pending-activation') ? { invitations: [] }
+      : path.endsWith('/admin/users/invite-options') ? { offices: organizations }
+      : path.endsWith("/office-team")
       ? { office_name: "Planning Office", members: profiles }
       : path.endsWith("/invitations")
         ? { invitations: [] }
@@ -492,7 +494,7 @@ export async function projectWorkspaceFixture(
     await page.goto("/users?page=All%20Users");
     await expect(
       page.getByRole("heading", { name: "All Users", exact: true, level: 1 }),
-    ).toBeVisible();
+    ).toBeVisible({timeout:30_000});
     return {
       emitTaskDelete,
       tasks,

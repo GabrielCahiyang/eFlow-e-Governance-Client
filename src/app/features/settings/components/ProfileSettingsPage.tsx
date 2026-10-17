@@ -1,3 +1,4 @@
+import { attachmentError } from '../../../shared/fileValidation';
 import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { Building2, Camera, Check, IdCard, Mail, ShieldCheck, Trash2, Upload, UserRound } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -85,6 +86,8 @@ export function ProfileSettingsPage() {
     const file = event.target.files?.[0];
     event.target.value = '';
     if (!file || !userProfile) return;
+    const issue = attachmentError([file], { maxMb: 2, maxCount: 1, extensions: ['jpg','jpeg','png','webp'] });
+    if (issue) { setAvatarResult({ tone: 'error', text: issue }); return; }
 
     setAvatarSaving(true);
     setAvatarResult(null);

@@ -51,6 +51,8 @@ def lookup(token: str, allow_accepted: bool = False) -> dict:
     if not rows:
         raise HTTPException(400, 'Invitation expired, revoked, or invalid.')
     item = rows[0]
+    if item.get('invitation_type') == 'managed_account':
+        raise HTTPException(400, 'Use the account activation link for this invitation.')
     if allow_accepted and item['status'] == 'accepted':
         return item
     if item['status'] == 'pending' and datetime.fromisoformat(item['expires_at'].replace('Z', '+00:00')) <= datetime.now(timezone.utc):

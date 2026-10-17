@@ -1,3 +1,4 @@
+import { MoneyInput } from '../../../components/ui/MoneyInput';
 import { useRef, useState } from "react";
 import { Archive, History, PencilLine } from "lucide-react";
 import type { DepartmentBudgetBundle } from "../types";
@@ -160,12 +161,11 @@ export function LockedBudgetControls({
                 <span className="absolute left-3 top-2.5 text-[11px] text-neutral-400">
                   ₱
                 </span>
-                <input
-                  type="number"
+                <MoneyInput
                   min={summary.committedAmount}
                   step="0.01"
                   value={amount || ""}
-                  onChange={(event) => setAmount(Number(event.target.value))}
+                  onValueChange={raw => setAmount(Number(raw))}
                   className="h-9 w-full rounded-lg border border-neutral-200 pl-7 pr-3 text-[10.5px]"
                 />
               </div>

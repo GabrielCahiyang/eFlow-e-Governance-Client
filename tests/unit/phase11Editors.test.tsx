@@ -33,7 +33,7 @@ describe('Phase 11 edit and creation contracts',()=>{
   expect(timelineDraft(task)).toEqual({start:'',end:'2026-10-09',time:'17:45'});
   expect(timelinePatch(task,{start:'2026-10-01',end:'2026-10-12'},new Date('2026-10-01T00:00:00+08:00'))).toEqual({start_date:'2026-10-01',deadline:'2026-10-12T17:45:00+08:00'});
   expect(timelinePatch(task,{start:'',end:''})).toEqual({start_date:null,deadline:''});
-  expect(()=>timelinePatch(task,{start:'2026-10-20',end:'2026-10-09'})).toThrow('before the start date');
+  expect(()=>timelinePatch(task,{start:'2026-10-20',end:'2026-10-09'},new Date('2026-10-01T00:00:00+08:00'))).toThrow('before the start date');
   expect(()=>numericPatch('estimated_hours','100001')).toThrow('amount');expect(()=>numericPatch('budget_impact','Infinity')).toThrow('amount');
  });
  it('explains default, nonempty including archived, and unauthorized deletion blockers',()=>{
@@ -47,6 +47,15 @@ describe('Phase 11 edit and creation contracts',()=>{
   const input=screen.getByRole('spinbutton',{name:'Effort'});fireEvent.change(input,{target:{value:'12'}});fireEvent.blur(input);
   expect((await screen.findByRole('alert')).textContent).toContain('Denied');expect(input).toHaveProperty('value','12');expect(input.getAttribute('aria-invalid')).toBe('true');
   fireEvent.click(screen.getByRole('button',{name:'Retry'}));await screen.findByText('Saved.');expect(save.mock.calls).toEqual([[{estimated_hours:12}],[{estimated_hours:12}]]);
+ });
+ it('retains grouped budget amounts after a denial and retries the same numeric patch',async()=>{
+  const save=vi.fn().mockRejectedValueOnce(new Error('Denied')).mockResolvedValue(undefined);
+  render(<NumberCell value={0} label="Budget estimate" disabled={false} save={save} field="budget_impact"/>);
+  const input=screen.getByRole('spinbutton',{name:'Budget estimate'});
+  fireEvent.change(input,{target:{value:'1000000.50'}});expect(input).toHaveProperty('value','1,000,000.50');fireEvent.blur(input);
+  expect((await screen.findByRole('alert')).textContent).toContain('Denied');expect(input).toHaveProperty('value','1,000,000.50');
+  fireEvent.click(screen.getByRole('button',{name:'Retry'}));await screen.findByText('Saved.');
+  expect(save.mock.calls.map(([patch])=>patch)).toEqual([{budget_impact:1000000.5},{budget_impact:1000000.5}]);
  });
  it('prevents duplicate numeric writes and blocks navigation until pending save settles',async()=>{
   let finish!:()=>void;const save=vi.fn(()=>new Promise<void>(r=>{finish=r;}));

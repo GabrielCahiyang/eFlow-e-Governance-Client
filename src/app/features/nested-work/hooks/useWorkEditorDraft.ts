@@ -1,6 +1,6 @@
 import {useEffect,useRef,useState} from 'react';
 import {useExplicitDraft} from '../../../shared/useExplicitDraft';
-import {captureWorkEditorBaseline,freezeWorkEditorRequest,sameWorkEditorScope,workEditorCapability,workEditorDirty,workEditorPayload,workEditorReceiptRetryAllowed} from '../selectors/editorDraft';
+import {captureWorkEditorBaseline,freezeWorkEditorRequest,sameWorkEditorScope,workEditorCapability,workEditorDirty,workEditorPayload,workEditorReceiptRetryAllowed,workEditorDateError} from '../selectors/editorDraft';
 import {workRequestFailure} from '../services/workRequestOutcome';
 import type {WorkCapabilityContext,WorkRequest,WorkTreeSnapshot} from '../types';
 import type {WorkEdit,WorkEditorFields,WorkEditorOutcome,WorkEditorSaveOptions} from '../types/editor';
@@ -43,6 +43,8 @@ export function useWorkEditorDraft({data,edit,context,refreshPending,onCancel}:{
    if(!active.current)return;
    if(!latest.current.authorized){setOutcome({kind:'revoked_authority',message:'Your current branch authority changed. Reload the tree before saving.'});return;}
    if(!request.current){
+    const dateIssue=workEditorDateError(latest.current.data,baseline,latest.current.fields);
+    if(dateIssue)throw new Error(dateIssue);
     const candidate=freezeWorkEditorRequest(baseline,latest.current.fields,crypto.randomUUID());
     const snapshot=JSON.stringify(latest.current.data);
     const fingerprint=options.prepare?await options.prepare(candidate):options.impactFingerprint;

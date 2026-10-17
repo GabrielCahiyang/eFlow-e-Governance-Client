@@ -3,23 +3,13 @@ from dataclasses import dataclass
 import time
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.exceptions import RequestValidationError
-from fastapi.routing import APIRoute
 from fastapi.security import HTTPAuthorizationCredentials
 from pydantic import BaseModel, ConfigDict, Field, SecretStr
 from gateway_dependencies import bearer, require_user, supabase_admin
 from invitations import service
 from invitations import local_offices
-
-class PrivateValidationRoute(APIRoute):
-    def get_route_handler(self):
-        original = super().get_route_handler()
-        async def handler(request):
-            try:
-                return await original(request)
-            except RequestValidationError as exc:
-                raise HTTPException(422, 'Check the invitation fields and password requirements.') from exc
-        return handler
+from services.private_validation import PrivateValidationRoute
+from services import managed_account_activation
 
 router = APIRouter(prefix='/controlpanelEflow/api/invitations', tags=['invitations'], route_class=PrivateValidationRoute)
 
@@ -31,6 +21,18 @@ class CreateAccountRequest(TokenRequest):
     full_name: str = Field(min_length=2, max_length=160)
     password: SecretStr = Field(min_length=12, max_length=128)
     attempt_id: UUID
+
+class ManagedActivationComplete(TokenRequest):
+    password: SecretStr = Field(min_length=12, max_length=128)
+    attempt_id: UUID
+
+@router.post('/managed-account/validate')
+def validate_managed_activation(payload: TokenRequest, request: Request):
+    return managed_account_activation.validate_public(payload.token.get_secret_value(), request.client.host if request.client else 'unknown')
+
+@router.post('/managed-account/activate')
+def complete_managed_activation(payload: ManagedActivationComplete, request: Request):
+    return managed_account_activation.activate(payload.token.get_secret_value(), payload.password.get_secret_value(), str(payload.attempt_id), request.client.host if request.client else 'unknown')
 
 class AcceptRequest(TokenRequest):
     full_name: str | None = Field(default=None, min_length=2, max_length=160)

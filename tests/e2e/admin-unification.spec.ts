@@ -40,7 +40,7 @@ for (const storedRole of ["super_admin", "admin"]) {
       exact: true,
     });
     await expect(rootCapabilities.first()).toBeVisible();
-    expect(await rootCapabilities.count()).toBe(9);
+    expect(await rootCapabilities.count()).toBe(8);
     for (const capability of await rootCapabilities.all())
       await expect(capability).toBeDisabled();
     await expect(
@@ -65,8 +65,8 @@ for (const storedRole of ["super_admin", "admin"]) {
         level: 1,
       }),
     ).toBeVisible();
-    await page.getByRole("button", { name: "Create user" }).click();
-    const dialog = page.getByRole("dialog", { name: "Create New User" });
+    await page.getByRole("button", { name: "Create LEDIPO User" }).click();
+    const dialog = page.getByRole("dialog", { name: "Create LEDIPO User" });
     await expect(dialog).toBeVisible();
     await expect(
       dialog.getByRole("option", { name: "Admin", exact: true }),

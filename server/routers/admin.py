@@ -1,131 +1,52 @@
 """Privileged user-management and moderated chat operations."""
-
+from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
+from starlette.concurrency import run_in_threadpool
 from services.administrative_roles import is_administrator
-from services.account_roles import normalize_account_role
+from services.private_validation import PrivateValidationRoute
+from services import managed_account_activation as activation
+from gateway_dependencies import AuthenticatedUser, require_user_manager, require_user, supabase_admin
 
-from gateway_dependencies import (
-    AuthenticatedUser,
-    require_user_manager,
-    require_user,
-    supabase_admin,
-)
-
-
-router = APIRouter(prefix="/controlpanelEflow/api/admin", tags=["admin"])
-
-
-class CreateUserPayload(BaseModel):
-    email: str
-    password: str = Field(min_length=6)
-    full_name: str
-    role: str = "member"
-    org_id: str | None = None
-    employee_id: str | None = None
-    skills: dict = {}
-
-
-def _employee_id_for_profile(employee_id: str | None, uid: str) -> str:
-    """The deployed schema requires a unique non-empty employee_id."""
-    normalized = (employee_id or "").strip()
-    return normalized or f"UNASSIGNED-{uid}"
-
-
-def _find_auth_user_by_email(email: str):
-    normalized_email = email.strip().lower()
-    for user in supabase_admin.auth.admin.list_users(per_page=1000):
-        if (user.email or "").strip().lower() == normalized_email:
-            return user
-    return None
-
-
-def _profile_exists(uid: str) -> bool:
-    result = (
-        supabase_admin.table("profiles")
-        .select("id")
-        .eq("id", uid)
-        .maybe_single()
-        .execute()
-    )
-    return bool(result.data)
-
+router = APIRouter(prefix="/controlpanelEflow/api/admin", tags=["admin"], route_class=PrivateValidationRoute)
+CreateUserPayload = activation.StageManagedAccountPayload
 
 def _profile_role(uid: str) -> str | None:
-    result = (
-        supabase_admin.table("profiles")
-        .select("role")
-        .eq("id", uid)
-        .maybe_single()
-        .execute()
-    )
+    result = supabase_admin.table("profiles").select("role").eq("id", uid).maybe_single().execute()
     return str(result.data.get("role")) if result.data else None
 
+@router.post("/users/create", status_code=201)
+async def create_managed_user(payload: CreateUserPayload, user: AuthenticatedUser = Depends(require_user_manager)):
+    if payload.mode != 'ledipo_create':
+        raise HTTPException(422, 'Use Create LEDIPO User for this request.')
+    return await run_in_threadpool(activation.stage, payload, user)
 
-@router.post("/users/create")
-async def create_managed_user(
-    payload: CreateUserPayload,
-    user: AuthenticatedUser = Depends(require_user_manager),
-):
-    try:
-        canonical_role = normalize_account_role(payload.role)
-    except ValueError as exc:
-        raise HTTPException(status_code=400, detail=str(exc)) from exc
-    if not is_administrator(user.role) and canonical_role not in {"member", "accounting_staff"}:
-        raise HTTPException(
-            status_code=403,
-            detail="Only Admin can create administrative or leadership accounts.",
-        )
-    created_uid: str | None = None
-    try:
-        existing_user = _find_auth_user_by_email(payload.email)
-        if existing_user:
-            uid = str(existing_user.id)
-            if _profile_exists(uid):
-                raise HTTPException(
-                    status_code=409,
-                    detail="A user with this email already exists.",
-                )
-            # Recover an Auth account left behind by an older failed profile insert.
-            supabase_admin.auth.admin.update_user_by_id(
-                uid,
-                {"password": payload.password, "email_confirm": True},
-            )
-        else:
-            auth_response = supabase_admin.auth.admin.create_user(
-                {
-                    "email": payload.email,
-                    "password": payload.password,
-                    "email_confirm": True,
-                }
-            )
-            uid = str(auth_response.user.id)
-            created_uid = uid
+@router.post("/users/invite", status_code=201)
+def invite_managed_user(payload: CreateUserPayload, user: AuthenticatedUser = Depends(require_user_manager)):
+    if payload.mode != 'office_invite':
+        raise HTTPException(422, 'Use Invite eFlow User for this request.')
+    return activation.stage(payload, user)
 
-        supabase_admin.table("profiles").insert(
-            {
-                "id": uid,
-                "full_name": payload.full_name,
-                "email": payload.email,
-                "role": canonical_role,
-                "org_id": payload.org_id,
-                "employee_id": _employee_id_for_profile(payload.employee_id, uid),
-                "is_active": True,
-                "skills": payload.skills,
-            }
-        ).execute()
-        return {"uid": uid, "email": payload.email}
-    except HTTPException:
-        raise
-    except Exception as exc:
-        # Auth and profile creation are separate Supabase operations. Compensate
-        # if the second step fails so retrying does not hit an orphan account.
-        if created_uid:
-            try:
-                supabase_admin.auth.admin.delete_user(created_uid)
-            except Exception:
-                pass
-        raise HTTPException(status_code=400, detail=str(exc)) from exc
+@router.get("/users/invite-options")
+def managed_invite_options(user: AuthenticatedUser = Depends(require_user_manager)):
+    return activation.options(user)
+
+@router.get("/users/pending-activation")
+def pending_activations(user: AuthenticatedUser = Depends(require_user_manager)):
+    return activation.list_safe(user)
+
+@router.post("/users/pending-activation/{invitation_id}/resend")
+def resend_activation(invitation_id: UUID, user: AuthenticatedUser = Depends(require_user_manager)):
+    return activation.manage(str(invitation_id), 'resend', user)
+
+@router.post("/users/pending-activation/{invitation_id}/revoke")
+def revoke_activation(invitation_id: UUID, user: AuthenticatedUser = Depends(require_user_manager)):
+    return activation.manage(str(invitation_id), 'revoke', user)
+
+@router.post("/users/pending-activation/{invitation_id}/approve")
+def approve_activation(invitation_id: UUID, user: AuthenticatedUser = Depends(require_user_manager)):
+    return activation.manage(str(invitation_id), 'approve', user)
+
 
 
 @router.delete("/users/{uid}")

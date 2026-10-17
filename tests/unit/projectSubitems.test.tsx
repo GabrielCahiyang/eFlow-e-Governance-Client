@@ -36,8 +36,8 @@ function show(patch: Partial<Task> = {}, subtasks: Subtask[] = []) {
   return result;
 }
 
-beforeEach(() => { vi.clearAllMocks(); mocks.officeState.offices = []; mocks.officeState.error = ''; mocks.create.mockResolvedValue(subtask()); mocks.refresh.mockResolvedValue(undefined); });
-afterEach(cleanup);
+beforeEach(() => { vi.useFakeTimers({toFake:['Date']}); vi.setSystemTime(new Date('2026-10-01T04:00:00+08:00')); vi.clearAllMocks(); mocks.officeState.offices = []; mocks.officeState.error = ''; mocks.create.mockResolvedValue(subtask()); mocks.refresh.mockResolvedValue(undefined); });
+afterEach(() => { cleanup(); vi.useRealTimers(); });
 
 describe('Project table subitem expansion', () => {
   it('opens the legacy Task team menu directly in Work after the menu focus handoff', async () => {

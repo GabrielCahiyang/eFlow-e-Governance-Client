@@ -1,3 +1,4 @@
+import { attachmentError, EVIDENCE_ACCEPT } from '../../shared/fileValidation';
 import { useExplicitDraft } from '../../shared/useExplicitDraft';
 // ─── ProgressUpdateForm ──────────────────────────────────────────
 // Structured progress report: percent complete, blocker category + free text,
@@ -42,6 +43,8 @@ export function ProgressUpdateForm({
       toast("You must be signed in.", "error");
       return;
     }
+    const fileIssue = attachmentError(file ? [file] : [], { maxCount: 1 });
+    if (fileIssue || nextStep.length > 300 || note.length > 3000) { toast(fileIssue || 'Next step must be 300 characters or fewer; notes 3,000 or fewer.', 'error'); return; }
     if (hasBlocker && !blocker.trim()) {
       toast("Describe the blocker, or set the category to None.", "error");
       return;
@@ -123,6 +126,7 @@ export function ProgressUpdateForm({
         <label className="block">
           <span className="text-[11.5px] font-medium text-neutral-600 mb-1 block">Next step</span>
           <input
+            maxLength={300}
             value={nextStep}
             onChange={(e) => setNextStep(e.target.value)}
             placeholder="What comes next?"
@@ -148,6 +152,7 @@ export function ProgressUpdateForm({
       <label className="block mb-3">
         <span className="text-[11.5px] font-medium text-neutral-600 mb-1 block">Note (optional)</span>
         <textarea
+          maxLength={3000}
           value={note}
           onChange={(e) => setNote(e.target.value)}
           rows={2}
@@ -169,9 +174,9 @@ export function ProgressUpdateForm({
           <label className="flex items-center gap-1.5 text-[11.5px] font-medium text-neutral-600 hover:text-neutral-900 cursor-pointer">
             <Paperclip size={13} /> Attach file
             <input
-              type="file"
+              type="file" accept={EVIDENCE_ACCEPT}
               className="hidden"
-              onChange={(e) => setFile(e.target.files?.[0] || null)}
+              onChange={e => { const chosen = e.target.files?.[0]; const issue = attachmentError(chosen ? [chosen] : [], { maxCount: 1 }); if (issue) toast(issue, 'error'); else setFile(chosen || null); e.target.value = ''; }}
             />
           </label>
         )}

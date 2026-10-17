@@ -1,3 +1,4 @@
+import { getPhilippineCalendarDate, scheduleRangeError, scheduledDateError } from '../../../shared/calendarDates';
 import type { ProjectImportDraft } from '../types';
 
 function object(value: unknown): Record<string, unknown> {
@@ -63,6 +64,7 @@ export function validateProjectImportDraft(draft: ProjectImportDraft, confirmati
     if (!draft.project.title.trim()) throw new Error('Enter a project name.');
     date(draft.project.startDate); date(draft.project.targetDate);
     if (draft.project.startDate && draft.project.targetDate && draft.project.startDate > draft.project.targetDate) throw new Error('Project start must precede its target date.');
+    if (confirmation) { const issue = scheduleRangeError(draft.project.startDate, draft.project.targetDate); if (issue) throw new Error(issue); }
   }
   const map = new Map(tasks.map(t => [t.key, t]));
   if (map.size !== tasks.length || tasks.some(t => !t.key)) throw new Error('Task references must be unique.');
@@ -70,13 +72,15 @@ export function validateProjectImportDraft(draft: ProjectImportDraft, confirmati
     if (!group.title.trim() || group.title.length > 120) throw new Error('Enter a group name (up to 120 characters).');
     for (const t of group.tasks.filter(t => t.included)) {
       if (!t.title.trim() || t.title.length > 300 || t.description.length > 10000) throw new Error('Enter task names and descriptions within their limits.');
-      if (!Number.isFinite(t.estimatedHours) || t.estimatedHours < 0 || t.estimatedHours > 100000) throw new Error('Estimated hours must be between 0 and 100000.');
+      if (!Number.isFinite(t.estimatedHours) || t.estimatedHours < 0 || t.estimatedHours > 10000) throw new Error('Estimated hours must be between 0 and 10000.');
       date(t.startDate); date(t.dueDate);
+      if (confirmation) { const issue = scheduleRangeError(t.startDate, t.dueDate); if (issue) throw new Error(issue); }
       if (t.startDate && t.dueDate && t.startDate > t.dueDate) throw new Error(`Start date follows due date: ${t.title}`);
       if (t.officeKey && !draft.offices.some(o => o.key === t.officeKey)) throw new Error('Choose a proposed Office responsibility.');
       for (const s of t.subitems) {
         if (Object.keys(s).some(key=>["parentSubtaskId","parent_subtask_id","children","subitems"].includes(key)))throw new Error("Nested imports require a hierarchy format; parent links cannot be flattened.");
         if (!s.title.trim() || s.title.length > 300) throw new Error('Enter each subitem name.'); date(s.dueDate);
+        if (confirmation) { const issue = scheduledDateError(s.dueDate, { earliest: t.startDate && t.startDate > getPhilippineCalendarDate() ? t.startDate : getPhilippineCalendarDate(), latest: t.dueDate, label: 'Subitem due date' }); if (issue) throw new Error(issue); }
         if (s.dueDate && t.dueDate && s.dueDate > t.dueDate) throw new Error('Subitem due dates cannot be later than their task due date.');
       }
     }

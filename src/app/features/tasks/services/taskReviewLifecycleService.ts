@@ -1,3 +1,4 @@
+import { attachmentError } from '../../../shared/fileValidation';
 import { supabase } from "../../../../lib/supabase";
 import type {
   TaskActor,
@@ -71,6 +72,9 @@ export const submitTaskForReview = async (
   taskId: string,
   submission: TaskSubmissionInput,
 ): Promise<void> => {
+  const fileIssue = attachmentError(submission.attachments || []);
+  if (fileIssue) throw new Error(fileIssue);
+  if (submission.note.length > 5000) throw new Error('Completion note must be 5,000 characters or fewer.');
   const trimmedNote = submission.note.trim();
   if (!trimmedNote) throw new Error("Submission note is required.");
   // Fail before uploading evidence. The database trigger repeats this check as

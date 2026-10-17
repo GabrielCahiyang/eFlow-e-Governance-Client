@@ -45,8 +45,9 @@ export function ActivityFilterControls({
         <input
           type="date"
           className="eflow-control"
+          max={filters.to || undefined}
           value={filters.from}
-          onChange={(e) => onChange({ from: e.target.value })}
+          onChange={(e) => onChange({ from: e.target.value, ...(filters.to && e.target.value > filters.to ? { to: e.target.value } : {}) })}
         />
       </label>
       <label>
@@ -54,8 +55,9 @@ export function ActivityFilterControls({
         <input
           type="date"
           className="eflow-control"
+          min={filters.from || undefined}
           value={filters.to}
-          onChange={(e) => onChange({ to: e.target.value })}
+          onChange={(e) => onChange({ to: e.target.value, ...(filters.from && e.target.value && e.target.value < filters.from ? { from: e.target.value } : {}) })}
         />
       </label>
       <label>

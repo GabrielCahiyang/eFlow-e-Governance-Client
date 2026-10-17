@@ -1,3 +1,4 @@
+import { getPhilippineCalendarDate } from '../../../shared/calendarDates';
 import { useMemo, useState, type ReactNode } from "react";
 import {
   AlertTriangle,
@@ -400,8 +401,9 @@ export function HeadReportsWorkspace() {
                         From{" "}
                         <input
                           type="date"
+                          max={toDate || getPhilippineCalendarDate()}
                           value={fromDate}
-                          onChange={(event) => setFromDate(event.target.value)}
+                          onChange={(event) => { const day = event.target.value; if (day > getPhilippineCalendarDate()) return; setFromDate(day); if (toDate && day > toDate) setToDate(day); }}
                           className="h-[32px] rounded-lg border border-border bg-card px-2 text-[12px] text-foreground"
                         />
                       </label>
@@ -409,8 +411,9 @@ export function HeadReportsWorkspace() {
                         To{" "}
                         <input
                           type="date"
+                          min={fromDate || undefined} max={getPhilippineCalendarDate()}
                           value={toDate}
-                          onChange={(event) => setToDate(event.target.value)}
+                          onChange={(event) => { const day = event.target.value; if (day > getPhilippineCalendarDate()) return; setToDate(day); if (day && fromDate > day) setFromDate(day); }}
                           className="h-[32px] rounded-lg border border-border bg-card px-2 text-[12px] text-foreground"
                         />
                       </label>

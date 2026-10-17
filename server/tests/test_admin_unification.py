@@ -63,26 +63,20 @@ class AdminGatewayTests(unittest.IsolatedAsyncioTestCase):
             dependencies.require_user(credentials)
         self.assertEqual(raised.exception.status_code, 403)
 
-    async def test_admin_can_create_administrative_and_leadership_accounts(self):
-        self.client.auth.admin.list_users.return_value = []
-        self.client.auth.admin.create_user.return_value.user.id = "created-user"
-        for role, canonical in (("admin", "admin"), ("dept_head", "head"), ("assistant_head", "member")):
-            result = await admin.create_managed_user(
-                admin.CreateUserPayload(email="new@example.test", password="test-password", full_name="New user", role=role, org_id="organization"),
-                user(),
-            )
-            self.assertEqual(result, {"uid": "created-user", "email": "new@example.test"})
-            inserted = self.client.table.return_value.insert.call_args.args[0]
-            self.assertEqual(inserted["role"], canonical)
+    async def test_admin_stages_canonical_roles_without_immediate_account_creation(self):
+        from uuid import uuid4
+        for role in ("admin", "head", "member", "accounting_staff"):
+            payload = admin.CreateUserPayload(request_id=uuid4(), mode='ledipo_create', email="new@example.test", full_name="New user", role=role, org_id=uuid4())
+            with patch.object(admin.activation, 'stage', return_value={'status':'pending'}) as stage:
+                self.assertEqual(await admin.create_managed_user(payload,user()), {'status':'pending'})
+                stage.assert_called_once_with(payload,user())
+        self.client.auth.admin.create_user.assert_not_called()
 
-    async def test_non_admin_user_manager_cannot_create_higher_accounts(self):
-        for role in ("admin", "head", "dept_head", "super_admin", "executive"):
+    async def test_non_admin_without_permission_cannot_enter_creation(self):
+        with patch.object(dependencies, '_permission_allowed', return_value=False):
             with self.assertRaises(HTTPException) as raised:
-                await admin.create_managed_user(
-                    admin.CreateUserPayload(email="new@example.test", password="test-password", full_name="New user", role=role),
-                    user("employee"),
-                )
-            self.assertIn(raised.exception.status_code, (400, 403))
+                dependencies.require_user_manager(user('member'))
+            self.assertEqual(raised.exception.status_code,403)
         self.client.auth.admin.create_user.assert_not_called()
 
     async def test_last_active_admin_and_own_account_cannot_be_deleted(self):

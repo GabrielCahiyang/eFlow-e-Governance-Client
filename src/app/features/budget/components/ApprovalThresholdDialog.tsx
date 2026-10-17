@@ -1,3 +1,4 @@
+import { MoneyInput } from '../../../components/ui/MoneyInput';
 import { useState } from "react";
 import { AttentionBox, Button } from "@vibe/core";
 import * as m from "motion/react-m";
@@ -67,14 +68,13 @@ export function ApprovalThresholdDialog({
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[12px] font-semibold text-neutral-400">
                 ₱
               </span>
-              <input
-                type="number"
+              <MoneyInput
                 min={1}
                 step={100}
                 value={value || ""}
-                onChange={(e) => {
+                onValueChange={raw => {
                   setError("");
-                  setValue(Number(e.target.value));
+                  setValue(Number(raw));
                 }}
                 className="h-10 w-full rounded-xl border border-neutral-200 pl-8 pr-3 text-[13px] font-medium text-neutral-900 outline-none focus:border-neutral-900"
                 placeholder="1000"

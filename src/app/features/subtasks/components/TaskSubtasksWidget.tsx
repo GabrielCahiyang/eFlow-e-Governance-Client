@@ -1,3 +1,4 @@
+import { getPhilippineCalendarDate, scheduledDateError } from '../../../shared/calendarDates';
 import { supportsNestedWork, isCurrentWorkSnapshot, WorkTree, type WorkNode, type WorkTreeSnapshot, type WorkTreeController } from '../../nested-work';
 import type {TaskInspectorOrigin} from '../../task-inspector';
 import {SubitemInspector} from './SubitemInspector';
@@ -109,6 +110,8 @@ function LegacyTaskSubtasksWidget({
 
   const handleAdd = async () => {
     if (!newTitle.trim() || !newDueDate) return;
+    const issue = scheduledDateError(newDueDate, { latest: parentDue || '', label: 'Subtask due date' });
+    if (issue) { toast(issue, 'error'); return; }
     setAdding(true);
     try {
       await createSubtask(taskId, newTitle.trim(), {
@@ -454,6 +457,7 @@ function LegacyTaskSubtasksWidget({
         />
         <input
           type="date"
+          min={getPhilippineCalendarDate()}
           value={newDueDate}
           max={parentDue}
           onChange={(event) => setNewDueDate(event.target.value)}

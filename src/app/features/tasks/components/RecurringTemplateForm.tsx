@@ -1,3 +1,4 @@
+import { getPhilippineLocalDateTime } from '../../../shared/calendarDates';
 import { useExplicitDraft } from "../../../shared/useExplicitDraft";
 import { useReviewedMutation } from "../../../shared/useReviewedMutation";
 import { FeedbackState } from "../../../components/ui/FeedbackState";
@@ -71,7 +72,8 @@ export function RecurringTemplateForm({
       toast("Template title and first run are required.", "error");
       return;
     }
-    const nextRunAt = new Date(nextRun).getTime();
+    const nextRunAt = new Date(nextRun + '+08:00').getTime();
+    if (!Number.isFinite(nextRunAt) || nextRunAt <= Date.now()) { toast('Choose a first run in the future (Philippine time).', 'error'); return; }
     if (
       !Number.isFinite(nextRunAt) ||
       !Number.isFinite(interval) ||
@@ -181,12 +183,13 @@ export function RecurringTemplateForm({
         />
         <input
           aria-label="First scheduled run"
-          type="datetime-local"
+          type="datetime-local" min={getPhilippineLocalDateTime()}
           value={nextRun}
           onChange={(event) => setNextRun(event.target.value)}
           className={inputClass}
         />
       </div>
+      <p className="text-[11px] text-muted-foreground">First run uses Philippine time.</p>
       <div className="grid grid-cols-2 gap-2">
         <select
           value={assigneeId}

@@ -97,11 +97,11 @@ for (const role of ["admin", "head", "member", "accounting_staff"]) {
       await expect(page.getByRole("columnheader", { name: "Head", exact: true })).toHaveCount(2);
       await expect(page.getByRole("columnheader", { name: "Member", exact: true })).toHaveCount(2);
       const allowed = page.getByRole("button", { name: "Admin: Allowed", exact: true });
-      await expect(allowed).toHaveCount(9);
+      await expect(allowed).toHaveCount(8);
       for (const button of await allowed.all()) await expect(button).toBeDisabled();
       await sidebar.getByRole("button", { name: "All Users", exact: true }).click();
-      await page.getByRole("button", { name: "Create user", exact: true }).click();
-      const dialog = page.getByRole("dialog", { name: "Create New User" });
+      await page.getByRole("button", { name: "Create LEDIPO User", exact: true }).click();
+      const dialog = page.getByRole("dialog", { name: "Create LEDIPO User" });
       await expect(dialog.getByRole("option", { name: "Member", exact: true })).toHaveCount(1);
       await expect(dialog.getByRole("option", { name: "Head", exact: true })).toHaveCount(1);
       await expect(dialog.getByRole("option", { name: "Assistant Head", exact: true })).toHaveCount(0);

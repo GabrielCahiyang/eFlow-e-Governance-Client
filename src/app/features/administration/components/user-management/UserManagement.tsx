@@ -29,7 +29,7 @@ const PAGE_COPY: Record<
   users: {
     title: "All Users",
     description:
-      "Manage LEDIPO accounts, roles, and individual access. Invite other Offices within a project.",
+      "Create LEDIPO accounts or invite people from participating offices. Each person activates their account by email. Project access is managed separately.",
   },
   "role-defaults": {
     title: "Role Defaults",

@@ -2,7 +2,7 @@
 
 import { createElement } from "react";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const { createSubtaskMock, startTaskIfTodoMock, updateSubtaskMock } = vi.hoisted(() => ({
   createSubtaskMock: vi.fn(),
@@ -54,9 +54,12 @@ vi.mock("../../src/app/components/ui/Toast", () => ({
 
 import { TaskSubtasksWidget } from "../../src/app/features/subtasks/components/TaskSubtasksWidget";
 
+beforeEach(() => { vi.useFakeTimers({toFake:["Date"]}); vi.setSystemTime(new Date("2026-08-01T04:00:00+08:00")); });
+
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
+  vi.useRealTimers();
 });
 
 describe("subtask assignee picker", () => {

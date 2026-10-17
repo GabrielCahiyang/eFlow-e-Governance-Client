@@ -1,3 +1,4 @@
+import { calendarMinDate, getPhilippineCalendarDate, scheduleRangeError, scheduledDateError } from '../../../../shared/calendarDates';
 import { useEffect, useState } from "react";
 import {
   Avatar,
@@ -66,6 +67,8 @@ export function ProjectPlanTab({
   );
 
   const saveProject = async () => {
+    const issue = scheduleRangeError(form.startDate, form.targetDate, project.startDate || '', project.targetDate || '');
+    if (issue) { toast(issue, 'error'); return; }
     try {
       await updateProject(project.id, form);
       toast("Project plan updated.", "success");
@@ -75,6 +78,8 @@ export function ProjectPlanTab({
   };
   const addMilestone = async () => {
     if (!newMilestone.trim()) return;
+    const issue = scheduledDateError(newDue, { latest: project.targetDate || '', label: 'Activity due date' });
+    if (issue) { toast(issue, 'error'); return; }
     try {
       await createMilestone(project.id, newMilestone, newDue || null);
       setNewMilestone("");
@@ -259,6 +264,7 @@ export function ProjectPlanTab({
               <Field label="Start date">
                 <input
                   type="date"
+                  min={calendarMinDate(project.startDate || '')}
                   value={form.startDate}
                   onChange={(event) =>
                     setForm({ ...form, startDate: event.target.value })
@@ -269,6 +275,7 @@ export function ProjectPlanTab({
               <Field label="Target date">
                 <input
                   type="date"
+                  min={form.startDate && form.startDate > calendarMinDate(project.targetDate || '') ? form.startDate : calendarMinDate(project.targetDate || '')}
                   value={form.targetDate}
                   onChange={(event) =>
                     setForm({ ...form, targetDate: event.target.value })
@@ -305,6 +312,7 @@ export function ProjectPlanTab({
             />
             <input
               type="date"
+              min={getPhilippineCalendarDate()} max={project.targetDate || undefined}
               value={newDue}
               onChange={(event) => setNewDue(event.target.value)}
               className="eflow-control"
@@ -342,6 +350,7 @@ export function ProjectPlanTab({
               <div className="min-w-0 flex-1">
                 <MilestoneRow
                   milestone={milestone}
+                  projectTarget={project.targetDate || ''}
                   disabled={locked}
                   onDelete={() =>
                     deleteMilestone(milestone.id).catch((error) =>
@@ -384,18 +393,23 @@ function Field({
 
 function MilestoneRow({
   milestone,
+  projectTarget,
   disabled,
   onDelete,
   onSaved,
 }: {
   milestone: ProjectCommandData["milestones"][number];
+  projectTarget: string;
   disabled: boolean;
   onDelete: () => void;
   onSaved: () => void;
 }) {
   const [title, setTitle] = useState(milestone.title);
   const [dueDate, setDueDate] = useState(milestone.dueDate || "");
+  const { toast } = useToast();
   const save = async () => {
+    const issue = scheduledDateError(dueDate, { original: milestone.dueDate || '', latest: projectTarget, label: 'Activity due date' });
+    if (issue) { toast(issue, 'error'); return; }
     await updateMilestone(milestone.id, { title, dueDate: dueDate || null });
     onSaved();
   };
@@ -410,6 +424,7 @@ function MilestoneRow({
       <input
         disabled={disabled}
         type="date"
+        min={calendarMinDate(milestone.dueDate || '')} max={projectTarget || undefined}
         value={dueDate}
         onChange={(event) => setDueDate(event.target.value)}
         className="eflow-control"

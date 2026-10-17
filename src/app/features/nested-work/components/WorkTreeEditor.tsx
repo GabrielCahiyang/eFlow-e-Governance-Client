@@ -1,4 +1,6 @@
 import {requestNavigation} from '../../../shared/navigationGuard';
+import {calendarMinDate} from '../../../shared/calendarDates';
+import {useId} from 'react';
 import {WorkDetailsEditor} from './WorkDetailsEditor';
 import {WorkMoveDialog} from './WorkMoveDialog';
 import {WorkOrderDialog} from './WorkOrderDialog';
@@ -21,6 +23,7 @@ export function WorkTreeEditor(props:WorkTreeEditorProps){
  return <WorkTreeForm {...props}/>;
 }
 function WorkTreeForm({data,edit,save,onDone,onCancel,readOnly=false,refreshPending=false}:WorkTreeEditorProps){
+ const progressHelpId=useId();
  const {user}=useAuth();
  const context={actorId:user?.id||null,rootId:data.root.id,projectId:data.root.project,officeId:data.root.office,kind:data.root.kind,revision:data.revision,readOnly};
  const editor=useWorkEditorDraft({data,edit,context,refreshPending,onCancel});
@@ -45,13 +48,14 @@ function WorkTreeForm({data,edit,save,onDone,onCancel,readOnly=false,refreshPend
  return <form className="r7-form" aria-label="Nested work changes" onSubmit={e=>{e.preventDefault();void submit();}}>
   <h3>{edit.root?'Task lead and contributors':`${edit.command==='create'?'Add child':edit.command==='staff'?'Staff':edit.command==='move'?'Move':edit.command==='delete'?'Delete':edit.command==='review'?'Review':'Update'} ${node?.title||'subitem'}`}</h3>
   {['create','edit'].includes(edit.command)&&<WorkDetailsEditor fields={editor.fields} disabled={locked} update={update}
+   minDue={calendarMinDate(edit.command==='edit'?editor.baseline.fields.due:'')}
    maxDue={data.nodes.find(item=>item.id===(edit.command==='create'?edit.parent:editor.baseline.fields.parent))?.due_date||data.root.due||undefined}
    peoplePicker={edit.command==='create'?{people:data.people,lead,selected:people,onLead:value=>update('lead',value),onSelected:value=>update('people',value),appointmentCapability:createCapability,contributorCapability:createCapability,disabled:locked,
     invite:!locked?{project:data.root.project,office:data.root.office,root:data.root.id,node:edit.parent||undefined,canRequest:scopedInvitationRequestAllowed(data,edit.parent||null,context)}:undefined}:undefined}/>}
   {edit.command==='move'&&<WorkMoveDialog data={data} destinations={destinations} allowTask={destinationRoot.allowed} parent={parent} disabled={locked} onChange={value=>update('parent',value)}/>}
   {edit.command==='order'&&<WorkOrderDialog data={data} order={order} disabled={locked} onChange={value=>update('order',value)}/>}
   {edit.command==='delete'&&<WorkDeleteDialog impact={confirmation.impact}/>}
-  {edit.command==='progress'&&<label>Progress<input type="number" min={0} max={99} value={progress} disabled={locked} onChange={e=>update('progress',Number(e.target.value))}/></label>}
+  {edit.command==='progress'&&<div><label>Progress<input type="number" min={0} max={99} aria-describedby={progressHelpId} value={progress} disabled={locked} onChange={e=>update('progress',Number(e.target.value))}/></label><small id={progressHelpId}>Progress stays below 100% until your reviewer approves the work.</small></div>}
   {edit.command==='review'&&<label>Decision<select value={progress===100?'approve':'reject'} disabled={locked} onChange={e=>update('progress',e.target.value==='approve'?100:99)}><option value="approve">Approve personal work</option><option value="reject">Return for changes</option></select></label>}
   {['edit','progress','submit','review'].includes(edit.command)&&<label>{edit.command==='edit'?'Reason for date change':'Note / feedback'}<textarea value={note} maxLength={4000} disabled={locked} onChange={e=>update('note',e.target.value)}/></label>}
   {error&&<p role="alert">{error}{editor.unresolvedReceipt?' The original result is unverified and its request is retained. Reload current work before retrying this saved request.':outcome.kind==='stale_revision'?' The draft is retained. Reload and review the current work before reopening this editor.':outcome.kind==='confirmed_failure'?' Nothing was saved. Correct the draft before submitting a new request.':outcome.kind==='revoked_authority'?' Saving is blocked. Verify current authority before reopening this editor.':''}</p>}

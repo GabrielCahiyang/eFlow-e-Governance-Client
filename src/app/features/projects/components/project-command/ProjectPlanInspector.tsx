@@ -1,3 +1,4 @@
+import { calendarMinDate, getPhilippineCalendarDate, scheduleRangeError, scheduledDateError } from '../../../../shared/calendarDates';
 import { useEffect, useRef, useState } from "react";
 import {
   Avatar,
@@ -101,6 +102,8 @@ export function ProjectPlanInspector({
   if (!isOpen) return null;
 
   const saveProject = async () => {
+    const issue = scheduleRangeError(form.startDate, form.targetDate, project.startDate || '', project.targetDate || '');
+    if (issue) { toast(issue, 'error'); return; }
     try {
       await updateProject(project.id, form);
       toast("Project plan settings updated.", "success");
@@ -111,6 +114,8 @@ export function ProjectPlanInspector({
 
   const addMilestone = async () => {
     if (!newMilestone.trim()) return;
+    const issue = scheduledDateError(newDue, { latest: project.targetDate || '', label: 'Activity due date' });
+    if (issue) { toast(issue, 'error'); return; }
     try {
       await createMilestone(project.id, newMilestone.trim(), newDue || null);
       setNewMilestone("");
@@ -201,6 +206,7 @@ export function ProjectPlanInspector({
                   <div className="flex items-center gap-2">
                     <input
                       type="date"
+                      min={getPhilippineCalendarDate()} max={project.targetDate || undefined}
                       value={newDue}
                       onChange={(event) => setNewDue(event.target.value)}
                       className="eflow-control flex-1 text-xs"
@@ -254,6 +260,7 @@ export function ProjectPlanInspector({
                     <div className="min-w-0 flex-1">
                       <ActivityInspectorCard
                         milestone={milestone}
+                        projectTarget={project.targetDate || ''}
                         disabled={locked}
                         isSelected={isSelected}
                         onSelect={() => onSelectActivity?.(milestone.id)}
@@ -434,6 +441,7 @@ export function ProjectPlanInspector({
                   <Field label="Start Date">
                     <input
                       type="date"
+                      min={calendarMinDate(project.startDate || '')}
                       value={form.startDate}
                       onChange={(event) =>
                         setForm({ ...form, startDate: event.target.value })
@@ -444,6 +452,7 @@ export function ProjectPlanInspector({
                   <Field label="Target Date">
                     <input
                       type="date"
+                      min={form.startDate && form.startDate > calendarMinDate(project.targetDate || '') ? form.startDate : calendarMinDate(project.targetDate || '')}
                       value={form.targetDate}
                       onChange={(event) =>
                         setForm({ ...form, targetDate: event.target.value })
@@ -490,6 +499,7 @@ function Field({
 
 function ActivityInspectorCard({
   milestone,
+  projectTarget,
   disabled,
   isSelected,
   onSelect,
@@ -497,6 +507,7 @@ function ActivityInspectorCard({
   onSaved,
 }: {
   milestone: ProjectCommandData["milestones"][number];
+  projectTarget: string;
   disabled: boolean;
   isSelected?: boolean;
   onSelect?: () => void;
@@ -518,7 +529,10 @@ function ActivityInspectorCard({
     }
   }, [isSelected]);
 
+  const { toast } = useToast();
   const save = async () => {
+    const issue = scheduledDateError(dueDate, { original: milestone.dueDate || '', latest: projectTarget, label: 'Activity due date' });
+    if (issue) { toast(issue, 'error'); return; }
     await updateMilestone(milestone.id, { title, dueDate: dueDate || null });
     onSaved();
   };
@@ -603,6 +617,7 @@ function ActivityInspectorCard({
               <input
                 disabled={disabled}
                 type="date"
+                min={calendarMinDate(milestone.dueDate || '')} max={projectTarget || undefined}
                 value={dueDate}
                 onChange={(event) => setDueDate(event.target.value)}
                 className="eflow-control text-xs"

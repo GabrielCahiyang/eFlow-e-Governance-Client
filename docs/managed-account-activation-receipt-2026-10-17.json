@@ -1,0 +1,115 @@
+{
+  "target": "ixnfphgjyelhckjwjkdv",
+  "date": "2026-10-17",
+  "migration": {
+    "version": "20261016231317",
+    "name": "managed_account_email_activation",
+    "applied": true,
+    "priorHistoryCount": 35,
+    "currentHistoryCount": 36,
+    "priorStatementsUnchanged": true
+  },
+  "backup": {
+    "path": "C:/Users/gabri/AppData/Local/eFlow/deployment-backups/managed-activation-20261016T230427Z/before-activation.dump",
+    "bytes": 2324549,
+    "sha256": "5090ee85c8f8861bc6bc56dc37422fbd925f005c39cb1bb3ead8b9e1ffcd1009",
+    "archiveListPassed": true,
+    "fullDecompressionPassed": true,
+    "restoreExercised": false
+  },
+  "preservation": {
+    "before": {
+      "auth_users": 8,
+      "profiles": 8,
+      "profile_fingerprint": "30a23f02d654199e2d48a9c114904e6c",
+      "office_fingerprint": "12481a83fe47c28c4e73534f3356298e",
+      "invitation_fingerprint": null
+    },
+    "after": {
+      "auth_users": 8,
+      "profiles": 8,
+      "offices": 1,
+      "staged_activations": 0,
+      "profile_fingerprint": "30a23f02d654199e2d48a9c114904e6c",
+      "office_fingerprint": "12481a83fe47c28c4e73534f3356298e"
+    },
+    "testFixturesRolledBack": true
+  },
+  "liveVerification": {
+    "accountActivation": "live_activation_transactions_passed_and_rolled_back",
+    "headAndLifecycle": "live_head_approval_rotation_revocation_and_cooldown_passed_and_rolled_back",
+    "health200": true,
+    "anonymousPending401": true,
+    "invalidPublicToken400": true,
+    "postgrestOptionsAndSafeList": "passed",
+    "browserProfileInsertDeniedAtColumnLevel": true,
+    "anonymousOrAuthenticatedManagedRpcExposure": 0
+  },
+  "localVerification": {
+    "typecheck": "passed",
+    "productionBuild": "passed",
+    "clientSecrets": "passed",
+    "focusedUnit": {
+      "passed": 7,
+      "failed": 0
+    },
+    "gateway": {
+      "managedActivation": 13,
+      "adminAuthority": 11,
+      "phase2": 14,
+      "r8Invitations": 10,
+      "failed": 0
+    },
+    "browserActivationAndDirectory": {
+      "passed": 8,
+      "failed": 0,
+      "widths": [
+        320,
+        390,
+        768,
+        1440
+      ]
+    },
+    "legacyPhase2Browser": {
+      "passed": 4,
+      "failed": 0
+    },
+    "fullUnitSuite": {
+      "status": "stopped_after_failures_in_unchanged_features",
+      "command": "npm test -- --maxWorkers=2",
+      "completeSuitePass": false,
+      "observedFailingFiles": [
+        "taskTeamEditorDialog.test.tsx",
+        "nestedWorkCommandForms.test.tsx",
+        "workspaceRefinementHierarchy.test.tsx",
+        "notificationSubitemFocus.test.tsx",
+        "nestedWorkReviewAuthority.test.tsx",
+        "globalUiP5a.test.tsx"
+      ],
+      "note": "Includes older Save work changes button expectations and an obsolete Admin leaf count. Unrelated task/nested-work components have no changes in this implementation. No complete-suite total is claimed."
+    },
+    "graphUpdate": {
+      "completed": true,
+      "warnings": "Four existing files partially extracted; unsupported style files skipped."
+    },
+    "browserAdminCompatibility": {
+      "passed": 4,
+      "failed": 0,
+      "scope": "Canonical and legacy Admin sessions, Admin navigation, and the 320px phone dialog"
+    }
+  },
+  "securityAdvisors": {
+    "newWarnings": 0,
+    "newInfo": 3,
+    "explanation": "Private deny-by-default tables have RLS enabled and no browser grants or policies."
+  },
+  "release": {
+    "databaseDeployed": true,
+    "localGatewayRunning": true,
+    "localFrontendRunning": true,
+    "publicHostingCertified": false,
+    "realEmailSentInTests": false,
+    "restrictedResendSender": true,
+    "appUrl": "http://localhost:5173"
+  }
+}

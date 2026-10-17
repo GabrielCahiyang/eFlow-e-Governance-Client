@@ -38,6 +38,7 @@ vi.mock("../../src/app/components/ui/Toast", () => ({
 vi.mock("../../src/lib/supabaseService", () => ({ toggleUserActive: vi.fn() }));
 vi.mock("../../src/app/features/administration/services/managedUserService", () => ({ deleteManagedUser }));
 vi.mock("../../src/app/features/administration/components/user-management/CreateUserModal", () => ({ CreateUserModal: () => null }));
+vi.mock("../../src/app/features/administration/components/user-management/PendingActivationsTable", () => ({ PendingActivationsTable: () => null }));
 vi.mock("../../src/app/features/administration/components/user-management/EditUserModal", () => ({ EditUserModal: () => null }));
 vi.mock("../../src/app/features/administration/components/user-management/UserDirectoryFiltersBar", () => ({ UserDirectoryFiltersBar: () => null }));
 vi.mock("../../src/app/components/ui/DataTable", () => ({

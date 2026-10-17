@@ -1,3 +1,4 @@
+import { MoneyInput } from '../../../components/ui/MoneyInput';
 import { useReviewedMutation } from "../../../shared/useReviewedMutation";
 import { FeedbackState } from "../../../components/ui/FeedbackState";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -488,13 +489,12 @@ export function WorkBudgetCard({
             </div>
           )}
           <div className="grid gap-2 sm:grid-cols-[.45fr_1fr_auto]">
-            <input
-              type="number"
-              min={0}
+            <MoneyInput
+              min={0.01}
               max={capMaximum}
               step="0.01"
               value={capAmount || ""}
-              onChange={(event) => setCapAmount(Number(event.target.value))}
+              onValueChange={raw => setCapAmount(Number(raw))}
               placeholder="Amount"
               className="h-9 rounded-lg border border-emerald-200 px-2.5 text-[10px]"
             />

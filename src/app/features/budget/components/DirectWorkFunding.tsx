@@ -1,3 +1,4 @@
+import { MoneyInput } from '../../../components/ui/MoneyInput';
 import { useRef, useState } from "react";
 import type { Task } from "../../tasks";
 import type { DepartmentBudgetBundle } from "../types";
@@ -38,7 +39,7 @@ export function DirectWorkFunding({ data,tasks,onChanged }: { data:DepartmentBud
     <label className="mt-3 block text-[12px]">Work<select disabled={busy} value={taskId} onChange={e=>setTaskId(e.target.value)} className="mt-1 h-10 w-full rounded-lg border px-3"><option value="">Select unfunded work</option>{availableTasks.map(t=><option key={t.id} value={t.id}>{t.title}</option>)}</select></label>
     {lines.map((l,i)=><div key={i} className="mt-3 grid gap-2 sm:grid-cols-[1fr_140px_auto]">
       <label className="text-[12px]">Annual account<select disabled={busy} value={l.partitionId} onChange={e=>setLines(current=>current.map((x,j)=>j===i?{...x,partitionId:e.target.value}:x))} className="mt-1 h-10 w-full rounded-lg border px-2"><option value="">Choose account</option>{leaves.map(s=><option key={s.id} value={s.id}>{s.name} · {peso.format(s.amount-s.heldAmount-(s.committedAmount||0))} available</option>)}</select></label>
-      <label className="text-[12px]">Approved amount<input disabled={busy} min="0" step="0.01" type="number" value={l.amount||""} onChange={e=>setLines(current=>current.map((x,j)=>j===i?{...x,amount:Number(e.target.value)}:x))} className="mt-1 h-10 w-full rounded-lg border px-3 text-right" /></label>
+      <label className="text-[12px]">Approved amount<MoneyInput disabled={busy} min="0" step="0.01"  value={l.amount||""} onValueChange={raw => setLines(current=>current.map((x,j)=>j===i?{...x,amount:Number(raw)}:x))} className="mt-1 h-10 w-full rounded-lg border px-3 text-right" /></label>
       <button type="button" disabled={busy} onClick={()=>setLines(current=>current.filter((_,j)=>j!==i))} className="self-end rounded-lg border p-2 text-[12px]">Remove</button>
     </div>)}
     <button type="button" disabled={busy} onClick={()=>setLines(current=>[...current,{partitionId:"",amount:0,particular:""}])} className="mt-3 rounded-lg border px-3 py-2 text-[12px]">Add funding account</button>

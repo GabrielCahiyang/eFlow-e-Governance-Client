@@ -31,9 +31,9 @@ export function SecuritySettingsPage() {
       setResult({ tone: 'error', text: 'Enter your current password to continue.' });
       return;
     }
-    if (newPassword.length < 8) {
+    if (newPassword.length < 12 || newPassword.length > 128) {
       clearPasswords();
-      setResult({ tone: 'error', text: 'Your new password must be at least 8 characters.' });
+      setResult({ tone: 'error', text: 'Your new password must be 12 to 128 characters.' });
       return;
     }
     if (newPassword !== confirmation) {
@@ -72,19 +72,19 @@ export function SecuritySettingsPage() {
         <form onSubmit={changePassword} className="mt-6 max-w-xl space-y-4">
           <div>
             <label htmlFor="current-password" className="mb-2 block text-[12px] font-medium text-neutral-700 dark:text-slate-200">Current password</label>
-            <Input id="current-password" type="password" autoComplete="current-password" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} className={inputClass} disabled={saving} />
+            <Input id="current-password" type="password" maxLength={128} autoComplete="current-password" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} className={inputClass} disabled={saving} />
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label htmlFor="new-password" className="mb-2 block text-[12px] font-medium text-neutral-700 dark:text-slate-200">New password</label>
-              <Input id="new-password" type="password" autoComplete="new-password" value={newPassword} onChange={(event) => setNewPassword(event.target.value)} className={inputClass} disabled={saving} />
+              <Input id="new-password" type="password" minLength={12} maxLength={128} autoComplete="new-password" value={newPassword} onChange={(event) => setNewPassword(event.target.value)} className={inputClass} disabled={saving} />
             </div>
             <div>
               <label htmlFor="confirm-password" className="mb-2 block text-[12px] font-medium text-neutral-700 dark:text-slate-200">Confirm new password</label>
-              <Input id="confirm-password" type="password" autoComplete="new-password" value={confirmation} onChange={(event) => setConfirmation(event.target.value)} className={inputClass} disabled={saving} />
+              <Input id="confirm-password" type="password" minLength={12} maxLength={128} autoComplete="new-password" value={confirmation} onChange={(event) => setConfirmation(event.target.value)} className={inputClass} disabled={saving} />
             </div>
           </div>
-          <p className="text-[11px] leading-5 text-neutral-500 dark:text-slate-400">Use at least 8 characters. Any additional password policy configured for your account will be checked before saving.</p>
+          <p className="text-[11px] leading-5 text-neutral-500 dark:text-slate-400">Use 12 to 128 characters. Any additional password policy configured for your account will be checked before saving.</p>
           <button type="submit" disabled={saving} className="inline-flex h-10 items-center gap-2 rounded-xl bg-primary px-4 text-[12px] font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50">
             <KeyRound size={15} /> {saving ? 'Updating password…' : 'Update password'}
           </button>

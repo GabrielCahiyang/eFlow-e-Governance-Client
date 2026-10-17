@@ -134,7 +134,7 @@ export function BackupExportWorkspace() {
       reauthPassword.length > 0 &&
       (mode === "operational" ||
         (overview.preflight.encryption_available &&
-          passphrase.length >= 12 &&
+          passphrase.length >= 12 && passphrase.length <= 128 &&
           passphrase === repeatPassphrase)),
   );
   const recentCompleted =
@@ -527,6 +527,7 @@ export function BackupExportWorkspace() {
                 </div>
               </div>
 
+              {mode === 'disaster_recovery' && <p role="status" className="text-xs text-muted-foreground">{passphrase.length}/128 characters · use at least 12. {repeatPassphrase && passphrase !== repeatPassphrase ? 'Passphrases do not match.' : ''}</p>}
               {mode === "disaster_recovery" && (
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <label>
@@ -534,10 +535,10 @@ export function BackupExportWorkspace() {
                       Archive passphrase
                     </span>
                     <input
-                      type="password"
+                      type="password" minLength={12} maxLength={128}
                       value={passphrase}
                       onChange={(event) => setPassphrase(event.target.value)}
-                      placeholder="At least 12 characters"
+                      placeholder="12–128 characters"
                       className="h-9 w-full rounded-lg border border-neutral-200 px-3 text-[12px] outline-none focus:border-violet-400"
                     />
                   </label>
@@ -546,7 +547,7 @@ export function BackupExportWorkspace() {
                       Repeat passphrase
                     </span>
                     <input
-                      type="password"
+                      type="password" minLength={12} maxLength={128}
                       value={repeatPassphrase}
                       onChange={(event) =>
                         setRepeatPassphrase(event.target.value)

@@ -1,4 +1,5 @@
-import { useMemo } from "react";
+import { getPhilippineCalendarDate, scheduledDateError } from '../../../shared/calendarDates';
+import { useMemo, useState } from "react";
 import {
   Check,
   ChevronRight,
@@ -70,6 +71,12 @@ export function DraftCockpit({
     schedule: string,
   ) => void;
 }) {
+  const [dateError, setDateError] = useState('');
+  const commit = () => {
+    const issue = draftTasks.filter(t => t.enabled).map(t => scheduledDateError(t.activitySchedule || '', { label: 'Activity target date' })).find(Boolean);
+    setDateError(issue || '');
+    if (!issue) onCommit();
+  };
   type ActivityGroup = {
     title: string;
     schedule: string;
@@ -179,7 +186,7 @@ export function DraftCockpit({
             <button
               data-testid="manual-plan-done-editing"
               type="button"
-              onClick={onCommit}
+              onClick={commit}
               disabled={committing || enabledCount === 0}
               className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-primary px-4 text-[12px] font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
             >
@@ -211,6 +218,7 @@ export function DraftCockpit({
             {commitMessage}
           </p>
         )}
+        {dateError && <p role="alert" className="text-destructive">{dateError}</p>}
         {saveError && (
           <p role="alert" className="mt-3 text-[11px] font-medium text-destructive">
             {saveError}
@@ -358,6 +366,7 @@ export function DraftCockpit({
                               aria-label={`Activity ${activity.ai + 1} title`}
                               aria-describedby={activityError ? `manual-activity-${program.pi}-${project.pj}-${activity.ai}-error` : undefined}
                               aria-invalid={Boolean(activityError)}
+                              maxLength={250}
                               value={activity.title}
                               onChange={(event) =>
                                 onUpdateActivity(
@@ -384,6 +393,7 @@ export function DraftCockpit({
                           <input
                             aria-label={`${activity.title || `Activity ${activity.ai + 1}`} target date`}
                             type="date"
+                            min={getPhilippineCalendarDate()}
                             value={activity.schedule}
                             onChange={(event) =>
                               onUpdateActivity(

@@ -1,3 +1,4 @@
+import { attachmentError, EVIDENCE_ACCEPT } from '../../shared/fileValidation';
 import { useExplicitDraft } from '../../shared/useExplicitDraft';
 import { useState } from "react";
 import { CircleAlert, Paperclip, Send, X } from "lucide-react";
@@ -42,6 +43,8 @@ export function SubmitForReviewForm({
       );
       return;
     }
+    const issue = attachmentError(files);
+    if (issue || note.length > 5000) { toast(issue || 'Completion note must be 5,000 characters or fewer.', 'error'); return; }
     if (!note.trim()) {
       toast("Add a completion note for the reviewer.", "error");
       return;
@@ -109,6 +112,7 @@ export function SubmitForReviewForm({
       <textarea
         aria-label="Task completion note"
         disabled={submitting}
+        maxLength={5000}
         value={note}
         onChange={(event) => setNote(event.target.value)}
         rows={3}
@@ -146,12 +150,10 @@ export function SubmitForReviewForm({
           <Paperclip size={13} />
           Add evidence
           <input
-            type="file"
+            type="file" accept={EVIDENCE_ACCEPT}
             multiple
             className="hidden"
-            onChange={(event) =>
-              setFiles(Array.from(event.target.files || []))
-            }
+            onChange={event => { const chosen = Array.from(event.target.files || []); const issue = attachmentError(chosen); if (issue) toast(issue, 'error'); else setFiles(chosen); event.target.value = ''; }}
           />
         </label>
         <button

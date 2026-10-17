@@ -126,7 +126,7 @@ export function getProposalBudgetReadiness(tasks: TaskBudgetSource[]) {
   const missing = enabled.filter((task) => !task.budgetDecision || task.budgetDecision === "missing");
   const invalid = enabled.filter((task) => task.budgetDecision === "funded" && (
     !(task.budgetLines || []).length
-    || (task.budgetLines || []).some((line) => !line.expenseClass.trim() || !line.category.trim() || !line.particular.trim() || getBudgetLineAmount(line) <= 0)
+    || (task.budgetLines || []).some((line) => !line.expenseClass.trim() || !line.category.trim() || !line.particular.trim() || getBudgetLineAmount(line) <= 0 || !Number.isFinite(getBudgetLineAmount(line)) || getBudgetLineAmount(line) > 9999999999 || line.category.length > 120 || line.particular.length > 200)
   ));
   return {
     ready: missing.length === 0 && invalid.length === 0,

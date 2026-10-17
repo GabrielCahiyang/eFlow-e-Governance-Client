@@ -1,3 +1,4 @@
+import { attachmentError } from '../shared/fileValidation';
 // ─── eFlow Task Discussion Service (Supabase) ────────────────────
 // Two closely-related task collaboration surfaces, kept together because both
 // hang off a task and the UI shows them in one Activity tab:
@@ -257,6 +258,9 @@ export interface ProgressUpdateInput {
 // in the untouched queue.
 export async function submitProgressUpdate(input: ProgressUpdateInput): Promise<void> {
   if (!input.author.id) throw new Error('You must be signed in.');
+  const attachmentIssue = attachmentError(input.attachment ? [input.attachment] : [], { maxCount: 1 });
+  if (attachmentIssue) throw new Error(attachmentIssue);
+  if ((input.nextStep?.length || 0) > 300 || (input.note?.length || 0) > 3000) throw new Error('Progress text exceeds its limit.');
   if (
     input.percentComplete != null &&
     (!Number.isFinite(input.percentComplete) ||

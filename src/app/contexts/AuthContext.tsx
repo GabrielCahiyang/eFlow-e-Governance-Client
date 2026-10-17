@@ -18,20 +18,12 @@ import {
   PERMISSIONS_CHANGED_EVENT,
   PERMISSIONS_CHANGED_STORAGE_KEY,
 } from '../features/permissions/constants';
-import { controlPanelFetch } from '../shared/controlPanelClient';
 import { signInWithAccountProtection } from '../features/authentication';
 import type { UserProfile, UserRole } from '../types';
 import { AuthContext, type AuthContextValue } from './authContextValue';
 
 // ─── Error message mapper ────────────────────────────────────────
-function mapSupabaseAuthError(msg: string): string {
-  if (msg.includes('Invalid login credentials')) return 'Invalid email or password.';
-  if (msg.includes('Email not confirmed')) return 'Email not confirmed. Contact your administrator.';
-  if (msg.includes('Too many requests')) return 'Too many attempts. Please try again later.';
-  if (msg.includes('User already registered')) return 'An account with this email already exists.';
-  if (msg.includes('Password should be')) return 'Password must be at least 6 characters.';
-  return msg;
-}
+
 
 // ─── Fetch auth key from LLM server ─────────────────────────────
 // ─── Spread legacy compatibility aliases ─────────────────────────
@@ -237,89 +229,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // ─── register (first-time setup only) ──────────────────────────
-  const register = useCallback(
-    async (
-      email: string,
-      password: string,
-      fullName: string,
-      role: UserRole,
-      orgId = '',
-    ) => {
-      setError(null);
-      try {
-        const { data, error: authError } = await supabase.auth.signUp({
-          email,
-          password,
-        });
-
-        if (authError) throw new Error(mapSupabaseAuthError(authError.message));
-        if (!data.user) throw new Error('Registration failed.');
-
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            id: data.user.id,
-            full_name: fullName,
-            email,
-            role,
-            org_id: orgId || null,
-            employee_id: data.user.id,
-            skills: {},
-            workload: 0,
-            burnout_level: 'low',
-            is_active: true,
-          });
-
-        if (profileError) throw profileError;
-      } catch (err: any) {
-        setError(err?.message || 'Registration failed.');
-        throw err;
-      }
-    },
-    [],
-  );
-
-  // ─── createManagedUser (calls FastAPI server) ──────────────────
-  const createManagedUser = useCallback(
-    async (
-      newEmail: string,
-      newPassword: string,
-      profileData: { full_name: string; role: UserRole; org_id?: string; employee_id?: string | null; skills?: Record<string, boolean> },
-    ): Promise<string> => {
-      setError(null);
-      try {
-        const res = await controlPanelFetch('admin/users/create', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            email: newEmail,
-            password: newPassword,
-            full_name: profileData.full_name,
-            role: profileData.role,
-            org_id: profileData.org_id || null,
-            skills: profileData.skills || {},
-          }),
-        }, { retryOnEndpointChange: true });
-
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          throw new Error(err.detail || 'Failed to create user.');
-        }
-
-        const { uid } = await res.json();
-        return uid;
-      } catch (err: any) {
-        const msg = err?.message || 'Failed to create user.';
-        setError(msg);
-        throw err;
-      }
-    },
-    [],
-  );
-
   // ─── resetPassword ─────────────────────────────────────────────
   const resetPassword = useCallback(async (email: string) => {
     try {
@@ -379,8 +288,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         permissionsLoading: !!userProfile && permissionsLoadedFor !== `${userProfile.id}:${userProfile.role}`,
         error,
         login,
-        register,
-        createManagedUser,
         resetPassword,
         logout,
         updateUserProfile,

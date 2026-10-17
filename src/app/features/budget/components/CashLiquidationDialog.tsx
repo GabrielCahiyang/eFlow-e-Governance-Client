@@ -1,3 +1,5 @@
+import { MoneyInput } from '../../../components/ui/MoneyInput';
+import { historicalDateError } from '../../../shared/calendarDates';
 import { useRef, useState } from "react";
 import { AttentionBox, Button } from "@vibe/core";
 import * as m from "motion/react-m";
@@ -48,6 +50,7 @@ export function CashLiquidationDialog({ request, orgId, perReceiptLimit, liquida
   const update = (id: string, patch: Partial<ReceiptDraft>) => setReceipts((current) => current.map((item) => item.id === id ? { ...item, ...patch } : item));
 
   const submit = async () => {
+    if (invalid) { setError('Check the receipt dates, amounts and required fields before submitting.'); return; }
     setBusy(true);
     setError("");
     try {
@@ -60,7 +63,7 @@ export function CashLiquidationDialog({ request, orgId, perReceiptLimit, liquida
     }
   };
 
-  const invalid = busy || spent < 0 || spent > approved || Math.abs(receiptTotal - spent) > .009 || !note.trim()
+  const invalid = busy || !Number.isFinite(spent) || receipts.some(r => !!historicalDateError(r.receiptDate, 'Receipt date') || !Number.isFinite(r.amount)) || (approved - spent > .009 && !!historicalDateError(refundDate, 'Cash return date')) || spent < 0 || spent > approved || Math.abs(receiptTotal - spent) > .009 || !note.trim()
     || (approved - spent > .009 && (!refundReceiptNumber.trim() || !refundDate))
     || receipts.some((item) => !item.vendor.trim() || (!item.description.trim()&&!item.items?.length) || !item.file
       || item.items?.some(i=>i.quantity<=0||!i.unit.trim()||!i.particular.trim()||!i.purpose.trim()||i.amount<=0||!sources.some(s=>s.allocationLineId===i.allocationLineId))
@@ -105,7 +108,7 @@ export function CashLiquidationDialog({ request, orgId, perReceiptLimit, liquida
                 <div className="mt-3 grid gap-2 sm:grid-cols-2">
                   <Field label="Vendor / payee" value={receipt.vendor} onChange={(value) => update(receipt.id, { vendor: value })} />
                   <Field label="OR/AR number" value={receipt.receiptNumber} onChange={(value) => update(receipt.id, { receiptNumber: value })} />
-                  <Field label="Receipt date" type="date" value={receipt.receiptDate} onChange={(value) => update(receipt.id, { receiptDate: value })} />
+                  <Field label="Receipt date" type="date" max={getPhilippineCalendarDate()} value={receipt.receiptDate} onChange={(value) => update(receipt.id, { receiptDate: value })} />
                   {itemized?<div className="text-[12px]">Receipt total<output className="mt-2 block font-semibold">{peso.format(receipt.amount)}</output></div>:<Field label="Amount" type="number" value={receipt.amount || ""} onChange={(value) => update(receipt.id, { amount: Number(value) })} inputClassName="text-right tabular-nums" />}
                   <label className="sm:col-span-2">
                     <span className="text-[11px] font-medium text-muted-foreground">Expense description</span>
@@ -132,7 +135,7 @@ export function CashLiquidationDialog({ request, orgId, perReceiptLimit, liquida
           {approved - spent > .009 && (
             <m.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="grid gap-3 rounded-lg border border-primary/25 bg-primary/5 p-3 sm:grid-cols-2">
               <Field label="Official refund receipt number" value={refundReceiptNumber} onChange={setRefundReceiptNumber} />
-              <Field label="Cash return date" type="date" value={refundDate} onChange={setRefundDate} />
+              <Field label="Cash return date" type="date" max={getPhilippineCalendarDate()} value={refundDate} onChange={setRefundDate} />
               <p className="sm:col-span-2 text-[11px] leading-5 text-primary">Returned change of <span className="font-semibold tabular-nums">{peso.format(approved - spent)}</span> will post as a debit to Cash and a credit that clears the member advance.</p>
             </m.div>
           )}
@@ -157,6 +160,6 @@ function blankReceipt(amount: number): ReceiptDraft {
   return { id: crypto.randomUUID(), vendor: "", receiptNumber: "", receiptDate: getPhilippineCalendarDate(), description: "", amount };
 }
 
-function Field({ label, value, onChange, type = "text", inputClassName = "" }: { label: string; value: string | number; onChange: (value: string) => void; type?: string; inputClassName?: string }) {
-  return <label><span className="text-[11px] font-medium text-muted-foreground">{label}</span><Input type={type} min={type === "number" ? 0 : undefined} step={type === "number" ? "0.01" : undefined} value={value} onChange={(event) => onChange(event.target.value)} className={`mt-1 h-9 text-[12px] ${inputClassName}`} /></label>;
+function Field({ label, value, onChange, type = "text", max, inputClassName = "" }: { label: string; value: string | number; onChange: (value: string) => void; type?: string; max?: string; inputClassName?: string }) {
+  return <label><span className="text-[11px] font-medium text-muted-foreground">{label}</span>{type === "number" ? <MoneyInput min={0} value={value} onValueChange={onChange} className={`mt-1 h-9 w-full rounded-md border px-3 text-[12px] ${inputClassName}`} /> : <Input type={type} max={max} value={value} onChange={(event) => onChange(event.target.value)} className={`mt-1 h-9 text-[12px] ${inputClassName}`} />}</label>;
 }

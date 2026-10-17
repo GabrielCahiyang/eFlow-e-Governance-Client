@@ -39,6 +39,13 @@ def project_member_email(item: dict, url: str) -> dict:
             'text': f"You are invited to {title} as a project member ({item['engagement']}).\n\n{explanation}\n\nAccept invitation: {url}\n\nLink expires: {item['expires_at']}",
             'html': f'<h1>Join {html.escape(title)}</h1><p>{html.escape(explanation)}</p><p>{html.escape(item["engagement"])}</p><a href="{html.escape(url, quote=True)}">Accept project invitation</a><p>Link expires: {html.escape(item["expires_at"])}</p>'}
 
+def managed_account_activation_email(name: str, office: str, url: str, hours: int) -> dict:
+    safe = {k: html.escape(v, quote=True) for k,v in {'name':name,'office':office,'url':url}.items()}
+    return {'subject': 'Activate your eFlow account',
+        'text': f'Hello {name},\n\nYou have been invited to eFlow in {office}. Choose your own password to activate your account.\n\nActivate account: {url}\n\nThis link expires in {hours} hours. It is for you only; do not forward it. If unexpected, ignore this email.',
+        'html': f'''<html><body style="margin:0;background:#f4f7fb;color:#182626;font-family:Arial,sans-serif"><table role="presentation" width="100%"><tr><td align="center" style="padding:40px 16px"><div style="max-width:520px;background:white;border:1px solid #d7dfdf;border-radius:16px;padding:36px;text-align:left"><div style="font-size:32px;font-weight:bold;color:#01006b">eFlow</div><h1 style="font-size:24px">Activate your account</h1><p>Hello {safe['name']},</p><p>You have been invited to join <strong>{safe['office']}</strong> on eFlow. Set your own password to get started.</p><a href="{safe['url']}" style="display:inline-block;margin:20px 0;padding:14px 22px;border-radius:8px;background:#0c6f6b;color:white;text-decoration:none">Activate account</a><p style="color:#526161;font-size:13px">Expires in {hours} hours. This link is for you only; do not forward it.</p><p style="font-size:12px">If you were not expecting this email, you can ignore it.</p></div></td></tr></table></body></html>'''}
+
+
 def send_email(recipient: str, content: dict, idempotency_key: str) -> str:
     key = os.getenv('RESEND_API_KEY', '').strip()
     sender = os.getenv('EFLOW_EMAIL_FROM', '').strip()

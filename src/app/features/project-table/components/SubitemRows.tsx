@@ -1,3 +1,4 @@
+import { getPhilippineCalendarDate, scheduledDateError } from '../../../shared/calendarDates';
 import {supportsNestedWork,type WorkTreeController} from '../../nested-work';
 import { useState } from 'react';
 import { PanelRight } from 'lucide-react';
@@ -58,13 +59,15 @@ function LegacySubitemRows({ task, subtasks, columns, profiles, canAdd, readOnly
         <InlineCreateRow autoFocus label={'Add subitem to ' + task.title} itemName="subitem" maxLength={200}
           onCreate={async title => {
             if (!canAdd) throw new Error(unavailableReason);
+            const issue = scheduledDateError(dueDate, { latest: parentDue || '', label: 'Subitem due date' });
+            if (issue) throw new Error(issue);
             return createSubtask(task.id, title, {
               position: Math.max(-1, ...subtasks.map(subtask => subtask.position)) + 1,
               ...(dueDate ? { dueDate } : {}),
             });
           }} onCreated={refresh} onBusyChange={setBusy}
           extraFields={saving => <input type="date" aria-label={'Due date for new subitem to ' + task.title}
-            value={dueDate} max={parentDue} readOnly={saving} onChange={event => setDueDate(event.target.value)}/>} />
+            min={getPhilippineCalendarDate()} value={dueDate} max={parentDue} readOnly={saving} onChange={event => setDueDate(event.target.value)}/>} />
       </div></td></tr></tfoot>}
       </table></div>
       {!canAdd && <div className="pt-subitems-access"><p>{unavailableReason}</p><button type="button" onClick={onOpenTask}>Task details</button></div>}

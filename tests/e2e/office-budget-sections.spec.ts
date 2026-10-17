@@ -41,11 +41,25 @@ test("unavailable sections never display an existing saved budget as zero", asyn
   await expect(workspace.getByRole("button", { name: /Reclassify/ })).toHaveCount(0);
 });
 
-test("locked section adjustments update the counter and persist without duplicated writes", async ({ page }) => {
+test("locked section adjustments update the counter and persist without duplicated writes", async ({ page }, info) => {
   const { writes } = await sectionsFixture(page, true);
   await page.getByRole("button", { name: /Reclassify/ }).click();
   await page.getByLabel(/Section name/).fill("Office Supplies");
-  await page.getByLabel("Budget amount Office Supplies", { exact: true }).fill("300000");
+  const amount = page.getByLabel("Budget amount Office Supplies", { exact: true });
+  await amount.fill("");
+  await amount.pressSequentially("1000000.50");
+  await expect(amount).toHaveValue("1,000,000.50");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await amount.scrollIntoViewIfNeeded();
+  const bounds = await amount.boundingBox();
+  expect(bounds && bounds.x >= 0 && bounds.x + bounds.width <= 390).toBe(true);
+  await page.screenshot({ path: info.outputPath("money-formatting-mobile.png") });
+  await amount.fill("");
+  await amount.pressSequentially(".50");
+  await expect(amount).toHaveValue("0.50");
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await amount.fill("300000");
+  await expect(amount).toHaveValue("300,000");
   await page.getByRole("button", { name: "Add section", exact: true }).click();
   await page.getByLabel(/Section name/).nth(1).fill("Training");
   await page.getByLabel("Budget amount Training", { exact: true }).fill("50000");
@@ -59,5 +73,6 @@ test("locked section adjustments update the counter and persist without duplicat
   await page.reload();
   await expect(page.getByLabel(/Section name/).nth(0)).toHaveValue("Office Supplies");
   await expect(page.getByLabel(/Section name/).nth(1)).toHaveValue("Training");
+  await expect(page.getByLabel("Budget amount Office Supplies", { exact: true })).toHaveValue("300,000");
   await expect(page.getByText("₱350,000.00", { exact: true })).toBeVisible();
 });
