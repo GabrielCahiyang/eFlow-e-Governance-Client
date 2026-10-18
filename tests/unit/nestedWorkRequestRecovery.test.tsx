@@ -24,6 +24,15 @@ function editor(data=tree(),edit:WorkEdit={command:'create'}) {
 }
 beforeEach(()=>{sessionStorage.clear();vi.resetAllMocks();api.actor='actor';api.session.mockResolvedValue({data:{session:{user:{id:'actor'},access_token:'synthetic-token'}},error:null});});afterEach(cleanup);
 describe('NW5.3 request recovery and current action authority',()=>{
+ it('rejects a duplicate sibling name before dispatch but allows the same name under a different parent',async()=>{
+  const hook=editor(),save=vi.fn().mockResolvedValue(tree(8));
+  act(()=>hook.result.current.update('title','  ORIGINAL  '));
+  await act(async()=>hook.result.current.submit({save,onDone:vi.fn()}));
+  expect(save).not.toHaveBeenCalled();expect(hook.result.current.outcome).toMatchObject({kind:'confirmed_failure',message:expect.stringContaining('already exists')});
+  act(()=>{hook.result.current.update('parent','node');hook.result.current.update('due','2026-12-01');});
+  await act(async()=>hook.result.current.submit({save,onDone:vi.fn()}));
+  expect(save).toHaveBeenCalledTimes(1);
+ });
  it('does not prompt when cancelling an untouched form and guards a changed applicable field',async()=>{
   const confirmation=vi.fn().mockResolvedValue(false),uninstall=installNavigationConfirmation(confirmation);
   try{

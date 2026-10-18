@@ -196,7 +196,7 @@ function ActorSubtaskReviewInbox({
       {focusError && <p role="alert" className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm">{focusError}</p>}
       {items.length === 0 && !selected ? (
         <div className="rounded-xl border border-neutral-200 bg-white">
-          <SectionEmpty icon={<CheckCircle2 size={30} />} title="No subtask evidence waiting" description="New evidence submissions from your team will appear here." />
+          <SectionEmpty illustration="complete" icon={<CheckCircle2 size={30} />} title="No subtask evidence waiting" description="New evidence submissions from your team will appear here." />
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(300px,380px)_1fr]">
@@ -230,7 +230,7 @@ function ActorSubtaskReviewInbox({
               onFeedbackChange:value=>{if(!decisionReadOnly&&!deciding&&!draft.pendingRef.current&&user?.id){writeSubtaskReviewDraft(user.id,selected,value);setFeedback(value);}}, onApprove:() => void decide(true), onRequestChanges:() => void decide(false),
             })}</div>
           ) : (
-            <div className="rounded-xl border border-neutral-200 bg-white"><SectionEmpty icon={<Search size={26} />} title="Select evidence" /></div>
+            <div className="rounded-xl border border-neutral-200 bg-white"><SectionEmpty illustration="files" icon={<Search size={26} />} title="Select evidence" /></div>
           )}
         </div>
       )}

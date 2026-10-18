@@ -4,6 +4,7 @@ import { WorkspaceHeader } from "../../../components/ui/workspace";
 import { Button } from "../../../components/ui/button";
 import { RefreshCw } from "lucide-react";
 import { FeedbackState } from "../../../components/ui/FeedbackState";
+import { EmptyState } from '../../../components/ui/EmptyState';
 import { requestNavigation } from "../../../shared/navigationGuard";
 import {
   NAVIGATION_LOCATION_EVENT,
@@ -16,6 +17,7 @@ import { selectWorkRows } from "../workSelectors";
 import { WorkList } from "./WorkList";
 import { WorkInspector, useWorkInspector } from "./WorkInspector";
 import { WorkFilters } from "./WorkFilters";
+import { LeadingNotificationTarget } from './LeadingNotificationTarget';
 import "../personalWork.css";
 import { readWorkFilters as readFilters } from "../workLocation";
 export function PersonalWorkWorkspace({
@@ -103,6 +105,7 @@ function PersonalWorkContent({
   const navigationItems = buildShellNavigation({ role, can, hasLeadingWork: hasLeadingWork ?? !!feed.data?.rows.some(row => row.leading && row.actionable) });
   const destinations = getSidebarContent(role, 'personal_work').sections.flatMap(section => section.items);
   const taskPageOpen=inspector.selection?.row.kind==='office-task';
+  const filtered = !!(filters.query || filters.date !== 'All my work' || filters.workspace || destination === 'History' && filters.recent);
   return (
     <section className="r10-workspace" aria-label="My Work">
       <div className="r10-work-list-view" hidden={taskPageOpen}>
@@ -176,17 +179,17 @@ function PersonalWorkContent({
           {rows.length ? (
             <WorkList rows={rows} onOpen={inspector.open} />
           ) : (
-            <FeedbackState
-              title={
-                filters.query || filters.date !== 'All my work' || filters.workspace || destination === 'History' && filters.recent ? "No matching work" : "No work in this view"
-              }
-            >
-              {filters.query || filters.date !== 'All my work' || filters.workspace || destination === 'History' && filters.recent ? <><p>Try a different search or filter.</p><Button type="button" variant="outline" onClick={() => update({ query: '', date: 'All my work', workspace: '', recent: false })}>Clear search and filters</Button></> : 'Assigned tasks and subitems will appear here when they are available to you.'}
-            </FeedbackState>
+            !feed.error && <EmptyState size="page" illustration={filtered ? 'search' : 'tasks'}
+              title={filtered ? 'No matching work' : 'No work in this view'}
+              description={filtered ? 'Try a different search or filter.' : 'Assigned tasks and subitems will appear here when they are available to you.'}
+              action={filtered ? <Button type="button" variant="outline" onClick={() => update({ query: '', date: 'All my work', workspace: '', recent: false })}>Clear search and filters</Button> : undefined}
+            />
           )}
         </>
       )}
       </div>
+      {destination === 'Leading' && <LeadingNotificationTarget rows={feed.data?.rows || []}
+        loading={feed.loading} onOpen={inspector.open} />}
       <WorkInspector
         presentation={taskPageOpen?'page':'drawer'}
         selected={inspector.selection}

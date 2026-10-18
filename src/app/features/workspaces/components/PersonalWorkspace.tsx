@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../components/ui/EmptyState';
 import { useEffect, useState } from 'react';
 import { WorkspaceHeader, WorkspaceShell } from '../../../components/ui/workspace';
 import { NAVIGATION_LOCATION_EVENT } from '../../../shared/navigationHistory';
@@ -28,11 +29,11 @@ export function PersonalWorkspace({workspace,projects,userId,ownerName,officeId,
  const data=detail.data;
  const assignedOnly=section==='personal_work';
  return <WorkspaceShell className="r3-personal-workspace">
-  <WorkspaceHeader title={assignedOnly?'My Work':workspace.name} description={`Personal workspace · Owner: ${workspace.owner_name||ownerName} · ${workspace.timezone}`} actions={isOwner&&<button type="button" className="pt-primary" onClick={()=>setCreating(true)}>Create personal project</button>}/>
+  <WorkspaceHeader title={assignedOnly?'My Work':workspace.name} description={`Personal workspace · Owner: ${workspace.owner_name||ownerName}`} actions={isOwner&&<button type="button" className="pt-primary" onClick={()=>setCreating(true)}>Create personal project</button>}/>
   <p>Personal review and closeout apply here. Office evidence, approvals and finance stay in their Office projects.</p>
   <nav aria-label="Personal projects" className="r3-project-list">{projects.map(project=><button type="button" key={project.id} aria-current={selected===project.id?'page':undefined} onClick={()=>onOpen(project.id)}>{project.title}<small>{project.status}</small></button>)}</nav>
-  {!projects.length&&<p>No personal projects yet.{isOwner?' Create a project to start working.':' Your selected project memberships will appear here.'}</p>}
-  {!selected&&projects.length>0&&<p>Select a personal project to view its work and members.</p>}
+  {!projects.length&&<EmptyState illustration="projects" size="page" title="No personal projects yet." description={isOwner?'Create a project to start working.':'Your selected project memberships will appear here.'}/>}
+  {!selected&&projects.length>0&&<EmptyState illustration="projects" size="page" title="Select a personal project to view its work and members."/>}
   {detail.loading&&<p role="status">Loading personal project…</p>}
   {detail.error&&<p role="alert">{detail.error} <button type="button" onClick={()=>void detail.refresh()}>Retry project</button></p>}
   {detail.mutationError&&<p role="alert">{detail.mutationError}</p>}{detail.saved&&<p role="status">{detail.saved}</p>}

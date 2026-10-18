@@ -19,6 +19,8 @@ import {
 } from "@vibe/core";
 import { Download, PDF, Warning } from "@vibe/icons";
 import React from "react";
+import { EmptyState as IllustratedEmptyState } from '../ui/EmptyState';
+import type { EmptyIllustration } from '../ui/EmptyStateIllustration';
 
 // ─── PageHeader ──────────────────────────────────────────────────
 export function PageHeader({
@@ -465,28 +467,18 @@ export function SectionEmpty({
   title,
   description,
   action,
+  illustration,
+  fill,
 }: {
   icon?: React.ReactNode;
   title: string;
   description?: string;
   action?: React.ReactNode;
+  illustration?: EmptyIllustration | false;
+  fill?: boolean;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-4 px-4 py-16 text-center">
-      <EmptyState
-        description={description || title}
-        layout="compact"
-        title={description ? title : undefined}
-        visual={
-          icon && (
-            <span aria-hidden="true" className="text-muted-foreground">
-              {icon}
-            </span>
-          )
-        }
-      />
-      {action && <div>{action}</div>}
-    </div>
+    <IllustratedEmptyState title={title} description={description} icon={icon} action={action} illustration={illustration} fill={fill}/>
   );
 }
 

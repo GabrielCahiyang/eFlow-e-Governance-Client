@@ -1,4 +1,5 @@
 export { WorkspaceShell } from "./WorkspaceShell";
+export { RecordDetailPage } from "./RecordDetailPage";
 export { WorkspaceHeader } from "./WorkspaceHeader";
 export { WorkspaceTabs, type WorkspaceTab } from "./WorkspaceTabs";
 export { ActionMenu, type WorkspaceAction } from "./ActionMenu";

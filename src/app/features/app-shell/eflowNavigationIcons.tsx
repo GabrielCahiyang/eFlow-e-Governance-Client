@@ -44,7 +44,6 @@ const destinationIcons: Record<string, LucideIcon> = {
   'Team Intelligence': BrainCircuit,
   'My Tasks': SquareCheckBig,
   'Task Board': SquareCheckBig,
-  'Leading Work': Compass,
   'My Subtasks': GitBranch,
   'Task History': ArchiveRestore,
   Profile: UserRound,

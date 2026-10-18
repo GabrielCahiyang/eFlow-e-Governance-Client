@@ -1,5 +1,6 @@
 import { useExplicitDraft } from "../../../../shared/useExplicitDraft";
 import * as React from "react";
+import {governanceConfigurationError} from '../../validation/governanceValidation';
 import { Plus, Save, Trash2, Users } from "lucide-react";
 import type { Organization, UserProfile } from "../../../../types";
 import type {
@@ -116,6 +117,7 @@ export function GovernanceRosterPanel({
   }, [canonical]);
   const save = async () => {
     if (guard.pendingRef.current || busy) return;
+    const validationIssue=governanceConfigurationError(orgs);if(validationIssue){setError(validationIssue);return;}
     if (JSON.stringify(latestCanonical.current) !== baseline) {
       setError(
         "The governance roster changed. Your draft is retained. Discard it to load current assignments before saving.",
@@ -295,6 +297,9 @@ export function GovernanceRosterPanel({
                         type="number"
                         min={1}
                         max={90}
+                        step={1}
+                        aria-label="Review deadline in days"
+                        aria-invalid={!!governanceConfigurationError([participant])}
                         value={participant.reviewDeadlineDays || 5}
                         onChange={(event) =>
                           setOrgs((current) =>
@@ -302,10 +307,7 @@ export function GovernanceRosterPanel({
                               item.orgId === participant.orgId
                                 ? {
                                     ...item,
-                                    reviewDeadlineDays: Math.max(
-                                      1,
-                                      Number(event.target.value),
-                                    ),
+                                    reviewDeadlineDays: event.target.value===''?NaN:Number(event.target.value),
                                   }
                                 : item,
                             ),

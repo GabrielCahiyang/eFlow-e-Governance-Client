@@ -1,4 +1,5 @@
 import { MoneyInput } from '../../../components/ui/MoneyInput';
+import {budgetSettingsError,fiscalYearError} from '../validation/financialValidation';
 import { useEffect, useRef, useState } from "react";
 import {
   AlertTriangle,
@@ -123,7 +124,7 @@ export function AnnualBudgetSetup({
   const total = data.sectionsAvailable
     ? sectionTotal(sections)
     : data.summary?.approvedAmount ?? 0;
-  const validation = validateBudgetSections(sections);
+  const validation = fiscalYearError(fiscalYear)||budgetSettingsError({dailyReleaseLimit:pettyLimit,perReceiptLimit:requestLimit,liquidationDueDays,threshold})||validateBudgetSections(sections);
   const locked = data.summary?.status === "locked";
   const closed = data.summary?.status === "closed";
   const writable = Boolean(data.sectionsAvailable) && canEdit && !closed && (!locked || editingLocked);
@@ -420,7 +421,7 @@ function NumberField({
         value={value}
         onValueChange={raw => onChange(Number(raw))}
         className="mt-1 h-10 w-full rounded-xl border border-neutral-200 px-3 text-[12px] tabular-nums disabled:bg-neutral-50"
-      /> : <input type="number" min={0} step="0.01" disabled={disabled} value={value} onChange={event => onChange(Number(event.target.value))} className="mt-1 h-10 w-full rounded-xl border border-neutral-200 px-3 text-[12px]" />}
+      /> : <input type="number" min={label.includes('days')?1:0} max={label.includes('days')?90:100} step={label.includes('days')?1:.01} disabled={disabled} value={Number.isNaN(value)?'':value} onChange={event => onChange(event.target.value===''?NaN:Number(event.target.value))} className="mt-1 h-10 w-full rounded-xl border border-neutral-200 px-3 text-[12px]" />}
     </label>
   );
 }

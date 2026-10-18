@@ -231,7 +231,7 @@ export function BudgetExpensesReport({
           </button>
         </header>
         {!filtered.length ? (
-          <BudgetEmpty
+          <BudgetEmpty illustration="search"
             title="No expenses match these filters"
             description="Clear one or more filters to restore the permission-scoped expense register."
           />

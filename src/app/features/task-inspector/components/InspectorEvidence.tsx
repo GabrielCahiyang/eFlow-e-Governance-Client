@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../components/ui/EmptyState';
 import DOMPurify from "dompurify";
 import type { Task } from '../../tasks';
 import { InitialsAvatar } from '../../../components/workflow/StatusBadges';
@@ -18,4 +19,4 @@ export function InspectorEvidence({ task }: { task: Task }) { return <section ar
                     }}
                   />
                 </div>
-              )}{!task.latestSubmission && <p className="text-sm text-neutral-500">No submission evidence yet.</p>}</section>; }
+              )}{!task.latestSubmission && <EmptyState illustration="files" size="compact" title="No submission evidence yet."/>}</section>; }

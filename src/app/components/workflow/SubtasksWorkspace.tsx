@@ -339,7 +339,7 @@ function ActorSubtasksWorkspace() {
       {/* Subtasks Grouped List */}
       {grouped.length === 0 ? (
         <Card bodyClassName="p-0">
-          <SectionEmpty
+          <SectionEmpty fill illustration="tasks"
             icon={<CheckCircle2 size={32} />}
             title="No subtasks found"
             description="You don't have any subtasks matching the current filter."

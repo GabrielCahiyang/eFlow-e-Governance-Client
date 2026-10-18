@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../../components/ui/EmptyState';
 import { getPhilippineCalendarDate, historicalDateError } from '../../../../shared/calendarDates';
 import { attachmentError, EVIDENCE_ACCEPT } from '../../../../shared/fileValidation';
 import { useExplicitDraft } from "../../../../shared/useExplicitDraft";
@@ -156,9 +157,7 @@ export function GovernanceRecordPanel({
               </article>
             ))
           ) : (
-            <div className="rounded-xl border border-dashed border-neutral-300 p-4 text-[10px] text-neutral-400">
-              No Board resolution or meeting minutes have been recorded yet.
-            </div>
+            <EmptyState illustration="files" size="compact" title="No Board resolution or meeting minutes have been recorded yet."/>
           )}
         </div>
         <div className="space-y-2">

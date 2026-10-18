@@ -323,7 +323,7 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
         <>
           {queue.length === 0 && !query ? (
             <div className="rounded-[10px] border border-border bg-card shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
-              <SectionEmpty
+              <SectionEmpty fill illustration="complete"
                 icon={<CheckCircle2 size={36} className="text-[var(--eflow-positive-text)]" />}
                 title="Inbox zero"
                 description="No task submissions are waiting for your review. Other review types remain available above."
@@ -481,7 +481,7 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
                   </div>
                 ) : (
                   <div className="flex min-h-[320px] h-full items-center justify-center rounded-[10px] border border-border bg-card shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
-                    <SectionEmpty icon={<Search size={26} />} title="Select a submission" description="Pick a task from the queue to review it." />
+                    <SectionEmpty illustration="files" icon={<Search size={26} />} title="Select a submission" description="Pick a task from the queue to review it." />
                   </div>
                 )}
               </div>

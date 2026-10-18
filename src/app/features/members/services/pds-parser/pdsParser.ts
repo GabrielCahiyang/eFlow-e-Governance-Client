@@ -4,12 +4,15 @@ import { parseEducation, parseEligibility, parseFullName, parseEmail, parsePerso
 import { buildNotes, buildStrengths, buildTags } from './notes';
 import { resolveDepartmentId } from './valueUtils';
 import { readRows, validatePdsWorkbook } from './workbookRows';
+import {assertWorkbookBounds,assertWorkbookBytes,pdsFileError} from './workbookLimits';
 
 export const parsePdsWorkbook = (
   data: ArrayBuffer,
   departments: DepartmentOption[] = [],
 ): ParsedPdsImport => {
-  const workbook = XLSX.read(data, { type: "array", cellDates: false });
+  assertWorkbookBytes(data);
+  const workbook = XLSX.read(data, { type: "array", cellDates: false,sheetRows:10001 });
+  assertWorkbookBounds(workbook);
   const rowsBySheet = {
     C1: readRows(workbook, "C1"),
     C2: readRows(workbook, "C2"),
@@ -60,6 +63,7 @@ export const parsePdsFile = async (
   file: File,
   departments: DepartmentOption[] = [],
 ) => {
+  const issue=pdsFileError(file);if(issue)throw new Error(issue);
   const parsed = parsePdsWorkbook(await file.arrayBuffer(), departments);
   return {
     ...parsed,

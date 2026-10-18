@@ -157,7 +157,7 @@ export function EmployeeWorkReport() {
 
       <Card bodyClassName="p-0">
         {rows.length === 0 ? (
-          <SectionEmpty
+          <SectionEmpty illustration={error ? false : "search"}
             icon={<FileText size={30} />}
             title={error ? "Work report unavailable" : "No tasks in range"}
             description="Adjust the filters to include more of your work."

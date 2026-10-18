@@ -98,8 +98,8 @@ describe("notification navigation", () => {
       message: 'Maria updated "Invite participants" to 40%.',
       taskId: "task-3",
     }), "head")).toMatchObject({
-      section: "leading",
-      page: "Leading Work",
+      section: "personal_work",
+      page: "Leading",
       label: "Open leading task",
       intent: { kind: "leading_task", taskId: "task-3" },
     });

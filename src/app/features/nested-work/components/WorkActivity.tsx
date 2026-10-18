@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../components/ui/EmptyState';
 import {useEffect,useRef,useState} from 'react';
 import {useAuth} from '../../../contexts/AuthContext';
 import {fetchWorkEvents,type WorkEvent} from '../services/workTreeService';
@@ -20,7 +21,7 @@ function Activity({roots,focusedNode,snapshot}:{roots:string[];focusedNode?:Work
  if(!focusedNode&&!events.length&&!error&&!loading)return null;
  return <section className="r7-work" aria-label="Delegation history"><h3>Delegation history</h3><p>Immutable work changes · 25 events per page · Root manual progress remains separate.</p>
  {error&&<p role="alert">{error}<button type="button" onClick={()=>setRetry(v=>v+1)}>Retry delegation history</button></p>}{loading&&<p role="status">Loading delegation history…</p>}
- {focusedNode&&!displayed.length&&!error&&!loading&&<p>No permitted work changes on this page.</p>}
+ {focusedNode&&!displayed.length&&!error&&!loading&&<EmptyState illustration="tasks" size="compact" title="No permitted work changes on this page."/>}
  <ol>{displayed.map(({event})=>{const presentation=presentWorkEvent(event,focusedNode);return <li key={event.id}><strong>{event.actor_name}</strong> · {presentation.title}<p>{presentation.detail}</p><time dateTime={event.occurred_at}> · {new Date(event.occurred_at).toLocaleString()}</time></li>;})}</ol>
  <button ref={refreshButton} type="button" disabled={loading} onClick={()=>{setCursor(undefined);setPages([]);setRetry(v=>v+1);}}>Refresh history</button>{more&&<button type="button" disabled={loading||!!error} onClick={()=>{const last=events[events.length-1];if(last){pageFocus.current=true;setCursor({time:last.occurred_at,id:last.id});}}}>Older work changes</button>}
  </section>;

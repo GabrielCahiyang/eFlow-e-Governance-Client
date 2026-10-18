@@ -1,7 +1,11 @@
 import { jsonRequest, phase2Request } from '../../../shared/phase2Api';
 import type { ActivationOffice, ActivationPreview, ActivationResult, PendingActivation, StageAccountActivation } from '../types';
+import {accountSkillsError} from '../validation';
 
-export const stageAccountActivation = (input: StageAccountActivation) => phase2Request<PendingActivation>(input.mode === 'ledipo_create' ? '/admin/users/create' : '/admin/users/invite', jsonRequest('POST', input));
+export const stageAccountActivation = async (input: StageAccountActivation) => {
+ const issue=accountSkillsError(input.skills)||accountSkillsError(Object.fromEntries((input.pds_notes?.tags||[]).map(tag=>[tag,true])));if(issue)throw new Error(issue);
+ return phase2Request<PendingActivation>(input.mode === 'ledipo_create' ? '/admin/users/create' : '/admin/users/invite', jsonRequest('POST', input));
+};
 export const listPendingActivations = () => phase2Request<{ invitations: PendingActivation[] }>('/admin/users/pending-activation');
 export const listActivationOffices = () => phase2Request<{ offices: ActivationOffice[] }>('/admin/users/invite-options');
 export const manageAccountActivation = (id: string, action: 'resend' | 'revoke' | 'approve') => phase2Request<PendingActivation>(`/admin/users/pending-activation/${encodeURIComponent(id)}/${action}`, { method: 'POST' });

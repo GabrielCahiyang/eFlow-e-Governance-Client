@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../../components/ui/EmptyState';
 import { useMemo, useState, type ReactNode } from 'react';
 import { AlertTriangle, CalendarClock, Clock, Inbox } from 'lucide-react';
 import type { Task } from '../../../../services/taskService';
@@ -38,7 +39,7 @@ export function EmployeeDeadlines() {
   const section = (title: string, tasks: Task[], tone: "bad" | "warn" | "neutral" | "info", _icon: ReactNode) => (
     <Card title={`${title} (${tasks.length})`} bodyClassName="p-0" className="mb-3">
       {tasks.length === 0 ? (
-        <div className="px-4 py-5 text-[12px] text-neutral-400 text-center">Nothing here.</div>
+        <EmptyState illustration="tasks" size="compact" title="Nothing here."/>
       ) : (
         <div className="divide-y divide-neutral-100">
           {tasks.map((t) => {

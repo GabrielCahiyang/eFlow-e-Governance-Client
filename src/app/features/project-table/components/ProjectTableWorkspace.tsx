@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../components/ui/EmptyState';
 import { useEffect,useMemo,useState } from 'react';
 
 import { Plus,Table2,LockKeyhole } from 'lucide-react';
@@ -91,7 +92,7 @@ export function ProjectTableWorkspace({data,profiles,orgs,canManage,onOpenTask,o
 
   {loading?<div className="pt-skeleton" role="status" aria-label="Loading project table">{[0,1].map(i=><div key={i}><span/>{[0,1,2,3].map(j=><i key={j}/>)}</div>)}</div>:error?<div role="alert" className="pt-error">{error}<button onClick={()=>{void run(refresh);}}>Retry</button></div>:<>
 
-   {(query||status||owner||sharedFilters?.office)&&!tasks.length&&<p className="pt-empty-filter">No tasks match these filters. Clear filters to see all project work.</p>}
+   {(query||status||owner||sharedFilters?.office)&&!tasks.length&&<EmptyState fill illustration="search" size="compact" title="No tasks match these filters. Clear filters to see all project work."/>}
 
    {groups.map(group=><ProjectGroupTable key={group.id} group={group} groups={groups} tasks={tasksInGroup(tasks,group)} allTasks={data.tasks} subtasks={subtasks} columns={columns} profiles={profiles} orgs={orgs} canManage={editable} canStaff={canStaff} locked={['completed','archived'].includes(data.project.status)} officeId={officeId} userId={userId} projectId={data.project.id} onOpen={onOpenTask} onOpenSubitem={open} refreshSubitems={refreshSubitems} refreshGroups={refresh} onHideColumn={layout.hideColumn} onAddColumn={layout.showColumn} widths={layout.widths} onResize={layout.resizeColumn} sort={sort} onSort={setSort} reorderable={editable&&!query&&!status&&!owner&&!sharedFilters?.office&&!sharedFilters?.dateFrom&&!sharedFilters?.dateTo&&sort==='manual'&&tasksInGroup(data.tasks,group).every(t=>t.orgId===officeId)} run={run}/>)}
 

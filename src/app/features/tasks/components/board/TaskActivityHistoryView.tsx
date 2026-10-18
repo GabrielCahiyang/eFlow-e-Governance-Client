@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../../components/ui/EmptyState';
 import { useEffect, useMemo, useState } from "react";
 import { Activity, CircleDot, History, RefreshCw } from "lucide-react";
 import type { Task } from "../../../../services/taskService";
@@ -73,7 +74,7 @@ export function TaskActivityHistoryView({
       ) : error ? (
         <div className="px-5 py-8 text-center text-xs text-rose-700" role="alert">{error}</div>
       ) : items.length === 0 ? (
-        <div className="px-5 py-10 text-center text-xs text-neutral-500">No recorded activity for the current task scope.</div>
+        <EmptyState fill illustration="tasks" size="compact" title="No recorded activity for the current task scope."/>
       ) : (
         <ol className="divide-y divide-neutral-100">
           {items.map((item) => {

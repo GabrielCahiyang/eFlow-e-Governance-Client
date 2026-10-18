@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../../components/ui/EmptyState';
 import { useMemo, useState } from "react";
 import { AttentionBox, Button, Label, Search as VibeSearch } from "@vibe/core";
 import * as m from "motion/react-m";
@@ -169,9 +170,7 @@ export function OfficeIdentityAccessPanel({
             );
           })}
           {!filtered.length && (
-            <div className="p-8 text-center text-[12px] text-neutral-500">
-              No office people match this search.
-            </div>
+            <EmptyState illustration="search" size="compact" title="No office people match this search."/>
           )}
         </div>
       </div>

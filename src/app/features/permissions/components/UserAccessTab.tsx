@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../components/ui/EmptyState';
 import '../permissionPresentation.css';
 import { isAdminRole } from "../../../shared/roles";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -311,9 +312,7 @@ export function UserAccessTab({
             </button>
           ))}
           {filteredUsers.length === 0 ? (
-            <p className="py-10 text-center text-[12px] text-neutral-400">
-              No active users match this search.
-            </p>
+            <EmptyState illustration="search" size="compact" title="No active users match this search."/>
           ) : null}
         </div>
       </aside>

@@ -263,11 +263,11 @@ export async function submitProgressUpdate(input: ProgressUpdateInput): Promise<
   if ((input.nextStep?.length || 0) > 300 || (input.note?.length || 0) > 3000) throw new Error('Progress text exceeds its limit.');
   if (
     input.percentComplete != null &&
-    (!Number.isFinite(input.percentComplete) ||
+    (!Number.isSafeInteger(input.percentComplete) ||
       input.percentComplete < 0 ||
-      input.percentComplete > 100)
+      input.percentComplete > 99)
   ) {
-    throw new Error('Progress must be between 0 and 100.');
+    throw new Error('Progress must be a whole number from 0 to 99. Completion requires approval.');
   }
 
   let attachmentPath: string | null = null;

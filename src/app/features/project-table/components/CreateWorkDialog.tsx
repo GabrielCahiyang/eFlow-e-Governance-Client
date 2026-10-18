@@ -5,9 +5,12 @@ import { Button } from '../../../components/ui/button';
 import { requestNavigation, useNavigationBlocker } from '../../../shared/navigationGuard';
 import { createProjectGroup, createWorkspaceTask } from '../services/workspaceService';
 import type { ProjectGroup } from '../types';
+import {duplicateWorkNameError} from '../../../shared/workNames';
+import {useTasks} from '../../../hooks/useFirebaseData';
 
 /** Explicit creation from the toolbar; inline rows continue creating on blur. */
 export function CreateWorkDialog({ kind, projectId, groups, onClose, onCreated }: { kind: 'task' | 'group'; projectId: string; groups: ProjectGroup[]; onClose: () => void; onCreated?: () => void }) {
+  const {tasks}=useTasks();
   const [title, setTitle] = useState(''), [groupId, setGroupId] = useState(groups[0]?.id || ''), [error, setError] = useState(''), [busy, setBusy] = useState(false);
   const pending = useRef(false), originalGroup = useRef(groupId);
   const dirty = Boolean(title.trim()) || groupId !== originalGroup.current;
@@ -17,6 +20,7 @@ export function CreateWorkDialog({ kind, projectId, groups, onClose, onCreated }
     <form className="pt-planning-form" aria-busy={busy} onSubmit={event => {
       event.preventDefault();
       if (!title.trim() || pending.current || (kind === 'task' && !groupId)) return;
+      const issue=duplicateWorkNameError(title,kind==='group'?groups:tasks.filter(task=>task.linkedProjectId===projectId&&task.groupId===groupId),kind==='group'?'Group':'Task');if(issue){setError(issue);return;}
       pending.current = true; setBusy(true); setError('');
       void (async () => {
         try {

@@ -11,15 +11,15 @@ describe("role navigation compatibility", () => {
     const departmentHead = getRoleNavigation("head");
     expect(departmentHead.defaultSection).toBe("dashboard");
     expect(departmentHead.navItems.map((item) => item.id)).toEqual([
-      "dashboard", "projects", "tasks", "budget", "leading", "subtasks", "reviews",
+      "dashboard", "projects", "tasks", "budget", "subtasks", "reviews",
       "team", "identity", "intelligence", "reports", "announcements",
     ]);
-    expect(departmentHead.navItems.find((item) => item.id === "leading")?.requiresLeadership).toBe(true);
+    expect(departmentHead.navItems.some((item) => item.id === "leading")).toBe(false);
 
     const employee = getRoleNavigation("member");
     expect(employee.defaultSection).toBe("personal_work");
     expect(employee.navItems.map((item) => item.id)).toEqual([
-      "tasks", "projects", "leading", "subtasks", "reviews", "deadlines", "history",
+      "tasks", "projects", "subtasks", "reviews", "deadlines", "history",
       "performance", "reports", "announcements",
     ]);
     expect(employee.navItems.some((item) => item.id === "budget")).toBe(false);
@@ -55,7 +55,7 @@ describe("role navigation compatibility", () => {
   it("offers administrative destinations to permission-managed roles", () => {
     const candidates = getRoleNavigationCandidates("head");
     expect(candidates.some((item) => item.id === "users")).toBe(true);
-    expect(candidates.some((item) => item.id === "org_tree")).toBe(true);
+    expect(candidates.some((item) => item.id === "org_tree")).toBe(false);
     expect(candidates.some((item) => item.id === "migration")).toBe(true);
     expect(candidates.filter((item) => canOpenNavigationSection(
       "head",
@@ -66,24 +66,18 @@ describe("role navigation compatibility", () => {
   });
 
   it("only exposes contextual leadership destinations when the user leads work", () => {
-    const headLeading = getRoleNavigation("head").navItems.find((item) => item.id === "leading")!;
-    const employeeLeading = getRoleNavigation("member").navItems.find((item) => item.id === "leading")!;
     const employeeReviews = getRoleNavigation("member").navItems.find((item) => item.id === "reviews")!;
     const headProjects = getRoleNavigation("head").navItems.find((item) => item.id === "projects")!;
 
-    expect(isRoleNavigationItemVisible(headLeading, false)).toBe(false);
-    expect(isRoleNavigationItemVisible(employeeLeading, false)).toBe(false);
     expect(isRoleNavigationItemVisible(employeeReviews, false)).toBe(false);
     expect(isRoleNavigationItemVisible(headProjects, false)).toBe(true);
-    expect(isRoleNavigationItemVisible(headLeading, true)).toBe(true);
-    expect(isRoleNavigationItemVisible(employeeLeading, true)).toBe(true);
     expect(isRoleNavigationItemVisible(employeeReviews, true)).toBe(true);
   });
 
   it("keeps both contextual leadership pages available to an assigned Task Lead", () => {
     const denied = () => false;
 
-    expect(canOpenNavigationSection("member", "leading", denied, true)).toBe(true);
+    expect(canOpenNavigationSection("member", "personal_work", denied, true)).toBe(true);
     expect(canOpenNavigationSection("member", "reviews", denied, true)).toBe(true);
     expect(canOpenNavigationSection("member", "reviews", denied)).toBe(false);
   });

@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../components/ui/EmptyState';
 import {useEffect,useMemo,useRef,useState} from 'react';
 import {useAuth} from '../../../contexts/AuthContext';
 import type {WorkspaceAction} from '../../../components/ui/workspace/ActionMenu';
@@ -72,6 +73,6 @@ export function WorkHierarchy({snapshot,readOnly,executionBlocked,authorityFresh
  if(!snapshotCurrent||branchParentId&&!byId.has(branchParentId))return <section className="nw-hierarchy" aria-label="Subitem work"><p role="alert">Verify current work access. Reload the work.</p></section>;
  return <section ref={section} className="nw-hierarchy" aria-label="Subitem work">
   <div className="nw-hierarchy-toolbar"><WorkNodeActionMenu compact={presentation==='project-table'} label={branchParentId?'Child work actions':'Task work actions'} actions={actionsFor(branchParentId).filter(action=>!branchParentId||(branchActions?!['open','review'].includes(action.id):['create','order'].includes(action.id)))}/></div>
-  {presentation==='project-table'?<WorkTreeTable {...props} tableSurface createAction={actionsFor(branchParentId).find(action=>action.id==='create')}/>:!rows.length?<p>No subitems yet.</p>:mobile?<WorkTreeMobileList {...props}/>:<WorkTreeTable {...props}/>}
+  {presentation==='project-table'?<WorkTreeTable {...props} tableSurface createAction={actionsFor(branchParentId).find(action=>action.id==='create')}/>:!rows.length?<EmptyState illustration="tasks" size="compact" title="No subitems yet."/>:mobile?<WorkTreeMobileList {...props}/>:<WorkTreeTable {...props}/>}
  </section>;
 }

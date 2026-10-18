@@ -1,7 +1,6 @@
 import { Settings } from "@carbon/icons-react";
 import {
   HeadTaskBoardView,
-  YouAreLeadingView,
   useHeadTaskBoard,
 } from "../tasks";
 import { SubtasksWorkspace } from "../subtasks";
@@ -107,9 +106,6 @@ export const headPages: RolePageSections = {
   intelligence: {
     "Team Intelligence": EmployeeInsights,
   },
-  leading: {
-    "Leading Work": YouAreLeadingView,
-  },
   reports: {
     Reports: HeadReportsWorkspace,
   },
@@ -117,25 +113,6 @@ export const headPages: RolePageSections = {
     Announcements: HeadAnnouncementCenter,
   },
 
-  // Compatibility aliases for sessions opened before this navigation cleanup.
-  command: {
-    Dashboard: HeadDashboard,
-    Projects: HeadProjectsWorkspace,
-    "Pinned — You're Leading": YouAreLeadingView,
-    "For Review": ForReviewInbox,
-    Reports: HeadReportsWorkspace,
-    Announcements: HeadAnnouncementCenter,
-  },
-  leader: {
-    "Pinned — You're Leading": YouAreLeadingView,
-    "For Review": ForReviewInbox,
-    "Team Workload": TeamSupervision,
-  },
-  deptportfolio: {
-    "Task Board & Composer": HeadTaskBoard,
-    "Team Supervision": TeamSupervision,
-    "Team Intelligence": EmployeeInsights,
-  },
 };
 
 export const headDefaultPages: Record<string, string> = {
@@ -148,12 +125,8 @@ export const headDefaultPages: Record<string, string> = {
   team: "Team Supervision",
   identity: "Identity & Access",
   intelligence: "Team Intelligence",
-  leading: "Leading Work",
   reports: "Reports",
   announcements: "Announcements",
-  command: "Dashboard",
-  leader: "Pinned — You're Leading",
-  deptportfolio: "Task Board & Composer",
 };
 
 export function HeadContent({

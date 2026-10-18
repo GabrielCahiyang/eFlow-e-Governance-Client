@@ -1,3 +1,4 @@
+import { EmptyState } from './EmptyState';
 import React, {
   useCallback,
   useEffect,
@@ -309,9 +310,7 @@ export function NotificationBell({
           {/* Notification list */}
           <div className="flex-1 overflow-y-auto">
             {notifications.length === 0 ? (
-              <div className="px-4 py-8 text-center text-[12px] text-muted-foreground">
-                No notifications yet
-              </div>
+              <EmptyState illustration="inbox" size="compact" title="No notifications yet"/>
             ) : (
               notifications.map((notification) => {
                 const time = formatNotificationTime(notification.createdAt);

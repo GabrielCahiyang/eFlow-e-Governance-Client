@@ -201,7 +201,7 @@ export function ProjectProposalContextTab({
   if (!draftId) {
     return (
       <div className="bg-white border border-neutral-200/80 rounded-2xl p-12 text-center shadow-xs">
-        <SectionEmpty
+        <SectionEmpty illustration="files"
           icon={<FileText size={36} className="text-neutral-400" />}
           title="No Originating Proposal"
           description="This project was created directly in the workspace without an AI PDF proposal import or collaboration draft."

@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../../components/ui/EmptyState';
 import { CalendarDays, CheckCircle2, ExternalLink, ListChecks } from "lucide-react";
 import { isActive, type Task } from "../../../tasks";
 import type { Employee } from "../../../members";
@@ -61,7 +62,7 @@ export function TeamMemberWorkPanel({
                 <ExternalLink className="mt-0.5 shrink-0 text-neutral-400" size={13} />
               </button>
             ))}
-            {!memberTasks.length && <p className="rounded-lg bg-neutral-50 px-3 py-6 text-center text-[12px] text-neutral-500">No active task participation.</p>}
+            {!memberTasks.length && <EmptyState illustration="tasks" size="compact" title="No active task participation."/>}
           </div>
         </section>
 
@@ -72,7 +73,7 @@ export function TeamMemberWorkPanel({
               const parent = tasks.find((task) => task.id === subtask.taskId);
               return <button key={subtask.id} type="button" disabled={!parent} onClick={() => parent && onOpenTask(parent)} className="flex w-full items-start gap-2 rounded-lg bg-neutral-50 p-3 text-left transition hover:bg-neutral-100 disabled:cursor-default"><CalendarDays className="mt-0.5 shrink-0 text-neutral-400" size={14} /><span className="min-w-0 flex-1"><span className="block break-words text-[13px] font-medium leading-5 text-neutral-800">{subtask.title}</span><span className="mt-1 block break-words text-[12px] text-neutral-500">{parent?.title || "Parent task unavailable"} · {subtask.percentComplete}% complete</span></span></button>;
             })}
-            {!memberSubtasks.length && <p className="rounded-lg bg-neutral-50 px-3 py-5 text-center text-[12px] text-neutral-500">No active delegated subtasks.</p>}
+            {!memberSubtasks.length && <EmptyState illustration="tasks" size="compact" title="No active delegated subtasks."/>}
           </div>
         </section>
       </div>

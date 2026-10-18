@@ -1,6 +1,5 @@
 import { Settings } from "lucide-react";
 import { AnnouncementCenter } from "../workflow/AnnouncementCenter";
-import { YouAreLeadingView } from "../workflow/YouAreLeadingView";
 import { LeaderReviewInbox } from "../Head/ForReviewInbox";
 import { SubtasksWorkspace } from "../workflow/SubtasksWorkspace";
 import {
@@ -31,15 +30,6 @@ export const employeePages: RolePageSections = {
   subtasks: {
     "My Subtasks": SubtasksWorkspace,
   },
-  budget: {
-    // Compatibility destination for sessions/links created before contextual
-    // task funding replaced the standalone petty-cash workspace.
-    "Petty Cash & Expenses": EmployeeTaskWorkspace,
-    "My Tasks": EmployeeTaskWorkspace,
-  },
-  leading: {
-    "Leading Work": YouAreLeadingView,
-  },
   reviews: {
     "Leader Reviews": LeaderReviewInbox,
   },
@@ -59,43 +49,18 @@ export const employeePages: RolePageSections = {
     Announcements: AnnouncementCenter,
   },
 
-  // Compatibility aliases for a session that was already open before the
-  // navigation consolidation. They are intentionally not shown in the sidebar.
-  mywork: {
-    "My Tasks": EmployeeTaskWorkspace,
-    "My Subtasks": SubtasksWorkspace,
-    "Pinned — You're Leading": YouAreLeadingView,
-    Deadlines: EmployeeDeadlines,
-    "Task History": EmployeeTaskHistory,
-    Announcements: AnnouncementCenter,
-    "My Work Report": EmployeeWorkReport,
-  },
-  leader: {
-    "Pinned — You're Leading": YouAreLeadingView,
-    "For Review": LeaderReviewInbox,
-    "Team Workload": EmployeePerformanceView,
-  },
-  workspace: {
-    "My Task Workspace": EmployeeTaskWorkspace,
-    "My Performance Overview": EmployeePerformanceView,
-  },
 };
 
 export const employeeDefaultPages: Record<string, string> = {
   tasks: "My Tasks",
   projects: "Projects",
   subtasks: "My Subtasks",
-  budget: "My Tasks",
-  leading: "Leading Work",
   reviews: "Leader Reviews",
   deadlines: "Deadlines",
   history: "Task History",
   performance: "Performance",
   reports: "Work Report",
   announcements: "Announcements",
-  mywork: "My Tasks",
-  leader: "Pinned — You're Leading",
-  workspace: "My Task Workspace",
 };
 
 export function MemberContent({

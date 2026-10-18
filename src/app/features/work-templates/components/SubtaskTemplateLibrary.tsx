@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../components/ui/EmptyState';
 import { useReviewedMutation } from "../../../shared/useReviewedMutation";
 import { FeedbackState } from "../../../components/ui/FeedbackState";
 import {
@@ -164,7 +165,7 @@ export function SubtaskTemplateLibrary({
       ) : visible.length === 0 ? (
         <div className="rounded-xl border border-dashed border-neutral-200 p-10 text-center text-neutral-400">
           <ClipboardList size={30} className="mx-auto mb-2 opacity-40" />
-          <div className="text-[12px]">No templates in this view.</div>
+          <EmptyState fill illustration="tasks" size="compact" title="No templates in this view."/>
         </div>
       ) : (
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">

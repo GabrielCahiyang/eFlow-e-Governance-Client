@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../../components/ui/EmptyState';
 import { useEffect, useMemo, useState } from "react";
 import { CircleDotDashed, FolderKanban, ListTodo, ListTree } from "lucide-react";
 import type { Employee } from "../../../../services/employeeService";
@@ -104,7 +105,7 @@ export function HierarchyBoardView({
   }, [tasks]);
 
   if (tree.length === 0) {
-    return <div className="rounded-[10px] border border-border bg-card p-5 text-center text-[12px] text-muted-foreground shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">No tasks yet in this board.</div>;
+    return <EmptyState fill illustration="tasks" size="compact" title="No tasks yet in this board."/>;
   }
 
   return (

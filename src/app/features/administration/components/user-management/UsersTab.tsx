@@ -429,7 +429,7 @@ export function UsersTab({
           (orgMap[profile.org_id || ""] || "").toLowerCase().includes(query) ||
           profile.role.toLowerCase().includes(query)
         }
-        emptyMessage="No accounts match the current filters"
+        emptyIllustration="search" emptyMessage="No accounts match the current filters"
         toolbar={
           <UserDirectoryFiltersBar
             value={filters}

@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../../components/ui/EmptyState';
 import { AlertTriangle, CheckCircle2, Clock3, Search, ShieldAlert } from "lucide-react";
 import type { Employee } from "../../../members";
 import type { TeamMemberMetrics } from "../../types";
@@ -40,7 +41,7 @@ export function TeamMemberBoard({
             const selected = selectedEmployeeId === employee.id;
             return <button key={employee.id} type="button" aria-pressed={selected} onClick={() => onSelect(employee.id)} className={`mb-1 flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2.5 text-left transition ${selected ? "bg-primary/10 text-primary ring-1 ring-primary/20" : "hover:bg-neutral-50"}`}><span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-[11px] font-semibold ${selected ? "bg-primary text-primary-foreground" : "bg-neutral-100 text-neutral-600"}`}>{employee.initials || "??"}</span><span className="min-w-0 flex-1"><span className="block truncate text-[13px] font-medium">{employee.name}</span><span className={`mt-0.5 block truncate text-[12px] ${selected ? "text-primary/75" : "text-neutral-500"}`}>{employee.jobTitle}</span></span><span className={`eflow-tabular text-[12px] font-semibold ${selected ? "text-primary" : high ? "text-red-600" : medium ? "text-amber-600" : "text-emerald-600"}`}>{metric.workloadSignal}</span></button>;
           })}
-          {!filtered.length && <p className="px-3 py-8 text-center text-[12px] text-neutral-500">No team members match this search.</p>}
+          {!filtered.length && <EmptyState illustration="search" size="compact" title="No team members match this search."/>}
         </div>
       </aside>
     );
@@ -82,7 +83,7 @@ export function TeamMemberBoard({
           );
         })}
       </div>
-      {filtered.length === 0 && <div className="rounded-xl border border-dashed border-neutral-200 py-14 text-center text-[12px] text-neutral-400">No team members match this search.</div>}
+      {filtered.length === 0 && <EmptyState illustration="search" size="compact" title="No team members match this search."/>}
     </div>
   );
 }

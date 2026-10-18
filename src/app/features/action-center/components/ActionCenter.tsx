@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../components/ui/EmptyState';
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useTasksData } from '../../../hooks/useSupabaseData';
@@ -83,7 +84,7 @@ export function ActionCenter({role,hasLeadingWork=false,page='Inbox',onNavigate}
         {error && <FeedbackState tone="error" title="Task reviews could not be loaded" onRetry={retry}>{error.message}</FeedbackState>}
         {subtasks.error && <FeedbackState tone="error" title="Subtask reviews could not be loaded" onRetry={subtasks.retry}>{subtasks.error}</FeedbackState>}
         {loading || subtasks.loading ? <p role="status">Refreshing review sources…</p>:null}
-        {!actions.length && !loading && !subtasks.loading && !error && !subtasks.error && <FeedbackState title="No personal task or subtask reviews pending">Work plans, governance, financial and eligible membership approvals remain in Reviews.</FeedbackState>}
+        {!actions.length && !loading && !subtasks.loading && !error && !subtasks.error && <EmptyState fill illustration="complete" title="No personal task or subtask reviews pending" description="Work plans, governance, financial and eligible membership approvals remain in Reviews."/>}
         <PersonalActionRows items={actions} onOpen={openAction} />
         <div className="inbox-workflow-fallback"><Button variant="outline" onClick={()=>navigate('reviews','For Review')}>Open all review queues</Button></div>
       </>}

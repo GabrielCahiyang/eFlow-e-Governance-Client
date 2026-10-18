@@ -14,6 +14,7 @@ from urllib.request import urlopen
 
 
 SERVER_DIR = Path(__file__).resolve().parent
+from services.proxy_config import trusted_proxy_ips
 VENV_DIR = SERVER_DIR / ".venv"
 PYTHON = VENV_DIR / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
 REQUIREMENTS = SERVER_DIR / "requirements.txt"
@@ -152,6 +153,8 @@ def main() -> int:
         "127.0.0.1",
         "--port",
         "8322",
+        "--forwarded-allow-ips",
+        trusted_proxy_ips(),
     ]
     if reload_enabled:
         command.extend(["--reload", "--reload-dir", str(SERVER_DIR)])

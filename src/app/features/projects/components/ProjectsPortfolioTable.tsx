@@ -1,3 +1,5 @@
+import { EmptyState as IllustratedEmptyState } from '../../../components/ui/EmptyState';
+import { EmptyStateIllustration } from '../../../components/ui/EmptyStateIllustration';
 import * as React from "react";
 import {
   Avatar,
@@ -75,7 +77,7 @@ export function ProjectsPortfolioTable({
 
   if (!projects.length)
     return (
-      <EmptyState
+      <IllustratedEmptyState illustration="projects" size="page"
         title="No projects yet"
         description="Add an approved project to start planning execution."
       />
@@ -86,7 +88,7 @@ export function ProjectsPortfolioTable({
       <Table
         columns={columns}
         emptyState={
-          <EmptyState
+          <EmptyState visual={<EmptyStateIllustration kind="projects"/>}
             title="No projects yet"
             description="Add an approved project to start planning execution."
           />

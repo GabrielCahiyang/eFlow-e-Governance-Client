@@ -337,7 +337,7 @@ export function BudgetApprovalQueue({
             </Button>
           </div>
         )}
-        <BudgetEmpty
+        <BudgetEmpty illustration="complete"
           title="Approval inbox is clear"
           description="New task-linked cash requests, release actions, and receipt settlements will appear here."
         />

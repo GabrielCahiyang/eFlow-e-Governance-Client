@@ -24,7 +24,7 @@ export function TaskSubtasksWidget(props: Parameters<typeof LegacyTaskSubtasksWi
 }
 // ─── TaskSubtasksWidget ──────────────────────────────────────────
 // Standalone subtask checklist with multi-user assignment, completion toggle, and realtime updates.
-// Reused across TaskDetailDrawer, YouAreLeadingView, and MondayBoard.
+// Reused across TaskDetailDrawer and MondayBoard.
 
 import { useState, useEffect, useMemo, useRef } from "react";
 import { User, Plus, X, CheckSquare, Sparkles, Check, Eye, Clock3, LockKeyhole, Unlink2, CalendarClock } from "lucide-react";

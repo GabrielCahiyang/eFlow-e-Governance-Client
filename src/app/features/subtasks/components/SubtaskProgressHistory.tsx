@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../components/ui/EmptyState';
 import { AlertTriangle, ArrowRight, MessageSquareText, UserRound } from "lucide-react";
 import { formatDate } from "../../../components/workflow/primitives";
 import type { SubtaskProgressUpdate } from "../types";
@@ -14,9 +15,7 @@ export function SubtaskProgressHistory({
         Progress updates
       </div>
       {updates.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-neutral-200 bg-white px-3 py-5 text-center text-[11.5px] text-neutral-400">
-          No progress updates have been submitted yet.
-        </div>
+        <EmptyState illustration="tasks" size="compact" title="No progress updates have been submitted yet."/>
       ) : (
         <div className="space-y-2.5">
           {updates.map((update) => (

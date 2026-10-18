@@ -128,7 +128,7 @@ export function WorkPlanReviewInbox({ onNavigate }: { onNavigate?: (section: str
 
       {incomingDrafts.length === 0 ? (
         <div className="bg-white border border-neutral-200/80 rounded-2xl p-12 text-center shadow-xs">
-          <SectionEmpty
+          <SectionEmpty fill illustration="complete"
             icon={<CheckCircle2 size={36} className="text-emerald-500" />}
             title="All work plans reviewed"
             description="No incoming collaborative proposals or work plans currently require your office's decision."

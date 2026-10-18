@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { Plus, Search } from 'lucide-react';
 import { WorkspaceHeader, WorkspaceTabs, WorkspaceSkeleton } from '../../../components/ui/workspace';
 import { FeedbackState } from '../../../components/ui/FeedbackState';
+import { EmptyState } from '../../../components/ui/EmptyState';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useOrgs } from '../../../hooks/useSupabaseData';
 import { InviteMemberDialog, useInvitationManagement, invitationValidity, type Invitation } from '../../invitations';
@@ -35,7 +36,7 @@ export function OfficeTeamWorkspace() {
     catch (e) { if (current.current.scope === origin) setUploadError((e as Error).message); }
     finally { uploadPending.current = false; if (current.current.scope === origin) setUploadBusy(''); }
   }
-  const empty = (filtered: boolean, members: boolean) => <div className="eflow-team-empty"><h2>{filtered ? 'No matching results' : members ? 'No active Office members' : 'No invitations yet'}</h2><p>{filtered ? 'Try another search or clear the filters.' : 'Account membership belongs to your Office; project teams are managed separately.'}</p>{filtered ? <button className="eflow-text-button" onClick={clear}>Clear filters</button> : canManage && <button className="eflow-primary-button" onClick={() => setInvite(true)}>Invite Member</button>}</div>;
+  const empty = (filtered: boolean, members: boolean) => <EmptyState fill illustration={filtered ? 'search' : members ? 'people' : 'inbox'} title={filtered ? 'No matching results' : members ? 'No active Office members' : 'No invitations yet'} description={filtered ? 'Try another search or clear the filters.' : 'Account membership belongs to your Office; project teams are managed separately.'} action={filtered ? <button className="eflow-text-button" onClick={clear}>Clear filters</button> : canManage && <button className="eflow-primary-button" onClick={() => setInvite(true)}>Invite Member</button>}/>;
   return <section className="eflow-office-team" aria-label="Office Team" data-tour-id="office-team">
     <WorkspaceHeader title="Office Team" description={`Account members and invitations in ${state.office}.`} actions={canManage ? <button className="eflow-primary-button" onClick={() => setInvite(true)} data-tour-id="invite-member"><Plus size={17}/>Invite Member</button> : undefined}/>
     {!canManage && <p className="eflow-invite-help">Invitations are managed by the appointed Head of this Office.</p>}

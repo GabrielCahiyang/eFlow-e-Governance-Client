@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../components/ui/EmptyState';
 import { MoneyInput } from '../../../components/ui/MoneyInput';
 import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
 import type { BudgetSection } from "../types";
@@ -38,7 +39,7 @@ export function BudgetSectionEditor({ sections, onChange, disabled }: { sections
   return <div>
     <p className="text-[12px] text-muted-foreground">Choose your own section names and amounts. If you add a breakdown, its rows make up the section total; nothing is counted twice.</p>
     {renderRows()}
-    {!sections.some(s => !s.retired) && <p className="my-4 text-[12px] text-muted-foreground">No sections yet. Add your first section to build this budget.</p>}
+    {!sections.some(s => !s.retired) && <EmptyState illustration="budget" size="compact" title="No sections yet. Add your first section to build this budget."/>}
     {!disabled && <button type="button" onClick={() => onChange(addSectionChild(sections))} className="mt-4 inline-flex items-center gap-2 rounded-lg border border-dashed border-primary px-4 py-3 text-[12px] text-primary"><Plus size={15} /> Add section</button>}
   </div>;
 }

@@ -15,8 +15,8 @@ export function useWorkInspector(scope?: string) {
     element: HTMLElement;
   }>();
   useEffect(()=>{setSelection(undefined);},[scope]);
-  const open = (row: WorkRow, element: HTMLElement) =>
-    void requestNavigation(() => setSelection({ row, element }));
+  const open = (row: WorkRow, element: HTMLElement, isCurrent = () => true) =>
+    requestNavigation(() => { if (isCurrent()) setSelection({ row, element }); });
   const close = () => {
     const key = selection?.row.key,
       element = selection?.element;

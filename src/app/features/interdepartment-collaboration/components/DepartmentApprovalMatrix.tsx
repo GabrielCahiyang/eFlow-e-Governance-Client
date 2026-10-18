@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../components/ui/EmptyState';
 import type { Organization, UserProfile } from "../../../types";
 import type { CollaborationApproval, CollaborationParticipant } from "../types";
 import { departmentApprovalRows } from "../selectors/departmentApprovalRows";
@@ -12,7 +13,7 @@ export function DepartmentApprovalMatrix({ participants, approvals, currentRevis
   return <section className="rounded-xl border border-neutral-200 bg-white p-4" aria-label="Office approvals">
     <h2 className="text-base font-semibold">Office approvals</h2>
     <p className="mt-1 text-xs text-neutral-500">Decisions for the current saved plan. Each participating office confirms its responsibilities before publication.</p>
-    {rows.length === 0 ? <p className="mt-4 text-sm text-neutral-500">No participating offices are recorded for this plan.</p> :
+    {rows.length === 0 ? <EmptyState illustration="people" size="compact" title="No participating offices are recorded for this plan."/> :
       <div className="mt-4 overflow-x-auto"><table className="w-full min-w-[760px] text-left text-xs"><thead><tr className="border-b text-neutral-500">{["Office / office", "Required approval", "Status", "Requested", "Decision by / date", "Comments"].map((label) => <th key={label} scope="col" className="p-2 font-medium">{label}</th>)}</tr></thead><tbody>
         {rows.map(({ participant, approval, status, rule }) => <tr key={participant.orgId} className="border-b last:border-0">
           <th scope="row" className="p-2 font-medium">{organizations.find((org) => org.id === participant.orgId)?.name || "Office unavailable"}<span className="block text-[11px] font-normal text-neutral-500">{participant.participationRole === "governance" ? "Required review" : participant.participationRole === "observer" ? "For information" : participant.participationRole === "owner" ? "Plan owner" : "Participating office"}</span></th>

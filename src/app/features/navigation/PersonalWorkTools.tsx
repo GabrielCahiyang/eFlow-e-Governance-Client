@@ -4,10 +4,10 @@ import type { ShellNavigationItem } from './presentationNavigation';
 import './personalWorkTools.css';
 
 const workflowSections: Record<string, string> = {
-  'Assigned work': 'tasks', Leading: 'leading', Subtasks: 'subtasks', History: 'history',
+  'Assigned work': 'tasks', Subtasks: 'subtasks', History: 'history',
 };
 const toolLabels: Record<string, string> = {
-  tasks: 'Task workspace', leading: 'Lead workspace', subtasks: 'Subtask workflow',
+  tasks: 'Task workspace', subtasks: 'Subtask workflow',
   deadlines: 'Deadline calendar', history: 'Task history details', performance: 'Performance', reports: 'Work Report',
 };
 

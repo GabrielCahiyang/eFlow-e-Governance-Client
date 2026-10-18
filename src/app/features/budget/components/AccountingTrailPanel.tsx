@@ -1,8 +1,9 @@
+import { EmptyState } from '../../../components/ui/EmptyState';
 import { useMemo, useState } from "react";
 import { AttentionBox, Button, Search as VibeSearch } from "@vibe/core";
 import { Badge } from "../../../components/ui/badge";
 import * as m from "motion/react-m";
-import { ArrowRight, Clock3, FileSearch, ShieldCheck, X } from "lucide-react";
+import { ArrowRight, Clock3, ShieldCheck, X } from "lucide-react";
 import { FeatureDialog } from "../../../components/ui/FeatureDialog";
 import { motionTransition } from "../../../shared/motion/motionTokens";
 import type {
@@ -138,12 +139,7 @@ export function AccountingTrailPanel({
             ))}
           </div>
         ) : (
-          <div className="p-12 text-center">
-            <FileSearch size={30} className="mx-auto text-neutral-300" />
-            <h3 className="mt-3 text-[12px] font-semibold">
-              No matching audit events
-            </h3>
-          </div>
+          <EmptyState illustration="search" title="No matching audit events"/>
         )}
       </section>
       <FeatureDialog

@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../components/ui/EmptyState';
 import { useEffect, useMemo, useState } from "react";
 import {
   AttentionBox,
@@ -336,15 +337,7 @@ function GeneralJournalView({
             </table>
           </div>
         ) : (
-          <div className="p-12 text-center">
-            <BookOpenCheck size={30} className="mx-auto text-neutral-300" />
-            <h3 className="mt-3 text-[12px] font-semibold">
-              No journal entries match
-            </h3>
-            <p className="mt-1 text-[12px] text-neutral-500">
-              Cash releases and settled liquidations post here automatically.
-            </p>
-          </div>
+          <EmptyState illustration="search" title="No journal entries match" description="Cash releases and settled liquidations post here automatically."/>
         )}
       </section>
       {receipt && (

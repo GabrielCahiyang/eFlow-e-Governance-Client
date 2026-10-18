@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../components/ui/EmptyState';
 import {fetchAccess,RemovalDialog,type AccessSnapshot} from '../../project-access';
 import {useEffect,useRef,useState} from 'react';
 import {useAuth} from '../../../contexts/AuthContext';
@@ -31,7 +32,7 @@ function Content({project,office,root,node,canRequest}:{project:string;office?:s
  {item.can_revoke&&(item.state!=='accepted'||access?.can_remove_personal||access?.can_remove_offices.includes(item.office_id))&&<button type="button" disabled={busy} onClick={()=>{if(item.state==='accepted'&&access)setRemoving(item);else void act(()=>decideProjectInvitation(item,'revoked'));}}>Revoke {item.state==='accepted'?'membership':'request / link'}</button>}
  {item.can_complete_onboarding&&item.onboarding==='pending'&&<button type="button" disabled={busy} onClick={()=>void act(()=>completeProjectOnboarding(item.id))}>Confirm my onboarding complete</button>}
  {(item.can_revoke||item.state==='accepted')&&<label>Attach optional private PDS<input type="file" accept="application/pdf,.pdf" disabled={busy} onChange={e=>{const file=e.target.files?.[0];if(file){if(file.size>10485760||!file.name.toLowerCase().endsWith('.pdf')){setError('Choose a PDF smaller than 10 MB.');return;}void act(()=>uploadRequestPds(file,item.id));}e.target.value='';}}/></label>}</div>
- </article>)}{data&&!data.requests.length&&<p>No invites yet.</p>}
+ </article>)}{data&&!data.requests.length&&<EmptyState illustration="inbox" size="compact" title="No invites yet."/>}
  {removing?.accepted_by&&<RemovalDialog project={project} user={removing.accepted_by} office={removing.kind==='personal'?null:removing.office_id} name={removing.email} onClose={()=>setRemoving(undefined)} onRemoved={reload}/>}
  {open&&sponsor&&<Modal isOpen title="Request project members" width="max-w-3xl" onClose={()=>closeForm.current?.()}><ProjectInvitationForm closeRef={closeForm} project={project} office={sponsor} root={root} node={node} timezone={data?.timezone||'Asia/Singapore'} onDone={()=>void reload()} onClose={()=>setOpen(false)}/></Modal>}
  </section>;

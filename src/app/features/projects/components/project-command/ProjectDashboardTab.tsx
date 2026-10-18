@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../../components/ui/EmptyState';
 import { useMemo } from "react";
 import {
   AlertTriangle,
@@ -317,9 +318,7 @@ export function ProjectDashboardTab({
             </div>
 
             {upcomingDeadlines.length === 0 ? (
-              <div className="py-6 text-center text-xs text-neutral-400">
-                No upcoming deadlines scheduled.
-              </div>
+              <EmptyState illustration="tasks" size="compact" title="No upcoming deadlines scheduled."/>
             ) : (
               <div className="space-y-3">
                 {upcomingDeadlines.map((item) => (
@@ -383,9 +382,7 @@ export function ProjectDashboardTab({
             </div>
 
             {data.activityError?<p role="alert">Recent audit activity unavailable: {data.activityError}</p>:activity.length === 0 ? (
-              <div className="py-6 text-center text-xs text-neutral-400">
-                No recent activity logged.
-              </div>
+              <EmptyState illustration="tasks" size="compact" title="No recent activity logged."/>
             ) : (
               <div className="space-y-3">
                 {activity.slice(0, 5).map((act) => (

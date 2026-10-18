@@ -10,6 +10,7 @@ import type {
   WorkBudgetAllocation,
 } from "../types";
 import { moneyCents } from "./budgetSections";
+import {budgetLineError} from '../validation/financialValidation';
 
 export function getTaskScopedBudgetBundle(data: DepartmentBudgetBundle, taskIds: string[]): DepartmentBudgetBundle {
   const taskIdSet = new Set(taskIds);
@@ -77,9 +78,10 @@ export interface TaskBudgetSource {
 }
 
 export function getBudgetLineAmount(line: BudgetLineInput) {
+  if(budgetLineError(line))return 0;
   const quantity = Math.max(0, Number(line.quantity) || 0);
   const unitCost = Math.max(0, Number(line.unitCost) || 0);
-  if (quantity > 0 && unitCost > 0) return quantity * unitCost;
+  if (quantity > 0 && unitCost > 0) return Math.round((quantity * unitCost+Number.EPSILON)*100)/100;
   return Math.max(0, Number(line.amount) || 0);
 }
 
@@ -126,7 +128,7 @@ export function getProposalBudgetReadiness(tasks: TaskBudgetSource[]) {
   const missing = enabled.filter((task) => !task.budgetDecision || task.budgetDecision === "missing");
   const invalid = enabled.filter((task) => task.budgetDecision === "funded" && (
     !(task.budgetLines || []).length
-    || (task.budgetLines || []).some((line) => !line.expenseClass.trim() || !line.category.trim() || !line.particular.trim() || getBudgetLineAmount(line) <= 0 || !Number.isFinite(getBudgetLineAmount(line)) || getBudgetLineAmount(line) > 9999999999 || line.category.length > 120 || line.particular.length > 200)
+    || (task.budgetLines || []).some((line) => !!budgetLineError(line)||!line.expenseClass.trim() || !line.category.trim() || !line.particular.trim() || getBudgetLineAmount(line) <= 0 || !Number.isFinite(getBudgetLineAmount(line)) || getBudgetLineAmount(line) > 9999999999 || line.category.length > 120 || line.particular.length > 200)
   ));
   return {
     ready: missing.length === 0 && invalid.length === 0,

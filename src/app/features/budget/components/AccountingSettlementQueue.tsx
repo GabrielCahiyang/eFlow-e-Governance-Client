@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../components/ui/EmptyState';
 import { useMemo, useRef, useState } from "react";
 import { AttentionBox, Button, Label } from "@vibe/core";
 import { AnimatePresence } from "motion/react";
@@ -401,15 +402,7 @@ export function AccountingSettlementQueue({
             })}
           </AnimatePresence>
         ) : (
-          <div className="py-8 text-center">
-            <CheckCircle2 size={28} className="mx-auto text-emerald-500" />
-            <h3 className="mt-2 text-[12px] font-semibold">
-              Settlement queue is clear
-            </h3>
-            <p className="mt-1 text-[12px] text-neutral-500">
-              Leader-endorsed liquidations will appear here.
-            </p>
-          </div>
+          <EmptyState illustration="complete" title="Settlement queue is clear" description="Leader-endorsed liquidations will appear here."/>
         )}
       </div>
     </section>

@@ -19,6 +19,7 @@ import { submitPettyCashLiquidation } from "../services/budgetService";
 import { peso } from "./budgetUi";
 import { ReceiptItemEditor } from "./ReceiptItemEditor";
 import { moneyCents } from "../selectors/budgetSections";
+import {liquidationInputError,receiptItemError} from '../validation/financialValidation';
 import {
   getPhilippineCalendarDate,
   isLiquidationCurrentlyOverdue,
@@ -50,6 +51,7 @@ export function CashLiquidationDialog({ request, orgId, perReceiptLimit, liquida
   const update = (id: string, patch: Partial<ReceiptDraft>) => setReceipts((current) => current.map((item) => item.id === id ? { ...item, ...patch } : item));
 
   const submit = async () => {
+    const issue=liquidationInputError({spent,note,receipts,refundDate,refundReceiptNumber});if(issue){setError(issue);return;}
     if (invalid) { setError('Check the receipt dates, amounts and required fields before submitting.'); return; }
     setBusy(true);
     setError("");
@@ -66,7 +68,7 @@ export function CashLiquidationDialog({ request, orgId, perReceiptLimit, liquida
   const invalid = busy || !Number.isFinite(spent) || receipts.some(r => !!historicalDateError(r.receiptDate, 'Receipt date') || !Number.isFinite(r.amount)) || (approved - spent > .009 && !!historicalDateError(refundDate, 'Cash return date')) || spent < 0 || spent > approved || Math.abs(receiptTotal - spent) > .009 || !note.trim()
     || (approved - spent > .009 && (!refundReceiptNumber.trim() || !refundDate))
     || receipts.some((item) => !item.vendor.trim() || (!item.description.trim()&&!item.items?.length) || !item.file
-      || item.items?.some(i=>i.quantity<=0||!i.unit.trim()||!i.particular.trim()||!i.purpose.trim()||i.amount<=0||!sources.some(s=>s.allocationLineId===i.allocationLineId))
+      || item.items?.some(i=>!!receiptItemError(i)||!sources.some(s=>s.allocationLineId===i.allocationLineId))
       || (item.amount > perReceiptLimit && (!allowReceiptOverride || !item.overrideReason?.trim())));
 
   return (

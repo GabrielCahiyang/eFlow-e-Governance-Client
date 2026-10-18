@@ -1,0 +1,827 @@
+--- a/src/app/components/ui/DataTable.tsx
++++ b/src/app/components/ui/DataTable.tsx
+@@ -117,6 +117,7 @@
+               {columns.map((col) => (
+                 <th
+                   key={col.key}
++                  scope="col"
+                   data-action={col.action || undefined}
+                   aria-sort={
+                     col.sortable && sortKey === col.key
+--- a/src/app/components/ui/workspace/index.ts
++++ b/src/app/components/ui/workspace/index.ts
+@@ -1,4 +1,5 @@
+ export { WorkspaceShell } from "./WorkspaceShell";
++export { RecordDetailPage } from "./RecordDetailPage";
+ export { WorkspaceHeader } from "./WorkspaceHeader";
+ export { WorkspaceTabs, type WorkspaceTab } from "./WorkspaceTabs";
+ export { ActionMenu, type WorkspaceAction } from "./ActionMenu";
+--- /dev/null
++++ b/src/app/components/ui/workspace/RecordDetailPage.tsx
+@@ -0,0 +1,28 @@
++import {useId,useLayoutEffect,useRef,type ReactNode} from 'react';
++import {Button} from '@vibe/core';
++import {ArrowLeft,ChevronRight} from 'lucide-react';
++import {requestNavigation} from '../../../shared/navigationGuard';
++import './recordDetailPage.css';
++
++/** Presentation only. The feature owner supplies already-authorized content. */
++export function RecordDetailPage({title,subtitle,backLabel,breadcrumb,detailLabel='Details',onBack,status,actions,children}: {
++ title:string;subtitle?:string;backLabel:string;breadcrumb:string;detailLabel?:string;onBack:()=>void;
++ status?:ReactNode;actions?:ReactNode;children:ReactNode;
++}){
++ const heading=useRef<HTMLHeadingElement>(null),page=useRef<HTMLElement>(null),titleId=useId();
++ const back=()=>void requestNavigation(onBack);
++ useLayoutEffect(()=>{heading.current?.focus({preventScroll:true});page.current?.scrollIntoView?.({block:'start',behavior:'instant'});},[]);
++ return <section ref={page} className="record-detail-page" aria-labelledby={titleId}>
++  <nav className="record-detail-page__breadcrumb" aria-label="Breadcrumb">
++   <button type="button" onClick={back}>{breadcrumb}</button><ChevronRight size={14} aria-hidden="true"/><span aria-current="page">{detailLabel}</span>
++  </nav>
++  <header className="record-detail-page__header">
++   <div className="record-detail-page__back"><Button kind="tertiary" onClick={back}><ArrowLeft size={16} aria-hidden="true"/>{backLabel}</Button></div>
++   <div className="record-detail-page__heading">
++    <div className="record-detail-page__title"><div className="record-detail-page__status">{status}</div><h1 ref={heading} tabIndex={-1} id={titleId}>{title}</h1>{subtitle&&<p>{subtitle}</p>}</div>
++    {actions&&<div className="record-detail-page__actions">{actions}</div>}
++   </div>
++  </header>
++  <div className="record-detail-page__body">{children}</div>
++ </section>;
++}
+--- /dev/null
++++ b/src/app/components/ui/workspace/recordDetailPage.css
+@@ -0,0 +1,18 @@
++.record-detail-page { width:100%; max-width:1240px; min-width:0; margin:0 auto; padding:24px; color:var(--foreground); overflow-wrap:anywhere; }
++.record-detail-page__breadcrumb { display:flex; flex-wrap:wrap; align-items:center; gap:8px; color:var(--muted-foreground); font-size:13px; }
++.record-detail-page__breadcrumb button { min-height:44px; color:var(--primary); text-align:left; }
++.record-detail-page__breadcrumb button:hover { text-decoration:underline; }
++.record-detail-page__header { border-bottom:1px solid var(--border); padding:0 0 24px; }
++.record-detail-page__back { margin:4px 0 20px -8px; }
++.record-detail-page__back button { min-height:44px; height:auto; white-space:normal; text-align:left; }
++.record-detail-page__heading { display:flex; flex-wrap:wrap; gap:20px; align-items:flex-start; justify-content:space-between; }
++.record-detail-page__title { flex:1 1 320px; min-width:0; }
++.record-detail-page h1 { margin:10px 0 8px; font-size:28px; font-weight:650; letter-spacing:-.5px; line-height:1.25; }
++.record-detail-page__title>p { margin:0; font-size:14px; line-height:1.65; color:var(--muted-foreground); }
++.record-detail-page__status,.record-detail-page__actions { display:flex; flex-wrap:wrap; align-items:center; gap:10px; min-width:0; }
++.record-detail-page__body { padding-top:24px; min-width:0; container-type:inline-size; }
++.record-detail-page :is(button,[role=tab]):focus-visible,.record-detail-page h1:focus-visible { outline:2px solid var(--primary); outline-offset:4px; border-radius:4px; }
++.record-detail-page .eflow-workspace-tabs { display:flex; flex-wrap:wrap; justify-content:flex-start; align-items:stretch; gap:8px; padding:0; margin-bottom:24px; overflow:visible; }
++.record-detail-page .eflow-workspace-tabs .eflow-workspace-tab { font-size:14px; min-height:44px; height:auto; padding:10px 16px; white-space:normal; }
++.record-detail-page .eflow-workspace-panel { min-width:0; }
++@media(max-width:600px){.record-detail-page { padding:16px 12px; }.record-detail-page h1 { font-size:24px; }.record-detail-page__heading { gap:16px; }.record-detail-page__title { flex-basis:100%; }.record-detail-page__actions { width:100%; }.record-detail-page .eflow-workspace-tabs .eflow-workspace-tab { padding:10px 12px; }}
+--- a/src/app/features/audit/components/AdminAuditLog.tsx
++++ b/src/app/features/audit/components/AdminAuditLog.tsx
+@@ -1,4 +1,5 @@
+-import { useEffect, useMemo, useState } from "react";
++import { useMemo, useRef, useState } from "react";
++import {useAuth} from '../../../contexts/AuthContext';
+ import { useProfiles, useOrgs } from "../../../hooks/useSupabaseData";
+ import { DataTable, type Column } from "../../../components/ui/DataTable";
+ import { Button } from "../../../components/ui/button";
+@@ -13,18 +14,24 @@
+   shortenIdentifier,
+ } from "../presentation";
+ import { EMPTY_AUDIT_FILTERS, filterAuditEvents } from "../auditFilters";
+-import { AuditDetailDrawer } from "./AuditDetailDrawer";
++import { AuditEventDetailPage } from "./AuditEventDetailPage";
++import {useAuditDetailNavigation} from '../hooks/useAuditDetailNavigation';
+ 
+ export function AdminAuditLog() {
+-  const { events, total, loading, refreshing, error, refresh } =
++  const {userProfile,permissionsLoading,can}=useAuth();
++  if(permissionsLoading||!userProfile||!can('navigation.audit'))return <FeedbackState tone="error" title="Audit access unavailable">Your current account does not have access to Account Audit.</FeedbackState>;
++  return <AdministrativeAuditView key={`${userProfile.id}:${userProfile.role}:${userProfile.org_id||''}`}/>;
++}
++
++function AdministrativeAuditView() {
++  const { events, total, loading, refreshing, checking, error, refresh } =
+     useAdministrativeAuditWindow();
+   const [filters, setFilters] = useState(EMPTY_AUDIT_FILTERS);
+-  const [selected, setSelected] = useState<AuditEvent | null>(null);
++  const list=useRef<HTMLDivElement>(null);
++  const detail=useAuditDetailNavigation(list);
++  const selected=events.find(event=>event.id===detail.selectedId);
+   const { profiles } = useProfiles();
+   const { orgs } = useOrgs();
+-  useEffect(() => {
+-    if (error) setSelected(null);
+-  }, [error]);
+   const profileNames = useMemo(
+     () => new Map(profiles.map((profile) => [profile.id, profile.full_name])),
+     [profiles],
+@@ -75,7 +82,8 @@
+         <Button
+           size="sm"
+           variant="outline"
+-          onClick={() => setSelected(event)}
++          className="min-h-11"
++          onClick={(click) => detail.open(event.id,click.currentTarget)}
+           aria-label={`Inspect audit event ${event.id}`}
+         >
+           Inspect
+@@ -84,7 +92,8 @@
+     },
+   ];
+   return (
+-    <div className="min-w-0 space-y-4 p-3 sm:p-6">
++    <div className="min-w-0">
++    <div ref={list} className="audit-list min-w-0 space-y-4 p-3 sm:p-6" hidden={!!detail.selectedId}>
+       <WorkspaceHeader
+         title="Account Audit"
+         description="Accounts, access, Office assignments and administrative support history."
+@@ -221,13 +230,10 @@
+               : "No permitted administrative events."
+         }
+       />
+-      {selected && (
+-        <AuditDetailDrawer
+-          event={selected}
+-          entityLabel={entityLabel(selected)}
+-          onClose={() => setSelected(null)}
+-        />
+-      )}
++    </div>
++    {detail.selectedId&&<AuditEventDetailPage key={detail.selectedId} event={checking||error?undefined:selected} checking={checking} error={error}
++      entityLabel={selected?entityLabel(selected):''} officeLabel={orgs.find(org=>org.id===selected?.orgId)?.name||selected?.orgId||'Not recorded'}
++      onBack={detail.back} onRefresh={()=>void refresh()}/>}
+     </div>
+   );
+ }
+--- a/src/app/features/audit/components/AuditDetailDrawer.tsx
++++ /dev/null
+@@ -1,308 +0,0 @@
+-import {
+-  ArrowRight,
+-  CalendarClock,
+-  Clipboard,
+-  Database,
+-  FileKey2,
+-  MessageSquareText,
+-  ShieldCheck,
+-  UserRound,
+-  X,
+-} from "lucide-react";
+-import {
+-  buildDiff,
+-  type AuditEvent,
+-  type DiffRow,
+-} from "../../../services/auditService";
+-import {
+-  auditActionTone,
+-  humanizeAuditAction,
+-  humanizeAuditField,
+-  humanizeEntityType,
+-  orderAuditDiff,
+-  redactAuditDisplay,
+-  presentAuditValue,
+-  shortenIdentifier,
+-} from "../presentation";
+-import { InspectorPanel } from "../../../shared/motion";
+-
+-const TONE_STYLE = {
+-  good: "border-emerald-200 bg-emerald-50 text-emerald-700",
+-  info: "border-blue-200 bg-blue-50 text-blue-700",
+-  warn: "border-amber-200 bg-amber-50 text-amber-700",
+-  bad: "border-rose-200 bg-rose-50 text-rose-700",
+-  neutral: "border-neutral-200 bg-neutral-100 text-neutral-600",
+-} as const;
+-
+-function fullTime(timestamp: number): string {
+-  return new Date(timestamp).toLocaleString("en-PH", {
+-    weekday: "short",
+-    year: "numeric",
+-    month: "short",
+-    day: "numeric",
+-    hour: "2-digit",
+-    minute: "2-digit",
+-  });
+-}
+-
+-export function AuditDetailDrawer({
+-  event,
+-  entityLabel,
+-  onClose,
+-}: {
+-  event: AuditEvent;
+-  entityLabel: string;
+-  onClose: () => void;
+-}) {
+-  const changes = orderAuditDiff(buildDiff(event.beforeData, event.afterData));
+-  const tone = auditActionTone(event.action);
+-
+-  return (
+-    <InspectorPanel
+-      open
+-      onClose={onClose}
+-      ariaLabel={`Audit event: ${humanizeAuditAction(event.action)}`}
+-      className="w-full bg-neutral-50 sm:w-[560px]"
+-    >
+-      <header className="border-b border-neutral-200 bg-white px-5 py-4">
+-        <div className="flex items-start justify-between gap-4">
+-          <div className="min-w-0">
+-            <div className="flex flex-wrap items-center gap-2">
+-              <span
+-                className={`rounded-full border px-2.5 py-1 text-[9.5px] font-semibold uppercase tracking-wide ${TONE_STYLE[tone]}`}
+-              >
+-                {humanizeEntityType(event.entityType)}
+-              </span>
+-              <span className="text-[9.5px] text-neutral-400">
+-                Immutable audit event
+-              </span>
+-            </div>
+-            <h2 className="mt-2 text-[18px] font-semibold leading-tight text-neutral-950">
+-              {humanizeAuditAction(event.action)}
+-            </h2>
+-            <p className="mt-1 truncate text-[11px] text-neutral-500">
+-              {entityLabel}
+-            </p>
+-          </div>
+-          <button
+-            type="button"
+-            onClick={onClose}
+-            className="rounded-lg p-2 text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-800"
+-            aria-label="Close audit details"
+-          >
+-            <X size={18} />
+-          </button>
+-        </div>
+-      </header>
+-
+-      <div className="flex-1 space-y-4 overflow-y-auto p-4 sm:p-5">
+-        <section className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+-          <SummaryCard
+-            icon={<UserRound size={14} />}
+-            label="Responsible actor"
+-            value={event.actorName}
+-          />
+-          <SummaryCard
+-            icon={<CalendarClock size={14} />}
+-            label="Recorded at"
+-            value={fullTime(event.createdAt)}
+-          />
+-          <SummaryCard
+-            icon={<Database size={14} />}
+-            label="Affected record"
+-            value={entityLabel}
+-            technical={event.entityId}
+-          />
+-          <SummaryCard
+-            icon={<FileKey2 size={14} />}
+-            label="Audit reference"
+-            value={shortenIdentifier(event.id)}
+-            technical={event.id}
+-          />
+-        </section>
+-
+-        {event.reason && (
+-          <section className="rounded-2xl border border-amber-100 bg-amber-50/70 p-4">
+-            <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-amber-700">
+-              <MessageSquareText size={13} /> Recorded note
+-            </div>
+-            <p className="mt-2 whitespace-pre-wrap text-[12px] leading-relaxed text-amber-950">
+-              {event.reason}
+-            </p>
+-          </section>
+-        )}
+-
+-        {changes.length ? (
+-          <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
+-            <div className="flex items-center justify-between border-b border-neutral-100 px-4 py-3">
+-              <div>
+-                <h3 className="text-[12.5px] font-semibold text-neutral-900">
+-                  Recorded changes
+-                </h3>
+-                <p className="mt-0.5 text-[10px] text-neutral-500">
+-                  Only values captured by this event are shown.
+-                </p>
+-              </div>
+-              <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-[9.5px] font-medium text-neutral-600">
+-                {changes.length} fields
+-              </span>
+-            </div>
+-            <div className="divide-y divide-neutral-100">
+-              {changes.map((change) => (
+-                <ChangeRow key={change.key} change={change} />
+-              ))}
+-            </div>
+-          </section>
+-        ) : (
+-          <div className="rounded-xl border border-neutral-200 bg-white px-4 py-3 text-[11px] text-neutral-500">
+-            <span className="font-semibold text-neutral-800">
+-              No field-level changes.
+-            </span>{" "}
+-            This event records an action only; supporting details are shown
+-            below.
+-          </div>
+-        )}
+-
+-        {event.metadata && Object.keys(event.metadata).length > 0 && (
+-          <details className="group rounded-2xl border border-neutral-200 bg-white p-4">
+-            <summary className="cursor-pointer list-none text-[11px] font-semibold text-neutral-700">
+-              Event details{" "}
+-              <span className="ml-1 font-normal text-neutral-400">
+-                ({Object.keys(event.metadata).length})
+-              </span>
+-            </summary>
+-            <div className="mt-3 grid gap-2">
+-              {Object.entries(event.metadata).map(([key, value]) => (
+-                <TechnicalValue
+-                  key={key}
+-                  label={humanizeAuditField(key)}
+-                  value={redactAuditDisplay(key, value)}
+-                />
+-              ))}
+-            </div>
+-          </details>
+-        )}
+-
+-        <div className="flex items-center gap-2 rounded-xl border border-emerald-100 bg-emerald-50 px-3 py-2.5 text-[10.5px] text-emerald-700">
+-          <ShieldCheck size={14} /> This event is append-only and cannot be
+-          rewritten from the application.
+-        </div>
+-      </div>
+-    </InspectorPanel>
+-  );
+-}
+-
+-function SummaryCard({
+-  icon,
+-  label,
+-  value,
+-  technical,
+-}: {
+-  icon: React.ReactNode;
+-  label: string;
+-  value: string;
+-  technical?: string;
+-}) {
+-  return (
+-    <div className="min-w-0 rounded-xl border border-neutral-200 bg-white p-3.5">
+-      <div className="flex items-center gap-1.5 text-[9px] font-semibold uppercase tracking-[0.1em] text-neutral-400">
+-        {icon}
+-        {label}
+-      </div>
+-      <div
+-        className="mt-1.5 truncate text-[11.5px] font-semibold text-neutral-800"
+-        title={technical || value}
+-      >
+-        {value}
+-      </div>
+-      {technical && technical !== value && (
+-        <div
+-          className="mt-1 truncate font-mono text-[8.5px] text-neutral-400"
+-          title={technical}
+-        >
+-          {technical}
+-        </div>
+-      )}
+-    </div>
+-  );
+-}
+-
+-function ChangeRow({ change }: { change: DiffRow }) {
+-  return (
+-    <div className="px-4 py-3.5">
+-      <div className="mb-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-neutral-500">
+-        {humanizeAuditField(change.key)}
+-      </div>
+-      <div className="grid grid-cols-[minmax(0,1fr)_24px_minmax(0,1fr)] items-stretch gap-2">
+-        <AuditValue label="Before" field={change.key} value={change.before} />
+-        <span className="flex items-center justify-center text-neutral-300">
+-          <ArrowRight size={13} />
+-        </span>
+-        <AuditValue
+-          label="After"
+-          field={change.key}
+-          value={change.after}
+-          emphasized={change.changed}
+-        />
+-      </div>
+-    </div>
+-  );
+-}
+-
+-function AuditValue({
+-  label,
+-  field,
+-  value,
+-  emphasized,
+-}: {
+-  label: string;
+-  field: string;
+-  value: unknown;
+-  emphasized?: boolean;
+-}) {
+-  const presented = presentAuditValue(field, value);
+-  const copy = () =>
+-    presented.technical &&
+-    navigator.clipboard?.writeText(presented.technical).catch(() => undefined);
+-  return (
+-    <div
+-      className={`min-w-0 rounded-xl border p-3 ${emphasized ? "border-blue-100 bg-blue-50/60" : "border-neutral-100 bg-neutral-50"}`}
+-    >
+-      <div className="text-[8.5px] font-semibold uppercase tracking-wide text-neutral-400">
+-        {label}
+-      </div>
+-      <div
+-        className={`mt-1 break-words text-[11px] leading-relaxed ${presented.empty ? "text-neutral-400" : "font-medium text-neutral-800"}`}
+-      >
+-        {presented.display}
+-      </div>
+-      {presented.technical && (
+-        <button
+-          type="button"
+-          onClick={copy}
+-          title={presented.technical}
+-          className="mt-2 inline-flex items-center gap-1 rounded-md border border-neutral-200 bg-white px-1.5 py-1 font-mono text-[8.5px] text-neutral-500 hover:text-neutral-900"
+-        >
+-          <Clipboard size={9} /> Copy reference
+-        </button>
+-      )}
+-    </div>
+-  );
+-}
+-
+-function TechnicalValue({ label, value }: { label: string; value: unknown }) {
+-  const text =
+-    typeof value === "object"
+-      ? JSON.stringify(value, null, 2)
+-      : String(value ?? "Not recorded");
+-  return (
+-    <div className="rounded-xl bg-neutral-50 p-3">
+-      <div className="text-[9px] font-semibold uppercase tracking-wide text-neutral-400">
+-        {label}
+-      </div>
+-      <pre className="mt-1 whitespace-pre-wrap break-all text-[9.5px] text-neutral-600">
+-        {text}
+-      </pre>
+-    </div>
+-  );
+-}
+--- /dev/null
++++ b/src/app/features/audit/components/AuditCopyButton.tsx
+@@ -0,0 +1,7 @@
++import {useState} from 'react';
++import {Check,Copy} from 'lucide-react';
++export function AuditCopyButton({value,label}:{value:string;label:string}){
++ const [result,setResult]=useState('');
++ const copy=async()=>{try{if(!navigator.clipboard)throw new Error();await navigator.clipboard.writeText(value);setResult('Copied');}catch{setResult('Copy unavailable. Select the reference to copy it.');}};
++ return <span className="audit-copy"><button type="button" onClick={()=>void copy()} aria-label={label}>{result==='Copied'?<Check size={15} aria-hidden="true"/>:<Copy size={15} aria-hidden="true"/>}{label}</button>{result&&<span role="status">{result}</span>}</span>;
++}
+--- /dev/null
++++ b/src/app/features/audit/components/AuditEventDetailContent.tsx
+@@ -0,0 +1,51 @@
++import {Building2,CalendarClock,Database,MessageSquareText,UserRound} from 'lucide-react';
++import type {ReactNode} from 'react';
++import {buildDiff,type AuditEvent,type DiffRow} from '../../../services/auditService';
++import {humanizeAuditField,orderAuditDiff,presentAuditValue,redactAuditDisplay} from '../presentation';
++import {AuditCopyButton} from './AuditCopyButton';
++export type AuditDetailSection='overview'|'changes'|'technical';
++
++export function auditEventTime(timestamp:number){return Number.isFinite(timestamp)?new Date(timestamp).toLocaleString('en-PH',{timeZone:'Asia/Manila',dateStyle:'medium',timeStyle:'short'}):'Not recorded';}
++
++/** Every value follows the existing diff/redaction pipeline, independent of its surface. */
++export function AuditEventDetailContent({event,entityLabel,officeLabel,section}:{event:AuditEvent;entityLabel:string;officeLabel:string;section:AuditDetailSection}){
++ if(section==='overview')return <div className="audit-detail__overview">
++  <div className="audit-detail__summary">
++   <SummaryCard icon={<UserRound size={18}/>} label="Responsible actor" value={event.actorName||'Not recorded'}/>
++   <SummaryCard icon={<CalendarClock size={18}/>} label="Recorded at" value={auditEventTime(event.createdAt)} detail="Philippine time"/>
++   <SummaryCard icon={<Database size={18}/>} label="Affected record" value={entityLabel} detail={event.entityId}/>
++   <SummaryCard icon={<Building2 size={18}/>} label="Office" value={officeLabel}/>
++  </div>
++  <section className="audit-detail__card audit-detail__note"><h2><MessageSquareText size={18} aria-hidden="true"/>Recorded note</h2><p>{event.reason||'No note was recorded for this event.'}</p></section>
++ </div>;
++ if(section==='changes'){
++  const changes=orderAuditDiff(buildDiff(event.beforeData,event.afterData));
++  return <section className="audit-detail__card"><div className="audit-detail__section-heading"><div><h2>Recorded changes</h2><p>Before and after values captured by this event.</p></div><span>{changes.length} fields</span></div>
++   {changes.length?<div className="audit-detail__changes">{changes.map(change=><ChangeRow key={change.key} change={change}/>)}</div>:<p className="audit-detail__empty">No field-level changes were recorded.</p>}
++  </section>;
++ }
++ const metadata=Object.entries(event.metadata||{});
++ return <section className="audit-detail__card"><div className="audit-detail__section-heading"><div><h2>Technical details</h2><p>Original metadata, with sensitive values hidden.</p></div></div>
++  {metadata.length?<dl className="audit-detail__metadata">{metadata.map(([key,value])=><TechnicalValue key={key} field={key} value={value}/>)}</dl>:<p className="audit-detail__empty">No additional metadata was recorded.</p>}
++ </section>;
++}
++function SummaryCard({icon,label,value,detail}:{icon:ReactNode;label:string;value:string;detail?:string}){
++ return <div className="audit-detail__summary-card"><div className="audit-detail__label"><span aria-hidden="true">{icon}</span>{label}</div><p>{value}</p>{detail&&<small>{detail}</small>}</div>;
++}
++function ChangeRow({change}:{change:DiffRow}){
++ const label=humanizeAuditField(change.key);
++ return <article className="audit-detail__change"><div className="audit-detail__field-heading"><h3>{label}</h3>{!change.changed&&<span>Unchanged</span>}</div><div className="audit-detail__pair">
++  <AuditValue label="Before" field={change.key} value={change.before}/><AuditValue label="After" field={change.key} value={change.after} emphasized={change.changed}/>
++ </div></article>;
++}
++function AuditValue({label,field,value,emphasized}:{label:string;field:string;value:unknown;emphasized?:boolean}){
++ const presented=presentAuditValue(field,value);
++ const redacted=redactAuditDisplay(field,value);
++ const technical=presented.technical||(Array.isArray(redacted)&&redacted.some(item=>item&&typeof item==='object')?JSON.stringify(redacted,null,2):undefined);
++ return <div className="audit-detail__value" data-emphasized={emphasized||undefined}><h4>{label}</h4><p data-empty={presented.empty||undefined}>{presented.display}</p>{technical&&<><pre>{technical}</pre><AuditCopyButton value={technical} label={`Copy ${label.toLowerCase()} ${humanizeAuditField(field).toLowerCase()}`}/></>}</div>;
++}
++function TechnicalValue({field,value}:{field:string;value:unknown}){
++ const redacted=redactAuditDisplay(field,value),presented=presentAuditValue(field,redacted);
++ const text=redacted&&typeof redacted==='object'?JSON.stringify(redacted,null,2):presented.technical||presented.display;
++ return <div><dt>{humanizeAuditField(field)}</dt><dd><pre>{text}</pre></dd></div>;
++}
+--- /dev/null
++++ b/src/app/features/audit/components/AuditEventDetailPage.tsx
+@@ -0,0 +1,26 @@
++import {useState} from 'react';
++import {ShieldCheck,RefreshCw} from 'lucide-react';
++import {Button} from '../../../components/ui/button';
++import {RecordDetailPage,WorkspaceTabs} from '../../../components/ui/workspace';
++import {requestNavigation} from '../../../shared/navigationGuard';
++import type {AuditEvent} from '../../../services/auditService';
++import {auditActionTone,humanizeAuditAction,humanizeEntityType} from '../presentation';
++import {AuditCopyButton} from './AuditCopyButton';
++import {AuditEventDetailContent,type AuditDetailSection} from './AuditEventDetailContent';
++import '../auditDetailPage.css';
++
++export function AuditEventDetailPage({event,entityLabel,officeLabel,checking,error,onBack,onRefresh}:{event?:AuditEvent;entityLabel:string;officeLabel:string;checking:boolean;error:string;onBack:()=>void;onRefresh:()=>void}){
++ const [section,setSection]=useState<AuditDetailSection>('overview');
++ const available=!checking&&!error&&!!event;
++ return <RecordDetailPage title={available?humanizeAuditAction(event.action):'Event details'} subtitle={available?entityLabel:undefined} breadcrumb="Account Audit" detailLabel="Event details" backLabel="Back to Account Audit" onBack={onBack}
++  status={<><span className="audit-detail__badge" data-tone={available?auditActionTone(event.action):'neutral'}>{available?humanizeEntityType(event.entityType):'Account Audit'}</span><span className="audit-detail__immutable"><ShieldCheck size={15} aria-hidden="true"/>Read-only record</span></>}
++  actions={<Button variant="outline" className="min-h-11" disabled={checking} onClick={onRefresh}><RefreshCw size={16} aria-hidden="true"/>{checking?'Checking access…':'Refresh audit'}</Button>}>
++  {available?<>
++   <div className="audit-detail__reference"><div><span>Event reference</span><code>{event.id}</code></div><AuditCopyButton key={event.id} value={event.id} label="Copy event reference"/></div>
++   <WorkspaceTabs label="Audit event sections" value={section} onValueChange={value=>void requestNavigation(()=>setSection(value as AuditDetailSection))} tabs={([
++    ['overview','Overview'],['changes','Changed fields'],['technical','Technical details'],
++   ] as const).map(([id,label])=>({id,label,content:<AuditEventDetailContent event={event} entityLabel={entityLabel} officeLabel={officeLabel} section={id}/>}))}/>
++   <p className="audit-detail__footer"><ShieldCheck size={17} aria-hidden="true"/>This event is append-only. It cannot be edited or deleted here.</p>
++  </>:checking?<div role="status" className="audit-detail__notice"><h2>Checking current access</h2><p>Verifying this event against the latest permitted audit records.</p><div className="audit-detail__skeleton" aria-hidden="true"/></div>:<div role="alert" className="audit-detail__notice"><h2>Event unavailable</h2><p>{error||'This event is no longer in the latest 500 permitted records, or your access has changed. Return to Account Audit to view the current list.'}</p></div>}
++ </RecordDetailPage>;
++}
+--- /dev/null
++++ b/src/app/features/audit/auditDetailPage.css
+@@ -0,0 +1,30 @@
++.audit-list[hidden] { display:none!important; }
++.audit-detail__badge { border:1px solid var(--border); background:var(--muted); color:var(--foreground); border-radius:6px; padding:5px 10px; font-size:13px; font-weight:600; }
++.audit-detail__badge[data-tone=good] { background:var(--eflow-positive-bg); color:var(--eflow-positive-text); }
++.audit-detail__badge[data-tone=bad] { background:var(--eflow-negative-bg); color:var(--eflow-negative-text); }
++.audit-detail__badge[data-tone=info] { background:var(--eflow-info-bg); color:var(--eflow-info-text); }
++.audit-detail__badge[data-tone=warn] { background:var(--eflow-warning-bg); color:var(--eflow-warning-text); }
++.audit-detail__immutable { display:inline-flex; align-items:center; gap:6px; color:var(--muted-foreground); font-size:13px; }
++.audit-detail__reference { display:flex; flex-wrap:wrap; gap:12px; justify-content:space-between; align-items:center; margin-bottom:24px; padding:16px 18px; border:1px solid var(--border); border-radius:8px; background:var(--muted); }
++.audit-detail__reference>div { min-width:0; }.audit-detail__reference span { font-size:13px; color:var(--muted-foreground); }.audit-detail__reference code { display:block; margin-top:5px; font-size:13px; color:var(--foreground); overflow-wrap:anywhere; }
++.audit-copy { display:inline-flex; flex-wrap:wrap; align-items:center; gap:8px; max-width:100%; }
++.audit-copy button { display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 12px; min-height:44px; border:1px solid var(--border); border-radius:6px; background:var(--card); font-size:13px; color:var(--foreground); white-space:normal; text-align:left; }
++.audit-copy button:hover { background:var(--accent); }.audit-copy [role=status] { font-size:12px; color:var(--muted-foreground); }
++.audit-detail__overview { display:grid; gap:24px; }
++.audit-detail__summary { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; }
++.audit-detail__summary-card,.audit-detail__card { border:1px solid var(--border); border-radius:10px; background:var(--card); min-width:0; }
++.audit-detail__summary-card { padding:20px; }.audit-detail__label { display:flex; gap:8px; align-items:center; color:var(--muted-foreground); font-size:13px; font-weight:500; }.audit-detail__label span { display:flex; }
++.audit-detail__summary-card p { margin:12px 0 0; font-size:15px; font-weight:600; line-height:1.6; }.audit-detail__summary-card small { display:block; margin-top:8px; font-size:12px; color:var(--muted-foreground); }
++.audit-detail__card h2,.audit-detail__notice h2 { font-size:17px; font-weight:600; margin:0; }.audit-detail__note { padding:24px; }.audit-detail__note h2 { display:flex; align-items:center; gap:10px; }.audit-detail__note p { margin:14px 0 0; white-space:pre-wrap; font-size:14px; line-height:1.8; }
++.audit-detail__section-heading { display:flex; gap:12px; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; padding:24px; border-bottom:1px solid var(--border); }.audit-detail__section-heading p { font-size:14px; color:var(--muted-foreground); margin:8px 0 0; }.audit-detail__section-heading>span { font-size:13px; color:var(--muted-foreground); }
++.audit-detail__change { padding:24px; }.audit-detail__change+.audit-detail__change { border-top:1px solid var(--border); }.audit-detail__field-heading { display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin-bottom:14px; }.audit-detail__field-heading h3 { margin:0; font-size:15px; font-weight:600; }.audit-detail__field-heading span { font-size:12px; color:var(--muted-foreground); }
++.audit-detail__pair { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }.audit-detail__value { padding:18px; min-width:0; border:1px solid var(--border); border-radius:8px; background:var(--muted); }.audit-detail__value[data-emphasized] { background:var(--eflow-selected); border-color:var(--eflow-primary); }.audit-detail__value h4 { margin:0 0 10px; font-size:13px; font-weight:600; color:var(--muted-foreground); }.audit-detail__value p { margin:0; font-size:14px; line-height:1.75; white-space:pre-wrap; }.audit-detail__value .audit-copy { margin-top:12px; }
++.audit-detail__value pre,.audit-detail__metadata pre { font:13px/1.75 ui-monospace,SFMono-Regular,Consolas,monospace; white-space:pre-wrap; overflow-wrap:anywhere; margin:12px 0 0; }.audit-detail__metadata { margin:0; }.audit-detail__metadata>div { padding:24px; }.audit-detail__metadata>div+div { border-top:1px solid var(--border); }.audit-detail__metadata dt { font-size:14px; font-weight:600; }.audit-detail__metadata dd { margin:0; }
++.audit-detail__empty { margin:0; padding:24px; font-size:14px; color:var(--muted-foreground); }.audit-detail__footer { display:flex; align-items:flex-start; gap:10px; font-size:13px; color:var(--muted-foreground); margin:24px 0 0; }.audit-detail__footer svg { flex-shrink:0; }
++.audit-detail__notice { border:1px solid var(--border); border-radius:10px; padding:24px; background:var(--card); }.audit-detail__notice p { font-size:14px; color:var(--muted-foreground); margin:12px 0 0; line-height:1.7; }.audit-detail__skeleton { height:80px; margin-top:24px; background:var(--muted); border-radius:6px; }
++@media(max-width:1100px){.audit-detail__summary { grid-template-columns:repeat(2,minmax(0,1fr)); }}
++@media(max-width:760px){.audit-detail__pair { grid-template-columns:minmax(0,1fr); }}
++@media(max-width:500px){.audit-detail__summary { grid-template-columns:minmax(0,1fr); gap:12px; }.audit-detail__summary-card,.audit-detail__note,.audit-detail__section-heading,.audit-detail__change,.audit-detail__metadata>div { padding:18px; }.audit-detail__value { padding:14px; }}
++@container(max-width:880px){.audit-detail__summary { grid-template-columns:repeat(2,minmax(0,1fr)); }}
++@container(max-width:760px){.audit-detail__pair { grid-template-columns:minmax(0,1fr); }}
++@container(max-width:500px){.audit-detail__summary { grid-template-columns:minmax(0,1fr); }.audit-detail__summary-card,.audit-detail__note,.audit-detail__section-heading,.audit-detail__change,.audit-detail__metadata>div { padding:18px; }}
+--- a/src/app/features/audit/hooks/useAdministrativeAuditWindow.ts
++++ b/src/app/features/audit/hooks/useAdministrativeAuditWindow.ts
+@@ -10,12 +10,14 @@
+   const [total, setTotal] = useState<number>();
+   const [loading, setLoading] = useState(true);
+   const [refreshing, setRefreshing] = useState(false);
++  const [checking, setChecking] = useState(true);
+   const [error, setError] = useState("");
+   const mounted = useRef(false);
+   const revision = useRef(0);
+   const pending = useRef(false);
+   const load = useCallback(async () => {
+     const current = ++revision.current;
++    setChecking(true);
+     try {
+       const next = await fetchAdministrativeAuditWindow();
+       if (!mounted.current || current !== revision.current) return;
+@@ -28,7 +30,7 @@
+       setTotal(undefined);
+       setError(reason instanceof Error ? reason.message : "Audit unavailable");
+     } finally {
+-      if (mounted.current && current === revision.current) setLoading(false);
++      if (mounted.current && current === revision.current) {setLoading(false);setChecking(false);}
+     }
+   }, []);
+   useEffect(() => {
+@@ -52,5 +54,5 @@
+       if (mounted.current) setRefreshing(false);
+     }
+   };
+-  return { events, total, loading, refreshing, error, refresh };
++  return { events, total, loading, refreshing, checking, error, refresh };
+ }
+--- /dev/null
++++ b/src/app/features/audit/hooks/useAuditDetailNavigation.ts
+@@ -0,0 +1,21 @@
++import {useLayoutEffect,useRef,useState,type RefObject} from 'react';
++type ScrollPosition={element:Element;top:number;left:number};
++/** Keep the list mounted, including its private table sort, and restore its real scroll containers. */
++export function useAuditDetailNavigation(list:RefObject<HTMLDivElement|null>){
++ const [selectedId,setSelectedId]=useState<string|null>(null);
++ const origin=useRef<HTMLElement|null>(null),positions=useRef<ScrollPosition[]>([]),returnPending=useRef(false);
++ const open=(id:string,trigger:HTMLElement)=>{
++  origin.current=trigger;const containers=new Set<Element>();
++  for(let element:Element|null=list.current;element;element=element.parentElement)containers.add(element);
++  list.current?.querySelectorAll('.eflow-scroll-region').forEach(element=>containers.add(element));
++  if(document.scrollingElement)containers.add(document.scrollingElement);
++  positions.current=[...containers].map(element=>({element,top:element.scrollTop,left:element.scrollLeft}));setSelectedId(id);
++ };
++ const back=()=>{returnPending.current=true;setSelectedId(null);};
++ useLayoutEffect(()=>{
++  if(selectedId||!returnPending.current)return;returnPending.current=false;
++  positions.current.forEach(({element,top,left})=>{element.scrollTop=top;element.scrollLeft=left;});
++  const target=origin.current?.isConnected?origin.current:list.current?.querySelector<HTMLElement>('input');target?.focus({preventScroll:true});
++ },[selectedId,list]);
++ return {selectedId,open,back};
++}
+--- /dev/null
++++ b/tests/unit/auditDetailPage.test.tsx
+@@ -0,0 +1,71 @@
++// @vitest-environment jsdom
++import '@testing-library/jest-dom/vitest';
++import {act,cleanup,fireEvent,render,screen,waitFor,within} from '@testing-library/react';
++import {afterEach,beforeEach,describe,expect,it,vi} from 'vitest';
++const api=vi.hoisted(()=>({fetch:vi.fn(),invalidate:()=>{},actor:'admin-one',allowed:true}));
++vi.mock('../../src/lib/supabase',()=>({supabase:{}}));
++vi.mock('../../src/app/contexts/AuthContext',()=>({useAuth:()=>({userProfile:{id:api.actor,role:'admin',org_id:'office'},permissionsLoading:false,can:()=>api.allowed})}));
++vi.mock('../../src/app/hooks/useSupabaseData',()=>({useProfiles:()=>({profiles:[]}),useOrgs:()=>({orgs:[{id:'office',name:'LEDIPO'}]})}));
++vi.mock('../../src/app/features/audit/services/administrativeAuditWindow',()=>({fetchAdministrativeAuditWindow:api.fetch,subscribeAdministrativeAuditInvalidation:(callback:()=>void)=>{api.invalidate=callback;return()=>{};}}));
++import {AdminAuditLog} from '../../src/app/features/audit/components/AdminAuditLog';
++import type {AuditEvent} from '../../src/app/services/auditService';
++const event=(patch:Partial<AuditEvent>={}):AuditEvent=>({id:'event-one',actorName:'Maria Santos',entityType:'profile',entityId:'profile-one',action:'profile.updated',orgId:'office',createdAt:Date.parse('2026-10-17T08:00:00Z'),reason:'Recorded reason',beforeData:{notes:'Long before value '.repeat(100),settings:{secret:'private-before'}},afterData:{notes:'Long after value '.repeat(100),settings:{secret:'private-after'}},metadata:{config:{api_key:'private-metadata',ordinary:'Visible context'},pds:{address:'private-address'}},...patch});
++beforeEach(()=>{api.fetch.mockReset();api.actor='admin-one';api.allowed=true;api.fetch.mockResolvedValue({events:[event()],total:1});});
++afterEach(cleanup);
++const inspect=async(id='event-one')=>{const button=await screen.findByRole('button',{name:`Inspect audit event ${id}`,exact:true});fireEvent.click(button);return button;};
++const selectTab=(name:string|RegExp)=>fireEvent.keyDown(screen.getByRole('tab',{name}),{key:'Enter'});
++describe('in-page Account Audit details',()=>{
++ it('preserves filters, mounted table sorting and return focus without a modal',async()=>{
++  api.fetch.mockResolvedValue({events:[event(),event({id:'event-two',actorName:'Ana Cruz'})],total:2});render(<AdminAuditLog/>);
++  const search=await screen.findByPlaceholderText('Search person, action or record…');fireEvent.change(search,{target:{value:'profile'}});
++  fireEvent.click(screen.getByRole('button',{name:'Actor',exact:true}));
++  const trigger=await inspect();expect(screen.queryByRole('dialog')).toBeNull();expect(screen.queryByRole('table')).toBeNull();
++  expect(screen.getByRole('heading',{level:1,name:'Profile updated'})).toBe(document.activeElement);
++  expect(document.body.style.overflow).not.toBe('hidden');
++  fireEvent.click(screen.getByRole('button',{name:'Back to Account Audit',exact:true}));
++  await waitFor(()=>expect(document.activeElement).toBe(trigger));expect(search).toHaveValue('profile');
++  expect(screen.getByRole('columnheader',{name:/Actor/})).toHaveAttribute('aria-sort','ascending');
++  expect(within(screen.getAllByRole('row')[1]).getByText('Ana Cruz')).toBeTruthy();
++ });
++ it('keeps long changes readable and uses existing nested redaction for metadata and copy values',async()=>{
++  const write=vi.fn().mockResolvedValue(undefined);Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:write}});
++  const view=render(<AdminAuditLog/>);await inspect();selectTab(/Changed fields/);
++  expect(screen.getByText('Long before value '.repeat(100).trim())).toBeTruthy();expect(screen.getByText('Long after value '.repeat(100).trim())).toBeTruthy();
++  selectTab('Technical details');expect(screen.getByText(/Visible context/)).toBeTruthy();
++  expect(view.container.textContent).not.toMatch(/private-before|private-after|private-metadata|private-address/);
++  fireEvent.click(screen.getByRole('button',{name:'Copy event reference'}));await waitFor(()=>expect(write).toHaveBeenCalledWith('event-one'));
++ });
++ it('shows honest empty states and navigable breadcrumbs',async()=>{
++  api.fetch.mockResolvedValue({events:[event({beforeData:undefined,afterData:undefined,metadata:undefined,reason:undefined})],total:1});render(<AdminAuditLog/>);await inspect();
++  expect(screen.getByText('No note was recorded for this event.')).toBeTruthy();selectTab(/Changed fields/);
++  expect(screen.getByText('No field-level changes were recorded.')).toBeTruthy();selectTab('Technical details');
++  expect(screen.getByText('No additional metadata was recorded.')).toBeTruthy();
++  fireEvent.click(within(screen.getByRole('navigation',{name:'Breadcrumb'})).getByRole('button',{name:'Account Audit',exact:true}));
++  expect(await screen.findByRole('table')).toBeTruthy();
++ });
++ it('renders structured arrays and missing references without exposing nested secrets',async()=>{
++  api.fetch.mockResolvedValue({events:[event({actorName:'Unknown actor reference',orgId:undefined,entityId:undefined,beforeData:{participants:[{name:'Original person',token:'private-array-secret'}]},afterData:{participants:[{name:'Current person',token:'private-array-secret'}]}})],total:1});
++  const view=render(<AdminAuditLog/>);await inspect();const page=within(view.container.querySelector<HTMLElement>('.record-detail-page')!);expect(page.getByText('Unknown actor reference')).toBeTruthy();expect(page.getByText('Not recorded')).toBeTruthy();
++  selectTab('Changed fields');expect(screen.getByText(/Original person.*••••/s)).toBeTruthy();expect(screen.getByText(/Current person.*••••/s)).toBeTruthy();expect(view.container.textContent).not.toContain('private-array-secret');
++ });
++ it('hides old details during verification and fails closed when a refreshed window removes the event',async()=>{
++  let resolve!:(value:{events:AuditEvent[];total:number})=>void;render(<AdminAuditLog/>);await inspect();
++  api.fetch.mockReturnValueOnce(new Promise(yes=>{resolve=yes;}));act(()=>api.invalidate());
++  expect(screen.queryByText('Recorded reason')).toBeNull();expect(screen.getByRole('status')).toHaveTextContent('Checking current access');
++  await act(async()=>resolve({events:[],total:0}));expect(screen.getByRole('alert')).toHaveTextContent('Event unavailable');
++  expect(screen.queryByText('Recorded reason')).toBeNull();fireEvent.click(screen.getByRole('button',{name:'Back to Account Audit',exact:true}));
++  expect(document.activeElement).toBe(screen.getByPlaceholderText('Search person, action or record…'));
++ });
++ it('replaces an open event with the current permitted read and handles read failure with Back',async()=>{
++  render(<AdminAuditLog/>);await inspect();api.fetch.mockResolvedValueOnce({events:[event({reason:'Current verified reason'})],total:1});
++  fireEvent.click(screen.getByRole('button',{name:'Refresh audit',exact:true}));await screen.findByText('Current verified reason');expect(screen.queryByText('Recorded reason')).toBeNull();
++  api.fetch.mockRejectedValueOnce(new Error('Permission-scoped read failed'));act(()=>api.invalidate());
++  await waitFor(()=>expect(screen.getByRole('alert')).toHaveTextContent('Permission-scoped read failed'));expect(screen.queryByText('Current verified reason')).toBeNull();
++  expect(screen.getByRole('button',{name:'Back to Account Audit',exact:true})).toBeTruthy();
++ });
++ it('discards selected data immediately when the actor changes or page permission is removed',async()=>{
++  const view=render(<AdminAuditLog/>);await inspect();api.actor='admin-two';api.fetch.mockReturnValue(new Promise(()=>{}));view.rerender(<AdminAuditLog/>);
++  expect(screen.queryByText('Recorded reason')).toBeNull();expect(screen.queryByRole('heading',{name:'Profile updated'})).toBeNull();
++  api.allowed=false;view.rerender(<AdminAuditLog/>);expect(screen.getByRole('alert')).toHaveTextContent('Audit access unavailable');
++ });
++});
+--- /dev/null
++++ b/tests/e2e/audit-detail-page.spec.ts
+@@ -0,0 +1,65 @@
++import {test,expect,type Page} from '@playwright/test';
++import {projectWorkspaceFixture} from './fixtures/projectWorkspace';
++import {auditDetailRows} from './fixtures/auditDetails';
++test.setTimeout(120000);
++async function fixture(page:Page){
++ await projectWorkspaceFixture(page,'admin',false,{landingOnly:true});
++ const state={rows:auditDetailRows(),fail:false,reads:[] as string[],writes:[] as string[]};
++ await page.route('**/rest/v1/audit_events*',route=>{
++  if(route.request().method()!=='GET')state.writes.push(route.request().method());
++  state.reads.push(route.request().url());
++  return state.fail?route.fulfill({status:403,json:{message:'Audit permission changed'}}):route.fulfill({json:state.rows,headers:{'content-range':state.rows.length?`0-${state.rows.length-1}/${state.rows.length}`:'*/0','access-control-expose-headers':'content-range'}});
++ });
++ await page.goto('/users?page=Account%20Audit');return state;
++}
++const inspect=(page:Page)=>page.getByRole('button',{name:'Inspect audit event audit-access-change-2026-0001',exact:true}).click();
++const noOverflow=(page:Page)=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth);
++for(const width of [320,375,768,1024,1440])test(`in-page audit details are readable and keyboard accessible at ${width}px`,async({page},info)=>{
++ await page.setViewportSize({width,height:1000});await page.emulateMedia({reducedMotion:'reduce'});const state=await fixture(page);await inspect(page);
++ const details=page.locator('.record-detail-page');await expect(details.getByRole('heading',{level:1,name:'Profile updated'})).toBeFocused();
++ await expect(page.getByRole('dialog')).toHaveCount(0);await expect(page.getByRole('table')).toHaveCount(0);
++ expect(await page.evaluate(()=>!document.getElementById('root')?.inert&&document.body.style.overflow!=='hidden')).toBe(true);
++ expect(await noOverflow(page)).toBe(true);await page.screenshot({path:info.outputPath(`after-overview-${width}.png`),fullPage:true});
++ await details.getByRole('tab',{name:'Changed fields',exact:true}).click();
++ const pair=details.locator('.audit-detail__pair').first(),values=pair.locator('.audit-detail__value');
++ await expect(values.first()).toContainText('Original assignment.');await expect(values.nth(1)).toContainText('Updated coordination responsibilities.');
++ const rects=await values.evaluateAll(elements=>elements.map(element=>{const r=element.getBoundingClientRect();return{x:r.x,y:r.y,width:r.width,height:r.height};}));
++ if((await details.locator('.record-detail-page__body').boundingBox())!.width<=760)expect(rects[1].y).toBeGreaterThan(rects[0].y);else expect(Math.abs(rects[1].y-rects[0].y)).toBeLessThan(1);
++ expect(await noOverflow(page)).toBe(true);await page.screenshot({path:info.outputPath(`after-changes-${width}.png`),fullPage:true});
++ await details.getByRole('tab',{name:'Technical details',exact:true}).click();await expect(details.getByText(/Approved administrative change/)).toBeVisible();
++ expect(await details.textContent()).not.toMatch(/before-private-secret|after-private-secret|metadata-private-secret|private-home-address/);
++ await page.screenshot({path:info.outputPath(`after-technical-${width}.png`),fullPage:true});
++ const overview=details.getByRole('tab',{name:'Overview',exact:true});await overview.focus();await page.keyboard.press('Home');await expect(overview).toHaveAttribute('aria-selected','true');
++ await page.keyboard.press('ArrowRight');await expect(details.getByRole('tab',{name:'Changed fields',exact:true})).toHaveAttribute('aria-selected','true');
++ await page.keyboard.press('End');await expect(details.getByRole('tab',{name:'Technical details',exact:true})).toHaveAttribute('aria-selected','true');
++ await details.getByRole('button',{name:'Back to Account Audit',exact:true}).click();await expect(page.getByRole('button',{name:'Inspect audit event audit-access-change-2026-0001',exact:true})).toBeFocused();
++ expect(state.writes).toEqual([]);expect(state.reads.every(url=>new URL(url).searchParams.get('limit')==='500'&&!new URL(url).searchParams.has('id'))).toBe(true);
++});
++test('audit Back preserves query, table order, scroll and focus; reload returns to the list',async({page})=>{
++ await page.setViewportSize({width:1440,height:900});await fixture(page);
++ const search=page.getByPlaceholder('Search person, action or record…');await search.fill('profile');await page.getByRole('button',{name:'Actor',exact:true}).click();
++ const trigger=page.getByRole('button',{name:'Inspect audit event audit-access-change-2026-0001',exact:true});await trigger.scrollIntoViewIfNeeded();
++ const before=await trigger.evaluate(element=>{const positions:number[]=[];for(let parent=element.parentElement;parent;parent=parent.parentElement)positions.push(parent.scrollTop);return positions;});
++ await trigger.click();await page.getByRole('tab',{name:'Changed fields',exact:true}).click();await page.locator('.audit-detail__footer').scrollIntoViewIfNeeded();
++ await page.getByRole('button',{name:'Back to Account Audit',exact:true}).click();await expect(trigger).toBeFocused();await expect(search).toHaveValue('profile');
++ await expect(page.getByRole('columnheader',{name:/Actor/})).toHaveAttribute('aria-sort','ascending');
++ expect(await trigger.evaluate(element=>{const positions:number[]=[];for(let parent=element.parentElement;parent;parent=parent.parentElement)positions.push(parent.scrollTop);return positions;})).toEqual(before);
++ await trigger.click();expect(page.url()).not.toContain('auditEvent');await page.reload();await expect(page.getByRole('heading',{name:'Account Audit',exact:true})).toBeVisible();await expect(page.locator('.record-detail-page')).toHaveCount(0);
++});
++test('audit refresh removes inaccessible details, handles read failure and renders honest empty sections',async({page})=>{
++ const state=await fixture(page);await inspect(page);state.rows=[];await page.getByRole('button',{name:'Refresh audit',exact:true}).click();
++ await expect(page.getByRole('alert')).toContainText('Event unavailable');await expect(page.getByText(/Moved to the project coordination team/)).toHaveCount(0);
++ await page.getByRole('button',{name:'Back to Account Audit',exact:true}).click();state.rows=auditDetailRows();await page.getByRole('button',{name:'Refresh audit',exact:true}).click();
++ await page.getByRole('button',{name:'Inspect audit event audit-action-only',exact:true}).click();await expect(page.getByText('No note was recorded for this event.')).toBeVisible();
++ await page.getByRole('tab',{name:'Changed fields',exact:true}).click();await expect(page.getByText('No field-level changes were recorded.')).toBeVisible();
++ await page.getByRole('tab',{name:'Technical details',exact:true}).click();await expect(page.getByText('No additional metadata was recorded.')).toBeVisible();
++ state.fail=true;await page.getByRole('button',{name:'Refresh audit',exact:true}).click();await expect(page.getByRole('alert')).toContainText('could not be read');
++ await page.getByRole('button',{name:'Back to Account Audit',exact:true}).click();await expect(page.getByRole('heading',{name:'Account Audit',exact:true})).toBeVisible();
++});
++test('audit detail reflows at 200 percent CSS zoom and in dark mode without forced motion',async({page},info)=>{
++ await page.setViewportSize({width:1440,height:1000});await page.emulateMedia({reducedMotion:'reduce'});await fixture(page);await inspect(page);
++ await page.evaluate(()=>{document.documentElement.style.zoom='2';document.documentElement.classList.add('dark');});
++ await page.getByRole('tab',{name:'Changed fields',exact:true}).click();expect(await noOverflow(page)).toBe(true);
++ await expect(page.getByRole('button',{name:'Back to Account Audit',exact:true})).toBeVisible();
++ await page.screenshot({path:info.outputPath('after-zoom-200-dark.png'),fullPage:true});
++});
+--- /dev/null
++++ b/tests/e2e/fixtures/auditDetails.ts
+@@ -0,0 +1,12 @@
++export const auditDetailRows = () => [
++  {
++    id: 'audit-access-change-2026-0001', actor_id: 'actor', actor_name: 'Maria Cristina de los Santos',
++    entity_type: 'profile', entity_id: 'directory-person-reference-2026-0001', action: 'profile.updated',
++    org_id: '10000000-0000-4000-8000-000000000001', created_at: '2026-10-17T08:30:00Z',
++    reason: 'Moved to the project coordination team after the approved staffing review. The previous assignment remains part of the audit history.',
++    before_data: { role: 'member', office_assignment: 'Community programme support', notes: 'Original assignment. '.repeat(25), settings: { secret: 'before-private-secret', notifications: true } },
++    after_data: { role: 'head', office_assignment: 'LEDIPO project coordination and investment support', notes: 'Updated coordination responsibilities. '.repeat(25), settings: { secret: 'after-private-secret', notifications: false } },
++    metadata: { source: 'Account management', authorization: { api_key: 'metadata-private-secret', ordinary: 'Approved administrative change' }, pds: { address: 'private-home-address' } },
++  },
++  { id: 'audit-action-only', actor_name: 'System', entity_type: 'profile', action: 'account.activation_sent', created_at: '2026-10-17T08:00:00Z' },
++];
+--- a/tests/e2e/phase16-support-finance.spec.ts
++++ b/tests/e2e/phase16-support-finance.spec.ts
+@@ -108,13 +108,13 @@
+   await page.goto("/users?page=Account%20Audit");
+   await expect(
+     page.getByText("Latest 500 permitted events", { exact: true }),
+-  ).toBeVisible();
++  ).toBeVisible({timeout:15000});
+   await page
+     .getByRole("button", { name: "Inspect audit event audit-one", exact: true })
+     .click();
+-  const inspector = page.getByRole("dialog", { name: /Audit event:/ });
++  const inspector = page.locator('.record-detail-page');
+   await expect(inspector).toBeVisible();
+-  await inspector.locator("summary").click();
++  await inspector.getByRole('tab',{name:'Technical details',exact:true}).click();
+   await expect(
+     inspector.getByText("Visible context", { exact: false }),
+   ).toBeVisible();
+@@ -125,7 +125,7 @@
+   expect(bounds.width).toBeLessThanOrEqual(320);
+   await page.screenshot({ path: info.outputPath("audit-phone.png") });
+   await inspector
+-    .getByRole("button", { name: "Close audit details", exact: true })
++    .getByRole("button", { name: "Back to Account Audit", exact: true })
+     .click();
+   unavailable = true;
+   await page

@@ -9,7 +9,6 @@ import {
   Notification,
   Report,
   Security,
-  StarFilled,
   Task,
   UserMultiple,
   Wallet,
@@ -97,14 +96,6 @@ const EMPLOYEE_NAV_ITEMS: CoreRoleNavItem[] = [
     label: "Projects",
     page: "Projects",
     group: "My Work",
-  },
-  {
-    id: "leading",
-    icon: <StarFilled size={16} />,
-    label: "Work I'm Leading",
-    page: "Leading Work",
-    group: "Leadership",
-    requiresLeadership: true,
   },
   {
     id: "subtasks",
@@ -206,14 +197,6 @@ const CORE_WORKFLOW_NAVIGATION: Record<string, CoreRoleNavigation> = {
         label: "Office Budget",
         page: "Office Budget",
         group: "Office",
-      },
-      {
-        id: "leading",
-        icon: <StarFilled size={16} />,
-        label: "Work I'm Leading",
-        page: "Leading Work",
-        group: "Leadership",
-        requiresLeadership: true,
       },
       {
         id: "subtasks",

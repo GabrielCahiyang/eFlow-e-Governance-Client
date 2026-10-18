@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../components/ui/EmptyState';
 import {useEffect,useRef,useState} from 'react';
 import {useAuth} from '../../../contexts/AuthContext';
 import {useExplicitDraft} from '../../../shared/useExplicitDraft';
@@ -52,7 +53,7 @@ function ProjectFileLibraryContent({projectId,taskId,readOnly=false}:{projectId:
    {draft&&<div className="flex flex-wrap items-center gap-2"><span className="text-sm break-all">{draft.file.name}</span><button type="button" disabled={busy} onClick={()=>void run(()=>uploadProjectFile(projectId,taskId,draft),'Document saved to the project library.',true)}>{busy?'Uploading…':'Save document / retry'}</button><button type="button" disabled={busy} onClick={()=>{setDraft(undefined);if(input.current)input.current.value='';}}>Discard upload draft</button></div>}
    {taskId&&<button type="button" disabled={busy||!!draft} aria-expanded={picker} onClick={()=>setPicker(!picker)}>Insert from project library</button>}
   </div>}
-  {!loading&&data&&!attached.length&&<p className="text-sm text-neutral-500">No general documents {taskId?'linked to this task':'in this project'}.</p>}
+  {!loading&&data&&!attached.length&&<EmptyState illustration="files" title={taskId?'No general documents linked to this task.':'No general documents in this project.'} size="compact"/>}
   <ul className="space-y-2">{attached.map(file=><li key={file.id} className="rounded-lg border border-neutral-200 p-3 text-sm">
    <button type="button" className="text-teal-700 break-all text-left" onClick={()=>void open(file)}>{file.file_name}</button>
    <p className="text-xs text-neutral-500">Uploaded by {file.uploader_name} · {new Date(file.created_at).toLocaleDateString()} · {Math.ceil(file.file_size/1024)} KB</p>

@@ -1,5 +1,7 @@
 import { getPhilippineLocalDateTime } from '../../../shared/calendarDates';
 import { useExplicitDraft } from "../../../shared/useExplicitDraft";
+import {MAX_RECURRENCE_INTERVAL,RECURRING_TEXT_LIMITS,recurringTemplateError} from '../validation/recurringValidation';
+import {integerError} from '../../../shared/numericValidation';
 import { useReviewedMutation } from "../../../shared/useReviewedMutation";
 import { FeedbackState } from "../../../components/ui/FeedbackState";
 import { useState } from "react";
@@ -18,6 +20,7 @@ export function RecurringTemplateForm({
 }) {
   const { toast } = useToast();
   const [title, setTitle] = useState("");
+  const [validationError,setValidationError]=useState('');
   const [description, setDescription] = useState("");
   const [criteria, setCriteria] = useState("");
   const [frequency, setFrequency] = useState<"daily" | "weekly" | "monthly">(
@@ -90,6 +93,9 @@ export function RecurringTemplateForm({
       toast("The task owner cannot also review the recurring task.", "error");
       return;
     }
+    const validationIssue=recurringTemplateError({title,description,acceptanceCriteria:criteria.split('\n').map(value=>value.trim()).filter(Boolean),priority:'medium',tags:[],recurrenceRule:{frequency,interval},nextRunAt,isActive:true,assigneeId:assigneeId||undefined,reviewerId:reviewerId||undefined});
+    if(validationIssue){setValidationError(validationIssue);toast(validationIssue,'error');return;}
+    setValidationError('');
     await safety.run({
       key: "create",
       allowRepeatAfterRefresh: true,
@@ -126,10 +132,12 @@ export function RecurringTemplateForm({
 
   const inputClass =
     "h-9 rounded-lg border border-neutral-200 bg-white px-2.5 text-[12px] outline-none focus:border-neutral-400";
+  const intervalIssue=integerError(interval,'Repeat interval',1,MAX_RECURRENCE_INTERVAL);
 
   return (
     <div className="space-y-3 rounded-xl border border-neutral-200 bg-neutral-50 p-3">
       {safety.dialog}
+      {validationError&&<p role="alert" className="text-xs text-destructive">{validationError}</p>}
       {safety.message && (
         <FeedbackState tone={safety.tone} title="Template result">
           <p>{safety.message}</p>
@@ -142,11 +150,13 @@ export function RecurringTemplateForm({
         value={title}
         onChange={(event) => setTitle(event.target.value)}
         aria-label="Template title"
+        maxLength={RECURRING_TEXT_LIMITS.title}
         placeholder="Template title"
         className={`${inputClass} w-full`}
       />
       <textarea
         value={description}
+        maxLength={RECURRING_TEXT_LIMITS.description}
         onChange={(event) => setDescription(event.target.value)}
         rows={2}
         placeholder="Description"
@@ -154,6 +164,7 @@ export function RecurringTemplateForm({
       />
       <textarea
         value={criteria}
+        maxLength={RECURRING_TEXT_LIMITS.criteria*(RECURRING_TEXT_LIMITS.criterion+1)}
         onChange={(event) => setCriteria(event.target.value)}
         rows={2}
         placeholder="Acceptance criteria, one per line"
@@ -174,9 +185,13 @@ export function RecurringTemplateForm({
         <input
           type="number"
           min={1}
-          value={interval}
+          max={MAX_RECURRENCE_INTERVAL}
+          step={1}
+          aria-label="Repeat interval"
+          aria-invalid={!!intervalIssue}
+          value={Number.isNaN(interval)?'':interval}
           onChange={(event) =>
-            setInterval(Math.max(1, Number(event.target.value)))
+            setInterval(event.target.value===''?NaN:Number(event.target.value))
           }
           className={inputClass}
           title="Repeat interval"
@@ -189,7 +204,8 @@ export function RecurringTemplateForm({
           className={inputClass}
         />
       </div>
-      <p className="text-[11px] text-muted-foreground">First run uses Philippine time.</p>
+      <p className="text-[11px] text-muted-foreground">First run uses Philippine time. Repeat interval: 1–365.</p>
+      {intervalIssue&&<p role="alert" className="text-xs text-destructive">{intervalIssue}</p>}
       <div className="grid grid-cols-2 gap-2">
         <select
           value={assigneeId}

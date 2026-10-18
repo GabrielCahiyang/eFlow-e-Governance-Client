@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../components/ui/EmptyState';
 import { useState } from "react";
 import { configurationItems, type ConfigurationArea } from "./catalog";
 import { StatusPill, WorkspaceHeader } from "../../../components/ui/workspace";
@@ -65,7 +66,7 @@ export function ConfigurationMatrix({
           </tbody>
         </table>
       </div>
-      {!rows.length && <p>No configuration items match.</p>}
+      {!rows.length && <EmptyState illustration="search" size="compact" title="No configuration items match."/>}
     </section>
   );
 }

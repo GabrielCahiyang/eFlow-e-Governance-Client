@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../../components/ui/EmptyState';
 import { calculateDeadlineWorkload } from "../../selectors/deadlineWorkload";
 import { AlertCircle, CheckCircle2, Clock3, Users } from "lucide-react";
 import type { Employee } from "../../../../services/employeeService";
@@ -53,7 +54,7 @@ export function WorkloadBoardView({
       </header>
 
       {rows.length === 0 ? (
-        <div className="px-5 py-12 text-center text-xs text-neutral-500">No task records match this view.</div>
+        <EmptyState fill illustration="search" size="compact" title="No task records match this view."/>
       ) : (
         <div className="divide-y divide-neutral-100">
           {rows.map(([id, row]) => {

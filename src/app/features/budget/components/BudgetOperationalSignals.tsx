@@ -1,4 +1,5 @@
-import { AlertTriangle, Banknote, Clock3, History, TrendingUp } from "lucide-react";
+import { EmptyState } from '../../../components/ui/EmptyState';
+import { Banknote, Clock3, History, TrendingUp } from "lucide-react";
 import type { DepartmentBudgetBundle } from "../types";
 import { peso, StatusPill } from "./budgetUi";
 
@@ -29,5 +30,5 @@ export function BudgetOperationalSignals({ data }: { data: DepartmentBudgetBundl
   </div>;
 }
 
-function EmptyLine({ text }: { text: string }) { return <div className="flex items-center gap-2 rounded-xl border border-dashed border-neutral-200 p-4 text-[12px] text-neutral-500"><AlertTriangle size={12} />{text}</div>; }
+function EmptyLine({ text }: { text: string }) { return <EmptyState illustration="budget" size="compact" title={text}/>; }
 function ageInDays(timestamp: number) { return Math.max(0, Math.floor((Date.now() - timestamp) / 86_400_000)); }

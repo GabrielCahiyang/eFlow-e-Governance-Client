@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../components/ui/EmptyState';
 import { useReviewedMutation } from "../../../shared/useReviewedMutation";
 import { FeedbackState } from "../../../components/ui/FeedbackState";
 import { useCallback, useEffect, useState } from "react";
@@ -77,7 +78,7 @@ export function RecurringTaskTemplatesPanel({
         {!loading && templates.length === 0 && (
           <div className="rounded-xl border border-dashed border-neutral-200 p-8 text-center text-neutral-400">
             <CalendarClock size={28} className="mx-auto mb-2 opacity-40" />
-            <div className="text-[12px]">No recurring task templates yet.</div>
+            <EmptyState fill illustration="tasks" size="compact" title="No recurring task templates yet."/>
           </div>
         )}
         {templates.map((template) => (

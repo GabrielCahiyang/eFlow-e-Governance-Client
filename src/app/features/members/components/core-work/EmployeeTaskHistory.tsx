@@ -55,7 +55,7 @@ export function EmployeeTaskHistory() {
 
       <Card bodyClassName="p-0">
         {rows.length === 0 ? (
-          <SectionEmpty icon={<History size={30} />} title="Nothing here yet" description="This history bucket is empty." />
+          <SectionEmpty fill illustration="tasks" icon={<History size={30} />} title="Nothing here yet" description="This history bucket is empty." />
         ) : (
           <div className="divide-y divide-neutral-100">
             {rows.map((t) => (

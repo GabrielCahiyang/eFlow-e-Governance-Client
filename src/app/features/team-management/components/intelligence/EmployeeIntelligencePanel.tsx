@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../../components/ui/EmptyState';
 import { Activity, CheckCircle2, Clock3, RotateCcw, ShieldAlert, Sparkles } from "lucide-react";
 import type { Employee, EmployeeNote } from "../../../members";
 import type { Task } from "../../../tasks";
@@ -57,7 +58,7 @@ export function EmployeeIntelligencePanel({
           <div className="p-4">
             <div className="space-y-4">
               {activity.map((entry) => <div key={entry.id} className="relative pl-5 before:absolute before:left-[5px] before:top-3 before:h-[calc(100%+10px)] before:w-px before:bg-neutral-100 last:before:hidden"><span className="absolute left-0 top-1 h-2.5 w-2.5 rounded-full border-2 border-white bg-neutral-400 ring-1 ring-neutral-200" /><div className="text-[12px] font-medium text-neutral-700">{entry.title}</div><div className="mt-0.5 text-[12px] leading-4 text-neutral-500">{entry.detail}</div><div className="mt-0.5 text-[12px] text-neutral-500">{new Date(entry.at).toLocaleString("en-PH", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}</div></div>)}
-              {activity.length === 0 && <p className="py-12 text-center text-[12px] text-neutral-500">No attributable progress or review activity yet.</p>}
+              {activity.length === 0 && <EmptyState illustration="tasks" size="compact" title="No attributable progress or review activity yet."/>}
             </div>
             <div className="mt-4 rounded-lg bg-neutral-50 px-3 py-2 text-[12px] leading-4 text-neutral-500">Participates in {taskIds.size} task(s). Metrics show source-backed workflow activity and are not an HR rating.</div>
           </div>

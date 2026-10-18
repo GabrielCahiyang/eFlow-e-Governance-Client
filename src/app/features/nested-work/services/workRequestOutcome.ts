@@ -1,6 +1,7 @@
 import {WorkRequestFailure,type WorkRequestFailureKind} from '../types/editor';
 
 export function workRpcFailure(error:{code?:string;message:string}):WorkRequestFailure {
+ if(error.code==='23505'&&error.message.includes('eflow_unique_'))return new WorkRequestFailure('confirmed_failure','A subitem with this name already exists here. Use a different name.');
  const code=error.code||'';
  let kind:WorkRequestFailureKind='unknown_result';
  if(code==='40001')kind='stale_revision';

@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../components/ui/EmptyState';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { resendInvitation, revokeInvitation, type Invitation } from '../../invitations';
 import { WorkspaceSkeleton } from '../../../components/ui/workspace';
@@ -74,11 +75,7 @@ export function ProjectOfficeDirectory({ projectId, leadOffice, canManage, organ
           ? setConfirm({ label: 'Revoke the contact invitation to ' + identity.contact_email + '? The link will stop working.', run: () => revokeInvitation(invitation.id) })
           : void run(() => resendInvitation(invitation.id, action === 'copy'))}
         onResolve={task => setConfirm({ label: 'Hand over “' + task.title + '” to ' + identity.display_name + '? Its Office will control staffing and review. Started or staffed work remains blocked.', run: () => resolveTaskOffice(task.id) })}/>;
-    }}/> : !context.error && !context.identityError && !readError && <div className="po-office-empty">
-      <h3>{allRows.length ? 'No matching Offices' : 'No project Offices yet'}</h3>
-      <p>{allRows.length ? 'Try another search or clear filters.' : 'Add an Office to bring collaborators in.'}</p>
-      {(filters.query || filters.relationship !== 'all' || filters.status !== 'all') && <button onClick={onClearFilters}>Clear filters</button>}
-    </div>}
+    }}/> : !context.error && !context.identityError && !readError && <EmptyState illustration={allRows.length ? 'search' : 'people'} title={allRows.length ? 'No matching Offices' : 'No project Offices yet'} description={allRows.length ? 'Try another search or clear filters.' : 'Add an Office to bring collaborators in.'} action={(filters.query || filters.relationship !== 'all' || filters.status !== 'all') && <button onClick={onClearFilters}>Clear filters</button>}/>}
     {confirm && <div role="alert" className="po-discard"><p>{confirm.label}</p><button disabled={busy} onClick={() => setConfirm(null)}>Cancel</button><button disabled={busy} onClick={() => void run(confirm.run)}>{busy ? 'Saving…' : 'Confirm change'}</button></div>}
     {invite && <LocalOfficeDialog projectId={projectId} identity={invite} onClose={() => setInvite(null)} onSaved={async () => { await context.refresh(); await refresh(); }}/>}
     {link && <LinkOfficeDialog identity={link} leadOffice={leadOffice} organizations={organizations} onClose={() => setLink(null)} onLinked={async () => { await context.refresh(); await refresh(); }}/>}

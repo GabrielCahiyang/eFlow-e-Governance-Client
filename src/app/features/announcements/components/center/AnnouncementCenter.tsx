@@ -79,7 +79,7 @@ export function AnnouncementCenter({ eyebrow = "My Workspace · Updates" }: { ey
       {/* ─── Announcements List ─── */}
       {filteredItems.length === 0 ? (
         <div className="rounded-xl border border-neutral-200 bg-white">
-          <SectionEmpty icon={<Announcement size={30} />} title={filter === "unread" ? "You're all caught up!" : "No announcements found"} description={filter === "unread"
+          <SectionEmpty illustration={filter === "unread" ? "complete" : searchQuery ? "search" : "inbox"} icon={<Announcement size={30} />} title={filter === "unread" ? "You're all caught up!" : "No announcements found"} description={filter === "unread"
               ? "There are no unread announcements in your inbox right now."
               : searchQuery
               ? `No announcements match "${searchQuery}". Try a different term.`

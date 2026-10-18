@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../components/ui/EmptyState';
 import * as Icons from "lucide-react";
 import { useChatDrawer } from "./ChatDrawerContext";
 import { parseMessage } from "../services/chatMessageCodec";
@@ -155,9 +156,7 @@ export function ChatChannelList() {
                     </button>
                   ))}
                 {channels.length === 0 && (
-                  <div className="px-3 py-6 text-center text-[12px] text-neutral-500">
-                    No chats yet.
-                  </div>
+                  <EmptyState illustration="chat" size="compact" title="No chats yet."/>
                 )}
               </div>
             </div>

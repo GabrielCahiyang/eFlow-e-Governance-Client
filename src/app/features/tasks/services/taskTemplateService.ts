@@ -1,5 +1,6 @@
 import { supabase } from "../../../../lib/supabase";
 import type { TaskTemplate, TaskTemplateInput } from "../types";
+import {recurringTemplateError} from '../validation/recurringValidation';
 
 function mapTemplate(row: Record<string, unknown>): TaskTemplate {
   return {
@@ -32,6 +33,7 @@ export async function fetchTaskTemplates(): Promise<TaskTemplate[]> {
 export async function createTaskTemplate(
   input: TaskTemplateInput,
 ): Promise<TaskTemplate> {
+  const issue=recurringTemplateError(input);if(issue)throw new Error(issue);
   const { data: authData } = await supabase.auth.getUser();
   if (!authData.user) throw new Error("You must be signed in.");
 

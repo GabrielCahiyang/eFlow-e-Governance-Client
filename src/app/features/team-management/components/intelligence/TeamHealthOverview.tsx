@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../../components/ui/EmptyState';
 import { AlertTriangle, CheckCircle2, Clock3, Gauge, ShieldAlert, TimerReset } from "lucide-react";
 import type { TeamHealthSummary, TeamMemberMetrics } from "../../types";
 import { TEAM_WORKLOAD_ELEVATED_THRESHOLD, TEAM_WORKLOAD_HIGH_THRESHOLD } from "../../constants";
@@ -30,7 +31,7 @@ export function TeamHealthOverview({ health, members }: { health: TeamHealthSumm
         <p className="mt-0.5 text-[12px] text-neutral-500">Derived signal—not a formal HR capacity rating.</p>
         <div className="mt-4 space-y-3">
           {members.slice(0, 5).map((member) => <div key={member.employeeId}><div className="flex items-center justify-between gap-2"><span className="truncate text-[12px] font-medium text-neutral-700">{member.employeeName}</span><span className={member.workloadSignal >= TEAM_WORKLOAD_HIGH_THRESHOLD ? "text-[12px] text-red-600" : member.workloadSignal >= TEAM_WORKLOAD_ELEVATED_THRESHOLD ? "text-[12px] text-amber-600" : "text-[12px] text-emerald-600"}>{member.workloadSignal}</span></div><div className="mt-1 h-1.5 overflow-hidden rounded-full bg-neutral-100"><div className={`h-full rounded-full ${member.workloadSignal >= TEAM_WORKLOAD_HIGH_THRESHOLD ? "bg-red-500" : member.workloadSignal >= TEAM_WORKLOAD_ELEVATED_THRESHOLD ? "bg-amber-500" : "bg-emerald-500"}`} style={{ width: `${member.workloadSignal}%` }} /></div></div>)}
-          {members.length === 0 && <p className="py-8 text-center text-[12px] text-neutral-500">No team members available.</p>}
+          {members.length === 0 && <EmptyState illustration="people" size="compact" title="No team members available."/>}
         </div>
         {overloaded.length > 0 ? <div className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-[12px] leading-4 text-red-700">{overloaded.length} person(s) have a high workload signal. Review actual assignments before taking action.</div> : <div className="mt-4 flex items-center gap-1.5 rounded-lg bg-emerald-50 px-3 py-2 text-[12px] text-emerald-700"><CheckCircle2 size={12} /> No high workload concentration detected.</div>}
       </section>

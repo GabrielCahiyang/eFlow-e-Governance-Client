@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../../../components/ui/EmptyState';
 import { CornerUpLeft, MoreVertical, Send, Smile, X } from 'lucide-react';
 import { FeatureDialog } from '../../../../../components/ui/FeatureDialog';
 import { deleteMessage } from '../../../../../services/chatService';
@@ -169,7 +170,7 @@ if (!channelId) {
         })}
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center py-6 gap-2">
-            <p className="text-[11px] text-neutral-400 italic text-center">No messages yet. Start the conversation!</p>
+            <EmptyState illustration="chat" size="compact" title="No messages yet. Start the conversation!"/>
           </div>
         )}
         <div ref={messagesEndRef} />

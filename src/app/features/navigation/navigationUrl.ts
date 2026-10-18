@@ -197,6 +197,8 @@ export function readNavigationLocation(
             : supportPage,
       };
   }
+  if (role !== "admin" && ["leading", "leader"].includes(url.pathname.split("/").filter(Boolean)[0] || ""))
+    return { section: "personal_work", page: "Leading" };
   const candidates = getRoleNavigationCandidates(role);
   if (
     role !== "admin" &&

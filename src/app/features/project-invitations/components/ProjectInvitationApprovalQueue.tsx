@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../components/ui/EmptyState';
 import { useEffect, useRef, useState } from 'react';
 import { supabase } from '../../../../lib/supabase';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -46,7 +47,7 @@ function HeadQueue({ focusProjectId }: { focusProjectId?: string }) {
     <header><div><h2>Membership approvals</h2><p>Review project membership requests and dispatch approved invitations. Each project’s Members / Invitations also retains these controls.</p></div><Button variant="outline" disabled={loading} onClick={() => reload.current()}>Refresh membership approvals</Button></header>
     {loading && <p role="status">Loading membership approvals…</p>}
     {error && <FeedbackState tone="error" title="Membership approvals could not be loaded" onRetry={() => reload.current()}>{error}</FeedbackState>}
-    {!loading && !error && !rows.length && <FeedbackState title="No membership approvals pending">Requests appear here for the sponsoring Office’s appointed Head. Accepted membership and invitation history remain in each project’s Members / Invitations.</FeedbackState>}
+    {!loading && !error && !rows.length && <EmptyState fill illustration="complete" title="No membership approvals pending" description="Requests appear here for the sponsoring Office’s appointed Head. Accepted membership and invitation history remain in each project’s Members / Invitations."/>}
     {!loading && !error && focusProjectId && !rows.some(row => row.project_id === focusProjectId) && <FeedbackState tone="warning" title="Referenced membership request unavailable">It may already have been handled or be outside your current sponsoring Office access. Check the project’s Members / Invitations for available history.</FeedbackState>}
     {rows.map(row => <details key={row.project_id} open={expanded[row.project_id] ?? row.project_id === focusProjectId} onToggle={event => { const open = event.currentTarget.open; setExpanded(current => current[row.project_id] === open ? current : { ...current, [row.project_id]: open }); }}>
       <summary><span>{row.title}</span><small>Membership invitations</small></summary>

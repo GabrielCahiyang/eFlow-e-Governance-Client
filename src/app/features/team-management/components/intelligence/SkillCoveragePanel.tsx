@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../../components/ui/EmptyState';
 import { Search, ShieldAlert, UsersRound } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { SkillCoverageRow } from "../../types";
@@ -15,7 +16,7 @@ export function SkillCoveragePanel({ rows }: { rows: SkillCoverageRow[] }) {
           const tone = row.coverage === "single_point" ? "bg-red-50 text-red-700" : row.coverage === "limited" ? "bg-amber-50 text-amber-700" : "bg-emerald-50 text-emerald-700";
           return <div key={row.skill} className="flex items-center gap-3 px-4 py-3"><div className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg ${tone}`}>{row.coverage === "single_point" ? <ShieldAlert size={14} /> : <UsersRound size={14} />}</div><div className="min-w-0 flex-1"><div className="text-[13px] font-medium text-neutral-800">{row.skill}</div><div className="mt-0.5 truncate text-[12px] text-neutral-500">{row.employeeNames.join(", ")}</div></div><span className={`rounded-full px-2 py-1 text-[12px] font-medium ${tone}`}>{row.coverage === "single_point" ? "Single-person dependency" : row.coverage === "limited" ? "2 people" : `${row.employeeIds.length} people`}</span></div>;
         })}
-        {filtered.length === 0 && <div className="py-16 text-center text-[11.5px] text-neutral-400">No skills match these filters.</div>}
+        {filtered.length === 0 && <EmptyState illustration="search" size="compact" title="No skills match these filters."/>}
       </div>
     </section>
   );

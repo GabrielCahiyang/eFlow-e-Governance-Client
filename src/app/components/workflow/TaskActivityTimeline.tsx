@@ -1,3 +1,4 @@
+import { EmptyState } from '../ui/EmptyState';
 // ─── TaskActivityTimeline ────────────────────────────────────────
 // Merges immutable system events (status history) with structured progress
 // updates into one chronological, differently-styled stream. System events use
@@ -150,9 +151,7 @@ export function TaskActivityTimeline({ taskId,projectId }: { taskId: string;proj
   if (items.length === 0) {
     if(fileError)return <div role="alert"><p>{fileError} Existing workflow history has no events.</p><button onClick={()=>setRetry(r=>r+1)}>Retry file history</button></div>;
     return (
-      <div className="text-center py-8 text-[12px] font-normal text-neutral-400">
-        No activity yet.
-      </div>
+      <EmptyState illustration="tasks" size="compact" title="No activity yet."/>
     );
   }
 

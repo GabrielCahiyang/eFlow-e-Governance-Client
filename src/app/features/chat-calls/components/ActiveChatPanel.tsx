@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../components/ui/EmptyState';
 import { useState } from "react";
 import * as Icons from "lucide-react";
 import { AnimatePresence } from "motion/react";
@@ -358,16 +359,7 @@ export function ActiveChatPanel() {
                   );
                 })}
                 {messages.length === 0 && (
-                  <div className="flex flex-col items-center justify-center h-full py-8 gap-2">
-                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                      <Icons.MessageCircle size={18} className="text-blue-400" />
-                    </div>
-                    <p className="text-[12px] text-neutral-500 text-center">
-                      No messages yet.
-                      <br />
-                      Say hello! 👋
-                    </p>
-                  </div>
+                  <EmptyState size="compact" illustration="chat" title="No messages yet." description="Say hello! 👋"/>
                 )}
                 <div ref={messagesEndRef} />
               </div>

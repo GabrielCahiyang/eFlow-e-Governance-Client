@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../components/ui/EmptyState';
 import { useEffect, useState } from "react";
 import type { Organization, UserProfile } from "../../../types";
 import { DepartmentApprovalMatrix, fetchApprovalPortfolio, subscribeToCollaborationDraftChanges, type CollaborationDraft } from "../../interdepartment-collaboration";
@@ -36,9 +37,9 @@ export function CitywidePlansOverview({ projects, drafts, organizations, profile
       ["Draft plans", currentDrafts.length], ["Approvals still needed", loading ? "…" : error ? "Unavailable" : pending],
       ["Plans needing updates", currentDrafts.filter((draft) => draft.status === "changes_requested").length],
     ].map(([label, count]) => <div key={label} className="rounded-xl border bg-white p-4"><div className="text-2xl font-semibold">{count}</div><div className="mt-1 text-xs text-neutral-500">{label}</div></div>)}</div>
-    <section className="rounded-xl border bg-white p-4"><h2 className="font-semibold">Projects</h2><div className="mt-3 grid gap-2 sm:grid-cols-2">{projects.filter((project) => project.status !== "archived").map((project) => <button type="button" key={project.id} onClick={() => onOpenProject(project.id)} className="rounded-lg border p-3 text-left hover:bg-neutral-50"><strong className="text-sm">{project.title}</strong><span className="block text-xs text-neutral-500">{organizations.find((org) => org.id === project.orgId)?.name || "Office not set"}</span></button>)}</div>{!projects.some((project) => project.status !== "archived") && <p className="mt-3 text-sm text-neutral-500">No projects match the selected office.</p>}</section>
+    <section className="rounded-xl border bg-white p-4"><h2 className="font-semibold">Projects</h2><div className="mt-3 grid gap-2 sm:grid-cols-2">{projects.filter((project) => project.status !== "archived").map((project) => <button type="button" key={project.id} onClick={() => onOpenProject(project.id)} className="rounded-lg border p-3 text-left hover:bg-neutral-50"><strong className="text-sm">{project.title}</strong><span className="block text-xs text-neutral-500">{organizations.find((org) => org.id === project.orgId)?.name || "Office not set"}</span></button>)}</div>{!projects.some((project) => project.status !== "archived") && <EmptyState illustration="search" size="compact" title="No projects match the selected office."/>}</section>
     <h2 className="text-lg font-semibold">Office approval tracking</h2>
     {loading ? <p role="status">Loading office approvals…</p> : error ? <p role="alert" className="text-sm text-red-700">{error}</p> : drafts.map((draft) => <div key={draft.id} className="space-y-2"><button type="button" onClick={() => onOpenPlan(draft.id)} className="text-left text-sm font-semibold text-primary hover:underline">{draft.title}</button><DepartmentApprovalMatrix currentRevisionId={draft.currentRevisionId} participants={portfolio.participants.filter((participant) => participant.draftId === draft.id)} approvals={portfolio.approvals} organizations={organizations} profiles={profiles} /></div>)}
-    {!loading && !error && !drafts.length && <p className="text-sm text-neutral-500">No work plans match the selected office.</p>}
+    {!loading && !error && !drafts.length && <EmptyState illustration="search" size="compact" title="No work plans match the selected office."/>}
   </div>;
 }

@@ -34,7 +34,7 @@ class ManagedActivationTests(unittest.TestCase):
 
     def test_strict_dto_rejects_password_roles_unknown_fields_and_oversized_pds(self):
         self.assertEqual(service.StageManagedAccountPayload(**self.data).email, 'person@example.test')
-        for changes in [{'password':'secret'}, {'role':'super_admin'}, {'email':'x\r\nbcc:x@y.test'}, {'skills':{'x'*101:True}}, {'pds_notes':{'notes':'x'*16001}}, {'pds_notes':{'unknown':'secret'}}]:
+        for changes in [{'password':'secret'}, {'role':'super_admin'}, {'email':'x\r\nbcc:x@y.test'}, {'skills':{'x'*101:True}}, {'skills':{f'Skill {i}':True for i in range(101)}}, {'skills':{'Excel\u200b':True}}, {'pds_notes':{'tags':['hidden\x00']}}, {'pds_notes':{'notes':'x'*16001}}, {'pds_notes':{'unknown':'secret'}}]:
             with self.subTest(changes=list(changes)), self.assertRaises(ValidationError):
                 service.StageManagedAccountPayload(**{**self.data, **changes})
 

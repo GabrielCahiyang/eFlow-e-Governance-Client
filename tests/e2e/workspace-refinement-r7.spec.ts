@@ -198,9 +198,10 @@ test('NW9.5 pending canonical notification survives reload and opens only its au
  expect(notice.writes).toEqual([{read:true}]);expect(fixture.commands).toHaveLength(0);
 });
 
-test('NW9.5 Inbox progress update keeps its canonical item and Leading Work section despite stale duplicate-title copy',async({page})=>{
+test('NW9.5 Inbox progress update opens My Work Leading with its canonical item despite stale duplicate-title copy',async({page})=>{
  const fixture=await hierarchyFixture(page,'member',8),leaf=fixture.nodes[7];for(const node of fixture.nodes)node.title='Same';const addressed=await notificationRows(page,fixture);await notificationAlert(page,fixture,{type:'status_change',title:'Subtask progress updated'});
  await page.goto(`/inbox?workspace=${fixture.records.org}`);await page.getByRole('button',{name:'Updates',exact:true}).click();await page.getByRole('region',{name:'Recent updates'}).getByRole('button',{name:'Open update',exact:true}).click();
+ await expect.poll(()=>new URL(page.url()).pathname).toBe('/my-work');await expect.poll(()=>new URL(page.url()).searchParams.get('page')).toBe('Leading');
  const inspector=page.getByRole('dialog',{name:'Subtask details: Same'});await expect(inspector).toBeVisible();await expect(inspector.getByRole('button',{name:'Work',exact:true})).toBeVisible();expect(addressed).toContain(leaf.id);await expect(page.getByRole('dialog',{name:'Task details: '+title})).toHaveCount(0);expect(fixture.commands).toHaveLength(0);
 });
 

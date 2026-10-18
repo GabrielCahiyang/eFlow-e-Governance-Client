@@ -12,6 +12,7 @@ import type {
 } from "../types";
 import { notifyCollaborationDraftsChanged } from "./collaborationDraftEvents";
 import { getGovernanceLifecycleErrorMessage } from "./governanceLifecycleError";
+import {governanceConfigurationError} from '../validation/governanceValidation';
 
 const timestamp = (value: unknown) => value ? new Date(String(value)).getTime() : undefined;
 
@@ -39,6 +40,7 @@ export async function saveGovernanceConfiguration(input: {
   organizations: CollaborationOrganizationSelection[];
   assignments: Array<{ organizationId: string; userId: string; role: GovernanceAssignmentRole }>;
 }) {
+  const issue=governanceConfigurationError(input.organizations);if(issue)throw new Error(issue);
   const { error } = await supabase.rpc("set_proposal_governance_configuration", {
     p_draft_id: input.draftId,
     p_organizations: input.organizations,

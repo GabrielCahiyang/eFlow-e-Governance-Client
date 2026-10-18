@@ -6,6 +6,7 @@ import {workRpcFailure} from './workRequestOutcome';
 import {WorkRequestFailure} from '../types/editor';
 import {isWorkEventRecord} from '../selectors/workEventPresentation';
 import {notifyTaskListeners} from '../../tasks';
+import {integerError} from '../../../shared/numericValidation';
 export class WorkTreeUnavailable extends Error {}
 // Identity is only for rejecting stale client presentation. The RPC remains the
 // authority. Context failures must not change existing reads/receipt contracts.
@@ -28,6 +29,7 @@ export async function fetchWorkTree(root:string):Promise<WorkTreeSnapshot>{
  return data as WorkTreeSnapshot;
 }
 export async function saveWorkTree(root:string,request:WorkRequest):Promise<WorkTreeSnapshot>{
+ if(request.command==='progress'){const issue=integerError(request.payload.progress,'Progress',0,99);if(issue)throw new WorkRequestFailure('confirmed_failure',issue);}
  const before=await clientSession();
  const terms={p_root:root,p_revision:request.revision,p_request:request.id,p_command:request.command,p_payload:request.payload};
  // A supplied confirmation is never discarded, including an empty/malformed

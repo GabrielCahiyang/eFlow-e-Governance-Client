@@ -426,7 +426,7 @@ export function HeadReportsWorkspace() {
                     onOpenTask={setSelectedTaskId}
                   />
                 ) : (
-                  <SectionEmpty
+                  <SectionEmpty illustration={analytics.error ? false : "search"}
                     icon={<BarChart3 size={28} />}
                     title={
                       analytics.error

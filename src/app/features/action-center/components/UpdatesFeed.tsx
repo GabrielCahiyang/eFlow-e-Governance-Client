@@ -4,6 +4,7 @@ import { fetchRecentNotifications, markRecentNotificationRead, type Notification
 import { usePersonalFeed } from '../hooks/usePersonalFeed';
 import { Button } from '../../../components/ui/button';
 import { FeedbackState } from '../../../components/ui/FeedbackState';
+import { EmptyState } from '../../../components/ui/EmptyState';
 export function UpdatesFeed({ onOpen }: { onOpen: (notification: Notification) => void }) {
   const { user } = useAuth();
   const feed = usePersonalFeed(user?.id,fetchRecentNotifications);
@@ -26,7 +27,7 @@ export function UpdatesFeed({ onOpen }: { onOpen: (notification: Notification) =
   return <section className="space-y-3" aria-label="Recent updates">
     <div className="flex flex-wrap items-center gap-3"><p className="flex-1 text-sm text-muted-foreground">Latest 50 updates. Unread means unseen, not awaiting approval.</p><label className="text-sm flex gap-2 items-center"><input type="checkbox" checked={unreadOnly} onChange={event=>setUnreadOnly(event.target.checked)} />Unread only</label><Button variant="outline" disabled={feed.loading} onClick={feed.retry}>Refresh updates</Button></div>
     {error && <FeedbackState tone="error" title="Read state was not saved">{error} Retry the same update.</FeedbackState>}
-    {feed.loading ? <p role="status">Loading recent updates…</p> : feed.error ? <FeedbackState tone="error" title="Updates could not be loaded" onRetry={feed.retry}>{feed.error}</FeedbackState> : !rows.length ? <FeedbackState title={unreadOnly ? 'No unread recent updates' : 'No recent updates'}>Older updates are outside this recent feed.</FeedbackState> : <ul className="rounded-lg border border-border divide-y divide-border bg-card">{rows.map(item=> {
+    {feed.loading ? <p role="status">Loading recent updates…</p> : feed.error ? <FeedbackState tone="error" title="Updates could not be loaded" onRetry={feed.retry}>{feed.error}</FeedbackState> : !rows.length ? <EmptyState fill illustration={unreadOnly ? 'complete' : 'inbox'} title={unreadOnly ? 'No unread recent updates' : 'No recent updates'} description="Older updates are outside this recent feed."/> : <ul className="rounded-lg border border-border divide-y divide-border bg-card">{rows.map(item=> {
       const read = item.read || readIds.includes(item.id);
       return <li key={item.id} className="p-4 space-y-2"><div className="flex gap-2 items-start"><h2 className="font-medium flex-1 min-w-0 break-words">{item.title}</h2><span className="text-xs text-muted-foreground shrink-0">{read?'Read':'Unread'}</span></div><p className="text-sm break-words">{item.message}</p><div className="flex flex-wrap gap-2"><Button data-update-id={item.id} variant="outline" onClick={()=>onOpen(item)}>Open update</Button>{!read && <Button variant="ghost" disabled={pending !== null} onClick={()=>void markRead(item.id)}>{pending===item.id?'Saving read state…':'Mark read'}</Button>}</div></li>;
     })}</ul>}

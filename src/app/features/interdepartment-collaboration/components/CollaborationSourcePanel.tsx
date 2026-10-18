@@ -1,3 +1,4 @@
+import { EmptyStateIllustration } from '../../../components/ui/EmptyStateIllustration';
 import * as React from "react";
 import { Button, EmptyState } from "@vibe/core";
 import { FileText } from "lucide-react";
@@ -97,7 +98,7 @@ export function CollaborationSourcePanel({
   if (!draft.sourceFilePath) {
     return (
       <section className="eflow-section-card p-8 text-center">
-        <EmptyState
+        <EmptyState visual={<EmptyStateIllustration kind="files"/>}
           title="No source PDF attached"
           description="The owning office may attach the signed proposal, supporting plan, or reference document for all participating reviewers."
         />

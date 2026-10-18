@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../../components/ui/EmptyState';
 import { PeopleAvatarStack } from '../../../../components/ui/workspace';
 import type { UserProfile } from '../../../../types';
 import { ProjectScheduleLabel } from '../../presentation/projectPresentation';
@@ -31,17 +32,17 @@ export function ProjectOverviewTab({data,profiles,onOpenTask}: {data:ProjectComm
    {taskList('Upcoming work',work.upcoming,'No upcoming deadlines recorded.')}
    {work.unscheduled>0&&<p>{work.unscheduled} unfinished task(s) have no calendar deadline.</p>}
    <section className="r4-overview-section" aria-label="Delivery activities"><header><h3>Delivery activities</h3><span>{data.metrics.milestoneCompleted} / {data.milestones.length} complete</span></header>
-    {data.milestones.length ? <ul>{data.milestones.map(milestone=><li key={milestone.id}><strong>{milestone.title}</strong><span>{milestone.dueDate||'No target'} · {(milestone.manualStatus||milestone.status||'not_started').replace(/_/g,' ')}</span></li>)}</ul> : <p>No delivery activities recorded yet.</p>}
+    {data.milestones.length ? <ul>{data.milestones.map(milestone=><li key={milestone.id}><strong>{milestone.title}</strong><span>{milestone.dueDate||'No target'} · {(milestone.manualStatus||milestone.status||'not_started').replace(/_/g,' ')}</span></li>)}</ul> : <EmptyState illustration="tasks" size="compact" title="No delivery activities recorded yet."/>}
    </section>
   </div><aside>
    <section className="r4-overview-section" aria-label="Responsible people"><header><h3>Responsible people</h3></header><PeopleAvatarStack people={people}/><dl className="r4-overview-details">
     <dt>Project lead</dt><dd>{owner?.full_name||'Unassigned'}</dd><dt>Start date</dt><dd>{data.project.startDate||'Not scheduled'}</dd><dt>Target date</dt><dd>{data.project.targetDate||'Not scheduled'}</dd><dt>Last activity</dt><dd>{data.metrics.lastActivityAt?new Date(data.metrics.lastActivityAt).toLocaleDateString():'No activity recorded'}</dd>
    </dl></section>
    <section className="r4-overview-section" aria-label="Needs attention"><header><h3>Needs attention</h3><span>{data.attention.length}</span></header>
-    {data.attention.length ? <ul>{data.attention.slice(0,5).map(item=><li key={item.id}>{item.taskId?<button type="button" onClick={()=>onOpenTask(item.taskId!)}><strong>{item.title}</strong><span>{item.detail}</span></button>:<><strong>{item.title}</strong><span>{item.detail}</span></>}</li>)}</ul>:<p>No attention items in the loaded project work.</p>}
+    {data.attention.length ? <ul>{data.attention.slice(0,5).map(item=><li key={item.id}>{item.taskId?<button type="button" onClick={()=>onOpenTask(item.taskId!)}><strong>{item.title}</strong><span>{item.detail}</span></button>:<><strong>{item.title}</strong><span>{item.detail}</span></>}</li>)}</ul>:<EmptyState illustration="tasks" size="compact" title="No attention items in the loaded project work."/>}
    </section>
    <section className="r4-overview-section" aria-label="Recent activity"><header><h3>Recent activity</h3></header>
-    {data.activity.length?<ul>{data.activity.slice(0,4).map(item=><li key={item.id}><strong>{item.actorName&&item.actorName!=='System'?`${item.actorName} · `:''}{item.title}</strong><span>{item.detail} · {new Date(item.occurredAt).toLocaleString()}</span></li>)}</ul>:<p>No recent activity recorded.</p>}
+    {data.activity.length?<ul>{data.activity.slice(0,4).map(item=><li key={item.id}><strong>{item.actorName&&item.actorName!=='System'?`${item.actorName} · `:''}{item.title}</strong><span>{item.detail} · {new Date(item.occurredAt).toLocaleString()}</span></li>)}</ul>:<EmptyState illustration="tasks" size="compact" title="No recent activity recorded."/>}
    </section>
   </aside></div>
  </div>;

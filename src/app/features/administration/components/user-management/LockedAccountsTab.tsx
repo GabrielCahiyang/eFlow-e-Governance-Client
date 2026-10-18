@@ -72,7 +72,7 @@ export function LockedAccountsTab() {
     </form>
     {notice&&<p role="status">{notice}</p>}{error&&<p role="alert">{error}</p>}
     <div className="flex items-center justify-between"><h2 className="font-semibold">Locked out accounts ({data?.accounts.length ?? 0})</h2><Button variant="outline" disabled={busy||loading} onClick={()=>void requestNavigation(()=>void refresh(false))}>Refresh locked accounts</Button></div>
-    <DataTable columns={columns} data={data?.accounts || []} loading={loading} error={!data&&error?error:undefined} onRetry={()=>void refresh()} ariaLabel="Locked out accounts table" keyExtractor={a=>a.user_id} emptyMessage="No locked out accounts."/>
+    <DataTable columns={columns} data={data?.accounts || []} loading={loading} error={!data&&error?error:undefined} onRetry={()=>void refresh()} ariaLabel="Locked out accounts table" keyExtractor={a=>a.user_id} emptyIllustration="complete" emptyMessage="No locked out accounts."/>
     {confirmation.dialog}
   </section>;
 }

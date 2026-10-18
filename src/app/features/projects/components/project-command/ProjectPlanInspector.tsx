@@ -1,3 +1,4 @@
+import { EmptyStateIllustration } from '../../../../components/ui/EmptyStateIllustration';
 import { calendarMinDate, getPhilippineCalendarDate, scheduleRangeError, scheduledDateError } from '../../../../shared/calendarDates';
 import { useEffect, useRef, useState } from "react";
 import {
@@ -277,7 +278,7 @@ export function ProjectPlanInspector({
               })}
 
               {data.milestones.length === 0 && (
-                <EmptyState
+                <EmptyState visual={<EmptyStateIllustration kind="tasks"/>}
                   title="No activities yet"
                   description="Add an activity above to schedule milestones and work items for this project."
                 />

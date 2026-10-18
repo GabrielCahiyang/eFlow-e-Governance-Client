@@ -1,4 +1,5 @@
 import { supabase } from "../../../../lib/supabase";
+import {integerError} from '../../../shared/numericValidation';
 import { rowToSubtask, type Subtask } from "../../../services/subtaskService";
 import {addSubtaskReviewDisplayContext,readSubtaskReviewRows} from './subtaskReviewContextService';
 import type {
@@ -41,6 +42,7 @@ export async function saveSubtaskProgress(input: {
   note?: string;
   attachment?: File | null;
 }): Promise<void> {
+  const issue=integerError(input.percentComplete,'Progress',0,99);if(issue)throw new Error(issue);
   let uploaded: SubtaskSubmissionAttachment | undefined;
   try {
     if (input.attachment) {

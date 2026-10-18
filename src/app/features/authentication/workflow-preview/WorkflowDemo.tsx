@@ -15,7 +15,7 @@ export function WorkflowDemo(props: DemoScreenProps) {
   const workspace = getPreviewWorkspace(step);
   const leader = step.actor === "Task Leader";
   const employee = leader || step.workspace === "subtasks" || step.workspace === "accounting";
-  const nav = employee ? ["My Tasks", "Projects", "Work I'm Leading", "My Subtasks", "Leader Reviews", ...(step.workspace === "accounting" ? ["Voucher & Cash Releases", "General Journal"] : [])] : ["Overview", "Plans & Projects", "Task Board", "Office Budget", "Work I'm Leading", "My Subtasks", "Reviews"];
+  const nav = employee ? ["My Tasks", "Projects", "My Work → Leading", "My Subtasks", "Leader Reviews", ...(step.workspace === "accounting" ? ["Voucher & Cash Releases", "General Journal"] : [])] : ["Overview", "Plans & Projects", "Task Board", "Office Budget", "My Work → Leading", "My Subtasks", "Reviews"];
   const tabs = plans ? ["Overview", draft ? "Work plan" : "Project tasks", "Collaboration", ...(kind === "interdepartmental" ? ["Review & Governance"] : [])]
     : step.workspace === "reviews" ? ["Work Plans", "Project Tasks", "Governance & Approval", "Subtasks", "Budget"]
     : step.workspace === "budget" ? ["Overview", "Planning & Allocation", "Requests & Settlement", "Ledger & Audit"] : [];

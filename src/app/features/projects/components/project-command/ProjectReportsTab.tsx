@@ -284,7 +284,7 @@ export function ProjectReportsTab({
               </table>
             </div>
             {!rows.length && (
-              <EmptyWorkspaceState
+              <EmptyWorkspaceState illustration={source.error ? false : "search"}
                 title={
                   source.error
                     ? "Report facts unavailable"

@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 import { Card } from "../../../components/ui/card";
+import { EmptyState } from '../../../components/ui/EmptyState';
+import type { EmptyIllustration } from '../../../components/ui/EmptyStateIllustration';
 
 export const peso = new Intl.NumberFormat("en-PH", { style: "currency", currency: "PHP", minimumFractionDigits: 2 });
 export const pesoShort = new Intl.NumberFormat("en-PH", { style: "currency", currency: "PHP", notation: "compact", maximumFractionDigits: 1 });
@@ -12,8 +14,8 @@ export function BudgetCard({ label, value, note, icon, tone = "neutral" }: { lab
   </Card>;
 }
 
-export function BudgetEmpty({ title, description, action }: { title: string; description: string; action?: ReactNode }) {
-  return <Card className="gap-0 border-dashed px-6 py-12 text-center shadow-none"><div className="text-[14px] font-semibold text-foreground">{title}</div><p className="mx-auto mt-1 max-w-lg text-[12px] leading-relaxed text-muted-foreground">{description}</p>{action && <div className="mt-4">{action}</div>}</Card>;
+export function BudgetEmpty({ title, description, action, illustration = 'budget' }: { title: string; description: string; action?: ReactNode; illustration?: EmptyIllustration }) {
+  return <Card className="gap-0 border-dashed p-0 shadow-none"><EmptyState title={title} description={description} action={action} illustration={illustration}/></Card>;
 }
 
 export function StatusPill({ status }: { status: string }) {

@@ -1,3 +1,4 @@
+import { EmptyStateIllustration } from '../../../../components/ui/EmptyStateIllustration';
 import { Button, EmptyState, Label } from "@vibe/core";
 import { Open } from "@vibe/icons";
 import type { ProjectCommandData } from "./types";
@@ -120,7 +121,7 @@ export function ProjectReviewsTab({
               })}
             </div>
           ) : (
-            <EmptyState
+            <EmptyState visual={<EmptyStateIllustration kind="complete"/>}
               title="No project reviews are waiting"
               description="Approved and completed work remains in the activity history."
             />

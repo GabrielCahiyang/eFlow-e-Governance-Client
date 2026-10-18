@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../components/ui/EmptyState';
 import { useProjectPresentation } from '../hooks/useProjectPresentation';
 import { useMemo, useRef, useState } from 'react';
 import { CalendarDays, Link2, Flag, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -83,7 +84,7 @@ export function ProjectGanttView({ data, allTasks, canManage, onOpenTask, onOpen
         {milestones.map((milestone, index) => <div className="pv-gantt-row" key={milestone.id} style={{ top: HEADER + (rows.length + index) * ROW, width: width + LABEL }}><div className="pv-gantt-label" style={{ width: LABEL }}><button onClick={onOpenPlan}><Flag size={14}/>{milestone.title}</button></div><button className="pv-milestone" style={{ left: LABEL + x(milestone.day) }} onClick={onOpenPlan} title={milestone.title + ' · ' + dayString(milestone.day)}>◆</button></div>)}
       </div>
     </div>
-    {!rows.length && !milestones.length && <p className="pv-empty">No dated work matches this view. Add dates to tasks below or in the Main Table.</p>}
+    {!rows.length && !milestones.length && <EmptyState illustration="tasks" size="compact" title="No dated work matches this view. Add dates to tasks below or in the Main Table."/>}
     {unscheduled.length > 0 && <div className="pv-unscheduled"><strong>Unscheduled tasks</strong>{unscheduled.map(task => <div key={task.id}><button onClick={() => onOpenTask(task.id)}>{task.title}</button><button disabled={!actions.canEditDates(task)} onClick={() => setEditing(task)}>Set dates</button></div>)}</div>}
     {editing && <TaskDatesDialog key={editing.id} task={editing} onClose={() => setEditing(null)} onSave={actions.saveDates}/>}
     {actions.dialog}

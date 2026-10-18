@@ -4,6 +4,7 @@ import type { AccountingAccount, BudgetLineInput, DepartmentBudgetBundle, Genera
 import { mapAdjustment, mapAllocation, mapAllocationLine, mapBudgetLine, mapBudgetSummary, mapCommitment, mapLedger, mapLiquidation, mapReceipt, mapRelease, mapRequest } from "./budgetMappers";
 import { assertCashNeededByIsCurrentOrFuture } from "../selectors/cashWorkflowRules";
 import { fetchBudgetSections } from "./budgetSectionService";
+import {liquidationInputError} from '../validation/financialValidation';
 
 const throwIf = (error: { message: string } | null) => { if (error) throw new Error(error.message); };
 
@@ -399,6 +400,7 @@ export async function uploadCashRequestAttachment(input: { orgId: string; reques
 }
 
 export async function submitPettyCashLiquidation(input: { orgId: string; requestId: string; spent: number; note: string; receipts: ReceiptDraft[]; refundReceiptNumber?: string; refundDate?: string; idempotencyKey?: string }) {
+  const validationIssue=liquidationInputError(input);if(validationIssue)throw new Error(validationIssue);
   const uploaded: Array<{ fileName: string; filePath: string; mimeType: string; fileSize: number }> = [];
   const idempotencyKey = input.idempotencyKey || crypto.randomUUID();
   let rpcStarted = false;

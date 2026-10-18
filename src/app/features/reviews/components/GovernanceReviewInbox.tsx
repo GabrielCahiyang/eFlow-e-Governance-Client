@@ -129,7 +129,7 @@ export function GovernanceReviewInbox({ onNavigate }: { onNavigate?: (section: s
 
       {governanceDrafts.length === 0 ? (
         <div className="bg-white border border-neutral-200/80 rounded-2xl p-12 text-center shadow-xs">
-          <SectionEmpty
+          <SectionEmpty fill illustration="complete"
             icon={<CheckCircle2 size={36} className="text-emerald-500" />}
             title="Governance queue clear"
             description="No governance decisions or formal approval items require your action at this time."

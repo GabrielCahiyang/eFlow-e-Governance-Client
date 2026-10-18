@@ -21,7 +21,7 @@ import {
 import { FileSpreadsheet, Plus, X } from "lucide-react";
 import { PdsImportReview } from "./PdsImportReview";
 import { ledipoOffice } from '../../selectors/ledipoOffice';
-import { listActivationOffices, stageAccountActivation, type ActivationOffice, type ManagedAccountRole } from '../../../account-activation';
+import { accountSkillsError, listActivationOffices, stageAccountActivation, type ActivationOffice, type ManagedAccountRole } from '../../../account-activation';
 
 import { useExplicitDraft } from "../../../../shared/useExplicitDraft";
 import { requestNavigation } from "../../../../shared/navigationGuard";
@@ -128,6 +128,8 @@ export function CreateUserModal({
   const addSkill = () => {
     const trimmed = skillInput.trim();
     if (!trimmed || skills[trimmed]) return;
+    const issue=accountSkillsError({...skills,[trimmed]:true});if(issue){setErrors(current=>({...current,skills:issue}));return;}
+    setErrors(current=>({...current,skills:''}));
     setSkills((prev) => ({ ...prev, [trimmed]: true }));
     setSkillInput("");
   };
@@ -165,6 +167,8 @@ export function CreateUserModal({
 
   const applyPdsImport = () => {
     if (!pdsPreview) return;
+    const importedSkills={...skills,...Object.fromEntries(pdsPreview.employeeNotes.tags.map(skill=>[skill,true]))};
+    const skillIssue=accountSkillsError(importedSkills);if(skillIssue){setErrors(current=>({...current,skills:skillIssue}));toast(skillIssue,'error');return;}
     setForm((current) => ({
       ...current,
       fullName: pdsPreview.profile.fullName || current.fullName,
@@ -205,6 +209,7 @@ export function CreateUserModal({
     if (!roleOptions.some(({ value }) => value === form.role))
       errs.role = "You cannot assign this role.";
     if (leadershipConflict) errs.role = leadershipConflict;
+    const skillIssue=accountSkillsError(skills);if(skillIssue){errs.skills=skillIssue;setActiveTab('skills');}
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -393,6 +398,7 @@ export function CreateUserModal({
 
         {activeTab === "skills" && (
           <div className="space-y-3">
+            {errors.skills&&<p role="alert" className="text-xs text-destructive">{errors.skills}</p>}
             <p className="text-[11px] font-normal text-muted-foreground">
               Add skills that the AI recommendation engine will use to match
               this member to tasks. Each skill is a keyword (e.g. "data
@@ -402,6 +408,8 @@ export function CreateUserModal({
               <input
                 type="text"
                 value={skillInput}
+                maxLength={100}
+                aria-invalid={!!errors.skills}
                 onChange={(e) => setSkillInput(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {

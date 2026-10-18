@@ -251,7 +251,7 @@ function Activity({
             </table>
           </div>
           {!history.data.events.length && (
-            <EmptyWorkspaceState
+            <EmptyWorkspaceState illustration="search"
               title="No activity matches these filters"
               description="Change the search, type or dates to see other events."
             />

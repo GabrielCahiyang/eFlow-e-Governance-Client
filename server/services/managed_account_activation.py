@@ -1,5 +1,6 @@
 """Admin-managed account activation. Secrets and Auth creation stay server-side."""
 import hashlib
+import re
 import secrets
 from typing import Literal
 from urllib.parse import urlencode
@@ -11,6 +12,7 @@ from gateway_dependencies import supabase_admin
 from invitations.service import normalize_email, token_hash
 from services.email_delivery import managed_account_activation_email, send_email
 from services.phase2_config import app_url, invitation_ttl
+INVALID_SKILL_CHARACTERS = re.compile(r'[\x00-\x1f\x7f\u200b-\u200f\u202a-\u202e\u2060-\u206f\ufeff]')
 
 
 class PdsNotes(BaseModel):
@@ -23,7 +25,7 @@ class PdsNotes(BaseModel):
     @field_validator('tags')
     @classmethod
     def valid_tags(cls, values):
-        if any(len(x) > 100 or '\x00' in x for x in values):
+        if any(not x.strip() or len(x) > 100 or INVALID_SKILL_CHARACTERS.search(x) for x in values):
             raise ValueError('Invalid skill tag')
         return values
 
@@ -56,7 +58,7 @@ class StageManagedAccountPayload(BaseModel):
     @field_validator('skills')
     @classmethod
     def valid_skills(cls, value):
-        if len(value) > 100 or any(not k.strip() or len(k) > 100 or '\x00' in k for k in value):
+        if len(value) > 100 or any(not k.strip() or len(k) > 100 or INVALID_SKILL_CHARACTERS.search(k) for k in value):
             raise ValueError('Enter at most 100 short skill names')
         return value
 
@@ -77,7 +79,7 @@ def rpc(name: str, values: dict):
 def safe(row: dict) -> dict:
     fields = {'invitation_id', 'email', 'full_name', 'office_id', 'office_name', 'account_role',
               'requested_privileged_role', 'source_mode', 'status', 'email_delivery_status',
-              'expires_at', 'created_at', 'last_sent_at', 'awaiting_authority', 'needs_reconciliation'}
+              'expires_at', 'created_at', 'last_sent_at', 'awaiting_authority', 'needs_reconciliation', 'requires_reinvite'}
     return {k: v for k, v in row.items() if k in fields}
 
 

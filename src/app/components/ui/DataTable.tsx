@@ -2,6 +2,7 @@
 import React, { useState, useMemo } from "react";
 import { EmptyState, Search, Skeleton, Text } from "@vibe/core";
 import { FeedbackState } from "./FeedbackState";
+import { EmptyStateIllustration, type EmptyIllustration } from './EmptyStateIllustration';
 
 export interface Column<T> {
   key: string;
@@ -24,6 +25,7 @@ interface DataTableProps<T> {
   loading?: boolean;
   emptyMessage?: string;
   emptyIcon?: React.ReactNode;
+  emptyIllustration?: EmptyIllustration;
   toolbar?: React.ReactNode;
   totalRecords?: number;
   density?: "comfortable" | "compact";
@@ -44,6 +46,7 @@ export function DataTable<T>({
   loading,
   emptyMessage = "No data found",
   emptyIcon,
+  emptyIllustration = 'empty',
   toolbar,
   totalRecords,
   density = "comfortable",
@@ -117,6 +120,7 @@ export function DataTable<T>({
               {columns.map((col) => (
                 <th
                   key={col.key}
+                  scope="col"
                   data-action={col.action || undefined}
                   aria-sort={
                     col.sortable && sortKey === col.key
@@ -162,7 +166,7 @@ export function DataTable<T>({
                     layout="compact"
                     title="Nothing to show"
                     description={emptyMessage}
-                    visual={emptyIcon}
+                    visual={emptyIcon ?? <EmptyStateIllustration kind={search ? 'search' : emptyIllustration}/>}
                   />
                 </td>
               </tr>

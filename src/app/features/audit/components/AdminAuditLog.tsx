@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import {useAuth} from '../../../contexts/AuthContext';
 import { useProfiles, useOrgs } from "../../../hooks/useSupabaseData";
 import { DataTable, type Column } from "../../../components/ui/DataTable";
 import { Button } from "../../../components/ui/button";
@@ -13,18 +14,24 @@ import {
   shortenIdentifier,
 } from "../presentation";
 import { EMPTY_AUDIT_FILTERS, filterAuditEvents } from "../auditFilters";
-import { AuditDetailDrawer } from "./AuditDetailDrawer";
+import { AuditEventDetailPage } from "./AuditEventDetailPage";
+import {useAuditDetailNavigation} from '../hooks/useAuditDetailNavigation';
 
 export function AdminAuditLog() {
-  const { events, total, loading, refreshing, error, refresh } =
+  const {userProfile,permissionsLoading,can}=useAuth();
+  if(permissionsLoading||!userProfile||!can('navigation.audit'))return <FeedbackState tone="error" title="Audit access unavailable">Your current account does not have access to Account Audit.</FeedbackState>;
+  return <AdministrativeAuditView key={`${userProfile.id}:${userProfile.role}:${userProfile.org_id||''}`}/>;
+}
+
+function AdministrativeAuditView() {
+  const { events, total, loading, refreshing, checking, error, refresh } =
     useAdministrativeAuditWindow();
   const [filters, setFilters] = useState(EMPTY_AUDIT_FILTERS);
-  const [selected, setSelected] = useState<AuditEvent | null>(null);
+  const list=useRef<HTMLDivElement>(null);
+  const detail=useAuditDetailNavigation(list);
+  const selected=events.find(event=>event.id===detail.selectedId);
   const { profiles } = useProfiles();
   const { orgs } = useOrgs();
-  useEffect(() => {
-    if (error) setSelected(null);
-  }, [error]);
   const profileNames = useMemo(
     () => new Map(profiles.map((profile) => [profile.id, profile.full_name])),
     [profiles],
@@ -75,7 +82,8 @@ export function AdminAuditLog() {
         <Button
           size="sm"
           variant="outline"
-          onClick={() => setSelected(event)}
+          className="min-h-11"
+          onClick={(click) => detail.open(event.id,click.currentTarget)}
           aria-label={`Inspect audit event ${event.id}`}
         >
           Inspect
@@ -84,7 +92,8 @@ export function AdminAuditLog() {
     },
   ];
   return (
-    <div className="min-w-0 space-y-4 p-3 sm:p-6">
+    <div className="min-w-0">
+    <div ref={list} className="audit-list min-w-0 space-y-4 p-3 sm:p-6" hidden={!!detail.selectedId}>
       <WorkspaceHeader
         title="Account Audit"
         description="Accounts, access, Office assignments and administrative support history."
@@ -208,6 +217,9 @@ export function AdminAuditLog() {
       </p>
       <DataTable
         ariaLabel="Account audit events"
+        error={error || undefined}
+        onRetry={() => void refresh()}
+        emptyIllustration={events.length ? "search" : "empty"}
         density="compact"
         loading={loading}
         data={filtered}
@@ -221,13 +233,10 @@ export function AdminAuditLog() {
               : "No permitted administrative events."
         }
       />
-      {selected && (
-        <AuditDetailDrawer
-          event={selected}
-          entityLabel={entityLabel(selected)}
-          onClose={() => setSelected(null)}
-        />
-      )}
+    </div>
+    {detail.selectedId&&<AuditEventDetailPage key={detail.selectedId} event={checking||error?undefined:selected} checking={checking} error={error}
+      entityLabel={selected?entityLabel(selected):''} officeLabel={orgs.find(org=>org.id===selected?.orgId)?.name||selected?.orgId||'Not recorded'}
+      onBack={detail.back} onRefresh={()=>void refresh()}/>}
     </div>
   );
 }

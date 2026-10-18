@@ -10,12 +10,14 @@ export function useAdministrativeAuditWindow() {
   const [total, setTotal] = useState<number>();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [checking, setChecking] = useState(true);
   const [error, setError] = useState("");
   const mounted = useRef(false);
   const revision = useRef(0);
   const pending = useRef(false);
   const load = useCallback(async () => {
     const current = ++revision.current;
+    setChecking(true);
     try {
       const next = await fetchAdministrativeAuditWindow();
       if (!mounted.current || current !== revision.current) return;
@@ -28,7 +30,7 @@ export function useAdministrativeAuditWindow() {
       setTotal(undefined);
       setError(reason instanceof Error ? reason.message : "Audit unavailable");
     } finally {
-      if (mounted.current && current === revision.current) setLoading(false);
+      if (mounted.current && current === revision.current) {setLoading(false);setChecking(false);}
     }
   }, []);
   useEffect(() => {
@@ -52,5 +54,5 @@ export function useAdministrativeAuditWindow() {
       if (mounted.current) setRefreshing(false);
     }
   };
-  return { events, total, loading, refreshing, error, refresh };
+  return { events, total, loading, refreshing, checking, error, refresh };
 }

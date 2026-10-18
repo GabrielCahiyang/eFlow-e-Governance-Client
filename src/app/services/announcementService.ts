@@ -6,6 +6,8 @@
 import { supabase } from '../../lib/supabase';
 import { recordAudit } from './auditService';
 import { createNotification } from './notificationService';
+import {announcementExpiryError,announcementExpiryTimestamp} from '../shared/expiryDates';
+import {getPhilippineCalendarDate,isCalendarDate} from '../shared/calendarDates';
 
 export type Audience = 'all' | 'org' | 'users';
 export type AnnouncementStatus = 'draft' | 'published' | 'withdrawn';
@@ -91,13 +93,22 @@ export interface AnnouncementDraft {
 }
 
 export async function saveDraft(draft: AnnouncementDraft, id?: string): Promise<string> {
+  let expiresAt: string|null;
+  const expiryIssue=announcementExpiryError(draft.expiresAt);
+  if(expiryIssue){
+    if(!id||!draft.expiresAt||!isCalendarDate(draft.expiresAt))throw new Error(expiryIssue);
+    const previous=await supabase.from('announcements').select('expires_at').eq('id',id).single();
+    if(previous.error)throw previous.error;
+    if(!previous.data?.expires_at||getPhilippineCalendarDate(new Date(previous.data.expires_at))!==draft.expiresAt)throw new Error(expiryIssue);
+    expiresAt=previous.data.expires_at;
+  }else expiresAt=announcementExpiryTimestamp(draft.expiresAt);
   const { data: { user } } = await supabase.auth.getUser();
   const row = {
     title: draft.title.trim(),
     body: draft.body,
     audience: draft.audience,
     org_id: draft.orgId || null,
-    expires_at: draft.expiresAt || null,
+    expires_at: expiresAt,
   };
   if (id) {
     const { error } = await supabase.from('announcements').update(row).eq('id', id);
@@ -145,6 +156,7 @@ export async function publishAnnouncement(
   draft: AnnouncementDraft,
 ): Promise<void> {
   if (!draft.title.trim()) throw new Error('Announcement title is required.');
+  const expiryIssue=announcementExpiryError(draft.expiresAt);if(expiryIssue)throw new Error(expiryIssue);
 
   // Persist latest content + mark published.
   await saveDraft(draft, id);

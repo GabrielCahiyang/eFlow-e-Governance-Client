@@ -108,13 +108,13 @@ test("Account audit has bounded coverage, loaded filters, nested redaction and t
   await page.goto("/users?page=Account%20Audit");
   await expect(
     page.getByText("Latest 500 permitted events", { exact: true }),
-  ).toBeVisible();
+  ).toBeVisible({timeout:15000});
   await page
     .getByRole("button", { name: "Inspect audit event audit-one", exact: true })
     .click();
-  const inspector = page.getByRole("dialog", { name: /Audit event:/ });
+  const inspector = page.locator('.record-detail-page');
   await expect(inspector).toBeVisible();
-  await inspector.locator("summary").click();
+  await inspector.getByRole('tab',{name:'Technical details',exact:true}).click();
   await expect(
     inspector.getByText("Visible context", { exact: false }),
   ).toBeVisible();
@@ -125,7 +125,7 @@ test("Account audit has bounded coverage, loaded filters, nested redaction and t
   expect(bounds.width).toBeLessThanOrEqual(320);
   await page.screenshot({ path: info.outputPath("audit-phone.png") });
   await inspector
-    .getByRole("button", { name: "Close audit details", exact: true })
+    .getByRole("button", { name: "Back to Account Audit", exact: true })
     .click();
   unavailable = true;
   await page

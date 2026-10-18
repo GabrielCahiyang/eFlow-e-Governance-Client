@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../components/ui/EmptyState';
 import {
   CheckCircle2,
   Clock3,
@@ -114,7 +115,7 @@ export function TaskSubtaskEvidenceSection({
                   ) : (
                     <div className="rounded-xl border border-dashed border-neutral-200 bg-neutral-50 p-3">
                       <div className="flex items-center gap-1.5 text-[10.5px] font-semibold uppercase tracking-wider text-neutral-500"><Clock3 size={12} /> Submission history</div>
-                      <div className="mt-3 text-[11.5px] text-neutral-400">No evidence submission was recorded for this subtask.</div>
+                      <EmptyState illustration="files" size="compact" title="No evidence submission was recorded for this subtask."/>
                     </div>
                   )}
                 </div>

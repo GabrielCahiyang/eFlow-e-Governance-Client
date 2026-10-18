@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../../components/ui/EmptyState';
 import { AlertTriangle, CalendarClock, CircleAlert, Clock3, ExternalLink, UserRoundX } from "lucide-react";
 import type { TeamAttentionItem, TeamAttentionKind } from "../../types";
 
@@ -34,11 +35,7 @@ export function TeamAttentionQueue({
 }) {
   if (items.length === 0) {
     return (
-      <div className="flex min-h-[320px] flex-col items-center justify-center rounded-xl border border-dashed border-emerald-200 bg-emerald-50/40 p-8 text-center">
-        <div className="grid h-11 w-11 place-items-center rounded-full bg-emerald-100 text-emerald-600"><CircleAlert size={20} /></div>
-        <h3 className="mt-3 text-[14px] font-semibold text-emerald-900">No immediate intervention required</h3>
-        <p className="mt-1 max-w-sm text-[12px] leading-5 text-emerald-700">The current filters contain no overdue, blocked, stalled, unassigned, or aging review items.</p>
-      </div>
+      <EmptyState illustration="complete" title="No immediate intervention required" description="The current filters contain no overdue, blocked, stalled, unassigned, or aging review items."/>
     );
   }
 

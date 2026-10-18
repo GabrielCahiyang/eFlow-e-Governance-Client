@@ -1,5 +1,6 @@
 import {useEffect,useRef,useState} from 'react';
 import {useExplicitDraft} from '../../../shared/useExplicitDraft';
+import {duplicateWorkNameError} from '../../../shared/workNames';
 import {captureWorkEditorBaseline,freezeWorkEditorRequest,sameWorkEditorScope,workEditorCapability,workEditorDirty,workEditorPayload,workEditorReceiptRetryAllowed,workEditorDateError} from '../selectors/editorDraft';
 import {workRequestFailure} from '../services/workRequestOutcome';
 import type {WorkCapabilityContext,WorkRequest,WorkTreeSnapshot} from '../types';
@@ -43,6 +44,12 @@ export function useWorkEditorDraft({data,edit,context,refreshPending,onCancel}:{
    if(!active.current)return;
    if(!latest.current.authorized){setOutcome({kind:'revoked_authority',message:'Your current branch authority changed. Reload the tree before saving.'});return;}
    if(!request.current){
+    if(['create','edit','move'].includes(baseline.command)){
+     const fields=latest.current.fields,parent=baseline.command==='edit'?baseline.fields.parent:fields.parent;
+     const title=baseline.command==='move'?latest.current.data.nodes.find(node=>node.id===baseline.nodeId)?.title||'':fields.title;
+     // Keep existing required-title handling in the form/server; this guard only adds sibling uniqueness.
+     const issue=title.trim()?duplicateWorkNameError(title,latest.current.data.nodes.filter(node=>(node.parent_subtask_id||'')===(parent||'')),'Subitem',baseline.nodeId||undefined):'';if(issue)throw new Error(issue);
+    }
     const dateIssue=workEditorDateError(latest.current.data,baseline,latest.current.fields);
     if(dateIssue)throw new Error(dateIssue);
     const candidate=freezeWorkEditorRequest(baseline,latest.current.fields,crypto.randomUUID());

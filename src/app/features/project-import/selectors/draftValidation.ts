@@ -1,5 +1,6 @@
 import { getPhilippineCalendarDate, scheduleRangeError, scheduledDateError } from '../../../shared/calendarDates';
 import type { ProjectImportDraft } from '../types';
+import {duplicateWorkNameError} from '../../../shared/workNames';
 
 function object(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('AI returned an invalid project draft. Regenerate it.');
@@ -69,8 +70,10 @@ export function validateProjectImportDraft(draft: ProjectImportDraft, confirmati
   const map = new Map(tasks.map(t => [t.key, t]));
   if (map.size !== tasks.length || tasks.some(t => !t.key)) throw new Error('Task references must be unique.');
   for (const group of draft.groups) {
+    const groupIssue=duplicateWorkNameError(group.title,draft.groups.filter(candidate=>candidate!==group),'Group');if(groupIssue)throw new Error(groupIssue);
     if (!group.title.trim() || group.title.length > 120) throw new Error('Enter a group name (up to 120 characters).');
     for (const t of group.tasks.filter(t => t.included)) {
+      const taskIssue=duplicateWorkNameError(t.title,group.tasks.filter(candidate=>candidate!==t&&candidate.included),'Task');if(taskIssue)throw new Error(taskIssue);
       if (!t.title.trim() || t.title.length > 300 || t.description.length > 10000) throw new Error('Enter task names and descriptions within their limits.');
       if (!Number.isFinite(t.estimatedHours) || t.estimatedHours < 0 || t.estimatedHours > 10000) throw new Error('Estimated hours must be between 0 and 10000.');
       date(t.startDate); date(t.dueDate);
@@ -78,6 +81,7 @@ export function validateProjectImportDraft(draft: ProjectImportDraft, confirmati
       if (t.startDate && t.dueDate && t.startDate > t.dueDate) throw new Error(`Start date follows due date: ${t.title}`);
       if (t.officeKey && !draft.offices.some(o => o.key === t.officeKey)) throw new Error('Choose a proposed Office responsibility.');
       for (const s of t.subitems) {
+        const subitemIssue=duplicateWorkNameError(s.title,t.subitems.filter(candidate=>candidate!==s),'Subitem');if(subitemIssue)throw new Error(subitemIssue);
         if (Object.keys(s).some(key=>["parentSubtaskId","parent_subtask_id","children","subitems"].includes(key)))throw new Error("Nested imports require a hierarchy format; parent links cannot be flattened.");
         if (!s.title.trim() || s.title.length > 300) throw new Error('Enter each subitem name.'); date(s.dueDate);
         if (confirmation) { const issue = scheduledDateError(s.dueDate, { earliest: t.startDate && t.startDate > getPhilippineCalendarDate() ? t.startDate : getPhilippineCalendarDate(), latest: t.dueDate, label: 'Subitem due date' }); if (issue) throw new Error(issue); }

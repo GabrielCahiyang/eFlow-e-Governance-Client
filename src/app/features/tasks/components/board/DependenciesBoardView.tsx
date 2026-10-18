@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../../components/ui/EmptyState';
 import { GitBranch, Link2, Unlink } from "lucide-react";
 import type { Task } from "../../../../services/taskService";
 import { statusMeta } from "./model";
@@ -19,7 +20,7 @@ export function DependenciesBoardView({
         <h2 className="mt-1 text-base font-semibold text-neutral-900">Prerequisite work</h2>
         <p className="mt-1 text-xs leading-relaxed text-neutral-500">Only task records in the current board scope are shown. Dependencies outside that scope stay protected and are identified without exposing their details.</p>
       </header>
-      {taskRows.length === 0 ? <div className="px-5 py-10 text-center text-xs text-neutral-500">No dependencies are recorded for the current scope.</div> : <div className="divide-y divide-neutral-100">{taskRows.map((task) => (
+      {taskRows.length === 0 ? <EmptyState fill illustration="tasks" size="compact" title="No dependencies are recorded for the current scope."/> : <div className="divide-y divide-neutral-100">{taskRows.map((task) => (
         <article key={task.id} className="px-4 py-4 sm:px-5">
           {onOpenTaskEditor ? <button type="button" onClick={() => onOpenTaskEditor(task)} className="break-words text-left text-[13px] font-semibold leading-snug text-neutral-900 hover:text-violet-700">{task.title}</button> : <h3 className="break-words text-[13px] font-semibold leading-snug text-neutral-900">{task.title}</h3>}
           <div className="mt-2 flex flex-wrap gap-2">{task.dependencyIds?.map((dependencyId) => {

@@ -1,3 +1,4 @@
+import { EmptyState } from '../ui/EmptyState';
 import { Button } from '../ui/button';
 import { FeatureDialog } from '../ui/FeatureDialog';
 import { requestNavigation } from '../../shared/navigationGuard';
@@ -101,9 +102,7 @@ export function TaskDiscussion({
         {loading && <p role="status">Loading discussion…</p>}
         {loadError && <div role="alert"><p>{loadError}</p><button onClick={() => setRetry(value => value + 1)}>Retry discussion</button></div>}
         {!loading && !loadError && visible.length === 0 && (
-          <div className="text-center py-6 text-[12px] font-normal text-neutral-400">
-            No comments yet. Start the discussion.
-          </div>
+          <EmptyState illustration="chat" size="compact" title="No comments yet. Start the discussion."/>
         )}
         {visible.map((c) => {
           const mine = c.authorId === user?.id;

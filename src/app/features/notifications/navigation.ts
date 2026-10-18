@@ -192,7 +192,7 @@ export function resolveNotificationDestination(
 
   if (isSubtask && title.includes("progress updated")) {
     const route = role === "head" || role === "member" || role === "accounting_staff" || role === "teamleader"
-      ? { section: "leading", page: "Leading Work" }
+      ? { section: "personal_work", page: "Leading" }
       : destinationForTask(role);
     return makeDestination(
       notification,

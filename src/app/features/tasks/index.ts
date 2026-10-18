@@ -39,7 +39,6 @@ export const MondayBoard = lazyFeature(
 export { ScopedTaskKanban } from "./components/board/ScopedTaskKanban";
 export type { MondayBoardProps } from "./components/board/model";
 export { EmployeeTaskWorkspace } from "../../components/Member/EmployeeTaskWorkspace";
-export { YouAreLeadingView } from "../../components/workflow/YouAreLeadingView";
 export { TaskDetailDrawer } from "../../components/workflow/TaskDetailDrawer";
 export { TaskTeamEditorDialog } from "./components/team/TaskTeamEditorDialog";
 export { TaskTeamMemberList } from "./components/team/TaskTeamMemberList";

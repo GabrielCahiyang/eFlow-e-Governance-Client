@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../../components/ui/EmptyState';
 import type { Task } from "../../../../services/taskService";
 import { getDeadlineInfo, parseTaskDeadline, priorityMeta, statusMeta } from "./model";
 
@@ -109,9 +110,7 @@ export function TimelineView({
       {/* Rows */}
       <div>
         {tasksWithDates.length === 0 && (
-          <div className="py-14 text-center text-[12px] text-neutral-400 italic">
-            No tasks with due dates to display on the timeline.
-          </div>
+          <EmptyState illustration="tasks" size="compact" title="No tasks with due dates to display on the timeline."/>
         )}
 
         {tasksWithDates.map(({ task, parsedDeadline }) => {

@@ -1,0 +1,18 @@
+.record-detail-page { width:100%; max-width:1240px; min-width:0; margin:0 auto; padding:24px; color:var(--foreground); overflow-wrap:anywhere; }
+.record-detail-page__breadcrumb { display:flex; flex-wrap:wrap; align-items:center; gap:8px; color:var(--muted-foreground); font-size:13px; }
+.record-detail-page__breadcrumb button { min-height:44px; color:var(--primary); text-align:left; }
+.record-detail-page__breadcrumb button:hover { text-decoration:underline; }
+.record-detail-page__header { border-bottom:1px solid var(--border); padding:0 0 24px; }
+.record-detail-page__back { margin:4px 0 20px -8px; }
+.record-detail-page__back button { min-height:44px; height:auto; white-space:normal; text-align:left; }
+.record-detail-page__heading { display:flex; flex-wrap:wrap; gap:20px; align-items:flex-start; justify-content:space-between; }
+.record-detail-page__title { flex:1 1 320px; min-width:0; }
+.record-detail-page h1 { margin:10px 0 8px; font-size:28px; font-weight:650; letter-spacing:-.5px; line-height:1.25; }
+.record-detail-page__title>p { margin:0; font-size:14px; line-height:1.65; color:var(--muted-foreground); }
+.record-detail-page__status,.record-detail-page__actions { display:flex; flex-wrap:wrap; align-items:center; gap:10px; min-width:0; }
+.record-detail-page__body { padding-top:24px; min-width:0; container-type:inline-size; }
+.record-detail-page :is(button,[role=tab]):focus-visible,.record-detail-page h1:focus-visible { outline:2px solid var(--primary); outline-offset:4px; border-radius:4px; }
+.record-detail-page .eflow-workspace-tabs { display:flex; flex-wrap:wrap; justify-content:flex-start; align-items:stretch; gap:8px; padding:0; margin-bottom:24px; overflow:visible; }
+.record-detail-page .eflow-workspace-tabs .eflow-workspace-tab { font-size:14px; min-height:44px; height:auto; padding:10px 16px; white-space:normal; }
+.record-detail-page .eflow-workspace-panel { min-width:0; }
+@media(max-width:600px){.record-detail-page { padding:16px 12px; }.record-detail-page h1 { font-size:24px; }.record-detail-page__heading { gap:16px; }.record-detail-page__title { flex-basis:100%; }.record-detail-page__actions { width:100%; }.record-detail-page .eflow-workspace-tabs .eflow-workspace-tab { padding:10px 12px; }}

@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../../components/ui/EmptyState';
 import { useMemo } from "react";
 import { CalendarDays, Clock3 } from "lucide-react";
 import type { Task } from "../../../../services/taskService";
@@ -25,7 +26,7 @@ export function CalendarBoardView({
         <h2 className="mt-1 text-base font-semibold text-neutral-900">Scheduled work</h2>
         <p className="mt-1 text-xs leading-relaxed text-neutral-500">Calendar dates are shown only when a real due date is available; relative schedules remain visible below.</p>
       </header>
-      {dated.length === 0 ? <div className="px-5 py-10 text-center text-xs text-neutral-500">No scheduled tasks in the current scope.</div> : (
+      {dated.length === 0 ? <EmptyState fill illustration="tasks" size="compact" title="No scheduled tasks in the current scope."/> : (
         <ol className="divide-y divide-neutral-100">
           {dated.map(({ task, date }) => {
             const deadline = getDeadlineInfo(task);

@@ -1,6 +1,7 @@
 import { supabase } from "../../../../lib/supabase";
 import type { BudgetSection } from "../types";
 import { validateBudgetSections } from "../selectors/budgetSections";
+import {budgetSettingsError,fiscalYearError} from '../validation/financialValidation';
 
 export async function fetchBudgetSections(orgId: string, fiscalYear: number) {
   const { data, error } = await supabase.rpc("get_office_budget_sections", { p_org_id: orgId, p_fiscal_year: fiscalYear });
@@ -14,7 +15,7 @@ export async function saveBudgetSections(input: {
   orgId: string; fiscalYear: number; sections: BudgetSection[]; expectedVersion: number;
   reason?: string; settings: { dailyReleaseLimit: number; perReceiptLimit: number; liquidationDueDays: number; allowReceiptOverride: boolean; threshold: number; notes: string };
 }) {
-  const invalid = validateBudgetSections(input.sections);
+  const invalid = fiscalYearError(input.fiscalYear)||budgetSettingsError(input.settings)||validateBudgetSections(input.sections);
   if (invalid) throw new Error(invalid);
   const { data, error } = await supabase.rpc("save_office_budget_sections", {
     p_org_id: input.orgId, p_fiscal_year: input.fiscalYear, p_sections: input.sections.filter(s => !s.retired),

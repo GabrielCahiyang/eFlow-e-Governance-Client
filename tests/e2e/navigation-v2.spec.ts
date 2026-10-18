@@ -7,6 +7,20 @@ const routes = {
   accounting_staff: [['My Work','Assigned work','/my-work'],['My Work','Leading','/my-work'],['My Work','Subtasks','/my-work'],['My Work','History','/my-work'],['Accounting','Accounting Overview','/accounting-overview'],['Accounting','Voucher & Cash Releases','/voucher-cash-releases'],['Accounting','General Journal','/general-journal'],['Accounting','Financial Audit Trail','/financial-audit-trail'],['Accounting','Office Budget Ledgers','/office-budget-ledgers']],
   admin: [['Admin Center','All Users','/users'],['Admin Center','Role Defaults','/users'],['Admin Center','User Access','/users'],['Admin Center','Account Audit','/users'],['Admin Center','System Settings','/users'],['Admin Center','Backup & Export','/users']],
 } as const;
+
+for (const role of ['head', 'member', 'accounting_staff'] as const) test(`${role} old Leading bookmark opens current My Work without retired tabs`, async ({page}) => {
+  test.setTimeout(90_000);
+  await projectWorkspaceFixture(page,role,false,{landingOnly:true,leading:true});
+  await page.goto('/leading?page=Leading+Work');
+  await expect.poll(() => new URL(page.url()).pathname).toBe('/my-work');
+  await expect.poll(() => new URL(page.url()).searchParams.get('page')).toBe('Leading');
+  const destinations = page.getByRole('navigation',{name:'My Work destinations'}).first();
+  await expect(destinations.getByRole('button',{name:'Leading',exact:true})).toHaveAttribute('aria-current','page');
+  await expect(page.getByRole('button',{name:/Work I'm Leading|Pinned|Lead workspace/})).toHaveCount(0);
+  await expect(page.getByRole('heading',{name:'Access denied',exact:true})).toHaveCount(0);
+  await page.reload();
+  await expect(destinations.getByRole('button',{name:'Leading',exact:true})).toHaveAttribute('aria-current','page');
+});
 for (const role of ['head','member','accounting_staff','admin'] as const) test(`${role} retains its landing and authorized destinations through global/context navigation`, async ({page},info) => {
   test.setTimeout(150_000);
   await page.setViewportSize({width:1440,height:950});

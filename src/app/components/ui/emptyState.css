@@ -1,0 +1,20 @@
+.eflow-empty-illustration { display:block; box-sizing:border-box; flex:none; width:176px; height:120px; max-width:100%; object-fit:contain; margin-inline:auto; }
+.eflow-empty-illustration[data-size=page] { width:208px; height:144px; }
+.eflow-empty-illustration[data-size=compact] { width:112px; height:76px; }
+.eflow-illustrated-empty.eflow-illustrated-empty { display:flex; box-sizing:border-box; flex-direction:column; align-items:center; justify-content:center; gap:18px; min-width:0; width:100%; padding:32px 20px; text-align:center; color:var(--foreground); }
+.eflow-illustrated-empty[data-size=page] { padding:48px 24px; gap:24px; }
+.eflow-illustrated-empty[data-size=compact] { padding:20px 12px; gap:12px; }
+.eflow-illustrated-empty[data-size=panel] { min-height:240px; flex:1; }
+.eflow-illustrated-empty[data-size=compact] { min-height:168px; flex:1; }
+.eflow-illustrated-empty[data-fill] { flex:1; }
+.eflow-data-table td:has(.eflow-empty-illustration) { height:clamp(280px,45dvh,460px); vertical-align:middle; }
+.eflow-illustrated-empty__copy { min-width:0; max-width:440px; overflow-wrap:anywhere; }
+.eflow-illustrated-empty__title { margin:0; font-size:15px; line-height:1.5; font-weight:600; color:var(--foreground); }
+.eflow-illustrated-empty__description { margin:6px 0 0; font-size:13px; line-height:1.65; color:var(--muted-foreground); }
+.eflow-illustrated-empty__action { display:flex; justify-content:center; flex-wrap:wrap; gap:8px; min-width:0; max-width:100%; }
+.eflow-illustrated-empty__action > * { max-width:100%; }
+.eflow-empty-workspace.eflow-empty-workspace--illustrated { padding:0; }
+.eflow-empty-workspace--illustrated > .eflow-illustrated-empty { margin-top:0; }
+.eflow-empty-workspace--illustrated .eflow-illustrated-empty__title { color:var(--foreground); font-size:15px; }
+.dark .eflow-empty-illustration { background:#f4f7f7; border-radius:12px; padding:10px; }
+@media(max-width:480px) { .eflow-illustrated-empty[data-size=page] { padding:32px 16px; } .eflow-empty-illustration[data-size=page] { width:176px; height:120px; } }

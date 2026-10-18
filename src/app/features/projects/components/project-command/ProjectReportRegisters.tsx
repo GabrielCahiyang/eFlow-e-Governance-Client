@@ -1,3 +1,4 @@
+import { EmptyStateIllustration } from '../../../../components/ui/EmptyStateIllustration';
 import { Button, EmptyState, Label } from "@vibe/core";
 import { Open } from "@vibe/icons";
 import { Eye, ReceiptText } from "lucide-react";
@@ -261,7 +262,7 @@ export function ReceiptRegister({ data }: { data: ProjectCommandData }) {
           ))}
         </div>
       ) : (
-        <EmptyState
+        <EmptyState visual={<EmptyStateIllustration kind="files"/>}
           title="No receipt packages yet"
           description="Receipt packages appear here after they are submitted and liquidated for this project."
         />

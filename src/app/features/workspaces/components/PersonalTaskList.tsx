@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../components/ui/EmptyState';
 import { useEffect, useState } from 'react';
 import { FormField, SelectInput, TextInput } from '../../../components/ui/FormField';
 import { useNavigationBlocker } from '../../../shared/navigationGuard';
@@ -32,7 +33,7 @@ export function PersonalTaskList({data,userId,busy,run,assignedOnly=false}:{data
  const tasks=data.tasks.filter(t=>!assignedOnly||t.lead_id===userId||t.reviewer_id===userId||descendantRoots.includes(t.id));
  return <div className="r3-task-list" aria-label="Personal tasks">
   {workError&&<p role="alert">{workError}<button type="button" onClick={()=>setRetryWork(value=>value+1)}>Retry assigned subitems</button></p>}
-  {!tasks.length&&<p>No {assignedOnly?'assigned ':''}tasks in this project.</p>}
+  {!tasks.length&&<EmptyState illustration="tasks" title={assignedOnly?'No assigned tasks in this project.':'No tasks in this project.'}/>}
   {tasks.map(task=><article key={task.id} className="r3-task-row"><div><h3>{task.title}</h3><p>Lead: {memberName(task.lead_id)}{!task.lead_id&&task.status!=='done'?' · Needs reassignment':''} · {task.status.replace('_',' ')} · {task.progress}%</p>
    <p>{task.reviewer_id?`Independent reviewer: ${memberName(task.reviewer_id)}`:'Personal completion · No review required'}</p>
    {task.note&&<p>Update: {task.note}</p>}{task.review_note&&<p>Review: {task.review_note}</p>}</div>

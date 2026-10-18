@@ -29,7 +29,7 @@ export function ProjectBudgetTab({ data }: { data: ProjectCommandData }) {
   if (!summary || (summary.approvedAmount === 0 && lines.length === 0)) {
     return (
       <div className="bg-white border border-neutral-200/80 rounded-2xl p-12 text-center shadow-xs font-sans">
-        <SectionEmpty
+        <SectionEmpty illustration="budget"
           icon={<Coins size={36} className="text-neutral-400" />}
           title="No Financial Allocation"
           description="This project operates without a dedicated budget line allocation or financial expenditures."

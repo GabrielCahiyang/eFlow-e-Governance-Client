@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../../components/ui/EmptyState';
 import { useMemo, useState } from "react";
 import { AlertTriangle, ArrowRightLeft, CalendarClock, CheckCircle2, ExternalLink, Loader2, ShieldAlert, Users } from "lucide-react";
 import type { Employee } from "../../../members";
@@ -85,7 +86,7 @@ export function TeamMemberOperationsPanel({
                 <div className="min-w-0 flex-1"><p className="truncate text-[12px] font-medium text-neutral-800">{task.title}</p><p className="mt-0.5 text-[12px] text-neutral-500">{task.assigneeId === employee.id ? "Team Lead" : "Team Member"} · {task.status.replace(/_/g, " ")} · {task.deadline || task.dueDate || "No deadline"}</p></div><ExternalLink size={12} className="mt-0.5 shrink-0 text-neutral-400" />
               </button>
             ))}
-            {activeTasks.length === 0 && <p className="rounded-lg bg-neutral-50 px-3 py-5 text-center text-[12px] text-neutral-500">No active task participation.</p>}
+            {activeTasks.length === 0 && <EmptyState illustration="tasks" size="compact" title="No active task participation."/>}
           </div>
         </section>
 
@@ -96,7 +97,7 @@ export function TeamMemberOperationsPanel({
               const parent = tasks.find((task) => task.id === subtask.taskId);
               return <button key={subtask.id} type="button" onClick={() => parent && onOpenTask(parent)} className="w-full rounded-lg bg-neutral-50 p-2.5 text-left transition hover:bg-neutral-100"><div className="flex items-center justify-between gap-2"><p className="truncate text-[12px] font-medium text-neutral-700"><span className="mr-1.5 text-[12px] font-semibold uppercase text-neutral-500">Step {subtask.position + 1}</span>{subtask.title}</p><span className="text-[12px] text-neutral-500">{subtask.percentComplete}%</span></div><p className="mt-0.5 truncate text-[12px] text-neutral-500">{parent?.title || "Parent task"} · {subtask.status.replace(/_/g, " ")}</p></button>;
             })}
-            {assignedSubtasks.length === 0 && <p className="rounded-lg bg-neutral-50 px-3 py-4 text-center text-[12px] text-neutral-500">No active delegated subtasks.</p>}
+            {assignedSubtasks.length === 0 && <EmptyState illustration="tasks" size="compact" title="No active delegated subtasks."/>}
           </div>
         </section>
 

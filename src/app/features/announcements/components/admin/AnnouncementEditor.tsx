@@ -1,5 +1,7 @@
 import { useReviewedMutation } from "../../../../shared/useReviewedMutation";
 import { useExplicitDraft } from "../../../../shared/useExplicitDraft";
+import {announcementExpiryError} from '../../../../shared/expiryDates';
+import {calendarMinDate,getPhilippineCalendarDate} from '../../../../shared/calendarDates';
 import { requestNavigation } from "../../../../shared/navigationGuard";
 import { FeedbackState } from "../../../../components/ui/FeedbackState";
 import { useAuth } from "../../../../contexts/AuthContext";
@@ -42,7 +44,9 @@ export function AnnouncementEditor({
   );
   const [orgId, setOrgId] = useState(existing?.orgId || "");
   const [userIds, setUserIds] = useState<string[]>([]);
-  const [expiresAt, setExpiresAt] = useState("");
+  const originalExpiry=existing?.expiresAt?getPhilippineCalendarDate(new Date(existing.expiresAt)):'';
+  const [expiresAt, setExpiresAt] = useState(originalExpiry);
+  const [expiryError,setExpiryError]=useState('');
   const [preview, setPreview] = useState(false);
   const safety = useReviewedMutation(existing?.id || "new-announcement");
   const busy = safety.pending;
@@ -88,13 +92,14 @@ export function AnnouncementEditor({
     guard.markClean();
   };
   const doSaveDraft = async () => {
+    const expiryIssue=expiresAt===originalExpiry?'':announcementExpiryError(expiresAt);setExpiryError(expiryIssue);if(expiryIssue)return;
     if (!title.trim()) {
       toast("Title is required.", "error");
       return;
     }
     await safety.run({
       key: "save-draft",
-      validate: requirePublish,
+      validate: ()=>{requirePublish();const issue=expiresAt===originalExpiry?'':announcementExpiryError(expiresAt);if(issue)throw new Error(issue);},
       operation: async () => {
         savedId.current = await saveDraft(draft, savedId.current);
       },
@@ -107,6 +112,7 @@ export function AnnouncementEditor({
     });
   };
   const doPublish = async () => {
+    const expiryIssue=announcementExpiryError(expiresAt);setExpiryError(expiryIssue);if(expiryIssue)return;
     if (!title.trim()) {
       toast("Title is required.", "error");
       return;
@@ -121,7 +127,7 @@ export function AnnouncementEditor({
     }
     await safety.run({
       key: "publish",
-      validate: requirePublish,
+      validate: ()=>{requirePublish();const issue=announcementExpiryError(expiresAt);if(issue)throw new Error(issue);},
       confirmation: {
         title: "Publish announcement?",
         description: `“${title}” will be visible to ${audience === "all" ? "all recipients" : audience === "org" ? orgs.find((org) => org.id === orgId)?.name || "the selected Office" : `${userIds.length} selected recipients`}.`,
@@ -372,10 +378,15 @@ export function AnnouncementEditor({
                 </label>
                 <input
                   type="date"
+                  aria-label="Expiration date"
+                  aria-invalid={!!expiryError}
+                  aria-describedby="announcement-expiry-help"
+                  min={calendarMinDate(originalExpiry)}
                   value={expiresAt}
-                  onChange={(e) => setExpiresAt(e.target.value)}
+                  onChange={(e) => {setExpiresAt(e.target.value);setExpiryError(e.target.value===originalExpiry?'':announcementExpiryError(e.target.value));}}
                   className={inputCls}
                 />
+                <p id="announcement-expiry-help" role={expiryError?'alert':undefined} className="text-xs mt-1">{expiryError||'Expires at the end of the selected day (Philippine time). Leave empty for no expiry.'}</p>
               </div>
             </div>
           )}

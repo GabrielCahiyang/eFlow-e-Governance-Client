@@ -1,3 +1,5 @@
+import { EmptyState as IllustratedEmptyState } from '../../../components/ui/EmptyState';
+import { EmptyStateIllustration } from '../../../components/ui/EmptyStateIllustration';
 import {
   Button,
   EmptyState,
@@ -53,7 +55,7 @@ export function CollaborationDraftList({
 
   if (!rows.length) {
     return (
-      <EmptyState
+      <IllustratedEmptyState illustration="projects" size="page"
         title={
           mode === "owned"
             ? "No work plans in preparation"
@@ -104,7 +106,7 @@ export function CollaborationDraftList({
           <Table
             columns={columns}
             emptyState={
-              <EmptyState
+              <EmptyState visual={<EmptyStateIllustration kind="complete"/>}
                 title="No reviews waiting"
                 description="No incoming review requests require action."
               />
@@ -200,7 +202,7 @@ export function CollaborationDraftList({
       <Table
         columns={columns}
         emptyState={
-          <EmptyState
+          <EmptyState visual={<EmptyStateIllustration kind="projects"/>}
             title="No drafts"
             description="There are no matching collaboration drafts."
           />

@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../../components/ui/EmptyState';
 import { isAdminRole } from "../../../../shared/roles";
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence } from "motion/react";
@@ -271,9 +272,7 @@ function PeopleTab({
               );
             })}
             {!filtered.length && (
-              <div className="p-8 text-center text-[10.5px] text-neutral-500">
-                No office people match this search.
-              </div>
+              <EmptyState illustration="search" size="compact" title="No office people match this search."/>
             )}
           </div>
         </div>
@@ -486,9 +485,7 @@ function UserAccessTab({
             </button>
           ))}
           {filteredUsers.length === 0 && (
-            <p className="py-10 text-center text-[11px] text-neutral-400">
-              No active dept members match this search.
-            </p>
+            <EmptyState illustration="search" size="compact" title="No active dept members match this search."/>
           )}
         </div>
       </aside>

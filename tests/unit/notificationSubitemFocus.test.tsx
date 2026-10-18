@@ -17,7 +17,7 @@ vi.mock('../../src/app/features/subtasks',()=>({TaskSubtasksWidget:()=>null,fetc
  return props.subtask?<aside aria-label="Canonical Inspector fixture"><p>Selected ID: {props.subtask.id}</p><input aria-label="Fixture Work draft" disabled={props.readOnly} value={draft} onChange={event=>setDraft(event.target.value)}/><button onClick={props.onClose}>Close fixture</button></aside>:null;
 }}));
 import {SubtasksWorkspace} from '../../src/app/components/workflow/SubtasksWorkspace';
-import {YouAreLeadingView} from '../../src/app/components/workflow/YouAreLeadingView';
+import {LeadingNotificationTarget} from '../../src/app/features/personal-work/components/LeadingNotificationTarget';
 import {queueNotificationNavigationIntent} from '../../src/app/features/notifications';
 import {completeNotificationNavigationIntent,peekNotificationNavigationIntent} from '../../src/app/features/notifications/navigationIntent';
 const task:Task={id:'root',title:'Root',status:'todo',assigneeId:'me',memberIds:['me'],memberNames:['Me'],linkedProjectId:'project',orgId:'office',createdAt:1,updatedAt:1};
@@ -61,11 +61,17 @@ describe('NW9.5 canonical notification entrances',()=>{
   api.read.mockResolvedValue({data:[...rows(),{...rows()[7],id:'sibling'}],error:null});await act(async()=>api.update!());act(()=>queueNotificationNavigationIntent({...pointer,notificationId:'next',entityId:'sibling'},'me'));await waitFor(()=>expect(confirm).toHaveBeenCalled());
   expect(screen.getByText('Selected ID: eight')).toBeTruthy();expect(screen.getByDisplayValue('Unsaved Work')).toBeTruthy();expect(peekNotificationNavigationIntent('me')?.entityId).toBe('sibling');
  });
- it('opens a progress notification in the Leading Work Subitem Inspector without changing root-list eligibility',async()=>{
-  queueNotificationNavigationIntent({...pointer,kind:'leading_task'},'me');render(<YouAreLeadingView/>);await screen.findByText('Selected ID: eight');expect(api.record).toHaveBeenCalledWith('root','eight');expect(api.drawer.mock.calls.at(-1)?.[0]).toMatchObject({subtask:{id:'eight'},initialSection:'work',origin:{view:'Leading Work',section:'work'}});await waitFor(()=>expect(peekNotificationNavigationIntent('me')).toBeNull());
+ it('opens a progress notification from My Work Leading without changing root-list eligibility',async()=>{
+  queueNotificationNavigationIntent({...pointer,kind:'leading_task'},'me');render(<LeadingNotificationTarget rows={[{kind:'office-task',id:'root',task} as any]} loading={false} onOpen={vi.fn()}/>);await screen.findByText('Selected ID: eight');expect(api.record).toHaveBeenCalledWith('root','eight');expect(api.drawer.mock.calls.at(-1)?.[0]).toMatchObject({subtask:{id:'eight'},initialSection:'work',origin:{view:'My Work',section:'work'}});await waitFor(()=>expect(peekNotificationNavigationIntent('me')).toBeNull());
+ });
+ it('opens an older parent-only progress notification through the current task page callback',async()=>{
+  const open=vi.fn().mockResolvedValue(true);queueNotificationNavigationIntent({...pointer,kind:'leading_task',entityId:undefined},'me');
+  render(<LeadingNotificationTarget rows={[{kind:'office-task',id:'root',task,leading:true,history:false} as any]} loading={false} onOpen={open}/>);
+  await waitFor(()=>expect(open).toHaveBeenCalledWith(expect.objectContaining({id:'root'}),expect.any(HTMLElement),expect.any(Function)));
+  await waitFor(()=>expect(peekNotificationNavigationIntent('me')).toBeNull());expect(api.record).not.toHaveBeenCalled();
  });
  it('does not let a late progress lookup replace a newer canonical intent with the same notification ID',async()=>{
-  let finish!:(value:unknown)=>void;api.record.mockImplementationOnce(()=>new Promise(resolve=>{finish=resolve;}));queueNotificationNavigationIntent({...pointer,kind:'leading_task'},'me');render(<YouAreLeadingView/>);await waitFor(()=>expect(api.record).toHaveBeenCalledWith('root','eight'));
+  let finish!:(value:unknown)=>void;api.record.mockImplementationOnce(()=>new Promise(resolve=>{finish=resolve;}));queueNotificationNavigationIntent({...pointer,kind:'leading_task'},'me');render(<LeadingNotificationTarget rows={[{kind:'office-task',id:'root',task} as any]} loading={false} onOpen={vi.fn()}/>);await waitFor(()=>expect(api.record).toHaveBeenCalledWith('root','eight'));
   act(()=>queueNotificationNavigationIntent({...pointer,kind:'leading_task',entityId:'new-node'},'me'));await screen.findByText('Selected ID: new-node');await act(async()=>finish({subtask:{id:'eight',taskId:'root',title:'Late old node'},submissions:[],progressUpdates:[]}));expect(screen.queryByText('Selected ID: eight')).toBeNull();
  });
 });

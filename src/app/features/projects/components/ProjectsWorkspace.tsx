@@ -1,3 +1,4 @@
+import { EmptyStateIllustration } from '../../../components/ui/EmptyStateIllustration';
 import * as React from "react";
 import { useWorkspaceNavigationHost } from '../../../shared/WorkspaceNavigationContext';
 import { requestNavigation } from '../../../shared/navigationGuard';
@@ -539,10 +540,8 @@ export function ProjectsWorkspace({
             ) : scope.includeAllAccessibleWork ? (
               <CitywidePlansOverview projects={inScope} drafts={approvalPortfolioDrafts} organizations={orgs} profiles={profiles} onOpenProject={openProject} onOpenPlan={(id) => openProposal(id, "approvals")} />
             ) : (
-              <div className="flex flex-col items-center justify-center py-20 text-center">
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-teal-50 text-teal-700 mb-4 shadow-sm">
-                  <Icons.Boxes size={32} />
-                </div>
+              <div className="flex flex-col items-center justify-center py-20 text-center" style={{minHeight:"max(320px, calc(100dvh - 220px))"}}>
+                <EmptyStateIllustration kind="projects" size="page"/>
                 <h3 className="text-lg font-semibold text-neutral-900 mb-1">{readOnly ? "Select a project" : "Let’s start working together"}</h3>
                 <p className="text-sm text-neutral-500 max-w-sm mb-6">
                   {readOnly ? "Select a project from the left sidebar to view its tasks and approval history." : "Select a project from the left sidebar to open its workspace, or create a new plan to get started."}
