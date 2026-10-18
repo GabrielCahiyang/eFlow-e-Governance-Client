@@ -46,7 +46,7 @@ describe('one supplied work hierarchy composition',()=>{
   const first=screen.getAllByRole('row')[1];expect(within(first).getAllByText('Current Lead')).toHaveLength(1);
   expect(first.textContent).toContain('Contributors (2): Selected Contributor, Historical Person');
   expect(within(first).getByText('In progress')).toBeTruthy();expect(first.querySelector('time')?.dateTime).toBe('2026-12-01');
-  expect(within(first).getByRole('group',{name:'Progress for Parent'})).toBeTruthy();expect(within(first).getByRole('progressbar').getAttribute('aria-valuenow')).toBe('35');
+  expect(within(first).getByRole('group',{name:'Progress for Parent'})).toBeTruthy();expect(within(first).queryByRole('progressbar')).toBeNull();expect(within(first).getByText('Not approved yet')).toBeTruthy();
   expect(api.load).not.toHaveBeenCalled();expect(api.save).not.toHaveBeenCalled();expect(JSON.stringify(data)).toBe(before);
  });
  it('labels disclosure and keeps collapse state controlled without changing canonical parents',()=>{

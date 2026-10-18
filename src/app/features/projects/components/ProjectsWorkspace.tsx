@@ -1,16 +1,16 @@
-import { EmptyStateIllustration } from '../../../components/ui/EmptyStateIllustration';
+import { ProjectIndex } from './ProjectIndex';
+import { isAppointedOfficeHead } from '../../../shared/officeAuthority';
 import * as React from "react";
 import { useWorkspaceNavigationHost } from '../../../shared/WorkspaceNavigationContext';
 import { requestNavigation } from '../../../shared/navigationGuard';
 import { writeNavigationLocation } from '../../navigation';
-import { replaceNavigationHistory } from '../../../shared/navigationHistory';
+import { NAVIGATION_LOCATION_EVENT, pushNavigationHistory, replaceNavigationHistory } from '../../../shared/navigationHistory';
 import { FeedbackState } from '../../../components/ui/FeedbackState';
 import { useProjectLocation } from '../hooks/useProjectLocation';
 import { readProjectPlanningView, useProjectPlanningLocation } from '../hooks/useProjectPlanningLocation';
 import { CitywidePlansOverview } from "./CitywidePlansOverview";
 import * as Icons from "lucide-react";
 import { Skeleton } from "@vibe/core";
-import { SplitActionButton } from "../../../components/ui/workspace";
 import { CreateWorkPlanDialog, type WorkPlanCreationMode } from "../../proposal-import";
 import { useDeptDirectoryEmployees } from "../../members";
 import { isTaskLead } from "../../tasks";
@@ -53,17 +53,17 @@ import {
 } from "../services/proposalDeliveryService";
 import { notifyProjectListeners } from "../services/projectService";
 import "./projectsVibe.css";
+import './projectWorkflow.css';
 import { CreateProjectDialog } from '../../project-table';
 import { useWorkspaceScope } from '../../workspaces';
 
-export interface WorkspaceEditorTab {
+interface ProjectWorkspaceContext {
   id: string;
   type: "portfolio" | "project" | "proposal";
   title: string;
   projectId?: string;
   draftId?: string;
   initialCollaborationTab?: "overview" | "approvals" | "governance";
-  pinned?: boolean;
 }
 
 const PROJECT_WORKSPACE_TITLE: Partial<Record<ProjectCommandTab, string>> = {
@@ -92,12 +92,16 @@ export function ProjectsWorkspace({
   proposalGrouping?: boolean;
   readOnly?: boolean;
 }) {
-  const { projects: availableProjects, loading: projectsLoading } = useProjectsData();
+  const { projects: availableProjects, loading: projectsLoading, error: projectsError, retry: retryProjects } = useProjectsData();
   const workspaceScope = useWorkspaceScope();
+  const [committedProject, setCommittedProject] = React.useState<import('../services/types').Project>();
   const createdNavigationRef = React.useRef<string | undefined>(undefined);
-  const dbProjects = React.useMemo(() => workspaceScope
-    ? availableProjects.filter(project=>workspaceScope.officeProjectIds.includes(project.id))
-    : availableProjects, [availableProjects,workspaceScope]);
+  const dbProjects = React.useMemo(() => {
+    const snapshot = workspaceScope ? availableProjects.filter(project=>workspaceScope.officeProjectIds.includes(project.id)) : availableProjects;
+    // Keep the returned creation receipt visible until realtime catches up.
+    return committedProject && (!workspaceScope || committedProject.orgId === workspaceScope.workspace.office_id) && !snapshot.some(project=>project.id===committedProject.id) ? [...snapshot, committedProject] : snapshot;
+  }, [availableProjects,workspaceScope, committedProject]);
+  React.useEffect(() => { if (committedProject && availableProjects.some(project=>project.id===committedProject.id)) setCommittedProject(undefined); }, [availableProjects, committedProject]);
   const { tasks, loading: tasksLoading } = useTasks();
   const { orgs } = useOrgs();
   const { profiles } = useProfiles();
@@ -112,16 +116,7 @@ export function ProjectsWorkspace({
     excludeAdmins: true,
   });
 
-  // IDE-like Tabs state
-  const [tabs, setTabs] = React.useState<WorkspaceEditorTab[]>([
-    {
-      id: "portfolio",
-      type: "portfolio",
-      title: "Plans & Projects",
-      pinned: true,
-    },
-  ]);
-  const [activeTabId, setActiveTabId] = React.useState<string>("portfolio");
+  const [activeTab, setActiveTab] = React.useState<ProjectWorkspaceContext>({ id: 'portfolio', type: 'portfolio', title: 'All projects' });
   const [projectWorkspaceTab, setProjectWorkspaceTab] = React.useState<ProjectCommandTab>("tasks");
   const [quickProjectOpen, setQuickProjectOpen] = React.useState(false);
   const [requestedProjectTool, setRequestedProjectTool] = React.useState<{ projectId: string; tool: ProjectTool } | null>(null);
@@ -137,13 +132,13 @@ export function ProjectsWorkspace({
   >(readProjectPlanningView);
   const restorePlanningView = React.useCallback((view: 'portfolio' | 'drafts' | 'signoff') => {
     setWorkspaceView(view);
-    if (view !== 'portfolio') setActiveTabId('portfolio');
+    if (view !== 'portfolio') setActiveTab({id:'portfolio',type:'portfolio',title:'All projects'});
   }, []);
   const openPlanning = useProjectPlanningLocation(restorePlanningView);
   const [creationMode, setCreationMode] = React.useState<WorkPlanCreationMode | null>(null);
   const [templatesOpen, setTemplatesOpen] = React.useState(false);
   const baseAccess = resolveProjectWorkspaceAccess(readOnly, can);
-  const access = { ...baseAccess, canCreate: baseAccess.canCreate && (!workspaceScope || workspaceScope.workspace.office_id === (userProfile?.org_id || userProfile?.departmentId)) };
+  const access = { ...baseAccess, canCreate: baseAccess.canCreate && isAppointedOfficeHead(userProfile, orgs) && (!workspaceScope || workspaceScope.workspace.office_id === (userProfile?.org_id || userProfile?.departmentId)) };
   const collaboration = useCollaborationDrafts();
   const activeCollaborationDrafts = React.useMemo(
     () => collaboration.drafts.filter(isActiveCollaborationDraft),
@@ -199,76 +194,57 @@ export function ProjectsWorkspace({
   );
 
   const approvalPortfolioDrafts = React.useMemo(() => collaboration.drafts.filter((draft) => matchesProjectDepartment(draft.ownerOrgId, departmentFilter)), [collaboration.drafts, departmentFilter]);
-  const active = React.useMemo(
-    () => inScope.filter((p) => p.status !== "archived"),
-    [inScope],
-  );
-
   // Tab management handlers
   const openProject = React.useCallback(
     (projectId: string, historyMode: 'push' | 'replace' | false = 'replace') => {
       const project = dbProjects.find((p) => p.id === projectId);
-      if (!project) return;
+      if (!project) return false;
+      setContextNotice('');
       const tabId = `project-${projectId}`;
       const title = project?.title || "Project Workspace";
-      setTabs((current) => {
-        if (current.some((t) => t.id === tabId)) return current;
-        return [...current, { id: tabId, type: "project", projectId, title }];
-      });
-      setActiveTabId(tabId);
+      setActiveTab({ id: tabId, type: 'project', projectId, title });
       setWorkspaceView("portfolio");
       if (historyMode) {
         const params = new URLSearchParams(window.location.search);
         const view = params.get('project') === projectId ? params.get('view') || projectWorkspaceTab : 'tasks';
-        writeNavigationLocation('projects', 'Projects', historyMode, { project: projectId, view });
+        writeNavigationLocation('projects', 'Projects', historyMode, { project: projectId, view, parameters: { project: projectId, view } });
       }
 
-      setProjectWorkspaceTab((currentView) => {
-        const current = tabs.find((tab) => tab.id === activeTabId);
-        return current?.type === "project" ? currentView : "tasks";
-      });
+      setProjectWorkspaceTab(currentView => activeTab.projectId === projectId ? currentView : 'tasks');
+      return true;
     },
-    [activeTabId, dbProjects, tabs, projectWorkspaceTab],
+    [activeTab.projectId, dbProjects, projectWorkspaceTab],
   );
 
   const openProposal = React.useCallback(
-    (draftId: string, initialCollaborationTab: "overview" | "approvals" | "governance" = "overview") => {
+    (draftId: string, initialCollaborationTab: "overview" | "approvals" | "governance" = "overview", historyMode: 'push' | false = 'push') => {
       const draft = collaboration.drafts.find((d) => d.id === draftId);
+      if (!draft) return false;
+      setContextNotice('');
       const tabId = `proposal-${draftId}`;
       const title = draft?.title || "Proposal Workspace";
-      setTabs((current) => {
-        if (current.some((t) => t.id === tabId)) return current.map((tab) => tab.id === tabId ? { ...tab, initialCollaborationTab } : tab);
-        return [...current, { id: tabId, type: "proposal", draftId, title, initialCollaborationTab }];
-      });
-      setActiveTabId(tabId);
+      setActiveTab({id: tabId, type: 'proposal', draftId, title, initialCollaborationTab});
       setWorkspaceView('portfolio');
-      const url = new URL(window.location.href);
-      url.searchParams.delete('project'); url.searchParams.delete('view'); url.searchParams.delete('plans');
-      replaceNavigationHistory(`${url.pathname}${url.search}${url.hash}`);
+      if (historyMode) {
+        const url = new URL(window.location.href);
+        url.pathname = '/projects'; url.searchParams.set('page', 'Projects');
+        for (const key of ['project','view','plans','people']) url.searchParams.delete(key);
+        url.searchParams.set('proposal', draftId); url.searchParams.set('proposalView', initialCollaborationTab);
+        pushNavigationHistory(`${url.pathname}${url.search}${url.hash}`);
+      }
+      return true;
     },
     [collaboration.drafts],
   );
 
-  const closeTab = React.useCallback(
-    (tabId: string) => {
-      setTabs((current) => {
-        const next = current.filter((t) => t.id !== tabId);
-        if (activeTabId === tabId) {
-          const closedIndex = current.findIndex((t) => t.id === tabId);
-          const nextActive = next[Math.max(0, closedIndex - 1)] || next[0];
-          if (nextActive) {
-            setActiveTabId(nextActive.id);
-            const url = new URL(window.location.href);
-            if (nextActive.projectId) url.searchParams.set('project', nextActive.projectId);
-            else { url.searchParams.delete('project'); url.searchParams.delete('view'); }
-            replaceNavigationHistory(`${url.pathname}${url.search}${url.hash}`);
-          }
-        }
-        return next;
-      });
-    },
-    [activeTabId],
-  );
+  const showIndex = React.useCallback(() => { setActiveTab({id:'portfolio',type:'portfolio',title:'All projects'}); }, []);
+  const openIndex = React.useCallback(() => {
+    setActiveTab({id:'portfolio',type:'portfolio',title:'All projects'}); setWorkspaceView('portfolio');
+    writeNavigationLocation('projects', 'Projects', 'push', { parameters: {} });
+  }, []);
+  const closeTab = React.useCallback((tabId: string) => {
+    if (activeTab.id === tabId) openIndex();
+  }, [activeTab.id, openIndex]);
 
   const loading = projectsLoading || tasksLoading;
   useNotificationNavigationIntent(
@@ -277,22 +253,26 @@ export function ProjectsWorkspace({
       intent.kind === "proposal" ||
       intent.kind === "collaboration",
     (intent) => {
-      if (loading) return false;
+      if (loading || projectsError) return false;
+      const needsPlan = intent.kind === 'collaboration' && !!intent.proposalId || !intent.projectId && !!intent.proposalId;
+      if (needsPlan && collaboration.loading) return false;
+      if (needsPlan && collaboration.error) { setContextNotice('Work plans could not load. Open Saved work plans and retry loading.'); return false; }
       if (intent.kind === "collaboration" && intent.proposalId) {
-        openProposal(intent.proposalId);
+        if (!openProposal(intent.proposalId)) { setContextNotice('This work plan is unavailable or is no longer shared with you.'); return 'unavailable'; }
         return true;
       }
       if (intent.projectId) {
-        openProject(intent.projectId);
+        if (!openProject(intent.projectId, 'push')) { setContextNotice('This project is unavailable in this workspace. Open its home workspace or check your access.'); return 'unavailable'; }
         return true;
       }
       if (intent.proposalId) {
-        openProposal(intent.proposalId);
+        if (!openProposal(intent.proposalId)) { setContextNotice('This work plan is unavailable or is no longer shared with you.'); return 'unavailable'; }
         return true;
       }
-      return true;
+      setContextNotice('This notification does not contain a project or work-plan link.');
+      return 'unavailable';
     },
-    [dbProjects, loading, openProject, openProposal],
+    [dbProjects, loading, projectsError, collaboration.loading, collaboration.error, openProject, openProposal],
   );
 
   const currentUserId = user?.id || userProfile?.id || userProfile?.uid || "";
@@ -308,14 +288,12 @@ export function ProjectsWorkspace({
   );
   const changeDepartmentFilter = React.useCallback((nextDepartmentId: string) => {
     setDepartmentFilter(nextDepartmentId);
-    setTabs((current) => current.filter((tab) => tab.pinned));
-    setActiveTabId("portfolio");
+    setActiveTab({id:'portfolio',type:'portfolio',title:'All projects'});
     setWorkspaceView("portfolio");
     setProjectWorkspaceTab("tasks");
-    hasAutoOpenedRef.current = false;
+    writeNavigationLocation('projects', 'Projects', 'push', { parameters: {} });
   }, []);
 
-  const activeTab = tabs.find((t) => t.id === activeTabId) || tabs[0];
   const activeProject = activeTab.type === "project" && activeTab.projectId
     ? dbProjects.find((p) => p.id === activeTab.projectId)
     : undefined;
@@ -328,22 +306,29 @@ export function ProjectsWorkspace({
     replaceNavigationHistory(`${url.pathname}${url.search}${url.hash}`);
   }, [activeProject, projectWorkspaceTab]);
   React.useEffect(()=>{if(dbProjects.some(project=>project.id===createdNavigationRef.current))createdNavigationRef.current=undefined;},[dbProjects]);
-  useProjectLocation({ projects: dbProjects, loading: projectsLoading, activeProjectId: activeProject?.id, onOpen: openProject, onUnavailable: unavailableProject, workspaceId: workspaceScope?.workspace.id });
+  useProjectLocation({ projects: dbProjects, loading: projectsLoading || !!projectsError, activeProjectId: activeProject?.id, onOpen: openProject, onUnavailable: unavailableProject, onIndex: showIndex, workspaceId: workspaceScope?.workspace.id });
+  React.useEffect(() => {
+    const restore = () => {
+      if (collaboration.loading || collaboration.error || window.location.pathname !== '/projects') return;
+      const params = new URLSearchParams(window.location.search);
+      if (workspaceScope && params.get('workspace') !== workspaceScope.workspace.id) return;
+      const id = params.get('proposal');
+      if (!id) return;
+      const view = params.get('proposalView');
+      if (!openProposal(id, view === 'approvals' || view === 'governance' ? view : 'overview', false)) {
+        setContextNotice('This work plan is unavailable or is no longer shared with you.');
+        const url = new URL(window.location.href);
+        url.searchParams.delete('proposal'); url.searchParams.delete('proposalView');
+        replaceNavigationHistory(`${url.pathname}${url.search}${url.hash}`);
+      }
+    };
+    restore(); window.addEventListener(NAVIGATION_LOCATION_EVENT, restore);
+    return () => window.removeEventListener(NAVIGATION_LOCATION_EVENT, restore);
+  }, [collaboration.loading, collaboration.error, openProposal, workspaceScope?.workspace.id]);
   React.useEffect(() => {
     if (projectsLoading || !activeTab.projectId || activeProject) return;
-    setTabs(current => current.filter(tab => tab.projectId !== activeTab.projectId));
-    setActiveTabId('portfolio');
+    setActiveTab({id:'portfolio',type:'portfolio',title:'All projects'});
   }, [activeProject, activeTab.projectId, projectsLoading]);
-
-  // Reactively open the first project on initial mount if workspace starts at default portfolio
-  const hasAutoOpenedRef = React.useRef(false);
-  React.useEffect(() => {
-    if (!scope.includeAllAccessibleWork && !hasAutoOpenedRef.current && active.length > 0 && activeTabId === "portfolio" && workspaceView === "portfolio") {
-      hasAutoOpenedRef.current = true;
-      const requestedId = new URLSearchParams(window.location.search).get('project');
-      openProject(active.find(p=>p.id===requestedId)?.id || active[0].id);
-    }
-  }, [active, activeTabId, openProject, workspaceView, scope.includeAllAccessibleWork]);
 
   React.useEffect(() => {
     if (activeTab.type === "project" && activeProject) {
@@ -362,7 +347,7 @@ export function ProjectsWorkspace({
       ? "Drafts"
       : workspaceView === "signoff"
         ? "Waiting for approval"
-        : "Plans & Projects";
+        : "All projects";
     document.title = planningTitle;
   }, [activeProject, activeTab, projectWorkspaceTab, workspaceView]);
 
@@ -410,14 +395,7 @@ export function ProjectsWorkspace({
         canArchive={access.canArchive}
         canComplete={access.canManage && userProfile?.role === 'head' && userProfile.is_active !== false}
         canDelete={access.canDelete}
-        onOpenPortfolio={() => { void requestNavigation(() => {
-          if (!scope.includeAllAccessibleWork && active[0]) {
-            openProject(active[0].id);
-          } else {
-            setActiveTabId("portfolio");
-            setWorkspaceView("portfolio");
-          }
-        }); }}
+        onOpenPortfolio={() => { void requestNavigation(openIndex); }}
         onOpenProject={id => { void requestNavigation(() => { openProject(id, 'push'); navigationHost?.closeNavigation(); }); }}
         onArchiveProject={(id, title) => setArchiveTarget({ id, title, isArchived: false })}
         onCompleteProject={(id, title) => setCompleteTarget({ id, title })}
@@ -434,8 +412,8 @@ export function ProjectsWorkspace({
   return (
     <div className="eflow-ide-workspace">
       {!navigationHost && projectNavigation}
-      <div className="eflow-ide-workspace__content">
-      <ProjectWorkspaceActions canCreate={access.canCreate} onCreate={() => setQuickProjectOpen(true)} onWorkPlan={() => setCreationMode('manual')}
+      <div className="eflow-ide-workspace__content" hidden={!!completionTaskId}>
+      <ProjectWorkspaceActions onAllProjects={() => { void requestNavigation(openIndex); }} canCreate={access.canCreate} disabledReason={baseAccess.canCreate && !access.canCreate ? workspaceScope && workspaceScope.workspace.office_id !== currentOrgId ? 'Return to your office to create a project.' : 'Only the appointed Office Head can create projects.' : undefined} onCreate={() => setQuickProjectOpen(true)} onWorkPlan={() => setCreationMode('manual')}
         onImport={() => setCreationMode('import')} onTemplates={() => setTemplatesOpen(true)}
         onSavedPlans={() => { void requestNavigation(() => openPlanning('drafts')); }}
         onReviewPlans={() => { void requestNavigation(() => openPlanning('signoff')); }}
@@ -525,6 +503,7 @@ export function ProjectsWorkspace({
                   className="rounded-xl border border-red-200 bg-red-50 p-4 text-xs text-red-700"
                 >
                   {collaboration.error}
+                  <button type="button" className="eflow-project-view-trigger" onClick={() => { void collaboration.refresh().catch(() => {}); }}>Retry work plans</button>
                 </div>
               ) : (
                 <CollaborationDraftList
@@ -540,20 +519,12 @@ export function ProjectsWorkspace({
             ) : scope.includeAllAccessibleWork ? (
               <CitywidePlansOverview projects={inScope} drafts={approvalPortfolioDrafts} organizations={orgs} profiles={profiles} onOpenProject={openProject} onOpenPlan={(id) => openProposal(id, "approvals")} />
             ) : (
-              <div className="flex flex-col items-center justify-center py-20 text-center" style={{minHeight:"max(320px, calc(100dvh - 220px))"}}>
-                <EmptyStateIllustration kind="projects" size="page"/>
-                <h3 className="text-lg font-semibold text-neutral-900 mb-1">{readOnly ? "Select a project" : "Let’s start working together"}</h3>
-                <p className="text-sm text-neutral-500 max-w-sm mb-6">
-                  {readOnly ? "Select a project from the left sidebar to view its tasks and approval history." : "Select a project from the left sidebar to open its workspace, or create a new plan to get started."}
-                </p>
-                {access.canCreate && (
-                  <SplitActionButton
-                    label="Create project"
-                    onClick={() => setQuickProjectOpen(true)}
-                    actions={[{id:'workplan',label:'Create a work plan',onSelect:()=>setCreationMode('manual')},{id:'import',label:'Import proposal',onSelect:()=>setCreationMode('import')},{id: "templates", label: "Use a project template", onSelect: () => setTemplatesOpen(true)}]}
-                  />
-                )}
-              </div>
+              projectsError ? <FeedbackState tone="error" title="Projects could not load">{projectsError.message}<button type="button" onClick={retryProjects}>Retry projects</button></FeedbackState> :
+              <ProjectIndex projects={inScope} tasks={tasks} organizations={orgs} profiles={profiles}
+                onOpen={id => { void requestNavigation(() => openProject(id, 'push')); }}
+                onOpenProposal={id => { void requestNavigation(() => openProposal(id)); }}
+                onCreate={access.canCreate ? () => setQuickProjectOpen(true) : undefined}/>
+
             )}
           </div>
         )}
@@ -572,7 +543,7 @@ export function ProjectsWorkspace({
           }}
         />
       )}
-      {access.canCreate && quickProjectOpen && <CreateProjectDialog open officeId={currentOrgId} officeName={orgs.find(org=>org.id===currentOrgId)?.name} ownerName={userProfile?.full_name} onClose={()=>setQuickProjectOpen(false)} onCreated={project=>{createdNavigationRef.current=project.id;workspaceScope?.includeCreatedOfficeProject?.(project);writeNavigationLocation('projects','Projects','push',{project:project.id,view:'tasks'});setTabs(current=>[...current.filter(t=>t.id!==`project-${project.id}`),{id:`project-${project.id}`,type:'project',projectId:project.id,title:project.title}]);setActiveTabId(`project-${project.id}`);setWorkspaceView('portfolio');setProjectWorkspaceTab('tasks');hasAutoOpenedRef.current=true;}}/>}
+      {access.canCreate && quickProjectOpen && <CreateProjectDialog open officeId={currentOrgId} officeName={orgs.find(org=>org.id===currentOrgId)?.name} ownerName={userProfile?.full_name} onClose={()=>setQuickProjectOpen(false)} onCreated={project=>{setCommittedProject(project);createdNavigationRef.current=project.id;workspaceScope?.includeCreatedOfficeProject?.(project);writeNavigationLocation('projects','Projects','push',{project:project.id,view:'tasks',parameters:{project:project.id,view:'tasks',people:'add'}});setActiveTab({id:`project-${project.id}`,type:'project',projectId:project.id,title:project.title});setWorkspaceView('portfolio');setProjectWorkspaceTab('tasks');}}/>}
 
       {templatesOpen && (
         <ProjectTemplatesModal
@@ -618,7 +589,7 @@ export function ProjectsWorkspace({
         onOpenGovernance={(draftId) => { setCompleteTarget(null); openProposal(draftId, "governance"); }}
         onResolve={view=>{const id=completeTarget.id;setCompleteTarget(null);openProject(id,false);setProjectWorkspaceTab(view);writeNavigationLocation('projects','Projects','push',{project:id,view});}}
       />}
-      {completionTaskId && <TaskDetailDrawer task={tasks.find((task) => task.id === completionTaskId) || null} onClose={() => setCompletionTaskId(null)} canReview={access.canReviewTasks} />}
+      {completionTaskId && <TaskDetailDrawer presentation="page" taskId={completionTaskId} task={tasks.find((task) => task.id === completionTaskId) || null} origin={{view:'project',restoreFocus:()=>document.querySelector<HTMLElement>('[aria-selected="true"][role="tab"]')?.focus()}} onClose={() => setCompletionTaskId(null)} canReview={access.canReviewTasks} />}
 
       {deleteTarget && (
         <ProjectDeleteDialog

@@ -79,14 +79,13 @@ eFlow enforces a strict Role-Based Access Control (RBAC) framework aligned with 
 
 | Role Identifier | Role Title | Primary Workspaces | Governance Scope |
 | :--- | :--- | :--- | :--- |
-| `superadmin` | Super Administrator | User Management, Organization Hierarchy, Entitlements, Backup & Export, Audit Logs, System Settings | Global configuration, identity recovery, disaster recovery, read-only oversight across operational projects and tasks. |
-| `depthead` | Department Head / Assistant Head | Overview, Projects, Task Board, Team Supervision, Team Intelligence, Proposal Cockpit, Department Budgets, Reports | Office operations, annual budget appropriation locking, team workload balancing, proposal drafting, inter-departmental review. |
-| `teamleader` | Team Leader | Work I'm Leading, Leader Reviews, Task Milestones, Subtask Allocation, Petty Cash Endorsements | Direct execution supervision, subtask ordering and assignment, evidence review, task budget distribution to subtasks. |
-| `employee` | Department Contributor | My Tasks, My Subtasks, Deadlines, Task History, Performance Self-View, Petty Cash Requests & Liquidation | Direct delivery, checklist check-off with evidence submission, expense receipt submission, personal contribution metrics. |
-| `executive` | City Mayor / Administrator | City Project Pulse, Portfolio Intelligence, Project Transformation, Financial Oversight, Immutable Audit | Executive monitoring, strategic goal tracking, municipal bottleneck detection, macro fiscal review. |
-| `legislative` | Sangguniang Panlungsod | Legislative Dashboard, Session Management, Committee Affairs, Councilor Workspace | Council sessions, ordinance and resolution authoring, committee referrals, legislative audit trails. |
-| `hrmo` | Human Resource Management | Workforce Intelligence, Wellness & Attendance, Burnout Prediction Radar, Performance Compliance | Staffing distribution, single-person dependency alerts, burnout monitoring, genetic algorithm workload simulation. |
-| `finance` | City Finance / Accounting | Project Finance, Programmatic Buckets, Liquidation Review, Immutable Financial Ledger, Journal Posting | Appropriation enforcement, petty cash daily ceiling audits, two-stage liquidation approval, COA compliance. |
+| `admin` | Administrator | Account management, permissions, system settings, audit, backup and read-only oversight | Manages identity and system configuration. Does not execute Office work. |
+| `head` | Office Head | Workspace Overview, My Work, Projects, team supervision, Office Budget, Reports | Appointed Heads manage their own Office; joined collaborating Offices select their own project people. |
+| `member` | Member | My Work, accessible projects, personal workspace, Inbox | Executes assigned work and reviews only where explicitly authorized. Leadership is a work appointment, not a separate account role. |
+| `accounting_staff` | Financial Officer | Accounting workspaces, authorized project finance, Inbox | Performs authorized financial review and posting without project-structure authority. |
+
+Office Projects opens **All projects**, with search, status and sorting. **+ New** keeps project, work-plan, import and template creation available in the owning Office. Project headers expose **+ Add people** for an appointed Head in a joined participating Office, using canonical Office membership. Other-Office invitations retain their separate approval workflow. Views share the same tasks and groups; adding a view creates no records.
+
 
 ---
 
@@ -346,7 +345,7 @@ python -m unittest discover -s server/tests -p "test_*.py" -v
 To execute authenticated browser end-to-end tests:
 ```powershell
 $env:EFLOW_E2E = "1"
-$env:EFLOW_E2E_ACCOUNTS = '[{"role":"superadmin","email":"admin@eflow.local","password":"your_test_password"}]'
+$env:EFLOW_E2E_ACCOUNTS = '[{"role":"admin","email":"admin@eflow.local","password":"your_test_password"}]'
 npm run test:e2e
 ```
 

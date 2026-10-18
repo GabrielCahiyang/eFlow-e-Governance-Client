@@ -1,5 +1,7 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { saveBudgetSections } from "../../src/app/features/budget/services/budgetSectionService";
+import { lockDepartmentFiscalBudget } from "../../src/app/features/budget/services/budgetService";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { AnnualBudgetSetup } from "../../src/app/features/budget/components/AnnualBudgetSetup";
 import type { DepartmentBudgetBundle } from "../../src/app/features/budget/types";
@@ -16,9 +18,26 @@ const saved = { ...empty, summary: {
   dailyPettyCashReleaseLimit: 30000, perReceiptLimit: 5000, liquidationDueDays: 15,
   allowReceiptLimitOverride: false, underutilizationThreshold: 75,
 } } as DepartmentBudgetBundle;
-afterEach(cleanup);
+afterEach(() => { cleanup(); vi.clearAllMocks(); });
 
 describe("annual section availability", () => {
+  it("blocks locking an unfinished amount while allowing the draft to save, then enables locking after correction", async () => {
+    vi.mocked(saveBudgetSections).mockResolvedValue('budget');
+    render(<AnnualBudgetSetup orgId="office" fiscalYear={2028} data={{...empty, sectionsAvailable:true, sections:[
+      {id:'supplies',name:'Supplies',amount:1000,heldAmount:0,position:0},
+      {id:'travel',name:'Travel',amount:0,heldAmount:0,position:1},
+    ]}} canEdit onChanged={vi.fn().mockResolvedValue(undefined)}/>);
+    const lock = screen.getByRole('button',{name:'Save & lock annual budget'});
+    expect((lock as HTMLButtonElement).disabled).toBe(true);
+    expect(screen.getByRole('alert').textContent).toContain('Travel');
+    fireEvent.click(lock);
+    expect(lockDepartmentFiscalBudget).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button',{name:'Save draft',exact:true}));
+    await waitFor(()=>expect(saveBudgetSections).toHaveBeenCalledOnce());
+    fireEvent.change(screen.getByLabelText('Budget amount Travel',{exact:true}),{target:{value:'0.01'}});
+    await waitFor(()=>expect((lock as HTMLButtonElement).disabled).toBe(false));
+    expect(screen.queryByRole('alert')).toBeNull();
+  });
   it("shows the actual saved amount, never an empty editor, when section support is missing", () => {
     const refresh = vi.fn().mockResolvedValue(undefined);
     const view = render(<AnnualBudgetSetup orgId="office" fiscalYear={2026} data={empty} canEdit onChanged={refresh} />);

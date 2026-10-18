@@ -1,5 +1,5 @@
 import type {CSSProperties} from 'react';
-import {ProgressBar,formatDate} from '../../../components/workflow/primitives';
+import {formatDate} from '../../../components/workflow/primitives';
 import {StatusPill} from '../../../components/ui/workspace/StatusPill';
 import type {WorkspaceAction} from '../../../components/ui/workspace/ActionMenu';
 import type {WorkDisplayRow} from '../selectors/displayTree';
@@ -21,7 +21,7 @@ export function WorkNodeTitle({row,collapsed,onToggle,onOpenNode}:{row:WorkHiera
   {display.context&&<p className="nw-hierarchy-context">{display.context==='missing_parent'?'Parent context unavailable':'Hierarchy context incomplete'}</p>}
  </div>;
 }
-const statuses={todo:{label:'To do',tone:'neutral'},in_progress:{label:'In progress',tone:'info'},for_review:{label:'For review',tone:'warning'},changes_requested:{label:'Changes requested',tone:'negative'},completed:{label:'Completed',tone:'positive'}} as const;
-export function WorkNodeStatus({node}:{node:WorkNode}){return <StatusPill {...statuses[node.status]}/>;}
+const statuses={todo:{label:'Not started',tone:'neutral'},in_progress:{label:'In progress',tone:'info'},for_review:{label:'Awaiting approval',tone:'warning'},changes_requested:{label:'Changes requested',tone:'negative'},completed:{label:'Completed',tone:'positive'}} as const;
+export function WorkNodeStatus({node}:{node:WorkNode}){return <StatusPill {...statuses[node.status]} label={node.status==='in_progress'&&node.blocker?'Stuck':statuses[node.status].label}/>;}
 export function WorkNodeDue({node}:{node:WorkNode}){return node.due_date?<time dateTime={node.due_date}>{formatDate(node.due_date)}</time>:<span>No due date</span>;}
-export function WorkNodeProgress({node}:{node:WorkNode}){return <div className="nw-hierarchy-progress" role="group" aria-label={`Progress for ${node.title}`}><ProgressBar value={node.percent_complete}/></div>;}
+export function WorkNodeProgress({node}:{node:WorkNode}){return <div className="nw-hierarchy-progress" role="group" aria-label={`Progress for ${node.title}`}><span>{node.status==='completed'?'Approved':node.status==='for_review'?'Awaiting approval':'Not approved yet'}</span></div>;}

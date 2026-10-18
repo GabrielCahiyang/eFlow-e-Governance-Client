@@ -9,7 +9,7 @@ export function InspectorProgressUpdates({taskId}:{taskId:string}){
  return <section aria-label="Progress updates" className="space-y-2">
   <h3 className="text-sm font-semibold">Progress updates</h3>{loading&&<p role="status">Loading progress updates…</p>}{error&&<div role="alert"><p>{error}</p><button type="button" onClick={()=>setRetry(r=>r+1)}>Retry progress updates</button></div>}
   {!loading&&!error&&!updates.length&&<EmptyState illustration="tasks" size="compact" title="No progress updates yet."/>}
-  {updates.map(update=><article key={update.id} className="rounded-lg border p-3 text-sm"><p className="font-medium">{update.authorName} · {update.percentComplete??0}%</p>
+  {updates.map(update=><article key={update.id} className="rounded-lg border p-3 text-sm"><p className="font-medium">{update.authorName} · {update.blocker?'Stuck':update.percentComplete===undefined||update.percentComplete===null?'In progress':`${update.percentComplete}% · earlier update`}</p>
    <time className="text-xs text-neutral-500">{new Date(update.createdAt).toLocaleString()}</time>
    {update.note?<p className="whitespace-pre-wrap">{update.note}</p>:null}{update.blocker?<p>Blocker: {update.blocker}</p>:null}{update.nextStep?<p>Next: {update.nextStep}</p>:null}
    {update.attachmentPath?<p className="text-xs text-neutral-500">Attachment available in Files</p>:null}

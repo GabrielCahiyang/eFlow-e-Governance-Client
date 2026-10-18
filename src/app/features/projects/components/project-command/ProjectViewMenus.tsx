@@ -53,7 +53,7 @@ export function ProjectViewMenus({ openViews, overflowViews, onOpenView, onClose
         <PopoverContent align="end" sideOffset={8} collisionPadding={12} aria-label="Add project view" className="eflow-project-view-menu">
           <header>
             <h4>Workspace views</h4>
-            <p>Choose a view for this project.</p>
+            <p>See the same project and tasks in a different layout.</p>
           </header>
           {(["Project", "Insights", "Governance"] as const).map(category => {
             const items = availableViews.filter(view => view.category === category);

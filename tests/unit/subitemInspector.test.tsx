@@ -9,7 +9,7 @@ import {installNavigationConfirmation} from '../../src/app/shared/navigationGuar
 const api=vi.hoisted(()=>({actor:'actor',read:vi.fn(),tree:vi.fn(),save:vi.fn(),legacyRead:vi.fn(),progress:vi.fn(),impact:vi.fn()}));
 vi.mock('../../src/app/contexts/AuthContext',()=>({useAuth:()=>({user:{id:api.actor}})}));
 vi.mock('../../src/app/features/nested-work/services/workTreeService',()=>({fetchWorkTree:api.tree,saveWorkTree:api.save,fetchWorkImpact:api.impact,fetchWorkEvents:vi.fn(),WorkTreeUnavailable:class extends Error{}}));
-vi.mock('../../src/app/features/subtasks/services/subtaskWorkflowService',()=>({fetchSubitemInspectorRecord:api.read,fetchSubtask:api.legacyRead,fetchSubtaskProgressUpdates:vi.fn().mockResolvedValue([]),fetchSubtaskSubmissions:vi.fn().mockResolvedValue([]),saveSubtaskProgress:api.progress,submitSubtaskForReview:vi.fn()}));
+vi.mock('../../src/app/features/subtasks/services/subtaskWorkflowService',()=>({fetchSubitemInspectorRecord:api.read,fetchSubtask:api.legacyRead,fetchSubtaskProgressUpdates:vi.fn().mockResolvedValue([]),fetchSubtaskSubmissions:vi.fn().mockResolvedValue([]),saveSubtaskProgress:api.progress,saveSubtaskWorkUpdate:api.progress,submitSubtaskForReview:vi.fn()}));
 vi.mock('../../src/app/features/subtasks/hooks/useSubtaskReviewerDirectory',()=>({useSubtaskReviewerDirectory:()=>({reviewersById:{},loading:false})}));
 vi.mock('../../src/app/features/budget',()=>({WorkBudgetCard:()=> <div>Existing budget composition</div>}));
 vi.mock('../../src/app/features/subtasks/components/SubtaskDeadlineEditor',()=>({SubtaskDeadlineEditor:()=>null}));
@@ -38,13 +38,13 @@ describe('NW8.1 canonical Subitem Inspector',()=>{
   render(<SubitemInspector onClose={()=>{}} rootTask={task} itemId="n8" controller={controller()}/>);
   await screen.findByRole('heading',{name:'Level 8'});
   expect(screen.getByText('Deep appointed Lead')).toBeTruthy();expect(screen.getByText('Deep contributor')).toBeTruthy();
-  expect(screen.getByRole('navigation',{name:'Subitem path'}).textContent).toBe('Root work / Level 1 / Level 2 / Level 3 / Level 4 / Level 5 / Level 6 / Level 7 / Level 8');
-  expect(screen.getByRole('progressbar',{name:'43% complete'}).getAttribute('aria-valuenow')).toBe('43');expect(screen.getByText('Subitem due date').nextElementSibling?.textContent).toContain('Dec');
+  expect(screen.getByRole('navigation',{name:'Subitem path'}).textContent).toBe('Root work / Level 1 / Level 2 / Level 3 / Level 4 / Level 5 / Level 6 / Level 7');
+  expect(screen.queryByRole('slider')).toBeNull();expect(screen.getByText('Dec 15, 2026')).toBeTruthy();
   expect(screen.queryByText('Root Lead')).toBeNull();expect(api.tree).not.toHaveBeenCalled();expect(api.read).toHaveBeenCalledWith('root','n8');
  });
  it('navigates from depth 8 to the actual parent by canonical ID',async()=>{
   render(<SubitemInspector onClose={()=>{}} rootTask={task} itemId="n8" controller={controller()}/>);await screen.findByRole('heading',{name:'Level 8'});
-  fireEvent.click(within(screen.getByText('Parent').parentElement!).getByRole('button',{name:'Level 7'}));
+  fireEvent.click(within(screen.getByRole('navigation',{name:'Subitem path'})).getByRole('button',{name:'Level 7'}));
   await screen.findByRole('heading',{name:'Level 7'});expect(api.read).toHaveBeenLastCalledWith('root','n7');
   expect(screen.getByRole('table',{name:'Subitem hierarchy'}).textContent).toContain('Level 8');
   expect(screen.queryByRole('button',{name:'Task work actions'})).toBeNull();
@@ -71,7 +71,7 @@ describe('NW8.1 canonical Subitem Inspector',()=>{
  });
  it('shows missing parent context without reading the protected parent or inventing an edge',async()=>{
   const missing=node('leaf','protected-parent',8);render(<SubitemInspector onClose={()=>{}} rootTask={task} itemId="leaf" controller={controller(tree([missing]))}/>);
-  await screen.findByRole('heading',{name:'Level 8'});expect(screen.getByText('Parent unavailable')).toBeTruthy();
+  await screen.findByRole('heading',{name:'Level 8'});expect(screen.getByRole('navigation',{name:'Subitem path'}).textContent).toContain('Parent context unavailable');
   expect(screen.getByRole('navigation',{name:'Subitem path'}).textContent).toContain('Parent context unavailable');
   expect(api.read.mock.calls).toEqual([['root','leaf']]);expect(screen.queryByRole('button',{name:'protected-parent'})).toBeNull();
  });
@@ -87,14 +87,14 @@ describe('NW8.1 canonical Subitem Inspector',()=>{
  it('guards parent navigation and close while preserving failed progress drafts',async()=>{
   const close=vi.fn(),confirm=vi.fn().mockResolvedValue(false);uninstall=installNavigationConfirmation(confirm);api.progress.mockRejectedValue(new Error('Write denied'));
   render(<SubitemInspector onClose={close} rootTask={task} itemId="n8" controller={controller()}/>);await screen.findByRole('heading',{name:'Level 8'});
-  fireEvent.change(screen.getByLabelText('Progress note (optional)'),{target:{value:'Keep this note'}});fireEvent.click(screen.getByRole('button',{name:'Save update'}));await screen.findByRole('alert');
-  fireEvent.click(within(screen.getByText('Parent').parentElement!).getByRole('button'));await waitFor(()=>expect(confirm).toHaveBeenCalled());expect(api.read).toHaveBeenCalledOnce();
-  fireEvent.click(screen.getByRole('button',{name:'Close subtask detail'}));await waitFor(()=>expect(confirm).toHaveBeenCalledTimes(2));expect(close).not.toHaveBeenCalled();expect((screen.getByLabelText('Progress note (optional)') as HTMLTextAreaElement).value).toBe('Keep this note');
+  fireEvent.change(screen.getByLabelText('Work update'),{target:{value:'Keep this note'}});fireEvent.click(screen.getByRole('button',{name:'Start work'}));await screen.findByRole('alert');
+  fireEvent.click(within(screen.getByRole('navigation',{name:'Subitem path'})).getByRole('button',{name:'Level 7'}));await waitFor(()=>expect(confirm).toHaveBeenCalled());expect(api.read).toHaveBeenCalledOnce();
+  fireEvent.click(screen.getByRole('button',{name:'Back to work'}));await waitFor(()=>expect(confirm).toHaveBeenCalledTimes(2));expect(close).not.toHaveBeenCalled();expect((screen.getByLabelText('Work update') as HTMLTextAreaElement).value).toBe('Keep this note');
  });
  it('keeps the progress draft mounted but disabled during an authority refresh',async()=>{
-  const c=controller(),view=render(<SubitemInspector onClose={()=>{}} rootTask={task} itemId="n8" controller={c}/>);await screen.findByRole('heading',{name:'Level 8'});fireEvent.change(screen.getByLabelText('Progress note (optional)'),{target:{value:'Retained'}});
-  view.rerender(<SubitemInspector onClose={()=>{}} rootTask={task} itemId="n8" controller={{...c,refreshPending:true}}/>);expect(screen.getByLabelText('Progress note (optional)').matches(':disabled')).toBe(true);
-  view.rerender(<SubitemInspector onClose={()=>{}} rootTask={task} itemId="n8" controller={c}/>);expect((screen.getByLabelText('Progress note (optional)') as HTMLTextAreaElement).value).toBe('Retained');
+  const c=controller(),view=render(<SubitemInspector onClose={()=>{}} rootTask={task} itemId="n8" controller={c}/>);await screen.findByRole('heading',{name:'Level 8'});fireEvent.change(screen.getByLabelText('Work update'),{target:{value:'Retained'}});
+  view.rerender(<SubitemInspector onClose={()=>{}} rootTask={task} itemId="n8" controller={{...c,refreshPending:true}}/>);expect(screen.getByLabelText('Work update').matches(':disabled')).toBe(true);
+  view.rerender(<SubitemInspector onClose={()=>{}} rootTask={task} itemId="n8" controller={c}/>);expect((screen.getByLabelText('Work update') as HTMLTextAreaElement).value).toBe('Retained');
  });
  it('shares the real child editor and sends complete sibling IDs from the full tree',async()=>{
   const c=controller(tree([node('a',null,1),node('b','a',2),{...node('c','a',2),sibling_order:1},node('outside',null,1)]));render(<SubitemInspector onClose={()=>{}} rootTask={task} itemId="a" controller={c}/>);await screen.findByRole('heading',{name:'Level 1'});

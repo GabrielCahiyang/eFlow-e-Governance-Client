@@ -2,11 +2,14 @@ import { useMemo, useState, useEffect } from "react";
 import { hasDirtyNavigation, requestNavigation } from '../../../../shared/navigationGuard';
 import { NAVIGATION_LOCATION_EVENT, pushNavigationHistory, replaceNavigationHistory } from '../../../../shared/navigationHistory';
 import { Skeleton } from "@vibe/core";
+import { Button } from '@vibe/core';
+import { isAppointedOfficeHead } from '../../../../shared/officeAuthority';
 import type { Organization } from "../../../../types";
 import { useProfiles } from "../../../../hooks/useSupabaseData";
 import { useTasks } from "../../../../hooks/useFirebaseData";
 import { TaskDetailDrawer, useTaskInspector, type TaskInspectorOrigin } from "../../../task-inspector";
 import { tasksForProject } from "../../../../services/taskSelectors";
+import { getTaskTeamMemberIds } from "../../../tasks";
 import type { Project } from "../../services/projectService";
 import { useProjectCommandData } from "../../hooks/useProjectCommandData";
 import { ProjectHeader } from "./ProjectHeader";
@@ -26,13 +29,13 @@ import { ProjectViewTabBar } from "./ProjectViewTabBar";
 import { resolveProjectView } from "./projectViewCatalog";
 import type { ProjectCommandTab } from "./types";
 import "../projectsVibe.css";
-import { ProjectTableWorkspace } from '../../../project-table';
+import { ProjectTableWorkspace, ProjectTaskCreateAction } from '../../../project-table';
 import { updateProject } from '../../services/projectMutationService';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { ProjectViewFilters, ProjectGanttView, ProjectOfficesView, ProjectInsightsView, useProjectViewPreferences, filterProjectViewTasks } from '../../../project-views';
 import { scopeProjectViewData } from '../../selectors/projectViewContext';
 import { ProjectMembers } from '../../../project-members';
-import { ProjectOfficeContext, ProjectOfficePanel, useProjectOffices, canStaffProjectOffice } from '../../../project-offices';
+import { ProjectOfficeContext, ProjectOfficePanel, ProjectPeoplePage, useProjectOffices, canStaffProjectOffice } from '../../../project-offices';
 
 export interface ProjectCommandWorkspaceProps {
   project: Project;
@@ -59,7 +62,7 @@ export function ProjectCommandWorkspace({
   initialTab = "tasks",
   initialTool,
   onWorkspaceTabChange,
-  onBack: _onBack,
+  onBack,
   orgs,
   canArchive: _canArchive,
   canManage: requestedManage,
@@ -73,9 +76,18 @@ export function ProjectCommandWorkspace({
   const { profiles, loading: profilesLoading } = useProfiles();
   const { userProfile } = useAuth();
   const officeState = useProjectOffices(project.id);
-  const canManage = requestedManage && (project.sourceCollaborationDraftId ? true : userProfile?.role === 'head' && userProfile.org_id === project.orgId);
+  const canManage = requestedManage && isAppointedOfficeHead(userProfile, orgs) && userProfile?.org_id === project.orgId;
   const shared = officeState.offices.some(o => o.relationship_type !== 'lead');
   const ownOffice = officeState.offices.find(o => o.office_id === userProfile?.org_id);
+  const closed = ['completed','archived'].includes(project.status);
+  const canAddPeople = !closed && !project.sourceCollaborationDraftId && !officeState.loading && !officeState.error && canStaffProjectOffice(ownOffice, userProfile, orgs);
+  const [peopleOpen, setPeopleOpen] = useState(() => new URLSearchParams(window.location.search).get('people') === 'add');
+  const closePeople = () => {
+    setPeopleOpen(false);
+    const url = new URL(window.location.href); url.searchParams.delete('people');
+    replaceNavigationHistory(`${url.pathname}${url.search}${url.hash}`);
+    window.dispatchEvent(new Event(NAVIGATION_LOCATION_EVENT));
+  };
   const ownWorkAccess = !officeState.error && (!shared || ownOffice?.invitation_status === 'joined' && ownOffice.relationship_type !== 'observer' && (ownOffice.relationship_type === 'lead' || canStaffProjectOffice(ownOffice, userProfile, orgs) || officeState.members.some(m => m.project_office_id === ownOffice.id && m.user_id === userProfile?.id)));
   const [tab, setTabState] = useState<ProjectCommandTab>(() => resolveProjectView(typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("view") : null) || resolveProjectView(initialTool || initialTab) || 'tasks');
   const inspector = useTaskInspector(project.id + ':' + (userProfile?.id || ''));
@@ -99,8 +111,9 @@ export function ProjectCommandWorkspace({
       const projectId = new URLSearchParams(window.location.search).get("project");
       if (next && (!projectId || projectId === project.id)) {
         setTabState(next);
+        onWorkspaceTabChange?.(next);
         const url = new URL(window.location.href);
-        if(url.searchParams.get('view') !== next){url.searchParams.set('view',next);onWorkspaceTabChange?.(next);replaceNavigationHistory(`${url.pathname}${url.search}${url.hash}`);}
+        if(url.searchParams.get('view') !== next){url.searchParams.set('view',next);replaceNavigationHistory(`${url.pathname}${url.search}${url.hash}`);}
       }
     };
     onPopState();
@@ -142,6 +155,11 @@ export function ProjectCommandWorkspace({
 
   return (
     <ProjectOfficeContext.Provider value={officeState}><div className="eflow-project-command space-y-4 font-sans">
+      <div hidden={!!inspector.taskId || peopleOpen}>
+      <div className="eflow-project-context-actions"><Button kind="tertiary" size="small" onClick={() => { void requestNavigation(onBack); }}>← All projects</Button>
+        {canAddPeople && <Button size="small" onClick={() => { void requestNavigation(() => setPeopleOpen(true)); }}>+ Add people</Button>}
+        {canManage && !closed && activeTabId !== 'tasks' && <ProjectTaskCreateAction projectId={project.id}/>}
+      </div>
       <ProjectHeader project={project} organizations={orgs} profiles={profiles} metrics={data.metrics} editable={canManage} onTitleChange={title => updateProject(project.id, { title })}
         participants={<ProjectParticipants scope={`${userProfile?.id}:${favoriteContextId}:${project.id}`} profilesLoading={profilesLoading} offices={officeState} profiles={profiles} contributorIds={[project.ownerId || '', ...data.members.map(member => member.userId), ...officeState.members.map(member => member.user_id), ...projectTasks.flatMap(task => [task.assigneeId || '', ...(task.teamMemberIds || [])])]} />}
         utilities={<ProjectUtilities project={project} canManage={canManage} lifecycle={canManage ? lifecycleActions : {}} userId={authorizedProjectIds.length ? userProfile?.id || '' : ''} contextId={favoriteContextId} authorizedProjectIds={authorizedProjectIds} view={activeTabId} onOpenOffices={() => selectTab('offices')} />}
@@ -209,7 +227,7 @@ export function ProjectCommandWorkspace({
           )}
           {activeTabId === "gantt" && <ProjectGanttView data={viewData} allTasks={projectTasks} canManage={canManage} onOpenTask={setOpenTaskId} onOpenPlan={() => selectTab('timeline')}/>}
           {activeTabId === "offices" && <><ProjectOfficePanel projectId={project.id} projectTitle={project.title} projectStatus={project.status} leadOffice={project.orgId || ''} governed={!!project.sourceCollaborationDraftId} organizations={orgs} profiles={profiles} tasks={projectTasks} onOpenTask={(id, afterOpen) => inspector.openTask(id, { view: 'offices', restoreFocus: () => document.getElementById('project-office-search')?.focus() }, afterOpen)} onProposalContext={() => selectTab('proposal_context')}/><ProjectOfficesView tasks={visibleTasks} offices={orgs} onOpenTask={setOpenTaskId} onSelectOffice={office => selectTab('tasks', office)}/></>}
-          {activeTabId === 'members' && <ProjectMembers projectId={project.id} projectStatus={project.status} profiles={profiles} tasks={projectTasks} onOpenTask={setOpenTaskId}/>}
+          {activeTabId === 'members' && <ProjectMembers projectId={project.id} projectTitle={project.title} governed={!!project.sourceCollaborationDraftId} organizations={orgs} projectStatus={project.status} profiles={profiles} tasks={projectTasks} onOpenTask={setOpenTaskId}/>}
           {activeTabId === "timeline" && (
             <ProjectTimelineView
               data={viewData}
@@ -266,14 +284,17 @@ export function ProjectCommandWorkspace({
         </div>
       )}
 
-      {/* Slide-over Task Detail Drawer */}
+      </div>
+      {peopleOpen && !inspector.taskId && <ProjectPeoplePage created={new URLSearchParams(window.location.search).get("people")==="add"} projectTitle={project.title} projectStatus={project.status} governed={!!project.sourceCollaborationDraftId} profiles={profiles} profilesLoading={profilesLoading} organizations={orgs} tasks={projectTasks} onClose={closePeople} onOpenTask={setOpenTaskId}/>}
       <TaskDetailDrawer
+        presentation="page"
         task={openTask}
         taskId={inspector.taskId || undefined}
         origin={inspector.origin}
         onClose={inspector.close}
         canReview={canReviewTasks}
         canSubmitForReview={true}
+        canPostProgress={!!openTask && getTaskTeamMemberIds(openTask).includes(userProfile?.id || '')}
         readOnly={['completed','archived'].includes(project.status) || userProfile?.role==='admin' || !ownWorkAccess || !!openTask && shared && openTask.orgId !== userProfile?.org_id}
       />
 

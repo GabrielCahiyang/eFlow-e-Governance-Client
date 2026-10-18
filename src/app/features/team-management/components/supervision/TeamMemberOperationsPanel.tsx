@@ -97,7 +97,7 @@ export function TeamMemberOperationsPanel({
               const parent = tasks.find((task) => task.id === subtask.taskId);
               return <button key={subtask.id} type="button" onClick={() => parent && onOpenTask(parent)} className="w-full rounded-lg bg-neutral-50 p-2.5 text-left transition hover:bg-neutral-100"><div className="flex items-center justify-between gap-2"><p className="truncate text-[12px] font-medium text-neutral-700"><span className="mr-1.5 text-[12px] font-semibold uppercase text-neutral-500">Step {subtask.position + 1}</span>{subtask.title}</p><span className="text-[12px] text-neutral-500">{subtask.percentComplete}%</span></div><p className="mt-0.5 truncate text-[12px] text-neutral-500">{parent?.title || "Parent task"} · {subtask.status.replace(/_/g, " ")}</p></button>;
             })}
-            {assignedSubtasks.length === 0 && <EmptyState illustration="tasks" size="compact" title="No active delegated subtasks."/>}
+            {assignedSubtasks.length === 0 && <EmptyState illustration="projects" size="compact" title="No active delegated subtasks."/>}
           </div>
         </section>
 

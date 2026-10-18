@@ -24,6 +24,7 @@ export {
   resolveTaskOffice,
 } from "./services/officeIdentityService";
 export { OfficeMembersEditor } from './components/OfficeMembersEditor';
+export { ProjectPeoplePage } from './components/ProjectPeoplePage';
 export const ProjectOfficePanel = lazyFeature(() =>
   import("./components/ProjectOfficePanel").then((module) => ({
     default: module.ProjectOfficePanel,

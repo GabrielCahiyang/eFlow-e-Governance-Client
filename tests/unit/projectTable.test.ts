@@ -44,7 +44,7 @@ describe('Project table over canonical work', () => {
     expect(dependencyWouldCycle(tasks, 'c', ['a'])).toBe(false);
   });
   it('summarizes planning estimates separately from completion progress', () => {
-    expect(groupSummary([task('a', { status: 'completed', estimatedHours: 8, budgetImpact: 1200 }), task('b', { percentComplete: 40, estimatedHours: 2, budgetImpact: 300 })])).toEqual({ count: 2, completed: 1, effort: 10, budget: 1500, progress: 70 });
+    expect(groupSummary([task('a', { status: 'completed', estimatedHours: 8, budgetImpact: 1200 }), task('b', { percentComplete: 40, estimatedHours: 2, budgetImpact: 300 })])).toEqual({ count: 2, completed: 1, effort: 10, budget: 1500, progress: 50 });
   });
 });
 
@@ -52,6 +52,6 @@ describe('Project table over canonical work', () => {
 describe('NW6.4 table filter/sort compatibility',()=>{
  it('restores canonical manual order after filtering long titles without changing grouping or financial totals',()=>{
   const long='Community evidence and financial reconciliation '.repeat(5);const tasks=[task('later',{title:long,workspacePosition:8,groupId:'group',estimatedHours:4,budgetImpact:1200}),task('first',{title:long+' preliminary',workspacePosition:1,groupId:'group',assigneeId:'member',percentComplete:43,estimatedHours:2,budgetImpact:300}),task('archived',{title:long,workspacePosition:0,archivedAt:1,budgetImpact:9000})];const before=JSON.stringify(tasks);
-  expect(visibleProjectTasks(tasks,'preliminary','','member','title').map(item=>item.id)).toEqual(['first']);const restored=visibleProjectTasks(tasks,'','','','manual');expect(restored.map(item=>item.id)).toEqual(['first','later']);expect(tasksInGroup(restored,{...group,isDefault:false}).map(item=>item.id)).toEqual(['first','later']);expect(groupSummary(restored)).toMatchObject({count:2,effort:6,budget:1500,progress:22});expect(JSON.stringify(tasks)).toBe(before);
+  expect(visibleProjectTasks(tasks,'preliminary','','member','title').map(item=>item.id)).toEqual(['first']);const restored=visibleProjectTasks(tasks,'','','','manual');expect(restored.map(item=>item.id)).toEqual(['first','later']);expect(tasksInGroup(restored,{...group,isDefault:false}).map(item=>item.id)).toEqual(['first','later']);expect(groupSummary(restored)).toMatchObject({count:2,effort:6,budget:1500,progress:0});expect(JSON.stringify(tasks)).toBe(before);
  });
 });

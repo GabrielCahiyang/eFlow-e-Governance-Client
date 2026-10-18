@@ -30,7 +30,7 @@ describe('NW4.2 completion and server review flags',()=>{
   const onReview=vi.fn();render(<WorkTree rootId="root" onReviewOfficeNode={onReview}/>);
   await openActions();fireEvent.click(screen.getByRole('menuitem',{name:'Review',exact:true}));
   await waitFor(()=>expect(onReview).toHaveBeenCalledWith(expect.objectContaining({id:'child',lead_id:'old-lead',current_reviewer:'new-lead',can_review:true}),expect.objectContaining({revision:7})));
-  expect(screen.getByText(/Task progress is managed separately/)).toBeTruthy();expect(mocks.save).not.toHaveBeenCalled();
+  expect(screen.getByText(/Task progress is tracked separately/)).toBeTruthy();expect(mocks.save).not.toHaveBeenCalled();
  });
  it('removes review on refreshed server denial even when the user is the appointed manager',async()=>{
   render(<WorkTree rootId="root" onReviewOfficeNode={vi.fn()}/>);

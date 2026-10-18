@@ -1,3 +1,4 @@
+import {formatDate} from '../../../../components/workflow/primitives';
 import { useEffect, useMemo, useRef, useState } from "react";
 import Gantt from "frappe-gantt";
 // frappe-gantt exposes its stylesheet through a conditional `style` export,
@@ -407,7 +408,7 @@ export function ProjectTimelineView({
                       </span>
                       {item._dueDateStr && (
                         <span className="text-[10.5px] text-neutral-500 font-mono">
-                          {item._dueDateStr.slice(5)}
+                          {formatDate(item._dueDateStr)}
                         </span>
                       )}
                     </div>

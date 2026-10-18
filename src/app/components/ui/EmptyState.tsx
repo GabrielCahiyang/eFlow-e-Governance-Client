@@ -18,7 +18,7 @@ export function EmptyState({ icon, title, description, action, illustration, siz
   const visual = illustration === false ? icon : illustration ? <EmptyStateIllustration kind={illustration} size={size}/> : icon ?? <EmptyStateIllustration size={size}/>;
   return (
     <div ref={space.ref} className="eflow-illustrated-empty" data-size={size} data-fill={fill || undefined} style={fill && space.height !== undefined ? { minHeight: space.height } : undefined}>
-      {visual && <div aria-hidden="true">{visual}</div>}
+      {visual && <div>{visual}</div>}
       <div className="eflow-illustrated-empty__copy"><p className="eflow-illustrated-empty__title">{title}</p>
         {description && <p className="eflow-illustrated-empty__description">{description}</p>}
       </div>

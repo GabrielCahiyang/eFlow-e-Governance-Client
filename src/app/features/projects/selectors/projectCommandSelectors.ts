@@ -19,9 +19,9 @@ export function buildProjectCommandMetrics(
   attention: TeamAttentionItem[],
   now = Date.now(),
 ): ProjectCommandMetrics {
-  const activeTasks = tasks.filter((task) => !task.archivedAt && task.status !== "cancelled");
+  const activeTasks = tasks.filter((task) => (!task.archivedAt || ["completed","archived"].includes(project.status)) && task.status !== "cancelled");
   const progress = activeTasks.length
-    ? Math.round(activeTasks.reduce((total, task) => total + (task.status === "completed" ? 100 : Math.max(0, Math.min(100, task.percentComplete || 0))), 0) / activeTasks.length)
+    ? Math.round(activeTasks.reduce((total, task) => total + (task.status === "completed" ? 100 : 0), 0) / activeTasks.length)
     : project.status === "completed" ? 100 : 0;
   const overdue = new Set(attention.filter((item) => item.kind === "overdue").map((item) => item.taskId)).size;
   const blocked = attention.filter((item) => item.kind === "blocked").length;
@@ -37,7 +37,7 @@ export function buildProjectCommandMetrics(
   const isTargetDueSoon = targetParsed !== undefined && targetParsed >= todayStart && targetParsed <= todayStart + 14 * DAY;
 
   let scheduleHealth: ProjectScheduleHealth = "on_track";
-  if (project.status === "completed") scheduleHealth = "completed";
+  if (project.status === "completed" || project.status === "archived") scheduleHealth = "completed";
   else if (overdue > 0 || isTargetOverdue) scheduleHealth = "overdue";
   else if (blocked > 0 || changesRequested > 0 || milestones.some((milestone) => milestone.manualStatus === "at_risk")) scheduleHealth = "at_risk";
   else if (isTargetDueSoon || attention.some((item) => item.kind === "due_soon")) scheduleHealth = "due_soon";
@@ -111,9 +111,9 @@ export function buildProjectWorkGroups(tasks: Task[], milestones: Milestone[]): 
 }
 
 export function buildProjectPortfolioSummary(project: Project, tasks: Task[], now = Date.now()) {
-  const live = tasks.filter((task) => task.linkedProjectId === project.id && !task.archivedAt && task.status !== "cancelled");
+  const live = tasks.filter((task) => task.linkedProjectId === project.id && (!task.archivedAt || ["completed","archived"].includes(project.status)) && task.status !== "cancelled");
   const completed = live.filter((task) => task.status === "completed").length;
-  const progress = live.length ? Math.round(live.reduce((sum, task) => sum + (task.status === "completed" ? 100 : task.percentComplete || 0), 0) / live.length) : project.status === "completed" ? 100 : 0;
+  const progress = live.length ? Math.round(live.reduce((sum, task) => sum + (task.status === "completed" ? 100 : 0), 0) / live.length) : project.status === "completed" ? 100 : 0;
   const overdue = live.filter((task) => isOverdue(task, now)).length;
   const today = new Date(now);
   const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
@@ -128,7 +128,7 @@ export function buildProjectPortfolioSummary(project: Project, tasks: Task[], no
     .filter((date): date is string => Boolean(date))
     .filter((date) => (parseCalendarDate(date) ?? timestamp(date) ?? 0) >= todayStart)
     .sort((a, b) => (parseCalendarDate(a) ?? timestamp(a) ?? 0) - (parseCalendarDate(b) ?? timestamp(b) ?? 0));
-  const health: ProjectScheduleHealth = project.status === "completed" ? "completed" : overdue || isTargetOverdue ? "overdue" : changesRequested ? "at_risk" : isTargetDueSoon ? "due_soon" : "on_track";
+  const health: ProjectScheduleHealth = (project.status === "completed" || project.status === "archived" && completed===live.length) ? "completed" : overdue || isTargetOverdue ? "overdue" : changesRequested ? "at_risk" : isTargetDueSoon ? "due_soon" : "on_track";
   const completionRecommended = project.status !== "completed" && live.length > 0 && completed === live.length;
   return { progress, completed, total: live.length, isEmpty: live.length === 0 && project.status !== "completed", overdue, awaitingReview, changesRequested, leadIds, nextDeadline: deadlines[0] || project.targetDate, health, completionRecommended, lastActivityAt: Math.max(project.updatedAt, ...live.map((task) => task.lastActivityAt || task.updatedAt)) };
 }

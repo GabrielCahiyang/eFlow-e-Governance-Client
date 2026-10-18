@@ -52,7 +52,7 @@ test('Project actions open visible menus and dialogs, and the board returns to t
   await page.getByRole('button', { name: 'New task', exact: true }).click();
   await expect(page.getByRole('dialog', { name: 'New task', exact: true })).toBeVisible();
   await page.keyboard.press('Escape');
-  const creation = page.getByRole('button', { name: 'Projects and proposals', exact: true });
+  const creation = page.getByRole('button', { name: '+ New', exact: true });
   await creation.click();
   await page.getByRole('menuitem', { name: 'Create project', exact: true }).click();
   await expect(page.getByRole('dialog', { name: 'Let’s start working together', exact: true })).toBeVisible();
@@ -82,7 +82,7 @@ test('View picker, board return and first-column task actions remain reachable a
   await expect(page.getByRole('tab', { name: 'Board', exact: true })).toHaveAttribute('aria-selected', 'true');
   await page.getByRole('button', { name: 'Back to main table', exact: true }).click();
   await expect(page.getByRole('region', { name: 'Project main table' })).toBeVisible();
-  const creation = page.getByRole('button', { name: 'Projects and proposals', exact: true });
+  const creation = page.getByRole('button', { name: '+ New', exact: true });
   await expect(creation).toBeVisible();
   await creation.click();
   await page.getByRole('menuitem', { name: 'Create project', exact: true }).click();

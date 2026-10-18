@@ -416,7 +416,7 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
                       {latestProgress && (
                         <div className="mb-3 rounded-[14px] border border-border bg-[var(--eflow-info-bg)] p-3">
                           <div className="flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-wide text-[var(--eflow-info-text)] mb-1">
-                            <Gauge size={12} /> Latest progress · {latestProgress.percentComplete ?? "—"}%
+                            <Gauge size={12} /> Latest update
                           </div>
                           {latestProgress.nextStep && (
                             <div className="text-xs text-foreground"><b className="font-semibold">Next:</b> {latestProgress.nextStep}</div>
@@ -429,14 +429,14 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
 
                     </div>
 
-                    <TaskReviewStandards task={selected} tasks={tasks} />
+                    <details className="work-secondary"><summary>Completion checks</summary><TaskReviewStandards task={selected} tasks={tasks} /></details>
 
-                    <TaskSubtaskEvidenceSection
+                    <details className="work-secondary"><summary>Approved subtask evidence</summary><TaskSubtaskEvidenceSection
                       task={selected}
                       evidence={subtaskEvidence}
                       loading={subtaskEvidenceLoading}
                       error={subtaskEvidenceError}
-                    />
+                    /></details>
 
                     <div className="rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
                       <div className="mb-3 flex items-start gap-2.5">
@@ -460,7 +460,7 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
                     <div className="rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
                       <div className="text-xs font-bold uppercase tracking-wide text-foreground mb-0.5">Complete task timeline</div>
                       <div className="mb-3 text-xs text-muted-foreground">Status changes and structured parent-task progress updates, newest first.</div>
-                      <TaskActivityTimeline taskId={selected.id} />
+                      <details className="work-secondary"><summary>View activity</summary><TaskActivityTimeline taskId={selected.id} /></details>
                     </div>
 
                     {canReviewSelected && (

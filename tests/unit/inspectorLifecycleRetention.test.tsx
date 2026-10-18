@@ -6,7 +6,6 @@ const update=vi.hoisted(()=>vi.fn());
 vi.mock('../../src/app/features/tasks',()=>({updateTaskStatus:update,ProgressUpdateForm:()=>null}));
 vi.mock('../../src/app/features/reviews',()=>({SubmitForReviewForm:()=>null}));
 vi.mock('../../src/app/contexts/AuthContext',()=>({useAuth:()=>({user:{id:'lead'},userProfile:{full_name:'Recorded Lead'}})}));
-import {InspectorExecution} from '../../src/app/features/task-inspector/components/InspectorExecution';
 import {useInspectorLifecycle} from '../../src/app/features/task-inspector/hooks/useInspectorLifecycle';
 import type {Task} from '../../src/app/features/tasks';
 afterEach(()=>{cleanup();vi.clearAllMocks();});
@@ -17,7 +16,7 @@ describe('NW7.3 retained start/resume lifecycle',()=>{
   const task={id:'root',title:'Assessment',status,createdAt:1,updatedAt:1} as Task;
   function Probe(){const lifecycle=useInspectorLifecycle(task,changed,close);return <>
    {lifecycle.error&&<p role="alert">{lifecycle.error}</p>}
-   <InspectorExecution task={task} subtasks={[]} canStart={status==='todo'} canResume={status==='changes_requested'} canSubmit={false} canPostProgress={false} busy={lifecycle.busy} onStart={lifecycle.start} onSubmitted={vi.fn()}/>
+   <button disabled={lifecycle.busy} onClick={lifecycle.start}>{status==='todo'?'Start work':'Resume work'}</button>
   </>;}
   render(<Probe/>);const name=status==='todo'?'Start work':'Resume work',button=screen.getByRole('button',{name});
   await act(async()=>{fireEvent.click(button);fireEvent.click(button);});
@@ -26,6 +25,6 @@ describe('NW7.3 retained start/resume lifecycle',()=>{
   await act(async()=>reject(new Error('Current task access denied')));
   expect(screen.getByRole('alert').textContent).toContain('Current task access denied');expect(changed).not.toHaveBeenCalled();expect(close).not.toHaveBeenCalled();
   await act(async()=>fireEvent.click(screen.getByRole('button',{name})));
-  expect(update).toHaveBeenCalledTimes(2);expect(changed).toHaveBeenCalledOnce();expect(close).toHaveBeenCalledOnce();
+  expect(update).toHaveBeenCalledTimes(2);expect(changed).toHaveBeenCalledOnce();expect(close).not.toHaveBeenCalled();
  });
 });

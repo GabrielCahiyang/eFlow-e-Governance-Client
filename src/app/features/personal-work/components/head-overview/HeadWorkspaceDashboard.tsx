@@ -9,14 +9,14 @@ import type {WorkRow,WorkSnapshot} from '../../types';
 import './headWorkspaceDashboard.css';
 
 interface Props {
-  name:string; data?:WorkSnapshot; loading:boolean; error?:string;
+  actorId?:string;name:string; data?:WorkSnapshot; loading:boolean; error?:string;
   onRefresh:()=>void; onNavigate:(section:string,page:string,project?:string)=>void;
   onOpen:(row:WorkRow,element:HTMLElement)=>void; canReports:boolean;
 }
-const statusLabel=(status:string)=>({todo:'To do',in_progress:'In progress',for_review:'Awaiting review',submitted:'Awaiting review',completed:'Completed',done:'Completed',pending_assignment:'Needs a lead'}[status]||status.replace(/_/g,' '));
-export function HeadWorkspaceDashboard({name,data,loading,error,onRefresh,onNavigate,onOpen,canReports}:Props){
+const statusLabel=(status:string)=>({todo:'Not started',in_progress:'In progress',for_review:'Awaiting review',submitted:'Awaiting review',completed:'Completed',done:'Completed',pending_assignment:'Needs a lead'}[status]||status.replace(/_/g,' '));
+export function HeadWorkspaceDashboard({actorId,name,data,loading,error,onRefresh,onNavigate,onOpen,canReports}:Props){
   const [focus,setFocus]=useState<HeadAttentionView>('overdue');
-  const model=useMemo(()=>data?headOverview(data):undefined,[data]);
+  const model=useMemo(()=>data?headOverview(data,new Date(),actorId):undefined,[data,actorId]);
   const incomplete=!!data?.issues.length||!!error;
   const trusted=!!data&&!incomplete;
   const date=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Manila',weekday:'long',day:'numeric',month:'long'}).format(new Date());
@@ -48,8 +48,8 @@ export function HeadWorkspaceDashboard({name,data,loading,error,onRefresh,onNavi
   </section>;
 }
 function TaskLine({row,onOpen,overdue=false,recent=false}:{row:WorkRow;onOpen:Props['onOpen'];overdue?:boolean;recent?:boolean}){
-  const progress=['completed','done'].includes(row.status)?100:Math.round(Math.max(0,Math.min(100,row.progress)));
-  return <li><button type="button" data-work-key={row.key} className="head-home__task" onClick={event=>onOpen(row,event.currentTarget)}><div className="head-home__task-name"><strong>{row.title}</strong><small>{row.projectTitle} · {progress}% complete</small></div><span className={`head-home__status head-home__status--${row.status}`}>{statusLabel(row.status)}</span><span className={overdue?'head-home__date head-home__date--late':'head-home__date'}>{recent?`Updated ${workDateLabel(row.updatedAt?new Date(row.updatedAt).toISOString():'',row.timezone)}`:row.due?`Due ${workDateLabel(row.due,row.timezone)}`:'No due date'}</span><ArrowRight size={15}/></button></li>;
+
+  return <li><button type="button" data-work-key={row.key} className="head-home__task" onClick={event=>onOpen(row,event.currentTarget)}><div className="head-home__task-name"><strong>{row.title}</strong><small>{row.projectTitle}</small></div><span className={`head-home__status head-home__status--${row.status}`}>{statusLabel(row.status)}</span><span className={overdue?'head-home__date head-home__date--late':'head-home__date'}>{recent?`Updated ${workDateLabel(row.updatedAt?new Date(row.updatedAt).toISOString():'',row.timezone)}`:row.due?`Due ${workDateLabel(row.due,row.timezone)}`:'No due date'}</span><ArrowRight size={15}/></button></li>;
 }
 function Empty({icon:Icon,title,description,illustration}:{icon:typeof FolderKanban;title:string;description:string;illustration:EmptyIllustration|false}){return <EmptyState size="compact" illustration={illustration} icon={<Icon size={26}/>} title={title} description={description}/>;}
 function PanelSkeleton(){return <div className="head-home__panel-skeleton" role="status" aria-label="Loading dashboard data">{[0,1,2].map(i=><div key={i}><Skeleton fullWidth height={18}/><Skeleton width={150} height={12}/></div>)}</div>;}

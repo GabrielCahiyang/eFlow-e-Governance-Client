@@ -21,7 +21,7 @@ import {
 import { peso } from "./budgetUi";
 import { LockedBudgetControls } from "./LockedBudgetControls";
 import { BudgetSectionEditor } from "./BudgetSectionEditor";
-import { openingSections, sectionTotal, validateBudgetSections } from "../selectors/budgetSections";
+import { openingSections, sectionTotal, validateBudgetSections, validateBudgetSectionsForLock } from "../selectors/budgetSections";
 import { saveBudgetSections } from "../services/budgetSectionService";
 
 import { useExplicitDraft } from "../../../shared/useExplicitDraft";
@@ -124,8 +124,10 @@ export function AnnualBudgetSetup({
   const total = data.sectionsAvailable
     ? sectionTotal(sections)
     : data.summary?.approvedAmount ?? 0;
-  const validation = fiscalYearError(fiscalYear)||budgetSettingsError({dailyReleaseLimit:pettyLimit,perReceiptLimit:requestLimit,liquidationDueDays,threshold})||validateBudgetSections(sections);
   const locked = data.summary?.status === "locked";
+  const amountValidation = validateBudgetSectionsForLock(sections);
+  const validation = fiscalYearError(fiscalYear)||budgetSettingsError({dailyReleaseLimit:pettyLimit,perReceiptLimit:requestLimit,liquidationDueDays,threshold})||validateBudgetSections(sections)||(locked ? amountValidation : "");
+  const lockValidation = validation || amountValidation;
   const closed = data.summary?.status === "closed";
   const writable = Boolean(data.sectionsAvailable) && canEdit && !closed && (!locked || editingLocked);
   const persistDraft = () =>
@@ -167,7 +169,7 @@ export function AnnualBudgetSetup({
       !canEdit ||
       locked ||
       total <= 0 ||
-      validation ||
+      lockValidation ||
       !data.sectionsAvailable ||
       financialOutcome(lockKey)
     )
@@ -287,7 +289,7 @@ export function AnnualBudgetSetup({
           </>
         )}
         {editingLocked && <label className="mt-4 block"><span className="text-[12px] text-muted-foreground">Required adjustment reason and authority reference</span><textarea disabled={busy} value={adjustmentReason} onChange={e => setAdjustmentReason(e.target.value)} className="mt-1 w-full rounded-lg border p-3 text-[12px]" placeholder="Reference the approved classification, release or supplemental authority." /><p className="mt-1 text-[11px] text-muted-foreground">Deleting a used row retires it only after its remaining funding is protected. The server checks every account.</p></label>}
-        {validation && <p role="alert" className="mt-3 text-[12px] text-destructive">{validation}</p>}
+        {lockValidation && <p role="alert" className="mt-3 text-[12px] text-destructive">{lockValidation}</p>}
       </div>
       <section className="rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
         <div className="flex items-start gap-3">
@@ -381,7 +383,7 @@ export function AnnualBudgetSetup({
           </button>
           {!locked &&
           <button
-            disabled={busy || total <= 0 || Boolean(validation) || !data.sectionsAvailable || Boolean(financialOutcome(lockKey))}
+            disabled={busy || total <= 0 || Boolean(lockValidation) || !data.sectionsAvailable || Boolean(financialOutcome(lockKey))}
             onClick={lock}
             className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-primary px-4 text-[12px] font-medium text-primary-foreground disabled:opacity-40"
           >

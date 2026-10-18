@@ -1,3 +1,4 @@
+import {formatDate} from '../../../components/workflow/primitives';
 import { EmptyState as IllustratedEmptyState } from '../../../components/ui/EmptyState';
 import { EmptyStateIllustration } from '../../../components/ui/EmptyStateIllustration';
 import * as React from "react";
@@ -128,6 +129,7 @@ export function ProjectsPortfolioTable({
               <TableRow key={project.id} className="eflow-project-row group">
                 {/* 1. Project Title & Description (Direct Clickable Entry) */}
                 <TableCell>
+                  <div className="min-w-0 flex flex-col gap-1">
                   <button
                     type="button"
                     onClick={() => onOpen(project.id)}
@@ -138,6 +140,7 @@ export function ProjectsPortfolioTable({
                   <span className="eflow-project-row-description line-clamp-1 text-[11px] text-neutral-400">
                     {project.description || "No project description"}
                   </span>
+                  </div>
                 </TableCell>
 
                 {/* 2. Department */}
@@ -200,7 +203,7 @@ export function ProjectsPortfolioTable({
                 {/* 7. Target Date */}
                 <TableCell>
                   <span className="text-xs text-neutral-600">
-                    {project.targetDate || summary.nextDeadline || "Unscheduled"}
+                    {formatDate(project.targetDate || summary.nextDeadline)}
                   </span>
                 </TableCell>
 

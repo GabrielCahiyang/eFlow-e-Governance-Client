@@ -31,9 +31,14 @@ export function SubtaskProgressHistory({
                   </div>
                 </div>
                 <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[10.5px] font-semibold text-blue-700">
-                  {update.percentComplete}%
+                  {update.blocker?'Stuck':update.blockerCategory==='None'?'In progress':`${update.percentComplete}% · earlier update`}
                 </span>
               </div>
+
+              <details className="mt-2 text-[10.5px] text-neutral-500">
+                <summary className="cursor-pointer">Recorded progress value</summary>
+                <p>{update.percentComplete}%</p>
+              </details>
 
               {update.note && (
                 <div className="mt-2.5 flex gap-2 rounded-lg bg-neutral-50 p-2.5 text-[11.5px] text-neutral-700">

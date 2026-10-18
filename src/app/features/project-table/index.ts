@@ -1,5 +1,6 @@
 import { lazyFeature } from "../../shared/lazyFeature";
 export { CreateProjectDialog } from "./components/CreateProjectDialog";
+export { ProjectTaskCreateAction } from './components/ProjectTaskCreateAction';
 export const ProjectTableWorkspace = lazyFeature(() =>
   import("./components/ProjectTableWorkspace").then((module) => ({
     default: module.ProjectTableWorkspace,

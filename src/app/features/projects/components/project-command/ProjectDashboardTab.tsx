@@ -382,7 +382,7 @@ export function ProjectDashboardTab({
             </div>
 
             {data.activityError?<p role="alert">Recent audit activity unavailable: {data.activityError}</p>:activity.length === 0 ? (
-              <EmptyState illustration="tasks" size="compact" title="No recent activity logged."/>
+              <EmptyState illustration="files" size="compact" title="No recent activity logged."/>
             ) : (
               <div className="space-y-3">
                 {activity.slice(0, 5).map((act) => (

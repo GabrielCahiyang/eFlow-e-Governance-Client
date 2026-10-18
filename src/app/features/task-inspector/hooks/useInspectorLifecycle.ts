@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { updateTaskStatus, type Task } from '../../tasks';
 import { useAuth } from '../../../contexts/AuthContext';
 import { requestNavigation, useNavigationBlocker } from '../../../shared/navigationGuard';
-export function useInspectorLifecycle(task: Task | null, onChanged?: () => void, onClose?: () => void) {
+export function useInspectorLifecycle(task: Task | null, onChanged?: () => void, _onClose?: () => void) {
  const { user, userProfile } = useAuth();
  const pending = useRef(false);
  const [busy, setBusy] = useState(false), [error, setError] = useState('');
@@ -10,7 +10,7 @@ export function useInspectorLifecycle(task: Task | null, onChanged?: () => void,
  const execute = async () => {
   if (!task || pending.current) return;
   pending.current = true; setBusy(true); setError('');
-  try { await updateTaskStatus(task.id, 'in_progress', user?.id ? { id: user.id, name: userProfile?.full_name || '' } : undefined); onChanged?.(); onClose?.(); }
+  try { await updateTaskStatus(task.id, 'in_progress', user?.id ? { id: user.id, name: userProfile?.full_name || '' } : undefined); onChanged?.(); }
   catch (reason) { setError(reason instanceof Error ? reason.message : 'Could not update this task.'); }
   finally { pending.current = false; setBusy(false); }
  };

@@ -50,6 +50,15 @@ export function validateBudgetSections(sections: BudgetSection[]): string {
   return "";
 }
 
+export function validateBudgetSectionsForLock(sections: BudgetSection[]): string {
+  const invalid = validateBudgetSections(sections);
+  if (invalid) return invalid;
+  const amounts = sectionLeaves(sections);
+  if (!amounts.length) return "Add at least one budget amount before locking this budget.";
+  const unfinished = amounts.find(section => section.amount <= 0);
+  return unfinished ? `Enter an amount greater than ₱0 for “${unfinished.name}”.` : "";
+}
+
 export function openingSections(data: DepartmentBudgetBundle): BudgetSection[] {
   if (data.sectionsAvailable) return data.sections || [];
   return data.summary ? [{ id: data.lines[0]?.id || data.summary.id, name: "Unclassified opening appropriation", amount: data.summary.approvedAmount, heldAmount: 0, position: 0 }] : [];

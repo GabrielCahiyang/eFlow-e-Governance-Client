@@ -127,7 +127,7 @@ function WorkStaffingDialogContent({controller,nodeId,readOnly=false,executionBl
    <WorkPeoplePicker people={data.people} lead={lead||''} selected={workers} onLead={setLead} onSelected={setWorkers}
     appointmentCapability={contributorsOnly?{allowed:false,reason_code:'read_only',disabledReason:'Change the lead from the Lead menu.'}:caps.appointment} contributorCapability={caps.contributors} disabled={locked} disabledReason={lockReason}
     invite={!readOnly&&!locked?{project:data.root.project,office:data.root.office,root:controller.rootId,node:nodeId||undefined,canRequest:scopedInvitationRequestAllowed(data,nodeId,context)}:undefined}/>
-   {draftError&&<p role="alert">{draftError}</p>}
+   {draftError&&!busy&&<p role="alert">{draftError}</p>}
    {error&&<p role="alert">{error}{request.current&&!saved?' Press Try again to check and finish the last save.':''}</p>}
    {saved&&<p role="status">People saved.</p>}
    {recovery.recovered&&<p role="status">{recovery.stale?'Recovered people draft is stale. Review the current appointments before saving.':'People draft recovered after current access verification.'}</p>}

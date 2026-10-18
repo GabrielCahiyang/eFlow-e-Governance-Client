@@ -81,7 +81,7 @@ test('creation menu uses existing handlers, retains failed drafts and discards o
   test.setTimeout(90_000);
   await projectWorkspaceFixture(page,'head');
   const context=page.getByRole('region',{name:'Projects',exact:true});
-  await page.getByRole('button',{name:'Projects and proposals',exact:true}).click();
+  await page.getByRole('button',{name:'+ New',exact:true}).click();
   await expect(page.getByRole('menuitem',{name:'Import proposal',exact:true})).toBeVisible();
   await expect(page.getByRole('menuitem',{name:/Folder|Dashboard|My Work/})).toHaveCount(0);
   await page.getByRole('menuitem',{name:'Create project',exact:true}).click();
@@ -96,7 +96,7 @@ test('creation menu uses existing handlers, retains failed drafts and discards o
   await expect(page.getByRole('dialog',{name:'Let’s start working together',exact:true})).toHaveCount(0);
   expect(requests).toBe(2);
   await expect(context.getByRole('button',{name:'Retained project draft',exact:true})).toBeVisible();
-  await page.getByRole('button',{name:'Projects and proposals',exact:true}).click(); await page.getByRole('menuitem',{name:'Create project',exact:true}).click(); await page.getByLabel('Project name',{exact:true}).fill('Discarded draft');
+  await page.getByRole('button',{name:'+ New',exact:true}).click(); await page.getByRole('menuitem',{name:'Create project',exact:true}).click(); await page.getByLabel('Project name',{exact:true}).fill('Discarded draft');
   await page.getByRole('button',{name:'Cancel',exact:true}).click(); await page.getByRole('button',{name:'Discard',exact:true}).click();
   expect(requests).toBe(2);
 });

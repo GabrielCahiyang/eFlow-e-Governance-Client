@@ -18,7 +18,7 @@ export function useProjectPlanningLocation(onView: (view: ProjectPlanningView) =
   return useCallback((view: 'drafts' | 'signoff') => {
     const url = new URL(window.location.href);
     url.pathname = '/projects'; url.searchParams.set('page', 'Projects');
-    url.searchParams.delete('project'); url.searchParams.delete('view');
+    for (const key of ['project','view','proposal','proposalView','people']) url.searchParams.delete(key);
     url.searchParams.set('plans', view === 'drafts' ? 'saved' : 'review');
     pushNavigationHistory(`${url.pathname}${url.search}${url.hash}`);
   }, []);

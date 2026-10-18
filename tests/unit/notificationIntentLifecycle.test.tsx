@@ -10,6 +10,16 @@ const key=(actor:string)=>`eflow.notification-intent.v1:${actor}`;
 beforeEach(()=>{cleanup();auth.actor='actor-a';const pending=store.peekNotificationNavigationIntent();if(pending)store.completeNotificationNavigationIntent(pending.notificationId);sessionStorage.clear();});
 afterEach(()=>{cleanup();vi.restoreAllMocks();const pending=store.peekNotificationNavigationIntent();if(pending)store.completeNotificationNavigationIntent(pending.notificationId);sessionStorage.clear();});
 describe('NW9.5 unfinished navigation lifecycle',()=>{
+ it('retains an unavailable destination without reporting completion or replaying on every refresh',()=>{
+  store.queueNotificationNavigationIntent({...target,kind:'project',projectId:'removed'},'actor-a');
+  const handle=vi.fn(()=> 'unavailable' as const);
+  const view=renderHook(({revision})=>useNotificationNavigationIntent(()=>true,handle,[revision]),{initialProps:{revision:0}});
+  view.rerender({revision:1});view.rerender({revision:2});
+  expect(handle).toHaveBeenCalledOnce();expect(store.peekNotificationNavigationIntent('actor-a')?.projectId).toBe('removed');
+  handle.mockReturnValue(true as never);
+  act(()=>store.queueNotificationNavigationIntent({...target,kind:'project',projectId:'removed'},'actor-a'));
+  expect(handle).toHaveBeenCalledTimes(2);expect(store.peekNotificationNavigationIntent('actor-a')).toBeNull();
+ });
  it('retries an unfinished asynchronous loading result after a source refresh that arrived in flight',async()=>{
   let finish!:(handled:boolean)=>void;
   const handle=vi.fn().mockImplementationOnce(()=>new Promise<boolean>(resolve=>{finish=resolve;})).mockReturnValue(true);

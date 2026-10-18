@@ -1,0 +1,10 @@
+Browser tab: 1, Title: "Main table · Workflow Audit 2026-10-18 — Browser QA", URL: "http://localhost:5173/projects?page=Projects&workspace=fdd4dfee-bbc3-42b4-9dcf-a9612c428460&project=6388d5b9-5402-43aa-90de-8f3c2ce9efb7&view=tasks".
+The following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 196, 229-258
+~											189 text Lead:  Crisostomo Ibarra
+~											191 text Contributors ( 1 ):  Gabriel Cahiyang
+~										192 button Choose task lead and contributors
++										229 text Task people saved.
+~										194 pop up button (disabled, collapsed, settable) Description: Status for Audit — Prepare meeting pack, Value: To Do, Secondary Actions: Expand
++												230 (disabled) To Do
+The focused UI element is 198 pop up button (collapsed) Description: Edit dates for Audit — Prepare meeting pack, Secondary Actions: Expand

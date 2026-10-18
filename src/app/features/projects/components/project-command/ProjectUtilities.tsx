@@ -3,6 +3,7 @@ import { MoreHorizontal, Share2, Star } from 'lucide-react';
 import { ActionMenu, WorkspaceTooltip, type WorkspaceAction } from '../../../../components/ui/workspace';
 import { Button } from '../../../../components/ui/button';
 import { Modal } from '../../../../components/ui/Modal';
+import {ProjectReadinessPanel} from '../../../project-readiness';
 import {ProjectAccessPanel} from '../../../project-access';
 import { requestNavigation } from '../../../../shared/navigationGuard';
 import { useNavigationFavorites } from '../../../../shared/navigationPreferences';
@@ -14,7 +15,7 @@ export interface ProjectLifecycleActions { complete?: () => void; archive?: () =
 export function ProjectUtilities({ project, canManage, lifecycle, userId, contextId, authorizedProjectIds, view, onOpenOffices }: {
   project: Project; canManage: boolean; lifecycle: ProjectLifecycleActions; userId: string; contextId: string; authorizedProjectIds: string[]; view: string; onOpenOffices: () => void;
 }) {
-  const [settingsOpen, setSettingsOpen] = useState(false), [shareOpen, setShareOpen] = useState(false),[copyNotice,setCopyNotice]=useState('');
+  const [settingsOpen, setSettingsOpen] = useState(false), [shareOpen, setShareOpen] = useState(false),[copyNotice,setCopyNotice]=useState(''),[setupOpen,setSetupOpen]=useState(false);
   const menuTrigger = useRef<HTMLButtonElement>(null);
   const completion = useProjectCompletionAvailability(project, canManage && Boolean(lifecycle.complete), `${userId}:${contextId}`);
   const openLifecycle = (action: () => void) => requestAnimationFrame(() => {
@@ -36,7 +37,11 @@ export function ProjectUtilities({ project, canManage, lifecycle, userId, contex
   return <div className="eflow-project-identity__utilities">
     {userId && <WorkspaceTooltip content="Personal favorite on this device"><Button variant="ghost" size="icon" aria-label={favorite ? 'Remove project from favorites' : 'Add project to favorites'} aria-pressed={favorite} onClick={() => toggle(project.id)}><Star size={18} fill={favorite ? 'currentColor' : 'none'} /></Button></WorkspaceTooltip>}
     <Button variant="outline" onClick={() => { setShareOpen(true); }}><Share2 size={16} />Invite / share</Button>
+    <Button variant="outline" onClick={() => { void requestNavigation(() => setSettingsOpen(true)); }}>Project settings</Button>
+    {canManage && lifecycle.complete && !['completed','archived'].includes(project.status) && <Button variant="outline" onClick={() => { void requestNavigation(lifecycle.complete!); }}>Completion requirements</Button>}
+    {canManage&&!closedProject(project)&&<Button variant="outline" onClick={()=>void requestNavigation(()=>setSetupOpen(value=>!value))} aria-expanded={setupOpen}>Setup & activation</Button>}
     <ActionMenu tooltip="Project actions" trigger={<Button ref={menuTrigger} variant="outline" size="icon" aria-label="Project actions"><MoreHorizontal size={20} /></Button>} actions={actions} />
+    {setupOpen&&<section className="project-setup-panel"><div className="project-setup-shortcuts"><strong>Project setup</strong><Button variant="outline" onClick={()=>void requestNavigation(()=>{setSetupOpen(false);setSettingsOpen(true);})}>Set project dates</Button><Button variant="outline" onClick={()=>void requestNavigation(onOpenOffices)}>Choose project people</Button></div><ProjectReadinessPanel project={project} canManage={canManage} onResolve={view=>void requestNavigation(()=>{setSetupOpen(false);if(view==='gantt'||view==='tasks')setSettingsOpen(true);else onOpenOffices();})}/></section>}
     {settingsOpen && <ProjectSettingsDialog project={project} canManage={canManage} onClose={() => { setSettingsOpen(false); requestAnimationFrame(() => menuTrigger.current?.focus()); }} />}
     {shareOpen && <Modal isOpen title="Share project" description={project.title} width="max-w-3xl" onClose={() => void requestNavigation(() => setShareOpen(false))}>
       <ProjectAccessPanel project={project.id}/>
@@ -44,3 +49,5 @@ export function ProjectUtilities({ project, canManage, lifecycle, userId, contex
     </Modal>}
   </div>;
 }
+
+function closedProject(project:Project){return ['completed','archived'].includes(project.status);}

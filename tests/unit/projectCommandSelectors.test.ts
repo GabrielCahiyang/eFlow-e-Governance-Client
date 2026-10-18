@@ -16,9 +16,9 @@ const facts: TeamWorkflowFacts = {
 };
 
 describe("Project Command Workspace selectors", () => {
-  it("derives weighted progress and review health from canonical task data", () => {
+  it("derives approved-task progress and review health from canonical task data", () => {
     const metrics = buildProjectCommandMetrics(project, tasks, [], facts, [{ id: "overdue:b", kind: "overdue", severity: "critical", title: "Overdue", detail: "", taskId: "b", taskTitle: "Design", employeeIds: [] }], now);
-    expect(metrics.progress).toBe(90);
+    expect(metrics.progress).toBe(50);
     expect(metrics.scheduleHealth).toBe("overdue");
     expect(metrics.awaitingReview).toBe(1);
     expect(metrics.activeLeadIds).toEqual(["lead"]);

@@ -1,0 +1,33 @@
+{
+  "target": "ixnfphgjyelhckjwjkdv",
+  "kind": "local-complete-unit-suite",
+  "command": "npm test -- --maxWorkers=4 --reporter=json --outputFile=.codex-tmp/five-phase-final-suite-verified.json",
+  "success": true,
+  "tests": 1983,
+  "passed": 1983,
+  "failed": 0,
+  "skipped": 0,
+  "testFiles": 327,
+  "startedAt": "2026-10-18T16:17:10.878Z",
+  "finishedAt": "2026-10-18T16:27:40.734Z",
+  "otherChecks": {
+    "typescript": "passed",
+    "productionBuild": "passed; existing chunk/mixed-import warnings",
+    "affectedPlaywright": {
+      "passed": 8,
+      "failed": 0,
+      "source": "synthetic fixtures"
+    },
+    "statusWorkflowSQL": {
+      "passed": 14,
+      "source": "disposable PGlite; earlier phase receipt"
+    },
+    "hostedBrowser": "Project completion, archive, read-only history under Cheryl/Crisostomo/Gabriel; separate screenshots"
+  },
+  "limits": [
+    "Not an exhaustive hosted notification/date-input audit",
+    "Secondary 390px evidence uses synthetic fixtures",
+    "Historical nested-work SQL baseline-helper hash mismatch remains separate"
+  ],
+  "fullLocalReport": ".codex-tmp/five-phase-final-suite-verified.json"
+}

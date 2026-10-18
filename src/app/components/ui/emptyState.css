@@ -18,3 +18,5 @@
 .eflow-empty-workspace--illustrated .eflow-illustrated-empty__title { color:var(--foreground); font-size:15px; }
 .dark .eflow-empty-illustration { background:#f4f7f7; border-radius:12px; padding:10px; }
 @media(max-width:480px) { .eflow-illustrated-empty[data-size=page] { padding:32px 16px; } .eflow-empty-illustration[data-size=page] { width:176px; height:120px; } }
+.eflow-storyset { display:inline-flex; flex-direction:column; align-items:center; gap:6px; max-width:100%; vertical-align:middle; }
+.eflow-storyset picture { display:block; max-width:100%; }

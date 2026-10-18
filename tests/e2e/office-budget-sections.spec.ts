@@ -2,9 +2,15 @@ import { expect, test, type Page } from "@playwright/test";
 import { projectWorkspaceFixture } from "./fixtures/projectWorkspace";
 
 const budgetId = "71000000-0000-4000-8000-000000000001";
-async function sectionsFixture(page: Page, installed: boolean) {
+async function sectionsFixture(page: Page, installed: boolean, draft = false, view = 'annual') {
   const fixture = await projectWorkspaceFixture(page, "head", false, { landingOnly: true });
   let sections = [{ id: "00000000-0000-4000-8000-000000000050", name: "Existing budget", amount: 123456.78, heldAmount: 0, position: 0 }];
+  if (draft) sections = [
+    {id:'00000000-0000-4000-8000-000000000050',name:'Supplies',amount:1000,heldAmount:0,position:0},
+    {id:'00000000-0000-4000-8000-000000000051',name:'Travel',amount:0,heldAmount:0,position:1},
+  ];
+  let status = draft ? 'draft' : 'locked';
+  const locks: Record<string, unknown>[] = [];
   let version = 0;
   const writes: Record<string, unknown>[] = [];
   await page.route("**/rest/v1/**", async route => {
@@ -17,20 +23,65 @@ async function sectionsFixture(page: Page, installed: boolean) {
       writes.push(payload); sections = payload.p_sections; version++;
       return route.fulfill({ json: budgetId });
     }
+    if (table === 'lock_department_fiscal_budget') {
+      locks.push(payload); status = 'locked';
+      return route.fulfill({json:null});
+    }
     if (table === "department_budget_summary") return route.fulfill({ json: {
-      id: budgetId, orgId: fixture.org, fiscalYear: 2026, status: "locked",
+      id: budgetId, orgId: fixture.org, fiscalYear: 2026, status,
       approvedAmount: sections.reduce((sum, s) => sum + s.amount, 0), committedAmount: 0, spentAmount: 0,
       availableAmount: 123456.78, dailyPettyCashReleaseLimit: 30000, perReceiptLimit: 5000,
       liquidationDueDays: 15, allowReceiptLimitOverride: false, underutilizationThreshold: 75,
     } });
-    if (table === "department_fiscal_budgets") return route.fulfill({ json: [{ fiscal_year: 2026, status: "locked", approved_amount: 123456.78 }] });
+    if (table === "department_fiscal_budgets") return route.fulfill({ json: [{ fiscal_year: 2026, status, approved_amount: sections.reduce((sum,s)=>sum+s.amount,0) }] });
     if (["department_budget_lines", "budget_commitments", "budget_ledger_entries", "department_budget_adjustments", "petty_cash_requests", "general_journal_entries"].includes(table)) return route.fulfill({ json: [] });
     return route.fallback();
   });
-  await page.goto("/office-budget?page=Office%20Budget&view=annual&fy=2026");
-  await expect(page.getByRole("heading", { name: "Annual office budget", exact: true })).toBeVisible();
-  return { writes };
+  await page.goto(`/office-budget?page=Office%20Budget&view=${view}&fy=2026`);
+  await expect(page.getByRole("heading", { name: view === 'annual' ? "Annual office budget" : "Proposal commitment versus actual", exact: true })).toBeVisible();
+  return { writes, locks };
 }
+
+test('Office Budget overview uses four distinct animated drawings on desktop and fits mobile',async({page},info)=>{
+  await page.setViewportSize({width:1918,height:914});
+  await sectionsFixture(page,true,false,'overview');
+  const cards=[
+    ['Proposal commitment versus actual','budget'],
+    ['Upcoming cash releases','tasks'],
+    ['Oldest outstanding cash','complete'],
+    ['Recent financial activity','files'],
+  ];
+  const sources=[];
+  for(const [heading,kind] of cards){
+    const card=page.locator('section').filter({has:page.getByRole('heading',{name:heading,exact:true})}).last();
+    const image=card.locator('img.eflow-empty-illustration');
+    await expect(image).toHaveAttribute('data-illustration',kind);
+    await expect.poll(()=>image.evaluate((e:HTMLImageElement)=>e.complete&&e.naturalWidth>0)).toBe(true);
+    sources.push(await image.getAttribute('src'));
+  }
+  expect(new Set(sources).size).toBe(4);
+  await page.getByRole('heading',{name:'Proposal commitment versus actual',exact:true}).scrollIntoViewIfNeeded();
+  await page.screenshot({path:info.outputPath('budget-overview-distinct-artwork.png'),fullPage:true});
+  await page.setViewportSize({width:390,height:844});
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});
+
+test('a funded budget with an unfinished row can save as draft but cannot lock until corrected',async({page},info)=>{
+  const {writes,locks}=await sectionsFixture(page,true,true);
+  const lock=page.getByRole('button',{name:'Save & lock annual budget',exact:true});
+  await expect(lock).toBeDisabled();
+  await expect(page.getByRole('alert')).toContainText('Enter an amount greater than ₱0 for “Travel”.');
+  await page.getByRole('button',{name:'Save draft',exact:true}).click();
+  await expect(page.getByText('Annual budget draft saved.',{exact:true})).toBeVisible();
+  expect(writes).toHaveLength(1); expect(locks).toHaveLength(0);
+  await page.getByLabel('Budget amount Travel',{exact:true}).fill('500');
+  await expect(lock).toBeEnabled();
+  await page.screenshot({path:info.outputPath('ready-to-lock.png')});
+  await lock.click();
+  await page.getByRole('alertdialog').getByRole('button',{name:'Save and lock',exact:true}).click();
+  await expect(page.getByText(`Budget ${budgetId} saved and locked.`,{exact:true})).toBeVisible();
+  expect(writes).toHaveLength(2); expect(locks).toHaveLength(1);
+});
 
 test("unavailable sections never display an existing saved budget as zero", async ({ page }) => {
   await sectionsFixture(page, false);

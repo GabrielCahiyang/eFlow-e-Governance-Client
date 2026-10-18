@@ -19,7 +19,7 @@ function Activity({roots,focusedNode,snapshot}:{roots:string[];focusedNode?:Work
  const events=pages[pages.length-1]||[];
  const displayed=focusedNode&&snapshot?selectFocusedWorkEvents(events,focusedNode,snapshot):events.map(event=>({event}));
  if(!focusedNode&&!events.length&&!error&&!loading)return null;
- return <section className="r7-work" aria-label="Delegation history"><h3>Delegation history</h3><p>Immutable work changes · 25 events per page · Root manual progress remains separate.</p>
+ return <section className="r7-work" aria-label="Delegation history"><h3>Delegation history</h3><p>People, schedule and work changes, newest first.</p>
  {error&&<p role="alert">{error}<button type="button" onClick={()=>setRetry(v=>v+1)}>Retry delegation history</button></p>}{loading&&<p role="status">Loading delegation history…</p>}
  {focusedNode&&!displayed.length&&!error&&!loading&&<EmptyState illustration="tasks" size="compact" title="No permitted work changes on this page."/>}
  <ol>{displayed.map(({event})=>{const presentation=presentWorkEvent(event,focusedNode);return <li key={event.id}><strong>{event.actor_name}</strong> · {presentation.title}<p>{presentation.detail}</p><time dateTime={event.occurred_at}> · {new Date(event.occurred_at).toLocaleString()}</time></li>;})}</ol>

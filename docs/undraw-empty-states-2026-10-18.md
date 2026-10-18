@@ -1,5 +1,7 @@
 # unDraw empty-state rollout
 
+Historical report: the artwork in this rollout was subsequently replaced by [animated Storyset illustrations](storyset-empty-states-2026-10-18.md). The unDraw asset files are no longer shipped.
+
 18 October 2026. Implements the illustrated states discussed after the [message inventory](EMPTY_STATE_MESSAGE_MAP_2026-10-18.md), including the requested vertical centering correction.
 
 Ten selected unDraw SVGs are bundled in `public/illustrations/undraw/`, with eFlow's `#0c6f6b` accent. The site color picker was exercised directly. The displayed vectors were saved locally after the browser download event did not complete. Source paths and proportions were preserved, and all SVGs passed XML parsing and checks for scripts, event handlers, foreign objects and external resources. Asset names and license provenance are in that folder's README. There are no runtime unDraw requests or new dependencies.

@@ -27,7 +27,7 @@ export function AuditEventDetailContent({event,entityLabel,officeLabel,section}:
  }
  const metadata=Object.entries(event.metadata||{});
  return <section className="audit-detail__card"><div className="audit-detail__section-heading"><div><h2>Technical details</h2><p>Original metadata, with sensitive values hidden.</p></div></div>
-  {metadata.length?<dl className="audit-detail__metadata">{metadata.map(([key,value])=><TechnicalValue key={key} field={key} value={value}/>)}</dl>:<EmptyState illustration="empty" size="compact" title="No additional metadata was recorded."/>}
+  {metadata.length?<dl className="audit-detail__metadata">{metadata.map(([key,value])=><TechnicalValue key={key} field={key} value={value}/>)}</dl>:<EmptyState illustration="files" size="compact" title="No additional metadata was recorded."/>}
  </section>;
 }
 function SummaryCard({icon,label,value,detail}:{icon:ReactNode;label:string;value:string;detail?:string}){

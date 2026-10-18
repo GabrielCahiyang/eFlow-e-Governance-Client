@@ -1,0 +1,5 @@
+EFLOW BROWSER WORKFLOW AUDIT — TEST DATA ONLY
+Project: Workflow Audit 2026-10-18 — Browser QA
+Subtask: Audit — Draft agenda
+Agenda: 1. Confirm meeting objective. 2. Check participant list. 3. Review meeting pack.
+Prepared solely to test evidence upload and review. No actual meeting or expenditure.

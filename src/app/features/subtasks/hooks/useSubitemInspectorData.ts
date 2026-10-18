@@ -18,14 +18,14 @@ export function useSubitemInspectorData(rootId:string,itemId:string,controller:W
  const current=()=>active.current&&scope.current===identity;
  async function load(){
   const run=++sequence.current;
-  if(!node){setState({identity,error:controller.error||'Subitem unavailable. Verify current work access.',loading:false});return;}
+  if(!node){const waiting=controller.loading||controller.refreshPending;setState({identity,error:waiting?'':controller.error||'Subitem unavailable. Verify current work access.',loading:waiting});return;}
   setState(previous=>({identity,data:previous.identity===identity?previous.data:undefined,error:'',loading:true}));
   try{
    const data=await fetchSubitemInspectorRecord(rootId,itemId);
    if(current()&&run===sequence.current)setState({identity,data,error:'',loading:false});
   }catch(reason){if(current()&&run===sequence.current)setState({identity,error:reason instanceof Error?reason.message:'Could not load subitem.',loading:false});}
  }
- useEffect(()=>{active.current=true;void load();return()=>{active.current=false;++sequence.current;};},[identity,verified,!!node]);
+ useEffect(()=>{active.current=true;void load();return()=>{active.current=false;++sequence.current;};},[identity,verified,!!node,tree?.revision]);
  const same=state.identity===identity;
  return {tree:verified?tree:undefined,node,data:same&&verified&&node?state.data:undefined,
   loading:controller.loading||!same||state.loading,error:controller.error||(!same?'':state.error),

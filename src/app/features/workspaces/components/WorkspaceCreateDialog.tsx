@@ -16,7 +16,7 @@ export function WorkspaceCreateDialog({ kind, context, owner, onClose, onCreate 
     <form onSubmit={async event=>{
       event.preventDefault(); if(!name.trim()||pending.current)return;
       pending.current=true;setBusy(true);setError('');
-      try { await onCreate(request.current,name.trim(),'Asia/Singapore');setName('');onClose(); }
+      try { await onCreate(request.current,name.trim(),'Asia/Manila');setName('');onClose(); }
       catch(error){setError(error instanceof Error?error.message:'Could not create. Retry keeps the same request identity.');}
       finally{pending.current=false;setBusy(false);}
     }}>

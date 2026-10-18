@@ -70,7 +70,10 @@ describe('NW5.5 lightweight forms and authoritative confirmation',()=>{
  it.each(['edit','progress','submit','review'] as const)('does not add impact prompts to routine %s',async command=>{
   data.root.kind='personal';data.root.office=null;rememberWorkCapabilityContext(data,'actor');open(command);
   if(command==='edit')fireEvent.change(screen.getByLabelText('Subitem title'),{target:{value:'Rename'}});
-  else if(command==='progress')fireEvent.change(screen.getByLabelText('Progress'),{target:{value:'25'}});
+  else if(command==='progress'){
+   expect(screen.queryByLabelText('Progress')).toBeNull();
+   fireEvent.change(screen.getByLabelText('Note / feedback'),{target:{value:'Continuing work'}});
+  }
   else if(command==='review')fireEvent.change(screen.getByLabelText('Decision'),{target:{value:'approve'}});
   save();await waitFor(()=>expect(writes()).toHaveLength(1));expect(writes()[0][0]).toBe('r7_work_command');expect(previews()).toHaveLength(0);expect(screen.queryByRole('alertdialog')).toBeNull();
  });

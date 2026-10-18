@@ -13,7 +13,7 @@ async function mockAi(page: Page, office: string) {
     return route.fulfill({ status: 202, json: { job_id: 'review-job', status: 'completed', position: null, jobs_ahead: 0, queue_depth: 0, result: { message: { content: JSON.stringify(aiDraft(office)) } } } });
   });
   await page.getByRole('button', { name: 'New task options' }).click();
-  await page.getByRole('menuitem', { name: 'Import project document' }).click();
+  await page.getByRole('menuitem', { name: 'Plan tasks with AI / document' }).click();
   const dialog = page.getByRole('dialog', { name: 'Turn a document into project work' });
   await dialog.getByLabel('Project document').setInputFiles({ name: 'outreach-plan.md', mimeType: 'text/markdown', buffer: Buffer.from(source) });
   await expect(dialog.getByLabel('Document text or project brief')).toHaveValue(source, { timeout: 15000 });
@@ -91,7 +91,7 @@ test('Phase 5 mobile review fills the screen and scrolls inside its table', asyn
 test('Phase 5 extracts readable PDF project text before generating a draft', async ({ page }) => {
   await projectWorkspaceFixture(page, 'head');
   await page.getByRole('button', { name: 'New task options' }).click();
-  await page.getByRole('menuitem', { name: 'Import project document' }).click();
+  await page.getByRole('menuitem', { name: 'Plan tasks with AI / document' }).click();
   const dialog = page.getByRole('dialog', { name: 'Turn a document into project work' });
   // A valid one-page PDF fixture, with byte offsets rather than a mocked extractor.
   const content = `BT /F1 10 Tf 20 770 Td (${source}) Tj ET`;

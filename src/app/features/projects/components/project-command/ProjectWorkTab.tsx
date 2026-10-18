@@ -1,8 +1,13 @@
+import {useAuth} from '../../../../contexts/AuthContext';
+import {formatDate} from '../../../../components/workflow/primitives';
+import {WorkStatusControl} from '../../../work-state';
+import {latestProgressByWorkItem} from '../../../team-management';
+import type {TaskInspectorOrigin} from '../../../task-inspector';
 import { AlertCircle, ArrowLeft, Calendar, CheckSquare, ChevronDown, Clock, Layers, MoreVertical, Paperclip, Table2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { UserProfile } from "../../../../types";
 import { useToast } from "../../../../components/ui/Toast";
-import { getTaskLeadId, isOverdue, updateTask, TASK_STATUS_LABELS, type Task, type TaskStatus } from "../../../tasks";
+import { getTaskLeadId, getTaskTeamMemberIds,isTaskLead, isOverdue, updateTask, type Task, type TaskStatus } from "../../../tasks";
 import { useProjectViewActions } from '../../../project-views';
 import type { ProjectCommandData } from "./types";
 
@@ -59,11 +64,12 @@ export function ProjectWorkTab({
 }: {
   data: ProjectCommandData;
   profiles: UserProfile[];
-  onOpenTask: (taskId: string) => void;
+  onOpenTask: (taskId: string,section?:TaskInspectorOrigin['section']) => void;
   onOpenTable?: () => void;
   canManage?: boolean;
 }) {
   const { toast } = useToast();
+  const {user,userProfile}=useAuth();
   const [dragTaskId, setDragTaskId] = useState('');
   const [dropLane, setDropLane] = useState('');
   const actions = useProjectViewActions(data.project, canManage);
@@ -71,6 +77,7 @@ export function ProjectWorkTab({
     () => groupProjectTasksForFigmaBoard(data.tasks),
     [data.tasks],
   );
+  const latestUpdates=useMemo(()=>latestProgressByWorkItem(data.facts.progress),[data.facts.progress]);
 
   return (
     <section className="eflow-figma-board pv-board" aria-label="Project task board">
@@ -114,8 +121,8 @@ export function ProjectWorkTab({
                     }
                   }}
                 />
-                <span className="pv-help">{TASK_STATUS_LABELS[task.status]}</span>
-                {actions.canMove(task)&&<button className="pv-board-move" disabled={actions.busy} onClick={()=>{void actions.run(()=>actions.move(task,'in_progress'));}}>{task.status==='changes_requested'?'Resume':'Start'} {task.title}</button>}
+                <WorkStatusControl status={task.status} stuck={!!latestUpdates.get(`task:${task.id}`)?.blocker} disabled={['completed','archived'].includes(data.project.status)||userProfile?.is_active===false||actions.busy||!getTaskTeamMemberIds(task).includes((user?.id||''))} onStart={()=>onOpenTask(task.id,'work')} onBlocker={()=>onOpenTask(task.id,'report-blocker')} onSubmit={isTaskLead(task,(user?.id||''))?()=>onOpenTask(task.id,'submit-work'):undefined}/>
+
                 </div>
               ))}
               {(tasksByColumn.get(column.id) || []).length === 0 && <p className="eflow-figma-board__empty">No tasks</p>}
@@ -155,7 +162,7 @@ function TaskBoardCard({
   const subtaskCount = data.facts.subtasks.filter((subtask) => subtask.taskId === task.id).length;
   const awaitingReview = data.facts.submissions.some((submission) => submission.taskId === task.id && submission.status === "pending");
   const isCompleted = task.status === "completed";
-  const progress = isCompleted ? 100 : task.status === "cancelled" ? 0 : Math.max(0, Math.min(100, task.percentComplete || 0));
+  const progress = isCompleted ? 100 : 0;
   const category = task.activityTitle || task.programTitle || "Project work";
 
   const dateValue = task.deadline || task.dueDate;
@@ -231,7 +238,7 @@ function TaskBoardCard({
         {dateValue && (
           <span className={`eflow-figma-task-card__due ${isOverdueTask ? "eflow-figma-task-card__due--overdue" : ""}`}>
             <Calendar size={12} />
-            <span>{dateValue}</span>
+            <span>{formatDate(dateValue)}</span>
           </span>
         )}
       </div>

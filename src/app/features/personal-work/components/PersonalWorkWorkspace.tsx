@@ -104,7 +104,7 @@ function PersonalWorkContent({
   const partial = !!feed.data?.issues.length;
   const navigationItems = buildShellNavigation({ role, can, hasLeadingWork: hasLeadingWork ?? !!feed.data?.rows.some(row => row.leading && row.actionable) });
   const destinations = getSidebarContent(role, 'personal_work').sections.flatMap(section => section.items);
-  const taskPageOpen=inspector.selection?.row.kind==='office-task';
+  const taskPageOpen=!!inspector.selection && ['office-task','office-node'].includes(inspector.selection.row.kind);
   const filtered = !!(filters.query || filters.date !== 'All my work' || filters.workspace || destination === 'History' && filters.recent);
   return (
     <section className="r10-workspace" aria-label="My Work">

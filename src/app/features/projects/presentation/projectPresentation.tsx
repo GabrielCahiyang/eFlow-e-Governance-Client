@@ -36,7 +36,7 @@ export function ProjectScheduleLabel({
   health: ProjectScheduleHealth;
   empty?: boolean;
 }) {
-  if (empty)
+  if (empty && health!=='completed')
     return <span className="eflow-project-status-label" role="status" aria-label="Project schedule: no scheduled work"><Label text="No scheduled work" color="dark" /></span>;
   const item = schedule[health];
   return <span className="eflow-project-status-label" role="status" aria-label={`Project schedule: ${item.text}`}><Label text={item.text} color={item.color} /></span>;

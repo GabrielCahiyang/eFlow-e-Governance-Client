@@ -40,8 +40,8 @@ export function useWorkTree(rootId:string):WorkTreeController & {fresh:boolean} 
  useEffect(()=>{
   active.current=true;isolateWorkDraftActor(actorId);void reload(false);
   const refresh=()=>{if(pending.current===undefined&&reading.current===undefined)void reload(true);};
-  const timer=window.setInterval(refresh,15000);window.addEventListener('focus',refresh);
-  return()=>{active.current=false;++generation.current;window.clearInterval(timer);window.removeEventListener('focus',refresh);};
+  const timer=window.setInterval(refresh,15000);window.addEventListener('focus',refresh);window.addEventListener('eflow:work-updated',refresh);
+  return()=>{active.current=false;++generation.current;window.clearInterval(timer);window.removeEventListener('focus',refresh);window.removeEventListener('eflow:work-updated',refresh);};
  },[rootId,actorId]);
  async function save(request:WorkRequest):Promise<WorkTreeSnapshot> {
   if(!current()||!verified.current)throw new Error('Verify current work access before saving.');

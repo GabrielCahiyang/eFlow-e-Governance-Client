@@ -28,7 +28,10 @@ beforeEach(()=>{vi.clearAllMocks();api.actor='me';api.tasks=[task];api.read.mock
 afterEach(()=>{cleanup();uninstall?.();uninstall=undefined;const pending=peekNotificationNavigationIntent();if(pending)completeNotificationNavigationIntent(pending.notificationId);sessionStorage.clear();});
 describe('NW9.5 canonical notification entrances',()=>{
  it('opens an appointed Lead-only depth-eight item by ID despite a stale label and forwards the Work origin/section',async()=>{
-  queueNotificationNavigationIntent(pointer,'me');render(<SubtasksWorkspace/>);await screen.findByText('Selected ID: eight');
+  queueNotificationNavigationIntent(pointer,'me');render(<SubtasksWorkspace/>);
+  // The first Vibe-backed mount can exceed Testing Library's one-second default
+  // while the complete suite transforms other feature modules concurrently.
+  await screen.findByText('Selected ID: eight',{}, {timeout:5000});
   expect(api.drawer.mock.calls.at(-1)?.[0]).toMatchObject({subtask:{id:'eight',taskId:'root',leadId:'me'},parentTask:{id:'root'},initialSection:'work',origin:{view:'Subtasks',section:'work'},readOnly:false});
   await waitFor(()=>expect(peekNotificationNavigationIntent('me')).toBeNull());expect(sessionStorage.getItem('eflow.notification-intent.v1:me')).toBeNull();expect(api.record).not.toHaveBeenCalled();
  });

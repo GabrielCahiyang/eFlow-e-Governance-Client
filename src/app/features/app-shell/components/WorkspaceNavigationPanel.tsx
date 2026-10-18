@@ -50,7 +50,7 @@ export function WorkspaceNavigationPanel({ items, activeSection, activePage, wor
       : groupOfficeTools(items).map(group => <div key={group.label}><h3>{group.label}</h3>{destinations(group.items)}</div>);
     if (projectsLoading) return <p role="status">Loading projects…</p>;
     const subset = allowedProjects.filter(project => id === 'favorites' ? favorites.has(project.id) : (project.status === 'archived') === (id === 'archived'));
-    return <>{projectLinks(subset)}{!subset.length && <p>{id === 'favorites' ? 'Star a project for quick access.' : id === 'archived' ? 'No archived projects.' : 'No active projects.'}</p>}</>;
+    return <>{id === 'projects' && workspaceKind !== 'personal' && <button type="button" className="eflow-workspace-navigation__destination" aria-current={activeSection === 'projects' && !selectedProjectId ? 'page' : undefined} onClick={() => onPageSelect('projects', 'Projects')}><Folder size={17}/><span>All projects</span></button>}{projectLinks(subset)}{!subset.length && <p>{id === 'favorites' ? 'Star a project for quick access.' : id === 'archived' ? 'No archived projects.' : 'No active projects.'}</p>}</>;
   };
   return <section className="eflow-workspace-navigation eflow-scroll-region" aria-label="Workspace content" data-context-rail="workspaces">
     <header className="eflow-workspace-navigation__header">

@@ -3,7 +3,7 @@ import { supportsNestedWork, isCurrentWorkSnapshot, WorkTree, type WorkNode, typ
 import type {TaskInspectorOrigin} from '../../task-inspector';
 import {SubitemInspector} from './SubitemInspector';
 
-export function TaskSubtasksWidget(props: Parameters<typeof LegacyTaskSubtasksWidget>[0] & {presentation?:'standard'|'project-table';fallback?:import('react').ReactNode;controller?:WorkTreeController;createRequest?:number;createFocusTarget?:HTMLElement;executionBlocked?:boolean;collapsedIds?:Set<string>;onCollapsedIdsChange?:(next:Set<string>)=>void}) {
+export function TaskSubtasksWidget(props: Parameters<typeof LegacyTaskSubtasksWidget>[0] & {onInspect?:(id:string,section:'work'|'review',origin:TaskInspectorOrigin)=>void;presentation?:'standard'|'project-table';fallback?:import('react').ReactNode;controller?:WorkTreeController;createRequest?:number;createFocusTarget?:HTMLElement;executionBlocked?:boolean;collapsedIds?:Set<string>;onCollapsedIdsChange?:(next:Set<string>)=>void}) {
  const [opened,setOpened]=useState<{id:string;section:'work'|'review';origin:TaskInspectorOrigin}>();
  const {user}=useAuth();
  const readOnly=!!props.readOnly||!!props.parentTask?.archivedAt||!!props.parentTask?.proposedOfficeIdentityId;
@@ -13,12 +13,13 @@ export function TaskSubtasksWidget(props: Parameters<typeof LegacyTaskSubtasksWi
  if(supplied&&(supplied.actorId!==(user?.id||null)||supplied.rootId!==props.taskId||data&&(data.root.id!==props.taskId||data.root.project!==props.parentTask.linkedProjectId||data.root.kind==='office'&&data.root.office!==props.parentTask.orgId||!isCurrentWorkSnapshot(data,{actorId:user?.id||null,rootId:props.taskId,projectId:data.root.project,officeId:data.root.office,kind:data.root.kind,revision:data.revision}))))return <p role="alert">Work is unavailable in the current actor or task scope.</p>;
  const open=(node:WorkNode,_tree:WorkTreeSnapshot,section:'work'|'review')=>{
   const element=document.activeElement instanceof HTMLElement?document.activeElement:null;
-  setOpened({id:node.id,section,origin:{view:'Work',section:'work',returnFocus:element,restoreFocus:()=>{
+  const origin:TaskInspectorOrigin={view:'Work',section:'work',returnFocus:element,restoreFocus:()=>{
    const replacement=[...document.querySelectorAll<HTMLElement>('[data-work-open]')].find(button=>button.dataset.workOpen===node.id);
    (replacement||props.createFocusTarget)?.focus();
-  }}});
+  }};
+  if(props.onInspect)props.onInspect(node.id,section,origin);else setOpened({id:node.id,section,origin});
  };
- return <><WorkTree presentation={props.presentation} rootId={props.taskId} controller={props.controller} createRequest={props.createRequest} createFocusTarget={props.createFocusTarget} collapsedIds={props.collapsedIds} onCollapsedIdsChange={props.onCollapsedIdsChange} executionBlocked={props.executionBlocked} readOnly={readOnly} fallback={props.fallback||<LegacyTaskSubtasksWidget {...props} readOnly={readOnly}/>} onOpenOfficeNode={(node,tree)=>open(node,tree,'work')} onReviewOfficeNode={(node,tree)=>open(node,tree,'review')}/>
+ return <><div hidden={!!opened}><WorkTree presentation={props.presentation} rootId={props.taskId} controller={props.controller} createRequest={props.createRequest} createFocusTarget={props.createFocusTarget} collapsedIds={props.collapsedIds} onCollapsedIdsChange={props.onCollapsedIdsChange} executionBlocked={props.executionBlocked} readOnly={readOnly} fallback={props.fallback||<LegacyTaskSubtasksWidget {...props} readOnly={readOnly}/>} onOpenOfficeNode={(node,tree)=>open(node,tree,'work')} onReviewOfficeNode={(node,tree)=>open(node,tree,'review')}/></div>
  {opened&&<SubitemInspector key={opened.id} rootTask={props.parentTask} itemId={opened.id} controller={props.controller} initialSection={opened.section} origin={opened.origin} executionBlocked={props.executionBlocked} readOnly={readOnly} onClose={()=>setOpened(undefined)}/>}
  </>;
 }

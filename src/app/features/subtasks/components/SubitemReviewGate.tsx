@@ -1,11 +1,10 @@
-import {FeatureDialog} from '../../../components/ui/FeatureDialog';
 import {requestNavigation} from '../../../shared/navigationGuard';
 import {SubtaskReviewInbox,SubitemReviewDetail} from '../../reviews';
 import {buildWorkDisplayTree,type WorkTreeSnapshot} from '../../nested-work';
 
 /** Existing Inbox still owns reviewer discovery, feedback and decision APIs. */
 export function SubitemReviewGate({rootId,itemId,readOnly,onClose,tree,rootTitle}:{rootId:string;itemId:string;readOnly:boolean;onClose:()=>void;tree?:WorkTreeSnapshot;rootTitle?:string}){
- return <FeatureDialog title="Subitem evidence review" onClose={()=>void requestNavigation(onClose)}>
+ return <section className="subitem-review-page"><button className="task-page__back" onClick={()=>void requestNavigation(onClose)}>← Back to work</button>
  <div className="min-h-0 overflow-y-auto p-4">
   <SubtaskReviewInbox embedded readOnly={readOnly} onShowTasks={onClose} focus={{notificationId:`inspector:${itemId}`,kind:'subtask_review',taskId:rootId,entityId:itemId}}
    renderDetail={props=>{
@@ -17,5 +16,5 @@ export function SubitemReviewGate({rootId,itemId,readOnly,onClose,tree,rootTitle
      path:row.path,parentTitle:parent?.title||(node.parent_subtask_id?'Parent unavailable':rootTitle||props.item.taskTitle),incomplete:!!row.context||row.pathTruncated,currentReviewerName:reviewer}:undefined}/>;
    }}/>
  </div>
- </FeatureDialog>;
+ </section>;
 }

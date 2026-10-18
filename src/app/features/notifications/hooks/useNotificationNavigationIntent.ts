@@ -14,7 +14,7 @@ import {
  */
 export function useNotificationNavigationIntent(
   matches: (intent: NotificationNavigationIntent) => boolean,
-  handle: (intent: NotificationNavigationIntent,isCurrent:()=>boolean) => boolean|Promise<boolean>,
+  handle: (intent: NotificationNavigationIntent,isCurrent:()=>boolean) => boolean | 'unavailable' | Promise<boolean | 'unavailable'>,
   dependencies: DependencyList,
 ): void {
   const {user}=useAuth();
@@ -29,21 +29,26 @@ export function useNotificationNavigationIntent(
     let active=true;
     const inFlight=new Set<NotificationNavigationIntent>();
     const waitingRetry=new Set<NotificationNavigationIntent>();
+    const unavailable=new Set<NotificationNavigationIntent>();
     const actor=user?.id;
     const current=(intent:NotificationNavigationIntent)=>!!actor&&active&&actorRef.current===actor&&peekNotificationNavigationIntent(actor)===intent;
     const apply = (intent: NotificationNavigationIntent,sourceRetry=false) => {
-      if(!current(intent))return;
+      if(!current(intent) || unavailable.has(intent))return;
       if(inFlight.has(intent)){if(sourceRetry)waitingRetry.add(intent);return;}
       if (!matchesRef.current(intent)) return;
       inFlight.add(intent);
-      const finish=(handled:boolean)=>{
+      const finish=(handled:boolean | 'unavailable')=>{
         inFlight.delete(intent);const retry=waitingRetry.delete(intent);
+        // Retain an unavailable focus without reporting a successful open or
+        // automatically replaying it on each realtime refresh. A fresh click
+        // queues a new intent and can try again after access changes.
+        if(handled==='unavailable'){unavailable.add(intent);return;}
         if(handled&&current(intent))completeNotificationNavigationIntent(intent.notificationId,intent);
         else if(!handled&&retry&&current(intent))apply(intent);
       };
       try{
         const result=handleRef.current(intent,()=>current(intent));
-        if(typeof result==='boolean')finish(result);
+        if(typeof result==='boolean' || result==='unavailable')finish(result);
         else void result.then(finish,()=>finish(false));
       }catch{finish(false);}
     };

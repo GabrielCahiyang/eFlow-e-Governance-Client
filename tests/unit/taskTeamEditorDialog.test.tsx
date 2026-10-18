@@ -144,7 +144,7 @@ describe('NW3.3 supported task team callers',()=>{
   const data=workSnapshot(true),save=vi.fn().mockResolvedValue(data),onClose=vi.fn();
   const controller:WorkTreeController={rootId:'task',actorId:'lead',data,loading:false,error:'',unavailable:false,authorityFresh:true,refreshPending:false,pending:false,reload:vi.fn(),save};
   render(createElement(TaskTeamEditorDialog,{task:supportedTask,profiles,subtasks:[],controller,onClose}));expect((screen.getByLabelText('Appointed Lead') as HTMLSelectElement).disabled).toBe(true);
-  fireEvent.click(screen.getByRole('button',{name:'Add contributor Selected Maria Clara'}));fireEvent.click(screen.getByRole('button',{name:'Save work changes'}));await waitFor(()=>expect(save).toHaveBeenCalledTimes(1));
+  fireEvent.click(screen.getByRole('button',{name:'Add contributor Selected Maria Clara'}));fireEvent.click(screen.getByRole('button',{name:/^Save (?:work )?changes$/}));await waitFor(()=>expect(save).toHaveBeenCalledTimes(1));
   expect(save.mock.calls[0][0]).toMatchObject({command:'contributors',revision:7,payload:{people:['lead','member','available']}});expect(work.load).not.toHaveBeenCalled();expect(work.save).not.toHaveBeenCalled();expect(updateTaskTeamMembers).not.toHaveBeenCalled();expect(onClose).toHaveBeenCalledTimes(1);
  });
  it('saves contributors through the canonical versioned operation without legacy writes or notifications',async()=>{
@@ -152,7 +152,7 @@ describe('NW3.3 supported task team callers',()=>{
   render(createElement(TaskTeamEditorDialog,{task:supportedTask,profiles,subtasks:[],onClose}));
   const lead=await screen.findByLabelText('Appointed Lead');expect((lead as HTMLSelectElement).disabled).toBe(true);
   expect(screen.queryByRole('button',{name:'Add contributor Maria Clara',exact:true})).toBeNull();expect(screen.queryByRole('button',{name:'Add contributor Expired guest'})).toBeNull();
-  fireEvent.click(screen.getByRole('button',{name:'Add contributor Selected Maria Clara'}));fireEvent.click(screen.getByRole('button',{name:'Save work changes'}));
+  fireEvent.click(screen.getByRole('button',{name:'Add contributor Selected Maria Clara'}));fireEvent.click(screen.getByRole('button',{name:/^Save (?:work )?changes$/}));
   await waitFor(()=>expect(onClose).toHaveBeenCalledTimes(1));expect(work.save).toHaveBeenCalledTimes(1);expect(work.save.mock.calls[0]).toEqual(['task',expect.objectContaining({command:'contributors',revision:7,payload:{people:['lead','member','available']}})]);
   expect(updateTaskTeamMembers).not.toHaveBeenCalled();
  });
@@ -160,17 +160,17 @@ describe('NW3.3 supported task team callers',()=>{
   work.load.mockResolvedValue(workSnapshot(true));render(createElement(TaskTeamEditorDialog,{task:supportedTask,profiles,subtasks:[],onClose:vi.fn()}));
   const lead=await screen.findByLabelText('Appointed Lead');expect((lead as HTMLSelectElement).disabled).toBe(true);
   fireEvent.change(lead,{target:{value:'available'}});expect((lead as HTMLSelectElement).value).toBe('lead');
-  fireEvent.click(screen.getByRole('button',{name:'Add contributor Selected Maria Clara'}));work.save.mockResolvedValue(workSnapshot(true));fireEvent.click(screen.getByRole('button',{name:'Save work changes'}));
+  fireEvent.click(screen.getByRole('button',{name:'Add contributor Selected Maria Clara'}));work.save.mockResolvedValue(workSnapshot(true));fireEvent.click(screen.getByRole('button',{name:/^Save (?:work )?changes$/}));
   await waitFor(()=>expect(work.save).toHaveBeenCalled());expect(work.save.mock.calls[0][1].command).toBe('contributors');expect(screen.queryByRole('alertdialog')).toBeNull();
  });
  it('retains a contributor draft when fresh capability revokes saving',async()=>{
   work.load.mockResolvedValue(workSnapshot());render(createElement(TaskTeamEditorDialog,{task:supportedTask,profiles,subtasks:[],onClose:vi.fn()}));await screen.findByLabelText('Appointed Lead');
   fireEvent.click(screen.getByRole('button',{name:'Add contributor Selected Maria Clara'}));work.load.mockResolvedValue(workSnapshot(false,false));fireEvent(window,new Event('focus'));
-  await waitFor(()=>expect((screen.getByRole('button',{name:'Save work changes'}) as HTMLButtonElement).disabled).toBe(true));expect((screen.getByRole('button',{name:'Remove contributor Selected Maria Clara'}) as HTMLButtonElement).disabled).toBe(true);expect(work.save).not.toHaveBeenCalled();
+  await waitFor(()=>expect((screen.getByRole('button',{name:/^Save (?:work )?changes$/}) as HTMLButtonElement).disabled).toBe(true));expect((screen.getByRole('button',{name:'Remove contributor Selected Maria Clara'}) as HTMLButtonElement).disabled).toBe(true);expect(work.save).not.toHaveBeenCalled();
  });
  it('fails closed with absent capability maps even when old management booleans are true',async()=>{
   const data=workSnapshot();delete data.root.capabilities;work.load.mockResolvedValue(data);render(createElement(TaskTeamEditorDialog,{task:supportedTask,profiles,subtasks:[],onClose:vi.fn()}));
-  await screen.findByLabelText('Appointed Lead');expect((screen.getByRole('button',{name:'Save work changes'}) as HTMLButtonElement).disabled).toBe(true);expect(work.save).not.toHaveBeenCalled();expect(updateTaskTeamMembers).not.toHaveBeenCalled();
+  await screen.findByLabelText('Appointed Lead');expect((screen.getByRole('button',{name:/^Save (?:work )?changes$/}) as HTMLButtonElement).disabled).toBe(true);expect(work.save).not.toHaveBeenCalled();expect(updateTaskTeamMembers).not.toHaveBeenCalled();
  });
  it('never falls back to the legacy writer when the supported RPC is unavailable',async()=>{
   work.load.mockRejectedValue(new WorkTreeUnavailable('Missing'));render(createElement(TaskTeamEditorDialog,{task:supportedTask,profiles,subtasks:[],onClose:vi.fn()}));
@@ -179,11 +179,11 @@ describe('NW3.3 supported task team callers',()=>{
  it('retains values and blocks saves when the caller becomes read-only',async()=>{
   work.load.mockResolvedValue(workSnapshot());const props={task:supportedTask,profiles,subtasks:[],onClose:vi.fn()},view=render(createElement(TaskTeamEditorDialog,props));await screen.findByLabelText('Appointed Lead');
   fireEvent.click(screen.getByRole('button',{name:'Add contributor Selected Maria Clara'}));view.rerender(createElement(TaskTeamEditorDialog,{...props,readOnly:true}));
-  expect((screen.getByRole('button',{name:'Remove contributor Selected Maria Clara'}) as HTMLButtonElement).disabled).toBe(true);expect((screen.getByRole('button',{name:'Save work changes'}) as HTMLButtonElement).disabled).toBe(true);expect(work.save).not.toHaveBeenCalled();
+  expect((screen.getByRole('button',{name:'Remove contributor Selected Maria Clara'}) as HTMLButtonElement).disabled).toBe(true);expect((screen.getByRole('button',{name:/^Save (?:work )?changes$/}) as HTMLButtonElement).disabled).toBe(true);expect(work.save).not.toHaveBeenCalled();
  });
  for(const status of ['for_review','completed','cancelled'] as const)it('locks canonical contributors for '+status,async()=>{
   work.load.mockResolvedValue(workSnapshot(true));render(createElement(TaskTeamEditorDialog,{task:{...supportedTask,status},profiles,subtasks:[],onClose:vi.fn()}));await screen.findByLabelText('Appointed Lead');
-  expect((screen.getByRole('button',{name:'Save work changes'}) as HTMLButtonElement).disabled).toBe(true);expect(work.save).not.toHaveBeenCalled();
+  expect((screen.getByRole('button',{name:/^Save (?:work )?changes$/}) as HTMLButtonElement).disabled).toBe(true);expect(work.save).not.toHaveBeenCalled();
  });
  for(const patch of [{linkedProjectId:undefined},{proposedOfficeIdentityId:'unresolved'},{sourceCollaborationDraftId:'governed'}])it('retains the legacy workflow for an excluded task '+JSON.stringify(patch),()=>{
   render(createElement(TaskTeamEditorDialog,{task:{...supportedTask,...patch},profiles,subtasks:[],onClose:vi.fn()}));expect(screen.getByRole('button',{name:'Save members',exact:true})).toBeTruthy();expect(work.load).not.toHaveBeenCalled();

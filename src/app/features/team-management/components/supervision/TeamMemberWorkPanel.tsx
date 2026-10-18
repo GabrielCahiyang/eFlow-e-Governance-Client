@@ -73,7 +73,7 @@ export function TeamMemberWorkPanel({
               const parent = tasks.find((task) => task.id === subtask.taskId);
               return <button key={subtask.id} type="button" disabled={!parent} onClick={() => parent && onOpenTask(parent)} className="flex w-full items-start gap-2 rounded-lg bg-neutral-50 p-3 text-left transition hover:bg-neutral-100 disabled:cursor-default"><CalendarDays className="mt-0.5 shrink-0 text-neutral-400" size={14} /><span className="min-w-0 flex-1"><span className="block break-words text-[13px] font-medium leading-5 text-neutral-800">{subtask.title}</span><span className="mt-1 block break-words text-[12px] text-neutral-500">{parent?.title || "Parent task unavailable"} · {subtask.percentComplete}% complete</span></span></button>;
             })}
-            {!memberSubtasks.length && <EmptyState illustration="tasks" size="compact" title="No active delegated subtasks."/>}
+            {!memberSubtasks.length && <EmptyState illustration="projects" size="compact" title="No active delegated subtasks."/>}
           </div>
         </section>
       </div>

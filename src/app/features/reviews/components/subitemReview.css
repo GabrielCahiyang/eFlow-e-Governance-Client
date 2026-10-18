@@ -1,0 +1,8 @@
+.subitem-review-detail{background:var(--eflow-surface,#fff);color:var(--eflow-text,#26323d);border-color:var(--eflow-border,#d6e1e3)}
+.subitem-review-detail h2,.subitem-review-detail .text-neutral-800{color:var(--eflow-text,#26323d)}
+.subitem-review-detail .text-neutral-400,.subitem-review-detail .text-neutral-500{color:var(--eflow-text-muted,#667680)}
+.subitem-review-note{background:var(--eflow-surface-muted,#f3f8f7);border-color:var(--eflow-border,#d6e1e3)}
+.review-evidence-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.review-evidence-card{display:flex;align-items:center;gap:12px;min-height:90px;padding:18px;background:var(--eflow-surface-muted,#f3f8f7);border:1px solid var(--eflow-border,#d6e1e3);border-radius:10px;overflow-wrap:anywhere}
+.review-decision-footer{position:sticky;bottom:0;background:var(--eflow-surface,#fff);border-top:1px solid var(--eflow-border,#d6e1e3);padding-top:16px}
+.review-decision-footer textarea{background:var(--eflow-surface,#fff);color:var(--eflow-text,#26323d);border-color:var(--eflow-border,#d6e1e3)}

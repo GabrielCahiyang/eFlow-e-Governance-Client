@@ -25,14 +25,14 @@ export const QUICK_LOGIN_ACCOUNTS: readonly QuickLoginAccount[] = [
     shortcut: "2",
     email: "bplo.head@gmail.com",
     password: "123456",
-    label: "BPLO Head",
+    label: "Cheryl Gallo",
     roleLabel: "Head",
   },
   {
     shortcut: "3",
     email: "tdfro.staff1@gmail.com",
     password: "123456",
-    label: "TDFRO Member",
+    label: "Crisostomo Ibarra",
     roleLabel: "Member",
   },
   {
@@ -40,7 +40,7 @@ export const QUICK_LOGIN_ACCOUNTS: readonly QuickLoginAccount[] = [
     email: "gabzcah@gmail.com",
     password: "123456",
     label: "Gabriel Cahiyang",
-    roleLabel: "Member",
+    roleLabel: "Financial Officer",
   },
 ] as const;
 

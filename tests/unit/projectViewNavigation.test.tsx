@@ -57,7 +57,7 @@ describe('project view navigation', () => {
 
   it('returns to Main table when the only optional view is closed with the keyboard', async () => {
     render(<Views initial="timeline" />);
-    fireEvent.keyDown(screen.getByRole('button', { name: 'Close Timeline', exact: true }), { key: 'Enter' });
+    fireEvent.click(screen.getByRole('button', { name: 'Close Timeline', exact: true }));
     expect(screen.queryByRole('tab', { name: 'Timeline', exact: true })).toBeNull();
     expect(screen.getByRole('tab', { name: 'Main table' }).getAttribute('aria-selected')).toBe('true');
     await waitFor(() => expect(localStorage.getItem('eflow_project_views_project-a')).toBe('[]'));

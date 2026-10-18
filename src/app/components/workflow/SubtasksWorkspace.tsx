@@ -262,6 +262,7 @@ function ActorSubtasksWorkspace() {
 
   return (
     <div className="eflow-operational-workspace min-h-full p-4 sm:p-8">
+      <div hidden={!!activeSubtask||!!activeTaskDetail}>
       {focusError && <p role="alert" className="mb-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm">{focusError}</p>}
       {sourceError&&<p role="alert">{sourceError}</p>}
       <PageHeader
@@ -464,8 +465,8 @@ function ActorSubtasksWorkspace() {
         </div>
       )}
 
-      {/* Task Drawer */}
-      <TaskDetailDrawer
+      </div>{/* Task detail pages */}
+      <TaskDetailDrawer presentation="page"
         task={activeTaskDetail}
         onClose={() => setActiveTaskDetail(null)}
         canPostProgress

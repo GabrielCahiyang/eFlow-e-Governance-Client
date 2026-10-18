@@ -36,6 +36,7 @@ export interface WorkRow {
   workspaceName: string;
   officeName?: string;
   timezone: string;
+  blocker?:string|null;
   status: string;
   due?: string | null;
   progress: number;

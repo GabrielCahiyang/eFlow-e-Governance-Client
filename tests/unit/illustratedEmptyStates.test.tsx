@@ -37,4 +37,10 @@ describe('illustrated empty-state boundaries',()=>{
     view.rerender(<EmptyState title="Choose a person" illustration={false} icon={<span data-testid="custom-visual"/>}/>);
     expect(screen.getByTestId('custom-visual')).toBeInTheDocument();expect(view.container.querySelector('img')).toBeNull();
   });
+  it('offers a local still for reduced motion without repeating the shell credit under images',()=>{
+    const view=render(<EmptyState title="No projects" illustration="projects"/>);
+    expect(view.container.querySelector('source')).toHaveAttribute('media','(prefers-reduced-motion: reduce)');
+    expect(view.container.querySelector('source')?.getAttribute('srcset')).toMatch(/storyset\/projects-amico\.still\.svg$/);
+    expect(screen.queryByRole('link',{name:'Illustrations by Storyset'})).toBeNull();
+  });
 });

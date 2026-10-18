@@ -38,10 +38,13 @@ async function emptyBounds(page:Page) {
   });
 }
 for(const role of ['admin','head','member','accounting_staff'] as const)test(`${role} empty states use local artwork without blocking navigation`,async({page},info)=>{
-  const remote:string[]=[];page.on('request',req=>{if(new URL(req.url()).hostname.endsWith('undraw.co'))remote.push(req.url());});
+  const remote:string[]=[];page.on('request',req=>{if(/(^|\.)(undraw\.co|storyset\.com)$/.test(new URL(req.url()).hostname))remote.push(req.url());});
   await projectWorkspaceFixture(page,role,false,{landingOnly:true,empty:true});
   await page.goto(role==='admin'?'/users?page=Account%20Audit':'/my-work?page=Assigned%20work');
   await imagesLoaded(page);
+  await expect(page.getByRole('link',{name:'Illustrations by Storyset',exact:true})).toBeVisible();
+  await expect(page.getByRole('link',{name:'Illustrations by Storyset',exact:true})).toHaveCount(1);
+  await expect(page.locator('.eflow-storyset a')).toHaveCount(0);
   await expect(page.getByRole('heading',{name:'Access denied',exact:true})).toHaveCount(0);
   expect(remote).toEqual([]);
   await page.screenshot({path:info.outputPath(`${role}-empty.png`),fullPage:true});
@@ -57,11 +60,14 @@ test('filtering work shows search artwork and clearing filters restores the work
   await expect(search).toHaveValue('');
   await expect(page.getByRole('button',{name:/^Prepare community assessment Office/})).toBeVisible();
   await expect(page.locator('.r10-work-list-view .eflow-empty-illustration')).toHaveCount(0);
+  await expect(page.getByRole('link',{name:'Illustrations by Storyset',exact:true})).toBeHidden();
 });
 for(const width of [375,768,1440])test(`empty Head dashboard fits ${width}px in dark mode with reduced motion`,async({page},info)=>{
   await page.setViewportSize({width,height:1000});await page.emulateMedia({reducedMotion:'reduce'});
   await projectWorkspaceFixture(page,'head',false,{landingOnly:true,empty:true,theme:'dark'});
   await page.goto('/overview?page=Workspace%20Overview');await imagesLoaded(page);
+  await expect(page.getByRole('link',{name:'Illustrations by Storyset',exact:true})).toHaveCount(1);
+  await expect(page.getByRole('link',{name:'Illustrations by Storyset',exact:true})).toBeVisible();
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
   const geometry=await page.locator('.eflow-empty-illustration:visible').evaluateAll(elements=>elements.map(e=>{const r=e.getBoundingClientRect();return{width:r.width,height:r.height,fit:getComputedStyle(e).objectFit};}));
   expect(geometry.every(r=>r.width<=208&&r.height<=144&&r.fit==='contain')).toBe(true);

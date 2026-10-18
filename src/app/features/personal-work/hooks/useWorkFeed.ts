@@ -41,11 +41,13 @@ export function useWorkFeed(userId: string, scope?: WorkScope) {
       if (!inFlight.current) void refresh();
     }, 15000);
     window.addEventListener("focus", refresh);
+    window.addEventListener("eflow:work-updated", refresh);
     window.addEventListener(ACCESS_CHANGED_EVENT, refresh);
     return () => {
       ++generation.current;
       clearInterval(timer);
       window.removeEventListener("focus", refresh);
+      window.removeEventListener("eflow:work-updated", refresh);
       window.removeEventListener(ACCESS_CHANGED_EVENT, refresh);
     };
   }, [refresh]);

@@ -92,8 +92,8 @@ describe('NW5.4 editor recovery',()=>{
 describe('NW5.4 current reads and owners',()=>{
  it('retains a dirty editor on timer failure and blocks saving until retry succeeds',async()=>{
   render(<WorkTree rootId="root"/>);await chooseWorkAction('Task work actions','Add subitem');fireEvent.change(screen.getByLabelText('Subitem title'),{target:{value:'Dirty'}});
-  api.load.mockRejectedValueOnce(new Error('Network offline'));fireEvent(window,new Event('focus'));await screen.findByText(/Network offline/);expect(screen.getByDisplayValue('Dirty')).toBeTruthy();expect((screen.getByRole('button',{name:'Save work changes'}) as HTMLButtonElement).disabled).toBe(true);
-  fireEvent.click(screen.getByRole('button',{name:'Retry work'}));await waitFor(()=>expect((screen.getByRole('button',{name:'Save work changes'}) as HTMLButtonElement).disabled).toBe(false));expect(screen.getByDisplayValue('Dirty')).toBeTruthy();
+  api.load.mockRejectedValueOnce(new Error('Network offline'));fireEvent(window,new Event('focus'));await screen.findByText(/Network offline/);expect(screen.getByDisplayValue('Dirty')).toBeTruthy();expect((screen.getByRole('button',{name:/^Save (?:work )?changes$/}) as HTMLButtonElement).disabled).toBe(true);
+  fireEvent.click(screen.getByRole('button',{name:'Retry work'}));await waitFor(()=>expect((screen.getByRole('button',{name:/^Save (?:work )?changes$/}) as HTMLButtonElement).disabled).toBe(false));expect(screen.getByDisplayValue('Dirty')).toBeTruthy();
  });
  it('clears protected display on coded revocation and quarantines the draft until renewed read',async()=>{
   render(<WorkTree rootId="root"/>);await chooseWorkAction('Task work actions','Add subitem');fireEvent.change(screen.getByLabelText('Subitem title'),{target:{value:'Private draft'}});
@@ -105,7 +105,7 @@ describe('NW5.4 current reads and owners',()=>{
   let resolve!:(data:WorkTreeSnapshot)=>void;api.load.mockImplementationOnce(()=>new Promise(yes=>{resolve=yes;}));render(<WorkTree rootId="root"/>);expect(screen.queryByRole('button',{name:'Recover new subitem draft'})).toBeNull();await act(async()=>resolve(tree()));fireEvent.click(await screen.findByRole('button',{name:'Recover new subitem draft'}));expect(screen.getByDisplayValue('Reloaded')).toBeTruthy();expect(api.save).not.toHaveBeenCalled();
  });
  it('retains staffing through transient failure and recovers it after owner remount',async()=>{
-  const view=render(<WorkRootOwner rootId="root"/>);fireEvent.click(await screen.findByRole('button',{name:'Choose task lead and contributors'}));fireEvent.click(screen.getByRole('button',{name:'Add contributor Worker'}));api.load.mockRejectedValueOnce(new Error('Offline'));fireEvent(window,new Event('focus'));await screen.findByText('Offline');expect(screen.getByRole('button',{name:'Remove contributor Worker'})).toBeTruthy();expect((screen.getByRole('button',{name:'Save work changes'}) as HTMLButtonElement).disabled).toBe(true);view.unmount();
+  const view=render(<WorkRootOwner rootId="root"/>);fireEvent.click(await screen.findByRole('button',{name:'Choose task lead and contributors'}));fireEvent.click(screen.getByRole('button',{name:'Add contributor Worker'}));api.load.mockRejectedValueOnce(new Error('Offline'));fireEvent(window,new Event('focus'));await screen.findByText('Offline');expect(screen.getByRole('button',{name:'Remove contributor Worker'})).toBeTruthy();expect((screen.getByRole('button',{name:/^Save (?:work )?changes$/}) as HTMLButtonElement).disabled).toBe(true);view.unmount();
   render(<WorkRootOwner rootId="root"/>);fireEvent.click(await screen.findByRole('button',{name:'Choose task lead and contributors'}));expect(screen.getByRole('button',{name:'Remove contributor Worker'})).toBeTruthy();expect(screen.getByText(/People draft recovered/)).toBeTruthy();
  });
  it('ignores late reads across root changes',async()=>{

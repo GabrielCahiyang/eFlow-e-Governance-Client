@@ -543,7 +543,8 @@ export function relativeDays(d?: string | number | null): {
     return { label: d, overdue: false };
   const date = typeof d === "number" ? new Date(d) : new Date(d);
   if (isNaN(date.getTime())) return { label: "No deadline", overdue: false };
-  const days = Math.ceil((date.getTime() - Date.now()) / 86400000);
+  const today=new Date();
+  const days = Math.round((Date.UTC(date.getFullYear(),date.getMonth(),date.getDate())-Date.UTC(today.getFullYear(),today.getMonth(),today.getDate()))/86400000);
   if (days < 0) return { label: `${Math.abs(days)}d overdue`, overdue: true };
   if (days === 0) return { label: "Due today", overdue: false };
   if (days === 1) return { label: "Due tomorrow", overdue: false };

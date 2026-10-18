@@ -1,3 +1,4 @@
+import {formatDate} from '../../../../components/workflow/primitives';
 import { EmptyState } from '../../../../components/ui/EmptyState';
 import { PeopleAvatarStack } from '../../../../components/ui/workspace';
 import type { UserProfile } from '../../../../types';
@@ -14,7 +15,7 @@ export function ProjectOverviewTab({data,profiles,onOpenTask}: {data:ProjectComm
  const taskList=(label:string,tasks:ProjectCommandData['tasks'],empty:string)=><section className="r4-overview-section" aria-label={label}>
   <header><h3>{label}</h3><span>{tasks.length}</span></header>
   {tasks.length ? <ul>{tasks.slice(0,5).map(task=><li key={task.id}><button type="button" data-task-inspector-source={task.id} onClick={()=>onOpenTask(task.id)}>
-   <strong>{task.title}</strong><span>{task.deadline||task.dueDate} · {profiles.find(p=>p.id===(task.recommendationLeadId||task.assigneeId))?.full_name||'Unassigned'}</span>
+   <strong>{task.title}</strong><span>{formatDate(task.deadline||task.dueDate)} · {profiles.find(p=>p.id===(task.recommendationLeadId||task.assigneeId))?.full_name||'Unassigned'}</span>
   </button></li>)}</ul> : <p>{empty}</p>}
   {tasks.length>5&&<p>{tasks.length-5} more in Main table.</p>}
  </section>;
@@ -36,13 +37,13 @@ export function ProjectOverviewTab({data,profiles,onOpenTask}: {data:ProjectComm
    </section>
   </div><aside>
    <section className="r4-overview-section" aria-label="Responsible people"><header><h3>Responsible people</h3></header><PeopleAvatarStack people={people}/><dl className="r4-overview-details">
-    <dt>Project lead</dt><dd>{owner?.full_name||'Unassigned'}</dd><dt>Start date</dt><dd>{data.project.startDate||'Not scheduled'}</dd><dt>Target date</dt><dd>{data.project.targetDate||'Not scheduled'}</dd><dt>Last activity</dt><dd>{data.metrics.lastActivityAt?new Date(data.metrics.lastActivityAt).toLocaleDateString():'No activity recorded'}</dd>
+    <dt>Project lead</dt><dd>{owner?.full_name||'Unassigned'}</dd><dt>Start date</dt><dd>{formatDate(data.project.startDate)}</dd><dt>Target date</dt><dd>{formatDate(data.project.targetDate)}</dd><dt>Last activity</dt><dd>{data.metrics.lastActivityAt?new Date(data.metrics.lastActivityAt).toLocaleDateString():'No activity recorded'}</dd>
    </dl></section>
    <section className="r4-overview-section" aria-label="Needs attention"><header><h3>Needs attention</h3><span>{data.attention.length}</span></header>
-    {data.attention.length ? <ul>{data.attention.slice(0,5).map(item=><li key={item.id}>{item.taskId?<button type="button" onClick={()=>onOpenTask(item.taskId!)}><strong>{item.title}</strong><span>{item.detail}</span></button>:<><strong>{item.title}</strong><span>{item.detail}</span></>}</li>)}</ul>:<EmptyState illustration="tasks" size="compact" title="No attention items in the loaded project work."/>}
+    {data.attention.length ? <ul>{data.attention.slice(0,5).map(item=><li key={item.id}>{item.taskId?<button type="button" onClick={()=>onOpenTask(item.taskId!)}><strong>{item.title}</strong><span>{item.detail}</span></button>:<><strong>{item.title}</strong><span>{item.detail}</span></>}</li>)}</ul>:<EmptyState illustration="complete" size="compact" title="No attention items in the loaded project work."/>}
    </section>
    <section className="r4-overview-section" aria-label="Recent activity"><header><h3>Recent activity</h3></header>
-    {data.activity.length?<ul>{data.activity.slice(0,4).map(item=><li key={item.id}><strong>{item.actorName&&item.actorName!=='System'?`${item.actorName} · `:''}{item.title}</strong><span>{item.detail} · {new Date(item.occurredAt).toLocaleString()}</span></li>)}</ul>:<EmptyState illustration="tasks" size="compact" title="No recent activity recorded."/>}
+    {data.activity.length?<ul>{data.activity.slice(0,4).map(item=><li key={item.id}><strong>{item.actorName&&item.actorName!=='System'?`${item.actorName} · `:''}{item.title}</strong><span>{item.detail} · {new Date(item.occurredAt).toLocaleString()}</span></li>)}</ul>:<EmptyState illustration="files" size="compact" title="No recent activity recorded."/>}
    </section>
   </aside></div>
  </div>;

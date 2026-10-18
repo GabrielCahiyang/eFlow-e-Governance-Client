@@ -25,7 +25,7 @@ import { useProfiles, useProjectsData } from "../../../hooks/useSupabaseData";
 import { isTaskLead } from "../../tasks";
 import { resolveSubtaskManagementCapability, resolveTaskDetailCapabilities } from "../../tasks";
 import { TaskTeamEditorDialog } from "../../tasks";
-import { useTaskSubtasks } from "../../subtasks";
+import { useTaskSubtasks,SubitemInspector } from "../../subtasks";
 import { InspectorSurface } from './InspectorSurface';
 import { TaskPageHeader } from './TaskPageHeader';
 import { TASK_INSPECTOR_SECTIONS, resolveTaskInspectorSection, type TaskInspectorOrigin, type TaskInspectorSection } from '../types';
@@ -61,6 +61,7 @@ function TaskInspectorContent({
   const officeState = useProjectOfficeContext();
   const { orgs } = useOrgs();
   const [staffingOpen, setStaffingOpen] = useState(false);
+  const [openedSubitem,setOpenedSubitem]=useState<{id:string;section:'work'|'review';origin:TaskInspectorOrigin}>();
   const [teamEditorOpen, setTeamEditorOpen] = useState(false);
   const { user, userProfile } = useAuth();
   const { tasks } = useTasks();
@@ -110,6 +111,7 @@ function TaskInspectorContent({
   const tab = selectedTab;
   const reviewAvailable = effectiveCanReview && task.status === 'for_review' && canUserReviewTask(task, user?.id, userProfile?.role);
 
+  if(openedSubitem)return <SubitemInspector rootTask={task} itemId={openedSubitem.id} controller={controller} initialSection={openedSubitem.section} origin={openedSubitem.origin} readOnly={readOnly} executionBlocked={executionBlocked} onClose={()=>setOpenedSubitem(undefined)} onChanged={onChanged}/>;
   return (
     <>
       <InspectorSurface
@@ -122,7 +124,7 @@ function TaskInspectorContent({
         ariaLabel={`Task details: ${task.title}`}
         className="w-full font-sans sm:w-[520px]"
       >
-        {presentation==='page'?<TaskPageHeader task={task} projectTitle={operationalProject?.title||task.projectTitle} tab={tab} tabs={visibleTabs} onTab={setTab} onClose={onClose} busy={lifecycle.busy}/>:<InspectorHeader task={task} tab={tab} tabs={visibleTabs} onTab={setTab} onClose={onClose} busy={lifecycle.busy}/>}
+        {presentation==='page'?<TaskPageHeader backLabel={origin?.view && origin.view !== "My Work" ? "Back to project" : "Back to My Work"} task={task} projectTitle={operationalProject?.title||task.projectTitle} tab={tab} tabs={visibleTabs} onTab={setTab} onClose={onClose} busy={lifecycle.busy}/>:<InspectorHeader task={task} tab={tab} tabs={visibleTabs} onTab={setTab} onClose={onClose} busy={lifecycle.busy}/>}
 
         {/* Body */}
         <div id={`task-panel-${task.id}`} role="tabpanel" aria-labelledby={`task-${task.id}-${tab}`} className={presentation==='page'?'task-page__body':'flex-1 min-h-0 overflow-y-auto p-4'}>
@@ -135,15 +137,11 @@ function TaskInspectorContent({
             <TaskDepartmentLabel task={task}/>
             <InspectorSummary task={task} projectTitle={operationalProject?.title} readOnly={readOnly} dependencies={dependencies} canManageSubtasks={canManageSubtasks} overdue={rel.overdue} authorityPending={!!controller&&(!controller.authorityFresh||controller.refreshPending||controller.pending)} fundingTask={controller?.data?{...task,assigneeId:controller.data.root.lead||undefined,recommendationLeadId:undefined}:undefined} budgetReadOnly={readOnly||!!task.archivedAt||executionBlocked||!!controller&&controller.data?.people.find(person=>person.id===user?.id)?.eligible!==true}/>
           </section>}
-          {tab === 'work' && <InspectorWork presentation={presentation} task={task} profiles={profiles} projectTitle={operationalProject?.title} controller={controller} canManageTaskTeam={canManageTaskTeam} canManageSubtasks={canManageSubtasks} currentUserIsLead={currentUserIsLead} readOnly={readOnly || executionBlocked || lifecycle.busy} onManage={() => setTeamEditorOpen(true)} staffingReason={staffingReason} onRecommend={() => setStaffingOpen(true)}/>}
-          {tab === 'updates' && <div className="space-y-5">
-            <InspectorExecution task={task} subtasks={taskSubtasks} canStart={canStart} canResume={canResume} canSubmit={canSubmit} canPostProgress={capabilities.canPostProgress} busy={lifecycle.busy} onStart={lifecycle.start} onChanged={onChanged} onSubmitted={() => { onChanged?.(); void requestNavigation(onClose); }}/>
-            <section aria-label="Task discussion"><h3 className="text-sm font-semibold mb-2">Discussion</h3><TaskDiscussion taskId={task.id} canParticipate={capabilities.canDiscuss}/></section>
-            <InspectorProgressUpdates taskId={task.id}/>
-          </div>}
+          {tab === 'work' && <div className="task-work-page"><section className="task-work-execution"><InspectorExecution initialAction={origin?.section==='report-blocker'?'stuck':origin?.section==='submit-work'?'submit':undefined} task={task} subtasks={taskSubtasks} canStart={canStart} canResume={canResume} canSubmit={canSubmit} canPostProgress={capabilities.canPostProgress} busy={lifecycle.busy} onStart={lifecycle.start} onChanged={onChanged} onSubmitted={() => { onChanged?.(); setTab('review'); }}/></section><InspectorWork onInspect={(id,section,origin)=>setOpenedSubitem({id,section,origin})} presentation={presentation} task={task} profiles={profiles} projectTitle={operationalProject?.title} controller={controller} canManageTaskTeam={canManageTaskTeam} canManageSubtasks={canManageSubtasks} currentUserIsLead={currentUserIsLead} readOnly={readOnly || executionBlocked || lifecycle.busy} onManage={() => setTeamEditorOpen(true)} staffingReason={staffingReason} onRecommend={() => setStaffingOpen(true)}/></div>}
+          {tab === 'updates' && <div className="space-y-5"><section aria-label="Task discussion"><h3>Discussion</h3><TaskDiscussion taskId={task.id} canParticipate={capabilities.canDiscuss}/></section><details className="work-secondary"><summary>Updates</summary><InspectorProgressUpdates taskId={task.id}/></details></div>}
           {tab === 'files' && <InspectorFiles task={task} readOnly={readOnly || executionBlocked}/>}
           {tab === 'activity' && <><TaskActivityTimeline taskId={task.id} projectId={task.linkedProjectId}/><WorkActivity roots={[task.id]}/></>}
-          {tab === 'review' && <section aria-label="Submission review" className="mb-4"><TaskReviewPanel task={task} canReview={reviewAvailable} showDecision={reviewAvailable} onDone={() => { onChanged?.(); void requestNavigation(onClose); }}/></section>}
+          {tab === 'review' && <section aria-label="Submission review" className="mb-4"><TaskReviewPanel task={task} canReview={reviewAvailable} showDecision={reviewAvailable} onDone={() => { onChanged?.(); }}/></section>}
 
         </div>
       </InspectorSurface>

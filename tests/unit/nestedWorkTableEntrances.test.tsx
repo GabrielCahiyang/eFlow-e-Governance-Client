@@ -63,8 +63,8 @@ describe('NW6.3 existing Main Table entrances',()=>{
  it('keeps personal progress drafts locked when the caller execution scope changes',async()=>{
   const data=snapshot();data.root.kind='personal';data.root.office=null;data.nodes[0].capabilities={execute:allow,submit:allow};rememberWorkCapabilityContext(data,api.actor);
   const controller:WorkTreeController={rootId:'root',actorId:api.actor,data,loading:false,error:'',unavailable:false,authorityFresh:true,refreshPending:false,pending:false,reload:vi.fn(),save:api.save};
-  const view=render(<WorkTree rootId="root" controller={controller}/>);await menu('Actions for Parent');fireEvent.click(screen.getByRole('menuitem',{name:'Update progress'}));fireEvent.change(await screen.findByLabelText('Progress'),{target:{value:'42'}});
-  view.rerender(<WorkTree rootId="root" controller={controller} executionBlocked/>);expect((screen.getByLabelText('Progress') as HTMLInputElement).value).toBe('42');expect((screen.getByRole('button',{name:'Save work changes'}) as HTMLButtonElement).disabled).toBe(true);expect(api.load).not.toHaveBeenCalled();expect(api.save).not.toHaveBeenCalled();
+  const view=render(<WorkTree rootId="root" controller={controller}/>);await menu('Actions for Parent');fireEvent.click(screen.getByRole('menuitem',{name:'Update progress'}));fireEvent.change(await screen.findByLabelText('Note / feedback'),{target:{value:'Retained personal work update'}});
+  view.rerender(<WorkTree rootId="root" controller={controller} executionBlocked/>);expect((screen.getByLabelText('Note / feedback') as HTMLTextAreaElement).value).toBe('Retained personal work update');expect(screen.queryByLabelText('Progress')).toBeNull();expect((screen.getByRole('button',{name:'Save work changes'}) as HTMLButtonElement).disabled).toBe(true);expect(api.load).not.toHaveBeenCalled();expect(api.save).not.toHaveBeenCalled();
  });
  it('routes Office Review to the existing callback and hides it when there is no review owner',async()=>{
   const data=snapshot();data.nodes[0].capabilities={review:allow};rememberWorkCapabilityContext(data,api.actor);const review=vi.fn();

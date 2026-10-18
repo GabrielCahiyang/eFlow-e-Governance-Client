@@ -1,8 +1,19 @@
 import { describe, expect, it } from "vitest";
-import { addSectionChild, openingSections, removeSectionTree, sectionTotal, validateBudgetSections } from "../../src/app/features/budget/selectors/budgetSections";
+import { addSectionChild, openingSections, removeSectionTree, sectionTotal, validateBudgetSections, validateBudgetSectionsForLock } from "../../src/app/features/budget/selectors/budgetSections";
 import type { BudgetSection, DepartmentBudgetBundle } from "../../src/app/features/budget/types";
 const section = (id: string, amount = 0, parentId?: string): BudgetSection => ({ id, parentId, name: id, amount, heldAmount: 0, position: 0 });
 describe("dynamic annual sections", () => {
+  it("allows unfinished drafts but rejects a zero amount beside a funded row when locking", () => {
+    const rows = [section("Supplies", 1000), section("Travel")];
+    expect(validateBudgetSections(rows)).toBe("");
+    expect(validateBudgetSectionsForLock(rows)).toBe('Enter an amount greater than ₱0 for “Travel”.');
+    expect(validateBudgetSectionsForLock([])).not.toBe("");
+  });
+  it("locks valid breakdowns without requiring stored amounts on subtotal headings or retired rows", () => {
+    const rows = [section("MOOE"), section("Supplies", .01, "MOOE"), {...section("Old row"), retired:true}];
+    expect(validateBudgetSectionsForLock(rows)).toBe("");
+    expect(validateBudgetSectionsForLock([...rows, section("Travel", 0, "MOOE")])).toContain("Travel");
+  });
   it("counts only leaf amounts and uses cents", () => {
     const rows = [section("MOOE"),section("Office",.1,"MOOE"),section("Travel",.2,"MOOE")];
     expect(sectionTotal(rows)).toBe(.3);

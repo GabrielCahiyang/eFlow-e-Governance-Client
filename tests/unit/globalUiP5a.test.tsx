@@ -14,7 +14,7 @@ describe('P5a support contract and actor-local account intent', () => {
   it('presents every Admin leaf exactly once using the current support registry', () => {
     const pages=buildShellNavigation({role:'admin',can:()=>true}).filter(item=>item.group==='admin-center').flatMap(item=>item.pages.map(page=>page.label));
     expect(pages).toEqual(administrativePages.map(page=>page.label));
-    expect(new Set(pages).size).toBe(11);
+    expect(new Set(pages).size).toBe(10);expect(pages).not.toContain('Office Structure');
     expect(new Set(pages.map(getSupportPageGroup))).toEqual(new Set(supportGroupOrder));
   });
   it('preserves every leaf under a single operational support grant without Admin-only leaves', () => {

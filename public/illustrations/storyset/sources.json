@@ -1,0 +1,162 @@
+[
+  {
+    "kind": "empty",
+    "style": "bro",
+    "source": "https://storyset.com/illustration/empty/bro",
+    "accent": "#0C6F6B",
+    "motions": [
+      {
+        "layer": "Boxes",
+        "animation": "breathe",
+        "seconds": 2.8
+      },
+      {
+        "layer": "hand-truck",
+        "animation": "sway",
+        "seconds": 3.3
+      }
+    ]
+  },
+  {
+    "kind": "search",
+    "style": "rafiki",
+    "source": "https://storyset.com/illustration/search/rafiki",
+    "accent": "#0C6F6B",
+    "motions": [
+      {
+        "layer": "speech-bubbles",
+        "animation": "float",
+        "seconds": 2.4
+      }
+    ]
+  },
+  {
+    "kind": "inbox",
+    "style": "pana",
+    "source": "https://storyset.com/illustration/mail/pana",
+    "accent": "#0C6F6B",
+    "motions": [
+      {
+        "layer": "Mailbox",
+        "animation": "sway",
+        "seconds": 2.8
+      }
+    ]
+  },
+  {
+    "kind": "projects",
+    "style": "amico",
+    "source": "https://storyset.com/illustration/scrum-board/amico",
+    "accent": "#0C6F6B",
+    "motions": [
+      {
+        "layer": "Notes",
+        "animation": "float",
+        "seconds": 2.8
+      },
+      {
+        "layer": "Gears",
+        "animation": "turn",
+        "seconds": 10
+      }
+    ]
+  },
+  {
+    "kind": "tasks",
+    "style": "cuate",
+    "source": "https://storyset.com/illustration/to-do-list/cuate",
+    "accent": "#0C6F6B",
+    "motions": [
+      {
+        "layer": "Notebook",
+        "animation": "float",
+        "seconds": 2.8
+      },
+      {
+        "layer": "Plant",
+        "animation": "sway",
+        "seconds": 3.3
+      }
+    ]
+  },
+  {
+    "kind": "complete",
+    "style": "rafiki",
+    "source": "https://storyset.com/illustration/completed/rafiki",
+    "accent": "#0C6F6B",
+    "motions": [
+      {
+        "layer": "complete-list",
+        "animation": "breathe",
+        "seconds": 2.8
+      }
+    ]
+  },
+  {
+    "kind": "files",
+    "style": "bro",
+    "source": "https://storyset.com/illustration/file-bundle/bro",
+    "accent": "#0C6F6B",
+    "motions": [
+      {
+        "layer": "book-1",
+        "animation": "float",
+        "seconds": 2.8
+      },
+      {
+        "layer": "book-2",
+        "animation": "drift",
+        "seconds": 3.3
+      }
+    ]
+  },
+  {
+    "kind": "chat",
+    "style": "cuate",
+    "source": "https://storyset.com/illustration/chat/cuate",
+    "accent": "#0C6F6B",
+    "motions": [
+      {
+        "layer": "Emojis",
+        "animation": "float",
+        "seconds": 2.6
+      },
+      {
+        "layer": "Plant",
+        "animation": "sway",
+        "seconds": 3.1
+      }
+    ]
+  },
+  {
+    "kind": "people",
+    "style": "pana",
+    "source": "https://storyset.com/illustration/good-team/pana",
+    "accent": "#0C6F6B",
+    "motions": [
+      {
+        "layer": "speech-bubble",
+        "animation": "float",
+        "seconds": 2.4
+      }
+    ]
+  },
+  {
+    "kind": "budget",
+    "style": "amico",
+    "source": "https://storyset.com/illustration/finance/amico",
+    "accent": "#0C6F6B",
+    "motions": [
+      {
+        "layer": "Dollar",
+        "animation": "breathe",
+        "seconds": 2.4
+      },
+      {
+        "layer": "Bills",
+        "animation": "drift",
+        "seconds": 2.9
+      }
+    ]
+  }
+]

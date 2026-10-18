@@ -32,6 +32,8 @@ describe("leader subtask progress history", () => {
 
     expect(screen.getByText("Gabriel Cahiyang")).toBeTruthy();
     expect(screen.getByText("50%")).toBeTruthy();
+    expect(screen.getByText('Recorded progress value').closest('details')?.open).toBe(false);
+    expect(screen.getByText('Stuck')).toBeTruthy();
     expect(screen.getByText("Draft agenda is complete")).toBeTruthy();
     expect(screen.getByText(/Needs signed attendance sheet/)).toBeTruthy();
     expect(screen.getByText(/Prepare the final agenda/)).toBeTruthy();

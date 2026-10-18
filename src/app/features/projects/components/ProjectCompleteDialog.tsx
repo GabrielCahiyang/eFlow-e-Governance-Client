@@ -58,7 +58,7 @@ export function ProjectCompleteDialog({ projectId, projectTitle, project, onClos
         {checks.enabled ? <p role="status" className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800">All completion checks passed. This project is ready to complete.</p> :
           <div className="space-y-3">
             <h4 className="font-semibold text-neutral-900">{readiness.status === "archived" ? "This project is already archived." : readiness.status === "completed" ? "This project is already completed." : `${readiness.blockers.length} item(s) still holding up completion`}</h4>
-            {readiness.blockers.map((blocker) => <div key={`${blocker.kind}-${blocker.id}`} className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm">
+            {readiness.blockers.map((blocker,index) => <div key={`${blocker.kind}-${blocker.id}-${blocker.status}-${index}`} className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm">
               <strong>{blocker.title}</strong><p className="mt-1 capitalize text-amber-800">{blocker.status.replace(/_/g, " ")}{blocker.amount !== undefined ? ` · ${new Intl.NumberFormat("en-PH", { style: "currency", currency: "PHP" }).format(blocker.amount)}` : ""}</p>
               <p className="mt-1 text-neutral-700">{blocker.detail}</p>
               {blocker.taskId && <button type="button" disabled={busy} onClick={() => { void requestNavigation(() => onOpenTask(blocker.taskId!)); }} className="mt-2 font-medium text-blue-700 underline">Open task</button>}

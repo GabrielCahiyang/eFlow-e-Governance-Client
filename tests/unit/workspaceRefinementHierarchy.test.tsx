@@ -65,8 +65,8 @@ describe('R7 checked nested-work UI',()=>{
   mocks.load.mockResolvedValue(tree({root:{...tree().root,capabilities:{...tree().root.capabilities,appoint_lead:allow}},can_transfer:true}));mocks.save.mockResolvedValue(tree({root:{...tree().root,lead:'bob',people:['lead','bob']},can_transfer:true}));
   render(<WorkRootOwner rootId="root"/>);fireEvent.click(await screen.findByRole('button',{name:'Choose task lead and contributors'}));
   mocks.load.mockImplementationOnce(()=>new Promise(yes=>{resolve=yes;}));fireEvent(window,new Event('focus'));
-  fireEvent.change(screen.getByLabelText('Appointed Lead'),{target:{value:'bob'}});fireEvent.click(screen.getByRole('button',{name:'Save work changes'}));
-  fireEvent.click(await screen.findByRole('button',{name:'Transfer Lead',exact:true}));
+  fireEvent.change(screen.getByLabelText('Appointed Lead'),{target:{value:'bob'}});fireEvent.click(screen.getByRole('button',{name:/^Save (?:work )?changes$/}));
+  fireEvent.click(await screen.findByRole('button',{name:/^(?:Assign|Change) lead$/,exact:true}));
   await screen.findByText('Task people saved.');await act(async()=>resolve(tree()));
   expect(screen.getByText('Bob selected for project')).toBeTruthy();expect(screen.getByText('Lead:').parentElement?.textContent).toBe('Lead: Bob selected for project');
  });
@@ -74,7 +74,7 @@ describe('R7 checked nested-work UI',()=>{
   let reject:(reason:Error)=>void=()=>{};mocks.save.mockImplementationOnce(()=>new Promise((_r,no)=>{reject=no;})).mockImplementation(async(_root,request)=>tree({nodes:[node(),node({id:request.payload.id,title:request.payload.title,parent_subtask_id:'branch',depth:2})]}));
   const uninstall=installNavigationConfirmation(vi.fn().mockResolvedValue(false));render(<WorkTree rootId="root"/>);
   await chooseWorkAction('Actions for Branch','Add subitem');fireEvent.change(screen.getByLabelText('Subitem title'),{target:{value:'Deep work'}});fireEvent.change(screen.getByLabelText('Appointed Lead'),{target:{value:'bob'}});
-  expect(await requestNavigation(vi.fn())).toBe(false);const save=screen.getByRole('button',{name:'Save work changes'});fireEvent.click(save);fireEvent.click(save);expect(mocks.save).toHaveBeenCalledTimes(1);
+  expect(await requestNavigation(vi.fn())).toBe(false);const save=screen.getByRole('button',{name:/^Save (?:work )?changes$/});fireEvent.click(save);fireEvent.click(save);expect(mocks.save).toHaveBeenCalledTimes(1);
   await act(async()=>reject(new Error('Receipt interrupted')));await screen.findByText(/Receipt interrupted/);expect((screen.getByLabelText('Subitem title') as HTMLInputElement).disabled).toBe(true);
   const request=mocks.save.mock.calls[0][1];expect(request.payload).toMatchObject({title:'Deep work',parent:'branch',lead:'bob',people:['bob']});expect(request.revision).toBe(7);
   fireEvent.click(screen.getByRole('button',{name:'Retry saved request'}));await screen.findByText('Deep work');expect(mocks.save.mock.calls[1][1]).toBe(request);uninstall();
@@ -87,13 +87,13 @@ describe('R7 checked nested-work UI',()=>{
  });
  it('allows a root lead to change contributors without gaining root-transfer authority',async()=>{
   mocks.save.mockResolvedValue(tree());render(<WorkRootOwner rootId="root"/>);fireEvent.click(await screen.findByRole('button',{name:'Choose task lead and contributors'}));
-  expect((screen.getByLabelText('Appointed Lead') as HTMLSelectElement).disabled).toBe(true);fireEvent.click(screen.getByRole('button',{name:'Add contributor Bob selected for project'}));fireEvent.click(screen.getByRole('button',{name:'Save work changes'}));
+  expect((screen.getByLabelText('Appointed Lead') as HTMLSelectElement).disabled).toBe(true);fireEvent.click(screen.getByRole('button',{name:'Add contributor Bob selected for project'}));fireEvent.click(screen.getByRole('button',{name:/^Save (?:work )?changes$/}));
   await waitFor(()=>expect(mocks.save).toHaveBeenCalled());expect(mocks.save.mock.calls[0][1]).toMatchObject({command:'contributors',payload:{people:['lead','bob']}});
  });
  it('keeps original draft revision during a capability refresh and disables a revoked editor',async()=>{
   mocks.save.mockResolvedValue(tree());const {rerender}=render(<WorkTree rootId="root"/>);await chooseWorkAction('Task work actions','Add subitem');fireEvent.change(screen.getByLabelText('Subitem title'),{target:{value:'Retained draft'}});
   mocks.load.mockResolvedValue(tree({root:{...tree().root,capabilities:{manage_contributors:deny,appoint_lead:noAppointment,create_child:deny,order_children:deny}},revision:8,can_manage:false}));fireEvent(window,new Event('focus'));await screen.findByText('Your current branch authority changed. Reload the tree before saving.');
-  expect((screen.getByLabelText('Subitem title') as HTMLInputElement).value).toBe('Retained draft');expect((screen.getByRole('button',{name:'Save work changes'}) as HTMLButtonElement).disabled).toBe(true);expect(mocks.save).not.toHaveBeenCalled();
+  expect((screen.getByLabelText('Subitem title') as HTMLInputElement).value).toBe('Retained draft');expect((screen.getByRole('button',{name:/^Save (?:work )?changes$/}) as HTMLButtonElement).disabled).toBe(true);expect(mocks.save).not.toHaveBeenCalled();
   mocks.actor='other';mocks.load.mockRejectedValue(new Error('Current access denied'));rerender(<WorkTree rootId="root"/>);await screen.findByText('Current access denied');expect(screen.queryByDisplayValue('Retained draft')).toBeNull();
  });
  it('clears stale roots and ignores late reads across scope changes',async()=>{
@@ -135,7 +135,7 @@ describe('NW3.3 staffing and hierarchy caller locks',()=>{
  it('lets verified canonical capability control Inspector contributors independently of legacy Head-only flags',async()=>{
   render(<InspectorTeam task={task} profiles={[]} canManageTaskTeam={false} canManageSubtasks={false} currentUserIsLead={false} onManage={vi.fn()}/>);
   fireEvent.click(await screen.findByRole('button',{name:'Choose task lead and contributors'}));expect((screen.getByLabelText('Appointed Lead') as HTMLSelectElement).disabled).toBe(true);
-  fireEvent.click(screen.getByRole('button',{name:'Add contributor Bob selected for project'}));mocks.save.mockResolvedValue(tree());fireEvent.click(screen.getByRole('button',{name:'Save work changes'}));
+  fireEvent.click(screen.getByRole('button',{name:'Add contributor Bob selected for project'}));mocks.save.mockResolvedValue(tree());fireEvent.click(screen.getByRole('button',{name:/^Save (?:work )?changes$/}));
   await waitFor(()=>expect(mocks.save).toHaveBeenCalled());expect(mocks.save.mock.calls[0][1].command).toBe('contributors');
  });
  it('propagates Inspector read-only to both root staffing and nested work despite affirmative legacy booleans',async()=>{
@@ -145,7 +145,7 @@ describe('NW3.3 staffing and hierarchy caller locks',()=>{
  it('updates an open Inspector staffing draft when its caller becomes read-only',async()=>{
   const props={task,profiles:[],canManageTaskTeam:true,canManageSubtasks:true,currentUserIsLead:true,onManage:vi.fn()},view=render(<InspectorTeam {...props}/>);
   fireEvent.click(await screen.findByRole('button',{name:'Choose task lead and contributors'}));fireEvent.click(screen.getByRole('button',{name:'Add contributor Bob selected for project'}));view.rerender(<InspectorTeam {...props} readOnly/>);
-  expect((screen.getByRole('button',{name:'Remove contributor Bob selected for project'}) as HTMLButtonElement).disabled).toBe(true);expect((screen.getByRole('button',{name:'Save work changes'}) as HTMLButtonElement).disabled).toBe(true);expect(mocks.save).not.toHaveBeenCalled();
+  expect((screen.getByRole('button',{name:'Remove contributor Bob selected for project'}) as HTMLButtonElement).disabled).toBe(true);expect((screen.getByRole('button',{name:/^Save (?:work )?changes$/}) as HTMLButtonElement).disabled).toBe(true);expect(mocks.save).not.toHaveBeenCalled();
  });
  it('propagates table read-only without confusing non-Head metadata permission with staffing capability',async()=>{
   const props={column:'owner' as const,task,tasks:[task],profiles:[],people:[],orgs:[],editable:false,busy:false,canSetOffice:false,hasStaffedSubitems:false,statuses:[task.status],save:vi.fn(),write:vi.fn()},view=render(<ProjectTaskCell {...props}/>);

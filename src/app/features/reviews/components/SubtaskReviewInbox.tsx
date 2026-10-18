@@ -18,9 +18,9 @@ import {
 } from "../../subtasks";
 import { SubitemReviewDetail, type SubitemReviewDetailProps } from "./SubitemReviewDetail";
 import { ReviewKindSwitch } from "./ReviewKindSwitch";
-import {useNotificationNavigationIntent,resolveNotificationSubitem,type NotificationNavigationIntent} from "../../notifications";
 import {ReviewSubitemInspector} from './ReviewSubitemInspector';
 import type {TaskInspectorOrigin} from '../../task-inspector';
+import {useNotificationNavigationIntent,resolveNotificationSubitem,type NotificationNavigationIntent} from "../../notifications";
 import {discardSubtaskReviewDraft,recoverSubtaskReviewDraft,sameSubtaskReviewTarget,writeSubtaskReviewDraft} from '../services/subtaskReviewDraftStore';
 
 type SubtaskReviewInboxProps={onShowTasks:()=>void;onShowBudget?:()=>void;focus?:NotificationNavigationIntent|null;embedded?:boolean;readOnly?:boolean;renderDetail?:(props:SubitemReviewDetailProps)=>ReactNode};
@@ -51,7 +51,9 @@ function ActorSubtaskReviewInbox({
   const [sourceError,setSourceError] = useState("");
   const [revision,setRevision] = useState(0);
   const [focusError,setFocusError] = useState("");
+  const [detailOpen,setDetailOpen]=useState(!!focus||embedded);
   const [opened,setOpened]=useState<{item:SubtaskReviewItem;origin:TaskInspectorOrigin}>();
+  const decidedTargets=useRef(new Set<string>());
   const retained = useRef<{actorId: string | undefined; item: SubtaskReviewItem} | null>(null);
   const queueActor = useRef(user?.id);
   const queueReadOnly=useRef<boolean|undefined>(undefined);
@@ -59,7 +61,7 @@ function ActorSubtaskReviewInbox({
   useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;};},[]);
   const draft = useExplicitDraft("Subtask review feedback",!!feedback,deciding,()=>{if(user?.id&&retained.current?.actorId===user.id)discardSubtaskReviewDraft(user.id,retained.current.item);setFeedback("");});
 
-  useEffect(() => {queueActor.current=undefined;retained.current=null;setOpened(undefined);setItems([]);setFeedback("");setFocusError("");setSelectedId(null);},[user?.id]);
+  useEffect(() => {queueActor.current=undefined;retained.current=null;setDetailOpen(!!focus||embedded);setItems([]);setFeedback("");setFocusError("");setSelectedId(null);},[user?.id]);
   useEffect(() => {
     setSourceError("");setLoading(true);
     if (!user?.id) {setLoading(false);return;}
@@ -108,11 +110,11 @@ function ActorSubtaskReviewInbox({
     const candidates=focus?filtered.filter(item=>(!focus.entityId||item.subtask.id===focus.entityId)&&(!focus.taskId||item.subtask.taskId===focus.taskId)&&(focus.entityId||!label||item.subtask.title.trim().toLowerCase()===label)):recovering.current?filtered:currentSelected?[currentSelected]:[];
     const restored=recoverSubtaskReviewDraft(user.id,focus&&candidates.length!==1?[]:candidates);
     recovering.current=false;
-    if(restored){retained.current={actorId:user.id,item:restored.item};setSelectedId(restored.item.subtask.id);setFeedback(restored.feedback);}
+    if(restored){retained.current={actorId:user.id,item:restored.item};setSelectedId(restored.item.subtask.id);setFeedback(restored.feedback);setDetailOpen(true);}
   },[user?.id,loading,sourceError,readOnly,feedback,deciding,filtered,currentSelected,focus]);
 
   useEffect(() => {
-    if (!focus || loading || feedback || deciding) return;
+    if (!focus || loading || feedback || deciding || focus.entityId && decidedTargets.current.has(focus.entityId)) return;
     const label = focus.entityLabel?.trim().toLowerCase();
     const matches = items.filter((item) =>
       (!focus.entityId || item.subtask.id === focus.entityId)
@@ -131,8 +133,8 @@ function ActorSubtaskReviewInbox({
       if(!queueCurrent||!selected||selected.subtask.id!==target.item.id)return false;
       // Retained private feedback takes priority over an automatic clean entrance.
       if(intent.inspectorSection!=='review'||feedback||user?.id&&recoverSubtaskReviewDraft(user.id,[selected]))return true;
-      const opener=document.activeElement instanceof HTMLElement?document.activeElement:null;
-      return requestNavigation(()=>{if(isCurrent()&&mounted.current)setOpened({item:selected,origin:{view:'Notifications',section:'review',returnFocus:opener,restoreFocus:()=>document.querySelector<HTMLInputElement>('[aria-label="Search subtask evidence"]')?.focus()}});});
+      if(isCurrent()&&mounted.current){setSelectedId(target.item.id);setFocusError('');setDetailOpen(true);}
+      return true;
     },
     [focus,items,loading,sourceError,queueCurrent,selected,feedback,deciding,renderDetail,user?.id],
   );
@@ -144,6 +146,9 @@ function ActorSubtaskReviewInbox({
       await decideSubtaskReview(selected.subtask.id, approve, feedback,user?.id);
       if(user?.id)discardSubtaskReviewDraft(user.id,selected);
       if(!mounted.current)return;
+      decidedTargets.current.add(selected.subtask.id);
+      setFocusError('');setSelectedId(null);setDetailOpen(false);
+      window.dispatchEvent(new CustomEvent('eflow:work-updated'));
       setItems((current) => current.filter((item) => item.subtask.id !== selected.subtask.id));
       setFeedback("");
       draft.markClean();
@@ -156,6 +161,9 @@ function ActorSubtaskReviewInbox({
   };
 
   const openedInspector=opened?<ReviewSubitemInspector item={opened.item} origin={opened.origin} readOnly={readOnly} onClose={()=>setOpened(undefined)}/>:null;
+  // Keep the canonical work owner mounted through queue refresh/failure. It
+  // verifies its own current authority; it replaces the review page visually.
+  if(openedInspector)return openedInspector;
   if (sourceError && !selected) return <><FeedbackState tone="error" title="Subtask reviews could not be loaded" onRetry={() => setRevision(value => value + 1)}>{sourceError}</FeedbackState>{openedInspector}</>;
 
   if (loading && !selected) return (
@@ -199,8 +207,8 @@ function ActorSubtaskReviewInbox({
           <SectionEmpty illustration="complete" icon={<CheckCircle2 size={30} />} title="No subtask evidence waiting" description="New evidence submissions from your team will appear here." />
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(300px,380px)_1fr]">
-          <div className="overflow-hidden rounded-xl border border-neutral-200 bg-white">
+        <div className="review-page-content">
+          <div hidden={detailOpen} className="overflow-hidden rounded-xl border border-neutral-200 bg-white">
             <div className="border-b border-neutral-100 p-3">
               <VibeSearch value={query} onChange={value => void requestNavigation(() => setQuery(value))} onClear={() => void requestNavigation(() => setQuery(""))} placeholder="Search subtask evidence…" inputAriaLabel="Search subtask evidence" showClearIcon size="small" />
             </div>
@@ -209,7 +217,7 @@ function ActorSubtaskReviewInbox({
                 <button
                   key={item.submission.id}
                   type="button"
-                  onClick={() => void requestNavigation(() => {setFeedback("");setFocusError("");setSelectedId(item.subtask.id);})}
+                  onClick={() => void requestNavigation(() => {setFeedback("");setFocusError("");setSelectedId(item.subtask.id);setDetailOpen(true);})}
                   className={`w-full p-3 text-left hover:bg-neutral-50 ${selectedId === item.subtask.id ? "bg-neutral-50" : ""}`}
                 >
                   <div className="text-[12.5px] font-medium text-neutral-900">{item.subtask.title}</div>
@@ -221,15 +229,15 @@ function ActorSubtaskReviewInbox({
             </div>
           </div>
 
-          {selected ? (<div>
-            {!renderDetail&&<button type="button" onClick={event=>{const element=event.currentTarget;void requestNavigation(()=>setOpened({item:selected,origin:{view:'Review',section:'review',returnFocus:element,restoreFocus:()=>document.querySelector<HTMLInputElement>('[aria-label="Search subtask evidence"]')?.focus()}}));}}>Open subitem</button>}
+          {selected && detailOpen ? (<div>
+            {!renderDetail&&<div className="flex items-center justify-between gap-3"><button className="task-page__back" type="button" onClick={()=>void requestNavigation(()=>setDetailOpen(false))}>← Back to review queue</button><button type="button" data-review-open-work disabled={!queueCurrent||deciding} onClick={event=>{const element=event.currentTarget;void requestNavigation(()=>setOpened({item:selected,origin:{view:'Review',section:'work',returnFocus:element,restoreFocus:()=>{const target=document.querySelector<HTMLButtonElement>('[data-review-open-work]')||document.querySelector<HTMLInputElement>('[aria-label="Search subtask evidence"]');target?.focus();}}}));}}>Open work</button></div>}
             {
             (renderDetail || (props => <SubitemReviewDetail {...props}/>))({
               item:queueCurrent&&currentSelected?{...selected,subtask:{...selected.subtask,workContext:currentSelected.subtask.workContext}}:selected, feedback, pending:deciding, readOnly:decisionReadOnly,evidenceAvailable:queueCurrent,
               currentReviewerName:queueCurrent ? userProfile?.full_name || 'You' : undefined,
               onFeedbackChange:value=>{if(!decisionReadOnly&&!deciding&&!draft.pendingRef.current&&user?.id){writeSubtaskReviewDraft(user.id,selected,value);setFeedback(value);}}, onApprove:() => void decide(true), onRequestChanges:() => void decide(false),
             })}</div>
-          ) : (
+          ) : filtered.length ? null : (
             <div className="rounded-xl border border-neutral-200 bg-white"><SectionEmpty illustration="files" icon={<Search size={26} />} title="Select evidence" /></div>
           )}
         </div>
@@ -237,5 +245,5 @@ function ActorSubtaskReviewInbox({
     </div>
   );
 
-  return <>{inboxContent}{openedInspector}</>;
+  return inboxContent;
 }

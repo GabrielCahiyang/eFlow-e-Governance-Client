@@ -1,0 +1,58 @@
+{
+  "hosted_target": "ixnfphgjyelhckjwjkdv",
+  "database_changes": false,
+  "type_check": "passed",
+  "production_build": "passed",
+  "focused_unit_tests": {
+    "passed": 62,
+    "failed": 0
+  },
+  "additional_triage_tests": {
+    "passed": 11,
+    "failed": 0
+  },
+  "full_unit_run": {
+    "passed": 1927,
+    "failed": 20,
+    "total": 1947,
+    "failed_tests": [
+      "FAIL  tests/unit/auditDetailPage.test.tsx > in-page Account Audit details > preserves filters, mounted table sorting and return focus without a modal",
+      "FAIL  tests/unit/globalUiP5a.test.tsx > P5a support contract and actor-local account intent > presents every Admin leaf exactly once using the current support registry",
+      "FAIL  tests/unit/nestedWorkCompletionParity.test.tsx > NW4.2 completion and server review flags > shows and opens review selected by the server even when displayed Lead differs",
+      "FAIL  tests/unit/nestedWorkDraftRecovery.test.tsx > NW5.4 current reads and owners > retains staffing through transient failure and recovers it after owner remount",
+      "FAIL  tests/unit/nestedWorkReviewAuthority.test.tsx > NW4.2 current reviewer queue, adapter and inbox parity > renders the replacement reviewer queue and decides using the canonical subtask ID",
+      "FAIL  tests/unit/notificationSubitemFocus.test.tsx > NW9.5 canonical notification entrances > opens an appointed Lead-only depth-eight item by ID despite a stale label and forwards the Work origin/section",
+      "FAIL  tests/unit/taskTeamEditorDialog.test.tsx > NW3.3 supported task team callers > uses a supplied table controller without another read and retains contributor-only authority",
+      "FAIL  tests/unit/taskTeamEditorDialog.test.tsx > NW3.3 supported task team callers > saves contributors through the canonical versioned operation without legacy writes or notifications",
+      "FAIL  tests/unit/taskTeamEditorDialog.test.tsx > NW3.3 supported task team callers > keeps Head appointment authority separate from the contributor-only Team action",
+      "FAIL  tests/unit/taskTeamEditorDialog.test.tsx > NW3.3 supported task team callers > retains a contributor draft when fresh capability revokes saving",
+      "FAIL  tests/unit/taskTeamEditorDialog.test.tsx > NW3.3 supported task team callers > fails closed with absent capability maps even when old management booleans are true",
+      "FAIL  tests/unit/taskTeamEditorDialog.test.tsx > NW3.3 supported task team callers > retains values and blocks saves when the caller becomes read-only",
+      "FAIL  tests/unit/taskTeamEditorDialog.test.tsx > NW3.3 supported task team callers > locks canonical contributors for for_review",
+      "FAIL  tests/unit/taskTeamEditorDialog.test.tsx > NW3.3 supported task team callers > locks canonical contributors for completed",
+      "FAIL  tests/unit/taskTeamEditorDialog.test.tsx > NW3.3 supported task team callers > locks canonical contributors for cancelled",
+      "FAIL  tests/unit/workspaceRefinementHierarchy.test.tsx > R7 checked nested-work UI > does not let a pre-save refresh replace a newly saved owner snapshot",
+      "FAIL  tests/unit/workspaceRefinementHierarchy.test.tsx > R7 checked nested-work UI > allows a root lead to change contributors without gaining root-transfer authority",
+      "FAIL  tests/unit/workspaceRefinementHierarchy.test.tsx > NW3.3 staffing and hierarchy caller locks > lets verified canonical capability control Inspector contributors independently of legacy Head-only flags",
+      "FAIL  tests/unit/workspaceRefinementHierarchy.test.tsx > NW3.3 staffing and hierarchy caller locks > updates an open Inspector staffing draft when its caller becomes read-only",
+      "FAIL  tests/unit/workspaceRefinementMembers.test.tsx > lists selected project membership, effective Viewer access and nested responsibility drill-through"
+    ],
+    "matches_prior_failure_list": 18,
+    "new_failures_resolved_in_focused_rerun": [
+      "FAIL  tests/unit/auditDetailPage.test.tsx > in-page Account Audit details > preserves filters, mounted table sorting and return focus without a modal",
+      "FAIL  tests/unit/workspaceRefinementMembers.test.tsx > lists selected project membership, effective Viewer access and nested responsibility drill-through"
+    ]
+  },
+  "graph_update": "completed; four existing partial AST extraction warnings",
+  "production_browser_tests": {
+    "passed": 13,
+    "failed": 0,
+    "duration": "2.7 minutes",
+    "widths": [
+      1440,
+      768,
+      390,
+      320
+    ]
+  }
+}

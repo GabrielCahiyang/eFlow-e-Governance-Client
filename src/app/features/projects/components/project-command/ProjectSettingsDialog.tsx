@@ -51,8 +51,8 @@ export function ProjectSettingsDialog({ project, canManage, onClose }: { project
           <FormField label="Start date"><TextInput type="date" value={draft.startDate} disabled={!editable || pending} onChange={event => setDraft({ ...draft, startDate: event.target.value })} /></FormField>
           <FormField label="Target date" error={error === 'Target date must be on or after the start date.' ? error : undefined}><TextInput type="date" value={draft.targetDate} disabled={!editable || pending} onChange={event => setDraft({ ...draft, targetDate: event.target.value })} /></FormField>
         </div>
-        <p>Office access and staffing remain in Project Offices and task details. Office Heads can open View completion requirements for plan reviews and activation. Saving material changes may require another review.</p>
-        <details onToggle={event=>setReviewsOpen(event.currentTarget.open)}><summary>Plan reviews</summary>{reviewsOpen && <ProjectReadinessPanel project={project} canManage={false} refreshKey={notice} />}</details>
+        <p>Save your dates, then confirm the plan reviews below to activate the project. Material changes may need another review.</p>
+        <details onToggle={event=>setReviewsOpen(event.currentTarget.open)}><summary>Plan reviews</summary>{reviewsOpen && <ProjectReadinessPanel project={project} canManage={editable&&!dirty&&!pending} refreshKey={notice} />}</details>
         {error && <FeedbackState tone="error" title="Settings could not be saved">{error} Retry with Save changes.</FeedbackState>}
         {notice && <FeedbackState tone="success" title={notice} />}
       </div>

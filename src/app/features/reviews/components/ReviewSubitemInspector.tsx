@@ -1,6 +1,6 @@
 import {useEffect,useState} from 'react';
 import {useAuth} from '../../../contexts/AuthContext';
-import {InspectorPanel} from '../../../shared/motion';
+import {InspectorSurface} from '../../task-inspector';
 import {requestNavigation} from '../../../shared/navigationGuard';
 import {fetchTaskById,rowToTask,type Task} from '../../tasks';
 import {SubtaskWorkDrawer,type SubtaskReviewItem} from '../../subtasks';
@@ -18,8 +18,8 @@ function ReviewInspector({item,origin,onClose,readOnly=false}:{item:SubtaskRevie
   if(!row||row.id!==item.subtask.taskId)throw new Error('Subitem root is no longer available.');
   setTask(rowToTask(row));
  }).catch(reason=>{if(active)setError(reason instanceof Error?reason.message:'Could not verify subitem root.');});return()=>{active=false;};},[item.subtask.taskId,retry]);
- if(task)return <SubtaskWorkDrawer subtask={item.subtask} parentTask={task} initialSection="review" origin={origin} onClose={onClose} readOnly={readOnly}/>;
- return <InspectorPanel open onClose={()=>void requestNavigation(onClose)} ariaLabel="Subtask unavailable" returnFocus={origin.returnFocus} onReturnFocus={origin.restoreFocus} layer={60} className="w-full sm:w-[460px]">
+ if(task)return <SubtaskWorkDrawer subtask={item.subtask} parentTask={task} initialSection={origin.section==='work'?'work':'review'} origin={origin} onClose={onClose} readOnly={readOnly}/>;
+ return <InspectorSurface presentation="page" open onClose={()=>void requestNavigation(onClose)} ariaLabel="Subtask unavailable" returnFocus={origin.returnFocus} onReturnFocus={origin.restoreFocus} layer={60} className="w-full sm:w-[460px]">
   <div className="p-4"><p role={error?'alert':'status'}>{error||'Verifying current subitem context.'}</p>{error&&<button type="button" onClick={()=>setRetry(value=>value+1)}>Retry subitem root</button>}<button type="button" onClick={()=>void requestNavigation(onClose)}>Close subtask detail</button></div>
- </InspectorPanel>;
+ </InspectorSurface>;
 }

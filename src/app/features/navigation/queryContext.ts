@@ -1,5 +1,5 @@
 export interface NavigationRestore {workspaceId?:string;parameters:Record<string,string>}
-export const navigationDisplayKeys=['workspace','project','view','plans','date','q','workScope','recent','fy'] as const;
+export const navigationDisplayKeys=['workspace','project','view','plans','proposal','proposalView','people','date','q','workScope','recent','fy'] as const;
 /** Display-route preferences only; never restore an evidence or mutation identity. */
 export function navigationParameters(value:unknown):Record<string,string>{
  if(!value||typeof value!=='object'||Array.isArray(value))return {};
@@ -22,7 +22,13 @@ export function destinationNavigationParameters(section: string, value: unknown,
   if (section === 'projects') {
     copy('project');
     if (projectViews.includes(source.view)) copy('view');
-    if (!source.project) copy('plans');
+    if (source.project && source.people === 'add') copy('people');
+    if (!source.project) {
+      if (source.proposal) {
+        copy('proposal');
+        if (['overview','approvals','governance'].includes(source.proposalView)) copy('proposalView');
+      } else if (['saved','review'].includes(source.plans)) copy('plans');
+    }
   }
   if (section === 'reviews' && reviewRouteViews.some(view => view === source.view)) copy('view');
   if (section === 'budget' || section === 'accounting_budgets') {

@@ -272,8 +272,8 @@ export function RoleContent({
         <div className="bg-neutral-50 h-full min-h-0 flex-1 overflow-y-auto p-6 rounded-r-2xl flex items-center justify-center">
           <div className="text-center text-neutral-400">
             <Settings size={40} className="mx-auto mb-3 opacity-30" />
-            <p className="text-[14px] font-normal">Content coming soon</p>
-            <p className="text-[12px] mt-1">Role: {role}</p>
+            <p className="text-[14px] font-normal">Account access unavailable</p>
+            <p className="text-[12px] mt-1">Ask an administrator to review your account role.</p>
           </div>
         </div>
       );

@@ -282,8 +282,14 @@ export async function projectWorkspaceFixture(
     if (table === 'r6_list_project_files') body = {can_write:role!=='admin'&&!options.shared&&!['completed','archived'].includes(String(projects[0]?.status)),files:[]};
     if (table === 'r3_list_workspaces') body = options.unassigned ? [] : organizations.map(o=>({id:o.id,name:o.name,kind:'office',office_id:o.id,owner_id:null,state:'active',timezone:'Asia/Singapore'}));
     if (table === 'r3_select_workspace') body = {workspace:{id:payload.p_workspace,name:organizations.find(o=>o.id===payload.p_workspace)?.name || office.name,kind:'office',office_id:payload.p_workspace,owner_id:null,state:'active',timezone:'Asia/Singapore'},projects:projects.map(p=>({...p,kind:'office',home_workspace_id:p.org_id}))};
-    if (table === "profiles") body = single ? profile : profiles;
-    if (table === "organizations") body = single ? office : organizations;
+    if (table === "profiles") {
+      const rows=profiles.filter(row=>!url.searchParams.has('id')||url.searchParams.get('id')==='eq.'+row.id);
+      body = single ? rows[0] || null : rows;
+    }
+    if (table === "organizations") {
+      const rows=organizations.filter(row=>!url.searchParams.has('id')||url.searchParams.get('id')==='eq.'+row.id);
+      body = single ? rows[0] || null : rows;
+    }
     if (table === "project_offices") body = projectOffices;
     if (table === "project_office_members") body = officeMembers;
     if (table === "phase7_project_readiness")
@@ -323,7 +329,10 @@ export async function projectWorkspaceFixture(
         ([permission, allowed]) => ({ user_id: id, permission, allowed }),
       );
     if(table==="department_budget_summary")body=null;
-    if (table === "projects") body = single ? projects[0] : projects;
+    if (table === "projects") {
+      const rows=projects.filter(row=>!url.searchParams.has('id')||url.searchParams.get('id')==='eq.'+row.id);
+      body = single ? rows[0] || null : rows;
+    }
     if (table === "tasks") body = tasks;
     if (table === "subtasks") {
       if (req.method() === "POST") {
@@ -393,6 +402,7 @@ export async function projectWorkspaceFixture(
         updated_at: now,
       };
       projects.push(row);
+      projectOffices.push({id:crypto.randomUUID(),project_id:row.id,office_id:org,relationship_type:'lead',invitation_status:'joined'});
       groups.push({
         id: crypto.randomUUID(),
         project_id: row.id,
@@ -521,6 +531,8 @@ export async function projectWorkspaceFixture(
       .getByRole("navigation", { name: "Mobile primary navigation" })
       .getByRole("button", { name: "Workspaces", exact: true })
       .click();
+  // Projects now lands on the portfolio; tests that exercise a project open it explicitly.
+  await page.getByRole('region', {name:'All projects',exact:true}).getByRole('button', {name:'Community outreach',exact:true}).click();
   await expect(
     page.getByRole("region", { name: "Project main table" }),
   ).toBeVisible({ timeout: 30_000 });

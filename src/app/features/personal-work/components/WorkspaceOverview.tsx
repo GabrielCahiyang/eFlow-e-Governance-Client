@@ -61,9 +61,9 @@ export function WorkspaceOverview({
     );
   const filtered = summary?.[focus] || [];
   if (userProfile?.role === 'head' && workspace.kind === 'office' && workspace.office_id === (userProfile.org_id || userProfile.departmentId)) return <>
-    <HeadWorkspaceDashboard name={workspace.name} data={data} loading={feed.loading} error={feed.error} onRefresh={()=>void feed.refresh()} onNavigate={navigate} onOpen={inspector.open} canReports={can('navigation.reports')}/>
+    <div hidden={!!inspector.selection}><HeadWorkspaceDashboard actorId={user?.id} name={workspace.name} data={data} loading={feed.loading} error={feed.error} onRefresh={()=>void feed.refresh()} onNavigate={navigate} onOpen={inspector.open} canReports={can('navigation.reports')}/>
     <div className="head-home__more"><button type="button" className="eflow-button" aria-expanded={insights} onClick={()=>void requestNavigation(()=>setInsights(value=>!value))}>Office insights</button>{insights&&<Suspense fallback={<ViewLoadingState/>}><HeadInsights/></Suspense>}</div>
-    <WorkInspector selected={inspector.selection} current={data?.rows||[]} onClose={inspector.close}/>
+    </div><WorkInspector presentation="page" selected={inspector.selection} current={data?.rows||[]} onClose={inspector.close}/>
   </>;
   return (
     <section className="r10-workspace" aria-label="Workspace Overview">

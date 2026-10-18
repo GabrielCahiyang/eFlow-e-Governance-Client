@@ -16,7 +16,7 @@ export function visibleProjectTasks(tasks: Task[], query: string, status: string
 export function tasksInGroup(tasks: Task[], group: ProjectGroup) { return tasks.filter(t=>t.groupId===group.id || (!t.groupId && group.isDefault)); }
 export function groupSummary(tasks: Task[]) {
  const completed=tasks.filter(t=>t.status==='completed').length;
- return {count:tasks.length,completed,budget:tasks.reduce((n,t)=>n+(t.budgetImpact||0),0),effort:tasks.reduce((n,t)=>n+(t.estimatedHours||0),0),progress:tasks.length?Math.round(tasks.reduce((n,t)=>n+(t.status==='completed'?100:t.status==='cancelled'?0:t.percentComplete||0),0)/tasks.length):0};
+ return {count:tasks.length,completed,budget:tasks.reduce((n,t)=>n+(t.budgetImpact||0),0),effort:tasks.reduce((n,t)=>n+(t.estimatedHours||0),0),progress:tasks.length?Math.round(tasks.reduce((n,t)=>n+(t.status==='completed'?100:0),0)/tasks.length):0};
 }
 export function canEditProjectTask(task: Task, head: boolean, officeId: string) {
  return head && task.orgId===officeId && !task.archivedAt && !['completed','cancelled'].includes(task.status);

@@ -179,7 +179,7 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
       const accepted = await selectPageAsync(
         section,
         page,
-        projectId ? { project: projectId, view: "tasks" } : undefined,
+        projectId ? { project: projectId, view: "tasks", parameters: { project: projectId, view: 'tasks' } } : section === 'projects' ? { parameters: {} } : undefined,
       );
       if (accepted !== false) {
         setMobileNavigationOpen(false);
@@ -305,6 +305,9 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
                 /></WorkspaceScopeContext.Provider>}
               </main>
             </div>
+            <footer className="eflow-illustration-credit" aria-label="Illustration credit">
+              <a href="https://storyset.com/" target="_blank" rel="noreferrer">Illustrations by Storyset</a>
+            </footer>
             {!desktop && (
               <MobileNavigationBar
                 onPrimarySelect={handlePrimarySelect}

@@ -1,3 +1,4 @@
+import {workStateLabel} from '../../work-state';
 import { StatusPill } from "../../../components/ui/workspace";
 import { workDateLabel } from "../../../shared/workCalendar";
 import type { WorkRow } from "../types";
@@ -38,7 +39,7 @@ export function WorkList({
               {workDateLabel(row.due, row.timezone)}
             </span>
             <StatusPill
-              label={row.status === 'todo' ? 'To do' : row.status.replace(/_/g, ' ').replace(/^./, letter => letter.toUpperCase())}
+              label={workStateLabel(row.status,!!row.blocker)}
               tone={
                 row.status === "completed"
                   ? "positive"
@@ -49,7 +50,7 @@ export function WorkList({
                       : "neutral"
               }
             />
-            <span className="r10-work-progress" aria-label={`Progress ${row.progress}%`}>{row.progress}%</span>
+            <span className="r10-work-progress">{row.status==='completed'?'Approved':row.blocker?'Needs help':''}</span>
           </button>
           <details className="r10-row-details">
             <summary aria-label={`Work context for ${row.title}`}>Details</summary>

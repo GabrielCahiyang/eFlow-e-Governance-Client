@@ -1,6 +1,5 @@
 import {requestNavigation} from '../../../shared/navigationGuard';
 import {calendarMinDate} from '../../../shared/calendarDates';
-import {useId} from 'react';
 import {WorkDetailsEditor} from './WorkDetailsEditor';
 import {WorkMoveDialog} from './WorkMoveDialog';
 import {WorkOrderDialog} from './WorkOrderDialog';
@@ -23,7 +22,6 @@ export function WorkTreeEditor(props:WorkTreeEditorProps){
  return <WorkTreeForm {...props}/>;
 }
 function WorkTreeForm({data,edit,save,onDone,onCancel,readOnly=false,refreshPending=false}:WorkTreeEditorProps){
- const progressHelpId=useId();
  const {user}=useAuth();
  const context={actorId:user?.id||null,rootId:data.root.id,projectId:data.root.project,officeId:data.root.office,kind:data.root.kind,revision:data.revision,readOnly};
  const editor=useWorkEditorDraft({data,edit,context,refreshPending,onCancel});
@@ -55,14 +53,14 @@ function WorkTreeForm({data,edit,save,onDone,onCancel,readOnly=false,refreshPend
   {edit.command==='move'&&<WorkMoveDialog data={data} destinations={destinations} allowTask={destinationRoot.allowed} parent={parent} disabled={locked} onChange={value=>update('parent',value)}/>}
   {edit.command==='order'&&<WorkOrderDialog data={data} order={order} disabled={locked} onChange={value=>update('order',value)}/>}
   {edit.command==='delete'&&<WorkDeleteDialog impact={confirmation.impact}/>}
-  {edit.command==='progress'&&<div><label>Progress<input type="number" min={0} max={99} aria-describedby={progressHelpId} value={progress} disabled={locked} onChange={e=>update('progress',Number(e.target.value))}/></label><small id={progressHelpId}>Progress stays below 100% until your reviewer approves the work.</small></div>}
+  {edit.command==='progress'&&<p>In progress · Save an update, or submit finished work for approval.</p>}
   {edit.command==='review'&&<label>Decision<select value={progress===100?'approve':'reject'} disabled={locked} onChange={e=>update('progress',e.target.value==='approve'?100:99)}><option value="approve">Approve personal work</option><option value="reject">Return for changes</option></select></label>}
   {['edit','progress','submit','review'].includes(edit.command)&&<label>{edit.command==='edit'?'Reason for date change':'Note / feedback'}<textarea value={note} maxLength={4000} disabled={locked} onChange={e=>update('note',e.target.value)}/></label>}
   {error&&<p role="alert">{error}{editor.unresolvedReceipt?' The original result is unverified and its request is retained. Reload current work before retrying this saved request.':outcome.kind==='stale_revision'?' The draft is retained. Reload and review the current work before reopening this editor.':outcome.kind==='confirmed_failure'?' Nothing was saved. Correct the draft before submitting a new request.':outcome.kind==='revoked_authority'?' Saving is blocked. Verify current authority before reopening this editor.':''}</p>}
   {editor.saved&&<p role="status">Work saved.</p>}
   {editor.recovered&&<p role="status">{editor.staleRecovery?'Recovered draft is stale. Review current work; discard this draft to start again.':'Draft recovered after current access verification. Review before saving.'}</p>}
   {editor.storageFailed&&<p role="alert">Draft recovery could not be stored in this tab. Keep the editor open to retain your changes.</p>}
-  <div className="r7-actions"><button type="button" disabled={busy} onClick={close}>{editor.saved?'Close':'Cancel changes'}</button>{!authorized&&!editor.saved&&<p role="alert">Your current branch authority changed. Reload the tree before saving.</p>}{!editor.saved&&<button type="submit" disabled={busy||!authorized}>{busy?'Saving…':editor.request?'Retry saved request':edit.command==='delete'?'Review deletion':'Save work changes'}</button>}</div>
+  <div className="r7-actions"><button type="button" disabled={busy} onClick={close}>{editor.saved?'Close':'Cancel changes'}</button>{!authorized&&!editor.saved&&!busy&&!refreshPending&&<p role="alert">Your current branch authority changed. Reload the tree before saving.</p>}{!editor.saved&&<button type="submit" disabled={busy||!authorized}>{busy?'Saving…':editor.request?'Retry saved request':edit.command==='delete'?'Review deletion':'Save work changes'}</button>}</div>
   {confirmation.dialog}
  </form>;
 }

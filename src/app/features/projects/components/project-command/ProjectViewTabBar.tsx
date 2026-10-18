@@ -92,25 +92,14 @@ export function ProjectViewTabBar({
               const meta = OPTIONAL_VIEWS_CATALOG.find(view => view.id === viewId)!;
               return (
                 <Tab key={viewId} id={viewId} active={activeTab === viewId} onClick={() => onSelectTab(viewId)}>
-                  <span className="inline-flex items-center gap-1.5">
-                    <span>{meta.label}</span>
-                    <span role="button" tabIndex={0} title={`Close ${meta.label}`}
-                      onClick={event => { event.stopPropagation(); closeView(viewId); }}
-                      onKeyDownCapture={event => {
-                        if (event.key === "Enter" || event.key === " ") {
-                          event.preventDefault(); event.stopPropagation(); closeView(viewId);
-                        }
-                      }}
-                      className="inline-flex items-center justify-center p-0.5 rounded hover:bg-black/10 text-neutral-400 hover:text-neutral-700 ml-0.5">
-                      <CloseSmall size={12} />
-                    </span>
-                  </span>
+                  {meta.label}
                 </Tab>
               );
             })]}
           </TabList>
         </TabsContext>
       </div>
+      {activeOptional && <button type="button" className="eflow-project-view-trigger" title={`Close ${OPTIONAL_VIEWS_CATALOG.find(view=>view.id===activeOptional)?.label}`} aria-label={`Close ${OPTIONAL_VIEWS_CATALOG.find(view=>view.id===activeOptional)?.label}`} onClick={()=>closeView(activeOptional)}><CloseSmall size={16}/></button>}
       {/* Fixed action lane; menus render in portals outside every scrolling ancestor. */}
       <ProjectViewMenus openViews={openViews} overflowViews={overflowOptionalViews} onOpenView={viewId => {
         if (OPTIONAL_VIEWS_CATALOG.some(view => view.id === viewId)) {

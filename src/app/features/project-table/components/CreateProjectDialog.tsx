@@ -17,7 +17,7 @@ export function CreateProjectDialog({open,onClose,onCreated,officeId,officeName,
   <form onSubmit={submit}><span className="pt-brand">eFlow.</span><DialogTitle>Let’s start working together</DialogTitle><DialogDescription>Give your project a name. You can add details as you work.</DialogDescription>
    <p>Workspace: {officeName || officeId} · Office · Creating Head: {ownerName || 'Current authorized Head'}</p>
    <label htmlFor="pt-project-name">Project name</label><input id="pt-project-name" autoFocus placeholder="My first project" value={title} onChange={e=>setTitle(e.target.value)} maxLength={200} disabled={busy}/>
-   <p className="pt-create-hint">Your project opens with a group ready for tasks. Evidence, reviews and budget controls stay connected to your work.</p>
+   <p className="pt-create-hint">After creating your project, choose people from your office or skip this step. A group will be ready for your tasks.</p>
    {error&&<p role="alert">{error}</p>}<footer><button type="button" onClick={close} disabled={busy}>Cancel</button><button className="pt-primary" type="submit" disabled={!title.trim()||busy}>{busy?'Creating…':'Create project →'}</button></footer>
   </form><WorkspaceIllustration title={title.trim() || 'My first project'}/>
  </DialogContent></Dialog>;

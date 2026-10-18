@@ -6,7 +6,7 @@ vi.mock('../../src/app/features/project-access',()=>({fetchAccess:()=>Promise.re
 vi.mock('../../src/app/features/project-invitations',()=>({ProjectInvitations:()=>null}));
 vi.mock('../../src/app/contexts/AuthContext',()=>({useAuth:()=>({user:{id:calls.actor}})}));
 vi.mock('../../src/app/features/project-members/services/memberService',()=>({fetchMembers:calls.load,saveMemberTerms:calls.save}));
-vi.mock('../../src/app/features/project-offices',()=>({useProjectOfficeContext:()=>({members:calls.members,refresh:calls.refresh}),OfficeMembersEditor:({members}:{members:{user_id:string}[]})=><p>Canonical selection: {members.map(m=>m.user_id).join(',')}</p>}));
+vi.mock('../../src/app/features/project-offices',()=>({useProjectOfficeContext:()=>({members:calls.members,refresh:calls.refresh}),ProjectPeoplePage:({projectTitle,onClose}:{projectTitle:string;onClose:()=>void})=><section aria-label="Add people to project"><p>Direct picker: {projectTitle}</p><button onClick={onClose}>Back to project</button></section>}));
 import {ProjectMembers} from '../../src/app/features/project-members';
 import {MemberTermsEditor} from '../../src/app/features/project-members/components/MemberTermsEditor';
 import type {SelectedMember} from '../../src/app/features/project-members';
@@ -15,10 +15,10 @@ const data={kind:'office',members:[member,{...member,user_id:'viewer',name:'Read
 beforeEach(()=>{vi.resetAllMocks();calls.actor='head';calls.members=[];calls.load.mockResolvedValue(data);});afterEach(cleanup);
 it('lists selected project membership, effective Viewer access and nested responsibility drill-through',async()=>{
  const open=vi.fn();render(<ProjectMembers projectId="project" projectStatus="active" profiles={[]} tasks={[]} onOpenTask={open}/>);await screen.findByText('Selected person');expect(screen.getByText('Read only person')).toBeTruthy();expect(screen.getByText('No assigned responsibility')).toBeTruthy();expect(screen.getByText('View authorized project information; no execution or delegation')).toBeTruthy();
- fireEvent.click(screen.getAllByRole('button',{name:'Root / Nested work · Subitem Lead'})[0]);expect(open).toHaveBeenCalledWith('root');fireEvent.click(screen.getByRole('button',{name:'Add existing members · Planning Office'}));expect(screen.getByText('Canonical selection: selected,viewer')).toBeTruthy();
+ fireEvent.click(screen.getAllByRole('button',{name:'Root / Nested work · Subitem Lead'})[0]);expect(open).toHaveBeenCalledWith('root');fireEvent.click(screen.getByRole('button',{name:'+ Add people · Planning Office'}));expect(screen.getByText('Direct picker: Planning Office')).toBeTruthy();expect(screen.queryByRole('dialog')).toBeNull();fireEvent.click(screen.getByRole('button',{name:'Back to project'}));await screen.findByText('Selected person');
 });
 it('gives empty Office guidance and keeps closed project membership read-only',async()=>{
- render(<ProjectMembers projectId="project" projectStatus="archived" profiles={[]} tasks={[]} onOpenTask={vi.fn()}/>);await screen.findByText('Selected person');expect(screen.getByText(/No onboarded eligible staff/)).toBeTruthy();expect(screen.queryByRole('button',{name:/Add existing|Edit access terms/})).toBeNull();
+ render(<ProjectMembers projectId="project" projectStatus="archived" profiles={[]} tasks={[]} onOpenTask={vi.fn()}/>);await screen.findByText('Selected person');expect(screen.getByText(/No onboarded eligible staff/)).toBeTruthy();expect(screen.queryByRole('button',{name:/Add people|Edit access terms/})).toBeNull();
 });
 it('requires temporary terms and retries one identity after a missing write receipt',async()=>{
  calls.save.mockRejectedValueOnce(new Error('Receipt lost')).mockResolvedValue(member);render(<MemberTermsEditor project="project" member={member} onClose={vi.fn()} onSaved={vi.fn()}/>);

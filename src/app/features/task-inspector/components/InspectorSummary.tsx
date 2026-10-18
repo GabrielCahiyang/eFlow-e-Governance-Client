@@ -5,7 +5,7 @@ import { WorkBudgetCard } from '../../budget';
 import {supportsNestedWork} from '../../nested-work';
 export function InspectorSummary({task, projectTitle, readOnly, dependencies, canManageSubtasks, overdue,authorityPending=false,fundingTask,budgetReadOnly}: {task: Task; projectTitle?: string; readOnly: boolean; dependencies: Task[]; canManageSubtasks: boolean; overdue: boolean;authorityPending?:boolean;fundingTask?:Task;budgetReadOnly?:boolean}) {
  const unresolvedDependencies = dependencies.filter(t => t.status !== 'completed');
- const percent = task.percentComplete ?? 0;
+ const percent = task.status==='completed'?100:0;
  const rel = relativeDays(task.deadline || task.dueDate);
  return <section aria-label="Task overview" className="space-y-4">              {readOnly && (
                 <div className="flex items-start gap-2.5 rounded-xl border border-blue-100 bg-blue-50/70 p-3">

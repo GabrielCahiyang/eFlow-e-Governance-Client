@@ -22,6 +22,21 @@
   padding: 0 16px;
 }
 
+.eflow-illustration-credit { display:none; }
+.eflow-app-shell:has(.eflow-storyset) > .eflow-illustration-credit {
+  display:flex;
+  flex:0 0 auto;
+  justify-content:flex-end;
+  padding:0 16px 6px;
+  font-size:2px;
+  line-height:3px;
+  color:var(--secondary-text-color);
+}
+.eflow-illustration-credit a { color:#fff; text-decoration:none; }
+.dark .eflow-illustration-credit a { color:#000; }
+.eflow-illustration-credit a:hover { text-decoration:underline; }
+.eflow-illustration-credit a:focus-visible { outline:2px solid var(--primary-color); outline-offset:2px; }
+
 .eflow-topbar__leading,
 .eflow-topbar__utilities,
 .eflow-topbar__communications,

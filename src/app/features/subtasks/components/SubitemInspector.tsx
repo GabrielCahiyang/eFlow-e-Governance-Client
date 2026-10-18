@@ -1,6 +1,6 @@
 import {useEffect,useRef,useState} from 'react';
 import {useAuth} from '../../../contexts/AuthContext';
-import {InspectorPanel} from '../../../shared/motion';
+import {InspectorSurface} from '../../task-inspector';
 import {requestNavigation} from '../../../shared/navigationGuard';
 import type {Task} from '../../tasks';
 import {useWorkTree,selectNodeWorkCapability,WorkActivity,type WorkTreeController} from '../../nested-work';
@@ -10,7 +10,6 @@ import {useSubitemInspectorData} from '../hooks/useSubitemInspectorData';
 import {useSubtaskReviewerDirectory} from '../hooks/useSubtaskReviewerDirectory';
 import {getSubtaskPrerequisite} from '../selectors/sequencing';
 import {SubtaskReviewerBadge} from './SubtaskReviewerBadge';
-import {SubtaskWorkDrawerView} from './LegacySubtaskWorkDrawer';
 import {SubitemContext} from './SubitemContext';
 import {SubitemChildWork} from './SubitemChildWork';
 import {SubitemWorkflow} from './SubitemWorkflow';
@@ -55,9 +54,9 @@ function SubitemInspectorContent(props:SubitemInspectorProps&{controller:WorkTre
  },[props.initialSection,data.fresh,data.pending,tree,itemId]);
  // Keep the existing review owner mounted when authority changes; disable decisions.
  const reviewSurface=reviewItem?<SubitemReviewGate key={reviewItem} rootId={props.rootTask.id} itemId={reviewItem} readOnly={!canReview(reviewItem)} tree={data.fresh&&scopeMatches?tree:undefined} rootTitle={props.rootTask.title} onClose={()=>setReviewItem(undefined)}/>:null;
- if(!node||!tree||!data.data||!scopeMatches)return <><InspectorPanel open onClose={close} ariaLabel="Subtask unavailable" layer={60} className="w-full sm:w-[460px]" returnFocus={origin.returnFocus} onReturnFocus={origin.restoreFocus}>
+ if(!node||!tree||!data.data||!scopeMatches)return <><InspectorSurface presentation="page" open onClose={close} ariaLabel="Subtask unavailable" layer={60} className="w-full sm:w-[460px]" returnFocus={origin.returnFocus} onReturnFocus={origin.restoreFocus}>
   <div className="p-4 space-y-3"><h2>{data.loading?'Loading subitem…':'Subtask unavailable'}</h2><p role={data.error||tree&&!scopeMatches?'alert':'status'}>{data.error||(tree&&!scopeMatches?'Subitem unavailable in this project or Office.':'Verifying current subitem context.')}</p><button type="button" onClick={()=>void data.reload()}>Retry subitem</button><button type="button" onClick={close}>Close subtask detail</button></div>
- </InspectorPanel>{reviewSurface}</>;
+ </InspectorSurface>{reviewSurface}</>;
  const current:Subtask={...data.data.subtask,title:node.title,parentSubtaskId:node.parent_subtask_id||undefined,leadId:node.lead_id||undefined,
   assignedToIds:node.assigned_to_ids,siblingOrder:node.sibling_order,dueDate:node.due_date||undefined,isStandalone:node.is_standalone,status:node.status,isCompleted:node.status==='completed',percentComplete:node.percent_complete};
  const siblings=tree.nodes.map(node=>({id:node.id,title:node.title,parentSubtaskId:node.parent_subtask_id||undefined,position:node.sibling_order,siblingOrder:node.sibling_order,isStandalone:node.is_standalone,isCompleted:node.status==='completed'}));
@@ -67,17 +66,16 @@ function SubitemInspectorContent(props:SubitemInspectorProps&{controller:WorkTre
  const capabilities=selectSubitemInspectorCapabilities(tree,itemId,context!);
  const fundingTask:Task={...props.rootTask,assigneeId:tree.root.lead||undefined,recommendationLeadId:undefined};
  const reload=async()=>{await data.reload();props.onChanged?.();};
- return <><SubtaskWorkDrawerView current={current} parentTask={props.rootTask} prerequisite={prerequisite}
-  readOnly={!capabilities.execute} authorityPending={data.pending} canManageDeadline={capabilities.editDetails} visibleReviewer={reviewerId||undefined}
-  reviewersById={reviewersById} reviewerLoading={reviewerLoading} submissions={data.data.submissions} progressUpdates={data.data.progressUpdates} reload={reload} close={close} origin={origin}
-  context={<><SubitemContext node={node} tree={tree} rootTitle={props.rootTask.title} onOpenItem={openItem} onClose={close}/>
-   {reviewerId&&<div className="px-4 pt-3"><SubtaskReviewerBadge reviewer={reviewersById[reviewerId]} status={node.status} loading={reviewerLoading}/></div>}
-   {prerequisite&&!['completed','for_review'].includes(node.status)&&<p className="px-4 pt-3">Waiting for “{prerequisite.title}” to be approved.</p>}</>}
-  childWork={<SubitemChildWork itemId={itemId} controller={props.controller} readOnly={scopeReadOnly} executionBlocked={!!props.executionBlocked} onOpenItem={openItem} onReviewItem={reviewNode}/>}
-  workflow={<>
-   <nav aria-label="Subitem sections" className="flex gap-2">{(['work','activity'] as const).map(value=><button key={value} type="button" aria-current={section===value?'page':undefined} onClick={()=>void requestNavigation(()=>setSection(value))}>{value==='work'?'Work':'Activity'}</button>)}</nav>
+ if(reviewSurface)return <InspectorSurface presentation="page" open onClose={close} ariaLabel="Subitem evidence review" returnFocus={origin.returnFocus}>{reviewSurface}</InspectorSurface>;
+ return <InspectorSurface presentation="page" open onClose={close} ariaLabel={`Subtask: ${node.title}`} returnFocus={origin.returnFocus} onReturnFocus={origin.restoreFocus}>
+  <SubitemContext stuck={!!data.data.progressUpdates[0]?.blocker} node={node} tree={tree} rootTitle={props.rootTask.title} onOpenItem={openItem} onClose={close}/>
+  <nav className="task-page__tabs" aria-label="Subitem sections">{(['work','activity'] as const).map(value=><button key={value} type="button" aria-current={section===value?'page':undefined} onClick={()=>void requestNavigation(()=>setSection(value))}>{value==='work'?'Work':'Activity'}</button>)}</nav>
+  <div className="task-page__body subitem-page-body">
    {reviewError&&<p role="alert">{reviewError}</p>}
-   <div hidden={section!=='work'}><SubitemWorkflow task={fundingTask} subtask={current} prerequisite={prerequisite} capabilities={capabilities} pending={data.pending} submissions={data.data.submissions} progressUpdates={data.data.progressUpdates} onSaved={reload} onReview={()=>reviewNode(itemId)} currentReviewerName={!data.pending&&node.status==='for_review'&&reviewerId?reviewersById[reviewerId]?.name:undefined}/></div>
-   {section==='activity'&&<section aria-label="Subitem activity"><h3>Activity</h3><p>Work changes for this subitem and its children.</p><WorkActivity roots={[props.rootTask.id]} focusedNode={{rootId:props.rootTask.id,nodeId:itemId}} snapshot={data.tree}/></section>}
-  </>}/>{reviewSurface}</>;
+   {reviewerId&&<SubtaskReviewerBadge reviewer={reviewersById[reviewerId]} status={node.status} loading={reviewerLoading}/>}
+   <div hidden={section!=='work'} className="subitem-work-layout"><main><SubitemWorkflow task={fundingTask} subtask={current} prerequisite={prerequisite} capabilities={capabilities} pending={data.pending} submissions={data.data.submissions} progressUpdates={data.data.progressUpdates} onSaved={reload} onReview={()=>reviewNode(itemId)} currentReviewerName={!data.pending&&node.status==='for_review'&&reviewerId?reviewersById[reviewerId]?.name:undefined}/></main>
+   <section className="subitem-child-work"><SubitemChildWork itemId={itemId} controller={props.controller} readOnly={scopeReadOnly} executionBlocked={!!props.executionBlocked} onOpenItem={openItem} onReviewItem={reviewNode}/></section></div>
+   {section==='activity'&&<section aria-label="Subitem activity"><h3>Activity</h3><WorkActivity roots={[props.rootTask.id]} focusedNode={{rootId:props.rootTask.id,nodeId:itemId}} snapshot={data.tree}/></section>}
+  </div>
+ </InspectorSurface>;
 }
