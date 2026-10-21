@@ -1,7 +1,7 @@
 import {beforeEach,expect,it,vi} from 'vitest';
 import {extractTextFromPdf} from '../../src/app/features/proposal-import/services/pdfTextExtractor';
 const api=vi.hoisted(()=>({getDocument:vi.fn(),worker:{workerSrc:''}}));
-vi.mock('pdfjs-dist',()=>({getDocument:api.getDocument,GlobalWorkerOptions:api.worker}));
+vi.mock('pdfjs-dist/legacy/build/pdf.mjs',()=>({getDocument:api.getDocument,GlobalWorkerOptions:api.worker}));
 beforeEach(()=>vi.clearAllMocks());
 it('extracts all text chunks without requiring async stream iteration and releases resources',async()=>{
  const releaseLock=vi.fn(),destroy=vi.fn();let pageNumber=0;

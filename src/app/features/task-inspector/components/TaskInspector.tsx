@@ -1,4 +1,6 @@
 import {WorkActivity,supportsNestedWork,useWorkTree,type WorkTreeController} from '../../nested-work';
+import { isAppointedOfficeHead } from '../../../shared/officeAuthority';
+import { pendingTaskDependencies } from '../../tasks';
 import { StaffingDialog, staffingEntryReason } from '../../staffing';
 import { useOrgs } from '../../../hooks/useSupabaseData';
 import { InspectorHeader } from './InspectorHeader';
@@ -86,6 +88,7 @@ function TaskInspectorContent({
   const dependencies = (task.dependencyIds || [])
     .map((id) => tasks.find((candidate) => candidate.id === id))
     .filter((dependency): dependency is Task => Boolean(dependency));
+  const dependencyCount = task.dependencyIds?.length ? pendingTaskDependencies(task, tasks).length : 0;
 
 
   // Rework is now the first-class `changes_requested` state (plan §2.1).
@@ -93,6 +96,10 @@ function TaskInspectorContent({
   const currentUserIsLead = Boolean(user?.id && isTaskLead(task, user.id));
   const isOwnerOrLead = task.assigneeId === user?.id || currentUserIsLead;
   const canManageSubtasks = resolveSubtaskManagementCapability(readOnly || executionBlocked, currentUserIsLead);
+  // Fiscal authority belongs to the appointed Office Head, independently of
+  // task execution and project contributor selection.
+  const canAuthorizeFunding = !readOnly && !executionBlocked && !task.archivedAt &&
+    userProfile?.org_id === task.orgId && isAppointedOfficeHead(userProfile, orgs);
   const shared = officeState.offices.some(office => office.relationship_type !== 'lead');
   const teamBlocked = !supportsNestedWork(task) && (!!officeState.error || shared && userProfile?.role !== 'head');
   const canManageTaskTeam = !supportsNestedWork(task) && !teamBlocked && canManageSubtasks && !["for_review", "completed", "cancelled"].includes(task.status);
@@ -135,9 +142,9 @@ function TaskInspectorContent({
           {tab === 'overview' && <section aria-label="Task details" className="space-y-4 rounded-lg border border-neutral-200 p-3 mb-4">
             <div className="flex gap-2 flex-wrap"><TaskStatusBadge status={task.status} rejected={rejected}/><PriorityPill priority={task.priority}/></div>
             <TaskDepartmentLabel task={task}/>
-            <InspectorSummary task={task} projectTitle={operationalProject?.title} readOnly={readOnly} dependencies={dependencies} canManageSubtasks={canManageSubtasks} overdue={rel.overdue} authorityPending={!!controller&&(!controller.authorityFresh||controller.refreshPending||controller.pending)} fundingTask={controller?.data?{...task,assigneeId:controller.data.root.lead||undefined,recommendationLeadId:undefined}:undefined} budgetReadOnly={readOnly||!!task.archivedAt||executionBlocked||!!controller&&controller.data?.people.find(person=>person.id===user?.id)?.eligible!==true}/>
+            <InspectorSummary task={task} projectTitle={operationalProject?.title} readOnly={readOnly} dependencies={dependencies} canManageSubtasks={canManageSubtasks} canAuthorizeFunding={canAuthorizeFunding} overdue={rel.overdue} authorityPending={!!controller&&(!controller.authorityFresh||controller.refreshPending||controller.pending)} fundingTask={controller?.data?{...task,assigneeId:controller.data.root.lead||undefined,recommendationLeadId:undefined}:undefined} budgetReadOnly={readOnly||!!task.archivedAt||executionBlocked||!!controller&&controller.data?.people.find(person=>person.id===user?.id)?.eligible!==true}/>
           </section>}
-          {tab === 'work' && <div className="task-work-page"><section className="task-work-execution"><InspectorExecution initialAction={origin?.section==='report-blocker'?'stuck':origin?.section==='submit-work'?'submit':undefined} task={task} subtasks={taskSubtasks} canStart={canStart} canResume={canResume} canSubmit={canSubmit} canPostProgress={capabilities.canPostProgress} busy={lifecycle.busy} onStart={lifecycle.start} onChanged={onChanged} onSubmitted={() => { onChanged?.(); setTab('review'); }}/></section><InspectorWork onInspect={(id,section,origin)=>setOpenedSubitem({id,section,origin})} presentation={presentation} task={task} profiles={profiles} projectTitle={operationalProject?.title} controller={controller} canManageTaskTeam={canManageTaskTeam} canManageSubtasks={canManageSubtasks} currentUserIsLead={currentUserIsLead} readOnly={readOnly || executionBlocked || lifecycle.busy} onManage={() => setTeamEditorOpen(true)} staffingReason={staffingReason} onRecommend={() => setStaffingOpen(true)}/></div>}
+          {tab === 'work' && <div className="task-work-page"><section className="task-work-execution"><InspectorExecution pendingDependencies={dependencyCount} initialAction={origin?.section==='report-blocker'?'stuck':origin?.section==='submit-work'?'submit':undefined} task={task} subtasks={taskSubtasks} canStart={canStart} canResume={canResume} canSubmit={canSubmit} canPostProgress={capabilities.canPostProgress} busy={lifecycle.busy} onStart={lifecycle.start} onChanged={onChanged} onSubmitted={() => { onChanged?.(); setTab('review'); }}/></section><InspectorWork onInspect={(id,section,origin)=>setOpenedSubitem({id,section,origin})} presentation={presentation} task={task} profiles={profiles} projectTitle={operationalProject?.title} controller={controller} canManageTaskTeam={canManageTaskTeam} canManageSubtasks={canManageSubtasks} currentUserIsLead={currentUserIsLead} readOnly={readOnly || executionBlocked || lifecycle.busy} onManage={() => setTeamEditorOpen(true)} staffingReason={staffingReason} onRecommend={() => setStaffingOpen(true)}/></div>}
           {tab === 'updates' && <div className="space-y-5"><section aria-label="Task discussion"><h3>Discussion</h3><TaskDiscussion taskId={task.id} canParticipate={capabilities.canDiscuss}/></section><details className="work-secondary"><summary>Updates</summary><InspectorProgressUpdates taskId={task.id}/></details></div>}
           {tab === 'files' && <InspectorFiles task={task} readOnly={readOnly || executionBlocked}/>}
           {tab === 'activity' && <><TaskActivityTimeline taskId={task.id} projectId={task.linkedProjectId}/><WorkActivity roots={[task.id]}/></>}

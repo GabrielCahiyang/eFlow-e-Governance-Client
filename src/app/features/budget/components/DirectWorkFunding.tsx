@@ -11,7 +11,7 @@ import { peso } from "./budgetUi";
 
 export function DirectWorkFunding({ data,tasks,onChanged }: { data:DepartmentBudgetBundle; tasks:Task[]; onChanged:()=>Promise<void> }) {
   const [taskId,setTaskId]=useState(tasks.length===1?tasks[0].id:"");
-  const [lines,setLines]=useState<DirectFundingLine[]>([{partitionId:"",amount:0,particular:""}]);
+  const [lines,setLines]=useState<DirectFundingLine[]>(()=>[{partitionId:sectionLeaves(data.sections||[]).length===1?sectionLeaves(data.sections||[])[0].id:"",amount:tasks.length===1?tasks[0].budgetImpact||0:0,particular:""}]);
   const [reason,setReason]=useState("");
   const [busy,setBusy]=useState(false);
   const [message,setMessage]=useState("");

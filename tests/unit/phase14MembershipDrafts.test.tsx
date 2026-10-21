@@ -17,6 +17,16 @@ const base = { office, profiles, members: [], tasks: [], actorId: 'head', disabl
 let uninstall: (() => void) | undefined;
 beforeEach(() => { vi.clearAllMocks(); calls.confirm.mockResolvedValue(true); calls.read.mockResolvedValue([]); }); afterEach(() => { cleanup(); uninstall?.(); });
 describe('Phase 14 project membership editor', () => {
+ it('checks newly enrolled people on quiet refresh without replacing an unsaved selection',async()=>{
+  const view=render(<OfficeMembersEditor {...base}/>);
+  expect(screen.queryByRole('button',{name:'Reload selection'})).toBeNull();
+  view.rerender(<OfficeMembersEditor {...base} members={[{project_office_id:office.id,user_id:'m'}]}/>);
+  await waitFor(()=>expect((screen.getByRole('checkbox',{name:/Maria/}) as HTMLInputElement).checked).toBe(true));
+  fireEvent.click(screen.getByRole('checkbox',{name:/Maria/}));
+  view.rerender(<OfficeMembersEditor {...base} members={[{project_office_id:office.id,user_id:'m'},{project_office_id:office.id,user_id:'a'}]}/>);
+  expect((screen.getByRole('checkbox',{name:/Maria/}) as HTMLInputElement).checked).toBe(false);
+  expect((screen.getByRole('checkbox',{name:/Ana/}) as HTMLInputElement).checked).toBe(false);
+ });
  it('limits candidates to active own-Office non-Admins and guards cancellation while dirty', async () => {
   const close=vi.fn(),decision=vi.fn().mockResolvedValue(false); uninstall=installNavigationConfirmation(decision); render(<OfficeMembersEditor {...base} onCancel={close}/>);
   expect(screen.queryByText('Foreign')).toBeNull(); expect(screen.queryByText('Admin')).toBeNull(); fireEvent.click(screen.getByRole('checkbox',{name:/Maria/})); fireEvent.click(screen.getByRole('button',{name:'Cancel'})); await waitFor(()=>expect(decision).toHaveBeenCalledOnce()); expect(close).not.toHaveBeenCalled();
@@ -34,7 +44,7 @@ describe('Phase 14 project membership editor', () => {
  });
  it('blocks navigation during reads and rejects stale membership instead of overwriting it', async () => {
   let finish!:(ids:string[])=>void; calls.read.mockImplementation(()=>new Promise(r=>{finish=r;})); render(<OfficeMembersEditor {...base}/>); fireEvent.click(screen.getByRole('checkbox',{name:/Maria/})); const save=screen.getByRole('button',{name:'Save project team'}); fireEvent.click(save); fireEvent.click(save); expect(calls.read).toHaveBeenCalledOnce(); expect(await requestNavigation(vi.fn())).toBe(false);
-  await act(async()=>finish(['a'])); expect(screen.getByRole('alert').textContent).toContain('membership changed'); expect(calls.save).not.toHaveBeenCalled(); expect((screen.getByRole('checkbox',{name:/Maria/}) as HTMLInputElement).checked).toBe(true);
+  await act(async()=>finish(['a'])); expect(screen.getByRole('alert').textContent).toContain('project team changed'); expect(calls.save).not.toHaveBeenCalled(); expect((screen.getByRole('checkbox',{name:/Maria/}) as HTMLInputElement).checked).toBe(true);
  });
  it('keeps the existing draft visible but disabled when authority changes', () => {
   const view=render(<OfficeMembersEditor {...base}/>); const person=screen.getByRole('checkbox',{name:/Maria/}); fireEvent.click(person); view.rerender(<OfficeMembersEditor {...base} disabledReason="Office is now an observer"/>); expect((person as HTMLInputElement).checked).toBe(true); expect(person.matches(':disabled')).toBe(true); expect(screen.getByRole('status').textContent).toContain('observer');

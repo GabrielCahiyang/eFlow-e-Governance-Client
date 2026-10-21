@@ -41,6 +41,21 @@ describe("work funding merge boundaries", () => {
     render(<WorkBudgetCard task={task} canManage />);
     expect(screen.getByRole("button", { name: "Authorize work funding" })).toBeTruthy();
   });
+  it("offers appointed Head fiscal oversight without granting task staffing or cash execution", () => {
+    render(<WorkBudgetCard task={{...task,assigneeId:'member-lead'}} canManage={false} readOnly canAuthorizeFunding />);
+    expect(screen.getByRole('button',{name:'Authorize work funding'})).toBeTruthy();
+    expect(screen.queryByRole('button',{name:'Request cash'})).toBeNull();
+    expect(screen.queryByRole('button',{name:'Set cap'})).toBeNull();
+  });
+  it("keeps fiscal oversight blocked while authority refresh is pending", () => {
+    render(<WorkBudgetCard task={task} readOnly canAuthorizeFunding authorityPending />);
+    expect(screen.queryByRole('button',{name:'Authorize work funding'})).toBeNull();
+  });
+  it("does not turn a member's execution capability into Head funding authority", () => {
+    state.user={...state.user,role:'member'};
+    render(<WorkBudgetCard task={task} canManage canAuthorizeFunding />);
+    expect(screen.queryByRole('button',{name:'Authorize work funding'})).toBeNull();
+  });
   it.each([
     { status: "completed" }, { status: "cancelled" },
     { archivedAt: 1 }, { proposedOfficeIdentityId: "unresolved-office" },

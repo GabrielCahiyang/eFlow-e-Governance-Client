@@ -1,0 +1,386 @@
+{
+  "sha256": "60a1fc64b8ebc0d0f6da716003ae80c02d889a07c846c30a91e330a627050691",
+  "pages": 6,
+  "title": "Formulation of the 3-Year Ormoc City Economic Development and Strategic Investment Promotions Plan and 10-Year Investment Roadmap",
+  "total": 2156500,
+  "lineCount": 16,
+  "funds": [
+    {
+      "name": "CPDO",
+      "amount": 985000
+    },
+    {
+      "name": "LEDIPO",
+      "amount": 571500
+    },
+    {
+      "name": "Relevant LGU Offices",
+      "amount": 600000
+    }
+  ],
+  "phases": [
+    {
+      "title": "Part 1 — Inception and Planning Framework",
+      "schedule": "Month 1",
+      "description": "1. Kick Off Meeting 2. Preparation of the Detailed Work Plan and Timeline as part of the Inception Plan\nMethodology: Ø Technical Presentations Ø Facilitated Discussions Ø Open Forums Ø Document Review and Gap Analysis Ø Stakeholder Coordination Ø Results-Based Planning Ø Timeline Modeling Ø Iterative Technical Validation",
+      "tasks": [
+        {
+          "number": 1,
+          "title": "Kick Off Meeting",
+          "methodology": [
+            "Technical Presentations",
+            "Facilitated Discussions",
+            "Open Forums"
+          ],
+          "methodologyScope": "task",
+          "schedule": "Month 1"
+        },
+        {
+          "number": 2,
+          "title": "Preparation of the Detailed Work Plan and Timeline as part of the Inception Plan",
+          "methodology": [
+            "Document Review and Gap Analysis",
+            "Stakeholder Coordination",
+            "Results-Based Planning",
+            "Timeline Modeling",
+            "Iterative Technical Validation"
+          ],
+          "methodologyScope": "task",
+          "schedule": "Month 1"
+        }
+      ]
+    },
+    {
+      "title": "Part 2 — Situational Analysis / Area Profile",
+      "schedule": "Month 1-2",
+      "description": "3. Facilitation and Management of Sectoral Consultative Meetings and Technical Workshops\nMethodology: Ø Workshop with stakeholders S.W.O.T matrix (Strengths, Weakness, Opportunities and Threats",
+      "tasks": [
+        {
+          "number": 3,
+          "title": "Facilitation and Management of Sectoral Consultative Meetings and Technical Workshops",
+          "methodology": [
+            "Workshop with stakeholders S.W.O.T matrix (Strengths, Weakness, Opportunities and Threats"
+          ],
+          "methodologyScope": "task",
+          "schedule": "Month 1-2"
+        }
+      ]
+    },
+    {
+      "title": "Part 3 — Economic Diagnostic and Strategy Formulation",
+      "schedule": "Month 1 -2",
+      "description": "4. Technical Economic Diagnostic and Strategy Laboratory\nMethodology: Ø Cross-Sector Comparative Analysis Ø Competitiveness Assessment Ø Growth Driver Identification Ø Investment Screening Methodology Ø Strategic Clustering Ø Scenario-Based Strategy Development",
+      "tasks": [
+        {
+          "number": 4,
+          "title": "Technical Economic Diagnostic and Strategy Laboratory",
+          "methodology": [
+            "Cross-Sector Comparative Analysis",
+            "Competitiveness Assessment",
+            "Growth Driver Identification",
+            "Investment Screening Methodology",
+            "Strategic Clustering",
+            "Scenario-Based Strategy Development"
+          ],
+          "methodologyScope": "task",
+          "schedule": "Month 1 -2"
+        }
+      ]
+    },
+    {
+      "title": "Part 4 — Strategic Framework Development Workshop",
+      "schedule": "Month 3",
+      "description": "5. Visioning and Strategic Directions Workshop\nMethodology: Ø Guided visioning exercises Ø Technical presentations Ø Structured workshops Ø Breakout group discussions Ø Plenary validation sessions Ø Prioritization tools",
+      "tasks": [
+        {
+          "number": 5,
+          "title": "Visioning and Strategic Directions Workshop",
+          "methodology": [
+            "Guided visioning exercises",
+            "Technical presentations",
+            "Structured workshops",
+            "Breakout group discussions",
+            "Plenary validation sessions",
+            "Prioritization tools"
+          ],
+          "methodologyScope": "task",
+          "schedule": "Month 3"
+        }
+      ]
+    },
+    {
+      "title": "Part 5 — Benchmarking and Good Practices",
+      "schedule": "Month 3",
+      "description": "6. Strategic Benchmarking and Good Practice Integration\nMethodology: Ø Benchmarking",
+      "tasks": [
+        {
+          "number": 6,
+          "title": "Strategic Benchmarking and Good Practice Integration",
+          "methodology": [
+            "Benchmarking"
+          ],
+          "methodologyScope": "task",
+          "schedule": "Month 3"
+        }
+      ]
+    },
+    {
+      "title": "Part 6 — Draft 3- Year EDSP and 10-Year Roadmap",
+      "schedule": "Month 4",
+      "description": "7. Completion of the draft 3-Year EDSP and 10-Year Roadmap\nMethodology: Ø Evidence-based writing Ø Results-oriented planning Ø Logical framework integration Ø Investment-focused strategy articulation Ø Multi-level technical review",
+      "tasks": [
+        {
+          "number": 7,
+          "title": "Completion of the draft 3-Year EDSP and 10-Year Roadmap",
+          "methodology": [
+            "Evidence-based writing",
+            "Results-oriented planning",
+            "Logical framework integration",
+            "Investment-focused strategy articulation",
+            "Multi-level technical review"
+          ],
+          "methodologyScope": "task",
+          "schedule": "Month 4"
+        }
+      ]
+    },
+    {
+      "title": "Part 7 — Stakeholder Validation and Finalization",
+      "schedule": "Month 5",
+      "description": "8. Stakeholder Validation 9. Integration, Technical Finalization, and Institutional Endorsement\nMethodology: Ø Presentation to the Ormoc City Investment Incentives Board, ORCHAM and other bodies and Sanggunian Panlungsod",
+      "tasks": [
+        {
+          "number": 8,
+          "title": "Stakeholder Validation",
+          "methodology": [
+            "Presentation to the Ormoc City Investment Incentives Board, ORCHAM and other bodies and Sanggunian Panlungsod"
+          ],
+          "methodologyScope": "phase",
+          "schedule": "Month 5"
+        },
+        {
+          "number": 9,
+          "title": "Integration, Technical Finalization, and Institutional Endorsement",
+          "methodology": [
+            "Presentation to the Ormoc City Investment Incentives Board, ORCHAM and other bodies and Sanggunian Panlungsod"
+          ],
+          "methodologyScope": "phase",
+          "schedule": "Month 5"
+        }
+      ]
+    },
+    {
+      "title": "Part 8 — Final Outputs and Adoption",
+      "schedule": "Month 6",
+      "description": "10. Final Outputs and Adoption\nMethodology: Ø Final Plan Production Ø Council Presentation and Legislative Support Ø Enactment of the Enabling Measure Ø ·",
+      "tasks": [
+        {
+          "number": 10,
+          "title": "Final Outputs and Adoption",
+          "methodology": [
+            "Final Plan Production",
+            "Council Presentation and Legislative Support",
+            "Enactment of the Enabling Measure",
+            "·"
+          ],
+          "methodologyScope": "task",
+          "schedule": "Month 6"
+        }
+      ]
+    }
+  ],
+  "budgetLines": [
+    {
+      "sourceId": "budget-1",
+      "page": 5,
+      "expenseClass": "Professional Services",
+      "category": "Honoraria (Lead Consultant & Team)",
+      "particular": "Lead Consultant",
+      "amount": 325000,
+      "quantity": 1,
+      "unit": "lot",
+      "unitCost": 325000,
+      "fundSource": "CPDO"
+    },
+    {
+      "sourceId": "budget-2",
+      "page": 5,
+      "expenseClass": "Professional Services",
+      "category": "Honoraria (Lead Consultant & Team)",
+      "particular": "Sectoral Specialists (3 × P80,000)",
+      "amount": 240000,
+      "quantity": 3,
+      "unit": "unit",
+      "unitCost": 80000,
+      "fundSource": "CPDO"
+    },
+    {
+      "sourceId": "budget-3",
+      "page": 5,
+      "expenseClass": "Professional Services",
+      "category": "Honoraria (Lead Consultant & Team)",
+      "particular": "Research Assistants (2 × P60,000)",
+      "amount": 120000,
+      "quantity": 2,
+      "unit": "unit",
+      "unitCost": 60000,
+      "fundSource": "CPDO"
+    },
+    {
+      "sourceId": "budget-4",
+      "page": 5,
+      "expenseClass": "Professional Services",
+      "category": "Honoraria (Lead Consultant & Team)",
+      "particular": "Community Enumerators (5 × P1,000)",
+      "amount": 5000,
+      "quantity": 5,
+      "unit": "unit",
+      "unitCost": 1000,
+      "fundSource": "CPDO"
+    },
+    {
+      "sourceId": "budget-5",
+      "page": 5,
+      "expenseClass": "Professional Services",
+      "category": "Documentation & Technical Writing",
+      "particular": "Technical Writer",
+      "amount": 45000,
+      "quantity": 1,
+      "unit": "lot",
+      "unitCost": 45000,
+      "fundSource": "CPDO"
+    },
+    {
+      "sourceId": "budget-6",
+      "page": 5,
+      "expenseClass": "Professional Services",
+      "category": "Documentation & Technical Writing",
+      "particular": "Documentation Officer",
+      "amount": 30000,
+      "quantity": 1,
+      "unit": "lot",
+      "unitCost": 30000,
+      "fundSource": "CPDO"
+    },
+    {
+      "sourceId": "budget-7",
+      "page": 5,
+      "expenseClass": "Professional Services",
+      "category": "Documentation & Technical Writing",
+      "particular": "Editing & Layout",
+      "amount": 30000,
+      "quantity": 1,
+      "unit": "lot",
+      "unitCost": 30000,
+      "fundSource": "CPDO"
+    },
+    {
+      "sourceId": "budget-8",
+      "page": 5,
+      "expenseClass": "Professional Services",
+      "category": "Coordination & Admin Support",
+      "particular": "Project Coordinator",
+      "amount": 40000,
+      "quantity": 1,
+      "unit": "lot",
+      "unitCost": 40000,
+      "fundSource": "CPDO"
+    },
+    {
+      "sourceId": "budget-9",
+      "page": 5,
+      "expenseClass": "Professional Services",
+      "category": "Coordination & Admin Support",
+      "particular": "Admin Assistant / Support Staff",
+      "amount": 30000,
+      "quantity": 1,
+      "unit": "lot",
+      "unitCost": 30000,
+      "fundSource": "CPDO"
+    },
+    {
+      "sourceId": "budget-10",
+      "page": 5,
+      "expenseClass": "Professional Services",
+      "category": "Resource Speakers",
+      "particular": "Guest Facilitators (5 × P8,000)",
+      "amount": 40000,
+      "quantity": 5,
+      "unit": "unit",
+      "unitCost": 8000,
+      "fundSource": "CPDO"
+    },
+    {
+      "sourceId": "budget-11",
+      "page": 5,
+      "expenseClass": "Professional Services",
+      "category": "Report Finalization & Presentation",
+      "particular": "Final Presentation & Slide Preparation",
+      "amount": 25000,
+      "quantity": 1,
+      "unit": "lot",
+      "unitCost": 25000,
+      "fundSource": "CPDO"
+    },
+    {
+      "sourceId": "budget-12",
+      "page": 5,
+      "expenseClass": "Professional Services",
+      "category": "Report Finalization & Presentation",
+      "particular": "Incorporation of Feedback & Final Print Files",
+      "amount": 25000,
+      "quantity": 1,
+      "unit": "lot",
+      "unitCost": 25000,
+      "fundSource": "CPDO"
+    },
+    {
+      "sourceId": "budget-13",
+      "page": 5,
+      "expenseClass": "Professional Services",
+      "category": "Benchmarking Travel",
+      "particular": "Travel expense for Benchmarking Site Visit",
+      "amount": 30000,
+      "quantity": 1,
+      "unit": "lot",
+      "unitCost": 30000,
+      "fundSource": "CPDO"
+    },
+    {
+      "sourceId": "budget-14",
+      "page": 5,
+      "expenseClass": "Other Expenses",
+      "category": "Workshop and Consultation",
+      "particular": "Meals (610 pax @ P350 /pax) Snacks (610 pax @ P150/pax x 2 snacks/ day)",
+      "amount": 396500,
+      "quantity": 1,
+      "unit": "lot",
+      "unitCost": 396500,
+      "fundSource": "LEDIPO"
+    },
+    {
+      "sourceId": "budget-15",
+      "page": 5,
+      "expenseClass": "Other Expenses",
+      "category": "Benchmarking Activities",
+      "particular": "Provision for Travel Expenses (20 pax × ₱30,000) Chargeable to the respective office funds for LGU personnel, subject to availability of funds.",
+      "amount": 600000,
+      "quantity": 20,
+      "unit": "unit",
+      "unitCost": 30000,
+      "fundSource": "Relevant LGU Offices"
+    },
+    {
+      "sourceId": "budget-16",
+      "page": 5,
+      "expenseClass": "Other Expenses",
+      "category": "Production of Promotional Collaterals",
+      "particular": "Brochure (500 pcs @ P350/pc)",
+      "amount": 175000,
+      "quantity": 500,
+      "unit": "unit",
+      "unitCost": 350,
+      "fundSource": "LEDIPO"
+    }
+  ]
+}

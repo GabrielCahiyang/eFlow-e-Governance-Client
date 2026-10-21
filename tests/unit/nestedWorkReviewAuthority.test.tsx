@@ -56,7 +56,9 @@ describe('NW4.2 current reviewer queue, adapter and inbox parity',()=>{
  });
  it('renders the replacement reviewer queue and decides using the canonical subtask ID',async()=>{
   const view=render(<SubtaskReviewInbox embedded onShowTasks={vi.fn()}/>);
-  const approve=await screen.findByRole('button',{name:'Approve evidence'});
+  // Queue hydration, selection and evidence rendering span separate effects.
+  // Keep the permission/command assertions intact while allowing a cold Vibe render.
+  const approve=await screen.findByRole('button',{name:'Approve evidence'}, {timeout:3000});
   await waitFor(()=>expect(screen.getByRole('link',{name:'evidence.pdf'}).getAttribute('href')).toBe('https://example.test/scoped-evidence'));
   expect(mocks.signed).toHaveBeenCalledWith(path,600);
   fireEvent.click(approve);

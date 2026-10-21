@@ -23,7 +23,7 @@ export function OfficeIdentityActions({ identity, invitation, tasks, ready, link
     {!!tasks.length && <ul className="po-office-responsibilities">{tasks.map(task => <li key={task.id}>
       <span>{task.title} · proposed responsibility</span>
       {canManage && <button disabled={busy || !ready} onClick={() => onResolve(task)}>Resolve task responsibility</button>}
-      {!ready && <small className="po-office-detail">Directory linking and the Office Head’s confirmation are required.</small>}
+      {!ready && <small className="po-office-detail">Invite project people to this Office, or link a directory Office for its existing Head-led workflow.</small>}
     </li>)}</ul>}
   </>;
 }

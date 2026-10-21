@@ -1,0 +1,13 @@
+{
+  "files": 338,
+  "cases": 2046.0,
+  "initial_passed_files": 22,
+  "remaining_batch_files": 316,
+  "initial_failed_files": [
+    "phase1Terminology.test.ts",
+    "pdfOfficeExtraction.test.ts",
+    "officeTableRows.test.ts"
+  ],
+  "corrected_rerun_cases": 11,
+  "corrected_rerun_result": "passed"
+}

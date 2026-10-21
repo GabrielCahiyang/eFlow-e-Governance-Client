@@ -12,7 +12,8 @@ describe('one Project Offices table', () => {
   it('shows named and directory Offices in the same list without inventing joined participation', () => {
     const rows = officeTableRows([office], [named], name, []);
     expect(rows.map(r => r.name)).toEqual(['LEDIPO','New Office']);
-    expect(rows[1].statusLabel).toBe('Planning only');
+    expect(rows[1].statusLabel).toBe('Needs contact');
+    expect(rows[1].needsAttention).toBe(true);
     expect(rows[1].participation).toBeUndefined();
   });
   it('merges a linked identity into exactly one participation row and preserves source context', () => {

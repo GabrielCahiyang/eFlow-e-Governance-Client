@@ -1,0 +1,55 @@
+[
+  {
+    "report": ".codex-tmp/rem-project-full-suite.json",
+    "total": 1991,
+    "passed": 1981,
+    "failed": 10,
+    "success": false,
+    "failures": [
+      "NW4.2 Main Table collapse preserves required descendant readiness keeps a required depth-1 descendant in readiness while the real task row is collapsed",
+      "NW5.4 current reads and owners retains a dirty editor on timer failure and blocks saving until retry succeeds",
+      "NW4.2 current reviewer queue, adapter and inbox parity renders the replacement reviewer queue and decides using the canonical subtask ID",
+      "canonical staffing dialog capability and commands lets the Head choose a first lead and add collaborators in the same save",
+      "Phase 02 account utility shows human-readable account context and retains settings and logout actions",
+      "Phase 14 invitation drafts retains only unsuccessful rows after partial creation and retries without duplicating successful invitations",
+      "active production terminology keeps legacy vocabulary out of display copy while preserving database and employment identifiers",
+      "project portfolio and route restoration preserves the canonical Settings route through the global URL preference boundary",
+      "My Work task page uses the main content region with all six sections and no drawer",
+      "R2 persistent workspace navigation retains expanded Office tools and project sections across Tasks and Reports without removed entries"
+    ]
+  },
+  {
+    "report": ".codex-tmp/rem-project-suite-rerun.json",
+    "total": 138,
+    "passed": 137,
+    "failed": 1,
+    "success": false,
+    "failures": [
+      "NW4.2 current reviewer queue, adapter and inbox parity renders the replacement reviewer queue and decides using the canonical subtask ID"
+    ]
+  },
+  {
+    "report": ".codex-tmp/rem-review-authority-final.json",
+    "total": 7,
+    "passed": 7,
+    "failed": 0,
+    "success": true,
+    "failures": []
+  },
+  {
+    "report": ".codex-tmp/rem-settings-regressions.json",
+    "total": 20,
+    "passed": 20,
+    "failed": 0,
+    "success": true,
+    "failures": []
+  },
+  {
+    "report": ".codex-tmp/rem-standalone.json",
+    "total": 2,
+    "passed": 2,
+    "failed": 0,
+    "success": true,
+    "failures": []
+  }
+]

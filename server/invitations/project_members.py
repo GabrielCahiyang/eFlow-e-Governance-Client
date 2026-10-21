@@ -20,6 +20,14 @@ def rpc(name, params):
         detail = message if any(message.startswith(value) for value in allowed) else 'Project invitation could not finish. Refresh its status and retry.'
         raise HTTPException(409, detail) from exc
 
+def office_context(item):
+    if not item.get('id'):
+        return item
+    rows = supabase_admin.table('project_office_people').select('participation_role,office:project_office_identities(display_name)').eq('request_id', item['id']).limit(1).execute().data
+    if isinstance(rows, list) and rows and isinstance(rows[0].get('office'), dict):
+        return {**item, 'office_name': rows[0]['office']['display_name'], 'project_participation_role': rows[0]['participation_role']}
+    return item
+
 
 def dispatch(user, request_id, revision, resend=False):
     base = app_url()
@@ -30,7 +38,7 @@ def dispatch(user, request_id, revision, resend=False):
     provider_id, error = None, None
     try:
         # Reserve and lookup both recheck current authority. No raw token is stored.
-        context = rpc('r8_lookup', {'p_hash': hashed})
+        context = office_context(rpc('r8_lookup', {'p_hash': hashed}))
         link = base + '/accept-project-invite?' + urlencode({'token': token})
         provider_id = send_email(item['email'], project_member_email(context, link),
                                  'project-invite/' + request_id + '/' + hashed[:32])
@@ -45,7 +53,7 @@ def dispatch(user, request_id, revision, resend=False):
 
 
 def validate(token):
-    item = rpc('r8_lookup', {'p_hash': token_hash(token)})
+    item = office_context(rpc('r8_lookup', {'p_hash': token_hash(token)}))
     # No tokens, claims, uploader IDs or raw PDS metadata on the public endpoint.
     return {key: item.get(key) for key in ('id', 'email', 'office_name', 'project_title', 'project_id',
             'needs_full_name', 'home_workspace_id', 'kind', 'engagement', 'access_end', 'until_close', 'expires_at', 'existing_account', 'summary', 'skills')}

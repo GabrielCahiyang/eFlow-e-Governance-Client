@@ -1,16 +1,18 @@
 import type { Invitation } from '../invitations';
 import type { OfficeIdentity, ProjectOffice } from './types';
 import { officeParticipation } from './presentation';
+import {officePersonStatus,type OfficePerson} from './services/officePeople';
 
 export interface OfficeTableRow {
   key: string; name: string; contact: string; status: string; statusLabel: string;
   relationship: ProjectOffice['relationship_type'];
   participation?: ProjectOffice; identity?: OfficeIdentity;
+  peopleCount?:number;needsAttention?:boolean;
 }
 export interface OfficeTableFilters { query: string; relationship: string; status: string }
 
 /** Join existing records for display, without inventing participation. */
-export function officeTableRows(offices: ProjectOffice[], identities: OfficeIdentity[], name: (id: string) => string, invitations: Invitation[]): OfficeTableRow[] {
+export function officeTableRows(offices: ProjectOffice[], identities: OfficeIdentity[], name: (id: string) => string, invitations: Invitation[], people:OfficePerson[]=[]): OfficeTableRow[] {
   const visible = identities.filter(i => !i.provenance.removed);
   const matches = (o: ProjectOffice, i: OfficeIdentity) => i.project_office_id === o.id || i.canonical_office_id === o.office_id;
   const canonical = offices.map(o => {
@@ -22,14 +24,17 @@ export function officeTableRows(offices: ProjectOffice[], identities: OfficeIden
         ? 'Contact invitation required' : officeParticipation(o, invitation), participation: o, identity };
   });
   const named = visible.filter(i => !offices.some(o => matches(o, i))).map(i => {
+    const guests=people.filter(person=>person.identity_id===i.id),joined=guests.filter(person=>person.active),pending=guests.filter(person=>person.invitation.state==='approved');
     const invitation = invitations.find(invite => invite.project_office_identity_id === i.id);
     const label = invitation?.status === 'expired' ? 'Contact invitation expired' :
       i.contact_status === 'accepted' ? 'Contact accepted' : i.contact_status === 'invited' ? 'Contact invited' :
         i.contact_status === 'revoked' ? 'Invitation revoked' : 'Planning only';
     const status = i.contact_status === 'accepted' ? 'contact_accepted' : i.contact_status === 'invited' ? 'pending' :
       i.contact_status === 'revoked' ? 'revoked' : 'planning';
-    return { key: i.id, name: i.display_name, contact: i.contact_email || '', relationship: i.relationship_type,
-      status, statusLabel: label, identity: i };
+    return { key: i.id, name: i.display_name, contact: i.contact_email || pending[0]?.invitation.email || joined[0]?.invitation.email || '', relationship: i.relationship_type,
+      status:guests.length?joined.length?'joined':pending.length?'pending':'planning':status,
+      statusLabel:guests.length?joined.length?'Joined':officePersonStatus(pending[0]||guests[0]):i.contact_status==='none'?'Needs contact':label,
+      identity: i,peopleCount:joined.length,needsAttention:guests.length?!joined.length:i.contact_status!=='accepted' };
   });
   return [...canonical, ...named];
 }

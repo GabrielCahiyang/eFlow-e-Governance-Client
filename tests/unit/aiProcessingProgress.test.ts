@@ -5,6 +5,12 @@ vi.mock("../../src/lib/supabaseService", () => ({ fetchConfig: vi.fn().mockResol
 import { requestAiChat } from "../../src/app/features/ai/services/aiGatewayService";
 
 describe("real proposal queue progress", () => {
+  it("keeps the PDF table operation when submitting through the gateway", async () => {
+    api.fetch.mockReset().mockResolvedValue(new Response(JSON.stringify({ job_id: "pdf", status: "completed", result: { message: { content: "{}" } } })));
+    const pdf = { schemaVersion: 1 as const, tasks: [{ key: "task-1", title: "Meeting", methodology: [], schedule: "Month 1" }], costs: [{ sourceId: "budget-1" }] };
+    await requestAiChat({ messages: [{ role: "user", content: "PDF" }], pdf_table_enrichment: pdf }, {});
+    expect(JSON.parse(api.fetch.mock.calls[0][1].body).pdf_table_enrichment).toEqual(pdf);
+  });
   it("forwards actual stages and preserves the original completed response", async () => {
     const result = { message: { role: "assistant", content: "Generated work plan" } };
     const response = (status: string, progress?: object) => new Response(JSON.stringify({ job_id: "job", status, position: 1, jobs_ahead: 0, queue_depth: 1, progress, result: status === "completed" ? result : null, error: null }));

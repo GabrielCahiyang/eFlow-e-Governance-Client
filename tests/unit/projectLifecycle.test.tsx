@@ -7,7 +7,9 @@ vi.mock('../../src/app/contexts/AuthContext',()=>({useAuth:()=>({userProfile:api
 vi.mock("../../src/app/features/projects/services/projectLifecycleService", () => ({ fetchProjectCompletionReadiness: api.readiness, completeProject: api.complete }));
 vi.mock("../../src/app/features/tasks", () => ({ tasksForProject: (tasks: unknown[]) => tasks }));
 import { ProjectCompleteDialog } from "../../src/app/features/projects/components/ProjectCompleteDialog";
-import { ProjectContextSidebar } from "../../src/app/features/projects/components/ProjectContextSidebar";
+import { ProjectUtilities } from "../../src/app/features/projects/components/project-command/ProjectUtilities";
+import { ProjectIndex } from "../../src/app/features/projects/components/ProjectIndex";
+import { ProjectWorkspaceActions } from "../../src/app/features/projects/components/ProjectWorkspaceActions";
 
 const project: Project = { id: "project-1", title: "Project Issa", description: "", status: "active", priority: "medium", createdAt: 1, updatedAt: 1 };
 const ready = { projectId: project.id, title: project.title, status: "active", canComplete: true, blockers: [] };
@@ -16,63 +18,39 @@ function dialog() {
   render(<ProjectCompleteDialog {...props} />);
   return props;
 }
-function sidebar(projects: Project[], managed = true) {
-  const props = { projects, canAdd: managed, onCreateProject: vi.fn(), canArchive: managed, canComplete: managed, canDelete: managed, onOpenPortfolio: vi.fn(), onOpenProject: vi.fn(), onCompleteProject: vi.fn(), onArchiveProject: vi.fn(), onRestoreProject: vi.fn(), onDeleteProject: vi.fn(), profiles: [], summaries: new Map(), tasks: [], projectMembers: [], planningCounts: { workplans: 0, signoff: 0, actionable: 0 }, planningView: "portfolio" as const, onOpenPlanning: vi.fn() };
-  const view = render(<ProjectContextSidebar {...props} />);
-  return { ...view, props };
+function utilities(status:Project['status']='active',managed=true){
+ const props={complete:vi.fn(),archive:vi.fn(),restore:vi.fn(),delete:vi.fn()};
+ const view=render(<ProjectUtilities project={{...project,status}} canManage={managed} lifecycle={managed?props:{}} userId="head" contextId="office" authorizedProjectIds={[project.id]} view="tasks" onOpenOffices={vi.fn()} onOpenSettings={vi.fn()} onResolveView={vi.fn()}/>);
+ return {...view,props};
 }
-beforeEach(() => { vi.clearAllMocks();api.actor.role='head';api.actor.is_active=true; api.readiness.mockReset().mockResolvedValue(ready); api.complete.mockReset().mockResolvedValue(undefined); });
-afterEach(cleanup);
+beforeEach(() => { localStorage.clear(); vi.stubGlobal('requestAnimationFrame',(cb:FrameRequestCallback)=>{cb(0);return 1;}); vi.clearAllMocks();api.actor.role='head';api.actor.is_active=true; api.readiness.mockReset().mockResolvedValue(ready); api.complete.mockReset().mockResolvedValue(undefined); });
+afterEach(()=>{cleanup();vi.unstubAllGlobals();});
 
-describe("project dropdown lifecycle", () => {
-  it("retains project creation and switching while removing duplicate Planning navigation", () => {
-    const { props } = sidebar([project]);
-    fireEvent.click(screen.getByRole("button", { name: "Create project", exact: true }));
-    expect(props.onCreateProject).toHaveBeenCalledOnce();
-    expect(screen.queryByRole("button", { name: "Create work plan", exact: true })).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "Project Issa", exact: true }));
-    expect(props.onOpenProject).toHaveBeenCalledWith(project.id);
-    expect(screen.queryByRole("button", { name: /^Drafts/ })).toBeNull();
-    expect(screen.queryByText("Team Members")).toBeNull();
-  });
-
-  it("offers completion but disables archive for active work", async () => {
-    const { props } = sidebar([project]);
-    fireEvent.click(screen.getByRole("button", { name: "Open Project Issa actions" }));
-    const archive = await screen.findByRole("menuitem", { name: "Archive (complete first)" });
-    fireEvent.mouseEnter(archive); fireEvent.click(archive);
-    expect(props.onArchiveProject).not.toHaveBeenCalled();
-    const complete = screen.getByRole("menuitem", { name: "Mark project complete" });
-    await waitFor(()=>expect(complete.getAttribute('aria-disabled')).not.toBe('true'));
-    fireEvent.mouseEnter(complete); fireEvent.click(complete);
-    await waitFor(() => expect(props.onCompleteProject).toHaveBeenCalledWith(project.id, project.title));
-  });
-  it("offers archive instead of completion after completion", async () => {
-    const { props } = sidebar([{ ...project, status: "completed" }]);
-    fireEvent.click(screen.getByRole("button", { name: "Open Project Issa actions" }));
-    const archive = await screen.findByRole("menuitem", { name: "Archive project" });
-    fireEvent.mouseEnter(archive); fireEvent.click(archive);
-    await waitFor(() => expect(props.onArchiveProject).toHaveBeenCalledWith(project.id, project.title));
-    expect(screen.queryByRole("menuitem", { name: "Mark project complete" })).toBeNull();
-  });
-  it("moves archived projects out of the active list, retaining explicit history and restore", async () => {
-    const { container, props } = sidebar([{ ...project, status: "archived" }]);
-    const archive = screen.getByText('Archived projects (1)').closest('details')!;
-    expect(archive.open).toBe(false);
-    expect(container.querySelector(".eflow-project-context__list")?.textContent).not.toContain("Project Issa");
-    fireEvent.click(screen.getByText("Archived projects (1)"));
-    fireEvent.click(screen.getByRole("button", { name: "Open Project Issa actions" }));
-    const restore = await screen.findByRole("menuitem", { name: "Restore project" });
-    fireEvent.mouseEnter(restore); fireEvent.click(restore);
-    await waitFor(() => expect(props.onRestoreProject).toHaveBeenCalledWith(project.id, project.title));
-    expect(screen.queryByRole("menuitem", { name: "Mark project complete" })).toBeNull();
-    expect(screen.queryByRole("menuitem", { name: "Archive project" })).toBeNull();
-  });
-  it("keeps employee/read-only viewers from lifecycle controls", () => {
-    sidebar([project], false);
-    expect(screen.queryByRole("button", { name: /actions/ })).toBeNull();
-    expect(screen.queryByRole("button", { name: "Create project", exact: true })).toBeNull();
-  });
+describe('canonical project lifecycle controls',()=>{
+ it('hides setup after activation',()=>{
+  utilities('active');expect(screen.queryByRole('button',{name:'Setup & activation'})).toBeNull();
+ });
+ it('keeps creation and portfolio switching without a second sidebar',async()=>{
+  const create=vi.fn(),open=vi.fn();render(<><ProjectWorkspaceActions canCreate onAllProjects={vi.fn()} onCreate={create} onWorkPlan={vi.fn()} onImport={vi.fn()} onTemplates={vi.fn()} onSavedPlans={vi.fn()} onReviewPlans={vi.fn()}/><ProjectIndex projects={[project]} tasks={[]} organizations={[]} profiles={[]} onOpen={open} onOpenProposal={vi.fn()}/></>);
+  fireEvent.keyDown(screen.getByRole('button',{name:'+ New'}),{key:'Enter'});
+  fireEvent.click(screen.getByRole('menuitem',{name:'Create project'}));await waitFor(()=>expect(create).toHaveBeenCalledOnce());
+  fireEvent.click(screen.getByRole('button',{name:project.title,exact:true}));expect(open).toHaveBeenCalledWith(project.id);expect(screen.queryByRole('complementary')).toBeNull();
+ });
+ it('offers completion and denies archive until completed',async()=>{
+  const {props}=utilities();fireEvent.keyDown(screen.getByRole('button',{name:'Project actions'}),{key:'Enter'});
+  const archive=await screen.findByRole('menuitem',{name:'Archive project'});expect(archive.getAttribute('aria-disabled')).toBe('true');fireEvent.click(archive);expect(props.archive).not.toHaveBeenCalled();
+  const complete=screen.getByRole('menuitem',{name:'Mark project complete'});await waitFor(()=>expect(complete.getAttribute('aria-disabled')).not.toBe('true'));fireEvent.click(complete);await waitFor(()=>expect(props.complete).toHaveBeenCalledOnce());
+ });
+ it('offers archive after completion',async()=>{
+  const {props}=utilities('completed');fireEvent.keyDown(screen.getByRole('button',{name:'Project actions'}),{key:'Enter'});fireEvent.click(await screen.findByRole('menuitem',{name:'Archive project'}));await waitFor(()=>expect(props.archive).toHaveBeenCalledOnce());expect(screen.queryByRole('menuitem',{name:'Mark project complete'})).toBeNull();
+ });
+ it('offers restore and delete in an archived project',async()=>{
+  const {props}=utilities('archived');fireEvent.keyDown(screen.getByRole('button',{name:'Project actions'}),{key:'Enter'});fireEvent.click(await screen.findByRole('menuitem',{name:'Restore project'}));await waitFor(()=>expect(props.restore).toHaveBeenCalledOnce());
+  fireEvent.keyDown(screen.getByRole('button',{name:'Project actions'}),{key:'Enter'});fireEvent.click(await screen.findByRole('menuitem',{name:'Delete project'}));await waitFor(()=>expect(props.delete).toHaveBeenCalledOnce());expect(screen.queryByRole('menuitem',{name:'Archive project'})).toBeNull();
+ });
+ it('keeps read-only viewers from lifecycle changes while retaining account-scoped favorites',async()=>{
+  utilities('active',false);fireEvent.click(screen.getByRole('button',{name:'Add project to favorites'}));expect(screen.getByRole('button',{name:'Remove project from favorites'})).toBeTruthy();fireEvent.keyDown(screen.getByRole('button',{name:'Project actions'}),{key:'Enter'});await screen.findByRole('menuitem',{name:'Project settings'});expect(screen.queryByRole('menuitem',{name:'Mark project complete'})).toBeNull();expect(screen.queryByRole('menuitem',{name:'Delete project'})).toBeNull();
+ });
 });
 
 describe("project completion confirmation", () => {

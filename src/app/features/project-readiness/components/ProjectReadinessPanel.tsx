@@ -54,7 +54,7 @@ export function ProjectReadinessPanel({ project, canManage, onResolve, refreshKe
    <p>{data.stage} · {data.checks.filter(check=>check.ok).length} of {data.checks.length} checks confirmed</p>
    {data.governed && <p>Proposal endorsement and approval remain in Proposal Context. {onResolve && <button type="button" className="p7-link" onClick={()=>onResolve('proposal_context')}>Open proposal review</button>}</p>}
    <ul>{data.checks.map(check=>{const resolution=readinessResolution(check.key,data.governed);return <li key={check.key}>
-    <strong>{check.label} · {check.ok?'Confirmed':'Needs attention'}</strong><p>{check.detail}</p>
+    <strong>{check.label} · {check.ok?'Confirmed':'Needs attention'}</strong><p>{check.key==='schedule'&&check.ok?'Project dates are set and the schedule is valid.':check.detail}</p>
     <div>{canManage && !closed && !data.governed && ['structure','dates','budget'].includes(check.key) && <Button type="button" variant="outline" disabled={busy||Boolean(current.error)||check.ok} onClick={()=>void run(()=>reviewProject(project.id,check.key as ReviewKind),check.label+' confirmed.')}>{check.ok?'Reviewed':'Confirm review'}</Button>}
      {!check.ok && resolution && onResolve && <Button type="button" variant="ghost" disabled={busy} onClick={()=>onResolve(resolution.view)}>{resolution.label}</Button>}</div>
    </li>;})}</ul>

@@ -106,7 +106,7 @@ export function ProjectPlanInspector({
     const issue = scheduleRangeError(form.startDate, form.targetDate, project.startDate || '', project.targetDate || '');
     if (issue) { toast(issue, 'error'); return; }
     try {
-      await updateProject(project.id, form);
+      await updateProject(project.id, form, project.metadataVersion);
       toast("Project plan settings updated.", "success");
     } catch (error: any) {
       toast(error?.message || "Could not update the project settings.", "error");

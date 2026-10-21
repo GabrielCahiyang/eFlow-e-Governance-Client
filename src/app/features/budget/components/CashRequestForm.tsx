@@ -53,6 +53,10 @@ export function CashRequestForm({
     [correction, lineId, selectedLine?.available],
   );
 
+  const overAvailable = amount > requestable || extraLines.some(line =>
+    line.amount > (context.lines.find(source => source.id === line.allocationLineId)?.available || 0));
+  const duplicateSources = new Set([lineId, ...extraLines.map(line => line.allocationLineId)]).size !== extraLines.length + 1;
+
   const submit = async () => {
     if (readOnly || busy || !selectedLine) return;
     if (pastNeededBy) {
@@ -92,8 +96,8 @@ export function CashRequestForm({
   return (
     <fieldset disabled={readOnly || busy} className="mt-3 space-y-3 rounded-xl border border-emerald-200 bg-white p-3">
       <div>
-        <div className="text-[10.5px] font-semibold text-neutral-900">{correction ? "Correct cash request" : "What needs to be purchased?"}</div>
-        <div className="mt-0.5 text-[9px] text-neutral-500">
+        <div className="text-[13px] font-semibold text-neutral-900">{correction ? "Correct cash request" : "What needs to be purchased?"}</div>
+        <div className="mt-0.5 text-[13px] text-neutral-500">
           {currentUserId === context.taskLeaderId
             ? "Your task-level request skips self-endorsement and routes directly to fiscal authorization."
             : "Submitting reserves the amount immediately. Your Task Leader endorses it before fiscal authorization."}
@@ -105,8 +109,8 @@ export function CashRequestForm({
         <p className="text-[12px] font-semibold">Request total: {peso.format(amount+extraLines.reduce((sum,l)=>sum+l.amount,0))}</p>
       </div>}
       <label className="block">
-        <span className="text-[9.5px] text-neutral-500">Proposal budget line and fund source</span>
-        <select value={lineId} onChange={(event) => { setLineId(event.target.value); setAmount(0); }} className="mt-1 h-9 w-full rounded-lg border border-emerald-200 bg-white px-2.5 text-[10px]">
+        <span className="text-[13px] text-neutral-500">Proposal budget line and fund source</span>
+        <select value={lineId} onChange={(event) => { setLineId(event.target.value); setAmount(0); }} className="mt-1 h-9 w-full rounded-lg border border-emerald-200 bg-white px-2.5 text-[13px]">
           <option value="">Select accounting source…</option>
           {context.lines.map((line) => (
             <option key={line.id} value={line.id} disabled={line.available <= 0 && correction?.allocationLineId !== line.id}>
@@ -115,7 +119,9 @@ export function CashRequestForm({
           ))}
         </select>
       </label>
-      {selectedLine && <div className="rounded-lg bg-emerald-50 px-3 py-2 text-[9.5px] text-emerald-800">Requestable now: <strong>{peso.format(requestable)}</strong></div>}
+      {selectedLine && <div className="rounded-lg bg-emerald-50 px-3 py-2 text-[13px] text-emerald-800">Requestable now: <strong>{peso.format(requestable)}</strong></div>}
+      {overAvailable && <p role="alert" className="rounded-lg border border-rose-200 bg-rose-50 p-3 text-[12px] text-rose-700">The amount exceeds the available funding. Reduce it or choose another approved source.</p>}
+      {duplicateSources && <p role="alert" className="rounded-lg border border-rose-200 bg-rose-50 p-3 text-[12px] text-rose-700">Each funding source can be selected only once.</p>}
       <div className="grid gap-2 sm:grid-cols-2">
         <Field label="Amount" type="number" value={amount || ""} onChange={(value) => setAmount(Number(value))} />
         <Field
@@ -128,28 +134,28 @@ export function CashRequestForm({
         />
       </div>
       {pastNeededBy && (
-        <div role="alert" className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-[9.5px] text-rose-700">
+        <div role="alert" className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-[13px] text-rose-700">
           Needed-by date cannot be earlier than today.
         </div>
       )}
       <label className="block">
-        <span className="text-[9.5px] text-neutral-500">Purchase and purpose</span>
-        <textarea value={purpose} onChange={(event) => setPurpose(event.target.value)} rows={3} placeholder="Example: Buy two boxes of ball pens for the registration desk" className="mt-1 w-full rounded-lg border border-neutral-200 px-2.5 py-2 text-[10px]" />
+        <span className="text-[13px] text-neutral-500">Purchase and purpose</span>
+        <textarea value={purpose} onChange={(event) => setPurpose(event.target.value)} rows={3} placeholder="Example: Buy two boxes of ball pens for the registration desk" className="mt-1 w-full rounded-lg border border-neutral-200 px-2.5 py-2 text-[13px]" />
       </label>
       <label className="block rounded-lg border border-dashed border-neutral-200 p-2.5">
-        <span className="flex items-center gap-1 text-[9.5px] text-neutral-500"><Paperclip size={11} /> Optional quote or supporting file</span>
-        <input type="file" accept="image/jpeg,image/png,image/webp,application/pdf" onChange={(event) => setAttachment(event.target.files?.[0])} className="mt-2 block w-full text-[9px] text-neutral-500 file:mr-2 file:rounded-md file:border-0 file:bg-neutral-100 file:px-2 file:py-1.5 file:text-[9px]" />
+        <span className="flex items-center gap-1 text-[13px] text-neutral-500"><Paperclip size={11} /> Optional quote or supporting file</span>
+        <input type="file" accept="image/jpeg,image/png,image/webp,application/pdf" onChange={(event) => setAttachment(event.target.files?.[0])} className="mt-2 block w-full text-[13px] text-neutral-500 file:mr-2 file:rounded-md file:border-0 file:bg-neutral-100 file:px-2 file:py-1.5 file:text-[13px]" />
       </label>
-      {correction && <div className="rounded-lg border border-amber-200 bg-amber-50 p-2.5 text-[9.5px] text-amber-800">Reviewer note: {correction.leaderDecisionReason || correction.departmentDecisionReason || correction.approvalReason || "Update the request and resubmit it."}</div>}
-      {error && <div className="rounded-lg bg-rose-50 p-2.5 text-[9.5px] text-rose-700">{error}</div>}
+      {correction && <div className="rounded-lg border border-amber-200 bg-amber-50 p-2.5 text-[13px] text-amber-800">Reviewer note: {correction.leaderDecisionReason || correction.departmentDecisionReason || correction.approvalReason || "Update the request and resubmit it."}</div>}
+      {error && <div className="rounded-lg bg-rose-50 p-2.5 text-[13px] text-rose-700">{error}</div>}
       <div className="flex justify-end gap-2">
-        <button type="button" onClick={onCancel} className="h-8 rounded-lg border border-neutral-200 px-3 text-[9.5px]">Cancel</button>
-        <button type="button" disabled={readOnly || busy || pastNeededBy || !selectedLine || amount <= 0 || amount > requestable || !purpose.trim() || extraLines.some(l=>!l.allocationLineId||l.amount<=0||l.amount>(context.lines.find(s=>s.id===l.allocationLineId)?.available||0)) || new Set([lineId,...extraLines.map(l=>l.allocationLineId)]).size!==extraLines.length+1} onClick={() => void submit()} className="inline-flex h-8 items-center gap-1 rounded-lg bg-emerald-700 px-3 text-[9.5px] text-white disabled:opacity-40"><Send size={10} /> {busy ? "Submitting…" : correction ? "Resubmit" : "Request cash"}</button>
+        <button type="button" onClick={onCancel} className="h-10 rounded-lg border border-neutral-200 px-3 text-[13px]">Cancel</button>
+        <button type="button" disabled={readOnly || busy || pastNeededBy || !selectedLine || amount <= 0 || amount > requestable || !purpose.trim() || extraLines.some(l=>!l.allocationLineId||l.amount<=0||l.amount>(context.lines.find(s=>s.id===l.allocationLineId)?.available||0)) || new Set([lineId,...extraLines.map(l=>l.allocationLineId)]).size!==extraLines.length+1} onClick={() => void submit()} className="inline-flex h-10 items-center gap-1 rounded-lg bg-emerald-700 px-3 text-[13px] text-white disabled:opacity-40"><Send size={14} /> {busy ? "Submitting…" : correction ? "Resubmit" : "Request cash"}</button>
       </div>
     </fieldset>
   );
 }
 
 function Field({ label, value, onChange, type = "text", min, invalid = false }: { label: string; value: string | number; onChange: (value: string) => void; type?: string; min?: string; invalid?: boolean }) {
-  return <label><span className="text-[9.5px] text-neutral-500">{label}</span>{type === "number" ? <MoneyInput min={0.01} value={value} onValueChange={onChange} className="mt-1 h-9 w-full rounded-lg border border-neutral-200 px-2.5 text-[10px]" /> : <input aria-invalid={invalid || undefined} type={type} min={min} value={value} onChange={(event) => onChange(event.target.value)} className={`mt-1 h-9 w-full rounded-lg border px-2.5 text-[10px] ${invalid ? "border-rose-300 bg-rose-50" : "border-neutral-200"}`} />}</label>;
+  return <label><span className="text-[13px] text-neutral-500">{label}</span>{type === "number" ? <MoneyInput min={0.01} value={value} onValueChange={onChange} className="mt-1 h-9 w-full rounded-lg border border-neutral-200 px-2.5 text-[13px]" /> : <input aria-invalid={invalid || undefined} type={type} min={min} value={value} onChange={(event) => onChange(event.target.value)} className={`mt-1 h-9 w-full rounded-lg border px-2.5 text-[13px] ${invalid ? "border-rose-300 bg-rose-50" : "border-neutral-200"}`} />}</label>;
 }

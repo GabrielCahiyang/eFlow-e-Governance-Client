@@ -9,7 +9,7 @@ export function navigationParameters(value:unknown):Record<string,string>{
 export const reviewRouteViews = ['tasks', 'workplans', 'governance', 'subtasks', 'budget', 'membership'] as const;
 export const budgetRouteViews = ['overview', 'annual', 'funding', 'approvals', 'releases', 'expenses', 'vouchers', 'journal', 'audit'] as const;
 // Include existing project parser aliases at this display-preference boundary.
-const projectViews = ['tasks', 'board', 'gantt', 'calendar', 'dashboard', 'offices', 'members', 'overview', 'timeline', 'reports', 'proposal_context', 'activity', 'reviews', 'budget', 'plan', 'delivery', 'work', 'people', 'team', 'workload', 'readiness', 'signoff', 'evidence', 'decisions', 'main_table', 'main-table', 'proposal-context'];
+const projectViews = ['settings', 'tasks', 'board', 'gantt', 'calendar', 'dashboard', 'offices', 'members', 'overview', 'timeline', 'reports', 'proposal_context', 'activity', 'reviews', 'budget', 'plan', 'delivery', 'work', 'people', 'team', 'workload', 'readiness', 'signoff', 'evidence', 'decisions', 'main_table', 'main-table', 'proposal-context'];
 export function readRouteFiscalYear(value: string | null | undefined): number | undefined {
   return value && /^\d{4}$/.test(value) && Number(value) >= 2000 && Number(value) <= 2200 ? Number(value) : undefined;
 }

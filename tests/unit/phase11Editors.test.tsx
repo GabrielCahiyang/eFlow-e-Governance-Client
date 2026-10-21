@@ -2,6 +2,7 @@
 import { act, cleanup, fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Task } from '../../src/app/features/tasks';
+import type { Subtask } from '../../src/app/features/subtasks';
 import { timelineDraft, timelinePatch, numericPatch } from '../../src/app/features/project-table/planningDraft';
 import { groupDeleteBlocker } from '../../src/app/features/project-table/groupDeletion';
 import { NumberCell } from '../../src/app/features/project-table/components/NumberCell';
@@ -37,9 +38,23 @@ describe('Phase 11 edit and creation contracts',()=>{
   expect(()=>numericPatch('estimated_hours','100001')).toThrow('amount');expect(()=>numericPatch('budget_impact','Infinity')).toThrow('amount');
  });
  it('explains default, nonempty including archived, and unauthorized deletion blockers',()=>{
-  expect(groupDeleteBlocker({...group,isDefault:true},[],true)).toContain('default');
-  expect(groupDeleteBlocker(group,[{...task,groupId:group.id,archivedAt:1}],true)).toContain('Archived');
+  expect(groupDeleteBlocker({...group,isDefault:true},[],true)).toBeUndefined();
+  expect(groupDeleteBlocker({...group,isDefault:true},[task],true)).toBeUndefined();
+  expect(groupDeleteBlocker(group,[{...task,groupId:group.id,archivedAt:1}],true)).toContain('archived');
   expect(groupDeleteBlocker(group,[],false)).toContain('Head');expect(groupDeleteBlocker(group,[],true)).toBeUndefined();
+ });
+ it('allows assigned unstarted work with estimates but blocks execution and review',()=>{
+  const member={...task,groupId:group.id,assigneeId:'person',budgetImpact:1000000,estimatedHours:20};
+  expect(groupDeleteBlocker(group,[member],true)).toBeUndefined();
+  expect(groupDeleteBlocker(group,[{...member,status:'pending_assignment'}],true)).toBeUndefined();
+  for(const status of ['in_progress','for_review','changes_requested','completed','cancelled'] as const)
+   expect(groupDeleteBlocker(group,[{...member,status}],true)).toContain('started');
+  expect(groupDeleteBlocker(group,[{...member,percentComplete:10}],true)).toContain('started');
+  const subitem:Subtask={id:'sub',taskId:task.id,title:'Nested work',isCompleted:false,status:'todo',percentComplete:0,assignedToIds:[],position:0,isStandalone:false,source:'manual',createdAt:1,updatedAt:1};
+  expect(groupDeleteBlocker(group,[member],true,[subitem])).toBeUndefined();
+  expect(groupDeleteBlocker(group,[member],true,[{...subitem,status:'in_progress'}])).toContain('subitem');
+  expect(groupDeleteBlocker(group,[member],true,[{...subitem,latestSubmissionId:'evidence'}])).toContain('subitem');
+  expect(groupDeleteBlocker(group,[member],true,[{...subitem,taskId:'another-task',status:'completed'}])).toBeUndefined();
  });
  it('retains failed numeric values and retries only their patch',async()=>{
   const save=vi.fn().mockRejectedValueOnce(new Error('Denied')).mockResolvedValue(undefined);
@@ -110,5 +125,14 @@ describe('Phase 11 edit and creation contracts',()=>{
   const refresh=vi.fn().mockRejectedValueOnce(new Error('Offline')).mockResolvedValue(undefined);const editor=renderHook(()=>useGroupDeletion(group,refresh));
   await act(async()=>editor.result.current.remove());expect(editor.result.current.error).toContain('Group deleted');
   await act(async()=>editor.result.current.retryRefresh());expect(mocks.remove).toHaveBeenCalledOnce();expect(refresh).toHaveBeenCalledTimes(2);expect(editor.result.current.error).toBe('');
+ });
+ it('confirms all unfiltered tasks and subitems before removing a populated group',async()=>{
+  mocks.confirm.mockResolvedValueOnce(false);
+  const editor=renderHook(()=>useGroupDeletion(group,vi.fn().mockResolvedValue(undefined),2,1));
+  await act(async()=>editor.result.current.remove());expect(mocks.remove).not.toHaveBeenCalled();
+  const confirmation=mocks.confirm.mock.calls[0][0];
+  expect(confirmation.description).toContain('2 unstarted tasks');
+  expect(confirmation.description).toContain('Previous history is kept');
+  render(confirmation.impact);expect(screen.getByText(/2 tasks · 1 subitem/)).toBeTruthy();
  });
 });

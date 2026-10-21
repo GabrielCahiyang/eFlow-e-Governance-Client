@@ -36,7 +36,7 @@ test('Head table keeps first-column task actions, task edits and inline subitems
   const add = page.getByRole('dialog', { name: 'New task', exact: true }); await add.getByRole('textbox', { name: 'Task name' }).fill('Prepare meeting agenda'); await add.getByRole('button', { name: 'Add task', exact: true }).click();
   await expect(add).not.toBeVisible(); await page.getByRole('button', { name: 'Expand To do' }).click(); await expect(page.getByRole('button', { name: 'Edit task Prepare meeting agenda' })).toBeVisible();
   await page.getByRole('textbox', { name: 'Search project tasks' }).fill('meeting'); await expect(page.locator('.pt-task-row')).toHaveCount(1); await page.getByRole('button', { name: 'Clear filters' }).click();
-  await page.getByRole('button', { name: 'Column actions for Budget estimate' }).click(); await page.getByRole('menuitem', { name: 'Hide column' }).click(); await expect(page.getByRole('columnheader', { name: 'Budget estimate' })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Column actions for Budget' }).click(); await page.getByRole('menuitem', { name: 'Hide column' }).click(); await expect(page.getByRole('columnheader', { name: 'Budget' })).toHaveCount(0);
   await page.getByRole('button', { name: 'Projects and proposals', exact: true }).click();
   await expect(page.getByRole('menuitem', { name: 'Create project', exact: true })).toBeEnabled();
   await expect(page.getByRole('menuitem', { name: 'Create work plan', exact: true })).toHaveCount(0);

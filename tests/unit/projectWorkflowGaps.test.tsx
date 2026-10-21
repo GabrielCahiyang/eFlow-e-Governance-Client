@@ -25,6 +25,7 @@ beforeEach(()=>{
 });
 afterEach(()=>{cleanup();vi.unstubAllGlobals();});
 describe('project portfolio and route restoration',()=>{
+  it('preserves the canonical Settings route through the global URL preference boundary',()=>{expect(destinationNavigationParameters('projects',{project:'a',view:'settings'})).toEqual({project:'a',view:'settings'});});
   it('browses the supplied authorized projects with status, search, Office and sort filters',()=>{
     const open=vi.fn();render(<ProjectIndex projects={projects} tasks={[]} organizations={organizations} profiles={[]} onOpen={open} onOpenProposal={vi.fn()}/>);
     expect(screen.queryByRole('button',{name:'Archive'})).toBeNull();

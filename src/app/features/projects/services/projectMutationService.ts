@@ -4,6 +4,7 @@ import { rowToProject } from './projectMappers';
 import { notifyProjectListeners } from './projectQueryService';
 import type { CreateProjectInput, Project } from './types';
 import { archiveCompletedProject } from './projectLifecycleService';
+import { ProjectMetadataConflict } from './projectMetadata';
 
 export async function createProject(input: CreateProjectInput): Promise<Project> {
   const title = input.title.trim();
@@ -81,8 +82,11 @@ export async function createProject(input: CreateProjectInput): Promise<Project>
 export async function updateProject(
   id: string,
   changes: Partial<Pick<Project, 'title' | 'description' | 'status' | 'priority' | 'startDate' | 'targetDate' | 'ownerId'>>,
+  expectedVersion?: string,
 ): Promise<void> {
-  const { data: before } = await supabase.from('projects').select('*').eq('id', id).maybeSingle();
+  const { data: before, error: readError } = await supabase.from('projects').select('*').eq('id', id).maybeSingle();
+  if(readError)throw readError;
+  if(!before)throw new Error('Project unavailable or access removed.');
 
   const row: Record<string, unknown> = {};
   if (changes.title !== undefined) row.title = changes.title;
@@ -93,8 +97,13 @@ export async function updateProject(
   if (changes.targetDate !== undefined) row.target_date = changes.targetDate || null;
   if (changes.ownerId !== undefined) row.owner_id = changes.ownerId || null;
 
-  const { error } = await supabase.from('projects').update(row).eq('id', id);
-  if (error) throw error;
+  // Compatibility callers may still supply unchanged lifecycle/owner values.
+  // They cannot change either through a generic metadata save.
+  if(changes.status!==undefined&&changes.status!==before.status || changes.ownerId!==undefined&&(changes.ownerId||null)!==(before.owner_id||null))throw new Error('Use the project lifecycle or ownership workflow for this change.');
+  delete row.status;delete row.owner_id;
+  if(!expectedVersion)throw new Error('Refresh project details before saving.');
+  const { error } = await supabase.rpc('update_project_metadata', {p_project_id:id,p_expected_updated_at:expectedVersion,p_changes:row});
+  if(error){if(error.code==='40001')throw new ProjectMetadataConflict();throw error;}
 
   await recordAudit({
     entityType: 'project',

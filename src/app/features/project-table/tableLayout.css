@@ -10,6 +10,10 @@
 .pt-main-grid .pt-task-name .eflow-inline-editor input { min-width:0; width:100%; }
 .pt-main-grid .pt-task-name>div>button { flex-shrink:0; }
 .pt-main-grid .pt-cell { overflow-wrap:anywhere; }
+.pt-main-grid .pt-date { max-width:100%; min-width:0; white-space:normal; text-align:left; line-height:1.4; }
+.pt-main-grid .pt-date>svg { flex-shrink:0; }
+.pt-main-grid .pt-date-label { display:grid; min-width:0; gap:2px; overflow-wrap:anywhere; }
+.pt-main-grid .pt-date-label small { font-size:11px; color:var(--eflow-text-secondary); }
 .pt-main-grid .pt-cell--owner,.pt-main-grid .pt-cell--status { padding:10px 12px; }
 .pt-task-row:focus-within>td { background:var(--eflow-selected); }
 .pt-main-grid th { padding-right:16px; }

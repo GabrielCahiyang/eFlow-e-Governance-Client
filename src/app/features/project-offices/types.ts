@@ -19,5 +19,6 @@ export interface ProjectOfficeState {
   projectId?: string;
   offices: ProjectOffice[]; members: ProjectOfficeMember[]; loading: boolean; error: string;
   identities?: OfficeIdentity[]; identityError?: string;
+  workIdentities?:Record<string,string>;
   refresh: () => Promise<void>;
 }

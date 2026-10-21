@@ -35,6 +35,9 @@ def invitation_email(inviter: str, office: str, role: str, url: str, hours: int,
 def project_member_email(item: dict, url: str) -> dict:
     title = item['project_title']
     explanation = 'Accept to join this project. Your account role and Office stay unchanged. Work assignments are made separately. PDS is optional and private.'
+    if item.get('project_participation_role'):
+        participation = 'Office representative / Head' if item['project_participation_role'] == 'representative' else 'Office employee'
+        explanation = f'You are invited as {participation} for {item["office_name"]}, within this project only. No permanent Head appointment or Office membership is created. ' + explanation
     return {'subject': f'Join {title} on eFlow',
             'text': f"You are invited to {title} as a project member ({item['engagement']}).\n\n{explanation}\n\nAccept invitation: {url}\n\nLink expires: {item['expires_at']}",
             'html': f'<h1>Join {html.escape(title)}</h1><p>{html.escape(explanation)}</p><p>{html.escape(item["engagement"])}</p><a href="{html.escape(url, quote=True)}">Accept project invitation</a><p>Link expires: {html.escape(item["expires_at"])}</p>'}

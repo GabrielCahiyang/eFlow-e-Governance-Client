@@ -1,7 +1,12 @@
 export * from "../../services/proposalDecompositionService";
 export * from "../../services/pdsParser";
 export { extractTextFromPdf } from './services/pdfTextExtractor';
+export { readSourceBudget } from './services/sourceBudget';
+export { applySourceBudgetAssignments } from './services/sourceBudget';
+export type { SourceBudget } from './services/sourceBudget';
+export { extractPartSections } from './services/decomposition/textAnalysis';
 export type {
+  ProposalDecompositionBudgetLine,
   ProposalDecompositionActivity,
   ProposalDecompositionProgram,
   ProposalDecompositionProject,
@@ -10,5 +15,3 @@ export type {
 } from "./types";
 export { default as ProposalImport } from "./components/ProposalImport";
 export { ManualPlanBuilder } from "./components/ManualPlanBuilder";
-export { CreateWorkPlanDialog } from "./components/CreateWorkPlanDialog";
-export type { WorkPlanCreationMode } from "./components/CreateWorkPlanDialog";

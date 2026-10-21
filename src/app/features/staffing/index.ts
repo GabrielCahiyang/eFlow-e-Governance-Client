@@ -9,3 +9,6 @@ export const StaffingDialog = lazyFeature(
 );
 
 export { staffingEntryReason } from "./presentation";
+export {AutoAssignTaskButton} from './components/AutoAssignTaskButton';
+export {prepareImportAssignment} from './services/importAssignment';
+export {assignRemainingOfficeWork} from './services/remainingOfficeWork';

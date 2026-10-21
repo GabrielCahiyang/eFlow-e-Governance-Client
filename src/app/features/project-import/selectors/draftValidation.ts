@@ -106,6 +106,7 @@ export function validateProjectImportDraft(draft: ProjectImportDraft, confirmati
 export function reviewedImportPayload(draft: ProjectImportDraft, sourceName: string, applyProjectDetails: boolean) {
   validateProjectImportDraft(draft, true, applyProjectDetails);
   return { schemaVersion: 1, project: draft.project, applyProjectDetails, sourceName, offices: draft.offices, pipeline: draft.pipeline,
-    groups: draft.groups.map(g => ({ ...g, tasks: g.tasks.filter(t => t.included).map(({ included: _included, ...task }) => task) })).filter(g => g.tasks.length),
+    groups: draft.groups.map(g => ({ ...g, tasks: g.tasks.filter(t => t.included).map(({ included: _included, budgetDecision:_decision,budgetLines:_lines, ...task }) => task) })).filter(g => g.tasks.length),
+    ...(draft.sourceBudgetTotal!==undefined ? {sourceBudgetTotal:draft.sourceBudgetTotal,taskBudgets:draft.groups.flatMap(g=>g.tasks.filter(t=>t.included).map(task=>({key:task.key,decision:task.budgetDecision||'missing',lines:task.budgetLines||[]})))} : {}),
   };
 }

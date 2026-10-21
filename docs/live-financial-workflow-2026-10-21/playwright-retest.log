@@ -1,0 +1,182 @@
+[WebServer] (node:14572) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 13 tests using 1 worker
+
+(node:15720) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15720) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   1 [chromium] › tests\e2e\office-budget-sections.spec.ts:102:1 › Office Budget overview uses four distinct animated drawings on desktop and fits mobile (1.2m)
+(node:14816) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:14816) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   2 [chromium] › tests\e2e\office-budget-sections.spec.ts:139:1 › a funded budget with an unfinished row can save as draft but cannot lock until corrected (18.4s)
+(node:28704) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:28704) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   3 [chromium] › tests\e2e\office-budget-sections.spec.ts:179:1 › unavailable sections never display an existing saved budget as zero (16.7s)
+(node:8292) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:8292) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   4 [chromium] › tests\e2e\office-budget-sections.spec.ts:195:1 › locked section adjustments update the counter and persist without duplicated writes (16.5s)
+(node:32956) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:32956) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  5 [chromium] › tests\e2e\phase11-main-table.spec.ts:30:1 › column widths, alignment, visibility and sticky task context persist locally (33.0s)
+  ok  6 [chromium] › tests\e2e\phase11-main-table.spec.ts:131:1 › date and dependency drafts guard close and retain denied edits for scoped retry (26.1s)
+  ok  7 [chromium] › tests\e2e\phase11-main-table.spec.ts:258:1 › filter chips clear one or all without changing canonical manual ordering (13.5s)
+  ok  8 [chromium] › tests\e2e\phase11-main-table.spec.ts:319:1 › group creation guards its draft and empty deletion confirms impact and retries denial (19.6s)
+  ok  9 [chromium] › tests\e2e\phase11-main-table.spec.ts:441:1 › task team entry reuses existing details and mobile sticky context leaves room for work (21.5s)
+  ok 10 [chromium] › tests\e2e\phase11-main-table.spec.ts:506:1 › shared Task Lead team action explains the unresolved authority gate (25.7s)
+  ok 11 [chromium] › tests\e2e\phase11-main-table.spec.ts:541:1 › Observer inspection and closed-project table retain read-only controls (37.7s)
+  ok 12 [chromium] › tests\e2e\phase11-main-table.spec.ts:596:1 › Head owner appointment confirms impact and retains denied assignment for retry (24.5s)
+  ok 13 [chromium] › tests\e2e\phase11-main-table.spec.ts:673:1 › mobile planning picker and explicit creation keep fields inside the viewport (14.3s)
+
+
+  1) [chromium] › tests\e2e\office-budget-sections.spec.ts:102:1 › Office Budget overview uses four distinct animated drawings on desktop and fits mobile 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  getByRole('heading', { name: 'Proposal commitment versus actual', exact: true })
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('heading', { name: 'Proposal commitment versus actual', exact: true })[22m
+
+
+      39 |   });
+      40 |   await page.goto(`/office-budget?page=Office%20Budget&view=${view}&fy=2026`);
+    > 41 |   await expect(page.getByRole("heading", { name: view === 'annual' ? "Annual office budget" : "Proposal commitment versus actual", exact: true })).toBeVisible();
+         |                                                                                                                                                    ^
+      42 |   return { writes, locks };
+      43 | }
+      44 |
+        at sectionsFixture (C:\Users\gabri\OneDrive\Desktop\EflowWeb\tests\e2e\office-budget-sections.spec.ts:41:148)
+        at C:\Users\gabri\OneDrive\Desktop\EflowWeb\tests\e2e\office-budget-sections.spec.ts:47:3
+
+    Error Context: test-results\office-budget-sections-Off-1110c--on-desktop-and-fits-mobile-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\office-budget-sections-Off-1110c--on-desktop-and-fits-mobile-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\office-budget-sections-Off-1110c--on-desktop-and-fits-mobile-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › tests\e2e\office-budget-sections.spec.ts:139:1 › a funded budget with an unfinished row can save as draft but cannot lock until corrected 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  getByRole('heading', { name: 'Annual office budget', exact: true })
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('heading', { name: 'Annual office budget', exact: true })[22m
+
+
+      39 |   });
+      40 |   await page.goto(`/office-budget?page=Office%20Budget&view=${view}&fy=2026`);
+    > 41 |   await expect(page.getByRole("heading", { name: view === 'annual' ? "Annual office budget" : "Proposal commitment versus actual", exact: true })).toBeVisible();
+         |                                                                                                                                                    ^
+      42 |   return { writes, locks };
+      43 | }
+      44 |
+        at sectionsFixture (C:\Users\gabri\OneDrive\Desktop\EflowWeb\tests\e2e\office-budget-sections.spec.ts:41:148)
+        at C:\Users\gabri\OneDrive\Desktop\EflowWeb\tests\e2e\office-budget-sections.spec.ts:70:24
+
+    Error Context: test-results\office-budget-sections-a-f-a384a-cannot-lock-until-corrected-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\office-budget-sections-a-f-a384a-cannot-lock-until-corrected-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\office-budget-sections-a-f-a384a-cannot-lock-until-corrected-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [chromium] › tests\e2e\office-budget-sections.spec.ts:179:1 › unavailable sections never display an existing saved budget as zero 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  getByRole('heading', { name: 'Annual office budget', exact: true })
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('heading', { name: 'Annual office budget', exact: true })[22m
+
+
+      39 |   });
+      40 |   await page.goto(`/office-budget?page=Office%20Budget&view=${view}&fy=2026`);
+    > 41 |   await expect(page.getByRole("heading", { name: view === 'annual' ? "Annual office budget" : "Proposal commitment versus actual", exact: true })).toBeVisible();
+         |                                                                                                                                                    ^
+      42 |   return { writes, locks };
+      43 | }
+      44 |
+        at sectionsFixture (C:\Users\gabri\OneDrive\Desktop\EflowWeb\tests\e2e\office-budget-sections.spec.ts:41:148)
+        at C:\Users\gabri\OneDrive\Desktop\EflowWeb\tests\e2e\office-budget-sections.spec.ts:87:3
+
+    Error Context: test-results\office-budget-sections-una-704e1-isting-saved-budget-as-zero-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\office-budget-sections-una-704e1-isting-saved-budget-as-zero-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\office-budget-sections-una-704e1-isting-saved-budget-as-zero-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [chromium] › tests\e2e\office-budget-sections.spec.ts:195:1 › locked section adjustments update the counter and persist without duplicated writes 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  getByRole('heading', { name: 'Annual office budget', exact: true })
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('heading', { name: 'Annual office budget', exact: true })[22m
+
+
+      39 |   });
+      40 |   await page.goto(`/office-budget?page=Office%20Budget&view=${view}&fy=2026`);
+    > 41 |   await expect(page.getByRole("heading", { name: view === 'annual' ? "Annual office budget" : "Proposal commitment versus actual", exact: true })).toBeVisible();
+         |                                                                                                                                                    ^
+      42 |   return { writes, locks };
+      43 | }
+      44 |
+        at sectionsFixture (C:\Users\gabri\OneDrive\Desktop\EflowWeb\tests\e2e\office-budget-sections.spec.ts:41:148)
+        at C:\Users\gabri\OneDrive\Desktop\EflowWeb\tests\e2e\office-budget-sections.spec.ts:96:22
+
+    Error Context: test-results\office-budget-sections-loc-4952b-t-without-duplicated-writes-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\office-budget-sections-loc-4952b-t-without-duplicated-writes-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\office-budget-sections-loc-4952b-t-without-duplicated-writes-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    [chromium] › tests\e2e\office-budget-sections.spec.ts:102:1 › Office Budget overview uses four distinct animated drawings on desktop and fits mobile 
+    [chromium] › tests\e2e\office-budget-sections.spec.ts:139:1 › a funded budget with an unfinished row can save as draft but cannot lock until corrected 
+    [chromium] › tests\e2e\office-budget-sections.spec.ts:179:1 › unavailable sections never display an existing saved budget as zero 
+    [chromium] › tests\e2e\office-budget-sections.spec.ts:195:1 › locked section adjustments update the counter and persist without duplicated writes 
+  9 passed (6.3m)

@@ -6,12 +6,14 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import Response
 import httpx
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 
 from gateway_config import settings
 from gateway_dependencies import AuthenticatedUser, internal_ai_key, require_user, supabase_admin
 from uuid import UUID
 from services.staffing_context import build_staffing_context
+from services.import_staffing_context import build_import_staffing_context
+from routers.staffing import DraftStaffingRequest
 
 
 logger = logging.getLogger("eflow.ai")
@@ -37,10 +39,13 @@ class ChatRequest(BaseModel):
     request_id: str | None = Field(default=None, min_length=1, max_length=100)
     workspace_decomposition: WorkspaceDecompositionRequest | None = None
     workspace_staffing: dict[str, Any] | None = None
+    pdf_table_enrichment: dict[str, Any] | None = None
 
 
 def checked_chat_payload(payload: ChatRequest, user: AuthenticatedUser) -> dict:
     body = payload.model_dump(mode="json", exclude_none=True)
+    if sum(body.get(mode) is not None for mode in ('workspace_decomposition', 'workspace_staffing', 'pdf_table_enrichment')) > 1:
+        raise HTTPException(422, 'Choose one AI operation.')
     if payload.workspace_staffing is not None:
         if payload.workspace_decomposition is not None:
             raise HTTPException(422, 'Choose one AI operation.')
@@ -48,10 +53,26 @@ def checked_chat_payload(payload: ChatRequest, user: AuthenticatedUser) -> dict:
             task_id = str(UUID(str(payload.workspace_staffing.get('taskId', ''))))
         except ValueError:
             raise HTTPException(422, 'A valid task is required.')
-        context = build_staffing_context(task_id, user)
+        auto_assign = payload.workspace_staffing.get('autoAssign') is True
+        if payload.workspace_staffing.get('projectId'):
+            try:
+                project_id = str(UUID(str(payload.workspace_staffing['projectId'])))
+                draft_data = payload.workspace_staffing.get('draftTask', {})
+                if not isinstance(draft_data, dict):
+                    raise ValueError('Invalid draft task')
+                draft = DraftStaffingRequest.model_validate({**draft_data, 'plannedAssignments': payload.workspace_staffing.get('plannedAssignments', [])})
+            except (ValueError, ValidationError):
+                raise HTTPException(422, 'Choose a valid project and draft task for staffing.')
+            context = build_import_staffing_context(project_id, draft.model_dump(), user)
+            auto_assign = True
+        else:
+            context = build_staffing_context(task_id, user, auto_assign=True) if auto_assign else build_staffing_context(task_id, user)
         if not context['candidates']:
-            raise HTTPException(409, 'Ask eligible Office members to confirm their professional profiles first.')
+            raise HTTPException(409, 'No eligible people are available for this Office yet. Check invitations and current project membership.')
         body['workspace_staffing'] = {'schemaVersion': 1, 'taskId': task_id, 'context': context}
+        if auto_assign:
+            body['model'] = 'qwen3.5:4b'
+            body['workspace_staffing']['autoAssign'] = True
         body['messages'] = [{'role': 'user', 'content': 'Recommend eligible Office staff from confirmed professional context.'}]
         return body
     request = payload.workspace_decomposition

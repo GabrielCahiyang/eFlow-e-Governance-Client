@@ -106,7 +106,7 @@ export function CashRequestTimeline({
   if (!requests.length && !safety.message && !safety.pending) return null;
   return (
     <div className="mt-3 space-y-2">
-      <div className="flex items-center gap-1 text-[9px] font-semibold uppercase tracking-[0.12em] text-neutral-400">
+      <div className="flex items-center gap-1 text-[12px] font-semibold uppercase tracking-[0.12em] text-neutral-400">
         <Clock3 size={10} /> Funding activity
       </div>
       {safety.dialog}
@@ -176,16 +176,16 @@ export function CashRequestTimeline({
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-1.5">
-                  <strong className="text-[10px] text-neutral-900">
+                  <strong className="text-[12px] text-neutral-900">
                     FR-{String(request.requestNumber).padStart(5, "0")}
                   </strong>
                   <StatusPill status={request.status} />
                 </div>
-                <div className="mt-1 text-[10px] text-neutral-700">
+                <div className="mt-1 text-[12px] text-neutral-700">
                   {request.purpose}
                 </div>
                 {line && (
-                  <div className="mt-1 text-[8.8px] text-neutral-400">
+                  <div className="mt-1 text-[12px] text-neutral-400">
                     {line.category} · {line.particular} · {line.fundSource}
                   </div>
                 )}
@@ -194,17 +194,24 @@ export function CashRequestTimeline({
                 {peso.format(request.approvedAmount ?? request.requestedAmount)}
               </strong>
             </div>
-            <div className="mt-2 text-[8.8px] text-neutral-500">
+            <div className="mt-2 text-[12px] text-neutral-500">
               Operational endorsement → fiscal authorization → release →
               receipts and return
             </div>
+            {["rejected", "leader_changes_requested", "department_changes_requested"].includes(request.status) &&
+              (request.departmentDecisionReason || request.leaderDecisionReason || request.approvalReason) && (
+                <p className="mt-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-[12px] text-amber-900">
+                  <strong>Reviewer feedback: </strong>{request.departmentDecisionReason || request.leaderDecisionReason || request.approvalReason}
+                  {request.status === "rejected" && <span className="mt-1 block">This request is closed. Submit a new request after addressing the feedback.</span>}
+                </p>
+              )}
             {request.reservationExpiresAt &&
               [
                 "pending",
                 "pending_leader_review",
                 "pending_department_approval",
               ].includes(request.status) && (
-                <div className="mt-1 text-[8.8px] text-amber-700">
+                <div className="mt-1 text-[12px] text-amber-700">
                   Temporary hold—not approved spending · expires{" "}
                   {new Date(request.reservationExpiresAt).toLocaleDateString()}
                 </div>
@@ -213,7 +220,7 @@ export function CashRequestTimeline({
               "leader_changes_requested",
               "department_changes_requested",
             ].includes(request.status) && (
-              <div className="mt-1 text-[8.8px] text-blue-700">
+              <div className="mt-1 text-[12px] text-blue-700">
                 No funds are held while this request is waiting for correction.
               </div>
             )}
@@ -230,7 +237,7 @@ export function CashRequestTimeline({
                         "noopener,noreferrer",
                       )
                     }
-                    className="inline-flex items-center gap-1 rounded-md border border-neutral-200 px-2 py-1 text-[8.8px] text-neutral-600"
+                    className="inline-flex items-center gap-1 rounded-md border border-neutral-200 px-2 py-1 text-[12px] text-neutral-600"
                   >
                     <FileText size={9} /> {attachment.fileName}
                   </button>
@@ -242,7 +249,7 @@ export function CashRequestTimeline({
                 {releases.map((release) => (
                   <span
                     key={release.id}
-                    className="rounded-md bg-blue-50 px-2 py-1 text-[8.8px] text-blue-700"
+                    className="rounded-md bg-blue-50 px-2 py-1 text-[12px] text-blue-700"
                   >
                     {peso.format(release.amount)} · {release.scheduledDate} ·{" "}
                     {release.acknowledgedAt ? "received" : release.status}
@@ -255,7 +262,7 @@ export function CashRequestTimeline({
                 request.status,
               ) && (
                 <div
-                  className={`mt-2 rounded-md px-2 py-1.5 text-[8.8px] ${liquidationOverdue ? "bg-rose-50 text-rose-700" : "bg-amber-50 text-amber-800"}`}
+                  className={`mt-2 rounded-md px-2 py-1.5 text-[12px] ${liquidationOverdue ? "bg-rose-50 text-rose-700" : "bg-amber-50 text-amber-800"}`}
                 >
                   {liquidationOverdue
                     ? "Liquidation is overdue. Submission remains open, but Head approval is required."
@@ -264,12 +271,13 @@ export function CashRequestTimeline({
               )}
             {latest && (
               <div className="mt-2 rounded-lg bg-neutral-50 p-2">
-                <div className="flex flex-wrap items-center gap-1.5 text-[8.8px] text-neutral-500">
+                <div className="flex flex-wrap items-center gap-1.5 text-[12px] text-neutral-500">
                   <span>Liquidation {latest.version}</span>
                   <StatusPill status={latest.status} />
                   <span>{peso.format(latest.declaredSpent)} spent</span>
                   <span>{peso.format(latest.returnedAmount)} returned</span>
                 </div>
+                {latest.status === "changes_requested" && latest.decisionReason && <p className="mt-2 text-[12px] text-amber-900"><strong>Receipt review feedback: </strong>{latest.decisionReason}</p>}
                 {latest.receipts.length > 0 && (
                   <div className="mt-1.5 flex flex-wrap gap-1.5">
                     {latest.receipts.map((receipt) => (
@@ -283,7 +291,7 @@ export function CashRequestTimeline({
                             "noopener,noreferrer",
                           )
                         }
-                        className="rounded-md border border-neutral-200 bg-white px-2 py-1 text-[8.8px] text-neutral-600"
+                        className="rounded-md border border-neutral-200 bg-white px-2 py-1 text-[12px] text-neutral-600"
                       >
                         <ReceiptText size={9} className="mr-1 inline" />
                         {receipt.vendor} · {peso.format(receipt.amount)}
@@ -300,7 +308,7 @@ export function CashRequestTimeline({
                     type="button"
                     disabled={safety.pending || busy === request.id}
                     onClick={() => cancel(request)}
-                    className="inline-flex h-7 items-center gap-1 rounded-md border border-rose-200 px-2 text-[8.8px] text-rose-700"
+                    className="inline-flex h-7 items-center gap-1 rounded-md border border-rose-200 px-2 text-[12px] text-rose-700"
                   >
                     <XCircle size={9} /> Cancel
                   </button>
@@ -310,7 +318,7 @@ export function CashRequestTimeline({
                     type="button"
                     disabled={!canCorrect}
                     onClick={() => {if(canCorrect)onCorrect(request);}}
-                    className="inline-flex h-7 items-center gap-1 rounded-md border border-amber-200 bg-amber-50 px-2 text-[8.8px] text-amber-800"
+                    className="inline-flex h-7 items-center gap-1 rounded-md border border-amber-200 bg-amber-50 px-2 text-[12px] text-amber-800"
                   >
                     <RotateCcw size={9} /> Correct
                   </button>
@@ -324,7 +332,7 @@ export function CashRequestTimeline({
                         acknowledgePettyCashRelease(unacknowledged.id),
                       )
                     }
-                    className="inline-flex h-7 items-center gap-1 rounded-md bg-blue-600 px-2 text-[8.8px] text-white"
+                    className="inline-flex h-7 items-center gap-1 rounded-md bg-blue-600 px-2 text-[12px] text-white"
                   >
                     <CheckCircle2 size={9} /> Acknowledge cash
                   </button>
@@ -333,7 +341,7 @@ export function CashRequestTimeline({
                   <button
                     type="button"
                     onClick={() => setLiquidating(request)}
-                    className="inline-flex h-7 items-center gap-1 rounded-md bg-primary px-2 text-[8.8px] text-primary-foreground transition hover:bg-primary/90"
+                    className="inline-flex h-7 items-center gap-1 rounded-md bg-primary px-2 text-[12px] text-primary-foreground transition hover:bg-primary/90"
                   >
                     <ReceiptText size={9} />{" "}
                     {request.status === "changes_requested"

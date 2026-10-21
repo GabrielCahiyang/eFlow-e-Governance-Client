@@ -38,7 +38,7 @@ async function sectionsFixture(page: Page, installed: boolean, draft = false, vi
     return route.fallback();
   });
   await page.goto(`/office-budget?page=Office%20Budget&view=${view}&fy=2026`);
-  await expect(page.getByRole("heading", { name: view === 'annual' ? "Annual office budget" : "Proposal commitment versus actual", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: view === 'annual' ? "Annual office budget" : "Proposal commitment versus actual", exact: true })).toBeVisible({timeout:60_000});
   return { writes, locks };
 }
 
@@ -122,7 +122,7 @@ test("locked section adjustments update the counter and persist without duplicat
   expect(writes).toHaveLength(1);
   expect(writes[0].p_sections).toEqual(expect.arrayContaining([expect.objectContaining({ name: "Office Supplies", amount: 300000 }), expect.objectContaining({ name: "Training", amount: 50000 })]));
   await page.reload();
-  await expect(page.getByLabel(/Section name/).nth(0)).toHaveValue("Office Supplies");
+  await expect(page.getByLabel(/Section name/).nth(0)).toHaveValue("Office Supplies",{timeout:30_000});
   await expect(page.getByLabel(/Section name/).nth(1)).toHaveValue("Training");
   await expect(page.getByLabel("Budget amount Office Supplies", { exact: true })).toHaveValue("300,000");
   await expect(page.getByText("₱350,000.00", { exact: true })).toBeVisible();

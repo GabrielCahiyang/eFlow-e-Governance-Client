@@ -6,6 +6,7 @@ import type { DepartmentBudgetBundle } from "../../../budget";
 export type PermanentProjectView = "tasks" | "board" | "gantt" | "calendar" | "dashboard" | "offices";
 
 export type OptionalProjectView =
+  | "settings"
   | "members"
   | "overview"
   | "timeline"

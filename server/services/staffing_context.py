@@ -20,7 +20,7 @@ def compact_profile(profile):
             'specializations': items('specializations', 8), 'certifications': items('certifications', 5),
             'experience_summary': str(profile.get('competency_summary') or '')[:700]}
 
-def build_staffing_context(task_id, user):
+def build_staffing_context(task_id, user, auto_assign=False):
     require_head(user)
     rows = supabase_admin.table('tasks').select('id,title,description,tags,org_id,linked_project_id,status,assigned_to,deleted_at,archived_at,estimated_hours,proposed_office_identity_id').eq('id', task_id).limit(1).execute().data or []
     if not rows:
@@ -41,7 +41,11 @@ def build_staffing_context(task_id, user):
         office_rows = supabase_admin.table('project_offices').select('id,relationship_type,invitation_status').eq('project_id', project_id).eq('office_id', user.org_id).limit(1).execute().data or []
         office = office_rows[0] if office_rows else None
     profiles = supabase_admin.table('profiles').select('id,full_name').eq('org_id', user.org_id).eq('is_active', True).neq('role', 'admin').execute().data or []
-    if office and office['relationship_type'] != 'lead':
+    if auto_assign:
+        profiles = supabase_admin.rpc('project_ai_available_people', {'p_root': task_id, 'p_actor': user.id}).execute().data or []
+    if office and (office['relationship_type'] == 'observer' or office['invitation_status'] != 'joined'):
+        raise HTTPException(403, 'Join this project before assigning its work.')
+    if office and office['relationship_type'] != 'lead' and not auto_assign:
         if office['relationship_type'] == 'observer' or office['invitation_status'] != 'joined':
             raise HTTPException(403, 'Observer or pending Offices cannot recommend staff.')
         selected = supabase_admin.table('project_office_members').select('user_id').eq('project_office_id', office['id']).execute().data or []
@@ -61,7 +65,16 @@ def build_staffing_context(task_id, user):
         if offset >= 10000: raise HTTPException(503, 'Office workload is too large to summarize safely. Narrow the active workload first.')
     names = {p['id']: p['full_name'] for p in profiles}
     candidates = [{'id': p['user_id'], 'name': names[p['user_id']], **compact_profile(p), **workload_for(p['user_id'], work)} for p in professional]
+    if auto_assign:
+        # Include the available Office directory, even before project enrollment.
+        # Missing professional details stay unknown; only factual workload is used.
+        confirmed = {p['id'] for p in candidates}
+        for p in profiles:
+            if p['id'] not in confirmed:
+                load = workload_for(p['id'], work)
+                candidates.append({'id': p['id'], 'name': p['full_name'], **compact_profile({}), **load,
+                    'experience_summary': f"Professional details not confirmed. Current active tasks: {load['activeTasks']}; known remaining hours: {load['remainingHours']}; tasks with unknown effort: {load['unknownEffortTasks']}."})
     if len(candidates) > 200:
-        raise HTTPException(409, 'Select a smaller project team before requesting staffing recommendations.')
+        raise HTTPException(409, 'The available Office directory exceeds this request’s 200-person processing limit.')
     return {'task': {'id': task['id'], 'title': task['title'], 'description': (task.get('description') or '')[:3000], 'skills': task.get('tags') or [], 'estimatedHours': task.get('estimated_hours')},
             'candidates': candidates, 'excludedUnconfirmed': len(profiles) - len(candidates)}

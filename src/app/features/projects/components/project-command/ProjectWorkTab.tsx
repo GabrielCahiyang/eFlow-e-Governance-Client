@@ -106,7 +106,7 @@ export function ProjectWorkTab({
                   canManage={actions.canEditDates(task)}
                   data={data}
                   key={task.id}
-                  onManageTeam={() => onOpenTask(task.id)}
+                  onManageTeam={() => onOpenTask(task.id,'work')}
                   onOpen={() => onOpenTask(task.id)}
                   profiles={profiles}
                   task={task}

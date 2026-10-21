@@ -9,6 +9,7 @@ import { AssignmentModal } from "./AssignmentModal";
 import { DraftCockpit } from "./DraftCockpit";
 import { useProposalImportController } from "../hooks/useProposalImportController";
 import { OrganizationScopePicker } from "../../interdepartment-collaboration";
+import { SourceBudgetSummary } from './SourceBudgetSummary';
 
 export default function ProposalImport({
   onClose,
@@ -34,6 +35,7 @@ export default function ProposalImport({
     pdfFileName,
     setPdfFileName,
     pdfError, persistenceUncertain, retryAnalysis,
+    sourceBudget, moveSourceCost,
     setPdfError,
     aiQueueStatus,
     decompositionProgress,
@@ -176,6 +178,7 @@ export default function ProposalImport({
               </div>
 
               {autoSaveError && <div role="alert">{autoSaveError}<button className="eflow-text-button" onClick={() => void retryAutosave().catch(() => {})}>Retry saving draft</button></div>}
+              {sourceBudget&&<SourceBudgetSummary source={sourceBudget} tasks={draftTasks} onMove={moveSourceCost}/>}
               <ProposalReviewSections tasks={draftTasks} officeCount={collaborationOrganizations.length} scope={<div className="mb-4">
                 <OrganizationScopePicker
                   organizations={orgs}

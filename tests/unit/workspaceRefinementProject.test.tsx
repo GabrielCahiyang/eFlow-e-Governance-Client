@@ -32,6 +32,12 @@ beforeEach(()=>{
 afterEach(()=>{cleanup();vi.unstubAllGlobals();});
 
 describe('R4 completion availability',()=>{
+ it('describes a confirmed schedule without asking the user to set dates again',async()=>{
+  api.readiness.mockResolvedValue({...reviews,checks:[{key:'schedule',label:'Project schedule is valid',ok:true,detail:'Set both project dates in the Timeline view.'}]});
+  render(themed(<ProjectReadinessPanel project={project} canManage/>));
+  await screen.findByText('Project dates are set and the schedule is valid.');
+  expect(screen.queryByText('Set both project dates in the Timeline view.')).toBeNull();
+ });
  it('fails closed for loading, validation errors, known blockers and denied or closed projects',()=>{
   expect(projectCompletionAvailability('active',true,true,'',ready).enabled).toBe(false);
   expect(projectCompletionAvailability('active',true,false,'Read denied',ready).reason).toContain('Read denied');
@@ -60,7 +66,7 @@ describe('R4 completion availability',()=>{
  });
  it('keeps the requirements action usable while completion is blocked',async()=>{
   api.completion.mockResolvedValue(blocked);const complete=vi.fn();
-  render(themed(<ProjectUtilities project={project} canManage lifecycle={{complete}} userId="head" contextId="office" authorizedProjectIds={['project']} view="tasks" onOpenOffices={vi.fn()}/>));
+  render(themed(<ProjectUtilities project={project} canManage lifecycle={{complete}} userId="head" contextId="office" authorizedProjectIds={['project']} view="tasks" onOpenOffices={vi.fn()} onOpenSettings={vi.fn()} onResolveView={vi.fn()}/>));
   fireEvent.keyDown(screen.getByRole('button',{name:'Project actions'}),{key:'Enter'});
   const action=await screen.findByRole('menuitem',{name:'Mark project complete'});await screen.findByText(/Settle receipts first/);
   expect(action.getAttribute('aria-disabled')).toBe('true');fireEvent.click(action);expect(complete).not.toHaveBeenCalled();
@@ -82,7 +88,7 @@ describe('R4 retained navigation and identities',()=>{
   render(themed(<ProjectViewTabBar projectId="project" activeTab="readiness" onSelectTab={vi.fn()}/>));
   expect(screen.getByRole('tab',{name:'Overview',exact:true}).getAttribute('aria-selected')).toBe('true');
   await waitFor(()=>expect(localStorage.getItem('eflow_project_views_project')).toBe('["overview"]'));
-  fireEvent.click(screen.getByRole('button',{name:'Add view',exact:true}));await screen.findByRole('dialog',{name:'Add project view'});
+  fireEvent.click(screen.getByRole('button',{name:'Browse project views',exact:true}));await screen.findByRole('dialog',{name:'Browse project views'});
   for(const label of ['Workload & Team','Readiness & closeout','Approval Status','Evidence Register','Decision History'])expect(screen.queryByRole('button',{name:label,exact:true})).toBeNull();
  });
  it('removes the entire readiness header strip while retaining project identity',()=>{

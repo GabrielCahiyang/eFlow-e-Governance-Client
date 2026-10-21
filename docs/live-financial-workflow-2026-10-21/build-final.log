@@ -1,0 +1,86 @@
+
+> @figma/my-make-file@0.0.1 build
+> vite build --configLoader runner
+
+vite v6.3.5 building for production...
+transforming...
+✓ 6316 modules transformed.
+rendering chunks...
+[plugin vite:reporter] 
+(!) C:/Users/gabri/OneDrive/Desktop/EflowWeb/src/app/services/notificationService.ts is dynamically imported by C:/Users/gabri/OneDrive/Desktop/EflowWeb/src/app/services/chatService.ts but also statically imported by C:/Users/gabri/OneDrive/Desktop/EflowWeb/src/app/components/Member/EmployeeTaskWorkspace.tsx, C:/Users/gabri/OneDrive/Desktop/EflowWeb/src/app/components/ui/NotificationBell.tsx, C:/Users/gabri/OneDrive/Desktop/EflowWeb/src/app/features/action-center/components/UpdatesFeed.tsx, C:/Users/gabri/OneDrive/Desktop/EflowWeb/src/app/features/tasks/services/taskMutationService.ts, C:/Users/gabri/OneDrive/Desktop/EflowWeb/src/app/features/tasks/services/taskTeamService.ts, C:/Users/gabri/OneDrive/Desktop/EflowWeb/src/app/features/team-management/services/teamSupervisionActions.ts, C:/Users/gabri/OneDrive/Desktop/EflowWeb/src/app/services/announcementService.ts, C:/Users/gabri/OneDrive/Desktop/EflowWeb/src/app/services/subtaskService.ts, C:/Users/gabri/OneDrive/Desktop/EflowWeb/src/app/services/taskDiscussionService.ts, dynamic import will not move module into another chunk.
+
+[plugin vite:reporter] 
+(!) C:/Users/gabri/OneDrive/Desktop/EflowWeb/src/app/features/tasks/components/board/MondayBoard.tsx is dynamically imported by C:/Users/gabri/OneDrive/Desktop/EflowWeb/src/app/features/tasks/index.ts but also statically imported by C:/Users/gabri/OneDrive/Desktop/EflowWeb/src/app/features/tasks/components/HeadTaskBoardView.tsx, dynamic import will not move module into another chunk.
+
+computing gzip size...
+dist/eflow-view-modules.json                                  1.53 kB │ gzip:     0.58 kB
+dist/index.html                                               6.29 kB │ gzip:     2.77 kB
+dist/assets/figtree-latin-ext-wght-normal-BDFhNWBr.woff2     10.23 kB
+dist/assets/figtree-latin-ext-wght-italic-iruAYCqh.woff2     10.54 kB
+dist/assets/figtree-latin-wght-normal-B3oYxpP2.woff2         20.02 kB
+dist/assets/figtree-latin-wght-italic-BTI1zcOO.woff2         21.15 kB
+dist/assets/pdf.worker.min-iDqQPrd3.mjs                   1,232.30 kB
+dist/assets/index-BaiVCA14.css                                1.01 kB │ gzip:     0.47 kB
+dist/assets/departmentIdentityService-Bn5Bhcon.css            1.42 kB │ gzip:     0.41 kB
+dist/assets/ForReviewInbox-D9ngJ_E5.css                       2.23 kB │ gzip:     0.58 kB
+dist/assets/permissionPresentation-CPktyiPY.css               2.45 kB │ gzip:     0.66 kB
+dist/assets/activation-BkuZuM7b.css                           2.98 kB │ gzip:     0.91 kB
+dist/assets/StaffingDialog-BNh9t39_.css                       3.31 kB │ gzip:     1.06 kB
+dist/assets/index-C-i9nYz3.css                                3.93 kB │ gzip:     1.02 kB
+dist/assets/GuidedTourProvider-u-1Pi7rs.css                   6.03 kB │ gzip:     1.50 kB
+dist/assets/ProjectTableWorkspace-BMdwCcga.css                8.85 kB │ gzip:     2.12 kB
+dist/assets/index-BmBpmSxC.css                               16.32 kB │ gzip:     3.44 kB
+dist/assets/EflowAppShell-a9XGQoiW.css                       16.58 kB │ gzip:     3.32 kB
+dist/assets/WorkflowPreviewPanel-CLvz8Pv1.css                18.98 kB │ gzip:     4.72 kB
+dist/assets/usePresentationBranding-BpiUX6Uv.css             26.36 kB │ gzip:     4.67 kB
+dist/assets/workspace-contracts-Deca6Qqa.css                217.44 kB │ gzip:    37.62 kB
+dist/assets/index-lcXT-S3q.css                              304.83 kB │ gzip:    47.37 kB
+dist/assets/useMyTasks-4Q6mQEpN.js                            0.17 kB │ gzip:     0.15 kB
+dist/assets/index-B_CJt1C-.js                                 0.20 kB │ gzip:     0.18 kB
+dist/assets/departmentIdentityService-Cf9zAXcB.js             0.47 kB │ gzip:     0.33 kB
+dist/assets/OfficeReadFeedback-SCJTt1LJ.js                    0.60 kB │ gzip:     0.41 kB
+dist/assets/SubtaskWorkDrawer-Df3M4lc2.js                     0.87 kB │ gzip:     0.43 kB
+dist/assets/selectors-BcUS1IUl.js                             1.34 kB │ gzip:     0.78 kB
+dist/assets/ProjectOfficesView-CToXDTKi.js                    1.57 kB │ gzip:     0.72 kB
+dist/assets/TaskDatesDialog-DmXutdta.js                       1.83 kB │ gzip:     0.91 kB
+dist/assets/EmployeeTaskHistory-BcQma_du.js                   2.54 kB │ gzip:     1.17 kB
+dist/assets/EmployeeMyProjects-C3sV4rfA.js                    2.67 kB │ gzip:     1.16 kB
+dist/assets/EmployeeDeadlines-yoco1eBM.js                     2.95 kB │ gzip:     1.40 kB
+dist/assets/EmployeeMyTasks-jE4S7mxo.js                       3.10 kB │ gzip:     1.35 kB
+dist/assets/TaskOfficeControl-4yxJbS_k.js                     3.35 kB │ gzip:     1.44 kB
+dist/assets/ActivateAccountPage-C1CNFIuB.js                   3.87 kB │ gzip:     1.62 kB
+dist/assets/EmployeeWorkReport-CR-YBAab.js                    3.90 kB │ gzip:     1.62 kB
+dist/assets/ProjectInsightsView-CuWBHB8l.js                   5.63 kB │ gzip:     1.85 kB
+dist/assets/SignedInApp-BTPJ5atS.js                           6.01 kB │ gzip:     2.55 kB
+dist/assets/OnboardingWorkspace-B588tGNT.js                   7.47 kB │ gzip:     2.83 kB
+dist/assets/ProjectGanttView-DETjCm4i.js                      7.84 kB │ gzip:     3.01 kB
+dist/assets/eflowSeedData-C0UTkIU8.js                         8.09 kB │ gzip:     2.58 kB
+dist/assets/StaffingDialog-DsTa8Ekc.js                        8.14 kB │ gzip:     3.09 kB
+dist/assets/MemberContent-FLS49d1C.js                         8.36 kB │ gzip:     2.91 kB
+dist/assets/SubtasksWorkspace-DUy7SiFQ.js                    11.29 kB │ gzip:     4.27 kB
+dist/assets/index-DBgqgrjU.js                                11.49 kB │ gzip:     4.09 kB
+dist/assets/HeadDashboard-XzxGr5sz.js                        12.52 kB │ gzip:     3.80 kB
+dist/assets/RolePageRouter-B9KJAsqL.js                       14.90 kB │ gzip:     5.47 kB
+dist/assets/usePresentationBranding-B-CkAP7R.js              15.21 kB │ gzip:     5.39 kB
+dist/assets/OfficeIdentityAccessWorkspace-DHy-WEOy.js        21.84 kB │ gzip:     6.59 kB
+dist/assets/ProfilePage-SR-ctk-S.js                          22.86 kB │ gzip:     7.09 kB
+dist/assets/TaskInspector-D28r1vii.js                        27.24 kB │ gzip:     8.91 kB
+dist/assets/GuidedTourProvider-B3ubB6MF.js                   30.86 kB │ gzip:    10.75 kB
+dist/assets/ForReviewInbox-C3cRAw8Q.js                       31.63 kB │ gzip:     8.20 kB
+dist/assets/index-Dws-06yQ.js                                32.36 kB │ gzip:    10.55 kB
+dist/assets/ProjectOfficePanel-lsoyN0vQ.js                   36.37 kB │ gzip:    10.76 kB
+dist/assets/WorkBudgetCard-AW0yZH85.js                       39.74 kB │ gzip:    11.27 kB
+dist/assets/index-CkgvznWU.js                                41.21 kB │ gzip:    12.54 kB
+dist/assets/ProjectTableWorkspace-B7GWmtzP.js                49.46 kB │ gzip:    15.94 kB
+dist/assets/WorkflowPreviewPanel-B3IqmA7B.js                 59.41 kB │ gzip:    15.80 kB
+dist/assets/EflowAppShell-DipRMwtV.js                        75.68 kB │ gzip:    22.56 kB
+dist/assets/index-CXjWYais.js                               140.76 kB │ gzip:    40.36 kB
+dist/assets/index-Y2Bf9R5M.js                               238.69 kB │ gzip:    58.72 kB
+dist/assets/pdf-qG1jx4kV.js                                 517.86 kB │ gzip:   156.88 kB
+dist/assets/workspace-contracts-C5AsTY3u.js               3,833.38 kB │ gzip: 1,119.92 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 1m 10s

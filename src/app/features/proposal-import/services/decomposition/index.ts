@@ -4,6 +4,9 @@ import type { AiQueueUpdate } from "../../../ai";
 import type { ProposalDecompositionResult } from "../../types";
 import { decomposeProposalByPart } from "./partDecomposition";
 import { applyBalancedProposalAssignments } from "./assignmentBalancer";
+import { reconcileProposalSourceBudget } from './budgetReconciliation';
+import { readSourceBudget } from '../sourceBudget';
+import { extractProposalTitle } from './textAnalysis';
 
 export type {
   ProposalDecompositionActivity,
@@ -21,9 +24,11 @@ export async function decomposeProposal(
   onProgress?: (current: number, total: number, partTitle: string) => void,
   onQueueUpdate?: (update: AiQueueUpdate) => void,
 ): Promise<ProposalDecompositionResult> {
+  // Fail before inference when the source table itself does not reconcile.
+  readSourceBudget(proposalText);
   const result = await decomposeProposalByPart(
     proposalText,
-    proposalTitle,
+    extractProposalTitle(proposalText, proposalTitle),
     employees,
     employeeNotes,
     onProgress,
@@ -36,7 +41,9 @@ export async function decomposeProposal(
   );
   const serverOptimized = tasks.length > 0
     && tasks.every((task) => task.recommendationSource === "pygad");
-  return serverOptimized
+  const reviewed = serverOptimized
     ? result
     : applyBalancedProposalAssignments(result, employees, employeeNotes);
+  await reconcileProposalSourceBudget(reviewed, proposalText, onQueueUpdate);
+  return reviewed;
 }

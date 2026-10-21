@@ -18,6 +18,7 @@ import {
 } from "../services/budgetService";
 import { motionTransition } from "../../../shared/motion/motionTokens";
 import { peso } from "./budgetUi";
+import { getPhilippineCalendarDate } from '../selectors/cashWorkflowRules';
 import { useAuth } from "../../../contexts/AuthContext";
 
 /** Derives a human-readable, deterministic voucher code from existing IDs — no DB column needed. */
@@ -71,7 +72,7 @@ export function DisbursementVoucherDialog({
   const canOverrideSchedule =
     userProfile?.role === "accounting_staff" && can("accounting.release_cash");
   const scheduledEarly =
-    release.scheduledDate > new Date().toISOString().slice(0, 10);
+    release.scheduledDate > getPhilippineCalendarDate();
 
   const handleCopy = () => {
     void navigator.clipboard

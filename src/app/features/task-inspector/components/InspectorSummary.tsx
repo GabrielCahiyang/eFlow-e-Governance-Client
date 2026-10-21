@@ -3,7 +3,7 @@ import type { Task } from '../../tasks';
 import { ProgressBar, formatDate, relativeDays } from '../../../components/workflow/primitives';
 import { WorkBudgetCard } from '../../budget';
 import {supportsNestedWork} from '../../nested-work';
-export function InspectorSummary({task, projectTitle, readOnly, dependencies, canManageSubtasks, overdue,authorityPending=false,fundingTask,budgetReadOnly}: {task: Task; projectTitle?: string; readOnly: boolean; dependencies: Task[]; canManageSubtasks: boolean; overdue: boolean;authorityPending?:boolean;fundingTask?:Task;budgetReadOnly?:boolean}) {
+export function InspectorSummary({task, projectTitle, readOnly, dependencies, canManageSubtasks, overdue,canAuthorizeFunding=false,authorityPending=false,fundingTask,budgetReadOnly}: {task: Task; projectTitle?: string; readOnly: boolean; dependencies: Task[]; canManageSubtasks: boolean; overdue: boolean;canAuthorizeFunding?:boolean;authorityPending?:boolean;fundingTask?:Task;budgetReadOnly?:boolean}) {
  const unresolvedDependencies = dependencies.filter(t => t.status !== 'completed');
  const percent = task.status==='completed'?100:0;
  const rel = relativeDays(task.deadline || task.dueDate);
@@ -73,7 +73,7 @@ export function InspectorSummary({task, projectTitle, readOnly, dependencies, ca
                 <ProgressBar value={percent} tone={percent === 100 ? "good" : overdue ? "bad" : "neutral"} />
               </div>
 
-              <WorkBudgetCard task={fundingTask||task} canManage={canManageSubtasks} readOnly={supportsNestedWork(task)?(budgetReadOnly??readOnly):false} authorityPending={authorityPending}/>{(task.dependencyIds?.length || 0) > dependencies.length && <p role="status" className="text-sm text-amber-700">Some dependencies are unavailable. Their completion cannot be verified here.</p>}</section>;
+              <WorkBudgetCard task={fundingTask||task} canManage={canManageSubtasks} canAuthorizeFunding={canAuthorizeFunding} readOnly={supportsNestedWork(task)?(budgetReadOnly??readOnly):false} authorityPending={authorityPending}/>{(task.dependencyIds?.length || 0) > dependencies.length && <p role="status" className="text-sm text-amber-700">Some dependencies are unavailable. Their completion cannot be verified here.</p>}</section>;
 }
 
 export function InspectorField({

@@ -26,6 +26,7 @@ export function rowToProject(row: Record<string, unknown>): Project {
     createdBy: (row.created_by as string) || undefined,
     createdAt: new Date((row.created_at as string) || Date.now()).getTime(),
     updatedAt: new Date((row.updated_at as string) || Date.now()).getTime(),
+    metadataVersion: typeof row.updated_at === 'string' ? row.updated_at : undefined,
   };
 }
 

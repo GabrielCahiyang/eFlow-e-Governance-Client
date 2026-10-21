@@ -1,0 +1,171 @@
+
+> @figma/my-make-file@0.0.1 test
+> vitest --configLoader runner run --maxWorkers=2
+
+
+ RUN  v3.2.4 C:/Users/gabri/OneDrive/Desktop/EflowWeb
+
+ ✓ tests/unit/pdfOfficeExtraction.test.ts (5 tests) 21ms
+ ✓ tests/unit/phase1Terminology.test.ts (1 test) 7539ms
+   ✓ active production terminology > keeps legacy vocabulary out of display copy while preserving database and employment identifiers  7535ms
+ ✓ tests/unit/officeTableRows.test.ts (5 tests) 21ms
+ ✓ tests/unit/managedAccountActivationSql.test.ts (1 test) 7995ms
+   ✓ enforces managed activation authority, mailbox claims, delivery, replay and elevated-role approval  7990ms
+ ✓ tests/unit/taskTeamSqlAssignment.test.ts (1 test) 7436ms
+   ✓ assigns the initial team atomically without disabling the task status guard  7432ms
+ ✓ tests/unit/officeBudgetSqlPosition.test.ts (1 test) 7618ms
+   ✓ reads empty and populated budget sections without ambiguous positions, preserving JSON order  7613ms
+ ✓ tests/unit/workspaceRefinementR13Artifact.test.ts (1 test) 599ms
+   ✓ binds frontend, gateway, migrations and tests without packaging server secrets  596ms
+ ✓ tests/unit/startupImportBoundary.test.ts (2 tests) 3671ms
+   ✓ renders login without importing authenticated workspaces or closed workflow guides  1772ms
+   ✓ opens the workflow guide without importing the task workspace through onboarding  1893ms
+ ✓ tests/unit/budgetBundleIntegration.test.ts (5 tests) 559ms
+ ✓ tests/unit/redesignFoundation.test.ts (3 tests) 471ms
+   ✓ redesign foundation > does not reintroduce the retired Lexend or Montserrat presentation fonts  464ms
+ ✓ tests/unit/nestedWorkDisplayTree.test.ts (27 tests) 183ms
+ ✓ tests/unit/subtaskReviewContext.test.ts (7 tests) 243ms
+ ✓ tests/unit/workspaceRefinementWork.test.ts (14 tests) 72ms
+ ✓ tests/unit/ocedsippProposal.test.ts (18 tests) 96ms
+ ✓ tests/unit/taskBoardProjectFilter.test.ts (5 tests) 59ms
+ ✓ tests/unit/pdsImport.test.ts (1 test) 106ms
+ ✓ tests/unit/projectLifecycleService.test.ts (5 tests) 19ms
+ ✓ tests/unit/nestedWorkLegacyServices.test.ts (12 tests) 107ms
+ ✓ tests/unit/projectPdfDraft.test.ts (7 tests) 74ms
+ ✓ tests/unit/workspaceRefinementR11Reports.test.ts (8 tests) 79ms
+ ✓ tests/unit/workspaceAuthCache.test.ts (1 test) 85ms
+ ✓ tests/unit/workspaceRefinementFiles.test.ts (5 tests) 76ms
+ ✓ tests/unit/validationRemediationBoundaries.test.ts (15 tests) 51ms
+ ✓ tests/unit/adminTaskProposalSelectors.test.ts (3 tests) 89ms
+ ✓ tests/unit/leaderWorkspaceFilters.test.ts (2 tests) 65ms
+ ✓ tests/unit/aiProcessingProgress.test.ts (2 tests) 67ms
+ ✓ tests/unit/accountLogin.test.ts (8 tests) 56ms
+ ✓ tests/unit/organizationTreeLayout.test.ts (2 tests) 50ms
+ ✓ tests/unit/validationRemediationRules.test.ts (22 tests) 64ms
+stderr | tests/unit/nestedWorkCapabilities.test.ts > service compatibility and request context > marks real save receipts without changing request identity, payload or revision
+Error loading tasks: TypeError: __vite_ssr_import_0__.supabase.from is not a function
+    at C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\features\tasks\services\taskRealtimeService.ts:37:8
+    at readAllRows (C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\shared\readAllRows.ts:16:26)
+    at C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\features\tasks\services\taskRealtimeService.ts:36:24
+    at notifyTaskListeners (C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\features\tasks\services\taskRealtimeService.ts:44:3)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Promise.allSettled (index 0)
+    at Module.saveWorkTree (C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\features\nested-work\services\workTreeService.ts:47:3)
+    at C:\Users\gabri\OneDrive\Desktop\EflowWeb\tests\unit\nestedWorkCapabilities.test.ts:132:14
+    at file:///C:/Users/gabri/OneDrive/Desktop/EflowWeb/node_modules/@vitest/runner/dist/chunk-hooks.js:752:20
+
+ ✓ tests/unit/nestedWorkCapabilities.test.ts (51 tests) 141ms
+ ✓ tests/unit/nestedWorkEditorDraft.test.ts (114 tests) 48ms
+ ✓ tests/unit/interdepartmentCollaboration.test.ts (21 tests) 403ms
+ ✓ tests/unit/supabaseSession.test.ts (6 tests) 25ms
+ ✓ tests/unit/proposalAssignmentBalancing.test.ts (7 tests) 52ms
+ ✓ tests/unit/nestedWorkImpact.test.ts (22 tests) 42ms
+ ✓ tests/unit/teamWorkflowFactsReportContext.test.ts (3 tests) 44ms
+ ✓ tests/unit/projectImportDraft.test.ts (10 tests) 39ms
+ ✓ tests/unit/phase13PersonalWork.test.ts (15 tests) 43ms
+ ✓ tests/unit/proposalValidationClient.test.ts (2 tests) 28ms
+ ✓ tests/unit/taskCashClearanceService.test.ts (4 tests) 26ms
+ ✓ tests/unit/projectAutoAssignment.test.ts (4 tests) 27ms
+ ✓ tests/unit/phase12ProjectContext.test.ts (11 tests) 32ms
+stderr | tests/unit/proposalImport.test.ts > proposal LLM response parsing > does not create a local proposal when DeepSeek is unavailable
+Proposal decomposition failed: Error: AI service unavailable
+    at C:\Users\gabri\OneDrive\Desktop\EflowWeb\tests\unit\proposalImport.test.ts:41:48
+    at file:///C:/Users/gabri/OneDrive/Desktop/EflowWeb/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11
+    at file:///C:/Users/gabri/OneDrive/Desktop/EflowWeb/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26
+    at file:///C:/Users/gabri/OneDrive/Desktop/EflowWeb/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///C:/Users/gabri/OneDrive/Desktop/EflowWeb/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)
+    at runTest (file:///C:/Users/gabri/OneDrive/Desktop/EflowWeb/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at runSuite (file:///C:/Users/gabri/OneDrive/Desktop/EflowWeb/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)
+    at runSuite (file:///C:/Users/gabri/OneDrive/Desktop/EflowWeb/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)
+
+stdout | tests/unit/proposalImport.test.ts > proposal LLM response parsing > rejects malformed DeepSeek output instead of fabricating a hierarchy
+[Decomposition DEBUG] Raw LLM response content:
+ not JSON
+
+stderr | tests/unit/proposalImport.test.ts > proposal LLM response parsing > rejects malformed DeepSeek output instead of fabricating a hierarchy
+Proposal decomposition failed: Error: DeepSeek returned a response that could not be parsed into a proposal hierarchy.
+    at Module.decomposeWholeDocument (C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\features\proposal-import\services\decomposition\wholeDocumentDecomposition.ts:145:13)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+
+ ✓ tests/unit/proposalImport.test.ts (4 tests) 41ms
+ ✓ tests/unit/projectMetadataMutation.test.ts (3 tests) 26ms
+ ✓ tests/unit/taskCashClearance.test.ts (14 tests) 81ms
+ ✓ tests/unit/departmentReports.test.ts (6 tests) 53ms
+ ✓ tests/unit/controlPanelSessionRecovery.test.ts (3 tests) 25ms
+ ✓ tests/unit/departmentBudgetMigration.test.ts (17 tests) 24ms
+ ✓ tests/unit/taskMutationService.test.ts (7 tests) 29ms
+ ✓ tests/unit/projectViews.test.ts (10 tests) 36ms
+ ✓ tests/unit/chatModeration.test.ts (7 tests) 31ms
+ ✓ tests/unit/phase13CheckedFeeds.test.ts (6 tests) 28ms
+ ✓ tests/unit/proposalPortfolioGrouping.test.ts (5 tests) 22ms
+ ✓ tests/unit/budgetSections.test.ts (9 tests) 20ms
+ ✓ tests/unit/projectTable.test.ts (9 tests) 26ms
+ ✓ tests/unit/monthlyContributionLeaderboard.test.ts (4 tests) 17ms
+ ✓ tests/unit/nestedWorkEventPresentation.test.ts (9 tests) 27ms
+ ✓ tests/unit/deadlineWorkload.test.ts (5 tests) 27ms
+ ✓ tests/unit/notificationNavigation.test.ts (12 tests) 21ms
+ ✓ tests/unit/subtaskTemplateSafety.test.ts (4 tests) 7ms
+ ✓ tests/unit/sessionSecurity.test.ts (5 tests) 24ms
+ ✓ tests/unit/phase0607Enhancements.test.ts (6 tests) 24ms
+ ✓ tests/unit/teamAnalytics.test.ts (3 tests) 28ms
+ ✓ tests/unit/managedUserService.test.ts (2 tests) 22ms
+ ✓ tests/unit/workTreeMetadataRefresh.test.ts (4 tests) 23ms
+ ✓ tests/unit/manualPlanDraft.test.ts (3 tests) 25ms
+ ✓ tests/unit/officeIdentityImport.test.ts (6 tests) 24ms
+ ✓ tests/unit/phase14StaffingAuthority.test.ts (4 tests) 27ms
+ ✓ tests/unit/phase18PdfCompatibility.test.ts (2 tests) 28ms
+ ✓ tests/unit/budgetSelectors.test.ts (9 tests) 27ms
+ ✓ tests/unit/mergedProjectOfficeService.test.ts (4 tests) 22ms
+ ✓ tests/unit/collaborationResubmission.test.ts (4 tests) 23ms
+ ✓ tests/unit/financialCompatibilityPresentation.test.ts (7 tests) 26ms
+ ✓ tests/unit/phase1Roles.test.ts (20 tests) 26ms
+ ✓ tests/unit/nestedWorkActivityTransport.test.ts (3 tests) 23ms
+ ✓ tests/unit/subitemInspectorDataService.test.ts (6 tests) 26ms
+ ✓ tests/unit/cashReleaseOverrideService.test.ts (4 tests) 20ms
+ ✓ tests/unit/navigation.test.ts (7 tests) 23ms
+ ✓ tests/unit/taskTeamMembership.test.ts (6 tests) 96ms
+ ✓ tests/unit/browserExecutable.test.ts (8 tests) 25ms
+ ✓ tests/unit/accountingJournal.test.ts (10 tests) 23ms
+ ✓ tests/unit/workspaceRefinementR12Audit.test.ts (3 tests) 22ms
+ ✓ tests/unit/phase18ReleaseGate.test.ts (9 tests) 22ms
+ ✓ tests/unit/proposalGovernanceLifecycle.test.ts (6 tests) 347ms
+ ✓ tests/unit/personalWorkNavigation.test.ts (3 tests) 23ms
+ ✓ tests/unit/reviewDecisionError.test.ts (2 tests) 12ms
+ ✓ tests/unit/projectCommandSelectors.test.ts (6 tests) 27ms
+ ✓ tests/unit/emptyProjectCleanup.test.ts (2 tests) 18ms
+ ✓ tests/unit/reportFormatting.test.ts (2 tests) 13ms
+ ✓ tests/unit/phase14Participation.test.ts (2 tests) 16ms
+ ✓ tests/unit/proposalBudgetImport.test.ts (4 tests) 17ms
+ ✓ tests/unit/accountingRoleNavigation.test.tsx (4 tests) 14ms
+ ✓ tests/unit/remainingPhaseCoverage.test.ts (3 tests) 12ms
+ ✓ tests/unit/projectFinancialReport.test.ts (1 test) 22ms
+ ✓ tests/unit/phase04TaskBoardPresentation.test.ts (8 tests) 19ms
+ ✓ tests/unit/hierarchicalDeadlines.test.ts (4 tests) 261ms
+ ✓ tests/unit/taskSelectors.test.ts (4 tests) 23ms
+ ✓ tests/unit/phase18ProjectCache.test.ts (6 tests) 18ms
+ ✓ tests/unit/staffRecommendations.test.ts (2 tests) 17ms
+ ✓ tests/unit/guidedTourCatalog.test.ts (2 tests) 19ms
+ ✓ tests/unit/onboardingResponse.test.ts (3 tests) 16ms
+ ✓ tests/unit/adminProjectReadOnly.test.ts (4 tests) 10ms
+ ✓ tests/unit/cashWorkflowRules.test.ts (4 tests) 13ms
+ ✓ tests/unit/workPlanCreationUx.test.ts (5 tests) 10ms
+ ✓ tests/unit/adminTaskReadOnly.test.ts (5 tests) 15ms
+ ✓ tests/unit/subtaskSequencing.test.ts (6 tests) 15ms
+ ✓ tests/unit/workspaceRefinementR13Performance.test.ts (1 test) 14ms
+ ✓ tests/unit/budgetDesignSystemPresentation.test.ts (4 tests) 12ms
+ ✓ tests/unit/taskNormalization.test.ts (2 tests) 9ms
+ ✓ tests/unit/organizationLeadership.test.ts (5 tests) 15ms
+ ✓ tests/unit/proposalServerPipeline.test.ts (1 test) 15ms
+ ✓ tests/unit/phase04AccountingMigration.test.ts (4 tests) 9ms
+ ✓ tests/unit/phase05OperationsPresentation.test.ts (6 tests) 22ms
+ ✓ tests/unit/proposalPortfolioMigration.test.ts (3 tests) 9ms
+ ✓ tests/unit/profileDirectoryAdapter.test.ts (2 tests) 17ms
+ ✓ tests/unit/accessibilityOverlayMigration.test.ts (3 tests) 12ms
+ ✓ tests/unit/governanceLifecycleError.test.ts (2 tests) 20ms
+ ✓ tests/unit/phase14PeoplePresentation.test.ts (3 tests) 12ms
+ ✓ tests/unit/projectOfficeAuthority.test.ts (3 tests) 13ms
+ ✓ tests/unit/workspaceChoices.test.ts (3 tests) 12ms
+ ✓ tests/unit/draftAssignment.test.ts (3 tests) 10ms
+ ✓ tests/unit/committedProposalDelivery.test.ts (3 tests) 17ms

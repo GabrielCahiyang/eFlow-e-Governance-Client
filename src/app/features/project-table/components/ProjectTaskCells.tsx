@@ -1,4 +1,5 @@
-import {WorkStatusControl,approvedWorkProgress} from '../../work-state';
+import {WorkStatusControl,approvedWorkProgress,workStateLabel} from '../../work-state';
+import { ProjectTaskBudgetCell } from '../../budget';
 import type {TaskInspectorOrigin} from '../../task-inspector';
 import { useConfirmation } from '../../../components/ui/useConfirmation';
 import { assignTask, getTaskLeadId, type Task } from '../../tasks';
@@ -32,8 +33,8 @@ export function ProjectTaskCell({ column, task, tasks, profiles, people, orgs, e
   if (column === 'timeline') return <TimelineCell task={task} disabled={disabled} save={save}/>;
   if (column === 'effort') return <NumberCell label={'Estimated hours for ' + task.title} value={task.estimatedHours || 0} disabled={disabled} field="estimated_hours" save={save}/>;
   if (column === 'dependencies') return <DependencyCell task={task} tasks={tasks} disabled={disabled} save={save}/>;
-  if (column === 'budget') return <NumberCell label={'Budget estimate for ' + task.title} value={task.budgetImpact || 0} disabled={disabled} field="budget_impact" save={save}/>;
+  if (column === 'budget') return <ProjectTaskBudgetCell task={task} readOnly={readOnly||busy||!editable}/>;
   const steps=approvedWorkProgress(controller?.data?.nodes||[]);
   const progress=task.status==='completed'?100:steps.percent;
-  return <div className="pt-progress" aria-label={'Progress for ' + task.title}><progress max={100} value={progress}/><span>{task.status==='completed'?'Approved':steps.total?`${steps.approved}/${steps.total} steps approved`:'Awaiting approval'}</span></div>;
+  return <div className="pt-progress" aria-label={'Progress for ' + task.title}><progress max={100} value={progress}/><span>{task.status==='completed'?'Approved':steps.total?`${steps.approved}/${steps.total} steps approved`:workStateLabel(task.status)}</span></div>;
 }

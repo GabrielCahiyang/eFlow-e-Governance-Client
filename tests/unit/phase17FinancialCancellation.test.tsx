@@ -11,6 +11,13 @@ const request = { id: 'request', requestNumber: 8, requesterId: 'actor', purpose
 const data = { allocationLines: [], releases: [], liquidations: [], requestAttachments: [] } as unknown as DepartmentBudgetBundle;
 const props = (onChanged = vi.fn().mockResolvedValue(undefined)) => ({ data, requests: [request], currentUserId: 'actor', orgId: 'office', onCorrect: vi.fn(), onChanged });
 describe('Phase 17 funding cancellation', () => {
+  it('shows rejection feedback and the correct new-request recovery path without reopening a closed request', () => {
+    render(<CashRequestTimeline {...props()} requests={[{...request,status:'rejected',departmentDecisionReason:'Specify quantity and collect receipts.'}]} />);
+    expect(screen.getByText('Specify quantity and collect receipts.')).toBeTruthy();
+    expect(screen.getByText(/Submit a new request after addressing the feedback/)).toBeTruthy();
+    expect(screen.queryByRole('button',{name:'Correct'})).toBeNull();
+    expect(screen.queryByRole('button',{name:'Cancel',exact:true})).toBeNull();
+  });
   it('shows the amount and requires a reason; cancellation performs no write', async () => {
     render(<CashRequestTimeline {...props()} />);
     fireEvent.click(screen.getByRole('button', { name: 'Cancel', exact: true }));

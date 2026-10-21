@@ -11,6 +11,15 @@ with patch.dict(sys.modules,{'gateway_config':config}),patch('supabase.create_cl
  service=importlib.import_module('services.staffing_context');routes=importlib.import_module('routers.ai')
 TASK='20000000-0000-4000-8000-000000000001'
 class Phase7Tests(unittest.TestCase):
+ def test_auto_assignment_forces_qwen_and_rebuilds_broader_directory(self):
+  request=routes.ChatRequest(model='deepseek-r1:8b',messages=[{'role':'user','content':'Forged'}],workspace_staffing={'taskId':TASK,'autoAssign':True,'context':{'candidates':['foreign']}})
+  canonical={'task':{'id':TASK},'candidates':[{'id':'available-not-in-project'}]}
+  user=SimpleNamespace(id='head')
+  with patch.object(routes,'build_staffing_context',return_value=canonical) as read:
+   out=routes.checked_chat_payload(request,user)
+  read.assert_called_once_with(TASK,user,auto_assign=True)
+  self.assertEqual(out['model'],'qwen3.5:4b');self.assertTrue(out['workspace_staffing']['autoAssign'])
+  self.assertEqual(out['workspace_staffing']['context'],canonical)
  def test_workload_counts_team_members_and_unknown_effort_without_inventing_zero(self):
   tasks=[{'assigned_to':'m','status':'in_progress','estimated_hours':10,'percent_complete':40},
          {'team_member_ids':['m'],'status':'todo','estimated_hours':None},

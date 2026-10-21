@@ -1,0 +1,103 @@
+
+> @figma/my-make-file@0.0.1 test
+> vitest --configLoader runner run tests/unit/contextRailIsolation.test.tsx tests/unit/nestedWorkAdvisoryAppointment.test.tsx tests/unit/nestedWorkCollapsedReadiness.test.tsx tests/unit/nestedWorkLegacyBoundaries.test.tsx tests/unit/nestedWorkTableEntrances.test.tsx tests/unit/phase1Terminology.test.ts tests/unit/subitemEntrances.test.tsx tests/unit/subitemInspector.test.tsx tests/unit/workspaceRefinementHierarchy.test.tsx tests/unit/dependencyReadiness.test.ts --maxWorkers=1 --testTimeout=20000
+
+
+ RUN  v3.2.4 C:/Users/gabri/OneDrive/Desktop/EflowWeb
+
+ ✓ tests/unit/phase1Terminology.test.ts (1 test) 7614ms
+   ✓ active production terminology > keeps legacy vocabulary out of display copy while preserving database and employment identifiers  7611ms
+ ✓ tests/unit/dependencyReadiness.test.ts (1 test) 9ms
+ ✓ tests/unit/workspaceRefinementHierarchy.test.tsx (24 tests) 14372ms
+   ✓ R7 checked nested-work UI > keeps initial editor focus stable across a deferred entry frame  440ms
+   ✓ R7 checked nested-work UI > refreshes owners quietly on the access timer and clears them on an access denial  1022ms
+   ✓ R7 checked nested-work UI > does not let a pre-save refresh replace a newly saved owner snapshot  2364ms
+   ✓ R7 checked nested-work UI > retains one request and creation identity after a lost response, prevents double saves, and guards drafts  1704ms
+   ✓ R7 checked nested-work UI > retains expired assignment names while allowing replacement and excluding them from new choices  1213ms
+   ✓ R7 checked nested-work UI > allows a root lead to change contributors without gaining root-transfer authority  1041ms
+   ✓ R7 checked nested-work UI > keeps original draft revision during a capability refresh and disables a revoked editor  1139ms
+   ✓ R7 checked nested-work UI > shows historical work for a Viewer without exposing mutation actions or inventing an email invitation  813ms
+   ✓ NW3.3 staffing and hierarchy caller locks > lets verified canonical capability control Inspector contributors independently of legacy Head-only flags  1737ms
+   ✓ NW3.3 staffing and hierarchy caller locks > propagates Inspector read-only to both root staffing and nested work despite affirmative legacy booleans  754ms
+   ✓ NW3.3 staffing and hierarchy caller locks > updates an open Inspector staffing draft when its caller becomes read-only  1598ms
+ ✓ tests/unit/nestedWorkTableEntrances.test.tsx (11 tests) 16304ms
+   ✓ NW6.3 existing Main Table entrances > shares one controller across Owner, expansion, focus refresh and the 15-second timer  2199ms
+   ✓ NW6.3 existing Main Table entrances > lets eligible Head oversight add a root child despite not being Task Lead, expands and focuses Title  2308ms
+   ✓ NW6.3 existing Main Table entrances > fails closed for legacy management booleans without current create-child capability  626ms
+   ✓ NW6.3 existing Main Table entrances > propagates archive through row, owner and widget  1217ms
+   ✓ NW6.3 existing Main Table entrances > propagates caller lock through row, owner and widget  1062ms
+   ✓ NW6.3 existing Main Table entrances > propagates review state through row, owner and widget  1159ms
+   ✓ NW6.3 existing Main Table entrances > keeps proposed Office work in the locked legacy path without a nested-work controller  847ms
+   ✓ NW6.3 existing Main Table entrances > retains this task collapse state across row close and does not reopen an old Add request  2632ms
+   ✓ NW6.3 existing Main Table entrances > keeps personal progress drafts locked when the caller execution scope changes  902ms
+   ✓ NW6.3 existing Main Table entrances > routes Office Review to the existing callback and hides it when there is no review owner  1242ms
+   ✓ NW6.3 existing Main Table entrances > retains dirty branch and row on declined collapse and discards only after accepted navigation  2106ms
+ ✓ tests/unit/subitemInspector.test.tsx (13 tests) 10820ms
+   ✓ NW8.1 canonical Subitem Inspector > retains the actual opener through the loading-to-loaded panel transition  1538ms
+   ✓ NW8.1 canonical Subitem Inspector > uses deep-only names, the full permitted path and item date/progress rather than root arrays  376ms
+   ✓ NW8.1 canonical Subitem Inspector > navigates from depth 8 to the actual parent by canonical ID  1202ms
+   ✓ NW8.1 canonical Subitem Inspector > keeps duplicate titles distinct and renders only the selected branch children  468ms
+   ✓ NW8.1 canonical Subitem Inspector > ignores a late read after switching items and never shows a stale writable form  374ms
+   ✓ NW8.1 canonical Subitem Inspector > shows missing parent context without reading the protected parent or inventing an edge  407ms
+   ✓ NW8.1 canonical Subitem Inspector > shows explicit denied read errors and retries without mounting workflow controls  383ms
+   ✓ NW8.1 canonical Subitem Inspector > guards parent navigation and close while preserving failed progress drafts  1137ms
+   ✓ NW8.1 canonical Subitem Inspector > keeps the progress draft mounted but disabled during an authority refresh  480ms
+   ✓ NW8.1 canonical Subitem Inspector > shares the real child editor and sends complete sibling IDs from the full tree  3586ms
+   ✓ NW8.1 canonical Subitem Inspector > routes supported facade opens to the canonical Inspector and keeps excluded work legacy  530ms
+stderr | tests/unit/nestedWorkAdvisoryAppointment.test.tsx > NW3.4 AI selection through the actual canonical appointment editor > keeps one request identity after server denial and retry, without a legacy or membership write
+Error loading tasks: TypeError: __vite_ssr_import_0__.supabase.from is not a function
+    at C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\features\tasks\services\taskRealtimeService.ts:37:8
+    at readAllRows (C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\shared\readAllRows.ts:16:26)
+    at C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\features\tasks\services\taskRealtimeService.ts:36:24
+    at notifyTaskListeners (C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\features\tasks\services\taskRealtimeService.ts:44:3)
+    at async Promise.allSettled (index 0)
+    at saveWorkTree (C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\features\nested-work\services\workTreeService.ts:47:3)
+    at Object.save (C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\features\nested-work\hooks\useWorkTree.ts:51:18)
+    at submit (C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\features\nested-work\components\WorkStaffingDialog.tsx:110:12)
+
+stderr | tests/unit/nestedWorkAdvisoryAppointment.test.tsx > NW3.4 AI selection through the actual canonical appointment editor > saves once and disables all resubmission after caller refresh fails
+Error loading tasks: TypeError: __vite_ssr_import_0__.supabase.from is not a function
+    at C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\features\tasks\services\taskRealtimeService.ts:37:8
+    at readAllRows (C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\shared\readAllRows.ts:16:26)
+    at C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\features\tasks\services\taskRealtimeService.ts:36:24
+    at notifyTaskListeners (C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\features\tasks\services\taskRealtimeService.ts:44:3)
+    at async Promise.allSettled (index 0)
+    at saveWorkTree (C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\features\nested-work\services\workTreeService.ts:47:3)
+    at Object.save (C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\features\nested-work\hooks\useWorkTree.ts:51:18)
+    at submit (C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\features\nested-work\components\WorkStaffingDialog.tsx:110:12)
+
+ ✓ tests/unit/nestedWorkAdvisoryAppointment.test.tsx (4 tests) 16302ms
+   ✓ NW3.4 AI selection through the actual canonical appointment editor > prefills the recommended Lead; canceled appointment review writes nothing  5683ms
+   ✓ NW3.4 AI selection through the actual canonical appointment editor > fails closed on fresh canonical appointment denial despite legacy can_transfer  2590ms
+   ✓ NW3.4 AI selection through the actual canonical appointment editor > keeps one request identity after server denial and retry, without a legacy or membership write  3716ms
+   ✓ NW3.4 AI selection through the actual canonical appointment editor > saves once and disables all resubmission after caller refresh fails  4311ms
+ ✓ tests/unit/subitemEntrances.test.tsx (11 tests) 9207ms
+   ✓ NW8.4 canonical entrances and compatibility > opens the exact duplicate-title ID from Work without legacy prefetch and restores the real opener  2327ms
+   ✓ NW8.4 canonical entrances and compatibility > opens the canonical item in Review from its current action and retains dirty feedback on Back navigation  1902ms
+   ✓ NW8.4 canonical entrances and compatibility > opens a deep My Work row with current execute rights despite old flags, and grants no root management  561ms
+   ✓ NW8.4 canonical entrances and compatibility > retains history-only My Work locks even when current maps and old assignment match  338ms
+   ✓ NW8.4 canonical entrances and compatibility > guards dirty Work-to-Activity navigation and shows only the selected Activity shell  617ms
+   ✓ NW8.4 canonical entrances and compatibility > opens current review selection through the public canonical facade only after accepted discard  1330ms
+   ✓ NW8.4 canonical entrances and compatibility > preserves an explicit read-only Inbox caller through its opened canonical Inspector  646ms
+   ✓ NW8.4 canonical entrances and compatibility > keeps an opened canonical draft mounted when its parent review queue is removed and fails  1098ms
+ ✓ tests/unit/nestedWorkCollapsedReadiness.test.tsx (2 tests) 10291ms
+   ✓ NW4.2 Main Table collapse preserves required descendant readiness > keeps a required depth-1 descendant in readiness while the real task row is collapsed  5230ms
+   ✓ NW4.2 Main Table collapse preserves required descendant readiness > keeps a required depth-8 descendant in readiness while the real task row is collapsed  5055ms
+ ✓ tests/unit/contextRailIsolation.test.tsx (7 tests) 7679ms
+   ✓ approved primary/context isolation > keeps a granted Office calendar handoff reachable from the global My Work feed in a personal workspace  1988ms
+   ✓ approved primary/context isolation > identifies only the current authorized legacy tool without exposing all retained routes  887ms
+   ✓ approved primary/context isolation > replaces workspace sections immediately with My Work then Inbox while keeping the primary rail  2013ms
+   ✓ approved primary/context isolation > restores the accepted My Work subdestination/filters and scopes memories to the account  440ms
+   ✓ approved primary/context isolation > keeps collapse preferences isolated between contexts and restores workspace state  2342ms
+ ✓ tests/unit/nestedWorkLegacyBoundaries.test.tsx (17 tests) 12446ms
+   ✓ NW9.7 proven compatibility entrances > routes the actual board editor through canonical depth-eight work and item IDs  4277ms
+   ✓ NW9.7 proven compatibility entrances > passes the editor saving lock through to canonical controls  2690ms
+   ✓ NW9.7 proven compatibility entrances > shares one board controller across hierarchy and canonical detail  1342ms
+   ✓ NW9.7 proven compatibility entrances > uses canonical project root people instead of the old metadata team picker  1755ms
+   ✓ NW9.7 proven compatibility entrances > hands the metadata save a checked missing scope only after the current root read proves it  1263ms
+
+ Test Files  10 passed (10)
+      Tests  91 passed (91)
+   Start at  08:07:35
+   Duration  315.99s (transform 17.93s, setup 0ms, collect 184.92s, tests 105.04s, environment 16.25s, prepare 3.16s)
+

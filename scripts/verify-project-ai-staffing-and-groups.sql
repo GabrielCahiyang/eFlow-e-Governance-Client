@@ -1,0 +1,51 @@
+begin;
+do $$
+declare h public.profiles; person uuid; p1 uuid:=gen_random_uuid();p2 uuid:=gen_random_uuid();p3 uuid:=gen_random_uuid();p4 uuid:=gen_random_uuid();
+ g uuid; t public.tasks; answer jsonb; snap jsonb; request uuid:=gen_random_uuid(); batch uuid:=gen_random_uuid(); team_count int; blocked bool;
+ review jsonb:='{"schemaVersion":1,"offices":[],"applyProjectDetails":false,"groups":[{"key":"group-1","title":"Imported planning","color":"#00838f","existingGroupId":"","tasks":[{"key":"task-1","title":"Imported meeting","description":"Source methodology","priority":"high","estimatedHours":4,"officeKey":"","dependencies":[],"subitems":[],"sourceQuote":"Imported meeting"}]}]}';
+begin
+ select * into h from public.profiles p where p.is_active and p.role='head' and public.phase2_is_office_head(p.id,p.org_id) order by p.id limit 1;
+ if h.id is null then raise exception 'No appointed Head for test';end if;
+ perform set_config('request.jwt.claim.sub',h.id::text,true);
+ insert into public.projects(id,title,org_id,owner_id,created_by) values(p1,'Rollback QA empty group',h.org_id,h.id,h.id),(p2,'Rollback QA populated group',h.org_id,h.id,h.id),(p3,'Rollback QA PDF cleanup',h.org_id,h.id,h.id),(p4,'Rollback QA historical group',h.org_id,h.id,h.id);
+ select id into g from public.project_groups where project_id=p1 and is_default;
+ if g is null then raise exception 'Missing initial group';end if;
+ perform public.delete_empty_project_group(g);
+ if exists(select 1 from public.project_groups where project_id=p1) then raise exception 'Empty last group not deleted';end if;
+ select id into g from public.project_groups where project_id=p2 and is_default;
+ t:=public.phase3_create_task(p2,g,'Keep this existing task');
+ blocked:=false;begin perform public.delete_empty_project_group(g);exception when sqlstate '22023' then blocked:=true;end;
+ if not blocked then raise exception 'Populated group deletion was allowed';end if;
+ answer:=public.import_project_pdf_work(p2,gen_random_uuid(),review);
+ if not exists(select 1 from public.project_groups where id=g) then raise exception 'PDF removed populated default';end if;
+ select id into g from public.project_groups where project_id=p3 and is_default;
+ answer:=public.import_project_pdf_work(p3,batch,review);
+ if exists(select 1 from public.project_groups where id=g) then raise exception 'PDF retained empty default';end if;
+ if (select count(*) from public.project_groups where project_id=p3)<>1 then raise exception 'Imported group missing';end if;
+ if public.import_project_pdf_work(p3,batch,review)<>answer then raise exception 'PDF retry changed receipt';end if;
+ select id into g from public.project_groups where project_id=p4 and is_default;
+ t:=public.phase3_create_task(p4,g,'Deleted historical task');
+ update public.tasks set deleted_at=now() where id=t.id;
+ perform public.delete_empty_project_group(g);
+ if not exists(select 1 from public.tasks where id=t.id and deleted_at is not null and group_id is null) then raise exception 'Deleted history not retained';end if;
+ -- Candidate need not already be selected on this newly created project.
+ select id into person from public.project_ai_available_people((answer->'taskIds'->>'task-1')::uuid,h.id) where id<>h.id limit 1;
+ if person is null then raise exception 'No available candidate';end if;
+ snap:=public.r7_work_tree((answer->'taskIds'->>'task-1')::uuid);
+ select count(*) into team_count from public.project_office_members m join public.project_offices o on o.id=m.project_office_id where o.project_id=p3;
+ blocked:=false;begin
+  perform public.auto_assign_project_task((snap->'root'->>'id')::uuid,(snap->>'revision')::int+999,gen_random_uuid(),person,array[person]);
+ exception when sqlstate '40001' then blocked:=true;end;
+ if not blocked or team_count<>(select count(*) from public.project_office_members m join public.project_offices o on o.id=m.project_office_id where o.project_id=p3) then raise exception 'Stale request changed enrollment';end if;
+ answer:=public.auto_assign_project_task((snap->'root'->>'id')::uuid,(snap->>'revision')::int,request,person,array[person]);
+ if answer->'root'->>'lead'<>person::text then raise exception 'AI lead not saved';end if;
+ if not exists(select 1 from public.project_office_members m join public.project_offices o on o.id=m.project_office_id where o.project_id=p3 and m.user_id=person) then raise exception 'AI person not enrolled';end if;
+ perform public.auto_assign_project_task((snap->'root'->>'id')::uuid,(snap->>'revision')::int,request,person,array[person]);
+ blocked:=false;begin perform public.auto_assign_project_task((snap->'root'->>'id')::uuid,(answer->>'revision')::int,gen_random_uuid(),person,array[person]);exception when sqlstate '22023' then blocked:=true;end;
+ if not blocked then raise exception 'Existing assignment overwritten';end if;
+ perform set_config('request.jwt.claim.sub',person::text,true);
+ blocked:=false;begin perform public.auto_assign_project_task((snap->'root'->>'id')::uuid,1,gen_random_uuid(),person,array[person]);exception when sqlstate '42501' then blocked:=true;end;
+ if not blocked then raise exception 'Member auto assignment allowed';end if;
+end $$;
+select 'PASS: empty/populated defaults, PDF cleanup/retry, deleted history, broad roster, atomic stale rollback, enrollment/lead, retry, existing assignment and member denial' checks;
+rollback;

@@ -1,0 +1,37 @@
+{
+  "target": "ixnfphgjyelhckjwjkdv",
+  "local_date": "2026-10-21",
+  "migrations": ["20261020210040", "20261020210906", "20261020210933", "20261020211214", "20261020213442"],
+  "hosted_rollback_checks": {
+    "atomic_import_and_idempotent_retry": "passed",
+    "session_lease_and_revision_guards": "passed",
+    "non_head_source_isolation": "passed",
+    "assignment_failure_rolls_back_all_work": "passed",
+    "office_extraction_disabled": "passed",
+    "employee_acceptance_without_department_head": "passed",
+    "representative_acceptance_without_role_promotion": "passed",
+    "global_profile_unchanged": "passed",
+    "guest_staffing_does_not_enroll_permanent_roster": "passed",
+    "office_withdrawal_ends_access_and_removes_assignment": "passed",
+    "project_deletion_with_guest_history": "passed",
+    "test_data": "rolled_back"
+  },
+  "post_deployment_catalog": {
+    "rls_enabled_on_all_three_new_tables": true,
+    "anonymous_source_read": false,
+    "authenticated_direct_source_write": false,
+    "anonymous_mutation_execution": false,
+    "authenticated_candidate_rpc_execution": false,
+    "project_lookup_indexes_present": true,
+    "source_actor_fk_cascades": true
+  },
+  "actual_source_pdf": {"groups": 8, "tasks": 10, "budget_lines": 16, "budget_total_php": 2156500, "included_total_matches": true},
+  "desktop_browser_cases": {"passed": 3, "browser": "Chromium", "backend": "intercepted fixtures", "viewport": "1600x1000"},
+  "live_local_inference": {"model": "qwen3.5:4b", "verified_candidates": true, "mutations": "none"},
+  "gateway_tests": {"main_phase5": 8, "main_r8": 10, "sibling_staffing_gateway": 11, "passed": true},
+  "unit_coverage": {"files": 338, "cases": 2046, "initial_failed_files": 3, "corrected_fresh_rerun_cases": 11, "corrected_rerun_passed": true},
+  "typecheck": "passed",
+  "production_build": "passed_with_existing_chunk_warnings",
+  "email_delivery": "No real email dispatched; manual send remains available through existing Resend integration.",
+  "local_gateway_health": "ok"
+}

@@ -1,0 +1,6 @@
+
+> @figma/my-make-file@0.0.1 check
+> tsc --noEmit
+
+src/app/features/project-table/components/ProjectTableWorkspace.tsx(94,36): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.

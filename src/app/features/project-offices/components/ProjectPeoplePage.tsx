@@ -1,4 +1,5 @@
 import { Button, Heading, Skeleton } from '@vibe/core';
+import { MoveArrowLeft } from '@vibe/icons';
 import { useRef } from 'react';
 import type { Organization, UserProfile } from '../../../types';
 import type { Task } from '../../tasks';
@@ -10,8 +11,8 @@ import { requestNavigation } from '../../../shared/navigationGuard';
 import type { ProjectOffice } from '../types';
 
 /** Direct entry to the canonical Office staffing editor, with no alternate membership write. */
-export function ProjectPeoplePage({ projectTitle, projectStatus, governed, created = false, profiles, profilesLoading = false, organizations, tasks, onClose, onOpenTask, onSaved }: {
-  projectTitle: string; projectStatus: string; governed: boolean; created?: boolean; profiles: UserProfile[]; profilesLoading?: boolean; organizations: Organization[]; tasks: Task[];
+export function ProjectPeoplePage({ projectTitle, projectStatus, governed, profiles, profilesLoading = false, organizations, tasks, onClose, onOpenTask, onSaved }: {
+  projectTitle: string; projectStatus: string; governed: boolean; profiles: UserProfile[]; profilesLoading?: boolean; organizations: Organization[]; tasks: Task[];
   onClose: () => void; onOpenTask: (id: string) => void; onSaved?: () => Promise<void>;
 }) {
   const { user, userProfile } = useAuth();
@@ -24,9 +25,9 @@ export function ProjectPeoplePage({ projectTitle, projectStatus, governed, creat
   const editorOffice = opened.current?.scope === scope ? opened.current.office : undefined;
   const reason = state.error || (state.loading || profilesLoading ? 'Checking current project access…' : governed ? 'Manage this team through the approved work plan’s participation workflow.' : ['completed','archived'].includes(projectStatus) ? 'This project is closed. Its team is read-only.' : 'Only the appointed Head of a joined, participating office can choose its project team.');
   return <section className="eflow-project-people-page" aria-label="Add people to project">
-    <header><div><Heading type="h2">Add people</Heading><p>{projectTitle}</p>{organizations.find(item=>item.id===userProfile?.org_id)?.name && <p>From your office: {organizations.find(item=>item.id===userProfile?.org_id)?.name}</p>}</div><Button kind="tertiary" size="small" onClick={() => { void requestNavigation(onClose); }}>{created ? 'Skip for now' : 'Back to project'}</Button></header>
-    {created && <p role="status">Project created. Add people now, or skip this step and do it later.</p>}
-    <p>Selected people can access this project. Assign their tasks afterwards.</p>
+    <header><div><Heading type="h2">Add people</Heading><p>{projectTitle}</p>{organizations.find(item=>item.id===userProfile?.org_id)?.name && <p>From your office: {organizations.find(item=>item.id===userProfile?.org_id)?.name}</p>}</div><Button leftIcon={MoveArrowLeft} kind="tertiary" size="small" onClick={() => { void requestNavigation(onClose); }}>Back to project</Button></header>
+    <p>Choose colleagues from your office now, or return to this project and add them later.</p>
+    <p>Selected people can access this project. AI auto assign also adds its chosen people here.</p>
     {editorOffice ? <>
       {state.error && <div role="alert"><p>{state.error}</p><Button size="small" onClick={() => void state.refresh()}>Retry project people</Button></div>}
       <OfficeMembersEditor key={`${user?.id}:${editorOffice.id}`} office={editorOffice} profiles={profiles} members={state.members} tasks={tasks} actorId={user?.id || ''} disabledReason={allowed && !profilesLoading ? '' : reason} onOpenTask={onOpenTask} onCancel={onClose} onSaved={async () => { await state.refresh(); await onSaved?.(); }}/>

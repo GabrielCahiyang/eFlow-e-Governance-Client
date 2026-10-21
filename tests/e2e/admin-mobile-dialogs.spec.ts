@@ -18,20 +18,9 @@ test('Admin user management remains usable on a narrow phone',async({page},info)
   await dialog.getByRole('button',{name:'Close dialog',exact:true}).click();
 });
 
-test('workspace proposal import and existing manual planning remain reachable in the phone drawer',async({page},info)=>{
-  test.setTimeout(90_000);await page.setViewportSize({width:320,height:740});
-  await projectWorkspaceFixture(page,'head');
-  await page.getByRole('navigation',{name:'Mobile primary navigation'}).getByRole('button',{name:'More',exact:true}).click();
-  const drawer=page.getByRole('dialog',{name:'Navigation',exact:true});
-  await expect(drawer.getByRole('button',{name:'Open projects',exact:true})).toHaveCount(0);
-  await drawer.getByRole('button',{name:'Community outreach',exact:true}).click();
-  await page.getByRole('button',{name:'Projects and proposals',exact:true}).click();
-  await page.getByRole('menuitem',{name:'Import proposal',exact:true}).click();
-  const dialog=page.getByRole('dialog',{name:'Create a work plan',exact:true});await expect(dialog).toBeVisible();
-  await expect(dialog.getByText('Drop a government proposal PDF here',{exact:true})).toBeVisible();
-  await dialog.getByRole('button',{name:'New work plan',exact:true}).click();
-  const input=dialog.getByPlaceholder(/2026 Coastal/i);await expect(input).toBeVisible(); expect((await input.boundingBox())!.width).toBeGreaterThan(150);
-  await page.screenshot({path:info.outputPath('planning-mobile-dialog.png')});
-  await dialog.getByRole('button',{name:'Close dialog',exact:true}).click();await expect(dialog).toHaveCount(0);
-  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+test('project PDF import stays inside the workspace on narrow screens',async({page},info)=>{
+ test.setTimeout(90000);await page.setViewportSize({width:320,height:740});await projectWorkspaceFixture(page,'head');
+ await page.getByRole('button',{name:'Import PDF',exact:true}).click();const panel=page.getByRole('region',{name:'Import PDF into project'});await expect(panel.getByLabel('Import project PDF')).toBeAttached();
+ await expect(page.getByRole('dialog',{name:'Create a work plan',exact:true})).toHaveCount(0);
+ await page.screenshot({path:info.outputPath('project-pdf-320.png')});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });

@@ -4,10 +4,20 @@ vi.mock('../../src/lib/supabase', () => ({ supabase: { rpc } }));
 vi.mock('../../src/app/features/tasks', () => ({ notifyTaskListeners: vi.fn().mockRejectedValue(new Error('refresh failed')) }));
 vi.mock('../../src/app/features/projects', () => ({ notifyProjectListeners: vi.fn().mockResolvedValue(undefined) }));
 vi.mock('../../src/app/features/ai', () => ({ requestAiChat: vi.fn(), readAiText: vi.fn() }));
-import { importReviewedProject, importReviewedProjectWithOffices, ProjectImportSaveError } from '../../src/app/features/project-import/services/projectImportService';
+import { importReviewedProject, importReviewedProjectWithOffices, importPdfProjectWork, ProjectImportSaveError } from '../../src/app/features/project-import/services/projectImportService';
 import { rowToTask, taskToRow } from '../../src/app/features/tasks/services/taskMapper';
 beforeEach(() => { rpc.mockReset(); });
 describe('Office identity import compatibility', () => {
+  it('treats confirmed duplicate names as a correctable failure rather than an endless retry',async()=>{
+    rpc.mockResolvedValue({error:{code:'23505',message:'duplicate key value violates unique constraint "eflow_unique_group_name"'}});
+    const error=await importPdfProjectWork('project','batch',{}).catch(e=>e);
+    expect(error).toBeInstanceOf(ProjectImportSaveError);expect(error.retrySameBatch).toBe(false);
+    expect(error.message).toContain('A group with this name already exists');expect(error.message).not.toContain('constraint');
+  });
+  it('returns an already-imported receipt without treating it as a failed import',async()=>{
+    const receipt={taskCount:0,subitemCount:0,groupCount:0,taskIds:{a:'existing'},groupIds:['group'],alreadyImported:true,existingTaskCount:1};
+    rpc.mockResolvedValue({data:receipt,error:null});expect(await importPdfProjectWork('project','batch',{})).toEqual(receipt);
+  });
   it('uses the versioned RPC for identity-aware import without changing legacy callers', async () => {
     const receipt = { taskCount: 1, subitemCount: 0, groupCount: 1, taskIds: { a: 'task' }, groupIds: ['group'] };
     rpc.mockResolvedValue({ data: receipt, error: null });

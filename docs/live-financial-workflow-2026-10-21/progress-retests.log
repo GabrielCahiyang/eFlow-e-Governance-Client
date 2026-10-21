@@ -1,0 +1,16 @@
+
+> @figma/my-make-file@0.0.1 test
+> vitest --configLoader runner run tests/unit/projectTable.test.ts tests/unit/projectTableProgress.test.tsx --maxWorkers=1 --testTimeout=20000
+
+
+ RUN  v3.2.4 C:/Users/gabri/OneDrive/Desktop/EflowWeb
+
+ ✓ tests/unit/projectTableProgress.test.tsx (5 tests) 1073ms
+   ✓ describes todo work accurately when it has no subitems  832ms
+ ✓ tests/unit/projectTable.test.ts (10 tests) 23ms
+
+ Test Files  2 passed (2)
+      Tests  15 passed (15)
+   Start at  08:22:45
+   Duration  121.36s (transform 19.46s, setup 0ms, collect 110.15s, tests 1.10s, environment 4.73s, prepare 3.15s)
+

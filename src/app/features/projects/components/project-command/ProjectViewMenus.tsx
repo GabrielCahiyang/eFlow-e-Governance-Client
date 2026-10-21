@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Add, CloseSmall, DropdownChevronDown, Folder } from "@vibe/icons";
+import { LayoutGrid } from 'lucide-react';
+import { CloseSmall, DropdownChevronDown, Folder } from "@vibe/icons";
 import { Popover, PopoverContent, PopoverTrigger } from "../../../../components/ui/popover";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "../../../../components/ui/dropdown-menu";
 import { CORE_VIEWS_CATALOG, OPTIONAL_VIEWS_CATALOG, VIEW_ICONS } from "./projectViewCatalog";
@@ -48,9 +49,9 @@ export function ProjectViewMenus({ openViews, overflowViews, onOpenView, onClose
       )}
       <Popover open={addViewOpen} onOpenChange={setAddViewOpen}>
         <PopoverTrigger asChild>
-          <button type="button" className="eflow-project-view-trigger"><Add size={18} />Add view</button>
+          <button type="button" aria-label="Browse project views" className="eflow-project-view-trigger"><LayoutGrid size={18} />Browse views</button>
         </PopoverTrigger>
-        <PopoverContent align="end" sideOffset={8} collisionPadding={12} aria-label="Add project view" className="eflow-project-view-menu">
+        <PopoverContent align="end" sideOffset={8} collisionPadding={12} aria-label="Browse project views" className="eflow-project-view-menu">
           <header>
             <h4>Workspace views</h4>
             <p>See the same project and tasks in a different layout.</p>

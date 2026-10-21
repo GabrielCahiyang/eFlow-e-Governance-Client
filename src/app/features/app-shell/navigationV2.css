@@ -25,12 +25,6 @@
 .eflow-global-navigation__icon .eflow-navigation-alert { position: absolute; right: -5px; top: 0; }
 .eflow-skip-link { position: fixed; left: 16px; top: 12px; z-index: var(--eflow-layer-toast); transform: translateY(-160%); border-radius: 8px; background: var(--eflow-primary); color: var(--eflow-on-primary); padding: 8px 12px; }
 .eflow-skip-link:focus { transform: translateY(0); }
-.eflow-project-context summary { color: var(--eflow-text); font-size: 13px; font-weight: 600; cursor: pointer; padding: 8px 4px; min-height: 40px; }
-.eflow-project-context summary small { font-size: 10px; font-weight: 400; color: var(--eflow-text-muted); }
-.eflow-project-context__favorite { position: relative; z-index: 1; flex: 0 0 32px; min-height: 32px; display: flex; justify-content: center; align-items: center; color: var(--eflow-text-muted); border-radius: 6px; }
-.eflow-project-context__favorite[aria-pressed=true] { color: var(--eflow-primary); }
-.eflow-project-context__create { display: flex; align-items: center; gap: 4px; }
-.eflow-project-context__add-menu { min-width: 40px; min-height: 40px; border: 1px solid var(--eflow-border); border-radius: 6px; font-size: 20px; }
 .eflow-mobile-navigation-bar { display: none; }
 .eflow-mobile-navigation-bar span { max-width: 100%; overflow-wrap: anywhere; line-height: 1.2; }
 .eflow-navigation-search { width: min(560px, calc(100vw - 24px)); }
@@ -57,7 +51,7 @@
   .eflow-productivity-sidebar--mobile .eflow-global-navigation__item { flex: 0 0 calc(25% - 3px); width: auto; min-height: 52px; }
   .eflow-productivity-sidebar--mobile .eflow-global-navigation__brand, .eflow-productivity-sidebar--mobile .eflow-global-navigation__spacer { display: none; }
   .eflow-productivity-sidebar--mobile .eflow-workspace-navigation { width: 100%; }
-  .eflow-productivity-sidebar--mobile .eflow-workspace-navigation__destination, .eflow-productivity-sidebar--mobile .eflow-project-context__project-select, .eflow-productivity-sidebar--mobile .eflow-project-context__favorite, .eflow-productivity-sidebar--mobile .eflow-project-context__add-menu { min-height: 44px; }
+  .eflow-productivity-sidebar--mobile .eflow-workspace-navigation__destination { min-height: 44px; }
 }
 /* R2: persistent Office context, explicit workspace controls and section disclosures. */
 .eflow-workspace-navigation__header { padding: 8px; }

@@ -13,6 +13,7 @@ import {captureWorkEditorBaseline} from '../selectors/editorDraft';
 import {workRequestFailure} from '../services/workRequestOutcome';
 import {useWorkDraftRecovery} from '../hooks/useWorkDraftRecovery';
 import {isCurrentWorkSnapshot} from '../selectors/capabilities';
+import {AutoAssignTaskButton} from '../../staffing';
 
 /** Narrow compatibility input for historical standalone callers.
  * The existing owner supplies its own snapshot/save/loading and current identity.
@@ -124,6 +125,7 @@ function WorkStaffingDialogContent({controller,nodeId,readOnly=false,executionBl
  const title=nodeId?'Subitem Lead and contributors':'Task lead and contributors';
  return <Modal isOpen title={title} onClose={close} preventClose={busy} width="max-w-2xl">
   <form className="r7-work r7-form m-0 overflow-y-auto border-0" aria-label="Task/subitem people changes" onSubmit={event=>{event.preventDefault();void submit();}}>
+   {!nodeId&&data.root.kind==='office'&&data.can_transfer&&caps.appointment.allowed&&!baseline.leadId&&!contributorsOnly&&!readOnly&&<AutoAssignTaskButton snapshot={data} disabled={locked||dirty||executionBlocked} onBusyChange={value=>{guard.pendingRef.current=value;setBusy(value);}} onAssigned={async receipt=>{confirmed.current=true;recovery.clear();setSaved(true);guard.markClean();await latest.current.onChanged(receipt);}}/>}
    <WorkPeoplePicker people={data.people} lead={lead||''} selected={workers} onLead={setLead} onSelected={setWorkers}
     appointmentCapability={contributorsOnly?{allowed:false,reason_code:'read_only',disabledReason:'Change the lead from the Lead menu.'}:caps.appointment} contributorCapability={caps.contributors} disabled={locked} disabledReason={lockReason}
     invite={!readOnly&&!locked?{project:data.root.project,office:data.root.office,root:controller.rootId,node:nodeId||undefined,canRequest:scopedInvitationRequestAllowed(data,nodeId,context)}:undefined}/>

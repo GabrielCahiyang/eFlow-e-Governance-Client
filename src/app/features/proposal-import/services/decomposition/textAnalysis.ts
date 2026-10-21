@@ -1,4 +1,10 @@
 import type { ProposalDecompositionTask } from "../../types";
+import { sourceActions, type SourceAction } from './sourceActions';
+
+export function extractProposalTitle(text:string,fallback:string):string {
+  const match=text.match(/\bI\.\s*Project\s+Title\s*:\s*([\s\S]*?)(?=\bII\.\s*Proponents\s*:)/i);
+  return match?.[1].replace(/\s+/g,' ').trim()||fallback;
+}
 
 export const extractActionTable = (text: string): string => {
   const tableStartPatterns = [
@@ -34,7 +40,7 @@ export const extractActionTable = (text: string): string => {
     return text.slice(startIdx, endIdx).trim();
   }
 
-  return text.slice(0, 3000);
+  return text;
 };
 
 export const extractBudgetSchedule = (text: string): string => {
@@ -43,7 +49,8 @@ export const extractBudgetSchedule = (text: string): string => {
   const tail = text.slice(start);
   const endMatch = tail.slice(1).search(/(?:Monitoring\s+and\s+Evaluation|Sustainability|Annex|Appendix)/i);
   const section = endMatch >= 0 ? tail.slice(0, endMatch + 1) : tail;
-  return section.replace(/\s+/g, " ").trim().slice(0, 12_000);
+  if(section.length>12000)throw new Error('This budget schedule is too large for the legacy section reader. Import smaller sections; no budget rows were truncated.');
+  return section.trim();
 };
 
 export const inferSkillsFromText = (text: string): string[] => {
@@ -134,6 +141,7 @@ export type PartSection = {
   description: string;
   schedule?: string;
   tasks: ProposalDecompositionTask[];
+  sourceActions?: SourceAction[];
 };
 
 const cleanHierarchyTitle = (value: string, fallback: string): string => {
@@ -145,6 +153,24 @@ const cleanHierarchyTitle = (value: string, fallback: string): string => {
 };
 
 export const extractPartSections = (proposalText: string): PartSection[] | null => {
+  const tables=[...proposalText.matchAll(/\[PDF WORK TABLE\]\n([\s\S]*?)\n\[\/PDF WORK TABLE\]/g)];
+  if(tables.length){
+    const parts:PartSection[]=[];
+    for(const table of tables)for(const raw of table[1].trim().split('\n')){
+      const row=JSON.parse(raw);
+      if(row.continuation){
+        if(!parts.length)throw new Error('A continued work table has no preceding phase.');
+        const previous=parts[parts.length-1];
+        previous.description+=' '+String(row.methodology);
+        const [details,methods]=previous.description.split('\nMethodology: ');
+        previous.sourceActions=sourceActions(details,methods,previous.schedule||'');
+        continue;
+      }
+      if(typeof row.title!=='string'||typeof row.details!=='string'||typeof row.methodology!=='string'||typeof row.schedule!=='string'||!row.details.trim())throw new Error('A PDF work-table row could not be read safely.');
+      parts.push({title:`Part ${row.part} — ${row.title.replace(/^Part\s+\d+\s*:\s*/i,'')}`,description:row.details+'\nMethodology: '+row.methodology,schedule:row.schedule,tasks:[],sourceActions:sourceActions(row.details,row.methodology,row.schedule)});
+    }
+    return parts;
+  }
   const sourceText = extractActionTable(proposalText);
 const partRegex =
   /Part\s+\d+\s*:?\s*([\s\S]+?)(?=Part\s+\d+\s*:|Proposed Budget|Monitoring|$)/gi;

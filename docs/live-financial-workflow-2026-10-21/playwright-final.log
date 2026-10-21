@@ -1,0 +1,57 @@
+[WebServer] (node:31604) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 6 tests using 1 worker
+
+(node:18676) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18676) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [chromium] › tests\e2e\office-budget-sections.spec.ts:104:1 › Office Budget overview uses four distinct animated drawings on desktop and fits mobile (38.9s)
+  ok 2 [chromium] › tests\e2e\office-budget-sections.spec.ts:141:1 › a funded budget with an unfinished row can save as draft but cannot lock until corrected (30.9s)
+  ok 3 [chromium] › tests\e2e\office-budget-sections.spec.ts:181:1 › unavailable sections never display an existing saved budget as zero (17.9s)
+  x  4 [chromium] › tests\e2e\office-budget-sections.spec.ts:197:1 › locked section adjustments update the counter and persist without duplicated writes (26.9s)
+(node:25144) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:25144) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 5 [chromium] › tests\e2e\phase11-main-table.spec.ts:541:1 › Observer inspection and closed-project table retain read-only controls (30.0s)
+  ok 6 [chromium] › tests\e2e\phase11-main-table.spec.ts:596:1 › board Manage opens task staffing instead of the discussion tab (13.1s)
+
+
+  1) [chromium] › tests\e2e\office-budget-sections.spec.ts:197:1 › locked section adjustments update the counter and persist without duplicated writes 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveValue[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByLabel(/Section name/).first()
+    Expected string: [32m"Office Supplies"[39m
+    Received: <element(s) not found>
+    Timeout: 5000ms
+
+    Call log:
+    [2m  - Expect "toHaveValue" with timeout 5000ms[22m
+    [2m  - waiting for getByLabel(/Section name/).first()[22m
+
+
+      123 |   expect(writes[0].p_sections).toEqual(expect.arrayContaining([expect.objectContaining({ name: "Office Supplies", amount: 300000 }), expect.objectContaining({ name: "Training", amount: 50000 })]));
+      124 |   await page.reload();
+    > 125 |   await expect(page.getByLabel(/Section name/).nth(0)).toHaveValue("Office Supplies");
+          |                                                        ^
+      126 |   await expect(page.getByLabel(/Section name/).nth(1)).toHaveValue("Training");
+      127 |   await expect(page.getByLabel("Budget amount Office Supplies", { exact: true })).toHaveValue("300,000");
+      128 |   await expect(page.getByText("₱350,000.00", { exact: true })).toBeVisible();
+        at C:\Users\gabri\OneDrive\Desktop\EflowWeb\tests\e2e\office-budget-sections.spec.ts:125:56
+
+    Error Context: test-results\office-budget-sections-loc-4952b-t-without-duplicated-writes-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\office-budget-sections-loc-4952b-t-without-duplicated-writes-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\office-budget-sections-loc-4952b-t-without-duplicated-writes-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › tests\e2e\office-budget-sections.spec.ts:197:1 › locked section adjustments update the counter and persist without duplicated writes 
+  5 passed (2.9m)

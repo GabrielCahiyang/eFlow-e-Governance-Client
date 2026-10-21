@@ -1,0 +1,23 @@
+
+> @figma/my-make-file@0.0.1 test
+> vitest --configLoader runner run tests/unit/projectTableProgress.test.tsx tests/unit/projectTaskBudget.test.tsx tests/unit/cashWorkflowRules.test.ts tests/unit/workspaceRefinementProject.test.tsx --maxWorkers=1 --testTimeout=20000
+
+
+ RUN  v3.2.4 C:/Users/gabri/OneDrive/Desktop/EflowWeb
+
+ ✓ tests/unit/workspaceRefinementProject.test.tsx (11 tests) 3811ms
+   ✓ R4 completion availability > keeps the requirements action usable while completion is blocked  1596ms
+   ✓ R4 completion availability > retains structural review and resolution without a second completion or archive entry  309ms
+   ✓ R4 retained navigation and identities > maps all retired URL identifiers to retained views and removes them from saved tabs and Add view  782ms
+   ✓ R4 retained navigation and identities > uses authenticated avatar URLs, keyboard name targets, initials fallback and an overflow list  553ms
+ ✓ tests/unit/projectTaskBudget.test.tsx (5 tests) 693ms
+   ✓ shows actual authorized funds and totals without counting child caps or draft estimates twice  421ms
+ ✓ tests/unit/projectTableProgress.test.tsx (5 tests) 973ms
+   ✓ describes todo work accurately when it has no subitems  753ms
+ ✓ tests/unit/cashWorkflowRules.test.ts (5 tests) 17ms
+
+ Test Files  4 passed (4)
+      Tests  26 passed (26)
+   Start at  08:13:00
+   Duration  72.15s (transform 13.33s, setup 0ms, collect 57.50s, tests 5.50s, environment 5.53s, prepare 1.13s)
+

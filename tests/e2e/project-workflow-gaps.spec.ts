@@ -18,7 +18,7 @@ test('All projects remains an index; repeat creation guides staffing without rec
   await dialog.getByRole('button',{name:'Create project →',exact:true}).click();
   const people=page.getByRole('region',{name:'Add people to project',exact:true});await expect(people).toBeVisible();
   expect(r.projects).toHaveLength(2);const created=new URL(page.url()).searchParams.get('project');expect(created).toBe(r.projects[1].id);
-  await people.getByRole('button',{name:'Skip for now',exact:true}).click();
+  await people.getByRole('button',{name:'Back to project',exact:true}).click();
   await expect(page.getByRole('region',{name:'Project main table'})).toBeVisible();
   await expect(page.getByRole('button',{name:'+ Add people',exact:true})).toBeVisible();
   await page.reload();await expect(page.getByRole('region',{name:'Project main table'})).toBeVisible();expect(r.projects).toHaveLength(2);

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, renderHook, screen, waitFor, act } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { ProjectSettingsDialog } from '../../src/app/features/projects/components/project-command/ProjectSettingsDialog';
+import { ProjectSettingsPage } from '../../src/app/features/projects/components/project-command/ProjectSettingsPage';
 import { ProjectHeader } from '../../src/app/features/projects/components/project-command/ProjectHeader';
 import { ProjectParticipants } from '../../src/app/features/projects/components/project-command/ProjectParticipants';
 import { resolveProjectView, PERMANENT_TABS, OPTIONAL_VIEWS_CATALOG } from '../../src/app/features/projects/components/project-command/projectViewCatalog';
@@ -9,10 +9,12 @@ import { installNavigationConfirmation, requestNavigation } from '../../src/app/
 import { useNavigationFavorites } from '../../src/app/shared/navigationPreferences';
 import type { Project } from '../../src/app/features/projects/services/types';
 const api = vi.hoisted(() => ({ update: vi.fn() }));
+vi.mock('../../src/app/features/project-readiness',()=>({ProjectReadinessPanel:()=> <div>Plan reviews</div>}));
+vi.mock('../../src/app/features/projects/services/projectMetadata',()=>({fetchProjectMetadata:async()=>({...project,description:'Retained revision'}),ProjectMetadataConflict:class extends Error{}}));
 vi.mock('../../src/app/features/projects/services/projectMutationService', () => ({ updateProject: api.update }));
 const project: Project = { id:'project-a',title:'Office project',description:'Existing details',status:'planning',priority:'medium',createdAt:1,updatedAt:1 };
-beforeEach(() => { vi.clearAllMocks(); localStorage.clear(); api.update.mockResolvedValue(undefined); });
-afterEach(cleanup);
+beforeEach(() => { vi.clearAllMocks(); localStorage.clear(); api.update.mockResolvedValue(undefined);vi.useFakeTimers({toFake:['Date']});vi.setSystemTime(new Date(2026,9,1,8)); });
+afterEach(()=>{cleanup();vi.useRealTimers();});
 describe('Phase 10 project workspace', () => {
   it('keeps six core views and resolves every legacy view alias without dropping tools', () => {
     expect(PERMANENT_TABS.map(view=>view.id)).toEqual(['tasks','board','gantt','calendar','dashboard','offices']);
@@ -32,36 +34,36 @@ describe('Phase 10 project workspace', () => {
   });
   it('retains failed settings, retries once and marks only the saved draft clean', async () => {
     api.update.mockRejectedValueOnce({message:'Synthetic server denial'});
-    render(<ProjectSettingsDialog project={project} canManage onClose={vi.fn()} />);
+    render(<ProjectSettingsPage project={project} canManage onBack={vi.fn()} onResolve={vi.fn()} />);
     fireEvent.change(screen.getByLabelText('Description'),{target:{value:'Retained revision'}});
     fireEvent.click(screen.getByRole('button',{name:'Save changes'}));
     await screen.findByText(/Synthetic server denial/); expect((screen.getByLabelText('Description') as HTMLTextAreaElement).value).toBe('Retained revision');
     fireEvent.click(screen.getByRole('button',{name:'Save changes'})); await screen.findByText('Project settings saved.');
-    expect(api.update).toHaveBeenCalledTimes(2); expect(api.update).toHaveBeenLastCalledWith('project-a',expect.objectContaining({description:'Retained revision'}));
+    expect(api.update).toHaveBeenCalledTimes(2); expect(api.update).toHaveBeenLastCalledWith('project-a',expect.objectContaining({description:'Retained revision'}),undefined);
     const navigation=vi.fn(); expect(await requestNavigation(navigation)).toBe(true); expect(navigation).toHaveBeenCalledOnce();
   });
   it('keeps settings on canceled navigation, and discards without a save', async () => {
     const close=vi.fn(), navigate=vi.fn(); let accept=false; const uninstall=installNavigationConfirmation(async()=>accept);
-    render(<ProjectSettingsDialog project={project} canManage onClose={close} />);
+    render(<ProjectSettingsPage project={project} canManage onBack={close} onResolve={vi.fn()} />);
     fireEvent.change(screen.getByLabelText('Description'),{target:{value:'Unsaved'}});
     await act(async()=>{expect(await requestNavigation(navigate)).toBe(false);});
     expect(close).not.toHaveBeenCalled(); accept=true;
     await act(async()=>{expect(await requestNavigation(navigate)).toBe(true);});
-    expect(close).toHaveBeenCalledOnce(); expect(navigate).toHaveBeenCalledOnce(); expect(api.update).not.toHaveBeenCalled(); uninstall();
+    expect(close).not.toHaveBeenCalled(); expect(navigate).toHaveBeenCalledOnce(); expect(api.update).not.toHaveBeenCalled(); uninstall();
   });
   it('denies metadata saves for read-only and closed contexts', () => {
-    const view=render(<ProjectSettingsDialog project={project} canManage={false} onClose={vi.fn()} />);
+    const view=render(<ProjectSettingsPage project={project} canManage={false} onBack={vi.fn()} onResolve={vi.fn()} />);
     expect(screen.queryByRole('button',{name:'Save changes'})).toBeNull();
-    view.rerender(<ProjectSettingsDialog project={{...project,status:'completed'}} canManage onClose={vi.fn()} />);
+    view.rerender(<ProjectSettingsPage project={{...project,status:'completed'}} canManage onBack={vi.fn()} onResolve={vi.fn()} />);
     expect(screen.queryByRole('button',{name:'Save changes'})).toBeNull(); expect(screen.getByText('Closed project')).toBeTruthy();
   });
   it('validates dates and blocks switching or duplicate saves while a request is pending', async () => {
     let finish!: () => void;
     api.update.mockImplementationOnce(() => new Promise<void>(resolve => { finish=resolve; }));
-    render(<ProjectSettingsDialog project={project} canManage onClose={vi.fn()} />);
+    render(<ProjectSettingsPage project={project} canManage onBack={vi.fn()} onResolve={vi.fn()} />);
     fireEvent.change(screen.getByLabelText('Start date'),{target:{value:'2026-10-10'}});
     fireEvent.change(screen.getByLabelText('Target date'),{target:{value:'2026-10-01'}});
-    fireEvent.click(screen.getByRole('button',{name:'Save changes'})); expect(api.update).not.toHaveBeenCalled();
+    fireEvent.submit((screen.getByRole('button',{name:'Save changes'}) as HTMLButtonElement).form!); expect(api.update).not.toHaveBeenCalled();
     expect(screen.getByLabelText('Target date').getAttribute('aria-invalid')).toBe('true');
     fireEvent.change(screen.getByLabelText('Target date'),{target:{value:'2026-10-12'}});
     fireEvent.click(screen.getByRole('button',{name:'Save changes'})); fireEvent.submit((screen.getByRole('button',{name:'Save changes'}) as HTMLButtonElement).form!);

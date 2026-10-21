@@ -19,3 +19,4 @@
 .po-withdraw-btn:focus-visible{outline:2px solid #b91c1c!important;outline-offset:2px}
 .po-office-detail{display:block;width:100%;margin-top:6px;color:#637183;font-size:12px;font-weight:400;line-height:1.5;overflow-wrap:anywhere}
 .po-office-responsibilities{width:100%;padding-left:16px;margin:8px 0}.po-office-responsibilities li{margin:8px 0}.po-office-responsibilities button{margin-top:6px}
+.po-project-person-note{display:flex;align-items:flex-start;gap:9px;font-size:13px;line-height:1.5;background:var(--ui-bg-secondary,#f1f7f7);padding:14px;border-radius:9px}.po-project-person-note svg{flex-shrink:0;margin-top:2px;color:var(--ui-color-primary,#087f8c)}

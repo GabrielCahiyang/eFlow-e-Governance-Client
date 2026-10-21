@@ -1,0 +1,1 @@
+QA TEST ONLY. Simulated registration supplies acquired; receipt fixture totals PHP 400. No real purchase or transfer occurred. Used solely to verify eFlow evidence and review workflow.

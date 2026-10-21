@@ -28,8 +28,8 @@ describe('project view navigation', () => {
 
   it('renders Add view outside a clipping ancestor and respects conditional views', async () => {
     const { container } = render(<div style={{ overflow: 'hidden', height: 40 }}><Views /></div>);
-    fireEvent.click(screen.getByRole('button', { name: 'Add view', exact: true }));
-    const menu = await screen.findByRole('dialog', { name: 'Add project view' });
+    fireEvent.click(screen.getByRole('button', { name: 'Browse project views', exact: true }));
+    const menu = await screen.findByRole('dialog', { name: 'Browse project views' });
     expect(container.contains(menu)).toBe(false);
     expect(screen.queryByRole('button', { name: 'Proposal Context', exact: true })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Budget Overview', exact: true })).toBeNull();
@@ -40,10 +40,10 @@ describe('project view navigation', () => {
 
   it('closes the view picker with Escape', async () => {
     render(<Views />);
-    fireEvent.click(screen.getByRole('button', { name: 'Add view', exact: true }));
-    fireEvent.keyDown(await screen.findByRole('dialog', { name: 'Add project view' }), { key: 'Escape' });
+    fireEvent.click(screen.getByRole('button', { name: 'Browse project views', exact: true }));
+    fireEvent.keyDown(await screen.findByRole('dialog', { name: 'Browse project views' }), { key: 'Escape' });
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
-    expect(screen.getByRole('button', { name: 'Add view', exact: true }).getAttribute('aria-expanded')).toBe('false');
+    expect(screen.getByRole('button', { name: 'Browse project views', exact: true }).getAttribute('aria-expanded')).toBe('false');
   });
 
   it('keeps an active overflow view selected and exposes the displaced view in More', async () => {

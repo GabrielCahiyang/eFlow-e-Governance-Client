@@ -46,6 +46,10 @@ describe('Project table over canonical work', () => {
   it('summarizes planning estimates separately from completion progress', () => {
     expect(groupSummary([task('a', { status: 'completed', estimatedHours: 8, budgetImpact: 1200 }), task('b', { percentComplete: 40, estimatedHours: 2, budgetImpact: 300 })])).toEqual({ count: 2, completed: 1, effort: 10, budget: 1500, progress: 50 });
   });
+  it('keeps cancelled work visible without reducing required-work completion',()=>{
+    expect(groupSummary([task('done',{status:'completed'}),task('cancelled',{status:'cancelled'})])).toMatchObject({count:2,completed:1,progress:100});
+    expect(groupSummary([task('cancelled',{status:'cancelled'})])).toMatchObject({count:1,completed:0,progress:0});
+  });
 });
 
 

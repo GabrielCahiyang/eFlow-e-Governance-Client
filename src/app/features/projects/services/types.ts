@@ -28,6 +28,8 @@ export interface Project {
   createdBy?: string;
   createdAt: number;
   updatedAt: number;
+  /** Exact database timestamp, including microseconds, for metadata conflict checks. */
+  metadataVersion?: string;
 }
 
 export interface ProjectMember {

@@ -15,7 +15,12 @@ export type AiChatRequest = {
   messages: AiChatMessage[];
   stream?: boolean;
   workspace_decomposition?: { schemaVersion: 1; projectId: string; sourceText: string; context: Record<string, unknown> };
-  workspace_staffing?: { schemaVersion: 1; taskId: string };
+  workspace_staffing?: { schemaVersion: 1; taskId: string; autoAssign?: boolean; projectId?: string; draftTask?: {title:string;description:string;estimatedHours:number}; plannedAssignments?: Array<{lead:string;hours:number}> };
+  pdf_table_enrichment?: {
+    schemaVersion: 1;
+    tasks: Array<{ key: string; title: string; methodology: string[]; schedule: string }>;
+    costs: Array<{ sourceId: string }>;
+  };
 };
 
 export type AiChatResponse = {
@@ -45,6 +50,7 @@ export type AiQueueUpdate = {
 };
 
 export type AiChatRequestOptions = {
+  requestId?: string;
   requestTimeoutMs?: number;
   maxWaitMs?: number;
   pollIntervalMs?: number;
@@ -81,6 +87,7 @@ function normalizeOptions(
     maxWaitMs: provided.maxWaitMs ?? DEFAULT_MAX_WAIT_MS,
     pollIntervalMs: provided.pollIntervalMs ?? DEFAULT_POLL_INTERVAL_MS,
     onQueueUpdate: provided.onQueueUpdate,
+    requestId: provided.requestId ?? crypto.randomUUID(),
   };
 }
 
@@ -117,7 +124,7 @@ export async function requestAiChat(
   timeoutOrOptions: number | AiChatRequestOptions,
 ): Promise<AiChatResponse> {
   const options = normalizeOptions(timeoutOrOptions);
-  const requestId = crypto.randomUUID();
+  const requestId = options.requestId;
   const submitResponse = await controlPanelFetch(
     "ai/jobs",
     {
@@ -130,6 +137,7 @@ export async function requestAiChat(
         request_id: requestId,
         ...(request.workspace_decomposition ? { workspace_decomposition: request.workspace_decomposition } : {}),
         ...(request.workspace_staffing ? { workspace_staffing: request.workspace_staffing } : {}),
+        ...(request.pdf_table_enrichment ? { pdf_table_enrichment: request.pdf_table_enrichment } : {}),
       }),
     },
     {

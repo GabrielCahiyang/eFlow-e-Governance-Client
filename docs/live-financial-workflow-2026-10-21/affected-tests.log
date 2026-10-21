@@ -1,0 +1,31 @@
+
+> @figma/my-make-file@0.0.1 test
+> vitest --configLoader runner run tests/unit/projectTaskBudget.test.tsx tests/unit/workBudgetCallerGates.test.tsx tests/unit/phase17FinancialCancellation.test.tsx tests/unit/workBudgetMerge.test.tsx --maxWorkers=2
+
+
+ RUN  v3.2.4 C:/Users/gabri/OneDrive/Desktop/EflowWeb
+
+ ✓ tests/unit/workBudgetMerge.test.tsx (13 tests) 2685ms
+   ✓ work funding merge boundaries > keeps direct funding available to an authorized active Office Head managing open work  1344ms
+   ✓ work funding merge boundaries > uses the actual funding Office and fiscal year for cash evidence and receipts  439ms
+   ✓ work funding merge boundaries > removes closed work from the direct-funding selector without issuing an authorization  473ms
+ ✓ tests/unit/workBudgetCallerGates.test.tsx (8 tests) 6425ms
+   ✓ NW8.2 budget caller gates and preserved financial rights > explains an over-budget request and recovers after correcting the amount  2612ms
+   ✓ NW8.2 budget caller gates and preserved financial rights > preserves Task Lead cap rights and independent contributor cash requests without canManage  657ms
+   ✓ NW8.2 budget caller gates and preserved financial rights > retains an opened cap draft and blocks its RPC while caller readOnly  1114ms
+   ✓ NW8.2 budget caller gates and preserved financial rights > retains an opened cap draft and blocks its RPC while authority pending  736ms
+   ✓ NW8.2 budget caller gates and preserved financial rights > retains an opened cash draft without issuing cash/attachment writes while caller readOnly  666ms
+   ✓ NW8.2 budget caller gates and preserved financial rights > retains an opened cash draft without issuing cash/attachment writes while authority pending  565ms
+ ✓ tests/unit/phase17FinancialCancellation.test.tsx (4 tests) 2274ms
+   ✓ Phase 17 funding cancellation > shows the amount and requires a reason; cancellation performs no write  846ms
+   ✓ Phase 17 funding cancellation > rejects a newly released request after preview without writing  590ms
+   ✓ Phase 17 funding cancellation > retains the successful cancellation receipt on refresh failure and prevents replay  613ms
+ ✓ tests/unit/projectTaskBudget.test.tsx (5 tests) 1650ms
+   ✓ shows actual authorized funds and totals without counting child caps or draft estimates twice  897ms
+   ✓ withholds funding authorization for revoked  319ms
+
+ Test Files  4 passed (4)
+      Tests  30 passed (30)
+   Start at  07:26:05
+   Duration  102.27s (transform 26.52s, setup 0ms, collect 164.45s, tests 13.03s, environment 19.33s, prepare 1.89s)
+

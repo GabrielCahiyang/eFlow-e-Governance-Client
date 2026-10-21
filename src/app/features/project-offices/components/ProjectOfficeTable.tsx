@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Trash2 } from 'lucide-react';
+import { Trash2,AlertTriangle } from 'lucide-react';
 import { officeRelationship } from '../presentation';
 import type { OfficeTableRow } from '../officeTableRows';
 import type { ProjectOffice, ProjectOfficeMember } from '../types';
@@ -26,10 +26,10 @@ export function ProjectOfficeTable({ rows, members, name, onOpen, canStaff, canR
         </th>
         <td data-label="Relationship">{officeRelationship({ relationship_type: row.relationship } as ProjectOffice)}</td>
         <td data-label="Contact">{row.contact || 'Not provided'}</td>
-        <td data-label="Participation status"><span className={'po-badge po-badge--' + row.status}>{row.statusLabel}</span>
-          {!o && <small className="po-office-detail">{row.status === 'planning' ? 'Not linked to the directory' : 'Planning only · not linked to the directory'}</small>}
+        <td data-label="Participation status"><span className={'po-badge po-badge--' + row.status}>{row.needsAttention&&<AlertTriangle size={14} aria-label="Attention needed"/>}{row.statusLabel}</span>
+          {!o && <small className="po-office-detail">Project-only Office · no permanent directory membership</small>}
         </td>
-        <td data-label="Selected members">{o ? members.filter(m => m.project_office_id === o.id).length + ' selected project members' : 'Available after linking and Head confirmation'}</td>
+        <td data-label="Selected members">{o ? members.filter(m => m.project_office_id === o.id).length + ' selected project members' : `${row.peopleCount||0} joined project members`}</td>
         <td data-label="Actions"><div className="po-actions-cell">
           {o && <><button onClick={() => onOpen(o.id, canStaff(o))}>{canStaff(o) ? 'Select own members' : 'Open details'}</button>
             {canRemove && o.relationship_type !== 'lead' && <button className="po-withdraw-btn" disabled={removalBusy} aria-label={'Remove ' + name(o.office_id) + ' from project'} onClick={() => onRemove(o)}><Trash2 size={14}/>Remove Office</button>}</>}

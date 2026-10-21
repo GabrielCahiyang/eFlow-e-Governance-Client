@@ -18,8 +18,9 @@ export function TimelineCell({ task, disabled, save }: { task: Task; disabled: b
   const text = date ? new Date(date + 'T12:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : due || 'Set dates';
   const dueTime = timelineDraft(task).time;
   const timeText = dueTime ? new Date(`2000-01-01T${dueTime}:00`).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' }) : '';
+  const startText=task.startDate ? new Date(task.startDate.slice(0,10)+'T12:00:00').toLocaleDateString(undefined,{month:'short',day:'numeric'}) : '';
   return <Popover open={editor.open} onOpenChange={editor.onOpenChange}>
-    <PopoverTrigger asChild><button ref={trigger} className="pt-date" disabled={disabled} aria-label={'Edit dates for ' + task.title}><Calendar size={14}/>{task.startDate ? task.startDate + ' → ' : ''}{text}{timeText ? `, ${timeText}` : ''}</button></PopoverTrigger>
+    <PopoverTrigger asChild><button ref={trigger} className="pt-date" disabled={disabled} title={`${task.startDate ? task.startDate+' → ' : ''}${date||due}${timeText?' · '+timeText:''}`} aria-label={'Edit dates for ' + task.title}><Calendar size={14}/><span className="pt-date-label"><span>{startText ? startText+' → ' : ''}{text}</span>{timeText&&<small>{timeText}</small>}</span></button></PopoverTrigger>
     <PopoverContent className="eflow-workspace-popover pt-planning-editor pt-timeline-editor" aria-label={'Task timeline for ' + task.title} align="start" sticky="always" collisionPadding={12} onInteractOutside={event => { if (editor.pending) event.preventDefault(); }} onEscapeKeyDown={event => { if (editor.pending) event.preventDefault(); }} onCloseAutoFocus={event => {
       if (!focusAfterSave.current) return;
       focusAfterSave.current = false;

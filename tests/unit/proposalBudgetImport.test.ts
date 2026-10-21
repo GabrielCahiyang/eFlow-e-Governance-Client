@@ -34,4 +34,12 @@ describe("AI proposal budget import", () => {
 
     expect(line.amount).toBe(5_000);
   });
+  it('rejects conflicting source totals instead of silently replacing them',()=>{
+    expect(()=>normalizeImportedTaskBudgetLines('task',[{expenseClass:'Services',category:'Honoraria',particular:'Specialists',quantity:3,unitCost:80000,amount:250000}])).toThrow('do not match');
+  });
+  it('retains the stated source fund and rejects non-finite model amounts',()=>{
+    const line={expenseClass:'Services',category:'Honoraria',particular:'Consultant',amount:325000,fundSource:'CPDO'};
+    expect(normalizeImportedTaskBudgetLines('task',[line])[0].fundSource).toBe('CPDO');
+    expect(()=>normalizeImportedTaskBudgetLines('task',[{...line,amount:NaN}])).toThrow('invalid amount');
+  });
 });

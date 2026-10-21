@@ -57,21 +57,9 @@ for (const width of [320, 390, 768, 1024, 1440]) test(`R2 persistent sections an
   await page.screenshot({path:info.outputPath(`r2-sidebar-${width}.png`),fullPage:true});
 });
 
-test('R2 keeps project creation and saved proposal workflows distinct from section adding',async({page})=>{
-  test.setTimeout(90_000);
-  await projectWorkspaceFixture(page,'head');
-  await page.getByRole('button',{name:'Projects and proposals',exact:true}).click();
-  for(const label of ['Create project','Create a work plan','Import proposal','Saved work plans','Proposal review']) await expect(page.getByRole('menuitem',{name:label,exact:true})).toBeVisible();
-  await page.getByRole('menuitem',{name:'Saved work plans',exact:true}).click();
-  await expect(page.getByRole('heading',{name:'Drafts',exact:true})).toBeVisible();
-  await page.reload();
-  await expect(page.getByRole('heading',{name:'Drafts',exact:true})).toBeVisible();
-  await page.getByRole('button',{name:'Projects and proposals',exact:true}).click();
-  await page.getByRole('menuitem',{name:'Proposal review',exact:true}).click();
-  await expect(page.getByRole('heading',{name:'Waiting for approval',exact:true})).toBeVisible();
-  await page.goBack();
-  await expect(page.getByRole('heading',{name:'Drafts',exact:true})).toBeVisible();
-  await page.goForward();
-  await expect(page.getByRole('heading',{name:'Waiting for approval',exact:true})).toBeVisible();
-  await expect(page.locator('.eflow-getting-started-banner')).toHaveCount(0);
+test('R2 keeps project creation and saved proposal history available',async({page})=>{
+ test.setTimeout(90000);await projectWorkspaceFixture(page,'head');await page.getByRole('button',{name:'+ New',exact:true}).click();
+ await expect(page.getByRole('menuitem',{name:'Create project',exact:true})).toBeVisible();await expect(page.getByRole('menuitem',{name:'Import proposal',exact:true})).toHaveCount(0);await page.keyboard.press('Escape');
+ await page.getByRole('button',{name:'Saved work plans',exact:true}).click();await expect(page.getByRole('heading',{name:'Drafts',exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'Proposal review',exact:true}).click();await expect(page.getByRole('heading',{name:'Waiting for approval',exact:true})).toBeVisible();
 });

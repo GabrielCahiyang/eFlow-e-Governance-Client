@@ -22,3 +22,10 @@
 .pt-nested-work .nw-hierarchy-table td:last-child{min-width:6rem}
 .pt-nested-work .nw-hierarchy-table .nw-hierarchy-control{white-space:nowrap;min-width:max-content}
 .pt-nested-work .nw-hierarchy-table .eflow-status-pill{white-space:nowrap;max-width:none}
+.r7-auto-assignment{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 16px;padding:16px;border:1px solid var(--ui-border-color,#cce6e5);border-radius:10px;background:var(--primary-selected-color,#eef8f7);margin-bottom:16px}
+.r7-auto-assignment p{margin:5px 0;font-size:13px;line-height:1.5}
+.r7-auto-assignment>button{display:inline-flex;align-items:center;justify-content:center;gap:8px;align-self:center;min-height:38px;padding:8px 12px;background:#0b7471;color:white;border:0;border-radius:6px;font-weight:600}
+.r7-auto-assignment>button:disabled{opacity:.55;cursor:default}
+.r7-auto-assignment>small,.r7-auto-assignment>p{grid-column:1/-1}
+@media(max-width:540px){.r7-auto-assignment{grid-template-columns:minmax(0,1fr)}.r7-auto-assignment>button{justify-self:start}}
+.r7-contributor-chips{gap:8px;list-style:none;padding:0;margin:4px 0}.r7-contributor-chips>li{min-width:0;max-width:100%}.r7-contributor-chips>li>span{display:inline-flex;align-items:center;gap:8px;max-width:100%;padding:4px 6px 4px 10px;line-height:1.5;overflow-wrap:anywhere}.r7-work .r7-contributor-chips button{display:inline-flex;align-items:center;justify-content:center;flex:0 0 26px;width:26px;height:26px;min-height:26px;padding:0;border:0;border-radius:50%;background:transparent;color:inherit}.r7-work .r7-contributor-chips button:hover:not(:disabled){background:var(--eflow-hover,#c7e7e3)}

@@ -1,5 +1,6 @@
+import { ProjectTaskBudgetProvider } from '../../budget';
 import { EmptyState } from '../../../components/ui/EmptyState';
-import { useEffect,useMemo,useState } from 'react';
+import { useEffect,useMemo,useState,useRef } from 'react';
 
 import { Plus,Table2,LockKeyhole } from 'lucide-react';
 
@@ -36,7 +37,7 @@ import '../tableLayout.css';
 import { matchesProjectDateRange, type ProjectViewFilterState } from '../../project-views';
 import { useProjectOfficeContext, canStaffProjectOffice } from '../../project-offices';
 import type { TaskInspectorOrigin } from '../../task-inspector';
-export function ProjectTableWorkspace({data,profiles,orgs,canManage,onOpenTask,onOpenLegacyBoard,sharedFilters,onFiltersChange}:{data:ProjectCommandData;profiles:UserProfile[];orgs:Organization[];canManage:boolean;onOpenTask:(id:string,section?:TaskInspectorOrigin['section'])=>void;onOpenLegacyBoard:()=>void;sharedFilters?:ProjectViewFilterState;onFiltersChange?:(value:ProjectViewFilterState)=>void}){
+export function ProjectTableWorkspace({data,profiles,orgs,canManage,onOpenTask,onOpenLegacyBoard,sharedFilters,onFiltersChange,importRevision=0,importGroupId=''}:{data:ProjectCommandData;profiles:UserProfile[];orgs:Organization[];canManage:boolean;onOpenTask:(id:string,section?:TaskInspectorOrigin['section'])=>void;onOpenLegacyBoard:()=>void;sharedFilters?:ProjectViewFilterState;onFiltersChange?:(value:ProjectViewFilterState)=>void;importRevision?:number;importGroupId?:string}){
  const {user,userProfile}=useAuth();const userId=user?.id||userProfile?.id||'',officeId=userProfile?.org_id||userProfile?.departmentId||'';
  const officeState=useProjectOfficeContext();
  const ownOffice=officeState.offices.find(o=>o.office_id===officeId);
@@ -55,7 +56,7 @@ export function ProjectTableWorkspace({data,profiles,orgs,canManage,onOpenTask,o
  const [groupOpen,setGroupOpen]=useState(false),[importOpen,setImportOpen]=useState(false),[taskOpen,setTaskOpen]=useState(false),[refreshFailed,setRefreshFailed]=useState(false);
 
  const [aiOpen,setAiOpen]=useState(false),[importSeed,setImportSeed]=useState({text:'',version:0});
- const [importRevision,setImportRevision]=useState(0);
+ const [historyRevision,setImportRevision]=useState(0);
 
  const [subtasks,setSubtasks]=useState(data.facts.subtasks),[openSubitem,setOpenSubitem]=useState<Subtask|null>(null);
  const [openSubitemReadOnly,setOpenSubitemReadOnly]=useState(false);
@@ -67,6 +68,15 @@ export function ProjectTableWorkspace({data,profiles,orgs,canManage,onOpenTask,o
  useEffect(()=>setSubtasks(data.facts.subtasks),[data.facts.subtasks]);
 
  const refreshSubitems=async()=>setSubtasks(await fetchSubtasksForTasks(data.tasks.map(t=>t.id)));
+
+ useEffect(()=>{if(importRevision){layout.showColumn('budget');void refresh().catch(()=>setNotice('Work imported. Refresh to load the new groups.'));setImportRevision(v=>v+1);}},[importRevision]);
+
+ const focusedImport=useRef('');
+ useEffect(()=>{
+  if(!importGroupId||focusedImport.current===importGroupId||!groups.some(group=>group.id===importGroupId))return;
+  const frame=requestAnimationFrame(()=>{const target=document.querySelector<HTMLElement>('[data-project-group-id="'+importGroupId+'"]');if(target){focusedImport.current=importGroupId;target.focus({preventScroll:true});target.scrollIntoView({block:'start',behavior:'smooth'});}});
+  return ()=>cancelAnimationFrame(frame);
+ },[importGroupId,groups]);
 
  const columns=PROJECT_COLUMNS.filter(c=>!hidden.includes(c.id)).map(c=>c.id);
 
@@ -81,12 +91,12 @@ export function ProjectTableWorkspace({data,profiles,orgs,canManage,onOpenTask,o
  const parentTask=openSubitem?data.tasks.find(t=>t.id===openSubitem.taskId):undefined;
  const subitemReadOnly=openSubitemReadOnly||userProfile?.role==='admin'||['completed','archived'].includes(data.project.status)||!!parentTask?.archivedAt||!!parentTask?.proposedOfficeIdentityId||['for_review','completed','cancelled'].includes(parentTask?.status||'');
 
- return <section className="pt-workspace" aria-label="Project main table" data-tour-id="project-main-table">
+ return <ProjectTaskBudgetProvider officeId={data.project.orgId} officeIds={data.tasks.map(task=>task.orgId).filter((id):id is string=>!!id)}><section className="pt-workspace" aria-label="Project main table" data-tour-id="project-main-table">
 
   <div hidden={!!openSubitem}><TableToolbar sharedFilters={!!sharedFilters} query={query} setQuery={setQuery} status={status} setStatus={setStatus} owner={owner} setOwner={setOwner} sort={sort} setSort={setSort} people={people} hidden={hidden} toggleColumn={layout.toggleColumn} onResetWidths={layout.resetWidths} onResetCompact={layout.resetCompact} canManage={editable} onAddTask={addTask} onAddGroup={()=>setGroupOpen(true)} onImport={()=>{setImportSeed(prev=>({text:'',version:prev.version+1}));setImportOpen(true);}} onAi={()=>setAiOpen(true)} onOpenBoard={onOpenLegacyBoard}/>
 
-  <div className="pt-context-line"><span><Table2 size={14}/>{tasks.length} visible tasks</span><span>Changes save where you work.</span>{!editable&&<span><LockKeyhole size={13}/>Project structure is read-only for this account or project.</span>}</div>
-  <ProjectImportHistory projectId={data.project.id} revision={importRevision}/>
+  <div className="pt-context-line"><span><Table2 size={14}/>{tasks.length} visible tasks</span>{editable?<span>Changes save where you work.</span>:<span><LockKeyhole size={13}/>Project structure is read-only for this account or project.</span>}</div>
+  <ProjectImportHistory projectId={data.project.id} revision={historyRevision}/>
 
   {notice&&<div role="alert" className="pt-error">{notice}{refreshFailed&&<button type="button" onClick={()=>{void refreshCreatedGroup();}}>Retry refresh</button>}<button onClick={()=>setNotice('')} aria-label="Dismiss error">×</button></div>}
 
@@ -111,7 +121,7 @@ export function ProjectTableWorkspace({data,profiles,orgs,canManage,onOpenTask,o
 
   </div>{openSubitem&&(parentTask?<SubtaskWorkDrawer key={openSubitem.id} subtask={openSubitem} parentTask={parentTask} origin={subitemOrigin} readOnly={subitemReadOnly} canManageDeadline={!subitemReadOnly&&(parentTask.assigneeId===userId||editable)} onClose={()=>{setOpenSubitem(null);void run(refreshSubitems);}}/>:<p role="alert">Current parent task access is unavailable. <button type="button" onClick={()=>setOpenSubitem(null)}>Close subitem</button></p>)}
 
- </section>;
+ </section></ProjectTaskBudgetProvider>;
 
 }
 

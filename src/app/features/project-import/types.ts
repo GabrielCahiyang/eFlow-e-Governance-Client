@@ -1,3 +1,4 @@
+import type { ProposalDecompositionBudgetLine } from '../proposal-import';
 export interface ProposedOffice {
   key: string; name: string; evidence: string; officeId: string; confirmed: boolean;
 }
@@ -7,6 +8,7 @@ export interface ImportTask {
   estimatedHours: number; startDate: string; dueDate: string; officeKey: string;
   dependencies: string[]; subitems: ImportSubitem[]; sourceQuote: string;
   included: boolean; advisory?: Record<string, unknown>;
+  budgetDecision?: 'funded'|'missing'|'no_cost'; budgetLines?: ProposalDecompositionBudgetLine[];
 }
 export interface ImportGroup {
   key: string; title: string; color: string; existingGroupId: string; tasks: ImportTask[];
@@ -15,5 +17,6 @@ export interface ImportProjectDetails { title: string; description: string; obje
 export interface ProjectImportDraft {
   schemaVersion: 1; project: ImportProjectDetails; offices: ProposedOffice[]; groups: ImportGroup[];
   warnings: string[]; pipeline?: Record<string, unknown>;
+  sourceBudgetTotal?: number;
 }
-export interface ProjectImportResult { taskCount: number; subitemCount: number; groupCount: number; taskIds: Record<string, string>; groupIds: string[] }
+export interface ProjectImportResult { taskCount: number; subitemCount: number; groupCount: number; taskIds: Record<string, string>; groupIds: string[]; alreadyImported?: boolean; existingTaskCount?: number; reusedGroupCount?: number;assignedTaskCount?:number;officeCount?:number;needsPeopleCount?:number }

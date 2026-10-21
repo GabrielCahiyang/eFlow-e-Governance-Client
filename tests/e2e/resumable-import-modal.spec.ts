@@ -1,0 +1,48 @@
+import { test,expect } from '@playwright/test';
+import { projectWorkspaceFixture } from './fixtures/projectWorkspace';
+
+test('saved import reviews offices, locks during real stages, assigns only available work and leaves invitations manual',async({page},info)=>{
+ test.setTimeout(150000);await page.setViewportSize({width:1600,height:1000});
+ const r=await projectWorkspaceFixture(page,'head',false,{compactLayout:true});
+ const task=(key:string,title:string,officeKey='')=>({key,title,description:'Source methodology',priority:'high',estimatedHours:4,startDate:'2099-10-21',dueDate:'2099-11-20',officeKey,dependencies:[],subitems:[],sourceQuote:title,included:true});
+ const draft={schemaVersion:1,project:{title:'',description:'',objectives:'',startDate:'2099-10-21',targetDate:''},warnings:[],offices:[{key:'o1',name:'Agriculture Office',evidence:'Agriculture Office implements consultation.',officeId:'',confirmed:false}],groups:[{key:'g1',title:'Planning',color:'#087f8c',existingGroupId:'',tasks:[task('t1','Kick Off Meeting'),task('t2','Office consultation','o1')]}]};
+ let session:any={id:'90000000-0000-4000-8000-000000000091',project_id:r.project,actor_id:r.id,revision:1,runner:null,lease_until:null,result:null,state:{stage:'review_offices',sourceName:'proposal.pdf',sourceText:'Agriculture Office implements consultation.',anchor:'2099-10-21',addOffices:true,autoAssign:true,draft,extraction:{offices:draft.offices,taskOffices:{t2:'o1'},clarification:[]},assignments:[],events:['Reading your PDF','Found 1 group and 2 tasks']}};
+ let aiDone=false,jobs=0,invites=0,captured:any;
+ const identities:any[]=[];
+ await page.route('**/rest/v1/project_pdf_import_sessions?**',route=>route.fulfill({json:session.result?[]:[session]}));
+ await page.route('**/rest/v1/rpc/save_pdf_import_session',route=>{const body=route.request().postDataJSON();session={...session,revision:session.revision+1,state:body.p_state,runner:body.p_runner};return route.fulfill({json:session});});
+ await page.route('**/rest/v1/rpc/touch_pdf_import_session',route=>route.fulfill({json:null}));
+ await page.route('**/rest/v1/project_office_identities?**',route=>route.fulfill({json:identities}));
+ await page.route('**/rest/v1/rpc/r8_list_requests',route=>route.fulfill({json:{kind:'office',office_id:r.org,requests:[],can_request:true}}));
+ const person={id:r.id,name:'Alex Rivera',skills:['Meeting organization'],training:[],education:[],experience:[],specializations:[],certifications:[],experience_summary:'',activeTasks:1,remainingHours:4,unknownEffortTasks:0};
+ await page.route('**/controlpanelEflow/api/staffing/project/**/context',route=>route.fulfill({json:{task:{id:r.project,title:'Kick Off Meeting',description:'Source methodology',skills:[]},candidates:[person],excludedUnconfirmed:0}}));
+ await page.route('**/controlpanelEflow/api/ai/status',route=>route.fulfill({json:{ai_endpoint:'http://127.0.0.1:5190/controlpanelEflow/api',ai_endpoint_status:'online',ai_endpoint_heartbeat:new Date().toISOString()}}));
+ await page.route('**/controlpanelEflow/api/ai/jobs',route=>{const body=route.request().postDataJSON();expect(body.model).toBe('qwen3.5:4b');expect(body.workspace_staffing.draftTask.title).toBe('Kick Off Meeting');jobs++;return route.fulfill({status:202,json:{job_id:'prepare-team',status:'processing',jobs_ahead:0}});});
+ await page.route('**/controlpanelEflow/api/ai/jobs/prepare-team',route=>route.fulfill({json:aiDone?{job_id:'prepare-team',status:'completed',jobs_ahead:0,result:{message:{content:JSON.stringify({recommendations:[{userId:r.id,evidence:['Meeting organization']}]})}}}:{job_id:'prepare-team',status:'processing',jobs_ahead:0,progress:{stage:'staffing',message:'Matching skills and workload'}}}));
+ await page.route('**/controlpanelEflow/api/project-invitations/**/dispatch',route=>{invites++;return route.fulfill({json:{}});});
+ await page.route('**/rest/v1/rpc/complete_pdf_import_session',route=>{
+  captured=session.state;expect(captured.assignments).toHaveLength(1);expect(captured.assignments[0].key).toBe('t1');expect(captured.review.offices[0].confirmed).toBe(true);
+  identities.push({id:'91000000-0000-4000-8000-000000000091',project_id:r.project,display_name:'Agriculture Office',canonical_office_id:null,project_office_id:null,relationship_type:'collaborating',contact_email:'',contact_user_id:null,contact_status:'none',provenance:{source:'pdf',evidence:'Agriculture Office implements consultation.'}});
+  session.result={taskCount:2,groupCount:1,subitemCount:0,taskIds:{t1:'new-1',t2:'new-2'},groupIds:[],officeCount:1,assignedTaskCount:1,needsPeopleCount:1};return route.fulfill({json:session.result});
+ });
+ await page.reload();const dialog=page.getByRole('dialog',{name:'Import PDF into Community outreach',exact:true});
+ await expect(dialog).toBeVisible({timeout:30000});await expect(dialog.getByRole('heading',{name:'Check the offices'})).toBeVisible();
+ await page.screenshot({path:info.outputPath('pdf-import-office-review-desktop.png')});
+ await dialog.getByRole('button',{name:'Confirm offices & continue',exact:true}).click();
+ await expect(dialog.getByRole('button',{name:'Close',exact:true})).toBeDisabled();
+ await page.keyboard.press('Escape');await expect(dialog).toBeVisible();
+ await expect(dialog.getByLabel('Import activity')).toContainText('Choosing people for task 1 of 2');
+ await page.screenshot({path:info.outputPath('pdf-import-processing-desktop.png')});
+ aiDone=true;await expect(dialog.getByRole('status')).toContainText('2 tasks imported',{timeout:45000});
+ expect(jobs).toBe(1);expect(invites).toBe(0);expect(captured.events.some((value:string)=>value.includes('waiting for office invitations'))).toBe(true);
+ await dialog.getByRole('button',{name:'Set up office invitations',exact:true}).click();
+ await expect(page.getByRole('heading',{name:'Project Offices',exact:true})).toBeVisible();
+ await expect(page.getByText('Needs contact',{exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'Invite people',exact:true}).click();
+ const invitation=page.getByRole('dialog',{name:'Invite people · Agriculture Office',exact:true});
+ await expect(invitation.getByLabel('Invite as')).toHaveValue('employee');
+ await invitation.getByLabel('Invite as').selectOption('representative');
+ await expect(invitation).toContainText('An Office Head is not required');
+ await page.screenshot({path:info.outputPath('project-office-person-invitation-desktop.png')});
+ expect(invites).toBe(0);
+});

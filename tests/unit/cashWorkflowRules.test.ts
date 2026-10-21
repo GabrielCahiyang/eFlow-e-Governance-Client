@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   assertCashNeededByIsCurrentOrFuture,
   getPhilippineCalendarDate,
@@ -13,6 +13,10 @@ import type {
 } from "../../src/app/features/budget/types";
 
 describe("cash workflow timing rules", () => {
+  it('treats the Manila morning as due today even while UTC is yesterday',()=>{
+    vi.useFakeTimers();vi.setSystemTime(new Date('2026-10-20T23:20:00Z'));
+    try {expect(getScheduledReleaseSummary([{id:'release',status:'scheduled',scheduledDate:'2026-10-21',amount:500} as PettyCashRelease]).dueAmount).toBe(500);}finally{vi.useRealTimers();}
+  });
   it("uses the Philippine calendar date at the UTC day boundary", () => {
     expect(getPhilippineCalendarDate(new Date("2026-09-24T16:30:00.000Z"))).toBe("2026-09-25");
   });

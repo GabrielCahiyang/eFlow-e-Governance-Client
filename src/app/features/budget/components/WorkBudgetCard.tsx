@@ -33,6 +33,8 @@ interface WorkBudgetCardProps {
   task: Task;
   subtask?: Subtask;
   canManage?: boolean;
+  /** Appointed Head fiscal oversight, independent of contributor eligibility. */
+  canAuthorizeFunding?: boolean;
   readOnly?: boolean;
   authorityPending?: boolean;
 }
@@ -77,6 +79,7 @@ export function WorkBudgetCard({
   task,
   subtask,
   canManage = false,
+  canAuthorizeFunding = false,
   readOnly = false,
   authorityPending = false,
 }: WorkBudgetCardProps) {
@@ -288,7 +291,8 @@ export function WorkBudgetCard({
   return (
     <section className="rounded-[10px] border border-border bg-card p-3 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
       {safety.dialog}
-      {!readOnly&&!authorityPending&&canManage&&isOpenDirectFundingWork(task)&&!subtask&&!context?.funded&&!funding.loading&&userProfile?.role==="head"&&userProfile.is_active!==false&&userProfile.org_id===orgId&&orgId===fundingOffice&&<DirectWorkFunding key={task.id} data={budget} tasks={[task]} onChanged={refresh} />}
+      {authorityPending && <p role="status" className="mb-3 flex items-center gap-2 text-[13px] text-muted-foreground"><Loader2 size={14} className="animate-spin" />Checking current work access. Your draft is kept; controls resume when verified.</p>}
+      {!authorityPending&&(canAuthorizeFunding||!readOnly&&canManage)&&isOpenDirectFundingWork(task)&&!subtask&&!context?.funded&&!funding.loading&&userProfile?.role==="head"&&userProfile.is_active!==false&&userProfile.org_id===orgId&&orgId===fundingOffice&&<DirectWorkFunding key={task.id} data={budget} tasks={[task]} onChanged={refresh} />}
       {safety.message && (
         <FeedbackState tone={safety.tone} title="Cap result">
           <p>{safety.message}</p>
@@ -303,11 +307,11 @@ export function WorkBudgetCard({
             <Banknote size={14} />
           </div>
           <div className="min-w-0">
-            <div className="text-[9px] uppercase tracking-wide text-emerald-700">
+            <div className="text-[12px] uppercase tracking-wide text-emerald-700">
               {subtask ? "Subtask funding" : "Task funding"}
             </div>
             {funding.loading ? (
-              <div className="mt-1 flex items-center gap-1 text-[10px] text-neutral-500">
+              <div className="mt-1 flex items-center gap-1 text-[12px] text-neutral-500">
                 <Loader2 size={10} className="animate-spin" /> Calculating
                 availability…
               </div>
@@ -316,7 +320,7 @@ export function WorkBudgetCard({
                 <strong className="text-[14px] tabular-nums text-foreground">
                   {peso.format(context.available)}
                 </strong>
-                <span className="ml-1 text-[9.5px] text-muted-foreground">
+                <span className="ml-1 text-[12px] text-muted-foreground">
                   requestable now{" "}
                   {context.cap
                     ? `inside ${peso.format(context.cap.amount)} cap`
@@ -324,7 +328,7 @@ export function WorkBudgetCard({
                 </span>
               </div>
             ) : (
-              <div className="mt-1 text-[10.5px] text-neutral-600">
+              <div className="mt-1 text-[12px] text-neutral-600">
                 No approved funding for this task
               </div>
             )}
@@ -341,7 +345,7 @@ export function WorkBudgetCard({
                   ? "Settle, reject, or cancel the active request before changing this cap."
                   : undefined
               }
-              className="inline-flex h-7 items-center gap-1 rounded-lg border border-emerald-200 bg-white px-2 text-[8.8px] text-emerald-800 disabled:opacity-40"
+              className="inline-flex h-7 items-center gap-1 rounded-lg border border-emerald-200 bg-white px-2 text-[12px] text-emerald-800 disabled:opacity-40"
             >
               {context?.cap ? <Pencil size={9} /> : <Plus size={9} />}
               {context?.cap ? "Edit cap" : "Set cap"}
@@ -357,7 +361,7 @@ export function WorkBudgetCard({
                   ? "An active request depends on this cap."
                   : undefined
               }
-              className="inline-flex h-7 items-center gap-1 rounded-lg border border-rose-200 bg-white px-2 text-[8.8px] text-rose-700 disabled:opacity-40"
+              className="inline-flex h-7 items-center gap-1 rounded-lg border border-rose-200 bg-white px-2 text-[12px] text-rose-700 disabled:opacity-40"
             >
               <Trash2 size={9} /> Remove
             </button>
@@ -370,7 +374,7 @@ export function WorkBudgetCard({
               <button
                 type="button"
                 onClick={() => setRequestOpen(true)}
-                className="inline-flex h-7 items-center gap-1 rounded-lg bg-emerald-700 px-2.5 text-[8.8px] text-white"
+                className="inline-flex h-7 items-center gap-1 rounded-lg bg-emerald-700 px-2.5 text-[12px] text-white"
               >
                 <WalletCards size={9} /> Request cash
               </button>
@@ -385,7 +389,7 @@ export function WorkBudgetCard({
         </p>
       )}
       {context?.funded && (
-        <div className="mt-3 rounded-lg border border-primary/20 bg-primary/5 p-2.5 text-[9.5px] text-primary">
+        <div className="mt-3 rounded-lg border border-primary/20 bg-primary/5 p-2.5 text-[12px] text-primary">
           {subtask
             ? context.cap
               ? `${peso.format(context.cap.available)} remains inside this protected subtask cap. Requests still require operational endorsement and fiscal authorization.`
@@ -414,13 +418,13 @@ export function WorkBudgetCard({
       )}
 
       {temporaryHeld > 0 && (
-        <div className="mt-2 rounded-lg border border-amber-200 bg-amber-50 p-2 text-[8.8px] text-amber-800">
+        <div className="mt-2 rounded-lg border border-amber-200 bg-amber-50 p-2 text-[12px] text-amber-800">
           A pending request temporarily reduces what others may request, but it
           is not approved spending and has not been released.
         </div>
       )}
       {correctionWaiting && (
-        <div className="mt-2 rounded-lg border border-blue-200 bg-blue-50 p-2 text-[8.8px] text-blue-800">
+        <div className="mt-2 rounded-lg border border-blue-200 bg-blue-50 p-2 text-[12px] text-blue-800">
           A returned request holds no funds. Its amount is checked and
           temporarily held again only when the member resubmits it.
         </div>
@@ -436,7 +440,7 @@ export function WorkBudgetCard({
             .map((line) => (
               <div
                 key={line.id}
-                className="flex items-center justify-between gap-3 rounded-md bg-muted/45 px-2.5 py-1.5 text-[8.8px]"
+                className="flex items-center justify-between gap-3 rounded-md bg-muted/45 px-2.5 py-1.5 text-[12px]"
               >
                 <span className="min-w-0 truncate text-muted-foreground">
                   {line.category} · {line.particular} · {line.fundSource}
@@ -457,12 +461,12 @@ export function WorkBudgetCard({
       {capOpen && context && subtask && (
         <fieldset disabled={!canManageCap || capHasActiveRequest || busy} className="mt-3 min-w-0 space-y-2 rounded-xl border border-emerald-200 bg-white p-3">
           <div>
-            <div className="text-[10px] font-semibold">
+            <div className="text-[12px] font-semibold">
               {context.cap
                 ? "Edit protected subtask cap"
                 : "Protect part of the shared task pool"}
             </div>
-            <div className="mt-0.5 text-[8.8px] text-neutral-500">
+            <div className="mt-0.5 text-[12px] text-neutral-500">
               The cap reserves funds immediately. It cannot change while an
               active request depends on it.
             </div>
@@ -473,7 +477,7 @@ export function WorkBudgetCard({
               setCapLineId(event.target.value);
               setCapAmount(0);
             }}
-            className="h-9 w-full rounded-lg border border-emerald-200 px-2.5 text-[10px]"
+            className="h-9 w-full rounded-lg border border-emerald-200 px-2.5 text-[12px]"
           >
             <option value="">Select budget line and fund source…</option>
             {context.lines.map((line) => (
@@ -484,7 +488,7 @@ export function WorkBudgetCard({
             ))}
           </select>
           {selectedCapLine && (
-            <div className="text-[9px] text-emerald-800">
+            <div className="text-[12px] text-emerald-800">
               Maximum protectable: <strong>{peso.format(capMaximum)}</strong>
             </div>
           )}
@@ -496,13 +500,13 @@ export function WorkBudgetCard({
               value={capAmount || ""}
               onValueChange={raw => setCapAmount(Number(raw))}
               placeholder="Amount"
-              className="h-9 rounded-lg border border-emerald-200 px-2.5 text-[10px]"
+              className="h-9 rounded-lg border border-emerald-200 px-2.5 text-[12px]"
             />
             <input
               value={capReason}
               onChange={(event) => setCapReason(event.target.value)}
               placeholder="Why protect this amount?"
-              className="h-9 rounded-lg border border-emerald-200 px-2.5 text-[10px]"
+              className="h-9 rounded-lg border border-emerald-200 px-2.5 text-[12px]"
             />
             <button
               type="button"
@@ -514,7 +518,7 @@ export function WorkBudgetCard({
                 !capReason.trim()
               }
               onClick={() => void saveCap()}
-              className="inline-flex h-9 items-center gap-1 rounded-lg bg-emerald-700 px-3 text-[9px] text-white disabled:opacity-40"
+              className="inline-flex h-9 items-center gap-1 rounded-lg bg-emerald-700 px-3 text-[12px] text-white disabled:opacity-40"
             >
               <ShieldCheck size={10} /> Save cap
             </button>
@@ -522,7 +526,7 @@ export function WorkBudgetCard({
           <button
             type="button"
             onClick={() => setCapOpen(false)}
-            className="text-[9px] text-neutral-500 underline"
+            className="text-[12px] text-neutral-500 underline"
           >
             Cancel
           </button>
@@ -565,7 +569,7 @@ export function WorkBudgetCard({
       />
 
       {(error || funding.error || budget.error) && (
-        <div className="mt-2 rounded-lg bg-rose-50 p-2 text-[9px] text-rose-700">
+        <div className="mt-2 rounded-lg bg-rose-50 p-2 text-[12px] text-rose-700">
           {error || funding.error || budget.error}
         </div>
       )}
@@ -590,7 +594,7 @@ function FundingMetric({
         {label}
       </div>
       <strong
-        className={`mt-0.5 block text-right text-[9.5px] tabular-nums ${tone === "amber" ? "text-amber-800" : "text-foreground"}`}
+        className={`mt-0.5 block text-right text-[12px] tabular-nums ${tone === "amber" ? "text-amber-800" : "text-foreground"}`}
       >
         {peso.format(value)}
       </strong>

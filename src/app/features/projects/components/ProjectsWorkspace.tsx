@@ -1,7 +1,6 @@
 import { ProjectIndex } from './ProjectIndex';
 import { isAppointedOfficeHead } from '../../../shared/officeAuthority';
 import * as React from "react";
-import { useWorkspaceNavigationHost } from '../../../shared/WorkspaceNavigationContext';
 import { requestNavigation } from '../../../shared/navigationGuard';
 import { writeNavigationLocation } from '../../navigation';
 import { NAVIGATION_LOCATION_EVENT, pushNavigationHistory, replaceNavigationHistory } from '../../../shared/navigationHistory';
@@ -11,7 +10,6 @@ import { readProjectPlanningView, useProjectPlanningLocation } from '../hooks/us
 import { CitywidePlansOverview } from "./CitywidePlansOverview";
 import * as Icons from "lucide-react";
 import { Skeleton } from "@vibe/core";
-import { CreateWorkPlanDialog, type WorkPlanCreationMode } from "../../proposal-import";
 import { useDeptDirectoryEmployees } from "../../members";
 import { isTaskLead } from "../../tasks";
 import { ProjectTemplatesModal } from "../../work-templates";
@@ -26,7 +24,6 @@ import { useAuth } from "../../../contexts/AuthContext";
 import { useToast } from "../../../components/ui/Toast";
 import { ProjectArchiveDialog } from "./ProjectArchiveDialog";
 import { ProjectCompleteDialog } from "./ProjectCompleteDialog";
-import { ProjectContextSidebar } from "./ProjectContextSidebar";
 import { ProjectWorkspaceActions } from './ProjectWorkspaceActions';
 import { TaskDetailDrawer } from "../../task-inspector";
 import { ProjectDeleteDialog } from "./ProjectDeleteDialog";
@@ -54,6 +51,7 @@ import {
 import { notifyProjectListeners } from "../services/projectService";
 import "./projectsVibe.css";
 import './projectWorkflow.css';
+import './projectPortfolio.css';
 import { CreateProjectDialog } from '../../project-table';
 import { useWorkspaceScope } from '../../workspaces';
 
@@ -67,6 +65,7 @@ interface ProjectWorkspaceContext {
 }
 
 const PROJECT_WORKSPACE_TITLE: Partial<Record<ProjectCommandTab, string>> = {
+  settings: "Settings",
   overview: "Overview",
   tasks: "Main table",
   gantt: "Gantt",
@@ -106,7 +105,6 @@ export function ProjectsWorkspace({
   const { orgs } = useOrgs();
   const { profiles } = useProfiles();
   const { can, user, userProfile } = useAuth();
-  const navigationHost = useWorkspaceNavigationHost();
   const { toast } = useToast();
   const { deptEmployees } = useDeptDirectoryEmployees({
     scope: "exact",
@@ -135,7 +133,6 @@ export function ProjectsWorkspace({
     if (view !== 'portfolio') setActiveTab({id:'portfolio',type:'portfolio',title:'All projects'});
   }, []);
   const openPlanning = useProjectPlanningLocation(restorePlanningView);
-  const [creationMode, setCreationMode] = React.useState<WorkPlanCreationMode | null>(null);
   const [templatesOpen, setTemplatesOpen] = React.useState(false);
   const baseAccess = resolveProjectWorkspaceAccess(readOnly, can);
   const access = { ...baseAccess, canCreate: baseAccess.canCreate && isAppointedOfficeHead(userProfile, orgs) && (!workspaceScope || workspaceScope.workspace.office_id === (userProfile?.org_id || userProfile?.departmentId)) };
@@ -360,17 +357,10 @@ export function ProjectsWorkspace({
   if (loading)
     return (
       <div
-        className="eflow-projects-surface eflow-projects-loading grid min-h-[360px] grid-cols-[minmax(220px,304px)_minmax(0,1fr)] gap-4 p-4"
+        className="eflow-projects-surface eflow-projects-loading grid min-h-[360px] grid-cols-1 gap-4 p-4"
         aria-live="polite"
         role="status"
       >
-        <div className="space-y-3 rounded-2xl border border-neutral-200 bg-white p-4">
-          <Skeleton type="text" width={96} />
-          <Skeleton type="rectangle" size="custom" height={42} fullWidth />
-          <Skeleton type="rectangle" size="custom" height={42} fullWidth />
-          <Skeleton type="rectangle" size="custom" height={42} fullWidth />
-          <Skeleton type="rectangle" size="custom" height={42} fullWidth />
-        </div>
         <div className="space-y-4 rounded-2xl border border-neutral-200 bg-white p-5">
           <Skeleton type="text" width={220} />
           <Skeleton type="text" width={320} />
@@ -384,37 +374,11 @@ export function ProjectsWorkspace({
       </div>
     );
 
-  const projectNavigation = (
-      <ProjectContextSidebar
-        activeProjectId={workspaceView === "portfolio" ? activeProject?.id : undefined}
-        canAdd={access.canCreate}
-        onCreateProject={() => { navigationHost?.closeNavigation(); setQuickProjectOpen(true); }}
-        onImportProposal={() => { navigationHost?.closeNavigation(); setCreationMode('import'); }}
-        userId={currentUserId}
-        contextId={workspaceScope?.workspace.id || currentOrgId || 'unassigned'}
-        canArchive={access.canArchive}
-        canComplete={access.canManage && userProfile?.role === 'head' && userProfile.is_active !== false}
-        canDelete={access.canDelete}
-        onOpenPortfolio={() => { void requestNavigation(openIndex); }}
-        onOpenProject={id => { void requestNavigation(() => { openProject(id, 'push'); navigationHost?.closeNavigation(); }); }}
-        onArchiveProject={(id, title) => setArchiveTarget({ id, title, isArchived: false })}
-        onCompleteProject={(id, title) => setCompleteTarget({ id, title })}
-        onRestoreProject={(id, title) => setArchiveTarget({ id, title, isArchived: true })}
-        onDeleteProject={(id, title) => setDeleteTarget({ id, title })}
-        projects={inScope}
-        departmentFilter={scope.includeAllAccessibleWork ? {
-          value: departmentFilter,
-          options: departmentFilterOptions,
-          onChange: value => { void requestNavigation(() => changeDepartmentFilter(value)); },
-        } : undefined}
-      />
-  );
   return (
     <div className="eflow-ide-workspace">
-      {!navigationHost && projectNavigation}
       <div className="eflow-ide-workspace__content" hidden={!!completionTaskId}>
-      <ProjectWorkspaceActions onAllProjects={() => { void requestNavigation(openIndex); }} canCreate={access.canCreate} disabledReason={baseAccess.canCreate && !access.canCreate ? workspaceScope && workspaceScope.workspace.office_id !== currentOrgId ? 'Return to your office to create a project.' : 'Only the appointed Office Head can create projects.' : undefined} onCreate={() => setQuickProjectOpen(true)} onWorkPlan={() => setCreationMode('manual')}
-        onImport={() => setCreationMode('import')} onTemplates={() => setTemplatesOpen(true)}
+      <ProjectWorkspaceActions onAllProjects={() => { void requestNavigation(openIndex); }} canCreate={access.canCreate} disabledReason={baseAccess.canCreate && !access.canCreate ? workspaceScope && workspaceScope.workspace.office_id !== currentOrgId ? 'Return to your office to create a project.' : 'Only the appointed Office Head can create projects.' : undefined} onCreate={() => setQuickProjectOpen(true)}
+        onTemplates={() => setTemplatesOpen(true)}
         onSavedPlans={() => { void requestNavigation(() => openPlanning('drafts')); }}
         onReviewPlans={() => { void requestNavigation(() => openPlanning('signoff')); }}
         departmentFilter={scope.includeAllAccessibleWork ? { value: departmentFilter, options: departmentFilterOptions, onChange: value => { void requestNavigation(() => changeDepartmentFilter(value)); } } : undefined} />
@@ -531,18 +495,6 @@ export function ProjectsWorkspace({
       </div>
       </div>
 
-      {access.canCreate && creationMode && (
-        <CreateWorkPlanDialog
-          open
-          mode={creationMode}
-          onModeChange={setCreationMode}
-          onClose={() => {
-            setCreationMode(null);
-            void collaboration.refresh();
-            void notifyProjectListeners();
-          }}
-        />
-      )}
       {access.canCreate && quickProjectOpen && <CreateProjectDialog open officeId={currentOrgId} officeName={orgs.find(org=>org.id===currentOrgId)?.name} ownerName={userProfile?.full_name} onClose={()=>setQuickProjectOpen(false)} onCreated={project=>{setCommittedProject(project);createdNavigationRef.current=project.id;workspaceScope?.includeCreatedOfficeProject?.(project);writeNavigationLocation('projects','Projects','push',{project:project.id,view:'tasks',parameters:{project:project.id,view:'tasks',people:'add'}});setActiveTab({id:`project-${project.id}`,type:'project',projectId:project.id,title:project.title});setWorkspaceView('portfolio');setProjectWorkspaceTab('tasks');}}/>}
 
       {templatesOpen && (

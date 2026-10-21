@@ -13,6 +13,17 @@ const task={id:'root',title:'Root',status:'in_progress',orgId:'office',assigneeI
 const subtask={id:'node',taskId:'root',title:'Node',assignedToIds:['worker'],status:'todo',percentComplete:0} as Subtask;
 beforeEach(()=>{vi.clearAllMocks();api.actor='lead';api.loading=false;api.requests=[];api.create.mockResolvedValue('request');api.cap.mockResolvedValue('cap');api.refresh.mockResolvedValue(undefined);});afterEach(cleanup);
 describe('NW8.2 budget caller gates and preserved financial rights',()=>{
+ it('explains an over-budget request and recovers after correcting the amount',async()=>{
+  render(<WorkBudgetCard task={task}/>);fireEvent.click(screen.getByRole('button',{name:'Request cash'}));
+  fireEvent.change(screen.getByLabelText('Amount'),{target:{value:'501'}});
+  fireEvent.change(screen.getByLabelText('Purchase and purpose'),{target:{value:'QA supplies'}});
+  fireEvent.change(screen.getByLabelText('Needed by'),{target:{value:'2099-12-01'}});
+  expect(screen.getByRole('alert').textContent).toContain('exceeds the available funding');
+  expect(screen.getByRole('button',{name:'Request cash'}).matches(':disabled')).toBe(true);
+  fireEvent.change(screen.getByLabelText('Amount'),{target:{value:'500'}});
+  expect(screen.queryByRole('alert')).toBeNull();
+  fireEvent.click(screen.getByRole('button',{name:'Request cash'}));await waitFor(()=>expect(api.create).toHaveBeenCalledOnce());
+ });
  it('preserves Task Lead cap rights and independent contributor cash requests without canManage',async()=>{
   const view=render(<WorkBudgetCard task={task} subtask={subtask} canManage/>);expect(screen.getByRole('button',{name:'Set cap'})).toBeTruthy();expect(screen.getByRole('button',{name:'Request cash'})).toBeTruthy();
   api.actor='worker';view.rerender(<WorkBudgetCard task={task} subtask={subtask} canManage={false}/>);expect(screen.queryByRole('button',{name:'Set cap'})).toBeNull();expect(screen.getByRole('button',{name:'Request cash'})).toBeTruthy();

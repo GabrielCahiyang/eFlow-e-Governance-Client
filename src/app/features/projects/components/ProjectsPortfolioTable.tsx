@@ -1,13 +1,12 @@
 import {formatDate} from '../../../components/workflow/primitives';
+import { Ellipsis } from 'lucide-react';
 import { EmptyState as IllustratedEmptyState } from '../../../components/ui/EmptyState';
 import { EmptyStateIllustration } from '../../../components/ui/EmptyStateIllustration';
-import * as React from "react";
 import {
   Avatar,
   AvatarGroup,
   Button,
   EmptyState,
-  IconButton,
   Table,
   TableBody,
   TableCell,
@@ -16,7 +15,7 @@ import {
   TableHeaderCell,
   TableRow,
 } from "@vibe/core";
-import { Description, Folder, MoreActions, Open, TextCopy } from "@vibe/icons";
+import { Description, Folder, Open, TextCopy } from "@vibe/icons";
 import type { Organization, UserProfile } from "../../../types";
 import type { Task } from "../../tasks";
 import type { Project } from "../services/types";
@@ -25,6 +24,7 @@ import {
   ProjectLifecycleLabel,
   ProjectScheduleLabel,
 } from "../presentation/projectPresentation";
+import { ActionMenu } from "../../../components/ui/workspace";
 import { useToast } from "../../../components/ui/Toast";
 
 export function ProjectsPortfolioTable({
@@ -43,38 +43,18 @@ export function ProjectsPortfolioTable({
   onOpenProposal?: (draftId: string) => void;
 }) {
   const { toast } = useToast();
-  const [activeMenuId, setActiveMenuId] = React.useState<string | null>(null);
 
-  // Close menu on click outside or escape
-  React.useEffect(() => {
-    if (!activeMenuId) return;
-    const handlePointer = (e: MouseEvent) => {
-      const target = e.target as HTMLElement | null;
-      if (!target?.closest(".eflow-project-actions-cell")) {
-        setActiveMenuId(null);
-      }
-    };
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setActiveMenuId(null);
-    };
-    document.addEventListener("mousedown", handlePointer);
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("mousedown", handlePointer);
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [activeMenuId]);
 
   const columns = [
-    "project",
-    "department",
-    "lead",
-    "lifecycle",
-    "schedule",
-    "progress",
-    "target",
-    "actions",
-  ].map((id) => ({ id, title: id }));
+    { id: "project", title: "Project", width: { min: 240, max: "2fr" as const } },
+    { id: "department", title: "Lead office", width: { min: 100, max: "0.85fr" as const } },
+    { id: "lead", title: "Project lead", width: { min: 150, max: "1.1fr" as const } },
+    { id: "lifecycle", title: "Status", width: { min: 105, max: "0.8fr" as const } },
+    { id: "schedule", title: "Schedule", width: { min: 155, max: "1fr" as const } },
+    { id: "progress", title: "Progress", width: { min: 145, max: "1fr" as const } },
+    { id: "target", title: "Target date", width: { min: 120, max: "0.85fr" as const } },
+    { id: "actions", title: "Actions", width: 182 },
+  ];
 
   if (!projects.length)
     return (
@@ -85,9 +65,12 @@ export function ProjectsPortfolioTable({
     );
 
   return (
-    <TableContainer className="eflow-project-table">
+    <TableContainer className="eflow-project-table eflow-portfolio-table">
       <Table
+        className="eflow-portfolio-grid"
         columns={columns}
+        size="large"
+        withoutBorder
         emptyState={
           <EmptyState visual={<EmptyStateIllustration kind="projects"/>}
             title="No projects yet"
@@ -102,14 +85,7 @@ export function ProjectsPortfolioTable({
         }
       >
         <TableHeader>
-          <TableHeaderCell title="Project" />
-          <TableHeaderCell title="Lead office" />
-          <TableHeaderCell title="Project lead" />
-          <TableHeaderCell title="Lifecycle" />
-          <TableHeaderCell title="Schedule" />
-          <TableHeaderCell title="Progress" />
-          <TableHeaderCell title="Target date" />
-          <TableHeaderCell title="Actions" />
+          {columns.map(column => <TableHeaderCell key={column.id} title={column.title} />)}
         </TableHeader>
         <TableBody>
           {projects.map((project) => {
@@ -123,29 +99,28 @@ export function ProjectsPortfolioTable({
             const leads = summary.leadIds
               .map((id) => profiles.find((profile) => profile.id === id))
               .filter((profile): profile is UserProfile => Boolean(profile));
-            const isMenuOpen = activeMenuId === project.id;
 
             return (
-              <TableRow key={project.id} className="eflow-project-row group">
+              <TableRow key={project.id} className="eflow-project-row">
                 {/* 1. Project Title & Description (Direct Clickable Entry) */}
                 <TableCell>
-                  <div className="min-w-0 flex flex-col gap-1">
+                  <div className="eflow-portfolio-title-cell">
                   <button
                     type="button"
                     onClick={() => onOpen(project.id)}
-                    className="block text-left font-semibold text-xs text-neutral-900 hover:text-blue-600 transition"
+                    className="eflow-project-row-title"
                   >
                     {project.title}
                   </button>
-                  <span className="eflow-project-row-description line-clamp-1 text-[11px] text-neutral-400">
-                    {project.description || "No project description"}
+                  <span className="eflow-project-row-description" title={project.description || undefined}>
+                    {project.description || "No description yet"}
                   </span>
                   </div>
                 </TableCell>
 
                 {/* 2. Department */}
                 <TableCell>
-                  <span className="text-xs text-neutral-700">
+                  <span className="eflow-portfolio-office">
                     {organization?.name || "No office"}
                   </span>
                 </TableCell>
@@ -153,9 +128,9 @@ export function ProjectsPortfolioTable({
                 {/* 3. Project Lead */}
                 <TableCell>
                   {owner ? (
-                    <span className="eflow-person-cell flex items-center gap-1.5 text-xs text-neutral-800">
+                    <span className="eflow-person-cell">
                       <Avatar text={initials(owner.full_name)} size="small" />
-                      <span className="truncate">{owner.full_name}</span>
+                      <span>{owner.full_name}</span>
                     </span>
                   ) : leads.length ? (
                     <AvatarGroup size="small">
@@ -168,7 +143,7 @@ export function ProjectsPortfolioTable({
                       ))}
                     </AvatarGroup>
                   ) : (
-                    <span className="text-xs text-neutral-400">Unassigned</span>
+                    <span className="eflow-portfolio-muted">Unassigned</span>
                   )}
                 </TableCell>
 
@@ -188,13 +163,13 @@ export function ProjectsPortfolioTable({
                 {/* 6. Progress */}
                 <TableCell>
                   <div className="eflow-progress-cell">
-                    <span className="font-semibold text-xs text-neutral-800">
+                    <span className="eflow-portfolio-progress-value">
                       {summary.progress}%
                     </span>
-                    <span className="eflow-progress-track">
+                    <span className="eflow-progress-track" role="progressbar" aria-label={`${project.title} progress`} aria-valuenow={summary.progress} aria-valuemin={0} aria-valuemax={100}>
                       <span style={{ width: `${summary.progress}%` }} />
                     </span>
-                    <small className="text-[11px] text-neutral-500">
+                    <small className="eflow-portfolio-progress-detail">
                       {summary.completed}/{summary.total} tasks
                     </small>
                   </div>
@@ -202,88 +177,24 @@ export function ProjectsPortfolioTable({
 
                 {/* 7. Target Date */}
                 <TableCell>
-                  <span className="text-xs text-neutral-600">
+                  <span className="eflow-portfolio-date">
                     {formatDate(project.targetDate || summary.nextDeadline)}
                   </span>
                 </TableCell>
 
-                {/* 8. ONE Primary Action + ONE Overflow Menu */}
-                <TableCell className="eflow-project-actions-cell relative">
-                  <div className="flex items-center gap-1.5 justify-end">
-                    {/* Clear Primary Action */}
-                    <Button
-                      kind="secondary"
-                      size="small"
-                      rightIcon={Open}
-                      onClick={() => onOpen(project.id)}
-                    >
-                      Open project
-                    </Button>
-
-                    {/* Single Overflow Menu (...) */}
-                    <div className="relative">
-                      <IconButton
-                        aria-label={`More actions for ${project.title}`}
-                        icon={MoreActions}
-                        kind="tertiary"
-                        size="small"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setActiveMenuId(isMenuOpen ? null : project.id);
-                        }}
-                      />
-
-                      {/* Dropdown Menu */}
-                      {isMenuOpen && (
-                        <div
-                          role="menu"
-                          aria-label="Project actions"
-                          className="absolute right-0 top-full z-50 mt-1 w-52 rounded-xl border border-neutral-200 bg-white p-1.5 shadow-xl animate-in fade-in zoom-in-95 duration-100"
-                        >
-                          <button
-                            type="button"
-                            role="menuitem"
-                            onClick={() => {
-                              setActiveMenuId(null);
-                              onOpen(project.id);
-                            }}
-                            className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-xs font-medium text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 transition"
-                          >
-                            <Folder size={14} className="text-neutral-500" />
-                            Open project workspace
-                          </button>
-
-                          {project.sourceCollaborationDraftId && onOpenProposal && (
-                            <button
-                              type="button"
-                              role="menuitem"
-                              onClick={() => {
-                                setActiveMenuId(null);
-                                onOpenProposal(project.sourceCollaborationDraftId!);
-                              }}
-                              className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-xs font-medium text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 transition"
-                            >
-                              <Description size={14} className="text-blue-600" />
-                              View proposal context
-                            </button>
-                          )}
-
-                          <button
-                            type="button"
-                            role="menuitem"
-                            onClick={() => {
-                              setActiveMenuId(null);
-                              void navigator.clipboard.writeText(project.title);
-                              toast("Project title copied to clipboard.", "success");
-                            }}
-                            className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-xs font-medium text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 transition"
-                          >
-                            <TextCopy size={14} className="text-neutral-400" />
-                            Copy project title
-                          </button>
-                        </div>
-                      )}
-                    </div>
+                <TableCell className="eflow-project-actions-cell">
+                  <div className="eflow-portfolio-actions">
+                    <Button kind="secondary" size="small" rightIcon={Open} onClick={() => onOpen(project.id)}>Open project</Button>
+                    <ActionMenu
+                      trigger={<button type="button" className="eflow-portfolio-more" aria-label={`More actions for ${project.title}`}><Ellipsis size={18} aria-hidden="true"/></button>}
+                      actions={[
+                        { id: "open", label: "Open project workspace", icon: <Folder size={16}/>, onSelect: () => onOpen(project.id) },
+                        ...(project.sourceCollaborationDraftId && onOpenProposal ? [{ id: "proposal", label: "View proposal context", icon: <Description size={16}/>, onSelect: () => onOpenProposal(project.sourceCollaborationDraftId!) }] : []),
+                        { id: "copy", label: "Copy project title", icon: <TextCopy size={16}/>, onSelect: () => {
+                          void navigator.clipboard.writeText(project.title).then(() => toast("Project title copied to clipboard.", "success"), () => toast("Could not copy the project title.", "error"));
+                        } },
+                      ]}
+                    />
                   </div>
                 </TableCell>
               </TableRow>

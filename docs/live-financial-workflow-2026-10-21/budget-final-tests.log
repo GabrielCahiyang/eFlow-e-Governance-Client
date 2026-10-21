@@ -1,0 +1,15 @@
+
+> @figma/my-make-file@0.0.1 test
+> vitest --configLoader runner run tests/unit/projectTaskBudget.test.tsx --maxWorkers=1 --testTimeout=20000
+
+
+ RUN  v3.2.4 C:/Users/gabri/OneDrive/Desktop/EflowWeb
+
+ ✓ tests/unit/projectTaskBudget.test.tsx (6 tests) 815ms
+   ✓ shows actual authorized funds and totals without counting child caps or draft estimates twice  401ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  08:26:39
+   Duration  4.97s (transform 281ms, setup 0ms, collect 1.65s, tests 815ms, environment 1.67s, prepare 274ms)
+

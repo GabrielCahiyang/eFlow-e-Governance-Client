@@ -38,11 +38,11 @@ test('Project actions open visible menus and dialogs, and the board returns to t
   await page.getByRole('button', { name: 'Clear filters', exact: true }).click();
 
   await page.getByRole('button', { name: 'Columns', exact: true }).click();
-  await page.getByRole('checkbox', { name: 'Budget estimate', exact: true }).uncheck();
+  await page.getByRole('checkbox', { name: 'Budget', exact: true }).uncheck();
   await page.keyboard.press('Escape');
-  await expect(page.getByRole('columnheader', { name: /^Budget estimate/ })).toHaveCount(0);
+  await expect(page.getByRole('columnheader', { name: /^Budget/ })).toHaveCount(0);
   await page.getByRole('button', { name: 'Columns', exact: true }).click();
-  await page.getByRole('checkbox', { name: 'Budget estimate', exact: true }).check();
+  await page.getByRole('checkbox', { name: 'Budget', exact: true }).check();
   await page.keyboard.press('Escape');
 
   await page.getByRole('button', { name: 'New task options', exact: true }).press('Enter');

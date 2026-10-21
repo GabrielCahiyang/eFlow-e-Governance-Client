@@ -24,6 +24,7 @@ import type { AiQueueUpdate } from "../../ai";
 import { buildProposalBudgetFromTasks } from "../../budget";
 import { normalizeImportedTaskBudgetLines } from "../services/proposalBudgetImport";
 import { validateProposalDocument } from "../services/proposalValidationClient";
+import { readSourceBudget, moveSourceBudgetLine, type SourceBudget } from '../services/sourceBudget';
 
 export function useProposalImportController(onClose?: () => void) {
   const { tasks: liveTasks } = useTasks();
@@ -92,6 +93,7 @@ export function useProposalImportController(onClose?: () => void) {
   const [pdfFileName, setPdfFileName] = useState("");
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [pdfError, setPdfError] = useState("");
+  const [sourceBudget,setSourceBudget]=useState<SourceBudget|null>(null);
   const [persistenceUncertain, setPersistenceUncertain] = useState(false);
   const [aiQueueStatus, setAiQueueStatus] = useState<AiQueueUpdate | null>(null);
   const [decompositionProgress, setDecompositionProgress] = useState<{
@@ -195,6 +197,7 @@ export function useProposalImportController(onClose?: () => void) {
     }
     importPending.current = true;
     setPdfFileName(file.name);
+    setSourceBudget(null);
     setDraftId(null);
     setAutoSaveState("idle");
 
@@ -210,13 +213,14 @@ export function useProposalImportController(onClose?: () => void) {
     let text: string; let savingDraft = false;
     try {
       text = await extractTextFromPdf(file);
+      setSourceBudget(readSourceBudget(text));
       if (!text.trim()) {
         setPdfError("Could not extract text from PDF. It may be image-based.");
         setPdfPhase("error"); importPending.current = false;
         return;
       }
-    } catch {
-      setPdfError("Failed to read PDF file.");
+    } catch (reason) {
+      setPdfError(reason instanceof Error?reason.message:"Failed to read PDF file.");
       setPdfPhase("error"); importPending.current = false;
       return;
     }
@@ -419,6 +423,16 @@ export function useProposalImportController(onClose?: () => void) {
     pdfFileName,
     setPdfFileName,
     pdfError, persistenceUncertain,
+    sourceBudget,
+    moveSourceCost: (id:string,destination:string) => {
+      if (!sourceBudget) return;
+      try {
+        setDraftTasks(moveSourceBudgetLine(sourceBudget,id,destination,draftTasks));
+        setCommitMessage('Budget placement updated. Source amounts are unchanged.');
+      } catch (error) {
+        setCommitMessage(error instanceof Error ? error.message : 'Could not move this source cost.');
+      }
+    },
     retryAnalysis: () => { if (pdfFile && !persistenceUncertain) void handlePdfFile(pdfFile); },
     setPdfError,
     aiQueueStatus,

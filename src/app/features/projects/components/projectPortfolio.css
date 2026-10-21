@@ -1,0 +1,49 @@
+.eflow-project-index {
+  padding: clamp(20px, 2.4vw, 36px);
+}
+.eflow-project-index > header { margin-bottom: 28px; }
+.eflow-project-index > header h1 { font-size: 28px; line-height: 1.25; font-weight: 600; letter-spacing: -.5px; }
+.eflow-project-index > header p { margin: 8px 0 0; }
+.eflow-project-index__filters { display: grid; grid-template-columns: minmax(240px, 1fr) repeat(3, minmax(145px, 170px)); gap: 12px; margin-bottom: 12px; }
+.eflow-project-index__filters label { min-width: 0; font-weight: 500; color: var(--eflow-text-secondary); }
+.eflow-project-index__search { position: relative; display: flex; align-items: center; min-width: 0; }
+.eflow-project-index__search > svg { position: absolute; left: 12px; color: var(--eflow-text-muted); pointer-events: none; }
+.eflow-project-index__filters .eflow-project-index__search input { padding-left: 38px; }
+.eflow-project-index__filters input, .eflow-project-index__filters select { background: var(--eflow-surface); border-radius: 8px; height: 42px; font-size: 13px; }
+.eflow-project-index__results { display: flex; justify-content: space-between; align-items: center; min-height: 32px; gap: 12px; }
+.eflow-project-index__results p { margin: 0; font-size: 12px; }
+.eflow-project-index .eflow-portfolio-table, .eflow-portfolio-table { margin: 12px 0 0; max-width: 100%; border-radius: 12px; overflow: auto; border: 1px solid var(--eflow-border); box-shadow: none; }
+.eflow-portfolio-table .eflow-portfolio-grid { min-width: 1212px; overflow: visible; }
+.eflow-portfolio-table [role="columnheader"] { padding: 14px 16px; background: var(--eflow-subtle); font-size: 12px; font-weight: 600; color: var(--eflow-text-secondary); }
+.eflow-portfolio-table .eflow-project-row { height: auto; min-height: 92px; }
+.eflow-portfolio-table .eflow-project-row > [role="cell"] { padding: 16px; min-width: 0; font-size: 13px; line-height: 1.5; }
+.eflow-portfolio-title-cell { display: grid; gap: 5px; min-width: 0; width: 100%; }
+.eflow-portfolio-table .eflow-project-row-title { text-align: left; font-size: 14px; line-height: 1.45; font-weight: 600; white-space: normal; overflow-wrap: anywhere; }
+.eflow-portfolio-table .eflow-project-row-title:hover { color: var(--eflow-primary); text-decoration: underline; text-underline-offset: 3px; }
+.eflow-portfolio-table .eflow-project-row-description { margin: 0; max-width: none; white-space: normal; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-height: 1.5; }
+.eflow-portfolio-table .eflow-person-cell { white-space: normal; min-width: 0; line-height: 1.4; }
+.eflow-portfolio-table .eflow-person-cell > :first-child { flex-shrink: 0; }
+.eflow-portfolio-table .eflow-person-cell > span { overflow-wrap: anywhere; }
+.eflow-portfolio-office { overflow-wrap: anywhere; }
+.eflow-portfolio-muted, .eflow-portfolio-date { color: var(--eflow-text-secondary); font-size: 12px; }
+.eflow-portfolio-table .eflow-progress-cell { width: 100%; grid-template-columns: minmax(28px, auto) minmax(45px, 1fr); gap: 6px 8px; }
+.eflow-portfolio-progress-value { font-size: 13px; font-weight: 600; }
+.eflow-portfolio-table .eflow-progress-track > span { background: var(--eflow-primary); }
+.eflow-portfolio-table .eflow-progress-cell small { font-size: 12px; }
+.eflow-portfolio-actions { display: flex; align-items: center; gap: 4px; white-space: nowrap; }
+.eflow-portfolio-actions > * { flex-shrink: 0; }
+.eflow-portfolio-more { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: 0; background: transparent; border-radius: 6px; color: var(--eflow-text-secondary); cursor: pointer; }
+.eflow-portfolio-more:hover, .eflow-portfolio-more[data-state="open"] { background: var(--eflow-subtle); color: var(--eflow-primary); }
+.eflow-portfolio-table .eflow-project-row button:focus-visible { outline: 2px solid var(--eflow-primary); outline-offset: 2px; }
+@media (max-width: 1000px) {
+  .eflow-project-index__filters { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .eflow-project-index__filters label:first-child { grid-column: 1 / -1; }
+}
+@media (max-width: 600px) {
+  .eflow-project-index { padding: 16px; }
+  .eflow-project-index > header { gap: 16px; margin-bottom: 20px; }
+  .eflow-project-index > header h1 { font-size: 24px; }
+  .eflow-project-index__filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .eflow-project-index__filters label { min-width: 0; }
+  .eflow-project-index__filters label:last-child { grid-column: 1 / -1; }
+}

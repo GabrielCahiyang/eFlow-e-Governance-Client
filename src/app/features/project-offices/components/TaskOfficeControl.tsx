@@ -16,13 +16,14 @@ export function TaskOfficeControl({ task, organizations, canManage, hasStaffedSu
   const [busy, setBusy] = useState(false), [error, setError] = useState('');
   const [selection, setSelection] = useState('');
   const proposed = context.identities?.find(i => i.id === task.proposedOfficeIdentityId);
+  const named = context.identities?.find(i=>i.id===context.workIdentities?.[task.id]);
   const participant = context.offices.find(o => o.id === proposed?.project_office_id);
-  const name = task.proposedOfficeIdentityId ? `${proposed?.display_name || 'Unresolved Office'} · proposed` : organizations.find(o => o.id === task.orgId)?.name || task.teamName || task.department || 'Office';
+  const name = task.proposedOfficeIdentityId ? `${proposed?.display_name || 'Unresolved Office'} · needs people` : named?.display_name || organizations.find(o => o.id === task.orgId)?.name || task.teamName || task.department || 'Office';
   const available = canManage && canHandoverTask(task, hasStaffedSubitems);
   const readUnavailable = context.loading || !!context.error || !!context.identityError;
   return <WorkspacePopover trigger={<button className="pt-office" aria-label={'Responsible Office for ' + task.title}>{name}</button>}><div className="pt-popover-form">
     <strong>{task.proposedOfficeIdentityId ? 'Proposed responsibility' : 'Responsible Office'}</strong>
-    <p>{task.proposedOfficeIdentityId ? 'Planning only. Directory linking and Head confirmation are required before staffing, execution, evidence or funding.' : 'Its Head chooses the owner and team.'}</p>
+    <p>{task.proposedOfficeIdentityId ? 'Invite a project representative or employee from Project Offices before assigning this work. A department Head is optional.' : named?'Project-only Office. LEDIPO’s Head manages staffing; accepted people can work on their assigned tasks.':'Its Head chooses the owner and team.'}</p>
     {available && <>
       <label>Assign Office<select value={selection || (task.proposedOfficeIdentityId ? '' : task.orgId || '')} disabled={busy || readUnavailable} onChange={async event => {
         const value = event.target.value;

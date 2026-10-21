@@ -1,4 +1,5 @@
 import type React from 'react';
+import { Settings } from 'lucide-react';
 import { Activity, Board, Calendar, Chart, CheckList, CreditCard, Dashboard, Description, Table, Team, Timeline } from '@vibe/icons';
 import type { PermanentProjectView, ProjectCommandTab, ProjectViewMeta } from './types';
 
@@ -16,6 +17,7 @@ export const CORE_VIEWS_CATALOG: ProjectViewMeta<PermanentProjectView>[] = PERMA
 }));
 
 export const OPTIONAL_VIEWS_CATALOG: ProjectViewMeta[] = [
+  { id:'settings', label:'Settings', category:'Project', description:'Project details, schedule and setup reviews.' },
   { id:'members', label:'Members', category:'Project', description:'Selected project people, Office responsibilities and effective access.' },
   { id:'overview', label:'Overview', category:'Project', description:'Project delivery summary, milestones and attention items.' },
   { id:'timeline', label:'Timeline', category:'Project', description:'Existing milestone planning and schedule tools.' },
@@ -66,6 +68,7 @@ export function resolveProjectView(value: string | null | undefined): ProjectCom
 }
 
 export const VIEW_ICONS: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
+  settings: Settings,
   overview: Dashboard,
   tasks: Board,
   timeline: Timeline,

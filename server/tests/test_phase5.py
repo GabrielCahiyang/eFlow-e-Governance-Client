@@ -23,6 +23,12 @@ def user(role='head', office='own-office'):
 def request():
     return routes.ChatRequest(model='deepseek-r1:8b', messages=[{'role': 'user', 'content': 'Prepare a draft'}], workspace_decomposition={'schemaVersion': 1, 'projectId': PROJECT, 'sourceText': 'Project objectives and implementation plan.', 'context': {'knownOffices': [{'id': 'forged-office'}]}})
 class Phase5GatewayTests(unittest.TestCase):
+    def test_pdf_table_mode_is_preserved_and_cannot_mix_with_other_modes(self):
+        pdf = {'schemaVersion': 1, 'tasks': [{'key': 'task-1', 'title': 'Meeting'}], 'costs': []}
+        payload = routes.ChatRequest(model='test', messages=[{'role': 'user', 'content': 'PDF'}], pdf_table_enrichment=pdf)
+        self.assertEqual(routes.checked_chat_payload(payload, user())['pdf_table_enrichment'], pdf)
+        payload.workspace_decomposition = request().workspace_decomposition
+        with self.assertRaises(HTTPException): routes.checked_chat_payload(payload, user())
     def test_legacy_payload_has_no_workspace_mode(self):
         payload = routes.ChatRequest(model='deepseek-r1:8b', messages=[{'role': 'user', 'content': 'Legacy chat'}])
         self.assertNotIn('workspace_decomposition', routes.checked_chat_payload(payload, user('member')))
@@ -54,4 +60,22 @@ class Phase5GatewayTests(unittest.TestCase):
             result = TestClient(app).post('/controlpanelEflow/api/proposals/validate', json={'document_text': 'Implementation plan', 'mode': 'workspace'})
         self.assertEqual(result.status_code, 200)
         self.assertEqual(proxy.call_args.kwargs['payload']['mode'], 'workspace')
+    def test_import_staffing_uses_verified_context_and_forces_qwen(self):
+        payload=routes.ChatRequest(model='deepseek-r1:8b',messages=[{'role':'user','content':'forged'}],workspace_staffing={'schemaVersion':1,'taskId':PROJECT,'projectId':PROJECT,'draftTask':{'title':'Kick Off Meeting','description':'Source methods','estimatedHours':4},'context':{'candidates':['forged']}})
+        canonical={'task':{'id':PROJECT},'candidates':[{'id':'verified-person'}]}
+        with patch.object(routes,'build_import_staffing_context',return_value=canonical) as build:
+            body=routes.checked_chat_payload(payload,user())
+        self.assertEqual(body['model'],'qwen3.5:4b')
+        self.assertEqual(body['workspace_staffing']['context'],canonical)
+        self.assertEqual(build.call_args.args[0],PROJECT)
+        self.assertEqual(build.call_args.args[1]['title'],'Kick Off Meeting')
+        self.assertNotIn('forged',str(body))
+
+    def test_import_staffing_rejects_malformed_project_or_draft(self):
+        for project, draft in [('invalid', {'title': 'Meeting'}), (PROJECT, ['invalid']), (PROJECT, {'title': ''})]:
+            payload = routes.ChatRequest(model='qwen3.5:4b', messages=[{'role':'user','content':'staff'}], workspace_staffing={'taskId':PROJECT,'projectId':project,'draftTask':draft})
+            with self.assertRaises(HTTPException) as failure:
+                routes.checked_chat_payload(payload,user())
+            self.assertEqual(failure.exception.status_code,422)
+
 if __name__ == '__main__': unittest.main()
