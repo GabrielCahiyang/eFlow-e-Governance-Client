@@ -1,0 +1,7 @@
+{
+  "sha256": "bc7adb7614f028978f18b13f3be330d1292c437bf77506dcf05a5d8df1dfba3b",
+  "enginePatch": "server/help_assistant/native/kitten-runtime.patch",
+  "file": "eflow-kitten-worker.exe",
+  "size": 454144,
+  "build": "server/build_help_speech_compat.cmd"
+}

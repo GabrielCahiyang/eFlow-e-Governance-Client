@@ -9,6 +9,7 @@ import { useDepartmentBudget } from "../hooks/useDepartmentBudget";
 import { getBudgetUtilizationSignal } from "../selectors/budgetSelectors";
 import { AnnualBudgetSetup } from "./AnnualBudgetSetup";
 import { BudgetApprovalQueue } from "./BudgetApprovalQueue";
+import { IndependentReviewQueue } from './IndependentReviewQueue';
 import { BudgetEmpty } from "./budgetUi";
 import { FiscalYearControl } from "./FiscalYearControl";
 import { BudgetFundingHierarchy } from "./BudgetFundingHierarchy";
@@ -231,10 +232,10 @@ function OfficeBudgetContent({ orgId, fiscalYear, embedded, tab, setTab, setFisc
                   </div>
                 )}
                 {tab === "approvals" && (
-                  <BudgetApprovalQueue
+                  <><BudgetApprovalQueue
                     data={budget}
                     onChanged={budget.refresh}
-                  />
+                  /><IndependentReviewQueue data={budget} onChanged={budget.refresh} /></>
                 )}
                 {tab === "releases" && (
                   <BudgetReleasesPanel
@@ -251,6 +252,7 @@ function OfficeBudgetContent({ orgId, fiscalYear, embedded, tab, setTab, setFisc
                     fiscalYear={fiscalYear}
                     fiscalBudgetId={budget.summary?.id}
                     approvedBudget={budget.summary?.approvedAmount}
+                    availableBudget={budget.summary?.availableAmount}
                     settledExpenses={budget.summary?.spentAmount}
                     returnedCash={budget.requests.reduce(
                       (sum, request) =>

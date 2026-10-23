@@ -16,6 +16,7 @@ describe('P6 shared Help action',()=>{
     render(<Fixture role={role}/>);fireEvent.click(screen.getByRole('button',{name:'Rail Help'}));
     expect(await screen.findByRole('menuitem',{name:'Guide for this page'})).toBeTruthy();expect(screen.getByRole('menuitem',{name:'Tour of eFlow'})).toBeTruthy();
     expect(Boolean(screen.queryByRole('menuitem',{name:'Getting started'}))).toBe(role!=='admin');
+    expect(screen.getByRole('menuitem',{name:'Talk to eFlow AI'})).toBeTruthy();
   });
   it('page and system choices invoke their existing providers once after closing',async()=>{
     render(<Fixture/>);const source=screen.getByRole('button',{name:'Rail Help'});

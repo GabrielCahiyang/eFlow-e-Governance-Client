@@ -1,0 +1,17 @@
+
+> @figma/my-make-file@0.0.1 test
+> vitest --configLoader runner run tests/unit/journalEntryPresentation.test.tsx tests/unit/projectAutoAssignment.test.ts tests/unit/autoAssignTaskButton.test.tsx
+
+
+ RUN  v3.2.4 C:/Users/gabri/OneDrive/Desktop/EflowWeb
+
+ ✓ tests/unit/projectAutoAssignment.test.ts (5 tests) 22ms
+ ✓ tests/unit/autoAssignTaskButton.test.tsx (2 tests) 372ms
+ ✓ tests/unit/journalEntryPresentation.test.tsx (2 tests) 500ms
+   ✓ keeps the complete memo recoverable without filling the page, and resets on entry change  398ms
+
+ Test Files  3 passed (3)
+      Tests  9 passed (9)
+   Start at  08:19:41
+   Duration  4.72s (transform 419ms, setup 0ms, collect 2.53s, tests 895ms, environment 3.11s, prepare 1.24s)
+

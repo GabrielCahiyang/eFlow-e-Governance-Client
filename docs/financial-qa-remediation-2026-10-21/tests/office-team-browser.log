@@ -1,0 +1,14 @@
+
+Running 5 tests using 1 worker
+
+(node:3168) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3168) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [chromium] › tests\e2e\phase2-invitations.spec.ts:170:1 › Head invite dialog follows the split reference and supports keyboard dismissal (11.5s)
+  ok 2 [chromium] › tests\e2e\phase2-invitations.spec.ts:209:1 › Office Team recovers both lists after a connection failure without sending invitations (12.4s)
+  ok 3 [chromium] › tests\e2e\phase2-invitations.spec.ts:325:1 › Member welcome persists skipped status and remains available from Help (8.2s)
+  ok 4 [chromium] › tests\e2e\phase2-invitations.spec.ts:354:34 › Invited account screen at 1440px preserves locked Office and role (1.5s)
+  ok 5 [chromium] › tests\e2e\phase2-invitations.spec.ts:354:34 › Invited account screen at 390px preserves locked Office and role (1.5s)
+
+  5 passed (57.4s)

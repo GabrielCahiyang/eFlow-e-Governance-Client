@@ -1,0 +1,13 @@
+
+Running 4 tests using 1 worker
+
+(node:32120) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:32120) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [chromium] › tests\e2e\help-assistant.spec.ts:4:3 › Help conversation at 1440x1000 light keeps sources and controls accessible (11.5s)
+  ok 2 [chromium] › tests\e2e\help-assistant.spec.ts:4:3 › Help conversation at 1280x800 light keeps sources and controls accessible (8.6s)
+  ok 3 [chromium] › tests\e2e\help-assistant.spec.ts:4:3 › Help conversation at 960x540 light keeps sources and controls accessible (8.1s)
+  ok 4 [chromium] › tests\e2e\help-assistant.spec.ts:4:3 › Help conversation at 1440x1000 dark keeps sources and controls accessible (8.3s)
+
+  4 passed (41.2s)

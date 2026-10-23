@@ -9,6 +9,7 @@ import subprocess
 import tempfile
 import threading
 import uuid
+import sys
 
 import psycopg2
 from psycopg2.extras import Json
@@ -82,6 +83,23 @@ try:
     migration = root / 'supabase/migrations/20261015125031_financial_cash_compatibility.sql'
     sql(c, migration.read_text(encoding='utf-8'))
     sql(c, (root / 'supabase/migrations/20261015142837_financial_journal_and_refund_integrity.sql').read_text(encoding='utf-8'))
+    remediation = '--remediation' in sys.argv
+    if remediation:
+        corrections=subprocess.run(['node','scripts/verify-financial-compatibility.mjs','--nw-correction-sql'],cwd=root,capture_output=True,text=True,timeout=30,creationflags=flags)
+        assert corrections.returncode==0,corrections.stderr[-2000:]
+        sql(c,corrections.stdout)
+        for name in ['20261020232324_cash_release_manila_calendar.sql','20261020234410_liquidation_manila_calendar.sql','20261020234944_task_dependency_final_review_guard.sql']:
+            sql(c, (root / 'supabase/migrations' / name).read_text(encoding='utf-8'))
+        pending = Path(os.environ['EFLOW_PENDING_FINANCIAL_MIGRATION']).resolve()
+        assert pending.is_relative_to(root.resolve()), 'Only reviewed repository-local SQL may enter this disposable harness'
+        pending_sql=pending.read_text(encoding='utf-8')
+        if '--before-release-authority-fix' in sys.argv:
+            # Diagnostic only: retain the installed original public release
+            # body so the same C09 test can demonstrate the authorization race.
+            start=pending_sql.index('-- Same release API')
+            end=pending_sql.index('revoke all on function public.get_liquidation_independent_review',start)
+            pending_sql=pending_sql[:start]+pending_sql[end:]
+        sql(c, pending_sql)
     sql(c, """insert into organizations(id,name,slug,path,org_type) values (%s,'Native financial test','native-finance','native_finance','department');
       insert into auth.users(id,email,email_confirmed_at) values (%s,'admin@native.test',now()),(%s,'head@native.test',now()),(%s,'lead@native.test',now());
       insert into profiles(id,email,full_name,employee_id,role,is_active,org_id) values
@@ -186,8 +204,12 @@ try:
     equal([r[0] for r in results], ['ok', 'ok'], 'Identical concurrent liquidation retries both succeed')
     equal([str(r[1]) for r in results], [str(liquidation), str(liquidation)], 'Identical retries return the same committed version')
     equal(sql(c, 'select refund_receipt_number from petty_cash_liquidations where id=%s', (liquidation,)), winning_refund, 'Concurrent retries retain original refund evidence')
+    if remediation:
+        # Extension uses this runner's actual migrated disposable database and
+        # authenticated actors. It never loads hosted credentials or a live URI.
+        exec((root / 'tests/sql/financial-remediation-cases.py').read_text(encoding='utf-8'), globals())
     c.close()
-    print(json.dumps({'passed': True, 'checks': checks, 'independent_postgres_sessions': True, 'localhost_only': True, 'hosted_writes': False}))
+    print(json.dumps({'passed': True, 'checks': checks, 'independent_postgres_sessions': True, 'localhost_only': True, 'hosted_writes': False, 'remediation': remediation}))
 finally:
     if started:
         run('pg_ctl', ['-D', str(data), '-m', 'immediate', '-w', 'stop'])

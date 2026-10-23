@@ -1,0 +1,117 @@
+{
+  "queue": {
+    "depth": 0,
+    "waiting": 0,
+    "processing": 0,
+    "worker_online": true,
+    "active_job": null,
+    "oldest_wait_seconds": 0,
+    "completed_retained": 2,
+    "failed_retained": 1,
+    "capacity": 32,
+    "per_user_limit": 2,
+    "jobs": []
+  },
+  "inference": {
+    "pid": 10132,
+    "loaded_model": "qwen3.5:4b",
+    "restarts": 0,
+    "timeout_seconds": 7200.0,
+    "recent_runs": [
+      {
+        "model": "qwen3.5:4b",
+        "completed_at": 1792623851.8727133,
+        "tokens": 388,
+        "first_token_ms": null,
+        "pipeline_status": {},
+        "model_load": 9418.6,
+        "inference": 78119.2,
+        "pipeline": 533.2,
+        "total": 88071.0,
+        "generation_calls": 1
+      },
+      {
+        "model": "deepseek-r1:8b",
+        "completed_at": 1792624086.3064451,
+        "tokens": 340,
+        "first_token_ms": null,
+        "pipeline_status": {},
+        "model_load": 11596.2,
+        "inference": 56323.1,
+        "pipeline": 1006.0,
+        "total": 68925.3,
+        "generation_calls": 4
+      }
+    ]
+  },
+  "model": {
+    "loaded": "qwen3.5:4b",
+    "registered": 3,
+    "enabled": 3
+  },
+  "services": {
+    "started_at": 1792623740.746667,
+    "history_limit": 60,
+    "pygad": {
+      "available": true,
+      "default_profile": "balanced",
+      "execution": "One standalone CPU worker; decomposition runs inside the inference worker.",
+      "running": 0,
+      "waiting": 0,
+      "counts": {
+        "unconfirmed": 0,
+        "failed": 0,
+        "skipped": 0,
+        "completed": 0,
+        "cancelled": 0
+      },
+      "active_runs": [],
+      "recent_runs": []
+    },
+    "laya": {
+      "mode": "model",
+      "device": "cpu",
+      "execution": "Starts on demand inside the inference worker.",
+      "running": 0,
+      "waiting": 0,
+      "counts": {
+        "unconfirmed": 0,
+        "failed": 0,
+        "skipped": 0,
+        "completed": 0,
+        "cancelled": 0
+      },
+      "active_runs": [],
+      "recent_runs": []
+    },
+    "blockchain": {
+      "mode": "simulation",
+      "configured_mode": "simulation",
+      "available": true,
+      "chain_id": 80002,
+      "network": "Polygon Amoy",
+      "rpc_host": "rpc-amoy.polygon.technology",
+      "wallet_configured": true,
+      "problem": null,
+      "execution": "One wallet worker; blockchain calls do not use the GPU.",
+      "running": 0,
+      "waiting": 0,
+      "counts": {
+        "unconfirmed": 0,
+        "failed": 0,
+        "skipped": 0,
+        "completed": 0,
+        "cancelled": 0
+      },
+      "active_runs": [],
+      "recent_runs": []
+    },
+    "rpc": {
+      "state": "not_required",
+      "checked_at": null,
+      "chain_id": null,
+      "block_number": null,
+      "message": "Simulation mode does not contact the chain."
+    }
+  }
+}

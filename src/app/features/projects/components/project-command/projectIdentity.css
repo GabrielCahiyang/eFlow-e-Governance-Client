@@ -27,4 +27,4 @@
   .eflow-project-identity__context-actions { width: 100%; }
 }
 
-.project-setup-shortcuts{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}.project-setup-modal .r4-requirements{min-width:0}.project-setup-modal .project-setup-shortcuts button{max-width:100%;white-space:normal}
+.project-setup-modal{min-width:0}.project-setup-modal .setup-readiness__tools button{max-width:100%;white-space:normal}

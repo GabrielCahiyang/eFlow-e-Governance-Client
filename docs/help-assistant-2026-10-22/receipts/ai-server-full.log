@@ -1,0 +1,192 @@
+2026-10-22 12:43:49,821  INFO      Supabase URL: https://ixnfphgjyelhckjwjkdv.supabase.co
+2026-10-22 12:43:52,325  WARNING   Executing <Task pending name='Task-4' coro=<ApiSchedulingTests.test_health_remains_responsive_during_blocking_inference_and_fifo_admission() running at C:\Users\gabri\OneDrive\Desktop\Ollama reactjs LLM DeepSeek Integration\server\test_api_scheduling.py:40> cb=[_run_until_complete_cb() at C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:182] created at C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:100> took 0.656 seconds
+2026-10-22 12:43:52,669  WARNING   Executing <Task pending name='starlette.middleware.base.BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.coro' coro=<BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.coro() running at C:\Users\gabri\OneDrive\Desktop\Ollama reactjs LLM DeepSeek Integration\server\.venv\Lib\site-packages\starlette\middleware\base.py:144> wait_for=<Future pending cb=[Task.task_wakeup()] created at C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:449> cb=[TaskGroup._spawn.<locals>.task_done() at C:\Users\gabri\OneDrive\Desktop\Ollama reactjs LLM DeepSeek Integration\server\.venv\Lib\site-packages\anyio\_backends\_asyncio.py:821] created at C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\tasks.py:420> took 0.312 seconds
+2026-10-22 12:43:53,118  WARNING   Executing <Task pending name='Task-12' coro=<_process_queued_chat() running at C:\Users\gabri\OneDrive\Desktop\Ollama reactjs LLM DeepSeek Integration\server\main.py:610> wait_for=<Future pending cb=[_chain_future.<locals>._call_check_cancel() at C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\futures.py:391, Task.task_wakeup()] created at C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:449> cb=[Task.task_wakeup()] created at C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\tasks.py:420> took 0.187 seconds
+2026-10-22 12:43:53,259  INFO      HTTP Request: POST http://test/controlpanelEflow/api/jobs "HTTP/1.1 202 Accepted"
+2026-10-22 12:43:53,861  WARNING   Executing <Task pending name='starlette.middleware.base.BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.coro' coro=<BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.coro() running at C:\Users\gabri\OneDrive\Desktop\Ollama reactjs LLM DeepSeek Integration\server\.venv\Lib\site-packages\starlette\middleware\base.py:144> wait_for=<Future pending cb=[Task.task_wakeup()] created at C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:449> cb=[TaskGroup._spawn.<locals>.task_done() at C:\Users\gabri\OneDrive\Desktop\Ollama reactjs LLM DeepSeek Integration\server\.venv\Lib\site-packages\anyio\_backends\_asyncio.py:821] created at C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\tasks.py:420> took 0.188 seconds
+2026-10-22 12:43:54,090  INFO      HTTP Request: GET http://test/controlpanelEflow/api/health "HTTP/1.1 200 OK"
+2026-10-22 12:43:54,261  INFO      HTTP Request: POST http://test/controlpanelEflow/api/chat "HTTP/1.1 500 Internal Server Error"
+2026-10-22 12:43:54,879  INFO      HTTP Request: POST http://test/controlpanelEflow/api/jobs "HTTP/1.1 400 Bad Request"
+2026-10-22 12:43:55,291  INFO      HTTP Request: POST http://test/controlpanelEflow/api/chat "HTTP/1.1 400 Bad Request"
+2026-10-22 12:43:55,590  INFO      HTTP Request: POST http://test/controlpanelEflow/api/chat "HTTP/1.1 400 Bad Request"
+2026-10-22 12:43:55,884  INFO      HTTP Request: POST http://test/controlpanelEflow/api/chat "HTTP/1.1 400 Bad Request"
+2026-10-22 12:43:56,103  INFO      HTTP Request: POST http://test/controlpanelEflow/api/chat "HTTP/1.1 400 Bad Request"
+2026-10-22 12:43:56,992  INFO      HTTP Request: POST http://test/controlpanelEflow/api/jobs "HTTP/1.1 202 Accepted"
+2026-10-22 12:43:57,129  INFO      HTTP Request: DELETE http://test/controlpanelEflow/api/jobs/ae06866f-6b86-414b-a5f1-7b2d44c8b242 "HTTP/1.1 404 Not Found"
+2026-10-22 12:43:57,161  INFO      HTTP Request: PUT http://test/controlpanelEflow/api/authkey "HTTP/1.1 401 Unauthorized"
+2026-10-22 12:43:57,855  INFO      HTTP Request: GET http://test/controlpanelEflow/api/operations "HTTP/1.1 401 Unauthorized"
+2026-10-22 12:43:58,674  INFO      HTTP Request: GET http://test/controlpanelEflow/api/operations "HTTP/1.1 200 OK"
+2026-10-22 12:43:59,689  WARNING   Executing <Task pending name='Task-105' coro=<ApiSchedulingTests.test_streaming_uses_same_worker_and_does_not_cancel_success() running at C:\Users\gabri\OneDrive\Desktop\Ollama reactjs LLM DeepSeek Integration\server\test_api_scheduling.py:59> wait_for=<Future pending cb=[Task.task_wakeup()] created at C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:449> cb=[_run_until_complete_cb() at C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:182] created at C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:100> took 0.141 seconds
+2026-10-22 12:44:14,651  INFO      HTTP Request: POST http://test/controlpanelEflow/api/chat "HTTP/1.1 200 OK"
+2026-10-22 12:44:17,114  INFO      HTTP Request: POST http://testserver/api/help-assistant/chat "HTTP/1.1 200 OK"
+2026-10-22 12:44:17,154  INFO      HTTP Request: POST http://testserver/api/help-assistant/speech "HTTP/1.1 404 Not Found"
+2026-10-22 12:44:17,235  INFO      HTTP Request: POST http://testserver/api/help-assistant/chat "HTTP/1.1 200 OK"
+2026-10-22 12:44:17,303  INFO      HTTP Request: POST http://testserver/api/help-assistant/chat "HTTP/1.1 422 Unprocessable Entity"
+2026-10-22 12:44:17,342  INFO      HTTP Request: GET http://testserver/api/help-assistant/projects "HTTP/1.1 401 Unauthorized"
+2026-10-22 12:44:17,389  INFO      HTTP Request: POST http://testserver/api/help-assistant/chat "HTTP/1.1 200 OK"
+2026-10-22 12:44:17,427  INFO      HTTP Request: POST http://testserver/api/help-assistant/chat "HTTP/1.1 200 OK"
+2026-10-22 12:44:17,459  INFO      HTTP Request: POST http://testserver/api/help-assistant/speech "HTTP/1.1 409 Conflict"
+2026-10-22 12:44:17,530  INFO      HTTP Request: POST http://testserver/api/help-assistant/speech "HTTP/1.1 422 Unprocessable Entity"
+2026-10-22 12:44:17,556  INFO      HTTP Request: POST http://testserver/api/help-assistant/speech "HTTP/1.1 404 Not Found"
+2026-10-22 12:44:17,617  INFO      HTTP Request: POST http://testserver/api/help-assistant/chat "HTTP/1.1 200 OK"
+2026-10-22 12:44:17,629  INFO      HTTP Request: POST http://testserver/api/help-assistant/speech "HTTP/1.1 403 Forbidden"
+2026-10-22 12:44:17,869  INFO      execute program 'C:\\Users\\gabri\\OneDrive\\Desktop\\Ollama reactjs LLM DeepSeek Integration\\server\\.venv\\Scripts\\python.exe': <_WindowsSubprocessTransport pid=34524 running stdout=<_ProactorReadPipeTransport fd=904 read=<_OverlappedFuture pending cb=[_ProactorReadPipeTransport._loop_reading()] created at C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\windows_events.py:506>> stderr=<_ProactorReadPipeTransport fd=1156 read=<_OverlappedFuture pending cb=[_ProactorReadPipeTransport._loop_reading()] created at C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\windows_events.py:506>>>
+2026-10-22 12:44:18,775  INFO      execute program 'taskkill': <_WindowsSubprocessTransport pid=28940 running>
+2026-10-22 12:44:19,536  INFO      <_WindowsSubprocessTransport pid=34524 running stdout=<_ProactorReadPipeTransport fd=904 read=<_OverlappedFuture finished result=0 created at C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\windows_events.py:506>> stderr=<_ProactorReadPipeTransport fd=1156 read=<_OverlappedFuture finished result=0 created at C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\windows_events.py:506>>> exited with return code 1
+2026-10-22 12:44:19,571  INFO      <_WindowsSubprocessTransport pid=28940 running> exited with return code 0
+2026-10-22 12:44:20,151  WARNING   Executing <Task finished name='Task-240' coro=<WorkerCleanupTests.test_reaps_the_owned_worker_and_its_descendant() done, defined at C:\Users\gabri\OneDrive\Desktop\Ollama reactjs LLM DeepSeek Integration\server\test_help_process_cleanup.py:11> result=None created at C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:100> took 0.516 seconds
+2026-10-22 12:44:21,098  INFO      [Laya] Router successfully initialized with convaiinnovations/laya-typed-decisions
+2026-10-22 12:44:34,414  INFO      HTTP Request: GET https://huggingface.co/api/models/convaiinnovations/laya-typed-decisions/revision/main "HTTP/1.1 200 OK"
+
+Fetching 5 files:   0%|          | 0/5 [00:00<?, ?it/s]
+Fetching 5 files: 100%|##########| 5/5 [00:00<?, ?it/s]
+C:\Users\gabri\OneDrive\Desktop\Ollama reactjs LLM DeepSeek Integration\server\.venv\Lib\site-packages\laya\router.py:456: RuntimeWarning: laya: this checkpoint ships invalid temperatures or values outside [0.5, 5]; using choice:11+=0.10058280825614929 -> 0.5. Treat confidence from the affected entries as uncalibrated.
+  agent = Agent(repo, **kwargs)
+2026-10-22 12:46:09,888  INFO      routing_and_review completed (e99ee92a), 4889 ms
+2026-10-22 12:46:09,892  INFO      [Proposal Pipeline] Decomposing 'Economic Diagnostic' with 2 available team members
+2026-10-22 12:46:15,001  INFO      routing_and_review completed (599dbbc4), 5108 ms
+2026-10-22 12:46:15,250  INFO      [PyGAD] Completed optimization in 125ms over 20 generations. Best fitness: 72.38
+2026-10-22 12:46:15,251  INFO      assign_and_schedule completed (51450e70), 248 ms
+2026-10-22 12:46:15,252  INFO      [Proposal Pipeline] Completed 1 tasks for 'Economic Diagnostic' in 5363ms (DeepSeek R1 + LAYA + PyGAD)
+2026-10-22 12:46:15,253  INFO      [Proposal Pipeline] Decomposing 'Part 1' with 0 available team members
+2026-10-22 12:46:15,267  INFO      Downloading Test from test/model/upstream.gguf ...
+2026-10-22 12:46:15,321  INFO      Model qwen3.5:2b already downloaded at C:\Users\gabri\AppData\Local\Temp\tmp1w0_jhbt\qwen3.5_2b.gguf
+2026-10-22 12:46:15,326  INFO      Downloading Test from test/model/upstream.gguf ...
+2026-10-22 12:46:15,362  INFO      Downloaded Test \u2192 C:\Users\gabri\AppData\Local\Temp\tmpm3i3e868\qwen3.5_2b.gguf
+2026-10-22 12:46:15,369  INFO      Downloading Test from test/model/upstream.gguf ...
+2026-10-22 12:46:15,384  INFO      Downloaded Test \u2192 C:\Users\gabri\AppData\Local\Temp\tmpe6osxfah\qwen3.5_2b.gguf
+2026-10-22 12:46:15,404  INFO      PDF table enrichment: 10 source tasks, 16 source costs; constrained output.
+2026-10-22 12:46:15,405  INFO      PDF table enrichment complete: 10 tasks, 16 cost references validated.
+2026-10-22 12:46:15,407  INFO      PDF table enrichment: 1 source tasks, 0 source costs; constrained output.
+2026-10-22 12:46:15,408  INFO      PDF table enrichment complete: 1 tasks, 0 cost references validated.
+2026-10-22 12:46:15,409  INFO      PDF table enrichment: 10 source tasks, 16 source costs; constrained output.
+2026-10-22 12:46:15,410  WARNING   PDF table output validation failed (attempt 1/2).
+2026-10-22 12:46:15,410  WARNING   PDF table output validation failed (attempt 2/2).
+2026-10-22 12:46:15,410  INFO      PDF table enrichment: 10 source tasks, 16 source costs; constrained output.
+2026-10-22 12:46:15,411  WARNING   PDF table output validation failed (attempt 1/2).
+2026-10-22 12:46:15,411  WARNING   PDF table output validation failed (attempt 2/2).
+2026-10-22 12:46:15,415  INFO      PDF table enrichment: 10 source tasks, 16 source costs; constrained output.
+2026-10-22 12:46:15,417  INFO      PDF table enrichment complete: 10 tasks, 16 cost references validated.
+2026-10-22 12:46:15,424  INFO      PDF table enrichment: 10 source tasks, 16 source costs; constrained output.
+2026-10-22 12:46:15,425  WARNING   PDF table output validation failed (attempt 1/2).
+2026-10-22 12:46:15,426  INFO      PDF table enrichment complete: 10 tasks, 16 cost references validated.
+2026-10-22 12:46:15,428  WARNING   [Polygon] Running in simulation mode - no transaction will be sent.
+2026-10-22 12:46:15,428  INFO      [Polygon] Archival seal anchored for proposal prop-test-001: 0x3924151ebe3eb9d2bb2ed3ceb1b7ca76f67b5f4653273d860d9f0f107eaab98a
+2026-10-22 12:46:15,429  WARNING   [Polygon] Running in simulation mode - no transaction will be sent.
+2026-10-22 12:46:15,430  INFO      [Polygon] Archival seal anchored for proposal prop-test-001: 0x5581bf235c9a45773e0f7cd5c20581b1be134589fe2f3dadc23b09e0511d8a16
+2026-10-22 12:46:15,430  WARNING   [Polygon] Running in simulation mode - no transaction will be sent.
+2026-10-22 12:46:15,431  INFO      [Polygon] Genesis anchored for proposal prop-test-001: 0xbab2bc1de41dab76e5d3f0c809b418a498f0d4a94a896347a6a86f59e7cb8e8e
+2026-10-22 12:46:15,431  WARNING   [Polygon] Running in simulation mode - no transaction will be sent.
+2026-10-22 12:46:15,432  INFO      [Polygon] Genesis anchored for proposal prop-test-001: 0xcfd97ee1829574c6d26d56778e99ef6b0e8e91d998fed36dfed31243668542a0
+2026-10-22 12:46:15,432  WARNING   [Polygon] Running in simulation mode - no transaction will be sent.
+2026-10-22 12:46:15,433  INFO      [Polygon] Genesis anchored for proposal prop-test-001: 0xc6319fcc022cb3a99d04ba68e9d2d9278cf510bae6193a18ce8913e94e782dcd
+2026-10-22 12:46:15,433  WARNING   [Polygon] Running in simulation mode - no transaction will be sent.
+2026-10-22 12:46:15,434  INFO      [Polygon] Genesis anchored for proposal prop-test-001: 0xd3d5af12c52de3334e85815327cc55ed697c032814a0bf73a9359048e5515f2b
+2026-10-22 12:46:15,434  WARNING   [Polygon] Running in simulation mode - no transaction will be sent.
+2026-10-22 12:46:15,434  INFO      [Polygon] Genesis anchored for proposal prop-test-001: 0x163ef0617016450e4d62bfc81ce6b440817ea7e1131c2f1231faac1b75cd9d82
+2026-10-22 12:46:15,435  WARNING   [Polygon] Running in simulation mode - no transaction will be sent.
+2026-10-22 12:46:15,435  INFO      [Polygon] Genesis anchored for proposal prop-test-001: 0xde290b038b2337a3e6354bc025aa3b44761025a62683e5f65123366ca2f7c1cb
+2026-10-22 12:46:15,436  WARNING   [Polygon] Running in simulation mode - no transaction will be sent.
+2026-10-22 12:46:15,437  INFO      [Polygon] Milestone anchored for proposal prop-test-001: bac_clearance \u2192 0x130dac3a66547ed00a579e6afcd2c193fa0015d27b8a72f1ff563a41f7199425
+2026-10-22 12:46:15,437  WARNING   [Polygon] Running in simulation mode - no transaction will be sent.
+2026-10-22 12:46:15,437  INFO      [Polygon] Milestone anchored for proposal prop-001: bac_clearance \u2192 0x7fbfafc32831d9eaac4816bfcf40bb20fb05a58d20834bf1791fb25ae16c8292
+2026-10-22 12:46:15,438  WARNING   [Polygon] Running in simulation mode - no transaction will be sent.
+2026-10-22 12:46:15,438  INFO      [Polygon] Milestone anchored for proposal prop-001: cash_advance \u2192 0xd21ac4c1044705ece0ca24c16c75f81177d235ac1779612c1c41e8e38b3f6e87
+2026-10-22 12:46:15,438  WARNING   [Polygon] Running in simulation mode - no transaction will be sent.
+2026-10-22 12:46:15,438  INFO      [Polygon] Genesis anchored for proposal prop-test-001: 0x5ced7f44ff4871db04f84c591a720ec92ac3f2f706f7216e105c6179e81420bc
+2026-10-22 12:46:15,439  WARNING   [Polygon] Running in simulation mode - no transaction will be sent.
+2026-10-22 12:46:15,439  INFO      [Polygon] Genesis anchored for proposal prop-test-001: 0x849a72280e347566bcd052cf3b01774ff9af286e7e593b8110e39d90ed4fb85b
+2026-10-22 12:46:15,440  WARNING   [Polygon] Running in simulation mode - no transaction will be sent.
+2026-10-22 12:46:15,440  INFO      [Polygon] Milestone anchored for proposal prop-test-001: bac_clearance \u2192 0x11c10caac145b2e783cadd547277ab5e531f3b03b12f9e6f61f5e22db202df77
+2026-10-22 12:46:15,441  WARNING   [Polygon] Running in simulation mode - no transaction will be sent.
+2026-10-22 12:46:15,441  INFO      [Polygon] Archival seal anchored for proposal prop-test-001: 0x074463b29c7f3ed504716a54ba3a2661138e2476c58ce312ba8e751992d13dfd
+2026-10-22 12:46:15,442  WARNING   [Polygon] Running in simulation mode - no transaction will be sent.
+2026-10-22 12:46:15,443  INFO      [Polygon] Genesis anchored for proposal prop-test-001: 0xeaf335479bb92b1d64e251bc396f8923b0b68168b947a4ddb8003bc5eb1035ea
+2026-10-22 12:46:15,443  WARNING   [Polygon] Running in simulation mode - no transaction will be sent.
+2026-10-22 12:46:15,443  INFO      [Polygon] Genesis anchored for proposal prop-test-001: 0x2fdd6c701a1fb486fde5a9fa8828a37cc90a0155869471c159f925ab769fb577
+2026-10-22 12:46:15,542  INFO      [PyGAD] Completed optimization in 76ms over 10 generations. Best fitness: 63.02
+2026-10-22 12:46:15,543  INFO      assign_and_schedule completed (0d040a18), 78 ms
+2026-10-22 12:46:15,631  INFO      [PyGAD] Completed optimization in 85ms over 10 generations. Best fitness: 81.59
+2026-10-22 12:46:15,632  INFO      assign_and_schedule completed (8f139843), 88 ms
+2026-10-22 12:46:15,721  INFO      [PyGAD] Completed optimization in 87ms over 10 generations. Best fitness: 69.59
+2026-10-22 12:46:15,721  INFO      assign_and_schedule completed (3b85eaef), 89 ms
+2026-10-22 12:46:15,822  INFO      [PyGAD] Completed optimization in 99ms over 10 generations. Best fitness: 86.76
+2026-10-22 12:46:15,823  INFO      assign_and_schedule completed (3d2e7a1c), 101 ms
+2026-10-22 12:46:15,916  INFO      [PyGAD] Completed optimization in 90ms over 10 generations. Best fitness: 81.59
+2026-10-22 12:46:15,917  INFO      assign_and_schedule completed (f93c1f0c), 93 ms
+2026-10-22 12:46:16,024  INFO      [PyGAD] Completed optimization in 106ms over 10 generations. Best fitness: 86.76
+2026-10-22 12:46:16,024  INFO      assign_and_schedule completed (c7cc9334), 107 ms
+2026-10-22 12:46:16,025  INFO      assign_and_schedule completed (8f678cba), 0 ms
+2026-10-22 12:46:16,181  INFO      [PyGAD] Completed optimization in 153ms over 15 generations. Best fitness: 81.59
+2026-10-22 12:46:16,182  INFO      assign_and_schedule completed (32971f63), 156 ms
+2026-10-22 12:46:16,395  INFO      [PyGAD] Completed optimization in 211ms over 20 generations. Best fitness: 81.59
+2026-10-22 12:46:16,395  INFO      assign_and_schedule completed (e1fdd90f), 214 ms
+2026-10-22 12:46:16,499  INFO      [PyGAD] Completed optimization in 100ms over 10 generations. Best fitness: 81.59
+2026-10-22 12:46:16,499  INFO      assign_and_schedule completed (6685f5db), 103 ms
+2026-10-22 12:46:16,609  INFO      [PyGAD] Completed optimization in 106ms over 10 generations. Best fitness: 81.59
+2026-10-22 12:46:16,610  INFO      assign_and_schedule completed (8dd6302d), 110 ms
+2026-10-22 12:46:41,092  INFO      anchor_genesis cancelled (c4715205), 0 ms
+2026-10-22 12:46:41,107  INFO      anchor_genesis completed (4e367464), 69 ms
+2026-10-22 12:46:41,252  INFO      verify_on_chain cancelled (73b3bf23), 0 ms
+2026-10-22 12:46:41,431  INFO      assign completed (98d86ccb), 48 ms
+2026-10-22 12:46:41,447  INFO      assign completed (70139c37), 0 ms
+2026-10-22 12:46:41,586  ERROR     verify_on_chain failed (a5a0a140), 0 ms
+2026-10-22 12:46:41,700  INFO      assign completed (e87b2156), 0 ms
+2026-10-22 12:46:41,701  INFO      assign completed (9a31619b), 0 ms
+2026-10-22 12:46:41,701  INFO      assign completed (fb341840), 0 ms
+2026-10-22 12:46:41,702  INFO      assign completed (a1b39412), 0 ms
+2026-10-22 12:46:41,714  ERROR     [Polygon] Transaction failed: The anchor transaction was mined but reverted.
+2026-10-22 12:46:41,714  ERROR     anchor_genesis failed (1c62aedf), 6 ms
+2026-10-22 12:46:41,717  WARNING   anchor_genesis unconfirmed (31a403c2), 0 ms
+2026-10-22 12:46:41,717  INFO      anchor_genesis completed (dac2d1d9), 0 ms
+2026-10-22 12:46:43,772  INFO      assign_and_schedule completed (child-st), 3 ms
+2026-10-22 12:46:45,942  INFO      assign_and_schedule cancelled (child-st), 78 ms
+[WAIT] Waiting for Quick Tunnel DNS and public health before publication.
+[READY] Quick Tunnel DNS and public health check passed.
+2026-10-22 12:46:46,437  INFO      assign_and_schedule skipped (e5a31c6f), 0 ms
+2026-10-22 12:46:46,440  INFO      assign_and_schedule skipped (24db54e9), 0 ms
+======================================================================
+ERROR: test_streaming_uses_same_worker_and_does_not_cancel_success (test_api_scheduling.ApiSchedulingTests.test_streaming_uses_same_worker_and_does_not_cancel_success)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\unittest\async_case.py", line 90, in _callTestMethod
+    if self._callMaybeAsync(method) is not None:
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\unittest\async_case.py", line 112, in _callMaybeAsync
+    return self._asyncioRunner.run(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\OneDrive\Desktop\Ollama reactjs LLM DeepSeek Integration\server\test_api_scheduling.py", line 64, in test_streaming_uses_same_worker_and_does_not_cancel_success
+    self.assertEqual(frames[1]['message']['content'], 'hello')
+                     ~~~~~~~~~^^^^^^^^^^^
+KeyError: 'message'
+
+======================================================================
+FAIL: test_health_remains_responsive_during_blocking_inference_and_fifo_admission (test_api_scheduling.ApiSchedulingTests.test_health_remains_responsive_during_blocking_inference_and_fifo_admission)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\unittest\async_case.py", line 90, in _callTestMethod
+    if self._callMaybeAsync(method) is not None:
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\unittest\async_case.py", line 112, in _callMaybeAsync
+    return self._asyncioRunner.run(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\OneDrive\Desktop\Ollama reactjs LLM DeepSeek Integration\server\test_api_scheduling.py", line 48, in test_health_remains_responsive_during_blocking_inference_and_fifo_admission
+    self.assertLess(time.perf_counter() - started, 0.5)
+AssertionError: 0.5147805999731645 not less than 0.5
+
+----------------------------------------------------------------------
+Ran 154 tests in 175.758s
+
+FAILED (failures=1, errors=1)

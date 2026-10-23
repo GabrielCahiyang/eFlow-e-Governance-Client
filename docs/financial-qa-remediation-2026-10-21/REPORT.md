@@ -1,0 +1,43 @@
+# Financial QA remediation — 22 October 2026
+
+Implementation is local and pending deployment. This report separates database tests, intercepted browser evidence and hosted acceptance. The existing 45-image live audit remains intact; new screenshots do not replace or relabel those historical receipts.
+
+Start with [status](STATUS.md), [screenshots](GALLERY.html), [security review](security/REVIEW.md), [remaining gaps](REMAINING_GAPS.md), [deployment acceptance](DEPLOYMENT.md) and [rollback](ROLLBACK.md). The approved source plan is preserved verbatim in [SOURCE_PLAN.md](SOURCE_PLAN.md); its introductory “no changes” statement describes that document's preparation date, not this implementation's current state.
+
+## What changed
+
+Office Team follow-up: [connection failure fix](OFFICE_TEAM_CONNECTION_FIX.md). The Head's two lists were failing on a disconnected shared HTTP/2 connection. Live read-only verification now consistently returns 7 active LEDIPO members and 0 invitations; desktop fixture screenshots separately cover retry recovery. No hosted migration or account changes were needed.
+
+| Area | Finding and resulting behavior |
+|---|---|
+| Budget reconciliation | The journal summary calculated availability from spending/returns and ignored commitments. It now displays the authoritative remaining appropriation. A ₱10,000 authority with ₱3,000 committed remains ₱7,000 available after a ₱500 advance settles with ₱400 spent/₱100 returned. Returns do not release the unused ₱2,600 commitment. Archive retains it under the approved policy. |
+| Concurrent allocation edits | A task allocation could shrink while its cash request was approved. The source/cap guard rejects an edit below existing cash/child obligations and preserves the funding source while obligations remain. |
+| Revoked release authority | The original release body checked permission before a fiscal lock wait. A role revoked during the wait could still release and post. Public wrappers preserve contracts and original writer bodies, then lock/recheck current authority through commit. The failed reproduction and passing C09 test are retained. |
+| Internal scheduler exposure | A captured anonymous-callable scheduler accepted a supplied actor. Its direct PUBLIC/anon/authenticated grant is removed; normal authorized approval still calls it internally. |
+| Independent financial review | Accounting involvement as requester, recipient or captured/current task lead requires a named independent appointed Head/Assistant review of the current package. A different Accounting Officer settles/posts. Version/fingerprint checks invalidate stale approval; retries retain command identity. No eligible reviewer or poster produces escalation, not self-approval. |
+| Assistant access | An existing Assistant appointment may be held by a canonical Member. Assigned packages therefore appear in the existing Inbox, with narrowly scoped receipt reads. No permanent Assistant account role, global finance browser or posting permission is added. |
+| Prerequisite reopening | A completed prerequisite cannot lose completion or be deleted while a live dependent is submitted/completed. Reopen the dependent through its authorized workflow first. Reviewed history is retained. |
+| Completion/readiness | Work/evidence, finance and governance blockers are grouped; confirmed plan checks are collapsed with a live count. Detailed checks remain available, shared guidance is stated once, background refresh keeps the verified list visible while disabling confirmation, modal footer remains accessible and active projects have no redundant activation control. |
+| General Journal | Journal sheet with posting metadata, debit/credit summary and balance status, expandable memo and complete accounts. Narrow screens show both amounts per account. Back restores filters, scroll and focus; changing actor/office/year clears stale detail. See JOURNAL_AND_LAYA_REVISION.md. |
+| Office Tasks | Container-responsive columns prevent completed task titles and owners from being crushed. Header/row alignment is shared, metadata remains visible at zoom, and existing menus/groups stay functional. Dates use Manila time and technical details remain in a disclosure. Twelve desktop size/zoom cases pass; see OFFICE_TASK_TABLE_RESPONSIVE.md. |
+| Delivery performance | Removed the brittle forced shared workspace chunk. Existing lazy destinations remain reachable. Same-source legacy/current comparison builds and cold/warm client-route samples are retained in performance evidence. Large-chunk warnings still exist. |
+| Project setup | Replaced the tall text list with a progress summary, icon shortcuts and compact Review/Confirm rows. Activation/Done for now remain in the modal footer; completed checks stay expandable. Desktop tests cover three web sizes. |
+| Small AI auto-assignment | Qwen3.5:4b → existing model-backed LAYA review → grounded final team → validated atomic save. Missing/fallback LAYA refuses saving. Real synthetic local inference confirms `engine: laya`; previous live Qwen-only save remains historical evidence. Actual queue/LAYA/save messages and idempotent retries are retained. New hosted LAYA save/reload awaits browser access. |
+
+## Verification and evidence boundaries
+
+- **Native PostgreSQL:** 132 assertions pass on disposable localhost PostgreSQL 17. Actual installed RPC/trigger bodies, separate sessions and synchronized races cover C01–C10, calendar crossover, Q12, Q13, grants and receipt read scope. Synthetic role/`auth.uid()` claims are used; these are not hosted signed-JWT tests. See [native log](tests/native-financial-remediation.log).
+- **Calendar:** new boundary and ordinary settlement cases use the real posting trigger. The boundary fixture changes only the synthetic liquidation's decision timestamp, not global `now()` or production timezone. Historical hosted journal hashes were captured read-only; no historical rows were rewritten.
+- **Browser:** a named full Chromium matrix runs against the built frontend with isolated intercepted backend fixtures. It includes the original 14 budget/main-table tests, support/finance, compatibility/integrity, readiness/staffing, conflict review, responsive forms and performance comparison. Exact final totals/exit status are recorded in [STATUS.md](STATUS.md) and the [full log](tests/playwright-full-final.log).
+- **Unit suite:** the latest entire repository suite passed in one invocation after the responsive Office tasks revision: **345 files, 2091 tests**, exit 0, 763.48s with four workers. Earlier receipts remain separately named and are not added together to claim a pass. See [STATUS.md](STATUS.md) and [office-task-table-unit-full.log](tests/office-task-table-unit-full.log).
+- **Static/build:** TypeScript and production build receipts are retained. Graphify was refreshed; four existing parser limitations are explicitly recorded in the graph log. Actual source/tests, not graph completeness, establish the changed call paths.
+
+A visible desktop walkthrough also signed into the existing Head account and read the actual Office Budget, journal, archived QA project, Office Tasks and completion screen. No new financial transactions were created. Screenshots prefixed `live-desktop` identify these separately. Browser viewport evidence covers 390×844 and 768×1024. It does not establish physical-device/touch behavior, actual hosted email/Storage delivery or post-deployment fiscal acceptance. Those gates remain visible in [REMAINING_GAPS.md](REMAINING_GAPS.md).
+
+## Compatibility and authority
+
+Navigation entries and canonical roles remain. Financial authority stays in Supabase SQL/RPC rather than Python. Public settlement/release signatures remain; private original bodies have no ordinary-client access. Existing late-package Head authorization is a separate requirement and is not replaced by conflict review. Posted journals and prior audit evidence remain immutable. No automatic decommitment, Admin operational write bypass, self-approval exception or blanket function-grant change was added.
+
+The source baseline is `c809b34d83829650e6e052c198b510153c76d26d`, initially clean. The final implementation remains an uncommitted working tree; [source-manifest.json](source-manifest.json) records tested file hashes instead of inventing a commit. Hosted target remains `ixnfphgjyelhckjwjkdv`.
+
+The later [AI walkthrough](AI_QA.md) includes authorized labeled QA project/task writes and existing-person enrollment. It does not create new financial postings. PDF testing and broader AI live testing were stopped/deferred by the user's narrower request to finish the small auto-assign and [setup redesign](PROJECT_SETUP_REDESIGN.md).

@@ -1,0 +1,14 @@
+
+> @figma/my-make-file@0.0.1 test
+> vitest --configLoader runner run tests/unit/pageLocalSurfaceStandardization.test.ts
+
+
+ RUN  v3.2.4 C:/Users/gabri/OneDrive/Desktop/EflowWeb
+
+ ✓ tests/unit/pageLocalSurfaceStandardization.test.ts (3 tests) 7ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  09:25:20
+   Duration  1.06s (transform 49ms, setup 0ms, collect 95ms, tests 7ms, environment 0ms, prepare 334ms)
+

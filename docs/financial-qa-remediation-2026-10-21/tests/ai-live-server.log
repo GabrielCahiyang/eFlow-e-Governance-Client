@@ -1,0 +1,131 @@
+
+> @figma/my-make-file@0.0.1 dev
+> concurrently --kill-others "npm run dev:backend" "npm run dev:frontend"
+
+[0] 
+[0] > @figma/my-make-file@0.0.1 dev:backend
+[0] > python server/start.py
+[0] 
+[1] 
+[1] > @figma/my-make-file@0.0.1 dev:frontend
+[1] > vite --port 5175 --strictPort
+[1] 
+[1] 
+[1]   VITE v6.3.5  ready in 1639 ms
+[1] 
+[1]   ➜  Local:   http://localhost:5175/
+[1]   ➜  Network: use --host to expose
+[1] 7:23:50 AM [vite] http proxy error: /controlpanelEflow/api/logs/stream
+[1] Error: connect ECONNREFUSED 127.0.0.1:8321
+[1]     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1706:16)
+[0] 
+[0] ========================================
+[0]     Local LLM Backend — Setup & Run
+[0] ========================================
+[0] 
+[0]   [OK] Virtual environment exists at C:\Users\gabri\OneDrive\Desktop\Ollama reactjs LLM DeepSeek Integration\server\.venv
+[0]   [OK] Dependencies already installed
+[0] 
+[0] [START] Supervising private AI API on 127.0.0.1:8321
+[0] [START] Supervising automatic Cloudflare endpoint publishing
+[0] [INFO]  Models directory: C:\Users\gabri\OneDrive\Desktop\Ollama reactjs LLM DeepSeek Integration\models
+[0] 
+[0] [START] Starting the embedded JWT-protected AI gateway at http://127.0.0.1:8323
+[0] INFO:     Started server process [35092]
+[0] INFO:     Waiting for application startup.
+[0] INFO:     Application startup complete.
+[0] INFO:     Uvicorn running on http://127.0.0.1:8323 (Press CTRL+C to quit)
+[0] [START] The AI services are ready. The secure connection is starting.
+[0] 2026-10-22 07:23:55,012  INFO      Supabase URL: https://ixnfphgjyelhckjwjkdv.supabase.co
+[0] [cloudflared] 2026-10-21T23:23:55Z INF Thank you for trying Cloudflare Tunnel. Doing so, without a Cloudflare account, is a quick way to experiment and try it out. However, be aware that these account-less Tunnels have no uptime guarantee, are subject to the Cloudflare Online Services Terms of Use (https://www.cloudflare.com/website-terms/), and Cloudflare reserves the right to investigate your use of Tunnels for violations of such terms. If you intend to use Tunnels in production you should use a pre-created named tunnel by following: https://developers.cloudflare.com/cloudflare-one/connections/connect-apps
+[0] [cloudflared] 2026-10-21T23:23:55Z INF Requesting new quick Tunnel on trycloudflare.com...
+[0] INFO:     Started server process [26540]
+[0] INFO:     Waiting for application startup.
+[0] 2026-10-22 07:23:55,242  INFO      LLM Backend starting ...
+[0] 2026-10-22 07:23:55,242  INFO      Route prefix : /controlpanelEflow
+[0] 2026-10-22 07:23:55,242  INFO      Registered models: ['deepseek-r1:8b', 'qwen3.5:2b', 'qwen3.5:4b']
+[0] 2026-10-22 07:23:55,665  INFO      Auth key loaded from Supabase app_config.
+[0] 2026-10-22 07:23:55,681  INFO      FIFO AI job worker started.
+[0] INFO:     Application startup complete.
+[0] INFO:     Uvicorn running on http://127.0.0.1:8321 (Press CTRL+C to quit)
+[0] INFO:     127.0.0.1:56111 - "GET /controlpanelEflow/api/logs/stream HTTP/1.1" 200 OK
+[0] [cloudflared] 2026-10-21T23:24:01Z INF +--------------------------------------------------------------------------------------------+
+[0] [cloudflared] 2026-10-21T23:24:01Z INF |  Your quick Tunnel has been created! Visit it at (it may take some time to be reachable):  |
+[0] [cloudflared] 2026-10-21T23:24:01Z INF |  https://humanity-geological-earth-remedies.trycloudflare.com                              |
+[0] [cloudflared] 2026-10-21T23:24:01Z INF +--------------------------------------------------------------------------------------------+
+[0] [cloudflared] 2026-10-21T23:24:01Z INF Cannot determine default configuration path. No file [config.yml config.yaml] in [~/.cloudflared ~/.cloudflare-warp ~/cloudflare-warp]
+[0] [cloudflared] 2026-10-21T23:24:01Z INF Version 2025.8.1 (Checksum b5d598b00cc3a28cabc5812d9f762819334614bae452db4e7f23eefe7b081556)
+[0] [cloudflared] 2026-10-21T23:24:01Z INF GOOS: windows, GOVersion: go1.24.2, GoArch: amd64
+[0] [cloudflared] 2026-10-21T23:24:01Z INF Settings: map[ha-connections:1 no-autoupdate:true protocol:quic url:http://127.0.0.1:8323]
+[0] [cloudflared] 2026-10-21T23:24:01Z INF cloudflared will not automatically update on Windows systems.
+[0] [cloudflared] 2026-10-21T23:24:01Z INF Generated Connector ID: 63beecf5-d3b4-4e3c-8351-d59e75c7ae4e
+[0] [cloudflared] 2026-10-21T23:24:02Z INF Initial protocol quic
+[0] [cloudflared] 2026-10-21T23:24:02Z INF ICMP proxy will use 192.168.1.7 as source for IPv4
+[0] [cloudflared] 2026-10-21T23:24:02Z INF ICMP proxy will use 2001:4454:11c:9e00:c877:98ee:8105:acb2 in zone Wi-Fi as source for IPv6
+[0] [cloudflared] 2026-10-21T23:24:03Z ERR Cannot determine default origin certificate path. No file cert.pem in [~/.cloudflared ~/.cloudflare-warp ~/cloudflare-warp]. You need to specify the origin certificate path by specifying the origincert option in the configuration file, or set TUNNEL_ORIGIN_CERT environment variable originCertPath=
+[0] [cloudflared] 2026-10-21T23:24:03Z INF cloudflared does not support loading the system root certificate pool on Windows. Please use --origin-ca-pool <PATH> to specify the path to the certificate pool
+[0] [cloudflared] 2026-10-21T23:24:03Z INF ICMP proxy will use 192.168.1.7 as source for IPv4
+[0] [cloudflared] 2026-10-21T23:24:03Z INF Tunnel connection curve preferences: [X25519MLKEM768 CurveP256] connIndex=0 event=0 ip=198.41.200.63
+[0] [cloudflared] 2026-10-21T23:24:03Z INF ICMP proxy will use 2001:4454:11c:9e00:c877:98ee:8105:acb2 in zone Wi-Fi as source for IPv6
+[0] [cloudflared] 2026-10-21T23:24:03Z INF Starting metrics server on 127.0.0.1:20242/metrics
+[0] [cloudflared] 2026-10-21T23:24:03Z INF Registered tunnel connection connIndex=0 connection=f5b7b82c-3df1-4851-bff9-0024905e827c event=0 ip=198.41.200.63 location=hkg11 protocol=quic
+[0] [READY] Quick Tunnel DNS and public health check passed.
+[0] [ONLINE] Published https://humanity-geological-earth-remedies.trycloudflare.com/controlpanelEflow/api
+[0] [cloudflared] 2026-10-21T23:24:08Z ERR Failed to initialize DNS local resolver error="lookup region1.v2.argotunnel.com: i/o timeout"
+[0] [AI] Local AI service is online.
+[0] INFO:     2001:4454:11c:9e00:c877:98ee:8105:acb2:0 - "OPTIONS /controlpanelEflow/api/ai/jobs HTTP/1.1" 200 OK
+[0] INFO:     127.0.0.1:63600 - "POST /controlpanelEflow/api/jobs HTTP/1.1" 202 Accepted
+[0] INFO:     2001:4454:11c:9e00:c877:98ee:8105:acb2:0 - "POST /controlpanelEflow/api/ai/jobs HTTP/1.1" 202 Accepted
+[0] INFO:     2001:4454:11c:9e00:c877:98ee:8105:acb2:0 - "OPTIONS /controlpanelEflow/api/ai/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     127.0.0.1:65083 - "GET /controlpanelEflow/api/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     2001:4454:11c:9e00:c877:98ee:8105:acb2:0 - "GET /controlpanelEflow/api/ai/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     127.0.0.1:65083 - "GET /controlpanelEflow/api/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     2001:4454:11c:9e00:c877:98ee:8105:acb2:0 - "GET /controlpanelEflow/api/ai/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     127.0.0.1:65083 - "GET /controlpanelEflow/api/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     2001:4454:11c:9e00:c877:98ee:8105:acb2:0 - "GET /controlpanelEflow/api/ai/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     127.0.0.1:65083 - "GET /controlpanelEflow/api/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     2001:4454:11c:9e00:c877:98ee:8105:acb2:0 - "GET /controlpanelEflow/api/ai/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     127.0.0.1:65083 - "GET /controlpanelEflow/api/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     2001:4454:11c:9e00:c877:98ee:8105:acb2:0 - "GET /controlpanelEflow/api/ai/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     127.0.0.1:65083 - "GET /controlpanelEflow/api/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     2001:4454:11c:9e00:c877:98ee:8105:acb2:0 - "GET /controlpanelEflow/api/ai/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     127.0.0.1:65083 - "GET /controlpanelEflow/api/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     2001:4454:11c:9e00:c877:98ee:8105:acb2:0 - "GET /controlpanelEflow/api/ai/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     127.0.0.1:65083 - "GET /controlpanelEflow/api/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     2001:4454:11c:9e00:c877:98ee:8105:acb2:0 - "GET /controlpanelEflow/api/ai/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     127.0.0.1:57222 - "GET /controlpanelEflow/api/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     2001:4454:11c:9e00:c877:98ee:8105:acb2:0 - "GET /controlpanelEflow/api/ai/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     127.0.0.1:57222 - "GET /controlpanelEflow/api/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     2001:4454:11c:9e00:c877:98ee:8105:acb2:0 - "GET /controlpanelEflow/api/ai/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     127.0.0.1:57222 - "GET /controlpanelEflow/api/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     2001:4454:11c:9e00:c877:98ee:8105:acb2:0 - "GET /controlpanelEflow/api/ai/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     127.0.0.1:57222 - "GET /controlpanelEflow/api/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     2001:4454:11c:9e00:c877:98ee:8105:acb2:0 - "GET /controlpanelEflow/api/ai/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     127.0.0.1:64786 - "GET /controlpanelEflow/api/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     2001:4454:11c:9e00:c877:98ee:8105:acb2:0 - "GET /controlpanelEflow/api/ai/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     127.0.0.1:64786 - "GET /controlpanelEflow/api/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     2001:4454:11c:9e00:c877:98ee:8105:acb2:0 - "GET /controlpanelEflow/api/ai/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     127.0.0.1:64786 - "GET /controlpanelEflow/api/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     2001:4454:11c:9e00:c877:98ee:8105:acb2:0 - "GET /controlpanelEflow/api/ai/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     127.0.0.1:64786 - "GET /controlpanelEflow/api/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     2001:4454:11c:9e00:c877:98ee:8105:acb2:0 - "GET /controlpanelEflow/api/ai/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     127.0.0.1:64786 - "GET /controlpanelEflow/api/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     2001:4454:11c:9e00:c877:98ee:8105:acb2:0 - "GET /controlpanelEflow/api/ai/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     127.0.0.1:64786 - "GET /controlpanelEflow/api/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     2001:4454:11c:9e00:c877:98ee:8105:acb2:0 - "GET /controlpanelEflow/api/ai/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     127.0.0.1:63092 - "GET /controlpanelEflow/api/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     2001:4454:11c:9e00:c877:98ee:8105:acb2:0 - "GET /controlpanelEflow/api/ai/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     127.0.0.1:56086 - "GET /controlpanelEflow/api/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     2001:4454:11c:9e00:c877:98ee:8105:acb2:0 - "GET /controlpanelEflow/api/ai/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     127.0.0.1:52787 - "GET /controlpanelEflow/api/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     2001:4454:11c:9e00:c877:98ee:8105:acb2:0 - "GET /controlpanelEflow/api/ai/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     127.0.0.1:55684 - "GET /controlpanelEflow/api/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     2001:4454:11c:9e00:c877:98ee:8105:acb2:0 - "GET /controlpanelEflow/api/ai/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     127.0.0.1:55684 - "GET /controlpanelEflow/api/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     2001:4454:11c:9e00:c877:98ee:8105:acb2:0 - "GET /controlpanelEflow/api/ai/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     127.0.0.1:55684 - "GET /controlpanelEflow/api/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     2001:4454:11c:9e00:c877:98ee:8105:acb2:0 - "GET /controlpanelEflow/api/ai/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     127.0.0.1:55684 - "GET /controlpanelEflow/api/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     2001:4454:11c:9e00:c877:98ee:8105:acb2:0 - "GET /controlpanelEflow/api/ai/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     127.0.0.1:55684 - "GET /controlpanelEflow/api/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK
+[0] INFO:     2001:4454:11c:9e00:c877:98ee:8105:acb2:0 - "GET /controlpanelEflow/api/ai/jobs/9197e88c-4810-4379-995a-650d3453983a HTTP/1.1" 200 OK

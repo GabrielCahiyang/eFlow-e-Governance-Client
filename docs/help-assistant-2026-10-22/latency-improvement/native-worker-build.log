@@ -1,0 +1,12 @@
+**********************************************************************
+** Visual Studio 2019 Developer Command Prompt v16.11.58
+** Copyright (c) 2021 Microsoft Corporation
+**********************************************************************
+[vcvarsall.bat] Environment initialized for: 'x64'
+-- Configuring done (3.6s)
+-- Generating done (0.2s)
+-- Build files have been written to: C:/Users/gabri/.cache/eflow-speech/build-compat
+[1/4] Building CXX object CMakeFiles\kitten-tts.dir\C_\Users\gabri\.cache\eflow-speech\src\tools\kitten-tts\engine.cpp.obj
+[2/4] Building CXX object CMakeFiles\eflow-kitten-worker.dir\C_\Users\gabri\.cache\eflow-speech\src\tools\kitten-tts\engine.cpp.obj
+[3/4] Linking CXX executable kitten-tts.exe
+[4/4] Linking CXX executable eflow-kitten-worker.exe

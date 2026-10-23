@@ -1,0 +1,111 @@
+
+Running 40 tests using 1 worker
+
+(node:17492) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:17492) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [chromium] › tests\e2e\financial-compatibility.spec.ts:3:1 › historical unnumbered expenses remain visible without an invented PCV (6.8s)
+  ok  2 [chromium] › tests\e2e\financial-integrity.spec.ts:3:1 › journal cents validation blocks fractions before any financial write (6.4s)
+  ok  3 [chromium] › tests\e2e\financial-performance.spec.ts:5:1 › measures identical cold fixture and warm project navigation under both chunk strategies (43.7s)
+  ok  4 [chromium] › tests\e2e\financial-remediation.spec.ts:56:1 › Journal detail preserves filters and focus, shows full lines, and never invents available funding (7.7s)
+  ok  5 [chromium] › tests\e2e\financial-remediation.spec.ts:129:1 › Independent Head reviews a conflict package and a separate Accounting Officer settles it (19.2s)
+  ok  6 [chromium] › tests\e2e\financial-remediation.spec.ts:273:33 › Financial controls fit 390px without page overflow (7.5s)
+  ok  7 [chromium] › tests\e2e\financial-remediation.spec.ts:273:33 › Financial controls fit 768px without page overflow (7.6s)
+  ok  8 [chromium] › tests\e2e\financial-remediation.spec.ts:328:1 › A Member with an Assistant appointment reviews only assigned packages from the existing Inbox (6.5s)
+  ok  9 [chromium] › tests\e2e\financial-responsive-acceptance.spec.ts:5:33 › Funded work, cash request and itemized receipts fit 390px (9.5s)
+  ok 10 [chromium] › tests\e2e\financial-responsive-acceptance.spec.ts:5:33 › Funded work, cash request and itemized receipts fit 768px (10.6s)
+  ok 11 [chromium] › tests\e2e\financial-responsive-acceptance.spec.ts:213:33 › Office Budget, approvals, completion and archived work fit 390px (12.0s)
+  ok 12 [chromium] › tests\e2e\financial-responsive-acceptance.spec.ts:213:33 › Office Budget, approvals, completion and archived work fit 768px (12.2s)
+  ok 13 [chromium] › tests\e2e\office-budget-sections.spec.ts:104:1 › Office Budget overview uses four distinct animated drawings on desktop and fits mobile (6.5s)
+  ok 14 [chromium] › tests\e2e\office-budget-sections.spec.ts:141:1 › a funded budget with an unfinished row can save as draft but cannot lock until corrected (6.6s)
+  ok 15 [chromium] › tests\e2e\office-budget-sections.spec.ts:181:1 › unavailable sections never display an existing saved budget as zero (5.5s)
+  ok 16 [chromium] › tests\e2e\office-budget-sections.spec.ts:197:1 › locked section adjustments update the counter and persist without duplicated writes (8.7s)
+  ok 17 [chromium] › tests\e2e\phase11-main-table.spec.ts:30:1 › column widths, alignment, visibility and sticky task context persist locally (11.7s)
+  ok 18 [chromium] › tests\e2e\phase11-main-table.spec.ts:131:1 › date and dependency drafts guard close and retain denied edits for scoped retry (14.5s)
+  ok 19 [chromium] › tests\e2e\phase11-main-table.spec.ts:258:1 › filter chips clear one or all without changing canonical manual ordering (7.9s)
+  ok 20 [chromium] › tests\e2e\phase11-main-table.spec.ts:319:1 › group creation guards its draft and empty deletion confirms impact and retries denial (13.8s)
+  ok 21 [chromium] › tests\e2e\phase11-main-table.spec.ts:441:1 › task team entry reuses existing details and mobile sticky context leaves room for work (9.7s)
+  ok 22 [chromium] › tests\e2e\phase11-main-table.spec.ts:506:1 › shared Task Lead team action explains the unresolved authority gate (9.9s)
+  ok 23 [chromium] › tests\e2e\phase11-main-table.spec.ts:541:1 › Observer inspection and closed-project table retain read-only controls (9.8s)
+  ok 24 [chromium] › tests\e2e\phase11-main-table.spec.ts:596:1 › board Manage opens task staffing instead of the discussion tab (6.2s)
+  ok 25 [chromium] › tests\e2e\phase11-main-table.spec.ts:617:1 › Head owner appointment confirms impact and retains denied assignment for retry (9.8s)
+  ok 26 [chromium] › tests\e2e\phase11-main-table.spec.ts:694:1 › mobile planning picker and explicit creation keep fields inside the viewport (7.9s)
+  ok 27 [chromium] › tests\e2e\phase16-support-finance.spec.ts:19:1 › Admin Center keeps legacy pages, account inspection and unsaved account edits (9.5s)
+  ok 28 [chromium] › tests\e2e\phase16-support-finance.spec.ts:97:1 › Account audit has bounded coverage, loaded filters, nested redaction and truthful unavailable reads on a phone (5.7s)
+  ok 29 [chromium] › tests\e2e\phase16-support-finance.spec.ts:190:1 › Accounting retains fiscal scope, exposes settlements, records one decision and inspects its balanced journal (9.0s)
+  ok 30 [chromium] › tests\e2e\phase16-support-finance.spec.ts:270:1 › Uncertain settlement keeps its reason and requires verification before resubmission (7.5s)
+  ok 31 [chromium] › tests\e2e\phase16-support-finance.spec.ts:310:1 › Journal correction has guarded lines, explicit posting and a retained uncertainty receipt on a phone (7.5s)
+  ok 32 [chromium] › tests\e2e\phase16-support-finance.spec.ts:393:1 › Release handover uses its existing physical confirmation and blocks an uncertain repeat (6.0s)
+  ok 33 [chromium] › tests\e2e\phase16-support-finance.spec.ts:427:1 › Reports retain seven lenses, filtered CSV export and the task inspector (8.6s)
+  ok 34 [chromium] › tests\e2e\phase16-support-finance.spec.ts:483:1 › Backup preflight stays unavailable without gateway configuration (5.5s)
+  ok 35 [chromium] › tests\e2e\phase16-support-finance.spec.ts:501:1 › Late-package Head authorization stays separate from independent Accounting settlement (12.9s)
+  ok 36 [chromium] › tests\e2e\phase16-support-finance.spec.ts:541:1 › Accounting retains ordinary Member workspaces, requires an Office and cannot settle its own cash (7.8s)
+  ok 37 [chromium] › tests\e2e\phase16-support-finance.spec.ts:584:1 › Backup uncertain start verifies the job list and a failed job permits an explicit new attempt (6.2s)
+  ok 38 [chromium] › tests\e2e\phase7-readiness-staffing.spec.ts:90:1 › Head confirms readiness; desktop and mobile retain readable checks and closeout blockers (10.0s)
+  x  39 [chromium] › tests\e2e\phase7-readiness-staffing.spec.ts:169:1 › Staffing is advisory until Head confirmation; roomy dialog supports keyboard selection and mobile footer (10.0s)
+(node:19928) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:19928) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  40 [chromium] › tests\e2e\phase7-readiness-staffing.spec.ts:390:1 › Member reads readiness without Head review, activation or staffing controls (31.3s)
+
+
+  1) [chromium] › tests\e2e\phase7-readiness-staffing.spec.ts:169:1 › Staffing is advisory until Head confirmation; roomy dialog supports keyboard selection and mobile footer 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m390[39m
+    Received: [31m358[39m
+
+      58 |  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+      59 |  const footer=(await dialog.getByRole('button',{name:'Confirm owner'}).boundingBox())!;expect(footer.y+footer.height).toBeLessThanOrEqual(844);expect(footer.x+footer.width).toBeLessThanOrEqual(390);
+    > 60 |  const mobileBounds=(await dialog.boundingBox())!;expect(Math.round(mobileBounds.width)).toBe(390);expect(Math.round(mobileBounds.height)).toBe(844);
+         |                                                                                          ^
+      61 |  await dialog.locator('.p7-staff-card').first().scrollIntoViewIfNeeded();await page.screenshot({path:info.outputPath('staffing-mobile.png')});
+      62 |  await dialog.getByRole('radio').first().check();await dialog.getByRole('button',{name:'Confirm owner'}).click();
+      63 |  await page.getByRole('alertdialog',{name:'Review recommended Task Lead?'}).getByRole('button',{name:'Review appointment',exact:true}).click();
+        at C:\Users\gabri\OneDrive\Desktop\EflowWeb\tests\e2e\phase7-readiness-staffing.spec.ts:60:90
+
+    Error Context: test-results\phase7-readiness-staffing--2eefa-selection-and-mobile-footer-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase7-readiness-staffing--2eefa-selection-and-mobile-footer-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase7-readiness-staffing--2eefa-selection-and-mobile-footer-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › tests\e2e\phase7-readiness-staffing.spec.ts:390:1 › Member reads readiness without Head review, activation or staffing controls 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByText('Plan reviews', { exact: true })[22m
+
+
+      80 | test('Member reads readiness without Head review, activation or staffing controls',async({page})=>{
+      81 |  const records=await projectWorkspaceFixture(page,'member');await readinessFixture(page,records);
+    > 82 |  await openProjectAction(page,'Project settings');await page.getByText('Plan reviews',{exact:true}).click();const panel=page.getByRole('region',{name:'Project readiness reviews'});await expect(panel).toBeVisible();
+         |                                                                                                     ^
+      83 |  await expect(panel.getByRole('button',{name:'Confirm review'})).toHaveCount(0);await expect(panel.getByRole('button',{name:'Activate project'})).toHaveCount(0);await expect(panel.getByRole('button',{name:'Close project'})).toHaveCount(0);
+      84 | });
+      85 |
+        at C:\Users\gabri\OneDrive\Desktop\EflowWeb\tests\e2e\phase7-readiness-staffing.spec.ts:82:101
+
+    Error Context: test-results\phase7-readiness-staffing--3cdea-vation-or-staffing-controls-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase7-readiness-staffing--3cdea-vation-or-staffing-controls-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase7-readiness-staffing--3cdea-vation-or-staffing-controls-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [chromium] › tests\e2e\phase7-readiness-staffing.spec.ts:169:1 › Staffing is advisory until Head confirmation; roomy dialog supports keyboard selection and mobile footer 
+    [chromium] › tests\e2e\phase7-readiness-staffing.spec.ts:390:1 › Member reads readiness without Head review, activation or staffing controls 
+  38 passed (7.1m)

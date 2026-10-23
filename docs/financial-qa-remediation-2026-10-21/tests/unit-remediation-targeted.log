@@ -1,0 +1,33 @@
+
+> @figma/my-make-file@0.0.1 test
+> vitest --configLoader runner run tests/unit/financialRemediationPresentation.test.tsx tests/unit/projectLifecycle.test.tsx tests/unit/projectReadinessSummary.test.tsx tests/unit/budgetPositionSummary.test.tsx tests/unit/redesignFoundation.test.ts tests/unit/phase1Terminology.test.ts --maxWorkers=2
+
+
+ RUN  v3.2.4 C:/Users/gabri/OneDrive/Desktop/EflowWeb
+
+ ✓ tests/unit/financialRemediationPresentation.test.tsx (4 tests) 213ms
+ ✓ tests/unit/budgetPositionSummary.test.tsx (1 test) 369ms
+   ✓ BudgetPositionSummary > shows the current fiscal position and routes each exposure to its existing workflow  366ms
+ ✓ tests/unit/projectReadinessSummary.test.tsx (3 tests) 312ms
+ ✓ tests/unit/phase1Terminology.test.ts (1 test) 1109ms
+   ✓ active production terminology > keeps legacy vocabulary out of display copy while preserving database and employment identifiers  1107ms
+ ✓ tests/unit/redesignFoundation.test.ts (3 tests) 297ms
+ ✓ tests/unit/projectLifecycle.test.tsx (12 tests) 7917ms
+   ✓ canonical project lifecycle controls > hides setup after activation  981ms
+   ✓ canonical project lifecycle controls > keeps creation and portfolio switching without a second sidebar  885ms
+   ✓ canonical project lifecycle controls > offers completion and denies archive until completed  697ms
+   ✓ canonical project lifecycle controls > offers archive after completion  487ms
+   ✓ canonical project lifecycle controls > offers restore and delete in an archived project  950ms
+   ✓ canonical project lifecycle controls > keeps read-only viewers from lifecycle changes while retaining account-scoped favorites  604ms
+   ✓ project completion confirmation > refuses directly opened completion for a non-Head without loading private checks  362ms
+   ✓ project completion confirmation > checks without changing anything, and cancel never completes  471ms
+   ✓ project completion confirmation > lists exact task, cash and governance blockers and opens the affected record  598ms
+   ✓ project completion confirmation > completes only the chosen project after explicit confirmation  758ms
+   ✓ project completion confirmation > fails closed when checks cannot load  430ms
+   ✓ project completion confirmation > refreshes blockers if the server rejects a stale ready screen  691ms
+
+ Test Files  6 passed (6)
+      Tests  24 passed (24)
+   Start at  01:43:31
+   Duration  50.56s (transform 13.38s, setup 0ms, collect 45.17s, tests 10.22s, environment 5.67s, prepare 1.36s)
+

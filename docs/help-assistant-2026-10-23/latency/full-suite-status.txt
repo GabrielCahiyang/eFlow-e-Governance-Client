@@ -1,0 +1,1 @@
+The broad all-repository regression was attempted, then intentionally stopped because it competed for this 16 GB host memory. Completed passing suites remain in unit-serial.log, unit-remainder.log and unit-final.log. Full-suite completion is NOT claimed. The affected voice tests, backend checks, browser flow, TypeScript and build are verified separately.

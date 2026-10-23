@@ -9,6 +9,8 @@ import {
 import type { ReactNode } from "react";
 import type { DepartmentBudgetBundle, DepartmentBudgetSummary } from "../types";
 import { peso } from "./budgetUi";
+import { getPhilippineCalendarDate } from '../../../shared/calendarDates';
+import { financialPosition } from '../selectors/financialPosition';
 
 type BudgetDestination = "funding" | "approvals" | "releases";
 
@@ -27,7 +29,8 @@ export function BudgetPositionSummary({
   summary,
   onNavigate,
 }: BudgetPositionSummaryProps) {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = getPhilippineCalendarDate();
+  const position = financialPosition(data, summary);
   const pendingApprovals =
     data.allocations.filter((item) => item.status === "pending").length +
     data.requests.filter((item) => item.status === "pending_department_approval")
@@ -56,14 +59,23 @@ export function BudgetPositionSummary({
             {peso.format(summary.availableAmount)}
           </div>
           <p className="mt-2 text-right text-[12px] leading-relaxed text-muted-foreground">
-            Funds not yet reserved by published proposals or recorded as actual
-            expenditure.
+            Released annual authority available for commitments. Spending and cash returns within a commitment do not increase this balance.
           </p>
           <dl className="mt-5 grid grid-cols-3 gap-3 border-t border-primary/15 pt-4 text-right">
             <PositionNumber label="Annual authority" value={summary.approvedAmount} />
             <PositionNumber label="Committed" value={summary.committedAmount} />
             <PositionNumber label="Actual spending" value={summary.spentAmount} />
           </dl>
+          <details className="mt-4 rounded-lg border border-primary/20 p-3 text-sm">
+            <summary className="cursor-pointer font-medium">Cash and retained funding</summary>
+            <dl className="mt-3 grid grid-cols-2 gap-3 text-right">
+              <PositionNumber label="Released cash" value={position.released} />
+              <PositionNumber label="Returned cash" value={position.returned} />
+              <PositionNumber label="Unsettled advances" value={position.unsettled} />
+              <PositionNumber label="Unused commitment" value={position.unusedCommitment} />
+            </dl>
+            <p className="mt-3 leading-relaxed text-muted-foreground">Archiving retains the commitment, including unused funding. Returned cash clears an advance; it does not release the commitment. No automatic release of unused funding applies.</p>
+          </details>
         </div>
 
         <div className="divide-y divide-border/70">
@@ -100,7 +112,7 @@ export function BudgetPositionSummary({
             icon={<ReceiptText size={16} />}
             label="Settlement exposure"
             detail={`${unsettledRequests.length} released request(s) still need receipts or settlement`}
-            amount={summary.pettyCashReserved}
+            amount={position.unsettled}
             action="Review settlement"
             onClick={() => onNavigate("releases")}
           />
@@ -113,7 +125,7 @@ export function BudgetPositionSummary({
 function PositionNumber({ label, value }: { label: string; value: number }) {
   return (
     <div>
-      <dt className="text-[11px] uppercase tracking-wide text-neutral-400">{label}</dt>
+      <dt className="text-[13px] text-muted-foreground">{label}</dt>
       <dd className="mt-1 text-[13px] font-medium tabular-nums">
         {peso.format(value)}
       </dd>

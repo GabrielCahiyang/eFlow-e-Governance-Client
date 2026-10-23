@@ -1,0 +1,14 @@
+[
+  {
+    "resource": "help-assistant-2026-10-23/GALLERY.html",
+    "status": 200
+  },
+  {
+    "resource": "help-assistant-2026-10-23/README.md",
+    "status": 200
+  },
+  {
+    "resource": "private-api-health",
+    "status": 200
+  }
+]

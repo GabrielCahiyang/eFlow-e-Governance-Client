@@ -1,0 +1,89 @@
+{
+  "date": "2026-10-23",
+  "observedAt": "2026-10-23T12:14:45.435159+00:00",
+  "target": "ixnfphgjyelhckjwjkdv",
+  "scope": "Actual authenticated local gateway and models, synthetic speech, existing authorized test account, no email or business writes",
+  "checks": [
+    {
+      "operation": "status",
+      "status": 200,
+      "seconds": 2.016
+    },
+    {
+      "operation": "transcribe-0",
+      "status": 200,
+      "seconds": 9.297,
+      "recognized": true
+    },
+    {
+      "operation": "transcribe-1",
+      "status": 200,
+      "seconds": 8.468,
+      "recognized": true
+    },
+    {
+      "operation": "chat-first",
+      "status": 200,
+      "seconds": 14.516,
+      "grounded": true
+    },
+    {
+      "operation": "speech-primer",
+      "status": 200,
+      "seconds": 35.281,
+      "audio_seconds": 9.4,
+      "parts": 1,
+      "cached": false
+    },
+    {
+      "operation": "chat-followup",
+      "status": 200,
+      "seconds": 13.031,
+      "grounded": true
+    },
+    {
+      "operation": "speech-full-warm",
+      "status": 200,
+      "seconds": 16.938,
+      "audio_seconds": 9.08,
+      "parts": 1,
+      "cached": false
+    },
+    {
+      "operation": "speech-first-chunk-warm",
+      "status": 200,
+      "seconds": 7.0,
+      "audio_seconds": 3.48,
+      "parts": 3,
+      "cached": false
+    },
+    {
+      "operation": "speech-chunk-1",
+      "status": 200,
+      "seconds": 5.547,
+      "audio_seconds": 2.04,
+      "parts": 3,
+      "cached": false
+    },
+    {
+      "operation": "speech-chunk-2",
+      "status": 200,
+      "seconds": 8.547,
+      "audio_seconds": 4.6,
+      "parts": 3,
+      "cached": false
+    },
+    {
+      "operation": "speech-first-chunk-cached",
+      "status": 200,
+      "seconds": 1.75,
+      "audio_seconds": 3.48,
+      "parts": 3,
+      "cached": true
+    },
+    {
+      "operation": "anonymous-status",
+      "status": 401
+    }
+  ]
+}

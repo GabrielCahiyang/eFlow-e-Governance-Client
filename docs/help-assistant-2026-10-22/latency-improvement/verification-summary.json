@@ -1,0 +1,33 @@
+{
+  "date": "2026-10-22",
+  "scope": "Help progressive microphone and eFlow Live latency; local source/runtime verification",
+  "unitSuites": 350,
+  "unitTests": 2115,
+  "coverageComplete": true,
+  "batches": [
+    {
+      "receipt": "live-final-tests.log",
+      "passedSuites": 39,
+      "passedTests": 509
+    },
+    {
+      "receipt": "live-final-tests-remainder.log",
+      "passedSuites": 115,
+      "passedTests": 844
+    },
+    {
+      "receipt": "live-final-tests-batch3.log",
+      "passedSuites": 196,
+      "passedTests": 762
+    }
+  ],
+  "batchNote": "Earlier batches were stopped after completed suites to adjust worker count. Only completed passing suites were excluded from subsequent batches. Final coverage matches every current unit-test file.",
+  "focusedVoiceUnitTests": 24,
+  "backendChecks": 58,
+  "browserChecks": 6,
+  "typescript": "passed",
+  "productionBuild": "passed",
+  "graphUpdate": "passed; four existing partial-parser warnings retained",
+  "physicalMicrophone": "User confirmed dictation in usual browser. Automated native media graph used synthetic WAV input. Latest physical Live conversation is left for user acceptance.",
+  "remoteSecondLaptop": "Not exercised; user requested to test remotely themselves."
+}

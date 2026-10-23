@@ -1,4 +1,5 @@
 import { lazyFeature } from "../../shared/lazyFeature";
+export const AssignedIndependentReviews = lazyFeature(() => import('./components/AssignedIndependentReviews').then(module => ({ default: module.AssignedIndependentReviews })));
 export * from "./types";
 export * from "./constants";
 export * from "./services/budgetService";

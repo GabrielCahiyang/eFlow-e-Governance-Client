@@ -1,0 +1,12 @@
+2026-10-22 21:03:33,315  INFO      Supabase URL: https://ixnfphgjyelhckjwjkdv.supabase.co
+2026-10-22 21:03:34,481  INFO      HTTP Request: POST http://test/controlpanelEflow/api/jobs "HTTP/1.1 400 Bad Request"
+2026-10-22 21:03:34,645  INFO      HTTP Request: POST http://test/controlpanelEflow/api/chat "HTTP/1.1 400 Bad Request"
+2026-10-22 21:03:34,814  INFO      HTTP Request: POST http://test/controlpanelEflow/api/chat "HTTP/1.1 400 Bad Request"
+2026-10-22 21:03:34,991  INFO      HTTP Request: POST http://test/controlpanelEflow/api/chat "HTTP/1.1 400 Bad Request"
+2026-10-22 21:03:35,167  INFO      HTTP Request: POST http://test/controlpanelEflow/api/chat "HTTP/1.1 400 Bad Request"
+2026-10-22 21:03:35,335  INFO      HTTP Request: POST http://test/controlpanelEflow/api/chat "HTTP/1.1 400 Bad Request"
+.
+----------------------------------------------------------------------
+Ran 1 test in 1.285s
+
+OK

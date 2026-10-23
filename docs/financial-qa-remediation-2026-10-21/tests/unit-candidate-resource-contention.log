@@ -1,0 +1,38 @@
+
+> @figma/my-make-file@0.0.1 test
+> vitest --configLoader runner run --maxWorkers=2
+
+
+ RUN  v3.2.4 C:/Users/gabri/OneDrive/Desktop/EflowWeb
+
+ ❯ tests/unit/loginWorkflowPreview.test.tsx (10 tests | 10 skipped) 61404ms
+   ↓ login workflow guides > distinguishes participation approval from office-only publication and covers both complete journeys
+   ↓ login workflow guides > opens an unsigned-in guide, navigates backward/forward, scrubs to archive, and starts fresh on reopen
+   ↓ login workflow guides > changes example screens when a highlighted control is clicked, without leaving the login panel
+   ↓ login workflow guides > provides one real spotlight target for every demo screen and preserves the workflow order
+   ↓ workflow playback > waits for narration without losing pause or close cleanup
+   ↓ workflow playback > only advances while playing, stops at the final stage, and replays from the beginning
+   ↓ workflow playback > pauses on a manual jump and cannot go past either end
+   ↓ workflow playback > releases the autoplay timer when a guide closes
+   ↓ shows the real workspaces and the complete yearly-budget-to-voucher route in both flows
+   ↓ uses the walkthrough voice, keeps it enabled across steps, and cancels on off and close
+ ✓ tests/unit/taskTeamEditorDialog.test.tsx (20 tests) 20533ms
+   ✓ task team editor > shows the complete team and refuses to remove a member with unfinished subtask work  1646ms
+   ✓ Phase 12 task team safety > rechecks newly assigned unfinished work after confirmation opens  1451ms
+   ✓ Phase 12 task team safety > rejects a newly inactive selected member after confirmation opens  1409ms
+   ✓ Phase 12 task team safety > keeps a team draft on cancelled dismissal, then discards only after acceptance  1085ms
+   ✓ Phase 12 task team safety > uses an impact dialog once and retains selected members after a server denial  1559ms
+   ✓ Phase 12 task team safety > refuses to overwrite a team changed remotely while a draft is open  1360ms
+   ✓ NW3.3 supported task team callers > uses a supplied table controller without another read and retains contributor-only authority  1067ms
+   ✓ NW3.3 supported task team callers > saves contributors through the canonical versioned operation without legacy writes or notifications  1125ms
+   ✓ NW3.3 supported task team callers > keeps Head appointment authority separate from the contributor-only Team action  1125ms
+   ✓ NW3.3 supported task team callers > retains a contributor draft when fresh capability revokes saving  1322ms
+   ✓ NW3.3 supported task team callers > fails closed with absent capability maps even when old management booleans are true  600ms
+   ✓ NW3.3 supported task team callers > retains values and blocks saves when the caller becomes read-only  1144ms
+   ✓ NW3.3 supported task team callers > locks canonical contributors for for_review  723ms
+   ✓ NW3.3 supported task team callers > locks canonical contributors for completed  780ms
+   ✓ NW3.3 supported task team callers > locks canonical contributors for cancelled  716ms
+   ✓ NW3.3 supported task team callers > retains the legacy workflow for an excluded task {}  598ms
+   ✓ NW3.3 supported task team callers > retains the legacy workflow for an excluded task {"proposedOfficeIdentityId":"unresolved"}  531ms
+   ✓ NW3.3 supported task team callers > retains the legacy workflow for an excluded task {"sourceCollaborationDraftId":"governed"}  563ms
+   ✓ NW3.3 supported task team callers > blocks a legacy save if read-only changes while its confirmation is open  1448ms

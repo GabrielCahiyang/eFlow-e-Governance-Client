@@ -18,6 +18,7 @@ import { personalReviewActions, type ActionItem } from '../selectors';
 import { resolveInboxUpdateDestination } from '../services/updateDestination';
 import { UpdatesFeed } from './UpdatesFeed';
 import { PersonalActionRows } from './PersonalActionRows';
+import { AssignedIndependentReviews } from '../../budget';
 import '../inbox.css';
 
 export function ActionCenter({role,hasLeadingWork=false,page='Inbox',onNavigate}: {role:string;hasLeadingWork?:boolean;page?:string;onNavigate?:(section:string,page:string)=>void}) {
@@ -26,6 +27,7 @@ export function ActionCenter({role,hasLeadingWork=false,page='Inbox',onNavigate}
   const category=useInboxCategory(page,role);
   const setCategory=(next:'actions'|'updates')=>{const destination=next==='updates'?'Updates':'Needs action';if(onNavigate)onNavigate('inbox',destination);else void requestNavigation(()=>writeNavigationLocation('inbox',destination));};
   const [notice,setNotice] = useState('');
+  const [pendingFinancial,setPendingFinancial] = useState(0);
   const canReview = role !== 'admin' && (can('navigation.reviews') || hasLeadingWork);
   const subtasks = usePersonalFeed(user?.id,fetchPersonalSubtaskReviews,canReview);
   const inspector = useTaskInspector(`inbox:${user?.id}`);
@@ -75,16 +77,17 @@ export function ActionCenter({role,hasLeadingWork=false,page='Inbox',onNavigate}
     navigate(destination.section,destination.page,destination.intent);
   };
   return <section className="eflow-personal-inbox space-y-5 min-w-0" aria-label="Personal Inbox">
-    <header><p className="text-xs text-muted-foreground">Personal action center</p><h1 className="text-2xl font-semibold">Inbox</h1><p className="text-sm text-muted-foreground mt-1">{category==='updates'?'Recent updates from your work and projects.':'Task and subtask submissions that need your review.'}</p></header>
+    <header><p className="text-xs text-muted-foreground">Personal action center</p><h1 className="text-2xl font-semibold">Inbox</h1><p className="text-sm text-muted-foreground mt-1">{category==='updates'?'Recent updates from your work and projects.':'Work and assigned independent financial reviews that need your attention.'}</p></header>
     <div className="inbox-destination-host flex flex-wrap gap-2" role="group" aria-label="Inbox categories"><Button aria-current={category==='actions'?'page':undefined} aria-pressed={category==='actions'} variant={category==='actions'?'default':'outline'} onClick={()=>setCategory('actions')}>Needs action</Button><Button id="inbox-updates" aria-current={category==='updates'?'page':undefined} aria-pressed={category==='updates'} variant={category==='updates'?'default':'outline'} onClick={()=>setCategory('updates')}>Updates</Button></div>
     {notice && <FeedbackState tone="warning" title="Update destination unavailable">{notice}</FeedbackState>}
     {category==='updates'?<UpdatesFeed onOpen={item => void openUpdate(item)}/>:<>
-      {!canReview?<FeedbackState title="No review queue under your current access">Updates remain available. Account roles do not grant operational approval authority.</FeedbackState>:<>
+      <AssignedIndependentReviews onPendingChange={setPendingFinancial} />
+      {!canReview?pendingFinancial===0?<FeedbackState title="No review queue under your current access">Updates remain available. Account roles do not grant operational approval authority.</FeedbackState>:null:<>
         <div className="flex flex-wrap items-center gap-2"><p className="flex-1 text-sm text-muted-foreground">Task reviews: {loading?'loading':error?'unavailable':actions.filter(item=>item.source==='task-review').length} · Subtask reviews: {subtasks.loading?'loading':subtasks.error?'unavailable':actions.filter(item=>item.source==='subtask-review').length}</p><Button id="inbox-refresh-actions" variant="outline" onClick={()=>{retry();subtasks.retry();}}>Refresh actions</Button></div>
         {error && <FeedbackState tone="error" title="Task reviews could not be loaded" onRetry={retry}>{error.message}</FeedbackState>}
         {subtasks.error && <FeedbackState tone="error" title="Subtask reviews could not be loaded" onRetry={subtasks.retry}>{subtasks.error}</FeedbackState>}
         {loading || subtasks.loading ? <p role="status">Refreshing review sources…</p>:null}
-        {!actions.length && !loading && !subtasks.loading && !error && !subtasks.error && <EmptyState fill illustration="complete" title="No personal task or subtask reviews pending" description="Work plans, governance, financial and eligible membership approvals remain in Reviews."/>}
+        {!pendingFinancial && !actions.length && !loading && !subtasks.loading && !error && !subtasks.error && <EmptyState fill illustration="complete" title="No personal task or subtask reviews pending" description="Work plans, governance and other approval queues remain in Reviews."/>}
         <PersonalActionRows items={actions} onOpen={openAction} />
         <div className="inbox-workflow-fallback"><Button variant="outline" onClick={()=>navigate('reviews','For Review')}>Open all review queues</Button></div>
       </>}

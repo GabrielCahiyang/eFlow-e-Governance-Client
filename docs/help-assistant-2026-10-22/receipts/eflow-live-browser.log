@@ -1,0 +1,14 @@
+
+Running 5 tests using 1 worker
+
+(node:11436) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:11436) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [chromium] › tests\e2e\help-assistant.spec.ts:4:3 › Help conversation at 1440x1000 light keeps sources and controls accessible (11.9s)
+  ok 2 [chromium] › tests\e2e\help-assistant.spec.ts:4:3 › Help conversation at 1280x800 light keeps sources and controls accessible (10.2s)
+  ok 3 [chromium] › tests\e2e\help-assistant.spec.ts:4:3 › Help conversation at 960x540 light keeps sources and controls accessible (8.7s)
+  ok 4 [chromium] › tests\e2e\help-assistant.spec.ts:4:3 › Help conversation at 1440x1000 dark keeps sources and controls accessible (10.5s)
+  ok 5 [chromium] › tests\e2e\help-assistant.spec.ts:153:1 › Dictation fills an editable draft; eFlow Live sends spoken turns and releases the mic on End (9.7s)
+
+  5 passed (56.5s)

@@ -1,0 +1,13 @@
+{
+  "checks": [
+    {
+      "endpoint": "office-team",
+      "anonymousStatus": 401
+    },
+    {
+      "endpoint": "invitations",
+      "anonymousStatus": 401
+    }
+  ],
+  "service": "eflow-control-gateway"
+}

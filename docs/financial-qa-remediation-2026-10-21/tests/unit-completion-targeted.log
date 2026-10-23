@@ -1,0 +1,25 @@
+
+ RUN  v3.2.4 C:/Users/gabri/OneDrive/Desktop/EflowWeb
+
+ ✓ tests/unit/projectReadinessSummary.test.tsx (3 tests) 383ms
+   ✓ project readiness summary > presents actual confirmed checks and retries only readiness after a failure  312ms
+ ✓ tests/unit/financialRemediationPresentation.test.tsx (5 tests) 291ms
+ ✓ tests/unit/projectLifecycle.test.tsx (12 tests) 9204ms
+   ✓ canonical project lifecycle controls > hides setup after activation  1281ms
+   ✓ canonical project lifecycle controls > keeps creation and portfolio switching without a second sidebar  941ms
+   ✓ canonical project lifecycle controls > offers completion and denies archive until completed  1043ms
+   ✓ canonical project lifecycle controls > offers archive after completion  726ms
+   ✓ canonical project lifecycle controls > offers restore and delete in an archived project  1151ms
+   ✓ canonical project lifecycle controls > keeps read-only viewers from lifecycle changes while retaining account-scoped favorites  593ms
+   ✓ project completion confirmation > refuses directly opened completion for a non-Head without loading private checks  395ms
+   ✓ project completion confirmation > checks without changing anything, and cancel never completes  486ms
+   ✓ project completion confirmation > lists exact task, cash and governance blockers and opens the affected record  816ms
+   ✓ project completion confirmation > completes only the chosen project after explicit confirmation  689ms
+   ✓ project completion confirmation > fails closed when checks cannot load  418ms
+   ✓ project completion confirmation > refreshes blockers if the server rejects a stale ready screen  652ms
+
+ Test Files  3 passed (3)
+      Tests  20 passed (20)
+   Start at  02:58:00
+   Duration  89.97s (transform 10.98s, setup 0ms, collect 65.76s, tests 9.88s, environment 48.29s, prepare 3.48s)
+

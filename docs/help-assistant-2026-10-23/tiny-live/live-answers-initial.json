@@ -1,0 +1,78 @@
+{
+  "date": "2026-10-23",
+  "observedAt": "2026-10-23T13:17:10.339214+00:00",
+  "target": "ixnfphgjyelhckjwjkdv",
+  "scope": "Workflow text only; no speech; actual authenticated local gateway and models, existing authorized test account, no email or business writes",
+  "checks": [
+    {
+      "operation": "status",
+      "status": 200,
+      "seconds": 3.672
+    },
+    {
+      "operation": "task-funding",
+      "status": 200,
+      "seconds": 9.156,
+      "grounded": true,
+      "model": "lfm2.5:350m",
+      "sources": [
+        "guide:budget:2"
+      ],
+      "knowledgeVersion": "2026-10-23",
+      "answer": "Authorized task funding is already reserved. Petty-cash requests or releases against it do not reserve the annual amount again. Funding changes remain in Office Budget to keep requests, receipts and audit history reconciled."
+    },
+    {
+      "operation": "planning-is-not-funding",
+      "status": 200,
+      "seconds": 3.125,
+      "grounded": true,
+      "model": "lfm2.5:350m",
+      "sources": [
+        "guide:budget:3"
+      ],
+      "knowledgeVersion": "2026-10-23",
+      "answer": "A PDF or draft amount, including a number labelled from plan, is not funding authorization. Check the approved allocation and ledger; typing a planning estimate alone does not charge Office Budget."
+    },
+    {
+      "operation": "live-pause",
+      "status": 200,
+      "seconds": 2.797,
+      "grounded": true,
+      "model": "lfm2.5:350m",
+      "sources": [
+        "guide:live_voice:1"
+      ],
+      "knowledgeVersion": "2026-10-23",
+      "answer": "Pause pauses microphone input only; an accepted question, synthesis and playback continue. Resume re-enables listening after the reply. Interrupt or Stop reply cancels the reply; End returns to chat and closes the microphone."
+    },
+    {
+      "operation": "independent-review",
+      "status": 200,
+      "seconds": 3.187,
+      "grounded": true,
+      "model": "lfm2.5:350m",
+      "sources": [
+        "guide:independent_review:0"
+      ],
+      "knowledgeVersion": "2026-10-23",
+      "answer": "Accounting involvement as requester, recipient or relevant task lead can require the named independent leadership review shown for the current package."
+    },
+    {
+      "operation": "rejected-request",
+      "status": 200,
+      "seconds": 2.672,
+      "grounded": true,
+      "model": "lfm2.5:350m",
+      "sources": [
+        "guide:cash_rejection:0"
+      ],
+      "knowledgeVersion": "2026-10-23",
+      "answer": "If cash is rejected or returned, open the recorded feedback, correct the purpose, amount or supporting information, then use the available revision or resubmission action."
+    },
+    {
+      "operation": "off-topic",
+      "status": 200,
+      "seconds": 1.922
+    }
+  ]
+}

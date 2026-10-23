@@ -1,0 +1,21 @@
+2026-10-22 12:48:13,789  INFO      Supabase URL: https://ixnfphgjyelhckjwjkdv.supabase.co
+2026-10-22 12:48:15,119  INFO      HTTP Request: POST http://test/controlpanelEflow/api/jobs "HTTP/1.1 202 Accepted"
+2026-10-22 12:48:15,439  INFO      HTTP Request: GET http://test/controlpanelEflow/api/health "HTTP/1.1 200 OK"
+2026-10-22 12:48:15,665  INFO      HTTP Request: POST http://test/controlpanelEflow/api/jobs "HTTP/1.1 429 Too Many Requests"
+2026-10-22 12:48:15,809  INFO      HTTP Request: DELETE http://test/controlpanelEflow/api/jobs/c7e54f14-ada5-4cd3-8f9e-1d9511f8c71e "HTTP/1.1 200 OK"
+2026-10-22 12:48:20,768  INFO      HTTP Request: POST http://test/controlpanelEflow/api/chat "HTTP/1.1 200 OK"
+2026-10-22 12:48:21,197  INFO      HTTP Request: POST http://test/controlpanelEflow/api/jobs "HTTP/1.1 400 Bad Request"
+2026-10-22 12:48:21,371  INFO      HTTP Request: POST http://test/controlpanelEflow/api/chat "HTTP/1.1 400 Bad Request"
+2026-10-22 12:48:21,569  INFO      HTTP Request: POST http://test/controlpanelEflow/api/chat "HTTP/1.1 400 Bad Request"
+2026-10-22 12:48:21,732  INFO      HTTP Request: POST http://test/controlpanelEflow/api/chat "HTTP/1.1 400 Bad Request"
+2026-10-22 12:48:21,884  INFO      HTTP Request: POST http://test/controlpanelEflow/api/chat "HTTP/1.1 400 Bad Request"
+2026-10-22 12:48:22,268  INFO      HTTP Request: POST http://test/controlpanelEflow/api/jobs "HTTP/1.1 202 Accepted"
+2026-10-22 12:48:22,340  INFO      HTTP Request: DELETE http://test/controlpanelEflow/api/jobs/c8690195-b378-487b-aa31-81a00923aef8 "HTTP/1.1 404 Not Found"
+2026-10-22 12:48:22,387  INFO      HTTP Request: PUT http://test/controlpanelEflow/api/authkey "HTTP/1.1 401 Unauthorized"
+2026-10-22 12:48:22,673  INFO      HTTP Request: GET http://test/controlpanelEflow/api/operations "HTTP/1.1 401 Unauthorized"
+2026-10-22 12:48:23,135  INFO      HTTP Request: GET http://test/controlpanelEflow/api/operations "HTTP/1.1 200 OK"
+2026-10-22 12:48:31,308  INFO      HTTP Request: POST http://test/controlpanelEflow/api/chat "HTTP/1.1 200 OK"
+----------------------------------------------------------------------
+Ran 5 tests in 17.052s
+
+OK

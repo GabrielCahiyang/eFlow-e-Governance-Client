@@ -1,0 +1,57 @@
+
+Running 6 tests using 1 worker
+
+(node:3252) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3252) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [chromium] › tests\e2e\help-assistant.spec.ts:4:3 › Help conversation at 1440x1000 light keeps sources and controls accessible (13.7s)
+  ok 2 [chromium] › tests\e2e\help-assistant.spec.ts:4:3 › Help conversation at 1280x800 light keeps sources and controls accessible (12.5s)
+  ok 3 [chromium] › tests\e2e\help-assistant.spec.ts:4:3 › Help conversation at 960x540 light keeps sources and controls accessible (12.2s)
+  ok 4 [chromium] › tests\e2e\help-assistant.spec.ts:4:3 › Help conversation at 1440x1000 dark keeps sources and controls accessible (13.0s)
+  ok 5 [chromium] › tests\e2e\help-assistant.spec.ts:153:1 › Dictation fills an editable draft; eFlow Live sends spoken turns and releases the mic on End (13.1s)
+(node:35192) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35192) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  6 [chromium] › tests\e2e\help-microphone-native.spec.ts:11:1 › the real AudioWorklet delivers frames and updates the draft before recording stops (33.2s)
+
+
+  1) [chromium] › tests\e2e\help-microphone-native.spec.ts:11:1 › the real AudioWorklet delivers frames and updates the draft before recording stops 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveValue[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByRole('dialog').getByRole('textbox', { name: 'Ask eFlow AI' })
+    Expected string: [32m"Open the project"[39m
+    Received string: [31m""[39m
+    Timeout: 20000ms
+
+    Call log:
+    [2m  - Expect "toHaveValue" with timeout 20000ms[22m
+    [2m  - waiting for getByRole('dialog').getByRole('textbox', { name: 'Ask eFlow AI' })[22m
+    [2m    23 × locator resolved to <input value="" maxlength="2000" id="help-question" placeholder="Ask about eFlow or this project…"/>[22m
+    [2m       - unexpected value ""[22m
+
+
+      23 |   const dialog = page.getByRole('dialog'), draft = dialog.getByRole('textbox', { name: 'Ask eFlow AI' });
+      24 |   await dialog.getByRole('button', { name: 'Dictate question' }).click();
+    > 25 |   await expect(draft).toHaveValue('Open the project', { timeout: 20000 });
+         |                       ^
+      26 |   await expect(dialog.getByRole('button', { name: 'Finish dictation' })).toBeVisible();
+      27 |   await expect(dialog.getByText('Hearing audio', { exact: true })).toBeVisible();
+      28 |   await expect(dialog.getByRole('button', { name: 'Send question' })).toBeDisabled();
+        at C:\Users\gabri\OneDrive\Desktop\EflowWeb\tests\e2e\help-microphone-native.spec.ts:25:23
+
+    Error Context: .codex-tmp\help-live-final-browser\help-microphone-native-the-b8d7f-raft-before-recording-stops-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    .codex-tmp\help-live-final-browser\help-microphone-native-the-b8d7f-raft-before-recording-stops-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace .codex-tmp\help-live-final-browser\help-microphone-native-the-b8d7f-raft-before-recording-stops-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › tests\e2e\help-microphone-native.spec.ts:11:1 › the real AudioWorklet delivers frames and updates the draft before recording stops 
+  5 passed (1.8m)

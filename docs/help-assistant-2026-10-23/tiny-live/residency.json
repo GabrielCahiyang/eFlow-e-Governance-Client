@@ -1,0 +1,103 @@
+{
+  "loaded_model": "lfm2.5:350m",
+  "recent_runs": [
+    {
+      "model": "lfm2.5:350m",
+      "completed_at": 1792762766.1450608,
+      "tokens": 8,
+      "first_token_ms": null,
+      "pipeline_status": null,
+      "model_load": 1694.9,
+      "inference": 849.6,
+      "pipeline": 829.2,
+      "total": 3373.8,
+      "generation_calls": 1
+    },
+    {
+      "model": "lfm2.5:350m",
+      "completed_at": 1792762769.0107672,
+      "tokens": 8,
+      "first_token_ms": null,
+      "pipeline_status": null,
+      "model_load": 0.0,
+      "inference": 722.5,
+      "pipeline": 1.7,
+      "total": 724.2,
+      "generation_calls": 1
+    },
+    {
+      "model": "lfm2.5:350m",
+      "completed_at": 1792762771.6483338,
+      "tokens": 8,
+      "first_token_ms": null,
+      "pipeline_status": null,
+      "model_load": 0.0,
+      "inference": 672.7,
+      "pipeline": 2.1,
+      "total": 674.9,
+      "generation_calls": 1
+    },
+    {
+      "model": "lfm2.5:350m",
+      "completed_at": 1792762774.3224711,
+      "tokens": 8,
+      "first_token_ms": null,
+      "pipeline_status": null,
+      "model_load": 0.0,
+      "inference": 671.6,
+      "pipeline": 1.8,
+      "total": 673.4,
+      "generation_calls": 1
+    },
+    {
+      "model": "lfm2.5:350m",
+      "completed_at": 1792762777.094872,
+      "tokens": 8,
+      "first_token_ms": null,
+      "pipeline_status": null,
+      "model_load": 0.0,
+      "inference": 763.8,
+      "pipeline": 2.0,
+      "total": 765.8,
+      "generation_calls": 1
+    },
+    {
+      "model": "lfm2.5:350m",
+      "completed_at": 1792762779.8047194,
+      "tokens": 8,
+      "first_token_ms": null,
+      "pipeline_status": null,
+      "model_load": 0.0,
+      "inference": 639.9,
+      "pipeline": 1.9,
+      "total": 641.9,
+      "generation_calls": 1
+    },
+    {
+      "model": "lfm2.5:350m",
+      "completed_at": 1792762798.6616433,
+      "tokens": 8,
+      "first_token_ms": null,
+      "pipeline_status": null,
+      "model_load": 0.0,
+      "inference": 811.3,
+      "pipeline": 1.9,
+      "total": 813.2,
+      "generation_calls": 1
+    },
+    {
+      "model": "lfm2.5:350m",
+      "completed_at": 1792762839.1018047,
+      "tokens": 8,
+      "first_token_ms": null,
+      "pipeline_status": null,
+      "model_load": 0.0,
+      "inference": 894.0,
+      "pipeline": 2.9,
+      "total": 897.0,
+      "generation_calls": 1
+    }
+  ],
+  "queue_depth": 0,
+  "processing": 0
+}

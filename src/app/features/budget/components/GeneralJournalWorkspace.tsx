@@ -18,10 +18,11 @@ import {
 import { useAuth } from "../../../contexts/AuthContext";
 import { useGeneralJournal } from "../hooks/useGeneralJournal";
 import { getJournalTotals } from "../selectors/journalSelectors";
-import type { GeneralJournalEntry } from "../types";
 import { peso } from "./budgetUi";
 import { JournalAdjustmentDialog } from "./JournalAdjustmentDialog";
-import { JournalEntryInspector } from "./JournalEntryInspector";
+import { JournalEntryPage } from './JournalEntryPage';
+import { useJournalEntryNavigation } from '../hooks/useJournalEntryNavigation';
+import { formatManilaDate } from '../../../shared/calendarDisplay';
 import { Badge } from "../../../components/ui/badge";
 import "../accountingWorkspace.css";
 interface JournalWorkspaceProps {
@@ -31,6 +32,7 @@ interface JournalWorkspaceProps {
   approvedBudget?: number;
   settledExpenses?: number;
   returnedCash?: number;
+  availableBudget?: number;
   journal?: ReturnType<typeof useGeneralJournal>;
 }
 export function GeneralJournalWorkspace(props: JournalWorkspaceProps) {
@@ -52,8 +54,7 @@ function GeneralJournalView({
   fiscalYear = new Date().getFullYear(),
   fiscalBudgetId,
   approvedBudget,
-  settledExpenses,
-  returnedCash,
+  availableBudget,
   journal,
 }: JournalWorkspaceProps & { journal: ReturnType<typeof useGeneralJournal> }) {
   const { userProfile, can } = useAuth();
@@ -61,13 +62,15 @@ function GeneralJournalView({
   const [classification, setClassification] = useState("all");
   const [startDate, setStartDate] = useState(`${fiscalYear}-01-01`);
   const [endDate, setEndDate] = useState(`${fiscalYear}-12-31`);
-  const [inspected, setInspected] = useState<GeneralJournalEntry | null>(null);
+  const scope = `${userProfile?.id}:${orgId}:${fiscalYear}`;
+  const navigation = useJournalEntryNavigation(scope);
+  const inspected = journal.entries.find(entry => entry.id === navigation.selectedId && entry.orgId === orgId);
   const [receipt, setReceipt] = useState("");
   useEffect(() => {
     setStartDate(`${fiscalYear}-01-01`);
     setEndDate(`${fiscalYear}-12-31`);
-    setInspected(null);
-  }, [fiscalYear]);
+    setQuery(''); setClassification('all');
+  }, [scope]);
   const [adjusting, setAdjusting] = useState(false);
   const accountByCode = useMemo(
     () => new Map(journal.accounts.map((account) => [account.code, account])),
@@ -107,13 +110,12 @@ function GeneralJournalView({
     () => getJournalTotals(filteredEntries),
     [filteredEntries],
   );
-  const available =
-    approvedBudget == null
-      ? undefined
-      : approvedBudget - (settledExpenses || 0) + (returnedCash || 0);
+  const available = availableBudget;
 
   return (
     <div className="space-y-4">
+      {navigation.selectedId && (inspected && !journal.error ? <JournalEntryPage entry={inspected} onBack={navigation.back} /> : <section className="space-y-3" role="status"><p>{journal.loading ? 'Loading journal entry…' : 'This entry is unavailable in the current Office and fiscal year.'}</p><Button onClick={navigation.back}>Back to journal</Button></section>)}
+      <div hidden={Boolean(navigation.selectedId)} className="space-y-4">
       <div className="grid gap-3 md:grid-cols-3">
         <JournalMetric
           icon={<Scale size={16} />}
@@ -146,7 +148,7 @@ function GeneralJournalView({
           note={
             approvedBudget == null
               ? `${fiscalYear} journal view`
-              : "Authorized − expense + refund"
+              : "Available after holds and commitments; cash returns do not release commitments"
           }
           good={available == null || available >= 0}
         />
@@ -197,7 +199,7 @@ function GeneralJournalView({
               aria-label="Account classification"
               value={classification}
               onChange={(event) => setClassification(event.target.value)}
-              className="h-9 rounded-lg border border-neutral-200 bg-white px-2 text-[12px]"
+              className="h-9 rounded-lg border border-neutral-200 bg-white px-2 text-[14px]"
             >
               <option value="all">All account classes</option>
               <option value="asset">Assets</option>
@@ -221,7 +223,7 @@ function GeneralJournalView({
           </div>
         </header>
         {journal.loading ? (
-          <div className="flex items-center justify-center gap-2 p-12 text-[12px] text-neutral-500">
+          <div className="flex items-center justify-center gap-2 p-12 text-[14px] text-neutral-500">
             <Loader size="small" /> Loading balanced entries…
           </div>
         ) : filteredEntries.length ? (
@@ -232,7 +234,7 @@ function GeneralJournalView({
             tabIndex={0}
           >
             <table className="w-full min-w-[900px] border-collapse text-left">
-              <thead className="bg-neutral-50 text-[12px] uppercase tracking-wider text-neutral-500">
+              <thead className="bg-neutral-50 text-[14px] uppercase tracking-wider text-neutral-500">
                 <tr>
                   <th className="px-4 py-3">Date / JEV</th>
                   <th className="px-4 py-3">Reference</th>
@@ -254,34 +256,26 @@ function GeneralJournalView({
                         exit={{ opacity: 0 }}
                         className="border-t border-neutral-100 align-top"
                       >
-                        <td className="px-4 py-3 text-[12px] text-neutral-600">
+                        <td className="px-4 py-3 text-[14px] text-neutral-600">
                           {index === 0 && (
                             <>
                               <div>
-                                {new Date(
-                                  `${entry.entryDate}T00:00:00`,
-                                ).toLocaleDateString()}
+                                <time dateTime={entry.entryDate}>{formatManilaDate(entry.entryDate)}</time>
                               </div>
-                              <div className="mt-1 font-mono text-[12px] text-neutral-400">
+                              <div className="mt-1 font-mono text-[14px] text-neutral-600">
                                 JEV-{fiscalYear}-
                                 {String(entry.entryNumber).padStart(6, "0")}
                               </div>
                             </>
                           )}
                         </td>
-                        <td className="px-4 py-3 font-mono text-[12px] text-neutral-700">
+                        <td className="px-4 py-3 font-mono text-[14px] text-neutral-700">
                           {index === 0 ? (
                             <button
                               type="button"
                               className="text-primary underline"
                               aria-label={`Inspect journal ${entry.referenceNumber}`}
-                              onClick={() =>
-                                setInspected(
-                                  journal.entries.find(
-                                    (item) => item.id === entry.id,
-                                  ) || entry,
-                                )
-                              }
+                              onClick={() => navigation.open(entry.id)}
                             >
                               {entry.referenceNumber}
                             </button>
@@ -290,23 +284,23 @@ function GeneralJournalView({
                           )}
                         </td>
                         <td className="px-4 py-3">
-                          <div className="text-[12px] font-medium text-neutral-800">
+                          <div className="text-[14px] font-medium text-neutral-800">
                             {line.accountTitle}
                           </div>
-                          <div className="mt-0.5 font-mono text-[12px] text-neutral-400">
+                          <div className="mt-0.5 font-mono text-[14px] text-neutral-600">
                             {line.accountCode}
                           </div>
                         </td>
-                        <td className="px-4 py-3 text-right text-[12px] tabular-nums">
+                        <td className="px-4 py-3 whitespace-nowrap text-right text-[14px] tabular-nums">
                           {line.debit ? peso.format(line.debit) : "—"}
                         </td>
-                        <td className="px-4 py-3 text-right text-[12px] tabular-nums">
+                        <td className="px-4 py-3 whitespace-nowrap text-right text-[14px] tabular-nums">
                           {line.credit ? peso.format(line.credit) : "—"}
                         </td>
-                        <td className="max-w-[260px] px-4 py-3 text-[12px] text-neutral-500">
+                        <td className="max-w-[260px] px-4 py-3 text-[14px] text-neutral-500">
                           {index === 0 && (
                             <>
-                              <div>{entry.memo}</div>
+                              <div className="line-clamp-2 break-words">{entry.memo}</div>
                               <div className="mt-1">
                                 {entry.postedByName || "Automated posting"}
                               </div>
@@ -320,13 +314,13 @@ function GeneralJournalView({
               </tbody>
               <tfoot>
                 <tr className="border-t-2 border-neutral-300 bg-neutral-50 font-semibold">
-                  <td colSpan={3} className="px-4 py-3 text-[12px]">
+                  <td colSpan={3} className="px-4 py-3 text-[14px]">
                     Filtered trial balance
                   </td>
-                  <td className="px-4 py-3 text-right text-[12px] tabular-nums">
+                  <td className="px-4 py-3 whitespace-nowrap text-right text-[14px] tabular-nums">
                     {peso.format(totals.debit)}
                   </td>
-                  <td className="px-4 py-3 text-right text-[12px] tabular-nums">
+                  <td className="px-4 py-3 whitespace-nowrap text-right text-[14px] tabular-nums">
                     {peso.format(totals.credit)}
                   </td>
                   <td className="px-4 py-3">
@@ -345,12 +339,7 @@ function GeneralJournalView({
           {receipt}
         </p>
       )}
-      {inspected && (
-        <JournalEntryInspector
-          entry={inspected}
-          onClose={() => setInspected(null)}
-        />
-      )}
+      </div>
       {adjusting && fiscalBudgetId && (
         <JournalAdjustmentDialog
           orgId={orgId}
@@ -389,7 +378,7 @@ function JournalMetric({
       layout
       className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm"
     >
-      <div className="flex items-center gap-2 text-[12px] uppercase tracking-wider text-neutral-500">
+      <div className="flex items-center gap-2 text-[14px] uppercase tracking-wider text-neutral-500">
         {icon}
         {label}
       </div>
@@ -399,7 +388,7 @@ function JournalMetric({
         {value}
       </div>
       <div
-        className={`mt-1 text-right text-[12px] ${good ? "text-emerald-700" : "text-rose-600"}`}
+        className={`mt-1 text-right text-[14px] ${good ? "text-emerald-700" : "text-rose-600"}`}
       >
         {note}
       </div>
@@ -429,7 +418,7 @@ function JournalDateInput({
         value={value}
         onClick={openDatePicker}
         onChange={(event) => onChange(event.target.value)}
-        className="h-8 w-full min-w-0 cursor-pointer rounded-lg border border-neutral-200 bg-white pl-8 pr-2 text-[12px]"
+        className="h-8 w-full min-w-0 cursor-pointer rounded-lg border border-neutral-200 bg-white pl-8 pr-2 text-[14px]"
       />
     </label>
   );

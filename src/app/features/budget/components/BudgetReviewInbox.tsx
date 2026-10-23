@@ -11,6 +11,8 @@ import { getCurrentFiscalYear } from "../constants";
 import type { NotificationNavigationIntent } from "../../notifications";
 import type { CashReviewFocus } from "../types";
 import { isLiquidationLate } from "../selectors/cashWorkflowRules";
+import { IndependentReviewQueue } from './IndependentReviewQueue';
+import { getPhilippineCalendarDate } from '../../../shared/calendarDates';
 
 export function BudgetReviewInbox({
   actions,
@@ -41,7 +43,7 @@ export function BudgetReviewInbox({
       const lateAuthorization = isDepartmentApprover && isLiquidationLate(request,item) && !item.departmentDecidedAt;
       return ((lateAuthorization || canSettle) && item.status === "pending_department_settlement" && request?.cashRecipientId !== currentUserId && request?.requesterId !== currentUserId && request?.taskLeaderId !== currentUserId) || (item.status === "pending_leader_review" && request?.taskLeaderId === currentUserId && request?.cashRecipientId !== currentUserId);
     }).length,
-    releases: budget.releases.filter((item) => canRelease && item.status === "scheduled" && item.scheduledDate <= new Date().toISOString().slice(0, 10)).length,
+    releases: budget.releases.filter((item) => canRelease && item.status === "scheduled" && item.scheduledDate <= getPhilippineCalendarDate()).length,
   }), [budget.allocations, budget.liquidations, budget.releases, budget.requests, currentUserId, isDepartmentApprover,canRelease,canSettle]);
   const total = counts.allocations + counts.requests + counts.liquidations + counts.releases;
 
@@ -82,6 +84,7 @@ export function BudgetReviewInbox({
             <BudgetCard label="Cash releases" value={String(counts.releases)} note="Scheduled tranches due" icon={<ReceiptText size={15} />} tone={counts.releases ? "warn" : "good"} />
           </div>
           <BudgetApprovalQueue data={budget} onChanged={budget.refresh} focusRecordId={cashReviewFocus?.recordId || focus?.financialRecordId} />
+          <IndependentReviewQueue data={budget} onChanged={budget.refresh} />
         </div>
       )}
     </div>

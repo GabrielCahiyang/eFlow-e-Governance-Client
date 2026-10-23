@@ -1,0 +1,8 @@
+{
+  "checked_at": "2026-10-22T13:27:37.5954555+08:00",
+  "private_api_port": 8321,
+  "owning_pid": 10212,
+  "launcher_pid": 18880,
+  "health": "ok",
+  "note": "User normal launcher owns this API after removal of the conflicting test-owned process tree. No second private test API was started."
+}

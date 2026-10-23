@@ -1,0 +1,207 @@
+
+> @figma/my-make-file@0.0.1 build
+> vite build --configLoader runner
+
+vite v6.3.5 building for production...
+transforming...
+✓ 6348 modules transformed.
+Export "fetchNotificationSubitem" of module "src/app/features/notifications/services/notificationSubitemRead.ts" was reexported through module "src/app/features/notifications/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/components/workflow/SubtasksWorkspace.tsx" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "useWorkTree" of module "src/app/features/nested-work/hooks/useWorkTree.ts" was reexported through module "src/app/features/nested-work/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/features/subtasks/components/SubtaskWorkDrawer.tsx" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "STATUS_COLORS" of module "src/app/features/project-table/selectors.ts" was reexported through module "src/app/features/project-table/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/features/project-views/components/ProjectGanttView.tsx" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "STATUS_COLORS" of module "src/app/features/project-table/selectors.ts" was reexported through module "src/app/features/project-table/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/features/project-views/components/ProjectInsightsView.tsx" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "fetchWorkTree" of module "src/app/features/nested-work/services/workTreeService.ts" was reexported through module "src/app/features/nested-work/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/features/staffing/hooks/useStaffingReview.ts" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "canEditProjectTask" of module "src/app/features/project-table/selectors.ts" was reexported through module "src/app/features/project-table/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/features/project-views/hooks/useProjectViewActions.ts" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "patchWorkspaceTask" of module "src/app/features/project-table/services/workspaceService.ts" was reexported through module "src/app/features/project-table/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/features/project-views/hooks/useProjectViewActions.ts" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "fetchPersonalWorkRoots" of module "src/app/features/nested-work/services/workTreeService.ts" was reexported through module "src/app/features/nested-work/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/features/workspaces/components/PersonalTaskList.tsx" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "WorkTree" of module "src/app/features/nested-work/components/WorkTree.tsx" was reexported through module "src/app/features/nested-work/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/features/workspaces/components/PersonalTaskList.tsx" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "fetchNotificationSubitem" of module "src/app/features/notifications/services/notificationSubitemRead.ts" was reexported through module "src/app/features/notifications/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/features/action-center/components/ActionCenter.tsx" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "useWorkTree" of module "src/app/features/nested-work/hooks/useWorkTree.ts" was reexported through module "src/app/features/nested-work/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/features/task-inspector/components/TaskInspector.tsx" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "fetchWorkTree" of module "src/app/features/nested-work/services/workTreeService.ts" was reexported through module "src/app/features/nested-work/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/features/staffing/services/remainingOfficeWork.ts" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "ProjectInvitations" of module "src/app/features/project-invitations/components/ProjectInvitations.tsx" was reexported through module "src/app/features/project-invitations/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/features/project-members/components/ProjectMembers.tsx" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "fetchWorkTree" of module "src/app/features/nested-work/services/workTreeService.ts" was reexported through module "src/app/features/nested-work/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/features/personal-work/services/personalWorkSource.ts" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "WorkTreeUnavailable" of module "src/app/features/nested-work/services/workTreeService.ts" was reexported through module "src/app/features/nested-work/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/features/personal-work/services/personalWorkSource.ts" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "fetchOfficeWorkRoots" of module "src/app/features/nested-work/services/workTreeService.ts" was reexported through module "src/app/features/nested-work/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/features/personal-work/services/workFeedService.ts" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "WorkTreeUnavailable" of module "src/app/features/nested-work/services/workTreeService.ts" was reexported through module "src/app/features/nested-work/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/features/personal-work/services/workFeedService.ts" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "fetchWorkTree" of module "src/app/features/nested-work/services/workTreeService.ts" was reexported through module "src/app/features/nested-work/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/features/personal-work/services/workFeedService.ts" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "WorkTree" of module "src/app/features/nested-work/components/WorkTree.tsx" was reexported through module "src/app/features/nested-work/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/features/personal-work/components/WorkInspector.tsx" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "fetchNotificationSubitem" of module "src/app/features/notifications/services/notificationSubitemRead.ts" was reexported through module "src/app/features/notifications/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/features/personal-work/components/LeadingNotificationTarget.tsx" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "calendarDay" of module "src/app/features/project-views/selectors.ts" was reexported through module "src/app/features/project-views/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/features/personal-work/selectors.ts" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "useWorkTree" of module "src/app/features/nested-work/hooks/useWorkTree.ts" was reexported through module "src/app/features/nested-work/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/features/project-table/components/ProjectTaskRow.tsx" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "matchesProjectDateRange" of module "src/app/features/project-views/selectors.ts" was reexported through module "src/app/features/project-views/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/features/project-table/components/ProjectTableWorkspace.tsx" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "ProjectMembers" of module "src/app/features/project-members/components/ProjectMembers.tsx" was reexported through module "src/app/features/project-members/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/features/workspaces/components/PersonalWorkspace.tsx" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "useProjectViewActions" of module "src/app/features/project-views/hooks/useProjectViewActions.ts" was reexported through module "src/app/features/project-views/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/features/projects/components/project-command/ProjectWorkTab.tsx" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "useProjectViewActions" of module "src/app/features/project-views/hooks/useProjectViewActions.ts" was reexported through module "src/app/features/project-views/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/features/projects/components/project-command/ProjectCalendarView.tsx" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "STATUS_COLORS" of module "src/app/features/project-table/selectors.ts" was reexported through module "src/app/features/project-table/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/features/projects/components/project-command/ProjectCalendarView.tsx" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "calendarDay" of module "src/app/features/project-views/selectors.ts" was reexported through module "src/app/features/project-views/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/features/projects/components/project-command/ProjectCalendarView.tsx" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "shiftedTaskDates" of module "src/app/features/project-views/selectors.ts" was reexported through module "src/app/features/project-views/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/features/projects/components/project-command/ProjectCalendarView.tsx" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "dayString" of module "src/app/features/project-views/selectors.ts" was reexported through module "src/app/features/project-views/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/features/projects/components/project-command/ProjectCalendarView.tsx" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "filterProjectViewTasks" of module "src/app/features/project-views/selectors.ts" was reexported through module "src/app/features/project-views/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/features/projects/components/project-command/ProjectCommandWorkspace.tsx" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+Export "ProjectMembers" of module "src/app/features/project-members/components/ProjectMembers.tsx" was reexported through module "src/app/features/project-members/index.ts" while both modules are dependencies of each other and will end up in different chunks by current Rollup settings. This scenario is not well supported at the moment as it will produce a circular dependency between chunks and will likely lead to broken execution order.
+Either change the import in "src/app/features/projects/components/project-command/ProjectCommandWorkspace.tsx" to point directly to the exporting module or reconfigure "output.manualChunks" to ensure these modules end up in the same chunk.
+rendering chunks...
+[plugin vite:reporter] 
+(!) C:/Users/gabri/OneDrive/Desktop/EflowWeb/src/app/services/notificationService.ts is dynamically imported by C:/Users/gabri/OneDrive/Desktop/EflowWeb/src/app/services/chatService.ts but also statically imported by C:/Users/gabri/OneDrive/Desktop/EflowWeb/src/app/components/Member/EmployeeTaskWorkspace.tsx, C:/Users/gabri/OneDrive/Desktop/EflowWeb/src/app/components/ui/NotificationBell.tsx, C:/Users/gabri/OneDrive/Desktop/EflowWeb/src/app/features/action-center/components/UpdatesFeed.tsx, C:/Users/gabri/OneDrive/Desktop/EflowWeb/src/app/features/tasks/services/taskMutationService.ts, C:/Users/gabri/OneDrive/Desktop/EflowWeb/src/app/features/tasks/services/taskTeamService.ts, C:/Users/gabri/OneDrive/Desktop/EflowWeb/src/app/features/team-management/services/teamSupervisionActions.ts, C:/Users/gabri/OneDrive/Desktop/EflowWeb/src/app/services/announcementService.ts, C:/Users/gabri/OneDrive/Desktop/EflowWeb/src/app/services/subtaskService.ts, C:/Users/gabri/OneDrive/Desktop/EflowWeb/src/app/services/taskDiscussionService.ts, dynamic import will not move module into another chunk.
+
+[plugin vite:reporter] 
+(!) C:/Users/gabri/OneDrive/Desktop/EflowWeb/src/app/features/tasks/components/board/MondayBoard.tsx is dynamically imported by C:/Users/gabri/OneDrive/Desktop/EflowWeb/src/app/features/tasks/index.ts but also statically imported by C:/Users/gabri/OneDrive/Desktop/EflowWeb/src/app/features/tasks/components/HeadTaskBoardView.tsx, dynamic import will not move module into another chunk.
+
+computing gzip size...
+dist/eflow-view-modules.json                                  1.53 kB │ gzip:   0.58 kB
+dist/index.html                                               6.11 kB │ gzip:   2.73 kB
+dist/assets/figtree-latin-ext-wght-normal-BDFhNWBr.woff2     10.23 kB
+dist/assets/figtree-latin-ext-wght-italic-iruAYCqh.woff2     10.54 kB
+dist/assets/figtree-latin-wght-normal-B3oYxpP2.woff2         20.02 kB
+dist/assets/figtree-latin-wght-italic-BTI1zcOO.woff2         21.15 kB
+dist/assets/pdf.worker.min-iDqQPrd3.mjs                   1,232.30 kB
+dist/assets/index-BaiVCA14.css                                1.01 kB │ gzip:   0.47 kB
+dist/assets/departmentIdentityService-Bn5Bhcon.css            1.42 kB │ gzip:   0.41 kB
+dist/assets/projectAccess-CifBxpVh.css                        1.90 kB │ gzip:   0.69 kB
+dist/assets/ForReviewInbox-D9ngJ_E5.css                       2.23 kB │ gzip:   0.58 kB
+dist/assets/permissionPresentation-CPktyiPY.css               2.45 kB │ gzip:   0.66 kB
+dist/assets/activation-BkuZuM7b.css                           2.98 kB │ gzip:   0.91 kB
+dist/assets/StaffingDialog-BNh9t39_.css                       3.31 kB │ gzip:   1.06 kB
+dist/assets/index-C-i9nYz3.css                                3.93 kB │ gzip:   1.02 kB
+dist/assets/reviewSections-c176XZTn.css                       5.20 kB │ gzip:   1.41 kB
+dist/assets/WorkspaceHelpMenu-u-1Pi7rs.css                    6.03 kB │ gzip:   1.50 kB
+dist/assets/ProjectTableWorkspace-BMdwCcga.css                8.85 kB │ gzip:   2.12 kB
+dist/assets/index-lSiuPkWf.css                               10.24 kB │ gzip:   2.47 kB
+dist/assets/membershipApprovalQueue-CZS6oMF9.css             13.35 kB │ gzip:   3.13 kB
+dist/assets/index-BmBpmSxC.css                               16.32 kB │ gzip:   3.44 kB
+dist/assets/EflowAppShell-a9XGQoiW.css                       16.58 kB │ gzip:   3.32 kB
+dist/assets/WorkflowPreviewPanel-CLvz8Pv1.css                18.98 kB │ gzip:   4.72 kB
+dist/assets/usePresentationBranding-BpiUX6Uv.css             26.36 kB │ gzip:   4.67 kB
+dist/assets/index-De_dy6AC.css                              198.58 kB │ gzip:  33.56 kB
+dist/assets/index-D_ZgA8sS.css                              314.99 kB │ gzip:  49.49 kB
+dist/assets/useMyTasks-B-TJXDBH.js                            0.16 kB │ gzip:   0.14 kB
+dist/assets/message-circle-BH_yuC16.js                        0.32 kB │ gzip:   0.27 kB
+dist/assets/reviewSections-BSzhF6y2.js                        0.33 kB │ gzip:   0.26 kB
+dist/assets/message-square-BEOOuxl0.js                        0.35 kB │ gzip:   0.27 kB
+dist/assets/info-Ck07wJB3.js                                  0.38 kB │ gzip:   0.29 kB
+dist/assets/mail-BdRqiOMi.js                                  0.39 kB │ gzip:   0.31 kB
+dist/assets/table-2-dq_-d0cy.js                               0.39 kB │ gzip:   0.29 kB
+dist/assets/shield-tyNrBu4Z.js                                0.45 kB │ gzip:   0.33 kB
+dist/assets/wallet-dcYFgeGP.js                                0.46 kB │ gzip:   0.31 kB
+dist/assets/file-up-DKpPBYtY.js                               0.47 kB │ gzip:   0.32 kB
+dist/assets/user-plus-CLnw-xs7.js                             0.48 kB │ gzip:   0.34 kB
+dist/assets/badge-check-BEtyVPjb.js                           0.49 kB │ gzip:   0.32 kB
+dist/assets/useTaskInspector-D6nEqIrr.js                      0.50 kB │ gzip:   0.32 kB
+dist/assets/selectors-CQJCzf87.js                             0.51 kB │ gzip:   0.32 kB
+dist/assets/selectors-DZbx5vtN.js                             0.52 kB │ gzip:   0.35 kB
+dist/assets/phase2Api-CVWZa8Vl.js                             0.53 kB │ gzip:   0.39 kB
+dist/assets/key-round-BVxlzNTS.js                             0.53 kB │ gzip:   0.36 kB
+dist/assets/index-DQI0JMvU.js                                 0.54 kB │ gzip:   0.34 kB
+dist/assets/departmentIdentityService-Bnhw1-zW.js             0.55 kB │ gzip:   0.38 kB
+dist/assets/map-DRAS_q3-.js                                   0.60 kB │ gzip:   0.38 kB
+dist/assets/OfficeReadFeedback-CglZhr80.js                    0.62 kB │ gzip:   0.42 kB
+dist/assets/palette-DLZ16tno.js                               0.79 kB │ gzip:   0.45 kB
+dist/assets/notificationSubitemRead-DsDdFYc9.js               0.88 kB │ gzip:   0.52 kB
+dist/assets/circle-alert-DyAN5Inp.js                          0.93 kB │ gzip:   0.38 kB
+dist/assets/mic-CVjlrCKx.js                                   0.99 kB │ gzip:   0.45 kB
+dist/assets/workCalendar-B-DtQVRL.js                          0.99 kB │ gzip:   0.57 kB
+dist/assets/SubtaskWorkDrawer-Bi5KhKFW.js                     1.20 kB │ gzip:   0.60 kB
+dist/assets/lock-Cq1G35u7.js                                  1.30 kB │ gzip:   0.59 kB
+dist/assets/selectors-BL4eOGoe.js                             1.33 kB │ gzip:   0.78 kB
+dist/assets/WorkspaceIllustration-DPsc_5cf.js                 1.46 kB │ gzip:   0.51 kB
+dist/assets/workspaceService-8wgUe-6z.js                      1.62 kB │ gzip:   0.77 kB
+dist/assets/planningDraft-uluWiv7M.js                         1.68 kB │ gzip:   0.83 kB
+dist/assets/index-CIkEQqd7.js                                 1.94 kB │ gzip:   0.94 kB
+dist/assets/ProjectOfficesView-Bkeu8mtN.js                    1.94 kB │ gzip:   0.90 kB
+dist/assets/TaskDatesDialog-D6aLrD5d.js                       2.20 kB │ gzip:   1.10 kB
+dist/assets/dialog-_v55Z4Zb.js                                2.39 kB │ gzip:   0.97 kB
+dist/assets/WorkspaceTabs-BONOtK9u.js                         2.77 kB │ gzip:   1.20 kB
+dist/assets/AssignedIndependentReviews-CI2EDkjs.js            2.83 kB │ gzip:   1.38 kB
+dist/assets/EmployeeTaskHistory-BP43I74x.js                   2.89 kB │ gzip:   1.33 kB
+dist/assets/EmployeeMyProjects-BnJ00vcv.js                    3.01 kB │ gzip:   1.33 kB
+dist/assets/EmployeeDeadlines-CJTi_0ON.js                     3.28 kB │ gzip:   1.57 kB
+dist/assets/EmptyState-BifaXZLA.js                            3.32 kB │ gzip:   1.51 kB
+dist/assets/EmployeeMyTasks-BHBNShOO.js                       3.42 kB │ gzip:   1.52 kB
+dist/assets/TaskOfficeControl-Cfrf_6TG.js                     3.76 kB │ gzip:   1.65 kB
+dist/assets/ActivateAccountPage-DLhCi9gU.js                   3.88 kB │ gzip:   1.63 kB
+dist/assets/useProjectPresentation-BoxPTKhL.js                3.95 kB │ gzip:   1.91 kB
+dist/assets/EmployeeWorkReport-D4_b_ge5.js                    4.25 kB │ gzip:   1.80 kB
+dist/assets/selectors-CjN-3Dh_.js                             4.51 kB │ gzip:   2.00 kB
+dist/assets/ProjectFileLibrary-67owc1-T.js                    5.48 kB │ gzip:   1.98 kB
+dist/assets/WorkspacePopover-BzumMa0x.js                      5.94 kB │ gzip:   2.13 kB
+dist/assets/ProjectInsightsView-D1K_NYaP.js                   5.99 kB │ gzip:   2.03 kB
+dist/assets/index-DCdy3Wi4.js                                 6.20 kB │ gzip:   2.63 kB
+dist/assets/ProjectAccessPanel-DZfDWQ8Q.js                    6.32 kB │ gzip:   2.49 kB
+dist/assets/useInvitationManagement-BQ-3IYWN.js               6.93 kB │ gzip:   3.01 kB
+dist/assets/OfficeMembersEditor-FEyuE8Ft.js                   7.22 kB │ gzip:   2.93 kB
+dist/assets/SignedInApp-MybqpzdU.js                           7.31 kB │ gzip:   3.22 kB
+dist/assets/ProfessionalProfilePanel-GfDcKBPu.js              7.79 kB │ gzip:   3.02 kB
+dist/assets/OnboardingWorkspace-BICdzLbs.js                   7.91 kB │ gzip:   3.01 kB
+dist/assets/RemovalDialog-drbKpaIl.js                         7.92 kB │ gzip:   3.34 kB
+dist/assets/eflowSeedData-C0UTkIU8.js                         8.09 kB │ gzip:   2.58 kB
+dist/assets/collaborationDraftService-CAVF5Xxa.js             8.25 kB │ gzip:   2.85 kB
+dist/assets/ProjectGanttView-DGmHeF5I.js                      8.33 kB │ gzip:   3.24 kB
+dist/assets/StaffingDialog-DZg4IORG.js                        8.48 kB │ gzip:   3.25 kB
+dist/assets/useCollaborationDrafts-C5hLP91q.js                8.76 kB │ gzip:   2.89 kB
+dist/assets/MemberContent-VSUEBUd3.js                         9.77 kB │ gzip:   3.56 kB
+dist/assets/TaskReviewPanel-0JF-D_Ql.js                       9.86 kB │ gzip:   3.54 kB
+dist/assets/projectAccess-g8KQLgCP.js                        10.97 kB │ gzip:   4.16 kB
+dist/assets/SubtasksWorkspace-esazPKu9.js                    11.71 kB │ gzip:   4.47 kB
+dist/assets/index-CTs--0Bz.js                                12.04 kB │ gzip:   4.35 kB
+dist/assets/PersonalTaskList-BPDtc3gE.js                     12.47 kB │ gzip:   4.74 kB
+dist/assets/HeadDashboard-DRXY9N6T.js                        13.09 kB │ gzip:   4.15 kB
+dist/assets/usePresentationBranding-BqJGf7YN.js              15.72 kB │ gzip:   5.67 kB
+dist/assets/OfficeIdentityAccessWorkspace-C86o2WhK.js        22.57 kB │ gzip:   6.96 kB
+dist/assets/CreateWorkDialog-BvCTB_7s.js                     22.78 kB │ gzip:   9.28 kB
+dist/assets/ProfilePage-CHjrfU6R.js                          25.02 kB │ gzip:   7.77 kB
+dist/assets/ProjectActivityTab-1pNx0vnL.js                   26.88 kB │ gzip:   9.41 kB
+dist/assets/button-kwICxPXT.js                               28.21 kB │ gzip:   9.37 kB
+dist/assets/TaskInspector-BPh0Hh8R.js                        28.48 kB │ gzip:   9.40 kB
+dist/assets/index-CDgWTrxn.js                                30.33 kB │ gzip:  10.28 kB
+dist/assets/ForReviewInbox-BQH_y7x7.js                       34.74 kB │ gzip:   9.29 kB
+dist/assets/WorkspaceHelpMenu-Bw9Aidab.js                    36.17 kB │ gzip:  12.45 kB
+dist/assets/ActionMenu-DfuJcisi.js                           36.54 kB │ gzip:  11.44 kB
+dist/assets/ProjectOfficePanel-BVq9lEVZ.js                   37.65 kB │ gzip:  11.42 kB
+dist/assets/WorkBudgetCard-BNChGQY7.js                       40.08 kB │ gzip:  11.42 kB
+dist/assets/index-Bu2ipnfN.js                                43.18 kB │ gzip:  13.18 kB
+dist/assets/membershipApprovalQueue-BUGfy2kD.js              48.41 kB │ gzip:  16.58 kB
+dist/assets/WorkflowPreviewPanel-CGH-TXOE.js                 59.99 kB │ gzip:  16.13 kB
+dist/assets/ProjectTableWorkspace-BtLXgimF.js                71.88 kB │ gzip:  22.22 kB
+dist/assets/Dropdown-DhDU0PHZ.js                             95.90 kB │ gzip:  27.64 kB
+dist/assets/EflowAppShell-D7oc6X9D.js                       112.59 kB │ gzip:  32.98 kB
+dist/assets/index-CwCyBk3_.js                               260.08 kB │ gzip:  65.04 kB
+dist/assets/index-BltkVjHy.js                               490.42 kB │ gzip: 160.22 kB
+dist/assets/pdf-qG1jx4kV.js                                 517.86 kB │ gzip: 156.88 kB
+dist/assets/index-DfaVHzR1.js                               820.77 kB │ gzip: 243.97 kB
+dist/assets/RolePageRouter-2lK1G6Cn.js                      843.24 kB │ gzip: 235.03 kB
+dist/assets/index-COAm2eWT.js                             1,407.47 kB │ gzip: 413.11 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 1m 23s

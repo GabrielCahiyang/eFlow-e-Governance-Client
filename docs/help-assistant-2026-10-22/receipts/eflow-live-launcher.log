@@ -1,0 +1,21 @@
+
+[START] Supervising private AI API on 127.0.0.1:8321
+[START] Supervising automatic Cloudflare endpoint publishing
+[INFO]  Models directory: C:\Users\gabri\OneDrive\Desktop\Ollama reactjs LLM DeepSeek Integration\models
+
+[INFO]  Waiting for the external eFlow gateway at http://127.0.0.1:8323/controlpanelEflow/api/health
+[INFO] Reusing the healthy private AI host on port 8321. It remains owned by its original launcher.
+[STOP] Shutting down supervised AI services.
+
+[START] Supervising private AI API on 127.0.0.1:8321
+[START] Supervising automatic Cloudflare endpoint publishing
+[INFO]  Models directory: C:\Users\gabri\OneDrive\Desktop\Ollama reactjs LLM DeepSeek Integration\models
+
+[INFO]  Waiting for the external eFlow gateway at http://127.0.0.1:8323/controlpanelEflow/api/health
+[INFO] Reusing the healthy private AI host on port 8321. It remains owned by its original launcher.
+[STOP] Shutting down supervised AI services.
+...
+----------------------------------------------------------------------
+Ran 3 tests in 0.017s
+
+OK

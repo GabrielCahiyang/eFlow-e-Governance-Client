@@ -1,0 +1,16 @@
+
+> @figma/my-make-file@0.0.1 test
+> vitest --configLoader runner run tests/unit/workspaceRefinementNavigation.test.tsx --maxWorkers=1
+
+
+ RUN  v3.2.4 C:/Users/gabri/OneDrive/Desktop/EflowWeb
+
+ ✓ tests/unit/workspaceRefinementNavigation.test.tsx (12 tests) 7338ms
+   ✓ R2 persistent workspace navigation > retains expanded Office tools and project sections across Tasks and Reports without removed entries  3791ms
+   ✓ R2 persistent workspace navigation > collapses/restores without unmounting the global rail and persists the choice  3193ms
+
+ Test Files  1 passed (1)
+      Tests  12 passed (12)
+   Start at  09:59:41
+   Duration  32.47s (transform 3.48s, setup 0ms, collect 21.60s, tests 7.34s, environment 1.74s, prepare 451ms)
+

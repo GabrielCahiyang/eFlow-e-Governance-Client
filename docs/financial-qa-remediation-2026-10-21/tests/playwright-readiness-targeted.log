@@ -1,0 +1,12 @@
+
+Running 3 tests using 1 worker
+
+(node:27856) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:27856) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [chromium] › tests\e2e\phase7-readiness-staffing.spec.ts:90:1 › Head confirms readiness; desktop and mobile retain readable checks and closeout blockers (10.7s)
+  ok 2 [chromium] › tests\e2e\phase7-readiness-staffing.spec.ts:169:1 › Staffing is advisory until Head confirmation; roomy dialog supports keyboard selection and mobile footer (11.8s)
+  ok 3 [chromium] › tests\e2e\phase7-readiness-staffing.spec.ts:392:1 › Member reads readiness without Head review, activation or staffing controls (6.2s)
+
+  3 passed (31.8s)

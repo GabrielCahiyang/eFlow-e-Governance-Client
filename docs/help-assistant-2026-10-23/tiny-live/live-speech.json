@@ -1,0 +1,93 @@
+{
+  "date": "2026-10-23",
+  "observedAt": "2026-10-23T13:19:03.482703+00:00",
+  "target": "ixnfphgjyelhckjwjkdv",
+  "scope": "Synthetic speech; actual authenticated local gateway and models, existing authorized test account, no email or business writes",
+  "checks": [
+    {
+      "operation": "status",
+      "status": 200,
+      "seconds": 1.922
+    },
+    {
+      "operation": "transcribe-0",
+      "status": 200,
+      "seconds": 4.859,
+      "recognized": true,
+      "clip_seconds": 3.48
+    },
+    {
+      "operation": "transcribe-1",
+      "status": 200,
+      "seconds": 4.328,
+      "recognized": true,
+      "clip_seconds": 3.48
+    },
+    {
+      "operation": "chat-first",
+      "status": 200,
+      "seconds": 3.422,
+      "grounded": true,
+      "model": "lfm2.5:350m"
+    },
+    {
+      "operation": "speech-primer",
+      "status": 200,
+      "seconds": 30.906,
+      "audio_seconds": 5.4,
+      "parts": 1,
+      "cached": false
+    },
+    {
+      "operation": "chat-followup",
+      "status": 200,
+      "seconds": 3.328,
+      "grounded": true,
+      "model": "lfm2.5:350m"
+    },
+    {
+      "operation": "speech-full-warm",
+      "status": 200,
+      "seconds": 13.625,
+      "audio_seconds": 7.48,
+      "parts": 1,
+      "cached": false
+    },
+    {
+      "operation": "speech-first-chunk-warm",
+      "status": 200,
+      "seconds": 6.703,
+      "audio_seconds": 2.2,
+      "parts": 3,
+      "cached": false
+    },
+    {
+      "operation": "speech-chunk-1",
+      "status": 200,
+      "seconds": 9.593,
+      "audio_seconds": 3.8,
+      "parts": 3,
+      "cached": false
+    },
+    {
+      "operation": "speech-chunk-2",
+      "status": 200,
+      "seconds": 6.75,
+      "audio_seconds": 2.52,
+      "parts": 3,
+      "cached": false
+    },
+    {
+      "operation": "speech-first-chunk-cached",
+      "status": 200,
+      "seconds": 2.093,
+      "audio_seconds": 2.2,
+      "parts": 3,
+      "cached": true
+    },
+    {
+      "operation": "anonymous-status",
+      "status": 401
+    }
+  ]
+}

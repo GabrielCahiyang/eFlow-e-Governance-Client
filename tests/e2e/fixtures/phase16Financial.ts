@@ -99,6 +99,10 @@ export async function phase16FinancialFixture(
       url = new URL(req.url()),
       table = url.pathname.split("/").at(-1)!;
     const payload = req.postData() ? req.postDataJSON() : {};
+    if (table === 'get_liquidation_independent_review') return route.fulfill({ json: {
+      liquidationId: payload.p_liquidation_id, version: state.liquidations.find(item => item.id === payload.p_liquidation_id)?.version || 2,
+      required: false, current: false, canReview: false, canSettle: role === 'accounting_staff', review: null, candidates: [], eligibleSettlers: 1, escalationRequired: false,
+    } });
     const summary = {
       id: state.budget,
       orgId: state.org,

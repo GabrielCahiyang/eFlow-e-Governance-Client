@@ -41,6 +41,8 @@ export interface Organization {
   org_type: OrgType;
   description: string;
   head_user_id: string | null;
+  /** Existing optional appointment; this does not introduce an account role. */
+  assistant_head_user_id?: string | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;

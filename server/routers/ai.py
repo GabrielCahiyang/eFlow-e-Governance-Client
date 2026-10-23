@@ -40,11 +40,12 @@ class ChatRequest(BaseModel):
     workspace_decomposition: WorkspaceDecompositionRequest | None = None
     workspace_staffing: dict[str, Any] | None = None
     pdf_table_enrichment: dict[str, Any] | None = None
+    pdf_office_extraction: dict[str, Any] | None = None
 
 
 def checked_chat_payload(payload: ChatRequest, user: AuthenticatedUser) -> dict:
     body = payload.model_dump(mode="json", exclude_none=True)
-    if sum(body.get(mode) is not None for mode in ('workspace_decomposition', 'workspace_staffing', 'pdf_table_enrichment')) > 1:
+    if sum(body.get(mode) is not None for mode in ('workspace_decomposition', 'workspace_staffing', 'pdf_table_enrichment', 'pdf_office_extraction')) > 1:
         raise HTTPException(422, 'Choose one AI operation.')
     if payload.workspace_staffing is not None:
         if payload.workspace_decomposition is not None:
@@ -122,6 +123,7 @@ async def _proxy(
     *,
     payload: dict[str, Any] | None = None,
     timeout_seconds: float = 30,
+    session_token: str | None = None,
 ) -> Response:
     try:
         async with httpx.AsyncClient(
@@ -131,7 +133,7 @@ async def _proxy(
                 method,
                 f"{settings.internal_ai_base_url}/{path.lstrip('/')}",
                 json=payload,
-                headers=_internal_headers(user),
+                headers={**_internal_headers(user), **({'X-eFlow-Session': session_token} if session_token else {})},
             )
     except httpx.ConnectError as exc:
         raise HTTPException(status_code=503, detail="The local AI service is offline.") from exc

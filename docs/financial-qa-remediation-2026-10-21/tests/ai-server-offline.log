@@ -1,0 +1,127 @@
+2026-10-22 07:06:05,249  INFO      Supabase URL: https://ixnfphgjyelhckjwjkdv.supabase.co
+2026-10-22 07:06:06,529  WARNING   Executing <Task pending name='Task-4' coro=<ApiSchedulingTests.test_health_remains_responsive_during_blocking_inference_and_fifo_admission() running at C:\Users\gabri\OneDrive\Desktop\Ollama reactjs LLM DeepSeek Integration\server\test_api_scheduling.py:40> cb=[_run_until_complete_cb() at C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:182] created at C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:100> took 0.235 seconds
+2026-10-22 07:06:06,720  WARNING   Executing <Task pending name='starlette.middleware.base.BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.coro' coro=<BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.coro() running at C:\Users\gabri\OneDrive\Desktop\Ollama reactjs LLM DeepSeek Integration\server\.venv\Lib\site-packages\starlette\middleware\base.py:144> wait_for=<Future pending cb=[Task.task_wakeup()] created at C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:449> cb=[TaskGroup._spawn.<locals>.task_done() at C:\Users\gabri\OneDrive\Desktop\Ollama reactjs LLM DeepSeek Integration\server\.venv\Lib\site-packages\anyio\_backends\_asyncio.py:821] created at C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\tasks.py:420> took 0.172 seconds
+2026-10-22 07:06:06,963  INFO      HTTP Request: POST http://test/controlpanelEflow/api/jobs "HTTP/1.1 202 Accepted"
+2026-10-22 07:06:07,133  INFO      HTTP Request: GET http://test/controlpanelEflow/api/health "HTTP/1.1 200 OK"
+2026-10-22 07:06:07,261  INFO      HTTP Request: POST http://test/controlpanelEflow/api/jobs "HTTP/1.1 429 Too Many Requests"
+2026-10-22 07:06:07,325  INFO      HTTP Request: DELETE http://test/controlpanelEflow/api/jobs/1e594ded-5c6d-43ce-b836-36df4213e25a "HTTP/1.1 200 OK"
+2026-10-22 07:06:10,001  INFO      HTTP Request: POST http://test/controlpanelEflow/api/chat "HTTP/1.1 200 OK"
+.2026-10-22 07:06:10,212  INFO      HTTP Request: POST http://test/controlpanelEflow/api/jobs "HTTP/1.1 400 Bad Request"
+2026-10-22 07:06:10,311  INFO      HTTP Request: POST http://test/controlpanelEflow/api/chat "HTTP/1.1 400 Bad Request"
+2026-10-22 07:06:10,415  INFO      HTTP Request: POST http://test/controlpanelEflow/api/chat "HTTP/1.1 400 Bad Request"
+2026-10-22 07:06:10,503  INFO      HTTP Request: POST http://test/controlpanelEflow/api/chat "HTTP/1.1 400 Bad Request"
+2026-10-22 07:06:10,597  INFO      HTTP Request: POST http://test/controlpanelEflow/api/chat "HTTP/1.1 400 Bad Request"
+.2026-10-22 07:06:10,836  INFO      HTTP Request: POST http://test/controlpanelEflow/api/jobs "HTTP/1.1 202 Accepted"
+2026-10-22 07:06:10,875  INFO      HTTP Request: DELETE http://test/controlpanelEflow/api/jobs/4de0b370-3009-45c1-bebf-d5d56bdeb0c4 "HTTP/1.1 404 Not Found"
+2026-10-22 07:06:10,884  INFO      HTTP Request: PUT http://test/controlpanelEflow/api/authkey "HTTP/1.1 401 Unauthorized"
+.2026-10-22 07:06:11,034  INFO      HTTP Request: GET http://test/controlpanelEflow/api/operations "HTTP/1.1 401 Unauthorized"
+2026-10-22 07:06:11,237  INFO      HTTP Request: GET http://test/controlpanelEflow/api/operations "HTTP/1.1 200 OK"
+.2026-10-22 07:06:14,156  INFO      HTTP Request: POST http://test/controlpanelEflow/api/chat "HTTP/1.1 200 OK"
+.........2026-10-22 07:06:14,816  INFO      routing_and_review completed (21c32072), 0 ms
+..2026-10-22 07:06:14,820  INFO      [Proposal Pipeline] Decomposing 'Economic Diagnostic' with 2 available team members
+2026-10-22 07:06:14,821  INFO      routing_and_review completed (14109bae), 0 ms
+2026-10-22 07:06:15,412  INFO      [PyGAD] Completed optimization in 505ms over 20 generations. Best fitness: 72.38
+2026-10-22 07:06:15,414  INFO      assign_and_schedule completed (1e6bdbbb), 592 ms
+2026-10-22 07:06:15,414  INFO      [Proposal Pipeline] Completed 1 tasks for 'Economic Diagnostic' in 596ms (DeepSeek R1 + LAYA + PyGAD)
+.....2026-10-22 07:06:15,416  INFO      [Proposal Pipeline] Decomposing 'Part 1' with 0 available team members
+...2026-10-22 07:06:15,424  INFO      Downloading Test from test/model/upstream.gguf ...
+.2026-10-22 07:06:15,461  INFO      Model qwen3.5:2b already downloaded at C:\Users\gabri\AppData\Local\Temp\tmp_01trrtb\qwen3.5_2b.gguf
+.2026-10-22 07:06:15,466  INFO      Downloading Test from test/model/upstream.gguf ...
+2026-10-22 07:06:15,493  INFO      Downloaded Test \u2192 C:\Users\gabri\AppData\Local\Temp\tmpgc_8fivu\qwen3.5_2b.gguf
+.2026-10-22 07:06:15,499  INFO      Downloading Test from test/model/upstream.gguf ...
+2026-10-22 07:06:15,510  INFO      Downloaded Test \u2192 C:\Users\gabri\AppData\Local\Temp\tmpwcwpx61d\qwen3.5_2b.gguf
+....2026-10-22 07:06:15,515  INFO      PDF table enrichment: 10 source tasks, 16 source costs; constrained output.
+2026-10-22 07:06:15,516  INFO      PDF table enrichment complete: 10 tasks, 16 cost references validated.
+..2026-10-22 07:06:15,519  INFO      PDF table enrichment: 1 source tasks, 0 source costs; constrained output.
+2026-10-22 07:06:15,520  INFO      PDF table enrichment complete: 1 tasks, 0 cost references validated.
+.2026-10-22 07:06:15,520  INFO      PDF table enrichment: 10 source tasks, 16 source costs; constrained output.
+2026-10-22 07:06:15,521  WARNING   PDF table output validation failed (attempt 1/2).
+2026-10-22 07:06:15,521  WARNING   PDF table output validation failed (attempt 2/2).
+2026-10-22 07:06:15,523  INFO      PDF table enrichment: 10 source tasks, 16 source costs; constrained output.
+2026-10-22 07:06:15,523  WARNING   PDF table output validation failed (attempt 1/2).
+2026-10-22 07:06:15,523  WARNING   PDF table output validation failed (attempt 2/2).
+.2026-10-22 07:06:15,527  INFO      PDF table enrichment: 10 source tasks, 16 source costs; constrained output.
+2026-10-22 07:06:15,528  INFO      PDF table enrichment complete: 10 tasks, 16 cost references validated.
+.2026-10-22 07:06:15,533  INFO      PDF table enrichment: 10 source tasks, 16 source costs; constrained output.
+2026-10-22 07:06:15,533  WARNING   PDF table output validation failed (attempt 1/2).
+2026-10-22 07:06:15,535  INFO      PDF table enrichment complete: 10 tasks, 16 cost references validated.
+.2026-10-22 07:06:15,536  WARNING   [Polygon] Running in simulation mode - no transaction will be sent.
+2026-10-22 07:06:15,536  INFO      [Polygon] Archival seal anchored for proposal prop-test-001: 0x1c0629024beaca9a4c4d2a33368f0a9032343bafddfd24693e125d9091ad7f48
+.2026-10-22 07:06:15,536  WARNING   [Polygon] Running in simulation mode - no transaction will be sent.
+2026-10-22 07:06:15,537  INFO      [Polygon] Archival seal anchored for proposal prop-test-001: 0x1c0629024beaca9a4c4d2a33368f0a9032343bafddfd24693e125d9091ad7f48
+.2026-10-22 07:06:15,537  WARNING   [Polygon] Running in simulation mode - no transaction will be sent.
+2026-10-22 07:06:15,537  INFO      [Polygon] Genesis anchored for proposal prop-test-001: 0xb92e7802fab8a379970f0395142d056d3ef2733843c7794dbdc4e15ba339a0b2
+.2026-10-22 07:06:15,538  WARNING   [Polygon] Running in simulation mode - no transaction will be sent.
+2026-10-22 07:06:15,538  INFO      [Polygon] Genesis anchored for proposal prop-test-001: 0x7f45b85e5afcaa4131e788994ae94ce457a2839c628de62cee4eddaf4c6a5113
+.2026-10-22 07:06:15,538  WARNING   [Polygon] Running in simulation mode - no transaction will be sent.
+2026-10-22 07:06:15,539  INFO      [Polygon] Genesis anchored for proposal prop-test-001: 0x7f45b85e5afcaa4131e788994ae94ce457a2839c628de62cee4eddaf4c6a5113
+.2026-10-22 07:06:15,539  WARNING   [Polygon] Running in simulation mode - no transaction will be sent.
+2026-10-22 07:06:15,539  INFO      [Polygon] Genesis anchored for proposal prop-test-001: 0x371f79268c768827ae987c13d81f319569d639ad41e7373b35f47a6fe91e7ea7
+.2026-10-22 07:06:15,540  WARNING   [Polygon] Running in simulation mode - no transaction will be sent.
+2026-10-22 07:06:15,540  INFO      [Polygon] Genesis anchored for proposal prop-test-001: 0xbf72d3ea9bb490723efa9581bfe2a2c9df8cd25dadeeb86bd8d7aa56f217b7ac
+.2026-10-22 07:06:15,541  WARNING   [Polygon] Running in simulation mode - no transaction will be sent.
+2026-10-22 07:06:15,541  INFO      [Polygon] Genesis anchored for proposal prop-test-001: 0xbf72d3ea9bb490723efa9581bfe2a2c9df8cd25dadeeb86bd8d7aa56f217b7ac
+.2026-10-22 07:06:15,541  WARNING   [Polygon] Running in simulation mode - no transaction will be sent.
+2026-10-22 07:06:15,541  INFO      [Polygon] Milestone anchored for proposal prop-test-001: bac_clearance \u2192 0x5ada35850adba3df1e2a7ea037e9e4731054ddacf8c0e8991e5fea8cb32af7c2
+.2026-10-22 07:06:15,542  WARNING   [Polygon] Running in simulation mode - no transaction will be sent.
+2026-10-22 07:06:15,542  INFO      [Polygon] Milestone anchored for proposal prop-001: bac_clearance \u2192 0xfd3816d52e25cdd83babcaaf6fbdc588274161f2ddc3fb2d4f63e29f191664ee
+2026-10-22 07:06:15,542  WARNING   [Polygon] Running in simulation mode - no transaction will be sent.
+2026-10-22 07:06:15,542  INFO      [Polygon] Milestone anchored for proposal prop-001: cash_advance \u2192 0x28adfe5d0555cc8de6b836aa2644ad2cf63c653e57ad840725fdfb9d1501128e
+.2026-10-22 07:06:15,543  WARNING   [Polygon] Running in simulation mode - no transaction will be sent.
+2026-10-22 07:06:15,543  INFO      [Polygon] Genesis anchored for proposal prop-test-001: 0x21fa3a679ba17ba3ffc4f96601ad239904b1b41a55198a94ba159fb295e59c6f
+..2026-10-22 07:06:15,544  WARNING   [Polygon] Running in simulation mode - no transaction will be sent.
+2026-10-22 07:06:15,544  INFO      [Polygon] Genesis anchored for proposal prop-test-001: 0x82841d5caeabc84150cb808443ae6d321b79469dd0f43eaf31b9d148a3ac76e4
+2026-10-22 07:06:15,544  WARNING   [Polygon] Running in simulation mode - no transaction will be sent.
+2026-10-22 07:06:15,544  INFO      [Polygon] Milestone anchored for proposal prop-test-001: bac_clearance \u2192 0x7d1531e4ea58059bc54ee20b8a72cfb7044d2d55ca9fe3cb0b4d2d114e1582c4
+2026-10-22 07:06:15,545  WARNING   [Polygon] Running in simulation mode - no transaction will be sent.
+2026-10-22 07:06:15,545  INFO      [Polygon] Archival seal anchored for proposal prop-test-001: 0x30d52b4338299020b2449df9203f254bc76826a92b87e265f2d787b4d5611945
+......2026-10-22 07:06:15,546  WARNING   [Polygon] Running in simulation mode - no transaction will be sent.
+2026-10-22 07:06:15,546  INFO      [Polygon] Genesis anchored for proposal prop-test-001: 0x5cb42682b5a907b366e7386adfdffe2ae0e0464e682a4dec6239bb4e6878e4f6
+.2026-10-22 07:06:15,547  WARNING   [Polygon] Running in simulation mode - no transaction will be sent.
+2026-10-22 07:06:15,547  INFO      [Polygon] Genesis anchored for proposal prop-test-001: 0x2b7d4f141f5bece2b6a154e7ceb7454bc3a401d488462e8bff7d8c60c523b205
+....2026-10-22 07:06:15,610  INFO      [PyGAD] Completed optimization in 47ms over 10 generations. Best fitness: 63.02
+2026-10-22 07:06:15,610  INFO      assign_and_schedule completed (8285594e), 49 ms
+.2026-10-22 07:06:15,669  INFO      [PyGAD] Completed optimization in 58ms over 10 generations. Best fitness: 81.59
+2026-10-22 07:06:15,669  INFO      assign_and_schedule completed (74280705), 58 ms
+2026-10-22 07:06:15,746  INFO      [PyGAD] Completed optimization in 76ms over 10 generations. Best fitness: 69.59
+2026-10-22 07:06:15,747  INFO      assign_and_schedule completed (3c18b25a), 77 ms
+2026-10-22 07:06:15,825  INFO      [PyGAD] Completed optimization in 76ms over 10 generations. Best fitness: 86.76
+2026-10-22 07:06:15,825  INFO      assign_and_schedule completed (4686c144), 78 ms
+.2026-10-22 07:06:15,903  INFO      [PyGAD] Completed optimization in 75ms over 10 generations. Best fitness: 81.59
+2026-10-22 07:06:15,903  INFO      assign_and_schedule completed (cfcaa2ed), 77 ms
+.2026-10-22 07:06:15,980  INFO      [PyGAD] Completed optimization in 75ms over 10 generations. Best fitness: 86.76
+2026-10-22 07:06:15,980  INFO      assign_and_schedule completed (441ea11e), 76 ms
+.2026-10-22 07:06:15,981  INFO      assign_and_schedule completed (3a340e19), 0 ms
+.2026-10-22 07:06:16,071  INFO      [PyGAD] Completed optimization in 88ms over 15 generations. Best fitness: 81.59
+2026-10-22 07:06:16,072  INFO      assign_and_schedule completed (cd9d558b), 91 ms
+.2026-10-22 07:06:16,187  INFO      [PyGAD] Completed optimization in 115ms over 20 generations. Best fitness: 81.59
+2026-10-22 07:06:16,188  INFO      assign_and_schedule completed (6b2b2ac6), 117 ms
+.2026-10-22 07:06:16,264  INFO      [PyGAD] Completed optimization in 74ms over 10 generations. Best fitness: 81.59
+2026-10-22 07:06:16,265  INFO      assign_and_schedule completed (16042a42), 77 ms
+.2026-10-22 07:06:16,334  INFO      [PyGAD] Completed optimization in 67ms over 10 generations. Best fitness: 81.59
+2026-10-22 07:06:16,334  INFO      assign_and_schedule completed (c95ad875), 69 ms
+......................2026-10-22 07:06:34,433  INFO      anchor_genesis cancelled (de03d741), 0 ms
+2026-10-22 07:06:34,444  INFO      anchor_genesis completed (4b9e8c24), 68 ms
+.2026-10-22 07:06:34,548  INFO      verify_on_chain cancelled (2a606511), 0 ms
+.2026-10-22 07:06:34,673  INFO      assign completed (899b5198), 33 ms
+2026-10-22 07:06:34,682  INFO      assign completed (e7c08a7a), 0 ms
+.2026-10-22 07:06:34,771  ERROR     verify_on_chain failed (c2adb489), 0 ms
+.2026-10-22 07:06:34,839  INFO      assign completed (e881ed5d), 0 ms
+2026-10-22 07:06:34,839  INFO      assign completed (19bc60d7), 0 ms
+2026-10-22 07:06:34,839  INFO      assign completed (a115bccf), 0 ms
+2026-10-22 07:06:34,840  INFO      assign completed (3f2567d9), 0 ms
+.2026-10-22 07:06:34,847  ERROR     [Polygon] Transaction failed: The anchor transaction was mined but reverted.
+2026-10-22 07:06:34,847  ERROR     anchor_genesis failed (9fa77df5), 3 ms
+.2026-10-22 07:06:34,848  WARNING   anchor_genesis unconfirmed (22961f96), 0 ms
+2026-10-22 07:06:34,848  INFO      anchor_genesis completed (24e441a0), 0 ms
+.2026-10-22 07:06:36,359  INFO      assign_and_schedule completed (child-st), 3 ms
+.2026-10-22 07:06:37,962  INFO      assign_and_schedule cancelled (child-st), 50 ms
+[WAIT] Waiting for Quick Tunnel DNS and public health before publication.
+[READY] Quick Tunnel DNS and public health check passed.
+.........2026-10-22 07:06:38,245  INFO      assign_and_schedule skipped (96e7963d), 0 ms
+...2026-10-22 07:06:38,247  INFO      assign_and_schedule skipped (1ac19e6c), 0 ms
+.............
+----------------------------------------------------------------------
+Ran 122 tests in 32.840s
+
+OK

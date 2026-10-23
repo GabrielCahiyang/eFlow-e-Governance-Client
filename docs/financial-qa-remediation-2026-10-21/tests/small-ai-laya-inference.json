@@ -1,0 +1,138 @@
+{
+  "boundary": "Synthetic local API inference; no hosted assignments or project writes.",
+  "context": {
+    "task": {
+      "id": "qa-synthetic-survey",
+      "title": "Survey a site and document the findings",
+      "description": "One surveyor will visit the site and document measurements.",
+      "skills": [
+        "Surveying"
+      ]
+    },
+    "candidates": [
+      {
+        "id": "qa-surveyor-one",
+        "name": "QA Surveyor One",
+        "skills": [
+          "Surveying",
+          "Site documentation"
+        ],
+        "training": [
+          "Field safety"
+        ],
+        "education": [],
+        "experience": [],
+        "specializations": [],
+        "certifications": [],
+        "experience_summary": "Field survey planning and accurate site measurement documentation.",
+        "activeTasks": 4,
+        "remainingHours": 32,
+        "unknownEffortTasks": 0
+      },
+      {
+        "id": "qa-surveyor-two",
+        "name": "QA Surveyor Two",
+        "skills": [
+          "Surveying",
+          "Site documentation"
+        ],
+        "training": [
+          "Field safety"
+        ],
+        "education": [],
+        "experience": [],
+        "specializations": [],
+        "certifications": [],
+        "experience_summary": "Field survey planning and accurate site measurement documentation.",
+        "activeTasks": 1,
+        "remainingHours": 2,
+        "unknownEffortTasks": 0
+      }
+    ]
+  },
+  "job_id": "f2570134-0589-44b2-bcbd-a97f9008e41f",
+  "status": "completed",
+  "error": null,
+  "progress": {
+    "stage": "laya_review",
+    "message": "LAYA is checking task routing, team fit and current workload.",
+    "current": null,
+    "total": null,
+    "updated_at": 1792629939.145402,
+    "history": [
+      {
+        "stage": "loading_model",
+        "message": "Preparing the AI.",
+        "current": null,
+        "total": null,
+        "updated_at": 1792629914.6783211
+      },
+      {
+        "stage": "staffing",
+        "message": "Comparing confirmed skills, experience and current Office workload.",
+        "current": null,
+        "total": null,
+        "updated_at": 1792629922.2735362
+      },
+      {
+        "stage": "laya_review",
+        "message": "LAYA is checking task routing, team fit and current workload.",
+        "current": null,
+        "total": null,
+        "updated_at": 1792629939.145402
+      }
+    ]
+  },
+  "result": {
+    "model": "qwen3.5:4b",
+    "message": {
+      "role": "assistant",
+      "content": "{\"schemaVersion\": 1, \"recommendations\": [{\"userId\": \"qa-surveyor-two\", \"evidence\": [\"Surveying\", \"Site documentation\", \"Field safety\", \"Field survey planning and accurate site measurement documentation.\", \"Field survey planning and accurate site measurement documentation.\"], \"activeTasks\": 1, \"remainingHours\": 2, \"unknownEffortTasks\": 0}], \"source\": \"ai\", \"notice\": \"Qwen recommendations reviewed by LAYA and validated against eligible people and supplied profile facts.\", \"pipeline\": {\"stages\": [\"qwen3.5:4b\", \"laya\", \"validation\"], \"laya\": \"completed\", \"layaEngine\": \"laya\", \"validation\": \"completed\"}}"
+    },
+    "done": true,
+    "total_duration": 53074946880,
+    "eval_count": 58,
+    "timings_ms": {
+      "model_load": 6949.3,
+      "inference": 16863.2,
+      "pipeline": 36857.3,
+      "total": 60669.8,
+      "generation_calls": 1
+    },
+    "pipeline_status": {
+      "laya": "completed"
+    }
+  },
+  "laya": {
+    "mode": "model",
+    "device": "cpu",
+    "execution": "Starts on demand inside the inference worker.",
+    "running": 0,
+    "waiting": 0,
+    "counts": {
+      "unconfirmed": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "failed": 0,
+      "completed": 1
+    },
+    "active_runs": [],
+    "recent_runs": [
+      {
+        "run_id": "497304e2-666e-4277-869d-655c8831a364",
+        "service": "laya",
+        "operation": "routing_and_review",
+        "origin": "staffing",
+        "status": "completed",
+        "submitted_at": 1792629939.145402,
+        "started_at": 1792629939.145402,
+        "completed_at": 1792629975.346958,
+        "metadata": {
+          "engine": "laya"
+        },
+        "duration_ms": 36201.6,
+        "wait_ms": 0.0
+      }
+    ]
+  }
+}

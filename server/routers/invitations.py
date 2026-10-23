@@ -10,6 +10,7 @@ from invitations import service
 from invitations import local_offices
 from services.private_validation import PrivateValidationRoute
 from services import managed_account_activation
+from services.database_transport import database_read
 
 router = APIRouter(prefix='/controlpanelEflow/api/invitations', tags=['invitations'], route_class=PrivateValidationRoute)
 
@@ -95,6 +96,9 @@ def require_identity(credentials: HTTPAuthorizationCredentials | None = Depends(
 
 @router.get('')
 def list_invitations(user=Depends(require_user)):
+    return database_read(lambda: _list_office_invitations(user))
+
+def _list_office_invitations(user):
     service.require_head(user)
     rows = supabase_admin.table('user_invitations').select(service.SAFE_FIELDS).eq('office_id', user.org_id).eq('invitation_type', 'office_member').order('created_at', desc=True).limit(250).execute().data or []
     now = service.datetime.now(service.timezone.utc)
@@ -110,6 +114,9 @@ team_router = APIRouter(prefix='/controlpanelEflow/api/office-team', tags=['offi
 
 @team_router.get('')
 def office_team(user=Depends(require_user)):
+    return database_read(lambda: _office_team(user))
+
+def _office_team(user):
     service.require_head(user)
     office = supabase_admin.table('organizations').select('name').eq('id', user.org_id).single().execute().data
     members = supabase_admin.table('profiles').select('id,full_name,email,role,is_active').eq('org_id', user.org_id).order('full_name').execute().data or []

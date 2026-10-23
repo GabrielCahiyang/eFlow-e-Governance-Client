@@ -1,0 +1,62 @@
+2026-10-22 20:32:18,788  INFO      Supabase URL: https://ixnfphgjyelhckjwjkdv.supabase.co
+.............2026-10-22 20:32:20,038  INFO      HTTP Request: POST http://testserver/api/help-assistant/chat "HTTP/1.1 200 OK"
+2026-10-22 20:32:20,053  INFO      HTTP Request: POST http://testserver/api/help-assistant/speech "HTTP/1.1 404 Not Found"
+.2026-10-22 20:32:20,083  INFO      HTTP Request: POST http://testserver/api/help-assistant/chat "HTTP/1.1 200 OK"
+2026-10-22 20:32:20,094  INFO      HTTP Request: POST http://testserver/api/help-assistant/speech "HTTP/1.1 200 OK"
+2026-10-22 20:32:20,103  INFO      HTTP Request: POST http://testserver/api/help-assistant/speech "HTTP/1.1 200 OK"
+2026-10-22 20:32:20,113  INFO      HTTP Request: POST http://testserver/api/help-assistant/speech "HTTP/1.1 403 Forbidden"
+.2026-10-22 20:32:20,149  INFO      HTTP Request: POST http://testserver/api/help-assistant/chat "HTTP/1.1 200 OK"
+.2026-10-22 20:32:20,171  INFO      HTTP Request: POST http://testserver/api/help-assistant/chat "HTTP/1.1 422 Unprocessable Entity"
+.2026-10-22 20:32:20,195  INFO      HTTP Request: GET http://testserver/api/help-assistant/projects "HTTP/1.1 401 Unauthorized"
+.2026-10-22 20:32:20,225  INFO      HTTP Request: POST http://testserver/api/help-assistant/chat "HTTP/1.1 200 OK"
+.2026-10-22 20:32:20,251  INFO      HTTP Request: POST http://testserver/api/help-assistant/chat "HTTP/1.1 200 OK"
+2026-10-22 20:32:20,259  INFO      HTTP Request: POST http://testserver/api/help-assistant/speech "HTTP/1.1 409 Conflict"
+.2026-10-22 20:32:20,292  INFO      HTTP Request: POST http://testserver/api/help-assistant/speech "HTTP/1.1 422 Unprocessable Entity"
+2026-10-22 20:32:20,300  INFO      HTTP Request: POST http://testserver/api/help-assistant/speech "HTTP/1.1 404 Not Found"
+.2026-10-22 20:32:20,335  INFO      HTTP Request: POST http://testserver/api/help-assistant/chat "HTTP/1.1 200 OK"
+2026-10-22 20:32:20,348  INFO      HTTP Request: POST http://testserver/api/help-assistant/speech "HTTP/1.1 403 Forbidden"
+.2026-10-22 20:32:20,506  INFO      execute program 'C:\\Users\\gabri\\OneDrive\\Desktop\\Ollama reactjs LLM DeepSeek Integration\\server\\.venv\\Scripts\\python.exe': <_WindowsSubprocessTransport pid=20872 running stdout=<_ProactorReadPipeTransport fd=1468 read=<_OverlappedFuture pending cb=[_ProactorReadPipeTransport._loop_reading()] created at C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\windows_events.py:506>> stderr=<_ProactorReadPipeTransport fd=1472 read=<_OverlappedFuture pending cb=[_ProactorReadPipeTransport._loop_reading()] created at C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\windows_events.py:506>>>
+2026-10-22 20:32:20,886  INFO      execute program 'taskkill': <_WindowsSubprocessTransport pid=16472 running>
+2026-10-22 20:32:21,455  INFO      <_WindowsSubprocessTransport pid=20872 running stdout=<_ProactorReadPipeTransport closing fd=1468> stderr=<_ProactorReadPipeTransport closing fd=1472>> exited with return code 1
+2026-10-22 20:32:21,482  INFO      <_WindowsSubprocessTransport pid=16472 running> exited with return code 0
+2026-10-22 20:32:22,063  WARNING   Executing <Task finished name='Task-128' coro=<WorkerCleanupTests.test_reaps_the_owned_worker_and_its_descendant() done, defined at C:\Users\gabri\OneDrive\Desktop\Ollama reactjs LLM DeepSeek Integration\server\test_help_process_cleanup.py:11> result=None created at C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:100> took 0.516 seconds
+
+[START] Supervising private AI API on 127.0.0.1:8321
+[START] Supervising automatic Cloudflare endpoint publishing
+[INFO]  Models directory: C:\Users\gabri\OneDrive\Desktop\Ollama reactjs LLM DeepSeek Integration\models
+
+[INFO]  Waiting for the external eFlow gateway at http://127.0.0.1:8323/controlpanelEflow/api/health
+[INFO] Reusing the healthy private AI host on port 8321. It remains owned by its original launcher.
+[STOP] Shutting down supervised AI services.
+
+[START] Supervising private AI API on 127.0.0.1:8321
+[START] Supervising automatic Cloudflare endpoint publishing
+[INFO]  Models directory: C:\Users\gabri\OneDrive\Desktop\Ollama reactjs LLM DeepSeek Integration\models
+
+[INFO]  Waiting for the external eFlow gateway at http://127.0.0.1:8323/controlpanelEflow/api/health
+[INFO] Reusing the healthy private AI host on port 8321. It remains owned by its original launcher.
+[STOP] Shutting down supervised AI services.
+.........................2026-10-22 20:32:25,392  WARNING   Executing <Task pending name='Task-248' coro=<WorkerTests.test_cancel_reaps_child_then_starts_fresh_worker() running at C:\Users\gabri\OneDrive\Desktop\Ollama reactjs LLM DeepSeek Integration\server\test_runtime_scheduling.py:155> wait_for=<Future pending cb=[_chain_future.<locals>._call_check_cancel() at C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\futures.py:391, Task.task_wakeup()] created at C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:449> cb=[_run_until_complete_cb() at C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:182] created at C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:100> took 0.141 seconds
+....2026-10-22 20:32:51,730  WARNING   Executing <Task pending name='Task-276' coro=<ApiSchedulingTests.test_health_remains_responsive_during_blocking_inference_and_fifo_admission() running at C:\Users\gabri\OneDrive\Desktop\Ollama reactjs LLM DeepSeek Integration\server\test_api_scheduling.py:40> cb=[_run_until_complete_cb() at C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:182] created at C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:100> took 0.297 seconds
+2026-10-22 20:32:51,972  WARNING   Executing <Task pending name='starlette.middleware.base.BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.coro' coro=<BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.coro() running at C:\Users\gabri\OneDrive\Desktop\Ollama reactjs LLM DeepSeek Integration\server\.venv\Lib\site-packages\starlette\middleware\base.py:144> wait_for=<Future pending cb=[Task.task_wakeup()] created at C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:449> cb=[TaskGroup._spawn.<locals>.task_done() at C:\Users\gabri\OneDrive\Desktop\Ollama reactjs LLM DeepSeek Integration\server\.venv\Lib\site-packages\anyio\_backends\_asyncio.py:821] created at C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\tasks.py:420> took 0.235 seconds
+2026-10-22 20:32:52,203  INFO      HTTP Request: POST http://test/controlpanelEflow/api/jobs "HTTP/1.1 202 Accepted"
+2026-10-22 20:32:52,477  INFO      HTTP Request: GET http://test/controlpanelEflow/api/health "HTTP/1.1 200 OK"
+2026-10-22 20:32:52,649  INFO      HTTP Request: POST http://test/controlpanelEflow/api/jobs "HTTP/1.1 429 Too Many Requests"
+2026-10-22 20:32:52,755  INFO      HTTP Request: DELETE http://test/controlpanelEflow/api/jobs/0e5c8f3a-9332-475c-8baf-967766ce6c57 "HTTP/1.1 200 OK"
+2026-10-22 20:32:56,180  INFO      HTTP Request: POST http://test/controlpanelEflow/api/chat "HTTP/1.1 200 OK"
+.2026-10-22 20:32:56,534  INFO      HTTP Request: POST http://test/controlpanelEflow/api/jobs "HTTP/1.1 400 Bad Request"
+2026-10-22 20:32:56,702  INFO      HTTP Request: POST http://test/controlpanelEflow/api/chat "HTTP/1.1 400 Bad Request"
+2026-10-22 20:32:56,877  INFO      HTTP Request: POST http://test/controlpanelEflow/api/chat "HTTP/1.1 400 Bad Request"
+2026-10-22 20:32:57,042  INFO      HTTP Request: POST http://test/controlpanelEflow/api/chat "HTTP/1.1 400 Bad Request"
+2026-10-22 20:32:57,201  INFO      HTTP Request: POST http://test/controlpanelEflow/api/chat "HTTP/1.1 400 Bad Request"
+.2026-10-22 20:32:57,615  INFO      HTTP Request: POST http://test/controlpanelEflow/api/jobs "HTTP/1.1 202 Accepted"
+2026-10-22 20:32:57,680  INFO      HTTP Request: DELETE http://test/controlpanelEflow/api/jobs/3f412a90-8fc8-4bff-bd1d-35879abf20f6 "HTTP/1.1 404 Not Found"
+2026-10-22 20:32:57,701  INFO      HTTP Request: PUT http://test/controlpanelEflow/api/authkey "HTTP/1.1 401 Unauthorized"
+.2026-10-22 20:32:57,941  INFO      HTTP Request: GET http://test/controlpanelEflow/api/operations "HTTP/1.1 401 Unauthorized"
+2026-10-22 20:32:58,227  INFO      HTTP Request: GET http://test/controlpanelEflow/api/operations "HTTP/1.1 200 OK"
+.2026-10-22 20:33:02,076  INFO      HTTP Request: POST http://test/controlpanelEflow/api/chat "HTTP/1.1 200 OK"
+.
+----------------------------------------------------------------------
+Ran 56 tests in 43.113s
+
+OK

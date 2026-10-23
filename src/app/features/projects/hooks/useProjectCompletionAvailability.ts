@@ -11,7 +11,7 @@ export function useProjectCompletionAvailability(project: Pick<Project, 'id' | '
   const id = project?.id, status = project?.status || '';
   const refresh = useCallback(async () => {
     const request = ++version.current;
-    setState({ key, loading: true, error: '' });
+    setState(previous => ({ key, loading: true, error: '', readiness: previous.key === key ? previous.readiness : undefined }));
     if (!id || !allowed || ['completed', 'archived'].includes(status)) { setState({ key, loading: false, error: '' }); return; }
     try {
       const readiness = await fetchProjectCompletionReadiness(id);

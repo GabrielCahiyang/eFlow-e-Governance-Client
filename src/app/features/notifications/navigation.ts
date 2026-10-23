@@ -147,6 +147,9 @@ export function resolveNotificationDestination(
   const title = notification.title.trim().toLowerCase();
   const messageLabels = quotedLabels(notification.message || "");
   const isSubtask = !!notification.workNodeId || title.includes("subtask");
+  if (notification.financialRecordType === 'independent_liquidation_review') {
+    return makeDestination(notification, ['head','member','accounting_staff'].includes(role) ? { section: 'inbox', page: 'Needs action' } : null, 'budget', 'Open independent review');
+  }
 
   if (
     notification.type.startsWith("budget_")

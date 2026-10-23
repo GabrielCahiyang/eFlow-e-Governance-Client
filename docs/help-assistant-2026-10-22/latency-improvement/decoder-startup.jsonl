@@ -1,0 +1,5 @@
+{"stage": "python-start", "elapsed_seconds": 0.0}
+{"stage": "torch-imported", "elapsed_seconds": 28.39}
+{"stage": "torchscript-load-start", "elapsed_seconds": 28.547}
+{"stage": "torchscript-loaded", "elapsed_seconds": 99.562}
+{"stage": "decoder-ready", "elapsed_seconds": 102.218}

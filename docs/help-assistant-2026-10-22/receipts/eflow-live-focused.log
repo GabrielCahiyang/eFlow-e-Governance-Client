@@ -1,0 +1,20 @@
+
+ RUN  v3.2.4 C:/Users/gabri/OneDrive/Desktop/EflowWeb
+
+ ✓ tests/unit/helpConversation.test.tsx (7 tests) 461ms
+ ✓ tests/unit/helpVoiceActivity.test.ts (4 tests) 61ms
+ ✓ tests/unit/helpDictation.test.tsx (2 tests) 255ms
+ ✓ tests/unit/globalUiP6.test.tsx (7 tests) 6046ms
+   ✓ P6 shared Help action > head sees only eligible functions  1847ms
+   ✓ P6 shared Help action > member sees only eligible functions  531ms
+   ✓ P6 shared Help action > accounting_staff sees only eligible functions  527ms
+   ✓ P6 shared Help action > admin sees only eligible functions  495ms
+   ✓ P6 shared Help action > page and system choices invoke their existing providers once after closing  1203ms
+   ✓ P6 shared Help action > Getting started retains the existing event and Escape restores the actual opener  1011ms
+   ✓ P6 shared Help action > an active tour disables all launches without another controller  424ms
+
+ Test Files  4 passed (4)
+      Tests  20 passed (20)
+   Start at  13:07:30
+   Duration  150.63s (transform 2.11s, setup 0ms, collect 114.85s, tests 6.82s, environment 89.95s, prepare 5.13s)
+

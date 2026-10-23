@@ -8,16 +8,19 @@ from typing import Optional
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from supabase import Client, create_client
+from supabase.lib.client_options import SyncClientOptions
 
 from gateway_config import settings
 from services.recent_auth import is_recent_sign_in
 from services.administrative_roles import is_administrator
 from services.account_roles import normalize_account_role, ADMIN_PERMISSIONS
+from services.database_transport import database_http_client
 
 
 supabase_admin: Client = create_client(
     settings.supabase_url,
     settings.supabase_service_role_key,
+    options=SyncClientOptions(httpx_client=database_http_client()),
 )
 
 bearer = HTTPBearer(auto_error=False)

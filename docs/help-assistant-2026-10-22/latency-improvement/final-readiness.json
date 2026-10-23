@@ -1,0 +1,12 @@
+{
+  "checkedAt": "2026-10-22T13:16:11.448303+00:00",
+  "target": "ixnfphgjyelhckjwjkdv",
+  "privateApiHealth": 200,
+  "authenticatedHelpStatus": 200,
+  "anonymousHelpStatus": 401,
+  "voiceInstalled": true,
+  "readOnly": true,
+  "model": "qwen3.5:2b",
+  "asr": "moondream/parakeet-redux",
+  "tts": "KittenML/kitten-tts-2"
+}

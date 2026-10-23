@@ -14,6 +14,7 @@ export type AiChatRequest = {
   model?: string;
   messages: AiChatMessage[];
   stream?: boolean;
+  pdf_office_extraction?: { schemaVersion: 1; document: string; tasks: Array<{key:string;title:string}> };
   workspace_decomposition?: { schemaVersion: 1; projectId: string; sourceText: string; context: Record<string, unknown> };
   workspace_staffing?: { schemaVersion: 1; taskId: string; autoAssign?: boolean; projectId?: string; draftTask?: {title:string;description:string;estimatedHours:number}; plannedAssignments?: Array<{lead:string;hours:number}> };
   pdf_table_enrichment?: {
@@ -135,6 +136,7 @@ export async function requestAiChat(
         messages: request.messages,
         stream: false,
         request_id: requestId,
+        ...(request.pdf_office_extraction ? { pdf_office_extraction: request.pdf_office_extraction } : {}),
         ...(request.workspace_decomposition ? { workspace_decomposition: request.workspace_decomposition } : {}),
         ...(request.workspace_staffing ? { workspace_staffing: request.workspace_staffing } : {}),
         ...(request.pdf_table_enrichment ? { pdf_table_enrichment: request.pdf_table_enrichment } : {}),

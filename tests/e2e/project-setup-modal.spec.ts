@@ -6,17 +6,36 @@ test.setTimeout(120000);
 test('project setup is a bounded desktop modal with close and no active-project trigger',async({page},info)=>{
  await page.setViewportSize({width:1920,height:1080});
  const r=await projectWorkspaceFixture(page,'head',false,{compactLayout:true});
+ const confirmed=new Set(['work','office_identity','invitations','responsibilities']);
+ const checks=[['structure','Project structure reviewed','Lead Head review is needed for this revision.'],['dates','Project dates confirmed','Lead Head review is needed for this revision.'],['budget','Budget information reviewed','Lead Head review is needed for this revision.'],['schedule','Project schedule is valid','Set both project dates in the Timeline view.'],['staffing','Required task owners assigned','10 tasks need eligible owners selected by their own Office.'],['work','Delivery work exists','10 required tasks'],['office_identity','Office names confirmed','All Office names confirmed'],['invitations','Invitations accepted','Office participation confirmed'],['responsibilities','Responsibilities confirmed','Offices have confirmed their responsibilities']];
+ await page.route('**/rest/v1/rpc/phase7_project_readiness',route=>route.fulfill({json:{projectId:r.project,stage:'Planning',governed:false,ready:false,canActivate:false,checks:checks.map(([key,label,detail])=>({key,label,detail,ok:confirmed.has(key)}))}}));
+ await page.route('**/rest/v1/rpc/phase7_review_project',route=>{confirmed.add(route.request().postDataJSON().p_kind);return route.fulfill({json:null});});
  await page.getByRole('button',{name:'Setup & activation',exact:true}).click();
  const dialog=page.getByRole('dialog',{name:'Project setup',exact:true});await expect(dialog).toBeVisible();
- await expect(dialog.getByRole('heading',{name:'Plan reviews and activation'})).toBeVisible();
+ await expect(dialog.getByRole('heading',{name:'Get your project ready'})).toBeVisible();
+ await expect(dialog.getByRole('navigation',{name:'Project setup shortcuts'})).toBeVisible();
+ await expect(dialog).toContainText('4 of 9 checks confirmed');
+ await expect(dialog.getByRole('region',{name:'Readiness blockers'}).getByRole('listitem')).toHaveCount(5);
  const title=page.getByRole('heading',{name:'Community outreach',exact:true});
  for(const size of [{width:1920,height:1080},{width:1366,height:768},{width:1280,height:720}]){
   await page.setViewportSize(size);
   const box=await dialog.boundingBox();expect(box).not.toBeNull();expect(box!.x).toBeGreaterThanOrEqual(0);expect(box!.y).toBeGreaterThanOrEqual(0);expect(box!.x+box!.width).toBeLessThanOrEqual(size.width);expect(box!.y+box!.height).toBeLessThanOrEqual(size.height);
   await expect(dialog.getByRole('button',{name:'Close dialog'})).toBeVisible();
+  await expect(dialog.getByRole('button',{name:'Done for now'})).toBeVisible();
+  await expect(dialog.getByRole('button',{name:'Activate project',exact:true})).toBeVisible();
+  expect(await dialog.evaluate(element=>element.scrollWidth<=element.clientWidth+1)).toBe(true);
+  const footer=await dialog.getByRole('button',{name:'Activate project',exact:true}).boundingBox();expect(footer!.y+footer!.height).toBeLessThan(size.height);
   expect((await title.boundingBox())!.width).toBeGreaterThan(250);
  }
+ await page.setViewportSize({width:1440,height:1000});
  await page.screenshot({path:info.outputPath('setup-desktop.png')});
+ await dialog.getByRole('button',{name:'Confirm review: Project structure reviewed',exact:true}).click();
+ await expect(dialog).toContainText('5 of 9 checks confirmed');
+ await dialog.getByText('Confirmed checks (5)',{exact:true}).click();
+ await expect(dialog.getByText('Work plan review',{exact:true})).toBeVisible();
+ await expect(dialog.getByText('Current plan reviewed.',{exact:true})).toBeVisible();
+ await page.setViewportSize({width:1440,height:1000});
+ await page.screenshot({path:info.outputPath('setup-desktop-confirmed.png')});
  await dialog.getByRole('button',{name:'Close dialog'}).click();await expect(dialog).toHaveCount(0);
  await page.getByRole('button',{name:'Setup & activation'}).click();await page.keyboard.press('Escape');await expect(dialog).toHaveCount(0);
  r.projects[0].status='active';await page.reload();

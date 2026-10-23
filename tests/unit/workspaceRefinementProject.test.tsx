@@ -32,6 +32,19 @@ beforeEach(()=>{
 afterEach(()=>{cleanup();vi.unstubAllGlobals();});
 
 describe('R4 completion availability',()=>{
+ it('keeps setup actions in the modal footer and rechecks before enabling activation',async()=>{
+  const onUpdated=vi.fn();api.readiness.mockResolvedValue({...reviews,checks:[...reviews.checks,{key:'work',label:'Delivery work exists',detail:'One task',ok:true}]});
+  const footer=document.createElement('footer');document.body.append(footer);
+  const view=render(themed(<ProjectReadinessPanel project={project} canManage setup footerTarget={footer} onUpdated={onUpdated}/>));
+  await screen.findByText('Work plan review');
+  expect(footer.textContent).toContain('1 check to finish');
+  expect((screen.getByRole('button',{name:'Activate project'}) as HTMLButtonElement).disabled).toBe(true);
+  expect(view.container.textContent).not.toContain('Lead Head review is needed');
+  fireEvent.click(screen.getByRole('button',{name:'Confirm review: Project structure'}));
+  await waitFor(()=>expect(api.review).toHaveBeenCalledExactlyOnceWith('project','structure'));
+  await waitFor(()=>expect(onUpdated).toHaveBeenCalledOnce());
+  view.unmount();footer.remove();
+ });
  it('describes a confirmed schedule without asking the user to set dates again',async()=>{
   api.readiness.mockResolvedValue({...reviews,checks:[{key:'schedule',label:'Project schedule is valid',ok:true,detail:'Set both project dates in the Timeline view.'}]});
   render(themed(<ProjectReadinessPanel project={project} canManage/>));

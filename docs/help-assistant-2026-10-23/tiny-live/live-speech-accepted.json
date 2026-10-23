@@ -1,0 +1,105 @@
+{
+  "date": "2026-10-23",
+  "observedAt": "2026-10-23T13:41:26.894548+00:00",
+  "target": "ixnfphgjyelhckjwjkdv",
+  "scope": "Synthetic speech; actual authenticated local gateway and models, existing authorized test account, no email or business writes",
+  "checks": [
+    {
+      "operation": "status",
+      "status": 200,
+      "seconds": 1.609
+    },
+    {
+      "operation": "transcribe-0",
+      "status": 200,
+      "seconds": 3.844,
+      "recognized": true,
+      "clip_seconds": 3.48
+    },
+    {
+      "operation": "transcribe-1",
+      "status": 200,
+      "seconds": 4.375,
+      "recognized": true,
+      "clip_seconds": 3.48
+    },
+    {
+      "operation": "chat-first",
+      "status": 200,
+      "seconds": 3.203,
+      "grounded": true,
+      "model": "lfm2.5:350m",
+      "answer": "The server checks the remaining task pool and applicable office, fiscal-year, recipient and cash limits. Membership alone does not grant request, approval, release or settlement permission.\n\nOpen the eligible task's financial or Funding actions and choose Request petty cash. Provide the purpose, amount, recipient and required supporting information. The request uses current authorized task funding.\n\nA submitted request waits for its required decision and release scheduling. A request, reservation or approval message is not proof that cash was already released.",
+      "sources": [
+        "guide:cash:1",
+        "guide:cash:0",
+        "guide:cash:2"
+      ]
+    },
+    {
+      "operation": "speech-primer",
+      "status": 200,
+      "seconds": 37.0,
+      "audio_seconds": 7.64,
+      "parts": 1,
+      "cached": false
+    },
+    {
+      "operation": "chat-followup",
+      "status": 200,
+      "seconds": 3.344,
+      "grounded": true,
+      "model": "lfm2.5:350m",
+      "answer": "If receipt limits, lateness, missing documents or unresolved amounts block settlement, follow the displayed authorized correction or escalation. Do not invent approval or overwrite a posted entry.\n\nAfter using released cash, submit liquidation or settlement with actual expenses, required receipts and returned unused cash. Explain discrepancies and provide supporting details.\n\nThe authorized reviewer checks the current package. Accounting settlement/posting is separate from merely uploading receipts; an outstanding advance is not verified actual spending.",
+      "sources": [
+        "guide:settlement:2",
+        "guide:settlement:0",
+        "guide:settlement:1"
+      ]
+    },
+    {
+      "operation": "speech-full-warm",
+      "status": 200,
+      "seconds": 22.656,
+      "audio_seconds": 10.52,
+      "parts": 1,
+      "cached": false
+    },
+    {
+      "operation": "speech-first-chunk-warm",
+      "status": 200,
+      "seconds": 6.344,
+      "audio_seconds": 2.36,
+      "parts": 3,
+      "cached": false
+    },
+    {
+      "operation": "speech-chunk-1",
+      "status": 200,
+      "seconds": 8.328,
+      "audio_seconds": 4.44,
+      "parts": 3,
+      "cached": false
+    },
+    {
+      "operation": "speech-chunk-2",
+      "status": 200,
+      "seconds": 7.875,
+      "audio_seconds": 4.44,
+      "parts": 3,
+      "cached": false
+    },
+    {
+      "operation": "speech-first-chunk-cached",
+      "status": 200,
+      "seconds": 1.875,
+      "audio_seconds": 2.36,
+      "parts": 3,
+      "cached": true
+    },
+    {
+      "operation": "anonymous-status",
+      "status": 401
+    }
+  ]
+}

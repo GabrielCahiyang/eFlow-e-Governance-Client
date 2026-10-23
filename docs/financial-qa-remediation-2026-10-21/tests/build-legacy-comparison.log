@@ -1,0 +1,84 @@
+vite v6.3.5 building for production...
+transforming...
+✓ 6327 modules transformed.
+rendering chunks...
+[plugin vite:reporter] 
+(!) C:/Users/gabri/OneDrive/Desktop/EflowWeb/src/app/services/notificationService.ts is dynamically imported by C:/Users/gabri/OneDrive/Desktop/EflowWeb/src/app/services/chatService.ts but also statically imported by C:/Users/gabri/OneDrive/Desktop/EflowWeb/src/app/components/Member/EmployeeTaskWorkspace.tsx, C:/Users/gabri/OneDrive/Desktop/EflowWeb/src/app/components/ui/NotificationBell.tsx, C:/Users/gabri/OneDrive/Desktop/EflowWeb/src/app/features/action-center/components/UpdatesFeed.tsx, C:/Users/gabri/OneDrive/Desktop/EflowWeb/src/app/features/tasks/services/taskMutationService.ts, C:/Users/gabri/OneDrive/Desktop/EflowWeb/src/app/features/tasks/services/taskTeamService.ts, C:/Users/gabri/OneDrive/Desktop/EflowWeb/src/app/features/team-management/services/teamSupervisionActions.ts, C:/Users/gabri/OneDrive/Desktop/EflowWeb/src/app/services/announcementService.ts, C:/Users/gabri/OneDrive/Desktop/EflowWeb/src/app/services/subtaskService.ts, C:/Users/gabri/OneDrive/Desktop/EflowWeb/src/app/services/taskDiscussionService.ts, dynamic import will not move module into another chunk.
+
+[plugin vite:reporter] 
+(!) C:/Users/gabri/OneDrive/Desktop/EflowWeb/src/app/features/tasks/components/board/MondayBoard.tsx is dynamically imported by C:/Users/gabri/OneDrive/Desktop/EflowWeb/src/app/features/tasks/index.ts but also statically imported by C:/Users/gabri/OneDrive/Desktop/EflowWeb/src/app/features/tasks/components/HeadTaskBoardView.tsx, dynamic import will not move module into another chunk.
+
+computing gzip size...
+.codex-tmp/financial-qa-baseline/legacy-dist/eflow-view-modules.json                                  1.53 kB │ gzip:     0.58 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/index.html                                               6.29 kB │ gzip:     2.78 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/figtree-latin-ext-wght-normal-BDFhNWBr.woff2     10.23 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/figtree-latin-ext-wght-italic-iruAYCqh.woff2     10.54 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/figtree-latin-wght-normal-B3oYxpP2.woff2         20.02 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/figtree-latin-wght-italic-BTI1zcOO.woff2         21.15 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/eflow-bundle-profile.json                              520.81 kB │ gzip:    51.27 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/pdf.worker.min-iDqQPrd3.mjs                   1,232.30 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/index-BaiVCA14.css                                1.01 kB │ gzip:     0.47 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/departmentIdentityService-Bn5Bhcon.css            1.42 kB │ gzip:     0.41 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/ForReviewInbox-D9ngJ_E5.css                       2.23 kB │ gzip:     0.58 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/permissionPresentation-CPktyiPY.css               2.45 kB │ gzip:     0.66 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/activation-BkuZuM7b.css                           2.98 kB │ gzip:     0.91 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/StaffingDialog-BNh9t39_.css                       3.31 kB │ gzip:     1.06 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/index-C-i9nYz3.css                                3.93 kB │ gzip:     1.02 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/GuidedTourProvider-u-1Pi7rs.css                   6.03 kB │ gzip:     1.50 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/ProjectTableWorkspace-BMdwCcga.css                8.85 kB │ gzip:     2.12 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/index-BmBpmSxC.css                               16.32 kB │ gzip:     3.44 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/EflowAppShell-a9XGQoiW.css                       16.58 kB │ gzip:     3.32 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/WorkflowPreviewPanel-CLvz8Pv1.css                18.98 kB │ gzip:     4.72 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/usePresentationBranding-BpiUX6Uv.css             26.36 kB │ gzip:     4.67 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/workspace-contracts-Deca6Qqa.css                217.44 kB │ gzip:    37.62 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/index-BdKu4MNP.css                              305.06 kB │ gzip:    47.39 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/useMyTasks-Di36_c6C.js                            0.17 kB │ gzip:     0.15 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/index-CStGJ9jZ.js                                 0.20 kB │ gzip:     0.18 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/departmentIdentityService-Zuhs05S_.js             0.47 kB │ gzip:     0.33 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/OfficeReadFeedback-C_I7LfVq.js                    0.60 kB │ gzip:     0.41 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/SubtaskWorkDrawer-Bg9TBa6G.js                     0.87 kB │ gzip:     0.43 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/selectors-DG27sI1P.js                             1.34 kB │ gzip:     0.78 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/ProjectOfficesView-BKnjSi3w.js                    1.57 kB │ gzip:     0.72 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/TaskDatesDialog-AZc_H-z6.js                       1.83 kB │ gzip:     0.91 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/AssignedIndependentReviews-Bi2viwIX.js            2.49 kB │ gzip:     1.21 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/EmployeeTaskHistory-BjT6qAoM.js                   2.54 kB │ gzip:     1.17 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/EmployeeMyProjects-BVMWEFcn.js                    2.67 kB │ gzip:     1.16 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/EmployeeDeadlines-mkd_qXyf.js                     2.95 kB │ gzip:     1.40 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/EmployeeMyTasks-BfVzEnDp.js                       3.10 kB │ gzip:     1.35 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/TaskOfficeControl-V-ybDOe9.js                     3.35 kB │ gzip:     1.44 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/ActivateAccountPage-1F19UPrQ.js                   3.87 kB │ gzip:     1.62 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/EmployeeWorkReport-DqLAdBR3.js                    3.90 kB │ gzip:     1.62 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/ProjectInsightsView-CS-wyY4w.js                   5.63 kB │ gzip:     1.85 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/SignedInApp-BQHFC-EP.js                           6.01 kB │ gzip:     2.55 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/OnboardingWorkspace-C6AYFEpr.js                   7.47 kB │ gzip:     2.83 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/ProjectGanttView-DKdrsU45.js                      7.84 kB │ gzip:     3.01 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/eflowSeedData-C0UTkIU8.js                         8.09 kB │ gzip:     2.58 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/StaffingDialog-D3UFSZ7N.js                        8.14 kB │ gzip:     3.09 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/MemberContent-Cfmlhix6.js                         8.36 kB │ gzip:     2.91 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/SubtasksWorkspace-B-5KmYct.js                    11.30 kB │ gzip:     4.27 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/index-ChVQ_m1A.js                                11.58 kB │ gzip:     4.13 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/HeadDashboard-DYg83WKE.js                        12.52 kB │ gzip:     3.80 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/RolePageRouter-26B9_At7.js                       14.90 kB │ gzip:     5.47 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/usePresentationBranding-CBNkdfjh.js              15.21 kB │ gzip:     5.39 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/OfficeIdentityAccessWorkspace-BP-YoEeg.js        21.84 kB │ gzip:     6.59 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/ProfilePage-BUqLnq1T.js                          22.86 kB │ gzip:     7.09 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/TaskInspector-B8B2WSIX.js                        27.24 kB │ gzip:     8.91 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/GuidedTourProvider-BGjc9HWz.js                   30.86 kB │ gzip:    10.75 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/ForReviewInbox-D4a7r_8n.js                       31.62 kB │ gzip:     8.21 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/index-D3jR0YaT.js                                32.36 kB │ gzip:    10.55 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/ProjectOfficePanel-B5htSymC.js                   36.37 kB │ gzip:    10.76 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/WorkBudgetCard-BqTeDFwd.js                       39.74 kB │ gzip:    11.27 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/index-I8pbVxPd.js                                41.21 kB │ gzip:    12.54 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/ProjectTableWorkspace-C1sykhC2.js                49.46 kB │ gzip:    15.94 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/WorkflowPreviewPanel-CEWP_ZNv.js                 59.41 kB │ gzip:    15.80 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/EflowAppShell-DJZprdLv.js                        75.68 kB │ gzip:    22.56 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/index-BTRBh45z.js                               140.76 kB │ gzip:    40.36 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/index-CTiE7Uyz.js                               238.69 kB │ gzip:    58.72 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/pdf-qG1jx4kV.js                                 517.86 kB │ gzip:   156.88 kB
+.codex-tmp/financial-qa-baseline/legacy-dist/assets/workspace-contracts-C3reOWJv.js               3,852.68 kB │ gzip: 1,125.23 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 49.89s

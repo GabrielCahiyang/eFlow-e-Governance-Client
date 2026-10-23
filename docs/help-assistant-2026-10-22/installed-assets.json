@@ -1,0 +1,27 @@
+[
+  {
+    "file": "config.json",
+    "size": 2197,
+    "sha256": "0dc8505a545a2e2f712f09fc946acddcf3f62341fb1d4f38a0b51d1ca0966150"
+  },
+  {
+    "file": "cpp/model-tq2_1.gguf",
+    "size": 1029076832,
+    "sha256": "c6ad7ee1dbda3fd7a2b3dc3b8b1689f4687f761b7bd6509569b5592f543548f7"
+  },
+  {
+    "file": "cpp/model-gpu-f16.gguf",
+    "size": 3473307488,
+    "sha256": "0e4195b06e74e9aa780cf4ef862cfa691e8d216249e95567a559243c6861ee51"
+  },
+  {
+    "file": "cpp/student_w4/decoder.pt",
+    "size": 312339253,
+    "sha256": "47ea803ad46a87f876c1b3b02f05e93dad15e4d2b58eafeb34884f52cdec0268"
+  },
+  {
+    "file": "cpp/student_w4/voices.json",
+    "size": 43934103,
+    "sha256": "00ef08fc6b6c8565c7e6f878b417b5d7d80f65024b9acd50cf3ad0115b61f04f"
+  }
+]

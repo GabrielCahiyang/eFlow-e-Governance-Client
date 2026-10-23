@@ -3,6 +3,7 @@ import {createHash} from 'node:crypto';
 import {financialCompatibilityDatabase,financialBaselineSql,financialMigration,financialIntegrityMigration,migrationSource,nwCorrections} from '../tests/sql/helpers/financialCompatibilityDatabase.mjs';
 import {financialScenario,financeId as id} from '../tests/sql/helpers/financialScenario.mjs';
 if(process.argv.includes('--baseline-sql')){process.stdout.write(await financialBaselineSql());process.exit(0);}
+if(process.argv.includes('--nw-correction-sql')){for(const name of nwCorrections)process.stdout.write((await migrationSource(name)).replace(/\r\n/g,'\n'));process.exit(0);}
 let db,checks=0;
 const check=(condition,label)=>{assert.ok(condition,label);checks++;};
 const equal=(a,b,label)=>{assert.deepEqual(a,b,label);checks++;};

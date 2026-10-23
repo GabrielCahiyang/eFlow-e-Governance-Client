@@ -48,7 +48,7 @@ function WorkStaffingDialogContent({controller,nodeId,readOnly=false,executionBl
  const recovery=useWorkDraftRecovery(data,context,captured,contributorsOnly?'staffing_contributors':'staffing'),draftBaseline=recovery.baseline;
  const baseline=useRef({...captureStaffingBaseline(data,nodeId,context),revision:draftBaseline.revision,leadId:draftBaseline.fields.lead||null,workerIds:draftBaseline.fields.people}).current;
  const [lead,setLead]=useState<string|null>(recovery.initial?.fields.lead||preselectedLeadId||baseline.leadId),[workers,setWorkers]=useState(recovery.initial?.fields.people||baseline.workerIds);
- const [busy,setBusy]=useState(false),[error,setError]=useState(''),[saved,setSaved]=useState(false);
+ const [busy,setBusy]=useState(false),[aiBusy,setAiBusy]=useState(false),[error,setError]=useState(''),[saved,setSaved]=useState(false);
  const request=useRef<WorkRequest|undefined>(recovery.initial?.request),confirmed=useRef(false),active=useRef(true),closed=useRef(false);
  useEffect(()=>{active.current=true;return()=>{active.current=false;};},[]);
  const caps=staffingCapabilities(data,nodeId,context,contributorsOnly?undefined:lead);
@@ -59,7 +59,7 @@ function WorkStaffingDialogContent({controller,nodeId,readOnly=false,executionBl
  const closeOwner=()=>{recovery.clear();if(!closed.current){closed.current=true;onClose();}};
  const guard=useExplicitDraft('Task/subitem people changes',dirty&&!saved,busy,closeOwner,`${controller.actorId}:${controller.rootId}:${nodeId}:${contributorsOnly?'contributors':'staffing'}`);
  const confirmation=useWorkImpactConfirmation(controller.rootId),locked=busy||!!request.current||saved||!!controller.verificationFailed;
- const lockReason=busy?'Saving…':saved?'Team saved.':request.current?'The last save was not confirmed. Press Try again.':'Refresh this task to edit its team.';
+ const lockReason=busy?(aiBusy?'AI is choosing the team…':'Saving…'):saved?'Team saved.':request.current?'The last save was not confirmed. Press Try again.':'Refresh this task to edit its team.';
  const persist=()=>recovery.persist({baseline:draftBaseline,fields:{...draftBaseline.fields,lead:lead||'',people:workers},request:request.current});
  useEffect(()=>{if(!saved){if(dirty)persist();else recovery.clear();}},[lead,workers,busy,error,saved]);
  const latest=useRef({controller,context,lead,workers,draftError,onChanged});latest.current={controller,context,lead,workers,draftError,onChanged};
@@ -125,7 +125,7 @@ function WorkStaffingDialogContent({controller,nodeId,readOnly=false,executionBl
  const title=nodeId?'Subitem Lead and contributors':'Task lead and contributors';
  return <Modal isOpen title={title} onClose={close} preventClose={busy} width="max-w-2xl">
   <form className="r7-work r7-form m-0 overflow-y-auto border-0" aria-label="Task/subitem people changes" onSubmit={event=>{event.preventDefault();void submit();}}>
-   {!nodeId&&data.root.kind==='office'&&data.can_transfer&&caps.appointment.allowed&&!baseline.leadId&&!contributorsOnly&&!readOnly&&<AutoAssignTaskButton snapshot={data} disabled={locked||dirty||executionBlocked} onBusyChange={value=>{guard.pendingRef.current=value;setBusy(value);}} onAssigned={async receipt=>{confirmed.current=true;recovery.clear();setSaved(true);guard.markClean();await latest.current.onChanged(receipt);}}/>}
+   {!nodeId&&data.root.kind==='office'&&data.can_transfer&&caps.appointment.allowed&&!baseline.leadId&&!contributorsOnly&&!readOnly&&<AutoAssignTaskButton snapshot={data} disabled={locked||dirty||executionBlocked} onBusyChange={value=>{guard.pendingRef.current=value;setAiBusy(value);setBusy(value);}} onAssigned={async receipt=>{confirmed.current=true;recovery.clear();setSaved(true);guard.markClean();await latest.current.onChanged(receipt);}}/>}
    <WorkPeoplePicker people={data.people} lead={lead||''} selected={workers} onLead={setLead} onSelected={setWorkers}
     appointmentCapability={contributorsOnly?{allowed:false,reason_code:'read_only',disabledReason:'Change the lead from the Lead menu.'}:caps.appointment} contributorCapability={caps.contributors} disabled={locked} disabledReason={lockReason}
     invite={!readOnly&&!locked?{project:data.root.project,office:data.root.office,root:controller.rootId,node:nodeId||undefined,canRequest:scopedInvitationRequestAllowed(data,nodeId,context)}:undefined}/>
@@ -135,7 +135,7 @@ function WorkStaffingDialogContent({controller,nodeId,readOnly=false,executionBl
    {recovery.recovered&&<p role="status">{recovery.stale?'Recovered people draft is stale. Review the current appointments before saving.':'People draft recovered after current access verification.'}</p>}
    {recovery.storageFailed&&<p role="alert">Draft recovery could not be stored in this tab. Keep the editor open to retain your changes.</p>}
    <div className="r7-actions"><button type="button" disabled={busy} onClick={close}>{saved?'Close':'Cancel changes'}</button>
-    {!saved&&<button type="submit" disabled={busy||!!draftError}>{busy?'Saving…':request.current?'Try again':'Save changes'}</button>}
+    {!saved&&<button type="submit" disabled={busy||!!draftError}>{busy?(aiBusy?'Choosing team…':'Saving…'):request.current?'Try again':'Save changes'}</button>}
    </div>
    {confirmation.dialog}
   </form>

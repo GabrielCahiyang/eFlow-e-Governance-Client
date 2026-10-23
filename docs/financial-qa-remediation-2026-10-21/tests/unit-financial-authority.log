@@ -1,0 +1,23 @@
+
+> @figma/my-make-file@0.0.1 test
+> vitest --configLoader runner run tests/unit/accountingSettlementAuthority.test.tsx tests/unit/generalJournalDatePicker.test.tsx tests/unit/workspaceRefinementProject.test.tsx --maxWorkers=2
+
+
+ RUN  v3.2.4 C:/Users/gabri/OneDrive/Desktop/EflowWeb
+
+ ✓ tests/unit/accountingSettlementAuthority.test.tsx (6 tests) 2487ms
+   ✓ Accounting settlement authority > waits for Head authorization before settling a late package  989ms
+   ✓ Accounting settlement authority > enables Accounting settlement after Head authorizes the late package  841ms
+ ✓ tests/unit/generalJournalDatePicker.test.tsx (1 test) 1089ms
+   ✓ General Journal calendar controls > opens the native picker from both the header and adjustment view  1086ms
+ ✓ tests/unit/workspaceRefinementProject.test.tsx (11 tests) 3435ms
+   ✓ R4 completion availability > keeps the requirements action usable while completion is blocked  1422ms
+   ✓ R4 completion availability > retains structural review and resolution without a second completion or archive entry  340ms
+   ✓ R4 retained navigation and identities > maps all retired URL identifiers to retained views and removes them from saved tabs and Add view  673ms
+   ✓ R4 retained navigation and identities > uses authenticated avatar URLs, keyboard name targets, initials fallback and an overflow list  488ms
+
+ Test Files  3 passed (3)
+      Tests  18 passed (18)
+   Start at  02:08:39
+   Duration  46.17s (transform 10.51s, setup 0ms, collect 58.15s, tests 7.01s, environment 4.80s, prepare 728ms)
+

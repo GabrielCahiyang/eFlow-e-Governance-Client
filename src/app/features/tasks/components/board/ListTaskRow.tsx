@@ -4,7 +4,8 @@ import { Clock, Crown } from 'lucide-react';
 import type { Employee } from '../../../../services/employeeService';
 import type { Task } from '../../../../services/taskService';
 import { RejectionNotice, ReopenNotice, SubmissionDetails } from './TaskFeedback';
-import { SubtaskProgressChip, canDragTask, getDeadlineInfo, getHierarchyDisplay, getTaskMemberNames, priorityMeta, type MondayBoardProps } from './model';
+import { SubtaskProgressChip, canDragTask, getDeadlineInfo, getInitials, getTaskMemberNames, priorityMeta, type MondayBoardProps } from './model';
+import { formatManilaDate } from '../../../../shared/calendarDisplay';
 import { TaskManagementMenu } from './TaskManagementMenu';
 import { TaskStatusLabel } from '../../presentation/TaskStatusLabel';
 import { isTaskLead } from '../../selectors/leadership';
@@ -30,7 +31,7 @@ export function ListTaskRow({ task, role, employeeById, currentUserId, onEditTea
                   const pm =
                     priorityMeta[task.priority || "medium"] ||
                     priorityMeta.medium;
-                  const hierarchy = getHierarchyDisplay(task);
+                  const hierarchy = task.hierarchyPath || [task.proposalTitle, task.programTitle, task.projectTitle, task.activityTitle].filter(Boolean).join(' › ');
                   const memberNames = getTaskMemberNames(task, employeeById);
                   const leadName = task.assigneeName || memberNames[0] || "";
                   const canSubmit =
@@ -59,28 +60,28 @@ export function ListTaskRow({ task, role, employeeById, currentUserId, onEditTea
                       onDragEnd={(e) => {
                         (e.currentTarget as HTMLElement).style.opacity = "1";
                       }}
-                      className={`eflow-task-row grid grid-cols-[20px_1fr_180px_90px_150px_120px_132px] gap-0 px-4 py-3 border-b border-neutral-100 last:border-0 items-center hover:bg-neutral-50/70 transition group ${isDraggable ? "cursor-grab active:cursor-grabbing" : "cursor-default"}`}
+                      className={`eflow-task-row py-3 border-b border-neutral-100 last:border-0 items-center hover:bg-neutral-50/70 transition group ${isDraggable ? "cursor-grab active:cursor-grabbing" : "cursor-default"}`}
                     >
                       {/* Priority bar */}
                       <div
-                        className={`w-1 h-8 rounded-full ${pm.bar}`}
+                        className={`eflow-task-row__marker w-1 h-8 rounded-full ${pm.bar}`}
                         style={{ marginLeft: "2px" }}
                       />
 
                       {/* Task info */}
-                      <div className="pl-3 pr-4 min-w-0">
+                      <div className="eflow-task-row__info pl-3 pr-4 min-w-0">
                         {role === "head" && onOpenTaskEditor ? (
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
                               onOpenTaskEditor(task);
                             }}
-                            className="break-words text-left text-[13px] font-medium leading-snug text-neutral-900 hover:text-violet-700 transition"
+                            className="eflow-task-row__title break-words text-left font-medium text-neutral-900 hover:text-violet-700 transition"
                           >
                             {task.title}
                           </button>
                         ) : (
-                          <div className="break-words text-[13px] font-medium leading-snug text-neutral-900">
+                          <div className="eflow-task-row__title break-words font-medium text-neutral-900">
                             {task.title}
                           </div>
                         )}
@@ -94,16 +95,18 @@ export function ListTaskRow({ task, role, employeeById, currentUserId, onEditTea
                           {task.tags && task.tags.slice(0, 3).map((tag) => (
                             <span
                               key={tag}
-                              className="bg-neutral-100 text-neutral-500 text-[10px] px-1.5 py-0.5 rounded-full"
+                              title={tag}
+                              className="max-w-full truncate bg-neutral-100 text-neutral-500 text-[10px] px-1.5 py-0.5 rounded-full"
                             >
                               {tag}
                             </span>
                           ))}
                           <SubtaskProgressChip task={task} />
                         </div>
-                        <div className="mt-1 break-words text-[10px] leading-relaxed text-violet-700">
-                          {hierarchy.path}
-                        </div>
+                        {(hierarchy || task.auditHash) && <details className="mt-2 text-[13px] text-muted-foreground"><summary className="cursor-pointer">Work details</summary>
+                          {hierarchy && <p className="mt-2 break-words leading-relaxed">{hierarchy}</p>}
+                          {task.auditHash && <p className="mt-2 break-all">Audit reference: {task.auditHash}</p>}
+                        </details>}
                         {role === "head" &&
                           task.status === "for_review" && (
                             <SubmissionDetails
@@ -124,26 +127,18 @@ export function ListTaskRow({ task, role, employeeById, currentUserId, onEditTea
                               reopenedByName={task.reopenedByName}
                             />
                           )}
-                        {task.status === "completed" && task.auditHash && (
-                          <div
-                            className="mt-1 text-[9px] text-neutral-400"
-                            title={task.auditHash}
-                          >
-                            🔒 Audit: {task.auditHash.substring(0, 8)}…
-                          </div>
-                        )}
                       </div>
 
                       {/* Team */}
                       <div className="eflow-task-row__team pr-4 min-w-0">
                         {leadName || task.teamName ? (
                           <div>
-                            <div className="flex items-center gap-1.5">
-                              <Avatar text={leadName || task.teamName || "Unassigned"} size="small" />
+                            <div className="eflow-task-row__lead flex min-w-0 items-center gap-1.5">
+                              <span className="shrink-0" aria-hidden="true"><Avatar text={getInitials(leadName || task.teamName || "Unassigned")} size="small" /></span>
                               {leadName && (
-                                <Crown size={10} className="text-amber-500" />
+                                <Crown size={10} className="shrink-0 text-amber-500" aria-hidden="true" />
                               )}
-                              <span className="text-[11px] font-medium text-neutral-800 truncate">
+                              <span title={leadName || "Unassigned"} className="min-w-0 text-[12px] font-medium text-neutral-800 truncate">
                                 {leadName || "Unassigned"}
                               </span>
                             </div>
@@ -159,7 +154,7 @@ export function ListTaskRow({ task, role, employeeById, currentUserId, onEditTea
                               <span className="text-[8px] uppercase tracking-wider text-neutral-400">Auto-Matched</span>
                             )}
                             {memberNames.length > 1 && (
-                              <div className="text-[10px] text-violet-600 mt-0.5 truncate">
+                              <div title={memberNames.join(', ')} className="text-[11px] text-violet-600 mt-0.5 truncate">
                                 Team: {memberNames.slice(0, 3).join(", ")}
                               </div>
                             )}
@@ -184,8 +179,9 @@ export function ListTaskRow({ task, role, employeeById, currentUserId, onEditTea
 
                       {/* Due date */}
                       <div className="eflow-task-row__due">
+                        <span className="eflow-task-row__field-label">Due date</span>
                         <div className="text-[12px] font-normal text-neutral-700">
-                          {task.deadline || task.dueDate || "—"}
+                          <time dateTime={task.deadline || task.dueDate}>{formatManilaDate(task.deadline || task.dueDate, '—')}</time>
                         </div>
                         {dlInfo && task.status !== "completed" && (
                           <div

@@ -1,0 +1,83 @@
+
+Running 4 tests using 1 worker
+
+(node:29344) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:29344) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  1 [chromium] › tests\e2e\financial-remediation.spec.ts:52:1 › Journal detail preserves filters and focus, shows full lines, and never invents available funding (1.0m)
+(node:9700) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:9700) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  2 [chromium] › tests\e2e\financial-remediation.spec.ts:125:1 › Independent Head reviews a conflict package and a separate Accounting Officer settles it (1.0m)
+(node:29752) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:29752) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 3 [chromium] › tests\e2e\financial-remediation.spec.ts:267:33 › Financial controls fit 390px without page overflow (8.8s)
+  ok 4 [chromium] › tests\e2e\financial-remediation.spec.ts:267:33 › Financial controls fit 768px without page overflow (7.8s)
+
+
+  1) [chromium] › tests\e2e\financial-remediation.spec.ts:52:1 › Journal detail preserves filters and focus, shows full lines, and never invents available funding 
+
+    [31mTest timeout of 60000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: 'Open navigation', exact: true })[22m
+
+
+       7 | async function openAccounting(page: Page, name: string) {
+       8 |   const navigation = page.getByRole('navigation', { name: 'Accounting destinations', exact: true });
+    >  9 |   if (!await navigation.isVisible()) await page.getByRole('button', { name: 'Open navigation', exact: true }).click();
+         |                                                                                                               ^
+      10 |   await navigation.getByRole('button', { name, exact: true }).click();
+      11 | }
+      12 | function seedJournal(state: ReturnType<typeof phase16FinancialState>) {
+        at openAccounting (C:\Users\gabri\OneDrive\Desktop\EflowWeb\tests\e2e\financial-remediation.spec.ts:9:111)
+        at C:\Users\gabri\OneDrive\Desktop\EflowWeb\tests\e2e\financial-remediation.spec.ts:22:3
+
+    Error Context: test-results\financial-remediation-Jour-fab18-r-invents-available-funding-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\financial-remediation-Jour-fab18-r-invents-available-funding-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\financial-remediation-Jour-fab18-r-invents-available-funding-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › tests\e2e\financial-remediation.spec.ts:125:1 › Independent Head reviews a conflict package and a separate Accounting Officer settles it 
+
+    [31mTest timeout of 60000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: 'Open navigation', exact: true })[22m
+
+
+       7 | async function openAccounting(page: Page, name: string) {
+       8 |   const navigation = page.getByRole('navigation', { name: 'Accounting destinations', exact: true });
+    >  9 |   if ((page.viewportSize()?.width || 1440) < 1024 && !await navigation.isVisible()) await page.getByRole('button', { name: 'Open navigation', exact: true }).click();
+         |                                                                                                               ^
+      10 |   await expect(navigation).toBeVisible();
+      11 |   await navigation.getByRole('button', { name, exact: true }).click();
+      12 | }
+        at openAccounting (C:\Users\gabri\OneDrive\Desktop\EflowWeb\tests\e2e\financial-remediation.spec.ts:9:111)
+        at C:\Users\gabri\OneDrive\Desktop\EflowWeb\tests\e2e\financial-remediation.spec.ts:71:3
+
+    Error Context: test-results\financial-remediation-Inde-973d1-counting-Officer-settles-it-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\financial-remediation-Inde-973d1-counting-Officer-settles-it-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\financial-remediation-Inde-973d1-counting-Officer-settles-it-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [chromium] › tests\e2e\financial-remediation.spec.ts:52:1 › Journal detail preserves filters and focus, shows full lines, and never invents available funding 
+    [chromium] › tests\e2e\financial-remediation.spec.ts:125:1 › Independent Head reviews a conflict package and a separate Accounting Officer settles it 
+  2 passed (2.5m)

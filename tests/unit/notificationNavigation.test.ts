@@ -40,6 +40,10 @@ describe("notification navigation", () => {
     expect(resolveNotificationSubitem({...intent,entityId:undefined,entityLabel:undefined},[rows[0]])).toEqual({status:'unavailable'});
     expect(resolveNotificationSubitem({...intent,entityId:undefined,entityLabel:' same '},[rows[1],rows[2]])).toEqual({status:'resolved',item:rows[1]});
   });
+  it('opens assigned independent financial reviews in the shared Inbox for Head and Member appointments',()=>{
+    for (const role of ['head','member']) expect(resolveNotificationDestination(notification({type:'petty_cash_liquidation_decision',title:'Independent review',financialRecordId:'liq',financialRecordType:'independent_liquidation_review'}),role)).toMatchObject({section:'inbox',page:'Needs action',intent:{financialRecordId:'liq'}});
+    expect(resolveNotificationDestination(notification({type:'petty_cash_liquidation_decision',title:'Independent review',financialRecordType:'independent_liquidation_review'}),'admin')).toBeNull();
+  });
   it('keeps financial record destinations even when they carry a canonical work node',()=>{
     expect(resolveNotificationDestination(notification({type:'petty_cash_liquidation',title:'Subtask liquidation',taskId:'root',workNodeId:'eight',financialRecordId:'cash',financialRecordType:'petty_cash_liquidation'}),'accounting_staff')).toMatchObject({section:'accounting_releases',intent:{kind:'budget',entityId:'eight',financialRecordId:'cash',financialRecordType:'petty_cash_liquidation'}});
     expect(resolveNotificationDestination(notification({type:'assignment',title:'Subtask assignment',taskId:'root',workNodeId:'eight'}),'admin')).toBeNull();

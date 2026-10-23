@@ -23,6 +23,32 @@ from services.email_delivery import invitation_email, send_email
 from services.phase2_config import app_url
 
 class Phase2Tests(unittest.TestCase):
+    def test_office_team_recovers_if_head_check_connection_disconnects(self):
+        import httpx
+        client = MagicMock()
+        client.table.return_value.select.return_value.eq.return_value.single.return_value.execute.return_value.data = {'name': 'LEDIPO'}
+        client.table.return_value.select.return_value.eq.return_value.order.return_value.execute.return_value.data = [{'id': 'member', 'is_active': True}]
+        user = SimpleNamespace(role='head', org_id='office', id='head')
+        with patch.object(service, 'require_head', side_effect=[httpx.RemoteProtocolError('Server disconnected'), user]) as guard, patch.object(routes, 'supabase_admin', client), patch('services.database_transport.time.sleep'):
+            result = routes.office_team(user)
+        self.assertEqual(guard.call_count, 2)
+        self.assertEqual(result['office_name'], 'LEDIPO')
+        self.assertEqual(result['members'][0]['id'], 'member')
+        client.table.return_value.select.return_value.eq.assert_any_call('org_id', 'office')
+
+    def test_invitation_read_recovers_and_preserves_office_and_uploader_scope(self):
+        import httpx
+        client = MagicMock()
+        query = client.table.return_value.select.return_value
+        query.eq.return_value.eq.return_value.order.return_value.limit.return_value.execute.side_effect = [httpx.RemoteProtocolError('Server disconnected'), SimpleNamespace(data=[]), SimpleNamespace(data=[])]
+        user = SimpleNamespace(role='head', org_id='office', id='head')
+        with patch.object(service, 'require_head', return_value=user) as guard, patch.object(routes, 'supabase_admin', client), patch('services.database_transport.time.sleep'):
+            self.assertEqual(routes.list_invitations(user), {'invitations': []})
+        self.assertEqual(guard.call_count, 2)
+        query.eq.assert_any_call('office_id', 'office')
+        query.eq.return_value.eq.assert_any_call('invitation_type', 'office_member')
+        query.eq.return_value.eq.assert_any_call('uploaded_by', 'head')
+
     def test_email_and_tokens_are_normalized_without_accepting_arbitrary_tokens(self):
         self.assertEqual(service.normalize_email(' Person@Example.test '), 'person@example.test')
         self.assertEqual(len(service.token_hash('a' * 43)), 64)

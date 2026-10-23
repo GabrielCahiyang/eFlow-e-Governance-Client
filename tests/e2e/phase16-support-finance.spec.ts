@@ -183,7 +183,7 @@ test("Accounting retains fiscal scope, exposes settlements, records one decision
       exact: true,
     })
     .click();
-  const inspector = page.getByRole("dialog", {
+  const inspector = page.getByRole("region", {
     name: "Journal entry LIQ-2026-12-v2",
     exact: true,
   });
@@ -191,7 +191,7 @@ test("Accounting retains fiscal scope, exposes settlements, records one decision
     inspector.getByText("Full entry totals", { exact: true }),
   ).toBeVisible();
   await page.screenshot({ path: info.outputPath("settlement-journal.png") });
-  await inspector.getByRole("button", { name: "Close", exact: true }).click();
+  await inspector.getByRole("button", { name: "Back to journal", exact: true }).click();
   await page
     .getByRole("button", { name: "Open fiscal year 2027", exact: true })
     .click();
@@ -488,6 +488,7 @@ test("Accounting retains ordinary Member workspaces, requires an Office and cann
   await expect(page.getByText(/cannot settle your own/i)).toBeVisible();
   expect(state.writes).toHaveLength(0);
   await page.goto("/projects?page=Projects");
+  await page.getByRole('region', { name: 'All projects', exact: true }).getByRole('button', { name: 'Community outreach', exact: true }).click();
   await expect(
     page.getByRole("region", { name: "Project main table", exact: true }),
   ).toBeVisible();

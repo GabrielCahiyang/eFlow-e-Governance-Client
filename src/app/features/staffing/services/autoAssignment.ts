@@ -15,7 +15,10 @@ export async function prepareAutoAssignment(snapshot:WorkTreeSnapshot,onQueueUpd
   const context=await phase2Request<StaffingContext>(`staffing/${encodeURIComponent(root)}/context?auto_assign=true`);
   const response=await requestAiChat({model:'qwen3.5:4b',messages:[{role:'user',content:'Choose a lead and the contributors needed for this task.'}],
     workspace_staffing:{schemaVersion:1,taskId:root,autoAssign:true},stream:false},{onQueueUpdate});
-  const recommendations=parseStaffRecommendations(readAiText(response).replace(/<think>[\s\S]*?<\/think>/gi,'').trim(),context);
+  const raw=readAiText(response).replace(/<think>[\s\S]*?<\/think>/gi,'').trim();
+  const pipeline=JSON.parse(raw).pipeline;
+  if(pipeline?.laya!=='completed'||pipeline?.layaEngine!=='laya'||pipeline?.validation!=='completed')throw new Error('The AI server did not confirm LAYA review. Restart the updated AI server and retry. No team was saved.');
+  const recommendations=parseStaffRecommendations(raw,context);
   return {id:crypto.randomUUID(),root,revision:snapshot.revision,lead:recommendations[0].userId,
     people:[...new Set([...snapshot.root.people,...recommendations.map(person=>person.userId)])].sort()};
 }

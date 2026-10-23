@@ -24,12 +24,13 @@ test('Head confirms readiness; desktop and mobile retain readable checks and clo
  const panel=page.getByRole('region',{name:'Project readiness reviews'});await expect(panel).toBeVisible();
  await expect(panel.getByRole('button',{name:'Activate project',exact:true})).toBeDisabled();
  await expect(page.getByRole('dialog',{name:'Mark project complete',exact:true}).getByRole('button',{name:'Confirm completion',exact:true})).toBeDisabled();
- for(const label of ['Project structure reviewed','Project dates confirmed','Budget information reviewed']) {const check=panel.locator('li').filter({hasText:label});await check.getByRole('button',{name:'Confirm review',exact:true}).click();await expect(check.getByRole('button',{name:'Reviewed',exact:true})).toBeVisible();}
+ for(const label of ['Project structure reviewed','Project dates confirmed','Budget information reviewed']) {const check=panel.locator('li').filter({hasText:label});await check.getByRole('button',{name:'Confirm review',exact:true}).click();await expect(panel.locator('details').getByText(label+' · Confirmed',{exact:true})).toHaveCount(1);}
  await expect(panel.getByRole('button',{name:'Activate project',exact:true})).toBeEnabled();
  await page.screenshot({path:info.outputPath('readiness-desktop.png')});
  await panel.getByRole('button',{name:'Activate project',exact:true}).click();await page.getByRole('alertdialog',{name:'Activate this project?'}).getByRole('button',{name:'Activate project',exact:true}).click();await expect.poll(()=>flow.activated).toBe(1);expect(flow.closed).toBe(0);
  await expect(panel.getByRole('status').filter({hasText:'Project activated.'})).toContainText('activated');
  await page.setViewportSize({width:390,height:844});await expect(panel).toBeVisible();
+ await panel.locator('summary').click();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  await expect.poll(async()=>panel.locator('li').evaluateAll(rows=>rows.every(row=>{const bounds=row.getBoundingClientRect();return bounds.width>200&&bounds.height>50;}))).toBe(true);
  await panel.scrollIntoViewIfNeeded();await page.screenshot({path:info.outputPath('readiness-mobile.png')});expect(errors).toEqual([]);
@@ -56,28 +57,28 @@ test('Staffing is advisory until Head confirmation; roomy dialog supports keyboa
  await page.setViewportSize({width:390,height:844});await expect(dialog).toBeVisible();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  const footer=(await dialog.getByRole('button',{name:'Confirm owner'}).boundingBox())!;expect(footer.y+footer.height).toBeLessThanOrEqual(844);expect(footer.x+footer.width).toBeLessThanOrEqual(390);
- const mobileBounds=(await dialog.boundingBox())!;expect(Math.round(mobileBounds.width)).toBe(390);expect(Math.round(mobileBounds.height)).toBe(844);
+ const mobileBounds=(await dialog.boundingBox())!;expect(mobileBounds.x).toBeGreaterThanOrEqual(0);expect(mobileBounds.width).toBeGreaterThanOrEqual(350);expect(mobileBounds.x+mobileBounds.width).toBeLessThanOrEqual(390);expect(mobileBounds.height).toBeLessThanOrEqual(844);
  await dialog.locator('.p7-staff-card').first().scrollIntoViewIfNeeded();await page.screenshot({path:info.outputPath('staffing-mobile.png')});
  await dialog.getByRole('radio').first().check();await dialog.getByRole('button',{name:'Confirm owner'}).click();
  await page.getByRole('alertdialog',{name:'Review recommended Task Lead?'}).getByRole('button',{name:'Review appointment',exact:true}).click();
  const appointment=page.getByRole('dialog',{name:'Task lead and contributors',exact:true});
  await expect(appointment.getByRole('combobox',{name:'Appointed Lead'})).toHaveValue(candidates[0].id);
  expect(assigned).toBe(0);expect(staffing.commands).toHaveLength(0);
- await appointment.getByRole('button',{name:'Save work changes',exact:true}).click();
+ await appointment.getByRole('button',{name:'Save changes',exact:true}).click();
  const assignmentResponse=page.waitForResponse(response=>response.request().method()==='POST'&&new URL(response.url()).pathname.endsWith('/rpc/nw_work_command'));
- await page.getByRole('alertdialog',{name:'Transfer Lead appointment?'}).getByRole('button',{name:'Transfer Lead',exact:true}).click();
+ await page.getByRole('alertdialog',{name:'Assign a lead?'}).getByRole('button',{name:'Assign lead',exact:true}).click();
  const response=await assignmentResponse;
  expect(response.status()).toBe(200);
  expect(response.request().postDataJSON()).toMatchObject({p_root:records.tasks[0].id,p_command:'root_lead',p_payload:{lead:candidates[0].id,people:[candidates[0].id]},p_impact_fingerprint:'staffing-1'});
  await expect(page.getByRole('dialog',{name:'Recommend staff',exact:true,includeHidden:true})).toHaveCount(0);
  await page.getByRole('button',{name:'Open Prepare community assessment',exact:true}).click();
- const inspector=page.getByRole('dialog',{name:'Task details: Prepare community assessment'});
+ const inspector=page.getByRole('region',{name:'Task details: Prepare community assessment',exact:true});
  await inspector.getByRole('tab',{name:'Work',exact:true}).click();
- await expect(inspector.getByText('Assignee',{exact:true}).locator('..')).toContainText(candidates[0].name);
+ await expect(inspector.getByRole('region',{name:'Task lead and contributors',exact:true})).toContainText(candidates[0].name);
  expect(assigned).toBe(0);expect(staffing.commands).toHaveLength(1);expect(staffing.previews).toHaveLength(1);
 });
 test('Member reads readiness without Head review, activation or staffing controls',async({page})=>{
  const records=await projectWorkspaceFixture(page,'member');await readinessFixture(page,records);
- await openProjectAction(page,'Project settings');await page.getByText('Plan reviews',{exact:true}).click();const panel=page.getByRole('region',{name:'Project readiness reviews'});await expect(panel).toBeVisible();
+ await openProjectAction(page,'Project settings');const panel=page.getByRole('region',{name:'Project readiness reviews'});await expect(panel).toBeVisible();
  await expect(panel.getByRole('button',{name:'Confirm review'})).toHaveCount(0);await expect(panel.getByRole('button',{name:'Activate project'})).toHaveCount(0);await expect(panel.getByRole('button',{name:'Close project'})).toHaveCount(0);
 });

@@ -20,6 +20,7 @@ from routers.professional_profiles import router as professional_profiles_router
 from routers.onboarding import router as onboarding_router
 from routers.staffing import router as staffing_router
 from routers.login_security import router as login_security_router
+from routers.help_assistant import router as help_assistant_router
 from pds.worker import start_worker
 
 
@@ -63,6 +64,7 @@ app.include_router(professional_profiles_router)
 app.include_router(onboarding_router)
 app.include_router(staffing_router)
 app.include_router(login_security_router)
+app.include_router(help_assistant_router)
 
 
 if __name__ == "__main__":

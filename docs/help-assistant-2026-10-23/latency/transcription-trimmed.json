@@ -1,0 +1,27 @@
+{
+  "date": "2026-10-23",
+  "observedAt": "2026-10-23T12:16:53.873180+00:00",
+  "target": "ixnfphgjyelhckjwjkdv",
+  "scope": "Actual authenticated local gateway and models, synthetic speech, existing authorized test account, no email or business writes",
+  "checks": [
+    {
+      "operation": "status",
+      "status": 200,
+      "seconds": 3.5
+    },
+    {
+      "operation": "transcribe-0",
+      "status": 200,
+      "seconds": 4.047,
+      "recognized": true,
+      "clip_seconds": 3.48
+    },
+    {
+      "operation": "transcribe-1",
+      "status": 200,
+      "seconds": 3.859,
+      "recognized": true,
+      "clip_seconds": 3.48
+    }
+  ]
+}

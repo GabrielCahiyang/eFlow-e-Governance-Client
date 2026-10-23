@@ -1,0 +1,18 @@
+
+> @figma/my-make-file@0.0.1 test
+> vitest --configLoader runner run tests/unit/assignedIndependentReviews.test.tsx tests/unit/notificationNavigation.test.ts tests/unit/accountingSettlementAuthority.test.tsx --maxWorkers=2
+
+
+ RUN  v3.2.4 C:/Users/gabri/OneDrive/Desktop/EflowWeb
+
+ ✓ tests/unit/assignedIndependentReviews.test.tsx (3 tests) 118ms
+ ✓ tests/unit/accountingSettlementAuthority.test.tsx (6 tests) 2416ms
+   ✓ Accounting settlement authority > waits for Head authorization before settling a late package  891ms
+   ✓ Accounting settlement authority > enables Accounting settlement after Head authorizes the late package  869ms
+ ✓ tests/unit/notificationNavigation.test.ts (13 tests) 18ms
+
+ Test Files  3 passed (3)
+      Tests  22 passed (22)
+   Start at  02:33:35
+   Duration  41.96s (transform 10.86s, setup 0ms, collect 48.78s, tests 2.55s, environment 3.76s, prepare 786ms)
+

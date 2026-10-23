@@ -4,7 +4,7 @@ import { MoreHorizontal, Share2, Star } from 'lucide-react';
 import { ActionMenu, WorkspaceTooltip, type WorkspaceAction } from '../../../../components/ui/workspace';
 import { Button } from '../../../../components/ui/button';
 import { Modal } from '../../../../components/ui/Modal';
-import {ProjectReadinessPanel} from '../../../project-readiness';
+import {ProjectSetupDialog} from './ProjectSetupDialog';
 import {ProjectAccessPanel} from '../../../project-access';
 import { requestNavigation } from '../../../../shared/navigationGuard';
 import { useNavigationFavorites } from '../../../../shared/navigationPreferences';
@@ -41,10 +41,7 @@ export function ProjectUtilities({ project, canManage, lifecycle, userId, contex
     {canManage && lifecycle.complete && !['completed','archived'].includes(project.status) && <Button variant="outline" onClick={() => { void requestNavigation(lifecycle.complete!); }}>Completion requirements</Button>}
     {canManage&&project.status==='planning'&&<Button variant="outline" onClick={()=>void requestNavigation(()=>setSetupOpen(value=>!value))} aria-expanded={setupOpen}>Setup & activation</Button>}
     <ActionMenu tooltip="Project actions" trigger={<Button ref={menuTrigger} variant="outline" size="icon" aria-label="Project actions"><MoreHorizontal size={20} /></Button>} actions={actions} />
-    {setupOpen&&project.status==='planning'&&<Modal isOpen title="Project setup" description={project.title} width="max-w-4xl" className="project-setup-modal" onClose={()=>void requestNavigation(()=>setSetupOpen(false))}>
-      <div className="project-setup-shortcuts"><Button variant="outline" onClick={()=>void requestNavigation(()=>{setSetupOpen(false);onOpenSettings();})}>Set project dates</Button><Button variant="outline" onClick={()=>void requestNavigation(()=>{setSetupOpen(false);onOpenOffices();})}>Choose project people</Button></div>
-      <ProjectReadinessPanel project={project} canManage={canManage} onResolve={view=>{setSetupOpen(false);if(view==='gantt')onOpenSettings();else onResolveView(view);}}/>
-    </Modal>}
+    {setupOpen&&project.status==='planning'&&<ProjectSetupDialog project={project} canManage={canManage} onClose={()=>setSetupOpen(false)} onOpenSettings={onOpenSettings} onOpenOffices={onOpenOffices} onResolve={onResolveView}/>}
     {shareOpen && <Modal isOpen title="Share project" description={project.title} width="max-w-3xl" onClose={() => void requestNavigation(() => setShareOpen(false))}>
       <ProjectAccessPanel project={project.id}/>
       <p>Ordinary navigation links require existing access and grant no permissions.</p><label>Project navigation link<input readOnly value={new URL(`/projects?page=Projects&project=${encodeURIComponent(project.id)}&view=${encodeURIComponent(view)}`,window.location.origin).href}/></label><Button onClick={()=>{const url=new URL(`/projects?page=Projects&project=${encodeURIComponent(project.id)}&view=${encodeURIComponent(view)}`,window.location.origin).href;void navigator.clipboard.writeText(url).then(()=>setCopyNotice('Navigation link copied.')).catch(()=>setCopyNotice('Select and copy the navigation link.'));}}>Copy navigation link</Button>{copyNotice&&<p role="status">{copyNotice}</p>}

@@ -32,7 +32,9 @@ describe("page-local surface standardization", () => {
     expect(projectDashboard).toContain(card);
     expect(projectDashboard).toContain("rounded-[14px] border border-border bg-muted/50 p-3.5");
     expect(taskList).toContain("overflow-hidden rounded-[10px] border border-border bg-card");
-    expect(taskList).toContain("border-b border-border bg-muted/40 px-5 py-3");
+    // Horizontal padding is shared with task rows in taskList.css; browser
+    // acceptance verifies the actual column alignment across pane widths.
+    expect(taskList).toContain("border-b border-border bg-muted/40 py-3");
     expect(taskEditor).toContain("rounded-[14px] border border-border bg-muted/50 p-3");
     expect(reviewInbox).toContain(card);
     expect(reviewInbox).toContain("border-b border-border bg-muted/40 px-4 py-3");

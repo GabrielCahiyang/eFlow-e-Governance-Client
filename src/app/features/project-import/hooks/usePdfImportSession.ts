@@ -40,7 +40,9 @@ export function usePdfImportSession(projectId:string,onImported:(result:ProjectI
    }
    if(current.current.state.addOffices&&!current.current.state.extraction){
     await event('offices','Checking which offices are responsible for the work');
-    const state=current.current.state,extraction=await extractPdfOffices(state.sourceText!,state.draft!,`${current.current.id}:offices:${current.current.revision}`,queue);
+    // Source and task keys are fixed for this saved stage. Reuse its AI jobs
+    // after a lost poll response instead of enqueueing the same excerpts again.
+    const state=current.current.state,extraction=await extractPdfOffices(state.sourceText!,state.draft!,`${current.current.id}:offices`,queue);
     const {data:project,error:projectError}=await supabase.from('projects').select('org_id').eq('id',projectId).single();if(projectError)throw new Error(projectError.message);
     const {data:office,error:officeError}=await supabase.from('organizations').select('name,slug').eq('id',project!.org_id).single();if(officeError)throw new Error(officeError.message);
     const normalized=(name:string)=>name.toLowerCase().replace(/[^a-z0-9]/g,'');

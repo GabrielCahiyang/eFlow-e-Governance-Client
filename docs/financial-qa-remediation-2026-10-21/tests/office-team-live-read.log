@@ -1,0 +1,64 @@
+{
+  "checked_at": "2026-10-22T01:52:41.835297+00:00",
+  "target": "ixnfphgjyelhckjwjkdv",
+  "boundary": "Actual Python list handlers with existing active appointed Head and live database; browser session/auth middleware not exercised",
+  "protocols": [
+    "HTTP/1.1"
+  ],
+  "rounds": [
+    {
+      "round": 1,
+      "office": "LEDIPO",
+      "members": 7,
+      "active_members": 7,
+      "invitations": 0
+    },
+    {
+      "round": 2,
+      "office": "LEDIPO",
+      "members": 7,
+      "active_members": 7,
+      "invitations": 0
+    },
+    {
+      "round": 3,
+      "office": "LEDIPO",
+      "members": 7,
+      "active_members": 7,
+      "invitations": 0
+    }
+  ],
+  "denials": [
+    {
+      "role": "member",
+      "handler": "office_team",
+      "status": 403
+    },
+    {
+      "role": "member",
+      "handler": "list_invitations",
+      "status": 403
+    },
+    {
+      "role": "accounting_staff",
+      "handler": "office_team",
+      "status": 403
+    },
+    {
+      "role": "accounting_staff",
+      "handler": "list_invitations",
+      "status": 403
+    },
+    {
+      "role": "admin",
+      "handler": "office_team",
+      "status": 403
+    },
+    {
+      "role": "admin",
+      "handler": "list_invitations",
+      "status": 403
+    }
+  ],
+  "writes": 0
+}

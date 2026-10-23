@@ -19,3 +19,7 @@ All evidence in this folder belongs to the eFlow repository. The gallery referen
 Open `GALLERY.html` directly, or use `/docs/live-financial-workflow-2026-10-21/GALLERY.html` while the eFlow development server is running. The Markdown report's screenshot and evidence links are relative to this folder, so keep the folder together when copying it.
 
 The records and receipt are QA fixtures. Coverage limits and the preserved pre-fix journal date are documented in REPORT.md.
+
+## Later remediation
+
+The [22 October implementation report](../financial-qa-remediation-2026-10-21/REPORT.md) and [new gallery](../financial-qa-remediation-2026-10-21/GALLERY.html) retain local test evidence separately. This folder remains the original live walkthrough, including the continued chronology for steps 32–45.

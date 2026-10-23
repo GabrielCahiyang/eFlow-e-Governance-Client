@@ -1,0 +1,80 @@
+
+Running 7 tests using 1 worker
+
+(node:29760) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:29760) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [chromium] › tests\e2e\financial-remediation.spec.ts:56:1 › Journal detail preserves filters and focus, shows full lines, and never invents available funding (8.8s)
+  ok 2 [chromium] › tests\e2e\financial-remediation.spec.ts:129:1 › Independent Head reviews a conflict package and a separate Accounting Officer settles it (19.1s)
+  ok 3 [chromium] › tests\e2e\financial-remediation.spec.ts:273:33 › Financial controls fit 390px without page overflow (7.8s)
+  ok 4 [chromium] › tests\e2e\financial-remediation.spec.ts:273:33 › Financial controls fit 768px without page overflow (8.0s)
+  ok 5 [chromium] › tests\e2e\financial-remediation.spec.ts:328:1 › A Member with an Assistant appointment reviews only assigned packages from the existing Inbox (6.7s)
+  x  6 [chromium] › tests\e2e\financial-responsive-acceptance.spec.ts:3:33 › Funded work, cash request and itemized receipts fit 390px (1.0m)
+(node:30316) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:30316) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  7 [chromium] › tests\e2e\financial-responsive-acceptance.spec.ts:3:33 › Funded work, cash request and itemized receipts fit 768px (1.0m)
+
+
+  1) [chromium] › tests\e2e\financial-responsive-acceptance.spec.ts:3:33 › Funded work, cash request and itemized receipts fit 390px 
+
+    [31mTest timeout of 60000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('region', { name: 'Task details: Prepare community assessment', exact: true }).getByRole('button', { name: 'Request cash', exact: true })[22m
+
+
+      29 |   await expect(task).toBeVisible();
+      30 |   await task.getByRole('tab', { name: 'Overview', exact: true }).click();
+    > 31 |   await task.getByRole('button', { name: 'Request cash', exact: true }).click();
+         |                                                                         ^
+      32 |   await task.getByLabel('Amount', { exact: true }).fill('1600');
+      33 |   await expect(task.getByRole('alert').filter({ hasText: 'exceeds the available funding' })).toBeVisible();
+      34 |   await task.getByLabel('Amount', { exact: true }).fill('400');
+        at C:\Users\gabri\OneDrive\Desktop\EflowWeb\tests\e2e\financial-responsive-acceptance.spec.ts:31:73
+
+    Error Context: test-results\financial-responsive-accep-5b13b-itemized-receipts-fit-390px-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\financial-responsive-accep-5b13b-itemized-receipts-fit-390px-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\financial-responsive-accep-5b13b-itemized-receipts-fit-390px-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › tests\e2e\financial-responsive-acceptance.spec.ts:3:33 › Funded work, cash request and itemized receipts fit 768px 
+
+    [31mTest timeout of 60000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('region', { name: 'Task details: Prepare community assessment', exact: true }).getByRole('button', { name: 'Request cash', exact: true })[22m
+
+
+      29 |   await expect(task).toBeVisible();
+      30 |   await task.getByRole('tab', { name: 'Overview', exact: true }).click();
+    > 31 |   await task.getByRole('button', { name: 'Request cash', exact: true }).click();
+         |                                                                         ^
+      32 |   await task.getByLabel('Amount', { exact: true }).fill('1600');
+      33 |   await expect(task.getByRole('alert').filter({ hasText: 'exceeds the available funding' })).toBeVisible();
+      34 |   await task.getByLabel('Amount', { exact: true }).fill('400');
+        at C:\Users\gabri\OneDrive\Desktop\EflowWeb\tests\e2e\financial-responsive-acceptance.spec.ts:31:73
+
+    Error Context: test-results\financial-responsive-accep-089cd-itemized-receipts-fit-768px-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\financial-responsive-accep-089cd-itemized-receipts-fit-768px-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\financial-responsive-accep-089cd-itemized-receipts-fit-768px-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [chromium] › tests\e2e\financial-responsive-acceptance.spec.ts:3:33 › Funded work, cash request and itemized receipts fit 390px 
+    [chromium] › tests\e2e\financial-responsive-acceptance.spec.ts:3:33 › Funded work, cash request and itemized receipts fit 768px 
+  5 passed (3.1m)

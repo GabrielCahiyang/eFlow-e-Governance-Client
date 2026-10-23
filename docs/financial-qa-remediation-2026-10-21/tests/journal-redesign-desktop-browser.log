@@ -1,0 +1,12 @@
+
+Running 3 tests using 1 worker
+
+(node:36056) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:36056) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [chromium] › tests\e2e\financial-remediation.spec.ts:56:1 › Journal detail preserves filters and focus, shows full lines, and never invents available funding (9.6s)
+  ok 2 [chromium] › tests\e2e\financial-remediation.spec.ts:300:33 › Financial controls fit 390px without page overflow (8.2s)
+  ok 3 [chromium] › tests\e2e\financial-remediation.spec.ts:300:33 › Financial controls fit 768px without page overflow (8.9s)
+
+  3 passed (30.5s)

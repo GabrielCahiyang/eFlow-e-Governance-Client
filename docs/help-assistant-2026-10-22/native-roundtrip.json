@@ -1,0 +1,14 @@
+[
+  {
+    "input": "Check the pending task review.",
+    "speech_seconds": 111.39,
+    "audio_seconds": 2.72,
+    "transcribed": "Check the pending task review."
+  },
+  {
+    "input": "Open the project table to check its tasks.",
+    "speech_seconds": 33.95,
+    "audio_seconds": 3.48,
+    "transcribed": "Open the project table to check its tasks."
+  }
+]

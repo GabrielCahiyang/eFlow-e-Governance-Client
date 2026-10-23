@@ -1,0 +1,21 @@
+
+Running 12 tests using 1 worker
+
+(node:31592) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:31592) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [chromium] › tests\e2e\office-task-table-responsive.spec.ts:17:3 › 1920px desktop at 100% zoom equivalent › completed tasks keep readable columns, full metadata and working menus (12.6s)
+  ok  2 [chromium] › tests\e2e\office-task-table-responsive.spec.ts:17:3 › 1920px desktop at 125% zoom equivalent › completed tasks keep readable columns, full metadata and working menus (11.2s)
+  ok  3 [chromium] › tests\e2e\office-task-table-responsive.spec.ts:17:3 › 1920px desktop at 150% zoom equivalent › completed tasks keep readable columns, full metadata and working menus (10.3s)
+  ok  4 [chromium] › tests\e2e\office-task-table-responsive.spec.ts:17:3 › 1920px desktop at 175% zoom equivalent › completed tasks keep readable columns, full metadata and working menus (10.8s)
+  ok  5 [chromium] › tests\e2e\office-task-table-responsive.spec.ts:17:3 › 1920px desktop at 200% zoom equivalent › completed tasks keep readable columns, full metadata and working menus (10.5s)
+  ok  6 [chromium] › tests\e2e\office-task-table-responsive.spec.ts:17:3 › 1440px desktop at 100% zoom equivalent › completed tasks keep readable columns, full metadata and working menus (10.6s)
+  ok  7 [chromium] › tests\e2e\office-task-table-responsive.spec.ts:17:3 › 1440px desktop at 125% zoom equivalent › completed tasks keep readable columns, full metadata and working menus (10.7s)
+  ok  8 [chromium] › tests\e2e\office-task-table-responsive.spec.ts:17:3 › 1440px desktop at 150% zoom equivalent › completed tasks keep readable columns, full metadata and working menus (10.2s)
+  ok  9 [chromium] › tests\e2e\office-task-table-responsive.spec.ts:17:3 › 1440px desktop at 200% zoom equivalent › completed tasks keep readable columns, full metadata and working menus (10.1s)
+  ok 10 [chromium] › tests\e2e\office-task-table-responsive.spec.ts:17:3 › 1366px desktop at 100% zoom equivalent › completed tasks keep readable columns, full metadata and working menus (10.9s)
+  ok 11 [chromium] › tests\e2e\office-task-table-responsive.spec.ts:17:3 › 1366px desktop at 125% zoom equivalent › completed tasks keep readable columns, full metadata and working menus (9.9s)
+  ok 12 [chromium] › tests\e2e\office-task-table-responsive.spec.ts:17:3 › 1280px desktop at 100% zoom equivalent › completed tasks keep readable columns, full metadata and working menus (11.3s)
+
+  12 passed (2.2m)

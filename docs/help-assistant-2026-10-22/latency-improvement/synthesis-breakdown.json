@@ -1,0 +1,16 @@
+[
+  {
+    "characters": 104,
+    "tokens_seconds": 22.172,
+    "decoder_seconds": 3.25,
+    "total_seconds": 25.953,
+    "audio_seconds": 8.6
+  },
+  {
+    "characters": 125,
+    "tokens_seconds": 8.766,
+    "decoder_seconds": 0.718,
+    "total_seconds": 9.516,
+    "audio_seconds": 9.08
+  }
+]

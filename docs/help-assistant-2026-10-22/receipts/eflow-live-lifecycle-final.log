@@ -1,0 +1,12 @@
+
+ RUN  v3.2.4 C:/Users/gabri/OneDrive/Desktop/EflowWeb
+
+ ✓ tests/unit/helpConversation.test.tsx (9 tests) 564ms
+ ✓ tests/unit/helpDictation.test.tsx (2 tests) 163ms
+ ✓ tests/unit/helpVoiceActivity.test.ts (4 tests) 34ms
+
+ Test Files  3 passed (3)
+      Tests  15 passed (15)
+   Start at  13:27:15
+   Duration  16.52s (transform 611ms, setup 0ms, collect 2.24s, tests 761ms, environment 8.52s, prepare 1.59s)
+

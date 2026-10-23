@@ -1,4 +1,5 @@
 import { readdirSync, readFileSync } from "node:fs";
+import { readFile } from 'node:fs/promises';
 import { extname, join } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -14,14 +15,19 @@ function collectPresentationFiles(directory: string): string[] {
 }
 
 describe("redesign foundation", () => {
-  it("does not reintroduce the retired Lexend or Montserrat presentation fonts", () => {
+  it("does not reintroduce the retired Lexend or Montserrat presentation fonts", async () => {
     const applicationFiles = [
       ...collectPresentationFiles(sourceRoot),
       join(process.cwd(), "index.html"),
     ];
-    const violations = applicationFiles.filter((file) =>
-      /Lexend|Montserrat/.test(readFileSync(file, "utf8")),
-    );
+    const violations: string[] = [];
+    // Bound I/O concurrency while allowing OneDrive reads to progress without
+    // blocking the worker for thousands of synchronous file opens.
+    for (let offset = 0; offset < applicationFiles.length; offset += 16) {
+      const batch = applicationFiles.slice(offset, offset + 16);
+      const texts = await Promise.all(batch.map(file => readFile(file, 'utf8')));
+      batch.forEach((file, index) => { if (/Lexend|Montserrat/.test(texts[index])) violations.push(file); });
+    }
 
     expect(violations).toEqual([]);
   });

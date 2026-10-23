@@ -23,6 +23,12 @@ def user(role='head', office='own-office'):
 def request():
     return routes.ChatRequest(model='deepseek-r1:8b', messages=[{'role': 'user', 'content': 'Prepare a draft'}], workspace_decomposition={'schemaVersion': 1, 'projectId': PROJECT, 'sourceText': 'Project objectives and implementation plan.', 'context': {'knownOffices': [{'id': 'forged-office'}]}})
 class Phase5GatewayTests(unittest.TestCase):
+    def test_office_extraction_is_preserved_without_changing_legacy_chat(self):
+        extraction = {'schemaVersion': 1, 'document': 'CPDO coordinates the workshop.', 'tasks': []}
+        payload = routes.ChatRequest(model='qwen3.5:4b', messages=[{'role': 'user', 'content': 'Office excerpt'}], pdf_office_extraction=extraction)
+        self.assertEqual(routes.checked_chat_payload(payload, user())['pdf_office_extraction'], extraction)
+        payload.pdf_office_extraction = None
+        self.assertNotIn('pdf_office_extraction', routes.checked_chat_payload(payload, user()))
     def test_pdf_table_mode_is_preserved_and_cannot_mix_with_other_modes(self):
         pdf = {'schemaVersion': 1, 'tasks': [{'key': 'task-1', 'title': 'Meeting'}], 'costs': []}
         payload = routes.ChatRequest(model='test', messages=[{'role': 'user', 'content': 'PDF'}], pdf_table_enrichment=pdf)

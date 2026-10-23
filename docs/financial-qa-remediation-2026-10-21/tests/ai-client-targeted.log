@@ -1,0 +1,20 @@
+
+ RUN  v3.2.4 C:/Users/gabri/OneDrive/Desktop/EflowWeb
+
+ ✓ tests/unit/projectPdfImportPanel.test.tsx (6 tests) 3692ms
+   ✓ PDF import modal > shows only the success receipt when a stale session error exists  1051ms
+   ✓ PDF import modal > offers optional offices and sends the choices with the uploaded PDF  790ms
+   ✓ PDF import modal > keeps the dialog open during processing and disables the footer close  327ms
+   ✓ PDF import modal > offers resume instead of a new upload for saved work  699ms
+   ✓ PDF import modal > shows an existing import without claiming new assignments  330ms
+   ✓ PDF import modal > shows completion counts and unlocks closing after a failure  491ms
+ ✓ tests/unit/pdfImportRecovery.test.tsx (3 tests) 362ms
+ ✓ tests/unit/projectPdfDraft.test.ts (7 tests) 74ms
+ ✓ tests/unit/projectAutoAssignment.test.ts (4 tests) 23ms
+ ✓ tests/unit/pdfOfficeExtraction.test.ts (8 tests) 27ms
+
+ Test Files  5 passed (5)
+      Tests  28 passed (28)
+   Start at  07:11:04
+   Duration  137.32s (transform 760ms, setup 0ms, collect 100.83s, tests 4.18s, environment 26.67s, prepare 2.59s)
+

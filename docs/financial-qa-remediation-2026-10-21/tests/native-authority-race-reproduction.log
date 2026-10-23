@@ -1,0 +1,13 @@
+{"running_case": "C03 simultaneous settlement", "outcomes": [["error", "22023"], ["ok", ""]]}
+{"running_case": "C02 simultaneous release", "outcomes": [["error", "22023"], ["ok", ""]]}
+{"running_case": "C04 release versus cancellation", "outcomes": [["error", "22023"], ["ok", ""]]}
+{"running_case": "C05 correction versus settlement", "outcomes": [["ok", ""], ["error", "22023"]]}
+{"running_case": "C07 allocation shrink versus approved cash", "outcomes": [["ok", "11"], ["error", "22023"]]}
+Traceback (most recent call last):
+  File "C:\Users\gabri\OneDrive\Desktop\EflowWeb\scripts\verify-financial-concurrency.py", line 210, in <module>
+    exec((root / 'tests/sql/financial-remediation-cases.py').read_text(encoding='utf-8'), globals())
+  File "<string>", line 216, in <module>
+  File "C:\Users\gabri\OneDrive\Desktop\EflowWeb\scripts\verify-financial-concurrency.py", line 57, in equal
+    assert a == b, message + ': ' + repr((a, b))
+           ^^^^^^
+AssertionError: Revoked Accounting role cannot commit a pending cash release: (('ok', None), ('error', '42501'))

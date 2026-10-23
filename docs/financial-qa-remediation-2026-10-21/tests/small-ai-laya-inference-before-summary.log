@@ -1,0 +1,6 @@
+Queued synthetic Qwen + LAYA model verification: b377f202-adcb-4641-aaee-0e9a2cf69650
+Stage: loading_model
+Stage: staffing
+Stage: laya_review
+Result: completed
+{"pipeline": {"stages": ["qwen3.5:4b", "laya", "validation"], "laya": "completed", "layaEngine": "laya", "validation": "completed"}, "selected": ["qa-surveyor-two"], "timings_ms": {"model_load": 6949.5, "inference": 23621.6, "pipeline": 37196.3, "total": 67767.3, "generation_calls": 1}}

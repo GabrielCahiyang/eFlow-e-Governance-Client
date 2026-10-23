@@ -9,7 +9,11 @@ describe('active production terminology',()=>{
   const violations:string[]=[];
   const retired=/role-(executive|legislative|hrmo|finance)|components[\\/](Executive|Legislative|HRMO|Finance|TeamLeader)[\\/]/;
   for(const path of files(root).filter(p=>/\.(ts|tsx)$/.test(p)&&!retired.test(p))){
-   const text=readFileSync(path,'utf8'),source=ts.createSourceFile(path,text,ts.ScriptTarget.Latest,true);
+   const text=readFileSync(path,'utf8');
+   // Most modules contain no retired display vocabulary. Avoid building an AST
+   // for every source file during an otherwise bounded terminology assertion.
+   if(!/\b(Super Admin|Department Head|Assistant Head|Departments?|Employees?)\b/.test(text))continue;
+   const source=ts.createSourceFile(path,text,ts.ScriptTarget.Latest,true);
    const visit=(node:ts.Node)=>{
     if(ts.isJsxText(node)||ts.isStringLiteral(node)||ts.isNoSubstitutionTemplateLiteral(node)||ts.isTemplateHead(node)||ts.isTemplateMiddle(node)||ts.isTemplateTail(node)){
      const raw=node.getText(source);

@@ -1,0 +1,222 @@
+[
+  {
+    "file": "assets/workspace-contracts-C3reOWJv.js",
+    "bytes": 3852675,
+    "gzipBytes": 1118682
+  },
+  {
+    "file": "assets/pdf-qG1jx4kV.js",
+    "bytes": 517856,
+    "gzipBytes": 155780
+  },
+  {
+    "file": "assets/index-CTiE7Uyz.js",
+    "bytes": 238691,
+    "gzipBytes": 58332
+  },
+  {
+    "file": "assets/index-BTRBh45z.js",
+    "bytes": 140759,
+    "gzipBytes": 40201
+  },
+  {
+    "file": "assets/EflowAppShell-DJZprdLv.js",
+    "bytes": 75676,
+    "gzipBytes": 22309
+  },
+  {
+    "file": "assets/WorkflowPreviewPanel-CEWP_ZNv.js",
+    "bytes": 59408,
+    "gzipBytes": 15711
+  },
+  {
+    "file": "assets/ProjectTableWorkspace-C1sykhC2.js",
+    "bytes": 49456,
+    "gzipBytes": 15880
+  },
+  {
+    "file": "assets/index-I8pbVxPd.js",
+    "bytes": 41207,
+    "gzipBytes": 12523
+  },
+  {
+    "file": "assets/WorkBudgetCard-BqTeDFwd.js",
+    "bytes": 39737,
+    "gzipBytes": 11210
+  },
+  {
+    "file": "assets/ProjectOfficePanel-B5htSymC.js",
+    "bytes": 36372,
+    "gzipBytes": 10718
+  },
+  {
+    "file": "assets/index-D3jR0YaT.js",
+    "bytes": 32358,
+    "gzipBytes": 10523
+  },
+  {
+    "file": "assets/ForReviewInbox-D4a7r_8n.js",
+    "bytes": 31623,
+    "gzipBytes": 8161
+  },
+  {
+    "file": "assets/GuidedTourProvider-BGjc9HWz.js",
+    "bytes": 30860,
+    "gzipBytes": 10706
+  },
+  {
+    "file": "assets/TaskInspector-B8B2WSIX.js",
+    "bytes": 27237,
+    "gzipBytes": 8880
+  },
+  {
+    "file": "assets/ProfilePage-BUqLnq1T.js",
+    "bytes": 22858,
+    "gzipBytes": 7079
+  },
+  {
+    "file": "assets/OfficeIdentityAccessWorkspace-BP-YoEeg.js",
+    "bytes": 21843,
+    "gzipBytes": 6598
+  },
+  {
+    "file": "assets/usePresentationBranding-CBNkdfjh.js",
+    "bytes": 15208,
+    "gzipBytes": 5366
+  },
+  {
+    "file": "assets/RolePageRouter-26B9_At7.js",
+    "bytes": 14904,
+    "gzipBytes": 5438
+  },
+  {
+    "file": "assets/HeadDashboard-DYg83WKE.js",
+    "bytes": 12516,
+    "gzipBytes": 3786
+  },
+  {
+    "file": "assets/index-ChVQ_m1A.js",
+    "bytes": 11575,
+    "gzipBytes": 4121
+  },
+  {
+    "file": "assets/SubtasksWorkspace-B-5KmYct.js",
+    "bytes": 11297,
+    "gzipBytes": 4262
+  },
+  {
+    "file": "assets/MemberContent-Cfmlhix6.js",
+    "bytes": 8358,
+    "gzipBytes": 2924
+  },
+  {
+    "file": "assets/StaffingDialog-D3UFSZ7N.js",
+    "bytes": 8141,
+    "gzipBytes": 3078
+  },
+  {
+    "file": "assets/eflowSeedData-C0UTkIU8.js",
+    "bytes": 8086,
+    "gzipBytes": 2598
+  },
+  {
+    "file": "assets/ProjectGanttView-DKdrsU45.js",
+    "bytes": 7840,
+    "gzipBytes": 3000
+  },
+  {
+    "file": "assets/OnboardingWorkspace-C6AYFEpr.js",
+    "bytes": 7467,
+    "gzipBytes": 2823
+  },
+  {
+    "file": "assets/SignedInApp-BQHFC-EP.js",
+    "bytes": 6006,
+    "gzipBytes": 2546
+  },
+  {
+    "file": "assets/ProjectInsightsView-CS-wyY4w.js",
+    "bytes": 5625,
+    "gzipBytes": 1853
+  },
+  {
+    "file": "assets/EmployeeWorkReport-DqLAdBR3.js",
+    "bytes": 3900,
+    "gzipBytes": 1624
+  },
+  {
+    "file": "assets/ActivateAccountPage-1F19UPrQ.js",
+    "bytes": 3866,
+    "gzipBytes": 1616
+  },
+  {
+    "file": "assets/TaskOfficeControl-V-ybDOe9.js",
+    "bytes": 3351,
+    "gzipBytes": 1443
+  },
+  {
+    "file": "assets/EmployeeMyTasks-BfVzEnDp.js",
+    "bytes": 3097,
+    "gzipBytes": 1349
+  },
+  {
+    "file": "assets/EmployeeDeadlines-mkd_qXyf.js",
+    "bytes": 2948,
+    "gzipBytes": 1390
+  },
+  {
+    "file": "assets/EmployeeMyProjects-BVMWEFcn.js",
+    "bytes": 2674,
+    "gzipBytes": 1164
+  },
+  {
+    "file": "assets/EmployeeTaskHistory-BjT6qAoM.js",
+    "bytes": 2543,
+    "gzipBytes": 1164
+  },
+  {
+    "file": "assets/AssignedIndependentReviews-Bi2viwIX.js",
+    "bytes": 2491,
+    "gzipBytes": 1212
+  },
+  {
+    "file": "assets/TaskDatesDialog-AZc_H-z6.js",
+    "bytes": 1829,
+    "gzipBytes": 912
+  },
+  {
+    "file": "assets/ProjectOfficesView-BKnjSi3w.js",
+    "bytes": 1573,
+    "gzipBytes": 718
+  },
+  {
+    "file": "assets/selectors-DG27sI1P.js",
+    "bytes": 1340,
+    "gzipBytes": 777
+  },
+  {
+    "file": "assets/SubtaskWorkDrawer-Bg9TBa6G.js",
+    "bytes": 870,
+    "gzipBytes": 429
+  },
+  {
+    "file": "assets/OfficeReadFeedback-C_I7LfVq.js",
+    "bytes": 597,
+    "gzipBytes": 414
+  },
+  {
+    "file": "assets/departmentIdentityService-Zuhs05S_.js",
+    "bytes": 469,
+    "gzipBytes": 330
+  },
+  {
+    "file": "assets/index-CStGJ9jZ.js",
+    "bytes": 204,
+    "gzipBytes": 175
+  },
+  {
+    "file": "assets/useMyTasks-Di36_c6C.js",
+    "bytes": 169,
+    "gzipBytes": 149
+  }
+]

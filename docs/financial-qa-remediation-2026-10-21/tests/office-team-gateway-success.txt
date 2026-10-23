@@ -1,0 +1,6 @@
+[gateway] INFO:     127.0.0.1:61915 - "GET /controlpanelEflow/api/office-team HTTP/1.1" 200 OK
+[gateway] INFO:     127.0.0.1:61916 - "GET /controlpanelEflow/api/invitations HTTP/1.1" 200 OK
+[gateway] INFO:     127.0.0.1:52085 - "GET /controlpanelEflow/api/office-team HTTP/1.1" 200 OK
+[gateway] INFO:     127.0.0.1:52086 - "GET /controlpanelEflow/api/invitations HTTP/1.1" 200 OK
+[gateway] INFO:     127.0.0.1:49521 - "GET /controlpanelEflow/api/office-team HTTP/1.1" 200 OK
+[gateway] INFO:     127.0.0.1:49522 - "GET /controlpanelEflow/api/invitations HTTP/1.1" 200 OK

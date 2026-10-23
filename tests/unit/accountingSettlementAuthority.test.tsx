@@ -17,6 +17,10 @@ const auth = vi.hoisted(() => ({
   allowed: true,
 }));
 const settle = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
+vi.mock('../../src/app/features/budget/services/independentReviewService', async importOriginal => {
+  const original = await importOriginal<typeof import('../../src/app/features/budget/services/independentReviewService')>();
+  return { ...original, getIndependentReview: vi.fn(async (id: string) => ({ liquidationId: id, version: 2, required: false, current: false, canReview: false, canSettle: true, review: null, candidates: [], eligibleSettlers: 1, escalationRequired: false })) };
+});
 vi.mock("../../src/app/contexts/AuthContext", () => ({
   useAuth: () => ({
     userProfile: { id: auth.id, role: auth.role },
@@ -57,6 +61,7 @@ describe("Accounting settlement authority", () => {
     render(
       <AccountingSettlementQueue data={bundle(true)} onChanged={changed} />,
     );
+    await waitFor(() => expect(screen.getByRole('button', { name: /Settle & post/ }).getAttribute('aria-disabled')).not.toBe('true'));
     fireEvent.click(screen.getByRole("button", { name: /Settle & post/ }));
     expect(settle).not.toHaveBeenCalled();
     fireEvent.click(

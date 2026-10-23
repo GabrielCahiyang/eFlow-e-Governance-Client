@@ -170,29 +170,6 @@ html {
   }
 }
 
-@media (max-width: 767px) {
-  .eflow-task-table-header {
-    display: none;
-  }
-
-  .eflow-task-row {
-    grid-template-columns: 6px minmax(0, 1fr) auto !important;
-    align-items: start;
-    padding: 0.75rem !important;
-  }
-
-  .eflow-task-row__team,
-  .eflow-task-row__priority,
-  .eflow-task-row__due {
-    display: none !important;
-  }
-
-  .eflow-task-row__status {
-    grid-column: 3;
-    grid-row: 1;
-  }
-}
-
 /* Visible scroll affordances use the same palette in tables and portaled panels. */
 * { scrollbar-width: thin; scrollbar-color: var(--eflow-scrollbar) transparent; }
 ::-webkit-scrollbar { width: 8px; height: 8px; }

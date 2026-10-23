@@ -1,0 +1,8 @@
+{
+  "tests/unit/nestedWorkStaffing.test.tsx": 34,
+  "tests/unit/loginWorkflowPreview.test.tsx": 10,
+  "tests/unit/taskTeamEditorDialog.test.tsx": 20,
+  "tests/unit/nestedWorkAdvisoryAppointment.test.tsx": 4,
+  "tests/unit/nestedWorkTableEntrances.test.tsx": 11,
+  "tests/unit/nestedWorkHierarchy.test.tsx": 24
+}

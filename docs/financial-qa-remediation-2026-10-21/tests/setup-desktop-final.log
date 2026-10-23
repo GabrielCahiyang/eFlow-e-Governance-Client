@@ -1,0 +1,11 @@
+
+Running 2 tests using 1 worker
+
+(node:33404) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:33404) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [chromium] › tests\e2e\project-setup-modal.spec.ts:8:1 › project setup is a bounded desktop modal with close and no active-project trigger (14.7s)
+  ok 2 [chromium] › tests\e2e\project-setup-modal.spec.ts:145:1 › contributor remove controls stay inside their chips (9.1s)
+
+  2 passed (27.5s)

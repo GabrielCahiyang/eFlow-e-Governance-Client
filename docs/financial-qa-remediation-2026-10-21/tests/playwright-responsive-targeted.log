@@ -1,0 +1,11 @@
+
+Running 2 tests using 1 worker
+
+(node:24572) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:24572) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [chromium] › tests\e2e\financial-responsive-acceptance.spec.ts:4:33 › Funded work, cash request and itemized receipts fit 390px (11.3s)
+  ok 2 [chromium] › tests\e2e\financial-responsive-acceptance.spec.ts:4:33 › Funded work, cash request and itemized receipts fit 768px (11.9s)
+
+  2 passed (26.6s)

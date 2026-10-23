@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Project } from "../../src/app/features/projects/services/types";
 const api = vi.hoisted(() => ({ readiness: vi.fn(), complete: vi.fn(), actor: { id:'head',role:'head',is_active:true,org_id:'office' } }));
@@ -54,6 +54,22 @@ describe('canonical project lifecycle controls',()=>{
 });
 
 describe("project completion confirmation", () => {
+  it('retains verified display during a background refresh but disables stale confirmation', async () => {
+    dialog();
+    await screen.findByText(/All completion checks passed/);
+    let resolve!: (value: unknown) => void;
+    api.readiness.mockReturnValueOnce(new Promise(value => { resolve = value; }));
+    fireEvent(window, new Event('focus'));
+    await waitFor(() => expect((screen.getByRole('button', { name: 'Confirm completion' }) as HTMLButtonElement).disabled).toBe(true));
+    expect(screen.getByText(/All completion checks passed/)).toBeTruthy();
+    expect(screen.getByRole('status').textContent).toContain('Checking work');
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm completion' }));
+    expect(api.complete).not.toHaveBeenCalled();
+    await act(async () => resolve({ ...ready, canComplete: false, blockers: [{ kind: 'cash', id: 'new', title: 'New cash', status: 'released', detail: 'Receipts required' }] }));
+    await screen.findByText('New cash');
+    expect(screen.queryByText(/All completion checks passed/)).toBeNull();
+    expect((screen.getByRole('button', { name: 'Confirm completion' }) as HTMLButtonElement).disabled).toBe(true);
+  });
   it('refuses directly opened completion for a non-Head without loading private checks',async()=>{
     api.actor.role='member';dialog();
     await screen.findByText('Only an authorized Office Head can complete this project.');
@@ -76,7 +92,7 @@ describe("project completion confirmation", () => {
     ] });
     const props = dialog();
     await screen.findByText("3 item(s) still holding up completion");
-    expect(screen.getByText("Head must settle receipts")).toBeTruthy();
+      expect(screen.getByText(/The Financial Officer must independently verify and settle/)).toBeTruthy();
     expect((screen.getByRole("button", { name: "Confirm completion" }) as HTMLButtonElement).disabled).toBe(true);
     fireEvent.click(screen.getAllByRole("button", { name: "Open task" })[0]);
     expect(props.onOpenTask).toHaveBeenCalledWith("task-1");

@@ -11,6 +11,7 @@ import { AssignmentModal } from "./AssignmentModal";
 import { useListBoardController } from "./useListBoardController";
 import { ListTaskRow } from "./ListTaskRow";
 import { motionTransition } from "../../../../shared/motion";
+import './taskList.css';
 
 export function ListBoardView({
   tasks,
@@ -56,7 +57,7 @@ export function ListBoardView({
   } = useListBoardController({ tasks, employees, role, currentUserId, currentUserName });
 
   return (
-    <div className="w-full flex flex-col">
+    <div className="eflow-task-list w-full min-w-0 flex flex-col">
       {/* Search bar */}
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <VibeSearch
@@ -77,14 +78,14 @@ export function ListBoardView({
       {/* Table */}
       <div className="overflow-hidden rounded-[10px] border border-border bg-card shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
         {/* Header row */}
-        <div className="eflow-task-table-header sticky top-0 z-10 grid grid-cols-[20px_1fr_180px_90px_150px_120px_132px] gap-0 border-b border-border bg-muted/40 px-5 py-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-          <div />
-          <div className="pl-3">Task</div>
-          <div>Team / Lead</div>
-          <div className="text-center">Priority</div>
-          <div>Due Date</div>
-          <div className="text-center">Status</div>
-          <div className="text-center">Actions</div>
+        <div className="eflow-task-table-header sticky top-0 z-10 border-b border-border bg-muted/40 py-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+          <div data-column="marker" />
+          <div data-column="task" className="pl-3">Task</div>
+          <div data-column="team">Team / Lead</div>
+          <div data-column="priority" className="text-center">Priority</div>
+          <div data-column="due">Due Date</div>
+          <div data-column="status" className="text-center">Status</div>
+          <div data-column="actions" className="text-center">Actions</div>
         </div>
 
         {grouped.map(({ status, tasks: items }) => {

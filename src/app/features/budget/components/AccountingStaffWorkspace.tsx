@@ -157,6 +157,7 @@ function ScopedAccountingWorkspace({ view: suppliedView, onNavigate }: Accountin
             fiscalYear={fiscalYear}
             fiscalBudgetId={budget.summary?.id}
             approvedBudget={budget.summary?.approvedAmount}
+            availableBudget={budget.summary?.availableAmount}
             settledExpenses={settledExpenses}
             returnedCash={returnedCash}
           />

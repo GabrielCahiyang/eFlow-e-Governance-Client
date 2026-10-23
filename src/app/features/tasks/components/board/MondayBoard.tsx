@@ -514,8 +514,8 @@ export function MondayBoard({
               <Archive size={12} /> Record scope
             </div>
             <p className="mt-1 px-2 text-[11px] leading-relaxed text-neutral-500">
-              Active work excludes completed, cancelled, archived, and deleted
-              records unless you explicitly filter for a status.
+              Active work shows unarchived task records. Use the status filter to
+              choose open, completed, or cancelled work. Deleted records are excluded.
             </p>
           </div>
         </aside>

@@ -7,6 +7,7 @@ import { useProjectCompletionAvailability } from '../hooks/useProjectCompletionA
 import { useAuth } from '../../../contexts/AuthContext';
 import { ProjectReadinessPanel, type ReadinessDestination } from '../../project-readiness';
 import { useGuardedProjectDialog } from '../hooks/useGuardedProjectDialog';
+import { CompletionBlockersList } from './CompletionBlockersList';
 import { requestNavigation } from '../../../shared/navigationGuard';
 
 export function ProjectCompleteDialog({ projectId, projectTitle, project, onClose, onSuccess, onOpenTask, onOpenGovernance, onResolve }: {
@@ -51,20 +52,13 @@ export function ProjectCompleteDialog({ projectId, projectTitle, project, onClos
   }>
     <div className="space-y-4">
       <p className="text-sm text-neutral-700">Complete <strong>{projectTitle}</strong>? This changes only this project—not other projects in the work plan. Archiving is a separate step.</p>
-      <p id="project-completion-reason" role="status">{checks.reason}</p>
-      {loading && <p role="status" className="flex items-center gap-2 text-sm"><Loader2 size={15} className="animate-spin" /> Checking work, cash settlement, and required approvals…</p>}
+      <p id="project-completion-reason" role="status" className="flex items-center gap-2 text-sm text-neutral-600">{loading ? <><Loader2 size={15} className="animate-spin" />Checking work, cash settlement, and required approvals…</> : readiness && !checks.error ? `${readiness.blockers.length} completion requirement(s) remain.` : checks.reason}</p>
       {(error || checks.error) && <p role="alert" className="whitespace-pre-line rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">{error || checks.error}</p>}
-      {!loading && readiness && <>
-        {checks.enabled ? <p role="status" className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800">All completion checks passed. This project is ready to complete.</p> :
+      {readiness && <>
+        {readiness.canComplete && readiness.blockers.length === 0 ? <p className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800">All completion checks passed. This project is ready to complete.</p> :
           <div className="space-y-3">
             <h4 className="font-semibold text-neutral-900">{readiness.status === "archived" ? "This project is already archived." : readiness.status === "completed" ? "This project is already completed." : `${readiness.blockers.length} item(s) still holding up completion`}</h4>
-            {readiness.blockers.map((blocker,index) => <div key={`${blocker.kind}-${blocker.id}-${blocker.status}-${index}`} className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm">
-              <strong>{blocker.title}</strong><p className="mt-1 capitalize text-amber-800">{blocker.status.replace(/_/g, " ")}{blocker.amount !== undefined ? ` · ${new Intl.NumberFormat("en-PH", { style: "currency", currency: "PHP" }).format(blocker.amount)}` : ""}</p>
-              <p className="mt-1 text-neutral-700">{blocker.kind==='cash'&&blocker.status==='pending_department_settlement'?'The Financial Officer must independently verify and settle the receipts and returned cash in Accounting → Settlements.':blocker.detail}</p>
-              {blocker.taskId && <button type="button" disabled={busy} onClick={() => { void requestNavigation(() => onOpenTask(blocker.taskId!)); }} className="mt-2 font-medium text-blue-700 underline">Open task</button>}
-              {!blocker.taskId && blocker.kind === 'cash' && onResolve && <button type="button" disabled={busy} onClick={()=>{void requestNavigation(()=>onResolve('budget'));}} className="mt-2 font-medium text-blue-700 underline">Review financial settlement</button>}
-              {blocker.kind === "governance" && (!project || project.sourceCollaborationDraftId === blocker.id) && <button type="button" disabled={busy} onClick={() => { void requestNavigation(() => onOpenGovernance(blocker.id)); }} className="mt-2 font-medium text-blue-700 underline">Open proposal closeout</button>}
-            </div>)}
+            <CompletionBlockersList blockers={readiness.blockers} busy={busy} project={project} onOpenTask={onOpenTask} onOpenGovernance={onOpenGovernance} onResolve={onResolve} />
           </div>}
       </>}
       {allowed && <button type="button" disabled={busy || loading} onClick={() => { setError(""); void checks.refresh(); }} className="inline-flex items-center gap-1 text-sm text-blue-700 disabled:opacity-40"><RefreshCw size={13} /> Refresh checks</button>}

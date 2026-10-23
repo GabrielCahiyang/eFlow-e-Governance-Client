@@ -1,0 +1,77 @@
+{
+  "date": "2026-10-23",
+  "observedAt": "2026-10-23T13:00:26.132746+00:00",
+  "target": "ixnfphgjyelhckjwjkdv",
+  "scope": "Workflow text only; no speech; actual authenticated local gateway and models, existing authorized test account, no email or business writes",
+  "checks": [
+    {
+      "operation": "status",
+      "status": 200,
+      "seconds": 2.313
+    },
+    {
+      "operation": "task-funding",
+      "status": 200,
+      "seconds": 14.172,
+      "grounded": true,
+      "sources": [
+        "guide:budget:1"
+      ],
+      "knowledgeVersion": "2026-10-23",
+      "answer": "Select real annual accounts, enter approved amounts and the reason or authority reference, then confirm Authorize work funding. Successful authorization reserves that amount from Office Budget once and creates approved task funding."
+    },
+    {
+      "operation": "planning-is-not-funding",
+      "status": 200,
+      "seconds": 3.204,
+      "grounded": true,
+      "sources": [
+        "guide:budget:3"
+      ],
+      "knowledgeVersion": "2026-10-23",
+      "answer": "A PDF or draft amount, including a number labelled from plan, is not funding authorization. Check the approved allocation and ledger; typing a planning estimate alone does not charge Office Budget."
+    },
+    {
+      "operation": "live-pause",
+      "status": 200,
+      "seconds": 2.985,
+      "grounded": true,
+      "sources": [
+        "guide:live_voice:1"
+      ],
+      "knowledgeVersion": "2026-10-23",
+      "answer": "Pause pauses microphone input only; an accepted question, synthesis and playback continue. Resume re-enables listening after the reply. Interrupt or Stop reply cancels the reply; End returns to chat and closes the microphone."
+    },
+    {
+      "operation": "independent-review",
+      "status": 200,
+      "seconds": 3.593,
+      "grounded": true,
+      "sources": [
+        "guide:independent_review:1",
+        "guide:independent_review:2",
+        "guide:access:1"
+      ],
+      "knowledgeVersion": "2026-10-23",
+      "answer": "An eligible appointed Head or Assistant can review the assigned package, including from Inbox where provided. That review does not grant general Accounting browsing, settlement or journal-posting permission.\n\nAn authorized independent Accounting Officer settles/posts after required review. If no eligible reviewer or poster exists, escalate; do not self-approve or promote another user as a shortcut.\n\nHead, employee and Accounting responsibilities differ. A project representative is not a permanent Head; independent review approval is not permission to settle or post journals."
+    },
+    {
+      "operation": "rejected-request",
+      "status": 200,
+      "seconds": 3.594,
+      "grounded": true,
+      "sources": [
+        "guide:cash_rejection:0",
+        "guide:cash_rejection:1",
+        "guide:cash_rejection:2"
+      ],
+      "knowledgeVersion": "2026-10-23",
+      "answer": "If cash is rejected or returned, open the recorded feedback, correct the purpose, amount or supporting information, then use the available revision or resubmission action.\n\nRejection does not authorize release. Check the saved request state and pool before requesting again; a duplicate request is not the same as correcting a rejected one.\n\nCancel or delete only in permitted states. Released advances, settlements and audit records follow the financial workflow rather than being erased to start again."
+    },
+    {
+      "operation": "off-topic",
+      "status": 200,
+      "seconds": 1.922
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+{"running_case": "C03 simultaneous settlement", "outcomes": [["ok", ""], ["error", "22023"]]}
+{"running_case": "C02 simultaneous release", "outcomes": [["ok", ""], ["error", "22023"]]}
+{"running_case": "Q12 dependent approval versus prerequisite reopening", "outcomes": [["error", "22023"], ["ok", "in_progress"]]}
+{"remediation_cases": [{"case": "C03 simultaneous settlement", "started_at": "2026-10-21T17:31:08.434189+00:00", "elapsed_ms": 281, "outcomes": [{"result": "ok", "sqlstate": null}, {"result": "error", "sqlstate": "22023"}]}, {"case": "C02 simultaneous release", "started_at": "2026-10-21T17:31:09.638033+00:00", "elapsed_ms": 281, "outcomes": [{"result": "ok", "sqlstate": null}, {"result": "error", "sqlstate": "22023"}]}, {"case": "Q12 dependent approval versus prerequisite reopening", "started_at": "2026-10-21T17:31:10.836687+00:00", "elapsed_ms": 78, "outcomes": [{"result": "error", "sqlstate": "22023"}, {"result": "ok", "sqlstate": null}]}], "checks_so_far": 49, "hosted_writes": false}
+{"passed": true, "checks": 49, "independent_postgres_sessions": true, "localhost_only": true, "hosted_writes": false, "remediation": true}

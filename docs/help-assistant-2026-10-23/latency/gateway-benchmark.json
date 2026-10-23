@@ -1,0 +1,75 @@
+{
+  "date": "2026-10-23",
+  "target": "ixnfphgjyelhckjwjkdv",
+  "scope": "Actual authenticated local gateway and models, synthetic speech, existing authorized test account, no email or business writes",
+  "checks": [
+    {
+      "operation": "status",
+      "status": 200,
+      "seconds": 2.093
+    },
+    {
+      "operation": "transcribe-0",
+      "status": 200,
+      "seconds": 6.859,
+      "recognized": true
+    },
+    {
+      "operation": "transcribe-1",
+      "status": 200,
+      "seconds": 6.641,
+      "recognized": true
+    },
+    {
+      "operation": "chat-first",
+      "status": 200,
+      "seconds": 18.953,
+      "grounded": true
+    },
+    {
+      "operation": "speech-primer",
+      "status": 200,
+      "seconds": 41.578,
+      "audio_seconds": 9.56,
+      "parts": 1
+    },
+    {
+      "operation": "chat-followup",
+      "status": 200,
+      "seconds": 17.266,
+      "grounded": true
+    },
+    {
+      "operation": "speech-full-warm",
+      "status": 200,
+      "seconds": 3.812,
+      "audio_seconds": 9.56,
+      "parts": 1
+    },
+    {
+      "operation": "speech-first-chunk-warm",
+      "status": 200,
+      "seconds": 11.281,
+      "audio_seconds": 5.4,
+      "parts": 2
+    },
+    {
+      "operation": "speech-chunk-1",
+      "status": 200,
+      "seconds": 9.266,
+      "audio_seconds": 4.6,
+      "parts": 2
+    },
+    {
+      "operation": "speech-first-chunk-cached",
+      "status": 200,
+      "seconds": 2.031,
+      "audio_seconds": 5.4,
+      "parts": 2
+    },
+    {
+      "operation": "anonymous-status",
+      "status": 401
+    }
+  ]
+}

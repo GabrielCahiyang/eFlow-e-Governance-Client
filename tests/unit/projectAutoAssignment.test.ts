@@ -9,13 +9,20 @@ vi.mock('../../src/app/features/project-access',()=>({notifyAccessChanged:api.ac
 import {prepareAutoAssignment,applyAutoAssignment} from '../../src/app/features/staffing/services/autoAssignment';
 import type {WorkTreeSnapshot} from '../../src/app/features/nested-work';
 const snapshot={root:{id:'task',project:'project',office:'office',kind:'office',lead:null,people:['retained']},revision:3,nodes:[],people:[]} as unknown as WorkTreeSnapshot;
-beforeEach(()=>{vi.clearAllMocks();api.context.mockResolvedValue({task:{id:'task'},candidates:[{id:'outside-current-project',name:'Available person',skills:['Planning'],training:[],education:[],experience:[],specializations:[],certifications:[],activeTasks:1}],excludedUnconfirmed:0});api.chat.mockResolvedValue({message:{content:JSON.stringify({recommendations:[{userId:'outside-current-project',evidence:['Planning']}]})}});api.session.mockResolvedValue({data:{session:{access_token:'same',user:{id:'head'}}}});api.rpc.mockResolvedValue({data:snapshot,error:null});api.tree.mockResolvedValue(snapshot);});
+beforeEach(()=>{vi.clearAllMocks();api.context.mockResolvedValue({task:{id:'task'},candidates:[{id:'outside-current-project',name:'Available person',skills:['Planning'],training:[],education:[],experience:[],specializations:[],certifications:[],activeTasks:1}],excludedUnconfirmed:0});api.chat.mockResolvedValue({message:{content:JSON.stringify({recommendations:[{userId:'outside-current-project',evidence:['Planning']}],pipeline:{laya:'completed',layaEngine:'laya',validation:'completed'}})}});api.session.mockResolvedValue({data:{session:{access_token:'same',user:{id:'head'}}}});api.rpc.mockResolvedValue({data:snapshot,error:null});api.tree.mockResolvedValue(snapshot);});
 describe('AI project task assignment',()=>{
  it('uses Qwen 4B and the available directory instead of restricting to selected project people',async()=>{
   const request=await prepareAutoAssignment(snapshot,vi.fn());
   expect(api.context).toHaveBeenCalledWith('staffing/task/context?auto_assign=true');
   expect(api.chat.mock.calls[0][0]).toMatchObject({model:'qwen3.5:4b',workspace_staffing:{taskId:'task',autoAssign:true}});
   expect(request).toMatchObject({root:'task',revision:3,lead:'outside-current-project',people:['outside-current-project','retained']});
+ });
+ it('refuses old or fallback server responses without completed model-backed LAYA review',async()=>{
+  for(const pipeline of [undefined,{laya:'completed',layaEngine:'heuristic_fallback',validation:'completed'},{laya:'failed',layaEngine:'laya',validation:'completed'}]){
+   api.chat.mockResolvedValue({message:{content:JSON.stringify({recommendations:[{userId:'outside-current-project',evidence:['Planning']}],pipeline})}});
+   await expect(prepareAutoAssignment(snapshot,vi.fn())).rejects.toThrow('did not confirm LAYA review');
+   expect(api.rpc).not.toHaveBeenCalled();
+  }
  });
  it('sends enrollment and staffing through one immutable request and refreshes both views',async()=>{
   const request=await prepareAutoAssignment(snapshot,vi.fn());await applyAutoAssignment(request);await applyAutoAssignment(request);

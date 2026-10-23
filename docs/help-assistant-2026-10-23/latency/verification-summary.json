@@ -1,0 +1,26 @@
+{
+  "verifiedAt": "2026-10-23T12:31:21.980731+00:00",
+  "scope": "eFlow Live input Pause and latency optimization; local app/server only",
+  "voiceUnitSuites": 6,
+  "voiceUnitTests": 33,
+  "backendChecks": 62,
+  "distinctBrowserChecks": 6,
+  "typescript": "passed",
+  "build": "passed",
+  "graph": "passed with four existing partial-parser warnings",
+  "fullRepositoryUnitSuite": "attempted, incomplete under memory contention; not claimed green",
+  "benchmarks": {
+    "uncachedFullAudioSeconds": 16.938,
+    "uncachedFirstChunkSeconds": 7.0,
+    "cachedFirstChunkSeconds": 1.75,
+    "trimmedSyntheticInputSeconds": 3.48,
+    "trimmedTranscribeSeconds": [
+      4.047,
+      3.859
+    ]
+  },
+  "physicalMicrophone": "not exercised by this automated pass",
+  "remoteSecondLaptop": "not exercised",
+  "businessWrites": false,
+  "invitationEmailsSent": false
+}

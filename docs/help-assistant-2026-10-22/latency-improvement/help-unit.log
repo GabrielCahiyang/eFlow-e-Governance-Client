@@ -1,0 +1,17 @@
+
+> @figma/my-make-file@0.0.1 test
+> vitest --configLoader runner run --maxWorkers=1 tests/unit/helpConversation.test.tsx tests/unit/helpDictation.test.tsx tests/unit/helpMicrophone.test.ts tests/unit/helpVoiceActivity.test.ts tests/unit/helpProgressiveTranscription.test.ts
+
+
+ RUN  v3.2.4 C:/Users/gabri/OneDrive/Desktop/EflowWeb
+
+ ✓ tests/unit/helpConversation.test.tsx (9 tests) 499ms
+ ✓ tests/unit/helpDictation.test.tsx (4 tests) 260ms
+ ✓ tests/unit/helpVoiceActivity.test.ts (5 tests) 30ms
+ ✓ tests/unit/helpMicrophone.test.ts (3 tests) 38ms
+
+ Test Files  4 passed (4)
+      Tests  21 passed (21)
+   Start at  20:55:55
+   Duration  11.56s (transform 301ms, setup 0ms, collect 1.59s, tests 827ms, environment 6.22s, prepare 1.04s)
+

@@ -1,0 +1,33 @@
+/* Size against the board pane, which can be narrow even on a wide desktop. */
+.eflow-task-list{container:office-task-list / inline-size;min-width:0}
+.eflow-task-table-header,.eflow-task-row{display:grid;grid-template-columns:8px minmax(260px,1fr) 160px 72px 112px 120px 48px;grid-template-areas:"marker task team priority due status actions";padding-inline:16px;column-gap:0;min-width:0}
+.eflow-task-table-header>[data-column="marker"],.eflow-task-row__marker{grid-area:marker}
+.eflow-task-table-header>[data-column="task"],.eflow-task-row__info{grid-area:task}
+.eflow-task-table-header>[data-column="team"],.eflow-task-row__team{grid-area:team}
+.eflow-task-table-header>[data-column="priority"],.eflow-task-row__priority{grid-area:priority}
+.eflow-task-table-header>[data-column="due"],.eflow-task-row__due{grid-area:due}
+.eflow-task-table-header>[data-column="status"],.eflow-task-row__status{grid-area:status}
+.eflow-task-table-header>[data-column="actions"],.eflow-task-row__actions{grid-area:actions}
+.eflow-task-row>div{min-width:0}
+.eflow-task-row__title{display:block;max-width:100%;font-size:14px;line-height:1.5;overflow-wrap:anywhere}
+.eflow-task-row__lead{max-width:100%}
+.eflow-task-row__info>p{overflow-wrap:anywhere}
+.eflow-task-row__due time{display:block;line-height:1.5}
+.eflow-task-row__status{white-space:nowrap}
+.eflow-task-row__field-label{display:none}
+@container office-task-list (max-width:939px){
+ .eflow-task-table-header,.eflow-task-row{grid-template-columns:8px minmax(200px,1fr) 64px 104px 112px 48px;grid-template-areas:"marker task priority due status actions"}
+ .eflow-task-table-header>[data-column="team"]{display:none}
+ .eflow-task-table-header>[data-column="task"]::after{content:" / Lead"}
+ .eflow-task-row{grid-template-areas:"marker task priority due status actions" "marker team priority due status actions";row-gap:8px}
+ .eflow-task-row__team{padding-left:12px;padding-right:16px}
+ .eflow-task-row__marker{align-self:start;margin-top:4px}
+}
+@container office-task-list (max-width:599px){
+ .eflow-task-table-header{display:none}
+ .eflow-task-row{grid-template-columns:6px minmax(0,1fr) auto;grid-template-areas:"marker task task" "marker team team" ". priority status" ". due actions";gap:12px;padding:16px}
+ .eflow-task-row__info,.eflow-task-row__team{padding-inline:0}
+ .eflow-task-row__priority{justify-content:flex-start}
+ .eflow-task-row__status,.eflow-task-row__actions{justify-content:flex-end}
+ .eflow-task-row__field-label{display:block;font-size:11px;color:var(--muted-foreground);margin-bottom:4px}
+}

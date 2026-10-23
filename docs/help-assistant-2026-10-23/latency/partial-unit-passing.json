@@ -1,0 +1,26 @@
+{
+  "completeSuite": false,
+  "suites": 19,
+  "tests": 294,
+  "files": {
+    "tests/unit/nestedWorkStaffing.test.tsx": 34,
+    "tests/unit/loginWorkflowPreview.test.tsx": 10,
+    "tests/unit/taskTeamEditorDialog.test.tsx": 20,
+    "tests/unit/nestedWorkAdvisoryAppointment.test.tsx": 4,
+    "tests/unit/nestedWorkTableEntrances.test.tsx": 11,
+    "tests/unit/nestedWorkHierarchy.test.tsx": 24,
+    "tests/unit/nestedWorkDraftRecovery.test.tsx": 27,
+    "tests/unit/workspaceRefinementHierarchy.test.tsx": 24,
+    "tests/unit/auditDetailPage.test.tsx": 7,
+    "tests/unit/subitemInspector.test.tsx": 13,
+    "tests/unit/projectLifecycle.test.tsx": 13,
+    "tests/unit/nestedWorkCommandForms.test.tsx": 26,
+    "tests/unit/nestedWorkLegacyBoundaries.test.tsx": 17,
+    "tests/unit/projectSubitems.test.tsx": 17,
+    "tests/unit/cashReleaseOverride.test.tsx": 7,
+    "tests/unit/subitemEntrances.test.tsx": 11,
+    "tests/unit/workspaceRefinementNavigation.test.tsx": 12,
+    "tests/unit/localOfficeDialog.test.tsx": 5,
+    "tests/unit/subitemInspectorCapabilities.test.tsx": 12
+  }
+}

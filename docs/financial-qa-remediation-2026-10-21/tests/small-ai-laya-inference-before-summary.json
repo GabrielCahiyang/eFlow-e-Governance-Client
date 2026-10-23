@@ -1,0 +1,88 @@
+{
+  "boundary": "Synthetic local API inference; no hosted assignments or project writes.",
+  "job_id": "b377f202-adcb-4641-aaee-0e9a2cf69650",
+  "status": "completed",
+  "error": null,
+  "progress": {
+    "stage": "laya_review",
+    "message": "LAYA is checking task routing, team fit and current workload.",
+    "current": null,
+    "total": null,
+    "updated_at": 1792628858.7013457,
+    "history": [
+      {
+        "stage": "loading_model",
+        "message": "Preparing the AI.",
+        "current": null,
+        "total": null,
+        "updated_at": 1792628826.6618645
+      },
+      {
+        "stage": "staffing",
+        "message": "Comparing confirmed skills, experience and current Office workload.",
+        "current": null,
+        "total": null,
+        "updated_at": 1792628835.0722113
+      },
+      {
+        "stage": "laya_review",
+        "message": "LAYA is checking task routing, team fit and current workload.",
+        "current": null,
+        "total": null,
+        "updated_at": 1792628858.7013457
+      }
+    ]
+  },
+  "result": {
+    "model": "qwen3.5:4b",
+    "message": {
+      "role": "assistant",
+      "content": "{\"schemaVersion\": 1, \"recommendations\": [{\"userId\": \"qa-surveyor-two\", \"evidence\": [\"Surveying\", \"Site documentation\", \"Field safety\", \"Surveying\", \"Site documentation\"], \"activeTasks\": 1, \"remainingHours\": 2, \"unknownEffortTasks\": 0}], \"source\": \"ai\", \"notice\": \"Qwen recommendations reviewed by LAYA and validated against eligible people and supplied profile facts.\", \"pipeline\": {\"stages\": [\"qwen3.5:4b\", \"laya\", \"validation\"], \"laya\": \"completed\", \"layaEngine\": \"laya\", \"validation\": \"completed\"}}"
+    },
+    "done": true,
+    "total_duration": 59356791019,
+    "eval_count": 85,
+    "timings_ms": {
+      "model_load": 6949.5,
+      "inference": 23621.6,
+      "pipeline": 37196.3,
+      "total": 67767.3,
+      "generation_calls": 1
+    },
+    "pipeline_status": {
+      "laya": "completed"
+    }
+  },
+  "laya": {
+    "mode": "model",
+    "device": "cpu",
+    "execution": "Starts on demand inside the inference worker.",
+    "running": 0,
+    "waiting": 0,
+    "counts": {
+      "failed": 0,
+      "unconfirmed": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "completed": 1
+    },
+    "active_runs": [],
+    "recent_runs": [
+      {
+        "run_id": "399acdac-20f8-4a3a-a21b-791b4347f88b",
+        "service": "laya",
+        "operation": "routing_and_review",
+        "origin": "staffing",
+        "status": "completed",
+        "submitted_at": 1792628858.700838,
+        "started_at": 1792628858.700838,
+        "completed_at": 1792628894.4280074,
+        "metadata": {
+          "engine": "laya"
+        },
+        "duration_ms": 35727.2,
+        "wait_ms": 0.0
+      }
+    ]
+  }
+}

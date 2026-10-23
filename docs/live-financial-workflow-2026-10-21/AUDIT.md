@@ -15,7 +15,7 @@ Status: targeted walkthrough complete. This file retains the working chronology;
 3. Saved draft and locked with the confirmation screen. Hosted read confirmed status locked, approved amount 10,000, version 3. Money input displays 10,000.
 4. Created the labeled project through its normal creation UI.
 
-Screenshots are numbered in this folder. Further actions, bugs and fixes will be appended as verified. A navigation click or server response alone is not counted as a passed end-to-end workflow.
+Screenshots are numbered in this folder. This working chronology is completed by the evidence-linked continuation below; REPORT.md remains the final result. A navigation click or server response alone is not counted as a passed end-to-end workflow.
 
 ## Verified continuation
 
@@ -60,3 +60,20 @@ B09 — Project completion blockers told the Head to settle receipts even though
 B10 — Settlement journal still used UTC business dates. QA settlement entry dated 20 Oct while Manila was already 21 Oct. Applied function-local Asia/Manila to post_liquidation_general_journal (20261020234410_liquidation_manila_calendar.sql). Existing immutable QA journal row intentionally retained as before-fix evidence; release entry is correctly dated 21 Oct. No historical financial records were rewritten.
 
 Accounting settlement succeeded independently under Gabriel: PHP400 expense + PHP100 cash return = PHP500 advance cleared. Trial balance debit PHP1,000 = credit PHP1,000 across release and settlement. Original receipt evidence and the rejected first child submission remain immutable. Second child submission includes the requested return reference and was approved by Crisostomo. Parent final submission blocked self-review and was sent to Head.
+
+## Recorded final continuation (cross-linked 22 October)
+
+This section completes the original October 21 working chronology from its retained report and captures. It does not represent a new live execution or additional transactions on October 22.
+
+| Step | Recorded action/result | Retained evidence |
+|---|---|---|
+| 32–33 | Head inspected the first task after independent cash clearance and approved it. | [Cash clearance](32-head-review-cash-clearance.jpg), [first task approved](33-first-task-approved.jpg) |
+| 34–35 | Second task's blocker was recorded and cleared; its final submission followed prerequisite approval. | [Blocker](34-second-task-blocker.jpg), [submission](35-second-task-submitted.jpg) |
+| 36 | Both required tasks approved; supported table columns and the 5-hour / ₱3,000 totals retained. | [Approved work](36-both-tasks-approved-all-columns.jpg) |
+| 37 | Completion checks passed after work review and settlement. | [Completion checks](37-completion-checks-passed.jpg) |
+| 38–39 | Completed project archived and opened read-only. The old autosave wording shown here became B12. | [Archive](38-project-archived.jpg), [read-only page before wording correction](39-archived-read-only.jpg) |
+| 40–41 | Separate disposable unstarted work used soft-delete confirmation; another unfunded task was cancelled with a reason. These were not a permanent project purge. | [Delete confirmation](40-disposable-delete-confirmation.jpg), [cancellation](41-task-cancellation-with-reason.jpg) |
+| 42 | Annual authority ₱10,000; commitments ₱3,000; available ₱7,000; expense ₱400; return ₱100; unsettled ₱0 reconciled. | [Office Budget](42-final-office-budget-reconciliation.jpg) |
+| 43–45 | The recorded restore → complete → archive continuation ended archived. Authorized budgets stayed intact; read-only wording and cancelled-task denominator were corrected. Final view shows 2/2 required tasks, 100%, with cancellation retained. | [Final archive](43-final-archive-desktop.jpg), [retained authority](44-authorized-budget-preserved-after-archive.jpg), [final table](45-final-table-budget-progress.jpg) |
+
+All 45 original images and original failed/partial test logs remain unchanged. The older unit and browser receipts were fragmented, as disclosed in REPORT.md; the separate [October 22 remediation status](../financial-qa-remediation-2026-10-21/STATUS.md) records the new verification runs and their limits.

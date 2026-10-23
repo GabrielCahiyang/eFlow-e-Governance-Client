@@ -67,6 +67,44 @@ test('Head invite dialog follows the split reference and supports keyboard dismi
   await dialog.press('Escape'); await expect(dialog).not.toBeVisible();
 });
 
+test('Office Team recovers both lists after a connection failure without sending invitations', async ({ page }, info) => {
+  test.setTimeout(90_000);
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await signInFixture(page, 'head');
+  let recover = false;
+  let writes = 0;
+  for (const endpoint of ['office-team', 'invitations']) {
+    await page.route(new RegExp(`/controlpanelEflow/api/${endpoint}$`), async route => {
+      if (route.request().method() !== 'GET') { writes++; return route.abort(); }
+      if (!recover) return route.fulfill({ status: 503, json: { detail: 'The Office connection is temporarily unavailable. Please try again.' } });
+      return route.fulfill({ json: endpoint === 'office-team'
+        ? { office_name: 'Fixture Office', members: [{ id: 'member', full_name: 'Recovered Team Member', email: 'member@example.test', role: 'member', is_active: true }] }
+        : { invitations: [{ id: 'invite', email: 'pending@example.test', account_role: 'member', status: 'pending', created_at: new Date().toISOString(), expires_at: new Date(Date.now() + 604800000).toISOString(), email_delivery_status: 'sent', send_count: 1 }] } });
+    });
+  }
+  await page.goto('/team?page=Office%20Team');
+  await expect(page.getByText('Office members unavailable', { exact: true })).toBeVisible();
+  await page.getByRole('tab', { name: 'Invitations (0)', exact: true }).click();
+  await expect(page.getByText('Invitations unavailable', { exact: true })).toBeVisible();
+  recover = true;
+  await page.getByRole('button', { name: 'Retry', exact: true }).click();
+  await expect(page.getByRole('tab', { name: 'Invitations (1)', exact: true })).toBeVisible();
+  await expect(page.getByText('pending@example.test', { exact: true })).toBeVisible();
+  await expect(page.getByText('Invitations unavailable', { exact: true })).toHaveCount(0);
+  await page.screenshot({ path: info.outputPath('office-team-invitations-recovered.png') });
+  await page.getByRole('tab', { name: 'Active Members (1)', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Recovered Team Member', exact: true })).toBeVisible();
+  await expect(page.getByText('Office members unavailable', { exact: true })).toHaveCount(0);
+  await page.getByRole('textbox', { name: 'Search Office Team', exact: true }).fill('missing');
+  await expect(page.getByText('No matching results', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Clear filters', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Recovered Team Member', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Refresh', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Recovered Team Member', exact: true })).toBeVisible();
+  await page.screenshot({ path: info.outputPath('office-team-members-recovered.png') });
+  expect(writes).toBe(0);
+});
+
 test('Member welcome persists skipped status and remains available from Help', async ({ page }, info) => {
   test.setTimeout(90_000); await signInFixture(page, 'member', true);
   const dialog = page.getByRole('dialog', { name: /Welcome to eFlow/ });

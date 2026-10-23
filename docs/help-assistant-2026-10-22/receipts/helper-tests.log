@@ -1,0 +1,6 @@
+Executing <Task pending name='Task-104' coro=<WorkerCleanupTests.test_reaps_the_owned_worker_and_its_descendant() running at C:\Users\gabri\OneDrive\Desktop\Ollama reactjs LLM DeepSeek Integration\server\test_help_process_cleanup.py:13> wait_for=<Future pending cb=[Task.task_wakeup()] created at C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:449> cb=[_run_until_complete_cb() at C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py:182] created at C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:100> took 0.110 seconds
+Executing <Task finished name='Task-104' coro=<WorkerCleanupTests.test_reaps_the_owned_worker_and_its_descendant() done, defined at C:\Users\gabri\OneDrive\Desktop\Ollama reactjs LLM DeepSeek Integration\server\test_help_process_cleanup.py:11> result=None created at C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:100> took 0.454 seconds
+----------------------------------------------------------------------
+Ran 22 tests in 2.927s
+
+OK

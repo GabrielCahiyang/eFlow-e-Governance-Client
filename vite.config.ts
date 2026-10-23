@@ -26,6 +26,17 @@ function viewModuleManifest(): Plugin {
   };
 }
 
+/** Optional local performance evidence; never included in ordinary builds. */
+function bundleProfile(): Plugin {
+  return { name: 'eflow-local-bundle-profile', generateBundle(_options, bundle) {
+    if (process.env.EFLOW_PROFILE_BUNDLE !== '1') return;
+    this.emitFile({ type: 'asset', fileName: 'eflow-bundle-profile.json', source: JSON.stringify(Object.values(bundle).filter(entry => entry.type === 'chunk').map(entry => ({
+      file: entry.fileName, imports: entry.imports, dynamicImports: entry.dynamicImports,
+      modules: Object.entries(entry.modules).map(([id, detail]) => ({ id: path.relative(configDir, id).replace(/\\/g, '/'), renderedLength: detail.renderedLength })).sort((a, b) => b.renderedLength - a.renderedLength),
+    }))) });
+  } };
+}
+
 function figmaAssetResolver() {
   return {
     name: "figma-asset-resolver",
@@ -46,40 +57,12 @@ export default defineConfig(({ mode }) => {
     plugins: [
       figmaAssetResolver(),
       viewModuleManifest(),
+      bundleProfile(),
       // The React and Tailwind plugins are both required for Make, even if
       // Tailwind is not being actively used – do not remove them.
       react(),
       tailwindcss(),
     ],
-    build: {
-      rollupOptions: {
-        output: {
-          // These small public APIs and their eager contracts form legacy cycles.
-          // Co-locate the measured re-export paths; view code stays deferred.
-          manualChunks(id: string) {
-            const normalized = id.replace(/\\/g, "/");
-            const contracts = [
-              "project-table/index.ts",
-              "project-table/selectors.ts",
-              "project-table/services/workspaceService.ts",
-              "project-views/index.ts",
-              "project-views/selectors.ts",
-              "project-views/hooks/useProjectViewActions.ts",
-              "members/index.ts",
-              "members/hooks/useDeptDirectoryEmployees.ts",
-              "team-management/index.ts",
-              "team-management/hooks/useDepartmentTeamAnalytics.ts",
-            ];
-            if (
-              contracts.some((file) =>
-                normalized.endsWith("/src/app/features/" + file),
-              )
-            )
-              return "workspace-contracts";
-          },
-        },
-      },
-    },
     resolve: {
       alias: {
         "@": path.resolve(configDir, "./src"),

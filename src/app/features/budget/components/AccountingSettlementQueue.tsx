@@ -24,6 +24,9 @@ import { requestNavigation } from "../../../shared/navigationGuard";
 import { Button as ActionButton } from "../../../components/ui/button";
 import { Badge } from "../../../components/ui/badge";
 import { fetchDepartmentBudgetBundle } from "../services/budgetService";
+import { useIndependentReviews } from '../hooks/useIndependentReviews';
+import { getIndependentReview, independentReviewAllowsPosting } from '../services/independentReviewService';
+import { IndependentReviewCard } from './IndependentReviewCard';
 import {
   financialOutcome,
   recordFinancialOutcome,
@@ -38,6 +41,7 @@ export function AccountingSettlementQueue({
   onChanged: () => Promise<void>;
 }) {
   const { userProfile, can } = useAuth();
+  const independent = useIndependentReviews(data);
   const canSettle =
     userProfile?.role === "accounting_staff" &&
     can("accounting.settle_liquidation") &&
@@ -137,6 +141,8 @@ export function AccountingSettlementQueue({
     setBusy(id);
     setError("");
     try {
+      const review = await getIndependentReview(id);
+      if (review.version !== item.version || !independentReviewAllowsPosting(review, userProfile?.id || '')) throw new Error('Current independent leadership review is required before Accounting can settle this package.');
       if (
         !(await confirmation.confirm({
           title: approve
@@ -267,7 +273,8 @@ export function AccountingSettlementQueue({
                     request?.taskLeaderId,
                   ].includes(userProfile.id),
               );
-              const canDecide = canSettle && !ownFunds;
+              const review = independent.contexts[item.id];
+              const canDecide = canSettle && !ownFunds && Boolean(review && independentReviewAllowsPosting(review, userProfile?.id || ''));
               return (
                 <m.article
                   layout
@@ -340,11 +347,12 @@ export function AccountingSettlementQueue({
                       </Button>
                     </div>
                   </div>
+                  <IndependentReviewCard id={item.id} version={item.version} context={review} error={independent.errors[item.id]} onChanged={async () => { await independent.refresh(); await onChanged(); }} />
                   {ownFunds && (
                     <p className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
                       You cannot settle your own cash request, receipt or task
-                      leadership package. An independent authorized Accounting
-                      Staff member must review it.
+                      leadership package. Independent leadership review and a
+                      separate eligible Accounting Officer are required.
                     </p>
                   )}
                   {awaitingHead && (

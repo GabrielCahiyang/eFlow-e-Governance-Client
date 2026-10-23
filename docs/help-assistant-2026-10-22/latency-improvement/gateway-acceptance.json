@@ -1,0 +1,69 @@
+{
+  "target": "ixnfphgjyelhckjwjkdv",
+  "scope": "actual local gateway and models; synthetic audio, existing labeled QA reads; no business writes",
+  "checks": [
+    {
+      "operation": "status",
+      "status": 200,
+      "seconds": 2.03
+    },
+    {
+      "operation": "projects",
+      "status": 200,
+      "seconds": 1.8
+    },
+    {
+      "operation": "chat",
+      "status": 200,
+      "seconds": 13.38,
+      "grounded": true,
+      "source_kinds": [
+        "task"
+      ]
+    },
+    {
+      "operation": "transcribe",
+      "status": 200,
+      "seconds": 9.69
+    },
+    {
+      "operation": "chat",
+      "status": 200,
+      "seconds": 2.55,
+      "grounded": true,
+      "model": "qwen3.5:2b"
+    },
+    {
+      "operation": "speech",
+      "status": 200,
+      "seconds": 30.78,
+      "audio_seconds": 8.6
+    },
+    {
+      "operation": "speech",
+      "status": 200,
+      "seconds": 2.27,
+      "audio_seconds": 8.6
+    },
+    {
+      "operation": "chat",
+      "status": 200,
+      "seconds": 9.62
+    },
+    {
+      "operation": "speech",
+      "status": 200,
+      "seconds": 12.47,
+      "audio_seconds": 9.08
+    },
+    {
+      "operation": "chat",
+      "status": 200,
+      "seconds": 1.88
+    },
+    {
+      "operation": "anonymous-projects",
+      "status": 401
+    }
+  ]
+}

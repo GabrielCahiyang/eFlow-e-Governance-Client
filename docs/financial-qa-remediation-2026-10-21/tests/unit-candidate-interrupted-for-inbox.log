@@ -1,0 +1,64 @@
+
+> @figma/my-make-file@0.0.1 test
+> vitest --configLoader runner run --maxWorkers=2
+
+
+ RUN  v3.2.4 C:/Users/gabri/OneDrive/Desktop/EflowWeb
+
+ ✓ tests/unit/loginWorkflowPreview.test.tsx (10 tests) 26627ms
+   ✓ login workflow guides > opens an unsigned-in guide, navigates backward/forward, scrubs to archive, and starts fresh on reopen  8234ms
+   ✓ login workflow guides > changes example screens when a highlighted control is clicked, without leaving the login panel  2738ms
+   ✓ login workflow guides > provides one real spotlight target for every demo screen and preserves the workflow order  969ms
+   ✓ uses the walkthrough voice, keeps it enabled across steps, and cancels on off and close  2601ms
+ ✓ tests/unit/taskTeamEditorDialog.test.tsx (20 tests) 17278ms
+   ✓ task team editor > shows the complete team and refuses to remove a member with unfinished subtask work  1666ms
+   ✓ Phase 12 task team safety > rechecks newly assigned unfinished work after confirmation opens  1285ms
+   ✓ Phase 12 task team safety > rejects a newly inactive selected member after confirmation opens  1485ms
+   ✓ Phase 12 task team safety > keeps a team draft on cancelled dismissal, then discards only after acceptance  937ms
+   ✓ Phase 12 task team safety > uses an impact dialog once and retains selected members after a server denial  1348ms
+   ✓ Phase 12 task team safety > refuses to overwrite a team changed remotely while a draft is open  1192ms
+   ✓ NW3.3 supported task team callers > uses a supplied table controller without another read and retains contributor-only authority  876ms
+   ✓ NW3.3 supported task team callers > saves contributors through the canonical versioned operation without legacy writes or notifications  935ms
+   ✓ NW3.3 supported task team callers > keeps Head appointment authority separate from the contributor-only Team action  914ms
+   ✓ NW3.3 supported task team callers > retains a contributor draft when fresh capability revokes saving  1074ms
+   ✓ NW3.3 supported task team callers > fails closed with absent capability maps even when old management booleans are true  561ms
+   ✓ NW3.3 supported task team callers > retains values and blocks saves when the caller becomes read-only  854ms
+   ✓ NW3.3 supported task team callers > locks canonical contributors for for_review  512ms
+   ✓ NW3.3 supported task team callers > locks canonical contributors for completed  512ms
+   ✓ NW3.3 supported task team callers > locks canonical contributors for cancelled  492ms
+   ✓ NW3.3 supported task team callers > retains the legacy workflow for an excluded task {}  464ms
+   ✓ NW3.3 supported task team callers > retains the legacy workflow for an excluded task {"proposedOfficeIdentityId":"unresolved"}  408ms
+   ✓ NW3.3 supported task team callers > retains the legacy workflow for an excluded task {"sourceCollaborationDraftId":"governed"}  410ms
+   ✓ NW3.3 supported task team callers > blocks a legacy save if read-only changes while its confirmation is open  1110ms
+ ✓ tests/unit/nestedWorkStaffing.test.tsx (34 tests) 35956ms
+   ✓ canonical staffing dialog capability and commands > lets the Head choose a first lead and add collaborators in the same save  3305ms
+   ✓ canonical staffing dialog capability and commands > does not turn a contributor permission denial into an initial appointment permission  753ms
+   ✓ canonical staffing dialog capability and commands > unlocks a confirmed failed save while keeping the chosen people  1301ms
+   ✓ canonical staffing dialog capability and commands > lets a shared Task Lead edit contributors without enabling root transfer from legacy flags  1189ms
+   ✓ canonical staffing dialog capability and commands > lets an own Subitem Lead edit contributors but never replace itself  1041ms
+   ✓ canonical staffing dialog capability and commands > allows an eligible ancestor to transfer a descendant, discloses exact clearing and preserves workers  1623ms
+   ✓ canonical staffing dialog capability and commands > maps root Lead change to root_lead and includes compatibility workers, without identity fields  1390ms
+   ✓ canonical staffing dialog capability and commands > allows initial root appointment through appointment capability without contributor permission  1488ms
+   ✓ canonical staffing dialog capability and commands > saves personal root appointment without inventing a team/worker payload  1397ms
+   ✓ canonical staffing dialog capability and commands > does not automatically retain an appointment-only historical Lead as a worker  1568ms
+   ✓ canonical staffing dialog capability and commands > fails closed for absent maps despite legacy management flags  490ms
+   ✓ canonical staffing dialog capability and commands > fails closed for detached snapshot despite legacy management flags  447ms
+   ✓ canonical staffing dialog capability and commands > fails closed for readOnly despite legacy management flags  450ms
+   ✓ canonical staffing dialog capability and commands > excludes expired replacements and preserves named historical assignments until explicit removal  906ms
+   ✓ canonical staffing dialog capability and commands > blocks a transfer that drops original workers even after explicit draft removal  949ms
+   ✓ canonical staffing dialog capability and commands > blocks removing a worker still assigned to unfinished descendants  762ms
+   ✓ fresh authority, checked confirmation and request outcomes > retains values but disables save after a fresh revoked capability  829ms
+   ✓ fresh authority, checked confirmation and request outcomes > rejects a changed revision without silently rebaselining the draft  831ms
+   ✓ fresh authority, checked confirmation and request outcomes > cancels transfer confirmation with zero writes and retains draft fields  1688ms
+   ✓ fresh authority, checked confirmation and request outcomes > rechecks capability after confirmation and denies a revoked appointment without writes  1718ms
+   ✓ fresh authority, checked confirmation and request outcomes > rejects current eligibility or impact changes while transfer confirmation is open  1689ms
+   ✓ fresh authority, checked confirmation and request outcomes > retains the identical request/payload/revision for uncertain retry and prevents double sends  1157ms
+   ✓ fresh authority, checked confirmation and request outcomes > allows the same uncertain request receipt retry after a fresh revision advances  1191ms
+   ✓ fresh authority, checked confirmation and request outcomes > does not save a second time when a confirmed receipt is followed by refresh failure  1126ms
+   ✓ fresh authority, checked confirmation and request outcomes > blocks an expired replacement discovered during transfer confirmation  1598ms
+   ✓ fresh authority, checked confirmation and request outcomes > does not reinterpret a pending save response after actor scope changes  1140ms
+   ✓ fresh authority, checked confirmation and request outcomes > prevents Escape/close while an operation is pending  1225ms
+   ✓ fresh authority, checked confirmation and request outcomes > keeps a dirty draft on canceled dismissal, then closes once with zero writes  903ms
+   ✓ fresh authority, checked confirmation and request outcomes > restores focus to the opener after clean dismissal  668ms
+   ✓ staffing selectors and invitation separation > keeps request-only server authority separate from staffing permission  601ms
+   ✓ staffing selectors and invitation separation > preserves existing scoped R8 requests without ever passing approval/dispatch permission  308ms

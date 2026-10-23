@@ -1,0 +1,114 @@
+.eflow-help-assistant { width: min(880px, calc(100vw - 32px)); max-width: 880px; height: min(780px, calc(100dvh - 40px)); display: flex; flex-direction: column; gap: 0; padding: 0; overflow: hidden; }
+.eflow-help-assistant__heading { display: flex; flex-direction: row; align-items: center; gap: 14px; padding: 25px 54px 20px 26px; text-align: left; border-bottom: 1px solid var(--border); }
+.eflow-help-assistant__mark,.eflow-help-assistant__welcome-icon { display: inline-flex; justify-content: center; align-items: center; width: 48px; height: 48px; border-radius: 16px; background: #daf0ed; color: #087a72; flex-shrink: 0; }
+.eflow-help-assistant__heading h2 { font-size: 23px; margin-bottom: 5px; }
+.eflow-help-assistant__heading-copy { flex: 1; min-width: 0; }
+.eflow-help-assistant__live-launch { flex-shrink: 0; color: #087a72; border-color: #99c9c2; gap: 7px; }
+.dark .eflow-help-assistant__live-launch { color: #8cdbcf; border-color: #416d67; }
+.dark .eflow-help-assistant__error,.dark .eflow-live__error { color: #ff9299; }
+.eflow-help-assistant__context { display: flex; align-items: center; gap: 10px; padding: 14px 26px; border-bottom: 1px solid var(--border); font-size: 13px; }
+.eflow-help-assistant__context label { flex-shrink: 0; }
+.eflow-help-assistant__context select { min-width: 0; flex: 1; height: 38px; border: 1px solid var(--border); border-radius: 8px; padding: 0 10px; background: var(--background); color: var(--foreground); }
+.eflow-help-assistant__context>span { display: flex; align-items: center; gap: 4px; color: var(--foreground); white-space: nowrap; }
+.eflow-help-assistant__notice { display: flex; align-items: flex-start; gap: 8px; font-size: 12px; padding: 10px 26px; background: var(--muted); color: var(--muted-foreground); }
+.eflow-help-assistant__notice svg,.eflow-help-assistant__error svg { flex-shrink: 0; }
+.eflow-help-assistant__transcript { flex: 1; min-height: 100px; overflow-y: auto; overscroll-behavior: contain; padding: 22px 26px; }
+.eflow-help-assistant__welcome { max-width: 500px; margin: 18px auto; text-align: center; }
+.eflow-help-assistant__welcome-icon { width: 64px; height: 64px; margin-bottom: 16px; border-radius: 22px; }
+.eflow-help-assistant__welcome h3 { font-size: 23px; margin: 0 0 8px; }
+.eflow-help-assistant__welcome p { color: var(--muted-foreground); font-size: 14px; margin-bottom: 22px; }
+.eflow-help-assistant__welcome>div { display: grid; gap: 8px; }
+.eflow-help-assistant__welcome button { display: flex; justify-content: space-between; align-items: center; text-align: left; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; font-size: 13px; gap: 12px; }
+.eflow-help-assistant__welcome button:hover { background: var(--muted); }
+.eflow-help-message { max-width: 94%; border-radius: 12px; padding: 14px 16px; margin-bottom: 14px; overflow-wrap: anywhere; }
+.eflow-help-message--user { margin-left: auto; background: var(--muted); width: fit-content; }
+.eflow-help-message--assistant { border: 1px solid var(--border); }
+.eflow-help-message>small { display: block; font-size: 11px; font-weight: 600; color: var(--muted-foreground); margin-bottom: 6px; }
+.eflow-help-message>p { font-size: 14px; line-height: 1.6; margin: 6px 0; }
+.eflow-help-message__tools { display: flex; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-top: 12px; }
+.eflow-help-message__tools details { font-size: 12px; flex: 1; min-width: 150px; }
+.eflow-help-message__tools summary { display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 7px 0; color: var(--muted-foreground); }
+.eflow-help-message__tools ul { padding-left: 18px; }
+.eflow-help-message__tools li { margin-bottom: 8px; }
+.eflow-help-message__tools li p { margin: 4px 0; }
+.eflow-help-assistant__composer { border-top: 1px solid var(--border); padding: 10px 26px 16px; }
+.eflow-help-assistant__voice { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12px; margin-bottom: 5px; }
+.eflow-help-assistant__voice>span { display: flex; align-items: center; gap: 8px; }
+.eflow-help-assistant__composer form { display: flex; align-items: center; gap: 8px; border: 1px solid var(--border); border-radius: 10px; padding: 6px; }
+.eflow-help-assistant__composer input { min-width: 0; flex: 1; background: transparent; border: 0; padding: 8px; font-size: 14px; outline-offset: 2px; }
+.eflow-help-assistant__footer { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 0 8px; }
+.eflow-help-assistant__footer>span { color: var(--muted-foreground); font-size: 11px; }
+.eflow-help-assistant__privacy { font-size: 11px; line-height: 1.5; display: block; color: var(--muted-foreground); }
+.eflow-help-assistant__error { display: flex; gap: 8px; padding: 10px 26px; color: #bc2431; font-size: 13px; }
+.eflow-help-live-dot,.eflow-help-idle-dot { width: 7px; height: 7px; border-radius: 50%; background: #8b9b9a; display: inline-block; flex-shrink: 0; }
+.eflow-help-live-dot { background: #0c9b80; box-shadow: 0 0 0 4px #0c9b8019; }
+.eflow-help-spin { animation: eflow-help-spin 1s linear infinite; }
+@keyframes eflow-help-spin { to { transform: rotate(360deg); } }
+.eflow-live { flex: 1; min-height: 0; position: relative; display: flex; flex-direction: column; background: radial-gradient(ellipse at 50% 40%, #e5f5f134, transparent 65%); }
+.eflow-live__top { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 24px; }
+.eflow-live__top>span { min-width: 0; display: flex; align-items: center; gap: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted-foreground); font-size: 12px; }
+.eflow-live__top button { flex-shrink: 0; gap: 7px; }
+.eflow-live__main { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 17px; padding: 12px 32px; text-align: center; overflow-y: auto; }
+.eflow-live__status { font-size: 14px; font-weight: 600; color: var(--muted-foreground); margin: 0; }
+.eflow-live__orb { position: relative; flex-shrink: 0; display: grid; place-items: center; width: clamp(130px, 24vh, 210px); aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle at 32% 25%, #80e1c7, #159b90 45%, #066e73 80%); box-shadow: 0 12px 70px #169d8d2d, inset 0 0 28px #ffffff44; color: white; }
+.eflow-live__glow { position: absolute; inset: -14px; border-radius: 50%; border: 1px solid #159b9030; }
+.eflow-live__waves { display: none; align-items: center; justify-content: center; gap: 7px; height: 64px; }
+.eflow-live__waves i { width: 6px; height: 25px; border-radius: 8px; background: #effffb; animation: eflow-live-wave 1.3s ease-in-out infinite; }
+.eflow-live--listening .eflow-live__waves,.eflow-live--speaking .eflow-live__waves { display: flex; }
+.eflow-live--listening .eflow-live__orb>svg,.eflow-live--speaking .eflow-live__orb>svg { display: none; }
+.eflow-live--preparing .eflow-live__glow,.eflow-live--thinking .eflow-live__glow,.eflow-live--transcribing .eflow-live__glow { border-top-color: #159b90; animation: eflow-help-spin 2.5s linear infinite; }
+.eflow-live__caption { max-width: 650px; width: 100%; }
+.eflow-live__caption small { font-size: 11px; color: var(--muted-foreground); }
+.eflow-live__caption p { font-size: clamp(17px, 1.55vw, 23px); line-height: 1.5; margin: 7px 0 0; max-height: 120px; overflow-y: auto; overflow-wrap: anywhere; }
+.eflow-live__hint { font-size: 12px; color: var(--muted-foreground); margin: 0; min-height: 24px; }
+.eflow-live__error { display: flex; align-items: flex-start; gap: 8px; color: #bc2431; font-size: 13px; margin: 0; }
+.eflow-live__error svg { flex-shrink: 0; }
+.eflow-live__interrupt { border-radius: 24px; font-size: 12px; min-height: 32px; }
+.eflow-live__bottom { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 20px 20px; }
+.eflow-live__bottom>small { color: var(--muted-foreground); font-size: 11px; text-align: center; }
+.eflow-live__controls { display: flex; align-items: center; gap: 16px; }
+.eflow-live__controls>button { border-radius: 28px; min-height: 44px; min-width: 44px; }
+.eflow-live__controls .eflow-live__pause { min-width: 88px; min-height: 52px; gap: 9px; }
+.eflow-live__transcript { position: absolute; inset: 55px 20px 160px; z-index: 1; border: 1px solid var(--border); border-radius: 14px; background: var(--background); padding: 18px; box-shadow: 0 10px 30px #00000015; overflow-y: auto; }
+.eflow-help-assistant--live .eflow-help-assistant__heading { padding-bottom: 16px; }
+@keyframes eflow-live-wave { 0%,100% { transform: scaleY(.45); } 50% { transform: scaleY(1.8); } }
+@media (max-width: 600px), (max-height: 600px) { .eflow-help-assistant { width: calc(100vw - 16px); height: calc(100dvh - 16px); } .eflow-help-assistant__heading { padding: 16px 45px 12px 16px; } .eflow-help-assistant__heading h2 { font-size: 19px; } .eflow-help-assistant__context,.eflow-help-assistant__notice { padding: 9px 16px; } .eflow-help-assistant__transcript { padding: 14px 16px; } .eflow-help-assistant__composer { padding: 8px 16px 12px; } .eflow-help-assistant__welcome { margin: 0 auto; } .eflow-help-assistant__welcome-icon { display: none; } }
+@media (prefers-reduced-motion: reduce) { .eflow-help-spin { animation: none; } }
+@media (max-width: 600px) { .eflow-help-assistant__heading { flex-wrap: wrap; gap: 9px; } .eflow-help-assistant__live-launch { margin-left: 57px; } .eflow-live__top { padding: 8px 14px; } .eflow-live__main { padding: 8px 20px; gap: 14px; } }
+@media (max-height: 650px) { .eflow-live__main { gap: 8px; padding: 5px 22px; } .eflow-live__orb { width: 100px; } .eflow-live__caption p { font-size: 16px; max-height: 58px; } .eflow-live__bottom { padding: 8px 16px; gap: 2px; } .eflow-live__controls>button { min-height: 36px; } .eflow-live__controls .eflow-live__pause { min-height: 40px; } .eflow-live__top { padding: 6px 16px; } }
+@media (prefers-reduced-motion: reduce) { .eflow-live__waves i,.eflow-live__glow { animation: none !important; } }
+.eflow-microphone { font-size: 11px; margin: 4px 0 8px; width: 100%; }
+.eflow-microphone__row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.eflow-microphone label { display: flex; align-items: center; gap: 5px; min-width: 0; }
+.eflow-microphone select { max-width: min(280px, 48vw); min-width: 0; border: 1px solid var(--border); background: var(--background); color: var(--foreground); border-radius: 6px; padding: 4px 6px; font-size: 11px; }
+.eflow-microphone__meter { width: 70px; height: 6px; border-radius: 5px; background: var(--muted); overflow: hidden; border: 1px solid var(--border); }
+.eflow-microphone__meter span { display: block; height: 100%; background: #12aa8d; transition: width 100ms linear; }
+.eflow-microphone small { color: var(--muted-foreground); font-size: 10px; }
+.eflow-microphone__device { display: block; margin-top: 3px; overflow-wrap: anywhere; }
+.eflow-microphone__warning { display: flex; align-items: flex-start; gap: 5px; margin: 5px 0 0; color: #bc2431; font-size: 11px; }
+.eflow-microphone__warning svg { flex-shrink: 0; }
+.dark .eflow-microphone__warning { color: #ff9299; }
+.eflow-live__bottom .eflow-microphone { max-width: 650px; }
+.eflow-live__bottom .eflow-microphone__row { justify-content: center; }
+.eflow-live__bottom .eflow-microphone__device { text-align: center; }
+
+/* Live needs room for the answer as well as the voice controls. Keep one
+   scrolling content area so a long reply never clips above a centered orb. */
+.eflow-help-assistant.eflow-help-assistant--live { width: min(1320px, calc(100vw - 48px)); max-width: 1320px; height: calc(100dvh - 48px); max-height: calc(100dvh - 48px); }
+.eflow-help-assistant--live .eflow-help-assistant__heading { flex-shrink: 0; }
+.eflow-live__top { flex-shrink: 0; }
+.eflow-live__main { justify-content: flex-start; justify-content: safe center; gap: clamp(12px, 2dvh, 20px); padding: 22px clamp(24px, 5vw, 72px); overscroll-behavior: contain; scrollbar-gutter: stable; }
+.eflow-live__main > * { flex-shrink: 0; }
+.eflow-live__orb { width: clamp(110px, 20dvh, 200px); }
+.eflow-live__caption { max-width: 900px; }
+.eflow-live__caption p { max-height: none; overflow: visible; font-size: clamp(18px, 1.5vw, 24px); line-height: 1.6; }
+.eflow-live__bottom { border-top: 1px solid var(--border); background: var(--background); padding: 12px 24px 16px; }
+@media (max-width: 1024px), (max-height: 650px) {
+  .eflow-help-assistant.eflow-help-assistant--live { width: calc(100vw - 24px); height: calc(100dvh - 24px); max-height: calc(100dvh - 24px); }
+}
+@media (max-height: 650px) {
+  .eflow-live__main { gap: 10px; padding: 14px 24px; }
+  .eflow-live__orb { width: 100px; }
+  .eflow-live__caption p { font-size: 16px; }
+  .eflow-live__bottom { padding: 8px 16px; }
+}
