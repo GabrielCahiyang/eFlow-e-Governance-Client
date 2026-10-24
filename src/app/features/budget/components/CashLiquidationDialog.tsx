@@ -73,7 +73,7 @@ export function CashLiquidationDialog({ request, orgId, perReceiptLimit, liquida
 
   return (
     <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
-      <DialogContent className="max-h-[calc(100dvh-2rem)] gap-0 overflow-hidden p-0 sm:max-w-[640px]">
+      <DialogContent className="max-h-[calc(100dvh-2rem)] grid-rows-[auto_minmax(0,1fr)_auto] gap-0 overflow-hidden p-0 sm:max-w-[640px]">
         <DialogHeader className="border-b border-border px-5 py-4 pr-12">
           <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">Cash liquidation</div>
           <DialogTitle className="text-[18px]">Upload receipts and return balance</DialogTitle>

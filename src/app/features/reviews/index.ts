@@ -18,7 +18,7 @@ export {
   getInitialReviewWorkspaceKind,
   isTaskVisibleInReviewQueue,
 } from "./selectors";
-export { SubtaskReviewInbox } from "./components/SubtaskReviewInbox";
+export const SubtaskReviewInbox = lazyFeature(() => import('./components/SubtaskReviewInbox').then(m => ({default:m.SubtaskReviewInbox})),undefined,'SubtaskReviewInbox');
 export type {
   ReviewAttachment,
   ReviewSubmission,

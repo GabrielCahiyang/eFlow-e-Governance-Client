@@ -1,0 +1,133 @@
+{
+  "scope": "Direct local runtime, uncached synthetic speech; no chat/gateway/tunnel or audible playback measurement",
+  "speechModel": "Kitten-TTS 2 F16",
+  "asrModel": "Parakeet Redux Q8 CPU, 4 threads",
+  "samples": [
+    {
+      "stage": "tts",
+      "pair": 1,
+      "state": "cold",
+      "characters": 28,
+      "seconds": 44.625,
+      "audio_seconds": 2.36,
+      "real_time_factor": 18.909,
+      "cached": false,
+      "worker_start_seconds": 17.625,
+      "generation_seconds": 3.25,
+      "cold_worker": true
+    },
+    {
+      "stage": "tts",
+      "pair": 1,
+      "state": "warm",
+      "characters": 28,
+      "seconds": 5.015,
+      "audio_seconds": 2.68,
+      "real_time_factor": 1.871,
+      "cached": false,
+      "worker_start_seconds": 0,
+      "generation_seconds": 4.296999999998661,
+      "cold_worker": false
+    },
+    {
+      "stage": "tts",
+      "pair": 2,
+      "state": "cold",
+      "characters": 28,
+      "seconds": 33.047,
+      "audio_seconds": 2.52,
+      "real_time_factor": 13.114,
+      "cached": false,
+      "worker_start_seconds": 15.578000000001339,
+      "generation_seconds": 3.875,
+      "cold_worker": true
+    },
+    {
+      "stage": "tts",
+      "pair": 2,
+      "state": "warm",
+      "characters": 28,
+      "seconds": 4.765,
+      "audio_seconds": 2.52,
+      "real_time_factor": 1.891,
+      "cached": false,
+      "worker_start_seconds": 0,
+      "generation_seconds": 4.1560000000026776,
+      "cold_worker": false
+    },
+    {
+      "stage": "tts",
+      "pair": 3,
+      "state": "cold",
+      "characters": 28,
+      "seconds": 30.125,
+      "audio_seconds": 2.68,
+      "real_time_factor": 11.241,
+      "cached": false,
+      "worker_start_seconds": 13.328000000001339,
+      "generation_seconds": 4.3289999999979045,
+      "cold_worker": true
+    },
+    {
+      "stage": "tts",
+      "pair": 3,
+      "state": "warm",
+      "characters": 28,
+      "seconds": 4.265,
+      "audio_seconds": 2.36,
+      "real_time_factor": 1.807,
+      "cached": false,
+      "worker_start_seconds": 0,
+      "generation_seconds": 3.5,
+      "cold_worker": false
+    },
+    {
+      "stage": "asr",
+      "pair": 1,
+      "state": "cold",
+      "seconds": 6.625,
+      "audio_seconds": 5.48,
+      "recognized": true
+    },
+    {
+      "stage": "asr",
+      "pair": 1,
+      "state": "warm",
+      "seconds": 3.375,
+      "audio_seconds": 5.48,
+      "recognized": true
+    },
+    {
+      "stage": "asr",
+      "pair": 2,
+      "state": "cold",
+      "seconds": 5.219,
+      "audio_seconds": 5.48,
+      "recognized": true
+    },
+    {
+      "stage": "asr",
+      "pair": 2,
+      "state": "warm",
+      "seconds": 4.344,
+      "audio_seconds": 5.48,
+      "recognized": true
+    },
+    {
+      "stage": "asr",
+      "pair": 3,
+      "state": "cold",
+      "seconds": 5.016,
+      "audio_seconds": 5.48,
+      "recognized": true
+    },
+    {
+      "stage": "asr",
+      "pair": 3,
+      "state": "warm",
+      "seconds": 6.656,
+      "audio_seconds": 5.48,
+      "recognized": true
+    }
+  ]
+}

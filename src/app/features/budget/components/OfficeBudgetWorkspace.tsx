@@ -185,7 +185,7 @@ function OfficeBudgetContent({ orgId, fiscalYear, embedded, tab, setTab, setFisc
               {!embedded && <FiscalYearControl compact value={fiscalYear} onChange={setFiscalYear} />}
               <small>{budget.error ? 'Pending financial actions unavailable' : `Pending financial actions: ${pendingCount}`} · FY {fiscalYear}</small>
             </div>
-            {!budget.summary && budget.error && tab !== "annual" ? null : !budget.summary && tab !== "annual" ? (
+            {!budget.summary && budget.error ? null : !budget.summary && tab !== "annual" ? (
               <BudgetEmpty
                 title={`No ${fiscalYear} annual budget yet`}
                 description="The Head must create and lock the annual budget before proposals and task-level cash requests can be funded."

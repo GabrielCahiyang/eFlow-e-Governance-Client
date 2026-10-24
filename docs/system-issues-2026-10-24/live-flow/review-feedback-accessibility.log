@@ -1,0 +1,11 @@
+
+ RUN  v3.2.4 C:/Users/gabri/OneDrive/Desktop/EflowWeb
+
+ ✓ tests/unit/reviewCashClearance.test.tsx (9 tests) 1767ms
+   ✓ cash-aware review decision > shows the exact blocker before approval and opens its receipt package in the correct fiscal year  536ms
+
+ Test Files  1 passed (1)
+      Tests  9 passed (9)
+   Start at  11:00:39
+   Duration  9.01s (transform 1.09s, setup 0ms, collect 2.47s, tests 1.77s, environment 2.25s, prepare 991ms)
+

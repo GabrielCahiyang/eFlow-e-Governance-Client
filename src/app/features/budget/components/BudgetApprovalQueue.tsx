@@ -906,6 +906,7 @@ function RejectionDialog({
         </DialogHeader>
         <div className="px-5 py-4">
           <Textarea
+            aria-label="Reason or required correction"
             autoFocus
             rows={4}
             value={reason}

@@ -29,7 +29,9 @@ async def assistant(operation: Literal['status', 'projects', 'chat', 'transcribe
         while not task.done():
             if await request.is_disconnected():
                 raise asyncio.CancelledError()
-            await asyncio.sleep(.2)
+            # Wake on the proxy response; the timeout only bounds disconnect
+            # checks, rather than adding 0–200ms to every speech/ASR chunk.
+            await asyncio.wait({task}, timeout=.2)
         return await task
     finally:
         if not task.done():

@@ -1,0 +1,20 @@
+{
+  "target": "ixnfphgjyelhckjwjkdv",
+  "applied_at": "2026-10-24T02:44:15.664177+00:00",
+  "pending": [
+    {
+      "file": "20261021172003_financial_independent_review_and_dependency_lifecycle.sql",
+      "sha256": "a9e93ff00beab7341aa9ed07f9db4a8675d4991cd9efa36cbf2bb604de5fa55b"
+    },
+    {
+      "file": "20261021175217_financial_rpc_grants_and_search_paths.sql",
+      "sha256": "0948d5d80e283f059fa666dc0ad366fdabe6953866d779af0c8561c270781ec9"
+    }
+  ],
+  "existing_tables_unchanged": 116,
+  "new_versions": [
+    "20261021172003",
+    "20261021175217"
+  ],
+  "backup_verified": true
+}

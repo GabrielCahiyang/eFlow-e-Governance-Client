@@ -34,7 +34,7 @@ describe('progressive Parakeet snapshots', () => {
     finish({ text: 'Open the project' }); await stream.finish();
     expect(transcribe).toHaveBeenCalledTimes(2);
     expect(transcribe.mock.calls[1][0]).toBe(final);
-    expect(onText.mock.calls.map(call => call[0])).toEqual(['Open the project', 'Open the project table.']);
+    expect(onText.mock.calls.map(call => call[0])).toEqual(['Open the project table.']);
     expect(onFinal).toHaveBeenCalledWith('Open the project table.');
   });
   it('joins completed dictation phrases and corrects the current preview only', async () => {
@@ -54,5 +54,58 @@ describe('progressive Parakeet snapshots', () => {
     await Promise.resolve();
     expect(onText).not.toHaveBeenCalled();
     expect(transcribe.mock.calls[0][1].aborted).toBe(true);
+  });
+  it('aborts an obsolete preview and delivers the final once without an error', async () => {
+    transcribe.mockImplementationOnce((_audio, signal: AbortSignal) => new Promise((_resolve, reject) => {
+      signal.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')));
+    })).mockResolvedValueOnce({ text: 'The entire final question.' });
+    const onText = vi.fn(), onFinal = vi.fn(), onError = vi.fn();
+    const stream = new ProgressiveTranscription({ onText, onFinal, onError });
+    stream.push(new Blob(['partial']), false);
+    stream.push(new Blob(['entire question']), true);
+    await stream.finish();
+    expect(transcribe.mock.calls[0][1].aborted).toBe(true);
+    expect(onFinal).toHaveBeenCalledExactlyOnceWith('The entire final question.');
+    expect(onText).toHaveBeenCalledExactlyOnceWith('The entire final question.');
+    expect(onError).not.toHaveBeenCalled();
+  });
+  it('never aborts an accepted final when subsequent turns arrive', async () => {
+    let finish!: (value: { text: string }) => void;
+    transcribe.mockImplementationOnce(() => new Promise(resolve => { finish = resolve; }))
+      .mockResolvedValueOnce({ text: 'Second turn.' });
+    const onFinal = vi.fn(), stream = new ProgressiveTranscription({ onText: vi.fn(), onFinal, onError: vi.fn() });
+    stream.push(new Blob(['first']), true); stream.push(new Blob(['second']), true);
+    expect(transcribe.mock.calls[0][1].aborted).toBe(false);
+    finish({ text: 'First turn.' }); await stream.finish();
+    expect(onFinal.mock.calls.map(call => call[0])).toEqual(['First turn.', 'Second turn.']);
+  });
+  it('rejects excess final turns explicitly and preserves all admitted turns', async () => {
+    let finish!: (value: { text: string }) => void;
+    transcribe.mockImplementationOnce(() => new Promise(resolve => { finish = resolve; }))
+      .mockResolvedValue({ text: 'Queued turn.' });
+    const onFinal = vi.fn(), onError = vi.fn();
+    const stream = new ProgressiveTranscription({ onText: vi.fn(), onFinal, onError });
+    for (let index = 0; index < 5; index++) stream.push(new Blob([String(index)]), true);
+    expect(onError).toHaveBeenCalledOnce();
+    finish({ text: 'First turn.' }); await stream.finish();
+    expect(onFinal).toHaveBeenCalledTimes(4);
+    expect(transcribe.mock.calls[0][1].aborted).toBe(false);
+  });
+  it('does not let a reset preview clear the new generation controller', async () => {
+    let oldFinish!: (value: { text: string }) => void;
+    transcribe.mockImplementationOnce(() => new Promise(resolve => { oldFinish = resolve; }))
+      .mockImplementationOnce((_audio, signal: AbortSignal) => new Promise((_resolve, reject) => {
+        signal.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')));
+      })).mockResolvedValueOnce({ text: 'New final.' });
+    const onFinal = vi.fn(), onText = vi.fn(), onError = vi.fn();
+    const stream = new ProgressiveTranscription({ onText, onFinal, onError });
+    stream.push(new Blob(['old']), false); stream.reset();
+    stream.push(new Blob(['new partial']), false);
+    oldFinish({ text: 'Old result.' }); await Promise.resolve(); await Promise.resolve();
+    stream.push(new Blob(['new final']), true); await stream.finish();
+    expect(transcribe.mock.calls[1][1].aborted).toBe(true);
+    expect(onFinal).toHaveBeenCalledExactlyOnceWith('New final.');
+    expect(onError).not.toHaveBeenCalled();
+    expect(onText).toHaveBeenCalledExactlyOnceWith('New final.');
   });
 });

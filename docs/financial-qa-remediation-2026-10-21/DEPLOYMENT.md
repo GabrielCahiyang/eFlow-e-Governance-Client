@@ -1,5 +1,7 @@
 # Reviewed deployment package — pending acceptance
 
+**24 October continuation:** the user explicitly approved installing the two financial migrations during the new visible workflow audit. They are now installed on `ixnfphgjyelhckjwjkdv`, with original timestamps, through an isolated workspace populated from live history. Backup, drift, preservation and signed-browser acceptance receipts are in [the current audit](../system-issues-2026-10-24/live-flow/REPORT.md) and [deployment receipt](../system-issues-2026-10-24/live-flow/DEPLOYMENT_RECEIPT.json). The text below remains the historical pre-deployment package; its staging checklist is not a claim that every acceptance case has passed.
+
 Only target: `ixnfphgjyelhckjwjkdv`. No hosted remediation migrations or new QA financial transactions have been applied. Separately authorized AI QA records are documented in AI_QA.md. Policy choices are recorded in [POLICY_DECISIONS.md](POLICY_DECISIONS.md). Source hashes are in [source-manifest.json](source-manifest.json).
 
 ## Pending delta

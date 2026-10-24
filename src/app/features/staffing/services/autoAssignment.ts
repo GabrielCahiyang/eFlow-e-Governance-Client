@@ -1,8 +1,7 @@
 import {supabase} from '../../../../lib/supabase';
 import {phase2Request} from '../../../shared/phase2Api';
 import {readAiText,requestAiChat,type AiQueueUpdate} from '../../ai';
-import {fetchWorkTree,type WorkTreeSnapshot} from '../../nested-work';
-import {notifyTaskListeners} from '../../tasks';
+import type {WorkTreeSnapshot} from '../../nested-work';
 import {notifyAccessChanged} from '../../project-access';
 import {parseStaffRecommendations} from './staffingService';
 import type {StaffingContext} from '../types';
@@ -32,6 +31,7 @@ export async function applyAutoAssignment(request:AutoAssignmentRequest):Promise
   if(data?.root?.id!==request.root||!Array.isArray(data.nodes))throw new Error('The assignment receipt was not confirmed. Retry the same assignment.');
   const {data:after}=await supabase.auth.getSession();
   if(before.session.access_token!==after.session?.access_token)throw new Error('Your session changed. Reopen this task to check its saved team.');
-  await Promise.allSettled([Promise.resolve().then(notifyTaskListeners),Promise.resolve().then(notifyAccessChanged)]);
+  await Promise.allSettled([import('../../tasks').then(({notifyTaskListeners})=>notifyTaskListeners()),Promise.resolve().then(notifyAccessChanged)]);
+  const {fetchWorkTree}=await import('../../nested-work');
   return fetchWorkTree(request.root);
 }

@@ -25,7 +25,7 @@ export {
   TaskDepartmentLabel,
   TaskDepartmentProvider,
 } from "./components/TaskDepartmentLabel";
-export { HeadTaskBoardView } from "./components/HeadTaskBoardView";
+export const HeadTaskBoardView = lazyFeature(() => import('./components/HeadTaskBoardView').then(m => ({default:m.HeadTaskBoardView})),undefined,'HeadTaskBoardView');
 export { useHeadTaskBoard } from "./hooks/useHeadTaskBoard";
 export { RecurringTaskTemplatesPanel } from "./components/RecurringTaskTemplatesPanel";
 export const MondayBoard = lazyFeature(
@@ -38,11 +38,11 @@ export const MondayBoard = lazyFeature(
 );
 export { ScopedTaskKanban } from "./components/board/ScopedTaskKanban";
 export type { MondayBoardProps } from "./components/board/model";
-export { EmployeeTaskWorkspace } from "../../components/Member/EmployeeTaskWorkspace";
-export { TaskDetailDrawer } from "../../components/workflow/TaskDetailDrawer";
+export const EmployeeTaskWorkspace = lazyFeature(() => import('../../components/Member/EmployeeTaskWorkspace').then(m => ({default:m.EmployeeTaskWorkspace})),undefined,'EmployeeTaskWorkspace');
+export const TaskDetailDrawer = lazyFeature(() => import('../../components/workflow/TaskDetailDrawer').then(m => ({default:m.TaskDetailDrawer})),undefined,'TaskDetailDrawer');
 export { TaskTeamEditorDialog } from "./components/team/TaskTeamEditorDialog";
 export { TaskTeamMemberList } from "./components/team/TaskTeamMemberList";
-export { AdminTaskOversight } from "./components/AdminTaskOversight";
+export const AdminTaskOversight = lazyFeature(() => import('./components/AdminTaskOversight').then(m => ({default:m.AdminTaskOversight})),undefined,'AdminTaskOversight');
 export {
   resolveTaskDetailCapabilities,
   resolveSubtaskManagementCapability,

@@ -1,0 +1,183 @@
+[WebServer] (node:27976) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 11 tests using 1 worker
+
+(node:16008) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:16008) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [chromium] › tests\e2e\help-assistant.spec.ts:4:3 › Help conversation at 1440x1000 light keeps sources and controls accessible (48.3s)
+  ok  2 [chromium] › tests\e2e\help-assistant.spec.ts:4:3 › Help conversation at 1280x800 light keeps sources and controls accessible (11.4s)
+  ok  3 [chromium] › tests\e2e\help-assistant.spec.ts:4:3 › Help conversation at 960x540 light keeps sources and controls accessible (10.8s)
+  ok  4 [chromium] › tests\e2e\help-assistant.spec.ts:4:3 › Help conversation at 1440x1000 dark keeps sources and controls accessible (12.0s)
+  ok  5 [chromium] › tests\e2e\help-assistant.spec.ts:176:1 › Dictation fills an editable draft; eFlow Live sends spoken turns and releases the mic on End (13.8s)
+  x   6 [chromium] › tests\e2e\phase3-project-table.spec.ts:3:1 › Head table keeps first-column task actions, task edits and inline subitems (32.2s)
+(node:18252) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18252) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   7 [chromium] › tests\e2e\phase3-project-table.spec.ts:147:1 › Member table protects structure and keeps detail access at 390px (19.7s)
+(node:23384) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:23384) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  8 [chromium] › tests\e2e\phase3-project-table.spec.ts:227:1 › Inline tasks save on blur, keep adding with Shift+Enter, and retain failed drafts (18.1s)
+  x   9 [chromium] › tests\e2e\phase4-project-views.spec.ts:20:1 › Phase 4 shares filters and edits across Board, Gantt, Calendar, Dashboard and Offices (2.1m)
+(node:30380) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:30380) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  10 [chromium] › tests\e2e\phase4-project-views.spec.ts:265:1 › Member can inspect views at 390px without structural date controls (20.9s)
+(node:30196) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:30196) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 11 [chromium] › tests\e2e\help-microphone-native.spec.ts:12:1 › the real browser microphone graph updates the draft before recording stops (18.7s)
+
+
+  1) [chromium] › tests\e2e\phase3-project-table.spec.ts:3:1 › Head table keeps first-column task actions, task edits and inline subitems 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  getByRole('region', { name: 'Subitems for Prepare updated assessment', exact: true }).getByRole('button', { name: 'Edit subitem Prepare evidence index' })
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('region', { name: 'Subitems for Prepare updated assessment', exact: true }).getByRole('button', { name: 'Edit subitem Prepare evidence index' })[22m
+
+
+      27 |   await subitemName.fill('Prepare evidence index');
+      28 |   await subitems.getByRole('columnheader', { name: 'Subitem', exact: true }).click();
+    > 29 |   await expect(subitems.getByRole('button', { name: 'Edit subitem Prepare evidence index' })).toBeVisible();
+         |                                                                                               ^
+      30 |   await expect(subitemName).toBeEmpty();
+      31 |   await subitemName.fill('Prepare follow-up evidence'); await subitemName.press('Shift+Enter');
+      32 |   await expect(subitems.getByRole('button', { name: 'Edit subitem Prepare follow-up evidence' })).toBeVisible();
+        at C:\Users\gabri\OneDrive\Desktop\EflowWeb\tests\e2e\phase3-project-table.spec.ts:29:95
+
+    Error Context: test-results\phase3-project-table-Head--a2c4f-k-edits-and-inline-subitems-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase3-project-table-Head--a2c4f-k-edits-and-inline-subitems-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase3-project-table-Head--a2c4f-k-edits-and-inline-subitems-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › tests\e2e\phase3-project-table.spec.ts:147:1 › Member table protects structure and keeps detail access at 390px 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  getByRole('region', { name: 'Subitems for Prepare community assessment', exact: true }).getByRole('button', { name: 'Edit subitem Prepare mobile evidence' })
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('region', { name: 'Subitems for Prepare community assessment', exact: true }).getByRole('button', { name: 'Edit subitem Prepare mobile evidence' })[22m
+
+
+      57 |   const geometry=await subitemInput.evaluate(el=>{const rows=[];for(let current:Element|null=el;current&&rows.length<8;current=current.parentElement){const r=current.getBoundingClientRect();rows.push({class:current.className,x:r.x,width:r.width,container:getComputedStyle(current).containerType});}return rows;});expect((await subitemInput.boundingBox())!.x + (await subitemInput.boundingBox())!.width,JSON.stringify(geometry)).toBeLessThanOrEqual(390);
+      58 |   await subitems.getByRole('columnheader', { name: 'Subitem', exact: true }).click();
+    > 59 |   await expect(subitems.getByRole('button', { name: 'Edit subitem Prepare mobile evidence' })).toBeVisible();
+         |                                                                                                ^
+      60 |   await expect(page.getByRole('button', { name: 'Open Prepare community assessment', exact: true })).toBeVisible(); expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true); await page.screenshot({ path: info.outputPath('main-table-mobile.png'), fullPage: true });
+      61 | });
+      62 |
+        at C:\Users\gabri\OneDrive\Desktop\EflowWeb\tests\e2e\phase3-project-table.spec.ts:59:96
+
+    Error Context: test-results\phase3-project-table-Membe-1157c-eeps-detail-access-at-390px-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase3-project-table-Membe-1157c-eeps-detail-access-at-390px-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase3-project-table-Membe-1157c-eeps-detail-access-at-390px-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [chromium] › tests\e2e\phase4-project-views.spec.ts:20:1 › Phase 4 shares filters and edits across Board, Gantt, Calendar, Dashboard and Offices 
+
+    [31mTest timeout of 120000ms exceeded.[39m
+
+    Error: locator.dragTo: Test timeout of 120000ms exceeded.
+    Call log:
+    [2m  - waiting for getByLabel('Board card Coordinate Office briefing', { exact: true })[22m
+    [2m    - locator resolved to <div draggable="true" class="pv-board-card" aria-label="Board card Coordinate Office briefing">…</div>[22m
+    [2m  - attempting move and down action[22m
+    [2m    - waiting for element to be visible and stable[22m
+    [2m    - element is visible and stable[22m
+    [2m    - scrolling into view if needed[22m
+    [2m    - done scrolling[22m
+    [2m    - performing move and down action[22m
+    [2m    - move and down action done[22m
+    [2m    - waiting for scheduled navigations to finish[22m
+    [2m    - navigations have finished[22m
+    [2m  - waiting for getByRole('region', { name: 'FOR REVIEW lane', exact: true })[22m
+
+
+      38 |     } else {
+      39 |       const bounds = (await card.boundingBox())!;
+    > 40 |       await card.dragTo(target, { sourcePosition: { x: bounds.width - 4, y: bounds.height - 4 } });
+         |                  ^
+      41 |     }
+      42 |   };
+      43 |   await moveCard('FOR REVIEW lane');
+        at moveCard (C:\Users\gabri\OneDrive\Desktop\EflowWeb\tests\e2e\phase4-project-views.spec.ts:40:18)
+        at C:\Users\gabri\OneDrive\Desktop\EflowWeb\tests\e2e\phase4-project-views.spec.ts:43:3
+
+    Error Context: test-results\phase4-project-views-Phase-a15ed-endar-Dashboard-and-Offices-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase4-project-views-Phase-a15ed-endar-Dashboard-and-Offices-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase4-project-views-Phase-a15ed-endar-Dashboard-and-Offices-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [chromium] › tests\e2e\phase4-project-views.spec.ts:265:1 › Member can inspect views at 390px without structural date controls 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  getByRole('button', { name: 'Start Coordinate Office briefing', exact: true })
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('button', { name: 'Start Coordinate Office briefing', exact: true })[22m
+
+
+      130 |   await expect(page.getByRole('button', { name: 'Calendar dates for Prepare community assessment' })).toBeDisabled();
+      131 |   await openView(page, 'Board');
+    > 132 |   await expect(page.getByRole('button', { name: 'Start Coordinate Office briefing', exact: true })).toBeVisible();
+          |                                                                                                     ^
+      133 |   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      134 | });
+      135 |
+        at C:\Users\gabri\OneDrive\Desktop\EflowWeb\tests\e2e\phase4-project-views.spec.ts:132:101
+
+    Error Context: test-results\phase4-project-views-Membe-07cbd-ut-structural-date-controls-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\phase4-project-views-Membe-07cbd-ut-structural-date-controls-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\phase4-project-views-Membe-07cbd-ut-structural-date-controls-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    [chromium] › tests\e2e\phase3-project-table.spec.ts:3:1 › Head table keeps first-column task actions, task edits and inline subitems 
+    [chromium] › tests\e2e\phase3-project-table.spec.ts:147:1 › Member table protects structure and keeps detail access at 390px 
+    [chromium] › tests\e2e\phase4-project-views.spec.ts:20:1 › Phase 4 shares filters and edits across Board, Gantt, Calendar, Dashboard and Offices 
+    [chromium] › tests\e2e\phase4-project-views.spec.ts:265:1 › Member can inspect views at 390px without structural date controls 
+  7 passed (6.4m)

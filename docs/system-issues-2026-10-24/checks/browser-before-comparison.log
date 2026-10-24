@@ -1,0 +1,93 @@
+
+Running 2 tests using 1 worker
+
+(node:2428) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2428) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  1 [chromium] › tests\e2e\phase3-project-table.spec.ts:3:1 › Head table keeps first-column task actions, task edits and inline subitems (1.6m)
+(node:16148) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:16148) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  2 [chromium] › tests\e2e\phase4-project-views.spec.ts:20:1 › Phase 4 shares filters and edits across Board, Gantt, Calendar, Dashboard and Offices (2.1m)
+
+
+  1) [chromium] › tests\e2e\phase3-project-table.spec.ts:3:1 › Head table keeps first-column task actions, task edits and inline subitems 
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  getByRole('region', { name: 'Subitems for Prepare updated assessment', exact: true }).getByRole('button', { name: 'Edit subitem Prepare evidence index' })
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('region', { name: 'Subitems for Prepare updated assessment', exact: true }).getByRole('button', { name: 'Edit subitem Prepare evidence index' })[22m
+
+
+      27 |   await subitemName.fill('Prepare evidence index');
+      28 |   await subitems.getByRole('columnheader', { name: 'Subitem', exact: true }).click();
+    > 29 |   await expect(subitems.getByRole('button', { name: 'Edit subitem Prepare evidence index' })).toBeVisible();
+         |                                                                                               ^
+      30 |   await expect(subitemName).toBeEmpty();
+      31 |   await subitemName.fill('Prepare follow-up evidence'); await subitemName.press('Shift+Enter');
+      32 |   await expect(subitems.getByRole('button', { name: 'Edit subitem Prepare follow-up evidence' })).toBeVisible();
+        at C:\Users\gabri\OneDrive\Desktop\EflowWeb\tests\e2e\phase3-project-table.spec.ts:29:95
+
+    Error Context: .codex-tmp\oct24-baseline-browser-results\phase3-project-table-Head--a2c4f-k-edits-and-inline-subitems-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    .codex-tmp\oct24-baseline-browser-results\phase3-project-table-Head--a2c4f-k-edits-and-inline-subitems-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace .codex-tmp\oct24-baseline-browser-results\phase3-project-table-Head--a2c4f-k-edits-and-inline-subitems-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › tests\e2e\phase4-project-views.spec.ts:20:1 › Phase 4 shares filters and edits across Board, Gantt, Calendar, Dashboard and Offices 
+
+    [31mTest timeout of 120000ms exceeded.[39m
+
+    Error: locator.dragTo: Test timeout of 120000ms exceeded.
+    Call log:
+    [2m  - waiting for getByLabel('Board card Coordinate Office briefing', { exact: true })[22m
+    [2m    - locator resolved to <div draggable="true" class="pv-board-card" aria-label="Board card Coordinate Office briefing">…</div>[22m
+    [2m  - attempting move and down action[22m
+    [2m    - waiting for element to be visible and stable[22m
+    [2m    - element is visible and stable[22m
+    [2m    - scrolling into view if needed[22m
+    [2m    - done scrolling[22m
+    [2m    - performing move and down action[22m
+    [2m    - move and down action done[22m
+    [2m    - waiting for scheduled navigations to finish[22m
+    [2m    - navigations have finished[22m
+    [2m  - waiting for getByRole('region', { name: 'FOR REVIEW lane', exact: true })[22m
+
+
+      38 |     } else {
+      39 |       const bounds = (await card.boundingBox())!;
+    > 40 |       await card.dragTo(target, { sourcePosition: { x: bounds.width - 4, y: bounds.height - 4 } });
+         |                  ^
+      41 |     }
+      42 |   };
+      43 |   await moveCard('FOR REVIEW lane');
+        at moveCard (C:\Users\gabri\OneDrive\Desktop\EflowWeb\tests\e2e\phase4-project-views.spec.ts:40:18)
+        at C:\Users\gabri\OneDrive\Desktop\EflowWeb\tests\e2e\phase4-project-views.spec.ts:43:3
+
+    Error Context: .codex-tmp\oct24-baseline-browser-results\phase4-project-views-Phase-a15ed-endar-Dashboard-and-Offices-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    .codex-tmp\oct24-baseline-browser-results\phase4-project-views-Phase-a15ed-endar-Dashboard-and-Offices-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace .codex-tmp\oct24-baseline-browser-results\phase4-project-views-Phase-a15ed-endar-Dashboard-and-Offices-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [chromium] › tests\e2e\phase3-project-table.spec.ts:3:1 › Head table keeps first-column task actions, task edits and inline subitems 
+    [chromium] › tests\e2e\phase4-project-views.spec.ts:20:1 › Phase 4 shares filters and edits across Board, Gantt, Calendar, Dashboard and Offices 

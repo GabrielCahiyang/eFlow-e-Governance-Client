@@ -55,12 +55,18 @@ export async function fetchDepartmentBudgetBundle(orgId: string, fiscalYear: num
   const profileById = rowMap(profilesResult.data || []);
   const taskById = rowMap(tasksResult.data || []);
   const requestSubtaskById = rowMap(requestSubtasksResult.data || []);
+  // Accounting may read the funding record without operational task access.
+  // Direct-work commitments already carry the authorized work title; proposal
+  // titles can span several tasks and must never masquerade as a task name.
+  const directWorkByCommitment = new Map((commitmentsResult.data || [])
+    .filter(row => row.funding_kind === "direct_work" && row.title)
+    .map(row => [String(row.id), { title: String(row.title) }]));
   const requests = requestRows.map((row) => mapRequest({
     ...row,
     requester: profileById.get(String(row.requester_id || "")),
     task_leader: profileById.get(String(row.task_leader_id || "")),
     cash_recipient: profileById.get(String(row.cash_recipient_id || "")),
-    task: taskById.get(String(row.task_id || "")),
+    task: taskById.get(String(row.task_id || "")) ?? directWorkByCommitment.get(String(row.commitment_id || "")),
     subtask: requestSubtaskById.get(String(row.subtask_id || "")),
   }));
   const requestIds = requests.map((item) => item.id);

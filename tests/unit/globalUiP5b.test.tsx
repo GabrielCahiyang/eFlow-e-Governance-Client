@@ -20,6 +20,17 @@ function owner() {
 }
 afterEach(()=>{cleanup();vi.clearAllMocks();window.history.replaceState({},'', '/');});
 describe('P5b financial presentation ownership',()=>{
+  it('a failed initial annual read shows retry without inventing a missing zero budget',()=>{
+    window.history.replaceState({},'', '/office-budget?view=annual&fy=2026');
+    const dataOwner=owner();dataOwner.budget.error='Network read unavailable';
+    render(<OfficeBudgetWorkspace fiscalYear={2026} embedded dataOwner={dataOwner}/>);
+    expect(screen.getByText('Budget data unavailable')).toBeTruthy();
+    expect(screen.queryByRole('heading',{name:'Annual office budget'})).toBeNull();
+    expect(screen.queryByText('₱0.00')).toBeNull();
+    expect(screen.queryByText(/No annual budget has been saved/)).toBeNull();
+    fireEvent.click(screen.getByRole('button',{name:'Retry',exact:true}));
+    expect(dataOwner.budget.refresh).toHaveBeenCalledOnce();
+  });
   it('Overview hands off without mounting a settlement decision controller',()=>{
     const {budget}=owner();const next=vi.fn();render(<AccountingOverview budget={budget} journalCount={0} onSettlements={next}/>);
     expect(screen.getByText(/0 pending receipt packages/)).toBeTruthy();

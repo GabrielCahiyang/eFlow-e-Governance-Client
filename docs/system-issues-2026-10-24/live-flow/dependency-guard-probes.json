@@ -1,0 +1,13 @@
+{
+  "target": "ixnfphgjyelhckjwjkdv",
+  "project": "0708b789-e91c-4b2f-93b3-9e779e336797",
+  "method": "Authenticated database-role RPC calls inside rollback-only transactions; this is not a signed-browser test",
+  "actor": "Existing LEDIPO Head",
+  "precondition": "Both prerequisite procurement and dependent handover are completed",
+  "probes": [
+    {"rpc": "transition_task_status", "attempt": "completed prerequisite to in_progress", "sqlstate": "22023", "guard": "guard_approved_prerequisite_lifecycle", "result": "Rejected: reopen submitted or approved dependents first"},
+    {"rpc": "soft_delete_task", "attempt": "delete completed prerequisite", "sqlstate": "22023", "guard": "guard_approved_prerequisite_lifecycle", "result": "Rejected: reopen submitted or approved dependents first"}
+  ],
+  "retained_state": "Both completed tasks and financial history preserved",
+  "probe_corrections": "A direct Member UPDATE affected zero rows under RLS. A direct Head status UPDATE was rejected by the existing mandatory-transition-RPC guard; neither was counted as proof of the new reverse-dependency rule. Corrected RPC probes above reached the intended guard."
+}

@@ -1,0 +1,13 @@
+
+ RUN  v3.2.4 C:/Users/gabri/OneDrive/Desktop/EflowWeb
+
+ ✓ tests/unit/accountingSettlementAuthority.test.tsx (7 tests) 4743ms
+   ✓ Accounting settlement authority > waits for Head authorization before settling a late package  1341ms
+   ✓ Accounting settlement authority > enables Accounting settlement after Head authorizes the late package  1056ms
+   ✓ Accounting settlement authority > allows a corrected mapping rejection to retry without an uncertain-outcome lock  1573ms
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  10:58:57
+   Duration  26.61s (transform 952ms, setup 0ms, collect 16.50s, tests 4.74s, environment 2.78s, prepare 556ms)
+

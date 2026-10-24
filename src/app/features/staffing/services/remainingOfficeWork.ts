@@ -1,6 +1,6 @@
-import { fetchWorkTree } from '../../nested-work';
 import { prepareAutoAssignment,applyAutoAssignment } from './autoAssignment';
 export async function assignRemainingOfficeWork(ids:string[],onProgress:(message:string)=>void){
+ const {fetchWorkTree}=await import('../../nested-work');
  let assigned=0;const failures:string[]=[];
  for(let index=0;index<ids.length;index++){
   try{const snapshot=await fetchWorkTree(ids[index]);if(snapshot.root.lead||!snapshot.root.open)continue;

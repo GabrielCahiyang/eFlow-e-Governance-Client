@@ -1,0 +1,10 @@
+
+ RUN  v3.2.4 C:/Users/gabri/OneDrive/Desktop/EflowWeb
+
+ ✓ tests/unit/budgetBundleIntegration.test.ts (6 tests) 527ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  10:16:46
+   Duration  2.84s (transform 366ms, setup 0ms, collect 806ms, tests 527ms, environment 1ms, prepare 479ms)
+

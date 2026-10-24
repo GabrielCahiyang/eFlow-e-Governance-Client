@@ -1,0 +1,74 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>eFlow audit · VALIDATION</title><style>body{margin:0;background:#f4f8f8;color:#183536;font:16px/1.65 system-ui,sans-serif}main{max-width:1200px;margin:auto;padding:32px 24px}a{color:#006e70}nav{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:24px}h1,h2,h3{line-height:1.25}h2{margin-top:2em}table{display:block;max-width:100%;overflow:auto;border-collapse:collapse;background:white}th,td{border:1px solid #cadada;padding:12px;text-align:left;vertical-align:top}th{background:#e0eeee}img{max-width:100%;height:auto;border:1px solid #cadada;border-radius:8px}code{overflow-wrap:anywhere}pre{overflow:auto;background:#e4eeee;padding:16px}li{margin:8px 0}</style><main><nav><a href="GALLERY.html">Screenshots</a><a href="REPORT.html">Full audit</a><a href="REMAINING_GAPS.html">Remaining gaps</a><a href="VALIDATION.md">Markdown source</a></nav><h1>Validation receipt — 24 October 2026</h1>
+<p>These results apply to the local working tree used for the retained hosted workflow. They are not a claim that every hosted role/concurrency combination passed.</p>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>Result</th>
+<th>Receipt</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TypeScript <code>npm run check</code></td>
+<td>Pass, exit 0</td>
+<td><a href="typecheck-final.log">typecheck-final.log</a></td>
+</tr>
+<tr>
+<td>Production <code>npm run build</code></td>
+<td>Pass, exit 0; 1m47s</td>
+<td><a href="build-final.log">build-final.log</a></td>
+</tr>
+<tr>
+<td>Final frozen-source full unit suite</td>
+<td>Pass, exit 0: <strong>354 files / 2,138 tests</strong>; 844.68 seconds</td>
+<td><a href="unit-frozen-final.log">unit-frozen-final.log</a></td>
+</tr>
+<tr>
+<td>Annual-budget UI/design/funding focused regressions</td>
+<td>4 files / 19 tests passed</td>
+<td><a href="focused-final.log">focused-final.log</a></td>
+</tr>
+<tr>
+<td>Funding title/mapping rejection contracts</td>
+<td>2 files / 15 tests passed</td>
+<td><a href="funding-label-and-rejection.log">funding-label-and-rejection.log</a></td>
+</tr>
+<tr>
+<td>Actual settlement component correction/retry</td>
+<td>7 tests passed</td>
+<td><a href="settlement-retry-ui.log">settlement-retry-ui.log</a></td>
+</tr>
+<tr>
+<td>Accessible cash-aware task review</td>
+<td>9 tests passed</td>
+<td><a href="review-feedback-accessibility.log">review-feedback-accessibility.log</a></td>
+</tr>
+<tr>
+<td>Native financial database invariants</td>
+<td>132 checks passed; independent local PostgreSQL sessions; hosted writes false</td>
+<td><a href="native-financial.log">native-financial.log</a></td>
+</tr>
+<tr>
+<td>Real signed-role browser flow</td>
+<td>Pass for the documented Head/Member/Accounting scenario</td>
+<td><a href="REPORT.html">REPORT.md</a>, <a href="GALLERY.html">gallery</a>, <a href="FINAL_CHECKPOINT.json">checkpoint</a></td>
+</tr>
+<tr>
+<td>Patch whitespace <code>git diff --check</code></td>
+<td>Pass, exit 0; existing Windows line-ending warnings only</td>
+<td>Checked after code edits</td>
+</tr>
+</tbody>
+</table>
+<p>The build still warns about chunks over 500 kB. This is a bundle-size/performance warning, not a failed build. No global test timeout or source behavior was changed to make tests pass. The final full run explicitly uses <code>npm test -- --maxWorkers=4 --testTimeout=20000</code> to bound parallel resource use and allow slower UI tests on this laptop.</p>
+<p>Final run started <strong>12:50:27 PM PHT</strong> on October 24 and completed at approximately <strong>1:04:32 PM PHT</strong>. Source code was unchanged during this run; only audit documents/evidence were finalized. Repository base commit: <code>19bae65630b03b14050c58332b0566322beac49a</code>, with the existing local working-tree changes retained. This is not a claim that those changes were committed or published.</p>
+<p>Earlier receipts are retained honestly:</p>
+<ul>
+<li><code>unit-full.log</code>: interrupted before completion; not a passing run.</li>
+<li><code>unit-full-resumed.log</code>: 351/354 files and 2132/2136 tests passed; four five-second timeouts across nested-work files under concurrent work. Not a green full suite.</li>
+<li><code>unit-full-final.log</code>: 353/354 files and 2137/2138 tests passed. One review field-name failure occurred during ongoing component/test edits; the subsequent focused current-source nine-test run passed. That earlier run remains failed and is not substituted for the frozen-source result.</li>
+</ul>
+<p>Browser automation recovered from a stale tab after the local server stopped. The server was restarted and a fresh same-browser tab restored screenshot/pointer input. UI checkpoints, the final read-only database snapshot and CSV export agree; no new application defect is inferred solely from that tool interruption.</p>
+<p>There was no formal CLI Playwright rerun in this continuation. The affected workflow was exercised through the visible browser against the hosted target, not an intercepted network fixture. Real email, Help/Live, PDF import and the other <a href="REMAINING_GAPS.html">remaining acceptance gaps</a> are not counted as passing tests.</p>
+</main></html>

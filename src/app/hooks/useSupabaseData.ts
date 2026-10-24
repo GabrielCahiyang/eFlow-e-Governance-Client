@@ -12,7 +12,6 @@ import {
 } from '../../lib/supabaseService';
 import { subscribeToProjects,notifyProjectListeners, type Project } from '../services/projectService';
 import { subscribeToTasks, type Task } from '../services/taskService';
-import { notifyTaskListeners } from '../features/tasks';
 import { operationalMetrics } from '../services/taskSelectors';
 import { useAuth } from '../contexts/AuthContext';
 import type { Organization, UserProfile, DashboardMetrics } from '../types';
@@ -100,7 +99,7 @@ export function useTasksData(enabled = true) {
     return () => { cancelled = true; unsub(); };
   }, [enabled]);
 
-  return { tasks: enabled ? tasks : [], loading: enabled && loading, error: enabled ? error : null, setError, retry: () => { if(enabled){setLoading(true); void notifyTaskListeners();} } };
+  return { tasks: enabled ? tasks : [], loading: enabled && loading, error: enabled ? error : null, setError, retry: () => { if(enabled){setLoading(true); void import('../features/tasks').then(({notifyTaskListeners})=>notifyTaskListeners()).catch(()=>{setLoading(false);setError(new Error('Tasks could not be refreshed. Try again.'));});} } };
 }
 
 // ─── useDashboardMetrics ─────────────────────────────────────────

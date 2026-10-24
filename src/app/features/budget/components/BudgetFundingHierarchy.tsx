@@ -71,6 +71,7 @@ function ProposalFundingCard({
                 allCommitmentAllocations={allocations}
                 data={data}
                 task={taskById.get(allocation.taskId)}
+                authorizedTitle={!commitment.proposalDraftId && taskAllocations.length === 1 ? commitment.title : undefined}
               />
             ))}
           </div>
@@ -87,11 +88,13 @@ function TaskFundingCard({
   allCommitmentAllocations,
   data,
   task,
+  authorizedTitle,
 }: {
   allocation: WorkBudgetAllocation;
   allCommitmentAllocations: WorkBudgetAllocation[];
   data: DepartmentBudgetBundle;
   task?: Task;
+  authorizedTitle?: string;
 }) {
   const childAllocations = allCommitmentAllocations.filter(
     (item) => item.taskId === allocation.taskId && item.subtaskId,
@@ -106,7 +109,7 @@ function TaskFundingCard({
       <summary className="flex cursor-pointer list-none flex-wrap items-center gap-3 p-3">
         <ListChecks size={13} className="text-blue-600" />
         <div className="min-w-0 flex-1">
-          <div className="truncate text-[12px] font-medium">{task?.title || "Funded task"}</div>
+          <div className="truncate text-[12px] font-medium">{task?.title || authorizedTitle || "Funded task"}</div>
           <div className="mt-0.5 text-[11px] text-neutral-500">
             Task Leader: {task?.assigneeName || "Assigned lead"} · {childAllocations.length} funded subtask(s)
           </div>

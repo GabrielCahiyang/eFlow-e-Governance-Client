@@ -2,6 +2,8 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { BudgetPositionSummary } from "../../src/app/features/budget/components/BudgetPositionSummary";
+import { BudgetFundingHierarchy } from "../../src/app/features/budget/components/BudgetFundingHierarchy";
+import type { Task } from "../../src/app/features/tasks";
 import type { DepartmentBudgetBundle, DepartmentBudgetSummary } from "../../src/app/features/budget/types";
 
 const summary: DepartmentBudgetSummary = {
@@ -44,6 +46,17 @@ const data = {
 } as unknown as DepartmentBudgetBundle;
 
 describe("BudgetPositionSummary", () => {
+  it("keeps direct-work names readable for Accounting without relabeling proposal tasks", () => {
+    const funding = { ...data, commitments: [{ id: 'c', title: 'Authorized kit purchase', proposalDraftId: '', amount: 1800, status: 'active' }],
+      allocations: [{ id: 'a', commitmentId: 'c', taskId: 't', amount: 1800 }], requests: [] } as unknown as DepartmentBudgetBundle;
+    const view = render(<BudgetFundingHierarchy data={funding} tasks={[]} />);
+    expect(screen.getAllByText('Authorized kit purchase')).toHaveLength(2);
+    view.rerender(<BudgetFundingHierarchy data={{ ...funding, commitments: [{ ...funding.commitments[0], proposalDraftId: 'proposal' }] }} tasks={[]} />);
+    expect(screen.getByText('Funded task')).toBeTruthy();
+    view.rerender(<BudgetFundingHierarchy data={funding} tasks={[{ id: 't', title: 'Current operational title' } as Task]} />);
+    expect(screen.getByText('Current operational title')).toBeTruthy();
+    view.unmount();
+  });
   it("shows the current fiscal position and routes each exposure to its existing workflow", () => {
     const onNavigate = vi.fn();
     render(<BudgetPositionSummary data={data} summary={summary} onNavigate={onNavigate} />);

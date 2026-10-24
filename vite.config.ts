@@ -9,9 +9,20 @@ const configDir = path.dirname(fileURLToPath(import.meta.url));
 function viewModuleManifest(): Plugin {
   return {
     name: "eflow-view-module-manifest",
+    apply: "build",
+    buildStart() {
+      // These views also have static callers. Keep a named-export facade so a
+      // cache-busted retry can use the same public name as an ordinary import.
+      for (const file of [
+        "src/app/features/projects/components/project-command/ProjectCommandWorkspace.tsx",
+        "src/app/features/projects/components/project-command/ProjectActivityTab.tsx",
+        "src/app/features/reviews/components/SubtaskReviewInbox.tsx",
+      ]) this.emitFile({type:"chunk",id:path.resolve(configDir,file),preserveSignature:"strict"});
+    },
     generateBundle(_options, bundle) {
       const names = new Set(["AccountingStaffContent", "ActionCenter", "AdministrationWorkspace", "EmployeeDeadlines", "EmployeeMyProjects", "EmployeeMyTasks", "EmployeeTaskHistory", "EmployeeWorkReport", "ForReviewInbox", "HeadContent", "LeaderReviewInbox", "MemberContent", "MondayBoard", "OfficeIdentityAccessWorkspace", "PersonalWorkWorkspace", "WorkspaceOverview", "ProfilePage", "ProjectGanttView", "ProjectInsightsView", "ProjectOfficePanel", "ProjectOfficesView", "ProjectTableWorkspace", "SettingsContent", "StaffingDialog", "SubtaskWorkDrawer", "SubtasksWorkspace", "TaskDatesDialog", "TaskInspector", "TaskOfficeControl", "WorkBudgetCard"]);
       const modules: Record<string, string> = {};
+      for (const name of ["ProjectsWorkspace", "HeadProjectsWorkspace", "EmployeeProjectsWorkspace", "ProjectCommandWorkspace", "ProjectActivityHistory", "ProjectMembers", "ProjectInvitations", "SubtaskReviewInbox", "HeadTaskBoardView", "EmployeeTaskWorkspace", "TaskDetailDrawer", "AdminTaskOversight"]) names.add(name);
       for (const entry of Object.values(bundle)) {
         if (entry.type !== "chunk") continue;
         for (const name of entry.exports)

@@ -1,5 +1,4 @@
 import {fetchTaskById,rowToTask,type Task} from '../../tasks';
-import {fetchSubitemInspectorRecord} from '../../subtasks';
 import {supportsNestedWork} from '../../nested-work';
 import type {NotificationNavigationIntent} from '../navigation';
 
@@ -12,6 +11,7 @@ export async function fetchNotificationSubitem(intent:NotificationNavigationInte
  let root=knownRoot?.id===intent.taskId?knownRoot:undefined;
  if(!root){const row=await fetchTaskById(intent.taskId);if(row?.id===intent.taskId)root=rowToTask(row);}
  if(!root||!supportsNestedWork(root))throw new Error('The referenced Subitem root is unavailable.');
+ const {fetchSubitemInspectorRecord}=await import('../../subtasks');
  const {subtask}=await fetchSubitemInspectorRecord(root.id,intent.entityId);
  if(intent.kind==='subtask'&&subtask.leadId!==actorId&&subtask.assignedTo!==actorId&&!subtask.assignedToIds.includes(actorId))throw new Error('The referenced Subitem is no longer assigned to you.');
  return {...subtask,parentTask:root};

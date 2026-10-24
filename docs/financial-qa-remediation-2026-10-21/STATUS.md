@@ -1,5 +1,7 @@
 # Financial QA remediation status
 
+**24 October update:** the separately authorized visible walkthrough has installed the two financial migrations on the sole hosted target and exercised real UI cash rejection, withdrawal, release, receipt correction and settlement. Current receipts are in [the live-flow report](../system-issues-2026-10-24/live-flow/REPORT.md). The October 22 status table below is retained as dated historical evidence; its pending-deployment statements do not supersede the new deployment receipt.
+
 22 October 2026, Asia/Manila. Baseline `c809b34d83829650e6e052c198b510153c76d26d`, initially clean. The implementation is uncommitted; final tested file hashes are retained in source-manifest.json. No hosted remediation migration or new QA financial transaction has been applied.
 
 | Issue | Status | Evidence / acceptance boundary |

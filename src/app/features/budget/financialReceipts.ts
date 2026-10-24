@@ -14,7 +14,7 @@ export function financialFailureIsUncertain(error: unknown): boolean {
   )
     return true;
   // These are explicit server/validation rejections, rather than an absent response.
-  return !/only |required|cannot|not allowed|must |insufficient|does not balance|unbalanced|exceeds|ceiling exceeded|not pending|already |not found|not installed|permission|unauthorized|forbidden|invalid|denied|reason|limit|schema cache/i.test(
+  return !/only |required|cannot|not allowed|must |insufficient|does not balance|unbalanced|exceeds|ceiling exceeded|not pending|already |not found|not installed|permission|unauthorized|forbidden|invalid|denied|reason|limit|schema cache|map every purchased-item source to an active journal expense account before settlement/i.test(
     message,
   );
 }

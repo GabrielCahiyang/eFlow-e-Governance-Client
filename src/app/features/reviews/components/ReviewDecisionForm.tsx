@@ -112,6 +112,7 @@ function TaskReviewDecisionForm({
       ) : (
         <div>
           <textarea
+            aria-label={mode === "approve" ? "Approval note (optional)" : "Required change feedback"}
             disabled={busy}
             value={feedback}
             onChange={(event) => setFeedback(event.target.value)}

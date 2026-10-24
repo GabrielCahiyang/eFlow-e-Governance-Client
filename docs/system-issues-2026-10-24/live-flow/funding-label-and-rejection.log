@@ -1,0 +1,12 @@
+
+ RUN  v3.2.4 C:/Users/gabri/OneDrive/Desktop/EflowWeb
+
+ ✓ tests/unit/budgetPositionSummary.test.tsx (2 tests) 795ms
+   ✓ BudgetPositionSummary > shows the current fiscal position and routes each exposure to its existing workflow  499ms
+ ✓ tests/unit/phase16Contracts.test.ts (13 tests) 62ms
+
+ Test Files  2 passed (2)
+      Tests  15 passed (15)
+   Start at  10:56:10
+   Duration  18.41s (transform 1.70s, setup 0ms, collect 17.04s, tests 857ms, environment 4.36s, prepare 967ms)
+

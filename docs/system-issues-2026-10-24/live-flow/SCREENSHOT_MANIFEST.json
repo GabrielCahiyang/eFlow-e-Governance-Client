@@ -1,0 +1,170 @@
+{
+  "01-budget-before-cleanup.jpg": {
+    "bytes": 84331,
+    "sha256": "962e19d73b0128770404d258d6a580a3b08e18f8983200e2f4375b1bd10ac15d"
+  },
+  "02-clean-head-dashboard.jpg": {
+    "bytes": 71861,
+    "sha256": "12548958d53f552f800f9d82d0bd85d6471270ee11de7e4f3fbedcff10ad486c"
+  },
+  "03-budget-unavailable-before-fix.jpg": {
+    "bytes": 76040,
+    "sha256": "7522e84bb032ae429ba17102a01716300b345fa5630b5880363216d41c4e1817"
+  },
+  "04-quarterly-budget-locked.jpg": {
+    "bytes": 91263,
+    "sha256": "b69cccfe8cdd47cc09bba7b2fef4366d37d74a3ea6f4b2984768b5970cc9dfb3"
+  },
+  "05-task-funding-authorized.jpg": {
+    "bytes": 64135,
+    "sha256": "e31d5b62ea9988204d926c6c742d369de16d58152935334f75be981ebd6b7179"
+  },
+  "06-cash-request-submitted.jpg": {
+    "bytes": 82645,
+    "sha256": "addbfd18308d67240e33f78a8d5c6e2c195d913229c7a70aa80709258445bfc5"
+  },
+  "07-cash-rejected-feedback.jpg": {
+    "bytes": 75781,
+    "sha256": "fde9a5fc03f07b7a479cae84452af103f76d9e3d1b445978cfe5bd527f7cd62c"
+  },
+  "08-cash-cancelled-hold-restored.jpg": {
+    "bytes": 89034,
+    "sha256": "da144658ba37f30eff90d5a22b5a8c929a3bf08c3f36b7e0e5b08677e99d1787"
+  },
+  "09-authorized-scheduled-head-readonly.jpg": {
+    "bytes": 70378,
+    "sha256": "bcb8d1045b068006664aae168a3efef7d3c5c55b191ad7c20f6af54228d66f92"
+  },
+  "10-accounting-release-missing-work-name-before.jpg": {
+    "bytes": 61105,
+    "sha256": "5cc2437183754f9c80f49667d20ad8c5eccebdd1cd65ada7a7c0e742163501ba"
+  },
+  "11-release-journal-balanced.jpg": {
+    "bytes": 40586,
+    "sha256": "d63bb51180872e5f6f6753fc27e812cdf8a7c51ab70fe847bd1276950d98f0b5"
+  },
+  "12-receipt-form-overflow-before.jpg": {
+    "bytes": 71861,
+    "sha256": "03e0032a85b5578259c91aa4d8635f812ae08df1969af4f716d61b5385c7a708"
+  },
+  "13-liquidation-submitted-750-return50.jpg": {
+    "bytes": 89939,
+    "sha256": "9086ccf6c0f8a343865bfb04ee5e035e0419d95bdf7156d9d062031094952922"
+  },
+  "14-accounting-work-name-fixed.jpg": {
+    "bytes": 64238,
+    "sha256": "7a3b129e54661ba77bb9ae070b746a3d091df3e1604d9bde52a9d334fedc696f"
+  },
+  "15-settlement-hosted-migration-blocker.jpg": {
+    "bytes": 63185,
+    "sha256": "e4d33a1130ba527e9af51edf7961493f8c4199c116592d09d03da0e7a4be89fc"
+  },
+  "16-active-project-favorite-desktop.jpg": {
+    "bytes": 77619,
+    "sha256": "66e36745b6c7d7ee126678b2b8909a99185522934482d513fa7b1bebb0aa436f"
+  },
+  "17-completion-blocked-by-work-and-cash.jpg": {
+    "bytes": 74183,
+    "sha256": "90e4b648d13aa813f4f90169bc8c90efce08dbe5d0710c6d9740066ff158f0f9"
+  },
+  "18-completion-desktop-1280x720.jpg": {
+    "bytes": 59163,
+    "sha256": "03e4d1744483c68bb6b61e45da474fdf9ba5af0416ab15ad9bf71229bf270933"
+  },
+  "19-gantt-real-task-dates.jpg": {
+    "bytes": 78832,
+    "sha256": "dcbe1e3aff1c280393a6a8d434f23e868836734895b51765b877f3676e397847"
+  },
+  "20-project-office-task-summary.jpg": {
+    "bytes": 81308,
+    "sha256": "489d73d11d8415a3509904aad9c6e5eb22955db52c9e354289424de3d0e4eaf3"
+  },
+  "21-liquidation-corrections-recorded.jpg": {
+    "bytes": 49547,
+    "sha256": "91a145f4c13059c08e47c0540067bdd6b7362fc1611d66366037513589ab8cab"
+  },
+  "22-receipt-modal-fixed-1440.jpg": {
+    "bytes": 77040,
+    "sha256": "90aad419b23f83c34cc9ad05f541c7de4f2ffe923e7e16f48be6895212639831"
+  },
+  "23-receipt-modal-fixed-1280.jpg": {
+    "bytes": 42612,
+    "sha256": "f036a51e87eecb5ae353aeaa994a1263dabc65f5bc55f94d9ae329c23b0f4da0"
+  },
+  "24-task-evidence-submitted-no-self-review.jpg": {
+    "bytes": 58080,
+    "sha256": "6f0fac7866c472a993ad04fcf1dd53b9c8401d173a915abb34ef2863c605d825"
+  },
+  "25-head-approval-blocked-unsettled-cash.jpg": {
+    "bytes": 70824,
+    "sha256": "233173f7f9033c7ba565e82dc5a75c0f5744416d2befd6e42004ca4bc4fb1a37"
+  },
+  "26-authorized-hosted-receipt-preview.jpg": {
+    "bytes": 29214,
+    "sha256": "1cdbb249c96dc147c5205b9dc4b5b39821b4ddbd6a40d827859df65d61762743"
+  },
+  "27-mapping-rejection-misclassified-before.jpg": {
+    "bytes": 63848,
+    "sha256": "4570d86316fb46f6cf677508339d5f47c4575dbb1d0c1867611c6d5d98917a35"
+  },
+  "28-q4-journal-mapping-and-work-names.jpg": {
+    "bytes": 81853,
+    "sha256": "a9c8a175a941062d8da963a009006392e91c7f7f5b01cfc066de2bd97a065e30"
+  },
+  "29-settlement-recorded.jpg": {
+    "bytes": 49511,
+    "sha256": "a6f2929e215b8796c9a0b2e01b580330fbf0dc12342e87474de2b1ae4c4dbdfd"
+  },
+  "30-final-balanced-journal.jpg": {
+    "bytes": 87159,
+    "sha256": "bfa75b121cd1e5612bb397c3feff4929879b2c52b4116bfd3185dcfc57c4d7c6"
+  },
+  "31-immutable-settlement-entry.jpg": {
+    "bytes": 64989,
+    "sha256": "f8c41b2d3099ff4e0e7bc2ba8285da4dbf77e7a5e10246dd71a4d0816baf7dd9"
+  },
+  "32-head-cash-clearance-now-passes.jpg": {
+    "bytes": 70882,
+    "sha256": "26624cedbad7b1e43b1c8f1186695b28804f95790d5445454a66b82a2a50994e"
+  },
+  "33-procurement-review-approved.jpg": {
+    "bytes": 43994,
+    "sha256": "115e06cc8d331c4d4ce0b0988820d5cd55dd5251185e8cdfdd7dbbd870619065"
+  },
+  "34-two-completed-tasks-main-table.jpg": {
+    "bytes": 78145,
+    "sha256": "cbf243aa80fcbb580c26815bc36a5820e26d4790df0b7ff4306cc11ea583a125"
+  },
+  "35-project-ready-for-completion.jpg": {
+    "bytes": 72335,
+    "sha256": "9738619d3e87baba69e446379104425d7e22167aced88e63eaa47d5fe41c6a6f"
+  },
+  "36-archived-completed-project.jpg": {
+    "bytes": 78105,
+    "sha256": "1dde9484e45e8c0e74ab45540fe61d614279816a0bef629cfdb618c9c908f1b9"
+  },
+  "37-final-budget-after-archive.jpg": {
+    "bytes": 83628,
+    "sha256": "c9bf41b0139ac3ebfefcdb3673b659620a389093cbd4a2189810fd5f373879d7"
+  },
+  "38-completed-office-tasks-1440.jpg": {
+    "bytes": 104782,
+    "sha256": "11e1b6562cbc8effbd09387591ada109aa6101d52cc41ec81b6bbe11339c9710"
+  },
+  "39-completed-office-tasks-1280.jpg": {
+    "bytes": 80289,
+    "sha256": "3000236d4301a59a8cf872fec55c1d65c01272fdd6f1fb6d8b79b076f1474162"
+  },
+  "40-final-project-dashboard.jpg": {
+    "bytes": 98725,
+    "sha256": "44be6681528028fae6fc92d0dcda70504a8b6bb038425d8ff6f4006c9cb577fb"
+  },
+  "41-calendar-retains-task-dates.jpg": {
+    "bytes": 96458,
+    "sha256": "84f8425354ecbfb12bf029a9844271520c127703f0f7d706382ca4c39e9767fd"
+  },
+  "42-completed-project-board.jpg": {
+    "bytes": 101309,
+    "sha256": "f2641819a4a4b61569d4db88fc86e10edc92e4e8724d5685d1846be5e547a504"
+  }
+}

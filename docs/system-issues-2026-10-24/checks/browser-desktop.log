@@ -1,0 +1,54 @@
+[WebServer] (node:30320) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 5 tests using 1 worker
+
+(node:28700) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:28700) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [chromium] › tests\e2e\phase11-main-table.spec.ts:30:1 › column widths, alignment, visibility and sticky task context persist locally (2.0m)
+  ok 2 [chromium] › tests\e2e\phase11-main-table.spec.ts:258:1 › filter chips clear one or all without changing canonical manual ordering (15.6s)
+  ok 3 [chromium] › tests\e2e\phase11-main-table.spec.ts:541:1 › Observer inspection and closed-project table retain read-only controls (27.4s)
+  ok 4 [chromium] › tests\e2e\phase11-main-table.spec.ts:596:1 › board Manage opens task staffing instead of the discussion tab (12.9s)
+  x  5 [chromium] › tests\e2e\phase11-main-table.spec.ts:617:1 › Head owner appointment confirms impact and retains denied assignment for retry (45.5s)
+
+
+  1) [chromium] › tests\e2e\phase11-main-table.spec.ts:617:1 › Head owner appointment confirms impact and retains denied assignment for retry 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  getByRole('table', { name: 'To do tasks', exact: true })
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  30000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 30000ms[22m
+    [2m  - waiting for getByRole('table', { name: 'To do tasks', exact: true })[22m
+    [2m    - waiting for" http://127.0.0.1:5174/projects?page=Projects&workspace=10000000-0000-4000-8000-000000000001&project=20000000-0000-4000-8000-000000000001&view=tasks" navigation to finish...[22m
+    [2m    - navigated to "http://127.0.0.1:5174/projects?page=Projects&workspace=10000000-0000-4000-8000-000000000001&project=20000000-0000-4000-8000-000000000001&view=tasks"[22m
+
+
+      74 |
+      75 | test('Head owner appointment confirms impact and retains denied assignment for retry',async({page},info)=>{
+    > 76 |  const records=await fixture(page,'head');const candidate='00000000-0000-4000-8000-000000000022';records.profiles.push({...records.profile,id:candidate,role:'member',full_name:'Eligible colleague'});await page.reload();await expect(page.getByRole('table',{name:'To do tasks',exact:true})).toBeVisible({timeout:30_000});const owner=page.getByRole('combobox',{name:'Owner for '+title,exact:true});let attempts=0;const payloads:Record<string,unknown>[]=[];await page.route('**/rest/v1/rpc/assign_task_with_details',route=>{attempts++;const payload=route.request().postDataJSON();payloads.push(payload);if(attempts===1)return route.fulfill({status:403,json:{message:'Synthetic appointment denial'}});Object.assign(records.tasks[0],{assigned_to:payload.p_assignee,team_member_ids:payload.p_team_member_ids});return route.fulfill({json:null});});
+         |                                                                                                                                                                                                                                                                                                  ^
+      77 |  await owner.selectOption(candidate);const confirm=page.getByRole('alertdialog',{name:'Change task lead',exact:true});await expect(confirm).toContainText('Existing contributors are retained');await confirm.getByRole('button',{name:'Cancel',exact:true}).click();await expect(owner).toHaveValue(records.id);expect(attempts).toBe(0);
+      78 |  await owner.selectOption(candidate);await confirm.getByRole('button',{name:'Confirm task lead',exact:true}).click();const cell=owner.locator('..');await expect(cell.getByRole('alert')).toContainText('Synthetic appointment denial');await expect(owner).toHaveValue(candidate);await page.screenshot({path:info.outputPath('owner-error-desktop.png')});await cell.getByRole('button',{name:'Retry',exact:true}).click();await confirm.getByRole('button',{name:'Confirm task lead',exact:true}).click();await expect(cell.getByRole('status')).toContainText('Saved');expect(attempts).toBe(2);expect(payloads[1].p_team_member_ids).toEqual([records.id,candidate]);
+      79 | });
+        at C:\Users\gabri\OneDrive\Desktop\EflowWeb\tests\e2e\phase11-main-table.spec.ts:76:290
+
+    Error Context: .codex-tmp\oct24-desktop-browser-results\phase11-main-table-Head-ow-fdffb-denied-assignment-for-retry-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    .codex-tmp\oct24-desktop-browser-results\phase11-main-table-Head-ow-fdffb-denied-assignment-for-retry-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace .codex-tmp\oct24-desktop-browser-results\phase11-main-table-Head-ow-fdffb-denied-assignment-for-retry-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › tests\e2e\phase11-main-table.spec.ts:617:1 › Head owner appointment confirms impact and retains denied assignment for retry 
+  4 passed (4.0m)

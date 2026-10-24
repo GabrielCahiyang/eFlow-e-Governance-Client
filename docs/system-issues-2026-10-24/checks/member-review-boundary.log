@@ -1,0 +1,24 @@
+
+> @figma/my-make-file@0.0.1 test
+> vitest --configLoader runner run tests/unit/featureWorkspaceBoundaries.test.ts tests/unit/subitemInspectorCapabilities.test.tsx --maxWorkers=1
+
+
+ RUN  v3.2.4 C:/Users/gabri/OneDrive/Desktop/EflowWeb
+
+ ✓ tests/unit/featureWorkspaceBoundaries.test.ts (1 test) 2911ms
+   ✓ feature data and workspace loading boundaries > retains public APIs without eagerly evaluating deferred workspace screens  2907ms
+ ✓ tests/unit/subitemInspectorCapabilities.test.tsx (12 tests) 14778ms
+   ✓ NW8.2 independent Inspector action capabilities > does not grant execution on a sibling branch from an actor's own Lead appointment  1497ms
+   ✓ NW8.2 independent Inspector action capabilities > requires independent submit capability and retains the note/evidence until it is granted  1014ms
+   ✓ NW8.2 independent Inspector action capabilities > allows own eligible Lead-only execution without a contributor assignment or financial privilege  883ms
+   ✓ NW8.2 independent Inspector action capabilities > keeps reviewer-only access independent of permissive old execute/manage flags  7860ms
+   ✓ NW8.2 independent Inspector action capabilities > retains feedback but disables review decisions when current review authority is revoked  662ms
+   ✓ NW8.2 independent Inspector action capabilities > lets an assigned contributor execute/request cash while management remains absent  666ms
+   ✓ NW8.2 independent Inspector action capabilities > allows branch management without converting it into execution or cap authority  891ms
+   ✓ NW8.2 independent Inspector action capabilities > keeps funding rights independent of execution and review capabilities  481ms
+
+ Test Files  2 passed (2)
+      Tests  13 passed (13)
+   Start at  08:44:43
+   Duration  65.34s (transform 17.08s, setup 0ms, collect 42.90s, tests 17.69s, environment 2.55s, prepare 765ms)
+

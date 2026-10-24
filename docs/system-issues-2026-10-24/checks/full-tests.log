@@ -1,0 +1,816 @@
+
+> @figma/my-make-file@0.0.1 test
+> vitest --configLoader runner run --maxWorkers=2
+
+
+ RUN  v3.2.4 C:/Users/gabri/OneDrive/Desktop/EflowWeb
+
+ ✓ tests/unit/loginWorkflowPreview.test.tsx (10 tests) 28518ms
+   ✓ login workflow guides > opens an unsigned-in guide, navigates backward/forward, scrubs to archive, and starts fresh on reopen  8531ms
+   ✓ login workflow guides > changes example screens when a highlighted control is clicked, without leaving the login panel  2803ms
+   ✓ login workflow guides > provides one real spotlight target for every demo screen and preserves the workflow order  1000ms
+   ✓ uses the walkthrough voice, keeps it enabled across steps, and cancels on off and close  2930ms
+ ✓ tests/unit/nestedWorkStaffing.test.tsx (34 tests) 33027ms
+   ✓ canonical staffing dialog capability and commands > lets the Head choose a first lead and add collaborators in the same save  3557ms
+   ✓ canonical staffing dialog capability and commands > does not turn a contributor permission denial into an initial appointment permission  764ms
+   ✓ canonical staffing dialog capability and commands > unlocks a confirmed failed save while keeping the chosen people  1366ms
+   ✓ canonical staffing dialog capability and commands > lets a shared Task Lead edit contributors without enabling root transfer from legacy flags  966ms
+   ✓ canonical staffing dialog capability and commands > lets an own Subitem Lead edit contributors but never replace itself  855ms
+   ✓ canonical staffing dialog capability and commands > allows an eligible ancestor to transfer a descendant, discloses exact clearing and preserves workers  1523ms
+   ✓ canonical staffing dialog capability and commands > maps root Lead change to root_lead and includes compatibility workers, without identity fields  1261ms
+   ✓ canonical staffing dialog capability and commands > allows initial root appointment through appointment capability without contributor permission  1410ms
+   ✓ canonical staffing dialog capability and commands > saves personal root appointment without inventing a team/worker payload  1360ms
+   ✓ canonical staffing dialog capability and commands > does not automatically retain an appointment-only historical Lead as a worker  1522ms
+   ✓ canonical staffing dialog capability and commands > fails closed for absent maps despite legacy management flags  447ms
+   ✓ canonical staffing dialog capability and commands > fails closed for detached snapshot despite legacy management flags  431ms
+   ✓ canonical staffing dialog capability and commands > fails closed for readOnly despite legacy management flags  361ms
+   ✓ canonical staffing dialog capability and commands > excludes expired replacements and preserves named historical assignments until explicit removal  766ms
+   ✓ canonical staffing dialog capability and commands > blocks a transfer that drops original workers even after explicit draft removal  802ms
+   ✓ canonical staffing dialog capability and commands > blocks removing a worker still assigned to unfinished descendants  714ms
+   ✓ fresh authority, checked confirmation and request outcomes > retains values but disables save after a fresh revoked capability  717ms
+   ✓ fresh authority, checked confirmation and request outcomes > rejects a changed revision without silently rebaselining the draft  735ms
+   ✓ fresh authority, checked confirmation and request outcomes > cancels transfer confirmation with zero writes and retains draft fields  1182ms
+   ✓ fresh authority, checked confirmation and request outcomes > rechecks capability after confirmation and denies a revoked appointment without writes  1377ms
+   ✓ fresh authority, checked confirmation and request outcomes > rejects current eligibility or impact changes while transfer confirmation is open  1546ms
+   ✓ fresh authority, checked confirmation and request outcomes > retains the identical request/payload/revision for uncertain retry and prevents double sends  1091ms
+   ✓ fresh authority, checked confirmation and request outcomes > allows the same uncertain request receipt retry after a fresh revision advances  1093ms
+   ✓ fresh authority, checked confirmation and request outcomes > does not save a second time when a confirmed receipt is followed by refresh failure  1016ms
+   ✓ fresh authority, checked confirmation and request outcomes > blocks an expired replacement discovered during transfer confirmation  1520ms
+   ✓ fresh authority, checked confirmation and request outcomes > does not reinterpret a pending save response after actor scope changes  1048ms
+   ✓ fresh authority, checked confirmation and request outcomes > prevents Escape/close while an operation is pending  1035ms
+   ✓ fresh authority, checked confirmation and request outcomes > keeps a dirty draft on canceled dismissal, then closes once with zero writes  892ms
+   ✓ fresh authority, checked confirmation and request outcomes > restores focus to the opener after clean dismissal  623ms
+   ✓ staffing selectors and invitation separation > keeps request-only server authority separate from staffing permission  533ms
+   ✓ staffing selectors and invitation separation > preserves existing scoped R8 requests without ever passing approval/dispatch permission  316ms
+ ✓ tests/unit/taskTeamEditorDialog.test.tsx (20 tests) 18373ms
+   ✓ task team editor > shows the complete team and refuses to remove a member with unfinished subtask work  1761ms
+   ✓ Phase 12 task team safety > rechecks newly assigned unfinished work after confirmation opens  1361ms
+   ✓ Phase 12 task team safety > rejects a newly inactive selected member after confirmation opens  1308ms
+   ✓ Phase 12 task team safety > keeps a team draft on cancelled dismissal, then discards only after acceptance  934ms
+   ✓ Phase 12 task team safety > uses an impact dialog once and retains selected members after a server denial  1442ms
+   ✓ Phase 12 task team safety > refuses to overwrite a team changed remotely while a draft is open  1325ms
+   ✓ NW3.3 supported task team callers > uses a supplied table controller without another read and retains contributor-only authority  1042ms
+   ✓ NW3.3 supported task team callers > saves contributors through the canonical versioned operation without legacy writes or notifications  1031ms
+   ✓ NW3.3 supported task team callers > keeps Head appointment authority separate from the contributor-only Team action  1033ms
+   ✓ NW3.3 supported task team callers > retains a contributor draft when fresh capability revokes saving  1231ms
+   ✓ NW3.3 supported task team callers > fails closed with absent capability maps even when old management booleans are true  595ms
+   ✓ NW3.3 supported task team callers > retains values and blocks saves when the caller becomes read-only  949ms
+   ✓ NW3.3 supported task team callers > locks canonical contributors for for_review  566ms
+   ✓ NW3.3 supported task team callers > locks canonical contributors for completed  515ms
+   ✓ NW3.3 supported task team callers > locks canonical contributors for cancelled  556ms
+   ✓ NW3.3 supported task team callers > retains the legacy workflow for an excluded task {}  442ms
+   ✓ NW3.3 supported task team callers > retains the legacy workflow for an excluded task {"proposedOfficeIdentityId":"unresolved"}  438ms
+   ✓ NW3.3 supported task team callers > retains the legacy workflow for an excluded task {"sourceCollaborationDraftId":"governed"}  453ms
+   ✓ NW3.3 supported task team callers > blocks a legacy save if read-only changes while its confirmation is open  1130ms
+ ✓ tests/unit/projectLifecycle.test.tsx (13 tests) 10087ms
+   ✓ canonical project lifecycle controls > hides setup after activation  1674ms
+   ✓ canonical project lifecycle controls > keeps creation and portfolio switching without a second sidebar  1179ms
+   ✓ canonical project lifecycle controls > offers completion and denies archive until completed  728ms
+   ✓ canonical project lifecycle controls > offers archive after completion  553ms
+   ✓ canonical project lifecycle controls > offers restore and delete in an archived project  1161ms
+   ✓ canonical project lifecycle controls > keeps read-only viewers from lifecycle changes while retaining account-scoped favorites  657ms
+   ✓ project completion confirmation > retains verified display during a background refresh but disables stale confirmation  909ms
+   ✓ project completion confirmation > refuses directly opened completion for a non-Head without loading private checks  334ms
+   ✓ project completion confirmation > checks without changing anything, and cancel never completes  499ms
+   ✓ project completion confirmation > lists exact task, cash and governance blockers and opens the affected record  765ms
+   ✓ project completion confirmation > completes only the chosen project after explicit confirmation  506ms
+   ✓ project completion confirmation > fails closed when checks cannot load  407ms
+   ✓ project completion confirmation > refreshes blockers if the server rejects a stale ready screen  709ms
+ ✓ tests/unit/workspaceRefinementHierarchy.test.tsx (24 tests) 13721ms
+   ✓ R7 checked nested-work UI > keeps initial editor focus stable across a deferred entry frame  516ms
+   ✓ R7 checked nested-work UI > keeps date editor focus stable across a deferred entry frame  417ms
+   ✓ R7 checked nested-work UI > refreshes owners quietly on the access timer and clears them on an access denial  1235ms
+   ✓ R7 checked nested-work UI > does not let a pre-save refresh replace a newly saved owner snapshot  2310ms
+   ✓ R7 checked nested-work UI > retains one request and creation identity after a lost response, prevents double saves, and guards drafts  1800ms
+   ✓ R7 checked nested-work UI > retains expired assignment names while allowing replacement and excluding them from new choices  1086ms
+   ✓ R7 checked nested-work UI > allows a root lead to change contributors without gaining root-transfer authority  951ms
+   ✓ R7 checked nested-work UI > keeps original draft revision during a capability refresh and disables a revoked editor  870ms
+   ✓ R7 checked nested-work UI > shows historical work for a Viewer without exposing mutation actions or inventing an email invitation  647ms
+   ✓ NW3.3 staffing and hierarchy caller locks > lets verified canonical capability control Inspector contributors independently of legacy Head-only flags  1430ms
+   ✓ NW3.3 staffing and hierarchy caller locks > propagates Inspector read-only to both root staffing and nested work despite affirmative legacy booleans  667ms
+   ✓ NW3.3 staffing and hierarchy caller locks > updates an open Inspector staffing draft when its caller becomes read-only  1395ms
+ ✓ tests/unit/auditDetailPage.test.tsx (7 tests) 9584ms
+   ✓ in-page Account Audit details > preserves filters, mounted table sorting and return focus without a modal  2809ms
+   ✓ in-page Account Audit details > keeps long changes readable and uses existing nested redaction for metadata and copy values  1201ms
+   ✓ in-page Account Audit details > shows honest empty states and navigable breadcrumbs  984ms
+   ✓ in-page Account Audit details > renders structured arrays and missing references without exposing nested secrets  701ms
+   ✓ in-page Account Audit details > hides old details during verification and fails closed when a refreshed window removes the event  1096ms
+   ✓ in-page Account Audit details > replaces an open event with the current permitted read and handles read failure with Back  2025ms
+   ✓ in-page Account Audit details > discards selected data immediately when the actor changes or page permission is removed  764ms
+ ✓ tests/unit/subitemInspectorCapabilities.test.tsx (12 tests) 11464ms
+   ✓ NW8.2 independent Inspector action capabilities > does not grant execution on a sibling branch from an actor's own Lead appointment  1225ms
+   ✓ NW8.2 independent Inspector action capabilities > requires independent submit capability and retains the note/evidence until it is granted  925ms
+   ✓ NW8.2 independent Inspector action capabilities > allows own eligible Lead-only execution without a contributor assignment or financial privilege  790ms
+   ✓ NW8.2 independent Inspector action capabilities > keeps reviewer-only access independent of permissive old execute/manage flags  5253ms
+   ✓ NW8.2 independent Inspector action capabilities > retains feedback but disables review decisions when current review authority is revoked  564ms
+   ✓ NW8.2 independent Inspector action capabilities > lets an assigned contributor execute/request cash while management remains absent  596ms
+   ✓ NW8.2 independent Inspector action capabilities > allows branch management without converting it into execution or cap authority  847ms
+   ✓ NW8.2 independent Inspector action capabilities > keeps funding rights independent of execution and review capabilities  451ms
+ ✓ tests/unit/nestedWorkCommandForms.test.tsx (26 tests) 8115ms
+   ✓ NW5.5 lightweight forms and authoritative confirmation > checks a server-classified routine date without an extra confirmation  940ms
+   ✓ NW5.5 lightweight forms and authoritative confirmation > discloses material date bounds and recorded commitments before checked saving  481ms
+   ✓ NW5.5 lightweight forms and authoritative confirmation > does not skip mode confirmation when a combined date is routine  345ms
+   ✓ NW5.5 lightweight forms and authoritative confirmation > keeps initial execution mode and optional eligible staffing in the advanced create draft  367ms
+   ✓ NW5.5 lightweight forms and authoritative confirmation > shows only authorized safe destinations as readable paths and confirms exact move terms  385ms
+   ✓ NW5.5 lightweight forms and authoritative confirmation > preserves the complete sibling list and labelled move controls  791ms
+   ✓ NW5.5 lightweight forms and authoritative confirmation > requires a checked review of changed execution mode with sequential consequences  385ms
+   ✓ NW5.5 lightweight forms and authoritative confirmation > uses server subtree counts and danger confirmation for deletion  364ms
+   ✓ NW5.5 lightweight forms and authoritative confirmation > cancels impact review without sending a command or losing the draft  312ms
+   ✓ NW5.5 lightweight forms and authoritative confirmation > blocks a revoked scope during an open confirmation  531ms
+   ✓ NW5.5 lightweight forms and authoritative confirmation > retries a lost checked result with identical terms without another preview or confirmation  416ms
+   ✓ NW5.5 lightweight forms and authoritative confirmation > reviews contributor removal separately and preserves the checked request on uncertain retry  1091ms
+ ✓ tests/unit/projectSubitems.test.tsx (17 tests) 8040ms
+   ✓ Project table subitem expansion > opens the legacy Task team menu directly in Work after the menu focus handoff  1689ms
+   ✓ Project table subitem expansion > places task actions in the first cell and keeps detail access without drag controls  836ms
+   ✓ Project table subitem expansion > keeps the first-column Add subitem action disabled for someone who is not the task lead  559ms
+   ✓ Project table subitem expansion > hands menu focus to the add field when subitems are already expanded  814ms
+   ✓ Project table subitem expansion > opens an empty nested table and saves the task lead’s subitem when focus leaves  361ms
+   ✓ Project table subitem expansion > preserves the for_review lock and keeps existing subitems readable  306ms
+   ✓ Project table subitem expansion > preserves the cancelled lock and keeps existing subitems readable  488ms
+   ✓ Project table subitem expansion > keeps a failed draft for retry and appends after the greatest saved position  480ms
+   ✓ NW6.4 Main Table hierarchy accessibility > renders native headers, capped deep paths and readable historical/unassigned states  352ms
+   ✓ NW6.4 Main Table hierarchy accessibility > reports controlled disclosure state and preserves the exact authorized parent  702ms
+stderr | tests/unit/nestedWorkAdvisoryAppointment.test.tsx > NW3.4 AI selection through the actual canonical appointment editor > keeps one request identity after server denial and retry, without a legacy or membership write
+Error loading tasks: TypeError: __vite_ssr_import_0__.supabase.from is not a function
+    at C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\features\tasks\services\taskRealtimeService.ts:37:8
+    at readAllRows (C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\shared\readAllRows.ts:16:26)
+    at C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\features\tasks\services\taskRealtimeService.ts:36:24
+    at notifyTaskListeners (C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\features\tasks\services\taskRealtimeService.ts:44:3)
+    at C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\features\nested-work\services\workTreeService.ts:46:102
+    at async Promise.allSettled (index 0)
+    at saveWorkTree (C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\features\nested-work\services\workTreeService.ts:46:3)
+    at Object.save (C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\features\nested-work\hooks\useWorkTree.ts:51:18)
+    at submit (C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\features\nested-work\components\WorkStaffingDialog.tsx:110:12)
+
+stderr | tests/unit/nestedWorkAdvisoryAppointment.test.tsx > NW3.4 AI selection through the actual canonical appointment editor > saves once and disables all resubmission after caller refresh fails
+Error loading tasks: TypeError: __vite_ssr_import_0__.supabase.from is not a function
+    at C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\features\tasks\services\taskRealtimeService.ts:37:8
+    at readAllRows (C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\shared\readAllRows.ts:16:26)
+    at C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\features\tasks\services\taskRealtimeService.ts:36:24
+    at notifyTaskListeners (C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\features\tasks\services\taskRealtimeService.ts:44:3)
+    at C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\features\nested-work\services\workTreeService.ts:46:102
+    at async Promise.allSettled (index 0)
+    at saveWorkTree (C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\features\nested-work\services\workTreeService.ts:46:3)
+    at Object.save (C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\features\nested-work\hooks\useWorkTree.ts:51:18)
+    at submit (C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\features\nested-work\components\WorkStaffingDialog.tsx:110:12)
+
+ ✓ tests/unit/nestedWorkAdvisoryAppointment.test.tsx (4 tests) 11417ms
+   ✓ NW3.4 AI selection through the actual canonical appointment editor > prefills the recommended Lead; canceled appointment review writes nothing  4086ms
+   ✓ NW3.4 AI selection through the actual canonical appointment editor > fails closed on fresh canonical appointment denial despite legacy can_transfer  1833ms
+   ✓ NW3.4 AI selection through the actual canonical appointment editor > keeps one request identity after server denial and retry, without a legacy or membership write  2492ms
+   ✓ NW3.4 AI selection through the actual canonical appointment editor > saves once and disables all resubmission after caller refresh fails  3003ms
+ ✓ tests/unit/nestedWorkTableEntrances.test.tsx (11 tests) 12634ms
+   ✓ NW6.3 existing Main Table entrances > shares one controller across Owner, expansion, focus refresh and the 15-second timer  1596ms
+   ✓ NW6.3 existing Main Table entrances > lets eligible Head oversight add a root child despite not being Task Lead, expands and focuses Title  1945ms
+   ✓ NW6.3 existing Main Table entrances > fails closed for legacy management booleans without current create-child capability  414ms
+   ✓ NW6.3 existing Main Table entrances > propagates archive through row, owner and widget  836ms
+   ✓ NW6.3 existing Main Table entrances > propagates caller lock through row, owner and widget  878ms
+   ✓ NW6.3 existing Main Table entrances > propagates review state through row, owner and widget  911ms
+   ✓ NW6.3 existing Main Table entrances > keeps proposed Office work in the locked legacy path without a nested-work controller  662ms
+   ✓ NW6.3 existing Main Table entrances > retains this task collapse state across row close and does not reopen an old Add request  1831ms
+   ✓ NW6.3 existing Main Table entrances > keeps personal progress drafts locked when the caller execution scope changes  783ms
+   ✓ NW6.3 existing Main Table entrances > routes Office Review to the existing callback and hides it when there is no review owner  1032ms
+   ✓ NW6.3 existing Main Table entrances > retains dirty branch and row on declined collapse and discards only after accepted navigation  1743ms
+ ✓ tests/unit/nestedWorkHierarchy.test.tsx (24 tests) 10925ms
+   ✓ one supplied work hierarchy composition > renders an empty Main Table surface and inline root create through the existing capability action  861ms
+   ✓ one supplied work hierarchy composition > labels disclosure and keeps collapse state controlled without changing canonical parents  506ms
+   ✓ one supplied work hierarchy composition > expands only focused ancestors, focuses the canonical deep ID and caps indentation at three  720ms
+   ✓ one supplied work hierarchy composition > keeps read-only Open and Activity, ignoring permissive legacy booleans  978ms
+   ✓ one supplied work hierarchy composition > fails closed on missing maps and hides unverified/foreign snapshots  421ms
+   ✓ one supplied work hierarchy composition > routes node reorder to its own child list and root reorder to parent:null using complete hidden IDs  1013ms
+   ✓ one supplied work hierarchy composition > does not grant sibling ordering from a child capability or infer root ordering  1215ms
+   ✓ one supplied work hierarchy composition > disables stale mutations then removes revoked actions from an already open menu  477ms
+   ✓ one supplied work hierarchy composition > keeps Office evidence/review callbacks and exposes personal commands only through their capabilities  1358ms
+   ✓ public shared work controller > owns one read/poller for supplied Tree and Owner, including the full-controller staffing dialog  941ms
+   ✓ public shared work controller > locks controlled mutation triggers while another shared operation is pending  1056ms
+ ✓ tests/unit/workspaceRefinementInspector.test.tsx (25 tests) 4611ms
+   ✓ My Work task page > uses the main content region with all six sections and no drawer  1496ms
+   ✓ NW7.1 section contract and guarded keyboard navigation > wraps keyboard selection across six sections with one tab stop  369ms
+   ✓ R6 shared inspector presentation and support boundary > shows six sections with distinct Overview, Work and currently permitted Review  371ms
+   ✓ NW3.3 Inspector staffing scope > keeps one supported controller owner across section changes and starts none for proposed work  345ms
+ ✓ tests/unit/projectViewNavigation.test.tsx (6 tests) 4557ms
+   ✓ project view navigation > exposes and persists a Board view entered through a shortcut or direct URL  1479ms
+   ✓ project view navigation > renders Add view outside a clipping ancestor and respects conditional views  874ms
+   ✓ project view navigation > closes the view picker with Escape  415ms
+   ✓ project view navigation > keeps an active overflow view selected and exposes the displaced view in More  1045ms
+   ✓ project view navigation > keeps saved views scoped to their project when the project changes  452ms
+ ✓ tests/unit/subitemEntrances.test.tsx (11 tests) 7713ms
+   ✓ NW8.4 canonical entrances and compatibility > opens the exact duplicate-title ID from Work without legacy prefetch and restores the real opener  1965ms
+   ✓ NW8.4 canonical entrances and compatibility > opens the canonical item in Review from its current action and retains dirty feedback on Back navigation  1708ms
+   ✓ NW8.4 canonical entrances and compatibility > opens a deep My Work row with current execute rights despite old flags, and grants no root management  446ms
+   ✓ NW8.4 canonical entrances and compatibility > guards dirty Work-to-Activity navigation and shows only the selected Activity shell  515ms
+   ✓ NW8.4 canonical entrances and compatibility > opens current review selection through the public canonical facade only after accepted discard  1071ms
+   ✓ NW8.4 canonical entrances and compatibility > preserves an explicit read-only Inbox caller through its opened canonical Inspector  499ms
+   ✓ NW8.4 canonical entrances and compatibility > keeps an opened canonical draft mounted when its parent review queue is removed and fails  837ms
+ ✓ tests/unit/contextRailIsolation.test.tsx (7 tests) 5557ms
+   ✓ approved primary/context isolation > keeps a granted Office calendar handoff reachable from the global My Work feed in a personal workspace  1676ms
+   ✓ approved primary/context isolation > identifies only the current authorized legacy tool without exposing all retained routes  579ms
+   ✓ approved primary/context isolation > replaces workspace sections immediately with My Work then Inbox while keeping the primary rail  1543ms
+   ✓ approved primary/context isolation > keeps collapse preferences isolated between contexts and restores workspace state  1508ms
+ ✓ tests/unit/subitemReviewDetail.test.tsx (16 tests) 6679ms
+   ✓ NW8.3 shared review presentation > uses authorized queue metadata and hides signed links when a retained draft loses current access  1307ms
+   ✓ NW8.3 existing Inbox owner and Inspector composition > immediately isolates accounts and restores only feedback after a fresh matching authorized queue, with freshly signed evidence  1142ms
+   ✓ NW8.3 existing Inbox owner and Inspector composition > does not let an old actor decision response clear the new actor draft or publish its outcome to the new actor  366ms
+   ✓ NW8.3 existing Inbox owner and Inspector composition > retains feedback through a source failure/retry and a replacement attempt until accepted navigation  1222ms
+   ✓ NW8.3 existing Inbox owner and Inspector composition > keeps failed decisions in the owner, deduplicates pending writes and blocks dirty navigation  701ms
+ ✓ tests/unit/cashReleaseOverride.test.tsx (7 tests) 7413ms
+   ✓ schedule override confirmation > opens details without making a financial call and cancels safely  2224ms
+   ✓ schedule override confirmation > requires a reason and releases only the selected tranche after confirmation  1197ms
+   ✓ schedule override confirmation > keeps the popup open with the server ceiling error and preserves the reason  774ms
+   ✓ schedule override confirmation > prevents double confirmation and dismissal while the request is pending  831ms
+   ✓ schedule override confirmation > does not retry a committed release when only the list refresh fails  765ms
+   ✓ schedule override confirmation > retains the normal release path and hides release controls from employees  778ms
+   ✓ schedule override confirmation > lets Accounting Staff issue cheques and use audited schedule overrides  839ms
+ ✓ tests/unit/workspaceRefinementProject.test.tsx (12 tests) 5321ms
+   ✓ R4 completion availability > keeps setup actions in the modal footer and rechecks before enabling activation  1877ms
+   ✓ R4 completion availability > keeps the requirements action usable while completion is blocked  943ms
+   ✓ R4 completion availability > retains structural review and resolution without a second completion or archive entry  399ms
+   ✓ R4 retained navigation and identities > maps all retired URL identifiers to retained views and removes them from saved tabs and Add view  1090ms
+   ✓ R4 retained navigation and identities > uses authenticated avatar URLs, keyboard name targets, initials fallback and an overflow list  614ms
+ ✓ tests/unit/subitemInspector.test.tsx (13 tests) 10686ms
+   ✓ NW8.1 canonical Subitem Inspector > retains the actual opener through the loading-to-loaded panel transition  1657ms
+   ✓ NW8.1 canonical Subitem Inspector > uses deep-only names, the full permitted path and item date/progress rather than root arrays  653ms
+   ✓ NW8.1 canonical Subitem Inspector > navigates from depth 8 to the actual parent by canonical ID  1194ms
+   ✓ NW8.1 canonical Subitem Inspector > keeps duplicate titles distinct and renders only the selected branch children  463ms
+   ✓ NW8.1 canonical Subitem Inspector > ignores a late read after switching items and never shows a stale writable form  301ms
+   ✓ NW8.1 canonical Subitem Inspector > shows missing parent context without reading the protected parent or inventing an edge  418ms
+   ✓ NW8.1 canonical Subitem Inspector > shows explicit denied read errors and retries without mounting workflow controls  389ms
+   ✓ NW8.1 canonical Subitem Inspector > guards parent navigation and close while preserving failed progress drafts  1100ms
+   ✓ NW8.1 canonical Subitem Inspector > shares the real child editor and sends complete sibling IDs from the full tree  3414ms
+   ✓ NW8.1 canonical Subitem Inspector > routes supported facade opens to the canonical Inspector and keeps excluded work legacy  486ms
+ ❯ tests/unit/nestedWorkCollapsedReadiness.test.tsx (2 tests | 1 failed) 10390ms
+   ✓ NW4.2 Main Table collapse preserves required descendant readiness > keeps a required depth-1 descendant in readiness while the real task row is collapsed  4958ms
+   × NW4.2 Main Table collapse preserves required descendant readiness > keeps a required depth-8 descendant in readiness while the real task row is collapsed 5429ms
+     → Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ✓ tests/unit/localOfficeDialog.test.tsx (5 tests) 6912ms
+   ✓ project-local Office creation > invites an Office by name within a project without a global department record  2630ms
+   ✓ project-local Office creation > retains an Office name without requiring a canonical record or contact  918ms
+   ✓ project-local Office creation > distinguishes a saved invitation from delivery and refresh failures  1130ms
+   ✓ project-local Office creation > retains failed drafts and retries the saved identity instead of creating a second one  1097ms
+   ✓ project-local Office creation > keeps the dialog open until a dirty draft is explicitly discarded  1133ms
+ ✓ tests/unit/workspaceRefinementR11Activity.test.tsx (10 tests) 6873ms
+   ✓ R11 Activity completeness > shares recorded deleted-item paths and people with UI and revalidated print without extra reads  2109ms
+   ✓ R11 Activity completeness > resets filters and page size, prints all by default, and restores modal focus  2493ms
+   ✓ R11 Activity completeness > shows retry on server failures without claiming there are no events  757ms
+   ✓ R11 Activity completeness > prevents a failed later print page from exposing a partial preview  679ms
+   ✓ R11 Activity completeness > revalidates the frozen snapshot on focus and clears history on access failure  762ms
+ ✓ tests/unit/workspaceRefinementNavigation.test.tsx (12 tests) 8609ms
+   ✓ R2 persistent workspace navigation > retains expanded Office tools and project sections across Tasks and Reports without removed entries  4418ms
+   ✓ R2 persistent workspace navigation > collapses/restores without unmounting the global rail and persists the choice  3691ms
+   ✓ R2 persistent workspace navigation > never shows project records or project section choices to an account without project navigation  400ms
+ ✓ tests/unit/notificationSubitemFocus.test.tsx (12 tests) 5804ms
+   ✓ NW9.5 canonical notification entrances > opens an appointed Lead-only depth-eight item by ID despite a stale label and forwards the Work origin/section  2139ms
+   ✓ NW9.5 canonical notification entrances > explains ambiguous targets without opening a same-title sibling or falling back to its root  543ms
+   ✓ NW9.5 canonical notification entrances > explains missing targets without opening a same-title sibling or falling back to its root  320ms
+   ✓ NW9.5 canonical notification entrances > does not use stale rows after an authorized source denial  301ms
+   ✓ NW9.5 canonical notification entrances > resolves an authorized canonical item beyond capped discovery and revalidates its current assignment on refresh  575ms
+   ✓ NW9.5 canonical notification entrances > does not treat a readable but no-longer-assigned exact record as current assigned work  305ms
+   ✓ NW9.5 canonical notification entrances > ignores a late old-account read and keeps that account unfinished pointer private  789ms
+   ✓ NW9.5 canonical notification entrances > keeps declined notification navigation unfinished without discarding the current dirty Work draft  372ms
+ ✓ tests/unit/nestedWorkDraftRecovery.test.tsx (27 tests) 9711ms
+   ✓ NW5.4 current reads and owners > retains a dirty editor on timer failure and blocks saving until retry succeeds  4400ms
+   ✓ NW5.4 current reads and owners > clears protected display on coded revocation and quarantines the draft until renewed read  878ms
+   ✓ NW5.4 current reads and owners > offers recovery after owner remount only after fresh read  1106ms
+   ✓ NW5.4 current reads and owners > retains staffing through transient failure and recovers it after owner remount  2408ms
+   ✓ NW5.4 current reads and owners > continues polling while a dirty editor is open  620ms
+ ✓ tests/unit/nestedWorkLegacyBoundaries.test.tsx (17 tests) 12228ms
+   ✓ NW9.7 proven compatibility entrances > routes the actual board editor through canonical depth-eight work and item IDs  3961ms
+   ✓ NW9.7 proven compatibility entrances > passes the editor saving lock through to canonical controls  2643ms
+   ✓ NW9.7 proven compatibility entrances > shares one board controller across hierarchy and canonical detail  1461ms
+   ✓ NW9.7 proven compatibility entrances > uses canonical project root people instead of the old metadata team picker  2123ms
+   ✓ NW9.7 proven compatibility entrances > hands the metadata save a checked missing scope only after the current root read proves it  844ms
+ ✓ tests/unit/globalUiP6.test.tsx (7 tests) 7027ms
+   ✓ P6 shared Help action > head sees only eligible functions  2496ms
+   ✓ P6 shared Help action > member sees only eligible functions  564ms
+   ✓ P6 shared Help action > accounting_staff sees only eligible functions  579ms
+   ✓ P6 shared Help action > admin sees only eligible functions  427ms
+   ✓ P6 shared Help action > page and system choices invoke their existing providers once after closing  1121ms
+   ✓ P6 shared Help action > Getting started retains the existing event and Escape restores the actual opener  1163ms
+   ✓ P6 shared Help action > an active tour disables all launches without another controller  660ms
+ ✓ tests/unit/phase17StaffingSafety.test.tsx (4 tests) 5374ms
+   ✓ Phase 17 staffing draft > edits the draft directly, confirms the complete diff once and cancels with zero writes  3358ms
+   ✓ Phase 17 staffing draft > retains a dirty draft during a source refresh and rejects overwriting the new plan  831ms
+   ✓ Phase 17 staffing draft > keeps changes after a cancelled navigation and resets against the current source on discard  535ms
+   ✓ Phase 17 staffing draft > rejects an addition that became inactive while confirmation was open  646ms
+ ✓ tests/unit/nestedWorkPeople.test.tsx (42 tests) 5020ms
+   ✓ explicit Lead and contributor summary > shows contributors separately with count 1  1576ms
+   ✓ controlled contributor field > composes a controlled transfer, retains old workers, and removes them only explicitly  461ms
+ ✓ tests/unit/phase11Editors.test.tsx (16 tests) 4161ms
+   ✓ Phase 11 edit and creation contracts > retains failed numeric values and retries only their patch  1372ms
+   ✓ Phase 11 edit and creation contracts > guards a new task draft and retains a failed creation  1243ms
+   ✓ Phase 11 edit and creation contracts > guards a new group draft and retains a failed creation  774ms
+ ✓ tests/unit/headWorkspaceDashboard.test.tsx (6 tests) 4064ms
+   ✓ Head workspace dashboard > opens the actual project, reports and task behind each summary  2860ms
+   ✓ Head workspace dashboard > does not present partial coverage as zero or reliable project progress  836ms
+   ✓ Head workspace dashboard > uses skeletons before data arrives and helpful empty states once an empty result is verified  304ms
+ ✓ tests/unit/workspaceSwitcherControls.test.tsx (5 tests) 4141ms
+   ✓ approved workspace switcher controls > preserves loading, unavailable-list and no-result feedback with labeled autofocus and existing utility gates  1689ms
+   ✓ approved workspace switcher controls > shows one current choice with clean grouping and keyboard focus across the list/actions  522ms
+   ✓ approved workspace switcher controls > shares one existing creation workflow between the header Plus and menu action  778ms
+   ✓ approved workspace switcher controls > retains the popup when guarded selection is rejected and searches the full list  775ms
+   ✓ approved workspace switcher controls > keeps creation disabled when installation/loading cannot authorize the existing flow  359ms
+ ✓ tests/unit/workBudgetCallerGates.test.tsx (8 tests) 3640ms
+   ✓ NW8.2 budget caller gates and preserved financial rights > explains an over-budget request and recovers after correcting the amount  1619ms
+   ✓ NW8.2 budget caller gates and preserved financial rights > retains an opened cap draft and blocks its RPC while caller readOnly  534ms
+   ✓ NW8.2 budget caller gates and preserved financial rights > retains an opened cap draft and blocks its RPC while authority pending  475ms
+   ✓ NW8.2 budget caller gates and preserved financial rights > retains an opened cash draft without issuing cash/attachment writes while caller readOnly  350ms
+   ✓ NW8.2 budget caller gates and preserved financial rights > retains an opened cash draft without issuing cash/attachment writes while authority pending  374ms
+ ✓ tests/unit/accountingSettlementAuthority.test.tsx (6 tests) 3057ms
+   ✓ Accounting settlement authority > waits for Head authorization before settling a late package  1308ms
+   ✓ Accounting settlement authority > enables Accounting settlement after Head authorizes the late package  1027ms
+ ✓ tests/unit/subtaskAssigneePicker.test.ts (3 tests) 2909ms
+   ✓ subtask assignee picker > closes when the manager left-clicks outside the picker  1628ms
+   ✓ subtask assignee picker > starts a to-do parent automatically when its lead creates a subtask  481ms
+   ✓ subtask assignee picker > lets the Team Lead create independent work with no ordered prerequisite  797ms
+ ✓ tests/unit/designSystemFoundation.test.tsx (7 tests) 2847ms
+   ✓ design foundation compatibility contracts > keeps compound controls' explicit IDs on the control rather than its wrapper  1119ms
+   ✓ design foundation compatibility contracts > cancels without mutation and requires an exact phrase or resolved blockers  947ms
+ ✓ tests/unit/phase14InvitationDrafts.test.tsx (3 tests) 4508ms
+   ✓ Phase 14 invitation drafts > retains only unsuccessful rows after partial creation and retries without duplicating successful invitations  2740ms
+   ✓ Phase 14 invitation drafts > keeps drafts on dismissal refusal and discards only after explicit acceptance  1026ms
+   ✓ Phase 14 invitation drafts > does not send after cancelled recipient review and synchronously deduplicates submits  739ms
+ ✓ tests/unit/workspaceRefinementIsolation.test.tsx (14 tests) 3755ms
+   ✓ R3 scope boundaries in active sessions > rejects a personal project whose home differs from the selected workspace  421ms
+   ✓ R3 scoped navigation, drafts and personal review > preserves failed creation drafts and retries with the same creation identity  1959ms
+ ✓ tests/unit/nestedWorkReviewAuthority.test.tsx (7 tests) 2735ms
+   ✓ NW4.2 current reviewer queue, adapter and inbox parity > renders the replacement reviewer queue and decides using the canonical subtask ID  1366ms
+   ✓ NW4.2 current reviewer queue, adapter and inbox parity > retains the pending evidence when the server denies a decision: Current independent reviewer required  640ms
+   ✓ NW4.2 current reviewer queue, adapter and inbox parity > retains the pending evidence when the server denies a decision: Settle all released or reserved cash before approving this funded subtask  596ms
+ ✓ tests/unit/phase02AccountMenu.test.tsx (7 tests) 3011ms
+   ✓ Phase 02 account utility > shows human-readable account context and retains settings and logout actions  2586ms
+ ✓ tests/unit/projectPdfImportPanel.test.tsx (6 tests) 3297ms
+   ✓ PDF import modal > shows only the success receipt when a stale session error exists  1139ms
+   ✓ PDF import modal > offers optional offices and sends the choices with the uploaded PDF  697ms
+   ✓ PDF import modal > offers resume instead of a new upload for saved work  468ms
+   ✓ PDF import modal > shows completion counts and unlocks closing after a failure  431ms
+ ✓ tests/unit/phase10ProjectWorkspace.test.tsx (8 tests) 2179ms
+   ✓ Phase 10 project workspace > keeps missing identity readable and closed title editing disabled  831ms
+   ✓ Phase 10 project workspace > retains failed settings, retries once and marks only the saved draft clean  481ms
+   ✓ Phase 10 project workspace > validates dates and blocks switching or duplicate saves while a request is pending  468ms
+ ✓ tests/unit/collaborationDeliveryBoard.test.tsx (6 tests) 2670ms
+   ✓ committed proposal delivery board > selects the opened approval tab and preserves the published task label for office plans  1200ms
+   ✓ committed proposal delivery board > shows Board only after a proposal has been published  535ms
+   ✓ committed proposal delivery board > confirms publication of a office-only proposal without collaboration review controls  716ms
+ ✓ tests/unit/taskManagementMenu.test.ts (4 tests) 2361ms
+   ✓ task management overflow menu > keeps management actions in the overflow and closes after selection  1394ms
+   ✓ task management overflow menu > closes on Escape without adding a full-screen click shield  367ms
+ ✓ tests/unit/phase02AuthPresentation.test.tsx (2 tests) 2569ms
+   ✓ Phase 02 auth presentation > uses Vibe inputs while retaining the existing login automation identifiers and submit behavior  1855ms
+   ✓ Phase 02 auth presentation > opens the Usage scenarios menu from the Vibe menu button  711ms
+ ✓ tests/unit/workspaceRefinementFoundation.test.tsx (4 tests) 2326ms
+   ✓ R1 shared presentation > makes all participant names available on click, including overflow and missing identities  1219ms
+   ✓ R1 shared presentation > preserves popover and action-menu triggers when adding supplemental Vibe help  812ms
+ ✓ tests/unit/phase02MobileNavigation.test.tsx (1 test) 3031ms
+   ✓ Phase 02 mobile navigation > opens the accessible navigation drawer and closes it after a destination is selected  3025ms
+ ✓ tests/unit/workspaceRefinementInvitations.test.tsx (6 tests) 3303ms
+   ✓ submits a request without dispatch and retries PDS independently  1960ms
+   ✓ mixed request retry excludes the successfully submitted person  715ms
+   ✓ retains attempted terms and request identity after a lost response  304ms
+ ✓ tests/unit/taskDueDates.test.tsx (5 tests) 3619ms
+   ✓ task due date validation > table disables past calendar dates and rejects bypassed invalid submissions  2770ms
+   ✓ task due date validation > dialog disables past calendar dates and rejects bypassed invalid submissions  824ms
+ ✓ tests/unit/workspaceFoundation.test.tsx (4 tests) 3250ms
+   ✓ workspace interaction foundation > cancels with Escape and saves the next edit once despite Enter followed by blur  1968ms
+   ✓ workspace interaction foundation > separates the common action from its contextual menu  734ms
+ ✓ tests/unit/defenseRevisionInteractions.test.tsx (9 tests) 2295ms
+   ✓ PDF operation lock > ignores close and Escape during processing and allows closing after release  1390ms
+   ✓ resend approval interactions > preserves the confirmation after failure and permits retry without duplicate clicks  821ms
+ ✓ tests/unit/projectsStandalone.test.tsx (2 tests) 1908ms
+   ✓ Projects without a navigation host > keeps the common toolbar and index without selecting a first project or rendering another rail  1639ms
+ ✓ tests/unit/nestedWorkCompletionParity.test.tsx (4 tests) 2665ms
+   ✓ NW4.2 completion and server review flags > shows and opens review selected by the server even when displayed Lead differs  1639ms
+   ✓ NW4.2 completion and server review flags > removes review on refreshed server denial even when the user is the appointed manager  572ms
+   ✓ NW4.2 completion and server review flags > keeps historical work readable without review controls on a read-only surface  439ms
+ ✓ tests/unit/workspaceRefinementR12Configuration.test.tsx (8 tests) 1975ms
+   ✓ R12 effective administration > saves only validated presentation keys and documents dormant session/timezone controls  1027ms
+   ✓ R12 effective administration > keeps the same uncertain request and locks editing until verification succeeds  385ms
+ ✓ tests/unit/guidedTourInteraction.test.ts (4 tests) 2364ms
+   ✓ guided page walkthrough > contains modal keyboard focus and restores its original launcher  1174ms
+   ✓ guided page walkthrough > opens from the page toolbar and advances without changing page data  377ms
+   ✓ guided page walkthrough > advances only once when Enter activates the focused Next button  315ms
+   ✓ guided page walkthrough > optionally narrates each step and stops immediately when switched off  490ms
+ ✓ tests/unit/phase02AppShell.test.tsx (2 tests) 2329ms
+   ✓ Phase 02 productivity sidebar > keeps the registered destination and page callback intact  1945ms
+   ✓ Phase 02 productivity sidebar > keeps labelled global destinations available without hover  381ms
+ ✓ tests/unit/illustratedEmptyStates.test.tsx (4 tests) 2349ms
+   ✓ illustrated empty-state boundaries > keeps loading, read failures and populated tables distinct from empty collections  1244ms
+   ✓ illustrated empty-state boundaries > retains search and lets the user recover the populated list from a no-match illustration  1014ms
+ ✓ tests/unit/globalUiP3.test.tsx (6 tests) 2379ms
+   ✓ P3 local review navigation > adds membership to the same local selector without fabricating an unknown count  1923ms
+ ✓ tests/unit/projectWorkflowGaps.test.tsx (20 tests) 2007ms
+   ✓ project portfolio and route restoration > browses the supplied authorized projects with status, search, Office and sort filters  1511ms
+ ✓ tests/unit/proposalBudgetEditor.test.tsx (1 test) 2188ms
+   ✓ proposal budget editor > groups multiple particulars under one category and fixes the fund source  2183ms
+ ✓ tests/unit/workActionMenuHandoff.test.tsx (2 tests) 2100ms
+   ✓ opens and focuses an editor only after its dropdown detaches, exactly once  1648ms
+   ✓ cancelling a menu or selecting a disabled action never opens an editor  448ms
+ ✓ tests/unit/userManagementDeletion.test.tsx (1 test) 2211ms
+   ✓ User Management deletion > requires explicit confirmation before permanently deleting an account  2207ms
+ ✓ tests/unit/reviewCashClearance.test.tsx (9 tests) 1597ms
+   ✓ cash-aware review decision > shows the exact blocker before approval and opens its receipt package in the correct fiscal year  453ms
+ ✓ tests/unit/navigationHandoffGuard.test.tsx (3 tests) 1820ms
+   ✓ P1 record and retained-tool handoffs > accepts a dirty My Work handoff through one guard and preserves canceled navigation  1424ms
+   ✓ P1 record and retained-tool handoffs > blocks a pending My Work handoff without asking to discard  306ms
+ ✓ tests/unit/nestedWorkRequestRecovery.test.tsx (36 tests) 1784ms
+   ✓ NW5.3 request recovery and current action authority > does not prompt when cancelling an untouched form and guards a changed applicable field  1035ms
+   ✓ NW5.3 request recovery and current action authority > renders a committed refresh error without a retry submit button  455ms
+ ✓ tests/unit/adminUserDirectory.test.tsx (2 tests) 1778ms
+   ✓ Admin user directory > shows Admin accounts and gives Admin authority over leadership accounts  1555ms
+ ✓ tests/unit/nestedWorkActivityScope.test.tsx (9 tests) 1576ms
+   ✓ NW8.4 focused historical Activity scope > renders shared historical fields and clears visible history when a refreshed read is denied  927ms
+ ✓ tests/unit/financialReviewSwitch.test.tsx (2 tests) 1491ms
+   ✓ financial review navigation > keeps financial approvals inside the Head review workspace  1486ms
+ ✓ tests/unit/phase15ProfessionalReview.test.tsx (3 tests) 1338ms
+   ✓ Phase 15 owner review and confirmation > requires an explicit review before confirming and receipts success despite a later read failure  1066ms
+ ✓ tests/unit/globalUiP5b.test.tsx (4 tests) 1507ms
+   ✓ P5b financial presentation ownership > Overview hands off without mounting a settlement decision controller  920ms
+   ✓ P5b financial presentation ownership > embedded Budget consumes its supplied owners and has no second page heading  311ms
+ ✓ tests/unit/phase14ProfessionalPrivacy.test.tsx (2 tests) 1594ms
+   ✓ Phase 14 lazy professional privacy and drafts > never fetches another member private PDS and retries a denied summary without claiming missing data  1020ms
+   ✓ Phase 14 lazy professional privacy and drafts > only guards changed own profile drafts and retains denied save fields  571ms
+ ✓ tests/unit/sharedUiVibeAdapters.test.tsx (2 tests) 1704ms
+   ✓ shared Vibe UI adapters > keeps the legacy modal API while exposing an accessible Vibe dialog  1500ms
+ ✓ tests/unit/validationGuardrails.test.tsx (12 tests) 1661ms
+   ✓ grouped money editing > groups millions, preserves cents and sends ungrouped values  971ms
+ ✓ tests/unit/workspaceRefinementMembers.test.tsx (4 tests) 1316ms
+   ✓ lists selected project membership, effective Viewer access and nested responsibility drill-through  1046ms
+ ✓ tests/unit/committedProposalArchiveRollback.test.tsx (1 test) 1564ms
+   ✓ committed proposal archive > restores the archive action if the server rejects the archive  1560ms
+ ✓ tests/unit/taskBoardListActions.test.tsx (2 tests) 1415ms
+   ✓ Task board list actions > shows Submit to the task lead when a legacy record stores the lead as a recommendation  1308ms
+ ✓ tests/unit/userDirectoryFilters.test.tsx (2 tests) 1271ms
+   ✓ user account directory filters > updates filters and exposes a compact reset action  1222ms
+ ✓ tests/unit/vibeFoundation.test.tsx (3 tests) 1434ms
+   ✓ Vibe foundation > renders representative Vibe components with focus, table, and dialog behavior  1352ms
+ ✓ tests/unit/generalJournalDatePicker.test.tsx (1 test) 1495ms
+   ✓ General Journal calendar controls > opens the native picker from both the header and adjustment view  1492ms
+ ✓ tests/unit/phase13SubtaskDrafts.test.tsx (3 tests) 1307ms
+   ✓ delegated subtask evidence drafts > deduplicates saves, blocks navigation while pending and retains failures  1033ms
+ ✓ tests/unit/navigationDestinationIcons.test.tsx (6 tests) 1596ms
+   ✓ renders four different My Work glyphs without changing names, selected state or navigation  1578ms
+ ✓ tests/unit/departmentIdentityAccess.test.tsx (3 tests) 1515ms
+   ✓ office Identity & Access > can assign more than one employee without replacing the first  1355ms
+ ✓ tests/unit/phase17Safety.test.tsx (9 tests) 1361ms
+   ✓ Phase 17 reviewed actions > dismisses with Cancel without writing and returns focus  494ms
+ ✓ tests/unit/workBudgetMerge.test.tsx (13 tests) 1618ms
+   ✓ work funding merge boundaries > keeps direct funding available to an authorized active Office Head managing open work  887ms
+ ✓ tests/unit/manualTaskEditing.test.tsx (1 test) 1426ms
+   ✓ manual proposal task editing > exposes and saves every field required by draft validation  1422ms
+ ✓ tests/unit/workspaceRefinementWorkRefresh.test.tsx (6 tests) 1433ms
+   ✓ R10 access-sensitive feed lifecycle > NW9.2 displays permitted path, explicit Lead/count and item date instead of technical Depth  1009ms
+ ✓ tests/unit/phase18DependencyCost.test.tsx (1 test) 1326ms
+   ✓ does not construct choices for a closed editor, then reads current choices when opened  1323ms
+ ✓ tests/unit/workspaceRefinementAccess.test.tsx (7 tests) 1205ms
+   ✓ shows the full server impact and cancellation performs zero writes  389ms
+ ✓ tests/unit/projectTableProgress.test.tsx (5 tests) 1102ms
+   ✓ describes todo work accurately when it has no subitems  849ms
+ ✓ tests/unit/projectTaskBudget.test.tsx (6 tests) 1002ms
+   ✓ shows actual authorized funds and totals without counting child caps or draft estimates twice  539ms
+ ✓ tests/unit/phase18Primitives.test.tsx (2 tests) 1086ms
+   ✓ keeps original tab values while linking panels with whitespace-safe IDs  1001ms
+ ✓ tests/unit/phase17FinancialCancellation.test.tsx (4 tests) 801ms
+   ✓ Phase 17 funding cancellation > shows the amount and requires a reason; cancellation performs no write  329ms
+ ✓ tests/unit/phase12SubmissionDrafts.test.tsx (1 test) 1055ms
+   ✓ Phase 12 successful saves and other drafts > marks committed evidence clean while protecting an unrelated progress draft on inspector closure  1052ms
+ ✓ tests/unit/phase11TableLayout.test.tsx (11 tests) 1135ms
+   ✓ Phase 11 local table layout > supports keyboard width adjustments and announces bounds  846ms
+ ✓ tests/unit/kanbanHorizontalViewport.test.ts (2 tests) 1020ms
+   ✓ Kanban horizontal viewport > provides explicit left and right viewing controls  881ms
+ ✓ tests/unit/phase14MembershipDrafts.test.tsx (6 tests) 853ms
+   ✓ Phase 14 project membership editor > checks newly enrolled people on quiet refresh without replacing an unsaved selection  414ms
+ ✓ tests/unit/projectSettingsConflict.test.tsx (4 tests) 1035ms
+   ✓ project settings conflict and freshness contract > retains entries on realtime conflict until the user explicitly reviews the latest version  531ms
+ ✓ tests/unit/inspectorPanel.test.tsx (10 tests) 747ms
+ ✓ tests/unit/globalUiP4.test.tsx (3 tests) 1216ms
+   ✓ P4 authorized destinations and budget views > shows the current local view through one control even for the longest labels  1193ms
+ ✓ tests/unit/inspectorWork.test.tsx (2 tests) 961ms
+   ✓ NW7.2 Work composition and advisory handoff > passes the supplied owner and read-only/project context directly and guards advisory navigation  947ms
+ ✓ tests/unit/annualBudgetSetup.test.tsx (4 tests) 830ms
+   ✓ annual section availability > blocks locking an unfinished amount while allowing the draft to save, then enables locking after correction  569ms
+ ✓ tests/unit/inlineCreateRow.test.tsx (11 tests) 738ms
+ ✓ tests/unit/workStatusRevision.test.tsx (5 tests) 550ms
+   ✓ status-based execution > starts work without asking for a percentage and retains the page  312ms
+ ✓ tests/unit/taskSubmissionReadiness.test.ts (2 tests) 786ms
+   ✓ parent task review readiness > blocks Head submission until every subtask is approved  614ms
+ ✓ tests/unit/workspaceRefinementFileLibrary.test.tsx (3 tests) 565ms
+   ✓ R6 project file interaction > guards upload drafts, prevents concurrent saves and retries the same failed draft  397ms
+ ✓ tests/unit/phase17GovernanceSafety.test.tsx (2 tests) 711ms
+   ✓ keeps a known governance write receipt when parent and independent refresh fail, and blocks replay  614ms
+ ✓ tests/unit/autoAssignTaskButton.test.tsx (2 tests) 417ms
+   ✓ shows actual queue stages, blocks duplicate clicks and saves the team once  320ms
+ ✓ tests/unit/mergedInvitationLogin.test.tsx (3 tests) 592ms
+   ✓ recovers a lost Office account response through protected login and its own acceptance operation  398ms
+ ✓ tests/unit/mergedLockedAccountsDraft.test.tsx (3 tests) 589ms
+   ✓ guards dirty lockout settings and preserves them while unlocking another account  481ms
+ ✓ tests/unit/phase12DialogFocus.test.tsx (2 tests) 649ms
+   ✓ Phase 12 nested dialog return focus > captures the opener before a child search field autofocuses  399ms
+ ✓ tests/unit/projectAiDraft.test.tsx (2 tests) 564ms
+   ✓ Reviewed project AI suggestions > passes generated titles to human review without creating or assigning work  423ms
+ ✓ tests/unit/journalEntryPresentation.test.tsx (2 tests) 533ms
+   ✓ keeps the complete memo recoverable without filling the page, and resets on entry change  432ms
+ ✓ tests/unit/budgetPositionSummary.test.tsx (1 test) 461ms
+   ✓ BudgetPositionSummary > shows the current fiscal position and routes each exposure to its existing workflow  457ms
+ ✓ tests/unit/phase16FinancialScope.test.tsx (4 tests) 497ms
+ ✓ tests/unit/foundationThemePersistence.test.tsx (1 test) 318ms
+   ✓ follows system appearance and rolls back a rejected preference save  315ms
+ ✓ tests/unit/phase12InspectorDrafts.test.tsx (3 tests) 464ms
+ ✓ tests/unit/workspaceRefinementActivity.test.tsx (2 tests) 370ms
+ ✓ tests/unit/financialRemediationPresentation.test.tsx (6 tests) 353ms
+ ✓ tests/unit/pdfImportRecovery.test.tsx (3 tests) 355ms
+ ✓ tests/unit/helpConversation.test.tsx (12 tests) 578ms
+ ✓ tests/unit/phase18ViewRecovery.test.tsx (1 test) 364ms
+   ✓ retries failed view code without disclosing loader errors or changing route  362ms
+ ✓ tests/unit/duplicateWorkNames.test.tsx (2 tests) 405ms
+   ✓ shows a duplicate task name error without creating anything  345ms
+ ✓ tests/unit/assignmentModal.test.ts (1 test) 331ms
+   ✓ proposal draft team assignment modal > selects an employee and automatically designates the team leader  327ms
+ ✓ tests/unit/taskReviewTerminalState.test.tsx (4 tests) 305ms
+ ✓ tests/unit/projectInlineRevision.test.tsx (2 tests) 352ms
+ ✓ tests/unit/projectReadinessSummary.test.tsx (3 tests) 337ms
+ ✓ tests/unit/authStartup.test.tsx (5 tests) 331ms
+ ✓ tests/unit/assignedIndependentReviews.test.tsx (4 tests) 329ms
+ ✓ tests/unit/notificationBellNavigation.test.ts (2 tests) 281ms
+ ✓ tests/unit/budgetOverviewArtwork.test.tsx (1 test) 240ms
+ ✓ tests/unit/loadingPresentation.test.tsx (2 tests) 304ms
+ ✓ tests/unit/navigationV2.test.tsx (19 tests) 362ms
+ ✓ tests/unit/phase14InspectorHandoff.test.tsx (2 tests) 270ms
+ ✓ tests/unit/phase13PersonalFeed.test.tsx (4 tests) 302ms
+ ✓ tests/unit/officeReadFeedback.test.tsx (4 tests) 334ms
+ ✓ tests/unit/taskDetailSubmissionReadiness.test.tsx (2 tests) 248ms
+ ✓ tests/unit/inspectorLifecycleRetention.test.tsx (2 tests) 278ms
+ ✓ tests/unit/helpMicrophoneInput.test.tsx (2 tests) 286ms
+ ✓ tests/unit/helpDictation.test.tsx (4 tests) 252ms
+ ✓ tests/unit/reviewEvidenceDetails.test.ts (4 tests) 242ms
+ ✓ tests/unit/teamCompositionNote.test.ts (1 test) 192ms
+ ✓ tests/unit/budgetSectionEditor.test.tsx (1 test) 240ms
+ ✓ tests/unit/navigationUrl.test.ts (10 tests) 215ms
+ ✓ tests/unit/taskEditorSave.test.tsx (6 tests) 108ms
+ ✓ tests/unit/assignmentExceptionNote.test.ts (1 test) 179ms
+ ✓ tests/unit/cashReviewFocus.test.tsx (1 test) 212ms
+ ✓ tests/unit/phase18JournalOwnership.test.tsx (2 tests) 192ms
+ ✓ tests/unit/actorLanding.test.tsx (4 tests) 161ms
+ ✓ tests/unit/phase15StaffingReview.test.tsx (14 tests) 127ms
+ ✓ tests/unit/globalUiP5a.test.tsx (6 tests) 145ms
+ ✓ tests/unit/subtaskProgressHistory.test.ts (1 test) 161ms
+ ✓ tests/unit/submissionHistoryPresentation.test.tsx (3 tests) 136ms
+ ✓ tests/unit/phase12Evidence.test.tsx (1 test) 132ms
+ ✓ tests/unit/projectOfficeReadRecovery.test.tsx (4 tests) 92ms
+ ✓ tests/unit/phase14InvitationManagement.test.tsx (3 tests) 89ms
+ ✓ tests/unit/submissionHistory.test.ts (1 test) 124ms
+ ✓ tests/unit/phase15DraftPersistence.test.tsx (3 tests) 63ms
+ ✓ tests/unit/phase09StandingChannels.test.tsx (6 tests) 118ms
+ ✓ tests/unit/phase15ImportSafety.test.tsx (4 tests) 88ms
+ ✓ tests/unit/navigationContractParity.test.tsx (11 tests) 117ms
+ ✓ tests/unit/notificationIntentLifecycle.test.tsx (11 tests) 120ms
+ ✓ tests/unit/workspaceRefinementR13TaskFocus.test.ts (1 test) 127ms
+ ✓ tests/unit/subtaskReviewerBadge.test.tsx (2 tests) 96ms
+ ✓ tests/unit/workspaceRefinementR12AuditRefresh.test.tsx (2 tests) 138ms
+ ✓ tests/unit/organizationContextMenu.test.ts (1 test) 78ms
+ ✓ tests/unit/inspectorApprovalSummary.test.tsx (3 tests) 99ms
+ ✓ tests/unit/projectTaskDeletion.test.tsx (3 tests) 66ms
+ ✓ tests/unit/phase03ProjectPresentation.test.tsx (5 tests) 89ms
+ ✓ tests/unit/accountLockoutForm.test.tsx (4 tests) 71ms
+ ✓ tests/unit/chatUnreadBadge.test.tsx (1 test) 58ms
+ ✓ tests/unit/subtaskCache.test.ts (4 tests) 51ms
+ ✓ tests/unit/helpVoiceActivity.test.ts (9 tests) 29ms
+ ✓ tests/unit/phase18NavigationCost.test.tsx (2 tests) 60ms
+ ✓ tests/unit/phase12SubtaskScope.test.tsx (2 tests) 54ms
+ ✓ tests/unit/phase18PointerFocus.test.ts (2 tests) 46ms
+ ✓ tests/unit/departmentBudgetRealtime.test.tsx (1 test) 50ms
+ ✓ tests/unit/helpMicrophone.test.ts (3 tests) 37ms
+ ✓ tests/unit/phase16Contracts.test.ts (13 tests) 51ms
+ ✓ tests/unit/phase18ViewManifest.test.ts (4 tests) 23ms
+ ✓ tests/unit/retiredNavigation.test.ts (7 tests) 36ms
+ ✓ tests/unit/workflowRelativeDays.test.ts (2 tests) 14ms
+ ✓ tests/unit/approvalTierThreshold.test.ts (4 tests) 12ms
+ ✓ tests/unit/guidedTourProgress.test.ts (2 tests) 12ms
+ ✓ tests/unit/guidedTourNarration.test.ts (2 tests) 9ms
+ ✓ tests/unit/officeBudgetSqlPosition.test.ts (1 test) 5493ms
+   ✓ reads empty and populated budget sections without ambiguous positions, preserving JSON order  5489ms
+ ✓ tests/unit/taskTeamSqlAssignment.test.ts (1 test) 5545ms
+   ✓ assigns the initial team atomically without disabling the task status guard  5542ms
+ ✓ tests/unit/startupImportBoundary.test.ts (2 tests) 2302ms
+   ✓ renders login without importing authenticated workspaces or closed workflow guides  1355ms
+   ✓ opens the workflow guide without importing the task workspace through onboarding  944ms
+ ✓ tests/unit/workspaceRefinementR13Artifact.test.ts (1 test) 296ms
+ ✓ tests/unit/managedAccountActivationSql.test.ts (1 test) 5570ms
+   ✓ enforces managed activation authority, mailbox claims, delivery, replay and elevated-role approval  5567ms
+ ✓ tests/unit/featureWorkspaceBoundaries.test.ts (1 test) 1316ms
+   ✓ feature data and workspace loading boundaries > retains public APIs without eagerly evaluating deferred workspace screens  1312ms
+ ✓ tests/unit/phase1Terminology.test.ts (1 test) 1226ms
+   ✓ active production terminology > keeps legacy vocabulary out of display copy while preserving database and employment identifiers  1223ms
+ ✓ tests/unit/redesignFoundation.test.ts (3 tests) 291ms
+ ✓ tests/unit/budgetBundleIntegration.test.ts (5 tests) 384ms
+ ✓ tests/unit/nestedWorkDisplayTree.test.ts (27 tests) 88ms
+ ✓ tests/unit/subtaskReviewContext.test.ts (7 tests) 141ms
+ ✓ tests/unit/workspaceRefinementFiles.test.ts (5 tests) 68ms
+ ✓ tests/unit/workspaceAuthCache.test.ts (1 test) 69ms
+ ✓ tests/unit/workspaceRefinementR11Reports.test.ts (8 tests) 57ms
+ ✓ tests/unit/nestedWorkLegacyServices.test.ts (12 tests) 110ms
+stderr | tests/unit/nestedWorkCapabilities.test.ts > service compatibility and request context > marks real save receipts without changing request identity, payload or revision
+Error loading tasks: TypeError: __vite_ssr_import_0__.supabase.from is not a function
+    at C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\features\tasks\services\taskRealtimeService.ts:37:8
+    at readAllRows (C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\shared\readAllRows.ts:16:26)
+    at C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\features\tasks\services\taskRealtimeService.ts:36:24
+    at notifyTaskListeners (C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\features\tasks\services\taskRealtimeService.ts:44:3)
+    at C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\features\nested-work\services\workTreeService.ts:46:102
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Promise.allSettled (index 0)
+    at Module.saveWorkTree (C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\features\nested-work\services\workTreeService.ts:46:3)
+    at C:\Users\gabri\OneDrive\Desktop\EflowWeb\tests\unit\nestedWorkCapabilities.test.ts:132:14
+    at file:///C:/Users/gabri/OneDrive/Desktop/EflowWeb/node_modules/@vitest/runner/dist/chunk-hooks.js:752:20
+
+ ✓ tests/unit/nestedWorkCapabilities.test.ts (51 tests) 1433ms
+   ✓ service compatibility and request context > marks real save receipts without changing request identity, payload or revision  1387ms
+ ✓ tests/unit/pdsImport.test.ts (1 test) 129ms
+ ✓ tests/unit/validationRemediationBoundaries.test.ts (15 tests) 46ms
+ ✓ tests/unit/workspaceRefinementWork.test.ts (14 tests) 70ms
+ ✓ tests/unit/aiProcessingProgress.test.ts (3 tests) 62ms
+ ✓ tests/unit/projectPdfDraft.test.ts (7 tests) 63ms
+ ✓ tests/unit/ocedsippProposal.test.ts (18 tests) 94ms
+ ✓ tests/unit/taskBoardProjectFilter.test.ts (5 tests) 56ms
+ ✓ tests/unit/adminTaskProposalSelectors.test.ts (3 tests) 56ms
+ ✓ tests/unit/validationRemediationRules.test.ts (22 tests) 51ms
+ ✓ tests/unit/leaderWorkspaceFilters.test.ts (2 tests) 38ms
+ ✓ tests/unit/interdepartmentCollaboration.test.ts (21 tests) 39ms
+ ✓ tests/unit/organizationTreeLayout.test.ts (2 tests) 40ms
+ ✓ tests/unit/proposalValidationClient.test.ts (2 tests) 27ms
+ ✓ tests/unit/nestedWorkEditorDraft.test.ts (114 tests) 44ms
+ ✓ tests/unit/nestedWorkImpact.test.ts (22 tests) 36ms
+ ✓ tests/unit/teamWorkflowFactsReportContext.test.ts (3 tests) 37ms
+ ✓ tests/unit/phase13PersonalWork.test.ts (15 tests) 43ms
+ ✓ tests/unit/accountLogin.test.ts (8 tests) 40ms
+ ✓ tests/unit/proposalAssignmentBalancing.test.ts (7 tests) 36ms
+ ✓ tests/unit/projectLifecycleService.test.ts (5 tests) 15ms
+ ✓ tests/unit/projectAutoAssignment.test.ts (5 tests) 31ms
+ ✓ tests/unit/departmentReports.test.ts (6 tests) 28ms
+ ✓ tests/unit/projectImportDraft.test.ts (10 tests) 31ms
+stderr | tests/unit/proposalImport.test.ts > proposal LLM response parsing > does not create a local proposal when DeepSeek is unavailable
+Proposal decomposition failed: Error: AI service unavailable
+    at C:\Users\gabri\OneDrive\Desktop\EflowWeb\tests\unit\proposalImport.test.ts:41:48
+    at file:///C:/Users/gabri/OneDrive/Desktop/EflowWeb/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11
+    at file:///C:/Users/gabri/OneDrive/Desktop/EflowWeb/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26
+    at file:///C:/Users/gabri/OneDrive/Desktop/EflowWeb/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///C:/Users/gabri/OneDrive/Desktop/EflowWeb/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)
+    at runTest (file:///C:/Users/gabri/OneDrive/Desktop/EflowWeb/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at runSuite (file:///C:/Users/gabri/OneDrive/Desktop/EflowWeb/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)
+    at runSuite (file:///C:/Users/gabri/OneDrive/Desktop/EflowWeb/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)
+
+stdout | tests/unit/proposalImport.test.ts > proposal LLM response parsing > rejects malformed DeepSeek output instead of fabricating a hierarchy
+[Decomposition DEBUG] Raw LLM response content:
+ not JSON
+
+stderr | tests/unit/proposalImport.test.ts > proposal LLM response parsing > rejects malformed DeepSeek output instead of fabricating a hierarchy
+Proposal decomposition failed: Error: DeepSeek returned a response that could not be parsed into a proposal hierarchy.
+    at Module.decomposeWholeDocument (C:\Users\gabri\OneDrive\Desktop\EflowWeb\src\app\features\proposal-import\services\decomposition\wholeDocumentDecomposition.ts:145:13)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+
+ ✓ tests/unit/proposalImport.test.ts (4 tests) 35ms
+ ✓ tests/unit/taskMutationService.test.ts (7 tests) 29ms
+ ✓ tests/unit/controlPanelSessionRecovery.test.ts (3 tests) 26ms
+ ✓ tests/unit/phase12ProjectContext.test.ts (11 tests) 33ms
+ ✓ tests/unit/pdfOfficeExtraction.test.ts (8 tests) 30ms
+ ✓ tests/unit/teamAnalytics.test.ts (3 tests) 25ms
+ ✓ tests/unit/taskCashClearanceService.test.ts (4 tests) 23ms
+ ✓ tests/unit/projectViews.test.ts (10 tests) 29ms
+ ✓ tests/unit/phase0607Enhancements.test.ts (6 tests) 19ms
+ ✓ tests/unit/taskTeamMembership.test.ts (6 tests) 16ms
+ ✓ tests/unit/nestedWorkEventPresentation.test.ts (9 tests) 25ms
+ ✓ tests/unit/phase13CheckedFeeds.test.ts (6 tests) 26ms
+ ✓ tests/unit/officeIdentityImport.test.ts (6 tests) 27ms
+ ✓ tests/unit/budgetSelectors.test.ts (9 tests) 23ms
+ ✓ tests/unit/progressiveTranscription.test.ts (9 tests) 30ms
+ ✓ tests/unit/supabaseSession.test.ts (6 tests) 24ms
+ ✓ tests/unit/chatModeration.test.ts (7 tests) 20ms
+ ✓ tests/unit/proposalGovernanceLifecycle.test.ts (6 tests) 19ms
+ ✓ tests/unit/sessionSecurity.test.ts (5 tests) 23ms
+ ✓ tests/unit/notificationNavigation.test.ts (13 tests) 17ms
+ ✓ tests/unit/budgetSections.test.ts (9 tests) 21ms
+ ✓ tests/unit/projectMetadataMutation.test.ts (3 tests) 20ms
+ ✓ tests/unit/workTreeMetadataRefresh.test.ts (4 tests) 23ms
+ ✓ tests/unit/taskCashClearance.test.ts (14 tests) 25ms
+ ✓ tests/unit/phase18PdfCompatibility.test.ts (2 tests) 19ms
+ ✓ tests/unit/hierarchicalDeadlines.test.ts (4 tests) 14ms
+ ✓ tests/unit/phase14StaffingAuthority.test.ts (4 tests) 20ms
+ ✓ tests/unit/collaborationResubmission.test.ts (4 tests) 19ms
+ ✓ tests/unit/projectTable.test.ts (10 tests) 24ms
+ ✓ tests/unit/subitemInspectorDataService.test.ts (6 tests) 21ms
+ ✓ tests/unit/proposalPortfolioGrouping.test.ts (5 tests) 19ms
+ ✓ tests/unit/navigation.test.ts (7 tests) 19ms
+ ✓ tests/unit/browserExecutable.test.ts (8 tests) 22ms
+ ✓ tests/unit/departmentBudgetMigration.test.ts (17 tests) 20ms
+ ✓ tests/unit/nestedWorkActivityTransport.test.ts (3 tests) 14ms
+ ✓ tests/unit/financialCompatibilityPresentation.test.ts (7 tests) 21ms
+ ✓ tests/unit/deadlineWorkload.test.ts (5 tests) 20ms
+ ✓ tests/unit/phase1Roles.test.ts (20 tests) 19ms
+ ✓ tests/unit/cashWorkflowRules.test.ts (5 tests) 21ms
+ ✓ tests/unit/workspaceRefinementR12Audit.test.ts (3 tests) 19ms
+ ✓ tests/unit/mergedProjectOfficeService.test.ts (4 tests) 21ms
+ ✓ tests/unit/taskSelectors.test.ts (4 tests) 16ms
+ ✓ tests/unit/cashReleaseOverrideService.test.ts (4 tests) 21ms
+ ✓ tests/unit/personalWorkNavigation.test.ts (3 tests) 22ms
+ ✓ tests/unit/officeTableRows.test.ts (5 tests) 18ms
+ ✓ tests/unit/phase18ReleaseGate.test.ts (9 tests) 19ms
+ ✓ tests/unit/subtaskExecutionMigration.test.ts (2 tests) 8ms
+ ✓ tests/unit/emptyProjectCleanup.test.ts (2 tests) 15ms
+ ✓ tests/unit/manualPlanDraft.test.ts (3 tests) 22ms
+ ✓ tests/unit/phase14Participation.test.ts (2 tests) 14ms
+ ✓ tests/unit/proposalServerPipeline.test.ts (1 test) 17ms
+ ✓ tests/unit/monthlyContributionLeaderboard.test.ts (4 tests) 18ms
+ ✓ tests/unit/managedUserService.test.ts (2 tests) 15ms
+ ✓ tests/unit/guidedTourCatalog.test.ts (2 tests) 16ms
+ ✓ tests/unit/phase04TaskBoardPresentation.test.ts (8 tests) 14ms
+ ✓ tests/unit/onboardingResponse.test.ts (3 tests) 17ms
+ ✓ tests/unit/projectFinancialReport.test.ts (1 test) 16ms
+ ✓ tests/unit/workspaceRefinementR13Release.test.ts (1 test) 12ms
+ ✓ tests/unit/phase18ProjectCache.test.ts (6 tests) 16ms
+ ✓ tests/unit/workspaceRefinementR13Performance.test.ts (1 test) 15ms
+ ✓ tests/unit/organizationLeadership.test.ts (5 tests) 13ms
+ ✓ tests/unit/accountingJournal.test.ts (10 tests) 16ms
+ ✓ tests/unit/accountingRoleNavigation.test.tsx (4 tests) 16ms
+ ✓ tests/unit/accessibilityOverlayMigration.test.ts (3 tests) 15ms
+ ✓ tests/unit/subtaskSequencing.test.ts (6 tests) 16ms
+ ✓ tests/unit/proposalBudgetImport.test.ts (4 tests) 17ms
+ ✓ tests/unit/cashWorkflowGuardMigrations.test.ts (3 tests) 10ms
+ ✓ tests/unit/taskDiscussionRealtime.test.ts (2 tests) 11ms
+ ✓ tests/unit/projectCommandSelectors.test.ts (6 tests) 17ms
+ ✓ tests/unit/phase05OperationsPresentation.test.ts (6 tests) 13ms
+ ✓ tests/unit/helpSpeechChunks.test.ts (2 tests) 13ms
+ ✓ tests/unit/departmentScope.test.ts (2 tests) 6ms
+ ✓ tests/unit/staffRecommendations.test.ts (2 tests) 14ms
+ ✓ tests/unit/departmentApprovalRows.test.ts (2 tests) 9ms
+ ✓ tests/unit/draftAssignment.test.ts (3 tests) 9ms
+ ✓ tests/unit/adminTaskReadOnly.test.ts (5 tests) 18ms
+ ✓ tests/unit/adminProjectReadOnly.test.ts (4 tests) 12ms
+ ✓ tests/unit/committedProposalDelivery.test.ts (3 tests) 13ms
+ ✓ tests/unit/dependencyReadiness.test.ts (1 test) 8ms
+ ✓ tests/unit/reviewRouting.test.ts (6 tests) 16ms
+ ✓ tests/unit/reportFormatting.test.ts (2 tests) 12ms
+ ✓ tests/unit/phase14PeoplePresentation.test.ts (3 tests) 8ms
+ ✓ tests/unit/phase2Onboarding.test.ts (2 tests) 10ms
+ ✓ tests/unit/remainingPhaseCoverage.test.ts (3 tests) 11ms
+ ✓ tests/unit/managedUserLeadershipService.test.ts (1 test) 13ms
+ ✓ tests/unit/workPlanCreationUx.test.ts (5 tests) 10ms
+ ✓ tests/unit/workspaceChoices.test.ts (3 tests) 13ms
+ ✓ tests/unit/auditPresentation.test.ts (3 tests) 12ms
+ ✓ tests/unit/workflowPrimitiveDelegation.test.ts (3 tests) 9ms
+ ✓ tests/unit/projectOfficeAuthority.test.ts (3 tests) 11ms
+ ✓ tests/unit/budgetDesignSystemPresentation.test.ts (4 tests) 9ms
+ ✓ tests/unit/taskNormalization.test.ts (2 tests) 11ms
+ ✓ tests/unit/sirGersonBaseline.test.ts (3 tests) 11ms
+ ✓ tests/unit/phase04AccountingMigration.test.ts (4 tests) 9ms
+ ✓ tests/unit/controlPanelClient.test.ts (6 tests) 11ms
+ ✓ tests/unit/teamSupervisionAssignment.test.ts (2 tests) 11ms
+ ✓ tests/unit/navigationActionAlerts.test.ts (3 tests) 11ms
+ ✓ tests/unit/neutralSurfacePresentation.test.ts (1 test) 9ms
+ ✓ tests/unit/governanceWorkspaceAccess.test.ts (4 tests) 10ms
+ ✓ tests/unit/departmentDirectoryEligibility.test.ts (3 tests) 8ms
+ ✓ tests/unit/relativeSchedule.test.ts (4 tests) 8ms
+ ✓ tests/unit/semanticTealActions.test.ts (3 tests) 8ms
+ ✓ tests/unit/notificationPresentation.test.ts (4 tests) 9ms
+ ✓ tests/unit/deptHeadDashboardPresentation.test.ts (2 tests) 8ms
+ ✓ tests/unit/pageLocalSurfaceStandardization.test.ts (3 tests) 9ms
+ ✓ tests/unit/dataToolsNavigation.test.ts (1 test) 8ms
+ ✓ tests/unit/ledipoOffice.test.ts (2 tests) 9ms
+ ✓ tests/unit/profileDirectoryAdapter.test.ts (2 tests) 10ms
+ ✓ tests/unit/permissions.test.ts (4 tests) 10ms
+ ✓ tests/unit/modalSizing.test.ts (1 test) 8ms
+ ✓ tests/unit/backupGatewayContract.test.ts (2 tests) 6ms
+ ✓ tests/unit/chatPanelLayout.test.ts (2 tests) 10ms
+ ✓ tests/unit/quickLoginAccounts.test.ts (2 tests) 8ms
+ ✓ tests/unit/governanceLifecycleError.test.ts (2 tests) 8ms
+ ✓ tests/unit/officePeopleStatus.test.ts (2 tests) 9ms
+ ✓ tests/unit/projectDeletionMigration.test.ts (1 test) 5ms
+ ✓ tests/unit/userFacingError.test.ts (4 tests) 9ms
+ ✓ tests/unit/leadershipUniqueness.test.ts (3 tests) 7ms
+ ✓ tests/unit/projectDepartmentFilter.test.ts (2 tests) 7ms
+ ✓ tests/unit/projectFigmaBoard.test.ts (1 test) 8ms
+ ✓ tests/unit/appShell.test.ts (1 test) 5ms
+ ✓ tests/unit/proposalPortfolioMigration.test.ts (3 tests) 8ms
+ ✓ tests/unit/adminAccountProtection.test.ts (2 tests) 8ms
+ ✓ tests/unit/adminRoleMigration.test.ts (2 tests) 6ms
+ ✓ tests/unit/loginValidation.test.ts (1 test) 8ms
+ ✓ tests/unit/reviewDecisionError.test.ts (2 tests) 8ms
+ ✓ tests/unit/phase15ReadinessResolution.test.ts (2 tests) 9ms
+ ✓ tests/unit/leaderReviewWorkspace.test.ts (2 tests) 6ms
+ ✓ tests/unit/subtaskTemplateSafety.test.ts (4 tests) 11ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/nestedWorkCollapsedReadiness.test.tsx > NW4.2 Main Table collapse preserves required descendant readiness > keeps a required depth-8 descendant in readiness while the real task row is collapsed
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/nestedWorkCollapsedReadiness.test.tsx:30:15
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 352 passed (353)
+      Tests  1 failed | 2132 passed (2133)
+   Start at  08:46:07
+   Duration  1522.41s (transform 41.66s, setup 0ms, collect 1949.44s, tests 500.56s, environment 308.77s, prepare 91.12s)
+

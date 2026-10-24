@@ -1,0 +1,15 @@
+
+ RUN  v3.2.4 C:/Users/gabri/OneDrive/Desktop/EflowWeb
+
+ ✓ tests/unit/budgetDesignSystemPresentation.test.ts (4 tests) 13ms
+ ✓ tests/unit/budgetBundleIntegration.test.ts (6 tests) 543ms
+ ✓ tests/unit/annualBudgetSetup.test.tsx (4 tests) 1007ms
+   ✓ annual section availability > blocks locking an unfinished amount while allowing the draft to save, then enables locking after correction  691ms
+ ✓ tests/unit/globalUiP5b.test.tsx (5 tests) 1801ms
+   ✓ P5b financial presentation ownership > a failed initial annual read shows retry without inventing a missing zero budget  1182ms
+
+ Test Files  4 passed (4)
+      Tests  19 passed (19)
+   Start at  10:37:02
+   Duration  22.50s (transform 3.00s, setup 0ms, collect 19.68s, tests 3.36s, environment 4.10s, prepare 2.76s)
+

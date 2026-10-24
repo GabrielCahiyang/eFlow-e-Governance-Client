@@ -1,0 +1,33 @@
+{
+  "target": "ixnfphgjyelhckjwjkdv",
+  "latest_live": "20261020234944",
+  "history_count": 56,
+  "compared_functions": [
+    "public.collaboration_storage_draft_id(object_name text)",
+    "public.create_org_chat_channel()",
+    "public.ensure_org_chat_channel()",
+    "public.guard_task_dependency_completion()",
+    "public.is_channel_member(p_channel uuid, caller uuid)",
+    "public.override_accounting_petty_cash_release_schedule(p_release_id uuid, p_reason text, p_release_method text, p_cheque_number text)",
+    "public.prevent_self_privilege_escalation()",
+    "public.record_accounting_petty_cash_release(p_release_id uuid, p_release_method text, p_cheque_number text)",
+    "public.run_department_budget_maintenance()",
+    "public.set_user_preferences_updated_at()",
+    "public.settle_accounting_liquidation(p_liquidation_id uuid, p_approve boolean, p_reason text)",
+    "public.sync_task_subtask_counts()",
+    "public.touch_updated_at()",
+    "public.update_updated_at()"
+  ],
+  "drift": [],
+  "pending": [
+    {
+      "file": "20261021172003_financial_independent_review_and_dependency_lifecycle.sql",
+      "sha256": "a9e93ff00beab7341aa9ed07f9db4a8675d4991cd9efa36cbf2bb604de5fa55b"
+    },
+    {
+      "file": "20261021175217_financial_rpc_grants_and_search_paths.sql",
+      "sha256": "0948d5d80e283f059fa666dc0ad366fdabe6953866d779af0c8561c270781ec9"
+    }
+  ],
+  "applied": false
+}

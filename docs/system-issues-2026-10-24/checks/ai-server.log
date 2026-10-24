@@ -1,0 +1,14 @@
+...................................................2026-10-24 09:09:48,055  INFO      Supabase URL: https://ixnfphgjyelhckjwjkdv.supabase.co
+2026-10-24 09:09:48,255  WARNING   Executing <Task finished name='Task-258' coro=<LiveResidencyTests.test_speech_reuses_only_the_tiny_selector_and_releases_qwen() done, defined at C:\Users\gabri\OneDrive\Desktop\Ollama reactjs LLM DeepSeek Integration\server\test_help_live_model.py:62> result=None created at C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:100> took 0.328 seconds
+.2026-10-24 09:09:48,364  INFO      HTTP Request: POST http://testserver/api/help-assistant/chat "HTTP/1.1 200 OK"
+2026-10-24 09:09:48,372  INFO      HTTP Request: POST http://testserver/api/help-assistant/chat "HTTP/1.1 422 Unprocessable Entity"
+...2026-10-24 09:09:48,748  INFO      execute program 'C:\\Users\\gabri\\OneDrive\\Desktop\\Ollama reactjs LLM DeepSeek Integration\\server\\.venv\\Scripts\\python.exe': <_WindowsSubprocessTransport pid=12636 running stdout=<_ProactorReadPipeTransport fd=1036 read=<_OverlappedFuture pending cb=[_ProactorReadPipeTransport._loop_reading()] created at C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\windows_events.py:506>> stderr=<_ProactorReadPipeTransport fd=1392 read=<_OverlappedFuture pending cb=[_ProactorReadPipeTransport._loop_reading()] created at C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\windows_events.py:506>>>
+2026-10-24 09:09:49,133  INFO      execute program 'taskkill': <_WindowsSubprocessTransport pid=14524 running>
+2026-10-24 09:09:49,597  INFO      <_WindowsSubprocessTransport pid=12636 running stdout=<_ProactorReadPipeTransport closing fd=1036> stderr=<_ProactorReadPipeTransport closing fd=1392>> exited with return code 1
+2026-10-24 09:09:49,621  INFO      <_WindowsSubprocessTransport pid=14524 running> exited with return code 0
+2026-10-24 09:09:50,085  WARNING   Executing <Task finished name='Task-287' coro=<WorkerCleanupTests.test_reaps_the_owned_worker_and_its_descendant() done, defined at C:\Users\gabri\OneDrive\Desktop\Ollama reactjs LLM DeepSeek Integration\server\test_help_process_cleanup.py:11> result=None created at C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\asyncio\runners.py:100> took 0.406 seconds
+.............
+----------------------------------------------------------------------
+Ran 68 tests in 7.101s
+
+OK

@@ -1,0 +1,100 @@
+{
+  "tasks": [
+    {
+      "id": "3563af41-46af-4b0f-b6c5-8725624d9205",
+      "title": "QA Confirm supplier stock — withdrawal check",
+      "status": "pending_assignment",
+      "deleted": true,
+      "percent_complete": 0
+    },
+    {
+      "id": "d69c1659-c845-4d00-8d6c-21cf7b528605",
+      "title": "QA Purchase workshop participant kits",
+      "status": "completed",
+      "deleted": false,
+      "percent_complete": 100
+    },
+    {
+      "id": "252a6901-f90a-4be4-ad39-3baec0f56e01",
+      "title": "QA Verify kits and complete workshop handover",
+      "status": "completed",
+      "deleted": false,
+      "percent_complete": 100
+    }
+  ],
+  "target": "ixnfphgjyelhckjwjkdv",
+  "project": {
+    "id": "0708b789-e91c-4b2f-93b3-9e779e336797",
+    "title": "QA 24 Oct 2026 — Q4 Enterprise Market Readiness",
+    "status": "archived",
+    "archived_at": "2026-10-24T04:55:42.781077+00:00"
+  },
+  "journals": [
+    {
+      "date": "2026-10-24",
+      "debit": 800,
+      "credit": 800,
+      "source_type": "cash_release",
+      "entry_number": 3
+    },
+    {
+      "date": "2026-10-24",
+      "debit": 800,
+      "credit": 800,
+      "source_type": "liquidation",
+      "entry_number": 5
+    }
+  ],
+  "requests": [
+    {
+      "spent": null,
+      "number": 4,
+      "status": "rejected",
+      "released": 0,
+      "returned": null,
+      "requested": 900
+    },
+    {
+      "spent": null,
+      "number": 5,
+      "status": "cancelled",
+      "released": 0,
+      "returned": null,
+      "requested": 800
+    },
+    {
+      "spent": 750,
+      "number": 6,
+      "status": "settled",
+      "released": 800,
+      "returned": 50,
+      "requested": 800
+    }
+  ],
+  "captured_at": "2026-10-24T04:56:32.677609+00:00",
+  "commitments": {
+    "count": 2,
+    "authorized": 2400
+  },
+  "liquidations": [
+    {
+      "spent": 750,
+      "status": "changes_requested",
+      "version": 1,
+      "returned": 50
+    },
+    {
+      "spent": 750,
+      "status": "approved",
+      "version": 2,
+      "returned": 50
+    }
+  ],
+  "annual_budget": {
+    "status": "locked",
+    "authority": 12000,
+    "fiscal_year": 2026,
+    "daily_cash_limit": 1000,
+    "receipt_threshold": 500
+  }
+}

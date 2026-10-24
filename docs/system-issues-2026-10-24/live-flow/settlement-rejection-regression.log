@@ -1,0 +1,13 @@
+
+ RUN  v3.2.4 C:/Users/gabri/OneDrive/Desktop/EflowWeb
+
+ ✓ tests/unit/phase16Contracts.test.ts (13 tests) 61ms
+ ✓ tests/unit/accountingSettlementAuthority.test.tsx (6 tests) 2889ms
+   ✓ Accounting settlement authority > waits for Head authorization before settling a late package  1095ms
+   ✓ Accounting settlement authority > enables Accounting settlement after Head authorizes the late package  1008ms
+
+ Test Files  2 passed (2)
+      Tests  19 passed (19)
+   Start at  10:54:02
+   Duration  17.35s (transform 972ms, setup 0ms, collect 21.55s, tests 2.95s, environment 3.51s, prepare 923ms)
+

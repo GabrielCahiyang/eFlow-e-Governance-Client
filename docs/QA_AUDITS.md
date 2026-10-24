@@ -2,6 +2,16 @@
 
 Audit reports and their screenshots are saved inside this repository.
 
+## Issues versus manual verification — 24 October 2026
+
+- [Completed desktop budget, petty cash and delivery workflow audit](system-issues-2026-10-24/live-flow/REPORT.md)
+- [24 October screenshot gallery](system-issues-2026-10-24/live-flow/GALLERY.html)
+- [Remaining work versus unverified acceptance](system-issues-2026-10-24/live-flow/REMAINING_GAPS.md)
+- [Reviewed source plan, implemented corrections and measured limits](system-issues-2026-10-24/IMPLEMENTATION.md)
+- [Implementation validation status](system-issues-2026-10-24/VALIDATION_STATUS.md)
+- [Recorded issues and source investigation handoff for another AI](system-issues-2026-10-24/ISSUES_FOR_AI.md)
+- [Separate manual acceptance checklist](system-issues-2026-10-24/MANUAL_VERIFICATION.md)
+
 ## eFlow Live optimization — 23 October 2026
 
 - [Local two-second silence detection and microphone status](help-assistant-2026-10-23/silence-detection/README.md)

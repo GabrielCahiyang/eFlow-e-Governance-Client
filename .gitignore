@@ -59,3 +59,4 @@ graph.json
 # Reviewed financial remediation validation receipts
 !docs/financial-qa-remediation-2026-10-21/**/*.log
 !docs/help-assistant-2026-10-22/**/*.log
+!docs/system-issues-2026-10-24/**/*.log

@@ -149,6 +149,9 @@ describe("Phase 16 compatibility and disclosure", () => {
       true,
     );
     expect(financialFailureIsUncertain(new Error("Unknown result"))).toBe(true);
+    expect(financialFailureIsUncertain(new Error(
+      "Map every purchased-item source to an active journal expense account before settlement",
+    ))).toBe(false);
   });
   it("preserves duplicate journal lines while ignoring line order in verification", () => {
     const base = {

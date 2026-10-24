@@ -112,4 +112,22 @@ describe("Accounting settlement authority", () => {
         .getAttribute("aria-disabled"),
     ).toBe("true");
   });
+  it("allows a corrected mapping rejection to retry without an uncertain-outcome lock", async () => {
+    const data = bundle(true);
+    data.liquidations[0].id = 'mapping-rejection-package';
+    const changed = vi.fn().mockResolvedValue(undefined);
+    const message = 'Map every purchased-item source to an active journal expense account before settlement';
+    settle.mockRejectedValueOnce(new Error(message));
+    render(<AccountingSettlementQueue data={data} onChanged={changed} />);
+    await waitFor(() => expect(screen.getByRole('button', { name: /Settle & post/ }).getAttribute('aria-disabled')).not.toBe('true'));
+    fireEvent.click(screen.getByRole('button', { name: /Settle & post/ }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Confirm settlement', exact: true }));
+    await screen.findByText(message + ' Your review reason is retained.');
+    expect(screen.queryByRole('button', { name: 'Verify settlement outcome' })).toBeNull();
+    expect(changed).not.toHaveBeenCalled();
+    fireEvent.click(await screen.findByRole('button', { name: /Settle & post/ }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Confirm settlement', exact: true }));
+    await waitFor(() => expect(changed).toHaveBeenCalledOnce());
+    expect(settle).toHaveBeenCalledTimes(2);
+  });
 });

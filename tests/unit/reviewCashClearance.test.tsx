@@ -72,7 +72,7 @@ describe("cash-aware review decision", () => {
     render(<ReviewDecisionForm taskId="task-1" />);
     await screen.findByText("FR-00002 · Awaiting final cash settlement");
     fireEvent.click(button("Request changes"));
-    fireEvent.change(screen.getByRole("textbox"), { target: { value: "Please clarify the final evidence" } });
+    fireEvent.change(screen.getByRole("textbox", { name: "Required change feedback" }), { target: { value: "Please clarify the final evidence" } });
     fireEvent.click(button("Send back for changes"));
     await waitFor(() => expect(mocks.verify).toHaveBeenCalledWith("task-1", false, "Please clarify the final evidence", expect.anything()));
     expect(mocks.fetch).toHaveBeenCalledTimes(1);

@@ -61,6 +61,19 @@ beforeEach(() => {
 });
 
 describe("merged financial bundle", () => {
+  it("retains authorized direct-work names when Accounting cannot read operational tasks", async () => {
+    tables.budget_commitments = [{ id: "commitment", fiscal_budget_id: "budget", funding_kind: "direct_work", title: "Workshop participant kits" }];
+    tables.petty_cash_requests = [{ id: "cash", fiscal_budget_id: "budget", commitment_id: "commitment", task_id: "task" }];
+    const restricted = await fetchDepartmentBudgetBundle("office", 2026);
+    expect(restricted.requests[0].taskTitle).toBe("Workshop participant kits");
+    tables.tasks = [{ id: "task", title: "Current operational task name" }];
+    const operational = await fetchDepartmentBudgetBundle("office", 2026);
+    expect(operational.requests[0].taskTitle).toBe("Current operational task name");
+    tables.tasks = [];
+    tables.budget_commitments[0].funding_kind = "proposal";
+    const proposal = await fetchDepartmentBudgetBundle("office", 2026);
+    expect(proposal.requests[0].taskTitle).toBeUndefined();
+  });
   it("retains complete multi-source vouchers and itemized receipts under small Data API page limits", async () => {
     const bundle = await fetchDepartmentBudgetBundle("office", 2026);
     expect(bundle).toMatchObject({ sectionsVersion: 4, itemizedCashAvailable: true });

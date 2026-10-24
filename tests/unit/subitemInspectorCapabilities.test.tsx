@@ -45,8 +45,10 @@ describe('NW8.2 independent Inspector action capabilities',()=>{
   const data=tree({status:'for_review',percent_complete:100,current_reviewer:'actor'});data.nodes[0].capabilities!.review=allow;
   render(<SubitemInspector rootTask={task} itemId="node" controller={controller(data)} onClose={()=>{}}/>);await screen.findByRole('heading',{name:'Assigned item'});
   expect(screen.queryByRole('button',{name:'Save update'})).toBeNull();expect(screen.queryByRole('button',{name:'Child work actions'})).toBeNull();expect(screen.queryByRole('button',{name:'Request cash'})).toBeNull();expect(screen.queryByRole('button',{name:'Set cap'})).toBeNull();
-  fireEvent.click(screen.getByRole('button',{name:'Review evidence'}));await screen.findByRole('button',{name:'Approve evidence'});expect(api.reviewReads).toHaveBeenCalledWith('actor',false,expect.any(Function),expect.any(Function));expect(api.progress).not.toHaveBeenCalled();expect(api.save).not.toHaveBeenCalled();
- });
+  // The review workspace now loads at its public view boundary. Await readiness
+  // before asserting the same decision permissions and absence of work writes.
+  fireEvent.click(screen.getByRole('button',{name:'Review evidence'}));await screen.findByRole('button',{name:'Approve evidence'},{timeout:10000});expect(api.reviewReads).toHaveBeenCalledWith('actor',false,expect.any(Function),expect.any(Function));expect(api.progress).not.toHaveBeenCalled();expect(api.save).not.toHaveBeenCalled();
+ },15000);
  it('retains feedback but disables review decisions when current review authority is revoked',async()=>{
   const data=tree({status:'for_review',current_reviewer:'actor'});data.nodes[0].capabilities!.review=allow;const c=controller(data),view=render(<SubitemInspector rootTask={task} itemId="node" controller={c} onClose={()=>{}}/>);await screen.findByRole('button',{name:'Review evidence'});fireEvent.click(screen.getByRole('button',{name:'Review evidence'}));
   const feedback=await screen.findByPlaceholderText('Explain what needs correction…');fireEvent.change(feedback,{target:{value:'Retain my review feedback'}});

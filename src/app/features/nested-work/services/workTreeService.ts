@@ -1,11 +1,10 @@
-import {rowToTask,type Task} from '../../tasks';
+import type {Task} from '../../tasks';
 import {supabase} from '../../../../lib/supabase';
 import type {WorkImpact,WorkRequest,WorkTreeSnapshot} from '../types';
 import {rememberWorkCapabilityContext} from '../selectors/capabilities';
 import {workRpcFailure} from './workRequestOutcome';
 import {WorkRequestFailure} from '../types/editor';
 import {isWorkEventRecord} from '../selectors/workEventPresentation';
-import {notifyTaskListeners} from '../../tasks';
 import {integerError} from '../../../shared/numericValidation';
 export class WorkTreeUnavailable extends Error {}
 // Identity is only for rejecting stale client presentation. The RPC remains the
@@ -44,7 +43,7 @@ export async function saveWorkTree(root:string,request:WorkRequest):Promise<Work
  // authorized subscribers from the confirmed receipt, without changing the
  // command outcome if a secondary read fails or issuing another mutation.
  if(data.root.kind==='office'&&['root_lead','contributors'].includes(request.command))
-  await Promise.allSettled([Promise.resolve().then(notifyTaskListeners)]);
+  await Promise.allSettled([import('../../tasks').then(({notifyTaskListeners})=>notifyTaskListeners())]);
  return data as WorkTreeSnapshot;
 }
 
@@ -81,7 +80,8 @@ export async function fetchPersonalWorkRoots(project:string):Promise<string[]>{
 export async function fetchOfficeWorkRoots():Promise<Task[]>{
  const {data,error}=await supabase.rpc('r7_office_work_roots');
  if(error){if(error.code==='PGRST202')return [];throw new Error(error.message);}
- if(!Array.isArray(data))throw new Error('Assigned descendant work could not be loaded.');return data.map(rowToTask);
+ if(!Array.isArray(data))throw new Error('Assigned descendant work could not be loaded.');
+ const {rowToTask}=await import('../../tasks');return data.map(rowToTask);
 }
 export interface WorkEvent {id:string;root_id:string;node_id:string|null;command:string;actor_name:string;occurred_at:string;before_data:WorkTreeSnapshot;after_data:WorkTreeSnapshot}
 export async function fetchWorkEvents(roots:string[],before?:{time:string;id:string}):Promise<{events:WorkEvent[];more:boolean}>{
