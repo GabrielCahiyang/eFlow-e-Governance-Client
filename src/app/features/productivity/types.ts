@@ -28,6 +28,9 @@ export interface ManilaMonthPeriod {
 }
 
 export interface ContributionSubtaskFact {
+  completedBy?: string;
+  completedAt?: number;
+  leadId?: string;
   id: string;
   taskId: string;
   status: string;

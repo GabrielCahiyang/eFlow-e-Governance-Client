@@ -62,6 +62,6 @@ test('R4 Head resolves requirements while Complete is disabled, then stale rejec
  await expect(dialog.getByRole('button',{name:'Confirm completion',exact:true})).toBeEnabled();expect(completeCalls).toBe(0);expect(readCalls).toBeGreaterThan(1);
  await page.screenshot({path:info.outputPath('r4-completion-requirements.png'),fullPage:true});
  deny=true;await dialog.getByRole('button',{name:'Confirm completion',exact:true}).click();await expect(dialog.getByRole('alert')).toContainText('New cash settlement required.');await expect(dialog.getByRole('button',{name:'Confirm completion',exact:true})).toBeDisabled();expect(completeCalls).toBe(1);
- deny=false;await dialog.getByRole('button',{name:'Refresh checks',exact:true}).click();await expect(dialog.getByRole('button',{name:'Confirm completion',exact:true})).toBeEnabled();await dialog.getByRole('button',{name:'Confirm completion',exact:true}).dblclick();
+ deny=false;await page.evaluate(()=>window.dispatchEvent(new Event('focus')));await expect(dialog.getByRole('button',{name:'Confirm completion',exact:true})).toBeEnabled();await dialog.getByRole('button',{name:'Confirm completion',exact:true}).dblclick();
  await expect(dialog).toHaveCount(0);expect(completeCalls).toBe(2);await page.getByRole('button',{name:'Project actions',exact:true}).click();await expect(page.getByRole('menuitem',{name:'Archive project',exact:true})).not.toHaveAttribute('data-disabled','');await expect(page.getByRole('menuitem',{name:'Mark project complete',exact:true})).toHaveCount(0);
 });

@@ -8,3 +8,18 @@
 
 .r8-invitations button:focus-visible,.r8-form button:focus-visible,.r8-form input:focus-visible,.r8-form select:focus-visible,.r8-form textarea:focus-visible{outline:2px solid var(--eflow-focus);outline-offset:2px}.r8-invitations button:disabled,.r8-form button:disabled{opacity:.5}
 .r8-form .eflow-pds-attachment{display:flex;font-size:.8125rem;color:var(--eflow-text-muted)}.r8-form .eflow-pds-attachment small{color:var(--eflow-text-muted)}
+.r8-invite-explanation{display:flex;gap:12px;padding:16px;border-radius:10px;background:var(--eflow-selected,#e6f3ef);font-size:14px;line-height:1.6}
+.r8-invite-explanation>svg{flex-shrink:0;margin-top:3px;color:var(--eflow-primary,#087b77)}
+.r8-invite-explanation p{margin:5px 0 0;font-size:13px;color:var(--eflow-text-muted,#61777c)}
+.r8-form form{gap:16px}.r8-form .r8-invite-person{gap:14px;border-radius:10px;padding:18px}
+.r8-invite-person legend{font-size:12px;font-weight:600;padding:0 6px}
+.r8-form label{font-size:13px;font-weight:500}
+.r8-form input:not([type=checkbox]),.r8-form select{border-radius:6px;min-height:42px;padding:10px 12px;font-size:14px}
+.r8-form .r8-invite-until{display:flex;align-items:center;gap:10px;padding:10px 0}
+.r8-invite-until input{width:16px;height:16px;accent-color:var(--eflow-primary,#087b77)}
+.r8-invite-scope{display:flex;align-items:flex-start;gap:7px;font-size:12px;font-weight:400;color:var(--eflow-text-muted,#61777c);margin:0;line-height:1.6}
+.r8-invite-scope svg{flex-shrink:0;margin-top:2px}
+.r8-form .r8-add-person,.r8-form .r8-send-primary{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;font-size:13px}
+.r8-form footer{padding-top:18px;border-top:1px solid var(--eflow-border,#d8e2df);justify-content:flex-end}
+.r8-form .r8-send-primary{background:var(--eflow-primary,#087b77);border-color:var(--eflow-primary,#087b77);color:var(--eflow-on-primary,#fff);font-weight:600}
+.r8-invite-receipt{font-size:13px;padding:10px;background:var(--eflow-selected,#e6f3ef);border-radius:6px;margin-top:8px}

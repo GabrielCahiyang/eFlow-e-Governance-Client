@@ -1,0 +1,15 @@
+{
+  "target": "ixnfphgjyelhckjwjkdv",
+  "migration": "20261029235308_project_schedule_insert_guard.sql",
+  "sha256": "40b06cd8900890cd083eb7b109d3f8e22fb91d4bf2f074c4f0f7fd902acead2a",
+  "prior_migrations": 59,
+  "backup_verified": true,
+  "reviewed_function_baseline_matched": "eflow_schedule.guard_project()",
+  "dry_run_selected_only_this_migration": true,
+  "excluded_runtime_rows": {
+    "system_config": [
+      "ai_endpoint_heartbeat"
+    ]
+  },
+  "applied": false
+}

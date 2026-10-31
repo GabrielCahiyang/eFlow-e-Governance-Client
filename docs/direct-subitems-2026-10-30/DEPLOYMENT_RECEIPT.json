@@ -1,0 +1,14 @@
+{
+  "target": "ixnfphgjyelhckjwjkdv",
+  "migration": "20261030013255_direct_subitem_completion.sql",
+  "sha256": "12068fbea729985646c711771e39ef1c3946e6f3bbb6ea7d8b0b00f47fd4835b",
+  "backup_verified": true,
+  "prior_migrations": 61,
+  "dry_run_only_reviewed_delta": true,
+  "public_tables_checked": 115,
+  "applied": true,
+  "non_heartbeat_public_rows_unchanged": true,
+  "completion_api_authenticated_only": true,
+  "private_mutation_marker_protected": true,
+  "completed_at": "2026-10-30T05:49:44.544639+00:00"
+}

@@ -12,13 +12,13 @@ it('opens and focuses an editor only after its dropdown detaches, exactly once',
   useEffect(()=>{if(open)input.current?.focus();},[open]);
   return <><WorkNodeActionMenu label="Node actions" actions={[{id:'edit',label:'Edit details',onSelect:()=>{
    selected(document.querySelector('[role="menu"]'));setOpen(true);
-  }}]}/>{open&&<input ref={input} aria-label="Subitem title"/>}</>;
+  }}]}/>{open&&<input ref={input} aria-label="Subtask title"/>}</>;
  }
  render(<Proof/>);
  fireEvent.keyDown(screen.getByRole('button',{name:'Node actions'}),{key:'Enter'});
  fireEvent.click(await screen.findByRole('menuitem',{name:'Edit details'}));
  await waitFor(()=>expect(selected).toHaveBeenCalledExactlyOnceWith(null));
- const input=await screen.findByRole('textbox',{name:'Subitem title'});
+ const input=await screen.findByRole('textbox',{name:'Subtask title'});
  await waitFor(()=>expect(document.activeElement).toBe(input));
  expect(screen.queryByRole('menu')).toBeNull();
 });

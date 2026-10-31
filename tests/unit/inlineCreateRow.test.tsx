@@ -12,7 +12,7 @@ const show = (onCreate = vi.fn().mockResolvedValue(undefined), onCreated?: () =>
   return { input, onCreate, outside: screen.getByRole('button', { name: 'Outside' }) };
 };
 
-describe('inline task and subitem creation', () => {
+describe('inline task and subtask creation', () => {
   it.each(['task','subitem'] as const)('retains a failed %s during canceled navigation and discards only after acceptance', async itemName => {
     const create=vi.fn().mockRejectedValue(new Error('Temporary failure'));
     render(<InlineCreateRow label="Draft" itemName={itemName} maxLength={300} onCreate={create} />);

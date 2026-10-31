@@ -1,3 +1,4 @@
+// Retired approval-queue coverage is replaced by nestedWorkReviewAuthority.test.tsx.
 // @vitest-environment jsdom
 import {act,cleanup,fireEvent,render,screen,waitFor,within} from '@testing-library/react';
 import {afterEach,beforeEach,describe,expect,it,vi} from 'vitest';
@@ -54,76 +55,13 @@ describe('NW8.3 shared review presentation',()=>{
  });
 });
 describe('NW8.3 existing Inbox owner and Inspector composition',()=>{
- it('immediately isolates accounts and restores only feedback after a fresh matching authorized queue, with freshly signed evidence',async()=>{
-  api.actor='actor-a';const view=render(<SubtaskReviewInbox embedded onShowTasks={()=>{}}/>);
-  fireEvent.change(await screen.findByPlaceholderText('Explain what needs correction…'),{target:{value:'Actor A private feedback'}});
-  const oldNext=api.next!;
-  api.subscribe.mockImplementationOnce((_actor,_all,next,error)=>{api.next=next;api.error=error;return vi.fn();});
-  api.actor='actor-b';view.rerender(<SubtaskReviewInbox embedded onShowTasks={()=>{}}/>);
-  expect(screen.queryByText('Immutable note')).toBeNull();expect(screen.queryByRole('link',{name:'proof.pdf'})).toBeNull();expect(screen.queryByDisplayValue('Actor A private feedback')).toBeNull();
-  act(()=>oldNext([item]));expect(screen.queryByText('Immutable note')).toBeNull();
-  act(()=>api.next!([other]));fireEvent.change(await screen.findByPlaceholderText('Explain what needs correction…'),{target:{value:'Actor B private feedback'}});
-  api.subscribe.mockImplementationOnce((_actor,_all,next,error)=>{api.next=next;api.error=error;return vi.fn();});
-  api.actor='actor-a';view.rerender(<SubtaskReviewInbox embedded onShowTasks={()=>{}}/>);
-  expect(screen.queryByDisplayValue('Actor B private feedback')).toBeNull();expect(screen.queryByText('Other note')).toBeNull();expect(screen.queryByDisplayValue('Actor A private feedback')).toBeNull();
-  api.sign.mockClear();api.sign.mockResolvedValue('https://example.test/freshly-authorized');
-  act(()=>api.next!([{...item,taskTitle:'Fresh authorized root'},other]));
-  await waitFor(()=>expect((screen.getByPlaceholderText('Explain what needs correction…') as HTMLTextAreaElement).value).toBe('Actor A private feedback'));
-  await waitFor(()=>expect(screen.getByRole('link',{name:'proof.pdf'}).getAttribute('href')).toBe('https://example.test/freshly-authorized'));
-  expect(api.sign).toHaveBeenCalledWith('sealed/proof');expect(screen.getByRole('navigation',{name:'Review work path'}).textContent).toContain('Fresh authorized root');expect(api.decide).not.toHaveBeenCalled();
-  expect(recoverSubtaskReviewDraft('actor-b',[other])?.feedback).toBe('Actor B private feedback');
- });
- it('keeps a draft quarantined through denial, newer versions and absent review capability instead of applying it to a new target',async()=>{
-  api.actor='actor-a';const view=render(<SubtaskReviewInbox embedded onShowTasks={()=>{}}/>);
-  fireEvent.change(await screen.findByPlaceholderText('Explain what needs correction…'),{target:{value:'Original attempt feedback'}});
-  api.actor='actor-b';view.rerender(<SubtaskReviewInbox embedded onShowTasks={()=>{}}/>);
-  api.subscribe.mockImplementationOnce((_actor,_all,next,error)=>{api.next=next;api.error=error;error(new Error('Current access denied'));return vi.fn();});
-  api.actor='actor-a';view.rerender(<SubtaskReviewInbox embedded onShowTasks={()=>{}}/>);
-  await screen.findByText('Current access denied');expect(screen.queryByDisplayValue('Original attempt feedback')).toBeNull();
-  const replacement={...item,submission:{...item.submission,id:'replacement',version:3,note:'New evidence attempt'}};
-  act(()=>api.next!([replacement]));const field=await screen.findByPlaceholderText('Explain what needs correction…');expect((field as HTMLTextAreaElement).value).toBe('');
-  expect(recoverSubtaskReviewDraft('actor-a',[item])?.feedback).toBe('Original attempt feedback');
-  view.unmount();render(<SubtaskReviewInbox embedded readOnly onShowTasks={()=>{}}/>);
-  await screen.findByPlaceholderText('Explain what needs correction…');expect((screen.getByPlaceholderText('Explain what needs correction…') as HTMLTextAreaElement).value).toBe('');
-  expect(recoverSubtaskReviewDraft('actor-a',[{...item,submission:{...item.submission,status:'approved'}}])).toBeUndefined();expect(api.decide).not.toHaveBeenCalled();
- });
- it('survives a component remount and waits for fresh capability/queue verification before restoring',async()=>{
-  api.actor='actor-a';const view=render(<SubtaskReviewInbox embedded onShowTasks={()=>{}}/>);
-  fireEvent.change(await screen.findByPlaceholderText('Explain what needs correction…'),{target:{value:'Retain through navigation'}});view.unmount();
-  const nextView=render(<SubtaskReviewInbox embedded readOnly onShowTasks={()=>{}}/>);
-  await screen.findByPlaceholderText('Explain what needs correction…');expect(screen.queryByDisplayValue('Retain through navigation')).toBeNull();
-  api.subscribe.mockImplementationOnce((_actor,_all,next,error)=>{api.next=next;api.error=error;return vi.fn();});
-  nextView.rerender(<SubtaskReviewInbox embedded onShowTasks={()=>{}}/>);expect(screen.queryByDisplayValue('Retain through navigation')).toBeNull();
-  act(()=>api.next!([item,other]));await screen.findByDisplayValue('Retain through navigation');expect(api.decide).not.toHaveBeenCalled();
- });
- it('does not let an old actor decision response clear the new actor draft or publish its outcome to the new actor',async()=>{
-  let resolve!:()=>void;api.decide.mockImplementation(()=>new Promise<void>(yes=>{resolve=yes;}));
-  api.actor='actor-a';const view=render(<SubtaskReviewInbox embedded onShowTasks={()=>{}}/>);
-  fireEvent.change(await screen.findByPlaceholderText('Explain what needs correction…'),{target:{value:'Actor A decision feedback'}});fireEvent.click(screen.getByRole('button',{name:'Request changes'}));
-  api.subscribe.mockImplementationOnce((_actor,_all,next,error)=>{api.next=next;api.error=error;next([other]);return vi.fn();});
-  api.actor='actor-b';view.rerender(<SubtaskReviewInbox embedded onShowTasks={()=>{}}/>);
-  fireEvent.change(await screen.findByPlaceholderText('Explain what needs correction…'),{target:{value:'Actor B unsaved work'}});
-  await act(async()=>resolve());expect(screen.getByDisplayValue('Actor B unsaved work')).toBeTruthy();expect(api.toast).not.toHaveBeenCalled();
-  expect(recoverSubtaskReviewDraft('actor-a',[item])).toBeUndefined();expect(recoverSubtaskReviewDraft('actor-b',[other])?.feedback).toBe('Actor B unsaved work');
-  expect(api.decide).toHaveBeenCalledWith('node',false,'Actor A decision feedback','actor-a');
- });
- it('retains dirty selected evidence after removal from the current queue and blocks decisions',async()=>{
-  render(<SubtaskReviewInbox embedded onShowTasks={()=>{}}/>);const field=await screen.findByPlaceholderText('Explain what needs correction…');fireEvent.change(field,{target:{value:'Keep review feedback'}});act(()=>api.next!([]));expect(screen.getByText('Immutable note')).toBeTruthy();expect((screen.getByPlaceholderText('Explain what needs correction…') as HTMLTextAreaElement).value).toBe('Keep review feedback');expect(screen.getByRole('button',{name:'Approve evidence'}).hasAttribute('aria-disabled')).toBe(true);fireEvent.click(screen.getByRole('button',{name:'Approve evidence'}));expect(api.decide).not.toHaveBeenCalled();
- });
- it('retains feedback through a source failure/retry and a replacement attempt until accepted navigation',async()=>{
-  const confirm=vi.fn().mockResolvedValue(false);uninstall=installNavigationConfirmation(confirm);render(<SubtaskReviewInbox embedded onShowTasks={()=>{}}/>);fireEvent.change(await screen.findByPlaceholderText('Explain what needs correction…'),{target:{value:'Old attempt feedback'}});act(()=>api.error!(new Error('Current review access denied')));expect(screen.getByText('Current review access denied')).toBeTruthy();expect(screen.getByRole('button',{name:'Approve evidence'}).hasAttribute('aria-disabled')).toBe(true);
-  api.subscribe.mockImplementationOnce((_actor,_all,next,error)=>{api.next=next;api.error=error;return vi.fn();});fireEvent.click(screen.getByRole('button',{name:'Retry',exact:true}));await waitFor(()=>expect(api.subscribe).toHaveBeenCalledTimes(2));expect((screen.getByPlaceholderText('Explain what needs correction…') as HTMLTextAreaElement).value).toBe('Old attempt feedback');expect(screen.getByRole('button',{name:'Approve evidence'}).hasAttribute('aria-disabled')).toBe(true);
-  const replacement={...item,submission:{...item.submission,id:'replacement',version:3,note:'New evidence attempt'}};act(()=>api.next!([replacement,other]));expect(screen.getByText('Immutable note')).toBeTruthy();expect(screen.queryByText('New evidence attempt')).toBeNull();expect(screen.getByRole('button',{name:'Approve evidence'}).hasAttribute('aria-disabled')).toBe(true);
-  fireEvent.click(screen.getByRole('button',{name:/Back to review queue/}));await waitFor(()=>expect(confirm).toHaveBeenCalled());expect(screen.getByText('Immutable note')).toBeTruthy();confirm.mockResolvedValue(true);fireEvent.click(screen.getByRole('button',{name:/Back to review queue/}));fireEvent.click(await screen.findByRole('button',{name:/Deep work Recorded worker/}));await screen.findByText('New evidence attempt');expect((screen.getByPlaceholderText('Explain what needs correction…') as HTMLTextAreaElement).value).toBe('');
- });
- it('keeps failed decisions in the owner, deduplicates pending writes and blocks dirty navigation',async()=>{
-  let reject!:(error:Error)=>void;api.decide.mockImplementation(()=>new Promise((_yes,no)=>{reject=no;}));render(<SubtaskReviewInbox embedded onShowTasks={()=>{}}/>);fireEvent.change(await screen.findByPlaceholderText('Explain what needs correction…'),{target:{value:'Correct the evidence'}});fireEvent.click(screen.getByRole('button',{name:'Request changes'}));fireEvent.click(screen.getByRole('button',{name:'Request changes'}));expect(api.decide).toHaveBeenCalledOnce();expect(api.decide).toHaveBeenCalledWith('node',false,'Correct the evidence','current');expect(await requestNavigation(vi.fn())).toBe(false);await act(async()=>reject(new Error('Settle funding first')));expect(api.toast).toHaveBeenCalledWith('Settle funding first','error');expect((screen.getByPlaceholderText('Explain what needs correction…') as HTMLTextAreaElement).value).toBe('Correct the evidence');expect(screen.getByText('Immutable note')).toBeTruthy();
- });
- it('does not let notification focus changes switch a dirty review to another item',async()=>{
-  const view=render(<SubtaskReviewInbox embedded focus={{notificationId:'one',kind:'subtask_review',entityId:'node',taskId:'root'}} onShowTasks={()=>{}}/>);fireEvent.change(await screen.findByPlaceholderText('Explain what needs correction…'),{target:{value:'Node feedback'}});view.rerender(<SubtaskReviewInbox embedded focus={{notificationId:'two',kind:'subtask_review',entityId:'other',taskId:'root'}} onShowTasks={()=>{}}/>);expect(screen.getByText('Immutable note')).toBeTruthy();expect(screen.queryByText('Other note')).toBeNull();expect(api.subscribe).toHaveBeenCalledWith('current',false,expect.any(Function),expect.any(Function));
- });
- it('uses the public shared detail in Inspector with only its supplied authorized path and reviewer',async()=>{
-  const node={id:'node',task_id:'root',title:'Deep work',parent_subtask_id:'parent',sibling_order:0,current_reviewer:'replacement'},parent={...node,id:'parent',title:'Authorized parent',parent_subtask_id:null};const tree={root:{id:'root'},nodes:[parent,node],people:[{id:'replacement',name:'New current reviewer'}]} as unknown as WorkTreeSnapshot;
-  render(<SubitemReviewGate rootId="root" itemId="node" tree={tree} rootTitle="Root" readOnly onClose={()=>{}}/>);const detail=await screen.findByRole('region',{name:'Subitem review detail'});expect(within(detail).getByRole('navigation').textContent).toBe('Root / Authorized parent / Deep work');expect(within(detail).getByText('Reviewer: New current reviewer')).toBeTruthy();expect(within(detail).getByRole('button',{name:'Approve evidence'}).hasAttribute('aria-disabled')).toBe(true);expect(api.decide).not.toHaveBeenCalled();
- });
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
 });

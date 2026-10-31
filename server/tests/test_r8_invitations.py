@@ -42,6 +42,15 @@ class R8Tests(unittest.TestCase):
                 service.dispatch(SimpleNamespace(id='head'), 'request', 1)
             email.assert_not_called()
 
+    def test_accepted_guest_without_permanent_office_uploads_own_pds_in_invitation_scope(self):
+        client=MagicMock();document={'id':'guest-pds','user_id':'guest','processing_status':'pending'}
+        client.table.return_value.select.return_value.eq.return_value.eq.return_value.eq.return_value.limit.return_value.execute.return_value.data=[document]
+        app=FastAPI();app.include_router(pds_routes.router);app.dependency_overrides[pds_routes.require_user]=lambda:SimpleNamespace(id='guest',org_id=None,role='member')
+        with TestClient(app) as http,patch.object(pds_routes,'supabase_admin',client),patch.object(pds_routes,'validate_pdf'),patch.object(service,'pds_context',return_value={'office_id':'sponsor','accepted_by':'guest'}) as context:
+            result=http.post('/controlpanelEflow/api/pds/upload?project_request_id=00000000-0000-4000-8000-000000000001',content=b'%PDF-1.4\n%%EOF',headers={'content-type':'application/pdf','x-file-name':'PDS.pdf'})
+        self.assertEqual(result.status_code,200);self.assertEqual(result.json()['user_id'],'guest')
+        self.assertEqual(context.call_args.args[0].id,'guest');client.storage.from_.assert_not_called()
+
     def test_provider_acceptance_is_reported_separately_from_delivery(self):
         item = {'email': 'guest@example.test', 'project_title': '<Project>', 'engagement': 'OJT', 'expires_at': '2026-11-01'}
         with patch.object(service, 'app_url', return_value='https://app.example.test'), patch.object(service, 'rpc', side_effect=[item,item,True]) as rpc, patch.object(service, 'send_email', return_value='provider-id') as email:
@@ -65,6 +74,16 @@ class R8Tests(unittest.TestCase):
             with self.assertRaises(HTTPException):
                 service.accept('a'*43, SimpleNamespace(email='wrong@example.test',id='user'))
             rpc.assert_not_called()
+
+    def test_recipient_creates_password_on_the_invited_email_without_head_promotion(self):
+        client=MagicMock();client.auth.admin.create_user.return_value.user.id='recipient'
+        with patch.object(service,'supabase_admin',client),patch.object(service,'rpc',side_effect=[{'id':'request','email':'invited@example.test'},{'accepted':True}]):
+            self.assertTrue(service.create_account('a'*43,'Recipient Name','recipient-private-password','attempt')['accepted'])
+        payload=client.auth.admin.create_user.call_args.args[0]
+        self.assertEqual(payload['email'],'invited@example.test')
+        self.assertEqual(payload['password'],'recipient-private-password')
+        self.assertEqual(payload['user_metadata'],{'full_name':'Recipient Name'})
+        self.assertNotIn('role',payload)
 
     def test_public_validation_excludes_tokens_and_private_documents(self):
         with patch.object(service, 'rpc', return_value={'email':'invited@example.test','hash':'secret','claim':'secret','pds_documents':[{'storage_path':'secret'}]}):

@@ -17,3 +17,19 @@ export const createProjectGuest=(token:string,name:string,password:string,attemp
 export function submitProjectInvitation(project:string,office:string,row:InvitationDraft,timezone:string,root?:string,node?:string){
  return rpc<ProjectInvitation>('r8_submit_request',{p_id:row.id,p_project:project,p_root:root||null,p_node:node||null,p_office:office,p_email:row.email.trim().toLowerCase(),p_summary:row.summary,p_skills:row.skills.split(',').map(s=>s.trim()).filter(Boolean),p_engagement:row.engagement,p_end:accessEnd(row.end,timezone),p_close:row.untilClose});
 }
+
+/** Reuse the saved request on retry; approval and delivery stay server-authorized. */
+export async function sendProjectInvitation(project:string,office:string,row:InvitationDraft,timezone:string,root?:string,node?:string){
+ let item=await submitProjectInvitation(project,office,row,timezone,root,node);
+ if(item.state==='accepted')return {item,status:'Already accepted · view current membership in the project'};
+ if(item.state==='approved'&&item.delivery_status==='provider_accepted')return {item,status:'Invitation already sent · waiting for acceptance'};
+ if(item.state==='pending'){
+  if(!item.can_approve)throw new Error('Your current sponsoring Head approval is required. The request is saved.');
+  item=await decideProjectInvitation(item,'approved');
+ }
+ if(item.state!=='approved'||!item.can_dispatch)throw new Error('Invitation cannot be sent with your current authority. Review its saved status.');
+ if(item.delivery_status==='attempting')throw new Error('The saved invitation is already being sent. Check its status before retrying.');
+ const result=await dispatchProjectInvitation(item);
+ if(result.delivery_status!=='provider_accepted')throw new Error(result.delivery_error||'Invitation saved, but email could not be sent. Retry this invitation.');
+ return {item,status:'Invitation sent · waiting for acceptance'};
+}

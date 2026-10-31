@@ -12,15 +12,13 @@ export function ProjectReviewsTab({
 }) {
   const rows = data.facts.submissions.filter(
     (submission) =>
-      submission.status === "pending" ||
-      submission.status === "changes_requested",
+      submission.kind === "task" && (submission.status === "pending" ||
+      submission.status === "changes_requested"),
   );
   const pendingTasks = rows.filter(
     (row) => row.kind === "task" && row.status === "pending",
   ).length;
-  const pendingSubtasks = rows.filter(
-    (row) => row.kind === "subtask" && row.status === "pending",
-  ).length;
+  const completedSubtasks = data.facts.subtasks.filter(row=>row.status==='completed').length;
   const changes = rows.filter(
     (row) => row.status === "changes_requested",
   ).length;
@@ -39,12 +37,12 @@ export function ProjectReviewsTab({
           </div>
         </div>
         <div className="eflow-health-item">
-          <span className="eflow-health-item-label">Subtask decisions</span>
+          <span className="eflow-health-item-label">Completed subtasks</span>
           <div className="flex items-center gap-1.5">
             <span className="eflow-health-item-value text-blue-600">
-              {pendingSubtasks}
+              {completedSubtasks}
             </span>
-            <span className="text-xs text-secondary">waiting</span>
+            <span className="text-xs text-secondary">complete</span>
           </div>
         </div>
         <div className="eflow-health-item">
@@ -88,7 +86,7 @@ export function ProjectReviewsTab({
                       <div className="mt-1 text-xs text-secondary">
                         {submission.kind === "subtask"
                           ? "Leader subtask decision"
-                          : "Head task decision"}{" "}
+                          : "Project lead / independent Head decision"}{" "}
                         · Submission {submission.version} ·{" "}
                         {submission.submitterName}
                       </div>

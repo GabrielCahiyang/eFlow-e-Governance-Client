@@ -1,0 +1,17 @@
+{
+  "target": "ixnfphgjyelhckjwjkdv",
+  "installed": true,
+  "rollback_only": true,
+  "checks": [
+    "appointed Head reads office people without private-table grants",
+    "Head scoped API returns fixture and inactive membership",
+    "Head cannot directly read private invitations",
+    "Head cannot directly read private guest memberships",
+    "recipient sees only own invitation",
+    "unrelated actor cannot read recipient row",
+    "unrelated actor denied scoped API",
+    "anonymous denied API",
+    "public API is invoker with empty path and no anonymous grant"
+  ],
+  "count": 9
+}

@@ -1,0 +1,1 @@
+{"target":"ixnfphgjyelhckjwjkdv","security_advisor_findings_before":5,"security_advisor_findings_after":5,"new_findings":0,"public_wrappers":"SECURITY INVOKER; authenticated only","private_funding_tables":"RLS enabled; direct authenticated insert denied","verification":"Hosted rollback transaction denies anonymous access and unauthorized funding/review/settlement."}

@@ -1,4 +1,6 @@
 // @vitest-environment jsdom
+vi.mock('../../src/app/features/project-setup',()=>({useProjectFlow:()=>({data:null,error:'',reload:vi.fn()})}));
+
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Task } from '../../src/app/features/tasks';

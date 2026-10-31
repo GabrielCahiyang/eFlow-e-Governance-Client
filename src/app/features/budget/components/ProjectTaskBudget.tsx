@@ -1,3 +1,4 @@
+import {TaskFundingCell,useProjectFlow} from '../../project-setup';
 import { createContext, useContext, useState, type ReactNode } from 'react';
 import { WalletCards } from 'lucide-react';
 import { FeatureDialog } from '../../../components/ui/FeatureDialog';
@@ -10,10 +11,12 @@ import { getCurrentFiscalYear } from '../constants';
 import { DirectWorkFunding } from './DirectWorkFunding';
 import { peso } from './budgetUi';
 
+const ProjectAllocationContext=createContext<import('../../project-setup').ProjectFlow|undefined>(undefined);
 const BudgetContext = createContext<Record<string,ReturnType<typeof useDepartmentBudget>>>({});
 /** Share one ledger subscription across the table, including its totals. */
-export function ProjectTaskBudgetProvider({officeId,officeIds=[],children}:{officeId?:string;officeIds?:string[];children:ReactNode}) {
-  return <OfficeBudgetScope ids={[...new Set([officeId,...officeIds].filter((id):id is string=>!!id))]}>{children}</OfficeBudgetScope>;
+export function ProjectTaskBudgetProvider({projectId,officeId,officeIds=[],children}:{projectId?:string;officeId?:string;officeIds?:string[];children:ReactNode}) {
+  const flow=useProjectFlow(projectId||'',!!projectId);
+  return <ProjectAllocationContext.Provider value={flow.data}><OfficeBudgetScope ids={[...new Set([officeId,...officeIds].filter((id):id is string=>!!id))]}>{children}</OfficeBudgetScope></ProjectAllocationContext.Provider>;
 }
 function OfficeBudgetScope({ids,children}:{ids:string[];children:ReactNode}) {
   const parent=useContext(BudgetContext),id=ids[0],budget=useDepartmentBudget(id,getCurrentFiscalYear());
@@ -21,12 +24,15 @@ function OfficeBudgetScope({ids,children}:{ids:string[];children:ReactNode}) {
   return <BudgetContext.Provider value={{...parent,[id]:budget}}><OfficeBudgetScope ids={ids.slice(1)}>{children}</OfficeBudgetScope></BudgetContext.Provider>;
 }
 export function useProjectTaskBudgetTotal(taskIds:string[]) {
+  const project=useContext(ProjectAllocationContext);
   const budgets=Object.values(useContext(BudgetContext));
+  if(project)return (project.taskFunding||[]).filter(line=>taskIds.includes(line.taskId)).reduce((sum,line)=>sum+line.amount,0);
   if(!budgets.length||budgets.some(budget=>budget.loading||budget.error))return null;
   const allocations=budgets.flatMap(budget=>budget.allocations).filter(a=>!a.subtaskId&&a.status==='approved'&&taskIds.includes(a.taskId));
   return allocations.reduce((sum,a,index)=>sum+(a.id&&allocations.findIndex(other=>other.id===a.id)!==index?0:a.amount),0);
 }
-export function ProjectTaskBudgetCell({task,readOnly=false}:{task:Task;readOnly?:boolean}) {
+export function ProjectTaskBudgetCell(props:{task:Task;readOnly?:boolean}){return props.task.linkedProjectId?<TaskFundingCell projectId={props.task.linkedProjectId} taskId={props.task.id} title={props.task.title}/>:<LegacyTaskBudgetCell {...props}/>;}
+function LegacyTaskBudgetCell({task,readOnly=false}:{task:Task;readOnly?:boolean}) {
   const budgets=useContext(BudgetContext),{userProfile}=useAuth(),{orgs}=useOrgs();
   const budget=Object.values(budgets).find(item=>item.allocations.some(a=>a.taskId===task.id&&!a.subtaskId&&a.status==='approved'))||budgets[task.orgId||''];
   const [open,setOpen]=useState(false);

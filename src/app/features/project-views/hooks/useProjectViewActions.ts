@@ -21,10 +21,8 @@ export function useProjectViewActions(project: { orgId?: string; status: string 
   const officeId = userProfile?.org_id || userProfile?.departmentId || '';
   const closed = ['completed', 'archived'].includes(project.status);
   const ownOffice = officeState.offices.find(o => o.office_id === officeId);
-  const shared = officeState.offices.some(o => o.relationship_type !== 'lead');
   const officeAccess = ownOffice?.invitation_status === 'joined' && ownOffice.relationship_type !== 'observer';
-  const selected = !!ownOffice && officeState.members.some(m => m.project_office_id === ownOffice.id && m.user_id === userId);
-  const readOnly = closed || officeState.loading || !!officeState.error || !userProfile || userProfile.is_active === false || userProfile.role === 'admin' || shared && (!officeAccess || userProfile.role !== 'head' && !selected && ownOffice?.relationship_type !== 'lead');
+  const readOnly = closed || officeState.loading || !!officeState.error || !userProfile || userProfile.is_active === false || !isHeadWorkspaceRole(userProfile.role);
   const structuralEdit = !readOnly && isHeadWorkspaceRole(userProfile?.role) && (canManage && project.orgId === officeId || !!officeAccess);
   const canEditDates = (task: Task) => canEditProjectTask(task, structuralEdit, officeId);
   const latestDateAccess = useRef(canEditDates); latestDateAccess.current = canEditDates;

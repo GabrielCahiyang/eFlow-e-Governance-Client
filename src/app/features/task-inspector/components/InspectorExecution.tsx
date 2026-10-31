@@ -18,7 +18,7 @@ export function InspectorExecution({task,subtasks,canStart,canResume,canSubmit,c
  return <div className="space-y-4">
   {pendingDependencies>0&&<div role="status" className="work-state-message"><strong>Waiting for {pendingDependencies} prerequisite task{pendingDependencies===1?'':'s'}</strong><span>You can prepare this work. Final submission waits until the linked tasks are approved.</span></div>}
   {task.rejectionNote&&task.status==='changes_requested'&&<div className="work-state-message"><strong>Requested changes</strong><p>{task.rejectionNote}</p></div>}
-  {readiness.totalSubtasks>0&&<div className="work-state-message"><strong>{steps.total?steps.approved:readiness.approvedSubtasks} of {steps.total||readiness.totalSubtasks} steps approved</strong><span>{task.status==='completed'?'Task approved':task.status==='for_review'?'Final review in progress':readiness.ready?'Ready for final review':'Finish the remaining step reviews before final submission.'}</span></div>}
+  {readiness.totalSubtasks>0&&<div className="work-state-message"><strong>{steps.total?steps.approved:readiness.approvedSubtasks} of {steps.total||readiness.totalSubtasks} steps complete</strong><span>{task.status==='completed'?'Task approved':task.status==='for_review'?'Final review in progress':readiness.ready?'Ready for final review':'Finish the remaining steps before final submission.'}</span></div>}
   <WorkExecutionForm initialAction={initialAction} key={task.id} initialBlocker={blocker} status={task.status} readOnly={!editable||busy} canSubmit={readiness.ready&&!pendingDependencies&&(canSubmit||canStart||canResume)} onCommitted={submitted=>{if(submitted)onSubmitted();else onChanged?.();}} onSave={async input=>{
    if(!user?.id)throw new Error('Sign in to update work.');
    if((canStart||canResume)&&['todo','changes_requested'].includes(task.status))await start();
@@ -27,7 +27,7 @@ export function InspectorExecution({task,subtasks,canStart,canResume,canSubmit,c
   }} onSubmit={async input=>{
    if(!user?.id)throw new Error('Sign in to submit work.');
    if(!(canSubmit||canStart||canResume))throw new Error('Only the task lead can submit this work.');
-   if(!readiness.ready)throw new Error('Wait for the remaining step approvals.');
+   if(!readiness.ready)throw new Error('Wait for the remaining steps to be completed.');
    if(pendingDependencies)throw new Error('Wait for prerequisite task approval before final submission.');
    await start();await submitTaskForReview(task.id,{note:input.note,attachments:input.files,submitterId:user.id,submitterName:userProfile?.full_name||'You'});
   }}/>

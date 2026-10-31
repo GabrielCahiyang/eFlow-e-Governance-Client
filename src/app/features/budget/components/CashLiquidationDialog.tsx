@@ -25,7 +25,7 @@ import {
   isLiquidationCurrentlyOverdue,
 } from "../selectors/cashWorkflowRules";
 
-export function CashLiquidationDialog({ request, orgId, perReceiptLimit, liquidationDueDays, allowReceiptOverride, onClose, onSaved }: {
+export function CashLiquidationDialog({ request, orgId, perReceiptLimit: _perReceiptLimit, liquidationDueDays, allowReceiptOverride: _allowReceiptOverride, onClose, onSaved }: {
   request: PettyCashRequest;
   orgId: string;
   perReceiptLimit: number;
@@ -68,8 +68,7 @@ export function CashLiquidationDialog({ request, orgId, perReceiptLimit, liquida
   const invalid = busy || !Number.isFinite(spent) || receipts.some(r => !!historicalDateError(r.receiptDate, 'Receipt date') || !Number.isFinite(r.amount)) || (approved - spent > .009 && !!historicalDateError(refundDate, 'Cash return date')) || spent < 0 || spent > approved || Math.abs(receiptTotal - spent) > .009 || !note.trim()
     || (approved - spent > .009 && (!refundReceiptNumber.trim() || !refundDate))
     || receipts.some((item) => !item.vendor.trim() || (!item.description.trim()&&!item.items?.length) || !item.file
-      || item.items?.some(i=>!!receiptItemError(i)||!sources.some(s=>s.allocationLineId===i.allocationLineId))
-      || (item.amount > perReceiptLimit && (!allowReceiptOverride || !item.overrideReason?.trim())));
+      || item.items?.some(i=>!!receiptItemError(i)||!sources.some(s=>s.allocationLineId===i.allocationLineId)));
 
   return (
     <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
@@ -116,12 +115,6 @@ export function CashLiquidationDialog({ request, orgId, perReceiptLimit, liquida
                     <span className="text-[11px] font-medium text-muted-foreground">Expense description</span>
                     <Input value={receipt.description} onChange={(event) => update(receipt.id, { description: event.target.value })} className="mt-1 h-9 text-[12px]" />
                   </label>
-                  {receipt.amount > perReceiptLimit && (
-                    <label className="sm:col-span-2">
-                      <span className="text-[11px] font-medium text-amber-800">Threshold exception · above {peso.format(perReceiptLimit)}</span>
-                      <Textarea disabled={!allowReceiptOverride} value={receipt.overrideReason || ""} onChange={(event) => update(receipt.id, { overrideReason: event.target.value })} rows={2} placeholder={allowReceiptOverride ? "Explain why the larger receipt was necessary." : "Office policy does not allow an override."} className="mt-1 min-h-0 border-amber-200 bg-amber-50 text-[12px] disabled:opacity-60" />
-                    </label>
-                  )}
                   <label className="sm:col-span-2">
                     <span className="text-[11px] font-medium text-muted-foreground">Receipt image or PDF</span>
                     <Input type="file" accept="image/jpeg,image/png,image/webp,application/pdf" onChange={(event) => update(receipt.id, { file: event.target.files?.[0] })} className="mt-1 h-auto py-1 text-[11px]" />

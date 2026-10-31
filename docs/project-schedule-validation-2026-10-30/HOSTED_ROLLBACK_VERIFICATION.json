@@ -1,0 +1,31 @@
+{
+  "target": "ixnfphgjyelhckjwjkdv",
+  "method": "Actual Head database role with existing RPCs, explicit rollback; not a browser session",
+  "cases": [
+    {
+      "case": "Existing Nov 4/Nov 5 mismatch is an activation blocker",
+      "result": "pass"
+    },
+    {
+      "case": "Metadata RPC rejects Nov 4 while task ends Nov 5",
+      "result": "pass",
+      "sqlstate": "22023"
+    },
+    {
+      "case": "Metadata RPC permits same-day Nov 5 target",
+      "result": "pass"
+    },
+    {
+      "case": "Metadata RPC rejects a start after existing task start",
+      "result": "pass",
+      "sqlstate": "22023"
+    },
+    {
+      "case": "Main-table task patch rejects a due date outside project bounds",
+      "result": "pass",
+      "sqlstate": "22023"
+    }
+  ],
+  "original_project_and_tasks_preserved": true,
+  "snapshot_sha256": "9d8e101a370289074c816c9f38b85988630c77b83d7deb59c2b1792ac3f3e856"
+}

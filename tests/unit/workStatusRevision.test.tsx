@@ -28,6 +28,16 @@ describe('status-based execution',()=>{
   fireEvent.change(screen.getByLabelText('Evidence files'),{target:{files:[new File(['proof'],'agenda.pdf',{type:'application/pdf'})]}});
   fireEvent.click(screen.getByRole('button',{name:'Submit for review'}));await waitFor(()=>expect(submit).toHaveBeenCalledTimes(1));
  });
+ it('keeps attachment selection, removal and next-step saving functional with the styled picker',async()=>{
+  const save=vi.fn().mockResolvedValue(undefined),file=new File(['proof'],'agenda.pdf',{type:'application/pdf'});
+  render(<WorkExecutionForm status="in_progress" onSave={save}/>);
+  fireEvent.change(screen.getByLabelText('Update attachment'),{target:{files:[file]}});expect(screen.getByText('agenda.pdf')).toBeTruthy();
+  fireEvent.click(screen.getByRole('button',{name:'Remove agenda.pdf'}));expect(screen.queryByText('agenda.pdf')).toBeNull();
+  fireEvent.change(screen.getByLabelText('Update attachment'),{target:{files:[file]}});
+  fireEvent.change(screen.getByLabelText('Next step'),{target:{value:'Review the agenda with the team'}});
+  fireEvent.click(screen.getByRole('button',{name:'Save update'}));
+  await waitFor(()=>expect(save).toHaveBeenCalledWith(expect.objectContaining({files:[file],nextStep:'Review the agenda with the team'})));
+ });
  it('cannot bypass a prerequisite or an approval lock',()=>{
   const save=vi.fn();const view=render(<WorkExecutionForm status="todo" blockedBy="Draft agenda approval" onSave={save}/>);
   expect(screen.queryByLabelText('Work status')).toBeNull();view.rerender(<WorkExecutionForm status="for_review" onSave={save}/>);expect(screen.queryByRole('button')).toBeNull();expect(screen.getByRole('status').textContent).toContain('Awaiting approval');

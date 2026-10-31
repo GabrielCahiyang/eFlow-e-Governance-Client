@@ -17,7 +17,7 @@ describe('NW9.2 personal path filtering preserves actor and workspace boundaries
    {id:'item',taskId:'root',title:'Same',parentSubtaskId:'parent',leadId:'me',position:0,assignedToIds:['worker'],dueDate:'2026-10-06'}],
    {rootId:'root',rootTitle:'Private root',people:[{id:'me',name:'Personal Lead'}]}).get('item');
   const row:WorkRow={id:'item',key:'personal-node:item',rootId:'root',title:'Same',kind:'personal-node',projectTitle:'Research',workspaceId:'private',
-   workspaceName:'Private',timezone:'Asia/Singapore',status:'todo',due:'2026-10-06',progress:0,mine:true,leading:true,actionable:true,history:false,relation:'Subitem Lead',workContext:context};
+   workspaceName:'Private',timezone:'Asia/Singapore',status:'todo',due:'2026-10-06',progress:0,mine:true,leading:true,actionable:true,history:false,relation:'Subtask Lead',workContext:context};
   const rows=[row,{...row,id:'sibling',key:'personal-node:sibling',mine:false},{...row,id:'foreign',key:'personal-node:foreign',workspaceId:'foreign'}];
   expect(selectWorkRows(rows,'Subtasks','All my work','allowed ancestor','private').map(row=>row.id)).toEqual(['item']);
   expect(selectWorkRows(rows,'Leading','All my work',context!.pathLabel,'private').map(row=>row.id)).toEqual(['item']);

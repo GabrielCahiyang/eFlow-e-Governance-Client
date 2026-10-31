@@ -2,7 +2,6 @@ import { supabase } from "../../../../lib/supabase";
 import {integerError} from '../../../shared/numericValidation';
 import {attachmentError} from '../../../shared/fileValidation';
 import { rowToSubtask, type Subtask } from "../../../services/subtaskService";
-import {addSubtaskReviewDisplayContext,readSubtaskReviewRows} from './subtaskReviewContextService';
 import type {
   SubtaskReviewItem,
   SubtaskProgressUpdate,
@@ -23,13 +22,13 @@ export async function saveSubtaskWorkUpdate(input:{subtaskId:string;state:'in_pr
  if(input.state==='stuck'&&!input.blocker?.trim())throw new Error('Tell your lead what is blocking you.');
  let uploaded:SubtaskSubmissionAttachment|undefined;
  try{
-  if(input.attachment)uploaded=await uploadFile(input.subtaskId,'updates',input.attachment);
+  if(input.attachment)uploaded=await uploadSubtaskWorkFile(input.subtaskId,'updates',input.attachment);
   const {error}=await supabase.rpc('save_subtask_work_update',{p_subtask_id:input.subtaskId,p_state:input.state,p_blocker:input.blocker?.trim()||null,p_note:input.note?.trim()||null,p_next_step:input.nextStep?.trim()||null,p_attachment_path:uploaded?.filePath||null,p_attachment_name:uploaded?.fileName||null});
   if(error)throw new Error(error.message);
  }catch(reason){if(uploaded)await supabase.storage.from('task-attachments').remove([uploaded.filePath]);throw reason;}
 }
 
-async function uploadFile(
+export async function uploadSubtaskWorkFile(
   subtaskId: string,
   segment: string,
   file: File,
@@ -61,7 +60,7 @@ export async function saveSubtaskProgress(input: {
   let uploaded: SubtaskSubmissionAttachment | undefined;
   try {
     if (input.attachment) {
-      uploaded = await uploadFile(input.subtaskId, "progress", input.attachment);
+      uploaded = await uploadSubtaskWorkFile(input.subtaskId, "progress", input.attachment);
     }
     const { error } = await supabase.rpc("save_subtask_progress", {
       p_subtask_id: input.subtaskId,
@@ -97,7 +96,7 @@ export async function submitSubtaskForReview(input: {
   const uploaded: SubtaskSubmissionAttachment[] = [];
   try {
     for (const file of input.evidence) {
-      uploaded.push(await uploadFile(input.subtaskId, submissionId, file));
+      uploaded.push(await uploadSubtaskWorkFile(input.subtaskId, submissionId, file));
     }
     const { error } = await supabase.rpc("submit_subtask_for_review", {
       p_subtask_id: input.subtaskId,
@@ -214,81 +213,18 @@ export function fetchSubtaskProgressUpdates(subtaskId: string): Promise<SubtaskP
 export async function fetchSubitemInspectorRecord(rootId: string, itemId: string) {
   const {data, error} = await supabase.from('subtasks').select('*').eq('task_id', rootId).eq('id', itemId).maybeSingle();
   if (error) throw new Error(error.message);
-  if (!data || data.id !== itemId || data.task_id !== rootId) throw new Error('Subitem unavailable. It was removed or is no longer accessible.');
+  if (!data || data.id !== itemId || data.task_id !== rootId) throw new Error('Subtask unavailable. It was removed or is no longer accessible.');
   const [submissions, progressUpdates] = await Promise.all([
     readSubtaskSubmissions(itemId, rootId), readSubtaskProgressUpdates(itemId, rootId),
   ]);
   if (submissions.some(row => row.taskId !== rootId || row.subtaskId !== itemId)
-    || progressUpdates.some(row => row.taskId !== rootId || row.subtaskId !== itemId)) throw new Error('Could not verify subitem history.');
+    || progressUpdates.some(row => row.taskId !== rootId || row.subtaskId !== itemId)) throw new Error('Could not verify subtask history.');
   return {subtask: rowToSubtask(data), submissions, progressUpdates};
 }
 
-async function readPendingSubtaskReviews(
-  reviewerId: string,
-  includeAll = false,
-  strict = false,
-): Promise<SubtaskReviewItem[]> {
-  let request = supabase
-    .from("subtask_submissions")
-    .select("*")
-    .eq("status", "pending")
-    .order("submitted_at", { ascending: true });
-  if (!includeAll) request = request.eq("reviewer_id", reviewerId);
-  let response;
-  if(!includeAll){
-    response=await supabase.rpc('r7_pending_subtask_reviews');
-    if(response.error?.code==='PGRST202')response=await request;
-  }else response=await request;
-  const error=response.error;
-  const submissionRows=response.data as Record<string,unknown>[] | null;
-  if(submissionRows&&!Array.isArray(submissionRows))throw new Error('Invalid current-reviewer response.');
-  if (error && strict) throw new Error(error.message);
-  if (error || !submissionRows?.length) return [];
-
-  const subtaskIds = submissionRows.map((row) => row.subtask_id as string);
-  const submissionIds = submissionRows.map((row) => row.id as string);
-  const [{ data: subtaskRows, error: subtaskError }, { data: attachmentRows, error: attachmentError }] = await Promise.all([
-    readSubtaskReviewRows('subtasks','*','id',subtaskIds),
-    readSubtaskReviewRows('subtask_submission_attachments','*','submission_id',submissionIds),
-  ]);
-  if (strict && (subtaskError || attachmentError)) throw new Error((subtaskError || attachmentError)!.message);
-  const taskIds = Array.from(new Set((subtaskRows || []).map((row) => row.task_id as string)));
-  const { data: taskRows, error: taskError } = taskIds.length
-    ? await readSubtaskReviewRows('tasks','id,title,project_title,linked_project_id','id',taskIds)
-    : { data: [] as Record<string, unknown>[] };
-  const projectIds = Array.from(new Set(
-    (taskRows || []).map((row) => row.linked_project_id as string).filter(Boolean),
-  ));
-  const { data: projectRows, error: projectError } = projectIds.length
-    ? await readSubtaskReviewRows('projects','id,title','id',projectIds)
-    : { data: [] as Record<string, unknown>[] };
-
-  if (strict && (taskError || projectError)) throw new Error((taskError || projectError)!.message);
-  const items=submissionRows.flatMap((submissionRow) => {
-    const rawSubtask = (subtaskRows || []).find((row) => row.id === submissionRow.subtask_id && row.task_id === submissionRow.task_id);
-    if (!rawSubtask) return [];
-    const task = (taskRows || []).find((row) => row.id === rawSubtask.task_id);
-    const attachments = (attachmentRows || [])
-      .filter((row) => row.submission_id === submissionRow.id)
-      .map((row) => ({
-        id: row.id as string,
-        fileName: (row.file_name as string) || "Evidence",
-        filePath: row.file_path as string,
-        fileSize: Number(row.file_size || 0),
-        mimeType: (row.mime_type as string) || "",
-      }));
-    return [{
-      subtask: rowToSubtask(rawSubtask),
-      submission: mapSubmission(submissionRow, attachments),
-      taskTitle: (task?.title as string) || "Parent task",
-      projectTitle:
-        ((projectRows || []).find((project) => project.id === task?.linked_project_id)?.title as string) ||
-        (task?.project_title as string) ||
-        undefined,
-    }];
-  });
-  try {return await addSubtaskReviewDisplayContext(items,taskRows||[]);}
-  catch(caught){if(strict)throw caught;return [];}
+async function readPendingSubtaskReviews(_reviewerId:string,_includeAll=false,_strict=false):Promise<SubtaskReviewItem[]> {
+ // Subitem approval is retired. Earlier evidence remains available in work history.
+ return [];
 }
 
 export function fetchPendingSubtaskReviews(reviewerId: string, includeAll = false): Promise<SubtaskReviewItem[]> {
@@ -300,29 +236,14 @@ export function fetchPersonalSubtaskReviews(reviewerId: string): Promise<Subtask
 }
 
 export function subscribeToPendingSubtaskReviews(
-  reviewerId: string,
-  includeAll: boolean,
+  _reviewerId: string,
+  _includeAll: boolean,
   callback: (items: SubtaskReviewItem[]) => void,
-  onError?: (error: Error) => void,
+  _onError?: (error: Error) => void,
 ): () => void {
-  let active = true, sequence = 0;
-  const load = async () => {
-    const current = ++sequence;
-    try {const rows = await readPendingSubtaskReviews(reviewerId,includeAll,!!onError); if(active && sequence === current) callback(rows);}
-    catch(caught) {if(active && sequence === current) onError?.(caught instanceof Error ? caught : new Error('Subtask reviews could not be loaded.'));}
-  };
-  load();
-  const channel = supabase
-    .channel(`subtask-reviews-${reviewerId}-${Math.random().toString(36).slice(2)}`)
-    .on("postgres_changes", { event: "*", schema: "public", table: "subtask_submissions" }, load)
-    .on("postgres_changes", { event: "*", schema: "public", table: "subtasks" }, load)
-    .on("postgres_changes", { event: "*", schema: "public", table: "tasks" }, load)
-    .subscribe();
-  const poll=window.setInterval(load,15_000);
-  window.addEventListener('focus',load);
-  window.addEventListener('eflow-project-access-changed',load);
-  const auth=supabase.auth?.onAuthStateChange?.(()=>{void load();});
-  return () => { active = false; ++sequence;window.clearInterval(poll);window.removeEventListener('focus',load);window.removeEventListener('eflow-project-access-changed',load);auth?.data.subscription.unsubscribe();supabase.removeChannel(channel); };
+  // Compatibility callers receive an empty queue once; retired reviews need no polling or subscriptions.
+  callback([]);
+  return () => {};
 }
 
 export async function decideSubtaskReview(

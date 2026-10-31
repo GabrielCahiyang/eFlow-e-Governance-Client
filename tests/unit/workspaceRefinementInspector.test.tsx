@@ -13,8 +13,9 @@ vi.mock('../../src/app/features/project-offices',async()=>{const {createContext}
 vi.mock('../../src/app/features/staffing',()=>({StaffingDialog:()=>null,staffingEntryReason:()=> 'Keep existing staffing scope.'}));
 vi.mock('../../src/app/features/subtasks',()=>({useTaskSubtasks:()=>({subtasks:[]})}));
 vi.mock('../../src/app/features/task-inspector/components/InspectorSummary',()=>({InspectorSummary:()=> <p>Description, schedule, dependencies and budget</p>}));
-vi.mock('../../src/app/features/task-inspector/components/InspectorTeam',()=>({InspectorTeam:({readOnly,canManageTaskTeam}:{readOnly:boolean;canManageTaskTeam:boolean})=> <p data-testid="inspector-team" data-read-only={String(readOnly)} data-legacy-manage={String(canManageTaskTeam)}>Team and subitems</p>}));
+vi.mock('../../src/app/features/task-inspector/components/InspectorTeam',()=>({InspectorTeam:({readOnly,canManageTaskTeam}:{readOnly:boolean;canManageTaskTeam:boolean})=> <p data-testid="inspector-team" data-read-only={String(readOnly)} data-legacy-manage={String(canManageTaskTeam)}>Team and subtasks</p>}));
 vi.mock('../../src/app/features/task-inspector/components/InspectorProgressUpdates',()=>({InspectorProgressUpdates:()=>null}));
+vi.mock('../../src/app/features/task-inspector/components/InspectorExecution',()=>({InspectorExecution:({initialAction}:{initialAction?:string})=><section aria-label="Work status and update" data-action={initialAction}>Update controls</section>}));
 vi.mock('../../src/app/features/task-inspector/components/InspectorFiles',()=>({InspectorFiles:({readOnly}:{readOnly:boolean})=><p>{readOnly?'Read-only files':'Writable files'}</p>}));
 vi.mock('../../src/app/shared/motion',()=>({InspectorPanel:(props:{children:React.ReactNode;ariaLabel:string})=>{state.panel(props);return <div role="dialog" aria-label={props.ariaLabel}>{props.children}</div>;}}));
 vi.mock('../../src/app/features/tasks',()=>({
@@ -37,13 +38,13 @@ function NavigationProbe(){
 }
 
 describe('My Work task page',()=>{
- it('uses the main content region with all six sections and no drawer',async()=>{
+ it('uses the main content region with all seven sections and no drawer',async()=>{
   const close=vi.fn();
   render(<TaskInspector presentation="page" task={state.task as never} origin={{view:'My Work',section:'work'}} onClose={close}/>);
   expect(screen.getByRole('region',{name:'Task details: Assessment'})).toBeTruthy();
   expect(screen.getByRole('heading',{name:'Assessment',level:1})).toBeTruthy();
   expect(screen.queryByRole('dialog')).toBeNull();expect(state.panel).not.toHaveBeenCalled();
-  expect(screen.getAllByRole('tab')).toHaveLength(6);
+  expect(screen.getAllByRole('tab')).toHaveLength(7);
   expect(screen.queryByRole('region',{name:'Advisory staffing'})).toBeNull();
   await act(async()=>fireEvent.click(screen.getByRole('tab',{name:'Files',exact:true})));
   expect(screen.getByText('Writable files')).toBeTruthy();
@@ -79,6 +80,7 @@ describe('My Work task page',()=>{
 describe('NW7.1 section contract and guarded keyboard navigation',()=>{
  it('resolves historical aliases while preserving explicit sections and the Updates default',()=>{
   expect(resolveTaskInspectorSection('details')).toBe('overview');expect(resolveTaskInspectorSection('team')).toBe('work');
+  expect(resolveTaskInspectorSection('report-blocker')).toBe('update-work');expect(resolveTaskInspectorSection('submit-work')).toBe('update-work');
   for(const section of TASK_INSPECTOR_SECTIONS)expect(resolveTaskInspectorSection(section.id)).toBe(section.id);
   expect(resolveTaskInspectorSection()).toBe('updates');
  });
@@ -89,13 +91,13 @@ describe('NW7.1 section contract and guarded keyboard navigation',()=>{
    render(<NavigationProbe/>);const updates=screen.getByRole('tab',{name:'Updates'});updates.focus();
    for(const tab of screen.getAllByRole('tab')){await act(async()=>fireEvent.click(tab));expect(updates.getAttribute('aria-selected')).toBe('true');}
    for(const key of ['ArrowLeft','ArrowRight','Home','End']){await act(async()=>fireEvent.keyDown(updates,{key}));expect(updates.getAttribute('aria-selected')).toBe('true');expect(document.activeElement).toBe(updates);}
-   expect(decision).toHaveBeenCalledTimes(10);expect(discard).not.toHaveBeenCalled();
+   expect(decision).toHaveBeenCalledTimes(11);expect(discard).not.toHaveBeenCalled();
    decision.mockResolvedValue(true);await act(async()=>fireEvent.keyDown(updates,{key:'End'}));
-   expect(decision).toHaveBeenCalledTimes(11);expect(discard).toHaveBeenCalledOnce();
+   expect(decision).toHaveBeenCalledTimes(12);expect(discard).toHaveBeenCalledOnce();
    const review=screen.getByRole('tab',{name:'Review'});expect(review.getAttribute('aria-selected')).toBe('true');expect(document.activeElement).toBe(review);
   }finally{blocker.unmount();uninstall();}
  });
- it('wraps keyboard selection across six sections with one tab stop',async()=>{
+ it('wraps keyboard selection across seven sections with one tab stop',async()=>{
   render(<NavigationProbe/>);
   const select=async(key:string)=>{await act(async()=>fireEvent.keyDown(screen.getByRole('tab',{selected:true}),{key}));};
   await select('Home');expect(document.activeElement).toBe(screen.getByRole('tab',{name:'Overview'}));
@@ -116,6 +118,17 @@ describe('NW7.1 section contract and guarded keyboard navigation',()=>{
  });
 });
 describe('R6 shared inspector presentation and support boundary',()=>{
+ it('gives updates their own tab without mixing in team and subtasks',async()=>{
+  render(<TaskInspector task={state.task as never} presentation="page" origin={{view:'My Work',section:'work'}} onClose={()=>{}} canPostProgress/>);
+  expect(screen.getByText('Team and subtasks')).toBeTruthy();expect(screen.queryByRole('region',{name:'Work status and update'})).toBeNull();
+  await act(async()=>fireEvent.click(screen.getByRole('tab',{name:'Update work',exact:true})));
+  expect(screen.getByRole('region',{name:'Work status and update'})).toBeTruthy();expect(screen.queryByText('Team and subtasks')).toBeNull();
+ });
+ it.each(['report-blocker','submit-work'] as const)('opens the dedicated Update work tab for %s',section=>{
+  render(<TaskInspector task={state.task as never} origin={{view:'Inbox',section}} onClose={()=>{}} canPostProgress/>);
+  expect(screen.getByRole('tab',{name:'Update work',exact:true}).getAttribute('aria-selected')).toBe('true');
+  expect(screen.getByRole('region',{name:'Work status and update'}).getAttribute('data-action')).toBe(section==='report-blocker'?'stuck':'submit');
+ });
  for(const [originSection,selected] of [['details','Overview'],['overview','Overview'],['team','Work'],['work','Work'],['files','Files']] as const)it('opens '+originSection+' origins directly in '+selected,()=>{
   const returnFocus=document.createElement('button'),restoreFocus=vi.fn();
   render(<TaskInspector taskId="task" origin={{view:'Table',section:originSection,returnFocus,restoreFocus}} onClose={()=>{}}/>);
@@ -142,11 +155,11 @@ describe('R6 shared inspector presentation and support boundary',()=>{
   expect(screen.getByText('Authorized review history')).toBeTruthy();
   expect(screen.queryByText('Authorized review panel')).toBeNull();
  });
- it('shows six sections with distinct Overview, Work and currently permitted Review',async()=>{
+ it('shows seven sections with distinct Overview, Work and currently permitted Review',async()=>{
   render(<TaskInspector task={state.task as never} onClose={()=>{}} canReview canPostProgress/>);
-  expect(screen.getAllByRole('tab').map(t=>t.textContent)).toEqual(['Overview','Work','Updates','Files','Activity','Review']);expect(screen.queryByText('Team and subitems')).toBeNull();
-  fireEvent.click(screen.getByRole('tab',{name:'Overview',exact:true}));await screen.findByText('Description, schedule, dependencies and budget');expect(screen.queryByText('Team and subitems')).toBeNull();
-  fireEvent.click(screen.getByRole('tab',{name:'Work',exact:true}));await screen.findByText('Team and subitems');expect(screen.queryByText('Description, schedule, dependencies and budget')).toBeNull();
+  expect(screen.getAllByRole('tab').map(t=>t.textContent)).toEqual(['Overview','Work','Update work','Updates','Files','Activity','Review']);expect(screen.queryByText('Team and subtasks')).toBeNull();
+  fireEvent.click(screen.getByRole('tab',{name:'Overview',exact:true}));await screen.findByText('Description, schedule, dependencies and budget');expect(screen.queryByText('Team and subtasks')).toBeNull();
+  fireEvent.click(screen.getByRole('tab',{name:'Work',exact:true}));await screen.findByText('Team and subtasks');expect(screen.queryByText('Description, schedule, dependencies and budget')).toBeNull();
   fireEvent.click(screen.getByRole('tab',{name:'Review',exact:true}));await screen.findByText('Authorized review panel');expect(screen.queryByText('Can discuss')).toBeNull();
   fireEvent.click(screen.getByRole('tab',{name:'Files',exact:true}));await screen.findByText('Writable files');expect(screen.queryByText('Authorized review panel')).toBeNull();
  });

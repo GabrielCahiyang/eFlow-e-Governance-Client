@@ -1,4 +1,4 @@
-import { Link2 } from "lucide-react";
+import { Link2,CheckCircle2,Clock } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -28,6 +28,7 @@ export function DependencyCell({
   const titles = (task.dependencyIds || []).map(
     (id) => tasks.find((item) => item.id === id)?.title || "Restricted task",
   );
+  const pending=(task.dependencyIds||[]).filter(id=>tasks.find(item=>item.id===id)?.status!=='completed').length;
   return (
     <Popover open={editor.open} onOpenChange={editor.onOpenChange}>
       <PopoverTrigger asChild>
@@ -38,7 +39,7 @@ export function DependencyCell({
           aria-label={"Edit dependencies for " + task.title}
         >
           <Link2 size={14} />
-          {titles.length ? titles.length + " linked" : "Add"}
+          {titles.length ? pending?`Waiting for ${pending} task${pending===1?'':'s'}`:"Ready to start" : "No prerequisites"}
         </button>
       </PopoverTrigger>
       {editor.open && (
@@ -67,12 +68,11 @@ export function DependencyCell({
           >
             <strong>Depends on</strong>
             <p>
-              Dependencies affect delivery order. Select other project tasks;
-              cycles are blocked.
+              This task can start only after EVERY selected task is completed and approved. Selecting two tasks means both must finish first. Cycles are blocked.
             </p>
             <div className="pt-dependency-options">
               {tasks
-                .filter((item) => item.id !== task.id && !item.archivedAt)
+                .filter((item) => item.id !== task.id && !item.archivedAt && item.linkedProjectId===task.linkedProjectId)
                 .map((item) => (
                   <label key={item.id}>
                     <input
@@ -88,7 +88,7 @@ export function DependencyCell({
                         )
                       }
                     />
-                    {item.title}
+                    <span>{item.title}<small className="block text-xs text-muted-foreground">{item.status==='completed'?<><CheckCircle2 size={12}/>Completed and approved</>:<><Clock size={12}/>Waiting · {item.status.replace(/_/g,' ')}</>}</small></span>
                   </label>
                 ))}
             </div>
@@ -104,7 +104,7 @@ export function DependencyCell({
               <p>Add another task first.</p>
             )}
             {editor.error && (
-              <p role="alert">{editor.error} Retry with Save dependencies.</p>
+              <div role="alert" className="pf-error">Could not save dependencies: {editor.error} Correct the selection and retry.</div>
             )}
             {editor.notice && <p role="status">{editor.notice}</p>}
             <Button

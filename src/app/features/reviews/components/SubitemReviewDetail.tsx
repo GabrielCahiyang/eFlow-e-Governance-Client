@@ -35,7 +35,7 @@ export function SubitemReviewDetail({item,context,currentReviewerName,feedback,p
   const blocked = readOnly || pending;
   const reviewer = verified ? verified.currentReviewerName : currentReviewerName;
 
-  return <section aria-label="Subitem review detail" className="subitem-review-detail space-y-4 rounded-xl border p-4">
+  return <section aria-label="Subtask review detail" className="subitem-review-detail space-y-4 rounded-xl border p-4">
     <div>
       <div className="text-[10.5px] uppercase tracking-wider text-neutral-400">Subtask evidence · Attempt {item.submission.version}</div>
       <h2 className="mt-1 text-[17px] font-semibold text-neutral-900">{item.subtask.title}</h2>

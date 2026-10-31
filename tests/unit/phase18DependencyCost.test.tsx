@@ -11,6 +11,6 @@ it('does not construct choices for a closed editor, then reads current choices w
  render(<DependencyCell task={task} tasks={choices} disabled={false} save={vi.fn()}/>);
  expect(filtered).not.toHaveBeenCalled();expect(screen.queryByRole('checkbox')).toBeNull();
  fireEvent.click(screen.getByRole('button',{name:'Edit dependencies for Assessment'}));
- expect(await screen.findByRole('checkbox',{name:'Briefing'})).toBeTruthy();
+ expect(await screen.findByRole('checkbox',{name:/^Briefing/})).toBeTruthy();
  expect(filtered).toHaveBeenCalled();
 });

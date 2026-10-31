@@ -28,6 +28,14 @@ beforeEach(() => {
   api.rpc.mockResolvedValue({ error: null });
 });
 describe("atomic metadata service", () => {
+  it("propagates task date boundary rejections without audit or success notifications", async () => {
+    const error = { code: '22023', message: 'Project target date cannot be before 2099-11-05: task "TestTask" is scheduled on that date.' };
+    api.rpc.mockResolvedValue({ error });
+    await expect(updateProject('p', { targetDate: '2099-11-04' }, version)).rejects.toEqual(error);
+    expect(api.audit).not.toHaveBeenCalled();
+    expect(api.refresh).not.toHaveBeenCalled();
+    expect(api.rpc).toHaveBeenCalledTimes(1);
+  });
   it("sends the exact observed version and allowed column mapping", async () => {
     await updateProject(
       "p",

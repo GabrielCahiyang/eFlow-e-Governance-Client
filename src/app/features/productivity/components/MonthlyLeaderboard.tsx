@@ -62,7 +62,7 @@ export function MonthlyLeaderboard({ employees, tasks, facts, currentUserId, all
             <div>
               <div className="text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-400">Approved contribution</div>
               <h2 className="mt-0.5 text-[17px] font-semibold text-neutral-900">Monthly leaderboard</h2>
-              <p className="mt-1 max-w-2xl text-[10.5px] leading-5 text-neutral-500">Only approved work counts. Quality, effort, timeliness, and collaboration are scored separately so raw clicks and unapproved subtasks cannot inflate rank.</p>
+              <p className="mt-1 max-w-2xl text-[10.5px] leading-5 text-neutral-500">Only approved work counts. Quality, effort, timeliness, and collaboration are scored separately so raw clicks cannot inflate rank. Direct subitems receive collaboration credit only after the parent task is approved.</p>
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -85,7 +85,7 @@ export function MonthlyLeaderboard({ employees, tasks, facts, currentUserId, all
             ["Delivery", "Priority + estimated effort", <Award size={13} />],
             ["Quality", "On-time + first pass", <ShieldCheck size={13} />],
             ["Speed", "Effort-normalized and capped", <Timer size={13} />],
-            ["Collaboration", "Approved subtasks · max 30", <Gauge size={13} />],
+            ["Collaboration", "Completed subitems · max 30", <Gauge size={13} />],
           ].map(([label, detail, icon]) => <div key={label as string} className="rounded-lg border border-white/80 bg-white/70 px-3 py-2"><div className="flex items-center gap-1.5 text-[10px] font-medium text-neutral-700">{icon}{label}</div><div className="mt-0.5 text-[9px] text-neutral-400">{detail}</div></div>)}
         </div>
       </div>

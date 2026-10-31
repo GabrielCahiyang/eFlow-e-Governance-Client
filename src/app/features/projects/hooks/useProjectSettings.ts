@@ -92,6 +92,7 @@ export function useProjectSettings(project: Project, canManage: boolean) {
   };
   const save = async () => {
     if (!editable || inFlight.current || !dirty || conflict) return;
+    setNotice("");
     const dateIssue =
       draft.startDate && draft.targetDate && draft.targetDate < draft.startDate
         ? "Target date must be on or after the start date."

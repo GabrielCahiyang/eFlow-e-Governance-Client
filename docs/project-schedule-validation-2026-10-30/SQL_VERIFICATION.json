@@ -1,0 +1,133 @@
+{
+  "database": "disposable localhost PostgreSQL 17",
+  "migrations": [
+    "20261029232938_project_task_schedule_bounds.sql",
+    "20261029235308_project_schedule_insert_guard.sql"
+  ],
+  "checks": [
+    {
+      "case": "Nov 4 project end rejects Nov 5 task; rows unchanged",
+      "result": "pass"
+    },
+    {
+      "case": "Inclusive target day accepts 11:59 PM Manila task",
+      "result": "pass"
+    },
+    {
+      "case": "Project start cannot exclude existing task start",
+      "result": "pass"
+    },
+    {
+      "case": "Task due cannot exceed project end",
+      "result": "pass"
+    },
+    {
+      "case": "Task start cannot precede project start",
+      "result": "pass"
+    },
+    {
+      "case": "Task due cannot precede own start",
+      "result": "pass"
+    },
+    {
+      "case": "UTC timestamp crossing Manila midnight is next calendar day",
+      "result": "pass"
+    },
+    {
+      "case": "Due date fallback also constrains project end",
+      "result": "pass"
+    },
+    {
+      "case": "Soft-deleted tasks do not constrain the project",
+      "result": "pass"
+    },
+    {
+      "case": "Restoring an out-of-range task is blocked",
+      "result": "pass"
+    },
+    {
+      "case": "todo task still constrains project dates",
+      "result": "pass"
+    },
+    {
+      "case": "in_progress task still constrains project dates",
+      "result": "pass"
+    },
+    {
+      "case": "completed task still constrains project dates",
+      "result": "pass"
+    },
+    {
+      "case": "cancelled task still constrains project dates",
+      "result": "pass"
+    },
+    {
+      "case": "Conflicting task remains invisible under RLS",
+      "result": "pass"
+    },
+    {
+      "case": "Integrity check sees conflicts hidden by task RLS",
+      "result": "pass"
+    },
+    {
+      "case": "Private schema has no authenticated usage",
+      "result": "pass"
+    },
+    {
+      "case": "Duplicate project insert reaches uniqueness without reading hidden task schedule",
+      "result": "pass"
+    },
+    {
+      "case": "Linking out-of-range work to a project is blocked",
+      "result": "pass"
+    },
+    {
+      "case": "Unresolved relative schedules remain planning values",
+      "result": "pass"
+    },
+    {
+      "case": "Unbounded planning dates remain supported",
+      "result": "pass"
+    },
+    {
+      "case": "Setting bounds validates existing due-only tasks",
+      "result": "pass"
+    },
+    {
+      "case": "Existing invalid schedule cannot activate",
+      "result": "pass"
+    },
+    {
+      "case": "Readiness exposes the existing invalid schedule and blocks activation",
+      "result": "pass"
+    },
+    {
+      "case": "Readiness retains unrelated review blockers",
+      "result": "pass"
+    },
+    {
+      "case": "Readiness retains current structure review",
+      "result": "pass"
+    },
+    {
+      "case": "Unrelated edits do not rewrite or block legacy dates",
+      "result": "pass"
+    },
+    {
+      "case": "Concurrent edits reject stale task",
+      "result": "pass"
+    },
+    {
+      "case": "Concurrent final invariant: True",
+      "result": "pass"
+    },
+    {
+      "case": "Concurrent edits reject stale project range",
+      "result": "pass"
+    },
+    {
+      "case": "Concurrent final invariant: False",
+      "result": "pass"
+    }
+  ]
+}

@@ -69,13 +69,13 @@ export function SubmitForReviewModal({
             <div className="flex items-center gap-2 text-[11.5px] font-medium">
               <CheckCircle2 size={14} />
               {subtaskCount === 0
-                ? "No subtasks require approval"
-                : `${approvedSubtaskCount} of ${subtaskCount} subtasks approved`}
+                ? "No subtasks to complete"
+                : `${approvedSubtaskCount} of ${subtaskCount} subtasks complete`}
             </div>
             <p className="mt-1 text-[10.5px] leading-relaxed opacity-80">
               {subtasksReady
                 ? "Add the Team Lead’s final completion summary, then submit the complete task to the Head."
-                : `${remainingSubtasks} subtask${remainingSubtasks === 1 ? " is" : "s are"} still waiting for Team Leader approval. The task cannot be submitted to the Head yet.`}
+                : `${remainingSubtasks} subtask${remainingSubtasks === 1 ? " is" : "s are"} still incomplete. The task cannot be submitted to the Head yet.`}
             </p>
           </div>
 

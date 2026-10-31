@@ -1,5 +1,5 @@
 import { EmptyState } from '../../../components/ui/EmptyState';
-import {useEffect,useMemo,useRef,useState} from 'react';
+import {useEffect,useMemo,useRef,useState,type ReactNode} from 'react';
 import {useAuth} from '../../../contexts/AuthContext';
 import type {WorkspaceAction} from '../../../components/ui/workspace/ActionMenu';
 import {isCurrentWorkSnapshot,selectNodeWorkCapability,selectRootWorkCapability} from '../selectors/capabilities';
@@ -21,10 +21,11 @@ export interface WorkHierarchyProps {
  branchParentId?:string;
  branchActions?:boolean;
  presentation?:'standard'|'project-table';
+ heading?:ReactNode;
 }
 const mobileQuery='(max-width: 639px)';
 /** Presentation only: one supplied authorized snapshot, no tree/service ownership. */
-export function WorkHierarchy({snapshot,readOnly,executionBlocked,authorityFresh,focusedNodeId,collapsedIds,onCollapsedIdsChange,onOpenNode,onRequestAction,officeReviewAvailable=true,branchParentId,branchActions=false,presentation='standard'}:WorkHierarchyProps) {
+export function WorkHierarchy({snapshot,readOnly,executionBlocked,authorityFresh,focusedNodeId,collapsedIds,onCollapsedIdsChange,onOpenNode,onRequestAction,branchParentId,branchActions=false,presentation='standard',heading}:WorkHierarchyProps) {
  const {user}=useAuth();
  const context={actorId:user?.id||null,rootId:snapshot.root.id,projectId:snapshot.root.project,officeId:snapshot.root.office,kind:snapshot.root.kind,revision:snapshot.revision,readOnly,executionBlocked};
  const snapshotCurrent=isCurrentWorkSnapshot(snapshot,context);
@@ -55,13 +56,12 @@ export function WorkHierarchy({snapshot,readOnly,executionBlocked,authorityFresh
     onSelect:()=>{if(authorityFresh&&capabilities.some(allowed))onRequestAction(action,nodeId);}});
   };
   add('staff','Choose people',['manage_contributors','appoint_lead']);
-  add('create','Add subitem',['create_child']);
+  add('create','Add subtask',['create_child']);
   // nodeId names the parent. No displayed/filtered IDs are sent as an order list.
   add('order','Reorder children',['order_children']);
   if(node){
-   add('edit','Edit details',['edit_details']);add('move','Move',['move']);add('delete','Delete subtree',['delete']);
-   if(snapshot.root.kind==='personal'){add('progress','Update progress',['execute']);add('submit','Submit for review',['submit']);}
-   if(snapshot.root.kind==='personal'||officeReviewAvailable)add('review','Review',['review']);
+   add('edit','Edit subtask',['edit_details']);add('move','Move',['move']);add('delete','Delete subtree',['delete']);
+   if(snapshot.root.kind==='personal'){add('progress','Update work',['execute']);add('submit','Mark complete',['submit']);}
   }
   return actions;
  }
@@ -70,9 +70,9 @@ export function WorkHierarchy({snapshot,readOnly,executionBlocked,authorityFresh
  const rows:WorkHierarchyRow[]=display.rows.filter(row=>!branch||branch.has(row.id)).map(row=>({node:byId.get(row.id)!,display:row,actions:actionsFor(row.id)}));
  const toggle=(nodeId:string)=>{const next=new Set(display.collapsedIds);if(next.has(nodeId))next.delete(nodeId);else next.add(nodeId);onCollapsedIdsChange(next);};
  const props={rows,people:snapshot.people,collapsedIds:display.collapsedIds,focusedNodeId,onToggle:toggle,onOpenNode};
- if(!snapshotCurrent||branchParentId&&!byId.has(branchParentId))return <section className="nw-hierarchy" aria-label="Subitem work"><p role="alert">Verify current work access. Reload the work.</p></section>;
- return <section ref={section} className="nw-hierarchy" aria-label="Subitem work">
-  <div className="nw-hierarchy-toolbar"><WorkNodeActionMenu compact={presentation==='project-table'} label={branchParentId?'Child work actions':'Task work actions'} actions={actionsFor(branchParentId).filter(action=>!branchParentId||(branchActions?!['open','review'].includes(action.id):['create','order'].includes(action.id)))}/></div>
-  {presentation==='project-table'?<WorkTreeTable {...props} tableSurface createAction={actionsFor(branchParentId).find(action=>action.id==='create')}/>:!rows.length?<EmptyState illustration="tasks" size="compact" title="No subitems yet."/>:mobile?<WorkTreeMobileList {...props}/>:<WorkTreeTable {...props}/>}
+ if(!snapshotCurrent||branchParentId&&!byId.has(branchParentId))return <section className="nw-hierarchy" aria-label="Subtask work"><p role="alert">Verify current work access. Reload the work.</p></section>;
+ return <section ref={section} className="nw-hierarchy" aria-label="Subtask work">
+  {presentation!=='project-table'&&<div className={`nw-hierarchy-toolbar${heading?' nw-hierarchy-toolbar--heading':''}`}>{heading}<WorkNodeActionMenu prominent={!!heading} label={branchParentId?'Child work actions':'Task work actions'} actions={actionsFor(branchParentId).filter(action=>!branchParentId||(branchActions?!['open','review'].includes(action.id):['create','order'].includes(action.id)))}/></div>}
+  {presentation==='project-table'?<WorkTreeTable {...props} tableSurface headerAction={<WorkNodeActionMenu compact label={branchParentId?'Child work actions':'Task work actions'} actions={actionsFor(branchParentId).filter(action=>!branchParentId||(branchActions?!['open','review'].includes(action.id):['create','order'].includes(action.id)))}/>} createAction={actionsFor(branchParentId).find(action=>action.id==='create')}/>:<div className="nw-hierarchy-surface">{!rows.length?<EmptyState illustration="tasks" size="compact" title="No subtasks yet."/>:mobile?<WorkTreeMobileList {...props}/>:<WorkTreeTable {...props}/>}</div>}
  </section>;
 }

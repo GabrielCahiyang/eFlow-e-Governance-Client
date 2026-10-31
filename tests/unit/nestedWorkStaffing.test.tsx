@@ -38,7 +38,7 @@ describe('canonical staffing dialog capability and commands',()=>{
   const add=screen.getByRole('button',{name:'Add contributor Existing Contributor'});
   expect((add as HTMLButtonElement).disabled).toBe(false);fireEvent.click(add);fireEvent.click(saveButton());
   const review=await screen.findByRole('alertdialog');expect(review.textContent).toContain('Make Replacement Lead the lead for this task?');
-  expect(review.textContent).not.toMatch(/descendant|routing|fingerprint|historical authorship|0 subitems/);
+  expect(review.textContent).not.toMatch(/descendant|routing|fingerprint|historical authorship|0 subtasks/);
   await acceptTransfer();await waitFor(()=>expect(ctrl.save).toHaveBeenCalledOnce());
   expect(ctrl.save.mock.calls[0][0]).toMatchObject({command:'root_lead',payload:{lead:'next',people:['member','next']}});
  });
@@ -68,7 +68,7 @@ describe('canonical staffing dialog capability and commands',()=>{
   expect(ctrl.save.mock.calls[0][0]).toMatchObject({command:'contributors',revision:7,payload:{people:['actor','member','next']}});
   expect(changed).toHaveBeenCalledWith(data);expect(screen.queryByRole('alertdialog')).toBeNull();
  });
- it('lets an own Subitem Lead edit contributors but never replace itself',async()=>{
+ it('lets an own Subtask Lead edit contributors but never replace itself',async()=>{
   const data=await verified(),ctrl=controller(data);render(<WorkStaffingDialog controller={ctrl} nodeId="branch" onClose={vi.fn()} onChanged={vi.fn()}/>);
   expect((leadControl() as HTMLSelectElement).disabled).toBe(true);fireEvent.click(screen.getByRole('button',{name:'Add contributor Replacement Lead'}));fireEvent.click(saveButton());
   await waitFor(()=>expect(ctrl.save).toHaveBeenCalledOnce());expect(ctrl.save.mock.calls[0][0]).toMatchObject({command:'staff',payload:{id:'branch',lead:'actor',people:['actor','member','next']}});

@@ -1,0 +1,13 @@
+{
+  "target": "ixnfphgjyelhckjwjkdv",
+  "migration": "20261030010856_project_office_invitation_visibility.sql",
+  "sha256": "e433d21934dc92b54b63530664f008c806aa242f2258b6f1fba3ea00118eeddf",
+  "backup_verified": true,
+  "prior_migrations": 60,
+  "dry_run_only_reviewed_delta": true,
+  "public_tables_checked": 115,
+  "applied": true,
+  "non_heartbeat_public_rows_unchanged": true,
+  "private_tables_still_private": true,
+  "completed_at": "2026-10-30T01:13:53.964237+00:00"
+}

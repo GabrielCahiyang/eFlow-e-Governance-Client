@@ -48,6 +48,6 @@ describe('NW3.4 AI selection through the actual canonical appointment editor',()
  });
  it('saves once and disables all resubmission after caller refresh fails',async()=>{
   const assigned=vi.fn().mockRejectedValue(new Error('Refresh failed'));await enter(assigned);await submit();await screen.findByText(/People were saved, but/);expect(writes()).toHaveLength(1);expect(screen.queryByRole('button',{name:'Save changes'})).toBeNull();expect(screen.queryByRole('button',{name:'Try again'})).toBeNull();
-  fireEvent.click(within(screen.getByRole('form',{name:'Task/subitem people changes'})).getByRole('button',{name:'Close',exact:true}));await screen.findByText('Lead appointed.');const confirm=screen.getByRole('button',{name:'Confirm owner'});expect(confirm.getAttribute('aria-disabled')).toBe('true');fireEvent.click(confirm);expect(writes()).toHaveLength(1);expect(api.assign).not.toHaveBeenCalled();
+  fireEvent.click(within(screen.getByRole('form',{name:'Task/subtask people changes'})).getByRole('button',{name:'Close',exact:true}));await screen.findByText('Lead appointed.');const confirm=screen.getByRole('button',{name:'Confirm owner'});expect(confirm.getAttribute('aria-disabled')).toBe('true');fireEvent.click(confirm);expect(writes()).toHaveLength(1);expect(api.assign).not.toHaveBeenCalled();
  });
 });

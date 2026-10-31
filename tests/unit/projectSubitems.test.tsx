@@ -32,14 +32,14 @@ const profiles = [{ id: 'viewer', full_name: 'Office Head' }, { id: 'lead', full
 
 function show(patch: Partial<Task> = {}, subtasks: Subtask[] = []) {
   const result = render(<table><tbody><ProjectTaskRow task={{ ...task, ...patch }} tasks={[]} groups={[]} profiles={profiles} orgs={[]} columns={[]} editable userId="viewer" subtasks={subtasks} onOpen={mocks.open} onOpenSubitem={mocks.openSubitem} refreshSubitems={mocks.refresh} reorderable={false} onMove={vi.fn()} run={async fn => { await fn(); }}/></tbody></table>);
-  fireEvent.click(screen.getByRole('button', { name: 'Subitems for Prepare assessment' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Subtasks for Prepare assessment' }));
   return result;
 }
 
 beforeEach(() => { vi.useFakeTimers({toFake:['Date']}); vi.setSystemTime(new Date('2026-10-01T04:00:00+08:00')); vi.clearAllMocks(); mocks.officeState.offices = []; mocks.officeState.error = ''; mocks.create.mockResolvedValue(subtask()); mocks.refresh.mockResolvedValue(undefined); });
 afterEach(() => { cleanup(); vi.useRealTimers(); });
 
-describe('Project table subitem expansion', () => {
+describe('Project table subtask expansion', () => {
   it('opens the legacy Task team menu directly in Work after the menu focus handoff', async () => {
     show();
     const trigger = screen.getByRole('button', { name: 'Actions for Prepare assessment' });
@@ -63,28 +63,28 @@ describe('Project table subitem expansion', () => {
     await waitFor(()=>expect(mocks.open).toHaveBeenCalledOnce());
   });
 
-  it('keeps the first-column Add subitem action disabled for someone who is not the task lead', async () => {
+  it('keeps the first-column Add subtask action disabled for someone who is not the task lead', async () => {
     show({ assigneeId: 'lead' });
     fireEvent.keyDown(screen.getByRole('button', { name: 'Actions for Prepare assessment' }), { key: 'Enter' });
-    expect((await screen.findByRole('menuitem', { name: 'Add subitem', exact: true })).getAttribute('aria-disabled')).toBe('true');
-    expect(screen.queryByRole('textbox', { name: 'Add subitem to Prepare assessment' })).toBeNull();
+    expect((await screen.findByRole('menuitem', { name: 'Add subtask', exact: true })).getAttribute('aria-disabled')).toBe('true');
+    expect(screen.queryByRole('textbox', { name: 'Add subtask to Prepare assessment' })).toBeNull();
   });
 
-  it('hands menu focus to the add field when subitems are already expanded', async () => {
+  it('hands menu focus to the add field when subtasks are already expanded', async () => {
     show();
     const actions = screen.getByRole('button', { name: 'Actions for Prepare assessment' });
     actions.focus();
     fireEvent.keyDown(actions, { key: 'Enter' });
-    fireEvent.click(await screen.findByRole('menuitem', { name: 'Add subitem', exact: true }));
-    await waitFor(() => expect(document.activeElement).toBe(screen.getByRole('textbox', { name: 'Add subitem to Prepare assessment' })));
+    fireEvent.click(await screen.findByRole('menuitem', { name: 'Add subtask', exact: true }));
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByRole('textbox', { name: 'Add subtask to Prepare assessment' })));
     expect(mocks.create).not.toHaveBeenCalled();
   });
 
-  it('opens an empty nested table and saves the task lead’s subitem when focus leaves', async () => {
+  it('opens an empty nested table and saves the task lead’s subtask when focus leaves', async () => {
     show();
-    const table = screen.getByRole('table', { name: 'Prepare assessment subitems' });
-    expect(within(table).getAllByRole('columnheader').map(header => header.textContent)).toEqual(['Subitem', 'Owner', 'Status', 'Due date', 'Progress']);
-    const input = screen.getByRole('textbox', { name: 'Add subitem to Prepare assessment' });
+    const table = screen.getByRole('table', { name: 'Prepare assessment subtasks' });
+    expect(within(table).getAllByRole('columnheader').map(header => header.textContent)).toEqual(['Subtask', 'Owner', 'Status', 'Due date', 'Progress']);
+    const input = screen.getByRole('textbox', { name: 'Add subtask to Prepare assessment' });
     expect(document.activeElement).toBe(input);
     fireEvent.change(input, { target: { value: '  Prepare agenda  ' } });
     fireEvent.blur(input);
@@ -95,8 +95,8 @@ describe('Project table subitem expansion', () => {
 
   it('lets the task lead set a due date before focus leaves the add row', async () => {
     show();
-    const input = screen.getByRole('textbox', { name: 'Add subitem to Prepare assessment' });
-    const date = screen.getByLabelText('Due date for new subitem to Prepare assessment');
+    const input = screen.getByRole('textbox', { name: 'Add subtask to Prepare assessment' });
+    const date = screen.getByLabelText('Due date for new subtask to Prepare assessment');
     fireEvent.change(input, { target: { value: 'Prepare agenda' } });
     fireEvent.blur(input, { relatedTarget: date });
     expect(mocks.create).not.toHaveBeenCalled();
@@ -109,48 +109,48 @@ describe('Project table subitem expansion', () => {
   it('keeps order, owners, progress, dates, and evidence drawer access', () => {
     const first = subtask({ id: 'first', title: 'First step', position: 1, dueDate: '2026-10-10', percentComplete: 40 });
     show({}, [subtask(), first]);
-    const table = screen.getByRole('table', { name: 'Prepare assessment subitems' });
-    expect(within(table).getAllByRole('button', { name: /^Edit subitem/ }).map(button => button.textContent)).toEqual(['First step', 'Gather evidence']);
+    const table = screen.getByRole('table', { name: 'Prepare assessment subtasks' });
+    expect(within(table).getAllByRole('button', { name: /^Edit subtask/ }).map(button => button.textContent)).toEqual(['First step', 'Gather evidence']);
     expect(within(table).getAllByText('Maria Clara')).toHaveLength(2);
     expect(within(table).getByText('40%')).toBeTruthy();
     expect(within(table).getByText('2026-10-10')).toBeTruthy();
-    fireEvent.click(within(table).getByRole('button', { name: 'Open subitem First step' }));
+    fireEvent.click(within(table).getByRole('button', { name: 'Open subtask First step' }));
     expect(mocks.openSubitem).toHaveBeenCalledWith(first,false);
   });
 
   it('explains why an Office Head who is not the task lead cannot add', () => {
     show({ assigneeId: 'lead' });
-    expect(screen.getByText('No subitems yet.')).toBeTruthy();
-    expect(screen.getByText('Only the assigned task lead (Maria Clara) can add subitems.')).toBeTruthy();
-    expect(screen.queryByRole('textbox', { name: 'Add subitem to Prepare assessment' })).toBeNull();
+    expect(screen.getByText('No subtasks yet.')).toBeTruthy();
+    expect(screen.getByText('Only the assigned task lead (Maria Clara) can add subtasks.')).toBeTruthy();
+    expect(screen.queryByRole('textbox', { name: 'Add subtask to Prepare assessment' })).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Task details' }));
     expect(mocks.open).toHaveBeenCalledOnce();
   });
 
   it('explains the assignment step for tasks without a lead', () => {
     show({ assigneeId: undefined });
-    expect(screen.getByText('Assign a task owner first. Only the assigned task lead can add subitems.')).toBeTruthy();
+    expect(screen.getByText('Assign a task owner first. Only the assigned task lead can add subtasks.')).toBeTruthy();
   });
 
-  it.each(['for_review', 'completed', 'cancelled'] as const)('preserves the %s lock and keeps existing subitems readable', status => {
+  it.each(['for_review', 'completed', 'cancelled'] as const)('preserves the %s lock and keeps existing subtasks readable', status => {
     show({ status }, [subtask()]);
-    expect(screen.getByText(/Subitems are locked while this task is/)).toBeTruthy();
-    expect((screen.getByRole('button', { name: 'Edit subitem Gather evidence' }) as HTMLButtonElement).disabled).toBe(true);
-    expect(screen.queryByRole('textbox', { name: 'Add subitem to Prepare assessment' })).toBeNull();
-    expect(screen.getByRole('button', { name: 'Open subitem Gather evidence' })).toBeTruthy();
+    expect(screen.getByText(/Subtasks are locked while this task is/)).toBeTruthy();
+    expect((screen.getByRole('button', { name: 'Edit subtask Gather evidence' }) as HTMLButtonElement).disabled).toBe(true);
+    expect(screen.queryByRole('textbox', { name: 'Add subtask to Prepare assessment' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Open subtask Gather evidence' })).toBeTruthy();
   });
 
   it('preserves observer access even when the viewer is the assigned lead', () => {
     mocks.officeState.offices = [{ office_id: 'office', relationship_type: 'observer', invitation_status: 'joined' }];
     show();
     expect(screen.getByText('This Office has read-only access to this task.')).toBeTruthy();
-    expect(screen.queryByRole('textbox', { name: 'Add subitem to Prepare assessment' })).toBeNull();
+    expect(screen.queryByRole('textbox', { name: 'Add subtask to Prepare assessment' })).toBeNull();
   });
 
   it('keeps a failed draft for retry and appends after the greatest saved position', async () => {
     mocks.create.mockRejectedValueOnce(new Error('Could not save.'));
     show({}, [subtask()]);
-    const input = screen.getByRole('textbox', { name: 'Add subitem to Prepare assessment' });
+    const input = screen.getByRole('textbox', { name: 'Add subtask to Prepare assessment' });
     fireEvent.change(input, { target: { value: 'Next step' } });
     fireEvent.submit(input.closest('form')!);
     expect(await screen.findByRole('alert')).toHaveProperty('textContent', 'Could not save.');
@@ -173,8 +173,8 @@ function hierarchySnapshot():WorkTreeSnapshot {
 describe('NW6.4 Main Table hierarchy accessibility',()=>{
  it('renders native headers, capped deep paths and readable historical/unassigned states',()=>{
   const data=hierarchySnapshot();const action=vi.fn();const {container}=render(<WorkHierarchy snapshot={data} readOnly={false} executionBlocked={false} authorityFresh collapsedIds={new Set()} onCollapsedIdsChange={vi.fn()} onOpenNode={vi.fn()} onRequestAction={action}/>);
-  const table=screen.getByRole('table',{name:'Subitem hierarchy'});expect(within(table).getAllByRole('columnheader').map(header=>header.textContent)).toEqual(['Subitem','Lead','Contributors','Status','Due','Progress','Actions']);expect(screen.queryByRole('treegrid')).toBeNull();
-  expect([...container.querySelectorAll<HTMLElement>('.nw-hierarchy-title')].map(element=>element.style.getPropertyValue('--nw-indent'))).toEqual(['0','1','2','3','3','3','3','3']);expect(screen.getByLabelText('Path for Work 8').textContent).toBe(data.nodes.map(node=>node.title).join(' / '));expect(screen.getByText('Previously assigned person',{exact:false})).toBeTruthy();expect(screen.getByText('Needs reassignment',{exact:false})).toBeTruthy();expect(screen.getByText('Changes requested')).toBeTruthy();expect(within(screen.getByRole('group',{name:'Progress for Work 8'})).getByText('Not approved yet')).toBeTruthy();expect(screen.queryByRole('progressbar')).toBeNull();expect(action).not.toHaveBeenCalled();
+  const table=screen.getByRole('table',{name:'Subtask hierarchy'});expect(within(table).getAllByRole('columnheader').map(header=>header.textContent)).toEqual(['Subtask','Lead','Contributors','Status','Due','Actions']);expect(screen.queryByRole('treegrid')).toBeNull();
+  expect([...container.querySelectorAll<HTMLElement>('.nw-hierarchy-title')].map(element=>element.style.getPropertyValue('--nw-indent'))).toEqual(['0','1','2','3','3','3','3','3']);expect(screen.getByLabelText('Path for Work 8').textContent).toBe(data.nodes.map(node=>node.title).join(' / '));expect(screen.getByText('Previously assigned person',{exact:false})).toBeTruthy();expect(screen.getByText('Needs reassignment',{exact:false})).toBeTruthy();expect(screen.getByText('In progress')).toBeTruthy();expect(screen.queryByRole('group',{name:'Progress for Work 8'})).toBeNull();expect(screen.queryByRole('progressbar')).toBeNull();expect(action).not.toHaveBeenCalled();
  });
  it('reports controlled disclosure state and preserves the exact authorized parent',()=>{
   const data=hierarchySnapshot(),change=vi.fn(),open=vi.fn();const props={snapshot:data,readOnly:true,executionBlocked:true,authorityFresh:true,collapsedIds:new Set<string>(),onCollapsedIdsChange:change,onOpenNode:open,onRequestAction:vi.fn()};const view=render(<WorkHierarchy {...props}/>);
@@ -182,6 +182,6 @@ describe('NW6.4 Main Table hierarchy accessibility',()=>{
  });
  it('switches composition without leaving a hidden desktop table or losing disclosure state',()=>{
   let mobile=false;let notify=()=>{};const media={get matches(){return mobile;},addEventListener:(_type:string,callback:()=>void)=>{notify=callback;},removeEventListener:vi.fn()};const original=window.matchMedia;window.matchMedia=vi.fn(()=>media as unknown as MediaQueryList);
-  try{const data=hierarchySnapshot();const props={snapshot:data,readOnly:true,executionBlocked:true,authorityFresh:true,collapsedIds:new Set(['node-0']),onCollapsedIdsChange:vi.fn(),onOpenNode:vi.fn(),onRequestAction:vi.fn()};const view=render(<WorkHierarchy {...props}/>);expect(screen.getByRole('table',{name:'Subitem hierarchy'})).toBeTruthy();mobile=true;act(()=>notify());view.rerender(<WorkHierarchy {...props}/>);expect(screen.queryByRole('table',{name:'Subitem hierarchy'})).toBeNull();expect(screen.getByRole('list',{name:'Subitem hierarchy'})).toBeTruthy();expect(screen.getByRole('button',{name:'Expand children of Work 1'}).getAttribute('aria-expanded')).toBe('false');expect(screen.queryByRole('button',{name:'Work 8',exact:true})).toBeNull();}finally{window.matchMedia=original;}
+  try{const data=hierarchySnapshot();const props={snapshot:data,readOnly:true,executionBlocked:true,authorityFresh:true,collapsedIds:new Set(['node-0']),onCollapsedIdsChange:vi.fn(),onOpenNode:vi.fn(),onRequestAction:vi.fn()};const view=render(<WorkHierarchy {...props}/>);expect(screen.getByRole('table',{name:'Subtask hierarchy'})).toBeTruthy();mobile=true;act(()=>notify());view.rerender(<WorkHierarchy {...props}/>);expect(screen.queryByRole('table',{name:'Subtask hierarchy'})).toBeNull();expect(screen.getByRole('list',{name:'Subtask hierarchy'})).toBeTruthy();expect(screen.getByRole('button',{name:'Expand children of Work 1'}).getAttribute('aria-expanded')).toBe('false');expect(screen.queryByRole('button',{name:'Work 8',exact:true})).toBeNull();}finally{window.matchMedia=original;}
  });
 });

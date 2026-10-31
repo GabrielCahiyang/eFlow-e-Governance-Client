@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import {act,cleanup,fireEvent,render,renderHook,screen} from '@testing-library/react';
+import {act,cleanup,fireEvent,render,renderHook,screen,waitFor,within} from '@testing-library/react';
 import {afterEach,beforeEach,describe,expect,it,vi} from 'vitest';
 const api=vi.hoisted(()=>({actor:'actor',rpc:vi.fn(),session:vi.fn()}));
 vi.mock('../../src/app/contexts/AuthContext',()=>({useAuth:()=>({user:{id:api.actor}})}));
@@ -24,6 +24,20 @@ function editor(data=tree(),edit:WorkEdit={command:'create'}) {
 }
 beforeEach(()=>{sessionStorage.clear();vi.resetAllMocks();api.actor='actor';api.session.mockResolvedValue({data:{session:{user:{id:'actor'},access_token:'synthetic-token'}},error:null});});afterEach(cleanup);
 describe('NW5.3 request recovery and current action authority',()=>{
+ it('opens child creation in a modal and protects its draft when closing',async()=>{
+  const confirmation=vi.fn().mockResolvedValue(false),uninstall=installNavigationConfirmation(confirmation),onCancel=vi.fn();
+  try{
+   render(<WorkTreeEditor data={tree()} edit={{command:'create',parent:'node'}} save={vi.fn()} onCancel={onCancel} onDone={vi.fn()}/>);
+   const dialog=screen.getByRole('dialog',{name:'Add subtask'});
+   expect(within(dialog).getByRole('form',{name:'Nested work changes'})).toBeTruthy();
+   fireEvent.change(within(dialog).getByLabelText('Subtask title'),{target:{value:'Keep this draft'}});
+   fireEvent.click(within(dialog).getByRole('button',{name:'Close dialog'}));
+   await waitFor(()=>expect(confirmation).toHaveBeenCalledTimes(1));
+   expect(onCancel).not.toHaveBeenCalled();expect((within(dialog).getByLabelText('Subtask title') as HTMLInputElement).value).toBe('Keep this draft');
+   confirmation.mockResolvedValue(true);fireEvent.click(within(dialog).getByRole('button',{name:'Cancel changes'}));
+   await waitFor(()=>expect(onCancel).toHaveBeenCalledTimes(1));
+  }finally{uninstall();}
+ });
  it('rejects a duplicate sibling name before dispatch but allows the same name under a different parent',async()=>{
   const hook=editor(),save=vi.fn().mockResolvedValue(tree(8));
   act(()=>hook.result.current.update('title','  ORIGINAL  '));
@@ -38,7 +52,7 @@ describe('NW5.3 request recovery and current action authority',()=>{
   try{
    const data=tree(),onCancel=vi.fn(),view=render(<WorkTreeEditor data={data} edit={{command:'edit',node:data.nodes[0]}} save={vi.fn()} onCancel={onCancel} onDone={vi.fn()}/>);
    fireEvent.click(screen.getByRole('button',{name:'Cancel changes'}));expect(onCancel).toHaveBeenCalledTimes(1);expect(confirmation).not.toHaveBeenCalled();
-   fireEvent.change(screen.getByLabelText('Subitem due date'),{target:{value:'2026-11-01'}});expect(await requestNavigation(vi.fn())).toBe(false);expect(confirmation).toHaveBeenCalledTimes(1);view.unmount();
+   fireEvent.change(screen.getByLabelText('Subtask due date'),{target:{value:'2026-11-01'}});expect(await requestNavigation(vi.fn())).toBe(false);expect(confirmation).toHaveBeenCalledTimes(1);view.unmount();
   }finally{uninstall();}
  });
  it('coalesces synchronous double submission and blocks navigation while waiting',async()=>{
@@ -104,7 +118,7 @@ describe('NW5.3 request recovery and current action authority',()=>{
  });
  it('renders a committed refresh error without a retry submit button',async()=>{
   const save=vi.fn().mockResolvedValue(tree(8));render(<WorkTreeEditor data={tree()} edit={{command:'create'}} save={save} onDone={()=>{throw new Error('Refresh');}} onCancel={vi.fn()}/>);
-  fireEvent.change(screen.getByLabelText('Subitem title'),{target:{value:'Created'}});fireEvent.click(screen.getByRole('button',{name:'Save work changes'}));
+  fireEvent.change(screen.getByLabelText('Subtask title'),{target:{value:'Created'}});fireEvent.click(screen.getByRole('button',{name:'Save work changes'}));
   await screen.findByText(/Work was saved, but the view could not refresh/);expect(screen.queryByRole('button',{name:'Retry saved request'})).toBeNull();expect(screen.queryByRole('button',{name:'Save work changes'})).toBeNull();expect(screen.getByRole('button',{name:'Close'})).toBeTruthy();
  });
  it('blocks revoked authority, actor/scope changes and unverified snapshots without losing the draft',async()=>{

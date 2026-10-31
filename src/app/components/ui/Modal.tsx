@@ -18,6 +18,7 @@ interface ModalProps {
   ariaLabel?: string;
   children: ReactNode;
   footer?: ReactNode;
+  footerClassName?: string;
   width?: string;
   className?: string;
   bodyClassName?: string;
@@ -45,6 +46,7 @@ export function Modal({
   ariaLabel,
   children,
   footer,
+  footerClassName = "",
   width = "max-w-lg",
   className = "",
   bodyClassName = "",
@@ -77,7 +79,7 @@ export function Modal({
       </ModalBasicLayout>
 
       {footer && (
-        <footer className="eflow-vibe-modal-footer">
+        <footer className={`eflow-vibe-modal-footer ${footerClassName}`}>
           {footer}
         </footer>
       )}

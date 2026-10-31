@@ -13,6 +13,8 @@ vi.mock('../../src/app/features/subtasks/hooks/useSubtaskReviewerDirectory',()=>
 vi.mock('../../src/app/features/budget/hooks/useDepartmentBudget',()=>({useDepartmentBudget:()=>({summary:{status:'locked'},allocations:[],allocationLines:[],requests:[],requestAttachments:[],releases:[],liquidations:[],loading:false,refresh:vi.fn()})}));
 vi.mock('../../src/app/features/budget/hooks/useTaskFundingContext',()=>({useTaskFundingContext:()=>({context:{funded:true,taskId:'root',subtaskId:'node',taskLeaderId:'root-lead',taskBudget:1000,available:500,lines:[]},loading:false,refresh:vi.fn()})}));
 vi.mock('../../src/app/features/subtasks/components/SubtaskDeadlineEditor',()=>({SubtaskDeadlineEditor:({canManage}:{canManage:boolean})=><div>{canManage?'Authorized deadline control':'Deadline history'}</div>}));
+vi.mock('../../src/app/features/budget',async()=>{const actual=await vi.importActual<any>('../../src/app/features/budget');return {...actual,WorkBudgetCard:(await import('../../src/app/features/budget/components/WorkBudgetCard')).WorkBudgetCard};});
+vi.mock('../../src/app/features/subtasks/services/subtaskCompletion',()=>({subitemCompletionAttempt:(subtaskId:string,note:string,files:File[])=>({subtaskId,note,files}),completeSubitem:api.submit}));
 import {SubitemInspector} from '../../src/app/features/subtasks/components/SubitemInspector';
 const allow={allowed:true,reason_code:null} as const,deny={allowed:false,reason_code:'branch_denied'} as const;
 const task:Task={id:'root',title:'Root',status:'todo',linkedProjectId:'project',orgId:'office',assigneeId:'root-lead',createdAt:1,updatedAt:1};
@@ -32,8 +34,8 @@ describe('NW8.2 independent Inspector action capabilities',()=>{
  it('requires independent submit capability and retains the note/evidence until it is granted',async()=>{
   const data=tree();data.nodes[0].capabilities!.execute=allow;const c=controller(data),view=render(<SubitemInspector rootTask={task} itemId="node" controller={c} onClose={()=>{}}/>);await screen.findByRole('heading',{name:'Assigned item'});
   await screen.findByLabelText('Work status');fireEvent.change(screen.getByLabelText('Work status'),{target:{value:'submit'}});fireEvent.change(screen.getByLabelText('Completion note'),{target:{value:'Ready for independent review'}});const file=new File(['proof'],'proof.pdf',{type:'application/pdf'});fireEvent.change(screen.getByLabelText('Evidence files'),{target:{files:[file]}});
-  expect(screen.getByRole('button',{name:'Submit for review'}).hasAttribute('aria-disabled')).toBe(true);fireEvent.click(screen.getByRole('button',{name:'Submit for review'}));expect(api.submit).not.toHaveBeenCalled();
-  data.nodes[0].capabilities!.submit=allow;view.rerender(<SubitemInspector rootTask={task} itemId="node" controller={c} onClose={()=>{}}/>);fireEvent.click(screen.getByRole('button',{name:'Submit for review'}));await waitFor(()=>expect(api.submit).toHaveBeenCalledOnce());expect(api.submit.mock.calls[0][0]).toEqual({subtaskId:'node',note:'Ready for independent review',evidence:[file]});
+  expect(screen.getByRole('button',{name:'Mark complete'}).hasAttribute('aria-disabled')).toBe(true);fireEvent.click(screen.getByRole('button',{name:'Mark complete'}));expect(api.submit).not.toHaveBeenCalled();
+  data.nodes[0].capabilities!.submit=allow;view.rerender(<SubitemInspector rootTask={task} itemId="node" controller={c} onClose={()=>{}}/>);fireEvent.click(screen.getByRole('button',{name:'Mark complete'}));await waitFor(()=>expect(api.submit).toHaveBeenCalledOnce());expect(api.submit.mock.calls[0][0]).toEqual({subtaskId:'node',note:'Ready for independent review',files:[file]});
  });
  it('allows own eligible Lead-only execution without a contributor assignment or financial privilege',async()=>{
   const data=tree();data.nodes[0].capabilities!.execute=allow;data.nodes[0].capabilities!.submit=allow;
@@ -41,19 +43,11 @@ describe('NW8.2 independent Inspector action capabilities',()=>{
   expect(await screen.findByRole('button',{name:'Start work'})).toBeTruthy();expect(screen.queryByRole('button',{name:'Request cash'})).toBeNull();expect(screen.queryByRole('button',{name:'Set cap'})).toBeNull();
   fireEvent.change(screen.getByLabelText('Work update'),{target:{value:'Lead work'}});fireEvent.click(screen.getByRole('button',{name:'Start work'}));await waitFor(()=>expect(api.progress).toHaveBeenCalledOnce());expect(api.progress.mock.calls[0][0].subtaskId).toBe('node');
  });
- it('keeps reviewer-only access independent of permissive old execute/manage flags',async()=>{
-  const data=tree({status:'for_review',percent_complete:100,current_reviewer:'actor'});data.nodes[0].capabilities!.review=allow;
-  render(<SubitemInspector rootTask={task} itemId="node" controller={controller(data)} onClose={()=>{}}/>);await screen.findByRole('heading',{name:'Assigned item'});
-  expect(screen.queryByRole('button',{name:'Save update'})).toBeNull();expect(screen.queryByRole('button',{name:'Child work actions'})).toBeNull();expect(screen.queryByRole('button',{name:'Request cash'})).toBeNull();expect(screen.queryByRole('button',{name:'Set cap'})).toBeNull();
-  // The review workspace now loads at its public view boundary. Await readiness
-  // before asserting the same decision permissions and absence of work writes.
-  fireEvent.click(screen.getByRole('button',{name:'Review evidence'}));await screen.findByRole('button',{name:'Approve evidence'},{timeout:10000});expect(api.reviewReads).toHaveBeenCalledWith('actor',false,expect.any(Function),expect.any(Function));expect(api.progress).not.toHaveBeenCalled();expect(api.save).not.toHaveBeenCalled();
- },15000);
- it('retains feedback but disables review decisions when current review authority is revoked',async()=>{
-  const data=tree({status:'for_review',current_reviewer:'actor'});data.nodes[0].capabilities!.review=allow;const c=controller(data),view=render(<SubitemInspector rootTask={task} itemId="node" controller={c} onClose={()=>{}}/>);await screen.findByRole('button',{name:'Review evidence'});fireEvent.click(screen.getByRole('button',{name:'Review evidence'}));
-  const feedback=await screen.findByPlaceholderText('Explain what needs correction…');fireEvent.change(feedback,{target:{value:'Retain my review feedback'}});
-  const revoked=tree({status:'for_review',current_reviewer:'replacement'});view.rerender(<SubitemInspector rootTask={task} itemId="node" controller={{...c,data:revoked}} onClose={()=>{}}/>);
-  expect((screen.getByPlaceholderText('Explain what needs correction…') as HTMLTextAreaElement).value).toBe('Retain my review feedback');expect(screen.getByRole('button',{name:'Approve evidence'}).hasAttribute('aria-disabled')).toBe(true);fireEvent.click(screen.getByRole('button',{name:'Approve evidence'}));expect(api.decide).not.toHaveBeenCalled();expect(submission.reviewerId).toBe('old-reviewer');
+ it('retired review-only capability does not grant execution, completion or financial rights',async()=>{
+  const data=tree({status:'for_review',percent_complete:100,current_reviewer:'actor'});data.nodes[0].capabilities!.review=allow;render(<SubitemInspector rootTask={task} itemId="node" controller={controller(data)} onClose={()=>{}}/>);await screen.findByRole('heading',{name:'Assigned item'});expect(screen.queryByRole('button',{name:'Review evidence'})).toBeNull();expect(screen.queryByRole('button',{name:'Approve evidence'})).toBeNull();expect(screen.queryByRole('button',{name:'Start work'})).toBeNull();expect(api.decide).not.toHaveBeenCalled();
+ });
+ it('does not resurrect a separate review when old reviewer attribution changes',async()=>{
+  const data=tree({status:'for_review',current_reviewer:'actor'});data.nodes[0].capabilities!.review=allow;const c=controller(data),view=render(<SubitemInspector rootTask={task} itemId="node" controller={c} onClose={()=>{}}/>);await screen.findByRole('heading',{name:'Assigned item'});view.rerender(<SubitemInspector rootTask={task} itemId="node" controller={{...c,data:tree({status:'for_review',current_reviewer:'replacement'})}} onClose={()=>{}}/>);expect(screen.queryByRole('button',{name:'Approve evidence'})).toBeNull();expect(api.decide).not.toHaveBeenCalled();expect(submission.reviewerId).toBe('old-reviewer');
  });
  it('lets an assigned contributor execute/request cash while management remains absent',async()=>{
   const data=tree({assigned_to_ids:['actor'],lead_id:'other'});data.nodes[0].capabilities!.execute=allow;

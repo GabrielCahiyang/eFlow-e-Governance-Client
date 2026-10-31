@@ -1,0 +1,20 @@
+{
+  "target": "ixnfphgjyelhckjwjkdv",
+  "migration": "20261029232938_project_task_schedule_bounds.sql",
+  "sha256": "8e186130b5cfa57b291b4232b28cac018da4274ea972cbfcafcd4927e77fca0c",
+  "prior_migrations": 58,
+  "backup_verified": true,
+  "readiness_baseline_matched": true,
+  "dry_run_selected_only_this_migration": true,
+  "excluded_runtime_rows": {
+    "system_config": [
+      "ai_endpoint_heartbeat"
+    ]
+  },
+  "applied": true,
+  "public_tables_checked": 115,
+  "non_heartbeat_public_rows_unchanged": true,
+  "guards_enabled": true,
+  "private_helpers_inaccessible_to_clients": true,
+  "completed_at": "2026-10-29T23:45:08.450606+00:00"
+}

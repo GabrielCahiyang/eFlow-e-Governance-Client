@@ -62,7 +62,7 @@ describe('R2 scoped preferences and compatibility', () => {
     view.unmount(); renderHook(()=>useProjectPlanningLocation(onView));
     expect(onView).toHaveBeenLastCalledWith('signoff');
   });
-  it('migrates supported disclosures and appends a restored section after existing ones without losing subitems', () => {
+  it('migrates supported disclosures and appends a restored section after existing ones without losing subtasks', () => {
     localStorage.setItem('eflow:navigation:v1:user:office:disclosures',JSON.stringify(['planning','people','projects']));
     const view=renderHook(({user,office})=>useWorkspacePanelPreference(user,office),{initialProps:{user:'user',office:'office'}});
     expect(view.result.current.value.closed).toEqual(['projects']);

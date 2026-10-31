@@ -9,7 +9,7 @@ import type {WorkTreeSnapshot} from '../types';
 export function WorkActivity({roots,focusedNode,snapshot}:{roots:string[];focusedNode?:WorkActivityFocus;snapshot?:WorkTreeSnapshot}){
  const {user}=useAuth();
  const verified=!focusedNode||!!snapshot&&roots.length===1&&roots[0]===focusedNode.rootId&&snapshot.nodes.some(node=>node.id===focusedNode.nodeId)&&isCurrentWorkSnapshot(snapshot,{actorId:user?.id||null,rootId:focusedNode.rootId,projectId:snapshot.root.project,officeId:snapshot.root.office,kind:snapshot.root.kind,revision:snapshot.revision});
- return verified?<Activity key={JSON.stringify([user?.id,roots,focusedNode])} roots={roots} focusedNode={focusedNode} snapshot={snapshot}/>:<p role="status">Verify current subitem access to read its work changes.</p>;
+ return verified?<Activity key={JSON.stringify([user?.id,roots,focusedNode])} roots={roots} focusedNode={focusedNode} snapshot={snapshot}/>:<p role="status">Verify current subtask access to read its work changes.</p>;
 }
 function Activity({roots,focusedNode,snapshot}:{roots:string[];focusedNode?:WorkActivityFocus;snapshot?:WorkTreeSnapshot}){
  const refreshButton=useRef<HTMLButtonElement>(null),pageFocus=useRef(false);

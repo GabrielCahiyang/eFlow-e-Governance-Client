@@ -29,24 +29,24 @@ async function openMenu(name:string){fireEvent.keyDown(screen.getByRole('button'
 describe('one supplied work hierarchy composition',()=>{
  it('renders an empty Main Table surface and inline root create through the existing capability action',()=>{
   const data=tree([]);data.root.capabilities!.create_child=allow;const initial=props(data);render(<WorkHierarchy {...initial} presentation="project-table"/>);
-  expect(screen.getByRole('table').getAttribute('data-density')).toBe('compact');const add=screen.getByRole('button',{name:'Add subitem',exact:true});expect(add.closest('tfoot')).toBeTruthy();fireEvent.click(add);expect(initial.onRequestAction).toHaveBeenCalledWith('create',undefined);expect(api.save).not.toHaveBeenCalled();
+  expect(screen.getByRole('table').getAttribute('data-density')).toBe('compact');const add=screen.getByRole('button',{name:'Add subtask',exact:true});expect(add.closest('tfoot')).toBeTruthy();fireEvent.click(add);expect(initial.onRequestAction).toHaveBeenCalledWith('create',undefined);expect(api.save).not.toHaveBeenCalled();
  });
  it('keeps an own-branch create capability from granting the Main Table root footer',()=>{
-  const data=tree([node('Own branch',null,{capabilities:{...node('x').capabilities!,create_child:allow}})]);const initial=props(data);render(<WorkHierarchy {...initial} presentation="project-table"/>);expect(screen.queryByRole('button',{name:'Add subitem',exact:true})).toBeNull();expect(screen.getByRole('button',{name:'Actions for Own branch'})).toBeTruthy();
+  const data=tree([node('Own branch',null,{capabilities:{...node('x').capabilities!,create_child:allow}})]);const initial=props(data);render(<WorkHierarchy {...initial} presentation="project-table"/>);expect(screen.queryByRole('button',{name:'Add subtask',exact:true})).toBeNull();expect(screen.getByRole('button',{name:'Actions for Own branch'})).toBeTruthy();
  });
  it('uses the canonical branch parent for an authorized inline child footer and retains readOnly/stale gates',()=>{
-  const data=tree([node('Parent',null,{capabilities:{...node('x').capabilities!,create_child:allow}})]),initial=props(data);const view=render(<WorkHierarchy {...initial} branchParentId="Parent" presentation="project-table"/>);fireEvent.click(screen.getByRole('button',{name:'Add subitem',exact:true}));expect(initial.onRequestAction).toHaveBeenCalledWith('create','Parent');
-  view.rerender(<WorkHierarchy {...initial} branchParentId="Parent" presentation="project-table" authorityFresh={false}/>);expect(screen.getByRole('button',{name:'Add subitem',exact:true}).hasAttribute('disabled')).toBe(true);view.rerender(<WorkHierarchy {...initial} branchParentId="Parent" presentation="project-table" readOnly/>);expect(screen.queryByRole('button',{name:'Add subitem',exact:true})).toBeNull();
+  const data=tree([node('Parent',null,{capabilities:{...node('x').capabilities!,create_child:allow}})]),initial=props(data);const view=render(<WorkHierarchy {...initial} branchParentId="Parent" presentation="project-table"/>);fireEvent.click(screen.getByRole('button',{name:'Add subtask',exact:true}));expect(initial.onRequestAction).toHaveBeenCalledWith('create','Parent');
+  view.rerender(<WorkHierarchy {...initial} branchParentId="Parent" presentation="project-table" authorityFresh={false}/>);expect(screen.getByRole('button',{name:'Add subtask',exact:true}).hasAttribute('disabled')).toBe(true);view.rerender(<WorkHierarchy {...initial} branchParentId="Parent" presentation="project-table" readOnly/>);expect(screen.queryByRole('button',{name:'Add subtask',exact:true})).toBeNull();
  });
- it('uses native table columns, stable traversal, explicit people, shared status/date/progress and no reads',()=>{
+ it('uses native table columns, stable traversal, explicit people, shared status/date and no redundant approval progress and no reads',()=>{
   const data=tree([node('Child','Parent'),node('Parent')]),before=JSON.stringify(data);
   render(<WorkHierarchy {...props(data)}/>);
-  expect(screen.getAllByRole('columnheader').map(header=>header.textContent)).toEqual(['Subitem','Lead','Contributors','Status','Due','Progress','Actions']);
+  expect(screen.getAllByRole('columnheader').map(header=>header.textContent)).toEqual(['Subtask','Lead','Contributors','Status','Due','Actions']);
   expect(screen.queryByRole('treegrid')).toBeNull();expect(screen.getAllByRole('row').slice(1).map(row=>row.getAttribute('data-work-row'))).toEqual(['Parent','Child']);
   const first=screen.getAllByRole('row')[1];expect(within(first).getAllByText('Current Lead')).toHaveLength(1);
   expect(first.textContent).toContain('Contributors (2): Selected Contributor, Historical Person');
   expect(within(first).getByText('In progress')).toBeTruthy();expect(first.querySelector('time')?.dateTime).toBe('2026-12-01');
-  expect(within(first).getByRole('group',{name:'Progress for Parent'})).toBeTruthy();expect(within(first).queryByRole('progressbar')).toBeNull();expect(within(first).getByText('Not approved yet')).toBeTruthy();
+  expect(within(first).queryByRole('group',{name:'Progress for Parent'})).toBeNull();expect(within(first).queryByRole('progressbar')).toBeNull();expect(within(first).queryByText('Not approved yet')).toBeNull();
   expect(api.load).not.toHaveBeenCalled();expect(api.save).not.toHaveBeenCalled();expect(JSON.stringify(data)).toBe(before);
  });
  it('labels disclosure and keeps collapse state controlled without changing canonical parents',()=>{
@@ -72,9 +72,9 @@ describe('one supplied work hierarchy composition',()=>{
  it('has exactly one mobile composition and changes layout without duplicate accessible controls',()=>{
   let mobile=true;const listeners=new Set<()=>void>();
   Object.defineProperty(window,'matchMedia',{configurable:true,value:()=>({get matches(){return mobile;},addEventListener:(_event:string,listener:()=>void)=>listeners.add(listener),removeEventListener:(_event:string,listener:()=>void)=>listeners.delete(listener)})});
-  render(<WorkHierarchy {...props()}/>);expect(screen.queryByRole('table')).toBeNull();expect(screen.getByRole('list',{name:'Subitem hierarchy'})).toBeTruthy();
+  render(<WorkHierarchy {...props()}/>);expect(screen.queryByRole('table')).toBeNull();expect(screen.getByRole('list',{name:'Subtask hierarchy'})).toBeTruthy();
   expect(screen.getAllByRole('button',{name:'Actions for Parent'})).toHaveLength(1);
-  act(()=>{mobile=false;listeners.forEach(listener=>listener());});expect(screen.getByRole('table')).toBeTruthy();expect(screen.queryByRole('list',{name:'Subitem hierarchy'})).toBeNull();
+  act(()=>{mobile=false;listeners.forEach(listener=>listener());});expect(screen.getByRole('table')).toBeTruthy();expect(screen.queryByRole('list',{name:'Subtask hierarchy'})).toBeNull();
   expect(screen.getAllByRole('button',{name:'Actions for Parent'})).toHaveLength(1);
  });
  it('keeps read-only Open and Activity, ignoring permissive legacy booleans',async()=>{
@@ -85,7 +85,7 @@ describe('one supplied work hierarchy composition',()=>{
  });
  it('fails closed on missing maps and hides unverified/foreign snapshots',async()=>{
   const data=tree([node('Parent')]);data.nodes[0].capabilities=undefined;
-  const input=props(data),view=render(<WorkHierarchy {...input}/>);await openMenu('Actions for Parent');expect(screen.queryByRole('menuitem',{name:'Add subitem'})).toBeNull();
+  const input=props(data),view=render(<WorkHierarchy {...input}/>);await openMenu('Actions for Parent');expect(screen.queryByRole('menuitem',{name:'Add subtask'})).toBeNull();
   fireEvent.keyDown(screen.getByRole('menu'),{key:'Escape'});data.nodes[0].capabilities={create_child:allow};
   view.rerender(<WorkHierarchy {...input} snapshot={structuredClone(data)}/>);expect(screen.queryByRole('button',{name:'Actions for Parent'})).toBeNull();expect(screen.getByRole('alert').textContent).toContain('Verify current work access');
   api.actor='other';view.rerender(<WorkHierarchy {...input}/>);expect(screen.queryByRole('button',{name:'Actions for Parent'})).toBeNull();expect(screen.queryByText('Current Lead')).toBeNull();expect(screen.getByRole('alert')).toBeTruthy();
@@ -108,19 +108,19 @@ describe('one supplied work hierarchy composition',()=>{
  });
  it('disables stale mutations then removes revoked actions from an already open menu',async()=>{
   const data=tree([node('Parent',null,{capabilities:{edit_details:allow}})]),input=props(data);input.authorityFresh=false;
-  const view=render(<WorkHierarchy {...input}/>);await openMenu('Actions for Parent');const edit=screen.getByRole('menuitem',{name:'Edit details'});expect(edit.getAttribute('aria-disabled')).toBe('true');
+  const view=render(<WorkHierarchy {...input}/>);await openMenu('Actions for Parent');const edit=screen.getByRole('menuitem',{name:'Edit subtask'});expect(edit.getAttribute('aria-disabled')).toBe('true');
   fireEvent.click(edit);expect(input.onRequestAction).not.toHaveBeenCalled();
-  const next=tree([node('Parent',null,{capabilities:{edit_details:deny}})]);view.rerender(<WorkHierarchy {...input} snapshot={next} authorityFresh/>);expect(screen.queryByRole('menuitem',{name:'Edit details'})).toBeNull();
+  const next=tree([node('Parent',null,{capabilities:{edit_details:deny}})]);view.rerender(<WorkHierarchy {...input} snapshot={next} authorityFresh/>);expect(screen.queryByRole('menuitem',{name:'Edit subtask'})).toBeNull();
  });
- it('keeps Office evidence/review callbacks and exposes personal commands only through their capabilities',async()=>{
+ it('keeps Office execution and personal completion without a separate review action',async()=>{
   const office=tree([node('Parent',null,{capabilities:{execute:allow,submit:allow,review:allow}})]),input=props(office),view=render(<WorkHierarchy {...input}/>);
-  await openMenu('Actions for Parent');expect(screen.queryByRole('menuitem',{name:'Update progress'})).toBeNull();expect(screen.queryByRole('menuitem',{name:'Submit for review'})).toBeNull();
-  fireEvent.click(screen.getByRole('menuitem',{name:'Review'}));await waitFor(()=>expect(input.onRequestAction).toHaveBeenCalledWith('review','Parent'));
+  await openMenu('Actions for Parent');expect(screen.queryByRole('menuitem',{name:'Update work'})).toBeNull();expect(screen.queryByRole('menuitem',{name:'Submit for review'})).toBeNull();
+  expect(screen.queryByRole('menuitem',{name:'Review'})).toBeNull();fireEvent.keyDown(screen.getByRole('menu'),{key:'Escape'});
   const personal=tree(office.nodes);personal.root={...personal.root,kind:'personal',office:null};rememberWorkCapabilityContext(personal,api.actor);
-  view.rerender(<WorkHierarchy {...input} snapshot={personal}/>);await openMenu('Actions for Parent');fireEvent.click(screen.getByRole('menuitem',{name:'Update progress'}));await waitFor(()=>expect(input.onRequestAction).toHaveBeenLastCalledWith('progress','Parent'));
-  view.rerender(<WorkHierarchy {...input} snapshot={personal} executionBlocked/>);await openMenu('Actions for Parent');expect(screen.queryByRole('menuitem',{name:'Update progress'})).toBeNull();expect(screen.queryByRole('menuitem',{name:'Submit for review'})).toBeNull();expect(screen.getByRole('menuitem',{name:'Review'})).toBeTruthy();
+  view.rerender(<WorkHierarchy {...input} snapshot={personal}/>);await openMenu('Actions for Parent');fireEvent.click(screen.getByRole('menuitem',{name:'Update work'}));await waitFor(()=>expect(input.onRequestAction).toHaveBeenLastCalledWith('progress','Parent'));
+  view.rerender(<WorkHierarchy {...input} snapshot={personal} executionBlocked/>);await openMenu('Actions for Parent');expect(screen.queryByRole('menuitem',{name:'Update work'})).toBeNull();expect(screen.queryByRole('menuitem',{name:'Submit for review'})).toBeNull();expect(screen.queryByRole('menuitem',{name:'Review'})).toBeNull();
  });
- it('shows an empty state without inventing structure authority',()=>{render(<WorkHierarchy {...props(tree([]))}/>);expect(screen.getByText('No subitems yet.')).toBeTruthy();expect(screen.queryByRole('button')).toBeNull();});
+ it('shows an empty state without inventing structure authority',()=>{render(<WorkHierarchy {...props(tree([]))}/>);expect(screen.getByText('No subtasks yet.')).toBeTruthy();expect(screen.queryByRole('button')).toBeNull();});
 });
 
 function deferred<T>(){let resolve!:(value:T)=>void,reject!:(error:Error)=>void;const promise=new Promise<T>((yes,no)=>{resolve=yes;reject=no;});return {promise,resolve,reject};}
@@ -182,7 +182,7 @@ describe('public shared work controller',()=>{
   const data=tree();data.root.capabilities={manage_contributors:allow,create_child:allow};const input=controller(data);input.pending=true;
   const open=vi.fn();render(<><WorkRootOwner rootId="root" controller={input}/><WorkTree rootId="root" controller={input}/><WorkTree rootId="root" controller={input} readOnly onOpenOfficeNode={open}/></>);
   expect((screen.getByRole('button',{name:'Choose task lead and contributors'}) as HTMLButtonElement).disabled).toBe(true);
-  await openMenu('Task work actions');expect(screen.getByRole('menuitem',{name:'Add subitem'}).getAttribute('aria-disabled')).toBe('true');expect(api.load).not.toHaveBeenCalled();
+  await openMenu('Task work actions');expect(screen.getByRole('menuitem',{name:'Add subtask'}).getAttribute('aria-disabled')).toBe('true');expect(api.load).not.toHaveBeenCalled();
   fireEvent.keyDown(screen.getByRole('menu'),{key:'Escape'});
   const evidence=screen.getAllByRole('button',{name:'Parent',exact:true})[1] as HTMLButtonElement;expect(evidence.disabled).toBe(false);fireEvent.click(evidence);expect(open).toHaveBeenCalledWith(data.nodes[0],data);expect(api.save).not.toHaveBeenCalled();
  });

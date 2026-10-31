@@ -26,8 +26,7 @@ export function buildTeamMemberMetrics(
     const blockedSubtasks = activeSubtasks.filter((subtask) => hasBlocker(latestProgress.get(`subtask:${subtask.id}`)));
     const blocked = blockedTasks.length + blockedSubtasks.length;
     const awaitingTaskReview = tasks.filter((task) => task.status === "for_review" && (task.reviewerId === employee.id || task.backupReviewerId === employee.id)).length;
-    const awaitingSubtaskReview = facts.submissions.filter((submission) => submission.kind === "subtask" && submission.status === "pending" && submission.reviewerId === employee.id).length;
-    const awaitingReview = awaitingTaskReview + awaitingSubtaskReview;
+    const awaitingReview = awaitingTaskReview;
     const changesRequested = participating.filter((task) => task.status === "changes_requested").length
       + assignedSubtasks.filter((subtask) => subtask.status === "changes_requested").length;
     const completedContributions = participating.filter((task) => task.status === "completed").length

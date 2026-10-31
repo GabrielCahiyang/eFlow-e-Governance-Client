@@ -1,0 +1,10 @@
+{
+  "target": "ixnfphgjyelhckjwjkdv",
+  "migration": "20261030083920_complete_project_setup_guards.sql",
+  "sha256": "22ae5034992d583af332b07e193e2679c634f398783e114d95f55bed61fbad8f",
+  "backup_verified": true,
+  "prior_migrations": 63,
+  "dry_run_only_reviewed_delta": true,
+  "public_tables_checked": 115,
+  "applied": false
+}

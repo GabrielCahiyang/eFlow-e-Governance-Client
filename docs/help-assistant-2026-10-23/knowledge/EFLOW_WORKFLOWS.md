@@ -50,14 +50,14 @@ Sources: src/app/features/tasks; src/app/features/nested-work; src/app/features/
 Keywords: subtask subitem child hierarchy evidence parent task approval review
 Sources: src/app/features/nested-work; src/app/features/subtasks
 - Expand the task disclosure arrow to see subitems, or open task details to inspect the hierarchy. Add subitem or child work requires current branch-management permission.
-- A subtask assignee records progress and submits the required completion note and evidence to the assigned reviewer. Finishing execution is different from receiving approval.
-- Parent completion can wait for child approvals, dependencies or financial clearance. Open the blocked child item and resolve its next action instead of changing the parent status as a shortcut.
+- The task lead or current subtask lead completes a subtask directly. Notes and evidence are optional for direct subtask completion. There is no separate subtask approval. Contributors may post updates; completion remains a lead responsibility.
+- Parent tasks wait for all required subtasks to complete, all prerequisite tasks to receive final approval, and financial clearance. Sequential subtasks unlock when earlier steps complete.
 
 ## reviews | Evidence, submission and requesting changes | head,member,accounting_staff
 Keywords: submit evidence completion note attachments reviewer approve review resubmit changes requested
 Sources: src/app/features/tasks; src/app/features/nested-work; src/app/features/authentication/workflow-preview/workflowGuides.ts
 - Before Submit for review, check completion requirements, add the required completion note and supporting evidence, and resolve prerequisite or cash-clearance blockers.
-- The authorized reviewer examines results and evidence, then approves or requests changes through the review action. Ownership, project membership and review authority are separate.
+- The project lead reviews task results and evidence. When the task lead is also the project lead, the independent appointed Head reviews instead. Self-approval is blocked. Subtasks complete directly; project completion is approved by the Head.
 - When changes are requested, read the feedback, correct work and evidence, then resubmit. A previous submission or AI statement does not approve the revised work.
 
 ## dependencies | Dependencies and prerequisite blockers | head,member,accounting_staff
@@ -300,3 +300,15 @@ Sources: server/help_assistant/knowledge.py; server/help_assistant/grounding.py;
 - Help reads versioned Markdown workflow passages and selects relevant permitted sources for each question. Updating the guide changes retrieved knowledge; it does not retrain the model.
 - The guide describes workflows; live project/task answers use the caller's visible records. The guide cannot prove hosted deployment, migration installation or the existence of a particular transaction.
 - If guidance and visible records do not answer a question, the assistant should say it cannot confirm it. It must not invent staff, balances, approvals, contacts or actions it performed.
+
+## project_definition | Project details and funding setup | head,member,accounting_staff
+Keywords: project creation scope description project lead setup quarter Q1 Q2 Q3 Q4 budget
+Sources: src/app/features/project-setup; src/app/features/projects
+- Creating a project opens a draft. The Head defines title, description, scope, project lead, implementing office, start date and target date before tasks, subtasks, imports or additional people are allowed.
+- Save project details, authorize its funding sources, then Finish setup. No funding required is an explicit alternative for non-financial projects.
+- A project budget is the sum of authorized Office Budget source/quarter rows, for example Q1 300000 plus Q2 400000 equals 700000. The total is derived. Office Budget is reserved once at project authorization.
+- The project lead allocates tasks inside that envelope. Task leads divide their allocation into subtask caps. Allocations do not reserve Office Budget again. Overspend and reductions below obligations are rejected.
+- Task dates must fit the project; subtask dates must fit both task and project. Project dates cannot be shortened around scheduled tasks.
+- Every selected task dependency is mandatory: Task3 waits until both Task1 and Task2 are completed and approved. Missing prerequisites, self-links, cycles and invalid schedules are blocked.
+- Cash requests go to the project reviewer, or the Head when the project lead is the requester. Accounting releases approved cash. The project reviewer endorses receipts independently; Accounting settles/posts under separate permissions. Approval is not proof of cash release.
+- Unused task funding can be returned to the project; the Head can release unallocated project funding back to Office Budget with an audit reason. Archiving never silently releases funding.

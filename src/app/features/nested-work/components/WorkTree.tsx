@@ -12,7 +12,7 @@ import {descendantIds} from '../selectors/tree';
 import {WorkActivity} from './WorkActivity';
 import {WorkNodeReadSummary} from './WorkNodeReadSummary';
 import type {WorkHierarchyAction} from '../types';
-const draftLabels:Record<string,string>={create:'new subitem',edit:'details',move:'move',order:'sequence',delete:'deletion',progress:'progress',submit:'submission',review:'review'};
+const draftLabels:Record<string,string>={create:'new subtask',edit:'details',move:'move',order:'sequence',delete:'deletion',progress:'progress',submit:'submission',review:'review'};
 export interface WorkTreeProps {rootId:string;branchParentId?:string;branchActions?:boolean;presentation?:'standard'|'project-table';controller?:WorkTreeController;fallback?:ReactNode;readOnly?:boolean;executionBlocked?:boolean;createRequest?:number;createFocusTarget?:HTMLElement;collapsedIds?:Set<string>;onCollapsedIdsChange?:(next:Set<string>)=>void;focusedNodeId?:string;onOpenOfficeNode?:(node:WorkNode,tree:WorkTreeSnapshot)=>void;onReviewOfficeNode?:(node:WorkNode,tree:WorkTreeSnapshot)=>void}
 export function WorkTree(props:WorkTreeProps){
  const {user}=useAuth(),key=JSON.stringify([user?.id,props.rootId]);
@@ -74,14 +74,15 @@ function WorkTreeContent({rootId,branchParentId,branchActions=false,presentation
  if(tree.unavailable)return <>{fallback}</>;
  const recovered=data&&tree.authorityFresh?readWorkDrafts(data,{actorId:user?.id||null,rootId,projectId:data.root.project,officeId:data.root.office,kind:data.root.kind,revision:data.revision}).filter(record=>!record.mode.startsWith('staffing')&&(!branchParentId||record.baseline.nodeId===branchParentId||record.baseline.fields.parent===branchParentId||isBranchNode(record.baseline.nodeId||record.baseline.fields.parent||''))):[];
  const save=async(request:WorkRequest)=>{const result=await tree.save(request);setSaved('Work saved.');return result;};
- return <section ref={section} tabIndex={presentation==='project-table'?-1:undefined} className={`r7-work${presentation==='project-table'?' r7-work--project-table':''}`} data-work-presentation={presentation} aria-label="Nested project work">{presentation==='standard'&&<><h3>{branchParentId?'Child work':'Subitems'}</h3><p className="r7-help">Break this task into smaller steps. In a sequence, each step waits for the previous one to be approved.</p></>}
-  {tree.loading&&<p role="status">Loading subitems…</p>}{tree.error&&<p role="alert">{tree.error}<button type="button" onClick={()=>void tree.reload()}>Retry work</button></p>}{saved&&<p role="status">{saved}</p>}
-  {data&&<>{presentation==='standard'&&!branchParentId&&<p>Final steps approved: {data.leaf_completed} of {data.leaf_total}. Task progress is tracked separately.</p>}
+ const heading=presentation==='standard'?<div className="nw-work-heading"><div><h3>{branchParentId?'Child work':'Subtasks'}</h3><p>Steps managed by the task lead.</p></div>{data&&!branchParentId&&data.leaf_total>0&&<span className="nw-work-approved">{data.leaf_completed}/{data.leaf_total} steps complete</span>}</div>:undefined;
+ return <section ref={section} tabIndex={presentation==='project-table'?-1:undefined} className={`r7-work${presentation==='project-table'?' r7-work--project-table':''}`} data-work-presentation={presentation} aria-label="Nested project work">{!data&&heading}
+  {tree.loading&&!data&&<p role="status">Loading subtasks…</p>}{tree.error&&<p role="alert">{tree.error}<button type="button" onClick={()=>void tree.reload()}>Retry work</button></p>}{saved&&<p role="status">{saved}</p>}
+  {data&&<>
    {!edit&&recovered.map(record=><button type="button" key={`${record.mode}:${record.baseline.nodeId}:${record.baseline.fields.parent}:${record.baseline.revision}`} onClick={()=>void requestNavigation(()=>setEdit({command:record.baseline.command,itemId:record.baseline.nodeId||undefined,recoveryRevision:record.baseline.revision,node:data.nodes.find(node=>node.id===record.baseline.nodeId),parent:record.baseline.fields.parent||null}))}>Recover {draftLabels[record.baseline.command]||'work'} draft</button>)}
-   <WorkHierarchy presentation={presentation} snapshot={data} readOnly={readOnly} executionBlocked={executionBlocked} authorityFresh={tree.authorityFresh&&!tree.pending&&!edit} focusedNodeId={focusedNodeId} branchParentId={branchParentId} branchActions={branchActions} officeReviewAvailable={!!onReviewOfficeNode}
+   <WorkHierarchy heading={heading} presentation={presentation} snapshot={data} readOnly={readOnly} executionBlocked={executionBlocked} authorityFresh={tree.authorityFresh&&!tree.pending&&!edit} focusedNodeId={focusedNodeId} branchParentId={branchParentId} branchActions={branchActions} officeReviewAvailable={!!onReviewOfficeNode}
     collapsedIds={collapsedIds} onCollapsedIdsChange={next=>{void requestNavigation(()=>setCollapsedIds(next));}} onOpenNode={openNode} onRequestAction={action}/>
    {opened&&data.nodes.some(node=>node.id===opened)&&<WorkNodeReadSummary node={data.nodes.find(node=>node.id===opened)!} snapshot={data} onClose={()=>setOpened(undefined)}/>}
-   {activity&&<aside aria-label="Task work activity"><h4>Task work activity</h4><p>Work changes for this task and its subitems.</p><WorkActivity roots={[rootId]}/><button type="button" onClick={()=>setActivity(false)}>Close activity</button></aside>}
+   {activity&&<aside aria-label="Task work activity"><h4>Task work activity</h4><p>Work changes for this task and its subtasks.</p><WorkActivity roots={[rootId]}/><button type="button" onClick={()=>setActivity(false)}>Close activity</button></aside>}
    {edit&&<WorkTreeEditor key={`${edit.command}:${edit.node?.id||edit.itemId}:${edit.parent}`} data={data} edit={edit} save={save} readOnly={readOnly||executionBlocked&&['progress','submit'].includes(edit.command)} refreshPending={tree.refreshPending||tree.pending||!tree.authorityFresh} onDone={finish} onCancel={()=>{finish();void tree.reload();}}/>}
   </>}
  </section>;

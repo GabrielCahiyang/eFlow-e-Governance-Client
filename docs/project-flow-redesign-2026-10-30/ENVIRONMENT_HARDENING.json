@@ -1,0 +1,6 @@
+{
+  "removed_unused_browser_prefixed_secret_variable": "VITE_SUPABASE_SERVICE_ROLE_KEY",
+  "server_credential_preserved": true,
+  "source_consumers": 0,
+  "private_environment_backup_created": true
+}

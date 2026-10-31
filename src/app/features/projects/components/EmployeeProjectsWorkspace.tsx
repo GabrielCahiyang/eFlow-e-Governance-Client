@@ -10,6 +10,7 @@ export function EmployeeProjectsWorkspace() {
       scope={{ includeAllAccessibleWork: false, scopedOrgIds: [] }}
       eyebrow="My Workspace · Projects"
       proposalGrouping={false}
+      readOnly
     />
   );
 }

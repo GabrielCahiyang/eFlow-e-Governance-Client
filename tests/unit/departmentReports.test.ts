@@ -120,7 +120,7 @@ describe('NW9.3 report attribution',()=>{
       const node={...facts.subtasks[0],leadId:'lead',assignedToIds:workers,dueDate:'2026-10-21'};
       const rows=buildDepartmentReportRows('contributions',[{...tasks[0],deadline:'2026-10-30'}],projects,employees,{...facts,subtasks:[node]},[],NOW)
         .filter(row=>row.id.startsWith('subtask-contribution:'));
-      expect(rows.map(row=>[row.personId,row.role])).toEqual(workers.length?[['lead','Subitem Lead'],['member','Subtask contributor']]:[['lead','Subitem Lead']]);
+      expect(rows.map(row=>[row.personId,row.role])).toEqual(workers.length?[['lead','Subtask Lead'],['member','Subtask contributor']]:[['lead','Subtask Lead']]);
       expect(rows.every(row=>row.dueAt===Date.parse('2026-10-21'))).toBe(true);
       expect(node.assignedToIds).toBe(workers);
     }

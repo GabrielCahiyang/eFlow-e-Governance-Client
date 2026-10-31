@@ -5,7 +5,7 @@ import {descendantIds} from './tree';
 import type {WorkActivityFocus} from './workActivityScope';
 
 export interface WorkEventPresentation {title:string;detail:string}
-const labels:Record<string,string>={create:'Subitem created',staff:'Subitem people updated',root_lead:'Task Lead transferred',contributors:'Task contributors updated',edit:'Subitem details updated',move:'Subitem moved',order:'Subitems reordered',delete:'Subitem deleted',progress:'Subitem progress recorded',submit:'Subitem submitted for review',review:'Subitem review recorded'};
+const labels:Record<string,string>={create:'Subtask created',staff:'Subtask people updated',root_lead:'Task Lead transferred',contributors:'Task contributors updated',edit:'Subtask details updated',move:'Subtask moved',order:'Subtasks reordered',delete:'Subtask deleted',progress:'Subtask progress recorded',submit:'Subtask submitted for review',review:'Subtask review recorded'};
 const statuses:Record<string,string>={todo:'To do',in_progress:'In progress',for_review:'For review',changes_requested:'Changes requested',completed:'Completed'};
 export function workEventTitle(command:string):string{return labels[command]||'Work change recorded';}
 /** Validate transport identity independently from optional historical context. */
@@ -40,7 +40,7 @@ export function presentWorkEvent(event:WorkEvent,focus?:WorkActivityFocus):WorkE
  let title=workEventTitle(event.command);
  if(event.command==='staff'||event.command==='create'){
   staffing(old,next);
-  if(event.command==='staff'&&old&&next&&old.lead_id!==next.lead_id)title='Subitem Lead transferred';
+  if(event.command==='staff'&&old&&next&&old.lead_id!==next.lead_id)title='Subtask Lead transferred';
   if(event.command==='staff'&&old&&next){
    const descendants=descendantIds(nodes(before),old.id);
    for(const previous of nodes(before).filter(node=>descendants.has(node.id))){
@@ -74,7 +74,7 @@ export function presentWorkEvent(event:WorkEvent,focus?:WorkActivityFocus):WorkE
   }
  }
  if(event.command==='delete'&&old){
-  details.push(`Removed ${1+descendantIds(nodes(before),old.id).size} subitem(s)`);
+  details.push(`Removed ${1+descendantIds(nodes(before),old.id).size} subtask(s)`);
   details.push(`Lead: ${person(before,old.lead_id)}; Contributors: ${people(before,old.assigned_to_ids,old.lead_id)}`);
  }
  if(event.command==='progress'&&next)details.push(`Progress: ${old?`${old.percent_complete}%`:'Unavailable'} → ${next.percent_complete}%`);

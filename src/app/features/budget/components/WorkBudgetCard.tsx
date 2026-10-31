@@ -1,3 +1,4 @@
+import {TaskProjectFunding} from '../../project-setup';
 import { MoneyInput } from '../../../components/ui/MoneyInput';
 import { useReviewedMutation } from "../../../shared/useReviewedMutation";
 import { FeedbackState } from "../../../components/ui/FeedbackState";
@@ -282,7 +283,7 @@ export function WorkBudgetCard({
     });
   };
 
-  if (!budget.summary && !budget.loading) return null;
+  if (!budget.summary && !budget.loading) return task.linkedProjectId&&!subtask?<TaskProjectFunding projectId={task.linkedProjectId} taskId={task.id} funded={!!context?.funded} onChanged={refresh}/>:null;
   const selectedCapLine = context?.lines.find((line) => line.id === capLineId);
   const capMaximum =
     (selectedCapLine?.available || 0) +
@@ -292,7 +293,8 @@ export function WorkBudgetCard({
     <section className="rounded-[10px] border border-border bg-card p-3 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
       {safety.dialog}
       {authorityPending && <p role="status" className="mb-3 flex items-center gap-2 text-[13px] text-muted-foreground"><Loader2 size={14} className="animate-spin" />Checking current work access. Your draft is kept; controls resume when verified.</p>}
-      {!authorityPending&&(canAuthorizeFunding||!readOnly&&canManage)&&isOpenDirectFundingWork(task)&&!subtask&&!context?.funded&&!funding.loading&&userProfile?.role==="head"&&userProfile.is_active!==false&&userProfile.org_id===orgId&&orgId===fundingOffice&&<DirectWorkFunding key={task.id} data={budget} tasks={[task]} onChanged={refresh} />}
+      {task.linkedProjectId&&!subtask&&<TaskProjectFunding projectId={task.linkedProjectId} taskId={task.id} funded={!!context?.funded} onChanged={refresh}/>}
+      {!task.linkedProjectId&&!authorityPending&&(canAuthorizeFunding||!readOnly&&canManage)&&isOpenDirectFundingWork(task)&&!subtask&&!context?.funded&&!funding.loading&&userProfile?.role==="head"&&userProfile.is_active!==false&&userProfile.org_id===orgId&&orgId===fundingOffice&&<DirectWorkFunding key={task.id} data={budget} tasks={[task]} onChanged={refresh} />}
       {safety.message && (
         <FeedbackState tone={safety.tone} title="Cap result">
           <p>{safety.message}</p>

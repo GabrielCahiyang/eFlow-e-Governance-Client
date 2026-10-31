@@ -193,10 +193,13 @@ export async function projectWorkspaceFixture(
     if (!compact && localStorage.getItem(key) === null) localStorage.setItem(key, '[]');
   }, { project, compact: !!options.compactLayout });
   const taskSockets = new Map<WebSocketRoute, Map<string, number[]>>();
+  const reviewSockets = new Map<WebSocketRoute, Map<string, number[]>>();
   await page.routeWebSocket(/\/realtime\/v1\//, (socket) => {
     if (!options.taskChanges) return;
     const topics = new Map<string, number[]>();
+    const reviewTopics = new Map<string, number[]>();
     taskSockets.set(socket, topics);
+    reviewSockets.set(socket, reviewTopics);
     socket.onMessage((raw) => {
       if (typeof raw !== "string") return;
       const decoded = JSON.parse(raw);
@@ -219,6 +222,7 @@ export async function projectWorkspaceFixture(
           .filter((binding: any) => binding.table === "tasks")
           .map((binding: any) => binding.id),
       );
+      reviewTopics.set(message.topic, changes.filter((binding: any) => binding.table === 'project_readiness_reviews').map((binding: any) => binding.id));
       socket.send(
         JSON.stringify([
           message.join_ref,
@@ -256,6 +260,15 @@ export async function projectWorkspaceFixture(
             ]),
           );
   };
+  const emitReadinessReview = () => {
+    for (const [socket, topics] of reviewSockets)
+      for (const [topic, ids] of topics)
+        if (ids.length) socket.send(JSON.stringify([null, null, topic, 'postgres_changes', {
+          ids, data: { schema: 'public', table: 'project_readiness_reviews', type: 'UPDATE',
+            commit_timestamp: new Date().toISOString(), columns: [{ name: 'project_id', type: 'uuid' }],
+            record: { project_id: project, review_kind: 'dates' }, old_record: {}, errors: null },
+        }]));
+  };
   await page.route("**/auth/v1/**", (route) =>
     route.fulfill({
       json: route.request().url().includes("/token")
@@ -282,6 +295,10 @@ export async function projectWorkspaceFixture(
     if (table === 'r6_list_project_files') body = {can_write:role!=='admin'&&!options.shared&&!['completed','archived'].includes(String(projects[0]?.status)),files:[]};
     if (table === 'r3_list_workspaces') body = options.unassigned ? [] : organizations.map(o=>({id:o.id,name:o.name,kind:'office',office_id:o.id,owner_id:null,state:'active',timezone:'Asia/Singapore'}));
     if (table === 'r3_select_workspace') body = {workspace:{id:payload.p_workspace,name:organizations.find(o=>o.id===payload.p_workspace)?.name || office.name,kind:'office',office_id:payload.p_workspace,owner_id:null,state:'active',timezone:'Asia/Singapore'},projects:projects.map(p=>({...p,kind:'office',home_workspace_id:p.org_id}))};
+    if(table==='project_flow_snapshot'){
+      const current=projects.find(p=>p.id===payload.p_project)||projects[0];
+      body={project:{...current,scope:'Existing project scope',project_lead_id:id,start_date:'2026-10-01',target_date:'2027-12-31',funding_not_required:true},ready:true,canAuthorize:role==='head',canAllocate:role==='head',funds:[],sources:[],requests:[],fundingRequests:[],taskFunding:[],liquidations:[],total:0,allocated:0,unallocated:0,released:0,spent:0};
+    }
     if (table === "profiles") {
       const rows=profiles.filter(row=>!url.searchParams.has('id')||url.searchParams.get('id')==='eq.'+row.id);
       body = single ? rows[0] || null : rows;
@@ -479,6 +496,7 @@ export async function projectWorkspaceFixture(
   if (options.landingOnly)
     return {
       emitTaskDelete,
+      emitReadinessReview,
       tasks,
       projects,
       groups,
@@ -507,6 +525,7 @@ export async function projectWorkspaceFixture(
     ).toBeVisible({timeout:30_000});
     return {
       emitTaskDelete,
+      emitReadinessReview,
       tasks,
       projects,
       groups,
@@ -543,6 +562,7 @@ export async function projectWorkspaceFixture(
   ).toBeVisible();
   return {
     emitTaskDelete,
+    emitReadinessReview,
     tasks,
     projects,
     groups,

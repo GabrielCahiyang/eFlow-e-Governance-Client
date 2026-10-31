@@ -23,7 +23,6 @@ export function ReviewKindSwitch({
     { id: "workplans", label: "Work Plans" },
     { id: "tasks", label: "Project Tasks" },
     { id: "governance", label: "Governance & Approval" },
-    { id: "subtasks", label: "Subtasks" },
     ...(includeBudget ? [{ id: "budget" as const, label: "Budget" }] : []),
     ...(includeMembership ? [{ id: "membership" as const, label: "Membership approvals" }] : []),
   ];

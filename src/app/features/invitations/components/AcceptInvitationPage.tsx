@@ -7,6 +7,7 @@ import { acceptInvitation, createInvitedAccount, validateInvitation } from '../s
 import {acceptProjectInvitation,createProjectGuest,validateProjectInvitation} from '../../project-invitations';
 import type { InvitationMetadata } from '../types';
 import '../invitations.css';
+import {ProjectInviteOnboarding} from './ProjectInviteOnboarding';
 
 export function AcceptInvitationPage() {
   const [projectGuest] = useState(()=>window.location.pathname==='/accept-project-invite');
@@ -16,6 +17,7 @@ export function AcceptInvitationPage() {
   const [attemptId] = useState(() => crypto.randomUUID());
   const [invite, setInvite] = useState<InvitationMetadata>();
   const [existing, setExisting] = useState(false);
+  const [joined,setJoined]=useState(false);
   const [name, setName] = useState(''); const [password, setPassword] = useState(''); const [confirm, setConfirm] = useState('');
   const [error, setError] = useState(''); const [busy, setBusy] = useState(false); const [email, setEmail] = useState<string>();
   useEffect(() => {
@@ -29,6 +31,7 @@ export function AcceptInvitationPage() {
   }, [token]);
   const wrongAccount = email && invite && email.toLowerCase() !== invite.email.toLowerCase();
   const projectInvitation = invite?.invitation_type === 'project_office' || invite?.invitation_type === 'project_office_identity';
+  const openProject=()=>window.location.replace(invite?.project_id ? '/projects?page=Projects&project=' + encodeURIComponent(invite.project_id) + (projectGuest?'&view=members':'&view=offices')+(invite.home_workspace_id?'&workspace='+encodeURIComponent(invite.home_workspace_id):'') : '/');
   async function finish(event: React.FormEvent) {
     event.preventDefault(); if (!invite) return;
     setBusy(true); setError('');
@@ -49,20 +52,22 @@ export function AcceptInvitationPage() {
         }
         await accept(token, name);
       }
-      window.location.replace(invite.project_id ? '/projects?page=Projects&project=' + encodeURIComponent(invite.project_id) + (projectGuest?'&view=members':'&view=offices')+(invite.home_workspace_id?'&workspace='+encodeURIComponent(invite.home_workspace_id):'') : '/');
+      setPassword('');setConfirm('');
+      if(projectGuest)setJoined(true);else openProject();
     } catch (reason) { setError((reason as Error).message); }
     finally { setBusy(false); }
   }
+  if(joined&&invite?.id)return <main className="eflow-accept-page eflow-accept-page--onboarding"><section className="eflow-accept-content"><EFlowMark variant="default" height={38}/><ProjectInviteOnboarding requestId={invite.id} onContinue={openProject}/></section></main>;
   return <main className="eflow-accept-page"><section className="eflow-accept-content"><EFlowMark variant="default" height={38} />
     {invite ? <><header><p className="eflow-eyebrow">YOU’RE INVITED</p><h1>{invite.project_title ? `Join ${invite.project_title}.` : `Join ${invite.office_name}’s team.`}</h1><p>{invite.project_title ? projectGuest?'Accept project membership. Your account role and Office affiliation stay unchanged.':`${invite.office_name} has been invited to work with this project.` : 'Complete your details. Your Office is ready for you.'}</p></header>
-      <div className="eflow-invited-context"><span>{invite.office_name}</span><span>{projectGuest ? 'Project member' : projectInvitation ? invite.workspace_access === 'observer' ? 'Observer · read only' : 'Collaborating Office' : invite.account_role === 'accounting_staff' ? 'Accounting Staff' : 'Member'}</span></div>
+      <div className="eflow-invited-context"><span>{invite.office_name}</span><span>{projectGuest ? invite.project_participation_role==='representative'?'Office representative · project only':invite.project_participation_role==='employee'?'Office employee · project only':'Project member' : projectInvitation ? invite.workspace_access === 'observer' ? 'Observer · read only' : 'Collaborating Office' : invite.account_role === 'accounting_staff' ? 'Accounting Staff' : 'Member'}</span></div>
       {projectGuest&&<p>{invite.engagement} · {invite.access_end?`Access ends ${new Date(invite.access_end).toISOString()}`:invite.until_close?'Until project completion or archive':'Permanent project membership'} · Requested skills: {invite.skills?.join(', ')||'None specified'}{invite.summary?` · ${invite.summary}`:''}</p>}
       <form onSubmit={finish} className="eflow-accept-form"><label>Email<input value={invite.email} readOnly type="email" aria-readonly="true" /></label>
         {wrongAccount ? <><p role="alert">You’re signed in as {email}. Switch accounts to accept this invitation.</p><button type="button" className="eflow-primary-button" onClick={async () => { await supabase.auth.signOut(); setEmail(undefined); setPassword(''); }}>Switch account</button></> : <>
           {((!existing && !email) || invite.needs_full_name) && <label>Full name<input required minLength={2} maxLength={160} autoComplete="name" placeholder="Enter your full name" value={name} onChange={event => setName(event.target.value)} /></label>}
           {!email && <label>Password<input required minLength={existing ? 1 : 12} maxLength={128} type="password" autoComplete={existing ? 'current-password' : 'new-password'} placeholder={existing ? 'Enter your password' : 'Enter at least 12 characters'} value={password} onChange={event => setPassword(event.target.value)} /></label>}
           {!existing && !email && <label>Confirm password<input required minLength={12} maxLength={128} type="password" autoComplete="new-password" value={confirm} onChange={event => setConfirm(event.target.value)} /></label>}
-          <p className="eflow-invite-help">{projectGuest ? 'Your approved engagement and access terms apply to this project. Work is assigned separately. PDS is optional and private. Complete onboarding in Members / Invitations after joining.' : projectInvitation ? 'Project access keeps your account role and Office membership unchanged. Directory linking and the appointed Office Head’s confirmation are required before staffing. Contacts can view project context; they cannot appoint themselves as Head.' : 'Your email, Office, and role are set by this invitation. Your password stays private.'}</p>
+          <p className="eflow-invite-help">{projectGuest ? 'Use the invited email to sign in. New members choose their own private password. After joining, add your own skills, professional summary and optional private PDS. Access is limited to this project; work is assigned separately.' : projectInvitation ? 'Project access keeps your account role and Office membership unchanged. Directory linking and the appointed Office Head’s confirmation are required before staffing. Contacts can view project context; they cannot appoint themselves as Head.' : 'Your email, Office, and role are set by this invitation. Your password stays private.'}</p>
           <button className="eflow-primary-button" disabled={busy} type="submit">{busy ? 'Joining…' : existing || email ? invite.project_title ? 'Join project' : 'Join your Office' : 'Create account'} <span aria-hidden="true">→</span></button>
           {!email && <button className="eflow-text-button" type="button" onClick={() => { setExisting(current => !current); setPassword(''); setConfirm(''); }}>{existing ? 'Need to create an account?' : 'Already have an account? Sign in'}</button>}
         </>}

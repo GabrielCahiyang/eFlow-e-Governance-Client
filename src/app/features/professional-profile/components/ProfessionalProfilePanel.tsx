@@ -12,7 +12,7 @@ import '../professionalProfile.css';
 
 const labels = { skills: 'Skills', education: 'Education', trainings: 'Training', certifications: 'Certifications', work_experience: 'Work experience', specializations: 'Specializations' };
 const emptyValues = (): ProfessionalValues => ({ skills: [], education: [], trainings: [], certifications: [], work_experience: [], specializations: [], competency_summary: '' });
-export function ProfessionalProfilePanel({ userId }: { userId?: string }) {
+export function ProfessionalProfilePanel({ userId,projectRequestId }: { userId?: string;projectRequestId?:string }) {
   const confirmation = useConfirmation();
   const [notice, setNotice] = useState(''), [pollError, setPollError] = useState('');
   const { user } = useAuth(); const id = userId || user?.id; const own = id === user?.id;
@@ -47,7 +47,7 @@ export function ProfessionalProfilePanel({ userId }: { userId?: string }) {
   };
   const upload = (file: File) => {
     if (!file.name.toLowerCase().endsWith('.pdf') || file.size > 10485760 || file.size === 0) { setError('Choose a nonempty PDF up to 10 MB.'); return; }
-    void perform(()=>uploadPds(file), 'Private PDS uploaded. Extraction is queued; review the extracted draft before saving your summary.');
+    void perform(()=>uploadPds(file,undefined,projectRequestId), 'Private PDS uploaded. Extraction is queued; review the extracted draft before saving your summary.');
   };
   if (loading) return <p role="status">Loading authorized professional summary…</p>;
   if (error && !profile && !editing) return <FeedbackState tone="error" title="Professional summary not loaded" onRetry={() => void perform(refresh)}>{error}</FeedbackState>;

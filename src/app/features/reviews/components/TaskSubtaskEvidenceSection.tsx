@@ -19,9 +19,9 @@ import {buildWorkRecordDisplayMetadata} from '../../nested-work';
 const STATUS = {
   todo: { label: "To do", tone: "bg-neutral-100 text-neutral-600" },
   in_progress: { label: "In progress", tone: "bg-blue-50 text-blue-700" },
-  for_review: { label: "For leader review", tone: "bg-amber-50 text-amber-700" },
+  for_review: { label: "Ready to finish", tone: "bg-amber-50 text-amber-700" },
   changes_requested: { label: "Updates needed", tone: "bg-rose-50 text-rose-700" },
-  completed: { label: "Leader approved", tone: "bg-emerald-50 text-emerald-700" },
+  completed: { label: "Completed", tone: "bg-emerald-50 text-emerald-700" },
 } as const;
 
 function Metric({ label, value, icon }: { label: string; value: number; icon: React.ReactNode }) {
@@ -62,13 +62,13 @@ export function TaskSubtaskEvidenceSection({
         </span>
         <div>
           <h3 className="text-[13px] font-semibold text-neutral-900">Subtask execution record</h3>
-          <p className="mt-0.5 text-[11px] text-neutral-500">Every contributor update, blocker, next step, attachment, evidence attempt, and Team Leader decision is shown below.</p>
+          <p className="mt-0.5 text-[11px] text-neutral-500">Subtask updates, completion records and attachments are shown below. Earlier review history is retained.</p>
         </div>
       </div>
 
       <div className="mt-3 grid grid-cols-2 gap-2 xl:grid-cols-4">
         <Metric label="Subtasks" value={evidence.length} icon={<ListChecks size={11} />} />
-        <Metric label="Lead approved" value={approvedCount} icon={<CheckCircle2 size={11} />} />
+        <Metric label="Completed" value={approvedCount} icon={<CheckCircle2 size={11} />} />
         <Metric label="Updates" value={updateCount} icon={<History size={11} />} />
         <Metric label="Evidence files" value={evidenceCount} icon={<FileText size={11} />} />
       </div>

@@ -16,7 +16,7 @@ describe('NW8.1 strict scoped data adapter',()=>{
   api.errors[table]='Access denied';await expect(fetchSubitemInspectorRecord('root','item')).rejects.toThrow('Access denied');
  });
  it('rejects removed/hidden items before reading their histories',async()=>{
-  api.missing=true;await expect(fetchSubitemInspectorRecord('root','item')).rejects.toThrow('Subitem unavailable');expect(api.reads).toHaveLength(1);
+  api.missing=true;await expect(fetchSubitemInspectorRecord('root','item')).rejects.toThrow('Subtask unavailable');expect(api.reads).toHaveLength(1);
  });
  it('retains the legacy reads error/empty-array contract',async()=>{
   api.errors.subtask_submissions='Denied';api.errors.subtask_progress_updates='Denied';

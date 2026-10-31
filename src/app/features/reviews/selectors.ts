@@ -5,9 +5,9 @@ import { isHeadWorkspaceRole } from "../../shared/roles";
 export type ReviewWorkspaceKind = "tasks" | "subtasks";
 
 export function getInitialReviewWorkspaceKind(
-  scope: "department" | "leading",
+  _scope: "department" | "leading",
 ): ReviewWorkspaceKind {
-  return scope === "leading" ? "subtasks" : "tasks";
+  return "tasks";
 }
 
 export function canOpenBudgetReviewWorkspace(

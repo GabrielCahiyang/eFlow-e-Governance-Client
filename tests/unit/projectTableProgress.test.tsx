@@ -9,7 +9,7 @@ vi.mock('../../src/app/features/nested-work',()=>({supportsNestedWork:()=>false,
 vi.mock('../../src/app/features/project-table/components/PlanningCells',()=>({TimelineCell:()=>null,DependencyCell:()=>null,NumberCell:()=>null}));
 import {ProjectTaskCell} from '../../src/app/features/project-table/components/ProjectTaskCells';
 afterEach(cleanup);
-it.each([['todo','Not started'],['in_progress','In progress'],['for_review','Awaiting approval'],['cancelled','Cancelled'],['completed','Approved']] as const)('describes %s work accurately when it has no subitems', (status,label)=>{
+it.each([['todo','Not started'],['in_progress','In progress'],['for_review','Awaiting approval'],['cancelled','Cancelled'],['completed','Approved']] as const)('describes %s work accurately when it has no subtasks', (status,label)=>{
  const task={id:'task',title:'QA work',status} as Task;
  render(<ProjectTaskCell column="progress" task={task} tasks={[task]} profiles={[]} people={[]} orgs={[]} editable={false} busy={false} canSetOffice={false} hasStaffedSubitems={false} statuses={[]} save={vi.fn()} write={vi.fn()}/>);
  expect(screen.getByLabelText('Progress for QA work').textContent).toBe(label);

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import {act,cleanup,fireEvent,render,renderHook,screen,waitFor} from '@testing-library/react';
 import {afterEach,beforeEach,describe,expect,it,vi} from 'vitest';
-async function chooseWorkAction(label:string, action:string){const trigger=await screen.findByRole('button',{name:label,exact:true});fireEvent.keyDown(trigger,{key:'Enter'});fireEvent.click(await screen.findByRole('menuitem',{name:action,exact:true}));await screen.findByLabelText('Subitem title');}
+async function chooseWorkAction(label:string, action:string){const trigger=await screen.findByRole('button',{name:label,exact:true});fireEvent.keyDown(trigger,{key:'Enter'});fireEvent.click(await screen.findByRole('menuitem',{name:action,exact:true}));await screen.findByLabelText('Subtask title');}
 
 const api=vi.hoisted(()=>({actor:'actor' as string|null,load:vi.fn(),save:vi.fn()}));
 vi.mock('../../src/app/contexts/AuthContext',()=>({useAuth:()=>({user:api.actor?{id:api.actor}:null})}));
@@ -91,18 +91,18 @@ describe('NW5.4 editor recovery',()=>{
 });
 describe('NW5.4 current reads and owners',()=>{
  it('retains a dirty editor on timer failure and blocks saving until retry succeeds',async()=>{
-  render(<WorkTree rootId="root"/>);await chooseWorkAction('Task work actions','Add subitem');fireEvent.change(screen.getByLabelText('Subitem title'),{target:{value:'Dirty'}});
+  render(<WorkTree rootId="root"/>);await chooseWorkAction('Task work actions','Add subtask');fireEvent.change(screen.getByLabelText('Subtask title'),{target:{value:'Dirty'}});
   api.load.mockRejectedValueOnce(new Error('Network offline'));fireEvent(window,new Event('focus'));await screen.findByText(/Network offline/);expect(screen.getByDisplayValue('Dirty')).toBeTruthy();expect((screen.getByRole('button',{name:/^Save (?:work )?changes$/}) as HTMLButtonElement).disabled).toBe(true);
   fireEvent.click(screen.getByRole('button',{name:'Retry work'}));await waitFor(()=>expect((screen.getByRole('button',{name:/^Save (?:work )?changes$/}) as HTMLButtonElement).disabled).toBe(false));expect(screen.getByDisplayValue('Dirty')).toBeTruthy();
  });
  it('clears protected display on coded revocation and quarantines the draft until renewed read',async()=>{
-  render(<WorkTree rootId="root"/>);await chooseWorkAction('Task work actions','Add subitem');fireEvent.change(screen.getByLabelText('Subitem title'),{target:{value:'Private draft'}});
+  render(<WorkTree rootId="root"/>);await chooseWorkAction('Task work actions','Add subtask');fireEvent.change(screen.getByLabelText('Subtask title'),{target:{value:'Private draft'}});
   api.load.mockRejectedValueOnce(Object.assign(new Error('Forbidden'),{code:'42501'}));fireEvent(window,new Event('focus'));await screen.findByText('Forbidden');expect(screen.queryByDisplayValue('Private draft')).toBeNull();expect(screen.queryByText('Original')).toBeNull();expect(sessionStorage.length).toBe(1);
   fireEvent.click(screen.getByRole('button',{name:'Retry work'}));expect(await screen.findByDisplayValue('Private draft')).toBeTruthy();expect(await screen.findByText(/Draft recovered after current access verification/)).toBeTruthy();expect(api.save).not.toHaveBeenCalled();
  });
  it('offers recovery after owner remount only after fresh read',async()=>{
-  const view=render(<WorkTree rootId="root"/>);await chooseWorkAction('Task work actions','Add subitem');fireEvent.change(screen.getByLabelText('Subitem title'),{target:{value:'Reloaded'}});view.unmount();
-  let resolve!:(data:WorkTreeSnapshot)=>void;api.load.mockImplementationOnce(()=>new Promise(yes=>{resolve=yes;}));render(<WorkTree rootId="root"/>);expect(screen.queryByRole('button',{name:'Recover new subitem draft'})).toBeNull();await act(async()=>resolve(tree()));fireEvent.click(await screen.findByRole('button',{name:'Recover new subitem draft'}));expect(screen.getByDisplayValue('Reloaded')).toBeTruthy();expect(api.save).not.toHaveBeenCalled();
+  const view=render(<WorkTree rootId="root"/>);await chooseWorkAction('Task work actions','Add subtask');fireEvent.change(screen.getByLabelText('Subtask title'),{target:{value:'Reloaded'}});view.unmount();
+  let resolve!:(data:WorkTreeSnapshot)=>void;api.load.mockImplementationOnce(()=>new Promise(yes=>{resolve=yes;}));render(<WorkTree rootId="root"/>);expect(screen.queryByRole('button',{name:'Recover new subtask draft'})).toBeNull();await act(async()=>resolve(tree()));fireEvent.click(await screen.findByRole('button',{name:'Recover new subtask draft'}));expect(screen.getByDisplayValue('Reloaded')).toBeTruthy();expect(api.save).not.toHaveBeenCalled();
  });
  it('retains staffing through transient failure and recovers it after owner remount',async()=>{
   const view=render(<WorkRootOwner rootId="root"/>);fireEvent.click(await screen.findByRole('button',{name:'Choose task lead and contributors'}));fireEvent.click(screen.getByRole('button',{name:'Add contributor Worker'}));api.load.mockRejectedValueOnce(new Error('Offline'));fireEvent(window,new Event('focus'));await screen.findByText('Offline');expect(screen.getByRole('button',{name:'Remove contributor Worker'})).toBeTruthy();expect((screen.getByRole('button',{name:/^Save (?:work )?changes$/}) as HTMLButtonElement).disabled).toBe(true);view.unmount();
@@ -112,6 +112,15 @@ describe('NW5.4 current reads and owners',()=>{
   let resolve!:(data:WorkTreeSnapshot)=>void;api.load.mockImplementationOnce(()=>new Promise(yes=>{resolve=yes;}));const hook=renderHook(({root})=>useWorkTree(root),{initialProps:{root:'root'}});hook.rerender({root:'other'});await waitFor(()=>expect(hook.result.current.data?.root.id).toBe('other'));await act(async()=>resolve(tree()));expect(hook.result.current.data?.root.id).toBe('other');
  });
  it('continues polling while a dirty editor is open',async()=>{
-  vi.useFakeTimers();render(<WorkTree rootId="root"/>);await act(async()=>{});fireEvent.keyDown(screen.getByRole('button',{name:'Task work actions'}),{key:'Enter'});fireEvent.click(screen.getByRole('menuitem',{name:'Add subitem',exact:true}));await act(async()=>vi.advanceTimersByTime(0));fireEvent.change(screen.getByLabelText('Subitem title'),{target:{value:'Polling'}});await act(async()=>vi.advanceTimersByTime(15000));expect(api.load).toHaveBeenCalledTimes(2);expect(screen.getByDisplayValue('Polling')).toBeTruthy();
+  vi.useFakeTimers();render(<WorkTree rootId="root"/>);await act(async()=>{});fireEvent.keyDown(screen.getByRole('button',{name:'Task work actions'}),{key:'Enter'});fireEvent.click(screen.getByRole('menuitem',{name:'Add subtask',exact:true}));await act(async()=>vi.advanceTimersByTime(0));fireEvent.change(screen.getByLabelText('Subtask title'),{target:{value:'Polling'}});await act(async()=>vi.advanceTimersByTime(15000));expect(api.load).toHaveBeenCalledTimes(2);expect(screen.getByDisplayValue('Polling')).toBeTruthy();
+ });
+ it('keeps the loaded hierarchy visible during a quiet automatic refresh',async()=>{
+  vi.useFakeTimers();render(<WorkTree rootId="root"/>);await act(async()=>{});
+  expect(screen.getByRole('button',{name:'Original',exact:true})).toBeTruthy();
+  let resolve!:(data:WorkTreeSnapshot)=>void;api.load.mockImplementationOnce(()=>new Promise(yes=>{resolve=yes;}));
+  await act(async()=>vi.advanceTimersByTime(15000));
+  expect(api.load).toHaveBeenCalledTimes(2);expect(screen.queryByText('Loading subtasks…')).toBeNull();expect(screen.getByRole('button',{name:'Original',exact:true})).toBeTruthy();
+  const next=tree(8);next.nodes[0].title='Updated automatically';await act(async()=>resolve(next));
+  expect(screen.getByRole('button',{name:'Updated automatically',exact:true})).toBeTruthy();expect(api.save).not.toHaveBeenCalled();
  });
 });

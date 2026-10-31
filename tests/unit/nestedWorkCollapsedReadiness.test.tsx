@@ -37,13 +37,13 @@ describe('NW4.2 Main Table collapse preserves required descendant readiness',()=
   const onSubmit=vi.fn();
   function Surface(){const [open,setOpen]=useState(false);return <><table><tbody><ProjectTaskRow task={task} tasks={[task]} groups={[]} profiles={[]} orgs={[]} columns={[]} editable={false} userId="task-lead" subtasks={subtasks} onOpen={vi.fn()} onOpenSubitem={vi.fn()} refreshSubitems={vi.fn()} reorderable={false} onMove={vi.fn()} run={async fn=>{await fn();}}/></tbody></table><button onClick={()=>setOpen(true)}>Check readiness</button><SubmitForReviewModal open={open} task={task} note="Explicit root note" attachments={[]} onNoteChange={vi.fn()} onAttachmentsChange={vi.fn()} onRemoveAttachment={vi.fn()} onClose={()=>setOpen(false)} onSubmit={onSubmit} submitting={false} error=""/></>;}
   render(<Surface/>);
-  const toggle=screen.getByRole('button',{name:'Subitems for Office delivery'});
+  const toggle=screen.getByRole('button',{name:'Subtasks for Office delivery'});
   expect(toggle.getAttribute('aria-expanded')).toBe('false');expect(screen.queryByText('Required depth '+depth)).toBeNull();
   fireEvent.click(screen.getByRole('button',{name:'Check readiness'}));
-  expect(screen.getByText(`0 of ${depth} subtasks approved`)).toBeTruthy();expect((screen.getByRole('button',{name:'Submit for Review'}) as HTMLButtonElement).disabled).toBe(true);
+  expect(screen.getByText(`0 of ${depth} subtasks complete`)).toBeTruthy();expect((screen.getByRole('button',{name:'Submit for Review'}) as HTMLButtonElement).disabled).toBe(true);
   fireEvent.click(screen.getByRole('button',{name:'Cancel'}));
   fireEvent.click(toggle);await screen.findByRole('button',{name:'Required depth '+depth,exact:true});
-  expect(screen.getByText(/Final steps approved: 0 of 1/)).toBeTruthy();
+  expect(screen.getByText("0/1 steps complete")).toBeTruthy();
   fireEvent.click(screen.getByRole('button',{name:'Check readiness'}));
   expect((screen.getByRole('button',{name:'Submit for Review'}) as HTMLButtonElement).disabled).toBe(true);
   fireEvent.click(screen.getByRole('button',{name:'Cancel'}));

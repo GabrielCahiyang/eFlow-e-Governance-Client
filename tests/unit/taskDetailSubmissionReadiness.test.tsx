@@ -33,7 +33,7 @@ const task = {
 afterEach(cleanup);
 
 describe("task detail submission readiness", () => {
-  it("replaces the submission form while a subtask is still under review", () => {
+  it("replaces the submission form until a legacy pending subtask is completed", () => {
     render(
       createElement(SubmitForReviewForm, {
         task,
@@ -41,13 +41,13 @@ describe("task detail submission readiness", () => {
       }),
     );
 
-    expect(screen.getByText("Finish subtask review first")).toBeTruthy();
-    expect(screen.getByText("0 of 1 subtasks approved. The parent task can be submitted only after every subtask is approved by its reviewer.")).toBeTruthy();
-    expect(screen.getByText("1 awaiting Team Leader review")).toBeTruthy();
+    expect(screen.getByText("Complete the subtasks first")).toBeTruthy();
+    expect(screen.getByText("0 of 1 subtasks complete. Complete all required steps before submitting the parent task.")).toBeTruthy();
+    expect(screen.getByText("1 ready for direct completion")).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Submit for review" })).toBeNull();
   });
 
-  it("shows the completion form after every subtask is approved", () => {
+  it("shows the completion form after every subtask is completed", () => {
     render(
       createElement(SubmitForReviewForm, {
         task: { ...task, subtaskCompletedCount: 1 },

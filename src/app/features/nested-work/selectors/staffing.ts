@@ -47,7 +47,7 @@ export function staffingDraftError(data:WorkTreeSnapshot|undefined,context:WorkC
  if(!sameIds(workerIds,baseline.workerIds)&&!caps.contributors.allowed)return caps.contributors.disabledReason;
  if(!data)return 'Reload the current work before saving.';
  if(!retry&&data.revision!==baseline.revision)return 'Work changed. Reopen staffing and review the current tree before saving.';
- if(baseline.nodeId&&!data.nodes.some(node=>node.id===baseline.nodeId))return 'This subitem is no longer available in the current tree.';
+ if(baseline.nodeId&&!data.nodes.some(node=>node.id===baseline.nodeId))return 'This subtask is no longer available in the current tree.';
  const eligible=new Set(eligibleWorkPeople(data.people).map(person=>person.id));
  if(!leadId||!eligible.has(leadId))return 'Choose a currently eligible selected project Lead.';
  const personalRoot=baseline.kind==='personal'&&!baseline.nodeId;

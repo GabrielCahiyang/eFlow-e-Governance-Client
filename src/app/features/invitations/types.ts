@@ -7,5 +7,5 @@ export interface Invitation {
   delivery_error?: string; invitation_url?: string;
   pds_documents?: { id: string; original_filename: string; processing_status: string; processing_error?: string }[];
 }
-export interface InvitationMetadata { home_workspace_id?:string;engagement?:string;access_end?:string|null;until_close?:boolean;summary?:string;skills?:string[];email: string; office_name: string; account_role: InvitedRole; expires_at: string; existing_account: boolean; needs_full_name?: boolean; invitation_type?: 'office_member' | 'project_office' | 'project_office_identity' | 'project_member'; project_id?: string; project_title?: string; workspace_access?: 'collaborating' | 'observer'; }
+export interface InvitationMetadata { id?:string;project_participation_role?:'employee'|'representative'; home_workspace_id?:string;engagement?:string;access_end?:string|null;until_close?:boolean;summary?:string;skills?:string[];email: string; office_name: string; account_role: InvitedRole; expires_at: string; existing_account: boolean; needs_full_name?: boolean; invitation_type?: 'office_member' | 'project_office' | 'project_office_identity' | 'project_member'; project_id?: string; project_title?: string; workspace_access?: 'collaborating' | 'observer'; }
 export interface InviteResult { email: string; invitation?: Invitation; error?: string; }

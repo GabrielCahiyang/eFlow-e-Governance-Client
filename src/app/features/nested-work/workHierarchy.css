@@ -1,11 +1,19 @@
 .nw-hierarchy { color: var(--eflow-text); min-width: 0; }
 .nw-hierarchy-toolbar { display: flex; justify-content: flex-end; margin-bottom: var(--eflow-space-2); }
+.nw-hierarchy-toolbar--heading{align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px;flex-wrap:wrap}
+.nw-work-heading{display:flex;align-items:center;gap:14px;flex-wrap:wrap;min-width:0}
+.nw-work-heading h3{margin:0 0 4px;font-size:18px;font-weight:600;line-height:1.4}
+.nw-work-heading p{margin:0;font-size:13px;line-height:1.5;color:var(--eflow-text-muted,#61777c)}
+.nw-work-approved{padding:5px 9px;border:1px solid var(--eflow-border,#d8e2df);border-radius:6px;font-size:12px;color:var(--eflow-text-muted,#61777c);background:var(--eflow-surface,#fff)}
+.nw-hierarchy .nw-hierarchy-control.nw-hierarchy-control--primary{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:10px 16px;border-color:var(--eflow-primary,#087b77);background:var(--eflow-primary,#087b77);color:var(--eflow-on-primary,#fff);font-size:13px;font-weight:550;white-space:nowrap}
+.task-page__subitems .nw-hierarchy-surface{border:1px solid var(--eflow-border,#d8e2df);border-radius:12px;background:var(--eflow-surface,#fff);overflow:hidden;min-width:0}
 .nw-hierarchy-table-scroll { overflow-x: auto; }
 .nw-hierarchy-table { width: 100%; border-collapse: collapse; text-align: left; }
 .nw-hierarchy-table th, .nw-hierarchy-table td { padding: var(--eflow-table-compact-y) var(--eflow-space-3); border-bottom: 1px solid var(--eflow-border); vertical-align: top; }
 .nw-hierarchy-table th { color: var(--eflow-text-secondary); }
-.nw-hierarchy-table td:first-child { min-width: 16rem; }
-.nw-hierarchy-table td:nth-child(2), .nw-hierarchy-table td:nth-child(3) { min-width: 9rem; }
+.nw-hierarchy-table .nw-actions-cell { width: 1%; min-width: 44px; white-space: nowrap; }
+.nw-hierarchy-table td:nth-child(2) { min-width: 16rem; }
+.nw-hierarchy-table td:nth-child(3), .nw-hierarchy-table td:nth-child(4) { min-width: 9rem; }
 .nw-hierarchy-title { padding-inline-start: calc(var(--nw-indent) * var(--eflow-space-3)); }
 .nw-hierarchy-title-line { display: flex; align-items: flex-start; gap: var(--eflow-space-1); }
 .nw-hierarchy .nw-hierarchy-control, .nw-hierarchy .nw-hierarchy-open { color: inherit; background: var(--eflow-surface); border: 1px solid var(--eflow-border); border-radius: var(--eflow-radius-control); min-height: var(--eflow-control-compact); padding: var(--eflow-space-1) var(--eflow-space-2); cursor: pointer; }

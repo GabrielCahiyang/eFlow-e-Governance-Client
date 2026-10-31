@@ -14,9 +14,9 @@ describe('parent approval summary',()=>{
   ['in_progress','Ready for final review'],
   ['for_review','Final review in progress'],
   ['completed','Task approved'],
- ] as const)('keeps approved steps distinct from the parent %s state', (status,message)=>{
+ ] as const)('keeps completed steps distinct from the parent %s state', (status,message)=>{
   render(<InspectorExecution task={{id:'root',status} as Task} subtasks={[{id:'step',status:'completed'} as Subtask]} canStart={false} canResume={false} canSubmit={false} canPostProgress={false} busy={false} onStart={()=>{}} onSubmitted={()=>{}}/>);
-  expect(screen.getByText('1 of 1 steps approved')).toBeTruthy();expect(screen.getByText(message)).toBeTruthy();
+  expect(screen.getByText('1 of 1 steps complete')).toBeTruthy();expect(screen.getByText(message)).toBeTruthy();
   if(status!=='in_progress')expect(screen.queryByText('Ready for final review')).toBeNull();
  });
 });

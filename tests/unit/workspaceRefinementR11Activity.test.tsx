@@ -94,9 +94,9 @@ describe("R11 Activity completeness", () => {
     const raw={snapshot:'work-snapshot',asOf:new Date().toISOString(),expiresAt:new Date(Date.now()+3600000).toISOString(),page:0,size:25,total:1,more:false,events:[{event_id:'work:recorded',kind:'project',title:'delete',detail:'Deleted child',actor_name:work.actor_name,occurred_at:work.occurred_at,task_id:'task',work_event:work}]};
     api.rpc.mockResolvedValue({data:raw,error:null});
     render(<ProjectActivityTab data={{project:{id:'project',title:'Project'}} as ProjectCommandData}/>);
-    await screen.findByText('Subitem deleted');expect(screen.getByText(/Former parent \/ Deleted child/)).toBeTruthy();expect(screen.getByText(/Lead: Former Lead/)).toBeTruthy();
+    await screen.findByText('Subtask deleted');expect(screen.getByText(/Former parent \/ Deleted child/)).toBeTruthy();expect(screen.getByText(/Lead: Former Lead/)).toBeTruthy();
     fireEvent.click(screen.getByRole('button',{name:'Prepare print'}));const preview=await screen.findByTitle('Activity print document');
-    for(const value of ['Subitem deleted','Former parent / Deleted child','Lead: Former Lead','Historical actor'])expect(preview.getAttribute('srcdoc')).toContain(value);
+    for(const value of ['Subtask deleted','Former parent / Deleted child','Lead: Former Lead','Historical actor'])expect(preview.getAttribute('srcdoc')).toContain(value);
     expect(api.rpc).toHaveBeenCalledTimes(2);expect(api.rpc).toHaveBeenLastCalledWith('r11_project_activity',expect.objectContaining({p_snapshot:'work-snapshot',p_size:25,p_page:0}));
   });
   it('marks missing historical metadata and rejects mismatched actor/root/context without changing event kinds',async()=>{

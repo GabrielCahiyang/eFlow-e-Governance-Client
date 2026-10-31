@@ -38,7 +38,7 @@ export function SubmitForReviewForm({
     }
     if (!readiness.ready) {
       toast(
-        "Every subtask must be approved before the parent task can be submitted.",
+        "Complete every subitem before submitting the parent task.",
         "error",
       );
       return;
@@ -83,14 +83,14 @@ export function SubmitForReviewForm({
           <CircleAlert size={16} className="mt-0.5 shrink-0 text-amber-600" />
           <div>
             <div className="text-[12px] font-medium text-amber-950">
-              Finish subtask review first
+              Complete the subtasks first
             </div>
             <p className="mt-0.5 text-[11px] leading-relaxed text-amber-800">
-              {readiness.approvedSubtasks} of {readiness.totalSubtasks} subtasks approved. The parent task can be submitted only after every subtask is approved by its reviewer.
+              {readiness.approvedSubtasks} of {readiness.totalSubtasks} subtasks complete. Complete all required steps before submitting the parent task.
             </p>
             {readiness.awaitingReviewSubtasks > 0 && (
               <div className="mt-2 inline-flex rounded-full border border-amber-200 bg-white/80 px-2 py-1 text-[10.5px] font-medium text-amber-800">
-                {readiness.awaitingReviewSubtasks} awaiting Team Leader review
+                {readiness.awaitingReviewSubtasks} ready for direct completion
               </div>
             )}
           </div>

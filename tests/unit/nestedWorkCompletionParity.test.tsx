@@ -26,19 +26,12 @@ describe('NW4.2 completion and server review flags',()=>{
   expect({nodes,root}).toEqual(before);
   expect(leafCompletion([])).toEqual({total:0,completed:0});
  });
- it('shows and opens review selected by the server even when displayed Lead differs',async()=>{
-  const onReview=vi.fn();render(<WorkTree rootId="root" onReviewOfficeNode={onReview}/>);
-  await openActions();fireEvent.click(screen.getByRole('menuitem',{name:'Review',exact:true}));
-  await waitFor(()=>expect(onReview).toHaveBeenCalledWith(expect.objectContaining({id:'child',lead_id:'old-lead',current_reviewer:'new-lead',can_review:true}),expect.objectContaining({revision:7})));
-  expect(screen.getByText(/Task progress is tracked separately/)).toBeTruthy();expect(mocks.save).not.toHaveBeenCalled();
+ it('ignores obsolete review capability while retaining work access and history',async()=>{
+  const onReview=vi.fn();render(<WorkTree rootId="root" onReviewOfficeNode={onReview}/>);await openActions();expect(screen.queryByRole('menuitem',{name:'Review',exact:true})).toBeNull();expect(screen.getByRole('menuitem',{name:'Open work / evidence'})).toBeTruthy();expect(onReview).not.toHaveBeenCalled();expect(mocks.save).not.toHaveBeenCalled();
  });
- it('removes review on refreshed server denial even when the user is the appointed manager',async()=>{
-  render(<WorkTree rootId="root" onReviewOfficeNode={vi.fn()}/>);
-  await openActions();expect(screen.getByRole('menuitem',{name:'Review',exact:true})).toBeTruthy();
-  mocks.load.mockResolvedValue(snapshot(node({lead_id:'new-lead',can_manage:true,can_review:false,current_reviewer:'another-lead'})));
-  await act(async()=>{fireEvent(window,new Event('focus'));});
-  await waitFor(()=>expect(screen.queryByRole('menuitem',{name:'Review',exact:true})).toBeNull());
-  expect(screen.getByRole('menuitem',{name:'Choose people'})).toBeTruthy();
+ it('keeps management distinct from the retired review action after authority refresh',async()=>{
+  render(<WorkTree rootId="root" onReviewOfficeNode={vi.fn()}/>);await openActions();expect(screen.queryByRole('menuitem',{name:'Review',exact:true})).toBeNull();
+  mocks.load.mockResolvedValue(snapshot(node({lead_id:'new-lead',can_manage:true,can_review:false,current_reviewer:'another-lead'})));await act(async()=>{fireEvent(window,new Event('focus'));});await waitFor(()=>expect(screen.getByRole('menuitem',{name:'Choose people'})).toBeTruthy());expect(screen.queryByRole('menuitem',{name:'Review',exact:true})).toBeNull();
  });
  it('keeps historical work readable without review controls on a read-only surface',async()=>{
   render(<WorkTree rootId="root" readOnly onReviewOfficeNode={vi.fn()}/>);

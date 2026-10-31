@@ -109,6 +109,12 @@ export async function removeProfileAvatar(_userId: string, avatarPath: string): 
 
 export async function getProfileAvatarUrl(avatarPath: string | null | undefined): Promise<string | null> {
   if (!avatarPath) return null;
+  // The private bucket permits owner reads only. Participant initials are the
+  // fallback for other people's photos; do not send predictably denied signing
+  // requests or expand Storage permissions to display them.
+  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+  if (sessionError) throw sessionError;
+  if (!session || avatarPath.split('/')[0] !== session.user.id) return null;
   const { data, error } = await supabase.storage
     .from(AVATAR_BUCKET)
     .createSignedUrl(avatarPath, 60 * 60);

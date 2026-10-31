@@ -59,7 +59,7 @@ test.beforeEach(async({page})=>{test.setTimeout(90000);await page.setViewportSiz
 // Historical title retained for refinement-release-selection; the section contract is now six tabs.
 test('R6 compact header has exactly three tabs, expandable metadata and authorized workflow files',async({page},info)=>{
  const fixture=await filesFixture(page);const inspector=await open(page);
- await expect(inspector.getByRole('tab')).toHaveText(['Overview','Work','Updates','Files','Activity','Review']);await expect(inspector.getByRole('tab',{name:'Work',exact:true})).toHaveAttribute('aria-selected','false');
+ await expect(inspector.getByRole('tab')).toHaveText(['Overview','Work','Update work','Updates','Files','Activity','Review']);await expect(inspector.getByRole('tab',{name:'Work',exact:true})).toHaveAttribute('aria-selected','false');
  await expect(inspector.getByLabel('Task team and subtasks')).toHaveCount(0);await expect(inspector.getByText('Survey started')).toBeVisible();
  await inspector.getByRole('tab',{name:'Work',exact:true}).first().click();await expect(inspector.getByLabel('Task team and subtasks')).toBeVisible();await inspector.getByRole('tab',{name:'Overview',exact:true}).click();await expect(inspector).toContainText('Estimated hours');await expect(inspector.getByLabel('Task team and subtasks')).toHaveCount(0);
  await inspector.getByRole('tab',{name:'Work',exact:true}).first().click();await inspector.getByRole('tab',{name:'Files',exact:true}).click();
@@ -83,7 +83,7 @@ test('R6 guarded upload retries a committed file once and keeps successful metad
 });
 test('R6 eligible review is contextual and its draft is guarded',async({page},info)=>{
  const {records}=await filesFixture(page);Object.assign(records.tasks[0],{status:'for_review',reviewer_id:records.id});await page.reload();await expect(page.getByRole('table',{name:'To do tasks',exact:true})).toBeVisible({timeout:30000});
- const inspector=await open(page);await expect(inspector.getByRole('tab')).toHaveText(['Overview','Work','Updates','Files','Activity','Review']);await inspector.getByRole('tab',{name:'Review',exact:true}).click();
+ const inspector=await open(page);await expect(inspector.getByRole('tab')).toHaveText(['Overview','Work','Update work','Updates','Files','Activity','Review']);await inspector.getByRole('tab',{name:'Review',exact:true}).click();
  await inspector.getByRole('button',{name:'Request changes',exact:true}).click();await inspector.getByRole('textbox').fill('Review correction');await inspector.getByRole('tab',{name:'Updates',exact:true}).click();
  await page.getByRole('button',{name:'Keep editing',exact:true}).click();await expect(inspector.getByRole('textbox')).toHaveValue('Review correction');await page.screenshot({path:info.outputPath('r6-contextual-review.png'),fullPage:true,animations:'disabled'});
  await inspector.getByRole('tab',{name:'Updates',exact:true}).click();await page.getByRole('button',{name:'Discard',exact:true}).click();await expect(inspector.getByLabel('Submission review')).toHaveCount(0);

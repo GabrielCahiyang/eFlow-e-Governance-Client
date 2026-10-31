@@ -61,11 +61,11 @@ describe("Phase 04 task board presentation", () => {
     expect(hierarchyBoard).toContain("fetchSubtasksForTasks");
   });
 
-  it("keeps subtask reviews inside the shared review workspace shell", () => {
+  it("keeps old subtask review links in a direct-completion compatibility surface", () => {
     expect(reviewInbox).toContain("<SubtaskReviewInbox");
     expect(reviewInbox).toContain("embedded");
-    expect(subtaskReviewInbox).toContain("embedded = false");
-    expect(subtaskReviewInbox).toContain('embedded ? "space-y-4" : "eflow-operational-workspace min-h-full p-4 sm:p-8"');
+    expect(subtaskReviewInbox).toContain("Subtasks complete directly");
+    expect(subtaskReviewInbox).not.toContain("Approve evidence");
   });
 
   it("keeps one local review selector below the heading without squeezing its description", () => {

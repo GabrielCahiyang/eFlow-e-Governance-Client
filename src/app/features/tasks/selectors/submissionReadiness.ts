@@ -13,10 +13,8 @@ export interface TaskSubmissionReadiness {
   awaitingReviewSubtasks: number;
 }
 
-/**
- * Parent work is review-ready only after every subtask has passed its own
- * Team Leader review. A subtask at 100% or `for_review` is intentionally not
- * counted as approved until its workflow status becomes `completed`.
+/** Parent submission requires completed subitems; subitems have no separate review.
+ * Legacy field names remain compatible with existing callers and rollups.
  */
 export function getTaskSubmissionReadiness(
   task: Pick<Task, "subtaskCount" | "subtaskCompletedCount">,

@@ -31,7 +31,7 @@ export function SubtaskProgressHistory({
                   </div>
                 </div>
                 <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[10.5px] font-semibold text-blue-700">
-                  {update.blocker?'Stuck':update.blockerCategory==='None'?'In progress':`${update.percentComplete}% · earlier update`}
+                  {update.percentComplete===100?'Completed':update.blocker?'Stuck':'Work update'}
                 </span>
               </div>
 

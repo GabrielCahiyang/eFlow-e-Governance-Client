@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { fetchProjectCompletionReadiness, type ProjectCompletionReadiness } from '../services/projectLifecycleService';
 import { projectCompletionAvailability } from '../selectors/projectCompletionAvailability';
 import type { Project } from '../services/types';
+import { subscribeProjectChecks } from '../../project-readiness';
 
 /** Scoped reads only; menu/dialog instances share the same fail-closed calculation. */
 export function useProjectCompletionAvailability(project: Pick<Project, 'id' | 'status' | 'updatedAt'> | undefined, allowed: boolean, scope: string, refreshKey = '') {
@@ -25,11 +26,13 @@ export function useProjectCompletionAvailability(project: Pick<Project, 'id' | '
   }, [id, key, allowed, status]);
   useEffect(() => {
     void refresh();
-    const focus = () => void refresh();
-    const interval = window.setInterval(focus, 15_000);
-    window.addEventListener('focus', focus);
-    return () => { ++version.current; window.clearInterval(interval); window.removeEventListener('focus', focus); };
+    return () => { ++version.current; };
   }, [refresh]);
+  const latestRefresh = useRef(refresh); latestRefresh.current = refresh;
+  useEffect(() => {
+    if (!id || !allowed || ['completed', 'archived'].includes(status)) return;
+    return subscribeProjectChecks(id, () => { void latestRefresh.current(); });
+  }, [id, allowed, status, scope]);
   const current = state.key === key ? state : { key, loading: true, error: '' };
   return { ...current, ...projectCompletionAvailability(status, allowed, current.loading, current.error, current.readiness), refresh };
 }

@@ -89,9 +89,9 @@ export function ProjectTableWorkspace({data,profiles,orgs,canManage,onOpenTask,o
  const refreshCreatedGroup=async()=>{try{await refresh();setRefreshFailed(false);}catch(e){setRefreshFailed(true);setNotice('Group added, but could not refresh: '+(e instanceof Error?e.message:'Please reload.'));}};
 
  const parentTask=openSubitem?data.tasks.find(t=>t.id===openSubitem.taskId):undefined;
- const subitemReadOnly=openSubitemReadOnly||userProfile?.role==='admin'||['completed','archived'].includes(data.project.status)||!!parentTask?.archivedAt||!!parentTask?.proposedOfficeIdentityId||['for_review','completed','cancelled'].includes(parentTask?.status||'');
+ const subitemReadOnly=openSubitemReadOnly||!isHeadWorkspaceRole(userProfile?.role)||['completed','archived'].includes(data.project.status)||!!parentTask?.archivedAt||!!parentTask?.proposedOfficeIdentityId||['for_review','completed','cancelled'].includes(parentTask?.status||'');
 
- return <ProjectTaskBudgetProvider officeId={data.project.orgId} officeIds={data.tasks.map(task=>task.orgId).filter((id):id is string=>!!id)}><section className="pt-workspace" aria-label="Project main table" data-tour-id="project-main-table">
+ return <ProjectTaskBudgetProvider projectId={data.project.id} officeId={data.project.orgId} officeIds={data.tasks.map(task=>task.orgId).filter((id):id is string=>!!id)}><section className="pt-workspace" aria-label="Project main table" data-tour-id="project-main-table">
 
   <div hidden={!!openSubitem}><TableToolbar sharedFilters={!!sharedFilters} query={query} setQuery={setQuery} status={status} setStatus={setStatus} owner={owner} setOwner={setOwner} sort={sort} setSort={setSort} people={people} hidden={hidden} toggleColumn={layout.toggleColumn} onResetWidths={layout.resetWidths} onResetCompact={layout.resetCompact} canManage={editable} onAddTask={addTask} onAddGroup={()=>setGroupOpen(true)} onImport={()=>{setImportSeed(prev=>({text:'',version:prev.version+1}));setImportOpen(true);}} onAi={()=>setAiOpen(true)} onOpenBoard={onOpenLegacyBoard}/>
 
@@ -105,7 +105,7 @@ export function ProjectTableWorkspace({data,profiles,orgs,canManage,onOpenTask,o
    {(query||status||owner||sharedFilters?.office||sharedFilters?.dateFrom||sharedFilters?.dateTo)&&!tasks.length&&<EmptyState fill illustration="search" size="compact" title="No tasks match these filters. Clear filters to see all project work."/>}
    {!groups.length && <EmptyState illustration="tasks" size="compact" title="No task groups yet" description={editable ? 'Create a group to start adding tasks.' : 'The project Head can create groups and add tasks.'}/>}
 
-   {groups.map(group=><ProjectGroupTable key={group.id} group={group} groups={groups} tasks={tasksInGroup(tasks,group)} allTasks={data.tasks} subtasks={subtasks} columns={columns} profiles={profiles} orgs={orgs} canManage={editable} canStaff={canStaff} locked={['completed','archived'].includes(data.project.status)} officeId={officeId} userId={userId} projectId={data.project.id} onOpen={onOpenTask} onOpenSubitem={open} refreshSubitems={refreshSubitems} refreshGroups={refresh} onHideColumn={layout.hideColumn} onAddColumn={layout.showColumn} widths={layout.widths} onResize={layout.resizeColumn} sort={sort} onSort={setSort} reorderable={editable&&!query&&!status&&!owner&&!sharedFilters?.office&&!sharedFilters?.dateFrom&&!sharedFilters?.dateTo&&sort==='manual'&&tasksInGroup(data.tasks,group).every(t=>t.orgId===officeId)} run={run}/>)}
+   {groups.map(group=><ProjectGroupTable key={group.id} group={group} groups={groups} tasks={tasksInGroup(tasks,group)} allTasks={data.tasks} subtasks={subtasks} columns={columns} profiles={profiles} orgs={orgs} canManage={editable} canStaff={canStaff} locked={['completed','archived'].includes(data.project.status)||!isHeadWorkspaceRole(userProfile?.role)} officeId={officeId} userId={userId} projectId={data.project.id} onOpen={onOpenTask} onOpenSubitem={open} refreshSubitems={refreshSubitems} refreshGroups={refresh} onHideColumn={layout.hideColumn} onAddColumn={layout.showColumn} widths={layout.widths} onResize={layout.resizeColumn} sort={sort} onSort={setSort} reorderable={editable&&!query&&!status&&!owner&&!sharedFilters?.office&&!sharedFilters?.dateFrom&&!sharedFilters?.dateTo&&sort==='manual'&&tasksInGroup(data.tasks,group).every(t=>t.orgId===officeId)} run={run}/>)}
 
    {editable&&<button className="pt-add-group" onClick={()=>setGroupOpen(true)}><Plus size={17}/>Add new group</button>}
 
@@ -119,7 +119,7 @@ export function ProjectTableWorkspace({data,profiles,orgs,canManage,onOpenTask,o
 
   {taskOpen&&<CreateWorkDialog key={'new-task-'+data.project.id} kind="task" projectId={data.project.id} groups={groups} onClose={()=>setTaskOpen(false)}/>}
 
-  </div>{openSubitem&&(parentTask?<SubtaskWorkDrawer key={openSubitem.id} subtask={openSubitem} parentTask={parentTask} origin={subitemOrigin} readOnly={subitemReadOnly} canManageDeadline={!subitemReadOnly&&(parentTask.assigneeId===userId||editable)} onClose={()=>{setOpenSubitem(null);void run(refreshSubitems);}}/>:<p role="alert">Current parent task access is unavailable. <button type="button" onClick={()=>setOpenSubitem(null)}>Close subitem</button></p>)}
+  </div>{openSubitem&&(parentTask?<SubtaskWorkDrawer key={openSubitem.id} subtask={openSubitem} parentTask={parentTask} origin={subitemOrigin} readOnly={subitemReadOnly} canManageDeadline={!subitemReadOnly&&(parentTask.assigneeId===userId||editable)} onClose={()=>{setOpenSubitem(null);void run(refreshSubitems);}}/>:<p role="alert">Current parent task access is unavailable. <button type="button" onClick={()=>setOpenSubitem(null)}>Close subtask</button></p>)}
 
  </section></ProjectTaskBudgetProvider>;
 

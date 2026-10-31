@@ -1,4 +1,7 @@
 import {requestNavigation} from '../../../shared/navigationGuard';
+import {Modal} from '../../../components/ui/Modal';
+import {useId} from 'react';
+import {ListPlus,AlertCircle} from 'lucide-react';
 import {calendarMinDate} from '../../../shared/calendarDates';
 import {WorkDetailsEditor} from './WorkDetailsEditor';
 import {WorkMoveDialog} from './WorkMoveDialog';
@@ -22,10 +25,11 @@ export function WorkTreeEditor(props:WorkTreeEditorProps){
  return <WorkTreeForm {...props}/>;
 }
 function WorkTreeForm({data,edit,save,onDone,onCancel,readOnly=false,refreshPending=false}:WorkTreeEditorProps){
+ const formId=useId();
  const {user}=useAuth();
  const context={actorId:user?.id||null,rootId:data.root.id,projectId:data.root.project,officeId:data.root.office,kind:data.root.kind,revision:data.revision,readOnly};
  const editor=useWorkEditorDraft({data,edit,context,refreshPending,onCancel});
- const {fields:{lead,people,parent,standalone,note,progress,order},update,locked,busy,authorized,outcome}=editor;
+ const {fields:{lead,people,parent,standalone,note,order},update,locked,busy,authorized,outcome}=editor;
  const node=data.nodes.find(item=>item.id===editor.baseline.nodeId)||edit.node;
  const createCapability=edit.parent?selectNodeWorkCapability(data,edit.parent,'create_child',context):selectRootWorkCapability(data,'create_child',context);
  const destinationRoot=selectRootWorkCapability(data,'create_child',context);
@@ -36,16 +40,17 @@ function WorkTreeForm({data,edit,save,onDone,onCancel,readOnly=false,refreshPend
   const modeChanged=edit.command==='edit'&&standalone!==editor.baseline.fields.standalone;
   const dateChanged=edit.command==='edit'&&editor.fields.due!==editor.baseline.fields.due;
   if(!['move','order','delete'].includes(edit.command)&&!modeChanged&&!dateChanged)return Promise.resolve(undefined);
-  return confirmation.review(request,{title:edit.command==='delete'?'Delete untouched subtree?':edit.command==='move'?'Review subitem move?':edit.command==='order'?'Review subitem sequence?':modeChanged?'Review execution mode change?':'Review due-date impact?',dateChange:dateChanged,alwaysConfirm:modeChanged,
+  return confirmation.review(request,{title:edit.command==='delete'?'Delete untouched subtree?':edit.command==='move'?'Review subtask move?':edit.command==='order'?'Review subtask sequence?':modeChanged?'Review execution mode change?':'Review due-date impact?',dateChange:dateChanged,alwaysConfirm:modeChanged,
    actionLabel:edit.command==='delete'?'Delete subtree':'Confirm changes',danger:edit.command==='delete',isCurrent:editor.confirmationCurrent,description:'Review the current affected work. The server checks this exact impact again before saving.',
-   details:modeChanged?<p>Execution mode: {editor.baseline.fields.standalone?'Can start independently':'In sequence'} → {standalone?'Can start independently':'In sequence'}. Changing the sequence can affect when related work may start.</p>:edit.command==='order'?<p>New sequence: {order.map(id=>data.nodes.find(item=>item.id===id)?.title||'Unavailable subitem').join(' → ')}</p>:undefined});
+   details:modeChanged?<p>Execution mode: {editor.baseline.fields.standalone?'Can start independently':'In sequence'} → {standalone?'Can start independently':'In sequence'}. Changing the sequence can affect when related work may start.</p>:edit.command==='order'?<p>New sequence: {order.map(id=>data.nodes.find(item=>item.id===id)?.title||'Unavailable subtask').join(' → ')}</p>:undefined});
  };
  const needsPreview=['move','order','delete'].includes(edit.command)||edit.command==='edit'&&(standalone!==editor.baseline.fields.standalone||editor.fields.due!==editor.baseline.fields.due);
  const submit=()=>editor.submit({save,onDone,prepare:needsPreview?prepare:undefined});
  const error='message' in outcome?outcome.message:null;
- return <form className="r7-form" aria-label="Nested work changes" onSubmit={e=>{e.preventDefault();void submit();}}>
-  <h3>{edit.root?'Task lead and contributors':`${edit.command==='create'?'Add child':edit.command==='staff'?'Staff':edit.command==='move'?'Move':edit.command==='delete'?'Delete':edit.command==='review'?'Review':'Update'} ${node?.title||'subitem'}`}</h3>
-  {['create','edit'].includes(edit.command)&&<WorkDetailsEditor fields={editor.fields} disabled={locked} update={update}
+ const actions=<div className="r7-actions"><button type="button" disabled={busy} onClick={close}>{editor.saved?'Close':'Cancel changes'}</button>{!authorized&&!editor.saved&&!busy&&!refreshPending&&<p role="alert">Your current branch authority changed. Reload the tree before saving.</p>}{!editor.saved&&<button type="submit" form={formId} className={edit.command==='create'?'nw-create-save':undefined} disabled={busy||!authorized}>{edit.command==='create'&&<ListPlus size={16} aria-hidden="true"/>}{busy?'Saving…':editor.request?'Retry saved request':edit.command==='delete'?'Review deletion':'Save work changes'}</button>}</div>;
+ const form=<form id={formId} className={`r7-form${edit.command==='create'?' r7-form--modal':''}`} aria-label="Nested work changes" onSubmit={e=>{e.preventDefault();void submit();}}>
+  {edit.command!=='create'&&<h3>{edit.root?'Task lead and contributors':`${edit.command==='staff'?'Staff':edit.command==='move'?'Move':edit.command==='delete'?'Delete':edit.command==='submit'?'Complete':edit.command==='review'?'History':'Update'} ${node?.title||'subitem'}`}</h3>}
+  {['create','edit'].includes(edit.command)&&<WorkDetailsEditor fields={editor.fields} disabled={locked} update={update} presentation={edit.command==='create'?'dialog':'default'}
    minDue={calendarMinDate(edit.command==='edit'?editor.baseline.fields.due:'')}
    maxDue={data.nodes.find(item=>item.id===(edit.command==='create'?edit.parent:editor.baseline.fields.parent))?.due_date||data.root.due||undefined}
    peoplePicker={edit.command==='create'?{people:data.people,lead,selected:people,onLead:value=>update('lead',value),onSelected:value=>update('people',value),appointmentCapability:createCapability,contributorCapability:createCapability,disabled:locked,
@@ -53,14 +58,15 @@ function WorkTreeForm({data,edit,save,onDone,onCancel,readOnly=false,refreshPend
   {edit.command==='move'&&<WorkMoveDialog data={data} destinations={destinations} allowTask={destinationRoot.allowed} parent={parent} disabled={locked} onChange={value=>update('parent',value)}/>}
   {edit.command==='order'&&<WorkOrderDialog data={data} order={order} disabled={locked} onChange={value=>update('order',value)}/>}
   {edit.command==='delete'&&<WorkDeleteDialog impact={confirmation.impact}/>}
-  {edit.command==='progress'&&<p>In progress · Save an update, or submit finished work for approval.</p>}
-  {edit.command==='review'&&<label>Decision<select value={progress===100?'approve':'reject'} disabled={locked} onChange={e=>update('progress',e.target.value==='approve'?100:99)}><option value="approve">Approve personal work</option><option value="reject">Return for changes</option></select></label>}
+  {edit.command==='progress'&&<p>In progress · Save an update, or mark this step complete.</p>}
+
   {['edit','progress','submit','review'].includes(edit.command)&&<label>{edit.command==='edit'?'Reason for date change':'Note / feedback'}<textarea value={note} maxLength={4000} disabled={locked} onChange={e=>update('note',e.target.value)}/></label>}
-  {error&&<p role="alert">{error}{editor.unresolvedReceipt?' The original result is unverified and its request is retained. Reload current work before retrying this saved request.':outcome.kind==='stale_revision'?' The draft is retained. Reload and review the current work before reopening this editor.':outcome.kind==='confirmed_failure'?' Nothing was saved. Correct the draft before submitting a new request.':outcome.kind==='revoked_authority'?' Saving is blocked. Verify current authority before reopening this editor.':''}</p>}
+  {error&&<div role="alert" className="nw-operation-error"><AlertCircle size={18} aria-hidden="true"/><div><strong>Could not save this action</strong><p>{error}{editor.unresolvedReceipt?' The original result is unverified and its request is retained. Reload current work before retrying this saved request.':outcome.kind==='stale_revision'?' The draft is retained. Reload and review the current work before reopening this editor.':outcome.kind==='confirmed_failure'?' Nothing was saved. Correct the draft before submitting a new request.':outcome.kind==='revoked_authority'?' Saving is blocked. Verify current authority before reopening this editor.':''}</p></div></div>}
   {editor.saved&&<p role="status">Work saved.</p>}
   {editor.recovered&&<p role="status">{editor.staleRecovery?'Recovered draft is stale. Review current work; discard this draft to start again.':'Draft recovered after current access verification. Review before saving.'}</p>}
   {editor.storageFailed&&<p role="alert">Draft recovery could not be stored in this tab. Keep the editor open to retain your changes.</p>}
-  <div className="r7-actions"><button type="button" disabled={busy} onClick={close}>{editor.saved?'Close':'Cancel changes'}</button>{!authorized&&!editor.saved&&!busy&&!refreshPending&&<p role="alert">Your current branch authority changed. Reload the tree before saving.</p>}{!editor.saved&&<button type="submit" disabled={busy||!authorized}>{busy?'Saving…':editor.request?'Retry saved request':edit.command==='delete'?'Review deletion':'Save work changes'}</button>}</div>
+  {!['create','edit'].includes(edit.command)&&actions}
   {confirmation.dialog}
  </form>;
+ return ['create','edit'].includes(edit.command)?<Modal isOpen title={edit.command==='create'?'Add subtask':'Edit subtask'} description="Break the work into a clear, manageable step." width="max-w-3xl" className="nw-create-modal" bodyClassName="r7-work nw-create-body" footer={<div className="r7-work nw-create-footer">{actions}</div>} preventClose={busy} onClose={close}>{form}</Modal>:form;
 }

@@ -1,9 +1,9 @@
 import {useRef} from 'react';
-import {MoreHorizontal} from 'lucide-react';
+import {ChevronDown, MoreHorizontal, Plus} from 'lucide-react';
 import {ActionMenu,type WorkspaceAction} from '../../../components/ui/workspace/ActionMenu';
 
 /** Capabilities/callbacks are resolved by the hierarchy owner, never legacy flags. */
-export function WorkNodeActionMenu({label,actions,compact=false}:{label:string;actions:WorkspaceAction[];compact?:boolean}) {
+export function WorkNodeActionMenu({label,actions,compact=false,prominent=false}:{label:string;actions:WorkspaceAction[];compact?:boolean;prominent?:boolean}) {
  const handoff=useRef<WorkspaceAction['onSelect']|null>(null);
  if(!actions.length)return null;
  const editorActions=new Set(['staff','create','order','edit','move','delete','progress','submit','review']);
@@ -17,5 +17,5 @@ export function WorkNodeActionMenu({label,actions,compact=false}:{label:string;a
   const action=handoff.current;
   if(!action)return;
   event.preventDefault();handoff.current=null;action();
- }} trigger={<button type="button" className="nw-hierarchy-control" aria-label={label}>{compact?<MoreHorizontal size={16} aria-hidden="true"/>:'Actions'}</button>} actions={menuActions}/>;
+ }} trigger={<button type="button" className={`nw-hierarchy-control${prominent?' nw-hierarchy-control--primary':''}`} aria-label={label}>{compact?<MoreHorizontal size={16} aria-hidden="true"/>:prominent?<><Plus size={17} aria-hidden="true"/>Subtask actions<ChevronDown size={15} aria-hidden="true"/></>:'Actions'}</button>} actions={menuActions}/>;
 }

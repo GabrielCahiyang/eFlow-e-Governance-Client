@@ -7,8 +7,10 @@ export const getMyPds = () => phase2Request<{ documents: PdsDocument[] }>('/pds/
 export const retryPds = (id: string) => phase2Request(`/pds/${id}/process`, { method: 'POST' });
 export const getPdsDownload = (id: string) => phase2Request<{ url: string }>(`/pds/${id}/download`);
 export const getPdsDraft = (id: string) => phase2Request<{ draft: ProfessionalValues }>(`/pds/${id}/professional-draft`);
-export function uploadPds(file: File, invitationId?: string) {
-  return phase2Request<PdsDocument>(`/pds/upload${invitationId ? `?invitation_id=${encodeURIComponent(invitationId)}` : ''}`, { method: 'POST', headers: { 'Content-Type': 'application/pdf', 'X-File-Name': encodeURIComponent(file.name) }, body: file });
+export function uploadPds(file: File, invitationId?: string, projectRequestId?: string) {
+  if(invitationId&&projectRequestId)throw new Error('Choose one invitation scope.');
+  const scope=projectRequestId?`?project_request_id=${encodeURIComponent(projectRequestId)}`:invitationId?`?invitation_id=${encodeURIComponent(invitationId)}`:'';
+  return phase2Request<PdsDocument>(`/pds/upload${scope}`, { method: 'POST', headers: { 'Content-Type': 'application/pdf', 'X-File-Name': encodeURIComponent(file.name) }, body: file });
 }
 
 /** Future AI consumers get confirmed, concise professional data only. */

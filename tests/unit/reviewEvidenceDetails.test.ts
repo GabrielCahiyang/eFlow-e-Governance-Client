@@ -130,6 +130,6 @@ describe("Head review evidence details", () => {
     expect(screen.getByText("draft-schedule.pdf")).toBeTruthy();
     expect(screen.getByText("Final activity schedule completed.")).toBeTruthy();
     expect(screen.getByText("final-schedule.pdf")).toBeTruthy();
-    expect(screen.getByText("Leader approved")).toBeTruthy();
+    expect(screen.getAllByText("Completed").length).toBeGreaterThan(0);
   });
 });

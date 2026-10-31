@@ -61,11 +61,7 @@ export function buildTeamAttentionItems(tasks: Task[], facts: TeamWorkflowFacts,
     const latest = latestProgress.get(`subtask:${subtask.id}`);
     if (hasBlocker(latest)) items.push({ ...base, id: `subtask-blocked:${subtask.id}`, kind: "blocked", severity: "critical", title: "Subtask blocker reported", detail: `“${subtask.title}”: ${latest?.blocker}`, occurredAt: latest?.createdAt });
     if (subtask.status === "changes_requested") items.push({ ...base, id: `subtask-changes:${subtask.id}`, kind: "changes_requested", severity: "warning", title: "Subtask needs revision", detail: `“${subtask.title}” was returned by its Team Lead.`, occurredAt: subtask.updatedAt });
-    if (subtask.status === "for_review") {
-      const pending = facts.submissions.find((submission) => submission.kind === "subtask" && submission.subtaskId === subtask.id && submission.status === "pending");
-      const age = pending ? now - pending.submittedAt : 0;
-      if (!pending || age >= DAY) items.push({ ...base, id: `subtask-review:${subtask.id}`, kind: "awaiting_review", severity: age >= 3 * DAY ? "critical" : "warning", title: "Subtask review waiting", detail: `“${subtask.title}” is waiting for Team Lead approval.`, occurredAt: pending?.submittedAt });
-    }
+    if (subtask.status === "for_review") items.push({ ...base, id: `subtask-finish:${subtask.id}`, kind: "stalled", severity: "info", title: "Subitem ready to finish", detail: `Open “${subtask.title}” and mark it complete. Separate subitem approval is no longer required.`, occurredAt: subtask.updatedAt });
     const lastActivity = latest?.createdAt || subtask.updatedAt;
     if ((subtask.status === "in_progress" || subtask.status === "todo") && lastActivity < now - 3 * DAY) items.push({ ...base, id: `subtask-stalled:${subtask.id}`, kind: "stalled", severity: "warning", title: "Subtask appears stalled", detail: `No update on “${subtask.title}” for ${Math.floor((now - lastActivity) / DAY)} day(s).`, occurredAt: lastActivity });
   });

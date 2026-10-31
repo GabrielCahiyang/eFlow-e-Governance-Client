@@ -13,7 +13,7 @@ export function InspectorFiles({task,readOnly}:{task:Task;readOnly:boolean}){
  async function open(file:InspectorFile){try{window.open(await openInspectorFile(file),'_blank','noopener,noreferrer');}catch(reason){setError(reason instanceof Error?reason.message:'Could not open evidence.');}}
  return <div className="space-y-5">
   <section aria-label="Workflow files" className="space-y-3"><h3 className="text-sm font-semibold">Workflow evidence</h3>
-   <p className="text-xs text-neutral-500">Task and subitem progress and submission files keep their original access and approval restrictions. Comments are text-only.</p>
+   <p className="text-xs text-neutral-500">Task and subtask progress and submission files keep their original access and approval restrictions. Comments are text-only.</p>
    {loading&&<p role="status">Loading workflow files…</p>}{error&&<div role="alert"><p>{error}</p><button type="button" onClick={()=>setRetry(r=>r+1)}>Retry workflow files</button></div>}
    {!loading&&!error&&!files.length&&<EmptyState illustration="files" size="compact" title="No authorized workflow attachments yet."/>}
    <ul className="space-y-2">{files.map(file=><li key={file.id} className="rounded-lg border border-neutral-200 p-3 text-sm">

@@ -92,6 +92,10 @@ function destinationForProject(role: string) {
 }
 
 function destinationForBudget(notification: Notification, role: string) {
+  // A task-leader endorsement belongs in Leader Reviews, even for accounting staff who lead the task.
+  if (role === "accounting_staff" && notification.type.includes("leader_review")) {
+    return { section: "reviews", page: "Leader Reviews" };
+  }
   if (role === "accounting_staff") {
     return notification.type.includes("settlement") || notification.type.includes("release") || notification.type.includes("liquidation")
       ? { section: "accounting_releases", page: "Voucher & Cash Releases" }
@@ -159,7 +163,7 @@ export function resolveNotificationDestination(
       notification,
       destinationForBudget(notification, role),
       "budget",
-      role === "accounting_staff" ? "Open accounting record" : role === "head" || notification.type.includes("leader_review") ? "Open funding review" : "Open task funding",
+      notification.type.includes("leader_review") ? "Open funding review" : role === "accounting_staff" ? "Open accounting record" : role === "head" ? "Open funding review" : "Open task funding",
       notification.taskTitle || messageLabels[0],
     );
   }

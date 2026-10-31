@@ -35,7 +35,7 @@ function ControlledWorkStaffingDialog(props:Omit<WorkStaffingDialogProps,'contro
  const {user}=useAuth();
  const source=props.controller;
  const data=source.data;
- if(!data||source.actorId!==(user?.id||null)||!isCurrentWorkSnapshot(data,{actorId:source.actorId,rootId:source.rootId,projectId:data.root.project,officeId:data.root.office,kind:data.root.kind,revision:data.revision}))return <FeatureDialog open title="Task/subitem people" onClose={props.onClose}><p role={source.loading?'status':'alert'}>{source.error||'Verify current work access before choosing people.'}</p></FeatureDialog>;
+ if(!data||source.actorId!==(user?.id||null)||!isCurrentWorkSnapshot(data,{actorId:source.actorId,rootId:source.rootId,projectId:data.root.project,officeId:data.root.office,kind:data.root.kind,revision:data.revision}))return <FeatureDialog open title="Task/subtask people" onClose={props.onClose}><p role={source.loading?'status':'alert'}>{source.error||'Verify current work access before choosing people.'}</p></FeatureDialog>;
  const controller:WorkStaffingController={...source,data,verificationFailed:!source.authorityFresh||source.pending};
  return <WorkStaffingDialogContent key={`${controller.actorId}:${controller.rootId}:${props.nodeId}`} {...props} controller={controller}/>;
 }
@@ -57,7 +57,7 @@ function WorkStaffingDialogContent({controller,nodeId,readOnly=false,executionBl
  const draftError=controller.verificationFailed?'Verify current work access before saving.':contributorsOnly&&lead!==baseline.leadId?'Lead appointments use the separate appointment action.':staffingDraftError(data,context,baseline,lead,workers,!!request.current);
  const dirty=!!request.current||lead!==baseline.leadId||JSON.stringify(workers)!==JSON.stringify(baseline.workerIds);
  const closeOwner=()=>{recovery.clear();if(!closed.current){closed.current=true;onClose();}};
- const guard=useExplicitDraft('Task/subitem people changes',dirty&&!saved,busy,closeOwner,`${controller.actorId}:${controller.rootId}:${nodeId}:${contributorsOnly?'contributors':'staffing'}`);
+ const guard=useExplicitDraft('Task/subtask people changes',dirty&&!saved,busy,closeOwner,`${controller.actorId}:${controller.rootId}:${nodeId}:${contributorsOnly?'contributors':'staffing'}`);
  const confirmation=useWorkImpactConfirmation(controller.rootId),locked=busy||!!request.current||saved||!!controller.verificationFailed;
  const lockReason=busy?(aiBusy?'AI is choosing the team…':'Saving…'):saved?'Team saved.':request.current?'The last save was not confirmed. Press Try again.':'Refresh this task to edit its team.';
  const persist=()=>recovery.persist({baseline:draftBaseline,fields:{...draftBaseline.fields,lead:lead||'',people:workers},request:request.current});
@@ -122,9 +122,9 @@ function WorkStaffingDialogContent({controller,nodeId,readOnly=false,executionBl
    try{await latest.current.onChanged(receipt);}catch{if(active.current)setError('People were saved, but the view could not refresh. Close and reload; do not submit again.');}
   }
  }
- const title=nodeId?'Subitem Lead and contributors':'Task lead and contributors';
+ const title=nodeId?'Subtask Lead and contributors':'Task lead and contributors';
  return <Modal isOpen title={title} onClose={close} preventClose={busy} width="max-w-2xl">
-  <form className="r7-work r7-form m-0 overflow-y-auto border-0" aria-label="Task/subitem people changes" onSubmit={event=>{event.preventDefault();void submit();}}>
+  <form className="r7-work r7-form m-0 overflow-y-auto border-0" aria-label="Task/subtask people changes" onSubmit={event=>{event.preventDefault();void submit();}}>
    {!nodeId&&data.root.kind==='office'&&data.can_transfer&&caps.appointment.allowed&&!baseline.leadId&&!contributorsOnly&&!readOnly&&<AutoAssignTaskButton snapshot={data} disabled={locked||dirty||executionBlocked} onBusyChange={value=>{guard.pendingRef.current=value;setAiBusy(value);setBusy(value);}} onAssigned={async receipt=>{confirmed.current=true;recovery.clear();setSaved(true);guard.markClean();await latest.current.onChanged(receipt);}}/>}
    <WorkPeoplePicker people={data.people} lead={lead||''} selected={workers} onLead={setLead} onSelected={setWorkers}
     appointmentCapability={contributorsOnly?{allowed:false,reason_code:'read_only',disabledReason:'Change the lead from the Lead menu.'}:caps.appointment} contributorCapability={caps.contributors} disabled={locked} disabledReason={lockReason}

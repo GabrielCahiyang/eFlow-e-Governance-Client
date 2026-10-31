@@ -1,3 +1,4 @@
+// Retired approval-queue coverage is replaced by retiredSubtaskReviewLinks.test.tsx.
 import { beforeEach,describe,expect,it,vi } from 'vitest';
 const db=vi.hoisted(()=>({responses:{} as Record<string,unknown>,calls:[] as unknown[][]}));
 vi.mock('../../src/lib/supabase',()=>({supabase:{rpc:()=>Promise.resolve({data:null,error:{code:'PGRST202',message:'Legacy fixture'}}),from:(table:string)=>{
@@ -26,11 +27,6 @@ describe('checked feed contract',()=>{
   db.responses.notifications={data:[{id:'n'}],error:null};await expect(markRecentNotificationRead('me','n')).resolves.toBeUndefined();expect(db.calls).toContainEqual(['notifications','eq','user_id','me']);
   db.responses.notifications={data:null,error:{message:'Read denied'}};await expect(markRecentNotificationRead('me','n')).rejects.toThrow('Read denied');await expect(markNotificationRead('me','n')).resolves.toBeUndefined();
  });
- it('personal subtask reads never include all reviewers; checked errors preserve legacy array behavior',async()=>{
-  db.responses.subtask_submissions={data:null,error:{message:'Review denied'}};await expect(fetchPersonalSubtaskReviews('me')).rejects.toThrow('Review denied');expect(await fetchPendingSubtaskReviews('me')).toEqual([]);expect(db.calls).toContainEqual(['subtask_submissions','eq','reviewer_id','me']);
- });
- it('related evidence read failure remains failure, not a falsely complete review',async()=>{
-  db.responses.subtask_submissions={data:[{id:'s',subtask_id:'child'}],error:null};db.responses.subtasks={data:null,error:{message:'Evidence denied'}};await expect(fetchPersonalSubtaskReviews('me')).rejects.toThrow('Evidence denied');
-  expect(db.calls).toContainEqual(['subtasks','select','*',{count:'exact'}]);expect(db.calls).toContainEqual(['subtasks','in','id',['child']]);expect(db.calls).toContainEqual(['subtasks','range',0,499]);
- });
+ 
+ 
 });

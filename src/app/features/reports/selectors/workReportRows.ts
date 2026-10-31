@@ -74,7 +74,7 @@ export function buildContributionRows(tasks: Task[], projects: Project[], employ
       projectId: linked.id,
       person: personId===context.leadId?context.leadName!:context.contributors.find(person=>person.id===personId)!.name,
       personId,
-      role: personId===context.leadId?"Subitem Lead":"Subtask contributor",
+      role: personId===context.leadId?"Subtask Lead":"Subtask contributor",
       status: displayStatus(subtask.status),
       priority: task.priority || "medium",
       progress: subtask.percentComplete,

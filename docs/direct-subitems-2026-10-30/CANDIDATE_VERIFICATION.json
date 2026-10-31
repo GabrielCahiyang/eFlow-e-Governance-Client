@@ -1,0 +1,26 @@
+{
+  "target": "ixnfphgjyelhckjwjkdv",
+  "installed": false,
+  "rollback_only": true,
+  "count": 18,
+  "checks": [
+    "contributor cannot complete another lead step",
+    "parent cannot complete before children",
+    "sequential second cannot complete before first",
+    "task lead completes own step without review or mandatory evidence",
+    "ordinary progress cannot forge completion",
+    "same request retry writes no duplicate update",
+    "same request cannot change terms",
+    "foreign attachment is rejected",
+    "next ordered step unlocks on completion",
+    "earlier pending step completes and clears active review binding",
+    "earlier evidence remains unchanged",
+    "review queue contains no subitem approvals",
+    "legacy review decision cannot approve or reject",
+    "container completes after all child steps",
+    "legacy submit API completes directly without creating review",
+    "no new submission approvals are created",
+    "final task review function remains unchanged",
+    "anonymous cannot complete"
+  ]
+}

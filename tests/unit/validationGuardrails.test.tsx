@@ -79,7 +79,7 @@ describe('Manila date guardrails',()=>{
   expect(workEditorDateError(data,{...baseline,command:'create'},fields)).toContain('before');
   expect(workEditorDateError(data,baseline,{...fields,due:'2026-10-26'})).toContain('after');
   render(<WorkDetailsEditor fields={fields} disabled={false} update={vi.fn()} maxDue="2026-10-25"/>);
-  expect(screen.getByLabelText('Subitem due date')).toHaveAttribute('min','2026-10-17');
+  expect(screen.getByLabelText('Subtask due date')).toHaveAttribute('min','2026-10-17');
  });
  it('rejects past dates and parent-bound violations at import commit, beyond HTML constraints',()=>{
   vi.useFakeTimers();vi.setSystemTime(new Date('2026-10-17T04:00:00Z'));

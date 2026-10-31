@@ -38,8 +38,8 @@ describe("budget design-system presentation", () => {
   it("uses a compact, tokenized accounting inspector with tabular journal amounts", () => {
     expect(accountingTrail).toContain('max-w-[480px]');
     expect(accountingTrail).toContain('<FeatureDialog');
-    expect(accountingTrail).toContain('whitespace-nowrap text-right tabular-nums');
-    expect(accountingTrail).toContain('rounded-lg border border-border bg-card p-3');
+    expect(readFileSync('src/app/features/budget/components/AuditEventDetails.tsx','utf8')).toContain('whitespace-nowrap text-right tabular-nums');
+    expect(accountingTrail).toContain('<AuditEventDetails');
   });
 
   it("uses teal selectable funding options and a non-card funding status", () => {

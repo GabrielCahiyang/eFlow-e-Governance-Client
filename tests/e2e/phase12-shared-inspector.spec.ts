@@ -25,7 +25,7 @@ test('shared inspector keeps discussion drafts and returns focus to each view or
   const trigger = name==='Board' ? page.locator('.eflow-figma-task-card').filter({hasText:title}).first() : name==='Gantt' ? page.getByRole('button',{name:'Gantt task '+title,exact:true}) : name==='Calendar' ? page.locator('.fc-daygrid-event').filter({hasText:title}).first() : name==='Project Dashboard' ? page.locator('.pv-deadline-list button').filter({hasText:title}).first() : page.locator('.pv-office-row details button').filter({hasText:title});
   await trigger.focus(); await trigger.click();
   const inspector = page.getByRole('dialog',{name:'Task details: '+title}); await expect(inspector).toBeVisible();
-  await expect(inspector.getByRole('tab')).toHaveText(['Overview','Work','Updates','Files','Activity','Review']);
+  await expect(inspector.getByRole('tab')).toHaveText(['Overview','Work','Update work','Updates','Files','Activity','Review']);
   await expect(inspector.getByRole('tab',{name:'Files',exact:true})).toBeVisible();
   await inspector.getByRole('tab',{name:'Work',exact:true}).click();
   await expect(inspector.getByLabel('Task team and subtasks')).toBeVisible();

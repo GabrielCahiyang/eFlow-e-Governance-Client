@@ -57,6 +57,19 @@ beforeEach(() => {
 });
 afterEach(cleanup);
 describe("project settings conflict and freshness contract", () => {
+  it("shows a task schedule rejection, retains the dates and never reports a successful save", async () => {
+    const message = 'Project target date cannot be before 2099-11-05: task "TestTask" is scheduled on that date.';
+    api.save.mockRejectedValue({ code: '22023', message });
+    render(<ProjectSettingsPage {...props} project={{ ...original, startDate: '2099-10-30', targetDate: '2099-11-06' }} />);
+    fireEvent.change(screen.getByLabelText('Target date'), { target: { value: '2099-11-04' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Save changes' }));
+    await screen.findByText('Settings could not be saved');
+    expect(screen.getAllByText(message).length).toBeGreaterThan(0);
+    expect(screen.getByDisplayValue('2099-11-04')).toBeTruthy();
+    expect(screen.queryByText('Project settings saved.')).toBeNull();
+    expect(api.read).not.toHaveBeenCalled();
+    expect(api.save).toHaveBeenCalledTimes(1);
+  });
   it("retains entries on realtime conflict until the user explicitly reviews the latest version", async () => {
     const view = render(<ProjectSettingsPage {...props} />);
     fireEvent.change(screen.getByLabelText("Description"), {

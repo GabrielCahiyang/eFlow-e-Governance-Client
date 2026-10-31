@@ -36,5 +36,5 @@ export function ProjectTaskCell({ column, task, tasks, profiles, people, orgs, e
   if (column === 'budget') return <ProjectTaskBudgetCell task={task} readOnly={readOnly||busy||!editable}/>;
   const steps=approvedWorkProgress(controller?.data?.nodes||[]);
   const progress=task.status==='completed'?100:steps.percent;
-  return <div className="pt-progress" aria-label={'Progress for ' + task.title}><progress max={100} value={progress}/><span>{task.status==='completed'?'Approved':steps.total?`${steps.approved}/${steps.total} steps approved`:workStateLabel(task.status)}</span></div>;
+  return <div className="pt-progress" aria-label={'Progress for ' + task.title}><progress max={100} value={progress}/><span>{task.status==='completed'?'Approved':steps.total?`${steps.approved}/${steps.total} steps complete`:workStateLabel(task.status)}</span></div>;
 }

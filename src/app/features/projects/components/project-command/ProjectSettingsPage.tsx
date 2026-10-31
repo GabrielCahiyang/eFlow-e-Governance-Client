@@ -240,8 +240,8 @@ function SettingsForm({
               </FormField>
             </div>
             <p>
-              Save dates before confirming plan reviews. Material changes may
-              require another review.
+              Project dates must include all scheduled tasks. Save dates before
+              confirming plan reviews. Material changes may require another review.
             </p>
           </section>
           {error && (

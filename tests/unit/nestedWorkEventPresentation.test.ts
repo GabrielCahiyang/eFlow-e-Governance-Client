@@ -6,7 +6,7 @@ const event=(command:string,before=snapshot(),after=snapshot(),nodeId:string|nul
 describe('NW9.6 recorded work event presentation',()=>{
  it('describes deletion with its former path, people and subtree size',()=>{
   const result=presentWorkEvent(event('delete',snapshot(),snapshot([node('parent')])));
-  expect(result.title).toBe('Subitem deleted');expect(result.detail).toContain('parent / child');expect(result.detail).toContain('Former Lead');expect(result.detail).toContain('Recorded worker');expect(result.detail).toContain('Removed 1 subitem(s)');
+  expect(result.title).toBe('Subtask deleted');expect(result.detail).toContain('parent / child');expect(result.detail).toContain('Former Lead');expect(result.detail).toContain('Recorded worker');expect(result.detail).toContain('Removed 1 subtask(s)');
  });
  it('uses moved ancestor snapshots for both old and new paths, including depth eight',()=>{
   const nodes=Array.from({length:8},(_,i)=>node('level '+(i+1),i?'level '+i:null));
@@ -17,7 +17,7 @@ describe('NW9.6 recorded work event presentation',()=>{
  });
  it('keeps old and new Lead identities from their respective snapshots and distinct contributors',()=>{
   const before=snapshot(),after=snapshot();after.nodes[1].lead_id='new';after.nodes[1].assigned_to_ids=['new'];after.people[0].name='Renamed current profile';
-  const result=presentWorkEvent(event('staff',before,after));expect(result.title).toBe('Subitem Lead transferred');expect(result.detail).toContain('Former Lead → New Lead');expect(result.detail).toContain('Contributors: Recorded worker → No contributors');expect(result.detail).not.toContain('Renamed current profile');
+  const result=presentWorkEvent(event('staff',before,after));expect(result.title).toBe('Subtask Lead transferred');expect(result.detail).toContain('Former Lead → New Lead');expect(result.detail).toContain('Contributors: Recorded worker → No contributors');expect(result.detail).not.toContain('Renamed current profile');
  });
  it('does not borrow a historical missing name from the other snapshot',()=>{
   const before=snapshot(),after=snapshot();before.people=[];after.nodes[1].lead_id='new';
@@ -31,7 +31,7 @@ describe('NW9.6 recorded work event presentation',()=>{
  it('shows ordered positions while keeping unrelated order changes out of the focused branch',()=>{
   const before=snapshot([...snapshot().nodes,node('unrelated')]),after=snapshot(before.nodes.map(item=>({...item,sibling_order:1})));
   const result=presentWorkEvent(event('order',before,after,null),{rootId:'root',nodeId:'parent'});
-  expect(result.title).toBe('Subitems reordered');expect(result.detail).toContain('parent / child · Position: 1 → 2');expect(result.detail).not.toContain('unrelated');
+  expect(result.title).toBe('Subtasks reordered');expect(result.detail).toContain('parent / child · Position: 1 → 2');expect(result.detail).not.toContain('unrelated');
  });
  it('uses readable copy for every existing command, including unknown future commands',()=>{
   for(const command of ['create','staff','root_lead','contributors','edit','move','order','delete','progress','submit','review','secret_future_key']){

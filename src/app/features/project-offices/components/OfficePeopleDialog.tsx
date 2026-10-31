@@ -15,7 +15,7 @@ export function OfficePeopleDialog({office,onClose,onSaved}:{office:OfficeIdenti
   setDone(receipt.delivery_error?'Invitation saved. Email delivery failed; retry from the office’s invitation list.':'Invitation sent. Waiting for acceptance.');
   await onSaved();
  }catch(reason){setError((reason as Error).message);await onSaved().catch(()=>{});}finally{pending.current=false;setBusy(false);}};
- return <Modal isOpen preventClose={busy} title={`Invite people · ${office.display_name}`} description="Access is limited to this project. An Office Head is not required." onClose={()=>{if(!busy)onClose();}} width="max-w-xl"
+ return <Modal isOpen preventClose={busy} title={`Invite people · ${office.display_name}`} description="They choose their own password and complete their details after opening the email. Access is limited to this project." onClose={()=>{if(!busy)onClose();}} width="max-w-xl"
  footer={<><ModalButton disabled={busy} onClick={onClose}>{done?'Done':'Close'}</ModalButton>{!done&&<ModalButton variant="primary" pending={busy} disabled={!email||!/^\S+@\S+\.\S+$/.test(email)} onClick={()=>void send()}><Mail size={16}/> Send invitation</ModalButton>}</>}>
   {done?<p role="status">{done}</p>:<div className="eflow-head-dialog-form"><FormField label="Email address" required><TextInput type="email" maxLength={254} placeholder="name@office.gov.ph" value={email} disabled={busy||attempted.current} onChange={event=>setEmail(event.target.value)}/></FormField>
    <FormField label="Invite as"><SelectInput value={role} disabled={busy||attempted.current} onChange={event=>setRole(event.target.value as typeof role)} options={[{value:'employee',label:'Office employee'},{value:'representative',label:'Office representative / Head'}]}/></FormField>

@@ -22,9 +22,9 @@ import { InspectorPanel } from "../../../shared/motion";
 const statusMeta = {
   todo: { label: "To do", tone: "bg-neutral-100 text-neutral-700" },
   in_progress: { label: "In progress", tone: "bg-blue-50 text-blue-700" },
-  for_review: { label: "For review", tone: "bg-amber-50 text-amber-700" },
+  for_review: { label: "Ready to finish", tone: "bg-amber-50 text-amber-700" },
   changes_requested: { label: "Updates needed", tone: "bg-rose-50 text-rose-700" },
-  completed: { label: "Approved", tone: "bg-emerald-50 text-emerald-700" },
+  completed: { label: "Completed", tone: "bg-emerald-50 text-emerald-700" },
 } as const;
 
 export function LegacySubtaskWorkDrawer({
@@ -33,7 +33,6 @@ export function LegacySubtaskWorkDrawer({
   prerequisite,
   readOnly = false,
   canManageDeadline = false,
-  currentReviewerId,
   onClose,
 }: {
   subtask: Subtask | null;
@@ -47,7 +46,7 @@ export function LegacySubtaskWorkDrawer({
   const [current, setCurrent] = useState(subtask);
   const [submissions, setSubmissions] = useState<SubtaskSubmission[]>([]);
   const [progressUpdates, setProgressUpdates] = useState<SubtaskProgressUpdate[]>([]);
-  const visibleReviewer=current?.status==='for_review'&&currentReviewerId?currentReviewerId:current?.reviewerId;
+  const visibleReviewer=undefined;
   const reviewerIds = visibleReviewer ? [visibleReviewer] : [];
   const { reviewersById, loading: reviewerLoading } = useSubtaskReviewerDirectory(reviewerIds);
 
@@ -116,7 +115,7 @@ export function SubtaskWorkDrawerView({current,parentTask,prerequisite,readOnly,
               <LockKeyhole size={15} className="mt-0.5 shrink-0" />
               <div>
                 <strong className="font-semibold">Waiting for an earlier step.</strong>
-                <p className="mt-0.5 text-amber-700">“{prerequisite.title}” must be approved by the Team Lead before this subtask can start.</p>
+                <p className="mt-0.5 text-amber-700">“{prerequisite.title}” must be completed before this step can start.</p>
               </div>
             </div>
           )}
@@ -132,8 +131,8 @@ export function SubtaskWorkDrawerView({current,parentTask,prerequisite,readOnly,
             <div className="mt-2"><ProgressBar value={current.percentComplete} tone={current.status === "completed" ? "good" : "neutral"} /></div>
             <div className="mt-3 grid grid-cols-2 gap-3 text-[11px]">
               <div>
-                <div className="text-neutral-400">Review rule</div>
-                <div className="mt-0.5 flex items-center gap-1 text-neutral-700"><CheckCircle2 size={12} /> Independent approval required</div>
+                <div className="text-neutral-400">Completion rule</div>
+                <div className="mt-0.5 flex items-center gap-1 text-neutral-700"><CheckCircle2 size={12} /> Managed by the task lead</div>
               </div>
               <div>
                 <div className="text-neutral-400">Parent deadline</div>

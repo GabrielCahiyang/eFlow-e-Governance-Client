@@ -24,7 +24,6 @@ import {
 export function CashReleaseOverrideDialog({
   release,
   request,
-  dailyLimit,
   fiscalYear = new Date().getFullYear(),
   onClose,
   onReleased,
@@ -173,10 +172,7 @@ export function CashReleaseOverrideDialog({
           <p className="mt-1">Original schedule: {release.scheduledDate}</p>
         </div>
         <p className="text-sm text-neutral-600">
-          This overrides the date only—not the{" "}
-          {dailyLimit ? `${peso.format(dailyLimit)} ` : ""}daily ceiling,
-          funding approval, or receipt requirements. Today's scheduled releases
-          keep their reserved room. Your identity, reason, and release time will
+          This overrides the release date only—not funding approval or receipt requirements. Your identity, reason, and release time will
           be audited.
         </p>
         <div>

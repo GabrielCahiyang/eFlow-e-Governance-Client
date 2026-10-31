@@ -96,7 +96,7 @@ export function BudgetReleasesPanel({
         {summaryCards}
         <BudgetEmpty
           title="No releases or liquidations"
-          description="Approved requests will be scheduled against the daily release ceiling. Released cash remains here until its receipts and returns are settled."
+          description="Approved requests will be scheduled for release. Released cash remains here until its receipts and returns are settled."
         />
       </div>
     );
@@ -114,9 +114,6 @@ export function BudgetReleasesPanel({
           <h3 className="text-[14px] font-semibold">
             Voucher &amp; release schedule
           </h3>
-          <span className="ml-auto text-[12px] text-neutral-500">
-            Daily ceiling is enforced by the server
-          </span>
         </header>
         {orderedReleases.map((release) => {
           const request = requestById.get(release.requestId);

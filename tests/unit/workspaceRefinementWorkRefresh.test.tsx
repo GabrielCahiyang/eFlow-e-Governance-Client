@@ -42,7 +42,7 @@ afterEach(() => {
 });
 describe("R10 access-sensitive feed lifecycle", () => {
   const item=():WorkRow=>({key:'office-node:deep',id:'deep',rootId:'root',title:'Same',kind:'office-node',projectTitle:'Project',workspaceName:'Office',
-    timezone:'Asia/Singapore',status:'todo',due:'2026-10-21',progress:10,mine:true,leading:true,actionable:true,history:false,relation:'Subitem Lead',
+    timezone:'Asia/Singapore',status:'todo',due:'2026-10-21',progress:10,mine:true,leading:true,actionable:true,history:false,relation:'Subtask Lead',
     task:{id:'root',title:'Root',status:'todo',linkedProjectId:'project',orgId:'office',assigneeId:'other',createdAt:1,updatedAt:1}});
   it('NW9.2 opens canonical Office identity without a fabricated Subtask and retains drafts when feed access is revoked',()=>{
     const row=item(),selected={row,element:document.createElement('button')};

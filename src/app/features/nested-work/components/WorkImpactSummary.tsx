@@ -9,7 +9,7 @@ export const workImpactBlockers=(impact:WorkImpact)=>impact.blocker_codes.map(co
 export function WorkImpactSummary({impact}:{impact:WorkImpact}){
  const date=impact.date_impact;
  return <div>
-  <p>{impact.selected_count} subitems in the selected scope; {impact.descendant_count} are child subitems.</p>
+  <p>{impact.selected_count} subtasks in the selected scope; {impact.descendant_count} are child subtasks.</p>
   <p>{impact.affected_appointment_count} child Lead appointments will be cleared.</p>
   {impact.before_path.length>0&&<p>Current location: {impact.before_path.join(' / ')}</p>}
   {impact.after_path.length>0&&<p>Resulting location: {impact.after_path.join(' / ')}</p>}

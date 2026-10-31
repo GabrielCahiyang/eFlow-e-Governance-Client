@@ -16,7 +16,7 @@ export function MyMonthlyContributionCard({ employee, tasks, facts }: { employee
       <div className="mt-4 grid grid-cols-2 gap-2 md:grid-cols-4">
         {[
           ["Approved tasks", row?.approvedTasks ?? 0, <Award size={13} />],
-          ["Approved subtasks", row?.approvedSubtasks ?? 0, <ShieldCheck size={13} />],
+          ["Completed subitems", row?.approvedSubtasks ?? 0, <ShieldCheck size={13} />],
           ["On time", row?.onTimeRate == null ? "—" : `${Math.round(row.onTimeRate)}%`, null],
           ["First pass", row?.firstPassApprovalRate == null ? "—" : `${Math.round(row.firstPassApprovalRate)}%`, null],
         ].map(([label, value, icon]) => <div key={label as string} className="rounded-lg border border-white bg-white/80 p-3"><div className="flex items-center gap-1 text-[9px] uppercase tracking-wider text-neutral-400">{icon}{label}</div><div className="mt-1 text-[16px] font-medium text-neutral-800">{value}</div></div>)}

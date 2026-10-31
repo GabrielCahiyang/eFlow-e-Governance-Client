@@ -1,9 +1,9 @@
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { useMemo, useState } from "react";
-import { AttentionBox, Button, Search as VibeSearch } from "@vibe/core";
+import { Search as VibeSearch } from "@vibe/core";
 import { Badge } from "../../../components/ui/badge";
 import * as m from "motion/react-m";
-import { ArrowRight, Clock3, ShieldCheck, X } from "lucide-react";
+import { ArrowRight, Clock3, ShieldCheck } from "lucide-react";
 import { FeatureDialog } from "../../../components/ui/FeatureDialog";
 import { motionTransition } from "../../../shared/motion/motionTokens";
 import type {
@@ -12,6 +12,7 @@ import type {
   GeneralJournalEntry,
 } from "../types";
 import { peso } from "./budgetUi";
+import { AuditEventDetails } from "./AuditEventDetails";
 
 const FLOW = [
   "Appropriation",
@@ -151,118 +152,9 @@ export function AccountingTrailPanel({
         contentClassName="!inset-y-0 !left-auto !right-0 !top-auto !h-auto !max-h-none !w-full !max-w-[480px] !translate-x-0 !translate-y-0 !rounded-none !border-y-0 !border-r-0 max-sm:!left-0"
       >
         {selected && (
-          <aside className="h-full w-full overflow-y-auto border-l border-border bg-card p-5">
-              <header className="flex items-start justify-between gap-3">
-                <div>
-                  <div className="text-[12px] font-semibold uppercase tracking-[0.14em] text-primary">
-                    Financial audit event
-                  </div>
-                  <h2 className="mt-1 text-[18px] font-semibold capitalize text-foreground">
-                    {selected.entryType.split("_").join(" ")}
-                  </h2>
-                </div>
-                <Button
-                  kind="tertiary"
-                  size="small"
-                  aria-label="Close audit details"
-                  onClick={() => setSelected(undefined)}
-                >
-                  <X size={15} />
-                </Button>
-              </header>
-              <div className="mt-5 space-y-4">
-                <AttentionBox
-                  type="neutral"
-                  title="Append-only operational event"
-                  text={selected.description}
-                />
-                <Detail
-                  label="Recorded"
-                  value={new Date(selected.createdAt).toLocaleString()}
-                />
-                <Detail
-                  label="Actor"
-                  value={`${selected.actorRole?.split("_").join(" ") || "System"}${selected.actorId ? ` · ${selected.actorId}` : ""}`}
-                />
-                <Detail
-                  label="State transition"
-                  value={
-                    selected.previousState || selected.newState
-                      ? `${selected.previousState || "—"} → ${selected.newState || "—"}`
-                      : "No state transition"
-                  }
-                />
-                <Detail
-                  label="Reason"
-                  value={selected.reason || "No separate reason recorded"}
-                />
-                <Detail
-                  label="Correlation key"
-                  value={selected.correlationKey || "Not supplied"}
-                />
-                <div>
-                  <div className="text-[12px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                    Metadata
-                  </div>
-                  <pre className="mt-2 overflow-x-auto rounded-lg bg-[#152020] p-3 text-[12px] leading-relaxed text-neutral-100">
-                    {JSON.stringify(selected.metadata || {}, null, 2)}
-                  </pre>
-                </div>
-                <div>
-                  <div className="text-[12px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                    Linked journal rows
-                  </div>
-                  {linkedJournal.length ? (
-                    linkedJournal.map((entry) => (
-                      <div
-                        key={entry.id}
-                        className="mt-2 rounded-lg border border-border bg-card p-3"
-                      >
-                        <div className="font-mono text-[12px] text-muted-foreground">
-                          {entry.referenceNumber}
-                        </div>
-                        {entry.lines.map((line) => (
-                          <div
-                            key={line.id}
-                            className="mt-2 grid grid-cols-[minmax(0,1fr)_auto] gap-3 text-[12px]"
-                          >
-                            <span className="min-w-0">
-                              {line.accountCode} · {line.accountTitle}
-                            </span>
-                            <span className="whitespace-nowrap text-right tabular-nums">
-                              {line.debit
-                                ? `Dr ${peso.format(line.debit)}`
-                                : `Cr ${peso.format(line.credit)}`}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    ))
-                  ) : (
-                    <p className="mt-2 text-[12px] text-neutral-500">
-                      This operational event has no directly linked journal row.
-                      Journal entries are created only when money is released,
-                      settled, returned, or adjusted.
-                    </p>
-                  )}
-                </div>
-              </div>
-          </aside>
+          <AuditEventDetails entry={selected} linkedJournal={linkedJournal} onClose={() => setSelected(undefined)} />
         )}
       </FeatureDialog>
-    </div>
-  );
-}
-
-function Detail({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-lg border border-border bg-card p-3">
-      <div className="text-[12px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-        {label}
-      </div>
-      <div className="mt-1 break-words text-[12px] text-foreground">
-        {value}
-      </div>
     </div>
   );
 }

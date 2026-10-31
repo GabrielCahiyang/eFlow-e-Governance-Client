@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { fetchReadiness } from '../services/readinessService';
 import type { ProjectReadiness } from '../types';
 import { FeedbackState } from '../../../components/ui/FeedbackState';
+import { subscribeProjectChecks } from '../services/readinessSubscription';
 
 const ReadinessSummaryContext = createContext<{ update: (snapshot: ProjectReadiness) => void; snapshot: ProjectReadiness | null; loading: boolean; error: string; refresh: () => void } | null>(null);
 export const useReadinessSummaryContext = () => useContext(ReadinessSummaryContext);
@@ -21,6 +22,8 @@ export function ProjectReadinessSummaryProvider({ projectId, refreshKey, childre
       .finally(() => { if (request === version.current) setLoading(false); });
   }, [projectId, update]);
   useEffect(() => { refresh(); return () => { ++version.current; }; }, [refresh, refreshKey]);
+  const latestRefresh = useRef(refresh); latestRefresh.current = refresh;
+  useEffect(() => subscribeProjectChecks(projectId, () => latestRefresh.current()), [projectId]);
   const value = useMemo(() => ({ update, snapshot, loading, error, refresh }), [update, snapshot, loading, error, refresh]);
   return <ReadinessSummaryContext.Provider value={value}>{children}</ReadinessSummaryContext.Provider>;
 }

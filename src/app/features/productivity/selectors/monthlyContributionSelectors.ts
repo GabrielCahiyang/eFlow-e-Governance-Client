@@ -33,6 +33,17 @@ export function buildMonthlyContributionLeaderboard(employees: Employee[], tasks
       return submission.kind === "task" ? task.status === "completed" : subtasksById.get(submission.subtaskId || "")?.status === "completed";
     });
     const taskApprovals = approvals.filter((item) => item.kind === "task"); const subtaskApprovals = approvals.filter((item) => item.kind === "subtask");
+    // Direct steps earn collaboration credit after the parent receives independent final approval.
+    // They are never invented review submissions or quality/first-pass approvals.
+    const directSteps = facts.subtasks.filter(step => step.status === 'completed' && step.completedAt
+      && (step.leadId || step.completedBy) === employee.id
+      && !Array.from(latest.values()).some(item => item.kind === 'subtask' && item.subtaskId === step.id)
+      && facts.submissions.some(item => item.kind === 'task' && item.taskId === step.taskId
+        && item.status === 'approved' && item.reviewerId && item.reviewerId !== item.submitterId
+        && item.decidedAt && item.decidedAt >= period.start && item.decidedAt < period.end
+        && tasksById.get(step.taskId)?.status === 'completed'
+        && (!tasksById.get(step.taskId)?.reopenedAt || item.decidedAt > tasksById.get(step.taskId)!.reopenedAt!)));
+    const completedSteps = subtaskApprovals.length + directSteps.length;
     const onTime = approvals.filter((item) => { const task = tasksById.get(item.taskId); const due = task ? parseDueDate(task) : undefined; return due && item.decidedAt && item.decidedAt <= due + 86_399_999; }).length;
     const firstPass = approvals.filter((item) => item.version === 1).length;
     const cycleHours = approvals.map((item) => { const task = tasksById.get(item.taskId); const createdAt = item.kind === "subtask" ? subtasksById.get(item.subtaskId || "")?.createdAt : task?.createdAt; return createdAt && item.decidedAt ? (item.decidedAt - createdAt) / 3_600_000 : undefined; }).filter((value): value is number => typeof value === "number" && value >= 0);
@@ -40,8 +51,8 @@ export function buildMonthlyContributionLeaderboard(employees: Employee[], tasks
     const quality = approvals.length ? (onTime / approvals.length) * 10 + (firstPass / approvals.length) * 10 : 0;
     const speedEligible = taskApprovals.map((approval) => { const task = tasksById.get(approval.taskId); if (!task?.estimatedHours || !approval.decidedAt) return null; return (approval.decidedAt - task.createdAt) / 3_600_000 <= task.estimatedHours * 2; }).filter((value): value is boolean => value !== null);
     const speed = speedEligible.length ? Math.min(10, speedEligible.filter(Boolean).length / speedEligible.length * 10) : 0;
-    const collaboration = Math.min(30, subtaskApprovals.length * 3);
-    return { rank: 0, userId: employee.id, employeeName: employee.name, departmentName: employee.departmentName, approvedTasks: taskApprovals.length, approvedSubtasks: subtaskApprovals.length, onTimeRate: approvals.length ? rounded(onTime / approvals.length * 100) : null, medianCycleHours: median(cycleHours) === null ? null : rounded(median(cycleHours)!), firstPassApprovalRate: approvals.length ? rounded(firstPass / approvals.length * 100) : null, contributionScore: rounded(delivery + quality + speed + collaboration), breakdown: { delivery: rounded(delivery), quality: rounded(quality), speed: rounded(speed), collaboration: rounded(collaboration) }, source: "live" as const };
+    const collaboration = Math.min(30, completedSteps * 3);
+    return { rank: 0, userId: employee.id, employeeName: employee.name, departmentName: employee.departmentName, approvedTasks: taskApprovals.length, approvedSubtasks: completedSteps, onTimeRate: approvals.length ? rounded(onTime / approvals.length * 100) : null, medianCycleHours: median(cycleHours) === null ? null : rounded(median(cycleHours)!), firstPassApprovalRate: approvals.length ? rounded(firstPass / approvals.length * 100) : null, contributionScore: rounded(delivery + quality + speed + collaboration), breakdown: { delivery: rounded(delivery), quality: rounded(quality), speed: rounded(speed), collaboration: rounded(collaboration) }, source: "live" as const };
   }).filter((row) => row.approvedTasks > 0 || row.approvedSubtasks > 0).sort((a, b) => b.contributionScore - a.contributionScore || b.approvedTasks - a.approvedTasks || a.employeeName.localeCompare(b.employeeName));
   return rows.map((row, index) => ({ ...row, rank: index + 1 }));
 }

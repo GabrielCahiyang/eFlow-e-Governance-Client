@@ -2,7 +2,7 @@
 import {act,cleanup,fireEvent,render,screen,waitFor} from '@testing-library/react';
 import {afterEach,beforeEach,describe,it,expect,vi} from 'vitest';
 import {installNavigationConfirmation,requestNavigation} from '../../src/app/shared/navigationGuard';
-async function chooseWorkAction(label:string, action:string){const trigger=await screen.findByRole('button',{name:label,exact:true});fireEvent.keyDown(trigger,{key:'Enter'});fireEvent.click(await screen.findByRole('menuitem',{name:action,exact:true}));await screen.findByLabelText('Subitem title');}
+async function chooseWorkAction(label:string, action:string){const trigger=await screen.findByRole('button',{name:label,exact:true});fireEvent.keyDown(trigger,{key:'Enter'});fireEvent.click(await screen.findByRole('menuitem',{name:action,exact:true}));await screen.findByLabelText('Subtask title');}
 
 const mocks=vi.hoisted(()=>({actor:'lead',load:vi.fn(),save:vi.fn(),impact:vi.fn()}));
 vi.mock('../../src/app/contexts/AuthContext',()=>({useAuth:()=>({user:{id:mocks.actor}})}));
@@ -32,9 +32,9 @@ describe('R7 checked nested-work UI',()=>{
   let child:HTMLElement|undefined;
   try {
    render(<WorkTree rootId="root" createRequest={1} controller={{rootId:'root',actorId:'lead',data:tree(),loading:false,error:'',unavailable:false,authorityFresh:true,refreshPending:false,pending:false,reload:vi.fn(),save:vi.fn()}}/>);
-   const title=await screen.findByLabelText('Subitem title');
+   const title=await screen.findByLabelText('Subtask title');
    if(selected==='initial')expect(document.activeElement).toBe(title);
-   const date=screen.getByLabelText('Subitem due date') as HTMLInputElement;
+   const date=screen.getByLabelText('Subtask due date') as HTMLInputElement;
    if(selected==='date'){date.focus();fireEvent.change(date,{target:{value:'2026-10-08'}});}
    if(selected==='child-dialog'){child=document.createElement('div');child.setAttribute('role','alertdialog');child.innerHTML='<button>Current review control</button>';document.body.appendChild(child);child.querySelector('button')!.focus();}
    const chosen=document.activeElement;
@@ -73,9 +73,9 @@ describe('R7 checked nested-work UI',()=>{
  it('retains one request and creation identity after a lost response, prevents double saves, and guards drafts',async()=>{
   let reject:(reason:Error)=>void=()=>{};mocks.save.mockImplementationOnce(()=>new Promise((_r,no)=>{reject=no;})).mockImplementation(async(_root,request)=>tree({nodes:[node(),node({id:request.payload.id,title:request.payload.title,parent_subtask_id:'branch',depth:2})]}));
   const uninstall=installNavigationConfirmation(vi.fn().mockResolvedValue(false));render(<WorkTree rootId="root"/>);
-  await chooseWorkAction('Actions for Branch','Add subitem');fireEvent.change(screen.getByLabelText('Subitem title'),{target:{value:'Deep work'}});fireEvent.change(screen.getByLabelText('Appointed Lead'),{target:{value:'bob'}});
+  await chooseWorkAction('Actions for Branch','Add subtask');fireEvent.change(screen.getByLabelText('Subtask title'),{target:{value:'Deep work'}});fireEvent.click(screen.getByText('Assign people'));fireEvent.change(screen.getByLabelText('Appointed Lead'),{target:{value:'bob'}});
   expect(await requestNavigation(vi.fn())).toBe(false);const save=screen.getByRole('button',{name:/^Save (?:work )?changes$/});fireEvent.click(save);fireEvent.click(save);expect(mocks.save).toHaveBeenCalledTimes(1);
-  await act(async()=>reject(new Error('Receipt interrupted')));await screen.findByText(/Receipt interrupted/);expect((screen.getByLabelText('Subitem title') as HTMLInputElement).disabled).toBe(true);
+  await act(async()=>reject(new Error('Receipt interrupted')));await screen.findByText(/Receipt interrupted/);expect((screen.getByLabelText('Subtask title') as HTMLInputElement).disabled).toBe(true);
   const request=mocks.save.mock.calls[0][1];expect(request.payload).toMatchObject({title:'Deep work',parent:'branch',lead:'bob',people:['bob']});expect(request.revision).toBe(7);
   fireEvent.click(screen.getByRole('button',{name:'Retry saved request'}));await screen.findByText('Deep work');expect(mocks.save.mock.calls[1][1]).toBe(request);uninstall();
  });
@@ -91,14 +91,14 @@ describe('R7 checked nested-work UI',()=>{
   await waitFor(()=>expect(mocks.save).toHaveBeenCalled());expect(mocks.save.mock.calls[0][1]).toMatchObject({command:'contributors',payload:{people:['lead','bob']}});
  });
  it('keeps original draft revision during a capability refresh and disables a revoked editor',async()=>{
-  mocks.save.mockResolvedValue(tree());const {rerender}=render(<WorkTree rootId="root"/>);await chooseWorkAction('Task work actions','Add subitem');fireEvent.change(screen.getByLabelText('Subitem title'),{target:{value:'Retained draft'}});
+  mocks.save.mockResolvedValue(tree());const {rerender}=render(<WorkTree rootId="root"/>);await chooseWorkAction('Task work actions','Add subtask');fireEvent.change(screen.getByLabelText('Subtask title'),{target:{value:'Retained draft'}});
   mocks.load.mockResolvedValue(tree({root:{...tree().root,capabilities:{manage_contributors:deny,appoint_lead:noAppointment,create_child:deny,order_children:deny}},revision:8,can_manage:false}));fireEvent(window,new Event('focus'));await screen.findByText('Your current branch authority changed. Reload the tree before saving.');
-  expect((screen.getByLabelText('Subitem title') as HTMLInputElement).value).toBe('Retained draft');expect((screen.getByRole('button',{name:/^Save (?:work )?changes$/}) as HTMLButtonElement).disabled).toBe(true);expect(mocks.save).not.toHaveBeenCalled();
+  expect((screen.getByLabelText('Subtask title') as HTMLInputElement).value).toBe('Retained draft');expect((screen.getByRole('button',{name:/^Save (?:work )?changes$/}) as HTMLButtonElement).disabled).toBe(true);expect(mocks.save).not.toHaveBeenCalled();
   mocks.actor='other';mocks.load.mockRejectedValue(new Error('Current access denied'));rerender(<WorkTree rootId="root"/>);await screen.findByText('Current access denied');expect(screen.queryByDisplayValue('Retained draft')).toBeNull();
  });
  it('clears stale roots and ignores late reads across scope changes',async()=>{
   let resolve:(data:WorkTreeSnapshot)=>void=()=>{};mocks.load.mockImplementationOnce(()=>new Promise(yes=>{resolve=yes;})).mockResolvedValue(tree({root:{...tree().root,id:'other'},nodes:[],leaf_total:0}));
-  const {rerender}=render(<WorkTree rootId="root"/>);rerender(<WorkTree rootId="other"/>);await screen.findByText('Final steps approved: 0 of 0. Task progress is tracked separately.');
+  const {rerender}=render(<WorkTree rootId="root"/>);rerender(<WorkTree rootId="other"/>);await screen.findByText('Steps managed by the task lead.');
   await act(async()=>resolve(tree()));expect(screen.queryByText('Branch')).toBeNull();
  });
  it('uses the legacy adapter only for an explicitly missing RPC, and fails closed on denial',async()=>{
@@ -106,7 +106,7 @@ describe('R7 checked nested-work UI',()=>{
   mocks.load.mockRejectedValue(new Error('Access denied'));rerender(<WorkTree rootId="different" fallback={<p>Legacy checklist</p>}/>);await screen.findByText('Access denied');expect(screen.queryByText('Legacy checklist')).toBeNull();
  });
  it('shows historical work for a Viewer without exposing mutation actions or inventing an email invitation',async()=>{
-  mocks.load.mockResolvedValue(tree({root:{...tree().root,capabilities:{manage_contributors:deny,appoint_lead:noAppointment,create_child:deny,order_children:deny}},can_manage:false,can_transfer:false,nodes:[node({can_manage:false,can_appoint:false,can_work:false,can_order:false,capabilities:{manage_contributors:deny,appoint_lead:noAppointment,create_child:deny,order_children:deny,edit_details:deny,move:deny,delete:deny,execute:deny,submit:deny,review:deny}})]}));render(<WorkTree rootId="root"/>);await screen.findByRole('button',{name:'Branch',exact:true});expect(screen.queryByRole('button',{name:'Task work actions'})).toBeNull();expect(screen.getByRole('button',{name:'Actions for Branch'})).toBeTruthy();fireEvent.keyDown(screen.getByRole('button',{name:'Actions for Branch'}),{key:'Enter'});await screen.findByRole('menuitem',{name:'Open work / evidence'});expect(screen.queryByRole('menuitem',{name:'Edit details'})).toBeNull();expect(screen.queryByRole('menuitem',{name:'Add subitem'})).toBeNull();
+  mocks.load.mockResolvedValue(tree({root:{...tree().root,capabilities:{manage_contributors:deny,appoint_lead:noAppointment,create_child:deny,order_children:deny}},can_manage:false,can_transfer:false,nodes:[node({can_manage:false,can_appoint:false,can_work:false,can_order:false,capabilities:{manage_contributors:deny,appoint_lead:noAppointment,create_child:deny,order_children:deny,edit_details:deny,move:deny,delete:deny,execute:deny,submit:deny,review:deny}})]}));render(<WorkTree rootId="root"/>);await screen.findByRole('button',{name:'Branch',exact:true});expect(screen.queryByRole('button',{name:'Task work actions'})).toBeNull();expect(screen.getByRole('button',{name:'Actions for Branch'})).toBeTruthy();fireEvent.keyDown(screen.getByRole('button',{name:'Actions for Branch'}),{key:'Enter'});await screen.findByRole('menuitem',{name:'Open work / evidence'});expect(screen.queryByRole('menuitem',{name:'Edit details'})).toBeNull();expect(screen.queryByRole('menuitem',{name:'Add subtask'})).toBeNull();
  });
 });
 describe('R7 hierarchy adapters',()=>{
@@ -140,7 +140,7 @@ describe('NW3.3 staffing and hierarchy caller locks',()=>{
  });
  it('propagates Inspector read-only to both root staffing and nested work despite affirmative legacy booleans',async()=>{
   render(<InspectorTeam task={task} profiles={[]} canManageTaskTeam canManageSubtasks currentUserIsLead readOnly onManage={vi.fn()}/>);
-  await screen.findAllByText('Current Lead');await screen.findByRole('button',{name:'Branch',exact:true});expect(screen.queryByRole('button',{name:'Choose task lead and contributors'})).toBeNull();expect(screen.queryByRole('button',{name:'Task work actions'})).toBeNull();fireEvent.keyDown(screen.getByRole('button',{name:'Actions for Branch'}),{key:'Enter'});await screen.findByRole('menuitem',{name:'Open work / evidence'});expect(screen.queryByRole('menuitem',{name:'Choose people'})).toBeNull();expect(screen.queryByRole('menuitem',{name:'Add subitem'})).toBeNull();expect(screen.queryByRole('button',{name:'Manage',exact:true})).toBeNull();
+  await screen.findAllByText('Current Lead');await screen.findByRole('button',{name:'Branch',exact:true});expect(screen.queryByRole('button',{name:'Choose task lead and contributors'})).toBeNull();expect(screen.queryByRole('button',{name:'Task work actions'})).toBeNull();fireEvent.keyDown(screen.getByRole('button',{name:'Actions for Branch'}),{key:'Enter'});await screen.findByRole('menuitem',{name:'Open work / evidence'});expect(screen.queryByRole('menuitem',{name:'Choose people'})).toBeNull();expect(screen.queryByRole('menuitem',{name:'Add subtask'})).toBeNull();expect(screen.queryByRole('button',{name:'Manage',exact:true})).toBeNull();
  });
  it('updates an open Inspector staffing draft when its caller becomes read-only',async()=>{
   const props={task,profiles:[],canManageTaskTeam:true,canManageSubtasks:true,currentUserIsLead:true,onManage:vi.fn()},view=render(<InspectorTeam {...props}/>);

@@ -17,18 +17,18 @@ describe('P3 local review navigation', () => {
   it('retains all review views and rejects display preferences outside current eligibility', () => {
     for (const view of ['tasks', 'workplans', 'governance', 'subtasks', 'budget', 'membership']) expect(resolveReviewView(view, 'department', 'head')).toBe(view);
     expect(destinationNavigationParameters('reviews', { view: 'membership', project: 'private', token: 'secret' })).toEqual({ view: 'membership' });
-    expect(resolveReviewView('membership', 'leading', 'head')).toBe('subtasks');
+    expect(resolveReviewView('membership', 'leading', 'head')).toBe('tasks');
     expect(resolveReviewView('membership', 'department', 'member')).toBe('tasks');
     expect(resolveReviewView('budget', 'department', 'member')).toBe('tasks');
     expect(resolveReviewView('budget', 'leading', 'member')).toBe('budget');
-    expect(resolveReviewView('unknown', 'leading', 'member')).toBe('subtasks');
+    expect(resolveReviewView('unknown', 'leading', 'member')).toBe('tasks');
     for (const role of ['member', 'admin', 'accounting_staff']) expect(canOpenMembershipReview('department', role)).toBe(false);
   });
   it('adds membership to the same local selector without fabricating an unknown count', () => {
     const onChange = vi.fn(); const { rerender } = render(<ReviewKindSwitch active="tasks" onChange={onChange} />);
     expect(screen.queryByRole('tab', { name: 'Membership approvals' })).toBeNull();
     rerender(<ReviewKindSwitch active="membership" includeMembership includeBudget onChange={onChange} counts={{ tasks: 2 }} />);
-    expect(screen.getAllByRole('tab')).toHaveLength(6);
+    expect(screen.getAllByRole('tab')).toHaveLength(5);
     fireEvent.click(screen.getByRole('tab', { name: 'Membership approvals', exact: true }));
     expect(onChange).toHaveBeenCalledWith('membership');
     expect(screen.getByRole('tab', { name: 'Membership approvals', exact: true }).getAttribute('aria-selected')).toBe('true');

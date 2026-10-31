@@ -4,11 +4,19 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ProjectReadinessSummary, ProjectReadinessSummaryProvider } from '../../src/app/features/project-readiness';
 import { useReadinessSummaryContext } from '../../src/app/features/project-readiness/components/ProjectReadinessSummary';
 import type { ProjectReadiness } from '../../src/app/features/project-readiness/types';
-const api=vi.hoisted(()=>({readiness:vi.fn()}));
+const api=vi.hoisted(()=>({readiness:vi.fn(),subscribe:vi.fn(()=>()=>{})}));
 vi.mock('../../src/app/features/project-readiness/services/readinessService',()=>({fetchReadiness:api.readiness}));
+vi.mock('../../src/app/features/project-readiness/services/readinessSubscription',()=>({subscribeProjectChecks:api.subscribe}));
 afterEach(()=>{cleanup();vi.clearAllMocks();});
 const snapshot={projectId:'a',stage:'Planning',governed:false,ready:false,canActivate:false,checks:[{key:'dates',ok:true},{key:'structure',ok:false}]};
 describe('project readiness summary',()=>{
+  it('updates from its live subscription without a refresh button',async()=>{
+    api.readiness.mockResolvedValueOnce(snapshot).mockResolvedValueOnce({...snapshot,stage:'Ready'});
+    render(<ProjectReadinessSummaryProvider projectId="a" refreshKey="1"><ProjectReadinessSummary /></ProjectReadinessSummaryProvider>);
+    await screen.findByText('Planning · 1 of 2 checks confirmed');
+    await act(async()=>{api.subscribe.mock.calls.at(-1)![1]();});
+    await screen.findByText('Ready · 1 of 2 checks confirmed');
+  });
   it('presents actual confirmed checks and retries only readiness after a failure',async()=>{
     api.readiness.mockRejectedValueOnce(new Error('Readiness request failed')).mockResolvedValueOnce(snapshot);
     render(<ProjectReadinessSummaryProvider projectId="a" refreshKey="1"><ProjectReadinessSummary /></ProjectReadinessSummaryProvider>);

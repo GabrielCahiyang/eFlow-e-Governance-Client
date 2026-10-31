@@ -56,7 +56,7 @@ def validate(token):
     item = office_context(rpc('r8_lookup', {'p_hash': token_hash(token)}))
     # No tokens, claims, uploader IDs or raw PDS metadata on the public endpoint.
     return {key: item.get(key) for key in ('id', 'email', 'office_name', 'project_title', 'project_id',
-            'needs_full_name', 'home_workspace_id', 'kind', 'engagement', 'access_end', 'until_close', 'expires_at', 'existing_account', 'summary', 'skills')}
+            'needs_full_name', 'home_workspace_id', 'kind', 'engagement', 'access_end', 'until_close', 'expires_at', 'existing_account', 'summary', 'skills', 'project_participation_role')}
 
 
 def accept(token, identity, name='', claim=None):

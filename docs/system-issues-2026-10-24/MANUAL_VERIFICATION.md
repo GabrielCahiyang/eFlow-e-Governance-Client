@@ -52,3 +52,14 @@ Leaked-password protection was disabled in an earlier Auth advisor capture. Conf
 ## Recording results
 
 For each check record **Pass / Fail / Not tested**, steps, role, expected result, actual result and evidence. Move only a reproduced failure into the issue list with its source investigation. Keep unavailable accounts/devices and incomplete full-suite runs as verification gaps.
+
+
+## 30 October project workflow — user verification
+
+- Create a new project and confirm details/funding come before tasks and additional people.
+- Choose explicit Office Budget source/quarter rows; compare their derived total and available Office Budget after task/subtask allocation.
+- Send a real project invitation, receive the email, let the recipient set their own profile/password and verify project-only access, pending → joined, employee/representative rights and revocation. Email delivery was not sent during the automated rollback checks.
+- Submit as an ordinary task lead; approve as project lead. Submit a project lead's own task and approve as Head.
+- Compare cash release, actual receipt, returned cash, settlement and journal using your real documents.
+
+Implementation and automated receipts: `../project-flow-redesign-2026-10-30/REPORT.md`.

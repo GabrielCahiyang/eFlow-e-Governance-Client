@@ -1,0 +1,14 @@
+{
+  "target": "ixnfphgjyelhckjwjkdv",
+  "migration": "20261030092810_enforce_project_prerequisite_visibility.sql",
+  "sha256": "83d30bcdc822a0f6d253eb02dc69492e79f2fec51641d5de6f5a5ce14b3c959e",
+  "backup_verified": true,
+  "prior_migrations": 64,
+  "dry_run_only_reviewed_delta": true,
+  "public_tables_checked": 115,
+  "applied": true,
+  "non_heartbeat_public_rows_unchanged": true,
+  "funding_api_authenticated_only": true,
+  "private_funding_tables_protected": true,
+  "completed_at": "2026-10-30T09:40:24.359722+00:00"
+}

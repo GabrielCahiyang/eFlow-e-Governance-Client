@@ -1,5 +1,6 @@
 import { ProjectIndex } from './ProjectIndex';
 import { isAppointedOfficeHead } from '../../../shared/officeAuthority';
+import { isHeadWorkspaceRole } from '../../../shared/roles';
 import * as React from "react";
 import { requestNavigation } from '../../../shared/navigationGuard';
 import { writeNavigationLocation } from '../../navigation';
@@ -134,7 +135,8 @@ export function ProjectsWorkspace({
   }, []);
   const openPlanning = useProjectPlanningLocation(restorePlanningView);
   const [templatesOpen, setTemplatesOpen] = React.useState(false);
-  const baseAccess = resolveProjectWorkspaceAccess(readOnly, can);
+  const workspaceReadOnly = readOnly || !isHeadWorkspaceRole(userProfile?.role);
+  const baseAccess = resolveProjectWorkspaceAccess(workspaceReadOnly, can);
   const access = { ...baseAccess, canCreate: baseAccess.canCreate && isAppointedOfficeHead(userProfile, orgs) && (!workspaceScope || workspaceScope.workspace.office_id === (userProfile?.org_id || userProfile?.departmentId)) };
   const collaboration = useCollaborationDrafts();
   const activeCollaborationDrafts = React.useMemo(
@@ -424,7 +426,7 @@ export function ProjectsWorkspace({
               profiles={profiles}
               operationalProjects={dbProjects}
               operationalTasks={tasks}
-              readOnly={readOnly}
+              readOnly={workspaceReadOnly}
               initialTab={activeTab.initialCollaborationTab}
               onBack={() => closeTab(activeTab.id)}
               onCommitted={() => {
@@ -495,7 +497,7 @@ export function ProjectsWorkspace({
       </div>
       </div>
 
-      {access.canCreate && quickProjectOpen && <CreateProjectDialog open officeId={currentOrgId} officeName={orgs.find(org=>org.id===currentOrgId)?.name} ownerName={userProfile?.full_name} onClose={()=>setQuickProjectOpen(false)} onCreated={project=>{setCommittedProject(project);createdNavigationRef.current=project.id;workspaceScope?.includeCreatedOfficeProject?.(project);writeNavigationLocation('projects','Projects','push',{project:project.id,view:'tasks',parameters:{project:project.id,view:'tasks',people:'add'}});setActiveTab({id:`project-${project.id}`,type:'project',projectId:project.id,title:project.title});setWorkspaceView('portfolio');setProjectWorkspaceTab('tasks');}}/>}
+      {access.canCreate && quickProjectOpen && <CreateProjectDialog open profiles={profiles} officeId={currentOrgId} officeName={orgs.find(org=>org.id===currentOrgId)?.name} ownerName={userProfile?.full_name} onClose={()=>setQuickProjectOpen(false)} onCreated={(project,ready)=>{const destination=ready?'tasks':'settings';setCommittedProject(project);createdNavigationRef.current=project.id;workspaceScope?.includeCreatedOfficeProject?.(project);writeNavigationLocation('projects','Projects','push',{project:project.id,view:destination,parameters:{project:project.id,view:destination}});setActiveTab({id:`project-${project.id}`,type:'project',projectId:project.id,title:project.title});setWorkspaceView('portfolio');setProjectWorkspaceTab(destination);}}/>}
 
       {templatesOpen && (
         <ProjectTemplatesModal

@@ -12,8 +12,8 @@ import type { Project } from '../../services/types';
 import { useProjectCompletionAvailability } from '../../hooks/useProjectCompletionAvailability';
 
 export interface ProjectLifecycleActions { complete?: () => void; archive?: () => void; restore?: () => void; delete?: () => void; }
-export function ProjectUtilities({ project, canManage, lifecycle, userId, contextId, authorizedProjectIds, view, onOpenOffices, onOpenSettings, onResolveView }: {
-  project: Project; canManage: boolean; lifecycle: ProjectLifecycleActions; userId: string; contextId: string; authorizedProjectIds: string[]; view: string; onOpenOffices: () => void; onOpenSettings: () => void; onResolveView: (view:ProjectCommandTab) => void;
+export function ProjectUtilities({ setupReady=true, project, canManage, lifecycle, userId, contextId, authorizedProjectIds, view, onOpenOffices, onOpenSettings, onResolveView }: {
+  setupReady?:boolean;project: Project; canManage: boolean; lifecycle: ProjectLifecycleActions; userId: string; contextId: string; authorizedProjectIds: string[]; view: string; onOpenOffices: () => void; onOpenSettings: () => void; onResolveView: (view:ProjectCommandTab) => void;
 }) {
   const [shareOpen, setShareOpen] = useState(false),[copyNotice,setCopyNotice]=useState(''),[setupOpen,setSetupOpen]=useState(false);
   const menuTrigger = useRef<HTMLButtonElement>(null);
@@ -36,7 +36,7 @@ export function ProjectUtilities({ project, canManage, lifecycle, userId, contex
   if (lifecycle.delete) actions.push({ id: 'delete', label: 'Delete project', onSelect: () => openLifecycle(lifecycle.delete!) });
   return <div className="eflow-project-identity__utilities">
     {userId && <WorkspaceTooltip content="Personal favorite on this device"><Button variant="ghost" size="icon" aria-label={favorite ? 'Remove project from favorites' : 'Add project to favorites'} aria-pressed={favorite} onClick={() => toggle(project.id)}><Star size={18} fill={favorite ? 'currentColor' : 'none'} /></Button></WorkspaceTooltip>}
-    <Button variant="outline" onClick={() => { setShareOpen(true); }}><Share2 size={16} />Invite / share</Button>
+    <Button disabled={!setupReady} title={!setupReady?'Finish project details and funding before sharing access.':undefined} variant="outline" onClick={() => { setShareOpen(true); }}><Share2 size={16} />Invite / share</Button>
     <Button variant="outline" onClick={onOpenSettings}>Project settings</Button>
     {canManage && lifecycle.complete && !['completed','archived'].includes(project.status) && <Button variant="outline" onClick={() => { void requestNavigation(lifecycle.complete!); }}>Completion requirements</Button>}
     {canManage&&project.status==='planning'&&<Button variant="outline" onClick={()=>void requestNavigation(()=>setSetupOpen(value=>!value))} aria-expanded={setupOpen}>Setup & activation</Button>}

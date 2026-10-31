@@ -1,0 +1,10 @@
+{
+  "target": "ixnfphgjyelhckjwjkdv",
+  "migration": "20261030074704_project_definition_and_funding_flow.sql",
+  "sha256": "a39b6aaad25433746ec58e22e6506ce529bbfe738d65d835a67d5384bdb8d056",
+  "backup_verified": true,
+  "prior_migrations": 62,
+  "dry_run_only_reviewed_delta": true,
+  "public_tables_checked": 115,
+  "applied": false
+}

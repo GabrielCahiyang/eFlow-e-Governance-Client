@@ -49,3 +49,11 @@ describe("monthly contribution leaderboard", () => {
     expect(row.firstPassApprovalRate).toBe(0);
   });
 });
+
+it('credits direct subtasks only after independently approved parent completion',()=>{
+ const facts=emptyFacts();facts.subtasks=[{id:'direct',taskId:'parent',title:'Direct step',status:'completed',isCompleted:true,percentComplete:100,leadId:'member',completedBy:'member',completedAt:period.start+100,assignedToIds:['member'],position:0,source:'manual',createdAt:period.start,updatedAt:period.start+100}];
+ expect(buildMonthlyContributionLeaderboard([employee('member')],[task('parent')],facts,period)).toEqual([]);
+ facts.submissions=[{id:'parent-review',kind:'task',taskId:'parent',version:1,submitterId:'lead',submitterName:'Lead',reviewerId:'head',status:'approved',submittedAt:period.start+200,decidedAt:period.start+300}];
+ const row=buildMonthlyContributionLeaderboard([employee('member')],[task('parent')],facts,period)[0];
+ expect(row.approvedSubtasks).toBe(1);expect(row.breakdown.collaboration).toBe(3);expect(row.firstPassApprovalRate).toBeNull();
+});

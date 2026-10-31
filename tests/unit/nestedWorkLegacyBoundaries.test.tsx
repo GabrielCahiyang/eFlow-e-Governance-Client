@@ -75,6 +75,6 @@ describe('NW9.7 proven compatibility entrances',()=>{
  });
  it('keeps excluded Main Table readOnly and callbacks without enabling inline writes',()=>{
   const onOpen=vi.fn(),onOpenTask=vi.fn();render(<table><tbody><SubitemRows task={{...task,sourceCollaborationDraftId:'governed'}} subtasks={[{id:'flat',taskId:'root',title:'Legacy child',status:'todo',assignedToIds:[],position:0,percentComplete:0} as any]} columns={5} profiles={[]} canAdd readOnly unavailableReason="Locked" onOpen={onOpen} onOpenTask={onOpenTask} refresh={vi.fn()}/></tbody></table>);
-  fireEvent.click(screen.getByRole('button',{name:'Open subitem Legacy child'}));expect(onOpen).toHaveBeenCalledWith(expect.objectContaining({id:'flat',taskId:'root'}),true);fireEvent.click(screen.getByRole('button',{name:'Task details'}));expect(onOpenTask).toHaveBeenCalledOnce();expect(screen.queryByRole('textbox')).toBeNull();expect(api.create).not.toHaveBeenCalled();expect(api.update).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole('button',{name:'Open subtask Legacy child'}));expect(onOpen).toHaveBeenCalledWith(expect.objectContaining({id:'flat',taskId:'root'}),true);fireEvent.click(screen.getByRole('button',{name:'Task details'}));expect(onOpenTask).toHaveBeenCalledOnce();expect(screen.queryByRole('textbox')).toBeNull();expect(api.create).not.toHaveBeenCalled();expect(api.update).not.toHaveBeenCalled();
  });
 });

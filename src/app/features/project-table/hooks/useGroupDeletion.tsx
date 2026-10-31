@@ -21,9 +21,9 @@ export function useGroupDeletion(group: ProjectGroup, refresh: () => Promise<voi
     // Let the menu release its focus scope before opening the confirmation.
     await new Promise<void>(resolve => requestAnimationFrame(() => { trigger.current?.focus(); resolve(); }));
     const description = taskCount
-      ? `Remove this group and its ${taskCount} unstarted task${taskCount === 1 ? '' : 's'} from the project table? Their subitems will be removed with them. Previous history is kept.`
+      ? `Remove this group and its ${taskCount} unstarted task${taskCount === 1 ? '' : 's'} from the project table? Their subtasks will be removed with them. Previous history is kept.`
       : 'This empty group will be removed from the project table. No tasks or task history will be deleted.';
-    if (!await confirm({ title: `Delete ${group.title}?`, description, danger: true, actionLabel: 'Delete group', impact: <p>Group: {group.title} · {taskCount} task{taskCount === 1 ? '' : 's'} · {subitemCount} subitem{subitemCount === 1 ? '' : 's'}</p> })) return;
+    if (!await confirm({ title: `Delete ${group.title}?`, description, danger: true, actionLabel: 'Delete group', impact: <p>Group: {group.title} · {taskCount} task{taskCount === 1 ? '' : 's'} · {subitemCount} subtask{subitemCount === 1 ? '' : 's'}</p> })) return;
     if (pending.current) return;
     pending.current = true; setBusy(true); setError('');
     try {

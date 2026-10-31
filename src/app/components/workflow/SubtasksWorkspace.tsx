@@ -41,8 +41,6 @@ import {
   getSubtaskPrerequisite,
 } from "../../features/subtasks/selectors/sequencing";
 import { getSubtaskDeadlineState } from "../../features/subtasks/selectors/deadlines";
-import { useSubtaskReviewerDirectory } from "../../features/subtasks/hooks/useSubtaskReviewerDirectory";
-import { SubtaskReviewerBadge } from "../../features/subtasks/components/SubtaskReviewerBadge";
 import {
   buildLeaderTaskScopeOptions,
   getLeaderTaskScopeOption,
@@ -51,8 +49,8 @@ import {
 const subtaskStatusOptions = [
   { value: "all", label: "All Items" },
   { value: "pending", label: "Pending Only" },
-  { value: "for_review", label: "For Review" },
-  { value: "changes_requested", label: "Changes Requested" },
+  { value: "for_review", label: "Ready to finish" },
+  { value: "changes_requested", label: "In progress (earlier feedback)" },
   { value: "overdue", label: "Overdue" },
   { value: "completed", label: "Completed" },
 ];
@@ -77,8 +75,7 @@ function ActorSubtasksWorkspace() {
   const exactCurrent=useRef<{rootId:string;itemId:string}|undefined>(undefined);
   const [subitemOrigin,setSubitemOrigin]=useState<TaskInspectorOrigin>();
   const captureOrigin=(element:HTMLElement|null)=>setSubitemOrigin({view:"Subtasks",section:'work',returnFocus:element,restoreFocus:()=>document.querySelector<HTMLInputElement>('[aria-label="Search subtasks"]')?.focus()});
-  const reviewerIds = useMemo(() => subtasks.map((subtask) => subtask.reviewerId), [subtasks]);
-  const { reviewersById, loading: reviewersLoading } = useSubtaskReviewerDirectory(reviewerIds);
+
 
   useNotificationNavigationIntent(
     (intent) => intent.kind === "subtask",
@@ -268,7 +265,7 @@ function ActorSubtasksWorkspace() {
       <PageHeader
         eyebrow="My Workspace · Subtasks"
         title="My Subtask Checklist"
-        subtitle="Open assigned work, report progress, attach evidence, and submit it to the assigned reviewer for approval."
+        subtitle="Open assigned steps, post updates and mark work complete under the task lead."
       />
 
       <div className="mb-6 grid grid-cols-1 gap-3 min-[480px]:grid-cols-2 lg:grid-cols-5">
@@ -290,7 +287,7 @@ function ActorSubtasksWorkspace() {
           icon={<CheckCircle2 size={15} />}
         />
         <StatCard
-          label="For Review"
+          label="Ready to finish"
           value={reviewCount}
           tone={reviewCount > 0 ? "warn" : "neutral"}
           icon={<ShieldCheck size={15} />}
@@ -433,14 +430,7 @@ function ActorSubtasksWorkspace() {
                           <Sparkles size={9} /> AI Extracted
                         </span>
                       )}
-                      {st.reviewerId && (
-                        <SubtaskReviewerBadge
-                          reviewer={reviewersById[st.reviewerId]}
-                          status={st.status}
-                          loading={reviewersLoading}
-                          compact
-                        />
-                      )}
+
                       <span className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-medium ${
                         deadlineState.tone === "overdue" ? "bg-red-50 text-red-700" :
                         deadlineState.tone === "due_soon" ? "bg-amber-50 text-amber-700" :

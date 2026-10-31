@@ -52,8 +52,8 @@ describe('Phase 11 edit and creation contracts',()=>{
   expect(groupDeleteBlocker(group,[{...member,percentComplete:10}],true)).toContain('started');
   const subitem:Subtask={id:'sub',taskId:task.id,title:'Nested work',isCompleted:false,status:'todo',percentComplete:0,assignedToIds:[],position:0,isStandalone:false,source:'manual',createdAt:1,updatedAt:1};
   expect(groupDeleteBlocker(group,[member],true,[subitem])).toBeUndefined();
-  expect(groupDeleteBlocker(group,[member],true,[{...subitem,status:'in_progress'}])).toContain('subitem');
-  expect(groupDeleteBlocker(group,[member],true,[{...subitem,latestSubmissionId:'evidence'}])).toContain('subitem');
+  expect(groupDeleteBlocker(group,[member],true,[{...subitem,status:'in_progress'}])).toContain('subtask');
+  expect(groupDeleteBlocker(group,[member],true,[{...subitem,latestSubmissionId:'evidence'}])).toContain('subtask');
   expect(groupDeleteBlocker(group,[member],true,[{...subitem,taskId:'another-task',status:'completed'}])).toBeUndefined();
  });
  it('retains failed numeric values and retries only their patch',async()=>{
@@ -126,13 +126,13 @@ describe('Phase 11 edit and creation contracts',()=>{
   await act(async()=>editor.result.current.remove());expect(editor.result.current.error).toContain('Group deleted');
   await act(async()=>editor.result.current.retryRefresh());expect(mocks.remove).toHaveBeenCalledOnce();expect(refresh).toHaveBeenCalledTimes(2);expect(editor.result.current.error).toBe('');
  });
- it('confirms all unfiltered tasks and subitems before removing a populated group',async()=>{
+ it('confirms all unfiltered tasks and subtasks before removing a populated group',async()=>{
   mocks.confirm.mockResolvedValueOnce(false);
   const editor=renderHook(()=>useGroupDeletion(group,vi.fn().mockResolvedValue(undefined),2,1));
   await act(async()=>editor.result.current.remove());expect(mocks.remove).not.toHaveBeenCalled();
   const confirmation=mocks.confirm.mock.calls[0][0];
   expect(confirmation.description).toContain('2 unstarted tasks');
   expect(confirmation.description).toContain('Previous history is kept');
-  render(confirmation.impact);expect(screen.getByText(/2 tasks · 1 subitem/)).toBeTruthy();
+  render(confirmation.impact);expect(screen.getByText(/2 tasks · 1 subtask/)).toBeTruthy();
  });
 });

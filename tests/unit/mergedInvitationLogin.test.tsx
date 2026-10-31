@@ -16,6 +16,7 @@ vi.mock('../../src/app/features/project-invitations',()=>({
 }));
 vi.mock('../../src/components/EFlowMark',()=>({EFlowMark:()=>null}));
 vi.mock('../../src/app/components/ui/WorkspaceIllustration',()=>({WorkspaceIllustration:()=>null}));
+vi.mock('../../src/app/features/invitations/components/ProjectInviteOnboarding',()=>({ProjectInviteOnboarding:({requestId}:{requestId:string})=><p>Recipient profile for {requestId}</p>}));
 import {AcceptInvitationPage} from '../../src/app/features/invitations/components/AcceptInvitationPage';
 
 beforeEach(()=>{
@@ -64,4 +65,16 @@ it('retains the original uncertain account creation error if protected recovery 
   await waitFor(()=>expect(api.signIn).toHaveBeenCalledTimes(1));
   expect(api.acceptGuest).not.toHaveBeenCalled();
   expect(api.acceptOffice).not.toHaveBeenCalled();
+});
+it('lets a new recipient choose their password and then enter their own profile details',async()=>{
+ window.history.replaceState({},'', '/accept-project-invite?token=test-invitation-token');
+ api.validateGuest.mockResolvedValue({id:'request-1',email:'guest@example.test',existing_account:false,office_name:'Office',project_id:'project',project_title:'Project'});
+ api.createGuest.mockResolvedValue({accepted:true});
+ render(<AcceptInvitationPage/>);await screen.findByLabelText('Full name');
+ fireEvent.change(screen.getByLabelText('Full name'),{target:{value:'Invited Person'}});
+ fireEvent.change(screen.getByLabelText('Password',{exact:true}),{target:{value:'my-own-private-password'}});
+ fireEvent.change(screen.getByLabelText('Confirm password'),{target:{value:'my-own-private-password'}});
+ fireEvent.click(screen.getByRole('button',{name:/Create account/}));await screen.findByText('Recipient profile for request-1');
+ expect(api.createGuest).toHaveBeenCalledWith('test-invitation-token','Invited Person','my-own-private-password',expect.any(String));
+ expect(api.signIn).toHaveBeenCalledWith('guest@example.test','my-own-private-password');expect(screen.queryByLabelText('Password',{exact:true})).toBeNull();
 });

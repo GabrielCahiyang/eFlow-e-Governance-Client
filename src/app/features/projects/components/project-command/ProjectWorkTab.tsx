@@ -1,4 +1,5 @@
 import {useAuth} from '../../../../contexts/AuthContext';
+import {isHeadWorkspaceRole} from '../../../../shared/roles';
 import {formatDate} from '../../../../components/workflow/primitives';
 import {WorkStatusControl} from '../../../work-state';
 import {latestProgressByWorkItem} from '../../../team-management';
@@ -121,7 +122,7 @@ export function ProjectWorkTab({
                     }
                   }}
                 />
-                <WorkStatusControl status={task.status} stuck={!!latestUpdates.get(`task:${task.id}`)?.blocker} disabled={['completed','archived'].includes(data.project.status)||userProfile?.is_active===false||actions.busy||!getTaskTeamMemberIds(task).includes((user?.id||''))} onStart={()=>onOpenTask(task.id,'work')} onBlocker={()=>onOpenTask(task.id,'report-blocker')} onSubmit={isTaskLead(task,(user?.id||''))?()=>onOpenTask(task.id,'submit-work'):undefined}/>
+                <WorkStatusControl status={task.status} stuck={!!latestUpdates.get(`task:${task.id}`)?.blocker} disabled={!isHeadWorkspaceRole(userProfile?.role)||['completed','archived'].includes(data.project.status)||userProfile?.is_active===false||actions.busy||!getTaskTeamMemberIds(task).includes((user?.id||''))} onStart={()=>onOpenTask(task.id,'work')} onBlocker={()=>onOpenTask(task.id,'report-blocker')} onSubmit={isHeadWorkspaceRole(userProfile?.role)&&isTaskLead(task,(user?.id||''))?()=>onOpenTask(task.id,'submit-work'):undefined}/>
 
                 </div>
               ))}

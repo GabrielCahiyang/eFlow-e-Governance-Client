@@ -38,17 +38,17 @@ describe("parent task review readiness", () => {
   it("blocks Head submission until every subtask is approved", () => {
     renderModal(task(3, 2));
 
-    expect(screen.getByText("2 of 3 subtasks approved")).toBeTruthy();
+    expect(screen.getByText("2 of 3 subtasks complete")).toBeTruthy();
     expect(
       (screen.getByRole("button", { name: "Submit for Review" }) as HTMLButtonElement)
         .disabled,
     ).toBe(true);
   });
 
-  it("allows the Team Lead's explicit final submission when subtasks are approved", () => {
+  it("allows the Team Lead's explicit final submission when subtasks are complete", () => {
     renderModal(task(3, 3));
 
-    expect(screen.getByText("3 of 3 subtasks approved")).toBeTruthy();
+    expect(screen.getByText("3 of 3 subtasks complete")).toBeTruthy();
     expect(
       (screen.getByRole("button", { name: "Submit for Review" }) as HTMLButtonElement)
         .disabled,

@@ -1,0 +1,14 @@
+{
+  "target": "ixnfphgjyelhckjwjkdv",
+  "migration": "20261030074704_project_definition_and_funding_flow.sql",
+  "sha256": "a39b6aaad25433746ec58e22e6506ce529bbfe738d65d835a67d5384bdb8d056",
+  "backup_verified": true,
+  "prior_migrations": 62,
+  "dry_run_only_reviewed_delta": true,
+  "public_tables_checked": 115,
+  "applied": true,
+  "non_heartbeat_public_rows_unchanged": true,
+  "funding_api_authenticated_only": true,
+  "private_funding_tables_protected": true,
+  "completed_at": "2026-10-30T08:32:32.110428+00:00"
+}

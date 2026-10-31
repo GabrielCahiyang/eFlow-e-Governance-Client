@@ -15,6 +15,7 @@ interface InlineCreateRowProps {
 }
 
 export function InlineCreateRow({ label, itemName, maxLength, autoFocus, onCreate, onCreated, onBusyChange, extraFields }: InlineCreateRowProps) {
+  const visibleItemName=itemName==='subitem'?'subtask':itemName;
   const [title, setTitle] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -25,7 +26,7 @@ export function InlineCreateRow({ label, itemName, maxLength, autoFocus, onCreat
   const form = useRef<HTMLFormElement>(null);
   const hintId = useId();
   const errorId = useId();
-  useNavigationBlocker({label:`Unsaved ${itemName}`,dirty:Boolean(error && title.trim()),pending:busy,pendingCheck:()=>saving.current,onDiscard:()=>{draft.current='';setTitle('');setError('');}});
+  useNavigationBlocker({label:`Unsaved ${visibleItemName}`,dirty:Boolean(error && title.trim()),pending:busy,pendingCheck:()=>saving.current,onDiscard:()=>{draft.current='';setTitle('');setError('');}});
 
   async function save(keepAdding = false) {
     const nextTitle = draft.current.trim();
@@ -45,7 +46,7 @@ export function InlineCreateRow({ label, itemName, maxLength, autoFocus, onCreat
       }
       if (keepAdding && form.current?.contains(document.activeElement)) input.current?.focus();
     } catch (error) {
-      setError(error instanceof Error ? error.message : `Could not add ${itemName}.`);
+      setError(error instanceof Error ? error.message : `Could not add ${visibleItemName}.`);
     } finally {
       saving.current = false;
       setBusy(false);
@@ -62,7 +63,7 @@ export function InlineCreateRow({ label, itemName, maxLength, autoFocus, onCreat
     <div className="pt-inline-create__fields">
       <Plus size={15} aria-hidden="true" />
       <input ref={input} className="pt-inline-create__title" autoFocus={autoFocus} aria-label={label} aria-describedby={error ? `${hintId} ${errorId}` : hintId}
-        aria-invalid={!!error} placeholder={`Add ${itemName}`} maxLength={maxLength} value={title} readOnly={busy}
+        aria-invalid={!!error} placeholder={`Add ${visibleItemName}`} maxLength={maxLength} value={title} readOnly={busy}
         onChange={event => { draft.current = event.target.value; setTitle(event.target.value); setError(''); }}
         onKeyDown={event => {
           if (event.nativeEvent.isComposing) return;
@@ -79,7 +80,7 @@ export function InlineCreateRow({ label, itemName, maxLength, autoFocus, onCreat
       {extraFields?.(busy)}
       {busy && <span className="pt-inline-create__status" role="status">Adding…</span>}
     </div>
-    <p id={hintId} className="pt-inline-create__hint">Press <strong>Shift + Enter</strong> to add another {itemName}</p>
+    <p id={hintId} className="pt-inline-create__hint">Press <strong>Shift + Enter</strong> to add another {visibleItemName}</p>
     {error && <p id={errorId} className="pt-inline-create__error" role="alert">{error}{refreshFailed && <button type="button" disabled={busy} onClick={() => {
       if (!onCreated || saving.current) return;
       saving.current = true; setBusy(true); onBusyChange?.(true);

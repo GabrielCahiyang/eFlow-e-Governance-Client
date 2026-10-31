@@ -15,11 +15,11 @@ function ReviewInspector({item,origin,onClose,readOnly=false}:{item:SubtaskRevie
  const [task,setTask]=useState<Task>(),[error,setError]=useState(''),[retry,setRetry]=useState(0);
  useEffect(()=>{let active=true;setTask(undefined);setError('');void fetchTaskById(item.subtask.taskId).then(row=>{
   if(!active)return;
-  if(!row||row.id!==item.subtask.taskId)throw new Error('Subitem root is no longer available.');
+  if(!row||row.id!==item.subtask.taskId)throw new Error('Subtask root is no longer available.');
   setTask(rowToTask(row));
- }).catch(reason=>{if(active)setError(reason instanceof Error?reason.message:'Could not verify subitem root.');});return()=>{active=false;};},[item.subtask.taskId,retry]);
+ }).catch(reason=>{if(active)setError(reason instanceof Error?reason.message:'Could not verify subtask root.');});return()=>{active=false;};},[item.subtask.taskId,retry]);
  if(task)return <SubtaskWorkDrawer subtask={item.subtask} parentTask={task} initialSection={origin.section==='work'?'work':'review'} origin={origin} onClose={onClose} readOnly={readOnly}/>;
  return <InspectorSurface presentation="page" open onClose={()=>void requestNavigation(onClose)} ariaLabel="Subtask unavailable" returnFocus={origin.returnFocus} onReturnFocus={origin.restoreFocus} layer={60} className="w-full sm:w-[460px]">
-  <div className="p-4"><p role={error?'alert':'status'}>{error||'Verifying current subitem context.'}</p>{error&&<button type="button" onClick={()=>setRetry(value=>value+1)}>Retry subitem root</button>}<button type="button" onClick={()=>void requestNavigation(onClose)}>Close subtask detail</button></div>
+  <div className="p-4"><p role={error?'alert':'status'}>{error||'Verifying current subtask context.'}</p>{error&&<button type="button" onClick={()=>setRetry(value=>value+1)}>Retry subtask root</button>}<button type="button" onClick={()=>void requestNavigation(onClose)}>Close subtask detail</button></div>
  </InspectorSurface>;
 }

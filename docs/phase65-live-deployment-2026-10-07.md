@@ -74,3 +74,12 @@ Actual expiration acceptance remains open: no usable expired controlled invitati
 Stable cross-Office browser visibility requires focused continuation using loaded project context, with direct authenticated RLS visibility already verified. Successful cash allocation, approval, release and settlement were not performed; financial compatibility evidence here consists of accounting separation, funding denials, preserved canonical financial data and zero financial side effects. Native Safari pointer drag was not verified on Windows. Public frontend/gateway hosting remains a separate release.
 
 Continue against `ixnfphgjyelhckjwjkdv` only. Phase 6.5 is already installed: inspect the ledger and receipts rather than reapplying it. Complete the remaining live gates with supported workflows, preserve the QA histories, rerun client-secret checks after any alignment change, and keep deployment status separate from acceptance status.
+
+
+## 30 October 2026 — project workflow continuation
+
+The user explicitly authorized clearing dummy workflow data while preserving LEDIPO, accounts, credentials, skills and Admins, then implementing project definition, quarterly funding envelopes and project-lead review routing. Backups, protected-table fingerprints and attachment receipts are recorded in [the project-flow report](project-flow-redesign-2026-10-30/REPORT.md). Historical rehearsal/acceptance receipts above remain unchanged.
+
+Only migrations `20261030074704_project_definition_and_funding_flow` and `20261030083920_complete_project_setup_guards` were selected from isolated workspaces populated with exact hosted history. Both are installed on `ixnfphgjyelhckjwjkdv`; deployment receipts distinguish these changes from earlier direct-subtask/invitation/schedule fixes. The unrelated local daily-release-ceiling migration was not included.
+
+The new hosted acceptance uses rollback-only synthetic workflows: 55 assertions cover quarter funding, task/subtask division, no double reservation, review independence, cash rejection/re-request/release/receipt settlement, project completion and archive. Browser interaction/layout evidence is separately labeled as intercepted. Real invitation email/recipient/device verification remains on the manual checklist. No public frontend/gateway hosting or Android build was performed in this delivery.

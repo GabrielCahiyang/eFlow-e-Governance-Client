@@ -39,7 +39,7 @@ describe('R6 private project documents',()=>{
   backend.rpc.mockResolvedValue({error:{code:'PGRST202',message:'missing function'}});
   await expect(fetchProjectFiles('p','t')).rejects.toThrow('not available on this server');
  });
- it('collects authorized parent/subitem progress and submission provenance in their original buckets',()=>{
+ it('collects authorized parent/subtask progress and submission provenance in their original buckets',()=>{
   const rows=mapInspectorFiles([{id:'a',file_name:'Parent.pdf',file_path:'task/a',submission_id:'s',created_at:'2026-10-01'}],[{id:'b',attachment_path:'task/b',author_name:'Contributor',created_at:'2026-10-02'}],[{id:'s',version:2,status:'approved',submitter_name:'Task lead'}],[{id:'c',subtask_id:'sub',attachment_path:'sub/c',author_name:'Member',created_at:'2026-10-03'}],[{id:'d',subtask_id:'sub',submission_id:'ss',file_path:'sub/d',created_at:'2026-10-04'}],[{id:'ss',version:1,status:'approved',submitter_name:'Member'}],[{id:'sub',title:'Survey households'}]);
   expect(rows.map(f=>f.bucket)).toEqual(['task-attachments','task-attachments','task-comment-attachments','task-attachments']);
   expect(rows[0].source).toBe('Survey households · Submission 1 (approved)');expect(rows[3].uploader).toBe('Task lead');

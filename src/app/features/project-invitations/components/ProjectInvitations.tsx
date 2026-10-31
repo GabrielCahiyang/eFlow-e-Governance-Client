@@ -2,6 +2,8 @@ import { EmptyState } from '../../../components/ui/EmptyState';
 import {fetchAccess,RemovalDialog,type AccessSnapshot} from '../../project-access';
 import {useEffect,useRef,useState} from 'react';
 import {useAuth} from '../../../contexts/AuthContext';
+import {useOrgs} from '../../../hooks/useSupabaseData';
+import {isAppointedOfficeHead} from '../../../shared/officeAuthority';
 import {Modal} from '../../../components/ui/Modal';
 import {retryPds} from '../../professional-profile';
 import {decideProjectInvitation,dispatchProjectInvitation,listProjectInvitations,uploadRequestPds,completeProjectOnboarding,designateSponsor} from '../services/projectInvitationService';
@@ -12,14 +14,16 @@ export function ProjectInvitations({project,office,root,node,canRequest=false}:{
  const {user}=useAuth();return <Content key={`${user?.id}:${project}:${root}:${node}`} project={project} office={office} root={root} node={node} canRequest={canRequest}/>;
 }
 function Content({project,office,root,node,canRequest}:{project:string;office?:string|null;root?:string;node?:string;canRequest:boolean}){
+ const {user,userProfile}=useAuth(),{orgs}=useOrgs();
  const closeForm=useRef<(()=>void)|undefined>(undefined);
  const [access,setAccess]=useState<AccessSnapshot>(),[removing,setRemoving]=useState<ProjectInvitation>();const [data,setData]=useState<InvitationContext>(),[error,setError]=useState(''),[busy,setBusy]=useState(false),[open,setOpen]=useState(false),[receipt,setReceipt]=useState(''),[sponsorDraft,setSponsorDraft]=useState('');const active=useRef(true),run=useRef(0),pending=useRef(false),hold=useRef(false);hold.current=open||busy||!!removing;
- async function reload(){const key=++run.current;try{const next=await listProjectInvitations(project);const permissions=await fetchAccess(project).catch(()=>undefined);if(active.current&&key===run.current){setData(next);setAccess(permissions);}}catch(reason){if(active.current&&key===run.current){setData(undefined);setError((reason as Error).message);}}}
+ async function reload(){const key=++run.current;try{const next=await listProjectInvitations(project);const permissions=await fetchAccess(project).catch(()=>undefined);if(active.current&&key===run.current){setData(next);setAccess(permissions);setError('');}}catch(reason){if(active.current&&key===run.current){setData(undefined);setError((reason as Error).message);}}}
  useEffect(()=>{active.current=true;void reload();const refresh=()=>{if(!hold.current)void reload();};window.addEventListener('focus',refresh);const timer=setInterval(refresh,15000);return()=>{active.current=false;run.current++;clearInterval(timer);window.removeEventListener('focus',refresh);};},[project]);
  async function act(operation:()=>Promise<unknown>){if(pending.current)return;pending.current=true;setBusy(true);setError('');setReceipt('');try{await operation();await reload();}catch(reason){setError((reason as Error).message);await reload();}finally{pending.current=false;setBusy(false);}}
  const sponsor=office||data?.office_id;
+ const canSend=isAppointedOfficeHead(userProfile,orgs)&&userProfile?.org_id===sponsor;
  async function dispatch(item:ProjectInvitation,resend:boolean){const result=await dispatchProjectInvitation(item,resend);setReceipt(`${item.email}: ${result.delivery_status==='provider_accepted'?'Email accepted by provider':result.delivery_error||'Email failed'}. ${result.receipt}`);}
- return <section className="r8-invitations" aria-label="Project Invitations"><h3>Invitations</h3><p>The Head approves each invite before we send the email. The person joins after accepting it.</p>
+ return <section className="r8-invitations" aria-label="Project Invitations"><h3>Invitations</h3><p>{canSend?'Send invitations by email. Each person sets their own password and completes their details when joining.':'Your sponsoring Head approves requests before invitations are sent. Recipients complete their own details.'}</p>
  {data&&(canRequest||data.can_request)&&sponsor&&<button type="button" disabled={busy} onClick={()=>setOpen(true)}>Invite by email</button>}
  {(canRequest||data?.can_request)&&!sponsor&&<p>A sponsoring Office must be designated before requesting external membership. Your personal ownership cannot dispatch invitations.</p>}
  {data?.can_designate&&!data.office_id&&data.workspace_id&&<label>Sponsoring Office ID<input value={sponsorDraft} onChange={e=>setSponsorDraft(e.target.value)} placeholder="Office ID provided by its appointed Head"/><button type="button" disabled={busy||!sponsorDraft} onClick={()=>void act(()=>designateSponsor(data.workspace_id!,sponsorDraft))}>Designate sponsoring Office</button></label>}
@@ -31,9 +35,9 @@ function Content({project,office,root,node,canRequest}:{project:string;office?:s
  {item.can_dispatch&&<button type="button" disabled={busy} onClick={()=>void act(()=>dispatch(item,item.delivery_status==='provider_accepted'))}>{item.delivery_status==='provider_accepted'?'Resend · rotate previous link':item.invitation_created_at?'Retry email only':'Create invitation and send email'}</button>}
  {item.can_revoke&&(item.state!=='accepted'||access?.can_remove_personal||access?.can_remove_offices.includes(item.office_id))&&<button type="button" disabled={busy} onClick={()=>{if(item.state==='accepted'&&access)setRemoving(item);else void act(()=>decideProjectInvitation(item,'revoked'));}}>Revoke {item.state==='accepted'?'membership':'request / link'}</button>}
  {item.can_complete_onboarding&&item.onboarding==='pending'&&<button type="button" disabled={busy} onClick={()=>void act(()=>completeProjectOnboarding(item.id))}>Confirm my onboarding complete</button>}
- {(item.can_revoke||item.state==='accepted')&&<label>Attach optional private PDS<input type="file" accept="application/pdf,.pdf" disabled={busy} onChange={e=>{const file=e.target.files?.[0];if(file){if(file.size>10485760||!file.name.toLowerCase().endsWith('.pdf')){setError('Choose a PDF smaller than 10 MB.');return;}void act(()=>uploadRequestPds(file,item.id));}e.target.value='';}}/></label>}</div>
+ {item.state==='accepted'&&item.accepted_by===user?.id&&<label>Attach your optional private PDS<input type="file" accept="application/pdf,.pdf" disabled={busy} onChange={e=>{const file=e.target.files?.[0];if(file){if(file.size>10485760||!file.name.toLowerCase().endsWith('.pdf')){setError('Choose a PDF smaller than 10 MB.');return;}void act(()=>uploadRequestPds(file,item.id));}e.target.value='';}}/></label>}</div>
  </article>)}{data&&!data.requests.length&&<EmptyState illustration="inbox" size="compact" title="No invites yet."/>}
  {removing?.accepted_by&&<RemovalDialog project={project} user={removing.accepted_by} office={removing.kind==='personal'?null:removing.office_id} name={removing.email} onClose={()=>setRemoving(undefined)} onRemoved={reload}/>}
- {open&&sponsor&&<Modal isOpen title="Request project members" width="max-w-3xl" onClose={()=>closeForm.current?.()}><ProjectInvitationForm closeRef={closeForm} project={project} office={sponsor} root={root} node={node} timezone={data?.timezone||'Asia/Singapore'} onDone={()=>void reload()} onClose={()=>setOpen(false)}/></Modal>}
+ {open&&sponsor&&<Modal isOpen title={canSend?'Invite project members':'Request project members'} width="max-w-3xl" onClose={()=>closeForm.current?.()}><ProjectInvitationForm canSend={canSend} closeRef={closeForm} project={project} office={sponsor} root={root} node={node} timezone={data?.timezone||'Asia/Manila'} onDone={()=>void reload()} onClose={()=>setOpen(false)}/></Modal>}
  </section>;
 }
