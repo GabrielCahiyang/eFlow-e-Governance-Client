@@ -1,6 +1,6 @@
 import type { Subtask } from "../../../services/subtaskService";
 
-const DAY = 86_400_000;
+import {deadlinePresentation} from '../../../shared/deadlinePresentation';
 
 export type SubtaskDeadlineTone = "none" | "on_track" | "due_soon" | "overdue" | "completed";
 
@@ -26,11 +26,7 @@ export function getSubtaskDeadlineState(subtask: Pick<Subtask, "dueDate" | "isCo
   if (subtask.isCompleted || subtask.status === "completed") return { tone: "completed", label: "Completed" };
   const dueAt = isoDateTimestamp(subtask.dueDate);
   if (dueAt === undefined) return { tone: "none", label: "No due date" };
-  const today = new Date(now);
-  const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
-  const days = Math.round((dueAt - todayStart) / DAY);
-  if (days < 0) return { tone: "overdue", label: `${Math.abs(days)}d overdue`, dueAt, days };
-  if (days === 0) return { tone: "due_soon", label: "Due today", dueAt, days };
-  if (days <= 3) return { tone: "due_soon", label: days === 1 ? "Due tomorrow" : `${days}d left`, dueAt, days };
-  return { tone: "on_track", label: `${days}d left`, dueAt, days };
+  const state = deadlinePresentation(subtask.dueDate, subtask.status, now);
+  const tone = {red: 'overdue', yellow: 'due_soon', green: 'on_track', neutral: 'none'} as const;
+  return {tone: tone[state.tone], label: state.label, dueAt, days: state.days};
 }

@@ -1,0 +1,37 @@
+{
+  "installedDatabaseChecks": 13,
+  "focusedUiAndValidationTests": 10,
+  "typescript": "passed",
+  "productionBuild": "passed; existing chunk-size warning",
+  "diffCheck": "passed",
+  "publicTablesPreserved": 115,
+  "fullSuiteRerun": false,
+  "securityAdvisors": [
+    {
+      "name": "rls_enabled_no_policy",
+      "level": "INFO",
+      "count": 37
+    },
+    {
+      "name": "extension_in_public",
+      "level": "WARN",
+      "count": 1
+    },
+    {
+      "name": "anon_security_definer_function_executable",
+      "level": "WARN",
+      "count": 81
+    },
+    {
+      "name": "authenticated_security_definer_function_executable",
+      "level": "WARN",
+      "count": 196
+    },
+    {
+      "name": "auth_leaked_password_protection",
+      "level": "WARN",
+      "count": 1
+    }
+  ],
+  "testWritesRolledBack": true
+}

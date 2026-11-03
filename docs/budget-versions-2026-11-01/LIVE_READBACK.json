@@ -1,0 +1,54 @@
+{
+  "read_only": true,
+  "actors": [
+    {
+      "role": "accounting_staff",
+      "canAdjust": false,
+      "versions": 1,
+      "latestVersion": 1,
+      "protectedTotal": 35000.0
+    },
+    {
+      "role": "head",
+      "canAdjust": true,
+      "versions": 1,
+      "latestVersion": 1,
+      "protectedTotal": 35000.0
+    },
+    {
+      "role": "member",
+      "canAdjust": false,
+      "versions": 1,
+      "latestVersion": 1,
+      "protectedTotal": 35000.0
+    },
+    {
+      "role": "member",
+      "canAdjust": false,
+      "versions": 1,
+      "latestVersion": 1,
+      "protectedTotal": 35000.0
+    },
+    {
+      "role": "member",
+      "canAdjust": false,
+      "versions": 1,
+      "latestVersion": 1,
+      "protectedTotal": 35000.0
+    },
+    {
+      "role": "member",
+      "canAdjust": false,
+      "versions": 1,
+      "latestVersion": 1,
+      "protectedTotal": 35000.0
+    },
+    {
+      "role": "member",
+      "canAdjust": false,
+      "versions": 1,
+      "latestVersion": 1,
+      "protectedTotal": 35000.0
+    }
+  ]
+}

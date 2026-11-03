@@ -40,6 +40,7 @@ export function buildShellNavigation({ role, persistedRole = role, can, hasLeadi
 }): ShellNavigationItem[] {
   return getRoleNavigationCandidates(role)
     .filter(item => isRoleNavigationItemVisible(item, hasLeadingWork, persistedRole) && canOpenNavigationSection(role, item.id, can, Boolean(hasLeadingWork && (item.requiresLeadership || item.id === 'personal_work'))))
+    .filter(item=>item.id!=='intelligence'||!canOpenNavigationSection(role,'team',can,false))
     .map(item => {
       let pages = getSidebarContent(role, item.id).sections.flatMap(group => group.items.map(page => ({ label: page.label })));
       if (item.id === 'users') pages = getAuthorizedSupportPages(role, can).filter(page => role === 'admin' || page.section === 'users').map(page => ({ label: page.label }));

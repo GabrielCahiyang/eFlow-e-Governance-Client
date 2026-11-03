@@ -23,6 +23,7 @@ const PersonalWorkWorkspace = lazyFeature(
   "PersonalWorkWorkspace",
 );
 const WorkspaceOverview=lazyFeature(()=>import('../personal-work').then(m=>({default:m.WorkspaceOverview})),undefined,'WorkspaceOverview');
+const MemberOverview=lazyFeature(()=>import('../personal-work').then(m=>({default:m.MemberOverview})),undefined,'MemberOverview');
 const ActionCenter = lazyFeature(
   () =>
     import("../action-center").then((module) => ({
@@ -120,7 +121,7 @@ export function RoleContent({
         </p>
       </PageFrame>
     );
-  if (activeSection==='dashboard'&&role!=='admin') return <Suspense fallback={<RoleLoading/>}><PageFrame><WorkspaceOverview onNavigate={onNavigate}/></PageFrame></Suspense>;
+  if (activeSection==='dashboard'&&role!=='admin') return <Suspense fallback={<RoleLoading/>}><PageFrame>{role==='member'?<MemberOverview onNavigate={onNavigate}/>:<WorkspaceOverview onNavigate={onNavigate}/>}</PageFrame></Suspense>;
   if (activeSection === "personal_work") {
     if (role === "admin" || (!can("navigation.tasks") && !hasLeadingWork))
       return (

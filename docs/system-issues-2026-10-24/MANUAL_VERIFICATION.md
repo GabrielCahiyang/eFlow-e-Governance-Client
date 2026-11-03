@@ -63,3 +63,12 @@ For each check record **Pass / Fail / Not tested**, steps, role, expected result
 - Compare cash release, actual receipt, returned cash, settlement and journal using your real documents.
 
 Implementation and automated receipts: `../project-flow-redesign-2026-10-30/REPORT.md`.
+# Office petty cash — October 31, 2026
+
+The independent office fund is now installed. See [office petty cash rules and walkthrough](../office-petty-cash-2026-10-31/README.md).
+
+- Open Office Budget → Office Petty Cash (Accounting: Office Budget Ledgers). The office starts with ₱30,000 automatically, without a deposit. Verify every project/task shares that same balance, and reopening it does not refill it. Only Accounting can replenish settled spending. See [the updated rules and checks](../office-cash-starting-fund-2026-10-31/README.md).
+- Request as Crisostomo, reject and re-request, approve as Cheryl, release as Gabriel/Accounting. Confirm task/project balances never change.
+- Upload real receipts; verify the strict ₱5,000 limit per receipt and full return when nothing was spent. Endorse independently, then settle as Accounting.
+- Only Accounting can partially or fully replenish against settled expenses; no automatic daily reset and no replenishment against outstanding advances. Test exhausted balance, duplicate reference, reload and concurrent users.
+- Check signed receipt previews and responsive screens. Database rollback tests and UI role tests passed; actual browser upload and physical money handling remain user verification.

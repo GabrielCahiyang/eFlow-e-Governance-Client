@@ -18,6 +18,8 @@ import { FormField, TextInput } from "./FormField";
 import { Button } from "./button";
 import { FeedbackState } from "./FeedbackState";
 import { ConfirmationPopoverLayer } from "./OverlayPopoverLayer";
+import {CheckCircle2, RotateCcw} from 'lucide-react';
+import './decisionModal.css';
 
 export interface ConfirmationOptions {
   title: string;
@@ -25,6 +27,7 @@ export interface ConfirmationOptions {
   actionLabel?: string;
   cancelLabel?: string;
   danger?: boolean;
+  tone?: 'approve' | 'return';
   impact?: ReactNode;
   blockers?: string[];
   /** Opt in only when a feature's mutation risk requires it. */
@@ -100,6 +103,7 @@ export function useConfirmation() {
           }}
         >
           <AlertDialogHeader>
+            {options?.tone && <span className="decision-modal__icon" data-decision-tone={options.tone}>{options.tone === 'approve' ? <CheckCircle2 size={28}/> : <RotateCcw size={28}/>}</span>}
             <AlertDialogTitle>{options?.title}</AlertDialogTitle>
             <AlertDialogDescription>
               {options?.description}

@@ -1,0 +1,23 @@
+{
+  "rollback_only": true,
+  "count": 17,
+  "checks": [
+    "planning subtasks does not prematurely start the task",
+    "Head reads parent and step In progress",
+    "Task Lead / Accounting reads parent and step In progress",
+    "Member contributor reads parent and step In progress",
+    "blocker is visible without resetting work to Not started",
+    "Head reads completed step with parent still awaiting lead submission",
+    "Task Lead / Accounting reads completed step with parent still awaiting lead submission",
+    "Member contributor reads completed step with parent still awaiting lead submission",
+    "automatic start is audited only once",
+    "a text-only parent update starts the task without percentage input",
+    "direct subtask completion also starts a previously untouched parent",
+    "a contributor cannot resume returned parent work",
+    "the Task Lead can resume returned work through one status update",
+    "rollups never overwrite review-pending status",
+    "existing started task can be repaired without approval: e594c65c-f539-408c-9c65-1299a2b7eb3c",
+    "existing started task can be repaired without approval: 21d99fdf-aed8-48c4-b956-284d196f1bdd",
+    "all deferred lifecycle and financial guards pass"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "rollback_only": true,
+  "count": 7,
+  "checks": [
+    "reported updates path is rejected by existing storage guard",
+    "contributor can upload to the correct progress path",
+    "authenticated storage row insert passes restrictive evidence policy",
+    "work update saves and changes subtask status",
+    "attachment is linked to saved progress update",
+    "Assigned work canonical tree reads the updated status",
+    "completion remains restricted independently of update permission"
+  ]
+}

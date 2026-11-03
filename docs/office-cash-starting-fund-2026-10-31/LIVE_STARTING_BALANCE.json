@@ -1,0 +1,10 @@
+{
+  "office": "fdd4dfee-bbc3-42b4-9dcf-a9612c428460",
+  "cash": 30000.0,
+  "available": 30000.0,
+  "reserved": 0,
+  "outstanding": 0,
+  "initializations": 1,
+  "second_read_did_not_refill": true,
+  "no_request_or_replenishment_created": true
+}

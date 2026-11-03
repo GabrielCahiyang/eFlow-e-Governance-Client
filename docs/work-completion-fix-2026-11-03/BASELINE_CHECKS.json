@@ -1,0 +1,7 @@
+{
+  "rollback_only": true,
+  "count": 1,
+  "checks": [
+    "current lead can submit parent for project-lead review"
+  ]
+}

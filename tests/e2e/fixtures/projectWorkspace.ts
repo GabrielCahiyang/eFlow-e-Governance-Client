@@ -260,6 +260,11 @@ export async function projectWorkspaceFixture(
             ]),
           );
   };
+  const emitTaskUpdate = (taskId:string) => {
+    const record=tasks.find(task=>task.id===taskId);if(!record)throw new Error('Unknown fixture task');
+    for(const [socket,topics] of taskSockets)for(const [topic,ids] of topics)if(ids.length)
+      socket.send(JSON.stringify([null,null,topic,'postgres_changes',{ids,data:{schema:'public',table:'tasks',type:'UPDATE',commit_timestamp:new Date().toISOString(),columns:[{name:'id',type:'uuid'}],record,old_record:{id:taskId},errors:null}}]));
+  };
   const emitReadinessReview = () => {
     for (const [socket, topics] of reviewSockets)
       for (const [topic, ids] of topics)
@@ -496,6 +501,7 @@ export async function projectWorkspaceFixture(
   if (options.landingOnly)
     return {
       emitTaskDelete,
+      emitTaskUpdate,
       emitReadinessReview,
       tasks,
       projects,
@@ -525,6 +531,7 @@ export async function projectWorkspaceFixture(
     ).toBeVisible({timeout:30_000});
     return {
       emitTaskDelete,
+      emitTaskUpdate,
       emitReadinessReview,
       tasks,
       projects,
@@ -562,6 +569,7 @@ export async function projectWorkspaceFixture(
   ).toBeVisible();
   return {
     emitTaskDelete,
+    emitTaskUpdate,
     emitReadinessReview,
     tasks,
     projects,

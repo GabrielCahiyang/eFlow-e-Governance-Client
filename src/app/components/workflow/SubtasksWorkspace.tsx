@@ -18,6 +18,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { supabase } from "../../../lib/supabase";
+import { subscribeWorkChanges } from "../../shared/workChanges";
 import { useAuth } from "../../contexts/AuthContext";
 import { useTasksData } from "../../hooks/useSupabaseData";
 import { rowToSubtask, type Subtask } from "../../services/subtaskService";
@@ -64,6 +65,7 @@ function ActorSubtasksWorkspace() {
   const { tasks: allTasks, loading: tasksLoading } = useTasksData();
   const [subtasks, setSubtasks] = useState<(Subtask & { parentTask?: Task })[]>([]);
   const [loading, setLoading] = useState(true);
+  const loaded = useRef(false);
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [scopeFilter, setScopeFilter] = useState("all");
@@ -104,7 +106,7 @@ function ActorSubtasksWorkspace() {
 
     const loadSubtasks = async () => {
       const run=++sequence;
-      setLoading(true);
+      if (!loaded.current) setLoading(true);
       try {
         const { data, error } = await supabase
           .from("subtasks")
@@ -158,7 +160,7 @@ function ActorSubtasksWorkspace() {
       } catch (err) {
         if(active&&run===sequence){setSubtasks([]);setSourceError(err instanceof Error?err.message:(err as {message?:string}|null)?.message||'Could not verify current subtask access.');}
       } finally {
-        if(active&&run===sequence)setLoading(false);
+        if(active&&run===sequence){loaded.current=true;setLoading(false);}
       }
     };
 
@@ -167,20 +169,12 @@ function ActorSubtasksWorkspace() {
     window.addEventListener('focus',loadSubtasks);
     window.addEventListener('eflow-project-access-changed',loadSubtasks);
 
-    // Subscribe to realtime subtasks updates
-    const channel = supabase
-      .channel(`user-subtasks-${user.id}`)
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "subtasks" },
-        () => loadSubtasks(),
-      )
-      .subscribe();
+    const stopChanges = subscribeWorkChanges(() => { void loadSubtasks(); });
 
     return () => {
       active=false;++sequence;
       window.clearInterval(poll);window.removeEventListener('focus',loadSubtasks);window.removeEventListener('eflow-project-access-changed',loadSubtasks);
-      supabase.removeChannel(channel);
+      stopChanges();
     };
   }, [user?.id, allTasks]);
 

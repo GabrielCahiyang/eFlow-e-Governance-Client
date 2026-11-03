@@ -8,8 +8,6 @@ import { useState } from "react";
 import { InspectorFiles } from './InspectorFiles';
 import { InspectorProgressUpdates } from './InspectorProgressUpdates';
 import { InspectorExecution } from './InspectorExecution';
-import { TaskDepartmentLabel } from '../../tasks';
-import { TaskStatusBadge, PriorityPill } from '../../../components/workflow/StatusBadges';
 import { InspectorSummary } from './InspectorSummary';
 import { InspectorWork } from './InspectorWork';
 import { requestNavigation } from '../../../shared/navigationGuard';
@@ -139,10 +137,8 @@ function TaskInspectorContent({
           {teamBlocked && currentUserIsLead && !readOnly && <p role="status" className="po-help">In shared projects, only the responsible Office Head can change the task team. Ask your Office Head to update members.</p>}
           {executionBlocked && <p role="status" className="po-help">Proposed Office responsibility: directory linking, Office Head confirmation and explicit handover in Project Offices are required before staffing, execution, evidence or funding.</p>}
           {readOnly && tab !== 'overview' && <p role="status" className="text-sm text-neutral-500 mb-3">Read-only oversight record</p>}
-          {tab === 'overview' && <section aria-label="Task details" className="space-y-4 rounded-lg border border-neutral-200 p-3 mb-4">
-            <div className="flex gap-2 flex-wrap"><TaskStatusBadge status={task.status} rejected={rejected}/><PriorityPill priority={task.priority}/></div>
-            <TaskDepartmentLabel task={task}/>
-            <InspectorSummary task={task} projectTitle={operationalProject?.title} readOnly={readOnly} dependencies={dependencies} canManageSubtasks={canManageSubtasks} canAuthorizeFunding={canAuthorizeFunding} overdue={rel.overdue} authorityPending={!!controller&&(!controller.authorityFresh||controller.refreshPending||controller.pending)} fundingTask={controller?.data?{...task,assigneeId:controller.data.root.lead||undefined,recommendationLeadId:undefined}:undefined} budgetReadOnly={readOnly||!!task.archivedAt||executionBlocked||!!controller&&controller.data?.people.find(person=>person.id===user?.id)?.eligible!==true}/>
+          {tab === 'overview' && <section aria-label="Task details">
+            <InspectorSummary task={task} projectTitle={operationalProject?.title} readOnly={readOnly} dependencies={dependencies} canManageSubtasks={canManageSubtasks} canAuthorizeFunding={canAuthorizeFunding} rejected={rejected} overdue={rel.overdue} authorityPending={!!controller&&(!controller.authorityFresh||controller.refreshPending||controller.pending)} fundingTask={controller?.data?{...task,assigneeId:controller.data.root.lead||undefined,recommendationLeadId:undefined}:undefined} budgetReadOnly={readOnly||!!task.archivedAt||executionBlocked||!!controller&&controller.data?.people.find(person=>person.id===user?.id)?.eligible!==true}/>
           </section>}
           {tab === 'update-work' && <section className="task-update-page" aria-label="Update task work">
             <div className="task-update-page__main">

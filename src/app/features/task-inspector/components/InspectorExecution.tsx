@@ -1,7 +1,7 @@
 import {useEffect,useState} from 'react';
 import {useAuth} from '../../../contexts/AuthContext';
 import {submitProgressUpdate,subscribeToProgressUpdates} from '../../../services/taskDiscussionService';
-import {submitTaskForReview,updateTaskStatus,type Task} from '../../tasks';
+import {submitTaskForReview,type Task} from '../../tasks';
 import {WorkExecutionForm,approvedWorkProgress} from '../../work-state';
 import type {Subtask} from '../../subtasks';
 import {getTaskSubmissionReadiness} from '../../tasks/selectors/submissionReadiness';
@@ -14,14 +14,12 @@ export function InspectorExecution({task,subtasks,canStart,canResume,canSubmit,c
 
  const steps=approvedWorkProgress(subtasks.map(item=>({id:item.id,parent_subtask_id:item.parentSubtaskId,status:item.status})));
  const editable=canPostProgress||canStart||canResume||canSubmit;
- async function start(){if(task.status==='todo'||task.status==='changes_requested')await updateTaskStatus(task.id,'in_progress',user?.id?{id:user.id,name:userProfile?.full_name||''}:undefined);}
  return <div className="space-y-4">
   {pendingDependencies>0&&<div role="status" className="work-state-message"><strong>Waiting for {pendingDependencies} prerequisite task{pendingDependencies===1?'':'s'}</strong><span>You can prepare this work. Final submission waits until the linked tasks are approved.</span></div>}
   {task.rejectionNote&&task.status==='changes_requested'&&<div className="work-state-message"><strong>Requested changes</strong><p>{task.rejectionNote}</p></div>}
   {readiness.totalSubtasks>0&&<div className="work-state-message"><strong>{steps.total?steps.approved:readiness.approvedSubtasks} of {steps.total||readiness.totalSubtasks} steps complete</strong><span>{task.status==='completed'?'Task approved':task.status==='for_review'?'Final review in progress':readiness.ready?'Ready for final review':'Finish the remaining steps before final submission.'}</span></div>}
   <WorkExecutionForm initialAction={initialAction} key={task.id} initialBlocker={blocker} status={task.status} readOnly={!editable||busy} canSubmit={readiness.ready&&!pendingDependencies&&(canSubmit||canStart||canResume)} onCommitted={submitted=>{if(submitted)onSubmitted();else onChanged?.();}} onSave={async input=>{
    if(!user?.id)throw new Error('Sign in to update work.');
-   if((canStart||canResume)&&['todo','changes_requested'].includes(task.status))await start();
    await submitProgressUpdate({taskId:task.id,author:{id:user.id,name:userProfile?.full_name||'You'},blockerCategory:input.state==='stuck'?'Other':'None',blocker:input.blocker,note:input.note,nextStep:input.nextStep,attachment:input.files[0]});
 
   }} onSubmit={async input=>{
@@ -29,7 +27,7 @@ export function InspectorExecution({task,subtasks,canStart,canResume,canSubmit,c
    if(!(canSubmit||canStart||canResume))throw new Error('Only the task lead can submit this work.');
    if(!readiness.ready)throw new Error('Wait for the remaining steps to be completed.');
    if(pendingDependencies)throw new Error('Wait for prerequisite task approval before final submission.');
-   await start();await submitTaskForReview(task.id,{note:input.note,attachments:input.files,submitterId:user.id,submitterName:userProfile?.full_name||'You'});
+   await submitTaskForReview(task.id,{note:input.note,attachments:input.files,submitterId:user.id,submitterName:userProfile?.full_name||'You'});
   }}/>
  </div>;
 }

@@ -1,0 +1,10 @@
+{
+  "target": "ixnfphgjyelhckjwjkdv",
+  "migration": "20261102182541_task_multiple_budget_accounts.sql",
+  "sha256": "977c2c212b582ac97b0aebfde0ac8e4910b6a9b1b31effad7e6ed9e1346cffe7",
+  "backup_verified": true,
+  "prior_migrations": 71,
+  "dry_run_only_reviewed_delta": true,
+  "tables_checked": 117,
+  "applied": false
+}

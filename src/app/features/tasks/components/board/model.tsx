@@ -1,3 +1,4 @@
+import {deadlinePresentation} from '../../../../shared/deadlinePresentation';
 import { ListChecks } from "lucide-react";
 import type { Employee } from "../../../../services/employeeService";
 import type { EmployeeNotesMap } from "../../../../services/employeeNotesService";
@@ -374,27 +375,14 @@ export const getDeadlineInfo = (task: Task) => {
   const parsedDeadline = parseTaskDeadline(dl);
   if (!parsedDeadline) return null;
 
-  const diff = parsedDeadline.getTime() - Date.now();
-  const days = Math.ceil(diff / 86400000);
-  if (days < 0)
-    return {
-      label: `${Math.abs(days)}d overdue`,
-      cls: "text-red-600 bg-red-50 border-red-200",
-    };
-  if (days === 0)
-    return {
-      label: "Due today",
-      cls: "text-amber-600 bg-amber-50 border-amber-200",
-    };
-  if (days <= 3)
-    return {
-      label: `${days}d left`,
-      cls: "text-amber-600 bg-amber-50 border-amber-200",
-    };
-  return {
-    label: `${days}d left`,
-    cls: "text-slate-500 bg-slate-50 border-slate-200",
-  };
+  const state = deadlinePresentation(dl, task.status);
+  const cls = {
+    red: 'text-red-700 bg-red-50 border-red-200',
+    yellow: 'text-amber-700 bg-amber-50 border-amber-200',
+    green: 'text-emerald-700 bg-emerald-50 border-emerald-200',
+    neutral: 'text-slate-500 bg-slate-50 border-slate-200',
+  }[state.tone];
+  return {label: state.label, cls};
 };
 
 /**

@@ -1,0 +1,60 @@
+{
+  "target": "ixnfphgjyelhckjwjkdv",
+  "readOnly": true,
+  "roles": [
+    {
+      "role": "accounting_staff",
+      "calendarAvailable": true,
+      "canConfirm": true,
+      "canAdjust": false,
+      "accountCount": 3
+    },
+    {
+      "role": "head",
+      "calendarAvailable": true,
+      "canConfirm": false,
+      "canAdjust": true,
+      "accountCount": 3
+    },
+    {
+      "role": "member",
+      "calendarAvailable": true,
+      "canConfirm": false,
+      "canAdjust": false,
+      "accountCount": 3
+    },
+    {
+      "role": "member",
+      "calendarAvailable": true,
+      "canConfirm": false,
+      "canAdjust": false,
+      "accountCount": 3
+    },
+    {
+      "role": "member",
+      "calendarAvailable": true,
+      "canConfirm": false,
+      "canAdjust": false,
+      "accountCount": 3
+    },
+    {
+      "role": "member",
+      "calendarAvailable": true,
+      "canConfirm": false,
+      "canAdjust": false,
+      "accountCount": 3
+    },
+    {
+      "role": "member",
+      "calendarAvailable": true,
+      "canConfirm": false,
+      "canAdjust": false,
+      "accountCount": 3
+    }
+  ],
+  "publicWrapperSecurityInvoker": true,
+  "anonymousExecute": false,
+  "searchPath": [
+    "search_path=\"\""
+  ]
+}

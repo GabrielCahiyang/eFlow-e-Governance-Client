@@ -1,3 +1,4 @@
+import {subscribeWorkChanges} from '../shared/workChanges';
 // ─── Subtask Service ──────────────────────────────────────────────
 // CRUD + realtime for the subtasks table.
 
@@ -153,58 +154,33 @@ export function subscribeToSubtasks(
     callback(cached);
   }
 
+  let reading=false,refreshQueued=false;
   const load = async () => {
+    if(!currentSubscription())return;
+    if(reading){refreshQueued=true;return;}
+    reading=true;
     try {
-      const items = await fetchTaskSubtasks(taskId);
-      if(currentSubscription())callback(items);
-    } catch (reason) {
+      do {
+        refreshQueued=false;
+        const items=await fetchTaskSubtasks(taskId);
+        if(currentSubscription())callback(items);
+      } while(refreshQueued&&currentSubscription());
+    } catch(reason) {
       if(!currentSubscription())return;
       const error=reason as {code?:string;message?:string};
       if(['42501','PGRST301','PGRST302','PGRST303'].includes(error.code||''))subtaskMemoryCache.delete(taskId);
-      callback(subtaskMemoryCache.get(taskId) || []);
-    }
+      callback(subtaskMemoryCache.get(taskId)||[]);
+    } finally {reading=false;if(refreshQueued&&currentSubscription())void load();}
   };
   void load();
-
-  const channelId = `subtasks-${taskId}-${Math.random().toString(36).substring(2, 9)}`;
-  const channel = supabase
-    .channel(channelId)
-    .on(
-      'postgres_changes',
-      { event: '*', schema: 'public', table: 'subtasks', filter: `task_id=eq.${taskId}` },
-      (payload) => {
-        if(!currentSubscription())return;
-        const current = subtaskMemoryCache.get(taskId) || [];
-        if (payload.eventType === 'INSERT' && payload.new) {
-          const newSubtask = rowToSubtask(payload.new as Record<string, unknown>);
-          if (!current.some((item) => item.id === newSubtask.id)) {
-            const next = [...current, newSubtask].sort((a, b) => a.position - b.position);
-            subtaskMemoryCache.set(taskId, next);
-            callback(next);
-          }
-        } else if (payload.eventType === 'UPDATE' && payload.new) {
-          const updated = rowToSubtask(payload.new as Record<string, unknown>);
-          const next = current
-            .map((item) => (item.id === updated.id ? updated : item))
-            .sort((a, b) => a.position - b.position);
-          subtaskMemoryCache.set(taskId, next);
-          callback(next);
-        } else if (payload.eventType === 'DELETE' && payload.old) {
-          const deletedId = (payload.old as { id?: string })?.id;
-          if (deletedId) {
-            const next = current.filter((item) => item.id !== deletedId);
-            subtaskMemoryCache.set(taskId, next);
-            callback(next);
-          }
-        }
-        void load();
-      },
-    )
-    .subscribe();
-
-  return () => {
-    active=false;
-    void supabase.removeChannel(channel);
+  const stop=subscribeWorkChanges(()=>void load(),taskId);
+  if(typeof window==='undefined')return()=>{active=false;stop();};
+  const visible=()=>{if(document.visibilityState==='visible')void load();};
+  window.addEventListener('focus',load);document.addEventListener('visibilitychange',visible);
+  const timer=window.setInterval(()=>void load(),15000);
+  return()=>{
+    active=false;stop();window.clearInterval(timer);
+    window.removeEventListener('focus',load);document.removeEventListener('visibilitychange',visible);
   };
 }
 

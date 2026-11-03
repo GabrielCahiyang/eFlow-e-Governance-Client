@@ -3,6 +3,7 @@
 
 import { supabase } from '../../lib/supabase';
 import { controlPanelFetch } from '../shared/controlPanelClient';
+import { normalizeWorkUpdateNotification } from '../shared/notificationWorkCopy';
 
 export type NotificationType =
   | 'assignment'
@@ -29,7 +30,10 @@ export type NotificationType =
   | 'petty_cash_liquidation'
   | 'petty_cash_liquidation_changes'
   | 'petty_cash_liquidation_overdue'
-  | 'petty_cash_request_expired';
+  | 'petty_cash_request_expired'
+  | 'project_archive_reminder'
+  | 'project_archive_blocked'
+  | 'project_seal_confirmed';
 
 export interface Notification {
   id: string;
@@ -55,7 +59,7 @@ export interface Notification {
 }
 
 function rowToNotif(row: Record<string, unknown>): Notification {
-  return {
+  return normalizeWorkUpdateNotification({
     id: row.id as string,
     type: (row.type as NotificationType) || 'assignment',
     title: (row.title as string) || '',
@@ -76,7 +80,7 @@ function rowToNotif(row: Record<string, unknown>): Notification {
     financialRecordType: (row.financial_record_type as string) || undefined,
     read: (row.read as boolean) || false,
     createdAt: new Date((row.created_at as string) || Date.now()).getTime(),
-  };
+  });
 }
 
 export function subscribeToNotifications(

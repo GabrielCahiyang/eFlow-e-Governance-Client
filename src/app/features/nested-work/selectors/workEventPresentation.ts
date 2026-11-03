@@ -4,7 +4,7 @@ import {buildWorkDisplayTree} from './displayTree';
 import {descendantIds} from './tree';
 import type {WorkActivityFocus} from './workActivityScope';
 
-export interface WorkEventPresentation {title:string;detail:string}
+export interface WorkEventPresentation {title:string;detail:string;entries:string[]}
 const labels:Record<string,string>={create:'Subtask created',staff:'Subtask people updated',root_lead:'Task Lead transferred',contributors:'Task contributors updated',edit:'Subtask details updated',move:'Subtask moved',order:'Subtasks reordered',delete:'Subtask deleted',progress:'Subtask progress recorded',submit:'Subtask submitted for review',review:'Subtask review recorded'};
 const statuses:Record<string,string>={todo:'To do',in_progress:'In progress',for_review:'For review',changes_requested:'Changes requested',completed:'Completed'};
 export function workEventTitle(command:string):string{return labels[command]||'Work change recorded';}
@@ -77,7 +77,7 @@ export function presentWorkEvent(event:WorkEvent,focus?:WorkActivityFocus):WorkE
   details.push(`Removed ${1+descendantIds(nodes(before),old.id).size} subtask(s)`);
   details.push(`Lead: ${person(before,old.lead_id)}; Contributors: ${people(before,old.assigned_to_ids,old.lead_id)}`);
  }
- if(event.command==='progress'&&next)details.push(`Progress: ${old?`${old.percent_complete}%`:'Unavailable'} → ${next.percent_complete}%`);
+ if(event.command==='progress'&&next)details.push(`Status: ${old?statuses[old.status]||'Unavailable':'Unavailable'} → ${statuses[next.status]||'Unavailable'}`);
  if((event.command==='review'||event.command==='submit')&&next)details.push(`Status: ${old?statuses[old.status]||'Unavailable':'Unavailable'} → ${statuses[next.status]||'Unavailable'}`);
- return {title,detail:details.join(' · ')||'Historical changed fields unavailable'};
+ return {title,detail:details.join(' · ')||'Historical changed fields unavailable',entries:details};
 }

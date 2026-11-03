@@ -1,5 +1,6 @@
 import { supabase } from "../../../../lib/supabase";
 import {readAllRows} from '../../../shared/readAllRows';
+import {subscribeWorkChanges} from '../../../shared/workChanges';
 import { rowToSubtask } from "../../subtasks";
 import {buildSubtaskDisplayMetadata,mergeWorkDisplayMetadata,deduplicateWorkPersonIds,type WorkPerson} from '../../nested-work';
 import type {
@@ -138,13 +139,15 @@ export function subscribeToTeamWorkflowFacts(
   onError: (message: string) => void,
 ): () => void {
   let disposed = false;
+  let sequence = 0;
   let reloadTimer = 0;
   const load = async () => {
+    const run = ++sequence;
     try {
       const facts = await fetchTeamWorkflowFacts(taskIds);
-      if (!disposed) onChange(facts);
+      if (!disposed && run === sequence) onChange(facts);
     } catch (error) {
-      if (!disposed) onError(error instanceof Error ? error.message : "Unable to load team workflow analytics.");
+      if (!disposed && run === sequence) onError(error instanceof Error ? error.message : "Unable to load team workflow analytics.");
     }
   };
   const queueLoad = () => {
@@ -157,9 +160,11 @@ export function subscribeToTeamWorkflowFacts(
   const poll=window.setInterval(queueLoad,15_000);
   window.addEventListener('focus',queueLoad);
   window.addEventListener('eflow-project-access-changed',queueLoad);
+  const stopChanges = subscribeWorkChanges(queueLoad);
 
   return () => {
     disposed = true;
+    stopChanges();
     window.clearTimeout(reloadTimer);
     window.clearInterval(poll);
     window.removeEventListener('focus',queueLoad);

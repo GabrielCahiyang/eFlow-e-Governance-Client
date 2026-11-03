@@ -1,0 +1,23 @@
+{
+  "checked_at_utc": "2026-11-03T09:01:10.754588+00:00",
+  "configuration": {
+    "mode": "live",
+    "chain_id": 80002,
+    "worker_enabled": true,
+    "configured": true,
+    "message": "Amoy publication is configured."
+  },
+  "contract": "0xFF690376c2CA42ce7D64a83b00Cd60723abf470B",
+  "chain_id": 80002,
+  "deployment_finalized": true,
+  "deployment_fee_test_pol": "0.018082110037972431",
+  "fee_cap_test_pol": "0.03",
+  "publisher_balance_test_pol": "0.081917889962027569",
+  "publisher_transactions_after_deployment": 0,
+  "services": {
+    "5173": 200,
+    "8322": 200,
+    "8321": 200
+  },
+  "note": "Read-only receipt, bytecode, publisher, finality and nonce checks. Provider rejected a broad eth_getLogs request; no publication was attempted."
+}

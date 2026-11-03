@@ -1,0 +1,12 @@
+{
+  "target": "ixnfphgjyelhckjwjkdv",
+  "migration": "20261031140336_automatic_office_petty_cash_starting_fund.sql",
+  "sha256": "f7cfff01125838c738b7cc983b8ce831b6bdab3a6150d610a45068a68d74e239",
+  "backup_verified": true,
+  "prior_migrations": 68,
+  "dry_run_only_reviewed_delta": true,
+  "tables_checked": 119,
+  "applied": true,
+  "existing_rows_unchanged": true,
+  "completed_at": "2026-10-31T14:09:59.225930+00:00"
+}

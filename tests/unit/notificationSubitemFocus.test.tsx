@@ -9,6 +9,7 @@ const api=vi.hoisted(()=>({actor:'me',tasks:[] as Task[],read:vi.fn(),record:vi.
 vi.mock('../../src/app/contexts/AuthContext',()=>({useAuth:()=>({user:{id:api.actor},userProfile:{id:api.actor,role:'member'}})}));
 vi.mock('../../src/app/hooks/useSupabaseData',()=>({useTasksData:()=>({tasks:api.tasks,loading:false})}));
 vi.mock('../../src/app/hooks/useFirebaseData',()=>({useTasks:()=>({tasks:api.tasks,loading:false})}));
+vi.mock('../../src/app/shared/workChanges',()=>({subscribeWorkChanges:(refresh:()=>void)=>{api.update=refresh;return api.remove;}}));
 vi.mock('../../src/lib/supabase',()=>({supabase:{from:()=>{const query={select:()=>query,order:()=>query,then:(yes:(value:unknown)=>unknown,no:(error:unknown)=>unknown)=>Promise.resolve(api.read()).then(yes,no)};return query;},channel:()=>{const channel={on:(_kind:unknown,_filter:unknown,update:()=>void)=>{api.update=update;return channel;},subscribe:()=>channel};return channel;},removeChannel:api.remove}}));
 vi.mock('../../src/app/features/subtasks/hooks/useSubtaskReviewerDirectory',()=>({useSubtaskReviewerDirectory:()=>({reviewersById:{},loading:false})}));
 vi.mock('../../src/app/features/task-inspector',()=>({TaskDetailDrawer:()=>null}));
@@ -27,6 +28,14 @@ let uninstall:(()=>void)|undefined;
 beforeEach(()=>{vi.clearAllMocks();api.actor='me';api.tasks=[task];api.read.mockResolvedValue({data:rows(),error:null});api.record.mockImplementation(async(rootId:string,id:string)=>{if(!['eight','sibling','new-node'].includes(id))throw new Error('Subtask unavailable.');return {subtask:{id,taskId:rootId,title:'Same',assignedToIds:[],leadId:'me',status:'todo',percentComplete:20,createdAt:1,updatedAt:1},submissions:[],progressUpdates:[]};});const pending=peekNotificationNavigationIntent();if(pending)completeNotificationNavigationIntent(pending.notificationId);sessionStorage.clear();});
 afterEach(()=>{cleanup();uninstall?.();uninstall=undefined;const pending=peekNotificationNavigationIntent();if(pending)completeNotificationNavigationIntent(pending.notificationId);sessionStorage.clear();});
 describe('NW9.5 canonical notification entrances',()=>{
+ it('keeps assigned subtasks visible during a quiet work refresh and then shows their new status',async()=>{
+  render(<SubtasksWorkspace/>);await screen.findByRole('button',{name:/Same/});
+  let finish!:(value:unknown)=>void;api.read.mockImplementationOnce(()=>new Promise(resolve=>{finish=resolve;}));
+  await act(async()=>api.update!());
+  expect(screen.getByRole('button',{name:/Same/})).toBeTruthy();
+  await act(async()=>finish({data:rows().map(row=>({...row,status:'in_progress'})),error:null}));
+  expect(screen.getByText('in progress')).toBeTruthy();
+ });
  it('opens an appointed Lead-only depth-eight item by ID despite a stale label and forwards the Work origin/section',async()=>{
   queueNotificationNavigationIntent(pointer,'me');render(<SubtasksWorkspace/>);
   // The first Vibe-backed mount can exceed Testing Library's one-second default

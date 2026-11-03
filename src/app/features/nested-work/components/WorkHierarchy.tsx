@@ -58,9 +58,9 @@ export function WorkHierarchy({snapshot,readOnly,executionBlocked,authorityFresh
   add('staff','Choose people',['manage_contributors','appoint_lead']);
   add('create','Add subtask',['create_child']);
   // nodeId names the parent. No displayed/filtered IDs are sent as an order list.
-  add('order','Reorder children',['order_children']);
+  add('order','Reorder subtasks',['order_children']);
   if(node){
-   add('edit','Edit subtask',['edit_details']);add('move','Move',['move']);add('delete','Delete subtree',['delete']);
+   add('edit','Edit subtask',['edit_details']);add('move','Move',['move']);add('delete','Delete subtask',['delete']);
    if(snapshot.root.kind==='personal'){add('progress','Update work',['execute']);add('submit','Mark complete',['submit']);}
   }
   return actions;

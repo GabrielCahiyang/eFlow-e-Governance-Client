@@ -1,0 +1,56 @@
+{
+  "read_only": true,
+  "roles": [
+    {
+      "database_role": "head",
+      "tasks": [
+        {
+          "id": "21d99fdf-aed8-48c4-b956-284d196f1bdd",
+          "status": "in_progress",
+          "subtasks": 2,
+          "completed_subtasks": 2
+        },
+        {
+          "id": "e594c65c-f539-408c-9c65-1299a2b7eb3c",
+          "status": "in_progress",
+          "subtasks": 2,
+          "completed_subtasks": 2
+        }
+      ]
+    },
+    {
+      "database_role": "accounting_staff",
+      "tasks": [
+        {
+          "id": "21d99fdf-aed8-48c4-b956-284d196f1bdd",
+          "status": "in_progress",
+          "subtasks": 2,
+          "completed_subtasks": 2
+        },
+        {
+          "id": "e594c65c-f539-408c-9c65-1299a2b7eb3c",
+          "status": "in_progress",
+          "subtasks": 2,
+          "completed_subtasks": 2
+        }
+      ]
+    },
+    {
+      "database_role": "member",
+      "tasks": [
+        {
+          "id": "21d99fdf-aed8-48c4-b956-284d196f1bdd",
+          "status": "in_progress",
+          "subtasks": 2,
+          "completed_subtasks": 2
+        },
+        {
+          "id": "e594c65c-f539-408c-9c65-1299a2b7eb3c",
+          "status": "in_progress",
+          "subtasks": 2,
+          "completed_subtasks": 2
+        }
+      ]
+    }
+  ]
+}

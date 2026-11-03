@@ -5,10 +5,10 @@ test("shows a loading status before application JavaScript is available", async 
   await page.route(/\/(?:src\/main\.tsx|assets\/index-[\w-]+\.js)(?:\?|$)/,
     route => route.abort());
   await page.goto("/", { waitUntil: "domcontentloaded" });
-  await expect(page.getByRole("status")).toHaveText("Getting things ready");
+  await expect(page.getByRole("status")).toHaveText("Getting things done");
   await expect(page.getByRole("status")).toBeVisible();
   await expect(page.getByRole("img", { name: "eFlow", exact: true })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Getting things ready" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Getting things done" })).toBeVisible();
   await expect(page.locator('.eflow-loading')).toHaveCSS('background-color','rgb(255, 255, 255)');
   await expect(page.getByText('LGU Ormoc City',{exact:true})).toHaveCount(0);
   await expect(page.getByText('Loading eFlow…',{exact:true})).toHaveCount(0);

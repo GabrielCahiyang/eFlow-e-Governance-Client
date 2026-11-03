@@ -11,7 +11,7 @@ vi.mock("../../src/app/features/subtasks/components/SubtaskEvidenceLink", () => 
 import { SubtaskProgressHistory } from "../../src/app/features/subtasks/components/SubtaskProgressHistory";
 
 describe("leader subtask progress history", () => {
-  it("shows employee notes, blocker details, next step, attachment, and percentage", () => {
+  it("shows employee notes, blocker details, next step and attachment without percentages", () => {
     render(createElement(SubtaskProgressHistory, {
       updates: [{
         id: "progress-1",
@@ -31,8 +31,8 @@ describe("leader subtask progress history", () => {
     }));
 
     expect(screen.getByText("Gabriel Cahiyang")).toBeTruthy();
-    expect(screen.getByText("50%")).toBeTruthy();
-    expect(screen.getByText('Recorded progress value').closest('details')?.open).toBe(false);
+    expect(screen.queryByText("50%")).toBeNull();
+    expect(screen.queryByText('Recorded progress value')).toBeNull();
     expect(screen.getByText('Stuck')).toBeTruthy();
     expect(screen.getByText("Draft agenda is complete")).toBeTruthy();
     expect(screen.getByText(/Needs signed attendance sheet/)).toBeTruthy();

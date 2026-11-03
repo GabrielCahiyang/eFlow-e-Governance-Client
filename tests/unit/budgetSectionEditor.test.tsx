@@ -12,13 +12,13 @@ it("adds, renames, changes, breaks down and deletes custom sections with an imme
     return <><output aria-label="Total Budget">{sectionTotal(sections)}</output><BudgetSectionEditor sections={sections} onChange={setSections} disabled={false}/></>;
   }
   render(<Harness/>);
-  fireEvent.click(screen.getByText("Add section"));
-  fireEvent.change(screen.getByLabelText(/^Section name/),{target:{value:"My custom budget"}});
+  fireEvent.click(screen.getByText("Add account"));
+  fireEvent.change(screen.getByLabelText(/^Account name/),{target:{value:"My custom budget"}});
   fireEvent.change(screen.getByLabelText("Budget amount My custom budget"),{target:{value:"300000"}});
   expect(screen.getByLabelText("Total Budget").textContent).toBe("300000");
   fireEvent.click(screen.getByText("Add breakdown"));
   expect(screen.getByLabelText("Budget amount Undistributed balance")).toBeTruthy();
   expect(screen.getByLabelText("Total Budget").textContent).toBe("300000");
-  fireEvent.click(screen.getByText("Delete section and breakdown"));
+  fireEvent.click(screen.getByText("Delete account and breakdown"));
   expect(screen.getByLabelText("Total Budget").textContent).toBe("0");
 });

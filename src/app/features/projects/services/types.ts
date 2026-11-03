@@ -29,6 +29,7 @@ export interface Project {
   startDate?: string;
   targetDate?: string;
   archivedAt?: number;
+  completedAt?: string;
   createdBy?: string;
   createdAt: number;
   updatedAt: number;

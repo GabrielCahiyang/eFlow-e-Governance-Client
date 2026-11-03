@@ -4,6 +4,7 @@ vi.mock('../../src/lib/supabase',()=>({supabase:{rpc:api.rpc,from:()=>{const que
 vi.mock('../../src/app/features/tasks',()=>({notifyTaskListeners:api.taskNotify}));
 vi.mock('../../src/app/features/projects',()=>({notifyProjectListeners:api.projectNotify}));
 vi.mock('../../src/app/features/ai',()=>({requestAiChat:vi.fn(),readAiText:vi.fn()}));
+vi.mock('../../src/app/shared/workChanges',()=>({subscribeWorkChanges:(refresh:()=>void)=>{api.payload=()=>refresh();return api.remove;}}));
 import {applySubtaskTemplate,saveSubtaskTemplate} from '../../src/app/features/work-templates/services/subtaskTemplateService';
 import {importReviewedProject,importReviewedProjectWithOffices,ProjectImportSaveError} from '../../src/app/features/project-import/services/projectImportService';
 import {clearSubtaskCache,fetchTaskSubtasks,fetchSubtasksForTasks,getCachedSubtasks,setCachedSubtasks,setSubtaskDueDate,subscribeToSubtasks,type Subtask} from '../../src/app/services/subtaskService';

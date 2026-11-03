@@ -25,7 +25,7 @@ import { TeamSupervision } from "./components/TeamSupervision";
 import { useAuth } from "../../contexts/AuthContext";
 import { getHeadWorkspaceLabel } from "../../shared/roles";
 import { OfficeBudgetWorkspace } from "../budget";
-import { OfficeIdentityAccessWorkspace } from "../team-management";
+import { EmployeeAnalyticsWorkspace, OfficeIdentityAccessWorkspace } from "../team-management";
 import { OfficeTeamWorkspace } from "../office-team";
 
 export function HeadTaskBoard() {
@@ -97,6 +97,7 @@ export const headPages: RolePageSections = {
     "For Review": ForReviewInbox,
   },
   team: {
+    "Analytics": EmployeeAnalyticsWorkspace,
     "Team Supervision": TeamSupervision,
     "Office Team": OfficeTeamWorkspace,
   },
@@ -104,6 +105,7 @@ export const headPages: RolePageSections = {
     "Identity & Access": OfficeIdentityAccessWorkspace,
   },
   intelligence: {
+    "Analytics": EmployeeAnalyticsWorkspace,
     "Team Intelligence": EmployeeInsights,
   },
   reports: {
@@ -122,9 +124,9 @@ export const headDefaultPages: Record<string, string> = {
   budget: "Office Budget",
   subtasks: "My Subtasks",
   reviews: "For Review",
-  team: "Team Supervision",
+  team: "Analytics",
   identity: "Identity & Access",
-  intelligence: "Team Intelligence",
+  intelligence: "Analytics",
   reports: "Reports",
   announcements: "Announcements",
 };

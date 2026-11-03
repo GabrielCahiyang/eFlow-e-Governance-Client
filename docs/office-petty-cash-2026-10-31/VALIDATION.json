@@ -1,0 +1,24 @@
+{
+  "target": "ixnfphgjyelhckjwjkdv",
+  "installed_database_assertions": 34,
+  "database_test_writes_rolled_back": true,
+  "focused_office_cash_ui_tests_passed": 5,
+  "navigation_tests_passed_after_updated_view_contract": 3,
+  "regression_followup_files_passed": 5,
+  "regression_followup_tests_passed": 44,
+  "typescript_check": "passed",
+  "production_build": "passed; chunk-size warnings only",
+  "diff_whitespace_check": "passed",
+  "graph_refresh": "completed: 11154 nodes, 36602 edges; four existing partial-extraction warnings",
+  "full_suite_initial": {"files_passed":353,"files_failed":10,"tests_passed":2156,"tests_failed":11,"empty_suite_error":true},
+  "full_suite_followup": "Two navigation expectations updated for the new view/task-cash label and now pass. Five failing/timed-out tests in featureWorkspaceBoundaries, nestedWorkAdvisoryAppointment, nestedWorkStaffing, workspaceRefinementMembers and workspaceRefinementR13Artifact pass in a single-worker followup (44 tests across five files). No final complete full-suite rerun.",
+  "remaining_unresolved_full_suite_results": [
+    "subitemReviewDetail.test.tsx contains a suite with no tests",
+    "nestedWorkHierarchy.test.tsx expects the earlier subtask table header order",
+    "projectSubitems.test.tsx expects the earlier subtask table header order",
+    "nestedWorkCollapsedReadiness.test.tsx had two 5-second timeouts in the full concurrent run; not rerun"
+  ],
+  "browser_upload_and_physical_cash_verification": "manual; not claimed as automated acceptance",
+  "opening_cash_seeded": false,
+  "existing_public_data_preserved_on_deployment": true
+}

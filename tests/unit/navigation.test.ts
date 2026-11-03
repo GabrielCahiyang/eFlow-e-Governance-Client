@@ -17,7 +17,7 @@ describe("role navigation compatibility", () => {
     expect(departmentHead.navItems.some((item) => item.id === "leading")).toBe(false);
 
     const employee = getRoleNavigation("member");
-    expect(employee.defaultSection).toBe("personal_work");
+    expect(employee.defaultSection).toBe("dashboard");
     expect(employee.navItems.map((item) => item.id)).toEqual([
       "tasks", "projects", "subtasks", "reviews", "deadlines", "history",
       "performance", "reports", "announcements",

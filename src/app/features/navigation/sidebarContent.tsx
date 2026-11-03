@@ -25,17 +25,18 @@ export function getSidebarContent(
   if (section === "settings") return settingsContent;
   if ((role === "head" || role === "dept_head") && section === "team")
     return {
-      title: "Office Team",
+      title: "Analytics",
       sections: [
         {
           title: "People",
           items: [
-            { label: "Team Supervision", isActive: true },
+            { label: "Analytics", isActive: true },
             { label: "Office Team" },
           ],
         },
       ],
     };
+  if(role==='head'&&section==='intelligence')return {title:'Analytics',sections:[{title:'Insights',items:[{label:'Analytics',isActive:true}]}]};
 
   if (role === "admin" && section === "users")
     return {

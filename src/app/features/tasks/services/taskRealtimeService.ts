@@ -3,11 +3,14 @@ import {readAllRows} from '../../../shared/readAllRows';
 import type { Task } from "../taskTypes";
 import { rowToTask } from "./taskMapper";
 import { registerAuthCacheReset } from '../../../shared/authCacheReset';
+import {subscribeWorkChanges} from '../../../shared/workChanges';
 
 const taskListeners = new Set<(tasks: Task[]) => void>();
 const taskErrorListeners = new Set<(error: Error) => void>();
 let taskCache: Task[] | null = null;
 let taskLoadPromise: Promise<void> | null = null;
+let reloadQueued=false;
+let stopWorkChanges:(()=>void)|undefined;
 const ACCESS_EVENT='eflow-project-access-changed';
 if(typeof window!=='undefined') {
   const refreshActive = () => { if(taskListeners.size)void notifyTaskListeners(); };
@@ -30,9 +33,11 @@ function broadcastTasks(tasks: Task[]) {
 }
 
 export async function notifyTaskListeners() {
-  if (taskLoadPromise) return taskLoadPromise;
+  if (taskLoadPromise) {reloadQueued=true;return taskLoadPromise;}
   const generation=cacheGeneration;
   taskLoadPromise = (async () => {
+    do {
+    reloadQueued=false;
     const data = await readAllRows<Record<string,unknown>>((from,to)=>supabase
       .from('tasks')
       .select('*',{count:'exact'})
@@ -41,6 +46,7 @@ export async function notifyTaskListeners() {
     if (data && generation===cacheGeneration) {
       broadcastTasks(data.map(rowToTask));
     }
+    } while(reloadQueued&&generation===cacheGeneration);
   })()
     .catch((error) => {
       if(generation!==cacheGeneration)return;
@@ -101,6 +107,7 @@ export const seedTasksIfEmpty = async () => {
 
 export const subscribeToTasks = (callback: (tasks: Task[]) => void, onError?: (error: Error) => void) => {
   taskListeners.add(callback);
+  stopWorkChanges??=subscribeWorkChanges(()=>void notifyTaskListeners());
   if(!accessRefreshTimer)accessRefreshTimer=setInterval(()=>void notifyTaskListeners(),15_000);
   if (onError) taskErrorListeners.add(onError);
   if (taskCache) callback(taskCache);
@@ -110,6 +117,7 @@ export const subscribeToTasks = (callback: (tasks: Task[]) => void, onError?: (e
 
   return () => {
     taskListeners.delete(callback);
+    if(!taskListeners.size){stopWorkChanges?.();stopWorkChanges=undefined;}
     if (onError) taskErrorListeners.delete(onError);
     if(taskListeners.size===0&&accessRefreshTimer){clearInterval(accessRefreshTimer);accessRefreshTimer=null;}
   };

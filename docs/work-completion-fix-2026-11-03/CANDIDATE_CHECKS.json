@@ -1,0 +1,21 @@
+{
+  "rollback_only": true,
+  "count": 15,
+  "checks": [
+    "contributor cannot submit parent when recommendation is empty",
+    "current lead can submit parent for project-lead review",
+    "not-started work starts and submits atomically",
+    "stale AI recommendation cannot submit the current lead work",
+    "task lead can attach evidence to a delegated subtask",
+    "task lead completes delegated subtask with evidence",
+    "completion notification reports status without numeric progress",
+    "all completion attachments are preserved and sealed",
+    "multiple evidence files and retry send only one completion notification",
+    "text update notification uses the note rather than zero percent",
+    "notification points to the exact subtask",
+    "blocker is described without a completion percentage",
+    "contributor cannot complete another lead subtask",
+    "unfinished subtasks still block parent submission",
+    "all deferred workflow and financial guards pass"
+  ]
+}

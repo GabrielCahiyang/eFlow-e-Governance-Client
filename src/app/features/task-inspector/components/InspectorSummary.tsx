@@ -1,13 +1,14 @@
-import { Calendar, Info, Layers } from 'lucide-react';
-import type { Task } from '../../tasks';
-import { ProgressBar, formatDate, relativeDays } from '../../../components/workflow/primitives';
+import { Building2, Calendar, CalendarDays, Clock3, FolderKanban, Info, Layers } from 'lucide-react';
+import { TaskDepartmentLabel, type Task } from '../../tasks';
+import { formatDate } from '../../../components/workflow/primitives';
+import { TaskStatusBadge, PriorityPill } from '../../../components/workflow/StatusBadges';
+import { DeadlineBadge } from '../../../components/ui/DeadlineBadge';
 import { WorkBudgetCard } from '../../budget';
 import {supportsNestedWork} from '../../nested-work';
-export function InspectorSummary({task, projectTitle, readOnly, dependencies, canManageSubtasks, overdue,canAuthorizeFunding=false,authorityPending=false,fundingTask,budgetReadOnly}: {task: Task; projectTitle?: string; readOnly: boolean; dependencies: Task[]; canManageSubtasks: boolean; overdue: boolean;canAuthorizeFunding?:boolean;authorityPending?:boolean;fundingTask?:Task;budgetReadOnly?:boolean}) {
+import './taskOverview.css';
+export function InspectorSummary({task, projectTitle, readOnly, dependencies, canManageSubtasks,rejected,canAuthorizeFunding=false,authorityPending=false,fundingTask,budgetReadOnly}: {task: Task; projectTitle?: string; readOnly: boolean; dependencies: Task[]; canManageSubtasks: boolean; overdue: boolean;rejected?:boolean;canAuthorizeFunding?:boolean;authorityPending?:boolean;fundingTask?:Task;budgetReadOnly?:boolean}) {
  const unresolvedDependencies = dependencies.filter(t => t.status !== 'completed');
- const percent = task.status==='completed'?100:0;
- const rel = relativeDays(task.deadline || task.dueDate);
- return <section aria-label="Task overview" className="space-y-4">              {readOnly && (
+ return <section aria-label="Task overview" className="task-overview">              {readOnly && (
                 <div className="flex items-start gap-2.5 rounded-xl border border-blue-100 bg-blue-50/70 p-3">
                   <Info size={15} className="mt-0.5 shrink-0 text-blue-600" />
                   <div>
@@ -16,17 +17,25 @@ export function InspectorSummary({task, projectTitle, readOnly, dependencies, ca
                   </div>
                 </div>
               )}
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <InspectorField icon={<Calendar size={13} />} label="Deadline" value={formatDate(task.deadline || task.dueDate)} hint={rel.label} hintTone={rel.overdue ? "bad" : undefined} />
-                {task.startDate && <InspectorField icon={<Calendar size={13}/>} label="Start date" value={formatDate(task.startDate)}/>}
-                {task.estimatedHours != null && <InspectorField icon={<Layers size={13}/>} label="Estimated hours" value={String(task.estimatedHours)}/>}
-                {(projectTitle || task.projectTitle) && <InspectorField icon={<Layers size={13}/>} label="Project" value={projectTitle || task.projectTitle || "—"}/>}
-                {task.programTitle && <InspectorField icon={<Layers size={13}/>} label="Program" value={task.programTitle}/>}
+              <div className="task-overview__summary">
+                <div className="task-overview__heading">
+                  <h2>Task overview</h2>
+                  <div className="task-overview__office"><Building2 size={15} aria-hidden="true"/><TaskDepartmentLabel task={task}/></div>
+                </div>
+                <div className="task-overview__state">
+                  <div><span>Status</span><TaskStatusBadge status={task.status} rejected={rejected}/></div>
+                  <div><span>Priority</span><PriorityPill priority={task.priority}/></div>
+                </div>
+                <div className="task-overview__facts">
+                  <InspectorField icon={<CalendarDays size={16} aria-hidden="true"/>} label="Deadline" value={<DeadlineBadge value={task.deadline || task.dueDate} status={task.status}/>}/>
+                  <InspectorField icon={<Calendar size={16} aria-hidden="true"/>} label="Start date" value={task.startDate ? formatDate(task.startDate) : 'Not set'}/>
+                  <InspectorField icon={<FolderKanban size={16} aria-hidden="true"/>} label="Project" value={projectTitle || task.projectTitle || 'No linked project'}/>
+                  {task.estimatedHours != null && <InspectorField icon={<Clock3 size={16} aria-hidden="true"/>} label="Estimated hours" value={String(task.estimatedHours)}/>}
+                  {task.programTitle && <InspectorField icon={<Layers size={16} aria-hidden="true"/>} label="Program" value={task.programTitle}/>}
+                </div>
               </div>
               {task.description && (
-                <div className="text-[13px] font-normal text-neutral-700 leading-relaxed whitespace-pre-wrap">
-                  {task.description}
-                </div>
+                <section className="task-overview__description" aria-label="Task description"><h3>Description</h3><p>{task.description}</p></section>
               )}
 
               {task.status === "cancelled" && (
@@ -65,14 +74,6 @@ export function InspectorSummary({task, projectTitle, readOnly, dependencies, ca
                 </div>
               )}
 
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-[11px] font-medium uppercase tracking-wider text-neutral-400">Progress</span>
-                  <span className="text-[12px] font-semibold text-neutral-900 tabular-nums">{percent}%</span>
-                </div>
-                <ProgressBar value={percent} tone={percent === 100 ? "good" : overdue ? "bad" : "neutral"} />
-              </div>
-
               <WorkBudgetCard task={fundingTask||task} canManage={canManageSubtasks} canAuthorizeFunding={canAuthorizeFunding} readOnly={supportsNestedWork(task)?(budgetReadOnly??readOnly):false} authorityPending={authorityPending}/>{(task.dependencyIds?.length || 0) > dependencies.length && <p role="status" className="text-sm text-amber-700">Some dependencies are unavailable. Their completion cannot be verified here.</p>}</section>;
 }
 
@@ -85,16 +86,16 @@ export function InspectorField({
 }: {
   icon: React.ReactNode;
   label: string;
-  value: string;
+  value: React.ReactNode;
   hint?: string;
   hintTone?: "bad";
 }) {
   return (
-    <div>
+    <div className="inspector-field">
       <div className="flex items-center gap-1 text-[10.5px] font-medium uppercase tracking-wider text-neutral-400 mb-0.5">
         {icon} {label}
       </div>
-      <div className="text-[12.5px] font-medium text-neutral-900 truncate">{value}</div>
+      <div className="inspector-field__value text-[12.5px] font-medium text-neutral-900">{value}</div>
       {hint && (
         <div className={`text-[10.5px] font-normal ${hintTone === "bad" ? "text-red-600" : "text-neutral-400"}`}>
           {hint}

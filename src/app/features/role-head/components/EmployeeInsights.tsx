@@ -1,1 +1,2 @@
-export { TeamIntelligenceWorkspace as EmployeeInsights } from "../../team-management/components/intelligence/TeamIntelligenceWorkspace";
+import {EmployeeAnalyticsWorkspace} from '../../team-management';
+export function EmployeeInsights(){return <EmployeeAnalyticsWorkspace initialView="health"/>;}

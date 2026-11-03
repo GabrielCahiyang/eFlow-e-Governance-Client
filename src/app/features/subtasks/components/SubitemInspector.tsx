@@ -11,6 +11,7 @@ import {getSubtaskPrerequisite} from '../selectors/sequencing';
 import {SubitemContext} from './SubitemContext';
 import {SubitemChildWork} from './SubitemChildWork';
 import {SubitemWorkflow} from './SubitemWorkflow';
+import {SubtaskLoadState} from './SubtaskLoadState';
 import {selectSubitemInspectorCapabilities} from '../selectors/inspectorCapabilities';
 
 export interface SubitemInspectorProps {
@@ -38,8 +39,9 @@ function SubitemInspectorContent(props:SubitemInspectorProps&{controller:WorkTre
  const scopeReadOnly=!!props.readOnly||!!props.rootTask.archivedAt||!!props.rootTask.proposedOfficeIdentityId||['completed','cancelled'].includes(props.rootTask.status)||!data.fresh||!scopeMatches;
  const context=tree?{actorId:user?.id||null,rootId:props.rootTask.id,projectId:tree.root.project,officeId:tree.root.office,kind:tree.root.kind,revision:tree.revision,readOnly:scopeReadOnly,executionBlocked:!!props.executionBlocked}:undefined;
  const reviewNode=(id:string)=>openItem(id);
- if(!node||!tree||!data.data||!scopeMatches)return <><InspectorSurface presentation="page" open onClose={close} ariaLabel="Subtask unavailable" layer={60} className="w-full sm:w-[460px]" returnFocus={origin.returnFocus} onReturnFocus={origin.restoreFocus}>
-  <div className="p-4 space-y-3"><h2>{data.loading?'Loading subtask…':'Subtask unavailable'}</h2><p role={data.error||tree&&!scopeMatches?'alert':'status'}>{data.error||(tree&&!scopeMatches?'Subtask unavailable in this project or Office.':'Verifying current subtask context.')}</p><button type="button" onClick={()=>void data.reload()}>Retry subtask</button><button type="button" onClick={close}>Close subtask detail</button></div>
+ const loadError=data.error||(tree&&!scopeMatches?'Subtask unavailable in this project or Office.':'');
+ if(!node||!tree||!data.data||!scopeMatches)return <><InspectorSurface presentation="page" open onClose={close} ariaLabel={data.loading&&!loadError?'Loading subtask':'Subtask unavailable'} layer={60} className="w-full sm:w-[460px]" returnFocus={origin.returnFocus} onReturnFocus={origin.restoreFocus}>
+  <SubtaskLoadState loading={data.loading&&!loadError} error={loadError} onRetry={()=>void data.reload()} onClose={close}/>
  </InspectorSurface></>;
  const current:Subtask={...data.data.subtask,title:node.title,parentSubtaskId:node.parent_subtask_id||undefined,leadId:node.lead_id||undefined,
   assignedToIds:node.assigned_to_ids,siblingOrder:node.sibling_order,dueDate:node.due_date||undefined,isStandalone:node.is_standalone,status:node.status,isCompleted:node.status==='completed',percentComplete:node.percent_complete};
@@ -56,7 +58,7 @@ function SubitemInspectorContent(props:SubitemInspectorProps&{controller:WorkTre
   <div className="task-page__body subitem-page-body">
    <div hidden={section!=='work'} className="subitem-work-layout"><main><SubitemWorkflow task={fundingTask} subtask={current} prerequisite={prerequisite} capabilities={capabilities} pending={data.pending} submissions={data.data.submissions} progressUpdates={data.data.progressUpdates} onSaved={reload} onReview={()=>reviewNode(itemId)}/></main>
    <section className="subitem-child-work"><SubitemChildWork itemId={itemId} controller={props.controller} readOnly={scopeReadOnly} executionBlocked={!!props.executionBlocked} onOpenItem={openItem} onReviewItem={reviewNode}/></section></div>
-   {section==='activity'&&<section aria-label="Subtask activity"><h3>Activity</h3><WorkActivity roots={[props.rootTask.id]} focusedNode={{rootId:props.rootTask.id,nodeId:itemId}} snapshot={data.tree}/></section>}
+   {section==='activity'&&<section aria-label="Subtask activity"><WorkActivity roots={[props.rootTask.id]} focusedNode={{rootId:props.rootTask.id,nodeId:itemId}} snapshot={data.tree}/></section>}
   </div>
  </InspectorSurface>;
 }

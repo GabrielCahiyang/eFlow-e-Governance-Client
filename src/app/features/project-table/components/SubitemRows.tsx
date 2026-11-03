@@ -1,3 +1,4 @@
+import {DeadlineBadge} from '../../../components/ui/DeadlineBadge';
 import { getPhilippineCalendarDate, scheduledDateError } from '../../../shared/calendarDates';
 import {supportsNestedWork,type WorkTreeController} from '../../nested-work';
 import { useState } from 'react';
@@ -49,7 +50,7 @@ function LegacySubitemRows({ task, subtasks, columns, profiles, canAdd, readOnly
               </div></td>
               <td className="pt-subitem-owner" title={owners || 'Unassigned'}>{owners || 'Unassigned'}</td>
               <td className="pt-subitem-status" style={{ background: STATUS_COLORS[subtask.status] }}>{TASK_STATUS_LABELS[subtask.status]}</td>
-              <td>{subtask.dueDate ? <time dateTime={subtask.dueDate}>{subtask.dueDate}</time> : 'No due date'}</td>
+              <td><DeadlineBadge value={subtask.dueDate} status={subtask.status}/></td>
               <td>{subtask.percentComplete}%</td>
             </tr>;
           })}

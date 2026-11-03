@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { CheckCircle2, Loader2, Sparkles } from "lucide-react";
 import type { Employee, EmployeeNote } from "../../../members";
 import { updateEmployeeNotes } from "../../../members";
+import {useExplicitDraft} from '../../../../shared/useExplicitDraft';
 
 interface NoteDraft {
   strengths: string;
@@ -34,6 +35,7 @@ export function EmployeeCoachingEditor({
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
   const previousEmployee = useRef(employee.id);
+  useExplicitDraft('Employee coaching notes',dirty,saving,()=>{setDraft(noteToDraft(note,storedSkills));setDirty(false);},employee.id);
 
   useEffect(() => {
     const employeeChanged = previousEmployee.current !== employee.id;

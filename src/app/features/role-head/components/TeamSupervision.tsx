@@ -1,1 +1,1 @@
-export { TeamSupervisionWorkspace as TeamSupervision } from "../../team-management/components/supervision/TeamSupervisionWorkspace";
+export { EmployeeAnalyticsWorkspace as TeamSupervision } from "../../team-management";

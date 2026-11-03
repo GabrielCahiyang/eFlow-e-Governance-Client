@@ -94,7 +94,7 @@ describe('R2 scoped preferences and compatibility', () => {
       window.history.replaceState({},'',path);
       expect(readNavigationLocation(role,initial).section).toBe(path==='/home'&&role!=='admin'?'dashboard':getDefaultSection(role));
     }
-    expect(getDefaultSection(role)).toBe({head:'dashboard',member:'personal_work',accounting_staff:'accounting_overview',admin:'users'}[role]);
+    expect(getDefaultSection(role)).toBe({head:'dashboard',member:'dashboard',accounting_staff:'accounting_overview',admin:'users'}[role]);
   });
   it('keeps Accounting operational notification IDs while denying an Admin project handoff', () => {
     const notification = {id:'n',type:'task_assigned',title:'Task assigned',message:'',taskId:'t',projectId:'p'} as Parameters<typeof resolveNotificationDestination>[0];

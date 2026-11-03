@@ -1,0 +1,69 @@
+{
+  "before": [
+    {
+      "name": "rls_enabled_no_policy",
+      "count": 33
+    },
+    {
+      "name": "extension_in_public",
+      "count": 1
+    },
+    {
+      "name": "anon_security_definer_function_executable",
+      "count": 81
+    },
+    {
+      "name": "authenticated_security_definer_function_executable",
+      "count": 196
+    },
+    {
+      "name": "auth_leaked_password_protection",
+      "count": 1
+    }
+  ],
+  "after": [
+    {
+      "name": "rls_enabled_no_policy",
+      "count": 37
+    },
+    {
+      "name": "extension_in_public",
+      "count": 1
+    },
+    {
+      "name": "anon_security_definer_function_executable",
+      "count": 81
+    },
+    {
+      "name": "authenticated_security_definer_function_executable",
+      "count": 196
+    },
+    {
+      "name": "auth_leaked_password_protection",
+      "count": 1
+    }
+  ],
+  "newFindings": [
+    {
+      "name": "rls_enabled_no_policy",
+      "level": "INFO",
+      "detail": "Table \\`eflow_office_cash.commands\\` has RLS enabled, but no policies exist"
+    },
+    {
+      "name": "rls_enabled_no_policy",
+      "level": "INFO",
+      "detail": "Table \\`eflow_office_cash.events\\` has RLS enabled, but no policies exist"
+    },
+    {
+      "name": "rls_enabled_no_policy",
+      "level": "INFO",
+      "detail": "Table \\`eflow_office_cash.funds\\` has RLS enabled, but no policies exist"
+    },
+    {
+      "name": "rls_enabled_no_policy",
+      "level": "INFO",
+      "detail": "Table \\`eflow_office_cash.requests\\` has RLS enabled, but no policies exist"
+    }
+  ],
+  "note": "Four new INFO findings intentionally reflect RLS-protected private tables with no direct client grants/policies. No new WARN/ERROR findings."
+}

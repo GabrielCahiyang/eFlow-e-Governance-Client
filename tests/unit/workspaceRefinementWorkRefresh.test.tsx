@@ -41,6 +41,16 @@ afterEach(() => {
   vi.resetAllMocks();
 });
 describe("R10 access-sensitive feed lifecycle", () => {
+  it.each(['head','accounting_staff','member'])('refreshes Leading work for %s without hiding the list or pressing Refresh',async role=>{
+    api.load.mockResolvedValueOnce(data);
+    const view=renderHook(()=>useWorkFeed(role));await waitFor(()=>expect(view.result.current.data).toEqual(data));
+    const next=pending();api.load.mockReturnValueOnce(next.promise);
+    act(()=>window.dispatchEvent(new Event('eflow:work-updated')));
+    await waitFor(()=>expect(api.load).toHaveBeenCalledTimes(2));
+    expect(view.result.current.loading).toBe(false);expect(view.result.current.data).toEqual(data);
+    await act(async()=>next.resolve({...data,rows:[{key:'old',status:'in_progress'}]}));
+    expect(view.result.current.data?.rows[0].status).toBe('in_progress');
+  });
   const item=():WorkRow=>({key:'office-node:deep',id:'deep',rootId:'root',title:'Same',kind:'office-node',projectTitle:'Project',workspaceName:'Office',
     timezone:'Asia/Singapore',status:'todo',due:'2026-10-21',progress:10,mine:true,leading:true,actionable:true,history:false,relation:'Subtask Lead',
     task:{id:'root',title:'Root',status:'todo',linkedProjectId:'project',orgId:'office',assigneeId:'other',createdAt:1,updatedAt:1}});

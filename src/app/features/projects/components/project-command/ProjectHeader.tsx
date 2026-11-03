@@ -32,6 +32,7 @@ export function ProjectHeader({ project, organizations, profiles=[], metrics, ed
       {utilities}
     </div>
     {closed && <p role="status">{project.status === 'archived' ? 'Archived' : 'Completed'} project details are read-only. History and reports remain available.</p>}
+    {project.status==='completed'&&project.completedAt&&<p role="status">Auto-archive: {new Date(new Date(project.completedAt).getTime()+30*86400000).toLocaleString('en-PH',{timeZone:'Asia/Manila',dateStyle:'medium',timeStyle:'short'})} PHT. You can archive sooner. Blockchain publication stays manual.</p>}
     <span className="sr-only" aria-live="polite">{titleNotice}</span>
   </header>;
 }

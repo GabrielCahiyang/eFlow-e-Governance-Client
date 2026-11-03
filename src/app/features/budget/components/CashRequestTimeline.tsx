@@ -19,6 +19,7 @@ import {
 import { peso, StatusPill } from "./budgetUi";
 import { CashLiquidationDialog } from "./CashLiquidationDialog";
 import { isLiquidationCurrentlyOverdue } from "../selectors/cashWorkflowRules";
+import {LiquidationStageNotice} from './LiquidationStageNotice';
 
 export function CashRequestTimeline({
   data,
@@ -198,6 +199,7 @@ export function CashRequestTimeline({
               Operational endorsement → fiscal authorization → release →
               receipts and return
             </div>
+            <LiquidationStageNotice request={request} liquidation={latest}/>
             {["rejected", "leader_changes_requested", "department_changes_requested"].includes(request.status) &&
               (request.departmentDecisionReason || request.leaderDecisionReason || request.approvalReason) && (
                 <p className="mt-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-[12px] text-amber-900">

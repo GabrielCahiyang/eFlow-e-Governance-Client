@@ -42,6 +42,7 @@ const destinationIcons: Record<string, LucideIcon> = {
   'Office Team': Contact,
   'Identity & Access': KeyRound,
   'Team Intelligence': BrainCircuit,
+  'Analytics': ChartNoAxesCombined,
   'My Tasks': SquareCheckBig,
   'Task Board': SquareCheckBig,
   'My Subtasks': GitBranch,

@@ -44,6 +44,9 @@ export async function saveWorkTree(root:string,request:WorkRequest):Promise<Work
  // command outcome if a secondary read fails or issuing another mutation.
  if(data.root.kind==='office'&&['root_lead','contributors'].includes(request.command))
   await Promise.allSettled([import('../../tasks').then(({notifyTaskListeners})=>notifyTaskListeners())]);
+ // Assigned work owns a separate read model. Notify it only after a verified
+ // mutation receipt, including child staffing, execution and completion.
+ if(typeof window!=='undefined')window.dispatchEvent(new Event('eflow:work-updated'));
  return data as WorkTreeSnapshot;
 }
 

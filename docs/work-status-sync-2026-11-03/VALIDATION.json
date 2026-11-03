@@ -1,0 +1,27 @@
+{
+  "target": "ixnfphgjyelhckjwjkdv",
+  "date": "2026-11-03",
+  "typescript": "passed",
+  "production_build": "passed; existing chunk/import warnings retained",
+  "graph_update": "passed; four existing partial parser warnings retained",
+  "installed_database_checks": {"passed":17,"rollback_only":true,"receipt":"INSTALLED_CHECKS.json"},
+  "live_readback": {"roles":["Head Cheryl","Task Lead/Accounting Gabriel","Member Crisostomo"],"tasks_checked":2,"receipt":"LIVE_READBACK.json"},
+  "desktop": {"passed":3,"roles":["head","accounting_staff","member"],"viewport":{"width":1440,"height":1000},"synthetic_api_and_realtime":true},
+  "focused_unit_files": {
+    "workChanges":2,
+    "workStatusRefresh":2,
+    "workStatusReadConsistency":4,
+    "personalWorkStatusConsistency":3,
+    "workspaceRefinementWorkRefresh":9,
+    "workspaceRefinementR13TaskFocus":1,
+    "subtaskCache":4,
+    "nestedWorkDraftRecovery":28,
+    "notificationSubitemFocus":13,
+    "inspectorAtomicSubmission":4,
+    "nestedWorkLegacyServices":12
+  },
+  "focused_unit_passes_across_batches":82,
+  "initial_full_suite": {"passed":2240,"failed":22,"passing_files":367,"failing_files":15,"not_a_green_release_gate":true,"note":"Four status-related compatibility failures corrected and verified in focused checks; older UI expectations and parallel timing failures remain documented in README.md. Full suite not repeated."},
+  "hosted_realtime_tables":["tasks","subtasks","subtask_progress_updates"],
+  "personal_work_refresh":"Local committed events, focus and 15-second authorized polling; no publication changes."
+}

@@ -1,0 +1,27 @@
+{
+  "rollback_only": true,
+  "count": 21,
+  "checks": [
+    "one account remains supported",
+    "two accounts combine into one task total",
+    "snapshot exposes exact account identities",
+    "a funded task can add another account without cancellation",
+    "existing allocation line IDs remain unchanged",
+    "existing subtask protection is unchanged",
+    "same request retry does not add money twice",
+    "request key cannot be reused for different amounts",
+    "existing task account cannot be selected again",
+    "source limit includes allocations to other tasks",
+    "rejected allocation leaves both balances unchanged",
+    "exact remaining source balance can be allocated",
+    "zero available account cannot be overdrawn",
+    "duplicate accounts in one batch are rejected",
+    "null account list is rejected",
+    "foreign project account is rejected",
+    "member cannot add accounts without allocation authority",
+    "project authority is unchanged by task allocation",
+    "Office Budget is charged only for original project authority",
+    "one approved allocation header remains per task",
+    "all deferred budget invariants pass"
+  ]
+}

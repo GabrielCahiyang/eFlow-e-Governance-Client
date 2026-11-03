@@ -38,7 +38,7 @@ export interface WorkNode {
  capabilities?:WorkCapabilityMap<NodeWorkAction>;
 }
 export interface WorkTreeSnapshot {
- root:{blocker?:string|null;id:string;project:string;office:string|null;lead:string|null;kind:'office'|'personal';open:boolean;due:string|null;people:string[];capabilities?:WorkCapabilityMap<RootWorkAction>};
+ root:{status?:string;blocker?:string|null;id:string;project:string;office:string|null;lead:string|null;kind:'office'|'personal';open:boolean;due:string|null;people:string[];capabilities?:WorkCapabilityMap<RootWorkAction>};
  revision:number;can_manage:boolean;can_transfer:boolean;nodes:WorkNode[];people:WorkPerson[];leaf_total:number;leaf_completed:number;
 }
 export type WorkCommand='create'|'staff'|'edit'|'move'|'delete'|'order'|'contributors'|'root_lead'|'progress'|'submit'|'review';

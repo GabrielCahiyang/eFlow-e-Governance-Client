@@ -23,4 +23,8 @@ describe('delegated subtask evidence drafts',()=>{
  it('marks successful saves clean and resets fields without duplicating workflow writes',async()=>{
   calls.save.mockResolvedValue(undefined);const saved=vi.fn(),confirm=vi.fn().mockResolvedValue(false);uninstall=installNavigationConfirmation(confirm);render(<SubtaskProgressForm subtask={subtask} onSaved={saved}/>);fireEvent.change(screen.getByLabelText('Work update'),{target:{value:'Recorded'}});fireEvent.click(screen.getByRole('button',{name:'Start work'}));await waitFor(()=>expect(saved).toHaveBeenCalledOnce());expect(await requestNavigation(vi.fn())).toBe(true);expect(confirm).not.toHaveBeenCalled();
  });
+ it('notifies Assigned work after a confirmed save even if the inspector refresh fails',async()=>{
+  calls.save.mockResolvedValue(undefined);const refresh=vi.fn().mockRejectedValue(new Error('Read failed')),updated=vi.fn();window.addEventListener('eflow:work-updated',updated);
+  try{render(<SubtaskProgressForm subtask={subtask} onSaved={refresh}/>);fireEvent.change(screen.getByLabelText('Work update'),{target:{value:'Saved work'}});fireEvent.click(screen.getByRole('button',{name:'Start work'}));await waitFor(()=>expect(updated).toHaveBeenCalledOnce());expect(screen.queryByRole('alert')).toBeNull();expect(calls.save).toHaveBeenCalledOnce();}finally{window.removeEventListener('eflow:work-updated',updated);}
+ });
 });

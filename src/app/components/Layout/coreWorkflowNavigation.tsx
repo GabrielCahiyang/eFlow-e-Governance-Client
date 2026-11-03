@@ -215,8 +215,8 @@ const CORE_WORKFLOW_NAVIGATION: Record<string, CoreRoleNavigation> = {
       {
         id: "team",
         icon: <UserMultiple size={16} />,
-        label: "Office Team",
-        page: "Team Supervision",
+        label: "Analytics",
+        page: "Analytics",
         group: "People",
       },
       {
@@ -230,8 +230,8 @@ const CORE_WORKFLOW_NAVIGATION: Record<string, CoreRoleNavigation> = {
       {
         id: "intelligence",
         icon: <Analytics size={16} />,
-        label: "Team Intelligence",
-        page: "Team Intelligence",
+        label: "Analytics",
+        page: "Analytics",
         group: "People",
       },
       {
@@ -251,7 +251,7 @@ const CORE_WORKFLOW_NAVIGATION: Record<string, CoreRoleNavigation> = {
     ],
   },
   member: {
-    defaultSection: "personal_work",
+    defaultSection: "dashboard",
     navItems: EMPLOYEE_NAV_ITEMS,
   },
 };

@@ -1,3 +1,4 @@
+import {BudgetReleaseCalendar} from './BudgetReleaseCalendar';
 import { useState } from "react";
 import { useEffect } from "react";
 import {
@@ -24,6 +25,7 @@ import { WorkspaceLoadingSkeleton } from "../../../components/workflow/Workspace
 import { BudgetPositionSummary } from "./BudgetPositionSummary";
 import { DirectWorkFunding } from "./DirectWorkFunding";
 import { BudgetPartitionOverview } from "./BudgetPartitionOverview";
+import {BudgetVersionBanner} from './BudgetVersionBanner';
 import { BudgetAccountMappings } from "./BudgetAccountMappings";
 import { PettyCashVoucherRegister } from "./PettyCashVoucherRegister";
 import { WorkspaceHeader } from '../../../components/ui/workspace';
@@ -32,6 +34,7 @@ import { writeNavigationLocation, readRouteFiscalYear } from '../../navigation';
 import { NAVIGATION_LOCATION_EVENT } from '../../../shared/navigationHistory';
 
 import { BudgetViewControl } from './BudgetViewControl';
+import { OfficePettyCash } from '../../office-petty-cash';
 import { readBudgetView as tabFromUrl, type BudgetView as Tab } from '../budgetViews';
 
 import { requestNavigation } from "../../../shared/navigationGuard";
@@ -185,7 +188,8 @@ function OfficeBudgetContent({ orgId, fiscalYear, embedded, tab, setTab, setFisc
               {!embedded && <FiscalYearControl compact value={fiscalYear} onChange={setFiscalYear} />}
               <small>{budget.error ? 'Pending financial actions unavailable' : `Pending financial actions: ${pendingCount}`} · FY {fiscalYear}</small>
             </div>
-            {!budget.summary && budget.error ? null : !budget.summary && tab !== "annual" ? (
+            {tab!=='office-petty-cash'&&<BudgetVersionBanner data={budget}/>}
+            {tab === 'office-petty-cash' ? <OfficePettyCash/> : !budget.summary && budget.error ? null : !budget.summary && tab !== "annual" ? (
               <BudgetEmpty
                 title={`No ${fiscalYear} annual budget yet`}
                 description="The Head must create and lock the annual budget before proposals and task-level cash requests can be funded."
@@ -203,23 +207,23 @@ function OfficeBudgetContent({ orgId, fiscalYear, embedded, tab, setTab, setFisc
             ) : (
               <>
                 {tab === "overview" && budget.summary && (
-                  <Overview
+                  <><BudgetReleaseCalendar key={`releases:${orgId}:${fiscalYear}`} data={budget} onChanged={budget.refresh}/><Overview
                     data={budget}
                     summary={budget.summary}
                     utilization={utilization}
                     underTarget={underTarget}
                     onNavigate={setTab}
-                  />
+                  /></>
                 )}
                 {tab === "annual" && (
-                  <AnnualBudgetSetup
+                  <><BudgetReleaseCalendar key={`releases:${orgId}:${fiscalYear}`} data={budget} onChanged={budget.refresh}/><AnnualBudgetSetup
                     key={`${orgId}:${fiscalYear}`}
                     orgId={orgId}
                     fiscalYear={fiscalYear}
                     data={budget}
                     canEdit={canPrepare}
                     onChanged={budget.refresh}
-                  />
+                  /></>
                 )}
                 {tab === "funding" && (
                   <div className="space-y-4">

@@ -9,7 +9,7 @@ export function LoadingScreen() {
     >
       <div className="eflow-loading-content" role="status" aria-live="polite">
         <div className="eflow-loading-logo"><EFlowMark height={58} state="submitting" /></div>
-        <h1>Getting things ready</h1>
+        <h1>Getting things done</h1>
         <div className="eflow-loading-track" aria-hidden="true"><span /></div>
       </div>
     </main>

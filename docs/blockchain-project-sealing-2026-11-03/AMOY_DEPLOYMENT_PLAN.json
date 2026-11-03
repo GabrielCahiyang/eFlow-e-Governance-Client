@@ -1,0 +1,9 @@
+{
+  "chain_id": 80002,
+  "publisher": "0x26AF046FE056BB05a35C6913D292b2bdb7FD6203",
+  "source_sha256": "d9fa955692eaeadcac25c78387ffb038e2567e44a3c88a1ed6035354db537e12",
+  "gas_limit": 730425,
+  "maximum_fee_POL": "0.0219127500350604",
+  "balance_POL": "0.1",
+  "broadcast": false
+}

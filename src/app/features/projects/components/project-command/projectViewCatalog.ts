@@ -9,6 +9,7 @@ export const PERMANENT_TABS: { id: PermanentProjectView; label: string }[] = [
   { id: "gantt", label: "Gantt" },
   { id: "calendar", label: "Calendar" },
   { id: "dashboard", label: "Project Dashboard" },
+  { id: "analytics", label: "Analytics" },
   { id: "offices", label: "Offices" },
 ];
 
@@ -82,5 +83,6 @@ export const VIEW_ICONS: Record<string, React.ComponentType<{ size?: number; cla
   activity: Activity,
   reviews: CheckList,
   dashboard: Chart,
+  analytics: Chart,
   budget: CreditCard,
 };

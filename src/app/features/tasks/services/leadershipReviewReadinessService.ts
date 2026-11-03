@@ -11,7 +11,7 @@ export async function assertTaskSubtasksReady(taskId: string): Promise<void> {
   if (error) throw new Error(error.message);
   if (unfinishedSubtasks && unfinishedSubtasks.length > 0) {
     throw new Error(
-      "Every subtask must be approved before the parent task can be submitted.",
+      "Complete the remaining subtasks before submitting this task.",
     );
   }
 }
@@ -19,10 +19,14 @@ export async function assertTaskSubtasksReady(taskId: string): Promise<void> {
 export async function assertLeadershipReviewReady(taskId: string): Promise<void> {
   const { data: task, error: taskError } = await supabase
     .from("tasks")
-    .select("assigned_to,org_id,review_route_mode")
+    .select("assigned_to,org_id,review_route_mode,linked_project_id")
     .eq("id", taskId)
     .single();
   if (taskError) throw new Error(taskError.message);
+  // Project work follows the current Project Lead -> independent Head route.
+  // The submission command resolves and verifies that route under its lock;
+  // the older organization-only check would incorrectly block Head-owned work.
+  if (task.linked_project_id) return;
   if (task.review_route_mode === "governance" || task.review_route_mode === "explicit") return;
   if (!task.org_id) throw new Error("Assign a responsible office before submitting this task.");
   if (!task.assigned_to) return;

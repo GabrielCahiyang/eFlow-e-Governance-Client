@@ -2,21 +2,13 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Button } from "@vibe/core";
 import { AnimatePresence } from "motion/react";
 import * as m from "motion/react-m";
-import { Banknote, Check, FileCheck2, WalletCards, X } from "lucide-react";
+import { Banknote, Check, FileCheck2, WalletCards, RotateCcw } from "lucide-react";
 import {
   BxSliderAlt,
   BxsBolt,
   BxsCheckShield,
 } from "../../../components/ui/boxicons";
-import { Textarea } from "../../../components/ui/textarea";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "../../../components/ui/dialog";
+import {DecisionModal, DecisionResultModal} from '../../../components/ui/DecisionModal';
 import { useAuth } from "../../../contexts/AuthContext";
 import { motionTransition } from "../../../shared/motion/motionTokens";
 import type { DepartmentBudgetBundle } from "../types";
@@ -86,6 +78,7 @@ export function BudgetApprovalQueue({
   const [batchBusy, setBatchBusy] = useState(false);
   const [busy, setBusy] = useState("");
   const [message, setMessage] = useState("");
+  const [messageTone, setMessageTone] = useState<"success"|"returned"|"warning"|"error">("success");
   const [rejection, setRejection] = useState<RejectionTarget | null>(null);
   const pendingAllocations = data.allocations.filter(
     (item) =>
@@ -170,7 +163,9 @@ export function BudgetApprovalQueue({
       (row) => row.id === (item?.requestId || id),
     );
     const key = `approval:${currentUserId}:${id}:${item?.status || request?.status || "pending"}:${item?.departmentDecidedAt || ""}`;
-    if (pending.current || financialOutcome(key)) {
+    if (pending.current) return false;
+    if (financialOutcome(key)) {
+      setMessageTone("warning");
       setMessage(
         "This decision has a pending, saved or uncertain result. Refresh financial history before continuing.",
       );
@@ -185,23 +180,27 @@ export function BudgetApprovalQueue({
         !rejection &&
         !(await confirmation.confirm({
           title:
-            item && isHead
+            item?.status === "pending_leader_review" ? "Endorse these receipts?" : item && isHead
               ? "Authorize late liquidation package?"
-              : "Record financial decision?",
-          description: `${request?.cashRecipientName || request?.requesterName || "Authorized work"} · ${request?.taskTitle || id}. ${item ? `${item.liquidationNumber || item.id} · version ${item.version} · expense ${peso.format(item.declaredSpent)} · returned ${peso.format(item.returnedAmount)} · ${item.receipts.length} evidence records. ${isHead ? "Head authorization permits a separate independent Accounting settlement. This does not settle the advance." : "Independent Accounting settlement records a balanced posting."}` : "Existing funding, independent-person and release limits remain in force."}`,
+              : item ? "Record this settlement?" : dueReleases.some(row => row.id === id) ? "Record this cash release?" : request?.status === "pending_leader_review" ? "Endorse this cash request?" : "Approve this request?",
+          description: `Are you sure? ${request?.cashRecipientName || request?.requesterName || "Authorized work"} · ${request?.taskTitle || id}. ${item ? `${item.liquidationNumber || item.id} · version ${item.version} · expense ${peso.format(item.declaredSpent)} · returned ${peso.format(item.returnedAmount)} · ${item.receipts.length} evidence records. ${item.status === "pending_leader_review" ? "This endorses the receipts. Independent Accounting settlement remains separate." : isHead ? "Head authorization permits a separate independent Accounting settlement. This does not settle the advance." : "Independent Accounting settlement records a balanced posting."}` : "Existing funding, independent-person and release limits remain in force."}`,
           actionLabel:
-            item && isHead ? "Authorize package" : "Confirm decision",
+            item?.status === "pending_leader_review" ? "Yes, endorse" : item && isHead ? "Yes, authorize" : item ? "Yes, record settlement" : dueReleases.some(row => row.id === id) ? "Yes, record release" : request?.status === "pending_leader_review" ? "Yes, endorse" : "Yes, approve",
+          tone: "approve",
         }))
       )
         return false;
       await operation();
       recordFinancialOutcome(key, "saved");
+      setMessageTone(rejection ? "returned" : "success");
+      setRejection(null);
       setMessage(
-        `Financial decision recorded for ${item?.liquidationNumber || request?.requestNumber || id}.`,
+        `${rejection ? "Returned" : "Decision saved"} · ${item?.liquidationNumber || request?.requestNumber || id}.`,
       );
-      await onChanged();
+      try { await onChanged(); } catch { setMessage("Your decision was saved. Check the latest status before making another decision."); }
       return true;
     } catch (error) {
+      setMessageTone(financialFailureIsUncertain(error) ? "warning" : "error");
       if (!financialOutcome(key) && financialFailureIsUncertain(error))
         recordFinancialOutcome(key, "uncertain");
       setMessage(
@@ -252,7 +251,8 @@ export function BudgetApprovalQueue({
         !(await confirmation.confirm({
           title: "Authorize selected funding requests?",
           description: `${tier1DepartmentRequests.length} requests totaling ${peso.format(tier1DepartmentRequests.reduce((sum, item) => sum + item.requestedAmount, 0))}. Each request remains subject to server fiscal limits and independent-person rules.`,
-          actionLabel: "Authorize requests",
+          actionLabel: "Yes, approve",
+          tone: "approve",
           impact: (
             <ul>
               {tier1DepartmentRequests.map((item) => (
@@ -282,8 +282,11 @@ export function BudgetApprovalQueue({
           throw caught;
         }
       }
-      await onChanged();
+      setMessageTone("success");
+      setMessage("The selected funding requests were approved.");
+      try { await onChanged(); } catch { setMessage("Approvals saved. Check the latest status before continuing."); }
     } catch (error) {
+      setMessageTone(financialFailureIsUncertain(error) ? "warning" : "error");
       setMessage(
         error instanceof Error
           ? error.message
@@ -296,6 +299,7 @@ export function BudgetApprovalQueue({
     }
   };
 
+  const resultDialog = message && !rejection && <DecisionResultModal title={messageTone === 'success' ? 'Decision saved' : messageTone === 'returned' ? 'Returned to requester' : messageTone === 'warning' ? 'Check the latest status' : 'Could not save this decision'} message={message} tone={messageTone} onClose={() => setMessage('')} onCheck={messageTone === 'error' || messageTone === 'warning' ? () => { void onChanged().then(() => setMessage('')).catch(() => { setMessageTone('error'); setMessage('Could not load the latest status. Please try again.'); }); } : undefined}/>;
   if (
     !pendingAllocations.length &&
     !pendingRequests.length &&
@@ -305,6 +309,7 @@ export function BudgetApprovalQueue({
     return (
       <div className="space-y-4">
         {confirmation.dialog}
+      {resultDialog}
         {isDepartmentApprover && (
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-[10px] border border-border bg-card px-4 py-3 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
             <div className="flex items-center gap-2.5">
@@ -356,21 +361,7 @@ export function BudgetApprovalQueue({
   return (
     <div className="space-y-4">
       {confirmation.dialog}
-      {message && (
-        <button
-          type="button"
-          className="rounded-lg border p-3 text-sm"
-          onClick={() => void onChanged()}
-        >
-          Refresh financial history
-        </button>
-      )}
-      {message && (
-        <div className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-[12px] text-rose-700">
-          {message}
-        </div>
-      )}
-
+      {resultDialog}
       {isDepartmentApprover && (
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-[10px] border border-border bg-card px-4 py-3 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
           <div className="flex items-center gap-2.5">
@@ -429,13 +420,14 @@ export function BudgetApprovalQueue({
                       ),
                     )
                   }
-                  onReject={() =>
+                  onReject={() => {
+                    setMessage('');
                     setRejection({
                       id: item.id,
                       kind: "allocation",
                       title: "Decline subtask budget",
-                    })
-                  }
+                    });
+                  }}
                 />
               }
             />
@@ -553,8 +545,9 @@ export function BudgetApprovalQueue({
                             ),
                       )
                     }
-                    onReject={() =>
-                      setRejection({
+                    onReject={() => {
+                      setMessage('');
+                    setRejection({
                         id: item.id,
                         kind: isLeaderReview
                           ? "request_leader"
@@ -562,8 +555,8 @@ export function BudgetApprovalQueue({
                         title: isLeaderReview
                           ? "Return cash request"
                           : "Decline cash request",
-                      })
-                    }
+                      });
+                    }}
                   />
                 }
               />
@@ -652,16 +645,17 @@ export function BudgetApprovalQueue({
                               ),
                       )
                     }
-                    onReject={() =>
-                      setRejection({
+                    onReject={() => {
+                      setMessage('');
+                    setRejection({
                         id: item.id,
                         kind:
                           item.status === "pending_leader_review"
                             ? "liquidation_leader"
                             : "liquidation_department",
                         title: "Request receipt corrections",
-                      })
-                    }
+                      });
+                    }}
                   />
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
@@ -728,8 +722,9 @@ export function BudgetApprovalQueue({
       {rejection && (
         <RejectionDialog
           title={rejection.title}
+          error={message}
           busy={busy === rejection.id}
-          onClose={() => setRejection(null)}
+          onClose={() => {setRejection(null);setMessage('');}}
           onConfirm={confirmRejection}
         />
       )}
@@ -842,12 +837,12 @@ function DecisionButtons({
     <div className="flex items-center gap-1.5">
       <Button
         kind="tertiary"
-        color="negative"
+        className="!text-amber-800 !bg-amber-50"
         size="small"
         disabled={busy}
         onClick={onReject}
       >
-        <X size={11} className="mr-1" />
+        <RotateCcw size={11} className="mr-1" />
         Decline
       </Button>
       <Button
@@ -864,73 +859,9 @@ function DecisionButtons({
   );
 }
 
-function RejectionDialog({
-  title,
-  busy,
-  onClose,
-  onConfirm,
-}: {
-  title: string;
-  busy: boolean;
-  onClose: () => void;
-  onConfirm: (reason: string) => Promise<void>;
-}) {
-  const [reason, setReason] = useState("");
-  const rejectionDraft = useExplicitDraft(
-    "Financial decision reason",
-    Boolean(reason.trim()),
-    busy,
-    () => setReason(""),
-  );
-  void rejectionDraft;
-  const close = () => {
-    void requestNavigation(onClose);
-  };
-  return (
-    <Dialog
-      open
-      onOpenChange={(open) => {
-        if (!open) onClose();
-      }}
-    >
-      <DialogContent className="gap-0 overflow-hidden p-0 sm:max-w-[480px]">
-        <DialogHeader className="border-b border-border px-5 py-4 pr-12">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-destructive">
-            Decision required
-          </div>
-          <DialogTitle className="text-[18px]">{title}</DialogTitle>
-          <DialogDescription>
-            Record a clear reason so the requester knows exactly what to
-            correct.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="px-5 py-4">
-          <Textarea
-            aria-label="Reason or required correction"
-            autoFocus
-            rows={4}
-            value={reason}
-            onChange={(event) => setReason(event.target.value)}
-            placeholder="Reason or required correction"
-            className="text-[12px]"
-          />
-        </div>
-        <DialogFooter className="border-t border-border px-5 py-4 sm:justify-end">
-          <Button kind="secondary" size="small" disabled={busy} onClick={close}>
-            Cancel
-          </Button>
-          <Button
-            kind="primary"
-            color="negative"
-            size="small"
-            disabled={busy || !reason.trim()}
-            loading={busy}
-            onClick={() => void onConfirm(reason.trim())}
-          >
-            Confirm decision
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
+function RejectionDialog({title,busy,error,onClose,onConfirm}:{title:string;busy:boolean;error?:string;onClose:()=>void;onConfirm:(reason:string)=>Promise<void>}) {
+  const [reason,setReason]=useState('');
+  useExplicitDraft('Financial decision reason',Boolean(reason.trim()),busy,()=>setReason(''));
+  const changes=/correction|changes/i.test(title);
+  return <DecisionModal title={title} description="Are you sure? Add a reason so the requester knows what to change." decision={changes?'changes':'reject'} reason={reason} onReasonChange={setReason} reasonLabel="Reason or required correction" requireReason busy={busy} error={error} onCancel={()=>{if(!busy)void requestNavigation(onClose);}} onConfirm={()=>void onConfirm(reason.trim())}/>;
 }

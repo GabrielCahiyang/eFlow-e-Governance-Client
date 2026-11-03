@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ACCESS_CHANGED_EVENT } from "../../project-access";
 import { loadWorkFeed } from "../services/workFeedService";
 import type { WorkScope, WorkSnapshot } from "../types";
+import {subscribeWorkChanges} from '../../../shared/workChanges';
 export function useWorkFeed(userId: string, scope?: WorkScope) {
   const key = JSON.stringify([
     userId,
@@ -22,7 +23,7 @@ export function useWorkFeed(userId: string, scope?: WorkScope) {
     inFlight.current = token;
     setState((previous) =>
       previous.key === key
-        ? { ...previous, loading: true, error: undefined }
+        ? { ...previous, loading: !previous.data, error: undefined }
         : { key, loading: true },
     );
     try {
@@ -41,13 +42,13 @@ export function useWorkFeed(userId: string, scope?: WorkScope) {
       if (!inFlight.current) void refresh();
     }, 15000);
     window.addEventListener("focus", refresh);
-    window.addEventListener("eflow:work-updated", refresh);
+    const stopWorkChanges=subscribeWorkChanges(()=>void refresh());
     window.addEventListener(ACCESS_CHANGED_EVENT, refresh);
     return () => {
       ++generation.current;
       clearInterval(timer);
       window.removeEventListener("focus", refresh);
-      window.removeEventListener("eflow:work-updated", refresh);
+      stopWorkChanges();
       window.removeEventListener(ACCESS_CHANGED_EVENT, refresh);
     };
   }, [refresh]);

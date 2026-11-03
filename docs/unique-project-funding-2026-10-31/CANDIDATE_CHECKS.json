@@ -1,0 +1,18 @@
+{
+  "rollback_only": true,
+  "count": 12,
+  "checks": [
+    "duplicate source rejected by authorization",
+    "quarter-free funding accepted and totalled",
+    "same account amounts consolidate into one annual source",
+    "retry does not reserve twice",
+    "old client quarter payload works without creating quarterly funding",
+    "source overspending still rejected",
+    "late-year task uses annual source without quarter selection",
+    "task does not charge Office Budget again",
+    "legacy Q1 source remains usable for October task",
+    "task due beyond project still blocked",
+    "project shortening cannot strand tasks",
+    "member cannot authorize Office funding"
+  ]
+}

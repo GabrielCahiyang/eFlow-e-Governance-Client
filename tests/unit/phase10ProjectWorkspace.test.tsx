@@ -16,8 +16,8 @@ const project: Project = { id:'project-a',title:'Office project',description:'Ex
 beforeEach(() => { vi.clearAllMocks(); localStorage.clear(); api.update.mockResolvedValue(undefined);vi.useFakeTimers({toFake:['Date']});vi.setSystemTime(new Date(2026,9,1,8)); });
 afterEach(()=>{cleanup();vi.useRealTimers();});
 describe('Phase 10 project workspace', () => {
-  it('keeps six core views and resolves every legacy view alias without dropping tools', () => {
-    expect(PERMANENT_TABS.map(view=>view.id)).toEqual(['tasks','board','gantt','calendar','dashboard','offices']);
+  it('keeps the operational core views plus Analytics and resolves every legacy view alias without dropping tools', () => {
+    expect(PERMANENT_TABS.map(view=>view.id)).toEqual(['tasks','board','gantt','calendar','dashboard','analytics','offices']);
     for(const [alias,canonical] of Object.entries({plan:'timeline',delivery:'timeline',work:'tasks',people:'offices',team:'offices'})) expect(resolveProjectView(alias)).toBe(canonical);
     for(const view of [...PERMANENT_TABS,...OPTIONAL_VIEWS_CATALOG]) expect(resolveProjectView(view.id)).toBe(view.id);
     for(const value of ['not-a-view', 'constructor', '__proto__', 'toString']) expect(resolveProjectView(value)).toBeNull();

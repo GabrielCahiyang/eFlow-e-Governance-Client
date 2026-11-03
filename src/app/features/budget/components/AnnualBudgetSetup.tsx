@@ -23,6 +23,10 @@ import { LockedBudgetControls } from "./LockedBudgetControls";
 import { BudgetSectionEditor } from "./BudgetSectionEditor";
 import { openingSections, sectionTotal, validateBudgetSections, validateBudgetSectionsForLock } from "../selectors/budgetSections";
 import { saveBudgetSections } from "../services/budgetSectionService";
+import {lockedReleaseEditError,releaseSchedulesYearError} from '../selectors/budgetReleaseSchedule';
+import {budgetProtectionIssue} from '../selectors/budgetVersions';
+import {BudgetProtectionAlert} from './BudgetProtectionAlert';
+import type {BudgetProtection} from '../types';
 
 import { useExplicitDraft } from "../../../shared/useExplicitDraft";
 import { useConfirmation } from "../../../components/ui/useConfirmation";
@@ -36,7 +40,7 @@ export function AnnualBudgetSetup({
   orgId,
   fiscalYear,
   data,
-  canEdit,
+  canEdit:providedCanEdit,
   onChanged,
 }: {
   orgId: string;
@@ -45,6 +49,7 @@ export function AnnualBudgetSetup({
   canEdit: boolean;
   onChanged: () => Promise<void>;
 }) {
+  const canEdit=providedCanEdit&&data.canAdjustBudget!==false;
   const [sections, setSections] = useState<BudgetSection[]>(() => openingSections(data));
   const [editingLocked, setEditingLocked] = useState(false);
   const [adjustmentReason, setAdjustmentReason] = useState("");
@@ -62,6 +67,8 @@ export function AnnualBudgetSetup({
   const [notes, setNotes] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
+  const [saveError,setSaveError]=useState<(Error&{protection?:BudgetProtection})|null>(null);
+  const expectedVersion=useRef(data.sectionsVersion||0);
   const snapshot = JSON.stringify({
     sections,
     adjustmentReason,
@@ -99,6 +106,7 @@ export function AnnualBudgetSetup({
     if (snapshot !== baseline.current) return;
     if (!data.summary) return;
     const nextSections = openingSections(data);
+    expectedVersion.current=data.sectionsVersion||0;
     baseline.current = JSON.stringify({
       sections: nextSections,
       adjustmentReason: "",
@@ -118,7 +126,7 @@ export function AnnualBudgetSetup({
     setAllowReceiptOverride(data.summary.allowReceiptLimitOverride);
     setThreshold(data.summary.underutilizationThreshold);
     setNotes(data.summary.notes || "");
-  }, [data.lines, data.sections, data.summary]);
+  }, [data.lines, data.sections, data.summary,data.sectionsVersion]);
   // An unavailable editor is not an empty budget. Never label retained local
   // draft state as the saved financial position while the section API is absent.
   const total = data.sectionsAvailable
@@ -126,37 +134,41 @@ export function AnnualBudgetSetup({
     : data.summary?.approvedAmount ?? 0;
   const locked = data.summary?.status === "locked";
   const amountValidation = validateBudgetSectionsForLock(sections);
-  const validation = fiscalYearError(fiscalYear)||budgetSettingsError({dailyReleaseLimit:pettyLimit,perReceiptLimit:requestLimit,liquidationDueDays,threshold})||validateBudgetSections(sections)||(locked ? amountValidation : "");
+  const validation = fiscalYearError(fiscalYear)||budgetSettingsError({dailyReleaseLimit:pettyLimit,perReceiptLimit:requestLimit,liquidationDueDays,threshold})||validateBudgetSections(sections)||releaseSchedulesYearError(sections,fiscalYear)||(locked&&data.releaseScheduleAvailable?lockedReleaseEditError(data.sections||[],sections):'')||(locked ? amountValidation : "");
   const lockValidation = validation || amountValidation;
   const closed = data.summary?.status === "closed";
   const writable = Boolean(data.sectionsAvailable) && canEdit && !closed && (!locked || editingLocked);
+  const protection=locked&&editingLocked?budgetProtectionIssue(data.sections||[],sections):null;
+  const versions=data.budgetVersions||[];
+  const nextVersion=(versions[versions.length-1]?.version||1)+1;
   const persistDraft = () =>
     saveBudgetSections({
       orgId,
       fiscalYear,
       sections,
-      expectedVersion: data.sectionsVersion || 0,
+      expectedVersion: expectedVersion.current,
       reason: adjustmentReason,
       settings: { dailyReleaseLimit: pettyLimit, perReceiptLimit: requestLimit, liquidationDueDays, allowReceiptOverride, threshold, notes },
     });
   const save = async () => {
-    if (pending.current || !writable || validation || !data.sectionsAvailable || (locked && !adjustmentReason.trim()))
+    if (pending.current || !writable || validation || protection || !data.sectionsAvailable || (locked && !adjustmentReason.trim()))
       return;
     pending.current = true;
     draft.pendingRef.current = true;
     setBusy(true);
     setMessage("");
+    setSaveError(null);
     try {
-      if (locked && !(await confirmation.confirm({ title: "Record section adjustment?", description: `FY ${fiscalYear}: ${peso.format(data.summary?.approvedAmount || 0)} → ${peso.format(total)}. ${adjustmentReason}. Previous sections stay in the audit history; funded rows cannot be erased.`, actionLabel: "Record adjustment" }))) return;
+      if (locked && !(await confirmation.confirm({ title: "Record account adjustment?", description: `FY ${fiscalYear}: ${peso.format(data.summary?.approvedAmount || 0)} → ${peso.format(total)}. ${adjustmentReason}. Previous accounts stay in the audit history; funded rows cannot be erased.`, actionLabel: "Record adjustment" }))) return;
       await persistDraft();
       baseline.current = JSON.stringify({ sections, adjustmentReason: "", pettyLimit, requestLimit, liquidationDueDays, allowReceiptOverride, threshold, notes });
       setAdjustmentReason("");
       setEditingLocked(false);
       draft.markClean();
-      setMessage(locked ? "Section adjustment recorded." : "Annual budget draft saved.");
+      setMessage(locked ? "Account adjustment recorded." : "Annual budget draft saved.");
       await onChanged();
     } catch (error) {
-      setMessage(financialErrorMessage(error) + " Draft retained.");
+      setSaveError(error instanceof Error?error:new Error(financialErrorMessage(error)));
     } finally {
       pending.current = false;
       draft.pendingRef.current = false;
@@ -178,6 +190,7 @@ export function AnnualBudgetSetup({
     draft.pendingRef.current = true;
     setBusy(true);
     setMessage("");
+    setSaveError(null);
     let locking = false;
     try {
       if (
@@ -204,12 +217,12 @@ export function AnnualBudgetSetup({
         financialFailureIsUncertain(error)
       )
         recordFinancialOutcome(lockKey, "uncertain");
-      setMessage(
+      setSaveError(new Error(
         financialErrorMessage(error) +
           (financialOutcome(lockKey)
             ? " Verify the current annual budget before another write."
             : " Entries retained."),
-      );
+      ));
     } finally {
       pending.current = false;
       draft.pendingRef.current = false;
@@ -239,8 +252,8 @@ export function AnnualBudgetSetup({
             </h2>
             <p className="mt-1 text-[12px] text-secondary-foreground">
               {data.sectionsAvailable
-                ? "Add, rename or remove your own sections. Total Budget adds their amounts once."
-                : "Showing your saved annual budget. Section editing is temporarily unavailable."}
+                ? "Add, rename or remove your own accounts. Total Budget adds their amounts once."
+                : "Showing your saved annual budget. Account editing is temporarily unavailable."}
             </p>
           </div>
           <div className="text-right">
@@ -272,7 +285,7 @@ export function AnnualBudgetSetup({
       <div className="rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
         {!data.sectionsAvailable ? (
           <div role="status" className="text-[12px]">
-            <p className="text-amber-800">Section editing is temporarily unavailable. Your saved budget has not been reset.</p>
+            <p className="text-amber-800">Account editing is temporarily unavailable. Your saved budget has not been reset.</p>
             {data.summary ? (
               <dl className="mt-3 flex items-center justify-between rounded-lg bg-muted p-3">
                 <dt>Saved annual budget · FY {fiscalYear}</dt>
@@ -283,12 +296,14 @@ export function AnnualBudgetSetup({
           </div>
         ) : (
           <>
-            {locked && canEdit && !editingLocked && <button type="button" className="mb-4 rounded-lg border px-4 py-2 text-[12px]" onClick={() => setEditingLocked(true)}>Reclassify / adjust sections</button>}
-            {sections.some(section => !section.retired && section.name === "Unclassified opening appropriation") && <p className="mb-3 text-[12px] text-muted-foreground">Your previously saved budget starts as one section. Rename it or divide it into your real sections. Changing a locked amount requires a reason.</p>}
-            <BudgetSectionEditor sections={sections} onChange={setSections} disabled={!writable || busy} />
+            {locked && canEdit && !editingLocked && <button type="button" className="mb-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-[13px] font-medium text-primary-foreground" onClick={() => {const latest=openingSections(data);expectedVersion.current=data.sectionsVersion||0;baseline.current=JSON.stringify({sections:latest,adjustmentReason:'',pettyLimit,requestLimit,liquidationDueDays,allowReceiptOverride,threshold,notes});setSections(latest);setAdjustmentReason('');setMessage('');setSaveError(null);setEditingLocked(true);}}>Readjust budget</button>}
+            {locked&&!canEdit&&<p className="mb-3 text-[13px] text-muted-foreground">Only the office Head can readjust this budget.</p>}
+            {sections.some(section => !section.retired && section.name === "Unclassified opening appropriation") && <p className="mb-3 text-[12px] text-muted-foreground">Your previously saved budget starts as one account. Rename it or divide it into your real accounts. Changing a locked amount requires a reason.</p>}
+            <BudgetSectionEditor fiscalYear={fiscalYear} scheduleEnabled={data.releaseScheduleAvailable===true} sections={sections} onChange={setSections} disabled={!writable || busy} />
           </>
         )}
-        {editingLocked && <label className="mt-4 block"><span className="text-[12px] text-muted-foreground">Required adjustment reason and authority reference</span><textarea disabled={busy} value={adjustmentReason} onChange={e => setAdjustmentReason(e.target.value)} className="mt-1 w-full rounded-lg border p-3 text-[12px]" placeholder="Reference the approved classification, release or supplemental authority." /><p className="mt-1 text-[11px] text-muted-foreground">Deleting a used row retires it only after its remaining funding is protected. The server checks every account.</p></label>}
+        {editingLocked && <label className="mt-4 block"><span className="text-[13px] font-medium">Reason for adjustment (required)</span><textarea disabled={busy} value={adjustmentReason} onChange={e => setAdjustmentReason(e.target.value)} className="mt-1 w-full rounded-lg border p-3 text-[13px]" placeholder="Explain what changed and why." /><p className="mt-1 text-[12px] text-muted-foreground">Saving creates V{nextVersion}. Existing project funding and spending stay protected.</p></label>}
+        <BudgetProtectionAlert protection={protection||saveError?.protection} error={saveError}/>
         {lockValidation && <p role="alert" className="mt-3 text-[12px] text-destructive">{lockValidation}</p>}
       </div>
       <section className="rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
@@ -301,10 +316,9 @@ export function AnnualBudgetSetup({
               Cash release and liquidation controls
             </h3>
             <p className="mt-1 max-w-3xl text-[12px] leading-relaxed text-secondary-foreground">
-              Petty cash is not a separate annual pool. Requests consume the
-              funded task allocation. The daily ceiling controls how much
-              physical cash the office may release per day; approved excess is
-              scheduled on the next available date.
+              These controls apply to task-funded cash requests. Office petty cash
+              has a separate ₱30,000 revolving fund and a strict ₱5,000 per-receipt
+              limit in the Office Petty Cash view. Only Accounting may replenish it.
             </p>
           </div>
         </div>
@@ -331,7 +345,7 @@ export function AnnualBudgetSetup({
             label="Q4 utilization target (%)"
             value={threshold}
             onChange={setThreshold}
-            disabled={!canEdit || locked}
+            disabled={!writable || busy}
           />
         </div>
         <label className="mt-4 flex items-start gap-3 rounded-[14px] border border-border bg-muted/50 p-3">
@@ -367,19 +381,20 @@ export function AnnualBudgetSetup({
       </section>
       {message && (
         <div
-          className={`rounded-xl border px-4 py-3 text-[12px] ${/could not|invalid|only|enough/i.test(message) ? "border-rose-200 bg-rose-50 text-rose-700" : "border-emerald-200 bg-emerald-50 text-emerald-700"}`}
+          className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-[13px] text-emerald-700"
         >
           {message}
         </div>
       )}
       {writable && (
         <div className="flex justify-end gap-2">
+          {locked&&<button type="button" disabled={busy} onClick={()=>{const saved=JSON.parse(baseline.current);setSections(saved.sections);setThreshold(saved.threshold);setAdjustmentReason('');setSaveError(null);setEditingLocked(false);draft.markClean();}} className="rounded-lg border px-4 py-2 text-[13px]">Cancel adjustment</button>}
           <button
-            disabled={busy || Boolean(validation) || !data.sectionsAvailable || (locked && !adjustmentReason.trim())}
+            disabled={busy || Boolean(validation) || !!protection || !data.sectionsAvailable || (locked && !adjustmentReason.trim())}
             onClick={save}
             className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-card px-4 text-[12px] font-medium text-foreground"
           >
-            <Save size={12} /> {locked ? "Record section adjustment" : "Save draft"}
+            <Save size={12} /> {busy?'Saving…':locked ? `Save V${nextVersion}` : "Save draft"}
           </button>
           {!locked &&
           <button

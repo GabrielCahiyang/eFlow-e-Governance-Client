@@ -9,7 +9,7 @@ export function ReceiptItemEditor({items,sources,onChange,disabled}:{items:Recei
   return (
     <div className="mt-3 space-y-3 rounded-lg border border-border/70 bg-muted/25 p-3">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-[11px] font-semibold text-foreground">Purchased items <span className="font-normal text-muted-foreground">· Amount is the whole item row, not unit cost</span></p>
+        <p className="text-[11px] font-semibold text-foreground">Purchased items <span className="font-normal text-muted-foreground">· Actual cost is the total paid for this item.</span></p>
       </div>
       {items.map((item,index)=>(
         <div key={item.id} className="space-y-2.5 rounded-lg border border-border bg-card p-3">
@@ -30,7 +30,7 @@ export function ReceiptItemEditor({items,sources,onChange,disabled}:{items:Recei
             <label className="text-[11px] font-medium text-muted-foreground">Quantity<input aria-invalid={!!receiptItemError(item)} disabled={disabled} type="number" min="0.001" max={MAX_RECEIPT_QUANTITY} step="0.001" value={Number.isNaN(item.quantity)?'':item.quantity} onChange={e=>patch(item.id,{quantity:e.target.value===''?NaN:Number(e.target.value)})} className={field}/></label>
             <label className="text-[11px] font-medium text-muted-foreground">Unit<input disabled={disabled} value={item.unit} onChange={e=>patch(item.id,{unit:e.target.value})} placeholder="pcs., rms., box" className={field}/></label>
             <label className="text-[11px] font-medium text-muted-foreground sm:col-span-2">Particulars<input disabled={disabled} value={item.particular} onChange={e=>patch(item.id,{particular:e.target.value})} className={field}/></label>
-            <label className="text-[11px] font-medium text-muted-foreground">Line amount<MoneyInput disabled={disabled} min="0.01" step="0.01" value={item.amount||""} onValueChange={raw => patch(item.id,{amount:Number(raw)})} className={`${field} text-right tabular-nums`}/></label>
+            <label className="text-[11px] font-medium text-muted-foreground">Actual cost<MoneyInput disabled={disabled} min="0.01" step="0.01" value={item.amount||""} onValueChange={raw => patch(item.id,{amount:Number(raw)})} className={`${field} text-right tabular-nums`}/></label>
             <label className="text-[11px] font-medium text-muted-foreground">Approved expense source<select disabled={disabled} value={item.allocationLineId} onChange={e=>patch(item.id,{allocationLineId:e.target.value})} className={field}>{sources.map((s,i)=><option key={s.allocationLineId} value={s.allocationLineId}>{s.sourceName||`Funding line ${i+1}`} · ₱{s.amount.toLocaleString()}</option>)}</select></label>
             <label className="text-[11px] font-medium text-muted-foreground sm:col-span-2">Purpose<input disabled={disabled} value={item.purpose} onChange={e=>patch(item.id,{purpose:e.target.value})} className={field}/></label>
             {receiptItemError(item)&&<p role="alert" className="text-xs text-destructive sm:col-span-2">Item {index+1}: {receiptItemError(item)}</p>}

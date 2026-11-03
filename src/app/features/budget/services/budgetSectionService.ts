@@ -1,5 +1,5 @@
 import { supabase } from "../../../../lib/supabase";
-import type { BudgetSection } from "../types";
+import type { BudgetSection, BudgetProtection, OfficeBudgetVersion } from "../types";
 import { validateBudgetSections } from "../selectors/budgetSections";
 import {budgetSettingsError,fiscalYearError} from '../validation/financialValidation';
 
@@ -7,8 +7,8 @@ export async function fetchBudgetSections(orgId: string, fiscalYear: number) {
   const { data, error } = await supabase.rpc("get_office_budget_sections", { p_org_id: orgId, p_fiscal_year: fiscalYear });
   if (error?.code === "PGRST202") return { sections: [], sectionsAvailable: false, itemizedCashAvailable: false, sectionsVersion: 0 };
   if (error) throw new Error(error.message);
-  const row = data as { sections?: BudgetSection[]; version?: number; itemizedCashAvailable?: boolean } | null;
-  return { sections: (row?.sections || []).map(s => ({ ...s, parentId: s.parentId || undefined, accountCode: s.accountCode || undefined })), sectionsAvailable: Array.isArray(row?.sections), itemizedCashAvailable: row?.itemizedCashAvailable ?? Boolean(row?.sections?.some(s => "journalAccountCode" in s)), sectionsVersion: row?.version || 0 };
+  const row = data as { sections?: BudgetSection[]; version?: number; itemizedCashAvailable?: boolean; releaseScheduleAvailable?:boolean;canConfirmReleases?:boolean;canAdjust?:boolean; versions?:OfficeBudgetVersion[] } | null;
+  return { sections: (row?.sections || []).map(s => ({ ...s, parentId: s.parentId || undefined, accountCode: s.accountCode || undefined })), sectionsAvailable: Array.isArray(row?.sections), itemizedCashAvailable: row?.itemizedCashAvailable ?? Boolean(row?.sections?.some(s => "journalAccountCode" in s)), sectionsVersion: row?.version || 0, canAdjustBudget:row?.canAdjust,releaseScheduleAvailable:row?.releaseScheduleAvailable,canConfirmBudgetReleases:row?.canConfirmReleases,budgetVersions:row?.versions };
 }
 
 export async function saveBudgetSections(input: {
@@ -21,6 +21,15 @@ export async function saveBudgetSections(input: {
     p_org_id: input.orgId, p_fiscal_year: input.fiscalYear, p_sections: input.sections.filter(s => !s.retired),
     p_expected_version: input.expectedVersion, p_reason: input.reason?.trim() || null, p_settings: input.settings,
   });
-  if (error) throw new Error(error.message);
+  if (error) {
+    let protection:BudgetProtection|undefined;
+    try {const details=JSON.parse(error.details||'null');if(details?.kind==='budget_account_protected'&&Array.isArray(details.sources))protection=details;}catch{}
+    throw Object.assign(new Error(error.message),{protection});
+  }
   return String(data);
+}
+
+export async function confirmOfficeBudgetRelease(account:string,release:string,version:number,reference:string){
+ const {error}=await supabase.rpc('confirm_office_budget_release',{p_account:account,p_release:release,p_expected_version:version,p_reference:reference.trim()});
+ if(error)throw new Error(error.message);
 }

@@ -22,9 +22,12 @@ export function appendOfficeRows(
   projectMap: Map<string, Record<string, unknown>>,
   denied: Set<string>,
 ) {
-  for (const task of offices) {
-    const context = officeContext(task),
-      tree = treeMap.get(task.id);
+  for (const loadedTask of offices) {
+    const tree=treeMap.get(loadedTask.id);
+    // The work tree is read after the initial task list. Do not overwrite its
+    // newer lifecycle status with the earlier list response.
+    const task=tree?.root.status?{...loadedTask,status:tree.root.status as Task['status']}:loadedTask;
+    const context = officeContext(task);
     if (denied.has(task.id)) continue;
     const history =
       !!task.archivedAt ||

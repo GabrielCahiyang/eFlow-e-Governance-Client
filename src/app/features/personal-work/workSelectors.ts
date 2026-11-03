@@ -33,7 +33,7 @@ export function selectWorkRows(
           )
             return false;
         }
-      } else if (row.history || !row.actionable) return false;
+      } else if (row.history || (!row.actionable && !['for_review','submitted'].includes(row.status))) return false;
       if (destination === "Leading" && !row.leading) return false;
       if (destination === "Assigned work" && !row.kind.endsWith("task"))
         return false;

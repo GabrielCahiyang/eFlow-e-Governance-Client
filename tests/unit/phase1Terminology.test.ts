@@ -16,7 +16,11 @@ describe('active production terminology',()=>{
    const source=ts.createSourceFile(path,text,ts.ScriptTarget.Latest,true);
    const visit=(node:ts.Node)=>{
     if(ts.isJsxText(node)||ts.isStringLiteral(node)||ts.isNoSubstitutionTemplateLiteral(node)||ts.isTemplateHead(node)||ts.isTemplateMiddle(node)||ts.isTemplateTail(node)){
-     const raw=node.getText(source);
+     const original=node.getText(source);
+     // The approved analytics workspace explicitly restores Employee / Employee 360
+     // naming there. Other retired role/department words remain prohibited.
+     const approvedEmployeeCopy=/team-management[\\/]components[\\/](analytics[\\/]EmployeeAnalyticsWorkspace|intelligence[\\/]EmployeeCoachingEditor)\.tsx$/.test(path);
+     const raw=approvedEmployeeCopy?original.replace(/\bEmployees?\b/g,'Member'):original;
      const compatibilityToken=/^["'`](department|employee|departments|employees)["'`]$/.test(raw)||/[a-z]_[a-z]|employee_id/.test(raw)||ts.isImportDeclaration(node.parent)||ts.isExportDeclaration(node.parent);
      if(!compatibilityToken&&/\b(Super Admin|Department Head|Assistant Head|Departments?|Employees?)\b(?! ID| Number| No\.)/.test(raw))violations.push(relative(root,path)+':'+(source.getLineAndCharacterOfPosition(node.getStart()).line+1)+' '+raw.slice(0,130));
     }ts.forEachChild(node,visit);

@@ -3,12 +3,15 @@ import { Button } from '../../../components/ui/button';
 import type { useDepartmentBudget } from '../hooks/useDepartmentBudget';
 import { getScheduledReleaseSummary } from '../selectors/cashWorkflowRules';
 import { peso } from './budgetUi';
+import {AccountingAnalytics} from './AccountingAnalytics';
 
 /** Summary only. The canonical Settlements destination owns decisions and drafts. */
-export function AccountingOverview({ budget, journalCount, onSettlements }: {
+export function AccountingOverview({ budget, journalCount, onSettlements,onReleases,onBudgets }: {
   budget: ReturnType<typeof useDepartmentBudget>;
   journalCount?: number;
   onSettlements?: () => void;
+  onReleases?:()=>void;
+  onBudgets?:()=>void;
 }) {
   const releases = getScheduledReleaseSummary(budget.releases);
   const settlements = budget.liquidations.filter(item => item.status === 'pending_department_settlement').length;
@@ -21,6 +24,7 @@ export function AccountingOverview({ budget, journalCount, onSettlements }: {
     { label: 'Actual spending', value: budget.summary ? peso.format(budget.summary.spentAmount) : 'Not configured', note: budget.summary ? `of ${peso.format(budget.summary.approvedAmount)} authorized` : 'Annual budget required', icon: Landmark },
   ];
   return <div className="eflow-accounting-overview">
+    <AccountingAnalytics budget={budget} onReleases={onReleases} onSettlements={onSettlements} onBudgets={onBudgets}/>
     <section className="eflow-accounting-summary" aria-label="Accounting summary">
       {cards.map(({ label, value, note, icon: Icon }) => <article key={label}>
         <h2><Icon size={16} aria-hidden="true" />{label}</h2>

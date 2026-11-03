@@ -10,7 +10,7 @@ export const MAX_FINANCIAL_AMOUNT=90_000_000_000;
 export const receiptQuantityError=(quantity:unknown)=>decimalError(quantity,'Quantity',.001,MAX_RECEIPT_QUANTITY,3);
 export const budgetQuantityError=(quantity:unknown)=>decimalError(quantity,'Quantity',.01,MAX_BUDGET_QUANTITY,2);
 export const financialAmountError=(amount:unknown,label='Amount',allowZero=false,max=MAX_FINANCIAL_AMOUNT)=>decimalError(amount,label,allowZero?0:.01,max,2);
-export function receiptItemError(item:ReceiptItem){return receiptQuantityError(item.quantity)||financialAmountError(item.amount,'Line amount')||(!item.unit.trim()?'Unit is required.':'')||(!item.particular.trim()?'Particulars are required.':'')||(!item.purpose.trim()?'Purpose is required.':'')||(!item.allocationLineId?'Choose an approved expense source.':'');}
+export function receiptItemError(item:ReceiptItem){return receiptQuantityError(item.quantity)||financialAmountError(item.amount,'Actual cost')||(!item.unit.trim()?'Unit is required.':'')||(!item.particular.trim()?'Particulars are required.':'')||(!item.purpose.trim()?'Purpose is required.':'')||(!item.allocationLineId?'Choose an approved expense source.':'');}
 export function budgetLineError(line:BudgetLineInput){
  const quantity=line.quantity,unitCost=line.unitCost;
  if(unitCost===undefined)return (quantity===undefined?'':budgetQuantityError(quantity))||financialAmountError(line.amount,'Line total',false,MAX_BUDGET_LINE_AMOUNT);

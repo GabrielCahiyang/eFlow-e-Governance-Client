@@ -113,7 +113,7 @@ describe('Project table subtask expansion', () => {
     expect(within(table).getAllByRole('button', { name: /^Edit subtask/ }).map(button => button.textContent)).toEqual(['First step', 'Gather evidence']);
     expect(within(table).getAllByText('Maria Clara')).toHaveLength(2);
     expect(within(table).getByText('40%')).toBeTruthy();
-    expect(within(table).getByText('2026-10-10')).toBeTruthy();
+    expect(within(table).getByText('Oct 10, 2026')).toBeTruthy();
     fireEvent.click(within(table).getByRole('button', { name: 'Open subtask First step' }));
     expect(mocks.openSubitem).toHaveBeenCalledWith(first,false);
   });
@@ -173,7 +173,7 @@ function hierarchySnapshot():WorkTreeSnapshot {
 describe('NW6.4 Main Table hierarchy accessibility',()=>{
  it('renders native headers, capped deep paths and readable historical/unassigned states',()=>{
   const data=hierarchySnapshot();const action=vi.fn();const {container}=render(<WorkHierarchy snapshot={data} readOnly={false} executionBlocked={false} authorityFresh collapsedIds={new Set()} onCollapsedIdsChange={vi.fn()} onOpenNode={vi.fn()} onRequestAction={action}/>);
-  const table=screen.getByRole('table',{name:'Subtask hierarchy'});expect(within(table).getAllByRole('columnheader').map(header=>header.textContent)).toEqual(['Subtask','Lead','Contributors','Status','Due','Actions']);expect(screen.queryByRole('treegrid')).toBeNull();
+  const table=screen.getByRole('table',{name:'Subtask hierarchy'});expect(within(table).getAllByRole('columnheader').map(header=>header.getAttribute('aria-label')||header.textContent)).toEqual(['Actions','Subtask','Lead','Contributors','Status','Due']);expect(screen.queryByRole('treegrid')).toBeNull();
   expect([...container.querySelectorAll<HTMLElement>('.nw-hierarchy-title')].map(element=>element.style.getPropertyValue('--nw-indent'))).toEqual(['0','1','2','3','3','3','3','3']);expect(screen.getByLabelText('Path for Work 8').textContent).toBe(data.nodes.map(node=>node.title).join(' / '));expect(screen.getByText('Previously assigned person',{exact:false})).toBeTruthy();expect(screen.getByText('Needs reassignment',{exact:false})).toBeTruthy();expect(screen.getByText('In progress')).toBeTruthy();expect(screen.queryByRole('group',{name:'Progress for Work 8'})).toBeNull();expect(screen.queryByRole('progressbar')).toBeNull();expect(action).not.toHaveBeenCalled();
  });
  it('reports controlled disclosure state and preserves the exact authorized parent',()=>{

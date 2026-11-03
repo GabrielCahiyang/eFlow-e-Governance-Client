@@ -1,0 +1,18 @@
+{
+  "target": "ixnfphgjyelhckjwjkdv",
+  "migration_applied": true,
+  "migration_version": "20261103070206",
+  "archive_cron": {
+    "name": "eflow-project-auto-archive",
+    "schedule": "17 * * * *",
+    "active": true
+  },
+  "private_snapshots": 0,
+  "published_certificates": 0,
+  "anonymous_prepare_approve_denied": true,
+  "authenticated_worker_denied": true,
+  "anonymous_copy_upload_allowed": false,
+  "existing_rows_preserved": true,
+  "tables_fingerprinted": 125,
+  "note": "Read-only post-deployment checks; no real project publication."
+}

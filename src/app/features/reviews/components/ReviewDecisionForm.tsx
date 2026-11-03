@@ -1,6 +1,7 @@
 import { useExplicitDraft } from '../../../shared/useExplicitDraft';
 import { useState } from "react";
-import { CheckCircle2, Loader2, XCircle } from "lucide-react";
+import { CheckCircle2, RotateCcw } from "lucide-react";
+import {DecisionModal} from '../../../components/ui/DecisionModal';
 import { verifyTask } from "../../../services/taskService";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useToast } from "../../../components/ui/Toast";
@@ -60,7 +61,7 @@ function TaskReviewDecisionForm({
       });
       toast(
         approve ? "Task approved and completed." : "Sent back with feedback.",
-        "success",
+        approve ? "success" : "warning",
       );
       setMode("idle");
       setFeedback("");
@@ -92,57 +93,23 @@ function TaskReviewDecisionForm({
         onRefresh={() => { void cash.refresh(); }}
         onOpenFinancialReview={onOpenFinancialReview}
       />
-      {decisionError && <p role="alert" className="mb-3 text-xs text-rose-700">{decisionError}</p>}
-      {mode === "idle" ? (
-        <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2">
           <button
             onClick={() => setMode("approve")}
-            disabled={approvalDisabled}
+            disabled={approvalDisabled||mode!=='idle'}
             className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-emerald-600 py-2 text-[12.5px] font-medium text-white hover:bg-emerald-700 disabled:opacity-40"
           >
             <CheckCircle2 size={14} /> Approve
           </button>
           <button
             onClick={() => setMode("reject")}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-rose-200 bg-white py-2 text-[12.5px] font-medium text-rose-700 hover:bg-rose-50"
+            disabled={busy||mode!=='idle'}
+            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 py-2 text-[12.5px] font-medium text-amber-900 hover:bg-amber-100"
           >
-            <XCircle size={14} /> Request changes
+            <RotateCcw size={14} /> Request changes
           </button>
-        </div>
-      ) : (
-        <div>
-          <textarea
-            aria-label={mode === "approve" ? "Approval note (optional)" : "Required change feedback"}
-            disabled={busy}
-            value={feedback}
-            onChange={(event) => setFeedback(event.target.value)}
-            rows={3}
-            placeholder={mode === "approve" ? "Optional approval note…" : "Required: explain what needs to change…"}
-            className={`mb-2 w-full resize-none rounded-lg border px-3 py-2 text-[12.5px] text-neutral-800 placeholder:text-neutral-400 focus:outline-none ${
-              mode === "reject" ? "border-rose-200 focus:border-rose-400" : "border-neutral-200 focus:border-neutral-400"
-            }`}
-          />
-          <div className="flex items-center gap-2">
-            <button
-              onClick={decide}
-              disabled={mode === "approve" ? approvalDisabled : busy}
-              className={`flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg py-2 text-[12.5px] font-medium text-white disabled:opacity-40 ${
-                mode === "approve" ? "bg-emerald-600 hover:bg-emerald-700" : "bg-rose-600 hover:bg-rose-700"
-              }`}
-            >
-              {busy ? <Loader2 size={14} className="animate-spin" /> : mode === "approve" ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
-              {mode === "approve" ? "Confirm approval" : "Send back for changes"}
-            </button>
-            <button
-              disabled={busy}
-              onClick={() => { setMode("idle"); setFeedback(""); }}
-              className="rounded-lg px-3 py-2 text-[12.5px] font-medium text-neutral-600 hover:bg-neutral-100"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
+      </div>
+      {mode!=='idle'&&<DecisionModal title={mode==='approve'?'Approve this task?':'Request changes to this task?'} description={mode==='approve'?'Are you sure you want to approve this task? It will be marked complete.':'Are you sure you want to return this task? Explain what needs to change so the task lead can update it.'} decision={mode==='approve'?'approve':'changes'} reason={feedback} onReasonChange={setFeedback} reasonLabel={mode==='approve'?'Approval note (optional)':'Required change feedback'} requireReason={mode==='reject'} busy={busy} disabled={mode==='approve'&&approvalDisabled} error={decisionError} onConfirm={()=>void decide()} onCancel={()=>{if(busy)return;draftGuard.markClean();setMode('idle');setFeedback('');setDecisionError('');}}/>}
     </div>
   );
 }

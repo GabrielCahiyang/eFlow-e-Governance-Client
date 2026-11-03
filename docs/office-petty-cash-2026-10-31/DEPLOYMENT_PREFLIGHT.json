@@ -1,0 +1,10 @@
+{
+  "target": "ixnfphgjyelhckjwjkdv",
+  "migration": "20261031094730_office_petty_cash_fund.sql",
+  "sha256": "78740cc6be891be711f554936049a143a17066a0ea71d7d06b8a9cae56e1d6ed",
+  "backup_verified": true,
+  "prior_migrations": 65,
+  "dry_run_only_reviewed_delta": true,
+  "public_tables_checked": 115,
+  "applied": false
+}

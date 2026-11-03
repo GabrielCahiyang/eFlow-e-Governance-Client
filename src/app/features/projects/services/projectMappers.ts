@@ -27,6 +27,7 @@ export function rowToProject(row: Record<string, unknown>): Project {
     startDate: (row.start_date as string) || undefined,
     targetDate: (row.target_date as string) || undefined,
     archivedAt: row.archived_at ? new Date(row.archived_at as string).getTime() : undefined,
+    completedAt: typeof row.completed_at==='string'?row.completed_at:undefined,
     createdBy: (row.created_by as string) || undefined,
     createdAt: new Date((row.created_at as string) || Date.now()).getTime(),
     updatedAt: new Date((row.updated_at as string) || Date.now()).getTime(),

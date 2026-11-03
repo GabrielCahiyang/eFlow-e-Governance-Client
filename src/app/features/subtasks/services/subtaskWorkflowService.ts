@@ -22,7 +22,7 @@ export async function saveSubtaskWorkUpdate(input:{subtaskId:string;state:'in_pr
  if(input.state==='stuck'&&!input.blocker?.trim())throw new Error('Tell your lead what is blocking you.');
  let uploaded:SubtaskSubmissionAttachment|undefined;
  try{
-  if(input.attachment)uploaded=await uploadSubtaskWorkFile(input.subtaskId,'updates',input.attachment);
+  if(input.attachment)uploaded=await uploadSubtaskWorkFile(input.subtaskId,'progress',input.attachment);
   const {error}=await supabase.rpc('save_subtask_work_update',{p_subtask_id:input.subtaskId,p_state:input.state,p_blocker:input.blocker?.trim()||null,p_note:input.note?.trim()||null,p_next_step:input.nextStep?.trim()||null,p_attachment_path:uploaded?.filePath||null,p_attachment_name:uploaded?.fileName||null});
   if(error)throw new Error(error.message);
  }catch(reason){if(uploaded)await supabase.storage.from('task-attachments').remove([uploaded.filePath]);throw reason;}

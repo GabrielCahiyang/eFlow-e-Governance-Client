@@ -1,0 +1,10 @@
+{
+  "target": "ixnfphgjyelhckjwjkdv",
+  "migration": "20261101130241_office_budget_release_calendar.sql",
+  "sha256": "706444655bbedce06235854f252a91a051857c0d3486d7f5386b2b9b3840ae06",
+  "backup_verified": true,
+  "prior_migrations": 70,
+  "dry_run_only_reviewed_delta": true,
+  "tables_checked": 117,
+  "applied": false
+}

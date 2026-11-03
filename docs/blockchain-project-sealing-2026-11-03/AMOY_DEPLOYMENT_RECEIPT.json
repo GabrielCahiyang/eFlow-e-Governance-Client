@@ -1,0 +1,11 @@
+{
+  "chain_id": 80002,
+  "publisher": "0x26AF046FE056BB05a35C6913D292b2bdb7FD6203",
+  "contract_address": "0xFF690376c2CA42ce7D64a83b00Cd60723abf470B",
+  "tx_hash": "0xdfee7daae480dc08fbf06704a65965f76173192eb5f5dd71e5831ffbb8e77f8a",
+  "block_number": 51873243,
+  "block_hash": "0xc9430f64d0e8f1af8b71675e6fd7f90005c137758b7fbb84d2ca45a4e00c258e",
+  "code_hash": "0xecc89c434bd92c3faa1ac4c56550bd6865a8ae822937e83086d4df537c026bf4",
+  "source_sha256": "d9fa955692eaeadcac25c78387ffb038e2567e44a3c88a1ed6035354db537e12",
+  "finalized": true
+}

@@ -85,7 +85,7 @@ test('Independent Head reviews a conflict package and a separate Accounting Offi
   await page.getByRole('combobox', { name: 'Independent reviewer', exact: true }).selectOption(headId);
   await page.getByLabel('Routing reason', { exact: true }).fill('Accounting Officer owns the receipt package.');
   await page.getByRole('button', { name: 'Send for independent review', exact: true }).click();
-  await page.getByRole('alertdialog').getByRole('button', { name: 'Send to reviewer', exact: true }).click();
+  await page.getByRole('alertdialog').getByRole('button', { name: 'Yes, send to reviewer', exact: true }).click();
   await expect(page.getByText('Waiting for Morgan Head.', { exact: true })).toBeVisible();
   expect(state.writes).toHaveLength(0);
   const headContext = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
@@ -94,10 +94,10 @@ test('Independent Head reviews a conflict package and a separate Accounting Offi
     await phase16FinancialFixture(head, 'head', state);
     await intercept(head, true);
     await head.goto('/office-budget?page=Office%20Budget&view=approvals&fy=2026');
+    await head.getByRole('button', { name: 'Approve review', exact: true }).click();
     await head.getByLabel('Review findings', { exact: true }).fill('Receipts independently checked; return reference confirmed.');
     await head.screenshot({ path: info.outputPath('independent-head-review.jpg'), fullPage: true });
-    await head.getByRole('button', { name: 'Approve review', exact: true }).click();
-    await head.getByRole('alertdialog').getByRole('button', { name: 'Record review', exact: true }).click();
+    await head.getByRole('dialog', {name:'Approve this independent review?',exact:true}).getByRole('button', { name: 'Yes, approve', exact: true }).click();
     await expect(head.getByText('Approved for separate Accounting settlement.', { exact: true })).toBeVisible();
     expect(state.writes).toHaveLength(0);
   } finally { await headContext.close(); }
@@ -157,10 +157,16 @@ test('A Member with an Assistant appointment reviews only assigned packages from
   const queue = page.getByRole('region', { name: 'Assigned independent financial reviews', exact: true });
   await expect(queue.getByText('QA independent receipt package', { exact: true })).toBeVisible();
   await expect(queue.getByRole('button', { name: 'Settle & post', exact: true })).toHaveCount(0);
-  await queue.getByLabel('Review findings', { exact: true }).fill('Independent review complete, separate Accounting posting required.');
-  await page.screenshot({ path: info.outputPath('assistant-member-inbox.jpg'), fullPage: true });
   await queue.getByRole('button', { name: 'Approve review', exact: true }).click();
-  await page.getByRole('alertdialog').getByRole('button', { name: 'Record review', exact: true }).click();
+  const confirmation = page.getByRole('dialog', {name:'Approve this independent review?',exact:true});
+  await expect(confirmation).toBeVisible();
+  expect(writes).toEqual([]);
+  await expect(confirmation.getByRole('button', {name:'Yes, approve',exact:true})).toBeDisabled();
+  await confirmation.getByLabel('Review findings', { exact: true }).fill('Independent review complete, separate Accounting posting required.');
+  await page.screenshot({ path: info.outputPath('assistant-member-inbox.jpg'), fullPage: true });
+  const bounds = await confirmation.boundingBox();
+  expect(bounds && bounds.x > 0 && bounds.x + bounds.width < 1440).toBeTruthy();
+  await confirmation.getByRole('button', { name: 'Yes, approve', exact: true }).click();
   await expect(page.getByText('Review recorded. Current assignments refreshed.', { exact: true })).toBeVisible();
   expect(writes).toEqual(['decide_liquidation_independent_review']);
 });

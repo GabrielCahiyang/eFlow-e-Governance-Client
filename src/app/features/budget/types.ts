@@ -115,6 +115,20 @@ export interface BudgetSection {
   retired?: boolean;
   committedAmount?: number;
   spentAmount?: number;
+  protectedAmount?: number;
+  reservations?: BudgetReservation[];
+  releaseSchedule?: BudgetScheduledRelease[];
+}
+
+export interface BudgetScheduledRelease {
+  id: string;
+  date: string;
+  amount: number;
+  status: 'pending' | 'confirmed';
+  confirmedAt?: string;
+  confirmedBy?: string;
+  confirmedByName?: string;
+  reference?: string;
 }
 
 export interface BudgetCommitment {
@@ -263,6 +277,7 @@ export interface PettyCashLiquidation {
   status: "pending" | "pending_leader_review" | "pending_department_settlement" | "approved" | "changes_requested";
   submittedBy: string;
   submittedAt: number;
+  leaderDecidedAt?: number;
   departmentDecidedBy?: string;
   departmentDecidedAt?: number;
   decisionReason?: string;
@@ -362,6 +377,10 @@ export interface TaskFundingContext {
 }
 
 export interface DepartmentBudgetBundle {
+  budgetVersions?: OfficeBudgetVersion[];
+  canAdjustBudget?: boolean;
+  releaseScheduleAvailable?: boolean;
+  canConfirmBudgetReleases?: boolean;
   summary: DepartmentBudgetSummary | null;
   sections?: BudgetSection[];
   sectionsAvailable?: boolean;
@@ -379,6 +398,11 @@ export interface DepartmentBudgetBundle {
   adjustments: DepartmentBudgetAdjustment[];
   schemaWarnings?: string[];
 }
+
+export interface BudgetReservation {id:string;name:string;amount:number}
+export interface BudgetProtection {kind:'budget_account_protected';account:string;entered:number;minimum:number;sources:BudgetReservation[]}
+export interface BudgetAccountSnapshot {releaseSchedule?:BudgetScheduledRelease[];id:string;name:string;parentId?:string|null;accountCode?:string|null;amount:number;heldAmount:number;position:number}
+export interface OfficeBudgetVersion {q4Target?:number;version:number;total:number;actorName:string;createdAt:string;reason:string;accounts:BudgetAccountSnapshot[]}
 
 export interface ReceiptDraft {
   id: string;

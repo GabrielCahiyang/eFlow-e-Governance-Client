@@ -29,6 +29,17 @@ let uninstall:(()=>void)|undefined;
 beforeEach(()=>{vi.clearAllMocks();api.actor='actor';api.read.mockImplementation(async(_root,id)=>record(id));api.tree.mockImplementation(async()=>tree());api.legacyRead.mockImplementation(async(id)=>record(id).subtask);sessionStorage.clear();});
 afterEach(()=>{cleanup();uninstall?.();uninstall=undefined;});
 describe('NW8.1 canonical Subtask Inspector',()=>{
+ it('shows an accessible skeleton while loading, allows closing and hides retry until a read fails',async()=>{
+  api.read.mockImplementationOnce(()=>new Promise(()=>{}));const close=vi.fn();
+  render(<SubitemInspector onClose={close} rootTask={task} itemId="n8" controller={controller()}/>);
+  expect(screen.getByRole('status').getAttribute('aria-busy')).toBe('true');
+  expect(screen.getByRole('heading',{name:'Loading subtask…'})).toBeTruthy();
+  expect(document.querySelector('.subtask-load__skeleton[aria-hidden="true"]')).toBeTruthy();
+  expect(screen.queryByRole('button',{name:'Retry subtask'})).toBeNull();
+  expect(screen.queryByText('Verifying current subtask context.')).toBeNull();
+  fireEvent.click(screen.getByRole('button',{name:'Close subtask detail'}));
+  await waitFor(()=>expect(close).toHaveBeenCalledOnce());
+ });
  it('retains the actual opener through the loading-to-loaded panel transition',async()=>{
   const opener=document.createElement('button');opener.textContent='Actual opener';document.body.append(opener);opener.focus();
   const view=render(<SubitemInspector onClose={()=>{}} rootTask={task} itemId="n8" controller={controller()}/>);await screen.findByRole('heading',{name:'Level 8'});

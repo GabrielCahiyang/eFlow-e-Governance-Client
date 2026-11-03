@@ -4,12 +4,14 @@ import {fetchWorkTree,saveWorkTree,WorkTreeUnavailable} from '../services/workTr
 import type {WorkRequest,WorkTreeController,WorkTreeSnapshot} from '../types';
 import {isolateWorkDraftActor} from '../services/workDraftStore';
 import {isCurrentWorkSnapshot} from '../selectors/capabilities';
+import {subscribeWorkChanges} from '../../../shared/workChanges';
 
 export function useWorkTree(rootId:string):WorkTreeController & {fresh:boolean} {
  const {user}=useAuth(),actorId=user?.id||null,identity=JSON.stringify([actorId,rootId]);
  const [state,setState]=useState<{identity:string;data?:WorkTreeSnapshot;error:string;unavailable:boolean;loading:boolean;fresh:boolean;pending:boolean}>(
   {identity,error:'',unavailable:false,loading:true,fresh:false,pending:false});
  const generation=useRef(0),active=useRef(true),pending=useRef<number|undefined>(undefined),reading=useRef<number|undefined>(undefined);
+ const refreshQueued=useRef(false);
  const scope=useRef(identity),verified=useRef(false);
  // Fail closed during the switching render, before the new owner's effect runs.
  if(scope.current!==identity){scope.current=identity;++generation.current;verified.current=false;pending.current=undefined;reading.current=undefined;}
@@ -22,7 +24,7 @@ export function useWorkTree(rootId:string):WorkTreeController & {fresh:boolean} 
    :{...previous,fresh:false,error:'Verify current work access. Reload the work.'});
  }
  async function reload(preserve=true):Promise<void> {
-  if(!current())return;
+  if(!current())return;refreshQueued.current=false;
   const run=++generation.current;reading.current=run;
   if(!preserve)verified.current=false;
   setState(previous=>({identity,data:preserve&&previous.identity===identity?previous.data:undefined,error:'',unavailable:preserve&&previous.identity===identity&&previous.unavailable,loading:true,
@@ -35,13 +37,13 @@ export function useWorkTree(rootId:string):WorkTreeController & {fresh:boolean} 
    setState(previous=>({...previous,identity,data:denied||reason instanceof WorkTreeUnavailable?undefined:previous.data,
     fresh:false,unavailable:reason instanceof WorkTreeUnavailable,error:reason instanceof WorkTreeUnavailable?'':message}));
   }}
-  finally{if(reading.current===run)reading.current=undefined;if(current()&&run===generation.current)setState(previous=>({...previous,loading:false}));}
+  finally{if(reading.current===run)reading.current=undefined;if(current()&&run===generation.current)setState(previous=>({...previous,loading:false}));if(current()&&refreshQueued.current&&pending.current===undefined&&reading.current===undefined)void reload(true);}
  }
  useEffect(()=>{
   active.current=true;isolateWorkDraftActor(actorId);void reload(false);
-  const refresh=()=>{if(pending.current===undefined&&reading.current===undefined)void reload(true);};
-  const timer=window.setInterval(refresh,15000);window.addEventListener('focus',refresh);window.addEventListener('eflow:work-updated',refresh);
-  return()=>{active.current=false;++generation.current;window.clearInterval(timer);window.removeEventListener('focus',refresh);window.removeEventListener('eflow:work-updated',refresh);};
+  const refresh=()=>{if(pending.current===undefined&&reading.current===undefined)void reload(true);else refreshQueued.current=true;};
+  const timer=window.setInterval(refresh,15000);window.addEventListener('focus',refresh);const stop=subscribeWorkChanges(refresh,rootId);
+  return()=>{active.current=false;++generation.current;refreshQueued.current=false;window.clearInterval(timer);window.removeEventListener('focus',refresh);stop();};
  },[rootId,actorId]);
  async function save(request:WorkRequest):Promise<WorkTreeSnapshot> {
   if(!current()||!verified.current)throw new Error('Verify current work access before saving.');
@@ -49,7 +51,7 @@ export function useWorkTree(rootId:string):WorkTreeController & {fresh:boolean} 
   const run=++generation.current;pending.current=run;reading.current=undefined;
   setState(previous=>({...previous,loading:false,pending:true}));
   try{const next=await saveWorkTree(rootId,request);if(current()&&run===generation.current)accept(next);return next;}
-  finally{if(current()&&pending.current===run){pending.current=undefined;setState(previous=>({...previous,pending:false}));}}
+  finally{if(current()&&pending.current===run){pending.current=undefined;setState(previous=>({...previous,pending:false}));if(refreshQueued.current)void reload(true);}}
  }
  const sameScope=state.identity===identity,authorityFresh=sameScope&&state.fresh&&verified.current;
  return {rootId,actorId,data:sameScope?state.data:undefined,error:sameScope?state.error:'',unavailable:sameScope&&state.unavailable,

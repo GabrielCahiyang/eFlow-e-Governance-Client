@@ -197,7 +197,7 @@ export function resolveNotificationDestination(
     return makeDestination(notification, route, "team_intelligence", "Open workload insight");
   }
 
-  if (isSubtask && title.includes("progress updated")) {
+  if (isSubtask && ["progress updated","work updated","blocker reported","subtask completed"].some(label=>title.includes(label))) {
     const route = role === "head" || role === "member" || role === "accounting_staff" || role === "teamleader"
       ? { section: "personal_work", page: "Leading" }
       : destinationForTask(role);

@@ -32,7 +32,7 @@ const button = (name: string) => screen.getByRole("button", { name, exact: true 
 const startApproval = async () => {
   await waitFor(() => expect(button("Approve").disabled).toBe(false));
   fireEvent.click(button("Approve"));
-  fireEvent.click(button("Confirm approval"));
+  fireEvent.click(button("Yes, approve"));
 };
 
 beforeEach(() => { vi.clearAllMocks(); mocks.topics.length = 0; mocks.fetch.mockReset().mockResolvedValue([]); mocks.verify.mockReset().mockResolvedValue(undefined); });
@@ -73,7 +73,7 @@ describe("cash-aware review decision", () => {
     await screen.findByText("FR-00002 · Awaiting final cash settlement");
     fireEvent.click(button("Request changes"));
     fireEvent.change(screen.getByRole("textbox", { name: "Required change feedback" }), { target: { value: "Please clarify the final evidence" } });
-    fireEvent.click(button("Send back for changes"));
+    fireEvent.click(button("Yes, request changes"));
     await waitFor(() => expect(mocks.verify).toHaveBeenCalledWith("task-1", false, "Please clarify the final evidence", expect.anything()));
     expect(mocks.fetch).toHaveBeenCalledTimes(1);
   });
@@ -84,7 +84,7 @@ describe("cash-aware review decision", () => {
     await startApproval();
     await screen.findByText("FR-00002 · Awaiting final cash settlement");
     expect(mocks.verify).not.toHaveBeenCalled();
-    expect(button("Confirm approval").disabled).toBe(true);
+    expect(button("Yes, approve").disabled).toBe(true);
   });
 
   it("refreshes actionable details when the database catches a race after the preflight", async () => {

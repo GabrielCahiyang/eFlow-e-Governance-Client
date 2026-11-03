@@ -315,7 +315,7 @@ function LegacyTaskSubtasksWidget({
                 st.status === "completed" ? "bg-emerald-50 text-emerald-700" :
                 st.status === "for_review" ? "bg-amber-50 text-amber-700" :
                 st.status === "changes_requested" ? "bg-rose-50 text-rose-700" :
-                st.status === "in_progress" ? "bg-blue-50 text-blue-700" : "bg-neutral-100 text-neutral-500"
+                st.status === "in_progress" ? "bg-emerald-50 text-emerald-700" : "bg-neutral-100 text-neutral-500"
               }`}>{st.status.replace("_", " ")}</span>
 
               <span className="text-[9.5px] font-medium tabular-nums text-neutral-500">
@@ -326,7 +326,7 @@ function LegacyTaskSubtasksWidget({
                 deadlineState.tone === "overdue" ? "bg-red-50 text-red-700" :
                 deadlineState.tone === "due_soon" ? "bg-amber-50 text-amber-700" :
                 deadlineState.tone === "completed" ? "bg-emerald-50 text-emerald-700" :
-                deadlineState.tone === "none" ? "bg-neutral-100 text-neutral-500" : "bg-blue-50 text-blue-700"
+                deadlineState.tone === "none" ? "bg-neutral-100 text-neutral-500" : "bg-emerald-50 text-emerald-700"
               }`} title={st.dueDate ? `Due ${formatDate(st.dueDate)}` : "No due date assigned"}>
                 <CalendarClock size={9} /> {deadlineState.label}
               </span>

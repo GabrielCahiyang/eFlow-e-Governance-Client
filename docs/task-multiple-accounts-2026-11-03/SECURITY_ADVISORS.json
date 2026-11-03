@@ -1,0 +1,27 @@
+{
+  "target": "ixnfphgjyelhckjwjkdv",
+  "existingLints": [
+    {
+      "name": "rls_enabled_no_policy",
+      "count": 37
+    },
+    {
+      "name": "extension_in_public",
+      "count": 1
+    },
+    {
+      "name": "anon_security_definer_function_executable",
+      "count": 81
+    },
+    {
+      "name": "authenticated_security_definer_function_executable",
+      "count": 196
+    },
+    {
+      "name": "auth_leaked_password_protection",
+      "count": 1
+    }
+  ],
+  "taskMultipleAccountFindings": [],
+  "note": "No advisory findings for the changed private functions or public allocation wrapper. Existing project-wide advisories remain outside this change."
+}

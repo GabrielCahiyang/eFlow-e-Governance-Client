@@ -3,10 +3,10 @@ import { AlertTriangle, CheckCircle2, Clock3, Gauge, ShieldAlert, TimerReset } f
 import type { TeamHealthSummary, TeamMemberMetrics } from "../../types";
 import { TEAM_WORKLOAD_ELEVATED_THRESHOLD, TEAM_WORKLOAD_HIGH_THRESHOLD } from "../../constants";
 
-export function TeamHealthOverview({ health, members }: { health: TeamHealthSummary; members: TeamMemberMetrics[] }) {
+export function TeamHealthOverview({ health, members,atRiskCount }: { health: TeamHealthSummary; members: TeamMemberMetrics[];atRiskCount?:number }) {
   const overloaded = members.filter((member) => member.workloadSignal >= TEAM_WORKLOAD_HIGH_THRESHOLD);
   const activeWork = health.activeTasks + health.activeSubtasks;
-  const riskWork = health.overdue + health.blocked + health.stalled;
+  const riskWork = atRiskCount ?? health.overdue + health.blocked + health.stalled;
   const riskRate = activeWork ? Math.min(100, Math.round((riskWork / activeWork) * 100)) : 0;
 
   return (

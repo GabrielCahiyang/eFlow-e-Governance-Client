@@ -1,0 +1,70 @@
+{
+  "target": "ixnfphgjyelhckjwjkdv",
+  "date": "2026-11-03",
+  "method": "Read-only SQL with authenticated role and each existing user's JWT subject; transactions rolled back. No login, password, schema or data changes.",
+  "results": {
+    "Head": [
+      {
+        "authorized_analytics_reads": {
+          "role": "Head",
+          "visible_tasks": 2,
+          "visible_history": 4,
+          "visible_updates": 0,
+          "visible_submissions": 0
+        }
+      }
+    ],
+    "Accounting": [
+      {
+        "authorized_analytics_reads": {
+          "role": "Accounting",
+          "visible_tasks": 2,
+          "visible_history": 4,
+          "visible_updates": 0,
+          "visible_submissions": 0
+        }
+      }
+    ],
+    "Member": [
+      {
+        "authorized_analytics_reads": {
+          "role": "Member",
+          "visible_tasks": 2,
+          "visible_history": 4,
+          "visible_updates": 0,
+          "visible_submissions": 0
+        }
+      }
+    ]
+  },
+  "advisors": {
+    "note": "Existing advisor findings; this UI implementation changes no database grants or policies.",
+    "categories": [
+      {
+        "name": "rls_enabled_no_policy",
+        "level": "INFO",
+        "count": 37
+      },
+      {
+        "name": "extension_in_public",
+        "level": "WARN",
+        "count": 1
+      },
+      {
+        "name": "anon_security_definer_function_executable",
+        "level": "WARN",
+        "count": 81
+      },
+      {
+        "name": "authenticated_security_definer_function_executable",
+        "level": "WARN",
+        "count": 196
+      },
+      {
+        "name": "auth_leaked_password_protection",
+        "level": "WARN",
+        "count": 1
+      }
+    ]
+  }
+}

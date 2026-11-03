@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-03",
+  "target": "ixnfphgjyelhckjwjkdv",
+  "request": [
+    {
+      "id": "12450515-c5e7-4fb8-830c-d73be2a35095",
+      "request_number": 1,
+      "task_id": "e594c65c-f539-408c-9c65-1299a2b7eb3c",
+      "subtask_id": "0e968f92-cc9d-44a7-a95e-21bd4e52ea64",
+      "status": "pending_department_settlement",
+      "requested_amount": "4000.00",
+      "released_amount": "4000.00",
+      "actual_spent": null,
+      "settled_at": null,
+      "task": "Customer Service Seminar Venue Reservation",
+      "project": "Customer Service Seminar",
+      "requester": "Gabriel Cahiyang",
+      "task_leader": "Cheryl Gallo",
+      "recipient": "Gabriel Cahiyang",
+      "liquidation_id": "b1562f40-69a9-40e3-b4aa-db3a4176972f",
+      "version": 1,
+      "liquidation_status": "pending_department_settlement",
+      "declared_spent": "4000.00",
+      "returned_amount": "0.00",
+      "submitted_at": "2026-10-31 15:44:53.06486+00",
+      "leader_decided_at": "2026-10-31 15:46:09.10761+00",
+      "leader_reviewer": "Cheryl Gallo",
+      "department_decided_at": null,
+      "department_reviewer": null,
+      "decided_at": null,
+      "final_reviewer": null,
+      "independent_reviews": []
+    }
+  ],
+  "authorization": "User explicitly chose to retain independent Accounting settlement; no self-settlement exception.",
+  "readiness": {
+    "required": true,
+    "canSettle": false,
+    "candidates": [],
+    "eligibleSettlers": 0,
+    "escalationRequired": true
+  },
+  "postingCheck": {
+    "requestSettledAt": null,
+    "liquidationDecidedAt": null,
+    "expensePostings": 0
+  },
+  "guard": {
+    "actor": "Gabriel Cahiyang",
+    "sqlstate": "42501",
+    "message": "A separate eligible Accounting Officer must settle this package",
+    "transaction": "Rolled back"
+  },
+  "dataChanges": "None. No financial approval, settlement, reassignment, journal or account mutation committed."
+}

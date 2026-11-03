@@ -1,0 +1,11 @@
+{
+  "target": "ixnfphgjyelhckjwjkdv",
+  "migration": "20261103070206_project_archive_publication_lifecycle.sql",
+  "sha256": "84933a1951a1f61ba75dd00927a21de486424e570d61399363b0d453dbd8a90d",
+  "backup_verified": true,
+  "prior_migrations": 74,
+  "dry_run_only_reviewed_delta": true,
+  "tables_checked": 125,
+  "applied": false,
+  "completed_at": "2026-11-03T08:49:48.256274+00:00"
+}

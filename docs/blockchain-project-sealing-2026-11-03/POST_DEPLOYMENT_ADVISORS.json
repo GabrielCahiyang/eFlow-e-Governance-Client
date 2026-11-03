@@ -1,0 +1,232 @@
+{
+  "checked_at": "2026-11-03T09:02:07.347Z",
+  "project": "ixnfphgjyelhckjwjkdv",
+  "security": [
+    {
+      "name": "rls_enabled_no_policy",
+      "level": "INFO",
+      "count": 41,
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy",
+      "feature_findings": [
+        {
+          "detail": "Table \\`eflow_seal.preview_edits\\` has RLS enabled, but no policies exist",
+          "metadata": {
+            "name": "preview_edits",
+            "type": "table",
+            "schema": "eflow_seal"
+          }
+        },
+        {
+          "detail": "Table \\`eflow_seal.snapshots\\` has RLS enabled, but no policies exist",
+          "metadata": {
+            "name": "snapshots",
+            "type": "table",
+            "schema": "eflow_seal"
+          }
+        },
+        {
+          "detail": "Table \\`eflow_seal.transaction_attempts\\` has RLS enabled, but no policies exist",
+          "metadata": {
+            "name": "transaction_attempts",
+            "type": "table",
+            "schema": "eflow_seal"
+          }
+        },
+        {
+          "detail": "Table \\`eflow_seal.wallet_lease\\` has RLS enabled, but no policies exist",
+          "metadata": {
+            "name": "wallet_lease",
+            "type": "table",
+            "schema": "eflow_seal"
+          }
+        }
+      ]
+    },
+    {
+      "name": "extension_in_public",
+      "level": "WARN",
+      "count": 1,
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0014_extension_in_public",
+      "feature_findings": []
+    },
+    {
+      "name": "anon_security_definer_function_executable",
+      "level": "WARN",
+      "count": 82,
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0028_anon_security_definer_function_executable",
+      "feature_findings": [
+        {
+          "detail": "Function `public.can_upload_project_seal_copy(p_path text)` can be executed by the `anon` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/can_upload_project_seal_copy`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+          "metadata": {
+            "name": "can_upload_project_seal_copy",
+            "schema": "public",
+            "language": "plpgsql",
+            "arguments": "p_path text",
+            "security_definer": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "authenticated_security_definer_function_executable",
+      "level": "WARN",
+      "count": 203,
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable",
+      "feature_findings": [
+        {
+          "detail": "Function `public.approve_project_seal(p_snapshot_id uuid, p_manifest_hash text)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/approve_project_seal`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+          "metadata": {
+            "name": "approve_project_seal",
+            "schema": "public",
+            "language": "plpgsql",
+            "arguments": "p_snapshot_id uuid, p_manifest_hash text",
+            "security_definer": true
+          }
+        },
+        {
+          "detail": "Function `public.can_upload_project_seal_copy(p_path text)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/can_upload_project_seal_copy`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+          "metadata": {
+            "name": "can_upload_project_seal_copy",
+            "schema": "public",
+            "language": "plpgsql",
+            "arguments": "p_path text",
+            "security_definer": true
+          }
+        },
+        {
+          "detail": "Function `public.discard_project_seal(p_snapshot_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/discard_project_seal`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+          "metadata": {
+            "name": "discard_project_seal",
+            "schema": "public",
+            "language": "plpgsql",
+            "arguments": "p_snapshot_id uuid",
+            "security_definer": true
+          }
+        },
+        {
+          "detail": "Function `public.prepare_project_seal(p_project_id uuid, p_correction text)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/prepare_project_seal`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+          "metadata": {
+            "name": "prepare_project_seal",
+            "schema": "public",
+            "language": "plpgsql",
+            "arguments": "p_project_id uuid, p_correction text",
+            "security_definer": true
+          }
+        },
+        {
+          "detail": "Function `public.project_seal_status(p_project_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/project_seal_status`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+          "metadata": {
+            "name": "project_seal_status",
+            "schema": "public",
+            "language": "plpgsql",
+            "arguments": "p_project_id uuid",
+            "security_definer": true
+          }
+        },
+        {
+          "detail": "Function `public.retry_project_seal(p_snapshot_id uuid)` can be executed by the `authenticated` role as a `SECURITY DEFINER` function via `/rest/v1/rpc/retry_project_seal`. Revoke `EXECUTE` or switch it to `SECURITY INVOKER` if that is not intentional.",
+          "metadata": {
+            "name": "retry_project_seal",
+            "schema": "public",
+            "language": "plpgsql",
+            "arguments": "p_snapshot_id uuid",
+            "security_definer": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "auth_leaked_password_protection",
+      "level": "WARN",
+      "count": 1,
+      "remediation": "https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection",
+      "feature_findings": []
+    }
+  ],
+  "performance": [
+    {
+      "name": "unindexed_foreign_keys",
+      "level": "INFO",
+      "count": 172,
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0001_unindexed_foreign_keys",
+      "feature_findings": []
+    },
+    {
+      "name": "auth_rls_initplan",
+      "level": "WARN",
+      "count": 131,
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0003_auth_rls_initplan",
+      "feature_findings": []
+    },
+    {
+      "name": "unused_index",
+      "level": "INFO",
+      "count": 22,
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+      "feature_findings": [
+        {
+          "detail": "Index \\`project_archive_clock_idx\\` on table \\`public.projects\\` has not been used",
+          "metadata": {
+            "name": "projects",
+            "type": "table",
+            "schema": "public"
+          }
+        },
+        {
+          "detail": "Index \\`snapshots_created_by_idx\\` on table \\`eflow_seal.snapshots\\` has not been used",
+          "metadata": {
+            "name": "snapshots",
+            "type": "table",
+            "schema": "eflow_seal"
+          }
+        },
+        {
+          "detail": "Index \\`snapshots_approved_by_idx\\` on table \\`eflow_seal.snapshots\\` has not been used",
+          "metadata": {
+            "name": "snapshots",
+            "type": "table",
+            "schema": "eflow_seal"
+          }
+        },
+        {
+          "detail": "Index \\`snapshots_previous_id_idx\\` on table \\`eflow_seal.snapshots\\` has not been used",
+          "metadata": {
+            "name": "snapshots",
+            "type": "table",
+            "schema": "eflow_seal"
+          }
+        },
+        {
+          "detail": "Index \\`transaction_attempts_snapshot_id_idx\\` on table \\`eflow_seal.transaction_attempts\\` has not been used",
+          "metadata": {
+            "name": "transaction_attempts",
+            "type": "table",
+            "schema": "eflow_seal"
+          }
+        },
+        {
+          "detail": "Index \\`preview_edits_snapshot_id_idx\\` on table \\`eflow_seal.preview_edits\\` has not been used",
+          "metadata": {
+            "name": "preview_edits",
+            "type": "table",
+            "schema": "eflow_seal"
+          }
+        }
+      ]
+    },
+    {
+      "name": "multiple_permissive_policies",
+      "level": "WARN",
+      "count": 50,
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0006_multiple_permissive_policies",
+      "feature_findings": []
+    },
+    {
+      "name": "duplicate_index",
+      "level": "WARN",
+      "count": 2,
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0009_duplicate_index",
+      "feature_findings": []
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "target": "ixnfphgjyelhckjwjkdv",
+  "migration": "20261031124511_remove_project_funding_quarters.sql",
+  "sha256": "2e1b30c0962199334889497f13c067128f3fc58d6cd57aa62b42b2ab9d6d455c",
+  "backup_verified": true,
+  "prior_migrations": 66,
+  "dry_run_only_reviewed_delta": true,
+  "public_tables_checked": 115,
+  "applied": false
+}

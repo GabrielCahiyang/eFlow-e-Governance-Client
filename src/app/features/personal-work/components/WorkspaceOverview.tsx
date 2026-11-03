@@ -9,7 +9,7 @@ import { useWorkFeed } from "../hooks/useWorkFeed";
 import { workspaceSummary } from "../workSelectors";
 import { WorkList } from "./WorkList";
 import { WorkInspector, useWorkInspector } from "./WorkInspector";
-import {HeadWorkspaceDashboard} from './head-overview/HeadWorkspaceDashboard';
+import {EmployeeAnalyticsWorkspace} from '../../team-management';
 import {ViewLoadingState} from '../../../components/ui/ViewLoadingState';
 import "../personalWork.css";
 const HeadInsights = lazy(() =>
@@ -61,7 +61,7 @@ export function WorkspaceOverview({
     );
   const filtered = summary?.[focus] || [];
   if (userProfile?.role === 'head' && workspace.kind === 'office' && workspace.office_id === (userProfile.org_id || userProfile.departmentId)) return <>
-    <div hidden={!!inspector.selection}><HeadWorkspaceDashboard actorId={user?.id} name={workspace.name} data={data} loading={feed.loading} error={feed.error} onRefresh={()=>void feed.refresh()} onNavigate={navigate} onOpen={inspector.open} canReports={can('navigation.reports')}/>
+    <div hidden={!!inspector.selection}><EmployeeAnalyticsWorkspace home onNavigate={navigate}/>
     <div className="head-home__more"><button type="button" className="eflow-button" aria-expanded={insights} onClick={()=>void requestNavigation(()=>setInsights(value=>!value))}>Office insights</button>{insights&&<Suspense fallback={<ViewLoadingState/>}><HeadInsights/></Suspense>}</div>
     </div><WorkInspector presentation="page" selected={inspector.selection} current={data?.rows||[]} onClose={inspector.close}/>
   </>;

@@ -1,5 +1,5 @@
 import type {CSSProperties} from 'react';
-import {formatDate} from '../../../components/workflow/primitives';
+import {DeadlineBadge} from '../../../components/ui/DeadlineBadge';
 import {StatusPill} from '../../../components/ui/workspace/StatusPill';
 import type {WorkspaceAction} from '../../../components/ui/workspace/ActionMenu';
 import type {WorkDisplayRow} from '../selectors/displayTree';
@@ -23,4 +23,4 @@ export function WorkNodeTitle({row,collapsed,onToggle,onOpenNode}:{row:WorkHiera
 }
 const statuses={todo:{label:'Not started',tone:'neutral'},in_progress:{label:'In progress',tone:'info'},for_review:{label:'Ready to finish',tone:'info'},changes_requested:{label:'In progress',tone:'info'},completed:{label:'Completed',tone:'positive'}} as const;
 export function WorkNodeStatus({node}:{node:WorkNode}){return <StatusPill {...statuses[node.status]} label={node.status==='in_progress'&&node.blocker?'Stuck':statuses[node.status].label}/>;}
-export function WorkNodeDue({node}:{node:WorkNode}){return node.due_date?<time dateTime={node.due_date}>{formatDate(node.due_date)}</time>:<span>No due date</span>;}
+export function WorkNodeDue({node}:{node:WorkNode}){return <DeadlineBadge value={node.due_date} status={node.status}/>;}

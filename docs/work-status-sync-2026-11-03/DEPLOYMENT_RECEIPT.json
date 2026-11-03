@@ -1,0 +1,15 @@
+{
+  "target": "ixnfphgjyelhckjwjkdv",
+  "migration": "20261102192953_work_status_lifecycle_sync.sql",
+  "sha256": "d92f995fbc0a45cccae7b1c1c931ad22bd5346410df2d8ece9c386a1e7ddf1ca",
+  "backup_verified": true,
+  "backup_path": "C:/Users/gabri/AppData/Local/eFlow/deployment-backups/20261102T192941Z-phaseoffice-budget-main",
+  "prior_migrations": 73,
+  "dry_run_only_reviewed_delta": true,
+  "tables_checked": 117,
+  "applied": true,
+  "existing_rows_unchanged": true,
+  "installed_rollback_checks": 17,
+  "separate_existing_status_repair": "REPAIR_RECEIPT.json",
+  "completed_at": "2026-11-02T19:44:17.748022+00:00"
+}

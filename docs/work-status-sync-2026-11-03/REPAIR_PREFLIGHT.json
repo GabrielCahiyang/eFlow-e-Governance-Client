@@ -1,0 +1,31 @@
+{
+  "target": "ixnfphgjyelhckjwjkdv",
+  "applied": false,
+  "completed_at": "2026-11-02T19:46:57.289479+00:00",
+  "repaired_tasks": [
+    {
+      "task_id": "21d99fdf-aed8-48c4-b956-284d196f1bdd",
+      "title": "Customer Service Seminar Venue Cleanup",
+      "before": "todo",
+      "after": "in_progress",
+      "changed_fields": [
+        "status",
+        "updated_at"
+      ]
+    },
+    {
+      "task_id": "e594c65c-f539-408c-9c65-1299a2b7eb3c",
+      "title": "Customer Service Seminar Venue Reservation",
+      "before": "todo",
+      "after": "in_progress",
+      "changed_fields": [
+        "status",
+        "updated_at"
+      ]
+    }
+  ],
+  "other_tables_checked": 114,
+  "other_tables_unchanged": true,
+  "review_and_completion_unchanged": true,
+  "audit_actor": "System (no user impersonation)"
+}

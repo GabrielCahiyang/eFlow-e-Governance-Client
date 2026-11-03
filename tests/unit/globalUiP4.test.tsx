@@ -7,8 +7,8 @@ import { groupOfficeTools } from '../../src/app/features/app-shell/officeToolGro
 import { buildShellNavigation } from '../../src/app/features/navigation';
 
 describe('P4 authorized destinations and budget views', () => {
-  it('preserves all nine URL views without treating areas as routes or authority', () => {
-    const values = ['overview','annual','funding','approvals','releases','expenses','vouchers','journal','audit'];
+  it('preserves the existing URL views and adds the separate office petty cash view without treating areas as authority', () => {
+    const values = ['overview','annual','funding','office-petty-cash','approvals','releases','expenses','vouchers','journal','audit'];
     expect(budgetViewGroups.flatMap(group => group.views.map(view => view.id))).toEqual(values);
     for (const value of values) expect(readBudgetView(value)).toBe(value);
     for (const value of ['planning','ledger','requests','foreign','',null]) expect(readBudgetView(value)).toBeNull();
@@ -18,7 +18,7 @@ describe('P4 authorized destinations and budget views', () => {
     expect(screen.getByRole('combobox', { name: 'Budget view' }).textContent).toContain('Proposal & Task Funding');
     expect(screen.queryByRole('tablist')).toBeNull();
     view.rerender(<BudgetViewControl value="vouchers" onChange={vi.fn()} />);
-    expect(screen.getByRole('combobox', { name: 'Budget view' }).textContent).toContain('Petty Cash Vouchers');
+    expect(screen.getByRole('combobox', { name: 'Budget view' }).textContent).toContain('Task Cash Vouchers');
     cleanup();
   });
   it('groups only supplied authorized Office destinations and preserves every page', () => {

@@ -1,0 +1,10 @@
+{
+  "target": "ixnfphgjyelhckjwjkdv",
+  "migration": "20261102190846_work_completion_and_update_notifications.sql",
+  "sha256": "cdd1189e72051b3e61592627782945c1f1400facab74cf2f6355ee4d03192eda",
+  "backup_verified": true,
+  "prior_migrations": 72,
+  "dry_run_only_reviewed_delta": true,
+  "tables_checked": 117,
+  "applied": false
+}

@@ -1,9 +1,9 @@
-import { BriefcaseBusiness, Building2, CircleHelp, Inbox, Settings2, ShieldCheck, UserRound, Wallet } from 'lucide-react';
+import { BriefcaseBusiness, Building2, Inbox, ShieldCheck, UserRound, Wallet } from 'lucide-react';
 import { navigationGroupLabels, type NavigationGroupId, type ShellNavigationItem } from '../../navigation';
 import eflowIcon from '../../../shared/branding/icon.svg';
 
 const icons = { 'my-work': BriefcaseBusiness, workspaces: Building2, inbox: Inbox, accounting: Wallet, 'admin-center': ShieldCheck, account: UserRound };
-export function GlobalNavigation({ items, activeGroup, onSelect, onProfile, onHelp }: {
+export function GlobalNavigation({ items, activeGroup, onSelect }: {
   items: ShellNavigationItem[]; activeGroup: NavigationGroupId;
   onSelect: (group: NavigationGroupId) => void; onProfile: () => void; onHelp: () => void;
 }) {
@@ -17,8 +17,5 @@ export function GlobalNavigation({ items, activeGroup, onSelect, onProfile, onHe
         <span>{navigationGroupLabels[group]}</span>
       </button>;
     })}
-    <div className="eflow-global-navigation__spacer" />
-    <button type="button" className="eflow-global-navigation__item" onClick={onHelp}><CircleHelp size={21} aria-hidden="true" /><span>Help</span></button>
-    <button type="button" className="eflow-global-navigation__item" aria-current={activeGroup === 'account' ? 'page' : undefined} onClick={onProfile}><Settings2 size={21} aria-hidden="true" /><span>Profile</span></button>
   </nav>;
 }

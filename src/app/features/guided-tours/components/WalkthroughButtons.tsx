@@ -41,7 +41,6 @@ export function SystemWalkthroughButton({
             icon={NavigationArrow}
             kind="tertiary"
             onClick={start}
-            N
           />
         </Tooltip>
       </span>

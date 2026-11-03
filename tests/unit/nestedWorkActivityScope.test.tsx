@@ -17,7 +17,7 @@ describe('NW8.4 focused historical Activity scope',()=>{
   const before=tree([node('selected'),node('child','selected','Deleted descendant')]),after=tree([node('selected')]);
   api.read.mockResolvedValueOnce({events:[event('deleted','child','delete',before,after)],more:false}).mockRejectedValueOnce(new Error('Current access denied'));
   render(<WorkActivity roots={['root']} focusedNode={focus} snapshot={tree()}/>);
-  await screen.findByText(/Subtask deleted/);expect(screen.getByText(/Path: selected \/ Deleted descendant/)).toBeTruthy();
+  await screen.findByText(/Subtask deleted/);expect(screen.getByText('selected / Deleted descendant')).toBeTruthy();
   fireEvent.click(screen.getByRole('button',{name:'Refresh history'}));await screen.findByRole('alert');expect(screen.queryByText('Historical actor deleted')).toBeNull();expect(screen.queryByText(/Deleted descendant/)).toBeNull();
  });
  it('keeps own and descendant events, excludes siblings, other roots and root staffing',()=>{

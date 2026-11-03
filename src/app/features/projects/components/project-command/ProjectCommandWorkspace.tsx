@@ -26,6 +26,7 @@ import { ProjectReportsTab } from "./ProjectReportsTab";
 import { ProjectReviewsTab } from "./ProjectReviewsTab";
 import { ProjectActivityTab } from "./ProjectActivityTab";
 import { ProjectDashboardTab } from "./ProjectDashboardTab";
+import {DeliveryAnalytics} from '../../../analytics';
 import { ProjectProposalContextTab } from "./ProjectProposalContextTab";
 import { ProjectViewTabBar } from "./ProjectViewTabBar";
 import { resolveProjectView } from "./projectViewCatalog";
@@ -286,6 +287,7 @@ export function ProjectCommandWorkspace({
           {setupReady && activeTabId === "dashboard" && (
             <><ProjectInsightsView data={viewData} profiles={profiles} offices={orgs} onOpenTask={setOpenTaskId}/><details className="pv-details"><summary>Delivery details, milestones and recent activity</summary><ProjectDashboardTab data={viewData} onOpenTask={setOpenTaskId}/></details></>
           )}
+          {setupReady && activeTabId === 'analytics' && <DeliveryAnalytics key={project.id} fixedProject={project.id} input={{tasks:projectTasks,projects:[project],people:profiles.map(p=>({id:p.id,name:p.full_name||p.email||'Name unavailable'})),facts:data.facts}} onOpenTask={task=>setOpenTaskId(task.id)} loading={data.loading} error={data.error}/>}
 
           {activeTabId === "budget" && (
             <ProjectDefinitionPanel projectId={project.id} profiles={profiles.filter(person=>person.org_id===project.orgId)}/>

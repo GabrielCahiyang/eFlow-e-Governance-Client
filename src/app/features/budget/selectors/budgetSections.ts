@@ -1,3 +1,4 @@
+import {accountReleaseSchedule,budgetReleaseScheduleError} from './budgetReleaseSchedule';
 import type { BudgetSection, DepartmentBudgetBundle } from "../types";
 
 // Integers prevent penny drift and parent totals never contribute twice.
@@ -29,23 +30,24 @@ export function sectionTotal(sections: BudgetSection[], id?: string, field: "amo
 export function validateBudgetSections(sections: BudgetSection[]): string {
   // Retired rows are immutable history, not entries in the editable plan.
   sections = sections.filter(s => !s.retired);
-  if (sections.length > 250) return "Use at most 250 budget sections and account rows.";
+  if (sections.length > 250) return "Use at most 250 budget accounts.";
   const byId = new Map(sections.map(s => [s.id, s]));
-  if (byId.size !== sections.length) return "Section IDs must be unique.";
+  if (byId.size !== sections.length) return "Account IDs must be unique.";
   for (const s of sections) {
-    if (!s.name.trim()) return "Give every section a name.";
-    if (!Number.isFinite(s.amount) || !Number.isFinite(s.heldAmount) || s.amount < 0 || s.amount > 90_000_000_000 || s.heldAmount < 0 || s.heldAmount > s.amount || Math.abs(s.amount*100-Math.round(s.amount*100))>.001 || Math.abs(s.heldAmount*100-Math.round(s.heldAmount*100))>.001) return "Use valid amounts in cents; held money cannot exceed the section amount.";
+    const releaseIssue=budgetReleaseScheduleError(s);if(releaseIssue)return releaseIssue;
+    if (!s.name.trim()) return "Give every account a name.";
+    if (!Number.isFinite(s.amount) || !Number.isFinite(s.heldAmount) || s.amount < 0 || s.amount > 90_000_000_000 || s.heldAmount < 0 || s.heldAmount > s.amount || Math.abs(s.amount*100-Math.round(s.amount*100))>.001 || Math.abs(s.heldAmount*100-Math.round(s.heldAmount*100))>.001) return "Use valid amounts in cents; held money cannot exceed the account amount.";
     const seen = new Set([s.id]);
     let parentId = s.parentId;
     while (parentId) {
-      if (seen.has(parentId)) return "A section cannot contain itself.";
+      if (seen.has(parentId)) return "An account cannot contain itself.";
       const parent = byId.get(parentId);
-      if (!parent || parent.retired) return "Choose an existing active parent section.";
+      if (!parent || parent.retired) return "Choose an existing active parent account.";
       seen.add(parentId);
-      if (seen.size > 6) return "Use at most six levels of sections.";
+      if (seen.size > 6) return "Use at most six levels of accounts.";
       parentId = parent.parentId;
     }
-    if (sections.some(c => !c.retired && c.parentId === s.id) && (s.amount || s.heldAmount)) return "A detailed section gets its subtotal from its children.";
+    if (sections.some(c => !c.retired && c.parentId === s.id) && (s.amount || s.heldAmount)) return "An account with a breakdown gets its subtotal from its subaccounts.";
   }
   return "";
 }
@@ -60,7 +62,7 @@ export function validateBudgetSectionsForLock(sections: BudgetSection[]): string
 }
 
 export function openingSections(data: DepartmentBudgetBundle): BudgetSection[] {
-  if (data.sectionsAvailable) return data.sections || [];
+  if (data.sectionsAvailable) return (data.sections || []).map(s=>data.releaseScheduleAvailable&&s.heldAmount>0&&!s.releaseSchedule?.length?{...s,releaseSchedule:accountReleaseSchedule(s)}:s);
   return data.summary ? [{ id: data.lines[0]?.id || data.summary.id, name: "Unclassified opening appropriation", amount: data.summary.approvedAmount, heldAmount: 0, position: 0 }] : [];
 }
 
@@ -68,8 +70,8 @@ export function addSectionChild(sections: BudgetSection[], parentId?: string): B
   const parent = sections.find(s => s.id === parentId);
   const isLeaf = parent && !sections.some(s => !s.retired && s.parentId === parent.id);
   return [
-    ...sections.map(s => s.id === parentId ? { ...s, amount: 0, heldAmount: 0 } : s),
-    { id: crypto.randomUUID(), parentId, name: isLeaf && parent.amount ? "Undistributed balance" : "", amount: isLeaf ? parent.amount : 0, heldAmount: isLeaf ? parent.heldAmount : 0, position: sections.filter(s => s.parentId === parentId).length },
+    ...sections.map(s => s.id === parentId ? { ...s, amount: 0, heldAmount: 0, releaseSchedule:[] } : s),
+    { id: crypto.randomUUID(), parentId, name: isLeaf && parent.amount ? "Undistributed balance" : "", amount: isLeaf ? parent.amount : 0, heldAmount: isLeaf ? parent.heldAmount : 0, releaseSchedule:isLeaf ? parent.releaseSchedule : undefined, position: sections.filter(s => s.parentId === parentId).length },
   ];
 }
 

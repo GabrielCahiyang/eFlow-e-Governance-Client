@@ -32,16 +32,19 @@ export async function appendPersonalRows(out: WorkSnapshot, userId: string) {
     const personalTrees = await settledMap(snapshot.tasks, (t) =>
       fetchWorkTree(t.id),
     );
-    snapshot.tasks.forEach((task, index) => {
+    snapshot.tasks.forEach((storedTask, index) => {
       const tr = personalTrees[index];
       if (
         tr.status === "rejected" &&
         !(tr.reason instanceof WorkTreeUnavailable)
       ) {
-        out.issues.push(`Personal tree · ${task.title}: ${message(tr.reason)}`);
+        out.issues.push(`Personal tree · ${storedTask.title}: ${message(tr.reason)}`);
         return;
       }
       const tree = tr.status === "fulfilled" ? tr.value : undefined,
+        task = tree?.root.status
+          ? {...storedTask, status: tree.root.status as typeof storedTask.status}
+          : storedTask,
         history =
           snapshot.project.status !== "active" || task.status === "done";
       const context = {

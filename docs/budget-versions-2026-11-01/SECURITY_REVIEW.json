@@ -1,0 +1,58 @@
+{
+  "before": [
+    {
+      "name": "rls_enabled_no_policy",
+      "level": "INFO",
+      "count": 37
+    },
+    {
+      "name": "extension_in_public",
+      "level": "WARN",
+      "count": 1
+    },
+    {
+      "name": "anon_security_definer_function_executable",
+      "level": "WARN",
+      "count": 81
+    },
+    {
+      "name": "authenticated_security_definer_function_executable",
+      "level": "WARN",
+      "count": 196
+    },
+    {
+      "name": "auth_leaked_password_protection",
+      "level": "WARN",
+      "count": 1
+    }
+  ],
+  "after": [
+    {
+      "name": "rls_enabled_no_policy",
+      "level": "INFO",
+      "count": 37
+    },
+    {
+      "name": "extension_in_public",
+      "level": "WARN",
+      "count": 1
+    },
+    {
+      "name": "anon_security_definer_function_executable",
+      "level": "WARN",
+      "count": 81
+    },
+    {
+      "name": "authenticated_security_definer_function_executable",
+      "level": "WARN",
+      "count": 196
+    },
+    {
+      "name": "auth_leaked_password_protection",
+      "level": "WARN",
+      "count": 1
+    }
+  ],
+  "new_helpers_direct_client_execution": false,
+  "helper_findings": 0
+}

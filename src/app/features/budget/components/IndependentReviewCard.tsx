@@ -1,5 +1,7 @@
 import { useRef, useState } from 'react';
 import { ShieldCheck, UserRoundCheck, RefreshCw } from 'lucide-react';
+import {DecisionModal} from '../../../components/ui/DecisionModal';
+import {useToast} from '../../../components/ui/Toast';
 import { Button } from '../../../components/ui/button';
 import { useExplicitDraft } from '../../../shared/useExplicitDraft';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -12,6 +14,8 @@ export function IndependentReviewCard({ id, version, context, error, onChanged }
   id: string; version: number; context?: IndependentReviewContext; error?: string; onChanged: () => Promise<void>;
 }) {
   const { userProfile } = useAuth();
+  const {toast}=useToast();
+  const [decision,setDecision]=useState<'approved'|'changes_requested'|'rejected'|null>(null);
   const [reviewer, setReviewer] = useState(''), [reason, setReason] = useState('');
   const [busy, setBusy] = useState(false), [message, setMessage] = useState(''), [uncertain, setUncertain] = useState(false);
   const pending = useRef(false);
@@ -50,7 +54,7 @@ export function IndependentReviewCard({ id, version, context, error, onChanged }
       const attempt = previous ? JSON.parse(previous) as { payload: string; key: string; outcome: string } : null;
       if (attempt && attempt.payload !== payload && attempt.outcome === 'uncertain') throw new Error('An earlier review has an uncertain outcome. Verify its decision before changing details.');
       const command = attempt?.payload === payload ? attempt.key : crypto.randomUUID();
-      if (!await confirmation.confirm({ title: decision ? 'Record independent review?' : 'Route independent review?', description: `${reason.trim()} Review approval does not settle cash or post a journal.`, actionLabel: decision ? 'Record review' : 'Send to reviewer' })) return;
+      if (!decision && !await confirmation.confirm({ title: 'Route independent review?', description: `${reason.trim()} Review approval does not settle cash or post a journal.`, actionLabel: 'Yes, send to reviewer', tone:'approve' })) return;
       const fresh = await getIndependentReview(id);
       if (fresh.version !== version || JSON.stringify(fresh) !== JSON.stringify(context)) { await onChanged(); throw new Error('The review changed. Check the current package before deciding.'); }
       sessionStorage.setItem(key, JSON.stringify({ payload, key: command, outcome: 'uncertain' }));
@@ -63,14 +67,16 @@ export function IndependentReviewCard({ id, version, context, error, onChanged }
         throw caught;
       }
       sessionStorage.setItem(key, JSON.stringify({ payload, key: command, outcome: 'saved' }));
-      draft.markClean(); setReason(''); setMessage('Independent review saved. Accounting settlement remains separate.');
-      await onChanged();
+      draft.markClean(); setReason(''); setDecision(null); setMessage('');
+      toast('Independent review saved. Accounting settlement remains separate.', decision && decision !== 'approved' ? 'warning' : 'success');
+      try { await onChanged(); } catch { toast('Review saved. Could not load the latest status.', 'warning'); }
     } catch (caught) { setMessage(financialErrorMessage(caught)); }
     finally { pending.current = false; draft.pendingRef.current = false; setBusy(false); }
   };
   if (error) return <div className="mt-3 rounded-lg border border-amber-300 p-3 text-sm" role="status">Independent review unavailable: {error}<Button variant="outline" onClick={() => void verify()} disabled={busy}><RefreshCw size={14} /> Retry review check</Button></div>;
   if (!context) return <p role="status" className="mt-3 text-sm">Checking independent review…</p>;
-  if (!context.required) return null;
+  const settlementBlocked=context.eligibleSettlers===0?<section role="alert" aria-label="Settlement blocked" className="mt-3 rounded-xl border border-rose-300 bg-rose-50 p-4 text-sm text-rose-900"><h4 className="flex items-center gap-2 font-semibold"><ShieldCheck size={18}/>No eligible Accounting Officer</h4><p className="mt-2">The cash requester, recipient and receipt reviewer cannot settle this package. An independent Accounting Officer is needed to finish the settlement.</p>{context.required&&context.candidates.length===0&&<p className="mt-2">No independent leadership reviewer is available either. The Accounting and review assignments must be resolved before this cash can be marked settled.</p>}<p className="mt-2">Receipt approval has not been lost. The cash advance stays open until settlement is posted.</p></section>:null;
+  if (!context.required) return settlementBlocked;
   const approved = context.current && context.review?.status === 'approved';
   const canDecide = context.canReview && context.current && context.review?.status === 'pending';
   const canRoute = !approved && !canDecide && context.candidates.length > 0;
@@ -84,13 +90,15 @@ export function IndependentReviewCard({ id, version, context, error, onChanged }
       <div><dt className="text-muted-foreground">Routing reason</dt><dd className="break-words">{context.review.route_reason}</dd></div>
       {context.review.decision_reason && <div><dt className="text-muted-foreground">Review note</dt><dd className="break-words">{context.review.decision_reason}</dd></div>}
     </dl></details>}
-    {context.escalationRequired && <p role="status" className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-amber-950">Escalation required: {context.candidates.length === 0 ? 'no independent appointed reviewer is available. ' : ''}{context.eligibleSettlers === 0 ? 'No separate eligible Accounting Officer is available to settle and post. ' : ''}Ask your administrator to resolve the appointment or Accounting assignment. No self-approval or delegated posting is allowed.</p>}
+    {settlementBlocked}
+    {!settlementBlocked && context.escalationRequired && <p role="status" className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-amber-950">Escalation required: {context.candidates.length === 0 ? 'no independent appointed reviewer is available. ' : ''}{context.eligibleSettlers === 0 ? 'No separate eligible Accounting Officer is available to settle and post. ' : ''}Ask your administrator to resolve the appointment or Accounting assignment. No self-approval or delegated posting is allowed.</p>}
     {(canDecide || canRoute) && <>
       {canRoute && <label className="block">Independent reviewer<select className="mt-1 w-full rounded-lg border border-border bg-background p-2" value={reviewer} disabled={busy || uncertain} onChange={event => setReviewer(event.target.value)}><option value="">Choose leadership reviewer</option>{context.candidates.map(candidate => <option key={candidate.id} value={candidate.id}>{candidate.name} · {candidate.appointment}</option>)}</select></label>}
-      <label className="block">{canDecide ? 'Review findings' : 'Routing reason'}<textarea rows={2} maxLength={2000} className="mt-1 w-full rounded-lg border border-border bg-background p-2" value={reason} disabled={busy || uncertain} onChange={event => setReason(event.target.value)} /></label>
-      <div className="flex flex-wrap gap-2">{canDecide ? <><Button disabled={busy || uncertain || !reason.trim()} onClick={() => void run('approved')}><UserRoundCheck size={15} /> Approve review</Button><Button variant="outline" disabled={busy || uncertain || !reason.trim()} onClick={() => void run('changes_requested')}>Request changes</Button><Button variant="outline" disabled={busy || uncertain || !reason.trim()} onClick={() => void run('rejected')}>Reject package</Button></> : <Button disabled={busy || uncertain || !reviewer || !reason.trim()} onClick={() => void run()}>Send for independent review</Button>}</div>
+      {canRoute && <label className="block">Routing reason<textarea rows={2} maxLength={2000} className="mt-1 w-full rounded-lg border border-border bg-background p-2" value={reason} disabled={busy || uncertain} onChange={event => setReason(event.target.value)} /></label>}
+      <div className="flex flex-wrap gap-2">{canDecide ? <><Button disabled={busy || uncertain} onClick={() => {setMessage('');setDecision('approved');}}><UserRoundCheck size={15} /> Approve review</Button><Button variant="outline" className="border-amber-300 text-amber-800 bg-amber-50" disabled={busy || uncertain} onClick={() => {setMessage('');setDecision('changes_requested');}}>Request changes</Button><Button variant="outline" className="border-amber-300 text-amber-800 bg-amber-50" disabled={busy || uncertain} onClick={() => {setMessage('');setDecision('rejected');}}>Reject package</Button></> : <Button disabled={busy || uncertain || !reviewer || !reason.trim()} onClick={() => void run()}>Send for independent review</Button>}</div>
     </>}
-    {message && <p role="status" className="break-words">{message}</p>}
+    {decision && <DecisionModal title={decision==='approved'?'Approve this independent review?':decision==='rejected'?'Reject this package?':'Request changes to this package?'} description="Are you sure? This records the independent review. Cash settlement and journal posting remain separate Accounting actions." decision={decision==='approved'?'approve':decision==='rejected'?'reject':'changes'} reason={reason} onReasonChange={setReason} reasonLabel="Review findings" maxReasonLength={2000} requireReason busy={busy} disabled={uncertain || !canDecide} error={message} onCancel={()=>{if(!busy){setDecision(null);setMessage('');}}} onConfirm={()=>void run(decision)}/>}
+    {!decision && message && <p role="status" className="break-words">{message}</p>}
     <Button variant="outline" disabled={busy} onClick={() => void verify()}><RefreshCw size={14} /> {uncertain ? 'Verify review outcome' : 'Refresh review'}</Button>
   </section>;
 }

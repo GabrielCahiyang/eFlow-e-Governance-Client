@@ -1,0 +1,10 @@
+{
+  "target": "ixnfphgjyelhckjwjkdv",
+  "migration": "20261101015139_head_budget_versions_and_adjustment_guards.sql",
+  "sha256": "1660b59f482d733a88c7be259a99d8fc9e5827bdd9e38e8a5087cf5391f37301",
+  "backup_verified": true,
+  "prior_migrations": 69,
+  "dry_run_only_reviewed_delta": true,
+  "tables_checked": 117,
+  "applied": false
+}

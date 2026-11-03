@@ -5,7 +5,7 @@ export function readinessResolution(key: string, governed: boolean): { view: Rea
   if (['office_identity', 'invitations', 'responsibilities'].includes(key)) return { view: 'offices', label: 'Resolve in Project Offices' };
   if (['structure', 'work', 'staffing'].includes(key)) return { view: 'tasks', label: 'Review in Main table' };
   if (['dates', 'schedule'].includes(key)) return { view: 'gantt', label: 'Review schedule in Gantt' };
-  if (key === 'budget') return { view: 'budget', label: 'Review Budget Overview' };
+  if (key === 'budget'||key==='project_setup') return { view: 'budget', label: key==='project_setup'?'Complete project setup':'Review Budget Overview' };
   return null;
 }
 export function closeoutResolution(kind: string): { view: ReadinessDestination; label: string } | null {

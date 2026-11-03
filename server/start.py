@@ -82,62 +82,24 @@ def _port_is_listening() -> bool:
         return connection.connect_ex(("127.0.0.1", 8322)) == 0
 
 
-def _replace_existing_gateway() -> None:
-    """Stop only the verified eFlow gateway occupying its dedicated port."""
-    if not _port_is_listening():
-        return
-    if not _gateway_is_healthy():
-        raise RuntimeError(
-            "Port 8322 is occupied by an application that is not the eFlow gateway."
-        )
-
-    print("[GATEWAY] Replacing the previous eFlow gateway on port 8322", flush=True)
-    if os.name == "nt":
-        result = subprocess.run(
-            ["netstat", "-ano", "-p", "TCP"],
-            capture_output=True,
-            text=True,
-            timeout=5,
-            check=True,
-        )
-        gateway_pids = {
-            line.strip().split()[-1]
-            for line in result.stdout.splitlines()
-            if "127.0.0.1:8322" in line and "LISTENING" in line
-        }
-        for pid in gateway_pids:
-            subprocess.run(
-                ["taskkill", "/F", "/T", "/PID", pid],
-                capture_output=True,
-                timeout=10,
-                check=False,
-            )
-    else:
-        result = subprocess.run(
-            ["lsof", "-ti", ":8322"],
-            capture_output=True,
-            text=True,
-            timeout=5,
-            check=False,
-        )
-        for pid in result.stdout.split():
-            os.kill(int(pid), signal.SIGTERM)
-
-    deadline = time.monotonic() + 10
-    while _port_is_listening() and time.monotonic() < deadline:
-        time.sleep(0.2)
-    if _port_is_listening():
-        raise RuntimeError("The previous eFlow gateway did not release port 8322.")
-
-
 def main() -> int:
-    _prepare_runtime()
-    try:
-        _replace_existing_gateway()
-    except RuntimeError as exc:
-        print(f"[GATEWAY] {exc}", file=sys.stderr, flush=True)
+    if _port_is_listening():
+        if _gateway_is_healthy():
+            print(
+                "[GATEWAY] Reusing the healthy eFlow gateway on port 8322. "
+                "The original launcher still owns it.",
+                flush=True,
+            )
+            return 0
+        print(
+            "[GATEWAY] Port 8322 is occupied and did not pass the eFlow health check. "
+            "Check its owner before restarting the gateway.",
+            file=sys.stderr,
+            flush=True,
+        )
         return 1
 
+    _prepare_runtime()
     reload_enabled = "--reload" in sys.argv[1:]
     print(
         f"[GATEWAY] Starting eFlow control gateway on http://127.0.0.1:8322"

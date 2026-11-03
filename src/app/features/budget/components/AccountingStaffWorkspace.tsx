@@ -143,6 +143,8 @@ function ScopedAccountingWorkspace({ view: suppliedView, onNavigate }: Accountin
             budget={budget}
             journalCount={journal.error || journal.loading ? undefined : journal.entries.length}
             onSettlements={can("navigation.accounting_releases") ? () => selectView("settlements") : undefined}
+            onReleases={can('navigation.accounting_releases')?()=>selectView('releases'):undefined}
+            onBudgets={can('navigation.department_budgets')?()=>selectView('budgets'):undefined}
           />
         ) : view === "releases" ? (
           <BudgetReleasesPanel data={budget} onChanged={budget.refresh} />

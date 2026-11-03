@@ -1,4 +1,5 @@
 import {TaskProjectFunding} from '../../project-setup';
+import {OfficePettyCashLauncher} from '../../office-petty-cash';
 import { MoneyInput } from '../../../components/ui/MoneyInput';
 import { useReviewedMutation } from "../../../shared/useReviewedMutation";
 import { FeedbackState } from "../../../components/ui/FeedbackState";
@@ -283,7 +284,7 @@ export function WorkBudgetCard({
     });
   };
 
-  if (!budget.summary && !budget.loading) return task.linkedProjectId&&!subtask?<TaskProjectFunding projectId={task.linkedProjectId} taskId={task.id} funded={!!context?.funded} onChanged={refresh}/>:null;
+  if (!budget.summary && !budget.loading) return <>{!readOnly&&<OfficePettyCashLauncher/>}{task.linkedProjectId&&!subtask&&<TaskProjectFunding projectId={task.linkedProjectId} taskId={task.id} funded={!!context?.funded} onChanged={refresh}/>}</>;
   const selectedCapLine = context?.lines.find((line) => line.id === capLineId);
   const capMaximum =
     (selectedCapLine?.available || 0) +
@@ -292,6 +293,7 @@ export function WorkBudgetCard({
   return (
     <section className="rounded-[10px] border border-border bg-card p-3 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
       {safety.dialog}
+      {!readOnly&&<OfficePettyCashLauncher/>}
       {authorityPending && <p role="status" className="mb-3 flex items-center gap-2 text-[13px] text-muted-foreground"><Loader2 size={14} className="animate-spin" />Checking current work access. Your draft is kept; controls resume when verified.</p>}
       {task.linkedProjectId&&!subtask&&<TaskProjectFunding projectId={task.linkedProjectId} taskId={task.id} funded={!!context?.funded} onChanged={refresh}/>}
       {!task.linkedProjectId&&!authorityPending&&(canAuthorizeFunding||!readOnly&&canManage)&&isOpenDirectFundingWork(task)&&!subtask&&!context?.funded&&!funding.loading&&userProfile?.role==="head"&&userProfile.is_active!==false&&userProfile.org_id===orgId&&orgId===fundingOffice&&<DirectWorkFunding key={task.id} data={budget} tasks={[task]} onChanged={refresh} />}
@@ -323,10 +325,10 @@ export function WorkBudgetCard({
                   {peso.format(context.available)}
                 </strong>
                 <span className="ml-1 text-[12px] text-muted-foreground">
-                  requestable now{" "}
+                  available{" "}
                   {context.cap
-                    ? `inside ${peso.format(context.cap.amount)} cap`
-                    : "from shared task pool"}
+                    ? "for this subtask"
+                    : "from the task budget"}
                 </span>
               </div>
             ) : (
@@ -390,13 +392,15 @@ export function WorkBudgetCard({
           that request before changing the cap.
         </p>
       )}
+      <details hidden={!context?.funded} className="mt-3 text-[13px]">
+      <summary className="cursor-pointer text-muted-foreground">Budget details</summary>
       {context?.funded && (
         <div className="mt-3 rounded-lg border border-primary/20 bg-primary/5 p-2.5 text-[12px] text-primary">
           {subtask
             ? context.cap
-              ? `${peso.format(context.cap.available)} remains inside this protected subtask cap. Requests still require operational endorsement and fiscal authorization.`
-              : `${peso.format(context.available)} is available from the shared parent-task pool. Request only the amount this subtask needs.`
-            : `${peso.format(context.available)} remains on the approved task budget. Task Leader requests route directly to fiscal authorization.`}
+              ? `${peso.format(context.cap.available)} is available for this subtask.`
+              : `This subtask uses the parent task’s budget. ${peso.format(context.available)} is available.`
+            : `${peso.format(context.available)} remains in this task’s budget. Cash is released separately after approval.`}
         </div>
       )}
 
@@ -451,7 +455,7 @@ export function WorkBudgetCard({
                   <strong className="block tabular-nums text-primary">
                     {peso.format(line.available)} requestable
                   </strong>
-                  <span className="text-[7.8px] tabular-nums text-muted-foreground">
+                  <span className="text-[11px] tabular-nums text-muted-foreground">
                     of {peso.format(line.amount)} approved
                   </span>
                 </span>
@@ -459,6 +463,8 @@ export function WorkBudgetCard({
             ))}
         </div>
       ) : null}
+
+      </details>
 
       {capOpen && context && subtask && (
         <fieldset disabled={!canManageCap || capHasActiveRequest || busy} className="mt-3 min-w-0 space-y-2 rounded-xl border border-emerald-200 bg-white p-3">
@@ -592,7 +598,7 @@ function FundingMetric({
     <div
       className={`rounded-lg border px-2.5 py-2 ${tone === "amber" ? "border-amber-200 bg-amber-50" : "border-border bg-muted/35"}`}
     >
-      <div className="text-[7.8px] uppercase tracking-wide text-muted-foreground">
+      <div className="text-[11px] text-muted-foreground">
         {label}
       </div>
       <strong

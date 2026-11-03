@@ -133,6 +133,7 @@ export const mapLiquidation = (row: Record<string, unknown>, receipts: PettyCash
   submittedAt: millis(row.submitted_at) || 0, decisionReason: row.decision_reason ? String(row.decision_reason) : undefined,
   departmentDecidedBy: row.department_decided_by ? String(row.department_decided_by) : undefined,
   departmentDecidedAt: millis(row.department_decided_at) || undefined,
+  leaderDecidedAt: millis(row.leader_decided_at) || undefined,
   receipts: receipts.filter((receipt) => receipt.liquidationId === String(row.id)),
   liquidationNumber: row.liquidation_number ? String(row.liquidation_number) : undefined,
   refundReceiptNumber: row.refund_receipt_number ? String(row.refund_receipt_number) : undefined,

@@ -1,0 +1,69 @@
+{
+  "checked_at": "2026-11-03",
+  "target": "ixnfphgjyelhckjwjkdv",
+  "before_migration": true,
+  "security": [
+    {
+      "name": "rls_enabled_no_policy",
+      "level": "INFO",
+      "count": 37,
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy"
+    },
+    {
+      "name": "extension_in_public",
+      "level": "WARN",
+      "count": 1,
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0014_extension_in_public"
+    },
+    {
+      "name": "anon_security_definer_function_executable",
+      "level": "WARN",
+      "count": 81,
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0028_anon_security_definer_function_executable"
+    },
+    {
+      "name": "authenticated_security_definer_function_executable",
+      "level": "WARN",
+      "count": 196,
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable"
+    },
+    {
+      "name": "auth_leaked_password_protection",
+      "level": "WARN",
+      "count": 1,
+      "remediation": "https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection"
+    }
+  ],
+  "performance": [
+    {
+      "name": "unindexed_foreign_keys",
+      "level": "INFO",
+      "count": 172,
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0001_unindexed_foreign_keys"
+    },
+    {
+      "name": "auth_rls_initplan",
+      "level": "WARN",
+      "count": 131,
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0003_auth_rls_initplan"
+    },
+    {
+      "name": "unused_index",
+      "level": "INFO",
+      "count": 16,
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index"
+    },
+    {
+      "name": "multiple_permissive_policies",
+      "level": "WARN",
+      "count": 50,
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0006_multiple_permissive_policies"
+    },
+    {
+      "name": "duplicate_index",
+      "level": "WARN",
+      "count": 2,
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0009_duplicate_index"
+    }
+  ]
+}

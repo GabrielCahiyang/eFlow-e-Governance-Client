@@ -1,0 +1,8 @@
+.eflow-deadline{display:inline-flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:4px;max-width:100%;font-size:12px;line-height:1.4;vertical-align:middle}
+.eflow-deadline time{color:var(--eflow-text,#203b3a);font-size:12px;white-space:nowrap}
+.eflow-deadline__signal{display:inline-flex;align-items:center;flex-wrap:wrap;gap:5px;padding:4px 7px;border-radius:6px;font-size:11px;font-weight:500;background:var(--eflow-subtle,#f1f5f4);color:var(--eflow-text-secondary,#586c6a)}
+.eflow-deadline__signal>svg{flex-shrink:0}
+.eflow-deadline[data-tone=green] .eflow-deadline__signal{background:var(--eflow-positive-bg,#e5f5ed);color:var(--eflow-positive-text,#176a46)}
+.eflow-deadline[data-tone=yellow] .eflow-deadline__signal{background:var(--eflow-warning-bg,#fff4d6);color:var(--eflow-warning-text,#845900)}
+.eflow-deadline[data-tone=red] .eflow-deadline__signal{background:var(--eflow-negative-bg,#fff0f1);color:var(--eflow-negative-text,#b4233c)}
+.dark .eflow-deadline[data-tone=green] .eflow-deadline__signal{background:#123c32;color:#91dfb7}.dark .eflow-deadline[data-tone=yellow] .eflow-deadline__signal{background:#433519;color:#f4d17a}.dark .eflow-deadline[data-tone=red] .eflow-deadline__signal{background:#4b2430;color:#ffb2bf}
