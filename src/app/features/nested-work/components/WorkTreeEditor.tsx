@@ -17,18 +17,18 @@ import {reparentChoices} from '../selectors/tree';
 import type {WorkRequest,WorkTreeSnapshot} from '../types';
 import type {WorkEdit} from '../types/editor';
 export type {WorkEdit} from '../types/editor';
-interface WorkTreeEditorProps {data:WorkTreeSnapshot;edit:WorkEdit;save:(request:WorkRequest)=>Promise<WorkTreeSnapshot>;onDone:()=>void|Promise<void>;onCancel:()=>void;readOnly?:boolean;refreshPending?:boolean}
+interface WorkTreeEditorProps {data:WorkTreeSnapshot;edit:WorkEdit;save:(request:WorkRequest)=>Promise<WorkTreeSnapshot>;onDone:()=>void|Promise<void>;onCancel:()=>void;reload?:()=>Promise<void>;readOnly?:boolean;refreshPending?:boolean}
 export function WorkTreeEditor(props:WorkTreeEditorProps){
  const {user}=useAuth();
  if(props.edit.command==='staff')return <WorkStaffingDialog controller={{rootId:props.data.root.id,actorId:user?.id||null,data:props.data,loading:!!props.refreshPending,verificationFailed:!!props.refreshPending,save:props.save}}
   nodeId={props.edit.root?null:props.edit.node?.id||''} readOnly={props.readOnly} onChanged={props.onDone} onClose={props.onCancel}/>;
  return <WorkTreeForm {...props}/>;
 }
-function WorkTreeForm({data,edit,save,onDone,onCancel,readOnly=false,refreshPending=false}:WorkTreeEditorProps){
+function WorkTreeForm({data,edit,save,onDone,onCancel,reload,readOnly=false,refreshPending=false}:WorkTreeEditorProps){
  const formId=useId();
  const {user}=useAuth();
  const context={actorId:user?.id||null,rootId:data.root.id,projectId:data.root.project,officeId:data.root.office,kind:data.root.kind,revision:data.revision,readOnly};
- const editor=useWorkEditorDraft({data,edit,context,refreshPending,onCancel});
+ const editor=useWorkEditorDraft({data,edit,context,refreshPending,reload,onCancel});
  const {fields:{lead,people,parent,standalone,note,order},update,locked,busy,authorized,outcome}=editor;
  const node=data.nodes.find(item=>item.id===editor.baseline.nodeId)||edit.node;
  const createCapability=edit.parent?selectNodeWorkCapability(data,edit.parent,'create_child',context):selectRootWorkCapability(data,'create_child',context);
@@ -47,7 +47,7 @@ function WorkTreeForm({data,edit,save,onDone,onCancel,readOnly=false,refreshPend
  const needsPreview=['move','order','delete'].includes(edit.command)||edit.command==='edit'&&(standalone!==editor.baseline.fields.standalone||editor.fields.due!==editor.baseline.fields.due);
  const submit=()=>editor.submit({save,onDone,prepare:needsPreview?prepare:undefined});
  const error='message' in outcome?outcome.message:null;
- const actions=<div className="r7-actions"><button type="button" disabled={busy} onClick={close}>{editor.saved?'Close':'Cancel changes'}</button>{!authorized&&!editor.saved&&!busy&&!refreshPending&&<p role="alert">Your current branch authority changed. Reload the tree before saving.</p>}{!editor.saved&&<button type="submit" form={formId} className={edit.command==='create'?'nw-create-save':undefined} disabled={busy||!authorized}>{edit.command==='create'&&<ListPlus size={16} aria-hidden="true"/>}{busy?'Saving…':editor.request?'Retry saved request':edit.command==='delete'?'Review deletion':'Save work changes'}</button>}</div>;
+ const actions=<div className="r7-actions"><button type="button" disabled={busy} onClick={close}>{editor.saved?'Close':'Cancel changes'}</button>{editor.canReviewLatest&&<button type="button" onClick={editor.reviewLatest}>Review against current work</button>}{!authorized&&!editor.saved&&!busy&&!refreshPending&&!editor.capability.allowed&&<p role="status">Saving is unavailable with your current access.</p>}{!editor.saved&&<button type="submit" form={formId} className={edit.command==='create'?'nw-create-save':undefined} disabled={busy||!authorized}>{edit.command==='create'&&<ListPlus size={16} aria-hidden="true"/>}{busy?'Saving…':editor.request?'Retry saved request':edit.command==='delete'?'Review deletion':'Save work changes'}</button>}</div>;
  const form=<form id={formId} className={`r7-form${edit.command==='create'?' r7-form--modal':''}`} aria-label="Nested work changes" onSubmit={e=>{e.preventDefault();void submit();}}>
   {edit.command!=='create'&&<h3>{edit.root?'Task lead and contributors':`${edit.command==='staff'?'Staff':edit.command==='move'?'Move':edit.command==='delete'?'Delete':edit.command==='submit'?'Complete':edit.command==='review'?'History':'Update'} ${node?.title||'subitem'}`}</h3>}
   {['create','edit'].includes(edit.command)&&<WorkDetailsEditor fields={editor.fields} disabled={locked} update={update} presentation={edit.command==='create'?'dialog':'default'}
@@ -61,9 +61,9 @@ function WorkTreeForm({data,edit,save,onDone,onCancel,readOnly=false,refreshPend
   {edit.command==='progress'&&<p>In progress · Save an update, or mark this step complete.</p>}
 
   {['edit','progress','submit','review'].includes(edit.command)&&<label>{edit.command==='edit'?'Reason for date change':'Note / feedback'}<textarea value={note} maxLength={4000} disabled={locked} onChange={e=>update('note',e.target.value)}/></label>}
-  {error&&<div role="alert" className="nw-operation-error"><AlertCircle size={18} aria-hidden="true"/><div><strong>Could not save this action</strong><p>{error}{editor.unresolvedReceipt?' The original result is unverified and its request is retained. Reload current work before retrying this saved request.':outcome.kind==='stale_revision'?' The draft is retained. Reload and review the current work before reopening this editor.':outcome.kind==='confirmed_failure'?' Nothing was saved. Correct the draft before submitting a new request.':outcome.kind==='revoked_authority'?' Saving is blocked. Verify current authority before reopening this editor.':''}</p></div></div>}
+  {error&&<div role="alert" className="nw-operation-error"><AlertCircle size={18} aria-hidden="true"/><div><strong>{editor.saved?'Work saved':'Could not confirm this change'}</strong><p>{error}{editor.unresolvedReceipt?' Your draft is kept. You can retry the same request if its result is still unconfirmed.':outcome.kind==='stale_revision'?' The work changed while you were editing. Your draft is kept.':outcome.kind==='confirmed_failure'?' Nothing was saved. Correct the draft before submitting a new request.':outcome.kind==='revoked_authority'?' Saving is paused while current access is checked. Your draft is kept.':''}</p></div></div>}
   {editor.saved&&<p role="status">Work saved.</p>}
-  {editor.recovered&&<p role="status">{editor.staleRecovery?'Recovered draft is stale. Review current work; discard this draft to start again.':'Draft recovered after current access verification. Review before saving.'}</p>}
+  {editor.recovered&&<p role="status">{editor.staleRecovery?'This draft was saved against an older version. Review it against the current work before saving.':'Draft recovered after current access verification. Review before saving.'}</p>}
   {editor.storageFailed&&<p role="alert">Draft recovery could not be stored in this tab. Keep the editor open to retain your changes.</p>}
   {!['create','edit'].includes(edit.command)&&actions}
   {confirmation.dialog}

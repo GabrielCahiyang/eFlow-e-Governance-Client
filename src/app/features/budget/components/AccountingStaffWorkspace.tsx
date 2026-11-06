@@ -147,7 +147,7 @@ function ScopedAccountingWorkspace({ view: suppliedView, onNavigate }: Accountin
             onBudgets={can('navigation.department_budgets')?()=>selectView('budgets'):undefined}
           />
         ) : view === "releases" ? (
-          <BudgetReleasesPanel data={budget} onChanged={budget.refresh} />
+          <BudgetReleasesPanel data={budget} onChanged={budget.refresh} onOpenSettlements={() => selectView("settlements")} />
         ) : view === "settlements" ? (
           <AccountingSettlementQueue data={budget} onChanged={budget.refresh} />
         ) : view === "budgets" ? (

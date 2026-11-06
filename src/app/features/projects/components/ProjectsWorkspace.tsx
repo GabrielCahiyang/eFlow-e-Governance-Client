@@ -103,7 +103,7 @@ export function ProjectsWorkspace({
   }, [availableProjects,workspaceScope, committedProject]);
   React.useEffect(() => { if (committedProject && availableProjects.some(project=>project.id===committedProject.id)) setCommittedProject(undefined); }, [availableProjects, committedProject]);
   const { tasks, loading: tasksLoading } = useTasks();
-  const { orgs } = useOrgs();
+  const { orgs, loading: officesLoading } = useOrgs();
   const { profiles } = useProfiles();
   const { can, user, userProfile } = useAuth();
   const { toast } = useToast();
@@ -121,7 +121,7 @@ export function ProjectsWorkspace({
   const [requestedProjectTool, setRequestedProjectTool] = React.useState<{ projectId: string; tool: ProjectTool } | null>(null);
   const [deleteTarget, setDeleteTarget] = React.useState<{ id: string; title: string } | null>(null);
   const [archiveTarget, setArchiveTarget] = React.useState<{ id: string; title: string; isArchived: boolean } | null>(null);
-  const [completeTarget, setCompleteTarget] = React.useState<{ id: string; title: string } | null>(null);
+  const [completeTarget, setCompleteTarget] = React.useState<{ id: string; title: string; archiveReview?: boolean } | null>(null);
   const [completionTaskId, setCompletionTaskId] = React.useState<string | null>(null);
   const [departmentFilter, setDepartmentFilter] = React.useState(ALL_PROJECT_DEPARTMENTS);
   const [contextNotice, setContextNotice] = React.useState('');
@@ -253,6 +253,7 @@ export function ProjectsWorkspace({
       intent.kind === "collaboration",
     (intent) => {
       if (loading || projectsError) return false;
+      if (intent.financialRecordType === 'project_archive_blocker' && officesLoading) return false;
       const needsPlan = intent.kind === 'collaboration' && !!intent.proposalId || !intent.projectId && !!intent.proposalId;
       if (needsPlan && collaboration.loading) return false;
       if (needsPlan && collaboration.error) { setContextNotice('Work plans could not load. Open Saved work plans and retry loading.'); return false; }
@@ -262,6 +263,12 @@ export function ProjectsWorkspace({
       }
       if (intent.projectId) {
         if (!openProject(intent.projectId, 'push')) { setContextNotice('This project is unavailable in this workspace. Open its home workspace or check your access.'); return 'unavailable'; }
+        if (intent.financialRecordType === 'project_archive_blocker') {
+          const project = inScope.find(item => item.id === intent.projectId);
+          if (project?.status === 'completed' && project.orgId === userProfile?.org_id && isAppointedOfficeHead(userProfile, orgs)) {
+            setCompleteTarget({ id: project.id, title: project.title, archiveReview: true });
+          }
+        }
         return true;
       }
       if (intent.proposalId) {
@@ -271,7 +278,7 @@ export function ProjectsWorkspace({
       setContextNotice('This notification does not contain a project or work-plan link.');
       return 'unavailable';
     },
-    [dbProjects, loading, projectsError, collaboration.loading, collaboration.error, openProject, openProposal],
+    [dbProjects, loading, projectsError, collaboration.loading, collaboration.error, openProject, openProposal, inScope, userProfile, orgs, officesLoading],
   );
 
   const currentUserId = user?.id || userProfile?.id || userProfile?.uid || "";
@@ -530,6 +537,7 @@ export function ProjectsWorkspace({
         key={completeTarget.id}
         projectId={completeTarget.id}
         projectTitle={completeTarget.title}
+        archiveReview={completeTarget.archiveReview}
         project={inScope.find(project=>project.id===completeTarget.id)}
         onClose={() => setCompleteTarget(null)}
         onSuccess={() => { setCompleteTarget(null); toast("Project completed. You can now archive it from the project dropdown.", "success"); }}

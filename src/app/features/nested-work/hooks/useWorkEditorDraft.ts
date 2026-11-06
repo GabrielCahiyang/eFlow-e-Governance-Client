@@ -2,17 +2,20 @@ import {useEffect,useRef,useState} from 'react';
 import {useExplicitDraft} from '../../../shared/useExplicitDraft';
 import {duplicateWorkNameError} from '../../../shared/workNames';
 import {captureWorkEditorBaseline,freezeWorkEditorRequest,sameWorkEditorScope,workEditorCapability,workEditorDirty,workEditorPayload,workEditorReceiptRetryAllowed,workEditorDateError} from '../selectors/editorDraft';
+import {hasWorkCommandReceipt} from '../services/workTreeService';
 import {workRequestFailure} from '../services/workRequestOutcome';
 import type {WorkCapabilityContext,WorkRequest,WorkTreeSnapshot} from '../types';
 import type {WorkEdit,WorkEditorFields,WorkEditorOutcome,WorkEditorSaveOptions} from '../types/editor';
 import {WorkRequestFailure} from '../types/editor';
 import {useWorkDraftRecovery} from './useWorkDraftRecovery';
 
-export function useWorkEditorDraft({data,edit,context,refreshPending,onCancel}:{data:WorkTreeSnapshot;edit:WorkEdit;context:WorkCapabilityContext;refreshPending:boolean;onCancel:()=>void}) {
+export function useWorkEditorDraft({data,edit,context,refreshPending,reload,onCancel}:{data:WorkTreeSnapshot;edit:WorkEdit;context:WorkCapabilityContext;refreshPending:boolean;reload?:()=>Promise<void>;onCancel:()=>void}) {
  const [captured]=useState(()=>captureWorkEditorBaseline(data,edit,context.actorId,crypto.randomUUID()));
- const recovery=useWorkDraftRecovery(data,context,captured,captured.command,edit.recoveryRevision),baseline=recovery.baseline;
+ const recovery=useWorkDraftRecovery(data,context,captured,captured.command,edit.recoveryRevision);
+ const [rebased,setRebased]=useState<typeof captured>();
+ const baseline=rebased||recovery.baseline,staleRecovery=!rebased&&recovery.stale;
  const [fields,setFields]=useState<WorkEditorFields>(()=>recovery.initial?.fields||({...baseline.fields,people:[...baseline.fields.people],order:[...baseline.fields.order]}));
- const [outcome,setOutcome]=useState<WorkEditorOutcome>(()=>recovery.initial?.request?{kind:recovery.initial.requestState||'unknown_result',message:recovery.initial.uncertain?'The saved request result is unverified. Verify current work before retrying.':'The saved request was blocked. Discard the draft and review current work before a new attempt.'}:{kind:'idle'});
+ const [outcome,setOutcome]=useState<WorkEditorOutcome>(()=>recovery.initial?.request?{kind:recovery.initial.requestState||'unknown_result',message:recovery.initial.uncertain?'The saved request result is unverified. Verify current work before retrying.':'The saved request was blocked. Your draft is still available.'}:{kind:'idle'});
  const request=useRef<WorkRequest|undefined>(recovery.initial?.request),committed=useRef(false),unresolved=useRef(!!recovery.initial?.request&&recovery.initial.uncertain!==false),active=useRef(true);
  const rejectedSnapshot=useRef<WorkTreeSnapshot|undefined>(undefined);
  useEffect(()=>{active.current=true;return()=>{active.current=false;};},[]);
@@ -23,18 +26,50 @@ export function useWorkEditorDraft({data,edit,context,refreshPending,onCancel}:{
  // fields were untouched (for example accepting the default review decision).
  const dirty=!saved&&(workEditorDirty(baseline,fields)||unresolved.current);
  const closed=useRef(false);
- const discard=()=>{recovery.clear();if(!closed.current){closed.current=true;onCancel();}};
+ const discard=()=>{recovery.clear(baseline);if(!closed.current){closed.current=true;onCancel();}};
  const guard=useExplicitDraft('Nested work changes',dirty,busy,discard,`${context.actorId}:${context.rootId}:${edit.node?.id||edit.itemId||edit.parent}:${edit.command}`);
- useEffect(()=>{if(scopeMatches&&!saved){if(dirty||busy&&request.current)recovery.persist({baseline,fields,request:request.current,requestState:outcome.kind==='stale_revision'||outcome.kind==='revoked_authority'?outcome.kind:'unknown_result',uncertain:busy||unresolved.current});else recovery.clear();}},[fields,dirty,outcome,scopeMatches,saved]);
+ useEffect(()=>{if(scopeMatches&&!saved){if(dirty||busy&&request.current)recovery.persist({baseline,fields,request:request.current,requestState:outcome.kind==='stale_revision'||outcome.kind==='revoked_authority'?outcome.kind:'unknown_result',uncertain:busy||unresolved.current});else recovery.clear(baseline);}},[fields,dirty,outcome,scopeMatches,saved]);
  const uncertain=unresolved.current;
  // After a blocked uncertain lookup, only a newly verified read can permit
  // another exact receipt lookup. A known first-send failure stays blocked.
  const blocked=(outcome.kind==='stale_revision'||outcome.kind==='revoked_authority')&&(!uncertain||rejectedSnapshot.current===data);
- const authorized=scopeMatches&&!refreshPending&&!blocked&&!saved&&(!recovery.stale||uncertain)&&(uncertain?workEditorReceiptRetryAllowed(data,context):capability.allowed);
- const locked=busy||!!request.current||saved||!scopeMatches||!capability.allowed||refreshPending;
+ const authorized=scopeMatches&&!refreshPending&&!blocked&&!saved&&(!staleRecovery||uncertain)&&(uncertain?workEditorReceiptRetryAllowed(data,context):capability.allowed);
+ const locked=staleRecovery||blocked||busy||!!request.current||saved||!scopeMatches||!capability.allowed||refreshPending;
  const latest=useRef({fields,authorized,data,context,scopeMatches});latest.current={fields,authorized,data,context,scopeMatches};
  const update=<K extends keyof WorkEditorFields>(key:K,value:WorkEditorFields[K])=>{if(!locked&&!guard.pendingRef.current)setFields(current=>({...current,[key]:value}));};
 
+ const canReviewLatest=scopeMatches&&!busy&&!uncertain&&!saved&&!refreshPending&&capability.allowed
+  &&(staleRecovery||outcome.kind==='stale_revision'||outcome.kind==='revoked_authority')
+  &&(!rejectedSnapshot.current||rejectedSnapshot.current!==data);
+ function reviewLatest(){
+  if(!canReviewLatest)return;
+  const current=captureWorkEditorBaseline(data,edit,context.actorId,baseline.createdId);
+  const reviewed={...current.fields};
+  for(const key of Object.keys(fields) as (keyof WorkEditorFields)[]){
+   if(JSON.stringify(fields[key])!==JSON.stringify(baseline.fields[key]))Object.assign(reviewed,{[key]:fields[key]});
+  }
+  if(edit.command==='order'){
+   const currentChildren=new Set(current.fields.order);
+   const retainedOrder=reviewed.order.filter(id=>currentChildren.delete(id));
+   reviewed.order=[...retainedOrder,...currentChildren];
+  }
+  recovery.clear(baseline);
+  request.current=undefined;
+  setFields(reviewed);setRebased(current);setOutcome({kind:'idle'});
+ }
+ const receiptRequest=uncertain&&!busy&&!saved&&!refreshPending&&scopeMatches&&request.current;
+ useEffect(()=>{
+  if(!reload||!receiptRequest||!workEditorReceiptRetryAllowed(data,context))return;
+  let current=true;
+  void hasWorkCommandReceipt(context.rootId,receiptRequest).then(found=>{
+   if(!found||!current||!active.current||!latest.current.scopeMatches||request.current!==receiptRequest||guard.pendingRef.current)return;
+   committed.current=true;unresolved.current=false;
+   recovery.clear(baseline);guard.markClean();
+   setOutcome({kind:'committed',receipt:data});
+   void reload();
+  }).catch(()=>{ /* Retain the exact request when its receipt is still unavailable. */ });
+  return()=>{current=false;};
+ },[receiptRequest,data,scopeMatches]);
  async function submit(options:WorkEditorSaveOptions){
   if(guard.pendingRef.current||committed.current||!latest.current.authorized)return;
   guard.pendingRef.current=true;setOutcome({kind:'saving'});
@@ -42,7 +77,7 @@ export function useWorkEditorDraft({data,edit,context,refreshPending,onCancel}:{
   try{
    if(!request.current&&options.confirm&&!await options.confirm()){if(active.current)setOutcome({kind:'idle'});return;}
    if(!active.current)return;
-   if(!latest.current.authorized){setOutcome({kind:'revoked_authority',message:'Your current branch authority changed. Reload the tree before saving.'});return;}
+   if(!latest.current.authorized){setOutcome({kind:'revoked_authority',message:'Your access changed. Your draft is kept.'});void reload?.();return;}
    if(!request.current){
     if(['create','edit','move'].includes(baseline.command)){
      const fields=latest.current.fields,parent=baseline.command==='edit'?baseline.fields.parent:fields.parent;
@@ -67,7 +102,7 @@ export function useWorkEditorDraft({data,edit,context,refreshPending,onCancel}:{
    if(!active.current||!latest.current.scopeMatches)return;
    // Commit is recorded before notifying the owner. Callback/refresh failure
    // never becomes a command failure and cannot re-enable mutation submission.
-   committed.current=true;unresolved.current=false;recovery.clear();setOutcome({kind:'committed',receipt});guard.markClean();
+   committed.current=true;unresolved.current=false;recovery.clear(baseline);setOutcome({kind:'committed',receipt});guard.markClean();
   }catch(reason){
    if(active.current&&latest.current.scopeMatches){
     // Preparation/confirmation failed before any send. An RPC rejection on an
@@ -78,11 +113,12 @@ export function useWorkEditorDraft({data,edit,context,refreshPending,onCancel}:{
     if(kind==='stale_revision'||kind==='revoked_authority')rejectedSnapshot.current=latest.current.data;
     setOutcome({kind,message:failure.message});
     if(kind==='confirmed_failure')request.current=undefined;
+    else void reload?.();
    }
   }finally{guard.pendingRef.current=false;if(active.current)setOutcome(current=>current.kind==='saving'?{kind:'idle'}:current);}
   if(receipt&&active.current&&latest.current.scopeMatches){
-   try{await options.onDone(receipt);}catch{if(active.current&&latest.current.scopeMatches)setOutcome({kind:'committed_refresh_failed',receipt,message:'Work was saved, but the view could not refresh. Close and reload; do not submit again.'});}
+   try{await options.onDone(receipt);}catch{if(active.current&&latest.current.scopeMatches)setOutcome({kind:'committed_refresh_failed',receipt,message:'Work was saved. The current view is being checked.'});void reload?.();}
   }
  }
- return {baseline,fields,update,outcome,request:request.current,unresolvedReceipt:unresolved.current,dirty,busy,saved,locked,authorized,capability,submit,confirmationCurrent:()=>active.current&&latest.current.scopeMatches&&latest.current.authorized,recovered:recovery.recovered,staleRecovery:recovery.stale,storageFailed:recovery.storageFailed,discard};
+ return {baseline,fields,update,outcome,request:request.current,unresolvedReceipt:unresolved.current,dirty,busy,saved,locked,authorized,capability,submit,confirmationCurrent:()=>active.current&&latest.current.scopeMatches&&latest.current.authorized,recovered:recovery.recovered,staleRecovery,canReviewLatest,reviewLatest,storageFailed:recovery.storageFailed,discard};
 }

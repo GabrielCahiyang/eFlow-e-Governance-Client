@@ -4,7 +4,7 @@ import { useOrgs } from '../../../hooks/useSupabaseData';
 import { useNotificationNavigationIntent } from '../../notifications';
 import { Button } from '../../../components/ui/button';
 import { financialErrorMessage } from '../financialReceipts';
-import { requestNavigation } from '../../../shared/navigationGuard';
+import { subscribeFinancialReviewChanges } from '../services/financialReviewSubscription';
 import { getAssignedIndependentReviews, type IndependentReviewPackage } from '../services/independentReviewService';
 import { IndependentReviewPackageCard } from './IndependentReviewPackageCard';
 
@@ -29,6 +29,10 @@ export function AssignedIndependentReviews({ onPendingChange }: { onPendingChang
     } catch (caught) { if (request === generation.current && scope === latestScope.current) setState({ scope, rows: [], error: financialErrorMessage(caught), loading: false }); }
   }, [scope]);
   useEffect(() => { setNotice(''); void refresh(); return () => { ++generation.current; }; }, [refresh]);
+  useEffect(() => {
+    if (!eligible || !office?.id || !userProfile?.id) return;
+    return subscribeFinancialReviewChanges(office.id, userProfile.id, () => void refresh());
+  }, [eligible, office?.id, userProfile?.id, refresh]);
   const current = state.scope === scope ? state : { rows: [], error: '', loading: eligible };
   useEffect(() => { onPendingChange?.(eligible ? current.rows.length : 0); }, [eligible, current.rows.length, onPendingChange]);
   useNotificationNavigationIntent(intent => intent.financialRecordType === 'independent_liquidation_review', intent => {
@@ -39,10 +43,10 @@ export function AssignedIndependentReviews({ onPendingChange }: { onPendingChang
   }, [scope, current.rows, current.loading, current.error]);
   if (!eligible || !current.rows.length && !current.error && !notice) return null;
   return <section aria-label="Assigned independent financial reviews" className="space-y-3">
-    <header className="flex flex-wrap items-center justify-between gap-2"><h2 className="text-lg font-semibold">Independent financial reviews</h2><Button variant="outline" disabled={current.loading} onClick={() => { void requestNavigation(() => refresh()); }}>Refresh assigned reviews</Button></header>
+    <h2 className="text-lg font-semibold">Independent financial reviews</h2>
     <p className="text-sm text-muted-foreground">Your appointed review work. Approval does not settle cash or grant permission to post journals.</p>
     {notice && <p role="status" className="text-sm">{notice}</p>}
-    {current.error && <p role="alert" className="rounded-lg border border-amber-300 p-3 text-sm">Assigned reviews unavailable: {current.error}</p>}
+    {current.error && <div role="alert" className="rounded-lg border border-amber-300 p-3 text-sm"><p>Assigned reviews unavailable: {current.error}</p><Button variant="outline" onClick={() => void refresh()}>Retry assigned reviews</Button></div>}
     {current.rows.map(row => <IndependentReviewPackageCard key={row.liquidation.id} item={row.liquidation} request={row.request} context={row.context} onChanged={async () => { await refresh(); setNotice('Review recorded. Current assignments refreshed.'); }} />)}
   </section>;
 }

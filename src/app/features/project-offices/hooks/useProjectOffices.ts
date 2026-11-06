@@ -1,4 +1,5 @@
 import { createContext, useContext, useCallback, useEffect, useState, useRef, useId, useMemo } from 'react';
+import { useVisibleRead } from '../../../shared/useVisibleRead';
 import { supabase } from '../../../../lib/supabase';
 import { fetchProjectOffices } from '../services/projectOfficeService';
 import { fetchOfficeIdentities } from '../services/officeIdentityService';
@@ -40,6 +41,7 @@ export function useProjectOffices(projectId: string): ProjectOfficeState {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'project_office_identities', filter: 'project_id=eq.' + projectId }, refresh).subscribe();
     return () => { ++requestVersion.current; void supabase.removeChannel(channel); void supabase.removeChannel(localChannel); };
   }, [projectId, refresh, instanceId]);
+  useVisibleRead(refresh, !!projectId && !state.error && !state.identityError);
   return useMemo(() => {
     const current = state.projectId === projectId ? state : empty;
     const removed = new Set((current.identities || []).filter(i => i.provenance.removed).map(i => i.project_office_id));

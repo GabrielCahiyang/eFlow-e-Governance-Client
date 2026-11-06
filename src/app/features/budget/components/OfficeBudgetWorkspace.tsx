@@ -34,13 +34,14 @@ import { writeNavigationLocation, readRouteFiscalYear } from '../../navigation';
 import { NAVIGATION_LOCATION_EVENT } from '../../../shared/navigationHistory';
 
 import { BudgetViewControl } from './BudgetViewControl';
+import { useNotificationNavigationIntent } from '../../notifications';
 import { OfficePettyCash } from '../../office-petty-cash';
 import { readBudgetView as tabFromUrl, type BudgetView as Tab } from '../budgetViews';
 
 import { requestNavigation } from "../../../shared/navigationGuard";
 type BudgetOwner = { budget: ReturnType<typeof useDepartmentBudget>; journal: ReturnType<typeof useGeneralJournal> };
 type OfficeBudgetProps = { fiscalYear?: number; embedded?: boolean; dataOwner?: BudgetOwner };
-type BudgetContentProps = BudgetOwner & { orgId: string; fiscalYear: number; embedded: boolean; tab: Tab; setTab: (tab: Tab) => void; setFiscalYear: (year: number) => void };
+type BudgetContentProps = BudgetOwner & { focusRequestId?: string; orgId: string; fiscalYear: number; embedded: boolean; tab: Tab; setTab: (tab: Tab) => void; setFiscalYear: (year: number) => void };
 
 export function OfficeBudgetWorkspace(props: OfficeBudgetProps = {}) {
   const { userProfile } = useAuth();
@@ -64,6 +65,7 @@ function OfficeBudgetRoute({ fiscalYear: suppliedYear, embedded = false, dataOwn
           : null,
       ) || "overview",
   );
+  const [focusRequestId, setFocusRequestId] = useState<string>();
   const fiscalYear = suppliedYear ?? fiscalYearState;
   const tab = tabState;
   const updateBudgetUrl = (nextTab: Tab, nextYear: number) => {
@@ -97,7 +99,18 @@ function OfficeBudgetRoute({ fiscalYear: suppliedYear, embedded = false, dataOwn
     window.addEventListener(NAVIGATION_LOCATION_EVENT, onPopState);
     return () => { window.removeEventListener("popstate", onPopState); window.removeEventListener(NAVIGATION_LOCATION_EVENT, onPopState); };
   }, [embedded]);
-  const content = { orgId, fiscalYear, embedded, tab, setTab, setFiscalYear };
+  useNotificationNavigationIntent(
+    intent => !embedded && intent.financialRecordType === 'office_petty_cash_staffing',
+    intent => {
+      if (!intent.financialRecordId) return 'unavailable';
+      setFocusRequestId(intent.financialRecordId);
+      setTabState('office-petty-cash');
+      updateBudgetUrl('office-petty-cash', fiscalYear);
+      return true;
+    },
+    [embedded, fiscalYear],
+  );
+  const content = { orgId, fiscalYear, embedded, tab, setTab, setFiscalYear, focusRequestId };
   return dataOwner ? <OfficeBudgetContent {...content} {...dataOwner} /> : <StandaloneOfficeBudgetContent {...content} actorId={actorId} />;
 }
 
@@ -107,7 +120,7 @@ function StandaloneOfficeBudgetContent(props: Omit<BudgetContentProps, keyof Bud
   return <OfficeBudgetContent {...props} budget={budget} journal={journal} />;
 }
 
-function OfficeBudgetContent({ orgId, fiscalYear, embedded, tab, setTab, setFiscalYear, budget, journal }: BudgetContentProps) {
+function OfficeBudgetContent({ orgId, fiscalYear, embedded, tab, setTab, setFiscalYear, budget, journal, focusRequestId }: BudgetContentProps) {
   const { userProfile } = useAuth();
   const { tasks } = useTasks();
   const canPrepare = userProfile?.role === 'head';
@@ -189,7 +202,7 @@ function OfficeBudgetContent({ orgId, fiscalYear, embedded, tab, setTab, setFisc
               <small>{budget.error ? 'Pending financial actions unavailable' : `Pending financial actions: ${pendingCount}`} · FY {fiscalYear}</small>
             </div>
             {tab!=='office-petty-cash'&&<BudgetVersionBanner data={budget}/>}
-            {tab === 'office-petty-cash' ? <OfficePettyCash/> : !budget.summary && budget.error ? null : !budget.summary && tab !== "annual" ? (
+            {tab === 'office-petty-cash' ? <OfficePettyCash focusRequestId={focusRequestId}/> : !budget.summary && budget.error ? null : !budget.summary && tab !== "annual" ? (
               <BudgetEmpty
                 title={`No ${fiscalYear} annual budget yet`}
                 description="The Head must create and lock the annual budget before proposals and task-level cash requests can be funded."

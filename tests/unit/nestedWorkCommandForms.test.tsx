@@ -119,6 +119,25 @@ describe('NW5.5 lightweight forms and authoritative confirmation',()=>{
   lost=true;const {props,view}=open('move');save();await accept();await screen.findByText(/Committed response lost/);expect(writes()).toHaveLength(1);const refreshed={...data,revision:8};rememberWorkCapabilityContext(refreshed,'actor');view.rerender(<WorkTreeEditor {...props} data={refreshed}/>);
   fireEvent.click(screen.getByRole('button',{name:'Retry saved request'}));await waitFor(()=>expect(writes()).toHaveLength(2));expect(writes()[1]).toEqual(writes()[0]);expect(previews()).toHaveLength(1);expect(screen.queryByRole('alertdialog')).toBeNull();
  });
+ it('automatically verifies a lost save response without writing again',async()=>{
+  const reload=vi.fn().mockResolvedValue(undefined);
+  api.rpc.mockImplementation(async name=>{
+   if(name==='r7_work_command')return {data:null,error:{code:'XX000',message:'Connection lost'}};
+   if(name==='nw_work_command_receipt')return {data:true,error:null};
+   return {data,error:null};
+  });
+  render(<WorkTreeEditor data={data} edit={{command:'edit',node:data.nodes[0]}} save={request=>saveWorkTree('root',request)} reload={reload} onDone={vi.fn()} onCancel={vi.fn()}/>);
+  fireEvent.change(screen.getByLabelText('Subtask title'),{target:{value:'Saved title'}});
+  save();
+  await screen.findByText('Work saved.');
+  const [write]=writes();
+  expect(writes()).toHaveLength(1);
+  expect(api.rpc).toHaveBeenCalledWith('nw_work_command_receipt',{
+   p_root:'root',p_request:write[1].p_request,p_command:'edit',p_payload:write[1].p_payload,
+  });
+  expect(reload).toHaveBeenCalled();
+  expect(screen.queryByRole('button',{name:'Retry saved request'})).toBeNull();
+ });
  it('never downgrades an accepted confirmation after checked RPC denial',async()=>{
   open('move');save();await screen.findByRole('alertdialog');api.rpc.mockResolvedValue({data:null,error:{code:'23514',message:'History changed after preview'}});await accept();await screen.findByText(/History changed after preview/);expect(writes()).toHaveLength(1);expect(writes()[0][0]).toBe('nw_work_command');
  });

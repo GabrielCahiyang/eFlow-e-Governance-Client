@@ -1,15 +1,17 @@
 import { supabase } from "../../../../lib/supabase";
 import { notifyProjectListeners } from "./projectQueryService";
 import type { ProjectStatus } from "./types";
+import type { UnusedProjectFunding } from "../../project-setup";
 
 export interface ProjectCompletionBlocker {
-  kind: "work" | "task" | "subtask" | "cash" | "governance";
+  kind: "work" | "task" | "subtask" | "cash" | "governance" | "funding";
   id: string;
   taskId?: string;
   title: string;
   status: string;
   detail: string;
   amount?: number;
+  unusedFunding?: UnusedProjectFunding;
 }
 export interface ProjectCompletionReadiness {
   projectId: string;

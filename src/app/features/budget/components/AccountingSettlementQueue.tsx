@@ -347,12 +347,11 @@ export function AccountingSettlementQueue({
                       </Button>
                     </div>
                   </div>
-                  <IndependentReviewCard id={item.id} version={item.version} context={review} error={independent.errors[item.id]} onChanged={async () => { await independent.refresh(); await onChanged(); }} />
-                  {ownFunds && (
+                  <IndependentReviewCard id={item.id} version={item.version} context={review} error={independent.errors[item.id]} onChanged={async () => { await independent.refresh(); await onChanged(); }}
+                    submittedByAccountingRequester={Boolean(request?.requesterIsAccountingStaff && item.submittedBy === request.requesterId)} />
+                  {ownFunds && review?.eligibleSettlers !== 0 && (
                     <p className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
-                      You cannot settle your own cash request, receipt or task
-                      leadership package. Independent leadership review and a
-                      separate eligible Accounting Officer are required.
+                      You can’t settle cash you requested, received, reviewed, or led. Another Accounting Officer is needed.
                     </p>
                   )}
                   {awaitingHead && (

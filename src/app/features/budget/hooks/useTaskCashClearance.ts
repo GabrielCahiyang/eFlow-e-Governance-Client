@@ -27,6 +27,7 @@ export function useTaskCashClearance(taskId: string) {
     void refresh();
     const onFocus = () => { void refresh(); };
     window.addEventListener("focus", onFocus);
+    const fallback = window.setInterval(() => { if (document.visibilityState !== "hidden") onFocus(); }, 15_000);
     // Each mounted reviewer owns a fresh channel; never append handlers to an
     // already-subscribed channel shared with another funding card.
     const channel = supabase.channel(`task-cash-clearance:${taskId}:${crypto.randomUUID()}`)
@@ -35,6 +36,7 @@ export function useTaskCashClearance(taskId: string) {
     return () => {
       generation.current += 1;
       window.removeEventListener("focus", onFocus);
+      window.clearInterval(fallback);
       void supabase.removeChannel(channel);
     };
   }, [refresh, taskId]);

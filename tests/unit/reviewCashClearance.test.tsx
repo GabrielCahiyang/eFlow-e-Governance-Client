@@ -3,6 +3,7 @@ import { StrictMode } from "react";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { getTaskCashBlockers } from "../../src/app/features/budget/selectors/taskCashClearance";
+import { TaskCashClearancePanel } from "../../src/app/features/budget/components/TaskCashClearancePanel";
 import { cashData } from "./taskCashClearance.fixtures";
 
 const mocks = vi.hoisted(() => ({ fetch: vi.fn(), verify: vi.fn(), toast: vi.fn(), topics: [] as string[] }));
@@ -39,6 +40,28 @@ beforeEach(() => { vi.clearAllMocks(); mocks.topics.length = 0; mocks.fetch.mock
 afterEach(cleanup);
 
 describe("cash-aware review decision", () => {
+  it("explains why a Head-approved escalation is still open and links to that package", () => {
+    const [blocker] = blockers();
+    const open = vi.fn();
+    render(<TaskCashClearancePanel blockers={[{ ...blocker, settlement: { eligibleSettlers: 0, headNotified: true, headApproved: true } }]}
+      currentUserId="head-1" role="head" loading={false} error="" serverBlocked={false} onRefresh={vi.fn()} onOpenFinancialReview={open} />);
+    expect(screen.getByText(/Head approved the escalation. No eligible independent Accounting Officer/)).toBeTruthy();
+    expect(screen.getByText(/Task approval can proceed/)).toBeTruthy();
+    fireEvent.click(button("Open financial review for FR-00002"));
+    expect(open).toHaveBeenCalledWith({ recordId: "liquidation-2", orgId: "org-1", fiscalYear: 2025, independentReview: true });
+  });
+
+  it("allows task approval after the Head's current escalation approval without clearing cash", async () => {
+    const [blocker] = blockers();
+    mocks.fetch.mockResolvedValue([{ ...blocker, settlement: { eligibleSettlers: 0, headNotified: true, headApproved: true } }]);
+    const done = vi.fn();
+    render(<ReviewDecisionForm taskId="task-1" onDone={done} />);
+    await screen.findByText(/Task approval can proceed/);
+    await startApproval();
+    await waitFor(() => expect(done).toHaveBeenCalledOnce());
+    expect(mocks.verify).toHaveBeenCalledWith("task-1", true, undefined, expect.anything());
+    expect(screen.getByText("FR-00002 · Awaiting final cash settlement")).toBeTruthy();
+  });
   it("shows the exact blocker before approval and opens its receipt package in the correct fiscal year", async () => {
     mocks.fetch.mockResolvedValue(blockers());
     const open = vi.fn();
@@ -60,7 +83,7 @@ describe("cash-aware review decision", () => {
     const done = vi.fn();
     render(<ReviewDecisionForm taskId="task-1" onDone={done} />);
     await screen.findByText("FR-00002 · Awaiting final cash settlement");
-    fireEvent.click(button("Refresh cash status"));
+    fireEvent.focus(window);
     await startApproval();
     await waitFor(() => expect(done).toHaveBeenCalledOnce());
     expect(mocks.verify).toHaveBeenCalledWith("task-1", true, undefined, { id: "accounting-1", name: "Cheryl Gallo" });
@@ -104,8 +127,7 @@ describe("cash-aware review decision", () => {
     render(<ReviewDecisionForm taskId="task-1" />);
     await startApproval();
     await screen.findByText(/last approval attempt reported unresolved cash/);
-    await waitFor(() => expect(button("Refresh cash status").disabled).toBe(false));
-    fireEvent.click(button("Refresh cash status"));
+    fireEvent.focus(window);
     await screen.findByText(/last approval attempt reported unresolved cash/);
     expect(screen.queryByText(/No open cash requests found/)).toBeNull();
   });

@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { CheckCircle2, Inbox, ReceiptText } from "lucide-react";
 import { useAuth } from "../../../contexts/AuthContext";
 import { PageHeader } from "../../../components/workflow/primitives";
@@ -11,7 +11,9 @@ import { getCurrentFiscalYear } from "../constants";
 import type { NotificationNavigationIntent } from "../../notifications";
 import type { CashReviewFocus } from "../types";
 import { isLiquidationLate } from "../selectors/cashWorkflowRules";
-import { IndependentReviewQueue } from './IndependentReviewQueue';
+import { IndependentReviewQueueContents } from './IndependentReviewQueue';
+import { useIndependentReviews } from '../hooks/useIndependentReviews';
+import { getLiquidationFiscalYear, independentReviewAllowsPosting, needsLeadershipReview } from '../services/independentReviewService';
 import { getPhilippineCalendarDate } from '../../../shared/calendarDates';
 
 export function BudgetReviewInbox({
@@ -30,7 +32,20 @@ export function BudgetReviewInbox({
   const { userProfile, can } = useAuth();
   const orgId = cashReviewFocus?.orgId || userProfile?.org_id || userProfile?.departmentId || "";
   const [fiscalYear, setFiscalYear] = useState(cashReviewFocus?.fiscalYear || getCurrentFiscalYear());
-  const budget = useDepartmentBudget(orgId, fiscalYear);
+  const staffingFocus = focus?.financialRecordType === 'settlement_staffing' ? focus.financialRecordId : undefined;
+  const focusKey = staffingFocus && orgId ? `${focus?.notificationId}:${orgId}:${staffingFocus}` : '';
+  const [focusYear, setFocusYear] = useState<{ key: string; error?: string }>();
+  const resolvingFocus = Boolean(focusKey && focusYear?.key !== focusKey);
+  useEffect(() => {
+    if (!focusKey || !staffingFocus) return;
+    let active = true;
+    void getLiquidationFiscalYear(staffingFocus, orgId).then(year => {
+      if (active) { setFiscalYear(year); setFocusYear({ key: focusKey }); }
+    }).catch(error => { if (active) setFocusYear({ key: focusKey, error: error.message }); });
+    return () => { active = false; };
+  }, [focusKey, staffingFocus, orgId]);
+  const budget = useDepartmentBudget(resolvingFocus ? '' : orgId, fiscalYear);
+  const independent = useIndependentReviews(budget);
   const currentUserId = userProfile?.id || "";
   const isDepartmentApprover = ["head", "head"].includes(userProfile?.role || "");
   const canSettle = userProfile?.role === "accounting_staff" && can("accounting.settle_liquidation");
@@ -41,11 +56,18 @@ export function BudgetReviewInbox({
     liquidations: budget.liquidations.filter((item) => {
       const request = budget.requests.find((candidate) => candidate.id === item.requestId);
       const lateAuthorization = isDepartmentApprover && isLiquidationLate(request,item) && !item.departmentDecidedAt;
-      return ((lateAuthorization || canSettle) && item.status === "pending_department_settlement" && request?.cashRecipientId !== currentUserId && request?.requesterId !== currentUserId && request?.taskLeaderId !== currentUserId) || (item.status === "pending_leader_review" && request?.taskLeaderId === currentUserId && request?.cashRecipientId !== currentUserId);
+      const review = independent.contexts[item.id];
+      if (item.status === 'pending_department_settlement') {
+        if (needsLeadershipReview(review)) return true;
+        const canPost = canSettle && review && independentReviewAllowsPosting(review, currentUserId) && (!isLiquidationLate(request, item) || Boolean(item.departmentDecidedAt));
+        return Boolean(request && (lateAuthorization || canPost) && ![request.cashRecipientId, request.requesterId, request.taskLeaderId].includes(currentUserId));
+      }
+      return item.status === 'pending_leader_review' && request?.taskLeaderId === currentUserId && request?.cashRecipientId !== currentUserId;
     }).length,
     releases: budget.releases.filter((item) => canRelease && item.status === "scheduled" && item.scheduledDate <= getPhilippineCalendarDate()).length,
-  }), [budget.allocations, budget.liquidations, budget.releases, budget.requests, currentUserId, isDepartmentApprover,canRelease,canSettle]);
+  }), [budget.allocations, budget.liquidations, budget.releases, budget.requests, currentUserId, isDepartmentApprover,canRelease,canSettle, independent.contexts]);
   const total = counts.allocations + counts.requests + counts.liquidations + counts.releases;
+  const waitingForAccounting = Object.values(independent.contexts).filter(review => review.eligibleSettlers === 0 && !needsLeadershipReview(review)).length;
 
   return (
     <div className={embedded ? "space-y-4" : "min-h-full p-4 sm:p-8"}>
@@ -69,7 +91,8 @@ export function BudgetReviewInbox({
         <div className="flex items-center gap-2"><FiscalYearControl value={fiscalYear} onChange={setFiscalYear} compact /><div className="inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-[12px] text-amber-700"><Inbox size={14} /> {total} awaiting review</div></div>
       </div>}
 
-      {budget.loading ? (
+      {focusYear && focusYear.key === focusKey && focusYear.error && <p role="alert" className="text-sm text-destructive">{focusYear.error}</p>}
+      {resolvingFocus || budget.loading ? (
         <WorkspaceLoadingSkeleton label="Loading financial approvals…" rows={4} />
       ) : budget.error ? (
         <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-[11px] text-rose-700">{budget.error}</div>
@@ -80,11 +103,11 @@ export function BudgetReviewInbox({
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <BudgetCard label="Allocation proposals" value={String(counts.allocations)} note="Task Leader requests" icon={<ReceiptText size={15} />} tone={counts.allocations ? "warn" : "good"} />
             <BudgetCard label="Cash requests" value={String(counts.requests)} note="Task-linked requests" icon={<Inbox size={15} />} tone={counts.requests ? "warn" : "good"} />
-            <BudgetCard label="Receipt packages" value={String(counts.liquidations)} note="Liquidations to verify" icon={<CheckCircle2 size={15} />} tone={counts.liquidations ? "warn" : "good"} />
+            <BudgetCard label="Receipt packages" value={String(counts.liquidations)} note={waitingForAccounting ? `${waitingForAccounting} waiting for an eligible Accounting Officer` : 'Liquidations to verify'} icon={<CheckCircle2 size={15} />} tone={counts.liquidations ? "warn" : "good"} />
             <BudgetCard label="Cash releases" value={String(counts.releases)} note="Scheduled tranches due" icon={<ReceiptText size={15} />} tone={counts.releases ? "warn" : "good"} />
           </div>
-          <BudgetApprovalQueue data={budget} onChanged={budget.refresh} focusRecordId={cashReviewFocus?.recordId || focus?.financialRecordId} />
-          <IndependentReviewQueue data={budget} onChanged={budget.refresh} />
+          <IndependentReviewQueueContents data={budget} onChanged={budget.refresh} focusRecordId={staffingFocus || (cashReviewFocus?.independentReview ? cashReviewFocus.recordId : undefined)} independent={independent} />
+          <BudgetApprovalQueue data={budget} onChanged={budget.refresh} focusRecordId={cashReviewFocus?.independentReview ? undefined : cashReviewFocus?.recordId || (staffingFocus ? undefined : focus?.financialRecordId)} />
         </div>
       )}
     </div>

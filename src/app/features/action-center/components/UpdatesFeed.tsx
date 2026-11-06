@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
-import { fetchRecentNotifications, markRecentNotificationRead, type Notification } from '../../../services/notificationService';
+import { fetchRecentNotifications, markRecentNotificationRead, subscribeNotificationChanges, type Notification } from '../../../services/notificationService';
 import { usePersonalFeed } from '../hooks/usePersonalFeed';
 import { Button } from '../../../components/ui/button';
 import { FeedbackState } from '../../../components/ui/FeedbackState';
 import { EmptyState } from '../../../components/ui/EmptyState';
 export function UpdatesFeed({ onOpen }: { onOpen: (notification: Notification) => void }) {
   const { user } = useAuth();
-  const feed = usePersonalFeed(user?.id,fetchRecentNotifications);
+  const feed = usePersonalFeed(user?.id,fetchRecentNotifications,true,subscribeNotificationChanges);
   const [unreadOnly,setUnreadOnly] = useState(false);
   const [readIds,setReadIds] = useState<string[]>([]);
   const [pending,setPending] = useState<string | null>(null);
@@ -25,7 +25,7 @@ export function UpdatesFeed({ onOpen }: { onOpen: (notification: Notification) =
   };
   const rows = feed.rows.filter(item => !unreadOnly || (!item.read && !readIds.includes(item.id)));
   return <section className="space-y-3" aria-label="Recent updates">
-    <div className="flex flex-wrap items-center gap-3"><p className="flex-1 text-sm text-muted-foreground">Latest 50 updates. Unread means unseen, not awaiting approval.</p><label className="text-sm flex gap-2 items-center"><input type="checkbox" checked={unreadOnly} onChange={event=>setUnreadOnly(event.target.checked)} />Unread only</label><Button variant="outline" disabled={feed.loading} onClick={feed.retry}>Refresh updates</Button></div>
+    <div className="flex flex-wrap items-center gap-3"><p className="flex-1 text-sm text-muted-foreground">Latest 50 updates. Unread means unseen, not awaiting approval.</p><label className="text-sm flex gap-2 items-center"><input type="checkbox" checked={unreadOnly} onChange={event=>setUnreadOnly(event.target.checked)} />Unread only</label></div>
     {error && <FeedbackState tone="error" title="Read state was not saved">{error} Retry the same update.</FeedbackState>}
     {feed.loading ? <p role="status">Loading recent updates…</p> : feed.error ? <FeedbackState tone="error" title="Updates could not be loaded" onRetry={feed.retry}>{feed.error}</FeedbackState> : !rows.length ? <EmptyState fill illustration={unreadOnly ? 'complete' : 'inbox'} title={unreadOnly ? 'No unread recent updates' : 'No recent updates'} description="Older updates are outside this recent feed."/> : <ul className="rounded-lg border border-border divide-y divide-border bg-card">{rows.map(item=> {
       const read = item.read || readIds.includes(item.id);

@@ -26,6 +26,7 @@ export function subscribeProjectChecks(projectId: string, onChanged: () => void)
   if (typeof window !== 'undefined') {
     window.addEventListener('focus', invalidate);
     window.addEventListener('online', invalidate);
+    window.addEventListener('eflow:project-setup', invalidate);
     document.addEventListener('visibilitychange', invalidate);
   }
   return () => {
@@ -35,6 +36,7 @@ export function subscribeProjectChecks(projectId: string, onChanged: () => void)
     if (typeof window !== 'undefined') {
       window.removeEventListener('focus', invalidate);
       window.removeEventListener('online', invalidate);
+      window.removeEventListener('eflow:project-setup', invalidate);
       document.removeEventListener('visibilitychange', invalidate);
     }
     void supabase.removeChannel(channel);

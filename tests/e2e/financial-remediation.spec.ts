@@ -57,6 +57,7 @@ test('Journal detail preserves filters and focus, shows full lines, and never in
 });
 
 test('Independent Head reviews a conflict package and a separate Accounting Officer settles it', async ({ page, browser }, info) => {
+  test.setTimeout(120_000);
   await page.setViewportSize({ width: 1440, height: 1000 });
   const state = phase16FinancialState();
   await phase16FinancialFixture(page, 'accounting_staff', state);
@@ -80,7 +81,9 @@ test('Independent Head reviews a conflict package and a separate Accounting Offi
     return route.fallback();
   });
   await intercept(page, false);
-  await openAccounting(page, 'Settlements');
+  await openAccounting(page, 'Voucher & Cash Releases');
+  await expect(page.getByText('₱8,500.00 declared spent · ₱1,500.00 declared return', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Open Accounting Settlements', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Settle & post', exact: true })).toHaveAttribute('aria-disabled', 'true');
   await page.getByRole('combobox', { name: 'Independent reviewer', exact: true }).selectOption(headId);
   await page.getByLabel('Routing reason', { exact: true }).fill('Accounting Officer owns the receipt package.');
@@ -101,13 +104,17 @@ test('Independent Head reviews a conflict package and a separate Accounting Offi
     await expect(head.getByText('Approved for separate Accounting settlement.', { exact: true })).toBeVisible();
     expect(state.writes).toHaveLength(0);
   } finally { await headContext.close(); }
-  await page.getByRole('button', { name: 'Refresh review', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'Settle & post', exact: true })).not.toHaveAttribute('aria-disabled', 'true');
+  await expect(page.getByRole('button', { name: 'Refresh review', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Settle & post', exact: true })).not.toHaveAttribute('aria-disabled', 'true', { timeout: 25_000 });
   await page.getByRole('button', { name: 'Settle & post', exact: true }).click();
   await page.getByRole('alertdialog').getByRole('button', { name: 'Confirm settlement', exact: true }).click();
   await expect(page.getByText(/Settlement recorded/)).toBeVisible();
   expect(writes).toEqual(['route', 'review']);
   expect(state.writes.filter(write => write.rpc === 'settle_accounting_liquidation')).toHaveLength(1);
+  await openAccounting(page, 'Voucher & Cash Releases');
+  await expect(page.getByText('Settlement posted', { exact: true })).toBeVisible();
+  await expect(page.getByText('₱8,500.00 posted · ₱1,500.00 returned', { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Open Accounting Settlements', exact: true })).toHaveCount(0);
 });
 
 for (const width of [390, 768]) test(`Financial controls fit ${width}px without page overflow`, async ({ page }, info) => {

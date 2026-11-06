@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
-const setup = vi.hoisted(() => ({ role: 'member', assistant: 'reviewer', blockRefresh: false, feed: vi.fn().mockResolvedValue([]) }));
-vi.mock('../../src/app/shared/navigationGuard', () => ({ requestNavigation: (action: () => void) => { if (!setup.blockRefresh) return action(); } }));
+import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
+const setup = vi.hoisted(() => ({ role: 'member', assistant: 'reviewer', subscribe: vi.fn(), feed: vi.fn().mockResolvedValue([]) }));
+vi.mock('../../src/app/features/budget/services/financialReviewSubscription', () => ({ subscribeFinancialReviewChanges: setup.subscribe }));
 vi.mock('../../src/app/contexts/AuthContext', () => ({ useAuth: () => ({ user: { id: 'reviewer' }, userProfile: { id: 'reviewer', org_id: 'office', is_active: true, role: setup.role } }) }));
 vi.mock('../../src/app/hooks/useSupabaseData', () => ({ useOrgs: () => ({ orgs: [{ id: 'office', is_active: true, assistant_head_user_id: setup.assistant }] }) }));
 vi.mock('../../src/app/features/notifications', () => ({ useNotificationNavigationIntent: vi.fn() }));
@@ -10,22 +10,20 @@ vi.mock('../../src/app/features/budget/services/independentReviewService', () =>
 vi.mock('../../src/app/features/budget/components/IndependentReviewPackageCard', () => ({ IndependentReviewPackageCard: () => <p>Assigned receipt package</p> }));
 import { AssignedIndependentReviews } from '../../src/app/features/budget/components/AssignedIndependentReviews';
 afterEach(cleanup);
-beforeEach(() => { setup.role = 'member'; setup.assistant = 'reviewer'; setup.blockRefresh = false; setup.feed.mockReset().mockResolvedValue([]); });
-it('guards refresh before discarding a review draft and keeps packages mounted during a verified refresh', async () => {
+beforeEach(() => { setup.role = 'member'; setup.assistant = 'reviewer'; setup.subscribe.mockReset().mockReturnValue(() => {}); setup.feed.mockReset().mockResolvedValue([]); });
+it('keeps assigned packages mounted while a realtime event reloads the feed', async () => {
   const rows = [{ liquidation: { id: 'liq' }, context: {}, request: {} }];
   setup.feed.mockResolvedValue(rows);
   render(<AssignedIndependentReviews />);
   await screen.findByText('Assigned receipt package');
-  setup.blockRefresh = true;
-  fireEvent.click(screen.getByRole('button', { name: 'Refresh assigned reviews' }));
-  expect(setup.feed).toHaveBeenCalledTimes(1);
-  setup.blockRefresh = false;
+  expect(screen.queryByRole('button', { name: 'Refresh assigned reviews' })).toBeNull();
   let resolve!: (value: unknown) => void;
   setup.feed.mockReturnValueOnce(new Promise(value => { resolve = value; }));
-  fireEvent.click(screen.getByRole('button', { name: 'Refresh assigned reviews' }));
+  act(() => setup.subscribe.mock.calls[0][2]());
   await waitFor(() => expect(setup.feed).toHaveBeenCalledTimes(2));
   expect(screen.getByText('Assigned receipt package')).toBeTruthy();
-  await act(async () => resolve(rows));
+  await act(async () => resolve([]));
+  expect(screen.queryByText('Assigned receipt package')).toBeNull();
 });
 it('lets an appointed Member receive their review without granting a Head account role', async () => {
   setup.feed.mockResolvedValue([{ liquidation: { id: 'liq' }, context: {}, request: {} }]);

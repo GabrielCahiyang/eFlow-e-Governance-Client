@@ -5,7 +5,7 @@ import {cleanup,fireEvent,render,screen,waitFor,within} from '@testing-library/r
 import {afterEach,beforeEach,expect,it,vi} from 'vitest';
 import {cashRequest} from './taskCashClearance.fixtures';
 import type {DepartmentBudgetBundle} from '../../src/app/features/budget/types';
-const mocks=vi.hoisted(()=>({role:'head',request:vi.fn(),leader:vi.fn(),allocation:vi.fn(),liquidation:vi.fn(),late:vi.fn(),release:vi.fn(),getReview:vi.fn(),decideReview:vi.fn(),toast:vi.fn()}));
+const mocks=vi.hoisted(()=>({role:'head',request:vi.fn(),leader:vi.fn(),allocation:vi.fn(),liquidation:vi.fn(),late:vi.fn(),release:vi.fn(),getReview:vi.fn(),decideReview:vi.fn(),routeReview:vi.fn(),approveEscalation:vi.fn(),toast:vi.fn()}));
 vi.mock('../../src/app/components/ui/Modal',()=>({Modal:({title,children,footer,preventClose,onClose}:any)=><div role="dialog" aria-label={title} data-locked={preventClose}><button disabled={preventClose} onClick={onClose}>Close dialog</button>{children}{footer}</div>}));
 vi.mock('@vibe/core',()=>({Button:({children,disabled,onClick}:any)=><button disabled={disabled} onClick={onClick}>{children}</button>}));
 vi.mock('motion/react',()=>({AnimatePresence:({children}:any)=>children}));
@@ -21,7 +21,7 @@ vi.mock('../../src/app/components/ui/useConfirmation',()=>({useConfirmation:()=>
 }}));
 vi.mock('../../src/app/features/budget/components/ApprovalThresholdDialog',()=>({ApprovalThresholdDialog:()=>null}));
 vi.mock('../../src/app/features/budget/services/budgetService',()=>({decidePettyCashRequest:mocks.request,decidePettyCashLeaderReview:mocks.leader,decideWorkBudgetAllocation:mocks.allocation,decidePettyCashLiquidation:mocks.liquidation,authorizeLateLiquidation:mocks.late,decidePettyCashLiquidationLeaderReview:vi.fn(),markPettyCashReleased:mocks.release,createReceiptSignedUrl:vi.fn()}));
-vi.mock('../../src/app/features/budget/services/independentReviewService',()=>({getIndependentReview:mocks.getReview,decideIndependentReview:mocks.decideReview,routeIndependentReview:vi.fn()}));
+vi.mock('../../src/app/features/budget/services/independentReviewService',()=>({getIndependentReview:mocks.getReview,decideIndependentReview:mocks.decideReview,routeIndependentReview:mocks.routeReview,approveStaffingEscalation:mocks.approveEscalation}));
 import {DecisionModal,DecisionResultModal} from '../../src/app/components/ui/DecisionModal';
 import {BudgetApprovalQueue} from '../../src/app/features/budget/components/BudgetApprovalQueue';
 import {IndependentReviewCard} from '../../src/app/features/budget/components/IndependentReviewCard';
@@ -103,20 +103,73 @@ it.each([['success','approve'],['returned','return'],['error','error']] as const
  expect(screen.getByText('Recorded outcome').parentElement?.getAttribute('data-tone')).toBe(attribute);
 });
 
-it('explains zero eligible settlers even when no additional leadership review is required',()=>{
- render(<IndependentReviewCard id="review-1" version={1} context={{...review(),required:false,eligibleSettlers:0,escalationRequired:true,canReview:false,canSettle:false,review:null}} onChanged={vi.fn()}/>);
- expect(screen.getByRole('alert',{name:'Settlement blocked'}).textContent).toContain('No eligible Accounting Officer');
+it('shows the recorded Head notification even when leadership review is not required',()=>{
+ render(<IndependentReviewCard id="review-1" version={1} context={{...review(),required:false,eligibleSettlers:0,escalationRequired:true,canReview:false,canSettle:false,review:null,headAlertStatus:'notified'}} onChanged={vi.fn()}/>);
+ expect(screen.getByRole('status',{name:'Settlement blocked'})).toHaveTextContent('Automatically escalated to the Head');
  expect(screen.queryByRole('button',{name:'Approve review'})).toBeNull();
 });
-it('shows both missing assignments for the live Accounting-owned demo pattern',()=>{
- render(<IndependentReviewCard id="review-1" version={1} context={{...review(),eligibleSettlers:0,escalationRequired:true,canReview:false,canSettle:false,review:null,candidates:[]}} onChanged={vi.fn()}/>);
- expect(screen.getByRole('alert',{name:'Settlement blocked'}).textContent).toContain('No independent leadership reviewer is available either');
+it.each([['pending','Head notification pending'],['no_head','No office Head appointed']] as const)('shows the %s state before an alert is recorded',(headAlertStatus, heading)=>{
+ render(<IndependentReviewCard id="review-1" version={1} context={{...review(),eligibleSettlers:0,escalationRequired:true,canReview:false,canSettle:false,review:null,candidates:[],headAlertStatus}} onChanged={vi.fn()}/>);
+ expect(screen.getByRole('status',{name:'Settlement blocked'})).toHaveTextContent(heading);
+ expect(screen.queryByText('Automatically escalated to the Head')).toBeNull();
  expect(mocks.decideReview).not.toHaveBeenCalled();
 });
 
 it('retains an assigned leadership review while an independent Accounting appointment is still needed',()=>{
  render(<IndependentReviewCard id="review-1" version={1} context={{...review(),eligibleSettlers:0,escalationRequired:true}} onChanged={vi.fn()}/>);
- expect(screen.getByRole('alert',{name:'Settlement blocked'})).toBeTruthy();
+ expect(screen.getByRole('status',{name:'Settlement blocked'})).toBeTruthy();
  expect(screen.getByRole('button',{name:'Approve review'})).toBeTruthy();
  expect(mocks.decideReview).not.toHaveBeenCalled();
+});
+
+it('lets an eligible Head take the notified review and then approve it', async () => {
+ const context = { ...review(), canReview: false, review: null, headAlertStatus: 'notified' as const,
+  eligibleSettlers: 0, candidates: [{ id: 'reviewer', name: 'Office Head', appointment: 'Head' }] };
+ mocks.getReview.mockResolvedValue(context);
+ const view = render(<IndependentReviewCard id="review-1" version={1} context={context} onChanged={vi.fn().mockResolvedValue(undefined)} />);
+ fireEvent.click(screen.getByRole('button', { name: 'Take review', exact: true }));
+ fireEvent.click(screen.getByRole('button', { name: 'Yes, take review' }));
+ await waitFor(() => expect(mocks.routeReview).toHaveBeenCalledWith('review-1', 1, 'reviewer', expect.any(String), expect.any(String)));
+ const assigned = { ...context, ...review(), eligibleSettlers: 0 };
+ mocks.getReview.mockResolvedValue(assigned);
+ view.rerender(<IndependentReviewCard id="review-1" version={1} context={assigned} onChanged={vi.fn().mockResolvedValue(undefined)} />);
+ await waitFor(() => expect(screen.getByRole('button', { name: 'Approve review' })).toBeEnabled());
+ fireEvent.click(screen.getByRole('button', { name: 'Approve review' }));
+ fireEvent.change(screen.getByLabelText('Review findings'), { target: { value: 'Receipts checked.' } });
+ fireEvent.click(screen.getByRole('button', { name: 'Yes, approve' }));
+ await waitFor(() => expect(mocks.decideReview).toHaveBeenCalledWith('review-1', 1, 'approved', 'Receipts checked.', expect.any(String)));
+});
+
+it('offers Approve directly to the Head for the notified staffing escalation', async () => {
+ const context = { ...review(), canReview: false, review: null, headAlertStatus: 'notified' as const,
+  eligibleSettlers: 0, headEscalationFingerprint: 'current-version' };
+ mocks.getReview.mockResolvedValue(context);
+ const view = render(<IndependentReviewCard id="review-1" version={1} context={context} submittedByAccountingRequester onChanged={vi.fn().mockResolvedValue(undefined)} />);
+ expect(screen.getByRole('status', { name: 'Settlement blocked' })).toHaveTextContent('The Accounting Officer who submitted this liquidation can’t settle their own request. No other eligible officer is available.');
+ expect(screen.queryByText('Head approval', { exact: true })).toBeNull();
+ fireEvent.click(screen.getByRole('button', { name: 'Approve', exact: true }));
+ const dialog = screen.getByRole('dialog', { name: 'Approve this liquidation review?' });
+ fireEvent.change(within(dialog).getByLabelText('Review findings'), { target: { value: 'Receipts verified.' } });
+ fireEvent.click(within(dialog).getByRole('button', { name: 'Yes, approve' }));
+ await waitFor(() => expect(mocks.approveEscalation).toHaveBeenCalledWith('review-1', 1, 'current-version', 'Receipts verified.', expect.any(String)));
+ view.rerender(<IndependentReviewCard id="review-1" version={1} context={{ ...context, headEscalationFingerprint: null, headEscalationApproved: true }} onChanged={vi.fn()} />);
+ expect(await screen.findByText('Head review approved · settlement pending')).toBeVisible();
+ expect(mocks.decideReview).not.toHaveBeenCalled();
+ expect(mocks.liquidation).not.toHaveBeenCalled();
+});
+
+it('lets the Head post a settlement when no independent Accounting Officer is available', async () => {
+ const context = { ...review(), canReview: false, review: null, headAlertStatus: 'notified' as const,
+  eligibleSettlers: 0, headCanPostSettlement: true, headEscalationApproved: true, headEscalationFingerprint: 'current-version' };
+ mocks.getReview.mockResolvedValue(context);
+ const onChanged = vi.fn().mockResolvedValue(undefined);
+ render(<IndependentReviewCard id="review-1" version={1} context={context} onChanged={onChanged} />);
+ fireEvent.click(screen.getByRole('button', { name: 'Approve & post settlement', exact: true }));
+ const dialog = screen.getByRole('dialog', { name: 'Approve and post this settlement?' });
+ expect(dialog).toHaveTextContent('Your approval settles the cash advance and posts the journal.');
+ fireEvent.change(within(dialog).getByLabelText('Review findings'), { target: { value: 'Receipts verified.' } });
+ fireEvent.click(within(dialog).getByRole('button', { name: 'Yes, approve' }));
+ await waitFor(() => expect(mocks.approveEscalation).toHaveBeenCalledWith('review-1', 1, 'current-version', 'Receipts verified.', expect.any(String)));
+ await waitFor(() => expect(onChanged).toHaveBeenCalled());
+ expect(mocks.liquidation).not.toHaveBeenCalled();
 });

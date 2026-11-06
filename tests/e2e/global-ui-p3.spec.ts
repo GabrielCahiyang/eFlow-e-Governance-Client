@@ -50,7 +50,7 @@ test('P3 membership update opens its canonical project and unavailable reads are
   const queue = page.getByRole('region', { name: 'Head invitation approval Inbox' });
   await expect(queue.getByRole('button', { name: 'Approve request', exact: true })).toBeVisible();
   fixture.state.queueError = 'Unavailable test function';
-  await queue.getByRole('button', { name: 'Refresh membership approvals' }).click();
+  await page.evaluate(() => window.dispatchEvent(new Event('focus')));
   await expect(queue.getByRole('alert')).toContainText('Membership approvals are unavailable');
   await expect(queue.getByText('No membership approvals pending', { exact: true })).toHaveCount(0);
   fixture.state.queueError = ''; await queue.getByRole('button', { name: 'Retry', exact: true }).click();
@@ -124,6 +124,6 @@ for (const theme of ['light', 'dark'] as const) test(`P3 ${theme} long labels, a
     await page.screenshot({ path: info.outputPath(`membership-${theme}-${width}.png`), animations: 'disabled' });
     await page.getByRole('region', { name: 'Head invitation approval Inbox' }).locator('summary').click();
   }
-  fixture.requests.length = 0; await page.getByRole('button', { name: 'Refresh membership approvals' }).click();
+  fixture.requests.length = 0; await page.evaluate(() => window.dispatchEvent(new Event('focus')));
   await expect(page.getByText('No membership approvals pending', { exact: true })).toBeVisible();
 });

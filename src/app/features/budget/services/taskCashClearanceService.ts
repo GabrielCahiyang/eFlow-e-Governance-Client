@@ -2,6 +2,7 @@ import { supabase } from "../../../../lib/supabase";
 import { CASH_COMPLETION_TERMINAL_STATES, getTaskCashBlockers } from "../selectors/taskCashClearance";
 import type { TaskCashBlocker } from "../types";
 import { mapAllocationLine, mapLiquidation, mapRelease, mapRequest } from "./budgetMappers";
+import { getIndependentReview } from "./independentReviewService";
 
 /** Read only this task's cash, across fiscal years, using the signed-in user's RLS. */
 export async function fetchTaskCashBlockers(taskId: string): Promise<TaskCashBlocker[]> {
@@ -47,7 +48,7 @@ export async function fetchTaskCashBlockers(taskId: string): Promise<TaskCashBlo
   const byId = (items: Record<string, unknown>[]) => new Map(items.map((row) => [String(row.id), row]));
   const profileById = byId(profiles);
   const subtaskById = byId(subtasks);
-  return getTaskCashBlockers(taskId, {
+  const blockers = getTaskCashBlockers(taskId, {
     requests: rows.map((row) => mapRequest({
       ...row, task: tasks[0], subtask: subtaskById.get(String(row.subtask_id)),
       requester: profileById.get(String(row.requester_id)),
@@ -58,4 +59,16 @@ export async function fetchTaskCashBlockers(taskId: string): Promise<TaskCashBlo
     liquidations: liquidations.map((row) => mapLiquidation(row, [])),
     allocationLines: lines.map(mapAllocationLine),
   }, new Map(budgets.map((row) => [String(row.id), Number(row.fiscal_year)])));
+  return Promise.all(blockers.map(async blocker => {
+    const item = blocker.liquidation;
+    if (item?.status !== "pending_department_settlement") return blocker;
+    // Some task reviewers can see the cash blocker but lack finance review access.
+    const review = await getIndependentReview(item.id).catch(() => undefined);
+    if (!review || review.version !== item.version || !Number.isInteger(review.eligibleSettlers)) return blocker;
+    return { ...blocker, settlement: {
+      eligibleSettlers: review.eligibleSettlers,
+      headNotified: review.headAlertStatus === "notified",
+      headApproved: review.headEscalationApproved === true,
+    } };
+  }));
 }

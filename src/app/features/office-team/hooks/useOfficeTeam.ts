@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useVisibleRead } from '../../../shared/useVisibleRead';
 import { phase2Request } from '../../../shared/phase2Api';
 import { listInvitations, type Invitation } from '../../invitations';
 import type { OfficeMember } from '../types';
@@ -23,5 +24,6 @@ export function useOfficeTeam(scope: string, enabled: boolean) {
     }));
   }, [scope, enabled]);
   useEffect(() => { setState(empty); void refresh(); return () => { ++version.current; }; }, [refresh]);
+  useVisibleRead(refresh, enabled);
   return { ...state, refresh };
 }

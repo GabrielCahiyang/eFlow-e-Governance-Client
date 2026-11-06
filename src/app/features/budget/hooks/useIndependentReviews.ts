@@ -3,6 +3,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import type { DepartmentBudgetBundle } from '../types';
 import { getIndependentReview, type IndependentReviewContext } from '../services/independentReviewService';
 import { financialErrorMessage } from '../financialReceipts';
+import { subscribeFinancialReviewChanges } from '../services/financialReviewSubscription';
 
 export function useIndependentReviews(data: DepartmentBudgetBundle) {
   const { userProfile } = useAuth();
@@ -21,5 +22,14 @@ export function useIndependentReviews(data: DepartmentBudgetBundle) {
     if (generation === version.current && latest.current === identity) setState({ key: identity, contexts, errors });
   }, [identity]);
   useEffect(() => { void refresh(); return () => { ++version.current; }; }, [refresh]);
+  const officeId = data.summary?.orgId || userProfile?.org_id;
+  const userId = userProfile?.id;
+  const hasPackages = packages.length > 0;
+  const latestRefresh = useRef(refresh);
+  latestRefresh.current = refresh;
+  useEffect(() => {
+    if (!officeId || !userId || !hasPackages) return;
+    return subscribeFinancialReviewChanges(officeId, userId, () => void latestRefresh.current());
+  }, [officeId, userId, hasPackages]);
   return { contexts: state.key === identity ? state.contexts : {}, errors: state.key === identity ? state.errors : {}, refresh };
 }

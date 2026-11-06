@@ -5,7 +5,7 @@ import {DecisionModal} from '../../../components/ui/DecisionModal';
 import { verifyTask } from "../../../services/taskService";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useToast } from "../../../components/ui/Toast";
-import { isCashCompletionError, TaskCashClearancePanel, useTaskCashClearance, type CashReviewFocus } from "../../budget";
+import { isCashCompletionError, isTaskCashApprovalBlocked, TaskCashClearancePanel, useTaskCashClearance, type CashReviewFocus } from "../../budget";
 
 interface ReviewDecisionFormProps {
   taskId: string;
@@ -32,7 +32,7 @@ function TaskReviewDecisionForm({
   const [decisionError, setDecisionError] = useState("");
   const draftGuard = useExplicitDraft('Task review decision', mode !== 'idle' || !!feedback, busy, () => { setMode('idle'); setFeedback(''); });
   const cash = useTaskCashClearance(taskId);
-  const approvalDisabled = busy || cash.loading || cash.blockers.length > 0;
+  const approvalDisabled = busy || cash.loading || cash.blockers.some(isTaskCashApprovalBlocked);
 
   const decide = async () => {
     if (draftGuard.pendingRef.current) return;
@@ -50,7 +50,7 @@ function TaskReviewDecisionForm({
         // Refresh at confirmation as well as on mount/realtime. The database
         // guard remains authoritative if a new request races this read.
         const blockers = await cash.refresh();
-        if (blockers?.length) {
+        if (blockers?.some(isTaskCashApprovalBlocked)) {
           toast("Approval is blocked by open cash requests. See Cash clearance for the next steps.", "error");
           return;
         }

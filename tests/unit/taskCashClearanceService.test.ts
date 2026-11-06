@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const backend = vi.hoisted(() => ({ tables: {} as Record<string, Record<string, unknown>[]>, queries: [] as Array<{ table: string; column?: string; values?: unknown[]; excluded?: string }>, failure: "" }));
+const backend = vi.hoisted(() => ({ tables: {} as Record<string, Record<string, unknown>[]>, queries: [] as Array<{ table: string; column?: string; values?: unknown[]; excluded?: string }>, failure: "", rpc: vi.fn() }));
 vi.mock("../../src/lib/supabase", () => ({ supabase: {
+  rpc: backend.rpc,
   from: (table: string) => {
     const query = { table } as (typeof backend.queries)[number];
     backend.queries.push(query);
@@ -25,6 +26,7 @@ import { fetchTaskCashBlockers } from "../../src/app/features/budget/services/ta
 beforeEach(() => {
   backend.failure = "";
   backend.queries = [];
+  backend.rpc.mockReset();
   backend.tables = {
     petty_cash_requests: [{ id: "cash-1", task_id: "task-1", subtask_id: "subtask-1", status: "released", requester_id: "user-1", cash_recipient_id: "user-1", request_number: 12, fiscal_budget_id: "fy-old", requested_amount: 500, released_amount: 500 }],
     tasks: [{ id: "task-1", title: "Task one" }], subtasks: [{ id: "subtask-1", title: "Buy pens" }],
@@ -33,6 +35,20 @@ beforeEach(() => {
 });
 
 describe("task-scoped cash diagnostics", () => {
+  it("reads independent settlement status for the current liquidation without losing the blocker on denied access", async () => {
+    backend.tables.petty_cash_requests[0].status = "pending_department_settlement";
+    backend.tables.petty_cash_liquidations = [{ id: "liq", request_id: "cash-1", status: "pending_department_settlement", version: 2 }];
+    backend.rpc.mockResolvedValueOnce({ data: { liquidationId: "liq", version: 2, required: true, canSettle: false,
+      candidates: [], eligibleSettlers: 0, headAlertStatus: "notified", headEscalationApproved: true } })
+      .mockResolvedValueOnce({ error: { message: "Access denied" } });
+    const [blocked] = await fetchTaskCashBlockers("task-1");
+    expect(blocked.settlement).toEqual({ eligibleSettlers: 0, headNotified: true, headApproved: true });
+    expect(backend.rpc).toHaveBeenCalledWith("get_liquidation_independent_review", { p_liquidation_id: "liq" });
+    const [restricted] = await fetchTaskCashBlockers("task-1");
+    expect(restricted.request.id).toBe("cash-1");
+    expect(restricted.settlement).toBeUndefined();
+  });
+
   it("uses the signed-in task-scoped read across fiscal years, not the office-wide bundle", async () => {
     backend.tables.petty_cash_requests.push({ id: "other", task_id: "other-task", status: "released" });
     const result = await fetchTaskCashBlockers("task-1");

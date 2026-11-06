@@ -184,6 +184,7 @@ export interface PettyCashRequest {
   taskLeaderId?: string;
   cashRecipientId?: string;
   requesterName?: string;
+  requesterIsAccountingStaff?: boolean;
   taskLeaderName?: string;
   cashRecipientName?: string;
   taskTitle?: string;
@@ -277,6 +278,7 @@ export interface PettyCashLiquidation {
   status: "pending" | "pending_leader_review" | "pending_department_settlement" | "approved" | "changes_requested";
   submittedBy: string;
   submittedAt: number;
+  leaderDecidedBy?: string;
   leaderDecidedAt?: number;
   departmentDecidedBy?: string;
   departmentDecidedAt?: number;
@@ -420,6 +422,7 @@ export interface CashReviewFocus {
   recordId: string;
   orgId: string;
   fiscalYear: number;
+  independentReview?: boolean;
 }
 
 export interface TaskCashBlocker {
@@ -432,4 +435,5 @@ export interface TaskCashBlocker {
   location: string;
   reviewTarget?: { recordId: string; role: "leader" | "department" };
   liquidation?: PettyCashLiquidation;
+  settlement?: { eligibleSettlers: number; headNotified: boolean; headApproved: boolean };
 }

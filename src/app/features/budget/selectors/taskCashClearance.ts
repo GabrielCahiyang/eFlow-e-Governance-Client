@@ -1,12 +1,19 @@
 import type { DepartmentBudgetBundle, PettyCashRequest, TaskCashBlocker } from "../types";
 import { isLiquidationLate } from "./cashWorkflowRules";
 
-// Match guard_task_financial_completion exactly. In particular, do not silently
-// consider expired/draft requests cleared when the database still blocks them.
+// Terminal requests no longer need to appear in Cash clearance.
 export const CASH_COMPLETION_TERMINAL_STATES = ["settled", "rejected", "cancelled"] as const;
 
 export function isCashCompletionError(error: unknown): boolean {
   return error instanceof Error && /settle all (task and subtask|released or reserved) cash before approving/i.test(error.message);
+}
+
+/** An approved staffing escalation only clears the task approval gate. */
+export function isTaskCashApprovalBlocked({ request, liquidation, settlement }: TaskCashBlocker): boolean {
+  return !(request.status === "pending_department_settlement" &&
+    liquidation?.status === "pending_department_settlement" &&
+    settlement?.headApproved &&
+    (!isLiquidationLate(request, liquidation) || liquidation.departmentDecidedAt));
 }
 
 type ClearanceData = Pick<DepartmentBudgetBundle, "requests" | "releases" | "liquidations" | "allocationLines">;
@@ -108,7 +115,10 @@ export function canOpenCashBlockerReview(blocker: TaskCashBlocker, userId?: stri
   } else if (blocker.reviewTarget.recordId === request.id && userId === request.requesterId) return false;
   if (blocker.reviewTarget.role === "leader") return request.taskLeaderId === userId;
   if (blocker.reviewTarget.recordId === blocker.liquidation?.id) {
-    return role === "accounting_staff" || (role === "head" && isLiquidationLate(request,blocker.liquidation) && !blocker.liquidation.departmentDecidedAt);
+    return role === "accounting_staff" || (role === "head" && (
+      blocker.settlement?.headNotified || blocker.settlement?.headApproved ||
+      isLiquidationLate(request,blocker.liquidation) && !blocker.liquidation.departmentDecidedAt
+    ));
   }
   if (blocker.reviewTarget.recordId !== request.id) return role === "accounting_staff";
   return role === "head";

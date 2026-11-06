@@ -8,3 +8,4 @@ export {ProjectFlowProvider} from './ProjectFlowContext';
 
 export {projectWorkAvailable} from './projectWorkAvailable';
 export {ProjectSetupWizard} from './components/ProjectSetupWizard';
+export {ProjectCompletionFunding,type UnusedProjectFunding} from './components/ProjectCompletionFunding';

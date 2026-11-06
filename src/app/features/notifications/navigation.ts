@@ -154,6 +154,15 @@ export function resolveNotificationDestination(
   if (notification.financialRecordType === 'independent_liquidation_review') {
     return makeDestination(notification, ['head','member','accounting_staff'].includes(role) ? { section: 'inbox', page: 'Needs action' } : null, 'budget', 'Open independent review');
   }
+  if (notification.financialRecordType === 'settlement_staffing') {
+    return makeDestination(notification, role === 'head' ? { section: 'reviews', page: 'For Review' } : null, 'budget', 'Open budget review');
+  }
+  if (notification.financialRecordType === 'office_petty_cash_staffing') {
+    return makeDestination(notification, role === 'head' ? { section: 'budget', page: 'Office Budget' } : null, 'budget', 'Open Office Petty Cash');
+  }
+  if (notification.type === 'project_archive_blocked' && notification.projectId) {
+    return makeDestination({ ...notification, financialRecordType: 'project_archive_blocker' }, destinationForProject(role), 'project', 'Review archive requirements');
+  }
 
   if (
     notification.type.startsWith("budget_")

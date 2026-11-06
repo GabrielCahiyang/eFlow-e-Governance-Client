@@ -30,6 +30,7 @@ export type NotificationType =
   | 'petty_cash_liquidation'
   | 'petty_cash_liquidation_changes'
   | 'petty_cash_liquidation_overdue'
+  | 'petty_cash_settlement_blocked'
   | 'petty_cash_request_expired'
   | 'project_archive_reminder'
   | 'project_archive_blocked'
@@ -83,6 +84,15 @@ function rowToNotif(row: Record<string, unknown>): Notification {
   });
 }
 
+export function subscribeNotificationChanges(userId: string, onChanged: () => void) {
+  const channel = supabase.channel(`notifs-${userId}-${Math.random().toString(36).slice(2)}`)
+    .on('postgres_changes', {
+      event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}`,
+    }, onChanged)
+    .subscribe();
+  return () => { void supabase.removeChannel(channel); };
+}
+
 export function subscribeToNotifications(
   userId: string,
   callback: (notifications: Notification[]) => void,
@@ -101,16 +111,7 @@ export function subscribeToNotifications(
   };
   load();
 
-  const channelId = `notifs-${userId}-${Math.random().toString(36).slice(2)}`;
-  const channel = supabase
-    .channel(channelId)
-    .on('postgres_changes', {
-      event: '*',
-      schema: 'public',
-      table: 'notifications',
-      filter: `user_id=eq.${userId}`,
-    }, () => load())
-    .subscribe();
+  const unsubscribe = subscribeNotificationChanges(userId, load);
 
   // Realtime can be unavailable briefly during reconnects or when a table was
   // newly added to the publication. Polling keeps reviewer alerts reliable
@@ -119,7 +120,7 @@ export function subscribeToNotifications(
 
   return () => {
     window.clearInterval(refreshTimer);
-    void supabase.removeChannel(channel);
+    unsubscribe();
   };
 }
 

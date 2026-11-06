@@ -10,5 +10,5 @@ export function useWorkDraftRecovery(data:WorkTreeSnapshot,context:WorkCapabilit
  const actual=initial?.baseline||baseline;
  return {initial,baseline:actual,recovered:!!initial,stale:!!initial&&actual.revision!==data.revision,storageFailed,
   persist:(record:Omit<WorkDraftRecord,'version'|'mode'>)=>{const stored=writeWorkDraft({version:1,mode,...record});setStorageFailed(!stored);return stored;},
-  clear:()=>removeWorkDraft({version:1,mode,baseline:actual,fields:initial?.fields||actual.fields})};
+  clear:(current=actual)=>removeWorkDraft({version:1,mode,baseline:current,fields:current.fields})};
 }

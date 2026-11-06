@@ -50,6 +50,12 @@ export async function saveWorkTree(root:string,request:WorkRequest):Promise<Work
  return data as WorkTreeSnapshot;
 }
 
+export async function hasWorkCommandReceipt(root:string,request:WorkRequest):Promise<boolean>{
+ const {data,error}=await supabase.rpc('nw_work_command_receipt',{p_root:root,p_request:request.id,p_command:request.command,p_payload:request.payload});
+ if(error)throw workRpcFailure(error);
+ return data===true;
+}
+
 const impactCodes=['access_unavailable','read_only','branch_denied','appointment_denied','lifecycle_blocked','history_blocked'];
 export async function fetchWorkImpact(root:string,request:Pick<WorkRequest,'revision'|'command'|'payload'>):Promise<WorkImpact>{
  const before=await clientSession();

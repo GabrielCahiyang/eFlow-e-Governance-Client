@@ -10,6 +10,12 @@ export interface IndependentReviewContext {
   liquidationId: string; version: number; required: boolean; current: boolean; canReview: boolean; canSettle: boolean;
   review: IndependentReview | null; candidates: Array<{ id: string; name: string; appointment: string }>;
   eligibleSettlers: number; escalationRequired: boolean;
+  headAlertStatus?: 'notified' | 'pending' | 'no_head' | null;
+  headEscalationApproved?: boolean;
+  headCanPostSettlement?: boolean;
+  headSettlementPosted?: boolean;
+  headEscalationFingerprint?: string | null;
+  headEscalationCommandId?: string | null;
 }
 export async function getIndependentReview(liquidationId: string): Promise<IndependentReviewContext> {
   const { data, error } = await supabase.rpc('get_liquidation_independent_review', { p_liquidation_id: liquidationId });
@@ -30,7 +36,30 @@ export async function decideIndependentReview(id: string, version: number, decis
   if (error) throw new Error(error.message);
 }
 export function independentReviewAllowsPosting(context: IndependentReviewContext, actorId: string) {
-  return context.canSettle && (!context.required || (context.current && context.review?.status === 'approved' && context.review.reviewer_id !== actorId));
+  return context.canSettle && (!context.required || context.headEscalationApproved || (context.current && context.review?.status === 'approved' && context.review.reviewer_id !== actorId));
+}
+
+export function needsLeadershipReview(context?: IndependentReviewContext) {
+  if (context?.headCanPostSettlement) return true;
+  if (!context || context.headEscalationApproved || (context.current && context.review?.status === 'approved')) return false;
+  return Boolean(context.headEscalationFingerprint || (context.canReview && context.current && context.review?.status === 'pending'));
+}
+
+export async function getLiquidationFiscalYear(liquidationId: string, officeId: string): Promise<number> {
+  const liquidation = await supabase.from('petty_cash_liquidations').select('request_id').eq('id', liquidationId).maybeSingle();
+  if (liquidation.error || !liquidation.data) throw new Error('This liquidation is unavailable under your current access.');
+  const request = await supabase.from('petty_cash_requests').select('fiscal_budget_id').eq('id', liquidation.data.request_id).eq('org_id', officeId).maybeSingle();
+  if (request.error || !request.data) throw new Error('The liquidation’s Office budget is unavailable.');
+  const budget = await supabase.from('department_fiscal_budgets').select('fiscal_year').eq('id', request.data.fiscal_budget_id).eq('org_id', officeId).maybeSingle();
+  if (budget.error || !Number.isInteger(budget.data?.fiscal_year)) throw new Error('The liquidation’s fiscal year could not be verified.');
+  return budget.data!.fiscal_year;
+}
+
+export async function approveStaffingEscalation(id: string, version: number, fingerprint: string, reason: string, commandId: string) {
+  const { error } = await supabase.rpc('approve_liquidation_staffing_escalation', {
+    p_liquidation_id: id, p_version: version, p_fingerprint: fingerprint, p_reason: reason, p_idempotency_key: commandId,
+  });
+  if (error) throw new Error(error.message);
 }
 export interface IndependentReviewPackage { context: IndependentReviewContext; liquidation: PettyCashLiquidation; request: PettyCashRequest }
 export async function getAssignedIndependentReviews(actorId: string): Promise<IndependentReviewPackage[]> {

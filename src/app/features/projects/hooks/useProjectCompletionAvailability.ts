@@ -5,15 +5,16 @@ import type { Project } from '../services/types';
 import { subscribeProjectChecks } from '../../project-readiness';
 
 /** Scoped reads only; menu/dialog instances share the same fail-closed calculation. */
-export function useProjectCompletionAvailability(project: Pick<Project, 'id' | 'status' | 'updatedAt'> | undefined, allowed: boolean, scope: string, refreshKey = '') {
-  const key = `${scope}:${project?.id}:${project?.status}:${project?.updatedAt}:${allowed}:${refreshKey}`;
+export function useProjectCompletionAvailability(project: Pick<Project, 'id' | 'status' | 'updatedAt'> | undefined, allowed: boolean, scope: string, refreshKey = '', includeCompleted = false) {
+  const key = `${scope}:${project?.id}:${project?.status}:${project?.updatedAt}:${allowed}:${refreshKey}:${includeCompleted}`;
   const [state, setState] = useState<{ key: string; loading: boolean; error: string; readiness?: ProjectCompletionReadiness }>({ key: '', loading: true, error: '' });
   const version = useRef(0);
   const id = project?.id, status = project?.status || '';
+  const canRead = allowed && status !== 'archived' && (includeCompleted || status !== 'completed');
   const refresh = useCallback(async () => {
     const request = ++version.current;
     setState(previous => ({ key, loading: true, error: '', readiness: previous.key === key ? previous.readiness : undefined }));
-    if (!id || !allowed || ['completed', 'archived'].includes(status)) { setState({ key, loading: false, error: '' }); return; }
+    if (!id || !canRead) { setState({ key, loading: false, error: '' }); return; }
     try {
       const readiness = await fetchProjectCompletionReadiness(id);
       if (request !== version.current) return;
@@ -23,16 +24,16 @@ export function useProjectCompletionAvailability(project: Pick<Project, 'id' | '
     } catch (error) {
       if (request === version.current) setState({ key, loading: false, error: error instanceof Error ? error.message : 'Could not check completion.' });
     }
-  }, [id, key, allowed, status]);
+  }, [id, key, canRead]);
   useEffect(() => {
     void refresh();
     return () => { ++version.current; };
   }, [refresh]);
   const latestRefresh = useRef(refresh); latestRefresh.current = refresh;
   useEffect(() => {
-    if (!id || !allowed || ['completed', 'archived'].includes(status)) return;
+    if (!id || !canRead) return;
     return subscribeProjectChecks(id, () => { void latestRefresh.current(); });
-  }, [id, allowed, status, scope]);
+  }, [id, canRead, scope]);
   const current = state.key === key ? state : { key, loading: true, error: '' };
   return { ...current, ...projectCompletionAvailability(status, allowed, current.loading, current.error, current.readiness), refresh };
 }

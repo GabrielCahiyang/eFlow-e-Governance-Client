@@ -47,7 +47,7 @@ export async function fetchDepartmentBudgetBundle(orgId: string, fiscalYear: num
   const taskIds = uniqueIds(requestRows.map((row) => row.task_id));
   const subtaskIds = uniqueIds(requestRows.map((row) => row.subtask_id));
   const [profilesResult, tasksResult, requestSubtasksResult] = await Promise.all([
-    profileIds.length ? budgetReportRead(selected=>supabase.from("profiles").select("id,full_name",{count:"exact"}).in("id", selected).order("id",{ascending:true}), profileIds) : Promise.resolve({ data: [], error: null }),
+    profileIds.length ? budgetReportRead(selected=>supabase.from("profiles").select("id,full_name,role",{count:"exact"}).in("id", selected).order("id",{ascending:true}), profileIds) : Promise.resolve({ data: [], error: null }),
     taskIds.length ? budgetReportRead(selected=>supabase.from("tasks").select("id,title",{count:"exact"}).in("id", selected).order("id",{ascending:true}), taskIds) : Promise.resolve({ data: [], error: null }),
     subtaskIds.length ? budgetReportRead(selected=>supabase.from("subtasks").select("id,title",{count:"exact"}).in("id", selected).order("id",{ascending:true}), subtaskIds) : Promise.resolve({ data: [], error: null }),
   ]);

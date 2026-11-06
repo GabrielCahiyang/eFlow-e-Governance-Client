@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useVisibleRead } from '../../../shared/useVisibleRead';
 import type { Invitation } from '../../invitations';
 import type { OfficeProposal } from '../types';
 import { fetchConfirmedOfficeProposals, projectOfficeInvitations } from '../services/projectOfficeService';
@@ -19,5 +20,6 @@ export function useOfficeParticipationDetails(projectId: string, canInvite: bool
   }, [projectId, canInvite]);
   useQuietOfficeRefresh(refresh, !!error, `${projectId}:${canInvite}`);
   useEffect(() => { setInvitations([]); setProposals([]); setError(''); void refresh(); return () => { ++version.current; }; }, [refresh]);
+  useVisibleRead(refresh, !!projectId && !error);
   return { invitations, proposals, error, refresh };
 }

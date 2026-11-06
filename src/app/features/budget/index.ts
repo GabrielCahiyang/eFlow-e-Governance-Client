@@ -38,6 +38,7 @@ export { ProjectTaskBudgetProvider, ProjectTaskBudgetCell, useProjectTaskBudgetT
 export { BudgetReviewInbox } from "./components/BudgetReviewInbox";
 export { TaskCashClearancePanel } from "./components/TaskCashClearancePanel";
 export { useTaskCashClearance } from "./hooks/useTaskCashClearance";
+export { isTaskCashApprovalBlocked } from "./selectors/taskCashClearance";
 export { isCashCompletionError } from "./selectors/taskCashClearance";
 
 export {

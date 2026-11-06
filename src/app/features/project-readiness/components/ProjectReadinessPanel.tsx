@@ -54,7 +54,7 @@ export function ProjectReadinessPanel({ project, canManage, onResolve, refreshKe
   if(pending.current || checking || !canManage || closed || !data || current.error)return;
   pending.current=true;setBusy(true);setNotice('');
   try {if(await action()===false)return;setNotice(message);await refresh();onUpdated?.();}
-  catch(error){await refresh();setState(previous=>({...previous,error:error instanceof Error?error.message:'Review failed. Refresh before retrying.'}));}
+  catch(error){await refresh();setState(previous=>({...previous,error:error instanceof Error?error.message:'Review failed. Check the current status before trying again.'}));}
   finally{pending.current=false;setBusy(false);}
  };
  const activate=()=>void run(async()=>{
@@ -64,7 +64,7 @@ export function ProjectReadinessPanel({ project, canManage, onResolve, refreshKe
  const mayActivate=canManage&&!closed&&project.status!=='active'&&!data?.governed;
  if(setup){
   const confirmed=data?.checks.filter(check=>check.ok).length||0,total=data?.checks.length||0,remaining=total-confirmed;
-  const footer=<div className="setup-readiness__footer"><p>{!data?'Checking project readiness…':current.error?'Refresh checks before continuing.':data.governed?'Continue through proposal review.':data.canActivate?'Everything is ready. Activate to start delivery.':`${remaining} check${remaining===1?'':'s'} to finish before activation.`}</p><div className="setup-readiness__footer-actions">
+  const footer=<div className="setup-readiness__footer"><p>{!data?'Checking project readiness…':current.error?'Readiness checks are unavailable.':data.governed?'Continue through proposal review.':data.canActivate?'Everything is ready. Activate to start delivery.':`${remaining} check${remaining===1?'':'s'} to finish before activation.`}</p><div className="setup-readiness__footer-actions">
    {onClose&&<Button variant="outline" disabled={busy} onClick={onClose}>Done for now</Button>}
    {mayActivate&&<Button disabled={busy||checking||!!current.error||!data?.canActivate} onClick={activate}><Rocket size={16} aria-hidden="true"/>{busy?'Updating…':'Activate project'}</Button>}
   </div></div>;

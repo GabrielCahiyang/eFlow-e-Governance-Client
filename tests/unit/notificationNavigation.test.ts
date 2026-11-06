@@ -20,6 +20,17 @@ function notification(
 }
 
 describe("notification navigation", () => {
+  it('links Office Petty Cash and archive blockers to their own records', () => {
+    const cash = notification({ type: 'petty_cash_settlement_blocked', financialRecordType: 'office_petty_cash_staffing', financialRecordId: 'cash-id' });
+    expect(resolveNotificationDestination(cash, 'head')).toMatchObject({ section: 'budget', intent: { financialRecordId: 'cash-id', financialRecordType: 'office_petty_cash_staffing' } });
+    const archive = notification({ type: 'project_archive_blocked', projectId: 'project-id' });
+    expect(resolveNotificationDestination(archive, 'head')).toMatchObject({ section: 'projects', intent: { projectId: 'project-id', financialRecordType: 'project_archive_blocker' } });
+  });
+  it('opens the exact budget review for settlement staffing alerts addressed to the Head', () => {
+    const alert = notification({ type: 'petty_cash_settlement_blocked', financialRecordType: 'settlement_staffing', financialRecordId: 'liquidation-id' });
+    expect(resolveNotificationDestination(alert, 'head')).toMatchObject({ section: 'reviews', page: 'For Review', label: 'Open budget review', intent: { kind: 'budget', financialRecordId: 'liquidation-id' } });
+    expect(resolveNotificationDestination(alert, 'accounting_staff')).toBeNull();
+  });
   it('targets Head membership approvals without stealing ordinary project notifications', () => {
     const invitation = notification({ type: 'system', title: 'Project invitation approval requested', projectId: 'project-one' });
     expect(resolveNotificationDestination(invitation, 'head')).toMatchObject({ section: 'reviews', intent: { kind: 'membership_review', projectId: 'project-one' } });

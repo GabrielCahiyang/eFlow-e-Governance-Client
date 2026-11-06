@@ -7,6 +7,7 @@ import { TaskInspector, useTaskInspector } from '../../task-inspector';
 import { canUserReviewTask } from '../../reviews';
 import { queueNotificationNavigationIntent, resolveNotificationSubitem, fetchNotificationSubitem, type NotificationNavigationIntent } from '../../notifications';
 import type { Notification } from '../../../services/notificationService';
+import { subscribeWorkChanges } from '../../../shared/workChanges';
 import { requestNavigation } from '../../../shared/navigationGuard';
 import { pushNavigationHistory } from '../../../shared/navigationHistory';
 import { canOpenNavigationSection, getNavigationUrl,writeNavigationLocation } from '../../navigation';
@@ -21,6 +22,8 @@ import { PersonalActionRows } from './PersonalActionRows';
 import { AssignedIndependentReviews } from '../../budget';
 import '../inbox.css';
 
+const subscribeSubtaskReviews = (_userId: string, invalidate: () => void) => subscribeWorkChanges(invalidate);
+
 export function ActionCenter({role,hasLeadingWork=false,page='Inbox',onNavigate}: {role:string;hasLeadingWork?:boolean;page?:string;onNavigate?:(section:string,page:string)=>void}) {
   const {user,can} = useAuth();
   const {tasks,loading,error,retry} = useTasksData();
@@ -29,7 +32,7 @@ export function ActionCenter({role,hasLeadingWork=false,page='Inbox',onNavigate}
   const [notice,setNotice] = useState('');
   const [pendingFinancial,setPendingFinancial] = useState(0);
   const canReview = role !== 'admin' && (can('navigation.reviews') || hasLeadingWork);
-  const subtasks = usePersonalFeed(user?.id,fetchPersonalSubtaskReviews,canReview);
+  const subtasks = usePersonalFeed(user?.id,fetchPersonalSubtaskReviews,canReview,subscribeSubtaskReviews);
   const inspector = useTaskInspector(`inbox:${user?.id}`);
   const selected = tasks.find(task=>task.id===inspector.taskId) || null;
   useEffect(()=>{setNotice('');},[user?.id,role]);
@@ -40,10 +43,10 @@ export function ActionCenter({role,hasLeadingWork=false,page='Inbox',onNavigate}
   });
   const openAction = (item: ActionItem) => {
     if(item.source==='task-review') {
-      if(!tasks.some(task=>task.id===item.taskId && canUserReviewTask(task,user?.id,role) && task.status==='for_review')) {setNotice('This submission was withdrawn or is no longer yours to review. Refresh the queue.');return;}
-      inspector.openTask(item.taskId,{view:'Inbox',restoreFocus:()=>(document.querySelector<HTMLElement>(`[data-action-key="${item.key}"]`) || document.getElementById("inbox-refresh-actions") || document.getElementById('inbox-updates-context') || document.getElementById("inbox-updates"))?.focus()});
+      if(!tasks.some(task=>task.id===item.taskId && canUserReviewTask(task,user?.id,role) && task.status==='for_review')) {setNotice('This submission was withdrawn or is no longer yours to review.');return;}
+      inspector.openTask(item.taskId,{view:'Inbox',restoreFocus:()=>(document.querySelector<HTMLElement>(`[data-action-key="${item.key}"]`) || document.getElementById("inbox-action-summary") || document.getElementById('inbox-updates-context') || document.getElementById("inbox-updates"))?.focus()});
     } else {
-      if(!personalReviewActions([],subtasks.rows,user?.id,role).some(row=>row.key===item.key)){setNotice('This subtask submission is no longer yours to review. Refresh the queue.');return;}
+      if(!personalReviewActions([],subtasks.rows,user?.id,role).some(row=>row.key===item.key)){setNotice('This subtask submission is no longer yours to review.');return;}
       navigate('reviews','For Review',{notificationId:item.key,kind:'subtask_review',taskId:item.taskId,entityLabel:item.entityLabel,entityId:item.entityId});
     }
   };
@@ -83,7 +86,7 @@ export function ActionCenter({role,hasLeadingWork=false,page='Inbox',onNavigate}
     {category==='updates'?<UpdatesFeed onOpen={item => void openUpdate(item)}/>:<>
       <AssignedIndependentReviews onPendingChange={setPendingFinancial} />
       {!canReview?pendingFinancial===0?<FeedbackState title="No review queue under your current access">Updates remain available. Account roles do not grant operational approval authority.</FeedbackState>:null:<>
-        <div className="flex flex-wrap items-center gap-2"><p className="flex-1 text-sm text-muted-foreground">Task reviews: {loading?'loading':error?'unavailable':actions.filter(item=>item.source==='task-review').length} · Subtask reviews: {subtasks.loading?'loading':subtasks.error?'unavailable':actions.filter(item=>item.source==='subtask-review').length}</p><Button id="inbox-refresh-actions" variant="outline" onClick={()=>{retry();subtasks.retry();}}>Refresh actions</Button></div>
+        <div className="flex flex-wrap items-center gap-2"><p id="inbox-action-summary" tabIndex={-1} className="flex-1 text-sm text-muted-foreground">Task reviews: {loading?'loading':error?'unavailable':actions.filter(item=>item.source==='task-review').length} · Subtask reviews: {subtasks.loading?'loading':subtasks.error?'unavailable':actions.filter(item=>item.source==='subtask-review').length}</p></div>
         {error && <FeedbackState tone="error" title="Task reviews could not be loaded" onRetry={retry}>{error.message}</FeedbackState>}
         {subtasks.error && <FeedbackState tone="error" title="Subtask reviews could not be loaded" onRetry={subtasks.retry}>{subtasks.error}</FeedbackState>}
         {loading || subtasks.loading ? <p role="status">Refreshing review sources…</p>:null}

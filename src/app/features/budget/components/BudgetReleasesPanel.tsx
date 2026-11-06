@@ -23,9 +23,11 @@ type ActiveDialog =
 export function BudgetReleasesPanel({
   data,
   onChanged,
+  onOpenSettlements,
 }: {
   data: DepartmentBudgetBundle;
   onChanged: () => Promise<void>;
+  onOpenSettlements?: () => void;
 }) {
   const { userProfile, can } = useAuth();
   const currentUserId = userProfile?.id || "";
@@ -211,9 +213,9 @@ export function BudgetReleasesPanel({
               ["settled", "overdue_liquidation"].includes(request.status),
           )
           .map((request) => {
-            const latest = data.liquidations.find(
-              (item) => item.requestId === request.id,
-            );
+            const latest = data.liquidations.filter(item => item.requestId === request.id)
+              .sort((a, b) => b.version - a.version)[0];
+            const settled = request.status === "settled";
             return (
               <div
                 key={request.id}
@@ -229,17 +231,22 @@ export function BudgetReleasesPanel({
                 </div>
                 <div className="text-[12px] text-neutral-500">
                   <Clock3 size={10} className="mr-1 inline" />
-                  {request.liquidationDueAt
+                  {settled ? "Settlement posted" : request.liquidationDueAt
                     ? `Due ${new Date(request.liquidationDueAt).toLocaleDateString()}`
                     : "Awaiting full release"}
                 </div>
                 <div className="text-right">
                   <StatusPill status={request.status} />
                   <div className="mt-1 text-[12px] text-neutral-500">
-                    {latest
-                      ? `${peso.format(latest.declaredSpent)} spent · ${peso.format(latest.returnedAmount)} returned`
+                    {settled && request.actualSpent != null
+                      ? `${peso.format(request.actualSpent)} posted · ${peso.format(request.returnedAmount ?? 0)} returned`
+                      : latest && !settled
+                        ? `${peso.format(latest.declaredSpent)} declared spent · ${peso.format(latest.returnedAmount)} declared return`
                       : `${peso.format(request.releasedAmount || 0)} released`}
                   </div>
+                  {request.status === "pending_department_settlement" && onOpenSettlements && (
+                    <button type="button" onClick={onOpenSettlements} className="mt-2 text-xs font-medium text-primary underline">Open Accounting Settlements</button>
+                  )}
                 </div>
               </div>
             );
