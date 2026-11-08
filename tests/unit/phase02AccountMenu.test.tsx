@@ -36,7 +36,7 @@ vi.mock("../../src/app/components/ui/IncomingCallListener", () => ({
 }));
 
 vi.mock("../../src/app/features/chat-calls", () => ({
-  ChatListDrawer: () => <button type="button">Chat</button>,
+  MessagesButton: () => <button type="button">Chat</button>,
 }));
 
 vi.mock("../../src/app/features/guided-tours", () => ({

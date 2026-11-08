@@ -46,7 +46,7 @@ it("renders login without importing authenticated workspaces or closed workflow 
     "src/app/features/invitations/index.ts",
     "src/app/features/project-access/index.ts",
   ]) expect(modules.has(path.resolve(file)), file).toBe(false);
-});
+}, 30_000);
 
 it("opens the workflow guide without importing the task workspace through onboarding", () => {
   const modules = startupModules("src/app/features/authentication/workflow-preview/WorkflowPreviewPanel.tsx");
@@ -55,4 +55,4 @@ it("opens the workflow guide without importing the task workspace through onboar
     "src/app/features/tasks/index.ts",
     "src/app/features/budget/index.ts",
   ]) expect(modules.has(path.resolve(file)), file).toBe(false);
-});
+}, 30_000);

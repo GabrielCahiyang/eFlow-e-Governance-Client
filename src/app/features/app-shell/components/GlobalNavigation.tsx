@@ -4,7 +4,7 @@ import eflowIcon from '../../../shared/branding/icon.svg';
 
 const icons = { 'my-work': BriefcaseBusiness, workspaces: Building2, inbox: Inbox, accounting: Wallet, 'admin-center': ShieldCheck, account: UserRound };
 export function GlobalNavigation({ items, activeGroup, onSelect }: {
-  items: ShellNavigationItem[]; activeGroup: NavigationGroupId;
+  items: ShellNavigationItem[]; activeGroup?: NavigationGroupId;
   onSelect: (group: NavigationGroupId) => void; onProfile: () => void; onHelp: () => void;
 }) {
   const groups = (['my-work', 'workspaces', 'inbox', 'accounting', 'admin-center'] as const).filter(group => items.some(item => item.group === group));

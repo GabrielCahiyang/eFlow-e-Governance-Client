@@ -7,6 +7,7 @@ import { TaskEditorSubtasks,TaskEditorWorkOwner,TaskEditorRootPeople,TaskEditorS
 import {supportsNestedWork} from '../../../nested-work';
 import { TaskBoardDialog } from "./TaskBoardDialog";
 import { TaskChatSection } from "./TaskChatSection";
+import { TaskChatLink } from '../../../chat-calls';
 import type { TaskEditorDraft } from "./model";
 
 // ─── Draft Task Row ───────────────────────────────────────────────
@@ -404,6 +405,7 @@ export function TaskEditorModal({
         )}
 
         <TaskEditorSubtasks task={task} employees={employees} readOnly={saving} />
+        <TaskChatLink taskId={task.id} />
         <TaskChatSection
           taskId={task.id}
           currentUserId={currentUserId}

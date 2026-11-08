@@ -15,6 +15,7 @@ export const NAVIGATION_PAGE_QUERY = "page";
 const SECTION_PATHS: Record<string, string> = {
   personal_work: "my-work",
   inbox: "inbox",
+  messages: "messages",
   dashboard: "overview",
   command: "command-center",
   projects: "projects",
@@ -96,6 +97,7 @@ function getSectionFromPath(
   if (!segment) return undefined;
 
   if (segment === SECTION_PATHS.settings) return "settings";
+  if (segment === SECTION_PATHS.messages) return "messages";
   if (
     segment === "department-budget" &&
     candidates.some((candidate) => candidate.id === "budget")
@@ -131,6 +133,7 @@ function getValidPage(
   requestedPage: string | undefined,
   getInitialPage: (section: string) => string | undefined,
 ): string | undefined {
+  if (section === 'messages') return 'Messages';
   if (section === "users") return resolveSupportPage(section, requestedPage);
   if (
     section !== "users" &&

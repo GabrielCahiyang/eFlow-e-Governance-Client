@@ -10,7 +10,7 @@ const reports = read("src/app/features/reports/components/HeadReportsWorkspace.t
 const reportTable = read("src/app/features/reports/components/DepartmentReportTable.tsx");
 const announcementCenter = read("src/app/features/announcements/components/center/AnnouncementCenter.tsx");
 const adminAnnouncements = read("src/app/features/announcements/components/admin/AdminAnnouncements.tsx");
-const chatDrawer = read("src/app/features/chat-calls/components/ChatListDrawer.tsx");
+const messagesButton = read("src/app/features/chat-calls/components/MessagesButton.tsx");
 const chatChannels = read("src/app/features/chat-calls/components/ChatChannelList.tsx");
 
 describe("Phase 8 people, reports, and communications presentation", () => {
@@ -57,11 +57,10 @@ describe("Phase 8 people, reports, and communications presentation", () => {
   });
 
   it("keeps communication unread affordances keyboard-labelled and viewport-safe", () => {
-    expect(chatDrawer).toContain("ChatUnreadBadge");
-    expect(chatDrawer).toContain('role="dialog"');
-    expect(chatDrawer).toContain("max-w-[calc(100vw-16px)]");
-    expect(chatChannels).toContain("focus-visible:ring-2");
-    expect(chatChannels).toContain("aria-current={activeChannelId === c.channelId");
+    expect(messagesButton).toContain("messages-unread-dot");
+    expect(messagesButton).toContain("unread conversations");
+    expect(chatChannels).toContain('aria-label="Search conversations"');
+    expect(chatChannels).toContain("aria-current={chat.channelId === selected");
     expect(announcementCenter).toContain("bg-red-500");
   });
 });

@@ -74,13 +74,14 @@ describe("Phase 9 standing channels and rich submissions", () => {
   });
 
   it("keeps standing channels visually separate from direct and task conversations", () => {
-    expect(chatList).toContain("Direct Messages");
-    expect(chatList).toContain("Standing Channels");
-    expect(chatList).toContain("Task Chats");
+    expect(chatList).toContain("'direct', 'People'");
+    expect(chatList).toContain("'org', 'Office'");
+    expect(chatList).toContain("'group', 'Groups'");
   });
 
-  it("passes the user organization to the global chat drawer and keeps task chat embedded in the task editor", () => {
-    expect(topBar).toContain("userOrgId={userProfile?.departmentId}");
+  it("opens the Messages route and keeps task chat available from the task editor", () => {
+    expect(topBar).toContain("onPageSelect('messages', 'Messages')");
+    expect(taskEditor).toContain("<TaskChatLink taskId={task.id}");
     expect(taskEditor).toContain("<TaskChatSection");
     expect(taskEditor).toContain("currentUserId={currentUserId}");
   });

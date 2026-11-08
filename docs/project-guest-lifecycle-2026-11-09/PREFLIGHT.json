@@ -1,0 +1,9 @@
+{
+  "target": "ixnfphgjyelhckjwjkdv",
+  "migration": "20261108193508_project_guest_account_lifecycle.sql",
+  "sha256": "5c8cc955ebdea6b6a74f89332c5ac994a00fda0e1a75316a7cf07145300962df",
+  "hosted_compile_rolled_back": true,
+  "only_selected_migration": true,
+  "applied": false,
+  "existing_guest_accounts": 0
+}

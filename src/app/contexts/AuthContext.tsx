@@ -153,7 +153,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           .single();
 
         if (profileError) throw profileError;
-        if (active) setUserProfile(data ? addCompatAliases(data) : null);
+        if (active && data?.is_active === false) {
+          setUserProfile(null);
+          setError('This account has been deactivated. Contact an Admin.');
+          await supabase.auth.signOut({ scope: 'local' });
+        } else if (active) setUserProfile(data ? addCompatAliases(data) : null);
       } catch (profileError) {
         if (!active) return;
         console.error('Failed to load the signed-in eFlow profile:', profileError);
@@ -178,6 +182,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${user.id}` },
         (payload) => {
           if (active && payload.new) {
+            if (payload.new.is_active === false) {
+              setUserProfile(null);
+              setError('This account has been deactivated. Contact an Admin.');
+              void supabase.auth.signOut({ scope: 'local' });
+              return;
+            }
             try { setUserProfile(addCompatAliases(payload.new as Record<string, unknown>)); }
             catch (profileError) {
               setUserProfile(null);

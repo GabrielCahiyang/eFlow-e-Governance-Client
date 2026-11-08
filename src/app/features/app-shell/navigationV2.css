@@ -72,6 +72,7 @@
 .eflow-workspace-projects__favorite { flex: 0 0 30px; min-height: 40px; display: flex; align-items: center; justify-content: center; color: var(--eflow-text-muted); }
 .eflow-workspace-projects__favorite[aria-pressed=true] { color: var(--eflow-primary); }
 .eflow-app-shell__desktop-navigation:has(.eflow-productivity-sidebar--collapsed) { flex-basis: 128px; }
+.eflow-app-shell__desktop-navigation[data-messages-rail] { flex-basis: 86px; }
 .eflow-productivity-sidebar--collapsed .eflow-workspace-navigation { flex: 0 0 42px; }
 .eflow-productivity-sidebar--collapsed .eflow-workspace-navigation__header { padding: 4px; }
 .eflow-project-workspace-actions { display: flex; align-items: center; gap: 8px; padding: 4px 12px; border-bottom: 1px solid var(--eflow-border); background: var(--eflow-surface); flex-wrap: wrap; }

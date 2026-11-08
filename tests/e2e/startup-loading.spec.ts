@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 test("shows a loading status before application JavaScript is available", async ({ page }, info) => {
   test.setTimeout(60_000);
-  await page.route(/\/(?:src\/main\.tsx|assets\/index-[\w-]+\.js)(?:\?|$)/,
+  await page.route(/\/(?:src\/main\.tsx|assets\/(?:index|app)-[\w-]+\.js)(?:\?|$)/,
     route => route.abort());
   await page.goto("/", { waitUntil: "domcontentloaded" });
   await expect(page.getByRole("status")).toHaveText("Getting things done");

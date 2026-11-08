@@ -84,6 +84,14 @@ export default defineConfig(({ mode }) => {
     optimizeDeps: {
       entries: ["index.html"],
     },
+    build: {
+      rollupOptions: {
+        input: {
+          app: path.resolve(configDir, "index.html"),
+          walkthrough: path.resolve(configDir, "walkthrough.html"),
+        },
+      },
+    },
     server: {
       watch: {
         ignored: [

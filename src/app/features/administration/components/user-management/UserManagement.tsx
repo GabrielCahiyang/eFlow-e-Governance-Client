@@ -2,6 +2,7 @@ import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import { ArrowLeft } from "lucide-react";
 import { RoleDefaultsTab, UserAccessTab } from "../../../permissions";
 import { UsersTab } from "./UsersTab";
+import { AccountDirectoryTabs } from '../../guests/ProjectGuestAccounts';
 import { LockedAccountsTab } from './LockedAccountsTab';
 
 import { requestNavigation } from "../../../../shared/navigationGuard";
@@ -96,7 +97,7 @@ export function UserManagement({
           ) : null
       } />
 
-      {tab === 'users' ? <UsersTab
+      {tab === 'users' ? <AccountDirectoryTabs><UsersTab
         onOpenAccess={openAccess}
         directoryFilters={directoryNavigation?.filters ?? localFilters}
         onDirectoryFiltersChange={directoryNavigation && onDirectoryNavigationChange ? filters => onDirectoryNavigationChange(current => ({ ...current, filters })) : setLocalFilters}
@@ -104,7 +105,7 @@ export function UserManagement({
         onTableViewStateChange={directoryNavigation && onDirectoryNavigationChange ? table => onDirectoryNavigationChange(current => ({ ...current, table })) : setLocalTable}
         focusAccountId={returnFocus ? directoryNavigation?.returnAccountId || localReturnAccountId || selectedUserId : undefined}
         onFocusReturned={() => { if (directoryNavigation && onDirectoryNavigationChange) onDirectoryNavigationChange(current => ({ ...current, fromDirectory: false, returnFocus: false })); else { setLocalFromDirectory(false); setLocalReturnFocus(false); } }}
-      /> : null}
+      /></AccountDirectoryTabs> : null}
       {tab === 'locked-accounts' ? <LockedAccountsTab/> : null}
       {tab === "role-defaults" ? <RoleDefaultsTab /> : null}
       {tab === "user-access" ? (

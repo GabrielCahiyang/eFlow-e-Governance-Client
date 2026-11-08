@@ -166,9 +166,15 @@ for(const width of [1440,768,390,320]) test(`responsive navigation, project cont
   }
   await page.getByRole('button',{name:'Open task board',exact:true}).click(); await page.getByRole('button',{name:'Back to main table',exact:true}).click();
   await expect(page.getByRole('region',{name:'Project main table'})).toBeVisible();
-  for (const [trigger,panel] of [['Open notifications','Notifications'],['Open messages','Messages']]) {
-    const opener=page.getByRole('button',{name:trigger,exact:true}); await opener.click(); await expect(page.getByRole('dialog',{name:panel,exact:true})).toBeVisible();
-    await page.keyboard.press('Escape'); await expect(page.getByRole('dialog',{name:panel,exact:true})).toHaveCount(0); await expect(opener).toBeFocused();
-  }
+  const opener=page.getByRole('button',{name:'Open notifications',exact:true});
+  await opener.click();
+  await expect(page.getByRole('dialog',{name:'Notifications',exact:true})).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog',{name:'Notifications',exact:true})).toHaveCount(0);
+  await expect(opener).toBeFocused();
+  await page.getByRole('button',{name:/^Open messages/}).click();
+  await expect(page).toHaveURL(/\/messages\?page=Messages/);
+  await expect(page.getByRole('heading',{name:'Messages',exact:true})).toBeVisible();
+  await expect(page.getByRole('dialog',{name:'Messages',exact:true})).toHaveCount(0);
   await page.screenshot({path:info.outputPath(`navigation-${width}.png`),fullPage:true});
 });

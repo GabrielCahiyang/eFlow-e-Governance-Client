@@ -27,6 +27,8 @@ import {
 } from "../../hooks/useSupabaseData";
 import { isTaskLead } from "../../services/taskSelectors";
 import { EflowTopBar } from "./components/EflowTopBar";
+import { MessagesProvider, MessagesWorkspace } from '../chat-calls';
+import { TaskDetailDrawer } from '../task-inspector';
 import { ProductivitySidebar } from "./components/ProductivitySidebar";
 import "./eflowAppShell.css";
 import "./navigationV2.css";
@@ -48,6 +50,7 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
   const navigationGeneration=useRef(0);
   useEffect(()=>{const invalidate=()=>{navigationGeneration.current++;};window.addEventListener(NAVIGATION_LOCATION_EVENT,invalidate);window.addEventListener('popstate',invalidate);return()=>{window.removeEventListener(NAVIGATION_LOCATION_EVENT,invalidate);window.removeEventListener('popstate',invalidate);};},[]);
   const [contextError,setContextError]=useState('');
+  const [messageTask, setMessageTask] = useState<string>();
   useEffect(()=>setContextError(''),[userId]);
   const officeId = userProfile?.org_id || userProfile?.departmentId || '';
   const operational = ['head','member','accounting_staff'].includes(userProfile?.role || role);
@@ -144,6 +147,11 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
     async (section: string, page: string, projectId?: string,restore?:NavigationRestore) => {
       const run=++navigationGeneration.current;
       setContextError('');
+      if (section === 'messages') {
+        const accepted = await selectPageAsync(section, page);
+        if (accepted) { setMobileNavigationOpen(false); setSearchOpen(false); }
+        return accepted;
+      }
       if(restore){
         const identity=userId,parameters={...restore.parameters};
         const isCurrent=()=>actor.current===identity&&navigationGeneration.current===run;
@@ -245,6 +253,7 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
   const workspaceScope = currentWorkspace ? { workspace: currentWorkspace, userId: userId || '', officeProjectIds: (workspaceState.snapshot?.projects || []).filter(p=>p.kind==='office').map(p=>p.id), projectIds: (workspaceState.snapshot?.projects || []).filter(p=>!p.shortcut).map(p=>p.id), includeCreatedOfficeProject: workspaceState.includeCreatedOfficeProject } : null;
 
   return (
+    <MessagesProvider key={userId} userId={userId}>
     <TaskDepartmentProvider
       organizations={orgs}
       defaultDepartmentId={userProfile?.org_id || userProfile?.departmentId}
@@ -279,7 +288,7 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
             />
             <div className="eflow-app-shell__body">
               {desktop && (
-                <div className="eflow-app-shell__desktop-navigation">
+                <div className="eflow-app-shell__desktop-navigation" data-messages-rail={activeSection === 'messages' || undefined}>
                   <ProductivitySidebar {...sidebarProps} />
                 </div>
               )}
@@ -291,7 +300,9 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
               >
                 <OnboardingWorkspace onNavigate={handlePageSelect} />
                 {contextError&&<p role="alert" className="eflow-context-error">{contextError}</p>}
-                {blockedScope ? workspaceState.loading&&!workspaceState.error ? <ViewLoadingState/> : <div className="eflow-workspace" role={workspaceState.error ? 'alert' : 'status'}><p>{workspaceState.error || 'Create or select a workspace to continue.'}</p><button type="button" onClick={()=>void workspaceState.refresh()}>Retry workspace</button></div>
+                {activeSection === 'messages' ? <><MessagesWorkspace userId={userId} userName={userProfile?.fullName} onOpenTask={setMessageTask} onOpenProject={id => void handlePageSelect('projects','Projects',id)} />
+                  {messageTask && <TaskDetailDrawer taskId={messageTask} task={null} origin={{ view: 'Messages' }} onClose={() => setMessageTask(undefined)} />}</>
+                  : blockedScope ? workspaceState.loading&&!workspaceState.error ? <ViewLoadingState/> : <div className="eflow-workspace" role={workspaceState.error ? 'alert' : 'status'}><p>{workspaceState.error || 'Create or select a workspace to continue.'}</p><button type="button" onClick={()=>void workspaceState.refresh()}>Retry workspace</button></div>
                   : personal && !['dashboard','personal_work','settings','inbox','users','permissions','org_tree','audit','administration','migration'].includes(activeSection) ? <PersonalWorkspace key={`${userId}:${currentWorkspace.id}`} workspace={currentWorkspace} projects={workspaceState.snapshot?.projects || []} userId={userId || ''} ownerName={userProfile?.full_name || 'You'} officeId={officeId} section={activeSection} onOpen={id=>void handlePageSelect('projects','Projects',id)} onRefresh={workspaceState.refresh} />
                   : officeContext && !['dashboard','personal_work','inbox','projects','settings'].includes(activeSection) ? <div className="eflow-workspace"><p>Select a project in this shared Office context, or return to your Office to use Office tools.</p><button type="button" onClick={()=>void workspaceState.select(officeId)}>Return to my Office</button></div>
                   : <WorkspaceScopeContext.Provider value={workspaceScope}><RoleContent
@@ -348,5 +359,6 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
         </WorkspaceNavigationContext.Provider>
       </GuidedTourProvider>
     </TaskDepartmentProvider>
+    </MessagesProvider>
   );
 }

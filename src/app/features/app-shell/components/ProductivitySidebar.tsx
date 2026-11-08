@@ -28,7 +28,7 @@ export function ProductivitySidebar({ activePage, activeSection, navigationItems
     if (item) onPageSelect(item.id, item.id === activeSection ? activePage || item.pages[0].label : item.pages[0].label);
   };
   return <aside className={`eflow-productivity-sidebar${mobile ? ' eflow-productivity-sidebar--mobile' : ''}${preference.value.collapsed && !mobile ? ' eflow-productivity-sidebar--collapsed' : ''}`} aria-label="Primary navigation" data-tour-id="primary-navigation" data-navigation-density={preference.value.collapsed && !mobile ? 'collapsed' : 'expanded'}>
-    <GlobalNavigation items={navigationItems} activeGroup={group} onSelect={selectGroup} onProfile={() => onPageSelect('settings', 'Profile')} onHelp={onHelp} />
-    <ContextRail role={role} group={group} items={navigationItems} personalToolItems={personalToolItems} activeSection={activeSection} activePage={activePage} workspaceName={workspaceName} onPageSelect={onPageSelect} onSearch={onSearch} preference={preference} mobile={mobile} userId={userId} workspaceId={workspaceId} projects={projects} projectsLoading={projectsLoading} workspaceSelector={workspaceSelector} workspaceKind={workspaceKind} />
+    <GlobalNavigation items={navigationItems} activeGroup={activeSection === 'messages' ? undefined : group} onSelect={selectGroup} onProfile={() => onPageSelect('settings', 'Profile')} onHelp={onHelp} />
+    {(mobile || activeSection !== 'messages') && <ContextRail role={role} group={group} items={navigationItems} personalToolItems={personalToolItems} activeSection={activeSection} activePage={activePage} workspaceName={workspaceName} onPageSelect={onPageSelect} onSearch={onSearch} preference={preference} mobile={mobile} userId={userId} workspaceId={workspaceId} projects={projects} projectsLoading={projectsLoading} workspaceSelector={workspaceSelector} workspaceKind={workspaceKind} />}
   </aside>;
 }

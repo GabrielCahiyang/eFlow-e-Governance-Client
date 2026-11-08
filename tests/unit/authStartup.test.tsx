@@ -20,6 +20,7 @@ vi.mock('../../src/lib/supabase', () => ({
         authListener = listener;
         return { data: { subscription: { unsubscribe: vi.fn() } } };
       }),
+      signOut: vi.fn(async () => ({error: null})),
     },
     from: vi.fn(() => ({
       select: vi.fn(() => ({
@@ -44,6 +45,7 @@ vi.mock('../../src/app/shared/controlPanelClient', () => ({
 }));
 
 import { AuthProvider, useAuth } from '../../src/app/contexts/AuthContext';
+import { supabase } from '../../src/lib/supabase';
 
 function AuthProbe({ children }: { children?: ReactNode }) {
   const { loading, userProfile, can } = useAuth();
@@ -63,6 +65,7 @@ describe('authenticated application startup', () => {
     authListener = null;
     resolveProfile = null;
     single.mockClear();
+    vi.mocked(supabase.auth.signOut).mockClear();
   });
 
   it('returns from the auth listener before loading the signed-in profile', async () => {
@@ -137,5 +140,6 @@ describe('authenticated application startup', () => {
       resolveProfile?.({ data: { id: 'admin-1', full_name: 'Admin', role: 'admin', is_active: false }, error: null });
     });
     expect(screen.getByTestId('management-access').textContent).toBe('false');
+    expect(supabase.auth.signOut).toHaveBeenCalledWith({scope:'local'});
   });
 });

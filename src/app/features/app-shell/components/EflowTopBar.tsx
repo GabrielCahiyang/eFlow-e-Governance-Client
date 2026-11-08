@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useUserPreferences } from "../../../contexts/UserPreferencesContext";
 import { useMediaQuery } from "../../../shared/useMediaQuery";
-import { ChatListDrawer } from "../../chat-calls";
+import { MessagesButton } from "../../chat-calls";
 import { WorkspaceHelpMenu } from "../../guided-tours";
 import { getProfileAvatarUrl } from "../../../services/userSettingsService";
 import { getRoleLabel } from "../../../shared/roles";
@@ -123,6 +123,7 @@ function AccountMenu({
 }
 
 export function EflowTopBar({
+  activeSection,
   onOpenMobileNavigation,
   onPageSelect,
   role,
@@ -169,11 +170,7 @@ export function EflowTopBar({
               role={role}
               userId={user.id}
             />
-            <ChatListDrawer
-              userId={user.id}
-              userName={userProfile?.fullName}
-              userOrgId={userProfile?.departmentId}
-            />
+            <MessagesButton active={activeSection === 'messages'} onOpen={() => onPageSelect('messages', 'Messages')} />
             <IncomingCallListener userId={user.id} />
           </div>
         )}

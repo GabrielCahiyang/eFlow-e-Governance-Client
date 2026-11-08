@@ -1,464 +1,177 @@
-import { EmptyState } from '../../../components/ui/EmptyState';
-import { useState } from "react";
-import * as Icons from "lucide-react";
-import { AnimatePresence } from "motion/react";
-import * as m from "motion/react-m";
-import { deleteMessage } from "../../../services/chatService";
-import { initiateCall } from "../../../services/callService";
-import { useChatDrawer } from "./ChatDrawerContext";
-import { parseMessage } from "../services/chatMessageCodec";
-import { validateChatMessage } from "../services/chatModerationService";
-import { motionTransition } from "../../../shared/motion/motionTokens";
+import { useEffect, useRef, useState } from 'react';
+import { ArrowLeft, ImagePlus, Info, Phone, Pin, Send, Video, X } from 'lucide-react';
+import { useConfirmation } from '../../../components/ui/useConfirmation';
+import { deleteMessage, sendMessageWithMentions } from '../../../services/chatService';
+import { initiateCall } from '../../../services/callService';
+import { useConversation } from '../hooks/useConversation';
+import { parseMessage } from '../services/chatMessageCodec';
+import { setMessagePin, toggleMessageReaction, type Conversation, type Message } from '../services/messagesWorkspace';
+import { ConversationAvatar } from './ChatChannelList';
+import { ConversationInfo } from './ConversationInfo';
+import { MessageHistory } from './MessageHistory';
+import { useMessages } from './MessagesContext';
+import { removeChatImage, uploadChatImage, validateChatImage } from '../services/chatImages';
+import { ConversationImage } from './ConversationImage';
 
-export function ActiveChatPanel() {
-  const [moderationError, setModerationError] = useState<string | null>(null);
-  const {
-    userId, userName, channels, activeChannelId, setActiveChannelId, messages,
-    draft, setDraft, setOutgoingCall, replyingTo, setReplyingTo,
-    activeReactionMenuFor, setActiveReactionMenuFor, activeMoreMenuFor,
-    setActiveMoreMenuFor, setReactionsModalContent, setActiveReactionTab, messagesEndRef,
-    startDrag, isFullscreen, setIsFullscreen, handleSend, handleToggleReaction,
-  } = useChatDrawer();
-  if (!activeChannelId) return null;
-  return (
-<div className="flex flex-col flex-1 min-h-0 bg-neutral-50/20">
-              {/* Chat Drag Handle — centered pill bar like notifications */}
-              <div
-                onMouseDown={startDrag}
-                className="h-5 flex items-center justify-center bg-white border-b border-neutral-100 cursor-grab active:cursor-grabbing shrink-0 select-none group"
-                title="Drag to move"
-              >
-                <span className="w-8 h-0.5 rounded-full bg-neutral-400 opacity-30 group-hover:opacity-70 transition-opacity" />
-              </div>
-              <div className="px-3.5 py-3 border-b border-neutral-100 bg-white flex items-center justify-between shadow-sm shrink-0">
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="w-7 h-7 rounded-full bg-blue-50 text-blue-600 text-[10px] font-semibold flex items-center justify-center shrink-0 border border-blue-100">
-                    {(
-                      channels.find((c) => c.channelId === activeChannelId)
-                        ?.name || "?"
-                    )
-                      .split(" ")
-                      .map((p) => p[0])
-                      .join("")
-                      .slice(0, 2)
-                      .toUpperCase()}
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-[12px] font-semibold text-neutral-800 truncate">
-                      {
-                        channels.find((c) => c.channelId === activeChannelId)
-                          ?.name
-                      }
-                    </div>
-                    <div className="text-[12px] text-neutral-500 font-normal flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                      <span>Active now</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  {channels.find((c) => c.channelId === activeChannelId)
-                    ?.channelType === "direct" && (
-                    <>
-                      <button
-                        onClick={async () => {
-                          const ch = channels.find(
-                            (c) => c.channelId === activeChannelId,
-                          );
-                          if (!ch || !userId) return;
-                          const callId = await initiateCall(
-                            activeChannelId,
-                            userId,
-                            userName || "Someone",
-                            ch.otherUserId || "",
-                            ch.otherUserName || "Unknown",
-                            "audio",
-                          );
-                          setOutgoingCall({
-                            id: callId,
-                            channelId: activeChannelId,
-                            callerId: userId,
-                            callerName: userName || "Someone",
-                            calleeId: ch.otherUserId || "",
-                            calleeName: ch.otherUserName || "Unknown",
-                            callType: "audio",
-                            status: "ringing",
-                          });
-                        }}
-                        aria-label="Start audio call"
-                        className="w-7 h-7 flex items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 transition"
-                      >
-                        <Icons.Phone size={13} />
-                      </button>
-                      <button
-                        onClick={async () => {
-                          const ch = channels.find(
-                            (c) => c.channelId === activeChannelId,
-                          );
-                          if (!ch || !userId) return;
-                          const callId = await initiateCall(
-                            activeChannelId,
-                            userId,
-                            userName || "Someone",
-                            ch.otherUserId || "",
-                            ch.otherUserName || "Unknown",
-                            "video",
-                          );
-                          setOutgoingCall({
-                            id: callId,
-                            channelId: activeChannelId,
-                            callerId: userId,
-                            callerName: userName || "Someone",
-                            calleeId: ch.otherUserId || "",
-                            calleeName: ch.otherUserName || "Unknown",
-                            callType: "video",
-                            status: "ringing",
-                          });
-                        }}
-                        aria-label="Start video call"
-                        className="w-7 h-7 flex items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 transition"
-                      >
-                        <Icons.Video size={13} />
-                      </button>
-                    </>
-                  )}
-                  <button
-                    onMouseDown={(e) => e.stopPropagation()}
-                    onClick={() => setIsFullscreen((v) => !v)}
-                    aria-label={isFullscreen ? "Exit full-screen chat" : "Expand chat"}
-                    className="w-7 h-7 flex items-center justify-center rounded-full text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 transition"
-                  >
-                    {isFullscreen ? (
-                      <Icons.Minimize2 size={13} />
-                    ) : (
-                      <Icons.Maximize2 size={13} />
-                    )}
-                  </button>
-                  <button
-                    onClick={() => setActiveChannelId(null)}
-                    aria-label="Back to conversations"
-                    className="w-7 h-7 flex items-center justify-center rounded-full text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 transition"
-                  >
-                    <Icons.X size={14} />
-                  </button>
-                </div>
-              </div>
-              <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-[#f0f2f5]">
-                {messages.map((m, idx) => {
-                  const mine = m.senderId === userId;
-                  const parsed = parseMessage(m.content);
-                  const reactionsMap = parsed.reactions || {};
-                  const hasReactions = Object.values(reactionsMap).some(
-                    (users) => users.length > 0,
-                  );
+export function ActiveChatPanel({ conversation, userId, userName, onBack, onOpenTask, onOpenProject }: {
+  conversation: Conversation; userId?: string; userName?: string;
+  onBack: () => void; onOpenTask: (id: string) => void; onOpenProject: (id: string) => void;
+}) {
+  const { refresh: refreshList, outgoingCall, setOutgoingCall } = useMessages();
+  const thread = useConversation(conversation.channelId, conversation.unread, refreshList);
+  const [showInfo, setShowInfo] = useState(false);
+  const [draft, setDraft] = useState('');
+  const [image, setImage] = useState<{ file: File; preview: string }>();
+  const [reply, setReply] = useState<Message>();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const [selectedPin, setSelectedPin] = useState<Message>();
+  const confirmation = useConfirmation();
+  const historyRef = useRef<HTMLDivElement>(null);
+  const composer = useRef<HTMLTextAreaElement>(null);
+  const imagePicker = useRef<HTMLInputElement>(null);
+  const sending = useRef(false);
+  const nearBottom = useRef(true);
+  const latest = thread.history[thread.history.length - 1];
+  useEffect(() => () => { if (image) URL.revokeObjectURL(image.preview); }, [image]);
 
-                  const myInitials =
-                    userName
-                      ?.split(" ")
-                      .map((p) => p[0])
-                      .join("")
-                      .slice(0, 2)
-                      .toUpperCase() || "ME";
-                  const senderInitials =
-                    m.senderName
-                      ?.split(" ")
-                      .map((p) => p[0])
-                      .join("")
-                      .slice(0, 2)
-                      .toUpperCase() || "?";
-                  const isNearTop = idx < 2;
+  useEffect(() => {
+    const history = historyRef.current;
+    if (history && nearBottom.current) history.scrollTop = history.scrollHeight;
+  }, [latest?.id]);
+  useEffect(() => {
+    const checkRead = () => {
+      if (nearBottom.current && historyRef.current?.getClientRects().length) void thread.markRead();
+    };
+    checkRead();
+    window.addEventListener('focus', checkRead);
+    window.addEventListener('resize', checkRead);
+    document.addEventListener('visibilitychange', checkRead);
+    return () => {
+      window.removeEventListener('focus', checkRead);
+      window.removeEventListener('resize', checkRead);
+      document.removeEventListener('visibilitychange', checkRead);
+    };
+  }, [thread.markRead, showInfo]);
 
-                  // Re-usable hover actions element
-                  const hoverActions = (
-                    <div className="opacity-0 group-hover:opacity-100 flex items-center gap-1 transition-opacity duration-150 shrink-0 relative z-20">
-                      <div className="relative">
-                        <button
-                          onClick={() =>
-                            setActiveReactionMenuFor(
-                              activeReactionMenuFor === m.id ? null : m.id,
-                            )
-                          }
-                          className="w-6 h-6 flex items-center justify-center rounded-full bg-white shadow hover:bg-neutral-50 text-neutral-500 transition-colors cursor-pointer"
-                          title="React"
-                          aria-label="Add reaction"
-                        >
-                          <Icons.Smile size={12} />
-                        </button>
-                        {activeReactionMenuFor === m.id && (
-                          <div
-                            className={`absolute ${isNearTop ? "top-8" : "bottom-8"} left-1/2 -translate-x-1/2 flex items-center gap-1 bg-white border border-neutral-200 rounded-full shadow-xl p-1.5 z-50`}
-                          >
-                            {["👍", "❤️", "😂", "😮", "😢", "😡"].map(
-                              (emoji) => (
-                                <button
-                                  key={emoji}
-                                  onClick={() => handleToggleReaction(m, emoji)}
-                                  aria-label={`React with ${emoji}`}
-                                  className="text-[16px] hover:scale-130 transition-transform p-0.5 hover:drop-shadow cursor-pointer"
-                                >
-                                  {emoji}
-                                </button>
-                              ),
-                            )}
-                          </div>
-                        )}
-                      </div>
+  async function send() {
+    if (!userId || sending.current || (!draft.trim() && !image)) return;
+    sending.current = true;
+    setBusy(true);
+    setError('');
+    let uploaded: string | undefined;
+    try {
+      const text = draft.trim();
+      const content = reply ? JSON.stringify({ text, replyToName: reply.senderName, replyToText: parseMessage(reply.content).text }) : text;
+      if (image) uploaded = await uploadChatImage(conversation.channelId, userId, image.file);
+      await sendMessageWithMentions(conversation.channelId, userId, userName || 'Someone', content, uploaded);
+      setImage(undefined);
+      setDraft('');
+      setReply(undefined);
+      nearBottom.current = true;
+      await thread.refresh();
+    } catch (failure) {
+      if (uploaded) void removeChatImage(uploaded).catch(() => {});
+      setError(errorMessage(failure, 'Could not send your message.'));
+    } finally { sending.current = false; setBusy(false); }
+  }
 
-                      <button
-                        onClick={() => setReplyingTo(m)}
-                        className="w-6 h-6 flex items-center justify-center rounded-full bg-white shadow hover:bg-neutral-50 text-neutral-500 transition-colors cursor-pointer"
-                        title="Reply"
-                        aria-label="Reply to message"
-                      >
-                        <Icons.CornerUpLeft size={12} />
-                      </button>
+  async function run(action: () => Promise<void>) {
+    setError('');
+    try { await action(); await thread.refresh(); }
+    catch (failure) { setError(errorMessage(failure, 'Could not update this message.')); }
+  }
 
-                      <div className="relative">
-                        <button
-                          onClick={() =>
-                            setActiveMoreMenuFor(
-                              activeMoreMenuFor === m.id ? null : m.id,
-                            )
-                          }
-                          className="w-6 h-6 flex items-center justify-center rounded-full bg-white shadow hover:bg-neutral-50 text-neutral-500 transition-colors cursor-pointer"
-                          title="More"
-                          aria-label="More message actions"
-                        >
-                          <Icons.MoreVertical size={12} />
-                        </button>
-                        {activeMoreMenuFor === m.id && (
-                          <div
-                            className={`absolute z-50 ${isNearTop ? "top-8" : "bottom-8"} bg-white rounded-xl border border-neutral-200 shadow-xl py-1.5 w-28 ${mine ? "right-0" : "left-0"}`}
-                          >
-                            <button
-                              onClick={() => {
-                                deleteMessage(m.id);
-                                setActiveMoreMenuFor(null);
-                              }}
-                              className="w-full text-left px-3 py-1.5 text-[12px] text-red-500 hover:bg-red-50 font-semibold cursor-pointer"
-                            >
-                              Remove
-                            </button>
-                            {["Forward", "Pin", "Report"].map((opt) => (
-                              <button
-                                key={opt}
-                                onClick={() => {
-                                  alert(`${opt}!`);
-                                  setActiveMoreMenuFor(null);
-                                }}
-                            className="w-full text-left px-3 py-1.5 text-[12px] text-neutral-700 hover:bg-neutral-50 cursor-pointer"
-                              >
-                                {opt}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  );
+  async function startCall(callType: 'audio' | 'video') {
+    if (!userId || !conversation.otherUserId || outgoingCall) return;
+    const callerName = userName || 'Someone';
+    try {
+      const id = await initiateCall(conversation.channelId, userId, callerName, conversation.otherUserId, conversation.name, callType);
+      setOutgoingCall({ id, channelId: conversation.channelId, callerId: userId, callerName,
+        calleeId: conversation.otherUserId, calleeName: conversation.name, callType, status: 'ringing' });
+    } catch (failure) { setError(errorMessage(failure, 'Could not start the call.')); }
+  }
 
-                  return (
-                    <div
-                      key={m.id}
-                      className={`flex items-end gap-2 group ${mine ? "justify-end" : "justify-start"}`}
-                    >
-                      {/* Left Side elements */}
-                      {mine && hoverActions}
-                      {!mine && (
-                        <div className="w-7 h-7 rounded-full bg-neutral-300 text-neutral-700 text-[9px] flex items-center justify-center shrink-0 font-bold border-2 border-white shadow-sm">
-                          {senderInitials}
-                        </div>
-                      )}
+  function showPinned(message: Message) {
+    const row = document.getElementById('message-' + message.id);
+    if (row && historyRef.current?.contains(row) && !window.matchMedia('(max-width: 780px)').matches) {
+      row.focus({ preventScroll: true });
+      row.scrollIntoView({ block: 'center' });
+    } else setSelectedPin(message);
+  }
 
-                      {/* Bubble Container */}
-                      <div
-                        className={`flex flex-col ${mine ? "items-end" : "items-start"} max-w-[72%] relative`}
-                      >
-                        {!mine && (
-                          <span className="text-[12px] text-neutral-500 ml-2 mb-0.5 font-semibold">
-                            {m.senderName}
-                          </span>
-                        )}
+  return <div className="messages-active-layout" data-show-info={showInfo || undefined}>
+    <section className="messages-thread" aria-label={'Conversation with ' + conversation.name}>
+      <header className="messages-thread-header">
+        <button type="button" className="messages-icon-button messages-back" aria-label="Back to conversations" onClick={onBack}><ArrowLeft size={20} /></button>
+        <ConversationAvatar conversation={conversation} />
+        <div className="messages-thread-identity">
+          <h2>{conversation.name}</h2>
+          <p>{conversation.projectTitle || (conversation.taskId ? 'Task chat' : conversation.projectId ? 'Project chat' : conversation.orgId ? 'Office channel' : 'Direct message')}</p>
+        </div>
+        <div className="messages-thread-tools">
+          {conversation.channelType === 'direct' && conversation.otherUserId && <>
+            <button type="button" className="messages-icon-button" aria-label="Start audio call" onClick={() => void startCall('audio')}><Phone size={18} /></button>
+            <button type="button" className="messages-icon-button" aria-label="Start video call" onClick={() => void startCall('video')}><Video size={19} /></button>
+          </>}
+          <button type="button" className="messages-icon-button" aria-label="Chat info" aria-expanded={showInfo} onClick={() => setShowInfo(value => !value)}><Info size={20} /></button>
+        </div>
+      </header>
+      {thread.pinned[0] && <button type="button" className="messages-pinned-bar" onClick={() => showPinned(thread.pinned[0])}><Pin size={15} /><span>{parseMessage(thread.pinned[0].content).text || 'Shared image'}</span><small>{thread.pinned.length} pinned</small></button>}
+      <div className="messages-history eflow-scroll-region" ref={historyRef}
+        onScroll={event => {
+          const el = event.currentTarget;
+          nearBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight < 56;
+          if (nearBottom.current) void thread.markRead();
+        }}>
+        {thread.loading ? <p role="status" className="messages-list-state">Loading messages…</p> : null}
+        {thread.error && <p role="alert" className="messages-error">{thread.error} <button type="button" onClick={() => void thread.refresh()}>Retry</button></p>}
+        {!thread.loading && thread.hasOlder && thread.history.length > 0 && <button type="button" className="messages-earlier" disabled={thread.loadingOlder} onClick={async () => {
+          const el = historyRef.current;
+          const height = el?.scrollHeight || 0;
+          nearBottom.current = false;
+          await thread.loadOlder();
+          requestAnimationFrame(() => { if (el) el.scrollTop += el.scrollHeight - height; });
+        }}>{thread.loadingOlder ? 'Loading…' : 'Load earlier messages'}</button>}
+        {!thread.loading && !thread.error && thread.history.length === 0 && <div className="messages-empty-thread"><ConversationAvatar conversation={conversation} /><h3>Start the conversation</h3><p>{conversation.taskId ? 'Use this chat to coordinate work on this task.' : 'Send the first message to get things started.'}</p></div>}
+        <MessageHistory messages={thread.history} userId={userId}
+          onReply={message => { setReply(message); composer.current?.focus(); }}
+          onReact={(message, emoji) => void run(() => toggleMessageReaction(message.id, emoji))}
+          onPin={message => void run(() => setMessagePin(message.id, !message.pinned))}
+          onDelete={message => void (async () => {
+            if (await confirmation.confirm({ title: 'Remove this message?', actionLabel: 'Remove message', description: 'This removes the message for everyone in the conversation.', danger: true })) {
+              await run(async () => { await deleteMessage(message.id); if (message.imagePath) await removeChatImage(message.imagePath); });
+            }
+          })()} />
+      </div>
+      {error && <p className="messages-error messages-composer-error" role="alert">{error}</p>}
+      <form className="messages-composer" onSubmit={event => { event.preventDefault(); void send(); }}>
+        {reply && <div className="messages-composer-reply"><span><strong>Replying to {reply.senderName}</strong><span>{parseMessage(reply.content).text}</span></span><button className="messages-icon-button" type="button" onClick={() => setReply(undefined)} aria-label="Cancel reply"><X size={16} /></button></div>}
+        {image && <div className="messages-image-preview"><img src={image.preview} alt="Image ready to send" /><span>{image.file.name}</span><button type="button" className="messages-icon-button" disabled={busy} onClick={() => setImage(undefined)} aria-label="Remove attached image"><X size={16} /></button></div>}
+        <div className="messages-compose-row">
+          <input ref={imagePicker} type="file" hidden accept="image/jpeg,image/png,image/gif,image/webp" aria-label="Choose an image" onChange={event => {
+            const file = event.target.files?.[0];
+            event.target.value = '';
+            if (!file) return;
+            try { validateChatImage(file); setImage({ file, preview: URL.createObjectURL(file) }); setError(''); }
+            catch (failure) { setError(errorMessage(failure, 'Could not attach this image.')); }
+          }} />
+          <button type="button" className="messages-icon-button" disabled={busy} onClick={() => imagePicker.current?.click()} aria-label="Attach an image"><ImagePlus size={21} /></button>
+          <textarea ref={composer} aria-label="Message" placeholder="Write a message…" value={draft} rows={1} maxLength={1000} disabled={busy}
+            onChange={event => setDraft(event.target.value)} onKeyDown={event => {
+              if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); void send(); }
+            }} />
+          <button type="submit" className="messages-send" disabled={(!draft.trim() && !image) || busy} aria-label="Send message"><Send size={18} /></button>
+        </div>
+      </form>
+    </section>
+    {showInfo && <ConversationInfo conversation={conversation} messages={thread.history} pinned={thread.pinned}
+      onClose={() => setShowInfo(false)} onOpenTask={onOpenTask} onOpenProject={onOpenProject} onShowPinned={showPinned} />}
+    {selectedPin && <div className="messages-pin-preview" role="status"><span><strong>{selectedPin.senderName}</strong><span>{parseMessage(selectedPin.content).text}</span>{selectedPin.imagePath && <ConversationImage path={selectedPin.imagePath} thumbnail />}</span><button type="button" className="messages-icon-button" onClick={() => setSelectedPin(undefined)} aria-label="Close pinned message"><X size={18} /></button></div>}
+    {confirmation.dialog}
+  </div>;
+}
 
-                        {parsed.replyToText && (
-                          <div
-                            className={`mb-1 text-[12px] text-neutral-600 bg-white/70 rounded-xl px-2.5 py-1.5 max-w-[90%] break-words border-l-2 border-blue-400 shadow-xs ${mine ? "self-end" : "self-start"}`}
-                          >
-                            <span className="font-bold text-blue-600 block">
-                              {parsed.replyToName}
-                            </span>
-                            <span className="italic text-neutral-400 block truncate">
-                              {parsed.replyToText}
-                            </span>
-                          </div>
-                        )}
-
-                        <div className="relative pb-1">
-                          <div
-                            className={`rounded-2xl px-3.5 py-2 text-[12.5px] leading-relaxed break-words ${
-                              mine
-                                ? "bg-blue-600 text-white rounded-br-sm shadow-sm"
-                                : "bg-white text-neutral-800 rounded-bl-sm shadow-sm"
-                            }`}
-                          >
-                            {parsed.text}
-                          </div>
-
-                          {hasReactions && (
-                            <button
-                              onClick={() => {
-                                const list: Array<{
-                                  name: string;
-                                  emoji: string;
-                                }> = [];
-                                Object.entries(reactionsMap).forEach(
-                                  ([emoji, users]) => {
-                                    (users as string[]).forEach((username) => {
-                                      list.push({ name: username, emoji });
-                                    });
-                                  },
-                                );
-                                setReactionsModalContent({
-                                  all: list,
-                                  byEmoji: reactionsMap,
-                                });
-                                setActiveReactionTab("all");
-                              }}
-                              className="absolute -bottom-2.5 right-2 flex items-center gap-0.5 bg-white border border-neutral-200 px-1.5 py-0.5 rounded-full shadow text-[10px] z-10 cursor-pointer hover:bg-neutral-50 active:scale-95 transition-all"
-                            >
-                              {Object.entries(reactionsMap).map(
-                                ([emoji, users]) => {
-                                  if ((users as string[]).length === 0)
-                                    return null;
-                                  return (
-                                    <span
-                                      key={emoji}
-                                      title={(users as string[]).join(", ")}
-                                    >
-                                      {emoji}
-                                      <span className="text-[8px] text-neutral-400 font-bold ml-0.5">
-                                        {(users as string[]).length}
-                                      </span>
-                                    </span>
-                                  );
-                                },
-                              )}
-                            </button>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Right Side elements */}
-                      {mine && (
-                        <div className="w-7 h-7 rounded-full bg-blue-100 text-blue-600 text-[9px] flex items-center justify-center shrink-0 font-bold border-2 border-white shadow-sm">
-                          {myInitials}
-                        </div>
-                      )}
-                      {!mine && hoverActions}
-                    </div>
-                  );
-                })}
-                {messages.length === 0 && (
-                  <EmptyState size="compact" illustration="chat" title="No messages yet." description="Say hello! 👋"/>
-                )}
-                <div ref={messagesEndRef} />
-              </div>
-
-              {replyingTo && (
-                <div className="px-3.5 py-1.5 bg-neutral-100 border-t border-neutral-200 flex items-center justify-between text-[12px] text-neutral-500 shrink-0 font-normal">
-                  <span className="truncate">
-                    Replying to{" "}
-                    <span className="font-semibold">
-                      {replyingTo.senderName}
-                    </span>
-                    : "{parseMessage(replyingTo.content).text.slice(0, 40)}"
-                  </span>
-                  <button
-                    onClick={() => setReplyingTo(null)}
-                    className="text-neutral-400 hover:text-neutral-600"
-                  >
-                    <Icons.X size={10} />
-                  </button>
-                </div>
-              )}
-
-              <AnimatePresence>
-                {moderationError && (
-                  <m.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    transition={motionTransition.productive}
-                    className="px-3.5 py-2 bg-rose-50 border-t border-rose-200 text-rose-800 text-[11px] flex items-center justify-between gap-2 shrink-0 font-medium"
-                  >
-                    <div className="flex items-center gap-1.5 truncate">
-                      <Icons.AlertTriangle size={13} className="text-rose-600 shrink-0" />
-                      <span className="truncate">{moderationError}</span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setModerationError(null)}
-                      className="text-rose-500 hover:text-rose-700 p-0.5 rounded shrink-0"
-                    >
-                      <Icons.X size={12} />
-                    </button>
-                  </m.div>
-                )}
-              </AnimatePresence>
-
-              <div className="p-3 border-t border-neutral-100 bg-white flex items-center gap-2 shrink-0">
-                <div className="relative flex-1 flex items-center">
-                  <input
-                    value={draft}
-                    maxLength={1000}
-                    onChange={(e) => {
-                      setDraft(e.target.value);
-                      if (moderationError) setModerationError(null);
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && !e.shiftKey) {
-                        e.preventDefault();
-                        if (!draft.trim()) return;
-                        const check = validateChatMessage(draft);
-                        if (!check.isValid) {
-                          setModerationError(check.reason || "Message violates workplace communication standards.");
-                          return;
-                        }
-                        setModerationError(null);
-                        handleSend();
-                      }
-                    }}
-                    placeholder="Message… (max 1,000 characters)"
-                    className="w-full h-[36px] rounded-full border border-neutral-200 bg-neutral-50 pl-4 pr-16 text-[12px] outline-none focus:border-neutral-300 focus:bg-white transition-all"
-                  />
-                  {draft.length > 0 && (
-                    <span
-                      className={`absolute right-3 text-[10px] tabular-nums font-medium pointer-events-none select-none ${
-                        draft.length > 900 ? "text-rose-500 font-semibold" : "text-neutral-400"
-                      }`}
-                    >
-                      {draft.length}/1000
-                    </span>
-                  )}
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (!draft.trim()) return;
-                    const check = validateChatMessage(draft);
-                    if (!check.isValid) {
-                      setModerationError(check.reason || "Message violates workplace communication standards.");
-                      return;
-                    }
-                    setModerationError(null);
-                    handleSend();
-                  }}
-                  disabled={!draft.trim()}
-                  className="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center disabled:opacity-40 disabled:bg-neutral-200 hover:bg-blue-700 active:scale-95 transition-all shrink-0 shadow-sm"
-                >
-                  <Icons.Send size={13} />
-                </button>
-              </div>
-            </div>
-  );
+function errorMessage(failure: unknown, fallback: string) {
+  return failure instanceof Error ? failure.message : fallback;
 }

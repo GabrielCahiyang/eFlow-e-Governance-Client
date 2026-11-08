@@ -42,8 +42,7 @@
   }
 
   // ─── getChannelForTask ──────────────────────────────────────────────
-  // Returns null if the task has no assignee yet — the trigger only
-  // creates a channel once a task is actually assigned to someone.
+  // A task conversation is only visible to its current chat members.
   export async function getChannelForTask(taskId: string): Promise<string | null> {
     const { data } = await supabase
       .from("chat_channels")
@@ -89,8 +88,9 @@ export async function sendMessageWithMentions(
   senderId: string,
   senderName: string,
   content: string,
+  imagePath?: string,
 ): Promise<void> {
-  await sendMessage(channelId, senderId, senderName, content);
+  await sendMessage(channelId, senderId, senderName, content, imagePath);
 
   const mentionPattern = /@(\w+)/g;
   const mentioned = [...content.matchAll(mentionPattern)].map((m) => m[1]);
@@ -111,7 +111,7 @@ export async function sendMessageWithMentions(
         type: "comment",
         title: "You were mentioned",
         message: `${senderName} mentioned you: "${content.slice(0, 80)}"`,
-      });
+      }).catch(() => { /* The message was already saved. */ });
     }
   }
 }
@@ -121,15 +121,17 @@ export async function sendMessageWithMentions(
     senderId: string,
     senderName: string,
     content: string,
+    imagePath?: string,
   ): Promise<void> {
     const trimmed = content.trim();
-    if (!trimmed) return;
-    validateOutgoingContent(trimmed);
+    if (!trimmed && !imagePath) return;
+    if (trimmed) validateOutgoingContent(trimmed);
     const { error } = await supabase.from("chat_messages").insert({
       channel_id: channelId,
       sender_id: senderId,
       sender_name: senderName,
       content: trimmed,
+      ...(imagePath ? { image_path: imagePath } : {}),
     });
     if (error) throw error;
   }

@@ -11,6 +11,7 @@ import { useNavigationFavorites } from '../../../../shared/navigationPreferences
 import type { Project } from '../../services/types';
 import { useProjectCompletionAvailability } from '../../hooks/useProjectCompletionAvailability';
 import {ProjectPublicationAction} from '../../../project-publication';
+import { ProjectChatLink } from '../../../chat-calls';
 
 export interface ProjectLifecycleActions { complete?: () => void; archive?: () => void; restore?: () => void; delete?: () => void; }
 export function ProjectUtilities({ setupReady=true, project, canManage, lifecycle, userId, contextId, authorizedProjectIds, view, onOpenOffices, onOpenSettings, onResolveView }: {
@@ -39,6 +40,7 @@ export function ProjectUtilities({ setupReady=true, project, canManage, lifecycl
     {userId && <WorkspaceTooltip content="Personal favorite on this device"><Button variant="ghost" size="icon" aria-label={favorite ? 'Remove project from favorites' : 'Add project to favorites'} aria-pressed={favorite} onClick={() => toggle(project.id)}><Star size={18} fill={favorite ? 'currentColor' : 'none'} /></Button></WorkspaceTooltip>}
     <Button disabled={!setupReady} title={!setupReady?'Finish project details and funding before sharing access.':undefined} variant="outline" onClick={() => { setShareOpen(true); }}><Share2 size={16} />Invite / share</Button>
     <Button variant="outline" onClick={onOpenSettings}>Project settings</Button>
+    <ProjectChatLink projectId={project.id} />
     <ProjectPublicationAction projectId={project.id} title={project.title} status={project.status} officeId={project.orgId}/>
     {canManage && lifecycle.complete && !['completed','archived'].includes(project.status) && <Button variant="outline" onClick={() => { void requestNavigation(lifecycle.complete!); }}>Completion requirements</Button>}
     {canManage&&project.status==='planning'&&<Button variant="outline" onClick={()=>void requestNavigation(()=>setSetupOpen(value=>!value))} aria-expanded={setupOpen}>Setup & activation</Button>}

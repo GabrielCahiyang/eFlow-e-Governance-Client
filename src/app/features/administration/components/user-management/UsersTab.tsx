@@ -1,4 +1,5 @@
 import { isAdminRole } from "../../../../shared/roles";
+import { isTemporaryGuestProfile } from '../../guests/types';
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AlertTriangle, KeyRound, Plus, Trash2 } from "lucide-react";
 import { useOrgs, useProfiles } from "../../../../hooks/useSupabaseData";
@@ -101,7 +102,7 @@ export function UsersTab({
     () =>
       profiles.filter(
         (profile) =>
-          isAdminRole(userProfile?.role) || !isAdminRole(profile.role),
+          !isTemporaryGuestProfile(profile) && (isAdminRole(userProfile?.role) || !isAdminRole(profile.role)),
       ),
     [profiles, userProfile?.role],
   );

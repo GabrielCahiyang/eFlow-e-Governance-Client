@@ -1,5 +1,5 @@
 export interface NavigationRestore {workspaceId?:string;parameters:Record<string,string>}
-export const navigationDisplayKeys=['workspace','project','view','plans','proposal','proposalView','people','date','q','workScope','recent','fy'] as const;
+export const navigationDisplayKeys=['workspace','project','view','plans','proposal','proposalView','people','date','q','workScope','recent','fy','conversation','chatTask','chatProject'] as const;
 /** Display-route preferences only; never restore an evidence or mutation identity. */
 export function navigationParameters(value:unknown):Record<string,string>{
  if(!value||typeof value!=='object'||Array.isArray(value))return {};
@@ -19,6 +19,11 @@ export function destinationNavigationParameters(section: string, value: unknown,
   const source = navigationParameters(value), result: Record<string, string> = {};
   const copy = (key: string) => { if (source[key]) result[key] = source[key]; };
   copy('workspace');
+  if (section === 'messages') {
+    if (source.conversation) copy('conversation');
+    else if (source.chatTask) copy('chatTask');
+    else copy('chatProject');
+  }
   if (section === 'projects') {
     copy('project');
     if (projectViews.includes(source.view)) copy('view');

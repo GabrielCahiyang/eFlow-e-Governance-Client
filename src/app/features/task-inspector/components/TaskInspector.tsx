@@ -1,5 +1,6 @@
 import {WorkActivity,supportsNestedWork,useWorkTree,type WorkTreeController} from '../../nested-work';
 import { isAppointedOfficeHead } from '../../../shared/officeAuthority';
+import { TaskChatLink } from '../../chat-calls';
 import { pendingTaskDependencies } from '../../tasks';
 import { StaffingDialog, staffingEntryReason } from '../../staffing';
 import { useOrgs } from '../../../hooks/useSupabaseData';
@@ -138,6 +139,7 @@ function TaskInspectorContent({
           {executionBlocked && <p role="status" className="po-help">Proposed Office responsibility: directory linking, Office Head confirmation and explicit handover in Project Offices are required before staffing, execution, evidence or funding.</p>}
           {readOnly && tab !== 'overview' && <p role="status" className="text-sm text-neutral-500 mb-3">Read-only oversight record</p>}
           {tab === 'overview' && <section aria-label="Task details">
+            <TaskChatLink taskId={task.id} />
             <InspectorSummary task={task} projectTitle={operationalProject?.title} readOnly={readOnly} dependencies={dependencies} canManageSubtasks={canManageSubtasks} canAuthorizeFunding={canAuthorizeFunding} rejected={rejected} overdue={rel.overdue} authorityPending={!!controller&&(!controller.authorityFresh||controller.refreshPending||controller.pending)} fundingTask={controller?.data?{...task,assigneeId:controller.data.root.lead||undefined,recommendationLeadId:undefined}:undefined} budgetReadOnly={readOnly||!!task.archivedAt||executionBlocked||!!controller&&controller.data?.people.find(person=>person.id===user?.id)?.eligible!==true}/>
           </section>}
           {tab === 'update-work' && <section className="task-update-page" aria-label="Update task work">

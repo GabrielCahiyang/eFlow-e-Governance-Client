@@ -1,69 +1,94 @@
-import type { WorkflowKind, WorkflowStage } from "./types";
+import type { WorkflowChapter, WorkflowKind } from "./types";
 
-export type PreviewWorkspace = "plans" | "leading" | "subtasks" | "reviews" | "budget" | "accounting";
-export type PreviewScreen = "start" | "upload" | "extract" | "plan" | "departments" | "annual-budget" | "lock-budget" | "staffing" | "proposal-budget" | "request" | "request-confirm" | "plan-inbox" | "participation" | "participation-confirm" | "resend" | "publish" | "publish-confirm" | "funding" | "tasks" | "start-task" | "assign-subtasks" | "cash-request" | "cash-authorize" | "release" | "voucher" | "acknowledge" | "receipt-confirm" | "my-subtasks" | "progress" | "subtask-submit" | "subtasks" | "receipts" | "settlement" | "submit" | "review" | "review-confirm" | "closeout" | "closeout-approve" | "complete" | "archive" | "archived";
 export interface PreviewTourStep {
-  id: string; title: string; description: string; actor: string;
-  stage: WorkflowStage; screen: PreviewScreen; target: string;
-  workspace: PreviewWorkspace; tab?: string; detail?: string; condition?: string;
+  id: string;
+  chapter: WorkflowChapter;
+  title: string;
+  description: string;
+  actor: string;
+  path: string;
 }
 
-// Locations follow the live navigation, drawers, review inboxes, budget controls,
-// vouchers, and closeout handlers. Example controls never call those handlers.
-function makeSteps(kind: WorkflowKind): PreviewTourStep[] {
-  const inter = kind === "interdepartmental";
-  const head = "Head", lead = "Task Leader";
-  const cash = "When this task needs funds";
-  const step = (screen: PreviewScreen, title: string, description: string, workspace: PreviewWorkspace, actor: string, stage: WorkflowStage, tab?: string, detail?: string, condition?: string): PreviewTourStep =>
-    ({ id: screen, screen, target: screen, title, description, workspace, actor, stage, tab, detail, condition });
-  return [
-    step("start", "Create a proposal", "In Plans & Projects, choose Create work plan. Follow this funded example from its draft to its archived record.", "plans", head, "prepare"),
-    step("upload", "Import a proposal", "Inside Create a work plan, choose Import proposal and upload the PDF. New work plan is the manual alternative.", "plans", head, "prepare", undefined, "Create a work plan → Import proposal"),
-    step("extract", "Watch the PDF being prepared", "The import panel shows extraction, task preparation, and staffing suggestions. It stays locked during processing. Check the editable result before using the AI suggestions.", "plans", head, "prepare", undefined, "Create a work plan → Import proposal"),
-    step("plan", "Build the work plan", "In the draft’s Work plan tab, correct projects and tasks. Check responsible offices, skills, working days, deadlines, and budget decisions, then save.", "plans", head, "prepare", "Work plan"),
-    ...(inter ? [step("departments", "Choose participating offices", "In draft Overview, set the lead, participating offices, staffing access, and any governance reviewers. Observers follow the work without blocking publication.", "plans", head, "prepare", "Overview")] : []),
-    step("annual-budget", "Prepare the yearly office budget", "Open Office Budget → Planning & Allocation → Annual Budget. The Head enters the authorized yearly amount and cash controls. Members can monitor, but cannot prepare or lock it.", "budget", head, "prepare", "Planning & Allocation", "Annual Budget", "Required before funding a proposal"),
-    step("lock-budget", "Save and lock the yearly budget", inter ? "Confirm Save & lock annual budget. Each office providing funds needs a locked yearly budget with enough available authority. Publication reserves task budgets from these totals; the original appropriation stays fixed." : "Confirm Save & lock annual budget. A funded proposal needs enough available authority in this locked yearly budget. Publication reserves task budgets from it; the original appropriation stays fixed.", "budget", head, "prepare", "Planning & Allocation", "Annual Budget", "Required before funding a proposal"),
-    step("staffing", "Choose the task leader and members", "Return to Plans & Projects and open Team roster. Choose leaders and members from allowed staffing pools, check skills and workload, and save. Assignments become active after publication.", "plans", head, "prepare", "Overview", "Team roster"),
-    step("proposal-budget", "Check the proposal and task budgets", "In the proposal Budget panel, verify each task’s budget lines and fund source, or its no-cost reason. The yearly budget alone does not give every task a cash allocation.", "plans", head, "prepare", "Overview", "Budget"),
-    ...(inter ? [
-      step("request", "Request office approvals", "Send approval requests for the latest saved plan. The office approval table shows required offices and pending responses.", "plans", head, "approve", "Review & Governance"),
-      step("request-confirm", "Confirm the review request", "Confirm Send for review. Participating offices are notified to review the saved plan and their proposed responsibilities.", "plans", head, "approve", "Review & Governance"),
-      step("plan-inbox", "Open an incoming work plan", "The participating office opens Reviews → Work Plans and selects Review & Governance. This opens the proposal in Plans & Projects for its participation decision.", "reviews", "Participating Head", "approve", "Work Plans"),
-      step("participation", "Approve participation", "In Plans & Projects → Review & Governance, check the office’s scope, dates, staff, and budget. Choose Approve participation, or request changes with a reason.", "plans", "Participating Head", "approve", "Review & Governance"),
-      step("participation-confirm", "Confirm the participation decision", "Confirm the office’s agreement to its responsibilities and staff in this saved plan. This records participation approval; the lead office still publishes the proposal.", "plans", "Participating Head", "approve", "Review & Governance"),
-      step("resend", "Update the draft and resend", "If an office requests changes, correct and save the draft, then resend approval requests. Required offices must approve the updated plan before publication.", "plans", head, "approve", "Review & Governance", undefined, "Alternative: when updates are requested"),
-    ] : []),
-    step("publish", "Publish the work plan", inter ? "When plan, funding, and required office approvals are ready, the lead chooses Publish proposal. Participation approval alone does not activate tasks." : "After plan and funding checks pass, choose Publish office proposal. Another office’s participation approval is not required.", "plans", head, "approve", "Overview"),
-    step("publish-confirm", "Confirm publication", "Confirm Publish work plan. Publication creates active projects, tasks, team assignments, and funded task allocations from the saved proposal.", "plans", head, "approve", "Overview"),
-    step("funding", "See the published task funding", "Office Budget → Planning & Allocation → Proposal & Task Funding shows each funded task. Cash requests use these allocations, rather than the whole annual budget.", "budget", head, "work", "Planning & Allocation", "Proposal & Task Funding", cash),
-    step("tasks", "Open the work you are leading", "The assigned Task Leader opens My Work → Leading and chooses View Details. The task shows its team, deadline, project, funding, and subtasks.", "leading", lead, "work"),
-    step("start-task", "Start the parent task", "In View Details → Overview, choose Start work. The leader coordinates the parent here; individual progress and evidence belong to assigned subtasks.", "leading", lead, "work", undefined, "View Details → Overview"),
-    step("assign-subtasks", "Assign the team’s subtasks", "Create subtasks for task members and set the reviewer and deadlines. Ordered subtasks wait for the previous step’s approval. Parent submission waits for every subtask to be approved.", "leading", lead, "work", undefined, "View Details → Overview"),
-    step("cash-request", "Leader requests voucher funds", "In My Work → Leading → View Details → Overview → Task funding, choose Request cash. Select the budget line, amount, needed-by date, and purpose. A leader’s own task-level request goes directly to Head or Member authorization.", "leading", lead, "work", undefined, "View Details → Overview → Task funding", cash),
-    step("cash-authorize", "Authorize the cash request", "The Head or Member opens Reviews → Budget and authorizes. Member requests first need Task Leader endorsement in Leader Reviews → Budget. Authorization schedules release within the daily cash ceiling.", "reviews", "Head / Member", "work", "Budget", undefined, cash),
-    step("release", "Open the scheduled voucher release", "Accounting opens Voucher & Cash Releases and chooses Mark released. Heads can also use Office Budget → Requests & Settlement → Releases & Settlement.", "accounting", "Accounting Staff", "work", undefined, "Voucher & release schedule", cash),
-    step("voucher", "Record the voucher and cash handover", "The Disbursement Voucher shows its number, recipient, and amount. Record cash or cheque details, confirm physical handover, and release. Scheduled dates and the daily ceiling still apply.", "accounting", "Accounting Staff", "work", undefined, "Disbursement Voucher", cash),
-    step("acknowledge", "Leader acknowledges the released cash", "The recipient returns to the task’s Funding activity and chooses Acknowledge cash. Release and receipt acknowledgment are separate actions.", "leading", lead, "work", undefined, "View Details → Overview → Task funding", cash),
-    step("receipt-confirm", "Verify the voucher number", "Enter the voucher number supplied by the releasing officer and Confirm Receipt. The number must match before eFlow records the acknowledgment.", "leading", lead, "work", undefined, "Confirm Cash Receipt", cash),
-    step("my-subtasks", "Open assigned subtasks", "The contributor opens My Subtasks and selects their assigned item. Its work drawer shows the parent, reviewer, deadline, prerequisites, funding, and progress.", "subtasks", "Assigned Team Member", "work"),
-    step("progress", "Record subtask progress and evidence", "In the subtask work drawer, save progress, notes, evidence, blockers, and next steps. Progress does not approve the work or complete the parent task.", "subtasks", "Assigned Team Member", "work", undefined, "Subtask work drawer"),
-    step("subtask-submit", "Submit the subtask for review", "At 100% progress, provide a completion note and at least one evidence file, then Submit for review. Editing locks while the reviewer decides. Requested changes can be corrected and resubmitted.", "subtasks", "Assigned Team Member", "work", undefined, "Subtask work drawer"),
-    step("subtasks", "Review submitted subtask evidence", "The assigned reviewer opens Leader Reviews → Subtasks, checks the note and evidence, and chooses Approve evidence. Request changes with feedback when needed. Only approved subtasks count toward parent completion.", "reviews", lead, "work", "Subtasks"),
-    step("receipts", "Upload receipts and return unused cash", "The cash recipient opens Upload receipts in the task’s Funding activity. Receipt totals must match actual spending. Include the return receipt for unused cash, liquidation note, and evidence.", "leading", lead, "work", undefined, "View Details → Overview → Task funding → Upload receipts", cash),
-    step("settlement", "Settle the receipts and returned balance", "Accounting checks receipts and returned cash, then chooses Settle & post. This leader’s own receipts skip self-endorsement. Member receipts first need leader endorsement in Leader Reviews → Budget; late packages require Head approval in Reviews → Budget.", "accounting", "Accounting Staff", "work", undefined, "Accounting settlement queue", cash),
-    step("submit", "Submit the completed parent task", "Return to My Work → Leading → View Details → Overview. Once all subtasks are approved, add the completion note and supporting evidence and Submit for review.", "leading", lead, "work", undefined, "View Details → Overview"),
-    step("review", "Review the parent task", "The authorized reviewer opens Reviews → Project Tasks, checks the submission, evidence, and cash clearance, then chooses Approve. The task’s configured route determines the reviewer; the submitter cannot approve their own submission.", "reviews", "Authorized Task Reviewer", "work", "Project Tasks"),
-    step("review-confirm", "Confirm task approval", "Confirm approval after checking evidence and cash clearance. Unresolved task or subtask cash blocks approval. Requested changes return the task to the team for correction and resubmission.", "reviews", "Authorized Task Reviewer", "work", "Project Tasks"),
-    step("closeout", "Check the final proposal record", inter ? "When work and cash are resolved, return to the proposal. If a governance body was included, open Governance and send final closeout for verification. Without one, manage completion from Overview." : "Return to proposal Overview. Check completed tasks, approved subtasks, and settled cash. Resolve blockers before completing the linked projects; external office approval is not required.", "plans", head, "finish", inter ? "Review & Governance" : "Overview", inter ? "Governance" : undefined),
-    ...(inter ? [step("closeout-approve", "Approve the final closeout", "The configured governance reviewer opens the proposal’s Governance panel, checks the final record, and chooses Approve closeout. Corrections need a reason. Resolution and meeting details can be recorded.", "plans", "Assigned Governance Reviewer", "finish", "Review & Governance", "Governance", "When a board or committee is a required reviewer")] : []),
-    step("complete", "Mark the project completed", inter ? "After closeout approval, the owner chooses Mark proposal completed and confirms. This completes linked projects together. Individual projects instead use Mark project complete and their own readiness checklist." : "In proposal Overview, choose Mark projects completed. eFlow checks linked projects for unfinished work, cash, and required approvals. Individual projects also offer Mark project complete with a confirmation checklist.", "plans", head, "finish", inter ? "Review & Governance" : "Overview", inter ? "Governance" : undefined),
-    step("archive", "Confirm archiving", inter ? "After completion, enter a reason and confirm Archive proposal delivery in Governance. Without governance, Overview offers Archive completed proposal. Linked projects and tasks leave active views while records are retained." : "In proposal Overview, choose Archive completed proposal, review the confirmation, and confirm Archive delivery. Linked projects and tasks leave active views while their history is retained.", "plans", head, "finish", inter ? "Review & Governance" : "Overview", inter ? "Governance" : undefined),
-    step("archived", "Archive and retain the record", "Open Archived projects in Plans & Projects. Evidence, decisions, reports, and audit history remain available after the work leaves active views.", "plans", head, "finish", "Overview", "Archived projects"),
-  ];
-}
+const scene = (id: string, chapter: WorkflowChapter, title: string, description: string, actor: string, path: string): PreviewTourStep =>
+  ({ id, chapter, title, description, actor, path });
+
+const setup = [
+  scene("office-budget", "Project setup", "Prepare the Office Budget",
+    "The Head sets the annual amount for the Supplies account and saves and locks the budget. Accounting confirms availability for any scheduled releases.",
+    "Head", "Workspaces / Office Budget"),
+  scene("create-project", "Project setup", "Set up the project",
+    "Open All projects and choose Create project. Define the title, description, scope, project lead, and dates before adding tasks or people.",
+    "Head", "Workspaces / Projects"),
+  scene("project-funding", "Project setup", "Reserve the project budget",
+    "Authorize ₱40,000 from the Office Budget’s Supplies account. The office has ₱60,000 available after that. Tasks draw from the funds already reserved for the project.",
+    "Head", "Projects / Project setup / Funding"),
+  scene("save-project", "Project setup", "Review and finish setup",
+    "Check the project details, lead, schedule, and funding. Finish setup to open the main table and start adding work.",
+    "Head", "Projects / Project setup / Review"),
+  scene("add-task", "Project setup", "Add a task in the main table",
+    "Use New task to create the work. Keep the task dates within the project timeline and set prerequisites when it depends on other tasks.",
+    "Head", "Projects / Community Services Seminar / Main table"),
+];
+
+const outsideOffice = [
+  scene("add-office", "Project team", "Add an outside office to this project",
+    "In the project’s Offices tab, choose Add named Office. The office entry belongs to this project. Saving the name gives nobody access yet.",
+    "Lead Office Head", "Projects / Community Services Seminar / Offices"),
+  scene("invite-person", "Project team", "Invite the person who will do the work",
+    "Choose Invite people on the office row. Select Office employee or Office representative / Head. Either can join assigned work. This invitation grants access to this project only.",
+    "Lead Office Head", "Projects / Offices / Community Training Center"),
+  scene("accept-invite", "Project team", "Accept the private invitation",
+    "The invitee opens the private link and fills in their details. New users choose a password. Project access ends at completion or archive.",
+    "Invited employee", "Invitation email / Accept invitation"),
+  scene("assign-guest", "Project team", "Assign the guest to project work",
+    "Once the invitation shows Joined, use Choose people on the task to assign the employee. Their permanent account role and home office stay the same.",
+    "Lead Office Head", "Projects / Main table / Choose people"),
+];
+
+const officeTeam = scene("office-team", "Project team", "Add the project’s team",
+  "After setup, open Add people and select office colleagues. In the main table, use Choose people to set the task lead and contributors.",
+  "Head", "Projects / Community Services Seminar / Add people");
+
+const delivery = [
+  scene("allocate-task", "Deliver work", "Allocate the task budget",
+    "Allocate ₱10,000 to the task from the project’s Supplies funds. This leaves ₱30,000 unallocated in the project and creates no second charge to the Office Budget.",
+    "Head", "Projects / Main table / Budget"),
+  scene("activate", "Deliver work", "Activate the project",
+    "In Setup & activation, confirm the plan reviews and resolve anything marked Needs attention. Activate once the checks are ready.",
+    "Head", "Projects / Setup & activation"),
+  scene("subtasks", "Deliver work", "Assign subtasks and record the work",
+    "The task lead assigns subtasks. Team members post updates and evidence. The subtask lead or task lead can mark the step complete directly.",
+    "Task lead", "My Work / Leading / Work"),
+  scene("request-cash", "Settle cash", "Request cash from the task allocation",
+    "Request ₱4,000 for registration kits using the task’s funded account. Follow the request’s approval route in Reviews → Budget. Office petty cash is a separate fund.",
+    "Task lead", "Task details / Overview / Funding"),
+  scene("authorize", "Settle cash", "Review the cash request",
+    "Open the request in Reviews → Budget. Check the purpose, funding source, and amount before authorizing it for Accounting to release.",
+    "Authorized reviewer", "Inbox / Reviews / Budget"),
+  scene("release", "Settle cash", "Release and acknowledge the cash",
+    "Accounting records the voucher and cash handover. The recipient acknowledges receipt using the voucher number provided by the releasing officer.",
+    "Accounting Officer → Cash recipient", "Accounting / Voucher & Cash Releases"),
+  scene("receipts", "Settle cash", "Submit receipts and return the change",
+    "Enter the ₱3,500 actual cost from the receipts and return the unused ₱500. Submit the package with proof of spending and the cash return.",
+    "Cash recipient", "Task details / Funding activity / Upload receipts"),
+  scene("settlement", "Settle cash", "Settle and post the liquidation",
+    "Accounting verifies ₱3,500 in receipts and ₱500 returned, then uses Settle & post to clear the advance. If no independent officer is available, an eligible Head can use Approve & post settlement in Reviews → Budget.",
+    "Accounting Officer", "Accounting / Settlements"),
+  scene("task-review", "Close project", "Submit and approve the parent task",
+    "The task lead submits the finished work and evidence. The project lead reviews it in Reviews → Project Tasks. Work led by the project lead routes to the Head.",
+    "Project lead", "Inbox / Reviews / Project Tasks"),
+  scene("return-funding", "Close project", "Return unused project funding",
+    "Return the task’s unused ₱6,500 to the project. The Head releases it together with the project’s ₱30,000 unallocated balance back to the Office Budget before completion.",
+    "Head", "Projects / Budget Overview / Manage project funding"),
+  scene("complete", "Close project", "Complete the project",
+    "Choose Mark project complete. Confirm once all required work is approved, cash is settled, and unused funding has been returned.",
+    "Head", "Projects / Community Services Seminar"),
+  scene("archived", "Close project", "Archive and retain the record",
+    "Archive the completed project to move it out of active work. The archived record retains its task evidence, financial history, and decisions.",
+    "Head", "Projects / Archived projects"),
+];
 
 export const WORKFLOW_WALKTHROUGHS: Record<WorkflowKind, PreviewTourStep[]> = {
-  interdepartmental: makeSteps("interdepartmental"), department: makeSteps("department"),
+  department: [...setup, officeTeam, ...delivery],
+  interdepartmental: [...setup, ...outsideOffice, ...delivery],
 };
-
