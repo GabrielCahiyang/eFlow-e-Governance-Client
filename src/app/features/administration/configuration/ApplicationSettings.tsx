@@ -1,12 +1,33 @@
 import { useAuth } from "../../../contexts/AuthContext";
 import { Button } from "../../../components/ui/button";
-import {
-  WorkspaceHeader,
-  WorkspaceSkeleton,
-} from "../../../components/ui/workspace";
+import { WorkspaceHeader } from "../../../components/ui/workspace";
 import { ConfigurationMatrix } from "./ConfigurationMatrix";
 import { useApplicationSettingsForm } from "./useApplicationSettingsForm";
 import { requestNavigation } from "../../../shared/navigationGuard";
+
+function ApplicationSettingsFormSkeleton() {
+  return (
+    <div
+      className="eflow-admin-settings-form"
+      role="status"
+      aria-label="Loading application settings"
+    >
+      <span className="sr-only">Loading application settings</span>
+      <div aria-hidden="true" className="space-y-4">
+        <div className="space-y-2">
+          <div className="h-3.5 w-32 animate-pulse rounded bg-neutral-200/80" />
+          <div className="h-10 w-full max-w-md animate-pulse rounded-lg border border-neutral-200 bg-neutral-100" />
+          <div className="h-3 w-72 animate-pulse rounded bg-neutral-100" />
+        </div>
+        <div className="eflow-admin-actions">
+          <div className="h-9 w-28 animate-pulse rounded-lg bg-neutral-200/80" />
+          <div className="h-9 w-28 animate-pulse rounded-lg bg-neutral-100" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function ApplicationSettings() {
   const { user, can } = useAuth();
   return (
@@ -38,7 +59,7 @@ function SettingsForm({ canManage }: { canManage: boolean }) {
         description="Application presentation settings. Sessions, workspace calendars and provider policies have separate authorities."
       />
       {loading ? (
-        <WorkspaceSkeleton label="Loading application settings" />
+        <ApplicationSettingsFormSkeleton />
       ) : (
         <>
           {error && (

@@ -2,7 +2,51 @@ import { useState, type ReactNode } from 'react';
 import { Check, Laptop, Moon, Palette, Sun } from 'lucide-react';
 import { useUserPreferences } from '../../../contexts/UserPreferencesContext';
 import type { ThemePreference } from '../../../types';
-import { ResultMessage, SectionHeading, SettingsLoading, Surface, type Result } from './settingsPrimitives';
+import { ResultMessage, SectionHeading, Surface, type Result } from './settingsPrimitives';
+
+function AppearanceSettingsSkeleton() {
+  return (
+    <div
+      className="max-w-3xl space-y-5"
+      role="status"
+      aria-label="Loading appearance preference…"
+    >
+      <span className="sr-only">Loading appearance preference…</span>
+      <div aria-hidden="true" className="space-y-5">
+        <Surface className="p-5 sm:p-6">
+          <SectionHeading
+            icon={<Palette size={19} />}
+            eyebrow="Appearance"
+            title="Set the tone for your workspace"
+            description="Choose one appearance. System automatically tracks your device’s light or dark mode."
+          />
+          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+            {[0, 1, 2].map((index) => (
+              <div
+                key={index}
+                className="relative min-h-36 rounded-2xl border border-neutral-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-950"
+              >
+                <div className="size-9 animate-pulse rounded-xl bg-neutral-100 dark:bg-slate-800" />
+                <div className="mt-4 h-4 w-20 animate-pulse rounded bg-neutral-200/80 dark:bg-slate-700" />
+                <div className="mt-2 h-3 w-36 animate-pulse rounded bg-neutral-100 dark:bg-slate-800" />
+                <div className="absolute right-3 top-3 size-4 animate-pulse rounded-full border border-neutral-300 bg-neutral-100 dark:border-slate-600 dark:bg-slate-800" />
+              </div>
+            ))}
+          </div>
+        </Surface>
+
+        <div className="flex items-start gap-3 rounded-2xl border border-blue-100 bg-blue-50/70 px-4 py-3.5 text-[12px] text-blue-800 dark:border-blue-900/60 dark:bg-blue-950/25 dark:text-blue-200">
+          <Laptop size={17} className="mt-0.5 shrink-0" />
+          <p>
+            <span className="font-semibold">System is the default.</span> It
+            only listens for device changes while System is selected; Light and
+            Dark stay exactly as you set them.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function AppearanceSettingsPage() {
   const { theme, loading, error: preferenceError, setTheme } = useUserPreferences();
@@ -28,7 +72,7 @@ export function AppearanceSettingsPage() {
     }
   };
 
-  if (loading) return <SettingsLoading label="Loading appearance preference…" />;
+  if (loading) return <AppearanceSettingsSkeleton />;
 
   return (
     <div className="max-w-3xl space-y-5">

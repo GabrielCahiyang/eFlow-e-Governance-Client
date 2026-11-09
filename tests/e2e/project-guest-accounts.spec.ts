@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { projectWorkspaceFixture } from './fixtures/projectWorkspace';
 
-for (const width of [1440, 390]) test(`Admin project guest lifecycle at ${width}px`, async ({page}) => {
+for (const width of [1440, 390]) test(`Admin project guest lifecycle at ${width}px`, async ({page}, info) => {
   test.setTimeout(90_000);
   await page.setViewportSize({width,height:1000});
   await projectWorkspaceFixture(page,'admin');
@@ -14,7 +14,12 @@ for (const width of [1440, 390]) test(`Admin project guest lifecycle at ${width}
     {...base,user_id:'guest-3',full_name:'Cash recipient',email:'cash@example.test',is_active:true,finance_open:true,deactivates_at:new Date(Date.now()-86400000).toISOString()},
     {...base,user_id:'guest-4',full_name:'Assigned guest',email:'assigned@example.test',is_active:true,projects:[{id:'project',title:'Seminar'}],deactivates_at:null},
   ];
-  await page.route('**/rest/v1/rpc/admin_project_guests', route => route.fulfill({json:guests}));
+  let releaseGuests!: () => void;
+  const guestsReady = new Promise<void>(resolve => { releaseGuests = resolve; });
+  await page.route('**/rest/v1/rpc/admin_project_guests', async route => {
+    await guestsReady;
+    await route.fulfill({json:guests});
+  });
   await page.route('**/rest/v1/rpc/admin_project_guest_history', route => route.fulfill({json:[{id:'event',action:'auto_deactivated',reason:'No active project for seven days.',created_at:new Date().toISOString(),actor:'System'}]}));
   await page.route('**/rest/v1/rpc/admin_set_project_guest_state', async route => {
     const body=route.request().postDataJSON();
@@ -26,7 +31,14 @@ for (const width of [1440, 390]) test(`Admin project guest lifecycle at ${width}
   });
   await page.getByRole('tab',{name:'Project guests',exact:true}).click();
   const table=page.getByRole('region',{name:'Project guests table',exact:true});
+  try {
+    await expect(table).toHaveAttribute('aria-busy', 'true');
+    await table.screenshot({path:info.outputPath('guests-loading.png'), animations:'disabled'});
+  } finally {
+    releaseGuests();
+  }
   await expect(table.getByText('guest@example.test',{exact:true})).toBeVisible();
+  await table.screenshot({path:info.outputPath('guests-loaded.png'), animations:'disabled'});
   await expect(table.getByText('Cleanup paused · open cash',{exact:true})).toBeVisible();
   await expect(table.getByRole('row').filter({hasText:'Cash recipient'}).getByRole('button',{name:'Deactivate',exact:true})).toBeDisabled();
   await page.getByRole('button',{name:/Deactivating soon/}).click();

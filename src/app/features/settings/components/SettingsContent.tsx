@@ -1,16 +1,18 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { Bell, ChevronRight, LockKeyhole, Palette, UserRound } from 'lucide-react';
+import { Bell, ChevronRight, Database, LockKeyhole, Palette, UserRound } from 'lucide-react';
 import { AppearanceSettingsPage } from './AppearanceSettingsPage';
 import { NotificationSettingsPage } from './NotificationSettingsPage';
 import { ProfileSettingsPage } from './ProfileSettingsPage';
 import { SecuritySettingsPage } from './SecuritySettingsPage';
+import { StorageCacheSettingsPage } from './StorageCacheSettingsPage';
 import { PageHeader } from '../../../components/workflow/primitives';
 import { requestNavigation } from '../../../shared/navigationGuard';
 
 function resolvePage(page?: string): string {
   if (!page) return 'Profile';
   if (page.toLowerCase() === 'settings') return 'Appearance';
-  if (['Profile', 'Appearance', 'Notifications', 'Security'].includes(page)) return page;
+  if (page.toLowerCase() === 'storage & cache' || page.toLowerCase() === 'storage') return 'Storage & cache';
+  if (['Profile', 'Appearance', 'Notifications', 'Security', 'Storage & cache'].includes(page)) return page;
   return 'Profile';
 }
 
@@ -26,6 +28,7 @@ export function SettingsContent({ activePage, onNavigate }: { activePage?: strin
     Appearance: <AppearanceSettingsPage />,
     Notifications: <NotificationSettingsPage />,
     Security: <SecuritySettingsPage />,
+    'Storage & cache': <StorageCacheSettingsPage />,
   };
 
   const tabs = [
@@ -33,6 +36,7 @@ export function SettingsContent({ activePage, onNavigate }: { activePage?: strin
     { id: 'Appearance', label: 'Appearance', icon: <Palette size={15} /> },
     { id: 'Notifications', label: 'Notifications', icon: <Bell size={15} /> },
     { id: 'Security', label: 'Security', icon: <LockKeyhole size={15} /> },
+    { id: 'Storage & cache', label: 'Storage & cache', icon: <Database size={15} /> },
   ];
 
   return (

@@ -17,6 +17,16 @@ import {
   type Workspace,
 } from "../../workspaces";
 import type { WorkSnapshot, WorkScope } from "../types";
+import { isQueryAccessDenied, isQueryConnectionFailure } from "../../../shared/queryAccess";
+
+function rejectUnavailableFeed(reads: PromiseSettledResult<unknown>[]) {
+  const failures = reads.filter((read): read is PromiseRejectedResult => read.status === "rejected");
+  const denied = failures.find(read => isQueryAccessDenied(read.reason));
+  if (denied && failures.length === reads.length) throw denied.reason;
+  if (failures.length && failures.length === reads.length && failures.every(read => isQueryConnectionFailure(read.reason))) {
+    throw failures[0].reason;
+  }
+}
 
 export async function loadWorkFeed(
   userId: string,
@@ -39,6 +49,7 @@ export async function loadWorkFeed(
     personalOnly ? Promise.resolve([]) : readWorkTable("subtasks"),
     personalOnly ? Promise.resolve([]) : fetchOfficeWorkRoots(),
   ]);
+  if (!personalOnly) rejectUnavailableFeed(scope ? initial.filter((_, index) => index !== 2) : initial);
   const labels = [
     "Office tasks",
     "Project context",
@@ -59,6 +70,7 @@ export async function loadWorkFeed(
   const selections = await settledMap(out.workspaces, (w) =>
     selectWorkspace(w.id),
   );
+  if (personalOnly) rejectUnavailableFeed(selections);
   selections.forEach((result, index) => {
     const w = out.workspaces[index];
     if (result.status === "fulfilled") {

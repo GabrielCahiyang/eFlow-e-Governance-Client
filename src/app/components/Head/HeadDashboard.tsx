@@ -47,23 +47,117 @@ import { getHeadWorkspaceLabel } from "../../shared/roles";
 
 type FocusList = null | "overdue" | "review" | "unassigned" | "completed";
 
-function HeadDashboardSkeleton() {
+export function HeadDashboardSkeleton() {
   const block = "animate-pulse rounded-lg bg-muted";
   return (
     <div className="min-h-full bg-muted/20 p-3 sm:p-6 lg:p-8" role="status" aria-live="polite">
       <div className="mx-auto max-w-[1480px] space-y-5">
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
-          <div className={`${block} h-3 w-44`} />
-          <div className={`${block} mt-3 h-9 w-64`} />
-          <div className={`${block} mt-3 h-4 w-full max-w-xl`} />
-          <div className={`${block} mt-6 h-10 w-40 sm:mt-5`} />
+        <div className="rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/5 via-card to-card p-5 shadow-sm sm:p-6">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="space-y-2.5">
+              <div className={`${block} h-3 w-44`} />
+              <div className={`${block} h-8 w-64`} />
+              <div className={`${block} h-4 w-80 max-w-full`} />
+            </div>
+            <div className="space-y-1.5">
+              <div className={`${block} h-3 w-28`} />
+              <div className={`${block} h-9 w-40`} />
+            </div>
+          </div>
+          <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-primary/10 pt-4">
+            <div className={`${block} h-7 w-36 rounded-full`} />
+            <div className={`${block} h-7 w-32 rounded-full`} />
+            <div className={`${block} h-7 w-36 rounded-full`} />
+          </div>
         </div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {Array.from({ length: 4 }, (_, index) => <div key={index} className="h-32 rounded-xl border border-border bg-card p-5 shadow-sm"><div className={`${block} h-3 w-28`} /><div className={`${block} mt-5 h-8 w-16`} /><div className={`${block} mt-3 h-3 w-32`} /></div>)}
+          {Array.from({ length: 4 }, (_, index) => (
+            <div key={index} className="rounded-xl border border-border bg-card p-5 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div className={`${block} h-3.5 w-28`} />
+                <div className={`${block} h-7 w-7 rounded-lg`} />
+              </div>
+              <div className={`${block} mt-4 h-8 w-16`} />
+              <div className={`${block} mt-3 h-3 w-32`} />
+            </div>
+          ))}
         </div>
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          <div className="space-y-4 lg:col-span-2"><div className="h-48 rounded-xl border border-border bg-card p-5 shadow-sm" /><div className="h-64 rounded-xl border border-border bg-card p-5 shadow-sm" /></div>
-          <div className="space-y-4"><div className="h-64 rounded-xl border border-border bg-card p-5 shadow-sm" /><div className="h-56 rounded-xl border border-border bg-card p-5 shadow-sm" /></div>
+          <div className="space-y-4 lg:col-span-2">
+            {/* Project health card skeleton */}
+            <div className="rounded-xl border border-border bg-card p-5 shadow-sm space-y-3">
+              <div className="space-y-1.5">
+                <div className={`${block} h-4 w-32`} />
+                <div className={`${block} h-3 w-48`} />
+              </div>
+              <div className={`${block} h-3 w-full rounded-full`} />
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+                {Array.from({ length: 5 }, (_, i) => (
+                  <div key={i} className="flex items-center gap-2 rounded-lg border border-border/70 bg-muted/25 px-2.5 py-2">
+                    <div className={`${block} h-2.5 w-2.5 rounded-full`} />
+                    <div className={`${block} h-3 flex-1`} />
+                    <div className={`${block} h-3 w-4`} />
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* Most urgent card skeleton */}
+            <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+              <div className="border-b border-border/70 p-5 space-y-1.5">
+                <div className={`${block} h-4 w-28`} />
+                <div className={`${block} h-3 w-56`} />
+              </div>
+              <div className="divide-y divide-border/70">
+                {Array.from({ length: 5 }, (_, i) => (
+                  <div key={i} className="flex items-center justify-between gap-3 px-5 py-3.5">
+                    <div className="space-y-1.5 flex-1">
+                      <div className={`${block} h-4 w-3/5`} />
+                      <div className={`${block} h-3 w-2/5`} />
+                    </div>
+                    <div className={`${block} h-6 w-20 rounded-full`} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="space-y-4">
+            {/* Workload by member card skeleton */}
+            <div className="rounded-xl border border-border bg-card p-5 shadow-sm space-y-3">
+              <div className="space-y-1.5">
+                <div className={`${block} h-4 w-40`} />
+                <div className={`${block} h-3 w-52`} />
+              </div>
+              <div className="space-y-3 pt-1">
+                {Array.from({ length: 4 }, (_, i) => (
+                  <div key={i} className="space-y-1.5">
+                    <div className="flex items-center gap-2">
+                      <div className={`${block} h-5 w-5 rounded-full`} />
+                      <div className={`${block} h-3.5 flex-1`} />
+                      <div className={`${block} h-3 w-20`} />
+                    </div>
+                    <div className={`${block} h-2 w-full rounded-full`} />
+                    <div className={`${block} h-2.5 w-36`} />
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* Upcoming deadlines card skeleton */}
+            <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+              <div className="flex items-center justify-between border-b border-border/70 p-5">
+                <div className={`${block} h-4 w-36`} />
+                <div className={`${block} h-7 w-24`} />
+              </div>
+              <div className="divide-y divide-border/70">
+                {Array.from({ length: 4 }, (_, i) => (
+                  <div key={i} className="flex items-center gap-2 px-4 py-3">
+                    <div className={`${block} h-2 w-2 rounded-full`} />
+                    <div className={`${block} h-3.5 flex-1`} />
+                    <div className={`${block} h-3 w-14`} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
         <span className="sr-only">Loading your office dashboard…</span>
       </div>

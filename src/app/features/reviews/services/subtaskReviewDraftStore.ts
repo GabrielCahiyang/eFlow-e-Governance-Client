@@ -1,8 +1,11 @@
 import type {SubtaskReviewItem} from '../../subtasks';
+import {registerProtectedReviewDraftCounter} from '../../../shared/queryCache';
 
 // Runtime-only feedback vault. No evidence, submission snapshots, names, tokens
 // or credentials are stored. Actor changes/remounts hide, rather than delete it.
 const drafts=new Map<string,{feedback:string;order:number}>();
+registerProtectedReviewDraftCounter(()=>drafts.size);
+export function getSubtaskReviewDraftCount():number{return drafts.size;}
 let order=0;
 function key(actorId:string,item:SubtaskReviewItem):string|undefined {
  const {subtask,submission}=item;

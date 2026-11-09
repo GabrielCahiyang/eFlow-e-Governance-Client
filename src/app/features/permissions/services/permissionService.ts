@@ -14,8 +14,9 @@ function announcePermissionsChanged() {
   }
 }
 
-export async function fetchRolePermissions(): Promise<RolePermissionRow[]> {
+async function readRolePermissions(strict = false): Promise<RolePermissionRow[]> {
   const { data, error } = await supabase.from("role_permissions").select("*");
+  if (error && strict) throw error;
   if (error) return [];
   return (data || []).map((row: Record<string, any>) => ({
     role: String(row.role), permission: String(row.permission), allowed: Boolean(row.allowed),
@@ -23,8 +24,13 @@ export async function fetchRolePermissions(): Promise<RolePermissionRow[]> {
   }));
 }
 
-export async function fetchUserOverrides(userId: string): Promise<UserOverrideRow[]> {
+export function fetchRolePermissions(): Promise<RolePermissionRow[]> {
+  return readRolePermissions();
+}
+
+async function readUserOverrides(userId: string, strict = false): Promise<UserOverrideRow[]> {
   const { data, error } = await supabase.from("user_permission_overrides").select("*").eq("user_id", userId);
+  if (error && strict) throw error;
   if (error) return [];
   return (data || []).map((row: Record<string, any>) => ({
     userId: String(row.user_id), permission: String(row.permission), allowed: Boolean(row.allowed),
@@ -33,8 +39,12 @@ export async function fetchUserOverrides(userId: string): Promise<UserOverrideRo
   }));
 }
 
+export function fetchUserOverrides(userId: string): Promise<UserOverrideRow[]> {
+  return readUserOverrides(userId);
+}
+
 export async function fetchEffectivePermissions(userId: string, role: string): Promise<Set<string>> {
-  const [rolePermissions, overrides] = await Promise.all([fetchRolePermissions(), fetchUserOverrides(userId)]);
+  const [rolePermissions, overrides] = await Promise.all([readRolePermissions(true), readUserOverrides(userId, true)]);
   return resolvePermissions(role, rolePermissions, overrides);
 }
 

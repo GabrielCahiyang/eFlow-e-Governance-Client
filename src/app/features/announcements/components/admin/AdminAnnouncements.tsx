@@ -85,18 +85,11 @@ export function AdminAnnouncements() {
     return list;
   }, [announcements, statusFilter, searchQuery]);
 
-  if (loading)
-    return (
-      <div className="p-4 sm:p-8">
-        <WorkspaceLoadingSkeleton
-          label="Loading announcement control panel…"
-          rows={4}
-        />
-      </div>
-    );
-
   const statusTabs = ["all", "published", "draft", "withdrawn"] as const;
   const activeStatusTab = statusTabs.indexOf(statusFilter);
+  const loadingBar = (
+    <span className="inline-block h-6 w-10 animate-pulse rounded-md bg-neutral-200/80 align-middle" />
+  );
 
   return (
     <div className="mx-auto min-h-full max-w-7xl space-y-5 p-4 sm:p-8">
@@ -127,14 +120,14 @@ export function AdminAnnouncements() {
 
       {/* ─── Metrics Cards ─── */}
       <div className="grid grid-cols-1 gap-3.5 min-[480px]:grid-cols-2 sm:grid-cols-4">
-        <StatCard label="Published" tone="good" value={stats.published} />
-        <StatCard label="Drafts" value={stats.drafts} />
+        <StatCard label="Published" tone="good" value={loading ? loadingBar : stats.published} />
+        <StatCard label="Drafts" value={loading ? loadingBar : stats.drafts} />
         <StatCard
           label="Withdrawn"
           tone={stats.withdrawn ? "bad" : "neutral"}
-          value={stats.withdrawn}
+          value={loading ? loadingBar : stats.withdrawn}
         />
-        <StatCard label="Total created" value={stats.total} />
+        <StatCard label="Total created" value={loading ? loadingBar : stats.total} />
       </div>
 
       {/* ─── Filter & Search Bar ─── */}
@@ -177,7 +170,9 @@ export function AdminAnnouncements() {
       </div>
 
       {/* ─── Announcement List ─── */}
-      {filteredAnnouncements.length === 0 ? (
+      {loading ? (
+        <AdminAnnouncementsListSkeleton />
+      ) : filteredAnnouncements.length === 0 ? (
         <div className="rounded-xl border border-neutral-200 bg-white">
           <SectionEmpty
             icon={<AnnouncementIcon size={30} />}
@@ -318,5 +313,41 @@ export function AdminAnnouncements() {
         />
       )}
     </div>
+  );
+}
+
+function AdminAnnouncementsListSkeleton() {
+  return (
+    <WorkspaceLoadingSkeleton
+      label="Loading announcement control panel…"
+      className="grid gap-3"
+    >
+      {[0, 1, 2, 3].map((index) => (
+        <div
+          key={index}
+          aria-hidden="true"
+          className="rounded-2xl border border-neutral-200/90 bg-white p-5 shadow-sm"
+        >
+          <div className="flex flex-wrap items-start justify-between gap-4 sm:flex-nowrap">
+            <div className="min-w-0 flex-1 space-y-2.5">
+              <div className="flex items-center gap-2 flex-wrap">
+                <div className="h-5 w-20 animate-pulse rounded-full bg-neutral-200/80" />
+                <div className="h-5 w-24 animate-pulse rounded-full bg-neutral-100" />
+                <div className="h-3.5 w-32 animate-pulse rounded bg-neutral-100" />
+              </div>
+              <div className="h-4 w-3/5 animate-pulse rounded bg-neutral-200/80" />
+              <div className="space-y-1.5">
+                <div className="h-3 w-11/12 animate-pulse rounded bg-neutral-100" />
+                <div className="h-3 w-4/5 animate-pulse rounded bg-neutral-100" />
+              </div>
+            </div>
+            <div className="flex items-center gap-1 shrink-0 rounded-xl border border-neutral-200/80 bg-neutral-50 p-1">
+              <div className="h-8 w-8 animate-pulse rounded-lg bg-neutral-200/70" />
+              <div className="h-8 w-8 animate-pulse rounded-lg bg-neutral-200/70" />
+            </div>
+          </div>
+        </div>
+      ))}
+    </WorkspaceLoadingSkeleton>
   );
 }

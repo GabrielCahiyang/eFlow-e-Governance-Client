@@ -2,10 +2,33 @@ import { useMemo, useState } from 'react';
 import { Tab, TabList, TabsContext } from '@vibe/core';
 import { Archive, CheckCircle2, History, RotateCcw, XCircle } from 'lucide-react';
 import type { Task } from '../../../../services/taskService';
-import { Card, LoadingState, PageHeader, SectionEmpty, formatDate } from '../../../../components/workflow/primitives';
+import { Card, PageHeader, SectionEmpty, formatDate } from '../../../../components/workflow/primitives';
 import { TaskDetailDrawer } from "../../../task-inspector";
 import { TaskStatusLabel } from '../../../tasks';
 import { useMyTasks } from './useMyTasks';
+
+function EmployeeTaskHistoryListSkeleton() {
+  const pulse = "animate-pulse rounded bg-neutral-200/80";
+  return (
+    <div
+      className="divide-y divide-neutral-100"
+      role="status"
+      aria-label="Loading your history…"
+      aria-busy="true"
+    >
+      <span className="sr-only">Loading your history…</span>
+      {[0, 1, 2, 3].map((row) => (
+        <div key={row} aria-hidden="true" className="flex items-center gap-3 px-4 py-3">
+          <div className="flex-1 min-w-0 space-y-1.5">
+            <span className={`block h-4 w-64 max-w-full ${pulse}`} />
+            <span className={`block h-3 w-40 ${pulse}`} />
+          </div>
+          <span className={`h-5 w-20 rounded-full ${pulse}`} />
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export function EmployeeTaskHistory() {
   const { mine, loading } = useMyTasks();
@@ -18,8 +41,6 @@ export function EmployeeTaskHistory() {
     reopened: mine.filter((t) => t.reopenReason && !t.archivedAt),
     archived: mine.filter((t) => !!t.archivedAt),
   }), [mine]);
-
-  if (loading) return <div className="p-8"><LoadingState label="Loading your history…" /></div>;
 
   const rows = buckets[tab];
   const tabMeta = [
@@ -46,7 +67,7 @@ export function EmployeeTaskHistory() {
             active={tab === t.id}
             onClick={() => setTab(t.id)}
           >
-            <span className="inline-flex items-center gap-1.5">{t.icon} {t.label} <span className="eflow-tabular opacity-70">({buckets[t.id].length})</span></span>
+            <span className="inline-flex items-center gap-1.5">{t.icon} {t.label} <span className="eflow-tabular opacity-70">({loading ? "…" : buckets[t.id].length})</span></span>
           </Tab>
         ))}
           </TabList>
@@ -54,7 +75,9 @@ export function EmployeeTaskHistory() {
       </div>
 
       <Card bodyClassName="p-0">
-        {rows.length === 0 ? (
+        {loading ? (
+          <EmployeeTaskHistoryListSkeleton />
+        ) : rows.length === 0 ? (
           <SectionEmpty fill illustration="tasks" icon={<History size={30} />} title="Nothing here yet" description="This history bucket is empty." />
         ) : (
           <div className="divide-y divide-neutral-100">
@@ -80,5 +103,3 @@ export function EmployeeTaskHistory() {
     </div>
   );
 }
-
-// ══════════════════════ Deadlines ═════════════════════════════════

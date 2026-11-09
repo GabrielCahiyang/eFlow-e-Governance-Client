@@ -9,6 +9,7 @@ import { queueNotificationNavigationIntent, resolveNotificationSubitem, fetchNot
 import type { Notification } from '../../../services/notificationService';
 import { subscribeWorkChanges } from '../../../shared/workChanges';
 import { requestNavigation } from '../../../shared/navigationGuard';
+import { isQueryAccessDenied } from '../../../shared/queryAccess';
 import { pushNavigationHistory } from '../../../shared/navigationHistory';
 import { canOpenNavigationSection, getNavigationUrl,writeNavigationLocation } from '../../navigation';
 import {useInboxCategory} from '../hooks/useInboxCategory';
@@ -18,7 +19,7 @@ import { usePersonalFeed } from '../hooks/usePersonalFeed';
 import { personalReviewActions, type ActionItem } from '../selectors';
 import { resolveInboxUpdateDestination } from '../services/updateDestination';
 import { UpdatesFeed } from './UpdatesFeed';
-import { PersonalActionRows } from './PersonalActionRows';
+import { PersonalActionRows, PersonalActionRowsSkeleton } from './PersonalActionRows';
 import { AssignedIndependentReviews } from '../../budget';
 import '../inbox.css';
 
@@ -36,12 +37,17 @@ export function ActionCenter({role,hasLeadingWork=false,page='Inbox',onNavigate}
   const inspector = useTaskInspector(`inbox:${user?.id}`);
   const selected = tasks.find(task=>task.id===inspector.taskId) || null;
   useEffect(()=>{setNotice('');},[user?.id,role]);
-  const actions = personalReviewActions(error?[]:tasks,subtasks.error?[]:subtasks.rows,user?.id,role);
+  const visibleTasks = isQueryAccessDenied(error) ? [] : tasks;
+  const actions = personalReviewActions(visibleTasks,subtasks.rows,user?.id,role);
   const navigate = (section: string,page: string,intent?:NotificationNavigationIntent) => void requestNavigation(()=>{
     if(intent) queueNotificationNavigationIntent(intent,user?.id);
     pushNavigationHistory(getNavigationUrl(section,page));
   });
   const openAction = (item: ActionItem) => {
+    if (item.source === 'task-review' ? error : subtasks.error) {
+      setNotice('Retry the review list before opening this submission.');
+      return;
+    }
     if(item.source==='task-review') {
       if(!tasks.some(task=>task.id===item.taskId && canUserReviewTask(task,user?.id,role) && task.status==='for_review')) {setNotice('This submission was withdrawn or is no longer yours to review.');return;}
       inspector.openTask(item.taskId,{view:'Inbox',restoreFocus:()=>(document.querySelector<HTMLElement>(`[data-action-key="${item.key}"]`) || document.getElementById("inbox-action-summary") || document.getElementById('inbox-updates-context') || document.getElementById("inbox-updates"))?.focus()});
@@ -87,9 +93,14 @@ export function ActionCenter({role,hasLeadingWork=false,page='Inbox',onNavigate}
       <AssignedIndependentReviews onPendingChange={setPendingFinancial} />
       {!canReview?pendingFinancial===0?<FeedbackState title="No review queue under your current access">Updates remain available. Account roles do not grant operational approval authority.</FeedbackState>:null:<>
         <div className="flex flex-wrap items-center gap-2"><p id="inbox-action-summary" tabIndex={-1} className="flex-1 text-sm text-muted-foreground">Task reviews: {loading?'loading':error?'unavailable':actions.filter(item=>item.source==='task-review').length} · Subtask reviews: {subtasks.loading?'loading':subtasks.error?'unavailable':actions.filter(item=>item.source==='subtask-review').length}</p></div>
-        {error && <FeedbackState tone="error" title="Task reviews could not be loaded" onRetry={retry}>{error.message}</FeedbackState>}
-        {subtasks.error && <FeedbackState tone="error" title="Subtask reviews could not be loaded" onRetry={subtasks.retry}>{subtasks.error}</FeedbackState>}
-        {loading || subtasks.loading ? <p role="status">Refreshing review sources…</p>:null}
+        {error && <FeedbackState tone={visibleTasks.length ? "warning" : "error"} title={visibleTasks.length ? "Task reviews could not refresh" : "Task reviews could not be loaded"} onRetry={retry}>{error.message}</FeedbackState>}
+        {subtasks.error && <FeedbackState tone={subtasks.rows.length ? "warning" : "error"} title={subtasks.rows.length ? "Subtask reviews could not refresh" : "Subtask reviews could not be loaded"} onRetry={subtasks.retry}>{subtasks.error}</FeedbackState>}
+        {(loading || subtasks.loading) ? (
+          <div role="status" aria-busy="true" className="space-y-2">
+            <span className="sr-only">Refreshing review sources…</span>
+            {!actions.length && <PersonalActionRowsSkeleton rows={3} />}
+          </div>
+        ) : null}
         {!pendingFinancial && !actions.length && !loading && !subtasks.loading && !error && !subtasks.error && <EmptyState fill illustration="complete" title="No personal task or subtask reviews pending" description="Work plans, governance and other approval queues remain in Reviews."/>}
         <PersonalActionRows items={actions} onOpen={openAction} />
         <div className="inbox-workflow-fallback"><Button variant="outline" onClick={()=>navigate('reviews','For Review')}>Open all review queues</Button></div>

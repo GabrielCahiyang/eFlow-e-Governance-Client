@@ -3,10 +3,10 @@ import type { PersonalCommand, PersonalProject, PersonalSnapshot, Workspace, Wor
 
 export class WorkspaceApiUnavailable extends Error {}
 async function rpc<T>(name: string, args?: Record<string, unknown>): Promise<T> {
-  const { data, error } = await supabase.rpc(name, args);
+  const { data, error, status } = await supabase.rpc(name, args);
   if (error) {
     if (['PGRST202','42883'].includes(error.code)) throw new WorkspaceApiUnavailable('Personal workspaces are awaiting the R3 server migration.');
-    throw new Error(error.message || 'Could not load workspace.');
+    throw Object.assign(new Error(error.message || 'Could not load workspace.'), { code: error.code, status });
   }
   return data as T;
 }

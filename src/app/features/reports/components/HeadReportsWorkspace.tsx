@@ -261,9 +261,10 @@ export function HeadReportsWorkspace() {
       )}
 
       {analytics.loading ? (
-        <WorkspaceLoadingSkeleton
-          label="Loading live office reports…"
-          rows={6}
+        <HeadReportsWorkspaceSkeleton
+          definition={definition}
+          kind={kind}
+          onSelectKind={changeKind}
         />
       ) : (
         <>
@@ -449,6 +450,151 @@ export function HeadReportsWorkspace() {
         canPostProgress={false}
       />
     </div>
+  );
+}
+
+function HeadReportsWorkspaceSkeleton({
+  definition,
+  kind,
+  onSelectKind,
+}: {
+  definition: (typeof DEPARTMENT_REPORTS)[number];
+  kind: DepartmentReportKind;
+  onSelectKind: (next: DepartmentReportKind) => void;
+}) {
+  return (
+    <WorkspaceLoadingSkeleton label="Loading live office reports…">
+      <div className="mb-4 rounded-xl border border-border bg-card p-4 shadow-sm" aria-hidden="true">
+        <div className="flex items-center justify-between gap-3">
+          <div className="space-y-1.5">
+            <div className="h-4 w-48 animate-pulse rounded bg-neutral-200/80" />
+            <div className="h-3 w-72 animate-pulse rounded bg-neutral-100" />
+          </div>
+          <div className="flex gap-2">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="h-10 w-28 animate-pulse rounded-lg bg-neutral-100" />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-[250px_minmax(0,1fr)] gap-4">
+        <Card
+          title="Report library"
+          subtitle="Select a live operational lens"
+          bodyClassName="p-2 h-fit"
+        >
+          <div className="space-y-1">
+            {DEPARTMENT_REPORTS.map((report) => (
+              <button
+                type="button"
+                key={report.id}
+                onClick={() => onSelectKind(report.id)}
+                className={`w-full rounded-lg border p-3 text-left transition-colors ${kind === report.id ? "border-primary/25 bg-primary/10 text-primary shadow-sm" : "border-transparent text-foreground hover:bg-accent/70"}`}
+              >
+                <div className="flex items-center gap-2 text-[12px] font-medium">
+                  {reportIcons[report.id]} {report.title}
+                </div>
+                <p
+                  className={`mt-1 text-[12px] leading-5 ${kind === report.id ? "text-secondary-foreground" : "text-muted-foreground"}`}
+                >
+                  {report.description}
+                </p>
+              </button>
+            ))}
+          </div>
+        </Card>
+
+        <div className="min-w-0" aria-hidden="true">
+          <div className="mb-4 flex flex-wrap items-center gap-x-6 gap-y-3 rounded-xl border border-border bg-card px-4 py-3 shadow-sm">
+            {[
+              { label: "Visible rows", icon: <BarChart3 size={14} /> },
+              { label: "People", icon: <Users size={14} /> },
+              { label: "Projects", icon: <BriefcaseBusiness size={14} /> },
+              { label: "Urgent signals", icon: <AlertTriangle size={14} /> },
+            ].map((metric) => (
+              <div key={metric.label} className="inline-flex min-w-[100px] items-center gap-2">
+                <span className="text-muted-foreground">{metric.icon}</span>
+                <span className="min-w-0 space-y-1">
+                  <span className="block text-[12px] font-medium text-muted-foreground">
+                    {metric.label}
+                  </span>
+                  <span className="block h-5 w-10 animate-pulse rounded bg-neutral-200/80" />
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <Card title={definition.title} subtitle={definition.description} bodyClassName="p-0">
+            <div className="eflow-analytics-filters border-b border-border bg-card/95 p-3">
+              <div className="flex flex-wrap gap-2">
+                <div className="h-9 min-w-[230px] flex-1 animate-pulse rounded-lg bg-neutral-100" />
+                {[0, 1, 2, 3].map((i) => (
+                  <div key={i} className="h-9 w-36 animate-pulse rounded-lg bg-neutral-100" />
+                ))}
+              </div>
+            </div>
+            <div className="eflow-analytics-table max-w-full overflow-x-auto">
+              <table className="w-full min-w-[980px] table-fixed">
+                <thead>
+                  <tr className="bg-muted border-b border-border">
+                    {[
+                      "Work item",
+                      "Person / role",
+                      "Project",
+                      "Status",
+                      "Signal",
+                      "Event / due",
+                      "Detail",
+                    ].map((header) => (
+                      <th
+                        key={header}
+                        className="px-4 py-3 text-left text-[12px] font-medium uppercase tracking-wider text-muted-foreground"
+                      >
+                        {header}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {[0, 1, 2, 3, 4, 5].map((row) => (
+                    <tr key={row} className="border-b border-border align-top">
+                      <td className="px-4 py-3 space-y-1.5">
+                        <div className="h-3.5 w-44 animate-pulse rounded bg-neutral-200/80" />
+                        <div className="h-2.5 w-32 animate-pulse rounded bg-neutral-100" />
+                      </td>
+                      <td className="px-4 py-3 space-y-1.5">
+                        <div className="h-3.5 w-28 animate-pulse rounded bg-neutral-200/80" />
+                        <div className="h-2.5 w-20 animate-pulse rounded bg-neutral-100" />
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="h-3 w-32 animate-pulse rounded bg-neutral-100" />
+                      </td>
+                      <td className="px-4 py-3 space-y-1.5">
+                        <div className="h-6 w-20 animate-pulse rounded-full bg-neutral-200/70" />
+                        <div className="h-1.5 w-24 animate-pulse rounded-full bg-neutral-100" />
+                      </td>
+                      <td className="px-4 py-3 space-y-1.5">
+                        <div className="h-6 w-16 animate-pulse rounded-full bg-neutral-200/70" />
+                        <div className="h-2.5 w-20 animate-pulse rounded bg-neutral-100" />
+                      </td>
+                      <td className="px-4 py-3 space-y-1.5">
+                        <div className="h-3 w-20 animate-pulse rounded bg-neutral-100" />
+                        <div className="h-2.5 w-24 animate-pulse rounded bg-neutral-100" />
+                      </td>
+                      <td className="px-4 py-3 space-y-1.5">
+                        <div className="h-3 w-48 animate-pulse rounded bg-neutral-100" />
+                        <div className="h-3 w-36 animate-pulse rounded bg-neutral-100" />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        </div>
+      </div>
+    </WorkspaceLoadingSkeleton>
   );
 }
 

@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState, ty
 import { useVisibleRead } from '../../../shared/useVisibleRead';
 import { CallModal } from '../../../components/ui/CallModal';
 import type { ActiveCall } from '../../../services/callService';
-import { listConversations, subscribeToMessagesWorkspace, type Conversation } from '../services/messagesWorkspace';
+import { getCachedConversations, warmConversations, subscribeToMessagesWorkspace, type Conversation } from '../services/messagesWorkspace';
 
 const MessagesContext = createContext<{
   conversations: Conversation[];
@@ -14,16 +14,17 @@ const MessagesContext = createContext<{
 } | null>(null);
 
 export function MessagesProvider({ userId, children }: { userId?: string; children: ReactNode }) {
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [loading, setLoading] = useState(Boolean(userId));
+  const cached = userId ? getCachedConversations(userId) : undefined;
+  const [conversations, setConversations] = useState<Conversation[]>(() => cached ?? []);
+  const [loading, setLoading] = useState(() => Boolean(userId && !cached));
   const [error, setError] = useState('');
   const [outgoingCall, setOutgoingCall] = useState<ActiveCall>();
   const version = useRef(0);
-  const refresh = useCallback(async () => {
+  const load = useCallback(async (forceRefresh: boolean) => {
     if (!userId) return;
     const request = ++version.current;
     try {
-      const next = await listConversations();
+      const next = await warmConversations(userId, forceRefresh);
       if (request !== version.current) return;
       setConversations(next);
       setError('');
@@ -33,17 +34,18 @@ export function MessagesProvider({ userId, children }: { userId?: string; childr
       if (request === version.current) setLoading(false);
     }
   }, [userId]);
+  const refresh = useCallback(() => load(true), [load]);
 
   useEffect(() => {
     if (!userId) return;
-    void refresh();
+    void load(false);
     let timer: ReturnType<typeof setTimeout> | undefined;
     const unsubscribe = subscribeToMessagesWorkspace(() => {
       if (timer) return;
       timer = setTimeout(() => { timer = undefined; void refresh(); }, 150);
     });
     return () => { ++version.current; clearTimeout(timer); unsubscribe(); };
-  }, [userId, refresh]);
+  }, [userId, load, refresh]);
 
   useVisibleRead(() => void refresh(), Boolean(userId));
   return <MessagesContext.Provider value={{ conversations, loading, error, refresh, outgoingCall, setOutgoingCall }}>

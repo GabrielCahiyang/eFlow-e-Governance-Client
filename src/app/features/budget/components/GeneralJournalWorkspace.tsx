@@ -3,7 +3,6 @@ import { useEffect, useMemo, useState } from "react";
 import {
   AttentionBox,
   Button,
-  Loader,
   Search as VibeSearch,
 } from "@vibe/core";
 import { AnimatePresence } from "motion/react";
@@ -223,9 +222,7 @@ function GeneralJournalView({
           </div>
         </header>
         {journal.loading ? (
-          <div className="flex items-center justify-center gap-2 p-12 text-[14px] text-neutral-500">
-            <Loader size="small" /> Loading balanced entries…
-          </div>
+          <JournalTableSkeleton label="Loading balanced entries…" />
         ) : filteredEntries.length ? (
           <div
             className="overflow-x-auto"
@@ -356,6 +353,53 @@ function GeneralJournalView({
           }}
         />
       )}
+    </div>
+  );
+}
+
+export function JournalTableSkeleton({ label = "Loading balanced entries…" }: { label?: string }) {
+  return (
+    <div role="status" aria-live="polite" aria-label={label} className="overflow-x-auto">
+      <span className="sr-only">{label}</span>
+      <table className="w-full min-w-[900px] border-collapse text-left" aria-hidden="true">
+        <thead className="bg-neutral-50 text-[14px] uppercase tracking-wider text-neutral-500">
+          <tr>
+            <th className="px-4 py-3">Date / JEV</th>
+            <th className="px-4 py-3">Reference</th>
+            <th className="px-4 py-3">Chart of accounts title</th>
+            <th className="px-4 py-3 text-right">Debit</th>
+            <th className="px-4 py-3 text-right">Credit</th>
+            <th className="px-4 py-3">Memo / recorded by</th>
+          </tr>
+        </thead>
+        <tbody>
+          {[0, 1, 2, 3, 4].map((row) => (
+            <tr key={row} className="border-t border-neutral-100 align-top">
+              <td className="px-4 py-3 space-y-1.5">
+                <div className="h-3.5 w-24 animate-pulse rounded bg-neutral-200/80" />
+                <div className="h-3 w-28 animate-pulse rounded bg-neutral-100" />
+              </td>
+              <td className="px-4 py-3">
+                <div className="h-3.5 w-24 animate-pulse rounded bg-neutral-200/70" />
+              </td>
+              <td className="px-4 py-3 space-y-1.5">
+                <div className="h-3.5 w-44 animate-pulse rounded bg-neutral-200/80" />
+                <div className="h-3 w-20 animate-pulse rounded bg-neutral-100" />
+              </td>
+              <td className="px-4 py-3">
+                <div className="ml-auto h-3.5 w-20 animate-pulse rounded bg-neutral-200/80" />
+              </td>
+              <td className="px-4 py-3">
+                <div className="ml-auto h-3.5 w-20 animate-pulse rounded bg-neutral-100" />
+              </td>
+              <td className="px-4 py-3 space-y-1.5">
+                <div className="h-3.5 w-48 animate-pulse rounded bg-neutral-100" />
+                <div className="h-2.5 w-28 animate-pulse rounded bg-neutral-100" />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }

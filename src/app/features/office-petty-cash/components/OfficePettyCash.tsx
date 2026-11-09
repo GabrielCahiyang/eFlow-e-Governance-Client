@@ -37,7 +37,36 @@ function ScopedOfficeCash({office,actor,role,focusRequestId}:{office:string;acto
  const button=(action:PettyAction,r:OfficeCashRequest)=><button key={action} disabled={!!error||busy||!!pending} onClick={()=>start(action,r)}>{actionLabels[action]}</button>;
  if(!office)return <p className="opc-error">Active office membership is required.</p>;
  return <section className="opc"><header><div><h2><Banknote size={21}/>Shared office fund</h2><p>₱30,000 starting fund · ₱5,000 limit per receipt. Available to all your office’s projects and tasks.</p></div><div className="opc-actions"><button className="opc-primary" disabled={!snapshot||!!error||busy||!!pending} onClick={()=>start('request')}><Plus size={16}/>Request petty cash</button>{accountant&&<button disabled={!snapshot||!!error||busy||!!pending||snapshot.replenishable<=0} onClick={()=>start('replenish')}><RefreshCw size={16}/>Replenish fund</button>}</div></header>
- {error&&<div className="opc-error" role="alert">{error}</div>}{!snapshot&&!error&&<p role="status">Loading office petty cash…</p>}
+ {error&&<div className="opc-error" role="alert">{error}</div>}
+ {!snapshot&&!error&&(
+  <div role="status" aria-live="polite" aria-label="Loading office petty cash…">
+   <span className="sr-only">Loading office petty cash…</span>
+   <div className="opc-metrics" aria-hidden="true">
+    {['Available','Pending requests','Unsettled cash'].map(label=>(
+     <div key={label}>
+      <span>{label}</span>
+      <strong><span className="inline-block h-6 w-24 animate-pulse rounded-md bg-neutral-200/80 align-middle"/></strong>
+     </div>
+    ))}
+   </div>
+   <div className="opc-scroll" aria-hidden="true">
+    <table>
+     <thead><tr>{['Purpose / requester','Amount','Status','Receipts','Actions'].map(label=><th key={label}>{label}</th>)}</tr></thead>
+     <tbody>
+      {[0,1,2].map(row=>(
+       <tr key={row}>
+        <td><div className="h-3.5 w-44 animate-pulse rounded bg-neutral-200/80"/><div className="mt-1.5 h-2.5 w-28 animate-pulse rounded bg-neutral-100"/></td>
+        <td><div className="h-3.5 w-20 animate-pulse rounded bg-neutral-200/80"/></td>
+        <td><div className="h-5 w-20 animate-pulse rounded-full bg-neutral-200/70"/></td>
+        <td><div className="h-6 w-24 animate-pulse rounded bg-neutral-100"/></td>
+        <td><div className="h-7 w-20 animate-pulse rounded bg-neutral-100"/></td>
+       </tr>
+      ))}
+     </tbody>
+    </table>
+   </div>
+  </div>
+ )}
  {snapshot&&<><div className="opc-metrics">{[['Available',snapshot.available],['Pending requests',snapshot.reserved],['Unsettled cash',snapshot.outstanding]].map(([label,value])=><div key={String(label)}><span>{label}</span><strong>{peso.format(Number(value))}</strong></div>)}</div>
  {snapshot.available<=0&&<p className="opc-note" role="status">The available petty cash has been used or reserved. Cancel an unused request or ask Accounting to replenish settled expenses.</p>}
  {!snapshot.requests.length?<p className="opc-empty">No office petty cash requests yet.</p>:<div className="opc-scroll"><table><caption className="sr-only">Office petty cash requests</caption><thead><tr>{['Purpose / requester','Amount','Status','Receipts','Actions'].map(label=><th key={label}>{label}</th>)}</tr></thead><tbody>{snapshot.requests.map(r=><tr key={r.id} id={'office-petty-cash-'+r.id} tabIndex={-1}><td><strong>{r.purpose}</strong><small>{r.requesterName}</small></td><td>{peso.format(r.amount)}</td><td><span className="opc-status">{r.status.replace(/_/g,' ')}</span></td><td>{r.receipts.map((receipt,i)=><button key={receipt.path} onClick={()=>void openOfficeReceipt(receipt.path).catch(reason=>setError((reason as Error).message))}>Receipt {i+1} · {peso.format(receipt.amount)}</button>)}</td><td><div className="opc-row-actions">{actor===r.requester&&['pending','approved'].includes(r.status)&&button('cancel',r)}{head&&actor!==r.requester&&r.status==='pending'&&['approve','reject'].map(a=>button(a as PettyAction,r))}{accountant&&r.status==='approved'&&button('release',r)}{actor===r.requester&&r.status==='released'&&button('receipts',r)}{head&&actor!==r.requester&&r.status==='receipt_review'&&['endorse','return_receipts'].map(a=>button(a as PettyAction,r))}{accountant&&actor!==r.requester&&r.status==='receipt_approved'&&r.canSettle!==false&&button('settle',r)}</div>{r.status==='receipt_approved'&&(r.settlementBlocked||accountant&&(actor===r.requester||r.canSettle===false))&&<small>{r.settlementBlocked?(r.headNotified?'Escalated to the Head. An independent Accounting Officer is needed.':'An independent Accounting Officer is needed.'):'An independent Accounting Officer must settle this request.'}{actor===r.requester&&' You can’t settle your own request.'}</small>}</td></tr>)}</tbody></table></div>}

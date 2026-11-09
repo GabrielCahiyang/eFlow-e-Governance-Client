@@ -7,16 +7,67 @@ import { requestNavigation } from "../../../shared/navigationGuard";
 import { writeNavigationLocation } from "../../navigation";
 import { useWorkFeed } from "../hooks/useWorkFeed";
 import { workspaceSummary } from "../workSelectors";
-import { WorkList } from "./WorkList";
+import { WorkList, WorkListSkeleton } from "./WorkList";
 import { WorkInspector, useWorkInspector } from "./WorkInspector";
 import {EmployeeAnalyticsWorkspace} from '../../team-management';
-import {ViewLoadingState} from '../../../components/ui/ViewLoadingState';
+import { HeadDashboardSkeleton } from "../../../components/Head/HeadDashboard";
 import "../personalWork.css";
 const HeadInsights = lazy(() =>
   import("../../../components/Head/HeadDashboard").then((m) => ({
     default: m.HeadDashboard,
   })),
 );
+
+function WorkspaceOverviewDataSkeleton({ focus }: { focus: "today" | "overdue" | "unassigned" | "review" }) {
+  const pulse = "animate-pulse rounded bg-muted";
+  return (
+    <div role="status" aria-busy="true">
+      <span className="sr-only">Loading workspace sources…</span>
+      <div className="r10-overview-cards" aria-hidden="true">
+        <div className="flex flex-col justify-between rounded-xl border border-border bg-card p-3.5">
+          <span>Active projects</span>
+          <span className={`mt-2 h-6 w-12 ${pulse}`} />
+        </div>
+        {(["today", "overdue", "unassigned", "review"] as const).map((key) => (
+          <div key={key} className="flex flex-col justify-between rounded-xl border border-border bg-card p-3.5">
+            <span>
+              {{
+                today: "Due today",
+                overdue: "Overdue work",
+                unassigned: "Needs reassignment",
+                review: "Awaiting review",
+              }[key]}
+            </span>
+            <span className={`mt-2 h-6 w-12 ${pulse}`} />
+          </div>
+        ))}
+      </div>
+      <section className="r10-overview-section" aria-hidden="true">
+        <h2>Active projects</h2>
+        <div className="r10-overview-projects">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="flex flex-col gap-2 rounded-xl border border-border bg-card p-3.5">
+              <span className={`h-4 w-36 ${pulse}`} />
+              <span className={`h-3 w-24 ${pulse}`} />
+            </div>
+          ))}
+        </div>
+      </section>
+      <section className="r10-overview-section" aria-hidden="true">
+        <h2>
+          {{
+            today: "Due today",
+            overdue: "Overdue work",
+            unassigned: "Needs reassignment",
+            review: "Awaiting review",
+          }[focus]}
+        </h2>
+        <WorkListSkeleton rows={3} label="Loading workspace attention items…" />
+      </section>
+    </div>
+  );
+}
+
 export function WorkspaceOverview({
   onNavigate,
 }: {
@@ -62,7 +113,7 @@ export function WorkspaceOverview({
   const filtered = summary?.[focus] || [];
   if (userProfile?.role === 'head' && workspace.kind === 'office' && workspace.office_id === (userProfile.org_id || userProfile.departmentId)) return <>
     <div hidden={!!inspector.selection}><EmployeeAnalyticsWorkspace home onNavigate={navigate}/>
-    <div className="head-home__more"><button type="button" className="eflow-button" aria-expanded={insights} onClick={()=>void requestNavigation(()=>setInsights(value=>!value))}>Office insights</button>{insights&&<Suspense fallback={<ViewLoadingState/>}><HeadInsights/></Suspense>}</div>
+    <div className="head-home__more"><button type="button" className="eflow-button" aria-expanded={insights} onClick={()=>void requestNavigation(()=>setInsights(value=>!value))}>Office insights</button>{insights&&<Suspense fallback={<HeadDashboardSkeleton/>}><HeadInsights/></Suspense>}</div>
     </div><WorkInspector presentation="page" selected={inspector.selection} current={data?.rows||[]} onClose={inspector.close}/>
   </>;
   return (
@@ -100,8 +151,8 @@ export function WorkspaceOverview({
       </p>
       {feed.error && (
         <FeedbackState
-          tone="error"
-          title="Workspace Overview is unavailable"
+          tone={feed.data ? "warning" : "error"}
+          title={feed.data ? "Workspace Overview could not refresh" : "Workspace Overview is unavailable"}
           onRetry={() => void feed.refresh()}
         >
           {feed.error}
@@ -128,7 +179,7 @@ export function WorkspaceOverview({
         </p>
       ))}
       {feed.loading && !data ? (
-        <p role="status">Loading workspace sources…</p>
+        <WorkspaceOverviewDataSkeleton focus={focus} />
       ) : (
         <>
           <div className="r10-overview-cards" aria-label="Workspace totals">
@@ -252,7 +303,12 @@ export function WorkspaceOverview({
             </button>
             {insights && (
               <Suspense
-                fallback={<p role="status">Loading Office insights…</p>}
+                fallback={
+                  <div>
+                    <p role="status" className="sr-only">Loading Office insights…</p>
+                    <HeadDashboardSkeleton />
+                  </div>
+                }
               >
                 <HeadInsights />
               </Suspense>

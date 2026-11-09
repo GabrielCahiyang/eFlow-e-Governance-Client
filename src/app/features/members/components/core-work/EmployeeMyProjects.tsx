@@ -2,10 +2,42 @@ import { useMemo, useState } from 'react';
 import { FolderKanban } from 'lucide-react';
 import { useProjectsData } from '../../../../hooks/useSupabaseData';
 import type { Task } from '../../../../services/taskService';
-import { LoadingState, PageHeader, ProgressBar, SectionEmpty, formatDate, relativeDays } from '../../../../components/workflow/primitives';
+import { PageHeader, ProgressBar, SectionEmpty, formatDate, relativeDays } from '../../../../components/workflow/primitives';
 import { PriorityPill, ProjectStatusBadge, TaskStatusBadge } from '../../../../components/workflow/StatusBadges';
 import { TaskDetailDrawer } from "../../../task-inspector";
 import { useMyTasks } from './useMyTasks';
+
+function EmployeeMyProjectsSkeleton() {
+  const pulse = "animate-pulse rounded bg-neutral-200/80";
+  return (
+    <div
+      className="space-y-3"
+      role="status"
+      aria-label="Loading your projects…"
+      aria-busy="true"
+    >
+      <span className="sr-only">Loading your projects…</span>
+      {[0, 1, 2].map((i) => (
+        <div key={i} aria-hidden="true" className="bg-white border border-neutral-200 rounded-xl p-4 space-y-3">
+          <div className="flex items-start justify-between gap-3">
+            <div className="space-y-2 flex-1">
+              <div className="flex items-center gap-2">
+                <span className={`h-4 w-20 rounded-full ${pulse}`} />
+                <span className={`h-4 w-14 rounded-full ${pulse}`} />
+              </div>
+              <span className={`block h-4 w-64 max-w-full ${pulse}`} />
+            </div>
+            <div className="space-y-1 text-right">
+              <span className={`inline-block h-5 w-12 ${pulse}`} />
+              <span className={`block h-3 w-20 ${pulse}`} />
+            </div>
+          </div>
+          <span className={`block h-2 w-full rounded-full ${pulse}`} />
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export function EmployeeMyProjects() {
   const { mine } = useMyTasks();
@@ -17,13 +49,13 @@ export function EmployeeMyProjects() {
   const myProjectIds = useMemo(() => new Set(mine.map((t) => t.linkedProjectId).filter(Boolean) as string[]), [mine]);
   const myProjects = useMemo(() => projects.filter((p) => myProjectIds.has(p.id)), [projects, myProjectIds]);
 
-  if (loading) return <div className="p-8"><LoadingState label="Loading your projects…" /></div>;
-
   return (
     <div className="p-6 sm:p-8 min-h-full">
       <PageHeader eyebrow="My Workspace · Projects" title="My Projects" subtitle="Projects you're contributing to." />
 
-      {myProjects.length === 0 ? (
+      {loading ? (
+        <EmployeeMyProjectsSkeleton />
+      ) : myProjects.length === 0 ? (
         <div className="bg-white border border-neutral-200 rounded-xl">
           <SectionEmpty icon={<FolderKanban size={30} />} title="No projects yet" description="Projects you're assigned tasks in will appear here." />
         </div>
@@ -73,5 +105,3 @@ export function EmployeeMyProjects() {
     </div>
   );
 }
-
-// ══════════════════════ Task History ══════════════════════════════

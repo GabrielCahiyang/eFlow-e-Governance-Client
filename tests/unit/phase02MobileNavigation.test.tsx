@@ -17,6 +17,10 @@ vi.mock("../../src/app/hooks/useSupabaseData", () => ({
   useProjectsData: () => ({ projects: [] }),
   useOrgs: () => ({ orgs: [], loading: false }),
 }));
+
+vi.mock("../../src/app/features/app-shell/startupReads", () => ({
+  warmStartupReads: async () => {},
+}));
 vi.mock('../../src/app/features/workspaces/services/workspaceService', async () => {
   const actual = await vi.importActual<typeof import('../../src/app/features/workspaces/services/workspaceService')>('../../src/app/features/workspaces/services/workspaceService');
   return { ...actual, listWorkspaces: async () => { throw new actual.WorkspaceApiUnavailable('R3 migration pending'); } };
@@ -96,7 +100,7 @@ describe("Phase 02 mobile navigation", () => {
     );
 
     expect(screen.queryAllByLabelText("Primary navigation")).toHaveLength(0);
-    fireEvent.click(screen.getByRole("button", { name: "Open mobile navigation" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Open mobile navigation" }));
     await waitFor(() => expect(screen.getAllByLabelText("Primary navigation")).toHaveLength(1));
 
     fireEvent.click(screen.getByRole("button", { name: "Workspaces" }));

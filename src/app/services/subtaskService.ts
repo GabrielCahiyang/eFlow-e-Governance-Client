@@ -6,6 +6,7 @@ import { supabase } from '../../lib/supabase';
 import { createNotification } from './notificationService';
 import type { WorkNodeDisplayMetadata } from '../features/nested-work';
 import {registerAuthCacheReset} from '../shared/authCacheReset';
+import {isDocumentVisible,registerExternalMemoryCache} from '../shared/queryCache';
 
 export type SubtaskSource = 'ai_extracted' | 'template' | 'manual';
 export type SubtaskStatus = 'todo' | 'in_progress' | 'for_review' | 'changes_requested' | 'completed';
@@ -81,6 +82,7 @@ export function rowToSubtask(row: Record<string, unknown>): Subtask {
 export const subtaskMemoryCache = new Map<string, Subtask[]>();
 let cacheGeneration=0;
 registerAuthCacheReset(()=>clearSubtaskCache());
+registerExternalMemoryCache('subtasks','Subtasks',()=>clearSubtaskCache(),()=>({domain:'subtasks',entries:subtaskMemoryCache.size,approxBytes:subtaskMemoryCache.size*640}));
 
 export function getCachedSubtasks(taskId: string): Subtask[] | undefined {
   return subtaskMemoryCache.get(taskId);
@@ -177,7 +179,7 @@ export function subscribeToSubtasks(
   if(typeof window==='undefined')return()=>{active=false;stop();};
   const visible=()=>{if(document.visibilityState==='visible')void load();};
   window.addEventListener('focus',load);document.addEventListener('visibilitychange',visible);
-  const timer=window.setInterval(()=>void load(),15000);
+  const timer=window.setInterval(()=>{if(isDocumentVisible())void load();},15000);
   return()=>{
     active=false;stop();window.clearInterval(timer);
     window.removeEventListener('focus',load);document.removeEventListener('visibilitychange',visible);

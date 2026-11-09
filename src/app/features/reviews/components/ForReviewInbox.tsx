@@ -13,7 +13,7 @@ import '../reviewWorkspace.css';
 import { NAVIGATION_LOCATION_EVENT } from '../../../shared/navigationHistory';
 import {ProjectInvitationApprovalQueue} from '../../project-invitations';
 import { useEffect, useMemo, useState } from "react";
-import { Dropdown, Search as VibeSearch, Skeleton } from "@vibe/core";
+import { Dropdown, Search as VibeSearch } from "@vibe/core";
 import {
   Inbox,
   Clock,
@@ -74,6 +74,93 @@ function timeAgo(ts: number): string {
   if (h < 24) return `${h}h ago`;
   const d = Math.floor(h / 24);
   return `${d}d ago`;
+}
+
+function TaskReviewsSplitSkeleton() {
+  const pulse = "animate-pulse rounded bg-muted";
+  return (
+    <div
+      className="grid grid-cols-1 lg:grid-cols-[minmax(300px,380px)_1fr] gap-4"
+      role="status"
+      aria-label="Loading task submissions for review…"
+      aria-live="polite"
+      aria-busy="true"
+    >
+      <span className="sr-only">Loading task submissions for review…</span>
+      {/* Queue column skeleton */}
+      <div
+        aria-hidden="true"
+        className="flex flex-col overflow-hidden rounded-[10px] border border-border bg-card shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]"
+      >
+        <div className="flex flex-col gap-2 border-b border-border bg-muted/40 px-4 py-3">
+          <div className={`h-8 w-full rounded-md ${pulse}`} />
+          <div className={`h-8 w-full rounded-md ${pulse}`} />
+        </div>
+        <div className="divide-y divide-border">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="flex w-full gap-3 p-3.5">
+              <div className={`h-8 w-8 shrink-0 rounded-full ${pulse}`} />
+              <div className="flex-1 min-w-0 space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <div className={`h-4 flex-1 ${pulse}`} />
+                  <div className={`h-4 w-14 rounded-full ${pulse}`} />
+                </div>
+                <div className={`h-3 w-3/4 ${pulse}`} />
+                <div className={`h-2.5 w-24 ${pulse}`} />
+              </div>
+              <div className={`h-3.5 w-3.5 self-center shrink-0 ${pulse}`} />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Detail column skeleton */}
+      <div aria-hidden="true" className="min-w-0 space-y-4">
+        <div className="rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)] space-y-3">
+          <div className="flex items-start justify-between gap-3">
+            <div className="space-y-2 flex-1">
+              <div className={`h-5 w-1/2 ${pulse}`} />
+              <div className="flex flex-wrap gap-3">
+                <div className={`h-3.5 w-28 ${pulse}`} />
+                <div className={`h-3.5 w-32 ${pulse}`} />
+                <div className={`h-3.5 w-24 ${pulse}`} />
+              </div>
+            </div>
+            <div className={`h-5 w-16 rounded-full ${pulse}`} />
+          </div>
+          <div className={`h-3.5 w-4/5 ${pulse}`} />
+          <div className="rounded-[14px] border border-border bg-muted/30 p-3 space-y-1.5">
+            <div className={`h-3 w-28 ${pulse}`} />
+            <div className={`h-3.5 w-3/5 ${pulse}`} />
+          </div>
+        </div>
+        <div className="rounded-[10px] border border-border bg-card px-4 py-3">
+          <div className={`h-4 w-40 ${pulse}`} />
+        </div>
+        <div className="rounded-[10px] border border-border bg-card px-4 py-3">
+          <div className={`h-4 w-48 ${pulse}`} />
+        </div>
+        <div className="rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)] space-y-3">
+          <div className="flex items-start gap-2.5">
+            <div className={`h-8 w-8 rounded-lg ${pulse}`} />
+            <div className="space-y-1.5 flex-1">
+              <div className={`h-3.5 w-40 ${pulse}`} />
+              <div className={`h-3 w-72 max-w-full ${pulse}`} />
+            </div>
+          </div>
+          <div className={`h-20 w-full rounded-lg ${pulse}`} />
+        </div>
+        <div className="rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)] space-y-3">
+          <div className={`h-3.5 w-32 ${pulse}`} />
+          <div className={`h-16 w-full rounded-lg ${pulse}`} />
+          <div className="flex gap-2">
+            <div className={`h-9 w-28 rounded-lg ${pulse}`} />
+            <div className={`h-9 w-36 rounded-lg ${pulse}`} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export type ReviewInboxScope = "department" | "leading";
@@ -267,19 +354,6 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
     error: subtaskEvidenceError,
   } = useTaskReviewEvidence(selected?.id);
 
-  if ((tasksLoading || projectsLoading) && reviewKind !== 'membership') {
-    return (
-      <div className="space-y-4 p-8" aria-live="polite" role="status">
-        <Skeleton type="text" width={220} />
-        <Skeleton type="text" width={340} />
-        <div className="grid gap-4 lg:grid-cols-[minmax(300px,380px)_1fr]">
-          <Skeleton type="rectangle" size="custom" height={320} fullWidth />
-          <Skeleton type="rectangle" size="custom" height={420} fullWidth />
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="eflow-operational-workspace eflow-review-workspace min-h-full min-w-0 p-4 sm:p-8">
       <PageHeader
@@ -294,7 +368,7 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
         subtitle="Validate submitted work, collaborate on proposals, and keep the pipeline moving."
         actions={reviewKind === 'tasks' ? (
                 <div className="inline-flex items-center gap-1.5 rounded-full border border-border bg-[var(--eflow-warning-bg)] px-3 py-1.5 text-xs font-semibold text-[var(--eflow-warning-text)]">
-                  <Inbox size={14} /> {queue.length} {query.trim() ? 'matching submissions' : 'awaiting review'}
+                  <Inbox size={14} /> {tasksLoading || projectsLoading ? '…' : queue.length} {query.trim() ? 'matching submissions' : 'awaiting review'}
                 </div>
         ) : undefined}
       />
@@ -321,7 +395,9 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
 
       {reviewKind === "tasks" && (
         <>
-          {queue.length === 0 && !query ? (
+          {tasksLoading || projectsLoading ? (
+            <TaskReviewsSplitSkeleton />
+          ) : queue.length === 0 && !query ? (
             <div className="rounded-[10px] border border-border bg-card shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
               <SectionEmpty fill illustration="complete"
                 icon={<CheckCircle2 size={36} className="text-[var(--eflow-positive-text)]" />}

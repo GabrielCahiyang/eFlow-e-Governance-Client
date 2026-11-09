@@ -25,4 +25,17 @@ describe('personal source isolation',()=>{
  it('does not fetch an unsupported or disabled queue' ,()=>{
   const reader=vi.fn();const view=renderHook(()=>usePersonalFeed('me',reader,false));expect(reader).not.toHaveBeenCalled();expect(view.result.current.loading).toBe(false);
  });
+ it('keeps authorized rows when the network fails and clears them on denied access', async()=>{
+  const reader=vi.fn().mockResolvedValueOnce(['known'])
+    .mockRejectedValueOnce(new Error('Network unavailable'))
+    .mockRejectedValueOnce(Object.assign(new Error('Permission denied'),{code:'42501'}));
+  const view=renderHook(()=>usePersonalFeed('me',reader));
+  await waitFor(()=>expect(view.result.current.rows).toEqual(['known']));
+  act(()=>view.result.current.retry());
+  await waitFor(()=>expect(view.result.current.error).toBe('Network unavailable'));
+  expect(view.result.current.rows).toEqual(['known']);
+  act(()=>view.result.current.retry());
+  await waitFor(()=>expect(view.result.current.error).toBe('Permission denied'));
+  expect(view.result.current.rows).toEqual([]);
+ });
 });

@@ -1,7 +1,6 @@
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { resendInvitation, revokeInvitation, type Invitation } from '../../invitations';
-import { WorkspaceSkeleton } from '../../../components/ui/workspace';
 import { ProjectOfficeTable, type ProjectOfficeTableProps } from './ProjectOfficeTable';
 import { OfficeIdentityActions } from './OfficeIdentityActions';
 import { officeTableRows, filterOfficeTableRows, type OfficeTableFilters } from '../officeTableRows';
@@ -20,6 +19,46 @@ import { assignRemainingOfficeWork } from '../../staffing';
 import { fetchOfficePeople,officePersonStatus,type OfficePerson } from '../services/officePeople';
 import { OfficePeopleDialog } from './OfficePeopleDialog';
 import { dispatchProjectInvitation } from '../../project-invitations';
+
+function ProjectOfficeTableSkeleton() {
+  const pulse = 'animate-pulse rounded bg-muted';
+  return (
+    <div className="po-table-wrap" role="status" aria-label="Loading project Offices…" aria-busy="true">
+      <span className="sr-only">Loading project Offices…</span>
+      <table className="po-office-table" aria-hidden="true">
+        <thead>
+          <tr>
+            <th scope="col">Office</th>
+            <th scope="col">Relationship</th>
+            <th scope="col">Contact</th>
+            <th scope="col">Participation status</th>
+            <th scope="col">Selected members</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {[0, 1, 2, 3].map(row => (
+            <tr key={row}>
+              <th scope="row">
+                <span className={`block h-4 w-36 ${pulse}`} />
+                <span className={`mt-1 block h-3 w-24 ${pulse}`} />
+              </th>
+              <td><span className={`inline-block h-3.5 w-24 ${pulse}`} /></td>
+              <td><span className={`inline-block h-3.5 w-32 ${pulse}`} /></td>
+              <td><span className={`inline-block h-5 w-20 rounded-full ${pulse}`} /></td>
+              <td><span className={`inline-block h-3.5 w-36 ${pulse}`} /></td>
+              <td>
+                <div className="po-actions-cell">
+                  <span className={`inline-block h-7 w-28 rounded-md ${pulse}`} />
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
 
 export function ProjectOfficeDirectory({ projectId, leadOffice, canManage, organizations, includeNamed, filters, invitations, tableProps, onClearFilters }: {
   projectId: string; leadOffice: string; canManage: boolean; organizations: Organization[];
@@ -72,7 +111,7 @@ export function ProjectOfficeDirectory({ projectId, leadOffice, canManage, organ
     {error && <p role="alert" className="po-error">{error}</p>}
     {notice && <p role="status" className="po-help">{notice}</p>}
     {freshLink && <label className="po-link">Fresh private invitation link<input readOnly value={freshLink} onFocus={event => event.target.select()}/><small>This replaces the previous link. Keep it private.</small></label>}
-    {context.loading ? <WorkspaceSkeleton label="Loading project Offices…"/> : rows.length ? <ProjectOfficeTable {...tableProps} rows={rows} removalBusy={tableProps.removalBusy || busy} identityActions={row => {
+    {context.loading ? <ProjectOfficeTableSkeleton /> : rows.length ? <ProjectOfficeTable {...tableProps} rows={rows} removalBusy={tableProps.removalBusy || busy} identityActions={row => {
       const identity = row.identity;
       if (!identity || !includeNamed || identity.provenance.source === 'canonical_backfill') return null;
       return <>{canManage&&identity.relationship_type!=='lead'&&<><button disabled={busy||!!peopleError} onClick={()=>setInvitePerson(identity)}><UserPlus size={15}/>Invite people</button>

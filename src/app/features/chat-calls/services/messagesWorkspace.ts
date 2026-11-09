@@ -1,4 +1,5 @@
 import { supabase } from '../../../../lib/supabase';
+import { loadWithQueryCache, readCachedQuery } from '../../../shared/queryCache';
 import type { ChatChannelSummary, ChatMessage } from '../../../services/chatService';
 
 export type Conversation = ChatChannelSummary & { projectTitle?: string; projectId?: string };
@@ -19,6 +20,19 @@ export async function listConversations(): Promise<Conversation[]> {
     lastMessage: row.last_message, lastMessageAt: row.last_message_at ? Date.parse(row.last_message_at) : undefined,
     unread: row.unread, isLeadOf: row.is_lead, otherUserId: row.other_user_id, otherUserName: row.name,
   }));
+}
+
+export function getCachedConversations(userId: string) {
+  return readCachedQuery<Conversation[]>('message-conversations', userId).data;
+}
+
+export function warmConversations(userId: string, forceRefresh = false) {
+  return loadWithQueryCache({
+    domain: 'message-conversations',
+    scope: userId,
+    forceRefresh,
+    fetcher: listConversations,
+  });
 }
 
 export async function listMessages(channelId: string, before?: Message): Promise<Message[]> {

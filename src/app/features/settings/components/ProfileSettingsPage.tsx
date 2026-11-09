@@ -6,7 +6,82 @@ import { clearProfileAvatar, getProfileAvatarUrl, replaceProfileAvatar, updateOw
 import { fetchAllOrgs } from '../../../../lib/supabaseService';
 import { Input } from '../../../components/ui/input';
 import { useNavigationBlocker } from '../../../shared/navigationGuard';
-import { IdentityItem, ResultMessage, SectionHeading, SettingsLoading, Surface, formatRole, initials, inputClass, type Result } from './settingsPrimitives';
+import { IdentityItem, ResultMessage, SectionHeading, Surface, formatRole, initials, inputClass, type Result } from './settingsPrimitives';
+
+function ProfileSettingsSkeleton() {
+  return (
+    <div
+      className="space-y-5"
+      role="status"
+      aria-label="Loading your personal profile…"
+    >
+      <span className="sr-only">Loading your personal profile…</span>
+      <div aria-hidden="true" className="space-y-5">
+        <Surface className="overflow-hidden">
+          <div className="relative overflow-hidden bg-[#0c1c3d] px-5 pb-5 pt-6 sm:px-7 sm:pt-7">
+            <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-4">
+                <div className="size-20 shrink-0 animate-pulse rounded-2xl border border-white/25 bg-white/15" />
+                <div className="space-y-2">
+                  <div className="h-2.5 w-28 animate-pulse rounded bg-blue-200/40" />
+                  <div className="h-6 w-44 animate-pulse rounded bg-white/30" />
+                  <div className="h-5 w-24 animate-pulse rounded-full border border-white/15 bg-white/10" />
+                </div>
+              </div>
+              <div className="rounded-xl border border-white/10 bg-white/10 px-3 py-2">
+                <div className="h-2.5 w-20 animate-pulse rounded bg-blue-300/40" />
+                <div className="mt-1.5 h-3.5 w-40 animate-pulse rounded bg-white/30" />
+              </div>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 divide-y divide-neutral-100 px-5 py-3 sm:grid-cols-3 sm:divide-x sm:divide-y-0 sm:px-7 dark:divide-slate-800">
+            {[0, 1, 2].map((index) => (
+              <div key={index} className="flex items-center gap-3 py-2 sm:px-3">
+                <div className="size-8 shrink-0 animate-pulse rounded-lg bg-neutral-100 dark:bg-slate-800" />
+                <div className="space-y-1.5">
+                  <div className="h-2.5 w-16 animate-pulse rounded bg-neutral-100 dark:bg-slate-800" />
+                  <div className="h-3.5 w-32 animate-pulse rounded bg-neutral-200/80 dark:bg-slate-700" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </Surface>
+
+        <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(300px,0.78fr)]">
+          <Surface className="p-5 sm:p-6">
+            <SectionHeading
+              icon={<UserRound size={19} />}
+              eyebrow="Profile"
+              title="How your name appears"
+              description="Use a clear display name for assignments, messages, and activity."
+            />
+            <div className="mt-5 max-w-xl space-y-3">
+              <div className="h-3.5 w-24 animate-pulse rounded bg-neutral-200/80 dark:bg-slate-700" />
+              <div className="h-10 w-full animate-pulse rounded-xl bg-neutral-100 dark:bg-slate-800" />
+              <div className="h-10 w-28 animate-pulse rounded-xl bg-neutral-200/80 dark:bg-slate-700" />
+            </div>
+          </Surface>
+
+          <Surface className="p-5 sm:p-6">
+            <SectionHeading
+              icon={<Camera size={19} />}
+              eyebrow="Profile photo"
+              title="A recognizable account"
+              description="JPEG, PNG, or WebP. Up to 2 MB. Your photo stays private."
+            />
+            <div className="mt-5 flex items-center gap-4">
+              <div className="size-16 shrink-0 animate-pulse rounded-2xl bg-neutral-200/80 dark:bg-slate-800" />
+              <div className="space-y-2">
+                <div className="h-9 w-24 animate-pulse rounded-lg bg-neutral-100 dark:bg-slate-800" />
+                <div className="h-3 w-48 animate-pulse rounded bg-neutral-100 dark:bg-slate-800" />
+              </div>
+            </div>
+          </Surface>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function ProfileSettingsPage() {
   const { userProfile, updateUserProfile } = useAuth();
@@ -122,7 +197,7 @@ export function ProfileSettingsPage() {
   };
 
   if (!userProfile || loading) {
-    return <SettingsLoading label="Loading your personal profile…" />;
+    return <ProfileSettingsSkeleton />;
   }
 
   return (

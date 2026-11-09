@@ -4,6 +4,13 @@
 import { supabase } from '../../lib/supabase';
 import { controlPanelFetch } from '../shared/controlPanelClient';
 import { normalizeWorkUpdateNotification } from '../shared/notificationWorkCopy';
+import {
+  buildQueryScopeKey,
+  invalidateQueryDomain,
+  isDocumentVisible,
+  loadWithQueryCache,
+  readCachedQuery,
+} from '../shared/queryCache';
 
 export type NotificationType =
   | 'assignment'
@@ -55,6 +62,7 @@ export interface Notification {
   workNodeId?: string;
   financialRecordId?: string;
   financialRecordType?: string;
+  conversationId?: string;
   read: boolean;
   createdAt: number;
 }
@@ -79,6 +87,7 @@ function rowToNotif(row: Record<string, unknown>): Notification {
     workNodeId: (row.work_node_id as string) || undefined,
     financialRecordId: (row.financial_record_id as string) || undefined,
     financialRecordType: (row.financial_record_type as string) || undefined,
+    conversationId: (row.conversation_id as string) || undefined,
     read: (row.read as boolean) || false,
     createdAt: new Date((row.created_at as string) || Date.now()).getTime(),
   });
@@ -98,25 +107,49 @@ export function subscribeToNotifications(
   callback: (notifications: Notification[]) => void,
   limit = 50,
 ) {
-  const load = async () => {
-    const { data } = await supabase
-      .from('notifications')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
-      .limit(limit);
-
-    if (data) callback(data.map(rowToNotif));
-    else callback([]);
+  const scope = buildQueryScopeKey({ userId, filter: String(limit) });
+  const cached = readCachedQuery<Notification[]>('notifications', scope);
+  if (cached.hit && cached.data) {
+    callback(cached.data);
+  }
+  const load = async (forceRefresh = false) => {
+    try {
+      if (forceRefresh) {
+        invalidateQueryDomain('notifications', scope);
+      }
+      const list = await loadWithQueryCache({
+        domain: 'notifications',
+        scope,
+        ttlMs: 30_000,
+        forceRefresh,
+        fetcher: async () => {
+          const { data } = await supabase
+            .from('notifications')
+            .select('*')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false })
+            .limit(limit);
+          return data ? data.map(rowToNotif) : [];
+        },
+      });
+      callback(list);
+    } catch {
+      callback([]);
+    }
   };
-  load();
+  void load(false);
 
-  const unsubscribe = subscribeNotificationChanges(userId, load);
+  const unsubscribe = subscribeNotificationChanges(userId, () => {
+    invalidateQueryDomain('personal-feed');
+    void load(true);
+  });
 
   // Realtime can be unavailable briefly during reconnects or when a table was
   // newly added to the publication. Polling keeps reviewer alerts reliable
   // without waiting for the user to reload the app.
-  const refreshTimer = window.setInterval(() => { void load(); }, 15_000);
+  const refreshTimer = window.setInterval(() => {
+    if (isDocumentVisible()) void load(true);
+  }, 15_000);
 
   return () => {
     window.clearInterval(refreshTimer);
@@ -152,6 +185,8 @@ export async function createNotification(
   if (notification.orgId) row.org_id = isUuid(notification.orgId) ? notification.orgId : null;
   if (notification.entityType) row.entity_type = notification.entityType;
   await supabase.from('notifications').insert(row);
+  invalidateQueryDomain('notifications');
+  invalidateQueryDomain('personal-feed');
 
   // Fire-and-forget email — never let this throw into the caller. The
   // in-app notification above has already succeeded regardless of
@@ -171,10 +206,14 @@ export async function createNotification(
 
 export async function markNotificationRead(userId: string, notificationId: string): Promise<void> {
   await supabase.from('notifications').update({ read: true }).eq('id', notificationId).eq('user_id', userId);
+  invalidateQueryDomain('notifications');
+  invalidateQueryDomain('personal-feed');
 }
 
 export async function markAllNotificationsRead(userId: string): Promise<void> {
   await supabase.from('notifications').update({ read: true }).eq('user_id', userId).eq('read', false);
+  invalidateQueryDomain('notifications');
+  invalidateQueryDomain('personal-feed');
 }
 
 export async function getUnreadCount(userId: string): Promise<number> {
@@ -189,8 +228,8 @@ export async function getUnreadCount(userId: string): Promise<number> {
 /** Error-aware recent feed; legacy subscription/mark-read returns stay compatible. */
 export async function fetchRecentNotifications(userId: string): Promise<Notification[]> {
   if (!userId) return [];
-  const { data, error } = await supabase.from('notifications').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(50);
-  if (error) throw new Error(error.message);
+  const { data, error, status } = await supabase.from('notifications').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(50);
+  if (error) throw Object.assign(new Error(error.message), { code: error.code, status });
   return (data || []).map(rowToNotif);
 }
 export async function markRecentNotificationRead(userId: string, id: string): Promise<void> {
@@ -198,4 +237,6 @@ export async function markRecentNotificationRead(userId: string, id: string): Pr
   const { data, error } = await supabase.from('notifications').update({ read: true }).eq('id', id).eq('user_id', userId).select('id');
   if (error) throw new Error(error.message);
   if (!data?.some(row => row.id === id)) throw new Error('This update is no longer available or read access was denied.');
+  invalidateQueryDomain('notifications');
+  invalidateQueryDomain('personal-feed');
 }

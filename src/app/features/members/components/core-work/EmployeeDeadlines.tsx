@@ -3,10 +3,33 @@ import { useMemo, useState, type ReactNode } from 'react';
 import { AlertTriangle, CalendarClock, Clock, Inbox } from 'lucide-react';
 import type { Task } from '../../../../services/taskService';
 import { isActive } from '../../../../services/taskSelectors';
-import { Card, LoadingState, PageHeader, StatCard, relativeDays } from '../../../../components/workflow/primitives';
+import { Card, PageHeader, StatCard, relativeDays } from '../../../../components/workflow/primitives';
 import { TaskDetailDrawer } from "../../../task-inspector";
 import { TaskStatusLabel } from '../../../tasks';
 import { useMyTasks } from './useMyTasks';
+
+function EmployeeDeadlinesGroupsSkeleton() {
+  const pulse = "animate-pulse rounded bg-neutral-200/80";
+  return (
+    <div role="status" aria-label="Loading deadlines…" aria-busy="true">
+      <span className="sr-only">Loading deadlines…</span>
+      {["Overdue", "Due today", "Awaiting review", "Upcoming"].map((title) => (
+        <Card key={title} title={title} bodyClassName="p-0" className="mb-3">
+          <div className="divide-y divide-neutral-100" aria-hidden="true">
+            {[0, 1].map((row) => (
+              <div key={row} className="flex w-full items-center gap-3 px-4 py-2.5">
+                <span className={`h-2 w-2 rounded-full shrink-0 ${pulse}`} />
+                <span className={`h-4 flex-1 max-w-[320px] ${pulse}`} />
+                <span className={`h-3 w-20 ${pulse}`} />
+                <span className={`h-5 w-20 rounded-full ${pulse}`} />
+              </div>
+            ))}
+          </div>
+        </Card>
+      ))}
+    </div>
+  );
+}
 
 export function EmployeeDeadlines() {
   const { mine, loading } = useMyTasks();
@@ -34,7 +57,8 @@ export function EmployeeDeadlines() {
     return { overdue: overdue.sort(byDate), today: today.sort(byDate), upcoming: upcoming.sort(byDate), awaiting };
   }, [active]);
 
-  if (loading) return <div className="p-8"><LoadingState label="Loading deadlines…" /></div>;
+  const statVal = (n: number) =>
+    loading ? <span className="inline-block h-6 w-10 animate-pulse rounded bg-muted" /> : n;
 
   const section = (title: string, tasks: Task[], tone: "bad" | "warn" | "neutral" | "info", _icon: ReactNode) => (
     <Card title={`${title} (${tasks.length})`} bodyClassName="p-0" className="mb-3">
@@ -63,20 +87,24 @@ export function EmployeeDeadlines() {
       <PageHeader eyebrow="My Workspace · Deadlines" title="Deadlines" subtitle="Stay ahead of what's due and what's waiting on review." />
 
       <div className="mb-4 grid grid-cols-1 gap-3 min-[480px]:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Overdue" value={groups.overdue.length} tone={groups.overdue.length ? "bad" : "good"} icon={<AlertTriangle size={15} />} />
-        <StatCard label="Due today" value={groups.today.length} tone={groups.today.length ? "warn" : "neutral"} icon={<Clock size={15} />} />
-        <StatCard label="Upcoming" value={groups.upcoming.length} tone="info" icon={<CalendarClock size={15} />} />
-        <StatCard label="Awaiting review" value={groups.awaiting.length} icon={<Inbox size={15} />} />
+        <StatCard label="Overdue" value={statVal(groups.overdue.length)} tone={groups.overdue.length ? "bad" : "good"} icon={<AlertTriangle size={15} />} />
+        <StatCard label="Due today" value={statVal(groups.today.length)} tone={groups.today.length ? "warn" : "neutral"} icon={<Clock size={15} />} />
+        <StatCard label="Upcoming" value={statVal(groups.upcoming.length)} tone="info" icon={<CalendarClock size={15} />} />
+        <StatCard label="Awaiting review" value={statVal(groups.awaiting.length)} icon={<Inbox size={15} />} />
       </div>
 
-      {section("Overdue", groups.overdue, "bad", null)}
-      {section("Due today", groups.today, "warn", null)}
-      {section("Awaiting review", groups.awaiting, "neutral", null)}
-      {section("Upcoming", groups.upcoming, "info", null)}
+      {loading ? (
+        <EmployeeDeadlinesGroupsSkeleton />
+      ) : (
+        <>
+          {section("Overdue", groups.overdue, "bad", null)}
+          {section("Due today", groups.today, "warn", null)}
+          {section("Awaiting review", groups.awaiting, "neutral", null)}
+          {section("Upcoming", groups.upcoming, "info", null)}
+        </>
+      )}
 
       <TaskDetailDrawer task={open} onClose={() => setOpen(null)} canPostProgress canDiscuss />
     </div>
   );
 }
-
-// ══════════════════════ My Work Report ════════════════════════════

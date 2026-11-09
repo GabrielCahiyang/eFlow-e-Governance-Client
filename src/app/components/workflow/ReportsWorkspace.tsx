@@ -47,7 +47,6 @@ import {
   WSelect,
   ExportMenu,
   SectionEmpty,
-  LoadingState,
   formatDate,
 } from "./primitives";
 import { TaskStatusBadge } from "./StatusBadges";
@@ -243,13 +242,6 @@ export function ReportsWorkspace({
     }
   };
 
-  if (loading)
-    return (
-      <div className="p-8">
-        <LoadingState label="Building reports…" />
-      </div>
-    );
-
   const orgOptions = [
     { value: "all", label: "All offices" },
     ...orgs.map((o) => ({ value: o.id, label: o.name })),
@@ -265,6 +257,10 @@ export function ReportsWorkspace({
     },
   ] as const;
 
+  const loadingBar = (
+    <span className="inline-block h-6 w-12 animate-pulse rounded-md bg-neutral-200/80 align-middle" />
+  );
+
   return (
     <div className="eflow-page-content eflow-analytics min-w-0">
       <p className="mb-3 rounded-lg border bg-card p-3 text-sm">
@@ -277,7 +273,7 @@ export function ReportsWorkspace({
           <ExportMenu
             onCsv={() => doExport("csv")}
             onPdf={() => doExport("pdf")}
-            disabled={scoped.length === 0 || !!error}
+            disabled={loading || scoped.length === 0 || !!error}
           />
         }
       />
@@ -336,25 +332,25 @@ export function ReportsWorkspace({
       <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           label="Tasks in scope"
-          value={error ? "Unavailable" : scoped.length}
+          value={loading ? loadingBar : error ? "Unavailable" : scoped.length}
           icon={<BarChart3 size={15} />}
         />
         <StatCard
           label="Completion rate"
-          value={error ? "Unavailable" : `${completionRate}%`}
+          value={loading ? loadingBar : error ? "Unavailable" : `${completionRate}%`}
           tone="good"
-          hint={`${completed} completed`}
+          hint={loading ? undefined : `${completed} completed`}
           icon={<TrendingUp size={15} />}
         />
         <StatCard
           label="Overdue"
-          value={error ? "Unavailable" : overdueTasks.length}
+          value={loading ? loadingBar : error ? "Unavailable" : overdueTasks.length}
           tone={overdueTasks.length ? "bad" : "good"}
           icon={<AlertTriangle size={15} />}
         />
         <StatCard
           label="Members"
-          value={error ? "Unavailable" : productivity.length}
+          value={loading ? loadingBar : error ? "Unavailable" : productivity.length}
           icon={<Users size={15} />}
         />
       </div>
@@ -374,6 +370,9 @@ export function ReportsWorkspace({
             ...tab,
             content:
               tab.id === view ? (
+                loading ? (
+                  <ReportsWorkspaceViewSkeleton view={view} />
+                ) : (
                 <>
                   <AnimatePresence initial={false} mode="wait">
                     <m.div
@@ -744,6 +743,7 @@ export function ReportsWorkspace({
                     </m.div>
                   </AnimatePresence>
                 </>
+                )
               ) : null,
           }))}
         />
@@ -795,6 +795,126 @@ export function ReportsWorkspace({
             />
           </div>
         </div>
+      )}
+    </div>
+  );
+}
+
+function ReportsWorkspaceViewSkeleton({ view }: { view: ReportView }) {
+  return (
+    <div role="status" aria-live="polite" aria-label="Building reports…">
+      <span className="sr-only">Building reports…</span>
+      {view === "status" ? (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4" aria-hidden="true">
+          <Card title="Tasks by status" className="lg:col-span-2">
+            <div className="flex h-[280px] items-end gap-4 px-4 pb-6 pt-8">
+              {[45, 70, 55, 85, 60].map((height, idx) => (
+                <div key={idx} className="flex-1 flex flex-col items-center gap-2">
+                  <div
+                    className="w-full animate-pulse rounded-t-md bg-neutral-200/80"
+                    style={{ height: `${height * 2}px` }}
+                  />
+                  <div className="h-2.5 w-14 animate-pulse rounded bg-neutral-100" />
+                </div>
+              ))}
+            </div>
+          </Card>
+          <Card title="Distribution">
+            <div className="flex h-[220px] items-center justify-center">
+              <div className="h-36 w-36 animate-pulse rounded-full border-[18px] border-neutral-200/80" />
+            </div>
+            <div className="mt-2 space-y-2">
+              {[0, 1, 2, 3].map((row) => (
+                <div key={row} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="h-2.5 w-2.5 rounded-full bg-neutral-200" />
+                    <div className="h-3 w-24 animate-pulse rounded bg-neutral-100" />
+                  </div>
+                  <div className="h-3 w-8 animate-pulse rounded bg-neutral-200/70" />
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
+      ) : view === "workload" ? (
+        <Card
+          title="Workload distribution"
+          subtitle="Current assigned work and review pressure by member."
+        >
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3" aria-hidden="true">
+            {[0, 1, 2, 3, 4, 5].map((card) => (
+              <div key={card} className="rounded-xl border border-border bg-muted/40 p-4 space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="space-y-1.5">
+                    <div className="h-3.5 w-32 animate-pulse rounded bg-neutral-200/80" />
+                    <div className="h-2.5 w-40 animate-pulse rounded bg-neutral-100" />
+                  </div>
+                  <div className="h-5 w-16 animate-pulse rounded-full bg-neutral-200/70" />
+                </div>
+                <div className="h-2.5 w-full animate-pulse rounded-full bg-neutral-200/70" />
+                <div className="grid grid-cols-3 gap-2 pt-1">
+                  {[0, 1, 2].map((stat) => (
+                    <div key={stat} className="space-y-1 text-center">
+                      <div className="mx-auto h-4 w-6 animate-pulse rounded bg-neutral-200/80" />
+                      <div className="mx-auto h-2 w-10 animate-pulse rounded bg-neutral-100" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      ) : (
+        <Card
+          bodyClassName="p-0"
+          title={view === "overdue" ? "Overdue tasks" : "Member productivity"}
+        >
+          <div className="overflow-x-auto" aria-hidden="true">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-muted border-b border-border">
+                  {(view === "overdue"
+                    ? ["Task", "Assignee", "Status", "Deadline", "Days late"]
+                    : ["Member", "Completed", "Active", "In review", "Overdue", "Completion mix"]
+                  ).map((h) => (
+                    <th
+                      key={h}
+                      className="px-4 py-2.5 text-left text-[10px] font-medium uppercase tracking-wider text-muted-foreground"
+                    >
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {[0, 1, 2, 3, 4].map((row) => (
+                  <tr key={row} className="border-b border-neutral-50">
+                    <td className="px-4 py-3">
+                      <div className="h-3.5 w-40 animate-pulse rounded bg-neutral-200/80" />
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="h-3.5 w-24 animate-pulse rounded bg-neutral-100" />
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="h-5 w-16 animate-pulse rounded-full bg-neutral-200/70" />
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="h-3.5 w-16 animate-pulse rounded bg-neutral-100" />
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="h-3.5 w-10 animate-pulse rounded bg-neutral-200/80" />
+                    </td>
+                    {view !== "overdue" && (
+                      <td className="px-4 py-3 w-[200px]">
+                        <div className="h-2 w-full animate-pulse rounded-full bg-neutral-100" />
+                      </td>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
       )}
     </div>
   );

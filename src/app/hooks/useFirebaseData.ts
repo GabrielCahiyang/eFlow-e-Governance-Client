@@ -3,26 +3,72 @@
 // All hooks now use Supabase under the hood.
 
 import { useState, useEffect, useMemo } from 'react';
-import { subscribeToTasks, type Task as OperationalTask } from '../services/taskService';
-import { subscribeToProjects, type Project as OperationalProject } from '../services/projectService';
-import { subscribeToEmployees } from '../services/employeeService';
-import { subscribeToEmployeeNotes, EmployeeNotesMap } from '../services/employeeNotesService';
-import { fetchAllProfiles, subscribeToProfiles, fetchAllOrgs, subscribeToOrgs } from '../../lib/supabaseService';
-import type { UserProfile, Department, RoleDefinition, DashboardMetrics } from '../types';
+import {
+  getCachedTasks,
+  subscribeToTasks,
+  type Task as OperationalTask,
+} from '../services/taskService';
+import {
+  getCachedProjects,
+  subscribeToProjects,
+  type Project as OperationalProject,
+} from '../services/projectService';
+import { getCachedEmployees, subscribeToEmployees } from '../services/employeeService';
+import {
+  getCachedEmployeeNotes,
+  subscribeToEmployeeNotes,
+  EmployeeNotesMap,
+} from '../services/employeeNotesService';
+import {
+  fetchAllProfiles,
+  getCachedProfiles,
+  subscribeToProfiles,
+  fetchAllOrgs,
+  getCachedOrgs,
+  subscribeToOrgs,
+} from '../../lib/supabaseService';
+import type { Organization, UserProfile, Department, RoleDefinition, DashboardMetrics } from '../types';
 import type { Employee } from '../services/employeeService';
+
+function mapOrgsToDepartments(orgs: Organization[]): Department[] {
+  return orgs.map((org) => ({
+    id: org.id,
+    name: org.name,
+    description: org.description || '',
+    headUserId: org.head_user_id || '',
+    employeeCount: 0,
+    status: org.is_active ? 'active' : 'archived',
+    createdAt: new Date(org.created_at).getTime(),
+  }));
+}
 
 // ─── useUsers ────────────────────────────────────────────────────
 export function useUsers() {
-  const [users, setUsers] = useState<UserProfile[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [users, setUsers] = useState<UserProfile[]>(() => getCachedProfiles() ?? []);
+  const [loading, setLoading] = useState<boolean>(() => !getCachedProfiles());
 
   useEffect(() => {
     let cancelled = false;
-    fetchAllProfiles().then(data => {
-      if (!cancelled) { setUsers(data); setLoading(false); }
-    }).catch(() => { if (!cancelled) setLoading(false); });
-    const unsub = subscribeToProfiles(data => { if (!cancelled) setUsers(data); });
-    return () => { cancelled = true; unsub(); };
+    fetchAllProfiles()
+      .then((data) => {
+        if (!cancelled) {
+          setUsers(data);
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setLoading(false);
+      });
+    const unsub = subscribeToProfiles((data) => {
+      if (!cancelled) {
+        setUsers(data);
+        setLoading(false);
+      }
+    });
+    return () => {
+      cancelled = true;
+      unsub();
+    };
   }, []);
 
   return { users, loading };
@@ -30,39 +76,30 @@ export function useUsers() {
 
 // ─── useDepartments ──────────────────────────────────────────────
 export function useDepartments() {
-  const [departments, setDepartments] = useState<Department[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [departments, setDepartments] = useState<Department[]>(() => {
+    const cached = getCachedOrgs();
+    return cached ? mapOrgsToDepartments(cached) : [];
+  });
+  const [loading, setLoading] = useState<boolean>(() => !getCachedOrgs());
 
   useEffect(() => {
     let cancelled = false;
     const load = async () => {
       const orgs = await fetchAllOrgs();
       if (cancelled) return;
-      setDepartments(orgs.map(org => ({
-        id: org.id,
-        name: org.name,
-        description: org.description || '',
-        headUserId: org.head_user_id || '',
-        employeeCount: 0,
-        status: org.is_active ? 'active' : 'archived',
-        createdAt: new Date(org.created_at).getTime(),
-      })));
+      setDepartments(mapOrgsToDepartments(orgs));
       setLoading(false);
     };
-    load();
-    const unsub = subscribeToOrgs(orgs => {
+    void load();
+    const unsub = subscribeToOrgs((orgs) => {
       if (cancelled) return;
-      setDepartments(orgs.map(org => ({
-        id: org.id,
-        name: org.name,
-        description: org.description || '',
-        headUserId: org.head_user_id || '',
-        employeeCount: 0,
-        status: org.is_active ? 'active' : 'archived',
-        createdAt: new Date(org.created_at).getTime(),
-      })));
+      setDepartments(mapOrgsToDepartments(orgs));
+      setLoading(false);
     });
-    return () => { cancelled = true; unsub(); };
+    return () => {
+      cancelled = true;
+      unsub();
+    };
   }, []);
 
   return { departments, loading };
@@ -70,8 +107,8 @@ export function useDepartments() {
 
 // ─── useProjects ─────────────────────────────────────────────────
 export function useProjects() {
-  const [projects, setProjects] = useState<OperationalProject[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [projects, setProjects] = useState<OperationalProject[]>(() => getCachedProjects() ?? []);
+  const [loading, setLoading] = useState<boolean>(() => !getCachedProjects());
 
   useEffect(() => {
     let cancelled = false;
@@ -80,7 +117,10 @@ export function useProjects() {
       setProjects(data);
       setLoading(false);
     });
-    return () => { cancelled = true; unsub(); };
+    return () => {
+      cancelled = true;
+      unsub();
+    };
   }, []);
 
   return { projects, loading };
@@ -88,11 +128,11 @@ export function useProjects() {
 
 // ─── useTasks ────────────────────────────────────────────────────
 export function useTasks() {
-  const [tasks, setTasks] = useState<OperationalTask[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [tasks, setTasks] = useState<OperationalTask[]>(() => getCachedTasks() ?? []);
+  const [loading, setLoading] = useState<boolean>(() => !getCachedTasks());
 
   useEffect(() => {
-    const unsub = subscribeToTasks(data => {
+    const unsub = subscribeToTasks((data) => {
       setTasks(data);
       setLoading(false);
     });
@@ -104,11 +144,11 @@ export function useTasks() {
 
 // ─── useEmployees ────────────────────────────────────────────────
 export function useEmployees() {
-  const [employees, setEmployees] = useState<Employee[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [employees, setEmployees] = useState<Employee[]>(() => getCachedEmployees() ?? []);
+  const [loading, setLoading] = useState<boolean>(() => !getCachedEmployees());
 
   useEffect(() => {
-    const unsub = subscribeToEmployees(data => {
+    const unsub = subscribeToEmployees((data) => {
       setEmployees(data);
       setLoading(false);
     });
@@ -120,11 +160,11 @@ export function useEmployees() {
 
 // ─── useEmployeeNotes ────────────────────────────────────────────
 export function useEmployeeNotes() {
-  const [notes, setNotes] = useState<EmployeeNotesMap>({});
-  const [loading, setLoading] = useState(true);
+  const [notes, setNotes] = useState<EmployeeNotesMap>(() => getCachedEmployeeNotes() ?? {});
+  const [loading, setLoading] = useState<boolean>(() => !getCachedEmployeeNotes());
 
   useEffect(() => {
-    const unsub = subscribeToEmployeeNotes(data => {
+    const unsub = subscribeToEmployeeNotes((data) => {
       setNotes(data);
       setLoading(false);
     });
@@ -137,7 +177,7 @@ export function useEmployeeNotes() {
 // ─── useRoles ────────────────────────────────────────────────────
 export function useRoles() {
   const [roles, setRoles] = useState<Record<string, RoleDefinition>>({});
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setRoles({});

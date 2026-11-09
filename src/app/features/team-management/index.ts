@@ -25,4 +25,5 @@ export type * from "./types";
 export {
   fetchTeamWorkflowFacts,
   subscribeToTeamWorkflowFacts,
+  warmTeamWorkflowFacts,
 } from "./services/teamWorkflowFactsService";

@@ -3,7 +3,6 @@ import { useOrgs } from "../../../../hooks/useSupabaseData";
 import { Button } from "../../../../components/ui/button";
 import {
   WorkspaceHeader,
-  WorkspaceSkeleton,
   EmptyWorkspaceState,
 } from "../../../../components/ui/workspace";
 import { exportCsv, exportPdf } from "../../../../services/reportService";
@@ -18,6 +17,87 @@ import {
 import { ExecutionRow, ReceiptRegister } from "./ProjectReportRegisters";
 import type { ProjectCommandData } from "./types";
 import "../../../../components/ui/workspace/analyticalWorkspace.css";
+
+function ProjectReportsDataSkeleton() {
+  const pulse = "animate-pulse rounded bg-muted";
+  return (
+    <div role="status" aria-label="Loading project report facts" aria-busy="true">
+      <span className="sr-only">Loading project report facts</span>
+      <div className="eflow-health-strip" aria-hidden="true">
+        {[
+          "Weighted progress",
+          "Task budget",
+          "Reserved cash",
+          "Actual spent",
+          "Returned balance",
+          "Remaining balance",
+          "Evidence health",
+        ].map((label) => (
+          <div className="eflow-health-item" key={label}>
+            <span className="eflow-health-item-label">{label}</span>
+            <span className={`mt-1.5 inline-block h-5 w-24 ${pulse}`} />
+          </div>
+        ))}
+      </div>
+      <section className="eflow-section-card" aria-hidden="true">
+        <header>
+          <h3>Task and subtask execution register</h3>
+          <p>
+            Subtasks without a set cap draw from the shared parent-task pool.
+          </p>
+        </header>
+        <div className="eflow-analytics-table">
+          <table className="min-w-[1100px]">
+            <thead>
+              <tr>
+                {[
+                  "Work hierarchy",
+                  "Accountability",
+                  "Status / progress",
+                  "Schedule",
+                  "Budget mode",
+                  "Reserved / spent / returned",
+                  "Evidence",
+                ].map((label) => (
+                  <th key={label}>{label}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {[0, 1, 2, 3, 4].map((row) => (
+                <tr key={row}>
+                  <td className="space-y-1.5">
+                    <span className={`block h-4 w-44 ${pulse}`} />
+                    <span className={`block h-3 w-28 ${pulse}`} />
+                  </td>
+                  <td>
+                    <span className={`inline-block h-3.5 w-28 ${pulse}`} />
+                  </td>
+                  <td>
+                    <span className={`inline-block h-5 w-20 rounded-full ${pulse}`} />
+                  </td>
+                  <td>
+                    <span className={`inline-block h-3.5 w-20 ${pulse}`} />
+                  </td>
+                  <td>
+                    <span className={`inline-block h-3.5 w-24 ${pulse}`} />
+                  </td>
+                  <td>
+                    <span className={`inline-block h-3.5 w-32 ${pulse}`} />
+                  </td>
+                  <td>
+                    <span className={`inline-block h-3.5 w-20 ${pulse}`} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  );
+}
+
 export function ProjectReportsTab({
   data: source,
   canExport,
@@ -45,7 +125,7 @@ export function ProjectReportsTab({
   );
   const roots = rows.filter((row) => row.level === "task");
   const budget = roots.reduce((sum, row) => sum + row.budgetAmount, 0),
-    reserved = roots.reduce((sum, row) => sum + row.reservedAmount, 0),
+     reserved = roots.reduce((sum, row) => sum + row.reservedAmount, 0),
     spent = roots.reduce((sum, row) => sum + row.spentAmount, 0),
     returned = roots.reduce((sum, row) => sum + row.returnedAmount, 0),
     available = roots.reduce((sum, row) => sum + row.availableAmount, 0);
@@ -216,7 +296,7 @@ export function ProjectReportsTab({
         </p>
       )}
       {source.loading || source.financialLoading ? (
-        <WorkspaceSkeleton label="Loading project report facts" />
+        <ProjectReportsDataSkeleton />
       ) : (
         <>
           <div className="eflow-health-strip">

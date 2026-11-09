@@ -24,7 +24,88 @@ import {
 import { isExternalReviewParticipant } from "../../../interdepartment-collaboration/selectors/organizationEligibility";
 import { useProposalGovernance } from "../../../interdepartment-collaboration/hooks/useProposalGovernance";
 import { SourcePdfPreviewDialog } from "../../../interdepartment-collaboration/components/SourcePdfPreviewDialog";
-import { SectionEmpty, LoadingState, formatDate } from "../../../../components/workflow/primitives";
+import { SectionEmpty, formatDate } from "../../../../components/workflow/primitives";
+
+function ProjectProposalContextTabSkeleton() {
+  const pulse = "animate-pulse rounded bg-neutral-200/80";
+  return (
+    <div
+      className="space-y-6 font-sans"
+      role="status"
+      aria-label="Loading proposal and governance context…"
+      aria-busy="true"
+    >
+      <span className="sr-only">Loading proposal and governance context…</span>
+      {/* Proposal Summary Card Skeleton */}
+      <div aria-hidden="true" className="bg-white border border-neutral-200/80 rounded-2xl p-6 shadow-xs space-y-4">
+        <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+          <div className="space-y-2 flex-1 min-w-0">
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <span className={`h-5 w-36 rounded-md ${pulse}`} />
+              <span className={`h-5 w-28 rounded-full ${pulse}`} />
+              <span className={`h-5 w-20 rounded-md ${pulse}`} />
+            </div>
+            <span className={`block h-6 w-2/3 ${pulse}`} />
+            <span className={`block h-3.5 w-4/5 ${pulse}`} />
+          </div>
+          <span className={`h-9 w-36 rounded-xl ${pulse}`} />
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-neutral-100">
+          {["Originating Office", "Planning Anchor", "Created Date", "Committed To Delivery"].map((label) => (
+            <div key={label} className="space-y-1.5">
+              <div className="text-neutral-400 font-semibold text-[10.5px] uppercase tracking-wider">{label}</div>
+              <span className={`block h-4 w-28 ${pulse}`} />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 2-Column Grid Skeleton */}
+      <div aria-hidden="true" className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
+          <div className="bg-white border border-neutral-200/80 rounded-2xl p-6 shadow-xs space-y-4">
+            <div className="border-b border-neutral-100 pb-3 space-y-1.5">
+              <span className={`block h-4 w-48 ${pulse}`} />
+              <span className={`block h-3 w-72 ${pulse}`} />
+            </div>
+            <div className="divide-y divide-neutral-100">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="py-3.5 flex items-center justify-between gap-4">
+                  <div className="space-y-1.5 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className={`h-4 w-40 ${pulse}`} />
+                      <span className={`h-4 w-20 rounded ${pulse}`} />
+                    </div>
+                    <span className={`block h-3 w-52 ${pulse}`} />
+                  </div>
+                  <span className={`h-6 w-24 rounded-full ${pulse}`} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="space-y-6">
+          <div className="bg-white border border-neutral-200/80 rounded-2xl p-6 shadow-xs space-y-4">
+            <div className="border-b border-neutral-100 pb-3">
+              <span className={`block h-4 w-36 ${pulse}`} />
+            </div>
+            <div className="space-y-3">
+              {[0, 1].map((rev) => (
+                <div key={rev} className="space-y-1.5 pb-3 border-b border-neutral-100 last:border-0">
+                  <div className="flex items-center justify-between">
+                    <span className={`h-3.5 w-24 ${pulse}`} />
+                    <span className={`h-3 w-20 ${pulse}`} />
+                  </div>
+                  <span className={`block h-3 w-4/5 ${pulse}`} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function ProjectProposalContextTab({
   draftId,
@@ -211,11 +292,7 @@ export function ProjectProposalContextTab({
   }
 
   if (state.loading) {
-    return (
-      <div className="p-8">
-        <LoadingState label="Loading proposal and governance context…" />
-      </div>
-    );
+    return <ProjectProposalContextTabSkeleton />;
   }
 
   if (!draft) {

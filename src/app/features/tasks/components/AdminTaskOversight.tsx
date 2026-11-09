@@ -3,13 +3,50 @@ import { AlertTriangle, Building2, Files, Inbox, ListTodo, UserX } from "lucide-
 import { useTasks } from "../../../hooks/useFirebaseData";
 import { useOrgs } from "../../../hooks/useSupabaseData";
 import { TaskDetailDrawer } from "../../task-inspector";
-import { Card, LoadingState, PageHeader, SearchInput, SectionEmpty, StatCard, WSelect } from "../../../components/workflow/primitives";
+import { Card, PageHeader, SearchInput, SectionEmpty, StatCard, WSelect } from "../../../components/workflow/primitives";
 import { useNotificationNavigationIntent } from "../../notifications";
 import { buildAdminTaskProposalGroups, isOverdue, isUnassigned } from "../selectors";
 import type { Task } from "../taskTypes";
 import { AdminTaskOversightList } from "./AdminTaskOversightList";
 
 type QuickFilter = "none" | "unassigned" | "overdue" | "orphaned" | "review";
+
+function AdminTaskOversightListSkeleton() {
+  const pulse = "animate-pulse rounded bg-neutral-200/80";
+  return (
+    <div
+      className="space-y-4"
+      role="status"
+      aria-label="Loading task oversight…"
+      aria-busy="true"
+    >
+      <span className="sr-only">Loading task oversight…</span>
+      {[0, 1].map((group) => (
+        <div key={group} aria-hidden="true" className="rounded-2xl border border-neutral-200 bg-white shadow-sm overflow-hidden">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-neutral-100 bg-neutral-50/70 px-5 py-3.5">
+            <div className="space-y-1.5">
+              <span className={`block h-4 w-56 ${pulse}`} />
+              <span className={`block h-3 w-36 ${pulse}`} />
+            </div>
+            <span className={`h-5 w-24 rounded-full ${pulse}`} />
+          </div>
+          <div className="divide-y divide-neutral-100">
+            {[0, 1, 2].map((row) => (
+              <div key={row} className="flex flex-wrap items-center justify-between gap-3 px-5 py-3">
+                <div className="space-y-1.5 flex-1 min-w-[200px]">
+                  <span className={`block h-4 w-64 max-w-full ${pulse}`} />
+                  <span className={`block h-3 w-44 ${pulse}`} />
+                </div>
+                <span className={`h-5 w-24 rounded-full ${pulse}`} />
+                <span className={`h-5 w-20 rounded-full ${pulse}`} />
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export function AdminTaskOversight() {
   const { tasks, loading } = useTasks();
@@ -58,9 +95,10 @@ export function AdminTaskOversight() {
     return [...rows].sort((a, b) => b.updatedAt - a.updatedAt);
   }, [orgFilter, organizationIds, query, quickFilter, statusFilter, visibleTasks]);
 
-  if (loading) return <div className="p-8"><LoadingState label="Loading task oversight…" /></div>;
   const organizationName = (orgId?: string) => orgId ? orgs.find((org) => org.id === orgId)?.name || "Unknown organization" : "Not assigned";
   const toggleQuickFilter = (next: QuickFilter) => setQuickFilter((current) => current === next ? "none" : next);
+  const statVal = (n: number) =>
+    loading ? <span className="inline-block h-6 w-10 animate-pulse rounded bg-muted" /> : n;
 
   return (
     <div className="min-h-full bg-neutral-50 p-3 sm:p-8">
@@ -71,11 +109,11 @@ export function AdminTaskOversight() {
       />
 
       <div className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
-        <StatCard label="Proposals" value={proposalCount} hint={`${visibleTasks.length} visible tasks`} icon={<Files size={15} />} />
-        <StatCard label="Unassigned" value={counts.unassigned} tone={counts.unassigned ? "info" : "neutral"} icon={<UserX size={15} />} onClick={() => toggleQuickFilter("unassigned")} active={quickFilter === "unassigned"} />
-        <StatCard label="Overdue" value={counts.overdue} tone={counts.overdue ? "bad" : "good"} icon={<AlertTriangle size={15} />} onClick={() => toggleQuickFilter("overdue")} active={quickFilter === "overdue"} />
-        <StatCard label="Awaiting review" value={counts.review} tone={counts.review ? "warn" : "neutral"} icon={<Inbox size={15} />} onClick={() => toggleQuickFilter("review")} active={quickFilter === "review"} />
-        <StatCard label="Data issues" value={counts.orphaned} tone={counts.orphaned ? "bad" : "good"} icon={<Building2 size={15} />} onClick={() => toggleQuickFilter("orphaned")} active={quickFilter === "orphaned"} />
+        <StatCard label="Proposals" value={statVal(proposalCount)} hint={`${visibleTasks.length} visible tasks`} icon={<Files size={15} />} />
+        <StatCard label="Unassigned" value={statVal(counts.unassigned)} tone={counts.unassigned ? "info" : "neutral"} icon={<UserX size={15} />} onClick={() => toggleQuickFilter("unassigned")} active={quickFilter === "unassigned"} />
+        <StatCard label="Overdue" value={statVal(counts.overdue)} tone={counts.overdue ? "bad" : "good"} icon={<AlertTriangle size={15} />} onClick={() => toggleQuickFilter("overdue")} active={quickFilter === "overdue"} />
+        <StatCard label="Awaiting review" value={statVal(counts.review)} tone={counts.review ? "warn" : "neutral"} icon={<Inbox size={15} />} onClick={() => toggleQuickFilter("review")} active={quickFilter === "review"} />
+        <StatCard label="Data issues" value={statVal(counts.orphaned)} tone={counts.orphaned ? "bad" : "good"} icon={<Building2 size={15} />} onClick={() => toggleQuickFilter("orphaned")} active={quickFilter === "orphaned"} />
       </div>
 
       <Card className="mb-4 shadow-sm" bodyClassName="p-3.5">
@@ -92,12 +130,14 @@ export function AdminTaskOversight() {
             { value: "completed", label: "Completed" },
             { value: "cancelled", label: "Cancelled" },
           ]} />
-          <div className="ml-auto flex items-center gap-2 text-[10.5px] text-neutral-500"><ListTodo size={13} /> {filtered.length} matching records</div>
+          <div className="ml-auto flex items-center gap-2 text-[10.5px] text-neutral-500"><ListTodo size={13} /> {loading ? "…" : filtered.length} matching records</div>
           {quickFilter !== "none" && <button type="button" onClick={() => setQuickFilter("none")} className="rounded-lg px-2.5 py-1.5 text-[10.5px] font-medium text-neutral-600 hover:bg-neutral-100">Clear signal filter</button>}
         </div>
       </Card>
 
-      {filtered.length ? (
+      {loading ? (
+        <AdminTaskOversightListSkeleton />
+      ) : filtered.length ? (
         <AdminTaskOversightList tasks={filtered} orgName={organizationName} onOpen={setOpen} />
       ) : (
         <div className="rounded-2xl border border-neutral-200 bg-white"><SectionEmpty icon={<ListTodo size={30} />} title="No task records match" description="Adjust the search, organization, status, or signal filters." /></div>

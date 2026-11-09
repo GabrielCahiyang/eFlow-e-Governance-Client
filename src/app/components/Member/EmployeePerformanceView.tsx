@@ -82,7 +82,14 @@ export function EmployeePerformanceView() {
               {label as string}
             </div>
             <div className="mt-1 text-[25px] font-semibold text-neutral-900">
-              {tasksLoading ? "—" : (value as number)}
+              {tasksLoading ? (
+                <>
+                  <span className="inline-block h-7 w-12 animate-pulse rounded bg-neutral-200 align-middle" aria-hidden="true" />
+                  <span className="sr-only">—</span>
+                </>
+              ) : (
+                (value as number)
+              )}
             </div>
             <div className="mt-0.5 text-[11px] text-neutral-500">
               {description as string}
@@ -147,9 +154,24 @@ export function EmployeePerformanceView() {
         </div>
 
         {notesLoading ? (
-          <p className="mt-5 text-[12px] text-neutral-400">
-            Loading your profile…
-          </p>
+          <div role="status" aria-busy="true" className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
+            <span className="sr-only">Loading your profile…</span>
+            <div aria-hidden="true" className="rounded-lg bg-emerald-50/70 p-4 space-y-2">
+              <div className="text-[10px] uppercase tracking-wider text-emerald-900/70">Strengths</div>
+              <div className="h-3.5 w-4/5 animate-pulse rounded bg-emerald-200/60" />
+              <div className="h-3.5 w-3/5 animate-pulse rounded bg-emerald-200/60" />
+            </div>
+            <div aria-hidden="true" className="rounded-lg bg-amber-50/70 p-4 space-y-2">
+              <div className="text-[10px] uppercase tracking-wider text-amber-900/70">Growth areas</div>
+              <div className="h-3.5 w-4/5 animate-pulse rounded bg-amber-200/60" />
+              <div className="h-3.5 w-2/3 animate-pulse rounded bg-amber-200/60" />
+            </div>
+            <div aria-hidden="true" className="rounded-lg bg-neutral-50 p-4 md:col-span-2 space-y-2">
+              <div className="text-[10px] uppercase tracking-wider text-neutral-400">Notes</div>
+              <div className="h-3.5 w-3/4 animate-pulse rounded bg-neutral-200" />
+              <div className="h-3.5 w-1/2 animate-pulse rounded bg-neutral-200" />
+            </div>
+          </div>
         ) : profileNote ? (
           <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
             <InsightCard

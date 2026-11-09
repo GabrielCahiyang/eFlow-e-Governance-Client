@@ -68,9 +68,18 @@ export function TaskActivityHistoryView({
       </header>
 
       {loading ? (
-        <div className="space-y-3 px-5 py-6" aria-live="polite" role="status">
-          {[0, 1, 2].map((item) => <div key={item} className="h-12 animate-pulse rounded-lg bg-neutral-50" />)}
-        </div>
+        <ol className="divide-y divide-neutral-100" aria-live="polite" role="status">
+          {[0, 1, 2, 3].map((item) => (
+            <li key={item} aria-hidden="true" className="flex gap-3 px-4 py-3.5 sm:px-5">
+              <span className="mt-0.5 inline-flex h-7 w-7 shrink-0 animate-pulse rounded-full bg-neutral-200/80" />
+              <div className="min-w-0 flex-1 space-y-1.5">
+                <div className="h-3.5 w-48 animate-pulse rounded bg-neutral-200/80" />
+                <div className="h-3 w-3/4 animate-pulse rounded bg-neutral-100" />
+                <div className="h-2.5 w-32 animate-pulse rounded bg-neutral-100" />
+              </div>
+            </li>
+          ))}
+        </ol>
       ) : error ? (
         <div className="px-5 py-8 text-center text-xs text-rose-700" role="alert">{error}</div>
       ) : items.length === 0 ? (

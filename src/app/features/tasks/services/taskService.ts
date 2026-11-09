@@ -1,4 +1,4 @@
-export { seedTasksIfEmpty, subscribeToTasks } from "./taskRealtimeService";
+export { getCachedTasks, seedTasksIfEmpty, subscribeToTasks } from "./taskRealtimeService";
 export { createTask, assignTask, updateTask } from "./taskMutationService";
 export {
   updateTaskStatus,

@@ -9,11 +9,11 @@ export async function readWorkTable(table: string) {
       .select("*")
       .order("id", { ascending: true });
     if (table === "tasks") query = query.is("deleted_at", null);
-    const { data, error } = await query.range(
+    const { data, error, status } = await query.range(
       page * PAGE,
       (page + 1) * PAGE - 1,
     );
-    if (error) throw new Error(error.message);
+    if (error) throw Object.assign(new Error(error.message), { code: error.code, status });
     if (!Array.isArray(data)) throw new Error(`Invalid ${table} response`);
     rows.push(...data);
     if (data.length < PAGE) return rows;

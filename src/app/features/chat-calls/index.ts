@@ -1,6 +1,7 @@
 export * from "../../services/chatService";
 export * from "../../services/callService";
 export { MessagesProvider } from './components/MessagesContext';
+export { warmConversations } from './services/messagesWorkspace';
 export { MessagesButton } from './components/MessagesButton';
 export { MessagesWorkspace } from './components/MessagesWorkspace';
 export { ProjectChatLink, TaskChatLink } from './components/TaskChatLink';

@@ -29,7 +29,6 @@ import { useToast } from "../../../../components/ui/Toast";
 import { WorkspaceHeader } from '../../../../components/ui/workspace';
 import {
   Card,
-  LoadingState,
   StatCard,
   WButton,
   WSelect,
@@ -55,6 +54,119 @@ const uncertainStarts = new Map<
   string,
   { ids: string[]; mode: BackupMode; after: number }
 >();
+
+function BackupExportWorkspaceSkeleton() {
+  return (
+    <div
+      className="eflow-page-content"
+      role="status"
+      aria-label="Inspecting database backup readiness…"
+    >
+      <span className="sr-only">Inspecting database backup readiness…</span>
+      <WorkspaceHeader
+        title="Backup & Export"
+        description="Create an audited, checksummed export of the live eFlow Supabase schema and operational data."
+      />
+      <div aria-hidden="true">
+        <div className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <StatCard
+            label="Public tables"
+            value={<span className="inline-block h-6 w-10 animate-pulse rounded bg-neutral-200/80" />}
+            hint="Discovered through Supabase"
+            tone="info"
+            icon={<Table2 size={15} />}
+          />
+          <StatCard
+            label="Gateway readiness"
+            value={<span className="inline-block h-6 w-16 animate-pulse rounded bg-neutral-200/80" />}
+            hint="Database URL + pg_dump"
+            tone="info"
+            icon={<ServerCog size={15} />}
+          />
+          <StatCard
+            label="Ready archives"
+            value={<span className="inline-block h-6 w-10 animate-pulse rounded bg-neutral-200/80" />}
+            hint="Temporary retention"
+            tone="good"
+            icon={<Archive size={15} />}
+          />
+          <StatCard
+            label="Rows packaged"
+            value={<span className="inline-block h-6 w-14 animate-pulse rounded bg-neutral-200/80" />}
+            hint="This gateway session"
+            icon={<Database size={15} />}
+          />
+        </div>
+        <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.15fr)_minmax(360px,0.85fr)]">
+          <div className="space-y-5">
+            <Card
+              title="Create database export"
+              subtitle="Nothing is modified in Supabase; this operation only reads and packages data."
+            >
+              <div className="space-y-4">
+                <div className="h-9 w-full animate-pulse rounded-lg bg-neutral-100" />
+                <div className="h-16 w-full animate-pulse rounded-xl bg-blue-50/60" />
+                <div className="h-14 w-full animate-pulse rounded-xl bg-neutral-100" />
+                <div className="h-10 w-full animate-pulse rounded-xl bg-neutral-100" />
+                <div className="h-10 w-full animate-pulse rounded-xl bg-neutral-100" />
+                <div className="h-10 w-full animate-pulse rounded-xl bg-neutral-200/80" />
+              </div>
+            </Card>
+            <Card
+              title="Archive contents"
+              subtitle="Both machine-restorable and human-readable formats are included."
+            >
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                {[0, 1, 2, 3].map((index) => (
+                  <div
+                    key={index}
+                    className="h-14 animate-pulse rounded-xl border border-neutral-100 bg-neutral-50/70 p-3"
+                  />
+                ))}
+              </div>
+            </Card>
+          </div>
+          <div className="space-y-5">
+            <Card
+              title="Discovered public schema"
+              subtitle="Inspecting PostgREST-visible tables"
+            >
+              <div className="flex flex-wrap gap-1.5">
+                {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((index) => (
+                  <span
+                    key={index}
+                    className="h-6 w-24 animate-pulse rounded-md border border-neutral-200 bg-neutral-50"
+                  />
+                ))}
+              </div>
+            </Card>
+            <Card title="Security boundaries">
+              <div className="space-y-3">
+                {[0, 1, 2, 3].map((index) => (
+                  <div key={index} className="flex items-start gap-2.5">
+                    <div className="h-7 w-7 shrink-0 animate-pulse rounded-lg bg-emerald-50" />
+                    <div className="flex-1 space-y-1.5">
+                      <div className="h-3.5 w-32 animate-pulse rounded bg-neutral-200/80" />
+                      <div className="h-2.5 w-52 animate-pulse rounded bg-neutral-100" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </div>
+        </div>
+        <div className="mt-5">
+          <div className="mb-3">
+            <div className="h-4 w-28 animate-pulse rounded bg-neutral-200/80" />
+            <div className="mt-1 h-3 w-64 animate-pulse rounded bg-neutral-100" />
+          </div>
+          <div className="h-28 animate-pulse rounded-xl border border-dashed border-neutral-300 bg-white" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function BackupExportWorkspace() {
   const { toast } = useToast();
   const { user } = useAuth();
@@ -334,12 +446,7 @@ export function BackupExportWorkspace() {
       setBusy(false);
     }
   };
-  if (loading && !overview)
-    return (
-      <div className="p-8">
-        <LoadingState label="Inspecting database backup readiness…" />
-      </div>
-    );
+  if (loading && !overview) return <BackupExportWorkspaceSkeleton />;
 
   if (error && !overview) {
     return (

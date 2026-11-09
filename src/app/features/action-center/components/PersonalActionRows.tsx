@@ -1,5 +1,20 @@
 import type { ActionItem } from '../selectors';
 
+export function PersonalActionRowsSkeleton({ rows = 3 }: { rows?: number }) {
+  const pulse = 'animate-pulse rounded bg-muted';
+  return (
+    <ul className="inbox-action-list rounded-lg border border-border divide-y divide-border bg-card" aria-hidden="true">
+      {Array.from({ length: rows }, (_, i) => (
+        <li key={i} className="px-4 py-3 space-y-1.5">
+          <span className={`block h-4 w-2/5 ${pulse}`} />
+          <span className={`block h-3 w-3/5 ${pulse}`} />
+          <span className={`block h-3 w-20 ${pulse}`} />
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 export function PersonalActionRows({ items, onOpen }: { items: ActionItem[]; onOpen: (item: ActionItem) => void }) {
   if (!items.length) return null;
   return <ul className="inbox-action-list rounded-lg border border-border divide-y divide-border bg-card">{items.map(item => {

@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ImagePlus, Info, Phone, Pin, Send, Video, X } from 'lucide-react';
 import { useConfirmation } from '../../../components/ui/useConfirmation';
-import { deleteMessage, sendMessageWithMentions } from '../../../services/chatService';
+import { deleteMessage, sendMessage } from '../../../services/chatService';
 import { initiateCall } from '../../../services/callService';
 import { useConversation } from '../hooks/useConversation';
 import { parseMessage } from '../services/chatMessageCodec';
+import { readChatMentions, type ChatDraft } from '../services/chatMentions';
 import { setMessagePin, toggleMessageReaction, type Conversation, type Message } from '../services/messagesWorkspace';
 import { ConversationAvatar } from './ChatChannelList';
 import { ConversationInfo } from './ConversationInfo';
@@ -12,6 +13,7 @@ import { MessageHistory } from './MessageHistory';
 import { useMessages } from './MessagesContext';
 import { removeChatImage, uploadChatImage, validateChatImage } from '../services/chatImages';
 import { ConversationImage } from './ConversationImage';
+import { ChatMentionInput } from './ChatMentionInput';
 
 export function ActiveChatPanel({ conversation, userId, userName, onBack, onOpenTask, onOpenProject }: {
   conversation: Conversation; userId?: string; userName?: string;
@@ -20,7 +22,7 @@ export function ActiveChatPanel({ conversation, userId, userName, onBack, onOpen
   const { refresh: refreshList, outgoingCall, setOutgoingCall } = useMessages();
   const thread = useConversation(conversation.channelId, conversation.unread, refreshList);
   const [showInfo, setShowInfo] = useState(false);
-  const [draft, setDraft] = useState('');
+  const [draft, setDraft] = useState<ChatDraft>({ text: '', mentions: [] });
   const [image, setImage] = useState<{ file: File; preview: string }>();
   const [reply, setReply] = useState<Message>();
   const [busy, setBusy] = useState(false);
@@ -32,6 +34,7 @@ export function ActiveChatPanel({ conversation, userId, userName, onBack, onOpen
   const imagePicker = useRef<HTMLInputElement>(null);
   const sending = useRef(false);
   const nearBottom = useRef(true);
+  const group = conversation.channelType !== 'direct';
   const latest = thread.history[thread.history.length - 1];
   useEffect(() => () => { if (image) URL.revokeObjectURL(image.preview); }, [image]);
 
@@ -55,18 +58,24 @@ export function ActiveChatPanel({ conversation, userId, userName, onBack, onOpen
   }, [thread.markRead, showInfo]);
 
   async function send() {
-    if (!userId || sending.current || (!draft.trim() && !image)) return;
+    if (!userId || sending.current || (!draft.text.trim() && !image)) return;
     sending.current = true;
     setBusy(true);
     setError('');
     let uploaded: string | undefined;
     try {
-      const text = draft.trim();
-      const content = reply ? JSON.stringify({ text, replyToName: reply.senderName, replyToText: parseMessage(reply.content).text }) : text;
+      const text = draft.text.trim();
+      const leadingSpace = draft.text.length - draft.text.trimStart().length;
+      const mentions = readChatMentions(draft.mentions.map(mention => ({ ...mention, start: mention.start - leadingSpace })), text);
+      const content = reply || mentions.length ? JSON.stringify({
+        text,
+        ...(mentions.length ? { mentions } : {}),
+        ...(reply ? { replyToName: reply.senderName, replyToText: parseMessage(reply.content).text } : {}),
+      }) : text;
       if (image) uploaded = await uploadChatImage(conversation.channelId, userId, image.file);
-      await sendMessageWithMentions(conversation.channelId, userId, userName || 'Someone', content, uploaded);
+      await sendMessage(conversation.channelId, userId, userName || 'Someone', content, uploaded);
       setImage(undefined);
-      setDraft('');
+      setDraft({ text: '', mentions: [] });
       setReply(undefined);
       nearBottom.current = true;
       await thread.refresh();
@@ -134,7 +143,7 @@ export function ActiveChatPanel({ conversation, userId, userName, onBack, onOpen
           requestAnimationFrame(() => { if (el) el.scrollTop += el.scrollHeight - height; });
         }}>{thread.loadingOlder ? 'Loading…' : 'Load earlier messages'}</button>}
         {!thread.loading && !thread.error && thread.history.length === 0 && <div className="messages-empty-thread"><ConversationAvatar conversation={conversation} /><h3>Start the conversation</h3><p>{conversation.taskId ? 'Use this chat to coordinate work on this task.' : 'Send the first message to get things started.'}</p></div>}
-        <MessageHistory messages={thread.history} userId={userId}
+        <MessageHistory messages={thread.history} userId={userId} group={group} historyRef={historyRef}
           onReply={message => { setReply(message); composer.current?.focus(); }}
           onReact={(message, emoji) => void run(() => toggleMessageReaction(message.id, emoji))}
           onPin={message => void run(() => setMessagePin(message.id, !message.pinned))}
@@ -157,11 +166,9 @@ export function ActiveChatPanel({ conversation, userId, userName, onBack, onOpen
             catch (failure) { setError(errorMessage(failure, 'Could not attach this image.')); }
           }} />
           <button type="button" className="messages-icon-button" disabled={busy} onClick={() => imagePicker.current?.click()} aria-label="Attach an image"><ImagePlus size={21} /></button>
-          <textarea ref={composer} aria-label="Message" placeholder="Write a message…" value={draft} rows={1} maxLength={1000} disabled={busy}
-            onChange={event => setDraft(event.target.value)} onKeyDown={event => {
-              if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); void send(); }
-            }} />
-          <button type="submit" className="messages-send" disabled={(!draft.trim() && !image) || busy} aria-label="Send message"><Send size={18} /></button>
+          <ChatMentionInput composer={composer} draft={draft} setDraft={setDraft} channelId={conversation.channelId}
+            userId={userId} group={group} disabled={busy} onSend={() => void send()} />
+          <button type="submit" className="messages-send" disabled={(!draft.text.trim() && !image) || busy} aria-label="Send message"><Send size={18} /></button>
         </div>
       </form>
     </section>

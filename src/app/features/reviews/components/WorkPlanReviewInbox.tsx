@@ -13,7 +13,6 @@ import { useOrgs } from "../../../hooks/useSupabaseData";
 import { useCollaborationDrafts, isActiveCollaborationDraft } from "../../interdepartment-collaboration";
 import { queueNotificationNavigationIntent } from "../../notifications";
 import { SectionEmpty } from "../../../components/workflow/primitives";
-import { WorkspaceLoadingSkeleton } from "../../../components/workflow/WorkspaceLoadingSkeleton";
 
 const workPlanSortOptions = [
   { value: "newest", label: "Newest updated" },
@@ -27,6 +26,46 @@ function timeAgo(ts?: number): string {
   if (h < 24) return `${h}h ago`;
   const d = Math.floor(h / 24);
   return `${d}d ago`;
+}
+
+function WorkPlanCardsSkeleton() {
+  const pulse = "animate-pulse rounded bg-neutral-200/80";
+  return (
+    <div
+      className="grid grid-cols-1 gap-4"
+      role="status"
+      aria-label="Loading incoming work plan reviews…"
+      aria-busy="true"
+    >
+      <span className="sr-only">Loading incoming work plan reviews…</span>
+      {[0, 1, 2].map((i) => (
+        <div
+          key={i}
+          aria-hidden="true"
+          className="bg-white border border-neutral-200/80 rounded-2xl p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-5"
+        >
+          <div className="space-y-2.5 min-w-0 flex-1">
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <span className={`h-5 w-32 rounded-md ${pulse}`} />
+              <span className={`h-5 w-28 rounded-full ${pulse}`} />
+              <span className={`h-3.5 w-24 ${pulse}`} />
+            </div>
+            <div className="space-y-1.5">
+              <span className={`block h-5 w-2/5 ${pulse}`} />
+              <span className={`block h-3.5 w-4/5 ${pulse}`} />
+            </div>
+            <div className="flex items-center gap-4 pt-1">
+              <span className={`h-3.5 w-40 ${pulse}`} />
+              <span className={`h-3.5 w-48 ${pulse}`} />
+            </div>
+          </div>
+          <div className="flex items-center gap-3 shrink-0 self-end md:self-center">
+            <span className={`h-9 w-40 rounded-xl ${pulse}`} />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export function WorkPlanReviewInbox({ onNavigate }: { onNavigate?: (section: string, page: string) => void }) {
@@ -91,14 +130,6 @@ export function WorkPlanReviewInbox({ onNavigate }: { onNavigate?: (section: str
     }
   };
 
-  if (collaboration.loading) {
-    return (
-      <div className="p-8">
-      <WorkspaceLoadingSkeleton label="Loading incoming work plan reviews…" rows={4} />
-      </div>
-    );
-  }
-
   return (
     <div className="eflow-operational-workspace space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white border border-neutral-200/80 rounded-2xl p-4 shadow-xs">
@@ -126,7 +157,9 @@ export function WorkPlanReviewInbox({ onNavigate }: { onNavigate?: (section: str
         </div>
       </div>
 
-      {incomingDrafts.length === 0 ? (
+      {collaboration.loading ? (
+        <WorkPlanCardsSkeleton />
+      ) : incomingDrafts.length === 0 ? (
         <div className="bg-white border border-neutral-200/80 rounded-2xl p-12 text-center shadow-xs">
           <SectionEmpty fill illustration="complete"
             icon={<CheckCircle2 size={36} className="text-emerald-500" />}

@@ -1,17 +1,39 @@
+import type { ReactNode } from "react";
 import { Skeleton } from "@vibe/core";
 
 export function WorkspaceLoadingSkeleton({
   label = "Loading workspace…",
   rows = 4,
+  className,
+  children,
 }: {
   label?: string;
   rows?: number;
+  className?: string;
+  children?: ReactNode;
 }) {
+  if (children) {
+    return (
+      <div
+        aria-label={label}
+        aria-live="polite"
+        aria-busy="true"
+        className={className}
+        role="status"
+      >
+        <span className="sr-only">{label}</span>
+        {children}
+      </div>
+    );
+  }
   return (
     <div
       aria-label={label}
       aria-live="polite"
-      className="space-y-4 rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm sm:p-5"
+      className={
+        className ||
+        "space-y-4 rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm sm:p-5"
+      }
       role="status"
     >
       <div className="flex flex-wrap items-center justify-between gap-4">

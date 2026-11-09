@@ -3,7 +3,6 @@ import { controlPanelFetch } from "../../../shared/controlPanelClient";
 import { Button } from "../../../components/ui/button";
 import {
   WorkspaceHeader,
-  WorkspaceSkeleton,
   StatusPill,
 } from "../../../components/ui/workspace";
 type HealthEntry = {
@@ -22,6 +21,35 @@ type Health = {
   redirect: HealthEntry;
   scope: string;
 };
+
+function EmailIntegrationsHealthSkeleton() {
+  const channels = [
+    "Application invitations (Resend)",
+    "Notification SMTP",
+    "Supabase Auth SMTP",
+    "Invitation app redirect",
+  ];
+  return (
+    <div role="status" aria-label="Loading delivery configuration">
+      <span className="sr-only">Loading delivery configuration</span>
+      <div aria-hidden="true" className="space-y-4">
+        <div className="h-3.5 w-64 animate-pulse rounded bg-neutral-200/80" />
+        <div className="eflow-admin-health-grid">
+          {channels.map((title) => (
+            <article className="eflow-admin-card" key={title}>
+              <h2>{title}</h2>
+              <div className="mt-2 h-5 w-24 animate-pulse rounded-full bg-neutral-200/80" />
+              <div className="mt-3 h-3 w-44 animate-pulse rounded bg-neutral-100" />
+              <div className="mt-2 h-3 w-56 animate-pulse rounded bg-neutral-100" />
+            </article>
+          ))}
+        </div>
+        <div className="h-3.5 w-3/4 animate-pulse rounded bg-neutral-100" />
+      </div>
+    </div>
+  );
+}
+
 export function EmailIntegrations() {
   const [state, setState] = useState<{
       loading: boolean;
@@ -82,7 +110,7 @@ export function EmailIntegrations() {
         }
       />
       {state.loading ? (
-        <WorkspaceSkeleton label="Loading delivery configuration" />
+        <EmailIntegrationsHealthSkeleton />
       ) : state.error ? (
         <div role="alert" className="eflow-analytics-error">
           {state.error}

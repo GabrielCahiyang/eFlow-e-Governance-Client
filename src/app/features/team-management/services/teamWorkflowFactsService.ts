@@ -1,4 +1,11 @@
 import { supabase } from "../../../../lib/supabase";
+import {
+  evictQueryDomain,
+  invalidateQueryDomain,
+  isDocumentVisible,
+  loadWithQueryCache,
+  readCachedQuery,
+} from "../../../shared/queryCache";
 import {readAllRows} from '../../../shared/readAllRows';
 import {subscribeWorkChanges} from '../../../shared/workChanges';
 import { rowToSubtask } from "../../subtasks";
@@ -133,6 +140,27 @@ export async function fetchTeamWorkflowFacts(taskIds: string[]): Promise<TeamWor
   };
 }
 
+export function getTeamWorkflowFactsScopeKey(taskIds: string[]): string {
+  return Array.from(new Set(taskIds.filter(Boolean))).sort().join(",");
+}
+
+export function getCachedTeamWorkflowFacts(taskIds: string[]): TeamWorkflowFacts | undefined {
+  const scopeKey = getTeamWorkflowFactsScopeKey(taskIds);
+  if (!scopeKey) return emptyFacts();
+  return readCachedQuery<TeamWorkflowFacts>("team-workflow-facts", scopeKey).data;
+}
+
+export function warmTeamWorkflowFacts(taskIds: string[], forceRefresh = false) {
+  const scope = getTeamWorkflowFactsScopeKey(taskIds);
+  if (!scope) return Promise.resolve(emptyFacts());
+  return loadWithQueryCache({
+    domain: "team-workflow-facts",
+    scope,
+    forceRefresh,
+    fetcher: () => fetchTeamWorkflowFacts(taskIds),
+  });
+}
+
 export function subscribeToTeamWorkflowFacts(
   taskIds: string[],
   onChange: (facts: TeamWorkflowFacts) => void,
@@ -141,23 +169,41 @@ export function subscribeToTeamWorkflowFacts(
   let disposed = false;
   let sequence = 0;
   let reloadTimer = 0;
-  const load = async () => {
+  const scopeKey = getTeamWorkflowFactsScopeKey(taskIds);
+
+  const cached = getCachedTeamWorkflowFacts(taskIds);
+  if (cached) {
+    onChange(cached);
+  }
+
+  const load = async (forceRefresh = false) => {
     const run = ++sequence;
     try {
-      const facts = await fetchTeamWorkflowFacts(taskIds);
+      if (!scopeKey) {
+        if (!disposed && run === sequence) onChange(emptyFacts());
+        return;
+      }
+      if (forceRefresh) {
+        invalidateQueryDomain("team-workflow-facts", scopeKey);
+      }
+      const facts = await warmTeamWorkflowFacts(taskIds, forceRefresh);
       if (!disposed && run === sequence) onChange(facts);
     } catch (error) {
+      if (scopeKey) evictQueryDomain("team-workflow-facts", scopeKey);
       if (!disposed && run === sequence) onError(error instanceof Error ? error.message : "Unable to load team workflow analytics.");
     }
   };
   const queueLoad = () => {
     window.clearTimeout(reloadTimer);
-    reloadTimer = window.setTimeout(load, 120);
+    reloadTimer = window.setTimeout(() => { void load(true); }, 120);
+  };
+  const pollWhenVisible = () => {
+    if (isDocumentVisible()) queueLoad();
   };
 
-  void load();
+  void load(false);
   // Refresh against current RLS even when an expired recipient receives no row event.
-  const poll=window.setInterval(queueLoad,15_000);
+  const poll=window.setInterval(pollWhenVisible,15_000);
   window.addEventListener('focus',queueLoad);
   window.addEventListener('eflow-project-access-changed',queueLoad);
   const stopChanges = subscribeWorkChanges(queueLoad);

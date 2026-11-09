@@ -3,6 +3,7 @@ import { supabase } from '../../../../lib/supabase';
 import { rowToProject } from './projectMappers';
 import type { Project } from './types';
 import { registerAuthCacheReset } from '../../../shared/authCacheReset';
+import { registerExternalMemoryCache } from '../../../shared/queryCache';
 
 const projectListeners = new Set<(projects: Project[]) => void>();
 const projectErrorListeners=new Set<(error:Error)=>void>();
@@ -15,6 +16,8 @@ let projectCacheUpdatedAt = 0;
 let projectLoadPromise: Promise<Project[]> | null = null;
 let projectRealtimeChannel: ReturnType<typeof supabase.channel> | null = null;
 let cacheGeneration = 0;
+export function getCachedProjects(): Project[] | null { return projectCache; }
+registerExternalMemoryCache('projects','Projects',()=>{++cacheGeneration;projectCache=null;projectCacheUpdatedAt=0;projectLoadPromise=null;if(projectListeners.size>0)void notifyProjectListeners();},()=>({domain:'projects',entries:projectCache?1:0,approxBytes:projectCache?projectCache.length*480:0}));
 registerAuthCacheReset(() => {
   ++cacheGeneration;
   projectCache = null; projectCacheUpdatedAt = 0; projectLoadPromise = null;

@@ -3,6 +3,7 @@ import {readAllRows} from '../../../shared/readAllRows';
 import type { Task } from "../taskTypes";
 import { rowToTask } from "./taskMapper";
 import { registerAuthCacheReset } from '../../../shared/authCacheReset';
+import { isDocumentVisible, registerExternalMemoryCache } from '../../../shared/queryCache';
 import {subscribeWorkChanges} from '../../../shared/workChanges';
 
 const taskListeners = new Set<(tasks: Task[]) => void>();
@@ -20,6 +21,8 @@ if(typeof window!=='undefined') {
 }
 let accessRefreshTimer:ReturnType<typeof setInterval>|null=null;
 let cacheGeneration = 0;
+export function getCachedTasks(): Task[] | null { return taskCache; }
+registerExternalMemoryCache('tasks','Tasks',()=>{++cacheGeneration;taskCache=null;taskLoadPromise=null;if(taskListeners.size>0)void notifyTaskListeners();},()=>({domain:'tasks',entries:taskCache?1:0,approxBytes:taskCache?taskCache.length*320:0}));
 registerAuthCacheReset(() => {
   ++cacheGeneration; taskCache=null; taskLoadPromise=null;
   taskListeners.forEach(callback=>callback([]));
@@ -108,7 +111,7 @@ export const seedTasksIfEmpty = async () => {
 export const subscribeToTasks = (callback: (tasks: Task[]) => void, onError?: (error: Error) => void) => {
   taskListeners.add(callback);
   stopWorkChanges??=subscribeWorkChanges(()=>void notifyTaskListeners());
-  if(!accessRefreshTimer)accessRefreshTimer=setInterval(()=>void notifyTaskListeners(),15_000);
+  if(!accessRefreshTimer)accessRefreshTimer=setInterval(()=>{if(isDocumentVisible())void notifyTaskListeners();},15_000);
   if (onError) taskErrorListeners.add(onError);
   if (taskCache) callback(taskCache);
   else void notifyTaskListeners();

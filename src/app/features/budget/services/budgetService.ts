@@ -25,7 +25,7 @@ export async function fetchDepartmentBudgetBundle(orgId: string, fiscalYear: num
   const summaryResult = await supabase.rpc("department_budget_summary", { p_org_id: orgId, p_fiscal_year: fiscalYear });
   if (summaryResult.error) {
     if (/not found|schema cache/i.test(summaryResult.error.message)) throw new Error("Apply the office budget migration, then refresh this page.");
-    throw new Error(summaryResult.error.message);
+    throw Object.assign(new Error(summaryResult.error.message), { code: summaryResult.error.code, status: summaryResult.status });
   }
   if(summaryResult.data&&(Array.isArray(summaryResult.data)||!summaryResult.data.id||!summaryResult.data.orgId))throw new Error('Office financial scope could not be verified. Retry budget facts.');
   const summary = summaryResult.data ? mapBudgetSummary(summaryResult.data as Record<string, unknown>) : null;

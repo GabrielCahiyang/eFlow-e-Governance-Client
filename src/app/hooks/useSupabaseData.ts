@@ -3,6 +3,7 @@ import { isAdminRole } from "../shared/roles";
 // Wraps supabaseService subscriptions into clean React hooks.
 
 import { useState, useEffect, useMemo } from 'react';
+import * as supabaseServiceModule from '../../lib/supabaseService';
 import {
   fetchAllOrgs,
   fetchAllProfiles,
@@ -10,33 +11,96 @@ import {
   subscribeToProfiles,
   getDescendantOrgIds,
 } from '../../lib/supabaseService';
-import { subscribeToProjects,notifyProjectListeners, type Project } from '../services/projectService';
-import { subscribeToTasks, type Task } from '../services/taskService';
+import * as projectServiceModule from '../services/projectService';
+import {
+  subscribeToProjects,
+  notifyProjectListeners,
+  type Project,
+} from '../services/projectService';
+import * as taskServiceModule from '../services/taskService';
+import {
+  subscribeToTasks,
+  type Task,
+} from '../services/taskService';
 import { operationalMetrics } from '../services/taskSelectors';
 import { useAuth } from '../contexts/AuthContext';
 import type { Organization, UserProfile, DashboardMetrics } from '../types';
 
+function readOrgsCache(): Organization[] | undefined {
+  try {
+    return typeof supabaseServiceModule.getCachedOrgs === 'function'
+      ? supabaseServiceModule.getCachedOrgs()
+      : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function readProfilesCache(): UserProfile[] | undefined {
+  try {
+    return typeof supabaseServiceModule.getCachedProfiles === 'function'
+      ? supabaseServiceModule.getCachedProfiles()
+      : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function readProjectsCache(): Project[] | null {
+  try {
+    return typeof projectServiceModule.getCachedProjects === 'function'
+      ? projectServiceModule.getCachedProjects()
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+function readTasksCache(): Task[] | null {
+  try {
+    return typeof taskServiceModule.getCachedTasks === 'function'
+      ? taskServiceModule.getCachedTasks()
+      : null;
+  } catch {
+    return null;
+  }
+}
+
 // ─── useOrgs ─────────────────────────────────────────────────────
 export function useOrgs() {
-  const [orgs, setOrgs] = useState<Organization[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [orgs, setOrgs] = useState<Organization[]>(() => readOrgsCache() ?? []);
+  const [loading, setLoading] = useState<boolean>(() => !readOrgsCache());
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
+    const cached = readOrgsCache();
+    if (cached) {
+      setOrgs(cached);
+      setLoading(false);
+    }
 
     fetchAllOrgs()
       .then((data) => {
         if (!cancelled) {
           setOrgs(data);
           setLoading(false);
+          setRefreshing(false);
         }
       })
       .catch(() => {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+          setRefreshing(false);
+        }
       });
 
     const unsub = subscribeToOrgs((data) => {
-      if (!cancelled) setOrgs(data);
+      if (!cancelled) {
+        setOrgs(data);
+        setLoading(false);
+        setRefreshing(false);
+      }
     });
 
     return () => {
@@ -45,30 +109,44 @@ export function useOrgs() {
     };
   }, []);
 
-  return { orgs, loading };
+  return { orgs, loading, refreshing };
 }
 
 // ─── useProfiles ─────────────────────────────────────────────────
 export function useProfiles() {
-  const [profiles, setProfiles] = useState<UserProfile[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [profiles, setProfiles] = useState<UserProfile[]>(() => readProfilesCache() ?? []);
+  const [loading, setLoading] = useState<boolean>(() => !readProfilesCache());
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
+    const cached = readProfilesCache();
+    if (cached) {
+      setProfiles(cached);
+      setLoading(false);
+    }
 
     fetchAllProfiles()
       .then((data) => {
         if (!cancelled) {
           setProfiles(data);
           setLoading(false);
+          setRefreshing(false);
         }
       })
       .catch(() => {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+          setRefreshing(false);
+        }
       });
 
     const unsub = subscribeToProfiles((data) => {
-      if (!cancelled) setProfiles(data);
+      if (!cancelled) {
+        setProfiles(data);
+        setLoading(false);
+        setRefreshing(false);
+      }
     });
 
     return () => {
@@ -77,29 +155,75 @@ export function useProfiles() {
     };
   }, []);
 
-  return { profiles, loading };
+  return { profiles, loading, refreshing };
 }
 
 // ─── useTasksData ────────────────────────────────────────────────
 // Realtime operational tasks (deleted rows already excluded server-side).
 export function useTasksData(enabled = true) {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [tasks, setTasks] = useState<Task[]>(() => (enabled ? readTasksCache() ?? [] : []));
+  const [loading, setLoading] = useState<boolean>(() => Boolean(enabled && !readTasksCache()));
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    if (!enabled) { setTasks([]); setLoading(false); return; }
-    let cancelled = false;
-    const unsub = subscribeToTasks((data) => {
-      if (cancelled) return;
-      setTasks(data);
-      setError(null);
+    if (!enabled) {
+      setTasks([]);
       setLoading(false);
-    }, (caught) => { if (!cancelled) { setError(caught); setLoading(false); } });
-    return () => { cancelled = true; unsub(); };
+      setRefreshing(false);
+      return;
+    }
+    let cancelled = false;
+    const cached = readTasksCache();
+    if (cached) {
+      setTasks(cached);
+      setLoading(false);
+    }
+    const unsub = subscribeToTasks(
+      (data) => {
+        if (cancelled) return;
+        setTasks(data);
+        setError(null);
+        setLoading(false);
+        setRefreshing(false);
+      },
+      (caught) => {
+        if (!cancelled) {
+          setError(caught);
+          setLoading(false);
+          setRefreshing(false);
+        }
+      },
+    );
+    return () => {
+      cancelled = true;
+      unsub();
+    };
   }, [enabled]);
 
-  return { tasks: enabled ? tasks : [], loading: enabled && loading, error: enabled ? error : null, setError, retry: () => { if(enabled){setLoading(true); void import('../features/tasks').then(({notifyTaskListeners})=>notifyTaskListeners()).catch(()=>{setLoading(false);setError(new Error('Tasks could not be refreshed. Try again.'));});} } };
+  return {
+    tasks: enabled ? tasks : [],
+    loading: enabled && loading,
+    refreshing: enabled && refreshing,
+    error: enabled ? error : null,
+    setError,
+    retry: () => {
+      if (enabled) {
+        if (readTasksCache() || tasks.length > 0) {
+          setRefreshing(true);
+        } else {
+          setLoading(true);
+        }
+        void import('../features/tasks')
+          .then(({ notifyTaskListeners }) => notifyTaskListeners())
+          .catch(() => {
+            setLoading(false);
+            setRefreshing(false);
+            setError(new Error('Tasks could not be refreshed. Try again.'));
+          });
+      }
+    },
+  };
 }
 
 // ─── useDashboardMetrics ─────────────────────────────────────────
@@ -145,23 +269,63 @@ export function useDashboardMetrics(): { metrics: DashboardMetrics; loading: boo
 // Realtime operational projects. RLS already scopes what the server returns;
 // this hook just wires the subscription into React.
 export function useProjectsData(enabled = true) {
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error,setError]=useState<Error|null>(null);
+  const [projects, setProjects] = useState<Project[]>(() => (enabled ? readProjectsCache() ?? [] : []));
+  const [loading, setLoading] = useState<boolean>(() => Boolean(enabled && !readProjectsCache()));
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    if (!enabled) { setProjects([]); setLoading(false); return; }
+    if (!enabled) {
+      setProjects([]);
+      setLoading(false);
+      setRefreshing(false);
+      return;
+    }
     let cancelled = false;
-    const unsub = subscribeToProjects((data) => {
-      if (!cancelled) {
-        setProjects(data);
-        setError(null);setLoading(false);
-      }
-    },reason=>{if(!cancelled){setError(reason);setLoading(false);}});
-    return () => { cancelled = true; unsub(); };
+    const cached = readProjectsCache();
+    if (cached) {
+      setProjects(cached);
+      setLoading(false);
+    }
+    const unsub = subscribeToProjects(
+      (data) => {
+        if (!cancelled) {
+          setProjects(data);
+          setError(null);
+          setLoading(false);
+          setRefreshing(false);
+        }
+      },
+      (reason) => {
+        if (!cancelled) {
+          setError(reason);
+          setLoading(false);
+          setRefreshing(false);
+        }
+      },
+    );
+    return () => {
+      cancelled = true;
+      unsub();
+    };
   }, [enabled]);
 
-  return { projects: enabled ? projects : [], loading: enabled && loading,error:enabled?error:null,retry:()=>{if(enabled){setLoading(true);void notifyProjectListeners();}} };
+  return {
+    projects: enabled ? projects : [],
+    loading: enabled && loading,
+    refreshing: enabled && refreshing,
+    error: enabled ? error : null,
+    retry: () => {
+      if (enabled) {
+        if (readProjectsCache() || projects.length > 0) {
+          setRefreshing(true);
+        } else {
+          setLoading(true);
+        }
+        void notifyProjectListeners();
+      }
+    },
+  };
 }
 
 // ─── useScopedOrgIds ─────────────────────────────────────────────

@@ -11,6 +11,17 @@ import { GuestAccountDialog } from './GuestAccountDialog';
 import { guestMatches, guestStatus, type GuestFilter, type ProjectGuest } from './types';
 import './projectGuests.css';
 
+const placeholder = 'animate-pulse rounded bg-muted motion-reduce:animate-none';
+function GuestLoadingCell({ column }: { column: Column<ProjectGuest> }) {
+  if (column.key === 'full_name') return <div className="space-y-2" aria-hidden="true">
+    <div className={`${placeholder} h-4 w-28`} /><div className={`${placeholder} h-3 w-36`} />
+  </div>;
+  if (column.key === 'actions') return <div className="flex gap-2" aria-hidden="true">
+    <div className={`${placeholder} h-8 w-20`} /><div className={`${placeholder} h-8 w-20`} />
+  </div>;
+  return <div aria-hidden="true" className={`${placeholder} ${column.key === 'status' ? 'h-6 w-20 rounded-full' : 'h-4 w-24'}`} />;
+}
+
 export function AccountDirectoryTabs({children}: {children: ReactNode}) {
   const {userProfile} = useAuth();
   const admin = isAdminRole(userProfile?.role);
@@ -42,7 +53,7 @@ function ProjectGuestAccounts() {
     {notice && <FeedbackState tone="success" title="Account updated">{notice}</FeedbackState>}
     {state.error && state.data.length > 0 && <FeedbackState tone="error" title="Guest list could not update">{state.error}</FeedbackState>}
     <div className="guest-filter"><label>Show<select aria-label="Guest status filter" value={filter} onChange={e => setFilter(e.target.value as GuestFilter)}><option value="all">All project guests</option>{stats.map(s => <option value={s.filter} key={s.filter}>{s.label}</option>)}</select></label><small>Updates automatically · Accounts with open cash are protected.</small></div>
-    <DataTable data={state.data.filter(g => guestMatches(g, filter))} columns={columns} keyExtractor={g => g.user_id} loading={state.loading} error={!state.data.length ? state.error : undefined} onRetry={() => void state.refresh()} searchPlaceholder="Search guest name, email, office or project" searchFilter={(g, q) => [g.full_name, g.email, g.sponsor_office, ...g.projects.map(p => p.title)].join(' ').toLowerCase().includes(q.toLowerCase())} ariaLabel="Project guests table" emptyMessage="No project guests match this view." emptyIllustration="people"/>
+    <DataTable data={state.data.filter(g => guestMatches(g, filter))} columns={columns} keyExtractor={g => g.user_id} loading={state.loading} renderLoadingCell={column => <GuestLoadingCell column={column} />} error={!state.data.length ? state.error : undefined} onRetry={() => void state.refresh()} searchPlaceholder="Search guest name, email, office or project" searchFilter={(g, q) => [g.full_name, g.email, g.sponsor_office, ...g.projects.map(p => p.title)].join(' ').toLowerCase().includes(q.toLowerCase())} ariaLabel="Project guests table" emptyMessage="No project guests match this view." emptyIllustration="people"/>
     {selection && <GuestAccountDialog key={selection.guest.user_id + selection.mode} {...selection} onClose={() => setSelection(undefined)} onSaved={() => {setNotice(selection.mode === 'activate' ? 'Guest login reactivated. Assign an active project within 7 days.' : 'Guest account deactivated. Work and history were kept.'); setSelection(undefined); void state.refresh();}}/>}
   </section>;
 }

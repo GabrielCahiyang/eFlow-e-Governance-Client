@@ -3,6 +3,12 @@
 // All exported function signatures kept identical.
 
 import { supabase } from '../../lib/supabase';
+import { registerAuthCacheReset } from '../shared/authCacheReset';
+import {
+  invalidateQueryDomain,
+  loadWithQueryCache,
+  readCachedQuery,
+} from '../shared/queryCache';
 
 export interface Employee {
   id: string;
@@ -49,22 +55,38 @@ function formatRole(role: string): string {
 
 
 const employeeListeners = new Set<(employees: Employee[]) => void>();
+let sharedEmployeeChannel: ReturnType<typeof supabase.channel> | null = null;
 
-async function loadAndNotify() {
-  const { data } = await supabase
-    .from('profiles')
-    .select('*, organizations(name)')
-    .eq('is_active', true)
-    .neq('role', 'admin').neq('role', 'super_admin')
-    .neq('role', 'admin')
-    .order('full_name');
+export function getCachedEmployees(): Employee[] | undefined {
+  return readCachedQuery<Employee[]>('employees', 'all').data;
+}
 
-  if (!data) return [];
+export async function fetchEmployees(forceRefresh = false): Promise<Employee[]> {
+  return loadWithQueryCache({
+    domain: 'employees',
+    scope: 'all',
+    ttlMs: 30_000,
+    forceRefresh,
+    fetcher: async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('*, organizations(name)')
+        .eq('is_active', true)
+        .neq('role', 'admin').neq('role', 'super_admin')
+        .neq('role', 'admin')
+        .order('full_name');
 
-  const employees = (data as Record<string, unknown>[]).map(row =>
-    profileToEmployee(row, (row.organizations as any)?.name)
-  );
+      if (!data) return [];
 
+      return (data as Record<string, unknown>[]).map(row =>
+        profileToEmployee(row, (row.organizations as any)?.name)
+      );
+    },
+  });
+}
+
+async function loadAndNotify(forceRefresh = false) {
+  const employees = await fetchEmployees(forceRefresh);
   employeeListeners.forEach(cb => {
     try { cb(employees); } catch (e) { console.error(e); }
   });
@@ -77,21 +99,50 @@ export const seedEmployeesIfEmpty = async () => {
 
 export const subscribeToEmployees = (callback: (employees: Employee[]) => void) => {
   employeeListeners.add(callback);
-  loadAndNotify().then(employees => { if (employees) callback(employees); });
+  const cached = getCachedEmployees();
+  if (cached) {
+    callback(cached);
+  }
+  void loadAndNotify(false).then(employees => {
+    if (employees && employeeListeners.has(callback)) callback(employees);
+  });
 
-  const channelId = `profiles-emp-changes-${Math.random().toString(36).slice(2)}`;
-  const channel = supabase
-    .channel(channelId)
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
-      loadAndNotify();
-    })
-    .subscribe();
+  if (!sharedEmployeeChannel) {
+    let connectedOnce = false;
+    sharedEmployeeChannel = supabase
+      .channel('profiles-emp-changes-shared')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
+        invalidateQueryDomain('employees');
+        void loadAndNotify(true);
+      })
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          if (connectedOnce) {
+            invalidateQueryDomain('employees');
+            void loadAndNotify(true);
+          }
+          connectedOnce = true;
+        }
+      });
+  }
 
   return () => {
     employeeListeners.delete(callback);
-    supabase.removeChannel(channel);
+    if (employeeListeners.size === 0 && sharedEmployeeChannel) {
+      const ch = sharedEmployeeChannel;
+      sharedEmployeeChannel = null;
+      void supabase.removeChannel(ch);
+    }
   };
 };
+
+registerAuthCacheReset(() => {
+  if (sharedEmployeeChannel) {
+    const ch = sharedEmployeeChannel;
+    sharedEmployeeChannel = null;
+    void supabase.removeChannel(ch);
+  }
+});
 
 export const getEmployeeById = async (id: string): Promise<Employee | null> => {
   const { data } = await supabase

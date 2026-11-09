@@ -1,4 +1,11 @@
 import { supabase } from "../../../../lib/supabase";
+import { registerAuthCacheReset } from "../../../shared/authCacheReset";
+import {
+  buildQueryScopeKey,
+  invalidateQueryDomain,
+  loadWithQueryCache,
+  readCachedQuery,
+} from "../../../shared/queryCache";
 import { COLLABORATION_SOURCE_BUCKET } from "../constants";
 import type { CollaborationDraft, CollaborationDraftSnapshot, CollaborationOrganizationSelection, CollaborationRevision, CollaborationSourceType } from "../types";
 import { rowToCollaborationDraft, rowToCollaborationParticipant, rowToCollaborationRevision } from "./collaborationMappers";
@@ -12,33 +19,54 @@ function databaseUpgradeError(error: { code?: string; message: string }) {
   return new Error(error.message);
 }
 
-export async function fetchCollaborationDrafts(): Promise<CollaborationDraft[]> {
-  const { data, error } = await supabase.from("proposal_collaboration_drafts").select("*").neq("status", "deleted").order("updated_at", { ascending: false });
-  if (error) throw databaseUpgradeError(error);
-  const drafts = (data || []).map((row) => rowToCollaborationDraft(row as Record<string, unknown>));
-  const revisionIds = drafts.map((draft) => draft.currentRevisionId).filter((id): id is string => Boolean(id));
-  if (revisionIds.length === 0) return drafts.map((draft) => ({ ...draft, approvedOrganizations: 0, requiredOrganizations: draft.snapshot.organizations.filter((item) => item.participationRole === "participant" || item.participationRole === "governance").length }));
-  const [revisionResult, approvalResult] = await Promise.all([
-    supabase.from("proposal_collaboration_revisions").select("id,revision_number").in("id", revisionIds),
-    supabase.from("proposal_collaboration_approvals").select("revision_id,organization_id,decision").in("revision_id", revisionIds),
-  ]);
-  if (revisionResult.error) throw databaseUpgradeError(revisionResult.error);
-  if (approvalResult.error) throw databaseUpgradeError(approvalResult.error);
-  const revisionNumberById = new Map((revisionResult.data || []).map((row) => [String(row.id), Number(row.revision_number)]));
-  const ownerOrgByRevision = new Map(drafts.filter((draft) => draft.currentRevisionId).map((draft) => [draft.currentRevisionId!, draft.ownerOrgId]));
-  const approvedByRevision = new Map<string, number>();
-  (approvalResult.data || []).forEach((row) => {
-    if (row.decision !== "approved") return;
-    const id = String(row.revision_id);
-    if (String(row.organization_id) === ownerOrgByRevision.get(id)) return;
-    approvedByRevision.set(id, (approvedByRevision.get(id) || 0) + 1);
+export function getCachedCollaborationDrafts(): CollaborationDraft[] | undefined {
+  return readCachedQuery<CollaborationDraft[]>("collaboration-drafts", "all").data;
+}
+
+export function getCachedMyCollaborationMemberships(
+  userId: string,
+): Array<{ organizationId: string; membershipRole: "member" | "primary_approver" | "backup_approver" }> | undefined {
+  return readCachedQuery<Array<{ organizationId: string; membershipRole: "member" | "primary_approver" | "backup_approver" }>>(
+    "collaboration-memberships",
+    buildQueryScopeKey({ userId }),
+  ).data;
+}
+
+export async function fetchCollaborationDrafts(options?: { forceRefresh?: boolean }): Promise<CollaborationDraft[]> {
+  return loadWithQueryCache({
+    domain: "collaboration-drafts",
+    scope: "all",
+    ttlMs: 30_000,
+    forceRefresh: options?.forceRefresh,
+    fetcher: async () => {
+      const { data, error } = await supabase.from("proposal_collaboration_drafts").select("*").neq("status", "deleted").order("updated_at", { ascending: false });
+      if (error) throw databaseUpgradeError(error);
+      const drafts = (data || []).map((row) => rowToCollaborationDraft(row as Record<string, unknown>));
+      const revisionIds = drafts.map((draft) => draft.currentRevisionId).filter((id): id is string => Boolean(id));
+      if (revisionIds.length === 0) return drafts.map((draft) => ({ ...draft, approvedOrganizations: 0, requiredOrganizations: draft.snapshot.organizations.filter((item) => item.participationRole === "participant" || item.participationRole === "governance").length }));
+      const [revisionResult, approvalResult] = await Promise.all([
+        supabase.from("proposal_collaboration_revisions").select("id,revision_number").in("id", revisionIds),
+        supabase.from("proposal_collaboration_approvals").select("revision_id,organization_id,decision").in("revision_id", revisionIds),
+      ]);
+      if (revisionResult.error) throw databaseUpgradeError(revisionResult.error);
+      if (approvalResult.error) throw databaseUpgradeError(approvalResult.error);
+      const revisionNumberById = new Map((revisionResult.data || []).map((row) => [String(row.id), Number(row.revision_number)]));
+      const ownerOrgByRevision = new Map(drafts.filter((draft) => draft.currentRevisionId).map((draft) => [draft.currentRevisionId!, draft.ownerOrgId]));
+      const approvedByRevision = new Map<string, number>();
+      (approvalResult.data || []).forEach((row) => {
+        if (row.decision !== "approved") return;
+        const id = String(row.revision_id);
+        if (String(row.organization_id) === ownerOrgByRevision.get(id)) return;
+        approvedByRevision.set(id, (approvedByRevision.get(id) || 0) + 1);
+      });
+      return drafts.map((draft) => ({
+        ...draft,
+        currentRevisionNumber: draft.currentRevisionId ? revisionNumberById.get(draft.currentRevisionId) : undefined,
+        approvedOrganizations: draft.currentRevisionId ? approvedByRevision.get(draft.currentRevisionId) || 0 : 0,
+        requiredOrganizations: draft.snapshot.organizations.filter((item) => item.participationRole === "participant" || item.participationRole === "governance").length,
+      }));
+    },
   });
-  return drafts.map((draft) => ({
-    ...draft,
-    currentRevisionNumber: draft.currentRevisionId ? revisionNumberById.get(draft.currentRevisionId) : undefined,
-    approvedOrganizations: draft.currentRevisionId ? approvedByRevision.get(draft.currentRevisionId) || 0 : 0,
-    requiredOrganizations: draft.snapshot.organizations.filter((item) => item.participationRole === "participant" || item.participationRole === "governance").length,
-  }));
 }
 
 export async function fetchCollaborationDraft(draftId: string) {
@@ -207,26 +235,76 @@ export async function deleteCollaborationDraft(draftId: string, reason: string) 
   notifyCollaborationDraftsChanged();
 }
 
-export async function fetchMyCollaborationMemberships(userId: string) {
-  const { data, error } = await supabase.from("organization_memberships")
-    .select("organization_id,membership_role")
-    .eq("user_id", userId);
-  if (error) throw new Error(error.message);
-  return (data || []).map((row) => ({
-    organizationId: String(row.organization_id),
-    membershipRole: String(row.membership_role) as "member" | "primary_approver" | "backup_approver",
-  }));
+export async function fetchMyCollaborationMemberships(
+  userId: string,
+  options?: { forceRefresh?: boolean },
+) {
+  return loadWithQueryCache({
+    domain: "collaboration-memberships",
+    scope: buildQueryScopeKey({ userId }),
+    ttlMs: 30_000,
+    forceRefresh: options?.forceRefresh,
+    fetcher: async () => {
+      const { data, error } = await supabase.from("organization_memberships")
+        .select("organization_id,membership_role")
+        .eq("user_id", userId);
+      if (error) throw new Error(error.message);
+      return (data || []).map((row) => ({
+        organizationId: String(row.organization_id),
+        membershipRole: String(row.membership_role) as "member" | "primary_approver" | "backup_approver",
+      }));
+    },
+  });
+}
+
+const collabChangeSubscribers = new Set<() => void>();
+let sharedCollabChannel: ReturnType<typeof supabase.channel> | null = null;
+
+function broadcastCollabRealtimeChange() {
+  invalidateQueryDomain("collaboration-drafts");
+  invalidateQueryDomain("collaboration-memberships");
+  collabChangeSubscribers.forEach((cb) => {
+    try {
+      cb();
+    } catch {
+      // Ignore subscriber errors.
+    }
+  });
 }
 
 export function subscribeToCollaborationDraftChanges(callback: () => void) {
   const unsubscribeLocal = subscribeToLocalCollaborationDraftChanges(callback);
-  const channel = supabase.channel(`collaboration-drafts-${Math.random().toString(36).slice(2)}`)
-    .on("postgres_changes", { event: "*", schema: "public", table: "proposal_collaboration_drafts" }, callback)
-    .on("postgres_changes", { event: "*", schema: "public", table: "proposal_collaboration_orgs" }, callback)
-    .on("postgres_changes", { event: "*", schema: "public", table: "proposal_collaboration_approvals" }, callback)
-    .subscribe();
+  collabChangeSubscribers.add(callback);
+
+  if (!sharedCollabChannel) {
+    let connectedOnce = false;
+    sharedCollabChannel = supabase.channel("collaboration-drafts-shared")
+      .on("postgres_changes", { event: "*", schema: "public", table: "proposal_collaboration_drafts" }, broadcastCollabRealtimeChange)
+      .on("postgres_changes", { event: "*", schema: "public", table: "proposal_collaboration_orgs" }, broadcastCollabRealtimeChange)
+      .on("postgres_changes", { event: "*", schema: "public", table: "proposal_collaboration_approvals" }, broadcastCollabRealtimeChange)
+      .subscribe((status) => {
+        if (status === "SUBSCRIBED") {
+          if (connectedOnce) broadcastCollabRealtimeChange();
+          connectedOnce = true;
+        }
+      });
+  }
+
   return () => {
     unsubscribeLocal();
-    void supabase.removeChannel(channel);
+    collabChangeSubscribers.delete(callback);
+    if (collabChangeSubscribers.size === 0 && sharedCollabChannel) {
+      const ch = sharedCollabChannel;
+      sharedCollabChannel = null;
+      void supabase.removeChannel(ch);
+    }
   };
 }
+
+registerAuthCacheReset(() => {
+  if (sharedCollabChannel) {
+    const ch = sharedCollabChannel;
+    sharedCollabChannel = null;
+    void supabase.removeChannel(ch);
+  }
+});

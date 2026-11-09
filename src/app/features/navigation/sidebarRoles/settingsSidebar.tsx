@@ -23,6 +23,10 @@ export const settingsContent: SidebarContent = {
             icon: <Carbon.Settings size={16} className="text-neutral-900" />,
             label: "Security",
           },
+          {
+            icon: <Carbon.DataBase size={16} className="text-neutral-900" />,
+            label: "Storage & cache",
+          },
         ],
       },
     ],

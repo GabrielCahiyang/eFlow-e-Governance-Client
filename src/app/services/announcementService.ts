@@ -8,6 +8,12 @@ import { recordAudit } from './auditService';
 import { createNotification } from './notificationService';
 import {announcementExpiryError,announcementExpiryTimestamp} from '../shared/expiryDates';
 import {getPhilippineCalendarDate,isCalendarDate} from '../shared/calendarDates';
+import {
+  buildQueryScopeKey,
+  invalidateQueryDomain,
+  loadWithQueryCache,
+  readCachedQuery,
+} from '../shared/queryCache';
 
 export type Audience = 'all' | 'org' | 'users';
 export type AnnouncementStatus = 'draft' | 'published' | 'withdrawn';
@@ -73,12 +79,24 @@ export async function fetchAllAnnouncements(): Promise<Announcement[]> {
 }
 
 export function subscribeToAnnouncements(callback: (a: Announcement[]) => void): () => void {
-  const load = () => fetchAllAnnouncements().then(callback);
-  load();
+  const scope = 'admin:all';
+  const cached = readCachedQuery<Announcement[]>('announcements', scope);
+  if (cached.hit && cached.data) callback(cached.data);
+  const load = (forceRefresh = false) => {
+    if (forceRefresh) invalidateQueryDomain('announcements', scope);
+    void loadWithQueryCache({
+      domain: 'announcements',
+      scope,
+      ttlMs: 30_000,
+      forceRefresh,
+      fetcher: fetchAllAnnouncements,
+    }).then(callback);
+  };
+  load(false);
   const channelId = `announcements-${Math.random().toString(36).slice(2)}`;
   const channel = supabase
     .channel(channelId)
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'announcements' }, () => load())
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'announcements' }, () => load(true))
     .subscribe();
   return () => { supabase.removeChannel(channel); };
 }
@@ -305,13 +323,28 @@ export async function fetchMyAnnouncements(userId: string): Promise<Announcement
 }
 
 export function subscribeToMyAnnouncements(userId: string, callback: (a: AnnouncementForUser[]) => void): () => void {
-  const load = () => fetchMyAnnouncements(userId).then(callback);
-  load();
+  const scope = buildQueryScopeKey({ userId });
+  const cached = readCachedQuery<AnnouncementForUser[]>('announcements', scope);
+  if (cached.hit && cached.data) callback(cached.data);
+  const load = (forceRefresh = false) => {
+    if (forceRefresh) {
+      invalidateQueryDomain('announcements', scope);
+      invalidateQueryDomain('personal-feed');
+    }
+    void loadWithQueryCache({
+      domain: 'announcements',
+      scope,
+      ttlMs: 30_000,
+      forceRefresh,
+      fetcher: () => fetchMyAnnouncements(userId),
+    }).then(callback);
+  };
+  load(false);
   const channelId = `my-announcements-${userId}-${Math.random().toString(36).slice(2)}`;
   const channel = supabase
     .channel(channelId)
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'announcement_recipients', filter: `user_id=eq.${userId}` }, () => load())
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'announcements' }, () => load())
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'announcement_recipients', filter: `user_id=eq.${userId}` }, () => load(true))
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'announcements' }, () => load(true))
     .subscribe();
   return () => { supabase.removeChannel(channel); };
 }
@@ -322,4 +355,6 @@ export async function markAnnouncementRead(userId: string, announcementId: strin
     .update({ read_at: new Date().toISOString() })
     .eq('user_id', userId)
     .eq('announcement_id', announcementId);
+  invalidateQueryDomain('announcements');
+  invalidateQueryDomain('personal-feed');
 }

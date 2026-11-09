@@ -32,7 +32,6 @@ import {
   StatCard,
   Card,
   SectionEmpty,
-  LoadingState,
   formatDate,
 } from "./primitives";
 import { TaskStatusBadge, PriorityPill } from "./StatusBadges";
@@ -55,6 +54,50 @@ const subtaskStatusOptions = [
   { value: "overdue", label: "Overdue" },
   { value: "completed", label: "Completed" },
 ];
+
+function SubtasksGroupedListSkeleton() {
+  const pulse = "animate-pulse rounded bg-neutral-200/80";
+  return (
+    <div
+      className="space-y-4"
+      role="status"
+      aria-label="Loading your assigned subtasks…"
+      aria-busy="true"
+    >
+      <span className="sr-only">Loading your assigned subtasks…</span>
+      {[0, 1].map((group) => (
+        <Card key={group} bodyClassName="p-4">
+          <div
+            aria-hidden="true"
+            className="mb-3 flex flex-wrap items-center justify-between gap-3 border-b border-neutral-100 pb-3"
+          >
+            <div className="flex min-w-0 flex-wrap items-center gap-2">
+              <span className={`h-4 w-48 ${pulse}`} />
+              <span className={`h-4 w-14 rounded-full ${pulse}`} />
+              <span className={`h-4 w-20 rounded-full ${pulse}`} />
+            </div>
+            <span className={`h-3.5 w-28 ${pulse}`} />
+          </div>
+          <div aria-hidden="true" className="space-y-2">
+            {[0, 1, 2].map((step) => (
+              <div
+                key={step}
+                className="flex w-full min-w-0 flex-wrap items-center gap-2 rounded-xl border border-neutral-200 bg-white px-3 py-2.5 sm:flex-nowrap sm:gap-3"
+              >
+                <span className={`h-5 w-5 shrink-0 rounded-full ${pulse}`} />
+                <span className={`h-4 flex-1 max-w-[320px] ${pulse}`} />
+                <span className={`h-4 w-14 rounded-md ${pulse}`} />
+                <span className={`h-4 w-28 rounded-full ${pulse}`} />
+                <span className={`h-4 w-20 rounded-full ${pulse}`} />
+                <span className={`h-3.5 w-3.5 rounded ${pulse}`} />
+              </div>
+            ))}
+          </div>
+        </Card>
+      ))}
+    </div>
+  );
+}
 
 export function SubtasksWorkspace() {
   const {user}=useAuth();
@@ -242,14 +285,7 @@ function ActorSubtasksWorkspace() {
   ).length;
   const reviewCount = subtasks.filter((st) => st.status === "for_review").length;
   const overdueCount = subtasks.filter((st) => getSubtaskDeadlineState(st).tone === "overdue").length;
-
-  if ((loading || tasksLoading)&&!activeSubtask&&!activeTaskDetail) {
-    return (
-      <div className="p-8">
-        <LoadingState label="Loading your assigned subtasks…" />
-      </div>
-    );
-  }
+  const isInitialLoading = (loading || tasksLoading) && !activeSubtask && !activeTaskDetail;
 
   return (
     <div className="eflow-operational-workspace min-h-full p-4 sm:p-8">
@@ -265,30 +301,30 @@ function ActorSubtasksWorkspace() {
       <div className="mb-6 grid grid-cols-1 gap-3 min-[480px]:grid-cols-2 lg:grid-cols-5">
         <StatCard
           label="Total Subtasks"
-          value={totalCount}
+          value={isInitialLoading ? <span className="inline-block h-6 w-10 animate-pulse rounded bg-muted" /> : totalCount}
           icon={<ListChecks size={15} />}
         />
         <StatCard
           label="Pending Items"
-          value={pendingCount}
+          value={isInitialLoading ? <span className="inline-block h-6 w-10 animate-pulse rounded bg-muted" /> : pendingCount}
           tone={pendingCount > 0 ? "warn" : "neutral"}
           icon={<Clock size={15} />}
         />
         <StatCard
           label="Completed"
-          value={completedCount}
+          value={isInitialLoading ? <span className="inline-block h-6 w-10 animate-pulse rounded bg-muted" /> : completedCount}
           tone="good"
           icon={<CheckCircle2 size={15} />}
         />
         <StatCard
           label="Ready to finish"
-          value={reviewCount}
+          value={isInitialLoading ? <span className="inline-block h-6 w-10 animate-pulse rounded bg-muted" /> : reviewCount}
           tone={reviewCount > 0 ? "warn" : "neutral"}
           icon={<ShieldCheck size={15} />}
         />
         <StatCard
           label="Overdue"
-          value={overdueCount}
+          value={isInitialLoading ? <span className="inline-block h-6 w-10 animate-pulse rounded bg-muted" /> : overdueCount}
           tone={overdueCount > 0 ? "bad" : "good"}
           icon={<AlertTriangle size={15} />}
           onClick={() => setStatusFilter(overdueCount > 0 ? "overdue" : "all")}
@@ -329,7 +365,9 @@ function ActorSubtasksWorkspace() {
       </div>
 
       {/* Subtasks Grouped List */}
-      {grouped.length === 0 ? (
+      {isInitialLoading ? (
+        <SubtasksGroupedListSkeleton />
+      ) : grouped.length === 0 ? (
         <Card bodyClassName="p-0">
           <SectionEmpty fill illustration="tasks"
             icon={<CheckCircle2 size={32} />}

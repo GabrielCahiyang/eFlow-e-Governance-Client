@@ -2,6 +2,52 @@ import {workStateLabel} from '../../work-state';
 import { StatusPill } from "../../../components/ui/workspace";
 import { workDateLabel } from "../../../shared/workCalendar";
 import type { WorkRow } from "../types";
+
+export function WorkListSkeleton({
+  rows = 4,
+  label = "Loading work items…",
+  statusText,
+}: {
+  rows?: number;
+  label?: string;
+  statusText?: string;
+}) {
+  const pulse = "animate-pulse rounded bg-muted";
+  return (
+    <div role="status" aria-label={label} aria-busy="true">
+      {statusText && <span className="sr-only">{statusText}</span>}
+      <ul className="r10-work-list" aria-hidden="true">
+        {Array.from({ length: rows }, (_, i) => (
+          <li key={i}>
+            <div className="r10-work-row">
+              <div className="flex w-full flex-wrap items-center justify-between gap-3 px-3.5 py-3">
+                <span className="r10-work-title flex-1 min-w-[200px] space-y-1.5">
+                  <span className={`block h-4 w-3/5 ${pulse}`} />
+                  <span className={`block h-3 w-2/5 ${pulse}`} />
+                </span>
+                <span className="r10-work-people min-w-[150px] space-y-1.5">
+                  <span className={`block h-3.5 w-24 ${pulse}`} />
+                  <span className={`block h-3 w-36 ${pulse}`} />
+                </span>
+                <span className="r10-work-due">
+                  <span className={`inline-block h-3.5 w-20 ${pulse}`} />
+                </span>
+                <span className={`inline-block h-6 w-24 rounded-full ${pulse}`} />
+                <span className="r10-work-progress">
+                  <span className={`inline-block h-3 w-14 ${pulse}`} />
+                </span>
+              </div>
+              <div className="r10-row-details px-3.5 py-1.5">
+                <span className={`inline-block h-3 w-12 ${pulse}`} />
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 export function WorkList({
   rows,
   onOpen,

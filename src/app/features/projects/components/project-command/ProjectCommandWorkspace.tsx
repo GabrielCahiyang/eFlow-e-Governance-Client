@@ -3,7 +3,7 @@ import { ProjectPdfImportPanel,hasPendingPdfImport } from '../../../project-impo
 import { useMemo, useState, useEffect } from "react";
 import { hasDirtyNavigation, requestNavigation } from '../../../../shared/navigationGuard';
 import { NAVIGATION_LOCATION_EVENT, pushNavigationHistory, replaceNavigationHistory } from '../../../../shared/navigationHistory';
-import { Skeleton } from "@vibe/core";
+import { ProjectViewLoading } from "../../../../components/workflow/ProjectWorkspaceSkeleton";
 import { Button } from '@vibe/core';
 import { isAppointedOfficeHead } from '../../../../shared/officeAuthority';
 import { isHeadWorkspaceRole } from '../../../../shared/roles';
@@ -77,7 +77,7 @@ export function ProjectCommandWorkspace({
 }: ProjectCommandWorkspaceProps) {
   const flow=useProjectFlow(project.id);
   const setupReady=projectWorkAvailable(project.status,flow.data?.ready===true);
-  const { tasks } = useTasks();
+  const { tasks, loading: tasksLoading } = useTasks();
   const { profiles, loading: profilesLoading } = useProfiles();
   const { userProfile } = useAuth();
   const officeState = useProjectOffices(project.id);
@@ -133,7 +133,7 @@ export function ProjectCommandWorkspace({
     () => tasksForProject(tasks, project.id),
     [project.id, tasks],
   );
-  const data = useProjectCommandData(project, projectTasks);
+  const data = useProjectCommandData(project, projectTasks, tasksLoading);
   const visibleTasks = useMemo(() => filterProjectViewTasks(projectTasks, filters), [projectTasks, filters]);
   const viewData = useMemo(() => scopeProjectViewData(data, visibleTasks), [data, visibleTasks]);
   const openTask = projectTasks.find((task) => task.id === openTaskId) || null;
@@ -188,25 +188,7 @@ export function ProjectCommandWorkspace({
       {!setupReady&&activeTabId!=='settings'&&<section className="pf-panel"><h2>Finish project setup first</h2><p>Define the project details, project lead, dates and funding before adding tasks, subtasks or people.</p>{flow.error&&<div role="alert" className="pf-error">{flow.error}</div>}<button className="pf-primary" onClick={()=>selectTab('settings')}>Open project details and funding</button></section>}
       {/* Main Workspace Canvas Body */}
       {data.loading ? (
-        <div
-          className="space-y-4 rounded-2xl border border-neutral-200 bg-white p-5"
-          aria-live="polite"
-          role="status"
-        >
-          <div className="flex items-center justify-between gap-4">
-            <div className="min-w-0 space-y-2">
-              <Skeleton type="text" width={230} />
-              <Skeleton type="text" width={320} />
-            </div>
-            <Skeleton type="rectangle" size="custom" width={120} height={32} />
-          </div>
-          <div className="grid gap-3 sm:grid-cols-3">
-            <Skeleton type="rectangle" size="custom" height={82} fullWidth />
-            <Skeleton type="rectangle" size="custom" height={82} fullWidth />
-            <Skeleton type="rectangle" size="custom" height={82} fullWidth />
-          </div>
-          <Skeleton type="rectangle" size="custom" height={260} fullWidth />
-        </div>
+        <ProjectViewLoading view={activeTabId} />
       ) : data.error ? (
         <div
           role="alert"

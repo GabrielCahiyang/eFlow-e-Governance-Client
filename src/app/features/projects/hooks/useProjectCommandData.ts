@@ -11,12 +11,14 @@ import { getCurrentFiscalYear, getTaskScopedBudgetBundle, useDepartmentBudget } 
 import { useAuth } from "../../../contexts/AuthContext";
 import { createProjectCommandCache, type ProjectCommandCacheScope } from "../services/projectCommandCache";
 import { registerAuthCacheReset } from "../../../shared/authCacheReset";
+import { registerExternalMemoryCache } from "../../../shared/queryCache";
 import { useWorkspaceScope } from '../../workspaces';
 
 const EMPTY_FACTS: TeamWorkflowFacts = { subtasks: [], progress: [], submissions: [], statusHistory: [], evidence: [] };
 
 type ProjectCommandCacheEntry = {
   taskKey: string;
+  factsReady: boolean;
   milestones: Milestone[];
   members: ProjectMember[];
   facts: TeamWorkflowFacts;
@@ -28,12 +30,13 @@ type ProjectCommandCacheEntry = {
 // lets a project render immediately when the user switches back to it, while
 // the existing subscriptions continue to refresh the cached snapshot.
 const projectCommandCache = createProjectCommandCache<ProjectCommandCacheEntry>();
+registerExternalMemoryCache("project-command", "Project Command", () => projectCommandCache.reset());
 const unregisterCacheReset = registerAuthCacheReset(() => projectCommandCache.reset());
 import.meta.hot?.dispose(unregisterCacheReset);
 
 function getCachedProjectCommandData(scope: ProjectCommandCacheScope, projectId: string, taskKey: string) {
   const cached = projectCommandCache.get(scope, projectId);
-  return cached?.taskKey === taskKey ? cached : undefined;
+  return cached?.taskKey === taskKey && cached.factsReady ? cached : undefined;
 }
 
 function updateProjectCommandCache(
@@ -45,6 +48,7 @@ function updateProjectCommandCache(
   const current = projectCommandCache.get(scope, projectId);
   projectCommandCache.set(scope, projectId, {
     taskKey,
+    factsReady: patch.factsReady ?? (current?.taskKey === taskKey && current.factsReady),
     milestones: patch.milestones ?? (current?.taskKey === taskKey ? current.milestones : []),
     members: patch.members ?? (current?.taskKey === taskKey ? current.members : []),
     facts: patch.facts ?? (current?.taskKey === taskKey ? current.facts : EMPTY_FACTS),
@@ -52,7 +56,7 @@ function updateProjectCommandCache(
   });
 }
 
-export function useProjectCommandData(project: Project, tasks: Task[]): ProjectCommandData & { retryWorkflowFacts: () => void } {
+export function useProjectCommandData(project: Project, tasks: Task[], tasksLoading: boolean): ProjectCommandData & { retryWorkflowFacts: () => void } {
   const { user, userProfile } = useAuth();
   const workspace = useWorkspaceScope();
   const scope = projectCommandCache.selectScope(`${userProfile?.id || user?.id || ''}:${workspace?.workspace.id || userProfile?.org_id || userProfile?.departmentId || ''}:${userProfile?.role || ''}`);
@@ -99,19 +103,20 @@ export function useProjectCommandData(project: Project, tasks: Task[]): ProjectC
   }, [scope, project.id, refreshMembers, taskKey]);
 
   useEffect(() => {
+    if (tasksLoading) return;
     if (!ready.current.loaded && !getCachedProjectCommandData(scope, project.id, taskKey)) setLoading(true);
     setError("");
     return subscribeToTeamWorkflowFacts(
       taskKey ? taskKey.split(",") : [],
       (nextFacts) => {
         setFacts(nextFacts);
-        updateProjectCommandCache(scope, project.id, taskKey, { facts: nextFacts });
+        updateProjectCommandCache(scope, project.id, taskKey, { facts: nextFacts, factsReady: true });
         setLoading(false);
         ready.current.loaded = true;
       },
       (message) => { setError(message); setLoading(false); },
     );
-  }, [scope, project.id, taskKey, factsRevision]);
+  }, [scope, project.id, taskKey, tasksLoading, factsRevision]);
 
   useEffect(() => {
     let live=true;setActivityError('');

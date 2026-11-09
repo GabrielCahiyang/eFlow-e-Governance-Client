@@ -1,10 +1,40 @@
 import { useMemo, useState } from 'react';
 import { CheckCircle2, ListTodo } from 'lucide-react';
 import type { Task } from '../../../../services/taskService';
-import { Card, LoadingState, PageHeader, ProgressBar, SearchInput, SectionEmpty, StatCard, WSelect, relativeDays } from '../../../../components/workflow/primitives';
+import { Card, PageHeader, ProgressBar, SearchInput, SectionEmpty, StatCard, WSelect, relativeDays } from '../../../../components/workflow/primitives';
 import { PriorityPill, TaskStatusBadge } from '../../../../components/workflow/StatusBadges';
 import { TaskDetailDrawer } from "../../../task-inspector";
 import { useMyTasks } from './useMyTasks';
+
+function EmployeeMyTasksListSkeleton() {
+  const pulse = "animate-pulse rounded bg-neutral-200/80";
+  return (
+    <div
+      className="divide-y divide-neutral-100"
+      role="status"
+      aria-label="Loading your tasks…"
+      aria-busy="true"
+    >
+      <span className="sr-only">Loading your tasks…</span>
+      {[0, 1, 2, 3, 4].map((i) => (
+        <div key={i} aria-hidden="true" className="flex items-center gap-3 px-4 py-3">
+          <div className="flex-1 min-w-0 space-y-1.5">
+            <div className="flex items-center gap-2">
+              <span className={`h-4 w-56 max-w-full ${pulse}`} />
+              <span className={`h-4 w-14 rounded-full ${pulse}`} />
+            </div>
+            <div className="flex items-center gap-2">
+              <span className={`h-2 w-24 rounded-full ${pulse}`} />
+              <span className={`h-3 w-8 ${pulse}`} />
+              <span className={`h-3 w-16 ${pulse}`} />
+            </div>
+          </div>
+          <span className={`h-5 w-20 rounded-full ${pulse}`} />
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export function EmployeeMyTasks() {
   const { mine, loading } = useMyTasks();
@@ -28,22 +58,19 @@ export function EmployeeMyTasks() {
     });
   }, [active, statusFilter, query]);
 
-  // "Needs changes" is now the first-class changes_requested state (not an
-  // in_progress task carrying a note), so history/reports separate rework from
-  // ordinary work.
   const rejected = active.filter((t) => t.status === "changes_requested");
-
-  if (loading) return <div className="p-8"><LoadingState label="Loading your tasks…" /></div>;
+  const statVal = (n: number) =>
+    loading ? <span className="inline-block h-6 w-10 animate-pulse rounded bg-muted" /> : n;
 
   return (
     <div className="p-6 sm:p-8 min-h-full">
       <PageHeader eyebrow="My Workspace · Tasks" title="My Tasks" subtitle="Post progress, discuss, and submit your work." />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-        <StatCard label="Active" value={active.filter((t) => t.status !== "completed").length} icon={<ListTodo size={15} />} />
-        <StatCard label="In progress" value={active.filter((t) => t.status === "in_progress").length} tone="info" />
-        <StatCard label="In review" value={active.filter((t) => t.status === "for_review").length} tone="warn" />
-        <StatCard label="Needs changes" value={rejected.length} tone={rejected.length ? "bad" : "good"} />
+        <StatCard label="Active" value={statVal(active.filter((t) => t.status !== "completed").length)} icon={<ListTodo size={15} />} />
+        <StatCard label="In progress" value={statVal(active.filter((t) => t.status === "in_progress").length)} tone="info" />
+        <StatCard label="In review" value={statVal(active.filter((t) => t.status === "for_review").length)} tone="warn" />
+        <StatCard label="Needs changes" value={statVal(rejected.length)} tone={rejected.length ? "bad" : "good"} />
       </div>
 
       <div className="flex items-center gap-2 mb-4 flex-wrap">
@@ -63,7 +90,9 @@ export function EmployeeMyTasks() {
       </div>
 
       <Card bodyClassName="p-0">
-        {filtered.length === 0 ? (
+        {loading ? (
+          <EmployeeMyTasksListSkeleton />
+        ) : filtered.length === 0 ? (
           <SectionEmpty icon={<CheckCircle2 size={30} />} title="Nothing here" description="No tasks match — enjoy the clear queue!" />
         ) : (
           <div className="divide-y divide-neutral-100">
@@ -95,5 +124,3 @@ export function EmployeeMyTasks() {
     </div>
   );
 }
-
-// ══════════════════════ My Projects ═══════════════════════════════

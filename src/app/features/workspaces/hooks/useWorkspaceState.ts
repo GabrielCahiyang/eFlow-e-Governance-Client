@@ -1,4 +1,5 @@
 import {ACCESS_CHANGED_EVENT} from '../../project-access';
+import { isDocumentVisible } from '../../../shared/queryCache';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { NAVIGATION_LOCATION_EVENT } from '../../../shared/navigationHistory';
 import { requestNavigation } from '../../../shared/navigationGuard';
@@ -39,7 +40,7 @@ export function useWorkspaceState(userId: string, officeId: string, enabled: boo
     return ()=>{ window.removeEventListener(NAVIGATION_LOCATION_EVENT,sync); window.removeEventListener('popstate',sync); };
   },[userId,officeId]);
   useEffect(()=>{
-    void refresh(); const interval=window.setInterval(()=>void refresh(),15_000);
+    void refresh(); const interval=window.setInterval(()=>{if(isDocumentVisible())void refresh();},15_000);
     const focus=()=>void refresh(); window.addEventListener('focus',focus);window.addEventListener(ACCESS_CHANGED_EVENT,focus);
     return ()=>{ ++generation.current; window.clearInterval(interval); window.removeEventListener('focus',focus);window.removeEventListener(ACCESS_CHANGED_EVENT,focus); };
   },[refresh]);

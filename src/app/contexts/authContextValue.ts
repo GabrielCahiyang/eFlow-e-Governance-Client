@@ -7,6 +7,7 @@ export interface AuthContextValue {
   userProfile: UserProfile | null;
   loading: boolean;
   permissionsLoading: boolean;
+  accessRevision?: number;
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
   resetPassword: (email: string) => Promise<void>;

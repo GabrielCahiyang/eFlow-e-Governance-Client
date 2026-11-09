@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { MessagesSquare } from 'lucide-react';
 import { NAVIGATION_LOCATION_EVENT, pushNavigationHistory } from '../../../shared/navigationHistory';
+import { useNotificationNavigationIntent } from '../../notifications';
 import { ChatChannelList } from './ChatChannelList';
 import { ActiveChatPanel } from './ActiveChatPanel';
 import { useMessages } from './MessagesContext';
@@ -33,6 +34,11 @@ export function MessagesWorkspace({ userId, userName, onOpenTask, onOpenProject 
     if (url.href !== window.location.href) pushNavigationHistory(url.pathname + url.search);
     setSelection(readSelection());
   }
+  useNotificationNavigationIntent(
+    intent => intent.kind === 'conversation' && Boolean(intent.conversationId),
+    intent => { select(intent.conversationId); return true; },
+    [],
+  );
   const unavailable = !loading && !active && Boolean(selection.conversationId || selection.taskId || selection.projectId);
 
   return <div className="messages-workspace" data-selected={Boolean(active) || undefined}>

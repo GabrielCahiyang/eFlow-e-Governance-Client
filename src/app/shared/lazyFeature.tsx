@@ -58,6 +58,7 @@ export function lazyFeature<T extends ComponentType<any>>(
   loader: () => Promise<{ default: T }>,
   isActive?: (props: ComponentProps<T>) => boolean,
   retryExport?: string,
+  fallback: ReactNode = <ViewLoadingState />,
 ): T {
   const createView = (retry = false) =>
     lazy(() =>
@@ -81,9 +82,7 @@ export function lazyFeature<T extends ComponentType<any>>(
           setAttempt((value) => value + 1);
         }}
       >
-        <Suspense
-          fallback={<ViewLoadingState/>}
-        >
+        <Suspense fallback={fallback}>
           <View {...props} />
         </Suspense>
       </ViewLoadBoundary>

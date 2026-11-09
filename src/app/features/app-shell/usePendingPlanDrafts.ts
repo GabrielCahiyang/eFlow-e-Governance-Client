@@ -1,15 +1,18 @@
 import { useEffect, useState } from "react";
 import {
   fetchCollaborationDrafts,
+  getCachedCollaborationDrafts,
   subscribeToCollaborationDraftChanges,
   type CollaborationDraft,
 } from "../interdepartment-collaboration";
 
-export function usePendingPlanDrafts(userId?: string) {
-  const [drafts, setDrafts] = useState<CollaborationDraft[]>([]);
+export function usePendingPlanDrafts(userId?: string, enabled = true) {
+  const [drafts, setDrafts] = useState<CollaborationDraft[]>(
+    () => (userId && enabled ? getCachedCollaborationDrafts() ?? [] : []),
+  );
 
   useEffect(() => {
-    if (!userId) { setDrafts([]); return; }
+    if (!userId || !enabled) { setDrafts([]); return; }
     let active = true;
     const refresh = () => {
       void fetchCollaborationDrafts()
@@ -19,7 +22,7 @@ export function usePendingPlanDrafts(userId?: string) {
     refresh();
     const unsubscribe = subscribeToCollaborationDraftChanges(refresh);
     return () => { active = false; unsubscribe(); };
-  }, [userId]);
+  }, [userId, enabled]);
 
   return drafts;
 }

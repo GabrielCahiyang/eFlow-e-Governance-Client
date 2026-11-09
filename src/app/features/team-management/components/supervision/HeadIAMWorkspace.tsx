@@ -7,7 +7,6 @@ import {
   AttentionBox,
   Button,
   Label,
-  Loader,
   Search as VibeSearch,
 } from "@vibe/core";
 import {
@@ -661,9 +660,59 @@ export function HeadIAMWorkspace() {
 
   if (directory.directoryLoading) {
     return (
-      <div className="flex h-full items-center justify-center gap-2 text-[12px] text-neutral-500">
-        <Loader size="small" /> Loading office access…
-      </div>
+      <PeopleWorkspaceShell
+        title="Identity & Access"
+        subtitle="Inspect current access, make accountable individual exceptions, and protect leadership authority for active people in your office."
+        actions={
+          <div className="flex items-center gap-2 text-[12px] text-neutral-500">
+            <ChevronRight size={13} />
+            <span className="font-medium text-neutral-700">
+              {headOrg?.name ?? "Your Office"}
+            </span>
+          </div>
+        }
+      >
+        <IAMTabBar active={activeTab} onSelect={setActiveTab} />
+        <div
+          role="status"
+          aria-live="polite"
+          aria-label="Loading office access…"
+          className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm"
+        >
+          <span className="sr-only">Loading office access…</span>
+          <header
+            className="flex flex-col gap-4 border-b border-neutral-100 p-5 lg:flex-row lg:items-center lg:justify-between"
+            aria-hidden="true"
+          >
+            <div className="flex items-start gap-3">
+              <div className="h-10 w-10 shrink-0 animate-pulse rounded-xl bg-blue-50" />
+              <div className="space-y-2">
+                <div className="h-4 w-36 animate-pulse rounded bg-neutral-200/80" />
+                <div className="h-3 w-80 max-w-full animate-pulse rounded bg-neutral-100" />
+              </div>
+            </div>
+            <div className="h-6 w-40 animate-pulse rounded-full bg-neutral-200/70" />
+          </header>
+          <div className="space-y-4 p-5" aria-hidden="true">
+            <div className="h-9 w-full max-w-md animate-pulse rounded-xl bg-neutral-100" />
+            <div className="divide-y divide-neutral-100 overflow-hidden rounded-xl border border-neutral-200">
+              {[0, 1, 2, 3, 4].map((row) => (
+                <div
+                  key={row}
+                  className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center"
+                >
+                  <div className="h-9 w-9 shrink-0 animate-pulse rounded-full bg-neutral-200/80" />
+                  <div className="min-w-0 flex-1 space-y-1.5">
+                    <div className="h-3.5 w-40 animate-pulse rounded bg-neutral-200/80" />
+                    <div className="h-3 w-56 animate-pulse rounded bg-neutral-100" />
+                  </div>
+                  <div className="h-8 w-44 animate-pulse rounded-lg bg-neutral-100" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </PeopleWorkspaceShell>
     );
   }
 

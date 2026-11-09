@@ -16,13 +16,49 @@ import {
   formatDate,
 } from "../../../../components/workflow/primitives";
 import { TaskStatusBadge } from "../../../../components/workflow/StatusBadges";
-import {
-  WorkspaceHeader,
-  WorkspaceSkeleton,
-} from "../../../../components/ui/workspace";
+import { WorkspaceHeader } from "../../../../components/ui/workspace";
 import { Button } from "../../../../components/ui/button";
 import "../../../../components/ui/workspace/analyticalWorkspace.css";
 import { useMyTasks } from "./useMyTasks";
+
+function EmployeeWorkReportTableSkeleton() {
+  const pulse = "animate-pulse rounded bg-muted";
+  return (
+    <div
+      className="eflow-analytics-table"
+      role="status"
+      aria-label="Preparing your report"
+      aria-busy="true"
+    >
+      <span className="sr-only">Preparing your report</span>
+      <table className="w-full" aria-hidden="true">
+        <thead>
+          <tr className="bg-muted border-b border-border">
+            {["Task", "Status", "% complete", "Deadline", "Last update"].map((h) => (
+              <th
+                key={h}
+                className="px-4 py-2.5 text-left text-[10px] font-medium uppercase tracking-wider text-muted-foreground"
+              >
+                {h}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {[0, 1, 2, 3, 4].map((row) => (
+            <tr key={row} className="border-b border-border">
+              <td className="px-4 py-2.5"><span className={`inline-block h-4 w-52 ${pulse}`} /></td>
+              <td className="px-4 py-2.5"><span className={`inline-block h-5 w-20 rounded-full ${pulse}`} /></td>
+              <td className="px-4 py-2.5"><span className={`inline-block h-3.5 w-10 ${pulse}`} /></td>
+              <td className="px-4 py-2.5"><span className={`inline-block h-3.5 w-24 ${pulse}`} /></td>
+              <td className="px-4 py-2.5"><span className={`inline-block h-3.5 w-24 ${pulse}`} /></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
 
 export function EmployeeWorkReport() {
   const { mine, loading, error, retry } = useMyTasks();
@@ -85,12 +121,8 @@ export function EmployeeWorkReport() {
     kind === "csv" ? exportCsv(rows, cols, meta) : exportPdf(rows, cols, meta);
   };
 
-  if (loading)
-    return (
-      <div className="p-8">
-        <WorkspaceSkeleton label="Preparing your report" />
-      </div>
-    );
+  const statVal = (val: string | number) =>
+    loading ? <span className="inline-block h-6 w-12 animate-pulse rounded bg-muted" /> : error ? "Unavailable" : val;
 
   return (
     <div className="eflow-analytics min-h-full p-4 sm:p-8">
@@ -101,7 +133,7 @@ export function EmployeeWorkReport() {
           <ExportMenu
             onCsv={() => doExport("csv")}
             onPdf={() => doExport("pdf")}
-            disabled={rows.length === 0 || !!error}
+            disabled={loading || rows.length === 0 || !!error}
           />
         }
       />
@@ -140,23 +172,25 @@ export function EmployeeWorkReport() {
       <div className="mb-4 grid grid-cols-1 gap-3 min-[480px]:grid-cols-2 lg:grid-cols-3">
         <StatCard
           label="Tasks"
-          value={error ? "Unavailable" : rows.length}
+          value={statVal(rows.length)}
           icon={<FileText size={15} />}
         />
         <StatCard
           label="Completed"
-          value={error ? "Unavailable" : completed}
+          value={statVal(completed)}
           tone="good"
         />
         <StatCard
           label="Completion rate"
-          value={error ? "Unavailable" : `${rate}%`}
+          value={statVal(`${rate}%`)}
           tone="good"
         />
       </div>
 
       <Card bodyClassName="p-0">
-        {rows.length === 0 ? (
+        {loading ? (
+          <EmployeeWorkReportTableSkeleton />
+        ) : rows.length === 0 ? (
           <SectionEmpty illustration={error ? false : "search"}
             icon={<FileText size={30} />}
             title={error ? "Work report unavailable" : "No tasks in range"}

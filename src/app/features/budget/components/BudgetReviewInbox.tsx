@@ -16,6 +16,55 @@ import { useIndependentReviews } from '../hooks/useIndependentReviews';
 import { getLiquidationFiscalYear, independentReviewAllowsPosting, needsLeadershipReview } from '../services/independentReviewService';
 import { getPhilippineCalendarDate } from '../../../shared/calendarDates';
 
+function BudgetReviewInboxSkeleton() {
+  const pulse = "animate-pulse rounded bg-neutral-200/80";
+  return (
+    <WorkspaceLoadingSkeleton
+      label="Loading financial approvals…"
+      className="space-y-4"
+    >
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-hidden="true">
+        {["Allocation proposals", "Cash requests", "Receipt packages", "Cash releases"].map((label) => (
+          <div key={label} className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm space-y-2.5">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-medium text-neutral-500">{label}</span>
+              <span className={`h-4 w-4 rounded ${pulse}`} />
+            </div>
+            <span className={`block h-7 w-12 ${pulse}`} />
+            <span className={`block h-3 w-32 ${pulse}`} />
+          </div>
+        ))}
+      </div>
+      {[0, 1].map((panel) => (
+        <div key={panel} aria-hidden="true" className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm space-y-3">
+          <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
+            <div className="space-y-1.5">
+              <span className={`block h-4 w-48 ${pulse}`} />
+              <span className={`block h-3 w-72 ${pulse}`} />
+            </div>
+            <span className={`h-6 w-20 rounded-full ${pulse}`} />
+          </div>
+          <div className="divide-y divide-neutral-100">
+            {[0, 1, 2].map((row) => (
+              <div key={row} className="flex flex-wrap items-center justify-between gap-3 py-3">
+                <div className="space-y-1.5 flex-1 min-w-[200px]">
+                  <span className={`block h-4 w-2/5 ${pulse}`} />
+                  <span className={`block h-3 w-3/5 ${pulse}`} />
+                </div>
+                <span className={`h-5 w-24 ${pulse}`} />
+                <div className="flex gap-2">
+                  <span className={`h-8 w-20 rounded-lg ${pulse}`} />
+                  <span className={`h-8 w-20 rounded-lg ${pulse}`} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </WorkspaceLoadingSkeleton>
+  );
+}
+
 export function BudgetReviewInbox({
   actions,
   embedded = false,
@@ -93,7 +142,7 @@ export function BudgetReviewInbox({
 
       {focusYear && focusYear.key === focusKey && focusYear.error && <p role="alert" className="text-sm text-destructive">{focusYear.error}</p>}
       {resolvingFocus || budget.loading ? (
-        <WorkspaceLoadingSkeleton label="Loading financial approvals…" rows={4} />
+        <BudgetReviewInboxSkeleton />
       ) : budget.error ? (
         <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-[11px] text-rose-700">{budget.error}</div>
       ) : !budget.summary ? (

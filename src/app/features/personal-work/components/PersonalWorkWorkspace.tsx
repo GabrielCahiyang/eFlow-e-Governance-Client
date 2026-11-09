@@ -14,7 +14,7 @@ import { writeNavigationLocation, buildShellNavigation, getSidebarContent, Perso
 import { useWorkFeed } from "../hooks/useWorkFeed";
 import { workDestinations, type WorkDestination } from "../types";
 import { selectWorkRows } from "../workSelectors";
-import { WorkList } from "./WorkList";
+import { WorkList, WorkListSkeleton } from "./WorkList";
 import { WorkInspector, useWorkInspector } from "./WorkInspector";
 import { WorkFilters } from "./WorkFilters";
 import { LeadingNotificationTarget } from './LeadingNotificationTarget';
@@ -141,8 +141,8 @@ function PersonalWorkContent({
       <WorkFilters filters={filters} destination={destination} workspaces={feed.data?.workspaces || []} onChange={update} />
       {feed.error && (
         <FeedbackState
-          tone="error"
-          title="My Work could not be loaded"
+          tone={feed.data ? "warning" : "error"}
+          title={feed.data ? "My Work could not refresh" : "My Work could not be loaded"}
           onRetry={() => void feed.refresh()}
         >
           {feed.error}
@@ -169,7 +169,7 @@ function PersonalWorkContent({
         </p>
       ))}
       {feed.loading && !feed.data ? (
-        <p role="status">Loading your work…</p>
+        <WorkListSkeleton rows={5} label="Loading your work…" statusText="Loading your work…" />
       ) : (
         <>
           <p role="status" className="r10-result-count">

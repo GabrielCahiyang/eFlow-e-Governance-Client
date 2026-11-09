@@ -5,16 +5,41 @@ import { normalizeUserRole } from "../app/shared/roles";
 
 import { supabase } from './supabase';
 import type { Organization, UserProfile, SystemConfig, OrgType } from '../app/types';
+import { registerAuthCacheReset } from '../app/shared/authCacheReset';
+import {
+  getQueryCacheGeneration,
+  invalidateQueryDomain,
+  loadWithQueryCache,
+  readCachedQuery,
+  writeCachedQuery,
+} from '../app/shared/queryCache';
 
 // ─── Local State Listener System ─────────────────────────────────
 // Ensures the client UI updates immediately on local modifications
 // even if Postgres Realtime replication is disabled or lagging.
 const orgListeners = new Set<(orgs: Organization[]) => void>();
 const profileListeners = new Set<(profiles: UserProfile[]) => void>();
+let sharedOrgChannel: ReturnType<typeof supabase.channel> | null = null;
+let sharedProfileChannel: ReturnType<typeof supabase.channel> | null = null;
+
+export function getCachedOrgs(): Organization[] | undefined {
+  return readCachedQuery<Organization[]>('organizations', 'all').data;
+}
+
+export function getCachedProfiles(): UserProfile[] | undefined {
+  return readCachedQuery<UserProfile[]>('profiles', 'all').data;
+}
 
 async function notifyOrgListeners(forcedOrgs?: Organization[]) {
+  const generation = getQueryCacheGeneration();
   try {
-    const orgs = forcedOrgs || await fetchAllOrgs();
+    if (forcedOrgs) {
+      writeCachedQuery('organizations', 'all', forcedOrgs);
+    } else {
+      invalidateQueryDomain('organizations');
+    }
+    const orgs = forcedOrgs || await fetchAllOrgs({ forceRefresh: true });
+    if (generation !== getQueryCacheGeneration()) return;
     orgListeners.forEach(cb => {
       try { cb(orgs); } catch (e) { console.error("Error in org listener:", e); }
     });
@@ -24,8 +49,15 @@ async function notifyOrgListeners(forcedOrgs?: Organization[]) {
 }
 
 async function notifyProfileListeners(forcedProfiles?: UserProfile[]) {
+  const generation = getQueryCacheGeneration();
   try {
-    const profiles = forcedProfiles || await fetchAllProfiles();
+    if (forcedProfiles) {
+      writeCachedQuery('profiles', 'all', forcedProfiles);
+    } else {
+      invalidateQueryDomain('profiles');
+    }
+    const profiles = forcedProfiles || await fetchAllProfiles({ forceRefresh: true });
+    if (generation !== getQueryCacheGeneration()) return;
     profileListeners.forEach(cb => {
       try { cb(profiles); } catch (e) { console.error("Error in profile listener:", e); }
     });
@@ -40,14 +72,22 @@ export async function refreshProfiles(): Promise<void> {
 
 // ─── ORGANIZATION OPERATIONS ─────────────────────────────────────
 
-export async function fetchAllOrgs(): Promise<Organization[]> {
-  const { data, error } = await supabase
-    .from('organizations')
-    .select('*')
-    .order('path');
+export async function fetchAllOrgs(options?: { forceRefresh?: boolean }): Promise<Organization[]> {
+  return loadWithQueryCache({
+    domain: 'organizations',
+    scope: 'all',
+    ttlMs: 30_000,
+    forceRefresh: options?.forceRefresh,
+    fetcher: async () => {
+      const { data, error } = await supabase
+        .from('organizations')
+        .select('*')
+        .order('path');
 
-  if (error) throw error;
-  return data as Organization[];
+      if (error) throw error;
+      return (data || []) as Organization[];
+    },
+  });
 }
 
 // ─── getDescendantOrgIds ────────────────────────────────────────────
@@ -228,36 +268,54 @@ export async function refreshOrganizationDirectory(): Promise<void> {
 
 export function subscribeToOrgs(callback: (orgs: Organization[]) => void): () => void {
   orgListeners.add(callback);
-  
-  const channelId = `orgs_realtime_${Math.random().toString(36).slice(2)}`;
-  const channel = supabase
-    .channel(channelId)
-    .on(
-      'postgres_changes',
-      { event: '*', schema: 'public', table: 'organizations' },
-      async () => {
-        const orgs = await fetchAllOrgs();
-        notifyOrgListeners(orgs);
-      }
-    )
-    .subscribe();
+
+  if (!sharedOrgChannel) {
+    let connectedOnce = false;
+    sharedOrgChannel = supabase
+      .channel('orgs_realtime_shared')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'organizations' },
+        () => {
+          void notifyOrgListeners();
+        }
+      )
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          if (connectedOnce) void notifyOrgListeners();
+          connectedOnce = true;
+        }
+      });
+  }
 
   return () => {
     orgListeners.delete(callback);
-    supabase.removeChannel(channel);
+    if (orgListeners.size === 0 && sharedOrgChannel) {
+      const ch = sharedOrgChannel;
+      sharedOrgChannel = null;
+      void supabase.removeChannel(ch);
+    }
   };
 }
 
 // ─── PROFILE OPERATIONS ──────────────────────────────────────────
 
-export async function fetchAllProfiles(): Promise<UserProfile[]> {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .order('full_name');
+export async function fetchAllProfiles(options?: { forceRefresh?: boolean }): Promise<UserProfile[]> {
+  return loadWithQueryCache({
+    domain: 'profiles',
+    scope: 'all',
+    ttlMs: 30_000,
+    forceRefresh: options?.forceRefresh,
+    fetcher: async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('full_name');
 
-  if (error) throw error;
-  return (data || []).map(profile => ({ ...profile, role: normalizeDirectoryRole(profile.role) })) as UserProfile[];
+      if (error) throw error;
+      return (data || []).map(profile => ({ ...profile, role: normalizeDirectoryRole(profile.role) })) as UserProfile[];
+    },
+  });
 }
 
 export async function fetchProfileById(id: string): Promise<UserProfile | null> {
@@ -341,25 +399,48 @@ export async function toggleUserActive(id: string, is_active: boolean): Promise<
 
 export function subscribeToProfiles(callback: (profiles: UserProfile[]) => void): () => void {
   profileListeners.add(callback);
-  
-  const channelId = `profiles_realtime_${Math.random().toString(36).slice(2)}`;
-  const channel = supabase
-    .channel(channelId)
-    .on(
-      'postgres_changes',
-      { event: '*', schema: 'public', table: 'profiles' },
-      async () => {
-        const profiles = await fetchAllProfiles();
-        notifyProfileListeners(profiles);
-      }
-    )
-    .subscribe();
+
+  if (!sharedProfileChannel) {
+    let connectedOnce = false;
+    sharedProfileChannel = supabase
+      .channel('profiles_realtime_shared')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'profiles' },
+        () => {
+          void notifyProfileListeners();
+        }
+      )
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          if (connectedOnce) void notifyProfileListeners();
+          connectedOnce = true;
+        }
+      });
+  }
 
   return () => {
     profileListeners.delete(callback);
-    supabase.removeChannel(channel);
+    if (profileListeners.size === 0 && sharedProfileChannel) {
+      const ch = sharedProfileChannel;
+      sharedProfileChannel = null;
+      void supabase.removeChannel(ch);
+    }
   };
 }
+
+registerAuthCacheReset(() => {
+  if (sharedOrgChannel) {
+    const ch = sharedOrgChannel;
+    sharedOrgChannel = null;
+    void supabase.removeChannel(ch);
+  }
+  if (sharedProfileChannel) {
+    const ch = sharedProfileChannel;
+    sharedProfileChannel = null;
+    void supabase.removeChannel(ch);
+  }
+});
 
 // ─── updateOwnProfile ───────────────────────────────────────────────
 // For the logged-in user editing their own profile. Whitelisted fields

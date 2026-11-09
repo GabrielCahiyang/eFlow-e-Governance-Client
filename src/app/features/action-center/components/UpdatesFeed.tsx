@@ -5,6 +5,31 @@ import { usePersonalFeed } from '../hooks/usePersonalFeed';
 import { Button } from '../../../components/ui/button';
 import { FeedbackState } from '../../../components/ui/FeedbackState';
 import { EmptyState } from '../../../components/ui/EmptyState';
+
+function UpdatesFeedSkeleton() {
+  const pulse = 'animate-pulse rounded bg-muted';
+  return (
+    <div role="status" aria-busy="true">
+      <span className="sr-only">Loading recent updates…</span>
+      <ul className="rounded-lg border border-border divide-y divide-border bg-card" aria-hidden="true">
+        {[0, 1, 2, 3].map(i => (
+          <li key={i} className="p-4 space-y-2">
+            <div className="flex gap-2 items-start">
+              <span className={`h-4 flex-1 max-w-[260px] ${pulse}`} />
+              <span className={`h-3 w-12 shrink-0 ${pulse}`} />
+            </div>
+            <span className={`block h-3.5 w-4/5 ${pulse}`} />
+            <div className="flex flex-wrap gap-2 pt-0.5">
+              <span className={`h-8 w-24 rounded-md ${pulse}`} />
+              <span className={`h-8 w-20 rounded-md ${pulse}`} />
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 export function UpdatesFeed({ onOpen }: { onOpen: (notification: Notification) => void }) {
   const { user } = useAuth();
   const feed = usePersonalFeed(user?.id,fetchRecentNotifications,true,subscribeNotificationChanges);
@@ -27,7 +52,8 @@ export function UpdatesFeed({ onOpen }: { onOpen: (notification: Notification) =
   return <section className="space-y-3" aria-label="Recent updates">
     <div className="flex flex-wrap items-center gap-3"><p className="flex-1 text-sm text-muted-foreground">Latest 50 updates. Unread means unseen, not awaiting approval.</p><label className="text-sm flex gap-2 items-center"><input type="checkbox" checked={unreadOnly} onChange={event=>setUnreadOnly(event.target.checked)} />Unread only</label></div>
     {error && <FeedbackState tone="error" title="Read state was not saved">{error} Retry the same update.</FeedbackState>}
-    {feed.loading ? <p role="status">Loading recent updates…</p> : feed.error ? <FeedbackState tone="error" title="Updates could not be loaded" onRetry={feed.retry}>{feed.error}</FeedbackState> : !rows.length ? <EmptyState fill illustration={unreadOnly ? 'complete' : 'inbox'} title={unreadOnly ? 'No unread recent updates' : 'No recent updates'} description="Older updates are outside this recent feed."/> : <ul className="rounded-lg border border-border divide-y divide-border bg-card">{rows.map(item=> {
+    {feed.error && <FeedbackState tone={feed.rows.length ? "warning" : "error"} title={feed.rows.length ? "Updates could not refresh" : "Updates could not be loaded"} onRetry={feed.retry}>{feed.error}</FeedbackState>}
+    {feed.loading ? <UpdatesFeedSkeleton /> : !rows.length ? !feed.error && <EmptyState fill illustration={unreadOnly ? 'complete' : 'inbox'} title={unreadOnly ? 'No unread recent updates' : 'No recent updates'} description="Older updates are outside this recent feed."/> : <ul className="rounded-lg border border-border divide-y divide-border bg-card">{rows.map(item=> {
       const read = item.read || readIds.includes(item.id);
       return <li key={item.id} className="p-4 space-y-2"><div className="flex gap-2 items-start"><h2 className="font-medium flex-1 min-w-0 break-words">{item.title}</h2><span className="text-xs text-muted-foreground shrink-0">{read?'Read':'Unread'}</span></div><p className="text-sm break-words">{item.message}</p><div className="flex flex-wrap gap-2"><Button data-update-id={item.id} variant="outline" onClick={()=>onOpen(item)}>Open update</Button>{!read && <Button variant="ghost" disabled={pending !== null} onClick={()=>void markRead(item.id)}>{pending===item.id?'Saving read state…':'Mark read'}</Button>}</div></li>;
     })}</ul>}

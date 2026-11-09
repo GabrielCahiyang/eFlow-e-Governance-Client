@@ -1,20 +1,39 @@
 import * as React from "react";
-import { fetchCollaborationDrafts, subscribeToCollaborationDraftChanges } from "../services/collaborationDraftService";
+import {
+  fetchCollaborationDrafts,
+  fetchMyCollaborationMemberships,
+  getCachedCollaborationDrafts,
+  getCachedMyCollaborationMemberships,
+  subscribeToCollaborationDraftChanges,
+} from "../services/collaborationDraftService";
 import type { CollaborationDraft } from "../types";
 import { useAuth } from "../../../contexts/AuthContext";
-import { fetchMyCollaborationMemberships } from "../services/collaborationDraftService";
 import { runGovernanceEscalations } from "../services/governanceService";
 
 export function useCollaborationDrafts() {
   const { userProfile } = useAuth();
-  const [drafts, setDrafts] = React.useState<CollaborationDraft[]>([]);
-  const [loading, setLoading] = React.useState(true);
+  const [drafts, setDrafts] = React.useState<CollaborationDraft[]>(
+    () => getCachedCollaborationDrafts() ?? [],
+  );
+  const [loading, setLoading] = React.useState<boolean>(
+    () => !getCachedCollaborationDrafts(),
+  );
+  const [refreshing, setRefreshing] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
-  const [membershipOrgIds, setMembershipOrgIds] = React.useState<string[]>([]);
+  const [membershipOrgIds, setMembershipOrgIds] = React.useState<string[]>(() => {
+    if (!userProfile?.id) return [];
+    const cached = getCachedMyCollaborationMemberships(userProfile.id);
+    return cached ? cached.map((row) => row.organizationId) : [];
+  });
   const refreshSequence = React.useRef(0);
 
   const refresh = React.useCallback(async () => {
     const sequence = ++refreshSequence.current;
+    if (getCachedCollaborationDrafts()) {
+      setRefreshing(true);
+    } else {
+      setLoading(true);
+    }
     try {
       const nextDrafts = await fetchCollaborationDrafts();
       if (sequence !== refreshSequence.current) return;
@@ -24,7 +43,10 @@ export function useCollaborationDrafts() {
       if (sequence !== refreshSequence.current) return;
       setError(reason instanceof Error ? reason.message : "Could not load collaboration drafts.");
     } finally {
-      if (sequence === refreshSequence.current) setLoading(false);
+      if (sequence === refreshSequence.current) {
+        setLoading(false);
+        setRefreshing(false);
+      }
     }
   }, []);
 
@@ -46,12 +68,23 @@ export function useCollaborationDrafts() {
   }, [refresh]);
 
   React.useEffect(() => {
-    if (!userProfile?.id) return;
+    if (!userProfile?.id) {
+      setMembershipOrgIds([]);
+      return;
+    }
+    let active = true;
     void runGovernanceEscalations().catch(() => undefined);
     void fetchMyCollaborationMemberships(userProfile.id)
-      .then((rows) => setMembershipOrgIds(rows.map((row) => row.organizationId)))
-      .catch(() => setMembershipOrgIds([]));
+      .then((rows) => {
+        if (active) setMembershipOrgIds(rows.map((row) => row.organizationId));
+      })
+      .catch(() => {
+        if (active) setMembershipOrgIds([]);
+      });
+    return () => {
+      active = false;
+    };
   }, [userProfile?.id]);
 
-  return { drafts, loading, error, refresh, membershipOrgIds };
+  return { drafts, loading, refreshing, error, refresh, membershipOrgIds };
 }

@@ -13,7 +13,7 @@ export {
 } from "./components/AccountingStaffWorkspace";
 export { GeneralJournalWorkspace } from "./components/GeneralJournalWorkspace";
 export { AccountingTrailPanel } from "./components/AccountingTrailPanel";
-export { useGeneralJournal } from "./hooks/useGeneralJournal";
+export { useGeneralJournal, warmGeneralJournal } from "./hooks/useGeneralJournal";
 export {
   getJournalTotals,
   isBalancedJournalLines,

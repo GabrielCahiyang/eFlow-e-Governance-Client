@@ -31,12 +31,10 @@ const AUDIENCE_META: Record<Audience, { label: string; icon: ReactNode; color: s
 export function AnnouncementCenter({ eyebrow = "My Workspace · Updates" }: { eyebrow?: string }) {
   const { audienceFilter, filter, filteredItems, items, loading, markAllRead, openAnnouncement, readList, searchQuery, selectedAnnouncement, setAudienceFilter, setFilter, setSearchQuery, setSelectedAnnouncement, unreadList } = useAnnouncementCenter();
 
-  if (loading) return <div className="p-4 sm:p-8"><WorkspaceLoadingSkeleton label="Loading announcement center…" rows={3} /></div>;
-
   const filters = [
-    { id: "all", label: `All (${items.length})`, icon: <Inbox size={13} /> },
-    { id: "unread", label: `Unread (${unreadList.length})`, icon: <Email size={13} /> },
-    { id: "read", label: `Read (${readList.length})`, icon: <Completed size={13} /> },
+    { id: "all", label: loading ? "All" : `All (${items.length})`, icon: <Inbox size={13} /> },
+    { id: "unread", label: loading ? "Unread" : `Unread (${unreadList.length})`, icon: <Email size={13} /> },
+    { id: "read", label: loading ? "Read" : `Read (${readList.length})`, icon: <Completed size={13} /> },
   ] as const;
   const activeFilter = filters.findIndex((item) => item.id === filter);
   const audienceOptions = [
@@ -44,14 +42,17 @@ export function AnnouncementCenter({ eyebrow = "My Workspace · Updates" }: { ey
     { value: "org", label: "Office" },
     { value: "users", label: "Direct" },
   ];
+  const loadingBar = (
+    <span className="inline-block h-6 w-10 animate-pulse rounded-md bg-neutral-200/80 align-middle" />
+  );
 
   return (
     <div className="mx-auto min-h-full max-w-7xl space-y-5 p-4 sm:p-8">
       <PageHeader eyebrow={eyebrow} title="Announcement Center" subtitle="Official executive directives, departmental updates, and urgent broadcasts addressed to your workspace." />
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <StatCard icon={<Announcement size={16} />} label="Total" value={items.length} />
-        <StatCard icon={<Email size={16} />} label="Unread" tone={unreadList.length ? "info" : "good"} value={unreadList.length} />
-        <StatCard icon={<Completed size={16} />} label="Read" tone="good" value={readList.length} />
+        <StatCard icon={<Announcement size={16} />} label="Total" value={loading ? loadingBar : items.length} />
+        <StatCard icon={<Email size={16} />} label="Unread" tone={unreadList.length ? "info" : "good"} value={loading ? loadingBar : unreadList.length} />
+        <StatCard icon={<Completed size={16} />} label="Read" tone="good" value={loading ? loadingBar : readList.length} />
       </div>
 
       {/* ─── Search & Controls Bar ─── */}
@@ -77,7 +78,9 @@ export function AnnouncementCenter({ eyebrow = "My Workspace · Updates" }: { ey
       </div>
 
       {/* ─── Announcements List ─── */}
-      {filteredItems.length === 0 ? (
+      {loading ? (
+        <AnnouncementCenterListSkeleton />
+      ) : filteredItems.length === 0 ? (
         <div className="rounded-xl border border-neutral-200 bg-white">
           <SectionEmpty illustration={filter === "unread" ? "complete" : searchQuery ? "search" : "inbox"} icon={<Announcement size={30} />} title={filter === "unread" ? "You're all caught up!" : "No announcements found"} description={filter === "unread"
               ? "There are no unread announcements in your inbox right now."
@@ -248,5 +251,43 @@ export function AnnouncementCenter({ eyebrow = "My Workspace · Updates" }: { ey
           </>}
       </InspectorPanel>
     </div>
+  );
+}
+
+function AnnouncementCenterListSkeleton() {
+  return (
+    <WorkspaceLoadingSkeleton
+      label="Loading announcement center…"
+      className="grid gap-3"
+    >
+      {[0, 1, 2].map((index) => (
+        <div
+          key={index}
+          aria-hidden="true"
+          className="relative w-full rounded-xl border border-neutral-200/90 bg-white p-5"
+        >
+          <div className="flex items-start gap-4">
+            <div className="h-11 w-11 shrink-0 animate-pulse rounded-xl bg-neutral-200/80" />
+            <div className="min-w-0 flex-1 space-y-2.5">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <div className="h-5 w-24 animate-pulse rounded-full bg-neutral-200/70" />
+                  <div className="h-4 w-12 animate-pulse rounded-full bg-neutral-100" />
+                </div>
+                <div className="h-3 w-20 animate-pulse rounded bg-neutral-100" />
+              </div>
+              <div className="h-4 w-3/5 animate-pulse rounded bg-neutral-200/80" />
+              <div className="space-y-1.5">
+                <div className="h-3 w-11/12 animate-pulse rounded bg-neutral-100" />
+                <div className="h-3 w-4/5 animate-pulse rounded bg-neutral-100" />
+              </div>
+            </div>
+            <div className="self-center pl-2">
+              <div className="h-4 w-4 animate-pulse rounded bg-neutral-200/70" />
+            </div>
+          </div>
+        </div>
+      ))}
+    </WorkspaceLoadingSkeleton>
   );
 }

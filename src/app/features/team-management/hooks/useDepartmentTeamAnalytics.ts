@@ -9,7 +9,10 @@ import { scopeProjects, scopeTasks } from "../../tasks";
 import { buildTeamAttentionItems } from "../selectors/attentionSelectors";
 import { buildTeamHealthSummary } from "../selectors/healthSelectors";
 import { buildTeamMemberMetrics } from "../selectors/teamMemberSelectors";
-import { subscribeToTeamWorkflowFacts } from "../services/teamWorkflowFactsService";
+import {
+  getCachedTeamWorkflowFacts,
+  subscribeToTeamWorkflowFacts,
+} from "../services/teamWorkflowFactsService";
 import type { TeamWorkflowFacts } from "../types";
 
 const EMPTY_FACTS: TeamWorkflowFacts = {
@@ -63,20 +66,30 @@ export function useDepartmentTeamAnalytics(
     [scopedTasks],
   );
   const [refreshVersion, setRefreshVersion] = useState(0);
-  const [hasFacts, setHasFacts] = useState(false);
+  const initialCachedFacts = getCachedTeamWorkflowFacts(
+    taskKey ? taskKey.split(",") : [],
+  );
+  const [hasFacts, setHasFacts] = useState(() => Boolean(initialCachedFacts));
   const factsScope = useState(() => ({ key: taskKey }))[0];
-  const [facts, setFacts] = useState<TeamWorkflowFacts>(EMPTY_FACTS);
-  const [factsLoading, setFactsLoading] = useState(true);
+  const [facts, setFacts] = useState<TeamWorkflowFacts>(
+    () => initialCachedFacts ?? EMPTY_FACTS,
+  );
+  const [factsLoading, setFactsLoading] = useState(
+    () => !initialCachedFacts,
+  );
   const [factsError, setFactsError] = useState("");
 
   useEffect(() => {
+    const cachedForKey = getCachedTeamWorkflowFacts(
+      taskKey ? taskKey.split(",") : [],
+    );
     if (factsScope.key !== taskKey) {
-      setFacts(EMPTY_FACTS);
-      setHasFacts(false);
+      setFacts(cachedForKey ?? EMPTY_FACTS);
+      setHasFacts(Boolean(cachedForKey));
       factsScope.key = taskKey;
     }
     let live = true;
-    setFactsLoading(true);
+    setFactsLoading(!cachedForKey || refreshVersion > 0);
     setFactsError("");
     const stop = subscribeToTeamWorkflowFacts(
       taskKey ? taskKey.split(",") : [],

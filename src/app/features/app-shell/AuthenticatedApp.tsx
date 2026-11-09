@@ -21,7 +21,7 @@ const ShareManagementPage = lazyFeature(() =>
 );
 
 export function AuthenticatedApp() {
-  const { user, userProfile, loading, permissionsLoading } = useAuth();
+  const { user, userProfile, loading, permissionsLoading, accessRevision } = useAuth();
   const { loading: preferencesLoading } = useUserPreferences();
 
   useEffect(() => {
@@ -41,5 +41,5 @@ export function AuthenticatedApp() {
   if (window.location.pathname === '/project-share') return <ShareRedemptionPage/>;
   if (window.location.pathname === '/manage-project-share') return <ShareManagementPage/>;
 
-  return <SignedInApp key={`${user.id}:${userProfile.role}`} actorId={user.id} role={mapRoleToPanel(userProfile.role)} />;
+  return <SignedInApp key={`${user.id}:${userProfile.role}:${accessRevision ?? 0}`} actorId={user.id} role={mapRoleToPanel(userProfile.role)} />;
 }

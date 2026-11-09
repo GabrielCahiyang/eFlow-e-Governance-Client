@@ -23,7 +23,7 @@ import {
 } from "../../team-management";
 import { useDepartmentBudget, getCurrentFiscalYear } from "../../budget";
 import { useWorkFeed } from "../hooks/useWorkFeed";
-import { WorkList } from "./WorkList";
+import { WorkList, WorkListSkeleton } from "./WorkList";
 import { WorkInspector, useWorkInspector } from "./WorkInspector";
 const EMPTY: TeamWorkflowFacts = {
   subtasks: [],
@@ -212,7 +212,16 @@ function MemberHome({
           ].map((item) => (
             <div key={item.label}>
               <span>{item.label}</span>
-              <strong>{feed.loading && !feed.data ? "—" : item.value}</strong>
+              <strong>
+                {feed.loading && !feed.data ? (
+                  <>
+                    <span className="inline-block h-6 w-10 animate-pulse rounded bg-muted align-middle" aria-hidden="true" />
+                    <span className="sr-only">—</span>
+                  </>
+                ) : (
+                  item.value
+                )}
+              </strong>
             </div>
           ))}
         </div>
@@ -355,10 +364,10 @@ function MemberHome({
           )}
           {list.length ? (
             <WorkList rows={list.slice(0, 12)} onOpen={inspector.open} />
+          ) : feed.loading ? (
+            <WorkListSkeleton rows={4} label="Loading your work…" statusText="Loading your work…" />
           ) : (
-            <p className="ea-empty">
-              {feed.loading ? "Loading your work…" : "No work in this view."}
-            </p>
+            <p className="ea-empty">No work in this view.</p>
           )}
           <p className="ea-help">
             Open a task to see prerequisites and the next available subtask.
@@ -405,11 +414,16 @@ function MemberHome({
         <section className="ea-panel">
           <h2>Cash and receipt actions</h2>
           <p className="ea-help">
-            {budget.error
-              ? "Financial actions could not be loaded. Open Inbox to check current requests."
-              : budget.loading
-                ? "Loading your financial actions…"
-                : `${receiptActions} cash receipt acknowledgements · ${liquidationActions} requests to liquidate or correct`}
+            {budget.error ? (
+              "Financial actions could not be loaded. Open Inbox to check current requests."
+            ) : budget.loading ? (
+              <>
+                <span className="inline-block h-4 w-64 animate-pulse rounded bg-muted align-middle" aria-hidden="true" />
+                <span className="sr-only">Loading your financial actions…</span>
+              </>
+            ) : (
+              `${receiptActions} cash receipt acknowledgements · ${liquidationActions} requests to liquidate or correct`
+            )}
           </p>
           <button
             type="button"

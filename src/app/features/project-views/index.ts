@@ -1,3 +1,5 @@
+import { createElement } from "react";
+import { ProjectViewLoading } from "../../components/workflow/ProjectWorkspaceSkeleton";
 import { lazyFeature } from "../../shared/lazyFeature";
 export { ProjectViewFilters } from "./components/ProjectViewFilters";
 export const TaskDatesDialog = lazyFeature(() =>
@@ -13,6 +15,7 @@ export const ProjectGanttView = lazyFeature(() =>
   })),
   undefined,
   "ProjectGanttView",
+  createElement(ProjectViewLoading, { view: "gantt" }),
 );
 export const ProjectOfficesView = lazyFeature(() =>
   import("./components/ProjectOfficesView").then((module) => ({
@@ -20,6 +23,7 @@ export const ProjectOfficesView = lazyFeature(() =>
   })),
   undefined,
   "ProjectOfficesView",
+  createElement(ProjectViewLoading, { view: "offices" }),
 );
 export const ProjectInsightsView = lazyFeature(() =>
   import("./components/ProjectInsightsView").then((module) => ({
@@ -27,6 +31,7 @@ export const ProjectInsightsView = lazyFeature(() =>
   })),
   undefined,
   "ProjectInsightsView",
+  createElement(ProjectViewLoading, { view: "dashboard" }),
 );
 export { useProjectViewActions } from "./hooks/useProjectViewActions";
 export { useProjectReviewDates } from "./hooks/useProjectReviewDates";

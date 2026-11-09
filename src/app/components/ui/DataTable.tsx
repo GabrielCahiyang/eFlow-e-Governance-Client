@@ -23,6 +23,7 @@ interface DataTableProps<T> {
   searchPlaceholder?: string;
   searchFilter?: (item: T, query: string) => boolean;
   loading?: boolean;
+  renderLoadingCell?: (column: Column<T>) => React.ReactNode;
   emptyMessage?: string;
   emptyIcon?: React.ReactNode;
   emptyIllustration?: EmptyIllustration;
@@ -44,6 +45,7 @@ export function DataTable<T>({
   searchPlaceholder = "Search...",
   searchFilter,
   loading,
+  renderLoadingCell,
   emptyMessage = "No data found",
   emptyIcon,
   emptyIllustration = 'empty',
@@ -152,9 +154,9 @@ export function DataTable<T>({
                 <tr key={`skel-${i}`} className="border-b border-border/60">
                   {columns.map((col, columnIndex) => (
                     <td key={col.key} className="px-5 py-3">
-                      <div style={{ width: `${60 + ((i + columnIndex) % 4) * 10}%` }}>
+                      {renderLoadingCell ? renderLoadingCell(col) : <div style={{ width: `${60 + ((i + columnIndex) % 4) * 10}%` }}>
                         <Skeleton type="rectangle" size="custom" height={16} fullWidth />
-                      </div>
+                      </div>}
                     </td>
                   ))}
                 </tr>

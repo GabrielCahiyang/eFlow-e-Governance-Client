@@ -4,7 +4,6 @@ import {
   EmptyWorkspaceState,
   StatusPill,
   WorkspaceHeader,
-  WorkspaceSkeleton,
 } from "../../../../components/ui/workspace";
 import { useAuth } from "../../../../contexts/AuthContext";
 import { useWorkspaceScope } from "../../../workspaces";
@@ -22,6 +21,51 @@ import { ActivityPrintPreview } from "../../activity/ActivityPrintPreview";
 import { ActivityFilterControls } from "../../activity/ActivityFilterControls";
 import type { ProjectCommandData } from "./types";
 import "../../../../components/ui/workspace/analyticalWorkspace.css";
+
+function ProjectActivityTableSkeleton({ timezone }: { timezone: string }) {
+  const pulse = "animate-pulse rounded bg-muted";
+  return (
+    <div role="status" aria-label="Loading activity history" aria-busy="true">
+      <span className="sr-only">Loading activity history</span>
+      <div className="eflow-analytics-table" aria-hidden="true">
+        <table>
+          <thead>
+            <tr>
+              <th>Event</th>
+              <th>Actor</th>
+              <th>Type</th>
+              <th>Occurred ({timezone})</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[0, 1, 2, 3, 4].map((row) => (
+              <tr key={row}>
+                <td className="space-y-1.5">
+                  <span className={`block h-4 w-48 ${pulse}`} />
+                  <span className={`block h-3 w-72 max-w-full ${pulse}`} />
+                </td>
+                <td>
+                  <span className={`inline-block h-3.5 w-28 ${pulse}`} />
+                </td>
+                <td>
+                  <span className={`inline-block h-5 w-16 rounded-full ${pulse}`} />
+                </td>
+                <td>
+                  <span className={`inline-block h-3.5 w-32 ${pulse}`} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <footer className="eflow-analytics-pagination" aria-hidden="true">
+        <span className={`inline-block h-4 w-40 ${pulse}`} />
+        <span className={`inline-block h-8 w-20 rounded-md ${pulse}`} />
+        <span className={`inline-block h-8 w-16 rounded-md ${pulse}`} />
+      </footer>
+    </div>
+  );
+}
 
 export function ProjectActivityTab({ data }: { data: ProjectCommandData }) {
   return (
@@ -191,8 +235,8 @@ function Activity({
         {workspace} · {timezone}. History is frozen until Refresh history; new
         events appear on refresh.
       </p>
-      {history.loading && (
-        <WorkspaceSkeleton label="Loading activity history" />
+      {history.loading && !history.data && (
+        <ProjectActivityTableSkeleton timezone={timezone} />
       )}
       {history.error && (
         <div className="eflow-analytics-error" role="alert">

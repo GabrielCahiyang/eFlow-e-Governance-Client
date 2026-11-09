@@ -1,4 +1,5 @@
 import { supabase } from "../../../../lib/supabase";
+import { loadWithQueryCache } from "../../../shared/queryCache";
 import type {
   CollaborationOrganizationSelection,
   GovernanceAssignment,
@@ -154,8 +155,16 @@ export async function setTaskGovernanceRoute(taskId: string, mode: TaskGovernanc
 }
 
 export async function runGovernanceEscalations() {
-  const { error } = await supabase.rpc("run_governance_review_escalations");
-  if (error && !/function .* does not exist|schema cache/i.test(error.message)) throw new Error(error.message);
+  await loadWithQueryCache({
+    domain: "governance-escalations",
+    scope: "global",
+    ttlMs: 60_000,
+    fetcher: async () => {
+      const { error } = await supabase.rpc("run_governance_review_escalations");
+      if (error && !/function .* does not exist|schema cache/i.test(error.message)) throw new Error(error.message);
+      return true;
+    },
+  });
 }
 
 export function subscribeToProposalGovernance(draftId: string, callback: () => void) {

@@ -12,6 +12,7 @@ export type NotificationIntentKind =
   | "membership_review"
   | "proposal"
   | "collaboration"
+  | "conversation"
   | "budget";
 
 export interface NotificationNavigationIntent {
@@ -27,6 +28,7 @@ export interface NotificationNavigationIntent {
   inspectorSection?:'work'|'review';
   financialRecordId?: string;
   financialRecordType?: string;
+  conversationId?: string;
 }
 
 export interface NotificationDestination {
@@ -135,6 +137,7 @@ function makeDestination(
       inspectorSection:notification.workNodeId&&['subtask','subtask_review','leading_task'].includes(kind)?kind==='subtask_review'?'review':'work':undefined,
       financialRecordId: notification.financialRecordId,
       financialRecordType: notification.financialRecordType,
+      ...(notification.conversationId ? { conversationId: notification.conversationId } : {}),
     },
   };
 }
@@ -148,6 +151,9 @@ export function resolveNotificationDestination(
   notification: Notification,
   role: string,
 ): NotificationDestination | null {
+  if (notification.conversationId) {
+    return makeDestination(notification, { section: 'messages', page: 'Messages' }, 'conversation', 'Open conversation');
+  }
   const title = notification.title.trim().toLowerCase();
   const messageLabels = quotedLabels(notification.message || "");
   const isSubtask = !!notification.workNodeId || title.includes("subtask");

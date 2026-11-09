@@ -1,7 +1,4 @@
-import {
-  WorkspaceHeader,
-  WorkspaceSkeleton,
-} from "../../../components/ui/workspace";
+import { WorkspaceHeader } from "../../../components/ui/workspace";
 import {
   exportCsv as exportReportCsv,
   exportPdf,
@@ -80,7 +77,7 @@ export function BudgetExpensesReport({
     [filtered],
   );
 
-  if (data.loading) return <WorkspaceSkeleton label="Loading expense facts" />;
+  if (data.loading) return <BudgetExpensesReportSkeleton />;
   if (data.error)
     return (
       <p role="alert" className="eflow-analytics-error">
@@ -338,6 +335,94 @@ export function BudgetExpensesReport({
             </table>
           </div>
         )}
+      </section>
+    </div>
+  );
+}
+
+export function BudgetExpensesReportSkeleton({
+  label = "Loading expense facts",
+}: {
+  label?: string;
+}) {
+  return (
+    <div role="status" aria-live="polite" aria-label={label} className="eflow-analytics space-y-4">
+      <span className="sr-only">{label}</span>
+      <WorkspaceHeader
+        title="Verified expense register"
+        description="Approved liquidation packages with spending, returned cash and receipts."
+      />
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-hidden="true">
+        {[
+          "Verified spending",
+          "Returned cash",
+          "Receipt records",
+          "People accountable",
+        ].map((cardLabel) => (
+          <div key={cardLabel} className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm space-y-2">
+            <div className="text-[12px] text-neutral-500">{cardLabel}</div>
+            <div className="ml-auto h-6 w-28 animate-pulse rounded bg-neutral-200/80" />
+            <div className="ml-auto h-3 w-36 animate-pulse rounded bg-neutral-100" />
+          </div>
+        ))}
+      </div>
+      <section
+        aria-hidden="true"
+        className="overflow-hidden rounded-[10px] border border-border bg-card shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]"
+      >
+        <header className="eflow-analytics-filters">
+          <div className="h-9 min-w-[220px] flex-1 animate-pulse rounded-md bg-neutral-100" />
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="h-9 w-36 animate-pulse rounded-md bg-neutral-100" />
+          ))}
+          <div className="h-9 w-20 animate-pulse rounded-md bg-neutral-100" />
+          <div className="h-9 w-28 animate-pulse rounded-md bg-neutral-200/70" />
+        </header>
+        <div className="eflow-analytics-table">
+          <table className="w-full min-w-[1050px] border-collapse text-left text-[12px]">
+            <thead className="bg-muted text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
+              <tr>
+                <th className="px-4 py-3 font-semibold">Expense package</th>
+                <th className="px-3 py-3 font-semibold">Proposal / work</th>
+                <th className="px-3 py-3 font-semibold">Accountability</th>
+                <th className="px-3 py-3 font-semibold">Classification</th>
+                <th className="px-3 py-3 text-right font-semibold">Actual</th>
+                <th className="px-3 py-3 text-right font-semibold">Returned</th>
+                <th className="px-4 py-3 font-semibold">Evidence</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[0, 1, 2, 3, 4].map((row) => (
+                <tr key={row} className="border-t border-border/70 align-top">
+                  <td className="px-4 py-3 space-y-1.5">
+                    <div className="h-3.5 w-20 animate-pulse rounded bg-neutral-200/80" />
+                    <div className="h-2.5 w-16 animate-pulse rounded bg-neutral-100" />
+                  </td>
+                  <td className="px-3 py-3 space-y-1.5">
+                    <div className="h-3.5 w-44 animate-pulse rounded bg-neutral-200/80" />
+                    <div className="h-3 w-36 animate-pulse rounded bg-neutral-100" />
+                  </td>
+                  <td className="px-3 py-3">
+                    <div className="h-3.5 w-28 animate-pulse rounded bg-neutral-100" />
+                  </td>
+                  <td className="px-3 py-3 space-y-1.5">
+                    <div className="h-3.5 w-32 animate-pulse rounded bg-neutral-100" />
+                    <div className="h-2.5 w-24 animate-pulse rounded bg-neutral-100" />
+                  </td>
+                  <td className="px-3 py-3">
+                    <div className="ml-auto h-3.5 w-20 animate-pulse rounded bg-neutral-200/80" />
+                  </td>
+                  <td className="px-3 py-3">
+                    <div className="ml-auto h-3.5 w-16 animate-pulse rounded bg-neutral-100" />
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="h-6 w-28 animate-pulse rounded-md bg-neutral-100" />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </section>
     </div>
   );

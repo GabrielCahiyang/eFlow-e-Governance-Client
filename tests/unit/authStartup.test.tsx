@@ -37,7 +37,7 @@ vi.mock('../../src/lib/supabase', () => ({
 
 vi.mock('../../src/app/services/permissionService', async () => {
   const actual = await vi.importActual<typeof import('../../src/app/services/permissionService')>('../../src/app/services/permissionService');
-  return { ...actual, fetchEffectivePermissions: vi.fn(async (_id: string, role: string) => actual.resolvePermissions(role, [], [])) };
+  return { ...actual, fetchEffectivePermissions: vi.fn(async (_id: string, role: string) => actual.resolvePermissions(role, [], [])), fetchOrganizationScopeGrants: vi.fn(async () => []) };
 });
 
 vi.mock('../../src/app/shared/controlPanelClient', () => ({

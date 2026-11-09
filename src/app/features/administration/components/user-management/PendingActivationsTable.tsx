@@ -45,7 +45,28 @@ export function PendingActivationsTable({ actorId, revision }: { actorId: string
     <header><div><h2>Pending activation</h2><p>People activate their own accounts using the email link.</p></div><Button kind="tertiary" size="small" disabled={action.pending || loading} onClick={() => void refresh()}>Refresh invitations</Button></header>
     {action.dialog}
     {action.message && <FeedbackState tone={action.tone} title={action.tone === 'success' ? 'Saved' : 'Please review'}>{action.message}</FeedbackState>}
-    {error ? <FeedbackState tone="error" title="Invitations unavailable" onRetry={() => void refresh()}>{error}</FeedbackState> : loading ? <p role="status">Loading invitations…</p> : !rows.length ? <EmptyState illustration="inbox" size="compact" title="No pending activations."/> : <div className="eflow-pending-scroll"><table aria-label="Account activation invitations"><thead><tr><th>Person</th><th>Role / Office</th><th>Status</th><th>Email</th><th>Link expires</th><th>Actions</th></tr></thead><tbody>{rows.map(row => {
+    {error ? <FeedbackState tone="error" title="Invitations unavailable" onRetry={() => void refresh()}>{error}</FeedbackState> : loading ? (
+      <div role="status" aria-label="Loading invitations…">
+        <span className="sr-only">Loading invitations…</span>
+        <div className="eflow-pending-scroll" aria-hidden="true">
+          <table aria-label="Account activation invitations">
+            <thead><tr><th>Person</th><th>Role / Office</th><th>Status</th><th>Email</th><th>Link expires</th><th>Actions</th></tr></thead>
+            <tbody>
+              {[0, 1, 2].map((index) => (
+                <tr key={index}>
+                  <td><div className="h-3.5 w-28 animate-pulse rounded bg-neutral-200/80" /><div className="mt-1 h-2.5 w-36 animate-pulse rounded bg-neutral-100" /></td>
+                  <td><div className="h-3.5 w-24 animate-pulse rounded bg-neutral-200/80" /><div className="mt-1 h-2.5 w-20 animate-pulse rounded bg-neutral-100" /></td>
+                  <td><div className="h-5 w-24 animate-pulse rounded-full bg-neutral-100" /></td>
+                  <td><div className="h-3 w-16 animate-pulse rounded bg-neutral-100" /></td>
+                  <td><div className="h-3 w-24 animate-pulse rounded bg-neutral-100" /></td>
+                  <td><div className="eflow-pending-actions"><div className="h-7 w-16 animate-pulse rounded-md bg-neutral-100" /><div className="h-7 w-16 animate-pulse rounded-md bg-neutral-100" /></div></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    ) : !rows.length ? <EmptyState illustration="inbox" size="compact" title="No pending activations."/> : <div className="eflow-pending-scroll"><table aria-label="Account activation invitations"><thead><tr><th>Person</th><th>Role / Office</th><th>Status</th><th>Email</th><th>Link expires</th><th>Actions</th></tr></thead><tbody>{rows.map(row => {
       const pending = row.status === 'pending' || row.status === 'expired';
       return <tr key={row.invitation_id}><td>{row.full_name}<small>{row.email}</small></td><td>{activationRoleLabel(row.requested_privileged_role || row.account_role)}<small>{row.office_name}</small></td><td><span className="eflow-activation-status">{activationLabel(row)}</span>{row.needs_reconciliation && <small>Activation needs support review before resending.</small>}{pending&&row.requires_reinvite&&<small>Revoke this invitation, then use Create User or Invite eFlow User to send a new invitation under your Admin account.</small>}</td><td>{deliveryLabel(row.email_delivery_status)}</td><td>{new Date(row.expires_at).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}</td><td><div className="eflow-pending-actions">{pending && <><Button kind="secondary" size="small" disabled={action.pending || loading || row.needs_reconciliation || row.requires_reinvite} onClick={() => void manage(row, 'resend')}>Resend</Button><Button kind="tertiary" color="negative" size="small" disabled={action.pending || loading} onClick={() => void manage(row, 'revoke')}>Revoke</Button></>}{row.awaiting_authority && <Button kind="primary" size="small" disabled={action.pending || loading} onClick={() => void manage(row, 'approve')}>Approve role</Button>}</div></td></tr>;
     })}</tbody></table></div>}

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { AttentionBox, Loader } from "@vibe/core";
+import { AttentionBox } from "@vibe/core";
+import { Banknote, BookOpenCheck, Landmark, ReceiptText } from "lucide-react";
 import { useAuth } from "../../../contexts/AuthContext";
 import { getCurrentFiscalYear } from "../constants";
 import { useDepartmentBudget } from "../hooks/useDepartmentBudget";
@@ -7,7 +8,7 @@ import { useGeneralJournal } from "../hooks/useGeneralJournal";
 import { AccountingSettlementQueue } from "./AccountingSettlementQueue";
 import { AccountingTrailPanel } from "./AccountingTrailPanel";
 import { BudgetReleasesPanel } from "./BudgetReleasesPanel";
-import { OfficeBudgetWorkspace } from "./OfficeBudgetWorkspace";
+import { OfficeBudgetWorkspace, OfficeBudgetTabSkeleton } from "./OfficeBudgetWorkspace";
 import { FiscalYearControl } from "./FiscalYearControl";
 import { GeneralJournalWorkspace } from "./GeneralJournalWorkspace";
 import { AccountingOverview } from "./AccountingOverview";
@@ -135,9 +136,7 @@ function ScopedAccountingWorkspace({ view: suppliedView, onNavigate }: Accountin
           <p role="status">Refreshing financial records…</p>
         )}
         {budget.loading ? (
-          <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-card p-12 text-sm text-muted-foreground">
-            <Loader size="small" /> Loading accounting workspace…
-          </div>
+          <AccountingWorkspaceViewSkeleton view={view} />
         ) : budget.error && !budget.summary && ["releases", "settlements", "audit"].includes(view) ? null : view === "overview" ? (
           <AccountingOverview
             budget={budget}
@@ -170,6 +169,52 @@ function ScopedAccountingWorkspace({ view: suppliedView, onNavigate }: Accountin
           />
         )}
       </div>
+    </div>
+  );
+}
+
+function AccountingWorkspaceViewSkeleton({ view }: { view: AccountingWorkspaceView }) {
+  if (view === "budgets") {
+    return <OfficeBudgetTabSkeleton tab="overview" label="Loading accounting workspace…" />;
+  }
+  if (view === "journal") {
+    return <OfficeBudgetTabSkeleton tab="journal" label="Loading accounting workspace…" />;
+  }
+  if (view === "releases" || view === "settlements" || view === "audit") {
+    return <OfficeBudgetTabSkeleton tab="approvals" label="Loading accounting workspace…" />;
+  }
+  return (
+    <div role="status" aria-live="polite" aria-label="Loading accounting workspace…" className="eflow-accounting-overview space-y-4">
+      <span className="sr-only">Loading accounting workspace…</span>
+      <section className="eflow-accounting-summary" aria-hidden="true">
+        {[
+          { label: "Cash to release", icon: Banknote },
+          { label: "Release room today", icon: Banknote },
+          { label: "Pending settlement", icon: ReceiptText },
+          { label: "Journal entries", icon: BookOpenCheck },
+          { label: "Actual spending", icon: Landmark },
+        ].map(({ label, icon: Icon }) => (
+          <article key={label}>
+            <h2>
+              <Icon size={16} aria-hidden="true" />
+              {label}
+            </h2>
+            <strong>
+              <span className="inline-block h-6 w-28 animate-pulse rounded bg-neutral-200/80 align-middle" />
+            </strong>
+            <p>
+              <span className="inline-block h-3 w-36 animate-pulse rounded bg-neutral-100" />
+            </p>
+          </article>
+        ))}
+      </section>
+      <section className="eflow-accounting-settlement-handoff" aria-hidden="true">
+        <div className="space-y-2">
+          <div className="h-4 w-40 animate-pulse rounded bg-neutral-200/80" />
+          <div className="h-3 w-80 max-w-full animate-pulse rounded bg-neutral-100" />
+        </div>
+        <div className="h-9 w-36 animate-pulse rounded-lg bg-neutral-100" />
+      </section>
     </div>
   );
 }

@@ -37,7 +37,16 @@ export function ChatChannelList({ selected, onSelect, onCompose }: {
       </div>
     </header>
     <div className="messages-conversations eflow-scroll-region">
-      {loading && <p className="messages-list-state" role="status">Loading conversations…</p>}
+      {loading && !conversations.length && <div role="status" aria-label="Loading conversations">
+        {Array.from({ length: 6 }, (_, index) => <div key={index} className="messages-conversation" aria-hidden="true">
+          <span className="messages-avatar animate-pulse bg-muted motion-reduce:animate-none" />
+          <span className="messages-conversation-copy space-y-2">
+            <span className="block h-3 w-1/2 animate-pulse rounded bg-muted motion-reduce:animate-none" />
+            <span className="block h-2 w-3/4 animate-pulse rounded bg-muted motion-reduce:animate-none" />
+          </span>
+          <span className="h-2 w-6 animate-pulse rounded bg-muted motion-reduce:animate-none" />
+        </div>)}
+      </div>}
       {error && <p className="messages-list-state" role="alert">{error} <button type="button" onClick={() => void refresh()}>Retry</button></p>}
       {visible.map(chat => <button type="button" key={chat.channelId} className="messages-conversation"
         onClick={() => onSelect(chat.channelId)} aria-current={chat.channelId === selected ? 'page' : undefined}
