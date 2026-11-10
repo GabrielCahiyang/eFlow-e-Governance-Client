@@ -29,6 +29,7 @@ export interface NotificationNavigationIntent {
   financialRecordId?: string;
   financialRecordType?: string;
   conversationId?: string;
+  conversationMessageId?: string;
 }
 
 export interface NotificationDestination {
@@ -138,6 +139,7 @@ function makeDestination(
       financialRecordId: notification.financialRecordId,
       financialRecordType: notification.financialRecordType,
       ...(notification.conversationId ? { conversationId: notification.conversationId } : {}),
+      ...(notification.conversationMessageId ? { conversationMessageId: notification.conversationMessageId } : {}),
     },
   };
 }

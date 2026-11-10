@@ -22,6 +22,8 @@
 .messages-conversation:focus-visible,.messages-icon-button:focus-visible,.messages-topbar-button:focus-visible{outline:2px solid var(--primary-color);outline-offset:-2px}
 .messages-avatar,.messages-person-initial{display:grid;place-items:center;flex:0 0 auto;border-radius:50%;font-weight:650;color:var(--primary-color);background:var(--primary-selected-color)}
 .messages-avatar{height:42px;width:42px;font-size:.83rem}
+.messages-avatar{position:relative;overflow:hidden}
+.messages-avatar-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .messages-avatar[data-kind=org]{background:var(--workspace-bg);color:var(--secondary-text-color);border:1px solid var(--layout-border-color)}
 .messages-conversation-copy{display:grid;gap:2px;min-width:0;flex:1}
 .messages-conversation-copy>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -29,6 +31,10 @@
 .messages-conversation-project,.messages-preview,.messages-conversation-meta{font-size:.74rem;color:var(--secondary-text-color)}
 .messages-conversation[data-unread] .messages-preview{font-weight:650;color:var(--primary-text-color)}
 .messages-conversation-meta{display:grid;justify-items:end;align-self:flex-start;gap:7px;padding-top:2px;font-variant-numeric:tabular-nums}
+.messages-list-section{display:flex;align-items:center;gap:6px;padding:5px 9px;color:var(--secondary-text-color);font-size:.75rem;font-weight:650}
+.messages-task-chats{margin:0 0 6px 22px;border-inline-start:1px solid var(--layout-border-color);padding-inline-start:8px}
+.messages-task-chats summary{padding:5px 8px;font-size:.78rem;color:var(--secondary-text-color);cursor:pointer}
+.messages-task-chats summary .messages-unread-dot{display:inline-block;margin-inline-start:5px}
 .messages-list-state{display:grid;gap:8px;justify-items:center;color:var(--secondary-text-color);text-align:center;padding:20px 12px;font-size:.88rem}
 .messages-workspace-placeholder,.messages-empty-thread{display:grid;align-content:center;justify-items:center;gap:10px;text-align:center;padding:24px;color:var(--secondary-text-color)}
 .messages-workspace-placeholder{background:var(--workspace-bg)}
@@ -60,6 +66,17 @@
 .messages-bubble svg{display:inline-block;margin-inline-end:5px}
 .messages-bubble a,.messages-task-link{text-decoration:underline;color:var(--primary-color)}
 .messages-message[data-mine] .messages-bubble{background:var(--primary-selected-color);border-color:transparent;border-radius:15px 15px 4px 15px}
+.messages-deleted-bubble{border:1px solid var(--layout-border-color);border-radius:999px;padding:7px 12px;color:var(--secondary-text-color);background:var(--primary-background-color);font-size:.85rem;font-style:italic}
+.messages-message[data-highlighted] :is(.messages-bubble,.messages-deleted-bubble){outline:2px solid var(--primary-color);outline-offset:3px}
+.messages-chat-activity{margin:10px auto;text-align:center;color:var(--secondary-text-color);font-size:.78rem;overflow-wrap:anywhere}
+.messages-archive-banner,.messages-target-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 14px;background:var(--primary-selected-color);color:var(--primary-text-color);font-size:.82rem}
+.messages-target-bar{justify-content:space-between;border-radius:8px;margin-bottom:10px}
+.messages-settings-form{display:grid;gap:8px;width:100%;min-width:0;text-align:start}
+.messages-settings-form label,.messages-nickname-row>span{display:grid;gap:4px;min-width:0;overflow-wrap:anywhere}
+.messages-settings-form input{width:100%;min-width:0;padding:6px 8px;border:1px solid var(--layout-border-color);border-radius:7px;background:var(--workspace-bg);color:inherit}
+.messages-settings-actions,.messages-nickname-row{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px;width:100%}
+.messages-settings-actions button{border:1px solid var(--layout-border-color);border-radius:7px;padding:5px 8px;background:var(--primary-background-color);cursor:pointer}
+.messages-settings-actions button[type=submit]{background:var(--primary-color);color:var(--text-color-on-primary,#fff)}
 .messages-reply-preview{display:grid;gap:1px;max-width:100%;min-width:0;border-inline-start:3px solid var(--primary-color);padding:3px 8px;color:var(--secondary-text-color);font-size:.75rem}
 .messages-reply-preview span,.messages-composer-reply span span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .messages-message-actions{position:relative;display:flex;opacity:0;flex:0 0 auto}

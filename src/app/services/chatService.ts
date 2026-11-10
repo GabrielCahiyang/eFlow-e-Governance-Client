@@ -1,6 +1,7 @@
   import { supabase } from "../../lib/supabase";
   import { controlPanelFetch } from "../shared/controlPanelClient";
   import { validateOutgoingChatContent } from "../features/chat-calls/services/chatModerationService";
+  import { removeChatImage } from "../features/chat-calls/services/chatImages";
 
   function validateOutgoingContent(content: string): void {
     const result = validateOutgoingChatContent(content);
@@ -14,6 +15,7 @@
     senderName: string;
     content: string;
     createdAt: number;
+    deleted?: boolean;
   }
 
   export interface ChatChannelSummary {
@@ -38,6 +40,7 @@
       senderName: (row.sender_name as string) || "",
       content: row.content as string,
       createdAt: new Date(row.created_at as string).getTime(),
+      deleted: Boolean(row.deleted_at),
     };
   }
 
@@ -147,16 +150,9 @@ export async function sendMessageWithMentions(
 
   // ─── deleteMessage ───────────────────────────────────────────────────
   export async function deleteMessage(messageId: string): Promise<void> {
-    const res = await controlPanelFetch("admin/chat/messages/delete", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messageId }),
-    });
-    if (!res.ok) {
-      const errText = await res.text();
-      console.error("FastAPI delete message error:", errText);
-      throw new Error(`Failed to delete message: ${errText}`);
-    }
+    const { data: attachment, error } = await supabase.rpc("remove_conversation_message", { p_message: messageId });
+    if (error) throw new Error(error.message);
+    if (typeof attachment === "string") void removeChatImage(attachment).catch(() => {});
   }
 
   // ─── updateMessageContent ────────────────────────────────────────────

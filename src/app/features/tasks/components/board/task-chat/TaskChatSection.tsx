@@ -1,12 +1,14 @@
 import { EmptyState } from '../../../../../components/ui/EmptyState';
 import { CornerUpLeft, MoreVertical, Send, Smile, X } from 'lucide-react';
 import { FeatureDialog } from '../../../../../components/ui/FeatureDialog';
+import { useConfirmation } from '../../../../../components/ui/useConfirmation';
 import { deleteMessage } from '../../../../../services/chatService';
 import { parseMessage } from './messageCodec';
 import { useTaskChat } from './useTaskChat';
 
 export function TaskChatSection({ taskId, currentUserId, currentUserName }: { taskId: string; currentUserId?: string; currentUserName?: string }) {
   const { activeMoreMenuFor, activeReactionMenuFor, activeReactionTab, channelId, draft, handleSend, handleToggleReaction, messages, messagesEndRef, reactionsModalContent, replyingTo, sending, sendError, setSendError, setActiveMoreMenuFor, setActiveReactionMenuFor, setActiveReactionTab, setDraft, setReactionsModalContent, setReplyingTo } = useTaskChat(taskId, currentUserId, currentUserName);
+  const confirmation = useConfirmation();
 
 if (!channelId) {
     return (
@@ -18,6 +20,7 @@ if (!channelId) {
 
   return (
     <div className="pt-3 border-t border-neutral-100">
+      {confirmation.dialog}
       <div className="flex items-center gap-1.5 mb-2.5">
         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
         <label className="text-[10px] uppercase tracking-[0.12em] font-semibold text-neutral-500">
@@ -27,6 +30,9 @@ if (!channelId) {
       <div className="max-h-[220px] min-h-[120px] overflow-y-auto space-y-3 mb-3 bg-[#f0f2f5] rounded-xl p-3 font-normal">
         {messages.map((m, idx) => {
           const mine = m.senderId === currentUserId;
+          if (m.deleted) return <div key={m.id} className={mine ? 'flex justify-end' : 'flex'}>
+            <span className="messages-deleted-bubble">{mine ? 'You deleted a message.' : 'Message deleted.'}</span>
+          </div>;
           const parsed = parseMessage(m.content);
           const reactionsMap = parsed.reactions || {};
           const hasReactions = Object.values(reactionsMap).some((users) => users.length > 0);
@@ -78,12 +84,22 @@ if (!channelId) {
                 </button>
                 {activeMoreMenuFor === m.id && (
                   <div className={`absolute z-50 ${isNearTop ? "top-8" : "bottom-8"} bg-white rounded-xl border border-neutral-200 shadow-xl py-1.5 w-28 ${mine ? "right-0" : "left-0"}`}>
-                    <button
-                      onClick={() => { deleteMessage(m.id); setActiveMoreMenuFor(null); }}
+                    {mine && <button
+                      onClick={() => {
+                        setActiveMoreMenuFor(null);
+                        void (async () => {
+                          if (!await confirmation.confirm({
+                            title: 'Remove this message for everyone?', actionLabel: 'Remove for everyone',
+                            description: 'The message will be replaced by a deleted-message marker.', danger: true,
+                          })) return;
+                          try { await deleteMessage(m.id); }
+                          catch (error) { setSendError(error instanceof Error ? error.message : 'Could not remove this message.'); }
+                        })();
+                      }}
                       className="w-full text-left px-3 py-1.5 text-[11px] text-red-500 hover:bg-red-50 font-semibold cursor-pointer"
                     >
                       Remove
-                    </button>
+                    </button>}
                     {["Forward", "Pin", "Report"].map((opt) => (
                       <button
                         key={opt}

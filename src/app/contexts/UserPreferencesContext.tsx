@@ -1,17 +1,11 @@
-import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useAuth } from './AuthContext';
 import { fetchUserPreferences, upsertUserPreferences } from '../services/userSettingsService';
 import type { ThemePreference, UserPreferences } from '../types';
-
-interface UserPreferencesContextValue {
-  preferences: UserPreferences | null;
-  theme: ThemePreference;
-  loading: boolean;
-  error: string | null;
-  setTheme: (theme: ThemePreference) => Promise<void>;
-}
-
-const UserPreferencesContext = createContext<UserPreferencesContextValue | undefined>(undefined);
+import {
+  UserPreferencesContext,
+  type UserPreferencesContextValue,
+} from './userPreferencesContextValue';
 
 function resolvedDarkMode(theme: ThemePreference): boolean {
   return theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);

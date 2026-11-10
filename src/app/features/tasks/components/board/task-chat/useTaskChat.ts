@@ -42,6 +42,7 @@ const [channelId, setChannelId] = useState<string | null>(null);
       if (replyingTo) {
         const payload = {
           text: draft,
+          replyToId: replyingTo.id,
           replyToName: replyingTo.senderName,
           replyToText: parseMessage(replyingTo.content).text
         };

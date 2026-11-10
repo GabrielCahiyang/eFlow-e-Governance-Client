@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useVisibleRead } from '../../../shared/useVisibleRead';
-import { listMessages, listPinnedMessages, readConversation, subscribeToMessagesWorkspace, type Message } from '../services/messagesWorkspace';
+import { listMessages, listPinnedMessages, readConversation, refreshOlderMessages, subscribeToMessagesWorkspace, type Message } from '../services/messagesWorkspace';
 
 export function useConversation(conversationId: string, unread: boolean, onRead: () => Promise<void>) {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -12,13 +12,19 @@ export function useConversation(conversationId: string, unread: boolean, onRead:
   const [error, setError] = useState('');
   const loaded = useRef(0);
   const readThrough = useRef('');
+  const olderRef = useRef(older);
+  olderRef.current = older;
   const refresh = useCallback(async () => {
     const request = ++loaded.current;
     try {
-      const [latest, pins] = await Promise.all([listMessages(conversationId), listPinnedMessages(conversationId)]);
+      const previouslyLoaded = olderRef.current;
+      const [latest, pins, prior] = await Promise.all([
+        listMessages(conversationId), listPinnedMessages(conversationId), refreshOlderMessages(conversationId, previouslyLoaded),
+      ]);
       if (request !== loaded.current) return;
       setMessages(latest);
       setPinned(pins);
+      setOlder(current => current === previouslyLoaded ? prior : current);
       if (latest.length < 100) setHasOlder(false);
       setError('');
     } catch {
@@ -54,5 +60,5 @@ export function useConversation(conversationId: string, unread: boolean, onRead:
   };
 
   const history = [...older.filter(message => !messages.some(latest => latest.id === message.id)), ...messages];
-  return { history, pinned, loading, loadingOlder, error, hasOlder, loadOlder, refresh, markRead };
+  return { history, pinned, loading, loadingOlder, error, hasOlder, loadOlder, refresh, markRead, messages };
 }

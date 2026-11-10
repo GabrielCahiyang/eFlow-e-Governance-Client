@@ -1,23 +1,16 @@
-import { useEffect, useState } from 'react';
 import { ArrowUpRight, ExternalLink, Pin, Users, X } from 'lucide-react';
-import { listChatPeople, type ChatPerson, type Conversation, type Message } from '../services/messagesWorkspace';
+import type { ChatPerson, Conversation, Message } from '../services/messagesWorkspace';
 import { parseMessage } from '../services/chatMessageCodec';
 import { sharedLinkType, splitMessageLinks } from '../services/sharedChatLinks';
 import { ConversationAvatar } from './ChatChannelList';
 import { ConversationImage } from './ConversationImage';
+import { ConversationNicknames, EditGroupChat } from './ConversationCustomization';
 
-export function ConversationInfo({ conversation, messages, pinned, onClose, onOpenTask, onOpenProject, onShowPinned }: {
+export function ConversationInfo({ conversation, messages, pinned, userId, people, peopleError, onChanged, onClose, onOpenTask, onOpenProject, onShowPinned }: {
   conversation: Conversation; messages: Message[]; pinned: Message[];
+  userId?: string; people?: ChatPerson[]; peopleError: boolean; onChanged: () => Promise<void>;
   onClose: () => void; onOpenTask: (id: string) => void; onOpenProject: (id: string) => void; onShowPinned: (message: Message) => void;
 }) {
-  const [people, setPeople] = useState<ChatPerson[]>();
-  const [peopleError, setPeopleError] = useState(false);
-  useEffect(() => {
-    let active = true;
-    listChatPeople(conversation.channelId).then(result => { if (active) setPeople(result); })
-      .catch(() => { if (active) setPeopleError(true); });
-    return () => { active = false; };
-  }, [conversation.channelId, conversation]);
   const links = [...new Set(messages.flatMap(message => splitMessageLinks(parseMessage(message.content).text)
     .flatMap(part => part.href ? [part.href] : [])))].reverse();
   const images = messages.filter(message => message.imagePath);
@@ -30,13 +23,15 @@ export function ConversationInfo({ conversation, messages, pinned, onClose, onOp
       {conversation.projectTitle && <span>{conversation.projectTitle}</span>}
       {conversation.taskId && <button type="button" className="messages-task-link" onClick={() => onOpenTask(conversation.taskId!)}>Open task <ArrowUpRight size={15} /></button>}
       {conversation.projectId && <button type="button" className="messages-task-link" onClick={() => onOpenProject(conversation.projectId!)}>Open project <ArrowUpRight size={15} /></button>}
+      {conversation.canEditGroup && !conversation.archived && userId && <EditGroupChat conversation={conversation} userId={userId} onChanged={onChanged} />}
     </div>
     <details open><summary><Users size={16} /> {conversation.orgId ? 'Office participants' : 'Members'} {people && <span>{people.length}</span>}</summary>
       {peopleError ? <p>Could not load chat members.</p> : !people ? <p>Loading members…</p> : <ul aria-label="Chat members">
         {people.map(person => <li key={person.id}><span className="messages-person-initial" aria-hidden="true">{(person.name || '?').slice(0, 1)}</span>
-          <span>{person.name || 'Team member'}{person.is_lead && <small>Task lead</small>}</span></li>)}
+          <span>{person.nickname || person.name || 'Team member'}{person.nickname && <small>{person.name}</small>}{person.is_lead && <small>Task lead</small>}</span></li>)}
       </ul>}
     </details>
+    {(conversation.projectId || conversation.taskId) && people && <ConversationNicknames conversation={conversation} people={people} onChanged={onChanged} />}
     <details open><summary><Pin size={16} /> Pinned messages <span>{pinned.length}</span></summary>
       {pinned.length ? <ul>{pinned.map(message => <li key={message.id}><button className="messages-pinned-item" type="button" onClick={() => onShowPinned(message)}><strong>{message.senderName}</strong><span>{parseMessage(message.content).text}</span></button></li>)}</ul> : <p>No pinned messages.</p>}
     </details>

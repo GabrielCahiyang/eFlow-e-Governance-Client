@@ -22,9 +22,10 @@ export function ChatMentionInput({ composer, draft, setDraft, channelId, userId,
   const caret = useRef<number | undefined>(undefined);
   const open = Boolean(query) && !disabled;
   const term = query?.term.toLocaleLowerCase() ?? '';
-  const matches = (people ?? []).filter(person => person.id !== userId && person.name?.toLocaleLowerCase().includes(term));
+  const matches = (people ?? []).filter(person => person.id !== userId && person.name
+    && [person.name, person.nickname].some(name => name?.toLocaleLowerCase().includes(term)));
   const options = [
-    ...(group && 'everyone'.startsWith(term) ? [{ id: '', name: 'everyone' }] : []),
+    ...(group && 'everyone'.startsWith(term) ? [{ id: '', name: 'everyone', nickname: undefined }] : []),
     ...matches.slice(0, 8),
   ];
   const activeIndex = Math.min(active, options.length - 1);
@@ -71,7 +72,8 @@ export function ChatMentionInput({ composer, draft, setDraft, channelId, userId,
           id={menuId + '-' + index} role="option" aria-selected={index === activeIndex} tabIndex={-1} type="button"
           onMouseDown={event => event.preventDefault()} onClick={() => pick(option)}>
           <span className="messages-mention-icon">{option.id ? <AtSign size={16} /> : <Users size={16} />}</span>
-          <span><strong>{option.id ? option.name : '@everyone'}</strong>{!option.id && <small>Notify everyone in this chat</small>}</span>
+          <span><strong>{option.id ? option.nickname || option.name : '@everyone'}</strong>
+            {!option.id ? <small>Notify everyone in this chat</small> : option.nickname && <small>{option.name}</small>}</span>
         </button>)}
       </div>
       {peopleError ? <p role="status">Couldn’t load chat members. Type @ again to retry.</p>

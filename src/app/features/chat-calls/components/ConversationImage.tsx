@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { downloadChatImage } from '../services/chatImages';
 
-export function ConversationImage({ path, thumbnail = false }: { path: string; thumbnail?: boolean }) {
+export function ConversationImage({ path, thumbnail = false, avatar = false }: { path: string; thumbnail?: boolean; avatar?: boolean }) {
   const [url, setUrl] = useState<string>();
   const [error, setError] = useState(false);
   useEffect(() => {
@@ -17,6 +17,7 @@ export function ConversationImage({ path, thumbnail = false }: { path: string; t
     return () => { active = false; if (objectUrl) URL.revokeObjectURL(objectUrl); };
   }, [path]);
 
+  if (avatar) return url && !error ? <img className="messages-avatar-photo" src={url} alt="" onError={() => setError(true)} /> : null;
   if (error || !url) return <span className="messages-image-state">{error ? 'Image unavailable' : 'Loading image…'}</span>;
   return <a className="messages-image" href={url} target="_blank" rel="noreferrer" aria-label="Open shared image">
     <img src={url} alt="Shared image" loading="lazy" data-thumbnail={thumbnail || undefined} onError={() => setError(true)} />

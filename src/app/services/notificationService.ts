@@ -63,6 +63,7 @@ export interface Notification {
   financialRecordId?: string;
   financialRecordType?: string;
   conversationId?: string;
+  conversationMessageId?: string;
   read: boolean;
   createdAt: number;
 }
@@ -88,6 +89,7 @@ function rowToNotif(row: Record<string, unknown>): Notification {
     financialRecordId: (row.financial_record_id as string) || undefined,
     financialRecordType: (row.financial_record_type as string) || undefined,
     conversationId: (row.conversation_id as string) || undefined,
+    conversationMessageId: (row.conversation_message_id as string) || undefined,
     read: (row.read as boolean) || false,
     createdAt: new Date((row.created_at as string) || Date.now()).getTime(),
   });

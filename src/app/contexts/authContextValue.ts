@@ -1,4 +1,4 @@
-import { createContext } from 'react';
+import { createContext, type Context } from 'react';
 import type { User } from '@supabase/supabase-js';
 import type { UserProfile } from '../types';
 
@@ -19,5 +19,13 @@ export interface AuthContextValue {
   permissions: Set<string>;
 }
 
+const GLOBAL_KEY = '__eflow_AuthContext__';
+const globalStore = globalThis as unknown as Record<
+  string,
+  Context<AuthContextValue | undefined> | undefined
+>;
+
 // Keep context identity independent of provider/hook reloads and cached lazy views.
-export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+export const AuthContext =
+  globalStore[GLOBAL_KEY] ??
+  (globalStore[GLOBAL_KEY] = createContext<AuthContextValue | undefined>(undefined));

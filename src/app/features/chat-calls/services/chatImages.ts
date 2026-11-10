@@ -10,9 +10,9 @@ export function validateChatImage(file: File) {
   if (!file.size || file.size > 10 * 1024 * 1024) throw new Error('Choose an image up to 10 MB.');
 }
 
-export async function uploadChatImage(channel: string, actor: string, file: File) {
+export async function uploadChatImage(channel: string, actor: string, file: File, avatar = false) {
   validateChatImage(file);
-  const path = channel + '/' + actor + '/' + crypto.randomUUID() + '.' + imageExtensions[file.type];
+  const path = channel + '/' + actor + '/' + (avatar ? 'avatar-' : '') + crypto.randomUUID() + '.' + imageExtensions[file.type];
   const { error } = await supabase.storage.from(bucket).upload(path, file);
   if (error) throw error;
   return path;

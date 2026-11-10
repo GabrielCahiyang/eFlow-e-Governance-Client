@@ -11,9 +11,10 @@ const days = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeZone:
 const times = new Intl.DateTimeFormat(undefined, { timeStyle: 'short', timeZone: 'Asia/Manila' });
 const emojis = ['👍', '❤️', '😂', '😮', '😢', '😡'];
 
-export function MessageHistory({ messages, userId, group, historyRef, onReply, onReact, onPin, onDelete }: {
+export function MessageHistory({ messages, userId, group, historyRef, readOnly, nicknames, highlightedId, onReply, onReact, onPin, onDelete }: {
   messages: Message[]; userId?: string; group: boolean;
   historyRef: RefObject<HTMLDivElement | null>;
+  readOnly?: boolean; nicknames?: Record<string, string>; highlightedId?: string;
   onReply: (message: Message) => void;
   onReact: (message: Message, emoji: string) => void;
   onPin: (message: Message) => void;
@@ -23,6 +24,7 @@ export function MessageHistory({ messages, userId, group, historyRef, onReply, o
   const [viewingReaction, setViewingReaction] = useState<{ message: string; emoji: string }>();
   return messages.map((message, index) => {
     const mine = message.senderId === userId;
+    const sender = nicknames?.[message.senderId] || message.senderName;
     const parsed = parseMessage(message.content);
     const day = days.format(message.createdAt);
     const previous = messages[index - 1];
@@ -33,17 +35,20 @@ export function MessageHistory({ messages, userId, group, historyRef, onReply, o
     const actionsOpen = menu?.message === message.id && menu.kind === 'actions';
     return <div key={message.id}>
       {newDay && <div className="messages-date-divider"><time dateTime={message.sentAt}>{day}</time></div>}
-      <div className="messages-message" data-mine={mine || undefined} data-grouped={grouped || undefined} id={'message-' + message.id} tabIndex={-1}
+      {message.activity ? <div id={'message-' + message.id} className="messages-chat-activity" tabIndex={-1}>{message.content}</div>
+      : <div className="messages-message" data-mine={mine || undefined} data-grouped={grouped || undefined}
+        data-highlighted={message.id === highlightedId || undefined} id={'message-' + message.id} tabIndex={-1}
         onKeyDown={event => { if (event.key === 'Escape') setMenu(undefined); }}>
-        {!mine && <span className="messages-person-initial" aria-hidden="true">{!grouped && message.senderName.slice(0, 1)}</span>}
+        {!mine && <span className="messages-person-initial" aria-hidden="true">{!grouped && sender.slice(0, 1)}</span>}
         <div className="messages-bubble-stack">
-          {!grouped && <span className="messages-sender">{mine ? 'You' : message.senderName} <time dateTime={message.sentAt}>{times.format(message.createdAt)}</time></span>}
+          {!grouped && <span className="messages-sender">{mine ? 'You' : sender} <time dateTime={message.sentAt}>{times.format(message.createdAt)}</time></span>}
           {parsed.replyToText && <div className="messages-reply-preview"><strong>{parsed.replyToName}</strong><span>{parsed.replyToText}</span></div>}
-          <div className="messages-bubble" title={times.format(message.createdAt)}>
+          {message.deleted ? <div className="messages-deleted-bubble">{mine ? 'You deleted a message.' : 'Message deleted.'}</div>
+          : <div className="messages-bubble" title={times.format(message.createdAt)}>
             {message.pinned && <Pin size={13} aria-label="Pinned" />}
             {message.imagePath && <ConversationImage path={message.imagePath} />}
             <MessageText message={parsed} group={group} />
-          </div>
+          </div>}
           {reactionKinds.size > 0 && <div className="messages-reaction-counts">{[...reactionKinds].map(emoji => {
             const people = [...(parsed.reactions?.[emoji] || []), ...(message.reactions[emoji] || [])];
             const expanded = viewingReaction?.message === message.id && viewingReaction.emoji === emoji;
@@ -53,7 +58,7 @@ export function MessageHistory({ messages, userId, group, historyRef, onReply, o
             </div>;
           })}</div>}
         </div>
-        <div className="messages-message-actions" data-open={menu?.message === message.id || undefined}>
+        {!message.deleted && !readOnly && <div className="messages-message-actions" data-open={menu?.message === message.id || undefined}>
           <Popover open={reactionsOpen} onOpenChange={open => {
             if (open) setMenu({ message: message.id, kind: 'reactions' });
             else setMenu(current => current?.message === message.id && current.kind === 'reactions' ? undefined : current);
@@ -71,8 +76,8 @@ export function MessageHistory({ messages, userId, group, historyRef, onReply, o
             <button type="button" onClick={() => { setMenu(undefined); onPin(message); }}>{message.pinned ? 'Unpin' : 'Pin message'}</button>
             {mine && <button type="button" onClick={() => { setMenu(undefined); onDelete(message); }}>Remove</button>}
           </div>}
-        </div>
-      </div>
+        </div>}
+      </div>}
     </div>;
   });
 }
