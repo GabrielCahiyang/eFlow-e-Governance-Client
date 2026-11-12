@@ -33,7 +33,7 @@ import { resolveProjectView } from "./projectViewCatalog";
 import type { ProjectCommandTab } from "./types";
 import "../projectsVibe.css";
 import { ProjectTableWorkspace, ProjectTaskCreateAction } from '../../../project-table';
-import { updateProject } from '../../services/projectMutationService';
+import { updateProject, renameSelectedProject } from '../../services/projectMutationService';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { ProjectViewFilters, ProjectGanttView, ProjectOfficesView, ProjectInsightsView, useProjectViewPreferences, filterProjectViewTasks } from '../../../project-views';
 import { scopeProjectViewData } from '../../selectors/projectViewContext';
@@ -85,6 +85,10 @@ export function ProjectCommandWorkspace({
   const shared = officeState.offices.some(o => o.relationship_type !== 'lead');
   const ownOffice = officeState.offices.find(o => o.office_id === userProfile?.org_id);
   const closed = ['completed','archived'].includes(project.status);
+  const canEditProjectWork = !canManage && !closed && !project.sourceCollaborationDraftId
+    && !officeState.loading && !officeState.error && userProfile?.is_active !== false
+    && ownOffice?.invitation_status === 'joined' && ownOffice.relationship_type !== 'observer'
+    && officeState.members.some(member => member.project_office_id === ownOffice.id && member.user_id === userProfile?.id && member.can_edit);
   const canAddPeople = setupReady && !closed && !project.sourceCollaborationDraftId && !officeState.loading && !officeState.error && canStaffProjectOffice(ownOffice, userProfile, orgs);
   const [peopleOpen, setPeopleOpen] = useState(() => new URLSearchParams(window.location.search).get('people') === 'add');
   const [pdfOpen,setPdfOpen]=useState(false),[importRevision,setImportRevision]=useState(0),[importGroupId,setImportGroupId]=useState('');
@@ -155,12 +159,6 @@ export function ProjectCommandWorkspace({
     onWorkspaceTabChange?.(nextTab);
   }); };
 
-  const hasBudgetData = Boolean(
-    data.financial &&
-      data.financial.summary &&
-      data.financial.summary.approvedAmount > 0,
-  );
-
   return (
     <ProjectFlowProvider projectId={project.id} flow={flow}><ProjectOfficeContext.Provider value={officeState}><div className="eflow-project-command space-y-4 font-sans">
       <div hidden={!!inspector.taskId || peopleOpen}>
@@ -169,7 +167,7 @@ export function ProjectCommandWorkspace({
         {setupReady && canManage && !closed && <Button size="small" kind="secondary" onClick={()=>{selectTab('tasks');setPdfOpen(true);}}>Import PDF</Button>}
         {setupReady && canManage && !closed && activeTabId !== 'tasks' && <ProjectTaskCreateAction projectId={project.id}/>}
       </div>
-      <ProjectHeader project={project} organizations={orgs} profiles={profiles} metrics={data.metrics} editable={canManage} onTitleChange={title => updateProject(project.id, { title }, project.metadataVersion)}
+      <ProjectHeader project={project} organizations={orgs} profiles={profiles} metrics={data.metrics} editable={canManage || canEditProjectWork && ownOffice?.relationship_type === 'lead'} onTitleChange={title => canManage ? updateProject(project.id, { title }, project.metadataVersion) : renameSelectedProject(project, title)}
         participants={<ProjectParticipants scope={`${userProfile?.id}:${favoriteContextId}:${project.id}`} profilesLoading={profilesLoading} offices={officeState} profiles={profiles} contributorIds={[project.ownerId || '', ...data.members.map(member => member.userId), ...officeState.members.map(member => member.user_id), ...projectTasks.flatMap(task => [task.assigneeId || '', ...(task.teamMemberIds || [])])]} />}
         utilities={<ProjectUtilities setupReady={setupReady} project={project} canManage={canManage} lifecycle={canManage ? lifecycleActions : {}} userId={authorizedProjectIds.length ? userProfile?.id || '' : ''} contextId={favoriteContextId} authorizedProjectIds={authorizedProjectIds} view={activeTabId} onOpenOffices={() => selectTab('offices')} onResolveView={selectTab} onOpenSettings={() => {if(activeTabId!=='settings')setSettingsReturn(activeTabId);selectTab('settings');}} />}
         />
@@ -180,14 +178,13 @@ export function ProjectCommandWorkspace({
         activeTab={activeTabId}
         onSelectTab={selectTab}
         hasProposalContext={Boolean(project.sourceCollaborationDraftId)}
-        hasBudgetData={hasBudgetData}
       />
       {['tasks', 'gantt', 'board', 'timeline', 'calendar', 'dashboard', 'offices'].includes(activeTabId) && <ProjectViewFilters value={filters} onChange={setFilters} profiles={profiles.filter(p => projectTasks.some(t => t.assigneeId === p.id) || p.org_id === project.orgId)} offices={orgs.filter(o => projectTasks.some(t => t.orgId === o.id) || o.id === project.orgId)} count={visibleTasks.length}/>}
 
 
-      {!setupReady&&activeTabId!=='settings'&&<section className="pf-panel"><h2>Finish project setup first</h2><p>Define the project details, project lead, dates and funding before adding tasks, subtasks or people.</p>{flow.error&&<div role="alert" className="pf-error">{flow.error}</div>}<button className="pf-primary" onClick={()=>selectTab('settings')}>Open project details and funding</button></section>}
+      {!setupReady&&activeTabId!=='settings'&&activeTabId!=='activity'&&<section className="pf-panel"><h2>Finish project setup first</h2><p>Define the project details, project lead, dates and funding before adding tasks, subtasks or people.</p>{flow.error&&<div role="alert" className="pf-error">{flow.error}</div>}<button className="pf-primary" onClick={()=>selectTab('settings')}>Open project details and funding</button></section>}
       {/* Main Workspace Canvas Body */}
-      {data.loading ? (
+      {activeTabId === 'activity' ? <ProjectActivityTab data={data} auditTrail /> : data.loading ? (
         <ProjectViewLoading view={activeTabId} />
       ) : data.error ? (
         <div
@@ -199,7 +196,7 @@ export function ProjectCommandWorkspace({
       ) : (
         <div className="pt-1">
 
-          {activeTabId === 'settings' && <ProjectDefinitionPanel projectId={project.id} profiles={profiles.filter(person=>person.org_id===project.orgId)} onReady={()=>{void flow.reload();selectTab('tasks');}}/>}
+          {activeTabId === 'settings' && <ProjectDefinitionPanel projectId={project.id} profiles={profiles.filter(person=>person.org_id===project.orgId)} profilesLoading={profilesLoading} organizations={orgs} tasks={projectTasks} governed={!!project.sourceCollaborationDraftId} onReady={()=>{void flow.reload();selectTab('tasks');}}/>}
           {activeTabId === 'settings' && <Button kind="tertiary" onClick={()=>selectTab(settingsReturn)}>← Back to project</Button>}
           {setupReady && activeTabId === "overview" && (
             <ProjectOverviewTab
@@ -209,7 +206,7 @@ export function ProjectCommandWorkspace({
             />
           )}
           {setupReady && activeTabId === "tasks" && (
-            <ProjectTableWorkspace data={data} profiles={profiles} orgs={orgs} canManage={canManage} onOpenTask={setOpenTaskId} onOpenLegacyBoard={()=>selectTab('board')} sharedFilters={filters} onFiltersChange={setFilters} importRevision={importRevision} importGroupId={importGroupId}/>
+            <ProjectTableWorkspace data={data} profiles={profiles} orgs={orgs} canManage={canManage} canEditProjectWork={canEditProjectWork} onOpenTask={setOpenTaskId} onOpenLegacyBoard={()=>selectTab('board')} sharedFilters={filters} onFiltersChange={setFilters} importRevision={importRevision} importGroupId={importGroupId}/>
           )}
           {setupReady && activeTabId === "board" && (
             <ProjectWorkTab
@@ -257,9 +254,6 @@ export function ProjectCommandWorkspace({
               profiles={profiles}
             />
           )}
-          {setupReady && activeTabId === "activity" && (
-            <ProjectActivityTab data={data} />
-          )}
           {setupReady && activeTabId === "reviews" && (
             <ProjectReviewsTab
               data={data}
@@ -272,7 +266,7 @@ export function ProjectCommandWorkspace({
           {setupReady && activeTabId === 'analytics' && <DeliveryAnalytics key={project.id} fixedProject={project.id} input={{tasks:projectTasks,projects:[project],people:profiles.map(p=>({id:p.id,name:p.full_name||p.email||'Name unavailable'})),facts:data.facts}} onOpenTask={task=>setOpenTaskId(task.id)} loading={data.loading} error={data.error}/>}
 
           {activeTabId === "budget" && (
-            <ProjectDefinitionPanel projectId={project.id} profiles={profiles.filter(person=>person.org_id===project.orgId)}/>
+            <ProjectDefinitionPanel projectId={project.id} profiles={profiles.filter(person=>person.org_id===project.orgId)} profilesLoading={profilesLoading} organizations={orgs} tasks={projectTasks} governed={!!project.sourceCollaborationDraftId}/>
           )}
 
 

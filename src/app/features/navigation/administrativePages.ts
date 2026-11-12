@@ -35,6 +35,13 @@ export const administrativePages = [
     permission: "navigation.system_settings",
   },
   {
+    label: "Status Maintenance",
+    supportGroup: "Configuration",
+    section: "administration",
+    permission: "navigation.system_settings",
+    adminOnly: true,
+  },
+  {
     label: "Workspace Policy",
     supportGroup: "Configuration",
     section: "administration",

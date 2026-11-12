@@ -56,6 +56,7 @@ export function buildCollaborationSnapshot({
       || "";
     return {
       ...task,
+      ...(task.subtasks ? { subtasks: task.subtasks.map(item => item.trim()).filter(Boolean) } : {}),
       assignedMemberIds,
       leadMemberId,
       deadline,

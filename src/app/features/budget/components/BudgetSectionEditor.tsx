@@ -21,26 +21,26 @@ export function BudgetSectionEditor({ sections, onChange, disabled, fiscalYear, 
     .filter(s => !s.retired && s.parentId === parentId).sort((a, b) => a.position - b.position)
     .map(s => {
       const children = sections.some(c => !c.retired && c.parentId === s.id);
-      return <section key={s.id} className="mt-3 rounded-xl border border-border p-3">
-        <div className="grid gap-3 md:grid-cols-[minmax(140px,1fr)_150px_150px]">
+      return <section key={s.id} className="min-w-0 py-3">
+        <div className="eflow-budget-account-fields">
           <label><span className="text-[11px] text-muted-foreground">{depth ? "Subaccount name" : "Account name"}</span><input aria-label={`Account name ${s.id}`} disabled={disabled} value={s.name} onChange={e => patch(s.id, { name: e.target.value })} placeholder="Your own account name" className={fieldClass} /></label>
           <label><span className="text-[11px] text-muted-foreground">{children ? "Subtotal" : "Budget amount"}</span>{children ? <output className={`${fieldClass} flex items-center justify-end tabular-nums`}>{peso.format(sectionTotal(sections, s.id))}</output> : <MoneyInput aria-label={`Budget amount ${s.name || s.id}`} disabled={disabled} min="0" step="0.01" value={s.amount || ""} onValueChange={raw => patch(s.id, { amount: Number(raw) })} className={`${fieldClass} text-right`} />}</label>
           {scheduleEnabled?<div><span className="text-[11px] text-muted-foreground">Pending releases</span><output className={`${fieldClass} flex items-center justify-end`}>{peso.format(sectionTotal(sections,s.id,'heldAmount'))}</output></div>:<label><span className="text-[11px] text-muted-foreground">For later release</span>{children ? <output className={`${fieldClass} flex items-center justify-end`}>{peso.format(sectionTotal(sections, s.id, "heldAmount"))}</output> : <MoneyInput aria-label={`Hold ${s.name || s.id}`} disabled={disabled} min="0" max={s.amount} step="0.01" value={s.heldAmount || ""} onValueChange={raw => patch(s.id, { heldAmount: Number(raw) })} className={`${fieldClass} text-right`} />}</label>}
         </div>
-        {!children&&scheduleEnabled&&<BudgetReleaseScheduleEditor account={s} year={fiscalYear} disabled={disabled} onChange={update=>patch(s.id,update)}/>}
-        {!children && <label className="mt-2 block max-w-sm"><span className="text-[11px] text-muted-foreground">Expense-account code (optional label; journal mapping is separate)</span><input disabled={disabled} value={s.accountCode || ""} onChange={e => patch(s.id, { accountCode: e.target.value })} placeholder="For example: 5-02-03-010" className={fieldClass} /></label>}
+        {!children && <label className="mt-3 block max-w-sm"><span className="text-xs text-muted-foreground">Expense-account code (optional)</span><input disabled={disabled} value={s.accountCode || ""} onChange={e => patch(s.id, { accountCode: e.target.value })} placeholder="For example: 5-02-03-010" className={fieldClass} /><small className="text-xs text-muted-foreground">Journal account mapping is managed separately.</small></label>}
+        {!children && scheduleEnabled && <BudgetReleaseScheduleEditor account={s} year={fiscalYear} disabled={disabled} onChange={update=>patch(s.id,update)}/>}
         {!disabled && <div className="mt-3 flex flex-wrap gap-2 text-[12px]">
           {depth < 5 && !s.releaseSchedule?.length && <button type="button" className="inline-flex items-center gap-1 rounded-lg border px-3 py-2" onClick={() => onChange(addSectionChild(sections, s.id))}><Plus size={13} /> Add breakdown</button>}
           <button type="button" aria-label={`Move ${s.name} up`} onClick={() => move(s, -1)} className="rounded-lg border p-2"><ArrowUp size={14} /></button>
           <button type="button" aria-label={`Move ${s.name} down`} onClick={() => move(s, 1)} className="rounded-lg border p-2"><ArrowDown size={14} /></button>
           <button type="button" className="inline-flex items-center gap-1 rounded-lg border px-3 py-2 text-destructive" onClick={() => onChange(removeSectionTree(sections, s.id))}><Trash2 size={13} /> Delete {children ? "account and breakdown" : "account"}</button>
         </div>}
-        {depth < 6 && renderRows(s.id, depth + 1)}
+        {children && depth < 6 && <div className="eflow-budget-account-children">{renderRows(s.id, depth + 1)}</div>}
       </section>;
     });
   return <div>
-    <p className="text-[12px] text-muted-foreground">Choose your own account names and amounts. If you add a breakdown, its rows make up the account total; nothing is counted twice.</p>
-    {renderRows()}
+    <p className="text-xs text-muted-foreground">An account with subaccounts uses their combined total.</p>
+    <div className="eflow-budget-account-list">{renderRows()}</div>
     {!sections.some(s => !s.retired) && <EmptyState illustration="budget" size="compact" title="No accounts yet. Add your first account to build this budget."/>}
     {!disabled && <button type="button" onClick={() => onChange(addSectionChild(sections))} className="mt-4 inline-flex items-center gap-2 rounded-lg border border-dashed border-primary px-4 py-3 text-[12px] text-primary"><Plus size={15} /> Add account</button>}
   </div>;

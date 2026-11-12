@@ -6,6 +6,7 @@ import { LoadingScreen } from "./LoadingScreen";
 import { mapRoleToPanel } from "./role";
 import { lazyFeature } from "../../shared/lazyFeature";
 import { ActivateAccountPage } from '../account-activation';
+import { WorkStatusProvider } from '../work-status';
 
 const SignedInApp = lazyFeature(() =>
   import("./SignedInApp").then((module) => ({ default: module.SignedInApp })),
@@ -41,5 +42,5 @@ export function AuthenticatedApp() {
   if (window.location.pathname === '/project-share') return <ShareRedemptionPage/>;
   if (window.location.pathname === '/manage-project-share') return <ShareManagementPage/>;
 
-  return <SignedInApp key={`${user.id}:${userProfile.role}:${accessRevision ?? 0}`} actorId={user.id} role={mapRoleToPanel(userProfile.role)} />;
+  return <WorkStatusProvider><SignedInApp key={`${user.id}:${userProfile.role}:${accessRevision ?? 0}`} actorId={user.id} role={mapRoleToPanel(userProfile.role)} /></WorkStatusProvider>;
 }

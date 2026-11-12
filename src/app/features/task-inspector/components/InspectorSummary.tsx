@@ -23,7 +23,7 @@ export function InspectorSummary({task, projectTitle, readOnly, dependencies, ca
                   <div className="task-overview__office"><Building2 size={15} aria-hidden="true"/><TaskDepartmentLabel task={task}/></div>
                 </div>
                 <div className="task-overview__state">
-                  <div><span>Status</span><TaskStatusBadge status={task.status} rejected={rejected}/></div>
+                  <div><span>Status</span><TaskStatusBadge status={task.status} customStatusId={task.customStatusId} rejected={rejected}/></div>
                   <div><span>Priority</span><PriorityPill priority={task.priority}/></div>
                 </div>
                 <div className="task-overview__facts">

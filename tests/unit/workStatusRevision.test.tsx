@@ -21,12 +21,13 @@ describe('status-based execution',()=>{
   fireEvent.change(screen.getByLabelText('Blocker reason'),{target:{value:'Need confirmation'}});fireEvent.click(screen.getByRole('button',{name:'Report blocker'}));
   await waitFor(()=>expect(screen.getByRole('alert').textContent).toContain('Try again'));expect((screen.getByLabelText('Blocker reason') as HTMLTextAreaElement).value).toBe('Need confirmation');
  });
- it('requires both a note and supported evidence before submission',async()=>{
+ it('submits a completion note without an evidence file',async()=>{
   const submit=vi.fn().mockResolvedValue(undefined);render(<WorkExecutionForm status="in_progress" onSave={vi.fn()} onSubmit={submit}/>);
   fireEvent.change(screen.getByLabelText('Work status'),{target:{value:'submit'}});expect((screen.getByRole('button',{name:'Submit for review'}) as HTMLButtonElement).disabled).toBe(true);
   fireEvent.change(screen.getByLabelText('Completion note'),{target:{value:'Finished the agenda'}});
-  fireEvent.change(screen.getByLabelText('Evidence files'),{target:{files:[new File(['proof'],'agenda.pdf',{type:'application/pdf'})]}});
-  fireEvent.click(screen.getByRole('button',{name:'Submit for review'}));await waitFor(()=>expect(submit).toHaveBeenCalledTimes(1));
+  expect(screen.getByText('Add evidence (optional)')).toBeTruthy();
+  fireEvent.click(screen.getByRole('button',{name:'Submit for review'}));
+  await waitFor(()=>expect(submit).toHaveBeenCalledWith(expect.objectContaining({note:'Finished the agenda',files:[]})));
  });
  it('keeps attachment selection, removal and next-step saving functional with the styled picker',async()=>{
   const save=vi.fn().mockResolvedValue(undefined),file=new File(['proof'],'agenda.pdf',{type:'application/pdf'});

@@ -12,6 +12,7 @@ export async function globalUiP4Fixture(page: Page, role: 'head'|'member'|'accou
     if(table==='department_budget_summary') return state.budgetError ? route.fulfill({status:403,json:{message:'Synthetic Budget read denied'}}) : route.fulfill({json:empty?null:{id:'71000000-0000-4000-8000-000000000001',orgId:records.org,fiscalYear:2026,status:'locked',approvedAmount:123456.78,committedAmount:0,spentAmount:0,availableAmount:123456.78,dailyPettyCashReleaseLimit:30000,perReceiptLimit:5000,liquidationDueDays:15,allowReceiptLimitOverride:false,underutilizationThreshold:75}});
     if(table==='department_fiscal_budgets') return route.fulfill({json:empty?[]:[{fiscal_year:2026,status:'locked',approved_amount:123456.78}]});
     if(table==='get_office_budget_sections') return route.fulfill({json:{sections:empty?[]:sections,version:0}});
+    if(table==='office_petty_cash_snapshot') return route.fulfill({json:{ceiling:30000,receiptLimit:5000,cash:30000,reserved:0,available:30000,outstanding:0,replenishable:0,events:[],requests:[]}});
     if(['department_budget_lines','budget_commitments','budget_ledger_entries','department_budget_adjustments','petty_cash_requests','general_journal_entries'].includes(table||''))return route.fulfill({json:[]});
     return route.fallback();
   });

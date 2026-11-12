@@ -29,7 +29,12 @@ export interface WorkCapabilityContext {
 export interface WorkActionAvailability {
  allowed:boolean;reason_code:WorkCapabilityReasonCode|'capability_unavailable'|null;disabledReason:string|null;
 }
+export interface WorkScheduleBounds {
+ projectStart?:string|null;projectDue?:string|null;taskStart?:string|null;taskDue?:string|null;
+}
 export interface WorkNode {
+ start_date?: string | null;
+ custom_status_id?: string | null;
  blocker?:string|null;
  id:string;task_id:string;parent_subtask_id:string|null;lead_id:string|null;title:string;
  assigned_to_ids:string[];sibling_order:number;position?:number;depth:number;due_date:string|null;
@@ -38,7 +43,7 @@ export interface WorkNode {
  capabilities?:WorkCapabilityMap<NodeWorkAction>;
 }
 export interface WorkTreeSnapshot {
- root:{status?:string;blocker?:string|null;id:string;project:string;office:string|null;lead:string|null;kind:'office'|'personal';open:boolean;due:string|null;people:string[];capabilities?:WorkCapabilityMap<RootWorkAction>};
+ root:{status?:string;blocker?:string|null;id:string;project:string;office:string|null;lead:string|null;kind:'office'|'personal';open:boolean;due:string|null;people:string[];scheduleBounds?:WorkScheduleBounds;capabilities?:WorkCapabilityMap<RootWorkAction>};
  revision:number;can_manage:boolean;can_transfer:boolean;nodes:WorkNode[];people:WorkPerson[];leaf_total:number;leaf_completed:number;
 }
 export type WorkCommand='create'|'staff'|'edit'|'move'|'delete'|'order'|'contributors'|'root_lead'|'progress'|'submit'|'review';

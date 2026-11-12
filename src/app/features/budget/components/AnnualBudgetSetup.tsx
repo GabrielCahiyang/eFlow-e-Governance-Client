@@ -133,14 +133,25 @@ export function AnnualBudgetSetup({
     ? sectionTotal(sections)
     : data.summary?.approvedAmount ?? 0;
   const locked = data.summary?.status === "locked";
+  const hasProjects = data.readjustmentBlockedByProjects === true;
   const amountValidation = validateBudgetSectionsForLock(sections);
   const validation = fiscalYearError(fiscalYear)||budgetSettingsError({dailyReleaseLimit:pettyLimit,perReceiptLimit:requestLimit,liquidationDueDays,threshold})||validateBudgetSections(sections)||releaseSchedulesYearError(sections,fiscalYear)||(locked&&data.releaseScheduleAvailable?lockedReleaseEditError(data.sections||[],sections):'')||(locked ? amountValidation : "");
   const lockValidation = validation || amountValidation;
   const closed = data.summary?.status === "closed";
-  const writable = Boolean(data.sectionsAvailable) && canEdit && !closed && (!locked || editingLocked);
+  const writable = Boolean(data.sectionsAvailable) && canEdit && !closed && (!locked || (editingLocked && !hasProjects));
   const protection=locked&&editingLocked?budgetProtectionIssue(data.sections||[],sections):null;
   const versions=data.budgetVersions||[];
   const nextVersion=(versions[versions.length-1]?.version||1)+1;
+  const startReadjustment = () => {
+    const latest = openingSections(data);
+    expectedVersion.current = data.sectionsVersion || 0;
+    baseline.current = JSON.stringify({ sections: latest, adjustmentReason: "", pettyLimit, requestLimit, liquidationDueDays, allowReceiptOverride, threshold, notes });
+    setSections(latest);
+    setAdjustmentReason("");
+    setMessage("");
+    setSaveError(null);
+    setEditingLocked(true);
+  };
   const persistDraft = () =>
     saveBudgetSections({
       orgId,
@@ -241,23 +252,17 @@ export function AnnualBudgetSetup({
           Refresh annual budget status before another write
         </button>
       )}
-      <div className="rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
-        <div className="flex flex-wrap items-start justify-between gap-3">
+      <section className="rounded-[10px] border border-border bg-card">
+        <div className="eflow-budget-annual-summary">
           <div>
-            <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-              Fiscal year {fiscalYear}
-            </div>
-            <h2 className="mt-1 text-[16px] font-semibold text-foreground">
+            <h2 className="text-base font-semibold text-foreground">
               Annual office budget
             </h2>
-            <p className="mt-1 text-[12px] text-secondary-foreground">
-              {data.sectionsAvailable
-                ? "Add, rename or remove your own accounts. Total Budget adds their amounts once."
-                : "Showing your saved annual budget. Account editing is temporarily unavailable."}
-            </p>
+            <p className="mt-1 text-xs text-muted-foreground">Fiscal year {fiscalYear}</p>
+            {data.summary?.updatedAt && <p className="mt-1 text-xs text-muted-foreground">Updated {new Date(data.summary.updatedAt).toLocaleString()}</p>}
           </div>
-          <div className="text-right">
-            <div className="text-[11px] uppercase tracking-wide text-muted-foreground">
+          <div>
+            <div className="text-xs text-muted-foreground">
               Total Budget
             </div>
             <div className="mt-1 text-[20px] font-semibold text-foreground tabular-nums">
@@ -265,24 +270,22 @@ export function AnnualBudgetSetup({
             </div>
           </div>
         </div>
+        <div className="p-4">
         {locked && (
-          <div className="mt-4 flex gap-2 rounded-[14px] border border-emerald-200 bg-emerald-50 p-3 text-[12px] text-emerald-800">
+          <div className="mb-4 flex items-start gap-2 text-xs text-muted-foreground">
             <LockKeyhole size={14} className="shrink-0" />
             <span>
-              This annual budget is locked. New proposal commitments and
-              expenses are recorded without changing the original appropriation.
+              Budget locked. Commitments and expenses are tracked against the approved amounts.
             </span>
           </div>
         )}
         {!canEdit && !locked && (
-          <div className="mt-4 flex gap-2 rounded-[14px] border border-amber-200 bg-amber-50 p-3 text-[12px] text-amber-800">
+          <div className="eflow-budget-warning mb-4 flex gap-2 rounded-lg p-3 text-xs">
             <AlertTriangle size={14} className="shrink-0" />
             Only the assigned Head can prepare and lock the annual budget.
             Members can monitor it and approve operational requests.
           </div>
         )}
-      </div>
-      <div className="rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
         {!data.sectionsAvailable ? (
           <div role="status" className="text-[12px]">
             <p className="text-amber-800">Account editing is temporarily unavailable. Your saved budget has not been reset.</p>
@@ -296,17 +299,22 @@ export function AnnualBudgetSetup({
           </div>
         ) : (
           <>
-            {locked && canEdit && !editingLocked && <button type="button" className="mb-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-[13px] font-medium text-primary-foreground" onClick={() => {const latest=openingSections(data);expectedVersion.current=data.sectionsVersion||0;baseline.current=JSON.stringify({sections:latest,adjustmentReason:'',pettyLimit,requestLimit,liquidationDueDays,allowReceiptOverride,threshold,notes});setSections(latest);setAdjustmentReason('');setMessage('');setSaveError(null);setEditingLocked(true);}}>Readjust budget</button>}
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+              <h3 className="text-sm font-semibold">Budget accounts</h3>
+              {locked && canEdit && !editingLocked && <button type="button" className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground disabled:opacity-40" disabled={hasProjects} aria-describedby={hasProjects ? "office-budget-readjustment-reason" : undefined} onClick={startReadjustment}>Readjust budget</button>}
+            </div>
             {locked&&!canEdit&&<p className="mb-3 text-[13px] text-muted-foreground">Only the office Head can readjust this budget.</p>}
+            {locked && canEdit && hasProjects && <p id="office-budget-readjustment-reason" className="mb-3 text-[13px] text-muted-foreground">You can only readjust the Office Budget when the Office has no projects.</p>}
             {sections.some(section => !section.retired && section.name === "Unclassified opening appropriation") && <p className="mb-3 text-[12px] text-muted-foreground">Your previously saved budget starts as one account. Rename it or divide it into your real accounts. Changing a locked amount requires a reason.</p>}
             <BudgetSectionEditor fiscalYear={fiscalYear} scheduleEnabled={data.releaseScheduleAvailable===true} sections={sections} onChange={setSections} disabled={!writable || busy} />
           </>
         )}
-        {editingLocked && <label className="mt-4 block"><span className="text-[13px] font-medium">Reason for adjustment (required)</span><textarea disabled={busy} value={adjustmentReason} onChange={e => setAdjustmentReason(e.target.value)} className="mt-1 w-full rounded-lg border p-3 text-[13px]" placeholder="Explain what changed and why." /><p className="mt-1 text-[12px] text-muted-foreground">Saving creates V{nextVersion}. Existing project funding and spending stay protected.</p></label>}
+        {editingLocked && <label className="mt-4 block"><span className="text-[13px] font-medium">Reason for adjustment (required)</span><textarea disabled={busy || !writable} value={adjustmentReason} onChange={e => setAdjustmentReason(e.target.value)} className="mt-1 w-full rounded-lg border p-3 text-[13px]" placeholder="Explain what changed and why." /><p className="mt-1 text-[12px] text-muted-foreground">Saving creates V{nextVersion}.</p></label>}
         <BudgetProtectionAlert protection={protection||saveError?.protection} error={saveError}/>
         {lockValidation && <p role="alert" className="mt-3 text-[12px] text-destructive">{lockValidation}</p>}
-      </div>
-      <section className="rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
+        </div>
+      </section>
+      <section className="rounded-[10px] border border-border bg-card p-4">
         <div className="flex items-start gap-3">
           <div className="rounded-[14px] bg-primary/10 p-2.5 text-primary">
             <CalendarClock size={16} />
@@ -322,7 +330,7 @@ export function AnnualBudgetSetup({
             </p>
           </div>
         </div>
-        <div className="mt-4 grid gap-4 md:grid-cols-4">
+        <div className="mt-4 grid gap-4 grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))]">
           <NumberField
             money label="Daily cash release ceiling"
             value={pettyLimit}
@@ -386,11 +394,11 @@ export function AnnualBudgetSetup({
           {message}
         </div>
       )}
-      {writable && (
-        <div className="flex justify-end gap-2">
+      {(writable || (locked && editingLocked && canEdit)) && (
+        <div className="eflow-budget-form-actions">
           {locked&&<button type="button" disabled={busy} onClick={()=>{const saved=JSON.parse(baseline.current);setSections(saved.sections);setThreshold(saved.threshold);setAdjustmentReason('');setSaveError(null);setEditingLocked(false);draft.markClean();}} className="rounded-lg border px-4 py-2 text-[13px]">Cancel adjustment</button>}
           <button
-            disabled={busy || Boolean(validation) || !!protection || !data.sectionsAvailable || (locked && !adjustmentReason.trim())}
+            disabled={!writable || busy || Boolean(validation) || !!protection || (locked && !adjustmentReason.trim())}
             onClick={save}
             className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-card px-4 text-[12px] font-medium text-foreground"
           >

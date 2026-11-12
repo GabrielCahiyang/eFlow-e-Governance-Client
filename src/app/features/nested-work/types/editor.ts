@@ -2,7 +2,7 @@ import type {WorkCommand,WorkNode,WorkRequest,WorkTreeSnapshot} from '../types';
 
 export interface WorkEdit {command:WorkCommand;node?:WorkNode;itemId?:string;recoveryRevision?:number;parent?:string|null;root?:boolean}
 export interface WorkEditorFields {
- title:string;due:string;lead:string;people:string[];parent:string;standalone:boolean;note:string;progress:number;order:string[];
+ title:string;start?:string;due:string;lead:string;people:string[];parent:string;standalone:boolean;note:string;progress:number;order:string[];
 }
 export interface WorkEditorBaseline {
  actorId:string|null;rootId:string;projectId:string;officeId:string|null;kind:'office'|'personal';revision:number;

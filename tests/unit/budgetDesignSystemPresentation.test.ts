@@ -18,8 +18,8 @@ describe("budget design-system presentation", () => {
     expect(cashLiquidation).toContain("<DialogFooter");
     expect(cashLiquidation).toContain("sm:max-w-[640px]");
     expect(cashLiquidation).toContain('inputClassName="text-right tabular-nums"');
-    expect(approvalQueue).toMatch(/<Dialog\s+open/);
-    expect(approvalQueue).toContain("Decision required");
+    expect(approvalQueue).toMatch(/<DecisionModal\s+title=/);
+    expect(approvalQueue).toContain('reasonLabel="Reason or required correction"');
     expect(approvalQueue).not.toContain('fixed inset-0 z-[80] bg-neutral-950/35');
   });
 

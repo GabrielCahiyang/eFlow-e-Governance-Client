@@ -86,7 +86,7 @@ describe("R12 effective administration", () => {
     render(<AdministrationWorkspace />);
     expect(screen.queryByRole("tablist")).toBeNull();
     expect(screen.getByText('Retained people tools: users')).toBeTruthy();
-    expect(getAuthorizedSupportPages('admin',()=>true).map(page=>page.label)).toEqual(['All Users','Locked out accounts','Role Defaults','User Access','Account Audit','System Settings','Workspace Policy','Email & Integrations','Runtime / AI Health','Backup & Export']);
+    expect(getAuthorizedSupportPages('admin',()=>true).map(page=>page.label)).toEqual(['All Users','Locked out accounts','Role Defaults','User Access','Account Audit','System Settings','Status Maintenance','Workspace Policy','Email & Integrations','Runtime / AI Health','Backup & Export']);
     expect(resolveSupportPage("administration", "Email & Integrations")).toBe(
       "Email & Integrations",
     );

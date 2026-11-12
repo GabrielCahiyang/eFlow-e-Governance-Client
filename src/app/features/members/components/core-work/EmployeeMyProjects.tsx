@@ -89,7 +89,7 @@ export function EmployeeMyProjects() {
                         <button key={t.id} onClick={() => setOpen(t)} className="w-full text-left flex items-center gap-3 px-4 py-2.5 hover:bg-neutral-50">
                           <span className="text-[12px] font-normal text-neutral-800 truncate flex-1">{t.title}</span>
                           <span className={`text-[10.5px] ${rel.overdue ? "text-red-600" : "text-neutral-400"}`}>{formatDate(t.deadline || t.dueDate)}</span>
-                          <TaskStatusBadge status={t.status} size="sm" />
+                          <TaskStatusBadge status={t.status} customStatusId={t.customStatusId} size="sm" />
                         </button>
                       );
                     })}

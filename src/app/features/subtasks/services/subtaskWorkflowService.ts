@@ -90,7 +90,6 @@ export async function submitSubtaskForReview(input: {
   if(issue)throw new Error(issue);
   if(input.note.length>5000)throw new Error('Completion note must be 5,000 characters or fewer.');
   if (!input.note.trim()) throw new Error("A completion note is required.");
-  if (input.evidence.length === 0) throw new Error("Attach at least one evidence file.");
 
   const submissionId = crypto.randomUUID();
   const uploaded: SubtaskSubmissionAttachment[] = [];

@@ -96,6 +96,13 @@ export function DraftTaskRow({
       {/* Content */}
       <div className="flex-1 min-w-0">
         <TaskDepartmentLabel task={dt} draft />
+        {dt.subtasks !== undefined && <details className="my-2 rounded border px-3 py-2">
+          <summary className="cursor-pointer text-sm">Subtasks ({dt.subtasks.filter(item => item.trim()).length})</summary>
+          <label className="mt-2 grid gap-1 text-sm">Subtasks to add (one per line)
+            <textarea className="rounded border p-2" rows={3} value={dt.subtasks.join('\n')}
+              onChange={event => onUpdate(dt.key, { subtasks: event.target.value.split('\n') })}/>
+          </label>
+        </details>}
         {editing ? (
           <div className="space-y-2">
             <div>

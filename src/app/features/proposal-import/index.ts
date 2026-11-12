@@ -4,7 +4,7 @@ export { extractTextFromPdf } from './services/pdfTextExtractor';
 export { readSourceBudget } from './services/sourceBudget';
 export { applySourceBudgetAssignments } from './services/sourceBudget';
 export type { SourceBudget } from './services/sourceBudget';
-export { extractPartSections } from './services/decomposition/textAnalysis';
+export { extractPartSections, extractExplicitSubtasks, generateTemplateSubtasks } from './services/decomposition/textAnalysis';
 export type {
   ProposalDecompositionBudgetLine,
   ProposalDecompositionActivity,

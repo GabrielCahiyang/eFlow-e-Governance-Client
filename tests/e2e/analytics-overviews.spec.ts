@@ -61,6 +61,10 @@ for (const role of ["head", "member", "accounting_staff"] as const)
       await page
         .getByRole("button", { name: "Project analytics", exact: true })
         .click();
+      await page.getByRole("combobox", { name: /^Project/ }).selectOption(records.project);
+      await expect(page.getByRole("heading", { name: "Project analysis", exact: true })).toBeVisible();
+      await page.getByRole("combobox", { name: /^Project/ }).selectOption("");
+      await expect(page.getByRole("region", { name: "Project completion", exact: true })).toBeVisible();
       await page.goto(
         `/projects?page=Projects&workspace=${records.org}&project=${records.project}&view=analytics`,
       );
@@ -68,7 +72,7 @@ for (const role of ["head", "member", "accounting_staff"] as const)
         page.getByRole("tab", { name: "Analytics", exact: true }),
       ).toBeVisible({ timeout: 45000 });
       await expect(
-        page.getByRole("table", { name: "Project analytics", exact: true }),
+        page.getByRole("table", { name: "Task records", exact: true }),
       ).toBeVisible({ timeout: 30000 });
       await page.setViewportSize({ width: 1100, height: 950 });
       await page.screenshot({

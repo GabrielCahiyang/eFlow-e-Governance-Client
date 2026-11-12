@@ -2,6 +2,7 @@ import { ArrowUpRight } from "lucide-react";
 import { DeadlineBadge } from "../../../components/ui/DeadlineBadge";
 import type { ProjectFlow } from "../../project-setup";
 import type { Task } from "../../tasks";
+import { resolveStatus, useWorkStatuses } from "../../work-status";
 import { peopleDelivery } from "../selectors/deliveryAnalytics";
 import type { AnalyticsInput, AnalyticsProject, TaskAnalytic } from "../types";
 const labels: Record<string, string> = {
@@ -62,6 +63,7 @@ export function AnalyticsTables({
   showTasks,
   clearWeek,
 }: Props) {
+  const { definitions } = useWorkStatuses();
   return (
     <>
       {table === "projects" && (
@@ -286,7 +288,7 @@ export function AnalyticsTables({
                           .join(", ") || "No contributors"}
                       </small>
                     </td>
-                    <td>{labels[r.state] || r.state}</td>
+                    <td>{resolveStatus(definitions, r.state, labels[r.state] || r.state, r.task.customStatusId).label}</td>
                     <td>
                       <DeadlineBadge
                         value={r.task.deadline || r.task.dueDate}

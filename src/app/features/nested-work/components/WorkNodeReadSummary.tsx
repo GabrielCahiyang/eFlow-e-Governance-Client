@@ -1,3 +1,4 @@
+import {workDateLabel} from '../../../shared/workCalendar';
 import {WorkPeopleSummary} from './WorkPeopleSummary';
 import {WorkNodeDue,WorkNodeStatus} from './WorkNodePresentation';
 import type {WorkNode,WorkTreeSnapshot} from '../types';
@@ -6,7 +7,7 @@ import type {WorkNode,WorkTreeSnapshot} from '../types';
 export function WorkNodeReadSummary({node,snapshot,onClose}:{node:WorkNode;snapshot:WorkTreeSnapshot;onClose:()=>void}){
  return <aside className="nw-read-summary" aria-label={`Subtask details for ${node.title}`}>
   <h4>{node.title}</h4><WorkPeopleSummary leadId={node.lead_id} contributorIds={node.assigned_to_ids} people={snapshot.people}/>
-  <WorkNodeStatus node={node}/><WorkNodeDue node={node}/>
+  <WorkNodeStatus node={node}/><span>Start: {node.start_date?workDateLabel(node.start_date,'Asia/Manila'):'No start date'}</span><WorkNodeDue node={node}/>
   <p>{node.is_standalone?'Can start independently':'In sequence'}</p>
   <button type="button" onClick={onClose}>Close subtask details</button>
  </aside>;

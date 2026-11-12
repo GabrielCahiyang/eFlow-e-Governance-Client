@@ -1,16 +1,9 @@
 import {TaskProjectFunding} from '../../project-setup';
 import {OfficePettyCashLauncher} from '../../office-petty-cash';
-import { MoneyInput } from '../../../components/ui/MoneyInput';
-import { useReviewedMutation } from "../../../shared/useReviewedMutation";
-import { FeedbackState } from "../../../components/ui/FeedbackState";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Banknote,
   Loader2,
-  Pencil,
-  Plus,
-  ShieldCheck,
-  Trash2,
   WalletCards,
 } from "lucide-react";
 import { useAuth } from "../../../contexts/AuthContext";
@@ -20,12 +13,9 @@ import type { Subtask } from "../../subtasks";
 import { getCurrentFiscalYear } from "../constants";
 import { useDepartmentBudget } from "../hooks/useDepartmentBudget";
 import { useTaskFundingContext } from "../hooks/useTaskFundingContext";
-import {
-  removeSubtaskBudgetCap,
-  setSubtaskBudgetCap,
-} from "../services/budgetService";
 import type { PettyCashRequest } from "../types";
 import { peso } from "./budgetUi";
+import { SubtaskBudgetButton, SubtaskBudgetManager, SubtaskBudgetTotals } from "./SubtaskBudgetManager";
 import { CashRequestForm } from "./CashRequestForm";
 import { CashRequestTimeline } from "./CashRequestTimeline";
 import { DirectWorkFunding } from "./DirectWorkFunding";
@@ -40,24 +30,6 @@ interface WorkBudgetCardProps {
   readOnly?: boolean;
   authorityPending?: boolean;
 }
-
-const ACTIVE_REQUEST_STATES = new Set([
-  "pending",
-  "pending_leader_review",
-  "leader_changes_requested",
-  "pending_department_approval",
-  "department_changes_requested",
-  "approved",
-  "scheduled_for_release",
-  "partially_released",
-  "released",
-  "liquidation_draft",
-  "liquidation_submitted",
-  "pending_leader_liquidation_review",
-  "pending_department_settlement",
-  "changes_requested",
-  "overdue_liquidation",
-]);
 
 const TEMPORARY_HOLD_STATES = new Set([
   "pending",
@@ -109,14 +81,7 @@ export function WorkBudgetCard({
   useEffect(()=>{setFundingYear(funding.context?.fiscalYear||getCurrentFiscalYear());setFundingOffice(funding.context?.fundingOrgId||orgId);},[funding.context?.fiscalYear,funding.context?.fundingOrgId,orgId]);
   const [requestOpen, setRequestOpen] = useState(false);
   const [correction, setCorrection] = useState<PettyCashRequest>();
-  const [capOpen, setCapOpen] = useState(false);
-  const [capLineId, setCapLineId] = useState("");
-  const [capAmount, setCapAmount] = useState(0);
-  const [capReason, setCapReason] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
-  const capCommandKey = useRef(crypto.randomUUID());
-
+  const [budgetsOpen, setBudgetsOpen] = useState(false);
   const currentUserId = userProfile?.id || "";
   const isTaskLeader = currentUserId === getTaskLeadId(task);
   const isAssignedContributor = Boolean(
@@ -124,32 +89,22 @@ export function WorkBudgetCard({
   );
   const context = funding.context;
   const fundingCurrent = !context?.taskLeaderId || context.taskLeaderId === getTaskLeadId(task);
-  const safety = useReviewedMutation(
-    `${task.id}:${subtask?.id || ""}:${currentUserId}`,
-  );
-  const latestCap = useRef({ context, canManageCap: false, blocked: false });
   const canRequest = Boolean(
     !readOnly && !authorityPending && fundingCurrent && !funding.loading && !budget.loading && context?.funded &&
       budget.summary?.status === "locked" &&
       (subtask ? isAssignedContributor || isTaskLeader : isTaskLeader),
   );
-  const canManageCap = Boolean(
-    !readOnly && !authorityPending && fundingCurrent && !funding.loading && !budget.loading && subtask && canManage && isTaskLeader && context?.funded,
+  const taskFinished = !!task.archivedAt || ["completed", "cancelled"].includes(task.status);
+  const canManageBudgets = Boolean(
+    (!readOnly || taskFinished || subtask?.status === "completed") &&
+      !authorityPending && !funding.loading && fundingCurrent && isTaskLeader &&
+      context?.funded && context.canManageDistribution && context.subtaskBudgets,
   );
   const requests = budget.requests.filter(
     (request) =>
       request.taskId === task.id &&
       (subtask ? request.subtaskId === subtask.id : !request.subtaskId),
   );
-  const capRequests = context?.cap
-    ? budget.requests.filter(
-        (request) => request.allocationId === context.cap?.id,
-      )
-    : [];
-  const capHasActiveRequest = capRequests.some((request) =>
-    ACTIVE_REQUEST_STATES.has(request.status),
-  );
-  latestCap.current = { context, canManageCap, blocked: capHasActiveRequest };
   const poolRequests = context
     ? budget.requests.filter(
         (request) =>
@@ -195,117 +150,14 @@ export function WorkBudgetCard({
     await funding.refresh();
   };
 
-  const openCap = () => {
-    if (!context || !canManageCap || capHasActiveRequest) return;
-    setError("");
-    setCapLineId(
-      context.cap?.allocationLineId ||
-        context.lines.find((line) => line.available > 0)?.id ||
-        context.lines[0]?.id ||
-        "",
-    );
-    setCapAmount(context.cap?.amount || 0);
-    setCapReason(context.cap?.reason || "");
-    setCapOpen(true);
-    capCommandKey.current = crypto.randomUUID();
-  };
-
-  const saveCap = async () => {
-    if (!subtask || busy || !latestCap.current.canManageCap || latestCap.current.blocked) return;
-    setBusy(true);
-    setError("");
-    try {
-      await setSubtaskBudgetCap({
-        taskId: task.id,
-        subtaskId: subtask.id,
-        allocationLineId: capLineId,
-        amount: capAmount,
-        reason: capReason,
-        idempotencyKey: capCommandKey.current,
-      });
-      setCapOpen(false);
-      await refresh();
-    } catch (caught) {
-      setError(
-        caught instanceof Error
-          ? caught.message
-          : "The subtask cap could not be saved.",
-      );
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const removeCap = async () => {
-    const cap = context?.cap;
-    if (!cap || busy || !canManageCap) return;
-    let reason = "";
-    await safety.run({
-      key: `${cap.id}:remove`,
-      confirmation: {
-        title: "Return unused cap to the task pool?",
-        description: `Remove the protected cap for “${subtask?.title || task.title}”. The server checks active requests before releasing the cap.`,
-        actionLabel: "Remove cap",
-        danger: true,
-        impact: `Protected cap ${peso.format(cap.amount)} · available ${peso.format(cap.available)}`,
-        blockers: capHasActiveRequest
-          ? [
-              "Settle, reject or cancel the active request before changing this cap.",
-            ]
-          : undefined,
-        reason: {
-          label: "Reason for removing the cap",
-          onAccept: (value) => {
-            reason = value;
-          },
-        },
-      },
-      validate: () => {
-        const current = latestCap.current;
-        if (
-          !current.canManageCap ||
-          current.blocked ||
-          current.context?.cap?.id !== cap.id ||
-          current.context.cap.amount !== cap.amount ||
-          current.context.cap.available !== cap.available
-        )
-          throw new Error(
-            "The funding context changed. Refresh and review the current cap.",
-          );
-      },
-      operation: () =>
-        removeSubtaskBudgetCap({
-          capId: cap.id,
-          reason,
-          idempotencyKey: capCommandKey.current,
-        }),
-      success: "Unused cap returned to the task pool.",
-      refresh,
-    });
-  };
-
-  if (!budget.summary && !budget.loading) return <>{!readOnly&&<OfficePettyCashLauncher/>}{task.linkedProjectId&&!subtask&&<TaskProjectFunding projectId={task.linkedProjectId} taskId={task.id} funded={!!context?.funded} onChanged={refresh}/>}</>;
-  const selectedCapLine = context?.lines.find((line) => line.id === capLineId);
-  const capMaximum =
-    (selectedCapLine?.available || 0) +
-    (context?.cap?.allocationLineId === capLineId ? context.cap.amount : 0);
-
+  if (!budget.summary && !budget.loading && !context?.funded) return <>{!readOnly&&<OfficePettyCashLauncher/>}{task.linkedProjectId&&!subtask&&<TaskProjectFunding projectId={task.linkedProjectId} taskId={task.id} funded={!!context?.funded} onChanged={refresh}/>}</>;
   return (
     <section className="rounded-[10px] border border-border bg-card p-3 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
-      {safety.dialog}
       {!readOnly&&<OfficePettyCashLauncher/>}
       {authorityPending && <p role="status" className="mb-3 flex items-center gap-2 text-[13px] text-muted-foreground"><Loader2 size={14} className="animate-spin" />Checking current work access. Your draft is kept; controls resume when verified.</p>}
       {task.linkedProjectId&&!subtask&&<TaskProjectFunding projectId={task.linkedProjectId} taskId={task.id} funded={!!context?.funded} onChanged={refresh}/>}
       {!task.linkedProjectId&&!authorityPending&&(canAuthorizeFunding||!readOnly&&canManage)&&isOpenDirectFundingWork(task)&&!subtask&&!context?.funded&&!funding.loading&&userProfile?.role==="head"&&userProfile.is_active!==false&&userProfile.org_id===orgId&&orgId===fundingOffice&&<DirectWorkFunding key={task.id} data={budget} tasks={[task]} onChanged={refresh} />}
-      {safety.message && (
-        <FeedbackState tone={safety.tone} title="Cap result">
-          <p>{safety.message}</p>
-          <button type="button" onClick={() => void refresh().catch(() => {})}>
-            Refresh funding
-          </button>
-        </FeedbackState>
-      )}
-      <header className="flex items-start justify-between gap-3">
+      <header className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex min-w-0 gap-2">
           <div className="rounded-lg bg-primary/10 p-2 text-primary">
             <Banknote size={14} />
@@ -314,7 +166,7 @@ export function WorkBudgetCard({
             <div className="text-[12px] uppercase tracking-wide text-emerald-700">
               {subtask ? "Subtask funding" : "Task funding"}
             </div>
-            {funding.loading ? (
+            {funding.loading && !context ? (
               <div className="mt-1 flex items-center gap-1 text-[12px] text-neutral-500">
                 <Loader2 size={10} className="animate-spin" /> Calculating
                 availability…
@@ -339,36 +191,8 @@ export function WorkBudgetCard({
           </div>
         </div>
         <div className="flex shrink-0 flex-wrap justify-end gap-1.5">
-          {canManageCap && (
-            <button
-              type="button"
-              disabled={busy || safety.pending || capHasActiveRequest}
-              onClick={openCap}
-              title={
-                capHasActiveRequest
-                  ? "Settle, reject, or cancel the active request before changing this cap."
-                  : undefined
-              }
-              className="inline-flex h-7 items-center gap-1 rounded-lg border border-emerald-200 bg-white px-2 text-[12px] text-emerald-800 disabled:opacity-40"
-            >
-              {context?.cap ? <Pencil size={9} /> : <Plus size={9} />}
-              {context?.cap ? "Edit cap" : "Set cap"}
-            </button>
-          )}
-          {canManageCap && context?.cap && (
-            <button
-              type="button"
-              disabled={busy || safety.pending || capHasActiveRequest}
-              onClick={() => void removeCap()}
-              title={
-                capHasActiveRequest
-                  ? "An active request depends on this cap."
-                  : undefined
-              }
-              className="inline-flex h-7 items-center gap-1 rounded-lg border border-rose-200 bg-white px-2 text-[12px] text-rose-700 disabled:opacity-40"
-            >
-              <Trash2 size={9} /> Remove
-            </button>
+          {canManageBudgets && (
+            <SubtaskBudgetButton hasAllocation={!!context?.cap} subtask={!!subtask} onClick={() => setBudgetsOpen(true)} />
           )}
           {canRequest &&
             !requestOpen &&
@@ -386,12 +210,12 @@ export function WorkBudgetCard({
         </div>
       </header>
 
-      {canManageCap && capHasActiveRequest && (
-        <p role="status" className="mt-2 text-sm text-amber-800">
-          An active cash request depends on this cap. Settle, reject or cancel
-          that request before changing the cap.
-        </p>
-      )}
+      {context?.funded && context.distribution && <div className="mt-3">
+        <SubtaskBudgetTotals context={context} subtask={!!subtask} />
+      </div>}
+      {budgetsOpen && context && <SubtaskBudgetManager key={subtask?.id || task.id} context={context}
+        title={subtask?.title || task.title} canManage={canManageBudgets}
+        taskFinished={taskFinished} onChanged={refresh} onClose={() => setBudgetsOpen(false)} />}
       <details hidden={!context?.funded} className="mt-3 text-[13px]">
       <summary className="cursor-pointer text-muted-foreground">Budget details</summary>
       {context?.funded && (
@@ -407,7 +231,7 @@ export function WorkBudgetCard({
       {context?.funded && (
         <div className="mt-2 grid grid-cols-2 gap-1.5 sm:grid-cols-4">
           <FundingMetric
-            label={context.cap ? "Protected cap" : "Approved task budget"}
+            label={context.cap ? "Subtask budget" : "Approved task budget"}
             value={context.cap?.amount || context.taskBudget}
           />
           <FundingMetric
@@ -418,7 +242,7 @@ export function WorkBudgetCard({
           <FundingMetric label="Approved cash" value={approvedCash} />
           <FundingMetric label="Settled spending" value={settledSpending} />
           {!context.cap && protectedCaps > 0 && (
-            <FundingMetric label="Protected in caps" value={protectedCaps} />
+            <FundingMetric label="Allocated to subtasks" value={protectedCaps} />
           )}
         </div>
       )}
@@ -466,81 +290,6 @@ export function WorkBudgetCard({
 
       </details>
 
-      {capOpen && context && subtask && (
-        <fieldset disabled={!canManageCap || capHasActiveRequest || busy} className="mt-3 min-w-0 space-y-2 rounded-xl border border-emerald-200 bg-white p-3">
-          <div>
-            <div className="text-[12px] font-semibold">
-              {context.cap
-                ? "Edit protected subtask cap"
-                : "Protect part of the shared task pool"}
-            </div>
-            <div className="mt-0.5 text-[12px] text-neutral-500">
-              The cap reserves funds immediately. It cannot change while an
-              active request depends on it.
-            </div>
-          </div>
-          <select
-            value={capLineId}
-            onChange={(event) => {
-              setCapLineId(event.target.value);
-              setCapAmount(0);
-            }}
-            className="h-9 w-full rounded-lg border border-emerald-200 px-2.5 text-[12px]"
-          >
-            <option value="">Select budget line and fund source…</option>
-            {context.lines.map((line) => (
-              <option key={line.id} value={line.id}>
-                {line.category} · {line.particular} · {line.fundSource} ·{" "}
-                {peso.format(line.available)} shared
-              </option>
-            ))}
-          </select>
-          {selectedCapLine && (
-            <div className="text-[12px] text-emerald-800">
-              Maximum protectable: <strong>{peso.format(capMaximum)}</strong>
-            </div>
-          )}
-          <div className="grid gap-2 sm:grid-cols-[.45fr_1fr_auto]">
-            <MoneyInput
-              min={0.01}
-              max={capMaximum}
-              step="0.01"
-              value={capAmount || ""}
-              onValueChange={raw => setCapAmount(Number(raw))}
-              placeholder="Amount"
-              className="h-9 rounded-lg border border-emerald-200 px-2.5 text-[12px]"
-            />
-            <input
-              value={capReason}
-              onChange={(event) => setCapReason(event.target.value)}
-              placeholder="Why protect this amount?"
-              className="h-9 rounded-lg border border-emerald-200 px-2.5 text-[12px]"
-            />
-            <button
-              type="button"
-              disabled={
-                busy || !canManageCap || capHasActiveRequest ||
-                !capLineId ||
-                capAmount <= 0 ||
-                capAmount > capMaximum ||
-                !capReason.trim()
-              }
-              onClick={() => void saveCap()}
-              className="inline-flex h-9 items-center gap-1 rounded-lg bg-emerald-700 px-3 text-[12px] text-white disabled:opacity-40"
-            >
-              <ShieldCheck size={10} /> Save cap
-            </button>
-          </div>
-          <button
-            type="button"
-            onClick={() => setCapOpen(false)}
-            className="text-[12px] text-neutral-500 underline"
-          >
-            Cancel
-          </button>
-        </fieldset>
-      )}
-
       {(requestOpen || correction) && context && (
         <CashRequestForm
           context={context}
@@ -576,9 +325,9 @@ export function WorkBudgetCard({
         onChanged={refresh}
       />
 
-      {(error || funding.error || budget.error) && (
+      {(funding.error || budget.error) && (
         <div className="mt-2 rounded-lg bg-rose-50 p-2 text-[12px] text-rose-700">
-          {error || funding.error || budget.error}
+          {funding.error || budget.error}
         </div>
       )}
     </section>

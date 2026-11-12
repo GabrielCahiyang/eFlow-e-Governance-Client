@@ -1,31 +1,40 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { TaskFundingContext } from "../types";
 import { fetchTaskFundingContext } from "../services/budgetService";
 
 export function useTaskFundingContext(taskId: string, subtaskId?: string, version = "") {
-  const [context, setContext] = useState<TaskFundingContext | null>(null);
+  const scope = `${taskId}:${subtaskId ?? ""}`;
+  const [loaded, setLoaded] = useState<{ scope: string; context: TaskFundingContext | null }>();
   const [loading, setLoading] = useState(Boolean(taskId));
   const [error, setError] = useState("");
+  const latestRequest = useRef(0);
 
   const refresh = useCallback(async () => {
+    const request = ++latestRequest.current;
     if (!taskId) {
-      setContext(null);
+      setLoaded(undefined);
       setLoading(false);
       return;
     }
     setLoading(true);
     setError("");
     try {
-      setContext(await fetchTaskFundingContext(taskId, subtaskId));
+      const context = await fetchTaskFundingContext(taskId, subtaskId);
+      if (request === latestRequest.current) setLoaded({ scope, context });
     } catch (caught) {
-      setContext(null);
-      setError(caught instanceof Error ? caught.message : "Task funding could not be loaded.");
+      if (request === latestRequest.current) {
+        setLoaded({ scope, context: null });
+        setError(caught instanceof Error ? caught.message : "Task funding could not be loaded.");
+      }
     } finally {
-      setLoading(false);
+      if (request === latestRequest.current) setLoading(false);
     }
-  }, [subtaskId, taskId]);
+  }, [scope, subtaskId, taskId]);
 
-  useEffect(() => { void refresh(); }, [refresh, version]);
+  useEffect(() => {
+    void refresh();
+    return () => { latestRequest.current += 1; };
+  }, [refresh, version]);
 
-  return { context, loading, error, refresh };
+  return { context: loaded?.scope === scope ? loaded.context : null, loading, error, refresh };
 }

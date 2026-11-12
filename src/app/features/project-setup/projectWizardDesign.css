@@ -21,7 +21,8 @@
 .pf-wizard-steps [data-complete=true]{color:#277e6c}
 .pf-wizard-content{padding:30px 36px 34px;gap:18px}
 .pf-wizard-opening{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:44px;align-items:stretch}
-.pf-wizard-opening>.pf-wizard-fields{padding:16px 0 12px;gap:24px}
+.pf-wizard-opening .pf-wizard-fields{gap:24px}
+.pf-wizard-details{display:grid;gap:20px;padding:16px 0 12px;min-width:0}
 .pf-section-heading{display:grid;gap:12px;margin-bottom:4px}
 .pf-section-heading .pf-eyebrow{font-size:10px;letter-spacing:.15em;font-weight:700}
 .pf-section-heading h2{font-size:30px;line-height:1.18;letter-spacing:-.65px;margin:0;font-weight:600;max-width:440px}
@@ -79,8 +80,29 @@
 @media(prefers-reduced-motion:reduce){.pf-wizard-content,.pf-wizard-opening-preview,.pf-wizard-opening-preview *{animation:none!important}.pf-wizard-footer-actions>.pf-primary,.pf-wizard-footer-actions>.pf-primary>svg:last-child{transition:none}.pf-wizard-footer-actions>.pf-primary:hover:not(:disabled)>svg:last-child{transform:none}}
 @media(max-width:1100px){.pf-wizard-opening{gap:28px}.pf-section-heading h2{font-size:27px}.pf-preview-heading{padding:24px 24px 0}.pf-preview-heading h3{font-size:18px}.pf-wizard-opening-preview .workspace-illustration{padding:34px 24px 46px}}
 @media(max-width:960px){.pf-wizard-opening{grid-template-columns:minmax(0,1fr)}.pf-wizard-opening-preview{display:none}.pf-wizard-content{padding:26px 30px}.pf-wizard-steps>button{padding:8px;gap:7px}}
-@media(max-width:600px){.pf-wizard-modal .pf-wizard-steps{margin:0;width:100%;gap:2px;padding:8px}.pf-wizard-steps>button{padding:7px 2px;gap:5px}.pf-wizard-steps strong{font-size:10px}.pf-wizard-steps>button>span{width:28px;height:28px}.pf-wizard-content{padding:24px 16px}.pf-section-heading h2{font-size:25px}.pf-wizard-opening>.pf-wizard-fields{padding-top:4px;gap:20px}.pf-wizard-fields textarea{min-height:140px}}
+@media(max-width:600px){.pf-wizard-modal .pf-wizard-steps{margin:0;width:100%;gap:2px;padding:8px}.pf-wizard-steps>button{padding:7px 2px;gap:5px}.pf-wizard-steps strong{font-size:10px}.pf-wizard-steps>button>span{width:28px;height:28px}.pf-wizard-content{padding:24px 16px}.pf-section-heading h2{font-size:25px}.pf-wizard-details{padding-top:4px}.pf-wizard-opening .pf-wizard-fields{gap:20px}.pf-wizard-fields textarea{min-height:140px}}
 .dark .pf-wizard-steps [aria-current=step]{background:#163d34;color:#a3ddc8}
 .dark .pf-wizard-opening-preview{border-color:#294d40;background:linear-gradient(145deg,#203e32,#18382e)}
 .dark .pf-preview-heading h3{color:#d2eadf}
 .dark .pf-preview-label,.dark .pf-wizard-content .pf-preview-caption{color:#a2c7b6}
+.pf-wizard-modal .pf-wizard-steps{grid-template-columns:repeat(7,minmax(0,1fr))}
+.pf-wizard-content .po-setup-people{width:min(100%,52rem);margin-inline:auto}
+.pf-wizard-content .po-setup-people>h2{margin-bottom:16px}
+.pf-wizard-content .po-setup-people .po-member-editor footer{position:static;justify-content:flex-end}
+.pf-task-draft{display:grid;gap:16px;max-width:960px;width:100%;margin-inline:auto}
+.pf-task-draft-options{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:12px}
+.pf-task-draft-options label{display:grid;gap:6px;min-width:min(100%,280px)}
+.pf-task-draft-options label span,.pf-task-draft-options button{display:inline-flex;align-items:center;gap:8px}
+.pf-task-draft-options button,.pf-task-draft select,.pf-task-draft input:not([type=checkbox]){
+ border:1px solid var(--border,#cfddd9);border-radius:8px;background:var(--background,#fff);color:inherit;padding:8px 12px
+}
+.pf-task-draft-options .pf-primary{background:#087972;color:white;border-color:#087972}
+.pf-task-draft button:disabled{opacity:.55}
+.pf-task-draft-group{display:grid;gap:10px;min-width:0;margin:0;padding:12px 16px 16px;border:1px solid var(--border,#cfddd9);border-radius:10px}
+.pf-task-draft-group legend{padding:0 5px;font-weight:600}
+.pf-task-draft-task{display:grid;gap:6px;padding:8px 0;border-top:1px solid var(--border,#cfddd9)}
+.pf-task-draft-task>div{display:flex;align-items:center;gap:8px}
+.pf-task-draft-task input[type=checkbox]{accent-color:#087972}
+.pf-task-draft-task input:not([type=checkbox]){flex:1;min-width:0}
+.pf-task-draft-subtask{padding-inline-start:22px}
+@media(max-width:720px){.pf-wizard-modal .pf-wizard-steps{grid-template-columns:repeat(4,minmax(0,1fr));row-gap:4px}}

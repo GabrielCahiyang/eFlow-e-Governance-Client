@@ -159,6 +159,7 @@ export function useProposalImportController(onClose?: () => void) {
               activitySchedule: act.schedule || "",
               title: t.title,
               description: t.description,
+              subtasks: t.subtasks,
               deadline: act.schedule || "",
               estimatedHours: taskDurationHours(t.estimatedDuration, t.optimizationMetadata?.durationDays),
               priority: t.priority || "medium",

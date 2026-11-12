@@ -41,7 +41,7 @@ describe('one supplied work hierarchy composition',()=>{
  it('uses native table columns, stable traversal, explicit people, shared status/date and no redundant approval progress and no reads',()=>{
   const data=tree([node('Child','Parent'),node('Parent')]),before=JSON.stringify(data);
   render(<WorkHierarchy {...props(data)}/>);
-  expect(screen.getAllByRole('columnheader').map(header=>header.textContent)).toEqual(['Subtask','Lead','Contributors','Status','Due','Actions']);
+  expect(screen.getAllByRole('columnheader').map(header=>header.getAttribute('aria-label')||header.textContent)).toEqual(['Actions','Subtask','Lead','Contributors','Status','Start date','Due']);
   expect(screen.queryByRole('treegrid')).toBeNull();expect(screen.getAllByRole('row').slice(1).map(row=>row.getAttribute('data-work-row'))).toEqual(['Parent','Child']);
   const first=screen.getAllByRole('row')[1];expect(within(first).getAllByText('Current Lead')).toHaveLength(1);
   expect(first.textContent).toContain('Contributors (2): Selected Contributor, Historical Person');

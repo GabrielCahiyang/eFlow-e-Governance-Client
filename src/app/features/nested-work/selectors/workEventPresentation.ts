@@ -62,6 +62,7 @@ export function presentWorkEvent(event:WorkEvent,focus?:WorkActivityFocus):WorkE
  }
  if(event.command==='edit'||event.command==='create'){
   if(next&&(event.command==='create'||old?.title!==next.title))details.push(`Title: ${old?.title||'Not yet created'} → ${next.title}`);
+  if(next&&(next.start_date||old?.start_date)&&old?.start_date!==next.start_date)details.push(`Start date: ${old?.start_date||'No start date'} → ${next.start_date||'No start date'}`);
   if(next&&(event.command==='create'||old?.due_date!==next.due_date))details.push(`Deadline: ${old?.due_date||'No deadline'} → ${next.due_date||'No deadline'}`);
   if(old&&next&&old.is_standalone!==next.is_standalone)details.push(`Sequencing: ${old.is_standalone?'Independent':'Sequential'} → ${next.is_standalone?'Independent':'Sequential'}`);
  }

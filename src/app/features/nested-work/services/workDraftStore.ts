@@ -8,13 +8,13 @@ const commands=['create','edit','move','order','delete','progress','submit','rev
 const text=(value:unknown,max=128):value is string=>typeof value==='string'&&value.length<=max;
 const ids=(value:unknown,max=200):value is string[]=>Array.isArray(value)&&value.length<=max&&value.every(id=>text(id));
 function fields(value:WorkEditorFields):WorkEditorFields {
- return {title:value.title,due:value.due,lead:value.lead,people:[...value.people],parent:value.parent,standalone:value.standalone,note:value.note,progress:value.progress,order:[...value.order]};
+ return {title:value.title,...(value.start!==undefined?{start:value.start}:{}),due:value.due,lead:value.lead,people:[...value.people],parent:value.parent,standalone:value.standalone,note:value.note,progress:value.progress,order:[...value.order]};
 }
 function validFields(value:WorkEditorFields):boolean {
- return !!value&&text(value.title,200)&&text(value.due,10)&&text(value.lead)&&text(value.parent)&&text(value.note,4000)
+ return !!value&&text(value.title,200)&&(value.start===undefined||text(value.start,10))&&text(value.due,10)&&text(value.lead)&&text(value.parent)&&text(value.note,4000)
   &&ids(value.people)&&ids(value.order,10000)&&typeof value.standalone==='boolean'&&Number.isFinite(value.progress)&&value.progress>=0&&value.progress<=100;
 }
-const payloadKeys:Record<string,string[]>={create:['id','title','parent','lead','people','due','standalone'],edit:['id','title','due','standalone','note'],move:['id','parent'],order:['parent','order'],delete:['id'],progress:['id','progress','note'],submit:['id','note'],review:['id','approve','note'],staff:['id','lead','people'],contributors:['people'],root_lead:['lead','people']};
+const payloadKeys:Record<string,string[]>={create:['id','title','parent','lead','people','start','due','standalone'],edit:['id','title','start','due','standalone','note'],move:['id','parent'],order:['parent','order'],delete:['id'],progress:['id','progress','note'],submit:['id','note'],review:['id','approve','note'],staff:['id','lead','people'],contributors:['people'],root_lead:['lead','people']};
 /** Only scalar command terms and ID arrays. No snapshots, evidence or credentials. */
 function cleanRequest(value:WorkRequest):WorkRequest|undefined {
  if(!value||!text(value.id)||!commands.includes(value.command)||!Number.isSafeInteger(value.revision)||value.revision<1||!value.payload||typeof value.payload!=='object')return;

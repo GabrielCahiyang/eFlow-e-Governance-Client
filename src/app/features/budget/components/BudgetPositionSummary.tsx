@@ -18,6 +18,7 @@ interface BudgetPositionSummaryProps {
   data: DepartmentBudgetBundle;
   summary: DepartmentBudgetSummary;
   onNavigate: (destination: BudgetDestination) => void;
+  utilization?: { value: number; underTarget: boolean };
 }
 
 /**
@@ -28,6 +29,7 @@ export function BudgetPositionSummary({
   data,
   summary,
   onNavigate,
+  utilization,
 }: BudgetPositionSummaryProps) {
   const today = getPhilippineCalendarDate();
   const position = financialPosition(data, summary);
@@ -48,25 +50,34 @@ export function BudgetPositionSummary({
   return (
     <section
       aria-label="Budget position summary"
-      className="overflow-hidden rounded-[10px] border border-border bg-card shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]"
+      className="eflow-budget-position"
     >
-      <div className="grid xl:grid-cols-[minmax(20rem,0.9fr)_minmax(34rem,1.6fr)]">
-        <div className="border-b border-primary/20 bg-primary/5 p-5 text-foreground xl:border-b-0 xl:border-r">
-          <div className="flex items-center gap-2 text-[12px] font-medium uppercase tracking-[0.14em] text-primary">
+        <div className="eflow-budget-balance rounded-[10px] border border-border bg-card">
+          <h2 className="flex items-center gap-2 text-sm font-semibold text-primary">
             <Landmark size={15} /> Available to fund
-          </div>
-          <div className="mt-3 text-right text-[32px] font-semibold tracking-tight text-primary tabular-nums">
+          </h2>
+          <div className="eflow-budget-balance-value font-semibold tracking-tight tabular-nums">
             {peso.format(summary.availableAmount)}
           </div>
-          <p className="mt-2 text-right text-[12px] leading-relaxed text-muted-foreground">
-            Released annual authority available for commitments. Spending and cash returns within a commitment do not increase this balance.
+          <p className="text-xs text-muted-foreground">
+            Released budget available for new commitments.
           </p>
-          <dl className="mt-5 grid grid-cols-3 gap-3 border-t border-primary/15 pt-4 text-right">
+          <dl className="eflow-budget-position-numbers">
             <PositionNumber label="Annual authority" value={summary.approvedAmount} />
             <PositionNumber label="Committed" value={summary.committedAmount} />
             <PositionNumber label="Actual spending" value={summary.spentAmount} />
           </dl>
-          <details className="mt-4 rounded-lg border border-primary/20 p-3 text-sm">
+          {utilization && <div className="space-y-2">
+            <div className="flex justify-between gap-2 text-xs">
+              <span>Annual utilization</span>
+              <strong className="tabular-nums">{utilization.value.toFixed(1)}%</strong>
+            </div>
+            <div className="eflow-budget-utilization" data-under-target={utilization.underTarget} aria-hidden="true">
+              <span style={{ width: `${Math.max(0, Math.min(100, utilization.value))}%` }} />
+            </div>
+            <p className="text-xs text-muted-foreground">Actual spending as a share of annual authority.</p>
+          </div>}
+          <details className="eflow-budget-position-details text-sm">
             <summary className="cursor-pointer font-medium">Cash and retained funding</summary>
             <dl className="mt-3 grid grid-cols-2 gap-3 text-right">
               <PositionNumber label="Released cash" value={position.released} />
@@ -74,11 +85,13 @@ export function BudgetPositionSummary({
               <PositionNumber label="Unsettled advances" value={position.unsettled} />
               <PositionNumber label="Unused commitment" value={position.unusedCommitment} />
             </dl>
-            <p className="mt-3 leading-relaxed text-muted-foreground">Archiving retains the commitment, including unused funding. Returned cash clears an advance; it does not release the commitment. No automatic release of unused funding applies.</p>
+            <p className="mt-3 text-xs leading-relaxed text-muted-foreground">Cash returns clear advances. Unused commitments are handled through project funding closeout.</p>
           </details>
         </div>
 
-        <div className="divide-y divide-border/70">
+        <section className="overflow-hidden rounded-[10px] border border-border bg-card" aria-label="Financial actions">
+          <div className="eflow-budget-section-heading border-b"><h2>Financial actions</h2></div>
+          <div className="divide-y divide-border/70">
           <ActionRow
             icon={<BriefcaseBusiness size={16} />}
             label="Proposal commitments"
@@ -116,8 +129,8 @@ export function BudgetPositionSummary({
             action="Review settlement"
             onClick={() => onNavigate("releases")}
           />
-        </div>
-      </div>
+          </div>
+        </section>
     </section>
   );
 }
@@ -154,7 +167,7 @@ function ActionRow({
     <button
       type="button"
       onClick={onClick}
-      className="grid w-full gap-3 p-4 text-left transition-colors hover:bg-accent/70 focus-visible:bg-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-ring sm:grid-cols-[2rem_minmax(0,1fr)_auto_auto] sm:items-center"
+      className="eflow-budget-action-row hover:bg-muted focus-visible:bg-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-ring"
     >
       <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted text-muted-foreground">
         {icon}
@@ -163,10 +176,10 @@ function ActionRow({
         <span className="block text-[13px] font-semibold text-foreground">{label}</span>
         <span className="mt-0.5 block text-[12px] leading-relaxed text-muted-foreground">{detail}</span>
       </span>
-      <strong className="whitespace-nowrap text-right text-[15px] font-semibold text-foreground tabular-nums">
+      <strong className="text-right text-sm font-semibold text-foreground tabular-nums">
         {count ? String(amount) : peso.format(amount)}
       </strong>
-      <span className="inline-flex items-center justify-end gap-1 text-[12px] font-medium text-blue-700">
+      <span className="eflow-budget-action-link inline-flex items-center gap-1 text-xs font-medium text-primary">
         {action} <ArrowRight size={14} />
       </span>
     </button>

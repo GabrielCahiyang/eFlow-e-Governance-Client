@@ -35,7 +35,6 @@ export interface ProjectViewMeta<T extends ProjectCommandTab = OptionalProjectVi
   category: "Project" | "Insights" | "Governance";
   description: string;
   requiresProposal?: boolean;
-  requiresBudget?: boolean;
 }
 
 export interface ProjectCommandMetrics {

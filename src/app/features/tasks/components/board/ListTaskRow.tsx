@@ -195,7 +195,7 @@ export function ListTaskRow({ task, role, employeeById, currentUserId, onEditTea
 
                       {/* Status stays informational; workflow controls are in Actions. */}
                       <div className="eflow-task-row__status flex items-center justify-center">
-                        <TaskStatusLabel status={task.status} />
+                        <TaskStatusLabel status={task.status} customStatusId={task.customStatusId} />
                       </div>
 
                       {/* One contextual menu keeps row actions quiet and consistent. */}

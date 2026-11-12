@@ -9,4 +9,9 @@ export async function updateProjectGroup(id:string,changes:{title?:string;color?
 export async function deleteProjectGroup(id:string) {const {error}=await supabase.rpc('delete_project_group',{p_group_id:id});fail(error);await notifyTaskListeners();}
 export async function createWorkspaceTask(projectId:string,groupId:string,title:string) {const {data,error}=await supabase.rpc('phase3_create_task',{p_project_id:projectId,p_group_id:groupId,p_title:title.trim()});fail(error);await notifyTaskListeners();return data as {id:string};}
 export async function patchWorkspaceTask(taskId:string,patch:WorkspaceTaskPatch) {const {error}=await supabase.rpc('phase3_patch_task',{p_task_id:taskId,p_patch:patch});fail(error);await notifyTaskListeners();}
+export async function editSelectedProjectTask(taskId:string,patch:WorkspaceTaskPatch) {
+ const {error}=await supabase.rpc('edit_selected_project_task',{p_task_id:taskId,p_patch:patch});
+ fail(error);
+ await notifyTaskListeners();
+}
 export async function reorderWorkspaceTasks(projectId:string,groupId:string,ids:string[]) {const {error}=await supabase.rpc('phase3_reorder_tasks',{p_project_id:projectId,p_group_id:groupId,p_ids:ids});fail(error);await notifyTaskListeners();}

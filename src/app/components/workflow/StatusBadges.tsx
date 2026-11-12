@@ -1,3 +1,5 @@
+import { useWorkStatus } from "../../features/work-status";
+
 // ─── Shared workflow status badges & tokens ──────────────────────
 // One source of truth for status → color mapping across Dept Head, Admin, and
 // Employee screens, so a "for_review" task looks identical everywhere.
@@ -38,21 +40,24 @@ const TASK_TONES: Record<string, Tone> = {
 export function TaskStatusBadge({
   status,
   rejected,
+  customStatusId,
   size = "md",
 }: {
   status: string;
   rejected?: boolean;
+  customStatusId?: string;
   size?: "sm" | "md";
 }) {
   const key = rejected && status === "in_progress" ? "rejected" : status;
   const tone = TASK_TONES[key] || TASK_TONES.todo;
+  const display = useWorkStatus(key, tone.label, customStatusId);
   const pad = size === "sm" ? "px-1.5 py-0.5 text-[10px]" : "px-2 py-0.5 text-[11px]";
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-full border ${pad} font-medium ${tone.bg} ${tone.text} ${tone.border}`}
     >
-      <span className={`w-1.5 h-1.5 rounded-full ${tone.dot}`} />
-      {tone.label}
+      <span className={`w-1.5 h-1.5 rounded-full ${tone.dot}`} style={{backgroundColor:display.color}} />
+      {display.label}
     </span>
   );
 }
@@ -68,13 +73,14 @@ const PROJECT_TONES: Record<string, Tone> = {
 
 export function ProjectStatusBadge({ status, size = "md" }: { status: string; size?: "sm" | "md" }) {
   const tone = PROJECT_TONES[status] || PROJECT_TONES.planning;
+  const display = useWorkStatus(status, tone.label);
   const pad = size === "sm" ? "px-1.5 py-0.5 text-[10px]" : "px-2 py-0.5 text-[11px]";
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-full border ${pad} font-medium ${tone.bg} ${tone.text} ${tone.border}`}
     >
-      <span className={`w-1.5 h-1.5 rounded-full ${tone.dot}`} />
-      {tone.label}
+      <span className={`w-1.5 h-1.5 rounded-full ${tone.dot}`} style={{backgroundColor:display.color}} />
+      {display.label}
     </span>
   );
 }

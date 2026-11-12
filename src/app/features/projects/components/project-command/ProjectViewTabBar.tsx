@@ -13,7 +13,6 @@ export interface ProjectViewTabBarProps {
   activeTab: ProjectCommandTab;
   onSelectTab: (tab: ProjectCommandTab) => void;
   hasProposalContext?: boolean;
-  hasBudgetData?: boolean;
 }
 
 function loadOpenViews(projectId: string, key: string): OptionalProjectView[] {
@@ -28,7 +27,7 @@ function loadOpenViews(projectId: string, key: string): OptionalProjectView[] {
 }
 
 export function ProjectViewTabBar({
-  projectId, activeTab: requestedTab, onSelectTab, hasProposalContext = false, hasBudgetData = false,
+  projectId, activeTab: requestedTab, onSelectTab, hasProposalContext = false,
 }: ProjectViewTabBarProps) {
   const scope = useWorkspaceScope();
   const key = `eflow_project_views_${projectId}` + (scope ? `:${scope.userId}:${scope.workspace.id}` : '');
@@ -107,7 +106,7 @@ export function ProjectViewTabBar({
           setSavedViews({ key, views: openViews.includes(optionalId) ? openViews : [...openViews, optionalId] });
         }
         onSelectTab(viewId);
-      }} onCloseView={closeView} hasProposalContext={hasProposalContext} hasBudgetData={hasBudgetData} />
+      }} onCloseView={closeView} hasProposalContext={hasProposalContext} />
     </div>
   );
 }

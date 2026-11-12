@@ -1,6 +1,7 @@
 import {useAuth} from '../../../../contexts/AuthContext';
 import {isHeadWorkspaceRole} from '../../../../shared/roles';
 import {formatDate} from '../../../../components/workflow/primitives';
+import {useWorkStatus} from '../../../work-status';
 import {WorkStatusControl} from '../../../work-state';
 import {latestProgressByWorkItem} from '../../../team-management';
 import type {TaskInspectorOrigin} from '../../../task-inspector';
@@ -47,6 +48,11 @@ const AVATAR_PALETTE = [
   "bg-teal-600 text-white",
   "bg-purple-600 text-white",
 ];
+
+function BoardLaneLabel({column}: {column: BoardColumn}) {
+  const display = useWorkStatus(column.id, column.label);
+  return <><i style={{backgroundColor:display.color ?? column.tone}} />{display.label}</>;
+}
 
 function getAvatarColorClass(id: string): string {
   let hash = 0;
@@ -95,8 +101,7 @@ export function ProjectWorkTab({
           <section className={'eflow-figma-board__column ' + (dropLane === column.id ? 'pv-board-drop' : '')} key={column.id} aria-label={column.label + ' lane'} onDragOver={e => { if (dragTaskId) { e.preventDefault(); setDropLane(column.id); } }} onDragLeave={() => setDropLane('')} onDrop={e => { e.preventDefault(); const id=e.dataTransfer.getData('application/eflow-project-task'); const task=data.tasks.find(t=>t.id===id); setDropLane('');setDragTaskId(''); if(task) void actions.run(()=>actions.move(task,column.id)); }}>
             <header className="eflow-figma-board__column-header" style={{background:column.tone,color:'white',borderColor:column.tone}}>
               <span className="eflow-figma-board__column-title">
-                <i style={{ backgroundColor: column.tone }} />
-                {column.label}
+                <BoardLaneLabel column={column} />
               </span>
               <span className="eflow-figma-board__count">{tasksByColumn.get(column.id)?.length || 0}</span>
             </header>
@@ -122,7 +127,7 @@ export function ProjectWorkTab({
                     }
                   }}
                 />
-                <WorkStatusControl status={task.status} stuck={!!latestUpdates.get(`task:${task.id}`)?.blocker} disabled={!isHeadWorkspaceRole(userProfile?.role)||['completed','archived'].includes(data.project.status)||userProfile?.is_active===false||actions.busy||!getTaskTeamMemberIds(task).includes((user?.id||''))} onStart={()=>onOpenTask(task.id,'work')} onBlocker={()=>onOpenTask(task.id,'report-blocker')} onSubmit={isHeadWorkspaceRole(userProfile?.role)&&isTaskLead(task,(user?.id||''))?()=>onOpenTask(task.id,'submit-work'):undefined}/>
+                <WorkStatusControl status={task.status} customStatusId={task.customStatusId} stuck={!!latestUpdates.get(`task:${task.id}`)?.blocker} disabled={!isHeadWorkspaceRole(userProfile?.role)||['completed','archived'].includes(data.project.status)||userProfile?.is_active===false||actions.busy||!getTaskTeamMemberIds(task).includes((user?.id||''))} onStart={()=>onOpenTask(task.id,'work')} onBlocker={()=>onOpenTask(task.id,'report-blocker')} onSubmit={isHeadWorkspaceRole(userProfile?.role)&&isTaskLead(task,(user?.id||''))?()=>onOpenTask(task.id,'submit-work'):undefined}/>
 
                 </div>
               ))}

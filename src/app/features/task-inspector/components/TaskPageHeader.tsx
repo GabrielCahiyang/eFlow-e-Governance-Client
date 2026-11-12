@@ -16,7 +16,7 @@ export function TaskPageHeader({task,projectTitle,tab,tabs,onTab,onClose,busy,ba
  const select=(index:number,focus=false)=>void requestNavigation(()=>{onTab(tabs[index].id);if(focus)controls()[index]?.focus();});
  return <header className="task-page__header">
   <div className="task-page__back"><Button kind="tertiary" size="small" disabled={busy} onClick={()=>void requestNavigation(onClose)}><ArrowLeft size={16} aria-hidden="true"/>{backLabel}</Button><span>Task</span></div>
-  <div className="task-page__heading"><div className="task-page__title"><Heading type="h1">{task.title}</Heading>{projectTitle&&<p><FolderKanban size={15} aria-hidden="true"/>{projectTitle}</p>}</div><div className="task-page__badges"><TaskStatusBadge status={task.status}/><PriorityPill priority={task.priority}/><DeadlineBadge value={task.deadline||task.dueDate} status={task.status}/></div></div>
+  <div className="task-page__heading"><div className="task-page__title"><Heading type="h1">{task.title}</Heading>{projectTitle&&<p><FolderKanban size={15} aria-hidden="true"/>{projectTitle}</p>}</div><div className="task-page__badges"><TaskStatusBadge status={task.status} customStatusId={task.customStatusId}/><PriorityPill priority={task.priority}/><DeadlineBadge value={task.deadline||task.dueDate} status={task.status}/></div></div>
   <div className="task-page__tabs"><ul ref={tabList} role="tablist" aria-label="Task sections" onKeyDown={event=>{
    if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
    event.preventDefault();const index=controls().findIndex(control=>control===document.activeElement);

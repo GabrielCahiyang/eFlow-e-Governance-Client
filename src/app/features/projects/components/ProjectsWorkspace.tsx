@@ -50,6 +50,7 @@ import {
   markProposalProjectsCompleted,
 } from "../services/proposalDeliveryService";
 import { notifyProjectListeners } from "../services/projectService";
+import type { Project } from "../services/types";
 import "./projectsVibe.css";
 import './projectWorkflow.css';
 import './projectPortfolio.css';
@@ -104,7 +105,7 @@ export function ProjectsWorkspace({
   React.useEffect(() => { if (committedProject && availableProjects.some(project=>project.id===committedProject.id)) setCommittedProject(undefined); }, [availableProjects, committedProject]);
   const { tasks, loading: tasksLoading } = useTasks();
   const { orgs, loading: officesLoading } = useOrgs();
-  const { profiles } = useProfiles();
+  const { profiles, loading: profilesLoading } = useProfiles();
   const { can, user, userProfile } = useAuth();
   const { toast } = useToast();
   const { deptEmployees } = useDeptDirectoryEmployees({
@@ -119,7 +120,7 @@ export function ProjectsWorkspace({
   const [projectWorkspaceTab, setProjectWorkspaceTab] = React.useState<ProjectCommandTab>("tasks");
   const [quickProjectOpen, setQuickProjectOpen] = React.useState(false);
   const [requestedProjectTool, setRequestedProjectTool] = React.useState<{ projectId: string; tool: ProjectTool } | null>(null);
-  const [deleteTarget, setDeleteTarget] = React.useState<{ id: string; title: string } | null>(null);
+  const [deleteTarget, setDeleteTarget] = React.useState<Pick<Project, "id" | "title" | "status"> | null>(null);
   const [archiveTarget, setArchiveTarget] = React.useState<{ id: string; title: string; isArchived: boolean } | null>(null);
   const [completeTarget, setCompleteTarget] = React.useState<{ id: string; title: string; archiveReview?: boolean } | null>(null);
   const [completionTaskId, setCompletionTaskId] = React.useState<string | null>(null);
@@ -417,7 +418,7 @@ export function ProjectsWorkspace({
                 complete: access.canManage && userProfile?.role === 'head' && userProfile.is_active !== false ? () => setCompleteTarget({ id: activeProject.id, title: activeProject.title }) : undefined,
                 archive: access.canArchive ? () => setArchiveTarget({ id: activeProject.id, title: activeProject.title, isArchived: false }) : undefined,
                 restore: access.canArchive ? () => setArchiveTarget({ id: activeProject.id, title: activeProject.title, isArchived: true }) : undefined,
-                delete: access.canDelete ? () => setDeleteTarget({ id: activeProject.id, title: activeProject.title }) : undefined,
+                delete: access.canDelete ? () => setDeleteTarget({ id: activeProject.id, title: activeProject.title, status: activeProject.status }) : undefined,
               }}
               onOpenSourceGovernance={(draftId) => openProposal(draftId, "governance")}
             />
@@ -504,7 +505,7 @@ export function ProjectsWorkspace({
       </div>
       </div>
 
-      {access.canCreate && quickProjectOpen && <CreateProjectDialog open profiles={profiles} officeId={currentOrgId} officeName={orgs.find(org=>org.id===currentOrgId)?.name} ownerName={userProfile?.full_name} onClose={()=>setQuickProjectOpen(false)} onCreated={(project,ready)=>{const destination=ready?'tasks':'settings';setCommittedProject(project);createdNavigationRef.current=project.id;workspaceScope?.includeCreatedOfficeProject?.(project);writeNavigationLocation('projects','Projects','push',{project:project.id,view:destination,parameters:{project:project.id,view:destination}});setActiveTab({id:`project-${project.id}`,type:'project',projectId:project.id,title:project.title});setWorkspaceView('portfolio');setProjectWorkspaceTab(destination);}}/>}
+      {access.canCreate && quickProjectOpen && <CreateProjectDialog open profiles={profiles} profilesLoading={profilesLoading} organizations={orgs} officeId={currentOrgId} officeName={orgs.find(org=>org.id===currentOrgId)?.name} ownerName={userProfile?.full_name} onClose={()=>setQuickProjectOpen(false)} onCreated={(project,ready)=>{const destination=ready?'tasks':'settings';setCommittedProject(project);createdNavigationRef.current=project.id;workspaceScope?.includeCreatedOfficeProject?.(project);writeNavigationLocation('projects','Projects','push',{project:project.id,view:destination,parameters:{project:project.id,view:destination}});setActiveTab({id:`project-${project.id}`,type:'project',projectId:project.id,title:project.title});setWorkspaceView('portfolio');setProjectWorkspaceTab(destination);}}/>}
 
       {templatesOpen && (
         <ProjectTemplatesModal
@@ -555,10 +556,16 @@ export function ProjectsWorkspace({
 
       {deleteTarget && (
         <ProjectDeleteDialog
+          key={deleteTarget.id}
           projectId={deleteTarget.id}
           projectTitle={deleteTarget.title}
+          projectStatus={deleteTarget.status}
           open={Boolean(deleteTarget)}
           onClose={() => setDeleteTarget(null)}
+          onArchive={access.canArchive && deleteTarget.status === "completed" ? () => {
+            setArchiveTarget({ id: deleteTarget.id, title: deleteTarget.title, isArchived: false });
+            setDeleteTarget(null);
+          } : undefined}
           onDeleted={() => {
             closeTab(`project-${deleteTarget.id}`);
             setDeleteTarget(null);

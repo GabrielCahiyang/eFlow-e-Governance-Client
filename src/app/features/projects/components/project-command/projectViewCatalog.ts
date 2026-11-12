@@ -38,9 +38,9 @@ export const OPTIONAL_VIEWS_CATALOG: ProjectViewMeta[] = [
   },
   {
     id: "activity",
-    label: "Activity",
+    label: "Audit Trail",
     category: "Project",
-    description: "Chronological human-readable audit trail of all project events.",
+    description: "See who changed the project or its tasks, what changed, and when.",
   },
   {
     id: "reviews",
@@ -55,7 +55,6 @@ export const OPTIONAL_VIEWS_CATALOG: ProjectViewMeta[] = [
     label: "Budget Overview",
     category: "Insights",
     description: "Allocated funds, line items, petty cash, and receipts.",
-    requiresBudget: true,
   },
 
   // Governance
@@ -63,7 +62,7 @@ export const OPTIONAL_VIEWS_CATALOG: ProjectViewMeta[] = [
 
 /** Existing URL/prop aliases resolve to the same project view; unknown values are ignored. */
 export function resolveProjectView(value: string | null | undefined): ProjectCommandTab | null {
-  const aliases: Record<string, ProjectCommandTab> = { plan: 'timeline', delivery: 'timeline', work: 'tasks', people: 'offices', team: 'offices', workload: 'offices', readiness: 'overview', signoff: 'offices', evidence: 'reviews', decisions: 'activity', main_table: 'tasks', 'main-table': 'tasks', 'proposal-context': 'proposal_context' };
+  const aliases: Record<string, ProjectCommandTab> = { plan: 'timeline', delivery: 'timeline', work: 'tasks', people: 'offices', team: 'offices', workload: 'offices', readiness: 'overview', signoff: 'offices', evidence: 'reviews', decisions: 'activity', 'audit-trail': 'activity', main_table: 'tasks', 'main-table': 'tasks', 'proposal-context': 'proposal_context' };
   if (!value) return null;
   return Object.prototype.hasOwnProperty.call(aliases, value) ? aliases[value] : ([...PERMANENT_TABS, ...OPTIONAL_VIEWS_CATALOG].some(view => view.id === value) ? value as ProjectCommandTab : null);
 }

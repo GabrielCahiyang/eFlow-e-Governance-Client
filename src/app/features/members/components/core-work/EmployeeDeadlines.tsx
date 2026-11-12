@@ -73,7 +73,7 @@ export function EmployeeDeadlines() {
                 <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${tone === "bad" ? "bg-red-500" : tone === "warn" ? "bg-amber-500" : tone === "info" ? "bg-blue-500" : "bg-neutral-400"}`} />
                 <span className="min-w-0 basis-[calc(100%-1rem)] break-words text-[12.5px] font-normal text-neutral-800 sm:basis-auto sm:flex-1 sm:truncate">{t.title}</span>
                 <span className={`text-[10.5px] font-medium ${rel.overdue ? "text-red-600" : "text-neutral-400"}`}>{t.status === "for_review" ? "Awaiting review" : rel.label}</span>
-                <TaskStatusLabel status={t.status} />
+                <TaskStatusLabel customStatusId={t.customStatusId} status={t.status} />
               </button>
             );
           })}

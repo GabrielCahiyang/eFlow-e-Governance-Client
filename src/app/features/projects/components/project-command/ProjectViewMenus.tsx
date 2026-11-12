@@ -13,13 +13,12 @@ interface ProjectViewMenusProps {
   onOpenView: (id: ProjectCommandTab) => void;
   onCloseView: (id: OptionalProjectView) => void;
   hasProposalContext: boolean;
-  hasBudgetData: boolean;
 }
 
-export function ProjectViewMenus({ openViews, overflowViews, onOpenView, onCloseView, hasProposalContext, hasBudgetData }: ProjectViewMenusProps) {
+export function ProjectViewMenus({ openViews, overflowViews, onOpenView, onCloseView, hasProposalContext }: ProjectViewMenusProps) {
   const [addViewOpen, setAddViewOpen] = useState(false);
   const availableViews = [...CORE_VIEWS_CATALOG, ...OPTIONAL_VIEWS_CATALOG].filter(view =>
-    (!view.requiresProposal || hasProposalContext) && (!view.requiresBudget || hasBudgetData));
+    !view.requiresProposal || hasProposalContext);
 
   return (
     <div className="eflow-workspace-tabs__actions shrink-0">

@@ -21,11 +21,24 @@ describe('Phase 14 project membership editor', () => {
   const view=render(<OfficeMembersEditor {...base}/>);
   expect(screen.queryByRole('button',{name:'Reload selection'})).toBeNull();
   view.rerender(<OfficeMembersEditor {...base} members={[{project_office_id:office.id,user_id:'m'}]}/>);
-  await waitFor(()=>expect((screen.getByRole('checkbox',{name:/Maria/}) as HTMLInputElement).checked).toBe(true));
-  fireEvent.click(screen.getByRole('checkbox',{name:/Maria/}));
+  await waitFor(()=>expect((screen.getByRole('checkbox',{name:'Include Maria'}) as HTMLInputElement).checked).toBe(true));
+  fireEvent.click(screen.getByRole('checkbox',{name:'Include Maria'}));
   view.rerender(<OfficeMembersEditor {...base} members={[{project_office_id:office.id,user_id:'m'},{project_office_id:office.id,user_id:'a'}]}/>);
   expect((screen.getByRole('checkbox',{name:/Maria/}) as HTMLInputElement).checked).toBe(false);
   expect((screen.getByRole('checkbox',{name:/Ana/}) as HTMLInputElement).checked).toBe(false);
+ });
+ it('shows editing access only for saved members who are still included', () => {
+  const view = render(<OfficeMembersEditor {...base} />);
+  const include = screen.getByRole('checkbox', { name: 'Include Maria' });
+  const editing = () => screen.queryByRole('checkbox', { name: 'Can edit · Maria' });
+  expect(editing()).toBeNull();
+  fireEvent.click(include);
+  expect(editing()).toBeNull();
+  view.unmount();
+  render(<OfficeMembersEditor {...base} members={[{ project_office_id: office.id, user_id: 'm' }]} />);
+  expect(editing()).toBeTruthy();
+  fireEvent.click(screen.getByRole('checkbox', { name: 'Include Maria' }));
+  expect(editing()).toBeNull();
  });
  it('limits candidates to active own-Office non-Admins and guards cancellation while dirty', async () => {
   const close=vi.fn(),decision=vi.fn().mockResolvedValue(false); uninstall=installNavigationConfirmation(decision); render(<OfficeMembersEditor {...base} onCancel={close}/>);
@@ -34,7 +47,7 @@ describe('Phase 14 project membership editor', () => {
  });
  it('shows unfinished-work removal blockers including archived tasks and offers a task inspector handoff', () => {
   const open=vi.fn(); render(<OfficeMembersEditor {...base} members={[{project_office_id:office.id,user_id:'m'}]} tasks={[{id:'t',title:'Unfinished field work',linkedProjectId:'project',orgId:'own',status:'in_progress',archivedAt:1,teamMemberIds:['m']} as Task]} onOpenTask={open}/>);
-  fireEvent.click(screen.getByRole('checkbox',{name:/Maria/})); expect(screen.getByRole('alert').textContent).toContain('Reassign active work'); expect(screen.getByRole('button',{name:'Save project team'}).matches(':disabled')).toBe(true); expect(screen.getByRole('button',{name:'Unfinished field work'})).toBeTruthy(); expect(calls.save).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole('checkbox',{name:'Include Maria'})); expect(screen.getByRole('alert').textContent).toContain('Reassign active work'); expect(screen.getByRole('button',{name:'Save project team'}).matches(':disabled')).toBe(true); expect(screen.getByRole('button',{name:'Unfinished field work'})).toBeTruthy(); expect(calls.save).not.toHaveBeenCalled();
  });
  it('retains denied selections, rechecks authority on retry and never repeats a committed write after refresh failure', async () => {
   const reload=vi.fn().mockRejectedValue(new Error('Refresh failed')); calls.save.mockRejectedValueOnce(new Error('Server denied')).mockResolvedValue(undefined); render(<OfficeMembersEditor {...base} onSaved={reload}/>);

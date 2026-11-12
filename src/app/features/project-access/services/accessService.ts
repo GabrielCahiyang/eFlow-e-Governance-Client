@@ -17,4 +17,9 @@ export async function revokeViewer(id:string){await rpc('r9_revoke_grant',{p_id:
 export const openShare=(id:string)=>rpc<{project:string;workspace:string;access:AccessPermission}>('r9_open_share',{p_id:id});
 export async function previewSelection(office:string,users:string[]):Promise<SelectionImpact|null>{try{const data=await rpc<SelectionImpact>('r9_selection_preview',{p_office:office,p_users:users});if(!data?.fingerprint||!Array.isArray(data.removed))throw new Error('Invalid selection impact. Reload before saving.');return data;}catch(error){if(error instanceof AccessUnavailable)return null;throw error;}}
 export async function saveSelection(office:string,users:string[],fingerprint:string,request:string){const receipt=await rpc('r9_select_members',{p_office:office,p_users:users,p_fingerprint:fingerprint,p_request:request});if(!Array.isArray(receipt))throw new Error('Missing selection receipt. Retry the original request.');notifyAccessChanged();}
+export async function saveSelectionWithEditors(office:string,users:string[],editors:string[],fingerprint:string,request:string){
+ const receipt=await rpc('save_project_team_edit_access',{p_office:office,p_users:users,p_editors:editors,p_fingerprint:fingerprint,p_request:request});
+ if(!Array.isArray(receipt))throw new Error('Missing project team receipt. Retry the original save.');
+ notifyAccessChanged();
+}
 export function shareUrl(id:string){const url=new URL('/project-share',window.location.origin);url.searchParams.set('grant',id);return url.href;}

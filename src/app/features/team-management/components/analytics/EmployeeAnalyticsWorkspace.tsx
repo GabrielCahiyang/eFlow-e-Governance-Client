@@ -192,6 +192,7 @@ function AnalyticsContent({
               key={selectedView}
               input={input}
               overview={selectedView === "overview"}
+              projectAnalysis={selectedView === "projects"}
               onOpenTask={setTask}
               onOpenProject={navigateProject}
               onSelectPerson={selectEmployee}

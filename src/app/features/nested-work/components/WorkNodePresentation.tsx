@@ -1,3 +1,4 @@
+import {useWorkStatus} from '../../work-status';
 import type {CSSProperties} from 'react';
 import {DeadlineBadge} from '../../../components/ui/DeadlineBadge';
 import {StatusPill} from '../../../components/ui/workspace/StatusPill';
@@ -22,5 +23,9 @@ export function WorkNodeTitle({row,collapsed,onToggle,onOpenNode}:{row:WorkHiera
  </div>;
 }
 const statuses={todo:{label:'Not started',tone:'neutral'},in_progress:{label:'In progress',tone:'info'},for_review:{label:'Ready to finish',tone:'info'},changes_requested:{label:'In progress',tone:'info'},completed:{label:'Completed',tone:'positive'}} as const;
-export function WorkNodeStatus({node}:{node:WorkNode}){return <StatusPill {...statuses[node.status]} label={node.status==='in_progress'&&node.blocker?'Stuck':statuses[node.status].label}/>;}
+export function WorkNodeStatus({node}:{node:WorkNode}){
+ const stuck=node.status==='in_progress'&&!!node.blocker;
+ const display=useWorkStatus(stuck?'stuck':node.status,stuck?'Stuck':statuses[node.status].label,node.custom_status_id);
+ return <StatusPill tone={statuses[node.status].tone} {...display}/>;
+}
 export function WorkNodeDue({node}:{node:WorkNode}){return <DeadlineBadge value={node.due_date} status={node.status}/>;}

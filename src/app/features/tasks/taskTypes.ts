@@ -37,6 +37,7 @@ export interface Task extends TaskHierarchy {
   title: string;
   description?: string;
   status: TaskStatus;
+  customStatusId?: string;
   assigneeId?: string;
   assigneeName?: string;
   assignedTo?: string;

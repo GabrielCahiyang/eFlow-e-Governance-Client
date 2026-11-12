@@ -229,7 +229,7 @@ export function EmployeeWorkReport() {
                       {t.title}
                     </td>
                     <td className="px-4 py-2.5">
-                      <TaskStatusBadge status={t.status} size="sm" />
+                      <TaskStatusBadge status={t.status} customStatusId={t.customStatusId} size="sm" />
                     </td>
                     <td className="px-4 py-2.5 text-[12px] text-muted-foreground tabular-nums">
                       {t.percentComplete ?? 0}%

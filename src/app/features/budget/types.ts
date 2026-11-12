@@ -128,6 +128,7 @@ export interface BudgetScheduledRelease {
   confirmedAt?: string;
   confirmedBy?: string;
   confirmedByName?: string;
+  automatic?: boolean;
   reference?: string;
 }
 
@@ -376,13 +377,38 @@ export interface TaskFundingContext {
   taskLeaderId?: string;
   cap?: SubtaskFundingCap;
   lines: TaskFundingLine[];
+  distribution?: SubtaskBudgetDistribution;
+  canManageDistribution?: boolean;
+  subtaskBudgets?: SubtaskBudgetRow[];
+  parentSources?: { id: string; name: string; available: number }[];
+}
+
+export interface SubtaskBudgetDistribution {
+  allocated: number;
+  unallocated: number;
+  available: number;
+  released: number;
+  spent: number;
+}
+
+export interface SubtaskBudgetRow {
+  id: string;
+  title: string;
+  capId?: string;
+  sourceId?: string;
+  amount: number;
+  returnable: number;
+  reason?: string;
+  finished: boolean;
+  hasHistory: boolean;
+  blocked: boolean;
 }
 
 export interface DepartmentBudgetBundle {
   budgetVersions?: OfficeBudgetVersion[];
   canAdjustBudget?: boolean;
+  readjustmentBlockedByProjects?: boolean;
   releaseScheduleAvailable?: boolean;
-  canConfirmBudgetReleases?: boolean;
   summary: DepartmentBudgetSummary | null;
   sections?: BudgetSection[];
   sectionsAvailable?: boolean;

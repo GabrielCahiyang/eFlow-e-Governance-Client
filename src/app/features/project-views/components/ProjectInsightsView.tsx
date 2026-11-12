@@ -2,6 +2,7 @@ import { EmptyState } from '../../../components/ui/EmptyState';
 import type { CSSProperties } from 'react';
 import type { ProjectCommandData } from '../../projects';
 import type { Organization, UserProfile } from '../../../types';
+import { orderedStatusLabels, useWorkStatuses } from '../../work-status';
 import { getTaskTeamMemberIds, isOverdue, TASK_STATUS_LABELS } from '../../tasks';
 import { STATUS_COLORS } from '../../project-table';
 import { peso } from '../../budget';
@@ -12,7 +13,8 @@ export function ProjectInsightsView({ data, profiles, offices, onOpenTask }: { d
   const tasks = data.tasks, live = tasks.filter(t => t.status !== 'cancelled');
   const completed = live.filter(t => t.status === 'completed').length;
   const overdue = live.filter(t => t.status !== 'completed' && isOverdue(t));
-  const statusCounts = Object.entries(TASK_STATUS_LABELS).map(([id, label]) => ({ id, label, count: tasks.filter(t => t.status === id).length }));
+  const {definitions}=useWorkStatuses();
+  const statusCounts = orderedStatusLabels(definitions,TASK_STATUS_LABELS).map(({id,label}) => ({ id, label, count: tasks.filter(t => t.status === id).length }));
   const officeRows = officeTaskSummaries(tasks);
   const today = new Date();
   const currentDay = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()) / 86400000;

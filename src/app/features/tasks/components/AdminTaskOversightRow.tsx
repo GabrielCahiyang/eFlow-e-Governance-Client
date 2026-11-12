@@ -18,7 +18,7 @@ export function AdminTaskOversightRow({ task, onOpen }: { task: Task; onOpen: (t
     >
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-1.5">
-          <TaskStatusBadge status={task.status} rejected={Boolean(task.rejectionNote && task.status === "in_progress")} size="sm" />
+          <TaskStatusBadge status={task.status} customStatusId={task.customStatusId} rejected={Boolean(task.rejectionNote && task.status === "in_progress")} size="sm" />
           <PriorityPill priority={task.priority} />
           {relative.overdue && <span className="inline-flex items-center gap-1 text-[9.5px] font-medium text-red-600"><AlertTriangle size={10} /> Overdue</span>}
         </div>

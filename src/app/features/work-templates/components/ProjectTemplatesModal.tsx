@@ -4,8 +4,9 @@ import { FeatureDialog } from "../../../components/ui/FeatureDialog";
 import type { Employee } from "../../members";
 import { RecurringTaskTemplatesPanel, type Task } from "../../tasks";
 import { SubtaskTemplateLibrary } from "./SubtaskTemplateLibrary";
+import { ProjectTaskTemplateLibrary } from "./ProjectTaskTemplateLibrary";
 
-type TemplateTab = "subtasks" | "recurring";
+type TemplateTab = "project" | "subtasks" | "recurring";
 
 export function ProjectTemplatesModal({
   open,
@@ -24,7 +25,7 @@ export function ProjectTemplatesModal({
   leadingTasks: Task[];
   employees: Employee[];
 }) {
-  const [tab, setTab] = useState<TemplateTab>("subtasks");
+  const [tab, setTab] = useState<TemplateTab>(canManageDepartment ? "project" : "subtasks");
   if (!open) return null;
 
   return (
@@ -39,13 +40,14 @@ export function ProjectTemplatesModal({
           <button onClick={onClose} className="rounded-lg p-2 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700"><X size={17} /></button>
         </div>
         <div className="border-b border-neutral-200 bg-white px-5">
-          <div className="flex gap-5">
+          <div className="flex flex-wrap gap-5">
+            {canManageDepartment && <button onClick={() => setTab("project")} className={`flex items-center gap-1.5 border-b-2 px-1 py-3 text-[11.5px] font-medium ${tab === "project" ? "border-neutral-900 text-neutral-900" : "border-transparent text-neutral-400 hover:text-neutral-700"}`}><ClipboardList size={13} /> Project Task Templates</button>}
             <button onClick={() => setTab("subtasks")} className={`flex items-center gap-1.5 border-b-2 px-1 py-3 text-[11.5px] font-medium ${tab === "subtasks" ? "border-neutral-900 text-neutral-900" : "border-transparent text-neutral-400 hover:text-neutral-700"}`}><ClipboardList size={13} /> Subtask Templates</button>
             <button onClick={() => setTab("recurring")} className={`flex items-center gap-1.5 border-b-2 px-1 py-3 text-[11.5px] font-medium ${tab === "recurring" ? "border-neutral-900 text-neutral-900" : "border-transparent text-neutral-400 hover:text-neutral-700"}`}><CalendarClock size={13} /> Recurring Tasks</button>
           </div>
         </div>
         <div className="flex-1 overflow-y-auto p-4 sm:p-5">
-          {tab === "subtasks" ? (
+          {tab === "project" && canManageDepartment ? <ProjectTaskTemplateLibrary/> : tab === "subtasks" ? (
             <SubtaskTemplateLibrary orgId={orgId} currentUserId={currentUserId} canManageDepartment={canManageDepartment} leadingTasks={leadingTasks} employees={employees} />
           ) : (
             <RecurringTaskTemplatesPanel employees={employees} orgId={orgId} />

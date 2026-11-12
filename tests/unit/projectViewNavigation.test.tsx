@@ -32,10 +32,10 @@ describe('project view navigation', () => {
     const menu = await screen.findByRole('dialog', { name: 'Browse project views' });
     expect(container.contains(menu)).toBe(false);
     expect(screen.queryByRole('button', { name: 'Proposal Context', exact: true })).toBeNull();
-    expect(screen.queryByRole('button', { name: 'Budget Overview', exact: true })).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: 'Board', exact: true }));
+    fireEvent.click(screen.getByRole('button', { name: 'Budget Overview', exact: true }));
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
-    expect(screen.getByRole('tab', { name: 'Board', exact: true }).getAttribute('aria-selected')).toBe('true');
+    expect(screen.getByRole('tab', { name: 'Budget Overview', exact: true }).getAttribute('aria-selected')).toBe('true');
+    await waitFor(() => expect(localStorage.getItem('eflow_project_views_project-a')).toBe('["budget"]'));
   });
 
   it('closes the view picker with Escape', async () => {
@@ -51,8 +51,8 @@ describe('project view navigation', () => {
     render(<Views initial="reviews" />);
     expect(screen.getByRole('tab', { name: 'Reviews', exact: true }).getAttribute('aria-selected')).toBe('true');
     fireEvent.keyDown(screen.getByRole('button', { name: 'More (2)' }), { key: 'Enter' });
-    fireEvent.click(await screen.findByRole('menuitem', { name: 'Activity', exact: true }));
-    expect(screen.getByRole('tab', { name: 'Activity', exact: true }).getAttribute('aria-selected')).toBe('true');
+    fireEvent.click(await screen.findByRole('menuitem', { name: 'Audit Trail', exact: true }));
+    expect(screen.getByRole('tab', { name: 'Audit Trail', exact: true }).getAttribute('aria-selected')).toBe('true');
   });
 
   it('returns to Main table when the only optional view is closed with the keyboard', async () => {

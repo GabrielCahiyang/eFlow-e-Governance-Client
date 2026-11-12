@@ -1,11 +1,14 @@
 import {
   extractPartSections,
+  extractExplicitSubtasks,
+  generateTemplateSubtasks,
   readSourceBudget,
   applySourceBudgetAssignments,
   type ProposalDecompositionTask,
 } from "../../proposal-import";
 import { readAiText, requestAiChat, type AiQueueUpdate } from "../../ai";
 import { isCalendarDate } from "../../../shared/calendarDates";
+import { normalizedWorkName } from "../../../shared/workNames";
 import { generateProjectDraft } from "./projectImportService";
 import type { ProjectImportDraft } from "../types";
 
@@ -131,6 +134,9 @@ export async function generatePdfProjectDraft(
         const task = canonical[index],
           key = `task-${++index}`,
           suggestion = suggestions.get(key)!;
+        const sourceSteps = action.methodologyScope === 'task' ? extractExplicitSubtasks(action.methodology) : [];
+        const steps = sourceSteps.length ? sourceSteps : generateTemplateSubtasks(task.title, task.title);
+        const distinctSteps = [...new Map(steps.map(step => [normalizedWorkName(step), step])).values()];
         return {
           key,
           title: task.title,
@@ -140,7 +146,7 @@ export async function generatePdfProjectDraft(
           ...sourceMonthDates(action.schedule, anchor),
           officeKey: "",
           dependencies: [],
-          subitems: [],
+          subitems: distinctSteps.map(title => ({ title, dueDate: '' })),
           sourceQuote: action.title,
           included: true,
           budgetDecision: task.budgetDecision || "missing",

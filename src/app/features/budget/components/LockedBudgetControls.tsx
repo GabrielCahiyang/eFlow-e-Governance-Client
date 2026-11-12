@@ -27,6 +27,7 @@ export function LockedBudgetControls({
   onChanged: () => Promise<void>;
 }) {
   const summary = data.summary;
+  const hasProjects = data.readjustmentBlockedByProjects === true;
   const [mode, setMode] = useState<"" | "adjust" | "close">("");
   const [amount, setAmount] = useState(summary?.approvedAmount || 0);
   const [reason, setReason] = useState("");
@@ -51,6 +52,7 @@ export function LockedBudgetControls({
     if (
       pending.current ||
       !canManage ||
+      (mode === "adjust" && hasProjects) ||
       !reason.trim() ||
       financialOutcome(key)
     )
@@ -128,11 +130,13 @@ export function LockedBudgetControls({
         {canManage && summary.status === "locked" && (
           <div className="flex gap-2">
             {!data.sectionsAvailable && <button
+              disabled={hasProjects}
+              aria-describedby={hasProjects ? "legacy-office-budget-readjustment-reason" : undefined}
               onClick={() => {
                 setMode("adjust");
                 setAmount(summary.approvedAmount);
               }}
-              className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-neutral-200 px-3 text-[10px]"
+              className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-neutral-200 px-3 text-[10px] disabled:opacity-40"
             >
               <PencilLine size={11} /> Adjust appropriation
             </button>}
@@ -145,6 +149,9 @@ export function LockedBudgetControls({
           </div>
         )}
       </div>
+      {canManage && summary.status === "locked" && !data.sectionsAvailable && hasProjects && (
+        <p id="legacy-office-budget-readjustment-reason" className="mt-3 text-xs text-muted-foreground">You can only readjust the Office Budget when the Office has no projects.</p>
+      )}
       {mode && (
         <div className="mt-4 rounded-xl border border-neutral-200 bg-neutral-50 p-4">
           <div className="text-[11px] font-medium">
@@ -208,7 +215,7 @@ export function LockedBudgetControls({
                 busy ||
                 Boolean(financialOutcome(key)) ||
                 !reason.trim() ||
-                (mode === "adjust" && amount < summary.committedAmount)
+                (mode === "adjust" && (hasProjects || amount < summary.committedAmount))
               }
               onClick={() => void submit()}
               className="h-8 rounded-lg bg-primary px-3 text-[9.5px] text-primary-foreground transition hover:bg-primary/90 disabled:opacity-40"

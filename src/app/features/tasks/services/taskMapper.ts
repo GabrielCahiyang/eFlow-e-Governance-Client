@@ -23,6 +23,7 @@ export function rowToTask(row: Record<string, unknown>): Task {
     title: (row.title as string) || 'Untitled task',
     description: readString(row.description),
     status: (row.status as TaskStatus) || 'pending_assignment',
+    ...(typeof row.custom_status_id === 'string' && { customStatusId: row.custom_status_id }),
     priority: (row.priority as 'low' | 'medium' | 'high') || 'medium',
     assigneeId: readString(row.assigned_to),
     assigneeName: readString(row.assignee_name),

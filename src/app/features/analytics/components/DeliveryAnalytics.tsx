@@ -10,11 +10,13 @@ import {
 } from "../selectors/deliveryAnalytics";
 import { AnalyticsDonut, AnalyticsBars } from "./AnalyticsCharts";
 import { AnalyticsTables } from "./AnalyticsTables";
+import { ProjectAnalysis } from "./ProjectAnalysis";
 import {
   EMPTY_ANALYTICS_FILTERS,
   type AnalyticsInput,
   type AnalyticsFilters,
 } from "../types";
+import { orderedStatusLabels, resolveStatus, useWorkStatuses } from "../../work-status";
 import type { Task } from "../../tasks";
 import "../analytics.css";
 const labels: Record<string, string> = {
@@ -41,6 +43,7 @@ export function DeliveryAnalytics({
   onOpenProject,
   onSelectPerson,
   overview = false,
+  projectAnalysis = false,
   initialTable = "projects",
   fixedProject,
   error,
@@ -51,6 +54,7 @@ export function DeliveryAnalytics({
   onOpenProject?: (id: string) => void;
   onSelectPerson?: (id: string) => void;
   overview?: boolean;
+  projectAnalysis?: boolean;
   initialTable?: "projects" | "people" | "tasks";
   fixedProject?: string;
   error?: string;
@@ -64,7 +68,12 @@ export function DeliveryAnalytics({
     [trendIds, setTrendIds] = useState<string[] | null>(null),
     [limit, setLimit] = useState(25),
     [showDetails, setShowDetails] = useState(!overview),
-    [special, setSpecial] = useState("");
+    [special, setSpecial] = useState(""),
+    [showFilteredAnalytics, setShowFilteredAnalytics] = useState(false);
+  const selectedProject = (projectAnalysis || fixedProject)
+    ? input.projects.find(project => project.id === (fixedProject || filters.project))
+    : undefined;
+  const showProjectAnalysis = !!selectedProject && !error && !loading;
   const all = useMemo(() => deliveryRows(input), [input]),
     rows = useMemo(() => filterDeliveryRows(all, filters), [all, filters]);
   const people = useMemo(
@@ -86,6 +95,15 @@ export function DeliveryAnalytics({
     setShowDetails(true);
     setTable("tasks");
   };
+  const projectSelector = (
+    <label>
+      Project
+      <select aria-label="Project" value={filters.project} onChange={event => update({ project: event.target.value })}>
+        <option value="">All projects</option>
+        {input.projects.map(project => <option key={project.id} value={project.id}>{project.title}</option>)}
+      </select>
+    </label>
+  );
   const invalidRange =
     !!filters.from && !!filters.to && filters.from > filters.to;
   const trusted = !error && !loading && !invalidRange,
@@ -100,10 +118,11 @@ export function DeliveryAnalytics({
         return !r.task.assigneeId && !r.task.recommendationLeadId;
       return deadlineBucket(r, input.now) === special;
     });
-  const states = Object.entries(labels).map(([id, label]) => ({
+  const {definitions}=useWorkStatuses();
+  const states = orderedStatusLabels(definitions,labels).map(({id,label}) => ({
     id,
     label,
-    color: colors[id],
+    color: resolveStatus(definitions,id,label).color ?? colors[id],
     value: rows.filter((r) => r.state === id).length,
   }));
   const projects = input.projects
@@ -121,7 +140,7 @@ export function DeliveryAnalytics({
       };
     });
   const funding = useAnalyticsFunding(
-    trusted && showDetails
+    trusted && showDetails && (!showProjectAnalysis || showFilteredAnalytics)
       ? table === "projects"
         ? projects.slice(0, limit).map((p) => p.project.id)
         : table === "tasks"
@@ -190,7 +209,7 @@ export function DeliveryAnalytics({
           are hidden until the source records can be verified.
         </div>
       )}
-      {invalidRange && (
+      {invalidRange && (!showProjectAnalysis || showFilteredAnalytics) && (
         <p role="alert" className="ea-warning ea-error">
           The end date must be on or after the start date.
         </p>
@@ -200,6 +219,16 @@ export function DeliveryAnalytics({
           Loading analytics…
         </p>
       )}
+      {showProjectAnalysis && selectedProject && (
+        <>
+          {!fixedProject && <div className="ea-filters ea-project-picker">{projectSelector}</div>}
+          <ProjectAnalysis key={selectedProject.id} project={selectedProject} input={input} onOpenTask={onOpenTask}
+            onOpenProject={onOpenProject && (() => onOpenProject(selectedProject.id))} />
+          <button type="button" className="ea-button ea-analysis-filter-toggle" aria-expanded={showFilteredAnalytics}
+            onClick={() => setShowFilteredAnalytics(value => !value)}>{showFilteredAnalytics ? "Hide" : "Show"} filters and funding</button>
+        </>
+      )}
+      {(!showProjectAnalysis || showFilteredAnalytics) && <>
       <div className="ea-metrics">
         {metrics.map((item) => (
           <button
@@ -215,22 +244,7 @@ export function DeliveryAnalytics({
       </div>
       {!overview && (
         <div className="ea-filters" role="group" aria-label="Analytics filters">
-          {!fixedProject && (
-            <label>
-              Project
-              <select
-                value={filters.project}
-                onChange={(e) => update({ project: e.target.value })}
-              >
-                <option value="">All projects</option>
-                {input.projects.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.title}
-                  </option>
-                ))}
-              </select>
-            </label>
-          )}
+          {!fixedProject && !showProjectAnalysis && projectSelector}
           <label>
             Person
             <select
@@ -252,7 +266,7 @@ export function DeliveryAnalytics({
               onChange={(e) => update({ status: e.target.value })}
             >
               <option value="">All statuses</option>
-              {Object.entries(labels).map(([id, label]) => (
+              {states.map(({ id, label }) => (
                 <option key={id} value={id}>
                   {label}
                 </option>
@@ -480,7 +494,7 @@ export function DeliveryAnalytics({
                           ? `${r.overdueDays} days overdue`
                           : r.prerequisites.length
                             ? "Prerequisites pending"
-                            : labels[r.state]}
+                            : resolveStatus(definitions,r.state,labels[r.state],r.task.customStatusId).label}
                       </small>
                     </p>
                   ))}
@@ -554,6 +568,7 @@ export function DeliveryAnalytics({
           )}
         </>
       )}
+      </>}
     </div>
   );
 }

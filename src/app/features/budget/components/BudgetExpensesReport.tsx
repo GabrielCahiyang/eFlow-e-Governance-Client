@@ -1,4 +1,5 @@
 import { WorkspaceHeader } from "../../../components/ui/workspace";
+import { BudgetTableRegion } from './BudgetTableRegion';
 import {
   exportCsv as exportReportCsv,
   exportPdf,
@@ -154,7 +155,7 @@ export function BudgetExpensesReport({
         title="Verified expense register"
         description="Approved liquidation packages with spending, returned cash and receipts."
       />
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))] gap-3">
         <BudgetCard
           label="Verified spending"
           value={peso.format(totals.actual)}
@@ -181,14 +182,15 @@ export function BudgetExpensesReport({
           icon={<ReceiptText size={15} />}
         />
       </div>
-      <section className="overflow-hidden rounded-[10px] border border-border bg-card shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
-        <header className="eflow-analytics-filters">
-          <div className="relative min-w-[220px] flex-1">
+      <section className="overflow-hidden rounded-[10px] border border-border bg-card">
+        <header className="eflow-budget-register-filters">
+          <div className="eflow-budget-register-search relative">
             <Search
               size={13}
               className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
             />
             <Input
+              aria-label="Search verified expenses"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               placeholder="Search proposal, work, member, or category…"
@@ -233,13 +235,8 @@ export function BudgetExpensesReport({
             description="Clear one or more filters to restore the permission-scoped expense register."
           />
         ) : (
-          <div
-            className="eflow-analytics-table"
-            role="region"
-            aria-label="Expense register"
-            tabIndex={0}
-          >
-            <table className="w-full min-w-[1050px] border-collapse text-left text-[12px]">
+          <BudgetTableRegion label="Expense register">
+            <table className="eflow-budget-record-table min-w-[1000px] text-left">
               <thead className="bg-muted text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
                 <tr>
                   <th className="px-4 py-3 font-semibold">Expense package</th>
@@ -333,7 +330,7 @@ export function BudgetExpensesReport({
                 })}
               </tbody>
             </table>
-          </div>
+          </BudgetTableRegion>
         )}
       </section>
     </div>

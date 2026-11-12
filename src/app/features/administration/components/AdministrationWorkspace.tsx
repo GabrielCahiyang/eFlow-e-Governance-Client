@@ -9,6 +9,7 @@ import { ApplicationSettings } from '../configuration/ApplicationSettings';
 import { ConfigurationMatrix } from '../configuration/ConfigurationMatrix';
 import { EmailIntegrations } from '../configuration/EmailIntegrations';
 import { RuntimeHealth } from '../configuration/RuntimeHealth';
+import { StatusMaintenance } from '../configuration/StatusMaintenance';
 import { getAuthorizedSupportPages, resolveSupportPage, AccessDenied, administrativePages } from '../../navigation';
 
 /** Selected-content outlet. The existing context rail/drawer owns destinations. */
@@ -30,6 +31,7 @@ export function AdministrationWorkspace({ activeSection = 'users', activePage }:
     'User Access': <UserManagement initialTab="user-access" {...directoryProps} />,
     'Account Audit': <AdminAuditLog />,
     'System Settings': <ApplicationSettings />,
+    'Status Maintenance': <StatusMaintenance />,
     'Workspace Policy': <ConfigurationMatrix area="workspace" title="Workspaces & project access policy" />,
     'Email & Integrations': <EmailIntegrations />,
     'Runtime / AI Health': <RuntimeHealth />,

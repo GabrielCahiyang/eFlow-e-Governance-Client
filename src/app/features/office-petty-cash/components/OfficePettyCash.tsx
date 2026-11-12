@@ -1,18 +1,26 @@
-import {useCallback,useEffect,useRef,useState} from 'react';
+import {useCallback,useEffect,useId,useRef,useState} from 'react';
 import {Banknote,Plus,RefreshCw} from 'lucide-react';
 import {useAuth} from '../../../contexts/AuthContext';
 import {useToast} from '../../../components/ui/Toast';
 import {Modal} from '../../../components/ui/Modal';
+import {EmptyState} from '../../../components/ui/EmptyState';
+import {StatusPill} from '../../../components/ui/workspace/StatusPill';
 import {OfficeCashDialog,actionLabels} from './OfficeCashDialog';
 import {commandOfficeCash,loadOfficeCash,openOfficeReceipt} from '../services/officeCash';
 import type {OfficeCashCommand,OfficeCashRequest,OfficeCashSnapshot,PettyAction} from '../types';
 import '../officePettyCash.css';
 const peso=new Intl.NumberFormat('en-PH',{style:'currency',currency:'PHP'});
+const requestColumns = ['Purpose / requester', 'Amount', 'Status', 'Receipts', 'Actions'];
+const statusTone = {
+  pending: 'warning', approved: 'positive', released: 'info', receipt_review: 'warning',
+  receipt_approved: 'info', settled: 'positive', rejected: 'negative',
+} as const;
 export function OfficePettyCash({focusRequestId}:{focusRequestId?:string}={}){
  const {userProfile}=useAuth();const office=userProfile?.org_id||'';const actor=userProfile?.id||'';
  return <ScopedOfficeCash key={`${office}:${actor}`} office={office} actor={actor} role={userProfile?.role||''} focusRequestId={focusRequestId}/>;
 }
 function ScopedOfficeCash({office,actor,role,focusRequestId}:{office:string;actor:string;role:string;focusRequestId?:string}){
+ const requestsHeading = useId();
  const [snapshot,setSnapshot]=useState<OfficeCashSnapshot|null>(null),[error,setError]=useState(''),[actionError,setActionError]=useState(''),[busy,setBusy]=useState(false),[edit,setEdit]=useState<{action:PettyAction;request?:OfficeCashRequest}|null>(null);
  const {toast}=useToast();
  const storageKey=`eflow.office-petty.pending:${office}:${actor}`;
@@ -36,7 +44,7 @@ function ScopedOfficeCash({office,actor,role,focusRequestId}:{office:string;acto
  const start=(action:PettyAction,request?:OfficeCashRequest)=>{setActionError('');setEdit({action,request});};
  const button=(action:PettyAction,r:OfficeCashRequest)=><button key={action} disabled={!!error||busy||!!pending} onClick={()=>start(action,r)}>{actionLabels[action]}</button>;
  if(!office)return <p className="opc-error">Active office membership is required.</p>;
- return <section className="opc"><header><div><h2><Banknote size={21}/>Shared office fund</h2><p>₱30,000 starting fund · ₱5,000 limit per receipt. Available to all your office’s projects and tasks.</p></div><div className="opc-actions"><button className="opc-primary" disabled={!snapshot||!!error||busy||!!pending} onClick={()=>start('request')}><Plus size={16}/>Request petty cash</button>{accountant&&<button disabled={!snapshot||!!error||busy||!!pending||snapshot.replenishable<=0} onClick={()=>start('replenish')}><RefreshCw size={16}/>Replenish fund</button>}</div></header>
+ return <section className="opc"><header><div><h2><Banknote size={18}/>Office Petty Cash</h2><p>₱30,000 starting fund · ₱5,000 per receipt. Available to your office’s projects and tasks.</p></div><div className="opc-actions"><button className="opc-primary" disabled={!snapshot||!!error||busy||!!pending} onClick={()=>start('request')}><Plus size={16}/>Request petty cash</button>{accountant&&<button disabled={!snapshot||!!error||busy||!!pending||snapshot.replenishable<=0} onClick={()=>start('replenish')}><RefreshCw size={16}/>Replenish fund</button>}</div></header>
  {error&&<div className="opc-error" role="alert">{error}</div>}
  {!snapshot&&!error&&(
   <div role="status" aria-live="polite" aria-label="Loading office petty cash…">
@@ -51,7 +59,7 @@ function ScopedOfficeCash({office,actor,role,focusRequestId}:{office:string;acto
    </div>
    <div className="opc-scroll" aria-hidden="true">
     <table>
-     <thead><tr>{['Purpose / requester','Amount','Status','Receipts','Actions'].map(label=><th key={label}>{label}</th>)}</tr></thead>
+     <thead><tr>{requestColumns.map(label=><th key={label}>{label}</th>)}</tr></thead>
      <tbody>
       {[0,1,2].map(row=>(
        <tr key={row}>
@@ -69,7 +77,32 @@ function ScopedOfficeCash({office,actor,role,focusRequestId}:{office:string;acto
  )}
  {snapshot&&<><div className="opc-metrics">{[['Available',snapshot.available],['Pending requests',snapshot.reserved],['Unsettled cash',snapshot.outstanding]].map(([label,value])=><div key={String(label)}><span>{label}</span><strong>{peso.format(Number(value))}</strong></div>)}</div>
  {snapshot.available<=0&&<p className="opc-note" role="status">The available petty cash has been used or reserved. Cancel an unused request or ask Accounting to replenish settled expenses.</p>}
- {!snapshot.requests.length?<p className="opc-empty">No office petty cash requests yet.</p>:<div className="opc-scroll"><table><caption className="sr-only">Office petty cash requests</caption><thead><tr>{['Purpose / requester','Amount','Status','Receipts','Actions'].map(label=><th key={label}>{label}</th>)}</tr></thead><tbody>{snapshot.requests.map(r=><tr key={r.id} id={'office-petty-cash-'+r.id} tabIndex={-1}><td><strong>{r.purpose}</strong><small>{r.requesterName}</small></td><td>{peso.format(r.amount)}</td><td><span className="opc-status">{r.status.replace(/_/g,' ')}</span></td><td>{r.receipts.map((receipt,i)=><button key={receipt.path} onClick={()=>void openOfficeReceipt(receipt.path).catch(reason=>setError((reason as Error).message))}>Receipt {i+1} · {peso.format(receipt.amount)}</button>)}</td><td><div className="opc-row-actions">{actor===r.requester&&['pending','approved'].includes(r.status)&&button('cancel',r)}{head&&actor!==r.requester&&r.status==='pending'&&['approve','reject'].map(a=>button(a as PettyAction,r))}{accountant&&r.status==='approved'&&button('release',r)}{actor===r.requester&&r.status==='released'&&button('receipts',r)}{head&&actor!==r.requester&&r.status==='receipt_review'&&['endorse','return_receipts'].map(a=>button(a as PettyAction,r))}{accountant&&actor!==r.requester&&r.status==='receipt_approved'&&r.canSettle!==false&&button('settle',r)}</div>{r.status==='receipt_approved'&&(r.settlementBlocked||accountant&&(actor===r.requester||r.canSettle===false))&&<small>{r.settlementBlocked?(r.headNotified?'Escalated to the Head. An independent Accounting Officer is needed.':'An independent Accounting Officer is needed.'):'An independent Accounting Officer must settle this request.'}{actor===r.requester&&' You can’t settle your own request.'}</small>}</td></tr>)}</tbody></table></div>}
+ <section className="opc-records" aria-labelledby={requestsHeading}>
+  <h3 id={requestsHeading}>Petty cash requests</h3>
+  {!snapshot.requests.length ? <EmptyState size="compact" illustration="budget" title="No office petty cash requests yet." /> :
+   <div className="opc-scroll" role="region" aria-label="Petty cash request records" tabIndex={0}>
+    <table>
+     <thead><tr>{requestColumns.map(label=><th key={label} scope="col" className={label==='Amount'?'opc-amount':undefined}>{label}</th>)}</tr></thead>
+     <tbody>{snapshot.requests.map(r=><tr key={r.id} id={'office-petty-cash-'+r.id} tabIndex={-1}>
+      <td><strong>{r.purpose}</strong><small>{r.requesterName}</small></td>
+      <td className="opc-amount">{peso.format(r.amount)}</td>
+      <td><span className="opc-status"><StatusPill label={r.status.replace(/_/g,' ')} tone={statusTone[r.status as keyof typeof statusTone]} /></span></td>
+      <td><div className="opc-row-actions">{r.receipts.map((receipt,i)=><button key={receipt.path} onClick={()=>void openOfficeReceipt(receipt.path).catch(reason=>setError((reason as Error).message))}>Receipt {i+1} · {peso.format(receipt.amount)}</button>)}</div></td>
+      <td>
+       <div className="opc-row-actions">
+        {actor===r.requester&&['pending','approved'].includes(r.status)&&button('cancel',r)}
+        {head&&actor!==r.requester&&r.status==='pending'&&['approve','reject'].map(a=>button(a as PettyAction,r))}
+        {accountant&&r.status==='approved'&&button('release',r)}
+        {actor===r.requester&&r.status==='released'&&button('receipts',r)}
+        {head&&actor!==r.requester&&r.status==='receipt_review'&&['endorse','return_receipts'].map(a=>button(a as PettyAction,r))}
+        {accountant&&actor!==r.requester&&r.status==='receipt_approved'&&r.canSettle!==false&&button('settle',r)}
+       </div>
+       {r.status==='receipt_approved'&&(r.settlementBlocked||accountant&&(actor===r.requester||r.canSettle===false))&&<small>{r.settlementBlocked?(r.headNotified?'Escalated to the Head. An independent Accounting Officer is needed.':'An independent Accounting Officer is needed.'):'An independent Accounting Officer must settle this request.'}{actor===r.requester&&' You can’t settle your own request.'}</small>}
+      </td>
+     </tr>)}</tbody>
+    </table>
+   </div>}
+ </section>
  {accountant&&<details><summary>Fund details</summary><p>Cash in fund: {peso.format(snapshot.cash)} · Available to replenish: {peso.format(snapshot.replenishable)}</p><p>Only the Accounting Officer can replenish settled expenses. Replenishment does not clear the history.</p></details>}
  {!!snapshot.events.length&&<details><summary>History ({snapshot.events.length})</summary><div className="opc-scroll"><table><thead><tr><th>Recorded</th><th>Action</th><th>Amount</th><th>Reference</th><th>Officer</th></tr></thead><tbody>{snapshot.events.map(event=><tr key={event.id}><td>{new Date(event.created_at).toLocaleString()}</td><td>{event.action==='initialize'?'Starting fund':event.action.replace(/_/g,' ')}</td><td>{peso.format(event.amount)}</td><td>{event.reference}</td><td>{event.action==='initialize'?'Automatic setup':event.actorName}</td></tr>)}</tbody></table></div></details>}
  </>}

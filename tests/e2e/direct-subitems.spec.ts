@@ -17,6 +17,27 @@ test('desktop subitems finish directly and leave parent approval separate',async
   Object.assign(records.subtasks[0],{status:'completed',is_completed:true,percent_complete:100,completed_by:records.id,completed_at:new Date().toISOString()});
   await route.fulfill({json:records.subtasks[0]});
  });
+ let taskSubmissions=0;
+ await page.route('**/rest/v1/subtasks?*',route=>{
+  const filters=new URL(route.request().url()).searchParams;
+  if(filters.get('is_completed')!=='eq.false')return route.fallback();
+  const taskId=filters.get('task_id')?.slice(3);
+  return route.fulfill({json:records.subtasks.filter(step=>step.task_id===taskId&&step.is_completed===false).map(step=>({id:step.id}))});
+ });
+ await page.route('**/rest/v1/tasks?*',route=>{
+  const filters=new URL(route.request().url()).searchParams;
+  if(filters.get('select')!=='assigned_to,org_id,review_route_mode,linked_project_id')return route.fallback();
+  return route.fulfill({json:records.tasks.find(task=>task.id===filters.get('id')?.slice(3))});
+ });
+ await page.route('**/rest/v1/rpc/submit_task_for_review',async route=>{
+  const {p_task_id,p_submission}=route.request().postDataJSON();
+  expect(p_task_id).toBe(records.tasks[0].id);
+  expect(p_submission.note).toBe('The assessment is complete.');
+  expect(p_submission.attachments).toEqual([]);
+  taskSubmissions++;
+  Object.assign(records.tasks[0],{status:'for_review',latest_submission:p_submission});
+  await route.fulfill({json:records.tasks[0]});
+ });
  await page.getByRole('navigation',{name:'Global navigation'}).getByRole('button',{name:'My Work',exact:true}).click();
  await page.getByRole('navigation',{name:'My Work destinations'}).getByRole('button',{name:'Leading',exact:true}).click();
  await page.locator('[data-personal-task]').filter({hasText:'Prepare community assessment'}).click();
@@ -26,6 +47,7 @@ test('desktop subitems finish directly and leave parent approval separate',async
  const subitem=page.getByRole('region',{name:'Subtask: Gather supporting evidence',exact:true});await expect(subitem).toBeVisible();
  await expect(subitem.getByRole('button',{name:'Review evidence'})).toHaveCount(0);
  await subitem.getByLabel('Work status',{exact:true}).selectOption('submit');
+ await expect(subitem.getByText('Add evidence (optional)')).toBeVisible();
  await page.screenshot({path:info.outputPath('direct-completion-desktop.png'),fullPage:true});
  await subitem.getByRole('button',{name:'Mark complete',exact:true}).click();
  await expect(subitem.getByText('This step is complete.',{exact:true})).toBeVisible();expect(calls).toHaveLength(1);
@@ -36,5 +58,9 @@ test('desktop subitems finish directly and leave parent approval separate',async
  await task.getByLabel('Work status',{exact:true}).selectOption('submit');
  await expect(task.getByRole('button',{name:'Submit for review',exact:true})).toBeDisabled();
  await expect(task.getByLabel('Completion note',{exact:true})).toBeVisible();
+ await expect(task.getByText('Add evidence (optional)')).toBeVisible();
  await page.screenshot({path:info.outputPath('parent-final-review-desktop.png'),fullPage:true});
+ await task.getByLabel('Completion note',{exact:true}).fill('The assessment is complete.');
+ await task.getByRole('button',{name:'Submit for review',exact:true}).click();
+ await expect.poll(()=>taskSubmissions).toBe(1);
 });

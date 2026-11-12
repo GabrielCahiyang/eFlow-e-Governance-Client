@@ -28,7 +28,7 @@ export async function importReviewedProjectWithOffices(projectId: string, reques
 export async function importPdfProjectWork(projectId:string,requestId:string,review:unknown):Promise<ProjectImportResult>{
   return saveReviewedProject('import_project_pdf_work',projectId,requestId,review);
 }
-async function saveReviewedProject(rpcName: string, projectId: string, requestId: string, review: unknown): Promise<ProjectImportResult> {
+export async function saveReviewedProject(rpcName: string, projectId: string, requestId: string, review: unknown): Promise<ProjectImportResult> {
   const { data, error } = await supabase.rpc(rpcName, { p_project_id: projectId, p_request_id: requestId, p_review: review });
   if (error) {
     const message = error.code === 'PGRST202' ? 'The reviewed import database update is not available yet. Contact your administrator.'

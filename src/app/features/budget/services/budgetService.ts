@@ -198,6 +198,10 @@ export async function fetchTaskFundingContext(taskId: string, subtaskId?: string
     taskBudget: Number(row.taskBudget || 0),
     available: Number(row.available || 0),
     taskLeaderId: row.taskLeaderId ? String(row.taskLeaderId) : undefined,
+    distribution: row.distribution as TaskFundingContext["distribution"],
+    canManageDistribution: row.canManageDistribution === true,
+    subtaskBudgets: Array.isArray(row.subtaskBudgets) ? row.subtaskBudgets as TaskFundingContext["subtaskBudgets"] : undefined,
+    parentSources: Array.isArray(row.parentSources) ? row.parentSources as TaskFundingContext["parentSources"] : undefined,
     cap: cap ? {
       id: String(cap.id), amount: Number(cap.amount || 0), available: Number(cap.available || 0),
       allocationLineId: String(cap.allocationLineId || ""), reason: String(cap.reason || ""),

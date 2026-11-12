@@ -110,9 +110,9 @@ export function BudgetReleasesPanel({
         </div>
       )}
       {summaryCards}
-      <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
-        <header className="flex items-center gap-2 border-b border-neutral-100 px-4 py-3">
-          <Banknote size={14} />
+      <section className="overflow-hidden rounded-[10px] border border-border bg-card">
+        <header className="flex items-center gap-2 border-b border-border bg-muted px-4 py-3">
+          <Banknote size={16} className="text-primary" />
           <h3 className="text-[14px] font-semibold">
             Voucher &amp; release schedule
           </h3>
@@ -126,10 +126,10 @@ export function BudgetReleasesPanel({
           return (
             <div
               key={release.id}
-              className="grid items-center gap-3 border-b border-neutral-100 p-4 last:border-0 md:grid-cols-[1fr_auto_auto_auto]"
+              className="eflow-budget-release-row"
             >
-              <div>
-                <div className="text-[12px] font-medium">
+              <div className="min-w-0 break-words">
+                <div className="text-sm font-semibold">
                   PC-{String(request?.requestNumber || 0).padStart(5, "0")} ·{" "}
                   {request?.subtaskTitle || request?.taskTitle || "Funded work"}
                 </div>
@@ -153,11 +153,9 @@ export function BudgetReleasesPanel({
                   </div>
                 )}
               </div>
-              <StatusPill status={release.status} />
-              <strong className="text-[13px] tabular-nums">
-                {peso.format(release.amount)}
-              </strong>
-              <div className="flex justify-end">
+              <div className="eflow-budget-release-actions">
+                <StatusPill status={release.status} />
+                <strong className="text-sm tabular-nums">{peso.format(release.amount)}</strong>
                 {release.status === "scheduled" && canRelease ? (
                   <>
                     <button
@@ -165,7 +163,7 @@ export function BudgetReleasesPanel({
                         setMessage("");
                         setActive({ kind: "release", release, request });
                       }}
-                      className="inline-flex h-8 items-center gap-1 rounded-lg bg-emerald-700 px-3 text-[12px] text-white disabled:opacity-40"
+                      className="inline-flex min-h-9 items-center gap-1 rounded-lg bg-primary px-3 text-xs text-primary-foreground disabled:opacity-40"
                     >
                       <Banknote size={10} /> Mark released
                     </button>
@@ -175,7 +173,7 @@ export function BudgetReleasesPanel({
                           setMessage("");
                           setOverride(release);
                         }}
-                        className="ml-2 inline-flex h-8 items-center gap-1 rounded-lg border border-amber-300 bg-amber-50 px-3 text-[12px] text-amber-900 disabled:opacity-40"
+                        className="eflow-budget-warning inline-flex min-h-9 items-center gap-1 rounded-lg px-3 text-xs disabled:opacity-40"
                       >
                         <Clock3 size={10} /> Override schedule
                       </button>
@@ -187,7 +185,7 @@ export function BudgetReleasesPanel({
                       setMessage("");
                       setActive({ kind: "acknowledge", release, request });
                     }}
-                    className="inline-flex h-8 items-center gap-1 rounded-lg bg-blue-600 px-3 text-[12px] text-white disabled:opacity-40"
+                    className="inline-flex min-h-9 items-center gap-1 rounded-lg bg-primary px-3 text-xs text-primary-foreground disabled:opacity-40"
                   >
                     <CheckCircle2 size={10} /> Acknowledge
                   </button>
@@ -201,9 +199,9 @@ export function BudgetReleasesPanel({
           );
         })}
       </section>
-      <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
-        <header className="flex items-center gap-2 border-b border-neutral-100 px-4 py-3">
-          <ReceiptText size={14} />
+      <section className="overflow-hidden rounded-[10px] border border-border bg-card">
+        <header className="flex items-center gap-2 border-b border-border bg-muted px-4 py-3">
+          <ReceiptText size={16} className="text-primary" />
           <h3 className="text-[14px] font-semibold">Liquidation timeline</h3>
         </header>
         {data.requests

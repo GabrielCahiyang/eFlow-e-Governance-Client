@@ -213,6 +213,19 @@ export function useDepartmentBudget(
           filter: `org_id=eq.${orgId}`,
         },
         onChange,
+      )
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "projects", filter: `org_id=eq.${orgId}` },
+        onChange,
+      )
+      .on(
+        "postgres_changes",
+        { event: "DELETE", schema: "public", table: "projects" },
+        () => {
+          // Realtime DELETE events cannot be filtered by Office.
+          if (readCachedQuery<DepartmentBudgetBundle>(BUDGET_DOMAIN, cacheScope).data?.readjustmentBlockedByProjects) onChange();
+        },
       );
     if (budgetId) {
       channel = channel

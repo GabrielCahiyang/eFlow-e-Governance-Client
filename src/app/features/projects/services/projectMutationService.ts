@@ -6,6 +6,14 @@ import type { CreateProjectInput, Project } from './types';
 import { archiveCompletedProject } from './projectLifecycleService';
 import { ProjectMetadataConflict } from './projectMetadata';
 
+export async function renameSelectedProject(project: Project, title: string) {
+  const { error } = await supabase.rpc('rename_selected_project', {
+    p_project: project.id, p_expected: project.metadataVersion, p_title: title.trim(),
+  });
+  if (error) throw new Error(error.message);
+  await notifyProjectListeners();
+}
+
 export async function createProject(input: CreateProjectInput): Promise<Project> {
   const title = input.title.trim();
   if (!title) throw new Error('Project title is required.');

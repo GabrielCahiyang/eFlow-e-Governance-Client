@@ -105,8 +105,7 @@ export function SubmitForReviewForm({
         Ready for review?
       </div>
       <p className="mt-0.5 text-[11px] text-blue-700">
-        Add a completion note and evidence. Submission moves this task to the
-        review queue; only a reviewer can mark it completed.
+        Add a completion note and attach any supporting files you want the reviewer to see.
       </p>
 
       <textarea
@@ -148,7 +147,7 @@ export function SubmitForReviewForm({
       <div className="mt-3 flex items-center justify-between gap-3">
         <label className="inline-flex cursor-pointer items-center gap-1.5 text-[11px] font-medium text-blue-800">
           <Paperclip size={13} />
-          Add evidence
+          Add evidence (optional)
           <input
             type="file" accept={EVIDENCE_ACCEPT}
             multiple

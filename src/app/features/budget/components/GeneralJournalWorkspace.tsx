@@ -23,6 +23,7 @@ import { JournalEntryPage } from './JournalEntryPage';
 import { useJournalEntryNavigation } from '../hooks/useJournalEntryNavigation';
 import { formatManilaDate } from '../../../shared/calendarDisplay';
 import { Badge } from "../../../components/ui/badge";
+import { BudgetTableRegion } from './BudgetTableRegion';
 import "../accountingWorkspace.css";
 interface JournalWorkspaceProps {
   orgId?: string;
@@ -162,18 +163,16 @@ function GeneralJournalView({
           }
         />
       )}
-      <button
-        type="button"
-        className="rounded-lg border px-3 py-2 text-sm"
-        disabled={journal.refreshing}
-        onClick={() => void journal.refresh()}
-      >
-        Refresh journal
-      </button>
-      <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
-        <header className="flex flex-col gap-3 border-b border-neutral-100 p-4 xl:flex-row xl:items-center">
+      <section className="overflow-hidden rounded-[10px] border border-border bg-card">
+        <header className="eflow-budget-section-heading">
+          <div><h2>Journal entries</h2><p>Posted transactions and their account lines.</p></div>
+          <Button kind="tertiary" size="small" disabled={journal.refreshing} onClick={() => void journal.refresh()}>
+            Refresh journal
+          </Button>
+        </header>
+        <div className="eflow-budget-register-filters">
           <VibeSearch
-            className="min-w-0 flex-1"
+            className="eflow-budget-register-search"
             clearIconLabel="Clear journal search"
             inputAriaLabel="Search journal"
             onChange={setQuery}
@@ -220,18 +219,13 @@ function GeneralJournalView({
                 </Button>
               )}
           </div>
-        </header>
+        </div>
         {journal.loading ? (
           <JournalTableSkeleton label="Loading balanced entries…" />
         ) : filteredEntries.length ? (
-          <div
-            className="overflow-x-auto"
-            role="region"
-            aria-label="Journal line items"
-            tabIndex={0}
-          >
-            <table className="w-full min-w-[900px] border-collapse text-left">
-              <thead className="bg-neutral-50 text-[14px] uppercase tracking-wider text-neutral-500">
+          <BudgetTableRegion label="Journal line items">
+            <table className="eflow-budget-record-table min-w-[850px] text-left">
+              <thead>
                 <tr>
                   <th className="px-4 py-3">Date / JEV</th>
                   <th className="px-4 py-3">Reference</th>
@@ -251,7 +245,7 @@ function GeneralJournalView({
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="border-t border-neutral-100 align-top"
+                        className={index === 0 ? 'border-t border-border' : undefined}
                       >
                         <td className="px-4 py-3 text-[14px] text-neutral-600">
                           {index === 0 && (
@@ -326,7 +320,7 @@ function GeneralJournalView({
                 </tr>
               </tfoot>
             </table>
-          </div>
+          </BudgetTableRegion>
         ) : (
           <EmptyState illustration="search" title="No journal entries match" description="Cash releases and settled liquidations post here automatically."/>
         )}
@@ -420,19 +414,19 @@ function JournalMetric({
   return (
     <m.div
       layout
-      className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm"
+      className="min-w-0 rounded-[10px] border border-border bg-card p-4"
     >
-      <div className="flex items-center gap-2 text-[14px] uppercase tracking-wider text-neutral-500">
+      <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
         {icon}
         {label}
       </div>
       <div
-        className={`mt-2 text-right text-[18px] font-semibold tabular-nums ${good ? "text-neutral-950" : "text-rose-700"}`}
+        className={`mt-2 break-words text-right text-lg font-semibold tabular-nums ${good ? "text-foreground" : "text-destructive"}`}
       >
         {value}
       </div>
       <div
-        className={`mt-1 text-right text-[14px] ${good ? "text-emerald-700" : "text-rose-600"}`}
+        className="mt-1 text-right text-xs text-muted-foreground"
       >
         {note}
       </div>

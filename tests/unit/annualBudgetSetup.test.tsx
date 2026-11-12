@@ -28,6 +28,23 @@ it('lets the Head edit a locked Q4 target through audited readjustment and resto
 });
 
 describe("annual section availability", () => {
+  it("disables readjustment when a project appears and keeps Cancel available for an open draft", () => {
+    const data = {...saved, sectionsAvailable: true, sections: [{id: "supplies", name: "Supplies", amount: 123456.78, heldAmount: 0, position: 0}]};
+    const onChanged = vi.fn();
+    const view = render(<AnnualBudgetSetup orgId="office" fiscalYear={2026} data={data} canEdit onChanged={onChanged} />);
+    fireEvent.click(screen.getByRole("button", {name: "Readjust budget"}));
+    fireEvent.change(screen.getByPlaceholderText("Explain what changed and why."), {target: {value: "Adjust supplies"}});
+    view.rerender(<AnnualBudgetSetup orgId="office" fiscalYear={2026} data={{...data, readjustmentBlockedByProjects: true}} canEdit onChanged={onChanged} />);
+    const save = screen.getByRole<HTMLButtonElement>("button", {name: "Save V2"});
+    expect(save.disabled).toBe(true);
+    fireEvent.click(save);
+    expect(saveBudgetSections).not.toHaveBeenCalled();
+    expect(screen.getByText(/Office has no projects/)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", {name: "Cancel adjustment"}));
+    expect(screen.getByRole<HTMLButtonElement>("button", {name: "Readjust budget"}).disabled).toBe(true);
+    view.rerender(<AnnualBudgetSetup orgId="office" fiscalYear={2026} data={data} canEdit onChanged={onChanged} />);
+    expect(screen.getByRole<HTMLButtonElement>("button", {name: "Readjust budget"}).disabled).toBe(false);
+  });
   it('shows a server rejection in red and keeps the failed adjustment draft',async()=>{
     vi.mocked(saveBudgetSections).mockRejectedValueOnce(Object.assign(new Error('Budget changed while you edited'),{protection:{kind:'budget_account_protected',account:'Supplies',entered:19000,minimum:20000,sources:[{id:'p',name:'Project 1',amount:20000}]}}));const changed=vi.fn();
     render(<AnnualBudgetSetup orgId="office" fiscalYear={2026} data={{...saved,sectionsAvailable:true,sections:[{id:'supplies',name:'Supplies',amount:30000,heldAmount:0,position:0}]}} canEdit onChanged={changed}/>);

@@ -7,8 +7,8 @@ export async function fetchBudgetSections(orgId: string, fiscalYear: number) {
   const { data, error } = await supabase.rpc("get_office_budget_sections", { p_org_id: orgId, p_fiscal_year: fiscalYear });
   if (error?.code === "PGRST202") return { sections: [], sectionsAvailable: false, itemizedCashAvailable: false, sectionsVersion: 0 };
   if (error) throw new Error(error.message);
-  const row = data as { sections?: BudgetSection[]; version?: number; itemizedCashAvailable?: boolean; releaseScheduleAvailable?:boolean;canConfirmReleases?:boolean;canAdjust?:boolean; versions?:OfficeBudgetVersion[] } | null;
-  return { sections: (row?.sections || []).map(s => ({ ...s, parentId: s.parentId || undefined, accountCode: s.accountCode || undefined })), sectionsAvailable: Array.isArray(row?.sections), itemizedCashAvailable: row?.itemizedCashAvailable ?? Boolean(row?.sections?.some(s => "journalAccountCode" in s)), sectionsVersion: row?.version || 0, canAdjustBudget:row?.canAdjust,releaseScheduleAvailable:row?.releaseScheduleAvailable,canConfirmBudgetReleases:row?.canConfirmReleases,budgetVersions:row?.versions };
+  const row = data as { sections?: BudgetSection[]; version?: number; itemizedCashAvailable?: boolean; releaseScheduleAvailable?:boolean;canAdjust?:boolean;readjustmentBlockedByProjects?:boolean; versions?:OfficeBudgetVersion[] } | null;
+  return { sections: (row?.sections || []).map(s => ({ ...s, parentId: s.parentId || undefined, accountCode: s.accountCode || undefined })), sectionsAvailable: Array.isArray(row?.sections), itemizedCashAvailable: row?.itemizedCashAvailable ?? Boolean(row?.sections?.some(s => "journalAccountCode" in s)), sectionsVersion: row?.version || 0, canAdjustBudget:row?.canAdjust,readjustmentBlockedByProjects:row?.readjustmentBlockedByProjects,releaseScheduleAvailable:row?.releaseScheduleAvailable,budgetVersions:row?.versions };
 }
 
 export async function saveBudgetSections(input: {
@@ -27,9 +27,4 @@ export async function saveBudgetSections(input: {
     throw Object.assign(new Error(error.message),{protection});
   }
   return String(data);
-}
-
-export async function confirmOfficeBudgetRelease(account:string,release:string,version:number,reference:string){
- const {error}=await supabase.rpc('confirm_office_budget_release',{p_account:account,p_release:release,p_expected_version:version,p_reference:reference.trim()});
- if(error)throw new Error(error.message);
 }

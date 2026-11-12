@@ -56,14 +56,20 @@ export function AccountingTrailPanel({
 
   return (
     <div className="space-y-4">
-      <section className="rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
+      <section className="overflow-hidden rounded-[10px] border border-border bg-card">
+        <div className="eflow-budget-section-heading">
+          <div>
         <div className="flex items-center gap-2">
           <ShieldCheck size={16} className="text-primary" />
           <h2 className="text-[14px] font-semibold text-foreground">
             End-to-end accounting trail
           </h2>
         </div>
-        <div className="mt-4 flex flex-wrap items-center gap-2">
+        <p>Select an event to see who recorded it, what changed, and any linked journal entries.</p>
+          </div>
+        </div>
+        <div className="border-t px-4 py-3">
+        <div className="flex flex-wrap items-center gap-2">
           {FLOW.map((stage, index) => (
             <div key={stage} className="flex items-center gap-2">
               <Badge variant="outline" className="eflow-financial-status" data-tone={stage === "Settlement" ? "positive" : "neutral"}>{stage}</Badge>
@@ -73,14 +79,8 @@ export function AccountingTrailPanel({
             </div>
           ))}
         </div>
-        <p className="mt-3 text-[12px] text-muted-foreground">
-          Operational events remain separate from the double-entry journal.
-          Select any event below to inspect its actor, state transition, reason,
-          metadata, and linked accounting rows.
-        </p>
-      </section>
-      <section className="overflow-hidden rounded-[10px] border border-border bg-card shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
-        <header className="border-b border-border p-4">
+        </div>
+        <div className="eflow-budget-register-filters">
           <VibeSearch
             className="w-full max-w-lg"
             clearIconLabel="Clear audit search"
@@ -92,7 +92,7 @@ export function AccountingTrailPanel({
             size="small"
             value={query}
           />
-        </header>
+        </div>
         {entries.length ? (
           <div className="divide-y divide-border/70">
             {entries.map((entry, index) => (
@@ -107,7 +107,7 @@ export function AccountingTrailPanel({
                 }}
                 type="button"
                 onClick={() => setSelected(entry)}
-                className="grid w-full gap-3 p-4 text-left transition-colors hover:bg-accent/70 focus-visible:bg-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-ring sm:grid-cols-[36px_1fr_auto]"
+                className="eflow-budget-audit-row hover:bg-muted focus-visible:bg-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-ring"
               >
                 <div className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground">
                   <Clock3 size={14} />
@@ -123,7 +123,7 @@ export function AccountingTrailPanel({
                       </span>
                     )}
                   </div>
-                  <p className="mt-1 truncate text-[12px] text-muted-foreground">
+                  <p className="mt-1 break-words text-sm text-muted-foreground">
                     {entry.description}
                   </p>
                   <p className="mt-1 text-[12px] text-muted-foreground">

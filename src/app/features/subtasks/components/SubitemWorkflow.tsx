@@ -1,3 +1,4 @@
+import type {ReactNode} from 'react';
 import type {Task} from '../../tasks';
 import type {Subtask} from '../../../services/subtaskService';
 import {WorkBudgetCard} from '../../budget';
@@ -8,14 +9,14 @@ import {SubtaskSubmissionHistory} from './SubtaskSubmissionHistory';
 import type {SubtaskProgressUpdate,SubtaskSubmission} from '../types';
 import type {selectSubitemInspectorCapabilities} from '../selectors/inspectorCapabilities';
 
-export function SubitemWorkflow({task,subtask,prerequisite,capabilities,pending,submissions,progressUpdates,onSaved,currentReviewerName}:{
+export function SubitemWorkflow({task,subtask,prerequisite,capabilities,pending,submissions,progressUpdates,onSaved,currentReviewerName,schedule}:{
  task:Task;subtask:Subtask;prerequisite:Subtask|null;capabilities:ReturnType<typeof selectSubitemInspectorCapabilities>;pending:boolean;
  submissions:SubtaskSubmission[];progressUpdates:SubtaskProgressUpdate[];onSaved:()=>Promise<void>;onReview:()=>void;
- currentReviewerName?:string;
+ currentReviewerName?:string;schedule?:ReactNode;
 }){
  return <>
   <details className="work-secondary"><summary>Schedule</summary><fieldset disabled={pending} className="min-w-0">
-   <SubtaskDeadlineEditor subtask={subtask} parentTask={task} canManage={capabilities.editDetails} onSaved={onSaved}/>
+   {schedule??<SubtaskDeadlineEditor subtask={subtask} parentTask={task} canManage={capabilities.editDetails} onSaved={onSaved}/>}
   </fieldset></details>
   <details className="work-secondary"><summary>Funding details</summary><WorkBudgetCard task={task} subtask={subtask} canManage={capabilities.manageBudget} readOnly={capabilities.budgetReadOnly} authorityPending={pending}/></details>
   <section aria-label="Execute subtask" className="space-y-2">

@@ -32,6 +32,7 @@ export interface DraftTask {
   activitySchedule: string;
   title: string;
   description: string;
+  subtasks?: string[];
   deadline: string;
   estimatedHours?: number;
   primaryOrgId?: string;

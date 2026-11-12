@@ -2,6 +2,9 @@ import type { DepartmentBudgetBundle } from "../types";
 import { sectionTotal } from "../selectors/budgetSections";
 import { downloadBudgetCsv,printBudgetTable } from "../services/budgetReportExport";
 import { peso } from "./budgetUi";
+import { Button } from '@vibe/core';
+import { Download, Printer } from 'lucide-react';
+import { BudgetTableRegion } from './BudgetTableRegion';
 const headings=['Account','Appropriated','For later release','Budget released','Obligated','% of total appropriation','% of account','Balance'];
 export function BudgetPartitionOverview({data}:{data:DepartmentBudgetBundle}) {
   if(!data.sectionsAvailable||!data.summary)return null;
@@ -16,9 +19,25 @@ export function BudgetPartitionOverview({data}:{data:DepartmentBudgetBundle}) {
   const totalHold=sectionTotal(sections,undefined,'heldAmount'),obligated=data.summary.committedAmount;
   const totalRow=['TOTAL',annual,totalHold,annual-totalHold,obligated,percentage(obligated,annual),percentage(obligated,annual),annual-totalHold-obligated];
   const report=`Office Budget Utilization · FY ${data.summary.fiscalYear}`;
-  return <section className="rounded-xl border border-border bg-card p-4">
-    <div className="flex flex-wrap items-center justify-between gap-3"><h3 className="text-[14px] font-semibold">Budget accounts · Total Budget {peso.format(annual)}</h3><div className="flex gap-2"><button onClick={()=>downloadBudgetCsv(`budget-utilization-${data.summary!.fiscalYear}.csv`,headings,[...rows,totalRow])} className="rounded-lg border px-3 py-2 text-[12px]">Export CSV</button><button onClick={()=>printBudgetTable(report,headings,[...rows,totalRow])} className="rounded-lg border px-3 py-2 text-[12px]">Print / PDF</button></div></div>
-    <p className="mt-2 text-[12px] text-muted-foreground">Budget release is spending authority, not cash handed out. Obligated money includes approved work; verified spending is shown separately.</p>
-    <div className="mt-3 overflow-x-auto"><table className="w-full min-w-[980px] text-[12px]"><thead><tr>{headings.map((h,i)=><th key={h} className={`border-b p-2 ${i?'text-right':'text-left'}`}>{h}</th>)}</tr></thead><tbody>{[...rows,totalRow].map((row,i)=><tr key={i} className={i===rows.length?'bg-muted font-semibold':''}>{row.map((c,j)=><td key={j} className={`whitespace-pre border-b p-2 ${j?'text-right tabular-nums':''} ${j===7&&Number(c)<0?'text-destructive':''}`}>{typeof c==='number'?peso.format(c):c}</td>)}</tr>)}</tbody></table></div>
+  const renderCells = (row: Array<string | number>) => row.map((value, index) => (
+    <td key={index} className={`${index ? 'eflow-budget-number' : 'whitespace-pre-wrap break-words'} ${index === 7 && Number(value) < 0 ? 'text-destructive' : ''}`}>
+      {typeof value === 'number' ? peso.format(value) : value}
+    </td>
+  ));
+  return <section className="overflow-hidden rounded-[10px] border border-border bg-card">
+    <header className="eflow-budget-section-heading">
+      <div><h2>Budget accounts</h2><p>Appropriation, releases and commitments by account.</p></div>
+      <div className="flex flex-wrap gap-2">
+        <Button kind="secondary" size="small" onClick={()=>downloadBudgetCsv(`budget-utilization-${data.summary!.fiscalYear}.csv`,headings,[...rows,totalRow])}><Download size={14} /> Export CSV</Button>
+        <Button kind="tertiary" size="small" onClick={()=>printBudgetTable(report,headings,[...rows,totalRow])}><Printer size={14} /> Print / PDF</Button>
+      </div>
+    </header>
+    <BudgetTableRegion label="Budget accounts table">
+      <table className="eflow-budget-record-table min-w-[850px] text-left">
+        <thead><tr>{headings.map((label, index) => <th key={label} scope="col" className={index ? 'text-right' : 'min-w-36'}>{label}</th>)}</tr></thead>
+        <tbody>{rows.map((row, index) => <tr key={index}>{renderCells(row)}</tr>)}</tbody>
+        <tfoot><tr className="border-t bg-muted font-semibold">{renderCells(totalRow)}</tr></tfoot>
+      </table>
+    </BudgetTableRegion>
   </section>;
 }

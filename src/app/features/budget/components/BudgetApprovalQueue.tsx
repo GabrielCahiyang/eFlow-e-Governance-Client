@@ -755,11 +755,13 @@ function QueueSection({
   action?: ReactNode;
 }) {
   return (
-    <section className="overflow-hidden rounded-[10px] border border-border bg-card shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
-      <header className="flex items-center gap-2 border-b border-border px-4 py-3">
-        <span className="text-muted-foreground">{icon}</span>
-        <h3 className="text-[12px] font-semibold text-foreground">{title}</h3>
-        <div className="ml-auto flex items-center gap-2">
+    <section className="overflow-hidden rounded-[10px] border border-border bg-card">
+      <header className="eflow-budget-section-heading border-b bg-muted">
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="shrink-0 text-primary">{icon}</span>
+          <h3>{title}</h3>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
           {action}
           <span className="rounded-full bg-amber-50 px-2 py-1 text-[11px] text-amber-700">
             {count}
@@ -802,17 +804,17 @@ function QueueRow({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.98 }}
       transition={motionTransition.productive}
-      className={`flex flex-wrap items-center gap-3 p-4 ${focused ? "bg-accent ring-1 ring-inset ring-primary/25" : ""}`}
+      className={`eflow-budget-queue-row ${focused ? "bg-accent ring-1 ring-inset ring-primary/25" : ""}`}
     >
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
-          <div className="truncate text-[11.5px] font-medium text-neutral-900">
+          <div className="break-words text-sm font-semibold text-foreground">
             {title}
           </div>
           <StatusPill status={status} />
           {tierBadge}
         </div>
-        <div className="mt-1 text-[12px] text-neutral-500">{meta}</div>
+        <div className="mt-1 break-words text-xs text-muted-foreground">{meta}</div>
         {details}
       </div>
       {actions}
@@ -834,10 +836,10 @@ function DecisionButtons({
   approveDisabled?: boolean;
 }) {
   return (
-    <div className="flex items-center gap-1.5">
+    <div className="flex flex-wrap items-center gap-2">
       <Button
         kind="tertiary"
-        className="!text-amber-800 !bg-amber-50"
+        className="!text-[var(--eflow-warning-text)] !bg-[var(--eflow-warning-bg)]"
         size="small"
         disabled={busy}
         onClick={onReject}

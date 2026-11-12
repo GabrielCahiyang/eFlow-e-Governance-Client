@@ -2,10 +2,11 @@
 import '@testing-library/jest-dom/vitest';
 import {afterEach,beforeEach,expect,it,vi} from 'vitest';
 import {cleanup,fireEvent,render,screen,waitFor} from '@testing-library/react';
-const api=vi.hoisted(()=>({call:vi.fn(),read:vi.fn(),reload:vi.fn(),data:{} as any}));
+const api=vi.hoisted(()=>({call:vi.fn(),read:vi.fn(),reload:vi.fn(),templates:vi.fn(),data:{} as any}));
 vi.mock('../../src/app/features/project-setup/useProjectFlow',()=>({useProjectFlow:()=>({data:api.data,reload:api.reload,error:''})}));
 vi.mock('../../src/app/features/project-setup/services/projectFlow',()=>({projectFlowCall:api.call,readProjectFlow:api.read,ProjectFlowError:class extends Error{}}));
-vi.mock('../../src/app/shared/navigationGuard',()=>({useNavigationBlocker:vi.fn()}));
+vi.mock('../../src/app/shared/navigationGuard',()=>({useNavigationBlocker:vi.fn(),requestNavigation:async (action:()=>void)=>{action();return true;}}));
+vi.mock('../../src/app/features/work-templates',()=>({listProjectTaskTemplates:api.templates}));
 import {ProjectSetupWizard} from '../../src/app/features/project-setup/components/ProjectSetupWizard';
 import {ProjectDefinitionPanel} from '../../src/app/features/project-setup/components/ProjectDefinitionPanel';
 import {ProjectFlowError} from '../../src/app/features/project-setup/services/projectFlow';
@@ -13,7 +14,7 @@ import {TaskProjectFunding} from '../../src/app/features/project-setup/component
 import {ProjectFundingPanel} from '../../src/app/features/project-setup/components/ProjectFundingPanel';
 const initial=()=>({project:{id:'p',title:'Community support',description:'',scope:'',project_lead_id:null,start_date:null,target_date:null,funding_not_required:false,updated_at:'2026-10-30T00:00:00Z'},ready:false,canAuthorize:true,canAllocate:true,funds:[],sources:[{id:'source',name:'Community services',year:2027,available:1000000}],requests:[],fundingRequests:[],taskFunding:[],liquidations:[],total:0,allocated:0,unallocated:0,released:0,spent:0});
 vi.setConfig({testTimeout:15000});
-beforeEach(()=>{vi.resetAllMocks();api.data=initial();api.reload.mockResolvedValue(undefined);api.read.mockImplementation(async()=>api.data);});afterEach(cleanup);
+beforeEach(()=>{vi.resetAllMocks();api.data=initial();api.templates.mockResolvedValue([]);api.reload.mockResolvedValue(undefined);api.read.mockImplementation(async()=>api.data);});afterEach(cleanup);
 it('keeps setup in a centered wizard, validates one section and retains entries',async()=>{
  render(<ProjectDefinitionPanel projectId="p" profiles={[]}/>);expect(screen.queryByLabelText('Description *')).toBeNull();fireEvent.click(screen.getByRole('button',{name:'Continue project setup'}));
  await screen.findByLabelText('Description *');fireEvent.click(screen.getByRole('button',{name:'Next'}));expect((await screen.findByRole('alert')).className).toBe('pf-error');fireEvent.change(screen.getByLabelText('Description *'),{target:{value:'Keep this draft'}});fireEvent.click(screen.getByRole('button',{name:'Next'}));await screen.findByLabelText('Scope of the project *');expect(screen.queryByLabelText('Description *')).toBeNull();fireEvent.click(screen.getByRole('button',{name:'Back'}));expect((screen.getByLabelText('Description *') as HTMLTextAreaElement).value).toBe('Keep this draft');
@@ -40,7 +41,8 @@ it('lets users skip directly to Review but prevents incomplete setup from finish
  render(<ProjectSetupWizard projectId="p" profiles={[]} onClose={vi.fn()} onFinish={vi.fn()}/>);
  await screen.findByLabelText('Description *');fireEvent.click(screen.getByRole('button',{name:/05.*Review/}));
  expect(screen.getByText('Ready to build the work plan?')).toBeVisible();
- fireEvent.click(screen.getByRole('button',{name:'Finish setup and open tasks'}));
+ expect(screen.getByRole('button',{name:/06.*Add people/})).toBeDisabled();
+ fireEvent.click(screen.getByRole('button',{name:'Next: Add people'}));
  await waitFor(()=>expect(screen.getByRole('alert').textContent).toContain('title and description'));
  expect(api.call).not.toHaveBeenCalled();
  fireEvent.click(screen.getByRole('button',{name:/02.*Scope/}));expect(screen.getByLabelText('Scope of the project *')).toBeVisible();
@@ -53,7 +55,7 @@ it('keeps unsaved funding rows while jumping between sections',async()=>{
  fireEvent.change(screen.getByLabelText('Office Budget source'),{target:{value:'source'}});fireEvent.change(screen.getByRole('spinbutton'),{target:{value:'1234'}});
  fireEvent.click(screen.getByRole('button',{name:/02.*Scope/}));fireEvent.click(screen.getByRole('button',{name:/04.*Funding/}));
  expect(screen.getByRole('spinbutton')).toHaveValue('1,234');expect(screen.getByLabelText('Office Budget source')).toHaveValue('source');
- fireEvent.click(screen.getByRole('button',{name:/05.*Review/}));fireEvent.click(screen.getByRole('button',{name:'Finish setup and open tasks'}));
+ fireEvent.click(screen.getByRole('button',{name:/05.*Review/}));fireEvent.click(screen.getByRole('button',{name:'Next: Add people'}));
  await waitFor(()=>expect(screen.getByRole('alert').textContent).toContain('Save or remove the funding entries'));
  expect(api.call).not.toHaveBeenCalled();
 });

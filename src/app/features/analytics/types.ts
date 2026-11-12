@@ -6,6 +6,7 @@ export interface AnalyticsProject {
   projectLeadId?: string;
   startDate?: string;
   targetDate?: string;
+  completedAt?: string;
   status: string;
 }
 export interface AnalyticsPerson {

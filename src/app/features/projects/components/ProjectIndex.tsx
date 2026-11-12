@@ -1,3 +1,4 @@
+import { orderedStatusLabels, useWorkStatuses } from '../../work-status';
 import { useMemo, useState } from 'react';
 import { Button, Heading } from '@vibe/core';
 import { Search } from 'lucide-react';
@@ -13,6 +14,7 @@ export function ProjectIndex({ projects, tasks, organizations, profiles, onOpen,
   projects: Project[]; tasks: Task[]; organizations: Organization[]; profiles: UserProfile[];
   onOpen: (id: string) => void; onOpenProposal: (id: string) => void; onCreate?: () => void;
 }) {
+  const {definitions}=useWorkStatuses();
   const [query, setQuery] = useState(''), [status, setStatus] = useState('current'), [sort, setSort] = useState('updated'), [office, setOffice] = useState('');
   const visible = useMemo(() => projects.filter(project =>
     (!office || project.orgId === office) && (status === 'all' || (status === 'current' ? project.status !== 'archived' : project.status === status)) &&
@@ -24,7 +26,7 @@ export function ProjectIndex({ projects, tasks, organizations, profiles, onOpen,
     <header><div><Heading type="h1">All projects</Heading><p>Your projects, teams and progress in one place.</p></div>{onCreate && <Button size="medium" leftIcon={Add} onClick={onCreate}>Create project</Button>}</header>
     <div className="eflow-project-index__filters">
       <label>Search projects<span className="eflow-project-index__search"><Search size={17} aria-hidden="true"/><input type="search" placeholder="Search by project or office" value={query} onChange={event => setQuery(event.target.value)}/></span></label>
-      <label>Status<select value={status} onChange={event => setStatus(event.target.value)}><option value="current">Current projects</option><option value="all">All statuses</option><option value="planning">Planning</option><option value="active">Active</option><option value="on_hold">On hold</option><option value="completed">Completed</option><option value="archived">Archived</option></select></label>
+      <label>Status<select value={status} onChange={event => setStatus(event.target.value)}><option value="current">Current projects</option><option value="all">All statuses</option>{orderedStatusLabels(definitions,{planning:'Planning',active:'Active',on_hold:'On hold',completed:'Completed',archived:'Archived'}).map(({id,label})=><option key={id} value={id}>{label}</option>)}</select></label>
       <label>Sort projects<select value={sort} onChange={event => setSort(event.target.value)}><option value="updated">Recently updated</option><option value="name">Project name</option><option value="target">Target date</option></select></label>
       <label>Lead office<select value={office} onChange={event=>setOffice(event.target.value)}><option value="">All offices</option>{organizations.filter(item=>projects.some(project=>project.orgId===item.id)).map(item=><option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
     </div>

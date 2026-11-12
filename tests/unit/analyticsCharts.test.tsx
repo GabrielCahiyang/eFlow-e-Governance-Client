@@ -10,6 +10,10 @@ import { afterEach, expect, it, vi } from "vitest";
 vi.mock("../../src/app/features/analytics/hooks/useAnalyticsFunding", () => ({
   useAnalyticsFunding: () => ({ data: new Map(), errors: new Set() }),
 }));
+vi.mock("../../src/app/features/nested-work", () => ({
+  fetchWorkEvents: vi.fn(async () => ({ events: [], more: false })),
+  presentWorkEvent: vi.fn(),
+}));
 import { DeliveryAnalytics } from "../../src/app/features/analytics/components/DeliveryAnalytics";
 import type { AnalyticsInput } from "../../src/app/features/analytics/types";
 afterEach(cleanup);
@@ -92,4 +96,25 @@ it("drills active workload into unfinished tasks rather than completed work", ()
   const table=screen.getByRole("table", {name:"Task analytics"});
   expect(within(table).getByText("Prepare")).toBeTruthy();
   expect(within(table).queryByText("Finish")).toBeNull();
+});
+
+it("opens project analysis from the office selector and drills down to task records", async () => {
+  const open = vi.fn();
+  render(<DeliveryAnalytics input={input} projectAnalysis onOpenTask={open} />);
+  expect(screen.getByRole("region", { name: "Project completion" })).toBeTruthy();
+  fireEvent.change(screen.getByLabelText("Project"), { target: { value: "p" } });
+  const team = screen.getByRole("table", { name: "Team comparison" });
+  fireEvent.click(within(team).getByRole("button", { name: "Tasks as lead" }));
+  expect(within(team).getByRole("columnheader", { name: "Tasks as lead" }).getAttribute("aria-sort")).toBe("ascending");
+  fireEvent.click(within(team).getByRole("button", { name: "Gabriel" }));
+  expect(screen.getByText("All tasks · Gabriel · 2 tasks")).toBeTruthy();
+  fireEvent.click(screen.getByRole("button", { name: "View 1 task still open" }));
+  const records = screen.getByRole("table", { name: "Task records" });
+  expect(within(records).queryByText("Finish")).toBeNull();
+  fireEvent.click(within(records).getByRole("button", { name: "Assignment history for Prepare" }));
+  expect(await within(records).findByText("No lead transfers found.")).toBeTruthy();
+  fireEvent.click(within(records).getByRole("button", { name: "Prepare", exact: true }));
+  expect(open).toHaveBeenCalledWith(input.tasks[0]);
+  fireEvent.change(screen.getByLabelText("Project"), { target: { value: "" } });
+  expect(screen.queryByRole("heading", { name: "Project analysis" })).toBeNull();
 });

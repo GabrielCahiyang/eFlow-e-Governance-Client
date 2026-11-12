@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { PanelRight } from 'lucide-react';
 import { InlineEditableText } from '../../../components/ui/workspace';
 import { TaskSubtasksWidget, createSubtask, updateSubtask, parentTaskDueDate, type Subtask } from '../../subtasks';
+import { resolveStatus, useWorkStatuses } from '../../work-status';
 import { TASK_STATUS_LABELS, type Task } from '../../tasks';
 import type { UserProfile } from '../../../types';
 import { STATUS_COLORS } from '../selectors';
@@ -29,6 +30,7 @@ interface SubitemRowsProps {
 }
 
 function LegacySubitemRows({ task, subtasks, columns, profiles, canAdd, readOnly=false, unavailableReason, onOpen, onOpenTask, refresh }: SubitemRowsProps) {
+  const {definitions}=useWorkStatuses();
   const parentDue = parentTaskDueDate(task.deadline, task.dueDate);
   const [dueDate, setDueDate] = useState(parentDue || '');
   const [busy, setBusy] = useState(false);
@@ -43,13 +45,14 @@ function LegacySubitemRows({ task, subtasks, columns, profiles, canAdd, readOnly
           {[...subtasks].sort((a, b) => a.position - b.position).map(subtask => {
             const ownerIds = [...new Set([subtask.assignedTo, ...subtask.assignedToIds].filter(Boolean))];
             const owners = ownerIds.map(id => profiles.find(profile => profile.id === id)?.full_name || 'Assigned person').join(', ');
+            const status = resolveStatus(definitions, subtask.status, TASK_STATUS_LABELS[subtask.status], subtask.customStatusId);
             return <tr className="pt-subitem" key={subtask.id}>
               <td><div className="pt-subitem-name">
                 <InlineEditableText value={subtask.title} label={'subtask ' + subtask.title} disabled={!canAdd || busy || subtask.status === 'completed'} onSave={async title => { await updateSubtask(subtask.id, { title }); await refresh(); }}/>
                 <button type="button" aria-label={'Open subtask ' + subtask.title} onClick={() => onOpen(subtask,readOnly)}><PanelRight size={15}/></button>
               </div></td>
               <td className="pt-subitem-owner" title={owners || 'Unassigned'}>{owners || 'Unassigned'}</td>
-              <td className="pt-subitem-status" style={{ background: STATUS_COLORS[subtask.status] }}>{TASK_STATUS_LABELS[subtask.status]}</td>
+              <td className="pt-subitem-status" style={{ background: STATUS_COLORS[subtask.status], boxShadow: status.color ? `inset 3px 0 ${status.color}` : undefined }}>{status.label}</td>
               <td><DeadlineBadge value={subtask.dueDate} status={subtask.status}/></td>
               <td>{subtask.percentComplete}%</td>
             </tr>;

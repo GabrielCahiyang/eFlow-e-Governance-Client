@@ -17,7 +17,14 @@ export function DirectWorkFunding({ data,tasks,onChanged }: { data:DepartmentBud
   const [message,setMessage]=useState("");
   const pending=useRef(false),key=useRef(crypto.randomUUID());
   const confirmation=useConfirmation();
-  const draft=useExplicitDraft("Work funding authorization",Boolean(reason||lines.some(l=>l.amount||l.partitionId||l.particular)),busy,()=>{setReason("");setLines([{partitionId:"",amount:0,particular:""}]);});
+  const baseline = useRef({ taskId, lines });
+  const showForm = data.summary?.status === 'locked' && data.sectionsAvailable;
+  const dirty = Boolean(showForm && (reason || taskId !== baseline.current.taskId || JSON.stringify(lines) !== JSON.stringify(baseline.current.lines)));
+  const draft = useExplicitDraft('Work funding authorization', dirty, busy, () => {
+    setTaskId(baseline.current.taskId);
+    setLines(baseline.current.lines);
+    setReason('');
+  });
   const leaves=sectionLeaves(data.sections||[]);
   const total=lines.reduce((sum,l)=>sum+(Number.isFinite(l.amount)&&l.amount<=90_000_000_000?moneyCents(l.amount||0):0),0)/100;
   const availableTasks=tasks.filter(t=>isOpenDirectFundingWork(t)&&!data.allocations.some(a=>a.taskId===t.id&&!a.subtaskId&&a.status==="approved"));
@@ -28,17 +35,19 @@ export function DirectWorkFunding({ data,tasks,onChanged }: { data:DepartmentBud
     try {
       if(!await confirmation.confirm({title:"Authorize funding for this work?",description:`FY ${data.summary.fiscalYear}: ${peso.format(total)}. This charges the selected annual accounts once. Planning estimates do not approve money. Authority: ${reason}`,actionLabel:"Authorize funding"})) return;
       await fundOfficeWork({taskId,fiscalYear:data.summary.fiscalYear,lines,reason,authorizationKey:key.current});
-      draft.markClean();setReason("");setLines([{partitionId:"",amount:0,particular:""}]);key.current=crypto.randomUUID();setMessage("Work funding authorized.");await onChanged();
+      const cleared = [{ partitionId: '', amount: 0, particular: '' }];
+      baseline.current = { taskId, lines: cleared };
+      draft.markClean();setReason("");setLines(cleared);key.current=crypto.randomUUID();setMessage("Work funding authorized.");await onChanged();
     } catch(e) {setMessage(e instanceof Error?e.message:"Funding could not be authorized. Refresh before retrying.");}
     finally {pending.current=false;draft.pendingRef.current=false;setBusy(false);}
   };
-  if(data.summary?.status!=="locked"||!data.sectionsAvailable) return null;
-  return <section className="rounded-xl border border-border bg-card p-4">
-    {confirmation.dialog}<h3 className="text-[14px] font-semibold">Fund current work</h3>
-    <p className="mt-1 text-[12px] text-muted-foreground">For manually created or imported work. Select real annual accounts and the approved authority reference.</p>
+  if(!showForm) return null;
+  return <section className="min-w-0 rounded-[10px] border border-border bg-card p-4">
+    {confirmation.dialog}<h3 className="text-sm font-semibold">Fund current work</h3>
+    <p className="mt-1 text-xs text-muted-foreground">Authorize funding for manually created or imported work.</p>
     <label className="mt-3 block text-[12px]">Work<select disabled={busy} value={taskId} onChange={e=>setTaskId(e.target.value)} className="mt-1 h-10 w-full rounded-lg border px-3"><option value="">Select unfunded work</option>{availableTasks.map(t=><option key={t.id} value={t.id}>{t.title}</option>)}</select></label>
-    {lines.map((l,i)=><div key={i} className="mt-3 grid gap-2 sm:grid-cols-[1fr_140px_auto]">
-      <label className="text-[12px]">Annual account<select disabled={busy} value={l.partitionId} onChange={e=>setLines(current=>current.map((x,j)=>j===i?{...x,partitionId:e.target.value}:x))} className="mt-1 h-10 w-full rounded-lg border px-2"><option value="">Choose account</option>{leaves.map(s=><option key={s.id} value={s.id}>{s.name} · {peso.format(s.amount-s.heldAmount-(s.committedAmount||0))} available</option>)}</select></label>
+    {lines.map((l,i)=><div key={i} className="mt-3 grid grid-cols-[minmax(0,1fr)_auto] gap-2 border-t pt-3">
+      <label className="col-span-full min-w-0 text-xs">Annual account<select disabled={busy} value={l.partitionId} onChange={e=>setLines(current=>current.map((x,j)=>j===i?{...x,partitionId:e.target.value}:x))} className="mt-1 h-10 w-full min-w-0 rounded-lg border px-2"><option value="">Choose account</option>{leaves.map(s=><option key={s.id} value={s.id}>{s.name} · {peso.format(s.amount-s.heldAmount-(s.committedAmount||0))} available</option>)}</select></label>
       <label className="text-[12px]">Approved amount<MoneyInput disabled={busy} min="0" step="0.01"  value={l.amount||""} onValueChange={raw => setLines(current=>current.map((x,j)=>j===i?{...x,amount:Number(raw)}:x))} className="mt-1 h-10 w-full rounded-lg border px-3 text-right" /></label>
       <button type="button" disabled={busy} onClick={()=>setLines(current=>current.filter((_,j)=>j!==i))} className="self-end rounded-lg border p-2 text-[12px]">Remove</button>
     </div>)}

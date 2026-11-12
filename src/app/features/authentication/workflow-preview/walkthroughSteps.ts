@@ -14,7 +14,7 @@ const scene = (id: string, chapter: WorkflowChapter, title: string, description:
 
 const setup = [
   scene("office-budget", "Project setup", "Prepare the Office Budget",
-    "The Head sets the annual amount for the Supplies account and saves and locks the budget. Accounting confirms availability for any scheduled releases.",
+    "The Head sets the annual amount for the Supplies account and locks the budget. Scheduled amounts become available automatically on their release dates.",
     "Head", "Workspaces / Office Budget"),
   scene("create-project", "Project setup", "Set up the project",
     "Open All projects and choose Create project. Define the title, description, scope, project lead, and dates before adding tasks or people.",

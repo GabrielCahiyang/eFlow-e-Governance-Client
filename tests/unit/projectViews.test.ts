@@ -32,10 +32,10 @@ describe('One canonical project across views', () => {
     expect(projectBoardMoveError(task('a', { status: 'changes_requested' }), 'in_progress', 'head', true, false)).toBeNull();
     expect(projectBoardMoveError(task('a'), 'in_progress', 'stranger', false, false)).toBeTruthy();
   });
-  it('blocks oversight, closed tasks, evidence bypass and arbitrary review decisions', () => {
+  it('blocks oversight, closed tasks, submission bypass and arbitrary review decisions', () => {
     expect(projectBoardMoveError(task('a', { assigneeId: 'admin' }), 'in_progress', 'admin', true, true)).toContain('read-only');
     expect(projectBoardMoveError(task('a', { status: 'completed' }), 'in_progress', 'head', true, false)).toContain('read-only');
-    expect(projectBoardMoveError(task('a'), 'for_review', 'head', true, false)).toContain('evidence');
+    expect(projectBoardMoveError(task('a'), 'for_review', 'head', true, false)).toContain('send a completion note and any supporting files');
     expect(projectBoardMoveError(task('a'), 'completed', 'head', true, false)).toContain('review workflow');
   });
   it('finds a dated dependency chain without using unrelated or completed work', () => {

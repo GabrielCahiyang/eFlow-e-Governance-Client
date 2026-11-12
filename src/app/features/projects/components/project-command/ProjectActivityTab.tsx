@@ -31,8 +31,8 @@ function ProjectActivityTableSkeleton({ timezone }: { timezone: string }) {
         <table>
           <thead>
             <tr>
-              <th>Event</th>
-              <th>Actor</th>
+              <th>What changed</th>
+              <th>Changed by</th>
               <th>Type</th>
               <th>Occurred ({timezone})</th>
             </tr>
@@ -67,26 +67,30 @@ function ProjectActivityTableSkeleton({ timezone }: { timezone: string }) {
   );
 }
 
-export function ProjectActivityTab({ data }: { data: ProjectCommandData }) {
+export function ProjectActivityTab({ data, auditTrail }: { data: ProjectCommandData; auditTrail?: boolean }) {
   return (
     <ProjectActivityHistory
       projectId={data.project.id}
       title={data.project.title}
+      auditTrail={auditTrail}
     />
   );
 }
 export function ProjectActivityHistory({
   projectId,
   title,
+  auditTrail = false,
 }: {
   projectId: string;
   title: string;
+  auditTrail?: boolean;
 }) {
   const { user } = useAuth();
   const context = useWorkspaceScope();
   return (
     <Activity
       key={`${user?.id}:${context?.workspace.id}:${projectId}`}
+      auditTrail={auditTrail}
       data={{ project: { id: projectId, title } }}
       workspace={context?.workspace.name || "Office project"}
       timezone={
@@ -100,10 +104,12 @@ function Activity({
   data,
   workspace,
   timezone,
+  auditTrail,
 }: {
   data: { project: { id: string; title: string } };
   workspace: string;
   timezone: string;
+  auditTrail: boolean;
 }) {
   const [filters, setFilters] = useState<ActivityFilters>({
       ...DEFAULT_ACTIVITY_FILTERS,
@@ -201,11 +207,11 @@ function Activity({
   return (
     <section
       className="eflow-analytics eflow-activity"
-      aria-label="Project activity"
+      aria-label={auditTrail ? "Audit Trail" : "Project activity"}
     >
       <WorkspaceHeader
-        title="Project activity"
-        description="Authorized audit, status, progress, review and delegation history."
+        title={auditTrail ? "Audit Trail" : "Project activity"}
+        description={auditTrail ? "Who changed this project or its tasks, what changed, and when." : "Authorized audit, status, progress, review and delegation history."}
         actions={
           <Button
             variant="outline"
@@ -260,8 +266,8 @@ function Activity({
             <table>
               <thead>
                 <tr>
-                  <th>Event</th>
-                  <th>Actor</th>
+                  <th>What changed</th>
+                  <th>Changed by</th>
                   <th>Type</th>
                   <th>Occurred ({timezone})</th>
                 </tr>
@@ -271,7 +277,7 @@ function Activity({
                   <tr key={item.id} data-event-id={item.id}>
                     <td>
                       <strong>{item.title}</strong>
-                      <p>{item.detail}</p>
+                      <p className="whitespace-pre-line">{item.detail}</p>
                     </td>
                     <td>{item.actorName}</td>
                     <td>

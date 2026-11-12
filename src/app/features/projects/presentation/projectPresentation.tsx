@@ -1,3 +1,4 @@
+import { useWorkStatus } from '../../work-status';
 import { Label as VibeLabel } from "@vibe/core";
 import type { ProjectStatus } from "../services/types";
 import type { ProjectScheduleHealth } from "../components/project-command/types";
@@ -27,7 +28,8 @@ const schedule: Record<
 };
 export function ProjectLifecycleLabel({ status }: { status: ProjectStatus }) {
   const item = lifecycle[status];
-  return <span className="eflow-project-status-label" role="status" aria-label={`Project lifecycle: ${item.text}`}><Label text={item.text} color={item.color} /></span>;
+  const display = useWorkStatus(status, item.text);
+  return <span className="eflow-project-status-label" role="status" aria-label={`Project lifecycle: ${display.label}`} style={display.color ? {borderInlineStart: `3px solid ${display.color}`} : undefined}><Label text={display.label} color={item.color} /></span>;
 }
 export function ProjectScheduleLabel({
   health,
@@ -36,10 +38,11 @@ export function ProjectScheduleLabel({
   health: ProjectScheduleHealth;
   empty?: boolean;
 }) {
+  const display = useWorkStatus(health === 'completed' ? 'completed' : '', schedule[health].text);
   if (empty && health!=='completed')
     return <span className="eflow-project-status-label" role="status" aria-label="Project schedule: no scheduled work"><Label text="No scheduled work" color="dark" /></span>;
   const item = schedule[health];
-  return <span className="eflow-project-status-label" role="status" aria-label={`Project schedule: ${item.text}`}><Label text={item.text} color={item.color} /></span>;
+  return <span className="eflow-project-status-label" role="status" aria-label={`Project schedule: ${display.label}`}><Label text={display.label} color={item.color} /></span>;
 }
 
 export function ProjectStatusBadge({
@@ -49,11 +52,13 @@ export function ProjectStatusBadge({
   status: ProjectStatus;
   health?: ProjectScheduleHealth;
 }) {
+  const display = useWorkStatus(status, lifecycle[status]?.text || status);
+  const completed = useWorkStatus("completed", "Completed");
   if (status !== "active") {
     const item = lifecycle[status] || { text: status, color: "primary" };
     return (
-      <span className="eflow-project-status-label" role="status" aria-label={`Project status: ${item.text}`}>
-        <Label text={item.text} color={item.color} />
+      <span className="eflow-project-status-label" role="status" aria-label={`Project status: ${display.label}`} style={display.color ? {borderInlineStart: `3px solid ${display.color}`} : undefined}>
+        <Label text={display.label} color={item.color} />
       </span>
     );
   }
@@ -80,14 +85,14 @@ export function ProjectStatusBadge({
   }
   if (health === "completed") {
     return (
-      <span className="eflow-project-status-label" role="status" aria-label="Project status: Completed">
-        <Label text="Completed" color="dark" />
+      <span className="eflow-project-status-label" role="status" aria-label={`Project status: ${completed.label}`}>
+        <Label text={completed.label} color="dark" />
       </span>
     );
   }
   return (
-    <span className="eflow-project-status-label" role="status" aria-label="Project status: Active">
-      <Label text="Active" color="positive" />
+    <span className="eflow-project-status-label" role="status" aria-label={`Project status: ${display.label}`}>
+      <Label text={display.label} color="positive" />
     </span>
   );
 }

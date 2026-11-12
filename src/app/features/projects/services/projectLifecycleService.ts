@@ -38,6 +38,15 @@ export async function fetchProjectCompletionReadiness(projectId: string): Promis
   return data as ProjectCompletionReadiness;
 }
 
+export async function fetchProjectDeletionBlockers(projectId: string): Promise<string[] | null> {
+  const { data, error } = await supabase.rpc("get_project_deletion_blockers", { p_project_id: projectId });
+  if (error?.code === "42501") return null;
+  if (error || !Array.isArray(data) || data.some((blocker) => typeof blocker !== "string")) {
+    throw new Error("Could not check whether this project can be deleted. Try again.");
+  }
+  return data;
+}
+
 export async function completeProject(projectId: string, note?: string): Promise<void> {
   const { error } = await supabase.rpc("complete_project", { p_project_id: projectId, p_note: note?.trim() || null });
   if (error) throw lifecycleError(error);

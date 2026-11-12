@@ -19,6 +19,7 @@ export interface Subtask {
   title: string;
   isCompleted: boolean;
   status: SubtaskStatus;
+  customStatusId?: string;
   percentComplete: number;
   reviewerId?: string;
   latestSubmissionId?: string;
@@ -55,6 +56,7 @@ export function rowToSubtask(row: Record<string, unknown>): Subtask {
     title: row.title as string,
     isCompleted: (row.is_completed as boolean) || false,
     status: ((row.status as SubtaskStatus) || ((row.is_completed as boolean) ? 'completed' : 'todo')),
+    ...(typeof row.custom_status_id === 'string' && { customStatusId: row.custom_status_id }),
     percentComplete: Number(row.percent_complete ?? ((row.is_completed as boolean) ? 100 : 0)),
     reviewerId: (row.reviewer_id as string) || undefined,
     latestSubmissionId: (row.latest_submission_id as string) || undefined,

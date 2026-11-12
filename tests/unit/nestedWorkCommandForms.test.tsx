@@ -41,6 +41,23 @@ function open(command:WorkEdit['command'],patch:Partial<WorkEdit>={}){
 const save=()=>fireEvent.click(screen.getByRole('button',{name:'Save work changes'}));
 async function accept(name='Confirm changes'){fireEvent.click(await screen.findByRole('button',{name,exact:true}));}
 describe('NW5.5 lightweight forms and authoritative confirmation',()=>{
+ it('requires both dates for new subtasks and sends the selected pair',async()=>{
+  data.root.scheduleBounds={projectStart:'2026-11-30',projectDue:'2026-12-31',taskStart:'2026-12-01',taskDue:'2026-12-20'};
+  open('create');
+  fireEvent.change(screen.getByLabelText('Subtask title'),{target:{value:'New scheduled subtask'}});
+  save();
+  await screen.findByText('Choose a subtask start date.',{exact:false});
+  expect(writes()).toHaveLength(0);
+  fireEvent.change(screen.getByLabelText('Subtask start date'),{target:{value:'2026-11-30'}});
+  fireEvent.change(screen.getByLabelText('Subtask due date'),{target:{value:'2026-12-10'}});
+  fireEvent.submit(screen.getByRole('form',{name:'Nested work changes'}));
+  await screen.findByText(/Subtask start date cannot be before 2026-12-01/);
+  expect(writes()).toHaveLength(0);
+  fireEvent.change(screen.getByLabelText('Subtask start date'),{target:{value:'2026-12-10'}});
+  save();
+  await waitFor(()=>expect(writes()).toHaveLength(1));
+  expect(writes()[0][1].p_payload).toMatchObject({start:'2026-12-10',due:'2026-12-10'});
+ });
  it('checks a server-classified routine date without an extra confirmation',async()=>{
   open('edit');fireEvent.change(screen.getByLabelText('Subtask due date'),{target:{value:'2026-12-02'}});save();await waitFor(()=>expect(writes()).toHaveLength(1));expect(previews()).toHaveLength(1);expect(screen.queryByRole('alertdialog')).toBeNull();expect(writes()[0][0]).toBe('nw_work_command');expect(writes()[0][1].p_impact_fingerprint).toBe('synthetic-checked-impact');
  });

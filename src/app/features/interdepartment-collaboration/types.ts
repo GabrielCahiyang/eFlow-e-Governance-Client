@@ -47,6 +47,7 @@ export interface CollaborationSnapshotTask {
   description: string;
   deadline: string;
   estimatedHours?: number;
+  subtasks?: string[];
   priority: "low" | "medium" | "high";
   requiredSkills: string[];
   assignedMemberIds: string[];

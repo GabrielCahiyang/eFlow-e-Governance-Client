@@ -28,7 +28,7 @@ export function lockedReleaseEditError(saved:BudgetSection[],proposed:BudgetSect
  for(const prior of saved.filter(a=>!a.retired)){
   const next=proposed.find(a=>a.id===prior.id&&!a.retired);
   if(!next&&(prior.heldAmount>0||prior.releaseSchedule?.length))return `Keep “${prior.name}” in the budget while it has release records.`;
-  if(next&&Math.round(next.heldAmount*100)<Math.round(prior.heldAmount*100))return `Accounting must confirm releases from “${prior.name}” before the pending total can decrease. You can still change its release dates.`;
+  if(next&&Math.round(next.heldAmount*100)<Math.round(prior.heldAmount*100))return `Pending amounts in “${prior.name}” become available on their release dates. You can change the dates and keep the pending total.`;
  }
  return '';
 }

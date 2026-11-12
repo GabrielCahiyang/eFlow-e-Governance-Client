@@ -297,7 +297,7 @@ export const getDirectBoardTransitionError = (
     return null;
   }
   if (newStatus === "for_review") {
-    return "Use Submit for Review so the required completion note and evidence are recorded.";
+    return "Use Submit for Review to send a completion note and any supporting files.";
   }
   if (newStatus === "completed" || newStatus === "changes_requested") {
     return "Review decisions must be made from the Reviews workspace.";

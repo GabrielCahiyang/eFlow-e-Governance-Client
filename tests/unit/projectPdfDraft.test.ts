@@ -9,12 +9,14 @@ import {
   readSourceBudget,
   applySourceBudgetAssignments,
 } from "../../src/app/features/proposal-import/services/sourceBudget";
-import { extractPartSections } from "../../src/app/features/proposal-import/services/decomposition/textAnalysis";
+import { extractPartSections, extractExplicitSubtasks, generateTemplateSubtasks } from "../../src/app/features/proposal-import/services/decomposition/textAnalysis";
 const api = vi.hoisted(() => ({ chat: vi.fn(), fallback: vi.fn() }));
 vi.mock("../../src/app/features/proposal-import", () => ({
   readSourceBudget,
   applySourceBudgetAssignments,
   extractPartSections,
+  extractExplicitSubtasks,
+  generateTemplateSubtasks,
 }));
 vi.mock("../../src/app/features/ai", () => ({
   requestAiChat: api.chat,
@@ -117,9 +119,12 @@ describe("PDF directly into the current project table", () => {
       "Document Review and Gap Analysis",
     );
     expect(tasks[1].description).toContain("Document Review and Gap Analysis");
+    expect(tasks.every(task => task.subitems.length > 0)).toBe(true);
+    expect(tasks[1].subitems.map(item => item.title)).toContain("Document Review and Gap Analysis");
     expect(tasks[9].dueDate).toBe("2100-04-19");
     const payload = reviewedImportPayload(draft, "proposal.pdf", false);
     expect(payload.applyProjectDetails).toBe(false);
+    expect(payload.groups[0].tasks[1].subitems).toEqual(tasks[1].subitems);
     expect(payload.taskBudgets?.flatMap((t) => t.lines)).toHaveLength(16);
     expect(
       payload.taskBudgets

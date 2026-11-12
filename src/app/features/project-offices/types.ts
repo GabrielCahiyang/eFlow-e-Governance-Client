@@ -4,7 +4,7 @@ export interface ProjectOffice {
   invitation_status: 'pending' | 'awaiting_head' | 'joined' | 'revoked';
   contact_email: string; contact_user_id: string | null; joined_at: string | null;
 }
-export interface ProjectOfficeMember { project_office_id: string; user_id: string }
+export interface ProjectOfficeMember { project_office_id: string; user_id: string; can_edit?: boolean }
 export interface OfficeProposal { name: string; officeId: string; evidence: string }
 export interface ProposedOfficeTask { id: string; title: string; proposed_office_identity_id: string }
 export interface OfficeIdentity {

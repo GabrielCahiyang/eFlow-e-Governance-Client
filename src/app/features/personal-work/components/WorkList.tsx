@@ -1,3 +1,4 @@
+import {resolveStatus, useWorkStatuses} from '../../work-status';
 import {workStateLabel} from '../../work-state';
 import { StatusPill } from "../../../components/ui/workspace";
 import { workDateLabel } from "../../../shared/workCalendar";
@@ -57,6 +58,7 @@ export function WorkList({
   onOpen: (row: WorkRow, element: HTMLElement) => void;
   label?: string;
 }) {
+  const {definitions}=useWorkStatuses();
   return (
     <ul className="r10-work-list" aria-label={label}>
       {rows.map((row) => (
@@ -85,7 +87,7 @@ export function WorkList({
               {workDateLabel(row.due, row.timezone)}
             </span>
             <StatusPill
-              label={workStateLabel(row.status,!!row.blocker)}
+              {...resolveStatus(definitions,row.status==='in_progress'&&row.blocker?'stuck':row.status,workStateLabel(row.status,!!row.blocker),row.task?.customStatusId ?? (row.node?.custom_status_id === undefined ? row.subtask?.customStatusId : row.node.custom_status_id))}
               tone={
                 row.status === "completed"
                   ? "positive"

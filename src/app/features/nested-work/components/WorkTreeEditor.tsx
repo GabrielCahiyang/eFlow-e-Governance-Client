@@ -3,6 +3,7 @@ import {Modal} from '../../../components/ui/Modal';
 import {useId} from 'react';
 import {ListPlus,AlertCircle} from 'lucide-react';
 import {calendarMinDate} from '../../../shared/calendarDates';
+import {subtaskDateLimits} from '../selectors/subtaskDates';
 import {WorkDetailsEditor} from './WorkDetailsEditor';
 import {WorkMoveDialog} from './WorkMoveDialog';
 import {WorkOrderDialog} from './WorkOrderDialog';
@@ -30,29 +31,32 @@ function WorkTreeForm({data,edit,save,onDone,onCancel,reload,readOnly=false,refr
  const context={actorId:user?.id||null,rootId:data.root.id,projectId:data.root.project,officeId:data.root.office,kind:data.root.kind,revision:data.revision,readOnly};
  const editor=useWorkEditorDraft({data,edit,context,refreshPending,reload,onCancel});
  const {fields:{lead,people,parent,standalone,note,order},update,locked,busy,authorized,outcome}=editor;
+ const dateLimits=subtaskDateLimits(data,parent);
  const node=data.nodes.find(item=>item.id===editor.baseline.nodeId)||edit.node;
  const createCapability=edit.parent?selectNodeWorkCapability(data,edit.parent,'create_child',context):selectRootWorkCapability(data,'create_child',context);
  const destinationRoot=selectRootWorkCapability(data,'create_child',context);
  const destinations=node?reparentChoices(data.nodes.map(item=>({...item,can_manage:selectNodeWorkCapability(data,item.id,'create_child',context).allowed})),node):[];
  const confirmation=useWorkImpactConfirmation(data.root.id);
+ const startChanged=edit.command==='edit'&&(editor.fields.start||'')!==(editor.baseline.fields.start||'');
  const close=()=>void requestNavigation(editor.discard);
  const prepare=(request:WorkRequest)=>{
   const modeChanged=edit.command==='edit'&&standalone!==editor.baseline.fields.standalone;
-  const dateChanged=edit.command==='edit'&&editor.fields.due!==editor.baseline.fields.due;
-  if(!['move','order','delete'].includes(edit.command)&&!modeChanged&&!dateChanged)return Promise.resolve(undefined);
-  return confirmation.review(request,{title:edit.command==='delete'?'Delete subtask?':edit.command==='move'?'Review subtask move?':edit.command==='order'?'Review subtask sequence?':modeChanged?'Review execution mode change?':'Review due-date impact?',dateChange:dateChanged,alwaysConfirm:modeChanged,
+  const dueChanged=edit.command==='edit'&&editor.fields.due!==editor.baseline.fields.due;
+  if(!['move','order','delete'].includes(edit.command)&&!modeChanged&&!dueChanged&&!startChanged)return Promise.resolve(undefined);
+  return confirmation.review(request,{title:edit.command==='delete'?'Delete subtask?':edit.command==='move'?'Review subtask move?':edit.command==='order'?'Review subtask sequence?':modeChanged?'Review execution mode change?':'Review schedule change?',dateChange:dueChanged,alwaysConfirm:modeChanged||startChanged,
    actionLabel:edit.command==='delete'?'Delete subtask':'Confirm changes',danger:edit.command==='delete',isCurrent:editor.confirmationCurrent,description:edit.command==='delete'?'This removes the selected subtask and any subtasks beneath it. Review the affected work before deleting.':'Review the current affected work. The server checks this exact impact again before saving.',
-   details:modeChanged?<p>Execution mode: {editor.baseline.fields.standalone?'Can start independently':'In sequence'} → {standalone?'Can start independently':'In sequence'}. Changing the sequence can affect when related work may start.</p>:edit.command==='order'?<p>New sequence: {order.map(id=>data.nodes.find(item=>item.id===id)?.title||'Unavailable subtask').join(' → ')}</p>:undefined});
+   details:modeChanged?<p>Execution mode: {editor.baseline.fields.standalone?'Can start independently':'In sequence'} → {standalone?'Can start independently':'In sequence'}. Changing the sequence can affect when related work may start.</p>:startChanged?<p>Start date: {editor.baseline.fields.start||'No start date'} → {editor.fields.start}</p>:edit.command==='order'?<p>New sequence: {order.map(id=>data.nodes.find(item=>item.id===id)?.title||'Unavailable subtask').join(' → ')}</p>:undefined});
  };
- const needsPreview=['move','order','delete'].includes(edit.command)||edit.command==='edit'&&(standalone!==editor.baseline.fields.standalone||editor.fields.due!==editor.baseline.fields.due);
+ const needsPreview=['move','order','delete'].includes(edit.command)||edit.command==='edit'&&(startChanged||standalone!==editor.baseline.fields.standalone||editor.fields.due!==editor.baseline.fields.due);
  const submit=()=>editor.submit({save,onDone,prepare:needsPreview?prepare:undefined});
  const error='message' in outcome?outcome.message:null;
  const actions=<div className="r7-actions"><button type="button" disabled={busy} onClick={close}>{editor.saved?'Close':'Cancel changes'}</button>{editor.canReviewLatest&&<button type="button" onClick={editor.reviewLatest}>Review against current work</button>}{!authorized&&!editor.saved&&!busy&&!refreshPending&&!editor.capability.allowed&&<p role="status">Saving is unavailable with your current access.</p>}{!editor.saved&&<button type="submit" form={formId} className={edit.command==='create'?'nw-create-save':undefined} disabled={busy||!authorized}>{edit.command==='create'&&<ListPlus size={16} aria-hidden="true"/>}{busy?'Saving…':editor.request?'Retry saved request':edit.command==='delete'?'Review deletion':'Save work changes'}</button>}</div>;
  const form=<form id={formId} className={`r7-form${edit.command==='create'?' r7-form--modal':''}`} aria-label="Nested work changes" onSubmit={e=>{e.preventDefault();void submit();}}>
   {edit.command!=='create'&&<h3>{edit.root?'Task lead and contributors':`${edit.command==='staff'?'Staff':edit.command==='move'?'Move':edit.command==='delete'?'Delete':edit.command==='submit'?'Complete':edit.command==='review'?'History':'Update'} ${node?.title||'subitem'}`}</h3>}
   {['create','edit'].includes(edit.command)&&<WorkDetailsEditor fields={editor.fields} disabled={locked} update={update} presentation={edit.command==='create'?'dialog':'default'}
-   minDue={calendarMinDate(edit.command==='edit'?editor.baseline.fields.due:'')}
-   maxDue={data.nodes.find(item=>item.id===(edit.command==='create'?edit.parent:editor.baseline.fields.parent))?.due_date||data.root.due||undefined}
+   showStart={!!data.root.scheduleBounds}
+   minDue={data.root.scheduleBounds?dateLimits.earliest||'':calendarMinDate(edit.command==='edit'?editor.baseline.fields.due:'')}
+   maxDue={dateLimits.latest}
    peoplePicker={edit.command==='create'?{people:data.people,lead,selected:people,onLead:value=>update('lead',value),onSelected:value=>update('people',value),appointmentCapability:createCapability,contributorCapability:createCapability,disabled:locked,
     invite:!locked?{project:data.root.project,office:data.root.office,root:data.root.id,node:edit.parent||undefined,canRequest:scopedInvitationRequestAllowed(data,edit.parent||null,context)}:undefined}:undefined}/>}
   {edit.command==='move'&&<WorkMoveDialog data={data} destinations={destinations} allowTask={destinationRoot.allowed} parent={parent} disabled={locked} onChange={value=>update('parent',value)}/>}

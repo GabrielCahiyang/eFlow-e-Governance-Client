@@ -2,7 +2,6 @@ import {BudgetReleaseCalendar} from './BudgetReleaseCalendar';
 import { useState, useEffect } from "react";
 import {
   AlertTriangle,
-  Landmark,
 } from "lucide-react";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useTasks } from "../../../hooks/useFirebaseData";
@@ -15,11 +14,11 @@ import { BudgetEmpty } from "./budgetUi";
 import { FiscalYearControl } from "./FiscalYearControl";
 import { BudgetFundingHierarchy } from "./BudgetFundingHierarchy";
 import { BudgetReleasesPanel } from "./BudgetReleasesPanel";
-import { BudgetExpensesReport, BudgetExpensesReportSkeleton } from "./BudgetExpensesReport";
+import { BudgetExpensesReport } from "./BudgetExpensesReport";
 import { BudgetOperationalSignals } from "./BudgetOperationalSignals";
 import { getCurrentFiscalYear } from "../constants";
 import { useGeneralJournal } from "../hooks/useGeneralJournal";
-import { GeneralJournalWorkspace, JournalTableSkeleton } from "./GeneralJournalWorkspace";
+import { GeneralJournalWorkspace } from "./GeneralJournalWorkspace";
 import { AccountingTrailPanel } from "./AccountingTrailPanel";
 import { BudgetPositionSummary } from "./BudgetPositionSummary";
 import { DirectWorkFunding } from "./DirectWorkFunding";
@@ -28,7 +27,8 @@ import {BudgetVersionBanner} from './BudgetVersionBanner';
 import { BudgetAccountMappings } from "./BudgetAccountMappings";
 import { PettyCashVoucherRegister } from "./PettyCashVoucherRegister";
 import { WorkspaceHeader } from '../../../components/ui/workspace';
-import { WorkspaceLoadingSkeleton } from "../../../components/workflow/WorkspaceLoadingSkeleton";
+import { StatusPill } from '../../../components/ui/workspace/StatusPill';
+import { OfficeBudgetTabSkeleton } from "./OfficeBudgetTabSkeleton";
 import { FeedbackState } from '../../../components/ui/FeedbackState';
 import { writeNavigationLocation, readRouteFiscalYear } from '../../navigation';
 import { NAVIGATION_LOCATION_EVENT } from '../../../shared/navigationHistory';
@@ -39,6 +39,7 @@ import { OfficePettyCash } from '../../office-petty-cash';
 import { readBudgetView as tabFromUrl, type BudgetView as Tab } from '../budgetViews';
 
 import { requestNavigation } from "../../../shared/navigationGuard";
+export { OfficeBudgetTabSkeleton } from "./OfficeBudgetTabSkeleton";
 type BudgetOwner = { budget: ReturnType<typeof useDepartmentBudget>; journal: ReturnType<typeof useGeneralJournal> };
 type OfficeBudgetProps = { fiscalYear?: number; embedded?: boolean; dataOwner?: BudgetOwner };
 type BudgetContentProps = BudgetOwner & { focusRequestId?: string; orgId: string; fiscalYear: number; embedded: boolean; tab: Tab; setTab: (tab: Tab) => void; setFiscalYear: (year: number) => void };
@@ -141,6 +142,9 @@ function OfficeBudgetContent({ orgId, fiscalYear, embedded, tab, setTab, setFisc
     ? getBudgetUtilizationSignal(budget.summary)
     : { utilization: 0, isQ4: false, underTarget: false };
   const { utilization, underTarget } = utilizationSignal;
+  const groupedViews = canPrepare && !embedded;
+  const budgetStatus = budget.summary?.status;
+  const statusLabel = budgetStatus ? budgetStatus[0].toUpperCase() + budgetStatus.slice(1) : budget.error ? 'Unavailable' : 'Not configured';
   if (!orgId)
     return (
       <div className="p-8 text-sm text-muted-foreground">
@@ -148,22 +152,13 @@ function OfficeBudgetContent({ orgId, fiscalYear, embedded, tab, setTab, setFisc
       </div>
     );
   return (
-    <div className={`eflow-budget-workspace min-h-full bg-background text-foreground font-normal ${embedded ? "eflow-budget-embedded" : "p-4 sm:p-8"}`}>
-      <div className="mx-auto max-w-[1500px] space-y-5">
-        {!embedded && <WorkspaceHeader title="Office Budget" description="Annual appropriation → proposal → task funding → contextual cash request → receipts → verified expense. Every amount remains traceable to the work that authorized it." actions={
-            <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-              <span
-                className="eflow-budget-status"
-                data-status={budget.summary?.status || (budget.error ? 'unavailable' : 'unconfigured')}
-              >
-                {budget.summary?.status || (budget.error ? "Unavailable" : "Not configured")}
-              </span>
-              {budget.summary?.updatedAt && (
-                <span>
-                  Updated {new Date(budget.summary.updatedAt).toLocaleString()}
-                </span>
-              )}
-            </div>
+    <div className={`eflow-budget-workspace min-h-full text-foreground ${embedded ? "eflow-budget-embedded" : "eflow-budget-standalone"}`}>
+      <div className="eflow-budget-frame">
+        {!embedded && <WorkspaceHeader title="Office Budget" description="Manage annual accounts, funding and settlements." actions={
+          <div className="eflow-budget-header-actions">
+            {!budget.loading && tab !== 'office-petty-cash' && <StatusPill label={statusLabel} tone={budgetStatus === 'locked' ? 'positive' : budgetStatus === 'draft' ? 'warning' : budget.error ? 'negative' : 'neutral'} />}
+            <FiscalYearControl compact value={fiscalYear} onChange={setFiscalYear} />
+          </div>
         } />}
         {embedded && <div className="eflow-budget-ledger-status"><span className="eflow-budget-status" data-status={budget.summary?.status || (budget.error ? "unavailable" : "unconfigured")}>{budget.summary?.status || (budget.error ? "Unavailable" : "Not configured")}</span>{budget.summary?.updatedAt && <span>Updated {new Date(budget.summary.updatedAt).toLocaleString()}</span>}</div>}
         {budget.error && (
@@ -189,16 +184,15 @@ function OfficeBudgetContent({ orgId, fiscalYear, embedded, tab, setTab, setFisc
             </div>
           </div>
         ))}
-        <div aria-label="Budget fiscal scope and view filters" className="eflow-budget-view-toolbar sticky top-3 z-20">
-          <BudgetViewControl value={tab} onChange={setTab} />
-          {!embedded && <FiscalYearControl compact value={fiscalYear} onChange={setFiscalYear} />}
-          <small>{budget.loading ? `Loading FY ${fiscalYear}…` : budget.error ? 'Pending financial actions unavailable' : `Pending financial actions: ${pendingCount}`} · FY {fiscalYear}</small>
+        <div className={`eflow-budget-view-toolbar${groupedViews ? ' eflow-budget-view-toolbar--grouped' : ''}`}>
+          <BudgetViewControl value={tab} onChange={setTab} grouped={groupedViews} />
+          {embedded && <small>{budget.loading ? `Loading FY ${fiscalYear}…` : budget.error ? 'Pending financial actions unavailable' : `Pending financial actions: ${pendingCount}`} · FY {fiscalYear}</small>}
         </div>
         {budget.loading ? (
           <OfficeBudgetTabSkeleton tab={tab} label="Loading the office ledger…" />
         ) : (
           <>
-            {tab!=='office-petty-cash'&&<BudgetVersionBanner data={budget}/>}
+            {tab === 'annual' && <BudgetVersionBanner data={budget} />}
             {tab === 'office-petty-cash' ? <OfficePettyCash focusRequestId={focusRequestId}/> : !budget.summary && budget.error ? null : !budget.summary && tab !== "annual" ? (
               <BudgetEmpty
                 title={`No ${fiscalYear} annual budget yet`}
@@ -217,32 +211,31 @@ function OfficeBudgetContent({ orgId, fiscalYear, embedded, tab, setTab, setFisc
             ) : (
               <>
                 {tab === "overview" && budget.summary && (
-                  <><BudgetReleaseCalendar key={`releases:${orgId}:${fiscalYear}`} data={budget} onChanged={budget.refresh}/><Overview
+                  <Overview
                     data={budget}
                     summary={budget.summary}
                     utilization={utilization}
                     underTarget={underTarget}
                     onNavigate={setTab}
-                  /></>
+                  />
                 )}
                 {tab === "annual" && (
-                  <><BudgetReleaseCalendar key={`releases:${orgId}:${fiscalYear}`} data={budget} onChanged={budget.refresh}/><AnnualBudgetSetup
+                  <><AnnualBudgetSetup
                     key={`${orgId}:${fiscalYear}`}
                     orgId={orgId}
                     fiscalYear={fiscalYear}
                     data={budget}
                     canEdit={canPrepare}
                     onChanged={budget.refresh}
-                  /></>
+                  /><BudgetReleaseCalendar key={`releases:${orgId}:${fiscalYear}`} data={budget}/></>
                 )}
                 {tab === "funding" && (
-                  <div className="space-y-4">
-                  {canPrepare && <DirectWorkFunding data={budget} tasks={tasks.filter(task=>task.orgId===orgId)} onChanged={budget.refresh} />}
-                  <BudgetFundingHierarchy
-                    data={budget}
-                    tasks={tasks.filter((task) => task.orgId === orgId)}
-                  />
-                  {["head","accounting_staff"].includes(userProfile?.role||"")&&<BudgetAccountMappings data={budget} onChanged={budget.refresh}/>}
+                  <div className="eflow-budget-funding-layout">
+                    <BudgetFundingHierarchy data={budget} tasks={tasks.filter((task) => task.orgId === orgId)} />
+                    <div className="min-w-0 space-y-4">
+                      {canPrepare && <DirectWorkFunding key={`${orgId}:${fiscalYear}`} data={budget} tasks={tasks.filter(task=>task.orgId===orgId)} onChanged={budget.refresh} />}
+                      {["head","accounting_staff"].includes(userProfile?.role||"")&&<BudgetAccountMappings data={budget} onChanged={budget.refresh}/>}
+                    </div>
                   </div>
                 )}
                 {tab === "approvals" && (
@@ -286,177 +279,11 @@ function OfficeBudgetContent({ orgId, fiscalYear, embedded, tab, setTab, setFisc
                 )}
               </>
             )}
+            {tab !== 'annual' && tab !== 'office-petty-cash' && <BudgetVersionBanner data={budget} />}
           </>
         )}
       </div>
     </div>
-  );
-}
-
-export function OfficeBudgetTabSkeleton({
-  tab = "overview",
-  label = "Loading the office ledger…",
-}: {
-  tab?: Tab;
-  label?: string;
-}) {
-  if (tab === "expenses") {
-    return <BudgetExpensesReportSkeleton label={label} />;
-  }
-  if (tab === "journal") {
-    return (
-      <WorkspaceLoadingSkeleton label={label} className="space-y-4">
-        <div className="grid gap-3 md:grid-cols-3" aria-hidden="true">
-          {["Trial balance", "Balance delta", "Appropriation available"].map((cardLabel) => (
-            <div key={cardLabel} className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm space-y-2">
-              <div className="text-[14px] uppercase tracking-wider text-neutral-500">{cardLabel}</div>
-              <div className="ml-auto h-6 w-28 animate-pulse rounded bg-neutral-200/80" />
-              <div className="ml-auto h-3 w-36 animate-pulse rounded bg-neutral-100" />
-            </div>
-          ))}
-        </div>
-        <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm" aria-hidden="true">
-          <div className="border-b border-neutral-100 p-4 flex flex-wrap gap-2">
-            <div className="h-9 flex-1 min-w-[200px] animate-pulse rounded-lg bg-neutral-100" />
-            <div className="h-9 w-36 animate-pulse rounded-lg bg-neutral-100" />
-            <div className="h-9 w-36 animate-pulse rounded-lg bg-neutral-100" />
-          </div>
-          <JournalTableSkeleton label={label} />
-        </section>
-      </WorkspaceLoadingSkeleton>
-    );
-  }
-  if (tab === "approvals" || tab === "releases") {
-    return (
-      <WorkspaceLoadingSkeleton label={label} className="space-y-4">
-        {[0, 1].map((panel) => (
-          <section
-            key={panel}
-            aria-hidden="true"
-            className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm"
-          >
-            <header className="flex items-center justify-between border-b border-neutral-100 p-4">
-              <div className="space-y-1.5">
-                <div className="h-4 w-48 animate-pulse rounded bg-neutral-200/80" />
-                <div className="h-3 w-72 animate-pulse rounded bg-neutral-100" />
-              </div>
-              <div className="h-6 w-24 animate-pulse rounded-full bg-neutral-200/70" />
-            </header>
-            <div className="space-y-3 p-4">
-              {[0, 1, 2].map((row) => (
-                <div key={row} className="flex items-center justify-between rounded-xl border border-neutral-200 p-4">
-                  <div className="space-y-2">
-                    <div className="h-3.5 w-52 animate-pulse rounded bg-neutral-200/80" />
-                    <div className="h-3 w-64 animate-pulse rounded bg-neutral-100" />
-                    <div className="flex gap-2 pt-1">
-                      <div className="h-5 w-24 animate-pulse rounded-full bg-neutral-100" />
-                      <div className="h-5 w-24 animate-pulse rounded-full bg-neutral-100" />
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <div className="h-8 w-24 animate-pulse rounded-lg bg-neutral-100" />
-                    <div className="h-8 w-28 animate-pulse rounded-lg bg-neutral-200/80" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        ))}
-      </WorkspaceLoadingSkeleton>
-    );
-  }
-  return (
-    <WorkspaceLoadingSkeleton label={label} className="space-y-4">
-      <section
-        aria-hidden="true"
-        className="overflow-hidden rounded-[10px] border border-border bg-card shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]"
-      >
-        <div className="grid xl:grid-cols-[minmax(20rem,0.9fr)_minmax(34rem,1.6fr)]">
-          <div className="border-b border-primary/20 bg-primary/5 p-5 xl:border-b-0 xl:border-r space-y-4">
-            <div className="flex items-center gap-2 text-[12px] font-medium uppercase tracking-[0.14em] text-primary">
-              <Landmark size={15} /> Available to fund
-            </div>
-            <div className="ml-auto h-9 w-44 animate-pulse rounded-md bg-neutral-200/80" />
-            <div className="ml-auto h-3 w-64 animate-pulse rounded bg-neutral-200/60" />
-            <div className="grid grid-cols-3 gap-3 border-t border-primary/15 pt-4">
-              {["Annual authority", "Committed", "Actual spending"].map((item) => (
-                <div key={item} className="space-y-1.5 text-right">
-                  <div className="text-[13px] text-muted-foreground">{item}</div>
-                  <div className="ml-auto h-4 w-20 animate-pulse rounded bg-neutral-200/80" />
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="divide-y divide-border/70">
-            {[
-              "Proposal commitments",
-              "Pending approvals",
-              "Release deadlines",
-              "Settlement exposure",
-            ].map((rowTitle) => (
-              <div
-                key={rowTitle}
-                className="grid w-full gap-3 p-4 sm:grid-cols-[2rem_minmax(0,1fr)_auto_auto] sm:items-center"
-              >
-                <span className="h-8 w-8 animate-pulse rounded-lg bg-muted" />
-                <div className="space-y-1.5">
-                  <div className="text-[13px] font-semibold text-foreground">{rowTitle}</div>
-                  <div className="h-3 w-56 animate-pulse rounded bg-neutral-100" />
-                </div>
-                <div className="h-5 w-24 animate-pulse rounded bg-neutral-200/80" />
-                <div className="h-4 w-24 animate-pulse rounded bg-neutral-100" />
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-      <section aria-hidden="true" className="rounded-xl border border-border bg-card p-4 space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="h-4 w-52 animate-pulse rounded bg-neutral-200/80" />
-          <div className="flex gap-2">
-            <div className="h-8 w-24 animate-pulse rounded-lg bg-neutral-100" />
-            <div className="h-8 w-24 animate-pulse rounded-lg bg-neutral-100" />
-          </div>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[980px] text-[12px]">
-            <thead>
-              <tr>
-                {[
-                  "Account",
-                  "Appropriated",
-                  "For later release",
-                  "Budget released",
-                  "Obligated",
-                  "% of total appropriation",
-                  "% of account",
-                  "Balance",
-                ].map((h, i) => (
-                  <th key={h} className={`border-b p-2 ${i ? "text-right" : "text-left"}`}>
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {[0, 1, 2, 3].map((row) => (
-                <tr key={row}>
-                  {[0, 1, 2, 3, 4, 5, 6, 7].map((col) => (
-                    <td key={col} className="border-b p-2.5">
-                      <div
-                        className={`h-3.5 animate-pulse rounded ${
-                          col === 0 ? "w-44 bg-neutral-200/80" : "ml-auto w-20 bg-neutral-100"
-                        }`}
-                      />
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-    </WorkspaceLoadingSkeleton>
   );
 }
 
@@ -479,16 +306,16 @@ function Overview({
         data={data}
         summary={summary}
         onNavigate={onNavigate}
+        utilization={{ value: utilization, underTarget }}
       />
-      <BudgetPartitionOverview data={data} />
       {underTarget && (
-        <div className="flex gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4">
-          <AlertTriangle size={18} className="shrink-0 text-amber-700" />
+        <div className="eflow-budget-warning flex gap-3 rounded-lg p-4">
+          <AlertTriangle size={18} className="shrink-0" />
           <div>
-            <div className="text-[12px] font-semibold text-amber-950">
+            <div className="text-sm font-semibold">
               Q4 utilization is below target
             </div>
-            <p className="mt-1 text-[12px] text-amber-800">
+            <p className="mt-1 text-xs">
               Current utilization is {utilization.toFixed(1)}%; the office
               target is {summary.underutilizationThreshold}%. Review stalled
               commitments and pending liquidations.
@@ -496,23 +323,8 @@ function Overview({
           </div>
         </div>
       )}
-      <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
-        <div className="flex justify-between text-sm text-muted-foreground">
-          <span>Annual utilization</span>
-          <span className="tabular-nums">{utilization.toFixed(1)}%</span>
-        </div>
-        <div className="mt-2 h-3 overflow-hidden rounded-full bg-neutral-100">
-          <div
-            className={`h-full rounded-full ${underTarget ? "bg-amber-500" : "bg-emerald-500"}`}
-            style={{ width: `${Math.min(100, utilization)}%` }}
-          />
-        </div>
-        <div className="mt-3 text-sm text-muted-foreground">
-          Actual spending as a share of the approved annual authority.
-          Commitments and cash awaiting settlement are shown above as separate
-          operational exposures.
-        </div>
-      </section>
+      <BudgetPartitionOverview data={data} />
+      <BudgetReleaseCalendar key={summary.id} data={data} />
       <BudgetOperationalSignals data={data} />
     </div>
   );

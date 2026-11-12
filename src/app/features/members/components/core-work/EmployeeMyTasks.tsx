@@ -112,7 +112,7 @@ export function EmployeeMyTasks() {
                       <span className={`text-[10.5px] ${rel.overdue ? "text-red-600" : "text-neutral-400"}`}>{rel.label}</span>
                     </div>
                   </div>
-                  <TaskStatusBadge status={t.status} size="sm" />
+                  <TaskStatusBadge status={t.status} customStatusId={t.customStatusId} size="sm" />
                 </button>
               );
             })}

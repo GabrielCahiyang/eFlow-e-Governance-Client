@@ -92,7 +92,7 @@ export function EmployeeTaskHistory() {
                      `Archived ${formatDate(t.archivedAt)}`}
                   </div>
                 </div>
-                <TaskStatusLabel status={t.archivedAt ? "archived" : t.status} />
+                <TaskStatusLabel customStatusId={t.customStatusId} status={t.archivedAt ? "archived" : t.status} />
               </button>
             ))}
           </div>

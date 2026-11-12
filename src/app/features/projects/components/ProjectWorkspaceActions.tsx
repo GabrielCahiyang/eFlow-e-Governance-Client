@@ -23,7 +23,7 @@ export function ProjectWorkspaceActions({ canCreate, disabledReason, onCreate, o
         requestAnimationFrame(() => { if (trigger.current?.isConnected) void requestNavigation(action); });
       }} actions={[
       ...(canCreate ? [{ id: 'project', label: 'Create project', onSelect: () => queueDialog(onCreate) },
-        { id: 'templates', label: 'Use a project template', onSelect: () => queueDialog(onTemplates) }] : []),
+        { id: 'templates', label: 'Template library', onSelect: () => queueDialog(onTemplates) }] : []),
     ]} />}
     {!canCreate && disabledReason && <><button type="button" className="eflow-project-new" disabled aria-describedby="project-create-reason">+ New</button><span id="project-create-reason" className="eflow-project-create-reason">{disabledReason}</span></>}
     <button type="button" className="eflow-project-view-trigger" onClick={onAllProjects}>All projects</button>

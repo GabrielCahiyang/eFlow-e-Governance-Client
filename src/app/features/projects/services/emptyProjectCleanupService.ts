@@ -1,4 +1,5 @@
 import { supabase } from "../../../../lib/supabase";
+import { fetchProjectDeletionBlockers } from "./projectLifecycleService";
 import { deleteProject } from "./projectMutationService";
 
 export interface EmptyProjectCleanupCandidate {
@@ -16,7 +17,7 @@ interface EmptyProjectCleanupDependencies {
   remove: typeof deleteEmptyProjectAfterTaskCleanup;
 }
 
-/** Resolve a project only after confirming it has no non-deleted tasks. */
+/** Offer cleanup only when the server confirms deletion is allowed. */
 export async function findEmptyProjectCleanupCandidate(
   projectId: string,
 ): Promise<EmptyProjectCleanupCandidate | null> {
@@ -28,13 +29,8 @@ export async function findEmptyProjectCleanupCandidate(
   if (projectError) throw new Error(projectError.message);
   if (!project) return null;
 
-  const { count, error: taskError } = await supabase
-    .from("tasks")
-    .select("id", { count: "exact", head: true })
-    .eq("linked_project_id", projectId)
-    .is("deleted_at", null);
-  if (taskError) throw new Error(taskError.message);
-  if ((count || 0) > 0) return null;
+  const blockers = await fetchProjectDeletionBlockers(projectId);
+  if (!blockers || blockers.length > 0) return null;
 
   return { id: project.id as string, title: project.title as string };
 }

@@ -1,9 +1,9 @@
 import { budgetRouteViews } from '../navigation';
 export type BudgetView = typeof budgetRouteViews[number];
 export const budgetViewGroups: { label: string; views: { id: BudgetView; label: string }[] }[] = [
-  { label: 'Budget position', views: [{ id: 'overview', label: 'Overview' }] },
+  { label: 'Overview', views: [{ id: 'overview', label: 'Overview' }] },
   { label: 'Planning & Allocation', views: [{ id: 'annual', label: 'Annual Budget' }, { id: 'funding', label: 'Proposal & Task Funding' }] },
-  { label: 'Requests & Settlement', views: [{ id: 'office-petty-cash', label: 'Office Petty Cash · ₱30,000 fund' }, { id: 'approvals', label: 'Funding Requests' }, { id: 'releases', label: 'Releases & Settlement' }, { id: 'expenses', label: 'Expenses' }, { id: 'vouchers', label: 'Task Cash Vouchers' }] },
+  { label: 'Requests & Settlement', views: [{ id: 'office-petty-cash', label: 'Office Petty Cash' }, { id: 'approvals', label: 'Funding Requests' }, { id: 'releases', label: 'Releases & Settlement' }, { id: 'expenses', label: 'Expenses' }, { id: 'vouchers', label: 'Task Cash Vouchers' }] },
   { label: 'Ledger & Audit', views: [{ id: 'journal', label: 'General Journal' }, { id: 'audit', label: 'Accounting Trail' }] },
 ];
 /** Display selection only. Child workflow handlers retain all eligibility checks. */

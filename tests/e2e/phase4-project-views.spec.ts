@@ -41,7 +41,7 @@ test('Phase 4 shares filters and edits across Board, Gantt, Calendar, Dashboard 
     }
   };
   await moveCard('FOR REVIEW lane');
-  await expect(page.getByRole('alert')).toContainText('required evidence');
+  await expect(page.getByRole('alert')).toContainText('send a completion note and any supporting files');
   expect(transitions).toEqual([]);
   await moveCard('IN PROGRESS lane');
   await expect(page.getByRole('region', { name: 'IN PROGRESS lane', exact: true }).getByLabel('Board card Coordinate Office briefing', { exact: true })).toBeVisible();

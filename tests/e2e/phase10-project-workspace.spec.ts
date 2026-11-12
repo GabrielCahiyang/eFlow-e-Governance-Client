@@ -6,6 +6,19 @@ async function projectAction(page: Page, label: string) {
   await page.getByRole('menuitem',{name:label,exact:true}).click();
 }
 
+test('Budget Overview opens from Workspace views without an approved budget', async ({ page }) => {
+  test.setTimeout(90_000);
+  await projectWorkspaceFixture(page, 'head');
+
+  await page.getByRole('button', { name: 'Browse project views', exact: true }).click();
+  const views = page.getByRole('dialog', { name: 'Browse project views' });
+  await views.getByRole('button', { name: 'Budget Overview', exact: true }).click();
+
+  await expect(page).toHaveURL(/[?&]view=budget(?:&|$)/);
+  await expect(page.getByRole('tab', { name: 'Budget Overview', exact: true })).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByRole('heading', { name: 'Project budget', exact: true })).toBeVisible();
+});
+
 test('project identity, settings retry, favorites and browser history use one project',async({page},info)=>{
   test.setTimeout(120_000);
   const records=await projectWorkspaceFixture(page,'head',true);
@@ -44,7 +57,16 @@ test('existing lifecycle dialogs retain notes, server denials and deletion impac
   await complete.getByRole('button',{name:'Cancel',exact:true}).click();await page.getByRole('button',{name:'Keep editing',exact:true}).click();await expect(complete.getByLabel('Completion note (optional)')).toHaveValue('Retained closeout note');
   await complete.getByRole('button',{name:'Cancel',exact:true}).click();await page.getByRole('button',{name:'Discard',exact:true}).click();await expect(complete).toHaveCount(0);
   await expect(page.getByRole('button',{name:'Project actions',exact:true})).toBeFocused();
-  await projectAction(page,'Delete project');const deletion=page.getByRole('dialog',{name:'Permanently delete project',exact:true});await expect(deletion).toContainText('Existing tasks and audit history remain');
+  let blockers = ['This project still has committed funds.'];
+  await page.route('**/rest/v1/rpc/get_project_deletion_blockers', route => route.fulfill({ json: blockers }));
+  await projectAction(page,'Delete project');
+  const deletion=page.getByRole('dialog',{name:'Permanently delete project',exact:true});
+  await expect(deletion).toContainText('This project still has committed funds.');
+  await expect(deletion.getByRole('button', { name: 'Delete permanently' })).toHaveCount(0);
+  await deletion.getByRole('contentinfo').getByRole('button',{name:'Close',exact:true}).click();
+  blockers = [];
+  await projectAction(page,'Delete project');
+  await expect(deletion).toContainText('Audit history is retained.');
   await deletion.getByLabel('Reason for deletion').fill('Retained reason');await deletion.getByRole('button',{name:'Cancel',exact:true}).click();await page.getByRole('button',{name:'Keep editing',exact:true}).click();await expect(deletion.getByLabel('Reason for deletion')).toHaveValue('Retained reason');
   await deletion.getByRole('button',{name:'Cancel',exact:true}).click();await page.getByRole('button',{name:'Discard',exact:true}).click();expect(mutations).toBe(1);
   await expect(page.getByRole('button',{name:'Project actions',exact:true})).toBeFocused();

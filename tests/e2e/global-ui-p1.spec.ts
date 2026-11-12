@@ -24,19 +24,25 @@ test('Reviews kind survives reload, history and returning to Inbox without rail 
 for (const role of ['head', 'accounting_staff'] as const) test(`${role} Budget FY and local view survive context return and history`, async ({ page }) => {
   await projectWorkspaceFixture(page, role, false, { landingOnly: true });
   const path = role === 'head' ? '/office-budget?page=Office+Budget' : '/office-budget-ledgers?page=Office+Budget+Ledgers';
+  const desktop = page.getByRole('navigation', { name: 'Office Budget views' });
+  const picker = page.getByRole('combobox', { name: 'Budget view', exact: true });
+  const expectView = (name: string) => role === 'head'
+    ? expect(desktop.getByRole('button', { name, exact: true })).toHaveAttribute('aria-current', 'page')
+    : expect(picker).toContainText(name);
   await page.goto(path + '&view=journal&fy=2025');
-  await expect(page.getByRole('combobox', { name: 'Budget view', exact: true })).toContainText('General Journal');
-  await page.getByRole('combobox', { name: 'Budget view', exact: true }).click(); await page.getByRole('option', { name: 'Annual Budget', exact: true }).click();
+  await expectView('General Journal');
+  if (role === 'head') await desktop.getByRole('button', { name: 'Planning & Allocation', exact: true }).click();
+  else { await picker.click(); await page.getByRole('option', { name: 'Annual Budget', exact: true }).click(); }
   expect(new URL(page.url()).searchParams.get('view')).toBe('annual');
   expect(new URL(page.url()).pathname).toBe(role === 'head' ? '/office-budget' : '/office-budget-ledgers');
-  await page.goBack(); await expect(page.getByRole('combobox', { name: 'Budget view', exact: true })).toContainText('General Journal');
-  await page.goForward(); await expect(page.getByRole('combobox', { name: 'Budget view', exact: true })).toContainText('Annual Budget');
+  await page.goBack(); await expectView('General Journal');
+  await page.goForward(); await expectView('Annual Budget');
   await primary(page).getByRole('button', { name: 'My Work', exact: true }).click();
   expect(new URL(page.url()).searchParams.has('fy')).toBe(false);
   await primary(page).getByRole('button', { name: role === 'head' ? 'Workspaces' : 'Accounting', exact: true }).click();
   expect(new URL(page.url()).searchParams.get('fy')).toBe('2025');
-  await expect(page.getByRole('combobox', { name: 'Budget view', exact: true })).toContainText('Annual Budget');
-  await page.reload(); await expect(page.getByRole('combobox', { name: 'Budget view', exact: true })).toContainText('Annual Budget');
+  await expectView('Annual Budget');
+  await page.reload(); await expectView('Annual Budget');
 });
 
 test('account access handoff agrees with route and rail and retains directory filters on return', async ({ page }) => {

@@ -2,24 +2,32 @@ import type {NodeWorkAction,WorkActionAvailability,WorkCapabilityContext,WorkReq
 import type {WorkEdit,WorkEditorBaseline,WorkEditorFields} from '../types/editor';
 import {selectNodeWorkCapability,selectRootWorkCapability} from './capabilities';
 import {compatibilityWorkWorkerIds} from './people';
+import {subtaskDateIssue,subtaskDateLimits} from './subtaskDates';
 import {scheduledDateError} from '../../../shared/calendarDates';
 
 export function workEditorDateError(data:WorkTreeSnapshot,baseline:WorkEditorBaseline,fields:WorkEditorFields):string {
  if(!['create','edit'].includes(baseline.command))return '';
+ if(data.root.scheduleBounds){
+  if(baseline.command==='edit'&&(fields.start||'')===(baseline.fields.start||'')&&fields.due===baseline.fields.due)return '';
+  return subtaskDateIssue(fields.start||'',fields.due,subtaskDateLimits(data,fields.parent));
+ }
  const latest=data.nodes.find(item=>item.id===fields.parent)?.due_date||data.root.due||'';
  return scheduledDateError(fields.due,{original:baseline.command==='edit'?baseline.fields.due:'',latest,label:'Subtask due date'});
 }
 
 export function captureWorkEditorBaseline(data:WorkTreeSnapshot,edit:WorkEdit,actorId:string|null,createdId:string):WorkEditorBaseline {
  const node=data.nodes.find(item=>item.id===edit.node?.id)||edit.node;
+ const defaultDue=data.root.scheduleBounds
+  ? subtaskDateLimits(data,edit.parent||'').latest
+  : (edit.parent?data.nodes.find(item=>item.id===edit.parent)?.due_date:null)||data.root.due;
  return {actorId,rootId:data.root.id,projectId:data.root.project,officeId:data.root.office,kind:data.root.kind,revision:data.revision,
-  command:edit.command,nodeId:node?.id||edit.itemId||null,createdId,fields:{title:node?.title||'',due:node?node.due_date||'':(edit.parent?data.nodes.find(item=>item.id===edit.parent)?.due_date:null)||data.root.due||'',
+  command:edit.command,nodeId:node?.id||edit.itemId||null,createdId,fields:{title:node?.title||'',...(data.root.scheduleBounds?{start:node?.start_date||''}:{}),due:node?node.due_date||'':defaultDue||'',
    lead:edit.root?data.root.lead||'':node?.lead_id||'',people:edit.root?[...new Set([data.root.lead,...data.root.people].filter((id):id is string=>!!id))]:[...(node?.assigned_to_ids||[])],
    parent:node?.parent_subtask_id||edit.parent||'',standalone:node?.is_standalone||false,note:'',progress:node?.percent_complete||0,
    order:data.nodes.filter(item=>item.parent_subtask_id===(edit.parent||null)).sort((a,b)=>a.sibling_order-b.sibling_order||a.id.localeCompare(b.id)).map(item=>item.id)}};
 }
 const applicableFields:Record<WorkEdit['command'],readonly (keyof WorkEditorFields)[]>={
- create:['title','due','standalone','parent','lead','people'],edit:['title','due','standalone','note'],move:['parent'],order:['order'],
+ create:['title','start','due','standalone','parent','lead','people'],edit:['title','start','due','standalone','note'],move:['parent'],order:['order'],
  delete:[],progress:['progress','note'],submit:['note'],review:['progress','note'],staff:['lead','people'],contributors:['people'],root_lead:['lead','people'],
 };
 export function workEditorDirty(baseline:WorkEditorBaseline,fields:WorkEditorFields):boolean {
@@ -32,10 +40,11 @@ export function workEditorDirty(baseline:WorkEditorBaseline,fields:WorkEditorFie
  });
 }
 export function workEditorPayload(baseline:WorkEditorBaseline,fields:WorkEditorFields):Record<string,unknown> {
+ const schedule=fields.start?{start:fields.start}:{};
  const id=baseline.nodeId,people=compatibilityWorkWorkerIds(fields.lead||null,fields.people);
  switch(baseline.command){
-  case 'create':return {id:baseline.createdId,title:fields.title,parent:fields.parent||null,lead:fields.lead||null,people,due:fields.due||null,standalone:fields.standalone};
-  case 'edit':return {id,title:fields.title,due:fields.due||null,standalone:fields.standalone,note:fields.note};
+  case 'create':return {id:baseline.createdId,title:fields.title,parent:fields.parent||null,lead:fields.lead||null,people,...schedule,due:fields.due||null,standalone:fields.standalone};
+  case 'edit':return {id,title:fields.title,...schedule,due:fields.due||null,standalone:fields.standalone,note:fields.note};
   case 'move':return {id,parent:fields.parent||null};
   case 'order':return {parent:fields.parent||null,order:[...fields.order]};
   case 'progress':return {id,progress:fields.progress,note:fields.note};

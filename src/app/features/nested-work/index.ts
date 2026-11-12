@@ -28,3 +28,5 @@ export type {WorkDisplayScope,WorkDisplayNode,SubtaskDisplayRecord} from './sele
 export type {WorkPeopleDisplay,WorkNodeDisplayMetadata} from './types';
 export {buildWorkRecordDisplayMetadata,type WorkDisplayRootRecord} from './selectors/recordDisplayContext';
 export {presentWorkEvent,workEventTitle,isWorkEventRecord,type WorkEventPresentation} from './selectors/workEventPresentation';
+
+export {WorkTreeEditor} from './components/WorkTreeEditor';

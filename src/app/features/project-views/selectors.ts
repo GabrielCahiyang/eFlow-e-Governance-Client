@@ -38,7 +38,7 @@ export function shiftedTaskDates(task: Task, days: number, edge: 'move' | 'start
 export function projectBoardMoveError(task: Task, status: TaskStatus, userId: string, structuralEdit: boolean, readOnly: boolean): string | null {
   if (task.status === status) return null;
   if (readOnly || task.archivedAt || ['completed', 'cancelled'].includes(task.status)) return 'This task is read-only in the Board.';
-  if (status === 'for_review') return 'Open task details and use Submit for Review to record the required evidence.';
+  if (status === 'for_review') return 'Open task details and use Submit for Review to send a completion note and any supporting files.';
   if (status === 'completed' || status === 'changes_requested') return 'Completion and revision decisions require the existing review workflow.';
   if (inlineStatusOptions(task, userId, structuralEdit).includes(status)) return null;
   return 'This move is not available. Use task details for assignment and lifecycle actions.';
