@@ -19,7 +19,7 @@ export function TaskSubtasksWidget(props: Parameters<typeof LegacyTaskSubtasksWi
   }};
   if(props.onInspect)props.onInspect(node.id,section,origin);else setOpened({id:node.id,section,origin});
  };
- return <><div hidden={!!opened}><WorkTree presentation={props.presentation} rootId={props.taskId} controller={props.controller} createRequest={props.createRequest} createFocusTarget={props.createFocusTarget} collapsedIds={props.collapsedIds} onCollapsedIdsChange={props.onCollapsedIdsChange} executionBlocked={props.executionBlocked} readOnly={readOnly} fallback={props.fallback||<LegacyTaskSubtasksWidget {...props} readOnly={readOnly}/>} onOpenOfficeNode={(node,tree)=>open(node,tree,'work')} onReviewOfficeNode={(node,tree)=>open(node,tree,'review')}/></div>
+ return <><div hidden={!!opened}><WorkTree presentation={props.presentation} rootId={props.taskId} parentTask={props.parentTask} parentTitle={props.parentTask.title} parentStartDate={props.parentTask.startDate} controller={props.controller} createRequest={props.createRequest} createFocusTarget={props.createFocusTarget} collapsedIds={props.collapsedIds} onCollapsedIdsChange={props.onCollapsedIdsChange} executionBlocked={props.executionBlocked} readOnly={readOnly} fallback={props.fallback||<LegacyTaskSubtasksWidget {...props} readOnly={readOnly}/>} onOpenOfficeNode={(node,tree)=>open(node,tree,'work')} onReviewOfficeNode={(node,tree)=>open(node,tree,'review')}/></div>
  {opened&&<SubitemInspector key={opened.id} rootTask={props.parentTask} itemId={opened.id} controller={props.controller} initialSection={opened.section} origin={opened.origin} executionBlocked={props.executionBlocked} readOnly={readOnly} onClose={()=>setOpened(undefined)}/>}
  </>;
 }
@@ -281,7 +281,7 @@ function LegacyTaskSubtasksWidget({
                   className="inline-flex items-center gap-1 rounded-full bg-neutral-200 px-2 py-0.5 text-[8.5px] font-medium text-neutral-600"
                   title={`Complete “${prerequisite.title}” first`}
                 >
-                  <LockKeyhole size={9} /> Waiting for Step {getSequentialStepNumber(prerequisite, subtasks)}
+                  <LockKeyhole size={9} /> {st.dependencyIds ? `Waiting for ${prerequisite.title}` : `Waiting for Step ${getSequentialStepNumber(prerequisite, subtasks)}`}
                 </span>
               )}
 
@@ -317,10 +317,6 @@ function LegacyTaskSubtasksWidget({
                 st.status === "changes_requested" ? "bg-rose-50 text-rose-700" :
                 st.status === "in_progress" ? "bg-emerald-50 text-emerald-700" : "bg-neutral-100 text-neutral-500"
               }`}>{st.status.replace("_", " ")}</span>
-
-              <span className="text-[9.5px] font-medium tabular-nums text-neutral-500">
-                {st.percentComplete}%
-              </span>
 
               <span className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[8.5px] font-medium ${
                 deadlineState.tone === "overdue" ? "bg-red-50 text-red-700" :

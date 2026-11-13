@@ -31,5 +31,6 @@ export function useSubitemInspectorData(rootId:string,itemId:string,controller:W
   loading:controller.loading||!same||state.loading,error:controller.error||(!same?'':state.error),
   fresh:verified&&!!node&&same&&!!state.data&&!state.error,
   pending:state.loading||controller.refreshPending||controller.pending,
+  saving:controller.pending,
   reload:async()=>{await controller.reload();if(current())await load();}};
 }

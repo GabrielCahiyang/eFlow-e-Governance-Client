@@ -124,14 +124,16 @@ export function WorkBudgetCard({
   );
   const context = funding.context;
   const fundingCurrent = !context?.taskLeaderId || context.taskLeaderId === getTaskLeadId(task);
+  const canRequestForWork = subtask ? isAssignedContributor || isTaskLeader : isTaskLeader;
+  const fundingChecking = authorityPending || funding.loading || budget.loading || !fundingCurrent;
   const safety = useReviewedMutation(
     `${task.id}:${subtask?.id || ""}:${currentUserId}`,
   );
   const latestCap = useRef({ context, canManageCap: false, blocked: false });
   const canRequest = Boolean(
-    !readOnly && !authorityPending && fundingCurrent && !funding.loading && !budget.loading && context?.funded &&
+    !readOnly && !fundingChecking && !funding.error && !budget.error && context?.funded &&
       budget.summary?.status === "locked" &&
-      (subtask ? isAssignedContributor || isTaskLeader : isTaskLeader),
+      canRequestForWork,
   );
   const canManageCap = Boolean(
     !readOnly && !authorityPending && fundingCurrent && !funding.loading && !budget.loading && subtask && canManage && isTaskLeader && context?.funded,
@@ -189,6 +191,20 @@ export function WorkBudgetCard({
       request.status,
     ),
   );
+  const hasReleasedCash = requests.some(request => request.cashRecipientId === currentUserId &&
+    ['released', 'changes_requested', 'overdue_liquidation'].includes(request.status));
+  const showRequest = canRequest || Boolean(subtask && !readOnly && canRequestForWork && fundingChecking && context?.funded);
+  const fundingStep = subtask && !funding.error && !budget.error ? (
+    fundingChecking ? 'Checking funding access…'
+      : hasReleasedCash ? 'Use Record expenses on your cash release. Enter the amount spent and attach the receipts.'
+      : !context?.funded ? 'Ask the Task Lead about funding for this subtask.'
+      : !requests.length && canRequest && context.available > 0 ? 'Request the amount you need. The cash recipient can record expenses after the cash is released.'
+      : !requests.length && (readOnly || !canRequestForWork) ? 'An assigned contributor or the Task Lead can request cash. The recipient records expenses after release.'
+      : !requests.length && budget.summary?.status !== 'locked' ? 'Cash requests open once the Office Budget is locked.'
+      : !requests.length && context.available <= 0 ? 'There is no requestable balance for this subtask.'
+      : requests.some(request => ACTIVE_REQUEST_STATES.has(request.status)) ? 'Check Funding activity for the request status and any action due.'
+      : null
+  ) : null;
 
   const refresh = async () => {
     await budget.refresh();
@@ -284,7 +300,7 @@ export function WorkBudgetCard({
     });
   };
 
-  if (!budget.summary && !budget.loading) return <>{!readOnly&&<OfficePettyCashLauncher/>}{task.linkedProjectId&&!subtask&&<TaskProjectFunding projectId={task.linkedProjectId} taskId={task.id} funded={!!context?.funded} onChanged={refresh}/>}</>;
+  if (!subtask && !budget.summary && !budget.loading) return <>{!readOnly&&<OfficePettyCashLauncher/>}{task.linkedProjectId&&<TaskProjectFunding projectId={task.linkedProjectId} taskId={task.id} funded={!!context?.funded} onChanged={refresh}/>}</>;
   const selectedCapLine = context?.lines.find((line) => line.id === capLineId);
   const capMaximum =
     (selectedCapLine?.available || 0) +
@@ -293,8 +309,8 @@ export function WorkBudgetCard({
   return (
     <section className="rounded-[10px] border border-border bg-card p-3 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
       {safety.dialog}
-      {!readOnly&&<OfficePettyCashLauncher/>}
-      {authorityPending && <p role="status" className="mb-3 flex items-center gap-2 text-[13px] text-muted-foreground"><Loader2 size={14} className="animate-spin" />Checking current work access. Your draft is kept; controls resume when verified.</p>}
+      {!subtask&&!readOnly&&<OfficePettyCashLauncher/>}
+      {!subtask&&authorityPending && <p role="status" className="mb-3 flex items-center gap-2 text-[13px] text-muted-foreground"><Loader2 size={14} className="animate-spin" />Checking current work access. Your draft is kept; controls resume when verified.</p>}
       {task.linkedProjectId&&!subtask&&<TaskProjectFunding projectId={task.linkedProjectId} taskId={task.id} funded={!!context?.funded} onChanged={refresh}/>}
       {!task.linkedProjectId&&!authorityPending&&(canAuthorizeFunding||!readOnly&&canManage)&&isOpenDirectFundingWork(task)&&!subtask&&!context?.funded&&!funding.loading&&userProfile?.role==="head"&&userProfile.is_active!==false&&userProfile.org_id===orgId&&orgId===fundingOffice&&<DirectWorkFunding key={task.id} data={budget} tasks={[task]} onChanged={refresh} />}
       {safety.message && (
@@ -370,21 +386,24 @@ export function WorkBudgetCard({
               <Trash2 size={9} /> Remove
             </button>
           )}
-          {canRequest &&
+          {showRequest &&
             !requestOpen &&
             !correction &&
             context &&
             context.available > 0 && (
               <button
                 type="button"
+                disabled={!canRequest}
                 onClick={() => setRequestOpen(true)}
-                className="inline-flex h-7 items-center gap-1 rounded-lg bg-emerald-700 px-2.5 text-[12px] text-white"
+                className="inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-emerald-700 px-3 text-[13px] font-medium text-white disabled:opacity-50"
               >
                 <WalletCards size={9} /> Request cash
               </button>
             )}
         </div>
       </header>
+
+      {fundingStep && <p role={fundingChecking ? 'status' : undefined} className="mt-3 rounded-md bg-muted px-3 py-2 text-[13px] leading-relaxed text-foreground">{fundingStep}</p>}
 
       {canManageCap && capHasActiveRequest && (
         <p role="status" className="mt-2 text-sm text-amber-800">
@@ -575,6 +594,7 @@ export function WorkBudgetCard({
         }}
         onChanged={refresh}
       />
+      {subtask&&!readOnly&&<div className="mt-3 border-t border-border pt-3"><OfficePettyCashLauncher/></div>}
 
       {(error || funding.error || budget.error) && (
         <div className="mt-2 rounded-lg bg-rose-50 p-2 text-[12px] text-rose-700">

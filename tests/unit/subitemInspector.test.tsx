@@ -6,14 +6,13 @@ import type {Subtask} from '../../src/app/services/subtaskService';
 import type {WorkNode,WorkTreeController,WorkTreeSnapshot} from '../../src/app/features/nested-work';
 import {rememberWorkCapabilityContext} from '../../src/app/features/nested-work/selectors/capabilities';
 import {installNavigationConfirmation} from '../../src/app/shared/navigationGuard';
-const api=vi.hoisted(()=>({actor:'actor',read:vi.fn(),tree:vi.fn(),save:vi.fn(),legacyRead:vi.fn(),progress:vi.fn(),impact:vi.fn()}));
+const api=vi.hoisted(()=>({actor:'actor',read:vi.fn(),tree:vi.fn(),save:vi.fn(),legacyRead:vi.fn(),progress:vi.fn(),impact:vi.fn(),start:vi.fn()}));
 vi.mock('../../src/app/contexts/AuthContext',()=>({useAuth:()=>({user:{id:api.actor}})}));
 vi.mock('../../src/app/features/nested-work/services/workTreeService',()=>({fetchWorkTree:api.tree,saveWorkTree:api.save,fetchWorkImpact:api.impact,fetchWorkEvents:vi.fn(),WorkTreeUnavailable:class extends Error{}}));
-vi.mock('../../src/app/features/subtasks/services/subtaskWorkflowService',()=>({fetchSubitemInspectorRecord:api.read,fetchSubtask:api.legacyRead,fetchSubtaskProgressUpdates:vi.fn().mockResolvedValue([]),fetchSubtaskSubmissions:vi.fn().mockResolvedValue([]),saveSubtaskProgress:api.progress,saveSubtaskWorkUpdate:api.progress,submitSubtaskForReview:vi.fn()}));
+vi.mock('../../src/app/features/subtasks/services/subtaskWorkflowService',()=>({fetchSubitemInspectorRecord:api.read,fetchSubtask:api.legacyRead,fetchSubtaskProgressUpdates:vi.fn().mockResolvedValue([]),fetchSubtaskSubmissions:vi.fn().mockResolvedValue([]),saveSubtaskProgress:api.progress,saveSubtaskWorkUpdate:api.progress,submitSubtaskForReview:vi.fn(),startScheduledSubtask:api.start}));
 vi.mock('../../src/app/features/subtasks/hooks/useSubtaskReviewerDirectory',()=>({useSubtaskReviewerDirectory:()=>({reviewersById:{},loading:false})}));
 vi.mock('../../src/app/features/budget',()=>({WorkBudgetCard:()=> <div>Existing budget composition</div>}));
 vi.mock('../../src/app/features/subtasks/components/SubtaskDeadlineEditor',()=>({SubtaskDeadlineEditor:()=>null}));
-import {nestedWorkImpactFixture} from '../fixtures/nestedWorkImpact';
 import {SubitemInspector} from '../../src/app/features/subtasks/components/SubitemInspector';
 import {SubtaskWorkDrawer} from '../../src/app/features/subtasks/components/SubtaskWorkDrawer';
 const task:Task={id:'root',title:'Root work',orgId:'office',linkedProjectId:'project',teamMemberIds:['root-lead'],teamMemberNames:['Root Lead'],status:'todo',createdAt:1,updatedAt:1};
@@ -29,6 +28,32 @@ let uninstall:(()=>void)|undefined;
 beforeEach(()=>{vi.clearAllMocks();api.actor='actor';api.read.mockImplementation(async(_root,id)=>record(id));api.tree.mockImplementation(async()=>tree());api.legacyRead.mockImplementation(async(id)=>record(id).subtask);sessionStorage.clear();});
 afterEach(()=>{cleanup();uninstall?.();uninstall=undefined;});
 describe('NW8.1 canonical Subtask Inspector',()=>{
+ it('starts an overdue subtask as its lead, then displays the refreshed work form',async()=>{
+  api.actor='deep-lead';
+  const data=tree([{...node('n1',null,1),start_date:'2026-11-12',due_date:'2026-11-13',started_at:null,
+   capabilities:{execute:{allowed:false,reason_code:'lifecycle_blocked'}}}]);
+  Object.assign(data.root,{status:'in_progress',project_status:'active',scheduling:{version:1,today:'2026-11-14'}});
+  api.tree.mockResolvedValue(data);
+  api.start.mockImplementationOnce(async()=>{
+   const started=tree([{...data.nodes[0],started_at:'2026-11-14T02:00:00Z',effective_status:'in_progress',capabilities:{execute:allow}}]);
+   Object.assign(started.root,data.root);
+   api.tree.mockResolvedValue(started);
+  });
+  render(<SubitemInspector onClose={()=>{}} rootTask={task} itemId="n1"/>);
+  fireEvent.click(await screen.findByRole('button',{name:'Start work'}));
+  await screen.findByRole('button',{name:'Save update'});
+  expect(api.start).toHaveBeenCalledExactlyOnceWith('root','n1');
+  expect(api.progress).not.toHaveBeenCalled();
+ });
+ it('shows contributors who must start the scheduled subtask',async()=>{
+  api.actor='deep-worker';
+  const data=tree([{...node('n1',null,1),start_date:'2026-11-12',started_at:null}]);
+  Object.assign(data.root,{status:'in_progress',project_status:'active',scheduling:{version:1,today:'2026-11-14'}});
+  render(<SubitemInspector onClose={()=>{}} rootTask={task} itemId="n1" controller={controller(data)}/>);
+  await screen.findByText(/appointed subtask lead must start/);
+  expect(screen.queryByRole('button',{name:'Start work'})).toBeNull();
+  expect(api.start).not.toHaveBeenCalled();
+ });
  it('shows an accessible skeleton while loading, allows closing and hides retry until a read fails',async()=>{
   api.read.mockImplementationOnce(()=>new Promise(()=>{}));const close=vi.fn();
   render(<SubitemInspector onClose={close} rootTask={task} itemId="n8" controller={controller()}/>);
@@ -107,11 +132,12 @@ describe('NW8.1 canonical Subtask Inspector',()=>{
   view.rerender(<SubitemInspector onClose={()=>{}} rootTask={task} itemId="n8" controller={{...c,refreshPending:true}}/>);expect(screen.getByLabelText('Work update').matches(':disabled')).toBe(true);
   view.rerender(<SubitemInspector onClose={()=>{}} rootTask={task} itemId="n8" controller={c}/>);expect((screen.getByLabelText('Work update') as HTMLTextAreaElement).value).toBe('Retained');
  });
- it('shares the real child editor and sends complete sibling IDs from the full tree',async()=>{
+ it('keeps historical children visible with project child creation and reordering removed',async()=>{
   const c=controller(tree([node('a',null,1),node('b','a',2),{...node('c','a',2),sibling_order:1},node('outside',null,1)]));render(<SubitemInspector onClose={()=>{}} rootTask={task} itemId="a" controller={c}/>);await screen.findByRole('heading',{name:'Level 1'});
-  fireEvent.keyDown(screen.getByRole('button',{name:'Child work actions'}),{key:'Enter'});fireEvent.click(await screen.findByRole('menuitem',{name:'Reorder children'}));
-  const order=await screen.findByRole('list',{name:'Subtask sequence'});expect(within(order).getAllByRole('listitem')).toHaveLength(2);expect(order.textContent).not.toContain('Level 1');
-  api.save.mockResolvedValue(c.data);api.impact.mockImplementation(async(_root,request)=>nestedWorkImpactFixture(c.data!,request));fireEvent.click(within(order).getAllByRole('button',{name:'Move down Level 2'})[0]);fireEvent.click(screen.getByRole('button',{name:'Save work changes'}));fireEvent.click(await screen.findByRole('button',{name:'Confirm changes'}));await waitFor(()=>expect(api.save).toHaveBeenCalledOnce());expect(api.save.mock.calls[0][0]).toMatchObject({command:'order',payload:{parent:'a',order:['c','b']},revision:7});
+  expect(screen.getAllByRole('button',{name:'Level 2',exact:true})).toHaveLength(2);
+  expect(screen.queryByRole('button',{name:'Add subtask',exact:true})).toBeNull();
+  expect(screen.queryByRole('button',{name:'Reorder subtasks',exact:true})).toBeNull();
+  expect(api.save).not.toHaveBeenCalled();
  });
  it('routes supported facade opens to the canonical Inspector and keeps excluded work legacy',async()=>{
   const view=render(<SubtaskWorkDrawer parentTask={task} subtask={record('n8').subtask} controller={controller()} onClose={()=>{}}/>);await screen.findByRole('heading',{name:'Level 8'});expect(api.legacyRead).not.toHaveBeenCalled();

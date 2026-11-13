@@ -6,7 +6,7 @@ import type { Subtask } from '../../src/app/features/subtasks';
 import { timelineDraft, timelinePatch, numericPatch } from '../../src/app/features/project-table/planningDraft';
 import { groupDeleteBlocker } from '../../src/app/features/project-table/groupDeletion';
 import { NumberCell } from '../../src/app/features/project-table/components/NumberCell';
-import { AsyncSelectCell } from '../../src/app/features/project-table/components/AsyncSelectCell';
+import { AsyncSelectCell } from '../../src/app/components/ui/workspace/AsyncSelectCell';
 import { usePlanningEditor } from '../../src/app/features/project-table/hooks/usePlanningEditor';
 import { CreateWorkDialog } from '../../src/app/features/project-table/components/CreateWorkDialog';
 import { useGroupDeletion } from '../../src/app/features/project-table/hooks/useGroupDeletion';

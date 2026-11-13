@@ -123,7 +123,7 @@ test('dirty Security editor keeps navigation and browser history until explicit 
 
 test('failed inline task remains intact when shell navigation is canceled and logout clears local navigation preferences',async({page})=>{
   test.setTimeout(90_000);const records=await projectWorkspaceFixture(page,'head');
-  let requests=0;await page.route('**/rest/v1/rpc/phase3_create_task',route=>{requests++;return route.fulfill({status:503,json:{message:'Retain this failed task'}});});
+  let requests=0;await page.route('**/rest/v1/rpc/create_inline_project_task',route=>{requests++;return route.fulfill({status:403,json:{message:'Retain this failed task',code:'42501'}});});
   const input=page.getByRole('textbox',{name:'Add task to To do',exact:true});await input.fill('Failed draft');await input.press('Tab');
   await expect(page.getByRole('alert')).toContainText('Retain this failed task');
   await page.getByRole('navigation',{name:'Workspace destinations'}).getByRole('button',{name:'Workspace Overview',exact:true}).click();

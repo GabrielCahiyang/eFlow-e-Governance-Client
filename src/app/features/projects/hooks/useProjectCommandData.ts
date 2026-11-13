@@ -56,7 +56,7 @@ function updateProjectCommandCache(
   });
 }
 
-export function useProjectCommandData(project: Project, tasks: Task[], tasksLoading: boolean): ProjectCommandData & { retryWorkflowFacts: () => void } {
+export function useProjectCommandData(project: Project, tasks: Task[], tasksLoading: boolean): ProjectCommandData & { hasLoadedFacts:boolean; retryWorkflowFacts: () => void } {
   const { user, userProfile } = useAuth();
   const workspace = useWorkspaceScope();
   const scope = projectCommandCache.selectScope(`${userProfile?.id || user?.id || ''}:${workspace?.workspace.id || userProfile?.org_id || userProfile?.departmentId || ''}:${userProfile?.role || ''}`);
@@ -137,6 +137,6 @@ export function useProjectCommandData(project: Project, tasks: Task[], tasksLoad
   return {
     project, tasks, milestones, members, facts, attention, metrics, activity,
     financial, financialLoading: budget.loading, financialError: budget.error,
-    loading, error, activityError, refreshMembers, retryWorkflowFacts: () => setFactsRevision(revision => revision + 1),
+    loading, error, hasLoadedFacts:ready.current.loaded, activityError, refreshMembers, retryWorkflowFacts: () => setFactsRevision(revision => revision + 1),
   };
 }

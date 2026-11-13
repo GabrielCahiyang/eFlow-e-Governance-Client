@@ -375,7 +375,14 @@ export interface TaskFundingContext {
   available: number;
   taskLeaderId?: string;
   cap?: SubtaskFundingCap;
+  subtaskBudgetBlocked?: boolean;
   lines: TaskFundingLine[];
+}
+
+export interface SubtaskAllocationContext {
+  canAllocate: boolean;
+  reason?: string;
+  lines: { id: string; name: string; available: number }[];
 }
 
 export interface DepartmentBudgetBundle {

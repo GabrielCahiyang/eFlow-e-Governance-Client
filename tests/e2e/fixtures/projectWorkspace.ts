@@ -287,6 +287,7 @@ export async function projectWorkspaceFixture(
         : user,
     }),
   );
+  const inlineTaskReceipts = new Map<string, string>();
   await page.route("**/rest/v1/**", async (route) => {
     const req = route.request(),
       url = new URL(req.url()),
@@ -397,14 +398,17 @@ export async function projectWorkspaceFixture(
       Object.assign(row, { status: payload.p_to_status });
       body = null;
     }
-    if (table === "phase3_create_task") {
+    if (table === "create_inline_project_task" && (payload.p_verify_only || inlineTaskReceipts.has(payload.p_request))) {
+      body = inlineTaskReceipts.get(payload.p_request) ?? null;
+    } else if (table === "phase3_create_task" || table === "create_inline_project_task") {
+      const inline = table === "create_inline_project_task";
       const row = {
         id: crypto.randomUUID(),
         title: payload.p_title,
         org_id: org,
-        linked_project_id: payload.p_project_id,
-        project_id: payload.p_project_id,
-        group_id: payload.p_group_id,
+        linked_project_id: inline ? payload.p_project : payload.p_project_id,
+        project_id: inline ? payload.p_project : payload.p_project_id,
+        group_id: inline ? payload.p_group : payload.p_group_id,
         status: "pending_assignment",
         priority: "medium",
         created_by: id,
@@ -413,7 +417,8 @@ export async function projectWorkspaceFixture(
         updated_at: now,
       };
       tasks.push(row);
-      body = row;
+      if (inline) inlineTaskReceipts.set(payload.p_request, row.id);
+      body = inline ? row.id : row;
     }
     if (table === "create_project_with_details") {
       const row = {

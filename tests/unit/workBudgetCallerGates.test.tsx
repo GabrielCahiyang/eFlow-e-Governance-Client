@@ -16,9 +16,9 @@ describe('NW8.2 budget caller gates and preserved financial rights',()=>{
  it('explains an over-budget request and recovers after correcting the amount',async()=>{
   render(<WorkBudgetCard task={task}/>);fireEvent.click(screen.getByRole('button',{name:'Request cash'}));
   fireEvent.change(screen.getByLabelText('Amount'),{target:{value:'501'}});
-  fireEvent.change(screen.getByLabelText('Purchase and purpose'),{target:{value:'QA supplies'}});
+  fireEvent.change(screen.getByLabelText('Purpose'),{target:{value:'QA supplies'}});
   fireEvent.change(screen.getByLabelText('Needed by'),{target:{value:'2099-12-01'}});
-  expect(screen.getByRole('alert').textContent).toContain('exceeds the available funding');
+  expect(screen.getByRole('alert').textContent).toContain('Enter a smaller amount.');
   expect(screen.getByRole('button',{name:'Request cash'}).matches(':disabled')).toBe(true);
   fireEvent.change(screen.getByLabelText('Amount'),{target:{value:'500'}});
   expect(screen.queryByRole('alert')).toBeNull();
@@ -35,14 +35,20 @@ describe('NW8.2 budget caller gates and preserved financial rights',()=>{
   view.rerender(<WorkBudgetCard task={task} subtask={subtask} canManage/>);fireEvent.click(screen.getByRole('button',{name:'Save cap'}));await waitFor(()=>expect(api.cap).toHaveBeenCalledOnce());expect(api.cap.mock.calls[0][0]).toMatchObject({taskId:'root',subtaskId:'node',allocationLineId:'line',amount:100,reason:'Protect travel'});
  });
  for(const pending of [false,true])it(`retains an opened cash draft without issuing cash/attachment writes while ${pending?'authority pending':'caller readOnly'}`,async()=>{
-  api.actor='worker';const view=render(<WorkBudgetCard task={task} subtask={subtask}/>);fireEvent.click(screen.getByRole('button',{name:'Request cash'}));fireEvent.change(screen.getByLabelText('Amount'),{target:{value:'100'}});fireEvent.change(screen.getByLabelText('Purchase and purpose'),{target:{value:'Travel for assigned work'}});fireEvent.change(screen.getByLabelText('Needed by'),{target:{value:'2099-12-01'}});
-  view.rerender(<WorkBudgetCard task={task} subtask={subtask} readOnly={!pending} authorityPending={pending}/>);const send=screen.getByRole('button',{name:'Request cash'});expect(send.matches(':disabled')).toBe(true);fireEvent.click(send);expect(api.create).not.toHaveBeenCalled();expect((screen.getByLabelText('Purchase and purpose') as HTMLTextAreaElement).value).toBe('Travel for assigned work');
+  api.actor='worker';const view=render(<WorkBudgetCard task={task} subtask={subtask}/>);fireEvent.click(screen.getByRole('button',{name:'Request cash'}));fireEvent.change(screen.getByLabelText('Amount'),{target:{value:'100'}});fireEvent.change(screen.getByLabelText('Purpose'),{target:{value:'Travel for assigned work'}});fireEvent.change(screen.getByLabelText('Needed by'),{target:{value:'2099-12-01'}});
+  view.rerender(<WorkBudgetCard task={task} subtask={subtask} readOnly={!pending} authorityPending={pending}/>);const send=screen.getByRole('button',{name:'Request cash'});expect(send.matches(':disabled')).toBe(true);fireEvent.click(send);expect(api.create).not.toHaveBeenCalled();expect((screen.getByLabelText('Purpose') as HTMLTextAreaElement).value).toBe('Travel for assigned work');
   view.rerender(<WorkBudgetCard task={task} subtask={subtask}/>);fireEvent.click(screen.getByRole('button',{name:'Request cash'}));await waitFor(()=>expect(api.create).toHaveBeenCalledOnce());expect(api.create.mock.calls[0][0]).toMatchObject({taskId:'root',subtaskId:'node',amount:100,purpose:'Travel for assigned work'});
  });
- it('withholds controls while funding context is being refreshed even with a retained funded result',()=>{
-  api.loading=true;render(<WorkBudgetCard task={task} subtask={subtask} canManage/>);expect(screen.queryByRole('button',{name:'Request cash'})).toBeNull();expect(screen.queryByRole('button',{name:'Set cap'})).toBeNull();
+ it('shows a disabled request with an explanation while funding refreshes',()=>{
+  api.loading=true;render(<WorkBudgetCard task={task} subtask={subtask} canManage/>);
+  const request=screen.getByRole('button',{name:'Request cash'});
+  expect(request.matches(':disabled')).toBe(true);
+  expect(screen.getByText('Checking funding access…')).toBeTruthy();
+  fireEvent.click(request);
+  expect(screen.queryByLabelText('Amount')).toBeNull();
+  expect(screen.queryByRole('button',{name:'Set cap'})).toBeNull();
  });
  it('withholds a stale Task Lead funding context after a current Lead change',()=>{
-  render(<WorkBudgetCard task={{...task,assigneeId:'replacement'}} subtask={{...subtask,assignedToIds:['lead']}} canManage/>);expect(screen.queryByRole('button',{name:'Request cash'})).toBeNull();expect(screen.queryByRole('button',{name:'Set cap'})).toBeNull();
+  render(<WorkBudgetCard task={{...task,assigneeId:'replacement'}} subtask={{...subtask,assignedToIds:['lead']}} canManage/>);expect(screen.getByRole('button',{name:'Request cash'}).matches(':disabled')).toBe(true);expect(screen.queryByRole('button',{name:'Set cap'})).toBeNull();
  });
 });

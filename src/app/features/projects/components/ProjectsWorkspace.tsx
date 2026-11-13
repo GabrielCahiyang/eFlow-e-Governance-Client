@@ -119,7 +119,7 @@ export function ProjectsWorkspace({
   const [projectWorkspaceTab, setProjectWorkspaceTab] = React.useState<ProjectCommandTab>("tasks");
   const [quickProjectOpen, setQuickProjectOpen] = React.useState(false);
   const [requestedProjectTool, setRequestedProjectTool] = React.useState<{ projectId: string; tool: ProjectTool } | null>(null);
-  const [deleteTarget, setDeleteTarget] = React.useState<{ id: string; title: string } | null>(null);
+  const [deleteTarget, setDeleteTarget] = React.useState<{ id: string; title: string; draft?:boolean } | null>(null);
   const [archiveTarget, setArchiveTarget] = React.useState<{ id: string; title: string; isArchived: boolean } | null>(null);
   const [completeTarget, setCompleteTarget] = React.useState<{ id: string; title: string; archiveReview?: boolean } | null>(null);
   const [completionTaskId, setCompletionTaskId] = React.useState<string | null>(null);
@@ -417,7 +417,7 @@ export function ProjectsWorkspace({
                 complete: access.canManage && userProfile?.role === 'head' && userProfile.is_active !== false ? () => setCompleteTarget({ id: activeProject.id, title: activeProject.title }) : undefined,
                 archive: access.canArchive ? () => setArchiveTarget({ id: activeProject.id, title: activeProject.title, isArchived: false }) : undefined,
                 restore: access.canArchive ? () => setArchiveTarget({ id: activeProject.id, title: activeProject.title, isArchived: true }) : undefined,
-                delete: access.canDelete ? () => setDeleteTarget({ id: activeProject.id, title: activeProject.title }) : undefined,
+                delete: activeProject.publicationState==='draft'&&(access.canDelete||activeProject.projectLeadId===userProfile?.id) ? () => setDeleteTarget({ id: activeProject.id, title: activeProject.title,draft:true }) : undefined,
               }}
               onOpenSourceGovernance={(draftId) => openProposal(draftId, "governance")}
             />
@@ -556,7 +556,7 @@ export function ProjectsWorkspace({
       {deleteTarget && (
         <ProjectDeleteDialog
           projectId={deleteTarget.id}
-          projectTitle={deleteTarget.title}
+          projectTitle={deleteTarget.title} draft={deleteTarget.draft}
           open={Boolean(deleteTarget)}
           onClose={() => setDeleteTarget(null)}
           onDeleted={() => {

@@ -13,6 +13,9 @@ import {SubitemChildWork} from './SubitemChildWork';
 import {SubitemWorkflow} from './SubitemWorkflow';
 import {SubtaskLoadState} from './SubtaskLoadState';
 import {selectSubitemInspectorCapabilities} from '../selectors/inspectorCapabilities';
+import {subitemStartBlocker} from '../selectors/subitemStart';
+import {SubitemStartPanel} from './SubitemStartPanel';
+import {SubitemLeadReview} from './SubitemLeadReview';
 
 export interface SubitemInspectorProps {
  rootTask:Task;itemId:string;controller?:WorkTreeController;readOnly?:boolean;executionBlocked?:boolean;
@@ -44,20 +47,36 @@ function SubitemInspectorContent(props:SubitemInspectorProps&{controller:WorkTre
   <SubtaskLoadState loading={data.loading&&!loadError} error={loadError} onRetry={()=>void data.reload()} onClose={close}/>
  </InspectorSurface></>;
  const current:Subtask={...data.data.subtask,title:node.title,parentSubtaskId:node.parent_subtask_id||undefined,leadId:node.lead_id||undefined,
-  assignedToIds:node.assigned_to_ids,siblingOrder:node.sibling_order,dueDate:node.due_date||undefined,isStandalone:node.is_standalone,status:node.status,isCompleted:node.status==='completed',percentComplete:node.percent_complete};
- const siblings=tree.nodes.map(node=>({id:node.id,title:node.title,parentSubtaskId:node.parent_subtask_id||undefined,position:node.sibling_order,siblingOrder:node.sibling_order,isStandalone:node.is_standalone,isCompleted:node.status==='completed'}));
+  assignedToIds:node.assigned_to_ids,siblingOrder:node.sibling_order,dueDate:node.due_date||undefined,isStandalone:node.is_standalone,status:node.effective_status??node.status,isCompleted:node.status==='completed',percentComplete:node.percent_complete,dependencyIds:node.dependency_ids??null};
+ const siblings=tree.nodes.map(node=>({id:node.id,title:node.title,parentSubtaskId:node.parent_subtask_id||undefined,position:node.sibling_order,siblingOrder:node.sibling_order,isStandalone:node.is_standalone,isCompleted:node.status==='completed',dependencyIds:node.dependency_ids}));
  const previous=getSubtaskPrerequisite(siblings.find(row=>row.id===itemId)!,siblings);
  // Only authorized sibling context can be used; never carry another item's prior step.
  const prerequisite=previous?{...current,...previous} as Subtask:null;
  const capabilities=selectSubitemInspectorCapabilities(tree,itemId,context!);
  const fundingTask:Task={...props.rootTask,assigneeId:tree.root.lead||undefined,recommendationLeadId:undefined};
  const reload=async()=>{await data.reload();props.onChanged?.();};
+ const waitingToStart=!!tree.root.scheduling&&node.status==='todo'&&!node.started_at;
+ const startPaused=!!props.executionBlocked||node.capabilities?.execute?.reason_code==='project_on_hold';
+ const startPanel=waitingToStart?<SubitemStartPanel key={itemId} taskId={tree.root.id} subtaskId={itemId}
+  blockedReason={subitemStartBlocker(tree,node,context!.actorId,scopeReadOnly,startPaused,previous?.title)}
+  pending={data.pending} onStarted={reload}/>:undefined;
+ const usesLeadReview=tree.root.kind==='office'&&!!tree.root.scheduling;
+ const actorId=context!.actorId;
+ const leadsStep=actorId===node.lead_id;
+ const leadsTask=actorId===tree.root.lead;
+ const unfinishedChild=tree.nodes.some(child=>child.parent_subtask_id===itemId&&child.status!=='completed');
+ const reviewBlocked=previous?`Complete “${previous.title}” first.`:undefined;
+ const leadReview=usesLeadReview&&!waitingToStart&&actorId?<SubitemLeadReview key={itemId}
+  root={tree.root.id} node={itemId} actor={actorId} readOnly={scopeReadOnly||startPaused} pending={data.pending}
+  blocked={reviewBlocked} completionBlocked={unfinishedChild?'Complete the child subtasks first.':undefined}
+  reviewerName={tree.people.find(person=>person.id===tree.root.lead)?.name} onChanged={reload}/>:undefined;
  return <InspectorSurface presentation="page" open onClose={close} ariaLabel={`Subtask: ${node.title}`} returnFocus={origin.returnFocus} onReturnFocus={origin.restoreFocus}>
   <SubitemContext stuck={!!data.data.progressUpdates[0]?.blocker} node={node} tree={tree} rootTitle={props.rootTask.title} onOpenItem={openItem} onClose={close}/>
   <nav className="task-page__tabs" aria-label="Subtask sections">{(['work','activity'] as const).map(value=><button key={value} type="button" aria-current={section===value?'page':undefined} onClick={()=>void requestNavigation(()=>setSection(value))}>{value==='work'?'Work':'Activity'}</button>)}</nav>
   <div className="task-page__body subitem-page-body">
-   <div hidden={section!=='work'} className="subitem-work-layout"><main><SubitemWorkflow task={fundingTask} subtask={current} prerequisite={prerequisite} capabilities={capabilities} pending={data.pending} submissions={data.data.submissions} progressUpdates={data.data.progressUpdates} onSaved={reload} onReview={()=>reviewNode(itemId)}/></main>
-   <section className="subitem-child-work"><SubitemChildWork itemId={itemId} controller={props.controller} readOnly={scopeReadOnly} executionBlocked={!!props.executionBlocked} onOpenItem={openItem} onReviewItem={reviewNode}/></section></div>
+   <div hidden={section!=='work'} className="subitem-work-layout"><SubitemWorkflow task={fundingTask} subtask={current} prerequisite={prerequisite} capabilities={capabilities} pending={data.pending} saving={data.saving} submissions={data.data.submissions} progressUpdates={data.data.progressUpdates} onSaved={reload} onReview={()=>reviewNode(itemId)} startPanel={startPanel}
+    leadReview={leadReview} directUpdates={!usesLeadReview||leadsStep||leadsTask} directCompletion={!usesLeadReview||leadsStep&&leadsTask}/>
+   {tree.nodes.some(child=>child.parent_subtask_id===itemId)&&<section className="subitem-child-work" aria-label="Child subtasks"><SubitemChildWork itemId={itemId} controller={props.controller} readOnly={scopeReadOnly} executionBlocked={!!props.executionBlocked} onOpenItem={openItem} onReviewItem={reviewNode}/></section>}</div>
    {section==='activity'&&<section aria-label="Subtask activity"><WorkActivity roots={[props.rootTask.id]} focusedNode={{rootId:props.rootTask.id,nodeId:itemId}} snapshot={data.tree}/></section>}
   </div>
  </InspectorSurface>;

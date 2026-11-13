@@ -24,6 +24,10 @@ function editor(data=tree(),edit:WorkEdit={command:'create'}) {
 }
 beforeEach(()=>{sessionStorage.clear();vi.resetAllMocks();api.actor='actor';api.session.mockResolvedValue({data:{session:{user:{id:'actor'},access_token:'synthetic-token'}},error:null});});afterEach(cleanup);
 describe('NW5.3 request recovery and current action authority',()=>{
+ it('turns statement timeout errors into a clear rolled-back work message',()=>{
+  const failure=workRpcFailure({code:'57014',message:'canceling statement due to statement timeout'});
+  expect(failure.kind).toBe('confirmed_failure');expect(failure.message).toContain('The transaction was rolled back');expect(failure.message).not.toContain('canceling statement');
+ });
  it('opens child creation in a modal and protects its draft when closing',async()=>{
   const confirmation=vi.fn().mockResolvedValue(false),uninstall=installNavigationConfirmation(confirmation),onCancel=vi.fn();
   try{
@@ -118,8 +122,8 @@ describe('NW5.3 request recovery and current action authority',()=>{
  });
  it('renders a committed refresh error without a retry submit button',async()=>{
   const save=vi.fn().mockResolvedValue(tree(8));render(<WorkTreeEditor data={tree()} edit={{command:'create'}} save={save} onDone={()=>{throw new Error('Refresh');}} onCancel={vi.fn()}/>);
-  fireEvent.change(screen.getByLabelText('Subtask title'),{target:{value:'Created'}});fireEvent.click(screen.getByRole('button',{name:'Save work changes'}));
-  await screen.findByText(/Work was saved, but the view could not refresh/);expect(screen.queryByRole('button',{name:'Retry saved request'})).toBeNull();expect(screen.queryByRole('button',{name:'Save work changes'})).toBeNull();expect(screen.getByRole('button',{name:'Close'})).toBeTruthy();
+  fireEvent.change(screen.getByLabelText('Subtask title'),{target:{value:'Created'}});fireEvent.click(screen.getByRole('button',{name:'Add subtask'}));
+  await screen.findByText('Work was saved. The current view is being checked.');expect(screen.queryByRole('button',{name:'Retry saved request'})).toBeNull();expect(screen.queryByRole('button',{name:'Add subtask'})).toBeNull();expect(screen.getByRole('button',{name:'Close'})).toBeTruthy();
  });
  it('blocks revoked authority, actor/scope changes and unverified snapshots without losing the draft',async()=>{
   const hook=editor(),save=vi.fn().mockRejectedValue(workRpcFailure({code:'42501',message:'Work access denied'}));act(()=>hook.result.current.update('title','Retained'));

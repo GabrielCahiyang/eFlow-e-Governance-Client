@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { NAVIGATION_LOCATION_EVENT, pushNavigationHistory } from '../../../shared/navigationHistory';
+import { requestNavigation } from '../../../shared/navigationGuard';
 import { useNotificationNavigationIntent } from '../../notifications';
 import { ChatChannelList } from './ChatChannelList';
 import { ActiveChatPanel } from './ActiveChatPanel';
@@ -9,7 +10,7 @@ import { NewMessageDialog } from './NewMessageDialog';
 
 function readSelection() {
   const query = new URLSearchParams(window.location.search);
-  return { conversationId: query.get('conversation'), taskId: query.get('chatTask'), projectId: query.get('chatProject'), messageId: query.get('message') };
+  return { conversationId: query.get('conversation'), taskId: query.get('chatTask'), projectId: query.get('chatProject'), messageId: query.get('message'), returnView: query.get('returnView') };
 }
 
 export function MessagesWorkspace({ userId, userName, onOpenTask, onOpenProject }: { userId?: string; userName?: string; onOpenTask: (taskId: string) => void; onOpenProject: (projectId: string) => void }) {
@@ -28,7 +29,10 @@ export function MessagesWorkspace({ userId, userName, onOpenTask, onOpenProject 
   function select(id?: string, messageId?: string) {
     const url = new URL(window.location.href);
     url.searchParams.delete('chatTask');
-    url.searchParams.delete('chatProject');
+    if(!id||!selection.returnView){
+      url.searchParams.delete('chatProject');
+      url.searchParams.delete('returnView');
+    }
     if (id) url.searchParams.set('conversation', id);
     else url.searchParams.delete('conversation');
     if (messageId) url.searchParams.set('message', messageId);
@@ -42,13 +46,22 @@ export function MessagesWorkspace({ userId, userName, onOpenTask, onOpenProject 
     [],
   );
   const unavailable = !loading && !active && Boolean(selection.conversationId || selection.taskId || selection.projectId);
+  const fromProject=!!selection.projectId&&!!selection.returnView&&(!active||active.projectId===selection.projectId);
+  const back=()=>void requestNavigation(()=>{
+    if(!fromProject){select();return;}
+    const params=new URLSearchParams({page:'Projects',project:selection.projectId!,view:selection.returnView!});
+    const workspace=new URLSearchParams(window.location.search).get('workspace');
+    if(workspace)params.set('workspace',workspace);
+    pushNavigationHistory('/projects?'+params);
+  });
 
   return <div className="messages-workspace" data-selected={Boolean(active) || undefined}>
     <ChatChannelList selected={active?.channelId} onSelect={select} onCompose={() => setCompose(true)} />
     {active ? <ActiveChatPanel key={active.channelId} conversation={active} userId={userId} userName={userName}
       targetMessageId={selection.messageId ?? undefined} onClearTarget={() => select(active.channelId)}
-      onBack={() => select()} onOpenTask={onOpenTask} onOpenProject={onOpenProject} />
+      onBack={back} backLabel={fromProject?'Back to project':'Back to conversations'} onOpenTask={onOpenTask} onOpenProject={onOpenProject} />
       : <section className="messages-workspace-placeholder" aria-label="Messages workspace">
+        {fromProject&&<button type="button" onClick={back}>Back to project</button>}
         <EmptyState illustration="chat" title={unavailable ? 'Conversation unavailable' : 'Choose a conversation'}
           description={unavailable ? 'This chat is unavailable with your current access.' : 'Open a chat from the sidebar or start a new message.'} />
       </section>}

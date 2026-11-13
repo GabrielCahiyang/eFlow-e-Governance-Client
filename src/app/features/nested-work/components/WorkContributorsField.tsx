@@ -23,6 +23,7 @@ export function WorkContributorsField({leadId,contributorIds,people,contributorC
  const reason=!leadId&&contributorCapability?.reason_code==='lifecycle_blocked'?'Choose a lead first.':contributorCapability?.disabledReason||'Refresh this task to edit its team.';
  return <fieldset className="r7-work r7-people" disabled={disabled}>
   <legend>Contributors ({contributors.length})</legend>
+  <p>Optional. The appointed Lead can work independently.</p>
   {contributors.length?<ul className="r7-chips r7-contributor-chips" aria-label="Selected contributors">{contributors.map(personId=><li key={personId}><span>
    {resolveWorkPersonName(people,personId)} <button type="button" disabled={disabled} aria-label={`Remove contributor ${resolveWorkPersonName(people,personId)}`} onClick={()=>{
     if(!disabled)onChange(deduplicateWorkPersonIds(contributorIds).filter(selected=>selected!==personId));

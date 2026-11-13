@@ -3,7 +3,9 @@ import type {WorkCapabilityReasonCode,WorkImpact} from '../types';
 const blockers:Record<WorkCapabilityReasonCode,string>={
  access_unavailable:'Verify current access before continuing.',read_only:'This work is read-only.',
  branch_denied:'Current authority does not cover all affected work.',appointment_denied:'A current parent manager must change this Lead appointment.',
- lifecycle_blocked:'Resolve the affected work state before continuing.',history_blocked:'Recorded work, evidence, financial commitments or dependent staffing prevents this operation. Resolve the affected work first.'
+ lifecycle_blocked:'Resolve the affected work state before continuing.',history_blocked:'Recorded work, evidence, financial commitments or dependent staffing prevents this operation. Resolve the affected work first.',
+ project_on_hold:'Work updates are paused while the project is under review.',
+ active_staffing_locked:'Root task contributors are read-only for the Task Lead after project activation.'
 };
 export const workImpactBlockers=(impact:WorkImpact)=>impact.blocker_codes.map(code=>blockers[code]);
 export function WorkImpactSummary({impact}:{impact:WorkImpact}){

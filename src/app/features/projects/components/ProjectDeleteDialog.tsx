@@ -2,17 +2,20 @@ import * as React from "react";
 import * as Icons from "lucide-react";
 import { Modal } from "../../../components/ui/Modal";
 import { deleteProject } from "../services/projectService";
+import { projectFlowCall } from '../../project-setup';
 import { useGuardedProjectDialog } from '../hooks/useGuardedProjectDialog';
 
 export function ProjectDeleteDialog({
   projectId,
   projectTitle,
+  draft = false,
   open,
   onClose,
   onDeleted,
 }: {
   projectId: string;
   projectTitle: string;
+  draft?: boolean;
   open: boolean;
   onClose: () => void;
   onDeleted: () => void;
@@ -40,7 +43,8 @@ export function ProjectDeleteDialog({
     setDeleting(true);
     setError("");
     try {
-      await deleteProject(projectId, confirmation, reason);
+      if(draft)await projectFlowCall('discard_private_project',{p_project:projectId,p_title:confirmation,p_reason:reason});
+      else await deleteProject(projectId, confirmation, reason);
       onDeleted();
     } catch (caught) {
       setError(
@@ -56,7 +60,7 @@ export function ProjectDeleteDialog({
     <Modal
       isOpen={open}
       onClose={deleting ? () => {} : close}
-      title="Permanently delete project"
+      title={draft?'Discard project draft':'Permanently delete project'}
       width="max-w-lg"
       footer={
         <div className="flex items-center justify-end gap-3 w-full">
@@ -75,7 +79,7 @@ export function ProjectDeleteDialog({
             className="inline-flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-semibold text-white bg-rose-600 hover:bg-rose-700 active:bg-rose-800 shadow-sm transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {deleting && <Icons.Loader2 size={16} className="animate-spin" />}
-            {deleting ? "Deleting…" : "Delete permanently"}
+            {deleting ? "Deleting…" : draft?'Discard draft':'Delete permanently'}
           </button>
         </div>
       }
@@ -92,7 +96,7 @@ export function ProjectDeleteDialog({
             </h4>
             <p className="mt-1 text-xs leading-relaxed text-rose-700">
               The project, milestones, and membership list will be permanently removed.
-              Existing tasks and audit history remain, but their operational project links are cleared.
+              {draft?'The draft can be discarded when it has no linked work, funding, files, invitations or reviews. The audit record is retained.':'Existing tasks and audit history remain, but their operational project links are cleared.'}
             </p>
           </div>
         </div>

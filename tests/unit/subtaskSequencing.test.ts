@@ -57,4 +57,13 @@ describe("ordered subtask sequencing", () => {
     const current = { id: "current", taskId: "task-1", title: "Current", position: 1, isCompleted: false };
     expect(getSubtaskPrerequisite(current, [other, current])).toBeNull();
   });
+
+  it("uses explicit sibling dependencies instead of earlier steps, including an empty selection", () => {
+    const earlier = { id: "earlier", title: "Earlier", position: 0, isCompleted: false, dependencyIds: null };
+    const later = { ...earlier, id: "later", position: 2 };
+    const current = { ...earlier, id: "current", position: 1, dependencyIds: ["later"] };
+    expect(getSubtaskPrerequisite(current, [earlier, later])).toBe(later);
+    expect(getSubtaskPrerequisite(current, [earlier, { ...later, isCompleted: true }])).toBeNull();
+    expect(getSubtaskPrerequisite({ ...current, dependencyIds: [] }, [earlier, later])).toBeNull();
+  });
 });

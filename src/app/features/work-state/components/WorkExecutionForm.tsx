@@ -38,7 +38,7 @@ export function WorkExecutionForm({status,readOnly=false,disabled=false,canSubmi
  if(blockedBy)return <div className="work-state-message" role="status"><CirclePause size={20}/><div><strong>Waiting for an earlier step</strong><p>{blockedBy}</p></div></div>;
  if(readOnly)return <p className="work-state-muted">Only the assigned team can update this work.</p>;
  return <section className="work-execution" aria-label="Work status and update">
-  <div className="work-execution-heading"><div className="work-execution-intro"><span className="work-execution-icon"><MessageSquareText size={21} aria-hidden="true"/></span><div><h3>Update work</h3><p>{direct?'Update this step or mark it complete. No separate approval is needed.':'Share progress, flag a blocker or submit finished work.'}</p></div></div>
+  <div className="work-execution-heading"><div className="work-execution-intro"><span className="work-execution-icon"><MessageSquareText size={21} aria-hidden="true"/></span><div><h3>Update work</h3><p>{!onSubmit?'Share progress or flag a blocker.':direct?'Update this step or mark it complete. No separate approval is needed.':'Share progress, flag a blocker or submit finished work.'}</p></div></div>
    <label className="work-status-choice">Status<select aria-label="Work status" disabled={fieldsLocked} value={mode} onChange={event=>{setMode(event.target.value as typeof mode);setError('');}}>
     <option value="in_progress">In progress</option><option value="stuck">Stuck</option>{onSubmit&&<option value="submit" disabled={!canSubmit}>{direct?'Mark complete':'Submit finished work'}</option>}
    </select></label></div>

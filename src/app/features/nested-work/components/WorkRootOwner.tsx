@@ -27,10 +27,12 @@ function WorkRootOwnerContent({rootId,fallback,readOnly=false,tree,layout='defau
  if(tree.loading&&!tree.data)return <div className="r7-work r7-root-owner" role="status">Loading project people…</div>;
  const data=tree.data;if(!data)return tree.error?<div className="r7-work r7-root-owner" role="alert">{tree.error}<button type="button" onClick={()=>void tree.reload()}>Retry project people</button></div>:null;
  const context={actorId:user?.id||null,rootId,projectId:data.root.project,officeId:data.root.office,kind:data.root.kind,revision:data.revision,readOnly};
- const canStaff=selectRootWorkCapability(data,'manage_contributors',context).allowed||selectRootWorkCapability(data,'appoint_lead',context).allowed;
+ const contributorAccess=selectRootWorkCapability(data,'manage_contributors',context),appointmentAccess=selectRootWorkCapability(data,'appoint_lead',context);
+ const canStaff=contributorAccess.allowed||appointmentAccess.allowed;
  const recoverable=tree.authorityFresh&&readWorkDrafts(data,context).some(record=>record.mode==='staffing'&&!record.baseline.nodeId);
  return <div className={`r7-work r7-root-owner${layout==='inline'?' r7-root-owner--inline':''}`}><WorkPeopleSummary leadId={data.root.lead} contributorIds={data.root.people} people={data.people} compact/>
   {tree.error&&<p role="alert">{tree.error}<button type="button" onClick={()=>void tree.reload()}>Retry project people</button></p>}
+  {contributorAccess.reason_code==='active_staffing_locked'&&<p className="r7-help" role="status">{contributorAccess.disabledReason}</p>}
   {canStaff&&<button type="button" aria-label="Choose task lead and contributors" disabled={tree.loading||tree.pending||!tree.authorityFresh} onClick={()=>setOpen(true)}>{layout==='inline'&&<UsersRound size={15} aria-hidden="true"/>}{recoverable?'Recover people draft':layout==='inline'?'Manage people':'Choose people'}</button>}
   {saved&&<p role="status">{saved}</p>}
   {open&&<WorkStaffingDialog controller={tree} nodeId={null} readOnly={readOnly}

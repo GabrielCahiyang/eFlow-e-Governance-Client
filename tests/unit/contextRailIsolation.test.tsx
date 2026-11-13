@@ -26,11 +26,11 @@ describe('approved primary/context isolation',()=>{
   const legacy=memberItems.find(item=>item.id==='deadlines')!;
   const view=render(<EflowVibeThemeProvider preference="light"><ProductivitySidebar role="member" activeSection="deadlines" activePage={legacy.pages[0].label} navigationItems={memberItems} onPageSelect={vi.fn()} /></EflowVibeThemeProvider>);
   const work=screen.getByRole('navigation',{name:'My Work destinations'});
-  expect(within(work).getAllByRole('button').filter(button=>!button.closest('details'))).toHaveLength(5);
+  expect(within(work).getAllByRole('button').filter(button=>!button.closest('details'))).toHaveLength(6);
   expect(work.querySelector('details')?.hasAttribute('open')).toBe(false);
   expect(within(work).getByRole('button',{name:legacy.label}).getAttribute('aria-current')).toBe('page');
   view.rerender(<EflowVibeThemeProvider preference="light"><ProductivitySidebar role="member" activeSection="personal_work" activePage="Assigned work" navigationItems={memberItems} onPageSelect={vi.fn()} /></EflowVibeThemeProvider>);
-  expect(within(screen.getByRole('navigation',{name:'My Work destinations'})).getAllByRole('button').filter(button=>!button.closest('details'))).toHaveLength(4);
+  expect(within(screen.getByRole('navigation',{name:'My Work destinations'})).getAllByRole('button').filter(button=>!button.closest('details'))).toHaveLength(5);
   expect(screen.queryByText('Current tool')).toBeNull();
  });
  it('retains existing authorized Inbox destinations when a personal workspace is selected',()=>{
@@ -43,7 +43,7 @@ describe('approved primary/context isolation',()=>{
  it('replaces workspace sections immediately with My Work then Inbox while keeping the primary rail',()=>{
   const view=render(sidebar('projects','Projects'));expect(screen.getByRole('region',{name:'Workspace content'})).toBeTruthy();expect(screen.getByRole('button',{name:'Project tree entry'})).toBeTruthy();
   view.rerender(sidebar('personal_work','Leading'));const work=screen.getByRole('region',{name:'My Work content'});
-  for(const name of ['Assigned work','Leading','Subtasks','History'])expect(within(work).getByRole('button',{name,exact:true})).toBeTruthy();
+  for(const name of ['Assigned work','Leading','Subtasks','Reviews','History'])expect(within(work).getByRole('button',{name,exact:true})).toBeTruthy();
   for(const name of ['Workspace content','Office tools','Favorites','Projects','Archived projects'])expect(screen.queryByRole('region',{name,exact:true})).toBeNull();expect(screen.queryByRole('button',{name:'LEDIPO Workspace'})).toBeNull();
   view.rerender(sidebar('inbox','Updates'));const inbox=screen.getByRole('region',{name:'Inbox content'});expect(within(inbox).getByRole('button',{name:'Updates',exact:true}).getAttribute('aria-current')).toBe('page');expect(screen.queryByRole('region',{name:'My Work content'})).toBeNull();expect(screen.getByRole('navigation',{name:'Global navigation'})).toBeTruthy();expect(within(inbox).queryByRole('button',{name:'Inbox',exact:true})).toBeNull();
  });

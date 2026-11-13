@@ -1,6 +1,6 @@
 import {budgetReportRead} from './budgetReportReads';
 import { supabase } from "../../../../lib/supabase";
-import type { AccountingAccount, BudgetLineInput, DepartmentBudgetBundle, GeneralJournalEntry, JournalAdjustmentLineInput, ReceiptDraft, TaskFundingContext } from "../types";
+import type { AccountingAccount, BudgetLineInput, DepartmentBudgetBundle, GeneralJournalEntry, JournalAdjustmentLineInput, ReceiptDraft, SubtaskAllocationContext, TaskFundingContext } from "../types";
 import { mapAdjustment, mapAllocation, mapAllocationLine, mapBudgetLine, mapBudgetSummary, mapCommitment, mapLedger, mapLiquidation, mapReceipt, mapRelease, mapRequest } from "./budgetMappers";
 import { assertCashNeededByIsCurrentOrFuture } from "../selectors/cashWorkflowRules";
 import { fetchBudgetSections } from "./budgetSectionService";
@@ -187,6 +187,9 @@ export async function fetchTaskFundingContext(taskId: string, subtaskId?: string
   const row = (data || {}) as Record<string, unknown>;
   const cap = row.cap && typeof row.cap === "object" ? row.cap as Record<string, unknown> : undefined;
   const lines = Array.isArray(row.lines) ? row.lines as Array<Record<string, unknown>> : [];
+  const subtaskBudget = Array.isArray(row.subtaskBudgets)
+    ? row.subtaskBudgets.find(item => item?.id === subtaskId)
+    : undefined;
   return {
     funded: Boolean(row.funded),
     supportsItemizedCash: Boolean(row.supportsItemizedCash),
@@ -198,6 +201,7 @@ export async function fetchTaskFundingContext(taskId: string, subtaskId?: string
     taskBudget: Number(row.taskBudget || 0),
     available: Number(row.available || 0),
     taskLeaderId: row.taskLeaderId ? String(row.taskLeaderId) : undefined,
+    subtaskBudgetBlocked: subtaskBudget?.blocked === true,
     cap: cap ? {
       id: String(cap.id), amount: Number(cap.amount || 0), available: Number(cap.available || 0),
       allocationLineId: String(cap.allocationLineId || ""), reason: String(cap.reason || ""),
@@ -209,6 +213,21 @@ export async function fetchTaskFundingContext(taskId: string, subtaskId?: string
       available: Number(line.available || 0),
     })),
   };
+}
+
+export async function fetchSubtaskAllocationContext(taskId: string, subtaskId: string): Promise<SubtaskAllocationContext> {
+  const { data, error } = await supabase.rpc("m7_work_allocation_context", { p_task: taskId, p_node: subtaskId });
+  if (error?.code === "42501") return { canAllocate: false, reason: "access_unavailable", lines: [] };
+  if (error?.code === "PGRST202") return { canAllocate: false, reason: "service_unavailable", lines: [] };
+  if (error) throw new Error("Could not check the Task’s funding. Try again to refresh the available balance.");
+  if (data?.canAllocate === false) {
+    return { canAllocate: false, reason: typeof data.reason === "string" ? data.reason : undefined, lines: [] };
+  }
+  if (data?.canAllocate !== true || !Array.isArray(data.lines) || data.lines.some((line: Record<string, unknown>) =>
+    !line || typeof line.id !== "string" || typeof line.name !== "string" ||
+    typeof line.available !== "number" || !Number.isFinite(line.available) || line.available < 0
+  )) throw new Error("Task funding sources could not be verified.");
+  return { canAllocate: true, lines: data.lines };
 }
 
 export async function createContextualCashRequest(input: {
@@ -268,7 +287,15 @@ export async function setSubtaskBudgetCap(input: {
     p_reason: input.reason,
     p_idempotency_key: input.idempotencyKey,
   });
-  throwIf(error);
+  if (error) {
+    const message = ['22023', '23514', '42501', 'P0002'].includes(error.code)
+      ? error.message
+      : "Could not confirm the allocation. Retry the same amount and reason to check the result.";
+    throw new Error(message);
+  }
+  if (typeof data !== "string" || !data) {
+    throw new Error("Could not confirm the allocation. Retry the same amount and reason to check the result.");
+  }
   return String(data);
 }
 

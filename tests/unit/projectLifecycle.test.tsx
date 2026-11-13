@@ -44,9 +44,9 @@ describe('canonical project lifecycle controls',()=>{
  it('offers archive after completion',async()=>{
   const {props}=utilities('completed');fireEvent.keyDown(screen.getByRole('button',{name:'Project actions'}),{key:'Enter'});fireEvent.click(await screen.findByRole('menuitem',{name:'Archive project'}));await waitFor(()=>expect(props.archive).toHaveBeenCalledOnce());expect(screen.queryByRole('menuitem',{name:'Mark project complete'})).toBeNull();
  });
- it('offers restore and delete in an archived project',async()=>{
+ it('offers restore for an archived project and omits draft discard',async()=>{
   const {props}=utilities('archived');fireEvent.keyDown(screen.getByRole('button',{name:'Project actions'}),{key:'Enter'});fireEvent.click(await screen.findByRole('menuitem',{name:'Restore project'}));await waitFor(()=>expect(props.restore).toHaveBeenCalledOnce());
-  fireEvent.keyDown(screen.getByRole('button',{name:'Project actions'}),{key:'Enter'});fireEvent.click(await screen.findByRole('menuitem',{name:'Delete project'}));await waitFor(()=>expect(props.delete).toHaveBeenCalledOnce());expect(screen.queryByRole('menuitem',{name:'Archive project'})).toBeNull();
+  fireEvent.keyDown(screen.getByRole('button',{name:'Project actions'}),{key:'Enter'});await screen.findByRole('menuitem',{name:'Project settings'});expect(screen.queryByRole('menuitem',{name:'Discard project draft'})).toBeNull();expect(props.delete).not.toHaveBeenCalled();expect(screen.queryByRole('menuitem',{name:'Archive project'})).toBeNull();
  });
  it('keeps read-only viewers from lifecycle changes while retaining account-scoped favorites',async()=>{
   utilities('active',false);fireEvent.click(screen.getByRole('button',{name:'Add project to favorites'}));expect(screen.getByRole('button',{name:'Remove project from favorites'})).toBeTruthy();fireEvent.keyDown(screen.getByRole('button',{name:'Project actions'}),{key:'Enter'});await screen.findByRole('menuitem',{name:'Project settings'});expect(screen.queryByRole('menuitem',{name:'Mark project complete'})).toBeNull();expect(screen.queryByRole('menuitem',{name:'Delete project'})).toBeNull();

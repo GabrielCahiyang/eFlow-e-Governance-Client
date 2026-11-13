@@ -75,8 +75,11 @@ function TaskInspectorContent({
     ? projects.find((project) => project.id === task.linkedProjectId)
     : undefined;
   readOnly = readOnly || ['completed', 'archived'].includes(operationalProject?.status || '');
+  const isProjectOnHold = operationalProject?.status === 'on_hold';
+  const isPrivatePlanning = operationalProject?.publicationState === 'draft';
+  const proposedOffice = !!task.proposedOfficeIdentityId;
   const staffingReason = staffingEntryReason(task, userProfile, orgs, readOnly);
-  const executionBlocked = !!task.proposedOfficeIdentityId;
+  const executionBlocked = proposedOffice || isProjectOnHold || isPrivatePlanning;
   const capabilities = resolveTaskDetailCapabilities(readOnly || executionBlocked, {
     canReview,
     canPostProgress,
@@ -94,7 +97,7 @@ function TaskInspectorContent({
   const rejected = task.status === "changes_requested";
   const currentUserIsLead = Boolean(user?.id && isTaskLead(task, user.id));
   const isOwnerOrLead = task.assigneeId === user?.id || currentUserIsLead;
-  const canManageSubtasks = resolveSubtaskManagementCapability(readOnly || executionBlocked, currentUserIsLead);
+  const canManageSubtasks = resolveSubtaskManagementCapability(readOnly || proposedOffice, currentUserIsLead);
   // Fiscal authority belongs to the appointed Office Head, independently of
   // task execution and project contributor selection.
   const canAuthorizeFunding = !readOnly && !executionBlocked && !task.archivedAt &&
@@ -136,7 +139,8 @@ function TaskInspectorContent({
         <div id={`task-panel-${task.id}`} role="tabpanel" aria-labelledby={`task-${task.id}-${tab}`} className={presentation==='page'?'task-page__body':'flex-1 min-h-0 overflow-y-auto p-4'}>
           {lifecycle.error && <p role="alert" className="pv-error">{lifecycle.error} Retry the action when resolved.</p>}
           {teamBlocked && currentUserIsLead && !readOnly && <p role="status" className="po-help">In shared projects, only the responsible Office Head can change the task team. Ask your Office Head to update members.</p>}
-          {executionBlocked && <p role="status" className="po-help">Proposed Office responsibility: directory linking, Office Head confirmation and explicit handover in Project Offices are required before staffing, execution, evidence or funding.</p>}
+          {proposedOffice && <p role="status" className="po-help">Proposed Office responsibility requires directory linking, Office Head confirmation and explicit handover in Project Offices.</p>}
+          {isPrivatePlanning && <p role="status" className="po-help">Project work starts after the Office Head activates this plan.</p>}
           {readOnly && tab !== 'overview' && <p role="status" className="text-sm text-neutral-500 mb-3">Read-only oversight record</p>}
           {tab === 'overview' && <section aria-label="Task details">
             <TaskChatLink taskId={task.id} />
@@ -144,7 +148,7 @@ function TaskInspectorContent({
           </section>}
           {tab === 'update-work' && <section className="task-update-page" aria-label="Update task work">
             <div className="task-update-page__main">
-              <InspectorExecution pendingDependencies={dependencyCount} initialAction={origin?.section==='report-blocker'?'stuck':origin?.section==='submit-work'?'submit':undefined} task={task} subtasks={taskSubtasks} canStart={canStart} canResume={canResume} canSubmit={canSubmit} canPostProgress={capabilities.canPostProgress} busy={lifecycle.busy} onStart={lifecycle.start} onChanged={onChanged} onSubmitted={() => { onChanged?.(); setTab('review'); }}/>
+              <InspectorExecution isProjectOnHold={isProjectOnHold} pendingDependencies={dependencyCount} initialAction={origin?.section==='report-blocker'?'stuck':origin?.section==='submit-work'?'submit':undefined} task={task} subtasks={taskSubtasks} canStart={canStart} canResume={canResume} canSubmit={canSubmit} canPostProgress={capabilities.canPostProgress} busy={lifecycle.busy} onStart={lifecycle.start} onChanged={onChanged} onSubmitted={() => { onChanged?.(); setTab('review'); }}/>
             </div>
             <aside className="task-update-page__sidebar" aria-label="Task context">
               <div className="task-update-page__sidebar-card">
@@ -170,7 +174,7 @@ function TaskInspectorContent({
               </div>}
             </aside>
           </section>}
-          {tab === 'work' && <div className="task-work-page"><InspectorWork onInspect={(id,section,origin)=>setOpenedSubitem({id,section,origin})} presentation={presentation} task={task} profiles={profiles} projectTitle={operationalProject?.title} controller={controller} canManageTaskTeam={canManageTaskTeam} canManageSubtasks={canManageSubtasks} currentUserIsLead={currentUserIsLead} readOnly={readOnly || executionBlocked || lifecycle.busy} onManage={() => setTeamEditorOpen(true)} staffingReason={staffingReason} onRecommend={() => setStaffingOpen(true)}/></div>}
+          {tab === 'work' && <div className="task-work-page"><InspectorWork onInspect={(id,section,origin)=>setOpenedSubitem({id,section,origin})} presentation={presentation} task={task} profiles={profiles} projectTitle={operationalProject?.title} controller={controller} canManageTaskTeam={canManageTaskTeam} canManageSubtasks={canManageSubtasks} currentUserIsLead={currentUserIsLead} readOnly={readOnly || proposedOffice || lifecycle.busy} onManage={() => setTeamEditorOpen(true)} staffingReason={staffingReason} onRecommend={() => setStaffingOpen(true)}/></div>}
           {tab === 'updates' && <div className="space-y-5"><section aria-label="Task discussion"><h3>Discussion</h3><TaskDiscussion taskId={task.id} canParticipate={capabilities.canDiscuss}/></section><details className="work-secondary"><summary>Updates</summary><InspectorProgressUpdates taskId={task.id}/></details></div>}
           {tab === 'files' && <InspectorFiles task={task} readOnly={readOnly || executionBlocked}/>}
           {tab === 'activity' && <><TaskActivityTimeline taskId={task.id} projectId={task.linkedProjectId}/><WorkActivity roots={[task.id]}/></>}

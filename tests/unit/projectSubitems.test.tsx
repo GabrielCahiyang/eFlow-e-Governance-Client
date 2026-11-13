@@ -80,20 +80,22 @@ describe('Project table subtask expansion', () => {
     expect(mocks.create).not.toHaveBeenCalled();
   });
 
-  it('opens an empty nested table and saves the task lead’s subtask when focus leaves', async () => {
+  it('opens an empty subtask table and saves only after an explicit action', async () => {
     show();
     const table = screen.getByRole('table', { name: 'Prepare assessment subtasks' });
-    expect(within(table).getAllByRole('columnheader').map(header => header.textContent)).toEqual(['Subtask', 'Owner', 'Status', 'Due date', 'Progress']);
+    expect(within(table).getAllByRole('columnheader').map(header => header.textContent)).toEqual(['Subtask', 'Owner', 'Status', 'Due date', 'Priority', 'Dependencies', 'Budget']);
     const input = screen.getByRole('textbox', { name: 'Add subtask to Prepare assessment' });
     expect(document.activeElement).toBe(input);
     fireEvent.change(input, { target: { value: '  Prepare agenda  ' } });
     fireEvent.blur(input);
+    expect(mocks.create).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button',{name:'Add subtask',exact:true}));
     await waitFor(() => expect(mocks.refresh).toHaveBeenCalledOnce());
     expect(mocks.create).toHaveBeenCalledWith('task', 'Prepare agenda', { position: 0, dueDate: '2026-10-12' });
     expect((input as HTMLInputElement).value).toBe('');
   });
 
-  it('lets the task lead set a due date before focus leaves the add row', async () => {
+  it('lets the task lead set a due date before adding the subtask', async () => {
     show();
     const input = screen.getByRole('textbox', { name: 'Add subtask to Prepare assessment' });
     const date = screen.getByLabelText('Due date for new subtask to Prepare assessment');
@@ -102,17 +104,19 @@ describe('Project table subtask expansion', () => {
     expect(mocks.create).not.toHaveBeenCalled();
     fireEvent.change(date, { target: { value: '2026-10-10' } });
     fireEvent.blur(date);
+    expect(mocks.create).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button',{name:'Add subtask',exact:true}));
     await waitFor(() => expect(mocks.refresh).toHaveBeenCalledOnce());
     expect(mocks.create).toHaveBeenCalledWith('task', 'Prepare agenda', { position: 0, dueDate: '2026-10-10' });
   });
 
-  it('keeps order, owners, progress, dates, and evidence drawer access', () => {
+  it('keeps order, owners, dates, and evidence drawer access without showing progress', () => {
     const first = subtask({ id: 'first', title: 'First step', position: 1, dueDate: '2026-10-10', percentComplete: 40 });
     show({}, [subtask(), first]);
     const table = screen.getByRole('table', { name: 'Prepare assessment subtasks' });
     expect(within(table).getAllByRole('button', { name: /^Edit subtask/ }).map(button => button.textContent)).toEqual(['First step', 'Gather evidence']);
     expect(within(table).getAllByText('Maria Clara')).toHaveLength(2);
-    expect(within(table).getByText('40%')).toBeTruthy();
+    expect(within(table).queryByText('40%')).toBeNull();
     expect(within(table).getByText('Oct 10, 2026')).toBeTruthy();
     fireEvent.click(within(table).getByRole('button', { name: 'Open subtask First step' }));
     expect(mocks.openSubitem).toHaveBeenCalledWith(first,false);

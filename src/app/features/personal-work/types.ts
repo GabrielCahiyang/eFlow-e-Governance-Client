@@ -11,6 +11,7 @@ export const workDestinations = [
   "Assigned work",
   "Leading",
   "Subtasks",
+  "Reviews",
   "History",
 ] as const;
 export type WorkDestination = (typeof workDestinations)[number];

@@ -5,6 +5,8 @@ export function SubitemChildWork({itemId,controller,readOnly,executionBlocked,on
  itemId:string;controller:WorkTreeController;readOnly:boolean;executionBlocked:boolean;
  onOpenItem:(id:string)=>void;onReviewItem?:(id:string)=>void;
 }){
+ const snapshot=controller.data;
+ if(snapshot?.root.project&&!snapshot.nodes.some(node=>node.parent_subtask_id===itemId))return null;
  return <WorkTree key={itemId} rootId={controller.rootId} branchParentId={itemId} branchActions controller={controller} readOnly={readOnly} executionBlocked={executionBlocked}
   onOpenOfficeNode={node=>onOpenItem(node.id)} onReviewOfficeNode={onReviewItem?node=>onReviewItem(node.id):undefined}/>;
 }

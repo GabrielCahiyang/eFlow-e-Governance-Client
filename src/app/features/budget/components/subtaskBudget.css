@@ -1,0 +1,28 @@
+.bk-panel{padding:24px;border:1px solid var(--border,#d5e2df);border-radius:14px;background:var(--card,#fff);color:var(--foreground,#193b38);display:grid;gap:20px;min-width:0}
+.bk-panel header{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.bk-panel h3{font-weight:600;margin:0}
+.bk-panel h3 svg{display:inline-block;vertical-align:middle;margin-right:6px}
+.bk-panel p{font-size:13px;line-height:1.6;margin:5px 0;color:var(--muted-foreground,#56716c)}
+.bk-panel label{display:grid;gap:7px;font-size:13px}
+.bk-panel input:not([type=checkbox]),.bk-panel select,.bk-panel textarea{border:1px solid var(--border,#c5d7d2);border-radius:8px;background:var(--background,#fff);color:inherit;padding:11px;width:100%;min-width:0;box-sizing:border-box;font:inherit}
+.bk-panel textarea{min-height:100px;resize:vertical}
+.bk-panel button{border:1px solid var(--border,#b9d2ca);border-radius:8px;padding:10px 14px;font-size:13px;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer}
+.bk-panel button:disabled{opacity:.5;cursor:not-allowed}
+.bk-panel button.bk-primary{background:#087972;color:#fff;border-color:#087972}
+.bk-funding-row{display:grid;grid-template-columns:minmax(180px,1fr) 150px;gap:10px;align-items:start}
+.bk-task-accounts__balance{text-align:right;flex-shrink:0}
+.bk-task-accounts__balance small{display:block;font-size:11px;color:var(--muted-foreground,#56716c);margin-bottom:5px}
+.bk-task-accounts__balance strong{font-size:18px;color:#087972}
+.bk-panel label>small{color:var(--muted-foreground,#56716c);font-size:11px}
+.bk-task-accounts__totals{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:16px;border:1px solid var(--border,#d5e2df);background:var(--muted,#f1f8f5);border-radius:10px}
+.bk-task-accounts__totals>div{display:grid;gap:6px}
+.bk-task-accounts__totals span{font-size:12px;color:var(--muted-foreground,#56716c)}
+.bk-task-accounts__totals strong{font-size:17px;color:var(--foreground,#193b38)}
+.bk-error{display:flex;align-items:flex-start;gap:10px;border:1px solid #f2a5b0;background:#fff0f3;color:#a1122d;padding:14px;border-radius:9px;font-size:13px}
+.bk-existing-cap{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+@media(max-width:600px){
+  .bk-panel{padding:18px}
+  .bk-panel header{flex-direction:column;align-items:flex-start}
+  .bk-task-accounts__balance{text-align:left}
+  .bk-funding-row{grid-template-columns:1fr}
+}

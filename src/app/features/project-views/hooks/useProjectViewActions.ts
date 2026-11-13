@@ -2,14 +2,14 @@ import { useConfirmation } from '../../../components/ui/useConfirmation';
 import { useNavigationBlocker } from '../../../shared/navigationGuard';
 import { useRef, useState } from 'react';
 import { patchWorkspaceTask, timelineDraft, timelineError, type WorkspaceTaskPatch } from '../../project-table';
-import { updateTaskStatus, type Task, type TaskStatus } from '../../tasks';
+import { type Task } from '../../tasks';
 import { useAuth } from '../../../contexts/AuthContext';
 import { isHeadWorkspaceRole } from '../../../shared/roles';
-import { canEditProjectTask, projectBoardMoveError } from '../selectors';
+import { canEditProjectTask } from '../selectors';
 import { useProjectOfficeContext } from '../../project-offices';
 
 export function useProjectViewActions(project: { orgId?: string; status: string }, canManage: boolean) {
-  const { user, userProfile } = useAuth();
+  const { userProfile } = useAuth();
   const officeState = useProjectOfficeContext();
   const [notice, setNotice] = useState('');
   const [busy, setBusy] = useState(false);
@@ -17,7 +17,6 @@ export function useProjectViewActions(project: { orgId?: string; status: string 
   const schedulePending = useRef(false);
   const { confirm, dialog } = useConfirmation();
   useNavigationBlocker({ dirty: false, pending: busy, pendingCheck: () => inFlight.current || schedulePending.current, label: 'Project view change', onDiscard: () => {} });
-  const userId = user?.id || userProfile?.id || '';
   const officeId = userProfile?.org_id || userProfile?.departmentId || '';
   const closed = ['completed', 'archived'].includes(project.status);
   const ownOffice = officeState.offices.find(o => o.office_id === officeId);
@@ -26,7 +25,6 @@ export function useProjectViewActions(project: { orgId?: string; status: string 
   const structuralEdit = !readOnly && isHeadWorkspaceRole(userProfile?.role) && (canManage && project.orgId === officeId || !!officeAccess);
   const canEditDates = (task: Task) => canEditProjectTask(task, structuralEdit, officeId);
   const latestDateAccess = useRef(canEditDates); latestDateAccess.current = canEditDates;
-  const canMove = (task: Task) => !projectBoardMoveError(task, 'in_progress', userId, canEditDates(task), readOnly) && task.status !== 'in_progress';
   const saveDates = async (task: Task, patch: WorkspaceTaskPatch) => {
     if (!canEditDates(task)) throw new Error('Only the responsible Office Head can change this task schedule.');
     const dateError = timelineError(task, timelineDraft({ ...task,
@@ -48,11 +46,6 @@ export function useProjectViewActions(project: { orgId?: string; status: string 
     } finally { schedulePending.current = false; }
 
   };
-  const move = async (task: Task, status: TaskStatus) => {
-    const error = projectBoardMoveError(task, status, userId, canEditDates(task), readOnly);
-    if (error) throw new Error(error);
-    if (task.status !== status) await updateTaskStatus(task.id, status);
-  };
   const run = async (action: () => Promise<void>) => {
     if (inFlight.current || schedulePending.current) return;
     inFlight.current = true;
@@ -60,5 +53,5 @@ export function useProjectViewActions(project: { orgId?: string; status: string 
     try { await action(); } catch (error) { setNotice(error instanceof Error ? error.message : 'Could not save this change.'); }
     finally { inFlight.current = false; setBusy(false); }
   };
-  return { notice, setNotice, busy, dialog, canEditDates, canMove, saveDates, move, run };
+  return { notice, setNotice, busy, dialog, canEditDates, saveDates, run };
 }

@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { requestNavigation } from '../../../shared/navigationGuard';
-import { Calendar, CheckCircle2, Eye, ListChecks, LockKeyhole, Unlink2, UsersRound, X } from "lucide-react";
+import { Calendar, CheckCircle2, Eye, LockKeyhole, Unlink2, UsersRound, X } from "lucide-react";
 import type { Task } from "../../../services/taskService";
 import type { Subtask } from "../../../services/subtaskService";
-import { formatDate, ProgressBar, relativeDays } from "../../../components/workflow/primitives";
+import { formatDate, relativeDays } from "../../../components/workflow/primitives";
 import {
   fetchSubtask,
   fetchSubtaskProgressUpdates,
@@ -124,12 +124,7 @@ export function SubtaskWorkDrawerView({current,parentTask,prerequisite,readOnly,
         <div className="flex-1 space-y-4 overflow-y-auto p-4">
           {childWork}
           {!context && <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
-            <div className="flex items-center justify-between text-[11px] text-neutral-500">
-              <span className="flex items-center gap-1.5"><ListChecks size={13} /> Subtask progress</span>
-              <span className="font-semibold text-neutral-900">{current.percentComplete}%</span>
-            </div>
-            <div className="mt-2"><ProgressBar value={current.percentComplete} tone={current.status === "completed" ? "good" : "neutral"} /></div>
-            <div className="mt-3 grid grid-cols-2 gap-3 text-[11px]">
+            <div className="grid grid-cols-2 gap-3 text-[11px]">
               <div>
                 <div className="text-neutral-400">Completion rule</div>
                 <div className="mt-0.5 flex items-center gap-1 text-neutral-700"><CheckCircle2 size={12} /> Managed by the task lead</div>

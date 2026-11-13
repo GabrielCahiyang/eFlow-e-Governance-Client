@@ -348,7 +348,7 @@ export function CashRequestTimeline({
                     <ReceiptText size={9} />{" "}
                     {request.status === "changes_requested"
                       ? "Correct receipts"
-                      : "Upload receipts"}
+                      : "Record expenses"}
                   </button>
                 )}
               </div>

@@ -11,8 +11,8 @@ import { requestNavigation } from '../../../shared/navigationGuard';
 import type { ProjectOffice } from '../types';
 
 /** Direct entry to the canonical Office staffing editor, with no alternate membership write. */
-export function ProjectPeoplePage({ projectTitle, projectStatus, governed, profiles, profilesLoading = false, organizations, tasks, onClose, onOpenTask, onSaved }: {
-  projectTitle: string; projectStatus: string; governed: boolean; profiles: UserProfile[]; profilesLoading?: boolean; organizations: Organization[]; tasks: Task[];
+export function ProjectPeoplePage({ projectTitle, projectStatus, projectLeadId, governed, profiles, profilesLoading = false, organizations, tasks, onClose, onOpenTask, onSaved }: {
+  projectTitle: string; projectStatus: string; projectLeadId?:string; governed: boolean; profiles: UserProfile[]; profilesLoading?: boolean; organizations: Organization[]; tasks: Task[];
   onClose: () => void; onOpenTask: (id: string) => void; onSaved?: () => Promise<void>;
 }) {
   const { user, userProfile } = useAuth();
@@ -30,7 +30,7 @@ export function ProjectPeoplePage({ projectTitle, projectStatus, governed, profi
     <p>Selected people can access this project. AI auto assign also adds its chosen people here.</p>
     {editorOffice ? <>
       {state.error && <div role="alert"><p>{state.error}</p><Button size="small" onClick={() => void state.refresh()}>Retry project people</Button></div>}
-      <OfficeMembersEditor key={`${user?.id}:${editorOffice.id}`} office={editorOffice} profiles={profiles} members={state.members} tasks={tasks} actorId={user?.id || ''} disabledReason={allowed && !profilesLoading ? '' : reason} onOpenTask={onOpenTask} onCancel={onClose} onSaved={async () => { await state.refresh(); await onSaved?.(); }}/>
+      <OfficeMembersEditor key={`${user?.id}:${editorOffice.id}`} office={editorOffice} projectLeadId={projectLeadId} profiles={profiles} members={state.members} tasks={tasks} actorId={user?.id || ''} disabledReason={allowed && !profilesLoading ? '' : reason} onOpenTask={onOpenTask} onCancel={onClose} onSaved={async () => { await state.refresh(); await onSaved?.(); }}/>
     </> : state.loading || profilesLoading ? <div role="status" aria-label="Loading project people"><Skeleton type="rectangle" size="custom" height={180} fullWidth/></div>
       : state.error ? <div role="alert"><p>{state.error}</p><Button size="small" onClick={() => void state.refresh()}>Retry project people</Button></div>
       : <p role="status">{reason}</p>}

@@ -1,11 +1,10 @@
 import {useAuth} from '../../../../contexts/AuthContext';
-import {isHeadWorkspaceRole} from '../../../../shared/roles';
 import {formatDate} from '../../../../components/workflow/primitives';
 import {WorkStatusControl} from '../../../work-state';
 import {latestProgressByWorkItem} from '../../../team-management';
 import type {TaskInspectorOrigin} from '../../../task-inspector';
 import { AlertCircle, ArrowLeft, Calendar, CheckSquare, ChevronDown, Clock, Layers, MoreVertical, Paperclip, Table2 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import type { UserProfile } from "../../../../types";
 import { useToast } from "../../../../components/ui/Toast";
 import { getTaskLeadId, getTaskTeamMemberIds,isTaskLead, isOverdue, updateTask, type Task, type TaskStatus } from "../../../tasks";
@@ -71,8 +70,6 @@ export function ProjectWorkTab({
 }) {
   const { toast } = useToast();
   const {user,userProfile}=useAuth();
-  const [dragTaskId, setDragTaskId] = useState('');
-  const [dropLane, setDropLane] = useState('');
   const actions = useProjectViewActions(data.project, canManage);
   const tasksByColumn = useMemo(
     () => groupProjectTasksForFigmaBoard(data.tasks),
@@ -88,11 +85,11 @@ export function ProjectWorkTab({
           <ArrowLeft size={16} /><Table2 size={16} />Back to main table
         </button>
       </header>}
-      <p className="pv-help">Drag or use Start / Resume for permitted moves. Evidence submission and approval stay in task details and Reviews.</p>
+      <p className="pv-help">Use task details to start work, post updates, or submit for review.</p>
       {actions.notice && <p className="pv-error pv-board-notice" role="alert">{actions.notice}</p>}
       <div className="eflow-figma-board__columns">
         {FIGMA_PROJECT_BOARD_COLUMNS.filter(column => !['changes_requested','cancelled'].includes(column.id) || (tasksByColumn.get(column.id)?.length || 0) > 0).map((column) => (
-          <section className={'eflow-figma-board__column ' + (dropLane === column.id ? 'pv-board-drop' : '')} key={column.id} aria-label={column.label + ' lane'} onDragOver={e => { if (dragTaskId) { e.preventDefault(); setDropLane(column.id); } }} onDragLeave={() => setDropLane('')} onDrop={e => { e.preventDefault(); const id=e.dataTransfer.getData('application/eflow-project-task'); const task=data.tasks.find(t=>t.id===id); setDropLane('');setDragTaskId(''); if(task) void actions.run(()=>actions.move(task,column.id)); }}>
+          <section className="eflow-figma-board__column" key={column.id} aria-label={column.label + ' lane'}>
             <header className="eflow-figma-board__column-header" style={{background:column.tone,color:'white',borderColor:column.tone}}>
               <span className="eflow-figma-board__column-title">
                 <i style={{ backgroundColor: column.tone }} />
@@ -102,7 +99,7 @@ export function ProjectWorkTab({
             </header>
             <div className="eflow-figma-board__cards">
               {(tasksByColumn.get(column.id) || []).map((task) => (
-                <div key={task.id} className="pv-board-card" draggable={actions.canMove(task)&&!actions.busy} aria-label={'Board card '+task.title} onDragStart={e=>{e.dataTransfer.setData('application/eflow-project-task',task.id);e.dataTransfer.effectAllowed='move';setDragTaskId(task.id);}} onDragEnd={()=>{setDragTaskId('');setDropLane('');}}>
+                <div key={task.id} className="pv-board-card" aria-label={'Board card '+task.title}>
                 <TaskBoardCard
                   canManage={actions.canEditDates(task)}
                   data={data}
@@ -122,7 +119,7 @@ export function ProjectWorkTab({
                     }
                   }}
                 />
-                <WorkStatusControl status={task.status} stuck={!!latestUpdates.get(`task:${task.id}`)?.blocker} disabled={!isHeadWorkspaceRole(userProfile?.role)||['completed','archived'].includes(data.project.status)||userProfile?.is_active===false||actions.busy||!getTaskTeamMemberIds(task).includes((user?.id||''))} onStart={()=>onOpenTask(task.id,'work')} onBlocker={()=>onOpenTask(task.id,'report-blocker')} onSubmit={isHeadWorkspaceRole(userProfile?.role)&&isTaskLead(task,(user?.id||''))?()=>onOpenTask(task.id,'submit-work'):undefined}/>
+                <WorkStatusControl status={task.status} stuck={!!latestUpdates.get(`task:${task.id}`)?.blocker} disabled={!userProfile||data.project.status!=='active'||userProfile.is_active===false||actions.busy||!getTaskTeamMemberIds(task).includes((user?.id||''))} onStart={()=>onOpenTask(task.id,'work')} onBlocker={()=>onOpenTask(task.id,'report-blocker')} onSubmit={isTaskLead(task,(user?.id||''))?()=>onOpenTask(task.id,'submit-work'):undefined}/>
 
                 </div>
               ))}

@@ -16,9 +16,9 @@ import { removeChatImage, uploadChatImage, validateChatImage } from '../services
 import { ConversationImage } from './ConversationImage';
 import { ChatMentionInput } from './ChatMentionInput';
 
-export function ActiveChatPanel({ conversation, userId, userName, targetMessageId, onClearTarget, onBack, onOpenTask, onOpenProject }: {
+export function ActiveChatPanel({ conversation, userId, userName, targetMessageId, onClearTarget, onBack, backLabel = 'Back to conversations', onOpenTask, onOpenProject }: {
   conversation: Conversation; userId?: string; userName?: string;
-  onBack: () => void; onOpenTask: (id: string) => void; onOpenProject: (id: string) => void;
+  onBack: () => void; backLabel?: string; onOpenTask: (id: string) => void; onOpenProject: (id: string) => void;
   targetMessageId?: string; onClearTarget: () => void;
 }) {
   const { refresh: refreshList, outgoingCall, setOutgoingCall } = useMessages();
@@ -154,7 +154,7 @@ export function ActiveChatPanel({ conversation, userId, userName, targetMessageI
   return <div className="messages-active-layout" data-show-info={showInfo || undefined}>
     <section className="messages-thread" aria-label={'Conversation with ' + conversation.name}>
       <header className="messages-thread-header">
-        <button type="button" className="messages-icon-button messages-back" aria-label="Back to conversations" onClick={onBack}><ArrowLeft size={20} /></button>
+        <button type="button" className="messages-back" onClick={onBack}><ArrowLeft size={16} aria-hidden="true" />{backLabel}</button>
         <ConversationAvatar conversation={conversation} />
         <div className="messages-thread-identity">
           <h2>{conversation.name}</h2>

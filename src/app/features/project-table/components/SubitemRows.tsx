@@ -3,7 +3,8 @@ import { getPhilippineCalendarDate, scheduledDateError } from '../../../shared/c
 import {supportsNestedWork,type WorkTreeController} from '../../nested-work';
 import { useState } from 'react';
 import { PanelRight } from 'lucide-react';
-import { InlineEditableText } from '../../../components/ui/workspace';
+import { InlineEditableText, PrerequisiteCell, PriorityCell } from '../../../components/ui/workspace';
+import { ProjectSubtaskBudgetCell, ProjectWorkExpensesCell } from '../../budget';
 import { TaskSubtasksWidget, createSubtask, updateSubtask, parentTaskDueDate, type Subtask } from '../../subtasks';
 import { TASK_STATUS_LABELS, type Task } from '../../tasks';
 import type { UserProfile } from '../../../types';
@@ -37,7 +38,8 @@ function LegacySubitemRows({ task, subtasks, columns, profiles, canAdd, readOnly
     <section id={'pt-subitems-' + task.id} className="pt-subitems" aria-label={'Subtasks for ' + task.title}>
       <div className="pt-subitems-table-scroll"><table aria-label={task.title + ' subtasks'}>
         <thead><tr>
-          <th scope="col">Subtask</th><th scope="col">Owner</th><th scope="col">Status</th><th scope="col">Due date</th><th scope="col">Progress</th>
+          <th scope="col">Subtask</th><th scope="col">Owner</th><th scope="col">Status</th><th scope="col">Due date</th>
+          <th scope="col">Priority</th><th scope="col">Dependencies</th><th scope="col">Budget</th><th scope="col">Actual expenses</th>
         </tr></thead>
         <tbody>
           {[...subtasks].sort((a, b) => a.position - b.position).map(subtask => {
@@ -51,12 +53,16 @@ function LegacySubitemRows({ task, subtasks, columns, profiles, canAdd, readOnly
               <td className="pt-subitem-owner" title={owners || 'Unassigned'}>{owners || 'Unassigned'}</td>
               <td className="pt-subitem-status" style={{ background: STATUS_COLORS[subtask.status] }}>{TASK_STATUS_LABELS[subtask.status]}</td>
               <td><DeadlineBadge value={subtask.dueDate} status={subtask.status}/></td>
-              <td>{subtask.percentComplete}%</td>
+              <td><PriorityCell title={subtask.title} value={subtask.priority} disabled onSave={async () => {}} /></td>
+              <td><PrerequisiteCell title={subtask.title} itemName="subtask" selectedIds={subtask.dependencyIds || []}
+                records={subtasks} getChoices={() => []} disabled description="" completedLabel="Completed" onSave={async () => {}} /></td>
+              <td><ProjectSubtaskBudgetCell task={task} subtaskId={subtask.id} subtaskTitle={subtask.title} readOnly={readOnly} /></td>
+              <td><ProjectWorkExpensesCell task={task} subtaskId={subtask.id}/></td>
             </tr>;
           })}
-          {!subtasks.length && !canAdd && <tr><td colSpan={5} className="pt-subitems-empty">No subtasks yet.</td></tr>}
+          {!subtasks.length && !canAdd && <tr><td colSpan={8} className="pt-subitems-empty">No subtasks yet.</td></tr>}
         </tbody>
-      {canAdd && <tfoot><tr><td colSpan={5}><div className="pt-subitem-add">
+      {canAdd && <tfoot><tr><td colSpan={8}><div className="pt-subitem-add">
         <InlineCreateRow autoFocus label={'Add subtask to ' + task.title} itemName="subitem" maxLength={200}
           onCreate={async title => {
             if (!canAdd) throw new Error(unavailableReason);

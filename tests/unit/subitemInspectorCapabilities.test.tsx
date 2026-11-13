@@ -51,20 +51,20 @@ describe('NW8.2 independent Inspector action capabilities',()=>{
  });
  it('lets an assigned contributor execute/request cash while management remains absent',async()=>{
   const data=tree({assigned_to_ids:['actor'],lead_id:'other'});data.nodes[0].capabilities!.execute=allow;
-  render(<SubitemInspector rootTask={task} itemId="node" controller={controller(data)} onClose={()=>{}}/>);await screen.findByRole('heading',{name:'Assigned item'});expect(await screen.findByRole('button',{name:'Start work'})).toBeTruthy();fireEvent.click(screen.getByText('Funding details'));await screen.findByRole('button',{name:'Request cash'});expect(screen.queryByRole('button',{name:'Child work actions'})).toBeNull();expect(screen.queryByRole('button',{name:'Set cap'})).toBeNull();
+  render(<SubitemInspector rootTask={task} itemId="node" controller={controller(data)} onClose={()=>{}}/>);await screen.findByRole('heading',{name:'Assigned item'});expect(await screen.findByRole('button',{name:'Start work'})).toBeTruthy();expect(screen.getByText('Funding details').closest('details')?.open).toBe(true);await screen.findByRole('button',{name:'Request cash'});expect(screen.queryByRole('button',{name:'Child work actions'})).toBeNull();expect(screen.queryByRole('button',{name:'Set cap'})).toBeNull();
  });
  it('allows branch management without converting it into execution or cap authority',async()=>{
   const data=tree();data.nodes[0].capabilities!.manage_contributors=allow;data.nodes[0].capabilities!.edit_details=allow;
   render(<SubitemInspector rootTask={task} itemId="node" controller={controller(data)} onClose={()=>{}}/>);await screen.findByRole('heading',{name:'Assigned item'});expect(screen.queryByRole('button',{name:'Start work'})).toBeNull();expect(screen.getByText('Authorized deadline control')).toBeTruthy();
-  fireEvent.keyDown(screen.getByRole('button',{name:'Child work actions'}),{key:'Enter'});await screen.findByRole('menuitem',{name:'Choose people'});expect(screen.queryByRole('menuitem',{name:'Review',exact:true})).toBeNull();expect(screen.queryByRole('button',{name:'Set cap'})).toBeNull();expect(api.save).not.toHaveBeenCalled();
+  expect(screen.queryByRole('button',{name:'Child work actions'})).toBeNull();expect(screen.queryByRole('button',{name:'Set cap'})).toBeNull();expect(api.save).not.toHaveBeenCalled();
  });
  for(const [label,patch,eligible] of [['history-only',{},true],['archived',{archivedAt:1},true],['expired',{},false]] as const)it(`blocks old assigned-worker funding and execution for ${label}`,async()=>{
   const data=tree({assigned_to_ids:['actor']});data.nodes[0].capabilities!.execute=label==='expired'?{allowed:false,reason_code:'access_unavailable'}:allow;data.people[0].eligible=eligible;
   render(<SubitemInspector rootTask={{...task,...patch}} itemId="node" controller={controller(data)} readOnly={label==='history-only'} onClose={()=>{}}/>);await screen.findByRole('heading',{name:'Assigned item'});expect(screen.queryByRole('button',{name:'Start work'})).toBeNull();expect(screen.queryByRole('button',{name:'Request cash'})).toBeNull();expect(screen.queryByRole('button',{name:'Child work actions'})).toBeNull();
  });
  it('keeps funding rights independent of execution and review capabilities',async()=>{
-  const data=tree({assigned_to_ids:['actor']});const c=controller(data),view=render(<SubitemInspector rootTask={task} itemId="node" controller={c} executionBlocked onClose={()=>{}}/>);await screen.findByRole('heading',{name:'Assigned item'});fireEvent.click(screen.getByText('Funding details'));await screen.findByRole('button',{name:'Request cash'});expect(screen.queryByRole('button',{name:'Start work'})).toBeNull();
-  view.rerender(<SubitemInspector rootTask={task} itemId="node" controller={{...c,refreshPending:true}} onClose={()=>{}}/>);expect(screen.queryByRole('button',{name:'Request cash'})).toBeNull();
+  const data=tree({assigned_to_ids:['actor']});const c=controller(data),view=render(<SubitemInspector rootTask={task} itemId="node" controller={c} executionBlocked onClose={()=>{}}/>);await screen.findByRole('heading',{name:'Assigned item'});await screen.findByRole('button',{name:'Request cash'});expect(screen.queryByRole('button',{name:'Start work'})).toBeNull();
+  view.rerender(<SubitemInspector rootTask={task} itemId="node" controller={{...c,refreshPending:true}} onClose={()=>{}}/>);expect((screen.getByRole('button',{name:'Request cash'}) as HTMLButtonElement).disabled).toBe(true);expect(screen.getByText('Checking funding access…')).toBeTruthy();
  });
  it('keeps formal evidence denied when the signing service returns no URL',async()=>{
   api.load.mockResolvedValue({subtask:{id:'node',taskId:'root',assignedToIds:[],status:'todo'},submissions:[{...submission,attachments:[{fileName:'private.pdf',filePath:'sealed/path',fileSize:1,mimeType:'application/pdf'}]}],progressUpdates:[]});
