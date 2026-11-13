@@ -27,15 +27,79 @@ test('desktop project setup precedes tasks and derives a quarterly funding envel
  expect(commands.some(c=>c.op==='authorize_project_funding'&&c.p_lines[0].amount===300000&&c.p_lines[1].quarter===2)).toBe(true);
 });
 
-test('Create project stays in one large modal through details, scope, dates and explicit no funding',async({page},info)=>{
- test.setTimeout(120000);await page.setViewportSize({width:1440,height:1000});const records=await projectWorkspaceFixture(page,'head',false,{landingOnly:true});const id=crypto.randomUUID();let ready=false;const p:any={...records.projects[0],id,title:'',description:'',scope:'',project_lead_id:null,start_date:null,target_date:null,funding_not_required:false};let creates=0;
- await page.route(/\/rest\/v1\/rpc\/(create_project_with_details|project_flow_snapshot|save_project_definition|finish_project_setup)$/,async route=>{
+test('Create project keeps the wide wizard and authorizes funding in place',async({page})=>{
+ test.setTimeout(90000);
+ await page.setViewportSize({width:1440,height:1000});
+ const records=await projectWorkspaceFixture(page,'head',false,{landingOnly:true});
+ const id=crypto.randomUUID(),source=crypto.randomUUID();
+ const project={...records.projects[0],id,title:'',description:'',scope:'',project_lead_id:null,start_date:null,target_date:null,funding_not_required:false};
+ const funds:{id:string;name:string;fiscal_year:number;amount:number;available:number}[]=[];
+ const writes:string[]=[];
+ await page.route(/\/rest\/v1\/rpc\/(create_project_draft_once|project_flow_snapshot|save_project_definition|authorize_project_funding|finish_project_setup)$/,async route=>{
   const name=route.request().url().split('/').at(-1),body=route.request().postDataJSON();
-  if(name==='create_project_with_details'){creates++;Object.assign(p,body.p_payload);records.projects.push(p);records.projectOffices.push({id:crypto.randomUUID(),project_id:id,office_id:records.org,relationship_type:'lead',invitation_status:'joined'});return route.fulfill({json:p});}
-  if(name==='project_flow_snapshot')return route.fulfill({json:{project:p,ready,canAuthorize:true,canAllocate:true,funds:[],sources:[],total:0,allocated:0,unallocated:0,released:0,spent:0,requests:[],fundingRequests:[],taskFunding:[],liquidations:[]}});
-  if(name==='save_project_definition'){const d=body.p_details;Object.assign(p,{title:d.title,description:d.description,scope:d.scope,project_lead_id:d.lead,start_date:d.start,target_date:d.end,funding_not_required:d.noFunding,updated_at:new Date().toISOString()});return route.fulfill({json:p});}
-  ready=true;return route.fulfill({json:null});
+  if(name==='create_project_draft_once'){
+   writes.push(name); expect(body.p_key).toBeTruthy();
+   Object.assign(project,body.p_payload);records.projects.push(project);
+   records.projectOffices.push({id:crypto.randomUUID(),project_id:id,office_id:records.org,relationship_type:'lead',invitation_status:'joined'});
+   return route.fulfill({json:project});
+  }
+  if(name==='project_flow_snapshot'){
+   if(body.p_project!==id)return route.fallback();
+   const total=funds.reduce((sum,fund)=>sum+fund.amount,0);
+   return route.fulfill({json:{project,ready:total>0,canAuthorize:true,canAllocate:true,funds,sources:[{id:source,name:'Community services',year:2027,available:10000-total}],total,allocated:0,unallocated:total,released:0,spent:0,requests:[],fundingRequests:[],taskFunding:[],liquidations:[]}});
+  }
+  if(name==='save_project_definition'){
+   writes.push(name);
+   const d=body.p_details;
+   Object.assign(project,{title:d.title,description:d.description,scope:d.scope,project_lead_id:d.lead,start_date:d.start,target_date:d.end,funding_not_required:d.noFunding,updated_at:new Date().toISOString()});
+   return route.fulfill({json:project});
+  }
+  if(name==='authorize_project_funding'){
+   writes.push(name);
+   expect(project.scope).toBe('Workshop delivery');
+   expect(body.p_lines).toEqual([{partitionId:source,amount:1234.56}]);
+   expect(body.p_reason).toBe('Approved annual work programme');
+   funds.push({id:crypto.randomUUID(),name:'Community services',fiscal_year:2027,amount:1234.56,available:1234.56});
+   return route.fulfill({json:{authorized:1234.56}});
+  }
+  writes.push('finish_project_setup');return route.fulfill({json:null});
  });
- await page.goto(`/projects?page=Projects&workspace=${records.org}`);await page.getByRole('button',{name:'Create project',exact:true}).click();const wizard=page.locator('.eflow-responsive-modal').filter({has:page.locator('.pf-wizard-modal')});await expect(wizard).toBeVisible();expect((await wizard.boundingBox())!.width).toBeGreaterThan(1000);
- await wizard.getByLabel('Project title *').fill('QA connected creation');await wizard.getByLabel('Description *').fill('Create the project through one guided dialog.');await wizard.getByRole('button',{name:'Next',exact:true}).click();await wizard.getByLabel('Scope of the project *').fill('A non-financial internal planning activity.');await wizard.getByRole('button',{name:'Next',exact:true}).click();await wizard.getByLabel('Project lead *').selectOption(records.id);await wizard.getByLabel('Project start date *').fill('2027-01-01');await wizard.getByLabel('Project target date *').fill('2027-01-31');expect(creates).toBe(0);await page.screenshot({path:info.outputPath('connected-create-lead-dates.png'),fullPage:true});await wizard.getByRole('button',{name:'Next',exact:true}).click();await wizard.getByLabel('No funding required for this project').check();await wizard.getByRole('button',{name:'Next',exact:true}).click();await expect(wizard.getByRole('heading',{name:'Ready to build the work plan?'})).toBeVisible();await wizard.getByRole('button',{name:'Finish setup and open tasks'}).click();await expect(wizard).toHaveCount(0);await expect(page).toHaveURL(new RegExp(`project=${id}.*view=tasks`));expect(creates).toBe(1);expect(p.funding_not_required).toBe(true);
+ await page.goto(`/projects?page=Projects&workspace=${records.org}`);
+ await page.getByRole('button',{name:'Create project',exact:true}).click();
+ const wizard=page.locator('.eflow-responsive-modal').filter({has:page.locator('.pf-wizard-modal')});
+ await expect(wizard).toBeVisible();
+ expect((await wizard.boundingBox())!.width).toBeGreaterThan(1000);
+ await expect(wizard.locator('.pf-wizard-opening-preview')).toBeVisible();
+ await expect(wizard.getByRole('navigation',{name:'Project setup steps'}).getByRole('button')).toHaveCount(6);
+ await page.setViewportSize({width:390,height:844});
+ expect(await wizard.evaluate(element=>element.scrollWidth<=element.clientWidth+1)).toBe(true);
+ await page.setViewportSize({width:1440,height:1000});
+ await wizard.getByLabel('Project title *').fill('QA funded project');
+ await wizard.getByLabel('Description *').fill('Support local enterprises.');
+ const next=wizard.getByRole('button',{name:'Next',exact:true});
+ await next.click();
+ await wizard.getByLabel('Scope of the project *').fill('Workshop delivery');
+ await next.click();
+ await wizard.getByLabel('Project Lead *').selectOption(records.id);
+ await wizard.getByLabel('Project start date *').fill('2027-01-01');
+ await wizard.getByLabel('Project target date *').fill('2027-06-30');
+ await next.click();
+ const budget=wizard.getByRole('region',{name:'Project budget'});
+ await expect(budget.getByLabel('Fiscal year')).toBeEnabled();
+ expect(writes).toEqual(['create_project_draft_once','save_project_definition']);
+ await expect(wizard.getByRole('button',{name:'Save details and load funding'})).toHaveCount(0);
+ await budget.getByLabel('Fiscal year').selectOption('2027');
+ await budget.getByLabel('Office Budget source').selectOption(source);
+ await budget.getByRole('spinbutton').fill('1234.56');
+ await budget.getByLabel('Reason / approved authority reference').fill('Approved annual work programme');
+ await budget.getByRole('button',{name:'Authorize project funding'}).click();
+ await expect(budget.getByText('Project funding authorized.')).toBeVisible();
+ await expect(wizard.getByLabel('No funding required for this project')).toBeDisabled();
+ await next.click();
+ await expect(wizard.getByRole('region',{name:'Project people'})).toBeVisible();
+ await next.click();
+ await expect(wizard.getByText('FY 2027 · Community services')).toBeVisible();
+ await wizard.getByRole('button',{name:'Create project',exact:true}).click();
+ await expect(wizard).toHaveCount(0);
+ expect(writes).toEqual(['create_project_draft_once','save_project_definition','authorize_project_funding','finish_project_setup']);
 });
