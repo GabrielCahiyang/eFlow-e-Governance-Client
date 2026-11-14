@@ -75,9 +75,9 @@ test('Create project saves the team and only selected template work before openi
   for(const user of args.p_users)if(!records.officeMembers.some(member=>member.user_id===user&&member.project_office_id===officeId))records.officeMembers.push({project_office_id:officeId,user_id:user});
   return route.fulfill({json:args.p_users});
  });
- await page.route(/\/rest\/v1\/rpc\/(create_project_with_details|project_flow_snapshot|save_project_definition|finish_project_setup)$/,async route=>{
+ await page.route(/\/rest\/v1\/rpc\/(create_project_draft_once|project_flow_snapshot|save_project_definition|finish_project_setup)$/,async route=>{
   const name=route.request().url().split('/').at(-1),body=route.request().postDataJSON();
-  if(name==='create_project_with_details'){creates++;Object.assign(p,body.p_payload);records.projects.push(p);records.projectOffices.splice(0,records.projectOffices.length,{id:officeId,project_id:id,office_id:records.org,relationship_type:'lead',invitation_status:'joined'});return route.fulfill({json:p});}
+  if(name==='create_project_draft_once'){expect(body.p_key).toEqual(expect.any(String));creates++;Object.assign(p,body.p_payload);records.projects.push(p);records.projectOffices.splice(0,records.projectOffices.length,{id:officeId,project_id:id,office_id:records.org,relationship_type:'lead',invitation_status:'joined'});return route.fulfill({json:p});}
   if(name==='project_flow_snapshot')return route.fulfill({json:{project:p,ready,canAuthorize:true,canAllocate:true,funds:[],sources:[],total:0,allocated:0,unallocated:0,released:0,spent:0,requests:[],fundingRequests:[],taskFunding:[],liquidations:[]}});
   if(name==='save_project_definition'){const d=body.p_details;Object.assign(p,{title:d.title,description:d.description,scope:d.scope,project_lead_id:d.lead,start_date:d.start,target_date:d.end,funding_not_required:d.noFunding,updated_at:new Date().toISOString()});return route.fulfill({json:p});}
   ready=true;records.officeMembers.push({project_office_id:officeId,user_id:records.id});return route.fulfill({json:null});
