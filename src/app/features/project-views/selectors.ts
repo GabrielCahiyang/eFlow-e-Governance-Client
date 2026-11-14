@@ -15,8 +15,8 @@ export function calendarDay(value?: string | null): number | null {
   return Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86400000;
 }
 export function dayString(day: number): string { return new Date(day * 86400000).toISOString().slice(0, 10); }
-export function replaceDatePart(value: string | undefined, date: string): string {
-  return date + (value?.match(/^\d{4}-\d{2}-\d{2}(T.*)$/)?.[1] || '');
+export function replaceDatePart(_value: string | undefined, date: string): string {
+  return date;
 }
 export function scheduledTaskRows(tasks: Task[]): TaskScheduleRow[] {
   return tasks.flatMap(task => {

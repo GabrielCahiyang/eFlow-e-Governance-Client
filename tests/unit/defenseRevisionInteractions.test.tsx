@@ -68,13 +68,12 @@ describe("clear task context", () => {
     view.rerender(<TaskDepartmentProvider organizations={organizations} defaultDepartmentId="lead"><TaskDepartmentLabel task={{}} draft /></TaskDepartmentProvider>);
     expect(screen.getByText("Office: LEDIPO")).toBeTruthy();
   });
-  it("round trips Philippine due times and rejects impossible calendar dates", () => {
-    expect(deadlineInputParts("2026-09-30T15:30:00Z")).toEqual({ date: "2026-09-30", time: "23:30" });
-    expect(deadlineFromInputs("2026-09-30", "23:30")).toBe("2026-09-30T23:30:00+08:00");
-    expect(deadlineFromInputs("2026-09-30", "")).toBe("2026-09-30");
+  it("extracts Philippine calendar dates and rejects due times and impossible calendar dates", () => {
+    expect(deadlineInputParts("2026-09-30T15:30:00Z")).toEqual({ date: "2026-09-30" });
+    expect(deadlineFromInputs("2026-09-30")).toBe("2026-09-30");
+    expect(isValidCalendarDeadline("2026-09-30")).toBe(true);
     expect(isValidCalendarDeadline("2026-02-30")).toBe(false);
-    expect(isValidCalendarDeadline("2026-09-30T25:00:00+08:00")).toBe(false);
-    expect(isValidCalendarDeadline("2026-09-30T23:30:00+08:00")).toBe(true);
+    expect(isValidCalendarDeadline("2026-09-30T23:30:00+08:00")).toBe(false);
   });
   it("suggests actions available to each role", () => {
     const sections = [{ id: "projects", label: "Plans & Projects", page: "Plans & Projects" }, { id: "users", label: "Users", page: "All Users" }, { id: "tasks", label: "Tasks", page: "My Tasks" }];

@@ -21,9 +21,9 @@ describe('Head workspace dashboard',()=>{
   const data=snapshot();data.rows.push(row('Today',{due:'2026-10-16T16:30:00Z'}),row('Private',{kind:'personal-task'}),row('Archived',{task:{archivedAt:1} as WorkRow['task']}));
   const model=headOverview(data,now);expect(model.attention.overdue.map(r=>r.id)).not.toContain('Today');expect(model.attention.upcoming.map(r=>r.id)).toContain('Today');expect(model.open).toHaveLength(3);
  });
- it('respects an optional due time that has already passed today',()=>{
-  const data=snapshot();data.rows.push(row('Timed task',{due:'2026-10-17T11:00:00+08:00',task:{deadline:'2026-10-17T11:00:00+08:00',createdAt:now.getTime()} as WorkRow['task']}));
-  const model=headOverview(data,now);expect(model.attention.overdue.map(row=>row.id)).toContain('Timed task');expect(model.attention.upcoming.map(row=>row.id)).not.toContain('Timed task');
+ it('treats a task due today as upcoming rather than overdue until the day ends',()=>{
+  const data=snapshot();data.rows.push(row('Due today task',{due:'2026-10-17',task:{deadline:'2026-10-17',createdAt:now.getTime()} as WorkRow['task']}));
+  const model=headOverview(data,now);expect(model.attention.overdue.map(row=>row.id)).not.toContain('Due today task');expect(model.attention.upcoming.map(row=>row.id)).toContain('Due today task');
  });
  it('opens the actual project, reports and task behind each summary',()=>{
   const onNavigate=vi.fn(),onOpen=vi.fn();render(<HeadWorkspaceDashboard name="LEDIPO" data={snapshot()} loading={false} onRefresh={vi.fn()} onNavigate={onNavigate} onOpen={onOpen} canReports/>);

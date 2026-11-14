@@ -20,9 +20,9 @@ it('keeps completed, cancelled, missing and relative deadlines neutral', () => {
   expect(deadlinePresentation('Month 1','todo',now)).toMatchObject({tone:'neutral',date:'',label:'Month 1'});
   expect(deadlinePresentation('2026-02-30','todo',now).date).toBe('');
 });
-it('uses Manila midnight and respects a specific due time', () => {
+it('uses Manila midnight and keeps due-today tasks out of overdue until midnight', () => {
   expect(deadlinePresentation('2026-11-04','todo',Date.parse('2026-11-03T16:01:00Z')).label).toBe('Due today');
-  expect(deadlinePresentation('2026-11-03T11:00:00+08:00','todo',now).label).toBe('Overdue today');
+  expect(deadlinePresentation('2026-11-03','todo',now).label).toBe('Due today');
   expect(deadlinePresentation('2026-11-03T17:00:00Z','todo',now)).toMatchObject({date:'2026-11-04',days:1});
 });
 it('updates a mounted badge at midnight without a manual refresh', () => {

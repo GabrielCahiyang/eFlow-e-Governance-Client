@@ -20,8 +20,8 @@ describe('Phase 12 shared context',()=>{
   expect(projectViewPreferenceKey('a','p')).not.toBe(projectViewPreferenceKey('a','q'));
   expect(normalizeProjectFilters({query:'brief',dateFrom:'2028-02-29',sort:'deadline'})).toMatchObject({query:'brief',dateFrom:'2028-02-29',sort:'deadline'});
  });
- it.each(['2026-03-08T16:15:00-04:00','2026-11-01T16:15:00-05:00','2026-10-06T16:15:00+08:00','2026-10-06T16:15:00Z'])('preserves recorded wall time and timezone suffix for %s',deadline=>{
-  const patch=shiftedTaskDates(task('dated',{deadline}),1,'move');expect(patch.deadline.slice(10)).toBe(deadline.slice(10));expect(patch.start_date).toBeNull();
+ it.each(['2026-03-08T16:15:00-04:00','2026-11-01T16:15:00-05:00','2026-10-06T16:15:00+08:00','2026-10-06T16:15:00Z'])('strips legacy due times when shifting schedule dates for %s',deadline=>{
+  const patch=shiftedTaskDates(task('dated',{deadline}),1,'move');expect(patch.deadline).toMatch(/^\d{4}-\d{2}-\d{2}$/);expect(patch.start_date).toBeNull();
  });
  it('scopes every fact and attention collection with the same task IDs without mutating canonical data',()=>{
   const tasks=[task('a'),task('b')], facts={subtasks:[{taskId:'a'},{taskId:'b'}],progress:[{taskId:'a'},{taskId:'b'}],submissions:[{taskId:'a'},{taskId:'b'}],statusHistory:[{taskId:'a'},{taskId:'b'}],evidence:[{taskId:'a'},{taskId:'b'}]};

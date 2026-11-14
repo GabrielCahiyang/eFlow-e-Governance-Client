@@ -78,7 +78,7 @@ test('dates retain network failures and pending drafts, submit once, close on pe
   await expect(editor).toBeVisible(); expect(attempts).toBe(2);
   await page.screenshot({ path: info.outputPath('r5-date-pending.png') });
   finish(); await expect(editor).toHaveCount(0); await expect(cell).toBeFocused();
-  expect(patches).toEqual([{ start_date: '2026-10-03', deadline: '2026-10-15T17:45:00+08:00' }, { start_date: '2026-10-03', deadline: '2026-10-15T17:45:00+08:00' }]);
+  expect(patches).toEqual([{ start_date: '2026-10-03', deadline: '2026-10-15' }, { start_date: '2026-10-03', deadline: '2026-10-15' }]);
   await expect(cell).toContainText('Oct 15'); await page.reload(); await expect(page.getByRole('table', { name: 'To do tasks', exact: true })).toBeVisible({ timeout: 30_000 }); await expect(cell).toContainText('Oct 15');
   await cell.click(); await expect(editor.getByLabel('Due date', { exact: true })).toHaveValue('2026-10-15');
   const search = page.getByRole('textbox', { name: 'Search project tasks', exact: true });

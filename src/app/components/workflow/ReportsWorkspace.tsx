@@ -34,7 +34,8 @@ import {
 import { useTasksData } from "../../hooks/useSupabaseData";
 import { useOrgs } from "../../hooks/useSupabaseData";
 import type { Task } from "../../services/taskService";
-import { isOverdue } from "../../services/taskSelectors";
+import { isOverdue, parseDueDate } from "../../services/taskSelectors";
+import { workDay } from "../../shared/workCalendar";
 import {
   buildReportHtml,
   exportCsv,
@@ -542,13 +543,14 @@ export function ReportsWorkspace({
                                 </thead>
                                 <tbody>
                                   {overdueTasks.map((t) => {
-                                    const late = Math.floor(
-                                      (Date.now() -
-                                        new Date(
-                                          t.deadline || t.dueDate!,
-                                        ).getTime()) /
-                                        86400000,
-                                    );
+                                    const today = workDay(Date.now());
+                                    const due =
+                                      workDay(t.deadline || t.dueDate) ??
+                                      workDay(parseDueDate(t));
+                                    const late =
+                                      today !== null && due !== null
+                                        ? Math.max(0, today - due)
+                                        : 0;
                                     return (
                                       <tr
                                         key={t.id}

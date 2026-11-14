@@ -1,4 +1,5 @@
 import { withEmployeeDeadlineWorkload } from "../../selectors/employeeDeadlineWorkload";
+import { deadlineInputParts } from "../../selectors/deadlineInput";
 import {supportsNestedWork} from '../../../nested-work';
 import type {LegacyEditorStaffingScope} from './TaskEditorSubtasks';
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -399,11 +400,16 @@ export function useMondayBoardController({
       .filter(Boolean)
       .join(" > ");
 
+    const rawDeadline = taskEditorDraft.deadline.trim();
+    const cleanDeadline = /^\d{4}-\d{2}-\d{2}T/.test(rawDeadline)
+      ? deadlineInputParts(rawDeadline).date || rawDeadline.slice(0, 10)
+      : rawDeadline;
+
     const payload: UpdateTaskPayload = {
       estimatedHours: taskEditorDraft.estimatedHours || 0,
       title: taskEditorDraft.title.trim(),
       description: taskEditorDraft.description.trim(),
-      deadline: taskEditorDraft.deadline.trim(),
+      deadline: cleanDeadline,
       priority: taskEditorDraft.priority,
       tags: uniqueValues(
         taskEditorDraft.tagsText

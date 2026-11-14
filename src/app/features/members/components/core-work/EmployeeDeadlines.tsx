@@ -6,6 +6,7 @@ import { isActive } from '../../../../services/taskSelectors';
 import { Card, PageHeader, StatCard, relativeDays } from '../../../../components/workflow/primitives';
 import { TaskDetailDrawer } from "../../../task-inspector";
 import { TaskStatusLabel } from '../../../tasks';
+import { workDay } from '../../../../shared/workCalendar';
 import { useMyTasks } from './useMyTasks';
 
 function EmployeeDeadlinesGroupsSkeleton() {
@@ -38,22 +39,19 @@ export function EmployeeDeadlines() {
   const active = useMemo(() => mine.filter(isActive), [mine]);
 
   const groups = useMemo(() => {
-    const now = new Date();
-    const startToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-    const endToday = startToday + 86400000;
+    const todayDay = workDay(Date.now());
     const overdue: Task[] = [], today: Task[] = [], upcoming: Task[] = [], awaiting: Task[] = [];
     active.forEach((t) => {
       if (t.status === "for_review") { awaiting.push(t); return; }
       const dl = t.deadline || t.dueDate;
       if (!dl || (typeof dl === "string" && /month|phase|week|quarter|ongoing|tbd|q[1-4]/i.test(dl))) { upcoming.push(t); return; }
-      const d = new Date(dl);
-      if (isNaN(d.getTime())) { upcoming.push(t); return; }
-      const time = d.getTime();
-      if (time < startToday) overdue.push(t);
-      else if (time < endToday) today.push(t);
+      const day = workDay(dl);
+      if (day === null || todayDay === null) { upcoming.push(t); return; }
+      if (day < todayDay) overdue.push(t);
+      else if (day === todayDay) today.push(t);
       else upcoming.push(t);
     });
-    const byDate = (a: Task, b: Task) => new Date(a.deadline || a.dueDate || 0).getTime() - new Date(b.deadline || b.dueDate || 0).getTime();
+    const byDate = (a: Task, b: Task) => (workDay(a.deadline || a.dueDate) ?? Infinity) - (workDay(b.deadline || b.dueDate) ?? Infinity);
     return { overdue: overdue.sort(byDate), today: today.sort(byDate), upcoming: upcoming.sort(byDate), awaiting };
   }, [active]);
 

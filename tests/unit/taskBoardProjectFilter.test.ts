@@ -122,8 +122,9 @@ describe("Task Board Project Filter", () => {
   });
 
   it("derives additive work views from real task fields", () => {
-    const now = Date.parse("2026-09-10T00:00:00Z");
+    const now = Date.parse("2026-09-10T01:00:00Z"); // 09:00 AM Asia/Manila
     const tasks = [
+      { id: "today", status: "todo", deadline: "2026-09-10" },
       { id: "mine", status: "in_progress", assigneeId: "user-1", deadline: "2026-09-12" },
       { id: "soon", status: "todo", deadline: "2026-09-16" },
       { id: "late", status: "in_progress", deadline: "2026-09-01" },
@@ -132,7 +133,7 @@ describe("Task Board Project Filter", () => {
     ] as Task[];
 
     expect(filterTasksByBoardView(tasks, "my_work", "user-1", now).map((task) => task.id)).toEqual(["mine"]);
-    expect(filterTasksByBoardView(tasks, "due_soon", undefined, now).map((task) => task.id)).toEqual(["mine", "soon"]);
+    expect(filterTasksByBoardView(tasks, "due_soon", undefined, now).map((task) => task.id)).toEqual(["today", "mine", "soon"]);
     expect(filterTasksByBoardView(tasks, "overdue", undefined, now).map((task) => task.id)).toEqual(["late"]);
     expect(filterTasksByBoardView(tasks, "for_review", undefined, now).map((task) => task.id)).toEqual(["review"]);
     expect(filterTasksByBoardView(tasks, "completed", undefined, now).map((task) => task.id)).toEqual(["done"]);

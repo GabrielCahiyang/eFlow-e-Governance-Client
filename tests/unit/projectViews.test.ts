@@ -19,8 +19,8 @@ describe('One canonical project across views', () => {
     expect(calendarDay('Month 3')).toBeNull();
     expect(dayString(calendarDay('2028-02-29')!)).toBe('2028-02-29');
   });
-  it('moves the recorded range while preserving the due-time suffix', () => {
-    expect(shiftedTaskDates(task('a', { startDate: '2026-10-01', deadline: '2026-10-03T16:00:00+08:00' }), 2, 'move')).toEqual({ start_date: '2026-10-03', deadline: '2026-10-05T16:00:00+08:00' });
+  it('moves the recorded range as a calendar date without preserving due-time suffixes', () => {
+    expect(shiftedTaskDates(task('a', { startDate: '2026-10-01', deadline: '2026-10-03T16:00:00+08:00' }), 2, 'move')).toEqual({ start_date: '2026-10-03', deadline: '2026-10-05' });
   });
   it('resizes one edge and never manufactures a start date for a point', () => {
     expect(shiftedTaskDates(task('a', { startDate: '2026-10-01', deadline: '2026-10-03' }), 1, 'end')).toEqual({ start_date: '2026-10-01', deadline: '2026-10-04' });

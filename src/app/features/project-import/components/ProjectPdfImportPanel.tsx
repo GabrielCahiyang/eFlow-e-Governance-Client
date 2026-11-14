@@ -17,7 +17,7 @@ export function ProjectPdfImportPanel({projectId,projectTitle,startDate,onClose,
  const close=()=>{if(!flow.busy)onClose();};
  const upload=(file:File)=>{const issue=scheduledDateError(anchor,{label:'Schedule start'});if(issue){setLocalError(issue);return;}setLocalError('');void flow.upload(file,anchor,addOffices,autoAssign);};
  return <Modal isOpen title={`Import PDF into ${projectTitle}`} description="Turn your proposal into a project table." onClose={close} preventClose={flow.busy} width="max-w-3xl" className="pdf-import-modal"
-  footer={<div className="pdf-import-footer"><span>{flow.busy?'Keep this window open. Progress is saved as each step finishes.':state&&!flow.result?'Your progress is saved. You can close and resume later.':'Due times default to 11:59 PM.'}</span>
+  footer={<div className="pdf-import-footer"><span>{flow.busy?'Keep this window open. Progress is saved as each step finishes.':state&&!flow.result?'Your progress is saved. You can close and resume later.':'Tasks use Philippine calendar due dates.'}</span>
    {flow.result?<><ModalButton onClick={close}>Open project table</ModalButton>{(flow.result.officeCount||0)>0&&onOffices&&<ModalButton variant="primary" onClick={()=>{close();onOffices();}}>Set up office invitations</ModalButton>}</>:<ModalButton disabled={flow.busy} onClick={close}>Close</ModalButton>}</div>}>
   <section className="project-pdf-import" aria-label="Import PDF into project" aria-busy={flow.busy}>
    {flow.loading?<p role="status"><LoaderCircle className="project-pdf-import__spin" size={20}/>Checking saved imports…</p>:!state&&!flow.result?<>

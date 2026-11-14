@@ -1,4 +1,6 @@
 import {deadlinePresentation} from '../../../../shared/deadlinePresentation';
+import { workDay } from '../../../../shared/workCalendar';
+import { deadlineInputParts } from '../../selectors/deadlineInput';
 import { ListChecks } from "lucide-react";
 import type { Employee } from "../../../../services/employeeService";
 import type { EmployeeNotesMap } from "../../../../services/employeeNotesService";
@@ -332,26 +334,32 @@ export const getTaskMemberNames = (
     ...getTaskMemberIds(task).map((id) => employeeById[id]?.name || ""),
   ]);
 
-export const buildTaskEditorDraft = (task: Task): TaskEditorDraft => ({
-  estimatedHours: task.estimatedHours,
-  title: task.title || "",
-  description: task.description || "",
-  deadline: task.deadline || task.dueDate || "",
-  priority: task.priority || "medium",
-  tagsText: (task.tags || []).join(", "),
-  proposalTitle: task.proposalTitle || "",
-  programTitle: task.programTitle || "",
-  projectTitle: task.projectTitle || "",
-  activityTitle: task.activityTitle || "",
-  activitySchedule: task.activitySchedule || "",
-  teamMemberIds: getTaskMemberIds(task),
-  leadMemberId: task.assigneeId || getTaskMemberIds(task)[0] || null,
-  reviewerId: task.reviewerId || null,
-  backupReviewerId: task.backupReviewerId || null,
-  acceptanceCriteriaText: (task.acceptanceCriteria || []).join("\n"),
-  definitionOfDone: task.definitionOfDone || "",
-  dependencyIds: task.dependencyIds || [],
-});
+export const buildTaskEditorDraft = (task: Task): TaskEditorDraft => {
+  const rawDeadline = task.deadline || task.dueDate || "";
+  const normalizedDeadline = /^\d{4}-\d{2}-\d{2}T/.test(rawDeadline)
+    ? deadlineInputParts(rawDeadline).date || rawDeadline.slice(0, 10)
+    : rawDeadline;
+  return {
+    estimatedHours: task.estimatedHours,
+    title: task.title || "",
+    description: task.description || "",
+    deadline: normalizedDeadline,
+    priority: task.priority || "medium",
+    tagsText: (task.tags || []).join(", "),
+    proposalTitle: task.proposalTitle || "",
+    programTitle: task.programTitle || "",
+    projectTitle: task.projectTitle || "",
+    activityTitle: task.activityTitle || "",
+    activitySchedule: task.activitySchedule || "",
+    teamMemberIds: getTaskMemberIds(task),
+    leadMemberId: task.assigneeId || getTaskMemberIds(task)[0] || null,
+    reviewerId: task.reviewerId || null,
+    backupReviewerId: task.backupReviewerId || null,
+    acceptanceCriteriaText: (task.acceptanceCriteria || []).join("\n"),
+    definitionOfDone: task.definitionOfDone || "",
+    dependencyIds: task.dependencyIds || [],
+  };
+};
 
 export const parseTaskDeadline = (raw: string): Date | null => {
   const value = raw.trim();
@@ -362,6 +370,17 @@ export const parseTaskDeadline = (raw: string): Date | null => {
   const monthMatch = value.match(/^(?:month|phase)\s*(\d+)(?:\s*-\s*(\d+))?/i);
   if (monthMatch) {
     return null;
+  }
+
+  const dateMatch = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (dateMatch) {
+    const year = Number(dateMatch[1]);
+    const month = Number(dateMatch[2]);
+    const day = Number(dateMatch[3]);
+    const local = new Date(year, month - 1, day);
+    return local.getFullYear() === year && local.getMonth() === month - 1 && local.getDate() === day
+      ? local
+      : null;
   }
 
   const parsed = new Date(value);
@@ -409,16 +428,20 @@ export const filterTasksByBoardView = (
     return tasks.filter((task) => task.status === "completed");
   }
 
+  const today = workDay(now);
+  if (today === null) return [];
+
   return tasks.filter((task) => {
-    const deadline = parseTaskDeadline(task.deadline || task.dueDate || "");
-    if (!deadline) return false;
-    const timestamp = deadline.getTime();
+    const raw = (task.deadline || task.dueDate || "").trim();
+    if (!parseTaskDeadline(raw)) return false;
+    const due = workDay(raw);
+    if (due === null) return false;
     if (view === "overdue") {
-      return timestamp < now && !["completed", "cancelled"].includes(task.status);
+      return due < today && !["completed", "cancelled"].includes(task.status);
     }
     return (
-      timestamp >= now &&
-      timestamp <= now + 7 * 86400000 &&
+      due >= today &&
+      due <= today + 7 &&
       !["completed", "cancelled"].includes(task.status)
     );
   });

@@ -14,6 +14,7 @@ import type { ProjectCommandData } from "./types";
 import { formatDate } from "../../../../components/workflow/primitives";
 import { peso } from "../../../budget";
 import { isOverdue } from "../../../tasks";
+import { workDay } from "../../../../shared/workCalendar";
 
 export function ProjectDashboardTab({
   data,
@@ -60,6 +61,11 @@ export function ProjectDashboardTab({
 
   // Upcoming milestones & deadlines
   const upcomingDeadlines = useMemo(() => {
+    const today = workDay(Date.now());
+    const isPastDay = (raw: string) => {
+      const due = workDay(raw);
+      return due !== null && today !== null && due < today;
+    };
     const items: Array<{ id: string; title: string; type: "milestone" | "task"; date: string; isPast: boolean }> = [];
     milestones.forEach((m) => {
       if (m.status !== "completed" && m.dueDate) {
@@ -68,23 +74,23 @@ export function ProjectDashboardTab({
           title: m.title,
           type: "milestone",
           date: m.dueDate,
-          isPast: new Date(m.dueDate).getTime() < Date.now(),
+          isPast: isPastDay(m.dueDate),
         });
       }
     });
     tasks.forEach((t) => {
-      if (t.status !== "completed" && t.deadline) {
+      if (t.status !== "completed" && t.status !== "cancelled" && t.deadline) {
         items.push({
           id: t.id,
           title: t.title,
           type: "task",
           date: t.deadline,
-          isPast: new Date(t.deadline).getTime() < Date.now(),
+          isPast: isPastDay(t.deadline),
         });
       }
     });
 
-    items.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    items.sort((a, b) => (workDay(a.date) ?? Infinity) - (workDay(b.date) ?? Infinity));
     return items.slice(0, 6);
   }, [milestones, tasks]);
 

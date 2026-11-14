@@ -12,6 +12,7 @@ import "../projectAnalysis.css";
 
 const zone = "Asia/Manila";
 const dateTime = new Intl.DateTimeFormat("en-PH", { timeZone: zone, dateStyle: "medium", timeStyle: "short" });
+const dateOnly = new Intl.DateTimeFormat("en-PH", { timeZone: zone, dateStyle: "medium" });
 const number = new Intl.NumberFormat("en-PH", { maximumFractionDigits: 1 });
 const timestamp = (value: number) => dateTime.format(new Date(value));
 const duration = (hours: number) => {
@@ -81,7 +82,7 @@ export function ProjectAnalysis({ project, input, onOpenTask, onOpenProject }: {
         onClick={() => setHistoryId(historyId === row.task.id ? "" : row.task.id)}>Assignment history</button>
       {historyId === row.task.id && <ProjectAssignmentHistory key={row.task.id} taskId={row.task.id} projectId={project.id} />}
     </> },
-    { label: "Deadline", value: row => row.deadline, render: row => row.deadline === null ? "No deadline recorded" : timestamp(row.deadline) },
+    { label: "Deadline", value: row => row.deadline, render: row => row.deadline === null ? "No deadline recorded" : dateOnly.format(new Date(row.deadline)) },
     { label: "First submission", value: row => row.submittedAt, render: row => row.submittedAt == null
       ? row.latestSubmittedAt == null ? "No submission recorded" : <>First submission unavailable<small>Latest {timestamp(row.latestSubmittedAt)}</small></>
       : <>{timestamp(row.submittedAt)}{row.late !== null && <small className={row.late ? "ea-timing-late" : ""}>{row.late ? "Late" : "On time"}</small>}</> },

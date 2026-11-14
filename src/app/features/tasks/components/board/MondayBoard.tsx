@@ -1,4 +1,5 @@
 import { requestNavigation } from "../../../../shared/navigationGuard";
+import { workDay } from "../../../../shared/workCalendar";
 import { FeedbackState } from "../../../../components/ui/FeedbackState";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Skeleton, Tab, TabList, TabsContext } from "@vibe/core";
@@ -242,13 +243,12 @@ export function MondayBoard({
     const review = filteredTasks.filter(
       (task) => task.status === "for_review",
     ).length;
-    const overdue = filteredTasks.filter(
-      (task) =>
-        task.status !== "completed" &&
-        task.status !== "cancelled" &&
-        (task.deadline || task.dueDate) &&
-        new Date(task.deadline || task.dueDate || "").getTime() < Date.now(),
-    ).length;
+    const today = workDay(Date.now());
+    const overdue = filteredTasks.filter((task) => {
+      if (task.status === "completed" || task.status === "cancelled") return false;
+      const due = workDay((task.deadline || task.dueDate || "").trim());
+      return due !== null && today !== null && due < today;
+    }).length;
     return {
       title: selected?.label.replace(/ \(\d+\)$/, "") || "All projects",
       open,

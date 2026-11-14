@@ -124,8 +124,8 @@ for (const uncertain of [false, true])
             priority: task.priority,
             estimated_hours: task.estimatedHours,
             start_date: task.startDate,
-            deadline: task.dueDate + "T23:59:00+08:00",
-            due_date: task.dueDate + "T23:59:00+08:00",
+            deadline: task.dueDate,
+            due_date: task.dueDate,
             budget_impact: budget.lines.reduce(
               (sum: number, line: any) => sum + line.amount,
               0,

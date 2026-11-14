@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { projectWorkspaceFixture } from './fixtures/projectWorkspace';
 
 test.use({ timezoneId: 'Asia/Manila' });
-test('task dates block the past, default to 11:59 PM and save optional hours and minutes', async ({ page }, info) => {
+test('task dates block the past and save calendar dates without a due time', async ({ page }, info) => {
   test.setTimeout(120_000);
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.clock.setSystemTime(new Date('2026-10-17T04:30:00Z'));
@@ -13,9 +13,8 @@ test('task dates block the past, default to 11:59 PM and save optional hours and
   await trigger.click();
   const editor = page.locator('.pt-planning-editor');
   const due = editor.getByLabel('Due date', { exact: true });
-  const time = editor.getByLabel('Due time (optional)', { exact: true });
   await expect(due).toHaveAttribute('min', '2026-10-17');
-  await expect(time).toBeDisabled();
+  await expect(editor.getByLabel('Due time (optional)')).toHaveCount(0);
   await due.fill('2026-10-16');
   await expect(editor.getByRole('alert')).toContainText('Choose today or a future due date.');
   await expect(editor.getByRole('button', { name: 'Save dates' })).toBeDisabled();
@@ -33,18 +32,8 @@ test('task dates block the past, default to 11:59 PM and save optional hours and
   await page.screenshot({ path: info.outputPath('due-date-phone.png') });
   await editor.getByRole('button', { name: 'Save dates' }).click();
   await expect(editor).toHaveCount(0);
-  expect(records.tasks[0].deadline).toBe('2026-10-17T23:59:00+08:00');
-  await trigger.click();
-  await expect(time).toHaveValue('23:59');
-  await time.fill('11:00');
-  await expect(editor.getByRole('alert')).toContainText('has not passed');
-  await expect(editor.getByRole('button', { name: 'Save dates' })).toBeDisabled();
-  await time.fill('13:45');
-  await editor.getByRole('button', { name: 'Save dates' }).click();
-  await expect(editor).toHaveCount(0);
-  expect(records.tasks[0].deadline).toBe('2026-10-17T13:45:00+08:00');
-  await expect(trigger).toContainText('1:45 PM');
+  expect(records.tasks[0].deadline).toBe('2026-10-17');
   await page.reload();
   await trigger.click();
-  await expect(time).toHaveValue('13:45');
+  await expect(due).toHaveValue('2026-10-17');
 });

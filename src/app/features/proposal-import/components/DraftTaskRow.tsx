@@ -178,10 +178,7 @@ export function DraftTaskRow({
                   value={deadlineParts.date}
                   onChange={(e) =>
                     onUpdate(dt.key, {
-                      deadline: deadlineFromInputs(
-                        e.target.value,
-                        deadlineParts.time,
-                      ),
+                      deadline: deadlineFromInputs(e.target.value),
                     })
                   }
                   className={`rounded-lg border px-2.5 py-1 text-[12px] outline-none transition focus:ring-2 ${
@@ -200,27 +197,6 @@ export function DraftTaskRow({
                   </p>
                 )}
               </div>
-              <label className="text-[11px] text-neutral-600">
-                Due time (optional)
-                <input
-                  aria-label="Task due time"
-                  type="time"
-                  disabled={!deadlineParts.date}
-                  value={deadlineParts.time}
-                  onChange={(event) =>
-                    onUpdate(dt.key, {
-                      deadline: deadlineFromInputs(
-                        deadlineParts.date,
-                        event.target.value,
-                      ),
-                    })
-                  }
-                  className="ml-2 rounded-lg border px-2 py-1"
-                />
-                <span className="ml-2 text-neutral-400">
-                  Philippine time; blank means end of day
-                </span>
-              </label>
               <label className="text-[11px] text-neutral-600">
                 Estimated task days
                 <input

@@ -36,7 +36,7 @@ select test_throws('select request_collaboration_review(''30000000-0000-4000-800
 select set_config('request.jwt.claim.sub','20000000-0000-4000-8000-000000000001',false);
 select commit_collaboration_draft(id,current_revision_id) from proposal_collaboration_drafts;
 select test_assert((select estimated_hours=24 from tasks),'Published task retains estimated hours');
-select test_assert((select deadline='2026-10-02T20:00:00+08:00' from tasks),'Published task retains due time');
+select test_assert((select deadline='2026-10-02' from tasks),'Published task strips due time and retains calendar date');
 select test_assert((select title='Source project name' from projects),'Published project retains its source name');
 select test_throws('select request_collaboration_review(''30000000-0000-4000-8000-000000000001'')','can no longer request approval');
 select test_throws('select save_collaboration_revision(id,working_snapshot,''Invalid edit'') from proposal_collaboration_drafts','no longer editable');

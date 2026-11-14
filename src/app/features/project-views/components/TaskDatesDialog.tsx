@@ -28,8 +28,7 @@ export function TaskDatesDialog({ task, onClose, onSave }: { task: Task; onClose
   <form noValidate className="pv-date-dialog p-5" onSubmit={save}>
    <h2 className="text-lg font-semibold">Task dates</h2><p className="mb-3 text-sm text-neutral-500">{task.title}</p>
    <FormField label="Start date"><TextInput type="date" min={today} value={draft.start} disabled={busy} onChange={e => setDraft({ ...draft, start: e.target.value })}/></FormField>
-   <FormField label="Due date"><TextInput type="date" min={draft.start > today ? draft.start : today} value={draft.end} disabled={busy} onChange={e => setDraft({ ...draft, end: e.target.value, ...(!e.target.value ? { time: '' } : {}) })}/></FormField>
-   <FormField label="Due time (optional)" description="Leave blank for 11:59 PM."><TextInput type="time" step={60} value={draft.time || ''} disabled={busy || !draft.end} onChange={e => setDraft({ ...draft, time: e.target.value })}/></FormField>
+   <FormField label="Due date"><TextInput type="date" min={draft.start > today ? draft.start : today} value={draft.end} disabled={busy} onChange={e => setDraft({ ...draft, end: e.target.value })}/></FormField>
    {(validation || error) && <p role="alert">{validation || error}</p>}
    <div className="flex gap-2 mt-4"><button type="button" disabled={busy} onClick={close}>Cancel</button><button className="pv-primary" disabled={busy || !dirty || !!validation}>{busy ? 'Saving…' : 'Save dates'}</button></div>
   </form>

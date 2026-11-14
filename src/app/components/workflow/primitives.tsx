@@ -5,6 +5,7 @@ import {
   SelectContent,
   SelectItem,
 } from "../ui/select";
+import { workDay } from "../../shared/workCalendar";
 // Shared workflow composition contracts. These keep the existing public API
 // while delegating controls, states, typography, and progress to Vibe.
 
@@ -525,6 +526,15 @@ export function ProgressBar({
 export function formatDate(d?: string | number | null): string {
   if (!d) return "—";
   if (typeof d === "string" && /month|phase|week/i.test(d)) return d;
+  const day = workDay(d);
+  if (day !== null) {
+    return new Date(day * 86400000).toLocaleDateString("en-PH", {
+      timeZone: "UTC",
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  }
   const date = typeof d === "number" ? new Date(d) : new Date(d);
   if (isNaN(date.getTime())) return "—";
   return date.toLocaleDateString("en-PH", {
@@ -541,10 +551,10 @@ export function relativeDays(d?: string | number | null): {
   if (!d) return { label: "No deadline", overdue: false };
   if (typeof d === "string" && /month|phase|week/i.test(d))
     return { label: d, overdue: false };
-  const date = typeof d === "number" ? new Date(d) : new Date(d);
-  if (isNaN(date.getTime())) return { label: "No deadline", overdue: false };
-  const today=new Date();
-  const days = Math.round((Date.UTC(date.getFullYear(),date.getMonth(),date.getDate())-Date.UTC(today.getFullYear(),today.getMonth(),today.getDate()))/86400000);
+  const day = workDay(d);
+  const todayDay = workDay(Date.now());
+  if (day === null || todayDay === null) return { label: "No deadline", overdue: false };
+  const days = day - todayDay;
   if (days < 0) return { label: `${Math.abs(days)}d overdue`, overdue: true };
   if (days === 0) return { label: "Due today", overdue: false };
   if (days === 1) return { label: "Due tomorrow", overdue: false };
