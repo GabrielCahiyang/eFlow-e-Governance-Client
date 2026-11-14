@@ -6,7 +6,7 @@ async function chooseWorkAction(label:string, action:string){const trigger=await
 
 const mocks=vi.hoisted(()=>({actor:'lead',load:vi.fn(),save:vi.fn(),impact:vi.fn()}));
 vi.mock('../../src/app/contexts/AuthContext',()=>({useAuth:()=>({user:{id:mocks.actor}})}));
-vi.mock('../../src/app/features/nested-work/services/workTreeService',()=>({fetchWorkTree:mocks.load,saveWorkTree:mocks.save,fetchWorkImpact:mocks.impact,fetchPersonalWorkRoots:vi.fn(),fetchOfficeWorkRoots:vi.fn(),fetchWorkEvents:vi.fn(),WorkTreeUnavailable:class WorkTreeUnavailable extends Error{}}));
+vi.mock('../../src/app/features/nested-work/services/workTreeService',()=>({fetchWorkTree:mocks.load,saveWorkTree:mocks.save,fetchWorkImpact:mocks.impact,hasWorkCommandReceipt:async()=>false,fetchPersonalWorkRoots:vi.fn(),fetchOfficeWorkRoots:vi.fn(),fetchWorkEvents:vi.fn(),WorkTreeUnavailable:class WorkTreeUnavailable extends Error{}}));
 import {WorkTree,WorkRootOwner,descendantIds,reparentChoices,leafCompletion,supportsNestedWork} from '../../src/app/features/nested-work';
 import {WorkTreeUnavailable} from '../../src/app/features/nested-work/services/workTreeService';
 import {getSubtaskPrerequisite} from '../../src/app/features/subtasks/selectors/sequencing';
@@ -71,12 +71,12 @@ describe('R7 checked nested-work UI',()=>{
   expect(screen.getByText('Bob selected for project')).toBeTruthy();expect(screen.getByText('Lead:').parentElement?.textContent).toBe('Lead: Bob selected for project');
  });
  it('retains one request and creation identity after a lost response, prevents double saves, and guards drafts',async()=>{
-  let reject:(reason:Error)=>void=()=>{};mocks.save.mockImplementationOnce(()=>new Promise((_r,no)=>{reject=no;})).mockImplementation(async(_root,request)=>tree({nodes:[node(),node({id:request.payload.id,title:request.payload.title,parent_subtask_id:'branch',depth:2})]}));
+  let reject:(reason:Error)=>void=()=>{};mocks.save.mockImplementationOnce(()=>new Promise((_r,no)=>{reject=no;})).mockImplementation(async(_root,request)=>tree({nodes:[node(),node({id:request.payload.id,title:request.payload.title,parent_subtask_id:null,depth:1})]}));
   const uninstall=installNavigationConfirmation(vi.fn().mockResolvedValue(false));render(<WorkTree rootId="root"/>);
-  await chooseWorkAction('Actions for Branch','Add subtask');fireEvent.change(screen.getByLabelText('Subtask title'),{target:{value:'Deep work'}});fireEvent.click(screen.getByText('Assign people'));fireEvent.change(screen.getByLabelText('Appointed Lead'),{target:{value:'bob'}});
-  expect(await requestNavigation(vi.fn())).toBe(false);const save=screen.getByRole('button',{name:/^Save (?:work )?changes$/});fireEvent.click(save);fireEvent.click(save);expect(mocks.save).toHaveBeenCalledTimes(1);
+  await chooseWorkAction('Task work actions','Add subtask');fireEvent.change(screen.getByLabelText('Subtask title'),{target:{value:'Deep work'}});fireEvent.click(screen.getByText('Assign people'));fireEvent.change(screen.getByLabelText('Appointed Lead'),{target:{value:'bob'}});
+  expect(await requestNavigation(vi.fn())).toBe(false);const save=screen.getByRole('button',{name:'Add subtask',exact:true});fireEvent.click(save);fireEvent.click(save);expect(mocks.save).toHaveBeenCalledTimes(1);
   await act(async()=>reject(new Error('Receipt interrupted')));await screen.findByText(/Receipt interrupted/);expect((screen.getByLabelText('Subtask title') as HTMLInputElement).disabled).toBe(true);
-  const request=mocks.save.mock.calls[0][1];expect(request.payload).toMatchObject({title:'Deep work',parent:'branch',lead:'bob',people:['bob']});expect(request.revision).toBe(7);
+  const request=mocks.save.mock.calls[0][1];expect(request.payload).toMatchObject({title:'Deep work',parent:null,lead:'bob',people:['bob']});expect(request.revision).toBe(7);
   fireEvent.click(screen.getByRole('button',{name:'Retry saved request'}));await screen.findByText('Deep work');expect(mocks.save.mock.calls[1][1]).toBe(request);uninstall();
  });
  it('retains expired assignment names while allowing replacement and excluding them from new choices',async()=>{
@@ -92,8 +92,8 @@ describe('R7 checked nested-work UI',()=>{
  });
  it('keeps original draft revision during a capability refresh and disables a revoked editor',async()=>{
   mocks.save.mockResolvedValue(tree());const {rerender}=render(<WorkTree rootId="root"/>);await chooseWorkAction('Task work actions','Add subtask');fireEvent.change(screen.getByLabelText('Subtask title'),{target:{value:'Retained draft'}});
-  mocks.load.mockResolvedValue(tree({root:{...tree().root,capabilities:{manage_contributors:deny,appoint_lead:noAppointment,create_child:deny,order_children:deny}},revision:8,can_manage:false}));fireEvent(window,new Event('focus'));await screen.findByText('Your current branch authority changed. Reload the tree before saving.');
-  expect((screen.getByLabelText('Subtask title') as HTMLInputElement).value).toBe('Retained draft');expect((screen.getByRole('button',{name:/^Save (?:work )?changes$/}) as HTMLButtonElement).disabled).toBe(true);expect(mocks.save).not.toHaveBeenCalled();
+  mocks.load.mockResolvedValue(tree({root:{...tree().root,capabilities:{manage_contributors:deny,appoint_lead:noAppointment,create_child:deny,order_children:deny}},revision:8,can_manage:false}));fireEvent(window,new Event('focus'));await screen.findByText('Saving is unavailable with your current access.');
+  expect((screen.getByLabelText('Subtask title') as HTMLInputElement).value).toBe('Retained draft');expect((screen.getByRole('button',{name:/^(Add subtask|Save (?:work )?changes)$/}) as HTMLButtonElement).disabled).toBe(true);expect(mocks.save).not.toHaveBeenCalled();
   mocks.actor='other';mocks.load.mockRejectedValue(new Error('Current access denied'));rerender(<WorkTree rootId="root"/>);await screen.findByText('Current access denied');expect(screen.queryByDisplayValue('Retained draft')).toBeNull();
  });
  it('clears stale roots and ignores late reads across scope changes',async()=>{
@@ -145,7 +145,7 @@ describe('NW3.3 staffing and hierarchy caller locks',()=>{
  it('updates an open Inspector staffing draft when its caller becomes read-only',async()=>{
   const props={task,profiles:[],canManageTaskTeam:true,canManageSubtasks:true,currentUserIsLead:true,onManage:vi.fn()},view=render(<InspectorTeam {...props}/>);
   fireEvent.click(await screen.findByRole('button',{name:'Choose task lead and contributors'}));fireEvent.click(screen.getByRole('button',{name:'Add contributor Bob selected for project'}));view.rerender(<InspectorTeam {...props} readOnly/>);
-  expect((screen.getByRole('button',{name:'Remove contributor Bob selected for project'}) as HTMLButtonElement).disabled).toBe(true);expect((screen.getByRole('button',{name:/^Save (?:work )?changes$/}) as HTMLButtonElement).disabled).toBe(true);expect(mocks.save).not.toHaveBeenCalled();
+  expect((screen.getByRole('button',{name:'Remove contributor Bob selected for project'}) as HTMLButtonElement).disabled).toBe(true);expect((screen.getByRole('button',{name:/^(Add subtask|Save (?:work )?changes)$/}) as HTMLButtonElement).disabled).toBe(true);expect(mocks.save).not.toHaveBeenCalled();
  });
  it('propagates table read-only without confusing non-Head metadata permission with staffing capability',async()=>{
   const props={column:'owner' as const,task,tasks:[task],profiles:[],people:[],orgs:[],editable:false,busy:false,canSetOffice:false,hasStaffedSubitems:false,statuses:[task.status],save:vi.fn(),write:vi.fn()},view=render(<ProjectTaskCell {...props}/>);

@@ -57,6 +57,7 @@ export function CashLiquidationDialog({ request, orgId, perReceiptLimit: _perRec
     setError("");
     try {
       await submitPettyCashLiquidation({ orgId, requestId: request.id, spent, note, receipts, refundReceiptNumber, refundDate, idempotencyKey: idempotencyKey.current });
+      window.dispatchEvent(new Event('eflow:expenses-updated'));
       await onSaved();
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Receipts could not be submitted.");

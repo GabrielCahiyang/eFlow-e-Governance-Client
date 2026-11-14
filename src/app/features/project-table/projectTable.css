@@ -191,7 +191,7 @@
 @keyframes pt-skeleton{to{background-position:-200% 0}}@media(prefers-reduced-motion:reduce){.pt-skeleton i{animation:none}}
 @media(max-width:700px){.pt-toolbar{gap:6px}.pt-group-add{margin-left:0}.pt-context-line>span:nth-child(2){display:none}.pt-collapsed{gap:12px;flex-wrap:wrap}.pt-group>header>.eflow-inline-text{max-width:210px}.pt-project-heading h1,.pt-project-heading .eflow-inline-text{font-size:22px}.eflow-project-create{display:block!important;width:94vw!important;min-height:480px!important;max-height:90dvh!important;overflow-y:auto!important}.eflow-project-create>form{padding:35px 25px}.eflow-project-create>.workspace-illustration{display:none}.pt-brand{margin-bottom:15px}.pt-small-dialog{width:94vw!important;max-height:90dvh!important;overflow:auto!important}.pt-title-col,.pt-task-name{min-width:250px!important}.pt-group .pt-task-name .eflow-inline-text{max-width:190px}}
 
-.pt-column-menu{display:inline-flex;align-items:center;border:0;background:transparent;color:var(--eflow-text-muted);padding:3px;border-radius:3px}.pt-column-menu:hover{background:#edf1f7}
+.pt-column-menu{display:inline-flex;align-items:center;border:0;background:transparent;color:var(--eflow-text-muted);padding:3px;border-radius:3px}.pt-column-menu:hover{background:#edf1f7}.pt-column-menu:focus:not(:focus-visible){outline:none}
 @media(max-width:700px){
 
  .pt-group .pt-subitems-row>td{padding:16px 16px 20px 24px}.pt-subitems{width:calc(100cqw - 44px)}.pt-subitems-access{flex-wrap:wrap;gap:4px}.pt-project-heading{flex-wrap:wrap;align-items:flex-start}.pt-project-heading>div:first-child{min-width:0;max-width:100%}.pt-project-heading .eflow-inline-text{max-width:100%;overflow:hidden;text-overflow:ellipsis}
@@ -216,30 +216,53 @@
 .pt-nested-work [data-work-presentation="project-table"]{padding:0;font-size:var(--eflow-text-sm)}
 .pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-toolbar{position:static;justify-content:flex-start;padding:var(--eflow-space-1) var(--eflow-table-cell-x);margin:0}
 .pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy{position:relative}
-.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table{width:100%;min-width:960px;table-layout:fixed;box-shadow:none}
+.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table{width:100%;table-layout:fixed;box-shadow:none}
 .pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table th,.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table td{padding:var(--eflow-table-compact-y) var(--eflow-table-cell-x);border-inline-end:1px solid var(--eflow-border);border-bottom:1px solid var(--eflow-border);height:auto;line-height:var(--eflow-line-height);vertical-align:middle;background:var(--eflow-surface);font-size:var(--eflow-text-sm)}
-.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table th{background:var(--eflow-subtle);font-weight:500;white-space:nowrap}
+.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table th{background:var(--eflow-surface);color:var(--eflow-text-secondary);font-weight:400;font-size:12px;height:40px;white-space:nowrap;text-align:center;position:relative;padding:0 8px}
+.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table th>span{display:inline-flex;gap:8px;align-items:center;justify-content:center;width:100%}
+.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table th.nw-col--subtask .pt-column-menu{position:absolute;right:12px;top:50%;transform:translateY(-50%)}
 .pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table th:first-child,.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table td:first-child{width:44px;min-width:44px;text-align:center}
 .pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table .nw-actions-cell{padding:0;vertical-align:middle;box-sizing:border-box;}
 .pt-nested-work [data-work-presentation="project-table"] .nw-actions-cell .nw-hierarchy-control{display:flex;align-items:center;justify-content:center;width:32px;min-width:32px;max-width:32px;margin-inline:auto;padding:0;}
-.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table th:nth-child(2),.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table td:nth-child(2){width:28%;min-width:0}
-.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table th:last-child{width:160px}
-.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table td:last-child{min-width:0}
-.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-title-line{align-items:center;flex-wrap:nowrap}
+.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table .nw-col--subtask{width:30%;min-width:220px}
+.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table .nw-col--owner{width:24%;min-width:180px}
+.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table .nw-col--status{width:17%;min-width:142px}
+.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table .nw-col--timeline{width:20%;min-width:170px}
+.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table .nw-col--budget{width:16%;min-width:140px}
+.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table .nw-col--actualExpenses{width:152px;min-width:152px;white-space:nowrap}
+.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table .nw-col--priority{width:120px;min-width:100px}
+.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table .nw-col--dependencies{width:175px;min-width:145px}
+.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table .pt-add-column-col,.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table .pt-column-spacer{width:44px;min-width:44px;padding:0;text-align:center}
+.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table button.pt-column-menu{border:0;min-height:0;min-width:0;padding:3px;border-radius:3px;background:transparent}
+.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table button.pt-column-menu:hover{background:#edf1f7}
+.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table button.pt-add-column-button{border:0;min-height:0;padding:0;background:transparent}
+.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table button.pt-add-column-button:hover{background:var(--eflow-secondary);color:var(--eflow-text)}
+.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table .nw-actions-cell button.nw-hierarchy-control{border:0;min-height:28px;background:transparent}
+.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table .nw-actions-cell button.nw-hierarchy-control:hover{background:#edf1f7}
+.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table button.pt-column-menu:focus:not(:focus-visible),.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table button.pt-add-column-button:focus:not(:focus-visible),.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table .nw-actions-cell button.nw-hierarchy-control:focus:not(:focus-visible){outline:none}
+.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table button.pt-date:hover:not(:disabled){background:#edf1f7}
+.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-title-line{display:flex;align-items:center;flex-wrap:nowrap;gap:5px;min-width:0}
+.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-title-line button.eflow-inline-text{flex:1;min-width:0;min-height:0;border:0;border-radius:0;background:transparent;padding:8px 4px;text-align:left;font-size:13px;font-weight:400;color:var(--eflow-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-title-line .eflow-inline-editor{flex:1;min-width:0}
+.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-title-line .eflow-inline-editor input{min-width:0;width:100%;max-width:none;padding:6px 8px;border:1px solid var(--eflow-primary);border-radius:4px;background:var(--eflow-surface)}
+.pt-nested-work [data-work-presentation="project-table"] button.pt-subitem-open{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;min-width:28px;min-height:28px;border:0;border-radius:4px;background:transparent;color:var(--eflow-text-muted);padding:4px;margin-left:auto}
+.pt-nested-work [data-work-presentation="project-table"] button.pt-subitem-open:hover{background:#e6e9f2;color:var(--eflow-text)}
+.pt-nested-work [data-work-presentation="project-table"] button.pt-date{border:0;border-radius:4px;background:transparent;padding:6px 4px;min-height:0;max-width:100%;min-width:0;white-space:normal;text-align:left;line-height:1.4}
 .pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-open{background:transparent;border:0;padding:0;min-width:0;text-align:left;font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-control{background:transparent;border:0;padding:0;min-width:24px;max-width:32px}
 .pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-path{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
-.pt-nested-work [data-work-presentation="project-table"] tr:focus-within>td,.pt-nested-work [data-work-presentation="project-table"] tr[data-selected-work]>td{background:var(--eflow-selected)}
+.pt-nested-work [data-work-presentation="project-table"] tbody tr:focus-within>td,.pt-nested-work [data-work-presentation="project-table"] tr[data-selected-work]>td{background:var(--eflow-selected)}
 .pt-nested-work [data-work-presentation="project-table"] .nw-inline-create{display:flex;align-items:center;gap:var(--eflow-space-2);border:0;background:transparent;color:var(--eflow-text-secondary);padding:0;min-height:var(--eflow-control-compact);font-size:var(--eflow-text-sm)}
-.pt-nested-work [data-work-presentation="project-table"] .nw-inline-create-row td{text-align:left;background:var(--eflow-surface)}
+.pt-nested-work [data-work-presentation="project-table"] tfoot .nw-inline-create-row td{text-align:left;background:var(--eflow-surface);border-bottom:0;font-size:var(--eflow-text-sm);height:auto}
+.pt-nested-work [data-work-presentation="project-table"] tfoot .nw-inline-create-row:focus-within>td{background:#cfe5ff}
+.pt-nested-work [data-work-presentation="project-table"] tfoot .nw-inline-create-row:focus-within>td:first-child{background:#dcecff}
 .pt-nested-work [data-work-presentation="project-table"] .nw-inline-create:not(:disabled):hover{color:var(--eflow-primary)}
 .pt-nested-work [data-work-presentation="project-table"] .r7-form{margin:var(--eflow-space-2);box-shadow:none}
 .pt-main-grid .pt-subitems{box-shadow:none;border-radius:0;border-inline-start:3px solid var(--group-color)}
 .pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table th:first-child,.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table td:first-child{position:sticky;left:0;z-index:2}
 .pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-control{display:inline-flex;align-items:center;justify-content:center}
 .pt-nested-work [data-work-presentation="project-table"] td .r7-work{padding:0;font-size:inherit}
-.pt-nested-work [data-work-presentation="project-table"] td .r7-work strong{display:none}
-.pt-nested-work [data-work-presentation="project-table"] td .r7-work>div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pt-nested-work [data-work-presentation="project-table"] td .r7-root-owner button{background:var(--eflow-surface)}
 @media(max-width:767px){.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table th:first-child,.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table td:first-child{position:static}}
 /* Include both nested cell borders in the sticky footer's width budget. */
 .pt-subitems tfoot .pt-subitem-add{box-sizing:border-box;width:min(100%,calc(100cqw - 66px));position:sticky;left:0;background:var(--eflow-surface)}

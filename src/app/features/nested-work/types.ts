@@ -18,7 +18,7 @@ export interface WorkNodeDisplayMetadata extends WorkPeopleDisplay {
 }
 export type RootWorkAction='manage_contributors'|'appoint_lead'|'create_child'|'order_children';
 export type NodeWorkAction=RootWorkAction|'edit_details'|'move'|'delete'|'execute'|'submit'|'review';
-export type WorkCapabilityReasonCode='access_unavailable'|'read_only'|'branch_denied'|'appointment_denied'|'lifecycle_blocked'|'history_blocked';
+export type WorkCapabilityReasonCode='access_unavailable'|'read_only'|'branch_denied'|'appointment_denied'|'lifecycle_blocked'|'history_blocked'|'project_on_hold'|'active_staffing_locked';
 export type WorkCapabilityEntry={allowed:true;reason_code:null}|{allowed:false;reason_code:WorkCapabilityReasonCode};
 export type WorkCapabilityMap<Action extends NodeWorkAction>=Partial<Record<Action,WorkCapabilityEntry>>;
 /** Current caller/scope, independent of any previously loaded snapshot. */
@@ -33,17 +33,24 @@ export interface WorkScheduleBounds {
  projectStart?:string|null;projectDue?:string|null;taskStart?:string|null;taskDue?:string|null;
 }
 export interface WorkNode {
- start_date?: string | null;
+
  custom_status_id?: string | null;
  blocker?:string|null;
+ priority?:'low'|'medium'|'high';
+ dependency_ids?:string[]|null;
+ can_edit_dependencies?:boolean;
+ restricted_dependency_count?:number|null;
+ pending_dependency_count?:number|null;
  id:string;task_id:string;parent_subtask_id:string|null;lead_id:string|null;title:string;
  assigned_to_ids:string[];sibling_order:number;position?:number;depth:number;due_date:string|null;
+ start_date?:string|null;started_at?:string|null;effective_status?:WorkNode['status'];
  is_standalone:boolean;status:'todo'|'in_progress'|'for_review'|'changes_requested'|'completed';percent_complete:number;
  can_manage:boolean;can_appoint:boolean;can_order:boolean;can_work:boolean;can_review:boolean;current_reviewer?:string|null;
  capabilities?:WorkCapabilityMap<NodeWorkAction>;
 }
 export interface WorkTreeSnapshot {
- root:{status?:string;blocker?:string|null;id:string;project:string;office:string|null;lead:string|null;kind:'office'|'personal';open:boolean;due:string|null;people:string[];scheduleBounds?:WorkScheduleBounds;capabilities?:WorkCapabilityMap<RootWorkAction>};
+ supportsSubtaskDependencies?:boolean;
+ root:{status?:string;project_status?:string;blocker?:string|null;id:string;project:string;office:string|null;lead:string|null;kind:'office'|'personal';open:boolean;due:string|null;people:string[];scheduleBounds?:WorkScheduleBounds;capabilities?:WorkCapabilityMap<RootWorkAction>;scheduling?:{version:number;today:string}};
  revision:number;can_manage:boolean;can_transfer:boolean;nodes:WorkNode[];people:WorkPerson[];leaf_total:number;leaf_completed:number;
 }
 export type WorkCommand='create'|'staff'|'edit'|'move'|'delete'|'order'|'contributors'|'root_lead'|'progress'|'submit'|'review';

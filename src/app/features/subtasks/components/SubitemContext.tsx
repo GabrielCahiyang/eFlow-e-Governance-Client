@@ -4,7 +4,8 @@ import {useWorkStatus} from '../../work-status';
 import {workStateLabel} from '../../work-state';
 import {ArrowLeft,UserRound,UsersRound} from 'lucide-react';
 export function SubitemContext({node,tree,rootTitle,onOpenItem,onClose,stuck=false}:{stuck?:boolean;node:WorkNode;tree:WorkTreeSnapshot;rootTitle:string;onOpenItem:(id:string)=>void;onClose:()=>void}){
- const status=useWorkStatus(stuck?'stuck':node.status,workStateLabel(node.status,stuck),node.custom_status_id);
+ const effectiveStatus=node.effective_status??node.status;
+ const status=useWorkStatus(stuck?'stuck':effectiveStatus,workStateLabel(effectiveStatus,stuck),node.custom_status_id);
  const row=buildWorkDisplayTree(tree.nodes).find(row=>row.id===node.id);
  const name=(id:string|null)=>id?tree.people.find(person=>person.id===id)?.name||'Person unavailable':'Needs a lead';
  const contributors=node.assigned_to_ids.filter(id=>id!==node.lead_id);

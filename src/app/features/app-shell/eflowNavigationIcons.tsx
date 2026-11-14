@@ -17,6 +17,7 @@ const destinationIcons: Record<string, LucideIcon> = {
   'Assigned work': ClipboardList,
   Leading: FlagTriangleRight,
   Subtasks: ListTree,
+  Reviews: ClipboardCheck,
   History,
   'Needs action': CircleAlert,
   Updates: Newspaper,

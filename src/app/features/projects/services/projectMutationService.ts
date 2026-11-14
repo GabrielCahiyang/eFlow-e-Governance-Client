@@ -14,7 +14,8 @@ export async function renameSelectedProject(project: Project, title: string) {
   await notifyProjectListeners();
 }
 
-export async function createProject(input: CreateProjectInput): Promise<Project> {
+
+export async function createProject(input: CreateProjectInput, draftRequestId?:string): Promise<Project> {
   const title = input.title.trim();
   if (!title) throw new Error('Project title is required.');
 
@@ -37,7 +38,7 @@ export async function createProject(input: CreateProjectInput): Promise<Project>
     orgId = (profile.org_id as string) || null;
   }
 
-  const { data, error } = await supabase.rpc('create_project_with_details', {
+  const { data, error } = await supabase.rpc(draftRequestId?'create_project_draft_once':'create_project_with_details', {
     p_payload: {
       title,
       description: input.description || '',
@@ -62,6 +63,7 @@ export async function createProject(input: CreateProjectInput): Promise<Project>
           sort_order: sortOrder,
         })),
     },
+    ...(draftRequestId?{p_key:draftRequestId}:{}),
   });
   if (error) {
     if (error.code === 'PGRST202' || error.message.includes('create_project_with_details')) {
@@ -74,7 +76,7 @@ export async function createProject(input: CreateProjectInput): Promise<Project>
   if (!projectRow) throw new Error('The database did not return the created project.');
   const project = rowToProject(projectRow as Record<string, unknown>);
 
-  await recordAudit({
+  if(!draftRequestId)await recordAudit({
     entityType: 'project',
     entityId: project.id,
     action: 'project.created',

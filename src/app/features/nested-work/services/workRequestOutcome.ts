@@ -3,6 +3,7 @@ import {WorkRequestFailure,type WorkRequestFailureKind} from '../types/editor';
 export function workRpcFailure(error:{code?:string;message:string}):WorkRequestFailure {
  if(error.code==='23505'&&error.message.includes('eflow_unique_'))return new WorkRequestFailure('confirmed_failure','A subtask with this name already exists here. Use a different name.');
  const code=error.code||'';
+ if(code==='57014'||/canceling statement due to statement timeout/i.test(error.message))return new WorkRequestFailure('confirmed_failure','The database stopped this change because it took too long. The transaction was rolled back. Reload the latest work, then try again.');
  let kind:WorkRequestFailureKind='unknown_result';
  if(code==='40001')kind='stale_revision';
  else if(code==='42501')kind='revoked_authority';

@@ -12,6 +12,7 @@ export function ProjectChatLink({ projectId }: { projectId: string }) {
 
 function WorkChatLink({ parameter, id, children }: { parameter: 'chatTask' | 'chatProject'; id: string; children: string }) {
   const params = new URLSearchParams({ page: 'Messages', [parameter]: id });
+  if (parameter === 'chatProject' && typeof window !== 'undefined') params.set('returnView', new URLSearchParams(window.location.search).get('view') || 'tasks');
   const workspace = typeof window === 'undefined' ? null : new URLSearchParams(window.location.search).get('workspace');
   if (workspace) params.set('workspace', workspace);
   const href = '/messages?' + params.toString();

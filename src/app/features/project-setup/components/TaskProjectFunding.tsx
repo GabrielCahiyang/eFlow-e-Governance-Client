@@ -11,6 +11,7 @@ export function TaskProjectFunding({projectId,taskId,funded,onChanged,onBusyChan
  const flow=useProjectFlow(projectId),[lines,setLines]=useState([{sourceId:'',amount:0}]),[reason,setReason]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState('');const key=useRef(crypto.randomUUID()),pending=useRef(false),attempt=useRef<{lines:{sourceId:string;amount:number}[];reason:string}|null>(null);const [uncertain,setUncertain]=useState(false);
  useEffect(()=>{onBusyChange?.(busy||uncertain);return()=>onBusyChange?.(false);},[busy,uncertain,onBusyChange]);
  if(!flow.data)return <FlowError error={flow.error}/>;
+ if(flow.data.project.funding_not_required)return <p>Funding not required</p>;
  if((funded&&!flow.data.canExtendTaskFunding)||!flow.data.canAllocate||['completed','archived'].includes(flow.data.project.status))return null;
  const data=flow.data;
  const sources=availableTaskAccounts(data,taskId);

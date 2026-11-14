@@ -1,10 +1,9 @@
 import { TaskDepartmentLabel } from "../TaskDepartmentLabel";
-import React, { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { ChevronLeft, ChevronRight, Crown, Hand } from "lucide-react";
 import type { Employee } from "../../../../services/employeeService";
 import type { Task, TaskStatus } from "../../../../services/taskService";
-import { updateTaskStatus } from "../../../../services/taskService";
-import { STATUS_ORDER, SubtaskProgressChip, canDragTask, getDeadlineInfo, getDirectBoardTransitionError, getHierarchyDisplay, getInitials, getTaskMemberNames, priorityMeta, statusMeta } from "./model";
+import { STATUS_ORDER, SubtaskProgressChip, getDeadlineInfo, getHierarchyDisplay, getInitials, getTaskMemberNames, priorityMeta, statusMeta } from "./model";
 import type { MondayBoardProps } from "./model";
 import { RejectionNotice, ReopenNotice, SubmissionDetails } from "./TaskFeedback";
 import { TaskManagementMenu } from "./TaskManagementMenu";
@@ -23,7 +22,6 @@ export function KanbanBoardView({
   onArchiveTaskRequest,
   onCancelTaskRequest,
   currentUserId,
-  currentUserName,
   onUndoRequest,
   readOnly = false,
   onOpenTask,
@@ -44,12 +42,10 @@ export function KanbanBoardView({
   readOnly?: boolean;
   onOpenTask?: (task: Task) => void;
 }) {
-  const [dragOverStatus, setDragOverStatus] = useState<string | null>(null);
   const {
     viewportRef,
     isPanning,
     panByPage,
-    autoPanDuringTaskDrag,
     viewportPointerHandlers,
   } = useHorizontalBoardViewport();
   const employeeById = useMemo(
@@ -70,41 +66,12 @@ export function KanbanBoardView({
     return STATUS_ORDER.map((s) => ({ status: s, tasks: map.get(s)! }));
   }, [tasks]);
 
-  const handleDrop = async (e: React.DragEvent, newStatus: TaskStatus) => {
-    e.preventDefault();
-    setDragOverStatus(null);
-    if (readOnly) return;
-    const taskId = e.dataTransfer.getData("text/plain");
-    if (!taskId) return;
-    const task = tasks.find((t) => t.id === taskId);
-    if (!task || task.status === newStatus || task.status === "completed")
-      return;
-    const transitionError = getDirectBoardTransitionError(
-      task,
-      newStatus,
-      role,
-      currentUserId,
-    );
-    if (transitionError) {
-      alert(transitionError);
-      return;
-    }
-    const actor = currentUserId
-      ? { id: currentUserId, name: currentUserName }
-      : undefined;
-    try {
-      await updateTaskStatus(taskId, newStatus, actor);
-    } catch (err) {
-      alert(err instanceof Error ? err.message : "That status change isn't allowed.");
-    }
-  };
-
   return (
     <div className="min-w-0 max-w-full">
       <div className="mb-2 flex items-center justify-between gap-3 rounded-xl border border-neutral-200 bg-white px-3 py-2">
         <div className="flex min-w-0 items-center gap-2 text-[10.5px] text-neutral-500">
           <Hand size={13} className="shrink-0 text-neutral-400" />
-          <span className="truncate">Drag the board left or right. Task cards still drag between status columns.</span>
+          <span className="truncate">Scroll horizontally to see all statuses.</span>
         </div>
         <div className="flex shrink-0 items-center gap-1">
           <button type="button" aria-label="Scroll Kanban board left" onClick={() => panByPage(-1)} className="rounded-lg border border-neutral-200 p-1.5 text-neutral-500 hover:bg-neutral-50 hover:text-neutral-800"><ChevronLeft size={14} /></button>
@@ -115,26 +82,14 @@ export function KanbanBoardView({
         ref={viewportRef}
         aria-label="Kanban status board"
         {...viewportPointerHandlers}
-        onDragOver={(event) => autoPanDuringTaskDrag(event.clientX)}
         className={`flex min-h-[400px] w-full min-w-0 max-w-full gap-3 overflow-x-auto overscroll-x-contain pb-4 select-none ${isPanning ? "cursor-grabbing" : "cursor-grab"}`}
       >
       {grouped.map(({ status, tasks: items }) => {
         const meta = statusMeta[status];
-        const isDragOver = dragOverStatus === status;
         return (
           <div
             key={status}
-            className={`flex-shrink-0 w-[248px] flex flex-col rounded-2xl border transition-all ${
-              isDragOver
-                ? "border-blue-300 bg-blue-50/30 shadow-md"
-                : "border-neutral-200 bg-neutral-50/50"
-            }`}
-            onDragOver={(e) => {
-              e.preventDefault();
-              setDragOverStatus(status);
-            }}
-            onDragLeave={() => setDragOverStatus(null)}
-            onDrop={(e) => handleDrop(e, status as TaskStatus)}
+            className="flex-shrink-0 w-[248px] flex flex-col rounded-2xl border border-neutral-200 bg-neutral-50/50"
           >
             {/* Column header */}
             <div className="flex items-center gap-2 px-3.5 py-3 border-b border-neutral-200 shrink-0">
@@ -162,25 +117,11 @@ export function KanbanBoardView({
                   task.status === "in_progress" &&
                   currentUserId &&
                   isTaskLead(task, currentUserId);
-                const isDraggable = !readOnly && canDragTask(
-                  task,
-                  role,
-                  currentUserId,
-                );
                 const taskOpener = onOpenTaskEditor || onOpenTask;
                 return (
                   <div
                     key={task.id}
-                    draggable={isDraggable}
-                    onDragStart={(e) => {
-                      if (!isDraggable) return;
-                      e.dataTransfer.setData("text/plain", task.id);
-                      (e.currentTarget as HTMLElement).style.opacity = "0.5";
-                    }}
-                    onDragEnd={(e) =>
-                      ((e.currentTarget as HTMLElement).style.opacity = "1")
-                    }
-                    className={`bg-white border border-neutral-200 rounded-xl p-3 shadow-sm hover:shadow-md transition-all group ${isDraggable ? "cursor-grab active:cursor-grabbing" : "cursor-default"}`}
+                    className="bg-white border border-neutral-200 rounded-xl p-3 shadow-sm hover:shadow-md transition-all group"
                   >
                     {/* Top priority bar */}
                     <div
@@ -315,9 +256,9 @@ export function KanbanBoardView({
 
               {items.length === 0 && (
                 <div
-                  className={`text-[11px] text-neutral-400 text-center py-8 italic rounded-xl border-2 border-dashed transition ${isDragOver ? "border-blue-300 bg-blue-50/40 text-blue-500" : "border-neutral-200"}`}
+                  className="text-[11px] text-neutral-400 text-center py-8 italic rounded-xl border-2 border-dashed border-neutral-200"
                 >
-                  {isDragOver ? "Drop here" : "No tasks"}
+                  No tasks
                 </div>
               )}
             </div>

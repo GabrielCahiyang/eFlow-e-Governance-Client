@@ -30,6 +30,8 @@ export interface Subtask {
   parentSubtaskId?: string;
   leadId?: string;
   siblingOrder?: number;
+  priority?: 'low' | 'medium' | 'high';
+  dependencyIds?: string[] | null;
   position: number;
   isStandalone: boolean;
   dueDate?: string;
@@ -67,6 +69,8 @@ export function rowToSubtask(row: Record<string, unknown>): Subtask {
     parentSubtaskId: (row.parent_subtask_id as string) || undefined,
     leadId: (row.lead_id as string) || undefined,
     siblingOrder: typeof row.sibling_order === 'number' ? row.sibling_order : undefined,
+    priority: row.priority === 'low' || row.priority === 'medium' || row.priority === 'high' ? row.priority : undefined,
+    dependencyIds: Array.isArray(row.dependency_ids) ? row.dependency_ids.filter((id): id is string => typeof id === 'string') : null,
     position: (row.position as number) || 0,
     isStandalone: row.is_standalone === true,
     dueDate: (row.due_date as string) || undefined,

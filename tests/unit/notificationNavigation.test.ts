@@ -20,6 +20,12 @@ function notification(
 }
 
 describe("notification navigation", () => {
+  it('opens the exact subtask from a Lead review notification', () => {
+    const review = notification({ type: 'approval_needed', entityType: 'm7_work_proposal', taskId: 'task', workNodeId: 'subtask' });
+    expect(resolveNotificationDestination(review, 'member')).toMatchObject({
+      section: 'personal_work', page: 'Reviews', intent: { kind: 'leading_task', taskId: 'task', entityId: 'subtask' },
+    });
+  });
   it('links Office Petty Cash and archive blockers to their own records', () => {
     const cash = notification({ type: 'petty_cash_settlement_blocked', financialRecordType: 'office_petty_cash_staffing', financialRecordId: 'cash-id' });
     expect(resolveNotificationDestination(cash, 'head')).toMatchObject({ section: 'budget', intent: { financialRecordId: 'cash-id', financialRecordType: 'office_petty_cash_staffing' } });

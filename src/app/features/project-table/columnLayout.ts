@@ -6,7 +6,7 @@ export const COLUMN_LAYOUT: Record<ResizableColumn, { width: number; min: number
   owner: { width: 180, min: 150, max: 360 }, status: { width: 160, min: 144, max: 320 },
   priority: { width: 124, min: 100, max: 240 }, timeline: { width: 220, min: 180, max: 400 },
   effort: { width: 108, min: 96, max: 240 }, dependencies: { width: 180, min: 120, max: 400 },
-  budget: { width: 160, min: 120, max: 320 }, progress: { width: 140, min: 120, max: 320 },
+  budget: { width: 160, min: 120, max: 320 }, actualExpenses: { width: 190, min: 150, max: 340 }, progress: { width: 140, min: 120, max: 320 },
 };
 export type ColumnWidths = Record<ResizableColumn, number>;
 export const DEFAULT_COLUMN_WIDTHS = Object.fromEntries(Object.entries(COLUMN_LAYOUT).map(([id, value]) => [id, value.width])) as ColumnWidths;

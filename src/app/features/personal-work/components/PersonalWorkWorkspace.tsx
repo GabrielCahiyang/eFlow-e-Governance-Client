@@ -18,6 +18,7 @@ import { WorkList, WorkListSkeleton } from "./WorkList";
 import { WorkInspector, useWorkInspector } from "./WorkInspector";
 import { WorkFilters } from "./WorkFilters";
 import { LeadingNotificationTarget } from './LeadingNotificationTarget';
+import { AssignedSubtaskReviews } from './AssignedSubtaskReviews';
 import "../personalWork.css";
 import { readWorkFilters as readFilters } from "../workLocation";
 export function PersonalWorkWorkspace({
@@ -93,7 +94,7 @@ function PersonalWorkContent({
     if (onNavigate) onNavigate(section, page);
     else void requestNavigation(() => writeNavigationLocation(section, page));
   };
-  const rows = selectWorkRows(
+  const rows = destination === 'Reviews' ? [] : selectWorkRows(
     feed.data?.rows || [],
     destination,
     filters.date,
@@ -112,7 +113,7 @@ function PersonalWorkContent({
       <WorkspaceHeader
         title="My Work"
         description="Tasks and subitems across your accessible workspaces."
-        actions={
+        actions={destination !== 'Reviews' &&
             <Button
               type="button"
               variant="outline"
@@ -138,6 +139,7 @@ function PersonalWorkContent({
       </nav>
       <PersonalWorkTools items={navigationItems} destination={destination} onSelect={navigate} />
       </div>
+      {destination === 'Reviews' ? <AssignedSubtaskReviews key={userId} actor={userId}/> : <>
       <WorkFilters filters={filters} destination={destination} workspaces={feed.data?.workspaces || []} onChange={update} />
       {feed.error && (
         <FeedbackState
@@ -187,6 +189,7 @@ function PersonalWorkContent({
           )}
         </>
       )}
+      </>}
       </div>
       {destination === 'Leading' && <LeadingNotificationTarget rows={feed.data?.rows || []}
         loading={feed.loading} onOpen={inspector.open} />}

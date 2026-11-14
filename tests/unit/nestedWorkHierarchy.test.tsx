@@ -34,9 +34,12 @@ describe('one supplied work hierarchy composition',()=>{
  it('keeps an own-branch create capability from granting the Main Table root footer',()=>{
   const data=tree([node('Own branch',null,{capabilities:{...node('x').capabilities!,create_child:allow}})]);const initial=props(data);render(<WorkHierarchy {...initial} presentation="project-table"/>);expect(screen.queryByRole('button',{name:'Add subtask',exact:true})).toBeNull();expect(screen.getByRole('button',{name:'Actions for Own branch'})).toBeTruthy();
  });
- it('uses the canonical branch parent for an authorized inline child footer and retains readOnly/stale gates',()=>{
-  const data=tree([node('Parent',null,{capabilities:{...node('x').capabilities!,create_child:allow}})]),initial=props(data);const view=render(<WorkHierarchy {...initial} branchParentId="Parent" presentation="project-table"/>);fireEvent.click(screen.getByRole('button',{name:'Add subtask',exact:true}));expect(initial.onRequestAction).toHaveBeenCalledWith('create','Parent');
-  view.rerender(<WorkHierarchy {...initial} branchParentId="Parent" presentation="project-table" authorityFresh={false}/>);expect(screen.getByRole('button',{name:'Add subtask',exact:true}).hasAttribute('disabled')).toBe(true);view.rerender(<WorkHierarchy {...initial} branchParentId="Parent" presentation="project-table" readOnly/>);expect(screen.queryByRole('button',{name:'Add subtask',exact:true})).toBeNull();
+ it('retains historical child rows without offering a new nested project subtask',()=>{
+  const data=tree([node('Parent',null,{capabilities:{create_child:allow}}),node('Historical child','Parent')]),initial=props(data);
+  render(<WorkHierarchy {...initial} branchParentId="Parent" presentation="project-table"/>);
+  expect(screen.getByRole('button',{name:'Historical child',exact:true})).toBeTruthy();
+  expect(screen.queryByRole('button',{name:'Add subtask',exact:true})).toBeNull();
+  expect(initial.onRequestAction).not.toHaveBeenCalled();
  });
  it('uses native table columns, stable traversal, explicit people, shared status/date and no redundant approval progress and no reads',()=>{
   const data=tree([node('Child','Parent'),node('Parent')]),before=JSON.stringify(data);
@@ -90,13 +93,14 @@ describe('one supplied work hierarchy composition',()=>{
   view.rerender(<WorkHierarchy {...input} snapshot={structuredClone(data)}/>);expect(screen.queryByRole('button',{name:'Actions for Parent'})).toBeNull();expect(screen.getByRole('alert').textContent).toContain('Verify current work access');
   api.actor='other';view.rerender(<WorkHierarchy {...input}/>);expect(screen.queryByRole('button',{name:'Actions for Parent'})).toBeNull();expect(screen.queryByText('Current Lead')).toBeNull();expect(screen.getByRole('alert')).toBeTruthy();
  });
- it('routes node reorder to its own child list and root reorder to parent:null using complete hidden IDs',async()=>{
+ it('keeps project reorder at the Task level and retains the hidden historical branch',async()=>{
   const data=tree([node('Parent',null,{capabilities:{order_children:allow}}),node('Hidden B','Parent',{sibling_order:2}),node('Hidden A','Parent',{sibling_order:1})]);data.root.capabilities={order_children:allow};
   const input=props(data);input.collapsedIds=new Set(['Parent']);render(<WorkHierarchy {...input}/>);
-  await openMenu('Actions for Parent');fireEvent.click(screen.getByRole('menuitem',{name:'Reorder children'}));await waitFor(()=>expect(input.onRequestAction).toHaveBeenLastCalledWith('order','Parent'));
+  await openMenu('Actions for Parent');expect(screen.queryByRole('menuitem',{name:'Reorder subtasks'})).toBeNull();
+  fireEvent.keyDown(screen.getByRole('menu'),{key:'Escape'});
   const nodeDraft=captureWorkEditorBaseline(data,{command:'order',parent:'Parent'},'actor','request');expect(nodeDraft.fields.order).toEqual(['Hidden A','Hidden B']);
   expect(workEditorPayload(nodeDraft,nodeDraft.fields)).toEqual({parent:'Parent',order:['Hidden A','Hidden B']});
-  await openMenu('Task work actions');fireEvent.click(screen.getByRole('menuitem',{name:'Reorder children'}));await waitFor(()=>expect(input.onRequestAction).toHaveBeenLastCalledWith('order',undefined));
+  await openMenu('Task work actions');fireEvent.click(screen.getByRole('menuitem',{name:'Reorder subtasks'}));await waitFor(()=>expect(input.onRequestAction).toHaveBeenLastCalledWith('order',undefined));
   const rootDraft=captureWorkEditorBaseline(data,{command:'order',parent:null},'actor','request');expect(rootDraft.fields.parent).toBe('');expect(rootDraft.fields.order).toEqual(['Parent']);
   expect(workEditorPayload(rootDraft,rootDraft.fields)).toEqual({parent:null,order:['Parent']});
   expect(data.nodes).toHaveLength(3);expect(api.save).not.toHaveBeenCalled();
@@ -104,7 +108,7 @@ describe('one supplied work hierarchy composition',()=>{
  it('does not grant sibling ordering from a child capability or infer root ordering',async()=>{
   const data=tree([node('Parent'),node('Child','Parent',{capabilities:{order_children:allow}})]);render(<WorkHierarchy {...props(data)}/>);
   expect(screen.queryByRole('button',{name:'Task work actions'})).toBeNull();await openMenu('Actions for Parent');expect(screen.queryByRole('menuitem',{name:'Reorder children'})).toBeNull();
-  fireEvent.keyDown(screen.getByRole('menu'),{key:'Escape'});await openMenu('Actions for Child');expect(screen.getByRole('menuitem',{name:'Reorder children'})).toBeTruthy();
+  fireEvent.keyDown(screen.getByRole('menu'),{key:'Escape'});await openMenu('Actions for Child');expect(screen.queryByRole('menuitem',{name:'Reorder subtasks'})).toBeNull();
  });
  it('disables stale mutations then removes revoked actions from an already open menu',async()=>{
   const data=tree([node('Parent',null,{capabilities:{edit_details:allow}})]),input=props(data);input.authorityFresh=false;
@@ -128,6 +132,13 @@ const request:WorkRequest={id:'one-request',command:'contributors',payload:{peop
 const controller=(data=tree()):WorkTreeController=>({rootId:'root',actorId:'actor',data,loading:false,error:'',unavailable:false,authorityFresh:true,refreshPending:false,pending:false,reload:vi.fn().mockResolvedValue(undefined),save:api.save});
 
 describe('public shared work controller',()=>{
+ it('shows the active-project contributor lock and hides root staffing controls for the Task Lead',()=>{
+  const data=tree([]);data.root.capabilities={manage_contributors:{allowed:false,reason_code:'active_staffing_locked'},appoint_lead:{allowed:false,reason_code:'appointment_denied'}};
+  render(<WorkRootOwner rootId="root" controller={controller(data)}/>);
+  expect(screen.queryByRole('button',{name:'Choose task lead and contributors'})).toBeNull();
+  expect(screen.getByRole('status').textContent).toContain('Root task contributors are read-only for the Task Lead after the project becomes active.');
+  expect(api.save).not.toHaveBeenCalled();
+ });
  it('owns one read/poller for supplied Tree and Owner, including the full-controller staffing dialog',async()=>{
   const data=tree();data.root.capabilities={manage_contributors:allow,appoint_lead:deny};api.load.mockResolvedValue(data);
   function Owner(){const shared=useWorkTree('root');return <><WorkRootOwner rootId="root" controller={shared}/><WorkTree rootId="root" controller={shared}/></>;}

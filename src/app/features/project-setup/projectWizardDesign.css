@@ -106,3 +106,16 @@
 .pf-task-draft-task input:not([type=checkbox]){flex:1;min-width:0}
 .pf-task-draft-subtask{padding-inline-start:22px}
 @media(max-width:720px){.pf-wizard-modal .pf-wizard-steps{grid-template-columns:repeat(4,minmax(0,1fr));row-gap:4px}}
+@media(max-width:840px){
+ .pf-wizard-modal .pf-wizard-steps{grid-template-columns:repeat(3,minmax(0,1fr));padding:8px}
+ .pf-wizard-steps>button{flex-direction:row;text-align:left;gap:7px;padding:7px}
+ .pf-wizard-steps strong{font-size:12px}
+}
+@media(max-width:600px){
+ .pf-wizard-funding-row{grid-template-columns:minmax(0,1fr) auto}
+ .pf-wizard-funding-row>label{grid-column:1}
+ .pf-wizard-funding-row>button{grid-column:2;grid-row:3}
+}
+@media(max-width:390px){
+ .pf-wizard-steps>button{flex-direction:column;text-align:center}
+}

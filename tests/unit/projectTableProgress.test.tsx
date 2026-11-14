@@ -15,3 +15,9 @@ it.each([['todo','Not started'],['in_progress','In progress'],['for_review','Awa
  expect(screen.getByLabelText('Progress for QA work').textContent).toBe(label);
  expect(screen.getByRole('progressbar').getAttribute('value')).toBe(status==='completed'?'100':'0');
 });
+it('renders Main Table status without an action even for an editable task',()=>{
+ const task={id:'task',title:'QA work',status:'in_progress'} as Task;
+ render(<ProjectTaskCell column="status" task={task} tasks={[task]} profiles={[]} people={[]} orgs={[]} editable busy={false} canSetOffice={false} hasStaffedSubitems={false} save={vi.fn()} write={vi.fn()}/>);
+ expect(screen.getByText('In progress').tagName).toBe('SPAN');
+ expect(screen.queryByRole('button')).toBeNull();
+});

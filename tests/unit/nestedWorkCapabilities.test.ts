@@ -58,7 +58,7 @@ describe('current per-action capability adapter',()=>{
  });
  it('limits executionBlocked to execute and submit, retaining management/review',async()=>{
   const response=tree();response.nodes[0].capabilities!.review=allow;const data=await loaded(response),current=context({executionBlocked:true});
-  for(const action of ['execute','submit'] as const)expect(selectNodeWorkCapability(data,'branch',action,current).reason_code).toBe('lifecycle_blocked');
+  for(const action of ['execute','submit'] as const)expect(selectNodeWorkCapability(data,'branch',action,current).reason_code).toBe('project_on_hold');
   expect(selectNodeWorkCapability(data,'branch','review',current).allowed).toBe(true);
   expect(selectNodeWorkCapability(data,'branch','manage_contributors',current).allowed).toBe(true);
   expect(selectRootWorkCapability(data,'create_child',current).allowed).toBe(true);
@@ -68,7 +68,7 @@ describe('current per-action capability adapter',()=>{
   const data=await loaded(response);expect(selectRootWorkCapability(data,'order_children',context()).allowed).toBe(true);
   expect(selectNodeWorkCapability(data,'branch','order_children',context()).allowed).toBe(false);
  });
- it.each(['access_unavailable','read_only','branch_denied','appointment_denied','lifecycle_blocked','history_blocked'] as const)('maps server %s to nonempty user copy',async reason=>{
+ it.each(['access_unavailable','read_only','branch_denied','appointment_denied','lifecycle_blocked','history_blocked','active_staffing_locked'] as const)('maps server %s to nonempty user copy',async reason=>{
   const response=tree();response.nodes[0].capabilities!.delete=deny(reason);const data=await loaded(response),result=selectNodeWorkCapability(data,'branch','delete',context());
   expect(result.allowed).toBe(false);expect(result.reason_code).toBe(reason);expect(result.disabledReason).toMatch(/\S/);
  });

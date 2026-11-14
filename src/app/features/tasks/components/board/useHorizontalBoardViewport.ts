@@ -42,20 +42,10 @@ export function useHorizontalBoardViewport() {
     if (typeof viewport.scrollTo !== "function") viewport.scrollLeft += direction * distance;
   }, []);
 
-  const autoPanDuringTaskDrag = useCallback((clientX: number) => {
-    const viewport = viewportRef.current;
-    if (!viewport) return;
-    const bounds = viewport.getBoundingClientRect();
-    const edge = Math.min(110, bounds.width * 0.18);
-    if (clientX < bounds.left + edge) viewport.scrollLeft -= 22;
-    else if (clientX > bounds.right - edge) viewport.scrollLeft += 22;
-  }, []);
-
   return {
     viewportRef,
     isPanning,
     panByPage,
-    autoPanDuringTaskDrag,
     viewportPointerHandlers: {
       onPointerDown,
       onPointerMove,

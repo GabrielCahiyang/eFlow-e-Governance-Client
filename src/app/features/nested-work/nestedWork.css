@@ -57,8 +57,8 @@
 .pt-nested-work .nw-hierarchy-table [data-selected-work="true"]>td{background:var(--eflow-selected)}
 .nw-read-summary{display:grid;gap:var(--eflow-space-2);padding:var(--eflow-space-3);border:1px solid var(--eflow-border);border-radius:var(--eflow-radius-control)}
 
-/* Keep desktop status/date/action labels whole; overflow stays in the nested scroll region. */
-.pt-nested-work .nw-hierarchy-table td:nth-child(5),.pt-nested-work .nw-hierarchy-table td:nth-child(6){white-space:nowrap}
+/* Keep desktop status/action labels whole; overflow stays in the nested scroll region. */
+.pt-nested-work .nw-hierarchy-table td.pt-cell--status,.pt-nested-work [data-work-presentation="standard"] .nw-hierarchy-table td:nth-child(5),.pt-nested-work [data-work-presentation="standard"] .nw-hierarchy-table td:nth-child(6){white-space:nowrap}
 .pt-nested-work .nw-hierarchy-table .nw-hierarchy-control{white-space:nowrap;min-width:max-content}
 .pt-nested-work .nw-hierarchy-table .eflow-status-pill{white-space:nowrap;max-width:none}
 .r7-auto-assignment{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 16px;padding:16px;border:1px solid var(--ui-border-color,#cce6e5);border-radius:10px;background:var(--primary-selected-color,#eef8f7);margin-bottom:16px}

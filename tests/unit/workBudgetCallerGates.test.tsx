@@ -39,10 +39,16 @@ describe('NW8.2 budget caller gates and preserved financial rights',()=>{
   view.rerender(<WorkBudgetCard task={task} subtask={subtask} readOnly={!pending} authorityPending={pending}/>);const send=screen.getByRole('button',{name:'Request cash'});expect(send.matches(':disabled')).toBe(true);fireEvent.click(send);expect(api.create).not.toHaveBeenCalled();expect((screen.getByLabelText('Purpose') as HTMLTextAreaElement).value).toBe('Travel for assigned work');
   view.rerender(<WorkBudgetCard task={task} subtask={subtask}/>);fireEvent.click(screen.getByRole('button',{name:'Request cash'}));await waitFor(()=>expect(api.create).toHaveBeenCalledOnce());expect(api.create.mock.calls[0][0]).toMatchObject({taskId:'root',subtaskId:'node',amount:100,purpose:'Travel for assigned work'});
  });
- it('withholds controls while funding context is being refreshed even with a retained funded result',()=>{
-  api.loading=true;render(<WorkBudgetCard task={task} subtask={subtask} canManage/>);expect(screen.queryByRole('button',{name:'Request cash'})).toBeNull();expect(screen.queryByRole('button',{name:'Allocate budget'})).toBeNull();
+ it('shows a disabled request with an explanation while funding refreshes',()=>{
+  api.loading=true;render(<WorkBudgetCard task={task} subtask={subtask} canManage/>);
+  const request=screen.getByRole('button',{name:'Request cash'});
+  expect(request.matches(':disabled')).toBe(true);
+  expect(screen.getByText('Checking funding access…')).toBeTruthy();
+  fireEvent.click(request);
+  expect(screen.queryByLabelText('Amount')).toBeNull();
+  expect(screen.queryByRole('button',{name:'Set cap'})).toBeNull();
  });
  it('withholds a stale Task Lead funding context after a current Lead change',()=>{
-  render(<WorkBudgetCard task={{...task,assigneeId:'replacement'}} subtask={{...subtask,assignedToIds:['lead']}} canManage/>);expect(screen.queryByRole('button',{name:'Request cash'})).toBeNull();expect(screen.queryByRole('button',{name:'Allocate budget'})).toBeNull();
+  render(<WorkBudgetCard task={{...task,assigneeId:'replacement'}} subtask={{...subtask,assignedToIds:['lead']}} canManage/>);expect(screen.getByRole('button',{name:'Request cash'}).matches(':disabled')).toBe(true);expect(screen.queryByRole('button',{name:'Set cap'})).toBeNull();
  });
 });

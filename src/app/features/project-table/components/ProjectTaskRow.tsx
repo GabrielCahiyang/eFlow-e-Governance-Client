@@ -32,8 +32,8 @@ function ProjectTaskRowContent({task,tasks,groups,profiles,orgs,columns,editable
  const shared=officeState.offices.some(o=>o.relationship_type!=='lead');
  const own=officeState.offices.find(o=>o.office_id===userProfile?.org_id);
  const readOnly=locked||!!task.archivedAt||!userProfile||userProfile.is_active===false||userProfile.role==='admin'||officeState.loading||!!officeState.error||shared&&(own?.invitation_status!=='joined'||own.relationship_type==='observer'||task.orgId!==userProfile?.org_id);
- const canDelete=editable&&!readOnly&&userProfile?.role==='head'&&!task.proposedOfficeIdentityId;
- const deletion=useProjectTaskDeletion(task,canDelete&&!busy);
+ const canDelete=editable&&!readOnly&&!task.proposedOfficeIdentityId&&!['for_review','completed','cancelled'].includes(task.status);
+ const deletion=useProjectTaskDeletion(task,canDelete&&!busy,subtasks.length>0);
  const workReadOnly=readOnly||busy||!!task.proposedOfficeIdentityId||['for_review','completed','cancelled'].includes(task.status);
  const data=controller?.data;
  const createCapability=data?selectRootWorkCapability(data,'create_child',{actorId:user?.id||null,rootId:task.id,projectId:data.root.project,officeId:data.root.office,kind:data.root.kind,revision:data.revision,readOnly:workReadOnly}):undefined;
@@ -41,7 +41,7 @@ function ProjectTaskRowContent({task,tasks,groups,profiles,orgs,columns,editable
  const canSubitems=controller&&!controller.unavailable?!!createCapability?.allowed&&controller.authorityFresh&&!controller.pending:legacyCanSubitems;
  const responsible=officeState.offices.find(o=>o.office_id===task.orgId);
  const people=responsible?projectOfficePeople(responsible,officeState.members,profiles,orgs):profiles.filter(p=>p.is_active&&p.org_id===task.orgId&&p.role!=='admin');
- const owner=getTaskLeadId(task),person=profiles.find(p=>p.id===owner),statuses=readOnly||task.proposedOfficeIdentityId?[task.status]:inlineStatusOptions(task,userId,editable);
+ const owner=getTaskLeadId(task),person=profiles.find(p=>p.id===owner);
  const subitemUnavailableReason=controller&&!controller.unavailable?(!controller.authorityFresh?'Verify current work access before adding a subtask.':controller.pending?'Wait for the current work change.':createCapability?.disabledReason||'Subtask creation is unavailable.') :officeState.error?'Subtask changes are unavailable while Office access cannot be verified.'
   :readOnly?'This Office has read-only access to this task.'
   :task.archivedAt?'Subtasks are locked because this task is archived.'
@@ -54,6 +54,7 @@ function ProjectTaskRowContent({task,tasks,groups,profiles,orgs,columns,editable
   editable&&!readOnly ? patchWorkspaceTask(task.id,patch) : editSelectedProjectTask(task.id,patch));
  const save=(patch:Parameters<typeof patchWorkspaceTask>[1])=>write(()=>patchWorkspaceTask(task.id,patch));
 
+ const statuses=inlineStatusOptions(task,userId,editable&&!readOnly);
  const moveActions=groups.filter(g=>g.id!==task.groupId).map(g=>({id:g.id,label:g.title,disabled:!canSetOffice&&!editable,onSelect:()=>{const position=Math.max(0,...tasks.filter(t=>t.groupId===g.id).map(t=>(t.workspacePosition||0)+1));void run(()=>canSetOffice&&shared?moveProjectOfficeTask(task.id,g.id,position):save({group_id:g.id,workspace_position:position}));}}));
  return <><tr className="pt-task-row">
  <td className="pt-row-actions-cell"><ActionMenu trigger={<button ref={actionTrigger} type="button" disabled={busy||deletion.pending} className="pt-row-actions-button" aria-label={'Actions for '+task.title}><MoreHorizontal size={16}/></button>} onCloseAutoFocus={event=>{

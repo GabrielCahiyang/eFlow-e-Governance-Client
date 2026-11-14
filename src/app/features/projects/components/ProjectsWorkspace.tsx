@@ -120,7 +120,7 @@ export function ProjectsWorkspace({
   const [projectWorkspaceTab, setProjectWorkspaceTab] = React.useState<ProjectCommandTab>("tasks");
   const [quickProjectOpen, setQuickProjectOpen] = React.useState(false);
   const [requestedProjectTool, setRequestedProjectTool] = React.useState<{ projectId: string; tool: ProjectTool } | null>(null);
-  const [deleteTarget, setDeleteTarget] = React.useState<Pick<Project, "id" | "title" | "status"> | null>(null);
+  const [deleteTarget, setDeleteTarget] = React.useState<Pick<Project, "id" | "title" | "status" | "publicationState"> | null>(null);
   const [archiveTarget, setArchiveTarget] = React.useState<{ id: string; title: string; isArchived: boolean } | null>(null);
   const [completeTarget, setCompleteTarget] = React.useState<{ id: string; title: string; archiveReview?: boolean } | null>(null);
   const [completionTaskId, setCompletionTaskId] = React.useState<string | null>(null);
@@ -418,7 +418,7 @@ export function ProjectsWorkspace({
                 complete: access.canManage && userProfile?.role === 'head' && userProfile.is_active !== false ? () => setCompleteTarget({ id: activeProject.id, title: activeProject.title }) : undefined,
                 archive: access.canArchive ? () => setArchiveTarget({ id: activeProject.id, title: activeProject.title, isArchived: false }) : undefined,
                 restore: access.canArchive ? () => setArchiveTarget({ id: activeProject.id, title: activeProject.title, isArchived: true }) : undefined,
-                delete: access.canDelete ? () => setDeleteTarget({ id: activeProject.id, title: activeProject.title, status: activeProject.status }) : undefined,
+                delete: (access.canDelete || activeProject.publicationState==='draft'&&activeProject.projectLeadId===userProfile?.id) ? () => setDeleteTarget({ id: activeProject.id, title: activeProject.title, status: activeProject.status, publicationState: activeProject.publicationState }) : undefined,
               }}
               onOpenSourceGovernance={(draftId) => openProposal(draftId, "governance")}
             />
@@ -559,7 +559,7 @@ export function ProjectsWorkspace({
           key={deleteTarget.id}
           projectId={deleteTarget.id}
           projectTitle={deleteTarget.title}
-          projectStatus={deleteTarget.status}
+          projectStatus={deleteTarget.status} draft={deleteTarget.publicationState==='draft'}
           open={Boolean(deleteTarget)}
           onClose={() => setDeleteTarget(null)}
           onArchive={access.canArchive && deleteTarget.status === "completed" ? () => {

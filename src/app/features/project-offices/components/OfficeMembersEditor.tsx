@@ -12,7 +12,7 @@ import { selectProjectOfficeMembersChecked } from '../services/projectOfficeServ
 import { readStaffingAuthority } from '../services/staffingAuthority';
 import { membershipDiff, removalWork, projectOfficeError } from '../presentation';
 import type { ProjectOffice, ProjectOfficeMember } from '../types';
-export function OfficeMembersEditor({ office, profiles, members, tasks, actorId, disabledReason, onCancel, onSaved, onOpenTask, hideCancel = false }: { office: Pick<ProjectOffice, 'id' | 'project_id' | 'office_id'>; profiles: UserProfile[]; members: ProjectOfficeMember[]; tasks: Task[]; actorId: string; disabledReason: string; onCancel: () => void; onSaved: () => Promise<void>; onOpenTask?: (id: string) => void; hideCancel?: boolean }) {
+export function OfficeMembersEditor({ office, projectLeadId, profiles, members, tasks, actorId, disabledReason, onCancel, onSaved, onOpenTask, hideCancel = false }: { projectLeadId?:string; office: Pick<ProjectOffice, 'id' | 'project_id' | 'office_id'>; profiles: UserProfile[]; members: ProjectOfficeMember[]; tasks: Task[]; actorId: string; disabledReason: string; onCancel: () => void; onSaved: () => Promise<void>; onOpenTask?: (id: string) => void; hideCancel?: boolean }) {
   const savedRequest=useRef<{id:string;users:string[];expected:string[];editors?:string[];fingerprint?:string} | undefined>(undefined);
   const roster = members.filter(m => m.project_office_id === office.id);
   const initial = roster.map(m => m.user_id);
@@ -40,7 +40,7 @@ export function OfficeMembersEditor({ office, profiles, members, tasks, actorId,
   const guard = useExplicitDraft('Project Office member selection', changed && !saved, busy, () => { setSelected(baseline); setEditors(editorBaseline); });
   const authority = useRef({ actorId, disabledReason }); authority.current = { actorId, disabledReason };
   const confirmation = useConfirmation();
-  const people = profiles.filter(p => p.org_id === office.office_id && p.is_active && p.role !== 'admin' && `${p.full_name} ${p.email}`.toLowerCase().includes(query.trim().toLowerCase()));
+  const people = profiles.filter(p => p.org_id === office.office_id && (p.is_active || initial.includes(p.id) || p.id===projectLeadId) && p.role !== 'admin' && `${p.full_name} ${p.email}`.toLowerCase().includes(query.trim().toLowerCase()));
   const name = (id: string) => profiles.find(p => p.id === id)?.full_name || 'Previously selected member';
   const refreshAfterSave = async () => { try { await onSaved(); onCancel(); } catch { setError('Project team saved. Refresh failed; retry loading without saving again.'); } };
   async function save() {
@@ -83,7 +83,7 @@ export function OfficeMembersEditor({ office, profiles, members, tasks, actorId,
         const officeHead=p.id===actorId;
         return <div className="po-member-access-row" data-selected={included || undefined} key={p.id}>
           <label className="po-member-access-person">
-            <input type="checkbox" aria-label={`Include ${p.full_name}`} checked={included} disabled={locked}
+            <input type="checkbox" aria-label={`Include ${p.full_name}`} checked={included || p.id===projectLeadId} disabled={locked || p.id===projectLeadId || !p.is_active}
               onChange={e => {
                 const checked=e.target.checked;
                 setSelected(ids => checked ? [...ids,p.id] : ids.filter(id=>id!==p.id));

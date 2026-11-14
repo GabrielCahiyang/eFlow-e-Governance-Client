@@ -214,6 +214,13 @@ export function resolveNotificationDestination(
     return makeDestination(notification, route, "team_intelligence", "Open workload insight");
   }
 
+  if (notification.entityType === 'm7_work_proposal' && notification.workNodeId && notification.taskId) {
+    const route = ["head", "member", "accounting_staff", "teamleader"].includes(role)
+      ? { section: "personal_work", page: notification.type === 'approval_needed' ? "Reviews" : "Leading" }
+      : null;
+    return makeDestination(notification, route, "leading_task", "Open subtask submission");
+  }
+
   if (isSubtask && ["progress updated","work updated","blocker reported","subtask completed"].some(label=>title.includes(label))) {
     const route = role === "head" || role === "member" || role === "accounting_staff" || role === "teamleader"
       ? { section: "personal_work", page: "Leading" }

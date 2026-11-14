@@ -34,7 +34,8 @@ export const WorkBudgetCard = lazyFeature(
 );
 export { peso, pesoShort, StatusPill } from "./components/budgetUi";
 export { useTaskFundingContext } from "./hooks/useTaskFundingContext";
-export { ProjectTaskBudgetProvider, ProjectTaskBudgetCell, useProjectTaskBudgetTotal } from './components/ProjectTaskBudget';
+export { ProjectTaskBudgetProvider, ProjectTaskBudgetCell, ProjectSubtaskBudgetCell, ProjectWorkExpensesCell, useProjectTaskBudgetTotal } from './components/ProjectTaskBudget';
+export { ProjectActualExpensesProvider } from './components/ProjectActualExpenses';
 export { BudgetReviewInbox } from "./components/BudgetReviewInbox";
 export { TaskCashClearancePanel } from "./components/TaskCashClearancePanel";
 export { useTaskCashClearance } from "./hooks/useTaskCashClearance";

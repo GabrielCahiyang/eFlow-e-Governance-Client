@@ -7,22 +7,27 @@ export interface ExecutableSequenceItem extends SequencedItem {
   taskId?: string;
   parentSubtaskId?: string;
   siblingOrder?: number;
+  dependencyIds?: readonly string[] | null;
   title: string;
   isCompleted: boolean;
   isStandalone?: boolean;
 }
 
-/** Standalone work is outside the dependency chain and never blocks a step. */
+/** Explicit prerequisites replace the legacy sequence when present. */
 export function getSubtaskPrerequisite<T extends ExecutableSequenceItem>(
   subtask: T,
   siblings: readonly T[],
 ): T | null {
+  const isSibling = (candidate: T) => candidate.id !== subtask.id
+    && (!subtask.taskId || !candidate.taskId || candidate.taskId === subtask.taskId)
+    && (candidate.parentSubtaskId || null) === (subtask.parentSubtaskId || null);
+  if (subtask.dependencyIds) {
+    return siblings.find(candidate => isSibling(candidate) && subtask.dependencyIds?.includes(candidate.id) && !candidate.isCompleted) || null;
+  }
   if (subtask.isStandalone) return null;
   return [...siblings]
     .filter((candidate) =>
-      candidate.id !== subtask.id
-      && (!subtask.taskId || !candidate.taskId || candidate.taskId === subtask.taskId)
-      && (candidate.parentSubtaskId || null) === (subtask.parentSubtaskId || null)
+      isSibling(candidate)
       && !candidate.isStandalone
       && (candidate.siblingOrder ?? candidate.position) < (subtask.siblingOrder ?? subtask.position)
       && !candidate.isCompleted,

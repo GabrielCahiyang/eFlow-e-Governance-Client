@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { Building2, Calendar, Check, CircleGauge, Clock, Flag, GitBranch, Plus, Search, UserRound, Wallet, CircleCheck } from 'lucide-react';
+import { Building2, Calendar, Check, CircleGauge, Clock, Flag, GitBranch, Plus, ReceiptText, Search, UserRound, Wallet, CircleCheck } from 'lucide-react';
 import { WorkspacePopover } from '../../../components/ui/workspace';
 import { PROJECT_COLUMNS, type ProjectColumn } from '../types';
 
-const icons = { office: Building2, owner: UserRound, status: CircleCheck, priority: Flag, timeline: Calendar, effort: Clock, dependencies: GitBranch, budget: Wallet, progress: CircleGauge };
+const icons = { office: Building2, owner: UserRound, status: CircleCheck, priority: Flag, timeline: Calendar, effort: Clock, dependencies: GitBranch, budget: Wallet, actualExpenses: ReceiptText, progress: CircleGauge };
 
 export function AddColumnButton({ columns, onAdd }: { columns: ProjectColumn[]; onAdd: (column: ProjectColumn) => void }) {
   const [open, setOpen] = useState(false), [query, setQuery] = useState('');

@@ -11,4 +11,8 @@ it.each(['','08006','PGRST500'])('keeps transport/backend failure %s uncertain s
 });
 
 import {projectWorkAvailable} from '../../src/app/features/project-setup/projectWorkAvailable';
-it('keeps completed and archived history readable after all unused funding is released',()=>{expect(projectWorkAvailable('archived',false)).toBe(true);expect(projectWorkAvailable('completed',false)).toBe(true);expect(projectWorkAvailable('planning',false)).toBe(false);expect(projectWorkAvailable('active',false)).toBe(false);expect(projectWorkAvailable('active',true)).toBe(true);});
+it('keeps Active, On hold and closed work visible independently of the setup receipt',()=>{
+ for(const status of ['active','on_hold','completed','archived'])expect(projectWorkAvailable(status,false)).toBe(true);
+ expect(projectWorkAvailable('planning',false)).toBe(false);
+ expect(projectWorkAvailable('planning',true)).toBe(true);
+});

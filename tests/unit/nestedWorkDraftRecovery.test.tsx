@@ -92,8 +92,8 @@ describe('NW5.4 editor recovery',()=>{
 describe('NW5.4 current reads and owners',()=>{
  it('retains a dirty editor on timer failure and blocks saving until retry succeeds',async()=>{
   render(<WorkTree rootId="root"/>);await chooseWorkAction('Task work actions','Add subtask');fireEvent.change(screen.getByLabelText('Subtask title'),{target:{value:'Dirty'}});
-  api.load.mockRejectedValueOnce(new Error('Network offline'));fireEvent(window,new Event('focus'));await screen.findByText(/Network offline/);expect(screen.getByDisplayValue('Dirty')).toBeTruthy();expect((screen.getByRole('button',{name:/^Save (?:work )?changes$/}) as HTMLButtonElement).disabled).toBe(true);
-  fireEvent.click(screen.getByRole('button',{name:'Retry work'}));await waitFor(()=>expect((screen.getByRole('button',{name:/^Save (?:work )?changes$/}) as HTMLButtonElement).disabled).toBe(false));expect(screen.getByDisplayValue('Dirty')).toBeTruthy();
+  api.load.mockRejectedValueOnce(new Error('Network offline'));fireEvent(window,new Event('focus'));await screen.findByText(/Network offline/);expect(screen.getByDisplayValue('Dirty')).toBeTruthy();expect((screen.getByRole('button',{name:'Add subtask'}) as HTMLButtonElement).disabled).toBe(true);
+  fireEvent.click(screen.getByRole('button',{name:'Retry work'}));await waitFor(()=>expect((screen.getByRole('button',{name:'Add subtask'}) as HTMLButtonElement).disabled).toBe(false));expect(screen.getByDisplayValue('Dirty')).toBeTruthy();
  });
  it('clears protected display on coded revocation and quarantines the draft until renewed read',async()=>{
   render(<WorkTree rootId="root"/>);await chooseWorkAction('Task work actions','Add subtask');fireEvent.change(screen.getByLabelText('Subtask title'),{target:{value:'Private draft'}});

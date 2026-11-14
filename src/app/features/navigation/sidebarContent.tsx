@@ -10,7 +10,7 @@ export function getSidebarContent(
   role: string,
   section: string,
 ): SidebarContent {
-  if (section === 'personal_work') return {title:'My Work',sections:[{title:'Work',items:['Assigned work','Leading','Subtasks','History'].map((label,i)=>({label,isActive:i===0}))}]};
+  if (section === 'personal_work') return {title:'My Work',sections:[{title:'Work',items:['Assigned work','Leading','Subtasks','Reviews','History'].map((label,i)=>({label,isActive:i===0}))}]};
   if (section === 'dashboard') return {title:'Workspace Overview',sections:[{title:'Workspace',items:[{label:'Workspace Overview',isActive:true}]}]};
   if (section === "inbox")
     return {

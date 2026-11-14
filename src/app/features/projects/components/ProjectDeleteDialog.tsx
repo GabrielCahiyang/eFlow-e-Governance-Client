@@ -5,12 +5,14 @@ import { Button } from "../../../components/ui/button";
 import { deleteProject } from "../services/projectService";
 import { fetchProjectDeletionBlockers } from "../services/projectLifecycleService";
 import type { ProjectStatus } from "../services/types";
+import { projectFlowCall } from '../../project-setup';
 import { useGuardedProjectDialog } from '../hooks/useGuardedProjectDialog';
 
 export function ProjectDeleteDialog({
   projectId,
   projectTitle,
   projectStatus,
+  draft = false,
   open,
   onClose,
   onDeleted,
@@ -19,6 +21,7 @@ export function ProjectDeleteDialog({
   projectId: string;
   projectTitle: string;
   projectStatus?: ProjectStatus;
+  draft?: boolean;
   open: boolean;
   onClose: () => void;
   onDeleted: () => void;
@@ -46,6 +49,7 @@ export function ProjectDeleteDialog({
     if (!open) return;
     let current = true;
     setCheck({});
+    if(draft) { setCheck({blockers:[]}); return; }
     void fetchProjectDeletionBlockers(projectId).then((blockers) => {
       if (!current) return;
       setCheck(blockers ? { blockers } : { error: "Only the Head responsible for this project can delete it." });
@@ -53,7 +57,7 @@ export function ProjectDeleteDialog({
       if (current) setCheck({ error: caught.message, retryable: true });
     });
     return () => { current = false; };
-  }, [open, projectId, checkVersion]);
+  }, [open, projectId, checkVersion, draft]);
 
   const canDelete = eligible && confirmation.trim() === projectTitle.trim() && reason.trim().length >= 5;
 
@@ -63,7 +67,8 @@ export function ProjectDeleteDialog({
     setDeleting(true);
     setError("");
     try {
-      await deleteProject(projectId, confirmation, reason);
+      if(draft)await projectFlowCall('discard_private_project',{p_project:projectId,p_title:confirmation,p_reason:reason});
+      else await deleteProject(projectId, confirmation, reason);
       onDeleted();
     } catch (caught) {
       setError(
@@ -81,7 +86,7 @@ export function ProjectDeleteDialog({
     <Modal
       isOpen={open}
       onClose={deleting ? () => {} : close}
-      title="Permanently delete project"
+      title={draft?'Discard project draft':'Permanently delete project'}
       width="max-w-lg"
       footer={
         <div className="flex items-center justify-end gap-3 w-full">
@@ -100,7 +105,7 @@ export function ProjectDeleteDialog({
             className="inline-flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-semibold text-white bg-rose-600 hover:bg-rose-700 active:bg-rose-800 shadow-sm transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {deleting && <Icons.Loader2 size={16} className="animate-spin" />}
-            {deleting ? "Deleting…" : "Delete permanently"}
+            {deleting ? "Deleting…" : draft ? "Discard draft" : "Delete permanently"}
           </button>}
           {check.blockers && !eligible && onArchive && (
             <Button onClick={onArchive}><Icons.Archive size={16} />Archive project</Button>

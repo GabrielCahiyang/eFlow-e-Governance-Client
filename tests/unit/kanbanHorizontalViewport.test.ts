@@ -4,10 +4,20 @@ import { createElement } from "react";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { KanbanBoardView } from "../../src/app/features/tasks/components/board/KanbanBoardView";
+import type { Task } from "../../src/app/services/taskService";
 
 afterEach(cleanup);
 
 describe("Kanban horizontal viewport", () => {
+  it("opens a task from its card without offering status drag and drop", () => {
+    const task={id:'task',title:'Prepare the agenda',status:'todo',assigneeId:'actor'} as Task;
+    const open=vi.fn();
+    const {container}=render(createElement(KanbanBoardView,{tasks:[task],employees:[],role:'head',currentUserId:'actor',onOpenTask:open}));
+    expect(container.querySelector('[draggable="true"]')).toBeNull();
+    expect(screen.queryByText('Drop here')).toBeNull();
+    fireEvent.click(screen.getByRole('button',{name:task.title}));
+    expect(open).toHaveBeenCalledWith(task);
+  });
   it("pans the full status canvas by dragging empty board space", () => {
     class TestPointerEvent extends MouseEvent {
       pointerId: number;

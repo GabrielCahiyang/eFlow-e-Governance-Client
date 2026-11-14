@@ -8,7 +8,7 @@ describe('retired navigation cleanup', () => {
   it.each(['head', 'member', 'accounting_staff'])('excludes duplicate Leading and obsolete alias tabs for %s', role => {
     const items = buildShellNavigation({ role, can: () => true, hasLeadingWork: true });
     expect(items.find(item => item.id === 'personal_work')?.pages.map(page => page.label))
-      .toEqual(['Assigned work', 'Leading', 'Subtasks', 'History']);
+      .toEqual(['Assigned work', 'Leading', 'Subtasks', 'Reviews', 'History']);
     expect(items.some(item => ['leading', 'leader', 'mywork', 'command', 'deptportfolio', 'workspace'].includes(item.id))).toBe(false);
     expect(items.flatMap(item => item.pages).some(page => /Pinned|Work I'm Leading|Leading Work/.test(page.label))).toBe(false);
     for (const section of ['leading', 'leader', 'mywork', 'command', 'deptportfolio', 'workspace'])

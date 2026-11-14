@@ -38,7 +38,7 @@ function open(command:WorkEdit['command'],patch:Partial<WorkEdit>={}){
  const props={data,edit:{command,node:['create','order'].includes(command)?undefined:data.nodes[0],...patch},save:(request:WorkRequest)=>saveWorkTree('root',request),onDone:vi.fn(),onCancel:vi.fn()};
  return {props,view:render(<WorkTreeEditor {...props}/>)};
 }
-const save=()=>fireEvent.click(screen.getByRole('button',{name:'Save work changes'}));
+const save=()=>fireEvent.click(screen.getByRole('button',{name:/^(Add subtask|Save subtask|Review deletion|Move subtask|Save sequence|Post update|Submit for review|Save review)$/}));
 async function accept(name='Confirm changes'){fireEvent.click(await screen.findByRole('button',{name,exact:true}));}
 describe('NW5.5 lightweight forms and authoritative confirmation',()=>{
  it('requires both dates for new subtasks and sends the selected pair',async()=>{
@@ -111,13 +111,13 @@ describe('NW5.5 lightweight forms and authoritative confirmation',()=>{
   open('edit');fireEvent.change(screen.getByLabelText('Execution mode'),{target:{value:'independent'}});save();const dialog=await screen.findByRole('alertdialog');expect(dialog.textContent).toContain('In sequence → Can start independently');expect(writes()).toHaveLength(0);await accept();await waitFor(()=>expect(writes()).toHaveLength(1));expect(writes()[0][0]).toBe('nw_work_command');
  });
  it('uses server subtree counts and danger confirmation for deletion',async()=>{
-  previewPatch={selected_count:8,descendant_count:7};open('delete');fireEvent.click(screen.getByRole('button',{name:'Review deletion'}));const dialog=await screen.findByRole('alertdialog');expect(dialog.textContent).toContain('8 subtasks in the selected scope; 7 are child subtasks');expect(writes()).toHaveLength(0);await accept('Delete subtree');await waitFor(()=>expect(writes()).toHaveLength(1));expect(writes()[0][1]).toMatchObject({p_command:'delete',p_payload:{id:'source'},p_impact_fingerprint:'synthetic-checked-impact'});
+  previewPatch={selected_count:8,descendant_count:7};open('delete');fireEvent.click(screen.getByRole('button',{name:'Review deletion'}));const dialog=await screen.findByRole('alertdialog');expect(dialog.textContent).toContain('8 subtasks in the selected scope; 7 are child subtasks');expect(writes()).toHaveLength(0);await accept('Delete subtask');await waitFor(()=>expect(writes()).toHaveLength(1));expect(writes()[0][1]).toMatchObject({p_command:'delete',p_payload:{id:'source'},p_impact_fingerprint:'synthetic-checked-impact'});
  });
  it('cancels impact review without sending a command or losing the draft',async()=>{
   open('edit');fireEvent.change(screen.getByLabelText('Execution mode'),{target:{value:'independent'}});save();const dialog=await screen.findByRole('alertdialog');fireEvent.click(within(dialog).getByRole('button',{name:'Cancel',exact:true}));await waitFor(()=>expect(screen.queryByRole('alertdialog')).toBeNull());expect(writes()).toHaveLength(0);expect((screen.getByLabelText('Execution mode') as HTMLSelectElement).value).toBe('independent');
  });
  it('shows denied preview blockers without permitting deletion',async()=>{
-  previewPatch={allowed:false,blocker_codes:['history_blocked'],selected_count:2,descendant_count:1};open('delete');fireEvent.click(screen.getByRole('button',{name:'Review deletion'}));const dialog=await screen.findByRole('alertdialog');expect((within(dialog).getByRole('button',{name:'Delete subtree'}) as HTMLButtonElement).disabled).toBe(true);expect(dialog.textContent).toContain('financial commitments');fireEvent.click(within(dialog).getByRole('button',{name:'Cancel',exact:true}));expect(writes()).toHaveLength(0);
+  previewPatch={allowed:false,blocker_codes:['history_blocked'],selected_count:2,descendant_count:1};open('delete');fireEvent.click(screen.getByRole('button',{name:'Review deletion'}));const dialog=await screen.findByRole('alertdialog');expect((within(dialog).getByRole('button',{name:'Delete subtask'}) as HTMLButtonElement).disabled).toBe(true);expect(dialog.textContent).toContain('financial commitments');fireEvent.click(within(dialog).getByRole('button',{name:'Cancel',exact:true}));expect(writes()).toHaveLength(0);
  });
  it.each(['PGRST202','42501'])('never falls back when preview fails with %s',async code=>{
   api.rpc.mockImplementation(async()=>({data:null,error:{code,message:'Preview unavailable'}}));open('move');save();await screen.findByText(code==='PGRST202'?/Work impact confirmation is not installed/:/Preview unavailable/);expect(writes()).toHaveLength(0);expect(screen.queryByRole('alertdialog')).toBeNull();

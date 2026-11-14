@@ -22,7 +22,7 @@ it('renders four different My Work glyphs without changing names, selected state
  const select=vi.fn();
  render(<EflowVibeThemeProvider preference="light"><ProductivitySidebar role="member" activeSection="personal_work" activePage="History" navigationItems={buildShellNavigation({role:'member',can:()=>true})} onPageSelect={select} userId="actor" workspaceId="office"/></EflowVibeThemeProvider>);
  const nav=within(screen.getByRole('navigation',{name:'My Work destinations'}));
- const expected=[['Assigned work','lucide-clipboard-list'],['Leading','lucide-flag-triangle-right'],['Subtasks','lucide-list-tree'],['History','lucide-history']];
+ const expected=[['Assigned work','lucide-clipboard-list'],['Leading','lucide-flag-triangle-right'],['Subtasks','lucide-list-tree'],['Reviews','lucide-clipboard-check'],['History','lucide-history']];
  for(const [name,glyph] of expected){const icon=nav.getByRole('button',{name,exact:true}).querySelector('svg')!;expect(icon.classList.contains(glyph)).toBe(true);expect(icon.getAttribute('aria-hidden')).toBe('true');expect(icon.getAttribute('width')).toBe('17');}
  expect(nav.getByRole('button',{name:'History',exact:true}).getAttribute('aria-current')).toBe('page');
  fireEvent.click(nav.getByRole('button',{name:'Leading',exact:true}));expect(select).toHaveBeenLastCalledWith('personal_work','Leading');

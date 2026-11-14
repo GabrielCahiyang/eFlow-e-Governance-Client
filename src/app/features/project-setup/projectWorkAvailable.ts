@@ -1,2 +1,4 @@
-/** Setup gates new work; closed projects retain their read-only history even after funding is released. */
-export function projectWorkAvailable(status:string,ready:boolean):boolean{return status==='completed'||status==='archived'||ready;}
+/** Only a Planning workspace needs a completed setup before showing its work. */
+export function projectWorkAvailable(status:string,ready:boolean):boolean {
+ return ['active','on_hold','completed','archived'].includes(status)||ready;
+}

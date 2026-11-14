@@ -14,6 +14,11 @@ const missingUpgrade = (message: string) =>
   message.includes("submit_subtask_for_review") ||
   message.includes("decide_subtask_review");
 
+export async function startScheduledSubtask(taskId: string, subtaskId: string): Promise<void> {
+  const { error } = await supabase.rpc('m7_start_subtask', { p_root: taskId, p_node: subtaskId });
+  if (error) throw new Error(error.message);
+}
+
 /** Status updates preserve historical percentages and reuse the checked writer. */
 export async function saveSubtaskWorkUpdate(input:{subtaskId:string;state:'in_progress'|'stuck';blocker?:string;note?:string;nextStep?:string;attachment?:File|null}):Promise<void>{
  const issue=attachmentError(input.attachment?[input.attachment]:[],{maxCount:1});
