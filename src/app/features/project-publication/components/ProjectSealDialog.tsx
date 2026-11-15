@@ -56,7 +56,9 @@ export function ProjectSealDialog({
           if (c.status === "fulfilled") setConfig(c.value);
           else if (status.status === "fulfilled")
             setError(
-              "The publication server is unavailable. You can still review the saved record.",
+              c.reason instanceof Error && c.reason.message
+                ? `${c.reason.message} You can still review the saved record.`
+                : "The publication server (:8321) is unavailable. You can still review the saved record.",
             );
         }
       })
@@ -161,8 +163,7 @@ export function ProjectSealDialog({
         <>
           {config && !config.worker_enabled && (
             <div className="project-seal-note">
-              The publication worker is not enabled yet. Your project stays
-              private.
+              The blockchain publication worker service is offline or not enabled on this host. Saved seal records remain viewable; start the publication worker before preparing or signing a new seal.
             </div>
           )}
           <div

@@ -154,4 +154,15 @@ describe('NW3.3 staffing and hierarchy caller locks',()=>{
  for(const status of ['for_review','completed','cancelled'] as const)it('locks the table staffing caller for '+status,async()=>{
   render(<ProjectTaskCell column="owner" task={{...task,status}} tasks={[task]} profiles={[]} people={[]} orgs={[]} editable busy={false} canSetOffice={false} hasStaffedSubitems={false} statuses={[status]} save={vi.fn()} write={vi.fn()}/>);await screen.findByText('Current Lead');expect(screen.queryByRole('button',{name:'Choose task lead and contributors'})).toBeNull();
  });
+ it('shows subtask team members in Main table Owner cell without displaying Contributors (0)',async()=>{
+  mocks.load.mockResolvedValue(tree({
+   root:{...tree().root,lead:'lead',people:[]},
+   nodes:[node({lead_id:'bob',assigned_to_ids:['bob']})],
+  }));
+  render(<WorkRootOwner rootId="root" layout="table"/>);
+  await screen.findByText('Current Lead');
+  expect(screen.getByText(/\+1 · Bob selected for project/)).toBeTruthy();
+  expect(screen.queryByText(/Contributors \(0\)/)).toBeNull();
+  expect(screen.getByRole('button',{name:'Choose task lead and contributors'}).textContent).toBe('Choose people');
+ });
 });

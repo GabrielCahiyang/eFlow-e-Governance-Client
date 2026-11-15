@@ -12,6 +12,7 @@ beforeEach(()=>{vi.resetAllMocks();api.session.mockResolvedValue({data:{session:
 afterEach(cleanup);
 it('completes a step directly without mandatory note or evidence',async()=>{
  const submit=vi.fn().mockResolvedValue(undefined);render(<WorkExecutionForm completionMode="direct" status="todo" onSave={vi.fn()} onSubmit={submit}/>);
+ expect(screen.queryByText(/No separate approval is needed/)).toBeNull();
  fireEvent.change(screen.getByLabelText('Work status'),{target:{value:'submit'}});fireEvent.click(screen.getByRole('button',{name:'Mark complete'}));
  await waitFor(()=>expect(submit).toHaveBeenCalledWith(expect.objectContaining({note:'',files:[]})));
  expect(screen.queryByRole('button',{name:'Submit for review'})).toBeNull();

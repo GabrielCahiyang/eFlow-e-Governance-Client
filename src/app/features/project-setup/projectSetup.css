@@ -25,3 +25,21 @@
 /* Restore the original project preview beside the opening details section. */
 .pf-task-accounts header{align-items:center}.pf-task-accounts__balance{text-align:right;flex-shrink:0}.pf-task-accounts__balance small{display:block;font-size:11px;color:var(--muted-foreground,#56716c);margin-bottom:5px}.pf-task-accounts__balance strong{font-size:18px;color:#087972}.pf-task-accounts label>small{color:var(--muted-foreground,#56716c);font-size:11px}.pf-task-accounts .pf-task-accounts__add{background:#eef8f4;color:#087972;border-color:#bdded3}.pf-task-accounts__totals{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:16px;border:1px solid var(--border,#d5e2df);background:var(--muted,#f1f8f5);border-radius:10px}.pf-task-accounts__totals>div{display:grid;gap:6px}.pf-task-accounts__totals span{font-size:12px;color:var(--muted-foreground,#56716c)}.pf-task-accounts__totals strong{font-size:17px;color:var(--foreground,#193b38)}@media(max-width:600px){.pf-task-accounts header{flex-direction:column}.pf-task-accounts__balance{text-align:left}.pf-task-accounts .pf-task-funding-row{grid-template-columns:minmax(0,1fr) 40px;align-items:start}.pf-task-accounts .pf-task-funding-row>label{grid-column:1}.pf-task-accounts .pf-task-funding-row>button{grid-column:2;grid-row:1;align-self:end}}
 .pf-task-accounts .pf-task-funding-row{align-items:start}.pf-task-accounts .pf-task-funding-row>button{margin-top:24px}@media(max-width:600px){.pf-task-accounts .pf-task-funding-row>button{margin-top:24px;align-self:start}}
+.pf-task-budget-dialog{display:grid;gap:16px;min-width:0}
+.pf-task-budget-summary{display:grid;gap:10px;padding:14px 16px;border:1px solid var(--border,#d5e2df);border-radius:12px;background:var(--muted,#f6f9f8)}
+.pf-task-budget-summary>header h3{margin:0;font-size:15px;font-weight:600;color:var(--foreground,#193b38)}
+.pf-task-budget-lines{display:grid;gap:10px}
+.pf-task-budget-line{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 14px}
+.pf-task-budget-line strong{font-size:13px;font-weight:600;color:var(--foreground,#193b38)}
+.pf-task-budget-line p{margin:2px 0 0;font-size:12px;color:var(--muted-foreground,#56716c)}
+.pf-task-budget-line>button{border:1px solid var(--border,#b9d2ca);border-radius:8px;padding:7px 12px;font-size:12px;font-weight:500;background:var(--background,#fff);color:var(--foreground,#193b38)}
+.pf-task-accounts--modal{display:grid;gap:14px;min-width:0;padding-top:4px;border-top:1px solid var(--border,#e2ebe8)}
+.pf-task-accounts--modal header{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.pf-task-accounts--modal h3{margin:0;font-size:15px;font-weight:600}
+.pf-task-accounts--modal p{margin:3px 0 0;font-size:13px;color:var(--muted-foreground,#56716c)}
+.pf-task-accounts--modal label{display:grid;gap:6px;font-size:13px}
+.pf-task-accounts--modal input:not([type=checkbox]),.pf-task-accounts--modal select,.pf-task-accounts--modal textarea{border:1px solid var(--border,#c5d7d2);border-radius:8px;background:var(--background,#fff);color:inherit;padding:9px 11px;width:100%;min-width:0;box-sizing:border-box;font:inherit}
+.pf-task-accounts--modal textarea{min-height:64px;resize:vertical}
+.pf-task-accounts--modal button{border:1px solid var(--border,#b9d2ca);border-radius:8px;padding:8px 13px;font-size:13px;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.pf-task-accounts--modal button:disabled{opacity:.5;cursor:not-allowed}
+.pf-task-budget-note{margin:0;padding:12px 14px;border-radius:10px;background:var(--muted,#f4f8f7);font-size:13px;line-height:1.5;color:var(--muted-foreground,#56716c)}

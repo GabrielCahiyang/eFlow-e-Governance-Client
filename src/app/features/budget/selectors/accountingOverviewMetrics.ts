@@ -23,7 +23,7 @@ export function accountingOverviewMetrics(
   );
   const ages = [
     { id: "week", label: "Up to 7 days", min: 0, max: 7 },
-    { id: "month", label: "8�30 days", min: 8, max: 30 },
+    { id: "month", label: "8–30 days", min: 8, max: 30 },
     { id: "older", label: "Over 30 days", min: 31, max: Infinity },
   ].map((bucket) => ({
     id: bucket.id,

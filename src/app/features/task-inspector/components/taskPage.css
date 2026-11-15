@@ -55,7 +55,11 @@
 .subitem-work-layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(320px,1fr);gap:20px;align-items:start}
 .subitem-work-layout[hidden]{display:none}
 .subitem-execution,.subitem-details{display:grid;gap:14px;min-width:0}
-.subitem-details-panel>summary{cursor:pointer;font-size:14px;font-weight:600;padding:8px 0}
+.subitem-execution-stack:has(> [aria-label="Lead review"])>.work-execution,.subitem-execution-stack:has(> [aria-label="Lead review"])>section[aria-label="Execute subtask"]>.work-execution{border:0;box-shadow:none;padding:0;background:transparent}
+.subitem-execution-stack:has(> [aria-label="Lead review"]){background:var(--eflow-surface,#fff);border:1px solid var(--eflow-border,#d8e2df);border-radius:14px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,.04);gap:20px}
+.subitem-execution-stack:has(> [aria-label="Lead review"])>section[aria-label="Execute subtask"]{border-top:1px solid var(--eflow-border,#d8e2df);padding-top:18px}
+.subitem-details-panel{border:1px solid var(--eflow-border,#d6e1e3);border-radius:12px;padding:10px 14px;background:var(--eflow-surface,#fff)}
+.subitem-details-panel>summary{cursor:pointer;font-size:14px;font-weight:600;padding:4px 0}
 .subitem-details-panel[open]>summary{margin-bottom:6px}
 .subitem-work-layout>.subitem-child-work{grid-column:1/-1}
 @media(max-width:950px){.subitem-work-layout{grid-template-columns:minmax(0,1fr)}.subitem-details{grid-row:1}}

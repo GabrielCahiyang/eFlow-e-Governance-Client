@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import type { DepartmentBudgetBundle } from "../types";
 import { buildBudgetExpenseReportRows } from "../selectors/budgetSelectors";
+import { formatFundingRequestCode } from "../selectors/cashWorkflowRules";
 import { createReceiptSignedUrl } from "../services/budgetService";
 import { Input } from "../../../components/ui/input";
 import { BudgetCard, BudgetEmpty, peso } from "./budgetUi";
@@ -98,7 +99,7 @@ export function BudgetExpensesReport({
     {
       key: "request",
       header: "Request",
-      value: (r) => `PC-${String(r.requestNumber).padStart(5, "0")}`,
+      value: (r) => formatFundingRequestCode(r.requestNumber),
     },
     {
       key: "settled",
@@ -262,7 +263,7 @@ export function BudgetExpensesReport({
                     >
                       <td className="px-4 py-3">
                         <strong className="text-foreground">
-                          PC-{String(row.requestNumber).padStart(5, "0")}
+                          {formatFundingRequestCode(row.requestNumber)}
                         </strong>
                         <div className="mt-1 text-muted-foreground">
                           {new Date(row.settledAt).toLocaleDateString()}

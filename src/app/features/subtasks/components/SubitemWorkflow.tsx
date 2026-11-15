@@ -15,10 +15,11 @@ export function SubitemWorkflow({task,subtask,prerequisite,capabilities,pending,
  submissions:SubtaskSubmission[];progressUpdates:SubtaskProgressUpdate[];onSaved:()=>Promise<void>;onReview:()=>void;
  currentReviewerName?:string;schedule?:ReactNode;startPanel?:ReactNode;leadReview?:ReactNode;directUpdates?:boolean;directCompletion?:boolean;dependencyBlockedReason?:string|null;recheckCompletion?:()=>Promise<void>;
 }){
+ const showExecution=Boolean(startPanel||directUpdates);
  return <>
-  <div className="subitem-execution">
+  <div className={leadReview&&showExecution?'subitem-execution subitem-execution-stack':'subitem-execution'}>
   {leadReview}
-  {(startPanel||directUpdates)&&<section aria-label="Execute subtask" className="space-y-2">
+  {showExecution&&<section aria-label="Execute subtask" className="space-y-2">
    {startPanel??<SubtaskProgressForm dependencyBlockedReason={dependencyBlockedReason} recheckCompletion={recheckCompletion} subtask={subtask} prerequisite={prerequisite} readOnly={!capabilities.execute} disabled={pending} showCompletion={directCompletion} canSubmit={capabilities.submit&&!pending} submitBlockedReason={capabilities.submit?(pending?(saving?'An update is being saved.':'Refreshing subtask access. Try again in a moment.'):null):capabilities.submitBlockedReason} onSaved={onSaved} initialBlocker={progressUpdates[0]?.blocker||''}/>}
   </section>}
   {progressUpdates.length>0&&<details className="work-secondary"><summary>Updates · {progressUpdates.length}</summary><SubtaskProgressHistory updates={progressUpdates}/></details>}

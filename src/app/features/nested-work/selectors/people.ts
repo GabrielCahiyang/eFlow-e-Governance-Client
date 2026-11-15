@@ -14,6 +14,18 @@ export function displayedWorkContributorIds(leadId:string|null,contributorIds:re
  return deduplicateWorkPersonIds(contributorIds).filter(id=>id!==leadId);
 }
 
+/** Combine direct task contributors with distinct subtask leads/contributors excluding root lead. */
+export function collectSubtaskTeamIds(
+ leadId:string|null,
+ directContributorIds:readonly string[],
+ nodes:readonly {lead_id:string|null;assigned_to_ids:readonly string[]}[],
+){
+ const directIds=displayedWorkContributorIds(leadId,directContributorIds);
+ const subtaskIds=deduplicateWorkPersonIds(nodes.flatMap(node=>[node.lead_id||'',...node.assigned_to_ids]))
+  .filter(id=>id!==leadId&&!directIds.includes(id));
+ return {directIds,subtaskIds,teamIds:[...directIds,...subtaskIds]};
+}
+
 /** Normalize only at the command boundary. Appointment never comes from order.
  * Carry the original worker IDs through a transfer to retain any former Lead
  * contribution. A historical Lead absent from that list is not added as a worker.

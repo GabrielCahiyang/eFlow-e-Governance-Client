@@ -124,7 +124,14 @@ export const submitTaskForReview = async (
         attachments: uploadedAttachments,
       },
     });
-    if (error) throw new Error(error.message);
+    if (error) {
+      if (/Assign an eligible reviewer before submitting/i.test(error.message)) {
+        throw new Error(
+          "No independent reviewer is available because the task lead is also the Office Head or Project Lead. Assign another Task Lead (or an independent Project Lead) before submitting for final review."
+        );
+      }
+      throw new Error(error.message);
+    }
   } catch (error) {
     if (uploadedPaths.length > 0) {
       await supabase.storage.from("task-attachments").remove(uploadedPaths);

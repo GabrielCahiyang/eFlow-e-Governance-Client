@@ -22,7 +22,7 @@ import { useProjectGroups } from '../hooks/useProjectGroups';
 import { PROJECT_COLUMNS } from '../types';
 import { useTableLayout } from '../hooks/useTableLayout';
 
-import { visibleProjectTasks,tasksInGroup,type TableSort } from '../selectors';
+import { visibleProjectTasks, tasksInGroup, visibleProjectGroups, type TableSort } from '../selectors';
 
 import { TableToolbar } from './TableToolbar';
 
@@ -82,12 +82,13 @@ export function ProjectTableWorkspace({data,profiles,orgs,canManage,planningOnly
  const columns=PROJECT_COLUMNS.filter(c=>!hidden.includes(c.id)).map(c=>c.id);
 
  const tasks=useMemo(()=>visibleProjectTasks(data.tasks,query,status,owner,sort).filter(t=>!sharedFilters?.office||t.orgId===sharedFilters.office).filter(t=>matchesProjectDateRange(t,sharedFilters||{})),[data.tasks,query,status,owner,sort,sharedFilters?.office,sharedFilters?.dateFrom,sharedFilters?.dateTo]);
+ const shownGroups=useMemo(()=>visibleProjectGroups(groups,data.tasks),[groups,data.tasks]);
  const people=profiles.filter(p=>data.tasks.some(t=>t.assigneeId===p.id)||p.org_id===data.project.orgId);
 
  const run=async(fn:()=>Promise<void>)=>{setNotice('');try{await fn();}catch(e){setNotice(e instanceof Error?e.message:'Could not save this change.');}};
 
- const addTask=()=>{ if(groups.length)setTaskOpen(true); else setGroupOpen(true); };
- const addInlineTask=()=>{ if(groups.length)setInlineFocus(count=>count+1); else setGroupOpen(true); };
+ const addTask=()=>{ if(shownGroups.length)setTaskOpen(true); else setGroupOpen(true); };
+ const addInlineTask=()=>{ if(shownGroups.length)setInlineFocus(count=>count+1); else setGroupOpen(true); };
  const refreshCreatedGroup=async()=>{try{await refresh();setRefreshFailed(false);}catch(e){setRefreshFailed(true);setNotice('Group added, but could not refresh: '+(e instanceof Error?e.message:'Please reload.'));}};
 
  const parentTask=openSubitem?data.tasks.find(t=>t.id===openSubitem.taskId):undefined;
@@ -106,9 +107,9 @@ export function ProjectTableWorkspace({data,profiles,orgs,canManage,planningOnly
   {loading?<div className="pt-skeleton" role="status" aria-label="Loading project table">{[0,1].map(i=><div key={i}><span/>{[0,1,2,3].map(j=><i key={j}/>)}</div>)}</div>:(!error||groups.length>0)&&<>
 
    {(query||status||owner||sharedFilters?.office||sharedFilters?.dateFrom||sharedFilters?.dateTo)&&!tasks.length&&<EmptyState fill illustration="search" size="compact" title="No tasks match these filters. Clear filters to see all project work."/>}
-   {!groups.length && <EmptyState illustration="tasks" size="compact" title="No task groups yet" description={editable ? 'Create a group to start adding tasks.' : 'The project Head can create groups and add tasks.'}/>}
+   {!shownGroups.length && <EmptyState illustration="tasks" size="compact" title="No task groups yet" description={editable ? 'Create a group to start adding tasks.' : 'The project Head can create groups and add tasks.'}/>}
 
-   {groups.map(group=><ProjectGroupTable key={group.id} inlineFocus={group.id===(groups.find(item=>item.isDefault)??groups[0])?.id?inlineFocus:0} group={group} groups={groups} tasks={tasksInGroup(tasks,group)} allTasks={data.tasks} subtasks={subtasks} columns={columns} profiles={profiles} orgs={orgs} canManage={editable} planningOnly={planningOnly} canStaff={canStaff} canEditProjectWork={canEditProjectWork} locked={['completed','archived'].includes(data.project.status)} officeId={officeId} userId={userId} projectId={data.project.id} onOpen={onOpenTask} onOpenSubitem={open} refreshSubitems={refreshSubitems} refreshGroups={refresh} onHideColumn={layout.hideColumn} onAddColumn={layout.showColumn} widths={layout.widths} onResize={layout.resizeColumn} sort={sort} onSort={setSort} reorderable={editable&&!planningOnly&&!query&&!status&&!owner&&!sharedFilters?.office&&!sharedFilters?.dateFrom&&!sharedFilters?.dateTo&&sort==='manual'&&tasksInGroup(data.tasks,group).every(t=>t.orgId===officeId)} run={run}/>)}
+   {shownGroups.map(group=><ProjectGroupTable key={group.id} inlineFocus={group.id===(shownGroups.find(item=>item.isDefault)??shownGroups[0])?.id?inlineFocus:0} group={group} groups={shownGroups} tasks={tasksInGroup(tasks,group)} allTasks={data.tasks} subtasks={subtasks} columns={columns} profiles={profiles} orgs={orgs} canManage={editable} planningOnly={planningOnly} canStaff={canStaff} canEditProjectWork={canEditProjectWork} locked={['completed','archived'].includes(data.project.status)} officeId={officeId} userId={userId} projectId={data.project.id} onOpen={onOpenTask} onOpenSubitem={open} refreshSubitems={refreshSubitems} refreshGroups={refresh} onHideColumn={layout.hideColumn} onAddColumn={layout.showColumn} widths={layout.widths} onResize={layout.resizeColumn} sort={sort} onSort={setSort} reorderable={editable&&!planningOnly&&!query&&!status&&!owner&&!sharedFilters?.office&&!sharedFilters?.dateFrom&&!sharedFilters?.dateTo&&sort==='manual'&&tasksInGroup(data.tasks,group).every(t=>t.orgId===officeId)} run={run}/>)}
 
    {editable&&<button className="pt-add-group" onClick={()=>setGroupOpen(true)}><Plus size={17}/>Add new group</button>}
 
@@ -120,7 +121,7 @@ export function ProjectTableWorkspace({data,profiles,orgs,canManage,planningOnly
 
   <ProjectImportDialog key={data.project.id} open={aiOpen} onClose={()=>setAiOpen(false)} projectId={data.project.id} projectTitle={data.project.title} currentDetails={{title:data.project.title,description:data.project.description,startDate:data.project.startDate || '',targetDate:data.project.targetDate || ''}} groups={groups} orgs={orgs} onImported={()=>{setImportRevision(v=>v+1);void run(async()=>{await refresh();await refreshSubitems();});}}/>
 
-  {taskOpen&&<CreateWorkDialog key={'new-task-'+data.project.id} kind="task" projectId={data.project.id} groups={groups} onClose={()=>setTaskOpen(false)}/>}
+  {taskOpen&&<CreateWorkDialog key={'new-task-'+data.project.id} kind="task" projectId={data.project.id} groups={shownGroups} onClose={()=>setTaskOpen(false)}/>}
 
   </div>{openSubitem&&(parentTask?<SubtaskWorkDrawer key={openSubitem.id} subtask={openSubitem} parentTask={parentTask} origin={subitemOrigin} readOnly={subitemReadOnly} canManageDeadline={!subitemReadOnly&&(parentTask.assigneeId===userId||editable)} onClose={()=>{setOpenSubitem(null);void run(refreshSubitems);}}/>:<p role="alert">Current parent task access is unavailable. <button type="button" onClick={()=>setOpenSubitem(null)}>Close subtask</button></p>)}
 

@@ -6,8 +6,15 @@ const api=vi.hoisted(()=>({call:vi.fn(),read:vi.fn(),reload:vi.fn(),templates:vi
 vi.mock('../../src/app/features/project-setup/useProjectFlow',()=>({useProjectFlow:()=>({data:api.data,reload:api.reload,error:''})}));
 vi.mock('../../src/app/features/project-setup/services/projectFlow',()=>({projectFlowCall:api.call,readProjectFlow:api.read,ProjectFlowError:class extends Error{}}));
 vi.mock('../../src/app/shared/navigationGuard',()=>({useNavigationBlocker:vi.fn(),requestNavigation:async (action:()=>void)=>{action();return true;}}));
-vi.mock('../../src/app/features/work-templates',()=>({listProjectTaskTemplates:api.templates}));
+vi.mock('../../src/app/features/work-templates',()=>({
+ listProjectTaskTemplates:api.templates,
+ ProjectTaskTemplateLibrary:()=>null,
+ summarizeProjectTaskTemplate:(groups:any[])=>({groupCount:groups.length,taskCount:0,subtaskCount:0,groupNames:[]}),
+ saveProjectTaskTemplate:vi.fn(),
+ parseProjectTaskGroups:(groups:any[])=>groups,
+}));
 import {ProjectSetupWizard} from '../../src/app/features/project-setup/components/ProjectSetupWizard';
+import {ProjectSetupPeople} from '../../src/app/features/project-setup/components/ProjectSetupPeople';
 import {ProjectDefinitionPanel} from '../../src/app/features/project-setup/components/ProjectDefinitionPanel';
 import {ProjectFlowError} from '../../src/app/features/project-setup/services/projectFlow';
 import {TaskProjectFunding} from '../../src/app/features/project-setup/components/TaskProjectFunding';
@@ -216,22 +223,27 @@ it('restores an unconfirmed funding request after reload and retries its origina
  await waitFor(()=>expect(localStorage.getItem(props.recoveryKey)).toBeNull());
 });
 
-it('keeps the Project Lead selected and restores the chosen Office members',async()=>{
+it('keeps the Project Lead selected in ProjectSetupPeople and omits duplicate team picker from Step 5 Review',async()=>{
  const lead={id:'lead',full_name:'Ari Lead',email:'ari@example.test',role:'member',is_active:true};
  const worker={id:'worker',full_name:'Toni Member',email:'toni@example.test',role:'member',is_active:true};
  const props={recoveryKey:'actor-office',profiles:[lead,worker] as any,createDraft:vi.fn(),onClose:vi.fn(),onFinish:vi.fn()};
  const values={title:'Community support',description:'Objectives',scope:'Workshop',lead:'lead',start:'2027-01-01',end:'2027-12-31',noFunding:true};
  localStorage.setItem(props.recoveryKey,JSON.stringify({values,step:4,projectId:'p',base:api.data.project}));
- const first=render(<ProjectSetupWizard {...props}/>);
+ const wizard=render(<ProjectSetupWizard {...props}/>);
  fireEvent.click(screen.getByRole('button',{name:'Continue draft'}));
+ expect(screen.getByText('Ready to build the work plan?')).toBeTruthy();
+ expect(screen.queryByText('Choose Office members')).toBeNull();
+ wizard.unmount();
+ const onChange=vi.fn();
+ const first=render(<ProjectSetupPeople profiles={[lead,worker] as any} lead="lead" selected={[]} onChange={onChange}/>);
  const leadBox=screen.getByRole('checkbox',{name:'Ari Lead · Project Lead'});
  expect(leadBox).toBeChecked();
  expect(leadBox).toBeDisabled();
  fireEvent.change(screen.getByLabelText('Search Office members'),{target:{value:'Toni'}});
  fireEvent.click(screen.getByRole('checkbox',{name:'Toni Member'}));
+ expect(onChange).toHaveBeenCalledWith(['worker']);
  first.unmount();
- render(<ProjectSetupWizard {...props}/>);
- fireEvent.click(screen.getByRole('button',{name:'Continue draft'}));
+ render(<ProjectSetupPeople profiles={[lead,worker] as any} lead="lead" selected={['worker']} onChange={onChange}/>);
  expect(screen.getByRole('checkbox',{name:'Toni Member'})).toBeChecked();
 });
 

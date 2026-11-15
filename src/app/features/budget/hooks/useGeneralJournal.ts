@@ -8,6 +8,7 @@ import {
   readCachedQuery,
 } from "../../../shared/queryCache";
 import type { AccountingAccount, GeneralJournalEntry } from "../types";
+import { getCurrentFiscalYear } from "../constants";
 import {
   fetchAccountingAccounts,
   fetchGeneralJournal,
@@ -46,7 +47,7 @@ export function warmGeneralJournal(
 
 export function useGeneralJournal(
   orgId?: string,
-  fiscalYear = new Date().getFullYear(),
+  fiscalYear = getCurrentFiscalYear(),
   actorId?: string,
 ) {
   const scope = `${actorId || ""}:${orgId || ""}:${fiscalYear}`;

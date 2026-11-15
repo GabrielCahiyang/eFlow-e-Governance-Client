@@ -46,3 +46,19 @@ it('lets the user back out without cancelling the allocation',()=>{
  render(<CancelTaskFunding line={{id:'line',taskId:'task',task:'Task',source:'Supplies',amount:40000,available:40000}} onChanged={api.reload} onBusyChange={vi.fn()}/>);
  fireEvent.click(screen.getByRole('button',{name:'Cancel allocation'}));fireEvent.click(screen.getByRole('button',{name:'Keep allocation'}));expect(api.call).not.toHaveBeenCalled();expect(screen.getByRole('button',{name:'Cancel allocation'})).toBeEnabled();
 });
+it('exposes footer submit state in modal variant and hides dead form controls when no accounts remain',()=>{
+ const submitRef={current:null as (()=>void)|null};
+ const onActionState=vi.fn();
+ const {rerender}=render(<TaskProjectFunding projectId="p" taskId="task" funded={false} variant="modal" submitRef={submitRef} onActionState={onActionState} onChanged={api.reload}/>);
+ expect(screen.queryByRole('button',{name:'Allocate task budget'})).toBeNull();
+ expect(onActionState).toHaveBeenLastCalledWith({label:'Allocate task budget',pending:false});
+ expect(typeof submitRef.current).toBe('function');
+
+ api.data.canExtendTaskFunding=true;
+ api.data.funds=[{id:'first',name:'First source',fiscal_year:2026,available:500}];
+ api.data.taskFunding=[{id:'old',sourceId:'first',fiscalYear:2026,taskId:'task',amount:500,available:400}];
+ rerender(<TaskProjectFunding projectId="p" taskId="task" funded variant="modal" submitRef={submitRef} onActionState={onActionState} onChanged={api.reload}/>);
+ expect(screen.getByText(/already allocated above/i)).toBeInTheDocument();
+ expect(screen.queryByRole('combobox')).toBeNull();
+ expect(onActionState).toHaveBeenLastCalledWith(null);
+});

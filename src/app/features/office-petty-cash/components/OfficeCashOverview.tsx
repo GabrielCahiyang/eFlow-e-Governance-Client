@@ -47,13 +47,18 @@ function OfficeCashSummary({ office }: { office: string }) {
           });
     };
     load();
-    const timer = setInterval(load, 15000);
-    window.addEventListener("focus", load);
+    const pollIfVisible = () => {
+      if (document.visibilityState === "visible") load();
+    };
+    const timer = setInterval(pollIfVisible, 45_000);
+    window.addEventListener("focus", pollIfVisible);
+    document.addEventListener("visibilitychange", pollIfVisible);
     window.addEventListener("eflow:office-petty", load);
     return () => {
       active = false;
       clearInterval(timer);
-      window.removeEventListener("focus", load);
+      window.removeEventListener("focus", pollIfVisible);
+      document.removeEventListener("visibilitychange", pollIfVisible);
       window.removeEventListener("eflow:office-petty", load);
     };
   }, [office]);

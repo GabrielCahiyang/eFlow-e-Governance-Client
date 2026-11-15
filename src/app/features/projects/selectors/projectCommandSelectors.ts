@@ -1,4 +1,5 @@
 import type { Milestone, Project } from "../services/types";
+import type { Subtask } from "../../subtasks";
 import { isOverdue, type Task } from "../../tasks";
 import type { TeamAttentionItem, TeamWorkflowFacts } from "../../team-management";
 import type { ProjectActivityItem, ProjectCommandMetrics, ProjectScheduleHealth } from "../components/project-command/types";
@@ -131,4 +132,24 @@ export function buildProjectPortfolioSummary(project: Project, tasks: Task[], no
   const health: ProjectScheduleHealth = (project.status === "completed" || project.status === "archived" && completed===live.length) ? "completed" : overdue || isTargetOverdue ? "overdue" : changesRequested ? "at_risk" : isTargetDueSoon ? "due_soon" : "on_track";
   const completionRecommended = project.status !== "completed" && live.length > 0 && completed === live.length;
   return { progress, completed, total: live.length, isEmpty: live.length === 0 && project.status !== "completed", overdue, awaitingReview, changesRequested, leadIds, nextDeadline: deadlines[0] || project.targetDate, health, completionRecommended, lastActivityAt: Math.max(project.updatedAt, ...live.map((task) => task.lastActivityAt || task.updatedAt)) };
+}
+
+/**
+ * Checks whether an actor owns or is assigned to any subtask on a task
+ * so opening that subtask inside a project drawer is not marked read-only when
+ * another user leads the parent task.
+ */
+export function hasAssignedSubtaskWork(
+  subtasks: ReadonlyArray<Pick<Subtask, "taskId" | "leadId" | "assignedTo" | "assignedToIds">>,
+  taskId: string,
+  actorId: string,
+): boolean {
+  if (!taskId || !actorId) return false;
+  return subtasks.some(
+    (sub) =>
+      sub.taskId === taskId &&
+      (sub.leadId === actorId ||
+        sub.assignedTo === actorId ||
+        Boolean(sub.assignedToIds?.includes(actorId))),
+  );
 }

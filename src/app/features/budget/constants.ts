@@ -37,6 +37,6 @@ export function createBudgetLine(position = 0, draftTaskKey?: string) {
   };
 }
 
-export function createEmptyProposalBudget(fiscalYear = new Date().getFullYear()): ProposalBudgetDraft {
+export function createEmptyProposalBudget(fiscalYear = getCurrentFiscalYear()): ProposalBudgetDraft {
   return { fiscalYear, totalAmount: 0, lines: [], taskBudgets: [] };
 }

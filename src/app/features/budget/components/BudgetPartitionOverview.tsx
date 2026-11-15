@@ -5,7 +5,7 @@ import { peso } from "./budgetUi";
 import { Button } from '@vibe/core';
 import { Download, Printer } from 'lucide-react';
 import { BudgetTableRegion } from './BudgetTableRegion';
-const headings=['Account','Appropriated','For later release','Budget released','Obligated','% of total appropriation','% of account','Balance'];
+const headings=['Account','Appropriated','Held','Released','Obligated','% of total','% used','Balance'];
 export function BudgetPartitionOverview({data}:{data:DepartmentBudgetBundle}) {
   if(!data.sectionsAvailable||!data.summary)return null;
   const sections=data.sections||[],annual=sectionTotal(sections);

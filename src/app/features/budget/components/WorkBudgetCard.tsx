@@ -99,7 +99,7 @@ export function WorkBudgetCard({
   const taskFinished = !!task.archivedAt || ["completed", "cancelled"].includes(task.status);
   const canManageBudgets = Boolean(
     (!readOnly || taskFinished || subtask?.status === "completed") &&
-      !authorityPending && !funding.loading && fundingCurrent && isTaskLeader &&
+      !authorityPending && !(funding.loading && !context) && fundingCurrent && isTaskLeader &&
       context?.funded && context.canManageDistribution && context.subtaskBudgets,
   );
   const requests = budget.requests.filter(
@@ -162,8 +162,7 @@ export function WorkBudgetCard({
   ) : null;
 
   const refresh = async () => {
-    await budget.refresh();
-    await funding.refresh();
+    await Promise.all([funding.refresh(), budget.refresh()]);
   };
 
   if (!subtask && !budget.summary && !budget.loading && !context?.funded) return <>{!readOnly&&<OfficePettyCashLauncher/>}{task.linkedProjectId&&!subtask&&<TaskProjectFunding projectId={task.linkedProjectId} taskId={task.id} funded={!!context?.funded} onChanged={refresh}/>}</>;

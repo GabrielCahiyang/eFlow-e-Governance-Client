@@ -17,11 +17,11 @@ import { BudgetReleasesPanel } from "./BudgetReleasesPanel";
 import { BudgetExpensesReport } from "./BudgetExpensesReport";
 import { BudgetOperationalSignals } from "./BudgetOperationalSignals";
 import { getCurrentFiscalYear } from "../constants";
+import { getPhilippineCalendarDate } from "../selectors/cashWorkflowRules";
 import { useGeneralJournal } from "../hooks/useGeneralJournal";
 import { GeneralJournalWorkspace } from "./GeneralJournalWorkspace";
 import { AccountingTrailPanel } from "./AccountingTrailPanel";
 import { BudgetPositionSummary } from "./BudgetPositionSummary";
-import { DirectWorkFunding } from "./DirectWorkFunding";
 import { BudgetPartitionOverview } from "./BudgetPartitionOverview";
 import {BudgetVersionBanner} from './BudgetVersionBanner';
 import { BudgetAccountMappings } from "./BudgetAccountMappings";
@@ -136,13 +136,13 @@ function OfficeBudgetContent({ orgId, fiscalYear, embedded, tab, setTab, setFisc
     budget.releases.filter(
       (item) =>
         item.status === "scheduled" &&
-        item.scheduledDate <= new Date().toISOString().slice(0, 10),
+        item.scheduledDate <= getPhilippineCalendarDate(),
     ).length;
   const utilizationSignal = budget.summary
     ? getBudgetUtilizationSignal(budget.summary)
     : { utilization: 0, isQ4: false, underTarget: false };
   const { utilization, underTarget } = utilizationSignal;
-  const groupedViews = canPrepare && !embedded;
+  const groupedViews = canPrepare || embedded;
   const budgetStatus = budget.summary?.status;
   const statusLabel = budgetStatus ? budgetStatus[0].toUpperCase() + budgetStatus.slice(1) : budget.error ? 'Unavailable' : 'Not configured';
   if (!orgId)
@@ -192,7 +192,7 @@ function OfficeBudgetContent({ orgId, fiscalYear, embedded, tab, setTab, setFisc
           <OfficeBudgetTabSkeleton tab={tab} label="Loading the office ledger…" />
         ) : (
           <>
-            {tab === 'annual' && <BudgetVersionBanner data={budget} />}
+            {(tab === 'annual' || tab === 'audit') && <BudgetVersionBanner data={budget} />}
             {tab === 'office-petty-cash' ? <OfficePettyCash focusRequestId={focusRequestId}/> : !budget.summary && budget.error ? null : !budget.summary && tab !== "annual" ? (
               <BudgetEmpty
                 title={`No ${fiscalYear} annual budget yet`}
@@ -230,13 +230,10 @@ function OfficeBudgetContent({ orgId, fiscalYear, embedded, tab, setTab, setFisc
                   /><BudgetReleaseCalendar key={`releases:${orgId}:${fiscalYear}`} data={budget}/></>
                 )}
                 {tab === "funding" && (
-                  <div className="eflow-budget-funding-layout">
-                    <BudgetFundingHierarchy data={budget} tasks={tasks.filter((task) => task.orgId === orgId)} />
-                    <div className="min-w-0 space-y-4">
-                      {canPrepare && <DirectWorkFunding key={`${orgId}:${fiscalYear}`} data={budget} tasks={tasks.filter(task=>task.orgId===orgId)} onChanged={budget.refresh} />}
-                      {["head","accounting_staff"].includes(userProfile?.role||"")&&<BudgetAccountMappings data={budget} onChanged={budget.refresh}/>}
-                    </div>
-                  </div>
+                  <BudgetFundingHierarchy
+                    data={budget}
+                    tasks={tasks.filter((task) => task.orgId === orgId)}
+                  />
                 )}
                 {tab === "approvals" && (
                   <><BudgetApprovalQueue
@@ -253,23 +250,28 @@ function OfficeBudgetContent({ orgId, fiscalYear, embedded, tab, setTab, setFisc
                 {tab === "expenses" && <BudgetExpensesReport data={budget} />}
                 {tab === "vouchers" && <PettyCashVoucherRegister data={budget} />}
                 {tab === "journal" && (
-                  <GeneralJournalWorkspace
-                    journal={journal}
-                    orgId={orgId}
-                    fiscalYear={fiscalYear}
-                    fiscalBudgetId={budget.summary?.id}
-                    approvedBudget={budget.summary?.approvedAmount}
-                    availableBudget={budget.summary?.availableAmount}
-                    settledExpenses={budget.summary?.spentAmount}
-                    returnedCash={budget.requests.reduce(
-                      (sum, request) =>
-                        sum +
-                        (request.status === "settled"
-                          ? request.returnedAmount || 0
-                          : 0),
-                      0,
+                  <div className="space-y-4">
+                    <GeneralJournalWorkspace
+                      journal={journal}
+                      orgId={orgId}
+                      fiscalYear={fiscalYear}
+                      fiscalBudgetId={budget.summary?.id}
+                      approvedBudget={budget.summary?.approvedAmount}
+                      availableBudget={budget.summary?.availableAmount}
+                      settledExpenses={budget.summary?.spentAmount}
+                      returnedCash={budget.requests.reduce(
+                        (sum, request) =>
+                          sum +
+                          (request.status === "settled"
+                            ? request.returnedAmount || 0
+                            : 0),
+                        0,
+                      )}
+                    />
+                    {["head", "accounting_staff"].includes(userProfile?.role || "") && (
+                      <BudgetAccountMappings data={budget} onChanged={budget.refresh} />
                     )}
-                  />
+                  </div>
                 )}
                 {tab === "audit" && (
                   <AccountingTrailPanel
@@ -279,7 +281,6 @@ function OfficeBudgetContent({ orgId, fiscalYear, embedded, tab, setTab, setFisc
                 )}
               </>
             )}
-            {tab !== 'annual' && tab !== 'office-petty-cash' && <BudgetVersionBanner data={budget} />}
           </>
         )}
       </div>

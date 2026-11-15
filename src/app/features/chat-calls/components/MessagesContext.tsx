@@ -13,6 +13,8 @@ const MessagesContext = createContext<{
   setOutgoingCall: (call?: ActiveCall) => void;
 } | null>(null);
 
+export const CHAT_MESSAGES_CHANGED_EVENT = 'eflow:chat-messages-changed';
+
 export function MessagesProvider({ userId, children }: { userId?: string; children: ReactNode }) {
   const cached = userId ? getCachedConversations(userId) : undefined;
   const [conversations, setConversations] = useState<Conversation[]>(() => cached ?? []);
@@ -40,11 +42,13 @@ export function MessagesProvider({ userId, children }: { userId?: string; childr
     if (!userId) return;
     void load(false);
     let timer: ReturnType<typeof setTimeout> | undefined;
-    const unsubscribe = subscribeToMessagesWorkspace(() => {
-      if (timer) return;
-      timer = setTimeout(() => { timer = undefined; void refresh(); }, 150);
-    });
-    return () => { ++version.current; clearTimeout(timer); unsubscribe(); };
+    const scheduleRefresh = () => {
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => { timer = undefined; void refresh(); }, 120);
+    };
+    const unsubscribe = subscribeToMessagesWorkspace(scheduleRefresh);
+    window.addEventListener(CHAT_MESSAGES_CHANGED_EVENT, scheduleRefresh);
+    return () => { ++version.current; clearTimeout(timer); unsubscribe(); window.removeEventListener(CHAT_MESSAGES_CHANGED_EVENT, scheduleRefresh); };
   }, [userId, load, refresh]);
 
   useVisibleRead(() => void refresh(), Boolean(userId));

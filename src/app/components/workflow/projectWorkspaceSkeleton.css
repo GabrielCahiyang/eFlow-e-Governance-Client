@@ -1,0 +1,302 @@
+.eflow-project-skeleton-shimmer {
+  background: linear-gradient(
+      100deg,
+      transparent 35%,
+      rgba(255, 255, 255, 0.72) 50%,
+      transparent 65%
+    )
+    120% 0 / 240% 100% no-repeat,
+    var(--eflow-secondary, #e9eeee);
+  border-radius: 5px;
+  animation: eflow-project-skeleton-sweep 1.8s linear infinite;
+  animation-delay: calc(var(--i, 0) * 90ms);
+}
+
+.dark .eflow-project-skeleton-shimmer,
+:root.dark .eflow-project-skeleton-shimmer {
+  background: linear-gradient(
+      100deg,
+      transparent 35%,
+      color-mix(in srgb, var(--eflow-primary, #57c8bd) 22%, transparent) 50%,
+      transparent 65%
+    )
+    120% 0 / 240% 100% no-repeat,
+    var(--eflow-secondary, #1b3935);
+}
+
+.eflow-project-skeleton-shimmer--primary {
+  background: linear-gradient(
+      100deg,
+      transparent 35%,
+      rgba(255, 255, 255, 0.45) 50%,
+      transparent 65%
+    )
+    120% 0 / 240% 100% no-repeat,
+    color-mix(in srgb, var(--eflow-primary, #0c6f6b) 24%, var(--eflow-secondary, #e9eeee));
+}
+
+.eflow-project-index-skeleton {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.eflow-project-index-skeleton__strip {
+  align-items: center;
+  border-bottom: 1px solid var(--eflow-border, #d7dfdf);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px clamp(16px, 2vw, 24px);
+}
+
+.eflow-project-index-skeleton__strip-primary {
+  border-radius: 6px;
+  height: 32px;
+  width: 72px;
+}
+
+.eflow-project-index-skeleton__strip-tab {
+  border: 1px solid var(--eflow-border, #d7dfdf);
+  border-radius: 6px;
+  height: 32px;
+  width: 102px;
+}
+
+.eflow-project-index-skeleton__strip-tab--wide {
+  width: 128px;
+}
+
+.eflow-project-index-skeleton__body {
+  padding: clamp(20px, 2.4vw, 36px);
+}
+
+.eflow-project-index-skeleton__header {
+  align-items: flex-start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.eflow-project-index-skeleton__heading-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.eflow-project-index-skeleton__title {
+  border-radius: 6px;
+  height: 28px;
+  width: 152px;
+}
+
+.eflow-project-index-skeleton__subtitle {
+  height: 14px;
+  width: min(72vw, 270px);
+}
+
+.eflow-project-index-skeleton__cta {
+  border-radius: 6px;
+  height: 38px;
+  width: 138px;
+}
+
+.eflow-project-index-skeleton__filters {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(220px, 1fr) repeat(3, minmax(135px, 170px));
+  margin-bottom: 14px;
+}
+
+.eflow-project-index-skeleton__filter {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+}
+
+.eflow-project-index-skeleton__filter-label {
+  height: 12px;
+  width: 76px;
+}
+
+.eflow-project-index-skeleton__filter-box {
+  background: var(--eflow-surface, #ffffff);
+  border: 1px solid var(--eflow-border, #d7dfdf);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  height: 42px;
+  padding: 0 12px;
+}
+
+.eflow-project-index-skeleton__filter-value {
+  height: 12px;
+  width: 64%;
+}
+
+.eflow-project-index-skeleton__results {
+  align-items: center;
+  display: flex;
+  height: 28px;
+  margin-bottom: 10px;
+}
+
+.eflow-project-index-skeleton__results-count {
+  height: 12px;
+  width: 108px;
+}
+
+.eflow-project-index-skeleton__table {
+  background: var(--eflow-surface, #ffffff);
+  border: 1px solid var(--eflow-border, #d7dfdf);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.eflow-project-index-skeleton__grid-row {
+  align-items: center;
+  display: grid;
+  gap: 16px;
+  grid-template-columns:
+    minmax(210px, 2.2fr)
+    minmax(84px, 0.9fr)
+    minmax(130px, 1.2fr)
+    minmax(84px, 0.85fr)
+    minmax(92px, 0.95fr)
+    minmax(115px, 1.15fr)
+    minmax(94px, 0.95fr)
+    minmax(118px, 1fr);
+  padding: 14px 16px;
+}
+
+.eflow-project-index-skeleton__thead {
+  background: var(--eflow-subtle, #f7f9f9);
+  border-bottom: 1px solid var(--eflow-border, #d7dfdf);
+}
+
+.eflow-project-index-skeleton__thead span {
+  height: 11px;
+  width: 68%;
+}
+
+.eflow-project-index-skeleton__row {
+  border-bottom: 1px solid var(--eflow-border, #d7dfdf);
+  min-height: 86px;
+}
+
+.eflow-project-index-skeleton__row:last-child {
+  border-bottom: 0;
+}
+
+.eflow-project-index-skeleton__project-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.eflow-project-index-skeleton__project-name {
+  height: 15px;
+  width: 78%;
+}
+
+.eflow-project-index-skeleton__project-desc {
+  height: 11px;
+  width: 92%;
+}
+
+.eflow-project-index-skeleton__person {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  min-width: 0;
+}
+
+.eflow-project-index-skeleton__avatar {
+  border-radius: 50%;
+  flex-shrink: 0;
+  height: 28px;
+  width: 28px;
+}
+
+.eflow-project-index-skeleton__tag {
+  border-radius: 5px;
+  height: 24px;
+  width: 64px;
+}
+
+.eflow-project-index-skeleton__progress {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.eflow-project-index-skeleton__progress-top {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
+.eflow-project-index-skeleton__actions {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
+.eflow-project-index-skeleton__action-btn {
+  border: 1px solid var(--eflow-border, #d7dfdf);
+  border-radius: 5px;
+  height: 30px;
+  width: 92px;
+}
+
+.eflow-project-index-skeleton__action-more {
+  border-radius: 5px;
+  height: 24px;
+  width: 24px;
+}
+
+@keyframes eflow-project-skeleton-sweep {
+  from {
+    background-position: 120% 0, 0 0;
+  }
+  to {
+    background-position: -120% 0, 0 0;
+  }
+}
+
+@media (max-width: 1000px) {
+  .eflow-project-index-skeleton__filters {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .eflow-project-index-skeleton__filters > :first-child {
+    grid-column: 1 / -1;
+  }
+  .eflow-project-index-skeleton__table {
+    overflow-x: auto;
+  }
+  .eflow-project-index-skeleton__grid-row {
+    min-width: 920px;
+  }
+}
+
+@media (max-width: 600px) {
+  .eflow-project-index-skeleton__body {
+    padding: 16px;
+  }
+  .eflow-project-index-skeleton__filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .eflow-project-index-skeleton__filters > :last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eflow-project-skeleton-shimmer {
+    animation: none;
+  }
+}

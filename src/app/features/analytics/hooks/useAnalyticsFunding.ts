@@ -59,15 +59,19 @@ export function useAnalyticsFunding(projectIds: string[]) {
       reading = false;
     };
     void load();
-    const refresh = () => void load(),
-      timer = window.setInterval(refresh, 15000);
+    const refresh = () => {
+        if (document.visibilityState !== "hidden") void load();
+      },
+      timer = window.setInterval(refresh, 60_000);
     window.addEventListener("focus", refresh);
+    document.addEventListener("visibilitychange", refresh);
     window.addEventListener("eflow:project-setup", refresh);
     window.addEventListener("eflow:work-updated", refresh);
     return () => {
       active = false;
       clearInterval(timer);
       window.removeEventListener("focus", refresh);
+      document.removeEventListener("visibilitychange", refresh);
       window.removeEventListener("eflow:project-setup", refresh);
       window.removeEventListener("eflow:work-updated", refresh);
     };

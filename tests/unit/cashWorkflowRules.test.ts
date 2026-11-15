@@ -1,6 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 import {
   assertCashNeededByIsCurrentOrFuture,
+  formatEvidenceCount,
+  formatFundingRequestCode,
+  formatJournalMemoForDisplay,
   getPhilippineCalendarDate,
   getScheduledReleaseSummary,
   isLiquidationLate,
@@ -48,6 +51,18 @@ describe("cash workflow timing rules", () => {
     const request = { liquidationDueAt: 1000 } as PettyCashRequest;
     expect(isLiquidationLate(request, { submittedAt: 1001 } as PettyCashLiquidation)).toBe(true);
     expect(isLiquidationLate(request, { submittedAt: 1000 } as PettyCashLiquidation)).toBe(false);
+  });
+
+  it("formats FR funding codes, evidence grammar, and legacy UUID journal memos", () => {
+    expect(formatFundingRequestCode(9)).toBe("FR-00009");
+    expect(formatEvidenceCount(1)).toBe("1 evidence record");
+    expect(formatEvidenceCount(2)).toBe("2 evidence records");
+    expect(formatJournalMemoForDisplay("Release to 1d0d47e1-1234-4567-89ab-0123456789ab for Site supplies")).toBe(
+      "Release to assigned recipient for Site supplies",
+    );
+    expect(formatJournalMemoForDisplay("Release to Maria Santos for Site supplies")).toBe(
+      "Release to Maria Santos for Site supplies",
+    );
   });
 });
 

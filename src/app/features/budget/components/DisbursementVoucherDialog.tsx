@@ -18,7 +18,7 @@ import {
 } from "../services/budgetService";
 import { motionTransition } from "../../../shared/motion/motionTokens";
 import { peso } from "./budgetUi";
-import { getPhilippineCalendarDate } from '../selectors/cashWorkflowRules';
+import { formatFundingRequestCode, getPhilippineCalendarDate } from '../selectors/cashWorkflowRules';
 import { useAuth } from "../../../contexts/AuthContext";
 
 /** Derives a human-readable, deterministic voucher code from existing IDs — no DB column needed. */
@@ -274,7 +274,7 @@ export function DisbursementVoucherDialog({
             />
             <VoucherDetail
               label="Request"
-              value={`PC-${String(request?.requestNumber ?? 0).padStart(5, "0")}`}
+              value={formatFundingRequestCode(request?.requestNumber)}
             />
           </div>
 

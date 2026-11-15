@@ -9,6 +9,9 @@ export const SESSION_REFRESH_MESSAGE =
 export const PROFILE_VERIFICATION_MESSAGE =
   'Your eFlow profile could not be verified yet. Please refresh the page and try again.';
 
+export const NETWORK_ERROR_MESSAGE =
+  'Unable to reach eFlow. Check your internet connection and try again.';
+
 function messageOf(reason: unknown): string {
   if (reason instanceof Error) return reason.message;
   if (typeof reason === 'string') return reason;
@@ -42,9 +45,29 @@ export function isProfileVerificationError(reason: unknown): boolean {
     message.includes('could not load your eflow profile');
 }
 
+export function isNetworkError(reason: unknown): boolean {
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+    const msg = messageOf(reason).toLowerCase();
+    if (!msg || msg.includes('fetch') || msg.includes('network') || msg.includes('offline')) {
+      return true;
+    }
+  }
+  if (reason instanceof TypeError) return true;
+  const message = messageOf(reason).toLowerCase();
+  return (
+    message.includes('failed to fetch') ||
+    message.includes('networkerror') ||
+    message.includes('network request failed') ||
+    message.includes('load failed') ||
+    message.includes('err_internet_disconnected') ||
+    message.includes('err_name_not_resolved')
+  );
+}
+
 export function userFacingError(reason: unknown, fallback: string): string {
   if (isSessionError(reason)) return SESSION_REFRESH_MESSAGE;
   if (isProfileVerificationError(reason)) return PROFILE_VERIFICATION_MESSAGE;
+  if (isNetworkError(reason)) return NETWORK_ERROR_MESSAGE;
   const message = messageOf(reason).trim();
   return message || fallback;
 }

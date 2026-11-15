@@ -16,6 +16,7 @@ import { acknowledgePettyCashRelease } from "../services/budgetService";
 import { motionTransition } from "../../../shared/motion/motionTokens";
 import { buildDvCode } from "./DisbursementVoucherDialog";
 import { peso } from "./budgetUi";
+import { formatFundingRequestCode } from "../selectors/cashWorkflowRules";
 
 export function VoucherConfirmDialog({
   release,
@@ -89,7 +90,7 @@ export function VoucherConfirmDialog({
           <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3 text-[11px] text-neutral-600 space-y-1">
             <div><span className="font-medium text-neutral-800">Amount: </span>{peso.format(release.amount)}</div>
             <div><span className="font-medium text-neutral-800">For: </span>{request?.subtaskTitle || request?.taskTitle || "Funded work"}</div>
-            <div><span className="font-medium text-neutral-800">Request: </span>PC-{String(request?.requestNumber ?? 0).padStart(5, "0")}</div>
+            <div><span className="font-medium text-neutral-800">Request: </span>{formatFundingRequestCode(request?.requestNumber)}</div>
           </div>
 
           {/* Voucher input */}

@@ -101,7 +101,7 @@ export function AccountingAnalytics({
                 <strong>{release.account}</strong>
                 <span className="ea-help">
                   {" "}
-                  � {release.date} � {peso.format(release.amount)} � Accounting
+                  · {release.date} · {peso.format(release.amount)} · Accounting
                   confirmation needed
                 </span>
               </p>

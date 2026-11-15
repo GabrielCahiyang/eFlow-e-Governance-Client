@@ -3,15 +3,24 @@ import { PROJECT_COLUMNS, type ProjectColumn } from './types';
 export type ResizableColumn = 'task' | ProjectColumn;
 export const COLUMN_LAYOUT: Record<ResizableColumn, { width: number; min: number; max: number }> = {
   task: { width: 320, min: 200, max: 640 }, office: { width: 170, min: 120, max: 360 },
-  owner: { width: 180, min: 150, max: 360 }, status: { width: 160, min: 144, max: 320 },
-  priority: { width: 124, min: 100, max: 240 }, timeline: { width: 220, min: 180, max: 400 },
+  owner: { width: 180, min: 150, max: 360 }, status: { width: 160, min: 124, max: 320 },
+  priority: { width: 124, min: 88, max: 240 }, timeline: { width: 220, min: 140, max: 400 },
   effort: { width: 108, min: 96, max: 240 }, dependencies: { width: 180, min: 120, max: 400 },
-  budget: { width: 160, min: 120, max: 320 }, actualExpenses: { width: 190, min: 150, max: 340 }, progress: { width: 140, min: 120, max: 320 },
+  budget: { width: 160, min: 104, max: 320 }, actualExpenses: { width: 190, min: 112, max: 340 }, progress: { width: 140, min: 108, max: 320 },
 };
 export type ColumnWidths = Record<ResizableColumn, number>;
 export const DEFAULT_COLUMN_WIDTHS = Object.fromEntries(Object.entries(COLUMN_LAYOUT).map(([id, value]) => [id, value.width])) as ColumnWidths;
-export const COMPACT_HIDDEN_COLUMNS: ProjectColumn[] = ['office', 'effort', 'dependencies', 'budget', 'progress'];
-export const COMPACT_COLUMN_WIDTHS: ColumnWidths = { ...DEFAULT_COLUMN_WIDTHS, task: 280, timeline: 180 };
+export const COMPACT_HIDDEN_COLUMNS: ProjectColumn[] = ['office', 'effort', 'dependencies', 'progress'];
+export const COMPACT_COLUMN_WIDTHS: ColumnWidths = {
+  ...DEFAULT_COLUMN_WIDTHS,
+  task: 224,
+  owner: 158,
+  status: 132,
+  timeline: 148,
+  priority: 92,
+  budget: 110,
+  actualExpenses: 116,
+};
 export function boundedColumnWidth(id: ResizableColumn, value: unknown) {
   const rule = COLUMN_LAYOUT[id];
   return typeof value === 'number' && Number.isFinite(value) ? Math.round(Math.min(rule.max, Math.max(rule.min, value))) : rule.width;

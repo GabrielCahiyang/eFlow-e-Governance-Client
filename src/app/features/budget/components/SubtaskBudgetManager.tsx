@@ -16,7 +16,7 @@ export function SubtaskBudgetTotals({ context, subtask = false }: { context: Tas
     : [["Approved task budget", context.taskBudget], ["Allocated to subtasks", totals.allocated],
        ["Unallocated", totals.unallocated], ["Available to allocate", totals.available],
        ["Cash released", totals.released], ["Actual spent", totals.spent]] as const;
-  return <dl className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,8rem),1fr))] gap-2">
+  return <dl className="grid grid-cols-2 gap-2">
     {amounts.map(([label, value]) => <div key={label} className="min-w-0 rounded-lg border border-border bg-muted/50 px-3 py-2.5">
       <dt className="text-xs text-muted-foreground">{label}</dt>
       <dd className="mt-1 break-words text-sm font-semibold tabular-nums">{peso.format(value)}</dd>
@@ -85,8 +85,8 @@ export function SubtaskBudgetManager({ context, title, canManage, taskFinished, 
       }
       attempt.current = undefined;
       setDraft(undefined);
-      setNotice(draft.mode === "return" ? "Unused funding returned to the task." : "Subtask budget saved.");
       await onChanged();
+      setNotice(draft.mode === "return" ? "Unused funding returned to the task." : "Subtask budget saved.");
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Could not save this budget change.");
     } finally {

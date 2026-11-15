@@ -1,12 +1,120 @@
-import { useEffect,useState } from "react";
-import type { AccountingAccount,DepartmentBudgetBundle } from "../types";
+import { useEffect, useState } from "react";
+import { ChevronRight } from "lucide-react";
+import type { AccountingAccount, DepartmentBudgetBundle } from "../types";
 import { fetchAccountingAccounts } from "../services/budgetService";
 import { mapOfficeBudgetAccount } from "../services/pettyCashVoucherService";
 import { sectionLeaves } from "../selectors/budgetSections";
-export function BudgetAccountMappings({data,onChanged}:{data:DepartmentBudgetBundle;onChanged:()=>Promise<void>}) {
-  const [accounts,setAccounts]=useState<AccountingAccount[]>([]),[busy,setBusy]=useState(false),[message,setMessage]=useState("");
-  useEffect(()=>{let active=true;void fetchAccountingAccounts().then(rows=>{if(active)setAccounts(rows.filter(a=>a.classification==="expense"));}).catch(e=>{if(active)setMessage(e.message);});return()=>{active=false;};},[]);
-  const map=async(id:string,code:string)=>{if(!code||busy)return;setBusy(true);setMessage("");try{await mapOfficeBudgetAccount(id,code);await onChanged();setMessage("Journal account mapping recorded.");}catch(e){setMessage(e instanceof Error?e.message:"Mapping could not be saved.");}finally{setBusy(false);}};
-  if(!data.sectionsAvailable||!(data.sections||[]).some(s=>'journalAccountCode' in s)||data.summary?.status==='closed')return null;
-  return <section className="rounded-xl border border-border bg-card p-4"><h3 className="text-[14px] font-semibold">Expense-account mapping</h3><p className="mt-1 text-[12px] text-muted-foreground">Map each budget source to an approved account in the journal catalog. A photo's printed code is only a label; mixed-account settlement cannot silently use a generic account.</p><div className="mt-3 space-y-2">{sectionLeaves(data.sections||[]).map(s=><label key={s.id} className="grid items-center gap-2 text-[12px] sm:grid-cols-2"><span>{s.name} {s.accountCode?`(${s.accountCode})`:''}</span><select disabled={busy} value={s.journalAccountCode||""} onChange={e=>void map(s.id,e.target.value)} className="h-10 rounded-lg border px-3"><option value="">Not mapped · settlement blocked</option>{accounts.map(a=><option key={a.code} value={a.code}>{a.code} · {a.title}</option>)}</select></label>)}</div>{message&&<p role="status" className="mt-3 text-[12px]">{message}</p>}</section>;
+
+export function BudgetAccountMappings({
+  data,
+  onChanged,
+}: {
+  data: DepartmentBudgetBundle;
+  onChanged: () => Promise<void>;
+}) {
+  const [accounts, setAccounts] = useState<AccountingAccount[]>([]);
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    let active = true;
+    void fetchAccountingAccounts()
+      .then((rows) => {
+        if (active) setAccounts(rows.filter((a) => a.classification === "expense"));
+      })
+      .catch((e) => {
+        if (active) setMessage(e.message);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const map = async (id: string, code: string) => {
+    if (!code || busy) return;
+    setBusy(true);
+    setMessage("");
+    try {
+      await mapOfficeBudgetAccount(id, code);
+      await onChanged();
+      setMessage("Journal account mapping saved.");
+    } catch (e) {
+      setMessage(e instanceof Error ? e.message : "Mapping could not be saved.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (
+    !data.sectionsAvailable ||
+    !(data.sections || []).some((s) => "journalAccountCode" in s) ||
+    data.summary?.status === "closed"
+  ) {
+    return null;
+  }
+
+  const leaves = sectionLeaves(data.sections || []);
+  const mappedCount = leaves.filter((s) => Boolean(s.journalAccountCode)).length;
+
+  return (
+    <details className="group overflow-hidden rounded-[10px] border border-border bg-card">
+      <summary className="flex cursor-pointer list-none flex-wrap items-center justify-between gap-3 px-4 py-3 hover:bg-muted/50">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className="text-[13px] font-semibold text-foreground">
+              Expense-account mapping
+            </h3>
+            <span className="rounded-[5px] border border-border bg-muted px-2 py-0.5 text-[11px] font-medium tabular-nums text-muted-foreground">
+              {mappedCount}/{leaves.length} mapped
+            </span>
+          </div>
+          <p className="mt-0.5 text-[12px] text-muted-foreground">
+            Optional per-account General Journal expense override. Unmapped accounts post to the default office expense code.
+          </p>
+        </div>
+        <ChevronRight
+          size={15}
+          aria-hidden="true"
+          className="shrink-0 text-muted-foreground transition group-open:rotate-90"
+        />
+      </summary>
+      <div className="border-t border-border">
+        <div className="divide-y divide-border">
+          {leaves.map((s) => (
+            <label
+              key={s.id}
+              className="grid items-center gap-3 px-4 py-2.5 text-[12px] sm:grid-cols-[minmax(0,1fr)_minmax(240px,340px)]"
+            >
+              <div className="min-w-0">
+                <span className="font-medium text-foreground">{s.name}</span>
+                {s.accountCode && (
+                  <span className="ml-2 font-mono text-[11px] text-muted-foreground">
+                    {s.accountCode}
+                  </span>
+                )}
+              </div>
+              <select
+                disabled={busy}
+                value={s.journalAccountCode || ""}
+                onChange={(e) => void map(s.id, e.target.value)}
+                className="h-9 w-full rounded-[6px] border border-border bg-card px-2.5 text-[12px] text-foreground"
+              >
+                <option value="">Default expense account</option>
+                {accounts.map((a) => (
+                  <option key={a.code} value={a.code}>
+                    {a.code} · {a.title}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ))}
+        </div>
+        {message && (
+          <p role="status" className="border-t border-border bg-muted/40 px-4 py-2 text-[12px] text-foreground">
+            {message}
+          </p>
+        )}
+      </div>
+    </details>
+  );
 }

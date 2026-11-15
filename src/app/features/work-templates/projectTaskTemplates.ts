@@ -46,17 +46,44 @@ export function parseProjectTaskGroups(value: unknown): ProjectTaskGroup[] {
   return groups;
 }
 
+export interface ProjectTaskTemplateSummary {
+  groupCount: number;
+  taskCount: number;
+  subtaskCount: number;
+  groupNames: string[];
+}
+
+/** Counts groups, tasks, and subtasks inside a project starter template for preview and summary tags. */
+export function summarizeProjectTaskTemplate(groups: ProjectTaskGroup[]): ProjectTaskTemplateSummary {
+  let taskCount = 0;
+  let subtaskCount = 0;
+  const groupNames: string[] = [];
+  for (const group of groups) {
+    if (group.title.trim()) groupNames.push(group.title.trim());
+    taskCount += group.tasks.length;
+    for (const task of group.tasks) subtaskCount += task.subtasks.length;
+  }
+  return { groupCount: groups.length, taskCount, subtaskCount, groupNames };
+}
+
 export async function listProjectTaskTemplates(): Promise<ProjectTaskTemplate[]> {
   const { data, error } = await supabase.from('project_task_templates').select('id,name,groups').eq('retired', false).order('name');
   if (error) throw new Error(error.message);
   return (data ?? []).map(template => ({ ...template, groups: parseProjectTaskGroups(template.groups) }));
 }
 
-export async function saveProjectTaskTemplate(name: string, groups: ProjectTaskGroup[], id?: string) {
+export async function saveProjectTaskTemplate(name: string, groups: ProjectTaskGroup[], id?: string): Promise<ProjectTaskTemplate> {
   const values = { name: title(name, 120), groups: parseProjectTaskGroups(groups) };
   const table = supabase.from('project_task_templates');
-  const result = await (id ? table.update(values).eq('id', id).eq('retired', false) : table.insert(values)).select('id').single();
+  const result = await (id ? table.update(values).eq('id', id).eq('retired', false) : table.insert(values))
+    .select('id,name,groups')
+    .single();
   if (result.error) throw new Error(result.error.code === '23505' ? 'A template already has that name.' : result.error.message);
+  return {
+    id: result.data.id,
+    name: result.data.name,
+    groups: parseProjectTaskGroups(result.data.groups),
+  };
 }
 
 export async function retireProjectTaskTemplate(id: string) {

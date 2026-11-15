@@ -15,7 +15,7 @@ import {
 } from "../services/budgetService";
 import type { DepartmentBudgetBundle } from "../types";
 import { peso } from "./budgetUi";
-import { isLiquidationLate } from "../selectors/cashWorkflowRules";
+import { formatEvidenceCount, isLiquidationLate } from "../selectors/cashWorkflowRules";
 import { useAuth } from "../../../contexts/AuthContext";
 
 import { useConfirmation } from "../../../components/ui/useConfirmation";
@@ -148,7 +148,7 @@ export function AccountingSettlementQueue({
           title: approve
             ? "Settle and post liquidation?"
             : "Request liquidation corrections?",
-          description: `${request.cashRecipientName || request.requesterName || "Recipient"} · ${request.taskTitle || "Funded work"}. ${item.liquidationNumber || item.id} · version ${item.version}. Expense ${peso.format(item.declaredSpent)}, returned cash ${peso.format(item.returnedAmount)}, ${item.receipts.length} evidence records. ${item.departmentDecidedAt ? "Head authorization recorded." : "No late-package Head authorization recorded."} ${approve ? "Settlement clears the advance through the existing balanced posting; financial history cannot be edited." : "Reason: " + reason.trim()}`,
+          description: `${request.cashRecipientName || request.requesterName || "Recipient"} · ${request.taskTitle || "Funded work"}. ${item.liquidationNumber || item.id} · version ${item.version}. Expense ${peso.format(item.declaredSpent)}, returned cash ${peso.format(item.returnedAmount)}, ${formatEvidenceCount(item.receipts.length)}. ${item.departmentDecidedAt ? "Head authorization recorded." : "No late-package Head authorization recorded."} ${approve ? "Settlement clears the advance through the existing balanced posting; financial history cannot be edited." : "Reason: " + reason.trim()}`,
           actionLabel: approve ? "Confirm settlement" : "Send corrections",
         }))
       )

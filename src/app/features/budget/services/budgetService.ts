@@ -275,6 +275,14 @@ export async function resubmitContextualCashRequest(input: {
   throwIf(error);
 }
 
+export const SUBTASK_BUDGET_CHANGED_EVENT = "eflow:subtask-budget-changed";
+
+function notifySubtaskBudgetChanged(detail: { taskId?: string; subtaskId?: string; amount?: number }) {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent(SUBTASK_BUDGET_CHANGED_EVENT, { detail }));
+  }
+}
+
 export async function setSubtaskBudgetCap(input: {
   taskId: string;
   subtaskId: string;
@@ -300,6 +308,7 @@ export async function setSubtaskBudgetCap(input: {
   if (typeof data !== "string" || !data) {
     throw new Error("Could not confirm the allocation. Retry the same amount and reason to check the result.");
   }
+  notifySubtaskBudgetChanged({ taskId: input.taskId, subtaskId: input.subtaskId, amount: input.amount });
   return String(data);
 }
 
@@ -310,6 +319,7 @@ export async function removeSubtaskBudgetCap(input: { capId: string; reason: str
     p_idempotency_key: input.idempotencyKey,
   });
   throwIf(error);
+  notifySubtaskBudgetChanged({ amount: 0 });
 }
 
 export async function cancelContextualCashRequest(requestId: string, reason: string) {

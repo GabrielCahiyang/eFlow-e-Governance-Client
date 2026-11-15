@@ -1,11 +1,12 @@
 import { EmptyState } from '../../../components/ui/EmptyState';
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Search as VibeSearch } from "@vibe/core";
 import { Badge } from "../../../components/ui/badge";
 import * as m from "motion/react-m";
 import { ArrowRight, Clock3, ShieldCheck } from "lucide-react";
 import { FeatureDialog } from "../../../components/ui/FeatureDialog";
 import { motionTransition } from "../../../shared/motion/motionTokens";
+import { fetchAllProjects, getCachedProjects, type Project } from "../../../services/projectService";
 import type {
   BudgetLedgerEntry,
   DepartmentBudgetBundle,
@@ -36,6 +37,28 @@ export function AccountingTrailPanel({
 }) {
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<BudgetLedgerEntry>();
+  const [projects, setProjects] = useState<Project[]>(() => getCachedProjects() ?? []);
+
+  useEffect(() => {
+    if (projects.length > 0) return;
+    let active = true;
+    fetchAllProjects()
+      .then((loaded) => {
+        if (active && loaded.length > 0) setProjects(loaded);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [projects.length]);
+
+  const projectNames = useMemo(
+    () =>
+      Object.fromEntries(
+        projects.filter((project) => project.id && project.title).map((project) => [project.id, project.title]),
+      ),
+    [projects],
+  );
   const entries = useMemo(() => {
     const needle = query.trim().toLowerCase();
     return data.ledger.filter(
@@ -109,7 +132,7 @@ export function AccountingTrailPanel({
                 onClick={() => setSelected(entry)}
                 className="eflow-budget-audit-row hover:bg-muted focus-visible:bg-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-ring"
               >
-                <div className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground">
+                <div className="flex h-9 w-9 items-center justify-center rounded-[8px] border border-border bg-card text-muted-foreground">
                   <Clock3 size={14} />
                 </div>
                 <div className="min-w-0">
@@ -149,10 +172,16 @@ export function AccountingTrailPanel({
         title={selected ? selected.entryType.split("_").join(" ") : "Accounting event details"}
         description="Financial audit event details."
         showCloseButton={false}
-        contentClassName="!inset-y-0 !left-auto !right-0 !top-auto !h-auto !max-h-none !w-full !max-w-[480px] !translate-x-0 !translate-y-0 !rounded-none !border-y-0 !border-r-0 max-sm:!left-0"
+        contentClassName="w-full max-w-[480px] sm:max-w-[540px] rounded-[12px]"
       >
         {selected && (
-          <AuditEventDetails entry={selected} linkedJournal={linkedJournal} onClose={() => setSelected(undefined)} />
+          <AuditEventDetails
+            entry={selected}
+            bundle={data}
+            projectNames={projectNames}
+            linkedJournal={linkedJournal}
+            onClose={() => setSelected(undefined)}
+          />
         )}
       </FeatureDialog>
     </div>

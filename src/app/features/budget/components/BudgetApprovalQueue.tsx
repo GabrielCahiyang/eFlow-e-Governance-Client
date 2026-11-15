@@ -9,6 +9,7 @@ import {
   BxsCheckShield,
 } from "../../../components/ui/boxicons";
 import {DecisionModal, DecisionResultModal} from '../../../components/ui/DecisionModal';
+import { useToast } from "../../../components/ui/Toast";
 import { useAuth } from "../../../contexts/AuthContext";
 import { motionTransition } from "../../../shared/motion/motionTokens";
 import type { DepartmentBudgetBundle } from "../types";
@@ -25,7 +26,12 @@ import {
 import { BudgetEmpty, peso, StatusPill } from "./budgetUi";
 import { useApprovalThreshold } from "../hooks/useApprovalThreshold";
 import { ApprovalThresholdDialog } from "./ApprovalThresholdDialog";
-import { isLiquidationLate } from "../selectors/cashWorkflowRules";
+import {
+  formatEvidenceCount,
+  formatFundingRequestCode,
+  getPhilippineCalendarDate,
+  isLiquidationLate,
+} from "../selectors/cashWorkflowRules";
 
 import { useConfirmation } from "../../../components/ui/useConfirmation";
 import { useExplicitDraft } from "../../../shared/useExplicitDraft";
@@ -57,16 +63,15 @@ export function BudgetApprovalQueue({
   focusRecordId?: string;
 }) {
   const { userProfile, can } = useAuth();
+  const { toast } = useToast();
   const currentUserId = userProfile?.id || "";
   const orgId =
     userProfile?.org_id ||
     userProfile?.departmentId ||
     data.summary?.orgId ||
     "";
-  const isDepartmentApprover = ["head", "head"].includes(
-    userProfile?.role || "",
-  );
-  const isHead = ["head", "head"].includes(userProfile?.role || "");
+  const isDepartmentApprover = userProfile?.role === "head";
+  const isHead = userProfile?.role === "head";
   const canSettle =
     userProfile?.role === "accounting_staff" &&
     can("accounting.settle_liquidation");
@@ -123,7 +128,7 @@ export function BudgetApprovalQueue({
     (item) =>
       canRelease &&
       item.status === "scheduled" &&
-      item.scheduledDate <= new Date().toISOString().slice(0, 10),
+      item.scheduledDate <= getPhilippineCalendarDate(),
   );
   const requestById = useMemo(
     () => new Map(data.requests.map((item) => [item.id, item])),
@@ -183,7 +188,7 @@ export function BudgetApprovalQueue({
             item?.status === "pending_leader_review" ? "Endorse these receipts?" : item && isHead
               ? "Authorize late liquidation package?"
               : item ? "Record this settlement?" : dueReleases.some(row => row.id === id) ? "Record this cash release?" : request?.status === "pending_leader_review" ? "Endorse this cash request?" : "Approve this request?",
-          description: `Are you sure? ${request?.cashRecipientName || request?.requesterName || "Authorized work"} · ${request?.taskTitle || id}. ${item ? `${item.liquidationNumber || item.id} · version ${item.version} · expense ${peso.format(item.declaredSpent)} · returned ${peso.format(item.returnedAmount)} · ${item.receipts.length} evidence records. ${item.status === "pending_leader_review" ? "This endorses the receipts. Independent Accounting settlement remains separate." : isHead ? "Head authorization permits a separate independent Accounting settlement. This does not settle the advance." : "Independent Accounting settlement records a balanced posting."}` : "Existing funding, independent-person and release limits remain in force."}`,
+          description: `Are you sure? ${request?.cashRecipientName || request?.requesterName || "Authorized work"} · ${request?.taskTitle || id}. ${item ? `${item.liquidationNumber || item.id} · version ${item.version} · expense ${peso.format(item.declaredSpent)} · returned ${peso.format(item.returnedAmount)} · ${formatEvidenceCount(item.receipts.length)}. ${item.status === "pending_leader_review" ? "This endorses the receipts. Independent Accounting settlement remains separate." : isHead ? "Head authorization permits a separate independent Accounting settlement. This does not settle the advance." : "Independent Accounting settlement records a balanced posting."}` : "Existing funding, independent-person and release limits remain in force."}`,
           actionLabel:
             item?.status === "pending_leader_review" ? "Yes, endorse" : item && isHead ? "Yes, authorize" : item ? "Yes, record settlement" : dueReleases.some(row => row.id === id) ? "Yes, record release" : request?.status === "pending_leader_review" ? "Yes, endorse" : "Yes, approve",
           tone: "approve",
@@ -192,12 +197,17 @@ export function BudgetApprovalQueue({
         return false;
       await operation();
       recordFinancialOutcome(key, "saved");
-      setMessageTone(rejection ? "returned" : "success");
       setRejection(null);
-      setMessage(
-        `${rejection ? "Returned" : "Decision saved"} · ${item?.liquidationNumber || request?.requestNumber || id}.`,
-      );
-      try { await onChanged(); } catch { setMessage("Your decision was saved. Check the latest status before making another decision."); }
+      const code = item?.liquidationNumber || (request ? formatFundingRequestCode(request.requestNumber) : id);
+      const summary = `${rejection ? "Returned to requester" : "Decision saved"} · ${code}.`;
+      try {
+        await onChanged();
+        setMessage("");
+        toast(summary, rejection ? "warning" : "success");
+      } catch {
+        setMessageTone("warning");
+        setMessage(`${summary} Your decision was saved. Check the latest status before making another decision.`);
+      }
       return true;
     } catch (error) {
       setMessageTone(financialFailureIsUncertain(error) ? "warning" : "error");
@@ -273,7 +283,7 @@ export function BudgetApprovalQueue({
           await decidePettyCashRequest(
             item.id,
             true,
-            "Fast-track fiscal authorization approved",
+            "Approved under quick-approval limit",
           );
           recordFinancialOutcome(key, "saved");
         } catch (caught) {
@@ -282,15 +292,21 @@ export function BudgetApprovalQueue({
           throw caught;
         }
       }
-      setMessageTone("success");
-      setMessage("The selected funding requests were approved.");
-      try { await onChanged(); } catch { setMessage("Approvals saved. Check the latest status before continuing."); }
+      const summary = "The selected funding requests were approved.";
+      try {
+        await onChanged();
+        setMessage("");
+        toast(summary, "success");
+      } catch {
+        setMessageTone("warning");
+        setMessage("Approvals saved. Check the latest status before continuing.");
+      }
     } catch (error) {
       setMessageTone(financialFailureIsUncertain(error) ? "warning" : "error");
       setMessage(
         error instanceof Error
           ? error.message
-          : "Some requests could not be fast-track authorized.",
+          : "Some requests could not be approved.",
       );
     } finally {
       pending.current = false;
@@ -299,7 +315,38 @@ export function BudgetApprovalQueue({
     }
   };
 
-  const resultDialog = message && !rejection && <DecisionResultModal title={messageTone === 'success' ? 'Decision saved' : messageTone === 'returned' ? 'Returned to requester' : messageTone === 'warning' ? 'Check the latest status' : 'Could not save this decision'} message={message} tone={messageTone} onClose={() => setMessage('')} onCheck={messageTone === 'error' || messageTone === 'warning' ? () => { void onChanged().then(() => setMessage('')).catch(() => { setMessageTone('error'); setMessage('Could not load the latest status. Please try again.'); }); } : undefined}/>;
+  const resultDialog = message && !rejection && (messageTone === "error" || messageTone === "warning") && <DecisionResultModal title={messageTone === 'warning' ? 'Check the latest status' : 'Could not save this decision'} message={message} tone={messageTone} onClose={() => setMessage('')} onCheck={() => { void onChanged().then(() => setMessage('')).catch(() => { setMessageTone('error'); setMessage('Could not load the latest status. Please try again.'); }); }} />;
+  const governanceBanner = isDepartmentApprover ? (
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-[10px] border border-border bg-card px-4 py-3">
+      <div className="flex items-center gap-2.5">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[6px] border border-border bg-muted/60 text-foreground">
+          <BxSliderAlt size={16} />
+        </div>
+        <div>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[12px] font-semibold text-foreground">
+              Quick-approval limit
+            </span>
+            <span className="rounded-[5px] border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold tabular-nums text-emerald-800">
+              Limit: {peso.format(threshold)}
+            </span>
+          </div>
+          <p className="mt-0.5 text-[11px] text-muted-foreground">
+            Requests of {peso.format(threshold)} or less can be approved together. Larger requests are reviewed one by one.
+          </p>
+        </div>
+      </div>
+      <Button
+        kind="secondary"
+        size="small"
+        onClick={() => setThresholdDialogOpen(true)}
+      >
+        <BxSliderAlt size={13} className="mr-1" />
+        Change limit
+      </Button>
+    </div>
+  ) : null;
+
   if (
     !pendingAllocations.length &&
     !pendingRequests.length &&
@@ -309,40 +356,10 @@ export function BudgetApprovalQueue({
     return (
       <div className="space-y-4">
         {confirmation.dialog}
-      {resultDialog}
-        {isDepartmentApprover && (
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-[10px] border border-border bg-card px-4 py-3 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-neutral-100 text-neutral-700">
-                <BxSliderAlt size={16} />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[11.5px] font-semibold text-neutral-900">
-                    Approval Governance Threshold
-                  </span>
-                  <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[9px] font-semibold text-emerald-800">
-                    Fast-Track Limit: {peso.format(threshold)}
-                  </span>
-                </div>
-                <p className="mt-0.5 text-[10px] text-neutral-500">
-                  Requests ≤ {peso.format(threshold)} are flagged as Tier 1
-                  (Fast-Track). Larger amounts require full multi-tier
-                  governance.
-                </p>
-              </div>
-            </div>
-            <Button
-              kind="secondary"
-              size="small"
-              onClick={() => setThresholdDialogOpen(true)}
-            >
-              <BxSliderAlt size={13} className="mr-1" />
-              Adjust Threshold
-            </Button>
-          </div>
-        )}
-        <BudgetEmpty illustration="complete"
+        {resultDialog}
+        {governanceBanner}
+        <BudgetEmpty
+          illustration="complete"
           title="Approval inbox is clear"
           description="New task-linked cash requests, release actions, and receipt settlements will appear here."
         />
@@ -362,37 +379,7 @@ export function BudgetApprovalQueue({
     <div className="space-y-4">
       {confirmation.dialog}
       {resultDialog}
-      {isDepartmentApprover && (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-[10px] border border-border bg-card px-4 py-3 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-neutral-100 text-neutral-700">
-              <BxSliderAlt size={16} />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-[11.5px] font-semibold text-neutral-900">
-                  Approval Governance Threshold
-                </span>
-                <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[9px] font-semibold text-emerald-800">
-                  Fast-Track Limit: {peso.format(threshold)}
-                </span>
-              </div>
-              <p className="mt-0.5 text-[10px] text-neutral-500">
-                Requests ≤ {peso.format(threshold)} are flagged as Tier 1
-                (Fast-Track). Larger amounts require full multi-tier governance.
-              </p>
-            </div>
-          </div>
-          <Button
-            kind="secondary"
-            size="small"
-            onClick={() => setThresholdDialogOpen(true)}
-          >
-            <BxSliderAlt size={13} className="mr-1" />
-            Adjust Threshold
-          </Button>
-        </div>
-      )}
+      {governanceBanner}
 
       {pendingAllocations.length > 0 && (
         <QueueSection
@@ -451,7 +438,7 @@ export function BudgetApprovalQueue({
                 onClick={() => void handleBatchAuthorizeTier1()}
               >
                 <BxsBolt size={12} className="mr-1" />
-                Quick Authorize All Tier 1 ({tier1DepartmentRequests.length})
+                Approve ≤ {peso.format(threshold)} ({tier1DepartmentRequests.length})
               </Button>
             ) : undefined
           }
@@ -473,23 +460,17 @@ export function BudgetApprovalQueue({
             const isTier1 = item.requestedAmount <= threshold;
             const isLeaderReview = item.status === "pending_leader_review";
             const tierBadge = isTier1 ? (
-              <span className="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 px-1.5 py-0.5 text-[9px] font-medium text-emerald-800">
-                <BxsBolt size={10} className="text-emerald-700" />
-                Tier 1 · Fast-Track (≤ {peso.format(threshold)})
+              <span className="inline-flex items-center gap-1 rounded-[5px] border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-800">
+                <BxsBolt size={11} className="text-emerald-700" />
+                Under limit
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1 rounded-md border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[9px] font-medium text-amber-800">
-                <BxsCheckShield size={10} className="text-amber-700" />
-                Tier 2 · Escalated (&gt; {peso.format(threshold)})
+              <span className="inline-flex items-center gap-1 rounded-[5px] border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-800">
+                <BxsCheckShield size={11} className="text-amber-700" />
+                Over limit
               </span>
             );
-            const approveLabel = isLeaderReview
-              ? isTier1
-                ? "Endorse (Fast-Track)"
-                : "Endorse to Head"
-              : isTier1
-                ? "Quick Authorize"
-                : "Authorize";
+            const approveLabel = isLeaderReview ? "Endorse" : "Approve";
 
             return (
               <QueueRow
@@ -497,7 +478,7 @@ export function BudgetApprovalQueue({
                 recordId={item.id}
                 focused={focusRecordId === item.id}
                 title={`FR-${String(item.requestNumber).padStart(5, "0")} · ${hierarchy || "Funded work"}`}
-                meta={`${item.requesterName || "Member"} · ${item.purpose} · ${peso.format(item.requestedAmount)} · ${isLeaderReview ? "Operational endorsement" : "Fiscal authorization"}${line ? ` · ${line.category} / ${line.particular} / ${line.fundSource}` : ""}`}
+                meta={`${item.requesterName || "Member"} · ${item.purpose} · ${peso.format(item.requestedAmount)} · ${isLeaderReview ? "Leader endorsement" : "Department approval"}${line ? ` · ${line.category} / ${line.particular} / ${line.fundSource}` : ""}`}
                 status={item.status}
                 tierBadge={tierBadge}
                 details={
@@ -533,15 +514,15 @@ export function BudgetApprovalQueue({
                               item.id,
                               true,
                               isTier1
-                                ? "Operationally endorsed under fast-track limit"
-                                : "Operationally endorsed for fiscal authorization",
+                                ? "Endorsed under quick-approval limit"
+                                : "Endorsed for department approval",
                             )
                           : decidePettyCashRequest(
                               item.id,
                               true,
                               isTier1
-                                ? "Fast-track fiscal authorization approved"
-                                : "Fiscal authorization approved",
+                                ? "Approved under quick-approval limit"
+                                : "Approved",
                             ),
                       )
                     }
@@ -763,7 +744,7 @@ function QueueSection({
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {action}
-          <span className="rounded-full bg-amber-50 px-2 py-1 text-[11px] text-amber-700">
+          <span className="rounded-[5px] border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-semibold tabular-nums text-amber-800">
             {count}
           </span>
         </div>

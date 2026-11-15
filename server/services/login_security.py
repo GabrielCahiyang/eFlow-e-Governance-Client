@@ -21,7 +21,7 @@ def auth_request(method, path, **kwargs):
     return httpx.request(method, settings.supabase_url + "/auth/v1/" + path,
         headers={"apikey": settings.supabase_service_role_key,
                  "Authorization": "Bearer " + settings.supabase_service_role_key},
-        timeout=15, **kwargs)
+        timeout=30, **kwargs)
 
 
 def apply_ban(attempt):

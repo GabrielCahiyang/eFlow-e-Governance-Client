@@ -15,6 +15,8 @@ import { requestNavigation } from "../../../shared/navigationGuard";
 import { ActionMenu } from "../../../components/ui/workspace";
 import { Button as MenuTriggerButton } from "../../../components/ui/button";
 import { usePresentationBranding } from "../../administration";
+import { useNetworkConnectivity } from "../../../shared/networkConnectivity";
+import { ConnectivitySignal } from "./ConnectivitySignal";
 
 interface EflowTopBarProps {
   activePage?: string;
@@ -136,9 +138,14 @@ export function EflowTopBar({
   const systemDark = useMediaQuery("(prefers-color-scheme: dark)");
   const dark = theme === "dark" || (theme === "system" && systemDark);
   const branding = usePresentationBranding(user?.id);
+  const connectivity = useNetworkConnectivity();
+  const topbarClass =
+    connectivity.status === "online"
+      ? "eflow-topbar"
+      : `eflow-topbar eflow-topbar--${connectivity.status}`;
 
   return (
-    <header className="eflow-topbar" aria-label="Workspace utilities">
+    <header className={topbarClass} aria-label="Workspace utilities">
       <div className="eflow-topbar__leading">
         <Tooltip content="Open navigation">
           <IconButton
@@ -158,6 +165,13 @@ export function EflowTopBar({
       </div>
 
       <div className="eflow-topbar__utilities">
+        <ConnectivitySignal
+          status={connectivity.status}
+          checking={connectivity.checking}
+          onRetry={() => {
+            void connectivity.retry();
+          }}
+        />
         <WorkspaceHelpMenu open={helpOpen} onOpenChange={onHelpOpenChange} role={userProfile?.role || role} returnFocusTarget={helpReturnFocusTarget} />
         {user?.id && (
           <div

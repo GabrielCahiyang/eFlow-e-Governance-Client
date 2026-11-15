@@ -33,6 +33,7 @@ export function BudgetPositionSummary({
 }: BudgetPositionSummaryProps) {
   const today = getPhilippineCalendarDate();
   const position = financialPosition(data, summary);
+  const commitmentCount = data.commitments.filter((item) => item.status === "active").length;
   const pendingApprovals =
     data.allocations.filter((item) => item.status === "pending").length +
     data.requests.filter((item) => item.status === "pending_department_approval")
@@ -95,7 +96,7 @@ export function BudgetPositionSummary({
           <ActionRow
             icon={<BriefcaseBusiness size={16} />}
             label="Proposal commitments"
-            detail={`${data.commitments.filter((item) => item.status === "active").length} active commitment(s)`}
+            detail={`${commitmentCount} active commitment${commitmentCount === 1 ? "" : "s"}`}
             amount={summary.committedAmount}
             action="View funding"
             onClick={() => onNavigate("funding")}
@@ -114,7 +115,7 @@ export function BudgetPositionSummary({
             label="Release deadlines"
             detail={
               releasesDue.length
-                ? `${releasesDue.length} scheduled tranche(s) are due today or overdue`
+                ? `${releasesDue.length} scheduled tranche${releasesDue.length === 1 ? " is" : "s are"} due today or overdue`
                 : "No scheduled release is currently due"
             }
             amount={releasesDue.reduce((sum, item) => sum + item.amount, 0)}
@@ -124,7 +125,7 @@ export function BudgetPositionSummary({
           <ActionRow
             icon={<ReceiptText size={16} />}
             label="Settlement exposure"
-            detail={`${unsettledRequests.length} released request(s) still need receipts or settlement`}
+            detail={`${unsettledRequests.length} released request${unsettledRequests.length === 1 ? " still needs" : "s still need"} receipts or settlement`}
             amount={position.unsettled}
             action="Review settlement"
             onClick={() => onNavigate("releases")}

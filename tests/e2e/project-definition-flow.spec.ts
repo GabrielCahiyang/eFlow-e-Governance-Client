@@ -106,3 +106,38 @@ test('Create project saves the team and only selected template work before openi
  await page.getByRole('button',{name:'Subtasks for Draft the agenda'}).click();
  await expect(page.getByRole('region',{name:'Subtasks for Draft the agenda'}).getByText('Confirm topics',{exact:true})).toBeVisible();
 });
+
+test('Create a project dialog places opening preview on the right pane and scrolls via wheel and touchpad',async({page})=>{
+ test.setTimeout(120000);
+ await page.setViewportSize({width:1280,height:720});
+ const records=await projectWorkspaceFixture(page,'head',false,{landingOnly:true});
+ await page.goto(`/projects?page=Projects&workspace=${records.org}`);
+ await page.getByRole('button',{name:'Create project',exact:true}).click();
+ const wizard=page.locator('.eflow-responsive-modal').filter({has:page.locator('.pf-wizard-modal')});
+ await expect(wizard).toBeVisible();
+ const details=wizard.locator('.pf-wizard-details');
+ const preview=wizard.locator('.pf-wizard-opening-preview');
+ await expect(details).toBeVisible();
+ await expect(preview).toBeVisible();
+ const detailsBox=await details.boundingBox();
+ const previewBox=await preview.boundingBox();
+ expect(detailsBox).not.toBeNull();
+ expect(previewBox).not.toBeNull();
+ expect(previewBox!.x).toBeGreaterThanOrEqual(detailsBox!.x+detailsBox!.width-1);
+ expect(Math.abs(previewBox!.y-detailsBox!.y)).toBeLessThanOrEqual(20);
+ const content=wizard.locator('.pf-wizard-content');
+ await expect(content).toBeVisible();
+ const before=await content.evaluate(el=>({scrollTop:el.scrollTop,scrollHeight:el.scrollHeight,clientHeight:el.clientHeight}));
+ expect(before.scrollHeight).toBeGreaterThan(before.clientHeight);
+ const box=await content.boundingBox();
+ expect(box).not.toBeNull();
+ await page.mouse.move(box!.x+box!.width/2,box!.y+box!.height/2);
+ await page.mouse.wheel(0,220);
+ await expect.poll(()=>content.evaluate(el=>el.scrollTop)).toBeGreaterThan(0);
+ const afterWheel=await content.evaluate(el=>el.scrollTop);
+ await page.mouse.wheel(18,160);
+ await expect.poll(()=>content.evaluate(el=>el.scrollTop)).toBeGreaterThan(afterWheel);
+ const afterTouchpad=await content.evaluate(el=>el.scrollTop);
+ await page.mouse.wheel(0,-140);
+ await expect.poll(()=>content.evaluate(el=>el.scrollTop)).toBeLessThan(afterTouchpad);
+});

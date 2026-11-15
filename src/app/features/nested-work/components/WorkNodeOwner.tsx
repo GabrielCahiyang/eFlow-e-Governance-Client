@@ -1,3 +1,4 @@
+import { UsersRound } from 'lucide-react';
 import { WorkPeopleSummary } from './WorkPeopleSummary';
 import type { WorkNode, WorkPerson } from '../types';
 
@@ -12,16 +13,18 @@ export interface WorkNodeOwnerProps {
 
 export function WorkNodeOwner({ node, people, canStaff, disabled = false, recoverable = false, onStaff }: WorkNodeOwnerProps) {
   return (
-    <div className="r7-work r7-root-owner">
+    <div className="r7-work r7-root-owner r7-root-owner--compact">
       <WorkPeopleSummary leadId={node.lead_id} contributorIds={node.assigned_to_ids} people={people} compact />
       {canStaff && (
         <button
           type="button"
+          className="r7-owner-edit"
           aria-label={`Choose subtask lead and contributors for ${node.title}`}
           disabled={disabled}
           onClick={() => onStaff(node.id)}
         >
-          {recoverable ? 'Recover people draft' : 'Choose people'}
+          <UsersRound size={13} aria-hidden="true" />
+          <span>{recoverable ? 'Recover people draft' : 'Choose people'}</span>
         </button>
       )}
     </div>

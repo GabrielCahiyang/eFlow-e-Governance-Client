@@ -28,6 +28,11 @@ describe('Phase 10 project workspace', () => {
     expect((screen.getByRole('button',{name:'Edit project name'}) as HTMLButtonElement).disabled).toBe(true);
     expect(screen.getByLabelText('Project lifecycle: Archived')).toBeTruthy();
   });
+  it('omits duplicate schedule label when project lifecycle is completed or archived', () => {
+    render(<ProjectHeader project={{...project,status:'completed'}} organizations={[]} profiles={[]} metrics={{taskTotal:2,taskCompleted:2,progress:100,overdue:0,scheduleHealth:'completed'}} />);
+    expect(screen.getByLabelText('Project lifecycle: Completed')).toBeTruthy();
+    expect(screen.queryByLabelText(/Project schedule:/)).toBeNull();
+  });
   it('retries only the participant operation instead of claiming an empty participant list', () => {
     const refresh=vi.fn(); render(<ProjectParticipants offices={{offices:[],members:[],loading:false,error:'Office request failed',refresh}} profiles={[]} contributorIds={[]} />);
     expect(screen.getByRole('alert').textContent).toContain('Office request failed'); fireEvent.click(screen.getByRole('button',{name:'Retry'})); expect(refresh).toHaveBeenCalledOnce();

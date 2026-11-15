@@ -63,6 +63,9 @@ describe("BudgetPositionSummary", () => {
 
     expect(screen.getByText("Available to fund")).toBeTruthy();
     expect(screen.getByText("₱600,000.00")).toBeTruthy();
+    expect(screen.getByText("1 active commitment")).toBeTruthy();
+    expect(screen.getByText("1 scheduled tranche is due today or overdue")).toBeTruthy();
+    expect(screen.getByText("1 released request still needs receipts or settlement")).toBeTruthy();
     expect(screen.getByText("Pending approvals")).toBeTruthy();
     expect(screen.getByText("3")).toBeTruthy();
     expect(screen.getByText("Release deadlines")).toBeTruthy();

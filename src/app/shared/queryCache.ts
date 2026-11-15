@@ -218,8 +218,11 @@ export function loadWithQueryCache<T>(options: {
     return Promise.resolve(entry.data as T);
   }
 
-  if (entry.inFlight && entry.inFlightGeneration === entry.generation) {
+  if (!forceRefresh && entry.inFlight && entry.inFlightGeneration === entry.generation) {
     return entry.inFlight;
+  }
+  if (forceRefresh && entry.inFlight) {
+    entry.generation += 1;
   }
 
   const startGlobalGen = globalGeneration;

@@ -35,7 +35,10 @@ export function useConversation(conversationId: string, unread: boolean, onRead:
   }, [conversationId]);
   useEffect(() => {
     void refresh();
-    const unsubscribe = subscribeToMessagesWorkspace(() => void refresh(), conversationId);
+    const unsubscribe = subscribeToMessagesWorkspace(() => {
+      void refresh();
+      if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('eflow:chat-messages-changed', { detail: conversationId }));
+    }, conversationId);
     return () => { ++loaded.current; unsubscribe(); };
   }, [conversationId, refresh]);
   useVisibleRead(() => void refresh());

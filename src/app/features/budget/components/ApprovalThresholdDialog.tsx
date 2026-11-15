@@ -46,10 +46,10 @@ export function ApprovalThresholdDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-base">
             <BxSliderAlt size={18} className="text-neutral-700" />
-            Approval Tier Threshold
+            Quick-approval limit
           </DialogTitle>
           <DialogDescription className="text-[11.5px] text-neutral-500">
-            Set the maximum amount for Tier 1 Fast-Track requests. Requests equal to or below this amount are flagged for single-tier fast-track clearance.
+            Set the maximum amount for requests that can be approved together in one click.
           </DialogDescription>
         </DialogHeader>
 
@@ -62,7 +62,7 @@ export function ApprovalThresholdDialog({
           {/* Amount input */}
           <div>
             <label className="text-[11px] font-medium text-neutral-700">
-              Fast-Track Maximum Limit
+              Maximum amount for quick approval
             </label>
             <div className="relative mt-1">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[12px] font-semibold text-neutral-400">
@@ -112,32 +112,32 @@ export function ApprovalThresholdDialog({
           {/* AttentionBox explanation */}
           <AttentionBox
             type="neutral"
-            title="Governance Routing Rule"
-            text={`Expenses at or below ${peso.format(value || 0)} are fast-tracked for immediate release upon Team Leader endorsement. Requests above this threshold escalate to the Head.`}
+            title="How this limit works"
+            text={`Requests at or below ${peso.format(value || 0)} can be approved together in one click. Larger requests require individual review.`}
           />
 
           {/* Visual comparison cards */}
-          <div className="space-y-2 rounded-xl border border-neutral-100 bg-neutral-50/70 p-3 text-[10.5px]">
+          <div className="space-y-2 rounded-[10px] border border-neutral-200 bg-neutral-50/70 p-3 text-[11px]">
             <div className="flex items-start gap-2 text-emerald-800">
-              <div className="mt-0.5 rounded p-1 bg-emerald-100 text-emerald-700">
+              <div className="mt-0.5 rounded-[5px] bg-emerald-100 p-1 text-emerald-700">
                 <BxsBolt size={12} />
               </div>
               <div>
-                <strong className="font-semibold">Tier 1 (≤ {peso.format(value || 0)}):</strong>
+                <strong className="font-semibold">Under limit (≤ {peso.format(value || 0)}):</strong>
                 <p className="mt-0.5 text-neutral-600">
-                  Micro-expenses and day-to-day operational supplies.
+                  Day-to-day supplies and small operational requests.
                 </p>
               </div>
             </div>
 
-            <div className="flex items-start gap-2 text-amber-800 border-t border-neutral-200/60 pt-2">
-              <div className="mt-0.5 rounded p-1 bg-amber-100 text-amber-700">
+            <div className="flex items-start gap-2 border-t border-neutral-200/60 pt-2 text-amber-800">
+              <div className="mt-0.5 rounded-[5px] bg-amber-100 p-1 text-amber-700">
                 <BxsCheckShield size={12} />
               </div>
               <div>
-                <strong className="font-semibold">Tier 2 (&gt; {peso.format(value || 0)}):</strong>
+                <strong className="font-semibold">Over limit (&gt; {peso.format(value || 0)}):</strong>
                 <p className="mt-0.5 text-neutral-600">
-                  Major commitments requiring full multi-tier governance.
+                  Larger requests reviewed individually before release.
                 </p>
               </div>
             </div>
@@ -170,7 +170,7 @@ export function ApprovalThresholdDialog({
               onClick={handleSave}
             >
               <Check size={12} className="mr-1" />
-              Save Threshold
+              Save limit
             </Button>
           </div>
         </DialogFooter>

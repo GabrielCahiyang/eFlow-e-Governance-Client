@@ -20,6 +20,8 @@ describe('server-owned account sign-in',()=>{
     await signInWithAccountProtection(' person@example.test ','password');
     expect(JSON.parse(fetch.mock.calls[0][1].body)).toEqual({email:'person@example.test',password:'password'});
     expect(fetch.mock.calls[0][0]).toBe('/controlpanelEflow/api/auth/login');
+    expect(fetch.mock.calls[0][1].signal).toBeInstanceOf(AbortSignal);
+    expect(fetch.mock.calls[0][1].signal.aborted).toBe(false);
     expect(mock.setSession).toHaveBeenCalledWith({access_token:'test-token',refresh_token:'test-refresh'});
   });
   it.each([401,423,429,503])('does not create a session or retry rejected status %s',async status=>{

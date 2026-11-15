@@ -1,6 +1,9 @@
 import {useEffect,useRef,useState} from 'react';
+import {Button} from '@vibe/core';
 import {ArrowLeft,ArrowRight,Check,ClipboardList,Layers,CalendarDays,Wallet,ShieldCheck,Save,UsersRound} from 'lucide-react';
+import {FeedbackState} from '../../../components/ui/FeedbackState';
 import {Modal} from '../../../components/ui/Modal';
+import {ProjectTaskTemplateLibrary} from '../../work-templates';
 import {ProjectOpeningPreview} from './ProjectOpeningPreview';
 import type {Organization,UserProfile} from '../../../types';
 import {ProjectOfficeContext,ProjectPeoplePage,useProjectOffices} from '../../project-offices';
@@ -14,7 +17,6 @@ import type {ProjectFlow} from '../types';
 import {FlowError} from './FlowError';
 import {ProjectFundingPanel} from './ProjectFundingPanel';
 import {ProjectSetupFields,type SetupDraft} from './ProjectSetupFields';
-import {ProjectSetupPeople} from './ProjectSetupPeople';
 import { ProjectTaskDraftStep } from './ProjectTaskDraftStep';
 import { useProjectTaskTemplates } from '../useProjectTaskTemplates';
 import '../projectSetup.css';
@@ -34,8 +36,11 @@ export function ProjectSetupWizard({projectId,profiles,profilesLoading,organizat
  useEffect(()=>{if(flow.data&&!hydrated.current){hydrated.current=true;setBase(flow.data.project);setDraft(fields(flow.data.project));}},[flow.data?.project.id]);
  const [taskDraftBusy,setTaskDraftBusy]=useState(false);
  const [projectType,setProjectType]=useState('');
+ const [manageTemplatesOpen,setManageTemplatesOpen]=useState(false);
+ const [templateInitialCreate,setTemplateInitialCreate]=useState(false);
  const editable=!projectId||flow.data?.canAuthorize===true,locked=busy||fundingBusy||taskDraftBusy;
  const templateLibrary=useProjectTaskTemplates(editable);
+ const selectedTemplate=templateLibrary.templates.find(template=>template.id===projectType);
  const dirty=JSON.stringify(draft)!==JSON.stringify(base?fields(base):{...empty,lead:creatorId||''});
  const [localSaved,setLocalSaved]=useState(false);
  const fundingRecoveryKey=recoveryKey&&id?recoveryKey+':funding:'+id:'';
@@ -147,7 +152,10 @@ export function ProjectSetupWizard({projectId,profiles,profilesLoading,organizat
   setRecovery(undefined);
  }
  if(recovery)return <Modal isOpen title="Create project" description="An unfinished project draft is saved on this device." onClose={close} footer={<div className="pf-actions"><button type="button" disabled={!!recovery.creationAttempt} onClick={()=>{storeProjectDraft(recoveryKey);setRecovery(undefined);}}>Start new project</button><button type="button" className="pf-primary" onClick={()=>continueDraft(recovery)}>Continue draft</button></div>}>{null}</Modal>;
- return <Modal isOpen title={projectId?'Project setup':'Create a project'} description="Set up the project, choose its team, and draft the work plan." width="max-w-7xl" className="pf-wizard-modal" bodyClassName="pf-wizard-body" footerClassName="pf-wizard-footer-shell" onClose={close} preventClose={locked} footer={<div className="pf-wizard-footer">
+ return <Modal isOpen title={projectId?'Project setup':'Create a project'} description="Set up the project, choose its team, and draft the work plan." width="max-w-7xl" className="pf-wizard-modal" bodyClassName="pf-wizard-body" footerClassName="pf-wizard-footer-shell" onClose={close} preventClose={locked} footer={manageTemplatesOpen ? <div className="pf-wizard-footer">
+  <div className="pf-wizard-footer-left"><button type="button" disabled={locked} onClick={()=>{setManageTemplatesOpen(false);setTemplateInitialCreate(false);}}><ArrowLeft size={16}/>Back to project details</button><p className="pf-wizard-footer-progress">Templates<span>Starter checklists</span></p></div>
+  <div className="pf-wizard-footer-actions"/>
+ </div> : <div className="pf-wizard-footer">
   <div className="pf-wizard-footer-left">{step>0&&<button type="button" disabled={locked||loading} onClick={()=>jump(step-1)}><ArrowLeft size={16}/>Back</button>}<p className="pf-wizard-footer-progress">Step {step+1} of {steps.length}<span>{steps[step].title}</span></p></div>
   <div className="pf-wizard-footer-actions">
    {step===tasksStep ? <button type="button" disabled={locked} onClick={close}>Open project<ArrowRight size={16}/></button> : step===peopleStep ? <button type="button" disabled={locked} onClick={()=>jump(tasksStep)}>Next: Draft tasks<ArrowRight size={16}/></button> : <>
@@ -156,27 +164,59 @@ export function ProjectSetupWizard({projectId,profiles,profilesLoading,organizat
    </>}
   </div>
  </div>}>
-  <nav className="pf-wizard-steps" aria-label="Project setup steps">{steps.map((item,index)=><button type="button" key={item.title} disabled={locked||loading||uncertain||(index>=peopleStep&&!canOpenPeople)} onClick={()=>jump(index)} aria-current={step===index?'step':undefined} data-complete={complete[index]||false}><span>{complete[index]?<Check size={17}/>:<item.icon size={17}/>}</span><div><small>{String(index+1).padStart(2,'0')}</small><strong>{item.title}</strong></div></button>)}</nav>
-  <div className="pf-wizard-content"><FlowError error={error||flow.error}/>{loading?<p role="status">Loading saved project setup…</p>:<>
+  <nav className="pf-wizard-steps" aria-label="Project setup steps">{steps.map((item,index)=><button type="button" key={item.title} disabled={manageTemplatesOpen||locked||loading||uncertain||(index>=peopleStep&&!canOpenPeople)} onClick={()=>jump(index)} aria-current={step===index?'step':undefined} data-complete={complete[index]||false}><span>{complete[index]?<Check size={17}/>:<item.icon size={17}/>}</span><div><small>{String(index+1).padStart(2,'0')}</small><strong>{item.title}</strong></div></button>)}</nav>
+  <div className="pf-wizard-content"><FlowError error={error||flow.error}/>{loading?<p role="status">Loading saved project setup…</p>:manageTemplatesOpen ? <div className="pf-starter-subview">
+   <div className="pf-starter-subview-bar">
+    <Button type="button" kind="tertiary" size="small" onClick={()=>{setManageTemplatesOpen(false);setTemplateInitialCreate(false);}}>← Back to project details</Button>
+    <span>Project starter templates</span>
+   </div>
+   <ProjectTaskTemplateLibrary
+    compactHeader
+    initialCreate={templateInitialCreate}
+    onTemplatesChanged={saved=>{
+     void templateLibrary.reload();
+     if(saved?.id){
+      setProjectType(saved.id);
+      setManageTemplatesOpen(false);
+      setTemplateInitialCreate(false);
+     }
+    }}
+   />
+  </div> : <>
    {step<3&&<div className={step===0?'pf-wizard-opening':undefined}>
     {step===0 ? <div className="pf-wizard-details">
      <ProjectSetupFields step={step} draft={draft} update={update} profiles={profiles} disabled={locked||!editable} officeName={officeName} automaticLead={!projectId}/>
-     {editable&&<div className="pf-wizard-fields"><label>Project type (optional)
-      <select value={projectType} disabled={locked||templateLibrary.loading||!templateLibrary.templates.length} onChange={event=>setProjectType(event.target.value)}>
-       <option value="">{templateLibrary.loading?'Loading project types…':'Choose a starter template'}</option>
-       {templateLibrary.templates.map(template=><option key={template.id} value={template.id}>{template.name}</option>)}
-      </select>
-     </label></div>}
+     {editable&&<div className="pf-wizard-fields pf-starter-block">
+      <div className="pf-starter-header">
+       <label>Project type (optional)
+        <select value={projectType} disabled={locked||templateLibrary.loading||!templateLibrary.templates.length} onChange={event=>setProjectType(event.target.value)}>
+         <option value="">{templateLibrary.loading?'Loading project types…':templateLibrary.templates.length?'Choose a starter template':'No templates yet — create one'}</option>
+         {templateLibrary.templates.map(template=><option key={template.id} value={template.id}>{template.name}</option>)}
+        </select>
+       </label>
+       <Button type="button" kind="secondary" size="small" disabled={locked} onClick={()=>{setTemplateInitialCreate(!templateLibrary.templates.length);setManageTemplatesOpen(true);}}>
+        {templateLibrary.templates.length?'+ New / Manage templates':'Create template'}
+       </Button>
+      </div>
+      {templateLibrary.error && (
+       <FeedbackState tone="error" title="Could not load starter templates" onRetry={()=>void templateLibrary.reload()} pending={templateLibrary.loading}>
+        {templateLibrary.error}
+       </FeedbackState>
+      )}
+      {!templateLibrary.loading&&!templateLibrary.error&&!templateLibrary.templates.length&&(
+       <p className="pf-starter-hint">Create a starter template to reuse standard task groups and subtasks across new projects.</p>
+      )}
+     </div>}
     </div> : <ProjectSetupFields step={step} draft={draft} update={update} profiles={profiles} disabled={locked||!editable} officeName={officeName} automaticLead={!projectId}/>}
-    {step===0&&<ProjectOpeningPreview title={draft.title}/>}
+    {step===0&&<ProjectOpeningPreview title={draft.title} selectedTemplate={selectedTemplate}/>}
    </div>}
    <section hidden={step!==3} aria-label="Project funding step"><p className="pf-eyebrow">PROJECT FUNDING</p><h2>Set the funding sources</h2><p>Choose the fiscal year, Office Budget source and amount. The project total is calculated from those rows.</p><label className="pf-checkbox"><input type="checkbox" checked={draft.noFunding} disabled={!editable||!!flow.data?.funds.length||locked||fundingDirty||uncertain} onChange={e=>update('noFunding',e.target.checked)}/>No funding required for this project</label>{!draft.noFunding&&!detailsComplete&&<p className="pf-warning">Complete Details, Scope, and Dates before choosing funding.</p>}
     {!draft.noFunding&&detailsComplete&&busy&&needsFundingDetails&&<p role="status">Saving project details…</p>}
     {!draft.noFunding&&detailsComplete&&!locked&&(needsFundingDetails&&error||flow.error)&&<button type="button" className="pf-funding-retry" onClick={needsFundingDetails?prepareFunding:()=>void perform(flow.reload)}>Retry loading funding sources</button>}
     {!draft.noFunding&&id&&base&&flow.data?.project.id===id&&<fieldset disabled={busy||dirty||!detailsComplete} className="min-w-0"><ProjectFundingPanel key={id} wizard recoveryKey={fundingRecoveryKey} data={flow.data} reload={flow.reload} onBusyChange={setFundingBusy} onDraftChange={setFundingDirty} onUncertainChange={setUncertain}/></fieldset>}</section>
-   {step===reviewStep&&<section className="pf-wizard-review"><p className="pf-eyebrow">REVIEW</p><h2>Ready to build the work plan?</h2><h3>{draft.title}</h3><p>{draft.description}</p><dl><div><dt>Scope</dt><dd>{draft.scope}</dd></div><div><dt>Project lead</dt><dd>{profiles.find(p=>p.id===draft.lead)?.full_name||'Assigned project lead'}</dd></div><div><dt>Timeline</dt><dd>{draft.start} → {draft.end}</dd></div><div><dt>Project budget</dt><dd>{draft.noFunding?'No funding required':`₱${(flow.data?.total||0).toLocaleString('en-PH',{minimumFractionDigits:2})}`}</dd></div></dl>{!draft.noFunding&&<ul className="pf-review-sources">{flow.data?.funds.map(source=><li key={source.id}><span>FY {source.fiscal_year} · {source.name}</span><strong>₱{source.amount.toLocaleString('en-PH',{minimumFractionDigits:2})}</strong></li>)}</ul>}<p>Continue to choose your team, or open the project and add people later.</p>{!projectId&&!peopleProjectId&&<ProjectSetupPeople profiles={profiles} lead={draft.lead} selected={people} onChange={setPeople} officeName={officeName} disabled={locked||!!peopleRequest.current}/>}</section>}
+   {step===reviewStep&&<section className="pf-wizard-review"><p className="pf-eyebrow">REVIEW</p><h2>Ready to build the work plan?</h2><h3>{draft.title}</h3><p>{draft.description}</p><dl><div><dt>Scope</dt><dd>{draft.scope}</dd></div><div><dt>Project lead</dt><dd>{profiles.find(p=>p.id===draft.lead)?.full_name||'Assigned project lead'}</dd></div><div><dt>Timeline</dt><dd>{draft.start} → {draft.end}</dd></div><div><dt>Project budget</dt><dd>{draft.noFunding?'No funding required':`₱${(flow.data?.total||0).toLocaleString('en-PH',{minimumFractionDigits:2})}`}</dd></div></dl>{!draft.noFunding&&<ul className="pf-review-sources">{flow.data?.funds.map(source=><li key={source.id}><span>FY {source.fiscal_year} · {source.name}</span><strong>₱{source.amount.toLocaleString('en-PH',{minimumFractionDigits:2})}</strong></li>)}</ul>}<p>Continue to choose your team, or open the project and add people later.</p></section>}
    {step===peopleStep&&peopleProjectId&&<SetupPeople key={peopleProjectId} projectId={peopleProjectId} projectTitle={draft.title} projectLeadId={draft.lead} projectStatus={flow.data?.project.status||'planning'} governed={governed} profiles={profiles} profilesLoading={profilesLoading} organizations={organizations} tasks={tasks} onClose={()=>setStep(tasksStep)}/>}
-   {step===tasksStep&&peopleProjectId&&<ProjectTaskDraftStep key={peopleProjectId} projectId={peopleProjectId} project={draft} templates={templateLibrary.templates} templateError={templateLibrary.error} initialTemplate={templateLibrary.templates.find(template=>template.id===projectType)} onSaved={()=>finish(peopleProjectId)} onBusyChange={setTaskDraftBusy}/>}
+   {step===tasksStep&&peopleProjectId&&<ProjectTaskDraftStep key={peopleProjectId} projectId={peopleProjectId} project={draft} templates={templateLibrary.templates} templateError={templateLibrary.error} initialTemplate={selectedTemplate} onTemplateSaved={saved=>{void templateLibrary.reload();setProjectType(saved.id);}} onSaved={()=>finish(peopleProjectId)} onBusyChange={setTaskDraftBusy}/>}
   </>}</div>
  </Modal>;
 }

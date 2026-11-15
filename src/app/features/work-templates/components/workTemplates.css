@@ -1,0 +1,302 @@
+.eflow-tpl-modal-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background: var(--eflow-canvas, #f4f7f7);
+  color: var(--eflow-text, #182626);
+}
+
+.eflow-tpl-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 24px 14px;
+  background: var(--eflow-surface, #ffffff);
+  border-bottom: 1px solid var(--eflow-border, #d7dfdf);
+}
+
+.eflow-tpl-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--eflow-primary, #0c6f6b);
+}
+
+.eflow-tpl-modal-title {
+  margin: 4px 0 0;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--eflow-text, #182626);
+}
+
+.eflow-tpl-modal-subtitle {
+  margin: 4px 0 0;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--eflow-text-secondary, #526161);
+}
+
+.eflow-tpl-tabs-bar {
+  background: var(--eflow-surface, #ffffff);
+  border-bottom: 1px solid var(--eflow-border, #d7dfdf);
+  padding: 0 24px;
+}
+
+.eflow-tpl-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.eflow-tpl-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 2px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--eflow-text-secondary, #526161);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.eflow-tpl-tab:hover {
+  color: var(--eflow-text, #182626);
+}
+
+.eflow-tpl-tab[data-active="true"] {
+  color: var(--eflow-primary, #0c6f6b);
+  border-bottom-color: var(--eflow-primary, #0c6f6b);
+  font-weight: 600;
+}
+
+.eflow-tpl-modal-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 20px 24px 28px;
+}
+
+.eflow-tpl-library {
+  margin: 0 auto;
+  max-width: 920px;
+  display: grid;
+  gap: 16px;
+}
+
+.eflow-tpl-library-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.eflow-tpl-library-heading h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--eflow-text, #182626);
+}
+
+.eflow-tpl-library-heading p {
+  margin: 3px 0 0;
+  font-size: 13px;
+  color: var(--eflow-text-secondary, #526161);
+}
+
+.eflow-tpl-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 16px 18px;
+  border: 1px solid var(--eflow-border, #d7dfdf);
+  border-radius: var(--eflow-radius-surface, 10px);
+  background: var(--eflow-surface, #ffffff);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.eflow-tpl-card:hover {
+  border-color: color-mix(in srgb, var(--eflow-primary, #0c6f6b) 35%, var(--eflow-border, #d7dfdf));
+}
+
+.eflow-tpl-card-main {
+  display: grid;
+  gap: 8px;
+  min-width: 240px;
+  flex: 1 1 320px;
+}
+
+.eflow-tpl-card-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--eflow-text, #182626);
+}
+
+.eflow-tpl-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.eflow-tpl-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 5px;
+  border: 1px solid var(--eflow-border, #d7dfdf);
+  background: var(--eflow-canvas, #f4f7f7);
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--eflow-text-secondary, #526161);
+}
+
+.eflow-tpl-tag--accent {
+  border-color: color-mix(in srgb, var(--eflow-primary, #0c6f6b) 28%, transparent);
+  background: color-mix(in srgb, var(--eflow-selected, #d9f0ed) 55%, var(--eflow-surface, #ffffff));
+  color: var(--eflow-primary, #0c6f6b);
+}
+
+.eflow-tpl-groups-line {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--eflow-text-secondary, #526161);
+  line-height: 1.45;
+}
+
+.eflow-tpl-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.eflow-tpl-editor {
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid var(--eflow-border, #d7dfdf);
+  border-radius: var(--eflow-radius-surface, 10px);
+  background: var(--eflow-surface, #ffffff);
+}
+
+.eflow-tpl-field {
+  display: grid;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--eflow-text, #182626);
+}
+
+.eflow-tpl-input {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--eflow-border, #d7dfdf);
+  border-radius: 6px;
+  background: var(--eflow-surface, #ffffff);
+  font-size: 13.5px;
+  font-weight: 400;
+  color: var(--eflow-text, #182626);
+}
+
+.eflow-tpl-input:focus {
+  outline: none;
+  border-color: var(--eflow-primary, #0c6f6b);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--eflow-primary, #0c6f6b) 16%, transparent);
+}
+
+.eflow-tpl-group-box {
+  display: grid;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--eflow-border, #d7dfdf);
+  border-radius: 8px;
+  background: var(--eflow-canvas, #f4f7f7);
+}
+
+.eflow-tpl-group-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.eflow-tpl-group-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--eflow-selected, #d9f0ed) 65%, var(--eflow-surface, #ffffff));
+  color: var(--eflow-primary, #0c6f6b);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.eflow-tpl-task-card {
+  display: grid;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--eflow-border, #d7dfdf);
+  border-radius: 7px;
+  background: var(--eflow-surface, #ffffff);
+}
+
+.eflow-tpl-subtasks {
+  display: grid;
+  gap: 6px;
+  padding-left: 12px;
+  border-left: 2px solid color-mix(in srgb, var(--eflow-primary, #0c6f6b) 25%, var(--eflow-border, #d7dfdf));
+}
+
+.eflow-tpl-subtask-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.eflow-tpl-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.eflow-tpl-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--eflow-primary, #0c6f6b);
+  cursor: pointer;
+}
+
+.eflow-tpl-link-btn:hover:not(:disabled) {
+  background: var(--eflow-subtle, #f1f7f4);
+}
+
+.eflow-tpl-link-btn--danger {
+  color: #b42318;
+}
+
+.eflow-tpl-link-btn--danger:hover:not(:disabled) {
+  background: #fef3f2;
+}

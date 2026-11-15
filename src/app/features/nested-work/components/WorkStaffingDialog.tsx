@@ -40,6 +40,7 @@ function ControlledWorkStaffingDialog(props:Omit<WorkStaffingDialogProps,'contro
  return <WorkStaffingDialogContent key={`${controller.actorId}:${controller.rootId}:${props.nodeId}`} {...props} controller={controller}/>;
 }
 function WorkStaffingDialogContent({controller,nodeId,readOnly=false,executionBlocked=false,contributorsOnly=false,preselectedLeadId,onClose,onChanged}:Omit<WorkStaffingDialogProps,'controller'> & {controller:WorkStaffingController}) {
+ const {userProfile}=useAuth();
  const data=controller.data,context:WorkCapabilityContext={actorId:controller.actorId,rootId:controller.rootId,projectId:data.root.project,officeId:data.root.office,kind:data.root.kind,revision:data.revision,readOnly,executionBlocked};
  const [captured]=useState(()=>{
   const staff=captureStaffingBaseline(data,nodeId,context),editor=captureWorkEditorBaseline(data,{command:nodeId?'staff':'root_lead',node:data.nodes.find(node=>node.id===nodeId),root:!nodeId},context.actorId,crypto.randomUUID());
@@ -52,6 +53,7 @@ function WorkStaffingDialogContent({controller,nodeId,readOnly=false,executionBl
  const request=useRef<WorkRequest|undefined>(recovery.initial?.request),confirmed=useRef(false),active=useRef(true),closed=useRef(false);
  useEffect(()=>{active.current=true;return()=>{active.current=false;};},[]);
  const caps=staffingCapabilities(data,nodeId,context,contributorsOnly?undefined:lead);
+ const selfLeadReviewerRisk=!nodeId&&data.root.kind==='office'&&userProfile?.role==='head'&&Boolean(lead)&&lead===context.actorId;
  // A quiet in-flight read does not invalidate an already verified response.
  // Preserve the existing save/read generation race; SQL rechecks the revision.
  const draftError=controller.verificationFailed?'Verify current work access before saving.':contributorsOnly&&lead!==baseline.leadId?'Lead appointments use the separate appointment action.':staffingDraftError(data,context,baseline,lead,workers,!!request.current);
@@ -80,6 +82,7 @@ function WorkStaffingDialogContent({controller,nodeId,readOnly=false,executionBl
      if(impact.allowed&&impact.affected_appointment_count!==cleared.length)throw new Error('Appointments changed while checking impact. Reload and review current work again.');
      return <div>
      {displayedWorkContributorIds(current.lead,retained).length>0&&<p>Also on this task: {displayedWorkContributorIds(current.lead,retained).map(id=>resolveWorkPersonName(snapshot.people,id)).join(', ')}.</p>}
+     {!nodeId&&snapshot.root.kind==='office'&&userProfile?.role==='head'&&current.lead===context.actorId&&<p className="text-amber-800">Warning: assigning yourself as Task Lead while serving as Office Head prevents self-review. Ensure an independent Project Lead is assigned, or choose another Task Lead before submission.</p>}
      {cleared.length>0&&<>
       <p>{cleared.length} subtask{cleared.length===1?'':'s'} will need a new lead:</p>
       <ul>{cleared.map(node=><li key={node.id}>{staffingNodePath(snapshot,node.id)} — {resolveWorkPersonName(snapshot.people,node.lead_id!)}{node.status==='completed'?' (completed work is kept)':''}</li>)}</ul>
@@ -129,6 +132,7 @@ function WorkStaffingDialogContent({controller,nodeId,readOnly=false,executionBl
    <WorkPeoplePicker people={data.people} lead={lead||''} selected={workers} onLead={setLead} onSelected={setWorkers}
     appointmentCapability={contributorsOnly?{allowed:false,reason_code:'read_only',disabledReason:'Change the lead from the Lead menu.'}:caps.appointment} contributorCapability={caps.contributors} disabled={locked} disabledReason={lockReason}
     invite={!readOnly&&!locked?{project:data.root.project,office:data.root.office,root:controller.rootId,node:nodeId||undefined,canRequest:scopedInvitationRequestAllowed(data,nodeId,context)}:undefined}/>
+   {selfLeadReviewerRisk&&<div role="status" className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-xs text-amber-950">Heads up: assigning yourself as both Office Head and Task Lead means you cannot review your own task submission. Unless an independent Project Lead is assigned on the project, final review submission will be blocked.</div>}
    {draftError&&!busy&&<p role="alert">{draftError}</p>}
    {error&&<p role="alert">{error}{request.current&&!saved?' Press Try again to check and finish the last save.':''}</p>}
    {saved&&<p role="status">People saved.</p>}

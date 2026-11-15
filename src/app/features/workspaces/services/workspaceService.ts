@@ -1,4 +1,5 @@
 import { supabase } from '../../../../lib/supabase';
+import { userFacingError } from '../../../shared/userFacingError';
 import type { PersonalCommand, PersonalProject, PersonalSnapshot, Workspace, WorkspaceSnapshot } from '../types';
 
 export class WorkspaceApiUnavailable extends Error {}
@@ -6,7 +7,7 @@ async function rpc<T>(name: string, args?: Record<string, unknown>): Promise<T> 
   const { data, error, status } = await supabase.rpc(name, args);
   if (error) {
     if (['PGRST202','42883'].includes(error.code)) throw new WorkspaceApiUnavailable('Personal workspaces are awaiting the R3 server migration.');
-    throw Object.assign(new Error(error.message || 'Could not load workspace.'), { code: error.code, status });
+    throw Object.assign(new Error(userFacingError(error, 'Could not load workspace.')), { code: error.code, status });
   }
   return data as T;
 }

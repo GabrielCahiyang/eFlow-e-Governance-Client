@@ -24,7 +24,7 @@ export function ProjectHeader({ project, organizations, profiles=[], metrics, ed
       <div className="eflow-project-identity__identity">
         <p className="eflow-project-identity__office">{organization?.name || 'Office not set'}</p>
         {!hideTitle && <h1 aria-label={project.title}>{onTitleChange ? <InlineEditableText revision={project.metadataVersion||project.updatedAt} value={project.title} label="project name" disabled={!editable || closed} onSave={saveTitle} /> : project.title}</h1>}
-        <div className="eflow-project-identity__signals"><ProjectLifecycleLabel status={project.status} />{metrics && <ProjectScheduleLabel health={metrics.scheduleHealth} empty={!project.targetDate && !metrics.nextDeadline} />}</div>
+        <div className="eflow-project-identity__signals"><ProjectLifecycleLabel status={project.status} />{!closed && metrics && <ProjectScheduleLabel health={metrics.scheduleHealth} empty={!project.targetDate && !metrics.nextDeadline} />}</div>
         {metrics && <p>{metrics.taskCompleted} / {metrics.taskTotal} tasks completed · {metrics.progress}% complete{metrics.overdue ? ` · ${metrics.overdue} overdue` : ''}</p>}
         {project.projectLeadId&&<p>Project lead: <strong>{profiles.find(person=>person.id===project.projectLeadId)?.full_name||'Assigned project lead'}</strong></p>}
         {participants}

@@ -124,6 +124,7 @@ async def _proxy(
     payload: dict[str, Any] | None = None,
     timeout_seconds: float = 30,
     session_token: str | None = None,
+    offline_detail: str = "The local AI service is offline.",
 ) -> Response:
     try:
         async with httpx.AsyncClient(
@@ -136,7 +137,7 @@ async def _proxy(
                 headers={**_internal_headers(user), **({'X-eFlow-Session': session_token} if session_token else {})},
             )
     except httpx.ConnectError as exc:
-        raise HTTPException(status_code=503, detail="The local AI service is offline.") from exc
+        raise HTTPException(status_code=503, detail=offline_detail) from exc
     except httpx.TimeoutException as exc:
         raise HTTPException(status_code=504, detail="The local AI request timed out.") from exc
     except httpx.HTTPError as exc:

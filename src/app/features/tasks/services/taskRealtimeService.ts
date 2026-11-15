@@ -111,7 +111,7 @@ export const seedTasksIfEmpty = async () => {
 export const subscribeToTasks = (callback: (tasks: Task[]) => void, onError?: (error: Error) => void) => {
   taskListeners.add(callback);
   stopWorkChanges??=subscribeWorkChanges(()=>void notifyTaskListeners());
-  if(!accessRefreshTimer)accessRefreshTimer=setInterval(()=>{if(isDocumentVisible())void notifyTaskListeners();},15_000);
+  if(!accessRefreshTimer)accessRefreshTimer=setInterval(()=>{if(isDocumentVisible())void notifyTaskListeners();},45_000);
   if (onError) taskErrorListeners.add(onError);
   if (taskCache) callback(taskCache);
   else void notifyTaskListeners();

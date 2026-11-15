@@ -1,4 +1,4 @@
-import {useEffect,useRef,useState} from 'react';
+import {useEffect,useRef,useState,type MutableRefObject} from 'react';
 import {Wallet,Plus,X} from 'lucide-react';
 import {MoneyInput} from '../../../components/ui/MoneyInput';
 import {useProjectFlow} from '../useProjectFlow';
@@ -7,18 +7,59 @@ import {FlowError} from './FlowError';
 import {availableTaskAccounts,taskFundingTotal} from '../taskFundingAccounts';
 import {fundingEntryError} from '../fundingMessages';
 import '../projectSetup.css';
-export function TaskProjectFunding({projectId,taskId,funded,onChanged,onBusyChange}:{projectId:string;taskId:string;funded:boolean;onChanged:()=>Promise<void>;onBusyChange?:(busy:boolean)=>void}){
+
+export interface TaskFundingActionState {
+ label: string;
+ pending: boolean;
+}
+
+export function TaskProjectFunding({
+ projectId,
+ taskId,
+ funded,
+ variant='panel',
+ submitRef,
+ onActionState,
+ onChanged,
+ onBusyChange,
+}:{
+ projectId:string;
+ taskId:string;
+ funded:boolean;
+ variant?:'panel'|'modal';
+ submitRef?:MutableRefObject<(() => void) | null>;
+ onActionState?:(state:TaskFundingActionState | null) => void;
+ onChanged:()=>Promise<void>;
+ onBusyChange?:(busy:boolean)=>void;
+}){
  const flow=useProjectFlow(projectId),[lines,setLines]=useState([{sourceId:'',amount:0}]),[reason,setReason]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState('');const key=useRef(crypto.randomUUID()),pending=useRef(false),attempt=useRef<{lines:{sourceId:string;amount:number}[];reason:string}|null>(null);const [uncertain,setUncertain]=useState(false);
- useEffect(()=>{onBusyChange?.(busy||uncertain);return()=>onBusyChange?.(false);},[busy,uncertain,onBusyChange]);
- if(!flow.data)return <FlowError error={flow.error}/>;
- if(flow.data.project.funding_not_required)return <p>Funding not required</p>;
- if((funded&&!flow.data.canExtendTaskFunding)||!flow.data.canAllocate||['completed','archived'].includes(flow.data.project.status))return null;
  const data=flow.data;
- const sources=availableTaskAccounts(data,taskId);
+ const sources=data?availableTaskAccounts(data,taskId):[];
+ const blockedByState=!data||data.project.funding_not_required||(funded&&!data.canExtendTaskFunding)||!data.canAllocate||['completed','archived'].includes(data.project.status);
+ const exhaustedInModal=variant==='modal'&&!sources.length;
+ const formVisible=!blockedByState&&!exhaustedInModal;
+ const submitLabel=uncertain?'Verify saved task allocation':busy?'Saving…':funded?'Add to task budget':'Allocate task budget';
+
+ useEffect(()=>{onBusyChange?.(busy||uncertain);return()=>onBusyChange?.(false);},[busy,uncertain,onBusyChange]);
+ useEffect(()=>{
+  if(submitRef) submitRef.current=formVisible?()=>{void save();}:null;
+ });
+ useEffect(()=>{
+  if(!onActionState)return;
+  onActionState(formVisible?{label:submitLabel,pending:busy}:null);
+  return()=>onActionState(null);
+ },[onActionState,formVisible,submitLabel,busy]);
+
+ if(!data)return <FlowError error={flow.error}/>;
+ if(data.project.funding_not_required)return <p>Funding not required</p>;
+ if((funded&&!data.canExtendTaskFunding)||!data.canAllocate||['completed','archived'].includes(data.project.status))return null;
+ if(exhaustedInModal){
+  return <p className="pf-task-budget-note">{funded?'All authorized project funding sources available for this task are already allocated above.':'No project-funded accounts have available balance for this task yet.'}</p>;
+ }
  const existing=taskFundingTotal((data.taskFunding||[]).filter(line=>line.taskId===taskId));
  const added=taskFundingTotal(lines);
  async function save(){
-  if(pending.current)return;pending.current=true;setBusy(true);setError('');
+  if(pending.current||!data)return;pending.current=true;setBusy(true);setError('');
   try{
    if(!attempt.current){const issue=fundingEntryError(lines.map(line=>({partitionId:line.sourceId,amount:line.amount})),sources.map(source=>({id:source.id,name:source.name,year:source.fiscal_year,available:source.available})),reason);if(issue)throw new Error(issue);if(new Set(lines.map(line=>sources.find(source=>source.id===line.sourceId)?.fiscal_year)).size>1)throw new Error('Choose accounts from the same fiscal year.');}
    attempt.current??={lines:lines.map(line=>({...line})),reason:reason.trim()};
@@ -28,7 +69,7 @@ export function TaskProjectFunding({projectId,taskId,funded,onChanged,onBusyChan
   }catch(e){setError(e instanceof Error?e.message:'Task allocation could not be saved.');}finally{pending.current=false;setBusy(false);}
  }
 
- return <section className="pf-panel pf-task-accounts" aria-label="Allocate task budget">
+ return <section className={variant==='modal'?'pf-task-accounts pf-task-accounts--modal':'pf-panel pf-task-accounts'} aria-label="Allocate task budget">
   <header><div><h3><Wallet size={20}/>{funded?'Add accounts to this task':'Task budget accounts'}</h3><p>Use one account, or split the task budget across several accounts.</p></div><div className="pf-task-accounts__balance"><small>Project funds left</small><strong>₱{data.unallocated.toLocaleString('en-PH')}</strong></div></header>
   {!sources.length&&<p>No other project-funded accounts are available for this task.</p>}
   <fieldset disabled={busy||uncertain||!data.ready||!sources.length} className="space-y-3">
@@ -40,9 +81,9 @@ export function TaskProjectFunding({projectId,taskId,funded,onChanged,onBusyChan
    <button type="button" className="pf-task-accounts__add" disabled={lines.length>=sources.length} onClick={()=>setLines(rows=>rows.length>=sources.length?rows:[...rows,{sourceId:'',amount:0}])}><Plus size={16}/>Add another account</button>
    <div className="pf-task-accounts__totals">{funded&&<div><span>Already allocated</span><strong>₱{existing.toLocaleString('en-PH')}</strong></div>}<div><span>{funded?'Adding now':'Task budget'}</span><strong>₱{added.toLocaleString('en-PH')}</strong></div>{funded&&<div><span>New task total</span><strong>₱{(existing+added).toLocaleString('en-PH')}</strong></div>}</div>
    <label>Allocation reason<textarea value={reason} maxLength={3000} onChange={e=>setReason(e.target.value)}/></label>
-   <button type="button" className="pf-primary" onClick={()=>void save()}>{busy?'Saving…':funded?'Add to task budget':'Allocate task budget'}</button>
+   {!onActionState&&<button type="button" className="pf-primary" onClick={()=>void save()}>{busy?'Saving…':funded?'Add to task budget':'Allocate task budget'}</button>}
   </fieldset>
-  {uncertain&&<button type="button" className="pf-primary" disabled={busy} onClick={()=>void save()}>Verify saved task allocation</button>}
+  {!onActionState&&uncertain&&<button type="button" className="pf-primary" disabled={busy} onClick={()=>void save()}>Verify saved task allocation</button>}
   <FlowError error={error}/>
  </section>;
 }

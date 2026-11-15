@@ -52,3 +52,19 @@ export function isLiquidationCurrentlyOverdue(
 ) {
   return Boolean(request?.liquidationDueAt && now > request.liquidationDueAt);
 }
+
+export function formatFundingRequestCode(requestNumber?: number | null): string {
+  return `FR-${String(requestNumber || 0).padStart(5, "0")}`;
+}
+
+export function formatEvidenceCount(count: number): string {
+  return `${count} evidence record${count === 1 ? "" : "s"}`;
+}
+
+export function formatJournalMemoForDisplay(memo?: string | null): string {
+  if (!memo) return "";
+  return memo.replace(
+    /^Release to [0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12} for /i,
+    "Release to assigned recipient for ",
+  );
+}

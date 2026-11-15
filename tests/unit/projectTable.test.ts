@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { visibleProjectTasks, tasksInGroup, groupSummary, canEditProjectTask, inlineStatusOptions, dependencyWouldCycle } from '../../src/app/features/project-table/selectors';
+import { visibleProjectTasks, tasksInGroup, visibleProjectGroups, groupSummary, canEditProjectTask, inlineStatusOptions, dependencyWouldCycle } from '../../src/app/features/project-table/selectors';
 import type { Task } from '../../src/app/features/tasks';
 const task = (id: string, patch: Partial<Task> = {}): Task => ({ id, title: id, status: 'todo', createdAt: 1, updatedAt: 1, orgId: 'office', ...patch });
 const group = { id: 'group', projectId: 'project', title: 'To do', color: '#087f8c', position: 0, isDefault: true };
@@ -8,6 +8,12 @@ describe('Project table over canonical work', () => {
     const tasks = [task('legacy'), task('same', { groupId: 'group' }), task('other', { groupId: 'other' })];
     expect(tasksInGroup(tasks, group).map(t => t.id)).toEqual(['legacy', 'same']);
     expect(tasksInGroup(tasks, { ...group, isDefault: false }).map(t => t.id)).toEqual(['same']);
+  });
+  it('hides empty default To do group once another group contains tasks', () => {
+    const planning = { ...group, id: 'planning', title: 'Planning', position: 1, isDefault: false };
+    expect(visibleProjectGroups([group, planning], [task('t1', { groupId: 'planning' })]).map(g => g.id)).toEqual(['planning']);
+    expect(visibleProjectGroups([group, planning], [task('t1', { groupId: 'group' }), task('t2', { groupId: 'planning' })]).map(g => g.id)).toEqual(['group', 'planning']);
+    expect(visibleProjectGroups([group, planning], []).map(g => g.id)).toEqual(['group', 'planning']);
   });
   it('combines search, owner, status and archived filtering without mutating the source', () => {
     const tasks = [task('a', { title: 'Budget review', assigneeId: 'member' }), task('b', { title: 'Budget review', archivedAt: 2 }), task('c', { title: 'Budget review', status: 'completed' })];

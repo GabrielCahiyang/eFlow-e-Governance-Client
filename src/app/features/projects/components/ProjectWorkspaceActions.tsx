@@ -29,6 +29,7 @@ export function ProjectWorkspaceActions({ canCreate, disabledReason, onCreate, o
     <button type="button" className="eflow-project-view-trigger" onClick={onAllProjects}>All projects</button>
     <button type="button" className="eflow-project-view-trigger" onClick={onSavedPlans}>Saved work plans</button>
     <button type="button" className="eflow-project-view-trigger" onClick={onReviewPlans}>Proposal review</button>
+    <button type="button" className="eflow-project-view-trigger" onClick={() => void requestNavigation(onTemplates)}>Templates</button>
     {departmentFilter && <label>Lead office <select aria-label="Filter plans and projects by office" value={departmentFilter.value} onChange={event => departmentFilter.onChange(event.target.value)}>
       {departmentFilter.options.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
     </select></label>}

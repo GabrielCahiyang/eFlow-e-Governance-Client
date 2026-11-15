@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useGeneralJournal } from "../hooks/useGeneralJournal";
+import { getCurrentFiscalYear } from "../constants";
+import { formatJournalMemoForDisplay } from "../selectors/cashWorkflowRules";
 import { getJournalTotals } from "../selectors/journalSelectors";
 import { peso } from "./budgetUi";
 import { JournalAdjustmentDialog } from "./JournalAdjustmentDialog";
@@ -51,7 +53,7 @@ function StandaloneGeneralJournal(props: JournalWorkspaceProps) {
 }
 function GeneralJournalView({
   orgId = "",
-  fiscalYear = new Date().getFullYear(),
+  fiscalYear = getCurrentFiscalYear(),
   fiscalBudgetId,
   approvedBudget,
   availableBudget,
@@ -291,7 +293,7 @@ function GeneralJournalView({
                         <td className="max-w-[260px] px-4 py-3 text-[14px] text-neutral-500">
                           {index === 0 && (
                             <>
-                              <div className="line-clamp-2 break-words">{entry.memo}</div>
+                              <div className="line-clamp-2 break-words">{formatJournalMemoForDisplay(entry.memo)}</div>
                               <div className="mt-1">
                                 {entry.postedByName || "Automated posting"}
                               </div>

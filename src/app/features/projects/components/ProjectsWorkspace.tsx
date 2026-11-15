@@ -6,6 +6,8 @@ import { requestNavigation } from '../../../shared/navigationGuard';
 import { writeNavigationLocation } from '../../navigation';
 import { NAVIGATION_LOCATION_EVENT, pushNavigationHistory, replaceNavigationHistory } from '../../../shared/navigationHistory';
 import { FeedbackState } from '../../../components/ui/FeedbackState';
+import { ProjectViewLoading } from '../../../components/workflow/ProjectWorkspaceSkeleton';
+import { userFacingError } from '../../../shared/userFacingError';
 import { useProjectLocation } from '../hooks/useProjectLocation';
 import { readProjectPlanningView, useProjectPlanningLocation } from '../hooks/useProjectPlanningLocation';
 import { CitywidePlansOverview } from "./CitywidePlansOverview";
@@ -366,21 +368,10 @@ export function ProjectsWorkspace({
 
   if (loading)
     return (
-      <div
-        className="eflow-projects-surface eflow-projects-loading grid min-h-[360px] grid-cols-1 gap-4 p-4"
-        aria-live="polite"
-        role="status"
-      >
-        <div className="space-y-4 rounded-2xl border border-neutral-200 bg-white p-5">
-          <Skeleton type="text" width={220} />
-          <Skeleton type="text" width={320} />
-          <div className="grid gap-3 sm:grid-cols-3">
-            <Skeleton type="rectangle" size="custom" height={78} fullWidth />
-            <Skeleton type="rectangle" size="custom" height={78} fullWidth />
-            <Skeleton type="rectangle" size="custom" height={78} fullWidth />
-          </div>
-          <Skeleton type="rectangle" size="custom" height={240} fullWidth />
-        </div>
+      <div className="eflow-projects-surface eflow-projects-loading">
+        <ProjectViewLoading
+          view={activeTab.type === "project" ? projectWorkspaceTab : "index"}
+        />
       </div>
     );
 
@@ -476,7 +467,7 @@ export function ProjectsWorkspace({
                   role="alert"
                   className="rounded-xl border border-red-200 bg-red-50 p-4 text-xs text-red-700"
                 >
-                  {collaboration.error}
+                  {userFacingError(collaboration.error, 'Could not load work plans.')}
                   <button type="button" className="eflow-project-view-trigger" onClick={() => { void collaboration.refresh().catch(() => {}); }}>Retry work plans</button>
                 </div>
               ) : (
@@ -493,7 +484,7 @@ export function ProjectsWorkspace({
             ) : scope.includeAllAccessibleWork ? (
               <CitywidePlansOverview projects={inScope} drafts={approvalPortfolioDrafts} organizations={orgs} profiles={profiles} onOpenProject={openProject} onOpenPlan={(id) => openProposal(id, "approvals")} />
             ) : (
-              projectsError ? <FeedbackState tone="error" title="Projects could not load">{projectsError.message}<button type="button" onClick={retryProjects}>Retry projects</button></FeedbackState> :
+              projectsError ? <FeedbackState tone="error" title="Projects could not load">{userFacingError(projectsError, 'Could not load projects.')}<button type="button" onClick={retryProjects}>Retry projects</button></FeedbackState> :
               <ProjectIndex projects={inScope} tasks={tasks} organizations={orgs} profiles={profiles}
                 onOpen={id => { void requestNavigation(() => openProject(id, 'push')); }}
                 onOpenProposal={id => { void requestNavigation(() => openProposal(id)); }}
@@ -527,7 +518,6 @@ export function ProjectsWorkspace({
           open={Boolean(archiveTarget)}
           onClose={() => setArchiveTarget(null)}
           onSuccess={() => {
-            if (!archiveTarget.isArchived) closeTab(`project-${archiveTarget.id}`);
             setArchiveTarget(null);
             toast(archiveTarget.isArchived ? "Project restored." : "Project archived. History remains available.", "success");
           }}

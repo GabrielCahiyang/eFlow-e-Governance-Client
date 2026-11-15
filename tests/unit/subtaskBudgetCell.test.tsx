@@ -31,6 +31,7 @@ vi.mock('../../src/app/features/budget/hooks/useDepartmentBudget', () => ({
   }),
 }));
 vi.mock('../../src/app/features/budget/services/budgetService', () => ({
+  SUBTASK_BUDGET_CHANGED_EVENT: 'eflow:subtask-budget-changed',
   fetchTaskFundingContext: state.fetchContext,
   fetchSubtaskAllocationContext: state.fetchAllocation,
   setSubtaskBudgetCap: state.setCap,
@@ -145,5 +146,13 @@ describe('ProjectSubtaskBudgetCell', () => {
     );
 
     expect(screen.getByRole('button', { name: 'Budget for Buy materials' }).textContent).toContain('₱250');
+  });
+
+  it('synchronizes the cell immediately when SUBTASK_BUDGET_CHANGED_EVENT fires', async () => {
+    render(<ProjectSubtaskBudgetCell task={task} subtaskId="sub-1" subtaskTitle="Buy materials" />);
+    const button = screen.getByRole('button', { name: 'Budget for Buy materials' });
+    expect(button.textContent).toContain('Open budget');
+    window.dispatchEvent(new CustomEvent('eflow:subtask-budget-changed', { detail: { taskId: 'task-1', subtaskId: 'sub-1', amount: 800 } }));
+    await waitFor(() => expect(button.textContent).toContain('₱800'));
   });
 });

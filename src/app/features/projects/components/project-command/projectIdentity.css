@@ -1,4 +1,4 @@
-.eflow-project-identity { padding: 4px 0 12px; color: var(--eflow-text); }
+.eflow-project-identity { padding: 14px 16px; color: var(--eflow-text); background: var(--eflow-surface); border: 1px solid var(--eflow-border); border-radius: var(--eflow-radius-md, 10px); }
 .eflow-project-identity__top { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 16px; justify-content: space-between; }
 .eflow-project-identity__identity { min-width: 0; flex: 1 1 300px; }
 .eflow-project-identity h1 { font-size: 26px; line-height: 1.25; font-weight: 600; overflow-wrap: anywhere; margin: 5px 0 8px; }

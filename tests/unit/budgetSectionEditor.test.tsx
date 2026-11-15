@@ -22,3 +22,17 @@ it("adds, renames, changes, breaks down and deletes custom sections with an imme
   fireEvent.click(screen.getByText("Delete account and breakdown"));
   expect(screen.getByLabelText("Total Budget").textContent).toBe("0");
 });
+
+it("renders read-only locked accounts in compact table rows without edit controls", () => {
+  const { container } = render(
+    <BudgetSectionEditor
+      disabled={true}
+      sections={[{ id: "ops", name: "Operations", amount: 50000, heldAmount: 0, position: 0 }]}
+      onChange={() => {}}
+    />,
+  );
+  expect(container.querySelector(".eflow-budget-ledger--readonly")).toBeTruthy();
+  expect((screen.getByDisplayValue("Operations") as HTMLInputElement).disabled).toBe(true);
+  expect(screen.queryByText("Add account")).toBeNull();
+  expect(screen.queryByText("Add breakdown")).toBeNull();
+});

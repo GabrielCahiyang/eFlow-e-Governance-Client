@@ -1,5 +1,5 @@
 import type { DepartmentBudgetBundle, PettyCashRequest, TaskCashBlocker } from "../types";
-import { isLiquidationLate } from "./cashWorkflowRules";
+import { getPhilippineCalendarDate, isLiquidationLate } from "./cashWorkflowRules";
 
 // Terminal requests no longer need to appear in Cash clearance.
 export const CASH_COMPLETION_TERMINAL_STATES = ["settled", "rejected", "cancelled"] as const;
@@ -22,7 +22,7 @@ export function getTaskCashBlockers(
   taskId: string,
   data: ClearanceData,
   fiscalYears: Map<string, number> = new Map(),
-  today = new Date().toISOString().slice(0, 10),
+  today = getPhilippineCalendarDate(),
 ): TaskCashBlocker[] {
   return data.requests
     .filter((request) => request.taskId === taskId && !CASH_COMPLETION_TERMINAL_STATES.some((status) => status === request.status))

@@ -26,12 +26,15 @@ registerAuthCacheReset(() => {
   projectRealtimeChannel = null;
 });
 
+export const PROJECTS_BROADCAST_EVENT = 'eflow:projects-broadcast';
+
 function broadcastProjects(projects: Project[]) {
   projectCache = projects;
   projectCacheUpdatedAt = Date.now();
   projectListeners.forEach((callback) => {
     try { callback(projects); } catch (error) { console.error(error); }
   });
+  if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent<Project[]>(PROJECTS_BROADCAST_EVENT, { detail: projects }));
 }
 
 async function fetchCompleteProjects():Promise<Project[]>{

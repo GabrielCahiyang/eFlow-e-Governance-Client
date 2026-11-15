@@ -12,7 +12,7 @@ import type { Task } from '../../tasks';
 import { useDepartmentBudget } from '../hooks/useDepartmentBudget';
 import { useTaskFundingContext } from '../hooks/useTaskFundingContext';
 import { getCurrentFiscalYear } from '../constants';
-import { removeSubtaskBudgetCap, setSubtaskBudgetCap } from '../services/budgetService';
+import { removeSubtaskBudgetCap, setSubtaskBudgetCap, SUBTASK_BUDGET_CHANGED_EVENT } from '../services/budgetService';
 import { DirectWorkFunding } from './DirectWorkFunding';
 import { peso } from './budgetUi';
 import { ProjectActualExpensesCell } from './ProjectActualExpenses';
@@ -91,6 +91,18 @@ export function ProjectSubtaskBudgetCell({
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [savedCap, setSavedCap] = useState<number>();
+
+  useEffect(() => {
+    if (!task?.id) return;
+    const syncCap = (event: Event) => {
+      const detail = (event as CustomEvent<{ taskId?: string; subtaskId?: string; amount?: number }>).detail;
+      if (!detail || (detail.taskId && detail.taskId !== task.id)) return;
+      if (detail.subtaskId === subtaskId && typeof detail.amount === 'number') setSavedCap(detail.amount);
+      else if (!detail.subtaskId) setSavedCap(undefined);
+    };
+    window.addEventListener(SUBTASK_BUDGET_CHANGED_EVENT, syncCap);
+    return () => window.removeEventListener(SUBTASK_BUDGET_CHANGED_EVENT, syncCap);
+  }, [subtaskId, task?.id]);
 
   if (isPersonal) return <span>—</span>;
   const budget = (task && (Object.values(budgets).find(item => item.allocations.some(a => a.taskId === task.id && a.status === 'approved')) || budgets[task.orgId || ''])) || undefined;
@@ -293,7 +305,10 @@ function SubtaskBudgetModalContent({
       },
       operation: () => removeSubtaskBudgetCap({ capId: cap.id, reason: removalReason, idempotencyKey: crypto.randomUUID() }),
       success: 'Unused cap returned to the task pool.',
-      refresh: refreshAll,
+      refresh: async () => {
+        onCapRead(0);
+        await refreshAll();
+      },
     });
   }
 

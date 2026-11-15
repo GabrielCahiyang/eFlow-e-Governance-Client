@@ -3,6 +3,7 @@ import { ArrowLeft, CalendarDays, CheckCheck, ChevronDown, FileText, LockKeyhole
 import { Button } from '../../../components/ui/button';
 import { formatManilaDate, formatManilaInstant } from '../../../shared/calendarDisplay';
 import type { GeneralJournalEntry } from '../types';
+import { formatJournalMemoForDisplay } from '../selectors/cashWorkflowRules';
 import { peso } from './budgetUi';
 import './journalEntry.css';
 
@@ -42,7 +43,7 @@ export function JournalEntryPage({ entry, onBack }: { entry: GeneralJournalEntry
     </div>
     <div className="journal-entry__memo">
       <h3>Memo</h3>
-      <p id={memoId}>{!longMemo || memoExpanded ? entry.memo || 'No memo provided.' : `${entry.memo.slice(0, 180).trimEnd()}…`}</p>
+      <p id={memoId}>{!longMemo || memoExpanded ? formatJournalMemoForDisplay(entry.memo) || 'No memo provided.' : `${formatJournalMemoForDisplay(entry.memo).slice(0, 180).trimEnd()}…`}</p>
       {longMemo && <button type="button" aria-expanded={memoExpanded} aria-controls={memoId} onClick={() => setMemoExpanded(value => !value)}>{memoExpanded ? 'Show less' : 'Read full memo'}<ChevronDown size={14} aria-hidden="true" className={memoExpanded ? 'rotate-180' : ''} /></button>}
     </div>
     <div role="region" aria-label="Complete journal entry lines" className="journal-entry__lines">

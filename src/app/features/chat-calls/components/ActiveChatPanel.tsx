@@ -120,7 +120,7 @@ export function ActiveChatPanel({ conversation, userId, userName, targetMessageI
       setDraft({ text: '', mentions: [] });
       setReply(undefined);
       nearBottom.current = true;
-      await thread.refresh();
+      await Promise.all([thread.refresh(), refreshList()]);
     } catch (failure) {
       if (uploaded) void removeChatImage(uploaded).catch(() => {});
       setError(errorMessage(failure, 'Could not send your message.'));
@@ -129,7 +129,7 @@ export function ActiveChatPanel({ conversation, userId, userName, targetMessageI
 
   async function run(action: () => Promise<void>) {
     setError('');
-    try { await action(); await thread.refresh(); }
+    try { await action(); await Promise.all([thread.refresh(), refreshList()]); }
     catch (failure) { setError(errorMessage(failure, 'Could not update this message.')); }
   }
 

@@ -42,7 +42,7 @@ function BudgetReviewInboxSkeleton() {
               <span className={`block h-4 w-48 ${pulse}`} />
               <span className={`block h-3 w-72 ${pulse}`} />
             </div>
-            <span className={`h-6 w-20 rounded-full ${pulse}`} />
+            <span className={`h-6 w-20 rounded-[5px] ${pulse}`} />
           </div>
           <div className="divide-y divide-neutral-100">
             {[0, 1, 2].map((row) => (
@@ -96,7 +96,7 @@ export function BudgetReviewInbox({
   const budget = useDepartmentBudget(resolvingFocus ? '' : orgId, fiscalYear);
   const independent = useIndependentReviews(budget);
   const currentUserId = userProfile?.id || "";
-  const isDepartmentApprover = ["head", "head"].includes(userProfile?.role || "");
+  const isDepartmentApprover = userProfile?.role === "head";
   const canSettle = userProfile?.role === "accounting_staff" && can("accounting.settle_liquidation");
   const canRelease = userProfile?.role === "accounting_staff" && can("accounting.release_cash");
   const counts = useMemo(() => ({

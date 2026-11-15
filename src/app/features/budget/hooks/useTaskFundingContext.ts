@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { SubtaskAllocationContext, TaskFundingContext } from "../types";
-import { fetchSubtaskAllocationContext, fetchTaskFundingContext } from "../services/budgetService";
+import { fetchSubtaskAllocationContext, fetchTaskFundingContext, SUBTASK_BUDGET_CHANGED_EVENT } from "../services/budgetService";
 
 export function useTaskFundingContext(taskId: string, subtaskId?: string, version = "", includeAllocation = false) {
   const scope = `${taskId}:${subtaskId ?? ""}:${includeAllocation}`;
@@ -11,7 +11,6 @@ export function useTaskFundingContext(taskId: string, subtaskId?: string, versio
 
   const refresh = useCallback(async () => {
     const run = ++generation.current;
-    setLoaded(previous => previous?.scope === scope ? {...previous, allocation: undefined} : undefined);
     if (!taskId) {
       setLoaded(undefined);
       setLoading(false);
@@ -37,10 +36,23 @@ export function useTaskFundingContext(taskId: string, subtaskId?: string, versio
     }
   }, [subtaskId, taskId, includeAllocation, scope]);
 
+  useEffect(() => () => {
+    generation.current++;
+  }, [scope]);
+
   useEffect(() => {
     void refresh();
-    return () => { generation.current++; };
   }, [refresh, version]);
+
+  useEffect(() => {
+    if (!taskId || typeof window === "undefined") return;
+    const onBudgetChanged = (event: Event) => {
+      const detail = (event as CustomEvent<{ taskId?: string }>).detail;
+      if (!detail?.taskId || detail.taskId === taskId) void refresh();
+    };
+    window.addEventListener(SUBTASK_BUDGET_CHANGED_EVENT, onBudgetChanged);
+    return () => window.removeEventListener(SUBTASK_BUDGET_CHANGED_EVENT, onBudgetChanged);
+  }, [refresh, taskId]);
 
   const current = loaded?.scope === scope ? loaded : undefined;
   return { context: current?.context ?? null, allocation: current?.allocation, loading, error, refresh };

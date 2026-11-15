@@ -61,4 +61,11 @@ describe('Phase 11 local table layout',()=>{
   fireEvent.click(screen.getByRole('button',{name:'Restore manual order'}));expect(change).toHaveBeenLastCalledWith({...filters,sort:'manual'});
   expect(screen.getByText(/appointed task lead/)).toBeTruthy();
  });
+ it('keeps Budget and Actual expenses visible by default and compact widths within 1080px for 1440px desktop viewports',()=>{
+  expect(COMPACT_HIDDEN_COLUMNS).not.toContain('budget');
+  expect(COMPACT_HIDDEN_COLUMNS).not.toContain('actualExpenses');
+  const visibleColumns=['owner','status','timeline','priority','budget','actualExpenses'] as const;
+  const totalWidth=40+COMPACT_COLUMN_WIDTHS.task+visibleColumns.reduce((sum,col)=>sum+COMPACT_COLUMN_WIDTHS[col],0)+40;
+  expect(totalWidth).toBeLessThanOrEqual(1080);
+ });
 });

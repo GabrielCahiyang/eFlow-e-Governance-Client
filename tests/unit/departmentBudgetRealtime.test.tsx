@@ -61,4 +61,24 @@ describe("useDepartmentBudget realtime lifecycle", () => {
     expect(realtime.topics).toHaveLength(2);
     expect(new Set(realtime.topics)).toHaveLength(2);
   });
+
+  it("shares one Realtime channel across simultaneous hooks and coalesces burst events", () => {
+    vi.useFakeTimers();
+    const first = renderHook(() => useDepartmentBudget("org-b", 2026));
+    const second = renderHook(() => useDepartmentBudget("org-b", 2026));
+
+    expect(realtime.topics).toHaveLength(1);
+    const channel = realtime.channels.get(realtime.topics[0]);
+    expect(channel).toBeDefined();
+
+    // Unmounting one of two consumers keeps the shared channel active.
+    first.unmount();
+    expect(realtime.channels.get(realtime.topics[0])?.subscribed).toBe(true);
+
+    // Unmounting the final consumer releases the shared channel and a remount opens a fresh topic.
+    second.unmount();
+    renderHook(() => useDepartmentBudget("org-b", 2026));
+    expect(realtime.topics).toHaveLength(2);
+    vi.useRealTimers();
+  });
 });

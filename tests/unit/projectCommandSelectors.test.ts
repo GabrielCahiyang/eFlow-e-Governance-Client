@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildProjectActivity, buildProjectCommandMetrics, buildProjectPortfolioSummary, buildProjectWorkGroups } from "../../src/app/features/projects/selectors/projectCommandSelectors";
+import { buildProjectActivity, buildProjectCommandMetrics, buildProjectPortfolioSummary, buildProjectWorkGroups, hasAssignedSubtaskWork } from "../../src/app/features/projects/selectors/projectCommandSelectors";
 import type { Project } from "../../src/app/features/projects/services/types";
 import type { Task } from "../../src/app/features/tasks";
 import type { TeamWorkflowFacts } from "../../src/app/features/team-management";
@@ -68,5 +68,19 @@ describe("Project Command Workspace selectors", () => {
     expect(groups[0].needsActivityAssignment).toBe(false);
     expect(groups[1].needsActivityAssignment).toBe(true);
     expect(groups[1].tasks.map((task) => task.id)).toEqual(["b"]);
+  });
+
+  it("recognizes subtask leads and contributors when another user leads the parent task", () => {
+    const subtasks = [
+      { taskId: "b", leadId: "subtask-lead", assignedTo: undefined, assignedToIds: [] },
+      { taskId: "b", leadId: undefined, assignedTo: "legacy-worker", assignedToIds: [] },
+      { taskId: "b", leadId: undefined, assignedTo: undefined, assignedToIds: ["contributor-1"] },
+      { taskId: "other-task", leadId: "outsider", assignedTo: undefined, assignedToIds: [] },
+    ];
+    expect(hasAssignedSubtaskWork(subtasks, "b", "subtask-lead")).toBe(true);
+    expect(hasAssignedSubtaskWork(subtasks, "b", "legacy-worker")).toBe(true);
+    expect(hasAssignedSubtaskWork(subtasks, "b", "contributor-1")).toBe(true);
+    expect(hasAssignedSubtaskWork(subtasks, "b", "outsider")).toBe(false);
+    expect(hasAssignedSubtaskWork(subtasks, "b", "")).toBe(false);
   });
 });

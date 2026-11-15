@@ -24,7 +24,7 @@ describe("schedule override confirmation", () => {
     render(<BudgetReleasesPanel data={bundle()} onChanged={vi.fn()} />);
     clickOverride();
     const dialog = screen.getByRole("dialog", { name: "Confirm schedule override?" });
-    expect(within(dialog).getByText("PC-00006 · ₱5,000.00")).toBeTruthy();
+    expect(within(dialog).getByText("FR-00006 · ₱5,000.00")).toBeTruthy();
     expect(within(dialog).getByText("Recipient: Gabriel Cahiyang")).toBeTruthy();
     expect(within(dialog).getByText("Original schedule: 2026-08-31")).toBeTruthy();
     expect(confirm().disabled).toBe(true);

@@ -52,4 +52,24 @@ describe("budget design-system presentation", () => {
     expect(taskBudgetDialog).toContain('!w-full !max-w-2xl');
     expect(taskBudgetDialog).not.toContain('w-full max-w-4xl');
   });
+
+  it("uses flat Vibe ledger rows without rounded-full pill clutter across Office Budget", () => {
+    const budgetSectionEditor = readFileSync("src/app/features/budget/components/BudgetSectionEditor.tsx", "utf8");
+    const operationalSignals = readFileSync("src/app/features/budget/components/BudgetOperationalSignals.tsx", "utf8");
+    const tabSkeleton = readFileSync("src/app/features/budget/components/OfficeBudgetTabSkeleton.tsx", "utf8");
+    const reviewInbox = readFileSync("src/app/features/budget/components/BudgetReviewInbox.tsx", "utf8");
+    const budgetViewCss = readFileSync("src/app/features/budget/budgetViewControl.css", "utf8");
+
+    expect(budgetSectionEditor).toContain("eflow-budget-ledger-row");
+    expect(budgetSectionEditor).not.toContain("eflow-budget-account-fields");
+    expect(readFileSync("src/app/features/budget/components/BudgetFundingHierarchy.tsx", "utf8")).toContain("eflow-budget-funding-task-row");
+    expect(readFileSync("src/app/features/budget/components/OfficeBudgetWorkspace.tsx", "utf8")).not.toContain("<DirectWorkFunding");
+    expect(budgetViewCss).not.toContain("border-radius:99px");
+    for (const source of [approvalQueue, readFileSync("src/app/features/budget/components/ApprovalThresholdDialog.tsx", "utf8")]) {
+      expect(source).not.toMatch(/Tier 1|Tier 2|Fast-Track/);
+    }
+    for (const source of [approvalQueue, accountingTrail, operationalSignals, tabSkeleton, reviewInbox]) {
+      expect(source).not.toContain("rounded-full");
+    }
+  });
 });

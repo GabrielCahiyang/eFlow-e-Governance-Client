@@ -1,5 +1,5 @@
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { supabase } from "../../../../lib/supabase";
+import { subscribeBudgetRealtime } from "./budgetRealtimeCoordinator";
 import {
   buildQueryScopeKey,
   evictQueryDomain,
@@ -36,8 +36,10 @@ function budgetCacheKey(orgId: string | undefined, fiscalYear: number, actorId?:
 
 export function warmDepartmentBudget(orgId: string, fiscalYear: number, actorId?: string, forceRefresh = false) {
   const scope = budgetCacheKey(orgId, fiscalYear, actorId);
-  const pending = readCachedQuery<DepartmentBudgetBundle>(BUDGET_DOMAIN, scope).inFlight;
-  if (pending) return pending;
+  if (!forceRefresh) {
+    const pending = readCachedQuery<DepartmentBudgetBundle>(BUDGET_DOMAIN, scope).inFlight;
+    if (pending) return pending;
+  }
   return loadWithQueryCache({
     domain: BUDGET_DOMAIN,
     scope,
@@ -166,183 +168,45 @@ export function useDepartmentBudget(
   useEffect(() => {
     if (!orgId) return;
     let active = true;
-    let subscribed = false;
-    let pendingRefresh: number | undefined;
-    const onChange = () => {
-      if (pendingRefresh !== undefined) return;
-      pendingRefresh = window.setTimeout(async () => {
-        pendingRefresh = undefined;
-        await readCachedQuery(BUDGET_DOMAIN, cacheScope).inFlight?.catch(() => undefined);
-        if (active && currentScope.current === scope) void refresh();
-      }, 200);
-    };
     const budgetId = loadedScope === scope ? data.summary?.id : undefined;
-    // Realtime reuses an existing channel when its topic matches. React Strict
-    // Mode can remount this effect before removeChannel() finishes, so every
-    // subscription needs its own topic to avoid adding bindings to the channel
-    // that is still unsubscribing.
-    const channelTopic = `office-budget:${orgId}:${fiscalYear}:${budgetId || "setup"}:${crypto.randomUUID()}`;
-    let channel = supabase
-      .channel(channelTopic)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "department_fiscal_budgets",
-          filter: `org_id=eq.${orgId}`,
-        },
-        onChange,
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "petty_cash_requests",
-          filter: `org_id=eq.${orgId}`,
-        },
-        onChange,
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "budget_ledger_entries",
-          filter: `org_id=eq.${orgId}`,
-        },
-        onChange,
-      )
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "projects", filter: `org_id=eq.${orgId}` },
-        onChange,
-      )
-      .on(
-        "postgres_changes",
-        { event: "DELETE", schema: "public", table: "projects" },
-        () => {
-          // Realtime DELETE events cannot be filtered by Office.
-          if (readCachedQuery<DepartmentBudgetBundle>(BUDGET_DOMAIN, cacheScope).data?.readjustmentBlockedByProjects) onChange();
-        },
-      );
-    if (budgetId) {
-      channel = channel
-        .on(
-          "postgres_changes",
-          {
-            event: "*",
-            schema: "public",
-            table: "office_budget_sections",
-            filter: `fiscal_budget_id=eq.${budgetId}`,
-          },
-          onChange,
-        )
-        .on(
-          "postgres_changes",
-          {
-            event: "*",
-            schema: "public",
-            table: "department_budget_lines",
-            filter: `fiscal_budget_id=eq.${budgetId}`,
-          },
-          onChange,
-        )
-        .on(
-          "postgres_changes",
-          {
-            event: "*",
-            schema: "public",
-            table: "department_budget_adjustments",
-            filter: `fiscal_budget_id=eq.${budgetId}`,
-          },
-          onChange,
-        )
-        .on(
-          "postgres_changes",
-          {
-            event: "*",
-            schema: "public",
-            table: "budget_commitments",
-            filter: `fiscal_budget_id=eq.${budgetId}`,
-          },
-          onChange,
-        )
-        .on(
-          "postgres_changes",
-          { event: "*", schema: "public", table: "work_budget_allocations" },
-          onChange,
-        )
-        .on(
-          "postgres_changes",
-          {
-            event: "*",
-            schema: "public",
-            table: "work_budget_allocation_lines",
-          },
-          onChange,
-        )
-        .on(
-          "postgres_changes",
-          { event: "*", schema: "public", table: "petty_cash_releases" },
-          onChange,
-        )
-        .on(
-          "postgres_changes",
-          { event: "*", schema: "public", table: "petty_cash_liquidations" },
-          onChange,
-        )
-        .on(
-          "postgres_changes",
-          {
-            event: "*",
-            schema: "public",
-            table: "petty_cash_request_attachments",
-          },
-          onChange,
-        )
-        .on(
-          "postgres_changes",
-          { event: "*", schema: "public", table: "petty_cash_receipts" },
-          onChange,
-        );
-    }
-    if (loadedScope === scope && data.itemizedCashAvailable) {
-      channel = channel
-        .on(
-          "postgres_changes",
-          { event: "*", schema: "public", table: "petty_cash_request_lines" },
-          onChange,
-        )
-        .on(
-          "postgres_changes",
-          { event: "*", schema: "public", table: "petty_cash_receipt_items" },
-          onChange,
-        );
-    }
-    channel.subscribe(status => {
-      if (status !== "SUBSCRIBED") return;
-      if (subscribed) onChange();
-      subscribed = true;
+    const itemized = loadedScope === scope && Boolean(data.itemizedCashAvailable);
+    const coordinator = subscribeBudgetRealtime({
+      scopeKey: `${actorId || ""}:${orgId}:${fiscalYear}:${budgetId || "setup"}:${itemized ? "1" : "0"}`,
+      orgId,
+      budgetId,
+      itemized,
+      canDeleteProjectTrigger: () =>
+        Boolean(readCachedQuery<DepartmentBudgetBundle>(BUDGET_DOMAIN, cacheScope).data?.readjustmentBlockedByProjects),
+      onRefresh: () => {
+        void (async () => {
+          await readCachedQuery(BUDGET_DOMAIN, cacheScope).inFlight?.catch(() => undefined);
+          if (active && currentScope.current === scope) void refresh();
+        })();
+      },
     });
     const recheck = () => {
       if (isDocumentVisible()) void executeLoad(false);
     };
-    const fallback = window.setInterval(recheck, 30_000);
+    let pollTick = 0;
+    const fallback = window.setInterval(() => {
+      if (!isDocumentVisible()) return;
+      pollTick += 1;
+      // Back off fallback polling from 30s to 90s while Realtime stays SUBSCRIBED.
+      if (coordinator.isSubscribed() && pollTick % 3 !== 0) return;
+      void executeLoad(false);
+    }, 30_000);
     window.addEventListener("focus", recheck);
-    window.addEventListener("online", onChange);
+    window.addEventListener("online", coordinator.triggerOnlineRefresh);
     document.addEventListener("visibilitychange", recheck);
     return () => {
       active = false;
-      window.clearTimeout(pendingRefresh);
       window.clearInterval(fallback);
       window.removeEventListener("focus", recheck);
-      window.removeEventListener("online", onChange);
+      window.removeEventListener("online", coordinator.triggerOnlineRefresh);
       document.removeEventListener("visibilitychange", recheck);
-      void supabase.removeChannel(channel);
+      coordinator.unsubscribe();
     };
-  }, [cacheScope, data.summary?.id, data.itemizedCashAvailable, executeLoad, fiscalYear, loadedScope, orgId, refresh, scope]);
+  }, [actorId, cacheScope, data.itemizedCashAvailable, data.summary?.id, executeLoad, fiscalYear, loadedScope, orgId, refresh, scope]);
   return {
     ...(loadedScope === scope ? data : EMPTY),
     loading: Boolean(orgId) && loadedScope !== scope,

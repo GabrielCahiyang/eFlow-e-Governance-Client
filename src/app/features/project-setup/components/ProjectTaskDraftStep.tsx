@@ -1,17 +1,24 @@
 import { useRef, useState } from 'react';
-import { ClipboardList, Sparkles } from 'lucide-react';
+import { Button } from '@vibe/core';
+import { BookmarkPlus, ClipboardList, Sparkles } from 'lucide-react';
 import { ProjectImportSaveError, saveReviewedProject } from '../../project-import';
-import { parseProjectTaskGroups, type ProjectTaskGroup, type ProjectTaskTemplate } from '../../work-templates';
+import {
+  parseProjectTaskGroups,
+  saveProjectTaskTemplate,
+  type ProjectTaskGroup,
+  type ProjectTaskTemplate,
+} from '../../work-templates';
 import { useNavigationBlocker } from '../../../shared/navigationGuard';
 import { generateProjectTaskGroups, projectSetupTaskPayload } from '../services/projectTaskDraft';
 import { FlowError } from './FlowError';
 
-export function ProjectTaskDraftStep({ projectId, project, templates, templateError, initialTemplate, onSaved, onBusyChange }: {
+export function ProjectTaskDraftStep({ projectId, project, templates, templateError, initialTemplate, onTemplateSaved, onSaved, onBusyChange }: {
   projectId: string;
-  project: { title: string; description: string; scope: string };
+  project: { title: string; description: string; scope: string; start?: string; end?: string };
   templates: ProjectTaskTemplate[];
   templateError: string;
   initialTemplate?: ProjectTaskTemplate;
+  onTemplateSaved?: (saved: ProjectTaskTemplate) => void;
   onSaved: () => void;
   onBusyChange: (busy: boolean) => void;
 }) {
@@ -19,9 +26,12 @@ export function ProjectTaskDraftStep({ projectId, project, templates, templateEr
   const [omitted, setOmitted] = useState<Set<string>>(new Set());
   const [source, setSource] = useState<'template' | 'ai'>('template');
   const [template, setTemplate] = useState(initialTemplate?.id ?? '');
-  const [busy, setBusy] = useState<'generating' | 'saving'>();
+  const [busy, setBusy] = useState<'generating' | 'saving' | 'saving-template'>();
   const [error, setError] = useState('');
   const [retry, setRetry] = useState(false);
+  const [saveTemplateOpen, setSaveTemplateOpen] = useState(false);
+  const [saveTemplateName, setSaveTemplateName] = useState('');
+  const [savedTemplateNotice, setSavedTemplateNotice] = useState('');
   const request = useRef<{ id: string; payload: ReturnType<typeof projectSetupTaskPayload> } | undefined>(undefined);
   const pending = useRef(false);
   useNavigationBlocker({
@@ -66,7 +76,10 @@ export function ProjectTaskDraftStep({ projectId, project, templates, templateEr
   }
 
   const save = () => void run('saving', async () => {
-    request.current ??= { id: crypto.randomUUID(), payload: projectSetupTaskPayload(selected, source) };
+    request.current ??= {
+      id: crypto.randomUUID(),
+      payload: projectSetupTaskPayload(selected, source, { startDate: project.start, targetDate: project.end }),
+    };
     try {
       const result = await saveReviewedProject('save_project_setup_tasks', projectId, request.current.id, request.current.payload);
       if (!result?.taskIds || result.taskCount !== taskCount || result.subitemCount !== subtaskCount) {
@@ -80,6 +93,14 @@ export function ProjectTaskDraftStep({ projectId, project, templates, templateEr
     }
     request.current = undefined;
     onSaved();
+  });
+
+  const saveAsTemplate = () => void run('saving-template', async () => {
+    const saved = await saveProjectTaskTemplate(saveTemplateName, selected);
+    setTemplate(saved.id);
+    setSaveTemplateOpen(false);
+    setSavedTemplateNotice(`Saved “${saved.name}” to starter templates.`);
+    onTemplateSaved?.(saved);
   });
 
   return <section className="pf-task-draft" aria-label="Draft tasks">
@@ -125,9 +146,69 @@ export function ProjectTaskDraftStep({ projectId, project, templates, templateEr
         </div>;
       })}
     </fieldset>)}
-    {!!groups.length && <footer className="pf-task-draft-options">
-      <p>{taskCount} selected {taskCount === 1 ? 'task' : 'tasks'} · {subtaskCount} {subtaskCount === 1 ? 'subtask' : 'subtasks'}</p>
-      <button type="button" className="pf-primary" disabled={!taskCount || !!busy} onClick={save}>{busy === 'saving' ? 'Saving…' : retry ? 'Retry saving tasks' : 'Add tasks and open project'}</button>
-    </footer>}
+    {!!groups.length && (
+      <>
+        {savedTemplateNotice && (
+          <p className="pf-task-draft-save-note" role="status">
+            {savedTemplateNotice}
+          </p>
+        )}
+        {saveTemplateOpen && (
+          <div className="pf-task-draft-save-bar">
+            <input
+              aria-label="New starter template name"
+              maxLength={120}
+              placeholder="Starter template name"
+              value={saveTemplateName}
+              disabled={!!busy}
+              onChange={event => setSaveTemplateName(event.target.value)}
+            />
+            <Button
+              type="button"
+              kind="primary"
+              size="small"
+              disabled={!saveTemplateName.trim() || !taskCount || !!busy}
+              onClick={saveAsTemplate}
+            >
+              {busy === 'saving-template' ? 'Saving template…' : 'Save starter template'}
+            </Button>
+            <Button
+              type="button"
+              kind="tertiary"
+              size="small"
+              disabled={!!busy}
+              onClick={() => setSaveTemplateOpen(false)}
+            >
+              Cancel
+            </Button>
+          </div>
+        )}
+        <footer className="pf-task-draft-options">
+          <p>
+            {taskCount} selected {taskCount === 1 ? 'task' : 'tasks'} · {subtaskCount}{' '}
+            {subtaskCount === 1 ? 'subtask' : 'subtasks'}
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            <Button
+              type="button"
+              kind="secondary"
+              size="small"
+              disabled={!taskCount || !!busy || retry}
+              onClick={() => {
+                setSavedTemplateNotice('');
+                setSaveTemplateName(current => current || `${project.title.trim() || 'Project'} starter`.slice(0, 120));
+                setSaveTemplateOpen(true);
+              }}
+            >
+              <BookmarkPlus size={15} style={{ marginRight: 5 }} />
+              Save as template
+            </Button>
+            <button type="button" className="pf-primary" disabled={!taskCount || !!busy} onClick={save}>
+              {busy === 'saving' ? 'Saving…' : retry ? 'Retry saving tasks' : 'Add tasks and open project'}
+            </button>
+          </div>
+        </footer>
+      </>
+    )}
   </section>;
 }

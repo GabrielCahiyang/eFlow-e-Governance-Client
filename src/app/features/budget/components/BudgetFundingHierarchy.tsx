@@ -1,4 +1,4 @@
-import { AlertTriangle, ChevronRight, FolderKanban, ListChecks } from "lucide-react";
+import { ChevronRight, FolderKanban, ListChecks } from "lucide-react";
 import type { Task } from "../../tasks";
 import type { BudgetCommitment, DepartmentBudgetBundle, WorkBudgetAllocation } from "../types";
 import { getAllocationCashPosition } from "../selectors/budgetSelectors";
@@ -21,15 +21,28 @@ export function BudgetFundingHierarchy({ data, tasks }: FundingHierarchyProps) {
 
   const taskById = new Map(tasks.map((task) => [task.id, task]));
   return (
-    <section className="min-w-0 overflow-hidden rounded-[10px] border border-border bg-card" aria-label="Funding commitments">
+    <section
+      className="min-w-0 overflow-hidden rounded-[10px] border border-border bg-card"
+      aria-label="Funding commitments"
+    >
       <header className="eflow-budget-section-heading border-b">
-        <div><h2>Funding commitments</h2><p>Expand a funded task to see its accounts and subtasks.</p></div>
-        <span className="text-xs tabular-nums text-muted-foreground">{data.commitments.length} records</span>
+        <div>
+          <h2>Funding commitments</h2>
+          <p>Expand a funded task to inspect its account lines and subtask allocations.</p>
+        </div>
+        <span className="rounded-[5px] border border-border bg-muted px-2.5 py-1 text-[11px] font-semibold tabular-nums text-muted-foreground">
+          {data.commitments.length} {data.commitments.length === 1 ? "record" : "records"}
+        </span>
       </header>
       <div className="divide-y divide-border">
-      {data.commitments.map((commitment) => (
-        <ProposalFundingCard key={commitment.id} commitment={commitment} data={data} taskById={taskById} />
-      ))}
+        {data.commitments.map((commitment) => (
+          <ProposalFundingCard
+            key={commitment.id}
+            commitment={commitment}
+            data={data}
+            taskById={taskById}
+          />
+        ))}
       </div>
     </section>
   );
@@ -52,37 +65,66 @@ function ProposalFundingCard({
 
   return (
     <details open className="eflow-budget-funding-commitment group">
-      <summary className="p-4">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent text-accent-foreground">
-          <FolderKanban size={15} />
-        </div>
-        <div className="eflow-budget-funding-label">
-          <div className="text-sm font-semibold">{commitment.title}</div>
-          <div className="mt-1 text-[12px] text-neutral-500">
-            {taskAllocations.length} funded task(s) · {commitment.proposalDraftId ? "reserved at publication" : "direct work authorization"}
+      <summary className="eflow-budget-funding-summary">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[6px] border border-border bg-muted/60 text-primary">
+            <FolderKanban size={15} aria-hidden="true" />
+          </div>
+          <div className="min-w-0">
+            <div className="truncate text-[13px] font-semibold text-foreground">
+              {commitment.title}
+            </div>
+            <div className="mt-0.5 text-[11px] text-muted-foreground">
+              {taskAllocations.length} funded {taskAllocations.length === 1 ? "task" : "tasks"} ·{" "}
+              {commitment.proposalDraftId ? "reserved at publication" : "direct work authorization"}
+            </div>
           </div>
         </div>
         <FundingMetric label="Actual" value={settled} />
         <FundingMetric label="Committed" value={commitment.amount} emphasized />
-        <StatusPill status={commitment.status} />
-        <ChevronRight size={14} className="text-neutral-400 transition group-open:rotate-90" />
+        <div className="flex items-center justify-end gap-2">
+          <StatusPill status={commitment.status} />
+          <ChevronRight
+            size={14}
+            aria-hidden="true"
+            className="shrink-0 text-muted-foreground transition group-open:rotate-90"
+          />
+        </div>
       </summary>
-      <div className="border-t border-border bg-muted px-3">
+
+      <div className="border-t border-border bg-subtle">
         {taskAllocations.length ? (
           <div>
-            {taskAllocations.map((allocation) => (
-              <TaskFundingCard
-                key={allocation.id}
-                allocation={allocation}
-                allCommitmentAllocations={allocations}
-                data={data}
-                task={taskById.get(allocation.taskId)}
-                authorizedTitle={!commitment.proposalDraftId && taskAllocations.length === 1 ? commitment.title : undefined}
-              />
-            ))}
+            <div className="eflow-budget-funding-task-head" aria-hidden="true">
+              <span>Task &amp; lead</span>
+              <span className="text-right">Approved task budget</span>
+              <span className="text-right">In subtasks</span>
+              <span className="text-right">Unallocated</span>
+              <span className="text-right">Cash released</span>
+              <span className="text-right">Actual spent</span>
+              <span />
+            </div>
+            <div className="divide-y divide-border bg-card">
+              {taskAllocations.map((allocation) => (
+                <TaskFundingCard
+                  key={allocation.id}
+                  allocation={allocation}
+                  allCommitmentAllocations={allocations}
+                  data={data}
+                  task={taskById.get(allocation.taskId)}
+                  authorizedTitle={
+                    !commitment.proposalDraftId && taskAllocations.length === 1
+                      ? commitment.title
+                      : undefined
+                  }
+                />
+              ))}
+            </div>
           </div>
         ) : (
-          <LegacyAllocationWarning />
+          <div className="px-4 py-3 text-[12px] text-muted-foreground">
+            No task funding allocations recorded under this commitment yet.
+          </div>
         )}
       </div>
     </details>
@@ -106,32 +148,55 @@ function TaskFundingCard({
     (item) => item.taskId === allocation.taskId && item.subtaskId,
   );
   const taskRequests = data.requests.filter(
-    (request) => request.allocationId === allocation.id || childAllocations.some((child) => child.id === request.allocationId),
+    (request) =>
+      request.allocationId === allocation.id ||
+      childAllocations.some((child) => child.id === request.allocationId),
   );
   const position = getAllocationCashPosition(allocation.amount, taskRequests);
-  const allocated = childAllocations.filter(item => item.status === "approved" || item.status === "pending")
+  const allocated = childAllocations
+    .filter((item) => item.status === "approved" || item.status === "pending")
     .reduce((total, item) => total + item.amount, 0);
+  const cashReleased = taskRequests.reduce(
+    (sum, request) => sum + (request.releasedAmount ?? 0),
+    0,
+  );
+  const unallocated = Math.max(0, allocation.amount - allocated);
 
   return (
     <details className="eflow-budget-funding-task group/task">
-      <summary className="p-3">
-        <ListChecks size={14} className="text-primary" />
-        <div className="eflow-budget-funding-label">
-          <div className="text-sm font-medium">{task?.title || authorizedTitle || "Funded task"}</div>
-          <div className="mt-0.5 text-[11px] text-neutral-500">
-            Task Leader: {task?.assigneeName || "Assigned lead"}
+      <summary className="eflow-budget-funding-task-row">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <ListChecks size={14} aria-hidden="true" className="shrink-0 text-primary" />
+          <div className="min-w-0">
+            <div className="truncate text-[13px] font-medium text-foreground">
+              {task?.title || authorizedTitle || "Funded task"}
+            </div>
+            <div className="text-[11px] text-muted-foreground">
+              Task Leader: {task?.assigneeName || "Assigned lead"}
+            </div>
           </div>
         </div>
-        <Metric label="Approved task budget" value={allocation.amount} />
-        <Metric label="Allocated to subtasks" value={allocated} />
-        <Metric label="Unallocated" value={Math.max(0, allocation.amount - allocated)} />
-        <Metric label="Cash released" value={taskRequests.reduce((sum, request) => sum + (request.releasedAmount ?? 0), 0)} />
-        <Metric label="Actual spent" value={position.spent} />
-        <ChevronRight size={12} className="text-neutral-400 transition group-open/task:rotate-90" />
+        <TaskCellMetric label="Approved" value={allocation.amount} emphasized />
+        <TaskCellMetric label="In subtasks" value={allocated} />
+        <TaskCellMetric label="Unallocated" value={unallocated} />
+        <TaskCellMetric label="Cash released" value={cashReleased} />
+        <TaskCellMetric label="Actual spent" value={position.spent} />
+        <ChevronRight
+          size={13}
+          aria-hidden="true"
+          className="justify-self-end text-muted-foreground transition group-open/task:rotate-90"
+        />
       </summary>
-      <div className="border-t border-neutral-100 p-3">
+
+      <div className="space-y-3 border-t border-border bg-subtle px-4 py-3">
         <AllocationLines allocationId={allocation.id} data={data} />
         <SubtaskFunding allocations={childAllocations} data={data} />
+        {!data.allocationLines.some((line) => line.allocationId === allocation.id) &&
+          !childAllocations.length && (
+            <div className="text-[12px] text-muted-foreground">
+              No account breakdown or subtask allocations recorded for this task yet.
+            </div>
+          )}
       </div>
     </details>
   );
@@ -141,78 +206,110 @@ function AllocationLines({ allocationId, data }: { allocationId: string; data: D
   const lines = data.allocationLines.filter((line) => line.allocationId === allocationId);
   if (!lines.length) return null;
   return (
-    <div className="grid gap-2 lg:grid-cols-2">
-      {lines.map((line) => (
-        <div key={line.id} className="rounded-lg border border-neutral-100 bg-neutral-50 p-2.5">
-          <div className="flex justify-between gap-3 text-[12px]">
-            <span>
-              <strong>{line.category}</strong>
-              <span className="ml-1 text-neutral-400">· {line.particular}</span>
-            </span>
-            <strong className="tabular-nums">{peso.format(line.amount)}</strong>
-          </div>
-          <div className="mt-1 text-[11px] text-neutral-500">
-            {line.expenseClass} · {line.quantity} {line.unit} × {peso.format(line.unitCost || 0)}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function SubtaskFunding({ allocations, data }: { allocations: WorkBudgetAllocation[]; data: DepartmentBudgetBundle }) {
-  if (!allocations.length) return null;
-  return (
-    <div className="mt-3 space-y-1.5">
-      <div className="text-[11px] uppercase tracking-wide text-neutral-500">Subtask distribution</div>
-      {allocations.map((allocation) => {
-        const requests = data.requests.filter((request) => request.allocationId === allocation.id);
-        const position = getAllocationCashPosition(allocation.amount, requests);
-        return (
+    <div className="overflow-hidden rounded-[8px] border border-border bg-card">
+      <div className="border-b border-border bg-muted/60 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+        Account lines
+      </div>
+      <div className="divide-y divide-border">
+        {lines.map((line) => (
           <div
-            key={allocation.id}
-            className="grid items-center gap-2 rounded-lg border border-emerald-100 bg-emerald-50/50 px-3 py-2 text-[12px] sm:grid-cols-[1fr_auto_auto_auto]"
+            key={line.id}
+            className="grid items-center gap-2 px-3 py-2 text-[12px] sm:grid-cols-[minmax(0,1fr)_auto_auto]"
           >
-            <span>{allocation.subtaskTitle || "Funded subtask"}</span>
-            <StatusPill status={allocation.status} />
-            <span className="tabular-nums">Cash released {peso.format(requests.reduce((sum, request) => sum + (request.releasedAmount ?? 0), 0))} · Actual spent {peso.format(position.spent)}</span>
-            <strong className="tabular-nums">{peso.format(allocation.amount)}</strong>
+            <div className="min-w-0">
+              <strong className="font-medium text-foreground">{line.category}</strong>
+              <span className="ml-1.5 text-muted-foreground">· {line.particular}</span>
+            </div>
+            <span className="text-[11px] text-muted-foreground">
+              {line.expenseClass} · {line.quantity} {line.unit} × {peso.format(line.unitCost || 0)}
+            </span>
+            <strong className="text-right tabular-nums text-foreground">
+              {peso.format(line.amount)}
+            </strong>
           </div>
-        );
-      })}
-    </div>
-  );
-}
-
-function LegacyAllocationWarning() {
-  return (
-    <div className="flex gap-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-amber-950">
-      <AlertTriangle size={16} className="mt-0.5 shrink-0 text-amber-600" />
-      <div>
-        <div className="text-[12px] font-medium">Task funding records are pending</div>
-        <p className="mt-1 max-w-3xl text-[12px] leading-relaxed text-amber-800">
-          This proposal remains safely reserved, but it was published before task-linked funding records were available.
-          Apply the latest fiscal workflow migrations before petty cash is requested against this proposal.
-        </p>
+        ))}
       </div>
     </div>
   );
 }
 
-function FundingMetric({ label, value, emphasized = false }: { label: string; value: number; emphasized?: boolean }) {
+function SubtaskFunding({
+  allocations,
+  data,
+}: {
+  allocations: WorkBudgetAllocation[];
+  data: DepartmentBudgetBundle;
+}) {
+  if (!allocations.length) return null;
   return (
-    <div className="text-right text-[11px] text-neutral-500">
-      <span className="block">{label}</span>
-      <strong className={`tabular-nums ${emphasized ? "text-[14px] text-neutral-950" : "text-[12px] text-neutral-800"}`}>{peso.format(value)}</strong>
+    <div className="overflow-hidden rounded-[8px] border border-border bg-card">
+      <div className="border-b border-border bg-muted/60 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+        Subtask distribution
+      </div>
+      <div className="divide-y divide-border">
+        {allocations.map((allocation) => {
+          const requests = data.requests.filter((request) => request.allocationId === allocation.id);
+          const position = getAllocationCashPosition(allocation.amount, requests);
+          const released = requests.reduce((sum, request) => sum + (request.releasedAmount ?? 0), 0);
+          return (
+            <div
+              key={allocation.id}
+              className="grid items-center gap-2 px-3 py-2 text-[12px] sm:grid-cols-[minmax(0,1fr)_auto_auto_auto]"
+            >
+              <span className="font-medium text-foreground">
+                {allocation.subtaskTitle || "Funded subtask"}
+              </span>
+              <StatusPill status={allocation.status} />
+              <span className="tabular-nums text-muted-foreground">
+                Released {peso.format(released)} · Spent {peso.format(position.spent)}
+              </span>
+              <strong className="text-right tabular-nums text-foreground">
+                {peso.format(allocation.amount)}
+              </strong>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
 
-function Metric({ label, value }: { label: string; value: number }) {
+function FundingMetric({
+  label,
+  value,
+  emphasized = false,
+}: {
+  label: string;
+  value: number;
+  emphasized?: boolean;
+}) {
   return (
-    <div className="hidden text-right text-[11px] text-neutral-500 md:block">
-      <span>{label}</span>
-      <strong className="ml-1 text-[12px] text-neutral-700 tabular-nums">{peso.format(value)}</strong>
+    <div className="text-right text-[11px] text-muted-foreground">
+      <span className="block">{label}</span>
+      <strong
+        className={`tabular-nums ${emphasized ? "text-[14px] font-semibold text-foreground" : "text-[12px] font-medium text-foreground"}`}
+      >
+        {peso.format(value)}
+      </strong>
+    </div>
+  );
+}
+
+function TaskCellMetric({
+  label,
+  value,
+  emphasized = false,
+}: {
+  label: string;
+  value: number;
+  emphasized?: boolean;
+}) {
+  return (
+    <div className="eflow-budget-funding-cell text-right tabular-nums">
+      <span className="eflow-budget-funding-cell-label">{label}</span>
+      <strong className={emphasized ? "font-semibold text-foreground" : "font-medium text-foreground"}>
+        {peso.format(value)}
+      </strong>
     </div>
   );
 }

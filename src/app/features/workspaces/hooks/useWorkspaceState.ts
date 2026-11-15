@@ -1,5 +1,8 @@
 import {ACCESS_CHANGED_EVENT} from '../../project-access';
+import { PROJECTS_BROADCAST_EVENT, type Project } from '../../projects';
 import { isDocumentVisible } from '../../../shared/queryCache';
+import { isNetworkError, userFacingError } from '../../../shared/userFacingError';
+import { probeConnectivity } from '../../../shared/networkConnectivity';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { NAVIGATION_LOCATION_EVENT } from '../../../shared/navigationHistory';
 import { requestNavigation } from '../../../shared/navigationGuard';
@@ -31,7 +34,10 @@ export function useWorkspaceState(userId: string, officeId: string, enabled: boo
       if (new URLSearchParams(window.location.search).get(WORKSPACE_QUERY)!==selected) writeWorkspaceLocation(selected,false,'replace');
     } catch(error) {
       if (token!==generation.current) return;
-      setState({key:scopeKey,workspaces:[],loading:false,error:error instanceof Error?error.message:'Could not load workspaces.',unavailable:error instanceof WorkspaceApiUnavailable});
+      if (isNetworkError(error)) {
+        void probeConnectivity();
+      }
+      setState({key:scopeKey,workspaces:[],loading:false,error:userFacingError(error,'Could not load workspaces.'),unavailable:error instanceof WorkspaceApiUnavailable});
     }
   },[enabled,userId,requested,officeId,scopeKey]);
   useEffect(()=>{
@@ -41,9 +47,26 @@ export function useWorkspaceState(userId: string, officeId: string, enabled: boo
   },[userId,officeId]);
   useEffect(()=>{
     void refresh(); const interval=window.setInterval(()=>{if(isDocumentVisible())void refresh();},15_000);
-    const focus=()=>void refresh(); window.addEventListener('focus',focus);window.addEventListener(ACCESS_CHANGED_EVENT,focus);
-    return ()=>{ ++generation.current; window.clearInterval(interval); window.removeEventListener('focus',focus);window.removeEventListener(ACCESS_CHANGED_EVENT,focus); };
-  },[refresh]);
+    const focus=()=>void refresh(); window.addEventListener('focus',focus);window.addEventListener('online',focus);window.addEventListener(ACCESS_CHANGED_EVENT,focus);
+    const syncBroadcast=(event:Event)=>{
+      const projects=(event as CustomEvent<Project[]>).detail;
+      if(!Array.isArray(projects))return;
+      const byId=new Map(projects.map(p=>[p.id,p]));
+      setState(previous=>{
+        if(previous.key!==scopeKey || !previous.snapshot)return previous;
+        let changed=false;
+        const nextProjects=previous.snapshot.projects.map(item=>{
+          const latest=byId.get(item.id);
+          if(!latest || (latest.status===item.status && latest.title===item.title))return item;
+          changed=true;
+          return {...item,status:latest.status,title:latest.title};
+        });
+        return changed ? {...previous,snapshot:{...previous.snapshot,projects:nextProjects}} : previous;
+      });
+    };
+    window.addEventListener(PROJECTS_BROADCAST_EVENT,syncBroadcast);
+    return ()=>{ ++generation.current; window.clearInterval(interval); window.removeEventListener('focus',focus);window.removeEventListener('online',focus);window.removeEventListener(ACCESS_CHANGED_EVENT,focus);window.removeEventListener(PROJECTS_BROADCAST_EVENT,syncBroadcast); };
+  },[refresh,scopeKey]);
   const select=useCallback(async(id:string,destination?:WorkspaceDestination)=>{let moved=false;const accepted=await requestNavigation(()=>{if(destination?.isCurrent?.()===false)return;moved=true;writeWorkspaceLocation(id,true,'push',destination);});return accepted&&moved;},[]);
   const includeCreatedOfficeProject=useCallback((project:{id:string;title:string;status:string;orgId?:string})=>{
     // Only a committed legacy create receipt in the current canonical Office may bridge refresh latency.

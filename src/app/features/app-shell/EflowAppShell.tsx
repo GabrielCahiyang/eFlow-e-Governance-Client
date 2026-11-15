@@ -41,6 +41,7 @@ import { LoadingScreen } from "./LoadingScreen";
 import { useStartupWarmup } from "./useStartupWarmup";
 import { getDescendantOrgIds } from "../../../lib/supabaseService";
 import { OnboardingWorkspace } from "../onboarding";
+import { WorkspaceRecoveryState } from "./components/WorkspaceRecoveryState";
 import { PersonalWorkspace, WorkspaceScopeContext, WorkspaceSelector, useWorkspaceState, buildWorkspaceNavigation,selectWorkspace } from '../workspaces';
 
 interface EflowAppShellProps {
@@ -319,7 +320,7 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
                 {contextError&&<p role="alert" className="eflow-context-error">{contextError}</p>}
                 {activeSection === 'messages' ? <><MessagesWorkspace userId={userId} userName={userProfile?.fullName} onOpenTask={setMessageTask} onOpenProject={id => void handlePageSelect('projects','Projects',id)} />
                   {messageTask && <TaskDetailDrawer taskId={messageTask} task={null} origin={{ view: 'Messages' }} onClose={() => setMessageTask(undefined)} />}</>
-                  : blockedScope ? workspaceState.loading&&!workspaceState.error ? <ViewLoadingState/> : <div className="eflow-workspace" role={workspaceState.error ? 'alert' : 'status'}><p>{workspaceState.error || 'Create or select a workspace to continue.'}</p><button type="button" onClick={()=>void workspaceState.refresh()}>Retry workspace</button></div>
+                  : blockedScope ? workspaceState.loading&&!workspaceState.error ? <ViewLoadingState/> : <WorkspaceRecoveryState error={workspaceState.error} onRetry={workspaceState.refresh} />
                   : personal && !['dashboard','personal_work','settings','inbox','users','permissions','org_tree','audit','administration','migration'].includes(activeSection) ? <PersonalWorkspace key={`${userId}:${currentWorkspace.id}`} workspace={currentWorkspace} projects={workspaceState.snapshot?.projects || []} userId={userId || ''} ownerName={userProfile?.full_name || 'You'} officeId={officeId} section={activeSection} onOpen={id=>void handlePageSelect('projects','Projects',id)} onRefresh={workspaceState.refresh} />
                   : officeContext && !['dashboard','personal_work','inbox','projects','settings'].includes(activeSection) ? <div className="eflow-workspace"><p>Select a project in this shared Office context, or return to your Office to use Office tools.</p><button type="button" onClick={()=>void workspaceState.select(officeId)}>Return to my Office</button></div>
                   : <WorkspaceScopeContext.Provider value={workspaceScope}><RoleContent

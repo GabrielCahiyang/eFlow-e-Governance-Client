@@ -32,23 +32,23 @@ beforeEach(()=>{vi.clearAllMocks();sessionStorage.clear();mocks.role='head';test
 afterEach(cleanup);
 it('asks before writing and Cancel makes no financial decision',async()=>{
  render(<BudgetApprovalQueue data={data()} onChanged={vi.fn()}/>);
- fireEvent.click(screen.getByRole('button',{name:'Quick Authorize'}));
+ fireEvent.click(screen.getByRole('button',{name:'Approve'}));
  expect(mocks.request).not.toHaveBeenCalled();
  const dialog=screen.getByRole('dialog',{name:'Approve this request?'});
  fireEvent.click(within(dialog).getByRole('button',{name:'Cancel'}));
  await waitFor(()=>expect(screen.queryByRole('dialog')).toBeNull());
  expect(mocks.request).not.toHaveBeenCalled();
 });
-it('shows a green result even when approval clears the last queue item',async()=>{
+it('shows a green toast result even when approval clears the last queue item',async()=>{
  const view=render(<BudgetApprovalQueue data={data()} onChanged={vi.fn().mockResolvedValue(undefined)}/>);
- fireEvent.click(screen.getByRole('button',{name:'Quick Authorize'}));
+ fireEvent.click(screen.getByRole('button',{name:'Approve'}));
  fireEvent.click(screen.getByRole('button',{name:'Yes, approve'}));
- await screen.findByRole('dialog',{name:'Decision saved'});
+ await waitFor(()=>expect(mocks.toast).toHaveBeenCalledWith('Decision saved · FR-00002.','success'));
+ expect(screen.queryByRole('dialog',{name:'Decision saved'})).toBeNull();
  view.rerender(<BudgetApprovalQueue data={{...data(),requests:[]}} onChanged={vi.fn()}/>);
- expect(screen.getByRole('status').getAttribute('data-tone')).toBe('approve');
  expect(mocks.request).toHaveBeenCalledOnce();
 });
-it('returns a request in amber with a required reason and keeps backend errors red',async()=>{
+it('returns a request with warning toast and required reason and keeps backend errors red',async()=>{
  mocks.request.mockRejectedValueOnce(new Error('Amount exceeds the limit.'));
  render(<BudgetApprovalQueue data={data()} onChanged={vi.fn()}/>);
  fireEvent.click(screen.getByRole('button',{name:'Decline'}));
@@ -59,26 +59,26 @@ it('returns a request in amber with a required reason and keeps backend errors r
  expect(await within(dialog).findByRole('alert')).toHaveTextContent('Amount exceeds');
  expect(within(dialog).getByRole('textbox')).toHaveValue('Please correct the amount');
  fireEvent.click(within(dialog).getByRole('button',{name:'Yes, reject'}));
- const result=await screen.findByRole('dialog',{name:'Returned to requester'});
- expect(within(result).getByRole('status').getAttribute('data-tone')).toBe('return');
+ await waitFor(()=>expect(mocks.toast).toHaveBeenCalledWith('Returned to requester · FR-00002.','warning'));
+ expect(screen.queryByRole('dialog',{name:'Returned to requester'})).toBeNull();
  expect(mocks.request).toHaveBeenLastCalledWith(`approval-request-${testId}`,false,'Please correct the amount');
 });
 it('does not call a saved approval a failure when the queue refresh fails',async()=>{
  render(<BudgetApprovalQueue data={data()} onChanged={vi.fn().mockRejectedValue(new Error('Read failed'))}/>);
- fireEvent.click(screen.getByRole('button',{name:'Quick Authorize'}));fireEvent.click(screen.getByRole('button',{name:'Yes, approve'}));
- const result=await screen.findByRole('dialog',{name:'Decision saved'});
+ fireEvent.click(screen.getByRole('button',{name:'Approve'}));fireEvent.click(screen.getByRole('button',{name:'Yes, approve'}));
+ const result=await screen.findByRole('dialog',{name:'Check the latest status'});
  await waitFor(()=>expect(within(result).getByRole('status')).toHaveTextContent('Your decision was saved'));
  expect(within(result).queryByRole('alert')).toBeNull();
 });
 it('gives a task leader the same confirmation without granting Head approval',async()=>{
  mocks.role='member';const bundle=data();bundle.requests[0].status='pending_leader_review';bundle.requests[0].taskLeaderId='reviewer';
  render(<BudgetApprovalQueue data={bundle} onChanged={vi.fn()}/>);
- fireEvent.click(screen.getByRole('button',{name:'Endorse (Fast-Track)'}));expect(mocks.leader).not.toHaveBeenCalled();
+ fireEvent.click(screen.getByRole('button',{name:'Endorse'}));expect(mocks.leader).not.toHaveBeenCalled();
  fireEvent.click(screen.getByRole('button',{name:'Yes, endorse'}));await waitFor(()=>expect(mocks.leader).toHaveBeenCalledOnce());expect(mocks.request).not.toHaveBeenCalled();
 });
 it('keeps financial approval hidden from an unrelated member',()=>{
  mocks.role='member';render(<BudgetApprovalQueue data={data()} onChanged={vi.fn()}/>);
- expect(screen.queryByRole('button',{name:'Quick Authorize'})).toBeNull();expect(screen.queryByRole('button',{name:'Decline'})).toBeNull();
+ expect(screen.queryByRole('button',{name:'Approve'})).toBeNull();expect(screen.queryByRole('button',{name:'Decline'})).toBeNull();
 });
 it('requires findings in the independent review modal and writes only after Yes',async()=>{
  render(<IndependentReviewCard id="review-1" version={1} context={review()} onChanged={vi.fn()}/>);

@@ -47,14 +47,14 @@ export function ProjectsPortfolioTable({
 
 
   const columns = [
-    { id: "project", title: "Project", width: { min: 240, max: "2fr" as const } },
-    { id: "department", title: "Lead office", width: { min: 100, max: "0.85fr" as const } },
-    { id: "lead", title: "Project lead", width: { min: 150, max: "1.1fr" as const } },
-    { id: "lifecycle", title: "Status", width: { min: 105, max: "0.8fr" as const } },
-    { id: "schedule", title: "Schedule", width: { min: 155, max: "1fr" as const } },
-    { id: "progress", title: "Progress", width: { min: 145, max: "1fr" as const } },
-    { id: "target", title: "Target date", width: { min: 120, max: "0.85fr" as const } },
-    { id: "actions", title: "Actions", width: 182 },
+    { id: "project", title: "Project", width: { min: 196, max: "2fr" as const } },
+    { id: "department", title: "Lead office", width: { min: 76, max: "0.7fr" as const } },
+    { id: "lead", title: "Project lead", width: { min: 128, max: "1fr" as const } },
+    { id: "lifecycle", title: "Status", width: { min: 82, max: "0.75fr" as const } },
+    { id: "schedule", title: "Schedule", width: { min: 96, max: "0.85fr" as const } },
+    { id: "progress", title: "Progress", width: { min: 106, max: "0.9fr" as const } },
+    { id: "target", title: "Target date", width: { min: 88, max: "0.75fr" as const } },
+    { id: "actions", title: "Actions", width: 154 },
   ];
 
   if (!projects.length)

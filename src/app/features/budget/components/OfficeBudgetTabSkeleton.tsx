@@ -72,17 +72,17 @@ export function OfficeBudgetTabSkeleton({
                 <div className="h-4 w-48 animate-pulse rounded bg-secondary" />
                 <div className="h-3 w-72 animate-pulse rounded bg-muted" />
               </div>
-              <div className="h-6 w-24 animate-pulse rounded-full bg-secondary" />
+              <div className="h-6 w-24 animate-pulse rounded-[5px] bg-secondary" />
             </header>
             <div className="space-y-3 p-4">
               {[0, 1, 2].map((row) => (
-                <div key={row} className="flex items-center justify-between rounded-xl border border-border p-4">
+                <div key={row} className="flex items-center justify-between rounded-[10px] border border-border p-4">
                   <div className="space-y-2">
                     <div className="h-3.5 w-52 animate-pulse rounded bg-secondary" />
                     <div className="h-3 w-64 animate-pulse rounded bg-muted" />
                     <div className="flex gap-2 pt-1">
-                      <div className="h-5 w-24 animate-pulse rounded-full bg-muted" />
-                      <div className="h-5 w-24 animate-pulse rounded-full bg-muted" />
+                      <div className="h-5 w-24 animate-pulse rounded-[5px] bg-muted" />
+                      <div className="h-5 w-24 animate-pulse rounded-[5px] bg-muted" />
                     </div>
                   </div>
                   <div className="flex gap-2">

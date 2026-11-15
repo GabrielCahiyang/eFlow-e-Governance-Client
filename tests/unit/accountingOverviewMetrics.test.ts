@@ -139,6 +139,12 @@ describe("Accounting overview totals", () => {
       model.returned,
       model.outstanding,
     ]).toEqual([4500, 3000, 1000, 500]);
+    expect(model.ages.map((a) => a.label)).toEqual([
+      "Up to 7 days",
+      "8–30 days",
+      "Over 30 days",
+    ]);
+    expect(model.ages.some((a) => a.label.includes("\uFFFD"))).toBe(false);
     expect(model.ages.map((a) => a.value)).toEqual([0, 500, 0]);
   });
 });

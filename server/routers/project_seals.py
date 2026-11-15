@@ -16,24 +16,25 @@ class PublicationCopy(BaseModel):
     reason:str=Field(min_length=5,max_length=2000)
 
 router=APIRouter(prefix='/controlpanelEflow/api/project-seals',tags=['project-publication'])
+_SEAL_OFFLINE='The local blockchain publication host (:8321) is offline. Saved records stay viewable; start the signing host to prepare or seal.'
 
 @router.get('/configuration')
 async def configuration(user=Depends(require_user),credentials=Depends(bearer)):
-    return await _proxy('GET','project-seals/configuration',user,session_token=credentials.credentials)
+    return await _proxy('GET','project-seals/configuration',user,session_token=credentials.credentials,offline_detail=_SEAL_OFFLINE)
 
 @router.post('/{project_id}/prepare')
 async def prepare(project_id:UUID,body:Preparation,user=Depends(require_user),credentials=Depends(bearer)):
-    return await _proxy('POST',f'project-seals/{project_id}/prepare',user,payload=body.model_dump(),session_token=credentials.credentials)
+    return await _proxy('POST',f'project-seals/{project_id}/prepare',user,payload=body.model_dump(),session_token=credentials.credentials,offline_detail=_SEAL_OFFLINE)
 
 @router.get('/snapshots/{snapshot_id}')
 async def preview(snapshot_id:UUID,user=Depends(require_user),credentials=Depends(bearer)):
-    return await _proxy('GET',f'project-seals/snapshots/{snapshot_id}',user,session_token=credentials.credentials)
+    return await _proxy('GET',f'project-seals/snapshots/{snapshot_id}',user,session_token=credentials.credentials,offline_detail=_SEAL_OFFLINE)
 
 @router.get('/snapshots/{snapshot_id}/files/{sha256}')
 async def file(snapshot_id:UUID,sha256:str,user=Depends(require_user),credentials=Depends(bearer)):
     if len(sha256)!=64 or any(c not in '0123456789abcdef' for c in sha256):
         raise HTTPException(422,'Choose a valid archive file.')
-    response=await _proxy('GET',f'project-seals/snapshots/{snapshot_id}/files/{sha256}',user,session_token=credentials.credentials,timeout_seconds=100)
+    response=await _proxy('GET',f'project-seals/snapshots/{snapshot_id}/files/{sha256}',user,session_token=credentials.credentials,timeout_seconds=100,offline_detail=_SEAL_OFFLINE)
     response.headers['Content-Disposition']='attachment'
     response.headers['X-Content-Type-Options']='nosniff'
     response.headers['Cache-Control']='no-store'
@@ -41,4 +42,4 @@ async def file(snapshot_id:UUID,sha256:str,user=Depends(require_user),credential
 
 @router.post('/snapshots/{snapshot_id}/publication-copy')
 async def publication_copy(snapshot_id:UUID,body:PublicationCopy,user=Depends(require_user),credentials=Depends(bearer)):
-    return await _proxy('POST',f'project-seals/snapshots/{snapshot_id}/publication-copy',user,payload=body.model_dump(),session_token=credentials.credentials,timeout_seconds=110)
+    return await _proxy('POST',f'project-seals/snapshots/{snapshot_id}/publication-copy',user,payload=body.model_dump(),session_token=credentials.credentials,timeout_seconds=110,offline_detail=_SEAL_OFFLINE)

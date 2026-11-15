@@ -31,3 +31,11 @@ it('rejects a duplicate subtask before publishing the draft', () => {
     { title: 'Planning', tasks: [{ title: 'Set the agenda', subtasks: ['Plan topics', ' plan TOPICS '] }] },
   ], 'template')).toThrow(/already|same/i);
 });
+
+it('seeds default task and subitem dates within the project schedule when provided', () => {
+  const review = projectSetupTaskPayload([
+    { title: 'Planning', tasks: [{ title: 'Set the agenda', subtasks: ['Plan topics'] }] },
+  ], 'template', { startDate: '2099-03-01', targetDate: '2099-03-15' });
+  expect(review.groups[0].tasks[0]).toMatchObject({ startDate: '2099-03-01', dueDate: '2099-03-15' });
+  expect(review.groups[0].tasks[0].subitems).toEqual([{ title: 'Plan topics', dueDate: '2099-03-15' }]);
+});

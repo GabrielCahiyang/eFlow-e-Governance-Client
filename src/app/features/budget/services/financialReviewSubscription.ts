@@ -6,7 +6,7 @@ export function subscribeFinancialReviewChanges(officeId: string, userId: string
   let active = true;
   const invalidate = () => {
     if (!active || document.visibilityState === 'hidden' || timer !== undefined) return;
-    timer = setTimeout(() => { timer = undefined; if (active) refresh(); }, 150);
+    timer = setTimeout(() => { timer = undefined; if (active) refresh(); }, 600);
   };
   const channel = supabase.channel(`financial-review:${officeId}:${crypto.randomUUID()}`);
   for (const [table, filter] of [
@@ -25,7 +25,7 @@ export function subscribeFinancialReviewChanges(officeId: string, userId: string
     if (connected) invalidate();
     connected = true;
   });
-  const fallback = setInterval(invalidate, 15_000);
+  const fallback = setInterval(invalidate, 60_000);
   window.addEventListener('focus', invalidate);
   window.addEventListener('online', invalidate);
   document.addEventListener('visibilitychange', invalidate);

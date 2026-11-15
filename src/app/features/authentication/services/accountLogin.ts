@@ -19,7 +19,8 @@ export async function signInWithAccountProtection(email: string, password: strin
   const response = await fetch(`${base}/auth/login`, {
     method: 'POST', headers: {'Content-Type':'application/json'},
     body: JSON.stringify({email:email.trim(), password}), cache:'no-store',
-    signal: AbortSignal.timeout(25_000),
+    // Allow slow hosted login_begin + auth/token + login_finish round-trips (30s server timeout) to settle without premature client abort.
+    signal: AbortSignal.timeout(60_000),
   });
   const body = await response.json();
   if (!response.ok) throw new AccountSignInError(response.status,

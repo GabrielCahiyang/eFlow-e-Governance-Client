@@ -252,35 +252,50 @@ export function AnnualBudgetSetup({
           Refresh annual budget status before another write
         </button>
       )}
-      <section className="rounded-[10px] border border-border bg-card">
+      <section className="rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
         <div className="eflow-budget-annual-summary">
           <div>
             <h2 className="text-base font-semibold text-foreground">
               Annual office budget
             </h2>
-            <p className="mt-1 text-xs text-muted-foreground">Fiscal year {fiscalYear}</p>
-            {data.summary?.updatedAt && <p className="mt-1 text-xs text-muted-foreground">Updated {new Date(data.summary.updatedAt).toLocaleString()}</p>}
+            <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
+              <span>Fiscal year {fiscalYear}</span>
+              {data.summary?.updatedAt && (
+                <span>· Updated {new Date(data.summary.updatedAt).toLocaleString()}</span>
+              )}
+            </div>
           </div>
-          <div>
-            <div className="text-xs text-muted-foreground">
+          <div className="text-right">
+            <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
               Total Budget
             </div>
-            <div className="mt-1 text-[20px] font-semibold text-foreground tabular-nums">
+            <div className="mt-0.5 text-[22px] font-semibold text-foreground tabular-nums">
               {peso.format(total)}
             </div>
           </div>
         </div>
-        <div className="p-4">
+        <div className="pt-4">
         {locked && (
-          <div className="mb-4 flex items-start gap-2 text-xs text-muted-foreground">
-            <LockKeyhole size={14} className="shrink-0" />
+          <div className="mb-4 flex items-center gap-2 rounded-[6px] border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+            <LockKeyhole size={14} className="shrink-0 text-primary" />
             <span>
               Budget locked. Commitments and expenses are tracked against the approved amounts.
             </span>
+            {canEdit && !editingLocked && data.sectionsAvailable && (
+              <button
+                type="button"
+                className="ml-auto inline-flex h-8 items-center gap-1.5 rounded-[6px] bg-primary px-3 text-xs font-medium text-primary-foreground transition hover:bg-primary/90 disabled:opacity-40"
+                disabled={hasProjects}
+                aria-describedby={hasProjects ? "office-budget-readjustment-reason" : undefined}
+                onClick={startReadjustment}
+              >
+                Readjust budget
+              </button>
+            )}
           </div>
         )}
         {!canEdit && !locked && (
-          <div className="eflow-budget-warning mb-4 flex gap-2 rounded-lg p-3 text-xs">
+          <div className="eflow-budget-warning mb-4 flex gap-2 rounded-[6px] p-3 text-xs">
             <AlertTriangle size={14} className="shrink-0" />
             Only the assigned Head can prepare and lock the annual budget.
             Members can monitor it and approve operational requests.
@@ -290,47 +305,43 @@ export function AnnualBudgetSetup({
           <div role="status" className="text-[12px]">
             <p className="text-amber-800">Account editing is temporarily unavailable. Your saved budget has not been reset.</p>
             {data.summary ? (
-              <dl className="mt-3 flex items-center justify-between rounded-lg bg-muted p-3">
+              <dl className="mt-3 flex items-center justify-between rounded-[6px] bg-muted p-3">
                 <dt>Saved annual budget · FY {fiscalYear}</dt>
                 <dd className="font-semibold tabular-nums">{peso.format(data.summary.approvedAmount)}</dd>
               </dl>
             ) : <p className="mt-2 text-muted-foreground">No annual budget has been saved for this year.</p>}
-            <button type="button" disabled={busy} onClick={() => void onChanged()} className="mt-3 rounded-lg border px-3 py-2">Refresh budget</button>
+            <button type="button" disabled={busy} onClick={() => void onChanged()} className="mt-3 rounded-[6px] border px-3 py-2">Refresh budget</button>
           </div>
         ) : (
           <>
-            <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-              <h3 className="text-sm font-semibold">Budget accounts</h3>
-              {locked && canEdit && !editingLocked && <button type="button" className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground disabled:opacity-40" disabled={hasProjects} aria-describedby={hasProjects ? "office-budget-readjustment-reason" : undefined} onClick={startReadjustment}>Readjust budget</button>}
-            </div>
             {locked&&!canEdit&&<p className="mb-3 text-[13px] text-muted-foreground">Only the office Head can readjust this budget.</p>}
             {locked && canEdit && hasProjects && <p id="office-budget-readjustment-reason" className="mb-3 text-[13px] text-muted-foreground">You can only readjust the Office Budget when the Office has no projects.</p>}
             {sections.some(section => !section.retired && section.name === "Unclassified opening appropriation") && <p className="mb-3 text-[12px] text-muted-foreground">Your previously saved budget starts as one account. Rename it or divide it into your real accounts. Changing a locked amount requires a reason.</p>}
             <BudgetSectionEditor fiscalYear={fiscalYear} scheduleEnabled={data.releaseScheduleAvailable===true} sections={sections} onChange={setSections} disabled={!writable || busy} />
           </>
         )}
-        {editingLocked && <label className="mt-4 block"><span className="text-[13px] font-medium">Reason for adjustment (required)</span><textarea disabled={busy || !writable} value={adjustmentReason} onChange={e => setAdjustmentReason(e.target.value)} className="mt-1 w-full rounded-lg border p-3 text-[13px]" placeholder="Explain what changed and why." /><p className="mt-1 text-[12px] text-muted-foreground">Saving creates V{nextVersion}.</p></label>}
+        {editingLocked && <label className="mt-4 block"><span className="text-[13px] font-medium">Reason for adjustment (required)</span><textarea disabled={busy || !writable} value={adjustmentReason} onChange={e => setAdjustmentReason(e.target.value)} className="mt-1 w-full rounded-[6px] border border-border bg-card p-3 text-[13px]" placeholder="Explain what changed and why." /><p className="mt-1 text-[12px] text-muted-foreground">Saving creates V{nextVersion}.</p></label>}
         <BudgetProtectionAlert protection={protection||saveError?.protection} error={saveError}/>
         {lockValidation && <p role="alert" className="mt-3 text-[12px] text-destructive">{lockValidation}</p>}
         </div>
       </section>
-      <section className="rounded-[10px] border border-border bg-card p-4">
+      <section className="rounded-[10px] border border-border bg-card p-5">
         <div className="flex items-start gap-3">
-          <div className="rounded-[14px] bg-primary/10 p-2.5 text-primary">
+          <div className="rounded-[8px] bg-primary/10 p-2 text-primary">
             <CalendarClock size={16} />
           </div>
           <div>
             <h3 className="text-[14px] font-semibold text-foreground">
               Cash release and liquidation controls
             </h3>
-            <p className="mt-1 max-w-3xl text-[12px] leading-relaxed text-secondary-foreground">
+            <p className="mt-0.5 max-w-3xl text-[12px] leading-relaxed text-muted-foreground">
               These controls apply to task-funded cash requests. Office petty cash
               has a separate ₱30,000 revolving fund and a strict ₱5,000 per-receipt
               limit in the Office Petty Cash view. Only Accounting may replenish it.
             </p>
           </div>
         </div>
-        <div className="mt-4 grid gap-4 grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))]">
+        <div className="mt-4 grid gap-3 grid-cols-[repeat(auto-fit,minmax(min(100%,11rem),1fr))]">
           <NumberField
             money label="Daily cash release ceiling"
             value={pettyLimit}

@@ -1,0 +1,94 @@
+.eflow-loading--offline {
+  background: linear-gradient(
+    to bottom,
+    rgba(201, 42, 58, 0.08) 0%,
+    rgba(201, 42, 58, 0.02) 14%,
+    #fff 34%
+  );
+}
+
+.eflow-loading--slow {
+  background: linear-gradient(
+    to bottom,
+    rgba(217, 119, 6, 0.07) 0%,
+    rgba(217, 119, 6, 0.02) 14%,
+    #fff 34%
+  );
+}
+
+.eflow-loading__signal {
+  align-items: center;
+  border-radius: 5px;
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 600;
+  gap: 6px;
+  line-height: 1.4;
+  margin-top: 6px;
+  padding: 4px 10px;
+}
+
+.eflow-loading__signal--offline {
+  background: var(--eflow-negative-bg, #fde9e8);
+  color: var(--eflow-negative-text, #a82925);
+}
+
+.eflow-loading__signal--slow {
+  background: var(--eflow-warning-bg, #fff2d8);
+  color: var(--eflow-warning-text, #795008);
+}
+
+.eflow-loading__detail {
+  color: var(--loading-muted, #61727d);
+  font-size: 13px;
+  line-height: 1.5;
+  margin: -12px 0 20px;
+}
+
+.eflow-loading--offline .eflow-loading-track {
+  background: var(--eflow-negative-bg, #fde9e8);
+}
+
+.eflow-loading--offline .eflow-loading-track span {
+  animation: none;
+  background: var(--eflow-danger, #c92a3a);
+  opacity: 0.72;
+  width: 100%;
+}
+
+.eflow-loading--slow .eflow-loading-track {
+  background: var(--eflow-warning-bg, #fff2d8);
+}
+
+.eflow-loading--slow .eflow-loading-track span {
+  background: linear-gradient(90deg, #d97706, #f59e0b);
+}
+
+.eflow-loading__retry {
+  background: var(--eflow-negative-bg, #fde9e8);
+  border: 1px solid color-mix(in srgb, var(--eflow-negative-text, #a82925) 24%, transparent);
+  border-radius: 5px;
+  color: var(--eflow-negative-text, #a82925);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 18px;
+  min-height: 34px;
+  padding: 6px 14px;
+  transition: filter 120ms ease, opacity 120ms ease;
+}
+
+.eflow-loading__retry:hover:not(:disabled) {
+  filter: brightness(0.96);
+}
+
+.eflow-loading__retry:focus-visible {
+  outline: 2px solid var(--eflow-danger, #c92a3a);
+  outline-offset: 2px;
+}
+
+.eflow-loading__retry:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}

@@ -11,6 +11,8 @@ import {
 import type { PettyCashRelease, PettyCashRequest } from "../types";
 import { overridePettyCashReleaseSchedule } from "../services/budgetService";
 import { peso } from "./budgetUi";
+import { getCurrentFiscalYear } from "../constants";
+import { formatFundingRequestCode } from "../selectors/cashWorkflowRules";
 
 import { useExplicitDraft } from "../../../shared/useExplicitDraft";
 import { requestNavigation } from "../../../shared/navigationGuard";
@@ -24,7 +26,7 @@ import {
 export function CashReleaseOverrideDialog({
   release,
   request,
-  fiscalYear = new Date().getFullYear(),
+  fiscalYear = getCurrentFiscalYear(),
   onClose,
   onReleased,
 }: {
@@ -155,7 +157,7 @@ export function CashReleaseOverrideDialog({
         </DialogHeader>
         <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-950">
           <strong>
-            PC-{String(request?.requestNumber || 0).padStart(5, "0")} ·{" "}
+            {formatFundingRequestCode(request?.requestNumber)} ·{" "}
             {peso.format(release.amount)}
           </strong>
           <p className="mt-1">

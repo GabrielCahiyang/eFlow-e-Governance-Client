@@ -12,10 +12,12 @@ export type { ProjectGroup, ProjectColumn } from "./types";
 export type { WorkspaceTaskPatch } from "./types";
 export {
   visibleProjectTasks,
+  tasksInGroup,
+  visibleProjectGroups,
   inlineStatusOptions,
   canEditProjectTask,
   STATUS_COLORS,
 } from "./selectors";
 export type { TableSort } from "./selectors";
-export { patchWorkspaceTask } from "./services/workspaceService";
+export { fetchProjectGroups, patchWorkspaceTask } from "./services/workspaceService";
 export { timelineDraft, timelinePatch, timelineError, todayDate } from "./planningDraft";

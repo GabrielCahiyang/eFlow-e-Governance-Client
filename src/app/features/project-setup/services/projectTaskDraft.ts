@@ -22,7 +22,27 @@ export async function generateProjectTaskGroups(project: ProjectDescription) {
   }
 }
 
-export function projectSetupTaskPayload(groups: ProjectTaskGroup[], source: 'template' | 'ai') {
+function manilaTodayIso(): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Manila' }).format(new Date());
+}
+
+function defaultDraftSchedule(schedule?: { startDate?: string; targetDate?: string }) {
+  const startRaw = schedule?.startDate?.trim() || '';
+  const targetRaw = schedule?.targetDate?.trim() || '';
+  if (!targetRaw) return { startDate: '', dueDate: '' };
+  const today = manilaTodayIso();
+  if (targetRaw < today) return { startDate: '', dueDate: '' };
+  const startDate = startRaw && startRaw >= today ? startRaw : today;
+  if (startDate > targetRaw) return { startDate: '', dueDate: '' };
+  return { startDate, dueDate: targetRaw };
+}
+
+export function projectSetupTaskPayload(
+  groups: ProjectTaskGroup[],
+  source: 'template' | 'ai',
+  schedule?: { startDate?: string; targetDate?: string },
+) {
+  const { startDate, dueDate } = defaultDraftSchedule(schedule);
   const draft: ProjectImportDraft = {
     schemaVersion: 1,
     project: { title: '', description: '', objectives: '', startDate: '', targetDate: '' },
@@ -32,9 +52,9 @@ export function projectSetupTaskPayload(groups: ProjectTaskGroup[], source: 'tem
       key: `group-${groupIndex}`, title: group.title, color: '#087972', existingGroupId: '',
       tasks: group.tasks.map((task, taskIndex) => ({
         key: `task-${groupIndex}-${taskIndex}`, title: task.title, included: true,
-        description: '', priority: 'medium', estimatedHours: 0, startDate: '', dueDate: '',
+        description: '', priority: 'medium', estimatedHours: 0, startDate, dueDate,
         officeKey: '', dependencies: [], sourceQuote: '',
-        subitems: task.subtasks.map(title => ({ title, dueDate: '' })),
+        subitems: task.subtasks.map(title => ({ title, dueDate })),
       })),
     })),
   };

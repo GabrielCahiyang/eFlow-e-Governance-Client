@@ -35,8 +35,8 @@
 .eflow-confirmation-body { min-width: 0; max-height: 60dvh; overflow: auto; }
 .eflow-confirmation-body ul { list-style: disc; padding-left: var(--eflow-space-5); margin-block: var(--eflow-space-3); }
 .eflow-confirmation-blockers { color: var(--eflow-negative-text); background: var(--eflow-negative-bg); padding: var(--eflow-space-3); border-radius: var(--eflow-radius-control); }
-.eflow-vibe-modal-layout { flex: 1; min-width: 0; min-height: 0; width: 100%; overflow: hidden; }
-.eflow-vibe-modal-content { min-width: 0; min-height: 0; width: 100%; overscroll-behavior: contain; overflow-wrap: anywhere; }
+.eflow-vibe-modal-layout { display: flex; flex-direction: column; flex: 1 1 auto; min-width: 0; min-height: 0; width: 100%; overflow: hidden; }
+.eflow-vibe-modal-content { flex: 1 1 auto; min-width: 0; min-height: 0; width: 100%; overflow-y: auto; overscroll-behavior: contain; overflow-wrap: break-word; word-break: normal; padding-bottom: 16px; }
 .eflow-vibe-modal-header [id$="_desc"] { width: 100%; min-width: 0; align-items: flex-start; }
 .eflow-vibe-modal-header [id$="_desc"] > span { display: block; max-width: 100%; min-width: 0; white-space: normal; overflow: visible; overflow-wrap: anywhere; -webkit-line-clamp: unset; }
 .eflow-responsive-modal { min-width: 0; color: var(--eflow-text); }

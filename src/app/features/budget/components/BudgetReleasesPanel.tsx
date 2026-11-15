@@ -10,7 +10,8 @@ import { BudgetEmpty, peso, StatusPill } from "./budgetUi";
 import { CashReleaseOverrideDialog } from "./CashReleaseOverrideDialog";
 import { DisbursementVoucherDialog } from "./DisbursementVoucherDialog";
 import { VoucherConfirmDialog } from "./VoucherConfirmDialog";
-import { getScheduledReleaseSummary } from "../selectors/cashWorkflowRules";
+import { getCurrentFiscalYear } from "../constants";
+import { formatFundingRequestCode, getScheduledReleaseSummary } from "../selectors/cashWorkflowRules";
 
 type ActiveDialog =
   | { kind: "release"; release: PettyCashRelease; request?: PettyCashRequest }
@@ -36,7 +37,7 @@ export function BudgetReleasesPanel({
     can("accounting.release_cash") &&
     !(data as DepartmentBudgetBundle & { error?: string }).error;
   const canOverride = canRelease;
-  const fiscalYear = data.summary?.fiscalYear ?? new Date().getFullYear();
+  const fiscalYear = data.summary?.fiscalYear ?? getCurrentFiscalYear();
   const [override, setOverride] = useState<PettyCashRelease>();
   const [active, setActive] = useState<ActiveDialog>();
   const [message, setMessage] = useState("");
@@ -130,7 +131,7 @@ export function BudgetReleasesPanel({
             >
               <div className="min-w-0 break-words">
                 <div className="text-sm font-semibold">
-                  PC-{String(request?.requestNumber || 0).padStart(5, "0")} ·{" "}
+                  {formatFundingRequestCode(request?.requestNumber)} ·{" "}
                   {request?.subtaskTitle || request?.taskTitle || "Funded work"}
                 </div>
                 <div className="mt-1 text-[12px] text-neutral-500">
@@ -306,17 +307,17 @@ function ReleaseSummaryCard({
 }) {
   return (
     <div
-      className={`rounded-xl border p-3 ${urgent ? "border-amber-200 bg-amber-50" : "border-neutral-200 bg-white"}`}
+      className={`rounded-[10px] border p-4 ${urgent ? "border-amber-200 bg-amber-50/70" : "border-border bg-card"}`}
     >
-      <div className="text-[12px] uppercase tracking-[0.12em] text-neutral-500">
+      <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
         {label}
       </div>
       <div
-        className={`mt-1 text-right text-[16px] font-semibold tabular-nums ${urgent ? "text-amber-900" : "text-neutral-950"}`}
+        className={`mt-1 text-right text-[20px] font-semibold tabular-nums ${urgent ? "text-amber-900" : "text-foreground"}`}
       >
         {value}
       </div>
-      <div className="mt-0.5 text-[12px] text-neutral-500">{note}</div>
+      <div className="mt-1 text-[12px] text-muted-foreground">{note}</div>
     </div>
   );
 }

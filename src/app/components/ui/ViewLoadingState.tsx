@@ -1,5 +1,10 @@
-import type { CSSProperties } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import { EFlowMark } from '../../../components/EFlowMark';
+import {
+  SLOW_CONNECTION_THRESHOLD_MS,
+  useNetworkConnectivity,
+} from '../../shared/networkConnectivity';
+import { SignalBarsIcon } from './SignalBarsIcon';
 import './viewLoadingState.css';
 
 type SkeletonKind = 'split' | 'settings' | 'table' | 'overview';
@@ -141,12 +146,44 @@ function RoutePreview({ kind }: { kind: SkeletonKind }) {
 /** Lightweight, full-stage loader matching the live eFlow workspace. */
 export function ViewLoadingState() {
   const kind = resolveRouteSkeletonKind();
+  const { status, checking, retry } = useNetworkConnectivity();
+  const [slowElapsed, setSlowElapsed] = useState(false);
+
+  useEffect(() => {
+    if (status === 'offline') return;
+    const timer = window.setTimeout(
+      () => setSlowElapsed(true),
+      SLOW_CONNECTION_THRESHOLD_MS,
+    );
+    return () => window.clearTimeout(timer);
+  }, [status]);
+
+  const effectiveStatus =
+    status === 'offline'
+      ? 'offline'
+      : status === 'slow' || slowElapsed
+        ? 'slow'
+        : 'online';
+
+  const offline = effectiveStatus === 'offline';
+  const slow = effectiveStatus === 'slow';
+  const ariaLabel = offline
+    ? 'No internet connection'
+    : slow
+      ? 'Slow internet connection'
+      : 'Getting things done';
+
+  const rootClass =
+    effectiveStatus === 'online'
+      ? 'eflow-view-loading'
+      : `eflow-view-loading eflow-view-loading--${effectiveStatus}`;
+
   return (
     <div
-      className="eflow-view-loading"
+      className={rootClass}
       role="status"
-      aria-label="Getting things done"
-      aria-busy="true"
+      aria-label={ariaLabel}
+      aria-busy={!offline}
     >
       <div className="eflow-view-loading__frame">
         <div className="eflow-view-loading__aurora" aria-hidden="true" />
@@ -154,19 +191,42 @@ export function ViewLoadingState() {
         {/* Topbar matching live eFlow header */}
         <header className="eflow-view-loading__brand">
           <div className="eflow-view-loading__brand-lead">
-            <EFlowMark className="eflow-view-loading__mark" height={38} state="submitting" />
+            <EFlowMark className="eflow-view-loading__mark" height={38} state={offline ? 'idle' : 'submitting'} />
             <span className="eflow-view-loading__brand-divider" aria-hidden="true" />
             <span className="eflow-view-loading__brand-org" aria-hidden="true" />
           </div>
           <div className="eflow-view-loading__status-wrap">
-            <span className="eflow-view-loading__status">
-              Getting things done
-              <span className="eflow-view-loading__dots" aria-hidden="true">
-                <i style={stagger(0)} />
-                <i style={stagger(1)} />
-                <i style={stagger(2)} />
+            {effectiveStatus === 'online' ? (
+              <span className="eflow-view-loading__status">
+                Getting things done
+                <span className="eflow-view-loading__dots" aria-hidden="true">
+                  <i style={stagger(0)} />
+                  <i style={stagger(1)} />
+                  <i style={stagger(2)} />
+                </span>
               </span>
-            </span>
+            ) : (
+              <div className="eflow-view-loading__connectivity">
+                <span
+                  className={`eflow-view-loading__signal eflow-view-loading__signal--${effectiveStatus}`}
+                >
+                  <SignalBarsIcon status={effectiveStatus} />
+                  <span>{offline ? 'No internet connection' : 'Slow internet'}</span>
+                </span>
+                {offline && (
+                  <button
+                    type="button"
+                    className="eflow-view-loading__retry"
+                    disabled={checking}
+                    onClick={() => {
+                      void retry();
+                    }}
+                  >
+                    {checking ? 'Checking…' : 'Retry'}
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </header>
 

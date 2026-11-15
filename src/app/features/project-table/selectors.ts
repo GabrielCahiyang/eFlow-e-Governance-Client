@@ -14,6 +14,13 @@ export function visibleProjectTasks(tasks: Task[], query: string, status: string
  });
 }
 export function tasksInGroup(tasks: Task[], group: ProjectGroup) { return tasks.filter(t=>t.groupId===group.id || (!t.groupId && group.isDefault)); }
+
+/** Hide an untouched default 'To do' group once other groups hold the project's tasks. */
+export function visibleProjectGroups(groups: ProjectGroup[], allTasks: Task[]): ProjectGroup[] {
+  const nonEmptyNonDefault = groups.some((group) => !group.isDefault && tasksInGroup(allTasks, group).length > 0);
+  if (!nonEmptyNonDefault) return groups;
+  return groups.filter((group) => !(group.isDefault && tasksInGroup(allTasks, group).length === 0));
+}
 export function groupSummary(tasks: Task[]) {
  const required=tasks.filter(t=>t.status!=='cancelled'),completed=required.filter(t=>t.status==='completed').length;
  return {count:tasks.length,completed,budget:tasks.reduce((n,t)=>n+(t.budgetImpact||0),0),effort:tasks.reduce((n,t)=>n+(t.estimatedHours||0),0),progress:required.length?Math.round(completed*100/required.length):0};

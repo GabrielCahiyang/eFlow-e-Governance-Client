@@ -32,11 +32,11 @@ describe("remaining phase presentation contracts", () => {
     for (const view of ["annual", "funding", "approvals", "releases", "expenses", "journal", "audit"]) {
       expect(budgetViews).toContain(`id: '${view}'`);
     }
-    expect(budget).toContain("WorkspaceLoadingSkeleton");
-    expect(budget).toContain('sticky top-3 z-20');
+    expect(budget).toContain("OfficeBudgetTabSkeleton");
+    expect(read("src/app/features/budget/components/OfficeBudgetTabSkeleton.tsx")).toContain("WorkspaceLoadingSkeleton");
     expect(budget).toContain("<BudgetViewControl");
     expect(budget).not.toContain("<TabsContext");
-    expect(budget).toContain('aria-label="Budget fiscal scope and view filters"');
+    expect(read("src/app/features/budget/components/BudgetViewControl.tsx")).toContain('aria-label="Office Budget views"');
     expect(budget).toContain("BudgetPositionSummary");
     expect(budgetPosition).toContain("Pending approvals");
     expect(budgetPosition).toContain("Release deadlines");

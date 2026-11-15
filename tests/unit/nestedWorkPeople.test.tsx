@@ -2,7 +2,7 @@
 import {useState} from 'react';
 import {cleanup,fireEvent,render,screen,within} from '@testing-library/react';
 import {afterEach,describe,expect,it,vi} from 'vitest';
-import {compatibilityWorkWorkerIds,deduplicateWorkPersonIds,displayedWorkContributorIds,eligibleWorkPeople,resolveWorkPersonName} from '../../src/app/features/nested-work/selectors/people';
+import {collectSubtaskTeamIds,compatibilityWorkWorkerIds,deduplicateWorkPersonIds,displayedWorkContributorIds,eligibleWorkPeople,resolveWorkPersonName} from '../../src/app/features/nested-work/selectors/people';
 import {WorkPeopleSummary} from '../../src/app/features/nested-work/components/WorkPeopleSummary';
 import {WorkLeadField} from '../../src/app/features/nested-work/components/WorkLeadField';
 import {WorkContributorsField} from '../../src/app/features/nested-work/components/WorkContributorsField';
@@ -254,5 +254,11 @@ describe('NW9.1 public people display adapter',()=>{
   expect(publicContributorIds).toBe(displayedWorkContributorIds);
   expect(publicEligiblePeople).toBe(eligibleWorkPeople);
   expect(publicUniqueIds).toBe(deduplicateWorkPersonIds);
+ });
+ it('aggregates subtask leads and contributors alongside task contributors while excluding root Lead',()=>{
+  expect(collectSubtaskTeamIds('lead',['lead','member'],[
+   {lead_id:'next',assigned_to_ids:['lead','member','guest']},
+   {lead_id:'lead',assigned_to_ids:[]},
+  ])).toEqual({directIds:['member'],subtaskIds:['next','guest'],teamIds:['member','next','guest']});
  });
 });

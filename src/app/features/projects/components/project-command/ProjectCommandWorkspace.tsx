@@ -16,6 +16,7 @@ import { tasksForProject } from "../../../../services/taskSelectors";
 import { getTaskTeamMemberIds } from "../../../tasks";
 import type { Project } from "../../services/projectService";
 import { useProjectCommandData } from "../../hooks/useProjectCommandData";
+import { hasAssignedSubtaskWork } from "../../selectors/projectCommandSelectors";
 import { ProjectHeader } from "./ProjectHeader";
 import { ProjectParticipants } from "./ProjectParticipants";
 import { ProjectUtilities, type ProjectLifecycleActions } from "./ProjectUtilities";
@@ -145,6 +146,7 @@ export function ProjectCommandWorkspace({
   const openTask = projectTasks.find((task) => task.id === openTaskId) || null;
   const currentActor=userProfile?.id||'';
   const assignedWork=!!openTask&&getTaskTeamMemberIds(openTask).includes(currentActor);
+  const assignedSubtask=!!openTask&&!!currentActor&&hasAssignedSubtaskWork(data.facts.subtasks,openTask.id,currentActor);
   const assignedReview=!!openTask&&!!currentActor&&[openTask.reviewerId,openTask.backupReviewerId].includes(currentActor);
 
   const activeTabId = resolveProjectView(tab) || 'tasks';
@@ -175,7 +177,7 @@ export function ProjectCommandWorkspace({
       </div>
       <ProjectHeader project={project} organizations={orgs} profiles={profiles} metrics={data.metrics} editable={canManage || canEditProjectWork && ownOffice?.relationship_type === 'lead'} onTitleChange={title => canManage ? updateProject(project.id, { title }, project.metadataVersion) : renameSelectedProject(project, title)}
         participants={<ProjectParticipants scope={`${userProfile?.id}:${favoriteContextId}:${project.id}`} profilesLoading={profilesLoading} offices={officeState} profiles={profiles} contributorIds={[project.ownerId || '', ...data.members.map(member => member.userId), ...officeState.members.map(member => member.user_id), ...projectTasks.flatMap(task => [task.assigneeId || '', ...(task.teamMemberIds || [])])]} />}
-        utilities={<ProjectUtilities setupReady={setupReady} project={project} canManage={canManage} lifecycle={canManage?lifecycleActions:canPlan?{delete:lifecycleActions.delete}:{}} userId={authorizedProjectIds.length ? userProfile?.id || '' : ''} contextId={favoriteContextId} authorizedProjectIds={authorizedProjectIds} view={activeTabId} onOpenOffices={() => selectTab('offices')} onResolveView={selectTab} onOpenSettings={() => {if(activeTabId!=='settings')setSettingsReturn(activeTabId);selectTab('settings');}} />}
+        utilities={<ProjectUtilities setupReady={setupReady} project={project} canManage={canManage} lifecycle={canManage?lifecycleActions:canPlan?{delete:lifecycleActions.delete}:{}} userId={authorizedProjectIds.length ? userProfile?.id || '' : ''} contextId={favoriteContextId} authorizedProjectIds={authorizedProjectIds} view={activeTabId} tasks={projectTasks} subtasks={data.facts.subtasks} onOpenOffices={() => selectTab('offices')} onResolveView={selectTab} onOpenSettings={() => {if(activeTabId!=='settings')setSettingsReturn(activeTabId);selectTab('settings');}} />}
         />
       {/* Extensible Workspace Tab Bar (Permanent core views + optional dynamic views) */}
       {pdfOpen&&canManage&&!closed&&<ProjectPdfImportPanel key={project.id} projectId={project.id} projectTitle={project.title} startDate={project.startDate} onClose={()=>setPdfOpen(false)} onOffices={()=>selectTab('offices')} onImported={result=>{setImportGroupId(result.groupIds[0]||'');setImportRevision(value=>value+1);setFilters({...filters,query:'',owner:'',status:'',office:'',dateFrom:'',dateTo:''});selectTab('tasks');}}/>}
@@ -291,7 +293,7 @@ export function ProjectCommandWorkspace({
         canReview={assignedReview||isHeadWorkspaceRole(userProfile?.role)&&canReviewTasks}
         canSubmitForReview={!!openTask&&!!currentActor&&[openTask.assigneeId,openTask.recommendationLeadId].includes(currentActor)}
         canPostProgress={assignedWork}
-        readOnly={!!flow.error||closed||(!isHeadWorkspaceRole(userProfile?.role)&&project.projectLeadId!==currentActor&&!assignedWork&&!assignedReview)||!ownWorkAccess||!!openTask&&shared&&openTask.orgId!==userProfile?.org_id}
+        readOnly={!!flow.error||closed||(!isHeadWorkspaceRole(userProfile?.role)&&project.projectLeadId!==currentActor&&!assignedWork&&!assignedSubtask&&!assignedReview)||!ownWorkAccess||!!openTask&&shared&&openTask.orgId!==userProfile?.org_id}
       />
 
     </div></ProjectOfficeContext.Provider></ProjectFlowProvider>
