@@ -6,10 +6,10 @@ type Evidence = { filePath: string; fileName: string; fileSize: number; mimeType
 export type LeadSubmission = {
   id: string; kind: ReviewKind; state: 'pending' | 'approved' | 'changes_requested';
   author_id: string; reviewer_id: string; canDecide: boolean; decision_note?: string;
-  terms: { note: string; attachments?: Evidence[] };
+  terms: { note: string; blocker?: string; next_step?: string; attachments?: Evidence[] };
 };
 export type LeadReview = { canProposeProgress: boolean; canProposeCompletion: boolean; items: LeadSubmission[] };
-export type ReviewAttempt = { id: string; uploaded: Evidence[] };
+export type ReviewAttempt = { id: string; uploaded: Evidence[]; sent?: boolean };
 
 export async function fetchSubitemLeadReview(root: string, node: string): Promise<LeadReview> {
   const { data, error } = await supabase.rpc('m7_work_proposals', { p_root: root, p_node: node });
@@ -20,11 +20,16 @@ export async function fetchSubitemLeadReview(root: string, node: string): Promis
 
 export async function proposeSubitemWork(input: {
   root: string; node: string; actor: string; kind: ReviewKind; note: string; files: File[];
-  attempt: ReviewAttempt; supersedes?: string;
+  attempt: ReviewAttempt; supersedes?: string; blocker?: string; nextStep?: string;
 }) {
   const { root, node, actor, kind, note, files, attempt, supersedes } = input;
   const { data: session } = await supabase.auth.getSession();
   if (session.session?.user.id !== actor) throw new Error('Sign in again to submit this work.');
+  if (!attempt.sent) {
+    const current = await fetchSubitemLeadReview(root, node);
+    if (!(kind === 'completion' ? current.canProposeCompletion : current.canProposeProgress))
+      throw new Error('Submission access changed. Reload the Lead review before submitting.');
+  }
   for (let index = attempt.uploaded.length; index < files.length; index++) {
     const file = files[index];
     const filePath = [actor, root, node, attempt.id, `${index}.${file.name.split('.').pop()?.toLowerCase()}`].join('/');
@@ -32,11 +37,14 @@ export async function proposeSubitemWork(input: {
     if (error && !/already exists|duplicate/i.test(error.message)) throw new Error(error.message);
     attempt.uploaded.push({ filePath, fileName: file.name, fileSize: file.size, mimeType: file.type });
   }
+  attempt.sent = true;
   const { data, error } = await supabase.rpc('m7_propose_work', {
     p_root: root, p_node: node, p_request: attempt.id, p_kind: kind,
-    p_terms: { note, attachments: attempt.uploaded }, p_supersedes: supersedes ?? null,
+    p_terms: { note, attachments: attempt.uploaded,
+      ...(input.blocker !== undefined ? { blocker: input.blocker } : {}),
+      ...(input.nextStep !== undefined ? { next_step: input.nextStep } : {}) }, p_supersedes: supersedes ?? null,
   });
-  if (error) throw new Error(error.message);
+  if (error) { if (/^[0-9A-Z]{5}$/.test(error.code || '')) attempt.sent = false; throw new Error(error.message); }
   if (data?.id !== attempt.id) throw new Error('Submission could not be verified. Retry the same submission.');
   return data as LeadSubmission;
 }

@@ -6,11 +6,11 @@ import {DeadlineBadge} from '../../../components/ui/DeadlineBadge';
 import {workDateLabel} from '../../../shared/workCalendar';
 import {requestNavigation} from '../../../shared/navigationGuard';
 import type {Task} from '../../tasks';
-import {useWorkTree,WorkActivity,WorkTreeEditor,type WorkTreeController} from '../../nested-work';
+import {fetchWorkTree,useWorkTree,WorkActivity,WorkTreeEditor,type WorkTreeController} from '../../nested-work';
 import type {TaskInspectorOrigin} from '../../task-inspector';
 import type {Subtask} from '../../../services/subtaskService';
 import {useSubitemInspectorData} from '../hooks/useSubitemInspectorData';
-import {getSubtaskPrerequisite} from '../selectors/sequencing';
+import {getSubtaskPrerequisite,getSubtaskDependencyBlocker} from '../selectors/sequencing';
 import {SubitemContext} from './SubitemContext';
 import {SubitemChildWork} from './SubitemChildWork';
 import {SubitemWorkflow} from './SubitemWorkflow';
@@ -53,6 +53,10 @@ function SubitemInspectorContent(props:SubitemInspectorProps&{controller:WorkTre
  const current:Subtask={...data.data.subtask,customStatusId:node.custom_status_id === undefined ? data.data.subtask.customStatusId : node.custom_status_id ?? undefined,title:node.title,parentSubtaskId:node.parent_subtask_id||undefined,leadId:node.lead_id||undefined,
   assignedToIds:node.assigned_to_ids,siblingOrder:node.sibling_order,dueDate:node.due_date||undefined,isStandalone:node.is_standalone,status:node.effective_status??node.status,isCompleted:node.status==='completed',percentComplete:node.percent_complete,dependencyIds:node.dependency_ids??null};
  const siblings=tree.nodes.map(node=>({id:node.id,title:node.title,parentSubtaskId:node.parent_subtask_id||undefined,position:node.sibling_order,siblingOrder:node.sibling_order,isStandalone:node.is_standalone,isCompleted:node.status==='completed',dependencyIds:node.dependency_ids}));
+ const dependencyBlockedReason=(node.restricted_dependency_count??0)>0
+  ?'A selected prerequisite is missing or restricted. Reload this work to verify its dependencies.'
+  :getSubtaskDependencyBlocker(siblings.find(row=>row.id===itemId)!,siblings)
+   ||((node.pending_dependency_count??0)>0?'Complete every selected prerequisite first.':null);
  const previous=getSubtaskPrerequisite(siblings.find(row=>row.id===itemId)!,siblings);
  // Only authorized sibling context can be used; never carry another item's prior step.
  const prerequisite=previous?{...current,...previous} as Subtask:null;
@@ -76,16 +80,21 @@ function SubitemInspectorContent(props:SubitemInspectorProps&{controller:WorkTre
  const leadsStep=actorId===node.lead_id;
  const leadsTask=actorId===tree.root.lead;
  const unfinishedChild=tree.nodes.some(child=>child.parent_subtask_id===itemId&&child.status!=='completed');
- const reviewBlocked=previous?`Complete “${previous.title}” first.`:undefined;
+ const reviewBlocked=dependencyBlockedReason||undefined;
+ const recheckCompletion=async()=>{
+  const latest=await fetchWorkTree(tree.root.id);
+  const access=selectSubitemInspectorCapabilities(latest,itemId,{...context!,revision:latest.revision});
+  if(!access.submit)throw new Error(access.submitBlockedReason||'Completion access changed. Reload this work.');
+ };
  const leadReview=usesLeadReview&&!waitingToStart&&actorId?<SubitemLeadReview key={itemId}
-  root={tree.root.id} node={itemId} actor={actorId} readOnly={scopeReadOnly||startPaused} pending={data.pending}
+  root={tree.root.id} node={itemId} actor={actorId} status={current.status} initialBlocker={data.data.progressUpdates[0]?.blocker||''} readOnly={scopeReadOnly||startPaused} pending={data.pending}
   blocked={reviewBlocked} completionBlocked={unfinishedChild?'Complete the child subtasks first.':undefined}
   reviewerName={tree.people.find(person=>person.id===tree.root.lead)?.name} onChanged={reload}/>:undefined;
  return <InspectorSurface presentation="page" open onClose={close} ariaLabel={`Subtask: ${node.title}`} returnFocus={origin.returnFocus} onReturnFocus={origin.restoreFocus}>
   <SubitemContext stuck={!!data.data.progressUpdates[0]?.blocker} node={node} tree={tree} rootTitle={props.rootTask.title} onOpenItem={openItem} onClose={close}/>
   <nav className="task-page__tabs" aria-label="Subtask sections">{(['work','activity'] as const).map(value=><button key={value} type="button" aria-current={section===value?'page':undefined} onClick={()=>void requestNavigation(()=>setSection(value))}>{value==='work'?'Work':'Activity'}</button>)}</nav>
   <div className="task-page__body subitem-page-body">
-   <div hidden={section!=='work'} className="subitem-work-layout"><SubitemWorkflow task={fundingTask} subtask={current} prerequisite={prerequisite} capabilities={capabilities} pending={data.pending} saving={data.saving} submissions={data.data.submissions} progressUpdates={data.data.progressUpdates} onSaved={reload} schedule={schedule} onReview={()=>reviewNode(itemId)} startPanel={startPanel}
+   <div hidden={section!=='work'} className="subitem-work-layout"><SubitemWorkflow dependencyBlockedReason={dependencyBlockedReason} recheckCompletion={recheckCompletion} task={fundingTask} subtask={current} prerequisite={prerequisite} capabilities={capabilities} pending={data.pending} saving={data.saving} submissions={data.data.submissions} progressUpdates={data.data.progressUpdates} onSaved={reload} schedule={schedule} onReview={()=>reviewNode(itemId)} startPanel={startPanel}
     leadReview={leadReview} directUpdates={!usesLeadReview||leadsStep||leadsTask} directCompletion={!usesLeadReview||leadsStep&&leadsTask}/>
    {tree.nodes.some(child=>child.parent_subtask_id===itemId)&&<section className="subitem-child-work" aria-label="Child subtasks"><SubitemChildWork itemId={itemId} controller={props.controller} readOnly={scopeReadOnly} executionBlocked={!!props.executionBlocked} onOpenItem={openItem} onReviewItem={reviewNode}/></section>}</div>
    {section==='activity'&&<section aria-label="Subtask activity"><WorkActivity roots={[props.rootTask.id]} focusedNode={{rootId:props.rootTask.id,nodeId:itemId}} snapshot={data.tree}/></section>}

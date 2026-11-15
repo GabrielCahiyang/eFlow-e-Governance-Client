@@ -10,6 +10,15 @@ const subtask={id:'s',taskId:'t',title:'Evidence',status:'todo',percentComplete:
 let uninstall:(()=>void)|undefined;
 beforeEach(()=>vi.clearAllMocks());afterEach(()=>{cleanup();uninstall?.();});
 describe('delegated subtask evidence drafts',()=>{
+ it('does not let a stale earlier sibling override explicit prerequisites in the work form',()=>{
+  const earlier={...subtask,id:'earlier',title:'Unrelated earlier work'};
+  const view=render(<SubtaskProgressForm subtask={{...subtask,dependencyIds:[]}} prerequisite={earlier} onSaved={()=>{}}/>);
+  expect(screen.getByRole('button',{name:'Start work'})).toBeTruthy();
+  view.rerender(<SubtaskProgressForm subtask={{...subtask,dependencyIds:['selected']}} prerequisite={earlier} onSaved={()=>{}}/>);
+  expect(screen.getByRole('button',{name:'Start work'})).toBeTruthy();
+  view.rerender(<SubtaskProgressForm subtask={{...subtask,dependencyIds:null}} prerequisite={earlier} onSaved={()=>{}}/>);
+  expect(screen.queryByRole('button',{name:'Start work'})).toBeNull();expect(screen.getByText('Complete “Unrelated earlier work” first.')).toBeTruthy();
+ });
  it('keeps typed evidence and discards only after an accepted navigation guard',async()=>{
   const confirm=vi.fn().mockResolvedValue(false);uninstall=installNavigationConfirmation(confirm);render(<SubtaskProgressForm subtask={subtask} onSaved={()=>{}}/>);
   fireEvent.change(screen.getByLabelText('Work update'),{target:{value:'My work draft'}});const navigate=vi.fn();expect(await requestNavigation(navigate)).toBe(false);expect(navigate).not.toHaveBeenCalled();expect((screen.getByLabelText('Work update') as HTMLTextAreaElement).value).toBe('My work draft');

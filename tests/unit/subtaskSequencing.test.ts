@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   getSequentialStepNumber,
   getSubtaskPrerequisite,
+  getSubtaskDependencyBlocker,
   moveSequenceItem,
   moveSequenceItemToTarget,
   resequenceItems,
@@ -65,5 +66,17 @@ describe("ordered subtask sequencing", () => {
     expect(getSubtaskPrerequisite(current, [earlier, later])).toBe(later);
     expect(getSubtaskPrerequisite(current, [earlier, { ...later, isCompleted: true }])).toBeNull();
     expect(getSubtaskPrerequisite({ ...current, dependencyIds: [] }, [earlier, later])).toBeNull();
+  });
+  it('keeps cancelled, missing and restricted selections unresolved without applying unrelated sibling order',()=>{
+    const earlier={id:'earlier',title:'Unrelated earlier',taskId:'task',position:0,isCompleted:false};
+    const current={...earlier,id:'current',position:1,dependencyIds:['selected']};
+    const selected={...earlier,id:'selected',title:'Selected',position:2,isCompleted:false,status:'cancelled'};
+    expect(getSubtaskDependencyBlocker(current,[earlier,selected])).toBe('Complete “Selected” first.');
+    expect(getSubtaskDependencyBlocker(current,[earlier])).toContain('missing or restricted');
+    expect(getSubtaskDependencyBlocker(current,[{...selected,parentSubtaskId:'other-parent'}])).toContain('missing or restricted');
+    expect(getSubtaskDependencyBlocker(current,[{...selected,taskId:'other-task'}])).toContain('missing or restricted');
+    expect(getSubtaskDependencyBlocker(current,[earlier,{...selected,isCompleted:true}])).toBeNull();
+    expect(getSubtaskDependencyBlocker({...current,dependencyIds:[]},[earlier,selected])).toBeNull();
+    expect(getSubtaskDependencyBlocker({...current,dependencyIds:null},[earlier,selected])).toBe('Complete “Unrelated earlier” first.');
   });
 });

@@ -84,6 +84,14 @@ describe('NW5.5 lightweight forms and authoritative confirmation',()=>{
   expect(screen.queryByRole('option',{name:'Expired'})).toBeNull();fireEvent.change(screen.getByLabelText('Subtask title'),{target:{value:'Created'}});fireEvent.change(screen.getByLabelText('Execution mode'),{target:{value:'independent'}});save();
   await waitFor(()=>expect(writes()).toHaveLength(1));expect(writes()[0][0]).toBe('r7_work_command');expect(writes()[0][1].p_payload).toMatchObject({title:'Created',standalone:true,lead:null,people:[]});expect(previews()).toHaveLength(0);
  });
+ it('hides assignment controls for the Active Project Lead and creates an unassigned step',async()=>{
+  data.root.subtask_staffing_locked=true;
+  open('create');
+  expect(screen.queryByText('Assign people')).toBeNull();
+  fireEvent.change(screen.getByLabelText('Subtask title'),{target:{value:'Unassigned step'}});save();
+  await waitFor(()=>expect(writes()).toHaveLength(1));
+  expect(writes()[0][1].p_payload).toMatchObject({title:'Unassigned step',lead:null,people:[]});
+ });
  it.each(['edit','progress','submit'] as const)('does not add impact prompts to routine %s',async command=>{
   data.root.kind='personal';data.root.office=null;rememberWorkCapabilityContext(data,'actor');open(command);
   if(command==='edit')fireEvent.change(screen.getByLabelText('Subtask title'),{target:{value:'Rename'}});

@@ -118,7 +118,7 @@ it('prepares Funding automatically and authorizes a valid annual amount inside t
    return {authorized:1234.56};
   }
  });
- render(<ProjectSetupWizard recoveryKey="actor-office" createDraft={createDraft} profiles={[lead] as any} onClose={vi.fn()} onFinish={vi.fn()}/>);
+ render(<ProjectSetupWizard recoveryKey="actor-office" creatorId="lead" createDraft={createDraft} profiles={[lead] as any} onClose={vi.fn()} onFinish={vi.fn()}/>);
  fireEvent.click(screen.getByRole('button',{name:/04.*Funding/}));
  expect(screen.getByText(/Complete Details, Scope/)).toBeVisible();
  expect(createDraft).not.toHaveBeenCalled();
@@ -128,7 +128,8 @@ it('prepares Funding automatically and authorizes a valid annual amount inside t
  fireEvent.click(screen.getByRole('button',{name:'Next'}));
  fireEvent.change(screen.getByLabelText('Scope of the project *'),{target:{value:'Training'}});
  fireEvent.click(screen.getByRole('button',{name:'Next'}));
- fireEvent.change(screen.getByLabelText('Project Lead *'),{target:{value:'lead'}});
+ expect(screen.queryByLabelText('Project Lead *')).toBeNull();
+ expect(screen.getByText('The Office Head creating this project is automatically its Project Lead.')).toBeVisible();
  fireEvent.change(screen.getByLabelText('Project start date *'),{target:{value:'2027-01-01'}});
  fireEvent.change(screen.getByLabelText('Project target date *'),{target:{value:'2027-06-30'}});
  fireEvent.click(screen.getByRole('button',{name:/04.*Funding/}));

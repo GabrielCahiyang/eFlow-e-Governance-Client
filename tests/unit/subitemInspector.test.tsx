@@ -28,6 +28,25 @@ let uninstall:(()=>void)|undefined;
 beforeEach(()=>{vi.clearAllMocks();api.actor='actor';api.read.mockImplementation(async(_root,id)=>record(id));api.tree.mockImplementation(async()=>tree());api.legacyRead.mockImplementation(async(id)=>record(id).subtask);sessionStorage.clear();});
 afterEach(()=>{cleanup();uninstall?.();uninstall=undefined;});
 describe('NW8.1 canonical Subtask Inspector',()=>{
+ it.each([
+  {dependencies:[],prerequisiteStatus:'todo',ready:true},
+  {dependencies:['selected'],prerequisiteStatus:'completed',ready:true},
+  {dependencies:['selected'],prerequisiteStatus:'todo',ready:false},
+  {dependencies:['selected'],prerequisiteStatus:'cancelled',ready:false},
+  {dependencies:['missing'],prerequisiteStatus:'completed',ready:false},
+  {dependencies:null,prerequisiteStatus:'completed',ready:false},
+ ])('uses the configured direct-subtask prerequisites at Start: %j',async({dependencies,prerequisiteStatus,ready})=>{
+  api.actor='deep-lead';
+  const earlier={...node('earlier',null,1),is_standalone:false,sibling_order:0};
+  const selected={...node('selected',null,1),status:prerequisiteStatus as WorkNode['status'],is_standalone:false,sibling_order:2};
+  const current={...node('current',null,1),is_standalone:false,sibling_order:1,dependency_ids:dependencies,start_date:'2026-11-12',started_at:null};
+  const data=tree([earlier,current,selected]);
+  Object.assign(data.root,{status:'in_progress',project_status:'active',scheduling:{version:1,today:'2026-11-15'}});
+  render(<SubitemInspector onClose={()=>{}} rootTask={task} itemId="current" controller={controller(data)}/>);
+  await screen.findByRole('heading',{name:'Level 1'});
+  expect(!!screen.queryByRole('button',{name:'Start work'})).toBe(ready);
+  expect(api.start).not.toHaveBeenCalled();
+ });
  it('starts an overdue subtask as its lead, then displays the refreshed work form',async()=>{
   api.actor='deep-lead';
   const data=tree([{...node('n1',null,1),start_date:'2026-11-12',due_date:'2026-11-13',started_at:null,

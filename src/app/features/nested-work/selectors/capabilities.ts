@@ -8,6 +8,7 @@ const reasons:Record<WorkCapabilityReasonCode|'capability_unavailable',string>={
  lifecycle_blocked:'This task is not ready for this change yet.',
  history_blocked:'Existing work history or commitments block this change.',
  project_on_hold:'Work updates are paused while the project is under review.',
+ active_subtask_staffing_locked:'Subtask assignments are read-only for the Project Lead while the project is active. Assign people during planning.',
  active_staffing_locked:'Root task contributors are read-only for the Task Lead after the project becomes active. Ask the Project Lead or Head to update the team.',
  capability_unavailable:'Action availability could not be verified. Reload the work.',
 };

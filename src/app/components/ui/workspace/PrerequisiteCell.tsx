@@ -11,7 +11,7 @@ interface Prerequisite {
 
 export function PrerequisiteCell({
   title, itemName, selectedIds, records, getChoices, disabled, description, completedLabel,
-  pendingCount, restrictedCount = 0, emptyLabel = 'No prerequisites', onSave,
+  pendingCount, restrictedCount = 0, emptyLabel = 'No prerequisites', legacySequential = false, onSave,
 }: {
   title: string;
   itemName: string;
@@ -24,14 +24,21 @@ export function PrerequisiteCell({
   pendingCount?: number | null;
   restrictedCount?: number;
   emptyLabel?: string;
+  legacySequential?: boolean;
   onSave: (ids: string[]) => Promise<void>;
 }) {
-  const editor = usePlanningEditor(() => [...selectedIds].sort(), `Dependencies for ${title}`);
-  const choices = editor.open ? getChoices() : [];
+  const editor = usePlanningEditor<string[] | null>(() => legacySequential ? null : [...selectedIds].sort(), `Dependencies for ${title}`);
+  const draftIds = editor.draft || [];
+  // A visible cancelled selection remains unresolved, but an authorized planner
+  // can remove/replace it. Never offer cancelled work as a new prerequisite.
+  const choices = editor.open ? [...new Map([
+    ...getChoices().filter(item => item.status !== 'cancelled'),
+    ...records.filter(item => item.status === 'cancelled' && selectedIds.includes(item.id)),
+  ].map(item => [item.id, item])).values()] : [];
   const byId = new Map((editor.open || selectedIds.length ? records : []).map(record => [record.id, record]));
   const choiceIds = new Set(choices.map(choice => choice.id));
   const waiting = pendingCount ?? selectedIds.filter(id => byId.get(id)?.status !== 'completed').length;
-  const canEdit = !disabled && restrictedCount === 0;
+  const canEdit = !disabled && restrictedCount === 0 && selectedIds.every(id => byId.has(id));
   const label = selectedIds.length || restrictedCount
     ? waiting ? `Waiting for ${waiting} ${itemName}${waiting === 1 ? '' : 's'}` : 'Ready to start'
     : emptyLabel;
@@ -53,24 +60,25 @@ export function PrerequisiteCell({
           onEscapeKeyDown={event => { if (editor.pending) event.preventDefault(); }}>
           <form className="pt-planning-form" onSubmit={event => {
             event.preventDefault();
-            if (canEdit) void editor.submit(onSave, 'Dependencies saved.');
+            if (canEdit) void editor.submit(ids => onSave(ids || []), 'Dependencies saved.');
           }}>
             <strong>Depends on</strong>
             <p>{description}</p>
+            {legacySequential && <Button type="button" disabled={!canEdit || editor.pending} onClick={() => editor.setDraft([])}>Use no prerequisites</Button>}
             <div className="pt-dependency-options">
               {choices.map(item => (
                 <label key={item.id}>
-                  <input type="checkbox" checked={editor.draft.includes(item.id)} disabled={!canEdit || editor.pending}
+                  <input type="checkbox" checked={draftIds.includes(item.id)} disabled={!canEdit || editor.pending}
                     onChange={event => editor.setDraft((event.target.checked
-                      ? [...editor.draft, item.id] : editor.draft.filter(id => id !== item.id)).sort())} />
+                      ? [...draftIds, item.id] : draftIds.filter(id => id !== item.id)).sort())} />
                   <span>{item.title}<small className="block text-xs text-muted-foreground">
                     {item.status === 'completed'
                       ? <><CheckCircle2 size={12} />{completedLabel}</>
-                      : <><Clock size={12} />Waiting · {item.status.replace(/_/g, ' ')}</>}
+                      : <><Clock size={12} />{item.status === 'cancelled' ? 'Cancelled · remove or replace before starting' : `Waiting · ${item.status.replace(/_/g, ' ')}`}</>}
                   </small></span>
                 </label>
               ))}
-              {editor.draft.filter(id => !choiceIds.has(id)).map(id => (
+              {draftIds.filter(id => !choiceIds.has(id)).map(id => (
                 <label key={id}><input type="checkbox" checked disabled />
                   {byId.get(id)?.title || `Restricted ${itemName}`} retained
                 </label>

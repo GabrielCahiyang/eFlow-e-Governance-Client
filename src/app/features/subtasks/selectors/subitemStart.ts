@@ -20,7 +20,13 @@ export function subitemStartBlocker(
   if (node.start_date > today) return `You can start this subtask on or after ${node.start_date}.`;
   const parent = tree.nodes.find(item => item.id === node.parent_subtask_id);
   if (parent?.status === 'todo' && !parent.started_at) return 'Start the parent subtask first.';
-  if (prerequisiteTitle) return `Complete “${prerequisiteTitle}” first.`;
+  if (node.dependency_ids == null && prerequisiteTitle) return `Complete “${prerequisiteTitle}” first.`;
+  if ((node.restricted_dependency_count ?? 0) > 0 || node.dependency_ids?.some(id => !tree.nodes.some(item =>
+    item.id === id && item.id !== node.id && item.task_id === node.task_id && item.parent_subtask_id === node.parent_subtask_id))) {
+    return 'A selected prerequisite is missing or restricted. Reload this work to verify its dependencies.';
+  }
+  const selected = tree.nodes.find(item => node.dependency_ids?.includes(item.id) && item.status !== 'completed');
+  if (selected) return `Complete “${selected.title}” first.`;
   if ((node.pending_dependency_count ?? 0) > 0) return 'Complete the prerequisite subtasks first.';
   return null;
 }

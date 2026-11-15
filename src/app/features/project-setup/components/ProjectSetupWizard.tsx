@@ -19,12 +19,12 @@ import { ProjectTaskDraftStep } from './ProjectTaskDraftStep';
 import { useProjectTaskTemplates } from '../useProjectTaskTemplates';
 import '../projectSetup.css';
 import '../projectWizardDesign.css';
-const steps=[{title:'Details',icon:ClipboardList},{title:'Scope',icon:Layers},{title:'Lead & dates',icon:CalendarDays},{title:'Funding',icon:Wallet},{title:'Review',icon:ShieldCheck},{title:'Add people',icon:UsersRound},{title:'Draft tasks',icon:ClipboardList}];
+const steps=[{title:'Details',icon:ClipboardList},{title:'Scope',icon:Layers},{title:'Dates',icon:CalendarDays},{title:'Funding',icon:Wallet},{title:'Review',icon:ShieldCheck},{title:'Add people',icon:UsersRound},{title:'Draft tasks',icon:ClipboardList}];
 const reviewStep=4,peopleStep=5,tasksStep=6;
 const empty:SetupDraft={title:'',description:'',scope:'',lead:'',start:'',end:'',noFunding:false};
 const fields=(p:ProjectFlow['project']):SetupDraft=>({title:p.title,description:p.description,scope:p.scope,lead:p.project_lead_id||'',start:p.start_date||'',end:p.target_date||'',noFunding:p.funding_not_required});
-export function ProjectSetupWizard({projectId,profiles,profilesLoading,organizations=[],tasks=[],governed=false,officeName,recoveryKey='',createDraft,onClose,onFinish,initialStep=0}:{projectId?:string;profiles:UserProfile[];profilesLoading?:boolean;organizations?:Organization[];tasks?:Task[];governed?:boolean;officeName?:string;recoveryKey?:string;createDraft?:(title:string,requestId:string)=>Promise<string>;onClose:(id?:string)=>void;onFinish:(id:string)=>void;initialStep?:number}){
- const [id,setId]=useState(projectId||''),[draft,setDraft]=useState<SetupDraft>(empty),[base,setBase]=useState<ProjectFlow['project']>(),[step,setStep]=useState(initialStep),[busy,setBusy]=useState(false),[fundingBusy,setFundingBusy]=useState(false),[fundingDirty,setFundingDirty]=useState(false),[uncertain,setUncertain]=useState(false),[error,setError]=useState('');
+export function ProjectSetupWizard({projectId,profiles,profilesLoading,organizations=[],tasks=[],governed=false,officeName,creatorId,recoveryKey='',createDraft,onClose,onFinish,initialStep=0}:{projectId?:string;profiles:UserProfile[];profilesLoading?:boolean;organizations?:Organization[];tasks?:Task[];governed?:boolean;officeName?:string;creatorId?:string;recoveryKey?:string;createDraft?:(title:string,requestId:string)=>Promise<string>;onClose:(id?:string)=>void;onFinish:(id:string)=>void;initialStep?:number}){
+ const [id,setId]=useState(projectId||''),[draft,setDraft]=useState<SetupDraft>(()=>({...empty,lead:creatorId||''})),[base,setBase]=useState<ProjectFlow['project']>(),[step,setStep]=useState(initialStep),[busy,setBusy]=useState(false),[fundingBusy,setFundingBusy]=useState(false),[fundingDirty,setFundingDirty]=useState(false),[uncertain,setUncertain]=useState(false),[error,setError]=useState('');
  const [recovery,setRecovery]=useState(()=>projectId?undefined:readProjectDraft(recoveryKey));
  const creationAttempt=useRef<ProjectDraftRecovery['creationAttempt']>(undefined),finished=useRef(false);
  const [people,setPeople]=useState<string[]>([]);
@@ -36,10 +36,10 @@ export function ProjectSetupWizard({projectId,profiles,profilesLoading,organizat
  const [projectType,setProjectType]=useState('');
  const editable=!projectId||flow.data?.canAuthorize===true,locked=busy||fundingBusy||taskDraftBusy;
  const templateLibrary=useProjectTaskTemplates(editable);
- const dirty=JSON.stringify(draft)!==JSON.stringify(base?fields(base):empty);
+ const dirty=JSON.stringify(draft)!==JSON.stringify(base?fields(base):{...empty,lead:creatorId||''});
  const [localSaved,setLocalSaved]=useState(false);
  const fundingRecoveryKey=recoveryKey&&id?recoveryKey+':funding:'+id:'';
- useNavigationBlocker({label:'Project setup',identity:id||'new-project',dirty:dirty&&!localSaved,pending:locked,pendingCheck:()=>pending.current,onDiscard:()=>{setDraft(base?fields(base):empty);setError('');}});
+ useNavigationBlocker({label:'Project setup',identity:id||'new-project',dirty:dirty&&!localSaved,pending:locked,pendingCheck:()=>pending.current,onDiscard:()=>{setDraft(base?fields(base):{...empty,lead:creatorId||''});setError('');}});
  useEffect(()=>{
   if(recoveryKey&&!recovery&&!finished.current&&(id||dirty||creationAttempt.current)){
    setLocalSaved(storeProjectDraft(recoveryKey,{values:draft,step,projectId:id,base,people,peopleRequest:peopleRequest.current,creationAttempt:creationAttempt.current,projectType,peopleProjectId}));
@@ -89,7 +89,7 @@ export function ProjectSetupWizard({projectId,profiles,profilesLoading,organizat
  function validate(index:number){
   if(index===0&&(!draft.title.trim()||!draft.description.trim()))throw new Error('Enter the project title and description before continuing.');
   if(index===1&&!draft.scope.trim())throw new Error('Define the project scope before continuing.');
-  if(index===2&&(!draft.lead||!draft.start||!draft.end||draft.end<draft.start))throw new Error('Choose an active project lead and valid project start and target dates.');
+  if(index===2&&(!draft.lead||!draft.start||!draft.end||draft.end<draft.start))throw new Error('Enter valid project start and target dates.');
  }
  const next=()=>{
   if(step<3){
@@ -141,7 +141,7 @@ export function ProjectSetupWizard({projectId,profiles,profilesLoading,organizat
   const funding=saved.projectId?readFundingDraft(recoveryKey+':funding:'+saved.projectId):undefined;
   setFundingDirty(!!funding);setUncertain(!!funding?.request);
   createdId.current=saved.projectId;creationAttempt.current=saved.creationAttempt;peopleRequest.current=saved.peopleRequest;
-  setId(saved.projectId);setDraft(saved.values);setBase(saved.base);setPeople(saved.people??[]);setProjectType(saved.projectType??'');
+  setId(saved.projectId);setDraft({...saved.values,...(!projectId&&creatorId?{lead:creatorId}:{})});setBase(saved.base);setPeople(saved.people??[]);setProjectType(saved.projectType??'');
   setPeopleProjectId(saved.peopleProjectId??'');
   setStep(funding?.request?3:saved.peopleProjectId?saved.step:Math.min(saved.step,reviewStep));
   setRecovery(undefined);
@@ -160,17 +160,17 @@ export function ProjectSetupWizard({projectId,profiles,profilesLoading,organizat
   <div className="pf-wizard-content"><FlowError error={error||flow.error}/>{loading?<p role="status">Loading saved project setup…</p>:<>
    {step<3&&<div className={step===0?'pf-wizard-opening':undefined}>
     {step===0 ? <div className="pf-wizard-details">
-     <ProjectSetupFields step={step} draft={draft} update={update} profiles={profiles} disabled={locked||!editable} officeName={officeName}/>
+     <ProjectSetupFields step={step} draft={draft} update={update} profiles={profiles} disabled={locked||!editable} officeName={officeName} automaticLead={!projectId}/>
      {editable&&<div className="pf-wizard-fields"><label>Project type (optional)
       <select value={projectType} disabled={locked||templateLibrary.loading||!templateLibrary.templates.length} onChange={event=>setProjectType(event.target.value)}>
        <option value="">{templateLibrary.loading?'Loading project types…':'Choose a starter template'}</option>
        {templateLibrary.templates.map(template=><option key={template.id} value={template.id}>{template.name}</option>)}
       </select>
      </label></div>}
-    </div> : <ProjectSetupFields step={step} draft={draft} update={update} profiles={profiles} disabled={locked||!editable} officeName={officeName}/>}
+    </div> : <ProjectSetupFields step={step} draft={draft} update={update} profiles={profiles} disabled={locked||!editable} officeName={officeName} automaticLead={!projectId}/>}
     {step===0&&<ProjectOpeningPreview title={draft.title}/>}
    </div>}
-   <section hidden={step!==3} aria-label="Project funding step"><p className="pf-eyebrow">PROJECT FUNDING</p><h2>Set the funding sources</h2><p>Choose the fiscal year, Office Budget source and amount. The project total is calculated from those rows.</p><label className="pf-checkbox"><input type="checkbox" checked={draft.noFunding} disabled={!editable||!!flow.data?.funds.length||locked||fundingDirty||uncertain} onChange={e=>update('noFunding',e.target.checked)}/>No funding required for this project</label>{!draft.noFunding&&!detailsComplete&&<p className="pf-warning">Complete Details, Scope, and Lead &amp; dates before choosing funding.</p>}
+   <section hidden={step!==3} aria-label="Project funding step"><p className="pf-eyebrow">PROJECT FUNDING</p><h2>Set the funding sources</h2><p>Choose the fiscal year, Office Budget source and amount. The project total is calculated from those rows.</p><label className="pf-checkbox"><input type="checkbox" checked={draft.noFunding} disabled={!editable||!!flow.data?.funds.length||locked||fundingDirty||uncertain} onChange={e=>update('noFunding',e.target.checked)}/>No funding required for this project</label>{!draft.noFunding&&!detailsComplete&&<p className="pf-warning">Complete Details, Scope, and Dates before choosing funding.</p>}
     {!draft.noFunding&&detailsComplete&&busy&&needsFundingDetails&&<p role="status">Saving project details…</p>}
     {!draft.noFunding&&detailsComplete&&!locked&&(needsFundingDetails&&error||flow.error)&&<button type="button" className="pf-funding-retry" onClick={needsFundingDetails?prepareFunding:()=>void perform(flow.reload)}>Retry loading funding sources</button>}
     {!draft.noFunding&&id&&base&&flow.data?.project.id===id&&<fieldset disabled={busy||dirty||!detailsComplete} className="min-w-0"><ProjectFundingPanel key={id} wizard recoveryKey={fundingRecoveryKey} data={flow.data} reload={flow.reload} onBusyChange={setFundingBusy} onDraftChange={setFundingDirty} onUncertainChange={setUncertain}/></fieldset>}</section>

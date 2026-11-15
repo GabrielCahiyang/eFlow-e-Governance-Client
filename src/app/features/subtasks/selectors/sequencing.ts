@@ -35,6 +35,18 @@ export function getSubtaskPrerequisite<T extends ExecutableSequenceItem>(
     .sort((left, right) => (left.siblingOrder ?? left.position) - (right.siblingOrder ?? right.position))[0] || null;
 }
 
+/** Missing authorized context must never turn an explicit selection into ready. */
+export function getSubtaskDependencyBlocker<T extends ExecutableSequenceItem>(subtask: T, siblings: readonly T[]): string | null {
+  if (subtask.dependencyIds?.some(id => !siblings.some(candidate => candidate.id === id
+    && candidate.id !== subtask.id
+    && (!subtask.taskId || !candidate.taskId || candidate.taskId === subtask.taskId)
+    && (candidate.parentSubtaskId || null) === (subtask.parentSubtaskId || null)))) {
+    return 'A selected prerequisite is missing or restricted. Reload this work to verify its dependencies.';
+  }
+  const prerequisite = getSubtaskPrerequisite(subtask, siblings);
+  return prerequisite ? `Complete “${prerequisite.title}” first.` : null;
+}
+
 export function getSequentialStepNumber<T extends ExecutableSequenceItem>(
   subtask: T,
   siblings: readonly T[],

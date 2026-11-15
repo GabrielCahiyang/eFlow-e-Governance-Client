@@ -68,7 +68,7 @@ describe('current per-action capability adapter',()=>{
   const data=await loaded(response);expect(selectRootWorkCapability(data,'order_children',context()).allowed).toBe(true);
   expect(selectNodeWorkCapability(data,'branch','order_children',context()).allowed).toBe(false);
  });
- it.each(['access_unavailable','read_only','branch_denied','appointment_denied','lifecycle_blocked','history_blocked','active_staffing_locked'] as const)('maps server %s to nonempty user copy',async reason=>{
+ it.each(['access_unavailable','read_only','branch_denied','appointment_denied','lifecycle_blocked','history_blocked','active_staffing_locked','active_subtask_staffing_locked'] as const)('maps server %s to nonempty user copy',async reason=>{
   const response=tree();response.nodes[0].capabilities!.delete=deny(reason);const data=await loaded(response),result=selectNodeWorkCapability(data,'branch','delete',context());
   expect(result.allowed).toBe(false);expect(result.reason_code).toBe(reason);expect(result.disabledReason).toMatch(/\S/);
  });

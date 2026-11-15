@@ -1,7 +1,7 @@
 import {WorkActivity,supportsNestedWork,useWorkTree,type WorkTreeController} from '../../nested-work';
 import { isAppointedOfficeHead } from '../../../shared/officeAuthority';
 import { TaskChatLink } from '../../chat-calls';
-import { pendingTaskDependencies } from '../../tasks';
+import { pendingTaskDependencies, taskStartBlocker } from '../../tasks';
 import { StaffingDialog, staffingEntryReason } from '../../staffing';
 import { useOrgs } from '../../../hooks/useSupabaseData';
 import { InspectorHeader } from './InspectorHeader';
@@ -110,7 +110,8 @@ function TaskInspectorContent({
   // parent-level progress updates (those belong to individual subtasks).
   const canManageLifecycle = Boolean(capabilities.canPostProgress || capabilities.canSubmitForReview);
   const canResume = rejected && canManageLifecycle && isOwnerOrLead;
-  const canStart = canManageLifecycle && isOwnerOrLead && task.status === "todo";
+  const startBlockedReason = task.status === 'todo' ? taskStartBlocker(task, tasks, controller?.data?.root.scheduling?.today) : null;
+  const canStart = canManageLifecycle && isOwnerOrLead && task.status === "todo" && !startBlockedReason;
   const canSubmit =
     canManageLifecycle && isOwnerOrLead && task.status === "in_progress";
   const rel = relativeDays(task.deadline || task.dueDate);
@@ -148,7 +149,7 @@ function TaskInspectorContent({
           </section>}
           {tab === 'update-work' && <section className="task-update-page" aria-label="Update task work">
             <div className="task-update-page__main">
-              <InspectorExecution isProjectOnHold={isProjectOnHold} pendingDependencies={dependencyCount} initialAction={origin?.section==='report-blocker'?'stuck':origin?.section==='submit-work'?'submit':undefined} task={task} subtasks={taskSubtasks} canStart={canStart} canResume={canResume} canSubmit={canSubmit} canPostProgress={capabilities.canPostProgress} busy={lifecycle.busy} onStart={lifecycle.start} onChanged={onChanged} onSubmitted={() => { onChanged?.(); setTab('review'); }}/>
+              <InspectorExecution isProjectOnHold={isProjectOnHold} pendingDependencies={dependencyCount} startBlockedReason={startBlockedReason} initialAction={origin?.section==='report-blocker'?'stuck':origin?.section==='submit-work'?'submit':undefined} task={task} subtasks={taskSubtasks} canStart={canStart} canResume={canResume} canSubmit={canSubmit} canPostProgress={capabilities.canPostProgress} busy={lifecycle.busy} onStart={lifecycle.start} onChanged={onChanged} onSubmitted={() => { onChanged?.(); setTab('review'); }}/>
             </div>
             <aside className="task-update-page__sidebar" aria-label="Task context">
               <div className="task-update-page__sidebar-card">

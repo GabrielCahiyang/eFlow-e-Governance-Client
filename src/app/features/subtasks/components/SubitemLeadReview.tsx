@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { attachmentError, EVIDENCE_ACCEPT } from '../../../shared/fileValidation';
 import { useExplicitDraft } from '../../../shared/useExplicitDraft';
 import { subscribeWorkChanges } from '../../../shared/workChanges';
+import { WorkExecutionForm, type WorkUpdate } from '../../work-state';
 import {
   decideSubitemWork, fetchSubitemLeadReview, openSubitemReviewEvidence, proposeSubitemWork,
   type LeadReview, type LeadSubmission, type ReviewAttempt, type ReviewKind,
@@ -10,9 +11,10 @@ import {
 type ReviewProps = {
   root: string; node: string; actor: string; readOnly: boolean; pending: boolean;
   blocked?: string; completionBlocked?: string; reviewerName?: string; onChanged: () => Promise<void>;
+  status?: string; initialBlocker?: string;
 };
 
-export function SubitemLeadReview({ root, node, actor, readOnly, pending, blocked, completionBlocked, reviewerName, onChanged }: ReviewProps) {
+export function SubitemLeadReview({ root, node, actor, readOnly, pending, blocked, completionBlocked, reviewerName, onChanged, status='in_progress', initialBlocker='' }: ReviewProps) {
   const [review, setReview] = useState<LeadReview>();
   const [error, setError] = useState('');
   const version = useRef(0);
@@ -50,14 +52,38 @@ export function SubitemLeadReview({ root, node, actor, readOnly, pending, blocke
     <h3 className="font-semibold">Lead review</h3>
     {error && <p role="alert">{error} <button type="button" onClick={() => void load()}>Retry review</button></p>}
     {review?.items.map(item => <SubmissionReview key={item.id} item={item} disabled={readOnly || pending || !!error} onChanged={changed}/>)}
-    {kind && !readOnly && !awaitingReview && <ReviewForm key={kind + (own?.id ?? '')}
+    {kind && !readOnly && !awaitingReview && (kind === 'progress' ? <ProgressReviewForm key={node + (own?.id ?? '')}
+      root={root} node={node} actor={actor} status={status} initialBlocker={initialBlocker}
+      supersedes={own?.state === 'changes_requested' ? own.id : undefined} disabled={pending || !!error} blocked={formBlocked}
+      onSubmitted={item => {setReview(previous => previous && ({...previous,items:[item,...previous.items.filter(row=>row.id!==item.id)]}));void changed();}}/>
+      : <ReviewForm key={kind + (own?.id ?? '')}
       root={root} node={node} actor={actor} kind={kind} reviewerName={kind === 'completion' ? reviewerName : undefined}
       supersedes={own?.state === 'changes_requested' ? own.id : undefined} disabled={pending || !!error || !!formBlocked} blocked={formBlocked}
       onSubmitted={item => {
         setReview(previous => previous && ({ ...previous, items: [item, ...previous.items.filter(row => row.id !== item.id)] }));
         void changed();
-      }}/>}
+      }}/>) }
   </section>;
+}
+
+function ProgressReviewForm({root,node,actor,status,initialBlocker,supersedes,disabled,blocked,onSubmitted}:{
+  root:string;node:string;actor:string;status:string;initialBlocker:string;supersedes?:string;disabled:boolean;blocked?:string;onSubmitted:(item:LeadSubmission)=>void;
+}) {
+  const attempt=useRef<ReviewAttempt|undefined>(undefined);
+  const [retry,setRetry]=useState(false);
+  const input=useRef<WorkUpdate|undefined>(undefined);
+  return <><p>Your update goes to your lead for review.</p><WorkExecutionForm status={status} initialBlocker={initialBlocker}
+    disabled={disabled} blockedBy={blocked} freezeFields={retry} onSave={async update=>{
+      attempt.current??={id:crypto.randomUUID(),uploaded:[]};input.current??=update;setRetry(true);
+      try {
+        const item=await proposeSubitemWork({root,node,actor,kind:'progress',note:input.current.note,files:input.current.files,
+          blocker:input.current.blocker,nextStep:input.current.nextStep,attempt:attempt.current,supersedes});
+        attempt.current=undefined;input.current=undefined;setRetry(false);onSubmitted(item);
+      } catch(reason) {
+        if(!attempt.current?.sent){attempt.current=undefined;input.current=undefined;setRetry(false);}
+        throw reason;
+      }
+    }}/></>;
 }
 
 function ReviewForm({ root, node, actor, kind, reviewerName, supersedes, disabled, blocked, onSubmitted }: {
@@ -129,6 +155,8 @@ function SubmissionReview({ item, disabled, onChanged }: { item: LeadSubmission;
   return <article className="space-y-2 rounded-md border p-3">
     <strong>{item.kind === 'completion' ? 'Completion' : 'Work update'} · {state === 'pending' ? 'Awaiting Lead review' : state === 'approved' ? 'Approved' : 'Changes requested'}</strong>
     <p className="whitespace-pre-wrap">{item.terms.note}</p>
+    {item.terms.blocker && <p className="whitespace-pre-wrap"><strong>Blocker: </strong>{item.terms.blocker}</p>}
+    {item.terms.next_step && <p><strong>Next step: </strong>{item.terms.next_step}</p>}
     {item.terms.attachments?.map(file => <ReviewEvidence key={file.filePath} name={file.fileName} path={file.filePath}/>)}
     {item.decision_note && <p>{item.decision_note}</p>}
     {item.canDecide && state === 'pending' && <div className="space-y-2">

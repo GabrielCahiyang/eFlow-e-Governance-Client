@@ -5,6 +5,7 @@ const blockers:Record<WorkCapabilityReasonCode,string>={
  branch_denied:'Current authority does not cover all affected work.',appointment_denied:'A current parent manager must change this Lead appointment.',
  lifecycle_blocked:'Resolve the affected work state before continuing.',history_blocked:'Recorded work, evidence, financial commitments or dependent staffing prevents this operation. Resolve the affected work first.',
  project_on_hold:'Work updates are paused while the project is under review.',
+ active_subtask_staffing_locked:'Subtask assignments are read-only for the Project Lead while the project is active.',
  active_staffing_locked:'Root task contributors are read-only for the Task Lead after project activation.'
 };
 export const workImpactBlockers=(impact:WorkImpact)=>impact.blocker_codes.map(code=>blockers[code]);

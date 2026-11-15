@@ -58,7 +58,7 @@ function WorkTreeForm({data,edit,save,onDone,onCancel,reload,readOnly=false,refr
    showStart={!!data.root.scheduleBounds}
    minDue={data.root.scheduleBounds?dateLimits.earliest||'':calendarMinDate(edit.command==='edit'?editor.baseline.fields.due:'')}
    maxDue={dateLimits.latest}
-   peoplePicker={edit.command==='create'?{people:data.people,lead,selected:people,onLead:value=>update('lead',value),onSelected:value=>update('people',value),appointmentCapability:createCapability,contributorCapability:createCapability,disabled:locked,
+   peoplePicker={edit.command==='create'&&!data.root.subtask_staffing_locked?{people:data.people,lead,selected:people,onLead:value=>update('lead',value),onSelected:value=>update('people',value),appointmentCapability:createCapability,contributorCapability:createCapability,disabled:locked,
     invite:!locked?{project:data.root.project,office:data.root.office,root:data.root.id,node:edit.parent||undefined,canRequest:scopedInvitationRequestAllowed(data,edit.parent||null,context)}:undefined}:undefined}/>}
   {edit.command==='move'&&<WorkMoveDialog data={data} destinations={destinations} allowTask={destinationRoot.allowed} parent={parent} disabled={locked} onChange={value=>update('parent',value)}/>}
   {edit.command==='order'&&<WorkOrderDialog data={data} order={order} disabled={locked} onChange={value=>update('order',value)}/>}

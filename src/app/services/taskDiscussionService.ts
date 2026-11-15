@@ -12,6 +12,7 @@ import { attachmentError } from '../shared/fileValidation';
 import { supabase } from '../../lib/supabase';
 import { recordAudit } from './auditService';
 import { createNotification } from './notificationService';
+import { subscribeWorkChanges } from '../shared/workChanges';
 
 // ══════════════════════ Comments ══════════════════════════════════
 export interface TaskComment {
@@ -214,20 +215,33 @@ export async function fetchProgressUpdatesStrict(taskId: string): Promise<Progre
 }
 
 export function subscribeToProgressUpdates(taskId: string, callback: (p: ProgressUpdate[]) => void, onError?: (message: string) => void): () => void {
-  let active = true, sequence = 0;
+  let active = true, loading = false, queued = false;
   const load = async () => {
-    const current = ++sequence;
-    try { const updates = await fetchProgressUpdatesStrict(taskId); if(active && current === sequence) callback(updates); }
-    catch(reason) { if(active && current === sequence) { if(onError) onError(reason instanceof Error ? reason.message : 'Could not load progress.'); else callback([]); } }
+    if (!active) return;
+    if (loading) { queued = true; return; }
+    loading = true;
+    try { const updates = await fetchProgressUpdatesStrict(taskId); if (active) callback(updates); }
+    catch (reason) { if (active) onError?.(reason instanceof Error ? reason.message : 'Could not load progress.'); }
+    finally {
+      loading = false;
+      if (active && queued) { queued = false; void load(); }
+    }
   };
-  load();
-  const channelId = `progress-${taskId}-${Math.random().toString(36).slice(2)}`;
-  const channel = supabase
-    .channel(channelId)
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'task_progress_updates', filter: `task_id=eq.${taskId}` }, () => load())
-    .subscribe(status => { if(status === 'SUBSCRIBED') void load(); });
+  void load();
+  // Progress history is not published. Task-row changes invalidate the strict
+  // read; confirmed local events and foreground polling cover missed delivery.
+  const unsubscribe = subscribeWorkChanges(() => { void load(); }, taskId);
+  const refreshWhenVisible = () => { if (document.visibilityState === 'visible') void load(); };
+  const timer = window.setInterval(refreshWhenVisible, 15000);
   window.addEventListener('focus', load);
-  return () => { active = false; ++sequence; window.removeEventListener('focus', load); supabase.removeChannel(channel); };
+  document.addEventListener('visibilitychange', refreshWhenVisible);
+  return () => {
+    active = false;
+    window.clearInterval(timer);
+    window.removeEventListener('focus', load);
+    document.removeEventListener('visibilitychange', refreshWhenVisible);
+    unsubscribe();
+  };
 }
 
 export const BLOCKER_CATEGORIES = [
@@ -307,6 +321,8 @@ export async function submitProgressUpdate(input: ProgressUpdateInput): Promise<
     }
     throw new Error(error.message);
   }
+
+  window.dispatchEvent(new CustomEvent('eflow:work-updated', { detail: { taskId: input.taskId } }));
 
   // Notify reviewer/creator when a blocker is raised.
   if (hasBlocker) {

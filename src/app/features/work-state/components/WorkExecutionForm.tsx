@@ -1,4 +1,4 @@
-import {useEffect,useState} from 'react';
+import {useEffect,useRef,useState} from 'react';
 import {Button} from '@vibe/core';
 import {AlertCircle, CheckCircle2, CirclePause, FileUp, MessageSquareText, Paperclip, Send, X} from 'lucide-react';
 import {useExplicitDraft} from '../../../shared/useExplicitDraft';
@@ -16,10 +16,16 @@ export function WorkExecutionForm({status,readOnly=false,disabled=false,canSubmi
  const [mode,setMode]=useState<'in_progress'|'stuck'|'submit'>(initialAction||(initialBlocker?'stuck':'in_progress'));
  const [blocker,setBlocker]=useState(initialBlocker),[note,setNote]=useState(''),[nextStep,setNextStep]=useState('');
  const [files,setFiles]=useState<File[]>([]),[busy,setBusy]=useState(false),[error,setError]=useState('');
+ const confirmedBlocker=useRef(initialBlocker);
  const reset=()=>{setNote('');setNextStep('');setFiles([]);setError('');};
  const dirty=freezeFields||!!note||!!nextStep||files.length>0||blocker!==initialBlocker;
  const guard=useExplicitDraft('Work update',dirty,busy,reset);
- useEffect(()=>{if(!dirty&&!busy){setMode(initialAction||(initialBlocker?'stuck':'in_progress'));setBlocker(initialBlocker);}},[initialBlocker]);
+ useEffect(()=>{
+  if(!freezeFields&&!busy&&!note&&!nextStep&&!files.length&&blocker===confirmedBlocker.current){
+   setMode(initialAction||(initialBlocker?'stuck':'in_progress'));setBlocker(initialBlocker);
+  }
+  confirmedBlocker.current=initialBlocker;
+ },[initialBlocker]);
  const submit=mode==='submit',direct=completionMode==='direct',fieldsLocked=busy||disabled||freezeFields;
  const {definitions}=useWorkStatuses();
  const displayStatus=resolveStatus(definitions,initialBlocker&&status==='in_progress'?'stuck':status,direct&&status==='for_review'?'Ready to finish':workStateLabel(status,!!initialBlocker),statusTarget?.customId);
@@ -38,7 +44,7 @@ export function WorkExecutionForm({status,readOnly=false,disabled=false,canSubmi
   finally{guard.pendingRef.current=false;setBusy(false);}
  }
  if(['completed','cancelled'].includes(status)||!direct&&status==='for_review')return <div className="work-state-message" role="status"><CheckCircle2 size={20}/><div><strong>{resolveStatus(definitions,status,workStateLabel(status)).label}</strong><p>{status==='for_review'?'Your submission is with the assigned reviewer.':status==='completed'?direct?'This step is complete.':'The reviewer approved this work.':'This work is closed.'}</p></div></div>;
- if(blockedBy)return <div className="work-state-message" role="status"><CirclePause size={20}/><div><strong>Waiting for an earlier step</strong><p>{blockedBy}</p></div></div>;
+ if(blockedBy)return <div className="work-state-message" role="status"><CirclePause size={20}/><div><strong>Waiting for prerequisites</strong><p>{blockedBy}</p></div></div>;
  if(readOnly)return <p className="work-state-muted">Only the assigned team can update this work.</p>;
  return <section className="work-execution" aria-label="Work status and update">
   <div className="work-execution-heading"><div className="work-execution-intro"><span className="work-execution-icon"><MessageSquareText size={21} aria-hidden="true"/></span><div><h3>Update work</h3><p>{!onSubmit?'Share progress or flag a blocker.':direct?'Update this step or mark it complete. No separate approval is needed.':'Share progress, flag a blocker or submit finished work.'}</p></div></div>

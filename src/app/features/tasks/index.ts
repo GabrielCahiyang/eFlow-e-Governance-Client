@@ -76,4 +76,4 @@ export { ProgressUpdateForm } from "../../components/workflow/ProgressUpdateForm
 export {rowToTask} from './services/taskMapper';
 
 export { fetchTaskById } from "./services/taskRealtimeService";
-export { pendingTaskDependencies } from './selectors/dependencyReadiness';
+export { pendingTaskDependencies, taskStartBlocker } from './selectors/dependencyReadiness';

@@ -41,6 +41,36 @@ it('rejects a retry after the signed-in account changes',async()=>{
 it('does not report success for an unverified server result',async()=>{
  api.rpc.mockResolvedValue({data:{id:'step',status:'for_review'}});await expect(completeSubitem(subitemCompletionAttempt('step','',[]))).rejects.toThrow('not verified');
 });
+it('rechecks current completion access before uploading, but preserves receipt recovery after a lost response',async()=>{
+ const attempt=subitemCompletionAttempt('step','',[]),recheck=vi.fn().mockResolvedValue(undefined);
+ api.rpc.mockRejectedValueOnce(new Error('Lost response')).mockResolvedValueOnce({data:{id:'step',status:'completed'}});
+ await expect(completeSubitem(attempt,recheck)).rejects.toThrow('Lost response');
+ recheck.mockRejectedValue(new Error('Already completed'));
+ await completeSubitem(attempt,recheck);expect(recheck).toHaveBeenCalledTimes(1);
+ expect(api.rpc.mock.calls[0]).toEqual(api.rpc.mock.calls[1]);
+});
+it('rejects a new completion after current authority is revoked, before any upload or write',async()=>{
+ const attempt=subitemCompletionAttempt('step','',[new File(['proof'],'proof.pdf')]);
+ await expect(completeSubitem(attempt,async()=>{throw new Error('Access changed');})).rejects.toThrow('Access changed');
+ expect(api.upload).not.toHaveBeenCalled();expect(api.rpc).not.toHaveBeenCalled();
+});
+it('rechecks after a confirmed SQL rejection before retrying the same terms',async()=>{
+ const attempt=subitemCompletionAttempt('step','',[]),recheck=vi.fn().mockResolvedValue(undefined);
+ api.rpc.mockResolvedValueOnce({error:{code:'23514',message:'Prerequisite incomplete'}}).mockResolvedValueOnce({data:{id:'step',status:'completed'}});
+ await expect(completeSubitem(attempt,recheck)).rejects.toThrow('Prerequisite');await completeSubitem(attempt,recheck);
+ expect(recheck).toHaveBeenCalledTimes(2);expect(api.rpc.mock.calls[0]).toEqual(api.rpc.mock.calls[1]);
+});
+it('applies newly confirmed blockers and clearing while preserving an edited local blocker',()=>{
+ const props={completionMode:'direct' as const,status:'in_progress',onSave:vi.fn(),onSubmit:vi.fn()};
+ const view=render(<WorkExecutionForm {...props}/>);
+ view.rerender(<WorkExecutionForm {...props} initialBlocker="Equipment missing"/>);
+ expect((screen.getByLabelText('Blocker reason') as HTMLTextAreaElement).value).toBe('Equipment missing');
+ view.rerender(<WorkExecutionForm {...props} initialBlocker=""/>);expect(screen.queryByLabelText('Blocker reason')).toBeNull();
+ view.rerender(<WorkExecutionForm {...props} initialBlocker="Equipment missing"/>);
+ fireEvent.change(screen.getByLabelText('Blocker reason'),{target:{value:'My unsaved blocker'}});
+ view.rerender(<WorkExecutionForm {...props} initialBlocker=""/>);
+ expect((screen.getByLabelText('Blocker reason') as HTMLTextAreaElement).value).toBe('My unsaved blocker');
+});
 
 it('shows failed completion in a red alert panel and retains the draft',async()=>{
  const submit=vi.fn().mockRejectedValue(new Error('Complete the previous step first.'));

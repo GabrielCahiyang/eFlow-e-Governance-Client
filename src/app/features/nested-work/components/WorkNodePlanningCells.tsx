@@ -23,6 +23,7 @@ export function WorkNodeDependenciesCell({ node, nodes, supported, disabled, sav
     ? siblings.filter(item => !item.is_standalone && item.sibling_order < node.sibling_order && item.status !== 'completed')
     : [];
   return <PrerequisiteCell title={node.title} itemName="subtask" selectedIds={selectedIds}
+    legacySequential={node.dependency_ids == null}
     records={siblings} getChoices={() => siblings.filter(item => item.id !== node.id)}
     pendingCount={node.pending_dependency_count} restrictedCount={node.restricted_dependency_count ?? 0}
     emptyLabel={previousSteps.length ? 'Waiting for earlier subtasks' : undefined}
