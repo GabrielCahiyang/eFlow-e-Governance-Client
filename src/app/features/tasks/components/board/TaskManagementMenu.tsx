@@ -73,6 +73,7 @@ export function TaskManagementMenu({
   }
   if (task.status !== "completed")
     add("edit", "Edit task details", <Pencil size={13} />, onEdit);
+  add("delete", "Delete task", <Trash2 size={13} />, onDelete);
   add("team", "Edit team and lead", <UserRoundCog size={13} />, onEditTeam);
   if (task.status === "completed")
     add("reopen", "Reopen task", <RotateCcw size={13} />, onReopen);
@@ -87,7 +88,6 @@ export function TaskManagementMenu({
     task.archivedAt ? <ArchiveRestore size={13} /> : <Archive size={13} />,
     onArchive,
   );
-  add("delete", "Delete task", <Trash2 size={13} />, onDelete);
   if (!actions.length) return null;
   return (
     <div

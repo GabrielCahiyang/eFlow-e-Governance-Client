@@ -291,12 +291,9 @@ export function ProjectTimelineView({
         {/* Timeline Header & Unified Toolbar */}
         <div className="eflow-project-view-heading eflow-project-view-heading--timeline">
           <div>
-            <span className="eflow-project-view-heading__eyebrow">
-              <CalendarDays size={14} /> Planning Gantt Timeline
-            </span>
-            <h2>Milestones and delivery schedule</h2>
+            <h2>Timeline</h2>
             <p>
-              {scheduledActivityCount} activities · {scheduledTaskCount} tasks with target dates
+              {scheduledActivityCount} activities · {scheduledTaskCount} scheduled tasks
               {unscheduledItems.length > 0 ? ` · ${unscheduledItems.length} unscheduled` : ""}
             </p>
           </div>
@@ -355,7 +352,7 @@ export function ProjectTimelineView({
         <div className="eflow-timeline-legend">
           <div className="flex items-center gap-1.5 text-xs text-neutral-600">
             <span className="h-2.5 w-5 rounded-xs bg-indigo-600" />
-            <span>Activity Phase</span>
+            <span>Activity phase</span>
           </div>
           <div className="flex items-center gap-1.5 text-xs text-neutral-600">
             <span className="h-2.5 w-5 rounded-xs bg-blue-500" />
@@ -371,7 +368,7 @@ export function ProjectTimelineView({
           </div>
           <div className="flex items-center gap-1.5 text-xs text-neutral-600">
             <span className="h-2.5 w-5 rounded-xs bg-amber-500" />
-            <span>In Progress / At Risk</span>
+            <span>In progress / at risk</span>
           </div>
         </div>
 

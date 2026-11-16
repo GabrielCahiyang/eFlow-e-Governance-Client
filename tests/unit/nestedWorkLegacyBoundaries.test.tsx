@@ -3,7 +3,8 @@ import {cleanup,fireEvent,render,screen,waitFor} from '@testing-library/react';
 import {afterEach,beforeEach,describe,expect,it,vi} from 'vitest';
 import type {Task} from '../../src/app/features/tasks';
 import type {WorkTreeSnapshot} from '../../src/app/features/nested-work';
-const api=vi.hoisted(()=>({actor:'lead',load:vi.fn(),save:vi.fn(),legacyRead:vi.fn(),create:vi.fn(),update:vi.fn(),delete:vi.fn(),order:vi.fn(),open:vi.fn(),legacyOpen:vi.fn()}));
+const api=vi.hoisted(()=>({actor:'lead',load:vi.fn(),save:vi.fn(),legacyRead:vi.fn(),create:vi.fn(),update:vi.fn(),delete:vi.fn(),order:vi.fn(),open:vi.fn(),legacyOpen:vi.fn(),rpc:vi.fn()}));
+vi.mock('../../src/lib/supabase',()=>({supabase:{auth:{getUser:async()=>({data:{user:{id:api.actor}},error:null})},rpc:api.rpc}}));
 vi.mock('../../src/app/contexts/AuthContext',()=>({useAuth:()=>({user:{id:api.actor},userProfile:{id:api.actor,full_name:'Lead',role:'member'}})}));
 vi.mock('../../src/app/features/nested-work/services/workTreeService',()=>({fetchWorkTree:api.load,saveWorkTree:api.save,fetchWorkImpact:vi.fn(),fetchWorkEvents:vi.fn(),WorkTreeUnavailable:class extends Error{}}));
 vi.mock('../../src/app/services/subtaskService',()=>({getCachedSubtasks:()=>[],subscribeToSubtasks:api.legacyRead,createSubtask:api.create,updateSubtask:api.update,deleteSubtask:api.delete,reorderSubtasks:api.order}));
@@ -27,7 +28,7 @@ function tree():WorkTreeSnapshot{
  const snapshot:WorkTreeSnapshot={root:{id:'root',project:'project',office:'office',kind:'office',open:true,lead:'lead',people:['lead'],due:'2026-10-21',capabilities:{create_child:allow,manage_contributors:allow,appoint_lead:allow,order_children:allow}},revision:7,can_manage:true,can_transfer:true,leaf_total:1,leaf_completed:0,people:[{id:'lead',name:'Recorded Lead',eligible:true}],nodes:Array.from({length:8},(_,i)=>({id:'node-'+i,task_id:'root',title:'Level '+(i+1),parent_subtask_id:i?'node-'+(i-1):null,lead_id:'lead',assigned_to_ids:['lead'],sibling_order:0,depth:i+1,due_date:null,is_standalone:true,status:'todo',percent_complete:0,can_manage:true,can_appoint:true,can_order:true,can_work:true,can_review:false,capabilities:{edit_details:allow,manage_contributors:allow,appoint_lead:allow,create_child:allow,order_children:allow,execute:allow,submit:allow}}))};
  rememberWorkCapabilityContext(snapshot,api.actor);return snapshot;
 }
-beforeEach(()=>{vi.clearAllMocks();api.actor='lead';api.load.mockImplementation(async()=>tree());api.legacyRead.mockImplementation((_id,callback)=>{callback([]);return()=>{};});});afterEach(cleanup);
+beforeEach(()=>{vi.clearAllMocks();api.actor='lead';api.load.mockImplementation(async()=>tree());api.rpc.mockResolvedValue({data:{version:1,task_id:'root',node_id:null,updated_at:'now',started:false,details:true,due:true,planning:true},error:null});api.legacyRead.mockImplementation((_id,callback)=>{callback([]);return()=>{};});});afterEach(cleanup);
 describe('NW9.7 proven compatibility entrances',()=>{
  it('routes the actual board editor through canonical depth-eight work and item IDs',async()=>{
   render(<TaskEditorModal open task={task} draft={buildTaskEditorDraft(task)} onChange={vi.fn()} onClose={vi.fn()} onSave={vi.fn()} onDelete={vi.fn()} onCancelTask={vi.fn()} onOpenTeamEditor={vi.fn()} saving={false} error="" employees={[]} availableTasks={[]} employeeById={{}}/>);
@@ -49,6 +50,12 @@ describe('NW9.7 proven compatibility entrances',()=>{
  it('hands the metadata save a checked missing scope only after the current root read proves it',async()=>{
   api.load.mockRejectedValue(new WorkTreeUnavailable('Missing'));const onSave=vi.fn();render(<TaskEditorModal open task={task} draft={buildTaskEditorDraft(task)} onChange={vi.fn()} onClose={vi.fn()} onSave={onSave} onDelete={vi.fn()} onCancelTask={vi.fn()} onOpenTeamEditor={vi.fn()} saving={false} error="" employees={[]} availableTasks={[]} employeeById={{}}/>);
   await screen.findByRole('button',{name:'Edit Team'});fireEvent.click(screen.getByRole('button',{name:'Save changes',exact:true}));expect(onSave).toHaveBeenCalledExactlyOnceWith({rootId:'root',actorId:'lead',code:'PGRST202'});
+ });
+ it('places the started Task notice before fields and keeps only permitted detail corrections editable',async()=>{
+  api.rpc.mockResolvedValue({data:{version:1,task_id:'root',node_id:null,updated_at:'now',started:true,details:true,due:true,planning:false},error:null});
+  render(<TaskEditorModal open task={task} draft={buildTaskEditorDraft(task)} onChange={vi.fn()} onClose={vi.fn()} onSave={vi.fn()} onDelete={vi.fn()} onCancelTask={vi.fn()} onOpenTeamEditor={vi.fn()} saving={false} error="" employees={[]} availableTasks={[]} employeeById={{}}/>);
+  const notice=await screen.findByText(/Work has started\. Title and priority corrections/),title=screen.getByLabelText('Task title'),description=screen.getByLabelText('Task description');
+  expect(notice.compareDocumentPosition(title)&Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();expect((title as HTMLInputElement).disabled).toBe(false);expect((description as HTMLTextAreaElement).disabled).toBe(true);expect((screen.getByLabelText('Due-date change reason') as HTMLInputElement).disabled).toBe(false);
  });
  it('hands a proven missing installation to the legacy detail while preserving prerequisite/readOnly/deadline callbacks',async()=>{
   api.load.mockRejectedValue(new WorkTreeUnavailable('Missing'));const prerequisite={id:'prior',taskId:'root'} as any,onClose=vi.fn();

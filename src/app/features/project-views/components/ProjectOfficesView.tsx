@@ -7,7 +7,7 @@ import '../projectViews.css';
 
 export function ProjectOfficesView({ tasks, offices, onSelectOffice, onOpenTask }: { tasks: Task[]; offices: Organization[]; onSelectOffice: (id: string) => void; onOpenTask: (id: string) => void }) {
   const rows = officeTaskSummaries(tasks);
-  return <section aria-label="Project Offices" className="pv-offices"><div className="pv-view-heading"><div><h2>Offices</h2><p>Work owned by each Office in this project.</p></div></div>
+  return <section aria-label="Project Offices" className="pv-offices"><div className="pv-view-heading"><div><h2>Work by office</h2><p>Tasks and completion grouped by office.</p></div></div>
     {!rows.length ? <EmptyState fill illustration="search" size="compact" title="No Office work matches these filters."/> : rows.map(row => <article key={row.officeId} className="pv-office-row"><header><Building2 size={19}/><h3>{offices.find(o => o.id === row.officeId)?.name || 'Office unavailable'}</h3>{row.officeId && <button onClick={() => onSelectOffice(row.officeId)}>View tasks</button>}</header>
       <div className="pv-office-metrics"><span><strong>{row.total}</strong>Tasks</span><span><strong>{row.completed}</strong>Completed</span><span><strong>{row.active}</strong>Active</span><span><strong>{row.overdue}</strong>Overdue</span></div>
       <progress aria-label="Office completion" value={row.completed} max={Math.max(1, row.total)}/>

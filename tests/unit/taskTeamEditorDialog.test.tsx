@@ -140,12 +140,13 @@ function workSnapshot(appointment=false,contributors=true):WorkTreeSnapshot {
  rememberWorkCapabilityContext(data,work.actor);return data;
 }
 describe('NW3.3 supported task team callers',()=>{
- it('uses a supplied table controller without another read and retains contributor-only authority',async()=>{
+ it('uses a supplied table controller and rechecks contributor-only authority immediately before saving',async()=>{
   const data=workSnapshot(true),save=vi.fn().mockResolvedValue(data),onClose=vi.fn();
   const controller:WorkTreeController={rootId:'task',actorId:'lead',data,loading:false,error:'',unavailable:false,authorityFresh:true,refreshPending:false,pending:false,reload:vi.fn(),save};
+  work.load.mockResolvedValue(data);
   render(createElement(TaskTeamEditorDialog,{task:supportedTask,profiles,subtasks:[],controller,onClose}));expect((screen.getByLabelText('Appointed Lead') as HTMLSelectElement).disabled).toBe(true);
   fireEvent.click(screen.getByRole('button',{name:'Add contributor Selected Maria Clara'}));fireEvent.click(screen.getByRole('button',{name:/^Save (?:work )?changes$/}));await waitFor(()=>expect(save).toHaveBeenCalledTimes(1));
-  expect(save.mock.calls[0][0]).toMatchObject({command:'contributors',revision:7,payload:{people:['lead','member','available']}});expect(work.load).not.toHaveBeenCalled();expect(work.save).not.toHaveBeenCalled();expect(updateTaskTeamMembers).not.toHaveBeenCalled();expect(onClose).toHaveBeenCalledTimes(1);
+  expect(save.mock.calls[0][0]).toMatchObject({command:'contributors',revision:7,payload:{people:['lead','member','available']}});expect(work.load).toHaveBeenCalledOnce();expect(work.save).not.toHaveBeenCalled();expect(updateTaskTeamMembers).not.toHaveBeenCalled();expect(onClose).toHaveBeenCalledTimes(1);
  });
  it('saves contributors through the canonical versioned operation without legacy writes or notifications',async()=>{
   work.load.mockResolvedValue(workSnapshot());work.save.mockResolvedValue(workSnapshot());const onClose=vi.fn();

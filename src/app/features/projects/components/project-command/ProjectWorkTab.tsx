@@ -86,12 +86,15 @@ export function ProjectWorkTab({
   return (
     <section className="eflow-figma-board pv-board" aria-label="Project task board">
       {onOpenTable && <header className="eflow-project-board-header">
-        <h2>Task board</h2>
+        <div>
+          <h2>Task board</h2>
+          <p className="pv-help">Open a task card to update progress or submit for review.</p>
+        </div>
         <button type="button" className="eflow-project-view-return" onClick={onOpenTable}>
           <ArrowLeft size={16} /><Table2 size={16} />Back to main table
         </button>
       </header>}
-      <p className="pv-help">Use task details to start work, post updates, or submit for review.</p>
+      {!onOpenTable && <p className="pv-help">Open a task card to update progress or submit for review.</p>}
       {actions.notice && <p className="pv-error pv-board-notice" role="alert">{actions.notice}</p>}
       <div className="eflow-figma-board__columns">
         {FIGMA_PROJECT_BOARD_COLUMNS.filter(column => !['changes_requested','cancelled'].includes(column.id) || (tasksByColumn.get(column.id)?.length || 0) > 0).map((column) => (

@@ -3,7 +3,7 @@ import { Calendar } from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import listPlugin from "@fullcalendar/list";
 import interactionPlugin from "@fullcalendar/interaction";
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { UserProfile, Organization } from "../../../../types";
 import type { ProjectCommandData } from "./types";
 import { isOverdue, type Task } from "../../../tasks";
@@ -303,12 +303,9 @@ export function ProjectCalendarView({
       {/* Calendar Header & Custom Toolbar */}
       <div className="eflow-project-view-heading">
         <div>
-          <span className="eflow-project-view-heading__eyebrow">
-            <CalendarIcon size={14} /> Project Schedule Calendar
-          </span>
-          <h2>Scheduled tasks and activity dates</h2>
+          <h2>Calendar</h2>
           <p>
-            {events.length} recorded task, milestone, project and review dates
+            {events.length} scheduled {events.length === 1 ? "item" : "items"}
             {unscheduledCount > 0 ? ` · ${unscheduledCount} unscheduled` : ""}
           </p>
         </div>

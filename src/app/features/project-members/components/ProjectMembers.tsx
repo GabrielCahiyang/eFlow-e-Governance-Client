@@ -120,7 +120,7 @@ function MembersContent({ projectId, projectStatus, projectTitle, governed = fal
                 <UserPlus size={16} aria-hidden="true" /> Add people
               </button>}
           </div>
-          {item.eligible_count === 0 && <p className="project-members-office-note">No onboarded eligible staff in this office. Use Invitations to request project membership.</p>}
+          {item.eligible_count === 0 && <p className="project-members-office-note">No onboarded eligible staff in this office. Send an invitation below.</p>}
         </li>;
       })}
     </ul>}

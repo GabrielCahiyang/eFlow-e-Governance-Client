@@ -1,5 +1,7 @@
 // @vitest-environment jsdom
 vi.mock('../../src/app/features/project-setup',()=>({useProjectFlow:()=>({data:null,error:'',reload:vi.fn()})}));
+const api=vi.hoisted(()=>({state:{version:1,task_id:'dates',node_id:null,updated_at:'2026-10-17T00:00:00Z',started:false,details:true,due:true,planning:true} as Record<string,unknown>,rpc:vi.fn()}));
+vi.mock('../../src/lib/supabase',()=>({supabase:{auth:{getUser:async()=>({data:{user:{id:'head'}},error:null})},rpc:api.rpc}}));
 
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -10,7 +12,7 @@ import { TaskDatesDialog } from '../../src/app/features/project-views/components
 
 const task: Task = { id: 'dates', title: 'Prepare meeting', orgId: 'office', status: 'todo', createdAt: 1, updatedAt: 1 };
 const now = new Date(2026, 9, 17, 12, 30, 45);
-beforeEach(() => { vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(now); });
+beforeEach(() => { api.state={version:1,task_id:'dates',node_id:null,updated_at:'2026-10-17T00:00:00Z',started:false,details:true,due:true,planning:true};api.rpc.mockImplementation(async()=>({data:api.state,error:null}));vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(now); });
 afterEach(() => { cleanup(); vi.useRealTimers(); });
 
 describe('task due date validation', () => {
@@ -41,6 +43,7 @@ describe('task due date validation', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Edit dates for Prepare meeting' }));
     } else render(<TaskDatesDialog task={task} onClose={vi.fn()} onSave={save}/>);
     const due = screen.getByLabelText('Due date'), start = screen.getByLabelText('Start date');
+    if(kind==='table')await waitFor(()=>expect((due as HTMLInputElement).disabled).toBe(false));
     expect(screen.queryByLabelText('Due time (optional)')).toBeNull();
     expect(due.getAttribute('min')).toBe('2026-10-17');
     expect(start.getAttribute('min')).toBe('2026-10-17');
@@ -53,5 +56,12 @@ describe('task due date validation', () => {
     await waitFor(() => expect(save).toHaveBeenCalledOnce());
     const patch = save.mock.calls[0][kind === 'table' ? 0 : 1];
     expect(patch.deadline).toBe('2026-10-17');
+  });
+  it('saves a started Task due-date correction with its reason and no planning fields',async()=>{
+    api.state={version:1,task_id:'dates',node_id:null,updated_at:'2026-10-17T00:00:00Z',started:true,details:true,due:true,planning:false};
+    const save=vi.fn().mockResolvedValue(undefined),started={...task,startDate:'2026-10-17',deadline:'2026-10-18'};
+    render(<TimelineCell task={started} disabled={false} save={save}/>);fireEvent.click(screen.getByRole('button',{name:'Edit dates for Prepare meeting'}));
+    const due=await screen.findByLabelText('Due date');await waitFor(()=>expect((due as HTMLInputElement).disabled).toBe(false));fireEvent.change(due,{target:{value:'2026-10-19'}});fireEvent.change(screen.getByLabelText('Reason for due-date change'),{target:{value:'Approved reschedule'}});fireEvent.submit(due.closest('form')!);
+    await waitFor(()=>expect(save).toHaveBeenCalledOnce());expect(save).toHaveBeenCalledWith({deadline:'2026-10-19',change_reason:'Approved reschedule'});
   });
 });

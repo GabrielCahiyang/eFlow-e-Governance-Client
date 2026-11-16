@@ -5,6 +5,7 @@ export interface WorkspaceTaskPatch {
  title?: string; priority?: Task['priority']; deadline?: string; start_date?: string | null;
  estimated_hours?: number; budget_impact?: number; dependency_ids?: string[];
  group_id?: string; workspace_position?: number;
+ change_reason?: string;
 }
 export const PROJECT_COLUMNS: {id: ProjectColumn; label: string}[] = [
  {id:'office',label:'Office'}, {id:'owner',label:'Owner'}, {id:'status',label:'Status'},

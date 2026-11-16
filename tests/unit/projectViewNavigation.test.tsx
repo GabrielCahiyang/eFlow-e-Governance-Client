@@ -17,9 +17,12 @@ function Views({ initial = 'tasks' }: { initial?: ProjectCommandTab }) {
 }
 
 describe('project view navigation', () => {
-  it('exposes and persists a Board view entered through a shortcut or direct URL', async () => {
-    render(<Views initial="board" />);
-    expect(screen.getByRole('tab', { name: 'Board', exact: true }).getAttribute('aria-selected')).toBe('true');
+  it('exposes the 5 core permanent tabs and switches back to Main table without adding optional storage', async () => {
+    render(<Views initial="reviews" />);
+    for (const label of ['Main table', 'Reviews', 'Members', 'Budget', 'Analytics']) {
+      expect(screen.getByRole('tab', { name: label, exact: true })).toBeTruthy();
+    }
+    expect(screen.getByRole('tab', { name: 'Reviews', exact: true }).getAttribute('aria-selected')).toBe('true');
     expect(screen.getByRole('tab', { name: 'Main table' }).getAttribute('aria-selected')).toBe('false');
     await waitFor(() => expect(JSON.parse(localStorage.getItem('eflow_project_views_project-a')!)).toEqual([]));
     fireEvent.click(screen.getByRole('tab', { name: 'Main table' }));
@@ -32,10 +35,11 @@ describe('project view navigation', () => {
     const menu = await screen.findByRole('dialog', { name: 'Browse project views' });
     expect(container.contains(menu)).toBe(false);
     expect(screen.queryByRole('button', { name: 'Proposal Context', exact: true })).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: 'Budget Overview', exact: true }));
+    expect(screen.queryByRole('button', { name: 'Settings', exact: true })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Board', exact: true }));
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
-    expect(screen.getByRole('tab', { name: 'Budget Overview', exact: true }).getAttribute('aria-selected')).toBe('true');
-    await waitFor(() => expect(localStorage.getItem('eflow_project_views_project-a')).toBe('["budget"]'));
+    expect(screen.getByRole('tab', { name: 'Board', exact: true }).getAttribute('aria-selected')).toBe('true');
+    await waitFor(() => expect(localStorage.getItem('eflow_project_views_project-a')).toBe('["board"]'));
   });
 
   it('closes the view picker with Escape', async () => {
@@ -47,9 +51,9 @@ describe('project view navigation', () => {
   });
 
   it('keeps an active overflow view selected and exposes the displaced view in More', async () => {
-    localStorage.setItem('eflow_project_views_project-a', JSON.stringify(['overview', 'timeline', 'reports', 'activity', 'proposal_context', 'reviews']));
-    render(<Views initial="reviews" />);
-    expect(screen.getByRole('tab', { name: 'Reviews', exact: true }).getAttribute('aria-selected')).toBe('true');
+    localStorage.setItem('eflow_project_views_project-a', JSON.stringify(['overview', 'timeline', 'reports', 'activity', 'proposal_context', 'board']));
+    render(<Views initial="board" />);
+    expect(screen.getByRole('tab', { name: 'Board', exact: true }).getAttribute('aria-selected')).toBe('true');
     fireEvent.keyDown(screen.getByRole('button', { name: 'More (2)' }), { key: 'Enter' });
     fireEvent.click(await screen.findByRole('menuitem', { name: 'Audit Trail', exact: true }));
     expect(screen.getByRole('tab', { name: 'Audit Trail', exact: true }).getAttribute('aria-selected')).toBe('true');

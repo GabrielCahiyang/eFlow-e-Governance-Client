@@ -83,7 +83,7 @@ function ProjectBudgetTabSkeleton() {
   );
 }
 
-export function ProjectBudgetTab({ data }: { data: ProjectCommandData }) {
+export function ProjectBudgetTab({ data, detailsOnly = false }: { data: ProjectCommandData; detailsOnly?: boolean }) {
   const { financial, financialLoading, financialError } = data;
 
   const summary = financial?.summary;
@@ -91,7 +91,7 @@ export function ProjectBudgetTab({ data }: { data: ProjectCommandData }) {
   const requests = financial?.requests || [];
 
   if (financialLoading) {
-    return <ProjectBudgetTabSkeleton />;
+    return detailsOnly ? null : <ProjectBudgetTabSkeleton />;
   }
 
   if (financialError) {
@@ -103,6 +103,32 @@ export function ProjectBudgetTab({ data }: { data: ProjectCommandData }) {
   }
 
   if (!summary || (summary.approvedAmount === 0 && lines.length === 0)) {
+    if (detailsOnly) return requests.length === 0 ? null : (
+      <div className="space-y-6 font-sans">
+        <div className="bg-white border border-neutral-200/80 rounded-2xl p-6 shadow-xs space-y-4">
+          <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
+            <h3 className="text-sm font-bold text-neutral-900 uppercase tracking-wider">
+              Disbursements &amp; Petty Cash
+            </h3>
+          </div>
+          <div className="divide-y divide-neutral-100">
+            {requests.map((req) => (
+              <div key={req.id} className="py-3 flex items-center justify-between gap-4 text-xs">
+                <div className="space-y-0.5">
+                  <div className="font-semibold text-neutral-900">{req.purpose || req.taskTitle || "Petty Cash"}</div>
+                  <div className="text-neutral-500 text-[11px]">
+                    Status: <strong className="capitalize">{req.status.replace(/_/g, " ")}</strong> · {formatDate(req.createdAt)}
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="font-bold text-neutral-900">{peso.format(req.requestedAmount)}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
     return (
       <div className="bg-white border border-neutral-200/80 rounded-2xl p-12 text-center shadow-xs font-sans">
         <SectionEmpty illustration="budget"
@@ -117,7 +143,7 @@ export function ProjectBudgetTab({ data }: { data: ProjectCommandData }) {
   return (
     <div className="space-y-6 font-sans">
       {/* Top Financial KPI Strip */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {!detailsOnly && <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white border border-neutral-200/80 rounded-2xl p-5 shadow-xs">
           <span className="text-xs font-bold uppercase tracking-wider text-neutral-400">
             Approved Allocation
@@ -153,7 +179,7 @@ export function ProjectBudgetTab({ data }: { data: ProjectCommandData }) {
             Task funds not reserved or spent
           </div>
         </div>
-      </div>
+      </div>}
 
       {/* Line Items Table */}
       {lines.length > 0 && (

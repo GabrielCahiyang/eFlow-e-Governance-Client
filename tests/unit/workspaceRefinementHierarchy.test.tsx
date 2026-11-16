@@ -60,14 +60,18 @@ describe('R7 checked nested-work UI',()=>{
   await act(async()=>reject(new Error('Current project access denied')));
   expect(screen.getByRole('alert').textContent).toContain('Current project access denied');expect(screen.queryByText('Current Lead')).toBeNull();expect(screen.queryByRole('button',{name:'Choose task lead and contributors'})).toBeNull();
  });
- it('does not let a pre-save refresh replace a newly saved owner snapshot',async()=>{
+ it('keeps staffing controls visible but blocks saving until a pre-save refresh finishes',async()=>{
   let resolve:(data:WorkTreeSnapshot)=>void=()=>{};
   mocks.load.mockResolvedValue(tree({root:{...tree().root,capabilities:{...tree().root.capabilities,appoint_lead:allow}},can_transfer:true}));mocks.save.mockResolvedValue(tree({root:{...tree().root,lead:'bob',people:['lead','bob']},can_transfer:true}));
   render(<WorkRootOwner rootId="root"/>);fireEvent.click(await screen.findByRole('button',{name:'Choose task lead and contributors'}));
   mocks.load.mockImplementationOnce(()=>new Promise(yes=>{resolve=yes;}));fireEvent(window,new Event('focus'));
+  expect(screen.getByLabelText('Appointed Lead').matches(':disabled')).toBe(true);
+  expect(screen.getByRole('button',{name:/^Save (?:work )?changes$/}).matches(':disabled')).toBe(true);
+  expect(mocks.save).not.toHaveBeenCalled();
+  await act(async()=>resolve(tree({root:{...tree().root,capabilities:{...tree().root.capabilities,appoint_lead:allow}},can_transfer:true})));
   fireEvent.change(screen.getByLabelText('Appointed Lead'),{target:{value:'bob'}});fireEvent.click(screen.getByRole('button',{name:/^Save (?:work )?changes$/}));
   fireEvent.click(await screen.findByRole('button',{name:/^(?:Assign|Change) lead$/,exact:true}));
-  await screen.findByText('Task people saved.');await act(async()=>resolve(tree()));
+  await screen.findByText('Task people saved.');
   expect(screen.getByText('Bob selected for project')).toBeTruthy();expect(screen.getByText('Lead:').parentElement?.textContent).toBe('Lead: Bob selected for project');
  });
  it('retains one request and creation identity after a lost response, prevents double saves, and guards drafts',async()=>{

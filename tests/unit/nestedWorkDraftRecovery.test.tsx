@@ -19,6 +19,7 @@ import {WorkRequestFailure} from '../../src/app/features/nested-work/types/edito
 const allow={allowed:true,reason_code:null} as const;
 function tree(revision=7,root='root'):WorkTreeSnapshot {
  const data:WorkTreeSnapshot={root:{id:root,project:'project',office:'office',lead:'actor',people:['actor'],kind:'office',open:true,due:'2026-12-31',capabilities:{create_child:allow,appoint_lead:allow,manage_contributors:allow,order_children:allow}},revision,can_manage:true,can_transfer:true,people:[{id:'actor',name:'Actor',eligible:true},{id:'worker',name:'Worker',eligible:true}],leaf_total:1,leaf_completed:0,nodes:[{id:'node',task_id:root,parent_subtask_id:null,lead_id:'actor',title:'Original',assigned_to_ids:['actor'],sibling_order:0,depth:1,due_date:null,is_standalone:false,status:'todo',percent_complete:0,can_manage:true,can_appoint:true,can_order:true,can_work:true,can_review:true,capabilities:{create_child:allow,appoint_lead:allow,manage_contributors:allow,order_children:allow,edit_details:allow,move:allow,delete:allow,execute:allow,submit:allow,review:allow}}]};
+ data.nodes[0].detail_edit={version:1,task_id:root,node_id:'node',updated_at:null,started:false,details:true,due:true,planning:true};
  rememberWorkCapabilityContext(data,api.actor||'actor');return data;
 }
 const context=(data:WorkTreeSnapshot,actorId=api.actor)=>({actorId,rootId:data.root.id,projectId:data.root.project,officeId:data.root.office,kind:data.root.kind,revision:data.revision});
@@ -86,6 +87,7 @@ describe('NW5.4 editor recovery',()=>{
  it('does not apply a late receipt to a new item in the same root',async()=>{
   const data=tree(),firstEdit={command:'edit' as const,node:data.nodes[0]},hook=renderHook(({edit})=>useWorkEditorDraft({data,edit,context:context(data),refreshPending:false,onCancel:vi.fn()}),{initialProps:{edit:firstEdit}});
   let resolve!:(data:WorkTreeSnapshot)=>void;const onDone=vi.fn();act(()=>{hook.result.current.update('title','Old item');});let pending!:Promise<void>;act(()=>{pending=hook.result.current.submit({save:vi.fn(()=>new Promise(yes=>{resolve=yes;})),onDone});});
+  await waitFor(()=>expect(typeof resolve).toBe('function'));
   hook.rerender({edit:{command:'edit',node:{...data.nodes[0],id:'other-item'}}});await act(async()=>{resolve(tree(8));await pending;});expect(onDone).not.toHaveBeenCalled();expect(hook.result.current.authorized).toBe(false);
  });
 });
@@ -104,9 +106,9 @@ describe('NW5.4 current reads and owners',()=>{
   const view=render(<WorkTree rootId="root"/>);await chooseWorkAction('Task work actions','Add subtask');fireEvent.change(screen.getByLabelText('Subtask title'),{target:{value:'Reloaded'}});view.unmount();
   let resolve!:(data:WorkTreeSnapshot)=>void;api.load.mockImplementationOnce(()=>new Promise(yes=>{resolve=yes;}));render(<WorkTree rootId="root"/>);expect(screen.queryByRole('button',{name:'Recover new subtask draft'})).toBeNull();await act(async()=>resolve(tree()));fireEvent.click(await screen.findByRole('button',{name:'Recover new subtask draft'}));expect(screen.getByDisplayValue('Reloaded')).toBeTruthy();expect(api.save).not.toHaveBeenCalled();
  });
- it('retains staffing through transient failure and recovers it after owner remount',async()=>{
+ it('retains an open staffing draft through transient failure, then opens saved values after remount',async()=>{
   const view=render(<WorkRootOwner rootId="root"/>);fireEvent.click(await screen.findByRole('button',{name:'Choose task lead and contributors'}));fireEvent.click(screen.getByRole('button',{name:'Add contributor Worker'}));api.load.mockRejectedValueOnce(new Error('Offline'));fireEvent(window,new Event('focus'));await screen.findByText('Offline');expect(screen.getByRole('button',{name:'Remove contributor Worker'})).toBeTruthy();expect((screen.getByRole('button',{name:/^Save (?:work )?changes$/}) as HTMLButtonElement).disabled).toBe(true);view.unmount();
-  render(<WorkRootOwner rootId="root"/>);fireEvent.click(await screen.findByRole('button',{name:'Choose task lead and contributors'}));expect(screen.getByRole('button',{name:'Remove contributor Worker'})).toBeTruthy();expect(screen.getByText(/People draft recovered/)).toBeTruthy();
+  render(<WorkRootOwner rootId="root"/>);fireEvent.click(await screen.findByRole('button',{name:'Choose task lead and contributors'}));expect(screen.getByRole('button',{name:'Add contributor Worker'})).toBeTruthy();expect(screen.queryByText(/People draft recovered/)).toBeNull();
  });
  it('ignores late reads across root changes',async()=>{
   let resolve!:(data:WorkTreeSnapshot)=>void;api.load.mockImplementationOnce(()=>new Promise(yes=>{resolve=yes;}));const hook=renderHook(({root})=>useWorkTree(root),{initialProps:{root:'root'}});hook.rerender({root:'other'});await waitFor(()=>expect(hook.result.current.data?.root.id).toBe('other'));await act(async()=>resolve(tree()));expect(hook.result.current.data?.root.id).toBe('other');

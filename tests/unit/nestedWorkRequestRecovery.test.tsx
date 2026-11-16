@@ -1,9 +1,10 @@
 // @vitest-environment jsdom
 import {act,cleanup,fireEvent,render,renderHook,screen,waitFor,within} from '@testing-library/react';
 import {afterEach,beforeEach,describe,expect,it,vi} from 'vitest';
-const api=vi.hoisted(()=>({actor:'actor',rpc:vi.fn(),session:vi.fn()}));
+const api=vi.hoisted(()=>({actor:'actor',rpc:vi.fn(),session:vi.fn(),freshTree:vi.fn()}));
 vi.mock('../../src/app/contexts/AuthContext',()=>({useAuth:()=>({user:{id:api.actor}})}));
 vi.mock('../../src/lib/supabase',()=>({supabase:{rpc:api.rpc,auth:{getSession:api.session}}}));
+vi.mock('../../src/app/features/nested-work/services/workTreeService',async importOriginal=>({...await importOriginal<typeof import('../../src/app/features/nested-work/services/workTreeService')>(),fetchWorkTree:api.freshTree}));
 import {useWorkEditorDraft} from '../../src/app/features/nested-work/hooks/useWorkEditorDraft';
 import {WorkTreeEditor} from '../../src/app/features/nested-work/components/WorkTreeEditor';
 import {saveWorkTree} from '../../src/app/features/nested-work/services/workTreeService';
@@ -14,7 +15,7 @@ import type {WorkCapabilityContext,WorkCommand,WorkNode,WorkRequest,WorkTreeSnap
 import type {WorkEdit} from '../../src/app/features/nested-work/types/editor';
 
 const allow={allowed:true,reason_code:null} as const,deny={allowed:false,reason_code:'branch_denied'} as const;
-const node=():WorkNode=>({id:'node',task_id:'root',parent_subtask_id:null,lead_id:'actor',assigned_to_ids:['actor'],title:'Original',sibling_order:0,depth:1,due_date:'2026-12-01',is_standalone:false,status:'todo',percent_complete:0,can_manage:true,can_appoint:true,can_order:true,can_work:true,can_review:true,capabilities:{create_child:allow,order_children:allow,edit_details:allow,move:allow,delete:allow,execute:allow,submit:allow,review:allow,manage_contributors:allow,appoint_lead:allow}});
+const node=():WorkNode=>({id:'node',task_id:'root',parent_subtask_id:null,lead_id:'actor',assigned_to_ids:['actor'],title:'Original',sibling_order:0,depth:1,due_date:'2026-12-01',is_standalone:false,status:'todo',percent_complete:0,can_manage:true,can_appoint:true,can_order:true,can_work:true,can_review:true,detail_edit:{version:1,task_id:'root',node_id:'node',updated_at:null,started:false,details:true,due:true,planning:true},capabilities:{create_child:allow,order_children:allow,edit_details:allow,move:allow,delete:allow,execute:allow,submit:allow,review:allow,manage_contributors:allow,appoint_lead:allow}});
 function tree(revision=7):WorkTreeSnapshot {
  const data:WorkTreeSnapshot={root:{id:'root',project:'project',office:'office',kind:'office',lead:'actor',people:['actor'],open:true,due:'2026-12-31',capabilities:{create_child:allow,order_children:allow,manage_contributors:allow,appoint_lead:allow}},revision,can_manage:true,can_transfer:true,nodes:[node()],people:[{id:'actor',name:'Actor',eligible:true}],leaf_total:1,leaf_completed:0};rememberWorkCapabilityContext(data,'actor');return data;
 }
@@ -22,8 +23,15 @@ const context=(data:WorkTreeSnapshot,actorId='actor'):WorkCapabilityContext=>({a
 function editor(data=tree(),edit:WorkEdit={command:'create'}) {
  return renderHook(({snapshot,actorId,refreshPending})=>useWorkEditorDraft({data:snapshot,edit,context:context(snapshot,actorId),refreshPending,onCancel:vi.fn()}),{initialProps:{snapshot:data,actorId:'actor',refreshPending:false}});
 }
-beforeEach(()=>{sessionStorage.clear();vi.resetAllMocks();api.actor='actor';api.session.mockResolvedValue({data:{session:{user:{id:'actor'},access_token:'synthetic-token'}},error:null});});afterEach(cleanup);
+beforeEach(()=>{sessionStorage.clear();vi.resetAllMocks();api.actor='actor';api.session.mockResolvedValue({data:{session:{user:{id:'actor'},access_token:'synthetic-token'}},error:null});api.freshTree.mockImplementation(()=>Promise.resolve(tree()));});afterEach(cleanup);
 describe('NW5.3 request recovery and current action authority',()=>{
+ it('rechecks the fresh detail policy and refuses a revoked edit before dispatch',async()=>{
+  const data=tree(),edit:WorkEdit={command:'edit',node:data.nodes[0]},hook=editor(data,edit),save=vi.fn();
+  act(()=>hook.result.current.update('title','Retained correction'));
+  const revoked=tree();revoked.nodes[0].detail_edit={...revoked.nodes[0].detail_edit!,details:false,due:false,planning:false};api.freshTree.mockResolvedValueOnce(revoked);
+  await act(async()=>hook.result.current.submit({save,onDone:vi.fn()}));
+  expect(api.freshTree).toHaveBeenCalledWith('root');expect(save).not.toHaveBeenCalled();expect(hook.result.current.fields.title).toBe('Retained correction');expect(hook.result.current.outcome.kind).toBe('confirmed_failure');expect(hook.result.current.outcome.message).toMatch(/read-only/i);
+ });
  it('turns statement timeout errors into a clear rolled-back work message',()=>{
   const failure=workRpcFailure({code:'57014',message:'canceling statement due to statement timeout'});
   expect(failure.kind).toBe('confirmed_failure');expect(failure.message).toContain('The transaction was rolled back');expect(failure.message).not.toContain('canceling statement');

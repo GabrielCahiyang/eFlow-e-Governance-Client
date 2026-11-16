@@ -1,11 +1,11 @@
 import {DeadlineBadge} from '../../../components/ui/DeadlineBadge';
 import {useProjectFlow} from '../../project-setup';
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Calendar } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '../../../components/ui/popover';
 import { FormField, TextInput } from '../../../components/ui/FormField';
 import { Button } from '../../../components/ui/button';
-import type { Task } from '../../tasks';
+import { fetchTaskDetailEditState, type Task, type TaskDetailEditState } from '../../tasks';
 import type { WorkspaceTaskPatch } from '../types';
 import { timelineDraft, timelinePatch, timelineError, todayDate } from '../planningDraft';
 import { usePlanningEditor } from '../hooks/usePlanningEditor';
@@ -15,6 +15,9 @@ export function TimelineCell({ task, disabled, save }: { task: Task; disabled: b
   const focusAfterSave = useRef(false);
   const editor = usePlanningEditor(() => timelineDraft(task), 'Task timeline: ' + task.title, { closeOnSuccess: true });
   const flow=useProjectFlow(task.linkedProjectId||'',editor.open);
+  const [editState,setEditState]=useState<TaskDetailEditState|null>(null),[policyError,setPolicyError]=useState(''),[policyLoading,setPolicyLoading]=useState(false),[changeReason,setChangeReason]=useState('');
+  useEffect(()=>{if(!editor.open)return;let active=true;setEditState(null);setPolicyError('');setChangeReason('');setPolicyLoading(true);void fetchTaskDetailEditState(task.id).then(value=>{if(active)setEditState(value);}).catch(reason=>{if(active)setPolicyError(reason instanceof Error?reason.message:'Task editing access could not be verified.');}).finally(()=>{if(active)setPolicyLoading(false);});return()=>{active=false;};},[editor.open,task.id]);
+  const policyReady=!policyLoading&&!policyError&&!!editState,canPlan=policyReady&&!!editState?.details&&!!editState.planning,canChangeDue=policyReady&&!!editState?.details&&!!editState.due;
   const projectStart=flow.data?.project.start_date||'',projectEnd=flow.data?.project.target_date||'';
   const minimumStart=projectStart>todayDate()?projectStart:todayDate();
   const due = task.deadline || task.dueDate || '', date = timelineDraft(task).end;
@@ -30,14 +33,20 @@ export function TimelineCell({ task, disabled, save }: { task: Task; disabled: b
       event.preventDefault();
       requestAnimationFrame(() => { if (trigger.current?.isConnected) trigger.current.focus(); });
     }}>
-      <form noValidate className="pt-planning-form" onSubmit={event => { event.preventDefault(); if (!disabled) void editor.submit(async draft => {
-        if(validation)throw new Error(validation);await save(timelinePatch(task, draft)); focusAfterSave.current = true;
+      <form noValidate className="pt-planning-form" onSubmit={event => { event.preventDefault(); if (!disabled&&policyReady) void editor.submit(async draft => {
+        if(validation)throw new Error(validation);
+        const changedDue=draft.end!==(task.deadline||task.dueDate||'');
+        if(editState?.started){if(draft.start!==(task.startDate||''))throw new Error('Start dates and planning definitions are locked after work starts.');if(changedDue&&!canChangeDue)throw new Error('Only the supervising Lead or authorized Office Head can reschedule this task.');if(changedDue&&(!changeReason.trim()||changeReason.trim().length>1000))throw new Error('Enter a due-date change reason (1–1,000 characters).');if(changedDue)await save({deadline:draft.end,change_reason:changeReason.trim()});}
+        else await save(timelinePatch(task,draft));
+        focusAfterSave.current = true;
       }, 'Dates saved.'); }}>
         <strong>Task timeline</strong><p>Task dates must fit within the project timeline.</p>
-        <FormField label="Start date"><TextInput type="date" min={minimumStart} max={editor.draft.end||projectEnd||undefined} value={editor.draft.start} disabled={disabled || editor.pending} onChange={event => editor.setDraft({ ...editor.draft, start: event.target.value })}/></FormField>
-        <FormField label="Due date" error={validation || (editor.error ? editor.error + ' Retry with Save dates.' : undefined)}><TextInput type="date" min={editor.draft.start > minimumStart ? editor.draft.start : minimumStart} max={projectEnd||undefined} value={editor.draft.end} disabled={disabled || editor.pending} onChange={event => editor.setDraft({ ...editor.draft, end: event.target.value })}/></FormField>
+        {policyLoading&&<p role="status">Checking current task editing access…</p>}{policyError&&<p role="alert">{policyError} Editing is unavailable until access can be verified.</p>}{editState?.started&&<p role="status">Work has started. Planned start and structure are locked. Due-date changes require supervising authority and a reason.</p>}
         {editor.notice && <p role="status">{editor.notice}</p>}
-        <Button type="submit" pending={editor.pending} disabled={disabled || !editor.dirty || !!validation}>Save dates</Button>
+        <FormField label="Start date"><TextInput type="date" min={minimumStart} max={editor.draft.end||projectEnd||undefined} value={editor.draft.start} disabled={disabled || editor.pending || !canPlan} onChange={event => editor.setDraft({ ...editor.draft, start: event.target.value })}/></FormField>
+        <FormField label="Due date" error={validation || (editor.error ? editor.error + ' Retry with Save dates.' : undefined)}><TextInput type="date" min={editor.draft.start > minimumStart ? editor.draft.start : minimumStart} max={projectEnd||undefined} value={editor.draft.end} disabled={disabled || editor.pending || !canChangeDue} onChange={event => editor.setDraft({ ...editor.draft, end: event.target.value })}/></FormField>
+        {editState?.started&&canChangeDue&&<FormField label="Reason for due-date change"><TextInput value={changeReason} maxLength={1000} disabled={disabled||editor.pending} onChange={event=>setChangeReason(event.target.value)}/></FormField>}
+        <Button type="submit" pending={editor.pending} disabled={disabled || !policyReady || !editor.dirty || !!validation}>Save dates</Button>
       </form>
     </PopoverContent>
   </Popover>;

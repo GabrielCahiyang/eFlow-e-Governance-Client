@@ -61,9 +61,23 @@ export function presentWorkEvent(event:WorkEvent,focus?:WorkActivityFocus):WorkE
   if(event.command==='contributors'||JSON.stringify(before?.root.people)!==JSON.stringify(after?.root.people))details.push(`Contributors: ${people(before,before?.root.people||[],before?.root.lead||null)} → ${people(after,after?.root.people||[],after?.root.lead||null)}`);
  }
  if(event.command==='edit'||event.command==='create'){
+  type RecordedDetails=WorkNode&{priority?:string;dependency_ids?:string[]|null;due_date_change_reason?:string|null};
+  const previous=old as RecordedDetails|undefined,current=next as RecordedDetails|undefined;
   if(next&&(event.command==='create'||old?.title!==next.title))details.push(`Title: ${old?.title||'Not yet created'} → ${next.title}`);
   if(next&&(next.start_date||old?.start_date)&&old?.start_date!==next.start_date)details.push(`Start date: ${old?.start_date||'No start date'} → ${next.start_date||'No start date'}`);
   if(next&&(event.command==='create'||old?.due_date!==next.due_date))details.push(`Deadline: ${old?.due_date||'No deadline'} → ${next.due_date||'No deadline'}`);
+  const priorityLabel=(value:string|undefined)=>value?value.charAt(0).toUpperCase()+value.slice(1):'Historical value unavailable';
+  if(old&&next&&previous?.priority!==current?.priority)details.push(`Priority: ${priorityLabel(previous?.priority)} → ${priorityLabel(current?.priority)}`);
+  const dependencyLabel=(value:string[]|null|undefined,snapshot:WorkTreeSnapshot|undefined)=>{
+   if(value===undefined)return 'Historical prerequisites unavailable';
+   if(value===null)return 'Legacy sequential prerequisites';
+   if(!value.length)return 'None';
+   return value.map(id=>nodes(snapshot).find(node=>node.id===id)?.title||'Historical prerequisite unavailable').join(', ');
+  };
+  const normalizedDependencies=(value:string[]|null|undefined)=>Array.isArray(value)?[...new Set(value)].sort():value;
+  if(old&&next&&JSON.stringify(normalizedDependencies(previous?.dependency_ids))!==JSON.stringify(normalizedDependencies(current?.dependency_ids)))
+   details.push(`Prerequisites: ${dependencyLabel(previous?.dependency_ids,before)} → ${dependencyLabel(current?.dependency_ids,after)}`);
+  if(old&&next&&(old.start_date!==next.start_date||old.due_date!==next.due_date)&&current?.due_date_change_reason?.trim())details.push(`Schedule change reason: ${current.due_date_change_reason.trim()}`);
   if(old&&next&&old.is_standalone!==next.is_standalone)details.push(`Sequencing: ${old.is_standalone?'Independent':'Sequential'} → ${next.is_standalone?'Independent':'Sequential'}`);
  }
  if(event.command==='order'){

@@ -15,6 +15,7 @@ import {
   Gauge,
   Archive,
   AlertTriangle,
+  Activity,
 } from "lucide-react";
 import { supabase } from "../../../lib/supabase";
 import {
@@ -23,6 +24,7 @@ import {
 } from "../../services/taskDiscussionService";
 import { InitialsAvatar } from "./StatusBadges";
 import {fetchProjectFileEvents,type ProjectFileEvent} from '../../features/project-files';
+import { taskActivityDetails, type TaskActivity } from '../../features/tasks';
 
 interface SystemEvent {
   id: string;
@@ -36,6 +38,7 @@ interface SystemEvent {
 type TimelineItem =
   | { kind: "system"; at: number; data: SystemEvent }
   | { kind: "progress"; at: number; data: ProgressUpdate }
+  | { kind: "task"; at: number; data: TaskActivity }
   | { kind: "file"; at: number; data: ProjectFileEvent };
 
 const STATUS_ICON: Record<string, React.ReactNode> = {
@@ -72,6 +75,7 @@ function timeAgo(ts: number): string {
 export function TaskActivityTimeline({ taskId,projectId }: { taskId: string;projectId?:string }) {
   const [events, setEvents] = useState<SystemEvent[]>([]);
   const [progress, setProgress] = useState<ProgressUpdate[]>([]);
+  const [taskActivity,setTaskActivity]=useState<TaskActivity[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [loadError, setLoadError] = useState('');
@@ -85,7 +89,7 @@ export function TaskActivityTimeline({ taskId,projectId }: { taskId: string;proj
 
   useEffect(() => {
     let active = true;
-    setEvents([]); setProgress([]); setLoading(true); setLoadError(''); setProgressError('');
+    setEvents([]); setProgress([]); setTaskActivity([]); setLoading(true); setLoadError(''); setProgressError('');
     const loadHistory = async () => {
       const { data, error } = await supabase
         .from("task_status_history")
@@ -109,6 +113,16 @@ export function TaskActivityTimeline({ taskId,projectId }: { taskId: string;proj
     };
     loadHistory();
 
+    const taskActivityChannel=supabase.channel(`task-detail-activity-${taskId}-${Math.random().toString(36).slice(2)}`)
+      .on('postgres_changes',{event:'*',schema:'public',table:'task_activities',filter:`task_id=eq.${taskId}`},()=>{
+        void supabase.from('task_activities').select('*').eq('task_id',taskId).order('created_at',{ascending:false}).then(({data})=>{
+          if(active&&data)setTaskActivity(data.map((row)=>({id:row.id,taskId:row.task_id,action:row.type||'',details:row.content||'',userId:row.actor_id||undefined,userName:row.actor_name||undefined,timestamp:new Date(row.created_at).getTime(),metadata:row.metadata})));
+        });
+      }).subscribe();
+    void supabase.from('task_activities').select('*').eq('task_id',taskId).order('created_at',{ascending:false}).then(({data})=>{
+      if(active&&data)setTaskActivity(data.map((row)=>({id:row.id,taskId:row.task_id,action:row.type||'',details:row.content||'',userId:row.actor_id||undefined,userName:row.actor_name||undefined,timestamp:new Date(row.created_at).getTime(),metadata:row.metadata})));
+    });
+
     const channel = supabase
       .channel(`history-${taskId}-${Math.random().toString(36).slice(2)}`)
       .on(
@@ -123,6 +137,7 @@ export function TaskActivityTimeline({ taskId,projectId }: { taskId: string;proj
     return () => {
       active = false;
       supabase.removeChannel(channel);
+      supabase.removeChannel(taskActivityChannel);
       unsubProgress();
     };
   }, [taskId, retry]);
@@ -130,6 +145,7 @@ export function TaskActivityTimeline({ taskId,projectId }: { taskId: string;proj
   const items: TimelineItem[] = [
     ...events.map((e) => ({ kind: "system" as const, at: e.at, data: e })),
     ...progress.map((p) => ({ kind: "progress" as const, at: p.createdAt, data: p })),
+    ...taskActivity.map((activity) => ({kind:'task' as const,at:activity.timestamp,data:activity})),
     ...fileEvents.map(f=>({kind:'file' as const,at:f.at,data:f})),
   ].sort((a, b) => b.at - a.at || b.data.id.localeCompare(a.data.id));
 
@@ -180,6 +196,13 @@ export function TaskActivityTimeline({ taskId,projectId }: { taskId: string;proj
                   {timeAgo(item.data.at)}
                 </div>
               </div>
+            </div>
+          ) : item.kind === 'task' ? (
+            <div key={`t-${item.data.id}`} className="relative flex gap-3">
+              <div className="relative z-10 w-7 h-7 rounded-full bg-sky-50 border border-sky-200 flex items-center justify-center text-sky-700 shrink-0"><Activity size={13}/></div>
+              <div className="flex-1 min-w-0 pt-1"><div className="text-[12px] font-medium text-neutral-900">{item.data.userName||'System'} updated task details</div>
+                <div className="mt-0.5 space-y-0.5 text-[11.5px] text-neutral-600">{taskActivityDetails(item.data).map((detail,index)=><p key={`${item.data.id}-${index}`}>{detail}</p>)}</div>
+                <div className="text-[10.5px] text-neutral-400 mt-0.5">{timeAgo(item.data.timestamp)}</div></div>
             </div>
           ) : item.kind === 'progress' ? (
             <div key={`p-${item.data.id}`} className="relative flex gap-3">

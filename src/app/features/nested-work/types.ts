@@ -47,6 +47,7 @@ export interface WorkNode {
  is_standalone:boolean;status:'todo'|'in_progress'|'for_review'|'changes_requested'|'completed';percent_complete:number;
  can_manage:boolean;can_appoint:boolean;can_order:boolean;can_work:boolean;can_review:boolean;current_reviewer?:string|null;
  capabilities?:WorkCapabilityMap<NodeWorkAction>;
+ detail_edit?:{version:1;task_id:string;node_id:string;updated_at:string|null;started:boolean;details:boolean;due:boolean;planning:boolean}|null;
 }
 export interface WorkTreeSnapshot {
  supportsSubtaskDependencies?:boolean;

@@ -4,7 +4,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../../src/app/services/taskService", () => ({
   undoCompletedTask: vi.fn(),
+  fetchTaskDetailEditState: vi.fn().mockResolvedValue({version:1,task_id:'task-1',node_id:null,updated_at:'now',started:false,details:true,due:true,planning:true}),
+  saveStartedTaskDetails: vi.fn(),
 }));
+vi.mock("../../src/app/features/tasks/services/taskRealtimeService", () => ({ notifyTaskListeners: vi.fn(), fetchTaskById: vi.fn() }));
 vi.mock("../../src/app/features/tasks/services/taskLifecycleService", () => ({
   cancelTask: vi.fn(),
 }));

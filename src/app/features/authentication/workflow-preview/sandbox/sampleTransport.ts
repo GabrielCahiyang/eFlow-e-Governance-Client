@@ -70,7 +70,7 @@ function rpc(r: SampleRecords, operation: string, payload: Row): unknown {
     case "r3_select_workspace": return { workspace: { id: ids.office, name: r.office.name, kind: "office", office_id: ids.office, owner_id: null, state: "active", timezone: "Asia/Manila" }, projects: [{ ...r.project, kind: "office", home_workspace_id: ids.office }] };
     case "organization_approver_ids": return [ids.head];
     case "project_flow_snapshot": return {
-      project: r.project, ready: true, canAuthorize: r.role === "head", canAllocate: r.role === "head", canExtendTaskFunding: true,
+      project: r.project, ready: !["project-funding", "save-project"].includes(r.scene), canAuthorize: r.role === "head", canAllocate: r.role === "head", canExtendTaskFunding: true,
       funds: unfunded ? [] : [{ id: ids.source, name: "Supplies", fiscal_year: 2026, amount: closed ? 3500 : 40000, available: closed ? 0 : r.scene === "allocate-task" ? 40000 : 30000 }],
       sources: [{ id: ids.source, name: "Supplies", year: 2026, available: unfunded ? 100000 : closed ? 96500 : 60000 }], total: unfunded ? 0 : closed ? 3500 : 40000,
       allocated: unfunded || r.scene === "allocate-task" ? 0 : closed ? 3500 : 10000, unallocated: unfunded || closed ? 0 : r.scene === "allocate-task" ? 40000 : 30000,

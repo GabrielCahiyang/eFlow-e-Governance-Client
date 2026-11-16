@@ -4,7 +4,9 @@ import { InlineCreateRow, type InlineCreateRequest, type WorkspaceAction } from 
 import { ProjectSubtaskBudgetCell, ProjectWorkExpensesCell } from '../../budget';
 import type { Task } from '../../tasks';
 import { SUBTASK_COLUMNS, useWorkTableColumns, type SubtaskColumn } from '../hooks/useWorkTableColumns';
-import { selectNodeWorkCapability } from '../selectors/capabilities';
+import { isCurrentWorkSnapshot,selectNodeWorkCapability } from '../selectors/capabilities';
+import {readNodeDetailEditState} from '../selectors/detailEditing';
+import {fetchWorkTree} from '../services/workTreeService';
 import type { WorkCapabilityContext, WorkNode, WorkTreeController, WorkTreeSnapshot } from '../types';
 import { InlineWorkCreateRow } from './InlineWorkCreateRow';
 import { WorkNodeActionMenu } from './WorkNodeActionMenu';
@@ -113,10 +115,16 @@ export function WorkTreeTable({
     }
     const { snapshot, controller, context, authorityFresh } = surfaceProps;
     const node = row.node;
+    const policy=readNodeDetailEditState(node,snapshot.root.id);
     const disabled = !authorityFresh || !controller || controller.pending || snapshot.root.kind !== 'office' ||
-      !selectNodeWorkCapability(snapshot, node.id, 'edit_details', context).allowed;
+      !selectNodeWorkCapability(snapshot, node.id, 'edit_details', context).allowed || !policy?.details || column==='dependencies'&&!policy.planning;
     const save = async (patch: { priority: WorkNode['priority'] } | { dependency_ids: string[] }) => {
       if (disabled || !controller) return;
+      const fresh=await fetchWorkTree(snapshot.root.id),freshContext={...context,revision:fresh.revision};
+      const current=fresh.nodes.find(item=>item.id===node.id),currentPolicy=readNodeDetailEditState(current,fresh.root.id);
+      if(!isCurrentWorkSnapshot(fresh,freshContext)||!selectNodeWorkCapability(fresh,node.id,'edit_details',freshContext).allowed||!currentPolicy?.details
+        ||'dependency_ids' in patch&&(!currentPolicy.planning||current?.can_edit_dependencies!==true))throw new Error('Current editing authority changed. Your selection has not been saved.');
+      if(fresh.revision!==snapshot.revision)throw new Error('Work changed. Reopen this selection and review the current values.');
       await controller.save({
         id: crypto.randomUUID(), command: 'edit', revision: snapshot.revision,
         payload: { id: node.id, title: node.title, due: node.due_date, standalone: node.is_standalone, note: '', ...patch },
@@ -176,7 +184,8 @@ export function WorkTreeTable({
               surfaceProps?.authorityFresh &&
               !surfaceProps.controller?.pending &&
               surfaceProps.onRenameNode &&
-              selectNodeWorkCapability(surfaceProps.snapshot, row.node.id, 'edit_details', surfaceProps.context).allowed,
+              selectNodeWorkCapability(surfaceProps.snapshot, row.node.id, 'edit_details', surfaceProps.context).allowed &&
+              (surfaceProps.snapshot.root.kind!=='office'||readNodeDetailEditState(row.node,surfaceProps.snapshot.root.id)?.details===true),
             );
             return (
               <tr key={row.node.id} data-work-row={row.node.id} data-selected-work={row.node.id === focusedNodeId || undefined}>

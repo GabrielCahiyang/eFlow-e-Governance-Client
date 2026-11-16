@@ -68,7 +68,7 @@ export function ProjectOfficePanel({ projectId, projectTitle, projectStatus, pro
 
   return <section className="po-panel" aria-label="Project Office collaboration">
     <header>
-      <div><p className="po-eyebrow">WORKING TOGETHER</p><h2>Project Offices</h2><p>Invite representatives or employees to work together on this project.</p></div>
+      <div><h2>Project Offices</h2><p>Manage collaborating offices, representatives, and invitations.</p></div>
       {lead && !closed && !governed && <div className="po-card-actions">
         <button disabled={!!state.identityError || state.loading || !!state.error} onClick={() => setLocalOffice({name:'',evidence:''})}>Add named Office</button>
         <button className="po-primary" disabled={!!state.identityError || state.loading || !!state.error} onClick={() => setLocalOffice({name:'',evidence:'',inviteOnly:true})}><MailPlus size={17}/>Invite Office</button>

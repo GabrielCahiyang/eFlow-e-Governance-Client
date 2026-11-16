@@ -7,7 +7,10 @@ import {
   type Task,
   type UpdateTaskPayload,
   undoCompletedTask,
+  fetchTaskDetailEditState,
+  saveStartedTaskDetails,
 } from "../../../../services/taskService";
+import { notifyTaskListeners } from "../../services/taskRealtimeService";
 import type { Employee } from "../../../../services/employeeService";
 import { requestNavigation } from "../../../../shared/navigationGuard";
 import { useExplicitDraft } from "../../../../shared/useExplicitDraft";
@@ -353,7 +356,7 @@ export function useMondayBoardController({
   }, [taskEditorOpen, taskEditorTaskId, editingTask]);
 
   // ── Manual Composer state ─────────────────────────────────────
-  const handleTaskEditorSave = async (legacy?:LegacyEditorStaffingScope) => {
+  const handleTaskEditorSave = async (legacy?:LegacyEditorStaffingScope, changeReason?: string) => {
     if (!onUpdateTask || !editingTask || !taskEditorDraft) return;
     if (!taskEditorDraft.title.trim()) {
       setTaskEditorError("Task title is required.");
@@ -504,7 +507,25 @@ export function useMondayBoardController({
         },
         operation: async () => {
           try {
-            await onUpdateTask(editingTask.id, payload);
+            const state = await fetchTaskDetailEditState(editingTask.id);
+            if (!state.details) throw new Error("Task details are read-only for your current authority or workflow state.");
+            const baseline = buildTaskEditorDraft(editingTask);
+            const lockedKeys = (Object.keys(taskEditorDraft) as (keyof TaskEditorDraft)[])
+              .filter((key) => !["title", "priority", "deadline"].includes(key))
+              .filter((key) => JSON.stringify(taskEditorDraft[key]) !== JSON.stringify(baseline[key]));
+            if (state.started && lockedKeys.length) throw new Error("Work has started. Planning and staffing edits are locked; your current changes were kept.");
+            if (!state.planning && lockedKeys.length) throw new Error("Planning fields are read-only. Your current changes were kept.");
+            if (cleanDeadline !== (editingTask.deadline || editingTask.dueDate || "") && !state.due) throw new Error("Only the supervising Lead or authorized Office Head can reschedule this task.");
+            if (state.started) {
+              await saveStartedTaskDetails(editingTask, {
+                title: taskEditorDraft.title.trim(),
+                priority: taskEditorDraft.priority,
+                deadline: cleanDeadline,
+              }, changeReason);
+              await notifyTaskListeners();
+            } else {
+              await onUpdateTask(editingTask.id, payload);
+            }
           } catch (error) {
             setTaskEditorError(
               error instanceof Error

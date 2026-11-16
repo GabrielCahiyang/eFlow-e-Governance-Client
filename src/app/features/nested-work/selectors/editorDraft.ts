@@ -4,6 +4,7 @@ import {selectNodeWorkCapability,selectRootWorkCapability} from './capabilities'
 import {compatibilityWorkWorkerIds} from './people';
 import {subtaskDateIssue,subtaskDateLimits} from './subtaskDates';
 import {scheduledDateError} from '../../../shared/calendarDates';
+import {readNodeDetailEditState} from './detailEditing';
 
 export function workEditorDateError(data:WorkTreeSnapshot,baseline:WorkEditorBaseline,fields:WorkEditorFields):string {
  if(!['create','edit'].includes(baseline.command))return '';
@@ -22,12 +23,12 @@ export function captureWorkEditorBaseline(data:WorkTreeSnapshot,edit:WorkEdit,ac
   : (edit.parent?data.nodes.find(item=>item.id===edit.parent)?.due_date:null)||data.root.due;
  return {actorId,rootId:data.root.id,projectId:data.root.project,officeId:data.root.office,kind:data.root.kind,revision:data.revision,
   command:edit.command,nodeId:node?.id||edit.itemId||null,createdId,fields:{title:node?.title||'',...(data.root.scheduleBounds?{start:node?.start_date||''}:{}),due:node?node.due_date||'':defaultDue||'',
-   lead:edit.root?data.root.lead||'':node?.lead_id||'',people:edit.root?[...new Set([data.root.lead,...data.root.people].filter((id):id is string=>!!id))]:[...(node?.assigned_to_ids||[])],
+  priority:node?.priority,lead:edit.root?data.root.lead||'':node?.lead_id||'',people:edit.root?[...new Set([data.root.lead,...data.root.people].filter((id):id is string=>!!id))]:[...(node?.assigned_to_ids||[])],
    parent:node?.parent_subtask_id||edit.parent||'',standalone:node?.is_standalone||false,note:'',progress:node?.percent_complete||0,
    order:data.nodes.filter(item=>item.parent_subtask_id===(edit.parent||null)).sort((a,b)=>a.sibling_order-b.sibling_order||a.id.localeCompare(b.id)).map(item=>item.id)}};
 }
 const applicableFields:Record<WorkEdit['command'],readonly (keyof WorkEditorFields)[]>={
- create:['title','start','due','standalone','parent','lead','people'],edit:['title','start','due','standalone','note'],move:['parent'],order:['order'],
+ create:['title','start','due','standalone','parent','lead','people'],edit:['title','priority','start','due','standalone','note'],move:['parent'],order:['order'],
  delete:[],progress:['progress','note'],submit:['note'],review:['progress','note'],staff:['lead','people'],contributors:['people'],root_lead:['lead','people'],
 };
 export function workEditorDirty(baseline:WorkEditorBaseline,fields:WorkEditorFields):boolean {
@@ -44,7 +45,7 @@ export function workEditorPayload(baseline:WorkEditorBaseline,fields:WorkEditorF
  const id=baseline.nodeId,people=compatibilityWorkWorkerIds(fields.lead||null,fields.people);
  switch(baseline.command){
   case 'create':return {id:baseline.createdId,title:fields.title,parent:fields.parent||null,lead:fields.lead||null,people,...schedule,due:fields.due||null,standalone:fields.standalone};
-  case 'edit':return {id,title:fields.title,...schedule,due:fields.due||null,standalone:fields.standalone,note:fields.note};
+  case 'edit':return {id,title:fields.title,...schedule,due:fields.due||null,standalone:fields.standalone,note:fields.note,...(fields.priority&&fields.priority!==baseline.fields.priority?{priority:fields.priority}:{})};
   case 'move':return {id,parent:fields.parent||null};
   case 'order':return {parent:fields.parent||null,order:[...fields.order]};
   case 'progress':return {id,progress:fields.progress,note:fields.note};
@@ -71,6 +72,26 @@ export function workEditorCapability(data:WorkTreeSnapshot,baseline:WorkEditorBa
  const actions:Partial<Record<WorkEdit['command'],NodeWorkAction>>={edit:'edit_details',move:'move',delete:'delete',progress:'execute',submit:'submit',review:'review',staff:'manage_contributors',contributors:'manage_contributors',root_lead:'appoint_lead'};
  const action=actions[baseline.command]!;
  return baseline.nodeId?selectNodeWorkCapability(data,baseline.nodeId,action,context):selectRootWorkCapability(data,baseline.command==='root_lead'?'appoint_lead':'manage_contributors',context);
+}
+export function selectStartedEditPolicy(data:WorkTreeSnapshot,nodeId:string|null) {
+ if(!nodeId)return null;
+ const matches=data.nodes.filter(node=>node.id===nodeId);
+ if(matches.length!==1)return null;
+ return readNodeDetailEditState(matches[0],data.root.id);
+}
+/** Field permissions supplement the current edit capability; neither grants the other. */
+export function workEditorDefinitionError(data:WorkTreeSnapshot,baseline:WorkEditorBaseline,fields:WorkEditorFields):string {
+ if(data.root.kind!=='office'||baseline.command!=='edit')return '';
+ const policy=selectStartedEditPolicy(data,baseline.nodeId);
+ if(!policy)return 'Editing permissions could not be verified. Refresh this work.';
+ if(!policy.details)return 'These work details are read-only. Use the existing review or reopen action.';
+ const planningChanged=(fields.start||'')!==(baseline.fields.start||'')||fields.standalone!==baseline.fields.standalone;
+ if(planningChanged&&!policy.planning)return 'Start date, prerequisites and structure cannot change after work has started.';
+ const dueChanged=fields.due!==baseline.fields.due;
+ if(dueChanged&&!policy.due)return 'Only the supervising Lead or authorized Office Head can reschedule this work.';
+ if(dueChanged&&policy.started&&!fields.note.trim())return 'Enter a reason for changing the due date.';
+ if(dueChanged&&fields.note.trim().length>1000)return 'Keep the schedule change reason within 1,000 characters.';
+ return '';
 }
 export function sameWorkEditorScope(baseline:WorkEditorBaseline,context:WorkCapabilityContext):boolean {
  return baseline.actorId===context.actorId&&baseline.rootId===context.rootId&&baseline.projectId===context.projectId&&baseline.officeId===context.officeId&&baseline.kind===context.kind;

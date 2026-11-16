@@ -49,12 +49,12 @@ export function ProjectGanttView({ data, allTasks, canManage, onOpenTask, onOpen
   };
   const jump = () => scroller.current?.scrollTo({ left: Math.max(0, LABEL + x(today) - 350), behavior: 'smooth' });
   return <section className="pv-gantt" aria-label="Project Gantt">
-    <div className="pv-view-heading"><div><h2>Gantt</h2><p>{rows.length} scheduled tasks · {milestones.length} milestones · {unscheduled.length} without a valid due date</p></div><div className="pv-view-actions">
+    <div className="pv-view-heading"><div><h2>Gantt</h2><p>{rows.length} scheduled · {milestones.length} milestones · {unscheduled.length} unscheduled</p></div><div className="pv-view-actions">
       <select aria-label="Gantt scale" value={scale} onChange={e => setScale(e.target.value as typeof scale)}><option value="day">Day</option><option value="week">Week</option><option value="month">Month</option></select>
       <button onClick={() => scroller.current?.scrollBy({ left: -300, behavior: 'smooth' })} aria-label="Earlier dates"><ChevronLeft size={16}/></button><button onClick={jump}>Today</button><button onClick={() => scroller.current?.scrollBy({ left: 300, behavior: 'smooth' })} aria-label="Later dates"><ChevronRight size={16}/></button>
       <button aria-pressed={highlight} onClick={() => setHighlight(!highlight)} disabled={!chain.length}><Link2 size={15}/>Longest dependency chain</button><button onClick={onOpenPlan}>Manage plan</button>
     </div></div>
-    <p className="pv-help">Drag a permitted task to move its dates; use the edge handles to resize. Tasks with only a due date appear as date markers.</p>
+    <p className="pv-help">Drag tasks to reschedule or resize edge handles. Single-date tasks appear as markers.</p>
     {highlight && <p className="pv-help">Highlighted: the longest chain by recorded task durations. Resource constraints and missing dates are not included.</p>}
     {actions.notice && <p className="pv-error" role="alert">{actions.notice}</p>}
     <div className="pv-gantt-scroll" ref={scroller} aria-busy={actions.busy}>

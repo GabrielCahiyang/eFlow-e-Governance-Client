@@ -10,7 +10,9 @@ import { duplicateWorkNameError } from '../../../shared/workNames';
 import { workRequestFailure } from '../services/workRequestOutcome';
 import {requestNavigation} from '../../../shared/navigationGuard';
 import {getPhilippineCalendarDate} from '../../../shared/calendarDates';
-import {isCurrentWorkSnapshot,selectRootWorkCapability} from '../selectors/capabilities';
+import {isCurrentWorkSnapshot,selectNodeWorkCapability,selectRootWorkCapability} from '../selectors/capabilities';
+import {readNodeDetailEditState} from '../selectors/detailEditing';
+import {fetchWorkTree} from '../services/workTreeService';
 import {WorkHierarchy} from './WorkHierarchy';
 import {descendantIds} from '../selectors/tree';
 import {WorkActivity} from './WorkActivity';
@@ -130,6 +132,12 @@ function WorkTreeContent({rootId,branchParentId,branchActions=false,presentation
   if(!data||!tree.authorityFresh||readOnly)throw new Error('Verify current work access before renaming a subtask.');
   const issue=duplicateWorkNameError(nextTitle,data.nodes.filter(item=>(item.parent_subtask_id||'')===(node.parent_subtask_id||'')),'Subitem',node.id);
   if(issue)throw new Error(issue);
+  if(data.root.kind==='office'){
+   const fresh=await fetchWorkTree(rootId),context={actorId:user?.id||null,rootId,projectId:data.root.project,officeId:data.root.office,kind:data.root.kind,revision:fresh.revision,readOnly};
+   const policy=readNodeDetailEditState(fresh.nodes.find(item=>item.id===node.id),rootId);
+   if(!selectNodeWorkCapability(fresh,node.id,'edit_details',context).allowed||!policy?.details)throw new Error('Current editing authority could not be verified. Your title has not been saved.');
+   if(fresh.revision!==data.revision)throw new Error('Work changed. Reopen this title and review its current value.');
+  }
   await save({id:crypto.randomUUID(),command:'edit',revision:data.revision,payload:{id:node.id,title:nextTitle,due:node.due_date||null,standalone:node.is_standalone,note:''}});
  }:undefined;
  const heading=presentation==='standard'?<div className="nw-work-heading"><div><h3>{branchParentId?'Child work':'Subtasks'}</h3><p>Steps managed by the task lead.</p></div>{data&&!branchParentId&&data.leaf_total>0&&<span className="nw-work-approved">{data.leaf_completed}/{data.leaf_total} steps complete</span>}</div>:undefined;
@@ -137,7 +145,7 @@ function WorkTreeContent({rootId,branchParentId,branchActions=false,presentation
   {tree.loading&&!data&&<p role="status">Loading subtasks…</p>}{tree.error&&<p role="alert">{tree.error}<button type="button" onClick={()=>void tree.reload()}>Retry work</button></p>}{saved&&<p role="status">{saved}</p>}
   {data&&<>
    {!edit&&recovered.map(record=><button type="button" key={`${record.mode}:${record.baseline.nodeId}:${record.baseline.fields.parent}:${record.baseline.revision}`} onClick={()=>void requestNavigation(()=>setEdit({command:record.baseline.command,itemId:record.baseline.nodeId||undefined,recoveryRevision:record.baseline.revision,node:data.nodes.find(node=>node.id===record.baseline.nodeId),parent:record.baseline.fields.parent||null}))}>Recover {draftLabels[record.baseline.command]||'work'} draft</button>)}
-   <WorkHierarchy heading={heading} presentation={presentation} snapshot={data} readOnly={readOnly} executionBlocked={executionBlocked} authorityFresh={tree.authorityFresh&&!tree.pending&&!edit} focusedNodeId={focusedNodeId} branchParentId={branchParentId} branchActions={branchActions} officeReviewAvailable={!!onReviewOfficeNode} controller={{...tree,save}} parentTask={parentTask} parentTitle={parentTitle} parentStartDate={parentStartDate} onCreateInline={onCreateInline} onRenameNode={onRenameNode}
+   <WorkHierarchy heading={heading} presentation={presentation} snapshot={data} readOnly={readOnly} executionBlocked={executionBlocked} authorityFresh={tree.authorityFresh&&!tree.refreshPending&&!tree.pending&&!edit} focusedNodeId={focusedNodeId} branchParentId={branchParentId} branchActions={branchActions} officeReviewAvailable={!!onReviewOfficeNode} controller={{...tree,save}} parentTask={parentTask} parentTitle={parentTitle} parentStartDate={parentStartDate} onCreateInline={onCreateInline} onRenameNode={onRenameNode}
     collapsedIds={collapsedIds} onCollapsedIdsChange={next=>{void requestNavigation(()=>setCollapsedIds(next));}} onOpenNode={openNode} onRequestAction={action}/>
    {opened&&data.nodes.some(node=>node.id===opened)&&<WorkNodeReadSummary node={data.nodes.find(node=>node.id===opened)!} snapshot={data} onClose={()=>setOpened(undefined)}/>}
    {activity&&<aside aria-label="Task work activity"><h4>Task work activity</h4><p>Work changes for this task and its subtasks.</p><WorkActivity roots={[rootId]}/><button type="button" onClick={()=>setActivity(false)}>Close activity</button></aside>}

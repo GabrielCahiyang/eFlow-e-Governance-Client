@@ -30,7 +30,7 @@ function WorkRootOwnerContent({rootId,fallback,readOnly=false,tree,layout='defau
  const context={actorId:user?.id||null,rootId,projectId:data.root.project,officeId:data.root.office,kind:data.root.kind,revision:data.revision,readOnly};
  const contributorAccess=selectRootWorkCapability(data,'manage_contributors',context),appointmentAccess=selectRootWorkCapability(data,'appoint_lead',context);
  const canStaff=contributorAccess.allowed||appointmentAccess.allowed;
- const recoverable=tree.authorityFresh&&readWorkDrafts(data,context).some(record=>record.mode==='staffing'&&!record.baseline.nodeId);
+ const recoverable=tree.authorityFresh&&readWorkDrafts(data,context).some(record=>record.mode==='staffing'&&!record.baseline.nodeId&&!!record.request);
  const team=collectSubtaskTeamIds(data.root.lead,data.root.people,data.nodes);
  const leadName=data.root.lead?resolveWorkPersonName(data.people,data.root.lead):'Needs reassignment';
  const teamNames=team.teamIds.map(id=>resolveWorkPersonName(data.people,id));
@@ -54,6 +54,7 @@ function WorkRootOwnerContent({rootId,fallback,readOnly=false,tree,layout='defau
    </div>
    : <WorkPeopleSummary leadId={data.root.lead} contributorIds={data.root.people} people={data.people} compact/>}
   {tree.error&&<p role="alert">{tree.error}<button type="button" onClick={()=>void tree.reload()}>Retry project people</button></p>}
+  {tree.refreshPending&&<span role="status" className="r7-help">Checking current access…</span>}
   {contributorAccess.reason_code==='active_staffing_locked'&&<p className="r7-help" role="status">{contributorAccess.disabledReason}</p>}
   {canStaff&&<button type="button" className={layout==='table'?'r7-owner-edit':undefined} aria-label="Choose task lead and contributors" disabled={tree.loading||tree.pending||!tree.authorityFresh} onClick={()=>setOpen(true)}>{(layout==='inline'||layout==='table')&&<UsersRound size={13} aria-hidden="true"/>}<span>{recoverable?'Recover people draft':layout==='inline'?'Manage people':'Choose people'}</span></button>}
   {saved&&<p role="status">{saved}</p>}

@@ -161,16 +161,17 @@ describe('fresh authority, checked confirmation and request outcomes',()=>{
  it('retains the identical request/payload/revision for uncertain retry and prevents double sends',async()=>{
   let reject:(reason:Error)=>void=()=>{};const save=vi.fn().mockImplementationOnce(()=>new Promise((_yes,no)=>{reject=no;})).mockResolvedValue(tree());
   const ctrl=controller(await verified(),save),changed=vi.fn();render(<WorkStaffingDialog controller={ctrl} nodeId={null} onClose={vi.fn()} onChanged={changed}/>);
-  fireEvent.click(screen.getByRole('button',{name:'Add contributor Replacement Lead'}));const submit=saveButton();fireEvent.click(submit);fireEvent.click(submit);expect(save).toHaveBeenCalledOnce();
+  fireEvent.click(screen.getByRole('button',{name:'Add contributor Replacement Lead'}));const submit=saveButton();fireEvent.click(submit);fireEvent.click(submit);await waitFor(()=>expect(save).toHaveBeenCalledOnce());
   await act(async()=>reject(new Error('Receipt interrupted')));await screen.findByText(/Receipt interrupted/);
   expect((leadControl() as HTMLSelectElement).disabled).toBe(true);fireEvent.click(screen.getByRole('button',{name:'Try again'}));await waitFor(()=>expect(save).toHaveBeenCalledTimes(2));
   expect(save.mock.calls[1][0]).toBe(save.mock.calls[0][0]);expect(save.mock.calls[1][0].revision).toBe(7);expect(changed).toHaveBeenCalledOnce();
  });
- it('allows the same uncertain request receipt retry after a fresh revision advances',async()=>{
+ it('confirms the original receipt after a fresh revision advances without another write',async()=>{
   const save=vi.fn().mockRejectedValueOnce(new Error('Receipt interrupted')).mockResolvedValue(tree()),ctrl=controller(await verified(),save),props={controller:ctrl,nodeId:null,onClose:vi.fn(),onChanged:vi.fn()};const view=render(<WorkStaffingDialog {...props}/>);
   fireEvent.click(screen.getByRole('button',{name:'Add contributor Replacement Lead'}));fireEvent.click(saveButton());await screen.findByText(/Receipt interrupted/);
   const raw=tree();raw.revision=8;raw.root.people.push('next');view.rerender(<WorkStaffingDialog {...props} controller={{...ctrl,data:await verified(raw)}}/>);
-  fireEvent.click(screen.getByRole('button',{name:'Try again'}));await waitFor(()=>expect(save).toHaveBeenCalledTimes(2));expect(save.mock.calls[1][0]).toBe(save.mock.calls[0][0]);
+  const fallback=api.rpc.getMockImplementation()!;api.rpc.mockImplementation(async(name,args)=>name==='nw_work_command_receipt'?{data:true,error:null}:fallback(name,args));
+  fireEvent.click(screen.getByRole('button',{name:'Try again'}));await waitFor(()=>expect(props.onChanged).toHaveBeenCalledOnce());expect(save).toHaveBeenCalledOnce();
  });
  it('does not save a second time when a confirmed receipt is followed by refresh failure',async()=>{
   const ctrl=controller(await verified()),changed=vi.fn().mockRejectedValue(new Error('Refresh interrupted'));render(<WorkStaffingDialog controller={ctrl} nodeId={null} onClose={vi.fn()} onChanged={changed}/>);
@@ -186,6 +187,7 @@ describe('fresh authority, checked confirmation and request outcomes',()=>{
  it('does not reinterpret a pending save response after actor scope changes',async()=>{
   let resolve:(data:WorkTreeSnapshot)=>void=()=>{};const save=vi.fn().mockImplementation(()=>new Promise(yes=>{resolve=yes;})),ctrl=controller(await verified(),save),changed=vi.fn(),props={controller:ctrl,nodeId:null,onClose:vi.fn(),onChanged:changed};
   const view=render(<WorkStaffingDialog {...props}/>);fireEvent.click(screen.getByRole('button',{name:'Add contributor Replacement Lead'}));fireEvent.click(saveButton());
+  await waitFor(()=>expect(save).toHaveBeenCalledOnce());
   const other=await verified(tree(),'other');view.rerender(<WorkStaffingDialog {...props} controller={{...ctrl,actorId:'other',data:other}}/>);
   await act(async()=>resolve(tree()));expect(changed).not.toHaveBeenCalled();expect(save).toHaveBeenCalledOnce();
  });

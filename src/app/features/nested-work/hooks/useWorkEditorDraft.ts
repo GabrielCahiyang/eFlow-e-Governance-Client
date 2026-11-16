@@ -1,8 +1,9 @@
 import {useEffect,useRef,useState} from 'react';
 import {useExplicitDraft} from '../../../shared/useExplicitDraft';
 import {duplicateWorkNameError} from '../../../shared/workNames';
-import {captureWorkEditorBaseline,freezeWorkEditorRequest,sameWorkEditorScope,workEditorCapability,workEditorDirty,workEditorPayload,workEditorReceiptRetryAllowed,workEditorDateError} from '../selectors/editorDraft';
-import {hasWorkCommandReceipt} from '../services/workTreeService';
+import {captureWorkEditorBaseline,freezeWorkEditorRequest,sameWorkEditorScope,workEditorCapability,workEditorDirty,workEditorPayload,workEditorReceiptRetryAllowed,workEditorDateError,workEditorDefinitionError} from '../selectors/editorDraft';
+import {fetchWorkTree,hasWorkCommandReceipt} from '../services/workTreeService';
+import {isCurrentWorkSnapshot} from '../selectors/capabilities';
 import {workRequestFailure} from '../services/workRequestOutcome';
 import type {WorkCapabilityContext,WorkRequest,WorkTreeSnapshot} from '../types';
 import type {WorkEdit,WorkEditorFields,WorkEditorOutcome,WorkEditorSaveOptions} from '../types/editor';
@@ -87,6 +88,8 @@ export function useWorkEditorDraft({data,edit,context,refreshPending,reload,onCa
     }
     const dateIssue=workEditorDateError(latest.current.data,baseline,latest.current.fields);
     if(dateIssue)throw new Error(dateIssue);
+    const definitionIssue=workEditorDefinitionError(latest.current.data,baseline,latest.current.fields);
+    if(definitionIssue)throw new Error(definitionIssue);
     const candidate=freezeWorkEditorRequest(baseline,latest.current.fields,crypto.randomUUID());
     const snapshot=JSON.stringify(latest.current.data);
     const fingerprint=options.prepare?await options.prepare(candidate):options.impactFingerprint;
@@ -95,6 +98,19 @@ export function useWorkEditorDraft({data,edit,context,refreshPending,reload,onCa
     if(!latest.current.authorized)throw new Error('Current authority changed during confirmation. Review current work again.');
     if(JSON.stringify(latest.current.data)!==snapshot||JSON.stringify(workEditorPayload(baseline,latest.current.fields))!==JSON.stringify(candidate.payload))throw new Error('Work or draft terms changed during confirmation. Review the current impact again.');
     request.current=freezeWorkEditorRequest(baseline,latest.current.fields,candidate.id,fingerprint);
+   }
+   if(baseline.kind==='office'&&baseline.command==='edit'){
+    if(unresolved.current&&await hasWorkCommandReceipt(context.rootId,request.current)){
+     committed.current=true;unresolved.current=false;recovery.clear(baseline);guard.markClean();
+     setOutcome({kind:'committed',receipt:latest.current.data});void reload?.();return;
+    }
+    const fresh=await fetchWorkTree(context.rootId);
+    if(!active.current||!latest.current.scopeMatches)return;
+    const currentContext={...latest.current.context,revision:fresh.revision};
+    if(!isCurrentWorkSnapshot(fresh,currentContext)||!workEditorCapability(fresh,baseline,currentContext).allowed)throw new WorkRequestFailure('revoked_authority','Current editing authority could not be verified. Your draft is kept.');
+    if(fresh.revision!==baseline.revision)throw new WorkRequestFailure('stale_revision','Work changed. Review your retained draft against the current work.');
+    const issue=workEditorDefinitionError(fresh,baseline,latest.current.fields)||workEditorDateError(fresh,baseline,latest.current.fields);
+    if(issue)throw new WorkRequestFailure('confirmed_failure',issue);
    }
    // Persist before dispatch: a real reload while awaiting an RPC is uncertain.
    recovery.persist({baseline,fields:latest.current.fields,request:request.current});

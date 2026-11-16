@@ -9,6 +9,7 @@ import type {
 } from "../taskTypes";
 import { readString, readStringArray, rowToTask, taskToRow } from "./taskMapper";
 import { fetchTaskById, notifyTaskListeners } from "./taskRealtimeService";
+import { prerequisiteLinkingError } from "../../../shared/prerequisiteLinkingError";
 
 export const createTask = async (
   titleOrPayload: string | CreateTaskPayload,
@@ -295,9 +296,10 @@ export const updateTask = async (
     // Multiple existing workflow calls can partially succeed. Refresh committed
     // changes and tell the editor precisely which part still needs attention.
     if (savedParts.length > 0) await notifyTaskListeners();
-    const reason = error && typeof error === 'object' && 'message' in error
+    const rawReason = error && typeof error === 'object' && 'message' in error
       ? String(error.message)
       : 'Please try again.';
+    const reason = prerequisiteLinkingError(rawReason);
     const saved = savedParts.length > 0
       ? `Saved ${savedParts.join(' and ')}, but could not save ${savingPart}. `
       : `Could not save ${savingPart}. `;

@@ -7,6 +7,7 @@ import {
   type BoardActivityItem,
 } from "../../services/taskActivityService";
 import { formatShortDateTime } from "./model";
+import { taskActivityDetails } from "../../selectors/taskActivityDetails";
 
 export function TaskActivityHistoryView({
   tasks,
@@ -101,7 +102,9 @@ export function TaskActivityHistoryView({
                   ) : (
                     <div className="break-words text-[12px] font-semibold leading-snug text-neutral-900">{task?.title || "Task no longer in this scope"}</div>
                   )}
-                  <p className="mt-0.5 break-words text-[12px] leading-relaxed text-neutral-600">{item.details}</p>
+                  <div className="mt-0.5 space-y-0.5 break-words text-[12px] leading-relaxed text-neutral-600">
+                    {taskActivityDetails(item).map((detail, index) => <p key={`${item.id}-${index}`}>{detail}</p>)}
+                  </div>
                   <p className="mt-1 text-[10.5px] text-neutral-400">{item.userName || "System"} · {formatShortDateTime(item.timestamp)}</p>
                 </div>
               </li>

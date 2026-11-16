@@ -23,6 +23,7 @@ export async function nestedWorkStaffingFixture(page:Page,records:Records) {
    sibling_order:typeof node.sibling_order==='number'?node.sibling_order:index,depth:1,
    status:String(node.status||'todo') as WorkTreeSnapshot['nodes'][number]['status'],percent_complete:Number(node.percent_complete||0),due_date:node.due_date?String(node.due_date):null,is_standalone:true,
    can_manage:head&&open,can_appoint:head&&open,can_order:head&&open,can_work:false,can_review:false,
+   detail_edit:{version:1 as const,task_id:rootId,node_id:String(node.id),updated_at:null,started:Boolean(node.started_at),details:head&&open,due:head&&open,planning:head&&open&&!node.started_at},
    capabilities:{manage_contributors:cap(head&&open),appoint_lead:cap(head&&open&&node.lead_id!==records.id),create_child:cap(head&&open),edit_details:cap(head&&open),move:cap(head&&open),order_children:cap(head&&open),delete:cap(head&&open),execute:cap(false),submit:cap(false),review:cap(false)},
   }));
   return {root:{id:rootId,project:records.project,office:records.org,kind:'office',open,lead,people:Array.isArray(root.team_member_ids)?root.team_member_ids as string[]:[],due:root.due_date?String(root.due_date).slice(0,10):null,

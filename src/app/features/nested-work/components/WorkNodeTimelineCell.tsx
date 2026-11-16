@@ -7,55 +7,45 @@ import { Popover, PopoverContent, PopoverTrigger } from '../../../components/ui/
 import { getPhilippineCalendarDate, isCalendarDate } from '../../../shared/calendarDates';
 import { usePlanningEditor } from '../../../shared/usePlanningEditor';
 import { useWorkImpactConfirmation } from '../hooks/useWorkImpactConfirmation';
-import { selectNodeWorkCapability } from '../selectors/capabilities';
+import { isCurrentWorkSnapshot, selectNodeWorkCapability } from '../selectors/capabilities';
+import { readNodeDetailEditState } from '../selectors/detailEditing';
+import { subtaskDateLimits } from '../selectors/subtaskDates';
+import { fetchWorkTree } from '../services/workTreeService';
 import type { WorkCapabilityContext, WorkNode, WorkRequest, WorkTreeController, WorkTreeSnapshot } from '../types';
 
 interface SubtaskTimelineDraft {
   start: string;
   end: string;
-}
-
-function ancestorDateBounds(snapshot: WorkTreeSnapshot, node: WorkNode, parentStartDate?: string) {
-  const byId = new Map(snapshot.nodes.map(item => [item.id, item]));
-  const visited = new Set([node.id]);
-  let earliest = (parentStartDate || '').slice(0, 10);
-  let latest = (snapshot.root.due || '').slice(0, 10);
-  let cursor = node.parent_subtask_id;
-  while (cursor && !visited.has(cursor)) {
-    visited.add(cursor);
-    const parent = byId.get(cursor);
-    if (!parent) break;
-    const pStart = (parent.start_date || '').slice(0, 10);
-    const pDue = (parent.due_date || '').slice(0, 10);
-    if (pStart && (!earliest || pStart > earliest)) earliest = pStart;
-    if (pDue && (!latest || pDue < latest)) latest = pDue;
-    cursor = parent.parent_subtask_id;
-  }
-  return { earliest, latest };
+  reason: string;
 }
 
 function subtaskTimelineError(
   draft: SubtaskTimelineDraft,
   original: SubtaskTimelineDraft,
-  bounds: { earliest: string; latest: string },
-  startedAt: string | null | undefined,
+  bounds: ReturnType<typeof subtaskDateLimits>,
+  started: boolean,
+  planning: boolean,
+  canChangeDue: boolean,
+  reason: string,
   today: string,
 ): string | undefined {
   for (const day of [draft.start, draft.end]) {
     if (day && !isCalendarDate(day)) return 'Enter a valid date.';
   }
-  if (startedAt && draft.start !== original.start) return 'Started subtasks keep their start date.';
+  if (!planning && draft.start !== original.start) return 'The planned start date is locked for this subtask.';
+  if (started && draft.start !== original.start) return 'Started subtasks keep their start date.';
+  if (!canChangeDue && draft.end !== original.end) return 'You do not have permission to change this due date.';
+  if (started && draft.end !== original.end && (!reason.trim() || reason.trim().length > 1000)) return 'Enter a due-date change reason from 1 to 1,000 characters.';
   if (original.start && !draft.start) return 'Start date cannot be cleared once set.';
   if (draft.start && draft.end && draft.start > draft.end) return 'Due date cannot be before the start date.';
+  if ((draft.start !== original.start && draft.start && bounds.earliest && draft.start < bounds.earliest) || (draft.start !== original.start && draft.start && bounds.latest && draft.start > bounds.latest) || (draft.end !== original.end && draft.end && bounds.latest && draft.end > bounds.latest) || (draft.end !== original.end && draft.end && bounds.earliest && draft.end < bounds.earliest)) {
+    return 'Subtask dates must stay within the parent schedule.';
+  }
   if (draft.end && draft.end !== original.end) {
     if (draft.end < today) return 'Choose today or a future due date.';
-    if (bounds.earliest && draft.end < bounds.earliest) return 'Subtask dates must stay within the parent schedule.';
-    if (bounds.latest && draft.end > bounds.latest) return 'Subtask dates must stay within the parent schedule.';
   }
   if (draft.start && draft.start !== original.start) {
     if (draft.start < today) return 'Choose today or a future start date.';
-    if (bounds.earliest && draft.start < bounds.earliest) return 'Subtask dates must stay within the parent schedule.';
-    if (bounds.latest && draft.start > bounds.latest) return 'Subtask dates must stay within the parent schedule.';
   }
   return undefined;
 }
@@ -76,19 +66,25 @@ export function WorkNodeTimelineCell({ node, snapshot, context, controller, pare
   const start = (node.start_date || '').slice(0, 10);
   const due = (node.due_date || '').slice(0, 10);
   const effectiveStatus = node.effective_status || node.status;
-  const canEdit = !disabled && !!controller && selectNodeWorkCapability(snapshot, node.id, 'edit_details', context).allowed;
+  const policy = readNodeDetailEditState(node, snapshot.root.id);
+  const policyRequired = snapshot.root.kind === 'office';
+  const started = Boolean(node.started_at || policy?.started);
+  const canEdit = !disabled && !!controller && (!policyRequired || !!policy?.details) && selectNodeWorkCapability(snapshot, node.id, 'edit_details', context).allowed;
 
   const editor = usePlanningEditor<SubtaskTimelineDraft>(
-    () => ({ start, end: due }),
+    () => ({ start, end: due, reason: '' }),
     'Subtask timeline: ' + node.title,
     { closeOnSuccess: true },
   );
   const confirmation = useWorkImpactConfirmation(snapshot.root.id);
-  const bounds = ancestorDateBounds(snapshot, node, parentStartDate);
+  const dateBounds = subtaskDateLimits(snapshot, node.parent_subtask_id || '');
+  const earliestBounds = [dateBounds.earliest, parentStartDate?.slice(0, 10)].filter((value): value is string => !!value).sort();
+  const bounds = { ...dateBounds, earliest: earliestBounds[earliestBounds.length - 1] };
   const today = snapshot.root.scheduling?.today || getPhilippineCalendarDate();
   const minBound = bounds.earliest && bounds.earliest > today ? bounds.earliest : today;
-  const startLocked = Boolean(node.started_at);
-  const validation = editor.dirty ? subtaskTimelineError(editor.draft, { start, end: due }, bounds, node.started_at, today) : undefined;
+  const startLocked = (policyRequired && !policy?.planning) || started;
+  const dueLocked = policyRequired && !policy?.due;
+  const validation = editor.dirty ? subtaskTimelineError(editor.draft, { start, end: due, reason: '' }, bounds, started, !policyRequired || !!policy?.planning && !started, !policyRequired || !!policy?.due, editor.draft.reason, today) : undefined;
 
   const startText = start ? new Date(start + 'T12:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '';
   const dueText = due ? new Date(due + 'T12:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : 'Set dates';
@@ -147,8 +143,34 @@ export function WorkNodeTimelineCell({ node, snapshot, context, controller, pare
                     due: draft.end || null,
                     ...(startChanged ? { start: draft.start || null } : {}),
                     standalone: node.is_standalone,
-                    note: '',
+                    note: dueChanged && started ? draft.reason.trim() : '',
                   },
+                };
+                const requireFreshAuthorization = async () => {
+                  if (!controller.authorityFresh || context.readOnly || !context.actorId) throw new Error('Your current access could not be verified. Reload the work and try again.');
+                  const latest = await fetchWorkTree(context.rootId);
+                  if (latest.root.id !== context.rootId || latest.root.project !== context.projectId || latest.root.office !== context.officeId || latest.root.kind !== context.kind || latest.revision !== request.revision) {
+                    throw new Error('Work changed. Reload and review the current schedule before saving.');
+                  }
+                  const freshContext = { ...context, revision: latest.revision };
+                  if (!isCurrentWorkSnapshot(latest, freshContext)) throw new Error('Your current access could not be verified. Reload the work and try again.');
+                  const freshNode = latest.nodes.find(item => item.id === node.id);
+                  const freshPolicy = readNodeDetailEditState(freshNode, latest.root.id);
+                  if (!freshNode || (policyRequired && !freshPolicy?.details) || !selectNodeWorkCapability(latest, node.id, 'edit_details', freshContext).allowed) {
+                    throw new Error('Your permission to edit this schedule is unavailable. Your changes are kept.');
+                  }
+                  if (freshNode.start_date !== node.start_date || freshNode.due_date !== node.due_date || Boolean(freshNode.started_at || freshPolicy?.started) !== started) {
+                    throw new Error('This subtask schedule changed. Reload and review the current dates before saving.');
+                  }
+                  if (startChanged && (policyRequired && !freshPolicy?.planning || !!freshPolicy?.started || freshNode.started_at)) throw new Error('The planned start date is locked for this subtask.');
+                  if (dueChanged && policyRequired && !freshPolicy?.due) throw new Error('You do not have permission to change this due date.');
+                  if (dueChanged && (freshPolicy?.started || freshNode.started_at) && (!draft.reason.trim() || draft.reason.trim().length > 1000)) throw new Error('Enter a due-date change reason from 1 to 1,000 characters.');
+                  const rawBounds = subtaskDateLimits(latest, freshNode.parent_subtask_id || '');
+                  const freshEarliest = [rawBounds.earliest, parentStartDate?.slice(0, 10)].filter((value): value is string => !!value).sort();
+                  const freshBounds = { ...rawBounds, earliest: freshEarliest[freshEarliest.length - 1] };
+                  const freshToday = latest.root.scheduling?.today || today;
+                  const freshIssue = subtaskTimelineError(draft, { start: (freshNode.start_date || '').slice(0, 10), end: (freshNode.due_date || '').slice(0, 10), reason: '' }, freshBounds, Boolean(freshPolicy?.started || freshNode.started_at), !policyRequired || !!freshPolicy && !!freshPolicy.planning && !freshPolicy.started, !policyRequired || !!freshPolicy?.due, draft.reason, freshToday);
+                  if (freshIssue) throw new Error(freshIssue);
                 };
                 if (dueChanged) {
                   setConfirming(true);
@@ -170,11 +192,13 @@ export function WorkNodeTimelineCell({ node, snapshot, context, controller, pare
                     if (fingerprint === null) {
                       throw new Error('Due date change was not confirmed.');
                     }
+                    await requireFreshAuthorization();
                     await controller.save({ ...request, impactFingerprint: fingerprint });
                   } finally {
                     setConfirming(false);
                   }
                 } else {
+                  await requireFreshAuthorization();
                   await controller.save(request);
                 }
                 focusAfterSave.current = true;
@@ -205,10 +229,15 @@ export function WorkNodeTimelineCell({ node, snapshot, context, controller, pare
                 min={editor.draft.start > minBound ? editor.draft.start : minBound}
                 max={bounds.latest || undefined}
                 value={editor.draft.end}
-                disabled={!canEdit || editor.pending}
+                disabled={!canEdit || editor.pending || dueLocked}
                 onChange={event => editor.setDraft({ ...editor.draft, end: event.target.value })}
               />
             </FormField>
+            {started && <FormField label="Due-date change reason" description="Required when changing a started subtask’s due date (1–1,000 characters).">
+              <textarea rows={3} maxLength={1000} value={editor.draft.reason} disabled={!canEdit || editor.pending || dueLocked}
+                onChange={event => editor.setDraft({ ...editor.draft, reason: event.target.value })}
+                className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm" />
+            </FormField>}
             {editor.notice && <p role="status">{editor.notice}</p>}
             <Button type="submit" pending={editor.pending} disabled={!canEdit || !editor.dirty || !!validation}>
               Save dates

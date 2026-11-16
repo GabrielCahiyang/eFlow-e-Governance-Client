@@ -6,7 +6,7 @@ import {DeadlineBadge} from '../../../components/ui/DeadlineBadge';
 import {workDateLabel} from '../../../shared/workCalendar';
 import {requestNavigation} from '../../../shared/navigationGuard';
 import type {Task} from '../../tasks';
-import {fetchWorkTree,useWorkTree,WorkActivity,WorkTreeEditor,type WorkTreeController} from '../../nested-work';
+import {fetchWorkTree,isCurrentWorkSnapshot,useWorkTree,WorkActivity,WorkTreeEditor,type WorkTreeController} from '../../nested-work';
 import type {TaskInspectorOrigin} from '../../task-inspector';
 import type {Subtask} from '../../../services/subtaskService';
 import {useSubitemInspectorData} from '../hooks/useSubitemInspectorData';
@@ -74,6 +74,19 @@ function SubitemInspectorContent(props:SubitemInspectorProps&{controller:WorkTre
  const startPaused=!!props.executionBlocked||node.capabilities?.execute?.reason_code==='project_on_hold';
  const startPanel=waitingToStart?<SubitemStartPanel key={itemId} taskId={tree.root.id} subtaskId={itemId}
   blockedReason={subitemStartBlocker(tree,node,context!.actorId,scopeReadOnly,startPaused,previous?.title)}
+  recheck={async()=>{
+   const latest=await fetchWorkTree(tree.root.id);
+   if(!isCurrentWorkSnapshot(latest,{...context!,revision:latest.revision}))throw new Error('Your access changed. Reload this work before starting.');
+   const fresh=latest.nodes.find(item=>item.id===itemId&&item.task_id===tree.root.id);
+   if(!fresh||fresh.status!=='todo'||fresh.started_at)throw new Error('This subtask changed. Reload its current state before starting.');
+   const execute=fresh.capabilities?.execute;
+   // Scheduled work reports lifecycle_blocked until Start; other denials remain closed.
+   if(!execute||!(execute.allowed&&execute.reason_code===null||!execute.allowed&&execute.reason_code==='lifecycle_blocked'))throw new Error('Current Start authority could not be verified. Reload this work.');
+   const rows=latest.nodes.map(item=>({id:item.id,title:item.title,parentSubtaskId:item.parent_subtask_id||undefined,position:item.sibling_order,siblingOrder:item.sibling_order,isStandalone:item.is_standalone,isCompleted:item.status==='completed',dependencyIds:item.dependency_ids}));
+   const prior=getSubtaskPrerequisite(rows.find(item=>item.id===itemId)!,rows);
+   const reason=subitemStartBlocker(latest,fresh,context!.actorId,scopeReadOnly,startPaused,prior?.title);
+   if(reason)throw new Error(reason);
+  }}
   pending={data.pending} onStarted={reload}/>:undefined;
  const usesLeadReview=tree.root.kind==='office'&&!!tree.root.scheduling;
  const actorId=context!.actorId;

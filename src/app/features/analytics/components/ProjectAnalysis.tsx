@@ -102,7 +102,7 @@ export function ProjectAnalysis({ project, input, onOpenTask, onOpenProject }: {
       <section className="ea-panel ea-project-summary" aria-label="Project summary">
         <div className="ea-analysis-heading">
           <span className="ea-analysis-icon"><ChartNoAxesCombined size={20} aria-hidden="true" /></span>
-          <div><h2>Project analysis</h2><p>{project.title}</p></div>
+          <div><h2>Project analysis</h2><p>{onOpenProject ? project.title : "Schedule health, completion, and delivery timing"}</p></div>
           {onOpenProject && <button type="button" className="ea-button" onClick={onOpenProject}>Open project <ArrowUpRight size={15} /></button>}
         </div>
         <div className="ea-schedule-result"><CalendarDays size={19} aria-hidden="true" /><strong>{schedule}</strong></div>
@@ -121,7 +121,7 @@ export function ProjectAnalysis({ project, input, onOpenTask, onOpenProject }: {
       </div>
       <section className="ea-panel ea-analysis-section">
         <h2>Team comparison</h2>
-        <p className="ea-help">Submission timing uses the person who first sent the work. Median time to submit uses tasks with a recorded start by that person. Review time and contributor assignments are shown separately.</p>
+        <p className="ea-help">Based on first submission and recorded task start times per lead. Review wait and contributors are tracked separately.</p>
         {people.length ? <ProjectAnalysisTable label="Team comparison" rows={people} columns={peopleColumns} rowKey={row => row.id} />
           : <p className="ea-empty">No task assignments or submissions to compare.</p>}
       </section>

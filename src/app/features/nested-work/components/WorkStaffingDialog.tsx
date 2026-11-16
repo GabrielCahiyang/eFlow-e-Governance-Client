@@ -14,6 +14,7 @@ import {workRequestFailure} from '../services/workRequestOutcome';
 import {useWorkDraftRecovery} from '../hooks/useWorkDraftRecovery';
 import {isCurrentWorkSnapshot} from '../selectors/capabilities';
 import {AutoAssignTaskButton} from '../../staffing';
+import {fetchWorkTree,hasWorkCommandReceipt} from '../services/workTreeService';
 
 /** Narrow compatibility input for historical standalone callers.
  * The existing owner supplies its own snapshot/save/loading and current identity.
@@ -36,7 +37,7 @@ function ControlledWorkStaffingDialog(props:Omit<WorkStaffingDialogProps,'contro
  const source=props.controller;
  const data=source.data;
  if(!data||source.actorId!==(user?.id||null)||!isCurrentWorkSnapshot(data,{actorId:source.actorId,rootId:source.rootId,projectId:data.root.project,officeId:data.root.office,kind:data.root.kind,revision:data.revision}))return <FeatureDialog open title="Task/subtask people" onClose={props.onClose}><p role={source.loading?'status':'alert'}>{source.error||'Verify current work access before choosing people.'}</p></FeatureDialog>;
- const controller:WorkStaffingController={...source,data,verificationFailed:!source.authorityFresh||source.pending};
+ const controller:WorkStaffingController={...source,data,verificationFailed:!source.authorityFresh||source.refreshPending||source.pending};
  return <WorkStaffingDialogContent key={`${controller.actorId}:${controller.rootId}:${props.nodeId}`} {...props} controller={controller}/>;
 }
 function WorkStaffingDialogContent({controller,nodeId,readOnly=false,executionBlocked=false,contributorsOnly=false,preselectedLeadId,onClose,onChanged}:Omit<WorkStaffingDialogProps,'controller'> & {controller:WorkStaffingController}) {
@@ -68,10 +69,15 @@ function WorkStaffingDialogContent({controller,nodeId,readOnly=false,executionBl
  const close=()=>{if(!guard.pendingRef.current)void guard.requestClose(closeOwner);};
 
  async function submit(){
-  if(guard.pendingRef.current||confirmed.current||latest.current.draftError)return;
+  if(guard.pendingRef.current||confirmed.current||!request.current&&latest.current.draftError)return;
   guard.pendingRef.current=true;setBusy(true);setError('');
   let receipt:WorkTreeSnapshot|undefined;
   try{
+   if(request.current&&await hasWorkCommandReceipt(controller.rootId,request.current)){
+    confirmed.current=true;recovery.clear();setSaved(true);guard.markClean();
+    try{const savedTree=await fetchWorkTree(controller.rootId);if(active.current)await latest.current.onChanged(savedTree);}catch{setError('People were saved, but the view could not refresh. Close and reload; do not submit again.');}
+    return;
+   }
    const current=latest.current;
    const candidate=request.current||createStaffingRequest(baseline,current.lead!,current.workers);
    let impactFingerprint:string|undefined;
@@ -104,6 +110,12 @@ function WorkStaffingDialogContent({controller,nodeId,readOnly=false,executionBl
    }
    if(!active.current)return;
    if(latest.current.draftError)throw new Error(latest.current.draftError);
+   const fresh=await fetchWorkTree(controller.rootId);
+   if(!active.current)return;
+   const checked=latest.current;
+   const freshContext={...checked.context,revision:fresh.revision};
+   const freshError=staffingDraftError(fresh,freshContext,baseline,checked.lead,checked.workers,false);
+   if(freshError)throw new Error(freshError);
    if(!request.current){
     if(JSON.stringify(candidate.payload)!==JSON.stringify(createStaffingRequest(baseline,latest.current.lead!,latest.current.workers).payload))throw new Error('Draft terms changed during confirmation. Review the current impact again.');
     for(const value of Object.values(candidate.payload))if(Array.isArray(value))Object.freeze(value);
@@ -139,7 +151,7 @@ function WorkStaffingDialogContent({controller,nodeId,readOnly=false,executionBl
    {recovery.recovered&&<p role="status">{recovery.stale?'Recovered people draft is stale. Review the current appointments before saving.':'People draft recovered after current access verification.'}</p>}
    {recovery.storageFailed&&<p role="alert">Draft recovery could not be stored in this tab. Keep the editor open to retain your changes.</p>}
    <div className="r7-actions"><button type="button" disabled={busy} onClick={close}>{saved?'Close':'Cancel changes'}</button>
-    {!saved&&<button type="submit" disabled={busy||!!draftError}>{busy?(aiBusy?'Choosing team…':'Saving…'):request.current?'Try again':'Save changes'}</button>}
+    {!saved&&<button type="submit" disabled={busy||!request.current&&!!draftError}>{busy?(aiBusy?'Choosing team…':'Saving…'):request.current?'Try again':'Save changes'}</button>}
    </div>
    {confirmation.dialog}
   </form>

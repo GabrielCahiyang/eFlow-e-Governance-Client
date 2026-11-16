@@ -192,6 +192,7 @@ function TaskInspectorContent({
         readOnly={readOnly || executionBlocked || lifecycle.busy}
         onClose={() => setTeamEditorOpen(false)}
       />
+      {lifecycle.dialog}
     </>
   );
 }

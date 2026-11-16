@@ -60,6 +60,7 @@ describe('NW8.1 canonical Subtask Inspector',()=>{
   });
   render(<SubitemInspector onClose={()=>{}} rootTask={task} itemId="n1"/>);
   fireEvent.click(await screen.findByRole('button',{name:'Start work'}));
+  fireEvent.click(within(await screen.findByRole('alertdialog',{name:'Start work?'})).getByRole('button',{name:'Start work'}));
   await screen.findByRole('button',{name:'Save update'});
   expect(api.start).toHaveBeenCalledExactlyOnceWith('root','n1');
   expect(api.progress).not.toHaveBeenCalled();

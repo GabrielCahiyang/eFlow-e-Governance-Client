@@ -1,25 +1,34 @@
 import { useRef, useState } from 'react';
 import { Button } from '@vibe/core';
 import { startScheduledSubtask } from '../services/subtaskWorkflowService';
+import { useConfirmation } from '../../../components/ui/useConfirmation';
 
-export function SubitemStartPanel({ taskId, subtaskId, blockedReason, pending, onStarted }: {
+export function SubitemStartPanel({ taskId, subtaskId, blockedReason, pending, recheck, onStarted }: {
   taskId: string;
   subtaskId: string;
   blockedReason: string | null;
   pending: boolean;
+  recheck: () => Promise<void>;
   onStarted: () => Promise<void>;
 }) {
   const inFlight = useRef(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [started, setStarted] = useState(false);
+  const { confirm, dialog } = useConfirmation();
+  const current = useRef({pending, blockedReason});
+  current.current = {pending, blockedReason};
 
   async function start() {
     if (pending || blockedReason || inFlight.current || started) return;
     inFlight.current = true;
-    setBusy(true);
     setError('');
     try {
+      const accepted = await confirm({title: 'Start work?', description: 'Start this subtask now? Its current access, planned start and prerequisites will be checked again.', actionLabel: 'Start work'});
+      if (!accepted) return;
+      if (current.current.pending || current.current.blockedReason) throw new Error(current.current.blockedReason || 'Work is refreshing. Check again before starting.');
+      setBusy(true);
+      await recheck();
       await startScheduledSubtask(taskId, subtaskId);
       setStarted(true);
       window.dispatchEvent(new CustomEvent('eflow:work-updated', { detail: { taskId } }));
@@ -33,6 +42,7 @@ export function SubitemStartPanel({ taskId, subtaskId, blockedReason, pending, o
   }
 
   return <div className="space-y-2">
+    {dialog}
     {started ? <p role="status">Subtask started. Reload this work if the update form does not appear.</p>
       : blockedReason ? <p role="status">{blockedReason}</p>
       : <Button disabled={pending || busy} onClick={() => void start()}>{busy ? 'Starting…' : 'Start work'}</Button>}

@@ -5,29 +5,39 @@ import type { PermanentProjectView, ProjectCommandTab, ProjectViewMeta } from '.
 
 export const PERMANENT_TABS: { id: PermanentProjectView; label: string }[] = [
   { id: "tasks", label: "Main table" },
-  { id: "board", label: "Board" },
-  { id: "gantt", label: "Gantt" },
-  { id: "calendar", label: "Calendar" },
-  { id: "dashboard", label: "Project Dashboard" },
+  { id: "reviews", label: "Reviews" },
+  { id: "members", label: "Members" },
+  { id: "budget", label: "Budget" },
   { id: "analytics", label: "Analytics" },
-  { id: "offices", label: "Offices" },
 ];
 
+const CORE_VIEW_DETAILS: Record<PermanentProjectView, { category: "Project" | "Insights"; description: string }> = {
+  tasks: { category: "Project", description: "Manage tasks, owners, statuses, and due dates." },
+  reviews: { category: "Project", description: "Review task and subtask evidence submissions." },
+  members: { category: "Project", description: "View project members, office roles, and access." },
+  budget: { category: "Insights", description: "Track allocated funds, line items, petty cash, and receipts." },
+  analytics: { category: "Insights", description: "Monitor progress, workload, and delivery metrics." },
+};
+
 export const CORE_VIEWS_CATALOG: ProjectViewMeta<PermanentProjectView>[] = PERMANENT_TABS.map(view => ({
-  ...view, category: 'Project', description: 'Core project view over the same authorized tasks and project context.',
+  ...view,
+  ...CORE_VIEW_DETAILS[view.id],
 }));
 
 export const OPTIONAL_VIEWS_CATALOG: ProjectViewMeta[] = [
-  { id:'settings', label:'Settings', category:'Project', description:'Project details, schedule and setup reviews.' },
-  { id:'members', label:'Members', category:'Project', description:'Selected project people, Office responsibilities and effective access.' },
-  { id:'overview', label:'Overview', category:'Project', description:'Project delivery summary, milestones and attention items.' },
-  { id:'timeline', label:'Timeline', category:'Project', description:'Existing milestone planning and schedule tools.' },
   // Project
+  { id: "board", label: "Board", category: "Project", description: "Organize and move tasks across status columns." },
+  { id: "gantt", label: "Gantt", category: "Project", description: "Plan schedules, timelines, and task dependencies." },
+  { id: "calendar", label: "Calendar", category: "Project", description: "View task deadlines on a monthly calendar." },
+  { id: "offices", label: "Offices", category: "Project", description: "See participating offices and their assigned work." },
+  { id: "overview", label: "Overview", category: "Project", description: "Project delivery summary, milestones, and attention items." },
+  { id: "timeline", label: "Timeline", category: "Project", description: "Milestone planning and schedule tools." },
+  { id: "settings", label: "Settings", category: "Project", description: "Project details, schedule, and setup checks." },
   {
     id: "reports",
     label: "Reports",
     category: "Project",
-    description: "Exportable data registers, progress tables, and CSV/PDF summaries.",
+    description: "Export progress tables and CSV or PDF summaries.",
   },
   {
     id: "proposal_context",
@@ -42,22 +52,14 @@ export const OPTIONAL_VIEWS_CATALOG: ProjectViewMeta[] = [
     category: "Project",
     description: "See who changed the project or its tasks, what changed, and when.",
   },
-  {
-    id: "reviews",
-    label: "Reviews",
-    category: "Project",
-    description: "Task and subtask evidence reviews scoped to this project.",
-  },
 
   // Insights
   {
-    id: "budget",
-    label: "Budget Overview",
+    id: "dashboard",
+    label: "Dashboard",
     category: "Insights",
-    description: "Allocated funds, line items, petty cash, and receipts.",
+    description: "View key project stats and upcoming deadlines.",
   },
-
-  // Governance
 ];
 
 /** Existing URL/prop aliases resolve to the same project view; unknown values are ignored. */

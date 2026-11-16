@@ -47,7 +47,8 @@ export function sceneRoute(scene: string) {
   if (scene === "task-review") return "/reviews?view=tasks";
   if (scene === "release") return "/voucher-cash-releases?page=Voucher%20%26%20Cash%20Releases&fy=2026";
   if (scene === "settlement") return "/voucher-cash-releases?page=Settlements&fy=2026";
-  if (["project-funding", "save-project", "return-funding"].includes(scene)) return project + "settings";
+  if (["project-funding", "save-project"].includes(scene)) return project + "settings";
+  if (scene === "return-funding") return project + "budget";
   if (["add-office", "invite-person"].includes(scene)) return project + "offices";
   if (scene === "create-project") return `/projects?page=Projects&workspace=${ids.office}`;
   return project + "tasks";
@@ -76,7 +77,7 @@ export async function prepareScene(scene: string) {
     case "project-funding":
     case "save-project":
     case "return-funding":
-      await click(scene === "return-funding" ? "Manage project funding" : "Edit project details");
+      await click(scene === "return-funding" ? "Manage project funding" : "Continue project setup");
       if (scene === "save-project") { await click("05 Review"); return; }
       await click("04 Funding");
       if (scene === "return-funding") { reveal(await button("Return unused to project")); return; }

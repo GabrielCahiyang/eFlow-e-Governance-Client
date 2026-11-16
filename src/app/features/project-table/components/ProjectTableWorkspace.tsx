@@ -98,7 +98,7 @@ export function ProjectTableWorkspace({data,profiles,orgs,canManage,planningOnly
 
   <div hidden={!!openSubitem}><TableToolbar sharedFilters={!!sharedFilters} query={query} setQuery={setQuery} status={status} setStatus={setStatus} owner={owner} setOwner={setOwner} sort={sort} setSort={setSort} people={people} hidden={hidden} toggleColumn={layout.toggleColumn} onResetWidths={layout.resetWidths} onResetCompact={layout.resetCompact} canManage={editable&&!planningOnly} onAddTask={addTask} onAddInlineTask={addInlineTask} onAddGroup={()=>setGroupOpen(true)} onImport={()=>{setImportSeed(prev=>({text:'',version:prev.version+1}));setImportOpen(true);}} onAi={()=>setAiOpen(true)} onOpenBoard={onOpenLegacyBoard}/>
 
-  <div className="pt-context-line"><span><Table2 size={14}/>{tasks.length} visible tasks</span>{editable?<span>Changes save where you work.</span>:<span><LockKeyhole size={13}/>Project structure is read-only for this account or project.</span>}</div>
+  {(!sharedFilters||!editable)&&<div className="pt-context-line">{!sharedFilters&&<span><Table2 size={14}/>{tasks.length === 1 ? '1 visible task' : `${tasks.length} visible tasks`}</span>}{!editable&&<span><LockKeyhole size={13}/>Project structure is read-only for this account or project.</span>}</div>}
   <ProjectImportHistory projectId={data.project.id} revision={historyRevision}/>
 
   {notice&&<div role="alert" className="pt-error">{notice}{refreshFailed&&<button type="button" onClick={()=>{void refreshCreatedGroup();}}>Retry refresh</button>}<button onClick={()=>setNotice('')} aria-label="Dismiss error">×</button></div>}

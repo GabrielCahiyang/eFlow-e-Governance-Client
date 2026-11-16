@@ -38,6 +38,7 @@ export async function fetchTaskActivityHistory(taskIds: string[]): Promise<Board
       userId: (row.actor_id as string) || undefined,
       userName: (row.actor_name as string) || "System",
       timestamp: new Date((row.created_at as string) || Date.now()).getTime(),
+      metadata: row.metadata,
       kind: "activity" as const,
     })),
     ...(statusResult.data || []).map((row) => ({
@@ -88,6 +89,7 @@ export function subscribeToTaskActivities(
         userId: row.actor_id || undefined,
         userName: row.actor_name || undefined,
         timestamp: new Date(row.created_at).getTime(),
+        metadata: row.metadata,
       })));
     } else {
       callback([]);

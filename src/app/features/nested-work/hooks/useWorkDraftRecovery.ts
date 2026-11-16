@@ -5,7 +5,10 @@ import {readWorkDrafts,removeWorkDraft,workDraftIdentity,writeWorkDraft,type Wor
 
 /** A stored draft supplies form state only; fresh response capability remains authoritative. */
 export function useWorkDraftRecovery(data:WorkTreeSnapshot,context:WorkCapabilityContext,baseline:WorkEditorBaseline,mode:string=baseline.command,revision?:number) {
- const [initial]=useState(()=>readWorkDrafts(data,context).find(record=>(revision===undefined||record.baseline.revision===revision)&&workDraftIdentity(record.baseline,record.mode)===workDraftIdentity(baseline,mode)));
+ const [initial]=useState(()=>readWorkDrafts(data,context).find(record=>(revision===undefined||record.baseline.revision===revision)&&workDraftIdentity(record.baseline,record.mode)===workDraftIdentity(baseline,mode)
+  // Ordinary edits reopen from saved values. Explicit recovery, creation drafts
+  // and immutable requests with an uncertain outcome keep their separate flow.
+  &&(revision!==undefined||baseline.command==='create'||!!record.request)));
  const [storageFailed,setStorageFailed]=useState(false);
  const actual=initial?.baseline||baseline;
  return {initial,baseline:actual,recovered:!!initial,stale:!!initial&&actual.revision!==data.revision,storageFailed,

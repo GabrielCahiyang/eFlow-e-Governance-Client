@@ -136,6 +136,7 @@ export interface TaskActivity {
   userId?: string;
   userName?: string;
   timestamp: number;
+  metadata?: unknown;
 }
 
 export interface CreateTaskPayload {

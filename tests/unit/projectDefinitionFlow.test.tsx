@@ -27,6 +27,12 @@ it('keeps setup in a centered wizard, validates one section and retains entries'
  render(<ProjectDefinitionPanel projectId="p" profiles={[]}/>);expect(screen.queryByLabelText('Description *')).toBeNull();fireEvent.click(screen.getByRole('button',{name:'Continue project setup'}));
  await screen.findByLabelText('Description *');fireEvent.click(screen.getByRole('button',{name:'Next'}));expect((await screen.findByRole('alert')).className).toBe('pf-error');fireEvent.change(screen.getByLabelText('Description *'),{target:{value:'Keep this draft'}});fireEvent.click(screen.getByRole('button',{name:'Next'}));await screen.findByLabelText('Scope of the project *');expect(screen.queryByLabelText('Description *')).toBeNull();fireEvent.click(screen.getByRole('button',{name:'Back'}));expect((screen.getByLabelText('Description *') as HTMLTextAreaElement).value).toBe('Keep this draft');
 });
+it('renders only financial panels in funding section mode for the Budget tab',()=>{
+ render(<ProjectDefinitionPanel projectId="p" profiles={[]} section="funding"/>);
+ expect(screen.queryByRole('region',{name:'Project definition'})).toBeNull();
+ expect(screen.getByRole('region',{name:'Project budget'})).toBeInTheDocument();
+ expect(screen.getByRole('button',{name:'Manage project funding'})).toBeInTheDocument();
+});
 it('restores the draft step and values in the same Office and account',async()=>{
  const props={recoveryKey:'actor-office',profiles:[],createDraft:vi.fn(),onClose:vi.fn(),onFinish:vi.fn()};
  const first=render(<ProjectSetupWizard {...props}/>);
@@ -255,4 +261,21 @@ it('freezes an uncertain task allocation and verifies the original request witho
  fireEvent.click(screen.getByRole('button',{name:'Allocate task budget'}));await screen.findByRole('button',{name:'Verify saved task allocation'});
  expect((screen.getByLabelText('Allocation reason') as HTMLTextAreaElement).closest('fieldset')?.disabled).toBe(true);
  const original=api.call.mock.calls[0];fireEvent.click(screen.getByRole('button',{name:'Verify saved task allocation'}));await waitFor(()=>expect(screen.getByRole('alert').textContent).toContain('Verification temporarily denied'));expect(api.call.mock.calls[1]).toEqual(original);fireEvent.click(screen.getByRole('button',{name:'Verify saved task allocation'}));await waitFor(()=>expect(changed).toHaveBeenCalledOnce());expect(api.call.mock.calls[2]).toEqual(original);
+});
+
+it('edits project settings inline when setup is already ready without opening the wizard',async()=>{
+ const readyProject={...initial().project,description:'Original description',scope:'Original scope',project_lead_id:'lead',start_date:'2027-01-01',target_date:'2027-02-01'};
+ api.data={...initial(),project:readyProject,ready:true};
+ api.call.mockResolvedValueOnce({...readyProject,title:'Updated title',updated_at:'2026-10-31T00:00:00Z'});
+ render(<ProjectDefinitionPanel projectId="p" profiles={[lead] as any} section="details"/>);
+ expect(screen.queryByRole('button',{name:'Edit project details'})).toBeNull();
+ expect(screen.queryByRole('region',{name:'Project budget'})).toBeNull();
+ fireEvent.change(screen.getByLabelText('Project title *'),{target:{value:'Updated title'}});
+ fireEvent.click(screen.getByRole('button',{name:'Save changes'}));
+ await screen.findByText('Project settings saved.');
+ expect(api.call).toHaveBeenCalledWith('save_project_definition',{
+  p_project:'p',
+  p_details:expect.objectContaining({title:'Updated title',version:'2026-10-30T00:00:00Z'}),
+ });
+ expect(screen.queryByRole('dialog')).toBeNull();
 });

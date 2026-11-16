@@ -9,6 +9,8 @@ import { TaskBoardDialog } from "./TaskBoardDialog";
 import { TaskChatSection } from "./TaskChatSection";
 import { TaskChatLink } from '../../../chat-calls';
 import type { TaskEditorDraft } from "./model";
+import { useEffect, useState } from "react";
+import { fetchTaskDetailEditState, type TaskDetailEditState } from "../../services/taskDetailEditService";
 
 // ─── Draft Task Row ───────────────────────────────────────────────
 
@@ -35,7 +37,7 @@ export function TaskEditorModal({
   draft: TaskEditorDraft | null;
   onChange: (patch: Partial<TaskEditorDraft>) => void;
   onClose: () => void;
-  onSave: (legacy?:LegacyEditorStaffingScope) => void;
+  onSave: (legacy?:LegacyEditorStaffingScope, reason?: string) => void;
   onDelete: () => void;
   onCancelTask: () => void;
   onOpenTeamEditor: () => void;
@@ -47,6 +49,26 @@ export function TaskEditorModal({
   currentUserId?: string;
   currentUserName?: string;
 }) {
+  const [editState, setEditState] = useState<TaskDetailEditState | null>(null);
+  const [editStateError, setEditStateError] = useState("");
+  const [editStateLoading, setEditStateLoading] = useState(false);
+  const [changeReason, setChangeReason] = useState("");
+  useEffect(() => {
+    if (!open || !task) return;
+    let active = true;
+    setEditState(null); setEditStateError(""); setChangeReason(""); setEditStateLoading(true);
+    void fetchTaskDetailEditState(task.id).then((state) => {
+      if (active) setEditState(state);
+    }).catch((error) => {
+      if (active) setEditStateError(error instanceof Error ? error.message : "Task editing access could not be verified.");
+    }).finally(() => { if (active) setEditStateLoading(false); });
+    return () => { active = false; };
+  }, [open, task?.id]);
+  const verified = !editStateLoading && !editStateError && !!editState;
+  const detailsWritable = verified && !!editState?.details;
+  const planningWritable = detailsWritable && !!editState?.planning;
+  const titlePriorityWritable = detailsWritable;
+  const dueWritable = detailsWritable && !!editState?.due;
   if (!open || !task || !draft) return null;
 
   const teamMembers = draft.teamMemberIds
@@ -59,7 +81,6 @@ export function TaskEditorModal({
   const reviewerCandidates = employees.filter(
     (employee) => employee.id !== (supportsNestedWork(task)?task.assigneeId:draft.leadMemberId),
   );
-
   return (
     <TaskEditorWorkOwner task={task}><TaskBoardDialog
       eyebrow="Task editor"
@@ -90,12 +111,17 @@ export function TaskEditorModal({
             <Button onClick={onClose} variant="outline">
               Cancel
             </Button>
-            <TaskEditorSaveButton task={task} saving={saving} onSave={onSave}/>
+            <TaskEditorSaveButton task={task} saving={saving || !verified || !detailsWritable} onSave={(legacy) => changeReason ? onSave(legacy, changeReason) : onSave(legacy)}/>
           </div>
         </div>
       }
     >
       <div className="space-y-4">
+        {editStateLoading && <p role="status" className="rounded-lg bg-neutral-50 px-3 py-2 text-xs text-neutral-600">Checking current task editing access…</p>}
+        {editStateError && <p role="alert" className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">{editStateError} Editing is unavailable until access can be verified.</p>}
+        {editState?.started && <p role="status" className="rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-xs text-sky-900">Work has started. Title and priority corrections remain available to authorized editors. Planning fields are locked; due-date changes require supervising authority and a reason.</p>}
+        {editState&&!editState.details&&<p role="status" className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">Task details are read-only for your current authority or workflow state.</p>}
+        {error && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700">{error}</div>}
         <div className="grid gap-3 md:grid-cols-2">
           <div className="md:col-span-2">
             <label className="text-[10px] uppercase tracking-[0.12em] text-neutral-400">
@@ -104,6 +130,7 @@ export function TaskEditorModal({
             <input
               aria-label="Task title"
               value={draft.title}
+              disabled={!titlePriorityWritable}
               onChange={(e) => onChange({ title: e.target.value })}
               className="mt-1 h-[40px] w-full rounded-xl border border-neutral-200 bg-white px-3 text-[13px] text-neutral-900 outline-none focus:border-neutral-400"
             />
@@ -116,6 +143,7 @@ export function TaskEditorModal({
               rows={3}
               aria-label="Task description"
               value={draft.description}
+              disabled={!planningWritable}
               onChange={(e) => onChange({ description: e.target.value })}
               className="mt-1 w-full resize-none rounded-xl border border-neutral-200 bg-white px-3 py-2.5 text-[13px] text-neutral-900 outline-none focus:border-neutral-400"
             />
@@ -126,10 +154,12 @@ export function TaskEditorModal({
             </label>
             <input
               value={draft.deadline}
+              disabled={!dueWritable}
               onChange={(e) => onChange({ deadline: e.target.value })}
               placeholder="e.g. 2026-07-15 or Month 1"
               className="mt-1 h-[40px] w-full rounded-xl border border-neutral-200 bg-white px-3 text-[13px] text-neutral-900 outline-none focus:border-neutral-400"
             />
+            {editState?.started && dueWritable && <label className="mt-2 block text-xs text-neutral-600">Reason for due-date change<input aria-label="Due-date change reason" value={changeReason} onChange={(event) => setChangeReason(event.target.value)} maxLength={1000} className="mt-1 h-9 w-full rounded-lg border px-3" placeholder="Required when changing the due date" /></label>}
           </div>
           <div>
             <TaskDepartmentLabel task={task} />
@@ -137,6 +167,7 @@ export function TaskEditorModal({
               Estimated task days
               <input
                 aria-label="Estimated task days"
+                disabled={!planningWritable}
                 type="number"
                 min="0.125"
                 step="0.125"
@@ -167,6 +198,7 @@ export function TaskEditorModal({
             </label>
             <select
               value={draft.priority}
+              disabled={!titlePriorityWritable}
               onChange={(e) =>
                 onChange({
                   priority: e.target.value as "low" | "medium" | "high",
@@ -185,6 +217,7 @@ export function TaskEditorModal({
             </label>
             <input
               value={draft.tagsText}
+              disabled={!planningWritable}
               onChange={(e) => onChange({ tagsText: e.target.value })}
               placeholder="comma-separated tags"
               className="mt-1 h-[40px] w-full rounded-xl border border-neutral-200 bg-white px-3 text-[13px] text-neutral-900 outline-none focus:border-neutral-400"
@@ -197,6 +230,7 @@ export function TaskEditorModal({
             <textarea
               rows={3}
               value={draft.acceptanceCriteriaText}
+              disabled={!planningWritable}
               onChange={(event) =>
                 onChange({ acceptanceCriteriaText: event.target.value })
               }
@@ -211,6 +245,7 @@ export function TaskEditorModal({
             <textarea
               rows={2}
               value={draft.definitionOfDone}
+                disabled={!planningWritable}
               onChange={(event) =>
                 onChange({ definitionOfDone: event.target.value })
               }
@@ -224,6 +259,7 @@ export function TaskEditorModal({
             </label>
             <select
               value=""
+              disabled={!planningWritable}
               onChange={(event) => {
                 if (
                   event.target.value &&
@@ -259,6 +295,7 @@ export function TaskEditorModal({
                     <button
                       type="button"
                       key={dependencyId}
+                      disabled={!planningWritable}
                       onClick={() =>
                         onChange({
                           dependencyIds: draft.dependencyIds.filter(
@@ -308,6 +345,7 @@ export function TaskEditorModal({
               Primary Reviewer
               <select
                 value={draft.reviewerId || ""}
+                disabled={!planningWritable}
                 onChange={(event) =>
                   onChange({ reviewerId: event.target.value || null })
                 }
@@ -327,6 +365,7 @@ export function TaskEditorModal({
               Backup Reviewer
               <select
                 value={draft.backupReviewerId || ""}
+                disabled={!planningWritable}
                 onChange={(event) =>
                   onChange({ backupReviewerId: event.target.value || null })
                 }
@@ -352,6 +391,7 @@ export function TaskEditorModal({
             </label>
             <input
               value={draft.proposalTitle}
+              disabled={!planningWritable}
               onChange={(e) => onChange({ proposalTitle: e.target.value })}
               className="mt-1 h-[38px] w-full rounded-xl border border-neutral-200 bg-white px-3 text-[12px] text-neutral-900 outline-none focus:border-neutral-400"
             />
@@ -362,6 +402,7 @@ export function TaskEditorModal({
             </label>
             <input
               value={draft.programTitle}
+              disabled={!planningWritable}
               onChange={(e) => onChange({ programTitle: e.target.value })}
               className="mt-1 h-[38px] w-full rounded-xl border border-neutral-200 bg-white px-3 text-[12px] text-neutral-900 outline-none focus:border-neutral-400"
             />
@@ -372,6 +413,7 @@ export function TaskEditorModal({
             </label>
             <input
               value={draft.projectTitle}
+              disabled={!planningWritable}
               onChange={(e) => onChange({ projectTitle: e.target.value })}
               className="mt-1 h-[38px] w-full rounded-xl border border-neutral-200 bg-white px-3 text-[12px] text-neutral-900 outline-none focus:border-neutral-400"
             />
@@ -382,6 +424,7 @@ export function TaskEditorModal({
             </label>
             <input
               value={draft.activityTitle}
+              disabled={!planningWritable}
               onChange={(e) => onChange({ activityTitle: e.target.value })}
               className="mt-1 h-[38px] w-full rounded-xl border border-neutral-200 bg-white px-3 text-[12px] text-neutral-900 outline-none focus:border-neutral-400"
             />
@@ -392,17 +435,12 @@ export function TaskEditorModal({
             </label>
             <input
               value={draft.activitySchedule}
+              disabled={!planningWritable}
               onChange={(e) => onChange({ activitySchedule: e.target.value })}
               className="mt-1 h-[38px] w-full rounded-xl border border-neutral-200 bg-white px-3 text-[12px] text-neutral-900 outline-none focus:border-neutral-400"
             />
           </div>
         </div>
-
-        {error && (
-          <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-[12px] text-red-700">
-            {error}
-          </div>
-        )}
 
         <TaskEditorSubtasks task={task} employees={employees} readOnly={saving} />
         <TaskChatLink taskId={task.id} />

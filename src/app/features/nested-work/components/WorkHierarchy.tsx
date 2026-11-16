@@ -70,8 +70,8 @@ export function WorkHierarchy({snapshot,readOnly,executionBlocked,authorityFresh
   if(!projectSubtask)add('order','Reorder subtasks',['order_children']);
   if(node){
    add('edit','Edit subtask',['edit_details']);
-   if(!snapshot.root.project)add('move','Move',['move']);
    add('delete','Delete subtask',['delete']);
+   if(!snapshot.root.project)add('move','Move',['move']);
    if(snapshot.root.kind==='personal'){add('progress','Update work',['execute']);add('submit','Mark complete',['submit']);}
   }
   return actions;
@@ -84,7 +84,7 @@ export function WorkHierarchy({snapshot,readOnly,executionBlocked,authorityFresh
  const createAction=actionsFor(branchParentId).find(action=>action.id==='create');
  const recoverableStaffNodeIds=useMemo(()=>{
   if(presentation!=='project-table'||!authorityFresh)return new Set<string>();
-  return new Set(readWorkDrafts(snapshot,context).filter(record=>record.mode==='staffing'&&record.baseline.nodeId).map(record=>record.baseline.nodeId!));
+  return new Set(readWorkDrafts(snapshot,context).filter(record=>record.mode==='staffing'&&record.baseline.nodeId&&!!record.request).map(record=>record.baseline.nodeId!));
  },[presentation,authorityFresh,snapshot,context.actorId,context.rootId,context.projectId,context.officeId,context.kind,context.revision,context.readOnly]);
  if(!snapshotCurrent||branchParentId&&!byId.has(branchParentId))return <section className="nw-hierarchy" aria-label="Subtask work"><p role="alert">Verify current work access. Reload the work.</p></section>;
  return <section ref={section} className="nw-hierarchy" aria-label="Subtask work">

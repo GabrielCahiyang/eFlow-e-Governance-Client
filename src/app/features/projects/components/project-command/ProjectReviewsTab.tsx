@@ -58,9 +58,9 @@ export function ProjectReviewsTab({
 
       <section className="eflow-section-card">
         <header>
-          <h2>Project review queue</h2>
+          <h2>Review queue</h2>
           <p className="m-0 mt-1 text-xs text-secondary">
-            Open the task review workflow to inspect evidence and record an authorized decision.
+            Inspect submitted evidence and approve or request changes.
           </p>
         </header>
         <div>
@@ -85,9 +85,9 @@ export function ProjectReviewsTab({
                       </div>
                       <div className="mt-1 text-xs text-secondary">
                         {submission.kind === "subtask"
-                          ? "Leader subtask decision"
-                          : "Project lead / independent Head decision"}{" "}
-                        · Submission {submission.version} ·{" "}
+                          ? "Subtask review"
+                          : "Task review"}{" "}
+                        · v{submission.version} ·{" "}
                         {submission.submitterName}
                       </div>
                     </div>
@@ -104,7 +104,7 @@ export function ProjectReviewsTab({
                             : "working_orange"
                         }
                       />
-                      <span className="text-xs text-secondary">{ageHours}h ago</span>
+                      <span className="text-xs text-secondary">{ageHours < 1 ? 'Just now' : ageHours >= 24 ? `${Math.floor(ageHours / 24)}d ago` : `${ageHours}h ago`}</span>
                       <Button
                         kind="secondary"
                         size="small"
@@ -120,8 +120,8 @@ export function ProjectReviewsTab({
             </div>
           ) : (
             <EmptyState visual={<EmptyStateIllustration kind="complete"/>}
-              title="No project reviews are waiting"
-              description="Approved and completed work remains in the activity history."
+              title="Nothing waiting for review"
+              description="Approved submissions and completed work stay logged in Audit Trail."
             />
           )}
         </div>

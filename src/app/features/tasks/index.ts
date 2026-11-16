@@ -77,3 +77,4 @@ export {rowToTask} from './services/taskMapper';
 
 export { fetchTaskById } from "./services/taskRealtimeService";
 export { pendingTaskDependencies, taskStartBlocker } from './selectors/dependencyReadiness';
+export { taskActivityDetails } from './selectors/taskActivityDetails';
