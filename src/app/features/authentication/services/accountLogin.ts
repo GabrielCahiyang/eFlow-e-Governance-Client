@@ -1,12 +1,13 @@
 import { supabase } from '../../../../lib/supabase';
 import { normalizeControlPanelBase, resolveControlPanelBase } from '../../../shared/controlPanelClient';
+import type { LoginPortal } from './loginPortal';
 
 export class AccountSignInError extends Error {
   constructor(public status: number, message: string) { super(message); this.name = 'AccountSignInError'; }
 }
 
 /** Only the gateway verifies passwords and records failures; never report a browser counter. */
-export async function signInWithAccountProtection(email: string, password: string) {
+export async function signInWithAccountProtection(email: string, password: string, portal?: LoginPortal) {
   let base: string;
   try { base = await resolveControlPanelBase(); }
   catch {
@@ -16,9 +17,12 @@ export async function signInWithAccountProtection(email: string, password: strin
     if (error || typeof data !== 'string' || !data.trim()) throw new Error('The secure sign-in service is unavailable. Please try again shortly.');
     base = normalizeControlPanelBase(data);
   }
+  const payload = portal
+    ? { email: email.trim(), password, portal }
+    : { email: email.trim(), password };
   const response = await fetch(`${base}/auth/login`, {
     method: 'POST', headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({email:email.trim(), password}), cache:'no-store',
+    body: JSON.stringify(payload), cache:'no-store',
     // Allow slow hosted login_begin + auth/token + login_finish round-trips (30s server timeout) to settle without premature client abort.
     signal: AbortSignal.timeout(60_000),
   });

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { validateLoginFields, signInWithAccountProtection } from "../../app/features/authentication";
+import { getLoginPortal, validateLoginFields, signInWithAccountProtection } from "../../app/features/authentication";
 import { useAuth } from "../../app/contexts/AuthContext";
 import { SESSION_NOTICE_KEY } from "../../app/features/session-security/constants";
 import { clearAllSessionActivity } from "../../app/features/session-security/services/sessionActivityStorage";
@@ -145,7 +145,7 @@ export function useLoginForm(): UseLoginFormReturn {
       if (authContext && typeof authContext.login === "function") {
         await authContext.login(trimmedEmail, password);
       } else {
-        await signInWithAccountProtection(trimmedEmail, password);
+        await signInWithAccountProtection(trimmedEmail, password, getLoginPortal());
       }
 
       setState("success");
@@ -197,7 +197,7 @@ export function useLoginForm(): UseLoginFormReturn {
       if (authContext && typeof authContext.login === "function") {
         await authContext.login(loginEmail, loginPass);
       } else {
-        await signInWithAccountProtection(loginEmail, loginPass);
+        await signInWithAccountProtection(loginEmail, loginPass, getLoginPortal());
       }
 
       setState("success");

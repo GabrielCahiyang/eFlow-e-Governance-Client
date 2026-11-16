@@ -1,4 +1,5 @@
 """Public password submission and strictly Admin-only lockout management."""
+from typing import Literal
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.exceptions import RequestValidationError
@@ -28,6 +29,7 @@ class LoginPayload(BaseModel):
     model_config = ConfigDict(extra="forbid")
     email: str = Field(min_length=3, max_length=320)
     password: SecretStr = Field(min_length=1, max_length=4096)
+    portal: Literal["client", "admin"] | None = None
 
 
 class SettingsPayload(BaseModel):
@@ -47,7 +49,7 @@ def safe(operation):
 
 @router.post("/auth/login")
 def login(payload: LoginPayload):
-    return safe(lambda: service.login(payload.email, payload.password.get_secret_value()))
+    return safe(lambda: service.login(payload.email, payload.password.get_secret_value(), payload.portal))
 
 
 @router.get("/admin/login-security")

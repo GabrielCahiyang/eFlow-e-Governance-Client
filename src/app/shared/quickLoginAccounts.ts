@@ -47,3 +47,11 @@ export const QUICK_LOGIN_ACCOUNTS: readonly QuickLoginAccount[] = [
 export function getQuickLoginAccount(shortcut: string): QuickLoginAccount | undefined {
   return QUICK_LOGIN_ACCOUNTS.find((account) => account.shortcut === shortcut);
 }
+
+export function getQuickLoginAccountsForPortal(
+  portal: "client" | "admin",
+): readonly QuickLoginAccount[] {
+  return QUICK_LOGIN_ACCOUNTS.filter((account) =>
+    portal === "admin" ? account.roleLabel === "Admin" : account.roleLabel !== "Admin",
+  );
+}

@@ -1,6 +1,7 @@
 import { Person, Close } from "@vibe/icons";
+import { getLoginPortal, type LoginPortal } from "../../app/shared/loginPortal";
 import {
-  QUICK_LOGIN_ACCOUNTS,
+  getQuickLoginAccountsForPortal,
   type QuickLoginAccount,
 } from "../../app/shared/quickLoginAccounts";
 import styles from "./Login.module.scss";
@@ -9,14 +10,17 @@ export interface UsageScenariosModalProps {
   show: boolean;
   onClose: () => void;
   onSelectAccount: (account: QuickLoginAccount) => void;
+  portal?: LoginPortal;
 }
 
 export function UsageScenariosModal({
   show,
   onClose,
   onSelectAccount,
+  portal,
 }: UsageScenariosModalProps) {
   if (!show) return null;
+  const accounts = getQuickLoginAccountsForPortal(portal ?? getLoginPortal());
 
   return (
     <div
@@ -135,7 +139,7 @@ export function UsageScenariosModal({
             overflowY: "auto",
           }}
         >
-          {QUICK_LOGIN_ACCOUNTS.map((account) => (
+          {accounts.map((account) => (
             <button
               className={styles.scenarioAccount}
               key={account.email}

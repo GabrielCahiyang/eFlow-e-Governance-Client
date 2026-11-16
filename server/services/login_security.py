@@ -4,8 +4,22 @@ import httpx
 from fastapi import HTTPException
 from gateway_config import settings
 from gateway_dependencies import supabase_admin
+from services.administrative_roles import is_administrator
 
 LOCKED_MESSAGE = "Your account is locked. Contact an Admin to unlock it."
+
+
+def _profile_role(uid: str) -> str | None:
+    result = supabase_admin.table("profiles").select("role").eq("id", uid).maybe_single().execute()
+    return str(result.data.get("role")) if result.data and result.data.get("role") else None
+
+
+def _role_matches_portal(role: str | None, portal: str | None) -> bool:
+    if portal not in {"client", "admin"}:
+        return True
+    if not role:
+        return False
+    return is_administrator(role) if portal == "admin" else not is_administrator(role)
 
 
 def rpc(name, **data):
@@ -40,8 +54,14 @@ def apply_ban(attempt):
         finish(attempt, "abort")
 
 
-def login(email, password):
+def login(email, password, portal=None):
     attempt = rpc("begin", p_email=email.strip().lower())
+    if portal in {"client", "admin"} and attempt.get("user_id"):
+        role = _profile_role(str(attempt["user_id"]))
+        if not _role_matches_portal(role, portal):
+            if attempt.get("lease"):
+                finish(attempt, "abort")
+            raise HTTPException(401, "Email or password is incorrect.")
     if attempt["status"] == "locked":
         apply_ban(attempt)
         raise HTTPException(423, LOCKED_MESSAGE)

@@ -1,4 +1,10 @@
-import { normalizeUserRole } from "../shared/roles";
+import { isAdminRole, normalizeUserRole } from "../shared/roles";
+import {
+  getLoginPortal,
+  isAdminLoginPath,
+  isRoleAllowedForPortal,
+  type LoginPortal,
+} from "../shared/loginPortal";
 import { clearNavigationPreferences } from '../shared/navigationPreferences';
 import { resetAuthCaches } from '../shared/authCacheReset';
 import { isQueryAccessDenied } from '../shared/queryAccess';
@@ -56,6 +62,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [permissionsLoadedFor, setPermissionsLoadedFor] = useState<string | null>(null);
   const [accessRevision, setAccessRevision] = useState(0);
   const activeUserIdRef = useRef<string | null>(null);
+  const loginPortalRef = useRef<LoginPortal | null>(null);
   const profileScope = useRef<string | null>(null);
   const permissionScope = useRef<{ key: string; signature: string } | null>(null);
   const clearAccess = useCallback(() => {
@@ -204,7 +211,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (profileError) throw profileError;
         if (!active || request !== profileRequest || activeUserIdRef.current !== user.id) return;
-        if (data?.is_active === false) {
+        const requiredPortal = loginPortalRef.current ?? (isAdminLoginPath() ? 'admin' : null);
+        if (requiredPortal && !isRoleAllowedForPortal(data?.role as string | undefined, requiredPortal)) {
+          publishProfile(null);
+          setError('Email or password is incorrect.');
+          await supabase.auth.signOut({ scope: 'local' });
+        } else if (data?.is_active === false) {
           publishProfile(null);
           setError('This account has been deactivated. Contact an Admin.');
           await supabase.auth.signOut({ scope: 'local' });
@@ -273,25 +285,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // ─── login ─────────────────────────────────────────────────────
   const login = useCallback(async (email: string, password: string) => {
     setError(null);
+    const portal = getLoginPortal();
+    loginPortalRef.current = portal;
     try {
+      await signInWithAccountProtection(email, password, portal);
 
-
-      await signInWithAccountProtection(email, password);
-
-      // Verify profile exists and is active
+      // Verify profile exists, matches the login portal, and is active
       const { data: sessionData } = await supabase.auth.getUser();
       const userId = sessionData.user?.id;
       if (!userId) throw new Error('Login failed. Please try again.');
 
       const { data: profile } = await supabase
         .from('profiles')
-        .select('is_active')
+        .select('is_active, role')
         .eq('id', userId)
         .single();
 
       if (!profile) {
         await supabase.auth.signOut();
         throw new Error('No eFlow profile found. Contact your IT administrator.');
+      }
+      if (profile.role && !isRoleAllowedForPortal(profile.role as string, portal)) {
+        publishProfile(null);
+        await supabase.auth.signOut({ scope: 'local' });
+        throw new Error('Email or password is incorrect.');
       }
       if (!profile.is_active) {
         await supabase.auth.signOut();
@@ -301,8 +318,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const msg = err?.message || 'Login failed.';
       setError(msg);
       throw err;
+    } finally {
+      loginPortalRef.current = null;
     }
-  }, []);
+  }, [publishProfile]);
 
   // ─── resetPassword ─────────────────────────────────────────────
   const resetPassword = useCallback(async (email: string) => {
@@ -320,6 +339,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // ─── logout ────────────────────────────────────────────────────
   const logout = useCallback(async () => {
     const navigationUserId = userProfile?.id || activeUserIdRef.current;
+    const logoutRedirectPath = isAdminRole(userProfile?.role) || isAdminLoginPath() ? '/admin' : '/';
     try {
       if (userProfile?.id === 'SuperAdmin') {
         setUser(null);
@@ -332,7 +352,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       resetAuthCaches();
       if (navigationUserId) clearNavigationPreferences(navigationUserId);
-      if (!['/activate-account','/accept-invite','/accept-project-invite','/project-share','/manage-project-share'].includes(window.location.pathname)) replaceNavigationHistory('/');
+      if (!['/activate-account','/accept-invite','/accept-project-invite','/project-share','/manage-project-share'].includes(window.location.pathname)) replaceNavigationHistory(logoutRedirectPath);
       activeUserIdRef.current = null;
       profileScope.current = null;
       permissionScope.current = null;

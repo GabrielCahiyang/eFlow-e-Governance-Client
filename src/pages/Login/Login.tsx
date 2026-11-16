@@ -20,7 +20,7 @@ import { LivingBoard } from "./components/LivingBoard";
 import { UsageScenariosModal } from "./UsageScenariosModal";
 import { EFlowMark } from "./components/EFlowMark";
 import type { QuickLoginAccount } from "../../app/shared/quickLoginAccounts";
-import { WorkflowPreview } from "../../app/features/authentication";
+import { isAdminLoginPath, WorkflowPreview } from "../../app/features/authentication";
 
 import {
   formContainerVariants,
@@ -37,6 +37,7 @@ export function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [isScenariosModalOpen, setScenariosModalOpen] = useState(false);
   const [isMarkHovered, setIsMarkHovered] = useState(false);
+  const isAdminPortal = isAdminLoginPath();
 
   const {
     email,
@@ -103,10 +104,10 @@ export function Login() {
             {/* Heading & Subhead */}
             <motion.div className={styles.headerGroup} variants={formItemVariants}>
               <Heading type="h2" id="login-heading" className={styles.loginHeading}>
-                Sign in to eFlow
+                {isAdminPortal ? "Sign in to eFlow Admin" : "Sign in to eFlow"}
               </Heading>
               <p className={styles.subhead}>
-                Use your official LGU account.
+                {isAdminPortal ? "System administration portal." : "Use your official LGU account."}
               </p>
             </motion.div>
 
@@ -334,6 +335,7 @@ export function Login() {
           show={isScenariosModalOpen}
           onClose={() => setScenariosModalOpen(false)}
           onSelectAccount={handleSelectScenario}
+          portal={isAdminPortal ? "admin" : "client"}
         />
       </main>
     </MotionConfig>

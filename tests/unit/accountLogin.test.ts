@@ -40,4 +40,10 @@ describe('server-owned account sign-in',()=>{
     await expect(signInWithAccountProtection('person@example.test','password')).rejects.toThrow('Unable to finish');
     expect(mock.setSession).not.toHaveBeenCalled();
   });
+  it('forwards the active portal when specified',async()=>{
+    const fetch=vi.fn().mockResolvedValue(new Response(JSON.stringify({access_token:'test-token',refresh_token:'test-refresh'})));
+    vi.stubGlobal('fetch',fetch);
+    await signInWithAccountProtection('admin@example.test','password','admin');
+    expect(JSON.parse(fetch.mock.calls[0][1].body)).toEqual({email:'admin@example.test',password:'password',portal:'admin'});
+  });
 });

@@ -19,5 +19,11 @@ export const isSealPending = (state?: SealState) =>
 export const sectionLabel = (key: string) =>
   key.replace(/_/g, " ").replace(/^./, (c: string) => c.toUpperCase());
 export function publicRecordUrl(id: string) {
-  return `${window.location.origin}/project-record/${encodeURIComponent(id)}`;
+  const configuredBase = (
+    import.meta.env.VITE_PUBLIC_PORTAL_URL as string | undefined
+  )
+    ?.trim()
+    .replace(/\/+$/, "");
+  const base = configuredBase || window.location.origin;
+  return `${base}/project-record/${encodeURIComponent(id)}`;
 }
