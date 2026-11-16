@@ -6,7 +6,6 @@ import * as m from "motion/react-m";
 import {
   AttentionBox,
   Button,
-  Label,
   Search as VibeSearch,
 } from "@vibe/core";
 import {
@@ -178,10 +177,16 @@ function PeopleTab({
               </p>
             </div>
           </div>
-          <Label
-            color={accountingCount ? "positive" : "dark"}
-            text={`${accountingCount} accounting ${accountingCount === 1 ? "staff member" : "staff members"}`}
-          />
+          <span
+            className={`inline-flex w-fit shrink-0 items-center rounded-[6px] border px-2.5 py-1 text-[12px] font-medium ${
+              accountingCount
+                ? "border-[var(--eflow-positive-text)]/25 bg-[var(--eflow-positive-bg)] text-[var(--eflow-positive-text)]"
+                : "border-[var(--eflow-border)] bg-[var(--eflow-subtle)] text-[var(--eflow-text-secondary)]"
+            }`}
+          >
+            {accountingCount} accounting{" "}
+            {accountingCount === 1 ? "staff member" : "staff members"}
+          </span>
         </header>
 
         <div className="space-y-4 p-5">
@@ -265,7 +270,9 @@ function PeopleTab({
                       )}
                     </Button>
                   ) : (
-                    <Label color="dark" text="Leadership role protected" />
+                    <span className="inline-flex w-fit items-center rounded-[6px] border border-[var(--eflow-border)] bg-[var(--eflow-subtle)] px-2.5 py-1 text-[12px] font-medium text-[var(--eflow-text-secondary)]">
+                      Leadership role protected
+                    </span>
                   )}
                 </m.div>
               );
@@ -320,7 +327,7 @@ function AccessRow({
         {override && <div className="mt-0.5 text-[11px] text-neutral-400">Exception owner: {override.setBy || "Recorded manager"}{override.updatedAt ? ` · Updated ${new Date(override.updatedAt).toLocaleDateString()}` : ""}</div>}
       </div>
       <span
-        className={`rounded-full px-2 py-1 text-[11px] font-semibold uppercase tracking-wide ${
+        className={`rounded-[6px] px-2 py-1 text-[11px] font-semibold uppercase tracking-wide ${
           allowed ? "bg-emerald-50 text-emerald-700" : "bg-neutral-100 text-neutral-500"
         }`}
       >
@@ -612,7 +619,11 @@ function LeadershipTab({headUserId, orgName}: {headUserId:string|null;orgName:st
 }
 // ─── Main Workspace ───────────────────────────────────────────────
 
-export function HeadIAMWorkspace() {
+export function HeadIAMWorkspace({
+  embedded = false,
+}: {
+  embedded?: boolean;
+} = {}) {
   const [activeTab, setActiveTab] = useState<IAMTab>("people");
 
   const directory = useDeptDirectoryEmployees({
@@ -659,19 +670,8 @@ export function HeadIAMWorkspace() {
   );
 
   if (directory.directoryLoading) {
-    return (
-      <PeopleWorkspaceShell
-        title="Identity & Access"
-        subtitle="Inspect current access, make accountable individual exceptions, and protect leadership authority for active people in your office."
-        actions={
-          <div className="flex items-center gap-2 text-[12px] text-neutral-500">
-            <ChevronRight size={13} />
-            <span className="font-medium text-neutral-700">
-              {headOrg?.name ?? "Your Office"}
-            </span>
-          </div>
-        }
-      >
+    const loadingBody = (
+      <>
         <IAMTabBar active={activeTab} onSelect={setActiveTab} />
         <div
           role="status"
@@ -685,33 +685,54 @@ export function HeadIAMWorkspace() {
             aria-hidden="true"
           >
             <div className="flex items-start gap-3">
-              <div className="h-10 w-10 shrink-0 animate-pulse rounded-xl bg-blue-50" />
+              <div className="h-10 w-10 shrink-0 rounded-xl bg-blue-50" />
               <div className="space-y-2">
-                <div className="h-4 w-36 animate-pulse rounded bg-neutral-200/80" />
-                <div className="h-3 w-80 max-w-full animate-pulse rounded bg-neutral-100" />
+                <div className="h-4 w-36 rounded-[6px] bg-neutral-200/80" />
+                <div className="h-3 w-80 max-w-full rounded-[6px] bg-neutral-100" />
               </div>
             </div>
-            <div className="h-6 w-40 animate-pulse rounded-full bg-neutral-200/70" />
+            <div className="h-6 w-40 rounded-[6px] bg-neutral-200/70" />
           </header>
           <div className="space-y-4 p-5" aria-hidden="true">
-            <div className="h-9 w-full max-w-md animate-pulse rounded-xl bg-neutral-100" />
+            <div className="h-9 w-full max-w-md rounded-xl bg-neutral-100" />
             <div className="divide-y divide-neutral-100 overflow-hidden rounded-xl border border-neutral-200">
               {[0, 1, 2, 3, 4].map((row) => (
                 <div
                   key={row}
                   className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center"
                 >
-                  <div className="h-9 w-9 shrink-0 animate-pulse rounded-full bg-neutral-200/80" />
+                  <div className="h-9 w-9 shrink-0 rounded-full bg-neutral-200/80" />
                   <div className="min-w-0 flex-1 space-y-1.5">
-                    <div className="h-3.5 w-40 animate-pulse rounded bg-neutral-200/80" />
-                    <div className="h-3 w-56 animate-pulse rounded bg-neutral-100" />
+                    <div className="h-3.5 w-40 rounded-[6px] bg-neutral-200/80" />
+                    <div className="h-3 w-56 rounded-[6px] bg-neutral-100" />
                   </div>
-                  <div className="h-8 w-44 animate-pulse rounded-lg bg-neutral-100" />
+                  <div className="h-8 w-44 rounded-lg bg-neutral-100" />
                 </div>
               ))}
             </div>
           </div>
         </div>
+      </>
+    );
+
+    if (embedded) {
+      return <div className="space-y-4 pt-3">{loadingBody}</div>;
+    }
+
+    return (
+      <PeopleWorkspaceShell
+        title="Identity & Access"
+        subtitle="Inspect current access, make accountable individual exceptions, and protect leadership authority for active people in your office."
+        actions={
+          <div className="flex items-center gap-2 text-[12px] text-neutral-500">
+            <ChevronRight size={13} />
+            <span className="font-medium text-neutral-700">
+              {headOrg?.name ?? "Your Office"}
+            </span>
+          </div>
+        }
+      >
+        {loadingBody}
       </PeopleWorkspaceShell>
     );
   }
@@ -728,9 +749,8 @@ export function HeadIAMWorkspace() {
     );
   }
 
-  return (
-    <PeopleWorkspaceShell title="Identity & Access" subtitle="Inspect current access, make accountable individual exceptions, and protect leadership authority for active people in your office." actions={<div className="flex items-center gap-2 text-[12px] text-neutral-500"><ChevronRight size={13} /><span className="font-medium text-neutral-700">{headOrg?.name ?? "Your Office"}</span></div>}>
-
+  const contentBody = (
+    <>
       {/* Tab bar */}
       <IAMTabBar active={activeTab} onSelect={setActiveTab} />
 
@@ -765,6 +785,16 @@ export function HeadIAMWorkspace() {
           </m.div>
         )}
       </AnimatePresence>
+    </>
+  );
+
+  if (embedded) {
+    return <div className="space-y-4 pt-3">{contentBody}</div>;
+  }
+
+  return (
+    <PeopleWorkspaceShell title="Identity & Access" subtitle="Inspect current access, make accountable individual exceptions, and protect leadership authority for active people in your office." actions={<div className="flex items-center gap-2 text-[12px] text-neutral-500"><ChevronRight size={13} /><span className="font-medium text-neutral-700">{headOrg?.name ?? "Your Office"}</span></div>}>
+      {contentBody}
     </PeopleWorkspaceShell>
   );
 }

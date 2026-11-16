@@ -96,6 +96,7 @@ export function AnalyticsTables({
                     <button
                       onClick={() => onOpenProject(project.id)}
                       type="button"
+                      className="ea-table-link"
                     >
                       {project.title}
                       <ArrowUpRight size={12} />
@@ -234,10 +235,15 @@ export function AnalyticsTables({
         <>
           <p className="ea-help">
             {shown.length} tasks
-            {trendIds ? " in the selected completion week" : ""}.{" "}
-            <button className="ea-link" type="button" onClick={clearWeek}>
-              {trendIds ? "Clear week selection" : ""}
-            </button>
+            {trendIds ? " in the selected completion week" : ""}.
+            {trendIds && (
+              <>
+                {" "}
+                <button className="ea-link" type="button" onClick={clearWeek}>
+                  Clear week selection
+                </button>
+              </>
+            )}
           </p>
           <div className="ea-table-wrap">
             <table className="ea-table">
@@ -288,7 +294,18 @@ export function AnalyticsTables({
                           .join(", ") || "No contributors"}
                       </small>
                     </td>
-                    <td>{resolveStatus(definitions, r.state, labels[r.state] || r.state, r.task.customStatusId).label}</td>
+                    <td>
+                      <span className="ea-status-badge">
+                        {
+                          resolveStatus(
+                            definitions,
+                            r.state,
+                            labels[r.state] || r.state,
+                            r.task.customStatusId,
+                          ).label
+                        }
+                      </span>
+                    </td>
                     <td>
                       <DeadlineBadge
                         value={r.task.deadline || r.task.dueDate}

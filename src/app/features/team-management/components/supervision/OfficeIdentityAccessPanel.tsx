@@ -1,11 +1,9 @@
-import { EmptyState } from '../../../../components/ui/EmptyState';
 import { useMemo, useState } from "react";
-import { AttentionBox, Button, Label, Search as VibeSearch } from "@vibe/core";
-import * as m from "motion/react-m";
+import { AttentionBox, Button, Search as VibeSearch } from "@vibe/core";
 import { BadgeCheck, ShieldCheck, UserRoundCog } from "lucide-react";
+import { EmptyState } from "../../../../components/ui/EmptyState";
 import type { Employee } from "../../../../services/employeeService";
 import { getRoleLabel } from "../../../../shared/roles";
-import { motionTransition } from "../../../../shared/motion/motionTokens";
 import { setDepartmentAccountingStaff } from "../../services/departmentIdentityService";
 
 export function OfficeIdentityAccessPanel({
@@ -21,6 +19,7 @@ export function OfficeIdentityAccessPanel({
   const [optimisticRoles, setOptimisticRoles] = useState<
     Record<string, string>
   >({});
+
   const roleFor = (id: string) =>
     optimisticRoles[id] || roles.get(id) || "member";
   const accountingCount = employees.filter(
@@ -58,34 +57,35 @@ export function OfficeIdentityAccessPanel({
   };
 
   return (
-    <m.section
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={motionTransition.productive}
-      className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm"
-    >
-      <header className="flex flex-col gap-4 border-b border-neutral-100 p-5 lg:flex-row lg:items-center lg:justify-between">
+    <section className="overflow-hidden rounded-[10px] border border-[var(--eflow-border)] bg-[var(--eflow-surface)]">
+      <header className="flex flex-col gap-3 border-b border-[var(--eflow-border)] px-4 py-3.5 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
-            <UserRoundCog size={19} />
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px] border border-[var(--eflow-border)] bg-[var(--eflow-subtle)] text-[var(--eflow-primary)]">
+            <UserRoundCog size={18} />
           </div>
           <div>
-            <h2 className="text-[14px] font-semibold text-neutral-950">
+            <h2 className="text-[14px] font-semibold text-[var(--eflow-text)]">
               Identity &amp; Access
             </h2>
-            <p className="mt-1 max-w-2xl text-[12px] leading-relaxed text-neutral-500">
+            <p className="mt-0.5 max-w-2xl text-[12px] leading-relaxed text-[var(--eflow-text-muted)]">
               Assign or remove the Accounting Staff workspace for active people
               in your office. No assignment is required; more than one
               person can be assigned when workload or continuity requires it.
             </p>
           </div>
         </div>
-        <Label
-          color={accountingCount ? "positive" : "dark"}
-          text={`${accountingCount} accounting ${accountingCount === 1 ? "staff member" : "staff members"}`}
-        />
+        <span
+          className={`inline-flex w-fit shrink-0 items-center rounded-[6px] border px-2.5 py-1 text-[12px] font-medium ${
+            accountingCount
+              ? "border-[var(--eflow-positive-text)]/25 bg-[var(--eflow-positive-bg)] text-[var(--eflow-positive-text)]"
+              : "border-[var(--eflow-border)] bg-[var(--eflow-subtle)] text-[var(--eflow-text-secondary)]"
+          }`}
+        >
+          {accountingCount} accounting{" "}
+          {accountingCount === 1 ? "staff member" : "staff members"}
+        </span>
       </header>
-      <div className="space-y-4 p-5">
+      <div className="space-y-3 p-4">
         {error && (
           <AttentionBox
             type="negative"
@@ -101,7 +101,7 @@ export function OfficeIdentityAccessPanel({
           />
         )}
         <VibeSearch
-          className="w-full max-w-md"
+          className="eflow-people-search w-full max-w-md"
           clearIconLabel="Clear people search"
           inputAriaLabel="Search office people"
           onChange={setQuery}
@@ -111,39 +111,37 @@ export function OfficeIdentityAccessPanel({
           size="small"
           value={query}
         />
-        <div className="divide-y divide-neutral-100 overflow-hidden rounded-xl border border-neutral-200">
-          {filtered.map((employee, index) => {
+        <div className="divide-y divide-[var(--eflow-border)] overflow-hidden rounded-[8px] border border-[var(--eflow-border)] bg-[var(--eflow-surface)]">
+          {filtered.map((employee) => {
             const role = roleFor(employee.id);
             const assigned = role === "accounting_staff";
             const eligible = role === "member" || assigned;
             return (
-              <m.div
+              <div
                 key={employee.id}
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  ...motionTransition.productive,
-                  delay: Math.min(index * 0.025, 0.2),
-                }}
-                className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center"
+                className="flex flex-col gap-3 px-4 py-3 transition-colors hover:bg-[var(--eflow-subtle)]/60 sm:flex-row sm:items-center"
               >
                 <div
-                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[12px] font-semibold ${assigned ? "bg-blue-100 text-blue-800" : "bg-neutral-100 text-neutral-600"}`}
+                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-[11px] font-semibold ${
+                    assigned
+                      ? "border-[var(--eflow-primary)]/25 bg-[var(--eflow-selected)] text-[var(--eflow-on-selected)]"
+                      : "border-[var(--eflow-border)] bg-[var(--eflow-subtle)] text-[var(--eflow-text-secondary)]"
+                  }`}
                 >
                   {employee.initials || employee.name.slice(0, 2).toUpperCase()}
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="truncate text-[13px] font-medium text-neutral-900">
+                    <span className="truncate text-[13px] font-medium text-[var(--eflow-text)]">
                       {employee.name}
                     </span>
                     {assigned && (
-                      <span className="inline-flex items-center gap-1 text-[12px] font-medium text-blue-700">
+                      <span className="inline-flex items-center gap-1 rounded-[6px] border border-[var(--eflow-primary)]/25 bg-[var(--eflow-selected)] px-2 py-0.5 text-[11px] font-medium text-[var(--eflow-on-selected)]">
                         <BadgeCheck size={12} /> Accounting access
                       </span>
                     )}
                   </div>
-                  <p className="mt-0.5 truncate text-[12px] text-neutral-500">
+                  <p className="mt-0.5 truncate text-[12px] text-[var(--eflow-text-muted)]">
                     {employee.email || "No email listed"} · {getRoleLabel(role)}
                   </p>
                 </div>
@@ -164,16 +162,22 @@ export function OfficeIdentityAccessPanel({
                     )}
                   </Button>
                 ) : (
-                  <Label color="dark" text="Leadership role protected" />
+                  <span className="inline-flex w-fit items-center rounded-[6px] border border-[var(--eflow-border)] bg-[var(--eflow-subtle)] px-2.5 py-1 text-[12px] font-medium text-[var(--eflow-text-secondary)]">
+                    Leadership role protected
+                  </span>
                 )}
-              </m.div>
+              </div>
             );
           })}
           {!filtered.length && (
-            <EmptyState illustration="search" size="compact" title="No office people match this search."/>
+            <EmptyState
+              illustration="search"
+              size="compact"
+              title="No office people match this search."
+            />
           )}
         </div>
       </div>
-    </m.section>
+    </section>
   );
 }

@@ -14,18 +14,18 @@ afterEach(() => { cleanup(); localStorage.clear(); window.history.replaceState({
 const projects = [{id:'a',title:'Office project',status:'active'}, {id:'b',title:'Shared project',status:'planning'}, {id:'c',title:'Past project',status:'archived'}];
 const items = buildShellNavigation({role:'head',can:()=>true});
 function sidebar(activeSection = 'tasks', userId = 'head', workspaceId = 'office', navigationItems = items) {
-  return <EflowVibeThemeProvider preference="light"><ProductivitySidebar role="head" activeSection={activeSection} activePage={activeSection === 'reports' ? 'Reports' : 'Task Board'}
+  return <EflowVibeThemeProvider preference="light"><ProductivitySidebar role="head" activeSection={activeSection} activePage={activeSection === 'budget' ? 'Office Budget' : 'Task Board'}
     navigationItems={navigationItems} onPageSelect={vi.fn()} userId={userId} workspaceId={workspaceId} workspaceName="LEDIPO" projects={projects} /></EflowVibeThemeProvider>;
 }
 
 describe('R2 persistent workspace navigation', () => {
-  it('retains expanded Office tools and project sections across Tasks and Reports without removed entries', () => {
+  it('retains expanded Office tools and project sections across Tasks and Office Budget without removed entries', () => {
     const view = render(sidebar());
     const office = screen.getByRole('button', {name:'Office tools',exact:true});
     expect(office.getAttribute('aria-expanded')).toBe('true');
     expect(within(screen.getByRole('region',{name:'Projects',exact:true})).getByRole('button',{name:'Shared project'})).toBeTruthy();
-    view.rerender(sidebar('reports'));
-    expect(screen.getByRole('button',{name:'Reports',exact:true}).getAttribute('aria-current')).toBe('page');
+    view.rerender(sidebar('budget'));
+    expect(screen.getByRole('button',{name:'Office Budget',exact:true}).getAttribute('aria-current')).toBe('page');
     expect(office.getAttribute('aria-expanded')).toBe('true');
     for (const label of ['Home','Search','Planning','Drafts','Waiting for approval','Team Members']) expect(screen.queryByRole('button',{name:label,exact:true})).toBeNull();
     expect(screen.getByRole('button',{name:'LEDIPO Workspace'})).toBeTruthy();

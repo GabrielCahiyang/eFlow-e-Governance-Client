@@ -469,42 +469,50 @@ export function DeliveryAnalytics({
               />
               <section className="ea-panel">
                 <h2>Needs attention</h2>
-                {rows
-                  .filter(
-                    (r) =>
-                      r.overdue ||
-                      r.state === "stuck" ||
-                      r.prerequisites.length ||
-                      r.state === "for_review",
-                  )
-                  .slice(0, 6)
-                  .map((r) => (
-                    <p key={r.task.id}>
-                      <button
-                        type="button"
-                        className="ea-link"
-                        onClick={() => onOpenTask(r.task)}
-                      >
-                        {r.task.title}
-                      </button>
-                      <small className="ea-help">
-                        {" "}
-                        ·{" "}
-                        {r.overdue
-                          ? `${r.overdueDays} days overdue`
-                          : r.prerequisites.length
-                            ? "Prerequisites pending"
-                            : resolveStatus(definitions,r.state,labels[r.state],r.task.customStatusId).label}
-                      </small>
-                    </p>
-                  ))}
-                {!rows.some(
+                {rows.some(
                   (r) =>
                     r.overdue ||
                     r.state === "stuck" ||
                     r.prerequisites.length ||
                     r.state === "for_review",
-                ) && <p className="ea-empty">No tasks need attention.</p>}
+                ) ? (
+                  <ul className="ea-attention-list">
+                    {rows
+                      .filter(
+                        (r) =>
+                          r.overdue ||
+                          r.state === "stuck" ||
+                          r.prerequisites.length ||
+                          r.state === "for_review",
+                      )
+                      .slice(0, 6)
+                      .map((r) => (
+                        <li key={r.task.id}>
+                          <button
+                            type="button"
+                            className="ea-link"
+                            onClick={() => onOpenTask(r.task)}
+                          >
+                            {r.task.title}
+                          </button>
+                          <small className="ea-help">
+                            {r.overdue
+                              ? `${r.overdueDays} days overdue`
+                              : r.prerequisites.length
+                                ? "Prerequisites pending"
+                                : resolveStatus(
+                                    definitions,
+                                    r.state,
+                                    labels[r.state],
+                                    r.task.customStatusId,
+                                  ).label}
+                          </small>
+                        </li>
+                      ))}
+                  </ul>
+                ) : (
+                  <p className="ea-empty">No tasks need attention.</p>
+                )}
               </section>
             </div>
           )}

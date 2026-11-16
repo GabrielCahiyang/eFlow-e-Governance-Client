@@ -17,7 +17,7 @@ export function HeadTaskBoardView(
   const onSelectProject = props.onSelectProject ?? setSelectedProjectId;
 
   return (
-    <div className="eflow-operational-workspace min-h-full bg-neutral-50 p-4 sm:p-8">
+    <div className="eflow-operational-workspace min-h-full bg-background p-3 sm:p-4">
       <MondayBoard
         {...props}
         selectedProjectId={activeProjectId}

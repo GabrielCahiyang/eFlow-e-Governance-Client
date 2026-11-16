@@ -62,7 +62,7 @@ const dateInputTime = (value: string, end = false): number | undefined => {
   return Number.isFinite(time) ? time : undefined;
 };
 
-export function HeadReportsWorkspace() {
+export function HeadReportsWorkspace({ embedded = false }: { embedded?: boolean } = {}) {
   const { userProfile } = useAuth();
   const { orgs } = useOrgs();
   const office =
@@ -199,27 +199,35 @@ export function HeadReportsWorkspace() {
       : exportPdf(rows, columns, meta);
   };
 
-  return (
-    <div className="eflow-page-content eflow-analytics min-w-0">
-      <WorkspaceHeader
-        title="Reports"
-        description="Office reports · Operational, contribution, review, evidence and risk lenses in your authorized scope."
-        actions={
-          <>
-            <ManagementBriefPanel
-              title={definition.title}
-              rows={analytics.error ? [] : rows}
-            />
-            <ExportMenu
-              onCsv={() => exportRows("csv")}
-              onPdf={() => exportRows("pdf")}
-              disabled={
-                rows.length === 0 || !!analytics.error || analytics.refreshing
-              }
-            />
-          </>
+  const headerActions = (
+    <>
+      <ManagementBriefPanel
+        title={definition.title}
+        rows={analytics.error ? [] : rows}
+      />
+      <ExportMenu
+        onCsv={() => exportRows("csv")}
+        onPdf={() => exportRows("pdf")}
+        disabled={
+          rows.length === 0 || !!analytics.error || analytics.refreshing
         }
       />
+    </>
+  );
+
+  return (
+    <div className="eflow-page-content eflow-analytics min-w-0">
+      {embedded ? (
+        <div className="mb-4 flex flex-wrap items-center justify-end gap-2">
+          {headerActions}
+        </div>
+      ) : (
+        <WorkspaceHeader
+          title="Reports"
+          description="Office reports · Operational, contribution, review, evidence and risk lenses in your authorized scope."
+          actions={headerActions}
+        />
+      )}
 
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-card p-4">
         <p className="text-sm">
@@ -467,12 +475,12 @@ function HeadReportsWorkspaceSkeleton({
       <div className="mb-4 rounded-xl border border-border bg-card p-4 shadow-sm" aria-hidden="true">
         <div className="flex items-center justify-between gap-3">
           <div className="space-y-1.5">
-            <div className="h-4 w-48 animate-pulse rounded bg-neutral-200/80" />
-            <div className="h-3 w-72 animate-pulse rounded bg-neutral-100" />
+            <div className="h-4 w-48 rounded bg-neutral-200/80" />
+            <div className="h-3 w-72 rounded bg-neutral-100" />
           </div>
           <div className="flex gap-2">
             {[0, 1, 2].map((i) => (
-              <div key={i} className="h-10 w-28 animate-pulse rounded-lg bg-neutral-100" />
+              <div key={i} className="h-10 w-28 rounded-lg bg-neutral-100" />
             ))}
           </div>
         </div>
@@ -519,7 +527,7 @@ function HeadReportsWorkspaceSkeleton({
                   <span className="block text-[12px] font-medium text-muted-foreground">
                     {metric.label}
                   </span>
-                  <span className="block h-5 w-10 animate-pulse rounded bg-neutral-200/80" />
+                  <span className="block h-5 w-10 rounded bg-neutral-200/80" />
                 </span>
               </div>
             ))}
@@ -528,9 +536,9 @@ function HeadReportsWorkspaceSkeleton({
           <Card title={definition.title} subtitle={definition.description} bodyClassName="p-0">
             <div className="eflow-analytics-filters border-b border-border bg-card/95 p-3">
               <div className="flex flex-wrap gap-2">
-                <div className="h-9 min-w-[230px] flex-1 animate-pulse rounded-lg bg-neutral-100" />
+                <div className="h-9 min-w-[230px] flex-1 rounded-lg bg-neutral-100" />
                 {[0, 1, 2, 3].map((i) => (
-                  <div key={i} className="h-9 w-36 animate-pulse rounded-lg bg-neutral-100" />
+                  <div key={i} className="h-9 w-36 rounded-lg bg-neutral-100" />
                 ))}
               </div>
             </div>
@@ -560,31 +568,31 @@ function HeadReportsWorkspaceSkeleton({
                   {[0, 1, 2, 3, 4, 5].map((row) => (
                     <tr key={row} className="border-b border-border align-top">
                       <td className="px-4 py-3 space-y-1.5">
-                        <div className="h-3.5 w-44 animate-pulse rounded bg-neutral-200/80" />
-                        <div className="h-2.5 w-32 animate-pulse rounded bg-neutral-100" />
+                        <div className="h-3.5 w-44 rounded bg-neutral-200/80" />
+                        <div className="h-2.5 w-32 rounded bg-neutral-100" />
                       </td>
                       <td className="px-4 py-3 space-y-1.5">
-                        <div className="h-3.5 w-28 animate-pulse rounded bg-neutral-200/80" />
-                        <div className="h-2.5 w-20 animate-pulse rounded bg-neutral-100" />
+                        <div className="h-3.5 w-28 rounded bg-neutral-200/80" />
+                        <div className="h-2.5 w-20 rounded bg-neutral-100" />
                       </td>
                       <td className="px-4 py-3">
-                        <div className="h-3 w-32 animate-pulse rounded bg-neutral-100" />
+                        <div className="h-3 w-32 rounded bg-neutral-100" />
                       </td>
                       <td className="px-4 py-3 space-y-1.5">
-                        <div className="h-6 w-20 animate-pulse rounded-full bg-neutral-200/70" />
-                        <div className="h-1.5 w-24 animate-pulse rounded-full bg-neutral-100" />
+                        <div className="h-6 w-20 rounded-[6px] bg-neutral-200/70" />
+                        <div className="h-1.5 w-24 rounded-[6px] bg-neutral-100" />
                       </td>
                       <td className="px-4 py-3 space-y-1.5">
-                        <div className="h-6 w-16 animate-pulse rounded-full bg-neutral-200/70" />
-                        <div className="h-2.5 w-20 animate-pulse rounded bg-neutral-100" />
+                        <div className="h-6 w-16 rounded-[6px] bg-neutral-200/70" />
+                        <div className="h-2.5 w-20 rounded bg-neutral-100" />
                       </td>
                       <td className="px-4 py-3 space-y-1.5">
-                        <div className="h-3 w-20 animate-pulse rounded bg-neutral-100" />
-                        <div className="h-2.5 w-24 animate-pulse rounded bg-neutral-100" />
+                        <div className="h-3 w-20 rounded bg-neutral-100" />
+                        <div className="h-2.5 w-24 rounded bg-neutral-100" />
                       </td>
                       <td className="px-4 py-3 space-y-1.5">
-                        <div className="h-3 w-48 animate-pulse rounded bg-neutral-100" />
-                        <div className="h-3 w-36 animate-pulse rounded bg-neutral-100" />
+                        <div className="h-3 w-48 rounded bg-neutral-100" />
+                        <div className="h-3 w-36 rounded bg-neutral-100" />
                       </td>
                     </tr>
                   ))}

@@ -19,17 +19,17 @@ const HeadInsights = lazy(() =>
 );
 
 function WorkspaceOverviewDataSkeleton({ focus }: { focus: "today" | "overdue" | "unassigned" | "review" }) {
-  const pulse = "animate-pulse rounded bg-muted";
+  const placeholder = "rounded-[6px] bg-muted";
   return (
     <div role="status" aria-busy="true">
       <span className="sr-only">Loading workspace sources…</span>
       <div className="r10-overview-cards" aria-hidden="true">
-        <div className="flex flex-col justify-between rounded-xl border border-border bg-card p-3.5">
+        <div className="r10-overview-skeleton-card">
           <span>Active projects</span>
-          <span className={`mt-2 h-6 w-12 ${pulse}`} />
+          <span className={`mt-1.5 h-6 w-12 ${placeholder}`} />
         </div>
         {(["today", "overdue", "unassigned", "review"] as const).map((key) => (
-          <div key={key} className="flex flex-col justify-between rounded-xl border border-border bg-card p-3.5">
+          <div key={key} className="r10-overview-skeleton-card">
             <span>
               {{
                 today: "Due today",
@@ -38,7 +38,7 @@ function WorkspaceOverviewDataSkeleton({ focus }: { focus: "today" | "overdue" |
                 review: "Awaiting review",
               }[key]}
             </span>
-            <span className={`mt-2 h-6 w-12 ${pulse}`} />
+            <span className={`mt-1.5 h-6 w-12 ${placeholder}`} />
           </div>
         ))}
       </div>
@@ -46,9 +46,9 @@ function WorkspaceOverviewDataSkeleton({ focus }: { focus: "today" | "overdue" |
         <h2>Active projects</h2>
         <div className="r10-overview-projects">
           {[0, 1, 2].map((i) => (
-            <div key={i} className="flex flex-col gap-2 rounded-xl border border-border bg-card p-3.5">
-              <span className={`h-4 w-36 ${pulse}`} />
-              <span className={`h-3 w-24 ${pulse}`} />
+            <div key={i} className="r10-overview-skeleton-card">
+              <span className={`h-4 w-36 ${placeholder}`} />
+              <span className={`h-3 w-24 ${placeholder}`} />
             </div>
           ))}
         </div>
@@ -277,14 +277,15 @@ export function WorkspaceOverview({
             )}
           </section>
           {workspace.kind === "office" && can("navigation.tasks") && (
-            <p>
+            <div className="r10-overview-footer">
               <button
                 type="button"
+                className="r10-action-button"
                 onClick={() => navigate("personal_work", "Assigned work")}
               >
                 Personal work across workspaces
               </button>
-            </p>
+            </div>
           )}
         </>
       )}
@@ -294,6 +295,7 @@ export function WorkspaceOverview({
           <section className="r10-overview-section">
             <button
               type="button"
+              className="r10-action-button"
               aria-expanded={insights}
               onClick={() =>
                 void requestNavigation(() => setInsights((v) => !v))

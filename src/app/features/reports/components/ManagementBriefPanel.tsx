@@ -34,26 +34,26 @@ export function ManagementBriefPanel({ title, rows }: { title: string; rows: Dep
 
   return (
     <InspectorPanel open={open} onClose={() => setOpen(false)} ariaLabel="AI management brief" className="h-full w-full max-w-[480px]">
-        <div className="px-5 py-4 border-b border-neutral-200 flex items-start justify-between">
+        <div className="flex items-start justify-between gap-3 border-b border-border px-5 py-3.5">
           <div>
-            <Heading className="flex items-center gap-2 text-neutral-900" type="h2" weight="medium"><Robot size={16} /> AI management brief</Heading>
-            <Text className="mt-1 text-neutral-500" type="text3">Uses only the currently filtered, permission-scoped report rows. It never changes work records.</Text>
+            <Heading className="flex items-center gap-2 text-foreground" type="h2" weight="medium"><Robot size={16} /> AI management brief</Heading>
+            <Text className="mt-1 text-muted-foreground" type="text3">Uses only the currently filtered, permission-scoped report rows. It never changes work records.</Text>
           </div>
           <IconButton aria-label="Close management brief" icon={Close} kind="tertiary" size="small" onClick={() => setOpen(false)} />
         </div>
         <div className="flex-1 overflow-y-auto p-5">
           {loading ? (
-            <div className="flex flex-col gap-3 rounded-xl border border-blue-100 bg-blue-50 p-4" role="status">
-              <div className="flex items-center gap-2 text-[12px] text-blue-800"><Loader size="small" /> Preparing the brief…</div>
-              {queue && <Text type="text3" className="text-blue-700">{queue.status === "queued" ? `${queue.jobsAhead} AI job(s) ahead of this report.` : "DeepSeek is analyzing the visible report now."}</Text>}
+            <div className="flex flex-col gap-2.5 rounded-lg border border-border bg-muted/50 p-4" role="status">
+              <div className="flex items-center gap-2 text-[12px] font-medium text-foreground"><Loader size="small" /> Preparing the brief…</div>
+              {queue && <Text type="text3" className="text-muted-foreground">{queue.status === "queued" ? `${queue.jobsAhead} AI job(s) ahead of this report.` : "DeepSeek is analyzing the visible report now."}</Text>}
             </div>
           ) : error ? (
             <AttentionBox title="Brief unavailable" text={error} type="negative" />
           ) : (
-            <div className="whitespace-pre-wrap text-[12px] leading-6 text-neutral-700">{brief}</div>
+            <div className="whitespace-pre-wrap text-[12px] leading-6 text-foreground">{brief}</div>
           )}
         </div>
-        <div className="p-4 border-t border-neutral-200 flex justify-end">
+        <div className="flex justify-end border-t border-border px-5 py-3">
           <WButton icon={<Retry size={14} />} onClick={generate} disabled={loading}>Regenerate from visible rows</WButton>
         </div>
     </InspectorPanel>

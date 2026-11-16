@@ -59,7 +59,7 @@ export function ListBoardView({
   return (
     <div className="eflow-task-list w-full min-w-0 flex flex-col">
       {/* Search bar */}
-      <div className="mb-4 flex flex-wrap items-center gap-3">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2.5">
         <VibeSearch
           value={searchQuery}
           onChange={setSearchQuery}
@@ -70,13 +70,13 @@ export function ListBoardView({
           size="small"
           className="w-full max-w-[380px]"
         />
-        <div className="text-[12px] text-neutral-400 font-normal">
+        <div className="eflow-tabular text-[12px] font-medium text-muted-foreground">
           {filteredTasks.length} task{filteredTasks.length !== 1 ? "s" : ""}
         </div>
       </div>
 
       {/* Table */}
-      <div className="overflow-hidden rounded-[10px] border border-border bg-card shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
+      <div className="overflow-hidden rounded-[10px] border border-border bg-card">
         {/* Header row */}
         <div className="eflow-task-table-header sticky top-0 z-10 border-b border-border bg-muted/40 py-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
           <div data-column="marker" />
@@ -94,7 +94,7 @@ export function ListBoardView({
           return (
             <div
               key={status}
-              className={`transition-colors ${dragOverStatus === status ? "bg-blue-50/40" : ""}`}
+              className={`transition-colors ${dragOverStatus === status ? "bg-accent/40" : ""}`}
               onDragOver={(e) => {
                 e.preventDefault();
                 setDragOverStatus(status);
@@ -114,22 +114,22 @@ export function ListBoardView({
                     return next;
                   })
                 }
-                className="w-full flex items-center gap-2 px-4 py-2 bg-neutral-50 border-y border-neutral-100 hover:bg-neutral-100/70 transition text-left"
+                className="w-full flex items-center gap-2 px-3.5 py-2 bg-muted/40 border-y border-border hover:bg-muted/70 transition text-left"
               >
                 {collapsed ? (
-                  <ChevronRight size={12} className="text-neutral-400" />
+                  <ChevronRight size={12} className="text-muted-foreground" />
                 ) : (
-                  <ChevronDown size={12} className="text-neutral-400" />
+                  <ChevronDown size={12} className="text-muted-foreground" />
                 )}
-                <div className={`w-2 h-2 rounded-full ${meta.dot}`} />
-                <span className="text-[11px] font-semibold text-neutral-700">
+                <div className={`w-2 h-2 rounded-[2px] ${meta.dot}`} />
+                <span className="text-[11px] font-semibold text-foreground">
                   {meta.label}
                 </span>
-                <span className="text-[11px] text-neutral-400">
+                <span className="eflow-tabular text-[11px] text-muted-foreground">
                   ({items.length})
                 </span>
                 {dragOverStatus === status && (
-                  <span className="ml-auto text-[10px] text-blue-500 animate-pulse">
+                  <span className="ml-auto rounded-[6px] border border-primary/30 bg-accent px-1.5 py-0.5 text-[10px] font-medium text-accent-foreground">
                     Drop here
                   </span>
                 )}

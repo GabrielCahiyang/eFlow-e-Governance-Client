@@ -14,6 +14,7 @@ vi.mock("../../src/app/contexts/AuthContext", () => ({
     userProfile: { id: "head", role: state.role, org_id: "office" },
     can: (key: string) =>
       key === "navigation.team_supervision" ||
+      key === "navigation.reports" ||
       (state.intel && key === "navigation.team_intelligence"),
   }),
 }));
@@ -44,6 +45,11 @@ vi.mock("../../src/app/features/task-inspector", () => ({
 }));
 vi.mock("../../src/app/features/productivity", () => ({
   MonthlyLeaderboard: () => <div>Preserved monthly contributions</div>,
+}));
+vi.mock("../../src/app/features/reports", () => ({
+  HeadReportsWorkspace: ({ embedded }: { embedded?: boolean }) => (
+    <div>Preserved reports {embedded ? "(embedded)" : ""}</div>
+  ),
 }));
 vi.mock("../../src/app/features/office-team", () => ({
   OfficeTeamWorkspace: () => <div>Preserved account invitations</div>,
@@ -115,9 +121,6 @@ afterEach(cleanup);
 it("brings employee delivery, assignments and 360 into one selected-person workspace", () => {
   render(<EmployeeAnalyticsWorkspace />);
   expect(state.options).toMatchObject({ includeCurrentUser: true });
-  fireEvent.click(
-    screen.getByRole("button", { name: "Employee analytics", exact: true }),
-  );
   expect(screen.getByText("Preserved safe reassignment")).toBeTruthy();
   fireEvent.click(
     screen.getByRole("button", { name: "Employee 360", exact: true }),
@@ -128,23 +131,24 @@ it("brings employee delivery, assignments and 360 into one selected-person works
 it("does not load coaching notes or intelligence-only views when that permission is absent", () => {
   state.intel = false;
   render(<EmployeeAnalyticsWorkspace />);
-  fireEvent.click(
-    screen.getByRole("button", { name: "Employee analytics", exact: true }),
-  );
   expect(screen.queryByRole("button", { name: "Employee 360" })).toBeNull();
   expect(
     screen.queryByRole("button", { name: "Workload & health" }),
   ).toBeNull();
   expect(state.notes).not.toHaveBeenCalled();
 });
-it("keeps account invitations and identity controls accessible inside the merged workspace", () => {
+it("consolidates redundant Overview and Team access tabs while embedding Reports", () => {
   render(<EmployeeAnalyticsWorkspace />);
-  fireEvent.click(screen.getByRole("button", { name: "Team access" }));
-  expect(screen.getByText("Preserved account invitations")).toBeTruthy();
-  fireEvent.click(
-    screen.getByRole("button", { name: "Identity & access", exact: true }),
-  );
-  expect(screen.getByText("Preserved identity controls")).toBeTruthy();
+  expect(screen.queryByRole("button", { name: "Team access" })).toBeNull();
+  expect(screen.queryByRole("button", { name: "Overview" })).toBeNull();
+  fireEvent.click(screen.getByRole("button", { name: "Reports", exact: true }));
+  expect(screen.getByText(/Preserved reports \(embedded\)/)).toBeTruthy();
+});
+it("renders focused summary without the analytics tab bar in home mode", () => {
+  render(<EmployeeAnalyticsWorkspace home />);
+  expect(screen.queryByRole("button", { name: "Delivery", exact: true })).toBeNull();
+  expect(screen.queryByRole("button", { name: "Reports", exact: true })).toBeNull();
+  expect(screen.getByRole("button", { name: /Open full analytics/ })).toBeTruthy();
 });
 it("rejects Member entry before loading department analytics", () => {
   state.role = "member";

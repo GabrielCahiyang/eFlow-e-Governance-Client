@@ -147,7 +147,7 @@ function TaskBoardLoadingSkeleton() {
     <div
       aria-label="Loading board records"
       aria-live="polite"
-      className="space-y-4 rounded-[10px] border border-border bg-card p-5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]"
+      className="space-y-4 rounded-[10px] border border-border bg-card p-4"
       role="status"
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -446,46 +446,46 @@ export function MondayBoard({
   );
 
   return (
-    <div className="eflow-operational-workspace flex w-full flex-col gap-5">
+    <div className="eflow-operational-workspace flex w-full flex-col gap-4">
       <h1 className="sr-only">Board</h1>
-      <div className="grid min-w-0 gap-4 lg:grid-cols-[236px_minmax(0,1fr)]">
+      <div className="grid min-w-0 gap-4 lg:grid-cols-[232px_minmax(0,1fr)]">
         <aside
-          className="h-fit rounded-[10px] border border-border bg-card p-3 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)] lg:sticky lg:top-4"
+          className="h-fit rounded-[10px] border border-border bg-card p-3 lg:sticky lg:top-4"
           aria-label="Task board context"
         >
-          <div className="rounded-[14px] bg-muted/50 px-2.5 py-3">
-            <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-neutral-400">
+          <div className="rounded-[8px] border border-border bg-muted/40 px-2.5 py-2.5">
+            <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
               Project context
             </div>
-            <div className="mt-1 break-words text-[13px] font-semibold leading-snug text-neutral-900">
+            <div className="mt-1 break-words text-[13px] font-semibold leading-snug text-foreground">
               {projectContext.title}
             </div>
-            <div className="mt-3 grid grid-cols-3 gap-1.5 text-center">
-              <div className="rounded-lg bg-white px-1.5 py-2">
-                <strong className="block text-[12px] text-neutral-900">
+            <div className="mt-2.5 grid grid-cols-3 gap-1.5 text-center">
+              <div className="rounded-[6px] border border-border/80 bg-card px-1.5 py-1.5">
+                <strong className="eflow-tabular block text-[12px] text-foreground">
                   {projectContext.open}
                 </strong>
-                <span className="text-[9px] text-neutral-500">Open</span>
+                <span className="text-[9.5px] text-muted-foreground">Open</span>
               </div>
-              <div className="rounded-lg bg-white px-1.5 py-2">
-                <strong className="block text-[12px] text-violet-800">
+              <div className="rounded-[6px] border border-border/80 bg-card px-1.5 py-1.5">
+                <strong className="eflow-tabular block text-[12px] text-primary">
                   {projectContext.review}
                 </strong>
-                <span className="text-[9px] text-neutral-500">Review</span>
+                <span className="text-[9.5px] text-muted-foreground">Review</span>
               </div>
-              <div className="rounded-lg bg-white px-1.5 py-2">
-                <strong className="block text-[12px] text-rose-700">
+              <div className="rounded-[6px] border border-border/80 bg-card px-1.5 py-1.5">
+                <strong className="eflow-tabular block text-[12px] text-destructive">
                   {projectContext.overdue}
                 </strong>
-                <span className="text-[9px] text-neutral-500">Overdue</span>
+                <span className="text-[9.5px] text-muted-foreground">Overdue</span>
               </div>
             </div>
           </div>
-          <div className="px-2 pb-2 pt-4">
-            <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-neutral-400">
+          <div className="px-1.5 pb-1.5 pt-3.5">
+            <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
               Switch project
             </div>
-            <p className="mt-1 text-xs leading-relaxed text-neutral-500">
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
               All views keep this selected scope.
             </p>
           </div>
@@ -498,22 +498,22 @@ export function MondayBoard({
                   activeProjectId === option.value ? "page" : undefined
                 }
                 onClick={() => handleSelectProject(option.value)}
-                className={`flex w-full items-center justify-between gap-2 rounded-lg px-2.5 py-2 text-left text-xs transition ${activeProjectId === option.value ? "bg-violet-50 font-semibold text-violet-900" : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"}`}
+                className={`flex w-full items-center justify-between gap-2 rounded-[6px] border px-2.5 py-1.5 text-left text-xs transition ${activeProjectId === option.value ? "border-primary/25 bg-accent font-semibold text-accent-foreground" : "border-transparent text-secondary-foreground hover:bg-muted hover:text-foreground"}`}
               >
                 <span className="min-w-0 break-words leading-snug">
                   {option.label.replace(/ \(\d+\)$/, "")}
                 </span>
-                <span className="shrink-0 rounded-full bg-neutral-100 px-1.5 py-0.5 text-[10px] text-neutral-500">
+                <span className="eflow-tabular shrink-0 rounded-[6px] border border-border bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
                   {option.count}
                 </span>
               </button>
             ))}
           </div>
-          <div className="mt-4 border-t border-neutral-100 pt-3">
-            <div className="flex items-center gap-1.5 px-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-400">
+          <div className="mt-3.5 border-t border-border pt-3">
+            <div className="flex items-center gap-1.5 px-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
               <Archive size={12} /> Record scope
             </div>
-            <p className="mt-1 px-2 text-[11px] leading-relaxed text-neutral-500">
+            <p className="mt-1 px-1.5 text-[11px] leading-relaxed text-muted-foreground">
               Active work shows unarchived task records. Use the status filter to
               choose open, completed, or cancelled work. Deleted records are excluded.
             </p>
@@ -525,7 +525,7 @@ export function MondayBoard({
           {/* Shared workspace shell: context → tabbed views → board canvas. */}
           <div ref={viewBarSentinelRef} aria-hidden="true" className="h-px" />
           <div
-            className={`eflow-task-board__toolbar relative z-30 mb-4 bg-white lg:sticky lg:top-0 ${viewBarPinned ? "eflow-task-board__toolbar--pinned" : ""}`}
+            className={`eflow-task-board__toolbar relative z-30 mb-3.5 bg-card lg:sticky lg:top-0 ${viewBarPinned ? "eflow-task-board__toolbar--pinned" : ""}`}
           >
             {controller.lifecycle.message && (
               <FeedbackState
@@ -535,8 +535,8 @@ export function MondayBoard({
                 <p>{controller.lifecycle.message}</p>
               </FeedbackState>
             )}
-            <div className="flex min-w-0 flex-col gap-3">
-              <div className="order-2 flex flex-wrap shrink-0 items-center justify-end gap-1.5 border-t border-neutral-100 pt-3 text-[11.5px] text-neutral-500">
+            <div className="flex min-w-0 flex-col gap-2.5">
+              <div className="order-2 flex flex-wrap shrink-0 items-center justify-end gap-1.5 border-t border-border pt-2.5 text-[11.5px] text-muted-foreground">
                 <Archive size={13} className="shrink-0" />
                 <SelectPrimitive.Root
                   value={recordScope}
@@ -544,13 +544,13 @@ export function MondayBoard({
                 >
                   <SelectPrimitive.Trigger
                     aria-label="Task record scope"
-                    className="flex h-[28px] w-[155px] items-center justify-between gap-1 rounded-[4px] border border-[#c5c7d0] bg-white px-2 text-[13px] text-[#323338] outline-none hover:border-[#1f76c2] focus:border-[#1f76c2] data-[placeholder]:text-[#676879]"
+                    className="flex h-8 w-[155px] items-center justify-between gap-1 rounded-[6px] border border-border bg-card px-2.5 text-[12.5px] text-foreground outline-none transition hover:border-primary/60 focus:border-primary data-[placeholder]:text-muted-foreground"
                   >
                     <SelectPrimitive.Value />
                     <SelectPrimitive.Icon asChild>
                       <ChevronDown
                         size={14}
-                        className="shrink-0 text-[#676879]"
+                        className="shrink-0 text-muted-foreground"
                       />
                     </SelectPrimitive.Icon>
                   </SelectPrimitive.Trigger>
@@ -558,14 +558,14 @@ export function MondayBoard({
                     <SelectPrimitive.Content
                       position="popper"
                       sideOffset={4}
-                      className="z-[9999] min-w-[var(--radix-select-trigger-width)] overflow-hidden rounded-[4px] border border-[#c5c7d0] bg-white shadow-[0_6px_20px_rgba(0,0,0,0.2)]"
+                      className="z-[9999] min-w-[var(--radix-select-trigger-width)] overflow-hidden rounded-[8px] border border-border bg-card shadow-[var(--eflow-shadow-popover)]"
                     >
                       <SelectPrimitive.Viewport>
                         {recordScopeOptions.map((opt) => (
                           <SelectPrimitive.Item
                             key={opt.value}
                             value={opt.value}
-                            className="flex cursor-pointer select-none items-center px-3 py-[6px] text-[13px] text-[#323338] outline-none hover:bg-[#e8f0fe] data-[state=checked]:bg-[#e8f0fe] data-[state=checked]:text-[#1f76c2]"
+                            className="flex cursor-pointer select-none items-center px-2.5 py-1.5 text-[12.5px] text-foreground outline-none hover:bg-muted data-[state=checked]:bg-accent data-[state=checked]:font-medium data-[state=checked]:text-accent-foreground"
                           >
                             <SelectPrimitive.ItemText>
                               {opt.label}
@@ -576,7 +576,7 @@ export function MondayBoard({
                     </SelectPrimitive.Content>
                   </SelectPrimitive.Portal>
                 </SelectPrimitive.Root>
-                <span className="ml-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-neutral-400">
+                <span className="ml-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                   Status
                 </span>
                 <SelectPrimitive.Root
@@ -585,13 +585,13 @@ export function MondayBoard({
                 >
                   <SelectPrimitive.Trigger
                     aria-label="Filter task board by status"
-                    className="flex h-[28px] w-[175px] items-center justify-between gap-1 rounded-[4px] border border-[#c5c7d0] bg-white px-2 text-[13px] text-[#323338] outline-none hover:border-[#1f76c2] focus:border-[#1f76c2]"
+                    className="flex h-8 w-[175px] items-center justify-between gap-1 rounded-[6px] border border-border bg-card px-2.5 text-[12.5px] text-foreground outline-none transition hover:border-primary/60 focus:border-primary"
                   >
                     <SelectPrimitive.Value />
                     <SelectPrimitive.Icon asChild>
                       <ChevronDown
                         size={14}
-                        className="shrink-0 text-[#676879]"
+                        className="shrink-0 text-muted-foreground"
                       />
                     </SelectPrimitive.Icon>
                   </SelectPrimitive.Trigger>
@@ -599,14 +599,14 @@ export function MondayBoard({
                     <SelectPrimitive.Content
                       position="popper"
                       sideOffset={4}
-                      className="z-[9999] min-w-[var(--radix-select-trigger-width)] overflow-hidden rounded-[4px] border border-[#c5c7d0] bg-white shadow-[0_6px_20px_rgba(0,0,0,0.2)]"
+                      className="z-[9999] min-w-[var(--radix-select-trigger-width)] overflow-hidden rounded-[8px] border border-border bg-card shadow-[var(--eflow-shadow-popover)]"
                     >
                       <SelectPrimitive.Viewport>
                         {statusFilterOptions.map((option) => (
                           <SelectPrimitive.Item
                             key={option.value}
                             value={option.value}
-                            className="flex cursor-pointer select-none items-center px-3 py-[6px] text-[13px] text-[#323338] outline-none hover:bg-[#e8f0fe] data-[state=checked]:bg-[#e8f0fe] data-[state=checked]:text-[#1f76c2]"
+                            className="flex cursor-pointer select-none items-center px-2.5 py-1.5 text-[12.5px] text-foreground outline-none hover:bg-muted data-[state=checked]:bg-accent data-[state=checked]:font-medium data-[state=checked]:text-accent-foreground"
                           >
                             <SelectPrimitive.ItemText>
                               {option.label}
@@ -667,7 +667,7 @@ export function MondayBoard({
                           type="button"
                           aria-label={`Close ${current.label} view`}
                           onClick={() => closeBoardView(current.id)}
-                          className="inline-flex h-9 items-center gap-1 rounded px-2 text-xs text-neutral-600 hover:bg-neutral-100"
+                          className="inline-flex h-8 items-center gap-1 rounded-[6px] border border-border bg-card px-2.5 text-xs text-secondary-foreground transition hover:bg-muted hover:text-foreground"
                         >
                           <X size={14} /> Close view
                         </button>
@@ -680,18 +680,18 @@ export function MondayBoard({
                         aria-haspopup="menu"
                         aria-expanded={moreViewOpen}
                         onClick={() => setMoreViewOpen((open) => !open)}
-                        className={`eflow-task-board__more-button ${isOverflowViewActive ? "bg-[#f4f4f4] font-semibold" : ""}`}
+                        className={`eflow-task-board__more-button ${isOverflowViewActive ? "bg-muted font-semibold text-foreground" : ""}`}
                       >
                         <span>More ({overflowBoardViews.length})</span>
-                        <ChevronDown size={13} className="text-neutral-400" />
+                        <ChevronDown size={13} className="text-muted-foreground" />
                       </button>
                       {moreViewOpen && (
                         <div
                           role="menu"
                           aria-label="More task board views"
-                          className="absolute right-0 top-full z-[100] mt-1.5 w-60 rounded-[14px] border border-border bg-card p-1.5 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]"
+                          className="absolute right-0 top-full z-[100] mt-1.5 w-60 rounded-[8px] border border-border bg-card p-1.5 shadow-[var(--eflow-shadow-popover)]"
                         >
-                          <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-400">
+                          <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                             Open task views
                           </div>
                           {overflowBoardViews.map((view) => (
@@ -713,10 +713,10 @@ export function MondayBoard({
                                   setMoreViewOpen(false);
                                 }
                               }}
-                              className={`flex cursor-pointer items-center justify-between gap-2 rounded-lg px-2.5 py-2 text-xs font-medium ${boardView === view.id ? "bg-violet-50 font-semibold text-violet-900" : "text-neutral-700 hover:bg-neutral-50"}`}
+                              className={`flex cursor-pointer items-center justify-between gap-2 rounded-[6px] px-2.5 py-2 text-xs font-medium ${boardView === view.id ? "bg-accent font-semibold text-accent-foreground" : "text-foreground hover:bg-muted"}`}
                             >
                               <span className="inline-flex min-w-0 items-center gap-2">
-                                <span className="text-neutral-500">
+                                <span className="text-muted-foreground">
                                   {view.icon}
                                 </span>
                                 <span className="truncate">{view.label}</span>
@@ -728,7 +728,7 @@ export function MondayBoard({
                                   event.stopPropagation();
                                   closeBoardView(view.id);
                                 }}
-                                className="shrink-0 rounded p-0.5 text-neutral-400 hover:bg-neutral-200 hover:text-neutral-700"
+                                className="shrink-0 rounded-[4px] p-0.5 text-muted-foreground hover:bg-secondary hover:text-foreground"
                               >
                                 <X size={11} />
                               </button>
@@ -745,7 +745,7 @@ export function MondayBoard({
                       aria-haspopup="menu"
                       aria-expanded={addViewOpen}
                       onClick={() => setAddViewOpen((open) => !open)}
-                      className="eflow-task-board__add-view inline-flex h-9 items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 text-xs font-semibold text-neutral-700 shadow-sm transition hover:border-violet-200 hover:bg-violet-50 hover:text-violet-800"
+                      className="eflow-task-board__add-view inline-flex h-8 items-center gap-1.5 rounded-[6px] border border-border bg-card px-2.5 text-xs font-medium text-foreground transition hover:border-primary/40 hover:bg-accent hover:text-accent-foreground"
                     >
                       <Plus size={14} /> Add view
                     </button>
@@ -753,13 +753,13 @@ export function MondayBoard({
                       <div
                         role="menu"
                         aria-label="Add task board view"
-                        className="absolute right-0 top-full z-[100] mt-2 w-[300px] rounded-[14px] border border-border bg-card p-2 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]"
+                        className="absolute right-0 top-full z-[100] mt-1.5 w-[300px] rounded-[8px] border border-border bg-card p-1.5 shadow-[var(--eflow-shadow-popover)]"
                       >
-                        <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-400">
+                        <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                           Additional views
                         </div>
                         {availableBoardViews.length === 0 ? (
-                          <div className="px-2 py-3 text-xs text-neutral-500">
+                          <div className="px-2 py-3 text-xs text-muted-foreground">
                             All available views are already open.
                           </div>
                         ) : (
@@ -769,16 +769,16 @@ export function MondayBoard({
                               type="button"
                               role="menuitem"
                               onClick={() => openBoardView(view.id)}
-                              className="flex w-full items-start gap-2.5 rounded-lg px-2 py-2 text-left transition hover:bg-neutral-50"
+                              className="flex w-full items-start gap-2.5 rounded-[6px] px-2 py-2 text-left transition hover:bg-muted"
                             >
-                              <span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-neutral-100 text-neutral-600">
+                              <span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-[6px] border border-border bg-muted text-secondary-foreground">
                                 {view.icon}
                               </span>
                               <span className="min-w-0">
-                                <span className="block text-xs font-semibold text-neutral-800">
+                                <span className="block text-xs font-semibold text-foreground">
                                   {view.label}
                                 </span>
-                                <span className="mt-0.5 block text-[11px] leading-relaxed text-neutral-500">
+                                <span className="mt-0.5 block text-[11px] leading-relaxed text-muted-foreground">
                                   {view.description}
                                 </span>
                               </span>

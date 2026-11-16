@@ -57,7 +57,7 @@ export function DepartmentReportTable({
             ].map((header) => (
               <th
                 key={header}
-                className="px-4 py-3 text-left text-[12px] font-medium uppercase tracking-wider text-muted-foreground"
+                className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground"
               >
                 {header}
               </th>
@@ -69,7 +69,7 @@ export function DepartmentReportTable({
             const expanded = expandedRowId === row.id;
             return (
               <Fragment key={row.id}>
-                <tr className="border-b border-border align-top hover:bg-muted/70 transition-colors">
+                <tr className="border-b border-border align-top transition-colors hover:bg-muted/50">
                   <td className="max-w-[250px] break-words px-4 py-3 align-top whitespace-normal">
                     <button
                       type="button"
@@ -110,7 +110,7 @@ export function DepartmentReportTable({
                     </button>
                   </td>
                   <td className="px-4 py-3">
-                    <div className="text-[13px] text-foreground">
+                    <div className="text-[13px] font-medium text-foreground">
                       {row.person}
                     </div>
                     <div className="mt-0.5 text-[12px] text-muted-foreground">
@@ -123,16 +123,16 @@ export function DepartmentReportTable({
                   <td className="px-4 py-3">
                     <StatusPill label={row.status} tone={tone(row.status)} />
                     {typeof row.progress === "number" && (
-                      <div className="w-24 mt-2">
-                        <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                      <div className="mt-2 w-24">
+                        <div className="h-1.5 overflow-hidden rounded-[3px] bg-muted">
                           <div
-                            className="h-full bg-neutral-800"
+                            className="h-full bg-primary"
                             style={{
                               width: `${Math.max(0, Math.min(100, row.progress))}%`,
                             }}
                           />
                         </div>
-                        <div className="mt-0.5 text-[12px] text-muted-foreground">
+                        <div className="mt-0.5 text-[11px] tabular-nums text-muted-foreground">
                           {row.progress}%
                         </div>
                       </div>
@@ -150,7 +150,7 @@ export function DepartmentReportTable({
                   <td className="px-4 py-3 text-[12px] text-muted-foreground whitespace-nowrap">
                     {row.eventAt && <div>{formatDate(row.eventAt)}</div>}
                     {row.dueAt && (
-                      <div className="flex items-center gap-1 mt-1">
+                      <div className="mt-1 flex items-center gap-1">
                         <CalendarDays size={11} /> Due {formatDate(row.dueAt)}
                       </div>
                     )}
@@ -160,10 +160,10 @@ export function DepartmentReportTable({
                   </td>
                 </tr>
                 {expanded && (
-                  <tr className="border-b border-border bg-muted/70">
+                  <tr className="border-b border-border bg-muted/40">
                     <td colSpan={7} className="px-4 py-3">
                       <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-                        <div>
+                        <div className="rounded-lg border border-border bg-card p-3">
                           <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                             Full work item
                           </span>
@@ -174,7 +174,7 @@ export function DepartmentReportTable({
                             {row.parent}
                           </p>
                         </div>
-                        <div>
+                        <div className="rounded-lg border border-border bg-card p-3">
                           <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                             Report detail
                           </span>

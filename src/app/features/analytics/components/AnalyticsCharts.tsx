@@ -34,7 +34,7 @@ export function AnalyticsDonut({
             r="58"
             fill="none"
             stroke="var(--muted)"
-            strokeWidth="18"
+            strokeWidth="16"
           />
           {items.map((item, i) => {
             const length = total ? (item.value / total) * 100 : 0,
@@ -49,7 +49,7 @@ export function AnalyticsDonut({
                 fill="none"
                 pathLength="100"
                 stroke={item.color || ANALYTICS_COLORS[i % 6]}
-                strokeWidth="18"
+                strokeWidth="16"
                 strokeDasharray={`${length} ${100 - length}`}
                 strokeDashoffset={-start}
                 transform="rotate(-90 80 80)"

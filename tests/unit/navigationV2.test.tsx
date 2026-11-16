@@ -12,8 +12,13 @@ describe('Phase 9 discovery compatibility', () => {
     const can = () => true;
     const expected = getRoleNavigationCandidates(role).filter(item => isRoleNavigationItemVisible(item, true, role) && canOpenNavigationSection(role, item.id, can, Boolean(item.requiresLeadership)));
     const items = buildShellNavigation({ role, can, hasLeadingWork: true });
-    // Analytics unifies Team Supervision and Intelligence in one displayed entry.
-    expect(items.map(item => item.id)).toEqual(expected.filter(item => item.id !== 'intelligence' || !expected.some(other => other.id === 'team')).map(item => item.id));
+    // Office Team consolidates Identity & Access; Analytics consolidates Intelligence and Head Reports.
+    expect(items.map(item => item.id)).toEqual(
+      expected
+        .filter(item => !['intelligence', 'identity'].includes(item.id) || !expected.some(other => other.id === 'team'))
+        .filter(item => !(role === 'head' && item.id === 'reports' && expected.some(other => other.id === 'team' || other.id === 'intelligence')))
+        .map(item => item.id),
+    );
     expect(items.every(item => item.pages.length > 0)).toBe(true);
     if (role === 'admin') { expect(items.map(item => item.group)).toEqual(['inbox','admin-center']); expect(items.some(item => item.id === 'projects')).toBe(false); }
     if (role === 'head') expect(items.find(item => item.id === 'tasks')).toMatchObject({group:'workspaces', pages:[{label:'Task Board'}]});

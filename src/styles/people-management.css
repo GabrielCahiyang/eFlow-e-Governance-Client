@@ -1,4 +1,272 @@
-.eflow-people-inspector{width:min(660px,100vw);background:var(--eflow-surface,#fff);color:var(--eflow-text,#273442)}.eflow-people-inspector>header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:24px;border-bottom:1px solid var(--eflow-border,#dfe3eb)}.eflow-people-inspector h2{font-size:22px;font-weight:600;overflow-wrap:anywhere}.eflow-people-inspector-body{padding:24px;overflow-y:auto;min-height:0;flex:1}.eflow-people-inspector dl{display:grid;grid-template-columns:130px 1fr;gap:16px;margin:24px 0}.eflow-people-inspector dt{color:var(--eflow-text-secondary,#637183)}.eflow-people-inspector dd,.eflow-people-inspector p{overflow-wrap:anywhere;line-height:1.6}.eflow-people-inspector button{min-height:40px}.eflow-fresh-link{padding:16px;border:1px solid #a9d4d8;margin:16px 0;border-radius:8px;overflow-wrap:anywhere}.eflow-fresh-link input{display:block;width:100%;padding:10px;border:1px solid #cbd2df;border-radius:5px}.eflow-mobile-secondary{display:none}.eflow-invitation-actions{display:flex;flex-wrap:wrap;gap:8px}.eflow-professional-form fieldset{display:flex;flex-direction:column;gap:14px;min-width:0}
-@media(max-width:640px){.eflow-team-table-wrap{overflow-x:auto}.eflow-team-table thead{display:none}.eflow-team-table,.eflow-team-table tbody,.eflow-team-table tr,.eflow-team-table td,.eflow-team-table tbody th{display:block!important;width:100%}.eflow-team-table tbody tr{padding:14px 8px;border:1px solid #dfe3eb;border-radius:8px;margin-bottom:12px}.eflow-team-table td,.eflow-team-table tbody th{border:0;padding:6px 8px}.eflow-team-table td::before{content:attr(data-label);display:block;font-size:11px;color:#637183;margin-bottom:4px}.eflow-mobile-secondary{display:block;color:#637183;font-size:12px;margin-top:4px}.eflow-team-table:not(.eflow-invitation-table) td[data-label=Email]{display:none!important}.eflow-people-inspector>header,.eflow-people-inspector-body{padding:20px}.eflow-people-inspector dl{grid-template-columns:1fr;gap:6px}.eflow-people-inspector dd{margin-bottom:12px}.eflow-team-toolbar label{max-width:100%}.eflow-team-toolbar input{width:min(180px,100%)}.eflow-team-toolbar{gap:8px}}
+.eflow-people-inspector {
+  width: min(660px, 100vw);
+  background: var(--eflow-surface);
+  color: var(--eflow-text);
+}
 
-@media(max-width:640px){.eflow-team-table thead{display:block;position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);clip-path:inset(50%);white-space:nowrap}}
+.eflow-people-inspector > header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--eflow-space-4);
+  padding: var(--eflow-space-5) var(--eflow-space-6);
+  border-bottom: 1px solid var(--eflow-border);
+}
+
+.eflow-people-inspector > header p {
+  margin-top: 2px;
+  font-size: var(--eflow-text-xs);
+  color: var(--eflow-text-muted);
+}
+
+.eflow-people-inspector > header .eflow-icon-button {
+  min-width: 36px;
+  min-height: 36px;
+  border: 1px solid var(--eflow-border);
+  border-radius: var(--eflow-radius-control);
+  background: var(--eflow-surface);
+  color: var(--eflow-text-secondary);
+}
+
+.eflow-people-inspector > header .eflow-icon-button:hover {
+  background: var(--eflow-subtle);
+  color: var(--eflow-text);
+}
+
+.eflow-people-inspector h2 {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.eflow-people-inspector-body {
+  padding: var(--eflow-space-5) var(--eflow-space-6);
+  overflow-y: auto;
+  min-height: 0;
+  flex: 1;
+}
+
+.eflow-people-inspector .eflow-workspace-tabs {
+  padding: 0;
+}
+
+.eflow-people-inspector .eflow-workspace-panel {
+  padding: var(--eflow-space-4) 0 0;
+}
+
+.eflow-people-inspector dl {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 0;
+  margin: 0 0 var(--eflow-space-4);
+  border: 1px solid var(--eflow-border);
+  border-radius: var(--eflow-radius-control);
+  background: var(--eflow-surface);
+  overflow: hidden;
+}
+
+.eflow-people-inspector dt,
+.eflow-people-inspector dd {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--eflow-border);
+  font-size: var(--eflow-text-sm);
+  line-height: 1.5;
+}
+
+.eflow-people-inspector dt {
+  color: var(--eflow-text-muted);
+  font-weight: 500;
+  background: var(--eflow-subtle);
+}
+
+.eflow-people-inspector dd {
+  color: var(--eflow-text);
+  overflow-wrap: anywhere;
+}
+
+.eflow-people-inspector dt:last-of-type,
+.eflow-people-inspector dd:last-of-type {
+  border-bottom: 0;
+}
+
+.eflow-people-inspector p {
+  overflow-wrap: anywhere;
+  line-height: 1.6;
+}
+
+.eflow-inspector-note {
+  padding: var(--eflow-space-3) 14px;
+  border: 1px solid var(--eflow-border);
+  border-radius: var(--eflow-radius-control);
+  background: var(--eflow-subtle);
+  color: var(--eflow-text-secondary);
+  font-size: var(--eflow-text-xs);
+}
+
+.eflow-people-inspector .eflow-status-pill {
+  border-radius: 6px;
+  border: 1px solid var(--eflow-border);
+  padding: 2px 8px;
+  min-height: 24px;
+  font-size: var(--eflow-text-xs);
+  font-weight: 500;
+}
+
+.eflow-people-inspector .eflow-status-pill--positive {
+  border-color: color-mix(in srgb, var(--eflow-positive-text) 25%, transparent);
+}
+
+.eflow-people-inspector button {
+  min-height: 40px;
+}
+
+.eflow-fresh-link {
+  padding: var(--eflow-space-4);
+  border: 1px solid var(--eflow-border);
+  margin: var(--eflow-space-4) 0;
+  border-radius: var(--eflow-radius-control);
+  overflow-wrap: anywhere;
+  display: flex;
+  flex-direction: column;
+  gap: var(--eflow-space-2);
+}
+
+.eflow-fresh-link label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: var(--eflow-text-xs);
+  font-weight: 500;
+  color: var(--eflow-text-secondary);
+}
+
+.eflow-fresh-link input {
+  display: block;
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--eflow-border);
+  border-radius: 6px;
+  font-size: var(--eflow-text-sm);
+}
+
+.eflow-fresh-link p {
+  font-size: var(--eflow-text-xs);
+  color: var(--eflow-text-muted);
+}
+
+.eflow-mobile-secondary {
+  display: none;
+}
+
+.eflow-invitation-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--eflow-space-2);
+}
+
+.eflow-professional-form fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+@media (max-width: 640px) {
+  .eflow-team-table-wrap {
+    overflow-x: auto;
+  }
+
+  .eflow-team-table thead {
+    display: block;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .eflow-team-table,
+  .eflow-team-table tbody,
+  .eflow-team-table tr,
+  .eflow-team-table td,
+  .eflow-team-table tbody th {
+    display: block !important;
+    width: 100%;
+  }
+
+  .eflow-team-table tbody tr {
+    padding: 12px 10px;
+    border: 1px solid var(--eflow-border);
+    border-radius: var(--eflow-radius-control);
+    margin-bottom: 10px;
+    background: var(--eflow-surface);
+  }
+
+  .eflow-team-table tbody tr:last-child {
+    margin-bottom: 0;
+  }
+
+  .eflow-team-table td,
+  .eflow-team-table tbody th {
+    border: 0;
+    padding: 6px 8px;
+  }
+
+  .eflow-team-table td::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 11px;
+    color: var(--eflow-text-muted);
+    margin-bottom: 4px;
+  }
+
+  .eflow-mobile-secondary {
+    display: block;
+    color: var(--eflow-text-muted);
+    font-size: var(--eflow-text-xs);
+    font-weight: 400;
+    margin-top: 2px;
+  }
+
+  .eflow-team-table:not(.eflow-invitation-table) td[data-label=Email] {
+    display: none !important;
+  }
+
+  .eflow-people-inspector > header,
+  .eflow-people-inspector-body {
+    padding: var(--eflow-space-4);
+  }
+
+  .eflow-people-inspector dl {
+    grid-template-columns: 1fr;
+  }
+
+  .eflow-people-inspector dt {
+    border-bottom: 0;
+    padding-bottom: 2px;
+    font-size: var(--eflow-text-xs);
+  }
+
+  .eflow-people-inspector dd {
+    padding-top: 2px;
+  }
+
+  .eflow-people-inspector dt:last-of-type {
+    border-bottom: 0;
+  }
+
+  .eflow-team-toolbar label {
+    max-width: 100%;
+  }
+
+  .eflow-team-toolbar input {
+    width: min(180px, 100%);
+  }
+
+  .eflow-team-toolbar {
+    gap: 8px;
+  }
+}

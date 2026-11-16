@@ -1,9 +1,9 @@
 import { TaskDepartmentLabel } from "../TaskDepartmentLabel";
 import { useMemo } from "react";
-import { ChevronLeft, ChevronRight, Crown, Hand } from "lucide-react";
+import { ChevronLeft, ChevronRight, Crown, Hand, ListChecks } from "lucide-react";
 import type { Employee } from "../../../../services/employeeService";
 import type { Task, TaskStatus } from "../../../../services/taskService";
-import { STATUS_ORDER, SubtaskProgressChip, getDeadlineInfo, getHierarchyDisplay, getInitials, getTaskMemberNames, priorityMeta, statusMeta } from "./model";
+import { STATUS_ORDER, getDeadlineInfo, getHierarchyDisplay, getInitials, getTaskMemberNames, priorityMeta, statusMeta } from "./model";
 import type { MondayBoardProps } from "./model";
 import { RejectionNotice, ReopenNotice, SubmissionDetails } from "./TaskFeedback";
 import { TaskManagementMenu } from "./TaskManagementMenu";
@@ -68,14 +68,14 @@ export function KanbanBoardView({
 
   return (
     <div className="min-w-0 max-w-full">
-      <div className="mb-2 flex items-center justify-between gap-3 rounded-xl border border-neutral-200 bg-white px-3 py-2">
-        <div className="flex min-w-0 items-center gap-2 text-[10.5px] text-neutral-500">
-          <Hand size={13} className="shrink-0 text-neutral-400" />
+      <div className="mb-2.5 flex items-center justify-between gap-3 rounded-[8px] border border-border bg-card px-3 py-1.5">
+        <div className="flex min-w-0 items-center gap-2 text-[11px] text-muted-foreground">
+          <Hand size={13} className="shrink-0 text-muted-foreground" />
           <span className="truncate">Scroll horizontally to see all statuses.</span>
         </div>
         <div className="flex shrink-0 items-center gap-1">
-          <button type="button" aria-label="Scroll Kanban board left" onClick={() => panByPage(-1)} className="rounded-lg border border-neutral-200 p-1.5 text-neutral-500 hover:bg-neutral-50 hover:text-neutral-800"><ChevronLeft size={14} /></button>
-          <button type="button" aria-label="Scroll Kanban board right" onClick={() => panByPage(1)} className="rounded-lg border border-neutral-200 p-1.5 text-neutral-500 hover:bg-neutral-50 hover:text-neutral-800"><ChevronRight size={14} /></button>
+          <button type="button" aria-label="Scroll Kanban board left" onClick={() => panByPage(-1)} className="rounded-[6px] border border-border bg-card p-1 text-secondary-foreground transition hover:bg-muted hover:text-foreground"><ChevronLeft size={14} /></button>
+          <button type="button" aria-label="Scroll Kanban board right" onClick={() => panByPage(1)} className="rounded-[6px] border border-border bg-card p-1 text-secondary-foreground transition hover:bg-muted hover:text-foreground"><ChevronRight size={14} /></button>
         </div>
       </div>
       <div
@@ -89,15 +89,15 @@ export function KanbanBoardView({
         return (
           <div
             key={status}
-            className="flex-shrink-0 w-[248px] flex flex-col rounded-2xl border border-neutral-200 bg-neutral-50/50"
+            className="flex-shrink-0 w-[252px] flex flex-col rounded-[10px] border border-border bg-muted/40"
           >
             {/* Column header */}
-            <div className="flex items-center gap-2 px-3.5 py-3 border-b border-neutral-200 shrink-0">
-              <div className={`w-2 h-2 rounded-full ${meta.dot}`} />
-              <span className="text-[11px] font-semibold text-neutral-700">
+            <div className="flex items-center gap-2 px-3 py-2.5 border-b border-border bg-card/80 rounded-t-[10px] shrink-0">
+              <div className={`w-2 h-2 rounded-[2px] ${meta.dot}`} />
+              <span className="text-[11px] font-semibold text-foreground">
                 {meta.label}
               </span>
-              <div className="ml-auto flex items-center justify-center w-5 h-5 rounded-full bg-neutral-200 text-[10px] font-semibold text-neutral-600">
+              <div className="eflow-tabular ml-auto flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-[6px] border border-border bg-muted text-[10px] font-semibold text-secondary-foreground">
                 {items.length}
               </div>
             </div>
@@ -121,11 +121,11 @@ export function KanbanBoardView({
                 return (
                   <div
                     key={task.id}
-                    className="bg-white border border-neutral-200 rounded-xl p-3 shadow-sm hover:shadow-md transition-all group"
+                    className="bg-card border border-border rounded-[8px] p-3 transition-colors hover:border-primary/40 group"
                   >
                     {/* Top priority bar */}
                     <div
-                      className={`h-0.5 rounded-full ${pm.kanbanBar} mb-2.5`}
+                      className={`h-0.5 rounded-[2px] ${pm.kanbanBar} mb-2`}
                     />
 
                     {taskOpener ? (
@@ -134,22 +134,22 @@ export function KanbanBoardView({
                           e.stopPropagation();
                           taskOpener(task);
                         }}
-                        className="text-left text-[12px] font-medium text-neutral-900 leading-snug hover:text-violet-700 transition"
+                        className="text-left text-[12.5px] font-medium text-foreground leading-snug hover:text-primary transition"
                       >
                         {task.title}
                       </button>
                     ) : (
-                      <div className="text-[12px] font-medium text-neutral-900 leading-snug">
+                      <div className="text-[12.5px] font-medium text-foreground leading-snug">
                         {task.title}
                       </div>
                     )}
                     <TaskDepartmentLabel task={task} />
                         {task.description && (
-                      <div className="text-[10px] text-neutral-400 mt-1 line-clamp-2 leading-relaxed">
+                      <div className="text-[10.5px] text-muted-foreground mt-1 line-clamp-2 leading-relaxed">
                         {task.description}
                       </div>
                     )}
-                    <div className="mt-1 text-[9px] text-violet-600/80 line-clamp-2 leading-relaxed">
+                    <div className="mt-1 text-[9.5px] text-muted-foreground line-clamp-2 leading-relaxed">
                       {hierarchy.path}
                     </div>
                     {role === "head" && task.status === "for_review" && (
@@ -177,29 +177,34 @@ export function KanbanBoardView({
                             {getInitials(leadName)}
                           </div>
                           <Crown size={9} className="text-amber-500" />
-                          <span className="text-[10px] text-neutral-600 font-normal">
+                          <span className="text-[10px] text-secondary-foreground font-normal">
                             {leadName.split(" ")[0]}
                           </span>
                         </div>
                       )}
                       {memberNames.length > 1 && (
-                        <span className="text-[9px] text-violet-600">
+                        <span className="text-[9.5px] text-secondary-foreground">
                           Team: {memberNames.length}
                         </span>
                       )}
                       {dlInfo && task.status !== "completed" && (
                         <span
-                          className={`text-[9px] px-1.5 py-0.5 rounded-full border ${dlInfo.cls}`}
+                          className={`text-[9.5px] px-1.5 py-0.5 rounded-[6px] border ${dlInfo.cls}`}
                         >
                           {dlInfo.label}
                         </span>
                       )}
                       <span
-                        className={`text-[9px] px-1.5 py-0.5 rounded-full ${pm.badge}`}
+                        className={`text-[9.5px] font-medium px-1.5 py-0.5 rounded-[6px] border border-current/15 ${pm.badge}`}
                       >
                         {pm.label}
                       </span>
-                      <SubtaskProgressChip task={task} />
+                      {(task.subtaskCount ?? 0) > 0 && (
+                        <span className="eflow-tabular inline-flex items-center gap-1 rounded-[6px] border border-border bg-muted px-1.5 py-0.5 text-[9.5px] font-medium text-secondary-foreground">
+                          <ListChecks size={10} className={(task.subtaskCompletedCount ?? 0) === (task.subtaskCount ?? 0) ? "text-emerald-600" : "text-muted-foreground"} />
+                          {task.subtaskCompletedCount ?? 0}/{task.subtaskCount ?? 0}
+                        </span>
+                      )}
                     </div>
 
                     {/* Actions */}
@@ -208,7 +213,7 @@ export function KanbanBoardView({
                         <>
                           <button
                             onClick={() => onVerify?.(task.id, true)}
-                            className="flex-1 text-[10px] bg-emerald-500 text-white py-1 rounded-lg hover:bg-emerald-600 transition"
+                            className="flex-1 text-[10.5px] font-medium bg-emerald-600 text-white py-1 rounded-[6px] hover:bg-emerald-700 transition"
                           >
                             Approve
                           </button>
@@ -217,7 +222,7 @@ export function KanbanBoardView({
                               const msg = prompt("Reason:");
                               onVerify?.(task.id, false, msg || "Needs rework");
                             }}
-                            className="flex-1 text-[10px] bg-red-500 text-white py-1 rounded-lg hover:bg-red-600 transition"
+                            className="flex-1 text-[10.5px] font-medium bg-red-600 text-white py-1 rounded-[6px] hover:bg-red-700 transition"
                           >
                             Reject
                           </button>
@@ -226,7 +231,7 @@ export function KanbanBoardView({
                       {!readOnly && role === "member" && task.status === "todo" && (
                         <button
                           onClick={() => onExecute?.(task.id)}
-                          className="flex-1 rounded-lg bg-primary py-1 text-[10px] text-primary-foreground transition hover:bg-primary/90"
+                          className="flex-1 rounded-[6px] bg-primary py-1 text-[10.5px] font-medium text-primary-foreground transition hover:bg-primary/90"
                         >
                           Start Work
                         </button>
@@ -234,7 +239,7 @@ export function KanbanBoardView({
                       {!readOnly && canSubmit && (
                         <button
                           onClick={() => onSubmitRequest?.(task)}
-                          className="flex-1 rounded-lg bg-primary py-1 text-[10px] text-primary-foreground transition hover:bg-primary/90"
+                          className="flex-1 rounded-[6px] bg-primary py-1 text-[10.5px] font-medium text-primary-foreground transition hover:bg-primary/90"
                         >
                           Submit for Review
                         </button>
@@ -256,7 +261,7 @@ export function KanbanBoardView({
 
               {items.length === 0 && (
                 <div
-                  className="text-[11px] text-neutral-400 text-center py-8 italic rounded-xl border-2 border-dashed border-neutral-200"
+                  className="text-[11px] text-muted-foreground text-center py-6 italic rounded-[8px] border border-dashed border-border bg-card/40"
                 >
                   No tasks
                 </div>

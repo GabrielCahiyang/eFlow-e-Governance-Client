@@ -4,7 +4,45 @@
   font: inherit;
 }
 .r10-workspace .eflow-workspace-header {
-  padding: 0 0 20px;
+  padding: 0 0 16px;
+}
+.r10-workspace .eflow-workspace-actions button,
+.r10-workspace .r10-action-button,
+.head-home__more .eflow-button,
+.r10-workspace [role="alert"] button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid var(--eflow-border);
+  background: var(--eflow-surface);
+  color: var(--eflow-text);
+  border-radius: var(--eflow-radius-control);
+  padding: 7px 12px;
+  min-height: 36px;
+  font-size: var(--eflow-text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--eflow-motion-fast), border-color var(--eflow-motion-fast);
+}
+.r10-workspace .eflow-workspace-actions button:hover:not(:disabled),
+.r10-workspace .r10-action-button:hover:not(:disabled),
+.head-home__more .eflow-button:hover:not(:disabled),
+.r10-workspace [role="alert"] button:hover:not(:disabled) {
+  background: var(--eflow-subtle);
+  border-color: var(--eflow-primary);
+}
+.r10-help {
+  margin-top: 12px;
+  font-size: var(--eflow-text-sm);
+  line-height: 1.5;
+  color: var(--eflow-text-secondary);
+}
+.head-home__more {
+  margin-top: 16px;
+}
+.r10-overview-footer {
+  margin-top: 16px;
 }
 .r10-work-list-view button,
 .r10-work-list-view select,
@@ -66,7 +104,7 @@
 .r10-search:focus-within { outline: 2px solid var(--eflow-primary); outline-offset: 2px; }
 .r10-search input:focus-visible { outline: none; }
 .r10-search button { border: 0; padding: 8px; }
-.r10-filter-count { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; border-radius: 50%; background: var(--eflow-selected); color: var(--eflow-on-selected); font-size: 12px; }
+.r10-filter-count { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 6px; background: var(--eflow-selected); color: var(--eflow-on-selected); font-size: 12px; font-variant-numeric: tabular-nums; }
 .r10-active-filters { display: flex; flex-wrap: wrap; align-items: center; gap: var(--eflow-space-2); }
 .r10-workspace .r10-filter-chip { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; min-height: 32px; padding: 4px 10px; border-radius: var(--eflow-radius-control); background: var(--eflow-selected); color: var(--eflow-on-selected); font-size: 13px; }
 .r10-filter-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -94,19 +132,32 @@
   font-size: 13px;
 }
 .r10-workspace [role="alert"] {
-  padding: 16px;
+  padding: 12px 14px;
+  border: 1px solid var(--eflow-border);
   background: var(--eflow-warning-bg);
   color: var(--eflow-warning-text);
   border-radius: 8px;
   margin: 12px 0;
+  font-size: var(--eflow-text-sm);
+}
+.r10-workspace [role="alert"] ul {
+  margin: 6px 0 10px;
+  padding-left: 18px;
+  list-style: disc;
+}
+.r10-workspace > p[role="status"] {
+  font-size: var(--eflow-text-sm);
+  color: var(--eflow-text-secondary);
+  margin: 8px 0;
 }
 .r10-work-list {
-  margin: 16px 0;
+  margin: 12px 0;
   border: 1px solid var(--eflow-border);
-  border-radius: 10px;
+  border-radius: 8px;
   overflow: hidden;
   list-style: none;
   padding: 0;
+  background: var(--eflow-surface);
 }
 .r10-work-list li + li {
   border-top: 1px solid var(--eflow-border);
@@ -170,38 +221,94 @@
 }
 .r10-overview-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
-  gap: 12px;
-  margin: 20px 0;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 175px), 1fr));
+  gap: 10px;
+  margin: 16px 0;
+}
+.r10-overview-cards button,
+.r10-overview-skeleton-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 6px;
+  text-align: left;
+  padding: 12px 14px;
+  border: 1px solid var(--eflow-border);
+  border-radius: 8px;
+  background: var(--eflow-surface);
+  color: var(--eflow-text);
+  transition: background var(--eflow-motion-fast), border-color var(--eflow-motion-fast);
 }
 .r10-overview-cards button {
-  text-align: left;
-  padding: 16px;
+  cursor: pointer;
+}
+.r10-overview-cards button:hover {
+  background: var(--eflow-subtle);
+  border-color: var(--eflow-primary);
+}
+.r10-overview-cards button[aria-pressed="true"] {
+  background: var(--eflow-selected);
+  color: var(--eflow-on-selected);
+  border-color: var(--eflow-primary);
+}
+.r10-overview-cards span {
+  font-size: var(--eflow-text-xs);
+  font-weight: 500;
+  color: var(--eflow-text-secondary);
+}
+.r10-overview-cards button[aria-pressed="true"] span {
+  color: var(--eflow-on-selected);
 }
 .r10-overview-cards strong {
   display: block;
-  font-size: 28px;
+  font-size: 22px;
+  line-height: 1.2;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 .r10-overview-projects {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: 10px;
 }
 .r10-overview-projects button {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   text-align: left;
-  padding: 16px;
+  padding: 12px 14px;
+  border: 1px solid var(--eflow-border);
+  border-radius: 8px;
+  background: var(--eflow-surface);
+  color: var(--eflow-text);
+  cursor: pointer;
+  transition: background var(--eflow-motion-fast), border-color var(--eflow-motion-fast);
+}
+.r10-overview-projects button:hover {
+  background: var(--eflow-subtle);
+  border-color: var(--eflow-primary);
+}
+.r10-overview-projects strong {
+  font-size: var(--eflow-text-base);
+  font-weight: 600;
 }
 .r10-overview-projects small {
   display: block;
+  font-size: var(--eflow-text-xs);
   color: var(--eflow-text-secondary);
 }
 .r10-overview-section {
-  margin-top: 24px;
+  margin-top: 20px;
 }
 .r10-overview-section h2 {
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 600;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
+  color: var(--eflow-text);
+}
+.r10-overview-section > p {
+  font-size: var(--eflow-text-sm);
+  color: var(--eflow-text-secondary);
 }
 @media (max-width: 1100px) {
   .r10-work-list [data-work-key] {
