@@ -22,12 +22,12 @@ export function InspectorExecution({task,subtasks,canStart,canResume,canSubmit,c
  const editable=(canPostProgress||canStart||canResume||canSubmit)&&(task.status!=='todo'||canStart);
  return <div className="space-y-4">
   {isProjectOnHold && (
-   <div role="status" className="p-4 rounded-xl border border-amber-300 bg-amber-50 text-amber-950 space-y-1">
-    <div className="flex items-center justify-between">
-     <strong className="text-sm font-semibold text-amber-900">Project on hold</strong>
-     <span className="text-[11px] font-semibold uppercase tracking-wider text-amber-800 bg-amber-200/70 px-2 py-0.5 rounded">Work actions unavailable</span>
+   <div role="status" className="task-page__hold-banner">
+    <div className="task-page__hold-banner-head">
+     <strong>Project on hold</strong>
+     <span>Work actions unavailable</span>
     </div>
-    <p className="text-xs text-amber-800 leading-relaxed">Work updates are paused while the project is under review.</p>
+    <p>Work updates are paused while the project is under review.</p>
    </div>
   )}
   {pendingDependencies>0&&<div role="status" className="work-state-message"><strong>Waiting for {pendingDependencies} prerequisite task{pendingDependencies===1?'':'s'}</strong><span>Starting work and final submission both wait until every prerequisite task is completed and approved.</span></div>}

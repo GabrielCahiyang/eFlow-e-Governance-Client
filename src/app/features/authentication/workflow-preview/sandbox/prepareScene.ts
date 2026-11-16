@@ -74,13 +74,14 @@ export async function prepareScene(scene: string) {
       await click("New task");
       await fill("Task name", "Prepare seminar materials");
       return;
+    case "return-funding":
+      reveal(await button("Return unused to project"));
+      return;
     case "project-funding":
     case "save-project":
-    case "return-funding":
-      await click(scene === "return-funding" ? "Manage project funding" : "Continue project setup");
+      await click("Continue project setup");
       if (scene === "save-project") { await click("05 Review"); return; }
       await click("04 Funding");
-      if (scene === "return-funding") { reveal(await button("Return unused to project")); return; }
       await fill("Office Budget source", ids.source);
       await fill("Amount", "40000");
       await fill("Reason / approved authority reference", "Approved seminar work program");

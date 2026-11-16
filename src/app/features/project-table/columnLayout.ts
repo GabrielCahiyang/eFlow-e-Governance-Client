@@ -13,13 +13,13 @@ export const DEFAULT_COLUMN_WIDTHS = Object.fromEntries(Object.entries(COLUMN_LA
 export const COMPACT_HIDDEN_COLUMNS: ProjectColumn[] = ['office', 'effort', 'dependencies', 'progress'];
 export const COMPACT_COLUMN_WIDTHS: ColumnWidths = {
   ...DEFAULT_COLUMN_WIDTHS,
-  task: 224,
-  owner: 158,
+  task: 294,
+  owner: 118,
   status: 132,
   timeline: 148,
   priority: 92,
-  budget: 110,
-  actualExpenses: 116,
+  budget: 104,
+  actualExpenses: 108,
 };
 export function boundedColumnWidth(id: ResizableColumn, value: unknown) {
   const rule = COLUMN_LAYOUT[id];

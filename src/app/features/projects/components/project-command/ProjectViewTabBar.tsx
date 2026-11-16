@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Tab, TabList, TabsContext } from "@vibe/core";
 import { CloseSmall } from "@vibe/icons";
+import { WorkspaceTooltip } from "../../../../components/ui/workspace";
 import { ProjectViewMenus } from "./ProjectViewMenus";
 import { OPTIONAL_VIEWS_CATALOG, PERMANENT_TABS, resolveProjectView } from "./projectViewCatalog";
 import { useWorkspaceScope } from '../../../workspaces';
@@ -98,7 +99,7 @@ export function ProjectViewTabBar({
           </TabList>
         </TabsContext>
       </div>
-      {activeOptional && <button type="button" className="eflow-project-view-trigger" title={`Close ${OPTIONAL_VIEWS_CATALOG.find(view=>view.id===activeOptional)?.label}`} aria-label={`Close ${OPTIONAL_VIEWS_CATALOG.find(view=>view.id===activeOptional)?.label}`} onClick={()=>closeView(activeOptional)}><CloseSmall size={16}/></button>}
+      {activeOptional && <WorkspaceTooltip content={`Close ${OPTIONAL_VIEWS_CATALOG.find(view=>view.id===activeOptional)?.label}`}><button type="button" className="eflow-project-view-trigger" aria-label={`Close ${OPTIONAL_VIEWS_CATALOG.find(view=>view.id===activeOptional)?.label}`} onClick={()=>closeView(activeOptional)}><CloseSmall size={16}/></button></WorkspaceTooltip>}
       {/* Fixed action lane; menus render in portals outside every scrolling ancestor. */}
       <ProjectViewMenus openViews={openViews} overflowViews={overflowOptionalViews} onOpenView={viewId => {
         if (OPTIONAL_VIEWS_CATALOG.some(view => view.id === viewId)) {

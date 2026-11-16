@@ -13,9 +13,9 @@ export function WorkNodeActionMenu({label,actions,compact=false,prominent=false}
   if(editorActions.has(action.id))handoff.current=action.onSelect;
   else action.onSelect();
  }}));
- return <ActionMenu onCloseAutoFocus={event=>{
+ return <ActionMenu tooltip={compact||!prominent?'Subtask actions':undefined} onCloseAutoFocus={event=>{
   const action=handoff.current;
   if(!action)return;
   event.preventDefault();handoff.current=null;action();
- }} trigger={<button type="button" className={`nw-hierarchy-control${prominent?' nw-hierarchy-control--primary':''}`} aria-label={label}>{compact?<MoreHorizontal size={16} aria-hidden="true"/>:prominent?<><Plus size={17} aria-hidden="true"/>Subtask actions<ChevronDown size={15} aria-hidden="true"/></>:'Actions'}</button>} actions={menuActions}/>;
+ }} trigger={<button type="button" className={`nw-hierarchy-control${prominent?' nw-hierarchy-control--primary':''}`} aria-label={label}>{prominent?<><Plus size={17} aria-hidden="true"/>Subtask actions<ChevronDown size={15} aria-hidden="true"/></>:<MoreHorizontal size={16} aria-hidden="true"/>}</button>} actions={menuActions}/>;
 }

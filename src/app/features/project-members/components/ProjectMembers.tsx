@@ -8,7 +8,7 @@ import { StatusPill } from '../../../components/ui/workspace/StatusPill';
 import { useAuth } from '../../../contexts/AuthContext';
 import { requestNavigation } from '../../../shared/navigationGuard';
 import type { Organization, UserProfile } from '../../../types';
-import { ACCESS_CHANGED_EVENT, fetchAccess, ProjectAccessPanel, RemovalDialog, type AccessSnapshot } from '../../project-access';
+import { ACCESS_CHANGED_EVENT, fetchAccess, RemovalDialog, type AccessSnapshot } from '../../project-access';
 import { ProjectInvitations } from '../../project-invitations';
 import { ProjectPeoplePage, useProjectOfficeContext } from '../../project-offices';
 import type { Task } from '../../tasks';
@@ -94,7 +94,7 @@ function MembersContent({ projectId, projectStatus, projectTitle, governed = fal
   return <section className="r7-members project-members" aria-label="Project Members">
     <header className="project-members-header">
       <div>
-        <h2>Project members</h2>
+        <h2>Members</h2>
         {data && <p role="status">{filter ? `${visible.length} of ${data.members.length}` : data.members.length} {data.members.length === 1 ? 'member' : 'members'}</p>}
       </div>
       <label className="project-members-search">
@@ -138,7 +138,6 @@ function MembersContent({ projectId, projectStatus, projectTitle, governed = fal
 
     <div className="project-members-access-tools">
       <ProjectInvitations project={projectId} />
-      <ProjectAccessPanel project={projectId} onChange={reload} />
     </div>
 
     {removing && <RemovalDialog project={projectId} user={removing.user_id} office={data?.kind === 'personal' ? null : removing.office}

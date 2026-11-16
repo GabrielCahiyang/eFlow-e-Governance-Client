@@ -18,7 +18,7 @@ interface ProjectViewMenusProps {
 export function ProjectViewMenus({ openViews, overflowViews, onOpenView, onCloseView, hasProposalContext }: ProjectViewMenusProps) {
   const [addViewOpen, setAddViewOpen] = useState(false);
   const availableViews = [...CORE_VIEWS_CATALOG, ...OPTIONAL_VIEWS_CATALOG].filter(view =>
-    view.id !== 'settings' && (!view.requiresProposal || hasProposalContext));
+    !view.requiresProposal || hasProposalContext);
 
   return (
     <div className="eflow-workspace-tabs__actions shrink-0">

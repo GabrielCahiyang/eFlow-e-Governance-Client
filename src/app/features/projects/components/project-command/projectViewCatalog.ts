@@ -9,6 +9,7 @@ export const PERMANENT_TABS: { id: PermanentProjectView; label: string }[] = [
   { id: "members", label: "Members" },
   { id: "budget", label: "Budget" },
   { id: "analytics", label: "Analytics" },
+  { id: "settings", label: "Settings" },
 ];
 
 const CORE_VIEW_DETAILS: Record<PermanentProjectView, { category: "Project" | "Insights"; description: string }> = {
@@ -17,6 +18,7 @@ const CORE_VIEW_DETAILS: Record<PermanentProjectView, { category: "Project" | "I
   members: { category: "Project", description: "View project members, office roles, and access." },
   budget: { category: "Insights", description: "Track allocated funds, line items, petty cash, and receipts." },
   analytics: { category: "Insights", description: "Monitor progress, workload, and delivery metrics." },
+  settings: { category: "Project", description: "Edit project details, scope, lead, and schedule." },
 };
 
 export const CORE_VIEWS_CATALOG: ProjectViewMeta<PermanentProjectView>[] = PERMANENT_TABS.map(view => ({
@@ -27,12 +29,9 @@ export const CORE_VIEWS_CATALOG: ProjectViewMeta<PermanentProjectView>[] = PERMA
 export const OPTIONAL_VIEWS_CATALOG: ProjectViewMeta[] = [
   // Project
   { id: "board", label: "Board", category: "Project", description: "Organize and move tasks across status columns." },
-  { id: "gantt", label: "Gantt", category: "Project", description: "Plan schedules, timelines, and task dependencies." },
+  { id: "gantt", label: "Gantt", category: "Project", description: "Plan schedules, milestones, and task dependencies." },
   { id: "calendar", label: "Calendar", category: "Project", description: "View task deadlines on a monthly calendar." },
-  { id: "offices", label: "Offices", category: "Project", description: "See participating offices and their assigned work." },
-  { id: "overview", label: "Overview", category: "Project", description: "Project delivery summary, milestones, and attention items." },
-  { id: "timeline", label: "Timeline", category: "Project", description: "Milestone planning and schedule tools." },
-  { id: "settings", label: "Settings", category: "Project", description: "Project details, schedule, and setup checks." },
+  { id: "overview", label: "Overview", category: "Project", description: "Project summary, milestones, and attention items." },
   {
     id: "reports",
     label: "Reports",
@@ -52,19 +51,11 @@ export const OPTIONAL_VIEWS_CATALOG: ProjectViewMeta[] = [
     category: "Project",
     description: "See who changed the project or its tasks, what changed, and when.",
   },
-
-  // Insights
-  {
-    id: "dashboard",
-    label: "Dashboard",
-    category: "Insights",
-    description: "View key project stats and upcoming deadlines.",
-  },
 ];
 
 /** Existing URL/prop aliases resolve to the same project view; unknown values are ignored. */
 export function resolveProjectView(value: string | null | undefined): ProjectCommandTab | null {
-  const aliases: Record<string, ProjectCommandTab> = { plan: 'timeline', delivery: 'timeline', work: 'tasks', people: 'offices', team: 'offices', workload: 'offices', readiness: 'overview', signoff: 'offices', evidence: 'reviews', decisions: 'activity', 'audit-trail': 'activity', main_table: 'tasks', 'main-table': 'tasks', 'proposal-context': 'proposal_context' };
+  const aliases: Record<string, ProjectCommandTab> = { plan: 'gantt', delivery: 'gantt', timeline: 'gantt', dashboard: 'overview', work: 'tasks', offices: 'members', people: 'members', team: 'members', workload: 'members', readiness: 'overview', signoff: 'members', evidence: 'reviews', decisions: 'activity', 'audit-trail': 'activity', main_table: 'tasks', 'main-table': 'tasks', 'proposal-context': 'proposal_context' };
   if (!value) return null;
   return Object.prototype.hasOwnProperty.call(aliases, value) ? aliases[value] : ([...PERMANENT_TABS, ...OPTIONAL_VIEWS_CATALOG].some(view => view.id === value) ? value as ProjectCommandTab : null);
 }

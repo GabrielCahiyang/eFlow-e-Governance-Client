@@ -4,6 +4,7 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import listPlugin from "@fullcalendar/list";
 import interactionPlugin from "@fullcalendar/interaction";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { WorkspaceTooltip } from "../../../../components/ui/workspace";
 import type { UserProfile, Organization } from "../../../../types";
 import type { ProjectCommandData } from "./types";
 import { isOverdue, type Task } from "../../../tasks";
@@ -313,29 +314,35 @@ export function ProjectCalendarView({
         <div className="flex flex-wrap items-center gap-2">
           {/* Navigation Controls */}
           <div className="flex items-center gap-1 rounded-lg border border-neutral-200 bg-white p-0.5 shadow-2xs">
-            <button
-              type="button"
-              className="eflow-cal-nav-btn"
-              onClick={handlePrev}
-              aria-label="Previous period"
-            >
-              <ChevronLeft size={16} />
-            </button>
-            <button
-              type="button"
-              className="eflow-cal-today-btn px-2.5 py-1 text-xs font-semibold text-neutral-700 hover:bg-neutral-100 rounded-md transition"
-              onClick={handleToday}
-            >
-              Today
-            </button>
-            <button
-              type="button"
-              className="eflow-cal-nav-btn"
-              onClick={handleNext}
-              aria-label="Next period"
-            >
-              <ChevronRight size={16} />
-            </button>
+            <WorkspaceTooltip content="Previous period">
+              <button
+                type="button"
+                className="eflow-cal-nav-btn"
+                onClick={handlePrev}
+                aria-label="Previous period"
+              >
+                <ChevronLeft size={16} />
+              </button>
+            </WorkspaceTooltip>
+            <WorkspaceTooltip content="Jump to today">
+              <button
+                type="button"
+                className="eflow-cal-today-btn px-2.5 py-1 text-xs font-semibold text-neutral-700 hover:bg-neutral-100 rounded-md transition"
+                onClick={handleToday}
+              >
+                Today
+              </button>
+            </WorkspaceTooltip>
+            <WorkspaceTooltip content="Next period">
+              <button
+                type="button"
+                className="eflow-cal-nav-btn"
+                onClick={handleNext}
+                aria-label="Next period"
+              >
+                <ChevronRight size={16} />
+              </button>
+            </WorkspaceTooltip>
           </div>
 
           {/* Current Month / Period Display */}

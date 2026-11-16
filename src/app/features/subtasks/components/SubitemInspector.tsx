@@ -25,6 +25,7 @@ export interface SubitemInspectorProps {
  canManageDeadline?:boolean;currentReviewerId?:string;prerequisite?:Subtask|null;origin?:TaskInspectorOrigin;
  onClose:()=>void;onChanged?:()=>void;onReviewItem?:(id:string)=>void;
  initialSection?:'work'|'activity'|'review';
+ presentation?:'drawer'|'page'|'dialog';
 }
 export function SubitemInspector(props:SubitemInspectorProps){
  const {user}=useAuth(),key=JSON.stringify([user?.id,props.rootTask.id,props.itemId]);
@@ -47,7 +48,7 @@ function SubitemInspectorContent(props:SubitemInspectorProps&{controller:WorkTre
  const context=tree?{actorId:user?.id||null,rootId:props.rootTask.id,projectId:tree.root.project,officeId:tree.root.office,kind:tree.root.kind,revision:tree.revision,readOnly:scopeReadOnly,executionBlocked:!!props.executionBlocked}:undefined;
  const reviewNode=(id:string)=>openItem(id);
  const loadError=data.error||(tree&&!scopeMatches?'Subtask unavailable in this project or Office.':'');
- if(!node||!tree||!data.data||!scopeMatches)return <><InspectorSurface presentation="page" open onClose={close} ariaLabel={data.loading&&!loadError?'Loading subtask':'Subtask unavailable'} layer={60} className="w-full sm:w-[460px]" returnFocus={origin.returnFocus} onReturnFocus={origin.restoreFocus}>
+ if(!node||!tree||!data.data||!scopeMatches)return <><InspectorSurface presentation={props.presentation||'page'} open onClose={close} ariaLabel={data.loading&&!loadError?'Loading subtask':'Subtask unavailable'} layer={60} className="w-full sm:w-[460px]" returnFocus={origin.returnFocus} onReturnFocus={origin.restoreFocus}>
   <SubtaskLoadState loading={data.loading&&!loadError} error={loadError} onRetry={()=>void data.reload()} onClose={close}/>
  </InspectorSurface></>;
  const current:Subtask={...data.data.subtask,customStatusId:node.custom_status_id === undefined ? data.data.subtask.customStatusId : node.custom_status_id ?? undefined,title:node.title,parentSubtaskId:node.parent_subtask_id||undefined,leadId:node.lead_id||undefined,
@@ -103,7 +104,7 @@ function SubitemInspectorContent(props:SubitemInspectorProps&{controller:WorkTre
   root={tree.root.id} node={itemId} actor={actorId} status={current.status} initialBlocker={data.data.progressUpdates[0]?.blocker||''} readOnly={scopeReadOnly||startPaused} pending={data.pending}
   blocked={reviewBlocked} completionBlocked={unfinishedChild?'Complete the child subtasks first.':undefined}
   reviewerName={tree.people.find(person=>person.id===tree.root.lead)?.name} onChanged={reload}/>:undefined;
- return <InspectorSurface presentation="page" open onClose={close} ariaLabel={`Subtask: ${node.title}`} returnFocus={origin.returnFocus} onReturnFocus={origin.restoreFocus}>
+ return <InspectorSurface presentation={props.presentation||'page'} open onClose={close} ariaLabel={`Subtask: ${node.title}`} returnFocus={origin.returnFocus} onReturnFocus={origin.restoreFocus}>
   <SubitemContext stuck={!!data.data.progressUpdates[0]?.blocker} node={node} tree={tree} rootTitle={props.rootTask.title} onOpenItem={openItem} onClose={close}/>
   <nav className="task-page__tabs" aria-label="Subtask sections">{(['work','activity'] as const).map(value=><button key={value} type="button" aria-current={section===value?'page':undefined} onClick={()=>void requestNavigation(()=>setSection(value))}>{value==='work'?'Work':'Activity'}</button>)}</nav>
   <div className="task-page__body subitem-page-body">

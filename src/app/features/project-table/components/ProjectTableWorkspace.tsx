@@ -37,7 +37,7 @@ import '../tableLayout.css';
 import { matchesProjectDateRange, type ProjectViewFilterState } from '../../project-views';
 import { useProjectOfficeContext, canStaffProjectOffice } from '../../project-offices';
 import type { TaskInspectorOrigin } from '../../task-inspector';
-export function ProjectTableWorkspace({data,profiles,orgs,canManage,planningOnly=false,canEditProjectWork=false,onOpenTask,onOpenLegacyBoard,sharedFilters,onFiltersChange,importRevision=0,importGroupId=''}:{data:ProjectCommandData;profiles:UserProfile[];orgs:Organization[];canManage:boolean;planningOnly?:boolean;canEditProjectWork?:boolean;onOpenTask:(id:string,section?:TaskInspectorOrigin['section'])=>void;onOpenLegacyBoard:()=>void;sharedFilters?:ProjectViewFilterState;onFiltersChange?:(value:ProjectViewFilterState)=>void;importRevision?:number;importGroupId?:string}){
+export function ProjectTableWorkspace({data,profiles,orgs,canManage,planningOnly=false,canEditProjectWork=false,onOpenTask,onOpenLegacyBoard,sharedFilters,onFiltersChange,importRevision=0,importGroupId=''}:{data:ProjectCommandData;profiles:UserProfile[];orgs:Organization[];canManage:boolean;planningOnly?:boolean;canEditProjectWork?:boolean;onOpenTask:(id:string,section?:TaskInspectorOrigin['section'])=>void;onOpenLegacyBoard?:()=>void;sharedFilters?:ProjectViewFilterState;onFiltersChange?:(value:ProjectViewFilterState)=>void;importRevision?:number;importGroupId?:string}){
  const {user,userProfile}=useAuth();const userId=user?.id||userProfile?.id||'',officeId=userProfile?.org_id||userProfile?.departmentId||'';
  const officeState=useProjectOfficeContext();
  const ownOffice=officeState.offices.find(o=>o.office_id===officeId);

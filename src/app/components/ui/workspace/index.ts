@@ -17,3 +17,4 @@ export { WorkspaceSkeleton } from "./WorkspaceSkeleton";
 export { EmptyWorkspaceState } from "./EmptyWorkspaceState";
 
 export { ReviewSectionNav, type ReviewSection } from "./ReviewSectionNav";
+export { TableColumnResizer } from "./TableColumnResizer";

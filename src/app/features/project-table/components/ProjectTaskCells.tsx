@@ -8,12 +8,12 @@ import type { Organization, UserProfile } from '../../../types';
 import type { ProjectColumn, WorkspaceTaskPatch } from '../types';
 import { TimelineCell, DependencyCell, NumberCell } from './PlanningCells';
 import { supportsNestedWork, WorkRootOwner, type WorkTreeController } from '../../nested-work';
-import { AsyncSelectCell, PriorityCell } from '../../../components/ui/workspace';
+import { AsyncSelectCell, PriorityCell, WorkspaceTooltip } from '../../../components/ui/workspace';
 import '../cellEditors.css';
 
 function OwnerCell({ task, people, profiles, disabled, write }: { task: Task; people: UserProfile[]; profiles: UserProfile[]; disabled: boolean; write: (operation: () => Promise<void>) => Promise<void> }) {
   const owner = getTaskLeadId(task), person = profiles.find(profile => profile.id === owner), { confirm, dialog } = useConfirmation();
-  return <><div className="pt-owner"><span className="pt-avatar" aria-hidden="true">{person?.full_name?.split(' ').map(part => part[0]).slice(0, 2).join('') || '+'}</span>
+  return <><div className="pt-owner"><WorkspaceTooltip content={person?.full_name || 'Unassigned'}><span className="pt-avatar" tabIndex={0} aria-label={person?.full_name || 'Unassigned'}>{person?.full_name?.split(' ').map(part => part[0]).slice(0, 2).join('') || '+'}</span></WorkspaceTooltip>
     <AsyncSelectCell value={task.assigneeId || ''} label={'Owner for ' + task.title} disabled={disabled} onSave={async id => {
       const selected = people.find(profile => profile.id === id);
       if (!await confirm({ title: 'Change task lead', description: 'Appoint ' + (selected?.full_name || 'Unassigned') + ' for ' + task.title + '? Existing contributors are retained. Its responsible Office keeps control of staffing.', actionLabel: 'Confirm task lead' })) return false;

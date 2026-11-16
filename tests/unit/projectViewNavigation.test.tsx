@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ProjectViewTabBar } from '../../src/app/features/projects/components/project-command/ProjectViewTabBar';
+import { resolveProjectView } from '../../src/app/features/projects/components/project-command/projectViewCatalog';
 import type { ProjectCommandTab } from '../../src/app/features/projects/components/project-command/types';
 
 beforeEach(() => {
@@ -17,9 +18,9 @@ function Views({ initial = 'tasks' }: { initial?: ProjectCommandTab }) {
 }
 
 describe('project view navigation', () => {
-  it('exposes the 5 core permanent tabs and switches back to Main table without adding optional storage', async () => {
+  it('exposes the 6 core permanent tabs and switches back to Main table without adding optional storage', async () => {
     render(<Views initial="reviews" />);
-    for (const label of ['Main table', 'Reviews', 'Members', 'Budget', 'Analytics']) {
+    for (const label of ['Main table', 'Reviews', 'Members', 'Budget', 'Analytics', 'Settings']) {
       expect(screen.getByRole('tab', { name: label, exact: true })).toBeTruthy();
     }
     expect(screen.getByRole('tab', { name: 'Reviews', exact: true }).getAttribute('aria-selected')).toBe('true');
@@ -35,7 +36,6 @@ describe('project view navigation', () => {
     const menu = await screen.findByRole('dialog', { name: 'Browse project views' });
     expect(container.contains(menu)).toBe(false);
     expect(screen.queryByRole('button', { name: 'Proposal Context', exact: true })).toBeNull();
-    expect(screen.queryByRole('button', { name: 'Settings', exact: true })).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Board', exact: true }));
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
     expect(screen.getByRole('tab', { name: 'Board', exact: true }).getAttribute('aria-selected')).toBe('true');
@@ -51,7 +51,7 @@ describe('project view navigation', () => {
   });
 
   it('keeps an active overflow view selected and exposes the displaced view in More', async () => {
-    localStorage.setItem('eflow_project_views_project-a', JSON.stringify(['overview', 'timeline', 'reports', 'activity', 'proposal_context', 'board']));
+    localStorage.setItem('eflow_project_views_project-a', JSON.stringify(['overview', 'gantt', 'reports', 'activity', 'proposal_context', 'board']));
     render(<Views initial="board" />);
     expect(screen.getByRole('tab', { name: 'Board', exact: true }).getAttribute('aria-selected')).toBe('true');
     fireEvent.keyDown(screen.getByRole('button', { name: 'More (2)' }), { key: 'Enter' });
@@ -60,22 +60,28 @@ describe('project view navigation', () => {
   });
 
   it('returns to Main table when the only optional view is closed with the keyboard', async () => {
-    render(<Views initial="timeline" />);
-    fireEvent.click(screen.getByRole('button', { name: 'Close Timeline', exact: true }));
-    expect(screen.queryByRole('tab', { name: 'Timeline', exact: true })).toBeNull();
+    render(<Views initial="gantt" />);
+    fireEvent.click(screen.getByRole('button', { name: 'Close Gantt', exact: true }));
+    expect(screen.queryByRole('tab', { name: 'Gantt', exact: true })).toBeNull();
     expect(screen.getByRole('tab', { name: 'Main table' }).getAttribute('aria-selected')).toBe('true');
     await waitFor(() => expect(localStorage.getItem('eflow_project_views_project-a')).toBe('[]'));
   });
 
   it('keeps saved views scoped to their project when the project changes', async () => {
     localStorage.setItem('eflow_project_views_project-a', '["overview"]');
-    localStorage.setItem('eflow_project_views_project-b', '["timeline"]');
+    localStorage.setItem('eflow_project_views_project-b', '["gantt"]');
     const onSelectTab = vi.fn();
     const { rerender } = render(<ProjectViewTabBar projectId="project-a" activeTab="tasks" onSelectTab={onSelectTab} />);
     expect(screen.getByRole('tab', { name: 'Overview', exact: true })).toBeTruthy();
     rerender(<ProjectViewTabBar projectId="project-b" activeTab="tasks" onSelectTab={onSelectTab} />);
     expect(screen.queryByRole('tab', { name: 'Overview', exact: true })).toBeNull();
-    expect(screen.getByRole('tab', { name: 'Timeline', exact: true })).toBeTruthy();
+    expect(screen.getByRole('tab', { name: 'Gantt', exact: true })).toBeTruthy();
     await waitFor(() => expect(localStorage.getItem('eflow_project_views_project-a')).toBe('["overview"]'));
+  });
+
+  it('resolves unified legacy timeline and dashboard URLs to Gantt and Overview', () => {
+    expect(resolveProjectView('timeline')).toBe('gantt');
+    expect(resolveProjectView('plan')).toBe('gantt');
+    expect(resolveProjectView('dashboard')).toBe('overview');
   });
 });

@@ -43,6 +43,51 @@
   font-size: 12px;
   text-align: center;
 }
+.po-search-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  border: 1px solid var(--border, #cbd2df);
+  border-radius: 8px;
+  background: var(--eflow-surface, #fff);
+  color: var(--muted-foreground, #637183);
+}
+.po-search-field:focus-within {
+  outline: 2px solid var(--primary, #087f8c);
+  outline-offset: 2px;
+}
+.po-search-field .po-search {
+  border: 0;
+  padding: 10px 0;
+  min-height: 40px;
+  background: transparent;
+  color: var(--foreground, #1e293b);
+  outline: none;
+}
+.po-member-empty {
+  padding: 20px 16px;
+  font-size: 13px;
+  color: var(--muted-foreground, #637183);
+  text-align: center;
+}
+.eflow-project-people-dialog .po-member-list {
+  max-height: min(360px, 46dvh);
+}
+.po-member-editor footer {
+  justify-content: space-between;
+  align-items: center;
+}
+.po-member-summary {
+  font-size: 12px;
+  color: var(--muted-foreground, #637183);
+}
+.po-member-footer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-left: auto;
+}
 @media (max-width: 540px) {
   .po-member-access-heading, .po-member-access-row { grid-template-columns: minmax(0, 1fr) 5.5rem; }
   .po-member-editor .po-member-access-person .po-avatar { display: none; }
