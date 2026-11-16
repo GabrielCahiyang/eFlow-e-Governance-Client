@@ -1,4 +1,5 @@
 import {supabase} from '../../lib/supabase';
+import {evictQueryDomain} from './queryCache';
 
 type Listener={rootId?:string;refresh:()=>void};
 const listeners=new Set<Listener>();
@@ -10,8 +11,10 @@ function changed(rootId?:string){
   if(queued!==undefined)return;
   queued=setTimeout(()=>{
     queued=undefined;const changedRoots=new Set(roots),every=all;roots.clear();all=false;
+    if(every)evictQueryDomain('work-tree');
+    else for(const id of changedRoots)evictQueryDomain('work-tree',id);
     for(const listener of listeners)if(every||!listener.rootId||changedRoots.has(listener.rootId))listener.refresh();
-  },30);
+  },300);
 }
 const localChange=(event:Event)=>changed((event as CustomEvent<{taskId?:string}>).detail?.taskId);
 /** Realtime invalidates authorized reads; its payload never becomes UI/cache data.

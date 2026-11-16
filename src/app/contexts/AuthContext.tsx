@@ -129,19 +129,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         subscribed = true;
       });
 
+    let lastVisibleRefresh = Date.now();
     const refreshFromAppEvent = () => refreshPermissions(true);
     const refreshFromStorage = (event: StorageEvent) => {
       if (event.key === PERMISSIONS_CHANGED_STORAGE_KEY) refreshPermissions(true);
     };
     const refreshWhenVisible = () => {
-      if (document.visibilityState === 'visible') refreshPermissions();
+      if (document.visibilityState !== 'visible') return;
+      const now = Date.now();
+      if (now - lastVisibleRefresh < 30_000) return;
+      lastVisibleRefresh = now;
+      refreshPermissions();
     };
     window.addEventListener(PERMISSIONS_CHANGED_EVENT, refreshFromAppEvent);
     window.addEventListener('storage', refreshFromStorage);
     window.addEventListener('focus', refreshWhenVisible);
     window.addEventListener('online', refreshWhenVisible);
     document.addEventListener('visibilitychange', refreshWhenVisible);
-    const fallback = window.setInterval(refreshWhenVisible, 60_000);
+    const fallback = window.setInterval(refreshWhenVisible, 120_000);
 
     return () => {
       active = false;
@@ -234,13 +239,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     };
     void refreshProfile();
+    let lastVisibleProfileRefresh = Date.now();
     const refreshWhenVisible = () => {
-      if (document.visibilityState === 'visible') void refreshProfile();
+      if (document.visibilityState !== 'visible') return;
+      const now = Date.now();
+      if (now - lastVisibleProfileRefresh < 30_000) return;
+      lastVisibleProfileRefresh = now;
+      void refreshProfile();
     };
     window.addEventListener('focus', refreshWhenVisible);
     window.addEventListener('online', refreshWhenVisible);
     document.addEventListener('visibilitychange', refreshWhenVisible);
-    const fallback = window.setInterval(refreshWhenVisible, 60_000);
+    const fallback = window.setInterval(refreshWhenVisible, 120_000);
 
     let subscribed = false;
     const profileChannel = supabase

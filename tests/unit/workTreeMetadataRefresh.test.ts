@@ -3,11 +3,13 @@ import type {WorkRequest,WorkTreeSnapshot} from '../../src/app/features/nested-w
 const mocks=vi.hoisted(()=>({rpc:vi.fn(),refresh:vi.fn(),session:vi.fn()}));
 vi.mock('../../src/lib/supabase',()=>({supabase:{rpc:mocks.rpc,auth:{getSession:mocks.session}}}));
 vi.mock('../../src/app/features/tasks',()=>({notifyTaskListeners:mocks.refresh}));
-import {fetchWorkTree,saveWorkTree} from '../../src/app/features/nested-work/services/workTreeService';
+import {fetchWorkTree,fetchWorkTreeCached,saveWorkTree} from '../../src/app/features/nested-work/services/workTreeService';
+import {purgeAllQueryCaches} from '../../src/app/shared/queryCache';
 const snapshot:WorkTreeSnapshot={root:{id:'root',project:'project',office:'office',lead:'selected-lead',people:['selected-lead'],kind:'office',open:true,due:null},nodes:[],people:[{id:'selected-lead',name:'Selected Lead',eligible:true}],revision:2,can_manage:true,can_transfer:true,leaf_total:0,leaf_completed:0};
 const request:WorkRequest={id:'stable-request',revision:1,command:'root_lead',payload:{lead:'selected-lead',people:['selected-lead']},impactFingerprint:'reviewed-impact'};
 beforeEach(()=>{
  vi.clearAllMocks();
+ purgeAllQueryCaches();
  mocks.session.mockResolvedValue({data:{session:{user:{id:'actor'},access_token:'token'}},error:null});
  mocks.rpc.mockResolvedValue({data:snapshot,error:null});
  mocks.refresh.mockResolvedValue(undefined);
@@ -29,11 +31,23 @@ it('retains the confirmed save receipt when a secondary metadata read fails, wit
  expect(await saveWorkTree('root',request)).toBe(snapshot);
  expect(mocks.rpc).toHaveBeenCalledTimes(1);
 });
-it('never refreshes metadata or switches RPC after a denial or unverified receipt',async()=>{
+ it('never refreshes metadata or switches RPC after a denial or unverified receipt',async()=>{
  mocks.rpc.mockResolvedValue({data:null,error:{code:'42501',message:'Current appointment authority denied'}});
  await expect(saveWorkTree('root',request)).rejects.toThrow('Current appointment authority denied');
  expect(mocks.refresh).not.toHaveBeenCalled();
  mocks.rpc.mockResolvedValue({data:{...snapshot,root:{...snapshot.root,id:'other-root'}},error:null});
  await expect(saveWorkTree('root',request)).rejects.toThrow('No work receipt');
  expect(mocks.refresh).not.toHaveBeenCalled();expect(mocks.rpc.mock.calls.every(([name])=>name==='nw_work_command')).toBe(true);
+});
+it('coalesces concurrent fetchWorkTree calls and caches snapshots for feed reuse',async()=>{
+ let release!:(value:unknown)=>void;
+ mocks.rpc.mockImplementationOnce(()=>new Promise(resolve=>{release=resolve;}));
+ const first=fetchWorkTree('root');
+ const second=fetchWorkTree('root');
+ await vi.waitFor(()=>expect(mocks.rpc).toHaveBeenCalledTimes(1));
+ release({data:snapshot,error:null});
+ expect(await Promise.all([first,second])).toEqual([snapshot,snapshot]);
+ expect(await fetchWorkTreeCached('root',20_000)).toEqual(snapshot);
+ expect(await fetchWorkTreeCached('root',20_000)).toEqual(snapshot);
+ expect(mocks.rpc).toHaveBeenCalledTimes(2);
 });

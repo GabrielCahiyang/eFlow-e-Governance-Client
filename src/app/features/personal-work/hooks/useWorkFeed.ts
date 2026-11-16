@@ -111,24 +111,27 @@ export function useWorkFeed(userId: string, scope?: WorkScope) {
     void executeLoad(false);
     const timer = window.setInterval(() => {
       if (!inFlight.current && isDocumentVisible()) void executeLoad(false);
-    }, 15000);
+    }, 30000);
     const handleRefresh = () => {
       void executeLoad(true);
+    };
+    const handleResume = () => {
+      if (!inFlight.current && isDocumentVisible()) void executeLoad(false);
     };
     const handleAccessChange = () => {
       evictQueryDomain(WORK_FEED_DOMAIN, key);
       setState({ key, loading: true, refreshing: false });
       handleRefresh();
     };
-    window.addEventListener("focus", handleRefresh);
-    window.addEventListener("online", handleRefresh);
+    window.addEventListener("focus", handleResume);
+    window.addEventListener("online", handleResume);
     const stopWorkChanges = subscribeWorkChanges(handleRefresh);
     window.addEventListener(ACCESS_CHANGED_EVENT, handleAccessChange);
     return () => {
       ++generation.current;
       clearInterval(timer);
-      window.removeEventListener("focus", handleRefresh);
-      window.removeEventListener("online", handleRefresh);
+      window.removeEventListener("focus", handleResume);
+      window.removeEventListener("online", handleResume);
       stopWorkChanges();
       window.removeEventListener(ACCESS_CHANGED_EVENT, handleAccessChange);
     };

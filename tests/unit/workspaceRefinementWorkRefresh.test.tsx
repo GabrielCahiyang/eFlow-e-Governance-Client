@@ -118,6 +118,7 @@ describe("R10 access-sensitive feed lifecycle", () => {
     await act(async () => next.resolve(data));
     expect(view.result.current.data).toEqual(data);
     await act(async () => vi.advanceTimersByTime(15000));
+    await act(async () => vi.advanceTimersByTime(30000));
     expect(api.load).toHaveBeenCalledTimes(2);
   });
   it("clears rows during actor changes and ignores late responses from the old actor", async () => {

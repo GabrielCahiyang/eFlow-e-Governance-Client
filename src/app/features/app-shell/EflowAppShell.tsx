@@ -37,7 +37,6 @@ import { getNavigationActionAlerts } from "./navigationActionAlerts";
 import {useContextDestinations} from './useContextDestinations';
 import {NAVIGATION_LOCATION_EVENT} from '../../shared/navigationHistory';
 import { usePendingPlanDrafts } from "./usePendingPlanDrafts";
-import { LoadingScreen } from "./LoadingScreen";
 import { useStartupWarmup } from "./useStartupWarmup";
 import { getDescendantOrgIds } from "../../../lib/supabaseService";
 import { OnboardingWorkspace } from "../onboarding";
@@ -258,17 +257,16 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
   const blockedScope = !['personal_work','inbox'].includes(activeSection)&&operational && (workspaceState.loading || (!currentWorkspace && (explicitWorkspace || Boolean(workspaceState.error && !workspaceState.unavailable))));
   const workspaceScope = currentWorkspace ? { workspace: currentWorkspace, userId: userId || '', officeProjectIds: (workspaceState.snapshot?.projects || []).filter(p=>p.kind==='office').map(p=>p.id), projectIds: (workspaceState.snapshot?.projects || []).filter(p=>!p.shortcut).map(p=>p.id), includeCreatedOfficeProject: workspaceState.includeCreatedOfficeProject } : null;
 
-  const warmingStartup = useStartupWarmup({
+  useStartupWarmup({
     actorId: userId || "",
     role,
     officeId,
+    activeSection,
     fiscalYear: readRouteFiscalYear(new URLSearchParams(window.location.search).get("fy")),
     sections: new Set(navigationItems.map(item => item.id)),
     workspace: workspaceState.snapshot,
     officeTaskIds: scopeTasks(tasks, getDescendantOrgIds(orgs, userProfile?.org_id)).map(task => task.id),
   }, Boolean(userId) && !workspaceState.loading && !tasksLoading && !projectsLoading && !orgsLoading);
-
-  if (warmingStartup) return <LoadingScreen />;
 
   return (
     <MessagesProvider key={userId} userId={userId}>

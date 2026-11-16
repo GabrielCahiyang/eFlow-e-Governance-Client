@@ -6,7 +6,9 @@ import {workRpcFailure} from './workRequestOutcome';
 import {WorkRequestFailure} from '../types/editor';
 import {isWorkEventRecord} from '../selectors/workEventPresentation';
 import {integerError} from '../../../shared/numericValidation';
+import {loadWithQueryCache,writeCachedQuery} from '../../../shared/queryCache';
 export class WorkTreeUnavailable extends Error {}
+const inFlightTrees=new Map<string,Promise<WorkTreeSnapshot>>();
 // Identity is only for rejecting stale client presentation. The RPC remains the
 // authority. Context failures must not change existing reads/receipt contracts.
 async function clientSession(){
@@ -19,13 +21,24 @@ async function rememberResponse(data:WorkTreeSnapshot,before:Awaited<ReturnType<
  const after=await clientSession();
  if(before&&after&&before.actorId===after.actorId&&before.token===after.token)rememberWorkCapabilityContext(data,before.actorId);
 }
-export async function fetchWorkTree(root:string):Promise<WorkTreeSnapshot>{
- const before=await clientSession();
- const {data,error}=await supabase.rpc('r7_work_tree',{p_root:root});
- if(error){if(error.code==='PGRST202')throw new WorkTreeUnavailable('Nested work is not installed on this server yet.');throw Object.assign(new Error(error.message),{code:error.code});}
- if(!data?.root?.id||data.root.id!==root||!Array.isArray(data.nodes)||!Array.isArray(data.people))throw new Error('Could not verify the current work tree.');
- await rememberResponse(data,before);
- return data as WorkTreeSnapshot;
+export function fetchWorkTree(root:string):Promise<WorkTreeSnapshot>{
+ const existing=inFlightTrees.get(root);
+ if(existing)return existing;
+ const request=(async()=>{
+  const before=await clientSession();
+  const {data,error}=await supabase.rpc('r7_work_tree',{p_root:root});
+  if(error){if(error.code==='PGRST202')throw new WorkTreeUnavailable('Nested work is not installed on this server yet.');throw Object.assign(new Error(error.message),{code:error.code});}
+  if(!data?.root?.id||data.root.id!==root||!Array.isArray(data.nodes)||!Array.isArray(data.people))throw new Error('Could not verify the current work tree.');
+  await rememberResponse(data,before);
+  return data as WorkTreeSnapshot;
+ })().finally(()=>{
+  if(inFlightTrees.get(root)===request)inFlightTrees.delete(root);
+ });
+ inFlightTrees.set(root,request);
+ return request;
+}
+export function fetchWorkTreeCached(root:string,ttlMs=20_000):Promise<WorkTreeSnapshot>{
+ return loadWithQueryCache({domain:'work-tree',scope:root,ttlMs,fetcher:()=>fetchWorkTree(root)});
 }
 export async function saveWorkTree(root:string,request:WorkRequest):Promise<WorkTreeSnapshot>{
  if(request.command==='progress'){const issue=integerError(request.payload.progress,'Progress',0,99);if(issue)throw new WorkRequestFailure('confirmed_failure',issue);}
@@ -38,6 +51,7 @@ export async function saveWorkTree(root:string,request:WorkRequest):Promise<Work
   :await supabase.rpc('r7_work_command',terms);
  if(error)throw workRpcFailure(error);
  if(data?.root?.id!==root||!Array.isArray(data.nodes))throw new WorkRequestFailure('unknown_result','No work receipt was returned. Retry the same request.');
+ writeCachedQuery('work-tree',root,data as WorkTreeSnapshot,20_000);
  await rememberResponse(data,before);
  // These commands also change the existing Office task record. Refresh its
  // authorized subscribers from the confirmed receipt, without changing the

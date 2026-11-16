@@ -51,7 +51,7 @@ export function MessagesProvider({ userId, children }: { userId?: string; childr
     return () => { ++version.current; clearTimeout(timer); unsubscribe(); window.removeEventListener(CHAT_MESSAGES_CHANGED_EVENT, scheduleRefresh); };
   }, [userId, load, refresh]);
 
-  useVisibleRead(() => void refresh(), Boolean(userId));
+  useVisibleRead(() => void load(false), Boolean(userId));
   return <MessagesContext.Provider value={{ conversations, loading, error, refresh, outgoingCall, setOutgoingCall }}>
     {children}
     {outgoingCall && <CallModal call={outgoingCall} isCaller onClose={() => setOutgoingCall(undefined)} />}

@@ -17,8 +17,7 @@ test("warms Office Team during startup and reuses it on the first visit", async 
   await page.reload({ waitUntil: "domcontentloaded" });
   try {
     await expect.poll(() => teamReads).toBe(1);
-    await expect(page.getByRole("main", { name: "Loading eFlow" })).toBeVisible();
-    await expect(page.locator(".eflow-app-shell")).toHaveCount(0);
+    await expect(page.locator(".eflow-app-shell")).toBeVisible();
   } finally {
     releaseTeam();
   }
@@ -41,7 +40,7 @@ test("warms Office Team during startup and reuses it on the first visit", async 
   console.info("OFFICE_TEAM_NAVIGATION", { firstVisitMs, repeatVisitMs, teamReads });
 });
 
-test("shows a responsive workspace preview while the signed-in module loads", async ({ page }, info) => {
+test("keeps the unified loading screen visible while the signed-in module loads", async ({ page }) => {
   test.setTimeout(90_000);
   await page.setViewportSize({ width: 1440, height: 900 });
   await projectWorkspaceFixture(page, "head", false, { landingOnly: true });
@@ -53,26 +52,10 @@ test("shows a responsive workspace preview while the signed-in module loads", as
   });
 
   await page.reload({ waitUntil: "domcontentloaded" });
-  const loader = page.getByRole("status", { name: "Getting things done" });
-  const cards = loader.locator(".eflow-view-loading__cards");
-  const track = loader.locator(".eflow-view-loading__track span");
+  const loader = page.getByRole("main", { name: "Loading eFlow" });
   try {
     await expect(loader).toBeVisible({ timeout: 30_000 });
-    await expect(track).toHaveCSS("animation-name", "eflow-view-sweep");
-    await expect.poll(() => cards.evaluate(node => getComputedStyle(node).gridTemplateColumns.split(" ").length)).toBe(4);
-    await page.screenshot({ path: info.outputPath("workspace-loader-desktop.png") });
-
-    await page.setViewportSize({ width: 390, height: 844 });
-    await expect.poll(() => cards.evaluate(node => getComputedStyle(node).gridTemplateColumns.split(" ").length)).toBe(2);
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-    await page.screenshot({ path: info.outputPath("workspace-loader-phone.png") });
-
-    await page.setViewportSize({ width: 1440, height: 900 });
-    await page.emulateMedia({ reducedMotion: "reduce" });
-    await page.evaluate(() => document.documentElement.classList.add("dark"));
-    await expect(track).toHaveCSS("animation-name", "none");
-    await expect(loader.locator(".eflow-view-loading__frame")).toHaveCSS("background-color", "rgb(20, 46, 42)");
-    await page.screenshot({ path: info.outputPath("workspace-loader-dark.png") });
+    await expect(page.locator(".eflow-view-loading")).toHaveCount(0);
   } finally {
     release();
   }

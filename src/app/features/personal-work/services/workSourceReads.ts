@@ -29,7 +29,7 @@ export async function settledMap<T, R>(
   const results: PromiseSettledResult<R>[] = new Array(items.length);
   let index = 0;
   await Promise.all(
-    Array.from({ length: Math.min(4, items.length) }, async () => {
+    Array.from({ length: Math.min(2, items.length) }, async () => {
       while (index < items.length) {
         const current = index++;
         try {

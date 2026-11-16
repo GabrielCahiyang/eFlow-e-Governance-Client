@@ -8,8 +8,11 @@ import { lazyFeature } from "../../shared/lazyFeature";
 import { ActivateAccountPage } from '../account-activation';
 import { WorkStatusProvider } from '../work-status';
 
-const SignedInApp = lazyFeature(() =>
-  import("./SignedInApp").then((module) => ({ default: module.SignedInApp })),
+const SignedInApp = lazyFeature(
+  () => import("./SignedInApp").then((module) => ({ default: module.SignedInApp })),
+  undefined,
+  undefined,
+  <LoadingScreen />,
 );
 const AcceptInvitationPage = lazyFeature(() =>
   import("../invitations").then((module) => ({ default: module.AcceptInvitationPage })),
