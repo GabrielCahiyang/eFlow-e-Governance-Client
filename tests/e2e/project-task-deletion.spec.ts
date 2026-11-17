@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { projectWorkspaceFixture } from './fixtures/projectWorkspace';
 
-test('Head can delete a task, then delete its now-empty group', async ({ page }, info) => {
+test('Head can delete a task with an unstarted checklist, then delete its now-empty group', async ({ page }, info) => {
   test.setTimeout(120_000);
   await page.setViewportSize({ width: 1440, height: 1000 });
   const records = await projectWorkspaceFixture(page, 'head', false, { compactLayout: true });
@@ -54,7 +54,7 @@ test('member task menu does not expose Head deletion', async ({ page }) => {
   await expect(page.getByRole('menuitem', { name: 'Delete task', exact: true })).toHaveCount(0);
 });
 
-test('Head deletes a whole unstarted group after seeing its task and subitem counts', async ({ page }, info) => {
+test('Head deletes a whole unstarted group after seeing its task and subtask counts', async ({ page }, info) => {
   test.setTimeout(120_000);
   await page.setViewportSize({ width: 1440, height: 1000 });
   const records = await projectWorkspaceFixture(page, 'head', false, { compactLayout: true });
@@ -77,7 +77,7 @@ test('Head deletes a whole unstarted group after seeing its task and subitem cou
   await page.getByRole('menuitem', { name: 'Delete group', exact: true }).click();
   const confirmation = page.getByRole('alertdialog', { name: 'Delete Unstarted work?', exact: true });
   await expect(confirmation).toContainText('2 unstarted tasks');
-  await expect(confirmation).toContainText('2 tasks · 1 subitem');
+  await expect(confirmation).toContainText('2 tasks · 1 subtask');
   await confirmation.getByRole('button', { name: 'Cancel', exact: true }).click();
   expect(attempts).toBe(0);
   await menu.click();

@@ -37,3 +37,16 @@ it('rechecks access when the confirmation is accepted', async () => {
   expect(mocks.remove).not.toHaveBeenCalled();
   expect(hook.result.current.message).toContain('This task changed');
 });
+
+it('offers cancellation for started subtasks and blocks a deletion confirmed after a subtask starts', async () => {
+  let accept!: (value: boolean) => void;
+  mocks.confirm.mockImplementation(() => new Promise<boolean>(resolve => { accept = resolve; }));
+  const hook = renderHook(({ started }) => useProjectTaskDeletion(task, true, started), { initialProps: { started: false } });
+  expect(hook.result.current.label).toBe('Delete task');
+  let pending!: Promise<void>;
+  act(() => { pending = hook.result.current.remove(); });
+  hook.rerender({ started: true });
+  expect(hook.result.current.label).toBe('Cancel task');
+  await act(async () => { accept(true); await pending; });
+  expect(mocks.remove).not.toHaveBeenCalled();
+});

@@ -4,12 +4,13 @@ import { DecisionModal } from '../../../components/ui/DecisionModal';
 import { useReviewedMutation } from '../../../shared/useReviewedMutation';
 
 /** Uses the existing audited soft-delete command; project history is retained. */
-export function useProjectTaskDeletion(task: Task, allowed: boolean, hasSubtasks=false) {
-  const current = useRef({ task, allowed });
-  current.current = { task, allowed };
+export function useProjectTaskDeletion(task: Task, allowed: boolean, hasStartedSubtask=false) {
+  const cancel = ['in_progress','changes_requested'].includes(task.status) ||
+    (task.percentComplete ?? 0) !== 0 || !!task.subtaskCompletedCount || hasStartedSubtask;
+  const current = useRef({ task, allowed, cancel });
+  current.current = { task, allowed, cancel };
   const action = useReviewedMutation(`project-task-delete:${task.id}`);
   const [cancellation,setCancellation]=useState<{version:Task['updatedAt'];reason:string}>();
-  const cancel=['in_progress','changes_requested'].includes(task.status)||hasSubtasks;
   const label=cancel?'Cancel task':'Delete task';
   const remove = async () => {
     if (!allowed) return;
@@ -23,7 +24,7 @@ export function useProjectTaskDeletion(task: Task, allowed: boolean, hasSubtasks
         danger: true,
       },
       validate: () => {
-        if (!current.current.allowed || current.current.task.updatedAt !== task.updatedAt)
+        if (!current.current.allowed || current.current.cancel || current.current.task.updatedAt !== task.updatedAt)
           throw new Error('This task changed. Reopen its menu and try again.');
       },
       operation: () => deleteTask(task.id),

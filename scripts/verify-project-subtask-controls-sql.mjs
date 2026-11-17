@@ -114,5 +114,39 @@ try {
   await db.exec('reset role');
   // Helper and internal migration functions must not become new client entry points.
   assert.equal(await value("select has_function_privilege('authenticated','eflow_publication.subtask_staffing_locked(uuid)','execute')"),false);
+  await db.exec('set session_replication_role=replica');
+  await db.query("update projects set status='planning' where id=$1", [project]);
+  await db.exec('set session_replication_role=origin');
+  await actor(2);
+  const checklistTask = await value('select (phase3_create_task($1,$2,$3)).id', [project, group, 'Unstarted checklist']);
+  const startedTask = await value('select (phase3_create_task($1,$2,$3)).id', [project, group, 'Checklist with execution']);
+  await db.exec('reset role; set session_replication_role=replica');
+  await db.query(`insert into subtasks(id,task_id,title,created_by,started_at) values
+    ($1,$5,'Prepare materials',$7,null),($2,$5,'Confirm materials',$7,null),
+    ($3,$6,'Parent checklist',$7,null),($4,$6,'Started nested step',$7,now())`,
+    [financeId(990), financeId(991), financeId(992), financeId(993), checklistTask, startedTask, financeId(2)]);
+  await db.query('update subtasks set parent_subtask_id=$1 where id=$2', [financeId(990), financeId(991)]);
+  await db.query('update subtasks set parent_subtask_id=$1 where id=$2', [financeId(992), financeId(993)]);
+  await db.exec('set session_replication_role=origin');
+  await actor(2);
+  await assert.rejects(
+    db.query('select soft_delete_task($1)',[checklistTask]),
+    /Use cancellation to retain this task’s history/,
+    'The previous trigger rejects a wholly unstarted checklist',
+  );
+  console.log('REPRODUCED planning task deletion refusal with two untouched checklist rows');
+  await db.exec('reset role');
+  await db.exec(await source('20261117142351_allow_unstarted_task_checklists_to_be_deleted.sql'));
+  await actor(5);
+  await assert.rejects(db.query('select soft_delete_task($1)',[checklistTask]), { code: '42501' });
+  await actor(2);
+  await assert.rejects(db.query('select soft_delete_task($1)',[startedTask]), /A subtask has started or has saved work/);
+  await value('select soft_delete_task($1)', [checklistTask]);
+  await db.exec('reset role');
+  assert.equal(await value('select deleted_at is not null from tasks where id=$1', [checklistTask]), true);
+  assert.equal(await value('select deleted_at is null from tasks where id=$1', [startedTask]), true);
+  assert.equal(await value('select count(*)::int from subtasks where task_id=$1', [checklistTask]), 2);
+  assert.equal(await value("select count(*)::int from audit_events where entity_id=$1 and action='task.deleted'", [checklistTask]), 1);
+  console.log('PASS authorized checklist soft deletion, child and audit retention, and protection for started work');
   console.log('PASS creator lead default, Planning staffing, Active capability and write guards, unassigned creation, reviewed blocker/next-step persistence and clearing');
 } catch(error) { console.error(error.message, error.where ?? ''); process.exitCode=1; } finally { await db.close(); }

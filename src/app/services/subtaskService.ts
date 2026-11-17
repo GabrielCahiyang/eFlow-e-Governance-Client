@@ -25,6 +25,7 @@ export interface Subtask {
   latestSubmissionId?: string;
   completedBy?: string;
   completedAt?: number;
+  startedAt?: number;
   assignedTo?: string;
   assignedToIds: string[];
   parentSubtaskId?: string;
@@ -64,6 +65,7 @@ export function rowToSubtask(row: Record<string, unknown>): Subtask {
     latestSubmissionId: (row.latest_submission_id as string) || undefined,
     completedBy: (row.completed_by as string) || undefined,
     completedAt: row.completed_at ? new Date(row.completed_at as string).getTime() : undefined,
+    startedAt: row.started_at ? new Date(row.started_at as string).getTime() : undefined,
     assignedTo: (row.assigned_to as string) || (assignedToIds[0] || undefined),
     assignedToIds,
     parentSubtaskId: (row.parent_subtask_id as string) || undefined,
