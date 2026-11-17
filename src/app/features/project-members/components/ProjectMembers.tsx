@@ -9,19 +9,18 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { requestNavigation } from '../../../shared/navigationGuard';
 import type { Organization, UserProfile } from '../../../types';
 import { ACCESS_CHANGED_EVENT, fetchAccess, RemovalDialog, type AccessSnapshot } from '../../project-access';
-import { ProjectInvitations } from '../../project-invitations';
 import { ProjectPeoplePage, useProjectOfficeContext } from '../../project-offices';
 import type { Task } from '../../tasks';
 import { fetchMembers } from '../services/memberService';
 import type { MemberOffice, MembersSnapshot, SelectedMember } from '../types';
 import { MemberDirectory } from './MemberDirectory';
-import { MemberTermsEditor } from './MemberTermsEditor';
 import '../projectMembers.css';
 
 interface ProjectMembersProps {
   projectId: string;
   projectStatus: string;
   projectTitle?: string;
+  projectLeadId?: string;
   governed?: boolean;
   organizations?: Organization[];
   profiles: UserProfile[];
@@ -34,7 +33,7 @@ export function ProjectMembers(props: ProjectMembersProps) {
   return <MembersContent key={`${user?.id}:${props.projectId}`} {...props} />;
 }
 
-function MembersContent({ projectId, projectStatus, projectTitle, governed = false, organizations = [], profiles, tasks, onOpenTask }: ProjectMembersProps) {
+function MembersContent({ projectId, projectStatus, projectTitle, projectLeadId, governed = false, organizations = [], profiles, tasks, onOpenTask }: ProjectMembersProps) {
   const officeState = useProjectOfficeContext();
   const [data, setData] = useState<MembersSnapshot>();
   const [access, setAccess] = useState<AccessSnapshot>();
@@ -42,12 +41,11 @@ function MembersContent({ projectId, projectStatus, projectTitle, governed = fal
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
   const [office, setOffice] = useState<MemberOffice>();
-  const [terms, setTerms] = useState<SelectedMember>();
   const [removing, setRemoving] = useState<SelectedMember>();
   const active = useRef(true);
   const generation = useRef(0);
   const hold = useRef(false);
-  hold.current = !!office || !!terms || !!removing;
+  hold.current = !!office || !!removing;
 
   async function reload() {
     const run = ++generation.current;
@@ -88,9 +86,6 @@ function MembersContent({ projectId, projectStatus, projectTitle, governed = fal
   const filter = query.trim().toLowerCase();
   const visible = data?.members.filter(member => `${member.name} ${member.office_name || ''} ${member.engagement}`.toLowerCase().includes(filter)) ?? [];
 
-  if (office) return <ProjectPeoplePage projectTitle={projectTitle || office.name} projectStatus={projectStatus} governed={governed}
-    profiles={profiles} organizations={organizations} tasks={tasks} onClose={() => setOffice(undefined)} onOpenTask={onOpenTask} onSaved={reload} />;
-
   return <section className="r7-members project-members" aria-label="Project Members">
     <header className="project-members-header">
       <div>
@@ -120,7 +115,7 @@ function MembersContent({ projectId, projectStatus, projectTitle, governed = fal
                 <UserPlus size={16} aria-hidden="true" /> Add people
               </button>}
           </div>
-          {item.eligible_count === 0 && <p className="project-members-office-note">No onboarded eligible staff in this office. Send an invitation below.</p>}
+          {item.eligible_count === 0 && <p className="project-members-office-note">No onboarded eligible staff in this office.</p>}
         </li>;
       })}
     </ul>}
@@ -131,20 +126,19 @@ function MembersContent({ projectId, projectStatus, projectTitle, governed = fal
       </div>}
       {error && <FeedbackState tone="error" title="Project members unavailable" onRetry={() => void reload()}>{error}</FeedbackState>}
       {data && (visible.length ? <MemberDirectory members={visible} snapshot={data} access={access} closed={closed}
-        onOpenTask={onOpenTask} onEdit={setTerms} onRemove={setRemoving} /> :
+        onOpenTask={onOpenTask} onRemove={setRemoving} /> :
         <EmptyState illustration={filter ? 'search' : 'people'} title={filter ? 'No project members match' : 'No project members yet'}
           description={filter ? 'Try a different name, office or engagement.' : 'The appointed Office Head chooses who joins the project.'} size="compact" />)}
     </div>
 
-    <div className="project-members-access-tools">
-      <ProjectInvitations project={projectId} />
-    </div>
-
     {removing && <RemovalDialog project={projectId} user={removing.user_id} office={data?.kind === 'personal' ? null : removing.office}
       name={removing.name} onClose={() => setRemoving(undefined)} onRemoved={async () => { await officeState?.refresh(); await reload(); }} />}
-    {terms && <FeatureDialog title="Project access terms" onClose={() => void requestNavigation(() => setTerms(undefined))}>
-      <MemberTermsEditor timezone={data?.timezone || 'Asia/Singapore'} project={projectId} member={terms}
-        onClose={() => { setTerms(undefined); void reload(); }} onSaved={async () => { await officeState?.refresh(); }} />
+    {office && <FeatureDialog title="Add people" onClose={() => void requestNavigation(() => setOffice(undefined))} contentClassName="!max-w-3xl">
+      <div className="project-members-people-dialog">
+        <h2>Add people</h2><p>{projectTitle || office.name}</p>
+        <ProjectPeoplePage modal projectLeadId={projectLeadId} projectTitle={projectTitle || office.name} projectStatus={projectStatus} governed={governed}
+          profiles={profiles} organizations={organizations} tasks={tasks} onClose={() => setOffice(undefined)} onOpenTask={onOpenTask} onSaved={reload} />
+      </div>
     </FeatureDialog>}
   </section>;
 }

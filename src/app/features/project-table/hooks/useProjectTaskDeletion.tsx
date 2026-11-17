@@ -19,7 +19,7 @@ export function useProjectTaskDeletion(task: Task, allowed: boolean, hasStartedS
       key: `delete:${task.updatedAt}`,
       confirmation: {
         title: 'Delete task?',
-        description: `Remove the unstarted task “${task.title}” from the project? Its audit record is retained.`,
+        description: `Remove the unstarted task "${task.title}" and any unstarted checklist subtasks from the project? The complete branch is checked for work history, dependencies and financial records before deletion. Audit records are retained.`,
         actionLabel: 'Delete task',
         danger: true,
       },

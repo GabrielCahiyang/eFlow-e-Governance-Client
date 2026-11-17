@@ -1,0 +1,25 @@
+{
+  "atLocalDate": "2026-11-16",
+  "environment": "production",
+  "project": "ixnfphgjyelhckjwjkdv",
+  "method": "SELECT-only function hash comparison",
+  "status": "PENDING_NOT_APPLIED",
+  "originalTargetsStillMatch": 3,
+  "agentHostedMutations": 0,
+  "functions": [
+    {
+      "hash": "cceff20012ac4d14b410a337b91e4a96",
+      "signature": "eflow_project.guard_dependencies()"
+    },
+    {
+      "hash": "b4d5670273b17c2bc3395144404452bc",
+      "signature": "eflow_r7.guard_subtask_dependency_write()"
+    },
+    {
+      "hash": "8ba90e82a783f141a4a9e3b05a9d0cc4",
+      "signature": "eflow_r7.check_subtask_dependency_graph()"
+    }
+  ],
+  "sql_sha256": "359763f3b942e3f93afc363242b17e6cd4a42d39c4181b1933c5042c055a9efc",
+  "migrationSafety": "NOT ESTABLISHED; staging/full schema/real actors/concurrency blocked"
+}

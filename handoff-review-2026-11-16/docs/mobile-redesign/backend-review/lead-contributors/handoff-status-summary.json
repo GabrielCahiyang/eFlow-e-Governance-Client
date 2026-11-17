@@ -1,0 +1,42 @@
+{
+  "project": "ixnfphgjyelhckjwjkdv",
+  "environment": "production",
+  "method": "SELECT-only definition/hash and schema/RPC lookup",
+  "contributorSpecificFunctionsMatchInstalledCorrection": 3,
+  "sharedFunctionsMatchLaterEditingCandidate": 2,
+  "functions": [
+    {
+      "signature": "eflow_publication.guard_active_root_contributor_change()",
+      "installed_md5": "b116972991afaea1ec5c22f5e7363939",
+      "matchesEarlierInstalledContributorHash": true
+    },
+    {
+      "signature": "eflow_publication.guard_active_subtask_staffing()",
+      "installed_md5": "9eb187297d2f83defdfc7fba6c40595c",
+      "matchesEarlierInstalledContributorHash": true
+    },
+    {
+      "signature": "eflow_publication.root_contributor_change_locked(uuid)",
+      "installed_md5": "d84e1bd6d4e0b664d636d40807628744",
+      "matchesEarlierInstalledContributorHash": true
+    },
+    {
+      "signature": "eflow_r7.command(uuid,integer,uuid,text,jsonb)",
+      "installed_md5": "7f64bb844482fc88f46d57805037863a",
+      "matchesEarlierInstalledContributorHash": false,
+      "matchesLaterEditingCandidateNormalized": true
+    },
+    {
+      "signature": "eflow_r7.operation_capabilities(uuid,uuid)",
+      "installed_md5": "6faca6fab0ba195a6a21c5124a961a66",
+      "matchesEarlierInstalledContributorHash": false,
+      "matchesLaterEditingCandidateNormalized": true
+    }
+  ],
+  "editing_rpc_installed": true,
+  "editing_schema_installed": true,
+  "agentDatabaseMutations": 0,
+  "fullEditingInstallationAcceptance": "NOT VERIFIED",
+  "authenticatedWorkflowAcceptance": "BLOCKED; approved actors/fixtures unavailable",
+  "instruction": "Do not reapply the historical contributor patch or infer missing installation from the two newer shared hashes."
+}

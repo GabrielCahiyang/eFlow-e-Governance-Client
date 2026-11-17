@@ -1,5 +1,4 @@
 import type { Task } from '../tasks';
-import { getTaskTeamMemberIds } from '../tasks';
 import type { ProjectGroup } from './types';
 export const STATUS_COLORS: Record<string,string> = {pending_assignment:'#7b8495',todo:'#579bfc',in_progress:'#f4ae36',for_review:'#8b6be8',changes_requested:'#df526d',completed:'#00b97d',cancelled:'#76808c'};
 export type TableSort = 'manual' | 'title' | 'deadline' | 'priority';
@@ -28,10 +27,10 @@ export function groupSummary(tasks: Task[]) {
 export function canEditProjectTask(task: Task, head: boolean, officeId: string) {
  return head && task.orgId===officeId && !task.archivedAt && !['completed','cancelled'].includes(task.status);
 }
-export function inlineStatusOptions(task: Task, userId: string, editable: boolean): Task['status'][] {
+export function inlineStatusOptions(task: Task, userId: string, _editable: boolean): Task['status'][] {
  const result: Task['status'][]=[task.status];
- if(task.status==='todo' && getTaskTeamMemberIds(task).includes(userId))result.push('in_progress');
- if(task.status==='changes_requested' && ((task.assigneeId||task.assignedTo)===userId||editable))result.push('in_progress');
+ if(task.status==='todo' && !!userId && task.assigneeId===userId)result.push('in_progress');
+ if(task.status==='changes_requested' && !!userId && task.assigneeId===userId)result.push('in_progress');
  return result;
 }
 export function dependencyWouldCycle(tasks: Task[], taskId: string, candidates: string[]): boolean {

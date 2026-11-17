@@ -229,7 +229,7 @@ export function KanbanBoardView({
                           </button>
                         </>
                       )}
-                      {!readOnly && role === "member" && task.status === "todo" && (
+                      {!readOnly && role === "member" && !!currentUserId && task.assigneeId === currentUserId && task.status === "todo" && (
                         <button
                           onClick={() => onExecute?.(task.id)}
                           className="flex-1 rounded-[6px] bg-primary py-1 text-[10.5px] font-medium text-primary-foreground transition hover:bg-primary/90"

@@ -1,0 +1,563 @@
+{
+  "format": 1,
+  "prepared": "2026-11-16",
+  "entryPoint": "README.md",
+  "sqlStatus": "date-link candidate pending; historical proposals must not be reapplied blindly",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 10099,
+      "sha256": "9a64de5c52aacf637e6b83fce22c49ff62ca97acd89ac6b3070726648561c735"
+    },
+    {
+      "path": "docs/mobile-redesign/M7-action-feedback-dependency-linking-apk-verification.json",
+      "bytes": 2819,
+      "sha256": "081e0c25cf392f4c6ef18eb4167bc68ed946865d2fd6c70a998bec9518b3f535"
+    },
+    {
+      "path": "docs/mobile-redesign/M7-action-feedback-dependency-linking-release-audit.json",
+      "bytes": 607,
+      "sha256": "f9249d952c117b1774195314df3c1495f450c271d53d94873dc61225c20fbc3d"
+    },
+    {
+      "path": "docs/mobile-redesign/M7-action-feedback-dependency-linking.md",
+      "bytes": 7606,
+      "sha256": "73951d5d9a3e89e9e9469f06be2766b8642660906234a310e96825debd4299ab"
+    },
+    {
+      "path": "docs/mobile-redesign/WEB_CONTRIBUTORS_HANDOFF.md",
+      "bytes": 7670,
+      "sha256": "32389830d28e040374040dc8b71e13ffb43fb7bef820fe3130e617e0eab5e6b9"
+    },
+    {
+      "path": "docs/mobile-redesign/WEB_PARITY_HANDOFF.md",
+      "bytes": 12220,
+      "sha256": "d0854a52b9abfd5e6cca018083371ad294b982b643705f945fa405a1fd2aceea"
+    },
+    {
+      "path": "docs/mobile-redesign/WEB_STARTED_EDITING_HANDOFF.md",
+      "bytes": 9510,
+      "sha256": "4f4ff4fe573165e75a34c419442beec2de554eccb2a73c1150272afaed6858f9"
+    },
+    {
+      "path": "docs/mobile-redesign/WEB_WORKFLOW_UX_DEPENDENCY_HANDOFF.md",
+      "bytes": 10099,
+      "sha256": "9a64de5c52aacf637e6b83fce22c49ff62ca97acd89ac6b3070726648561c735"
+    },
+    {
+      "path": "docs/mobile-redesign/backend-review/dependency-linking/20261116040000_date_neutral_dependency_linking_REVIEW.sql",
+      "bytes": 2998,
+      "sha256": "359763f3b942e3f93afc363242b17e6cd4a42d39c4181b1933c5042c055a9efc"
+    },
+    {
+      "path": "docs/mobile-redesign/backend-review/dependency-linking/README.md",
+      "bytes": 7483,
+      "sha256": "5a7a6af4a310f15fd11f586d7995d75ddb53452ec349541d75b8d60c0582f0d7"
+    },
+    {
+      "path": "docs/mobile-redesign/backend-review/dependency-linking/catalog-date-review.json",
+      "bytes": 98737,
+      "sha256": "6bf7ab1070e3c3f0e2695892b4c827d161d27c1e168bab7bdedb3fe7b35c3323"
+    },
+    {
+      "path": "docs/mobile-redesign/backend-review/dependency-linking/current-hashes.json",
+      "bytes": 645,
+      "sha256": "875d0629c196bdbf4daffcde49ee1e2f77bc6331cc10fb4fe377dba0df602a84"
+    },
+    {
+      "path": "docs/mobile-redesign/backend-review/dependency-linking/installed-baseline.json",
+      "bytes": 92926,
+      "sha256": "872878ee2e0d1c5f79ed0a6f2a25c61e8f7c5ec8510ae4dba9016be5175317a2"
+    },
+    {
+      "path": "docs/mobile-redesign/backend-review/dependency-linking/status-summary.json",
+      "bytes": 846,
+      "sha256": "30920787e8d69d1157b6177416028a3f9a3b0bdbb865da0277f1ce25bf7543dd"
+    },
+    {
+      "path": "docs/mobile-redesign/backend-review/dependency-linking/supporting-baseline.json",
+      "bytes": 23635,
+      "sha256": "cddaf139e8821319e09803f91defce43dc56ed48bf7971b0e8e78219cccad41a"
+    },
+    {
+      "path": "docs/mobile-redesign/backend-review/lead-contributors/20261116000000_lead_contributor_authority_REVIEW.sql",
+      "bytes": 5469,
+      "sha256": "33894462ec466095e871e20f2e2fc9a94afd044bb14f4548f4159b803e056f08"
+    },
+    {
+      "path": "docs/mobile-redesign/backend-review/lead-contributors/README.md",
+      "bytes": 10308,
+      "sha256": "24ed965af7d50f20682e5ffc18741e5ebcfe88949f0f070760310067721d53ec"
+    },
+    {
+      "path": "docs/mobile-redesign/backend-review/lead-contributors/baseline-functions.json",
+      "bytes": 35784,
+      "sha256": "b1963e9cc03766386edacbc86b6dea3ba73c605d6a69eafc9d251990b21eb822"
+    },
+    {
+      "path": "docs/mobile-redesign/backend-review/lead-contributors/dependency-functions.json",
+      "bytes": 3889,
+      "sha256": "822db85efbd6660fda3b743ec29b74c37dfc6ec59e9a5de09fa402f3d8875ce3"
+    },
+    {
+      "path": "docs/mobile-redesign/backend-review/lead-contributors/handoff-current-shared-functions.json",
+      "bytes": 33024,
+      "sha256": "7e32f8bbf2ad4fd4263de2d5ea610c130b8b9aeefc0a7eda9a539ec68ddc7d29"
+    },
+    {
+      "path": "docs/mobile-redesign/backend-review/lead-contributors/handoff-editing-contract-verification.json",
+      "bytes": 363,
+      "sha256": "2d66e4c789e138383c0933f1f1521ca5c3cad2216f9a19a6eb488df3f9624c91"
+    },
+    {
+      "path": "docs/mobile-redesign/backend-review/lead-contributors/handoff-readonly-verification.json",
+      "bytes": 991,
+      "sha256": "f907836eba2a71daa97e517b2d3f2e47aadc2270378e2b8fa4f89984cc873d91"
+    },
+    {
+      "path": "docs/mobile-redesign/backend-review/lead-contributors/handoff-status-summary.json",
+      "bytes": 1780,
+      "sha256": "7b1e4f776163b5057ed498f269af4ef335fe86ea00bf10aff8902876b5e0e6be"
+    },
+    {
+      "path": "docs/mobile-redesign/backend-review/lead-contributors/installed-readonly-verification.json",
+      "bytes": 1283,
+      "sha256": "47ac70746aeee5c65746123a86819816f040607b9559247b4b05170343f31a46"
+    },
+    {
+      "path": "docs/mobile-redesign/backend-review/started-editing/20261116030000_started_detail_editing_REVIEW.sql",
+      "bytes": 63635,
+      "sha256": "ea9cfe1a94ab48b4cc55c4cb8cb0fe12e4ef2abe5aa7ef42a7c20c893da5d531"
+    },
+    {
+      "path": "docs/mobile-redesign/backend-review/started-editing/README.md",
+      "bytes": 13379,
+      "sha256": "4ec585ad543986499a760bf173916bfd6634139a57e08c91a189ed64f001a8fe"
+    },
+    {
+      "path": "docs/mobile-redesign/backend-review/started-editing/audit-visibility-baseline.json",
+      "bytes": 3026,
+      "sha256": "3fc140792f07c4d97f898645fc2942b9d5489909435896133a47035adc6c6060"
+    },
+    {
+      "path": "docs/mobile-redesign/backend-review/started-editing/guard-baseline.json",
+      "bytes": 21608,
+      "sha256": "4de13fbbab5a293bd808e21d06deff6e3f3ea84b85c2b25953e38a0d156d36fd"
+    },
+    {
+      "path": "docs/mobile-redesign/backend-review/started-editing/installed-baseline.json",
+      "bytes": 51529,
+      "sha256": "24b678141efc42cbe0400f0c9544c9aa1e930a1a84e4e20e72886dff3183ac47"
+    },
+    {
+      "path": "docs/mobile-redesign/backend-review/started-editing/installed-final-verification.json",
+      "bytes": 1162,
+      "sha256": "952d5bfba97deb5493745a215b7750e2cf8615a72d6247319061c0bcc1226667"
+    },
+    {
+      "path": "docs/mobile-redesign/backend-review/started-editing/policy-body.sql",
+      "bytes": 14858,
+      "sha256": "d847e26dd4b1d4d708eafaf71a691068406c29ed215bd784cb956dcf86677381"
+    },
+    {
+      "path": "docs/mobile-redesign/backend-review/started-editing/supporting-baseline.json",
+      "bytes": 36694,
+      "sha256": "2e978e336cccad2cd96d1986241e382a73a65d018a8d0fbca0e4809763966e9f"
+    },
+    {
+      "path": "docs/mobile-redesign/backend-review/subtask-planning/20261116010000_unstarted_task_delete_REVIEW.sql",
+      "bytes": 1501,
+      "sha256": "b044ac3af578ac6d86877d837ed7b8017bfa2ea34587d47a070c943c77a2b177"
+    },
+    {
+      "path": "docs/mobile-redesign/backend-review/subtask-planning/20261116020000_parent_task_subtask_visibility_REVIEW.sql",
+      "bytes": 8090,
+      "sha256": "893afb7ca8b61e753e75ae0f2db4082f58743080ea032eaf2ec2a0089ea822d1"
+    },
+    {
+      "path": "docs/mobile-redesign/backend-review/subtask-planning/README.md",
+      "bytes": 10890,
+      "sha256": "95b2cd74727e75642398cc6b2efd791dfd99c1e913c08fa9233da73a1ee8f002"
+    },
+    {
+      "path": "docs/mobile-redesign/backend-review/subtask-planning/task-delete-baseline.json",
+      "bytes": 1714,
+      "sha256": "03c128f9f65b10b908712430e99606aa79f116d551a14588b9825f03bf04a826"
+    },
+    {
+      "path": "docs/mobile-redesign/backend-review/subtask-planning/visibility-baseline.json",
+      "bytes": 12783,
+      "sha256": "e335896627ec4b6bb47ee0fcf79f391fb32b456b5d87fedef32dd3671d464e6c"
+    },
+    {
+      "path": "docs/mobile-redesign/backend-review/subtask-planning/visibility-file-baseline.json",
+      "bytes": 5325,
+      "sha256": "825043f0e56be90c9ed15149558b0383f45b79fc7dd7a8bab73d632bbe34857f"
+    },
+    {
+      "path": "docs/mobile-redesign/backend-review/subtask-planning/visibility-file-dependencies.json",
+      "bytes": 2307,
+      "sha256": "cd786f765ce8cf93298ba50b83cfa85eead763def152084880d13274cd358de9"
+    },
+    {
+      "path": "docs/mobile-redesign/backend-review/subtask-planning/visibility-file-functions.json",
+      "bytes": 2727,
+      "sha256": "cbbba429a3c18189ee1a5e455d1c54ff23a50f1649934f03d82300d1b74094a8"
+    },
+    {
+      "path": "docs/mobile-redesign/backend-review/subtask-planning/visibility-supporting-policies.json",
+      "bytes": 4178,
+      "sha256": "5a79197a18bf672ea55a4c439c0694d67c3f88c621dcc58de4b65be75dc5f5b5"
+    },
+    {
+      "path": "evidence/action-feedback-apksigner.log",
+      "bytes": 414,
+      "sha256": "7edc66a8dd543625c13ef7e819b61815be5ef2919b5c1f2e7df9a8b019fa4daf"
+    },
+    {
+      "path": "evidence/action-feedback-bundled-sources.json",
+      "bytes": 2078,
+      "sha256": "90aef618d9a5bf222bf406c153c2ea617107c3f2bb7dd3e15566e4fc07f3d85a"
+    },
+    {
+      "path": "evidence/action-feedback-check.log",
+      "bytes": 165,
+      "sha256": "c023e5b74cbcb850a262e4bff05979d0c1183854a9de02f2214dea001b1d7209"
+    },
+    {
+      "path": "evidence/action-feedback-exports.log",
+      "bytes": 4040,
+      "sha256": "d11d0c3c439915fdb8065e47a7cb0f527b3efce43e920b1f3b7a2e3b3cbdda5e"
+    },
+    {
+      "path": "evidence/action-feedback-gradle.log",
+      "bytes": 70343,
+      "sha256": "3256d3ffec130d15a26480d9d8fa8a16eede44be66cdf4cc5a4a9292d3fc34c5"
+    },
+    {
+      "path": "evidence/action-feedback-tests.log",
+      "bytes": 156,
+      "sha256": "3f3d531ff0df7306776a3bee02e6102d897f41ec65ae960e3dda08ac4cec9cca"
+    },
+    {
+      "path": "evidence/dependency-linking-sql-crlf.log",
+      "bytes": 289,
+      "sha256": "342771e341e4fdce4fb3f2537c055207a04cff3fe47c642c5a0ef29be094d0e1"
+    },
+    {
+      "path": "evidence/dependency-linking-sql.log",
+      "bytes": 290,
+      "sha256": "188a86f30399df8aba421a6fa43ff3f1150ae2fd74f5b1ffb1d20116b17d822a"
+    },
+    {
+      "path": "evidence/started-editing-sql-crlf-tests.json",
+      "bytes": 325,
+      "sha256": "af711c864b88bb5a28b5e58b5ae2484bbff0ecbac0bb7775727d4233bea1b2f3"
+    },
+    {
+      "path": "evidence/started-editing-sql-tests.json",
+      "bytes": 326,
+      "sha256": "45c4749f4065bdea71b9c3d2ef638aa6e9ff0fc72df4c0ea162e3220949f723d"
+    },
+    {
+      "path": "mobile-reference/src/app/components/ui/Fields.tsx",
+      "bytes": 12032,
+      "sha256": "13e6b2319f162f6c34603cef8335128080462245225b4d1d477ad4805df9eabf"
+    },
+    {
+      "path": "mobile-reference/src/app/components/ui/OperationStatus.tsx",
+      "bytes": 1152,
+      "sha256": "85a50e5db5d7e89a3020ec2a2169a5f288ecb2716e6fca7469297cbc064ff625"
+    },
+    {
+      "path": "mobile-reference/src/app/components/ui/Screen.tsx",
+      "bytes": 11397,
+      "sha256": "deb9338402b23c76029e8c141d8b25fabdc018ff56760b5db1295e2fc137b6e5"
+    },
+    {
+      "path": "mobile-reference/src/app/components/ui/Sheet.tsx",
+      "bytes": 8264,
+      "sha256": "14221e6b5870b9933a1db2974a546aeee9090dec4dac006d309203351ebd06c7"
+    },
+    {
+      "path": "mobile-reference/src/app/features/budget/useFinancialCommand.ts",
+      "bytes": 3619,
+      "sha256": "596250f28a40fa7ce082e7e9cdf81e0711faa7b6ca8561acabce218b8a67abe4"
+    },
+    {
+      "path": "mobile-reference/src/app/features/personal-work/PersonalProjectScreen.tsx",
+      "bytes": 16456,
+      "sha256": "cf4769c2a1636bcbd62e6a017689acfaf54050402a665fa106bbecabea59f5a3"
+    },
+    {
+      "path": "mobile-reference/src/app/features/personal-work/PersonalTaskSheet.tsx",
+      "bytes": 7244,
+      "sha256": "3efe2dde8b90f8d289e4422fff7c93fb3e8fac36808fc1b751dc8a2364027d69"
+    },
+    {
+      "path": "mobile-reference/src/app/features/personal-work/usePersonalActions.ts",
+      "bytes": 5936,
+      "sha256": "e399159aa1f3fad5652349716910785bdeac7a408e6d4bc42d16c56e2388def9"
+    },
+    {
+      "path": "mobile-reference/src/app/features/projects/ProjectScreen.tsx",
+      "bytes": 28312,
+      "sha256": "3591aa4d3608957b85c7ec32c1b6734d5e3061fd4e6357a37c7fa27094a81e47"
+    },
+    {
+      "path": "mobile-reference/src/app/features/projects/ProjectTaskEditor.tsx",
+      "bytes": 19754,
+      "sha256": "1913dd4c3038cabcd5c3ec32479cf1cb87ddcd212e014851daed3e6fe54afec6"
+    },
+    {
+      "path": "mobile-reference/src/app/features/projects/__tests__/ProjectTaskEditor.test.tsx",
+      "bytes": 24531,
+      "sha256": "a70d843083dc85a5542670a74dc61dbd10450dd719c30ef364731cdd65bb465d"
+    },
+    {
+      "path": "mobile-reference/src/app/features/tasks/LinkedWorkNodeScreen.tsx",
+      "bytes": 20808,
+      "sha256": "2d8c4fd883e3a6ee3605b8c4935d116f229848260afaf319661665beae94baaa"
+    },
+    {
+      "path": "mobile-reference/src/app/features/tasks/OfficeSubitemUpdateSheet.tsx",
+      "bytes": 6980,
+      "sha256": "2220ac18ffa20a419c5dba5fbe3c48bf2a91f896248717c65301c27408fc533c"
+    },
+    {
+      "path": "mobile-reference/src/app/features/tasks/TaskBentoComponents.tsx",
+      "bytes": 51645,
+      "sha256": "56c8af55e4f6c7b26063b3dabe4831fa0072f36b9611dd1b4f6b9dc002e631fc"
+    },
+    {
+      "path": "mobile-reference/src/app/features/tasks/TaskDetailsScreen.tsx",
+      "bytes": 39965,
+      "sha256": "e285d19fc2cfda93341122888856e14693a01d6e747e8768bb4aad2d39312708"
+    },
+    {
+      "path": "mobile-reference/src/app/features/tasks/TaskExecutionSheet.tsx",
+      "bytes": 5703,
+      "sha256": "b82e45a9945a45b6020c5f51abee0ebaef0befc48a10bc2326900c5c9c335168"
+    },
+    {
+      "path": "mobile-reference/src/app/features/tasks/TaskScheduleSheet.tsx",
+      "bytes": 10093,
+      "sha256": "63461180a6237bc9616f850a119edf37e64343fd6568a42b11efd3247dfc1431"
+    },
+    {
+      "path": "mobile-reference/src/app/features/tasks/WorkEditorSheet.tsx",
+      "bytes": 52131,
+      "sha256": "c62420c98ef0ffa90430060991d32c68bb6a2ae0c5678b86f561316791d86f9c"
+    },
+    {
+      "path": "mobile-reference/src/app/features/tasks/WorkTreePanel.tsx",
+      "bytes": 28475,
+      "sha256": "99da68c4007929229483a8f122dc05cb2917698160f3d070fe9f2a10c039cbff"
+    },
+    {
+      "path": "mobile-reference/src/app/features/tasks/__tests__/OfficeSubitemUpdateSheet.test.tsx",
+      "bytes": 9469,
+      "sha256": "eaf4a08aa6da9e124cb6f79ae9bda0126ff2d8fc92dcea08f4665fa2f571c6d1"
+    },
+    {
+      "path": "mobile-reference/src/app/features/tasks/__tests__/SubtaskScheduleAndPrereqs.test.tsx",
+      "bytes": 10081,
+      "sha256": "c1f011ad26ffea1c3e057148f6114928f3d05240c3b14e6657d4afa055392386"
+    },
+    {
+      "path": "mobile-reference/src/app/features/tasks/__tests__/TaskDetailsScreen.test.tsx",
+      "bytes": 18490,
+      "sha256": "84a03c51c2006b2eef2a3df4be8e7b5435daa4531760fedbdbc1a0b3dca35607"
+    },
+    {
+      "path": "mobile-reference/src/app/features/tasks/__tests__/TaskExecutionSheet.test.tsx",
+      "bytes": 7625,
+      "sha256": "cf7807e27f361275a0087f3c0af666568f156430ff1868b95b784b36800cfe63"
+    },
+    {
+      "path": "mobile-reference/src/app/features/tasks/__tests__/WorkEditorRecovery.test.tsx",
+      "bytes": 29035,
+      "sha256": "78a0ea19091fff19d882e05cbb0163197e5ce019f618bbdd685c774ff17afc3e"
+    },
+    {
+      "path": "mobile-reference/src/app/features/tasks/__tests__/WorkTreePanel.test.tsx",
+      "bytes": 36999,
+      "sha256": "b082569b9d629607c136ebd83fa718d93014efeb989d20194bb1198616d4cbb6"
+    },
+    {
+      "path": "mobile-reference/src/app/features/tasks/__tests__/activityPresentation.test.ts",
+      "bytes": 3610,
+      "sha256": "bb52ae6f388f2e2847f5519d1f2420efa2f3b7baf116894ddd686a614f10c513"
+    },
+    {
+      "path": "mobile-reference/src/app/features/tasks/__tests__/dependencyLinking.test.ts",
+      "bytes": 2337,
+      "sha256": "4fda4d8238f5915700e8e0dba7fada1c91447ec9d428930ee763f731685d1421"
+    },
+    {
+      "path": "mobile-reference/src/app/features/tasks/__tests__/subtaskDependencies.test.ts",
+      "bytes": 3908,
+      "sha256": "44253786e374a3aec8ffba4bd4b7cbcd631fe767254cb4170e312272f0fcc475"
+    },
+    {
+      "path": "mobile-reference/src/app/features/tasks/__tests__/subtaskDependencyPlanning.test.ts",
+      "bytes": 9299,
+      "sha256": "ecd7be869a13ef69a51e6f836e609805b468cc166eddd59c016bebed431eca43"
+    },
+    {
+      "path": "mobile-reference/src/app/features/tasks/__tests__/workDetailEditing.test.ts",
+      "bytes": 2452,
+      "sha256": "a495a7c6ea42deb4de1dd3cd24090173734c6f735faa0c030012233b8343e43d"
+    },
+    {
+      "path": "mobile-reference/src/app/features/tasks/__tests__/workRecoveryStaffing.test.ts",
+      "bytes": 7596,
+      "sha256": "036973526ba79af44f11919e6912bc09854ea987feffb15ce16cf6be9a319d97"
+    },
+    {
+      "path": "mobile-reference/src/app/features/tasks/activityPresentation.ts",
+      "bytes": 9693,
+      "sha256": "1804a5f334f89c0e7b74cc74719c64a52a3eaf7d6cf2403750fa69e6312016d0"
+    },
+    {
+      "path": "mobile-reference/src/app/features/tasks/prerequisiteChoices.ts",
+      "bytes": 2359,
+      "sha256": "f40e6684e5ebbed22d0d6c2579beb817e4aaf9a2dd36bfd227e61c2d6902fa91"
+    },
+    {
+      "path": "mobile-reference/src/app/features/tasks/subtaskDependencies.ts",
+      "bytes": 7649,
+      "sha256": "110baeea40f4713365d0d668e715530be7490949afa91b666cd2f00d08d23179"
+    },
+    {
+      "path": "mobile-reference/src/app/features/tasks/subtaskVisibility.ts",
+      "bytes": 662,
+      "sha256": "fb75047360e14c3b515098e14b673482b974767df21f7af4d95bb2e7bb8bc9c5"
+    },
+    {
+      "path": "mobile-reference/src/app/features/tasks/taskDeletion.ts",
+      "bytes": 3026,
+      "sha256": "7ccfa7d7824ac9f2eb71ee7d10d9a7bc17e0ee391ec84fc84b32bc95a0ffeb78"
+    },
+    {
+      "path": "mobile-reference/src/app/features/tasks/taskDetailActivity.ts",
+      "bytes": 2188,
+      "sha256": "8a69464c2b84e0ec39c94019ec28989992912d269a8bbc6b4dec6f884ac07c97"
+    },
+    {
+      "path": "mobile-reference/src/app/features/tasks/taskPrerequisites.ts",
+      "bytes": 2565,
+      "sha256": "8ca231ecc2caa90048881963738d624e91c4877bce6ab24854895efd131dc185"
+    },
+    {
+      "path": "mobile-reference/src/app/features/tasks/workDetailEditing.ts",
+      "bytes": 2381,
+      "sha256": "3d4e9e3381b1808340010f99464561023e75a488aa06d5cab32a840ce8bd0cdb"
+    },
+    {
+      "path": "mobile-reference/src/app/features/tasks/workPermissions.ts",
+      "bytes": 3571,
+      "sha256": "5ac80d40b9c97dc99a8d545d5844d367f0f307ceaa50d59c29dd2c3c502ff577"
+    },
+    {
+      "path": "mobile-reference/src/app/features/tasks/workRecovery.ts",
+      "bytes": 7619,
+      "sha256": "73ec1625ad00996ddb201d62e37476313d6e0bee4c4ae19057598f62f7c34975"
+    },
+    {
+      "path": "mobile-reference/src/app/shared/__tests__/confirm.test.ts",
+      "bytes": 961,
+      "sha256": "bb57a41bf5b731045de67588b2737ae8347ed3f9538b8fb3841d6c0254a69e9c"
+    },
+    {
+      "path": "mobile-reference/src/app/shared/__tests__/formDraftMemory.test.tsx",
+      "bytes": 4579,
+      "sha256": "aa20cca8b4c96c8152158840a04b2fc58f6204c1b85db78e5e8896e0ff57ac27"
+    },
+    {
+      "path": "mobile-reference/src/app/shared/__tests__/operationActivity.test.tsx",
+      "bytes": 3734,
+      "sha256": "9e31d73e2c76cec82dc2015d3a0f852b90813bc60ad5f00be03000c68da67660"
+    },
+    {
+      "path": "mobile-reference/src/app/shared/__tests__/sheetDraftRetention.test.tsx",
+      "bytes": 7054,
+      "sha256": "7923f9e4083c3a851baa0f5aa0f5b8b24ea96b70904ae66eef4aa4f1fda3060d"
+    },
+    {
+      "path": "mobile-reference/src/app/shared/__tests__/userMessages.test.ts",
+      "bytes": 11016,
+      "sha256": "0e8fc92a9e370fbec83bd72c3e19ef1ada67fb495c6d93ee8ea260d252f1c020"
+    },
+    {
+      "path": "mobile-reference/src/app/shared/confirm.ts",
+      "bytes": 866,
+      "sha256": "8cb269eccf70a484c218ea9057ab22b35cc379a88aa41dd431ce47f238d96ae1"
+    },
+    {
+      "path": "mobile-reference/src/app/shared/domainErrorMessages.ts",
+      "bytes": 136512,
+      "sha256": "898808c75fb21096d7792cbea7cee921b5a17999a2c8b4a2c92346cf82dfac64"
+    },
+    {
+      "path": "mobile-reference/src/app/shared/formDraftMemory.ts",
+      "bytes": 2996,
+      "sha256": "6bd46a04cbdcff66ba2acb16290efe06f3aa137244a2d62ca3a6e23279f734bc"
+    },
+    {
+      "path": "mobile-reference/src/app/shared/operationActivity.ts",
+      "bytes": 1259,
+      "sha256": "7681d0b9cce76b9e2eee31821ce70d32b5186b7957a570b153b6b051c72e8352"
+    },
+    {
+      "path": "mobile-reference/src/app/shared/useAction.ts",
+      "bytes": 1659,
+      "sha256": "6c81dd899cf1d7a1df38563221d74b3e7207333472409a631879a5508bd790f9"
+    },
+    {
+      "path": "mobile-reference/src/app/shared/useFacts.ts",
+      "bytes": 4974,
+      "sha256": "47272bc10192449674cd714f3ea9919913b80f0e6a3b38ff4413fa9a019dea07"
+    },
+    {
+      "path": "mobile-reference/src/app/shared/userMessages.ts",
+      "bytes": 31650,
+      "sha256": "498eea56e17bfd3b8bd8c9c83c9d9f12795200d40f7ca5c4252aaf22de585330"
+    },
+    {
+      "path": "scripts/prepare-dependency-linking-review.mjs",
+      "bytes": 3998,
+      "sha256": "44649dc8a9eb6e81ded92679debd3a7124b59e1549bddfe4fdc7f83283a57d6d"
+    },
+    {
+      "path": "scripts/prepare-started-editing-review.mjs",
+      "bytes": 6369,
+      "sha256": "e0320af923c674d8ed0dde13eb3f340974adb6f9e18100324efcc979b03442ef"
+    },
+    {
+      "path": "scripts/verify-dependency-linking-review.mjs",
+      "bytes": 15071,
+      "sha256": "60b4b09a9f3ea75a271e484a8e58fcdb48162f101f11eeea1a293b597124d2e2"
+    },
+    {
+      "path": "scripts/verify-lead-contributors-review.mjs",
+      "bytes": 12029,
+      "sha256": "3e6e15896f50b47729b230476bbb0ed76dd3d317a580ff15075fa883c6649355"
+    },
+    {
+      "path": "scripts/verify-parent-task-visibility-review.mjs",
+      "bytes": 14240,
+      "sha256": "499872631ebef4ac929889b016696512fc37a30a524c704cb7cf632faa4e89b2"
+    },
+    {
+      "path": "scripts/verify-started-editing-review.mjs",
+      "bytes": 22614,
+      "sha256": "52bb17e9c52c115cf56735ba0ffee96d98bfc0718c140f54ee7d51f63d318038"
+    },
+    {
+      "path": "scripts/verify-unstarted-task-delete-review.mjs",
+      "bytes": 4350,
+      "sha256": "330089099c1436a9a8e6002a6cd09188583e9e9249dae919b927bc99969a599c"
+    }
+  ]
+}

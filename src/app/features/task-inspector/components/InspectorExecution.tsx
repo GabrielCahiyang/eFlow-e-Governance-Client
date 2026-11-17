@@ -1,4 +1,5 @@
 import {useEffect,useState} from 'react';
+import {Button} from '@vibe/core';
 import {useAuth} from '../../../contexts/AuthContext';
 import {submitProgressUpdate,subscribeToProgressUpdates} from '../../../services/taskDiscussionService';
 import {submitTaskForReview,type Task} from '../../tasks';
@@ -6,7 +7,7 @@ import {WorkExecutionForm,approvedWorkProgress} from '../../work-state';
 import type {Subtask} from '../../subtasks';
 import {getTaskSubmissionReadiness} from '../../tasks/selectors/submissionReadiness';
 
-export function InspectorExecution({task,subtasks,canStart,canResume,canSubmit,canPostProgress,busy,onChanged,onSubmitted,initialAction,pendingDependencies=0,startBlockedReason=null,isProjectOnHold=false}:{initialAction?:'stuck'|'submit';pendingDependencies?:number;startBlockedReason?:string|null;task:Task;canStart:boolean;canResume:boolean;canSubmit:boolean;canPostProgress:boolean;busy:boolean;onStart:()=>void;onChanged?:()=>void;onSubmitted:()=>void;subtasks:Subtask[];isProjectOnHold?:boolean}){
+export function InspectorExecution({task,subtasks,canStart,canResume,canSubmit,canPostProgress,busy,onStart,onChanged,onSubmitted,initialAction,pendingDependencies=0,startBlockedReason=null,isProjectOnHold=false}:{initialAction?:'stuck'|'submit';pendingDependencies?:number;startBlockedReason?:string|null;task:Task;canStart:boolean;canResume:boolean;canSubmit:boolean;canPostProgress:boolean;busy:boolean;onStart:()=>void;onChanged?:()=>void;onSubmitted:()=>void;subtasks:Subtask[];isProjectOnHold?:boolean}){
  const {user,userProfile}=useAuth();
  const [progress,setProgress]=useState({taskId:task.id,blocker:'',confirmed:false,error:''});
  const [retry,setRetry]=useState(0);
@@ -19,7 +20,8 @@ export function InspectorExecution({task,subtasks,canStart,canResume,canSubmit,c
  const readiness=getTaskSubmissionReadiness(task,subtasks);
 
  const steps=approvedWorkProgress(subtasks.map(item=>({id:item.id,parent_subtask_id:item.parentSubtaskId,status:item.status})));
- const editable=(canPostProgress||canStart||canResume||canSubmit)&&(task.status!=='todo'||canStart);
+ const waitingToStart=['todo','changes_requested'].includes(task.status);
+ const editable=!waitingToStart&&(canPostProgress||canSubmit);
  return <div className="space-y-4">
   {isProjectOnHold && (
    <div role="status" className="task-page__hold-banner">
@@ -35,7 +37,8 @@ export function InspectorExecution({task,subtasks,canStart,canResume,canSubmit,c
   {progressError?<div role="alert"><p>Could not refresh work updates. {progress.confirmed?'The last confirmed blocker is still shown.':'Blocker status could not be verified.'} {progressError}</p><button type="button" onClick={()=>setRetry(value=>value+1)}>Retry work updates</button></div>:progressPending&&<p role="status">Checking work updates…</p>}
   {task.rejectionNote&&task.status==='changes_requested'&&<div className="work-state-message"><strong>Requested changes</strong><p>{task.rejectionNote}</p></div>}
   {readiness.totalSubtasks>0&&<div className="work-state-message"><strong>{steps.total?steps.approved:readiness.approvedSubtasks} of {steps.total||readiness.totalSubtasks} steps complete</strong><span>{task.status==='completed'?'Task approved':task.status==='for_review'?'Final review in progress':readiness.ready?'Ready for final review':'Finish the remaining steps before final submission.'}</span></div>}
-  {!isProjectOnHold && <WorkExecutionForm initialAction={initialAction} key={task.id} initialBlocker={blocker} status={task.status} statusTarget={{taskId:task.id,customId:task.customStatusId,onChanged}} readOnly={!editable} disabled={busy||progressPending||!!progressError} canSubmit={readiness.ready&&!pendingDependencies&&(canSubmit||canStart||canResume)} onCommitted={submitted=>{if(submitted)onSubmitted();else onChanged?.();}} onSave={async input=>{
+  {!isProjectOnHold&&waitingToStart&&(canStart||canResume)&&<Button disabled={busy||progressPending||!!progressError} onClick={onStart}>{busy?'Starting.':canResume?'Resume work':'Start work'}</Button>}
+  {!isProjectOnHold && !waitingToStart && <WorkExecutionForm initialAction={initialAction} key={task.id} initialBlocker={blocker} status={task.status} statusTarget={{taskId:task.id,customId:task.customStatusId,onChanged}} readOnly={!editable} disabled={busy||progressPending||!!progressError} canSubmit={readiness.ready&&!pendingDependencies&&(canSubmit||canStart||canResume)} onCommitted={submitted=>{if(submitted)onSubmitted();else onChanged?.();}} onSave={async input=>{
    if(!user?.id)throw new Error('Sign in to update work.');
    if(!editable)throw new Error(startBlockedReason||'This task cannot be updated yet.');
    await submitProgressUpdate({taskId:task.id,author:{id:user.id,name:userProfile?.full_name||'You'},blockerCategory:input.state==='stuck'?'Other':'None',blocker:input.blocker,note:input.note,nextStep:input.nextStep,attachment:input.files[0]});

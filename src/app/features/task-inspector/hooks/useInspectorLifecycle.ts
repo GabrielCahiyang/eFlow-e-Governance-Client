@@ -21,6 +21,7 @@ export function useInspectorLifecycle(task: Task | null, onChanged?: () => void,
    const current=await fetchTaskById(task.id);
    if(currentScope.current.taskId!==task.id||currentScope.current.actorId!==user?.id)throw new Error('Your current task or sign-in changed. Refresh before starting work.');
    if(!current||current.status!==task.status||!['todo','changes_requested'].includes(String(current.status))||Date.parse(String(current.updated_at||''))!==task.updatedAt)throw new Error('The task changed while Start work was open. Refresh and review the current task.');
+   if(!user?.id||current.assigned_to!==user.id)throw new Error('Only the appointed Task Lead can start or resume this task.');
    await updateTaskStatus(task.id,'in_progress',user?.id?{id:user.id,name:userProfile?.full_name||''}:undefined);onChanged?.();
   }catch(reason){setError(reason instanceof Error?reason.message:'Could not update this task.');}
   finally{pending.current=false;setBusy(false);}

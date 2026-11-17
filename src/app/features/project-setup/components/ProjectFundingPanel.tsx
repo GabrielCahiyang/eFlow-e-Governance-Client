@@ -1,7 +1,7 @@
 import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import {useEffect,useId,useRef,useState} from 'react';
 import {useNavigationBlocker} from '../../../shared/navigationGuard';
-import {Plus,Wallet,Check,X,Undo2} from 'lucide-react';
+import {Plus,Wallet,Check,Trash2,Undo2} from 'lucide-react';
 import {MoneyInput} from '../../../components/ui/MoneyInput';
 import {DecisionModal} from '../../../components/ui/DecisionModal';
 import {decimalError} from '../../../shared/numericValidation';
@@ -58,7 +58,7 @@ export function ProjectFundingPanel({data,reload,wizard=false,allowFundingEntry=
  return <section className="pf-panel" aria-label="Project budget">
  <header><div><h2><Wallet size={20}/> Project budget</h2><p>Authorize funding from named Office Budget sources. Tasks divide this funding; they do not charge Office Budget again.</p></div><span className="pf-status-badge" data-tone={data.project.funding_not_required?'neutral':data.total>0?'positive':data.fundingRequests.length?'warning':'attention'}>{data.project.funding_not_required?'Funding not required':data.total>0?'Funding authorized':data.fundingRequests.length?'Funding request pending':'Funding required · no funding authorized'}</span></header>
  <div className="pf-summary">{[['Authorized budget',data.total],['Allocated to tasks',data.allocated],['Unallocated',data.unallocated],['Cash released',data.released],['Actual spent',data.spent],['Cash returned',data.returned??0],['Outstanding advances',data.outstanding??0]].map(([label,value])=><div key={String(label)}><small>{label}</small><strong>{money(Number(value))}</strong></div>)}</div>
- {data.funds.length>0&&<div className="pf-table-scroll"><table><thead><tr><th>Funding source</th><th>Fiscal year</th><th>Authorized</th><th>Unallocated</th>{data.canAuthorize&&<th>Closeout</th>}</tr></thead><tbody>{data.funds.map(source=><tr key={source.id}><td>{source.name}</td><td>FY {source.fiscal_year}</td><td>{money(source.amount)}</td><td>{money(source.available)}</td>{data.canAuthorize&&<td><button disabled={busy||source.available<=0} onClick={()=>{const requestId=crypto.randomUUID();confirmDecision({title:'Release unused project funding',description:source.name+' · '+money(source.available),label:'Release unused funding',action:reason=>projectFlowCall('release_project_funding',{p_project:data.project.id,p_source:source.id,p_amount:source.available,p_reason:reason,p_key:requestId}),success:'Unused project funding released with an audit record.'});}}><Undo2 size={14}/>Release unused</button></td>}</tr>)}</tbody></table></div>}
+ {data.funds.length>0&&<div className="pf-table-scroll"><table><thead><tr><th>Funding source</th><th>Fiscal year</th><th>Authorized</th><th>Unallocated</th>{data.canAuthorize&&<th>Closeout</th>}</tr></thead><tbody>{data.funds.map(source=><tr key={source.id}><td>{source.name}</td><td>FY {source.fiscal_year}</td><td>{money(source.amount)}</td><td>{money(source.available)}</td>{data.canAuthorize&&<td><button className="pf-closeout-button" disabled={busy||source.available<=0} onClick={()=>{const requestId=crypto.randomUUID();confirmDecision({title:'Return unused funding to Office Budget',description:'Only the unallocated amount is returned to Office Budget. Task allocations and cash records stay recorded. '+source.name+' · '+money(source.available),label:'Return to Office Budget',action:reason=>projectFlowCall('release_project_funding',{p_project:data.project.id,p_source:source.id,p_amount:source.available,p_reason:reason,p_key:requestId}),success:'Unused funding returned to Office Budget with an audit record.'});}}><Undo2 size={14}/>Return to Office Budget</button></td>}</tr>)}</tbody></table></div>}
  {wizard&&!data.canAuthorize&&<p className="pf-warning">Only the appointed Office Head can authorize project funding.</p>}
  {allowFundingEntry&&entryAllowed&&!data.project.funding_not_required&&!['completed','archived'].includes(data.project.status)&&<fieldset disabled={busy||uncertain} className="min-w-0 space-y-4"><h3>{data.canAuthorize?'Add authorized funding':'Request additional project funding'}</h3>
  {!sources.length&&<p className="pf-warning">{wizard?'No Office Budget sources with available balances overlap the project dates.':'No funding is available from Office Budget. Check the Office Budget balances first.'}</p>}
@@ -78,10 +78,10 @@ export function ProjectFundingPanel({data,reload,wizard=false,allowFundingEntry=
    }}><option value="">{wizard?'Select an Office Budget source':'Select fiscal year and account'}</option>
    {rowSources.map(source=><option key={source.id} value={source.id} disabled={lines.some((row,i)=>i!==index&&row.partitionId===source.id)}>{!wizard&&`FY ${source.year} · `}{source.name} · {money(source.available)} available</option>)}</select></label>
    <label>Amount<MoneyInput min="0" step="0.01" value={line.amount||''} onValueChange={value=>setLines(rows=>rows.map((row,i)=>i===index?{...row,amount:Number(value)}:row))}/></label>
-   <WorkspaceTooltip content={`Remove funding row ${index+1}`}><button type="button" aria-label={`Remove funding row ${index+1}`} disabled={lines.length===1} onClick={()=>{
+   <WorkspaceTooltip content={`Remove funding row ${index+1}`}><button type="button" className="pf-remove-funding" aria-label={`Remove funding row ${index+1}`} disabled={lines.length===1} onClick={()=>{
     setLines(rows=>rows.filter((_,i)=>i!==index));
     setSelectedYears(current=>Object.fromEntries(Object.entries(current).filter(([key])=>Number(key)!==index).map(([key,value])=>[Number(key)>index?Number(key)-1:Number(key),value])));
-   }}><X size={16}/></button></WorkspaceTooltip>
+   }}><Trash2 size={16}/></button></WorkspaceTooltip>
   </div>;
  })}
  <button type="button" disabled={lines.length>=sources.length} onClick={()=>setLines(rows=>rows.length>=sources.length?rows:[...rows,{partitionId:'',amount:0}])}><Plus size={16}/>Add funding source</button>

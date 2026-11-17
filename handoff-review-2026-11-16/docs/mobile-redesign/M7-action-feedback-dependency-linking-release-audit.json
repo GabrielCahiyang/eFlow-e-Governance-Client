@@ -1,0 +1,15 @@
+{
+  "at": "2026-11-16T11:25:31.536Z",
+  "method": "Exact Hermes string-table entries; quoted literals for JavaScript. Numeric substrings are not credential matches.",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "bundles": [
+    "dist/android/_expo/static/js/android/index-16202a3939e581c5b984cdb4dbab8882.hbc",
+    "dist/ios/_expo/static/js/ios/index-4ff1eec50d3f00962aab682a20a73eb1.hbc",
+    "C:/Users/james/projects/eFlow-e-Governance-ClientMobile/artifacts/M7/action-feedback-dependency-linking-embedded-v57.hbc"
+  ],
+  "developmentAccountLiteralCount": 6,
+  "developmentAccountLiteralsFound": 0
+}

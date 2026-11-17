@@ -35,6 +35,11 @@ graph.json
 .env.development.local
 .env.test.local
 .env.production.local
+.env.*
+!.env.example
+
+# Local credential notes must never be committed.
+/New Text Document.txt
 
 # Editor directories and files
 .vscode/*

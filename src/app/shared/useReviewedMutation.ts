@@ -4,6 +4,7 @@ import {
   type ConfirmationOptions,
 } from "../components/ui/useConfirmation";
 import { useExplicitDraft } from "./useExplicitDraft";
+import { MutationRejectedError } from "./MutationRejectedError";
 
 type ReviewedMutation = {
   key: string;
@@ -73,7 +74,8 @@ export function useReviewedMutation(context: string) {
         outcomes.current.delete(key);
       return true;
     } catch (error) {
-      if (started) outcomes.current.add(key);
+      const rejected = error instanceof MutationRejectedError;
+      if (started && !rejected) outcomes.current.add(key);
       if (latestContext.current !== origin) return saved;
       setTone(saved ? "warning" : "error");
       const detail =
@@ -83,7 +85,7 @@ export function useReviewedMutation(context: string) {
       setMessage(
         saved
           ? `${action.success} The view could not refresh. Refresh the current record; do not repeat the write.`
-          : started
+          : started && !rejected
             ? `${detail} The result needs verification. Refresh and check the current record before retrying.`
             : detail,
       );

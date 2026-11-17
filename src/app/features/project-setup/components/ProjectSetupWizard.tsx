@@ -1,5 +1,5 @@
 import { readableUiError } from '../../../shared/userFacingError';
-import {useEffect,useRef,useState} from 'react';
+import {useEffect,useId,useRef,useState} from 'react';
 import {Button} from '@vibe/core';
 import {ArrowLeft,ArrowRight,Check,ClipboardList,Layers,CalendarDays,Wallet,ShieldCheck,Save,UsersRound,FileUp} from 'lucide-react';
 import {FeedbackState} from '../../../components/ui/FeedbackState';
@@ -37,12 +37,15 @@ export function ProjectSetupWizard({projectId,profiles,profilesLoading,organizat
  const peopleRequest=useRef<ProjectDraftRecovery['peopleRequest']>(undefined);
  const [peopleProjectId,setPeopleProjectId]=useState('');
  const flow=useProjectFlow(id,!!id),pending=useRef(false),createdId=useRef(id),hydrated=useRef(!projectId);
- useEffect(()=>{if(flow.data&&!hydrated.current){hydrated.current=true;setBase(flow.data.project);setDraft(fields(flow.data.project));}},[flow.data?.project.id]);
+ useEffect(()=>{if(flow.data&&!hydrated.current){hydrated.current=true;setBase(flow.data.project);setDraft({...fields(flow.data.project),lead:creatorId||flow.data.project.project_lead_id||''});}},[flow.data?.project.id]);
  const [taskDraftBusy,setTaskDraftBusy]=useState(false);
+ const actionId=useId(),peopleFormId=actionId+'-people',tasksFormId=actionId+'-tasks';
+ const [teamAction,setTeamAction]=useState({label:'Next: Draft tasks',disabled:true,busy:false});
+ const [taskAction,setTaskAction]=useState({label:'Open project',disabled:false});
  const [projectType,setProjectType]=useState('');
  const [manageTemplatesOpen,setManageTemplatesOpen]=useState(false);
  const [templateInitialCreate,setTemplateInitialCreate]=useState(false);
- const editable=!projectId||flow.data?.canAuthorize===true,locked=busy||fundingBusy||taskDraftBusy;
+ const editable=!projectId||flow.data?.canAuthorize===true,locked=busy||fundingBusy||taskDraftBusy||teamAction.busy;
  const templateLibrary=useProjectTaskTemplates(editable&&!pdfMode);
  const selectedTemplate=templateLibrary.templates.find(template=>template.id===projectType);
  const dirty=JSON.stringify(draft)!==JSON.stringify(base?fields(base):{...empty,lead:creatorId||''});
@@ -78,7 +81,7 @@ export function ProjectSetupWizard({projectId,profiles,profilesLoading,organizat
 
   const latest=await readProjectFlow(target);let current=latest.project;const metadata=(p:ProjectFlow['project'])=>JSON.stringify({...fields(p),noFunding:false});
   if(base&&current.updated_at!==base.updated_at&&metadata(current)!==metadata(base))throw new Error('Project details changed elsewhere. Your entries are retained; close and reopen setup to review the current project before saving.');
-  const proposed={...draft,noFunding:latest.total>0?false:draft.noFunding};
+  const proposed={...draft,lead:creatorId||draft.lead,noFunding:latest.total>0?false:draft.noFunding};
   if(JSON.stringify(proposed)!==JSON.stringify(fields(current))){current=await projectFlowCall<ProjectFlow['project']>('save_project_definition',{p_project:target,p_details:{...proposed,version:current.updated_at}});setPeopleProjectId('');}
   setBase(current);setDraft(fields(current));return target;
  }
@@ -150,47 +153,27 @@ export function ProjectSetupWizard({projectId,profiles,profilesLoading,organizat
   const funding=saved.projectId?readFundingDraft(recoveryKey+':funding:'+saved.projectId):undefined;
   setFundingDirty(!!funding);setUncertain(!!funding?.request);
   createdId.current=saved.projectId;creationAttempt.current=saved.creationAttempt;peopleRequest.current=saved.peopleRequest;
-  setId(saved.projectId);setDraft({...saved.values,...(!projectId&&creatorId?{lead:creatorId}:{})});setBase(saved.base);setPeople(saved.people??[]);setProjectType(saved.projectType??'');
+  setId(saved.projectId);setDraft({...saved.values,...(creatorId?{lead:creatorId}:{})});setBase(saved.base);setPeople(saved.people??[]);setProjectType(saved.projectType??'');
   setPeopleProjectId(saved.peopleProjectId??'');
   setPdfMode(saved.importPdf??importPdf);
   setStep(funding?.request?3:saved.peopleProjectId?saved.step:Math.min(saved.step,reviewStep));
   setRecovery(undefined);
  }
  if(recovery)return <Modal isOpen title="Create project" description="An unfinished project draft is saved on this device." onClose={close} footer={<div className="pf-actions"><button type="button" disabled={!!recovery.creationAttempt} onClick={()=>{storeProjectDraft(recoveryKey);setRecovery(undefined);}}>Start new project</button><button type="button" className="pf-primary" onClick={()=>continueDraft(recovery)}>Continue draft</button></div>}>{null}</Modal>;
- return <Modal isOpen title={projectId?'Project setup':pdfMode?'Create project with AI':'Create a project'} description="Set up the project, choose its team, and draft the work plan." width="max-w-7xl" className="pf-wizard-modal" bodyClassName="pf-wizard-body" footerClassName="pf-wizard-footer-shell" onClose={close} preventClose={locked} footer={manageTemplatesOpen ? <div className="pf-wizard-footer">
-  <div className="pf-wizard-footer-left"><button type="button" disabled={locked} onClick={()=>{setManageTemplatesOpen(false);setTemplateInitialCreate(false);}}><ArrowLeft size={16}/>Back to project details</button><p className="pf-wizard-footer-progress">Templates<span>Starter checklists</span></p></div>
-  <div className="pf-wizard-footer-actions"/>
- </div> : <div className="pf-wizard-footer">
+ return <><Modal isOpen={!manageTemplatesOpen} title={projectId?'Project setup':pdfMode?'Create project with AI':'Create a project'} description="Set up the project, choose its team, and draft the work plan." width="max-w-7xl" className="pf-wizard-modal" bodyClassName="pf-wizard-body" footerClassName="pf-wizard-footer-shell" onClose={close} preventClose={locked} footer={<div className="pf-wizard-footer">
   <div className="pf-wizard-footer-left">{step>0&&<button type="button" disabled={locked||loading} onClick={()=>jump(step-1)}><ArrowLeft size={16}/>Back</button>}<p className="pf-wizard-footer-progress">Step {step+1} of {wizardSteps.length}<span>{wizardSteps[step].title}</span></p></div>
   <div className="pf-wizard-footer-actions">
-   {step===tasksStep ? <button type="button" disabled={locked} onClick={close}>Open project<ArrowRight size={16}/></button> : step===peopleStep ? <button type="button" disabled={locked} onClick={()=>jump(tasksStep)}>Next: {wizardSteps[tasksStep].title}<ArrowRight size={16}/></button> : <>
+   {step===tasksStep ? <button type={pdfMode?"button":"submit"} form={pdfMode?undefined:tasksFormId} className="pf-primary" disabled={locked||!pdfMode&&taskAction.disabled} onClick={pdfMode?close:undefined}>{pdfMode?'Open project':taskAction.label}<ArrowRight size={16}/></button> : step===peopleStep ? <button type="button" className="pf-primary" disabled={locked||teamAction.disabled} onClick={()=>{const form=document.getElementById(peopleFormId);if(form instanceof HTMLFormElement)form.requestSubmit();else jump(tasksStep);}}>{pdfMode&&teamAction.label==='Next: Draft tasks'?'Next: Import AI PDF':teamAction.label}<ArrowRight size={16}/></button> : <>
     {editable&&<button type="button" disabled={locked||!draft.title.trim()||fundingDirty||uncertain} onClick={saveDraft}><Save size={16}/>Save draft and close</button>}
     <button type="button" className="pf-primary" disabled={locked||loading||uncertain||(step===reviewStep&&!editable)} onClick={next}>{locked?'Saving…':step===reviewStep?'Next: Add people':'Next'}<ArrowRight size={16}/></button>
    </>}
   </div>
  </div>}>
   <nav className="pf-wizard-steps" aria-label="Project setup steps">{wizardSteps.map((item,index)=><button type="button" key={item.title} disabled={manageTemplatesOpen||locked||loading||uncertain||(index>=peopleStep&&!canOpenPeople)} onClick={()=>jump(index)} aria-current={step===index?'step':undefined} data-complete={complete[index]||false}><span>{complete[index]?<Check size={17}/>:<item.icon size={17}/>}</span><div><small>{String(index+1).padStart(2,'0')}</small><strong>{item.title}</strong></div></button>)}</nav>
-  <div className="pf-wizard-content"><FlowError error={error||flow.error}/>{loading?<p role="status">Loading saved project setup…</p>:manageTemplatesOpen ? <div className="pf-starter-subview">
-   <div className="pf-starter-subview-bar">
-    <Button type="button" kind="tertiary" size="small" onClick={()=>{setManageTemplatesOpen(false);setTemplateInitialCreate(false);}}>← Back to project details</Button>
-    <span>Project starter templates</span>
-   </div>
-   <ProjectTaskTemplateLibrary
-    compactHeader
-    initialCreate={templateInitialCreate}
-    onTemplatesChanged={saved=>{
-     void templateLibrary.reload();
-     if(saved?.id){
-      setProjectType(saved.id);
-      setManageTemplatesOpen(false);
-      setTemplateInitialCreate(false);
-     }
-    }}
-   />
-  </div> : <>
+  <div className="pf-wizard-content"><FlowError error={error||flow.error}/>{loading?<p role="status">Loading saved project setup…</p>:<>
    {step<3&&<div className={step===0?'pf-wizard-opening':undefined}>
     {step===0 ? <div className="pf-wizard-details">
-     <ProjectSetupFields step={step} draft={draft} update={update} profiles={profiles} disabled={locked||!editable} officeName={officeName} automaticLead={!projectId}/>
+     <ProjectSetupFields step={step} draft={draft} update={update} profiles={profiles} disabled={locked||!editable} officeName={officeName} automaticLead/>
      {editable&&!pdfMode&&<div className="pf-wizard-fields pf-starter-block">
       <div className="pf-starter-header">
        <label>Project type (optional)
@@ -212,7 +195,7 @@ export function ProjectSetupWizard({projectId,profiles,profilesLoading,organizat
        <p className="pf-starter-hint">Create a starter template to reuse standard task groups and subtasks across new projects.</p>
       )}
      </div>}
-    </div> : <ProjectSetupFields step={step} draft={draft} update={update} profiles={profiles} disabled={locked||!editable} officeName={officeName} automaticLead={!projectId}/>}
+    </div> : <ProjectSetupFields step={step} draft={draft} update={update} profiles={profiles} disabled={locked||!editable} officeName={officeName} automaticLead/>}
     {step===0&&<ProjectOpeningPreview title={draft.title} selectedTemplate={selectedTemplate}/>}
    </div>}
    <section hidden={step!==3} aria-label="Project funding step"><p className="pf-eyebrow">PROJECT FUNDING</p><h2>Set the funding sources</h2><p>Choose the fiscal year, Office Budget source and amount. The project total is calculated from those rows.</p><label className="pf-checkbox"><input type="checkbox" checked={draft.noFunding} disabled={!editable||!!flow.data?.funds.length||locked||fundingDirty||uncertain} onChange={e=>update('noFunding',e.target.checked)}/>No funding required for this project</label>{!draft.noFunding&&!detailsComplete&&<p className="pf-warning">Complete Details, Scope, and Dates before choosing funding.</p>}
@@ -220,12 +203,19 @@ export function ProjectSetupWizard({projectId,profiles,profilesLoading,organizat
     {!draft.noFunding&&detailsComplete&&!locked&&(needsFundingDetails&&error||flow.error)&&<button type="button" className="pf-funding-retry" onClick={needsFundingDetails?prepareFunding:()=>void perform(flow.reload)}>Retry loading funding sources</button>}
     {!draft.noFunding&&id&&base&&flow.data?.project.id===id&&<fieldset disabled={busy||dirty||!detailsComplete} className="min-w-0"><ProjectFundingPanel key={id} wizard recoveryKey={fundingRecoveryKey} data={flow.data} reload={flow.reload} onBusyChange={setFundingBusy} onDraftChange={setFundingDirty} onUncertainChange={setUncertain}/></fieldset>}</section>
    {step===reviewStep&&<section className="pf-wizard-review"><p className="pf-eyebrow">REVIEW</p><h2>Ready to build the work plan?</h2><h3>{draft.title}</h3><p>{draft.description}</p><dl><div><dt>Scope</dt><dd>{draft.scope}</dd></div><div><dt>Project lead</dt><dd>{profiles.find(p=>p.id===draft.lead)?.full_name||'Assigned project lead'}</dd></div><div><dt>Timeline</dt><dd>{draft.start} → {draft.end}</dd></div><div><dt>Project budget</dt><dd>{draft.noFunding?'No funding required':`₱${(flow.data?.total||0).toLocaleString('en-PH',{minimumFractionDigits:2})}`}</dd></div></dl>{!draft.noFunding&&<ul className="pf-review-sources">{flow.data?.funds.map(source=><li key={source.id}><span>FY {source.fiscal_year} · {source.name}</span><strong>₱{source.amount.toLocaleString('en-PH',{minimumFractionDigits:2})}</strong></li>)}</ul>}<p>Continue to choose your team, or open the project and add people later.</p></section>}
-   {step===peopleStep&&peopleProjectId&&<SetupPeople key={peopleProjectId} projectId={peopleProjectId} projectTitle={draft.title} projectLeadId={draft.lead} projectStatus={flow.data?.project.status||'planning'} governed={governed} profiles={profiles} profilesLoading={profilesLoading} organizations={organizations} tasks={tasks} onClose={()=>setStep(tasksStep)}/>}
+   {step===peopleStep&&peopleProjectId&&<SetupPeople key={peopleProjectId} projectId={peopleProjectId} projectTitle={draft.title} projectLeadId={draft.lead} projectStatus={flow.data?.project.status||'planning'} governed={governed} profiles={profiles} profilesLoading={profilesLoading} organizations={organizations} tasks={tasks} formId={peopleFormId} onSaveStateChange={setTeamAction} onClose={()=>{setTeamAction({label:'Next: Draft tasks',disabled:true,busy:false});setStep(tasksStep);}}/>}
    {step===tasksStep&&peopleProjectId&&(pdfMode
     ? <ProjectPdfImportPanel key={peopleProjectId} projectId={peopleProjectId} projectTitle={draft.title} startDate={draft.start} embedded onBusyChange={setTaskDraftBusy}/>
-    : <ProjectTaskDraftStep key={peopleProjectId} projectId={peopleProjectId} project={draft} templates={templateLibrary.templates} templateError={templateLibrary.error} initialTemplate={selectedTemplate} onTemplateSaved={saved=>{void templateLibrary.reload();setProjectType(saved.id);}} onSaved={()=>finish(peopleProjectId)} onBusyChange={setTaskDraftBusy}/>)}
+    : <ProjectTaskDraftStep formId={tasksFormId} onSaveStateChange={setTaskAction} key={peopleProjectId} projectId={peopleProjectId} project={draft} templates={templateLibrary.templates} templateError={templateLibrary.error} initialTemplate={selectedTemplate} onTemplateSaved={saved=>{void templateLibrary.reload();setProjectType(saved.id);}} onSaved={()=>finish(peopleProjectId)} onBusyChange={setTaskDraftBusy}/>)}
   </>}</div>
- </Modal>;
+ </Modal>
+ {manageTemplatesOpen&&<Modal isOpen title="Project starter templates" description="Create and manage reusable task checklists." width="max-w-5xl" onClose={()=>{setManageTemplatesOpen(false);setTemplateInitialCreate(false);}}>
+  <ProjectTaskTemplateLibrary compactHeader initialCreate={templateInitialCreate} onTemplatesChanged={saved=>{
+   void templateLibrary.reload();
+   if(saved?.id){setProjectType(saved.id);setManageTemplatesOpen(false);setTemplateInitialCreate(false);}
+  }}/>
+ </Modal>}
+ </>;
 }
 
 function SetupPeople({projectId,...props}: {projectId:string} & Parameters<typeof ProjectPeoplePage>[0]){

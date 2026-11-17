@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "checks": 50,
+  "environment": "disposable local PGlite",
+  "crlf": false,
+  "productionMutations": 0,
+  "limitations": "Synthetic scope/identity/history helpers. Hosted authenticated roles, complete trigger graph, RLS, concurrent sessions, Android/iOS device and staging acceptance remain BLOCKED."
+}

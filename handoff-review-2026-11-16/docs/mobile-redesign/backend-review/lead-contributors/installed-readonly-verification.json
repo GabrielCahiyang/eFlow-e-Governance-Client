@@ -1,0 +1,35 @@
+{
+  "project": "ixnfphgjyelhckjwjkdv",
+  "environment": "production",
+  "verification": "read-only installed-function comparison",
+  "functions": [
+    {
+      "signature": "eflow_publication.guard_active_subtask_staffing()",
+      "matches_reviewed_definition": true,
+      "installed_md5": "9eb187297d2f83defdfc7fba6c40595c"
+    },
+    {
+      "signature": "eflow_r7.operation_capabilities(uuid,uuid)",
+      "matches_reviewed_definition": true,
+      "installed_md5": "00eba07c731ce6a20bb6428d71656891"
+    },
+    {
+      "signature": "eflow_r7.command(uuid,integer,uuid,text,jsonb)",
+      "matches_reviewed_definition": true,
+      "installed_md5": "0c7216db9315c0bcfa59dce145a00bb3"
+    },
+    {
+      "signature": "eflow_publication.root_contributor_change_locked(uuid)",
+      "matches_reviewed_definition": true,
+      "installed_md5": "d84e1bd6d4e0b664d636d40807628744"
+    },
+    {
+      "signature": "eflow_publication.guard_active_root_contributor_change()",
+      "matches_reviewed_definition": true,
+      "installed_md5": "b116972991afaea1ec5c22f5e7363939"
+    }
+  ],
+  "all_five_match": true,
+  "authenticated_workflow": "NOT RUN; approved actors and fixtures not designated for agent writes",
+  "database_mutations_by_agent": 0
+}

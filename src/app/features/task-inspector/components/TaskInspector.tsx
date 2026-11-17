@@ -98,7 +98,7 @@ function TaskInspectorContent({
   // Rework is now the first-class `changes_requested` state (plan §2.1).
   const rejected = task.status === "changes_requested";
   const currentUserIsLead = Boolean(user?.id && isTaskLead(task, user.id));
-  const isOwnerOrLead = task.assigneeId === user?.id || currentUserIsLead;
+  const isOwnerOrLead = !!user?.id && task.assigneeId === user.id;
   const canManageSubtasks = resolveSubtaskManagementCapability(readOnly || proposedOffice, currentUserIsLead);
   // Fiscal authority belongs to the appointed Office Head, independently of
   // task execution and project contributor selection.

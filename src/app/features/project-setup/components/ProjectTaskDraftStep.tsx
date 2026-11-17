@@ -1,5 +1,5 @@
 import { readableUiError } from '../../../shared/userFacingError';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from '@vibe/core';
 import { BookmarkPlus, ClipboardList, Sparkles } from 'lucide-react';
 import { ProjectImportSaveError, saveReviewedProject } from '../../project-import';
@@ -13,7 +13,7 @@ import { useNavigationBlocker } from '../../../shared/navigationGuard';
 import { generateProjectTaskGroups, projectSetupTaskPayload } from '../services/projectTaskDraft';
 import { FlowError } from './FlowError';
 
-export function ProjectTaskDraftStep({ projectId, project, templates, templateError, initialTemplate, onTemplateSaved, onSaved, onBusyChange }: {
+export function ProjectTaskDraftStep({ projectId, project, templates, templateError, initialTemplate, onTemplateSaved, onSaved, onBusyChange, formId, onSaveStateChange }: {
   projectId: string;
   project: { title: string; description: string; scope: string; start?: string; end?: string };
   templates: ProjectTaskTemplate[];
@@ -22,6 +22,8 @@ export function ProjectTaskDraftStep({ projectId, project, templates, templateEr
   onTemplateSaved?: (saved: ProjectTaskTemplate) => void;
   onSaved: () => void;
   onBusyChange: (busy: boolean) => void;
+  formId?: string;
+  onSaveStateChange?: (state: { label: string; disabled: boolean }) => void;
 }) {
   const [groups, setGroups] = useState<ProjectTaskGroup[]>(initialTemplate?.groups ?? []);
   const [omitted, setOmitted] = useState<Set<string>>(new Set());
@@ -64,6 +66,9 @@ export function ProjectTaskDraftStep({ projectId, project, templates, templateEr
   })).filter(group => group.tasks.length);
   const taskCount = selected.reduce((count, group) => count + group.tasks.length, 0);
   const subtaskCount = selected.flatMap(group => group.tasks).reduce((count, task) => count + task.subtasks.length, 0);
+  useEffect(() => {
+    onSaveStateChange?.({label: busy === 'saving' ? 'Saving.' : retry ? 'Retry saving tasks' : taskCount ? 'Add tasks and open project' : 'Open project', disabled: !!busy});
+  }, [busy, retry, taskCount, onSaveStateChange]);
 
   async function run(kind: NonNullable<typeof busy>, action: () => Promise<void>) {
     if (pending.current) return;
@@ -104,7 +109,7 @@ export function ProjectTaskDraftStep({ projectId, project, templates, templateEr
     onTemplateSaved?.(saved);
   });
 
-  return <section className="pf-task-draft" aria-label="Draft tasks">
+  return <form id={formId} className="pf-task-draft" aria-label="Draft tasks" onSubmit={event => {event.preventDefault();if(!busy&&!pending.current){if(taskCount)save();else onSaved();}}}>
     <div><h2>Draft tasks</h2><p>Use a shared template or generate a draft from your project details. Choose the tasks and subtasks you want to add.</p></div>
     <div className="pf-task-draft-options">
       <label><span><ClipboardList size={16}/> Use a template</span>
@@ -204,12 +209,12 @@ export function ProjectTaskDraftStep({ projectId, project, templates, templateEr
               <BookmarkPlus size={15} style={{ marginRight: 5 }} />
               Save as template
             </Button>
-            <button type="button" className="pf-primary" disabled={!taskCount || !!busy} onClick={save}>
+            {!formId && <button type="button" className="pf-primary" disabled={!taskCount || !!busy} onClick={save}>
               {busy === 'saving' ? 'Saving…' : retry ? 'Retry saving tasks' : 'Add tasks and open project'}
-            </button>
+            </button>}
           </div>
         </footer>
       </>
     )}
-  </section>;
+  </form>;
 }

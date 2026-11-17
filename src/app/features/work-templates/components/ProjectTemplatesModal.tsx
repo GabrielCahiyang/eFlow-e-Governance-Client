@@ -1,15 +1,15 @@
 import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
-import { CalendarClock, ClipboardList, Layers, X } from "lucide-react";
+import { ClipboardList, Layers, X } from "lucide-react";
 import { useState } from "react";
 import { FeatureDialog } from "../../../components/ui/FeatureDialog";
 import type { Employee } from "../../members";
-import { RecurringTaskTemplatesPanel, type Task } from "../../tasks";
+import type { Task } from "../../tasks";
 import type { ProjectTaskTemplate } from "../projectTaskTemplates";
 import { ProjectTaskTemplateLibrary } from "./ProjectTaskTemplateLibrary";
 import { SubtaskTemplateLibrary } from "./SubtaskTemplateLibrary";
 import "./workTemplates.css";
 
-type TemplateTab = "project" | "subtasks" | "recurring";
+type TemplateTab = "project" | "subtasks";
 
 export function ProjectTemplatesModal({
   open,
@@ -38,7 +38,7 @@ export function ProjectTemplatesModal({
       open={open}
       onClose={onClose}
       title="Reusable work library"
-      description="Standardize project starter templates, Team Leader checklists, and recurring tasks."
+      description="Standardize project starter templates and Team Leader checklists."
       contentClassName="!h-[88vh] !max-w-6xl max-sm:!h-[100dvh]"
       showCloseButton={false}
     >
@@ -48,7 +48,7 @@ export function ProjectTemplatesModal({
             <div className="eflow-tpl-eyebrow">Projects · Templates</div>
             <h2 className="eflow-tpl-modal-title">Reusable work library</h2>
             <p className="eflow-tpl-modal-subtitle">
-              Standardize project starter templates, recurring tasks, and repeatable Team Leader checklists.
+              Standardize project starter templates and repeatable Team Leader checklists.
             </p>
           </div>
           <WorkspaceTooltip content="Close templates library"><button
@@ -87,24 +87,13 @@ export function ProjectTemplatesModal({
               <ClipboardList size={14} />
               Subtask Templates
             </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={tab === "recurring"}
-              data-active={tab === "recurring"}
-              onClick={() => setTab("recurring")}
-              className="eflow-tpl-tab"
-            >
-              <CalendarClock size={14} />
-              Recurring Tasks
-            </button>
           </div>
         </div>
 
         <div className="eflow-tpl-modal-body">
           {tab === "project" && canManageDepartment ? (
             <ProjectTaskTemplateLibrary onTemplatesChanged={onTemplatesChanged} />
-          ) : tab === "subtasks" ? (
+          ) : (
             <SubtaskTemplateLibrary
               orgId={orgId}
               currentUserId={currentUserId}
@@ -112,8 +101,6 @@ export function ProjectTemplatesModal({
               leadingTasks={leadingTasks}
               employees={employees}
             />
-          ) : (
-            <RecurringTaskTemplatesPanel employees={employees} orgId={orgId} />
           )}
         </div>
       </div>

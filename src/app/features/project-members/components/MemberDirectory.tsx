@@ -1,15 +1,14 @@
-import { ArrowUpRight, Pencil, UserMinus } from 'lucide-react';
+import { ArrowUpRight, UserMinus } from 'lucide-react';
 import { StatusPill } from '../../../components/ui/workspace/StatusPill';
 import type { AccessSnapshot } from '../../project-access';
 import type { MembersSnapshot, SelectedMember } from '../types';
 
-export function MemberDirectory({ members, snapshot, access, closed, onOpenTask, onEdit, onRemove }: {
+export function MemberDirectory({ members, snapshot, access, closed, onOpenTask, onRemove }: {
   members: SelectedMember[];
   snapshot: MembersSnapshot;
   access?: AccessSnapshot;
   closed: boolean;
   onOpenTask: (id: string) => void;
-  onEdit: (member: SelectedMember) => void;
   onRemove: (member: SelectedMember) => void;
 }) {
   const dateFormat = new Intl.DateTimeFormat('en-PH', { dateStyle: 'medium', timeZone: snapshot.timezone || 'Asia/Manila' });
@@ -20,9 +19,7 @@ export function MemberDirectory({ members, snapshot, access, closed, onOpenTask,
         const canRead = member.can_read ?? member.eligible;
         const accessLabel = canRead ? (member.access || 'member').replace(/_/g, ' ') : member.access_ended_at ? 'Ended' : 'Unavailable';
         const initials = member.name.trim().split(/\s+/).slice(0, 2).map(word => word[0]).join('').toUpperCase() || '?';
-        const canEditTerms = !closed && !['guest', 'share'].includes(member.state) &&
-          (snapshot.kind === 'personal' && snapshot.can_select || snapshot.offices.some(office => office.office_id === member.office && office.can_select));
-        const canRemove = access && (access.can_remove_personal || access.can_remove_offices.includes(member.office || ''));
+        const canRemove = !closed && access && (access.can_remove_personal || access.can_remove_offices.includes(member.office || ''));
         return <tr role="row" key={`${member.office}:${member.user_id}`}>
           <td role="cell">
             <div className="project-member-person">
@@ -48,9 +45,8 @@ export function MemberDirectory({ members, snapshot, access, closed, onOpenTask,
               ) : <span>No assigned responsibility</span>}
             </div>
           </td>
-          <td role="cell" data-label={canEditTerms || canRemove ? 'Actions' : undefined}>
+          <td role="cell" data-label={canRemove ? 'Actions' : undefined}>
             <div className="project-member-actions">
-              {canEditTerms && <button type="button" aria-label={`Edit access terms for ${member.name}`} onClick={() => onEdit(member)}><Pencil size={14} aria-hidden="true" /> Edit terms</button>}
               {canRemove && <button type="button" aria-label={`Review removal · ${member.name}`} onClick={() => onRemove(member)}><UserMinus size={14} aria-hidden="true" /> Review removal</button>}
             </div>
           </td>

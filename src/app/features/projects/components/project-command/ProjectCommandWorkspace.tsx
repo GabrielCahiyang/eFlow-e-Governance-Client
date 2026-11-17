@@ -151,7 +151,6 @@ export function ProjectCommandWorkspace({
   const assignedReview=!!openTask&&!!currentActor&&[openTask.reviewerId,openTask.backupReviewerId].includes(currentActor);
 
   const activeTabId = resolveProjectView(tab) || 'tasks';
-  const [settingsReturn, setSettingsReturn] = useState<ProjectCommandTab>('tasks');
   const [planOpen, setPlanOpen] = useState(false);
 
   const selectTab = (nextTab: ProjectCommandTab, office?: string) => { void requestNavigation(() => {
@@ -179,7 +178,7 @@ export function ProjectCommandWorkspace({
       </div>
       <ProjectHeader project={project} organizations={orgs} profiles={profiles} metrics={data.metrics} editable={canManage || canEditProjectWork && ownOffice?.relationship_type === 'lead'} onTitleChange={title => canManage ? updateProject(project.id, { title }, project.metadataVersion) : renameSelectedProject(project, title)}
         participants={<ProjectParticipants scope={`${userProfile?.id}:${favoriteContextId}:${project.id}`} profilesLoading={profilesLoading} offices={officeState} profiles={profiles} contributorIds={[project.ownerId || '', ...data.members.map(member => member.userId), ...officeState.members.map(member => member.user_id), ...projectTasks.flatMap(task => [task.assigneeId || '', ...(task.teamMemberIds || [])])]} />}
-        utilities={<ProjectUtilities setupReady={setupReady} project={project} canManage={canManage} lifecycle={canManage?lifecycleActions:canPlan?{delete:lifecycleActions.delete}:{}} userId={authorizedProjectIds.length ? userProfile?.id || '' : ''} contextId={favoriteContextId} authorizedProjectIds={authorizedProjectIds} view={activeTabId} tasks={projectTasks} subtasks={data.facts.subtasks} onOpenOffices={() => selectTab('members')} onResolveView={selectTab} onOpenSettings={() => {if(activeTabId!=='settings')setSettingsReturn(activeTabId);selectTab('settings');}} />}
+        utilities={<ProjectUtilities setupReady={setupReady} project={project} canManage={canManage} lifecycle={canManage?lifecycleActions:canPlan?{delete:lifecycleActions.delete}:{}} userId={authorizedProjectIds.length ? userProfile?.id || '' : ''} contextId={favoriteContextId} authorizedProjectIds={authorizedProjectIds} view={activeTabId} tasks={projectTasks} subtasks={data.facts.subtasks} onOpenOffices={() => selectTab('members')} onResolveView={selectTab} onOpenSettings={() => selectTab('settings')} />}
         />
       {/* Extensible Workspace Tab Bar (Permanent core views + optional dynamic views) */}
       {pdfOpen&&canManage&&!closed&&<ProjectPdfImportPanel key={project.id} projectId={project.id} projectTitle={project.title} startDate={project.startDate} onClose={()=>setPdfOpen(false)} onOffices={()=>selectTab('members')} onImported={result=>{setImportGroupId(result.groupIds[0]||'');setImportRevision(value=>value+1);setFilters({...filters,query:'',owner:'',status:'',office:'',dateFrom:'',dateTo:''});selectTab('tasks');}}/>}
@@ -207,7 +206,6 @@ export function ProjectCommandWorkspace({
         <div className="pt-1">
 
           {activeTabId === 'settings' && <ProjectDefinitionPanel projectId={project.id} profiles={profiles.filter(person=>person.org_id===project.orgId)} profilesLoading={profilesLoading} organizations={orgs} tasks={projectTasks} governed={!!project.sourceCollaborationDraftId} section={setupReady ? 'details' : 'all'} onReady={()=>{void flow.reload();selectTab('tasks');}}/>}
-          {activeTabId === 'settings' && <Button kind="tertiary" onClick={()=>selectTab(settingsReturn)}>← Back to project</Button>}
           {setupReady && activeTabId === "overview" && (
             <ProjectOverviewTab
               data={data}
@@ -231,7 +229,7 @@ export function ProjectCommandWorkspace({
             <div className="flex-1 min-w-0"><ProjectGanttView data={viewData} allTasks={projectTasks} canManage={canManage} onOpenTask={setOpenTaskId} onOpenPlan={() => setPlanOpen(open => !open)}/></div>
             <ProjectPlanInspector data={viewData} profiles={profiles} canManage={canManage} isOpen={planOpen} onClose={() => setPlanOpen(false)}/>
           </div>}
-          {setupReady && activeTabId === 'members' && <ProjectMembers projectId={project.id} projectTitle={project.title} governed={!!project.sourceCollaborationDraftId} organizations={orgs} projectStatus={project.status} profiles={profiles} tasks={projectTasks} onOpenTask={setOpenTaskId}/>}
+          {setupReady && activeTabId === 'members' && <ProjectMembers projectLeadId={project.projectLeadId} projectId={project.id} projectTitle={project.title} governed={!!project.sourceCollaborationDraftId} organizations={orgs} projectStatus={project.status} profiles={profiles} tasks={projectTasks} onOpenTask={setOpenTaskId}/>}
           {setupReady && activeTabId === "calendar" && (
             <ProjectCalendarView
               data={viewData}
@@ -289,7 +287,7 @@ export function ProjectCommandWorkspace({
         origin={inspector.origin}
         onClose={inspector.close}
         canReview={assignedReview||isHeadWorkspaceRole(userProfile?.role)&&canReviewTasks}
-        canSubmitForReview={!!openTask&&!!currentActor&&[openTask.assigneeId,openTask.recommendationLeadId].includes(currentActor)}
+        canSubmitForReview={!!openTask&&!!currentActor&&openTask.assigneeId===currentActor}
         canPostProgress={assignedWork}
         readOnly={!!flow.error||closed||(!isHeadWorkspaceRole(userProfile?.role)&&project.projectLeadId!==currentActor&&!assignedWork&&!assignedSubtask&&!assignedReview)||!ownWorkAccess||!!openTask&&shared&&openTask.orgId!==userProfile?.org_id}
       />

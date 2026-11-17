@@ -68,8 +68,7 @@ export function DeliveryAnalytics({
     [trendIds, setTrendIds] = useState<string[] | null>(null),
     [limit, setLimit] = useState(25),
     [showDetails, setShowDetails] = useState(!overview),
-    [special, setSpecial] = useState(""),
-    [showFilteredAnalytics, setShowFilteredAnalytics] = useState(false);
+    [special, setSpecial] = useState("");
   const selectedProject = (projectAnalysis || fixedProject)
     ? input.projects.find(project => project.id === (fixedProject || filters.project))
     : undefined;
@@ -140,7 +139,7 @@ export function DeliveryAnalytics({
       };
     });
   const funding = useAnalyticsFunding(
-    trusted && showDetails && (!showProjectAnalysis || showFilteredAnalytics)
+    trusted && showDetails && !showProjectAnalysis
       ? table === "projects"
         ? projects.slice(0, limit).map((p) => p.project.id)
         : table === "tasks"
@@ -209,7 +208,7 @@ export function DeliveryAnalytics({
           are hidden until the source records can be verified.
         </div>
       )}
-      {invalidRange && (!showProjectAnalysis || showFilteredAnalytics) && (
+      {invalidRange && !showProjectAnalysis && (
         <p role="alert" className="ea-warning ea-error">
           The end date must be on or after the start date.
         </p>
@@ -224,11 +223,9 @@ export function DeliveryAnalytics({
           {!fixedProject && <div className="ea-filters ea-project-picker">{projectSelector}</div>}
           <ProjectAnalysis key={selectedProject.id} project={selectedProject} input={input} onOpenTask={onOpenTask}
             onOpenProject={onOpenProject && (() => onOpenProject(selectedProject.id))} />
-          <button type="button" className="ea-button ea-analysis-filter-toggle" aria-expanded={showFilteredAnalytics}
-            onClick={() => setShowFilteredAnalytics(value => !value)}>{showFilteredAnalytics ? "Hide" : "Show"} filters and funding</button>
         </>
       )}
-      {(!showProjectAnalysis || showFilteredAnalytics) && <>
+      {!showProjectAnalysis && <>
       <div className="ea-metrics">
         {metrics.map((item) => (
           <button

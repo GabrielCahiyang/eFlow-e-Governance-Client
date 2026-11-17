@@ -14,12 +14,12 @@ const sections = {
   'office-tools': { label: 'Office tools', Icon: Wrench }, favorites: { label: 'Favorites', Icon: Star },
   projects: { label: 'Projects', Icon: Folder }, archived: { label: 'Archived projects', Icon: Archive },
 };
-export function WorkspaceNavigationPanel({ items, activeSection, activePage, workspaceName, userId, workspaceId, projects, projectsLoading, onPageSelect, onSearch, preference, mobile, workspaceSelector, workspaceKind }: {
+export function WorkspaceNavigationPanel({ items, activeSection, activePage, workspaceName, userId, workspaceId, projects, projectsLoading, onPageSelect, onSearch, preference, mobile, workspaceSelector, workspaceKind, role = 'member' }: {
   group: NavigationGroupId; items: ShellNavigationItem[]; activeSection: string; activePage?: string; workspaceName: string;
   userId: string; workspaceId: string; projects: WorkspaceProjectLink[]; projectsLoading: boolean;
   onPageSelect: (section: string, page: string, projectId?: string) => void; onSearch: () => void;
   preference: ReturnType<typeof useWorkspacePanelPreference>; mobile: boolean;
-  workspaceSelector?: ReactNode; workspaceKind?: "office"|"personal";
+  workspaceSelector?: ReactNode; workspaceKind?: "office"|"personal"; role?: string;
 }) {
   const scopedSections={...sections,"office-tools":{...sections["office-tools"],label:workspaceKind==="personal"?"Workspace tools":"Office tools"}};
   const [selectedProjectId, setSelectedProjectId] = useState<string>();
@@ -33,7 +33,7 @@ export function WorkspaceNavigationPanel({ items, activeSection, activePage, wor
   const { favorites, toggle } = useNavigationFavorites(userId, workspaceId, allowedProjects.map(project => project.id), !projectsLoading);
   const collapsed = preference.value.collapsed && !mobile;
   const availableSections = (Object.keys(sections) as WorkspaceSectionId[]).filter(id => id === 'office-tools'
-    ? items.some(item => item.group === 'workspaces' && item.id !== 'projects' && item.id !== 'tasks') : canOpenProjects);
+    ? (workspaceKind === 'personal' || role === 'head') && items.some(item => item.group === 'workspaces' && item.id !== 'projects' && item.id !== 'tasks') : canOpenProjects);
   const destinations = (destinations: ShellNavigationItem[]) => destinations.map(item => {
     return <div key={item.id} data-tour-section={item.id}>
       {item.pages.map(page => {const Icon=getEflowNavigationIcon(item.id,page.label);const label=item.pages.length === 1 ? item.label : pageDisplayLabel(item.id,page.label);return <button className="eflow-workspace-navigation__destination" type="button" key={page.label} aria-label={label} aria-current={activeSection === item.id && activePage === page.label ? 'page' : undefined} onClick={() => onPageSelect(item.id, page.label)}>

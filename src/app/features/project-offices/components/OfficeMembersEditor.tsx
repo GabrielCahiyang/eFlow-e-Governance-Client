@@ -13,7 +13,7 @@ import { selectProjectOfficeMembersChecked } from '../services/projectOfficeServ
 import { readStaffingAuthority } from '../services/staffingAuthority';
 import { membershipDiff, removalWork, projectOfficeError } from '../presentation';
 import type { ProjectOffice, ProjectOfficeMember } from '../types';
-export function OfficeMembersEditor({ office, projectLeadId, profiles, members, tasks, actorId, disabledReason, onCancel, onSaved, onOpenTask, hideCancel = false }: { projectLeadId?:string; office: Pick<ProjectOffice, 'id' | 'project_id' | 'office_id'>; profiles: UserProfile[]; members: ProjectOfficeMember[]; tasks: Task[]; actorId: string; disabledReason: string; onCancel: () => void; onSaved: () => Promise<void>; onOpenTask?: (id: string) => void; hideCancel?: boolean }) {
+export function OfficeMembersEditor({ office, projectLeadId, profiles, members, tasks, actorId, disabledReason, onCancel, onSaved, onOpenTask, hideCancel = false, formId, onSaveStateChange }: { projectLeadId?:string; office: Pick<ProjectOffice, 'id' | 'project_id' | 'office_id'>; profiles: UserProfile[]; members: ProjectOfficeMember[]; tasks: Task[]; actorId: string; disabledReason: string; onCancel: () => void; onSaved: () => Promise<void>; onOpenTask?: (id: string) => void; hideCancel?: boolean; formId?: string; onSaveStateChange?: (state:{label:string;disabled:boolean;busy:boolean})=>void }) {
   const savedRequest=useRef<{id:string;users:string[];expected:string[];editors?:string[];fingerprint?:string} | undefined>(undefined);
   const roster = members.filter(m => m.project_office_id === office.id);
   const initial = roster.map(m => m.user_id);
@@ -72,12 +72,15 @@ export function OfficeMembersEditor({ office, projectLeadId, profiles, members, 
     finally { guard.pendingRef.current = false; setBusy(false); }
   }
   const locked=busy || !!disabledReason || saved || !!savedRequest.current;
+  useEffect(()=>{
+    onSaveStateChange?.({label:busy?'Saving.':saved?'Retry loading team':changed?'Save project team and continue':'Next: Draft tasks',disabled:busy||!!disabledReason||!reviewed&&blockers.length>0,busy});
+  },[busy,saved,changed,disabledReason,reviewed,blockers.length,onSaveStateChange]);
   const changeParts = [
     diff.added.length ? `+${diff.added.length} added` : '',
     diff.removed.length ? `-${diff.removed.length} removed` : '',
     editingChanged ? `${editDiff.added.length + editDiff.removed.length} edit access` : '',
   ].filter(Boolean);
-  return <section aria-label="Own Office project team" className="po-member-editor">
+  return <form id={formId} aria-label="Own Office project team" className="po-member-editor" onSubmit={event=>{event.preventDefault();if(busy||disabledReason)return;if(saved)void refreshAfterSave();else if(changed)void save();else onCancel();}}>
     <p className="po-help">Select office members to join this project. Save changes before granting edit access.</p>
     {disabledReason && <p role="status">{disabledReason}</p>}
     <label className="po-search-field">
@@ -114,16 +117,16 @@ export function OfficeMembersEditor({ office, projectLeadId, profiles, members, 
     </div>
     {(diff.removed.length > 0 || (blockers.length > 0 && !reviewed)) && <div className="po-membership-impact" aria-live="polite">
       {diff.removed.length > 0 && <p className="po-help">Removing members unassigns their active tasks when saved.</p>}
-      {blockers.length > 0 && !reviewed && <div role="alert"><p>Reassign active work before removing its project members.</p><ul>{blockers.map(task => <li key={task.id}>{onOpenTask ? <button onClick={() => onOpenTask(task.id)}>{task.title}</button> : task.title}</li>)}</ul></div>}
+      {blockers.length > 0 && !reviewed && <div role="alert"><p>Reassign active work before removing its project members.</p><ul>{blockers.map(task => <li key={task.id}>{onOpenTask ? <button type="button" onClick={() => onOpenTask(task.id)}>{task.title}</button> : task.title}</li>)}</ul></div>}
     </div>}
     {error && <p role="alert" className="po-error">{error}</p>}{saved && <p role="status" className="po-help">Project team saved.</p>}
     <footer>
       <span className="po-member-summary" aria-live="polite">{selected.length} selected · {changeParts.length ? changeParts.join(', ') : 'No changes'}</span>
-      <div className="po-member-footer-actions">
-        {(!hideCancel || saved) && <button onClick={() => void requestNavigation(onCancel)} disabled={busy}>{saved ? 'Done' : 'Cancel'}</button>}
-        {saved ? <button disabled={busy} onClick={() => void refreshAfterSave()}>Retry loading</button> : <button className="po-primary" disabled={busy || !changed || !!disabledReason || !reviewed&&blockers.length > 0} onClick={() => void save()}>{busy ? 'Saving…' : 'Save project team'}</button>}
-      </div>
+      {!formId && <div className="po-member-footer-actions">
+        {(!hideCancel || saved) && <button type="button" onClick={() => void requestNavigation(onCancel)} disabled={busy}>{saved ? 'Done' : 'Cancel'}</button>}
+        {saved ? <button type="button" disabled={busy} onClick={() => void refreshAfterSave()}>Retry loading</button> : <button type="button" className="po-primary" disabled={busy || !changed || !!disabledReason || !reviewed&&blockers.length > 0} onClick={() => void save()}>{busy ? 'Saving…' : 'Save project team'}</button>}
+      </div>}
     </footer>
     {confirmation.dialog}
-  </section>;
+  </form>;
 }

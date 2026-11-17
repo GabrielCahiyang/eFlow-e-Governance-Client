@@ -1,5 +1,6 @@
 import { attachmentError } from '../../../shared/fileValidation';
 import { supabase } from "../../../../lib/supabase";
+import { MutationRejectedError } from '../../../shared/MutationRejectedError';
 import type {
   TaskActor,
   TaskAssignmentDetails,
@@ -181,7 +182,13 @@ export const verifyTask = async (
 
 export const deleteTask = async (taskId: string): Promise<void> => {
   const { error } = await supabase.rpc('soft_delete_task', { p_task_id: taskId });
-  if (error) throw new Error(error.message);
+  if (error) {
+    // SQL constraint/authorization failures roll the entire command back.
+    // Transport failures still have an unknown outcome and must be verified.
+    if (/^(22|23|28|42|P0)/.test(error.code || '') || error.code === 'PGRST202')
+      throw new MutationRejectedError(error.message, error.code);
+    throw new Error(error.message);
+  }
   await notifyTaskListeners();
 };
 
