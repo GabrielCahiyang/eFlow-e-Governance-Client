@@ -16,19 +16,20 @@ test('Admin can rename built-in statuses and maintain custom labels', async ({ p
     await route.fulfill({ status: 201 });
   });
   await page.goto('/users?page=Status+Maintenance');
-  await expect(page.getByRole('heading', { name: 'Status Maintenance' })).toBeVisible({ timeout: 45_000 });
+  await expect(page.getByRole('heading', { name: 'System & Integrations', level: 1 })).toBeVisible({ timeout: 45_000 });
+  await expect(page.getByRole('heading', { name: 'Work statuses', level: 2 })).toBeVisible();
   for (const [oldLabel, newLabel] of [['To Do', 'To-do'], ['Completed', 'Finished'], ['Archived', 'Filed']]) {
     await page.getByRole('button', { name: `Edit ${oldLabel}`, exact: true }).click();
     await page.getByLabel('Status name').fill(newLabel);
     await page.getByRole('button', { name: 'Save status', exact: true }).click();
     await expect(page.getByRole('button', { name: `Edit ${newLabel}`, exact: true })).toBeVisible();
   }
-  await page.getByRole('button', { name: 'Add status', exact: true }).click();
+  await page.getByRole('button', { name: 'Add custom status', exact: true }).click();
   await page.getByLabel('Status name').fill('Waiting for supplier');
   await page.getByLabel('Applies to').selectOption('subtask');
   await page.getByRole('button', { name: 'Save status', exact: true }).click();
   await page.getByRole('button', { name: 'Edit Waiting for supplier' }).click();
-  await page.getByLabel('Retire from new selections').check();
+  await page.getByLabel('Hide from new items (keeps label visible on existing work)').check();
   await page.getByRole('button', { name: 'Save status', exact: true }).click();
   await expect(page.getByRole('row').filter({ hasText: 'Waiting for supplier' })).toContainText('Retired');
   expect(definitions.find(item => item.id === 'todo')?.label).toBe('To-do');

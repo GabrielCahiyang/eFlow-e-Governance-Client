@@ -156,6 +156,7 @@ def update_profile(payload: ProfessionalProfile, user=Depends(require_user)):
     values = clean_professional_profile(payload.model_dump())
     now = datetime.now(timezone.utc).isoformat()
     result = supabase_admin.table('user_professional_profiles').upsert({'user_id': user.id, **values, 'source': 'manual', 'confirmed_by_user': False, 'confirmed_at': None, 'updated_at': now}).execute().data[0]
+    supabase_admin.table('profiles').update({'skills': {skill: True for skill in values.get('skills', [])}, 'updated_at': now}).eq('id', user.id).execute()
     audit(user.id, user.org_id, user.id, 'professional_profile_updated')
     return {'profile': result}
 

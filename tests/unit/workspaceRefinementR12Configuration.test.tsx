@@ -54,10 +54,18 @@ import { AdministrationWorkspace } from "../../src/app/features/administration/c
 import { usePresentationBranding } from "../../src/app/features/administration/configuration/usePresentationBranding";
 import {
   validatePresentationSettings,
+  validateGeneralSystemSettings,
   fetchPresentationSettings,
+  DEFAULT_GENERAL_SETTINGS,
 } from "../../src/app/features/administration/configuration/settingsService";
 import {
+  getDueSoonWindowDays,
+  getExportBrandHeader,
+} from "../../src/app/shared/systemRuntimeConfig";
+import {
   resolveSupportPage,
+  resolveSupportSubTab,
+  isSupportPageAuthorized,
   getAuthorizedSupportPages,
 } from "../../src/app/features/navigation/administrativePages";
 let config: { key: string; value: string }[];
@@ -86,15 +94,16 @@ describe("R12 effective administration", () => {
     render(<AdministrationWorkspace />);
     expect(screen.queryByRole("tablist")).toBeNull();
     expect(screen.getByText('Retained people tools: users')).toBeTruthy();
-    expect(getAuthorizedSupportPages('admin',()=>true).map(page=>page.label)).toEqual(['All Users','Locked out accounts','Role Defaults','User Access','Account Audit','System Settings','Status Maintenance','Workspace Policy','Email & Integrations','Runtime / AI Health','Backup & Export']);
+    expect(getAuthorizedSupportPages('admin',()=>true).map(page=>page.label)).toEqual(['People & Accounts','Roles & Access','Account Audit','System & Maintenance','Backup & Export']);
     expect(resolveSupportPage("administration", "Email & Integrations")).toBe(
-      "Email & Integrations",
+      "System & Maintenance",
     );
-    expect(resolveSupportPage("administration")).toBe("System Settings");
+    expect(resolveSupportSubTab("administration", "Email & Integrations")).toBe("general");
+    expect(resolveSupportPage("administration")).toBe("System & Maintenance");
     expect(getAuthorizedSupportPages("member", () => false)).toHaveLength(0);
     expect(
       getAuthorizedSupportPages("member", () => true).some(
-        (x) => x.label === "Role Defaults",
+        (x) => x.label === "Roles & Access",
       ),
     ).toBe(false);
   });
@@ -103,36 +112,65 @@ describe("R12 effective administration", () => {
     expect(screen.queryByRole("tablist")).toBeNull();
     expect(screen.getByText("Retained people tools: locked-accounts")).toBeTruthy();
     expect(screen.queryByRole("group",{name:'People views'})).toBeNull();
-    expect(resolveSupportPage("users","Locked out accounts")).toBe("Locked out accounts");
+    expect(resolveSupportPage("users","Locked out accounts")).toBe("People & Accounts");
+    expect(resolveSupportSubTab("users","Locked out accounts")).toBe("locked-accounts");
     for(const role of ["head","member","accounting_staff"])
-      expect(getAuthorizedSupportPages(role,()=>true).some(page=>page.label==="Locked out accounts")).toBe(false);
-    expect(getAuthorizedSupportPages("admin",()=>true).some(page=>page.label==="Locked out accounts")).toBe(true);
+      expect(isSupportPageAuthorized(role,"users","Locked out accounts",()=>true)).toBe(false);
+    expect(isSupportPageAuthorized("admin","users","Locked out accounts",()=>true)).toBe(true);
     cleanup();
     api.role="head";
     render(<AdministrationWorkspace activePage="Locked out accounts" />);
     expect(screen.queryByText("Retained people tools: locked-accounts")).toBeNull();
     expect(screen.queryByRole("button",{name:"Locked out accounts",exact:true})).toBeNull();
   });
-  it("saves only validated presentation keys and documents dormant session/timezone controls", async () => {
+  it("saves validated general system settings and updates runtime branding, deadlines, and exports cleanly", async () => {
     render(<ApplicationSettings />);
     await screen.findByDisplayValue("Original City");
     expect(screen.queryByLabelText(/Version String/)).toBeNull();
     expect(screen.queryByLabelText("Session Timeout (minutes)")).toBeNull();
-    expect(
-      screen.getByText(
-        "The stored session_timeout_minutes value does not expire sessions. Supabase Auth controls token/session lifetimes; no local timer is advertised as server revocation.",
-      ),
-    ).toBeTruthy();
+    expect(screen.queryByText(/Calendars & session timeouts/i)).toBeNull();
     fireEvent.change(screen.getByLabelText(/Organization Name/), {
-      target: { value: "New City" },
+      target: { value: "LEDIPO City" },
+    });
+    fireEvent.change(screen.getByLabelText(/Header Subtitle/i), {
+      target: { value: "Investment Office" },
+    });
+    fireEvent.change(screen.getByLabelText(/Support \/ Reply-To Email/i), {
+      target: { value: "help@eflow.gov.ph" },
+    });
+    fireEvent.change(screen.getByLabelText(/Activation Link Expiry/i), {
+      target: { value: "72" },
+    });
+    fireEvent.change(screen.getByLabelText(/Warning Window/i), {
+      target: { value: "5" },
     });
     fireEvent.click(screen.getByRole("button", { name: "Save Settings" }));
-    await screen.findByText(/Presentation settings saved and audited/);
+    await screen.findByText(/General settings saved and audited/);
     expect(api.rpc).toHaveBeenCalledTimes(1);
+    expect(api.rpc.mock.calls[0][0]).toBe("save_general_system_settings");
     expect(api.rpc.mock.calls[0][1]).toMatchObject({
-      p_values: { organization_name: "New City", app_version: "2.0" },
-      p_expected: { organization_name: "Original City", app_version: "2.0" },
+      p_values: {
+        ...DEFAULT_GENERAL_SETTINGS,
+        organization_name: "LEDIPO City",
+        organization_subtitle: "Investment Office",
+        support_email: "help@eflow.gov.ph",
+        activation_expiry_hours: "72",
+        due_soon_days: "5",
+      },
+      p_expected: {
+        ...DEFAULT_GENERAL_SETTINGS,
+        organization_name: "Original City",
+      },
     });
+    expect(getDueSoonWindowDays()).toBe(5);
+    expect(getExportBrandHeader()).toBe("eFlow · LEDIPO City — Investment Office");
+    expect(() =>
+      validateGeneralSystemSettings({
+        ...DEFAULT_GENERAL_SETTINGS,
+        maintenance_banner_enabled: "true",
+        maintenance_banner_message: "   ",
+      }),
+    ).toThrow(/Enter a maintenance notice message/i);
   });
   it("keeps the same uncertain request and locks editing until verification succeeds", async () => {
     api.rpc.mockResolvedValueOnce({

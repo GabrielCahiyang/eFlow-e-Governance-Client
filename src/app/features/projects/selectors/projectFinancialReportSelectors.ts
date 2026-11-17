@@ -4,6 +4,7 @@ import {buildWorkRecordDisplayMetadata} from '../../nested-work';
 import type { Subtask } from "../../subtasks";
 import type { Task } from "../../tasks";
 import type { TeamWorkflowFacts } from "../../team-management";
+import { getDueSoonWindowDays } from "../../../shared/systemRuntimeConfig";
 
 export interface ProjectExecutionFinancialRow {
   id: string;
@@ -151,6 +152,6 @@ function scheduleState(
   const due = new Date(`${date.slice(0, 10)}T23:59:59`).getTime();
   const now = Date.now();
   if (due < now) return "overdue";
-  if (due - now <= 3 * 86_400_000) return "due_soon";
+  if (due - now <= getDueSoonWindowDays() * 86_400_000) return "due_soon";
   return "scheduled";
 }

@@ -2,7 +2,7 @@ import { getRoleNavigationCandidates, isRoleNavigationItemVisible, type RoleNavI
 import { canOpenNavigationSection, isAdministrativeNavigationSection } from './navigationPermissions';
 import { getSidebarContent } from './sidebarContent';
 import { pageDisplayLabel } from './pageDisplayLabel';
-import { getAuthorizedSupportPages, resolveSupportPage } from './administrativePages';
+import { administrativeSubPages, getAuthorizedSupportPages, resolveSupportPage } from './administrativePages';
 
 export type NavigationGroupId = 'my-work' | 'workspaces' | 'inbox' | 'accounting' | 'admin-center' | 'account';
 export interface ShellNavigationItem extends RoleNavItem {
@@ -61,6 +61,14 @@ export function searchNavigation(query: string, items: ShellNavigationItem[], pr
   const needle = query.trim().toLocaleLowerCase();
   if (!needle) return [];
   const destinations = items.flatMap(item => item.pages.map(page => ({ id: `${item.id}:${page.label}`, title: pageDisplayLabel(item.id, page.label), kind: navigationGroupLabels[item.group], section: item.id, page: page.label, projectId: undefined as string | undefined })));
+  const isAdmin = items.some(item => item.pages.some(page => page.label === 'Roles & Access'));
+  for (const sub of administrativeSubPages) {
+    if ('adminOnly' in sub && sub.adminOnly && !isAdmin) continue;
+    if (!items.some(item => item.id === sub.section)) continue;
+    if (!destinations.some(entry => entry.title === sub.label)) {
+      destinations.push({ id: `${sub.section}:sub:${sub.label}`, title: sub.label, kind: sub.kind, section: sub.section, page: sub.page, projectId: undefined });
+    }
+  }
   if (items.some(item => item.id === 'projects')) destinations.push(...projects.map(project => ({ id: project.id, title: project.title, kind: 'Project', section: 'projects', page: 'Projects', projectId: project.id })));
   return destinations.filter(item => `${item.title} ${item.kind} ${item.page}`.toLocaleLowerCase().includes(needle)).slice(0, 50);
 }

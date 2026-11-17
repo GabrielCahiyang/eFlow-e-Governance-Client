@@ -1,5 +1,4 @@
 import { RotateCcw } from "lucide-react";
-import type { UserRole } from "../../../../types";
 import {
   DEFAULT_USER_DIRECTORY_FILTERS,
   hasUserDirectoryFilters,
@@ -14,9 +13,11 @@ const selectClass = "h-9 rounded-xl border border-neutral-200 bg-neutral-50 px-3
 export function UserDirectoryFiltersBar({
   value,
   onChange,
+  roleOptions = ROLE_OPTIONS,
 }: {
   value: UserDirectoryFilters;
   onChange: (next: UserDirectoryFilters) => void;
+  roleOptions?: { value: string; label: string }[];
 }) {
   const update = <K extends keyof UserDirectoryFilters>(key: K, nextValue: UserDirectoryFilters[K]) => {
     onChange({ ...value, [key]: nextValue });
@@ -24,9 +25,9 @@ export function UserDirectoryFiltersBar({
 
   return (
     <div className="flex flex-wrap items-center gap-2" data-testid="user-directory-filters">
-      <select aria-label="Filter users by role" value={value.role} onChange={(event) => update("role", event.target.value as UserRole | "all")} className={selectClass}>
+      <select aria-label="Filter users by role" value={value.role} onChange={(event) => update("role", event.target.value)} className={selectClass}>
         <option value="all">All roles</option>
-        {ROLE_OPTIONS.map((role) => <option key={role.value} value={role.value}>{role.label}</option>)}
+        {roleOptions.map((role) => <option key={role.value} value={role.value}>{role.label}</option>)}
       </select>
       <select aria-label="Filter users by status" value={value.status} onChange={(event) => update("status", event.target.value as UserDirectoryStatus)} className={selectClass}>
         <option value="all">All statuses</option>

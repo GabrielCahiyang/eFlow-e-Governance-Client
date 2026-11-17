@@ -120,5 +120,56 @@ class ManagedActivationTests(unittest.TestCase):
                 self.assertEqual(result.status_code,422)
                 self.assertNotIn('private-pass',result.text); self.assertNotIn('sensitive-token',result.text)
 
+    def test_validate_public_returns_skills_and_catalog_tags_and_activate_forwards_skills(self):
+        self.client.table.return_value.select.return_value.eq.return_value.order.return_value.order.return_value.execute.return_value.data = [
+            {'label': 'Budgeting'}, {'label': 'Procurement'}
+        ]
+        with patch.object(service, 'public_rate', return_value='digest'), patch.object(service, 'rpc', return_value={'email': 'a@b.test', 'skills': {'Budgeting': True}}) as mocked_rpc:
+            preview = service.validate_public('token', '127.0.0.1')
+            self.assertEqual(preview['skills'], {'Budgeting': True})
+            self.assertEqual(preview['available_skills'], ['Budgeting', 'Procurement'])
+            mocked_rpc.assert_called_once()
+        with patch.object(service, 'public_rate', return_value='digest'), patch.object(service, 'rpc', side_effect=[self.claim, {'activated': True, 'next_step': 'sign_in'}]) as mocked_rpc:
+            result = service.activate('token', 'safe-password-12', 'attempt', '127.0.0.1', skills={'Budgeting': True, 'Empty': False})
+            self.assertTrue(result['activated'])
+            self.assertEqual(mocked_rpc.call_args_list[1].args[1]['p_skills'], {'Budgeting': True})
+
+    def test_stage_dto_accepts_optional_valid_custom_role_key_only(self):
+        staged = service.StageManagedAccountPayload(**{**self.data, 'custom_role_key': 'budget_reviewer'})
+        self.assertEqual(staged.custom_role_key, 'budget_reviewer')
+        for bad_key in ['Invalid Key', 'a', '../etc', 'UpperCase']:
+            with self.subTest(bad_key=bad_key), self.assertRaises(ValidationError):
+                service.StageManagedAccountPayload(**{**self.data, 'custom_role_key': bad_key})
+
+    def test_office_invite_allows_omitted_full_name_and_activate_forwards_invitee_full_name(self):
+        invite_only = {k: v for k, v in self.data.items() if k != 'full_name'}
+        invite_only['mode'] = 'office_invite'
+        staged = service.StageManagedAccountPayload(**invite_only)
+        self.assertIsNone(staged.full_name)
+
+        email_msg = service.managed_account_activation_email(None, 'Treasury Office', 'https://eflow.example.test/activate', 24)
+        self.assertIn('Hello,\n', email_msg['text'])
+        self.assertNotIn('Hello None', email_msg['html'])
+
+        with patch.object(service, 'public_rate', return_value='digest'), patch.object(service, 'rpc', side_effect=[self.claim, {'activated': True, 'next_step': 'sign_in'}]) as mocked_rpc:
+            result = service.activate('token', 'safe-password-12', 'attempt', '127.0.0.1', full_name='  Maria Santos  ')
+            self.assertTrue(result['activated'])
+            self.assertEqual(mocked_rpc.call_args_list[1].args[1]['p_full_name'], 'Maria Santos')
+
+    def test_dispatch_reads_general_settings_expiry_branding_and_reply_to(self):
+        self.client.table.return_value.select.return_value.in_.return_value.execute.return_value.data = [
+            {'key': 'activation_expiry_hours', 'value': '72'},
+            {'key': 'organization_name', 'value': 'LEDIPO'},
+            {'key': 'organization_subtitle', 'value': 'Investment Office'},
+            {'key': 'support_email', 'value': 'support@ledipo.gov.ph'},
+        ]
+        with patch.object(service, 'rpc', return_value=True), patch.object(service, 'send_email', return_value='msg-1') as send, patch.object(service, 'app_url', return_value='https://eflow.example.test'):
+            result = service.dispatch(self.row, 'a' * 43)
+            self.assertEqual(result['email_delivery_status'], 'sent')
+            self.assertEqual(send.call_args.kwargs.get('reply_to'), 'support@ledipo.gov.ph')
+            self.assertIn('72 hours', send.call_args.args[1]['text'])
+            self.assertIn('support@ledipo.gov.ph', send.call_args.args[1]['text'])
+            self.assertIn('LEDIPO', send.call_args.args[1]['subject'])
+
 
 if __name__=='__main__': unittest.main()

@@ -1,12 +1,27 @@
 import { isAdminRole } from "../../../../shared/roles";
 import { isTemporaryGuestProfile } from '../../guests/types';
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AlertTriangle, KeyRound, Plus, Trash2 } from "lucide-react";
+import {
+  AlertTriangle,
+  CheckCircle2,
+  CircleSlash,
+  Eye,
+  KeyRound,
+  MoreHorizontal,
+  Pencil,
+  Plus,
+  Trash2,
+  UserCheck,
+  UserPlus,
+  UsersRound,
+  UserX,
+} from "lucide-react";
 import { useOrgs, useProfiles } from "../../../../hooks/useSupabaseData";
 import { toggleUserActive } from "../../../../../lib/supabaseService";
 import { useAuth } from "../../../../contexts/AuthContext";
 import { Button } from "../../../../components/ui/button";
 import { FeedbackState } from "../../../../components/ui/FeedbackState";
+import { ActionMenu } from "../../../../components/ui/workspace";
 import { DataTable, type Column, type DataTableViewState } from "../../../../components/ui/DataTable";
 import {
   AlertDialog,
@@ -20,7 +35,6 @@ import {
 import { useToast } from "../../../../components/ui/Toast";
 import type { UserProfile } from "../../../../types";
 import { CreateUserModal } from "./CreateUserModal";
-import { PendingActivationsTable } from './PendingActivationsTable';
 import { EditUserModal } from "./EditUserModal";
 import { UserDirectoryFiltersBar } from "./UserDirectoryFiltersBar";
 import {
@@ -39,8 +53,10 @@ import {
 import { AccountInspector } from "./AccountInspector";
 import { useConfirmation } from "../../../../components/ui/useConfirmation";
 import { useExplicitDraft } from "../../../../shared/useExplicitDraft";
+import { resolveAccountRoleDisplay, useRoleCatalog } from "../../../permissions";
 export function UsersTab({
   onOpenAccess,
+  onInvitationCreated,
   directoryFilters,
   onDirectoryFiltersChange,
   tableViewState,
@@ -49,6 +65,7 @@ export function UsersTab({
   onFocusReturned,
 }: {
   onOpenAccess: (userId: string) => void;
+  onInvitationCreated?: () => void;
   directoryFilters?: UserDirectoryFilters;
   onDirectoryFiltersChange?: (filters: UserDirectoryFilters) => void;
   tableViewState?: DataTableViewState;
@@ -60,13 +77,22 @@ export function UsersTab({
   const { orgs } = useOrgs();
   const { toast } = useToast();
   const { can, userProfile } = useAuth();
+  const { roleCatalog } = useRoleCatalog();
+  const resolveRoleDisplay = (profile: UserProfile) =>
+    resolveAccountRoleDisplay(profile.role, profile.custom_role_key, roleCatalog);
+  const roleFilterOptions = useMemo(
+    () =>
+      roleCatalog.length > 0
+        ? roleCatalog.map((entry) => ({ value: entry.key, label: entry.label }))
+        : undefined,
+    [roleCatalog],
+  );
   const [inspected, setInspected] = useState<UserProfile | null>(null);
   const confirmation = useConfirmation();
   const [lifecycleResult, setLifecycleResult] = useState("");
   const [lifecycleError, setLifecycleError] = useState("");
   const [showCreate, setShowCreate] = useState(false);
   const [showInvite, setShowInvite] = useState(false);
-  const [activationRevision, setActivationRevision] = useState(0);
   useEffect(() => { setShowCreate(false); setShowInvite(false); }, [userProfile?.id]);
   const [editUser, setEditUser] = useState<UserProfile | null>(null);
   const [deleteUser, setDeleteUser] = useState<UserProfile | null>(null);
@@ -221,8 +247,13 @@ export function UsersTab({
       key: "role",
       header: "Role",
       sortable: true,
-      sortValue: (profile) => profile.role,
-      render: (profile) => <RoleBadge role={profile.role} />,
+      sortValue: (profile) => resolveRoleDisplay(profile).label,
+      render: (profile) => (
+        <RoleBadge
+          role={profile.role}
+          roleLabel={roleCatalog.length > 0 ? resolveRoleDisplay(profile).label : undefined}
+        />
+      ),
     },
     {
       key: "status",
@@ -253,7 +284,7 @@ export function UsersTab({
       key: "actions",
       header: "",
       action: true,
-      width: "300px",
+      width: "140px",
       render: (profile) => {
         const editable = canEditProfile(profile);
         const lifecycleManageable = canManageAccountLifecycle(profile);
@@ -264,94 +295,168 @@ export function UsersTab({
             : lifecycleManageable
               ? undefined
               : "Only Admin can change or delete a leadership account";
+        const accessAllowed = isAdminRole(userProfile?.role) && !isAdminRole(profile.role);
         return (
-          <div className="flex items-center justify-end gap-1.5">
+          <div
+            className="flex items-center justify-end gap-1.5"
+            onClick={(event) => event.stopPropagation()}
+          >
             <Button
               type="button"
-              data-account-access-id={profile.id}
-              onClick={(event) => {
-                event.stopPropagation();
-                onOpenAccess(profile.id);
-              }}
-              disabled={
-                !isAdminRole(userProfile?.role) || isAdminRole(profile.role)
-              }
-              variant="outline"
-              size="sm"
-              className="eflow-directory-action"
-              title={
-                isAdminRole(profile.role)
-                  ? "Admin access is always available"
-                  : !isAdminRole(userProfile?.role)
-                    ? "Only Admin can manage individual access"
-                    : "Manage individual access"
-              }
-            >
-              <KeyRound size={11} /> Access
-            </Button>
-            <Button
-              type="button"
-              onClick={(event) => {
-                event.stopPropagation();
+              onClick={() => {
                 if (editable) setEditUser(profile);
               }}
               disabled={!editable}
               title={
                 editable
                   ? "Edit profile details"
-                  : "The users.manage capability is required"
+                  : "User management permission is required"
               }
-              variant="secondary"
-              size="sm"
-              className="eflow-directory-action"
-            >
-              Edit
-            </Button>
-            <Button
-              type="button"
-              onClick={(event) => {
-                event.stopPropagation();
-                if (lifecycleManageable) void handleToggleStatus(profile);
-              }}
-              disabled={!lifecycleManageable || changingStatus}
-              title={protectedTitle}
               variant="outline"
               size="sm"
               className="eflow-directory-action"
             >
-              {profile.is_active ? "Deactivate" : "Activate"}
+              <Pencil size={12} aria-hidden="true" /> Edit
             </Button>
-            <Button
-              type="button"
-              onClick={(event) => {
-                event.stopPropagation();
-                if (lifecycleManageable) {
-                  setDeleteError(null);
-                  setDeleteUser(profile);
-                }
-              }}
-              disabled={!lifecycleManageable || profile.id === userProfile?.id}
-              variant="outline"
-              size="sm"
-              className="eflow-directory-action text-[var(--eflow-negative-text)]"
-              title={
-                protectedTitle ||
-                (profile.id === userProfile?.id
-                  ? "You cannot delete the account you are using"
-                  : "Permanently delete account")
+            <ActionMenu
+              actions={[
+                {
+                  id: "inspect",
+                  label: "View profile",
+                  icon: <Eye size={14} aria-hidden="true" />,
+                  onSelect: () => setInspected(profile),
+                },
+                {
+                  id: "access",
+                  label: "Individual access",
+                  icon: <KeyRound size={14} aria-hidden="true" />,
+                  disabled: !accessAllowed,
+                  disabledReason: isAdminRole(profile.role)
+                    ? "Admin accounts always keep full access"
+                    : !isAdminRole(userProfile?.role)
+                      ? "Only Admin can customize access"
+                      : undefined,
+                  onSelect: () => onOpenAccess(profile.id),
+                },
+                {
+                  id: "toggle-status",
+                  label: profile.is_active ? "Deactivate account" : "Activate account",
+                  icon: profile.is_active ? (
+                    <UserX size={14} aria-hidden="true" />
+                  ) : (
+                    <UserCheck size={14} aria-hidden="true" />
+                  ),
+                  disabled: !lifecycleManageable || changingStatus,
+                  disabledReason: protectedTitle,
+                  onSelect: () => {
+                    if (lifecycleManageable) void handleToggleStatus(profile);
+                  },
+                },
+                {
+                  id: "delete",
+                  label: "Delete permanently",
+                  icon: <Trash2 size={14} aria-hidden="true" />,
+                  variant: "destructive",
+                  disabled: !lifecycleManageable || profile.id === userProfile?.id,
+                  disabledReason: protectedTitle,
+                  onSelect: () => {
+                    if (lifecycleManageable) {
+                      setDeleteError(null);
+                      setDeleteUser(profile);
+                    }
+                  },
+                },
+              ]}
+              trigger={
+                <Button
+                  type="button"
+                  data-account-access-id={profile.id}
+                  variant="ghost"
+                  size="icon"
+                  aria-label={`More actions for ${profile.full_name}`}
+                  className="h-8 w-8"
+                >
+                  <MoreHorizontal size={15} aria-hidden="true" />
+                </Button>
               }
-            >
-              <Trash2 size={11} /> Delete
-            </Button>
+            />
           </div>
         );
       },
     },
   ];
 
+  const activeCount = useMemo(
+    () => visibleProfiles.filter((profile) => profile.is_active).length,
+    [visibleProfiles],
+  );
+  const inactiveCount = visibleProfiles.length - activeCount;
+
   return (
     <div className="eflow-foundation-surface eflow-directory space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="eflow-admin-kpi-strip" aria-label="Account summary">
+        <button
+          type="button"
+          className="eflow-admin-kpi-card"
+          aria-pressed={filters.status === "all"}
+          onClick={() => setFilters({ ...filters, status: "all" })}
+        >
+          <div>
+            <span>Total office accounts</span>
+            <strong>{visibleProfiles.length}</strong>
+          </div>
+          <span className="eflow-admin-icon-chip" aria-hidden="true">
+            <UsersRound size={16} />
+          </span>
+        </button>
+        <button
+          type="button"
+          className="eflow-admin-kpi-card"
+          aria-pressed={filters.status === "active"}
+          onClick={() =>
+            setFilters({
+              ...filters,
+              status: filters.status === "active" ? "all" : "active",
+            })
+          }
+        >
+          <div>
+            <span>Active accounts</span>
+            <strong>{activeCount}</strong>
+          </div>
+          <span className="eflow-admin-icon-chip" aria-hidden="true">
+            <CheckCircle2 size={16} />
+          </span>
+        </button>
+        <button
+          type="button"
+          className="eflow-admin-kpi-card"
+          aria-pressed={filters.status === "inactive"}
+          onClick={() =>
+            setFilters({
+              ...filters,
+              status: filters.status === "inactive" ? "all" : "inactive",
+            })
+          }
+        >
+          <div>
+            <span>Inactive accounts</span>
+            <strong>{inactiveCount}</strong>
+          </div>
+          <span className="eflow-admin-icon-chip" aria-hidden="true">
+            <CircleSlash size={16} />
+          </span>
+        </button>
+      </div>
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          disabled={!canManageUsers || !isAdminRole(userProfile?.role)}
+          onClick={() => setShowInvite(true)}
+        >
+          <UserPlus size={14} aria-hidden="true" /> Invite External User
+        </Button>
         <Button
           type="button"
           onClick={() => setShowCreate(true)}
@@ -359,15 +464,13 @@ export function UsersTab({
           title={
             canManageUsers
               ? "Create user"
-              : "The users.manage capability is required"
+              : "User management permission is required"
           }
         >
-          <Plus size={14} /> Create LEDIPO User
+          <Plus size={14} aria-hidden="true" /> Create LEDIPO User
         </Button>
-        <Button type="button" variant="outline" disabled={!canManageUsers || !isAdminRole(userProfile?.role)} onClick={() => setShowInvite(true)}>Invite eFlow User</Button>
       </div>
       {confirmation.dialog}
-      {canManageUsers && isAdminRole(userProfile?.role) && userProfile?.is_active !== false && <PendingActivationsTable key={`${userProfile?.id}:${userProfile?.role}`} actorId={userProfile?.id || ''} revision={activationRevision}/>}
       {lifecycleResult && (
         <FeedbackState tone="success" title="Saved account change">
           {lifecycleResult}
@@ -382,6 +485,7 @@ export function UsersTab({
         <AccountInspector
           profile={inspected}
           office={orgMap[inspected.org_id || ""] || "Unassigned"}
+          roleLabel={roleCatalog.length > 0 ? resolveRoleDisplay(inspected).label : undefined}
           protection={
             isLastActiveAdmin(inspected, profiles)
               ? "The last active Admin must retain Admin access and cannot be deactivated or deleted."
@@ -428,13 +532,15 @@ export function UsersTab({
           profile.full_name.toLowerCase().includes(query) ||
           profile.email.toLowerCase().includes(query) ||
           (orgMap[profile.org_id || ""] || "").toLowerCase().includes(query) ||
-          profile.role.toLowerCase().includes(query)
+          profile.role.toLowerCase().includes(query) ||
+          resolveRoleDisplay(profile).label.toLowerCase().includes(query)
         }
         emptyIllustration="search" emptyMessage="No accounts match the current filters"
         toolbar={
           <UserDirectoryFiltersBar
             value={filters}
             onChange={setFilters}
+            roleOptions={roleFilterOptions}
           />
         }
       />
@@ -444,15 +550,17 @@ export function UsersTab({
         onClose={() => setShowCreate(false)}
         organizations={orgs}
         profiles={visibleProfiles}
-        onCreated={() => setActivationRevision(n => n + 1)}
+        roleCatalog={roleCatalog}
+        onCreated={() => onInvitationCreated?.()}
       />
-      <CreateUserModal key={`office-invite:${userProfile?.id}`} mode="office_invite" isOpen={showInvite} onClose={() => setShowInvite(false)} organizations={orgs} profiles={visibleProfiles} onCreated={() => setActivationRevision(n => n + 1)}/>
+      <CreateUserModal key={`office-invite:${userProfile?.id}`} mode="office_invite" isOpen={showInvite} onClose={() => setShowInvite(false)} organizations={orgs} profiles={visibleProfiles} roleCatalog={roleCatalog} onCreated={() => onInvitationCreated?.()}/>
       <EditUserModal
         isOpen={Boolean(editUser)}
         onClose={() => setEditUser(null)}
         user={editUser}
         organizations={orgs}
         profiles={visibleProfiles}
+        roleCatalog={roleCatalog}
       />
       <AlertDialog
         open={Boolean(deleteUser)}

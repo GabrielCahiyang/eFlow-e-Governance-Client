@@ -17,8 +17,9 @@ export interface RoleNavigation {
 }
 
 function personalDestinations(role: string): RoleNavItem[] {
+  if (role === 'admin') return [];
   return [
-    ...(role === 'admin' ? [] : [{ id: 'personal_work', label: 'My Work', icon: <Folder size={16} /> }]),
+    { id: 'personal_work', label: 'My Work', icon: <Folder size={16} /> },
     { id: 'inbox', label: 'Inbox', icon: <Folder size={16} /> },
   ];
 }

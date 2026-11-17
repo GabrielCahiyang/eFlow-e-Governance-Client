@@ -90,7 +90,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     const userId = userProfile.id;
     const role = userProfile.role;
-    const key = `${userId}:${role}`;
+    const customRoleKey = userProfile.custom_role_key || null;
+    const key = `${userId}:${role}:${customRoleKey || ''}`;
     const commitPermissions = (perms: Set<string>, officeScopes: string[] = []) => {
       const signature = JSON.stringify([[...perms].sort(), officeScopes]);
       if (permissionScope.current?.key === key && permissionScope.current.signature !== signature) clearAccess();
@@ -101,7 +102,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const refreshPermissions = (changed = false) => {
       verifyAccess ||= changed;
       const current = ++sequence;
-      void Promise.all([fetchEffectivePermissions(userId, role), fetchOrganizationScopeGrants(userId)])
+      void Promise.all([fetchEffectivePermissions(userId, role, customRoleKey), fetchOrganizationScopeGrants(userId)])
         .then(([perms, grants]) => {
           if (!active || current !== sequence || activeUserIdRef.current !== userId) return;
           verifyAccess = false;
@@ -118,11 +119,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     refreshPermissions();
 
     let subscribed = false;
-    const channel = supabase
+    const baseChannel = supabase
       .channel(`effective-access:${userId}:${crypto.randomUUID()}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'role_permissions', filter: `role=eq.${role}` }, () => refreshPermissions(true))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'user_permission_overrides', filter: `user_id=eq.${userId}` }, () => refreshPermissions(true))
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'user_org_scope_grants', filter: `user_id=eq.${userId}` }, () => refreshPermissions(true))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'user_org_scope_grants', filter: `user_id=eq.${userId}` }, () => refreshPermissions(true));
+    if (customRoleKey) {
+      baseChannel
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'role_permissions', filter: `role=eq.${customRoleKey}` }, () => refreshPermissions(true))
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'custom_roles', filter: `key=eq.${customRoleKey}` }, () => refreshPermissions(true));
+    }
+    const channel = baseChannel
       .subscribe(status => {
         if (status !== 'SUBSCRIBED') return;
         if (subscribed) refreshPermissions();
@@ -158,7 +165,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       window.clearInterval(fallback);
       void supabase.removeChannel(channel);
     };
-  }, [userProfile?.id, userProfile?.role, clearAccess]);
+  }, [userProfile?.id, userProfile?.role, userProfile?.custom_role_key, clearAccess]);
 
   const can = useCallback(
     (permission: string) => {
@@ -393,7 +400,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         user,
         userProfile,
         loading,
-        permissionsLoading: !!userProfile && permissionsLoadedFor !== `${userProfile.id}:${userProfile.role}`,
+        permissionsLoading: !!userProfile && permissionsLoadedFor !== `${userProfile.id}:${userProfile.role}:${userProfile.custom_role_key || ''}`,
         accessRevision,
         error,
         login,

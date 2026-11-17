@@ -10,7 +10,7 @@ export const designateSponsor=(workspace:string,office:string)=>rpc<void>('r8_de
 export const completeProjectOnboarding=(id:string)=>rpc<void>('r8_complete_onboarding',{p_id:id});
 export const dispatchProjectInvitation=(item:ProjectInvitation,resend=false)=>phase2Request<{delivery_status:string;delivery_error:string|null;receipt:string}>(`/project-invitations/${item.id}/dispatch`,jsonRequest('POST',{revision:item.revision,resend}));
 export const uploadRequestPds=(file:File,id:string)=>phase2Request(`/pds/upload?project_request_id=${encodeURIComponent(id)}`,{method:'POST',headers:{'Content-Type':'application/pdf','X-File-Name':encodeURIComponent(file.name)},body:file});
-export const validateProjectInvitation=(token:string)=>phase2Request<ProjectInvitation&{existing_account:boolean;needs_full_name?:boolean;home_workspace_id?:string;project_title:string;office_name:string}>('/project-invitations/validate',jsonRequest('POST',{token}),true);
+export const validateProjectInvitation=(token:string)=>phase2Request<ProjectInvitation&{existing_account:boolean;needs_full_name?:boolean;home_workspace_id?:string;project_title:string;office_name:string;available_skills?:string[]}>('/project-invitations/validate',jsonRequest('POST',{token}),true);
 export const acceptProjectInvitation=(token:string,name?:string)=>phase2Request('/project-invitations/accept',jsonRequest('POST',{token,...(name?{full_name:name}:{})}));
 export const createProjectGuest=(token:string,name:string,password:string,attempt:string)=>phase2Request('/project-invitations/create-account',jsonRequest('POST',{token,full_name:name,password,attempt_id:attempt}),true);
 

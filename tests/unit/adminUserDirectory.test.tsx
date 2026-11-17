@@ -44,20 +44,28 @@ describe("Admin user directory", () => {
     expect(screen.getByText('Cheryl Gallo')).toBeTruthy();
     expect(screen.getByText('Andres Manili')).toBeTruthy();
   });
-  it("shows Admin accounts and gives Admin authority over leadership accounts", () => {
+  it("shows Admin accounts and gives Admin authority over leadership accounts", async () => {
     render(<UsersTab onOpenAccess={vi.fn()} />);
 
     expect(screen.getByText("Andres Manili")).toBeTruthy();
     const ownRow = screen.getByTestId("row-admin-current");
-    expect(within(ownRow).getByRole("button", { name: "Delete" }).hasAttribute("disabled")).toBe(true);
-    expect(within(ownRow).getByRole("button", { name: "Deactivate" }).hasAttribute("disabled")).toBe(true);
+    fireEvent.keyDown(within(ownRow).getByRole("button", { name: /More actions/ }), { key: "Enter" });
+    expect((await screen.findByRole("menuitem", { name: /Delete permanently/ })).getAttribute("aria-disabled")).toBe("true");
+    expect((await screen.findByRole("menuitem", { name: /Deactivate account/ })).getAttribute("aria-disabled")).toBe("true");
+    fireEvent.keyDown(screen.getByRole("menu"), { key: "Escape" });
+
     const otherAdmin = screen.getByTestId("row-admin-other");
-    expect(within(otherAdmin).getByRole("button", { name: "Deactivate" }).hasAttribute("disabled")).toBe(false);
-    expect(within(otherAdmin).getByRole("button", { name: "Access" }).hasAttribute("disabled")).toBe(true);
+    fireEvent.keyDown(within(otherAdmin).getByRole("button", { name: /More actions/ }), { key: "Enter" });
+    expect((await screen.findByRole("menuitem", { name: /Deactivate account/ })).getAttribute("aria-disabled")).toBeNull();
+    expect((await screen.findByRole("menuitem", { name: /Individual access/ })).getAttribute("aria-disabled")).toBe("true");
+    fireEvent.keyDown(screen.getByRole("menu"), { key: "Escape" });
 
     const headRow = screen.getByTestId("row-head-1");
     expect(within(headRow).getByRole("button", { name: "Edit" }).hasAttribute("disabled")).toBe(false);
-    expect(within(headRow).getByRole("button", { name: "Deactivate" }).hasAttribute("disabled")).toBe(false);
+    fireEvent.keyDown(within(headRow).getByRole("button", { name: /More actions/ }), { key: "Enter" });
+    expect((await screen.findByRole("menuitem", { name: /Deactivate account/ })).getAttribute("aria-disabled")).toBeNull();
+    fireEvent.keyDown(screen.getByRole("menu"), { key: "Escape" });
+
     fireEvent.click(within(headRow).getByRole("button", { name: "Edit" }));
     expect(screen.getByTestId("editing-user").textContent).toBe("Cheryl Gallo");
 

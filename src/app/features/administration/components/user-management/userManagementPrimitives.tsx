@@ -1,3 +1,4 @@
+import { Building2, Calculator, CheckCircle2, CircleSlash, ShieldCheck, UserRound } from "lucide-react";
 import { isAdminRole } from "../../../../shared/roles";
 import type { UserRole } from "../../../../types";
 import { ProgressBar } from "@vibe/core";
@@ -16,13 +17,35 @@ export function getAssignableRoleOptions(viewerRole?: string) {
   return ROLE_OPTIONS.filter(({ value }) => value === "member" || value === "accounting_staff");
 }
 
+function RoleIcon({ role }: { role: string }) {
+  if (role === "admin") return <ShieldCheck size={12} aria-hidden="true" />;
+  if (role === "head") return <Building2 size={12} aria-hidden="true" />;
+  if (role === "accounting_staff") return <Calculator size={12} aria-hidden="true" />;
+  return <UserRound size={12} aria-hidden="true" />;
+}
+
 // ─── Status / Role badges ────────────────────────────────────────
-export function RoleBadge({ role }: { role: string }) {
-  return <span className="eflow-account-role" data-role={role}>{getRoleLabel(role)}</span>;
+export function RoleBadge({ role, roleLabel }: { role: string; roleLabel?: string }) {
+  return (
+    <span className="eflow-account-role" data-role={role}>
+      <RoleIcon role={role} />
+      <span>{roleLabel || getRoleLabel(role)}</span>
+    </span>
+  );
 }
 
 export function StatusBadge({ active }: { active: boolean }) {
-  return <span aria-label={`Account status: ${active ? "active" : "inactive"}`} role="status" className="eflow-account-status" data-active={active}>{active ? "Active" : "Inactive"}</span>;
+  return (
+    <span
+      aria-label={`Account status: ${active ? "active" : "inactive"}`}
+      role="status"
+      className="eflow-account-status"
+      data-active={active}
+    >
+      {active ? <CheckCircle2 size={12} aria-hidden="true" /> : <CircleSlash size={12} aria-hidden="true" />}
+      <span>{active ? "Active" : "Inactive"}</span>
+    </span>
+  );
 }
 
 export function WorkloadBar({ value }: { value: number }) {

@@ -1,10 +1,61 @@
 import { isAdminRole } from "../../../shared/roles";
 import { supabase } from "../../../../lib/supabase";
-import type { OrganizationScopeGrant, RolePermissionRow, ScopeGrantInput, UserOverrideRow } from "../types";
+import type {
+  BaseCustomRole,
+  CustomRoleDefinition,
+  OrganizationScopeGrant,
+  RolePermissionRow,
+  ScopeGrantInput,
+  UserOverrideRow,
+} from "../types";
 import { resolvePermissions } from "../selectors";
-import { PERMISSIONS_CHANGED_EVENT, PERMISSIONS_CHANGED_STORAGE_KEY } from "../constants";
+import {
+  ACTION_PERMISSION_KEYS,
+  PERMISSIONS_CHANGED_EVENT,
+  PERMISSIONS_CHANGED_STORAGE_KEY,
+  VISIBLE_PAGE_PERMISSION_KEYS,
+} from "../constants";
 
-function announcePermissionsChanged() {
+const ALL_MANAGED_PERMISSIONS = [...VISIBLE_PAGE_PERMISSION_KEYS, ...ACTION_PERMISSION_KEYS];
+
+const ACCOUNTING_SCOPE_PERMISSIONS = new Set([
+  "navigation.accounting_overview",
+  "navigation.accounting_releases",
+  "navigation.accounting_journal",
+  "navigation.accounting_audit",
+  "accounting.release_cash",
+  "accounting.settle_liquidation",
+  "accounting.post_journal",
+]);
+
+const HEAD_SCOPE_PERMISSIONS = new Set([
+  "navigation.reviews",
+  "navigation.team_supervision",
+  "navigation.team_intelligence",
+  "projects.create",
+  "projects.archive",
+  "projects.delete",
+  "tasks.assign",
+  "tasks.verify",
+]);
+
+export function inferBaseRoleFromPermissions(
+  allowedMap: Record<string, boolean>,
+): BaseCustomRole {
+  const enabled = Object.keys(allowedMap).filter((k) => Boolean(allowedMap[k]));
+  if (enabled.some((k) => ACCOUNTING_SCOPE_PERMISSIONS.has(k))) {
+    return "accounting_staff";
+  }
+  if (enabled.some((k) => HEAD_SCOPE_PERMISSIONS.has(k))) {
+    return "head";
+  }
+  return "member";
+}
+
+export const CUSTOM_ROLES_CHANGED_EVENT = "eflow:custom-roles-changed";
+const RESERVED_ROLE_KEYS = new Set(["admin", "head", "accounting_staff", "member", "super_admin"]);
+
+export function announcePermissionsChanged() {
   if (typeof window === "undefined") return;
   window.dispatchEvent(new Event(PERMISSIONS_CHANGED_EVENT));
   try {
@@ -12,6 +63,28 @@ function announcePermissionsChanged() {
   } catch {
     // Realtime and the same-window event still refresh access when storage is unavailable.
   }
+}
+
+export function announceCustomRolesChanged() {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new Event(CUSTOM_ROLES_CHANGED_EVENT));
+  announcePermissionsChanged();
+}
+
+function isMissingCustomRolesRelation(error: { code?: string; message?: string } | null | undefined): boolean {
+  if (!error) return false;
+  return error.code === "42P01" || error.code === "PGRST205";
+}
+
+function mapCustomRoleRow(row: Record<string, any>): CustomRoleDefinition {
+  return {
+    key: String(row.key),
+    label: String(row.label),
+    description: String(row.description || ""),
+    baseRole: row.base_role as BaseCustomRole,
+    createdAt: typeof row.created_at === "string" ? row.created_at : undefined,
+    updatedAt: typeof row.updated_at === "string" ? row.updated_at : undefined,
+  };
 }
 
 async function readRolePermissions(strict = false): Promise<RolePermissionRow[]> {
@@ -43,9 +116,179 @@ export function fetchUserOverrides(userId: string): Promise<UserOverrideRow[]> {
   return readUserOverrides(userId);
 }
 
-export async function fetchEffectivePermissions(userId: string, role: string): Promise<Set<string>> {
-  const [rolePermissions, overrides] = await Promise.all([readRolePermissions(true), readUserOverrides(userId, true)]);
-  return resolvePermissions(role, rolePermissions, overrides);
+export async function fetchCustomRoles(): Promise<CustomRoleDefinition[]> {
+  const table = (supabase as any)?.from?.("custom_roles");
+  if (!table || typeof table.select !== "function") return [];
+  const { data, error } = await table.select("*").order("label", { ascending: true });
+  if (error) {
+    if (isMissingCustomRolesRelation(error)) return [];
+    throw error;
+  }
+  return (data || []).map((row: Record<string, any>) => mapCustomRoleRow(row));
+}
+
+async function fetchCustomRoleByKey(key: string): Promise<CustomRoleDefinition | null> {
+  const normalized = key.trim();
+  if (!normalized || isAdminRole(normalized)) return null;
+  const table = (supabase as any)?.from?.("custom_roles");
+  if (!table || typeof table.select !== "function") return null;
+  const { data, error } = await table.select("*").eq("key", normalized).maybeSingle();
+  if (error) {
+    if (isMissingCustomRolesRelation(error)) return null;
+    throw error;
+  }
+  return data ? mapCustomRoleRow(data as Record<string, any>) : null;
+}
+
+export async function fetchEffectivePermissions(
+  userId: string,
+  role: string,
+  customRoleKey?: string | null,
+): Promise<Set<string>> {
+  const [rolePermissions, overrides, customRole] = await Promise.all([
+    readRolePermissions(true),
+    readUserOverrides(userId, true),
+    customRoleKey && !isAdminRole(role) ? fetchCustomRoleByKey(customRoleKey) : Promise.resolve(null),
+  ]);
+  return resolvePermissions(role, rolePermissions, overrides, customRole);
+}
+
+export function buildCustomRoleKey(label: string, existingKeys: Iterable<string> = []): string {
+  const used = new Set(Array.from(existingKeys, (k) => k.toLowerCase()));
+  const baseRaw = label
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+  let slug = baseRaw.length >= 2 ? baseRaw : `role_${baseRaw || "custom"}`;
+  if (!/^[a-z]/.test(slug)) slug = `role_${slug}`;
+  slug = slug.slice(0, 42);
+  if (RESERVED_ROLE_KEYS.has(slug)) slug = `${slug}_custom`;
+  let candidate = slug;
+  let counter = 2;
+  while (used.has(candidate) || RESERVED_ROLE_KEYS.has(candidate)) {
+    const suffix = `_${counter}`;
+    candidate = `${slug.slice(0, Math.max(2, 48 - suffix.length))}${suffix}`;
+    counter += 1;
+  }
+  return candidate;
+}
+
+export async function saveCustomRolePermissions(
+  roleKey: string,
+  allowedMap: Record<string, boolean>,
+): Promise<void> {
+  if (!roleKey || isAdminRole(roleKey)) throw new Error("Admin defaults cannot be changed.");
+  const del = await supabase.from("role_permissions").delete().eq("role", roleKey);
+  if (del?.error) throw del.error;
+
+  const now = new Date().toISOString();
+  const rows = ALL_MANAGED_PERMISSIONS.map((permission) => ({
+    role: roleKey,
+    permission,
+    allowed: Boolean(allowedMap[permission]),
+    updated_at: now,
+  }));
+
+  if (rows.length > 0) {
+    const { error } = await supabase
+      .from("role_permissions")
+      .upsert(rows, { onConflict: "role,permission" });
+    if (error) throw error;
+  }
+  announcePermissionsChanged();
+}
+
+export async function createCustomRole(input: {
+  label: string;
+  baseRole?: BaseCustomRole;
+  description?: string;
+  existingKeys?: Iterable<string>;
+  permissions?: Record<string, boolean>;
+}): Promise<CustomRoleDefinition> {
+  const label = input.label.trim().replace(/\s+/g, " ");
+  if (label.length < 2 || label.length > 60) {
+    throw new Error("Role name must be between 2 and 60 characters.");
+  }
+  const description = (input.description || "").trim().slice(0, 240);
+  const currentKeys = input.existingKeys
+    ? Array.from(input.existingKeys)
+    : (await fetchCustomRoles()).map((r) => r.key);
+  const key = buildCustomRoleKey(label, currentKeys);
+  const baseRole =
+    input.baseRole ||
+    (input.permissions ? inferBaseRoleFromPermissions(input.permissions) : "member");
+  const { data, error } = await supabase
+    .from("custom_roles")
+    .insert({ key, label, description, base_role: baseRole })
+    .select("*")
+    .single();
+  if (error) {
+    if (error.code === "23505") throw new Error("A custom role with that name already exists.");
+    throw error;
+  }
+  if (input.permissions) {
+    await saveCustomRolePermissions(key, input.permissions);
+  }
+  announceCustomRolesChanged();
+  return mapCustomRoleRow(data as Record<string, any>);
+}
+
+export async function updateCustomRole(
+  key: string,
+  input: {
+    label: string;
+    description?: string;
+    baseRole?: BaseCustomRole;
+    permissions?: Record<string, boolean>;
+  },
+): Promise<CustomRoleDefinition> {
+  const label = input.label.trim().replace(/\s+/g, " ");
+  if (label.length < 2 || label.length > 60) {
+    throw new Error("Role name must be between 2 and 60 characters.");
+  }
+  const description = (input.description || "").trim().slice(0, 240);
+  const inferredBase =
+    input.baseRole ||
+    (input.permissions ? inferBaseRoleFromPermissions(input.permissions) : undefined);
+  const patch: Record<string, unknown> = {
+    label,
+    description,
+    updated_at: new Date().toISOString(),
+  };
+  if (inferredBase) patch.base_role = inferredBase;
+  const { data, error } = await supabase
+    .from("custom_roles")
+    .update(patch)
+    .eq("key", key)
+    .select("*")
+    .single();
+  if (error) {
+    if (error.code === "23505") throw new Error("A custom role with that name already exists.");
+    throw error;
+  }
+  const updated = mapCustomRoleRow(data as Record<string, any>);
+  if (input.permissions) {
+    await saveCustomRolePermissions(key, input.permissions);
+  }
+  announceCustomRolesChanged();
+  return updated;
+}
+
+export async function deleteCustomRole(key: string): Promise<void> {
+  if (!key || isAdminRole(key)) throw new Error("Built-in roles cannot be deleted.");
+  const permDelete = await supabase.from("role_permissions").delete().eq("role", key);
+  if (permDelete?.error) throw permDelete.error;
+  const { error } = await supabase.from("custom_roles").delete().eq("key", key);
+  if (error) throw error;
+  announceCustomRolesChanged();
+}
+
+export async function restoreRoleDefaults(role: string): Promise<void> {
+  if (isAdminRole(role)) throw new Error("Admin defaults cannot be changed.");
+  const { error } = await supabase.from("role_permissions").delete().eq("role", role);
+  if (error) throw error;
+  announcePermissionsChanged();
 }
 
 export async function setRolePermission(role: string, permission: string, allowed: boolean): Promise<void> {

@@ -1,269 +1,641 @@
-import '../permissionPresentation.css';
-import { isAdminRole } from "../../../shared/roles";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { LockKeyhole, MonitorCog, ShieldCheck } from "lucide-react";
+import "../permissionPresentation.css";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  LockKeyhole,
+  Pencil,
+  Plus,
+  RotateCcw,
+  Search,
+  Shield,
+  SlidersHorizontal,
+  Trash2,
+} from "lucide-react";
+import { Button } from "../../../components/ui/button";
+import { EmptyState } from "../../../components/ui/EmptyState";
 import { useToast } from "../../../components/ui/Toast";
+import { useConfirmation } from "../../../components/ui/useConfirmation";
+import { getRoleLabel, isAdminRole } from "../../../shared/roles";
 import {
   ACTION_PERMISSION_KEYS,
-  MANAGED_ROLES,
-  VISIBLE_PAGE_PERMISSION_KEYS as PAGE_PERMISSION_KEYS,
+  FALLBACK_DEFAULTS,
   PERMISSION_LABELS,
+  VISIBLE_PAGE_PERMISSION_KEYS,
+  type PermissionKey,
 } from "../constants";
+import { useRoleCatalog } from "../hooks/useRoleCatalog";
 import { rolePermissionAllowed } from "../selectors";
 import {
+  createCustomRole,
+  deleteCustomRole,
   fetchRolePermissions,
+  restoreRoleDefaults,
   setRolePermission,
+  updateCustomRole,
 } from "../services/permissionService";
-import type { RolePermissionRow } from "../types";
-import { Tooltip } from "@vibe/core";
-import { Button } from "../../../components/ui/button";
+import type { CustomRoleDefinition, RolePermissionRow } from "../types";
+import { CustomRoleModal } from "./CustomRoleModal";
 
-function PermissionSection({
+type PermissionCategoryFilter = "all" | "pages" | "actions";
+
+const ALL_CAPABILITY_KEYS = [...VISIBLE_PAGE_PERMISSION_KEYS, ...ACTION_PERMISSION_KEYS];
+
+function CapabilitySection({
   title,
-  description,
-  permissions,
+  keys,
+  selectedRoleKey,
+  selectedRoleLabel,
+  fallbackRole,
+  isBuiltIn,
+  isLocked,
   rows,
+  savingKey,
   onToggle,
 }: {
   title: string;
-  description: string;
-  permissions: readonly string[];
+  keys: readonly PermissionKey[];
+  selectedRoleKey: string;
+  selectedRoleLabel: string;
+  fallbackRole: string;
+  isBuiltIn: boolean;
+  isLocked: boolean;
   rows: RolePermissionRow[];
-  onToggle: (role: string, permission: string) => void;
+  savingKey: string | null;
+  onToggle: (roleKey: string, permission: string, nextAllowed: boolean) => void;
 }) {
+  if (keys.length === 0) return null;
   return (
-    <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
-      <div className="flex items-start gap-3 border-b border-neutral-100 bg-neutral-50/70 px-5 py-4">
-        <div className="rounded-xl border border-neutral-200 bg-white p-2 text-neutral-700">
-          {title === "Page access" ? (
-            <MonitorCog size={17} />
-          ) : (
-            <ShieldCheck size={17} />
-          )}
-        </div>
-        <div>
-          <h3 className="text-[14px] font-semibold text-neutral-900">
-            {title}
-          </h3>
-          <p className="mt-0.5 text-[12px] text-neutral-500">{description}</p>
-        </div>
+    <section className="overflow-hidden rounded-xl border border-neutral-200 bg-white">
+      <div className="flex items-center justify-between border-b border-neutral-200 bg-neutral-50/70 px-4 py-3">
+        <h4 className="text-[13px] font-semibold text-neutral-900">{title}</h4>
+        <span className="text-[12px] text-neutral-500">
+          {keys.length} {keys.length === 1 ? "permission" : "permissions"}
+        </span>
       </div>
-      <div
-        className="overflow-x-auto"
-        role="region"
-        aria-label={`${title} role permissions`}
-        tabIndex={0}
-      >
-        <table className="w-full min-w-[760px]">
-          <thead>
-            <tr className="border-b border-neutral-100">
-              <th
-                scope="col"
-                role="columnheader"
-                className="px-5 py-3 text-left text-[12px] font-semibold uppercase tracking-[0.13em] text-neutral-400"
+      <div className="divide-y divide-neutral-200">
+        {keys.map((permission) => {
+          const allowed = rolePermissionAllowed(selectedRoleKey, permission, rows, fallbackRole);
+          const baselineAllowed = (FALLBACK_DEFAULTS[fallbackRole] || []).includes(permission);
+          const isCustomized = isBuiltIn && !isLocked && allowed !== baselineAllowed;
+          const rowKey = `${selectedRoleKey}:${permission}`;
+          const busy = savingKey === rowKey;
+
+          return (
+            <div key={permission} className="eflow-role-row">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-[13px] font-medium text-neutral-900">
+                    {PERMISSION_LABELS[permission] || permission}
+                  </span>
+                  {isCustomized ? (
+                    <span className="rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-700">
+                      Modified
+                    </span>
+                  ) : null}
+                </div>
+                {isLocked ? (
+                  <p className="mt-0.5 text-[12px] text-neutral-400">
+                    System admin permission (locked).
+                  </p>
+                ) : isBuiltIn ? (
+                  <p className="mt-0.5 text-[12px] text-neutral-400">
+                    Default: {baselineAllowed ? "Allowed" : "Denied"}
+                  </p>
+                ) : null}
+              </div>
+
+              <button
+                type="button"
+                aria-label={`${selectedRoleLabel}: ${allowed ? "Allowed" : "Denied"}`}
+                aria-pressed={isLocked ? undefined : allowed}
+                disabled={isLocked || busy}
+                onClick={() => onToggle(selectedRoleKey, permission, !allowed)}
+                className={`eflow-role-permission inline-flex items-center justify-center gap-1.5 rounded-lg border px-3 py-1.5 text-[12px] font-medium transition-colors ${
+                  isLocked
+                    ? "cursor-not-allowed border-neutral-200 bg-neutral-100 text-neutral-600 opacity-85"
+                    : allowed
+                      ? "border-emerald-200 bg-emerald-50 text-emerald-700 hover:brightness-95"
+                      : "border-neutral-200 bg-neutral-100 text-neutral-600 hover:bg-neutral-200/70"
+                } disabled:opacity-60`}
               >
-                Capability
-              </th>
-              {MANAGED_ROLES.map((role) => (
-                <th
-                  key={role.key}
-                  scope="col"
-                  role="columnheader"
-                  className="px-4 py-3 text-center text-[12px] font-semibold uppercase tracking-[0.12em] text-neutral-400"
-                >
-                  {role.label}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {permissions.map((permission) => (
-              <tr
-                key={permission}
-                className="border-b border-neutral-50 last:border-0 hover:bg-neutral-50/60"
-              >
-                <th scope="row" className="px-5 py-3 text-left font-normal">
-                  <div className="text-[12px] font-medium text-neutral-900">
-                    {
-                      PERMISSION_LABELS[
-                        permission as keyof typeof PERMISSION_LABELS
-                      ]
-                    }
-                  </div>
-                  <div className="mt-0.5 font-mono text-[12px] text-neutral-400">
-                    {permission}
-                  </div>
-                </th>
-                {MANAGED_ROLES.map((role) => {
-                  const enabled = rolePermissionAllowed(
-                    role.key,
-                    permission,
-                    rows,
-                  );
-                  const locked = isAdminRole(role.key);
-                  return (
-                    <td key={role.key} className="px-4 py-3 text-center">
-                      <Tooltip
-                        content={
-                          locked
-                            ? "Admin is limited to administrative capabilities"
-                            : enabled
-                              ? "Allowed. Select to deny this capability."
-                              : "Denied. Select to allow this capability."
-                        }
-                      >
-                        <span className="inline-flex">
-                          <Button
-                            type="button"
-                            aria-label={`${role.label}: ${enabled ? "Allowed" : "Denied"}`}
-                            aria-pressed={enabled}
-                            disabled={locked}
-                            onClick={() => onToggle(role.key, permission)}
-                            variant={enabled ? 'secondary' : 'outline'}
-                            className="eflow-role-permission"
-                          >
-                            {locked && <LockKeyhole size={13} aria-hidden="true" />}
-                            {enabled ? 'Allowed' : 'Denied'}
-                          </Button>
-                        </span>
-                      </Tooltip>
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                {isLocked ? <LockKeyhole className="h-3.5 w-3.5" aria-hidden="true" /> : null}
+                {busy ? "Saving…" : allowed ? "Allowed" : "Denied"}
+              </button>
+            </div>
+          );
+        })}
       </div>
     </section>
   );
 }
 
-import { useConfirmation } from "../../../components/ui/useConfirmation";
-import { useExplicitDraft } from "../../../shared/useExplicitDraft";
-import { FeedbackState } from "../../../components/ui/FeedbackState";
 export function RoleDefaultsTab() {
+  const { toast } = useToast();
+  const { confirm, dialog: confirmationDialog } = useConfirmation();
+  const { roleCatalog, customRoles, reload: reloadCatalog } = useRoleCatalog();
+
   const [rows, setRows] = useState<RolePermissionRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [busy, setBusy] = useState(false);
-  const pending = useRef(false);
-  const [result, setResult] = useState("");
-  const [failure, setFailure] = useState("");
-  const confirmation = useConfirmation();
-  const draft = useExplicitDraft("Role default change", false, busy, () => {});
-  const { toast } = useToast();
+  const [savingKey, setSavingKey] = useState<string | null>(null);
+  const [restoring, setRestoring] = useState(false);
 
-  const load = useCallback(async () => {
-    setRows(await fetchRolePermissions());
-    setLoading(false);
-  }, []);
+  const [selectedRoleKey, setSelectedRoleKey] = useState<string>("admin");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState<PermissionCategoryFilter>("all");
+
+  const [modalMode, setModalMode] = useState<"create" | "edit" | null>(null);
+  const [editingRole, setEditingRole] = useState<CustomRoleDefinition | null>(null);
+  const [modalSaving, setModalSaving] = useState(false);
+  const [modalError, setModalError] = useState<string | null>(null);
+
+  const loadPermissions = useCallback(async () => {
+    setLoading(true);
+    try {
+      setRows(await fetchRolePermissions());
+    } catch (error) {
+      toast(
+        error instanceof Error ? error.message : "Could not load role defaults.",
+        "error",
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, [toast]);
 
   useEffect(() => {
-    void load();
-  }, [load]);
+    void loadPermissions();
+  }, [loadPermissions]);
 
-  const toggle = async (role: string, permission: string) => {
-    if (isAdminRole(role)) {
-      toast("Admin core access cannot be revoked.", "info");
-      return;
-    }
-    if (pending.current) return;
-    const next = !rolePermissionAllowed(role, permission, rows);
-    pending.current = true;
-    draft.pendingRef.current = true;
-    setBusy(true);
-    setFailure("");
+  useEffect(() => {
+    if (roleCatalog.some((entry) => entry.key === selectedRoleKey)) return;
+    setSelectedRoleKey(roleCatalog[0]?.key || "admin");
+  }, [roleCatalog, selectedRoleKey]);
+
+  const builtInRoles = useMemo(
+    () => roleCatalog.filter((entry) => entry.isBuiltIn),
+    [roleCatalog],
+  );
+  const customEntries = useMemo(
+    () => roleCatalog.filter((entry) => !entry.isBuiltIn),
+    [roleCatalog],
+  );
+
+  const selectedRole = useMemo(
+    () => roleCatalog.find((entry) => entry.key === selectedRoleKey) || roleCatalog[0],
+    [roleCatalog, selectedRoleKey],
+  );
+
+  const selectedCustomDefinition = useMemo(
+    () => customRoles.find((item) => item.key === selectedRole?.key) || null,
+    [customRoles, selectedRole],
+  );
+
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+  const visiblePageKeys = useMemo(() => {
+    if (categoryFilter === "actions") return [];
+    return VISIBLE_PAGE_PERMISSION_KEYS.filter((permission) =>
+      !normalizedQuery
+        ? true
+        : (PERMISSION_LABELS[permission] || permission).toLowerCase().includes(normalizedQuery),
+    );
+  }, [categoryFilter, normalizedQuery]);
+
+  const visibleActionKeys = useMemo(() => {
+    if (categoryFilter === "pages") return [];
+    return ACTION_PERMISSION_KEYS.filter((permission) =>
+      !normalizedQuery
+        ? true
+        : (PERMISSION_LABELS[permission] || permission).toLowerCase().includes(normalizedQuery),
+    );
+  }, [categoryFilter, normalizedQuery]);
+
+  const countAllowedForRole = useCallback(
+    (roleKey: string, baseRole: string) =>
+      ALL_CAPABILITY_KEYS.filter((perm) =>
+        rolePermissionAllowed(roleKey, perm, rows, baseRole),
+      ).length,
+    [rows],
+  );
+
+  const hasCustomizedPermissions = useMemo(() => {
+    if (!selectedRole || !selectedRole.isBuiltIn || selectedRole.isLocked) return false;
+    return ALL_CAPABILITY_KEYS.some((permission) => {
+      const current = rolePermissionAllowed(
+        selectedRole.key,
+        permission,
+        rows,
+        selectedRole.baseRole,
+      );
+      const baseline = (FALLBACK_DEFAULTS[selectedRole.baseRole] || []).includes(permission);
+      return current !== baseline;
+    });
+  }, [selectedRole, rows]);
+
+  const handleToggle = async (roleKey: string, permission: string, nextAllowed: boolean) => {
+    if (isAdminRole(roleKey)) return;
+    const key = `${roleKey}:${permission}`;
+    setSavingKey(key);
     try {
-      const label =
-        MANAGED_ROLES.find((item) => item.key === role)?.label || role;
-      if (
-        !(await confirmation.confirm({
-          title: "Change role default?",
-          description: `${label}: ${PERMISSION_LABELS[permission as keyof typeof PERMISSION_LABELS] || permission} changes from ${next ? "Denied" : "Allowed"} to ${next ? "Allowed" : "Denied"}. This affects everyone inheriting this role default. Individual exceptions and data scope still apply.`,
-          actionLabel: "Change default",
-        }))
-      )
-        return;
-      await setRolePermission(role, permission, next);
-      setResult(
-        `${role} · ${permission}: ${next ? "Allowed" : "Denied"}. Saved.`,
-      );
-      await load();
+      await setRolePermission(roleKey, permission, nextAllowed);
+      setRows(await fetchRolePermissions());
+      const label = roleCatalog.find((item) => item.key === roleKey)?.label || roleKey;
+      toast(`${label} default updated.`, "success");
+    } catch (error) {
       toast(
-        `${MANAGED_ROLES.find((item) => item.key === role)?.label || role} default updated.`,
-        "success",
+        error instanceof Error ? error.message : "Could not update role default.",
+        "error",
       );
-    } catch (error: any) {
-      setFailure(error?.message || "Failed to update the role default.");
-      toast(error?.message || "Failed to update the role default.", "error");
     } finally {
-      pending.current = false;
-      draft.pendingRef.current = false;
-      setBusy(false);
+      setSavingKey(null);
     }
   };
 
-  if (loading)
-    return (
-      <div className="h-64 animate-pulse rounded-2xl border border-neutral-200 bg-white" />
-    );
+  const handleRestoreDefault = async () => {
+    if (!selectedRole || selectedRole.isLocked || restoring) return;
+    const ok = await confirm({
+      title: `Restore default access for ${selectedRole.label}?`,
+      description: `Resets all customized permissions for ${selectedRole.label} back to the baseline defaults for ${getRoleLabel(selectedRole.baseRole)}.`,
+      actionLabel: "Restore default",
+      cancelLabel: "Keep current",
+    });
+    if (!ok) return;
+
+    setRestoring(true);
+    try {
+      await restoreRoleDefaults(selectedRole.key);
+      setRows(await fetchRolePermissions());
+      toast(`${selectedRole.label} restored to default permissions.`, "success");
+    } catch (error) {
+      toast(
+        error instanceof Error ? error.message : "Could not restore role defaults.",
+        "error",
+      );
+    } finally {
+      setRestoring(false);
+    }
+  };
+
+  const handleOpenCreateModal = () => {
+    setEditingRole(null);
+    setModalError(null);
+    setModalMode("create");
+  };
+
+  const handleOpenEditModal = () => {
+    if (!selectedCustomDefinition) return;
+    setEditingRole(selectedCustomDefinition);
+    setModalError(null);
+    setModalMode("edit");
+  };
+
+  const handleModalSubmit = async (values: {
+    label: string;
+    description: string;
+    permissions: Record<string, boolean>;
+  }) => {
+    setModalSaving(true);
+    setModalError(null);
+    try {
+      if (modalMode === "create") {
+        const created = await createCustomRole({
+          label: values.label,
+          description: values.description,
+          existingKeys: customRoles.map((r) => r.key),
+          permissions: values.permissions,
+        });
+        await Promise.all([reloadCatalog(), fetchRolePermissions().then(setRows)]);
+        setSelectedRoleKey(created.key);
+        setModalMode(null);
+        toast(`Created custom role "${created.label}".`, "success");
+      } else if (modalMode === "edit" && editingRole) {
+        const updated = await updateCustomRole(editingRole.key, {
+          label: values.label,
+          description: values.description,
+          permissions: values.permissions,
+        });
+        await Promise.all([reloadCatalog(), fetchRolePermissions().then(setRows)]);
+        setModalMode(null);
+        toast(`Updated custom role "${updated.label}".`, "success");
+      }
+    } catch (error) {
+      setModalError(error instanceof Error ? error.message : "Could not save custom role.");
+    } finally {
+      setModalSaving(false);
+    }
+  };
+
+  const handleDeleteCustomRole = async () => {
+    if (!selectedCustomDefinition) return;
+    const baseLabel = getRoleLabel(selectedCustomDefinition.baseRole);
+    const ok = await confirm({
+      title: `Delete "${selectedCustomDefinition.label}"?`,
+      description: `Any accounts currently assigned "${selectedCustomDefinition.label}" will safely revert to standard ${baseLabel} permissions.`,
+      actionLabel: "Delete role",
+      cancelLabel: "Cancel",
+      danger: true,
+    });
+    if (!ok) return;
+
+    try {
+      await deleteCustomRole(selectedCustomDefinition.key);
+      await reloadCatalog();
+      setRows(await fetchRolePermissions());
+      setSelectedRoleKey("member");
+      toast(`Deleted custom role "${selectedCustomDefinition.label}".`, "success");
+    } catch (error) {
+      toast(
+        error instanceof Error ? error.message : "Could not delete custom role.",
+        "error",
+      );
+    }
+  };
 
   return (
     <div className="eflow-permissions-surface space-y-4">
-      {confirmation.dialog}
-      <p className="text-xs text-muted-foreground">
-        Displayed access uses role fallbacks when the current reader returns no
-        overrides, including when a read is unavailable. A page permission never
-        bypasses Office, project or server policy.
-      </p>
-      <button
-        type="button"
-        disabled={busy}
-        className="rounded-lg border px-3 py-2 text-sm"
-        onClick={() => void load()}
-      >
-        Refresh role defaults
-      </button>
-      {result && (
-        <FeedbackState tone="success" title="Saved access change">
-          {result}
-        </FeedbackState>
-      )}
-      {failure && (
-        <FeedbackState tone="error" title="Access change needs review">
-          {failure} Refresh the current access before retrying.
-        </FeedbackState>
-      )}
-      <div className="flex items-start gap-3 rounded-2xl border border-blue-100 bg-blue-50/60 px-4 py-3">
-        <LockKeyhole size={17} className="mt-0.5 shrink-0 text-blue-700" />
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <div className="text-[12px] font-semibold text-blue-950">
-            Role defaults are the baseline
-          </div>
-          <p className="mt-0.5 text-[12px] leading-relaxed text-blue-800/80">
-            Individual allows or denies can be added from User Access. Those
-            exceptions never change anyone else with the same role.
+          <h3 className="text-[16px] font-semibold text-neutral-900">Role defaults</h3>
+          <p className="text-[13px] text-neutral-500">
+            Choose a role to view or change its default permissions.
           </p>
         </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => void handleRestoreDefault()}
+            disabled={!selectedRole || !selectedRole.isBuiltIn || selectedRole.isLocked || restoring || loading || Boolean(savingKey)}
+          >
+            <RotateCcw className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
+            {restoring ? "Restoring…" : "Restore default"}
+          </Button>
+          <Button type="button" onClick={handleOpenCreateModal}>
+            <Plus className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
+            Create custom role
+          </Button>
+        </div>
       </div>
-      <fieldset disabled={busy} className="min-w-0">
-        <PermissionSection
-          title="Page access"
-          description="Controls which workspaces appear and whether direct navigation is allowed."
-          permissions={PAGE_PERMISSION_KEYS}
-          rows={rows}
-          onToggle={toggle}
-        />
-      </fieldset>
-      <fieldset disabled={busy} className="min-w-0">
-        <PermissionSection
-          title="Actions"
-          description="Controls what a user can do after entering an authorized workspace."
-          permissions={ACTION_PERMISSION_KEYS}
-          rows={rows}
-          onToggle={toggle}
-        />
-      </fieldset>
+
+      {loading && rows.length === 0 ? (
+        <div className="rounded-xl border border-neutral-200 bg-white px-4 py-8 text-center text-[13px] text-neutral-500">
+          Loading role defaults…
+        </div>
+      ) : (
+        <div className="eflow-roles-workspace">
+          <aside className="overflow-hidden rounded-xl border border-neutral-200 bg-white">
+            <div className="flex items-center justify-between border-b border-neutral-200 px-3.5 py-2.5">
+              <span className="text-[12px] font-semibold uppercase tracking-wider text-neutral-500">
+                Built-in roles
+              </span>
+              <span className="text-[11px] font-medium text-neutral-400">
+                {builtInRoles.length}
+              </span>
+            </div>
+            <div className="space-y-1 p-2">
+              {builtInRoles.map((role) => {
+                const selected = selectedRole?.key === role.key;
+                const count = countAllowedForRole(role.key, role.baseRole);
+                return (
+                  <button
+                    key={role.key}
+                    type="button"
+                    aria-pressed={selected}
+                    onClick={() => setSelectedRoleKey(role.key)}
+                    className="eflow-role-list-item"
+                  >
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5 text-[13px] font-medium">
+                        {role.isLocked ? (
+                          <LockKeyhole className="h-3.5 w-3.5 shrink-0 opacity-75" aria-hidden="true" />
+                        ) : (
+                          <Shield className="h-3.5 w-3.5 shrink-0 opacity-75" aria-hidden="true" />
+                        )}
+                        <span className="truncate">{role.label}</span>
+                      </div>
+                      <div className="mt-0.5 text-[11px] text-neutral-400">
+                        {role.isLocked ? "System admin · Locked" : "Built-in role"}
+                      </div>
+                    </div>
+                    <span className="shrink-0 rounded-full bg-neutral-100 px-2 py-0.5 text-[11px] font-medium text-neutral-600">
+                      {count}/{ALL_CAPABILITY_KEYS.length}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="flex items-center justify-between border-y border-neutral-200 px-3.5 py-2.5">
+              <span className="text-[12px] font-semibold uppercase tracking-wider text-neutral-500">
+                Custom roles
+              </span>
+              <span className="text-[11px] font-medium text-neutral-400">
+                {customEntries.length}
+              </span>
+            </div>
+            <div className="space-y-1 p-2">
+              {customEntries.length === 0 ? (
+                <div className="px-2.5 py-3 text-[12px] text-neutral-400">
+                  No custom roles yet. Use{" "}
+                  <button
+                    type="button"
+                    onClick={handleOpenCreateModal}
+                    className="font-medium text-neutral-700 underline underline-offset-2 hover:text-neutral-900"
+                  >
+                    Create custom role
+                  </button>{" "}
+                  to add a tailored role.
+                </div>
+              ) : (
+                customEntries.map((role) => {
+                  const selected = selectedRole?.key === role.key;
+                  const count = countAllowedForRole(role.key, role.baseRole);
+                  return (
+                    <button
+                      key={role.key}
+                      type="button"
+                      aria-pressed={selected}
+                      onClick={() => setSelectedRoleKey(role.key)}
+                      className="eflow-role-list-item"
+                    >
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5 text-[13px] font-medium">
+                          <SlidersHorizontal className="h-3.5 w-3.5 shrink-0 opacity-75" aria-hidden="true" />
+                          <span className="truncate">{role.label}</span>
+                        </div>
+                        <div className="mt-0.5 text-[11px] text-neutral-400">
+                          Custom role
+                        </div>
+                      </div>
+                      <span className="shrink-0 rounded-full bg-neutral-100 px-2 py-0.5 text-[11px] font-medium text-neutral-600">
+                        {count}/{ALL_CAPABILITY_KEYS.length}
+                      </span>
+                    </button>
+                  );
+                })
+              )}
+            </div>
+          </aside>
+
+          {selectedRole ? (
+            <div className="min-w-0 space-y-4">
+              <div className="rounded-xl border border-neutral-200 bg-white p-4">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h4 className="text-[15px] font-semibold text-neutral-900">
+                        {selectedRole.label}
+                      </h4>
+                      {selectedRole.isBuiltIn ? (
+                        <span className="rounded-full bg-neutral-100 px-2.5 py-0.5 text-[11px] font-medium text-neutral-600">
+                          {selectedRole.isLocked ? "Built-in · Locked" : "Built-in"}
+                        </span>
+                      ) : (
+                        <span className="rounded-full bg-teal-50 px-2.5 py-0.5 text-[11px] font-medium text-teal-700">
+                          Custom role
+                        </span>
+                      )}
+                      {hasCustomizedPermissions ? (
+                        <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-[11px] font-medium text-blue-700">
+                          Modified from default
+                        </span>
+                      ) : null}
+                    </div>
+                    {selectedRole.description ? (
+                      <p className="mt-1.5 text-[13px] text-neutral-500">
+                        {selectedRole.description}
+                      </p>
+                    ) : null}
+                  </div>
+
+                  {!selectedRole.isBuiltIn && selectedCustomDefinition ? (
+                    <div className="flex items-center gap-1.5">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={handleOpenEditModal}
+                      >
+                        <Pencil className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
+                        Edit
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => void handleDeleteCustomRole()}
+                      >
+                        <Trash2 className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
+                        Delete
+                      </Button>
+                    </div>
+                  ) : null}
+                </div>
+
+                <div className="mt-3.5 flex flex-wrap items-center justify-between gap-2.5 border-t border-neutral-100 pt-3">
+                  <div className="relative min-w-[200px] flex-1">
+                    <Search
+                      className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-neutral-400"
+                      aria-hidden="true"
+                    />
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search permissions…"
+                      aria-label="Search permissions"
+                      className="h-9 w-full rounded-lg border border-neutral-200 pl-8 pr-3 text-[13px] placeholder:text-neutral-400 focus:outline-none"
+                    />
+                  </div>
+
+                  <div
+                    role="group"
+                    aria-label="Permission group"
+                    className="inline-flex rounded-lg border border-neutral-200 bg-neutral-50 p-0.5"
+                  >
+                    {(
+                      [
+                        ["all", "All"],
+                        ["pages", "Page access"],
+                        ["actions", "Actions"],
+                      ] as const
+                    ).map(([value, label]) => {
+                      const active = categoryFilter === value;
+                      return (
+                        <button
+                          key={value}
+                          type="button"
+                          aria-pressed={active}
+                          onClick={() => setCategoryFilter(value)}
+                          className={`min-h-[30px] rounded-md px-2.5 text-[12px] font-medium transition-colors ${
+                            active
+                              ? "bg-white text-neutral-900 shadow-xs"
+                              : "text-neutral-500 hover:text-neutral-900"
+                          }`}
+                        >
+                          {label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {visiblePageKeys.length === 0 && visibleActionKeys.length === 0 ? (
+                <div className="rounded-xl border border-neutral-200 bg-white p-6">
+                  <EmptyState
+                    illustration="search"
+                    size="compact"
+                    title="No matching permissions"
+                    description="Clear the search filter or switch to All."
+                  />
+                </div>
+              ) : (
+                <>
+                  <CapabilitySection
+                    title="Page access"
+                    keys={visiblePageKeys}
+                    selectedRoleKey={selectedRole.key}
+                    selectedRoleLabel={selectedRole.label}
+                    fallbackRole={selectedRole.baseRole}
+                    isBuiltIn={selectedRole.isBuiltIn}
+                    isLocked={selectedRole.isLocked}
+                    rows={rows}
+                    savingKey={savingKey}
+                    onToggle={(roleKey, permission, next) => void handleToggle(roleKey, permission, next)}
+                  />
+                  <CapabilitySection
+                    title="Actions"
+                    keys={visibleActionKeys}
+                    selectedRoleKey={selectedRole.key}
+                    selectedRoleLabel={selectedRole.label}
+                    fallbackRole={selectedRole.baseRole}
+                    isBuiltIn={selectedRole.isBuiltIn}
+                    isLocked={selectedRole.isLocked}
+                    rows={rows}
+                    savingKey={savingKey}
+                    onToggle={(roleKey, permission, next) => void handleToggle(roleKey, permission, next)}
+                  />
+                </>
+              )}
+            </div>
+          ) : null}
+        </div>
+      )}
+
+      <CustomRoleModal
+        open={modalMode !== null}
+        mode={modalMode || "create"}
+        initialRole={editingRole}
+        roleRows={rows}
+        saving={modalSaving}
+        error={modalError}
+        onClose={() => {
+          if (!modalSaving) setModalMode(null);
+        }}
+        onSubmit={handleModalSubmit}
+      />
+
+      {confirmationDialog}
     </div>
   );
 }

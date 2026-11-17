@@ -6,6 +6,7 @@ import { getLeadershipSlotConflict, isManagedLeadershipRole } from "./leadership
 export interface ManagedUserProfileChanges {
   full_name: string;
   role: UserRole;
+  custom_role_key?: string | null;
   org_id: string | null;
   skills: Record<string, boolean>;
 }

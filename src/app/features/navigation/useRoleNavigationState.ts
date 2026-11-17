@@ -2,6 +2,7 @@ import { isNavigationLocked } from "../../shared/navigationLock";
 import { hasDirtyNavigation, requestNavigation } from '../../shared/navigationGuard';
 import { NAVIGATION_LOCATION_EVENT, replaceNavigationHistory } from '../../shared/navigationHistory';
 import { useCallback, useEffect, useRef, useState } from "react";
+import { resolveSupportPage, resolveSupportSubTab } from "./administrativePages";
 import { getDefaultSection } from "./roleNavigation";
 import {claimNavigationIdentity,isForeignNavigationActor} from '../../shared/navigationIdentity';
 import {
@@ -40,10 +41,17 @@ export function useRoleNavigationState(
       if (isNavigationLocked()) { writeNavigationLocation(currentLocation.current.section, currentLocation.current.page, "replace"); return; }
       if(actorId) claimNavigationIdentity(actorId,role);
       const next = readLocation();
+      const currentUrlPage = new URLSearchParams(window.location.search).get("page") || undefined;
+      const preservedPage =
+        currentUrlPage &&
+        resolveSupportPage(next.section, currentUrlPage) === next.page &&
+        resolveSupportSubTab(next.section, currentUrlPage)
+          ? currentUrlPage
+          : next.page;
       currentLocation.current = next;
       setActiveSection(next.section);
       setActivePage(next.page);
-      writeNavigationLocation(next.section, next.page, "replace");
+      writeNavigationLocation(next.section, preservedPage, "replace");
       currentHref = window.location.href;
       currentIndex = window.history.state?.eflowIndex ?? 0;
     };

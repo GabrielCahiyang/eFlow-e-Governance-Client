@@ -4,13 +4,14 @@ import time
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.security import HTTPAuthorizationCredentials
-from pydantic import BaseModel, ConfigDict, Field, SecretStr
+from pydantic import BaseModel, ConfigDict, Field, SecretStr, field_validator
 from gateway_dependencies import bearer, require_user, supabase_admin
 from invitations import service
 from invitations import local_offices
 from services.private_validation import PrivateValidationRoute
 from services import managed_account_activation
 from services.database_transport import database_read
+from services.skill_tags import active_skill_labels, validate_skill_map
 
 router = APIRouter(prefix='/controlpanelEflow/api/invitations', tags=['invitations'], route_class=PrivateValidationRoute)
 
@@ -26,6 +27,25 @@ class CreateAccountRequest(TokenRequest):
 class ManagedActivationComplete(TokenRequest):
     password: SecretStr = Field(min_length=12, max_length=128)
     attempt_id: UUID
+    full_name: str | None = Field(default=None, max_length=160)
+    skills: dict[str, bool] | None = None
+
+    @field_validator('full_name')
+    @classmethod
+    def valid_full_name(cls, value):
+        if value is None:
+            return None
+        cleaned = value.strip()
+        if not cleaned:
+            return None
+        if len(cleaned) < 2:
+            raise ValueError('Enter your full name')
+        return cleaned
+
+    @field_validator('skills')
+    @classmethod
+    def valid_skills(cls, value):
+        return validate_skill_map(value) if value is not None else None
 
 @router.post('/managed-account/validate')
 def validate_managed_activation(payload: TokenRequest, request: Request):
@@ -33,7 +53,14 @@ def validate_managed_activation(payload: TokenRequest, request: Request):
 
 @router.post('/managed-account/activate')
 def complete_managed_activation(payload: ManagedActivationComplete, request: Request):
-    return managed_account_activation.activate(payload.token.get_secret_value(), payload.password.get_secret_value(), str(payload.attempt_id), request.client.host if request.client else 'unknown')
+    return managed_account_activation.activate(
+        payload.token.get_secret_value(),
+        payload.password.get_secret_value(),
+        str(payload.attempt_id),
+        request.client.host if request.client else 'unknown',
+        skills=payload.skills,
+        full_name=payload.full_name,
+    )
 
 class AcceptRequest(TokenRequest):
     full_name: str | None = Field(default=None, min_length=2, max_length=160)
@@ -140,7 +167,7 @@ def validate_invitation(payload: TokenRequest):
     # Existing-identity detection stays server-side, accessible only with the opaque token.
     exists = supabase_admin.rpc('phase2_identity_exists', {'p_email': item['email_normalized']}).execute().data
     has_profile = supabase_admin.rpc('phase2_profile_exists', {'p_email': item['email_normalized']}).execute().data if exists else False
-    result = {'email': item['email'], 'office_name': office['name'], 'account_role': item['account_role'], 'expires_at': item['expires_at'], 'existing_account': bool(exists), 'needs_full_name': bool(exists and not has_profile)}
+    result = {'email': item['email'], 'office_name': office['name'], 'account_role': item['account_role'], 'expires_at': item['expires_at'], 'existing_account': bool(exists), 'needs_full_name': bool(exists and not has_profile), 'available_skills': active_skill_labels(supabase_admin)}
     if item.get('invitation_type') in ('project_office', 'project_office_identity'):
         context = service.project_context(item, pending=True)
         result.update(invitation_type=item['invitation_type'], office_name=context['office_name'], project_title=context['project_title'], project_id=context['project_id'], workspace_access=context['relationship_type'])

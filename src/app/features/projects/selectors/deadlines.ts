@@ -1,4 +1,5 @@
 import type { Project } from "../services/types";
+import { getDueSoonWindowDays } from "../../../shared/systemRuntimeConfig";
 
 const DAY = 86_400_000;
 
@@ -31,6 +32,6 @@ export function getPortfolioDeadlineState(targetDate: string | undefined, comple
   const days = Math.round((targetAt - todayStart) / DAY);
   if (days < 0) return { tone: "overdue", label: `${Math.abs(days)}d overdue`, targetAt };
   if (days === 0) return { tone: "due_soon", label: "Due today", targetAt };
-  if (days <= 3) return { tone: "due_soon", label: days === 1 ? "Due tomorrow" : `${days}d left`, targetAt };
+  if (days <= getDueSoonWindowDays()) return { tone: "due_soon", label: days === 1 ? "Due tomorrow" : `${days}d left`, targetAt };
   return { tone: "on_track", label: `${days}d left`, targetAt };
 }

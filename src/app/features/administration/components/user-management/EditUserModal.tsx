@@ -1,4 +1,3 @@
-import { WorkspaceTooltip } from "../../../../components/ui/workspace/WorkspaceTooltip";
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../../../../contexts/AuthContext";
 import {
@@ -9,14 +8,25 @@ import {
 import { FeedbackState } from "../../../../components/ui/FeedbackState";
 import { Modal, ModalButton } from "../../../../components/ui/Modal";
 import { useToast } from "../../../../components/ui/Toast";
-import type { Organization, UserProfile, UserRole } from "../../../../types";
+import type { Organization, UserProfile } from "../../../../types";
 import { getAssignableRoleOptions } from "./userManagementPrimitives";
+import {
+  getAssignableRoleCatalog,
+  resolveAccountRoleDisplay,
+  resolveRoleSelection,
+  type ManagedRoleCatalogEntry,
+} from "../../../permissions";
 import {
   getLeadershipSlotConflict,
   isManagedLeadershipRole,
 } from "../../services/leadershipConstraints";
 import { updateManagedUserWithLeadership } from "../../services/managedUserLeadershipService";
-import { Plus, X } from "lucide-react";
+import {
+  SkillTagSelector,
+  skillListToMap,
+  skillMapToList,
+} from "../../../../components/ui/SkillTagSelector";
+import { useSkillTags } from "../../../../shared/skillTags";
 import {
   getRoleLabel,
   isAdminRole,
@@ -33,28 +43,31 @@ export function EditUserModal({
   user: editUser,
   organizations,
   profiles,
+  roleCatalog = [],
 }: {
   isOpen: boolean;
   onClose: () => void;
   user: UserProfile | null;
   organizations: Organization[];
   profiles: UserProfile[];
+  roleCatalog?: ManagedRoleCatalogEntry[];
 }) {
   const { toast } = useToast();
   const { userProfile } = useAuth();
   const [form, setForm] = useState({
     fullName: "",
-    role: "member" as UserRole,
+    role: "member",
     orgId: "",
   });
   const savePending = useRef(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<"basic" | "skills">("basic");
-  const [skillInput, setSkillInput] = useState("");
   const [skills, setSkills] = useState<Record<string, boolean>>({});
+  const { activeLabels: availableSkillTags, loading: loadingSkillTags } = useSkillTags(isOpen);
+  const resolvedRole = resolveRoleSelection(form.role, roleCatalog);
   const leadershipConflict = getLeadershipSlotConflict({
-    role: form.role,
+    role: resolvedRole.role,
     orgId: form.orgId,
     currentUserId: editUser?.id,
     organizations,
@@ -63,17 +76,29 @@ export function EditUserModal({
   const leadershipLocked =
     !isAdminRole(userProfile?.role) &&
     isManagedLeadershipRole(editUser?.role || "");
+  const initialRoleKey = editUser
+    ? editUser.custom_role_key || normalizeUserRole(editUser.role)
+    : "member";
+  const currentRoleDisplay = editUser
+    ? resolveAccountRoleDisplay(editUser.role, editUser.custom_role_key, roleCatalog)
+    : null;
+  const assignableOptions = roleCatalog.length > 0
+    ? getAssignableRoleCatalog(roleCatalog, userProfile?.role).map((entry) => ({
+        value: entry.key,
+        label: entry.label,
+      }))
+    : getAssignableRoleOptions(userProfile?.role);
   const roleOptions =
     leadershipLocked && editUser
-      ? [{ value: editUser.role, label: getRoleLabel(editUser.role) }]
-      : getAssignableRoleOptions(userProfile?.role);
+      ? [{ value: initialRoleKey, label: currentRoleDisplay?.label || getRoleLabel(editUser.role) }]
+      : [...assignableOptions];
   if (
     editUser &&
-    !roleOptions.some((item) => item.value === normalizeUserRole(editUser.role))
+    !roleOptions.some((item) => item.value === initialRoleKey)
   ) {
     roleOptions.push({
-      value: normalizeUserRole(editUser.role),
-      label: getRoleLabel(editUser.role),
+      value: initialRoleKey,
+      label: currentRoleDisplay?.label || getRoleLabel(editUser.role),
     });
   }
   const confirmation = useConfirmation();
@@ -81,21 +106,19 @@ export function EditUserModal({
     if (editUser) {
       setForm({
         fullName: editUser.full_name,
-        role: normalizeUserRole(editUser.role),
+        role: initialRoleKey,
         orgId: editUser.org_id || "",
       });
       setSkills(editUser.skills || {});
-      setSkillInput("");
     }
   };
   const dirty = Boolean(
     isOpen &&
       editUser &&
       (form.fullName !== editUser.full_name ||
-        form.role !== normalizeUserRole(editUser.role) ||
+        form.role !== initialRoleKey ||
         form.orgId !== (editUser.org_id || "") ||
-        JSON.stringify(skills) !== JSON.stringify(editUser.skills || {}) ||
-        skillInput),
+        JSON.stringify(skills) !== JSON.stringify(editUser.skills || {})),
   );
   const draft = useExplicitDraft("Account details", dirty, saving, restore);
   const close = () => {
@@ -107,34 +130,18 @@ export function EditUserModal({
     if (editUser) {
       setForm({
         fullName: editUser.full_name,
-        role: normalizeUserRole(editUser.role),
+        role: editUser.custom_role_key || normalizeUserRole(editUser.role),
         orgId: editUser.org_id || "",
       });
       setSkills(editUser.skills || {});
       setActiveTab("basic");
-      setSkillInput("");
     }
   }, [editUser]);
-
-  const addSkill = () => {
-    const trimmed = skillInput.trim();
-    if (!trimmed || skills[trimmed]) return;
-    setSkills((prev) => ({ ...prev, [trimmed]: true }));
-    setSkillInput("");
-  };
-
-  const removeSkill = (key: string) => {
-    setSkills((prev) => {
-      const next = { ...prev };
-      delete next[key];
-      return next;
-    });
-  };
 
   const handleSave = async () => {
     if (savePending.current) return;
     if (!editUser) return;
-    if (lastAdmin && !isAdminRole(form.role)) {
+    if (lastAdmin && !isAdminRole(resolvedRole.role)) {
       toast("The last active Admin must keep Admin access.", "error");
       return;
     }
@@ -149,11 +156,11 @@ export function EditUserModal({
     setSaving(true);
     try {
       if (
-        (form.role !== normalizeUserRole(editUser.role) ||
+        (form.role !== initialRoleKey ||
           form.orgId !== (editUser.org_id || "")) &&
         !(await confirmation.confirm({
           title: "Change account assignment?",
-          description: `${editUser.full_name}: ${getRoleLabel(editUser.role)} → ${getRoleLabel(form.role)}. Office: ${organizations.find((org) => org.id === editUser.org_id)?.name || "Unassigned"} → ${organizations.find((org) => org.id === form.orgId)?.name || "Unassigned"}. This changes inherited access and any appointed leadership. Server protection still applies.`,
+          description: `${editUser.full_name}: ${currentRoleDisplay?.label || getRoleLabel(editUser.role)} → ${resolvedRole.label}. Office: ${organizations.find((org) => org.id === editUser.org_id)?.name || "Unassigned"} → ${organizations.find((org) => org.id === form.orgId)?.name || "Unassigned"}. This changes inherited access and any appointed leadership. Server protection still applies.`,
           actionLabel: "Save assignment",
         }))
       )
@@ -164,7 +171,8 @@ export function EditUserModal({
         profiles,
         changes: {
           full_name: form.fullName,
-          role: form.role,
+          role: resolvedRole.role,
+          custom_role_key: resolvedRole.customRoleKey,
           org_id: form.orgId || null,
           skills,
         },
@@ -252,7 +260,7 @@ export function EditUserModal({
                 <SelectInput
                   value={form.role}
                   onChange={(e) =>
-                    setForm({ ...form, role: e.target.value as UserRole })
+                    setForm({ ...form, role: e.target.value })
                   }
                   options={roleOptions}
                   hasError={Boolean(leadershipConflict)}
@@ -287,56 +295,16 @@ export function EditUserModal({
 
         {activeTab === "skills" && (
           <div className="space-y-3">
-            <p className="text-[11px] font-normal text-muted-foreground">
-              Add or remove skills for this member. The AI recommendation engine
-              uses these to match tasks. Each skill is a keyword (e.g. "data
-              analysis", "coordination", "budgeting").
-            </p>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={skillInput}
-                onChange={(e) => setSkillInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    addSkill();
-                  }
-                }}
-                placeholder="Type a skill and press Enter or +"
-                className="flex-1 px-3 py-2 text-[12px] font-normal border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-neutral-900 bg-white text-foreground placeholder:text-muted-foreground"
-              />
-              <WorkspaceTooltip content="Add skill"><button aria-label="Add skill"
-                onClick={addSkill}
-                disabled={!skillInput.trim()}
-                className="px-3 py-2 rounded-lg bg-primary text-white text-[12px] font-medium hover:bg-neutral-800 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed transition-colors"
-              >
-                <Plus size={14} />
-              </button></WorkspaceTooltip>
-            </div>
-            {Object.keys(skills).length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground text-[12px] font-normal">
-                No skills added yet. Skills help the AI recommend the right
-                member for each task.
-              </div>
-            ) : (
-              <div className="flex flex-wrap gap-2 pt-1">
-                {Object.keys(skills).map((skill) => (
-                  <span
-                    key={skill}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-neutral-100 text-secondary-foreground text-[11px] font-medium"
-                  >
-                    {skill}
-                    <WorkspaceTooltip content={`Remove ${skill} skill`}><button aria-label={`Remove ${skill} skill`}
-                      onClick={() => removeSkill(skill)}
-                      className="text-muted-foreground hover:text-secondary-foreground cursor-pointer transition-colors leading-none"
-                    >
-                      <X size={11} />
-                    </button></WorkspaceTooltip>
-                  </span>
-                ))}
-              </div>
-            )}
+            <SkillTagSelector
+              availableTags={availableSkillTags}
+              loading={loadingSkillTags}
+              selected={skillMapToList(skills)}
+              disabled={saving}
+              title="Member skills"
+              description="Tap skill tags to assign or remove skills used for task recommendations."
+              emptyMessage="No skill tags added yet. Add skills in System & Maintenance → Skill Tags."
+              onChange={(next) => setSkills(skillListToMap(next))}
+            />
           </div>
         )}
       </>

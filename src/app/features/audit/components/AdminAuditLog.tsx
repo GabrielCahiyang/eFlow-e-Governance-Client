@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from "react";
+import { Activity, Eye, List, RefreshCw, RotateCcw } from "lucide-react";
 import {useAuth} from '../../../contexts/AuthContext';
 import { useProfiles, useOrgs } from "../../../hooks/useSupabaseData";
 import { DataTable, type Column } from "../../../components/ui/DataTable";
@@ -8,6 +9,7 @@ import { SearchInput, WSelect } from "../../../components/workflow/primitives";
 import type { AuditEvent } from "../../../services/auditService";
 import { useAdministrativeAuditWindow } from "../hooks/useAdministrativeAuditWindow";
 import { WorkspaceHeader } from "../../../components/ui/workspace";
+import { AuditEventFeed } from "./AuditEventFeed";
 import {
   humanizeAuditAction,
   humanizeEntityType,
@@ -27,6 +29,7 @@ function AdministrativeAuditView() {
   const { events, total, loading, refreshing, checking, error, refresh } =
     useAdministrativeAuditWindow();
   const [filters, setFilters] = useState(EMPTY_AUDIT_FILTERS);
+  const [viewMode, setViewMode] = useState<"table" | "timeline">("table");
   const list=useRef<HTMLDivElement>(null);
   const detail=useAuditDetailNavigation(list);
   const selected=events.find(event=>event.id===detail.selectedId);
@@ -82,40 +85,71 @@ function AdministrativeAuditView() {
         <Button
           size="sm"
           variant="outline"
-          className="min-h-11"
           onClick={(click) => detail.open(event.id,click.currentTarget)}
           aria-label={`Inspect audit event ${event.id}`}
         >
+          <Eye size={13} aria-hidden="true" />
           Inspect
         </Button>
       ),
     },
   ];
+  const hasFilters = Boolean(
+    filters.query ||
+      filters.entityType !== "all" ||
+      filters.action !== "all" ||
+      filters.actor !== "all" ||
+      filters.office !== "all" ||
+      filters.from ||
+      filters.to,
+  );
   return (
     <div className="min-w-0">
-    <div ref={list} className="audit-list min-w-0 space-y-4 p-3 sm:p-6" hidden={!!detail.selectedId}>
+    <div ref={list} className="audit-list min-w-0 space-y-4" hidden={!!detail.selectedId}>
       <WorkspaceHeader
         title="Account Audit"
-        description="Accounts, access, Office assignments and administrative support history."
+        description="Review who changed user accounts, roles, office assignments, or system settings."
         actions={
-          <Button
-            variant="outline"
-            disabled={refreshing}
-            onClick={() => void refresh()}
-          >
-            {refreshing ? "Refreshing…" : "Refresh audit"}
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            <div
+              role="group"
+              aria-label="Audit layout"
+              className="inline-flex rounded-lg border border-[var(--eflow-border)] bg-[var(--eflow-subtle)] p-0.5"
+            >
+              <Button
+                type="button"
+                size="sm"
+                variant={viewMode === "table" ? "secondary" : "ghost"}
+                aria-pressed={viewMode === "table"}
+                onClick={() => setViewMode("table")}
+              >
+                <List size={13} aria-hidden="true" />
+                Table
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant={viewMode === "timeline" ? "secondary" : "ghost"}
+                aria-pressed={viewMode === "timeline"}
+                onClick={() => setViewMode("timeline")}
+              >
+                <Activity size={13} aria-hidden="true" />
+                Timeline
+              </Button>
+            </div>
+            <Button
+              variant="outline"
+              disabled={refreshing}
+              onClick={() => void refresh()}
+            >
+              <RefreshCw size={13} aria-hidden="true" className={refreshing ? "animate-spin" : ""} />
+              {refreshing ? "Refreshing…" : "Refresh audit"}
+            </Button>
+          </div>
         }
       />
-      <FeedbackState tone="info" title="Latest 500 permitted events">
-        Filters apply to this bounded set, not complete global history.{" "}
-        {total === undefined
-          ? "Authorized count is unavailable."
-          : `${events.length} loaded of ${total} permitted records${total > events.length ? "; older records are outside this window." : "; this read covers the permitted set."}`}{" "}
-        This log contains administrative actions. Open a project's Activity view to see its work history.
-      </FeedbackState>
       {error && (
-        <FeedbackState tone="error" title="Audit unavailable">
+        <FeedbackState tone="error" title="Audit unavailable" onRetry={() => void refresh()}>
           {error}
         </FeedbackState>
       )}
@@ -183,55 +217,74 @@ function AdministrativeAuditView() {
             })),
           ]}
         />
-        <label className="text-xs">
+        <label className="text-xs text-[var(--eflow-text-muted)]">
           From
           <input
-            className="w-full rounded-lg border p-2"
+            className="mt-1 h-10 w-full rounded-lg border border-[var(--eflow-border)] px-3 text-sm"
             type="date"
             value={filters.from}
             onChange={(event) => set("from", event.target.value)}
           />
         </label>
-        <label className="text-xs">
+        <label className="text-xs text-[var(--eflow-text-muted)]">
           Through
           <input
-            className="w-full rounded-lg border p-2"
+            className="mt-1 h-10 w-full rounded-lg border border-[var(--eflow-border)] px-3 text-sm"
             type="date"
             value={filters.to}
             onChange={(event) => set("to", event.target.value)}
           />
         </label>
-        <Button
-          variant="outline"
-          onClick={() => setFilters(EMPTY_AUDIT_FILTERS)}
-        >
-          Clear audit filters
-        </Button>
+        <div className="flex items-end">
+          <Button
+            variant="outline"
+            disabled={!hasFilters}
+            onClick={() => setFilters(EMPTY_AUDIT_FILTERS)}
+          >
+            <RotateCcw size={13} aria-hidden="true" />
+            Clear audit filters
+          </Button>
+        </div>
       </div>
-      <p role="status" className="text-xs text-muted-foreground">
-        {error
-          ? "Coverage unavailable"
-          : `${filtered.length} matching · ${events.length} loaded`}
-        {refreshing ? " · Refreshing…" : ""}
-      </p>
-      <DataTable
-        ariaLabel="Account audit events"
-        error={error || undefined}
-        onRetry={() => void refresh()}
-        emptyIllustration={events.length ? "search" : "empty"}
-        density="compact"
-        loading={loading}
-        data={filtered}
-        columns={columns}
-        keyExtractor={(event) => event.id}
-        emptyMessage={
-          events.length
-            ? "No loaded events match. Clear filters to see the loaded set."
-            : error
-              ? "Audit unavailable. Refresh to retry."
-              : "No permitted administrative events."
-        }
-      />
+      <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-[var(--eflow-text-muted)]">
+        <p role="status" className="eflow-tabular">
+          {error
+            ? "Coverage unavailable"
+            : `${filtered.length} matching · ${events.length} loaded${
+                total === undefined
+                  ? ""
+                  : ` of ${total} permitted events${total > events.length ? " (latest 500 window)" : ""}`
+              }`}
+          {refreshing ? " · Refreshing…" : ""}
+        </p>
+        <span>Project task activity appears inside each project’s Activity view.</span>
+      </div>
+      {viewMode === "timeline" ? (
+        <AuditEventFeed
+          events={filtered}
+          entityLabel={entityLabel}
+          onSelect={(event, trigger) => detail.open(event.id, trigger)}
+        />
+      ) : (
+        <DataTable
+          ariaLabel="Account audit events"
+          error={error || undefined}
+          onRetry={() => void refresh()}
+          emptyIllustration={events.length ? "search" : "empty"}
+          density="compact"
+          loading={loading}
+          data={filtered}
+          columns={columns}
+          keyExtractor={(event) => event.id}
+          emptyMessage={
+            events.length
+              ? "No loaded events match. Clear filters to see the loaded set."
+              : error
+                ? "Audit unavailable. Refresh to retry."
+                : "No permitted administrative events."
+          }
+        />
+      )}
     </div>
     {detail.selectedId&&<AuditEventDetailPage key={detail.selectedId} event={checking||error?undefined:selected} checking={checking} error={error}
       entityLabel={selected?entityLabel(selected):''} officeLabel={orgs.find(org=>org.id===selected?.orgId)?.name||selected?.orgId||'Not recorded'}

@@ -1,12 +1,14 @@
+import { useState } from "react";
 import { WorkspaceTooltip } from "../../../../components/ui/workspace/WorkspaceTooltip";
-import { X } from "lucide-react";
+import { Building2, Check, Copy, KeyRound, Mail, Pencil, X } from "lucide-react";
 import type { UserProfile } from "../../../../types";
 import { InspectorPanel } from "../../../../shared/motion";
 import { Button } from "../../../../components/ui/button";
-import { getRoleLabel } from "../../../../shared/roles";
+import { RoleBadge, StatusBadge } from "./userManagementPrimitives";
 export function AccountInspector({
   profile,
   office,
+  roleLabel,
   protection,
   onClose,
   onEdit,
@@ -14,22 +16,41 @@ export function AccountInspector({
 }: {
   profile: UserProfile;
   office: string;
+  roleLabel?: string;
   protection: string;
   onClose: () => void;
   onEdit?: () => void;
   onAccess?: () => void;
 }) {
+  const [copiedId, setCopiedId] = useState(false);
+  const copyId = async () => {
+    try {
+      await navigator.clipboard.writeText(profile.id);
+      setCopiedId(true);
+      window.setTimeout(() => setCopiedId(false), 1800);
+    } catch {
+      /* Clipboard unavailable. */
+    }
+  };
   return (
     <InspectorPanel
       open
       onClose={onClose}
       ariaLabel={`Account: ${profile.full_name}`}
-      className="w-full bg-card sm:w-[520px]"
+      className="w-full bg-[var(--eflow-surface)] sm:w-[480px]"
     >
-      <header className="flex items-start justify-between border-b p-5">
-        <div>
-          <p className="text-xs text-muted-foreground">Admin Center · People</p>
-          <h2 className="text-xl font-semibold">{profile.full_name}</h2>
+      <header className="flex items-start justify-between gap-3 border-b border-[var(--eflow-border)] p-5">
+        <div className="space-y-2">
+          <p className="text-xs font-medium text-[var(--eflow-text-muted)]">
+            People & Accounts
+          </p>
+          <h2 className="text-xl font-semibold text-[var(--eflow-text)]">
+            {profile.full_name}
+          </h2>
+          <div className="flex flex-wrap items-center gap-2">
+            <RoleBadge role={profile.role} roleLabel={roleLabel} />
+            <StatusBadge active={profile.is_active} />
+          </div>
         </div>
         <WorkspaceTooltip content="Close account details"><Button
           variant="ghost"
@@ -42,30 +63,38 @@ export function AccountInspector({
       </header>
       <div className="flex-1 space-y-5 overflow-y-auto p-5">
         <dl className="grid gap-4 text-sm">
-          {[
-            ["Email", profile.email],
-            ["Role", getRoleLabel(profile.role)],
-            ["Office", office],
-            ["Status", profile.is_active ? "Active" : "Inactive"],
-            ["Account reference", profile.id],
-          ].map(([label, value]) => (
-            <div key={label}>
-              <dt className="text-xs text-muted-foreground">{label}</dt>
-              <dd className="break-all">{value}</dd>
+          <div className="flex items-start gap-3 rounded-lg border border-[var(--eflow-border)] bg-[var(--eflow-subtle)] p-3.5">
+            <Mail size={16} aria-hidden="true" className="mt-0.5 text-[var(--eflow-primary)]" />
+            <div className="min-w-0">
+              <dt className="text-xs text-[var(--eflow-text-muted)]">Email address</dt>
+              <dd className="break-all font-medium text-[var(--eflow-text)]">{profile.email}</dd>
             </div>
-          ))}
+          </div>
+          <div className="flex items-start gap-3 rounded-lg border border-[var(--eflow-border)] bg-[var(--eflow-subtle)] p-3.5">
+            <Building2 size={16} aria-hidden="true" className="mt-0.5 text-[var(--eflow-primary)]" />
+            <div className="min-w-0">
+              <dt className="text-xs text-[var(--eflow-text-muted)]">Assigned Office</dt>
+              <dd className="font-medium text-[var(--eflow-text)]">{office}</dd>
+            </div>
+          </div>
         </dl>
-        <p className="rounded-lg border bg-muted p-3 text-sm">
-          {protection ||
-            "Account changes remain subject to server validation and recorded history."}
+        {protection && (
+          <p className="rounded-lg border border-[var(--eflow-border)] bg-[var(--eflow-warning-bg)] p-3.5 text-sm text-[var(--eflow-warning-text)]">
+            {protection}
+          </p>
+        )}
+        <p className="eflow-admin-copy">
+          Default workspace access comes from the account’s role. You can add custom overrides in Individual Access without changing anyone else.
         </p>
-        <p className="text-sm text-muted-foreground">
-          Role defaults and individual exceptions control pages and actions.
-          Office and project participation control which records can be
-          accessed.
-        </p>
+        <div className="flex items-center justify-between gap-2 border-t border-[var(--eflow-border)] pt-3 text-xs text-[var(--eflow-text-muted)]">
+          <span className="truncate font-mono">ID: {profile.id}</span>
+          <Button type="button" variant="ghost" size="sm" onClick={() => void copyId()}>
+            {copiedId ? <Check size={13} aria-hidden="true" /> : <Copy size={13} aria-hidden="true" />}
+            {copiedId ? "Copied" : "Copy ID"}
+          </Button>
+        </div>
       </div>
-      <footer className="flex flex-wrap gap-2 border-t p-4">
+      <footer className="flex flex-wrap gap-2 border-t border-[var(--eflow-border)] p-4">
         <Button
           disabled={!onEdit}
           onClick={(event) => {
@@ -73,9 +102,11 @@ export function AccountInspector({
             onEdit?.();
           }}
         >
+          <Pencil size={14} aria-hidden="true" />
           Edit account
         </Button>
         <Button variant="outline" disabled={!onAccess} onClick={onAccess}>
+          <KeyRound size={14} aria-hidden="true" />
           Individual access
         </Button>
       </footer>

@@ -21,7 +21,7 @@ describe('Phase 9 discovery compatibility', () => {
         .map(item => item.id),
     );
     expect(items.every(item => item.pages.length > 0)).toBe(true);
-    if (role === 'admin') { expect(items.map(item => item.group)).toEqual(['inbox','admin-center']); expect(items.some(item => item.id === 'projects')).toBe(false); }
+    if (role === 'admin') { expect(items.map(item => item.group)).toEqual(['admin-center']); expect(items.some(item => item.id === 'projects' || item.id === 'inbox')).toBe(false); }
     if (role === 'head') expect(items.find(item => item.id === 'tasks')).toMatchObject({group:'workspaces', pages:[{label:'Task Board'}]});
     if (role === 'accounting_staff') { expect(items.filter(item => item.group === 'accounting')).toHaveLength(5); expect(items.find(item => item.id === 'tasks')?.pages).toEqual([{label:'My Tasks'}]); }
   });
@@ -37,9 +37,9 @@ describe('Phase 9 discovery compatibility', () => {
   });
   it('matches support page discovery to explicit grants while keeping access management Admin-only', () => {
     const can = (permission: string) => permission === 'navigation.audit' || permission === 'navigation.user_management';
-    expect(getAuthorizedSupportPages('member',can).map(page => page.label)).toEqual(['All Users','Account Audit']);
+    expect(getAuthorizedSupportPages('member',can).map(page => page.label)).toEqual(['People & Accounts','Account Audit']);
     expect(buildShellNavigation({role:'member',can}).find(item => item.id === 'audit')?.pages).toEqual([{label:'Account Audit'}]);
-    expect(resolveSupportPage('org_tree','Org Structure')).toBe('All Users');
+    expect(resolveSupportPage('org_tree','Org Structure')).toBe('People & Accounts');
     expect(getAuthorizedSupportPages('admin', () => true).some(page => page.label === 'Office Structure')).toBe(false);
     expect(resolveSupportPage('users','Backup & Export')).toBe('Backup & Export');
   });

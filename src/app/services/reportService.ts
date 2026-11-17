@@ -9,6 +9,7 @@
 //        table, and an optional chart snapshot (SVG/canvas dataURL).
 
 import { recordAudit } from './auditService';
+import { getExportBrandHeader } from '../shared/systemRuntimeConfig';
 import {
   escapeCsv as formatCsvValue,
   escapeHtml as formatHtmlValue,
@@ -166,7 +167,7 @@ export function buildReportHtml<T>(rows: T[], columns: ReportColumn<T>[], meta: 
       <div class="brand">
         <div class="brand-logo">${EFLOW_REPORT_LOGO_SVG}</div>
         <div class="brand-org">
-          <div class="name">LGU Ormoc City</div>
+          <div class="name">${escapeHtml(getExportBrandHeader())}</div>
           ${meta.subtitle ? `<div class="sub">${escapeHtml(meta.subtitle)}</div>` : '<div class="sub">eFlow e-Governance Workspace</div>'}
         </div>
       </div>

@@ -40,6 +40,8 @@ import {NAVIGATION_LOCATION_EVENT} from '../../shared/navigationHistory';
 import { usePendingPlanDrafts } from "./usePendingPlanDrafts";
 import { useStartupWarmup } from "./useStartupWarmup";
 import { getDescendantOrgIds } from "../../../lib/supabaseService";
+import { Megaphone, X } from "lucide-react";
+import { usePresentationBranding } from "../administration";
 import { OnboardingWorkspace } from "../onboarding";
 import { WorkspaceRecoveryState } from "./components/WorkspaceRecoveryState";
 import { PersonalWorkspace, WorkspaceScopeContext, WorkspaceSelector, useWorkspaceState, buildWorkspaceNavigation,selectWorkspace } from '../workspaces';
@@ -56,6 +58,8 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
   useEffect(()=>{const invalidate=()=>{navigationGeneration.current++;};window.addEventListener(NAVIGATION_LOCATION_EVENT,invalidate);window.addEventListener('popstate',invalidate);return()=>{window.removeEventListener(NAVIGATION_LOCATION_EVENT,invalidate);window.removeEventListener('popstate',invalidate);};},[]);
   const [contextError,setContextError]=useState('');
   const [messageTask, setMessageTask] = useState<string>();
+  const [dismissedNotice, setDismissedNotice] = useState<string>('');
+  const branding = usePresentationBranding(userId);
   useEffect(()=>setContextError(''),[userId]);
   const officeId = userProfile?.org_id || userProfile?.departmentId || '';
   const operational = ['head','member','accounting_staff'].includes(userProfile?.role || role);
@@ -315,6 +319,29 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
                 id="eflow-active-workspace"
                 tabIndex={-1}
               >
+                {branding.maintenance_banner_enabled === "true" &&
+                  branding.maintenance_banner_message.trim() &&
+                  dismissedNotice !== branding.maintenance_banner_message.trim() && (
+                    <div
+                      role="status"
+                      className="mb-4 flex items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2.5 text-[13px] text-amber-900"
+                    >
+                      <span className="flex items-center gap-2.5">
+                        <Megaphone size={15} aria-hidden="true" className="shrink-0 text-amber-700" />
+                        <span>{branding.maintenance_banner_message.trim()}</span>
+                      </span>
+                      <button
+                        type="button"
+                        aria-label="Dismiss maintenance notice"
+                        onClick={() =>
+                          setDismissedNotice(branding.maintenance_banner_message.trim())
+                        }
+                        className="rounded-md p-1 text-amber-700 hover:bg-amber-100"
+                      >
+                        <X size={14} aria-hidden="true" />
+                      </button>
+                    </div>
+                  )}
                 <OnboardingWorkspace onNavigate={handlePageSelect} />
                 {contextError&&<p role="alert" className="eflow-context-error">{contextError}</p>}
                 {activeSection === 'messages' || (activeSection === 'inbox' && activePage === 'Messages') ? (

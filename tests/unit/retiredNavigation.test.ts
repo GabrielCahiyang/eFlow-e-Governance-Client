@@ -24,6 +24,6 @@ describe('retired navigation cleanup', () => {
 
   it('keeps Admin on account management for an old operational bookmark', () => {
     window.history.replaceState({}, '', '/leading?page=Leading+Work');
-    expect(readNavigationLocation('admin', () => 'All Users')).toEqual({ section: 'users', page: 'All Users' });
+    expect(readNavigationLocation('admin', () => 'People & Accounts')).toEqual({ section: 'users', page: 'People & Accounts' });
   });
 });
