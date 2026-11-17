@@ -27,11 +27,13 @@ it('keeps setup in a centered wizard, validates one section and retains entries'
  render(<ProjectDefinitionPanel projectId="p" profiles={[]}/>);expect(screen.queryByLabelText('Description *')).toBeNull();fireEvent.click(screen.getByRole('button',{name:'Continue project setup'}));
  await screen.findByLabelText('Description *');fireEvent.click(screen.getByRole('button',{name:'Next'}));expect((await screen.findByRole('alert')).className).toBe('pf-error');fireEvent.change(screen.getByLabelText('Description *'),{target:{value:'Keep this draft'}});fireEvent.click(screen.getByRole('button',{name:'Next'}));await screen.findByLabelText('Scope of the project *');expect(screen.queryByLabelText('Description *')).toBeNull();fireEvent.click(screen.getByRole('button',{name:'Back'}));expect((screen.getByLabelText('Description *') as HTMLTextAreaElement).value).toBe('Keep this draft');
 });
-it('renders only financial panels in funding section mode for the Budget tab',()=>{
+it('renders inline funding management in funding section mode for the Budget tab without opening the wizard',()=>{
  render(<ProjectDefinitionPanel projectId="p" profiles={[]} section="funding"/>);
  expect(screen.queryByRole('region',{name:'Project definition'})).toBeNull();
  expect(screen.getByRole('region',{name:'Project budget'})).toBeInTheDocument();
- expect(screen.getByRole('button',{name:'Manage project funding'})).toBeInTheDocument();
+ expect(screen.getByRole('checkbox',{name:'No funding required for this project'})).toBeInTheDocument();
+ expect(screen.getByRole('button',{name:'Authorize project funding'})).toBeInTheDocument();
+ expect(screen.queryByRole('button',{name:'Manage project funding'})).toBeNull();
 });
 it('restores the draft step and values in the same Office and account',async()=>{
  const props={recoveryKey:'actor-office',profiles:[],createDraft:vi.fn(),onClose:vi.fn(),onFinish:vi.fn()};
@@ -264,7 +266,7 @@ it('freezes an uncertain task allocation and verifies the original request witho
 });
 
 it('edits project settings inline when setup is already ready without opening the wizard',async()=>{
- const readyProject={...initial().project,description:'Original description',scope:'Original scope',project_lead_id:'lead',start_date:'2027-01-01',target_date:'2027-02-01'};
+ const readyProject={...initial().project,status:'planning',description:'Original description',scope:'Original scope',project_lead_id:'lead',start_date:'2027-01-01',target_date:'2027-02-01'};
  api.data={...initial(),project:readyProject,ready:true};
  api.call.mockResolvedValueOnce({...readyProject,title:'Updated title',updated_at:'2026-10-31T00:00:00Z'});
  render(<ProjectDefinitionPanel projectId="p" profiles={[lead] as any} section="details"/>);
@@ -278,4 +280,16 @@ it('edits project settings inline when setup is already ready without opening th
   p_details:expect.objectContaining({title:'Updated title',version:'2026-10-30T00:00:00Z'}),
  });
  expect(screen.queryByRole('dialog')).toBeNull();
+});
+
+it('keeps project settings and funding-requirement toggle read-only once the project is active',()=>{
+ const activeProject={...initial().project,status:'active',description:'Active description',scope:'Active scope',project_lead_id:'lead',start_date:'2027-01-01',target_date:'2027-02-01'};
+ api.data={...initial(),project:activeProject,ready:true};
+ const settingsView=render(<ProjectDefinitionPanel projectId="p" profiles={[lead] as any} section="details"/>);
+ expect(screen.getByText('Project settings are read-only once planning ends.')).toBeInTheDocument();
+ expect((screen.getByLabelText('Project title *') as HTMLInputElement).closest('fieldset')?.disabled).toBe(true);
+ expect(screen.queryByRole('button',{name:'Save changes'})).toBeNull();
+ settingsView.unmount();
+ render(<ProjectDefinitionPanel projectId="p" profiles={[lead] as any} section="funding"/>);
+ expect(screen.queryByRole('checkbox',{name:'No funding required for this project'})).toBeNull();
 });

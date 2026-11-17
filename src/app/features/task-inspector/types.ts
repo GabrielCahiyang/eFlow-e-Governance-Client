@@ -1,8 +1,16 @@
-export type TaskInspectorSection = 'overview' | 'work' | 'update-work' | 'updates' | 'files' | 'activity' | 'review';
+export type TaskInspectorSection = 'overview' | 'work' | 'updates' | 'files';
 
 export interface TaskInspectorOrigin {
   view: string;
-  section?: TaskInspectorSection | 'details' | 'team' | 'report-blocker' | 'submit-work';
+  section?:
+    | TaskInspectorSection
+    | 'details'
+    | 'team'
+    | 'update-work'
+    | 'report-blocker'
+    | 'submit-work'
+    | 'activity'
+    | 'review';
   returnFocus?: HTMLElement | null;
   restoreFocus?: () => void;
 }
@@ -10,17 +18,24 @@ export interface TaskInspectorOrigin {
 export const TASK_INSPECTOR_SECTIONS: ReadonlyArray<{ id: TaskInspectorSection; label: string }> = [
   { id: 'overview', label: 'Overview' },
   { id: 'work', label: 'Work' },
-  { id: 'update-work', label: 'Update work' },
   { id: 'updates', label: 'Updates' },
   { id: 'files', label: 'Files' },
-  { id: 'activity', label: 'Activity' },
-  { id: 'review', label: 'Review' },
 ];
 
-/** Preserve the original Updates default and historical entrance aliases. */
+/** Consolidate historical section aliases into the 4 focused task sections. */
 export function resolveTaskInspectorSection(section?: TaskInspectorOrigin['section']): TaskInspectorSection {
-  if (section === 'details') return 'overview';
-  if (section === 'team') return 'work';
-  if (section === 'report-blocker' || section === 'submit-work') return 'update-work';
-  return (section || 'updates') as TaskInspectorSection;
+  if (section === 'details' || section === 'overview') return 'overview';
+  if (
+    section === 'work' ||
+    section === 'team' ||
+    section === 'update-work' ||
+    section === 'report-blocker' ||
+    section === 'submit-work' ||
+    section === 'review'
+  ) {
+    return 'work';
+  }
+  if (section === 'files') return 'files';
+  if (section === 'activity' || section === 'updates') return 'updates';
+  return 'overview';
 }

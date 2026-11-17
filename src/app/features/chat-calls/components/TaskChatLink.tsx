@@ -21,7 +21,7 @@ export function ProjectChatLink({ projectId }: { projectId: string }) {
   const href = buildWorkChatHref('chatProject', projectId);
   return (
     <Button
-      kind="secondary"
+      kind="tertiary"
       size="small"
       leftIcon={({ className }) => (
         <MessageCircle size={15} className={className} aria-hidden="true" />

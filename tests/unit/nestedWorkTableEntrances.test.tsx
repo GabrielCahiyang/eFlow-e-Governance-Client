@@ -20,7 +20,7 @@ vi.mock('../../src/app/features/staffing',()=>({StaffingDialog:()=>null}));
 vi.mock('../../src/app/features/subtasks/components/SubtaskWorkDrawer',()=>({SubtaskWorkDrawer:()=>null}));
 vi.mock('../../src/app/features/reviews',()=>({SubtaskReviewInbox:()=>null}));
 import {ProjectTaskRow} from '../../src/app/features/project-table/components/ProjectTaskRow';
-import {WorkTree,type WorkTreeController} from '../../src/app/features/nested-work';
+import {WorkRootOwner,WorkTree,type WorkTreeController} from '../../src/app/features/nested-work';
 const allow:WorkCapabilityEntry={allowed:true,reason_code:null},deny:WorkCapabilityEntry={allowed:false,reason_code:'branch_denied'};
 const task:Task={id:'root',title:'Office delivery',orgId:'office',linkedProjectId:'project',assigneeId:'lead',status:'todo',createdAt:1,updatedAt:1};
 function snapshot(create=true):WorkTreeSnapshot{
@@ -214,5 +214,41 @@ describe('NW6.3 existing Main Table entrances',()=>{
    command:'create',
    payload:expect.objectContaining({title:'Scheduled inline step',start:'2099-11-18',due:'2099-11-25'}),
   })));
+ });
+ it('resizes subtask columns via drag or keyboard, persists widths, and resets with Restore default columns',async()=>{
+  show();await screen.findByText('Branch Lead');
+  fireEvent.click(screen.getByRole('button',{name:'Subtasks for Office delivery'}));
+  const table=await screen.findByRole('table',{name:'Subtask hierarchy'});
+  const subtaskResizer=within(table).getByRole('separator',{name:'Resize Subtask column'});
+  expect(subtaskResizer.getAttribute('aria-valuenow')).toBe('280');
+  expect((table.querySelectorAll('colgroup col')[1] as HTMLElement).style.width).toBe('280px');
+
+  fireEvent.keyDown(subtaskResizer,{key:'ArrowRight',shiftKey:true});
+  expect(subtaskResizer.getAttribute('aria-valuenow')).toBe('312');
+  expect((table.querySelectorAll('colgroup col')[1] as HTMLElement).style.width).toBe('312px');
+
+  const dueResizer=within(table).getByRole('separator',{name:'Resize Due date column'});
+  Object.assign(dueResizer,{setPointerCapture:vi.fn(),releasePointerCapture:vi.fn()});
+  fireEvent(dueResizer,new MouseEvent('pointerdown',{bubbles:true,button:0,clientX:200}));
+  fireEvent(dueResizer,new MouseEvent('pointermove',{bubbles:true,clientX:242}));
+  fireEvent(dueResizer,new MouseEvent('pointerup',{bubbles:true}));
+  expect(dueResizer.getAttribute('aria-valuenow')).toBe('210');
+  expect((table.querySelectorAll('colgroup col')[4] as HTMLElement).style.width).toBe('210px');
+  expect(localStorage.getItem('eflow_subtask_table_layout_v1_head:root')).toContain('"timeline":210');
+
+  fireEvent.doubleClick(dueResizer);
+  expect(dueResizer.getAttribute('aria-valuenow')).toBe('168');
+
+  fireEvent.keyDown(within(table).getByRole('button',{name:'Column actions for Subtask'}),{key:'Enter'});
+  fireEvent.click(await screen.findByRole('menuitem',{name:'Restore default columns'}));
+  expect(subtaskResizer.getAttribute('aria-valuenow')).toBe('280');
+  expect((table.querySelectorAll('colgroup col')[1] as HTMLElement).style.width).toBe('280px');
+ });
+ it('keeps root owner refresh status screen-reader-only inside table layout',()=>{
+  const controller:WorkTreeController={rootId:'root',actorId:api.actor,data:snapshot(),loading:false,error:'',unavailable:false,authorityFresh:true,refreshPending:true,pending:false,reload:vi.fn(),save:api.save};
+  render(<WorkRootOwner rootId="root" layout="table" controller={controller}/>);
+  const status=screen.getByRole('status');
+  expect(status.textContent).toContain('Checking current access');
+  expect(status.className).toBe('sr-only');
  });
 });

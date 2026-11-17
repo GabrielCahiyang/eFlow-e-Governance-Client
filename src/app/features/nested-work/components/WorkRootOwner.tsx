@@ -1,9 +1,11 @@
 import {useState,type ReactNode} from 'react';
 import {UsersRound} from 'lucide-react';
+import {WorkspaceTooltip} from '../../../components/ui/workspace';
 import {useAuth} from '../../../contexts/AuthContext';
 import {useWorkTree} from '../hooks/useWorkTree';
 import {WorkStaffingDialog} from './WorkStaffingDialog';
 import {WorkPeopleSummary} from './WorkPeopleSummary';
+import {OwnerAvatarStack} from './OwnerAvatarStack';
 import {collectSubtaskTeamIds,resolveWorkPersonName} from '../selectors/people';
 import {isCurrentWorkSnapshot,selectRootWorkCapability} from '../selectors/capabilities';
 import type {WorkTreeController} from '../types';
@@ -34,29 +36,27 @@ function WorkRootOwnerContent({rootId,fallback,readOnly=false,tree,layout='defau
  const team=collectSubtaskTeamIds(data.root.lead,data.root.people,data.nodes);
  const leadName=data.root.lead?resolveWorkPersonName(data.people,data.root.lead):'Needs reassignment';
  const teamNames=team.teamIds.map(id=>resolveWorkPersonName(data.people,id));
- const teamTooltip=[
-  `Lead: ${leadName}`,
-  team.directIds.length?`Contributors (${team.directIds.length}): ${team.directIds.map(id=>resolveWorkPersonName(data.people,id)).join(', ')}`:null,
-  team.subtaskIds.length?`Subtask team (${team.subtaskIds.length}): ${team.subtaskIds.map(id=>resolveWorkPersonName(data.people,id)).join(', ')}`:null,
- ].filter(Boolean).join(' · ');
  return <div className={`r7-work r7-root-owner${layout==='inline'?' r7-root-owner--inline':layout==='table'?' r7-root-owner--table':''}`}>
   {layout==='table'
-   ? <div className="r7-owner-summary" title={teamTooltip}>
-    <div className="r7-owner-lead">
-     <span className="r7-owner-role">Lead</span>
-     <span className={`r7-owner-name${!data.root.lead?' r7-owner-name--missing':''}`}>{leadName}</span>
-    </div>
-    <div className="r7-owner-team">
-     {teamNames.length>0
-      ? <>+{teamNames.length} · {teamNames.join(', ')}</>
-      : 'Lead only'}
-    </div>
-   </div>
+   ? <OwnerAvatarStack
+    leadName={leadName}
+    hasLead={!!data.root.lead}
+    memberNames={teamNames}
+    srSummary={<><span>{leadName}</span><span>{teamNames.length>0?`+${teamNames.length} · ${teamNames.join(', ')}`:'Lead only'}</span></>}
+   />
    : <WorkPeopleSummary leadId={data.root.lead} contributorIds={data.root.people} people={data.people} compact/>}
   {tree.error&&<p role="alert">{tree.error}<button type="button" onClick={()=>void tree.reload()}>Retry project people</button></p>}
-  {tree.refreshPending&&<span role="status" className="r7-help">Checking current access…</span>}
+  {tree.refreshPending&&<span role="status" className={layout!=='default'?'sr-only':'r7-help'}>Checking current access…</span>}
   {contributorAccess.reason_code==='active_staffing_locked'&&<p className="r7-help" role="status">{contributorAccess.disabledReason}</p>}
-  {canStaff&&<button type="button" className={layout==='table'?'r7-owner-edit':undefined} aria-label="Choose task lead and contributors" disabled={tree.loading||tree.pending||!tree.authorityFresh} onClick={()=>setOpen(true)}>{(layout==='inline'||layout==='table')&&<UsersRound size={13} aria-hidden="true"/>}<span>{recoverable?'Recover people draft':layout==='inline'?'Manage people':'Choose people'}</span></button>}
+  {canStaff&&(layout==='table'
+   ? <WorkspaceTooltip content={recoverable?'Recover people draft':'Choose people'}>
+    <button type="button" className="r7-owner-edit r7-owner-edit--icon" aria-label="Choose task lead and contributors" disabled={tree.loading||tree.pending||!tree.authorityFresh} onClick={()=>setOpen(true)}>
+     <UsersRound size={14} aria-hidden="true"/><span className="sr-only">{recoverable?'Recover people draft':'Choose people'}</span>
+    </button>
+   </WorkspaceTooltip>
+   : <button type="button" aria-label="Choose task lead and contributors" disabled={tree.loading||tree.pending||!tree.authorityFresh} onClick={()=>setOpen(true)}>
+    {layout==='inline'&&<UsersRound size={13} aria-hidden="true"/>}<span>{recoverable?'Recover people draft':layout==='inline'?'Manage people':'Choose people'}</span>
+   </button>)}
   {saved&&<p role="status">{saved}</p>}
   {open&&<WorkStaffingDialog controller={tree} nodeId={null} readOnly={readOnly}
    onChanged={()=>{setOpen(false);setSaved('Task people saved.');}} onClose={()=>{setOpen(false);void tree.reload();}}/>}

@@ -1,6 +1,7 @@
 import '../projectOffices.css';
 import '../../../../styles/people-management.css';
 import '../memberEditing.css';
+import { Search } from 'lucide-react';
 import {previewSelection,saveSelection,saveSelectionWithEditors,type SelectionImpact} from '../../project-access';
 import { useEffect, useRef, useState } from 'react';
 import { useExplicitDraft } from '../../../shared/useExplicitDraft';
@@ -71,10 +72,18 @@ export function OfficeMembersEditor({ office, projectLeadId, profiles, members, 
     finally { guard.pendingRef.current = false; setBusy(false); }
   }
   const locked=busy || !!disabledReason || saved || !!savedRequest.current;
+  const changeParts = [
+    diff.added.length ? `+${diff.added.length} added` : '',
+    diff.removed.length ? `-${diff.removed.length} removed` : '',
+    editingChanged ? `${editDiff.added.length + editDiff.removed.length} edit access` : '',
+  ].filter(Boolean);
   return <section aria-label="Own Office project team" className="po-member-editor">
-    <p className="po-help">Save the project team first. Then use Can edit to let a member edit the project name and task details.</p>
+    <p className="po-help">Select office members to join this project. Save changes before granting edit access.</p>
     {disabledReason && <p role="status">{disabledReason}</p>}
-    <input className="po-search" aria-label="Search Office members" placeholder="Search your Office’s people" value={query} onChange={e => setQuery(e.target.value)}/>
+    <label className="po-search-field">
+      <Search size={16} aria-hidden="true" />
+      <input className="po-search" aria-label="Search Office members" placeholder="Search office members" value={query} onChange={e => setQuery(e.target.value)}/>
+    </label>
     <div className="po-member-list po-member-access-list">
       <div className="po-member-access-heading"><span>Office members</span><span>Editing access</span></div>
       {people.map(p => {
@@ -93,19 +102,28 @@ export function OfficeMembersEditor({ office, projectLeadId, profiles, members, 
             <span><strong>{p.full_name}</strong><small>{p.email}</small></span>
             <span className="po-member-account-role">{p.role==='head'?'Head':p.role==='accounting_staff'?'Accounting Staff':'Member'}</span>
           </label>
-          {onProjectTeam && (officeHead ? <span className="po-member-edit-head">Office Head</span> : <label className="po-member-edit-check">
+          {onProjectTeam ? (officeHead ? <span className="po-member-edit-head">Office Head</span> : <label className="po-member-edit-check">
             <input type="checkbox" aria-label={`Can edit · ${p.full_name}`} checked={editors.includes(p.id)}
               disabled={locked}
               onChange={e=>{const checked=e.target.checked;setEditors(ids=>checked?[...ids,p.id]:ids.filter(id=>id!==p.id));}}/>
             <span>Can edit</span>
-          </label>)}
+          </label>) : <span className="po-member-edit-head" aria-hidden="true">—</span>}
         </div>;
       })}
-      {!people.length && <p>No active Office members match your search.</p>}
+      {!people.length && <p className="po-member-empty">No active office members match your search.</p>}
     </div>
-    <div className="po-membership-impact" aria-live="polite"><h3>Membership changes</h3><p>{selected.length} selected · Added: {diff.added.map(name).join(', ') || 'None'} · Removed: {diff.removed.map(name).join(', ') || 'None'}</p><p className="po-help">Your changes apply when you save. Removing someone may also unassign their unfinished work. Review the affected tasks before confirming.</p>{blockers.length > 0 && !reviewed && <div role="alert"><p>Reassign active work before removing its project members.</p><ul>{blockers.map(task => <li key={task.id}>{onOpenTask ? <button onClick={() => onOpenTask(task.id)}>{task.title}</button> : task.title}</li>)}</ul></div>}</div>
-    {error && <p role="alert" className="po-error">{error}</p>}{saved && <p role="status">Project team saved.</p>}
-    <footer>{(!hideCancel || saved) && <button onClick={() => void requestNavigation(onCancel)} disabled={busy}>{saved ? 'Done' : 'Cancel'}</button>}{saved ? <button disabled={busy} onClick={() => void refreshAfterSave()}>Retry loading</button> : <button className="po-primary" disabled={busy || !changed || !!disabledReason || !reviewed&&blockers.length > 0} onClick={() => void save()}>{busy ? 'Saving…' : 'Save project team'}</button>}</footer>
+    {(diff.removed.length > 0 || (blockers.length > 0 && !reviewed)) && <div className="po-membership-impact" aria-live="polite">
+      {diff.removed.length > 0 && <p className="po-help">Removing members unassigns their active tasks when saved.</p>}
+      {blockers.length > 0 && !reviewed && <div role="alert"><p>Reassign active work before removing its project members.</p><ul>{blockers.map(task => <li key={task.id}>{onOpenTask ? <button onClick={() => onOpenTask(task.id)}>{task.title}</button> : task.title}</li>)}</ul></div>}
+    </div>}
+    {error && <p role="alert" className="po-error">{error}</p>}{saved && <p role="status" className="po-help">Project team saved.</p>}
+    <footer>
+      <span className="po-member-summary" aria-live="polite">{selected.length} selected · {changeParts.length ? changeParts.join(', ') : 'No changes'}</span>
+      <div className="po-member-footer-actions">
+        {(!hideCancel || saved) && <button onClick={() => void requestNavigation(onCancel)} disabled={busy}>{saved ? 'Done' : 'Cancel'}</button>}
+        {saved ? <button disabled={busy} onClick={() => void refreshAfterSave()}>Retry loading</button> : <button className="po-primary" disabled={busy || !changed || !!disabledReason || !reviewed&&blockers.length > 0} onClick={() => void save()}>{busy ? 'Saving…' : 'Save project team'}</button>}
+      </div>
+    </footer>
     {confirmation.dialog}
   </section>;
 }

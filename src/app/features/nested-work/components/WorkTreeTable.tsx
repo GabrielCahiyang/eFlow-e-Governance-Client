@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { workDateLabel } from '../../../shared/workCalendar';
 import { InlineCreateRow, type InlineCreateRequest, type WorkspaceAction } from '../../../components/ui/workspace';
 import { ProjectSubtaskBudgetCell, ProjectWorkExpensesCell } from '../../budget';
@@ -50,10 +50,12 @@ export function WorkTreeTable({
   headerAction?: ReactNode;
   surfaceProps?: WorkTreeTableProjectSurfaceProps;
 }) {
-  const { columns, canReset, hideColumn, showColumn, resetColumns } = useWorkTableColumns(
+  const { columns, widths, canReset, hideColumn, showColumn, resizeColumn, resetColumns } = useWorkTableColumns(
     surfaceProps?.snapshot.root.id || '',
     surfaceProps?.context.actorId,
   );
+  const hasBranches = rows.some(row => row.display.hasChildren);
+  const tableWidth = 44 + widths.subtask + columns.reduce((sum, col) => sum + widths[col], 0) + 44;
 
   function renderProjectCell(column: SubtaskColumn, row: WorkTreeRowsProps['rows'][number]) {
     if (!surfaceProps) return null;
@@ -141,8 +143,23 @@ export function WorkTreeTable({
 
   return (
     <div className="nw-hierarchy-table-scroll">
-      <table className={`nw-hierarchy-table${tableSurface ? ' eflow-data-table' : ''}`} data-density={tableSurface ? 'compact' : undefined}>
+      <table
+        className={`nw-hierarchy-table${tableSurface ? ' eflow-data-table' : ''}`}
+        data-density={tableSurface ? 'compact' : undefined}
+        data-has-branches={tableSurface ? String(hasBranches) : undefined}
+        style={tableSurface ? ({ '--nw-table-width': `${tableWidth}px` } as CSSProperties) : undefined}
+      >
         <caption className="sr-only">Subtask hierarchy</caption>
+        {tableSurface && (
+          <colgroup>
+            <col style={{ width: 44 }} />
+            <col style={{ width: widths.subtask }} />
+            {columns.map(col => (
+              <col key={col} style={{ width: widths[col] }} />
+            ))}
+            <col style={{ width: 44 }} />
+          </colgroup>
+        )}
         <thead>
           {tableSurface ? (
             <tr>
@@ -150,7 +167,9 @@ export function WorkTreeTable({
               <WorkTableColumnHeader
                 column="subtask"
                 label="Subtask"
+                width={widths.subtask}
                 canReset={canReset}
+                onResize={resizeColumn}
                 onHide={hideColumn}
                 onReset={resetColumns}
               />
@@ -159,7 +178,9 @@ export function WorkTreeTable({
                   key={col}
                   column={col}
                   label={SUBTASK_COLUMNS.find(item => item.id === col)!.label}
+                  width={widths[col]}
                   canReset={canReset}
+                  onResize={resizeColumn}
                   onHide={hideColumn}
                   onReset={resetColumns}
                 />

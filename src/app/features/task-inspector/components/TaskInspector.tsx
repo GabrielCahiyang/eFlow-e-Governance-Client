@@ -1,6 +1,5 @@
-import {WorkActivity,supportsNestedWork,useWorkTree,type WorkTreeController} from '../../nested-work';
+import {WorkActivity,WorkRootOwner,supportsNestedWork,useWorkTree,type WorkTreeController} from '../../nested-work';
 import { isAppointedOfficeHead } from '../../../shared/officeAuthority';
-import { TaskChatLink } from '../../chat-calls';
 import { pendingTaskDependencies, taskStartBlocker } from '../../tasks';
 import { StaffingDialog, staffingEntryReason } from '../../staffing';
 import { useOrgs } from '../../../hooks/useSupabaseData';
@@ -55,9 +54,12 @@ function TaskInspectorContent({
   onChanged?: () => void;
   origin?: TaskInspectorOrigin;
   controller?: WorkTreeController;
-  presentation?: 'drawer' | 'page';
+  presentation?: 'drawer' | 'page' | 'dialog';
 }) {
   const [selectedTab, setTab] = useState<TaskInspectorSection>(() => resolveTaskInspectorSection(origin?.section));
+  const [updatesView, setUpdatesView] = useState<'discussion' | 'activity'>(() =>
+    origin?.section === 'activity' ? 'activity' : 'discussion',
+  );
   const lifecycle = useInspectorLifecycle(task || null, onChanged, onClose);
   const officeState = useProjectOfficeContext();
   const { orgs } = useOrgs();
@@ -120,8 +122,15 @@ function TaskInspectorContent({
   const visibleTabs = TASK_INSPECTOR_SECTIONS;
   const tab = selectedTab;
   const reviewAvailable = effectiveCanReview && task.status === 'for_review' && canUserReviewTask(task, user?.id, userProfile?.role);
+  const canExecuteWork = Boolean(capabilities.canPostProgress || canStart || canResume || canSubmit);
+  const completedSubtaskCount = taskSubtasks.filter(s => s.status === 'completed').length;
+  const overviewTeamSlot = supportsNestedWork(task) ? (
+    <section aria-label="Task lead and contributors">
+      <WorkRootOwner rootId={task.id} controller={controller} readOnly={readOnly || proposedOffice || lifecycle.busy} layout="inline" />
+    </section>
+  ) : undefined;
 
-  if(openedSubitem)return <SubitemInspector rootTask={task} itemId={openedSubitem.id} controller={controller} initialSection={openedSubitem.section} origin={openedSubitem.origin} readOnly={readOnly} executionBlocked={executionBlocked} onClose={()=>setOpenedSubitem(undefined)} onChanged={onChanged}/>;
+  if(openedSubitem)return <SubitemInspector presentation={presentation} rootTask={task} itemId={openedSubitem.id} controller={controller} initialSection={openedSubitem.section} origin={openedSubitem.origin} readOnly={readOnly} executionBlocked={executionBlocked} onClose={()=>setOpenedSubitem(undefined)} onChanged={onChanged}/>;
   return (
     <>
       <InspectorSurface
@@ -134,52 +143,145 @@ function TaskInspectorContent({
         ariaLabel={`Task details: ${task.title}`}
         className="w-full font-sans sm:w-[520px]"
       >
-        {presentation==='page'?<TaskPageHeader backLabel={origin?.view && origin.view !== "My Work" ? "Back to project" : "Back to My Work"} task={task} projectTitle={operationalProject?.title||task.projectTitle} tab={tab} tabs={visibleTabs} onTab={setTab} onClose={onClose} busy={lifecycle.busy}/>:<InspectorHeader task={task} tab={tab} tabs={visibleTabs} onTab={setTab} onClose={onClose} busy={lifecycle.busy}/>}
+        {presentation==='page'||presentation==='dialog'?<TaskPageHeader dialog={presentation==='dialog'} readOnly={readOnly} backLabel={origin?.view && origin.view !== "My Work" ? "Back to project" : "Back to My Work"} task={task} projectTitle={operationalProject?.title||task.projectTitle} tab={tab} tabs={visibleTabs} onTab={setTab} onClose={onClose} busy={lifecycle.busy}/>:<InspectorHeader task={task} tab={tab} tabs={visibleTabs} onTab={setTab} onClose={onClose} busy={lifecycle.busy}/>}
 
         {/* Body */}
-        <div id={`task-panel-${task.id}`} role="tabpanel" aria-labelledby={`task-${task.id}-${tab}`} className={presentation==='page'?'task-page__body':'flex-1 min-h-0 overflow-y-auto p-4'}>
+        <div id={`task-panel-${task.id}`} role="tabpanel" aria-labelledby={`task-${task.id}-${tab}`} className={presentation==='page'?'task-page__body':presentation==='dialog'?'task-dialog__body':'task-drawer__body'}>
           {lifecycle.error && <p role="alert" className="pv-error">{lifecycle.error} Retry the action when resolved.</p>}
           {teamBlocked && currentUserIsLead && !readOnly && <p role="status" className="po-help">In shared projects, only the responsible Office Head can change the task team. Ask your Office Head to update members.</p>}
           {proposedOffice && <p role="status" className="po-help">Proposed Office responsibility requires directory linking, Office Head confirmation and explicit handover in Project Offices.</p>}
           {isPrivatePlanning && <p role="status" className="po-help">Project work starts after the Office Head activates this plan.</p>}
-          {readOnly && tab !== 'overview' && <p role="status" className="text-sm text-neutral-500 mb-3">Read-only oversight record</p>}
-          {tab === 'overview' && <section aria-label="Task details">
-            <TaskChatLink taskId={task.id} />
-            <InspectorSummary task={task} projectTitle={operationalProject?.title} readOnly={readOnly} dependencies={dependencies} canManageSubtasks={canManageSubtasks} canAuthorizeFunding={canAuthorizeFunding} rejected={rejected} overdue={rel.overdue} authorityPending={!!controller&&(!controller.authorityFresh||controller.refreshPending||controller.pending)} fundingTask={controller?.data?{...task,assigneeId:controller.data.root.lead||undefined,recommendationLeadId:undefined}:undefined} budgetReadOnly={readOnly||!!task.archivedAt||executionBlocked||!!controller&&controller.data?.people.find(person=>person.id===user?.id)?.eligible!==true}/>
-          </section>}
-          {tab === 'update-work' && <section className="task-update-page" aria-label="Update task work">
-            <div className="task-update-page__main">
-              <InspectorExecution isProjectOnHold={isProjectOnHold} pendingDependencies={dependencyCount} startBlockedReason={startBlockedReason} initialAction={origin?.section==='report-blocker'?'stuck':origin?.section==='submit-work'?'submit':undefined} task={task} subtasks={taskSubtasks} canStart={canStart} canResume={canResume} canSubmit={canSubmit} canPostProgress={capabilities.canPostProgress} busy={lifecycle.busy} onStart={lifecycle.start} onChanged={onChanged} onSubmitted={() => { onChanged?.(); setTab('review'); }}/>
-            </div>
-            <aside className="task-update-page__sidebar" aria-label="Task context">
-              <div className="task-update-page__sidebar-card">
-                <h3>Task info</h3>
-                <dl>
-                  {(task.deadline || task.dueDate) && <div className="task-update-page__sidebar-row"><dt>Deadline</dt><dd>{new Date(task.deadline || task.dueDate!).toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'})}</dd></div>}
-                  {task.startDate && <div className="task-update-page__sidebar-row"><dt>Start date</dt><dd>{new Date(task.startDate).toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'})}</dd></div>}
-                  {task.estimatedHours != null && <div className="task-update-page__sidebar-row"><dt>Est. hours</dt><dd>{task.estimatedHours} h</dd></div>}
-                  {(operationalProject?.title || task.projectTitle) && <div className="task-update-page__sidebar-row"><dt>Project</dt><dd>{operationalProject?.title || task.projectTitle}</dd></div>}
-                  {task.programTitle && <div className="task-update-page__sidebar-row"><dt>Program</dt><dd>{task.programTitle}</dd></div>}
-                </dl>
+          {readOnly && presentation === 'drawer' && <p role="status" className="task-page__readonly-banner">Read-only oversight record</p>}
+
+          {tab === 'overview' && (
+            <section aria-label="Task details">
+              <InspectorSummary
+                task={task}
+                projectTitle={operationalProject?.title}
+                readOnly={readOnly}
+                dependencies={dependencies}
+                canManageSubtasks={canManageSubtasks}
+                canAuthorizeFunding={canAuthorizeFunding}
+                rejected={rejected}
+                overdue={rel.overdue}
+                authorityPending={!!controller&&(!controller.authorityFresh||controller.refreshPending||controller.pending)}
+                fundingTask={controller?.data?{...task,assigneeId:controller.data.root.lead||undefined,recommendationLeadId:undefined}:undefined}
+                budgetReadOnly={readOnly||!!task.archivedAt||executionBlocked||!!controller&&controller.data?.people.find(person=>person.id===user?.id)?.eligible!==true}
+                subtaskSummary={{ total: taskSubtasks.length, completed: completedSubtaskCount }}
+                onOpenWork={() => void requestNavigation(() => setTab('work'))}
+                teamSlot={overviewTeamSlot}
+              />
+            </section>
+          )}
+
+          {tab === 'work' && (
+            <div className="task-page__stack">
+              {reviewAvailable ? (
+                <section aria-label="Submission review" className="task-page__review">
+                  <TaskReviewPanel task={task} canReview showDecision onDone={() => { onChanged?.(); }} />
+                </section>
+              ) : canExecuteWork || isProjectOnHold || dependencyCount > 0 ? (
+                <section aria-label="Update task work" className="task-page__card">
+                  <InspectorExecution
+                    isProjectOnHold={isProjectOnHold}
+                    pendingDependencies={dependencyCount}
+                    startBlockedReason={startBlockedReason}
+                    initialAction={origin?.section==='report-blocker'?'stuck':origin?.section==='submit-work'?'submit':undefined}
+                    task={task}
+                    subtasks={taskSubtasks}
+                    canStart={canStart}
+                    canResume={canResume}
+                    canSubmit={canSubmit}
+                    canPostProgress={capabilities.canPostProgress}
+                    busy={lifecycle.busy}
+                    onStart={lifecycle.start}
+                    onChanged={onChanged}
+                    onSubmitted={() => { onChanged?.(); }}
+                  />
+                </section>
+              ) : (
+                <div className="task-page__compact-status" role="status">
+                  <strong>
+                    {taskSubtasks.length > 0
+                      ? `${completedSubtaskCount} of ${taskSubtasks.length} step${taskSubtasks.length === 1 ? '' : 's'} complete`
+                      : `Status: ${task.status.replace('_', ' ')}`}
+                  </strong>
+                  <span>Assigned team handles execution updates.</span>
+                </div>
+              )}
+
+              {!reviewAvailable && (['for_review', 'completed', 'changes_requested'].includes(task.status) || Boolean(task.latestSubmission)) && (
+                <details className="task-page__card work-secondary-card">
+                  <summary>Submission notes & review history</summary>
+                  <div className="work-secondary-card__body">
+                    <TaskReviewPanel task={task} canReview={false} showDecision={false} compact />
+                  </div>
+                </details>
+              )}
+
+              <div className="task-work-page">
+                <InspectorWork
+                  onInspect={(id,section,origin)=>setOpenedSubitem({id,section,origin})}
+                  presentation={presentation}
+                  task={task}
+                  profiles={profiles}
+                  projectTitle={operationalProject?.title}
+                  controller={controller}
+                  canManageTaskTeam={canManageTaskTeam}
+                  canManageSubtasks={canManageSubtasks}
+                  currentUserIsLead={currentUserIsLead}
+                  readOnly={readOnly || proposedOffice || lifecycle.busy}
+                  onManage={() => setTeamEditorOpen(true)}
+                  staffingReason={staffingReason}
+                  onRecommend={() => setStaffingOpen(true)}
+                />
               </div>
-              {taskSubtasks.length > 0 && <div className="task-update-page__sidebar-card">
-                <h3>Steps</h3>
-                <dl>
-                  {taskSubtasks.slice(0,6).map(s => <div key={s.id} className="task-update-page__sidebar-row"><dt style={{maxWidth:'65%',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{s.title}</dt><dd><span style={{borderRadius:5,padding:'2px 7px',fontSize:11,background:(s.status as string)==='completed'?'#d1f3e1':(s.status as string)==='for_review'?'#eae1ff':(s.status as string)==='stuck'?'#ffdfd6':'#e3f3f0',color:(s.status as string)==='completed'?'#166c49':(s.status as string)==='for_review'?'#65449c':(s.status as string)==='stuck'?'#a33623':'#087b77'}}>{(s.status as string)==='completed'?'Done':(s.status as string)==='for_review'?'Review':(s.status as string)==='stuck'?'Stuck':(s.status as string)==='in_progress'?'Active':'Todo'}</span></dd></div>)}
-                  {taskSubtasks.length > 6 && <div className="task-update-page__sidebar-row"><dt>+{taskSubtasks.length-6} more steps</dt><dd/></div>}
-                </dl>
-              </div>}
-              {task.description && <div className="task-update-page__sidebar-card">
-                <h3>Description</h3>
-                <p style={{fontSize:12,lineHeight:1.65,color:'var(--eflow-text-muted,#61777c)',margin:0,whiteSpace:'pre-wrap'}}>{task.description}</p>
-              </div>}
-            </aside>
-          </section>}
-          {tab === 'work' && <div className="task-work-page"><InspectorWork onInspect={(id,section,origin)=>setOpenedSubitem({id,section,origin})} presentation={presentation} task={task} profiles={profiles} projectTitle={operationalProject?.title} controller={controller} canManageTaskTeam={canManageTaskTeam} canManageSubtasks={canManageSubtasks} currentUserIsLead={currentUserIsLead} readOnly={readOnly || proposedOffice || lifecycle.busy} onManage={() => setTeamEditorOpen(true)} staffingReason={staffingReason} onRecommend={() => setStaffingOpen(true)}/></div>}
-          {tab === 'updates' && <div className="space-y-5"><section aria-label="Task discussion"><h3>Discussion</h3><TaskDiscussion taskId={task.id} canParticipate={capabilities.canDiscuss}/></section><details className="work-secondary"><summary>Updates</summary><InspectorProgressUpdates taskId={task.id}/></details></div>}
-          {tab === 'files' && <InspectorFiles task={task} readOnly={readOnly || executionBlocked}/>}
-          {tab === 'activity' && <><TaskActivityTimeline taskId={task.id} projectId={task.linkedProjectId}/><WorkActivity roots={[task.id]}/></>}
-          {tab === 'review' && <section aria-label="Submission review" className="mb-4"><TaskReviewPanel task={task} canReview={reviewAvailable} showDecision={reviewAvailable} onDone={() => { onChanged?.(); }}/></section>}
+            </div>
+          )}
+
+          {tab === 'updates' && (
+            <div className="task-page__stack">
+              <div className="task-updates__switcher" role="group" aria-label="Updates view">
+                <button
+                  type="button"
+                  aria-pressed={updatesView === 'discussion'}
+                  className={updatesView === 'discussion' ? 'is-active' : undefined}
+                  onClick={() => setUpdatesView('discussion')}
+                >
+                  Discussion &amp; progress
+                </button>
+                <button
+                  type="button"
+                  aria-pressed={updatesView === 'activity'}
+                  className={updatesView === 'activity' ? 'is-active' : undefined}
+                  onClick={() => setUpdatesView('activity')}
+                >
+                  Activity log
+                </button>
+              </div>
+              {updatesView === 'discussion' ? (
+                <>
+                  <section className="task-page__card" aria-label="Task discussion">
+                    <div className="task-page__card-heading">
+                      <h3>Discussion</h3>
+                      <p>Threaded notes for task assignees and authorized reviewers.</p>
+                    </div>
+                    <TaskDiscussion taskId={task.id} canParticipate={capabilities.canDiscuss} />
+                  </section>
+                  <section className="task-page__card" aria-label="Task progress log">
+                    <InspectorProgressUpdates taskId={task.id} />
+                  </section>
+                </>
+              ) : (
+                <>
+                  <TaskActivityTimeline taskId={task.id} projectId={task.linkedProjectId} />
+                  <WorkActivity roots={[task.id]} />
+                </>
+              )}
+            </div>
+          )}
+
+          {tab === 'files' && <InspectorFiles task={task} readOnly={readOnly || executionBlocked} />}
 
         </div>
       </InspectorSurface>

@@ -11,9 +11,9 @@ import { requestNavigation } from '../../../shared/navigationGuard';
 import type { ProjectOffice } from '../types';
 
 /** Direct entry to the canonical Office staffing editor, with no alternate membership write. */
-export function ProjectPeoplePage({ projectTitle, projectStatus, projectLeadId, governed, profiles, profilesLoading = false, organizations, tasks, onClose, onOpenTask, onSaved, embedded = false }: {
+export function ProjectPeoplePage({ projectTitle, projectStatus, projectLeadId, governed, profiles, profilesLoading = false, organizations, tasks, onClose, onOpenTask, onSaved, embedded = false, modal = false }: {
   projectTitle: string; projectStatus: string; projectLeadId?:string; governed: boolean; profiles: UserProfile[]; profilesLoading?: boolean; organizations: Organization[]; tasks: Task[];
-  onClose: () => void; onOpenTask?: (id: string) => void; onSaved?: () => Promise<void>; embedded?: boolean;
+  onClose: () => void; onOpenTask?: (id: string) => void; onSaved?: () => Promise<void>; embedded?: boolean; modal?: boolean;
 }) {
   const { user, userProfile } = useAuth();
   const state = useProjectOfficeContext();
@@ -24,10 +24,9 @@ export function ProjectPeoplePage({ projectTitle, projectStatus, projectLeadId, 
   if (allowed && office && !profilesLoading) opened.current = {scope,office};
   const editorOffice = opened.current?.scope === scope ? opened.current.office : undefined;
   const reason = state.error || (state.loading || profilesLoading ? 'Checking current project access…' : governed ? 'Manage this team through the approved work plan’s participation workflow.' : ['completed','archived'].includes(projectStatus) ? 'This project is closed. Its team is read-only.' : 'Only the appointed Head of a joined, participating office can choose its project team.');
-  return <section className={embedded ? "po-setup-people" : "eflow-project-people-page"} aria-label="Add people to project">
-    {embedded ? <h2>Add people</h2> : <>
-      <header><div><Heading type="h2">Add people</Heading><p>{projectTitle}</p>{organizations.find(item=>item.id===userProfile?.org_id)?.name && <p>From your office: {organizations.find(item=>item.id===userProfile?.org_id)?.name}</p>}</div><Button leftIcon={MoveArrowLeft} kind="tertiary" size="small" onClick={() => { void requestNavigation(onClose); }}>Back to project</Button></header>
-      <p>Choose who can access this project. People added by AI auto assign appear in the team too.</p>
+  return <section className={embedded ? "po-setup-people" : modal ? "eflow-project-people-dialog" : "eflow-project-people-page"} aria-label="Add people to project">
+    {embedded ? <h2>Add people</h2> : modal ? null : <>
+      <header><div><Heading type="h2">Add people</Heading><p>{projectTitle}{organizations.find(item=>item.id===userProfile?.org_id)?.name ? ` · ${organizations.find(item=>item.id===userProfile?.org_id)!.name}` : ''}</p></div><Button leftIcon={MoveArrowLeft} kind="tertiary" size="small" onClick={() => { void requestNavigation(onClose); }}>Back to project</Button></header>
     </>}
     {editorOffice ? <>
       {state.error && <div role="alert"><p>{state.error}</p><Button size="small" onClick={() => void state.refresh()}>Retry project people</Button></div>}

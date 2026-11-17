@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react';
 import { PanelRight } from 'lucide-react';
 import { DeadlineBadge } from '../../../components/ui/DeadlineBadge';
-import { InlineEditableText } from '../../../components/ui/workspace';
+import { InlineEditableText, WorkspaceTooltip } from '../../../components/ui/workspace';
 import { StatusPill } from '../../../components/ui/workspace/StatusPill';
 import type { WorkspaceAction } from '../../../components/ui/workspace/ActionMenu';
 import { workStateLabel } from '../../work-state';
@@ -48,15 +48,17 @@ export function WorkNodeTitle({
     <div className="nw-hierarchy-title" style={{ '--nw-indent': display.indentLevel } as CSSProperties}>
       <div className="nw-hierarchy-title-line">
         {display.hasChildren ? (
-          <button
-            type="button"
-            className="nw-hierarchy-control nw-hierarchy-disclosure"
-            aria-label={`${collapsed ? 'Expand' : 'Collapse'} children of ${node.title}`}
-            aria-expanded={!collapsed}
-            onClick={onToggle}
-          >
-            <span aria-hidden="true">{collapsed ? '▸' : '▾'}</span>
-          </button>
+          <WorkspaceTooltip content={collapsed ? 'Expand subitems' : 'Collapse subitems'}>
+            <button
+              type="button"
+              className="nw-hierarchy-control nw-hierarchy-disclosure"
+              aria-label={`${collapsed ? 'Expand' : 'Collapse'} children of ${node.title}`}
+              aria-expanded={!collapsed}
+              onClick={onToggle}
+            >
+              <span aria-hidden="true">{collapsed ? '▸' : '▾'}</span>
+            </button>
+          </WorkspaceTooltip>
         ) : (
           <span className="nw-hierarchy-leaf" aria-hidden="true" />
         )}
@@ -70,16 +72,17 @@ export function WorkNodeTitle({
               revision={inlineEdit.revision}
               onSave={title => inlineEdit.onSaveTitle(node, title)}
             />
-            <button
-              type="button"
-              className="pt-subitem-open"
-              title={display.pathLabel}
-              data-work-open={node.id}
-              aria-label={'Open subtask ' + node.title}
-              onClick={onOpenNode}
-            >
-              <PanelRight size={15} aria-hidden="true" />
-            </button>
+            <WorkspaceTooltip content="Open subtask details">
+              <button
+                type="button"
+                className="pt-subitem-open"
+                data-work-open={node.id}
+                aria-label={'Open subtask ' + node.title}
+                onClick={onOpenNode}
+              >
+                <PanelRight size={15} aria-hidden="true" />
+              </button>
+            </WorkspaceTooltip>
           </>
         ) : (
           <button

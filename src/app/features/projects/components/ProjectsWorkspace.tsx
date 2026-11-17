@@ -378,11 +378,11 @@ export function ProjectsWorkspace({
   return (
     <div className="eflow-ide-workspace">
       <div className="eflow-ide-workspace__content" hidden={!!completionTaskId}>
-      <ProjectWorkspaceActions onAllProjects={() => { void requestNavigation(openIndex); }} canCreate={access.canCreate} disabledReason={baseAccess.canCreate && !access.canCreate ? workspaceScope && workspaceScope.workspace.office_id !== currentOrgId ? 'Return to your office to create a project.' : 'Only the appointed Office Head can create projects.' : undefined} onCreate={() => setQuickProjectOpen(true)}
+      {activeTab.type !== "project" && <ProjectWorkspaceActions onAllProjects={() => { void requestNavigation(openIndex); }} canCreate={access.canCreate} disabledReason={baseAccess.canCreate && !access.canCreate ? workspaceScope && workspaceScope.workspace.office_id !== currentOrgId ? 'Return to your office to create a project.' : 'Only the appointed Office Head can create projects.' : undefined} onCreate={() => setQuickProjectOpen(true)}
         onTemplates={() => setTemplatesOpen(true)}
         onSavedPlans={() => { void requestNavigation(() => openPlanning('drafts')); }}
         onReviewPlans={() => { void requestNavigation(() => openPlanning('signoff')); }}
-        departmentFilter={scope.includeAllAccessibleWork ? { value: departmentFilter, options: departmentFilterOptions, onChange: value => { void requestNavigation(() => changeDepartmentFilter(value)); } } : undefined} />
+        departmentFilter={scope.includeAllAccessibleWork ? { value: departmentFilter, options: departmentFilterOptions, onChange: value => { void requestNavigation(() => changeDepartmentFilter(value)); } } : undefined} />}
       {contextNotice && <FeedbackState tone="warning" title="Project unavailable">{contextNotice}<button type="button" onClick={() => setContextNotice('')}>Dismiss</button></FeedbackState>}
       {/* The workspace is intentionally continuous: global rail → project context → page. */}
       <div className="flex-1 min-w-0 bg-white">
@@ -542,7 +542,7 @@ export function ProjectsWorkspace({
         onOpenGovernance={(draftId) => { setCompleteTarget(null); openProposal(draftId, "governance"); }}
         onResolve={view=>{const id=completeTarget.id;setCompleteTarget(null);openProject(id,false);setProjectWorkspaceTab(view);writeNavigationLocation('projects','Projects','push',{project:id,view});}}
       />}
-      {completionTaskId && <TaskDetailDrawer presentation="page" taskId={completionTaskId} task={tasks.find((task) => task.id === completionTaskId) || null} origin={{view:'project',restoreFocus:()=>document.querySelector<HTMLElement>('[aria-selected="true"][role="tab"]')?.focus()}} onClose={() => setCompletionTaskId(null)} canReview={access.canReviewTasks} />}
+      {completionTaskId && <TaskDetailDrawer presentation="dialog" taskId={completionTaskId} task={tasks.find((task) => task.id === completionTaskId) || null} origin={{view:'project',restoreFocus:()=>document.querySelector<HTMLElement>('[aria-selected="true"][role="tab"]')?.focus()}} onClose={() => setCompletionTaskId(null)} canReview={access.canReviewTasks} />}
 
       {deleteTarget && (
         <ProjectDeleteDialog

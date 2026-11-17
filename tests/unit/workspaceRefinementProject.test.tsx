@@ -95,7 +95,7 @@ describe('R4 completion availability',()=>{
 
 describe('R4 retained navigation and identities',()=>{
  it('maps all retired URL identifiers to retained views and removes them from saved tabs and Add view',async()=>{
-  const retired={readiness:'overview',workload:'offices',team:'offices',people:'offices',signoff:'offices',evidence:'reviews',decisions:'activity'};
+  const retired={readiness:'overview',workload:'members',team:'members',people:'members',signoff:'members',evidence:'reviews',decisions:'activity'};
   for(const [id,target] of Object.entries(retired)){expect(resolveProjectView(id)).toBe(target);expect(OPTIONAL_VIEWS_CATALOG.some(view=>view.id===id)).toBe(false);}
   localStorage.setItem('eflow_project_views_project',JSON.stringify([...Object.keys(retired),'overview']));
   render(themed(<ProjectViewTabBar projectId="project" activeTab="readiness" onSelectTab={vi.fn()}/>));

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Calendar, Check, CircleCheck, Flag, Link2, MoreHorizontal, Plus, ReceiptText, Search, UserRound, Wallet } from 'lucide-react';
-import { ActionMenu, WorkspacePopover } from '../../../components/ui/workspace';
-import { SUBTASK_COLUMNS, type SubtaskColumn } from '../hooks/useWorkTableColumns';
+import { ActionMenu, TableColumnResizer, WorkspacePopover } from '../../../components/ui/workspace';
+import { SUBTASK_COLUMN_LAYOUT, SUBTASK_COLUMNS, type SubtaskColumn, type SubtaskResizableColumn } from '../hooks/useWorkTableColumns';
 
 const icons: Record<SubtaskColumn, typeof UserRound> = {
   owner: UserRound,
@@ -16,16 +16,21 @@ const icons: Record<SubtaskColumn, typeof UserRound> = {
 export function WorkTableColumnHeader({
   column,
   label,
+  width,
   canReset = false,
+  onResize,
   onHide,
   onReset,
 }: {
-  column: 'subtask' | SubtaskColumn;
+  column: SubtaskResizableColumn;
   label: string;
+  width?: number;
   canReset?: boolean;
+  onResize?: (column: SubtaskResizableColumn, width: number) => void;
   onHide: (column: SubtaskColumn) => void;
   onReset: () => void;
 }) {
+  const bounds = SUBTASK_COLUMN_LAYOUT[column];
   return (
     <th scope="col" aria-label={label} className={`nw-col nw-col--${column}`}>
       <span>
@@ -43,6 +48,16 @@ export function WorkTableColumnHeader({
           }
         />
       </span>
+      {onResize && typeof width === 'number' && (
+        <TableColumnResizer
+          label={label}
+          width={width}
+          defaultWidth={bounds.width}
+          min={bounds.min}
+          max={bounds.max}
+          onResize={next => onResize(column, next)}
+        />
+      )}
     </th>
   );
 }

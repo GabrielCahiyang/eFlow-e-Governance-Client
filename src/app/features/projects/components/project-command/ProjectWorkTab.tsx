@@ -8,6 +8,7 @@ import { AlertCircle, ArrowLeft, Calendar, CheckSquare, ChevronDown, Clock, Laye
 import { useMemo } from "react";
 import type { UserProfile } from "../../../../types";
 import { useToast } from "../../../../components/ui/Toast";
+import { WorkspaceTooltip } from "../../../../components/ui/workspace";
 import { getTaskLeadId, getTaskTeamMemberIds,isTaskLead, isOverdue, updateTask, type Task, type TaskStatus } from "../../../tasks";
 import { useProjectViewActions } from '../../../project-views';
 import type { ProjectCommandData } from "./types";
@@ -299,22 +300,27 @@ function TaskBoardCard({
               .slice(0, 2)
               .toUpperCase();
             return (
-              <span
-                key={person.id}
-                className={`eflow-figma-task-card__avatar ${getAvatarColorClass(person.id)}`}
-                title={name}
-              >
-                {initials}
-              </span>
+              <WorkspaceTooltip key={person.id} content={name}>
+                <span
+                  tabIndex={0}
+                  className={`eflow-figma-task-card__avatar ${getAvatarColorClass(person.id)}`}
+                  aria-label={name}
+                >
+                  {initials}
+                </span>
+              </WorkspaceTooltip>
             );
           })}
           {remainingCount > 0 && (
-            <span
-              className="eflow-figma-task-card__avatar eflow-figma-task-card__avatar--more"
-              title={`${remainingCount} more member${remainingCount > 1 ? "s" : ""}`}
-            >
-              +{remainingCount}
-            </span>
+            <WorkspaceTooltip content={people.slice(3).map((person) => person.full_name || person.fullName || person.email || "?").join(", ")}>
+              <span
+                tabIndex={0}
+                className="eflow-figma-task-card__avatar eflow-figma-task-card__avatar--more"
+                aria-label={`${remainingCount} more member${remainingCount > 1 ? "s" : ""}`}
+              >
+                +{remainingCount}
+              </span>
+            </WorkspaceTooltip>
           )}
           {people.length === 0 && (
             <span className="eflow-figma-task-card__unassigned">Unassigned</span>
