@@ -19,7 +19,11 @@ import {
 } from "../../src/app/features/proposal-import/services/decomposition/textAnalysis";
 import { normalizeImportedTaskBudgetLines } from "../../src/app/features/proposal-import/services/proposalBudgetImport";
 import type { ProposalDecompositionTask } from "../../src/app/features/proposal-import/types";
-const { call } = vi.hoisted(() => ({ call: vi.fn() }));
+const { call, chat } = vi.hoisted(() => ({ call: vi.fn(), chat: vi.fn() }));
+vi.mock("../../src/app/features/ai", () => ({
+  requestAiChat: chat,
+  readAiText: (value: { message: { content: string } }) => value.message.content,
+}));
 vi.mock(
   "../../src/app/features/proposal-import/services/decomposition/llmClient",
   () => ({ callDecompositionLLM: call }),
@@ -281,38 +285,26 @@ describe("OCEDSIPP actual PDF layout and source budget", () => {
       moveSourceBudgetLine(budget(), "budget-1", "draft-1", draft),
     ).toThrow("edited or duplicated");
   });
-  it("passes all source actions to section inference, then reconciles the proposal budget once", async () => {
+  it("keeps all source tasks and task budgets through the toolbar importer", async () => {
     call.mockReset();
-    call.mockImplementation(async (prompt: string) => {
-      if (prompt.startsWith("Place each source budget"))
-        return JSON.stringify({
-          allocations: budget().lines.map((line, i) => ({
-            sourceId: line.sourceId,
-            taskId: `task-${(i % 10) + 1}`,
-          })),
-        });
-      const details = prompt
-        .match(/Details: "([\s\S]*?)"\s*\nSchedule:/)![1]
-        .split("Methodology:")[0];
-      const count = [...details.matchAll(/\b\d+\.\s/g)].length;
-      return JSON.stringify({
-        tasks: Array.from({ length: count }, (_, i) => ({
-          title: `Action ${i + 1}`,
-          description: details,
-          estimatedDuration: "1 day",
-          recommendationSource: "pygad",
-          budgetDecision: "funded",
-          budgetLines: [{ amount: 9999999 }],
-        })),
-      });
-    });
+    chat.mockReset();
+    chat.mockResolvedValue({ message: { content: JSON.stringify({
+      tasks: Array.from({ length: 10 }, (_, i) => ({ key: `task-${i+1}`, priority: "high", estimatedHours: 8, title: "Invented title" })).reverse(),
+      allocations: budget().lines.map((line, i) => ({ sourceId: line.sourceId, taskId: `task-${(i%10)+1}` })),
+    }) } });
     const result = await decomposeProposal(source, "OCEDSIPP");
     const t = result.programs.flatMap((p) =>
       p.projects.flatMap((p) => p.activities.flatMap((a) => a.tasks)),
     );
-    expect(call).toHaveBeenCalledTimes(9);
+    expect(call).not.toHaveBeenCalled();
+    expect(chat).toHaveBeenCalledOnce();
+    expect(chat.mock.calls[0][0].pdf_table_enrichment.tasks).toHaveLength(10);
+    expect(chat.mock.calls[0][0].pdf_table_enrichment.costs).toHaveLength(16);
     expect(t).toHaveLength(10);
     expect(t[0].title).toBe("Kick Off Meeting");
+    expect(t[0].estimatedHours).toBe(8);
+    expect(t[0].subtasks).toEqual(expect.arrayContaining(["Technical Presentations", "Prepare presentation"]));
+    expect(t[0].subtasks).not.toContain("Document Review and Gap Analysis");
     expect(t[0].description).toContain("• Open Forums");
     expect(t[0].description).not.toContain("Document Review and Gap Analysis");
     expect(t[1].description).toContain("• Document Review and Gap Analysis");
@@ -323,11 +315,31 @@ describe("OCEDSIPP actual PDF layout and source budget", () => {
         .flatMap((t) => t.budgetLines || [])
         .reduce((sum, l) => sum + l.amount, 0),
     ).toBe(2156500);
-    expect(
-      call.mock.calls
-        .slice(0, 8)
-        .every(([prompt]) => prompt.includes("reconciled globally")),
-    ).toBe(true);
+  });
+  it("saves document details without calling AI when tasks are off", async () => {
+    call.mockClear();
+    chat.mockClear();
+    // The layout fixture starts on page 3. Supply the cover fields for this path.
+    const document = "I. Project Title: Formulation of the OCEDSIPP\nII. Proponents: LEDIPO\n" + source;
+    const result = await decomposeProposal(document, "upload", undefined, undefined, undefined, undefined, {
+      addTasks: false, addSubtasks: true, addBudget: true, assignPeople: true,
+    });
+    expect(result.programs).toEqual([]);
+    expect(result.proposal?.title).toMatch(/Formulation/i);
+    expect(call).not.toHaveBeenCalled();
+    expect(chat).not.toHaveBeenCalled();
+  });
+  it("drops assignment metadata returned by free-text inference when staffing is off", async () => {
+    call.mockResolvedValueOnce(JSON.stringify({ tasks: [{
+      title: "Run the meeting", description: "Host the meeting", recommendedEmployeeIds: ["unverified"],
+      recommendationSource: "pygad", subtasks: ["Unwanted step"], budgetDecision: "funded", budgetLines: [{ amount: 22 }],
+    }] }));
+    const result = await decomposeProposal("Project meeting work.", "Meeting", undefined, undefined, undefined, undefined, {
+      addTasks: true, addSubtasks: false, addBudget: false, assignPeople: false,
+    });
+    expect(result.programs[0].projects[0].activities[0].tasks[0]).toMatchObject({
+      budgetLines: [], budgetDecision: "missing", recommendedEmployeeIds: [], subtasks: undefined,
+    });
   });
   it("does not silently truncate an unrecognized proposal", () =>
     expect(extractActionTable("x".repeat(20000))).toHaveLength(20000));

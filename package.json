@@ -6,6 +6,8 @@
   "scripts": {
     "build": "vite build --configLoader runner",
     "check": "tsc --noEmit",
+    "start": "npm run dev",
+    "restart": "npm run dev",
     "dev": "concurrently --kill-others-on-fail --names gateway,web -c yellow,green \"npm run dev:gateway\" \"npm run dev:frontend\"",
     "dev:gateway": "python server/start.py --reload",
     "restart:gateway": "python server/start.py --reload",

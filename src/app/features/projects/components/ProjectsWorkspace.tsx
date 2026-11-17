@@ -16,6 +16,7 @@ import { Skeleton } from "@vibe/core";
 import { useDeptDirectoryEmployees } from "../../members";
 import { isTaskLead } from "../../tasks";
 import { ProjectTemplatesModal } from "../../work-templates";
+import { ProposalImportDialog } from "../../proposal-import";
 import { useNotificationNavigationIntent } from "../../notifications";
 import {
   useProjectsData,
@@ -120,7 +121,8 @@ export function ProjectsWorkspace({
 
   const [activeTab, setActiveTab] = React.useState<ProjectWorkspaceContext>({ id: 'portfolio', type: 'portfolio', title: 'All projects' });
   const [projectWorkspaceTab, setProjectWorkspaceTab] = React.useState<ProjectCommandTab>("tasks");
-  const [quickProjectOpen, setQuickProjectOpen] = React.useState(false);
+  const [quickProjectMode, setQuickProjectMode] = React.useState<'manual' | 'pdf'>();
+  const [proposalImportOpen, setProposalImportOpen] = React.useState(false);
   const [requestedProjectTool, setRequestedProjectTool] = React.useState<{ projectId: string; tool: ProjectTool } | null>(null);
   const [deleteTarget, setDeleteTarget] = React.useState<Pick<Project, "id" | "title" | "status" | "publicationState"> | null>(null);
   const [archiveTarget, setArchiveTarget] = React.useState<{ id: string; title: string; isArchived: boolean } | null>(null);
@@ -142,6 +144,11 @@ export function ProjectsWorkspace({
   const baseAccess = resolveProjectWorkspaceAccess(workspaceReadOnly, can);
   const access = { ...baseAccess, canCreate: baseAccess.canCreate && isAppointedOfficeHead(userProfile, orgs) && (!workspaceScope || workspaceScope.workspace.office_id === (userProfile?.org_id || userProfile?.departmentId)) };
   const collaboration = useCollaborationDrafts();
+  const { refresh: refreshCollaboration } = collaboration;
+  const closeProposalImport = React.useCallback(() => {
+    setProposalImportOpen(false);
+    void refreshCollaboration().catch(() => {});
+  }, [refreshCollaboration]);
   const activeCollaborationDrafts = React.useMemo(
     () => collaboration.drafts.filter(isActiveCollaborationDraft),
     [collaboration.drafts],
@@ -378,10 +385,10 @@ export function ProjectsWorkspace({
   return (
     <div className="eflow-ide-workspace">
       <div className="eflow-ide-workspace__content" hidden={!!completionTaskId}>
-      {activeTab.type !== "project" && <ProjectWorkspaceActions onAllProjects={() => { void requestNavigation(openIndex); }} canCreate={access.canCreate} disabledReason={baseAccess.canCreate && !access.canCreate ? workspaceScope && workspaceScope.workspace.office_id !== currentOrgId ? 'Return to your office to create a project.' : 'Only the appointed Office Head can create projects.' : undefined} onCreate={() => setQuickProjectOpen(true)}
+      {activeTab.type !== "project" && <ProjectWorkspaceActions onAllProjects={() => { void requestNavigation(openIndex); }} canCreate={access.canCreate} disabledReason={baseAccess.canCreate && !access.canCreate ? workspaceScope && workspaceScope.workspace.office_id !== currentOrgId ? 'Return to your office to create a project.' : 'Only the appointed Office Head can create projects.' : undefined} onCreate={() => setQuickProjectMode('manual')} onCreateWithAi={() => setQuickProjectMode('pdf')}
         onTemplates={() => setTemplatesOpen(true)}
+        onImport={() => setProposalImportOpen(true)}
         onSavedPlans={() => { void requestNavigation(() => openPlanning('drafts')); }}
-        onReviewPlans={() => { void requestNavigation(() => openPlanning('signoff')); }}
         departmentFilter={scope.includeAllAccessibleWork ? { value: departmentFilter, options: departmentFilterOptions, onChange: value => { void requestNavigation(() => changeDepartmentFilter(value)); } } : undefined} />}
       {contextNotice && <FeedbackState tone="warning" title="Project unavailable">{contextNotice}<button type="button" onClick={() => setContextNotice('')}>Dismiss</button></FeedbackState>}
       {/* The workspace is intentionally continuous: global rail → project context → page. */}
@@ -488,7 +495,7 @@ export function ProjectsWorkspace({
               <ProjectIndex projects={inScope} tasks={tasks} organizations={orgs} profiles={profiles}
                 onOpen={id => { void requestNavigation(() => openProject(id, 'push')); }}
                 onOpenProposal={id => { void requestNavigation(() => openProposal(id)); }}
-                onCreate={access.canCreate ? () => setQuickProjectOpen(true) : undefined}/>
+                onCreate={access.canCreate ? () => setQuickProjectMode('manual') : undefined}/>
 
             )}
           </div>
@@ -496,7 +503,7 @@ export function ProjectsWorkspace({
       </div>
       </div>
 
-      {access.canCreate && quickProjectOpen && <CreateProjectDialog open profiles={profiles} profilesLoading={profilesLoading} organizations={orgs} officeId={currentOrgId} officeName={orgs.find(org=>org.id===currentOrgId)?.name} ownerName={userProfile?.full_name} onClose={()=>setQuickProjectOpen(false)} onCreated={(project,ready)=>{const destination=ready?'tasks':'settings';setCommittedProject(project);createdNavigationRef.current=project.id;workspaceScope?.includeCreatedOfficeProject?.(project);writeNavigationLocation('projects','Projects','push',{project:project.id,view:destination,parameters:{project:project.id,view:destination}});setActiveTab({id:`project-${project.id}`,type:'project',projectId:project.id,title:project.title});setWorkspaceView('portfolio');setProjectWorkspaceTab(destination);}}/>}
+      {access.canCreate && quickProjectMode && <CreateProjectDialog open importPdf={quickProjectMode==='pdf'} profiles={profiles} profilesLoading={profilesLoading} organizations={orgs} officeId={currentOrgId} officeName={orgs.find(org=>org.id===currentOrgId)?.name} ownerName={userProfile?.full_name} onClose={()=>setQuickProjectMode(undefined)} onCreated={(project,ready)=>{const destination=ready?'tasks':'settings';setCommittedProject(project);createdNavigationRef.current=project.id;workspaceScope?.includeCreatedOfficeProject?.(project);writeNavigationLocation('projects','Projects','push',{project:project.id,view:destination,parameters:{project:project.id,view:destination}});setActiveTab({id:`project-${project.id}`,type:'project',projectId:project.id,title:project.title});setWorkspaceView('portfolio');setProjectWorkspaceTab(destination);}}/>}
 
       {templatesOpen && (
         <ProjectTemplatesModal
@@ -508,6 +515,10 @@ export function ProjectsWorkspace({
           leadingTasks={leadingTasks}
           employees={deptEmployees}
         />
+      )}
+
+      {access.canCreate && proposalImportOpen && (
+        <ProposalImportDialog onClose={closeProposalImport} />
       )}
 
       {archiveTarget && (

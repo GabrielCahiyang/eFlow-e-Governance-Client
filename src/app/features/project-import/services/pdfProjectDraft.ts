@@ -1,14 +1,6 @@
-import {
-  extractPartSections,
-  extractExplicitSubtasks,
-  generateTemplateSubtasks,
-  readSourceBudget,
-  applySourceBudgetAssignments,
-  type ProposalDecompositionTask,
-} from "../../proposal-import";
-import { readAiText, requestAiChat, type AiQueueUpdate } from "../../ai";
+import { enrichPdfSourceTasks, extractPartSections, readSourceBudget, type ProposalImportOptions } from '../../proposal-import';
+import type { AiQueueUpdate } from '../../ai';
 import { isCalendarDate } from "../../../shared/calendarDates";
-import { normalizedWorkName } from "../../../shared/workNames";
 import { generateProjectDraft } from "./projectImportService";
 import type { ProjectImportDraft } from "../types";
 
@@ -49,65 +41,29 @@ export async function generatePdfProjectDraft(
   anchor: string,
   onQueueUpdate: (update: AiQueueUpdate) => void,
   requestId?: string,
+  options: Pick<ProposalImportOptions, "addBudget" | "addSubtasks"> = { addBudget: true, addSubtasks: true },
 ): Promise<ProjectImportDraft> {
   const parts = extractPartSections(source);
   if (!parts?.every((part) => part.sourceActions?.length)) {
-    if (readSourceBudget(source))
+    if (options.addBudget && readSourceBudget(source))
       throw new Error(
         "The budget was read, but this PDF’s numbered work table could not be read safely. Use a text-based proposal with a clear work table.",
       );
-    return generateProjectDraft(projectId, source, name, onQueueUpdate);
+    const draft = await generateProjectDraft(projectId, source, name, onQueueUpdate);
+    return {
+      ...draft,
+      groups: draft.groups.map(group => ({ ...group, tasks: group.tasks.map(task => ({
+        ...task,
+        ...(options.addSubtasks ? {} : { subitems: [] }),
+        ...(options.addBudget ? {} : { budgetDecision: "missing" as const, budgetLines: [] }),
+      })) })),
+    };
   }
   const actions = parts.flatMap((part) => part.sourceActions!);
   if (actions.length > 100 || parts.length > 30)
     throw new Error("Import up to 30 groups and 100 tasks at a time.");
-  const budget = readSourceBudget(source);
-  const response = await requestAiChat(
-    {
-      model: "deepseek-r1:8b",
-      messages: [{ role: "user", content: "Suggest metadata for the fixed source PDF table." }],
-      pdf_table_enrichment: {
-        schemaVersion: 1,
-        tasks: actions.map((action, index) => ({ key: `task-${index + 1}`, ...action })),
-        costs: budget?.lines || [],
-      },
-      stream: false,
-    },
-    { onQueueUpdate, requestId },
-  );
-  const raw = readAiText(response)
-    .replace(/<think>[\s\S]*?<\/think>/gi, "")
-    .trim();
-  const payload = JSON.parse(raw.match(/\{[\s\S]*\}/)?.[0] || "{}");
-  if (!Array.isArray(payload.tasks) || payload.tasks.length !== actions.length)
-    throw new Error("The AI server returned an incomplete PDF table. Restart the updated AI server and try again. No work was saved.");
-  const suggestions = new Map<
-    string,
-    { priority: "low" | "medium" | "high"; estimatedHours: number }
-  >();
-  for (const task of payload.tasks) {
-    if (
-      !/^task-\d+$/.test(task.key) ||
-      Number(task.key.slice(5)) > actions.length ||
-      Number(task.key.slice(5)) < 1 ||
-      suggestions.has(task.key) ||
-      !["low", "medium", "high"].includes(task.priority) ||
-      !Number.isFinite(task.estimatedHours) ||
-      task.estimatedHours < 0 ||
-      task.estimatedHours > 10000
-    )
-      throw new Error(
-        "The AI returned invalid task priorities or effort. Try again.",
-      );
-    suggestions.set(task.key, task);
-  }
-  const canonical: ProposalDecompositionTask[] = actions.map((action) => ({
-    title: action.title,
-    description: `${action.title}\n\nMethodology${action.methodologyScope === "phase" ? " (shared group methods)" : ""}:\n${action.methodology.map((method) => `• ${method}`).join("\n")}\n\nSchedule: ${action.schedule}`,
-  }));
-  if (budget) {
-    applySourceBudgetAssignments(budget, canonical, JSON.stringify({ allocations: payload.allocations }));
-  }
+  const budget = options.addBudget ? readSourceBudget(source) : null;
+  const canonical = await enrichPdfSourceTasks(actions, budget, onQueueUpdate, requestId, options.addSubtasks);
   let index = 0;
   const draft: ProjectImportDraft = {
     schemaVersion: 1,
@@ -131,22 +87,18 @@ export async function generatePdfProjectDraft(
       color: ["#00838f", "#579bfc", "#00a38d", "#a25ddc"][partIndex % 4],
       existingGroupId: "",
       tasks: part.sourceActions!.map((action) => {
-        const task = canonical[index],
-          key = `task-${++index}`,
-          suggestion = suggestions.get(key)!;
-        const sourceSteps = action.methodologyScope === 'task' ? extractExplicitSubtasks(action.methodology) : [];
-        const steps = sourceSteps.length ? sourceSteps : generateTemplateSubtasks(task.title, task.title);
-        const distinctSteps = [...new Map(steps.map(step => [normalizedWorkName(step), step])).values()];
+        const task = canonical[index];
+        const key = `task-${++index}`;
         return {
           key,
           title: task.title,
           description: task.description,
-          priority: suggestion.priority,
-          estimatedHours: suggestion.estimatedHours,
+          priority: task.priority,
+          estimatedHours: task.estimatedHours,
           ...sourceMonthDates(action.schedule, anchor),
           officeKey: "",
           dependencies: [],
-          subitems: distinctSteps.map(title => ({ title, dueDate: '' })),
+          subitems: (task.subtasks || []).map(title => ({ title, dueDate: '' })),
           sourceQuote: action.title,
           included: true,
           budgetDecision: task.budgetDecision || "missing",

@@ -1,6 +1,6 @@
 import { budgetTableText, readingOrderText, workTableText, type PdfTextPiece, type PdfRule } from './pdfLayout';
 
-export async function extractTextFromPdf(file: File): Promise<string> {
+export async function extractTextFromPdf(file: File, { includeWork = true, includeBudget = true } = {}): Promise<string> {
   // The compatibility build supplies PDF.js's required Map/Set methods in
   // supported browsers that have not implemented the latest built-ins yet.
   const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs");
@@ -30,7 +30,9 @@ export async function extractTextFromPdf(file: File): Promise<string> {
         reader.releaseLock();
       }
       let table = '';
-      if (items.some(item=>item.str.trim()==='Subtotal'||/^Part\s+\d+\s*:/i.test(item.str.trim()))) {
+      const hasBudget = includeBudget && items.some(item => item.str.trim() === 'Subtotal');
+      const hasWork = includeWork && items.some(item => /^Part\s+\d+\s*:/i.test(item.str.trim()));
+      if (hasBudget || hasWork) {
         const operators = await page.getOperatorList();
         const rules: PdfRule[] = [];
         operators.fnArray.forEach((fn,index)=>{
@@ -38,8 +40,11 @@ export async function extractTextFromPdf(file: File): Promise<string> {
           const box=operators.argsArray[index]?.[2];
           if(box?.length===4)rules.push([box[0],box[1],box[2],box[3]]);
         });
-        table=budgetTableText(items,rules,i)+workTableText(items,rules);
-        if(!table && ['Category','Particulars','Amount','Subtotal'].every(label=>items.some(item=>item.str.trim()===label)))throw new Error('The PDF budget table could not be read safely. Review or provide a text-based budget table.');
+        const budget = includeBudget ? budgetTableText(items, rules, i) : '';
+        if (hasBudget && !budget && ['Category', 'Particulars', 'Amount'].every(label => items.some(item => item.str.trim() === label))) {
+          throw new Error('The PDF budget table could not be read safely. Review or provide a text-based budget table.');
+        }
+        table = budget + (includeWork ? workTableText(items, rules) : '');
       }
       pages.push(readingOrderText(items)+table);
     }

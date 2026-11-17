@@ -77,6 +77,7 @@ export function useInvitationManagement(
       setReceipt("");
       setFreshLink("");
       started = true;
+      console.info("[eFlow Invitations] Running action:", action, "for", item.email);
       const result =
         action === "revoke"
           ? await revokeInvitation(item.id)
@@ -86,10 +87,14 @@ export function useInvitationManagement(
       setReceipt(
         `${item.email}: ${action === "revoke" ? "invitation revoked." : "invitation renewed; the previous link is invalid."}`,
       );
-      if (result.delivery_error)
+      if (result.delivery_error) {
+        console.warn("[eFlow Invitations] Delivery failed for", item.email, ":", result.delivery_error);
         setError(
           `Invitation exists. Email delivery failed: ${result.delivery_error} Use Resend to retry delivery.`,
         );
+      } else {
+        console.info("[eFlow Invitations] Action completed for", item.email, { action, status: result.status, delivery: result.email_delivery_status });
+      }
       if (action === "copy" && result.invitation_url) {
         setFreshLink(result.invitation_url);
         try {
@@ -105,6 +110,7 @@ export function useInvitationManagement(
       // Delivery and clipboard failures must still refresh authoritative validity.
       try {
         await refresh();
+        outcomes.current.delete(key);
       } catch {
         if (currentScope.current === origin)
           setError(

@@ -5,7 +5,9 @@ export { readSourceBudget } from './services/sourceBudget';
 export { applySourceBudgetAssignments } from './services/sourceBudget';
 export type { SourceBudget } from './services/sourceBudget';
 export { extractPartSections, extractExplicitSubtasks, generateTemplateSubtasks } from './services/decomposition/textAnalysis';
+export { enrichPdfSourceTasks } from './services/decomposition/pdfSourceEnrichment';
 export type {
+  ProposalImportOptions,
   ProposalDecompositionBudgetLine,
   ProposalDecompositionActivity,
   ProposalDecompositionProgram,
@@ -14,4 +16,6 @@ export type {
   ProposalDecompositionTask,
 } from "./types";
 export { default as ProposalImport } from "./components/ProposalImport";
+export { ProposalImportDialog } from "./components/ProposalImportDialog";
+export { ProposalPdfForm } from "./components/ProposalPdfForm";
 export { ManualPlanBuilder } from "./components/ManualPlanBuilder";

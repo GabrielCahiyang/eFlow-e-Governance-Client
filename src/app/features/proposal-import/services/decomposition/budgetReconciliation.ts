@@ -1,18 +1,16 @@
 import type { AiQueueUpdate } from "../../../ai";
 import type { ProposalDecompositionResult } from "../../types";
 import {
-  readSourceBudget,
   applySourceBudgetAssignments,
+  type SourceBudget,
 } from "../sourceBudget";
 import { callDecompositionLLM } from "./llmClient";
 
 export async function reconcileProposalSourceBudget(
   result: ProposalDecompositionResult,
-  source: string,
+  budget: SourceBudget,
   onQueueUpdate?: (update: AiQueueUpdate) => void,
 ) {
-  const budget = readSourceBudget(source);
-  if (!budget) return;
   const tasks = result.programs.flatMap((program) =>
     program.projects.flatMap((project) =>
       project.activities.flatMap((activity) => activity.tasks),

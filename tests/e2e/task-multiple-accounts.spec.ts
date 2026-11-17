@@ -1,6 +1,40 @@
 import {test,expect} from '@playwright/test';
 import {projectWorkspaceFixture} from './fixtures/projectWorkspace';
 
+test('Main table shows a lock as soon as cash uses the full task budget', async ({page}) => {
+ test.setTimeout(120000);
+ await page.setViewportSize({width:1440,height:1000});
+ const records = await projectWorkspaceFixture(page,'head',false,{landingOnly:true});
+ const task = records.tasks[0];
+ let available = 5000;
+ await page.route('**/rest/v1/rpc/project_flow_snapshot', route => route.fulfill({json:{
+  project: {...records.projects[0],project_lead_id:records.id},
+  ready:true,canAllocate:true,canAuthorize:true,
+  funds:[],sources:[],total:5000,allocated:5000,unallocated:0,released:0,spent:0,
+  taskFunding:[{id:'supplies-line',taskId:task.id,task:task.title,source:'Supplies',amount:5000,available}],
+  requests:[],fundingRequests:[],liquidations:[],
+ }}));
+ await page.goto(`/projects?page=Projects&project=${records.project}&view=tasks`);
+ const budget = page.getByRole('button',{name:`Budget for ${task.title}`,exact:true});
+ await expect(budget).toHaveText('₱5,000',{timeout:45000});
+ await expect(budget.locator('svg.lucide-wallet-cards')).toBeVisible();
+
+ available = 0;
+ await page.evaluate(() => window.dispatchEvent(new Event('eflow:project-setup')));
+ await expect(budget.locator('svg.lucide-lock')).toBeVisible();
+ await budget.hover();
+ await expect(page.getByRole('tooltip').filter({hasText:'₱5,000 of this task’s budget is locked'})).toContainText('Cash requests lock funds as soon as they’re submitted.');
+ await budget.click();
+ const dialog = page.getByRole('dialog',{name:`Task budget · ${task.title}`,exact:true});
+ await expect(dialog.getByText('There’s no unused balance to return.',{exact:false})).toBeVisible();
+ await expect(dialog.getByRole('button',{name:'Return unused funding'})).toBeDisabled();
+
+ available = 2000;
+ await page.evaluate(() => window.dispatchEvent(new Event('eflow:project-setup')));
+ await expect(dialog.getByText('₱3,000 locked.')).toBeVisible();
+ await expect(dialog.getByRole('button',{name:'Return unused funding'})).toBeEnabled();
+});
+
 test('one task combines accounts, adds another later, and retains its budget after reload',async({page},info)=>{
  test.setTimeout(120000);await page.setViewportSize({width:1440,height:1000});
  const records=await projectWorkspaceFixture(page,'head',false,{landingOnly:true});

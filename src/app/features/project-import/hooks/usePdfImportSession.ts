@@ -30,11 +30,12 @@ export function usePdfImportSession(projectId:string,onImported:(result:ProjectI
    if(!current.current.state.sourceText){
     await event('reading','Reading your PDF');
     const file=await readImportFile(current.current.id);if(!file)throw new Error('Choose this PDF again to restore its local source file. Your saved progress is kept.');
-    const sourceText=await readProjectDocument(file);await event('preparing','Checking the PDF’s work table and budget totals',{sourceText});
+    const includeBudget=current.current.state.addBudget!==false;
+    const sourceText=await readProjectDocument(file,includeBudget);await event('preparing',includeBudget?'Checking the PDF’s work table and budget totals':'Checking the PDF’s work table',{sourceText});
    }
    if(!current.current.state.draft){
     const state=current.current.state;
-    let draft=await generatePdfProjectDraft(projectId,state.sourceText!,state.sourceName,state.anchor,queue,`${current.current.id}:decompose:${current.current.revision}`);
+    let draft=await generatePdfProjectDraft(projectId,state.sourceText!,state.sourceName,state.anchor,queue,`${current.current.id}:decompose:${current.current.revision}`,{addBudget:state.addBudget!==false,addSubtasks:state.addSubtasks!==false});
     if(!state.addOffices)draft={...draft,offices:[],groups:draft.groups.map(group=>({...group,tasks:group.tasks.map(task=>({...task,officeKey:''}))}))};
     await event('offices',`Found ${draft.groups.length} groups and ${draft.groups.flatMap(group=>group.tasks).length} tasks`,{draft});
    }
@@ -73,14 +74,14 @@ export function usePdfImportSession(projectId:string,onImported:(result:ProjectI
   }catch(reason){if(alive.current)setError((reason as Error).message||'Could not finish this import. Resume to retry the saved stage.');}
   finally{if(heartbeat)clearInterval(heartbeat);if(current.current&&!current.current.result)await touchPdfImport(current.current.id,runner.current,true).catch(()=>{});inFlight.current=false;if(alive.current)setBusy(false);}
  };
- const upload=async(file:File,anchor:string,addOffices:boolean,autoAssign:boolean)=>{
+ const upload=async(file:File,anchor:string,addOffices:boolean,autoAssign:boolean,options?:Pick<PdfSessionState,'addBudget'|'addSubtasks'>)=>{
   if(inFlight.current)return;
   if(!/\.pdf$/i.test(file.name)||file.size>20*1024*1024){setError('Choose a PDF up to 20 MB.');return;}
   if(current.current){await cacheImportFile(current.current.id,file);void run();return;}
   const id=crypto.randomUUID();
   try{
    setBusy(true);inFlight.current=true;await cacheImportFile(id,file);
-   show(await checkpointPdfImport({id,project_id:projectId,revision:0,state:{} as PdfSessionState,result:null,runner:null,lease_until:null},runner.current,{stage:'reading',sourceName:file.name,anchor,addOffices,autoAssign,assignments:[],events:[]}));
+   show(await checkpointPdfImport({id,project_id:projectId,revision:0,state:{} as PdfSessionState,result:null,runner:null,lease_until:null},runner.current,{stage:'reading',sourceName:file.name,anchor,addOffices,autoAssign,...options,assignments:[],events:[]}));
   }catch(reason){setError((reason as Error).message);return;}finally{inFlight.current=false;setBusy(false);}
   void run();
  };

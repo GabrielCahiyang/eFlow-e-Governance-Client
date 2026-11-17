@@ -46,6 +46,22 @@ it('lets the user back out without cancelling the allocation',()=>{
  render(<CancelTaskFunding line={{id:'line',taskId:'task',task:'Task',source:'Supplies',amount:40000,available:40000}} onChanged={api.reload} onBusyChange={vi.fn()}/>);
  fireEvent.click(screen.getByRole('button',{name:'Cancel allocation'}));fireEvent.click(screen.getByRole('button',{name:'Keep allocation'}));expect(api.call).not.toHaveBeenCalled();expect(screen.getByRole('button',{name:'Cancel allocation'})).toBeEnabled();
 });
+it('disables confirmation if a cash request reserves the remaining funds while it is open',()=>{
+ const line={id:'line',taskId:'task',task:'Task',source:'Supplies',amount:5000,available:5000};
+ const lock=vi.fn();
+ const {rerender}=render(<CancelTaskFunding line={line} onChanged={api.reload} onBusyChange={lock}/>);
+ fireEvent.click(screen.getByRole('button',{name:'Cancel allocation'}));
+ fireEvent.change(screen.getByLabelText('Reason for cancelling'),{target:{value:'Unused funding'}});
+ expect(screen.getByRole('button',{name:'Confirm cancellation'})).toBeEnabled();
+
+ rerender(<CancelTaskFunding line={{...line,available:0}} onChanged={api.reload} onBusyChange={lock}/>);
+ expect(screen.getByRole('status')).toHaveTextContent('remaining funding is now locked');
+ const confirm=screen.getByRole('button',{name:'Confirm cancellation'});
+ expect(confirm).toBeDisabled();
+ fireEvent.click(confirm);
+ expect(api.call).not.toHaveBeenCalled();
+ expect(screen.getByRole('button',{name:'Keep allocation'})).toBeEnabled();
+});
 it('exposes footer submit state in modal variant and hides dead form controls when no accounts remain',()=>{
  const submitRef={current:null as (()=>void)|null};
  const onActionState=vi.fn();

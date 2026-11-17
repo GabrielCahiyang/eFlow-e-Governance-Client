@@ -1,4 +1,5 @@
 import { useProposalDraftPersistence } from './useProposalDraftPersistence';
+import { resolveScheduleDateInput } from '../../../shared/scheduling/relativeSchedule';
 import { withEmployeeDeadlineWorkload, taskDurationHours, taskEstimateError } from "../../tasks";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTasks, useEmployeeNotes } from "../../../hooks/useFirebaseData";
@@ -25,6 +26,7 @@ import { buildProposalBudgetFromTasks } from "../../budget";
 import { normalizeImportedTaskBudgetLines } from "../services/proposalBudgetImport";
 import { validateProposalDocument } from "../services/proposalValidationClient";
 import { readSourceBudget, moveSourceBudgetLine, type SourceBudget } from '../services/sourceBudget';
+import type { ProposalImportOptions } from '../types';
 
 export function useProposalImportController(onClose?: () => void) {
   const { tasks: liveTasks } = useTasks();
@@ -86,9 +88,8 @@ export function useProposalImportController(onClose?: () => void) {
     [deptEmployees, deptEmployeesWithNotes],
   );
 
-  const departmentFilter = userProfile?.departmentId || "";
+  const departmentFilter = ownerOrgId;
 
-  const pdfFileRef = useRef<HTMLInputElement>(null);
   const [pdfPhase, setPdfPhase] = useState<PdfPhase>("idle");
   const [pdfFileName, setPdfFileName] = useState("");
   const [pdfFile, setPdfFile] = useState<File | null>(null);
@@ -107,6 +108,8 @@ export function useProposalImportController(onClose?: () => void) {
   const [draftId, setDraftId] = useState<string | null>(null);
   const [autoSaveState, setAutoSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const importPending = useRef(false);
+  const importOptions = useRef<ProposalImportOptions | null>(null);
+  const proposalDetails = useRef<{ title: string; description: string; proposalId: string } | null>(null);
   const planningAnchor = useRef(Date.now());
 
   // Assignment modal for PDF drafts
@@ -131,6 +134,7 @@ export function useProposalImportController(onClose?: () => void) {
     result.programs.forEach((prog, pi) => {
       prog.projects.forEach((proj, pj) => {
         proj.activities.forEach((act, ai) => {
+          const activityDate = resolveScheduleDateInput(act.schedule, planningAnchor.current) || '';
           const hierarchyIds = buildHierarchyIds(
             proposalTitle,
             prog.title,
@@ -156,12 +160,12 @@ export function useProposalImportController(onClose?: () => void) {
               projectTitle: proj.title,
               activityId: hierarchyIds.activityId,
               activityTitle: act.title,
-              activitySchedule: act.schedule || "",
+              activitySchedule: activityDate,
               title: t.title,
               description: t.description,
               subtasks: t.subtasks,
-              deadline: act.schedule || "",
-              estimatedHours: taskDurationHours(t.estimatedDuration, t.optimizationMetadata?.durationDays),
+              deadline: activityDate,
+              estimatedHours: t.estimatedHours ?? taskDurationHours(t.estimatedDuration, t.optimizationMetadata?.durationDays),
               priority: t.priority || "medium",
               requiredSkills: t.requiredSkills || [],
               assignedMemberIds: t.recommendedEmployeeIds || [],
@@ -183,13 +187,15 @@ export function useProposalImportController(onClose?: () => void) {
   };
 
   const reviewedSnapshot = useMemo(() => pdfPhase === 'review' ? buildCollaborationSnapshot({
-    title: draftTasks[0]?.proposalTitle || pdfFileName.replace(/\.pdf$/i, '') || 'Imported Proposal',
+    title: draftTasks[0]?.proposalTitle || proposalDetails.current?.title || pdfFileName.replace(/\.pdf$/i, ''),
+    description: proposalDetails.current?.description,
+    proposalId: proposalDetails.current?.proposalId,
     tasks: draftTasks, organizations: collaborationOrganizations, ownerOrgId: departmentFilter,
     planningAnchor: planningAnchor.current, budget: buildProposalBudgetFromTasks(draftTasks),
   }) : null, [pdfPhase, draftTasks, pdfFileName, collaborationOrganizations, departmentFilter]);
   const estimateIssue = draftTasks.find(task => task.enabled && taskEstimateError(task.estimatedHours));
   const persistence = useProposalDraftPersistence(`${userProfile?.id || ''}:${ownerOrgId}`, draftId, reviewedSnapshot, pdfPhase === 'review', estimateIssue ? `${estimateIssue.title}: ${taskEstimateError(estimateIssue.estimatedHours)}` : '');
-  const handlePdfFile = async (file: File) => {
+  const handlePdfFile = async (file: File, options: ProposalImportOptions) => {
     if (importPending.current || committing) return;
     if (!file.name.toLowerCase().endsWith(".pdf")) {
       setPdfError("Please upload a PDF file.");
@@ -197,6 +203,8 @@ export function useProposalImportController(onClose?: () => void) {
       return;
     }
     importPending.current = true;
+    importOptions.current = options;
+    proposalDetails.current = null;
     setPdfFileName(file.name);
     setSourceBudget(null);
     setDraftId(null);
@@ -213,13 +221,16 @@ export function useProposalImportController(onClose?: () => void) {
 
     let text: string; let savingDraft = false;
     try {
-      text = await extractTextFromPdf(file);
-      setSourceBudget(readSourceBudget(text));
+      text = await extractTextFromPdf(file, {
+        includeWork: options.addTasks,
+        includeBudget: options.addTasks && options.addBudget,
+      });
       if (!text.trim()) {
         setPdfError("Could not extract text from PDF. It may be image-based.");
         setPdfPhase("error"); importPending.current = false;
         return;
       }
+      if (options.addTasks && options.addBudget) setSourceBudget(readSourceBudget(text));
     } catch (reason) {
       setPdfError(reason instanceof Error?reason.message:"Failed to read PDF file.");
       setPdfPhase("error"); importPending.current = false;
@@ -268,16 +279,19 @@ export function useProposalImportController(onClose?: () => void) {
         (current, total, partTitle) =>
           setDecompositionProgress({ current, total, partTitle }),
         setAiQueueStatus,
+        options,
       );
       const generatedTasks = buildDraftTasks(result, file.name.replace(/\.pdf$/i, ""));
       const snapshot = buildCollaborationSnapshot({
-        title: generatedTasks[0]?.proposalTitle || file.name.replace(/\.pdf$/i, ""),
+        title: generatedTasks[0]?.proposalTitle || result.proposal?.title || file.name.replace(/\.pdf$/i, ""),
+        description: result.proposal?.description,
         tasks: generatedTasks,
         organizations: detectedScope,
         ownerOrgId: departmentFilter,
         planningAnchor: planningAnchor.current,
         budget: buildProposalBudgetFromTasks(generatedTasks),
       });
+      proposalDetails.current = { title: snapshot.title, description: snapshot.description, proposalId: snapshot.proposalId };
       setDraftTasks(generatedTasks); savingDraft = true;
       setAutoSaveState("saving");
       setPdfPhase("saving");
@@ -291,7 +305,7 @@ export function useProposalImportController(onClose?: () => void) {
       persistence.markSaved(snapshot);
       setDraftId(persistedDraft.id);
       setDraftTasks(generatedTasks);
-      setCommitMessage("Draft saved automatically.");
+      setCommitMessage(generatedTasks.length ? "Draft saved automatically." : "Proposal saved to Saved work plans. You can add tasks there.");
       setAutoSaveState("saved");
       setPdfPhase("review");
       importPending.current = false;
@@ -389,14 +403,8 @@ export function useProposalImportController(onClose?: () => void) {
     setCommitting(true);
     setCommitMessage("Saving persistent collaboration draft...");
     try {
-      const snapshot = buildCollaborationSnapshot({
-        title: toCreate[0]?.proposalTitle || pdfFileName.replace(/\.pdf$/i, ""),
-        tasks: draftTasks,
-        organizations: collaborationOrganizations,
-        ownerOrgId: departmentFilter,
-        planningAnchor: planningAnchor.current,
-        budget: buildProposalBudgetFromTasks(draftTasks),
-      });
+      if (!reviewedSnapshot) throw new Error("Open the imported draft before saving.");
+      const snapshot = reviewedSnapshot;
       if (draftId) await persistence.persist(draftId, snapshot);
       else await createCollaborationDraft({ title: snapshot.title, ownerOrgId: departmentFilter, sourceType: "ai_pdf", snapshot, sourceFile: pdfFile || undefined });
       setCommitMessage("Draft saved. No operational work was created.");
@@ -418,7 +426,6 @@ export function useProposalImportController(onClose?: () => void) {
     setCollaborationOrganizations,
     employeeNotes,
     deptEmployees,
-    pdfFileRef,
     pdfPhase,
     setPdfPhase,
     pdfFileName,
@@ -434,7 +441,7 @@ export function useProposalImportController(onClose?: () => void) {
         setCommitMessage(error instanceof Error ? error.message : 'Could not move this source cost.');
       }
     },
-    retryAnalysis: () => { if (pdfFile && !persistenceUncertain) void handlePdfFile(pdfFile); },
+    retryAnalysis: () => { if (pdfFile && importOptions.current && !persistenceUncertain) void handlePdfFile(pdfFile, importOptions.current); },
     setPdfError,
     aiQueueStatus,
     decompositionProgress,

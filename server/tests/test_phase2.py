@@ -111,10 +111,73 @@ class Phase2Tests(unittest.TestCase):
     def test_send_email_forwards_any_recipient_without_local_lock(self):
         mock_response = MagicMock(status_code=200)
         mock_response.json.return_value = {'id': 'msg-123'}
-        with patch.dict(os.environ, {'EFLOW_EMAIL_FROM': 'eFlow <onboarding@resend.dev>', 'RESEND_API_KEY': 'test-key', 'EFLOW_EMAIL_TEST_RECIPIENT': 'approved@example.test'}), patch('services.email_delivery.httpx.post', return_value=mock_response) as post:
+        with patch.dict(os.environ, {'EFLOW_EMAIL_FROM': 'eFlow <onboarding@resend.dev>', 'RESEND_API_KEY': 'test-key', 'EFLOW_EMAIL_TEST_RECIPIENT': 'approved@example.test'}, clear=True), patch('services.email_delivery.httpx.post', return_value=mock_response) as post:
             message_id = send_email('other@example.test', invitation_email('Head', 'Office', 'member', 'https://example.test/accept-invite', 168), 'test')
         self.assertEqual(message_id, 'msg-123')
         self.assertEqual(post.call_args.kwargs['json']['to'], ['other@example.test'])
+
+    def test_send_email_uses_resend_first_even_when_smtp_is_configured(self):
+        mock_response = MagicMock(status_code=200)
+        mock_response.json.return_value = {'id': 'msg-primary'}
+        with patch.dict(os.environ, {
+            'EFLOW_EMAIL_FROM': 'eFlow <noreply@verified.example.org>',
+            'RESEND_API_KEY': 'test-key',
+            'SMTP_EMAIL': 'sender@gmail.com',
+            'SMTP_APP_PASSWORD': 'abcd efgh ijkl mnop',
+        }, clear=True), patch('services.email_delivery.httpx.post', return_value=mock_response) as post, patch('services.email_delivery.smtplib.SMTP') as smtp:
+            receipt = send_email('other@example.test', invitation_email('Head', 'Office', 'member', 'https://example.test/accept-invite', 168), 'req-1')
+        self.assertEqual(receipt, 'msg-primary')
+        post.assert_called_once()
+        smtp.assert_not_called()
+
+    def test_send_email_falls_back_to_smtp_when_resend_fails(self):
+        sandbox_403 = MagicMock(status_code=403)
+        sandbox_403.json.return_value = {'message': 'You can only send testing emails to your own email address.'}
+        smtp_server = MagicMock()
+        smtp_ctx = MagicMock()
+        smtp_ctx.__enter__.return_value = smtp_server
+        with patch.dict(os.environ, {
+            'EFLOW_EMAIL_FROM': 'eFlow <onboarding@resend.dev>',
+            'RESEND_API_KEY': 'test-key',
+            'SMTP_EMAIL': 'sender@gmail.com',
+            'SMTP_APP_PASSWORD': 'abcd efgh ijkl mnop',
+        }, clear=True), patch('services.email_delivery.httpx.post', return_value=sandbox_403) as post, patch('services.email_delivery.smtplib.SMTP', return_value=smtp_ctx):
+            receipt = send_email('other@example.test', invitation_email('Head', 'Office', 'member', 'https://example.test/accept-invite', 168), 'req-2')
+        self.assertEqual(receipt, 'smtp:req-2')
+        post.assert_called_once()
+        smtp_server.login.assert_called_once_with('sender@gmail.com', 'abcdefghijklmnop')
+        smtp_server.sendmail.assert_called_once()
+
+    def test_send_email_explains_resend_domain_requirement_when_smtp_unavailable(self):
+        sandbox_403 = MagicMock(status_code=403)
+        sandbox_403.json.return_value = {'message': 'You can only send testing emails to your own email address.'}
+        with patch.dict(os.environ, {'EFLOW_EMAIL_FROM': 'eFlow <onboarding@resend.dev>', 'RESEND_API_KEY': 'test-key'}, clear=True), patch('services.email_delivery.httpx.post', return_value=sandbox_403):
+            with self.assertRaises(HTTPException) as raised:
+                send_email('other@example.test', invitation_email('Head', 'Office', 'member', 'https://example.test/accept-invite', 168), 'req-3')
+        self.assertEqual(raised.exception.status_code, 502)
+        self.assertIn('onboarding@resend.dev', raised.exception.detail)
+        self.assertIn('Copy fresh link', raised.exception.detail)
+
+    def test_copy_fresh_link_rotates_token_and_returns_invitation_url(self):
+        rotated = {'id': 'inv-1', 'email': 'other@example.test', 'account_role': 'member', 'status': 'pending', 'email_delivery_status': 'sent', 'send_count': 2}
+        user = SimpleNamespace(role='head', org_id='office', id='head')
+        with patch.object(service, 'require_head', return_value=user), patch.object(service, 'app_url', return_value='https://app.example.test'), patch.object(service, ' supabase_admin' if False else 'supabase_admin', MagicMock()), patch.object(service, 'rpc', return_value=rotated), patch.object(service, 'send_invitation', return_value=dict(rotated)) as send_inv:
+            result = service.manage(user, 'inv-1', 'resend', copy_link=True)
+        send_inv.assert_called_once()
+        self.assertTrue(result['invitation_url'].startswith('https://app.example.test/accept-invite?token='))
+
+    def test_create_auto_resends_when_existing_pending_invitation_failed_delivery(self):
+        existing = [{'id': 'inv-failed', 'email_delivery_status': 'failed', 'account_role': 'member'}]
+        rotated = {'id': 'inv-failed', 'email': 'jamesdenoy56@gmail.com', 'account_role': 'member', 'status': 'pending'}
+        sent = {**rotated, 'email_delivery_status': 'sent'}
+        client = MagicMock()
+        client.table.return_value.select.return_value.eq.return_value.eq.return_value.eq.return_value.eq.return_value.limit.return_value.execute.return_value.data = existing
+        user = SimpleNamespace(role='head', org_id='office', id='head')
+        with patch.object(service, 'require_head', return_value=user), patch.object(service, 'app_url', return_value='https://app.example.test'), patch.object(service, 'supabase_admin', client), patch.object(service, 'rpc', side_effect=[HTTPException(409, 'Invitation already pending. Resend or revoke it.'), rotated]) as rpc_mock, patch.object(service, 'send_invitation', return_value=sent) as send_inv:
+            result = service.create(user, 'jamesdenoy56@gmail.com', 'member')
+        self.assertEqual(result['email_delivery_status'], 'sent')
+        self.assertEqual(rpc_mock.call_args_list[1].args[0], 'phase2_manage_invitation')
+        send_inv.assert_called_once()
 
     def test_email_html_escapes_names_and_contains_plaintext_link(self):
         message = invitation_email('<script>Head</script>', 'Office & Team', 'member', 'https://example.test/accept-invite?token=abc', 168)

@@ -57,9 +57,17 @@ for (const width of [320, 390, 768, 1024, 1440]) test(`R2 persistent sections an
   await page.screenshot({path:info.outputPath(`r2-sidebar-${width}.png`),fullPage:true});
 });
 
-test('R2 keeps project creation and saved proposal history available',async({page})=>{
- test.setTimeout(90000);await projectWorkspaceFixture(page,'head');await page.getByRole('button',{name:'+ New',exact:true}).click();
- await expect(page.getByRole('menuitem',{name:'Create project',exact:true})).toBeVisible();await expect(page.getByRole('menuitem',{name:'Import proposal',exact:true})).toHaveCount(0);await page.keyboard.press('Escape');
+test('R2 keeps project creation, AI PDF import and saved proposal history available',async({page})=>{
+ test.setTimeout(90000);await projectWorkspaceFixture(page,'head');await page.getByRole('button',{name:'← All projects',exact:true}).click();await page.getByRole('button',{name:'+ New',exact:true}).click();
+ await expect(page.getByRole('menuitem',{name:'Create project',exact:true})).toBeVisible();
+ await expect(page.getByRole('menuitem',{name:'Create project with AI',exact:true})).toBeVisible();
+ await expect(page.getByRole('menuitem',{name:'Template library',exact:true})).toHaveCount(0);
+ await expect(page.getByRole('button',{name:'Import AI PDF',exact:true})).toHaveCount(0);
+ await page.getByRole('menuitem',{name:'Import AI PDF',exact:true}).click();
+ const importDialog=page.getByRole('dialog',{name:'Import AI PDF',exact:true});
+ await expect(importDialog.getByLabel('Choose a government proposal PDF')).toBeAttached();
+ await importDialog.getByRole('button',{name:'Close dialog',exact:true}).click();
+ await expect(importDialog).toBeHidden();
  await page.getByRole('button',{name:'Saved work plans',exact:true}).click();await expect(page.getByRole('heading',{name:'Drafts',exact:true})).toBeVisible();
- await page.getByRole('button',{name:'Proposal review',exact:true}).click();await expect(page.getByRole('heading',{name:'Waiting for approval',exact:true})).toBeVisible();
+ await expect(page.getByRole('button',{name:'Proposal review',exact:true})).toHaveCount(0);
 });

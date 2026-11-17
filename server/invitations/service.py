@@ -107,17 +107,45 @@ def send_invitation(item: dict, token: str) -> dict:
     audit(item['invited_by'], item['office_id'], item['id'], 'invitation_email_sent')
     return safe_invitation({**item, **changes})
 
+def _clear_failed_cooldown_if_needed(invitation_id: str, office_id: str) -> None:
+    rows = (
+        supabase_admin.table('user_invitations')
+        .select('id,email_delivery_status')
+        .eq('id', invitation_id)
+        .eq('office_id', office_id)
+        .eq('status', 'pending')
+        .limit(1)
+        .execute()
+        .data
+        or []
+    )
+    if rows and rows[0].get('email_delivery_status') in ('failed', 'queued'):
+        past = datetime.fromtimestamp(datetime.now(timezone.utc).timestamp() - 120, tz=timezone.utc).isoformat()
+        supabase_admin.table('user_invitations').update({'last_sent_at': past, 'updated_at': past}).eq('id', invitation_id).execute()
+
+
 def create(user, email: str, role: str) -> dict:
     require_head(user)
     app_url()
     token = secrets.token_urlsafe(32)
-    item = rpc('phase2_create_invitation', {'p_actor': user.id, 'p_email': normalize_email(email), 'p_role': role, 'p_hash': token_hash(token), 'p_ttl': invitation_ttl()})
+    normalized = normalize_email(email)
+    try:
+        item = rpc('phase2_create_invitation', {'p_actor': user.id, 'p_email': normalized, 'p_role': role, 'p_hash': token_hash(token), 'p_ttl': invitation_ttl()})
+    except HTTPException as exc:
+        if exc.status_code == 409 and 'already pending' in str(exc.detail).lower():
+            existing = supabase_admin.table('user_invitations').select('id,email_delivery_status,account_role').eq('office_id', user.org_id).eq('email_normalized', normalized).eq('invitation_type', 'office_member').eq('status', 'pending').limit(1).execute().data or []
+            if existing and existing[0].get('email_delivery_status') in ('failed', 'queued') and existing[0].get('account_role') == role:
+                _clear_failed_cooldown_if_needed(existing[0]['id'], user.org_id)
+                item = rpc('phase2_manage_invitation', {'p_actor': user.id, 'p_id': existing[0]['id'], 'p_action': 'resend', 'p_hash': token_hash(token), 'p_ttl': invitation_ttl()})
+                return send_invitation(item, token)
+        raise
     return send_invitation(item, token)
 
 def manage(user, invitation_id: str, action: str, copy_link: bool = False) -> dict:
     require_head(user)
     if action == 'resend':
         app_url()
+        _clear_failed_cooldown_if_needed(invitation_id, user.org_id)
     token = secrets.token_urlsafe(32)
     item = rpc('phase2_manage_invitation', {'p_actor': user.id, 'p_id': invitation_id, 'p_action': action, 'p_hash': token_hash(token) if action == 'resend' else None, 'p_ttl': invitation_ttl()})
     if action == 'revoke':

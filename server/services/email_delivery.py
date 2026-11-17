@@ -1,8 +1,42 @@
-"""Resend transactional emails. No provider credentials or tokens are returned/logged."""
+"""Transactional emails via Resend (primary) with Gmail STARTTLS SMTP fallback.
+
+No provider credentials or tokens are returned or logged.
+"""
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 import html
+import logging
 import os
+from pathlib import Path
+import smtplib
+import ssl
+from dotenv import load_dotenv
 import httpx
 from fastapi import HTTPException
+
+logger = logging.getLogger(__name__)
+_ROOT_DIR = Path(__file__).resolve().parents[2]
+_ENV_FILES = (_ROOT_DIR / '.env', _ROOT_DIR / '.env.local')
+_ENV_MTIMES: dict[Path, float] = {}
+
+
+def _refresh_env_if_changed() -> None:
+    changed = False
+    for env_path in _ENV_FILES:
+        try:
+            mtime = env_path.stat().st_mtime
+        except OSError:
+            continue
+        if _ENV_MTIMES.get(env_path) != mtime:
+            _ENV_MTIMES[env_path] = mtime
+            changed = True
+    if changed:
+        for env_path in _ENV_FILES:
+            if env_path.exists():
+                load_dotenv(env_path, override=True)
+
+
+_refresh_env_if_changed()
 
 def invitation_email(inviter: str, office: str, role: str, url: str, hours: int, project: dict | None = None) -> dict:
     label = 'Accounting Staff' if role == 'accounting_staff' else 'Member'
@@ -75,22 +109,123 @@ def managed_account_activation_email(
         'html': f'''<html><body style="margin:0;background:#f4f7fb;color:#182626;font-family:Arial,sans-serif"><table role="presentation" width="100%"><tr><td align="center" style="padding:40px 16px"><div style="max-width:520px;background:white;border:1px solid #d7dfdf;border-radius:16px;padding:36px;text-align:left"><div style="font-size:28px;font-weight:bold;color:#01006b">{safe['brand']}</div>{subtitle_html}<h1 style="font-size:24px">Activate your account</h1><p>{safe['greeting']}</p><p>You have been invited to join <strong>{safe['office']}</strong> on eFlow. Set your own password to get started.</p><a href="{safe['url']}" style="display:inline-block;margin:20px 0;padding:14px 22px;border-radius:8px;background:#0c6f6b;color:white;text-decoration:none">Activate account</a><p style="color:#526161;font-size:13px">Expires in {hours} hours. This link is for you only; do not forward it.</p>{support_html}<p style="font-size:12px">If you were not expecting this email, you can ignore it.</p></div></td></tr></table></body></html>'''}
 
 
-def send_email(recipient: str, content: dict, idempotency_key: str, reply_to: str | None = None) -> str:
+def _resend_error_message(response: httpx.Response) -> str:
+    try:
+        payload = response.json()
+        if isinstance(payload, dict) and isinstance(payload.get('message'), str):
+            return payload['message'].strip()
+    except ValueError:
+        pass
+    return ''
+
+
+def _is_resend_sandbox_or_domain_error(status_code: int, message: str, sender: str) -> bool:
+    if status_code != 403:
+        return False
+    lowered = message.lower()
+    return (
+        'onboarding@resend.dev' in sender.lower()
+        or 'only send testing emails to your own email address' in lowered
+        or 'verify a domain' in lowered
+    )
+
+
+def _smtp_configured() -> bool:
+    return bool(os.getenv('SMTP_EMAIL', '').strip() and os.getenv('SMTP_APP_PASSWORD', '').replace(' ', '').strip())
+
+
+def _send_via_smtp(recipient: str, content: dict, idempotency_key: str, reply_to: str | None = None) -> str | None:
+    smtp_email = os.getenv('SMTP_EMAIL', '').strip()
+    smtp_password = os.getenv('SMTP_APP_PASSWORD', '').replace(' ', '').strip()
+    if not smtp_email or not smtp_password:
+        return None
+
+    msg = MIMEMultipart('alternative')
+    msg['Subject'] = content['subject']
+    msg['From'] = f'eFlow <{smtp_email}>'
+    msg['To'] = recipient
+    configured_reply_to = (reply_to or '').strip() or os.getenv('EFLOW_EMAIL_REPLY_TO', '').strip()
+    if configured_reply_to:
+        msg['Reply-To'] = configured_reply_to
+    if content.get('text'):
+        msg.attach(MIMEText(content['text'], 'plain', 'utf-8'))
+    if content.get('html'):
+        msg.attach(MIMEText(content['html'], 'html', 'utf-8'))
+
+    logger.info('[EMAIL] Attempting Gmail SMTP delivery to %s via %s', recipient, smtp_email)
+    print(f'[EMAIL] Attempting Gmail SMTP delivery to {recipient} via {smtp_email}', flush=True)
+    with smtplib.SMTP('smtp.gmail.com', 587, timeout=15) as server:
+        server.ehlo()
+        server.starttls(context=ssl.create_default_context())
+        server.ehlo()
+        server.login(smtp_email, smtp_password)
+        server.sendmail(smtp_email, [recipient], msg.as_string())
+    receipt = f'smtp:{idempotency_key}'
+    logger.info('[EMAIL] Delivered to %s via Gmail SMTP (receipt=%s)', recipient, receipt)
+    print(f'[EMAIL] Delivered to {recipient} via Gmail SMTP (receipt={receipt})', flush=True)
+    return receipt
+
+
+def _send_via_resend(recipient: str, content: dict, idempotency_key: str, reply_to: str | None = None) -> str:
     key = os.getenv('RESEND_API_KEY', '').strip()
     sender = os.getenv('EFLOW_EMAIL_FROM', '').strip()
-    if not key or not sender:
-        raise HTTPException(503, 'Email delivery is not configured. Your invitation remains available to retry.')
     payload = {'from': sender, 'to': [recipient], **content}
     configured_reply_to = (reply_to or '').strip() or os.getenv('EFLOW_EMAIL_REPLY_TO', '').strip()
     if configured_reply_to:
         payload['reply_to'] = configured_reply_to
+    logger.info('[EMAIL] Attempting Resend delivery to %s from %s', recipient, sender)
+    print(f'[EMAIL] Attempting Resend delivery to {recipient} from {sender}', flush=True)
     try:
         response = httpx.post('https://api.resend.com/emails', headers={'Authorization': f'Bearer {key}', 'Idempotency-Key': idempotency_key}, json=payload, timeout=15)
         if response.status_code not in (200, 201):
+            provider_msg = _resend_error_message(response)
+            logger.warning('Resend email delivery failed (%s): %s', response.status_code, provider_msg or 'no detail')
+            print(f'[EMAIL] Resend email delivery failed ({response.status_code}): {provider_msg or "no detail"}', flush=True)
+            if _is_resend_sandbox_or_domain_error(response.status_code, provider_msg, sender):
+                raise HTTPException(
+                    502,
+                    "Resend's test sender (onboarding@resend.dev) can only send to the Resend account owner's email until a custom domain is verified in Resend and set in EFLOW_EMAIL_FROM. You can use Copy fresh link in Invitations to share the invite manually.",
+                )
             raise HTTPException(502, "We couldn't send the invitation. Try again or ask Admin to check the email configuration.")
         message_id = response.json().get('id')
         if not message_id:
             raise HTTPException(502, 'The email provider did not confirm sending.')
+        logger.info('[EMAIL] Delivered to %s via Resend (id=%s)', recipient, message_id)
+        print(f'[EMAIL] Delivered to {recipient} via Resend (id={message_id})', flush=True)
         return message_id
     except httpx.HTTPError as exc:
+        logger.warning('Resend network error for %s: %s', recipient, type(exc).__name__)
+        print(f'[EMAIL] Resend network error for {recipient}: {type(exc).__name__}', flush=True)
         raise HTTPException(502, "We couldn't reach the email provider. Please retry.") from exc
+
+
+def send_email(recipient: str, content: dict, idempotency_key: str, reply_to: str | None = None) -> str:
+    _refresh_env_if_changed()
+    resend_ready = bool(os.getenv('RESEND_API_KEY', '').strip() and os.getenv('EFLOW_EMAIL_FROM', '').strip())
+    smtp_ready = _smtp_configured()
+
+    if resend_ready:
+        try:
+            return _send_via_resend(recipient, content, idempotency_key, reply_to)
+        except HTTPException as resend_exc:
+            if smtp_ready:
+                try:
+                    smtp_receipt = _send_via_smtp(recipient, content, idempotency_key, reply_to)
+                    if smtp_receipt:
+                        return smtp_receipt
+                except (smtplib.SMTPException, OSError) as exc:
+                    logger.warning('Fallback Gmail SMTP delivery also failed for %s: %s', recipient, type(exc).__name__)
+                    print(f'[EMAIL] Fallback Gmail SMTP delivery also failed for {recipient}: {type(exc).__name__}', flush=True)
+            raise resend_exc
+
+    if smtp_ready:
+        try:
+            smtp_receipt = _send_via_smtp(recipient, content, idempotency_key, reply_to)
+            if smtp_receipt:
+                return smtp_receipt
+        except (smtplib.SMTPException, OSError) as exc:
+            logger.warning('Gmail SMTP delivery failed without Resend configured for %s: %s', recipient, type(exc).__name__)
+            print(f'[EMAIL] Gmail SMTP delivery failed without Resend configured for {recipient}: {type(exc).__name__}', flush=True)
+            raise HTTPException(502, "We couldn't send the invitation via SMTP. Ask Admin to check the email configuration.") from exc
+
+    raise HTTPException(503, 'Email delivery is not configured. Your invitation remains available to retry.')

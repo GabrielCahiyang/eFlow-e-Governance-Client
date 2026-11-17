@@ -5,13 +5,18 @@ import type {
   ProposalDecompositionActivity,
   ProposalDecompositionResult,
   ProposalDecompositionTask,
+  ProposalImportOptions,
 } from "../../types";
 import { callDecompositionLLM } from "./llmClient";
-import { readSourceBudget } from '../sourceBudget';
+import type { SourceBudget } from '../sourceBudget';
+import { enrichPdfSourceTasks } from './pdfSourceEnrichment';
+import { reconcileProposalSourceBudget } from './budgetReconciliation';
 import {
   extractActionTable,
   extractBudgetSchedule,
   extractPartSections,
+  generateTemplateSubtasks,
+  mergeSuggestedSubtasks,
   type PartSection,
 } from "./textAnalysis";
 import {
@@ -26,6 +31,7 @@ export async function decomposeSinglePart(
   employeeNotes?: EmployeeNotesMap,
   onQueueUpdate?: (update: AiQueueUpdate) => void,
   budgetSchedule = "",
+  addSubtasks = true,
 ): Promise<ProposalDecompositionActivity> {
   const employeeList = buildCompactEmployeesContext(employees || [], employeeNotes);
 
@@ -83,7 +89,7 @@ Respond with JSON only, no preamble, no markdown fences:
       "amount": 0,
       "fundSource": "Office Budget"
     }],
-    "subtasks": ["step 1", "step 2", "step 3"]
+    "subtasks": ${addSubtasks ? '["short actionable steps, including obvious preparation"]' : '[]'}
   }]
 }
 
@@ -96,8 +102,6 @@ ${part.sourceActions ? `Produce exactly ${part.sourceActions.length} tasks in so
 
     const parsed = JSON.parse(jsonMatch[0]) as { tasks: ProposalDecompositionTask[] };
     if (!parsed.tasks || parsed.tasks.length === 0) throw new Error("Empty tasks array");
-    const sourceActionCount=[...part.description.split('Methodology:')[0].matchAll(/\b\d+\.\s/g)].length;
-    if(sourceActionCount>parsed.tasks.length)throw new Error('The AI omitted a numbered source action. Retry analysis; the incomplete section was not accepted.');
     if(part.sourceActions){
       if(parsed.tasks.length!==part.sourceActions.length)throw new Error('The AI changed the numbered source task count. Retry analysis.');
       parsed.tasks=part.sourceActions.map((action,index)=>({
@@ -105,6 +109,12 @@ ${part.sourceActions ? `Produce exactly ${part.sourceActions.length} tasks in so
         title:action.title,
         description:`${action.title}\n\nMethodology${action.methodologyScope==='phase'?' (shared phase methods; review task placement)':''}:\n${action.methodology.map(method=>`• ${method}`).join('\n')}\n\nSchedule: ${action.schedule}`,
       }));
+    }
+    for (const task of parsed.tasks) {
+      task.subtasks = addSubtasks ? mergeSuggestedSubtasks(
+        Array.isArray(task.subtasks) ? task.subtasks : [],
+        generateTemplateSubtasks(task.title, '', !task.subtasks?.length),
+      ) : undefined;
     }
 
     // Resolve any name-based recommendations to IDs
@@ -147,6 +157,8 @@ export async function decomposeProposalByPart(
   employeeNotes?: EmployeeNotesMap,
   onProgress?: (current: number, total: number, partTitle: string) => void,
   onQueueUpdate?: (update: AiQueueUpdate) => void,
+  options?: ProposalImportOptions,
+  sourceBudget: SourceBudget | null = null,
 ): Promise<ProposalDecompositionResult> {
   const extractedParts = extractPartSections(proposalText);
   const parts: PartSection[] = extractedParts && extractedParts.length > 0
@@ -157,7 +169,8 @@ export async function decomposeProposalByPart(
         tasks: [],
       }];
 
-  const boundedParts=parts.flatMap(part=>{
+  const structured = parts.every(part => part.sourceActions?.length);
+  const boundedParts = structured ? parts : parts.flatMap(part=>{
     const chunks:PartSection[]=[];
     for(let offset=0;offset<part.description.length;){
       let end=Math.min(offset+12000,part.description.length);
@@ -168,20 +181,26 @@ export async function decomposeProposalByPart(
   });
   if(boundedParts.length>64)throw new Error('This proposal needs more than 64 sections. Import smaller sections; no text was truncated.');
   const activities: ProposalDecompositionActivity[] = [];
-  const budgetSchedule = readSourceBudget(proposalText)?'The ruled source budget will be reconciled globally after extraction. Return no budget lines for this section; do not duplicate shared costs.':extractBudgetSchedule(proposalText);
-  for (let i = 0; i < boundedParts.length; i++) {
-    if (onProgress) onProgress(i + 1, boundedParts.length, boundedParts[i].title);
-    const activity = await decomposeSinglePart(
-      boundedParts[i],
-      employees,
-      employeeNotes,
-      onQueueUpdate,
-      budgetSchedule,
-    );
-    activities.push(activity);
+  if (structured) {
+    onProgress?.(1, 1, 'Enriching the source work table');
+    const tasks = await enrichPdfSourceTasks(parts.flatMap(part => part.sourceActions!), sourceBudget, onQueueUpdate, undefined, options?.addSubtasks);
+    let offset = 0;
+    for (const part of parts) {
+      const count = part.sourceActions!.length;
+      activities.push({ title: part.title, description: part.description, schedule: part.schedule, tasks: tasks.slice(offset, offset + count) });
+      offset += count;
+    }
+  } else {
+    const budgetSchedule = options?.addBudget === false ? 'Budget import is off. Return no budget lines.' :
+      sourceBudget ? 'The ruled source budget will be reconciled globally after extraction. Return no budget lines for this section.' :
+        extractBudgetSchedule(proposalText);
+    for (let i = 0; i < boundedParts.length; i++) {
+      onProgress?.(i + 1, boundedParts.length, boundedParts[i].title);
+      activities.push(await decomposeSinglePart(boundedParts[i], employees, employeeNotes, onQueueUpdate, budgetSchedule, options?.addSubtasks));
+    }
   }
 
-  return {
+  const result = {
     proposal: { title: proposalTitle, description: proposalText.substring(0, 200) },
     programs: activities.map((activity, index) => ({
       title: activity.title || `Program ${index + 1}`,
@@ -195,6 +214,8 @@ export async function decomposeProposalByPart(
       ],
     })),
   };
+  if (!structured && sourceBudget) await reconcileProposalSourceBudget(result, sourceBudget, onQueueUpdate);
+  return result;
 }
 
 // ─── Whole-document path (original approach, renamed) ────────────

@@ -1,6 +1,13 @@
 import { supabase } from "../../../../lib/supabase";
-import { resolveControlPanelBase } from "../../../shared/controlPanelClient";
+import {
+  AiServiceUnavailableError,
+  ControlPanelUnavailableError,
+  controlPanelFetch,
+} from "../../../shared/controlPanelClient";
 import type { ProjectSeal, SealStatus, SealConfiguration } from "../types";
+
+export const PUBLICATION_SERVER_UNREACHABLE =
+  "The blockchain publication server is unreachable right now. The secure tunnel may be restarting; try again in a moment.";
 async function rpc<T>(name: string, args: Record<string, unknown>): Promise<T> {
   const { data, error } = await supabase.rpc(name, args);
   if (error)
@@ -16,22 +23,42 @@ async function request(path: string, method = "GET", body?: unknown) {
     data: { session },
   } = await supabase.auth.getSession();
   if (!session) throw new Error("Sign in again to review this project.");
-  const base = await resolveControlPanelBase();
-  const response = await fetch(`${base}/project-seals/${path}`, {
-    method,
-    headers: {
-      Authorization: `Bearer ${session.access_token}`,
-      ...(body ? { "Content-Type": "application/json" } : {}),
-    },
-    body: body ? JSON.stringify(body) : undefined,
-    signal: AbortSignal.timeout(110000),
-  });
+  // controlPanelFetch refreshes an expiring session token and re-reads the
+  // published endpoint once when a Cloudflare Quick Tunnel has rotated, so a
+  // restart of the tunnel no longer strands the Head on a dead address.
+  let response: Response;
+  try {
+    response = await controlPanelFetch(
+      `project-seals/${path}`,
+      {
+        method,
+        headers: body ? { "Content-Type": "application/json" } : undefined,
+        body: body ? JSON.stringify(body) : undefined,
+      },
+      { timeoutMs: 110000 },
+    );
+  } catch (error) {
+    if (
+      error instanceof AiServiceUnavailableError ||
+      error instanceof ControlPanelUnavailableError
+    )
+      throw new Error(PUBLICATION_SERVER_UNREACHABLE);
+    if (error instanceof DOMException && error.name === "AbortError")
+      throw new Error(
+        "The publication server took too long to respond. Check the status and try again.",
+      );
+    throw error;
+  }
   if (!response.ok) {
     const data = await response.json().catch(() => ({}));
-    throw new Error(
+    const detail =
       typeof data.detail === "string"
         ? data.detail
-        : "The publication server could not respond. Try again.",
+        : typeof data.error === "string"
+          ? data.error
+          : "";
+    throw new Error(
+      detail || "The publication server could not respond. Try again.",
     );
   }
   return response;

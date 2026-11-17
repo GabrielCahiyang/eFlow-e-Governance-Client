@@ -1,5 +1,63 @@
 import {test,expect} from '@playwright/test';
 import {projectWorkspaceFixture} from './fixtures/projectWorkspace';
+
+test('Create project with AI opens the PDF importer inside step 7', async ({page}) => {
+ test.setTimeout(90000);
+ const records = await projectWorkspaceFixture(page,'head',false,{landingOnly:true});
+ const project = {...records.projects[0],id:crypto.randomUUID()};
+ let ready = false;
+ let creates = 0;
+ await page.route(/\/rest\/v1\/rpc\/(create_project_draft_once|project_flow_snapshot|save_project_definition|finish_project_setup)$/, async route => {
+  const name = route.request().url().split('/').at(-1);
+  const args = route.request().postDataJSON();
+  if (name === 'create_project_draft_once') {
+   creates++;
+   Object.assign(project,args.p_payload);
+   records.projects.push(project);
+  }
+  if (name === 'save_project_definition') {
+   const details = args.p_details;
+   Object.assign(project,{title:details.title,description:details.description,scope:details.scope,project_lead_id:details.lead,start_date:details.start,target_date:details.end,funding_not_required:details.noFunding});
+  }
+  if (name === 'project_flow_snapshot') return route.fulfill({json:{
+   project,ready,canAuthorize:true,canAllocate:true,funds:[],sources:[],total:0,allocated:0,unallocated:0,released:0,spent:0,
+   requests:[],fundingRequests:[],taskFunding:[],liquidations:[],
+  }});
+  if (name === 'finish_project_setup') {
+   ready = true;
+   return route.fulfill({json:null});
+  }
+  return route.fulfill({json:project});
+ });
+ let importTarget: string | undefined;
+ await page.route('**/rest/v1/project_pdf_import_sessions?**', route => {
+  importTarget = new URL(route.request().url()).searchParams.get('project_id') ?? undefined;
+  return route.fulfill({json:[]});
+ });
+ await page.goto(`/projects?page=Projects&workspace=${records.org}`);
+ await page.getByRole('button',{name:'+ New',exact:true}).click();
+ await page.getByRole('menuitem',{name:'Create project with AI',exact:true}).click();
+ const wizard = page.getByRole('dialog',{name:'Create project with AI',exact:true});
+ const next = wizard.getByRole('button',{name:'Next',exact:true});
+ await wizard.getByLabel('Project title *').fill('AI proposal project');
+ await wizard.getByLabel('Description *').fill('Prepare an outreach work plan.');
+ await next.click();
+ await wizard.getByLabel('Scope of the project *').fill('Conduct an outreach meeting.');
+ await next.click();
+ await wizard.getByLabel('Project start date *').fill('2099-01-01');
+ await wizard.getByLabel('Project target date *').fill('2099-06-30');
+ await next.click();
+ await wizard.getByLabel('No funding required for this project').check();
+ await next.click();
+ await wizard.getByRole('button',{name:'Next: Add people'}).click();
+ await wizard.getByRole('button',{name:'Next: Import AI PDF'}).click();
+ await expect(wizard.getByRole('heading',{name:'Import AI PDF'})).toBeVisible();
+ await expect(wizard.getByLabel('Choose a government proposal PDF')).toBeAttached();
+ await expect(wizard.getByRole('heading',{name:'Draft tasks'})).toHaveCount(0);
+ await expect(wizard.getByRole('button',{name:'Start import'})).toBeDisabled();
+ expect(importTarget).toBe(`eq.${project.id}`);
+ expect(creates).toBe(1);
+});
 test('desktop project setup precedes tasks and derives a funding envelope from two accounts',async({page},info)=>{
  test.setTimeout(120000);await page.setViewportSize({width:1440,height:1000});const records=await projectWorkspaceFixture(page,'head',false,{landingOnly:true});
  records.groups.push({id:'30000000-0000-4000-8000-000000000002',project_id:records.project,title:'Project coordination',color:'#087972',position:1,is_default:false});
@@ -57,7 +115,7 @@ test('Create project saves the team and only selected template work before openi
   const {p_project_id,p_review}=route.request().postDataJSON();
   expect(p_project_id).toBe(id);
   expect(p_review.setupSource).toBe('template');
-  expect(p_review.groups[0].tasks[0].subitems).toEqual([{title:'Confirm topics',dueDate:''}]);
+  expect(p_review.groups[0].tasks[0].subitems).toEqual([{title:'Confirm topics',dueDate:p.target_date}]);
   records.groups.push({id:groupId,project_id:id,title:'Event preparation',color:'#087972',position:1,is_default:false});
   const taskIds: Record<string,string>={};
   for(const task of p_review.groups[0].tasks){

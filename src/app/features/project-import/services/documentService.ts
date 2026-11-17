@@ -1,10 +1,10 @@
 import { extractTextFromPdf } from '../../proposal-import';
 
-export async function readProjectDocument(file: File): Promise<string> {
+export async function readProjectDocument(file: File, includeBudget = true): Promise<string> {
   if (file.size > 20 * 1024 * 1024) throw new Error('Choose a document smaller than 20 MB.');
   const extension = file.name.toLowerCase().split('.').pop();
   let text: string;
-  if (extension === 'pdf') text = await extractTextFromPdf(file);
+  if (extension === 'pdf') text = await extractTextFromPdf(file, { includeBudget });
   else if (['txt', 'md'].includes(extension || '')) text = await file.text();
   else throw new Error('Choose a PDF, text, or Markdown project document.');
   if (text.trim().split(/\s+/).length < 20) throw new Error('This document has too little readable text. For a scanned PDF, paste its extracted text instead.');

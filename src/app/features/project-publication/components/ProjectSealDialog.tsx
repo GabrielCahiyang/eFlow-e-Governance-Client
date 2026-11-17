@@ -42,6 +42,24 @@ export function ProjectSealDialog({
     const status = await loadSealStatus(projectId);
     setSeal(status.snapshot);
   }, [projectId]);
+  // The configuration decides whether Prepare/Publish are enabled. It can fail
+  // once while the secure tunnel rotates, so the Head can retry without
+  // closing the dialog.
+  const reloadConfig = useCallback(async () => {
+    setBusy(true);
+    try {
+      setConfig(await loadSealConfiguration());
+      setError("");
+    } catch (e) {
+      setError(
+        e instanceof Error && e.message
+          ? e.message
+          : "The publication server is unavailable. Try again shortly.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  }, []);
   useEffect(() => {
     let active = true;
     Promise.allSettled([loadSealStatus(projectId), loadSealConfiguration()])
@@ -162,6 +180,19 @@ export function ProjectSealDialog({
         </div>
       ) : (
         <>
+          {!config && (
+            <div className="project-seal-note" role="status">
+              Publishing status could not be checked, so sealing is paused. You
+              can still review saved records.{" "}
+              <Button
+                variant="outline"
+                disabled={busy}
+                onClick={() => void reloadConfig()}
+              >
+                Check again
+              </Button>
+            </div>
+          )}
           {config && !config.worker_enabled && (
             <div className="project-seal-note">
               Publishing is unavailable right now. You can still view saved seals. Ask your administrator to restore publishing before preparing a new seal.

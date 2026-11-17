@@ -12,6 +12,7 @@ test('saved import reviews offices, locks during real stages, assigns only avail
  await page.route('**/rest/v1/project_pdf_import_sessions?**',route=>route.fulfill({json:session.result?[]:[session]}));
  await page.route('**/rest/v1/rpc/save_pdf_import_session',route=>{const body=route.request().postDataJSON();session={...session,revision:session.revision+1,state:body.p_state,runner:body.p_runner};return route.fulfill({json:session});});
  await page.route('**/rest/v1/rpc/touch_pdf_import_session',route=>route.fulfill({json:null}));
+ await page.route('**/rest/v1/rpc/r7_project_members',route=>route.fulfill({json:{kind:'office',members:[],offices:[]}}));
  await page.route('**/rest/v1/project_office_identities?**',route=>route.fulfill({json:identities}));
  await page.route('**/rest/v1/rpc/r8_list_requests',route=>route.fulfill({json:{kind:'office',office_id:r.org,requests:[],can_request:true}}));
  const person={id:r.id,name:'Alex Rivera',skills:['Meeting organization'],training:[],education:[],experience:[],specializations:[],certifications:[],experience_summary:'',activeTasks:1,remainingHours:4,unknownEffortTasks:0};
@@ -36,13 +37,10 @@ test('saved import reviews offices, locks during real stages, assigns only avail
  aiDone=true;await expect(dialog.getByRole('status')).toContainText('2 tasks imported',{timeout:45000});
  expect(jobs).toBe(1);expect(invites).toBe(0);expect(captured.events.some((value:string)=>value.includes('waiting for office invitations'))).toBe(true);
  await dialog.getByRole('button',{name:'Set up office invitations',exact:true}).click();
- await expect(page.getByRole('heading',{name:'Project Offices',exact:true})).toBeVisible();
- await expect(page.getByText('Needs contact',{exact:true})).toBeVisible();
- await page.getByRole('button',{name:'Invite people',exact:true}).click();
- const invitation=page.getByRole('dialog',{name:'Invite people · Agriculture Office',exact:true});
- await expect(invitation.getByLabel('Invite as')).toHaveValue('employee');
- await invitation.getByLabel('Invite as').selectOption('representative');
- await expect(invitation).toContainText('An Office Head is not required');
+ await expect(page.getByRole('tab',{name:'Members',exact:true})).toHaveAttribute('aria-selected','true');
+ await page.getByRole('region',{name:'Project Invitations'}).getByRole('button',{name:'Invite by email',exact:true}).click();
+ const invitation=page.getByRole('dialog',{name:'Invite project members',exact:true});
+ await expect(invitation.getByLabel('Email address 1')).toBeVisible();
  await page.screenshot({path:info.outputPath('project-office-person-invitation-desktop.png')});
  expect(invites).toBe(0);
 });

@@ -18,6 +18,7 @@ export interface DraftTaskInput extends Omit<CollaborationSnapshotTask,
 
 export function buildCollaborationSnapshot({
   title,
+  proposalId,
   description = "",
   tasks,
   organizations,
@@ -26,6 +27,7 @@ export function buildCollaborationSnapshot({
   budget,
 }: {
   title: string;
+  proposalId?: string;
   description?: string;
   tasks: DraftTaskInput[];
   organizations: CollaborationOrganizationSelection[];
@@ -73,7 +75,7 @@ export function buildCollaborationSnapshot({
   });
   return {
     version: 1,
-    proposalId: normalizedTasks[0]?.proposalId || `proposal-${crypto.randomUUID()}`,
+    proposalId: proposalId || normalizedTasks[0]?.proposalId || `proposal-${crypto.randomUUID()}`,
     title: title.trim() || "Untitled proposal",
     description,
     planningAnchor: new Date(planningAnchor).toISOString(),

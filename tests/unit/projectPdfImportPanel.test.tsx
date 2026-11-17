@@ -12,14 +12,17 @@ describe('PDF import modal',()=>{
   api.flow.error='Import session is no longer available';api.flow.result={taskCount:10,groupCount:8,taskIds:{},groupIds:[],assignedTaskCount:10};
   show();expect(screen.getByText('Your project table is ready')).toBeTruthy();expect(screen.queryByRole('alert')).toBeNull();
  });
- it('offers optional offices and sends the choices with the uploaded PDF',()=>{
+ it('sends the selected offices, people, subtasks and budget options with the PDF',()=>{
   show();expect(screen.getByRole('dialog',{name:'Import PDF into Project'})).toBeTruthy();
   const offices=screen.getByRole('checkbox',{name:/Add offices/}) as HTMLInputElement;
   expect(offices.checked).toBe(false);
   fireEvent.click(offices);
+  fireEvent.click(screen.getByRole('checkbox',{name:/Choose people/}));
+  fireEvent.click(screen.getByRole('checkbox',{name:/Add subtasks/}));
+  fireEvent.click(screen.getByRole('checkbox',{name:/Add task budgets/}));
   const file=new File(['pdf'],'proposal.pdf',{type:'application/pdf'});
   fireEvent.change(screen.getByLabelText('Import project PDF'),{target:{files:[file]}});
-  expect(api.flow.upload).toHaveBeenCalledWith(file,expect.any(String),true,true);
+  expect(api.flow.upload).toHaveBeenCalledWith(file,expect.any(String),true,false,{addSubtasks:false,addBudget:false});
  });
  it('keeps the dialog open during processing and disables the footer close',()=>{
   api.flow.busy=true;api.flow.message='Choosing people for task 1';
@@ -29,6 +32,22 @@ describe('PDF import modal',()=>{
   expect(button.getAttribute('aria-disabled')).toBe('true');fireEvent.click(button);expect(close).not.toHaveBeenCalled();
   fireEvent.keyDown(document,{key:'Escape'});expect(close).not.toHaveBeenCalled();
   expect(screen.getByLabelText('Import activity').textContent).toContain('Reading your PDF');
+ });
+ it('uses the proposal upload form inline and sends its options to the project import',()=>{
+  const onBusyChange=vi.fn();
+  const {rerender}=render(<ProjectPdfImportPanel projectId="p" projectTitle="New project" embedded onBusyChange={onBusyChange}/>);
+  expect(screen.queryByRole('dialog')).toBeNull();
+  expect(screen.getByRole('heading',{name:'Import AI PDF'})).toBeTruthy();
+  fireEvent.click(screen.getByRole('checkbox',{name:/Add task budgets/}));
+  fireEvent.click(screen.getByRole('checkbox',{name:/Suggest people/}));
+  const file=new File(['pdf'],'proposal.pdf',{type:'application/pdf'});
+  fireEvent.change(screen.getByLabelText('Choose a government proposal PDF'),{target:{files:[file]}});
+  expect(api.flow.upload).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole('button',{name:'Start import'}));
+  expect(api.flow.upload).toHaveBeenCalledWith(file,expect.any(String),false,false,{addSubtasks:true,addBudget:false});
+  api.flow.busy=true;
+  rerender(<ProjectPdfImportPanel projectId="p" projectTitle="New project" embedded onBusyChange={onBusyChange}/>);
+  expect(onBusyChange).toHaveBeenLastCalledWith(true);
  });
  it('offers resume instead of a new upload for saved work',()=>{
   api.flow.session={state:{sourceName:'proposal.pdf',sourceText:'text',stage:'staffing',events:['Found 8 groups and 10 tasks']}};

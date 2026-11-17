@@ -5,18 +5,11 @@ import {
   readingOrderText,
   workTableText,
 } from "../../src/app/features/proposal-import/services/pdfLayout";
-import {
-  readSourceBudget,
-  applySourceBudgetAssignments,
-} from "../../src/app/features/proposal-import/services/sourceBudget";
-import { extractPartSections, extractExplicitSubtasks, generateTemplateSubtasks } from "../../src/app/features/proposal-import/services/decomposition/textAnalysis";
 const api = vi.hoisted(() => ({ chat: vi.fn(), fallback: vi.fn() }));
-vi.mock("../../src/app/features/proposal-import", () => ({
-  readSourceBudget,
-  applySourceBudgetAssignments,
-  extractPartSections,
-  extractExplicitSubtasks,
-  generateTemplateSubtasks,
+vi.mock("../../src/app/features/proposal-import", async () => ({
+  ...(await import("../../src/app/features/proposal-import/services/sourceBudget")),
+  ...(await import("../../src/app/features/proposal-import/services/decomposition/textAnalysis")),
+  ...(await import("../../src/app/features/proposal-import/services/decomposition/pdfSourceEnrichment")),
 }));
 vi.mock("../../src/app/features/ai", () => ({
   requestAiChat: api.chat,
@@ -120,6 +113,7 @@ describe("PDF directly into the current project table", () => {
     );
     expect(tasks[1].description).toContain("Document Review and Gap Analysis");
     expect(tasks.every(task => task.subitems.length > 0)).toBe(true);
+    expect(tasks[0].subitems).toContainEqual({ title: "Prepare presentation", dueDate: "" });
     expect(tasks[1].subitems.map(item => item.title)).toContain("Document Review and Gap Analysis");
     expect(tasks[9].dueDate).toBe("2100-04-19");
     const payload = reviewedImportPayload(draft, "proposal.pdf", false);
@@ -132,6 +126,16 @@ describe("PDF directly into the current project table", () => {
         .reduce((sum, line) => sum + line.amount, 0),
     ).toBe(2156500);
     expect(payload.groups[0].tasks[0]).not.toHaveProperty("budgetLines");
+  });
+  it("keeps numbered tasks while omitting disabled subtasks and budget", async () => {
+    api.chat.mockResolvedValue({ message: { content: JSON.stringify({ tasks: enrichment().tasks }) } });
+    const draft = await generatePdfProjectDraft("project", source, "proposal.pdf", "2099-10-20", vi.fn(), undefined, {
+      addSubtasks: false, addBudget: false,
+    });
+    expect(api.chat.mock.calls[0][0].pdf_table_enrichment.costs).toEqual([]);
+    expect(draft.groups.flatMap(group => group.tasks)).toHaveLength(10);
+    expect(draft.groups.flatMap(group => group.tasks).every(task => !task.subitems.length && !task.budgetLines?.length)).toBe(true);
+    expect(reviewedImportPayload(draft, "proposal.pdf", false)).not.toHaveProperty("taskBudgets");
   });
   it.each(["duplicate-task", "wrong-task", "missing-cost"])(
     "rejects %s enrichment before saving anything",

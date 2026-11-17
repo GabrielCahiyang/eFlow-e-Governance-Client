@@ -240,20 +240,30 @@ describe('Project starter templates workflow', () => {
     });
   });
 
-  it('exposes a top-level Templates button in ProjectWorkspaceActions', () => {
+  it('keeps one Templates button and puts both AI entry points in the New menu', async () => {
     const onTemplates = vi.fn();
-    render(
-      <ProjectWorkspaceActions
-        canCreate
-        onCreate={vi.fn()}
-        onTemplates={onTemplates}
-        onSavedPlans={vi.fn()}
-        onReviewPlans={vi.fn()}
-        onAllProjects={vi.fn()}
-      />,
-    );
+    const onImport = vi.fn();
+    const onCreateWithAi = vi.fn();
+    const actions = {
+      onCreate: vi.fn(), onCreateWithAi, onTemplates, onImport, onSavedPlans: vi.fn(),
+      onAllProjects: vi.fn(),
+    };
+    const { rerender } = render(<ProjectWorkspaceActions canCreate {...actions} />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Templates' }));
+    const templates = screen.getByRole('button', { name: 'Templates' });
+    expect(screen.queryByRole('button', { name: 'Import AI PDF' })).not.toBeInTheDocument();
+    fireEvent.click(templates);
     expect(onTemplates).toHaveBeenCalledTimes(1);
+    const menu = screen.getByRole('button', { name: '+ New' });
+    fireEvent.keyDown(menu, { key: 'Enter' });
+    expect(screen.queryByRole('menuitem', { name: 'Template library' })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Import AI PDF' }));
+    await waitFor(() => expect(onImport).toHaveBeenCalledTimes(1));
+    fireEvent.keyDown(menu, { key: 'Enter' });
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Create project with AI' }));
+    await waitFor(() => expect(onCreateWithAi).toHaveBeenCalledTimes(1));
+
+    rerender(<ProjectWorkspaceActions canCreate={false} {...actions} />);
+    expect(screen.queryByRole('button', { name: '+ New' })).not.toBeInTheDocument();
   });
 });

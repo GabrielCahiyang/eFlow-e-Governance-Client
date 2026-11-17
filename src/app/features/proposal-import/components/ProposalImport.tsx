@@ -1,15 +1,18 @@
+import { useState } from 'react';
 import { useExplicitDraft } from '../../../shared/useExplicitDraft';
 import { requestNavigation } from '../../../shared/navigationGuard';
 import { ProposalReviewSections } from './ProposalReviewSections';
 import { ProposalProcessingStatus } from "./ProposalProcessingStatus";
 import { useProcessingGuard } from "../hooks/useProcessingGuard";
 import { AttentionBox, Button, Heading, Text } from "@vibe/core";
-import { Upload } from "@vibe/icons";
 import { AssignmentModal } from "./AssignmentModal";
 import { DraftCockpit } from "./DraftCockpit";
 import { useProposalImportController } from "../hooks/useProposalImportController";
 import { OrganizationScopePicker } from "../../interdepartment-collaboration";
 import { SourceBudgetSummary } from './SourceBudgetSummary';
+import type { ProposalImportOptions } from '../types';
+
+import { ProposalPdfForm } from './ProposalPdfForm';
 
 export default function ProposalImport({
   onClose,
@@ -29,7 +32,6 @@ export default function ProposalImport({
     orgs,
     collaborationOrganizations,
     setCollaborationOrganizations,
-    pdfFileRef,
     pdfPhase,
     setPdfPhase,
     pdfFileName,
@@ -56,6 +58,9 @@ export default function ProposalImport({
     handleDraftAdd,
     handleCommit,
   } = useProposalImportController(onClose);
+  const [options, setOptions] = useState<ProposalImportOptions>({
+    addTasks: true, addSubtasks: true, addBudget: true, assignPeople: true,
+  });
 
   const processing = ["extracting", "validating", "decomposing", "saving"].includes(pdfPhase);
   useProcessingGuard(processing, onProcessingChange);
@@ -89,46 +94,13 @@ export default function ProposalImport({
         )}
 
         <div>
-          {pdfPhase === "idle" && (
-            <label
-              aria-label="Choose a government proposal PDF"
-              htmlFor="proposal-import-file"
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={(e) => {
-                e.preventDefault();
-                const f = e.dataTransfer.files[0];
-                if (f) handlePdfFile(f);
-              }}
-              className="group block cursor-pointer rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 p-14 text-center transition-colors duration-100 hover:border-primary hover:bg-primary/10"
-            >
-              <Upload
-                size={40}
-                className="mx-auto mb-3 text-primary/60 transition-colors duration-100 group-hover:text-primary"
-              />
-              <div className="text-sm font-bold text-neutral-800">
-                Drop a government proposal PDF here
-              </div>
-              <div className="text-xs text-neutral-500 mt-1">
-                or click to browse · AI decomposes it into Programs → Projects →
-                Activities → Tasks
-              </div>
-              <div className="mt-4 inline-block rounded-full border border-primary/20 bg-card px-4 py-1.5 text-[11px] text-neutral-500 shadow-xs">
-                The editable result is saved as a persistent draft before
-                approval · no operational work is created yet
-              </div>
-              <input
-                id="proposal-import-file"
-                ref={pdfFileRef}
-                type="file"
-                accept=".pdf"
-                className="hidden"
-                onChange={(e) => {
-                  const f = e.target.files?.[0];
-                  if (f) handlePdfFile(f); e.target.value = '';
-                }}
-              />
-            </label>
-          )}
+          {pdfPhase === "idle" && <ProposalPdfForm
+            options={options}
+            onOptionsChange={setOptions}
+            onStart={file => void handlePdfFile(file, options)}
+            allowDocumentOnly
+            hint="The editable result is saved as a persistent draft before approval · no operational work is created yet"
+          />}
 
           {processing && <ProposalProcessingStatus phase={pdfPhase} fileName={pdfFileName} queue={aiQueueStatus} part={decompositionProgress} />}
 
@@ -148,7 +120,7 @@ export default function ProposalImport({
               >
                 Retry analysis
               </Button>}
-              <Button className="mt-4" kind="tertiary" onClick={() => void requestNavigation(() => { setPdfPhase("idle"); setPdfError(""); setDraftTasks([]); })}>Choose another PDF</Button>
+              <Button className="mt-4" kind="tertiary" onClick={() => void requestNavigation(() => { setPdfPhase("idle"); setPdfError(""); setDraftTasks([]); })}>Change import options</Button>
             </div>
           )}
 
@@ -179,7 +151,10 @@ export default function ProposalImport({
 
               {autoSaveError && <div role="alert">{autoSaveError}<button className="eflow-text-button" onClick={() => void retryAutosave().catch(() => {})}>Retry saving draft</button></div>}
               {sourceBudget&&<SourceBudgetSummary source={sourceBudget} tasks={draftTasks} onMove={moveSourceCost}/>}
-              <ProposalReviewSections tasks={draftTasks} officeCount={collaborationOrganizations.length} scope={<div className="mb-4">
+              {!draftTasks.length ? <div className="rounded-xl border border-neutral-200 p-4">
+                <p>{commitMessage || 'No tasks are included in this draft.'}</p>
+                {onClose && <Button kind="tertiary" onClick={close}>Done</Button>}
+              </div> : <ProposalReviewSections tasks={draftTasks} officeCount={collaborationOrganizations.length} scope={<div className="mb-4">
                 <OrganizationScopePicker
                   organizations={orgs}
                   value={collaborationOrganizations}
@@ -209,7 +184,7 @@ export default function ProposalImport({
                 committing={committing}
                 autoSaveState={autoSaveState}
                 commitMessage={commitMessage}
-              />}/>
+              />}/>}
             </div>
           )}
         </div>

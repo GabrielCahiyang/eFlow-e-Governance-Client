@@ -9,6 +9,7 @@ export interface ProjectDraftRecovery {
  creationAttempt?:{id:string;title:string};
  people?:string[];
  projectType?:string;
+ importPdf?:boolean;
  peopleProjectId?:string;
  peopleRequest?:{id:string;users:string[]};
 }
@@ -21,6 +22,7 @@ export function readProjectDraft(key:string):ProjectDraftRecovery|undefined {
    (!value.creationAttempt||typeof value.creationAttempt.id==='string'&&typeof value.creationAttempt.title==='string')&&
    Number.isInteger(value.step)&&value.step>=0&&value.step<7&&value.values&&
    (value.projectType===undefined||typeof value.projectType==='string')&&
+   (value.importPdf===undefined||typeof value.importPdf==='boolean')&&
    (value.peopleProjectId===undefined||value.peopleProjectId===''||value.peopleProjectId===value.projectId)&&
    (!value.people||Array.isArray(value.people)&&value.people.every(id=>typeof id==='string'))&&
    (!value.peopleRequest||typeof value.peopleRequest.id==='string'&&Array.isArray(value.peopleRequest.users)&&value.peopleRequest.users.every(id=>typeof id==='string'))&&

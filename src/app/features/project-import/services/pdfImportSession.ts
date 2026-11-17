@@ -9,6 +9,7 @@ import { reviewedImportPayload } from '../selectors/draftValidation';
 export interface PdfSessionState {
  stage:'reading'|'preparing'|'offices'|'review_offices'|'staffing'|'ready'|'saving'|'failed'|'discarded';
  sourceName:string; sourceText?:string; anchor:string; addOffices:boolean;autoAssign:boolean;
+ addBudget?:boolean; addSubtasks?:boolean;
  draft?:ProjectImportDraft; extraction?:OfficeExtraction; officesReviewed?:boolean;
  staffingIndex?:number;assignments:Array<{key:string;lead:string;people:string[];hours:number}>;
  events:string[];review?:ReturnType<typeof reviewedImportPayload>;

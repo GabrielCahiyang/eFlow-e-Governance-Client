@@ -40,6 +40,7 @@ export interface ProposalDecompositionBudgetLine {
 export interface ProposalDecompositionTask {
   title: string;
   description: string;
+  estimatedHours?: number;
   estimatedDuration?: string;
   requiredSkills?: string[];
   priority?: "low" | "medium" | "high";
@@ -80,6 +81,13 @@ export interface ProposalDecompositionTask {
   budgetDecision?: "missing" | "funded" | "no_cost";
   budgetNoCostReason?: string;
   budgetLines?: ProposalDecompositionBudgetLine[];
+}
+
+export interface ProposalImportOptions {
+  addTasks: boolean;
+  addSubtasks: boolean;
+  addBudget: boolean;
+  assignPeople: boolean;
 }
 
 export interface ProposalDecompositionActivity {

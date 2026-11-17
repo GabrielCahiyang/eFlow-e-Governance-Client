@@ -33,13 +33,22 @@ export function InviteMemberDialog({ officeName, open, onOpenChange, onSent }: {
     try {
       if (!await confirmation.confirm({ title: 'Send Office invitations?', description: `Invite these people to ${officeName}. They create their own accounts with the account roles shown.`, actionLabel: 'Send invitations', impact: <ul>{selected.map(row => <li key={row.id}>{row.email.trim()} · {row.account_role === 'member' ? 'Member' : 'Accounting Staff'}{row.file ? ' · PDS attached' : ''}</li>)}</ul> })) return;
       setBusy(true); setMessage(''); setReceipt('');
+      console.info('[eFlow Invitations] Sending invitations:', selected.map(({ email, account_role, file }) => ({ email: email.trim(), role: account_role, pdsAttached: Boolean(file) })));
       const { results } = await sendInvitations(selected.map(({ email, account_role }) => ({ email, account_role })));
       const errors: string[] = []; const created = new Set<string>();
       for (const [index, result] of results.entries()) {
-        if (result.error) errors.push(`${result.email}: ${result.error}`);
+        if (result.error) {
+          console.error('[eFlow Invitations] Failed to send invitation for', result.email, ':', result.error);
+          errors.push(`${result.email}: ${result.error}`);
+        }
         if (result.invitation) {
           created.add(selected[index].id);
-          if (result.invitation.delivery_error) errors.push(`${result.email}: ${result.invitation.delivery_error}`);
+          if (result.invitation.delivery_error) {
+            console.warn('[eFlow Invitations] Invitation created for', result.email, 'but email delivery failed:', result.invitation.delivery_error);
+            errors.push(`${result.email}: ${result.invitation.delivery_error}`);
+          } else {
+            console.info('[eFlow Invitations] Invitation email sent to', result.email, { id: result.invitation.id, status: result.invitation.status, delivery: result.invitation.email_delivery_status });
+          }
           if (selected[index].file) {
             try { await uploadPds(selected[index].file!, result.invitation.id); }
             catch (error) { errors.push(`${result.email}: invitation created; PDS upload failed. ${(error as Error).message}`); }

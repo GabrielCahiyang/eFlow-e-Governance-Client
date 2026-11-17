@@ -5,6 +5,7 @@ from email.mime.text import MIMEText
 from html import escape
 import os
 import smtplib
+import ssl
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
@@ -24,7 +25,7 @@ class EmailNotificationPayload(BaseModel):
 
 def _send_email(to_email: str, subject: str, html_body: str) -> None:
     smtp_email = os.getenv("SMTP_EMAIL", "").strip()
-    smtp_password = os.getenv("SMTP_APP_PASSWORD", "").strip()
+    smtp_password = os.getenv("SMTP_APP_PASSWORD", "").replace(" ", "").strip()
     if not smtp_email or not smtp_password:
         raise RuntimeError("SMTP credentials are not configured")
 
@@ -34,8 +35,10 @@ def _send_email(to_email: str, subject: str, html_body: str) -> None:
     message["To"] = to_email
     message.attach(MIMEText(html_body, "html"))
 
-    with smtplib.SMTP("smtp.gmail.com", 587) as server:
-        server.starttls()
+    with smtplib.SMTP("smtp.gmail.com", 587, timeout=15) as server:
+        server.ehlo()
+        server.starttls(context=ssl.create_default_context())
+        server.ehlo()
         server.login(smtp_email, smtp_password)
         server.sendmail(smtp_email, to_email, message.as_string())
 

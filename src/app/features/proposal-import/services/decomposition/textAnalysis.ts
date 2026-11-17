@@ -1,4 +1,5 @@
 import type { ProposalDecompositionTask } from "../../types";
+import { normalizedWorkName } from "../../../../shared/workNames";
 import { sourceActions, type SourceAction } from './sourceActions';
 
 export function extractProposalTitle(text:string,fallback:string):string {
@@ -104,8 +105,8 @@ export const inferSkillsFromText = (text: string): string[] => {
 
 // ─── Keyword → Subtask Template Fallback ──────────────────────────
 const SUBTASK_TEMPLATES: Record<string, string[]> = {
-  meeting: ["Prepare agenda", "Send invitations", "Book venue", "Prepare minutes", "Post-meeting report"],
-  kickoff: ["Prepare agenda", "Send invitations", "Book venue", "Prepare minutes", "Post-meeting report"],
+  meeting: ["Prepare agenda", "Prepare presentation", "Send invitations", "Book venue", "Prepare minutes"],
+  kickoff: ["Prepare agenda", "Prepare presentation", "Send invitations", "Book venue", "Prepare minutes"],
   workshop: ["Prepare materials", "Confirm facilitators", "Register participants", "Document outputs"],
   procurement: ["Prepare BAC documents", "Canvass suppliers", "Submit purchase request", "Receive items"],
   seminar: ["Prepare materials", "Confirm speakers", "Register participants", "Document outputs"],
@@ -116,13 +117,23 @@ const SUBTASK_TEMPLATES: Record<string, string[]> = {
   presentation: ["Prepare slides", "Rehearse presentation", "Deliver presentation", "Collect feedback"],
 };
 
-export function generateTemplateSubtasks(title: string, description: string): string[] {
+export function generateTemplateSubtasks(title: string, description: string, includeGeneric = true): string[] {
   const haystack = `${title} ${description}`.toLowerCase();
   for (const [keyword, templates] of Object.entries(SUBTASK_TEMPLATES)) {
     if (haystack.includes(keyword)) return templates;
   }
-  // Generic fallback — always give the task SOME checklist
-  return ["Plan and prepare", "Execute", "Review and finalize"];
+  return includeGeneric ? ["Plan and prepare", "Execute", "Review and finalize"] : [];
+}
+
+export function mergeSuggestedSubtasks(...lists: ReadonlyArray<readonly unknown[]>): string[] {
+  const distinct = new Map<string, string>();
+  for (const item of lists.flat()) {
+    if (typeof item !== 'string') continue;
+    const title = item.trim();
+    const key = normalizedWorkName(title);
+    if (key && title.length <= 300 && !distinct.has(key)) distinct.set(key, title);
+  }
+  return [...distinct.values()].slice(0, 30);
 }
 
 export function extractExplicitSubtasks(methodology?: string[], _description?: string): string[] {
