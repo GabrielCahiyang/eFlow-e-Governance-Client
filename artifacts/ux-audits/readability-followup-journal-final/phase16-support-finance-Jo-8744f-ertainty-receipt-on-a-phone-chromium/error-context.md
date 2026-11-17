@@ -1,0 +1,206 @@
+# Page snapshot
+
+```yaml
+- generic [active]:
+  - generic:
+    - generic:
+      - generic:
+        - link:
+          - /url: "#eflow-active-workspace"
+          - text: Skip to workspace
+        - banner:
+          - generic:
+            - generic:
+              - button:
+                - img
+            - generic:
+              - img:
+                - img
+          - generic:
+            - button:
+              - img
+            - generic:
+              - button:
+                - img
+              - generic: No unread notifications
+              - button:
+                - img
+            - generic:
+              - generic:
+                - button:
+                  - generic:
+                    - generic:
+                      - generic: AR
+                  - img
+        - generic:
+          - main:
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - heading [level=1]: General Journal
+                        - paragraph: Planning Office · FY 2026
+                      - generic:
+                        - generic:
+                          - button:
+                            - img
+                            - generic: Refresh
+                          - generic:
+                            - generic:
+                              - button:
+                                - img
+                              - button:
+                                - img
+                                - generic: FY 2026 · Current
+                                - img
+                              - button:
+                                - img
+                    - generic:
+                      - generic: Accounting destination
+                      - combobox:
+                        - generic: Journal
+                        - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                              - text: Trial balance
+                            - generic: ₱0.00
+                            - generic: Credits ₱0.00
+                          - generic:
+                            - generic:
+                              - img
+                              - text: Balance delta
+                            - generic: ₱0.00
+                            - generic: Debits equal credits
+                          - generic:
+                            - generic:
+                              - img
+                              - text: Appropriation available
+                            - generic: ₱40,000.00
+                            - generic: Available after holds and commitments
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                              - generic:
+                                - heading [level=2]: Journal entries
+                                - paragraph: Balanced transactions and account lines posted for this fiscal year.
+                            - button:
+                              - img
+                              - text: Post adjustment
+                          - generic:
+                            - search:
+                              - img
+                              - searchbox
+                            - generic:
+                              - generic:
+                                - img
+                                - textbox: 2026-01-01
+                              - generic:
+                                - img
+                                - textbox: 2026-12-31
+                              - combobox
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - img
+                            - generic:
+                              - paragraph: No journal entries match
+                              - paragraph: Cash releases and settled liquidations post here automatically.
+        - contentinfo:
+          - link:
+            - /url: https://storyset.com/
+            - text: Illustrations by Storyset
+        - navigation:
+          - button:
+            - img
+            - generic: My Work
+          - button:
+            - img
+            - generic: Workspace
+          - button:
+            - img
+            - generic: Inbox
+          - button:
+            - img
+            - generic: Accounting
+          - button:
+            - img
+            - generic: More
+  - dialog "Post correcting journal entry" [ref=e2]:
+    - generic [ref=e3]:
+      - heading "Post correcting journal entry" [level=2] [ref=e4]
+      - paragraph [ref=e5]: A journal entry records which accounts are debited and credited. To correct a posted entry, post a new balanced entry.
+    - status [ref=e6]:
+      - status [ref=e7]:
+        - generic [ref=e8]:
+          - img [ref=e9]
+          - paragraph [ref=e12]: We couldn’t confirm whether your journal entry was saved. Check the journal before submitting again.
+    - button "Verify journal outcome" [ref=e13] [cursor=pointer]
+    - group [ref=e14]:
+      - note [ref=e15]:
+        - img [ref=e16]
+        - generic [ref=e18]:
+          - generic [ref=e19]: Check your entry before posting
+          - paragraph [ref=e20]: Confirm the reference, accounts, and amount. This entry cannot be edited or deleted after posting. Use at most two decimal places; debit and credit totals must match exactly.
+      - generic [ref=e21]:
+        - generic [ref=e22]:
+          - text: Entry date
+          - generic [ref=e23]:
+            - img
+            - textbox "Entry date" [disabled] [ref=e24] [cursor=pointer]: 2026-11-17
+        - generic [ref=e25]:
+          - text: Reference number
+          - textbox "Reference number" [disabled] [ref=e27]: COR-16
+      - generic [ref=e28]:
+        - text: Memo / correction reason
+        - textbox "Memo / correction reason" [disabled] [ref=e30]: Correct cash classification
+      - generic [ref=e31]:
+        - generic [ref=e32]:
+          - generic [ref=e33]:
+            - text: Account 1
+            - combobox "Account line 1" [disabled] [ref=e34]:
+              - option "101 · Cash" [disabled] [selected]
+              - option "105 · Member advances" [disabled]
+              - option "501 · Supplies expense" [disabled]
+          - generic [ref=e35]:
+            - text: Debit
+            - spinbutton "Debit line 1" [disabled] [ref=e36]: "500"
+          - generic [ref=e37]:
+            - text: Credit
+            - spinbutton "Credit line 1" [disabled] [ref=e38]
+          - button "Remove line 1" [disabled] [ref=e39]:
+            - img [ref=e40]
+        - generic [ref=e43]:
+          - generic [ref=e44]:
+            - text: Account 2
+            - combobox "Account line 2" [disabled] [ref=e45]:
+              - option "101 · Cash" [disabled]
+              - option "105 · Member advances" [disabled] [selected]
+              - option "501 · Supplies expense" [disabled]
+          - generic [ref=e46]:
+            - text: Debit
+            - spinbutton "Debit line 2" [disabled] [ref=e47]
+          - generic [ref=e48]:
+            - text: Credit
+            - spinbutton "Credit line 2" [disabled] [ref=e49]: "500"
+          - button "Remove line 2" [disabled] [ref=e50]:
+            - img [ref=e51]
+      - generic [ref=e54]:
+        - button "Add line" [disabled] [ref=e55] [cursor=pointer]:
+          - img [ref=e56] [cursor=pointer]
+          - text: Add line
+        - generic [ref=e57]: Debit ₱500.00 · Credit ₱500.00 · Delta ₱0.00
+    - generic [ref=e58]:
+      - button "Cancel" [ref=e59] [cursor=pointer]
+      - button "Post balanced entry" [disabled]
+    - button "Close" [ref=e62]:
+      - img
+      - generic [ref=e63]: Close
+```

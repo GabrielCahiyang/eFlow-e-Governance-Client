@@ -22,7 +22,12 @@
 ## Refactor workflow
 
 - Work in small vertical slices that build and test independently. Do not mix unrelated feature moves in one change.
-- Add or update a regression test when extracting pure logic, navigation, or a user interaction. Run npm run check, npm test, and npm run build before declaring a slice complete; run the affected Playwright smoke test when the test environment is configured.
+-Add or update a regression test when extracting pure logic, navigation, or a user interaction.
+-Run tests only for files or test cases affected by your agent's changes. Do not run npm test against the entire project unless explicitly requested.
+-Run npm run check and npm run build before declaring a slice complete.
+-Run the affected Playwright smoke test when the test environment is configured.
+-If a change affects multiple files, run only the relevant tests covering those changes.
+-If the project does not support targeted test execution, explain the limitation and ask before running the full test suite.
 - Delete legacy files or compatibility exports only after repository search proves they have no remaining consumers.
 
 ## Graphify navigation

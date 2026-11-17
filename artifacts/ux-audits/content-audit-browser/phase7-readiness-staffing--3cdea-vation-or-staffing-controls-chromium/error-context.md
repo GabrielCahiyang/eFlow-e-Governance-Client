@@ -1,0 +1,216 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e4]:
+  - link "Skip to workspace" [ref=e5] [cursor=pointer]:
+    - /url: "#eflow-active-workspace"
+  - banner "Workspace utilities" [ref=e6]:
+    - generic [ref=e8]:
+      - img "eFlow" [ref=e9] [cursor=pointer]:
+        - img [ref=e10] [cursor=pointer]
+      - generic [ref=e19]: LGU Ormoc City
+    - generic [ref=e20]:
+      - button "Open help" [ref=e21]:
+        - img
+        - generic [ref=e22]: Help
+      - generic [ref=e23]:
+        - button "Open notifications" [ref=e24] [cursor=pointer]:
+          - img [ref=e25] [cursor=pointer]
+        - generic [ref=e28]: No unread notifications
+        - button "Open messages" [ref=e29] [cursor=pointer]:
+          - img [ref=e30] [cursor=pointer]
+      - button "Open account menu" [ref=e34]:
+        - generic [ref=e37]: AR
+        - generic [ref=e38]: Alex Rivera
+        - img
+  - generic [ref=e39]:
+    - complementary "Primary navigation" [ref=e41]:
+      - navigation "Global navigation" [ref=e42]:
+        - img "eFlow" [ref=e43]
+        - button "My Work" [ref=e44]:
+          - img [ref=e46]
+          - generic [ref=e50]: My Work
+        - button "Workspace" [ref=e51]:
+          - img [ref=e53]
+          - generic [ref=e57]: Workspace
+        - button "Inbox" [ref=e58]:
+          - img [ref=e60]
+          - generic [ref=e63]: Inbox
+      - region "Workspace content" [ref=e64]:
+        - generic [ref=e65]:
+          - generic [ref=e66]:
+            - heading "Workspace" [level=2] [ref=e67]
+            - generic [ref=e68]:
+              - button "Workspace options" [ref=e70]:
+                - img [ref=e71]
+              - button "Collapse workspace sidebar" [ref=e75]:
+                - img [ref=e76]
+          - generic "Planning Office Workspace" [ref=e80]:
+            - img [ref=e81]
+            - strong [ref=e85]: Planning Office Workspace
+          - button "Find pages and projects" [ref=e87]:
+            - img [ref=e88]
+            - generic [ref=e91]: Find pages and projects
+        - navigation "Workspace destinations" [ref=e92]:
+          - region "Office tools" [ref=e93]:
+            - button "Office tools" [expanded] [ref=e94]:
+              - img [ref=e95]
+              - img [ref=e97]
+              - generic [ref=e99]: Office tools
+            - button "Workspace Overview" [ref=e103]:
+              - img [ref=e104]
+              - generic [ref=e107]: Workspace Overview
+          - region "Projects" [ref=e108]:
+            - generic [ref=e109]:
+              - button "Collapse Projects" [expanded] [ref=e110]:
+                - img [ref=e111]
+              - button "Projects" [ref=e113]:
+                - img [ref=e114]
+                - generic [ref=e116]: Projects
+            - generic [ref=e119]:
+              - button "Community outreach" [ref=e120]:
+                - img [ref=e121]
+                - generic [ref=e123]: Community outreach
+              - button "Add Community outreach to favorites" [ref=e124]:
+                - img [ref=e125]
+          - region "Favorites" [ref=e127]:
+            - button "Favorites" [expanded] [ref=e128]:
+              - img [ref=e129]
+              - img [ref=e131]
+              - generic [ref=e133]: Favorites
+            - paragraph [ref=e135]: Star a project for quick access.
+          - region "Archived projects" [ref=e136]:
+            - button "Archived projects" [ref=e137]:
+              - img [ref=e138]
+              - img [ref=e140]
+              - generic [ref=e143]: Archived projects
+    - main "Active workspace" [ref=e144]:
+      - region "My work overview" [ref=e147]:
+        - generic [ref=e148]:
+          - generic [ref=e149]:
+            - generic [ref=e150]:
+              - heading "My work overview" [level=1] [ref=e151]
+              - paragraph [ref=e152]: Your next tasks, deadlines and updates in one place.
+            - button "Open My Work" [ref=e153] [cursor=pointer]:
+              - text: Open My Work
+              - img [ref=e154] [cursor=pointer]
+          - generic [ref=e156]:
+            - generic [ref=e157]:
+              - generic [ref=e158]: Active work
+              - strong [ref=e159]: "2"
+            - generic [ref=e160]:
+              - generic [ref=e161]: Due today
+              - strong [ref=e162]: "0"
+            - generic [ref=e163]:
+              - generic [ref=e164]: Overdue
+              - strong [ref=e165]: "2"
+            - generic [ref=e166]:
+              - generic [ref=e167]: Awaiting approval
+              - strong [ref=e168]: "0"
+          - generic [ref=e169]:
+            - region "My task status" [ref=e170]:
+              - heading "My task status" [level=2] [ref=e171]
+              - generic [ref=e172]:
+                - 'img "My task status: 3 total" [ref=e173]':
+                  - generic [ref=e182]: "3"
+                  - generic [ref=e183]: total
+                - generic [ref=e184]:
+                  - button "Not started 1" [ref=e185] [cursor=pointer]:
+                    - generic [ref=e187] [cursor=pointer]: Not started
+                    - strong [ref=e188] [cursor=pointer]: "1"
+                  - button "In progress 1" [ref=e189] [cursor=pointer]:
+                    - generic [ref=e191] [cursor=pointer]: In progress
+                    - strong [ref=e192] [cursor=pointer]: "1"
+                  - button "Stuck 0" [ref=e193] [cursor=pointer]:
+                    - generic [ref=e195] [cursor=pointer]: Stuck
+                    - strong [ref=e196] [cursor=pointer]: "0"
+                  - button "Awaiting approval 0" [ref=e197] [cursor=pointer]:
+                    - generic [ref=e199] [cursor=pointer]: Awaiting approval
+                    - strong [ref=e200] [cursor=pointer]: "0"
+                  - button "Changes requested 0" [ref=e201] [cursor=pointer]:
+                    - generic [ref=e203] [cursor=pointer]: Changes requested
+                    - strong [ref=e204] [cursor=pointer]: "0"
+                  - button "Needs assignment 0" [ref=e205] [cursor=pointer]:
+                    - generic [ref=e207] [cursor=pointer]: Needs assignment
+                    - strong [ref=e208] [cursor=pointer]: "0"
+                  - button "Completed 1" [ref=e209] [cursor=pointer]:
+                    - generic [ref=e211] [cursor=pointer]: Completed
+                    - strong [ref=e212] [cursor=pointer]: "1"
+            - region "Weekly completions" [ref=e213]:
+              - heading "Weekly completions" [level=2] [ref=e214]
+              - generic [ref=e215]:
+                - 'button "Sep 23: 0 office tasks" [ref=e216] [cursor=pointer]':
+                  - generic [ref=e217] [cursor=pointer]:
+                    - generic [ref=e218] [cursor=pointer]: Sep 23
+                    - strong [ref=e219] [cursor=pointer]:
+                      - text: "0"
+                      - generic [ref=e220] [cursor=pointer]: office tasks
+                - 'button "Sep 30: 0 office tasks" [ref=e222] [cursor=pointer]':
+                  - generic [ref=e223] [cursor=pointer]:
+                    - generic [ref=e224] [cursor=pointer]: Sep 30
+                    - strong [ref=e225] [cursor=pointer]:
+                      - text: "0"
+                      - generic [ref=e226] [cursor=pointer]: office tasks
+                - 'button "Oct 7: 0 office tasks" [ref=e228] [cursor=pointer]':
+                  - generic [ref=e229] [cursor=pointer]:
+                    - generic [ref=e230] [cursor=pointer]: Oct 7
+                    - strong [ref=e231] [cursor=pointer]:
+                      - text: "0"
+                      - generic [ref=e232] [cursor=pointer]: office tasks
+                - 'button "Oct 14: 0 office tasks" [ref=e234] [cursor=pointer]':
+                  - generic [ref=e235] [cursor=pointer]:
+                    - generic [ref=e236] [cursor=pointer]: Oct 14
+                    - strong [ref=e237] [cursor=pointer]:
+                      - text: "0"
+                      - generic [ref=e238] [cursor=pointer]: office tasks
+                - 'button "Oct 21: 0 office tasks" [ref=e240] [cursor=pointer]':
+                  - generic [ref=e241] [cursor=pointer]:
+                    - generic [ref=e242] [cursor=pointer]: Oct 21
+                    - strong [ref=e243] [cursor=pointer]:
+                      - text: "0"
+                      - generic [ref=e244] [cursor=pointer]: office tasks
+                - 'button "Oct 28: 0 office tasks" [ref=e246] [cursor=pointer]':
+                  - generic [ref=e247] [cursor=pointer]:
+                    - generic [ref=e248] [cursor=pointer]: Oct 28
+                    - strong [ref=e249] [cursor=pointer]:
+                      - text: "0"
+                      - generic [ref=e250] [cursor=pointer]: office tasks
+                - 'button "Nov 4: 0 office tasks" [ref=e252] [cursor=pointer]':
+                  - generic [ref=e253] [cursor=pointer]:
+                    - generic [ref=e254] [cursor=pointer]: Nov 4
+                    - strong [ref=e255] [cursor=pointer]:
+                      - text: "0"
+                      - generic [ref=e256] [cursor=pointer]: office tasks
+                - 'button "Nov 11: 0 office tasks" [ref=e258] [cursor=pointer]':
+                  - generic [ref=e259] [cursor=pointer]:
+                    - generic [ref=e260] [cursor=pointer]: Nov 11
+                    - strong [ref=e261] [cursor=pointer]:
+                      - text: "0"
+                      - generic [ref=e262] [cursor=pointer]: office tasks
+          - generic [ref=e264]:
+            - heading "What to work on next" [level=2] [ref=e265]
+            - group "My work overview filters" [ref=e266]:
+              - button "Today" [pressed] [ref=e267] [cursor=pointer]:
+                - img [ref=e268] [cursor=pointer]
+                - text: Today
+              - button "Upcoming" [ref=e270] [cursor=pointer]:
+                - img [ref=e271] [cursor=pointer]
+                - text: Upcoming
+              - button "Overdue" [ref=e274] [cursor=pointer]:
+                - img [ref=e275] [cursor=pointer]
+                - text: Overdue
+              - button "Changes requested" [ref=e278] [cursor=pointer]:
+                - img [ref=e279] [cursor=pointer]
+                - text: Changes requested
+              - button "Awaiting approval" [ref=e281] [cursor=pointer]:
+                - img [ref=e282] [cursor=pointer]
+                - text: Awaiting approval
+            - paragraph [ref=e285]: No work in this view.
+            - paragraph [ref=e286]: Open a task to see prerequisites and the next available subtask. Parent tasks and assigned subtasks are listed separately.
+          - generic [ref=e287]:
+            - heading "Cash and receipt actions" [level=2] [ref=e288]
+            - paragraph [ref=e289]: 0 cash receipt acknowledgements · 0 requests to liquidate or correct
+            - button "Open my action inbox" [ref=e290] [cursor=pointer]:
+              - text: Open my action inbox
+              - img [ref=e291] [cursor=pointer]
+```

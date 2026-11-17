@@ -1,0 +1,122 @@
+# Page snapshot
+
+```yaml
+- main "Sign in to eFlow" [ref=e4]:
+  - region "Sign in column" [ref=e5]:
+    - generic [ref=e6]:
+      - generic "eFlow, LGU Ormoc City" [ref=e7]:
+        - img "eFlow" [ref=e8] [cursor=pointer]:
+          - img [ref=e9] [cursor=pointer]
+        - generic [ref=e17]: LGU Ormoc City
+      - generic [ref=e18]:
+        - heading "Sign in to eFlow" [level=2] [ref=e19]
+        - paragraph [ref=e20]: Use your official LGU account.
+      - generic [ref=e21]:
+        - generic [ref=e25]:
+          - generic [ref=e27]: Email address
+          - textbox "Email address" [ref=e29]
+        - generic [ref=e32]:
+          - generic [ref=e34]:
+            - generic [ref=e36]: Password
+            - textbox "Password" [ref=e38]
+          - button "Show password" [ref=e41] [cursor=pointer]:
+            - img [ref=e42] [cursor=pointer]
+        - generic [ref=e44]:
+          - generic [ref=e45]:
+            - checkbox "Keep me signed in" [checked]
+            - img [ref=e47] [cursor=pointer]
+            - generic [ref=e50] [cursor=pointer]: Keep me signed in
+          - link "Forgot password?" [ref=e51] [cursor=pointer]:
+            - /url: ""
+            - generic [ref=e52] [cursor=pointer]: Forgot password?
+        - generic [ref=e53]:
+          - button "Sign in" [disabled]: Log in
+        - button "Choose a development account" [ref=e55] [cursor=pointer]:
+          - img [ref=e56] [cursor=pointer]
+          - text: Usage scenarios
+  - region "eFlow Living Kanban Overview" [ref=e58]:
+    - generic [ref=e59]:
+      - paragraph [ref=e60]: Project preview
+      - region "Interactive project preview board" [ref=e62]:
+        - generic [ref=e63]:
+          - generic [ref=e64]:
+            - generic [ref=e65]:
+              - generic [ref=e66]: To Do
+              - generic [ref=e67]: "2"
+            - generic [ref=e68]:
+              - generic [ref=e69]:
+                - generic [ref=e71]: Ormoc Port Wharf Permit
+                - generic [ref=e75]:
+                  - generic [ref=e76]:
+                    - generic [ref=e77]: JC
+                    - generic [ref=e78]: AL
+                  - generic [ref=e79]: Queued
+              - generic [ref=e80]:
+                - generic [ref=e82]: Review Ordinance 2026-08
+                - generic [ref=e86]:
+                  - generic [ref=e87]:
+                    - generic [ref=e88]: JC
+                    - generic [ref=e89]: MR
+                  - generic [ref=e90]: Queued
+          - generic [ref=e91]:
+            - generic [ref=e92]:
+              - generic [ref=e93]: In Progress
+              - generic [ref=e94]: "1"
+            - generic [ref=e96]:
+              - generic [ref=e98]: Budget Allocation Q3
+              - generic [ref=e102]:
+                - generic [ref=e103]:
+                  - generic [ref=e104]: AL
+                  - generic [ref=e105]: KC
+                  - generic [ref=e106]: TB
+                - generic [ref=e107]: In Progress
+          - generic [ref=e108]:
+            - generic [ref=e109]:
+              - generic [ref=e110]: Done
+              - generic [ref=e111]: "3"
+            - generic [ref=e112]:
+              - generic [ref=e113]:
+                - generic [ref=e114]:
+                  - generic [ref=e115]: City Hall Solar Inspection
+                  - img [ref=e117]
+                - generic [ref=e122]:
+                  - generic [ref=e123]:
+                    - generic [ref=e124]: DG
+                    - generic [ref=e125]: FB
+                  - generic [ref=e126]: Completed
+              - generic [ref=e127]:
+                - generic [ref=e128]:
+                  - generic [ref=e129]: Disaster Risk Map Update
+                  - img [ref=e131]
+                - generic [ref=e136]:
+                  - generic [ref=e137]:
+                    - generic [ref=e138]: MR
+                    - generic [ref=e139]: DG
+                  - generic [ref=e140]: Completed
+              - generic [ref=e141]:
+                - generic [ref=e142]:
+                  - generic [ref=e143]: Business Permit Automation
+                  - img [ref=e145]
+                - generic [ref=e150]:
+                  - generic [ref=e151]:
+                    - generic [ref=e152]: FB
+                    - generic [ref=e153]: TB
+                  - generic [ref=e154]: Completed
+      - region "Explore eFlow workflows" [ref=e155]:
+        - generic [ref=e156]:
+          - heading "Watch eFlow in action" [level=2] [ref=e157]
+          - paragraph [ref=e158]: Follow a sample project from setup to cash settlement and archive.
+        - generic [ref=e159]:
+          - button "Interdepartmental flow Invite an outside office to a project" [ref=e160] [cursor=pointer]:
+            - img [ref=e162] [cursor=pointer]
+            - generic [ref=e166] [cursor=pointer]:
+              - strong [ref=e167] [cursor=pointer]: Interdepartmental flow
+              - generic [ref=e168] [cursor=pointer]: Invite an outside office to a project
+            - img [ref=e169] [cursor=pointer]
+          - button "Within-office flow Run a funded project within one office" [ref=e171] [cursor=pointer]:
+            - img [ref=e173] [cursor=pointer]
+            - generic [ref=e177] [cursor=pointer]:
+              - strong [ref=e178] [cursor=pointer]: Within-office flow
+              - generic [ref=e179] [cursor=pointer]: Run a funded project within one office
+            - img [ref=e180] [cursor=pointer]
+```

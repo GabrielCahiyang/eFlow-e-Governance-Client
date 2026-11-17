@@ -1,0 +1,1371 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e4]:
+  - link "Skip to workspace" [ref=e5] [cursor=pointer]:
+    - /url: "#eflow-active-workspace"
+  - banner "Workspace utilities" [ref=e6]:
+    - generic [ref=e8]:
+      - img "eFlow" [ref=e9] [cursor=pointer]:
+        - img [ref=e10] [cursor=pointer]
+      - generic [ref=e19]: LGU Ormoc City
+    - generic [ref=e20]:
+      - button "Open help" [ref=e21]:
+        - img
+        - generic [ref=e22]: Help
+      - generic [ref=e23]:
+        - button "Open notifications" [ref=e24] [cursor=pointer]:
+          - img [ref=e25] [cursor=pointer]
+        - generic [ref=e28]: No unread notifications
+        - button "Open messages" [ref=e29] [cursor=pointer]:
+          - img [ref=e30] [cursor=pointer]
+      - button "Open account menu" [ref=e34]:
+        - generic [ref=e37]: AR
+        - generic [ref=e38]: Alex Rivera
+        - img
+  - generic [ref=e39]:
+    - complementary "Primary navigation" [ref=e41]:
+      - navigation "Global navigation" [ref=e42]:
+        - img "eFlow" [ref=e43]
+        - button "My Work" [ref=e44]:
+          - img [ref=e46]
+          - generic [ref=e50]: My Work
+        - button "Workspace" [ref=e51]:
+          - img [ref=e53]
+          - generic [ref=e57]: Workspace
+        - button "Inbox" [ref=e58]:
+          - img [ref=e60]
+          - generic [ref=e63]: Inbox
+      - region "Workspace content" [ref=e64]:
+        - generic [ref=e65]:
+          - generic [ref=e66]:
+            - heading "Workspace" [level=2] [ref=e67]
+            - generic [ref=e68]:
+              - button "Workspace options" [ref=e70]:
+                - img [ref=e71]
+              - button "Collapse workspace sidebar" [ref=e75]:
+                - img [ref=e76]
+          - generic "Planning Office Workspace" [ref=e80]:
+            - img [ref=e81]
+            - strong [ref=e85]: Planning Office Workspace
+          - button "Find pages and projects" [ref=e87]:
+            - img [ref=e88]
+            - generic [ref=e91]: Find pages and projects
+        - navigation "Workspace destinations" [ref=e92]:
+          - region "Office tools" [ref=e93]:
+            - button "Office tools" [expanded] [ref=e94]:
+              - img [ref=e95]
+              - img [ref=e97]
+              - generic [ref=e99]: Office tools
+            - generic [ref=e100]:
+              - generic [ref=e101]:
+                - button "Workspace Overview" [ref=e103]:
+                  - img [ref=e104]
+                  - generic [ref=e107]: Workspace Overview
+                - button "Office Budget" [ref=e109]:
+                  - img [ref=e110]
+                  - generic [ref=e115]: Office Budget
+              - generic [ref=e117]:
+                - button "Analytics" [ref=e118]:
+                  - img [ref=e119]
+                  - generic [ref=e121]: Analytics
+                - button "Office Team" [ref=e122]:
+                  - img [ref=e123]
+                  - generic [ref=e127]: Office Team
+          - region "Projects" [ref=e128]:
+            - generic [ref=e129]:
+              - button "Collapse Projects" [expanded] [ref=e130]:
+                - img [ref=e131]
+              - button "Projects" [ref=e133]:
+                - img [ref=e134]
+                - generic [ref=e136]: Projects
+            - generic [ref=e139]:
+              - button "Community outreach" [ref=e140]:
+                - img [ref=e141]
+                - generic [ref=e143]: Community outreach
+              - button "Add Community outreach to favorites" [ref=e144]:
+                - img [ref=e145]
+          - region "Favorites" [ref=e147]:
+            - button "Favorites" [expanded] [ref=e148]:
+              - img [ref=e149]
+              - img [ref=e151]
+              - generic [ref=e153]: Favorites
+            - paragraph [ref=e155]: Star a project for quick access.
+          - region "Archived projects" [ref=e156]:
+            - button "Archived projects" [ref=e157]:
+              - img [ref=e158]
+              - img [ref=e160]
+              - generic [ref=e163]: Archived projects
+    - main "Active workspace" [ref=e164]:
+      - generic [ref=e172]:
+        - generic [ref=e173]:
+          - button "← All projects" [ref=e174] [cursor=pointer]
+          - button "Import PDF" [active] [ref=e175] [cursor=pointer]
+        - generic [ref=e177]:
+          - generic [ref=e178]:
+            - paragraph [ref=e179]: Planning Office
+            - heading "Community outreach" [level=1] [ref=e180]:
+              - button "Edit project name" [ref=e181]: Community outreach
+            - generic [ref=e182]:
+              - 'status "Project lifecycle: Planning" [ref=e183]':
+                - generic [ref=e186]: Planning
+              - 'status "Project schedule: Overdue" [ref=e187]':
+                - generic [ref=e190]: Overdue
+            - paragraph [ref=e191]: 1 / 13 tasks completed · 8% complete · 2 overdue
+            - generic [ref=e192]:
+              - generic [ref=e193]: 0 joined Offices; 1 project contributor.
+              - generic [ref=e194]:
+                - img "Alex Rivera" [ref=e197]: AR
+                - button "Show all people" [ref=e198]: People (1)
+          - generic [ref=e199]:
+            - button "Add project to favorites" [ref=e201]:
+              - img
+            - button "Completion requirements" [ref=e202]
+            - button "Setup & activation" [ref=e203]
+            - button "Project actions" [ref=e205]:
+              - img
+        - generic [ref=e207]:
+          - tablist [ref=e211]:
+            - tab "Main table" [selected] [ref=e212]:
+              - generic [ref=e213] [cursor=pointer]: Main table
+            - tab "Reviews" [ref=e214]:
+              - generic [ref=e215] [cursor=pointer]: Reviews
+            - tab "Members" [ref=e216]:
+              - generic [ref=e217] [cursor=pointer]: Members
+            - tab "Budget" [ref=e218]:
+              - generic [ref=e219] [cursor=pointer]: Budget
+            - tab "Analytics" [ref=e220]:
+              - generic [ref=e221] [cursor=pointer]: Analytics
+            - tab "Settings" [ref=e222]:
+              - generic [ref=e223] [cursor=pointer]: Settings
+          - button "Browse project views" [ref=e225] [cursor=pointer]:
+            - img [ref=e226] [cursor=pointer]
+            - text: Browse views
+        - generic "Shared project filters" [ref=e231]:
+          - generic [ref=e232]:
+            - img [ref=e233]
+            - textbox "Search project tasks" [ref=e236]
+          - generic [ref=e237]:
+            - img [ref=e238]
+            - combobox "Filter owner" [ref=e243]:
+              - option "All task owners" [selected]
+              - option "Alex Rivera"
+          - generic [ref=e244]:
+            - img [ref=e245]
+            - combobox "Filter status" [ref=e247]:
+              - option "All statuses" [selected]
+              - option "Pending Assignment"
+              - option "To Do"
+              - option "In Progress"
+              - option "For Review"
+              - option "Changes Requested"
+              - option "Completed"
+              - option "Cancelled"
+          - generic [ref=e248]:
+            - img [ref=e249]
+            - combobox "Filter Office" [ref=e253]:
+              - option "All offices" [selected]
+              - option "Planning Office"
+          - generic [ref=e254]:
+            - img [ref=e255]
+            - combobox "Sort tasks" [ref=e258]:
+              - option "Manual order" [selected]
+              - option "Task name"
+              - option "Due date"
+              - option "Priority"
+          - generic [ref=e259]:
+            - text: From
+            - textbox "Filter date from" [ref=e260]
+          - generic [ref=e261]:
+            - text: To
+            - textbox "Filter date to" [ref=e262]
+          - status [ref=e263]: 13 visible tasks
+        - region "Project main table" [ref=e265]:
+          - generic [ref=e266]:
+            - generic [ref=e267]:
+              - generic [ref=e268]:
+                - button "New task" [ref=e269] [cursor=pointer]
+                - button "New task options" [ref=e271] [cursor=pointer]:
+                  - img [ref=e272] [cursor=pointer]
+              - button "Columns" [ref=e275] [cursor=pointer]:
+                - img [ref=e276] [cursor=pointer]
+                - text: Columns
+              - button "New group" [ref=e278] [cursor=pointer]:
+                - img [ref=e279] [cursor=pointer]
+                - text: New group
+            - generic [ref=e280]:
+              - generic [ref=e281]:
+                - button "Collapse To do" [expanded] [ref=e282] [cursor=pointer]:
+                  - img [ref=e283] [cursor=pointer]
+                - button "Edit group To do" [ref=e285] [cursor=pointer]: To do
+                - generic [ref=e286]: 3 tasks · 1 subtask
+                - button "Color for To do" [ref=e288] [cursor=pointer]
+                - button "Group actions for To do" [ref=e290] [cursor=pointer]:
+                  - img [ref=e291] [cursor=pointer]
+              - table "To do tasks" [ref=e296]:
+                - rowgroup [ref=e307]:
+                  - row "Task actions Task Owner Status Due date Priority Budget Actual expenses Column customization" [ref=e308]:
+                    - columnheader "Task actions" [ref=e309]
+                    - columnheader "Task" [ref=e310]:
+                      - generic [ref=e311]:
+                        - text: Task
+                        - button "Column actions for Task" [ref=e312] [cursor=pointer]:
+                          - img [ref=e313] [cursor=pointer]
+                      - separator "Resize Task column" [ref=e317]
+                    - columnheader "Owner" [ref=e318]:
+                      - generic [ref=e319]:
+                        - text: Owner
+                        - button "Column actions for Owner" [ref=e321] [cursor=pointer]:
+                          - img [ref=e322] [cursor=pointer]
+                      - separator "Resize Owner column" [ref=e326]
+                    - columnheader "Status" [ref=e327]:
+                      - generic [ref=e328]:
+                        - text: Status
+                        - button "Column actions for Status" [ref=e330] [cursor=pointer]:
+                          - img [ref=e331] [cursor=pointer]
+                      - separator "Resize Status column" [ref=e335]
+                    - columnheader "Due date" [ref=e336]:
+                      - generic [ref=e337]:
+                        - text: Due date
+                        - button "Column actions for Due date" [ref=e339] [cursor=pointer]:
+                          - img [ref=e340] [cursor=pointer]
+                      - separator "Resize Due date column" [ref=e344]
+                    - columnheader "Priority" [ref=e345]:
+                      - generic [ref=e346]:
+                        - text: Priority
+                        - button "Column actions for Priority" [ref=e348] [cursor=pointer]:
+                          - img [ref=e349] [cursor=pointer]
+                      - separator "Resize Priority column" [ref=e353]
+                    - columnheader "Budget" [ref=e354]:
+                      - generic [ref=e355]:
+                        - text: Budget
+                        - button "Column actions for Budget" [ref=e357] [cursor=pointer]:
+                          - img [ref=e358] [cursor=pointer]
+                      - separator "Resize Budget column" [ref=e362]
+                    - columnheader "Actual expenses" [ref=e363]:
+                      - generic [ref=e364]:
+                        - text: Actual expenses
+                        - button "Column actions for Actual expenses" [ref=e366] [cursor=pointer]:
+                          - img [ref=e367] [cursor=pointer]
+                      - separator "Resize Actual expenses column" [ref=e371]
+                    - columnheader "Column customization" [ref=e372]:
+                      - button "Add column" [ref=e374] [cursor=pointer]:
+                        - img [ref=e375] [cursor=pointer]
+                - rowgroup [ref=e376]:
+                  - 'row "Actions for Prepare community assessment Subtasks for Prepare community assessment Edit task Prepare community assessment 1 Open Prepare community assessment Alex Rivera Alex Rivera Update work status: In progress Edit dates for Prepare community assessment High Funding not required —" [ref=e377]':
+                    - cell "Actions for Prepare community assessment" [ref=e378]:
+                      - button "Actions for Prepare community assessment" [ref=e380] [cursor=pointer]:
+                        - img [ref=e381] [cursor=pointer]
+                    - cell "Subtasks for Prepare community assessment Edit task Prepare community assessment 1 Open Prepare community assessment" [ref=e385]:
+                      - generic [ref=e386]:
+                        - button "Subtasks for Prepare community assessment" [ref=e387] [cursor=pointer]:
+                          - img [ref=e388] [cursor=pointer]
+                        - button "Edit task Prepare community assessment" [ref=e390] [cursor=pointer]: Prepare community assessment
+                        - generic [ref=e391]: "1"
+                        - button "Open Prepare community assessment" [ref=e392] [cursor=pointer]:
+                          - img [ref=e393] [cursor=pointer]
+                    - cell "Alex Rivera Alex Rivera" [ref=e395]:
+                      - generic [ref=e396]:
+                        - generic "Alex Rivera" [ref=e397]: AR
+                        - combobox "Owner for Prepare community assessment" [ref=e399]:
+                          - option "Unassigned"
+                          - option "Alex Rivera" [selected]
+                    - 'cell "Update work status: In progress" [ref=e400]':
+                      - 'button "Update work status: In progress" [ref=e401] [cursor=pointer]':
+                        - text: In progress
+                        - img [ref=e402] [cursor=pointer]
+                    - cell "Edit dates for Prepare community assessment" [ref=e404]:
+                      - button "Edit dates for Prepare community assessment" [ref=e405] [cursor=pointer]:
+                        - img [ref=e406] [cursor=pointer]
+                        - generic [ref=e408] [cursor=pointer]:
+                          - generic [ref=e409] [cursor=pointer]: Oct 9
+                          - generic [ref=e411] [cursor=pointer]:
+                            - img [ref=e412] [cursor=pointer]
+                            - text: 39 days overdue
+                    - cell "High" [ref=e414]:
+                      - combobox "Priority for Prepare community assessment" [ref=e416]:
+                        - option "Low"
+                        - option "Medium"
+                        - option "High" [selected]
+                    - cell "Funding not required" [ref=e417]:
+                      - generic [ref=e418]: Funding not required
+                    - cell "—" [ref=e419]:
+                      - generic "No visible expenses" [ref=e420]: —
+                    - cell [ref=e421]
+                  - 'row "Actions for Coordinate Office briefing Subtasks for Coordinate Office briefing Edit task Coordinate Office briefing Open Coordinate Office briefing Alex Rivera Alex Rivera Update work status: Not started Edit dates for Coordinate Office briefing Medium Funding not required —" [ref=e422]':
+                    - cell "Actions for Coordinate Office briefing" [ref=e423]:
+                      - button "Actions for Coordinate Office briefing" [ref=e425] [cursor=pointer]:
+                        - img [ref=e426] [cursor=pointer]
+                    - cell "Subtasks for Coordinate Office briefing Edit task Coordinate Office briefing Open Coordinate Office briefing" [ref=e430]:
+                      - generic [ref=e431]:
+                        - button "Subtasks for Coordinate Office briefing" [ref=e432] [cursor=pointer]:
+                          - img [ref=e433] [cursor=pointer]
+                        - button "Edit task Coordinate Office briefing" [ref=e435] [cursor=pointer]: Coordinate Office briefing
+                        - button "Open Coordinate Office briefing" [ref=e436] [cursor=pointer]:
+                          - img [ref=e437] [cursor=pointer]
+                    - cell "Alex Rivera Alex Rivera" [ref=e439]:
+                      - generic [ref=e440]:
+                        - generic "Alex Rivera" [ref=e441]: AR
+                        - combobox "Owner for Coordinate Office briefing" [ref=e443]:
+                          - option "Unassigned"
+                          - option "Alex Rivera" [selected]
+                    - 'cell "Update work status: Not started" [ref=e444]':
+                      - 'button "Update work status: Not started" [ref=e445] [cursor=pointer]':
+                        - text: Not started
+                        - img [ref=e446] [cursor=pointer]
+                    - cell "Edit dates for Coordinate Office briefing" [ref=e448]:
+                      - button "Edit dates for Coordinate Office briefing" [ref=e449] [cursor=pointer]:
+                        - img [ref=e450] [cursor=pointer]
+                        - generic [ref=e452] [cursor=pointer]:
+                          - generic [ref=e453] [cursor=pointer]: Oct 12
+                          - generic [ref=e455] [cursor=pointer]:
+                            - img [ref=e456] [cursor=pointer]
+                            - text: 36 days overdue
+                    - cell "Medium" [ref=e458]:
+                      - combobox "Priority for Coordinate Office briefing" [ref=e460]:
+                        - option "Low"
+                        - option "Medium" [selected]
+                        - option "High"
+                    - cell "Funding not required" [ref=e461]:
+                      - generic [ref=e462]: Funding not required
+                    - cell "—" [ref=e463]:
+                      - generic "No visible expenses" [ref=e464]: —
+                    - cell [ref=e465]
+                  - 'row "Actions for Confirm participants Subtasks for Confirm participants Edit task Confirm participants Open Confirm participants Alex Rivera Alex Rivera Update work status: Completed Edit dates for Confirm participants Low Funding not required —" [ref=e466]':
+                    - cell "Actions for Confirm participants" [ref=e467]:
+                      - button "Actions for Confirm participants" [ref=e469] [cursor=pointer]:
+                        - img [ref=e470] [cursor=pointer]
+                    - cell "Subtasks for Confirm participants Edit task Confirm participants Open Confirm participants" [ref=e474]:
+                      - generic [ref=e475]:
+                        - button "Subtasks for Confirm participants" [ref=e476] [cursor=pointer]:
+                          - img [ref=e477] [cursor=pointer]
+                        - button "Edit task Confirm participants" [disabled] [ref=e479]: Confirm participants
+                        - button "Open Confirm participants" [ref=e480] [cursor=pointer]:
+                          - img [ref=e481] [cursor=pointer]
+                    - cell "Alex Rivera Alex Rivera" [ref=e483]:
+                      - generic [ref=e484]:
+                        - generic "Alex Rivera" [ref=e485]: AR
+                        - combobox "Owner for Confirm participants" [disabled] [ref=e487]:
+                          - option "Unassigned"
+                          - option "Alex Rivera" [selected]
+                    - 'cell "Update work status: Completed" [ref=e488]':
+                      - 'button "Update work status: Completed" [disabled] [ref=e489]':
+                        - text: Completed
+                        - img [ref=e490]
+                    - cell "Edit dates for Confirm participants" [ref=e492]:
+                      - button "Edit dates for Confirm participants" [disabled] [ref=e493]:
+                        - img [ref=e494]
+                        - generic [ref=e496]:
+                          - generic [ref=e497]: Oct 5
+                          - generic [ref=e499]:
+                            - img [ref=e500]
+                            - text: Completed
+                    - cell "Low" [ref=e502]:
+                      - combobox "Priority for Confirm participants" [disabled] [ref=e504]:
+                        - option "Low" [selected]
+                        - option "Medium"
+                        - option "High"
+                    - cell "Funding not required" [ref=e505]:
+                      - generic [ref=e506]: Funding not required
+                    - cell "—" [ref=e507]:
+                      - generic "No visible expenses" [ref=e508]: —
+                    - cell [ref=e509]
+                  - row [ref=e510]:
+                    - cell [ref=e511]
+                    - cell [ref=e512]:
+                      - generic [ref=e514]:
+                        - img [ref=e515]
+                        - textbox "Add task to To do" [ref=e516]
+                - rowgroup [ref=e517]:
+                  - row "3 tasks · 33% complete ₱0" [ref=e518]:
+                    - cell [ref=e519]
+                    - cell "3 tasks · 33% complete" [ref=e520]
+                    - cell [ref=e521]
+                    - cell [ref=e522]
+                    - cell [ref=e523]
+                    - cell [ref=e524]
+                    - cell "₱0" [ref=e525]
+                    - cell [ref=e526]
+                    - cell [ref=e527]
+            - generic [ref=e528]:
+              - generic [ref=e529]:
+                - button "Collapse Part 1 — Inception and Planning Framework" [expanded] [ref=e530] [cursor=pointer]:
+                  - img [ref=e531] [cursor=pointer]
+                - button "Edit group Part 1 — Inception and Planning Framework" [ref=e533] [cursor=pointer]: Part 1 — Inception and Planning Framework
+                - generic [ref=e534]: 2 tasks · 0 subtasks
+                - button "Color for Part 1 — Inception and Planning Framework" [ref=e536] [cursor=pointer]
+                - button "Group actions for Part 1 — Inception and Planning Framework" [ref=e538] [cursor=pointer]:
+                  - img [ref=e539] [cursor=pointer]
+              - table "Part 1 — Inception and Planning Framework tasks" [ref=e544]:
+                - rowgroup [ref=e555]:
+                  - row "Task actions Task Owner Status Due date Priority Budget Actual expenses Column customization" [ref=e556]:
+                    - columnheader "Task actions" [ref=e557]
+                    - columnheader "Task" [ref=e558]:
+                      - generic [ref=e559]:
+                        - text: Task
+                        - button "Column actions for Task" [ref=e560] [cursor=pointer]:
+                          - img [ref=e561] [cursor=pointer]
+                      - separator "Resize Task column" [ref=e565]
+                    - columnheader "Owner" [ref=e566]:
+                      - generic [ref=e567]:
+                        - text: Owner
+                        - button "Column actions for Owner" [ref=e569] [cursor=pointer]:
+                          - img [ref=e570] [cursor=pointer]
+                      - separator "Resize Owner column" [ref=e574]
+                    - columnheader "Status" [ref=e575]:
+                      - generic [ref=e576]:
+                        - text: Status
+                        - button "Column actions for Status" [ref=e578] [cursor=pointer]:
+                          - img [ref=e579] [cursor=pointer]
+                      - separator "Resize Status column" [ref=e583]
+                    - columnheader "Due date" [ref=e584]:
+                      - generic [ref=e585]:
+                        - text: Due date
+                        - button "Column actions for Due date" [ref=e587] [cursor=pointer]:
+                          - img [ref=e588] [cursor=pointer]
+                      - separator "Resize Due date column" [ref=e592]
+                    - columnheader "Priority" [ref=e593]:
+                      - generic [ref=e594]:
+                        - text: Priority
+                        - button "Column actions for Priority" [ref=e596] [cursor=pointer]:
+                          - img [ref=e597] [cursor=pointer]
+                      - separator "Resize Priority column" [ref=e601]
+                    - columnheader "Budget" [ref=e602]:
+                      - generic [ref=e603]:
+                        - text: Budget
+                        - button "Column actions for Budget" [ref=e605] [cursor=pointer]:
+                          - img [ref=e606] [cursor=pointer]
+                      - separator "Resize Budget column" [ref=e610]
+                    - columnheader "Actual expenses" [ref=e611]:
+                      - generic [ref=e612]:
+                        - text: Actual expenses
+                        - button "Column actions for Actual expenses" [ref=e614] [cursor=pointer]:
+                          - img [ref=e615] [cursor=pointer]
+                      - separator "Resize Actual expenses column" [ref=e619]
+                    - columnheader "Column customization" [ref=e620]:
+                      - button "Add column" [ref=e622] [cursor=pointer]:
+                        - img [ref=e623] [cursor=pointer]
+                - rowgroup [ref=e624]:
+                  - row "Actions for Kick Off Meeting Subtasks for Kick Off Meeting Edit task Kick Off Meeting Open Kick Off Meeting Unassigned Unassigned Needs a lead Edit dates for Kick Off Meeting High Funding not required —" [ref=e625]:
+                    - cell "Actions for Kick Off Meeting" [ref=e626]:
+                      - button "Actions for Kick Off Meeting" [ref=e628] [cursor=pointer]:
+                        - img [ref=e629] [cursor=pointer]
+                    - cell "Subtasks for Kick Off Meeting Edit task Kick Off Meeting Open Kick Off Meeting" [ref=e633]:
+                      - generic [ref=e634]:
+                        - button "Subtasks for Kick Off Meeting" [ref=e635] [cursor=pointer]:
+                          - img [ref=e636] [cursor=pointer]
+                        - button "Edit task Kick Off Meeting" [ref=e638] [cursor=pointer]: Kick Off Meeting
+                        - button "Open Kick Off Meeting" [ref=e639] [cursor=pointer]:
+                          - img [ref=e640] [cursor=pointer]
+                    - cell "Unassigned Unassigned" [ref=e642]:
+                      - generic [ref=e643]:
+                        - generic "Unassigned" [ref=e644]: +
+                        - combobox "Owner for Kick Off Meeting" [ref=e646]:
+                          - option "Unassigned" [selected]
+                          - option "Alex Rivera"
+                    - cell "Needs a lead" [ref=e647]:
+                      - generic [ref=e648]: Needs a lead
+                    - cell "Edit dates for Kick Off Meeting" [ref=e649]:
+                      - button "Edit dates for Kick Off Meeting" [ref=e650] [cursor=pointer]:
+                        - img [ref=e651] [cursor=pointer]
+                        - generic [ref=e653] [cursor=pointer]:
+                          - generic [ref=e654] [cursor=pointer]: Oct 20 → Nov 19
+                          - generic [ref=e656] [cursor=pointer]:
+                            - img [ref=e657] [cursor=pointer]
+                            - text: 26665 days left
+                    - cell "High" [ref=e659]:
+                      - combobox "Priority for Kick Off Meeting" [ref=e661]:
+                        - option "Low"
+                        - option "Medium"
+                        - option "High" [selected]
+                    - cell "Funding not required" [ref=e662]:
+                      - generic [ref=e663]: Funding not required
+                    - cell "—" [ref=e664]:
+                      - generic "No visible expenses" [ref=e665]: —
+                    - cell [ref=e666]
+                  - row "Actions for Preparation of the Detailed Work Plan and Timeline as part of the Inception Plan Subtasks for Preparation of the Detailed Work Plan and Timeline as part of the Inception Plan Edit task Preparation of the Detailed Work Plan and Timeline as part of the Inception Plan Open Preparation of the Detailed Work Plan and Timeline as part of the Inception Plan Unassigned Unassigned Needs a lead Edit dates for Preparation of the Detailed Work Plan and Timeline as part of the Inception Plan High Funding not required —" [ref=e667]:
+                    - cell "Actions for Preparation of the Detailed Work Plan and Timeline as part of the Inception Plan" [ref=e668]:
+                      - button "Actions for Preparation of the Detailed Work Plan and Timeline as part of the Inception Plan" [ref=e670] [cursor=pointer]:
+                        - img [ref=e671] [cursor=pointer]
+                    - cell "Subtasks for Preparation of the Detailed Work Plan and Timeline as part of the Inception Plan Edit task Preparation of the Detailed Work Plan and Timeline as part of the Inception Plan Open Preparation of the Detailed Work Plan and Timeline as part of the Inception Plan" [ref=e675]:
+                      - generic [ref=e676]:
+                        - button "Subtasks for Preparation of the Detailed Work Plan and Timeline as part of the Inception Plan" [ref=e677] [cursor=pointer]:
+                          - img [ref=e678] [cursor=pointer]
+                        - button "Edit task Preparation of the Detailed Work Plan and Timeline as part of the Inception Plan" [ref=e680] [cursor=pointer]: Preparation of the Detailed Work Plan and Timeline as part of the Inception Plan
+                        - button "Open Preparation of the Detailed Work Plan and Timeline as part of the Inception Plan" [ref=e681] [cursor=pointer]:
+                          - img [ref=e682] [cursor=pointer]
+                    - cell "Unassigned Unassigned" [ref=e684]:
+                      - generic [ref=e685]:
+                        - generic "Unassigned" [ref=e686]: +
+                        - combobox "Owner for Preparation of the Detailed Work Plan and Timeline as part of the Inception Plan" [ref=e688]:
+                          - option "Unassigned" [selected]
+                          - option "Alex Rivera"
+                    - cell "Needs a lead" [ref=e689]:
+                      - generic [ref=e690]: Needs a lead
+                    - cell "Edit dates for Preparation of the Detailed Work Plan and Timeline as part of the Inception Plan" [ref=e691]:
+                      - button "Edit dates for Preparation of the Detailed Work Plan and Timeline as part of the Inception Plan" [ref=e692] [cursor=pointer]:
+                        - img [ref=e693] [cursor=pointer]
+                        - generic [ref=e695] [cursor=pointer]:
+                          - generic [ref=e696] [cursor=pointer]: Oct 20 → Nov 19
+                          - generic [ref=e698] [cursor=pointer]:
+                            - img [ref=e699] [cursor=pointer]
+                            - text: 26665 days left
+                    - cell "High" [ref=e701]:
+                      - combobox "Priority for Preparation of the Detailed Work Plan and Timeline as part of the Inception Plan" [ref=e703]:
+                        - option "Low"
+                        - option "Medium"
+                        - option "High" [selected]
+                    - cell "Funding not required" [ref=e704]:
+                      - generic [ref=e705]: Funding not required
+                    - cell "—" [ref=e706]:
+                      - generic "No visible expenses" [ref=e707]: —
+                    - cell [ref=e708]
+                  - row [ref=e709]:
+                    - cell [ref=e710]
+                    - cell [ref=e711]:
+                      - generic [ref=e713]:
+                        - img [ref=e714]
+                        - textbox "Add task to Part 1 — Inception and Planning Framework" [ref=e715]
+                - rowgroup [ref=e716]:
+                  - row "2 tasks · 0% complete ₱0" [ref=e717]:
+                    - cell [ref=e718]
+                    - cell "2 tasks · 0% complete" [ref=e719]
+                    - cell [ref=e720]
+                    - cell [ref=e721]
+                    - cell [ref=e722]
+                    - cell [ref=e723]
+                    - cell "₱0" [ref=e724]
+                    - cell [ref=e725]
+                    - cell [ref=e726]
+            - generic [ref=e727]:
+              - generic [ref=e728]:
+                - button "Collapse Part 2 — Situational Analysis / Area Profile" [expanded] [ref=e729] [cursor=pointer]:
+                  - img [ref=e730] [cursor=pointer]
+                - button "Edit group Part 2 — Situational Analysis / Area Profile" [ref=e732] [cursor=pointer]: Part 2 — Situational Analysis / Area Profile
+                - generic [ref=e733]: 1 task · 0 subtasks
+                - button "Color for Part 2 — Situational Analysis / Area Profile" [ref=e735] [cursor=pointer]
+                - button "Group actions for Part 2 — Situational Analysis / Area Profile" [ref=e737] [cursor=pointer]:
+                  - img [ref=e738] [cursor=pointer]
+              - table "Part 2 — Situational Analysis / Area Profile tasks" [ref=e743]:
+                - rowgroup [ref=e754]:
+                  - row "Task actions Task Owner Status Due date Priority Budget Actual expenses Column customization" [ref=e755]:
+                    - columnheader "Task actions" [ref=e756]
+                    - columnheader "Task" [ref=e757]:
+                      - generic [ref=e758]:
+                        - text: Task
+                        - button "Column actions for Task" [ref=e759] [cursor=pointer]:
+                          - img [ref=e760] [cursor=pointer]
+                      - separator "Resize Task column" [ref=e764]
+                    - columnheader "Owner" [ref=e765]:
+                      - generic [ref=e766]:
+                        - text: Owner
+                        - button "Column actions for Owner" [ref=e768] [cursor=pointer]:
+                          - img [ref=e769] [cursor=pointer]
+                      - separator "Resize Owner column" [ref=e773]
+                    - columnheader "Status" [ref=e774]:
+                      - generic [ref=e775]:
+                        - text: Status
+                        - button "Column actions for Status" [ref=e777] [cursor=pointer]:
+                          - img [ref=e778] [cursor=pointer]
+                      - separator "Resize Status column" [ref=e782]
+                    - columnheader "Due date" [ref=e783]:
+                      - generic [ref=e784]:
+                        - text: Due date
+                        - button "Column actions for Due date" [ref=e786] [cursor=pointer]:
+                          - img [ref=e787] [cursor=pointer]
+                      - separator "Resize Due date column" [ref=e791]
+                    - columnheader "Priority" [ref=e792]:
+                      - generic [ref=e793]:
+                        - text: Priority
+                        - button "Column actions for Priority" [ref=e795] [cursor=pointer]:
+                          - img [ref=e796] [cursor=pointer]
+                      - separator "Resize Priority column" [ref=e800]
+                    - columnheader "Budget" [ref=e801]:
+                      - generic [ref=e802]:
+                        - text: Budget
+                        - button "Column actions for Budget" [ref=e804] [cursor=pointer]:
+                          - img [ref=e805] [cursor=pointer]
+                      - separator "Resize Budget column" [ref=e809]
+                    - columnheader "Actual expenses" [ref=e810]:
+                      - generic [ref=e811]:
+                        - text: Actual expenses
+                        - button "Column actions for Actual expenses" [ref=e813] [cursor=pointer]:
+                          - img [ref=e814] [cursor=pointer]
+                      - separator "Resize Actual expenses column" [ref=e818]
+                    - columnheader "Column customization" [ref=e819]:
+                      - button "Add column" [ref=e821] [cursor=pointer]:
+                        - img [ref=e822] [cursor=pointer]
+                - rowgroup [ref=e823]:
+                  - row "Actions for Facilitation and Management of Sectoral Consultative Meetings and Technical Workshops Subtasks for Facilitation and Management of Sectoral Consultative Meetings and Technical Workshops Edit task Facilitation and Management of Sectoral Consultative Meetings and Technical Workshops Open Facilitation and Management of Sectoral Consultative Meetings and Technical Workshops Unassigned Unassigned Needs a lead Edit dates for Facilitation and Management of Sectoral Consultative Meetings and Technical Workshops High Funding not required —" [ref=e824]:
+                    - cell "Actions for Facilitation and Management of Sectoral Consultative Meetings and Technical Workshops" [ref=e825]:
+                      - button "Actions for Facilitation and Management of Sectoral Consultative Meetings and Technical Workshops" [ref=e827] [cursor=pointer]:
+                        - img [ref=e828] [cursor=pointer]
+                    - cell "Subtasks for Facilitation and Management of Sectoral Consultative Meetings and Technical Workshops Edit task Facilitation and Management of Sectoral Consultative Meetings and Technical Workshops Open Facilitation and Management of Sectoral Consultative Meetings and Technical Workshops" [ref=e832]:
+                      - generic [ref=e833]:
+                        - button "Subtasks for Facilitation and Management of Sectoral Consultative Meetings and Technical Workshops" [ref=e834] [cursor=pointer]:
+                          - img [ref=e835] [cursor=pointer]
+                        - button "Edit task Facilitation and Management of Sectoral Consultative Meetings and Technical Workshops" [ref=e837] [cursor=pointer]: Facilitation and Management of Sectoral Consultative Meetings and Technical Workshops
+                        - button "Open Facilitation and Management of Sectoral Consultative Meetings and Technical Workshops" [ref=e838] [cursor=pointer]:
+                          - img [ref=e839] [cursor=pointer]
+                    - cell "Unassigned Unassigned" [ref=e841]:
+                      - generic [ref=e842]:
+                        - generic "Unassigned" [ref=e843]: +
+                        - combobox "Owner for Facilitation and Management of Sectoral Consultative Meetings and Technical Workshops" [ref=e845]:
+                          - option "Unassigned" [selected]
+                          - option "Alex Rivera"
+                    - cell "Needs a lead" [ref=e846]:
+                      - generic [ref=e847]: Needs a lead
+                    - cell "Edit dates for Facilitation and Management of Sectoral Consultative Meetings and Technical Workshops" [ref=e848]:
+                      - button "Edit dates for Facilitation and Management of Sectoral Consultative Meetings and Technical Workshops" [ref=e849] [cursor=pointer]:
+                        - img [ref=e850] [cursor=pointer]
+                        - generic [ref=e852] [cursor=pointer]:
+                          - generic [ref=e853] [cursor=pointer]: Oct 20 → Dec 19
+                          - generic [ref=e855] [cursor=pointer]:
+                            - img [ref=e856] [cursor=pointer]
+                            - text: 26695 days left
+                    - cell "High" [ref=e858]:
+                      - combobox "Priority for Facilitation and Management of Sectoral Consultative Meetings and Technical Workshops" [ref=e860]:
+                        - option "Low"
+                        - option "Medium"
+                        - option "High" [selected]
+                    - cell "Funding not required" [ref=e861]:
+                      - generic [ref=e862]: Funding not required
+                    - cell "—" [ref=e863]:
+                      - generic "No visible expenses" [ref=e864]: —
+                    - cell [ref=e865]
+                  - row [ref=e866]:
+                    - cell [ref=e867]
+                    - cell [ref=e868]:
+                      - generic [ref=e870]:
+                        - img [ref=e871]
+                        - textbox "Add task to Part 2 — Situational Analysis / Area Profile" [ref=e872]
+                - rowgroup [ref=e873]:
+                  - row "1 tasks · 0% complete ₱0" [ref=e874]:
+                    - cell [ref=e875]
+                    - cell "1 tasks · 0% complete" [ref=e876]
+                    - cell [ref=e877]
+                    - cell [ref=e878]
+                    - cell [ref=e879]
+                    - cell [ref=e880]
+                    - cell "₱0" [ref=e881]
+                    - cell [ref=e882]
+                    - cell [ref=e883]
+            - generic [ref=e884]:
+              - generic [ref=e885]:
+                - button "Collapse Part 3 — Economic Diagnostic and Strategy Formulation" [expanded] [ref=e886] [cursor=pointer]:
+                  - img [ref=e887] [cursor=pointer]
+                - button "Edit group Part 3 — Economic Diagnostic and Strategy Formulation" [ref=e889] [cursor=pointer]: Part 3 — Economic Diagnostic and Strategy Formulation
+                - generic [ref=e890]: 1 task · 0 subtasks
+                - button "Color for Part 3 — Economic Diagnostic and Strategy Formulation" [ref=e892] [cursor=pointer]
+                - button "Group actions for Part 3 — Economic Diagnostic and Strategy Formulation" [ref=e894] [cursor=pointer]:
+                  - img [ref=e895] [cursor=pointer]
+              - table "Part 3 — Economic Diagnostic and Strategy Formulation tasks" [ref=e900]:
+                - rowgroup [ref=e911]:
+                  - row "Task actions Task Owner Status Due date Priority Budget Actual expenses Column customization" [ref=e912]:
+                    - columnheader "Task actions" [ref=e913]
+                    - columnheader "Task" [ref=e914]:
+                      - generic [ref=e915]:
+                        - text: Task
+                        - button "Column actions for Task" [ref=e916] [cursor=pointer]:
+                          - img [ref=e917] [cursor=pointer]
+                      - separator "Resize Task column" [ref=e921]
+                    - columnheader "Owner" [ref=e922]:
+                      - generic [ref=e923]:
+                        - text: Owner
+                        - button "Column actions for Owner" [ref=e925] [cursor=pointer]:
+                          - img [ref=e926] [cursor=pointer]
+                      - separator "Resize Owner column" [ref=e930]
+                    - columnheader "Status" [ref=e931]:
+                      - generic [ref=e932]:
+                        - text: Status
+                        - button "Column actions for Status" [ref=e934] [cursor=pointer]:
+                          - img [ref=e935] [cursor=pointer]
+                      - separator "Resize Status column" [ref=e939]
+                    - columnheader "Due date" [ref=e940]:
+                      - generic [ref=e941]:
+                        - text: Due date
+                        - button "Column actions for Due date" [ref=e943] [cursor=pointer]:
+                          - img [ref=e944] [cursor=pointer]
+                      - separator "Resize Due date column" [ref=e948]
+                    - columnheader "Priority" [ref=e949]:
+                      - generic [ref=e950]:
+                        - text: Priority
+                        - button "Column actions for Priority" [ref=e952] [cursor=pointer]:
+                          - img [ref=e953] [cursor=pointer]
+                      - separator "Resize Priority column" [ref=e957]
+                    - columnheader "Budget" [ref=e958]:
+                      - generic [ref=e959]:
+                        - text: Budget
+                        - button "Column actions for Budget" [ref=e961] [cursor=pointer]:
+                          - img [ref=e962] [cursor=pointer]
+                      - separator "Resize Budget column" [ref=e966]
+                    - columnheader "Actual expenses" [ref=e967]:
+                      - generic [ref=e968]:
+                        - text: Actual expenses
+                        - button "Column actions for Actual expenses" [ref=e970] [cursor=pointer]:
+                          - img [ref=e971] [cursor=pointer]
+                      - separator "Resize Actual expenses column" [ref=e975]
+                    - columnheader "Column customization" [ref=e976]:
+                      - button "Add column" [ref=e978] [cursor=pointer]:
+                        - img [ref=e979] [cursor=pointer]
+                - rowgroup [ref=e980]:
+                  - row "Actions for Technical Economic Diagnostic and Strategy Laboratory Subtasks for Technical Economic Diagnostic and Strategy Laboratory Edit task Technical Economic Diagnostic and Strategy Laboratory Open Technical Economic Diagnostic and Strategy Laboratory Unassigned Unassigned Needs a lead Edit dates for Technical Economic Diagnostic and Strategy Laboratory High Funding not required —" [ref=e981]:
+                    - cell "Actions for Technical Economic Diagnostic and Strategy Laboratory" [ref=e982]:
+                      - button "Actions for Technical Economic Diagnostic and Strategy Laboratory" [ref=e984] [cursor=pointer]:
+                        - img [ref=e985] [cursor=pointer]
+                    - cell "Subtasks for Technical Economic Diagnostic and Strategy Laboratory Edit task Technical Economic Diagnostic and Strategy Laboratory Open Technical Economic Diagnostic and Strategy Laboratory" [ref=e989]:
+                      - generic [ref=e990]:
+                        - button "Subtasks for Technical Economic Diagnostic and Strategy Laboratory" [ref=e991] [cursor=pointer]:
+                          - img [ref=e992] [cursor=pointer]
+                        - button "Edit task Technical Economic Diagnostic and Strategy Laboratory" [ref=e994] [cursor=pointer]: Technical Economic Diagnostic and Strategy Laboratory
+                        - button "Open Technical Economic Diagnostic and Strategy Laboratory" [ref=e995] [cursor=pointer]:
+                          - img [ref=e996] [cursor=pointer]
+                    - cell "Unassigned Unassigned" [ref=e998]:
+                      - generic [ref=e999]:
+                        - generic "Unassigned" [ref=e1000]: +
+                        - combobox "Owner for Technical Economic Diagnostic and Strategy Laboratory" [ref=e1002]:
+                          - option "Unassigned" [selected]
+                          - option "Alex Rivera"
+                    - cell "Needs a lead" [ref=e1003]:
+                      - generic [ref=e1004]: Needs a lead
+                    - cell "Edit dates for Technical Economic Diagnostic and Strategy Laboratory" [ref=e1005]:
+                      - button "Edit dates for Technical Economic Diagnostic and Strategy Laboratory" [ref=e1006] [cursor=pointer]:
+                        - img [ref=e1007] [cursor=pointer]
+                        - generic [ref=e1009] [cursor=pointer]:
+                          - generic [ref=e1010] [cursor=pointer]: Oct 20 → Dec 19
+                          - generic [ref=e1012] [cursor=pointer]:
+                            - img [ref=e1013] [cursor=pointer]
+                            - text: 26695 days left
+                    - cell "High" [ref=e1015]:
+                      - combobox "Priority for Technical Economic Diagnostic and Strategy Laboratory" [ref=e1017]:
+                        - option "Low"
+                        - option "Medium"
+                        - option "High" [selected]
+                    - cell "Funding not required" [ref=e1018]:
+                      - generic [ref=e1019]: Funding not required
+                    - cell "—" [ref=e1020]:
+                      - generic "No visible expenses" [ref=e1021]: —
+                    - cell [ref=e1022]
+                  - row [ref=e1023]:
+                    - cell [ref=e1024]
+                    - cell [ref=e1025]:
+                      - generic [ref=e1027]:
+                        - img [ref=e1028]
+                        - textbox "Add task to Part 3 — Economic Diagnostic and Strategy Formulation" [ref=e1029]
+                - rowgroup [ref=e1030]:
+                  - row "1 tasks · 0% complete ₱0" [ref=e1031]:
+                    - cell [ref=e1032]
+                    - cell "1 tasks · 0% complete" [ref=e1033]
+                    - cell [ref=e1034]
+                    - cell [ref=e1035]
+                    - cell [ref=e1036]
+                    - cell [ref=e1037]
+                    - cell "₱0" [ref=e1038]
+                    - cell [ref=e1039]
+                    - cell [ref=e1040]
+            - generic [ref=e1041]:
+              - generic [ref=e1042]:
+                - button "Collapse Part 4 — Strategic Framework Development Workshop" [expanded] [ref=e1043] [cursor=pointer]:
+                  - img [ref=e1044] [cursor=pointer]
+                - button "Edit group Part 4 — Strategic Framework Development Workshop" [ref=e1046] [cursor=pointer]: Part 4 — Strategic Framework Development Workshop
+                - generic [ref=e1047]: 1 task · 0 subtasks
+                - button "Color for Part 4 — Strategic Framework Development Workshop" [ref=e1049] [cursor=pointer]
+                - button "Group actions for Part 4 — Strategic Framework Development Workshop" [ref=e1051] [cursor=pointer]:
+                  - img [ref=e1052] [cursor=pointer]
+              - table "Part 4 — Strategic Framework Development Workshop tasks" [ref=e1057]:
+                - rowgroup [ref=e1068]:
+                  - row "Task actions Task Owner Status Due date Priority Budget Actual expenses Column customization" [ref=e1069]:
+                    - columnheader "Task actions" [ref=e1070]
+                    - columnheader "Task" [ref=e1071]:
+                      - generic [ref=e1072]:
+                        - text: Task
+                        - button "Column actions for Task" [ref=e1073] [cursor=pointer]:
+                          - img [ref=e1074] [cursor=pointer]
+                      - separator "Resize Task column" [ref=e1078]
+                    - columnheader "Owner" [ref=e1079]:
+                      - generic [ref=e1080]:
+                        - text: Owner
+                        - button "Column actions for Owner" [ref=e1082] [cursor=pointer]:
+                          - img [ref=e1083] [cursor=pointer]
+                      - separator "Resize Owner column" [ref=e1087]
+                    - columnheader "Status" [ref=e1088]:
+                      - generic [ref=e1089]:
+                        - text: Status
+                        - button "Column actions for Status" [ref=e1091] [cursor=pointer]:
+                          - img [ref=e1092] [cursor=pointer]
+                      - separator "Resize Status column" [ref=e1096]
+                    - columnheader "Due date" [ref=e1097]:
+                      - generic [ref=e1098]:
+                        - text: Due date
+                        - button "Column actions for Due date" [ref=e1100] [cursor=pointer]:
+                          - img [ref=e1101] [cursor=pointer]
+                      - separator "Resize Due date column" [ref=e1105]
+                    - columnheader "Priority" [ref=e1106]:
+                      - generic [ref=e1107]:
+                        - text: Priority
+                        - button "Column actions for Priority" [ref=e1109] [cursor=pointer]:
+                          - img [ref=e1110] [cursor=pointer]
+                      - separator "Resize Priority column" [ref=e1114]
+                    - columnheader "Budget" [ref=e1115]:
+                      - generic [ref=e1116]:
+                        - text: Budget
+                        - button "Column actions for Budget" [ref=e1118] [cursor=pointer]:
+                          - img [ref=e1119] [cursor=pointer]
+                      - separator "Resize Budget column" [ref=e1123]
+                    - columnheader "Actual expenses" [ref=e1124]:
+                      - generic [ref=e1125]:
+                        - text: Actual expenses
+                        - button "Column actions for Actual expenses" [ref=e1127] [cursor=pointer]:
+                          - img [ref=e1128] [cursor=pointer]
+                      - separator "Resize Actual expenses column" [ref=e1132]
+                    - columnheader "Column customization" [ref=e1133]:
+                      - button "Add column" [ref=e1135] [cursor=pointer]:
+                        - img [ref=e1136] [cursor=pointer]
+                - rowgroup [ref=e1137]:
+                  - row "Actions for Visioning and Strategic Directions Workshop Subtasks for Visioning and Strategic Directions Workshop Edit task Visioning and Strategic Directions Workshop Open Visioning and Strategic Directions Workshop Unassigned Unassigned Needs a lead Edit dates for Visioning and Strategic Directions Workshop High Funding not required —" [ref=e1138]:
+                    - cell "Actions for Visioning and Strategic Directions Workshop" [ref=e1139]:
+                      - button "Actions for Visioning and Strategic Directions Workshop" [ref=e1141] [cursor=pointer]:
+                        - img [ref=e1142] [cursor=pointer]
+                    - cell "Subtasks for Visioning and Strategic Directions Workshop Edit task Visioning and Strategic Directions Workshop Open Visioning and Strategic Directions Workshop" [ref=e1146]:
+                      - generic [ref=e1147]:
+                        - button "Subtasks for Visioning and Strategic Directions Workshop" [ref=e1148] [cursor=pointer]:
+                          - img [ref=e1149] [cursor=pointer]
+                        - button "Edit task Visioning and Strategic Directions Workshop" [ref=e1151] [cursor=pointer]: Visioning and Strategic Directions Workshop
+                        - button "Open Visioning and Strategic Directions Workshop" [ref=e1152] [cursor=pointer]:
+                          - img [ref=e1153] [cursor=pointer]
+                    - cell "Unassigned Unassigned" [ref=e1155]:
+                      - generic [ref=e1156]:
+                        - generic "Unassigned" [ref=e1157]: +
+                        - combobox "Owner for Visioning and Strategic Directions Workshop" [ref=e1159]:
+                          - option "Unassigned" [selected]
+                          - option "Alex Rivera"
+                    - cell "Needs a lead" [ref=e1160]:
+                      - generic [ref=e1161]: Needs a lead
+                    - cell "Edit dates for Visioning and Strategic Directions Workshop" [ref=e1162]:
+                      - button "Edit dates for Visioning and Strategic Directions Workshop" [ref=e1163] [cursor=pointer]:
+                        - img [ref=e1164] [cursor=pointer]
+                        - generic [ref=e1166] [cursor=pointer]:
+                          - generic [ref=e1167] [cursor=pointer]: Dec 20 → Jan 19
+                          - generic [ref=e1169] [cursor=pointer]:
+                            - img [ref=e1170] [cursor=pointer]
+                            - text: 26726 days left
+                    - cell "High" [ref=e1172]:
+                      - combobox "Priority for Visioning and Strategic Directions Workshop" [ref=e1174]:
+                        - option "Low"
+                        - option "Medium"
+                        - option "High" [selected]
+                    - cell "Funding not required" [ref=e1175]:
+                      - generic [ref=e1176]: Funding not required
+                    - cell "—" [ref=e1177]:
+                      - generic "No visible expenses" [ref=e1178]: —
+                    - cell [ref=e1179]
+                  - row [ref=e1180]:
+                    - cell [ref=e1181]
+                    - cell [ref=e1182]:
+                      - generic [ref=e1184]:
+                        - img [ref=e1185]
+                        - textbox "Add task to Part 4 — Strategic Framework Development Workshop" [ref=e1186]
+                - rowgroup [ref=e1187]:
+                  - row "1 tasks · 0% complete ₱0" [ref=e1188]:
+                    - cell [ref=e1189]
+                    - cell "1 tasks · 0% complete" [ref=e1190]
+                    - cell [ref=e1191]
+                    - cell [ref=e1192]
+                    - cell [ref=e1193]
+                    - cell [ref=e1194]
+                    - cell "₱0" [ref=e1195]
+                    - cell [ref=e1196]
+                    - cell [ref=e1197]
+            - generic [ref=e1198]:
+              - generic [ref=e1199]:
+                - button "Collapse Part 5 — Benchmarking and Good Practices" [expanded] [ref=e1200] [cursor=pointer]:
+                  - img [ref=e1201] [cursor=pointer]
+                - button "Edit group Part 5 — Benchmarking and Good Practices" [ref=e1203] [cursor=pointer]: Part 5 — Benchmarking and Good Practices
+                - generic [ref=e1204]: 1 task · 0 subtasks
+                - button "Color for Part 5 — Benchmarking and Good Practices" [ref=e1206] [cursor=pointer]
+                - button "Group actions for Part 5 — Benchmarking and Good Practices" [ref=e1208] [cursor=pointer]:
+                  - img [ref=e1209] [cursor=pointer]
+              - table "Part 5 — Benchmarking and Good Practices tasks" [ref=e1214]:
+                - rowgroup [ref=e1225]:
+                  - row "Task actions Task Owner Status Due date Priority Budget Actual expenses Column customization" [ref=e1226]:
+                    - columnheader "Task actions" [ref=e1227]
+                    - columnheader "Task" [ref=e1228]:
+                      - generic [ref=e1229]:
+                        - text: Task
+                        - button "Column actions for Task" [ref=e1230] [cursor=pointer]:
+                          - img [ref=e1231] [cursor=pointer]
+                      - separator "Resize Task column" [ref=e1235]
+                    - columnheader "Owner" [ref=e1236]:
+                      - generic [ref=e1237]:
+                        - text: Owner
+                        - button "Column actions for Owner" [ref=e1239] [cursor=pointer]:
+                          - img [ref=e1240] [cursor=pointer]
+                      - separator "Resize Owner column" [ref=e1244]
+                    - columnheader "Status" [ref=e1245]:
+                      - generic [ref=e1246]:
+                        - text: Status
+                        - button "Column actions for Status" [ref=e1248] [cursor=pointer]:
+                          - img [ref=e1249] [cursor=pointer]
+                      - separator "Resize Status column" [ref=e1253]
+                    - columnheader "Due date" [ref=e1254]:
+                      - generic [ref=e1255]:
+                        - text: Due date
+                        - button "Column actions for Due date" [ref=e1257] [cursor=pointer]:
+                          - img [ref=e1258] [cursor=pointer]
+                      - separator "Resize Due date column" [ref=e1262]
+                    - columnheader "Priority" [ref=e1263]:
+                      - generic [ref=e1264]:
+                        - text: Priority
+                        - button "Column actions for Priority" [ref=e1266] [cursor=pointer]:
+                          - img [ref=e1267] [cursor=pointer]
+                      - separator "Resize Priority column" [ref=e1271]
+                    - columnheader "Budget" [ref=e1272]:
+                      - generic [ref=e1273]:
+                        - text: Budget
+                        - button "Column actions for Budget" [ref=e1275] [cursor=pointer]:
+                          - img [ref=e1276] [cursor=pointer]
+                      - separator "Resize Budget column" [ref=e1280]
+                    - columnheader "Actual expenses" [ref=e1281]:
+                      - generic [ref=e1282]:
+                        - text: Actual expenses
+                        - button "Column actions for Actual expenses" [ref=e1284] [cursor=pointer]:
+                          - img [ref=e1285] [cursor=pointer]
+                      - separator "Resize Actual expenses column" [ref=e1289]
+                    - columnheader "Column customization" [ref=e1290]:
+                      - button "Add column" [ref=e1292] [cursor=pointer]:
+                        - img [ref=e1293] [cursor=pointer]
+                - rowgroup [ref=e1294]:
+                  - row "Actions for Strategic Benchmarking and Good Practice Integration Subtasks for Strategic Benchmarking and Good Practice Integration Edit task Strategic Benchmarking and Good Practice Integration Open Strategic Benchmarking and Good Practice Integration Unassigned Unassigned Needs a lead Edit dates for Strategic Benchmarking and Good Practice Integration High Funding not required —" [ref=e1295]:
+                    - cell "Actions for Strategic Benchmarking and Good Practice Integration" [ref=e1296]:
+                      - button "Actions for Strategic Benchmarking and Good Practice Integration" [ref=e1298] [cursor=pointer]:
+                        - img [ref=e1299] [cursor=pointer]
+                    - cell "Subtasks for Strategic Benchmarking and Good Practice Integration Edit task Strategic Benchmarking and Good Practice Integration Open Strategic Benchmarking and Good Practice Integration" [ref=e1303]:
+                      - generic [ref=e1304]:
+                        - button "Subtasks for Strategic Benchmarking and Good Practice Integration" [ref=e1305] [cursor=pointer]:
+                          - img [ref=e1306] [cursor=pointer]
+                        - button "Edit task Strategic Benchmarking and Good Practice Integration" [ref=e1308] [cursor=pointer]: Strategic Benchmarking and Good Practice Integration
+                        - button "Open Strategic Benchmarking and Good Practice Integration" [ref=e1309] [cursor=pointer]:
+                          - img [ref=e1310] [cursor=pointer]
+                    - cell "Unassigned Unassigned" [ref=e1312]:
+                      - generic [ref=e1313]:
+                        - generic "Unassigned" [ref=e1314]: +
+                        - combobox "Owner for Strategic Benchmarking and Good Practice Integration" [ref=e1316]:
+                          - option "Unassigned" [selected]
+                          - option "Alex Rivera"
+                    - cell "Needs a lead" [ref=e1317]:
+                      - generic [ref=e1318]: Needs a lead
+                    - cell "Edit dates for Strategic Benchmarking and Good Practice Integration" [ref=e1319]:
+                      - button "Edit dates for Strategic Benchmarking and Good Practice Integration" [ref=e1320] [cursor=pointer]:
+                        - img [ref=e1321] [cursor=pointer]
+                        - generic [ref=e1323] [cursor=pointer]:
+                          - generic [ref=e1324] [cursor=pointer]: Dec 20 → Jan 19
+                          - generic [ref=e1326] [cursor=pointer]:
+                            - img [ref=e1327] [cursor=pointer]
+                            - text: 26726 days left
+                    - cell "High" [ref=e1329]:
+                      - combobox "Priority for Strategic Benchmarking and Good Practice Integration" [ref=e1331]:
+                        - option "Low"
+                        - option "Medium"
+                        - option "High" [selected]
+                    - cell "Funding not required" [ref=e1332]:
+                      - generic [ref=e1333]: Funding not required
+                    - cell "—" [ref=e1334]:
+                      - generic "No visible expenses" [ref=e1335]: —
+                    - cell [ref=e1336]
+                  - row [ref=e1337]:
+                    - cell [ref=e1338]
+                    - cell [ref=e1339]:
+                      - generic [ref=e1341]:
+                        - img [ref=e1342]
+                        - textbox "Add task to Part 5 — Benchmarking and Good Practices" [ref=e1343]
+                - rowgroup [ref=e1344]:
+                  - row "1 tasks · 0% complete ₱0" [ref=e1345]:
+                    - cell [ref=e1346]
+                    - cell "1 tasks · 0% complete" [ref=e1347]
+                    - cell [ref=e1348]
+                    - cell [ref=e1349]
+                    - cell [ref=e1350]
+                    - cell [ref=e1351]
+                    - cell "₱0" [ref=e1352]
+                    - cell [ref=e1353]
+                    - cell [ref=e1354]
+            - generic [ref=e1355]:
+              - generic [ref=e1356]:
+                - button "Collapse Part 6 — Draft 3- Year EDSP and 10-Year Roadmap" [expanded] [ref=e1357] [cursor=pointer]:
+                  - img [ref=e1358] [cursor=pointer]
+                - button "Edit group Part 6 — Draft 3- Year EDSP and 10-Year Roadmap" [ref=e1360] [cursor=pointer]: Part 6 — Draft 3- Year EDSP and 10-Year Roadmap
+                - generic [ref=e1361]: 1 task · 0 subtasks
+                - button "Color for Part 6 — Draft 3- Year EDSP and 10-Year Roadmap" [ref=e1363] [cursor=pointer]
+                - button "Group actions for Part 6 — Draft 3- Year EDSP and 10-Year Roadmap" [ref=e1365] [cursor=pointer]:
+                  - img [ref=e1366] [cursor=pointer]
+              - table "Part 6 — Draft 3- Year EDSP and 10-Year Roadmap tasks" [ref=e1371]:
+                - rowgroup [ref=e1382]:
+                  - row "Task actions Task Owner Status Due date Priority Budget Actual expenses Column customization" [ref=e1383]:
+                    - columnheader "Task actions" [ref=e1384]
+                    - columnheader "Task" [ref=e1385]:
+                      - generic [ref=e1386]:
+                        - text: Task
+                        - button "Column actions for Task" [ref=e1387] [cursor=pointer]:
+                          - img [ref=e1388] [cursor=pointer]
+                      - separator "Resize Task column" [ref=e1392]
+                    - columnheader "Owner" [ref=e1393]:
+                      - generic [ref=e1394]:
+                        - text: Owner
+                        - button "Column actions for Owner" [ref=e1396] [cursor=pointer]:
+                          - img [ref=e1397] [cursor=pointer]
+                      - separator "Resize Owner column" [ref=e1401]
+                    - columnheader "Status" [ref=e1402]:
+                      - generic [ref=e1403]:
+                        - text: Status
+                        - button "Column actions for Status" [ref=e1405] [cursor=pointer]:
+                          - img [ref=e1406] [cursor=pointer]
+                      - separator "Resize Status column" [ref=e1410]
+                    - columnheader "Due date" [ref=e1411]:
+                      - generic [ref=e1412]:
+                        - text: Due date
+                        - button "Column actions for Due date" [ref=e1414] [cursor=pointer]:
+                          - img [ref=e1415] [cursor=pointer]
+                      - separator "Resize Due date column" [ref=e1419]
+                    - columnheader "Priority" [ref=e1420]:
+                      - generic [ref=e1421]:
+                        - text: Priority
+                        - button "Column actions for Priority" [ref=e1423] [cursor=pointer]:
+                          - img [ref=e1424] [cursor=pointer]
+                      - separator "Resize Priority column" [ref=e1428]
+                    - columnheader "Budget" [ref=e1429]:
+                      - generic [ref=e1430]:
+                        - text: Budget
+                        - button "Column actions for Budget" [ref=e1432] [cursor=pointer]:
+                          - img [ref=e1433] [cursor=pointer]
+                      - separator "Resize Budget column" [ref=e1437]
+                    - columnheader "Actual expenses" [ref=e1438]:
+                      - generic [ref=e1439]:
+                        - text: Actual expenses
+                        - button "Column actions for Actual expenses" [ref=e1441] [cursor=pointer]:
+                          - img [ref=e1442] [cursor=pointer]
+                      - separator "Resize Actual expenses column" [ref=e1446]
+                    - columnheader "Column customization" [ref=e1447]:
+                      - button "Add column" [ref=e1449] [cursor=pointer]:
+                        - img [ref=e1450] [cursor=pointer]
+                - rowgroup [ref=e1451]:
+                  - row "Actions for Completion of the draft 3-Year EDSP and 10-Year Roadmap Subtasks for Completion of the draft 3-Year EDSP and 10-Year Roadmap Edit task Completion of the draft 3-Year EDSP and 10-Year Roadmap Open Completion of the draft 3-Year EDSP and 10-Year Roadmap Unassigned Unassigned Needs a lead Edit dates for Completion of the draft 3-Year EDSP and 10-Year Roadmap High Funding not required —" [ref=e1452]:
+                    - cell "Actions for Completion of the draft 3-Year EDSP and 10-Year Roadmap" [ref=e1453]:
+                      - button "Actions for Completion of the draft 3-Year EDSP and 10-Year Roadmap" [ref=e1455] [cursor=pointer]:
+                        - img [ref=e1456] [cursor=pointer]
+                    - cell "Subtasks for Completion of the draft 3-Year EDSP and 10-Year Roadmap Edit task Completion of the draft 3-Year EDSP and 10-Year Roadmap Open Completion of the draft 3-Year EDSP and 10-Year Roadmap" [ref=e1460]:
+                      - generic [ref=e1461]:
+                        - button "Subtasks for Completion of the draft 3-Year EDSP and 10-Year Roadmap" [ref=e1462] [cursor=pointer]:
+                          - img [ref=e1463] [cursor=pointer]
+                        - button "Edit task Completion of the draft 3-Year EDSP and 10-Year Roadmap" [ref=e1465] [cursor=pointer]: Completion of the draft 3-Year EDSP and 10-Year Roadmap
+                        - button "Open Completion of the draft 3-Year EDSP and 10-Year Roadmap" [ref=e1466] [cursor=pointer]:
+                          - img [ref=e1467] [cursor=pointer]
+                    - cell "Unassigned Unassigned" [ref=e1469]:
+                      - generic [ref=e1470]:
+                        - generic "Unassigned" [ref=e1471]: +
+                        - combobox "Owner for Completion of the draft 3-Year EDSP and 10-Year Roadmap" [ref=e1473]:
+                          - option "Unassigned" [selected]
+                          - option "Alex Rivera"
+                    - cell "Needs a lead" [ref=e1474]:
+                      - generic [ref=e1475]: Needs a lead
+                    - cell "Edit dates for Completion of the draft 3-Year EDSP and 10-Year Roadmap" [ref=e1476]:
+                      - button "Edit dates for Completion of the draft 3-Year EDSP and 10-Year Roadmap" [ref=e1477] [cursor=pointer]:
+                        - img [ref=e1478] [cursor=pointer]
+                        - generic [ref=e1480] [cursor=pointer]:
+                          - generic [ref=e1481] [cursor=pointer]: Jan 20 → Feb 19
+                          - generic [ref=e1483] [cursor=pointer]:
+                            - img [ref=e1484] [cursor=pointer]
+                            - text: 26757 days left
+                    - cell "High" [ref=e1486]:
+                      - combobox "Priority for Completion of the draft 3-Year EDSP and 10-Year Roadmap" [ref=e1488]:
+                        - option "Low"
+                        - option "Medium"
+                        - option "High" [selected]
+                    - cell "Funding not required" [ref=e1489]:
+                      - generic [ref=e1490]: Funding not required
+                    - cell "—" [ref=e1491]:
+                      - generic "No visible expenses" [ref=e1492]: —
+                    - cell [ref=e1493]
+                  - row [ref=e1494]:
+                    - cell [ref=e1495]
+                    - cell [ref=e1496]:
+                      - generic [ref=e1498]:
+                        - img [ref=e1499]
+                        - textbox "Add task to Part 6 — Draft 3- Year EDSP and 10-Year Roadmap" [ref=e1500]
+                - rowgroup [ref=e1501]:
+                  - row "1 tasks · 0% complete ₱0" [ref=e1502]:
+                    - cell [ref=e1503]
+                    - cell "1 tasks · 0% complete" [ref=e1504]
+                    - cell [ref=e1505]
+                    - cell [ref=e1506]
+                    - cell [ref=e1507]
+                    - cell [ref=e1508]
+                    - cell "₱0" [ref=e1509]
+                    - cell [ref=e1510]
+                    - cell [ref=e1511]
+            - generic [ref=e1512]:
+              - generic [ref=e1513]:
+                - button "Collapse Part 7 — Stakeholder Validation and Finalization" [expanded] [ref=e1514] [cursor=pointer]:
+                  - img [ref=e1515] [cursor=pointer]
+                - button "Edit group Part 7 — Stakeholder Validation and Finalization" [ref=e1517] [cursor=pointer]: Part 7 — Stakeholder Validation and Finalization
+                - generic [ref=e1518]: 2 tasks · 0 subtasks
+                - button "Color for Part 7 — Stakeholder Validation and Finalization" [ref=e1520] [cursor=pointer]
+                - button "Group actions for Part 7 — Stakeholder Validation and Finalization" [ref=e1522] [cursor=pointer]:
+                  - img [ref=e1523] [cursor=pointer]
+              - table "Part 7 — Stakeholder Validation and Finalization tasks" [ref=e1528]:
+                - rowgroup [ref=e1539]:
+                  - row "Task actions Task Owner Status Due date Priority Budget Actual expenses Column customization" [ref=e1540]:
+                    - columnheader "Task actions" [ref=e1541]
+                    - columnheader "Task" [ref=e1542]:
+                      - generic [ref=e1543]:
+                        - text: Task
+                        - button "Column actions for Task" [ref=e1544] [cursor=pointer]:
+                          - img [ref=e1545] [cursor=pointer]
+                      - separator "Resize Task column" [ref=e1549]
+                    - columnheader "Owner" [ref=e1550]:
+                      - generic [ref=e1551]:
+                        - text: Owner
+                        - button "Column actions for Owner" [ref=e1553] [cursor=pointer]:
+                          - img [ref=e1554] [cursor=pointer]
+                      - separator "Resize Owner column" [ref=e1558]
+                    - columnheader "Status" [ref=e1559]:
+                      - generic [ref=e1560]:
+                        - text: Status
+                        - button "Column actions for Status" [ref=e1562] [cursor=pointer]:
+                          - img [ref=e1563] [cursor=pointer]
+                      - separator "Resize Status column" [ref=e1567]
+                    - columnheader "Due date" [ref=e1568]:
+                      - generic [ref=e1569]:
+                        - text: Due date
+                        - button "Column actions for Due date" [ref=e1571] [cursor=pointer]:
+                          - img [ref=e1572] [cursor=pointer]
+                      - separator "Resize Due date column" [ref=e1576]
+                    - columnheader "Priority" [ref=e1577]:
+                      - generic [ref=e1578]:
+                        - text: Priority
+                        - button "Column actions for Priority" [ref=e1580] [cursor=pointer]:
+                          - img [ref=e1581] [cursor=pointer]
+                      - separator "Resize Priority column" [ref=e1585]
+                    - columnheader "Budget" [ref=e1586]:
+                      - generic [ref=e1587]:
+                        - text: Budget
+                        - button "Column actions for Budget" [ref=e1589] [cursor=pointer]:
+                          - img [ref=e1590] [cursor=pointer]
+                      - separator "Resize Budget column" [ref=e1594]
+                    - columnheader "Actual expenses" [ref=e1595]:
+                      - generic [ref=e1596]:
+                        - text: Actual expenses
+                        - button "Column actions for Actual expenses" [ref=e1598] [cursor=pointer]:
+                          - img [ref=e1599] [cursor=pointer]
+                      - separator "Resize Actual expenses column" [ref=e1603]
+                    - columnheader "Column customization" [ref=e1604]:
+                      - button "Add column" [ref=e1606] [cursor=pointer]:
+                        - img [ref=e1607] [cursor=pointer]
+                - rowgroup [ref=e1608]:
+                  - row "Actions for Stakeholder Validation Subtasks for Stakeholder Validation Edit task Stakeholder Validation Open Stakeholder Validation Unassigned Unassigned Needs a lead Edit dates for Stakeholder Validation High Funding not required —" [ref=e1609]:
+                    - cell "Actions for Stakeholder Validation" [ref=e1610]:
+                      - button "Actions for Stakeholder Validation" [ref=e1612] [cursor=pointer]:
+                        - img [ref=e1613] [cursor=pointer]
+                    - cell "Subtasks for Stakeholder Validation Edit task Stakeholder Validation Open Stakeholder Validation" [ref=e1617]:
+                      - generic [ref=e1618]:
+                        - button "Subtasks for Stakeholder Validation" [ref=e1619] [cursor=pointer]:
+                          - img [ref=e1620] [cursor=pointer]
+                        - button "Edit task Stakeholder Validation" [ref=e1622] [cursor=pointer]: Stakeholder Validation
+                        - button "Open Stakeholder Validation" [ref=e1623] [cursor=pointer]:
+                          - img [ref=e1624] [cursor=pointer]
+                    - cell "Unassigned Unassigned" [ref=e1626]:
+                      - generic [ref=e1627]:
+                        - generic "Unassigned" [ref=e1628]: +
+                        - combobox "Owner for Stakeholder Validation" [ref=e1630]:
+                          - option "Unassigned" [selected]
+                          - option "Alex Rivera"
+                    - cell "Needs a lead" [ref=e1631]:
+                      - generic [ref=e1632]: Needs a lead
+                    - cell "Edit dates for Stakeholder Validation" [ref=e1633]:
+                      - button "Edit dates for Stakeholder Validation" [ref=e1634] [cursor=pointer]:
+                        - img [ref=e1635] [cursor=pointer]
+                        - generic [ref=e1637] [cursor=pointer]:
+                          - generic [ref=e1638] [cursor=pointer]: Feb 20 → Mar 19
+                          - generic [ref=e1640] [cursor=pointer]:
+                            - img [ref=e1641] [cursor=pointer]
+                            - text: 26785 days left
+                    - cell "High" [ref=e1643]:
+                      - combobox "Priority for Stakeholder Validation" [ref=e1645]:
+                        - option "Low"
+                        - option "Medium"
+                        - option "High" [selected]
+                    - cell "Funding not required" [ref=e1646]:
+                      - generic [ref=e1647]: Funding not required
+                    - cell "—" [ref=e1648]:
+                      - generic "No visible expenses" [ref=e1649]: —
+                    - cell [ref=e1650]
+                  - row "Actions for Integration, Technical Finalization, and Institutional Endorsement Subtasks for Integration, Technical Finalization, and Institutional Endorsement Edit task Integration, Technical Finalization, and Institutional Endorsement Open Integration, Technical Finalization, and Institutional Endorsement Unassigned Unassigned Needs a lead Edit dates for Integration, Technical Finalization, and Institutional Endorsement High Funding not required —" [ref=e1651]:
+                    - cell "Actions for Integration, Technical Finalization, and Institutional Endorsement" [ref=e1652]:
+                      - button "Actions for Integration, Technical Finalization, and Institutional Endorsement" [ref=e1654] [cursor=pointer]:
+                        - img [ref=e1655] [cursor=pointer]
+                    - cell "Subtasks for Integration, Technical Finalization, and Institutional Endorsement Edit task Integration, Technical Finalization, and Institutional Endorsement Open Integration, Technical Finalization, and Institutional Endorsement" [ref=e1659]:
+                      - generic [ref=e1660]:
+                        - button "Subtasks for Integration, Technical Finalization, and Institutional Endorsement" [ref=e1661] [cursor=pointer]:
+                          - img [ref=e1662] [cursor=pointer]
+                        - button "Edit task Integration, Technical Finalization, and Institutional Endorsement" [ref=e1664] [cursor=pointer]: Integration, Technical Finalization, and Institutional Endorsement
+                        - button "Open Integration, Technical Finalization, and Institutional Endorsement" [ref=e1665] [cursor=pointer]:
+                          - img [ref=e1666] [cursor=pointer]
+                    - cell "Unassigned Unassigned" [ref=e1668]:
+                      - generic [ref=e1669]:
+                        - generic "Unassigned" [ref=e1670]: +
+                        - combobox "Owner for Integration, Technical Finalization, and Institutional Endorsement" [ref=e1672]:
+                          - option "Unassigned" [selected]
+                          - option "Alex Rivera"
+                    - cell "Needs a lead" [ref=e1673]:
+                      - generic [ref=e1674]: Needs a lead
+                    - cell "Edit dates for Integration, Technical Finalization, and Institutional Endorsement" [ref=e1675]:
+                      - button "Edit dates for Integration, Technical Finalization, and Institutional Endorsement" [ref=e1676] [cursor=pointer]:
+                        - img [ref=e1677] [cursor=pointer]
+                        - generic [ref=e1679] [cursor=pointer]:
+                          - generic [ref=e1680] [cursor=pointer]: Feb 20 → Mar 19
+                          - generic [ref=e1682] [cursor=pointer]:
+                            - img [ref=e1683] [cursor=pointer]
+                            - text: 26785 days left
+                    - cell "High" [ref=e1685]:
+                      - combobox "Priority for Integration, Technical Finalization, and Institutional Endorsement" [ref=e1687]:
+                        - option "Low"
+                        - option "Medium"
+                        - option "High" [selected]
+                    - cell "Funding not required" [ref=e1688]:
+                      - generic [ref=e1689]: Funding not required
+                    - cell "—" [ref=e1690]:
+                      - generic "No visible expenses" [ref=e1691]: —
+                    - cell [ref=e1692]
+                  - row [ref=e1693]:
+                    - cell [ref=e1694]
+                    - cell [ref=e1695]:
+                      - generic [ref=e1697]:
+                        - img [ref=e1698]
+                        - textbox "Add task to Part 7 — Stakeholder Validation and Finalization" [ref=e1699]
+                - rowgroup [ref=e1700]:
+                  - row "2 tasks · 0% complete ₱0" [ref=e1701]:
+                    - cell [ref=e1702]
+                    - cell "2 tasks · 0% complete" [ref=e1703]
+                    - cell [ref=e1704]
+                    - cell [ref=e1705]
+                    - cell [ref=e1706]
+                    - cell [ref=e1707]
+                    - cell "₱0" [ref=e1708]
+                    - cell [ref=e1709]
+                    - cell [ref=e1710]
+            - generic [ref=e1711]:
+              - generic [ref=e1712]:
+                - button "Collapse Part 8 — Final Outputs and Adoption" [expanded] [ref=e1713] [cursor=pointer]:
+                  - img [ref=e1714] [cursor=pointer]
+                - button "Edit group Part 8 — Final Outputs and Adoption" [ref=e1716] [cursor=pointer]: Part 8 — Final Outputs and Adoption
+                - generic [ref=e1717]: 1 task · 0 subtasks
+                - button "Color for Part 8 — Final Outputs and Adoption" [ref=e1719] [cursor=pointer]
+                - button "Group actions for Part 8 — Final Outputs and Adoption" [ref=e1721] [cursor=pointer]:
+                  - img [ref=e1722] [cursor=pointer]
+              - table "Part 8 — Final Outputs and Adoption tasks" [ref=e1727]:
+                - rowgroup [ref=e1738]:
+                  - row "Task actions Task Owner Status Due date Priority Budget Actual expenses Column customization" [ref=e1739]:
+                    - columnheader "Task actions" [ref=e1740]
+                    - columnheader "Task" [ref=e1741]:
+                      - generic [ref=e1742]:
+                        - text: Task
+                        - button "Column actions for Task" [ref=e1743] [cursor=pointer]:
+                          - img [ref=e1744] [cursor=pointer]
+                      - separator "Resize Task column" [ref=e1748]
+                    - columnheader "Owner" [ref=e1749]:
+                      - generic [ref=e1750]:
+                        - text: Owner
+                        - button "Column actions for Owner" [ref=e1752] [cursor=pointer]:
+                          - img [ref=e1753] [cursor=pointer]
+                      - separator "Resize Owner column" [ref=e1757]
+                    - columnheader "Status" [ref=e1758]:
+                      - generic [ref=e1759]:
+                        - text: Status
+                        - button "Column actions for Status" [ref=e1761] [cursor=pointer]:
+                          - img [ref=e1762] [cursor=pointer]
+                      - separator "Resize Status column" [ref=e1766]
+                    - columnheader "Due date" [ref=e1767]:
+                      - generic [ref=e1768]:
+                        - text: Due date
+                        - button "Column actions for Due date" [ref=e1770] [cursor=pointer]:
+                          - img [ref=e1771] [cursor=pointer]
+                      - separator "Resize Due date column" [ref=e1775]
+                    - columnheader "Priority" [ref=e1776]:
+                      - generic [ref=e1777]:
+                        - text: Priority
+                        - button "Column actions for Priority" [ref=e1779] [cursor=pointer]:
+                          - img [ref=e1780] [cursor=pointer]
+                      - separator "Resize Priority column" [ref=e1784]
+                    - columnheader "Budget" [ref=e1785]:
+                      - generic [ref=e1786]:
+                        - text: Budget
+                        - button "Column actions for Budget" [ref=e1788] [cursor=pointer]:
+                          - img [ref=e1789] [cursor=pointer]
+                      - separator "Resize Budget column" [ref=e1793]
+                    - columnheader "Actual expenses" [ref=e1794]:
+                      - generic [ref=e1795]:
+                        - text: Actual expenses
+                        - button "Column actions for Actual expenses" [ref=e1797] [cursor=pointer]:
+                          - img [ref=e1798] [cursor=pointer]
+                      - separator "Resize Actual expenses column" [ref=e1802]
+                    - columnheader "Column customization" [ref=e1803]:
+                      - button "Add column" [ref=e1805] [cursor=pointer]:
+                        - img [ref=e1806] [cursor=pointer]
+                - rowgroup [ref=e1807]:
+                  - row "Actions for Final Outputs and Adoption Subtasks for Final Outputs and Adoption Edit task Final Outputs and Adoption Open Final Outputs and Adoption Unassigned Unassigned Needs a lead Edit dates for Final Outputs and Adoption High Funding not required —" [ref=e1808]:
+                    - cell "Actions for Final Outputs and Adoption" [ref=e1809]:
+                      - button "Actions for Final Outputs and Adoption" [ref=e1811] [cursor=pointer]:
+                        - img [ref=e1812] [cursor=pointer]
+                    - cell "Subtasks for Final Outputs and Adoption Edit task Final Outputs and Adoption Open Final Outputs and Adoption" [ref=e1816]:
+                      - generic [ref=e1817]:
+                        - button "Subtasks for Final Outputs and Adoption" [ref=e1818] [cursor=pointer]:
+                          - img [ref=e1819] [cursor=pointer]
+                        - button "Edit task Final Outputs and Adoption" [ref=e1821] [cursor=pointer]: Final Outputs and Adoption
+                        - button "Open Final Outputs and Adoption" [ref=e1822] [cursor=pointer]:
+                          - img [ref=e1823] [cursor=pointer]
+                    - cell "Unassigned Unassigned" [ref=e1825]:
+                      - generic [ref=e1826]:
+                        - generic "Unassigned" [ref=e1827]: +
+                        - combobox "Owner for Final Outputs and Adoption" [ref=e1829]:
+                          - option "Unassigned" [selected]
+                          - option "Alex Rivera"
+                    - cell "Needs a lead" [ref=e1830]:
+                      - generic [ref=e1831]: Needs a lead
+                    - cell "Edit dates for Final Outputs and Adoption" [ref=e1832]:
+                      - button "Edit dates for Final Outputs and Adoption" [ref=e1833] [cursor=pointer]:
+                        - img [ref=e1834] [cursor=pointer]
+                        - generic [ref=e1836] [cursor=pointer]:
+                          - generic [ref=e1837] [cursor=pointer]: Mar 20 → Apr 19
+                          - generic [ref=e1839] [cursor=pointer]:
+                            - img [ref=e1840] [cursor=pointer]
+                            - text: 26816 days left
+                    - cell "High" [ref=e1842]:
+                      - combobox "Priority for Final Outputs and Adoption" [ref=e1844]:
+                        - option "Low"
+                        - option "Medium"
+                        - option "High" [selected]
+                    - cell "Funding not required" [ref=e1845]:
+                      - generic [ref=e1846]: Funding not required
+                    - cell "—" [ref=e1847]:
+                      - generic "No visible expenses" [ref=e1848]: —
+                    - cell [ref=e1849]
+                  - row [ref=e1850]:
+                    - cell [ref=e1851]
+                    - cell [ref=e1852]:
+                      - generic [ref=e1854]:
+                        - img [ref=e1855]
+                        - textbox "Add task to Part 8 — Final Outputs and Adoption" [ref=e1856]
+                - rowgroup [ref=e1857]:
+                  - row "1 tasks · 0% complete ₱0" [ref=e1858]:
+                    - cell [ref=e1859]
+                    - cell "1 tasks · 0% complete" [ref=e1860]
+                    - cell [ref=e1861]
+                    - cell [ref=e1862]
+                    - cell [ref=e1863]
+                    - cell [ref=e1864]
+                    - cell "₱0" [ref=e1865]
+                    - cell [ref=e1866]
+                    - cell [ref=e1867]
+            - button "Add new group" [ref=e1868] [cursor=pointer]:
+              - img [ref=e1869] [cursor=pointer]
+              - text: Add new group
+```

@@ -1,0 +1,1629 @@
+{
+  "date": "2026-11-17 Asia/Singapore",
+  "status": "implemented",
+  "changes": [
+    {
+      "file": "src/app/components/workflow/SubmitForReviewForm.tsx",
+      "area": "Tasks and reviews",
+      "before": "Complete every subitem before submitting the parent task.",
+      "after": "Complete every subtask before submitting this task for review.",
+      "why": "Use the product term Subtask and name the actual next step.",
+      "id": "W001",
+      "locations": [
+        {
+          "file": "src/app/components/workflow/SubmitForReviewForm.tsx",
+          "line": 42,
+          "kind": "StringLiteral",
+          "oldSource": "\"Complete every subitem before submitting the parent task.\"",
+          "newSource": "\"Complete every subtask before submitting this task for review.\"",
+          "finalLine": 43
+        }
+      ]
+    },
+    {
+      "file": "src/app/components/workflow/SubmitForReviewForm.tsx",
+      "area": "Tasks and reviews",
+      "before": "Failed to submit the task.",
+      "after": "We couldn't submit this task for review. Check its current status before submitting again.",
+      "why": "Name the action and avoid an unsafe blind resubmission.",
+      "id": "W002",
+      "locations": [
+        {
+          "file": "src/app/components/workflow/SubmitForReviewForm.tsx",
+          "line": 71,
+          "kind": "StringLiteral",
+          "oldSource": "\"Failed to submit the task.\"",
+          "newSource": "\"We couldn't submit this task for review. Check its current status before submitting again.\"",
+          "finalLine": 70
+        }
+      ]
+    },
+    {
+      "file": "src/app/components/workflow/TaskDiscussion.tsx",
+      "area": "Tasks and reviews",
+      "before": "Failed to post comment.",
+      "after": "We couldn't post your comment. Check the discussion before posting it again.",
+      "why": "Explain the failed action and prevent a duplicate comment.",
+      "id": "W003",
+      "locations": [
+        {
+          "file": "src/app/components/workflow/TaskDiscussion.tsx",
+          "line": 77,
+          "kind": "StringLiteral",
+          "oldSource": "\"Failed to post comment.\"",
+          "newSource": "\"We couldn't post your comment. Check the discussion before posting it again.\"",
+          "finalLine": 77
+        }
+      ]
+    },
+    {
+      "file": "src/app/components/workflow/TaskDiscussion.tsx",
+      "area": "Tasks and reviews",
+      "before": "Failed to remove comment.",
+      "after": "We couldn't remove this comment. Check the discussion before trying again.",
+      "why": "Use a direct explanation and a concrete next step.",
+      "id": "W004",
+      "locations": [
+        {
+          "file": "src/app/components/workflow/TaskDiscussion.tsx",
+          "line": 96,
+          "kind": "StringLiteral",
+          "oldSource": "\"Failed to remove comment.\"",
+          "newSource": "\"We couldn't remove this comment. Check the discussion before trying again.\"",
+          "finalLine": 96
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/reviews/components/ReviewSubitemInspector.tsx",
+      "area": "Tasks and reviews",
+      "before": "Subtask root is no longer available.",
+      "after": "The task this subtask belongs to is no longer available.",
+      "why": "Explain the relationship instead of exposing the internal word root.",
+      "id": "W005",
+      "locations": [
+        {
+          "file": "src/app/features/reviews/components/ReviewSubitemInspector.tsx",
+          "line": 18,
+          "kind": "StringLiteral",
+          "oldSource": "'Subtask root is no longer available.'",
+          "newSource": "\"The task this subtask belongs to is no longer available.\"",
+          "finalLine": 19
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/reviews/components/ReviewSubitemInspector.tsx",
+      "area": "Tasks and reviews",
+      "before": "Could not verify subtask root.",
+      "after": "We couldn't load the task this subtask belongs to. Try loading it again.",
+      "why": "Describe what could not load and give a read-only recovery step.",
+      "id": "W006",
+      "locations": [
+        {
+          "file": "src/app/features/reviews/components/ReviewSubitemInspector.tsx",
+          "line": 20,
+          "kind": "StringLiteral",
+          "oldSource": "'Could not verify subtask root.'",
+          "newSource": "\"We couldn't load the task this subtask belongs to. Try loading it again.\"",
+          "finalLine": 21
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/reviews/components/ReviewSubitemInspector.tsx",
+      "area": "Tasks and reviews",
+      "before": "Retry subtask root",
+      "after": "Reload task",
+      "why": "Name the visible result of the button.",
+      "id": "W007",
+      "locations": [
+        {
+          "file": "src/app/features/reviews/components/ReviewSubitemInspector.tsx",
+          "line": 23,
+          "kind": "JsxText",
+          "oldSource": "Retry subtask root",
+          "newSource": "Reload task",
+          "finalLine": 24
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/subtasks/components/TaskSubtasksWidget.tsx",
+      "area": "Tasks and reviews",
+      "before": "Work is unavailable in the current actor or task scope.",
+      "after": "We couldn't confirm access to this task's work. Close this view and open the task again.",
+      "why": "Remove actor/scope jargon without implying that access will be granted.",
+      "id": "W008",
+      "locations": [
+        {
+          "file": "src/app/features/subtasks/components/TaskSubtasksWidget.tsx",
+          "line": 14,
+          "kind": "JsxText",
+          "oldSource": "Work is unavailable in the current actor or task scope.",
+          "newSource": "We couldn't confirm access to this task's work. Close this view and open the task again.",
+          "finalLine": 14
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/tasks/components/board/TaskEditorSubtasks.tsx",
+      "area": "Tasks and reviews",
+      "before": "Work people are unavailable in the current actor or task scope.",
+      "after": "We couldn't confirm access to this task's team. Close this view and open the task again.",
+      "why": "Explain which information is unavailable and how to recover.",
+      "id": "W009",
+      "locations": [
+        {
+          "file": "src/app/features/tasks/components/board/TaskEditorSubtasks.tsx",
+          "line": 28,
+          "kind": "JsxText",
+          "oldSource": "Work people are unavailable in the current actor or task scope.",
+          "newSource": "We couldn't confirm access to this task's team. Close this view and open the task again.",
+          "finalLine": 28
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/personal-work/components/LeadingNotificationTarget.tsx",
+      "area": "Tasks and reviews",
+      "before": "This subitem is unavailable.",
+      "after": "This subtask is no longer available to your account.",
+      "why": "Use Subtask and preserve the current access boundary.",
+      "id": "W010",
+      "locations": [
+        {
+          "file": "src/app/features/personal-work/components/LeadingNotificationTarget.tsx",
+          "line": 43,
+          "kind": "StringLiteral",
+          "oldSource": "'This subitem is unavailable.'",
+          "newSource": "\"This subtask is no longer available to your account.\"",
+          "finalLine": 43
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/personal-work/components/WorkInspector.tsx",
+      "area": "Tasks and reviews",
+      "before": "Personal subitem ·",
+      "after": "Personal subtask ·",
+      "why": "Use the same name in personal and Office work.",
+      "id": "W011",
+      "locations": [
+        {
+          "file": "src/app/features/personal-work/components/WorkInspector.tsx",
+          "line": 133,
+          "kind": "TemplateHead",
+          "oldSource": "`Personal subitem · ${",
+          "newSource": "`Personal subtask · ${",
+          "finalLine": 133
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/nested-work/components/WorkStaffingDialog.tsx",
+      "area": "Team and access",
+      "before": "Recovered people draft is stale. Review the current appointments before saving.",
+      "after": "Task details changed after this team draft was saved. Review the current Lead and contributors before saving.",
+      "why": "Explain stale data in terms of the user's team and draft.",
+      "id": "W012",
+      "locations": [
+        {
+          "file": "src/app/features/nested-work/components/WorkStaffingDialog.tsx",
+          "line": 151,
+          "kind": "StringLiteral",
+          "oldSource": "'Recovered people draft is stale. Review the current appointments before saving.'",
+          "newSource": "\"Task details changed after this team draft was saved. Review the current Lead and contributors before saving.\"",
+          "finalLine": 151
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/nested-work/components/WorkStaffingDialog.tsx",
+      "area": "Team and access",
+      "before": "Could not save this team. Please try again.",
+      "after": "We couldn't save this team. Check the current Lead and contributors before trying again.",
+      "why": "Give a specific recovery step instead of a generic retry.",
+      "id": "W013",
+      "locations": [
+        {
+          "file": "src/app/features/nested-work/components/WorkStaffingDialog.tsx",
+          "line": 133,
+          "kind": "StringLiteral",
+          "oldSource": "'Could not save this team. Please try again.'",
+          "newSource": "\"We couldn't save this team. Check the current Lead and contributors before trying again.\"",
+          "finalLine": 133
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/nested-work/components/WorkImpactSummary.tsx",
+      "area": "Team and access",
+      "before": "Current authority does not cover all affected work.",
+      "after": "You don't have permission to change all the affected work.",
+      "why": "Replace authority/scope wording with a clear permission limit.",
+      "id": "W014",
+      "locations": [
+        {
+          "file": "src/app/features/nested-work/components/WorkImpactSummary.tsx",
+          "line": 5,
+          "kind": "StringLiteral",
+          "oldSource": "'Current authority does not cover all affected work.'",
+          "newSource": "\"You don't have permission to change all the affected work.\"",
+          "finalLine": 5
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/nested-work/components/WorkImpactSummary.tsx",
+      "area": "Team and access",
+      "before": "A current parent manager must change this Lead appointment.",
+      "after": "A person who manages the parent task or subtask must change this Lead assignment.",
+      "why": "Identify the relevant work relationship without inventing a reviewer.",
+      "id": "W015",
+      "locations": [
+        {
+          "file": "src/app/features/nested-work/components/WorkImpactSummary.tsx",
+          "line": 5,
+          "kind": "StringLiteral",
+          "oldSource": "'A current parent manager must change this Lead appointment.'",
+          "newSource": "\"A person who manages the parent task or subtask must change this Lead assignment.\"",
+          "finalLine": 5
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/nested-work/components/WorkImpactSummary.tsx",
+      "area": "Team and access",
+      "before": "Resolve the affected work state before continuing.",
+      "after": "The affected work is not in a status that allows this change. Check its current status before continuing.",
+      "why": "Explain a status restriction instead of referring to an abstract state.",
+      "id": "W016",
+      "locations": [
+        {
+          "file": "src/app/features/nested-work/components/WorkImpactSummary.tsx",
+          "line": 6,
+          "kind": "StringLiteral",
+          "oldSource": "'Resolve the affected work state before continuing.'",
+          "newSource": "\"The affected work is not in a status that allows this change. Check its current status before continuing.\"",
+          "finalLine": 6
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/nested-work/components/WorkImpactSummary.tsx",
+      "area": "Team and access",
+      "before": "Recorded work, evidence, financial commitments or dependent staffing prevents this operation. Resolve the affected work first.",
+      "after": "This change is blocked by recorded work, evidence, financial commitments or team assignments that depend on it. Review the affected work first.",
+      "why": "Keep every blocker category while removing operation/staffing jargon.",
+      "id": "W017",
+      "locations": [
+        {
+          "file": "src/app/features/nested-work/components/WorkImpactSummary.tsx",
+          "line": 6,
+          "kind": "StringLiteral",
+          "oldSource": "'Recorded work, evidence, financial commitments or dependent staffing prevents this operation. Resolve the affected work first.'",
+          "newSource": "\"This change is blocked by recorded work, evidence, financial commitments or team assignments that depend on it. Review the affected work first.\"",
+          "finalLine": 6
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/nested-work/components/WorkImpactSummary.tsx",
+      "area": "Team and access",
+      "before": "Root task contributors are read-only for the Task Lead after project activation.",
+      "after": "After a project starts, Task Leads can't change the main task's contributors.",
+      "why": "Remove root and activation jargon while preserving who is restricted.",
+      "id": "W018",
+      "locations": [
+        {
+          "file": "src/app/features/nested-work/components/WorkImpactSummary.tsx",
+          "line": 9,
+          "kind": "StringLiteral",
+          "oldSource": "'Root task contributors are read-only for the Task Lead after project activation.'",
+          "newSource": "\"After a project starts, Task Leads can't change the main task's contributors.\"",
+          "finalLine": 9
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/nested-work/components/WorkImpactSummary.tsx",
+      "area": "Team and access",
+      "before": "subtasks in the selected scope;",
+      "after": "subtasks in this selection;",
+      "why": "Use selection for the work the user has selected.",
+      "id": "W019",
+      "locations": [
+        {
+          "file": "src/app/features/nested-work/components/WorkImpactSummary.tsx",
+          "line": 15,
+          "kind": "JsxText",
+          "oldSource": "subtasks in the selected scope; ",
+          "newSource": " subtasks in this selection; ",
+          "finalLine": 15
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/project-offices/components/LinkOfficeDialog.tsx",
+      "area": "Offices and invitations",
+      "before": "Confirm the canonical directory record. This link cannot be replaced. Its appointed Head controls its people.",
+      "after": "Choose the matching Office from the official directory. This link cannot be changed later. The appointed Office Head manages its members.",
+      "why": "Explain canonical data and keep the irreversible-link warning.",
+      "id": "W020",
+      "locations": [
+        {
+          "file": "src/app/features/project-offices/components/LinkOfficeDialog.tsx",
+          "line": 16,
+          "kind": "JsxText",
+          "oldSource": "Confirm the canonical directory record. This link cannot be replaced. Its appointed Head controls its people.",
+          "newSource": "Choose the matching Office from the official directory. This link cannot be changed later. The appointed Office Head manages its members.",
+          "finalLine": 16
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/project-offices/components/ProjectOfficeDirectory.tsx",
+      "area": "Offices and invitations",
+      "before": "Saved, but could not refresh. Retry loading; do not repeat the mutation.",
+      "after": "Your change was saved, but the list couldn't reload. Reload the list; don't save the change again.",
+      "why": "Keep the confirmed-save distinction and remove mutation jargon.",
+      "id": "W021",
+      "locations": [
+        {
+          "file": "src/app/features/project-offices/components/ProjectOfficeDirectory.tsx",
+          "line": 103,
+          "kind": "StringLiteral",
+          "oldSource": "'Saved, but could not refresh. Retry loading; do not repeat the mutation.'",
+          "newSource": "\"Your change was saved, but the list couldn't reload. Reload the list; don't save the change again.\"",
+          "finalLine": 104
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/project-offices/components/TaskOfficeControl.tsx",
+      "area": "Offices and invitations",
+      "before": "Confirming changes task responsibility. Proposed work remains unassigned; a joined canonical Office controls its own staffing.",
+      "after": "Confirming changes which Office is responsible for this task. Proposed work remains unassigned. Each joined Office manages its own team.",
+      "why": "Explain responsibility and membership without canonical/staffing language.",
+      "id": "W022",
+      "locations": [
+        {
+          "file": "src/app/features/project-offices/components/TaskOfficeControl.tsx",
+          "line": 38,
+          "kind": "JsxText",
+          "oldSource": "Confirming changes task responsibility. Proposed work remains unassigned; a joined canonical Office controls its own staffing.",
+          "newSource": "Confirming changes which Office is responsible for this task. Proposed work remains unassigned. Each joined Office manages its own team.",
+          "finalLine": 39
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/project-offices/components/TaskOfficeControl.tsx",
+      "area": "Offices and invitations",
+      "before": "Confirm canonical handover",
+      "after": "Confirm Office assignment",
+      "why": "Name the result of resolving responsibility to an official Office.",
+      "id": "W023",
+      "locations": [
+        {
+          "file": "src/app/features/project-offices/components/TaskOfficeControl.tsx",
+          "line": 51,
+          "kind": "JsxText",
+          "oldSource": "Confirm canonical handover",
+          "newSource": "Confirm Office assignment",
+          "finalLine": 52
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/project-offices/components/TaskOfficeControl.tsx",
+      "area": "Offices and invitations",
+      "before": "Office handover requires unassigned, unstarted work without staffed or started subitems.",
+      "after": "You can change the responsible Office only before work starts and before people are assigned to the task or its subtasks.",
+      "why": "Explain the existing eligibility limits in familiar words.",
+      "id": "W024",
+      "locations": [
+        {
+          "file": "src/app/features/project-offices/components/TaskOfficeControl.tsx",
+          "line": 52,
+          "kind": "StringLiteral",
+          "oldSource": "'Office handover requires unassigned, unstarted work without staffed or started subitems.'",
+          "newSource": "\"You can change the responsible Office only before work starts and before people are assigned to the task or its subtasks.\"",
+          "finalLine": 53
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/project-offices/presentation.ts",
+      "area": "Offices and invitations",
+      "before": "Refresh the authoritative Office data before managing participation.",
+      "after": "Reload the latest Office details before changing its project participation.",
+      "why": "Replace authoritative data with the information the user can reload.",
+      "id": "W025",
+      "locations": [
+        {
+          "file": "src/app/features/project-offices/presentation.ts",
+          "line": 21,
+          "kind": "StringLiteral",
+          "oldSource": "'Refresh the authoritative Office data before managing participation.'",
+          "newSource": "\"Reload the latest Office details before changing its project participation.\"",
+          "finalLine": 21
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/project-offices/presentation.ts",
+      "area": "Offices and invitations",
+      "before": "The appointed Office Head must confirm joined participation first.",
+      "after": "The appointed Office Head must confirm that this Office is joining the project first.",
+      "why": "Explain the prerequisite as an action, rather than a state name.",
+      "id": "W026",
+      "locations": [
+        {
+          "file": "src/app/features/project-offices/presentation.ts",
+          "line": 26,
+          "kind": "StringLiteral",
+          "oldSource": "'The appointed Office Head must confirm joined participation first.'",
+          "newSource": "\"The appointed Office Head must confirm that this Office is joining the project first.\"",
+          "finalLine": 26
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/project-access/components/RemovalDialog.tsx",
+      "area": "Team and access",
+      "before": "Confirmation unassigns their tasks and every affected subitem, clears Lead appointments and dependent delegation, and revokes the applicable membership, grants and pending invitations. Unfinished work requires reassignment. Historical progress, evidence and authorship stay recorded.",
+      "after": "Removing this member unassigns their tasks and all affected subtasks, clears their Lead roles and related delegations, and ends this membership, related project permissions and pending invitations. Reassign any unfinished work. Previous progress, evidence and authorship remain in the project history.",
+      "why": "Keep all removal consequences and retained history while using direct sentences.",
+      "caution": "Read the complete warning: this remains an irreversible access/work reassignment action.",
+      "id": "W027",
+      "locations": [
+        {
+          "file": "src/app/features/project-access/components/RemovalDialog.tsx",
+          "line": 15,
+          "kind": "JsxText",
+          "oldSource": "Confirmation unassigns their tasks and every affected subitem, clears Lead appointments and dependent delegation, and revokes the applicable membership, grants and pending invitations. Unfinished work requires reassignment. Historical progress, evidence and authorship stay recorded.",
+          "newSource": "Removing this member unassigns their tasks and all affected subtasks, clears their Lead roles and related delegations, and ends this membership, related project permissions and pending invitations. Reassign any unfinished work. Previous progress, evidence and authorship remain in the project history.",
+          "finalLine": 15
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/project-access/components/RemovalDialog.tsx",
+      "area": "Team and access",
+      "before": "Other projects, account roles and Office affiliation stay unchanged. Existing signed file links may remain usable for their short lifetime.",
+      "after": "This does not change their other projects, account role or Office membership. Previously issued private file links may work until they expire.",
+      "why": "Explain the separate account boundary and the existing temporary-link limitation.",
+      "id": "W028",
+      "locations": [
+        {
+          "file": "src/app/features/project-access/components/RemovalDialog.tsx",
+          "line": 15,
+          "kind": "JsxText",
+          "oldSource": "Other projects, account roles and Office affiliation stay unchanged. Existing signed file links may remain usable for their short lifetime.",
+          "newSource": "This does not change their other projects, account role or Office membership. Previously issued private file links may work until they expire.",
+          "finalLine": 15
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/project-access/components/RemovalDialog.tsx",
+      "area": "Team and access",
+      "before": "subitems affected across the complete project scope.",
+      "after": "subtasks affected across this project.",
+      "why": "Use Subtask and remove scope jargon without narrowing the preview.",
+      "id": "W029",
+      "locations": [
+        {
+          "file": "src/app/features/project-access/components/RemovalDialog.tsx",
+          "line": 16,
+          "kind": "JsxText",
+          "oldSource": "subitems affected across the complete project scope.",
+          "newSource": " subtasks affected across this project.",
+          "finalLine": 16
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/project-access/components/RemovalDialog.tsx",
+      "area": "Team and access",
+      "before": "· Subitem staffing / delegation",
+      "after": "· Subtask team assignments / delegation",
+      "why": "Use the same product term in the removal preview.",
+      "id": "W030",
+      "locations": [
+        {
+          "file": "src/app/features/project-access/components/RemovalDialog.tsx",
+          "line": 16,
+          "kind": "JsxText",
+          "oldSource": "· Subitem staffing / delegation",
+          "newSource": " · Subtask team assignments / delegation",
+          "finalLine": 16
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/project-invitations/components/ProjectInvitationForm.tsx",
+      "area": "Offices and invitations",
+      "before": "/ subitem",
+      "after": "/ subtask",
+      "why": "Keep invitation scope terminology consistent.",
+      "id": "W031",
+      "locations": [
+        {
+          "file": "src/app/features/project-invitations/components/ProjectInvitationForm.tsx",
+          "line": 38,
+          "kind": "StringLiteral",
+          "oldSource": "' / subitem'",
+          "newSource": "\" / subtask\"",
+          "finalLine": 38
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/project-invitations/components/ProjectInvitations.tsx",
+      "area": "Offices and invitations",
+      "before": "/ subitem",
+      "after": "/ subtask",
+      "why": "Keep invitation scope terminology consistent.",
+      "id": "W032",
+      "locations": [
+        {
+          "file": "src/app/features/project-invitations/components/ProjectInvitations.tsx",
+          "line": 35,
+          "kind": "StringLiteral",
+          "oldSource": "' / subitem'",
+          "newSource": "\" / subtask\"",
+          "finalLine": 36
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/project-invitations/components/ProjectInvitations.tsx",
+      "area": "Offices and invitations",
+      "before": "Email accepted by provider · receipt unconfirmed",
+      "after": "Email accepted for sending · delivery not confirmed",
+      "why": "Separate acceptance for sending from confirmed delivery; receipt is ambiguous here.",
+      "id": "W033",
+      "locations": [
+        {
+          "file": "src/app/features/project-invitations/components/ProjectInvitations.tsx",
+          "line": 36,
+          "kind": "StringLiteral",
+          "oldSource": "'Email accepted by provider · receipt unconfirmed'",
+          "newSource": "\"Email accepted for sending · delivery not confirmed\"",
+          "finalLine": 37
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/project-invitations/components/ProjectInvitations.tsx",
+      "area": "Offices and invitations",
+      "before": "Resend · rotate previous link",
+      "after": "Resend and replace old link",
+      "why": "Explain that resending invalidates the previous invitation link.",
+      "id": "W034",
+      "locations": [
+        {
+          "file": "src/app/features/project-invitations/components/ProjectInvitations.tsx",
+          "line": 39,
+          "kind": "StringLiteral",
+          "oldSource": "'Resend · rotate previous link'",
+          "newSource": "\"Resend and replace old link\"",
+          "finalLine": 40
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/project-invitations/components/ProjectInvitations.tsx",
+      "area": "Offices and invitations",
+      "before": "Optional · no private attachment available to you",
+      "after": "Optional · no file is available to your account",
+      "why": "Keep the privacy boundary without implying that no file exists.",
+      "id": "W035",
+      "locations": [
+        {
+          "file": "src/app/features/project-invitations/components/ProjectInvitations.tsx",
+          "line": 36,
+          "kind": "StringLiteral",
+          "oldSource": "'Optional · no private attachment available to you'",
+          "newSource": "\"Optional · no file is available to your account\"",
+          "finalLine": 37
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/project-import/components/ImportTaskReview.tsx",
+      "area": "Project setup and imports",
+      "before": "Subitem",
+      "after": "Subtask",
+      "why": "Use the established term in import review fields.",
+      "id": "W036",
+      "locations": [
+        {
+          "file": "src/app/features/project-import/components/ImportTaskReview.tsx",
+          "line": 24,
+          "kind": "TemplateHead",
+          "oldSource": "`Subitem ${",
+          "newSource": "`Subtask ${",
+          "finalLine": 24
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/project-import/components/ImportTaskReview.tsx",
+      "area": "Project setup and imports",
+      "before": "Subitem due",
+      "after": "Subtask due date",
+      "why": "Use a complete, consistent date label.",
+      "id": "W037",
+      "locations": [
+        {
+          "file": "src/app/features/project-import/components/ImportTaskReview.tsx",
+          "line": 25,
+          "kind": "TemplateHead",
+          "oldSource": "`Subitem due ${",
+          "newSource": "`Subtask due date ${",
+          "finalLine": 25
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/project-import/components/ImportTaskReview.tsx",
+      "area": "Project setup and imports",
+      "before": "Remove subitem",
+      "after": "Remove subtask",
+      "why": "Use the established term in the remove action.",
+      "id": "W038",
+      "locations": [
+        {
+          "file": "src/app/features/project-import/components/ImportTaskReview.tsx",
+          "line": 26,
+          "kind": "TemplateHead",
+          "oldSource": "`Remove subitem ${",
+          "newSource": "`Remove subtask ${",
+          "finalLine": 26
+        },
+        {
+          "file": "src/app/features/project-import/components/ImportTaskReview.tsx",
+          "line": 26,
+          "kind": "TemplateHead",
+          "oldSource": "`Remove subitem ${",
+          "newSource": "`Remove subtask ${",
+          "finalLine": 26
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/project-import/components/ImportTaskReview.tsx",
+      "area": "Project setup and imports",
+      "before": "Add subitem",
+      "after": "Add subtask",
+      "why": "Use the established term in the add action.",
+      "id": "W039",
+      "locations": [
+        {
+          "file": "src/app/features/project-import/components/ImportTaskReview.tsx",
+          "line": 27,
+          "kind": "JsxText",
+          "oldSource": "Add subitem",
+          "newSource": "Add subtask",
+          "finalLine": 27
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/project-import/selectors/draftValidation.ts",
+      "area": "Project setup and imports",
+      "before": "Enter each subitem name.",
+      "after": "Enter a name for every subtask.",
+      "why": "Use a direct validation instruction and the established term.",
+      "id": "W040",
+      "locations": [
+        {
+          "file": "src/app/features/project-import/selectors/draftValidation.ts",
+          "line": 86,
+          "kind": "StringLiteral",
+          "oldSource": "'Enter each subitem name.'",
+          "newSource": "\"Enter a name for every subtask.\"",
+          "finalLine": 86
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/project-import/selectors/draftValidation.ts",
+      "area": "Project setup and imports",
+      "before": "Subitem due date",
+      "after": "Subtask due date",
+      "why": "Use the established term in date validation.",
+      "id": "W041",
+      "locations": [
+        {
+          "file": "src/app/features/project-import/selectors/draftValidation.ts",
+          "line": 87,
+          "kind": "StringLiteral",
+          "oldSource": "'Subitem due date'",
+          "newSource": "\"Subtask due date\"",
+          "finalLine": 87
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/project-import/selectors/draftValidation.ts",
+      "area": "Project setup and imports",
+      "before": "Subitem due dates cannot be later than their task due date.",
+      "after": "A subtask's due date must be on or before its task's due date.",
+      "why": "State the allowed date range as an actionable rule.",
+      "id": "W042",
+      "locations": [
+        {
+          "file": "src/app/features/project-import/selectors/draftValidation.ts",
+          "line": 88,
+          "kind": "StringLiteral",
+          "oldSource": "'Subitem due dates cannot be later than their task due date.'",
+          "newSource": "\"A subtask's due date must be on or before its task's due date.\"",
+          "finalLine": 88
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/project-setup/components/ProjectSetupWizard.tsx",
+      "area": "Project setup and imports",
+      "before": "Could not confirm project creation. Retry to check the same request.",
+      "after": "We couldn't confirm whether the project was created. Keep this setup open and try again here; don't start another project.",
+      "why": "Explain an uncertain result while retaining the existing retry of the same creation request.",
+      "id": "W043",
+      "locations": [
+        {
+          "file": "src/app/features/project-setup/components/ProjectSetupWizard.tsx",
+          "line": 90,
+          "kind": "StringLiteral",
+          "oldSource": "'Could not confirm project creation. Retry to check the same request.'",
+          "newSource": "\"We couldn't confirm whether the project was created. Keep this setup open and try again here; don't start another project.\"",
+          "finalLine": 90
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/proposal-import/components/AssignmentModal.tsx",
+      "area": "Project setup and imports",
+      "before": "Confirm",
+      "after": "Apply team selection",
+      "why": "Name the outcome of applying the draft team selection.",
+      "id": "W044",
+      "locations": [
+        {
+          "file": "src/app/features/proposal-import/components/AssignmentModal.tsx",
+          "line": 304,
+          "kind": "JsxText",
+          "oldSource": "Confirm\r\n            ",
+          "newSource": "\r\n              Apply team selection\r\n            ",
+          "finalLine": 304
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/project-readiness/components/ProjectReadinessPanel.tsx",
+      "area": "Project setup and imports",
+      "before": "Invalid project readiness response.",
+      "after": "We couldn't check whether this project is ready. Reload the project checks.",
+      "why": "Replace response-format jargon with the information the user needs.",
+      "id": "W045",
+      "locations": [
+        {
+          "file": "src/app/features/project-readiness/components/ProjectReadinessPanel.tsx",
+          "line": 36,
+          "kind": "StringLiteral",
+          "oldSource": "'Invalid project readiness response.'",
+          "newSource": "\"We couldn't check whether this project is ready. Reload the project checks.\"",
+          "finalLine": 36
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/project-readiness/components/ProjectReadinessPanel.tsx",
+      "area": "Project setup and imports",
+      "before": "Confirm",
+      "after": "Confirm review",
+      "why": "Identify the check review being confirmed.",
+      "id": "W046",
+      "locations": [
+        {
+          "file": "src/app/features/project-readiness/components/ProjectReadinessPanel.tsx",
+          "line": 83,
+          "kind": "JsxText",
+          "oldSource": "Confirm",
+          "newSource": "Confirm review",
+          "finalLine": 83
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/workspaces/components/WorkspaceCreateDialog.tsx",
+      "area": "Navigation and personal work",
+      "before": "Could not create. Retry keeps the same request identity.",
+      "after": "We couldn't confirm whether it was created. Keep this form open and try again here; don't start another creation form.",
+      "why": "Remove request-identity jargon while retaining the existing safe retry in this form.",
+      "id": "W047",
+      "locations": [
+        {
+          "file": "src/app/features/workspaces/components/WorkspaceCreateDialog.tsx",
+          "line": 20,
+          "kind": "StringLiteral",
+          "oldSource": "'Could not create. Retry keeps the same request identity.'",
+          "newSource": "\"We couldn't confirm whether it was created. Keep this form open and try again here; don't start another creation form.\"",
+          "finalLine": 21
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/workspaces/hooks/usePersonalProject.ts",
+      "area": "Navigation and personal work",
+      "before": "Save failed. Retry keeps the same request identity.",
+      "after": "We couldn't confirm whether your changes were saved. Check the current project before trying again; keep this view open.",
+      "why": "Explain the saved-state uncertainty without exposing request IDs.",
+      "id": "W048",
+      "locations": [
+        {
+          "file": "src/app/features/workspaces/hooks/usePersonalProject.ts",
+          "line": 31,
+          "kind": "StringLiteral",
+          "oldSource": "'Save failed. Retry keeps the same request identity.'",
+          "newSource": "\"We couldn't confirm whether your changes were saved. Check the current project before trying again; keep this view open.\"",
+          "finalLine": 32
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/organization/components/org-tree/OrgModal.tsx",
+      "area": "Organization and administration",
+      "before": "No parent (root-level)",
+      "after": "No parent Office (top level)",
+      "why": "Describe the position in the organization without tree jargon.",
+      "id": "W049",
+      "locations": [
+        {
+          "file": "src/app/features/organization/components/org-tree/OrgModal.tsx",
+          "line": 266,
+          "kind": "StringLiteral",
+          "oldSource": "\"No parent (root-level)\"",
+          "newSource": "\"No parent Office (top level)\"",
+          "finalLine": 266
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/organization/components/org-tree/OrgModal.tsx",
+      "area": "Organization and administration",
+      "before": "Failed to save",
+      "after": "We couldn't confirm whether the organization changes were saved. Check the current structure before saving again.",
+      "why": "Identify what is being saved and avoid an unsafe blind retry.",
+      "id": "W050",
+      "locations": [
+        {
+          "file": "src/app/features/organization/components/org-tree/OrgModal.tsx",
+          "line": 200,
+          "kind": "StringLiteral",
+          "oldSource": "\"Failed to save\"",
+          "newSource": "\"We couldn't confirm whether the organization changes were saved. Check the current structure before saving again.\"",
+          "finalLine": 200
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/organization/components/org-tree/OrgTreeBuilder.tsx",
+      "area": "Organization and administration",
+      "before": "Cannot delete the root LGU node",
+      "after": "You can't delete the main LGU record.",
+      "why": "Keep the restriction while removing graph terminology.",
+      "id": "W051",
+      "locations": [
+        {
+          "file": "src/app/features/organization/components/org-tree/OrgTreeBuilder.tsx",
+          "line": 181,
+          "kind": "StringLiteral",
+          "oldSource": "\"Cannot delete the root LGU node\"",
+          "newSource": "\"You can't delete the main LGU record.\"",
+          "finalLine": 181
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/organization/components/org-tree/OrgTreeBuilder.tsx",
+      "area": "Organization and administration",
+      "before": "Failed to delete",
+      "after": "We couldn't confirm the deletion. Check the organization structure before trying again.",
+      "why": "Identify the action and preserve uncertainty about the result.",
+      "id": "W052",
+      "locations": [
+        {
+          "file": "src/app/features/organization/components/org-tree/OrgTreeBuilder.tsx",
+          "line": 198,
+          "kind": "StringLiteral",
+          "oldSource": "\"Failed to delete\"",
+          "newSource": "\"We couldn't confirm the deletion. Check the organization structure before trying again.\"",
+          "finalLine": 198
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/organization/components/org-tree/OrgTreeBuilder.tsx",
+      "area": "Organization and administration",
+      "before": "Failed to restore",
+      "after": "We couldn't confirm whether the Office was restored. Check the organization structure before trying again.",
+      "why": "Explain the failed restore and a safe verification step.",
+      "id": "W053",
+      "locations": [
+        {
+          "file": "src/app/features/organization/components/org-tree/OrgTreeBuilder.tsx",
+          "line": 209,
+          "kind": "StringLiteral",
+          "oldSource": "\"Failed to restore\"",
+          "newSource": "\"We couldn't confirm whether the Office was restored. Check the organization structure before trying again.\"",
+          "finalLine": 209
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/organization/components/org-tree/OrgTreeBuilder.tsx",
+      "area": "Organization and administration",
+      "before": "Failed to assign user",
+      "after": "We couldn't confirm this person's Office assignment. Check their current assignment before trying again.",
+      "why": "Explain which assignment needs verification.",
+      "id": "W054",
+      "locations": [
+        {
+          "file": "src/app/features/organization/components/org-tree/OrgTreeBuilder.tsx",
+          "line": 254,
+          "kind": "StringLiteral",
+          "oldSource": "\"Failed to assign user\"",
+          "newSource": "\"We couldn't confirm this person's Office assignment. Check their current assignment before trying again.\"",
+          "finalLine": 254
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/organization/components/org-tree/AssignHeadModal.tsx",
+      "area": "Organization and administration",
+      "before": "Failed to assign leadership",
+      "after": "We couldn't confirm the Office Head assignment. Check the current Office Head before trying again.",
+      "why": "Name the appointment and preserve the need to verify the result.",
+      "id": "W055",
+      "locations": [
+        {
+          "file": "src/app/features/organization/components/org-tree/AssignHeadModal.tsx",
+          "line": 75,
+          "kind": "StringLiteral",
+          "oldSource": "\"Failed to assign leadership\"",
+          "newSource": "\"We couldn't confirm the Office Head assignment. Check the current Office Head before trying again.\"",
+          "finalLine": 75
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/audit/components/AuditEventDetailContent.tsx",
+      "area": "Organization and administration",
+      "before": "Responsible actor",
+      "after": "Performed by",
+      "why": "Use a familiar label that works for a person or system event.",
+      "id": "W056",
+      "locations": [
+        {
+          "file": "src/app/features/audit/components/AuditEventDetailContent.tsx",
+          "line": 15,
+          "kind": "StringLiteral",
+          "oldSource": "\"Responsible actor\"",
+          "newSource": "\"Performed by\"",
+          "finalLine": 15
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/audit/components/AuditEventFeed.tsx",
+      "area": "Organization and administration",
+      "before": "Every entry is immutable and shown with its responsible actor and affected record.",
+      "after": "Entries can't be edited. Each one shows who performed the action and which record changed.",
+      "why": "Explain immutability and actor in plain language.",
+      "id": "W057",
+      "locations": [
+        {
+          "file": "src/app/features/audit/components/AuditEventFeed.tsx",
+          "line": 40,
+          "kind": "JsxText",
+          "oldSource": "Every entry is immutable and shown with its responsible actor and affected record.",
+          "newSource": "Entries can't be edited. Each one shows who performed the action and which record changed.",
+          "finalLine": 40
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/audit/components/AdminAuditLog.tsx",
+      "area": "Organization and administration",
+      "before": "Admin access covers administrative records only. Project Activity has its own R11 history contract.",
+      "after": "This log contains administrative actions. Open a project's Activity view to see its work history.",
+      "why": "Explain the boundary and destination without exposing an internal phase code.",
+      "id": "W058",
+      "locations": [
+        {
+          "file": "src/app/features/audit/components/AdminAuditLog.tsx",
+          "line": 115,
+          "kind": "JsxText",
+          "oldSource": "Admin access covers administrative records only. Project Activity has\r\n        its own R11 history contract.\r\n      ",
+          "newSource": "\r\n        This log contains administrative actions. Open a project's Activity view to see its work history.\r\n      ",
+          "finalLine": 115
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/budget/components/AuditEventDetails.tsx",
+      "area": "Accounting and finance",
+      "before": "Actor",
+      "after": "Performed by",
+      "why": "Use a familiar label for the account that performed an action.",
+      "id": "W059",
+      "locations": [
+        {
+          "file": "src/app/features/budget/components/AuditEventDetails.tsx",
+          "line": 240,
+          "kind": "StringLiteral",
+          "oldSource": "\"Actor\"",
+          "newSource": "\"Performed by\"",
+          "finalLine": 240
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/budget/components/AccountingTrailPanel.tsx",
+      "area": "Accounting and finance",
+      "before": "Search event, actor role, state, or reason…",
+      "after": "Search action, account role, status or reason…",
+      "why": "Use familiar search terms without changing the filter fields.",
+      "id": "W060",
+      "locations": [
+        {
+          "file": "src/app/features/budget/components/AccountingTrailPanel.tsx",
+          "line": 113,
+          "kind": "StringLiteral",
+          "oldSource": "\"Search event, actor role, state, or reason…\"",
+          "newSource": "\"Search action, account role, status or reason…\"",
+          "finalLine": 113
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/budget/components/BudgetReleasesPanel.tsx",
+      "area": "Accounting and finance",
+      "before": "Voucher number assigned by the accounting migration",
+      "after": "Voucher number assigned by the accounting system",
+      "why": "Describe the number's source without database deployment language.",
+      "id": "W061",
+      "locations": [
+        {
+          "file": "src/app/features/budget/components/BudgetReleasesPanel.tsx",
+          "line": 146,
+          "kind": "StringLiteral",
+          "oldSource": "\"Voucher number assigned by the accounting migration\"",
+          "newSource": "\"Voucher number assigned by the accounting system\"",
+          "finalLine": 146
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/budget/components/IndependentReviewCard.tsx",
+      "area": "Accounting and finance",
+      "before": "The earlier outcome is not confirmed. Keep this request identity and verify with Accounting before changing the decision.",
+      "after": "We couldn't confirm the earlier decision. Keep this review open and check with Accounting before making another decision.",
+      "why": "Preserve the uncertain financial outcome and remove request-identity jargon.",
+      "caution": "This must not become a generic Retry message. No second financial decision is implied.",
+      "id": "W062",
+      "locations": [
+        {
+          "file": "src/app/features/budget/components/IndependentReviewCard.tsx",
+          "line": 45,
+          "kind": "StringLiteral",
+          "oldSource": "'The earlier outcome is not confirmed. Keep this request identity and verify with Accounting before changing the decision.'",
+          "newSource": "\"We couldn't confirm the earlier decision. Keep this review open and check with Accounting before making another decision.\"",
+          "finalLine": 45
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/budget/components/AccountingOverview.tsx",
+      "area": "Accounting and finance",
+      "before": "Accounting Staff can record releases, verify settlement evidence, post balanced corrections, and read Office ledgers. Funding approval remains with the eligible Head; contextual Lead endorsement and late-package Head authorization remain separate stages. Office boundaries and independent-person rules apply at each operation.",
+      "after": "Accounting Staff can record releases, review settlement evidence, post balanced corrections and read Office ledgers. The eligible Office Head approves funding. The assigned Lead endorses requests and receipts, and late receipt submissions may need Head authorization. These are separate steps. Each action must follow Office access and independent-review rules.",
+      "why": "Keep the separate financial responsibilities while reducing dense governance language.",
+      "caution": "Funding approval, Lead endorsement, late-submission authorization and independent settlement remain distinct.",
+      "id": "W063",
+      "locations": [
+        {
+          "file": "src/app/features/budget/components/AccountingOverview.tsx",
+          "line": 40,
+          "kind": "JsxText",
+          "oldSource": "Accounting Staff can record releases, verify settlement evidence, post balanced corrections, and read Office ledgers. Funding approval remains with the eligible Head; contextual Lead endorsement and late-package Head authorization remain separate stages. Office boundaries and independent-person rules apply at each operation.",
+          "newSource": "Accounting Staff can record releases, review settlement evidence, post balanced corrections and read Office ledgers. The eligible Office Head approves funding. The assigned Lead endorses requests and receipts, and late receipt submissions may need Head authorization. These are separate steps. Each action must follow Office access and independent-review rules.",
+          "finalLine": 40
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/interdepartment-collaboration/components/CollaborationDecisionPanel.tsx",
+      "area": "Offices and invitations",
+      "before": "Formal office approval or revision request on the active proposal snapshot.",
+      "after": "Approve the current proposal version or ask for changes on behalf of your Office.",
+      "why": "Describe the decision and the proposal version in familiar words.",
+      "id": "W064",
+      "locations": [
+        {
+          "file": "src/app/features/interdepartment-collaboration/components/CollaborationDecisionPanel.tsx",
+          "line": 42,
+          "kind": "JsxText",
+          "oldSource": "Formal office approval or revision request on the active proposal snapshot.\r\n          ",
+          "newSource": "\r\n            Approve the current proposal version or ask for changes on behalf of your Office.\r\n          ",
+          "finalLine": 42
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/productivity/components/MonthlyLeaderboard.tsx",
+      "area": "Reports and summaries",
+      "before": "Loading the signed monthly snapshot…",
+      "after": "Loading monthly results…",
+      "why": "Describe the information rather than its signed-data implementation without adding a verification claim.",
+      "id": "W065",
+      "locations": [
+        {
+          "file": "src/app/features/productivity/components/MonthlyLeaderboard.tsx",
+          "line": 94,
+          "kind": "JsxText",
+          "oldSource": "Loading the signed monthly snapshot…",
+          "newSource": "Loading monthly results…",
+          "finalLine": 94
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/productivity/components/MonthlyLeaderboard.tsx",
+      "area": "Reports and summaries",
+      "before": "Closed snapshot",
+      "after": "Finalized monthly results",
+      "why": "Explain what the closed version represents.",
+      "id": "W066",
+      "locations": [
+        {
+          "file": "src/app/features/productivity/components/MonthlyLeaderboard.tsx",
+          "line": 116,
+          "kind": "StringLiteral",
+          "oldSource": "\"Closed snapshot\"",
+          "newSource": "\"Finalized monthly results\"",
+          "finalLine": 116
+        }
+      ]
+    },
+    {
+      "file": "src/app/features/reports/constants.ts",
+      "area": "Reports and summaries",
+      "before": "Auditable task status transitions with actor, time, and reason.",
+      "after": "Task status changes with who made each change, when it happened and the reason.",
+      "why": "Describe the report's contents without transition/actor jargon.",
+      "id": "W067",
+      "locations": [
+        {
+          "file": "src/app/features/reports/constants.ts",
+          "line": 10,
+          "kind": "StringLiteral",
+          "oldSource": "\"Auditable task status transitions with actor, time, and reason.\"",
+          "newSource": "\"Task status changes with who made each change, when it happened and the reason.\"",
+          "finalLine": 10
+        }
+      ]
+    },
+    {
+      "file": "src/app/shared/prerequisiteLinkingError.ts",
+      "area": "Tasks and reviews",
+      "before": "Prerequisite linking needs a backend update. Contact your Office Head. Your selection has not been saved.",
+      "after": "Task dependencies aren't available until eFlow is updated. Contact your Office Head. Your selection has not been saved.",
+      "why": "Explain the unavailable feature without backend jargon, preserving the confirmed unsaved state.",
+      "id": "W068",
+      "locations": [
+        {
+          "file": "src/app/shared/prerequisiteLinkingError.ts",
+          "line": 6,
+          "kind": "StringLiteral",
+          "oldSource": "'Prerequisite linking needs a backend update. Contact your Office Head. Your selection has not been saved.'",
+          "newSource": "\"Task dependencies aren't available until eFlow is updated. Contact your Office Head. Your selection has not been saved.\"",
+          "finalLine": 6
+        }
+      ]
+    },
+    {
+      "id": "W069",
+      "file": "src/app/features/chat-calls/components/NewMessageDialog.tsx",
+      "area": "Messages",
+      "before": "Could not open this conversation. Try again.",
+      "after": "We couldn't open this conversation. Check Messages before starting another conversation.",
+      "why": "Name the destination to check before starting another conversation.",
+      "locations": [
+        {
+          "file": "src/app/features/chat-calls/components/NewMessageDialog.tsx",
+          "line": 26,
+          "kind": "StringLiteral",
+          "oldSource": "\"Could not open this conversation. Try again.\"",
+          "newSource": "\"We couldn't open this conversation. Check Messages before starting another conversation.\"",
+          "finalLine": 26
+        }
+      ]
+    },
+    {
+      "id": "W070",
+      "file": "src/app/features/project-import/components/ImportTaskReview.tsx",
+      "area": "Project setup and imports",
+      "before": "Subitems",
+      "after": "Subtasks",
+      "why": "Use the established term in the import section heading.",
+      "locations": [
+        {
+          "file": "src/app/features/project-import/components/ImportTaskReview.tsx",
+          "line": 23,
+          "kind": "JsxText",
+          "oldSource": "Subitems",
+          "newSource": "Subtasks",
+          "finalLine": 23
+        }
+      ]
+    },
+    {
+      "id": "W071",
+      "file": "src/app/features/project-offices/components/TaskOfficeControl.tsx",
+      "area": "Offices and invitations",
+      "before": "Proposed responsibility",
+      "after": "Proposed Office",
+      "why": "Identify what the user is choosing.",
+      "locations": [
+        {
+          "file": "src/app/features/project-offices/components/TaskOfficeControl.tsx",
+          "line": 26,
+          "kind": "StringLiteral",
+          "oldSource": "'Proposed responsibility'",
+          "newSource": "\"Proposed Office\"",
+          "finalLine": 26
+        }
+      ]
+    },
+    {
+      "id": "W072",
+      "file": "src/app/features/project-offices/components/TaskOfficeControl.tsx",
+      "area": "Offices and invitations",
+      "before": "Confirm proposed responsibility",
+      "after": "Assign proposed Office",
+      "why": "Name the Office assignment action.",
+      "locations": [
+        {
+          "file": "src/app/features/project-offices/components/TaskOfficeControl.tsx",
+          "line": 47,
+          "kind": "JsxText",
+          "oldSource": "Confirm proposed responsibility",
+          "newSource": "Assign proposed Office",
+          "finalLine": 47
+        }
+      ]
+    },
+    {
+      "id": "W073",
+      "file": "src/app/features/project-offices/components/TaskOfficeControl.tsx",
+      "area": "Offices and invitations",
+      "before": "Choose responsibility",
+      "after": "Choose an Office",
+      "why": "Use a concrete noun in the selection prompt.",
+      "locations": [
+        {
+          "file": "src/app/features/project-offices/components/TaskOfficeControl.tsx",
+          "line": 35,
+          "kind": "JsxText",
+          "oldSource": "Choose responsibility",
+          "newSource": "Choose an Office",
+          "finalLine": 35
+        }
+      ]
+    },
+    {
+      "id": "W074",
+      "file": "src/app/features/project-offices/components/TaskOfficeControl.tsx",
+      "area": "Offices and invitations",
+      "before": "Assign Office",
+      "after": "Responsible Office",
+      "why": "Name the field consistently with the task property.",
+      "locations": [
+        {
+          "file": "src/app/features/project-offices/components/TaskOfficeControl.tsx",
+          "line": 29,
+          "kind": "JsxText",
+          "oldSource": "Assign Office",
+          "newSource": "Responsible Office",
+          "finalLine": 26
+        }
+      ]
+    },
+    {
+      "id": "W075",
+      "file": "src/app/features/project-offices/components/TaskOfficeControl.tsx",
+      "area": "Offices and invitations",
+      "before": "Its Head chooses the owner and team.",
+      "after": "The Office Head chooses the Task Lead and contributors.",
+      "why": "Use explicit work roles instead of ambiguous owner/team language.",
+      "locations": [
+        {
+          "file": "src/app/features/project-offices/components/TaskOfficeControl.tsx",
+          "line": 27,
+          "kind": "StringLiteral",
+          "oldSource": "'Its Head chooses the owner and team.'",
+          "newSource": "\"The Office Head chooses the Task Lead and contributors.\"",
+          "finalLine": 27
+        }
+      ]
+    },
+    {
+      "id": "W076",
+      "file": "src/app/features/project-setup/components/FlowError.tsx",
+      "area": "Project setup and imports",
+      "before": "Please check",
+      "after": "Project setup needs attention",
+      "why": "Name the workflow that needs attention instead of using a vague heading.",
+      "locations": [
+        {
+          "file": "src/app/features/project-setup/components/FlowError.tsx",
+          "line": 2,
+          "kind": "JsxText",
+          "oldSource": "\"Please check\"",
+          "newSource": "Project setup needs attention",
+          "finalLine": 2
+        }
+      ]
+    },
+    {
+      "id": "W077",
+      "file": "src/app/components/workflow/primitives.tsx",
+      "area": "Shared error states",
+      "before": "Something went wrong",
+      "after": "Couldn't load this view",
+      "why": "Name the loading problem instead of giving a generic failure heading.",
+      "locations": [
+        {
+          "file": "src/app/components/workflow/primitives.tsx",
+          "line": 458,
+          "kind": "StringLiteral",
+          "oldSource": "\"Something went wrong\"",
+          "newSource": "\"Couldn't load this view\"",
+          "finalLine": 458
+        }
+      ]
+    },
+    {
+      "id": "W078",
+      "file": "src/app/components/workflow/primitives.tsx",
+      "area": "Shared error states",
+      "before": "We couldn't load this data. Please try again.",
+      "after": "Reload the view to try again.",
+      "why": "Provide a concrete recovery action for the shared loading error.",
+      "locations": [
+        {
+          "file": "src/app/components/workflow/primitives.tsx",
+          "line": 457,
+          "kind": "StringLiteral",
+          "oldSource": "\"We couldn't load this data. Please try again.\"",
+          "newSource": "\"Reload the view to try again.\"",
+          "finalLine": 457
+        }
+      ]
+    },
+    {
+      "id": "W079",
+      "file": "src/app/components/workflow/primitives.tsx",
+      "area": "Shared error states",
+      "before": "Retry",
+      "after": "Reload view",
+      "why": "Describe the result of the existing reload callback.",
+      "locations": [
+        {
+          "file": "src/app/components/workflow/primitives.tsx",
+          "line": 461,
+          "kind": "JsxText",
+          "oldSource": "\"Retry\"",
+          "newSource": "Reload view",
+          "finalLine": 461
+        }
+      ]
+    }
+  ],
+  "missing": [],
+  "errorBoundaries": [
+    {
+      "id": "E001",
+      "file": "src/app/features/workspaces/components/WorkspaceCreateDialog.tsx",
+      "line": 21,
+      "area": "Navigation and personal work",
+      "before": "error instanceof Error?error.message:'Could not create. Retry keeps the same request identity.'",
+      "after": "readableUiError(error, \"We couldn't confirm whether it was created. Keep this form open and try again here; don't start another creation form.\", \"write\")",
+      "fallback": "We couldn't confirm whether it was created. Keep this form open and try again here; don't start another creation form.",
+      "mode": "write",
+      "why": "Keep raw technical details out of the UI while preserving specific business-rule messages and the original workflow error.",
+      "finalLine": 21
+    },
+    {
+      "id": "E002",
+      "file": "src/app/features/workspaces/hooks/usePersonalProject.ts",
+      "line": 21,
+      "area": "Navigation and personal work",
+      "before": "error instanceof Error?error.message:'Could not load personal project.'",
+      "after": "readableUiError(error, \"Could not load personal project.\", \"read\")",
+      "fallback": "Could not load personal project.",
+      "mode": "read",
+      "why": "Keep raw technical details out of the UI while preserving specific business-rule messages and the original workflow error.",
+      "finalLine": 21
+    },
+    {
+      "id": "E003",
+      "file": "src/app/features/workspaces/hooks/usePersonalProject.ts",
+      "line": 32,
+      "area": "Navigation and personal work",
+      "before": "error instanceof Error?error.message:'Save failed. Retry keeps the same request identity.'",
+      "after": "readableUiError(error, \"We couldn't confirm whether your changes were saved. Check the current project before trying again; keep this view open.\", \"write\")",
+      "fallback": "We couldn't confirm whether your changes were saved. Check the current project before trying again; keep this view open.",
+      "mode": "write",
+      "why": "Keep raw technical details out of the UI while preserving specific business-rule messages and the original workflow error.",
+      "finalLine": 32
+    },
+    {
+      "id": "E004",
+      "file": "src/app/components/workflow/SubmitForReviewForm.tsx",
+      "line": 70,
+      "area": "Tasks and reviews",
+      "before": "error instanceof Error\r\n          ? error.message\r\n          : \"Failed to submit the task.\"",
+      "after": "readableUiError(error, \"We couldn't submit this task for review. Check its current status before submitting again.\", \"write\")",
+      "fallback": "We couldn't submit this task for review. Check its current status before submitting again.",
+      "mode": "write",
+      "why": "Keep raw technical details out of the UI while preserving specific business-rule messages and the original workflow error.",
+      "finalLine": 70
+    },
+    {
+      "id": "E005",
+      "file": "src/app/features/project-table/components/ProjectTableWorkspace.tsx",
+      "line": 90,
+      "area": "Project setup and imports",
+      "before": "e instanceof Error?e.message:'Could not save this change.'",
+      "after": "readableUiError(e, \"We couldn't confirm whether this change was saved. Check the current project before trying again.\", \"write\")",
+      "fallback": "We couldn't confirm whether this change was saved. Check the current project before trying again.",
+      "mode": "write",
+      "why": "Keep raw technical details out of the UI while preserving specific business-rule messages and the original workflow error.",
+      "finalLine": 90
+    },
+    {
+      "id": "E006",
+      "file": "src/app/features/project-table/components/ProjectTableWorkspace.tsx",
+      "line": 94,
+      "area": "Project setup and imports",
+      "before": "e instanceof Error?e.message:'Please reload.'",
+      "after": "readableUiError(e, \"Please reload.\", \"read\")",
+      "fallback": "Please reload.",
+      "mode": "read",
+      "why": "Keep raw technical details out of the UI while preserving specific business-rule messages and the original workflow error.",
+      "finalLine": 94
+    },
+    {
+      "id": "E007",
+      "file": "src/app/features/chat-calls/components/ActiveChatPanel.tsx",
+      "line": 254,
+      "area": "Messages",
+      "before": "failure instanceof Error ? failure.message : fallback",
+      "after": "readableUiError(failure, fallback, \"write\")",
+      "fallback": "fallback",
+      "mode": "write",
+      "why": "Keep raw technical details out of the UI while preserving specific business-rule messages and the original workflow error.",
+      "finalLine": 255
+    },
+    {
+      "id": "E009",
+      "file": "src/app/features/project-offices/components/TaskOfficeControl.tsx",
+      "line": 54,
+      "area": "Offices and invitations",
+      "before": "{error}",
+      "after": "{readableUiError(error, \"We couldn't confirm the Office assignment. Check the task's current responsible Office before trying again.\", \"write\")}",
+      "fallback": "We couldn't confirm the Office assignment. Check the task's current responsible Office before trying again.",
+      "mode": "write",
+      "why": "Keep raw technical details out of the UI while preserving specific business-rule messages and the original workflow error.",
+      "finalLine": 55
+    },
+    {
+      "id": "E010",
+      "file": "src/app/features/project-offices/components/ProjectOfficeDirectory.tsx",
+      "line": 111,
+      "area": "Offices and invitations",
+      "before": "{error}",
+      "after": "{readableUiError(error, \"We couldn't confirm the Office change. Reload the Office list before trying again.\", \"write\")}",
+      "fallback": "We couldn't confirm the Office change. Reload the Office list before trying again.",
+      "mode": "write",
+      "why": "Keep raw technical details out of the UI while preserving specific business-rule messages and the original workflow error.",
+      "finalLine": 112
+    },
+    {
+      "id": "E011",
+      "file": "src/app/features/project-invitations/components/ProjectInvitations.tsx",
+      "line": 34,
+      "area": "Offices and invitations",
+      "before": "{error}",
+      "after": "{readableUiError(error, \"We couldn't confirm this invitation action. Check the invitation list before trying again.\", \"write\")}",
+      "fallback": "We couldn't confirm this invitation action. Check the invitation list before trying again.",
+      "mode": "write",
+      "why": "Keep raw technical details out of the UI while preserving specific business-rule messages and the original workflow error.",
+      "finalLine": 35
+    },
+    {
+      "id": "E012",
+      "file": "src/app/features/reviews/components/ReviewSubitemInspector.tsx",
+      "line": 20,
+      "area": "Tasks and reviews",
+      "before": "reason instanceof Error?reason.message:\"We couldn't load the task this subtask belongs to. Try loading it again.\"",
+      "after": "readableUiError(reason, \"We couldn't load the task this subtask belongs to. Try loading it again.\", \"read\")",
+      "fallback": "We couldn't load the task this subtask belongs to. Try loading it again.",
+      "mode": "read",
+      "why": "Keep raw technical details out of the UI while preserving specific business-rule messages and the original workflow error.",
+      "finalLine": 21
+    }
+  ],
+  "errorPolicy": {
+    "session": "Refresh the page to check your sign-in, then continue.",
+    "profile": "We couldn't check your eFlow account. Refresh the page. If this continues, contact your administrator.",
+    "networkRead": "We couldn't connect to eFlow. Check your internet connection and reload this view.",
+    "networkWrite": "We couldn't confirm the result because the connection was interrupted. Check your connection and the current record before trying again.",
+    "permissionSuffix": "Your current account does not have permission for this action.",
+    "setupSuffix": "Ask your administrator to check eFlow's setup.",
+    "technicalFallback": "Use the operation-specific fallback; retain uncertain-result wording.",
+    "businessRules": "Specific readable business-rule messages remain unchanged."
+  },
+  "scope": {
+    "sourceFilesScanned": 1437,
+    "heuristicCopyCandidates": 17352,
+    "copyFiles": 41,
+    "copyChanges": 79,
+    "copyOccurrences": 80,
+    "errorBoundaries": 11
+  },
+  "supersededErrorBoundaries": [
+    {
+      "id": "E008",
+      "file": "src/app/features/workspaces/components/WorkspaceSelector.tsx",
+      "line": 32,
+      "area": "Navigation and personal work",
+      "before": "error instanceof Error?error.message:'Could not select workspace.'",
+      "after": "readableUiError(error, \"Could not select workspace.\", \"read\")",
+      "fallback": "Could not select workspace.",
+      "mode": "read",
+      "why": "Keep raw technical details out of the UI while preserving specific business-rule messages and the original workflow error.",
+      "status": "Superseded by concurrent navigation work; this component no longer selects workspaces or renders this error."
+    }
+  ],
+  "sourceVerification": {
+    "verifiedCopyChanges": 79,
+    "verifiedErrorBoundaries": 11,
+    "existingServiceFormatterUnchanged": true,
+    "checkedUtc": "2026-11-16T19:34:42.399Z"
+  },
+  "validation": {
+    "typecheck": "PASS - npm run check completed without TypeScript errors.",
+    "build": "PASS - the production build completed. Existing chunk-size warnings remain.",
+    "focused": "PASS - 131 tests across 10 focused suites: 50 copy/error/setup cases and 81 staffing, recovery and invitation cases. Four old-copy assertions in three test files were updated; their behavior assertions remain.",
+    "browser": "PASS - four Chromium cases at 1600, 1366, 768 and 390 px, in light/dark themes. Error copy, recovery controls and narrow-screen wrapping were checked in an isolated component fixture.",
+    "full": "NOT GREEN - the fail-fast broad unit run stopped on the previously observed globalUiP3 mock error: supabase.channel is not a function. The remaining suite was not run to completion. This mock was not changed to hide the failure.",
+    "source": "PASS - all 79 wording entries and 11 active error boundaries were checked against current source. The existing service-facing formatter is unchanged. A workspace-selector boundary removed by concurrent navigation work is excluded from the active count.",
+    "pdf": "PASS - every applied W/E entry is present. All pages were rendered and reviewed, and text bounds were checked for clipping. No deployment or live acceptance is claimed."
+  },
+  "validationLogs": {
+    "typecheck": "test-results/readability-typecheck-delivery.log",
+    "build": "test-results/readability-build-delivery.log",
+    "focused": "test-results/readability-focused-final.log",
+    "workflows": "test-results/readability-workflow-regressions-final.log",
+    "browser": "test-results/readability-browser-final.log",
+    "full": "test-results/readability-unit-gate-final.log"
+  }
+}

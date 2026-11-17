@@ -1,0 +1,428 @@
+# Page snapshot
+
+```yaml
+- main [ref=e4]:
+  - generic [ref=e5]:
+    - heading "Notifications" [level=1] [ref=e6]
+    - button "Open Inbox notifications, 43 unread" [ref=e7] [cursor=pointer]:
+      - img [ref=e8] [cursor=pointer]
+      - generic [ref=e11] [cursor=pointer]: "43"
+    - generic [ref=e12]: 43 unread notifications
+    - button "Switch theme" [ref=e13]
+  - region "Notifications" [ref=e14]:
+    - generic [ref=e15]:
+      - tablist "Notification filter" [ref=e16]:
+        - tab "All" [selected] [ref=e17]:
+          - generic [ref=e18]: All
+        - tab "Unread" [ref=e19]:
+          - generic [ref=e20]: Unread
+      - button "Mark all read" [ref=e21]:
+        - img
+        - generic [ref=e22]: Mark all read
+    - generic "Notification filters" [ref=e23]:
+      - generic [ref=e24]:
+        - text: Activity type
+        - combobox "Activity type" [ref=e25]:
+          - option "All activity" [selected]
+          - option "Reviews"
+          - option "Assignments"
+          - option "Work changes"
+          - option "Messages and mentions"
+          - option "Funding and expenses"
+          - option "Projects and collaboration"
+      - generic [ref=e26]:
+        - text: Time period
+        - combobox "Time period" [ref=e27]:
+          - option "All time" [selected]
+          - option "Last 7 days"
+          - option "Last 30 days"
+      - button "Refreshing…" [disabled]
+    - status [ref=e28]: 43 unread across your inbox
+    - list [ref=e29]:
+      - listitem [ref=e30]:
+        - img [ref=e32]
+        - generic [ref=e35]:
+          - generic [ref=e36]:
+            - heading "Task update 63" [level=2] [ref=e38]
+            - time [ref=e39]: Just now
+          - paragraph [ref=e40]: Chris updated the venue arrangements for your service activity.
+          - paragraph [ref=e41]: "Task: Community outreach and visitor arrangements"
+          - paragraph [ref=e42]:
+            - strong [ref=e43]: "Details:"
+            - text: "Due date: 20 Nov 2026 → 24 Nov 2026"
+        - button "Open" [ref=e45]:
+          - generic [ref=e46]: Open
+          - img
+      - listitem [ref=e47]:
+        - img [ref=e49]
+        - generic [ref=e52]:
+          - generic [ref=e53]:
+            - heading "Task update 62" [level=2] [ref=e56]
+            - time [ref=e57]: Just now
+          - paragraph [ref=e58]: Chris updated the venue arrangements for your service activity.
+          - paragraph [ref=e59]: "Task: Community outreach and visitor arrangements"
+          - paragraph [ref=e60]:
+            - strong [ref=e61]: "Details:"
+            - text: "Due date: 20 Nov 2026 → 24 Nov 2026"
+        - generic [ref=e62]:
+          - button "Open" [ref=e63]:
+            - generic [ref=e64]: Open
+            - img
+          - button "Mark read" [ref=e65]
+      - listitem [ref=e66]:
+        - img [ref=e68]
+        - generic [ref=e70]:
+          - generic [ref=e71]:
+            - heading "Task update 61" [level=2] [ref=e74]
+            - time [ref=e75]: Just now
+          - paragraph [ref=e76]: Chris updated the venue arrangements for your service activity.
+          - paragraph [ref=e77]: "Task: Community outreach and visitor arrangements"
+          - paragraph [ref=e78]:
+            - strong [ref=e79]: "Details:"
+            - text: "Due date: 20 Nov 2026 → 24 Nov 2026"
+        - generic [ref=e80]:
+          - button "Open" [ref=e81]:
+            - generic [ref=e82]: Open
+            - img
+          - button "Mark read" [ref=e83]
+      - listitem [ref=e84]:
+        - img [ref=e86]
+        - generic [ref=e89]:
+          - generic [ref=e90]:
+            - heading "Task update 60" [level=2] [ref=e92]
+            - time [ref=e93]: Just now
+          - paragraph [ref=e94]: Chris updated the venue arrangements for your service activity.
+          - paragraph [ref=e95]: "Task: Community outreach and visitor arrangements"
+          - paragraph [ref=e96]:
+            - strong [ref=e97]: "Details:"
+            - text: "Due date: 20 Nov 2026 → 24 Nov 2026"
+        - button "Open" [ref=e99]:
+          - generic [ref=e100]: Open
+          - img
+      - listitem [ref=e101]:
+        - img [ref=e103]
+        - generic [ref=e106]:
+          - generic [ref=e107]:
+            - heading "Task update 59" [level=2] [ref=e110]
+            - time [ref=e111]: Just now
+          - paragraph [ref=e112]: Chris updated the venue arrangements for your service activity.
+          - paragraph [ref=e113]: "Task: Community outreach and visitor arrangements"
+          - paragraph [ref=e114]:
+            - strong [ref=e115]: "Details:"
+            - text: "Due date: 20 Nov 2026 → 24 Nov 2026"
+        - generic [ref=e116]:
+          - button "Open" [ref=e117]:
+            - generic [ref=e118]: Open
+            - img
+          - button "Mark read" [ref=e119]
+      - listitem [ref=e120]:
+        - img [ref=e122]
+        - generic [ref=e124]:
+          - generic [ref=e125]:
+            - heading "Task update 58" [level=2] [ref=e128]
+            - time [ref=e129]: Just now
+          - paragraph [ref=e130]: Chris updated the venue arrangements for your service activity.
+          - paragraph [ref=e131]: "Task: Community outreach and visitor arrangements"
+          - paragraph [ref=e132]:
+            - strong [ref=e133]: "Details:"
+            - text: "Due date: 20 Nov 2026 → 24 Nov 2026"
+        - generic [ref=e134]:
+          - button "Open" [ref=e135]:
+            - generic [ref=e136]: Open
+            - img
+          - button "Mark read" [ref=e137]
+      - listitem [ref=e138]:
+        - img [ref=e140]
+        - generic [ref=e143]:
+          - generic [ref=e144]:
+            - heading "Task update 57" [level=2] [ref=e146]
+            - time [ref=e147]: Just now
+          - paragraph [ref=e148]: Chris updated the venue arrangements for your service activity.
+          - paragraph [ref=e149]: "Task: Community outreach and visitor arrangements"
+          - paragraph [ref=e150]:
+            - strong [ref=e151]: "Details:"
+            - text: "Due date: 20 Nov 2026 → 24 Nov 2026"
+        - button "Open" [ref=e153]:
+          - generic [ref=e154]: Open
+          - img
+      - listitem [ref=e155]:
+        - img [ref=e157]
+        - generic [ref=e160]:
+          - generic [ref=e161]:
+            - heading "Task update 56" [level=2] [ref=e164]
+            - time [ref=e165]: Just now
+          - paragraph [ref=e166]: Chris updated the venue arrangements for your service activity.
+          - paragraph [ref=e167]: "Task: Community outreach and visitor arrangements"
+          - paragraph [ref=e168]:
+            - strong [ref=e169]: "Details:"
+            - text: "Due date: 20 Nov 2026 → 24 Nov 2026"
+        - generic [ref=e170]:
+          - button "Open" [ref=e171]:
+            - generic [ref=e172]: Open
+            - img
+          - button "Mark read" [ref=e173]
+      - listitem [ref=e174]:
+        - img [ref=e176]
+        - generic [ref=e178]:
+          - generic [ref=e179]:
+            - heading "Task update 55" [level=2] [ref=e182]
+            - time [ref=e183]: Just now
+          - paragraph [ref=e184]: Chris updated the venue arrangements for your service activity.
+          - paragraph [ref=e185]: "Task: Community outreach and visitor arrangements"
+          - paragraph [ref=e186]:
+            - strong [ref=e187]: "Details:"
+            - text: "Due date: 20 Nov 2026 → 24 Nov 2026"
+        - generic [ref=e188]:
+          - button "Open" [ref=e189]:
+            - generic [ref=e190]: Open
+            - img
+          - button "Mark read" [ref=e191]
+      - listitem [ref=e192]:
+        - img [ref=e194]
+        - generic [ref=e197]:
+          - generic [ref=e198]:
+            - heading "Task update 54" [level=2] [ref=e200]
+            - time [ref=e201]: Just now
+          - paragraph [ref=e202]: Chris updated the venue arrangements for your service activity.
+          - paragraph [ref=e203]: "Task: Community outreach and visitor arrangements"
+          - paragraph [ref=e204]:
+            - strong [ref=e205]: "Details:"
+            - text: "Due date: 20 Nov 2026 → 24 Nov 2026"
+        - button "Open" [ref=e207]:
+          - generic [ref=e208]: Open
+          - img
+      - listitem [ref=e209]:
+        - img [ref=e211]
+        - generic [ref=e214]:
+          - generic [ref=e215]:
+            - heading "Task update 53" [level=2] [ref=e218]
+            - time [ref=e219]: Just now
+          - paragraph [ref=e220]: Chris updated the venue arrangements for your service activity.
+          - paragraph [ref=e221]: "Task: Community outreach and visitor arrangements"
+          - paragraph [ref=e222]:
+            - strong [ref=e223]: "Details:"
+            - text: "Due date: 20 Nov 2026 → 24 Nov 2026"
+        - generic [ref=e224]:
+          - button "Open" [ref=e225]:
+            - generic [ref=e226]: Open
+            - img
+          - button "Mark read" [ref=e227]
+      - listitem [ref=e228]:
+        - img [ref=e230]
+        - generic [ref=e232]:
+          - generic [ref=e233]:
+            - heading "Task update 52" [level=2] [ref=e236]
+            - time [ref=e237]: Just now
+          - paragraph [ref=e238]: Chris updated the venue arrangements for your service activity.
+          - paragraph [ref=e239]: "Task: Community outreach and visitor arrangements"
+          - paragraph [ref=e240]:
+            - strong [ref=e241]: "Details:"
+            - text: "Due date: 20 Nov 2026 → 24 Nov 2026"
+        - generic [ref=e242]:
+          - button "Open" [ref=e243]:
+            - generic [ref=e244]: Open
+            - img
+          - button "Mark read" [ref=e245]
+      - listitem [ref=e246]:
+        - img [ref=e248]
+        - generic [ref=e251]:
+          - generic [ref=e252]:
+            - heading "Task update 51" [level=2] [ref=e254]
+            - time [ref=e255]: Just now
+          - paragraph [ref=e256]: Chris updated the venue arrangements for your service activity.
+          - paragraph [ref=e257]: "Task: Community outreach and visitor arrangements"
+          - paragraph [ref=e258]:
+            - strong [ref=e259]: "Details:"
+            - text: "Due date: 20 Nov 2026 → 24 Nov 2026"
+        - button "Open" [ref=e261]:
+          - generic [ref=e262]: Open
+          - img
+      - listitem [ref=e263]:
+        - img [ref=e265]
+        - generic [ref=e268]:
+          - generic [ref=e269]:
+            - heading "Task update 50" [level=2] [ref=e272]
+            - time [ref=e273]: Just now
+          - paragraph [ref=e274]: Chris updated the venue arrangements for your service activity.
+          - paragraph [ref=e275]: "Task: Community outreach and visitor arrangements"
+          - paragraph [ref=e276]:
+            - strong [ref=e277]: "Details:"
+            - text: "Due date: 20 Nov 2026 → 24 Nov 2026"
+        - generic [ref=e278]:
+          - button "Open" [ref=e279]:
+            - generic [ref=e280]: Open
+            - img
+          - button "Mark read" [ref=e281]
+      - listitem [ref=e282]:
+        - img [ref=e284]
+        - generic [ref=e286]:
+          - generic [ref=e287]:
+            - heading "Task update 49" [level=2] [ref=e290]
+            - time [ref=e291]: Just now
+          - paragraph [ref=e292]: Chris updated the venue arrangements for your service activity.
+          - paragraph [ref=e293]: "Task: Community outreach and visitor arrangements"
+          - paragraph [ref=e294]:
+            - strong [ref=e295]: "Details:"
+            - text: "Due date: 20 Nov 2026 → 24 Nov 2026"
+        - generic [ref=e296]:
+          - button "Open" [ref=e297]:
+            - generic [ref=e298]: Open
+            - img
+          - button "Mark read" [ref=e299]
+      - listitem [ref=e300]:
+        - img [ref=e302]
+        - generic [ref=e305]:
+          - generic [ref=e306]:
+            - heading "Task update 48" [level=2] [ref=e308]
+            - time [ref=e309]: Just now
+          - paragraph [ref=e310]: Chris updated the venue arrangements for your service activity.
+          - paragraph [ref=e311]: "Task: Community outreach and visitor arrangements"
+          - paragraph [ref=e312]:
+            - strong [ref=e313]: "Details:"
+            - text: "Due date: 20 Nov 2026 → 24 Nov 2026"
+        - button "Open" [ref=e315]:
+          - generic [ref=e316]: Open
+          - img
+      - listitem [ref=e317]:
+        - img [ref=e319]
+        - generic [ref=e322]:
+          - generic [ref=e323]:
+            - heading "Task update 47" [level=2] [ref=e326]
+            - time [ref=e327]: Just now
+          - paragraph [ref=e328]: Chris updated the venue arrangements for your service activity.
+          - paragraph [ref=e329]: "Task: Community outreach and visitor arrangements"
+          - paragraph [ref=e330]:
+            - strong [ref=e331]: "Details:"
+            - text: "Due date: 20 Nov 2026 → 24 Nov 2026"
+        - generic [ref=e332]:
+          - button "Open" [ref=e333]:
+            - generic [ref=e334]: Open
+            - img
+          - button "Mark read" [ref=e335]
+      - listitem [ref=e336]:
+        - img [ref=e338]
+        - generic [ref=e340]:
+          - generic [ref=e341]:
+            - heading "Task update 46" [level=2] [ref=e344]
+            - time [ref=e345]: Just now
+          - paragraph [ref=e346]: Chris updated the venue arrangements for your service activity.
+          - paragraph [ref=e347]: "Task: Community outreach and visitor arrangements"
+          - paragraph [ref=e348]:
+            - strong [ref=e349]: "Details:"
+            - text: "Due date: 20 Nov 2026 → 24 Nov 2026"
+        - generic [ref=e350]:
+          - button "Open" [ref=e351]:
+            - generic [ref=e352]: Open
+            - img
+          - button "Mark read" [ref=e353]
+      - listitem [ref=e354]:
+        - img [ref=e356]
+        - generic [ref=e359]:
+          - generic [ref=e360]:
+            - heading "Task update 45" [level=2] [ref=e362]
+            - time [ref=e363]: Just now
+          - paragraph [ref=e364]: Chris updated the venue arrangements for your service activity.
+          - paragraph [ref=e365]: "Task: Community outreach and visitor arrangements"
+          - paragraph [ref=e366]:
+            - strong [ref=e367]: "Details:"
+            - text: "Due date: 20 Nov 2026 → 24 Nov 2026"
+        - button "Open" [ref=e369]:
+          - generic [ref=e370]: Open
+          - img
+      - listitem [ref=e371]:
+        - img [ref=e373]
+        - generic [ref=e376]:
+          - generic [ref=e377]:
+            - heading "Task update 44" [level=2] [ref=e380]
+            - time [ref=e381]: Just now
+          - paragraph [ref=e382]: Chris updated the venue arrangements for your service activity.
+          - paragraph [ref=e383]: "Task: Community outreach and visitor arrangements"
+          - paragraph [ref=e384]:
+            - strong [ref=e385]: "Details:"
+            - text: "Due date: 20 Nov 2026 → 24 Nov 2026"
+        - generic [ref=e386]:
+          - button "Open" [ref=e387]:
+            - generic [ref=e388]: Open
+            - img
+          - button "Mark read" [ref=e389]
+      - listitem [ref=e390]:
+        - img [ref=e392]
+        - generic [ref=e394]:
+          - generic [ref=e395]:
+            - heading "Task update 43" [level=2] [ref=e398]
+            - time [ref=e399]: Just now
+          - paragraph [ref=e400]: Chris updated the venue arrangements for your service activity.
+          - paragraph [ref=e401]: "Task: Community outreach and visitor arrangements"
+          - paragraph [ref=e402]:
+            - strong [ref=e403]: "Details:"
+            - text: "Due date: 20 Nov 2026 → 24 Nov 2026"
+        - generic [ref=e404]:
+          - button "Open" [ref=e405]:
+            - generic [ref=e406]: Open
+            - img
+          - button "Mark read" [ref=e407]
+      - listitem [ref=e408]:
+        - img [ref=e410]
+        - generic [ref=e413]:
+          - generic [ref=e414]:
+            - heading "Task update 42" [level=2] [ref=e416]
+            - time [ref=e417]: Just now
+          - paragraph [ref=e418]: Chris updated the venue arrangements for your service activity.
+          - paragraph [ref=e419]: "Task: Community outreach and visitor arrangements"
+          - paragraph [ref=e420]:
+            - strong [ref=e421]: "Details:"
+            - text: "Due date: 20 Nov 2026 → 24 Nov 2026"
+        - button "Open" [ref=e423]:
+          - generic [ref=e424]: Open
+          - img
+      - listitem [ref=e425]:
+        - img [ref=e427]
+        - generic [ref=e430]:
+          - generic [ref=e431]:
+            - heading "Task update 41" [level=2] [ref=e434]
+            - time [ref=e435]: Just now
+          - paragraph [ref=e436]: Chris updated the venue arrangements for your service activity.
+          - paragraph [ref=e437]: "Task: Community outreach and visitor arrangements"
+          - paragraph [ref=e438]:
+            - strong [ref=e439]: "Details:"
+            - text: "Due date: 20 Nov 2026 → 24 Nov 2026"
+        - generic [ref=e440]:
+          - button "Open" [ref=e441]:
+            - generic [ref=e442]: Open
+            - img
+          - button "Mark read" [ref=e443]
+      - listitem [ref=e444]:
+        - img [ref=e446]
+        - generic [ref=e448]:
+          - generic [ref=e449]:
+            - heading "Task update 40" [level=2] [ref=e452]
+            - time [ref=e453]: Just now
+          - paragraph [ref=e454]: Chris updated the venue arrangements for your service activity.
+          - paragraph [ref=e455]: "Task: Community outreach and visitor arrangements"
+          - paragraph [ref=e456]:
+            - strong [ref=e457]: "Details:"
+            - text: "Due date: 20 Nov 2026 → 24 Nov 2026"
+        - generic [ref=e458]:
+          - button "Open" [ref=e459]:
+            - generic [ref=e460]: Open
+            - img
+          - button "Mark read" [ref=e461]
+      - listitem [ref=e462]:
+        - img [ref=e464]
+        - generic [ref=e467]:
+          - generic [ref=e468]:
+            - heading "Task update 39" [level=2] [ref=e470]
+            - time [ref=e471]: Just now
+          - paragraph [ref=e472]: Chris updated the venue arrangements for your service activity.
+          - paragraph [ref=e473]: "Task: Community outreach and visitor arrangements"
+          - paragraph [ref=e474]:
+            - strong [ref=e475]: "Details:"
+            - text: "Due date: 20 Nov 2026 → 24 Nov 2026"
+        - button "Open" [ref=e477]:
+          - generic [ref=e478]: Open
+          - img
+    - paragraph [ref=e479]: 25 notifications shown
+    - generic [ref=e480]:
+      - button "Load older notifications" [disabled]
+  - status "Opened notification"
+```

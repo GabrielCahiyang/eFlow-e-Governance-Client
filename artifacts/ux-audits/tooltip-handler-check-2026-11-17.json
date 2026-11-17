@@ -1,0 +1,10 @@
+{
+  "filesCompared": 76,
+  "missingOrChangedOriginalAttributes": [],
+  "additionalAttributes": [
+    {
+      "file": "src/app/components/ui/NotificationBell.tsx",
+      "count": 1
+    }
+  ]
+}
