@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { AttentionBox } from "@vibe/core";
-import { Banknote, BookOpenCheck, Landmark, ReceiptText } from "lucide-react";
+import { AttentionBox, Button as VibeButton } from "@vibe/core";
+import { Banknote, BookOpenCheck, Landmark, ReceiptText, RefreshCw } from "lucide-react";
 import { useAuth } from "../../../contexts/AuthContext";
 import { getCurrentFiscalYear } from "../constants";
 import { useDepartmentBudget } from "../hooks/useDepartmentBudget";
@@ -100,17 +100,31 @@ function ScopedAccountingWorkspace({ view: suppliedView, onNavigate }: Accountin
     );
 
   return (
-    <div className="eflow-accounting-workspace min-h-full min-w-0 bg-background text-foreground">
+    <div className="eflow-accounting-workspace min-h-full min-w-0 text-foreground">
       <div className="mx-auto max-w-[1500px] space-y-5">
         <WorkspaceHeader title={title} description={`${orgs.find(org => org.id === orgId)?.name || orgId} · FY ${fiscalYear}`} actions={
-          <FiscalYearControl value={fiscalYear} onChange={year => {
-            void requestNavigation(() => {
-              setFiscalYear(year);
-              const url = new URL(window.location.href);
-              url.searchParams.set('fy', String(year));
-              pushNavigationHistory(url.toString());
-            });
-          }} />
+          <div className="eflow-accounting-header-actions">
+            {budget.refreshing && (
+              <span role="status" className="eflow-accounting-refreshing">Refreshing…</span>
+            )}
+            <VibeButton
+              kind="tertiary"
+              size="small"
+              disabled={budget.loading || budget.refreshing}
+              onClick={() => { void budget.refresh(); void journal.refresh(); }}
+            >
+              <RefreshCw size={15} aria-hidden="true" />
+              <span className="ml-1.5">Refresh</span>
+            </VibeButton>
+            <FiscalYearControl value={fiscalYear} onChange={year => {
+              void requestNavigation(() => {
+                setFiscalYear(year);
+                const url = new URL(window.location.href);
+                url.searchParams.set('fy', String(year));
+                pushNavigationHistory(url.toString());
+              });
+            }} />
+          </div>
         } />
         <AccountingDestinationControl value={view} items={ACCOUNTING_VIEWS.filter(item => {
           const permission = getNavigationPermission(userProfile?.role || '', item.section);
@@ -132,9 +146,6 @@ function ScopedAccountingWorkspace({ view: suppliedView, onNavigate }: Accountin
           </div>
         )}
         {journal.error && view !== "journal" && view !== "budgets" && <AttentionBox type="negative" text={journal.error} />}
-        {budget.refreshing && (
-          <p role="status">Refreshing financial records…</p>
-        )}
         {budget.loading ? (
           <AccountingWorkspaceViewSkeleton view={view} />
         ) : budget.error && !budget.summary && ["releases", "settlements", "audit"].includes(view) ? null : view === "overview" ? (

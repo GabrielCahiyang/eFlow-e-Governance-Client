@@ -20,6 +20,7 @@ vi.mock('../../src/app/features/task-inspector/components/InspectorFiles',()=>({
 vi.mock('../../src/app/shared/motion',()=>({InspectorPanel:(props:{children:React.ReactNode;ariaLabel:string})=>{state.panel(props);return <div role="dialog" aria-label={props.ariaLabel}>{props.children}</div>;}}));
 vi.mock('../../src/app/features/tasks',()=>({
  TaskDepartmentLabel:()=> <span>Responsible Office</span>,TaskTeamEditorDialog:()=>null,
+ TaskStatusLabel:({status}:{status:string})=> <span role="status">{status}</span>,
  TaskActivityTimeline:()=> <p>Immutable history</p>,TaskDiscussion:({canParticipate}:{canParticipate:boolean})=><p>{canParticipate?'Can discuss':'Read-only discussion'}</p>,ProgressUpdateForm:()=> <p>Progress form</p>,
  isTaskLead:()=>true,resolveSubtaskManagementCapability:(readOnly:boolean,lead:boolean)=>!readOnly&&lead,
  resolveTaskDetailCapabilities:(readOnly:boolean,cap:Record<string,boolean>)=>Object.fromEntries(Object.entries(cap).map(([key,value])=>[key,!readOnly&&value])),
@@ -63,7 +64,7 @@ describe('My Work task page',()=>{
   expect(screen.getByRole('heading',{name:'Assessment',level:1})).toBeTruthy();
   expect(screen.getAllByRole('tab').map(t=>t.textContent)).toEqual(['Overview','Work','Updates','Files']);
   expect(screen.queryByRole('button',{name:'Back to project'})).toBeNull();
-  await act(async()=>fireEvent.click(screen.getByRole('button',{name:'Close task detail'})));
+  await act(async()=>fireEvent.click(screen.getByRole('button',{name:'Close dialog'})));
   expect(close).toHaveBeenCalledOnce();
  });
  it('retains dirty drafts when a return to My Work is canceled',async()=>{

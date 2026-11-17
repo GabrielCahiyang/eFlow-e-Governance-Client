@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import { useEffect, useState } from "react";
 import { ChevronRight } from "lucide-react";
 import type { AccountingAccount, DepartmentBudgetBundle } from "../types";
@@ -23,7 +24,7 @@ export function BudgetAccountMappings({
         if (active) setAccounts(rows.filter((a) => a.classification === "expense"));
       })
       .catch((e) => {
-        if (active) setMessage(e.message);
+        if (active) setMessage(readableUiError(e, "We couldn’t load the account mappings.", 'read'));
       });
     return () => {
       active = false;
@@ -39,7 +40,7 @@ export function BudgetAccountMappings({
       await onChanged();
       setMessage("Journal account mapping saved.");
     } catch (e) {
-      setMessage(e instanceof Error ? e.message : "Mapping could not be saved.");
+      setMessage(readableUiError(e, "Mapping could not be saved.", 'write'));
     } finally {
       setBusy(false);
     }

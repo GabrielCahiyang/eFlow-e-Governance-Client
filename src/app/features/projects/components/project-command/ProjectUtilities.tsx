@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../../shared/userFacingError';
 import type { ProjectCommandTab } from './types';
 import { Button as VibeButton } from '@vibe/core';
 import { useEffect, useRef, useState } from 'react';
@@ -64,7 +65,7 @@ export function ProjectUtilities({ setupReady=true, project, canManage, lifecycl
         );
       })
       .catch(reason => {
-        if (live) setTemplateError(reason instanceof Error ? reason.message : 'Could not load project task groups.');
+        if (live) setTemplateError(readableUiError(reason, "Could not load project task groups.", 'read'));
       })
       .finally(() => {
         if (live) setTemplateBusy(false);
@@ -126,7 +127,7 @@ export function ProjectUtilities({ setupReady=true, project, canManage, lifecycl
                 setSaveTemplateOpen(false);
               })
               .catch(reason => {
-                setTemplateError(reason instanceof Error ? reason.message : 'Could not save starter template.');
+                setTemplateError(readableUiError(reason, "Could not save starter template.", 'write'));
               })
               .finally(() => setTemplateBusy(false));
           }}

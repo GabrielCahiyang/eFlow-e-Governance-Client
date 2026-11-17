@@ -40,12 +40,12 @@ export function WorkInspector({
   selected,
   current,
   onClose,
-  presentation = 'drawer',
+  presentation = 'dialog',
 }: {
   selected: ReturnType<typeof useWorkInspector>["selection"];
   current: WorkRow[];
   onClose: () => void;
-  presentation?: 'drawer' | 'page';
+  presentation?: 'drawer' | 'page' | 'dialog';
 }) {
   const { user, userProfile } = useAuth();
   if (!selected) return null;
@@ -80,13 +80,14 @@ export function WorkInspector({
       />
     );
   if (row.kind === "office-node"&&row.task&&supportsNestedWork(row.task))
-    return <SubitemInspector key={row.key} rootTask={row.task} itemId={row.id} readOnly={readOnly}
+    return <SubitemInspector key={row.key} presentation={presentation === 'dialog' ? 'dialog' : presentation === 'page' ? 'page' : undefined} rootTask={row.task} itemId={row.id} readOnly={readOnly}
       origin={{view:"My Work",returnFocus:selected.element,restoreFocus:()=>document.getElementById("personal-work-search")?.focus()}}
       onClose={onClose}/>;
   if (row.kind === "office-node")
     return (
       <SubtaskWorkDrawer
         key={row.key}
+        presentation={presentation}
         subtask={row.subtask || null}
         parentTask={row.task}
         readOnly={
@@ -129,7 +130,7 @@ export function WorkInspector({
     );
   return (
     <FeatureDialog
-      title={`Personal subitem · ${row.title}`}
+      title={`Personal subtask · ${row.title}`}
       onClose={() => void requestNavigation(onClose)}
       contentClassName="r10-personal-inspector"
     >

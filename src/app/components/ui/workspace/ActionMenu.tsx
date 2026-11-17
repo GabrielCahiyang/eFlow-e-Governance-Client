@@ -1,4 +1,4 @@
-import { useId, type ReactElement, type ReactNode } from "react";
+import { useId, useState, type ReactElement, type ReactNode } from "react";
 import { WorkspaceTooltip } from "./WorkspaceTooltip";
 import {
   DropdownMenu,
@@ -36,9 +36,11 @@ export function ActionMenu({
   contentClassName?: string;
 }) {
   const menuId = useId();
+  const [localOpen, setLocalOpen] = useState(false);
+  const menuOpen = open ?? localOpen;
   return (
-    <DropdownMenu open={open} onOpenChange={onOpenChange}>
-      {tooltip ? <WorkspaceTooltip content={tooltip}><DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger></WorkspaceTooltip> : <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>}
+    <DropdownMenu open={menuOpen} onOpenChange={next => { setLocalOpen(next); onOpenChange?.(next); }}>
+      {tooltip ? <WorkspaceTooltip content={tooltip} disabled={menuOpen}><DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger></WorkspaceTooltip> : <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>}
       <DropdownMenuContent
         data-placement={side}
         side={side}

@@ -83,9 +83,9 @@ export function validateProjectImportDraft(draft: ProjectImportDraft, confirmati
       for (const s of t.subitems) {
         const subitemIssue=duplicateWorkNameError(s.title,t.subitems.filter(candidate=>candidate!==s),'Subitem');if(subitemIssue)throw new Error(subitemIssue);
         if (Object.keys(s).some(key=>["parentSubtaskId","parent_subtask_id","children","subitems"].includes(key)))throw new Error("Nested imports require a hierarchy format; parent links cannot be flattened.");
-        if (!s.title.trim() || s.title.length > 300) throw new Error('Enter each subitem name.'); date(s.dueDate);
-        if (confirmation) { const issue = scheduledDateError(s.dueDate, { earliest: t.startDate && t.startDate > getPhilippineCalendarDate() ? t.startDate : getPhilippineCalendarDate(), latest: t.dueDate, label: 'Subitem due date' }); if (issue) throw new Error(issue); }
-        if (s.dueDate && t.dueDate && s.dueDate > t.dueDate) throw new Error('Subitem due dates cannot be later than their task due date.');
+        if (!s.title.trim() || s.title.length > 300) throw new Error("Enter a name for every subtask."); date(s.dueDate);
+        if (confirmation) { const issue = scheduledDateError(s.dueDate, { earliest: t.startDate && t.startDate > getPhilippineCalendarDate() ? t.startDate : getPhilippineCalendarDate(), latest: t.dueDate, label: "Subtask due date" }); if (issue) throw new Error(issue); }
+        if (s.dueDate && t.dueDate && s.dueDate > t.dueDate) throw new Error("A subtask's due date must be on or before its task's due date.");
       }
     }
   }

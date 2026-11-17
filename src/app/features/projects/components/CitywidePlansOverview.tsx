@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { useEffect, useState } from "react";
 import type { Organization, UserProfile } from "../../../types";
@@ -17,7 +18,7 @@ export function CitywidePlansOverview({ projects, drafts, organizations, profile
     const refresh = async () => {
       const requestVersion = ++version;
       try { const next = await fetchApprovalPortfolio(drafts); if (active && requestVersion === version) { setPortfolio(next); setError(""); } }
-      catch (failure) { if (active && requestVersion === version) setError(failure instanceof Error ? failure.message : "Approvals could not be loaded."); }
+      catch (failure) { if (active && requestVersion === version) setError(readableUiError(failure, "Approvals could not be loaded.", 'read')); }
       finally { if (active && requestVersion === version) setLoading(false); }
     };
     setLoading(true); void refresh();

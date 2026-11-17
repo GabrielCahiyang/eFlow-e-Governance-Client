@@ -37,7 +37,7 @@ export function AuditEventFeed({
       <div className="flex items-center justify-between border-b border-neutral-100 px-5 py-3.5">
         <div>
           <h2 className="text-[13px] font-medium text-neutral-900">System activity</h2>
-          <p className="mt-0.5 text-[10.5px] text-neutral-500">Every entry is immutable and shown with its responsible actor and affected record.</p>
+          <p className="mt-0.5 text-[10.5px] text-neutral-500">Entries can't be edited. Each one shows who performed the action and which record changed.</p>
         </div>
         <span className="rounded-full bg-neutral-100 px-2.5 py-1 text-[10px] font-medium text-neutral-600">{events.length} events</span>
       </div>

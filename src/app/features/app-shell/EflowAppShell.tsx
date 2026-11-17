@@ -1,3 +1,4 @@
+import { readableUiError } from '../../shared/userFacingError';
 import { focusActivatedButton } from "../../shared/focusActivatedButton";
 import { scopeTasks, TaskDepartmentProvider } from "../tasks";
 import {ViewLoadingState} from '../../components/ui/ViewLoadingState';
@@ -58,7 +59,7 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
   useEffect(()=>setContextError(''),[userId]);
   const officeId = userProfile?.org_id || userProfile?.departmentId || '';
   const operational = ['head','member','accounting_staff'].includes(userProfile?.role || role);
-  const workspaceState = useWorkspaceState(userId || '', officeId, operational && userProfile?.is_active !== false);
+  const workspaceState = useWorkspaceState(userId || '', officeId, operational && userProfile?.is_active !== false, true);
   const currentWorkspace = workspaceState.snapshot?.workspace;
   const personal = currentWorkspace?.kind === 'personal';
   const officeContext = currentWorkspace?.kind === 'office' && currentWorkspace.office_id !== officeId;
@@ -166,7 +167,7 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
           try{
             const snapshot=await selectWorkspace(restore.workspaceId);if(!isCurrent())return false;
             if(projectId&&!snapshot.projects.some(project=>project.id===projectId)){projectId=undefined;for(const key of ['project','view','plans'])delete parameters[key];}
-          }catch(error){if(isCurrent())setContextError(error instanceof Error?error.message:'Could not verify the saved workspace.');return false;}
+          }catch(error){if(isCurrent())setContextError(readableUiError(error, "Could not verify the saved workspace.", 'write'));return false;}
         }
         if(!isCurrent())return false;
         if(officeId&&(personal||officeContext)&&!['dashboard','projects','personal_work','inbox','settings'].includes(section)){
@@ -304,7 +305,7 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
             />
             <div className="eflow-app-shell__body">
               {desktop && (
-                <div className="eflow-app-shell__desktop-navigation" data-messages-rail={activeSection === 'messages' || undefined}>
+                <div className="eflow-app-shell__desktop-navigation">
                   <ProductivitySidebar {...sidebarProps} />
                 </div>
               )}
@@ -316,8 +317,12 @@ export function EflowAppShell({ role }: EflowAppShellProps) {
               >
                 <OnboardingWorkspace onNavigate={handlePageSelect} />
                 {contextError&&<p role="alert" className="eflow-context-error">{contextError}</p>}
-                {activeSection === 'messages' ? <><MessagesWorkspace userId={userId} userName={userProfile?.fullName} onOpenTask={setMessageTask} onOpenProject={id => void handlePageSelect('projects','Projects',id)} />
-                  {messageTask && <TaskDetailDrawer taskId={messageTask} task={null} origin={{ view: 'Messages' }} onClose={() => setMessageTask(undefined)} />}</>
+                {activeSection === 'messages' || (activeSection === 'inbox' && activePage === 'Messages') ? (
+                  <div className="eflow-inbox-messages-shell">
+                    <MessagesWorkspace userId={userId} userName={userProfile?.fullName} onOpenTask={setMessageTask} onOpenProject={id => void handlePageSelect('projects','Projects',id)} />
+                    {messageTask && <TaskDetailDrawer taskId={messageTask} task={null} presentation="dialog" origin={{ view: 'Messages' }} onClose={() => setMessageTask(undefined)} />}
+                  </div>
+                )
                   : blockedScope ? workspaceState.loading&&!workspaceState.error ? <ViewLoadingState/> : <WorkspaceRecoveryState error={workspaceState.error} onRetry={workspaceState.refresh} />
                   : personal && !['dashboard','personal_work','settings','inbox','users','permissions','org_tree','audit','administration','migration'].includes(activeSection) ? <PersonalWorkspace key={`${userId}:${currentWorkspace.id}`} workspace={currentWorkspace} projects={workspaceState.snapshot?.projects || []} userId={userId || ''} ownerName={userProfile?.full_name || 'You'} officeId={officeId} section={activeSection} onOpen={id=>void handlePageSelect('projects','Projects',id)} onRefresh={workspaceState.refresh} />
                   : officeContext && !['dashboard','personal_work','inbox','projects','settings'].includes(activeSection) ? <div className="eflow-workspace"><p>Select a project in this shared Office context, or return to your Office to use Office tools.</p><button type="button" onClick={()=>void workspaceState.select(officeId)}>Return to my Office</button></div>

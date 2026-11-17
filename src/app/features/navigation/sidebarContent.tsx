@@ -14,11 +14,11 @@ export function getSidebarContent(
   if (section === 'dashboard') return {title:'Workspace Overview',sections:[{title:'Workspace',items:[{label:'Workspace Overview',isActive:true}]}]};
   if (section === "inbox")
     return {
-      title: section === "inbox" ? "Inbox" : "My Work",
+      title: "Inbox",
       sections: [
         {
           title: "Personal",
-          items: ['Inbox','Needs action','Updates'].map((label,i)=>({label,isActive:i===0})),
+          items: ['Needs action', 'Notifications', 'Messages'].map((label, i) => ({ label, isActive: i === 0 })),
         },
       ],
     };

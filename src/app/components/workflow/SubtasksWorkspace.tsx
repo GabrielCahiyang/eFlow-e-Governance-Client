@@ -445,7 +445,7 @@ function ActorSubtasksWorkspace() {
                           ? "border-violet-200 bg-violet-50 text-violet-700"
                           : "border-neutral-200 bg-neutral-50 text-neutral-500"
                       }`}>
-                        {st.isStandalone ? <span className="inline-flex items-center gap-1"><Unlink2 size={9} /> Standalone</span> : `Step ${stepNumber}`}
+                        {st.isStandalone ? <span className="inline-flex items-center gap-1"><Unlink2 size={9} /> Independent</span> : `Step ${stepNumber}`}
                       </span>
 
                       {prerequisite && (

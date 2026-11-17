@@ -683,7 +683,7 @@ describe("Navigation & Caching Benchmark and Verification", () => {
 
     expect(screen.getByTestId("cache-entry-count").textContent).toBe("0");
     expect(
-      screen.getByText(/Drafts, attachments awaiting submission, and financial retry records were preserved/i),
+      screen.getByText(/Cached data cleared. eFlow will load fresh data as you work./i),
     ).toBeTruthy();
 
     // Protected drafts and financial retry records must still exist untouched

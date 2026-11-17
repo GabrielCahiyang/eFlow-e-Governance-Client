@@ -6,6 +6,7 @@ import { Button } from '@vibe/core';
 import { Download, Printer } from 'lucide-react';
 import { BudgetTableRegion } from './BudgetTableRegion';
 const headings=['Account','Appropriated','Held','Released','Obligated','% of total','% used','Balance'];
+const moneyIndices = new Set([1, 2, 3, 4, 7]);
 export function BudgetPartitionOverview({data}:{data:DepartmentBudgetBundle}) {
   if(!data.sectionsAvailable||!data.summary)return null;
   const sections=data.sections||[],annual=sectionTotal(sections);
@@ -19,6 +20,9 @@ export function BudgetPartitionOverview({data}:{data:DepartmentBudgetBundle}) {
   const totalHold=sectionTotal(sections,undefined,'heldAmount'),obligated=data.summary.committedAmount;
   const totalRow=['TOTAL',annual,totalHold,annual-totalHold,obligated,percentage(obligated,annual),percentage(obligated,annual),annual-totalHold-obligated];
   const report=`Office Budget Utilization · FY ${data.summary.fiscalYear}`;
+  const exportRows = [...rows, totalRow].map((row) =>
+    row.map((value, index) => (moneyIndices.has(index) && typeof value === 'number' ? peso.format(value) : value)),
+  );
   const renderCells = (row: Array<string | number>) => row.map((value, index) => (
     <td key={index} className={`${index ? 'eflow-budget-number' : 'whitespace-pre-wrap break-words'} ${index === 7 && Number(value) < 0 ? 'text-destructive' : ''}`}>
       {typeof value === 'number' ? peso.format(value) : value}
@@ -28,8 +32,8 @@ export function BudgetPartitionOverview({data}:{data:DepartmentBudgetBundle}) {
     <header className="eflow-budget-section-heading">
       <div><h2>Budget accounts</h2><p>Appropriation, releases and commitments by account.</p></div>
       <div className="flex flex-wrap gap-2">
-        <Button kind="secondary" size="small" onClick={()=>downloadBudgetCsv(`budget-utilization-${data.summary!.fiscalYear}.csv`,headings,[...rows,totalRow])}><Download size={14} /> Export CSV</Button>
-        <Button kind="tertiary" size="small" onClick={()=>printBudgetTable(report,headings,[...rows,totalRow])}><Printer size={14} /> Print / PDF</Button>
+        <Button kind="secondary" size="small" onClick={()=>downloadBudgetCsv(`budget-utilization-${data.summary!.fiscalYear}.csv`,headings,exportRows)}><Download size={14} /> Export CSV</Button>
+        <Button kind="tertiary" size="small" onClick={()=>printBudgetTable(report,headings,exportRows)}><Printer size={14} /> Print / PDF</Button>
       </div>
     </header>
     <BudgetTableRegion label="Budget accounts table">

@@ -1,3 +1,4 @@
+import { WorkspaceTooltip } from "./workspace/WorkspaceTooltip";
 // ─── Global Toast Notification System ────────────────────────────
 import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
 
@@ -74,7 +75,7 @@ function ToastNotification({ item, onDismiss }: { item: ToastItem; onDismiss: ()
       <span className="flex-1 text-[13px] font-normal">
         {item.message}
       </span>
-      <button
+      <WorkspaceTooltip content="Dismiss notification"><button
         type="button"
         aria-label="Dismiss notification"
         onClick={onDismiss}
@@ -83,7 +84,7 @@ function ToastNotification({ item, onDismiss }: { item: ToastItem; onDismiss: ()
         <svg viewBox="0 0 16 16" className="w-3.5 h-3.5" fill="currentColor">
           <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
         </svg>
-      </button>
+      </button></WorkspaceTooltip>
       <style>{`
         @keyframes toast-in {
           from { transform: translateX(100%); opacity: 0; }

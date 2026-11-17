@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import { useRef, useState } from "react";
 import { AttentionBox, Button } from "@vibe/core";
 import * as m from "motion/react-m";
@@ -48,7 +49,7 @@ export function VoucherConfirmDialog({
     try {
       await acknowledgePettyCashRelease(release.id, expected);
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Acknowledgement could not be recorded.");
+      setError(readableUiError(caught, "Acknowledgement could not be recorded.", 'write'));
       inFlight.current = false;
       setBusy(false);
       return;

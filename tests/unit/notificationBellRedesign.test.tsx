@@ -24,6 +24,8 @@ vi.mock('../../src/app/services/notificationService', () => ({
     markAllNotificationsReadMock(userId),
   markNotificationRead: (userId: string, notificationId: string) =>
     markNotificationReadMock(userId, notificationId),
+  markRecentNotificationRead: (userId: string, notificationId: string) =>
+    markNotificationReadMock(userId, notificationId),
 }));
 
 vi.mock('../../src/app/features/notifications', () => ({
@@ -119,5 +121,17 @@ describe('NotificationBell Vibe redesign', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Collapse notifications' }));
     expect(dialog.classList.contains('eflow-notif-panel--expanded')).toBe(false);
+  });
+
+  it('navigates from the notification dialog to full Inbox notifications via View all in Inbox', () => {
+    const onNavigate = vi.fn();
+    render(<NotificationBell userId="user-1" role="head" onNavigate={onNavigate} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Open notifications' }));
+    expect(screen.getByRole('dialog', { name: 'Notifications' })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: 'View all in Inbox' }));
+    expect(onNavigate).toHaveBeenCalledWith('inbox', 'Notifications');
+    expect(screen.queryByRole('dialog', { name: 'Notifications' })).toBeNull();
   });
 });

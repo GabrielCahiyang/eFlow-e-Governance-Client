@@ -21,6 +21,8 @@ import { formatFundingRequestCode } from "../selectors/cashWorkflowRules";
 import { createReceiptSignedUrl } from "../services/budgetService";
 import { Input } from "../../../components/ui/input";
 import { BudgetCard, BudgetEmpty, peso } from "./budgetUi";
+import { DEFAULT_BUDGET_PAGE_SIZE, useBudgetPagination } from "../hooks/useBudgetPagination";
+import { BudgetPagination } from "./BudgetPagination";
 
 export function BudgetExpensesReport({
   data,
@@ -78,6 +80,11 @@ export function BudgetExpensesReport({
     }),
     [filtered],
   );
+  const pagination = useBudgetPagination(
+    filtered,
+    `${data.summary?.id || ""}:${proposal}:${employee}:${month}:${search}`,
+    DEFAULT_BUDGET_PAGE_SIZE,
+  );
 
   if (data.loading) return <BudgetExpensesReportSkeleton />;
   if (data.error)
@@ -124,12 +131,12 @@ export function BudgetExpensesReport({
     {
       key: "actual",
       header: "Actual spent",
-      value: (r) => r.actualAmount.toFixed(2),
+      value: (r) => peso.format(r.actualAmount),
     },
     {
       key: "returned",
       header: "Returned",
-      value: (r) => r.returnedAmount.toFixed(2),
+      value: (r) => peso.format(r.returnedAmount),
     },
     { key: "receipts", header: "Receipts", value: (r) => r.receiptCount },
   ];
@@ -252,7 +259,7 @@ export function BudgetExpensesReport({
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((row) => {
+                {pagination.pageItems.map((row) => {
                   const liquidation = data.liquidations
                     .filter((item) => item.requestId === row.id)
                     .sort((a, b) => b.version - a.version)[0];
@@ -333,6 +340,15 @@ export function BudgetExpensesReport({
             </table>
           </BudgetTableRegion>
         )}
+        <BudgetPagination
+          page={pagination.page}
+          pageSize={pagination.pageSize}
+          totalItems={pagination.totalItems}
+          visibleCount={pagination.pageItems.length}
+          noun="expense"
+          onPageChange={pagination.setPage}
+          onPageSizeChange={pagination.setPageSize}
+        />
       </section>
     </div>
   );

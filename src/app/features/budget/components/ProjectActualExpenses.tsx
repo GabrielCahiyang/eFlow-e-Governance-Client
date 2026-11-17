@@ -1,3 +1,4 @@
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { createContext, useContext, useEffect, useId, useState, type ReactNode } from 'react';
 import { RotateCw } from 'lucide-react';
 import { supabase } from '../../../../lib/supabase';
@@ -74,7 +75,7 @@ export function ProjectActualExpensesCell({ taskId, subtaskId, personal }: {
   if (personal || !taskId) return <span>—</span>;
   if (loading) return <span aria-label="Loading expenses">…</span>;
   if (!totals) return retry
-    ? <button type="button" aria-label="Retry expenses" title="Retry expenses" onClick={retry}><RotateCw size={14} aria-hidden="true"/></button>
+    ? <WorkspaceTooltip content="Retry expenses"><button type="button" aria-label="Retry expenses"  onClick={retry}><RotateCw size={14} aria-hidden="true"/></button></WorkspaceTooltip>
     : <span>—</span>;
   const amount = subtaskId ? totals.subtasks.get(subtaskId) : totals.tasks.get(taskId);
   if (!amount) return <span className="text-muted-foreground" title="No visible expenses">—</span>;

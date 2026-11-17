@@ -167,18 +167,18 @@ export function WorkBudgetCard({
 
   if (!subtask && !budget.summary && !budget.loading && !context?.funded) return <>{!readOnly&&<OfficePettyCashLauncher/>}{task.linkedProjectId&&!subtask&&<TaskProjectFunding projectId={task.linkedProjectId} taskId={task.id} funded={!!context?.funded} onChanged={refresh}/>}</>;
   return (
-    <section className="rounded-[10px] border border-border bg-card p-3 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
+    <section className="rounded-[12px] border border-[var(--eflow-border)] bg-[var(--eflow-surface)] p-4">
       {!subtask&&!readOnly&&<OfficePettyCashLauncher/>}
       {!subtask&&authorityPending && <p role="status" className="mb-3 flex items-center gap-2 text-[13px] text-muted-foreground"><Loader2 size={14} className="animate-spin" />Checking current work access. Your draft is kept; controls resume when verified.</p>}
       {task.linkedProjectId&&!subtask&&<TaskProjectFunding projectId={task.linkedProjectId} taskId={task.id} funded={!!context?.funded} onChanged={refresh}/>}
       {!task.linkedProjectId&&!authorityPending&&(canAuthorizeFunding||!readOnly&&canManage)&&isOpenDirectFundingWork(task)&&!subtask&&!context?.funded&&!funding.loading&&userProfile?.role==="head"&&userProfile.is_active!==false&&userProfile.org_id===orgId&&orgId===fundingOffice&&<DirectWorkFunding key={task.id} data={budget} tasks={[task]} onChanged={refresh} />}
       <header className="flex flex-wrap items-start justify-between gap-3">
-        <div className="flex min-w-0 gap-2">
-          <div className="rounded-lg bg-primary/10 p-2 text-primary">
+        <div className="flex min-w-0 gap-2.5">
+          <div className="flex size-6 shrink-0 items-center justify-center rounded-[6px] bg-[var(--eflow-selected)] text-[var(--eflow-primary)]">
             <Banknote size={14} />
           </div>
           <div className="min-w-0">
-            <div className="text-[12px] uppercase tracking-wide text-emerald-700">
+            <div className="text-[12px] font-semibold text-[var(--eflow-text-muted)]">
               {subtask ? "Subtask funding" : "Task funding"}
             </div>
             {funding.loading && !context ? (

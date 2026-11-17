@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { CalendarRange, Check, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { fetchDepartmentFiscalYears } from "../services/budgetService";
 import { getCurrentFiscalYear } from "../constants";
@@ -18,49 +19,45 @@ export function FiscalYearControl({ value, onChange, compact = false, orgId }: {
   return (
     <div ref={root} className="relative">
       <div
-        className={`inline-flex items-center max-sm:!h-11 rounded-xl border border-border bg-card text-card-foreground shadow-sm ${compact ? "h-9" : "h-10"}`}
+        className={`inline-flex items-center max-sm:!h-11 rounded-[8px] border border-[var(--eflow-border)] bg-[var(--eflow-surface)] text-[var(--eflow-text)] ${compact ? "h-9" : "h-10"}`}
         aria-label="Fiscal year control"
       >
-        <button
+        <WorkspaceTooltip content="Previous fiscal year"><button
           type="button"
           aria-label={`Open fiscal year ${value - 1}`}
           onClick={() => onChange(value - 1)}
-          className="flex h-full w-9 max-sm:min-w-11 items-center justify-center rounded-l-xl text-muted-foreground transition hover:bg-muted hover:text-foreground"
+          className="flex h-full w-9 max-sm:min-w-11 items-center justify-center rounded-l-[8px] text-[var(--eflow-text-muted)] transition hover:bg-[var(--eflow-subtle)] hover:text-[var(--eflow-text)]"
         >
-          <ChevronLeft size={13} />
-        </button>
+          <ChevronLeft size={14} />
+        </button></WorkspaceTooltip>
         <button
           type="button"
           onClick={() => setOpen((shown) => !shown)}
-          className="flex h-full min-w-[145px] items-center justify-center gap-2 border-x border-border px-3 text-left"
+          aria-expanded={open}
+          className="flex h-full min-w-[158px] items-center justify-center gap-2 border-x border-[var(--eflow-border)] px-3 text-left whitespace-nowrap transition hover:bg-[var(--eflow-subtle)]"
         >
-          <CalendarRange size={13} className="text-primary" />
-          <span className="flex-1">
-            <span className="block text-[10px] uppercase tracking-[.14em] text-muted-foreground">
-              Fiscal year
-            </span>
-            <span className="block text-[12px] font-semibold leading-none text-foreground">
-              FY {value}{value === current ? " · Current" : ""}
-            </span>
+          <CalendarRange size={14} className="shrink-0 text-[var(--eflow-primary)]" />
+          <span className="flex-1 text-[13px] font-semibold leading-none text-[var(--eflow-text)]">
+            FY {value}{value === current ? " · Current" : ""}
           </span>
           <ChevronDown
-            size={12}
-            className={`text-muted-foreground transition ${open ? "rotate-180" : ""}`}
+            size={13}
+            className={`shrink-0 text-[var(--eflow-text-muted)] transition ${open ? "rotate-180" : ""}`}
           />
         </button>
-        <button
+        <WorkspaceTooltip content="Next fiscal year"><button
           type="button"
           aria-label={`Open fiscal year ${value + 1}`}
           onClick={() => onChange(value + 1)}
-          className="flex h-full w-9 max-sm:min-w-11 items-center justify-center rounded-r-xl text-muted-foreground transition hover:bg-muted hover:text-foreground"
+          className="flex h-full w-9 max-sm:min-w-11 items-center justify-center rounded-r-[8px] text-[var(--eflow-text-muted)] transition hover:bg-[var(--eflow-subtle)] hover:text-[var(--eflow-text)]"
         >
-          <ChevronRight size={13} />
-        </button>
+          <ChevronRight size={14} />
+        </button></WorkspaceTooltip>
       </div>
 
       {open && (
-        <div className="absolute right-0 top-[calc(100%+.45rem)] z-50 w-64 overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground p-1.5 shadow-xl">
-          <div className="px-2 py-1.5 text-[10px] uppercase tracking-[.14em] text-muted-foreground">
+        <div className="absolute right-0 top-[calc(100%+.45rem)] z-50 w-64 overflow-hidden rounded-xl border border-[var(--eflow-border)] bg-[var(--eflow-surface)] text-[var(--eflow-text)] p-1.5 shadow-xl">
+          <div className="px-2.5 py-1.5 text-[11px] font-medium text-[var(--eflow-text-muted)]">
             Configured fiscal years
           </div>
           {years.map((year) => {
@@ -73,13 +70,13 @@ export function FiscalYearControl({ value, onChange, compact = false, orgId }: {
                   onChange(year);
                   setOpen(false);
                 }}
-                className="flex w-full max-sm:min-h-11 items-center gap-2 rounded-lg px-2.5 py-2 text-left hover:bg-muted"
+                className="flex w-full max-sm:min-h-11 items-center gap-2 rounded-lg px-2.5 py-2 text-left hover:bg-[var(--eflow-subtle)]"
               >
                 <span className="flex-1">
                   <span className="block text-[12px] font-medium">
                     FY {year}{year === current ? " · Current" : ""}
                   </span>
-                  <span className="mt-0.5 block text-[11px] capitalize text-muted-foreground">
+                  <span className="mt-0.5 block text-[11px] capitalize text-[var(--eflow-text-muted)]">
                     {option
                       ? `${option.status} · ${peso.format(option.amount)}`
                       : year > current
@@ -87,7 +84,7 @@ export function FiscalYearControl({ value, onChange, compact = false, orgId }: {
                         : "Not configured"}
                   </span>
                 </span>
-                {year === value && <Check size={13} className="text-primary" />}
+                {year === value && <Check size={13} className="text-[var(--eflow-primary)]" />}
               </button>
             );
           })}
@@ -98,7 +95,7 @@ export function FiscalYearControl({ value, onChange, compact = false, orgId }: {
                 onChange(current);
                 setOpen(false);
               }}
-              className="mt-1 w-full rounded-lg bg-primary px-3 py-2 text-[12px] text-primary-foreground transition hover:bg-primary/90"
+              className="mt-1 w-full rounded-lg bg-[var(--eflow-primary)] px-3 py-2 text-[12px] text-[var(--eflow-on-primary)] transition hover:bg-[var(--eflow-primary-hover)]"
             >
               Return to current FY
             </button>

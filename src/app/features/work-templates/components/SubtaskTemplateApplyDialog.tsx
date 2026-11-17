@@ -1,3 +1,5 @@
+import { readableUiError } from '../../../shared/userFacingError';
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { AlertTriangle, Plus, Trash2, UserPlus, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { FeatureDialog } from "../../../components/ui/FeatureDialog";
@@ -41,7 +43,7 @@ export function SubtaskTemplateApplyDialog({
     setLoadingExisting(true);
     fetchTaskSubtasks(taskId)
       .then((rows) => { if (!cancelled) setExisting(rows); })
-      .catch((caught) => { if (!cancelled) setError(caught instanceof Error ? caught.message : "Could not inspect existing subtasks."); })
+      .catch((caught) => { if (!cancelled) setError(readableUiError(caught, "Could not inspect existing subtasks.", 'read')); })
       .finally(() => { if (!cancelled) setLoadingExisting(false); });
     return () => { cancelled = true; };
   }, [taskId]);
@@ -76,7 +78,7 @@ export function SubtaskTemplateApplyDialog({
       );
       onClose();
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "The template could not be applied.");
+      setError(readableUiError(caught, "The template could not be applied.", 'write'));
       setSaving(false);
     }
   };
@@ -90,7 +92,7 @@ export function SubtaskTemplateApplyDialog({
             <h3 className="mt-0.5 text-[17px] font-semibold text-neutral-900">{template.title}</h3>
             <p className="mt-1 text-[11px] text-neutral-500">Preview the checklist, assign contributors, and choose how it should interact with existing subtasks.</p>
           </div>
-          <button onClick={onClose} className="rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-100"><X size={16} /></button>
+          <WorkspaceTooltip content="Close template"><button aria-label="Close template" onClick={onClose} className="rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-100"><X size={16} /></button></WorkspaceTooltip>
         </div>
 
         <div className="grid flex-1 overflow-y-auto lg:grid-cols-[280px_1fr]">
@@ -156,7 +158,7 @@ export function SubtaskTemplateApplyDialog({
                   <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-[10px] text-neutral-500">{index + 1}</span>
                   <input maxLength={250}
                   value={item.title} onChange={(event) => setItems((current) => current.map((entry, itemIndex) => itemIndex === index ? { ...entry, title: event.target.value } : entry))} className="h-9 flex-1 rounded-lg border border-neutral-200 px-2.5 text-[12px] outline-none focus:border-neutral-400" />
-                  <button disabled={items.length === 1} onClick={() => setItems((current) => current.filter((_, itemIndex) => itemIndex !== index))} className="rounded-lg p-2 text-neutral-400 hover:bg-rose-50 hover:text-rose-600 disabled:opacity-30"><Trash2 size={13} /></button>
+                  <WorkspaceTooltip content={`Remove step ${index + 1}`}><button aria-label={`Remove step ${index + 1}`} disabled={items.length === 1} onClick={() => setItems((current) => current.filter((_, itemIndex) => itemIndex !== index))} className="rounded-lg p-2 text-neutral-400 hover:bg-rose-50 hover:text-rose-600 disabled:opacity-30"><Trash2 size={13} /></button></WorkspaceTooltip>
                 </div>
                 <div className="mt-2 flex flex-wrap items-center gap-1.5 pl-8">
                   {item.assignedToIds.map((id) => {

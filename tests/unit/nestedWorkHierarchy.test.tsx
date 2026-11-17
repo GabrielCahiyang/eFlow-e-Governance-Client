@@ -100,7 +100,8 @@ describe('one supplied work hierarchy composition',()=>{
   fireEvent.keyDown(screen.getByRole('menu'),{key:'Escape'});
   const nodeDraft=captureWorkEditorBaseline(data,{command:'order',parent:'Parent'},'actor','request');expect(nodeDraft.fields.order).toEqual(['Hidden A','Hidden B']);
   expect(workEditorPayload(nodeDraft,nodeDraft.fields)).toEqual({parent:'Parent',order:['Hidden A','Hidden B']});
-  await openMenu('Task work actions');fireEvent.click(screen.getByRole('menuitem',{name:'Reorder subtasks'}));await waitFor(()=>expect(input.onRequestAction).toHaveBeenLastCalledWith('order',undefined));
+  expect(screen.queryByRole('button',{name:'Task work actions'})).toBeNull();
+  expect(screen.queryByRole('button',{name:'Add subtask'})).toBeNull();
   const rootDraft=captureWorkEditorBaseline(data,{command:'order',parent:null},'actor','request');expect(rootDraft.fields.parent).toBe('');expect(rootDraft.fields.order).toEqual(['Parent']);
   expect(workEditorPayload(rootDraft,rootDraft.fields)).toEqual({parent:null,order:['Parent']});
   expect(data.nodes).toHaveLength(3);expect(api.save).not.toHaveBeenCalled();
@@ -134,10 +135,15 @@ const controller=(data=tree()):WorkTreeController=>({rootId:'root',actorId:'acto
 describe('public shared work controller',()=>{
  it('shows the active-project contributor lock and hides root staffing controls for the Task Lead',()=>{
   const data=tree([]);data.root.capabilities={manage_contributors:{allowed:false,reason_code:'active_staffing_locked'},appoint_lead:{allowed:false,reason_code:'appointment_denied'}};
-  render(<WorkRootOwner rootId="root" controller={controller(data)}/>);
+  const view=render(<WorkRootOwner rootId="root" controller={controller(data)}/>);
   expect(screen.queryByRole('button',{name:'Choose task lead and contributors'})).toBeNull();
   expect(screen.getByRole('status').textContent).toContain('Root task contributors are read-only for the Task Lead after the project becomes active.');
   expect(api.save).not.toHaveBeenCalled();
+
+  view.rerender(<WorkRootOwner rootId="root" controller={controller(data)} layout="table"/>);
+  expect(screen.queryByText(/Root task contributors are read-only/)).toBeNull();
+  fireEvent.click(screen.getByRole('button',{name:'Team access info'}));
+  expect(screen.getByText(/Root task contributors are read-only for the Task Lead after the project becomes active\./)).toBeTruthy();
  });
  it('owns one read/poller for supplied Tree and Owner, including the full-controller staffing dialog',async()=>{
   const data=tree();data.root.capabilities={manage_contributors:allow,appoint_lead:deny};api.load.mockResolvedValue(data);
@@ -193,8 +199,7 @@ describe('public shared work controller',()=>{
   const data=tree();data.root.capabilities={manage_contributors:allow,create_child:allow};const input=controller(data);input.pending=true;
   const open=vi.fn();render(<><WorkRootOwner rootId="root" controller={input}/><WorkTree rootId="root" controller={input}/><WorkTree rootId="root" controller={input} readOnly onOpenOfficeNode={open}/></>);
   expect((screen.getByRole('button',{name:'Choose task lead and contributors'}) as HTMLButtonElement).disabled).toBe(true);
-  await openMenu('Task work actions');expect(screen.getByRole('menuitem',{name:'Add subtask'}).getAttribute('aria-disabled')).toBe('true');expect(api.load).not.toHaveBeenCalled();
-  fireEvent.keyDown(screen.getByRole('menu'),{key:'Escape'});
+  expect((screen.getByRole('button',{name:'Add subtask'}) as HTMLButtonElement).disabled).toBe(true);expect(api.load).not.toHaveBeenCalled();
   const evidence=screen.getAllByRole('button',{name:'Parent',exact:true})[1] as HTMLButtonElement;expect(evidence.disabled).toBe(false);fireEvent.click(evidence);expect(open).toHaveBeenCalledWith(data.nodes[0],data);expect(api.save).not.toHaveBeenCalled();
  });
  it('does not restore authority or protected display from an unverified response clone',async()=>{

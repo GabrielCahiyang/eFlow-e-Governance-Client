@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import { useEffect, useId, useRef, useState } from "react";
 import { useNavigationBlocker } from '../../../shared/navigationGuard';
 export function InlineEditableText({value, onSave, label, disabled = false, maxLength = 200, revision}: {value: string; onSave: (value: string) => Promise<void> | void; label: string; disabled?: boolean; maxLength?: number; revision?: string|number}) {
@@ -15,7 +16,7 @@ export function InlineEditableText({value, onSave, label, disabled = false, maxL
     if (!next) {setError("Enter a value."); input.current?.focus(); return;}
     if (next===value) {setEditing(false);return;}
     pending.current=true;setSaving(true);setError("");
-    try {await onSave(next);setEditing(false);} catch(err) {setError(err instanceof Error ? err.message : "Unable to save.");input.current?.focus();}
+    try {await onSave(next);setEditing(false);} catch(err) {setError(readableUiError(err, "Unable to save.", 'write'));input.current?.focus();}
     finally {pending.current=false;setSaving(false);}
   };
   if (!editing) return <button type="button" className="eflow-inline-text" aria-label={`Edit ${label}`} disabled={disabled} onClick={() => {cancelBlur.current=false;openedRevision.current=revision;setDraft(value);setError("");setEditing(true);}}>{value}</button>;

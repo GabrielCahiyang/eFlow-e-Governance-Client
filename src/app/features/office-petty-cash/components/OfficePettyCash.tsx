@@ -2,6 +2,7 @@ import {useCallback,useEffect,useId,useRef,useState} from 'react';
 import {Banknote,Plus,RefreshCw} from 'lucide-react';
 import {useAuth} from '../../../contexts/AuthContext';
 import {useToast} from '../../../components/ui/Toast';
+import {readableUiError} from '../../../shared/userFacingError';
 import {Modal} from '../../../components/ui/Modal';
 import {EmptyState} from '../../../components/ui/EmptyState';
 import {StatusPill} from '../../../components/ui/workspace/StatusPill';
@@ -26,7 +27,7 @@ function ScopedOfficeCash({office,actor,role,focusRequestId}:{office:string;acto
  const storageKey=`eflow.office-petty.pending:${office}:${actor}`;
  const [pending,setPending]=useState<OfficeCashCommand|null>(()=>{try{return JSON.parse(sessionStorage.getItem(storageKey)||'null');}catch{return null;}});
  const active=useRef(true),saving=useRef(false);const accountant=role==='accounting_staff',head=role==='head';
- const reload=useCallback(async()=>{try{const next=await loadOfficeCash(office);if(active.current){setSnapshot(next);setError('');}}catch(reason){if(active.current)setError((reason as Error).message);}},[office]);
+ const reload=useCallback(async()=>{try{const next=await loadOfficeCash(office);if(active.current){setSnapshot(next);setError('');}}catch(reason){if(active.current)setError(readableUiError(reason, 'We couldn’t load Office Petty Cash.', 'read'));}},[office]);
  useEffect(()=>{active.current=true;if(office)void reload();const update=()=>{if(!saving.current&&document.visibilityState==='visible')void reload();};const timer=window.setInterval(update,30_000);window.addEventListener('focus',update);document.addEventListener('visibilitychange',update);window.addEventListener('eflow:office-petty',update);return()=>{active.current=false;window.clearInterval(timer);window.removeEventListener('focus',update);document.removeEventListener('visibilitychange',update);window.removeEventListener('eflow:office-petty',update);};},[reload,office]);
  useEffect(()=>{if(pending&&!edit)setEdit({action:pending.action,request:snapshot?.requests.find(r=>r.id===pending.data.request)});},[pending,snapshot,edit]);
  const focused=useRef<string|undefined>(undefined);
@@ -38,7 +39,15 @@ function ScopedOfficeCash({office,actor,role,focusRequestId}:{office:string;acto
  async function submit(command:OfficeCashCommand){
   if(saving.current)return;saving.current=true;setBusy(true);setActionError('');
   try{sessionStorage.setItem(storageKey,JSON.stringify(command));setPending(command);await commandOfficeCash(office,command);sessionStorage.removeItem(storageKey);setPending(null);setEdit(null);toast(`${actionLabels[command.action]} saved.`,['reject','return_receipts'].includes(command.action)?'warning':'success');await reload();window.dispatchEvent(new Event('eflow:office-petty'));}
-  catch(reason){const problem=reason as Error&{definite?:boolean};setActionError(problem.message);if(problem.definite){sessionStorage.removeItem(storageKey);setPending(null);}}
+  catch(reason){
+   const problem=reason as Error&{definite?:boolean};
+   if(problem.definite){
+    setActionError(readableUiError(reason, 'The cash action could not be saved. Check the request before continuing.', 'read'));
+    sessionStorage.removeItem(storageKey);setPending(null);
+   }else{
+    setActionError('Choose Resume cash action to check the same attempt.');
+   }
+  }
   finally{saving.current=false;setBusy(false);}
  }
  const start=(action:PettyAction,request?:OfficeCashRequest)=>{setActionError('');setEdit({action,request});};

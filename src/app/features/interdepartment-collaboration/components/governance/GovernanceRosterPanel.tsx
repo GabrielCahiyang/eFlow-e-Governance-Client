@@ -1,3 +1,5 @@
+import { readableUiError } from '../../../../shared/userFacingError';
+import { WorkspaceTooltip } from "../../../../components/ui/workspace/WorkspaceTooltip";
 import { useExplicitDraft } from "../../../../shared/useExplicitDraft";
 import * as React from "react";
 import {governanceConfigurationError} from '../../validation/governanceValidation';
@@ -131,9 +133,7 @@ export function GovernanceRosterPanel({
       await onSave(orgs, people);
     } catch (caught) {
       setError(
-        caught instanceof Error
-          ? caught.message
-          : "Governance could not be saved.",
+        readableUiError(caught, "Governance could not be saved.", 'write'),
       );
     } finally {
       guard.pendingRef.current = false;
@@ -338,7 +338,7 @@ export function GovernanceRosterPanel({
                           )?.label
                         }
                         {editable && (
-                          <button
+                          <WorkspaceTooltip content="Remove person"><button aria-label="Remove person"
                             type="button"
                             onClick={() =>
                               setPeople((current) =>
@@ -351,7 +351,7 @@ export function GovernanceRosterPanel({
                             className="text-neutral-400 hover:text-red-600"
                           >
                             <Trash2 size={10} />
-                          </button>
+                          </button></WorkspaceTooltip>
                         )}
                       </span>
                     );

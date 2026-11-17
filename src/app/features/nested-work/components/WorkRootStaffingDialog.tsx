@@ -13,13 +13,13 @@ export function WorkRootStaffingDialog(props:Props) {
 }
 function ConnectedRootStaffingDialog(props:Props){const tree=useWorkTree(props.rootId);return <WorkRootStaffingDialogContent {...props} tree={tree}/>;}
 function WorkRootStaffingDialogContent({rootId,readOnly=false,contributorsOnly=false,preselectedLeadId,onClose,onChanged,tree}:Props & {tree:WorkTreeController}) {
- if(tree.rootId!==rootId)return <FeatureDialog title="Task lead and contributors" onClose={onClose}><p role="alert">Verify current work access before choosing people.</p></FeatureDialog>;
+ if(tree.rootId!==rootId)return <FeatureDialog title="Task Lead and contributors" onClose={onClose}><p role="alert">Verify current work access before choosing people.</p></FeatureDialog>;
  if(tree.data&&!tree.unavailable)return <><WorkStaffingDialog controller={tree}
   nodeId={null} readOnly={readOnly} contributorsOnly={contributorsOnly} preselectedLeadId={preselectedLeadId} onClose={onClose} onChanged={onChanged||onClose}/>
   {tree.error&&<p role="alert">{tree.error}<button type="button" onClick={()=>void tree.reload()}>Retry project people</button></p>}</>;
- return <FeatureDialog title="Task lead and contributors" onClose={onClose} contentClassName="max-w-lg">
+ return <FeatureDialog title="Task Lead and contributors" onClose={onClose} contentClassName="max-w-lg">
   <div className="p-4">
-   {tree.loading?<p role="status">Loading project people…</p>:<p role="alert">{tree.error||'Staffing is unavailable. Reopen from your project workspace.'}</p>}
+   {tree.loading?<p role="status">Loading project people…</p>:<p role="alert">{tree.error||'We couldn’t load the people assigned to this task. Open the task again from the project.'}</p>}
    {!tree.loading&&<button type="button" onClick={()=>void tree.reload()}>Retry project people</button>}
    <button type="button" onClick={onClose}>Close people</button>
   </div>

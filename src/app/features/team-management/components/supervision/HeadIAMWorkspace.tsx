@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../../shared/userFacingError';
 import { EmptyState } from '../../../../components/ui/EmptyState';
 import { isAdminRole } from "../../../../shared/roles";
 import { useEffect, useMemo, useState } from "react";
@@ -144,7 +145,7 @@ function PeopleTab({
       }));
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Accounting access could not be updated.",
+        readableUiError(err, "Accounting access could not be updated.", 'write'),
       );
     } finally {
       setBusyId("");

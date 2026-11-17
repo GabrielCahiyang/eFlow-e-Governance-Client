@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '../../../components/ui/dialog';
 import { decomposeProposal } from '../../proposal-import';
@@ -17,7 +18,7 @@ export function AiTaskDraftDialog({ open, onClose, projectTitle, onReview }: { o
       if (!titles.length || titles.length > 100 || titles.some(t => t.length > 300)) throw new Error('The suggestions do not fit this task list. Refine your brief and try again.');
       onReview(titles.join('\n'));
       onClose();
-    } catch (e) { setError(e instanceof Error ? e.message : 'Could not generate suggestions. Your project has not changed.'); }
+    } catch (e) { setError(readableUiError(e, "Could not generate suggestions. Your project has not changed.", 'write')); }
     finally { setBusy(false); }
   }
   return <Dialog open={open} onOpenChange={v => { if (!v && !busy) onClose(); }}><DialogContent className="pt-small-dialog" onEscapeKeyDown={e => { if (busy) e.preventDefault(); }} onInteractOutside={e => { if (busy) e.preventDefault(); }}>

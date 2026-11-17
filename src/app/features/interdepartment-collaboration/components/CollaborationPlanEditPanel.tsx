@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTasks } from "../../../hooks/useFirebaseData";
 import { withEmployeeDeadlineWorkload, taskEstimateError } from "../../tasks";
@@ -255,7 +256,7 @@ function CollaborationPlanEditPanelInner({
       snapshotRef.current = updatedSnapshot;
       setCommitMessage("Plan saved successfully.");
     } catch (error) {
-      setCommitMessage(error instanceof Error ? error.message : "The plan could not be saved.");
+      setCommitMessage(readableUiError(error, "The plan could not be saved.", 'write'));
     } finally {
       setCommitting(false);
     }

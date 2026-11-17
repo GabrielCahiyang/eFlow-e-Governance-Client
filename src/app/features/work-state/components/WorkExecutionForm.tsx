@@ -1,3 +1,5 @@
+import { readableUiError } from '../../../shared/userFacingError';
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import {useEffect,useRef,useState} from 'react';
 import {Button} from '@vibe/core';
 import {AlertCircle, CheckCircle2, CirclePause, FileUp, MessageSquareText, Paperclip, Send, X} from 'lucide-react';
@@ -40,7 +42,7 @@ export function WorkExecutionForm({status,readOnly=false,disabled=false,canSubmi
    const input:WorkUpdate={state:mode==='stuck'?'stuck':'in_progress',blocker:mode==='stuck'?blocker.trim():'',note:note.trim(),nextStep:nextStep.trim(),files};
    if(submit){if(!canSubmit||!onSubmit)return;await onSubmit(input);}else await onSave(input);
    reset();setMode(mode==='stuck'?'stuck':'in_progress');if(mode!=='stuck')setBlocker('');guard.markClean();window.dispatchEvent(new CustomEvent('eflow:work-updated'));onCommitted?.(submit);
-  }catch(reason){setError(reason instanceof Error?reason.message:'Could not save. Your update is still here.');}
+  }catch(reason){setError(readableUiError(reason, "Could not save. Your update is still here.", 'write'));}
   finally{guard.pendingRef.current=false;setBusy(false);}
  }
  if(['completed','cancelled'].includes(status)||!direct&&status==='for_review')return <div className="work-state-message" role="status"><CheckCircle2 size={20}/><div><strong>{resolveStatus(definitions,status,workStateLabel(status)).label}</strong><p>{status==='for_review'?'Your submission is with the assigned reviewer.':status==='completed'?direct?'This step is complete.':'The reviewer approved this work.':'This work is closed.'}</p></div></div>;
@@ -59,7 +61,7 @@ export function WorkExecutionForm({status,readOnly=false,disabled=false,canSubmi
   <label>{submit?direct?'Completion note (optional)':'Completion note':'Update (optional)'}<textarea aria-label={submit?'Completion note':'Work update'} maxLength={3000} rows={5} value={note} disabled={fieldsLocked} onChange={event=>setNote(event.target.value)} placeholder={submit?direct?'Add any useful completion details.':'Describe what you finished and what the reviewer should check.':'What changed since your last update?'}/></label>
   {!submit&&<label>Next step (optional)<input aria-label="Next step" maxLength={300} disabled={fieldsLocked} value={nextStep} onChange={event=>setNextStep(event.target.value)} placeholder="What will you work on next?"/></label>}
   <div className="work-evidence-upload"><label className="work-evidence-picker" data-disabled={fieldsLocked||undefined}><span className="work-evidence-icon"><FileUp size={22} aria-hidden="true"/></span><span><strong>{submit?'Add evidence (optional)':'Attach a file'}</strong><small>Images, PDF, Word or Excel · up to 25 MB per file</small></span><input className="work-evidence-input" aria-label={submit?'Evidence files':'Update attachment'} type="file" accept={EVIDENCE_ACCEPT} multiple={submit} disabled={fieldsLocked} onChange={event=>{const chosen=Array.from(event.target.files||[]);const issue=attachmentError(chosen,{maxCount:submit?10:1});if(issue)setError(issue);else setFiles(chosen);event.target.value='';}}/></label></div>
-  {files.length>0&&<ul className="work-evidence-files">{files.map((file,index)=><li key={`${file.name}:${index}`}><Paperclip size={15}/><span>{file.name}</span><button type="button" aria-label={`Remove ${file.name}`} disabled={fieldsLocked} onClick={()=>setFiles(current=>current.filter((_,i)=>i!==index))}><X size={16}/></button></li>)}</ul>}
+  {files.length>0&&<ul className="work-evidence-files">{files.map((file,index)=><li key={`${file.name}:${index}`}><Paperclip size={15}/><span>{file.name}</span><WorkspaceTooltip content="Remove attachment"><button type="button" aria-label={`Remove ${file.name}`} disabled={fieldsLocked} onClick={()=>setFiles(current=>current.filter((_,i)=>i!==index))}><X size={16}/></button></WorkspaceTooltip></li>)}</ul>}
   {error&&<div role="alert" className="work-state-error"><AlertCircle size={18} aria-hidden="true"/><div><strong>{submit?direct?"Could not complete this subtask":"Could not submit this task":"Could not save this update"}</strong><p>{error}</p></div></div>}
   <div className="work-execution-footer"><p>{submit?direct?'Marking complete finishes this subtask step; parent task approval stays with the task.':'Your completion note and any attached files go to the reviewer.':'Updates are shared with your task team.'}</p><Button size="medium" disabled={busy||disabled||submit&&(!canSubmit||!direct&&!note.trim())} onClick={()=>void save()}>{busy?'Saving…':submit?<><Send size={16}/>{direct?freezeFields?'Retry completion':'Mark complete':'Submit for review'}</>:status==='todo'?'Start work':mode==='stuck'?'Report blocker':'Save update'}</Button></div>
  </section>;

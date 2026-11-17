@@ -9,7 +9,7 @@ test('My Work separates updates, compacts people and opens a polished centered s
  const records=await projectWorkspaceFixture(page,'head',false,{landingOnly:true});
  await nestedWorkStaffingFixture(page,records);
  await page.getByRole('navigation',{name:'Global navigation'}).getByRole('button',{name:'My Work',exact:true}).click();
- await page.getByRole('navigation',{name:'My Work destinations'}).getByRole('button',{name:'Leading',exact:true}).click();
+ await page.getByRole('navigation',{name:'My Work destinations'}).getByRole('button',{name:'Work I lead',exact:true}).click();
  const source=page.locator('[data-personal-task]').filter({hasText:'Prepare community assessment'});
  await expect(source).toBeVisible({timeout:30_000});await source.click();
  const task=page.getByRole('region',{name:'Task details: Prepare community assessment',exact:true});

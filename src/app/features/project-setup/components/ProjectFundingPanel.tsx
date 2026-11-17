@@ -1,3 +1,4 @@
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import {useEffect,useId,useRef,useState} from 'react';
 import {useNavigationBlocker} from '../../../shared/navigationGuard';
 import {Plus,Wallet,Check,X,Undo2} from 'lucide-react';
@@ -77,10 +78,10 @@ export function ProjectFundingPanel({data,reload,wizard=false,allowFundingEntry=
    }}><option value="">{wizard?'Select an Office Budget source':'Select fiscal year and account'}</option>
    {rowSources.map(source=><option key={source.id} value={source.id} disabled={lines.some((row,i)=>i!==index&&row.partitionId===source.id)}>{!wizard&&`FY ${source.year} · `}{source.name} · {money(source.available)} available</option>)}</select></label>
    <label>Amount<MoneyInput min="0" step="0.01" value={line.amount||''} onValueChange={value=>setLines(rows=>rows.map((row,i)=>i===index?{...row,amount:Number(value)}:row))}/></label>
-   <button type="button" aria-label={`Remove funding row ${index+1}`} disabled={lines.length===1} onClick={()=>{
+   <WorkspaceTooltip content={`Remove funding row ${index+1}`}><button type="button" aria-label={`Remove funding row ${index+1}`} disabled={lines.length===1} onClick={()=>{
     setLines(rows=>rows.filter((_,i)=>i!==index));
     setSelectedYears(current=>Object.fromEntries(Object.entries(current).filter(([key])=>Number(key)!==index).map(([key,value])=>[Number(key)>index?Number(key)-1:Number(key),value])));
-   }}><X size={16}/></button>
+   }}><X size={16}/></button></WorkspaceTooltip>
   </div>;
  })}
  <button type="button" disabled={lines.length>=sources.length} onClick={()=>setLines(rows=>rows.length>=sources.length?rows:[...rows,{partitionId:'',amount:0}])}><Plus size={16}/>Add funding source</button>

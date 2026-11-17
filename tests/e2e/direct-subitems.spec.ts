@@ -39,7 +39,7 @@ test('desktop subitems finish directly and leave parent approval separate',async
   await route.fulfill({json:records.tasks[0]});
  });
  await page.getByRole('navigation',{name:'Global navigation'}).getByRole('button',{name:'My Work',exact:true}).click();
- await page.getByRole('navigation',{name:'My Work destinations'}).getByRole('button',{name:'Leading',exact:true}).click();
+ await page.getByRole('navigation',{name:'My Work destinations'}).getByRole('button',{name:'Work I lead',exact:true}).click();
  await page.locator('[data-personal-task]').filter({hasText:'Prepare community assessment'}).click();
  const task=page.getByRole('region',{name:'Task details: Prepare community assessment',exact:true});await expect(task).toBeVisible();
  await expect(task.getByRole('columnheader',{name:'Progress',exact:true})).toHaveCount(0);

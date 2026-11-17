@@ -1,3 +1,5 @@
+import { readableUiError } from "../../shared/userFacingError";
+import { WorkspaceTooltip } from "../ui/workspace/WorkspaceTooltip";
 import { attachmentError, EVIDENCE_ACCEPT } from '../../shared/fileValidation';
 import { useExplicitDraft } from '../../shared/useExplicitDraft';
 import { useState } from "react";
@@ -38,7 +40,7 @@ export function SubmitForReviewForm({
     }
     if (!readiness.ready) {
       toast(
-        "Complete every subitem before submitting the parent task.",
+        "Complete every subtask before submitting this task for review.",
         "error",
       );
       return;
@@ -65,9 +67,7 @@ export function SubmitForReviewForm({
       onSubmitted?.();
     } catch (error) {
       toast(
-        error instanceof Error
-          ? error.message
-          : "Failed to submit the task.",
+        readableUiError(error, "We couldn't submit this task for review. Check its current status before submitting again.", "write"),
         "error",
       );
     } finally {
@@ -128,7 +128,7 @@ export function SubmitForReviewForm({
             >
               <Paperclip size={11} />
               <span className="max-w-[220px] truncate">{file.name}</span>
-              <button
+              <WorkspaceTooltip content="Remove attachment"><button
                 type="button"
                 onClick={() =>
                   setFiles((current) =>
@@ -138,7 +138,7 @@ export function SubmitForReviewForm({
                 aria-label={`Remove ${file.name}`}
               >
                 <X size={11} />
-              </button>
+              </button></WorkspaceTooltip>
             </span>
           ))}
         </div>

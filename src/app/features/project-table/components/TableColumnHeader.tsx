@@ -11,7 +11,7 @@ export function TableColumnHeader({ column, label, width, sort, onResize, onHide
   const columnSort = column === 'task' ? 'title' : column === 'timeline' ? 'deadline' : column === 'priority' ? 'priority' : undefined;
   return <th scope="col" aria-label={label} aria-sort={columnSort && sort === columnSort ? 'ascending' : undefined} className={column === 'task' ? 'pt-title-col' : undefined}>
     <span>{label}{columnSort && sort === columnSort && <span aria-hidden="true">↑</span>}
-      <ActionMenu trigger={<button className="pt-column-menu" type="button" aria-label={'Column actions for ' + label}><MoreHorizontal size={13}/></button>} actions={[
+      <ActionMenu tooltip="Column options" trigger={<button className="pt-column-menu" type="button" aria-label={'Column actions for ' + label}><MoreHorizontal size={13}/></button>} actions={[
         ...(column !== 'task' ? [{ id: 'hide', label: 'Hide column', onSelect: () => onHide(column) }] : []),
         ...(columnSort ? [{ id: 'sort', label: 'Sort by ' + (columnSort === 'deadline' ? 'due date' : columnSort === 'title' ? 'task name' : 'priority'), onSelect: () => onSort(columnSort) }] : []),
       ]} />

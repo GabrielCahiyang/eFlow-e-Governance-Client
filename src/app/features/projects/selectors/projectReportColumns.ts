@@ -1,4 +1,5 @@
 import type { ReportColumn } from "../../../services/reportService";
+import { formatPeso } from "../../../shared/currency";
 import type { ProjectExecutionFinancialRow } from "./projectFinancialReportSelectors";
 export const COLUMNS: ReportColumn<ProjectExecutionFinancialRow>[] = [
   {
@@ -34,22 +35,22 @@ export const COLUMNS: ReportColumn<ProjectExecutionFinancialRow>[] = [
     value: (row) =>
       row.budgetMode === "shared"
         ? "Shared task pool"
-        : row.budgetAmount.toFixed(2),
+        : formatPeso(row.budgetAmount),
   },
   {
     key: "reserved",
     header: "Reserved",
-    value: (row) => row.reservedAmount.toFixed(2),
+    value: (row) => formatPeso(row.reservedAmount),
   },
   {
     key: "spent",
     header: "Actual Spent",
-    value: (row) => row.spentAmount.toFixed(2),
+    value: (row) => formatPeso(row.spentAmount),
   },
   {
     key: "returned",
     header: "Returned",
-    value: (row) => row.returnedAmount.toFixed(2),
+    value: (row) => formatPeso(row.returnedAmount),
   },
   {
     key: "available",
@@ -57,7 +58,7 @@ export const COLUMNS: ReportColumn<ProjectExecutionFinancialRow>[] = [
     value: (row) =>
       row.budgetMode === "shared"
         ? "From parent task"
-        : row.availableAmount.toFixed(2),
+        : formatPeso(row.availableAmount),
   },
   { key: "receipts", header: "Receipts", value: (row) => row.receiptCount },
   {

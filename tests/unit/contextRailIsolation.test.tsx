@@ -43,18 +43,18 @@ describe('approved primary/context isolation',()=>{
  it('replaces workspace sections immediately with My Work then Inbox while keeping the primary rail',()=>{
   const view=render(sidebar('projects','Projects'));expect(screen.getByRole('region',{name:'Workspace content'})).toBeTruthy();expect(screen.getByRole('button',{name:'Project tree entry'})).toBeTruthy();
   view.rerender(sidebar('personal_work','Leading'));const work=screen.getByRole('region',{name:'My Work content'});
-  for(const name of ['Assigned work','Leading','Subtasks','Reviews','History'])expect(within(work).getByRole('button',{name,exact:true})).toBeTruthy();
+  for(const name of ['Assigned work','Work I lead','Subtasks','Reviews','History'])expect(within(work).getByRole('button',{name,exact:true})).toBeTruthy();
   for(const name of ['Workspace content','Office tools','Favorites','Projects','Archived projects'])expect(screen.queryByRole('region',{name,exact:true})).toBeNull();expect(screen.queryByRole('button',{name:'LEDIPO Workspace'})).toBeNull();
-  view.rerender(sidebar('inbox','Updates'));const inbox=screen.getByRole('region',{name:'Inbox content'});expect(within(inbox).getByRole('button',{name:'Updates',exact:true}).getAttribute('aria-current')).toBe('page');expect(screen.queryByRole('region',{name:'My Work content'})).toBeNull();expect(screen.getByRole('navigation',{name:'Global navigation'})).toBeTruthy();expect(within(inbox).queryByRole('button',{name:'Inbox',exact:true})).toBeNull();
+  view.rerender(sidebar('inbox','Notifications'));const inbox=screen.getByRole('region',{name:'Inbox content'});expect(within(inbox).getByRole('button',{name:'Notifications',exact:true}).getAttribute('aria-current')).toBe('page');expect(screen.queryByRole('region',{name:'My Work content'})).toBeNull();expect(screen.getByRole('navigation',{name:'Global navigation'})).toBeTruthy();expect(within(inbox).queryByRole('button',{name:'Inbox',exact:true})).toBeNull();
  });
  it('restores the accepted My Work subdestination/filters and scopes memories to the account',()=>{
   const select=vi.fn();window.history.replaceState({},'','/my-work?page=History&q=kept&date=All+my+work');const view=render(sidebar('personal_work','History',select));
-  window.history.replaceState({},'','/inbox?page=Updates');view.rerender(sidebar('inbox','Updates',select));fireEvent.click(within(screen.getByRole('navigation',{name:'Global navigation'})).getByRole('button',{name:'My Work',exact:true}));
+  window.history.replaceState({},'','/inbox?page=Notifications');view.rerender(sidebar('inbox','Notifications',select));fireEvent.click(within(screen.getByRole('navigation',{name:'Global navigation'})).getByRole('button',{name:'My Work',exact:true}));
   expect(select).toHaveBeenLastCalledWith('personal_work','History',undefined,expect.objectContaining({workspaceId:'office',parameters:expect.objectContaining({q:'kept',date:'All my work'})}));
   view.rerender(sidebar('inbox','Updates',select,'another'));fireEvent.click(within(screen.getByRole('navigation',{name:'Global navigation'})).getByRole('button',{name:'My Work',exact:true}));expect(select).toHaveBeenLastCalledWith('personal_work','Assigned work');
  });
  it('keeps collapse preferences isolated between contexts and restores workspace state',()=>{
   const view=render(sidebar('projects','Projects'));fireEvent.click(screen.getByRole('button',{name:'Collapse workspace sidebar'}));expect(screen.queryByRole('button',{name:'LEDIPO Workspace'})).toBeNull();
-  view.rerender(sidebar('personal_work','Assigned work'));expect(screen.getByRole('button',{name:'Leading',exact:true})).toBeTruthy();view.rerender(sidebar('projects','Projects'));expect(screen.getByRole('button',{name:'Restore workspace sidebar'})).toBeTruthy();
+  view.rerender(sidebar('personal_work','Assigned work'));expect(screen.getByRole('button',{name:'Work I lead',exact:true})).toBeTruthy();view.rerender(sidebar('projects','Projects'));expect(screen.getByRole('button',{name:'Restore workspace sidebar'})).toBeTruthy();
  });
 });

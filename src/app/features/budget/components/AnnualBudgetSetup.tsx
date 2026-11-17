@@ -34,6 +34,7 @@ import {
   financialOutcome,
   recordFinancialOutcome,
   financialFailureIsUncertain,
+  financialWriteFeedback,
   financialErrorMessage,
 } from "../financialReceipts";
 export function AnnualBudgetSetup({
@@ -179,7 +180,7 @@ export function AnnualBudgetSetup({
       setMessage(locked ? "Account adjustment recorded." : "Annual budget draft saved.");
       await onChanged();
     } catch (error) {
-      setSaveError(error instanceof Error?error:new Error(financialErrorMessage(error)));
+      setSaveError(new Error(financialErrorMessage(error, "We couldn’t save the annual budget draft. Check the current budget before resubmitting.")));
     } finally {
       pending.current = false;
       draft.pendingRef.current = false;
@@ -207,7 +208,7 @@ export function AnnualBudgetSetup({
       if (
         !(await confirmation.confirm({
           title: "Lock annual Office budget?",
-          description: `FY ${fiscalYear} · ${peso.format(total)}. The original appropriation becomes immutable. Later corrections require an audited adjustment. Daily release ceiling ${peso.format(pettyLimit)}; liquidation due after ${liquidationDueDays} days.`,
+          description: `FY ${fiscalYear} · ${peso.format(total)}. Locking records the original appropriation, the amount authorized for this year. Future changes are recorded as adjustments. Daily release limit ${peso.format(pettyLimit)}; liquidation due after ${liquidationDueDays} days.`,
           actionLabel: "Save and lock",
         }))
       )
@@ -228,12 +229,7 @@ export function AnnualBudgetSetup({
         financialFailureIsUncertain(error)
       )
         recordFinancialOutcome(lockKey, "uncertain");
-      setSaveError(new Error(
-        financialErrorMessage(error) +
-          (financialOutcome(lockKey)
-            ? " Verify the current annual budget before another write."
-            : " Entries retained."),
-      ));
+      setSaveError(new Error(locking ? financialWriteFeedback(error, { outcome: financialOutcome(lockKey), submitted: true, action: 'The budget lock', record: 'the annual budget', draft: 'The budget draft is saved.' }) : financialErrorMessage(error, 'We couldn’t finish saving and locking the budget. Check the current annual budget before proceeding.')));
     } finally {
       pending.current = false;
       draft.pendingRef.current = false;

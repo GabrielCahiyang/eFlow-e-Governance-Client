@@ -36,7 +36,7 @@ test("the Task Lead can allocate and return an approved subtask budget", async (
   });
 
   await page.getByRole("navigation", { name: "Global navigation" }).getByRole("button", { name: "My Work", exact: true }).click();
-  await page.getByRole("navigation", { name: "My Work destinations" }).getByRole("button", { name: "Leading", exact: true }).click();
+  await page.getByRole("navigation", { name: "My Work destinations" }).getByRole("button", { name: "Work I lead", exact: true }).click();
   await page.locator("[data-personal-task]").filter({ hasText: task.title }).click();
   await page.getByRole("tab", { name: "Overview", exact: true }).click();
   await page.getByRole("button", { name: "Manage subtask budgets" }).click();

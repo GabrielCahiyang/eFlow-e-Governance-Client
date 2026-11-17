@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../../shared/userFacingError';
 import { TaskDepartmentLabel } from "../TaskDepartmentLabel";
 import { Trash2, Users, X } from "lucide-react";
 import { Button } from "../../../../components/ui/button";
@@ -60,7 +61,7 @@ export function TaskEditorModal({
     void fetchTaskDetailEditState(task.id).then((state) => {
       if (active) setEditState(state);
     }).catch((error) => {
-      if (active) setEditStateError(error instanceof Error ? error.message : "Task editing access could not be verified.");
+      if (active) setEditStateError(readableUiError(error, "Task editing access could not be verified.", 'write'));
     }).finally(() => { if (active) setEditStateLoading(false); });
     return () => { active = false; };
   }, [open, task?.id]);

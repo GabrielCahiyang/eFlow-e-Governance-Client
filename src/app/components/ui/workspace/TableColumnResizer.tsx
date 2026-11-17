@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import { WorkspaceTooltip } from './WorkspaceTooltip';
 
 export function TableColumnResizer({
   label,
@@ -17,7 +18,7 @@ export function TableColumnResizer({
 }) {
   const start = useRef<{ pointer: number; x: number; width: number } | null>(null);
   return (
-    <button
+    <WorkspaceTooltip content="Resize column"><button
       type="button"
       role="separator"
       aria-label={`Resize ${label} column`}
@@ -26,7 +27,7 @@ export function TableColumnResizer({
       aria-valuemax={max}
       aria-valuenow={width}
       aria-valuetext={`${width} pixels preferred width`}
-      title="Drag to resize. Arrow keys adjust width; Home/End use limits. Double-click resets this column."
+      aria-description="Drag to resize. Arrow keys adjust width; Home/End use limits. Double-click resets this column."
       className="pt-column-resizer"
       onDoubleClick={() => onResize(defaultWidth)}
       onKeyDown={event => {
@@ -60,6 +61,6 @@ export function TableColumnResizer({
       onPointerCancel={() => {
         start.current = null;
       }}
-    />
+    /></WorkspaceTooltip>
   );
 }

@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../../shared/userFacingError';
 import { useEffect, useRef, useState } from "react";
 import { CheckCircle2, Loader2, Sparkles } from "lucide-react";
 import type { Employee, EmployeeNote } from "../../../members";
@@ -68,7 +69,7 @@ export function EmployeeCoachingEditor({
       setDirty(false);
       setSaved(true);
     } catch (saveError) {
-      setError(saveError instanceof Error ? saveError.message : "The profile could not be saved.");
+      setError(readableUiError(saveError, "The profile could not be saved.", 'write'));
     } finally {
       setSaving(false);
     }
@@ -77,8 +78,8 @@ export function EmployeeCoachingEditor({
   return (
     <section className="rounded-xl border border-neutral-200 bg-white">
       <div className="flex items-start justify-between gap-3 border-b border-neutral-100 px-4 py-3">
-        <div className="flex items-start gap-2.5"><div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-violet-50 text-violet-600"><Sparkles size={15} /></div><div><h3 className="text-[12.5px] font-semibold text-neutral-900">Assignment and coaching profile</h3><p className="mt-0.5 text-[10px] leading-4 text-neutral-400">Strengths, development context, and tags remain inputs to AI team recommendations.</p></div></div>
-        <span className="shrink-0 rounded-full border border-violet-100 bg-violet-50 px-2 py-1 text-[9px] font-medium text-violet-700">AI input</span>
+        <div className="flex items-start gap-2.5"><div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[var(--eflow-selected)] text-[var(--eflow-primary)]"><Sparkles size={15} /></div><div><h3 className="text-[13px] font-semibold text-neutral-900">Assignment and coaching profile</h3><p className="mt-0.5 text-[12px] leading-4 text-neutral-500">Strengths, development context, and tags inform AI team recommendations.</p></div></div>
+        <span className="shrink-0 rounded-[6px] border border-[var(--eflow-border)] bg-[var(--eflow-selected)] px-2 py-0.5 text-[11px] font-medium text-[var(--eflow-on-selected)]">AI input</span>
       </div>
       <div className="grid grid-cols-1 gap-4 p-4 md:grid-cols-2">
         <Field label="Confirmed strengths" hint="Capabilities the member can reliably apply to assigned work."><textarea rows={4} value={draft.strengths} onChange={(event) => change("strengths", event.target.value)} placeholder="e.g., stakeholder facilitation, technical writing" className="field-textarea" /></Field>
@@ -98,5 +99,5 @@ export function EmployeeCoachingEditor({
 }
 
 function Field({ label, hint, children }: { label: string; hint: string; children: React.ReactNode }) {
-  return <label className="block"><span className="block text-[9.5px] font-medium uppercase tracking-wider text-neutral-500">{label}</span><span className="mb-1.5 mt-0.5 block text-[9.5px] leading-4 text-neutral-400">{hint}</span>{children}</label>;
+  return <label className="block"><span className="block text-[12px] font-medium text-neutral-700">{label}</span><span className="mb-1.5 mt-0.5 block text-[11px] leading-4 text-neutral-500">{hint}</span>{children}</label>;
 }

@@ -1,3 +1,5 @@
+import { readableUiError } from '../../../shared/userFacingError';
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { Button } from '@vibe/core';
 import { Copy, Edit3, FolderPlus, Layers, Plus, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
@@ -61,7 +63,7 @@ export function ProjectTaskTemplateLibrary({
       const rows = await listProjectTaskTemplates();
       setTemplates(rows);
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : 'Templates could not load.');
+      setError(readableUiError(reason, "Templates could not load.", 'read'));
     } finally {
       setBusy(false);
     }
@@ -88,7 +90,7 @@ export function ProjectTaskTemplateLibrary({
       setTemplates(rows);
       onTemplatesChanged?.(saved);
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : 'Could not update the template library.');
+      setError(readableUiError(reason, "Could not update the template library.", 'write'));
     } finally {
       setBusy(false);
     }
@@ -109,7 +111,7 @@ export function ProjectTaskTemplateLibrary({
       setTemplates(rows);
       onTemplatesChanged?.();
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : 'Could not retire this template.');
+      setError(readableUiError(reason, "Could not retire this template.", 'write'));
     } finally {
       setBusy(false);
     }
@@ -247,7 +249,7 @@ export function ProjectTaskTemplateLibrary({
                                 })
                               }
                             />
-                            <button
+                            <WorkspaceTooltip content={`Remove subtask ${subIndex + 1}`}><button
                               type="button"
                               className="eflow-tpl-link-btn eflow-tpl-link-btn--danger"
                               aria-label={`Remove subtask ${subIndex + 1}`}
@@ -259,7 +261,7 @@ export function ProjectTaskTemplateLibrary({
                               }
                             >
                               <Trash2 size={13} />
-                            </button>
+                            </button></WorkspaceTooltip>
                           </div>
                         ))}
                         <div className="eflow-tpl-row-actions">

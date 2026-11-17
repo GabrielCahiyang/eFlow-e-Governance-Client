@@ -14,12 +14,12 @@ it('keeps title and priority editable while started planning and due fields are 
  expect((screen.getByLabelText('Priority') as HTMLSelectElement).disabled).toBe(false);
  expect((screen.getByLabelText('Subtask start date') as HTMLInputElement).disabled).toBe(true);
  expect((screen.getByLabelText('Subtask due date') as HTMLInputElement).disabled).toBe(true);
- expect((screen.getByLabelText('Execution mode') as HTMLSelectElement).disabled).toBe(true);
+ expect((screen.getByLabelText('Work order') as HTMLSelectElement).disabled).toBe(true);
  fireEvent.change(screen.getByLabelText('Priority'),{target:{value:'high'}});
  expect(props.update).toHaveBeenCalledWith('priority','high');
 });
 
 it('disables every editable field while the editor is pending or unauthorized',()=>{
  render(<WorkDetailsEditor {...makeProps(true)}/>);
- for(const label of ['Subtask title','Priority','Subtask start date','Subtask due date','Execution mode'])expect((screen.getByLabelText(label) as HTMLInputElement).disabled).toBe(true);
+ for(const label of ['Subtask title','Priority','Subtask start date','Subtask due date','Work order'])expect((screen.getByLabelText(label) as HTMLInputElement).disabled).toBe(true);
 });

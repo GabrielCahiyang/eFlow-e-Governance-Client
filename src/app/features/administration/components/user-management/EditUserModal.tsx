@@ -1,3 +1,4 @@
+import { WorkspaceTooltip } from "../../../../components/ui/workspace/WorkspaceTooltip";
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../../../../contexts/AuthContext";
 import {
@@ -305,13 +306,13 @@ export function EditUserModal({
                 placeholder="Type a skill and press Enter or +"
                 className="flex-1 px-3 py-2 text-[12px] font-normal border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-neutral-900 bg-white text-foreground placeholder:text-muted-foreground"
               />
-              <button
+              <WorkspaceTooltip content="Add skill"><button aria-label="Add skill"
                 onClick={addSkill}
                 disabled={!skillInput.trim()}
                 className="px-3 py-2 rounded-lg bg-primary text-white text-[12px] font-medium hover:bg-neutral-800 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed transition-colors"
               >
                 <Plus size={14} />
-              </button>
+              </button></WorkspaceTooltip>
             </div>
             {Object.keys(skills).length === 0 ? (
               <div className="text-center py-8 text-muted-foreground text-[12px] font-normal">
@@ -326,12 +327,12 @@ export function EditUserModal({
                     className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-neutral-100 text-secondary-foreground text-[11px] font-medium"
                   >
                     {skill}
-                    <button
+                    <WorkspaceTooltip content={`Remove ${skill} skill`}><button aria-label={`Remove ${skill} skill`}
                       onClick={() => removeSkill(skill)}
                       className="text-muted-foreground hover:text-secondary-foreground cursor-pointer transition-colors leading-none"
                     >
                       <X size={11} />
-                    </button>
+                    </button></WorkspaceTooltip>
                   </span>
                 ))}
               </div>

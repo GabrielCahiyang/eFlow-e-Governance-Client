@@ -1,3 +1,4 @@
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import type { ReactNode } from "react";
 import { Button } from "@vibe/core";
 import { FileText, X } from "lucide-react";
@@ -220,14 +221,14 @@ export function AuditEventDetails({
             </p>
           )}
         </div>
-        <Button
+        <WorkspaceTooltip content="Close audit details"><Button
           kind="tertiary"
           size="small"
           aria-label="Close audit details"
           onClick={onClose}
         >
           <X size={15} />
-        </Button>
+        </Button></WorkspaceTooltip>
       </header>
 
       <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-5 py-4">
@@ -236,7 +237,7 @@ export function AuditEventDetails({
             <Row label="Recorded">
               {new Date(entry.createdAt).toLocaleString()}
             </Row>
-            <Row label="Actor">{actor}</Row>
+            <Row label="Performed by">{actor}</Row>
             {typeof entry.amount === "number" && entry.amount > 0 && (
               <Row label="Amount">
                 <span className="tabular-nums">{peso.format(entry.amount)}</span>

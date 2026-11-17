@@ -94,7 +94,7 @@ export function TaskManagementMenu({
       data-placement={menuPlacement}
       onClick={(event) => event.stopPropagation()}
     >
-      <ActionMenu
+      <ActionMenu tooltip={`Open actions for ${task.title}`}
         side={menuPlacement}
         actions={actions}
         trigger={

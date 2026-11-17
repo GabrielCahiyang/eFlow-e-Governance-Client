@@ -21,7 +21,7 @@ describe("feature primitive delegation", () => {
     expect(settingsPrimitives).toContain("<WorkflowSectionHeading");
     expect(settingsPrimitives).toContain("<LoadingState label={label}");
     expect(settingsContent).toContain("<PageHeader");
-    expect(settingsContent).toContain('bg-muted/30');
+    expect(settingsContent).toContain('bg-[var(--eflow-surface)]');
   });
 
   it("routes finance and legislative headers, buttons, and stats through workflow primitives", () => {

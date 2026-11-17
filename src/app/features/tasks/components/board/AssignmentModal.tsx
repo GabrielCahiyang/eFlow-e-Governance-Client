@@ -1,3 +1,4 @@
+import { WorkspaceTooltip } from "../../../../components/ui/workspace/WorkspaceTooltip";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, Crown, Search, X } from "lucide-react";
 import { Button } from "../../../../components/ui/button";
@@ -102,12 +103,12 @@ export function AssignmentModal({
               className="h-[38px] flex-1 border-0 bg-transparent px-2 text-[12px] shadow-none focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:!border-0 focus-visible:!outline-none focus-visible:!ring-0 focus-visible:!ring-offset-0"
             />
             {search && (
-              <button
+              <WorkspaceTooltip content="Close assignments"><button aria-label="Close assignments"
                 onClick={() => setSearch("")}
                 className="pr-2.5 text-muted-foreground hover:text-foreground"
               >
                 <X size={12} />
-              </button>
+              </button></WorkspaceTooltip>
             )}
           </div>
 
@@ -126,12 +127,12 @@ export function AssignmentModal({
                       <Crown size={10} className="text-amber-500" />
                     )}
                     {getInitials(emp.name)} · {emp.name.split(" ")[0]}
-                    <button
+                    <WorkspaceTooltip content="Clear search"><button aria-label="Clear search"
                       onClick={() => toggle(id)}
                       className="ml-0.5 text-muted-foreground hover:text-accent-foreground"
                     >
                       <X size={10} />
-                    </button>
+                    </button></WorkspaceTooltip>
                   </span>
                 );
               })}
@@ -220,7 +221,7 @@ export function AssignmentModal({
 
                     {/* Lead toggle */}
                     {selected && (
-                      <button
+                      <WorkspaceTooltip content="Set as Team Lead"><button aria-label="Set as Team Lead"
                         onClick={(e) => {
                           e.stopPropagation();
                           setDraftLead(isLead ? null : emp.id);
@@ -230,10 +231,10 @@ export function AssignmentModal({
                             ? "bg-amber-100 text-amber-600"
                             : "text-muted-foreground hover:bg-amber-50 hover:text-amber-500"
                         }`}
-                        title="Set as Team Lead"
+
                       >
                         <Crown size={13} />
-                      </button>
+                      </button></WorkspaceTooltip>
                     )}
 
                     {/* Checkbox */}

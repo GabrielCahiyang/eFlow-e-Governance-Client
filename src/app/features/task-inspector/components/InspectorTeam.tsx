@@ -21,7 +21,7 @@ export function InspectorTeam({task, profiles, canManageTaskTeam, canManageSubta
                     <Field icon={<User size={13} />} label="Assignee" value={task.teamMemberNames && task.teamMemberNames.length > 0 ? task.teamMemberNames.join(", ") : task.assigneeName || "Unassigned"} />
                     {task.teamName && <Field icon={<Building2 size={13} />} label="Team" value={task.teamName} />}
                   </div>}
-                  {supportsNestedWork(task)?<section aria-label="Task lead and contributors"><WorkRootOwner rootId={task.id} controller={controller} readOnly={readOnly} fallback={legacyTeam} layout="default"/></section>:legacyTeam}
+                  {supportsNestedWork(task)?<section aria-label="Task Lead and contributors"><WorkRootOwner rootId={task.id} controller={controller} readOnly={readOnly} fallback={legacyTeam} layout="default"/></section>:legacyTeam}
                 </div>
               )}
               {wide && !supportsNestedWork(task) && (

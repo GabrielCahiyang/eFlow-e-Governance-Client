@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useGeneralJournal } from "../hooks/useGeneralJournal";
+import { DEFAULT_BUDGET_PAGE_SIZE, useBudgetPagination } from "../hooks/useBudgetPagination";
+import { BudgetPagination } from "./BudgetPagination";
 import { getCurrentFiscalYear } from "../constants";
 import { formatJournalMemoForDisplay } from "../selectors/cashWorkflowRules";
 import { getJournalTotals } from "../selectors/journalSelectors";
@@ -112,22 +114,27 @@ function GeneralJournalView({
     () => getJournalTotals(filteredEntries),
     [filteredEntries],
   );
+  const pagination = useBudgetPagination(
+    filteredEntries,
+    `${scope}:${query}:${classification}:${startDate}:${endDate}`,
+    DEFAULT_BUDGET_PAGE_SIZE,
+  );
   const available = availableBudget;
 
   return (
     <div className="space-y-4">
       {navigation.selectedId && (inspected && !journal.error ? <JournalEntryPage entry={inspected} onBack={navigation.back} /> : <section className="space-y-3" role="status"><p>{journal.loading ? 'Loading journal entry…' : 'This entry is unavailable in the current Office and fiscal year.'}</p><Button onClick={navigation.back}>Back to journal</Button></section>)}
       <div hidden={Boolean(navigation.selectedId)} className="space-y-4">
-      <div className="grid gap-3 md:grid-cols-3">
+      <div className="eflow-accounting-kpis">
         <JournalMetric
-          icon={<Scale size={16} />}
+          icon={<Scale size={16} aria-hidden="true" />}
           label="Trial balance"
           value={journal.error ? "Unavailable" : peso.format(totals.debit)}
           note={`Credits ${peso.format(totals.credit)}`}
           good={!journal.error && Math.abs(totals.delta) <= 0.009}
         />
         <JournalMetric
-          icon={<CheckCircle2 size={16} />}
+          icon={<CheckCircle2 size={16} aria-hidden="true" />}
           label="Balance delta"
           value={
             journal.error ? "Unavailable" : peso.format(Math.abs(totals.delta))
@@ -140,7 +147,7 @@ function GeneralJournalView({
           good={!journal.error && Math.abs(totals.delta) <= 0.009}
         />
         <JournalMetric
-          icon={<BookOpenCheck size={16} />}
+          icon={<BookOpenCheck size={16} aria-hidden="true" />}
           label="Appropriation available"
           value={
             available == null
@@ -150,7 +157,7 @@ function GeneralJournalView({
           note={
             approvedBudget == null
               ? `${fiscalYear} journal view`
-              : "Available after holds and commitments; cash returns do not release commitments"
+              : "Available after holds and commitments"
           }
           good={available == null || available >= 0}
         />
@@ -165,14 +172,29 @@ function GeneralJournalView({
           }
         />
       )}
-      <section className="overflow-hidden rounded-[10px] border border-border bg-card">
-        <header className="eflow-budget-section-heading">
-          <div><h2>Journal entries</h2><p>Posted transactions and their account lines.</p></div>
-          <Button kind="tertiary" size="small" disabled={journal.refreshing} onClick={() => void journal.refresh()}>
-            Refresh journal
-          </Button>
+      <section className="eflow-accounting-panel">
+        <header className="eflow-accounting-panel__header">
+          <div className="eflow-accounting-panel__title">
+            <BookOpenCheck size={17} aria-hidden="true" />
+            <div>
+              <h2>Journal entries</h2>
+              <p>Balanced transactions and account lines posted for this fiscal year.</p>
+            </div>
+          </div>
+          {fiscalBudgetId &&
+            !journal.error &&
+            userProfile?.role === "accounting_staff" &&
+            can("accounting.post_journal") && (
+              <Button
+                kind="primary"
+                size="small"
+                onClick={() => setAdjusting(true)}
+              >
+                <Plus size={14} aria-hidden="true" /> Post adjustment
+              </Button>
+            )}
         </header>
-        <div className="eflow-budget-register-filters">
+        <div className="eflow-accounting-filter-bar">
           <VibeSearch
             className="eflow-budget-register-search"
             clearIconLabel="Clear journal search"
@@ -184,7 +206,7 @@ function GeneralJournalView({
             size="small"
             value={query}
           />
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <JournalDateInput
               ariaLabel="Journal start date"
               value={startDate}
@@ -199,7 +221,7 @@ function GeneralJournalView({
               aria-label="Account classification"
               value={classification}
               onChange={(event) => setClassification(event.target.value)}
-              className="h-9 rounded-lg border border-neutral-200 bg-white px-2 text-[14px]"
+              className="h-10 rounded-lg border border-border bg-card px-2.5 text-sm text-foreground"
             >
               <option value="all">All account classes</option>
               <option value="asset">Assets</option>
@@ -208,23 +230,12 @@ function GeneralJournalView({
               <option value="income">Income</option>
               <option value="expense">Expenses</option>
             </select>
-            {fiscalBudgetId &&
-              !journal.error &&
-              userProfile?.role === "accounting_staff" &&
-              can("accounting.post_journal") && (
-                <Button
-                  kind="primary"
-                  size="small"
-                  onClick={() => setAdjusting(true)}
-                >
-                  <Plus size={13} /> Post adjustment
-                </Button>
-              )}
           </div>
         </div>
         {journal.loading ? (
           <JournalTableSkeleton label="Loading balanced entries…" />
         ) : filteredEntries.length ? (
+          <>
           <BudgetTableRegion label="Journal line items">
             <table className="eflow-budget-record-table min-w-[850px] text-left">
               <thead>
@@ -239,7 +250,7 @@ function GeneralJournalView({
               </thead>
               <tbody>
                 <AnimatePresence initial={false}>
-                  {filteredEntries.flatMap((entry) =>
+                  {pagination.pageItems.flatMap((entry) =>
                     entry.lines.map((line, index) => (
                       <m.tr
                         layout
@@ -308,7 +319,7 @@ function GeneralJournalView({
               <tfoot>
                 <tr className="border-t-2 border-neutral-300 bg-neutral-50 font-semibold">
                   <td colSpan={3} className="px-4 py-3 text-[14px]">
-                    Filtered trial balance
+                    Filtered trial balance ({filteredEntries.length} {filteredEntries.length === 1 ? "entry" : "entries"})
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap text-right text-[14px] tabular-nums">
                     {peso.format(totals.debit)}
@@ -323,6 +334,17 @@ function GeneralJournalView({
               </tfoot>
             </table>
           </BudgetTableRegion>
+          <BudgetPagination
+            page={pagination.page}
+            pageSize={pagination.pageSize}
+            totalItems={pagination.totalItems}
+            visibleCount={pagination.pageItems.length}
+            noun="entry"
+            pluralNoun="entries"
+            onPageChange={pagination.setPage}
+            onPageSizeChange={pagination.setPageSize}
+          />
+          </>
         ) : (
           <EmptyState illustration="search" title="No journal entries match" description="Cash releases and settled liquidations post here automatically."/>
         )}
@@ -414,24 +436,15 @@ function JournalMetric({
   good: boolean;
 }) {
   return (
-    <m.div
-      layout
-      className="min-w-0 rounded-[10px] border border-border bg-card p-4"
-    >
-      <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+    <m.div layout className="eflow-accounting-kpi">
+      <div className="eflow-accounting-kpi__label">
         {icon}
         {label}
       </div>
-      <div
-        className={`mt-2 break-words text-right text-lg font-semibold tabular-nums ${good ? "text-foreground" : "text-destructive"}`}
-      >
+      <div className="eflow-accounting-kpi__value" data-tone={good ? undefined : "negative"}>
         {value}
       </div>
-      <div
-        className="mt-1 text-right text-xs text-muted-foreground"
-      >
-        {note}
-      </div>
+      <div className="eflow-accounting-kpi__note">{note}</div>
     </m.div>
   );
 }
@@ -458,7 +471,7 @@ function JournalDateInput({
         value={value}
         onClick={openDatePicker}
         onChange={(event) => onChange(event.target.value)}
-        className="h-8 w-full min-w-0 cursor-pointer rounded-lg border border-neutral-200 bg-white pl-8 pr-2 text-[14px]"
+        className="h-10 w-full min-w-0 cursor-pointer rounded-lg border border-border bg-card pl-8 pr-2 text-sm text-foreground"
       />
     </label>
   );

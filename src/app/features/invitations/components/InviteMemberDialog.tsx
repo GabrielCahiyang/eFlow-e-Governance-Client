@@ -1,3 +1,4 @@
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { useRef, useState } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 import { Modal, ModalButton } from '../../../components/ui/Modal';
@@ -57,7 +58,7 @@ export function InviteMemberDialog({ officeName, open, onOpenChange, onSent }: {
     <form ref={formRef} className="eflow-head-dialog-form" onSubmit={send}>
       <div className="eflow-invite-rows">{rows.map((row, index) => <InvitationPersonFields compact key={row.id} id={row.id} index={index} email={row.email} file={row.file} disabled={busy} onEmail={email=>change(row.id,{email})} onFile={file=>change(row.id,{file})} onError={setMessage}>
         <label className="sr-only" htmlFor={`role-${row.id}`}>Role {index+1}</label><select id={`role-${row.id}`} value={row.account_role} onChange={event=>change(row.id,{account_role:event.target.value as InvitedRole})}><option value="member">Member</option><option value="accounting_staff">Accounting Staff</option></select>
-        {rows.length>1&&<button type="button" className="eflow-icon-button" aria-label={`Remove person ${index+1}`} onClick={()=>setRows(current=>current.filter(item=>item.id!==row.id))}><Trash2 size={16}/></button>}
+        {rows.length>1&&<WorkspaceTooltip content={`Remove person ${index+1}`}><button type="button" className="eflow-icon-button" aria-label={`Remove person ${index+1}`} onClick={()=>setRows(current=>current.filter(item=>item.id!==row.id))}><Trash2 size={16}/></button></WorkspaceTooltip>}
         </InvitationPersonFields>)}</div>
       {rows.length < 5 && <button type="button" className="eflow-text-button" disabled={busy} onClick={() => setRows(current => [...current, emptyRow()])}><Plus size={17} /> Add another person</button>}
       {message && <p role="alert" className="eflow-form-error" id="invite-errors">{message}</p>}

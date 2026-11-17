@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import { useEffect, useId, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { useNavigationBlocker } from '../../../shared/navigationGuard';
 
@@ -11,7 +12,7 @@ export function AsyncSelectCell({ value, label, disabled, onSave, children, clas
     if (disabled || pending.current || next === baseline.current) return;
     pending.current = true; setBusy(true); setDraft(next); setError(''); setNotice('');
     try { if (await onSave(next) === false) setDraft(baseline.current); else { baseline.current = next; setNotice('Saved.'); } }
-    catch (caught) { setError(caught instanceof Error ? caught.message : 'Could not save this change.'); }
+    catch (caught) { setError(readableUiError(caught, "Could not save this change.", 'write')); }
     finally { pending.current = false; setBusy(false); requestAnimationFrame(() => { if (document.activeElement === document.body) input.current?.focus(); }); }
   };
   return <div className="pt-inline-cell" aria-busy={busy}>

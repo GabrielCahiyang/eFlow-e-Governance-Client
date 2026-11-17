@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-export const workspaceSectionIds = ['office-tools', 'favorites', 'projects', 'archived'] as const;
+export const workspaceSectionIds = ['office-tools', 'projects', 'favorites', 'archived'] as const;
 export type WorkspaceSectionId = typeof workspaceSectionIds[number];
 export interface WorkspacePanelPreference {
   version: 2;
@@ -8,7 +8,7 @@ export interface WorkspacePanelPreference {
   closed: WorkspaceSectionId[];
   collapsed: boolean;
 }
-const defaults: WorkspacePanelPreference = { version: 2, sections: [...workspaceSectionIds], closed: [], collapsed: false };
+const defaults: WorkspacePanelPreference = { version: 2, sections: [...workspaceSectionIds], closed: ['archived'], collapsed: false };
 const validIds = (value: unknown): WorkspaceSectionId[] => Array.isArray(value)
   ? [...new Set(value.filter((id): id is WorkspaceSectionId => workspaceSectionIds.includes(id)))] : [];
 
@@ -30,8 +30,8 @@ export function useWorkspacePanelPreference(userId: string, workspaceId: string)
         const raw = localStorage.getItem(key);
         if (raw) value = parseWorkspacePanelPreference(JSON.parse(raw));
         else {
-          const legacy: unknown = JSON.parse(localStorage.getItem(`eflow:navigation:v1:${userId}:${workspaceId}:disclosures`) || '[]');
-          value = { ...defaults, closed: validIds(legacy) };
+          const legacyRaw = localStorage.getItem(`eflow:navigation:v1:${userId}:${workspaceId}:disclosures`);
+          if (legacyRaw) value = { ...defaults, closed: validIds(JSON.parse(legacyRaw)) };
         }
       } catch { /* Use validated defaults when storage is blocked or malformed. */ }
       setStored({ key, value });

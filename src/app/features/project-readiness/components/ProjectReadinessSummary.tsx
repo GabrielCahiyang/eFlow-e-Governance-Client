@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { fetchReadiness } from '../services/readinessService';
 import type { ProjectReadiness } from '../types';
@@ -18,7 +19,7 @@ export function ProjectReadinessSummaryProvider({ projectId, refreshKey, childre
       if (request !== version.current) return;
       if (!next || !Array.isArray(next.checks)) throw new Error('Readiness checks did not return a valid summary.');
       update(next);
-    }).catch(caught => { if (request === version.current) setError(caught instanceof Error ? caught.message : 'Could not load readiness checks.'); })
+    }).catch(caught => { if (request === version.current) setError(readableUiError(caught, "Could not load readiness checks.", 'read')); })
       .finally(() => { if (request === version.current) setLoading(false); });
   }, [projectId, update]);
   useEffect(() => { refresh(); return () => { ++version.current; }; }, [refresh, refreshKey]);

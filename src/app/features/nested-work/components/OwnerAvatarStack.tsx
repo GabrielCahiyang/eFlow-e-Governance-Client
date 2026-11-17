@@ -11,19 +11,22 @@ export function OwnerAvatarStack({
   hasLead,
   memberNames,
   srSummary,
+  focusableAvatars = true,
 }: {
   leadName: string;
   hasLead: boolean;
   memberNames: string[];
   srSummary?: ReactNode;
+  focusableAvatars?: boolean;
 }) {
   const visible = memberNames.slice(0, 2);
   const hidden = memberNames.slice(2);
+  const tabIdx = focusableAvatars ? 0 : undefined;
   return (
-    <div className="r7-owner-summary r7-owner-summary--avatars">
+    <span className="r7-owner-summary r7-owner-summary--avatars">
       <WorkspaceTooltip content={hasLead ? `Lead: ${leadName}` : 'Lead: Needs reassignment'}>
         <span
-          tabIndex={0}
+          tabIndex={tabIdx}
           className={`r7-owner-avatar r7-owner-avatar--lead${!hasLead ? ' r7-owner-avatar--missing' : ''}`}
           aria-label={hasLead ? `Lead: ${leadName}` : 'Lead: Needs reassignment'}
         >
@@ -32,7 +35,7 @@ export function OwnerAvatarStack({
       </WorkspaceTooltip>
       {visible.map((name, idx) => (
         <WorkspaceTooltip key={`${name}:${idx}`} content={name}>
-          <span tabIndex={0} className="r7-owner-avatar" aria-label={name}>
+          <span tabIndex={tabIdx} className="r7-owner-avatar" aria-label={name}>
             {toInitials(name)}
           </span>
         </WorkspaceTooltip>
@@ -40,7 +43,7 @@ export function OwnerAvatarStack({
       {hidden.length > 0 && (
         <WorkspaceTooltip content={hidden.join(', ')}>
           <span
-            tabIndex={0}
+            tabIndex={tabIdx}
             className="r7-owner-avatar r7-owner-avatar--more"
             aria-label={`${hidden.length} more: ${hidden.join(', ')}`}
           >
@@ -49,6 +52,6 @@ export function OwnerAvatarStack({
         </WorkspaceTooltip>
       )}
       {srSummary && <span className="sr-only">{srSummary}</span>}
-    </div>
+    </span>
   );
 }

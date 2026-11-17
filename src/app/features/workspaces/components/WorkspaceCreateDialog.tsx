@@ -1,3 +1,4 @@
+import { readableUiError } from "../../../shared/userFacingError";
 import { useRef, useState } from 'react';
 import { FeatureDialog } from '../../../components/ui/FeatureDialog';
 import { FormField, TextInput } from '../../../components/ui/FormField';
@@ -17,7 +18,7 @@ export function WorkspaceCreateDialog({ kind, context, owner, onClose, onCreate 
       event.preventDefault(); if(!name.trim()||pending.current)return;
       pending.current=true;setBusy(true);setError('');
       try { await onCreate(request.current,name.trim(),'Asia/Manila');setName('');onClose(); }
-      catch(error){setError(error instanceof Error?error.message:'Could not create. Retry keeps the same request identity.');}
+      catch(error){setError(readableUiError(error, "We couldn't confirm whether it was created. Keep this form open and try again here; don't start another creation form.", "write"));}
       finally{pending.current=false;setBusy(false);}
     }}>
       <h2>Create personal {kind}</h2><p>{context} · Personal · Owner: {owner}</p>

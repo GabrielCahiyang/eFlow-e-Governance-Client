@@ -103,7 +103,7 @@ describe("Phase 02 mobile navigation", () => {
     fireEvent.click(await screen.findByRole("button", { name: "Open mobile navigation" }));
     await waitFor(() => expect(screen.getAllByLabelText("Primary navigation")).toHaveLength(1));
 
-    fireEvent.click(screen.getByRole("button", { name: "Workspaces" }));
+    fireEvent.click(screen.getByRole("button", { name: "Workspace" }));
     await waitFor(() => expect(screen.getByTestId("workspace-state").textContent).toBe("tasks:My Tasks"));
     await waitFor(() => expect(screen.queryAllByLabelText("Primary navigation")).toHaveLength(0));
   });

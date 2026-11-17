@@ -15,6 +15,9 @@ export function readWorkFilters(search = window.location.search) {
       : aliases[legacy] || ("All my work" as WorkDateFilter),
     query: params.get("q") || "",
     workspace: params.get("workScope") || "",
+    project: params.get("project") || "",
+    status: params.get("status") || "",
+    relation: params.get("role") || "",
     recent: params.has("recent")
       ? params.get("recent") === "1"
       : legacy === "Recently completed",

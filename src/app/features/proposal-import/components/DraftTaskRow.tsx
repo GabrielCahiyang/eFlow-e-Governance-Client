@@ -1,3 +1,4 @@
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import {
   TaskDepartmentLabel,
   deadlineInputParts,
@@ -77,7 +78,7 @@ export function DraftTaskRow({
       } hover:bg-neutral-50/60`}
     >
       {/* Enable checkbox */}
-      <button
+      <WorkspaceTooltip content={dt.enabled ? "Exclude task" : "Include task"}><button aria-label={`Include task ${dt.title}`} role="checkbox" aria-checked={dt.enabled}
         onClick={() => onUpdate(dt.key, { enabled: !dt.enabled })}
         className="shrink-0 mt-0.5"
       >
@@ -88,7 +89,7 @@ export function DraftTaskRow({
         ) : (
           <div className="w-4 h-4 rounded border-2 border-neutral-300" />
         )}
-      </button>
+      </button></WorkspaceTooltip>
 
       {/* Priority bar */}
       <div className={`w-1 h-10 rounded-full shrink-0 mt-0.5 ${pm.bar}`} />
@@ -379,21 +380,21 @@ export function DraftTaskRow({
 
       {/* Action buttons */}
       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition shrink-0 mt-0.5">
-        <button
+        <WorkspaceTooltip content="Edit task"><button aria-label="Edit task"
           data-testid="manual-task-edit"
           onClick={() => setEditing(!editing)}
           className="p-1.5 rounded-lg hover:bg-neutral-100 text-neutral-400 hover:text-neutral-700 transition"
-          title="Edit task"
+
         >
           <Edit2 size={12} />
-        </button>
-        <button
+        </button></WorkspaceTooltip>
+        <WorkspaceTooltip content="Delete task"><button aria-label="Delete task"
           onClick={() => onDelete(dt.key)}
           className="p-1.5 rounded-lg hover:bg-red-50 text-neutral-400 hover:text-red-600 transition"
-          title="Delete task"
+
         >
           <Trash2 size={12} />
-        </button>
+        </button></WorkspaceTooltip>
       </div>
       <TaskBudgetDialog
         open={budgetOpen}

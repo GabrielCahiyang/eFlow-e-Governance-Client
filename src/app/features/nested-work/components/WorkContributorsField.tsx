@@ -1,3 +1,4 @@
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import {useId,useState} from 'react';
 import {X} from 'lucide-react';
 import {deduplicateWorkPersonIds,displayedWorkContributorIds,eligibleWorkPeople,resolveWorkPersonName} from '../selectors/people';
@@ -25,9 +26,9 @@ export function WorkContributorsField({leadId,contributorIds,people,contributorC
   <legend>Contributors ({contributors.length})</legend>
   <p>Optional. The appointed Lead can work independently.</p>
   {contributors.length?<ul className="r7-chips r7-contributor-chips" aria-label="Selected contributors">{contributors.map(personId=><li key={personId}><span>
-   {resolveWorkPersonName(people,personId)} <button type="button" disabled={disabled} aria-label={`Remove contributor ${resolveWorkPersonName(people,personId)}`} onClick={()=>{
+   {resolveWorkPersonName(people,personId)} <WorkspaceTooltip content={`Remove contributor ${resolveWorkPersonName(people,personId)}`}><button type="button" disabled={disabled} aria-label={`Remove contributor ${resolveWorkPersonName(people,personId)}`} onClick={()=>{
     if(!disabled)onChange(deduplicateWorkPersonIds(contributorIds).filter(selected=>selected!==personId));
-   }}><X size={14} aria-hidden="true"/></button>
+   }}><X size={14} aria-hidden="true"/></button></WorkspaceTooltip>
   </span></li>)}</ul>:<p>No contributors</p>}
   <label htmlFor={id}>Find people</label>
   <input id={id} type="search" placeholder="Search by name" value={query} disabled={disabled} aria-describedby={disabled?`${id}-reason`:undefined} onChange={event=>setQuery(event.target.value)}/>

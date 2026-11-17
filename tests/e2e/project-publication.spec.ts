@@ -189,7 +189,7 @@ test("Public archive works without sign-in or the AI host and rejects tampering"
     page.getByRole("heading", { name: "QA Public Project" }),
   ).toBeVisible({ timeout: 60000 });
   await expect(
-    page.getByText("Archive fingerprint matches", { exact: true }),
+    page.getByText("Record file matches the certificate", { exact: true }),
   ).toBeVisible();
   await expect(page.getByRole("button", { name: "Sign in" })).toHaveCount(0);
   await page.screenshot({
@@ -199,6 +199,6 @@ test("Public archive works without sign-in or the AI host and rejects tampering"
   tampered = true;
   await page.reload();
   await expect(page.getByRole("alert")).toContainText(
-    "does not match its published fingerprint",
+    "does not match the fingerprint in the certificate",
   );
 });

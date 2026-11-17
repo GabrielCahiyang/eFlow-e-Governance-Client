@@ -29,13 +29,13 @@ const labels: Record<string, string> = {
   completed: "Completed",
 };
 const colors: Record<string, string> = {
-  todo: "#8ba5a0",
-  pending_assignment: "#9a7dba",
-  in_progress: "#3b82f6",
-  stuck: "#d65a67",
-  for_review: "#e3a11a",
-  changes_requested: "#bb7350",
-  completed: "#00857a",
+  todo: "var(--eflow-text-muted, #5d706c)",
+  pending_assignment: "#6d5c9a",
+  in_progress: "var(--eflow-chart-2, #2767a7)",
+  stuck: "var(--eflow-chart-5, #c92a3a)",
+  for_review: "var(--eflow-chart-4, #b65b08)",
+  changes_requested: "#a8572a",
+  completed: "var(--eflow-primary, #0c6f6b)",
 };
 export function DeliveryAnalytics({
   input,
@@ -343,7 +343,7 @@ export function DeliveryAnalytics({
                   label: project.title,
                   value: done,
                   total: own.length,
-                  secondary: `${done} complete, ${own.length - done} remaining of ${own.length} tasks · ${own.length ? Math.round((done / own.length) * 100) : 0}% completed`,
+                  secondary: `${done} of ${own.length} tasks complete · ${own.length ? Math.round((done / own.length) * 100) : 0}%`,
                 }))}
               onSelect={(id) => {
                 showTasks({ project: id, status: "" });
@@ -361,7 +361,7 @@ export function DeliveryAnalytics({
                   id: p.id,
                   label: p.name,
                   value: p.active,
-                  secondary: `${p.overdue} overdue · ${p.contributing} contributing · ${p.estimatedHours} estimated hours as lead`,
+                  secondary: `${p.overdue} overdue · ${p.contributing} contributing · ${p.estimatedHours}h lead estimate`,
                 }))}
               onSelect={(id) => {
                 showTasks({ person: id, status: "" });
@@ -385,57 +385,8 @@ export function DeliveryAnalytics({
               }}
             />
           </div>
-          <div className="ea-grid">
-            <AnalyticsBars
-              title="Typical completion time"
-              unit="hours"
-              items={people
-                .filter((p) => p.medianHours !== null)
-                .sort((a, b) => a.medianHours! - b.medianHours!)
-                .slice(0, 8)
-                .map((p) => ({
-                  id: p.id,
-                  label: p.name,
-                  value: Math.round(p.medianHours! * 10) / 10,
-                  secondary: `${p.samples} timed completed tasks · ${p.active} active · approval waiting excluded`,
-                }))}
-              onSelect={(id) => {
-                update({ person: id });
-                setShowDetails(true);
-                setTable("people");
-              }}
-            />
-            <AnalyticsBars
-              title="Deadline reliability"
-              unit="late submissions"
-              items={people
-                .filter((p) => p.dated > 0 || p.overdue > 0)
-                .sort((a, b) => b.late - a.late || b.overdue - a.overdue)
-                .slice(0, 8)
-                .map((p) => ({
-                  id: p.id,
-                  label: p.name,
-                  value: p.late,
-                  secondary: `${p.dated} dated submissions · ${p.lateRate === null ? "No late rate" : p.lateRate + "% late"} · ${p.overdue} currently overdue`,
-                }))}
-              onSelect={(id) => {
-                update({ person: id });
-                setShowDetails(true);
-                setTable("people");
-              }}
-            />
-          </div>
           <p className="ea-help">
-            Counts follow the selected task filters; funding shows full project
-            totals. Charts count parent tasks once. Subtask activity stays
-            separate. Date filters use task deadlines. Weekly completions use
-            recorded approval dates;{" "}
-            {
-              rows.filter((r) => r.state === "completed" && !r.completedAt)
-                .length
-            }{" "}
-            completed tasks have no recorded approval date. Select a chart to
-            inspect its records below.
+            Select any chart segment or bar to filter the table below.
           </p>
           {overview && (
             <div className="ea-grid">

@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../../shared/userFacingError';
 import { FeedbackState } from "../../../../components/ui/FeedbackState";
 import { FeatureDialog } from "../../../../components/ui/FeatureDialog";
 import { useConfirmation } from "../../../../components/ui/useConfirmation";
@@ -301,9 +302,7 @@ function LegacyTaskTeamEditorDialog({
       onClose();
     } catch (reason) {
       setError(
-        reason instanceof Error
-          ? reason.message
-          : "Could not update task members.",
+        readableUiError(reason, "Could not update task members.", 'write'),
       );
       if (started && !saved) {
         uncertainty.current = true;

@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import * as React from "react";
 import { Button } from "@vibe/core";
 import { CheckCircle2, Clock3, XCircle } from "lucide-react";
@@ -39,7 +40,7 @@ export function CollaborationDecisionPanel({
         <div>
           <h2>Office participation approval</h2>
           <p className="m-0 mt-1 text-xs text-secondary">
-            Formal office approval or revision request on the active proposal snapshot.
+            Approve the current proposal version or ask for changes on behalf of your Office.
           </p>
         </div>
 
@@ -139,7 +140,7 @@ export function CollaborationDecisionPanel({
                 onClick={async () => {
                   setError("");
                   try { await onDecide(decision, reason); setDecision(null); setReason(""); }
-                  catch (failure) { setError(failure instanceof Error ? failure.message : "Decision could not be saved."); }
+                  catch (failure) { setError(readableUiError(failure, "Decision could not be saved.", 'write')); }
                 }}
               >
                 {busy ? "Recording…" : "Confirm decision"}

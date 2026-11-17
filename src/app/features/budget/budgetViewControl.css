@@ -10,14 +10,14 @@
 .eflow-budget-view-toolbar--grouped{display:block;border:0;padding:0;border-radius:0}
 .eflow-budget-view-navigation{display:grid;min-width:0}
 .eflow-budget-view-groups,.eflow-budget-view-links{display:flex;flex-wrap:wrap;gap:var(--eflow-space-1) var(--eflow-space-2);border-bottom:1px solid var(--eflow-border)}
-.eflow-budget-view-groups>button,.eflow-budget-view-links>button{min-height:var(--eflow-control-height);padding:var(--eflow-space-2) var(--eflow-space-3);color:var(--eflow-text-secondary);text-align:left;font-size:var(--eflow-text-sm);font-weight:600}
+.eflow-budget-view-groups>button,.eflow-budget-view-links>button{min-height:var(--eflow-control-height);padding:var(--eflow-space-2) var(--eflow-space-3);color:var(--eflow-text-secondary);text-align:left;font-size:var(--eflow-text-sm);font-weight:500}
 .eflow-budget-view-groups>button{border-bottom:2px solid transparent}
-.eflow-budget-view-groups>button[aria-pressed=true]{border-bottom-color:var(--eflow-primary);color:var(--eflow-primary)}
-.eflow-budget-view-links{padding-block:var(--eflow-space-2);background:var(--eflow-subtle);padding-inline:var(--eflow-space-2)}
-.eflow-budget-view-links>button{min-height:var(--eflow-control-compact);border-radius:var(--eflow-radius-sm);font-size:var(--eflow-text-xs)}
-.eflow-budget-view-links>button[aria-current=page]{background:var(--eflow-surface);color:var(--eflow-primary);box-shadow:inset 0 0 0 1px var(--eflow-border)}
-.eflow-budget-view-navigation button:hover{background:var(--eflow-subtle)}
-.eflow-budget-view-links>button[aria-current=page]:hover{background:var(--eflow-surface)}
+.eflow-budget-view-groups>button[aria-pressed=true]{border-bottom-color:var(--eflow-primary);color:var(--eflow-primary);font-weight:600}
+.eflow-budget-view-links{padding-block:var(--eflow-space-2);background:var(--eflow-surface);padding-inline:0}
+.eflow-budget-view-links>button{min-height:var(--eflow-control-compact);border-radius:6px;font-size:12.5px}
+.eflow-budget-view-links>button[aria-current=page]{background:var(--eflow-selected);color:var(--eflow-on-selected);font-weight:600}
+.eflow-budget-view-navigation button:hover{background:var(--eflow-subtle);color:var(--eflow-primary)}
+.eflow-budget-view-links>button[aria-current=page]:hover{background:var(--eflow-selected)}
 .eflow-budget-view-navigation button:focus-visible,.eflow-budget-table-scroll:focus-visible{outline:var(--eflow-focus-width) solid var(--eflow-primary);outline-offset:calc(-1 * var(--eflow-focus-offset))}
 .eflow-budget-view-control--compact{display:none}
 .eflow-budget-funding-layout{display:grid;align-items:start;gap:var(--eflow-space-4);min-width:0}
@@ -53,7 +53,7 @@
 .eflow-budget-ledger-head,.eflow-budget-ledger-row{display:grid;align-items:center;gap:var(--eflow-space-3);padding:8px var(--eflow-space-3)}
 .eflow-budget-ledger--readonly .eflow-budget-ledger-head,.eflow-budget-ledger--readonly .eflow-budget-ledger-row{grid-template-columns:minmax(200px,2fr) 128px 140px 176px}
 .eflow-budget-ledger--editable .eflow-budget-ledger-head,.eflow-budget-ledger--editable .eflow-budget-ledger-row{grid-template-columns:minmax(200px,2fr) 128px 140px 180px 176px}
-.eflow-budget-ledger-head{border-bottom:1px solid var(--eflow-border);background:var(--eflow-subtle);font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--eflow-text-muted)}
+.eflow-budget-ledger-head{border-bottom:1px solid var(--eflow-border);background:var(--eflow-subtle);font-size:12px;font-weight:600;color:var(--eflow-text-muted)}
 .eflow-budget-ledger-row:hover{background:var(--eflow-subtle)}
 .eflow-budget-ledger-name{display:flex;align-items:center;gap:6px}
 .eflow-budget-ledger-cell{min-width:0}
@@ -68,7 +68,7 @@
 .eflow-budget-form-actions>button{min-height:var(--eflow-control-height);max-width:100%}
 .eflow-budget-funding-commitment>summary{display:grid;grid-template-columns:minmax(0,1fr) 110px 124px auto;align-items:center;gap:var(--eflow-space-3);padding:12px var(--eflow-space-4);cursor:pointer;list-style:none}
 .eflow-budget-funding-task-head,.eflow-budget-funding-task-row{display:grid;grid-template-columns:minmax(220px,1.8fr) repeat(5,minmax(92px,1fr)) 20px;align-items:center;gap:var(--eflow-space-3);padding:8px var(--eflow-space-4)}
-.eflow-budget-funding-task-head{border-bottom:1px solid var(--eflow-border);font-size:11px;font-weight:600;color:var(--eflow-text-muted);text-transform:uppercase;letter-spacing:.03em}
+.eflow-budget-funding-task-head{border-bottom:1px solid var(--eflow-border);font-size:12px;font-weight:600;color:var(--eflow-text-muted)}
 .eflow-budget-funding-task-row{cursor:pointer;list-style:none}
 .eflow-budget-funding-cell{font-size:12px}
 .eflow-budget-funding-cell-label{display:none;font-size:11px;color:var(--eflow-text-muted);margin-right:6px}

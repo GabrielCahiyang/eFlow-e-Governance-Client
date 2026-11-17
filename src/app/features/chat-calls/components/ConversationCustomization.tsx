@@ -1,3 +1,5 @@
+import { readableUiError } from '../../../shared/userFacingError';
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { useState } from 'react';
 import { Pencil, UserRoundPen } from 'lucide-react';
 import { editConversationGroup, setConversationNickname, type ChatPerson, type Conversation } from '../services/messagesWorkspace';
@@ -22,7 +24,7 @@ export function EditGroupChat({ conversation, userId, onChanged }: {
       await editConversationGroup(conversation.channelId, name, uploaded ?? (reset ? null : conversation.avatarPath ?? null));
     } catch (failure) {
       if (uploaded) void removeChatImage(uploaded).catch(() => {});
-      setError(failure instanceof Error ? failure.message : 'Could not save the group chat.');
+      setError(readableUiError(failure, "Could not save the group chat.", 'write'));
       setBusy(false);
       return;
     }
@@ -65,7 +67,7 @@ export function ConversationNicknames({ conversation, people, onChanged }: {
       await setConversationNickname(conversation.channelId, personId, value);
       await onChanged();
       setEditing(undefined);
-    } catch (failure) { setError(failure instanceof Error ? failure.message : 'Could not save the nickname.'); }
+    } catch (failure) { setError(readableUiError(failure, "Could not save the nickname.", 'write')); }
     finally { setBusy(false); }
   }
   return <details><summary><UserRoundPen size={16} /> Nicknames</summary>
@@ -80,8 +82,8 @@ export function ConversationNicknames({ conversation, people, onChanged }: {
             <button type="submit" disabled={busy}>Save nickname</button>
           </div>
           {error && <p className="messages-error" role="alert">{error}</p>}
-        </form> : <button type="button" className="messages-icon-button" aria-label={'Edit nickname for ' + person.name} disabled={busy}
-          onClick={() => { setDraft(person.nickname ?? ''); setError(''); setEditing(person.id); }}><Pencil size={15} /></button>)}
+        </form> : <WorkspaceTooltip content="Edit nickname"><button type="button" className="messages-icon-button" aria-label={'Edit nickname for ' + person.name} disabled={busy}
+          onClick={() => { setDraft(person.nickname ?? ''); setError(''); setEditing(person.id); }}><Pencil size={15} /></button></WorkspaceTooltip>)}
       </div>
     </li>)}</ul>
   </details>;

@@ -1,3 +1,4 @@
+import { WorkspaceTooltip } from "../../app/components/ui/workspace/WorkspaceTooltip";
 import { Person, Close } from "@vibe/icons";
 import { getLoginPortal, type LoginPortal } from "../../app/shared/loginPortal";
 import {
@@ -85,7 +86,7 @@ export function UsageScenariosModal({
             >
               Development Usage Scenarios
             </h3>
-            <button
+            <WorkspaceTooltip content="Close dialog"><button
               type="button"
               aria-label="Close dialog"
               onClick={onClose}
@@ -111,7 +112,7 @@ export function UsageScenariosModal({
               }}
             >
               <Close size={18} />
-            </button>
+            </button></WorkspaceTooltip>
           </div>
           <p
             style={{

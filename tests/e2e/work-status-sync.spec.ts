@@ -20,7 +20,7 @@ for(const role of ['head','accounting_staff','member'] as const)test(`${role}: m
  await expect(child.getByText('In progress',{exact:true})).toBeVisible({timeout:10000});
  await page.getByRole('navigation',{name:'Global navigation'}).getByRole('button',{name:'My Work',exact:true}).click();
  const nav=page.getByRole('navigation',{name:'My Work destinations'});
- await nav.getByRole('button',{name:'Leading',exact:true}).click();
+ await nav.getByRole('button',{name:'Work I lead',exact:true}).click();
  const leadRow=page.locator(`[data-personal-task="${task.id}"]`);await expect(leadRow).toContainText('In progress',{timeout:30000});
  await nav.getByRole('button',{name:'Subtasks',exact:true}).click();
  const subRow=page.locator(`[data-work-key="office-node:${step.id}"]`);await expect(subRow).toContainText('In progress');
@@ -29,7 +29,7 @@ for(const role of ['head','accounting_staff','member'] as const)test(`${role}: m
  Object.assign(step,{status:'completed',is_completed:true,percent_complete:100});records.emitTaskUpdate(String(task.id));
  await expect(subRow).toHaveCount(0,{timeout:10000});
  await nav.getByRole('button',{name:'History',exact:true}).click();await expect(subRow).toContainText('Completed');
- await nav.getByRole('button',{name:'Leading',exact:true}).click();
+ await nav.getByRole('button',{name:'Work I lead',exact:true}).click();
  Object.assign(task,{status:'for_review'});records.emitTaskUpdate(String(task.id));
  await expect(leadRow).toContainText('Awaiting approval',{timeout:10000});
  await page.screenshot({path:info.outputPath(`leading-awaiting-approval-${role}.png`),fullPage:true});

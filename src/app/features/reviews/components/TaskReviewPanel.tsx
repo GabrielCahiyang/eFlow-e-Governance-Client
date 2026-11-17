@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import { useEffect, useState } from "react";
 import type { Task } from "../../../services/taskService";
 import { useAuth } from "../../../contexts/AuthContext";
@@ -44,7 +45,7 @@ export function TaskReviewPanel({
       .catch(reason => {
         if (!active) return;
         setAttachments([]);
-        setSubmissions([]); setLoading(false); setError(reason instanceof Error ? reason.message : 'Could not load submission evidence.');
+        setSubmissions([]); setLoading(false); setError(readableUiError(reason, "Could not load submission evidence.", 'write'));
       });
     return () => { active = false; };
   }, [task.id, task.latestSubmission?.id, task.status, retry]);

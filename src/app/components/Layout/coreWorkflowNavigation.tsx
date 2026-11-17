@@ -165,7 +165,12 @@ const CORE_WORKFLOW_NAVIGATION: Record<string, CoreRoleNavigation> = {
    */
   accounting_staff: {
     defaultSection: "accounting_overview",
-    navItems: [...EMPLOYEE_NAV_ITEMS, ...ACCOUNTING_NAV_ITEMS],
+    navItems: [
+      ...EMPLOYEE_NAV_ITEMS.filter(
+        (item) => !["deadlines", "performance", "reports"].includes(item.id),
+      ),
+      ...ACCOUNTING_NAV_ITEMS,
+    ],
   },
   head: {
     defaultSection: "dashboard",

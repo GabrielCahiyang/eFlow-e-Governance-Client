@@ -1,3 +1,5 @@
+import { readableUiError } from '../../../shared/userFacingError';
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { getPhilippineCalendarDate, scheduledDateError } from '../../../shared/calendarDates';
 import { supportsNestedWork, isCurrentWorkSnapshot, WorkTree, type WorkNode, type WorkTreeSnapshot, type WorkTreeController } from '../../nested-work';
 import type {TaskInspectorOrigin} from '../../task-inspector';
@@ -10,7 +12,7 @@ export function TaskSubtasksWidget(props: Parameters<typeof LegacyTaskSubtasksWi
  useEffect(()=>setOpened(undefined),[user?.id,props.taskId]);
  if(!props.parentTask||!supportsNestedWork(props.parentTask))return <LegacyTaskSubtasksWidget {...props} readOnly={readOnly}/>;
  const supplied=props.controller,data=supplied?.data;
- if(supplied&&(supplied.actorId!==(user?.id||null)||supplied.rootId!==props.taskId||data&&(data.root.id!==props.taskId||data.root.project!==props.parentTask.linkedProjectId||data.root.kind==='office'&&data.root.office!==props.parentTask.orgId||!isCurrentWorkSnapshot(data,{actorId:user?.id||null,rootId:props.taskId,projectId:data.root.project,officeId:data.root.office,kind:data.root.kind,revision:data.revision}))))return <p role="alert">Work is unavailable in the current actor or task scope.</p>;
+ if(supplied&&(supplied.actorId!==(user?.id||null)||supplied.rootId!==props.taskId||data&&(data.root.id!==props.taskId||data.root.project!==props.parentTask.linkedProjectId||data.root.kind==='office'&&data.root.office!==props.parentTask.orgId||!isCurrentWorkSnapshot(data,{actorId:user?.id||null,rootId:props.taskId,projectId:data.root.project,officeId:data.root.office,kind:data.root.kind,revision:data.revision}))))return <p role="alert">We couldn't confirm access to this task's work. Close this view and open the task again.</p>;
  const open=(node:WorkNode,_tree:WorkTreeSnapshot,section:'work'|'review')=>{
   const element=document.activeElement instanceof HTMLElement?document.activeElement:null;
   const origin:TaskInspectorOrigin={view:'Work',section:'work',returnFocus:element,restoreFocus:()=>{
@@ -19,8 +21,9 @@ export function TaskSubtasksWidget(props: Parameters<typeof LegacyTaskSubtasksWi
   }};
   if(props.onInspect)props.onInspect(node.id,section,origin);else setOpened({id:node.id,section,origin});
  };
- return <><div hidden={!!opened}><WorkTree presentation={props.presentation} rootId={props.taskId} parentTask={props.parentTask} parentTitle={props.parentTask.title} parentStartDate={props.parentTask.startDate} controller={props.controller} createRequest={props.createRequest} createFocusTarget={props.createFocusTarget} collapsedIds={props.collapsedIds} onCollapsedIdsChange={props.onCollapsedIdsChange} executionBlocked={props.executionBlocked} readOnly={readOnly} fallback={props.fallback||<LegacyTaskSubtasksWidget {...props} readOnly={readOnly}/>} onOpenOfficeNode={(node,tree)=>open(node,tree,'work')} onReviewOfficeNode={(node,tree)=>open(node,tree,'review')}/></div>
- {opened&&<SubitemInspector key={opened.id} rootTask={props.parentTask} itemId={opened.id} controller={props.controller} initialSection={opened.section} origin={opened.origin} executionBlocked={props.executionBlocked} readOnly={readOnly} onClose={()=>setOpened(undefined)}/>}
+ const isProjectTable = props.presentation === 'project-table';
+ return <><div hidden={!!opened && !isProjectTable}><WorkTree presentation={props.presentation} rootId={props.taskId} parentTask={props.parentTask} parentTitle={props.parentTask.title} parentStartDate={props.parentTask.startDate} controller={props.controller} createRequest={props.createRequest} createFocusTarget={props.createFocusTarget} collapsedIds={props.collapsedIds} onCollapsedIdsChange={props.onCollapsedIdsChange} executionBlocked={props.executionBlocked} readOnly={readOnly} fallback={props.fallback||<LegacyTaskSubtasksWidget {...props} readOnly={readOnly}/>} onOpenOfficeNode={(node,tree)=>open(node,tree,'work')} onReviewOfficeNode={(node,tree)=>open(node,tree,'review')}/></div>
+ {opened&&<SubitemInspector key={opened.id} presentation={isProjectTable?'dialog':undefined} rootTask={props.parentTask} itemId={opened.id} controller={props.controller} initialSection={opened.section} origin={opened.origin} executionBlocked={props.executionBlocked} readOnly={readOnly} onClose={()=>setOpened(undefined)}/>}
  </>;
 }
 // ─── TaskSubtasksWidget ──────────────────────────────────────────
@@ -136,7 +139,7 @@ function LegacyTaskSubtasksWidget({
         "success",
       );
     } catch (error) {
-      toast(error instanceof Error ? error.message : "Failed to add subtask.", "error");
+      toast(readableUiError(error, "Failed to add subtask.", 'write'), "error");
     } finally {
       setAdding(false);
     }
@@ -158,7 +161,7 @@ function LegacyTaskSubtasksWidget({
       toast("Subtask sequence updated.", "success");
     } catch (error) {
       setSubtasks(previous);
-      toast(error instanceof Error ? error.message : "Could not reorder subtasks.", "error");
+      toast(readableUiError(error, "Could not reorder subtasks.", 'write'), "error");
     } finally {
       setReordering(false);
       setDraggedSubtaskId(null);
@@ -190,7 +193,7 @@ function LegacyTaskSubtasksWidget({
         "success",
       );
     } catch (error) {
-      toast(error instanceof Error ? error.message : "Could not change the execution rule.", "error");
+      toast(readableUiError(error, "Could not change the execution rule.", 'write'), "error");
     }
   };
 
@@ -257,7 +260,7 @@ function LegacyTaskSubtasksWidget({
                   ? "border-violet-200 bg-violet-50 text-violet-700"
                   : "border-neutral-200 bg-white text-neutral-500"
               }`}>
-                {st.isStandalone ? "Standalone" : `Step ${stepNumber}`}
+                {st.isStandalone ? "Independent" : `Step ${stepNumber}`}
               </span>
               <span className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${
                 st.isCompleted
@@ -296,18 +299,19 @@ function LegacyTaskSubtasksWidget({
                   type="button"
                   onClick={() => void toggleStandalone(st)}
                   disabled={executionModeLocked}
+                  aria-label={st.isStandalone ? `Follow work order for ${st.title}` : `Allow ${st.title} out of order`}
                   className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-1 text-[8.5px] font-medium transition disabled:cursor-not-allowed disabled:opacity-40 ${
                     st.isStandalone
                       ? "border-violet-200 bg-violet-50 text-violet-700"
                       : "border-neutral-200 bg-white text-neutral-500 hover:border-violet-300 hover:text-violet-700"
                   }`}
                   title={executionModeLocked
-                    ? "Execution mode is locked after work starts"
+                    ? "Work order can’t change after work starts"
                     : st.isStandalone
-                      ? "Make this an ordered prerequisite step"
-                      : "Allow this subtask to run without earlier prerequisites"}
+                      ? "Make this subtask follow the order of earlier steps"
+                      : "Let this subtask start without waiting for earlier steps"}
                 >
-                  <Unlink2 size={9} /> {st.isStandalone ? "Independent" : "Make standalone"}
+                  <Unlink2 size={9} /> {st.isStandalone ? "Follow work order" : "Allow out of order"}
                 </button>
               )}
 
@@ -426,14 +430,14 @@ function LegacyTaskSubtasksWidget({
               </div>
 
               {canManage && (
-                <button
+                <WorkspaceTooltip content="Delete subtask"><button aria-label="Delete subtask"
                   type="button"
                   onClick={() => deleteSubtask(st.id)}
                   className="shrink-0 p-0.5 text-neutral-500 opacity-100 transition hover:text-red-500 sm:opacity-0 sm:group-hover:opacity-100"
-                  title="Delete subtask"
+
                 >
                   <X size={12} />
-                </button>
+                </button></WorkspaceTooltip>
               )}
             </div>
           );
@@ -471,9 +475,9 @@ function LegacyTaskSubtasksWidget({
               ? "border-violet-300 bg-violet-50 text-violet-700"
               : "border-neutral-200 bg-white text-neutral-500 hover:border-neutral-300"
           }`}
-          title="Standalone subtasks can start immediately and do not block the ordered sequence"
+          title="This subtask can start without waiting for earlier steps. Its start date and other requirements still apply."
         >
-          <span className="inline-flex items-center gap-1"><Unlink2 size={11} /> Standalone</span>
+          <span className="inline-flex items-center gap-1"><Unlink2 size={11} /> Allow out of order</span>
         </button>
         <button
           type="button"

@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import { useEffect, useRef, useState } from 'react';
 import { Button, TextField } from '@vibe/core';
 import { EFlowMark } from '../../../../components/EFlowMark';
@@ -29,7 +30,7 @@ export function ActivateAccountPage() {
     if (password !== confirmation) { setError('The passwords do not match.'); return; }
     inFlight.current = true; setBusy(true); setError('');
     try { setResult(await completeAccountActivation(token, password, attempt)); setPassword(''); setConfirmation(''); }
-    catch (reason) { setError(reason instanceof Error ? reason.message : 'Could not activate your account. Please try again.'); }
+    catch (reason) { setError(readableUiError(reason, "Could not activate your account. Please try again.", 'write')); }
     finally { inFlight.current = false; setBusy(false); }
   };
   return <main className="eflow-activation-page"><section className="eflow-activation-card" aria-busy={loading || busy}>

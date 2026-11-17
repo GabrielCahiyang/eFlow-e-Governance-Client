@@ -482,7 +482,7 @@ export async function projectWorkspaceFixture(
   });
   await page.route('**/controlpanelEflow/api/auth/login', route => route.fulfill({json:{access_token:token,refresh_token:'synthetic'}}));
   await establishLocalNetwork(page);
-  await page.goto("/");
+  await page.goto(role === 'admin' ? '/admin' : '/');
   await page.locator("#login-email").fill(user.email);
   await page.locator("#login-password").fill("synthetic-password");
   // Opacity-zero staggered entrances are considered visible by locator
@@ -502,7 +502,6 @@ export async function projectWorkspaceFixture(
     .waitFor({ timeout: 2000 })
     .then(() => later.click())
     .catch(() => {});
-  const sidebar = page.locator(".eflow-productivity-sidebar").first();
   if (options.landingOnly)
     return {
       emitTaskDelete,
@@ -552,17 +551,9 @@ export async function projectWorkspaceFixture(
       profile,
     };
   }
-  if ((page.viewportSize()?.width || 1280) >= 1024) {
-    await expect(sidebar).toBeVisible({ timeout: 30_000 });
-    await sidebar
-      .getByRole("button", { name: "Workspaces", exact: true })
-      .press("Enter");
-  } else
-    await page
-      .getByRole("navigation", { name: "Mobile primary navigation" })
-      .getByRole("button", { name: "Workspaces", exact: true })
-      .click();
-  // Projects now lands on the portfolio; tests that exercise a project open it explicitly.
+  // Enter through the portfolio route. The Workspace utility selects the wider
+  // Office context, whose initial page can be the Office overview.
+  await page.goto("/projects");
   await page.getByRole('region', {name:'All projects',exact:true}).getByRole('button', {name:'Community outreach',exact:true}).click();
   await expect(
     page.getByRole("region", { name: "Project main table" }),

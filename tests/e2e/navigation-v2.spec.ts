@@ -2,9 +2,9 @@ import { test, expect } from '@playwright/test';
 import { projectWorkspaceFixture } from './fixtures/projectWorkspace';
 
 const routes = {
-  head: [['Workspaces','Workspace Overview','/overview'],['Workspaces','Office tasks','/tasks'],['Workspaces','Office Budget','/office-budget'],['Workspaces','Office Team','/team-supervision'],['Workspaces','Identity & Access','/identity-and-access'],['Workspaces','Team Intelligence','/team-intelligence'],['Workspaces','Reports','/reports'],['My Work','Assigned work','/my-work'],['My Work','Leading','/my-work'],['My Work','Subtasks','/my-work'],['My Work','History','/my-work'],['Inbox','Reviews','/reviews'],['Inbox','Announcements','/announcements']],
-  member: [['My Work','Assigned work','/my-work'],['My Work','Leading','/my-work'],['My Work','Subtasks','/my-work'],['My Work','History','/my-work'],['Workspaces','Workspace Overview','/overview'],['Inbox','Leader Reviews','/reviews'],['Inbox','Announcements','/announcements']],
-  accounting_staff: [['My Work','Assigned work','/my-work'],['My Work','Leading','/my-work'],['My Work','Subtasks','/my-work'],['My Work','History','/my-work'],['Accounting','Accounting Overview','/accounting-overview'],['Accounting','Voucher & Cash Releases','/voucher-cash-releases'],['Accounting','General Journal','/general-journal'],['Accounting','Financial Audit Trail','/financial-audit-trail'],['Accounting','Office Budget Ledgers','/office-budget-ledgers']],
+  head: [['Workspaces','Workspace Overview','/overview'],['Workspaces','Office tasks','/tasks'],['Workspaces','Office Budget','/office-budget'],['Workspaces','Office Team','/team-supervision'],['Workspaces','Identity & Access','/identity-and-access'],['Workspaces','Team Intelligence','/team-intelligence'],['Workspaces','Reports','/reports'],['My Work','Assigned work','/my-work'],['My Work','Work I lead','/my-work'],['My Work','Subtasks','/my-work'],['My Work','History','/my-work'],['Inbox','Reviews','/reviews'],['Inbox','Announcements','/announcements']],
+  member: [['My Work','Assigned work','/my-work'],['My Work','Work I lead','/my-work'],['My Work','Subtasks','/my-work'],['My Work','History','/my-work'],['Workspaces','Workspace Overview','/overview'],['Inbox','Leader Reviews','/reviews'],['Inbox','Announcements','/announcements']],
+  accounting_staff: [['My Work','Assigned work','/my-work'],['My Work','Work I lead','/my-work'],['My Work','Subtasks','/my-work'],['My Work','History','/my-work'],['Accounting','Accounting Overview','/accounting-overview'],['Accounting','Voucher & Cash Releases','/voucher-cash-releases'],['Accounting','General Journal','/general-journal'],['Accounting','Financial Audit Trail','/financial-audit-trail'],['Accounting','Office Budget Ledgers','/office-budget-ledgers']],
   admin: [['Admin Center','All Users','/users'],['Admin Center','Role Defaults','/users'],['Admin Center','User Access','/users'],['Admin Center','Account Audit','/users'],['Admin Center','System Settings','/users'],['Admin Center','Backup & Export','/users']],
 } as const;
 
@@ -15,11 +15,11 @@ for (const role of ['head', 'member', 'accounting_staff'] as const) test(`${role
   await expect.poll(() => new URL(page.url()).pathname).toBe('/my-work');
   await expect.poll(() => new URL(page.url()).searchParams.get('page')).toBe('Leading');
   const destinations = page.getByRole('navigation',{name:'My Work destinations'}).first();
-  await expect(destinations.getByRole('button',{name:'Leading',exact:true})).toHaveAttribute('aria-current','page');
+  await expect(destinations.getByRole('button',{name:'Work I lead',exact:true})).toHaveAttribute('aria-current','page');
   await expect(page.getByRole('button',{name:/Work I'm Leading|Pinned|Lead workspace/})).toHaveCount(0);
   await expect(page.getByRole('heading',{name:'Access denied',exact:true})).toHaveCount(0);
   await page.reload();
-  await expect(destinations.getByRole('button',{name:'Leading',exact:true})).toHaveAttribute('aria-current','page');
+  await expect(destinations.getByRole('button',{name:'Work I lead',exact:true})).toHaveAttribute('aria-current','page');
 });
 for (const role of ['head','member','accounting_staff','admin'] as const) test(`${role} retains its landing and authorized destinations through global/context navigation`, async ({page},info) => {
   test.setTimeout(150_000);

@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import { useEffect, useMemo, useState } from "react";
 import { Button, Label } from "@vibe/core";
 import { CheckCircle2, ChevronRight, ShieldAlert } from "lucide-react";
@@ -178,7 +179,7 @@ export function CollaborationBudgetPanel({
                   "Task funding schedule updated",
                 );
               } catch (error) {
-                setSaveError(error instanceof Error ? error.message : "Budget changes could not be saved.");
+                setSaveError(readableUiError(error, "Budget changes could not be saved.", 'write'));
               } finally {
                 setSaving(false);
               }

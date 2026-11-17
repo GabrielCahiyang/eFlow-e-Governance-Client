@@ -355,7 +355,7 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
   } = useTaskReviewEvidence(selected?.id);
 
   return (
-    <div className="eflow-operational-workspace eflow-review-workspace min-h-full min-w-0 p-4 sm:p-8">
+    <div className="eflow-operational-workspace eflow-review-workspace min-h-full min-w-0">
       <PageHeader
         eyebrow={
           scope === "leading"
@@ -367,7 +367,7 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
         title="For Review"
         subtitle="Validate submitted work, collaborate on proposals, and keep the pipeline moving."
         actions={reviewKind === 'tasks' ? (
-                <div className="inline-flex items-center gap-1.5 rounded-full border border-border bg-[var(--eflow-warning-bg)] px-3 py-1.5 text-xs font-semibold text-[var(--eflow-warning-text)]">
+                <div className="inline-flex items-center gap-1.5 rounded-md border border-border bg-[var(--eflow-warning-bg)] px-3 py-1.5 text-xs font-semibold text-[var(--eflow-warning-text)]">
                   <Inbox size={14} /> {tasksLoading || projectsLoading ? '…' : queue.length} {query.trim() ? 'matching submissions' : 'awaiting review'}
                 </div>
         ) : undefined}

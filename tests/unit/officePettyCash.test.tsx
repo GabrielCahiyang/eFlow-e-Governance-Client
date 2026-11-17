@@ -9,12 +9,12 @@ vi.mock('../../src/app/components/ui/Modal',()=>({Modal:({children,footer,title}
 import {OfficePettyCash} from '../../src/app/features/office-petty-cash';
 beforeEach(()=>{sessionStorage.clear();mocks.profile.role='member';mocks.load.mockResolvedValue({ceiling:30000,receiptLimit:5000,cash:30000,reserved:0,available:30000,outstanding:0,replenishable:0,requests:[],events:[]});mocks.command.mockResolvedValue({});});
 afterEach(()=>{cleanup();vi.clearAllMocks();});
-it.each([['Approve request','Yes, approve','approve'],['Reject request','Yes, reject','reject']])('confirms %s in a centered dialog before submitting',async(action,yes,command)=>{
+it.each([['Approve request','approve'],['Reject request','reject']])('confirms %s in a centered dialog before submitting',async(action,command)=>{
  mocks.profile.role='head';mocks.load.mockResolvedValue({cash:30000,reserved:1000,available:29000,outstanding:0,replenishable:0,events:[],requests:[{id:'petty-1',purpose:'Stationery',requester:'other',requesterName:'Chris',amount:1000,status:'pending',receipts:[]}]});
  render(<OfficePettyCash/>);fireEvent.click(await screen.findByRole('button',{name:action}));expect(mocks.command).not.toHaveBeenCalled();
- const dialog=screen.getByRole('dialog',{name:`${action}?`});expect(within(dialog).getByRole('button',{name:yes})).toBeDisabled();
+ const dialog=screen.getByRole('dialog',{name:`${action}?`});expect(within(dialog).getByRole('button',{name:action})).toBeDisabled();
  fireEvent.click(within(dialog).getByRole('button',{name:'Cancel'}));expect(mocks.command).not.toHaveBeenCalled();
- fireEvent.click(screen.getByRole('button',{name:action}));fireEvent.change(screen.getByLabelText('Reason / transaction reference'),{target:{value:'Reviewed the request'}});fireEvent.click(screen.getByRole('button',{name:yes}));
+ fireEvent.click(screen.getByRole('button',{name:action}));fireEvent.change(screen.getByLabelText('Reason / transaction reference'),{target:{value:'Reviewed the request'}});fireEvent.click(within(screen.getByRole('dialog',{name:`${action}?`})).getByRole('button',{name:action}));
  await waitFor(()=>expect(mocks.command).toHaveBeenCalledWith('office',expect.objectContaining({action:command,data:expect.objectContaining({request:'petty-1',reference:'Reviewed the request'})})));
 });
 it('allows an office request without project/task funding and never exposes replenishment to a member',async()=>{render(<OfficePettyCash/>);await waitFor(()=>expect(screen.getByRole('button',{name:/Request petty cash/})).toBeEnabled());expect(screen.queryByRole('button',{name:/Replenish fund/})).toBeNull();fireEvent.click(screen.getByRole('button',{name:/Request petty cash/}));expect(screen.getByRole('dialog',{name:'Request petty cash'})).toBeVisible();expect(screen.getByText(/Does not deduct from a project or task budget/)).toBeVisible();});
@@ -54,7 +54,9 @@ it('recovers an uncertain command after reload with its original key and visible
  const saved={key:'original-command-key',action:'request',data:{amount:1200,reference:'Office stationery',date:'2026-10-31',receipts:[]}};
  sessionStorage.setItem('eflow.office-petty.pending:office:member',JSON.stringify(saved));
  render(<OfficePettyCash/>);
- const retry=await screen.findByRole('button',{name:'Retry saved transaction'});
+ const retry=await screen.findByRole('button',{name:'Resume cash action'});
+ expect(screen.getByRole('status')).toHaveTextContent('We couldn’t confirm this cash action.');
+ expect(screen.queryByText(/Saved transaction/)).not.toBeInTheDocument();
  expect(screen.getByLabelText('Purpose')).toHaveValue('Office stationery');
  fireEvent.click(retry);
  await waitFor(()=>expect(mocks.command).toHaveBeenCalledWith('office',saved));

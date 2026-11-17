@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../../shared/userFacingError';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { isAdminRole } from '../../../../shared/roles';
@@ -47,7 +48,7 @@ export function LockedAccountsTab() {
       }
       setNotice(message); await refresh(!settings);
     }
-    catch (reason) { if(actor.current === initiatedBy) setError(reason instanceof Error ? reason.message : 'Could not save this change.'); }
+    catch (reason) { if(actor.current === initiatedBy) setError(readableUiError(reason, "Could not save this change.", 'write')); }
     finally { if(actor.current === initiatedBy) { pending.current=false; draft.pendingRef.current=false; setBusy(false); } }
   }
   async function unlock(account:LockedAccount) {

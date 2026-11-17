@@ -23,3 +23,4 @@ export * from './administrativePages';
 export { AccessDenied } from './AccessDenied';
 export { PersonalWorkTools, getPersonalWorkTools } from './PersonalWorkTools';
 export {navigationParameters,destinationNavigationParameters,navigationDisplayKeys,reviewRouteViews,budgetRouteViews,readRouteFiscalYear,type NavigationRestore} from './queryContext';
+export { pageDisplayLabel } from './pageDisplayLabel';

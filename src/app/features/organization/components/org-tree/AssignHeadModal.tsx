@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../../shared/userFacingError';
 import * as React from "react";
 import { Modal, ModalButton } from "../../../../components/ui/Modal";
 import { useToast } from "../../../../components/ui/Toast";
@@ -67,12 +68,10 @@ export function AssignHeadModal({
       onClose();
     } catch (error) {
       setError(
-        error instanceof Error
-          ? error.message
-          : "Leadership could not be assigned.",
+        readableUiError(error, "Leadership could not be assigned.", 'write'),
       );
       toast(
-        error instanceof Error ? error.message : "Failed to assign leadership",
+        readableUiError(error, "We couldn't confirm the Office Head assignment. Check the current Office Head before trying again.", 'write'),
         "error",
       );
     } finally {

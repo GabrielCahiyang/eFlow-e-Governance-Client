@@ -1,6 +1,6 @@
 import { Archive, Building2, ChevronDown, ChevronRight, Folder, MoreHorizontal, Search, Star, Wrench } from 'lucide-react';
-import { type NavigationGroupId, type ShellNavigationItem } from '../../navigation';
-import { ActionMenu, WorkspacePopover } from '../../../components/ui/workspace';
+import { pageDisplayLabel, type NavigationGroupId, type ShellNavigationItem } from '../../navigation';
+import { ActionMenu } from '../../../components/ui/workspace';
 import { useNavigationFavorites } from '../../../shared/navigationPreferences';
 import { getEflowNavigationIcon } from '../eflowNavigationIcons';
 import { type WorkspaceSectionId, useWorkspacePanelPreference } from '../workspacePanelPreferences';
@@ -33,10 +33,10 @@ export function WorkspaceNavigationPanel({ items, activeSection, activePage, wor
   const { favorites, toggle } = useNavigationFavorites(userId, workspaceId, allowedProjects.map(project => project.id), !projectsLoading);
   const collapsed = preference.value.collapsed && !mobile;
   const availableSections = (Object.keys(sections) as WorkspaceSectionId[]).filter(id => id === 'office-tools'
-    ? items.some(item => item.group === 'workspaces' && item.id !== 'projects') : canOpenProjects);
+    ? items.some(item => item.group === 'workspaces' && item.id !== 'projects' && item.id !== 'tasks') : canOpenProjects);
   const destinations = (destinations: ShellNavigationItem[]) => destinations.map(item => {
     return <div key={item.id} data-tour-section={item.id}>
-      {item.pages.map(page => {const Icon=getEflowNavigationIcon(item.id,page.label);const label=workspaceKind !== 'personal' && item.id === 'tasks' && item.pages.length === 1 ? 'Office tasks' : item.pages.length === 1 ? item.label : page.label;return <button className="eflow-workspace-navigation__destination" type="button" key={page.label} aria-label={label} aria-current={activeSection === item.id && activePage === page.label ? 'page' : undefined} onClick={() => onPageSelect(item.id, page.label)}>
+      {item.pages.map(page => {const Icon=getEflowNavigationIcon(item.id,page.label);const label=item.pages.length === 1 ? item.label : pageDisplayLabel(item.id,page.label);return <button className="eflow-workspace-navigation__destination" type="button" key={page.label} aria-label={label} aria-current={activeSection === item.id && activePage === page.label ? 'page' : undefined} onClick={() => onPageSelect(item.id, page.label)}>
         <Icon size={17} aria-hidden="true" /><span>{label}</span>{'hasAlert' in item && item.hasAlert && <span className="eflow-navigation-alert" aria-label="Actions pending" />}
       </button>;})}
     </div>;
@@ -50,17 +50,20 @@ export function WorkspaceNavigationPanel({ items, activeSection, activePage, wor
       : groupOfficeTools(items).map(group => <div key={group.label}>{destinations(group.items)}</div>);
     if (projectsLoading) return <p role="status">Loading projects…</p>;
     const subset = allowedProjects.filter(project => id === 'favorites' ? favorites.has(project.id) : !favorites.has(project.id) && (project.status === 'archived') === (id === 'archived'));
-    return <>{id === 'projects' && workspaceKind !== 'personal' && <button type="button" className="eflow-workspace-navigation__destination" aria-current={activeSection === 'projects' && !selectedProjectId ? 'page' : undefined} onClick={() => onPageSelect('projects', 'Projects')}><Folder size={17}/><span>All projects</span></button>}{projectLinks(subset)}{!subset.length && <p>{id === 'favorites' ? 'Star a project for quick access.' : id === 'archived' ? 'No archived projects.' : 'No active projects.'}</p>}</>;
+    return <>{projectLinks(subset)}{!subset.length && <p>{id === 'favorites' ? 'Star a project for quick access.' : id === 'archived' ? 'No archived projects.' : 'No active projects.'}</p>}</>;
   };
   return <section className="eflow-workspace-navigation eflow-scroll-region" aria-label="Workspace content" data-context-rail="workspaces">
     <header className="eflow-workspace-navigation__header">
-      <ContextRailHeader title="Workspace" collapsed={collapsed} mobile={mobile} onCollapse={()=>preference.setCollapsed(!collapsed)} utilities={<ActionMenu trigger={<button type="button" aria-label="Workspace options"><MoreHorizontal size={18}/></button>} actions={[
+      <ContextRailHeader title="Workspace" collapsed={collapsed} mobile={mobile} onCollapse={()=>preference.setCollapsed(!collapsed)} utilities={<ActionMenu tooltip="Workspace options" trigger={<button type="button" aria-label="Workspace options"><MoreHorizontal size={18}/></button>} actions={[
         ...availableSections.map(id=>({id,label:`${preference.value.sections.includes(id)?'Hide':'Show'} ${scopedSections[id].label}`,onSelect:()=>preference.toggleSection(id)})),
       ]}/>}/>
       {!collapsed && <div className="eflow-workspace-navigation__selector-row">
-        {workspaceSelector || (workspaceId === 'unassigned' ? <strong>{workspaceName}</strong> : <WorkspacePopover tooltip="Select workspace" trigger={<button type="button" className="eflow-workspace-selector" aria-label={`${workspaceName} Workspace`}><Building2 size={17} /><strong>{workspaceName} Workspace</strong><ChevronDown size={15} /></button>}>
-          <p>Current workspace</p><p aria-current="true">{workspaceName} Workspace</p>
-        </WorkspacePopover>)}
+        {workspaceSelector || (workspaceId === 'unassigned' ? <strong>{workspaceName}</strong> : (
+          <div className="eflow-workspace-static" aria-label={`${workspaceName} Workspace`}>
+            <Building2 size={17} aria-hidden="true" />
+            <strong>{workspaceName} Workspace</strong>
+          </div>
+        ))}
       </div>}
       <div className="eflow-workspace-navigation__controls">
         {!collapsed && <><button type="button" className="eflow-workspace-navigation__destination" onClick={onSearch}><Search size={17} /><span>Find pages and projects</span></button>
@@ -71,9 +74,32 @@ export function WorkspaceNavigationPanel({ items, activeSection, activePage, wor
       {preference.value.sections.filter(id => availableSections.includes(id)).map(id => {
         const { label, Icon } = scopedSections[id]; const open = !preference.value.closed.includes(id);
         return <section key={id} aria-label={label} className="eflow-workspace-section" data-tour-section={id === 'projects' ? 'projects' : undefined}>
-          <button type="button" className="eflow-workspace-section__disclosure" aria-expanded={open} aria-controls={`workspace-section-${id}`} onClick={() => preference.toggleDisclosure(id)}>
-            {open ? <ChevronDown size={15} /> : <ChevronRight size={15} />}<Icon size={17} /><span>{label}</span>
-          </button>
+          {id === 'projects' && workspaceKind !== 'personal' ? (
+            <div className="eflow-workspace-section__split">
+              <button
+                type="button"
+                className="eflow-workspace-section__chevron"
+                aria-label={`${open ? 'Collapse' : 'Expand'} ${label}`}
+                aria-expanded={open}
+                aria-controls={`workspace-section-${id}`}
+                onClick={() => preference.toggleDisclosure(id)}
+              >
+                {open ? <ChevronDown size={15} aria-hidden="true" /> : <ChevronRight size={15} aria-hidden="true" />}
+              </button>
+              <button
+                type="button"
+                className="eflow-workspace-navigation__destination eflow-workspace-section__link"
+                aria-current={activeSection === 'projects' && !selectedProjectId ? 'page' : undefined}
+                onClick={() => onPageSelect('projects', 'Projects')}
+              >
+                <Icon size={17} aria-hidden="true" /><span>{label}</span>
+              </button>
+            </div>
+          ) : (
+            <button type="button" className="eflow-workspace-section__disclosure" aria-expanded={open} aria-controls={`workspace-section-${id}`} onClick={() => preference.toggleDisclosure(id)}>
+              {open ? <ChevronDown size={15} /> : <ChevronRight size={15} />}<Icon size={17} /><span>{label}</span>
+            </button>
+          )}
           <div id={`workspace-section-${id}`} hidden={!open}>{sectionBody(id)}</div>
         </section>;
       })}

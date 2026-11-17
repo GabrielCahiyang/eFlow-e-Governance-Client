@@ -125,7 +125,7 @@ function TaskInspectorContent({
   const canExecuteWork = Boolean(capabilities.canPostProgress || canStart || canResume || canSubmit);
   const completedSubtaskCount = taskSubtasks.filter(s => s.status === 'completed').length;
   const overviewTeamSlot = supportsNestedWork(task) ? (
-    <section aria-label="Task lead and contributors">
+    <section aria-label="Task Lead and contributors">
       <WorkRootOwner rootId={task.id} controller={controller} readOnly={readOnly || proposedOffice || lifecycle.busy} layout="inline" />
     </section>
   ) : undefined;

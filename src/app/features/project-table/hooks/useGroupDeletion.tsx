@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import { useRef, useState } from 'react';
 import { useConfirmation } from '../../../components/ui/useConfirmation';
 import { useNavigationBlocker } from '../../../shared/navigationGuard';
@@ -31,7 +32,7 @@ export function useGroupDeletion(group: ProjectGroup, refresh: () => Promise<voi
       setRefreshFailed(true);
       try { await refresh(); setRefreshFailed(false); }
       catch (caught) { setError('Group deleted, but could not refresh: ' + (caught instanceof Error ? caught.message : 'Please reload.')); }
-    } catch (caught) { setError(caught instanceof Error ? caught.message : 'Could not delete this group.'); }
+    } catch (caught) { setError(readableUiError(caught, "Could not delete this group.", 'write')); }
     finally { pending.current = false; setBusy(false); }
   };
   return { trigger, dialog, error, busy, refreshFailed, remove, retryRefresh };

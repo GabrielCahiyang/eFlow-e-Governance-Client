@@ -12,6 +12,7 @@ export {fetchOfficeWorkRoots,fetchWorkEvents,type WorkEvent} from './services/wo
 export {WorkActivity} from './components/WorkActivity';
 export {WorkStaffingDialog,type WorkStaffingDialogProps,type WorkStaffingController} from './components/WorkStaffingDialog';
 export {WorkPeopleSummary,type WorkPeopleSummaryProps} from './components/WorkPeopleSummary';
+export {OwnerAvatarStack} from './components/OwnerAvatarStack';
 export {WorkRootStaffingDialog} from './components/WorkRootStaffingDialog';
 export {useWorkTree} from './hooks/useWorkTree';
 export type {WorkTreeController,WorkHierarchyAction} from './types';
@@ -22,7 +23,7 @@ export {buildWorkDisplayTree,selectWorkDisplayTree,expandWorkDisplayFocus,select
 export type {WorkDisplayRow,WorkDisplayContext,WorkCollapseState} from './selectors/displayTree';
 
 export { selectFocusedWorkEvents, type WorkActivityFocus } from "./selectors/workActivityScope";
-export {deduplicateWorkPersonIds,resolveWorkPersonName,displayedWorkContributorIds,eligibleWorkPeople} from './selectors/people';
+export {deduplicateWorkPersonIds,resolveWorkPersonName,displayedWorkContributorIds,collectSubtaskTeamIds,eligibleWorkPeople} from './selectors/people';
 export {selectWorkPeopleDisplay,buildWorkNodeDisplayMetadata,buildSubtaskDisplayMetadata,mergeWorkDisplayMetadata} from './selectors/workDisplayContext';
 export type {WorkDisplayScope,WorkDisplayNode,SubtaskDisplayRecord} from './selectors/workDisplayContext';
 export type {WorkPeopleDisplay,WorkNodeDisplayMetadata} from './types';

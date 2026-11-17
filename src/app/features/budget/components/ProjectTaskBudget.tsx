@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import {TaskFundingCell,useProjectFlow} from '../../project-setup';
 import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Trash2, Wallet, WalletCards } from 'lucide-react';
@@ -279,7 +280,7 @@ function SubtaskBudgetModalContent({
       onCapRead(amount);
       await refreshAll();
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : 'Subtask allocation could not be saved.');
+      setError(readableUiError(caught, "Subtask allocation could not be saved.", 'write'));
     } finally {
       inFlight.current = false;
       setSaving(false);

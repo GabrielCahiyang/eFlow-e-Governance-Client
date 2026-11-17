@@ -1,7 +1,8 @@
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { getPhilippineCalendarDate, historicalDateError } from '../../../shared/calendarDates';
 import { MoneyInput } from '../../../components/ui/MoneyInput';
 import * as m from "motion/react-m";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AttentionBox, Button } from "@vibe/core";
 import { CalendarDays, CircleAlert, Plus, X } from "lucide-react";
 import {
@@ -27,6 +28,7 @@ import {
   financialOutcome,
   recordFinancialOutcome,
   financialFailureIsUncertain,
+  financialWriteFeedback,
   financialErrorMessage,
 } from "../financialReceipts";
 import { useAuth } from "../../../contexts/AuthContext";
@@ -80,6 +82,10 @@ export function JournalAdjustmentDialog({
   ]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const outcomeNotice = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (error) outcomeNotice.current?.scrollIntoView?.({ block: 'nearest' });
+  }, [error]);
   const draft = useExplicitDraft(
     "Journal adjustment",
     !verified &&
@@ -105,6 +111,7 @@ export function JournalAdjustmentDialog({
     if (pending.current) return;
     pending.current = true;
     setBusy(true);
+    setError("");
     try {
       const entries = await fetchGeneralJournal(orgId, fiscalYear);
       const proof = journalAttempt(key);
@@ -126,10 +133,10 @@ export function JournalAdjustmentDialog({
         );
       } else
         setError(
-          "No matching posting could be confirmed. Keep this draft and review financial history before another adjustment; a lost response is not proof of failure.",
+          "We couldn’t find one matching entry in the journal. Keep this draft and check financial history with Accounting before posting again.",
         );
     } catch (caught) {
-      setError(financialErrorMessage(caught));
+      setError(financialErrorMessage(caught, "We couldn’t check the journal. Reload it to verify the posting before continuing.", 'read'));
     } finally {
       pending.current = false;
       setBusy(false);
@@ -225,14 +232,10 @@ export function JournalAdjustmentDialog({
         financialFailureIsUncertain(caught)
       )
         recordFinancialOutcome(key, "uncertain");
-      setError(
-        financialErrorMessage(caught) +
-          (financialOutcome(key) === "saved"
-            ? " Posting saved; refresh failed. Do not repeat it."
-            : financialOutcome(key) === "uncertain"
-              ? " Outcome uncertain. Verify the journal before another posting."
-              : " Your entries are retained."),
-      );
+      setError(financialWriteFeedback(caught, {
+        outcome: financialOutcome(key), submitted, action: 'Your journal entry',
+        record: 'the journal', draft: 'Your entries are still in the form.',
+      }));
     } finally {
       pending.current = false;
       draft.pendingRef.current = false;
@@ -260,14 +263,19 @@ export function JournalAdjustmentDialog({
         <DialogHeader>
           <DialogTitle>Post correcting journal entry</DialogTitle>
           <DialogDescription>
-            Posted entries are permanent. Reverse an error with a new balanced
-            entry instead of editing history.
+            A journal entry records which accounts are debited and credited.
+            To correct a posted entry, post a new balanced entry.
           </DialogDescription>
         </DialogHeader>
         {verified && (
           <p role="status" className="rounded-lg bg-emerald-50 p-3 text-sm">
             {verified}
           </p>
+        )}
+        {error && financialOutcome(key) && (
+          <div ref={outcomeNotice}>
+            <AttentionBox type="warning" text={error} />
+          </div>
         )}
         {financialOutcome(key) === "uncertain" && (
           <Button
@@ -292,7 +300,7 @@ export function JournalAdjustmentDialog({
               size={16}
             />
             <div className="min-w-0 text-[11px] leading-relaxed">
-              <div className="font-semibold">Append-only accounting record</div>
+              <div className="font-semibold">Check your entry before posting</div>
               <p>
                 Confirm the reference, accounts, and amount. This entry cannot
                 be edited or deleted after posting.
@@ -372,7 +380,7 @@ export function JournalAdjustmentDialog({
                     className="mt-1 h-9 w-full min-w-0 rounded-lg border border-neutral-200 px-2 text-[10px]"
                   />
                 </label>
-                <button
+                <WorkspaceTooltip content={`Remove line ${index + 1}`}><button
                   aria-label={`Remove line ${index + 1}`}
                   type="button"
                   disabled={lines.length <= 2}
@@ -384,7 +392,7 @@ export function JournalAdjustmentDialog({
                   className="col-span-2 h-9 w-9 justify-self-end rounded-lg text-neutral-500 hover:bg-rose-50 hover:text-rose-600 disabled:opacity-30 md:col-span-1 md:self-end"
                 >
                   <X size={14} />
-                </button>
+                </button></WorkspaceTooltip>
               </m.div>
             ))}
           </div>
@@ -407,7 +415,7 @@ export function JournalAdjustmentDialog({
               {peso.format(totals.debit - totals.credit)}
             </div>
           </div>
-          {error && <AttentionBox type="negative" text={error} />}
+          {error && !financialOutcome(key) && <AttentionBox type="negative" text={error} />}
         </fieldset>
         <DialogFooter>
           <Button kind="secondary" size="small" disabled={busy} onClick={close}>

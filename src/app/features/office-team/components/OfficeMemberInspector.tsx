@@ -1,3 +1,4 @@
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { useId, useState } from 'react';
 import { X } from 'lucide-react';
 import { InspectorPanel } from '../../../shared/motion/InspectorPanel';
@@ -39,13 +40,13 @@ export function OfficeMemberInspector({
           <h2>{member?.full_name || 'Member unavailable'}</h2>
           <p id={descriptionId}>{office} · Account membership</p>
         </div>
-        <button
+        <WorkspaceTooltip content="Close member inspector"><button
           className="eflow-icon-button"
           aria-label="Close member inspector"
           onClick={() => void requestNavigation(onClose)}
         >
           <X size={18} />
-        </button>
+        </button></WorkspaceTooltip>
       </header>
       <div className="eflow-people-inspector-body">
         {member ? (

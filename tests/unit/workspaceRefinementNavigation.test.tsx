@@ -27,8 +27,9 @@ describe('R2 persistent workspace navigation', () => {
     view.rerender(sidebar('budget'));
     expect(screen.getByRole('button',{name:'Office Budget',exact:true}).getAttribute('aria-current')).toBe('page');
     expect(office.getAttribute('aria-expanded')).toBe('true');
-    for (const label of ['Home','Search','Planning','Drafts','Waiting for approval','Team Members']) expect(screen.queryByRole('button',{name:label,exact:true})).toBeNull();
-    expect(screen.getByRole('button',{name:'LEDIPO Workspace'})).toBeTruthy();
+    for (const label of ['Home','Search','Planning','Drafts','Waiting for approval','Team Members','Office tasks']) expect(screen.queryByRole('button',{name:label,exact:true})).toBeNull();
+    expect(screen.getByText('LEDIPO Workspace')).toBeTruthy();
+    expect(screen.queryByRole('button',{name:'LEDIPO Workspace'})).toBeNull();
     expect(screen.getByRole('button',{name:'Find pages and projects'})).toBeTruthy();
   });
   it('collapses/restores without unmounting the global rail and persists the choice', async () => {
@@ -72,7 +73,7 @@ describe('R2 scoped preferences and compatibility', () => {
     expect(view.result.current.value.closed).toEqual(['projects']);
     act(()=>view.result.current.setCollapsed(true));
     view.rerender({user:'other',office:'office'}); expect(view.result.current.value.collapsed).toBe(false);
-    view.rerender({user:'user',office:'elsewhere'}); expect(view.result.current.value.closed).toEqual([]);
+    view.rerender({user:'user',office:'elsewhere'}); expect(view.result.current.value.closed).toEqual(['archived']);
     view.rerender({user:'user',office:'office'}); expect(view.result.current.value.collapsed).toBe(true);
   });
   it('validates version, section identifiers and malformed storage rather than reintroducing retired sections', () => {

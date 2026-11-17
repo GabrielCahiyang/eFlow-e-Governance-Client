@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import {useEffect,useRef,useState} from 'react';
 import {Modal} from '../../../components/ui/Modal';
 import {useNavigationBlocker,requestNavigation} from '../../../shared/navigationGuard';
@@ -10,7 +11,7 @@ export function ProjectTaskEditDialog({task,save,onClose}:{task:Task;save:(patch
  const flow=useProjectFlow(task.linkedProjectId||'');
  const [title,setTitle]=useState(task.title),[priority,setPriority]=useState(task.priority),[dates,setDates]=useState(()=>timelineDraft(task)),[hours,setHours]=useState(task.estimatedHours||0),[busy,setBusy]=useState(false),[error,setError]=useState(''),[policy,setPolicy]=useState<TaskDetailEditState|null>(null),[policyError,setPolicyError]=useState(''),[policyLoading,setPolicyLoading]=useState(true),[changeReason,setChangeReason]=useState('');
  const pending=useRef(false);
- useEffect(()=>{let active=true;setPolicy(null);setPolicyError('');setPolicyLoading(true);void fetchTaskDetailEditState(task.id).then(value=>{if(active)setPolicy(value);}).catch(reason=>{if(active)setPolicyError(reason instanceof Error?reason.message:'Task editing access could not be verified.');}).finally(()=>{if(active)setPolicyLoading(false);});return()=>{active=false;};},[task.id]);
+ useEffect(()=>{let active=true;setPolicy(null);setPolicyError('');setPolicyLoading(true);void fetchTaskDetailEditState(task.id).then(value=>{if(active)setPolicy(value);}).catch(reason=>{if(active)setPolicyError(readableUiError(reason, "Task editing access could not be verified.", 'write'));}).finally(()=>{if(active)setPolicyLoading(false);});return()=>{active=false;};},[task.id]);
  const verified=!policyLoading&&!policyError&&!!policy,detailsWritable=verified&&!!policy?.details,planningWritable=detailsWritable&&!!policy?.planning,dueWritable=detailsWritable&&!!policy?.due;
  const dirty=title!==task.title||priority!==task.priority||hours!==(task.estimatedHours||0)||JSON.stringify(dates)!==JSON.stringify(timelineDraft(task));
  useNavigationBlocker({label:'Edit task',dirty,pending:busy,onDiscard:onClose});
@@ -20,7 +21,7 @@ export function ProjectTaskEditDialog({task,save,onClose}:{task:Task;save:(patch
   if(policy?.started){const patch:WorkspaceTaskPatch={};if(title.trim()!==task.title)patch.title=title.trim();if(priority!==task.priority)patch.priority=priority;if(dates.end!==(task.deadline||task.dueDate||'')){if(!dueWritable)throw new Error('Only the supervising Lead or authorized Office Head can reschedule this task.');if(changeReason.trim().length<1||changeReason.trim().length>1000)throw new Error('Enter a due-date change reason (1–1,000 characters).');patch.deadline=dates.end;patch.change_reason=changeReason.trim();}if(Object.keys(patch).length)await save(patch);}
   else await save({title:title.trim(),priority,estimated_hours:hours,...timelinePatch(task,dates)});
   onClose();
- }catch(reason){setError(reason instanceof Error?reason.message:'Could not edit task.');}finally{pending.current=false;setBusy(false);}}
+ }catch(reason){setError(readableUiError(reason, "Could not edit task.", 'write'));}finally{pending.current=false;setBusy(false);}}
  return <Modal isOpen title="Edit task" description="Update task details within the project’s dates and funding rules." width="max-w-2xl" onClose={close} preventClose={busy} footer={<div className="pf-actions"><button disabled={busy} onClick={close}>Cancel</button><button className="pf-primary" disabled={busy||!dirty||!verified||!detailsWritable} onClick={()=>void submit()}>{busy?'Saving…':'Save task'}</button></div>}>
   {policyLoading&&<p role="status" className="pf-panel">Checking current task editing access…</p>}
   {policyError&&<p role="alert" className="pf-error">{policyError} Editing is unavailable until access can be verified.</p>}

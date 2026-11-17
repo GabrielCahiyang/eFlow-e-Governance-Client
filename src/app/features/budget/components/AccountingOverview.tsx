@@ -24,7 +24,6 @@ export function AccountingOverview({ budget, journalCount, onSettlements,onRelea
     { label: 'Actual spending', value: budget.summary ? peso.format(budget.summary.spentAmount) : 'Not configured', note: budget.summary ? `of ${peso.format(budget.summary.approvedAmount)} authorized` : 'Annual budget required', icon: Landmark },
   ];
   return <div className="eflow-accounting-overview">
-    <AccountingAnalytics budget={budget} onReleases={onReleases} onSettlements={onSettlements} onBudgets={onBudgets}/>
     <section className="eflow-accounting-summary" aria-label="Accounting summary">
       {cards.map(({ label, value, note, icon: Icon }) => <article key={label}>
         <h2><Icon size={16} aria-hidden="true" />{label}</h2>
@@ -33,11 +32,12 @@ export function AccountingOverview({ budget, journalCount, onSettlements,onRelea
       </article>)}
     </section>
     <section className="eflow-accounting-settlement-handoff" aria-label="Settlement records">
-      <div><h2>Settlement records</h2><p>{unavailable ? 'The settlement count is unavailable.' : `${settlements} pending receipt package${settlements === 1 ? '' : 's'}.`} Open Settlements to inspect evidence and record an independent decision.</p></div>
+      <div><h2>Settlement records</h2><p>{unavailable ? 'The settlement count is unavailable.' : `${settlements} pending receipt package${settlements === 1 ? '' : 's'} ready for review.`}</p></div>
       {onSettlements && <Button variant="outline" onClick={onSettlements}>View settlements</Button>}
     </section>
+    <AccountingAnalytics budget={budget} onReleases={onReleases} onSettlements={onSettlements} onBudgets={onBudgets}/>
     <details className="eflow-accounting-help"><summary>Accounting authority and posting</summary>
-      <p>Accounting Staff can record releases, verify settlement evidence, post balanced corrections, and read Office ledgers. Funding approval remains with the eligible Head; contextual Lead endorsement and late-package Head authorization remain separate stages. Office boundaries and independent-person rules apply at each operation.</p>
+      <p>Accounting Staff can record releases, review settlement evidence, post balanced corrections and read Office ledgers. The eligible Office Head approves funding. The assigned Lead endorses requests and receipts, and late receipt submissions may need Head authorization. These are separate steps. Each action must follow Office access and independent-review rules.</p>
       <p>Cash and cheque releases debit member advances and credit cash. Approved liquidations debit expense and returned cash, then clear the advance in one balanced journal entry. Posted financial history remains immutable.</p>
     </details>
   </div>;

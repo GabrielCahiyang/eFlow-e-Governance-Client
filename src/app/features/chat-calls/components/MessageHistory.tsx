@@ -1,3 +1,4 @@
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { useState, type RefObject } from 'react';
 import { CornerUpLeft, Ellipsis, Pin, Smile } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '../../../components/ui/popover';
@@ -63,15 +64,15 @@ export function MessageHistory({ messages, userId, group, historyRef, readOnly, 
             if (open) setMenu({ message: message.id, kind: 'reactions' });
             else setMenu(current => current?.message === message.id && current.kind === 'reactions' ? undefined : current);
           }}>
-            <PopoverTrigger asChild><button type="button" className="messages-icon-button" aria-label="React to message"><Smile size={16} /></button></PopoverTrigger>
+            <WorkspaceTooltip content="React to message"><PopoverTrigger asChild><button type="button" className="messages-icon-button" aria-label="React to message"><Smile size={16} /></button></PopoverTrigger></WorkspaceTooltip>
             <PopoverContent className="messages-reaction-picker" aria-label="Choose an emoji reaction" side="top"
               sideOffset={7} collisionBoundary={historyRef.current ?? undefined} collisionPadding={8} hideWhenDetached>
               {emojis.map(emoji => <button type="button" key={emoji} aria-label={'React with ' + emoji}
                 onClick={() => { setMenu(undefined); onReact(message, emoji); }}>{emoji}</button>)}
             </PopoverContent>
           </Popover>
-          <button type="button" className="messages-icon-button" aria-label="Reply to message" onClick={() => { setMenu(undefined); onReply(message); }}><CornerUpLeft size={16} /></button>
-          <button type="button" className="messages-icon-button" aria-label="More message actions" aria-expanded={actionsOpen} onClick={() => setMenu(actionsOpen ? undefined : { message: message.id, kind: 'actions' })}><Ellipsis size={18} /></button>
+          <WorkspaceTooltip content="Reply to message"><button type="button" className="messages-icon-button" aria-label="Reply to message" onClick={() => { setMenu(undefined); onReply(message); }}><CornerUpLeft size={16} /></button></WorkspaceTooltip>
+          <WorkspaceTooltip content="More message actions" disabled={actionsOpen}><button type="button" className="messages-icon-button" aria-label="More message actions" aria-expanded={actionsOpen} onClick={() => setMenu(actionsOpen ? undefined : { message: message.id, kind: 'actions' })}><Ellipsis size={18} /></button></WorkspaceTooltip>
           {actionsOpen && <div className="messages-action-menu">
             <button type="button" onClick={() => { setMenu(undefined); onPin(message); }}>{message.pinned ? 'Unpin' : 'Pin message'}</button>
             {mine && <button type="button" onClick={() => { setMenu(undefined); onDelete(message); }}>Remove</button>}

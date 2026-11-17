@@ -430,6 +430,7 @@ export interface DepartmentBudgetBundle {
   releases: PettyCashRelease[];
   liquidations: PettyCashLiquidation[];
   ledger: BudgetLedgerEntry[];
+  ledgerCount?: number;
   adjustments: DepartmentBudgetAdjustment[];
   schemaWarnings?: string[];
 }

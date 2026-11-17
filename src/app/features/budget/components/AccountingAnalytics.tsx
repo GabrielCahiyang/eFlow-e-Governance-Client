@@ -1,3 +1,4 @@
+import { ArrowUpRight } from "lucide-react";
 import { AnalyticsBars, AnalyticsDonut } from "../../analytics";
 import { OfficeCashOverview } from "../../office-petty-cash";
 import type { DepartmentBudgetBundle } from "../types";
@@ -59,7 +60,10 @@ export function AccountingAnalytics({
             disabled={!!budget.error || !card.click}
             onClick={card.click}
           >
-            <span>{card.label}</span>
+            <div className="ea-metric-head">
+              <span>{card.label}</span>
+              {!budget.error && card.click && <ArrowUpRight size={14} aria-hidden="true" />}
+            </div>
             <strong>{budget.error ? "—" : card.value}</strong>
           </button>
         ))}
@@ -107,12 +111,8 @@ export function AccountingAnalytics({
               </p>
             ))}
             {!confirmations && (
-              <p className="ea-empty">No budget releases await confirmation.</p>
+              <p className="ea-empty">No scheduled releases awaiting confirmation.</p>
             )}
-            <p className="ea-help">
-              A budget confirmation makes funds available. Physical cash release
-              remains a separate action.
-            </p>
           </section>
         </div>
       )}

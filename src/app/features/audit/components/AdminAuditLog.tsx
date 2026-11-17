@@ -55,7 +55,7 @@ function AdministrativeAuditView() {
     },
     {
       key: "actor",
-      header: "Actor",
+      header: "Changed by",
       sortable: true,
       sortValue: (event) => event.actorName,
       render: (event) => event.actorName,
@@ -112,8 +112,7 @@ function AdministrativeAuditView() {
         {total === undefined
           ? "Authorized count is unavailable."
           : `${events.length} loaded of ${total} permitted records${total > events.length ? "; older records are outside this window." : "; this read covers the permitted set."}`}{" "}
-        Admin access covers administrative records only. Project Activity has
-        its own R11 history contract.
+        This log contains administrative actions. Open a project's Activity view to see its work history.
       </FeedbackState>
       {error && (
         <FeedbackState tone="error" title="Audit unavailable">
@@ -127,7 +126,7 @@ function AdministrativeAuditView() {
           placeholder="Search person, action or record…"
         />
         <WSelect
-          ariaLabel="Audit resource type"
+          ariaLabel="Type of record"
           value={filters.entityType}
           onChange={(value) => set("entityType", value)}
           options={[
@@ -151,7 +150,7 @@ function AdministrativeAuditView() {
           ]}
         />
         <WSelect
-          ariaLabel="Audit actor"
+          ariaLabel="Changed by"
           value={filters.actor}
           onChange={(value) => set("actor", value)}
           options={[

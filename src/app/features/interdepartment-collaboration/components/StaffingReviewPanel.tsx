@@ -1,3 +1,5 @@
+import { readableUiError } from '../../../shared/userFacingError';
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { useReviewedMutation } from "../../../shared/useReviewedMutation";
 import { useExplicitDraft } from "../../../shared/useExplicitDraft";
 import { FeedbackState } from "../../../components/ui/FeedbackState";
@@ -247,9 +249,7 @@ export function StaffingReviewPanel({
       }));
     } catch (error) {
       setSaveError(
-        error instanceof Error
-          ? error.message
-          : "Team suggestions could not be loaded.",
+        readableUiError(error, "Team suggestions could not be loaded.", 'read'),
       );
     } finally {
       draft.pendingRef.current = false;
@@ -406,7 +406,7 @@ export function StaffingReviewPanel({
                                 </button>
                               </Tooltip>
 
-                              <button
+                              <WorkspaceTooltip content={`Remove ${profile.full_name}`}><button
                                 type="button"
                                 disabled={
                                   saving || recommending || safety.pending
@@ -416,7 +416,7 @@ export function StaffingReviewPanel({
                                 aria-label={`Remove ${profile.full_name}`}
                               >
                                 <X size={14} />
-                              </button>
+                              </button></WorkspaceTooltip>
                             </div>
                           )}
                         </div>

@@ -34,47 +34,52 @@
 .ea-tabs {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 4px;
   overflow-x: auto;
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 8px;
+  border-bottom: 1px solid var(--eflow-border, var(--border));
+  padding-bottom: 0;
 }
 .ea-tabs button {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 7px 12px;
-  border-radius: 6px;
+  gap: 7px;
+  padding: 10px 14px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 6px 6px 0 0;
   white-space: nowrap;
   font-size: 13px;
   font-weight: 500;
-  border: 1px solid transparent;
   background: transparent;
-  color: var(--muted-foreground);
+  color: var(--eflow-text-secondary, var(--muted-foreground));
   cursor: pointer;
-  transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+  transition: color 120ms ease, background 120ms ease, border-color 120ms ease;
 }
 .ea-tabs button:hover:not([aria-pressed="true"]) {
-  background: var(--muted);
-  border-color: var(--border);
-  color: var(--foreground);
+  background: var(--eflow-subtle, var(--muted));
+  color: var(--eflow-primary, var(--primary));
 }
 .ea-tabs button[aria-pressed="true"] {
-  background: var(--accent);
-  color: var(--primary);
-  border-color: var(--primary);
+  background: transparent;
+  color: var(--eflow-primary, var(--primary));
+  border-bottom-color: var(--eflow-primary, var(--primary));
   font-weight: 600;
+}
+.ea-tabs--compact button {
+  padding: 8px 12px;
+  font-size: 12.5px;
 }
 .ea-panel {
   min-width: 0;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 16px;
-  background: var(--card);
+  border: 1px solid var(--eflow-border, var(--border));
+  border-radius: 12px;
+  padding: 18px 20px;
+  background: var(--eflow-surface, var(--card));
 }
 .ea-panel h2 {
   font-size: 14px;
   font-weight: 600;
+  color: var(--eflow-text, var(--foreground));
   margin: 0 0 12px;
 }
 .ea-grid {
@@ -84,25 +89,37 @@
 }
 .ea-metrics {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 10px;
 }
 .ea-metrics > button,
 .ea-metrics > div {
   min-width: 0;
-  padding: 12px 14px;
+  padding: 14px 16px;
   text-align: left;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--card);
+  border: 1px solid var(--eflow-border, var(--border));
+  border-radius: 12px;
+  background: var(--eflow-surface, var(--card));
   transition: background 120ms ease, border-color 120ms ease;
 }
 .ea-metrics > button:not(:disabled) {
   cursor: pointer;
 }
 .ea-metrics > button:not(:disabled):hover {
-  background: var(--muted);
-  border-color: var(--primary);
+  background: var(--eflow-subtle, var(--muted));
+  border-color: var(--eflow-primary, var(--primary));
+}
+.ea-metric-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+}
+.ea-metric-head svg {
+  flex-shrink: 0;
 }
 .ea-metrics span {
   display: block;
@@ -234,14 +251,14 @@
   transition: width 0.25s ease;
 }
 .ea-filters {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   align-items: end;
-  gap: 10px;
-  flex-wrap: wrap;
-  padding: 12px 14px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  gap: 10px 12px;
+  padding: 14px 16px;
+  background: var(--eflow-surface, var(--card));
+  border: 1px solid var(--eflow-border, var(--border));
+  border-radius: 12px;
 }
 .ea-filters label {
   display: flex;
@@ -249,28 +266,27 @@
   gap: 5px;
   font-size: 12px;
   font-weight: 500;
-  color: var(--muted-foreground);
-  min-width: 130px;
-  flex: 1;
+  color: var(--eflow-text-muted, var(--muted-foreground));
+  min-width: 0;
 }
 .ea-filters input,
 .ea-filters select,
 .ea-select {
   min-height: 36px;
   padding: 6px 10px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: var(--background);
-  color: var(--foreground);
+  border: 1px solid var(--eflow-border, var(--border));
+  border-radius: 8px;
+  background: var(--eflow-surface, var(--background));
+  color: var(--eflow-text, var(--foreground));
   font-size: 13px;
   max-width: 100%;
 }
 .ea-filters .ea-checkbox {
   flex-direction: row;
   align-items: center;
+  gap: 7px;
   min-height: 36px;
-  color: var(--foreground);
-  flex: 0 0 auto;
+  color: var(--eflow-text, var(--foreground));
 }
 .ea-filters input[type="checkbox"] {
   min-height: 0;
@@ -282,10 +298,10 @@
   gap: 6px;
   min-height: 36px;
   padding: 7px 12px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: var(--card);
-  color: var(--foreground);
+  border: 1px solid var(--eflow-border, var(--border));
+  border-radius: 8px;
+  background: var(--eflow-surface, var(--card));
+  color: var(--eflow-text, var(--foreground));
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;

@@ -1,3 +1,4 @@
+import { readableUiError } from "../../../shared/userFacingError";
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { resendInvitation, revokeInvitation, type Invitation } from '../../invitations';
@@ -100,7 +101,7 @@ export function ProjectOfficeDirectory({ projectId, leadOffice, canManage, organ
         if (delivery.invitation_url) setFreshLink(delivery.invitation_url);
         if (delivery.delivery_error) setNotice('Invitation saved; email delivery failed. ' + delivery.delivery_error);
       }
-      try { await context.refresh(); await refresh(); } catch { setError('Saved, but could not refresh. Retry loading; do not repeat the mutation.'); }
+      try { await context.refresh(); await refresh(); } catch { setError("Your change was saved, but the list couldn't reload. Reload the list; don't save the change again."); }
     } catch (reason) { setError(projectOfficeError(reason, 'Could not save this change.')); }
     finally { setBusy(false); inFlight.current = false; }
   };
@@ -108,7 +109,7 @@ export function ProjectOfficeDirectory({ projectId, leadOffice, canManage, organ
   const rows = filterOfficeTableRows(allRows, filters);
   return <div className="po-directory">
     <OfficeReadFeedback errors={[context.identityError, readError,peopleError]} onRetry={async () => { await Promise.all([context.refresh(), refresh()]); }} busy={busy || tableProps.removalBusy}/>
-    {error && <p role="alert" className="po-error">{error}</p>}
+    {error && <p role="alert" className="po-error">{readableUiError(error, "We couldn't confirm the Office change. Reload the Office list before trying again.", "write")}</p>}
     {notice && <p role="status" className="po-help">{notice}</p>}
     {freshLink && <label className="po-link">Fresh private invitation link<input readOnly value={freshLink} onFocus={event => event.target.select()}/><small>This replaces the previous link. Keep it private.</small></label>}
     {context.loading ? <ProjectOfficeTableSkeleton /> : rows.length ? <ProjectOfficeTable {...tableProps} rows={rows} removalBusy={tableProps.removalBusy || busy} identityActions={row => {

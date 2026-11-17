@@ -64,10 +64,10 @@ export function TeamMemberOperationsPanel({
         <div className="flex items-start gap-3">
           <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary text-[12px] font-semibold text-primary-foreground">{employee.initials || "??"}</div>
           <div className="min-w-0 flex-1"><h2 className="truncate text-[14px] font-semibold text-neutral-900">{employee.name}</h2><p className="truncate text-[12px] text-neutral-500">{employee.jobTitle} · {employee.departmentName || "Office team"}</p></div>
-          <span className={`rounded-full px-2 py-1 text-[12px] font-medium ${metric.workloadSignal >= TEAM_WORKLOAD_HIGH_THRESHOLD ? "bg-red-50 text-red-700" : metric.workloadSignal >= TEAM_WORKLOAD_ELEVATED_THRESHOLD ? "bg-amber-50 text-amber-700" : "bg-emerald-50 text-emerald-700"}`}>{metric.workload?.label || String(metric.workloadSignal)} workload</span>
+          <span className={`rounded-[6px] border px-2 py-1 text-[12px] font-medium ${metric.workloadSignal >= TEAM_WORKLOAD_HIGH_THRESHOLD ? "border-[var(--eflow-negative-text)]/25 bg-[var(--eflow-negative-bg)] text-[var(--eflow-negative-text)]" : metric.workloadSignal >= TEAM_WORKLOAD_ELEVATED_THRESHOLD ? "border-[var(--eflow-warning-text)]/25 bg-[var(--eflow-warning-bg)] text-[var(--eflow-warning-text)]" : "border-[var(--eflow-positive-text)]/25 bg-[var(--eflow-positive-bg)] text-[var(--eflow-positive-text)]"}`}>{metric.workload?.label || String(metric.workloadSignal)} workload</span>
         </div>
         <div className="mt-4 grid grid-cols-3 gap-2">
-          {[ ["Leading", metric.leadingTasks], ["Subtasks", metric.activeSubtasks], ["Reviews", metric.awaitingReview] ].map(([label, value]) => <div key={label as string} className="rounded-lg bg-neutral-50 p-2 text-center"><div className="text-[15px] font-semibold text-neutral-900">{value as number}</div><div className="text-[12px] uppercase tracking-wide text-neutral-500">{label as string}</div></div>)}
+          {[ ["Leading", metric.leadingTasks], ["Subtasks", metric.activeSubtasks], ["Reviews", metric.awaitingReview] ].map(([label, value]) => <div key={label as string} className="rounded-lg bg-neutral-50 p-2 text-center"><div className="text-[15px] font-semibold text-neutral-900">{value as number}</div><div className="text-[12px] text-neutral-500">{label as string}</div></div>)}
         </div>
         <div className="mt-3 flex flex-wrap gap-1.5">
           {metric.overdue > 0 && <Signal icon={<AlertTriangle size={11} />} label={`${metric.overdue} overdue`} tone="red" />}

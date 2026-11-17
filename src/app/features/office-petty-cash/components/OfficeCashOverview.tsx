@@ -3,6 +3,7 @@ import { useAuth } from "../../../contexts/AuthContext";
 import { loadOfficeCash } from "../services/officeCash";
 import type { OfficeCashSnapshot } from "../types";
 import { OfficePettyCashLauncher } from "./OfficePettyCash";
+import { readableUiError } from "../../../shared/userFacingError";
 const money = (amount: number) =>
   new Intl.NumberFormat("en-PH", { style: "currency", currency: "PHP" }).format(
     amount,
@@ -42,7 +43,7 @@ function OfficeCashSummary({ office }: { office: string }) {
           .catch((e) => {
             if (active) {
               setState(undefined);
-              setError(e.message);
+              setError(readableUiError(e, "We couldn’t load the petty cash balance.", 'read'));
             }
           });
     };

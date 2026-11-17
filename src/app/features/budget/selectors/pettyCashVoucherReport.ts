@@ -1,4 +1,5 @@
 import type { DepartmentBudgetBundle } from "../types";
+import { formatPeso } from "../../../shared/currency";
 export const PCV_HEADINGS=['PCV / version / status','Store','Receipt no.','Date','Quantity','Particulars','Amount','Total','Purpose','Expense account'];
 export function buildPettyCashVoucherRows(data:DepartmentBudgetBundle,verifiedOnly=true) {
   const rows:Array<Array<string|number>>=[];
@@ -11,11 +12,11 @@ export function buildPettyCashVoucherRows(data:DepartmentBudgetBundle,verifiedOn
     const ref=`${reference} · ${request.pcvDate||'PCV date not recorded'} · ${request.status}${liquidation?' · version '+liquidation.version:''}${dates.length?' · '+dates[0]+' to '+dates[dates.length-1]:''}`;
     rows.push([ref,'','','','','','','',request.purpose,'']);
     for(const receipt of liquidation?.receipts||[]) {
-      for(const [i,item] of (receipt.items||[]).entries()) rows.push(['',i?'':receipt.vendor,i?'':receipt.receiptNumber||'',i?'':receipt.receiptDate,`${item.quantity} ${item.unit}`,item.particular,item.amount,'',item.purpose,`${item.accountName||''}${item.accountLabel?' ('+item.accountLabel+')':''}`]);
-      if(!receipt.items?.length)rows.push(['',receipt.vendor,receipt.receiptNumber||'',receipt.receiptDate,'—',receipt.description,receipt.amount,'',request.purpose,'Legacy receipt · account not itemized']);
-      rows.push(['','','','','','Receipt subtotal','',receipt.amount,'','']);
+      for(const [i,item] of (receipt.items||[]).entries()) rows.push(['',i?'':receipt.vendor,i?'':receipt.receiptNumber||'',i?'':receipt.receiptDate,`${item.quantity} ${item.unit}`,item.particular,formatPeso(item.amount),'',item.purpose,`${item.accountName||''}${item.accountLabel?' ('+item.accountLabel+')':''}`]);
+      if(!receipt.items?.length)rows.push(['',receipt.vendor,receipt.receiptNumber||'',receipt.receiptDate,'—',receipt.description,formatPeso(receipt.amount),'',request.purpose,'Legacy receipt · account not itemized']);
+      rows.push(['','','','','','Receipt subtotal','',formatPeso(receipt.amount),'','']);
     }
-    rows.push([`TOTAL ${reference}`,'','','','','','',liquidation?.declaredSpent||0,`Returned cash: ${liquidation?.returnedAmount||0}`,'']);
+    rows.push([`TOTAL ${reference}`,'','','','','','',formatPeso(liquidation?.declaredSpent||0),`Returned cash: ${formatPeso(liquidation?.returnedAmount||0)}`,'']);
   }
   return rows;
 }

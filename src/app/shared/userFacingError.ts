@@ -71,3 +71,29 @@ export function userFacingError(reason: unknown, fallback: string): string {
   const message = messageOf(reason).trim();
   return message || fallback;
 }
+
+/** UI copy only. Keep the original exception/code for workflow decisions and
+ * logging; do not use this text to determine whether a write succeeded. */
+export function readableUiError(reason: unknown, fallback: string, operation: 'read' | 'write' = 'write'): string {
+  if (isSessionError(reason)) return 'Refresh the page to check your sign-in, then continue.';
+  if (isProfileVerificationError(reason)) return "We couldn't check your eFlow account. Refresh the page. If this continues, contact your administrator.";
+  const message = messageOf(reason).trim();
+  const code = reason && typeof reason === 'object' && 'code' in reason ? String((reason as { code?: unknown }).code || '') : '';
+  const status = reason && typeof reason === 'object' && 'status' in reason ? Number((reason as { status?: unknown }).status) : undefined;
+  const network = /failed to fetch|networkerror|network request failed|load failed|err_internet_disconnected|err_name_not_resolved|gateway timeout|connection reset|connection refused|econnreset|econnrefused/i.test(message)
+    || status === 0 || status === 502 || status === 503 || status === 504
+    || (!message && typeof navigator !== 'undefined' && navigator.onLine === false);
+  if (network) return operation === 'read'
+    ? "We couldn't connect to eFlow. Check your internet connection and reload this view."
+    : "We couldn't confirm the result because the connection was interrupted. Check your connection and the current record before trying again.";
+  const technical = /\b(?:RPC|RLS|SQLSTATE|PGRST\d+|Supabase|JWT|UUID|migration|payload)\b|schema cache|row.level security|violates .*constraint|relation .+does not exist|function .+does not exist|permission denied for|cannot read (?:properties|property)|is not a function|unexpected token|not valid JSON|invalid input syntax|^column .+does not exist|^null value in column|^(?:HTTP|Error)\s+\d{3}\b|\bat \S+\s*\([^)]*:\d+:\d+\)/i.test(message)
+    || /^(?:42P01|42703|42883|42501|PGRST202|PGRST204|23505|23503)$/i.test(code);
+  if (technical) {
+    if (/not confirmed|unconfirmed|uncertain|unknown outcome/i.test(message)) return fallback;
+    if (/row.level security|permission denied for/i.test(message) || code === '42501') return `${fallback} Your current account does not have permission for this action.`;
+    if (/migration|schema cache|relation .+does not exist|function .+does not exist/i.test(message) || /^(?:42P01|42703|42883|PGRST202|PGRST204)$/i.test(code)) return `${fallback} Ask your administrator to check eFlow's setup.`;
+    return fallback;
+  }
+  if (!message || /^(?:something went wrong|an? (?:unexpected )?error occurred|operation failed|request failed|invalid response|internal server error|unknown error)[.!]?$/i.test(message)) return fallback;
+  return message;
+}

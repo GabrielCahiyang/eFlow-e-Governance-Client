@@ -1,3 +1,4 @@
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { Folder, Star } from 'lucide-react';
 
 export interface WorkspaceProjectLink { id: string; title: string; status: string }
@@ -10,8 +11,8 @@ export function WorkspaceProjectLinks({ projects, favorites, activeProjectId, on
     <button type="button" className="eflow-workspace-navigation__destination" aria-current={project.id === activeProjectId ? 'page' : undefined} onClick={() => onOpen(project.id)}>
       <Folder size={17} aria-hidden="true" /><span>{project.title}</span>
     </button>
-    <button type="button" className="eflow-workspace-projects__favorite" aria-label={`${favorites.has(project.id) ? 'Remove' : 'Add'} ${project.title} ${favorites.has(project.id) ? 'from' : 'to'} favorites`} aria-pressed={favorites.has(project.id)} onClick={() => onToggleFavorite(project.id)}>
+    <WorkspaceTooltip content={favorites.has(project.id) ? "Remove from favorites" : "Add to favorites"}><button type="button" className="eflow-workspace-projects__favorite" aria-label={`${favorites.has(project.id) ? 'Remove' : 'Add'} ${project.title} ${favorites.has(project.id) ? 'from' : 'to'} favorites`} aria-pressed={favorites.has(project.id)} onClick={() => onToggleFavorite(project.id)}>
       <Star size={15} fill={favorites.has(project.id) ? 'currentColor' : 'none'} aria-hidden="true" />
-    </button>
+    </button></WorkspaceTooltip>
   </div>)}</div>;
 }

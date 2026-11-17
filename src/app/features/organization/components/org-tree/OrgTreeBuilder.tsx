@@ -178,7 +178,7 @@ function OrgTreeBuilderInner() {
     if (!org) return;
 
     if (org.org_type === "lgu") {
-      toast("Cannot delete the root LGU node", "error");
+      toast("You can't delete the main LGU record.", "error");
       return;
     }
 
@@ -195,7 +195,7 @@ function OrgTreeBuilderInner() {
       ]);
       toast(`"${org.name}" deleted`, "success");
     } catch (err: any) {
-      toast(err?.message || "Failed to delete", "error");
+      toast(err?.message || "We couldn't confirm the deletion. Check the organization structure before trying again.", "error");
     }
   }, [contextMenu, orgs, toast]);
 
@@ -206,7 +206,7 @@ function OrgTreeBuilderInner() {
         toast(`Restored "${item.org.name}"`, "success");
         setUndoStack((prev) => prev.filter((t) => t.id !== item.id));
       } catch (err: any) {
-        toast(err?.message || "Failed to restore", "error");
+        toast(err?.message || "We couldn't confirm whether the Office was restored. Check the organization structure before trying again.", "error");
       }
     },
     [toast],
@@ -251,7 +251,7 @@ function OrgTreeBuilderInner() {
           "success",
         );
       } catch (err: any) {
-        toast(err?.message || "Failed to assign user", "error");
+        toast(err?.message || "We couldn't confirm this person's Office assignment. Check their current assignment before trying again.", "error");
       } finally {
         assignmentPending.current = false;
       }

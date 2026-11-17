@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { buildShellNavigation, navigationGroupLabels } from "../../src/app/features/navigation";
+import { buildShellNavigation, navigationGroupLabels, pageDisplayLabel } from "../../src/app/features/navigation";
 import { getNavigationPath } from "../../src/app/features/navigation/navigationUrl";
 
 interface E2EAccount {
@@ -34,7 +34,7 @@ test.describe("authenticated navigation smoke coverage", () => {
         const officeTools=page.getByText('Office tools',{exact:true});
         if(await officeTools.isVisible() && await officeTools.evaluate(element=>!element.closest('details')?.open)) await officeTools.click();
         for (const destination of item.pages) {
-          const target = page.getByRole('navigation',{name:'Workspace destinations'}).getByRole('button',{name:item.pages.length===1?item.label:destination.label,exact:true}).first();
+          const target = page.getByRole('navigation',{name:'Workspace destinations'}).getByRole('button',{name:item.pages.length===1?item.label:pageDisplayLabel(item.id,destination.label),exact:true}).first();
           // Projects is owned by the contextual project controller.
           if (!await target.count() && item.id==='projects') {
             await expect(page.getByRole('complementary',{name:'Projects context'})).toBeVisible();

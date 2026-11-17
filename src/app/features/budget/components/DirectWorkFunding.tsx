@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import { MoneyInput } from '../../../components/ui/MoneyInput';
 import { useRef, useState } from "react";
 import type { Task } from "../../tasks";
@@ -38,7 +39,7 @@ export function DirectWorkFunding({ data,tasks,onChanged }: { data:DepartmentBud
       const cleared = [{ partitionId: '', amount: 0, particular: '' }];
       baseline.current = { taskId, lines: cleared };
       draft.markClean();setReason("");setLines(cleared);key.current=crypto.randomUUID();setMessage("Work funding authorized.");await onChanged();
-    } catch(e) {setMessage(e instanceof Error?e.message:"Funding could not be authorized. Refresh before retrying.");}
+    } catch(e) {setMessage(readableUiError(e, "Funding could not be authorized. Refresh before retrying.", 'write'));}
     finally {pending.current=false;draft.pendingRef.current=false;setBusy(false);}
   };
   if(!showForm) return null;

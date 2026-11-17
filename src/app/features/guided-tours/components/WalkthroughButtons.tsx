@@ -1,4 +1,4 @@
-import { Button, IconButton, Tooltip } from "@vibe/core";
+import { Button, IconButton } from "@vibe/core";
 import { Help, NavigationArrow } from "@vibe/icons";
 import { useGuidedTour } from "./GuidedTourProvider";
 
@@ -34,7 +34,6 @@ export function SystemWalkthroughButton({
   if (collapsed) {
     return (
       <span data-tour-id="system-walkthrough">
-        <Tooltip content="Start walkthrough">
           <IconButton
             aria-label="Start walkthrough"
             disabled={isTourActive}
@@ -42,7 +41,6 @@ export function SystemWalkthroughButton({
             kind="tertiary"
             onClick={start}
           />
-        </Tooltip>
       </span>
     );
   }

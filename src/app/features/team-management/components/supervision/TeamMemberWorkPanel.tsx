@@ -38,11 +38,11 @@ export function TeamMemberWorkPanel({
       <header className="border-b border-neutral-100 p-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-[12px] font-medium uppercase tracking-wide text-neutral-500">Member work</p>
+            <p className="text-[12px] font-medium text-neutral-500">Member work</p>
             <h2 className="mt-1 break-words text-[17px] font-semibold text-neutral-900">{employee.name}</h2>
             <p className="mt-1 break-words text-[12px] text-neutral-500">{employee.jobTitle} · Current delivery responsibilities</p>
           </div>
-          <span className="rounded-full bg-neutral-100 px-2.5 py-1 text-[12px] font-medium text-neutral-700">{metric.activeTasks + metric.activeSubtasks} open items</span>
+          <span className="rounded-[6px] border border-[var(--eflow-border)] bg-[var(--eflow-subtle)] px-2.5 py-1 text-[12px] font-medium text-[var(--eflow-text)]">{metric.activeTasks + metric.activeSubtasks} open items</span>
         </div>
         <div className="mt-4 grid grid-cols-3 gap-2">
           <Metric label="Leading" value={metric.leadingTasks} />
@@ -53,7 +53,7 @@ export function TeamMemberWorkPanel({
 
       <div className="space-y-5 p-4">
         <section>
-          <div className="mb-2 flex items-center justify-between gap-2"><h3 className="text-[12px] font-semibold uppercase tracking-wide text-neutral-500">Active task participation</h3><span className="text-[12px] text-neutral-500">{memberTasks.length}</span></div>
+          <div className="mb-2 flex items-center justify-between gap-2"><h3 className="text-[12px] font-semibold text-neutral-500">Active task participation</h3><span className="text-[12px] text-neutral-500">{memberTasks.length}</span></div>
           <div className="space-y-2">
             {memberTasks.slice(0, 6).map((task) => (
               <button key={task.id} type="button" onClick={() => onOpenTask(task)} className="flex w-full items-start gap-2 rounded-lg border border-neutral-200 p-3 text-left transition hover:bg-neutral-50">
@@ -67,7 +67,7 @@ export function TeamMemberWorkPanel({
         </section>
 
         <section>
-          <div className="mb-2 flex items-center justify-between gap-2"><h3 className="text-[12px] font-semibold uppercase tracking-wide text-neutral-500">Delegated subtasks</h3><span className="text-[12px] text-neutral-500">{memberSubtasks.length}</span></div>
+          <div className="mb-2 flex items-center justify-between gap-2"><h3 className="text-[12px] font-semibold text-neutral-500">Delegated subtasks</h3><span className="text-[12px] text-neutral-500">{memberSubtasks.length}</span></div>
           <div className="space-y-2">
             {memberSubtasks.slice(0, 6).map((subtask) => {
               const parent = tasks.find((task) => task.id === subtask.taskId);

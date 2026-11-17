@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import {DeadlineBadge} from '../../../components/ui/DeadlineBadge';
 import {useProjectFlow} from '../../project-setup';
 import { useEffect, useRef, useState } from 'react';
@@ -16,7 +17,7 @@ export function TimelineCell({ task, disabled, save }: { task: Task; disabled: b
   const editor = usePlanningEditor(() => timelineDraft(task), 'Task timeline: ' + task.title, { closeOnSuccess: true });
   const flow=useProjectFlow(task.linkedProjectId||'',editor.open);
   const [editState,setEditState]=useState<TaskDetailEditState|null>(null),[policyError,setPolicyError]=useState(''),[policyLoading,setPolicyLoading]=useState(false),[changeReason,setChangeReason]=useState('');
-  useEffect(()=>{if(!editor.open)return;let active=true;setEditState(null);setPolicyError('');setChangeReason('');setPolicyLoading(true);void fetchTaskDetailEditState(task.id).then(value=>{if(active)setEditState(value);}).catch(reason=>{if(active)setPolicyError(reason instanceof Error?reason.message:'Task editing access could not be verified.');}).finally(()=>{if(active)setPolicyLoading(false);});return()=>{active=false;};},[editor.open,task.id]);
+  useEffect(()=>{if(!editor.open)return;let active=true;setEditState(null);setPolicyError('');setChangeReason('');setPolicyLoading(true);void fetchTaskDetailEditState(task.id).then(value=>{if(active)setEditState(value);}).catch(reason=>{if(active)setPolicyError(readableUiError(reason, "Task editing access could not be verified.", 'write'));}).finally(()=>{if(active)setPolicyLoading(false);});return()=>{active=false;};},[editor.open,task.id]);
   const policyReady=!policyLoading&&!policyError&&!!editState,canPlan=policyReady&&!!editState?.details&&!!editState.planning,canChangeDue=policyReady&&!!editState?.details&&!!editState.due;
   const projectStart=flow.data?.project.start_date||'',projectEnd=flow.data?.project.target_date||'';
   const minimumStart=projectStart>todayDate()?projectStart:todayDate();

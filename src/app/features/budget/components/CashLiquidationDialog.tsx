@@ -1,3 +1,4 @@
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { MoneyInput } from '../../../components/ui/MoneyInput';
 import { historicalDateError } from '../../../shared/calendarDates';
 import { useRef, useState } from "react";
@@ -17,6 +18,7 @@ import {
 import type { PettyCashRequest, ReceiptDraft } from "../types";
 import { submitPettyCashLiquidation } from "../services/budgetService";
 import { peso } from "./budgetUi";
+import { financialFailureIsUncertain, financialWriteFeedback } from "../financialReceipts";
 import { ReceiptItemEditor } from "./ReceiptItemEditor";
 import { moneyCents } from "../selectors/budgetSections";
 import {liquidationInputError,receiptItemError} from '../validation/financialValidation';
@@ -42,6 +44,7 @@ export function CashLiquidationDialog({ request, orgId, perReceiptLimit: _perRec
   const [receipts, setReceipts] = useState<ReceiptDraft[]>([{...blankReceipt(itemized?0:approved),...(itemized?{items:[]}: {})}]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [saved, setSaved] = useState(false);
   const [refundReceiptNumber, setRefundReceiptNumber] = useState("");
   const [refundDate, setRefundDate] = useState(getPhilippineCalendarDate());
   const idempotencyKey = useRef(crypto.randomUUID());
@@ -55,18 +58,21 @@ export function CashLiquidationDialog({ request, orgId, perReceiptLimit: _perRec
     if (invalid) { setError('Check the receipt dates, amounts and required fields before submitting.'); return; }
     setBusy(true);
     setError("");
+    let confirmed = false;
     try {
       await submitPettyCashLiquidation({ orgId, requestId: request.id, spent, note, receipts, refundReceiptNumber, refundDate, idempotencyKey: idempotencyKey.current });
+      confirmed = true;
+      setSaved(true);
       window.dispatchEvent(new Event('eflow:expenses-updated'));
       await onSaved();
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Receipts could not be submitted.");
+      setError(financialWriteFeedback(caught, { outcome: confirmed ? 'saved' : financialFailureIsUncertain(caught) ? 'uncertain' : undefined, submitted: true, action: 'Your liquidation submission', record: 'the cash request', draft: 'Your receipts are still in the form.' }));
     } finally {
       setBusy(false);
     }
   };
 
-  const invalid = busy || !Number.isFinite(spent) || receipts.some(r => !!historicalDateError(r.receiptDate, 'Receipt date') || !Number.isFinite(r.amount)) || (approved - spent > .009 && !!historicalDateError(refundDate, 'Cash return date')) || spent < 0 || spent > approved || Math.abs(receiptTotal - spent) > .009 || !note.trim()
+  const invalid = busy || saved || !Number.isFinite(spent) || receipts.some(r => !!historicalDateError(r.receiptDate, 'Receipt date') || !Number.isFinite(r.amount)) || (approved - spent > .009 && !!historicalDateError(refundDate, 'Cash return date')) || spent < 0 || spent > approved || Math.abs(receiptTotal - spent) > .009 || !note.trim()
     || (approved - spent > .009 && (!refundReceiptNumber.trim() || !refundDate))
     || receipts.some((item) => !item.vendor.trim() || (!item.description.trim()&&!item.items?.length) || !item.file
       || item.items?.some(i=>!!receiptItemError(i)||!sources.some(s=>s.allocationLineId===i.allocationLineId)));
@@ -78,17 +84,18 @@ export function CashLiquidationDialog({ request, orgId, perReceiptLimit: _perRec
           <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">Cash liquidation</div>
           <DialogTitle className="text-[18px]">Upload receipts and return balance</DialogTitle>
           <DialogDescription className="tabular-nums">
-            Released {peso.format(approved)} · unused cash {peso.format(Math.max(0, approved - spent))}
+            Liquidation accounts for the cash you received with receipts and proof of any cash returned.
+            <br />Released {peso.format(approved)} · unused cash {peso.format(Math.max(0, approved - spent))}
           </DialogDescription>
         </DialogHeader>
 
         <m.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="min-h-0 space-y-4 overflow-y-auto px-5 py-4">
-          <AttentionBox type="primary" title="Immutable receipt record" text="After submission, receipt rows and uploaded evidence are locked. Corrections are recorded as a new liquidation version so the audit history stays intact." />
+          <AttentionBox type="primary" title="Receipt history" text="eFlow keeps the receipts from each submission. Corrections create a new version for review." />
           <AttentionBox
             type={overdue ? "warning" : "primary"}
             title={overdue ? "Late liquidation · Head approval required" : `${liquidationDueDays}-day liquidation window`}
             text={overdue
-              ? `The receipt deadline was ${request.liquidationDueAt ? new Date(request.liquidationDueAt).toLocaleDateString() : "already reached"}. You may still submit this package, but only the Head can approve and settle it.`
+              ? `The receipt deadline was ${request.liquidationDueAt ? new Date(request.liquidationDueAt).toLocaleDateString() : "already reached"}. You can still submit. A late package needs Head authorization before settlement.`
               : `Upload the complete receipt package by ${request.liquidationDueAt ? new Date(request.liquidationDueAt).toLocaleDateString() : `the ${liquidationDueDays}-day deadline after full release`}.`}
           />
 
@@ -105,7 +112,7 @@ export function CashLiquidationDialog({ request, orgId, perReceiptLimit: _perRec
               <div key={receipt.id} className="rounded-lg border border-border bg-card p-3 shadow-[0_2px_4px_-3px_rgba(0,0,0,0.12)]">
                 <div className="flex items-center justify-between">
                   <div className="text-[11px] font-semibold text-foreground">Receipt {index + 1}</div>
-                  <button type="button" aria-label={`Remove receipt ${index + 1}`} disabled={receipts.length === 1} onClick={() => setReceipts((current) => current.filter((item) => item.id !== receipt.id))} className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-30"><Trash2 size={14} /></button>
+                  <WorkspaceTooltip content={`Remove receipt ${index + 1}`}><button type="button" aria-label={`Remove receipt ${index + 1}`} disabled={receipts.length === 1} onClick={() => setReceipts((current) => current.filter((item) => item.id !== receipt.id))} className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-30"><Trash2 size={14} /></button></WorkspaceTooltip>
                 </div>
                 <div className="mt-3 grid gap-2 sm:grid-cols-2">
                   <Field label="Vendor / payee" value={receipt.vendor} onChange={(value) => update(receipt.id, { vendor: value })} />

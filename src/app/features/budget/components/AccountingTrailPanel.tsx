@@ -1,12 +1,14 @@
 import { EmptyState } from '../../../components/ui/EmptyState';
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Search as VibeSearch } from "@vibe/core";
-import { Badge } from "../../../components/ui/badge";
 import * as m from "motion/react-m";
 import { ArrowRight, Clock3, ShieldCheck } from "lucide-react";
 import { FeatureDialog } from "../../../components/ui/FeatureDialog";
 import { motionTransition } from "../../../shared/motion/motionTokens";
 import { fetchAllProjects, getCachedProjects, type Project } from "../../../services/projectService";
+import { fetchBudgetLedgerPage } from "../services/budgetService";
+import { DEFAULT_BUDGET_PAGE_SIZE, useBudgetPagination } from "../hooks/useBudgetPagination";
+import { BudgetPagination } from "./BudgetPagination";
 import type {
   BudgetLedgerEntry,
   DepartmentBudgetBundle,
@@ -38,6 +40,17 @@ export function AccountingTrailPanel({
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<BudgetLedgerEntry>();
   const [projects, setProjects] = useState<Project[]>(() => getCachedProjects() ?? []);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(DEFAULT_BUDGET_PAGE_SIZE);
+  const [serverPage, setServerPage] = useState<{ rows: BudgetLedgerEntry[]; total: number } | null>(null);
+  const [pageLoading, setPageLoading] = useState(false);
+  const pageRequestRef = useRef(0);
+  const fiscalBudgetId = data.summary?.id;
+
+  useEffect(() => {
+    setPage(1);
+    setServerPage(null);
+  }, [fiscalBudgetId, query]);
 
   useEffect(() => {
     if (projects.length > 0) return;
@@ -59,7 +72,7 @@ export function AccountingTrailPanel({
       ),
     [projects],
   );
-  const entries = useMemo(() => {
+  const localEntries = useMemo(() => {
     const needle = query.trim().toLowerCase();
     return data.ledger.filter(
       (entry) =>
@@ -69,6 +82,43 @@ export function AccountingTrailPanel({
           .includes(needle),
     );
   }, [data.ledger, query]);
+  const hasMoreServerRows = (data.ledgerCount ?? data.ledger.length) > data.ledger.length;
+  const needsServerPage = Boolean(
+    fiscalBudgetId &&
+      hasMoreServerRows &&
+      (page > 1 || pageSize !== DEFAULT_BUDGET_PAGE_SIZE || query.trim() !== ""),
+  );
+
+  useEffect(() => {
+    if (!needsServerPage || !fiscalBudgetId) {
+      setServerPage(null);
+      setPageLoading(false);
+      return;
+    }
+    const requestId = ++pageRequestRef.current;
+    setPageLoading(true);
+    fetchBudgetLedgerPage({ fiscalBudgetId, page, pageSize, query })
+      .then((result) => {
+        if (requestId === pageRequestRef.current) setServerPage(result);
+      })
+      .catch(() => {
+        if (requestId === pageRequestRef.current) setServerPage(null);
+      })
+      .finally(() => {
+        if (requestId === pageRequestRef.current) setPageLoading(false);
+      });
+  }, [fiscalBudgetId, needsServerPage, page, pageSize, query, data.ledger]);
+
+  const localPagination = useBudgetPagination(localEntries, `${fiscalBudgetId || ""}:${query}`, pageSize);
+  const usingServerPage = Boolean(needsServerPage && serverPage);
+  const entries = usingServerPage ? serverPage!.rows : localPagination.pageItems;
+  const totalEvents = usingServerPage
+    ? serverPage!.total
+    : query.trim()
+      ? localEntries.length
+      : data.ledgerCount ?? localEntries.length;
+  const activePage = usingServerPage ? page : localPagination.page;
+
   const linkedJournal = selected
     ? journalEntries.filter(
         (entry) =>
@@ -79,38 +129,43 @@ export function AccountingTrailPanel({
 
   return (
     <div className="space-y-4">
-      <section className="overflow-hidden rounded-[10px] border border-border bg-card">
-        <div className="eflow-budget-section-heading">
-          <div>
-        <div className="flex items-center gap-2">
-          <ShieldCheck size={16} className="text-primary" />
-          <h2 className="text-[14px] font-semibold text-foreground">
-            End-to-end accounting trail
-          </h2>
-        </div>
-        <p>Select an event to see who recorded it, what changed, and any linked journal entries.</p>
+      <section className="eflow-accounting-panel">
+        <div className="eflow-accounting-panel__header">
+          <div className="eflow-accounting-panel__title">
+            <ShieldCheck size={17} aria-hidden="true" />
+            <div>
+              <h2>End-to-end accounting trail</h2>
+              <p>Select an event to inspect its audit record and linked journal entries.</p>
+            </div>
           </div>
+          <span className="text-xs font-medium text-muted-foreground tabular-nums">
+            {totalEvents} {totalEvents === 1 ? "event" : "events"}
+          </span>
         </div>
-        <div className="border-t px-4 py-3">
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="eflow-accounting-stepper" aria-label="Accounting lifecycle stages">
           {FLOW.map((stage, index) => (
-            <div key={stage} className="flex items-center gap-2">
-              <Badge variant="outline" className="eflow-financial-status" data-tone={stage === "Settlement" ? "positive" : "neutral"}>{stage}</Badge>
+            <div key={stage} className="flex items-center gap-1.5">
+              <span className="eflow-accounting-stepper__step" data-tone={stage === "Settlement" ? "positive" : "neutral"}>{stage}</span>
               {index < FLOW.length - 1 && (
-                <ArrowRight size={11} className="text-muted-foreground/60" />
+                <ArrowRight size={11} aria-hidden="true" className="text-muted-foreground/60" />
               )}
             </div>
           ))}
         </div>
-        </div>
-        <div className="eflow-budget-register-filters">
+        <div className="eflow-accounting-filter-bar">
           <VibeSearch
             className="w-full max-w-lg"
             clearIconLabel="Clear audit search"
             inputAriaLabel="Search accounting audit trail"
-            onChange={setQuery}
-            onClear={() => setQuery("")}
-            placeholder="Search event, actor role, state, or reason…"
+            onChange={(nextQuery) => {
+              setQuery(nextQuery);
+              setPage(1);
+            }}
+            onClear={() => {
+              setQuery("");
+              setPage(1);
+            }}
+            placeholder="Search action, account role, status or reason…"
             showClearIcon
             size="small"
             value={query}
@@ -133,15 +188,15 @@ export function AccountingTrailPanel({
                 className="eflow-budget-audit-row hover:bg-muted focus-visible:bg-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-ring"
               >
                 <div className="flex h-9 w-9 items-center justify-center rounded-[8px] border border-border bg-card text-muted-foreground">
-                  <Clock3 size={14} />
+                  <Clock3 size={14} aria-hidden="true" />
                 </div>
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-[12px] font-semibold capitalize text-foreground">
+                    <span className="text-sm font-semibold capitalize text-foreground">
                       {entry.entryType.split("_").join(" ")}
                     </span>
                     {entry.previousState && entry.newState && (
-                      <span className="text-[12px] text-muted-foreground">
+                      <span className="text-xs text-muted-foreground">
                         {entry.previousState} → {entry.newState}
                       </span>
                     )}
@@ -149,22 +204,39 @@ export function AccountingTrailPanel({
                   <p className="mt-1 break-words text-sm text-muted-foreground">
                     {entry.description}
                   </p>
-                  <p className="mt-1 text-[12px] text-muted-foreground">
+                  <p className="mt-1 text-xs text-muted-foreground">
                     {new Date(entry.createdAt).toLocaleString()} ·{" "}
                     {entry.actorRole
                       ? entry.actorRole.split("_").join(" ")
                       : "system"}
                   </p>
                 </div>
-                <strong className="justify-self-end whitespace-nowrap text-right text-[12px] tabular-nums text-foreground">
+                <strong className="justify-self-end whitespace-nowrap text-right text-sm font-semibold tabular-nums text-foreground">
                   {peso.format(entry.amount)}
                 </strong>
               </m.button>
             ))}
           </div>
         ) : (
-          <EmptyState illustration="search" title="No matching audit events"/>
+          <EmptyState size="compact" illustration="search" title="No matching audit events" description="Financial lifecycle events will appear here when recorded."/>
         )}
+        <BudgetPagination
+          page={activePage}
+          pageSize={pageSize}
+          totalItems={totalEvents}
+          visibleCount={entries.length}
+          noun="event"
+          loading={pageLoading}
+          onPageChange={(nextPage) => {
+            setPage(nextPage);
+            localPagination.setPage(nextPage);
+          }}
+          onPageSizeChange={(nextSize) => {
+            setPageSize(nextSize);
+            setPage(1);
+            localPagination.setPageSize(nextSize);
+          }}
+        />
       </section>
       <FeatureDialog
         open={Boolean(selected)}

@@ -1,3 +1,4 @@
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { MoneyInput } from '../../../components/ui/MoneyInput';
 import { Plus, Trash2 } from "lucide-react";
 import { createBudgetLine, PROPOSAL_EXPENSE_CLASSES, PROPOSAL_FUND_SOURCE } from "../constants";
@@ -53,7 +54,7 @@ export function ProposalBudgetSection({
           </select>
         </label>
         <div className="min-w-36 text-right"><div className="text-[8.5px] uppercase tracking-[0.16em] text-neutral-400">Section subtotal</div><div className="mt-2 text-[13px] font-semibold tabular-nums text-neutral-950">{peso.format(section.amount)}</div></div>
-        {!readOnly && <button type="button" aria-label={`Remove ${section.expenseClass} section`} disabled={!canRemoveSection} onClick={() => removeIds(sectionIds)} className="mb-0.5 rounded-lg p-2 text-neutral-400 hover:bg-rose-50 hover:text-rose-600 disabled:opacity-25"><Trash2 size={13} /></button>}
+        {!readOnly && <WorkspaceTooltip content={`Remove ${section.expenseClass} section`}><button type="button" aria-label={`Remove ${section.expenseClass} section`} disabled={!canRemoveSection} onClick={() => removeIds(sectionIds)} className="mb-0.5 rounded-lg p-2 text-neutral-400 hover:bg-rose-50 hover:text-rose-600 disabled:opacity-25"><Trash2 size={13} /></button></WorkspaceTooltip>}
       </header>
 
       <div className="space-y-3 p-4">
@@ -64,7 +65,7 @@ export function ProposalBudgetSection({
               <header className="flex flex-wrap items-center gap-3 border-b border-neutral-100 bg-neutral-50 px-3 py-2.5">
                 <label className="min-w-56 flex-1"><span className="sr-only">Category</span><input aria-label={`Category ${categoryIndex + 1}`} disabled={readOnly} maxLength={120} value={category.category} onChange={(event) => updateIds(categoryIds, { category: event.target.value })} placeholder="Category name" className={`${fieldClass} font-medium`} /></label>
                 <div className="text-right"><div className="text-[8px] uppercase tracking-wide text-neutral-400">Category subtotal</div><div className="mt-1 text-[11px] font-semibold tabular-nums">{peso.format(category.amount)}</div></div>
-                {!readOnly && <button type="button" aria-label={`Remove category ${categoryIndex + 1}`} disabled={allLines.length === category.particulars.length} onClick={() => removeIds(categoryIds)} className="rounded-lg p-2 text-neutral-400 hover:bg-rose-50 hover:text-rose-600 disabled:opacity-25"><Trash2 size={12} /></button>}
+                {!readOnly && <WorkspaceTooltip content={`Remove category ${categoryIndex + 1}`}><button type="button" aria-label={`Remove category ${categoryIndex + 1}`} disabled={allLines.length === category.particulars.length} onClick={() => removeIds(categoryIds)} className="rounded-lg p-2 text-neutral-400 hover:bg-rose-50 hover:text-rose-600 disabled:opacity-25"><Trash2 size={12} /></button></WorkspaceTooltip>}
               </header>
 
               <div className="divide-y divide-neutral-100">
@@ -73,7 +74,7 @@ export function ProposalBudgetSection({
                   <div key={line.id} className="grid gap-2 px-3 py-2.5 sm:grid-cols-[1fr_170px_36px] sm:items-center">
                     <label><span className="mb-1 block text-[8.5px] text-neutral-400 sm:hidden">Particular {particularIndex + 1}</span><input aria-label={`Particular ${particularIndex + 1} for ${category.category}`} disabled={readOnly} maxLength={200} value={line.particular} onChange={(event) => updateIds(new Set([line.id]), { particular: event.target.value })} placeholder="Describe the exact item or service" className={fieldClass} /></label>
                     <label className="relative"><span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] text-neutral-400">₱</span><MoneyInput aria-label={`Amount for particular ${particularIndex + 1}`} disabled={readOnly} min={0.01} max={9999999999} step="0.01" value={line.amount || ""} onValueChange={raw => updateIds(new Set([line.id]), { amount: Number(raw) })} placeholder="0.00" className={`${fieldClass} pl-7 text-right tabular-nums`} /></label>
-                    {!readOnly && <button type="button" aria-label={`Remove particular ${particularIndex + 1}`} disabled={allLines.length === 1} onClick={() => removeIds(new Set([line.id]))} className="justify-self-end rounded-lg p-2 text-neutral-400 hover:bg-rose-50 hover:text-rose-600 disabled:opacity-25"><Trash2 size={12} /></button>}
+                    {!readOnly && <WorkspaceTooltip content={`Remove particular ${particularIndex + 1}`}><button type="button" aria-label={`Remove particular ${particularIndex + 1}`} disabled={allLines.length === 1} onClick={() => removeIds(new Set([line.id]))} className="justify-self-end rounded-lg p-2 text-neutral-400 hover:bg-rose-50 hover:text-rose-600 disabled:opacity-25"><Trash2 size={12} /></button></WorkspaceTooltip>}
                   </div>
                 ))}
               </div>

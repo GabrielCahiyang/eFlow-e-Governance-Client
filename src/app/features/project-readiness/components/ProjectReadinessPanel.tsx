@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { ArrowRight, Check, RefreshCw, Rocket } from 'lucide-react';
@@ -33,9 +34,9 @@ export function ProjectReadinessPanel({ project, canManage, onResolve, refreshKe
   try {
    const data = await fetchReadiness(project.id);
    if (request !== version.current) return;
-   if(data.projectId !== project.id || !Array.isArray(data.checks)) throw new Error('Invalid project readiness response.');
+   if(data.projectId !== project.id || !Array.isArray(data.checks)) throw new Error("We couldn't check whether this project is ready. Reload the project checks.");
    setState({key,data});
-  } catch(error) { if(request===version.current)setState({key,error:error instanceof Error?error.message:'Could not load readiness reviews.'}); }
+  } catch(error) { if(request===version.current)setState({key,error:readableUiError(error, "Could not load readiness reviews.", 'read')}); }
  },[project.id,key]);
  useEffect(()=>{
   void refresh();
@@ -54,7 +55,7 @@ export function ProjectReadinessPanel({ project, canManage, onResolve, refreshKe
   if(pending.current || checking || !canManage || closed || !data || current.error)return;
   pending.current=true;setBusy(true);setNotice('');
   try {if(await action()===false)return;setNotice(message);await refresh();onUpdated?.();}
-  catch(error){await refresh();setState(previous=>({...previous,error:error instanceof Error?error.message:'Review failed. Check the current status before trying again.'}));}
+  catch(error){await refresh();setState(previous=>({...previous,error:readableUiError(error, "Review failed. Check the current status before trying again.", 'write')}));}
   finally{pending.current=false;setBusy(false);}
  };
  const activate=()=>void run(async()=>{
@@ -77,23 +78,23 @@ export function ProjectReadinessPanel({ project, canManage, onResolve, refreshKe
    {current.error&&<FeedbackState tone="error" title="Plan reviews unavailable" onRetry={()=>void refresh()}>{current.error}</FeedbackState>}
    {!data&&!current.error&&<p className="setup-readiness__feedback" role="status">Loading plan reviews…</p>}
    {notice&&<p className="setup-readiness__feedback" role="status">{notice}</p>}
-   {data?.governed&&<p className="setup-readiness__governed">Proposal endorsement and approval remain in Proposal Context. {onResolve&&<button className="p7-link" onClick={()=>onResolve('proposal_context')}>Open proposal review</button>}</p>}
+   {data?.governed&&<p className="setup-readiness__governed">Open the proposal to complete endorsement and approval before starting this project. {onResolve&&<button className="p7-link" onClick={()=>onResolve('proposal_context')}>Open proposal review</button>}</p>}
    {data&&<SetupReadinessChecks checks={data.checks} actions={check=>{const resolution=readinessResolution(check.key,data.governed),review=['structure','dates','budget'].includes(check.key)&&canManage&&!closed&&!data.governed;
     return <>{resolution&&onResolve&&<Button variant="ghost" disabled={busy} aria-label={resolution.label} onClick={()=>onResolve(resolution.view)}>Review<ArrowRight size={14} aria-hidden="true"/></Button>}
-     {review&&<Button variant="outline" disabled={busy||checking||!!current.error} aria-label={`Confirm review: ${check.label}`} onClick={()=>void run(()=>reviewProject(project.id,check.key as ReviewKind),check.label+' confirmed.')}><Check size={14} aria-hidden="true"/>Confirm</Button>}</>;
+     {review&&<Button variant="outline" disabled={busy||checking||!!current.error} aria-label={`Confirm review: ${check.label}`} onClick={()=>void run(()=>reviewProject(project.id,check.key as ReviewKind),check.label+' confirmed.')}><Check size={14} aria-hidden="true"/>Confirm review</Button>}</>;
    }}/>}
    {footerTarget?createPortal(footer,footerTarget):footer}
   </section>;
  }
  return <section className="r4-requirements" aria-label="Project readiness reviews">
   {confirmation.dialog}<header><h3>Plan reviews and activation</h3>{automaticStatus}</header>
-  <p>Material scope, Office, schedule or budget changes require a current review.</p>
+  <p>Review the plan again after significant changes to the work, participating Offices, dates, or budget.</p>
   {current.error && <FeedbackState tone="error" title="Plan reviews unavailable" onRetry={()=>void refresh()}>{current.error}</FeedbackState>}
   {!data && !current.error && <p role="status">Loading plan reviews…</p>}
   {notice && <p role="status">{notice}</p>}
   {data && <>
    <p>{data.stage} · {data.checks.filter(check=>check.ok).length} of {data.checks.length} checks confirmed</p>
-   {data.governed && <p>Proposal endorsement and approval remain in Proposal Context. {onResolve && <button type="button" className="p7-link" onClick={()=>onResolve('proposal_context')}>Open proposal review</button>}</p>}
+   {data.governed && <p>Open the proposal to complete endorsement and approval before starting this project. {onResolve && <button type="button" className="p7-link" onClick={()=>onResolve('proposal_context')}>Open proposal review</button>}</p>}
    <ReadinessCheckList checks={data.checks} actions={check=>{const resolution=readinessResolution(check.key,data.governed);return <div className="flex flex-wrap gap-2">{canManage && !closed && !data.governed && !check.ok && ['structure','dates','budget'].includes(check.key) && <Button type="button" variant="outline" disabled={busy||checking||Boolean(current.error)} onClick={()=>void run(()=>reviewProject(project.id,check.key as ReviewKind),check.label+' confirmed.')}>Confirm review</Button>}
      {!check.ok && resolution && onResolve && <Button type="button" variant="ghost" disabled={busy} onClick={()=>onResolve(resolution.view)}>{resolution.label}</Button>}</div>
    ;}} />

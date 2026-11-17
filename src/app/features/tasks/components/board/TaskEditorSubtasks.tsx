@@ -25,7 +25,7 @@ export function TaskEditorRootPeople({task,readOnly,fallback}:{task:Task;readOnl
  const controller=useContext(EditorWorkContext),{user}=useAuth();
  if(!supportsNestedWork(task))return <>{fallback}</>;
  const data=controller?.data;
- if(!controller||controller.actorId!==(user?.id||null)||controller.rootId!==task.id||data&&(data.root.project!==task.linkedProjectId||data.root.kind==='office'&&data.root.office!==task.orgId||!isCurrentWorkSnapshot(data,{actorId:user?.id||null,rootId:task.id,projectId:data.root.project,officeId:data.root.office,kind:data.root.kind,revision:data.revision})))return <p role="alert">Work people are unavailable in the current actor or task scope.</p>;
+ if(!controller||controller.actorId!==(user?.id||null)||controller.rootId!==task.id||data&&(data.root.project!==task.linkedProjectId||data.root.kind==='office'&&data.root.office!==task.orgId||!isCurrentWorkSnapshot(data,{actorId:user?.id||null,rootId:task.id,projectId:data.root.project,officeId:data.root.office,kind:data.root.kind,revision:data.revision})))return <p role="alert">We couldn't confirm access to this task's team. Close this view and open the task again.</p>;
  return <WorkRootOwner rootId={task.id} controller={controller} readOnly={readOnly||!!task.archivedAt||['for_review','completed','cancelled'].includes(task.status)} fallback={fallback}/>;
 }
 /** Supported work shares one verified owner through hierarchy and Inspector. */

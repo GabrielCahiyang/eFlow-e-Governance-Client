@@ -9,7 +9,7 @@ test('Leading task overview keeps its facts readable across desktop zoom widths 
  await page.route(/\/rest\/v1\/tasks\?/,route=>route.request().headers().accept?.includes('vnd.pgrst.object')?route.fulfill({json:task}):route.fallback());
  await page.reload();
  await page.getByRole('navigation',{name:'Global navigation'}).getByRole('button',{name:'My Work',exact:true}).click();
- await page.getByRole('navigation',{name:'My Work destinations'}).getByRole('button',{name:'Leading',exact:true}).click();
+ await page.getByRole('navigation',{name:'My Work destinations'}).getByRole('button',{name:'Work I lead',exact:true}).click();
  await page.locator('[data-personal-task]').filter({hasText:'Book venue'}).click({timeout:30000});
  await page.getByRole('tab',{name:'Overview',exact:true}).click();
  const overview=page.getByRole('region',{name:'Task overview',exact:true});

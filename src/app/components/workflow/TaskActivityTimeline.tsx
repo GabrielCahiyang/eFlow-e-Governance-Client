@@ -1,3 +1,4 @@
+import { readableUiError } from '../../shared/userFacingError';
 import { EmptyState } from '../ui/EmptyState';
 // ─── TaskActivityTimeline ────────────────────────────────────────
 // Merges immutable system events (status history) with structured progress
@@ -83,7 +84,7 @@ export function TaskActivityTimeline({ taskId,projectId }: { taskId: string;proj
   const [fileEvents,setFileEvents]=useState<ProjectFileEvent[]>([]),[fileError,setFileError]=useState('');
   const [retry, setRetry] = useState(0);
   useEffect(()=>{let active=true;setFileEvents([]);setFileError('');
-    if(projectId)void fetchProjectFileEvents(projectId,taskId).then(events=>{if(active)setFileEvents(events);}).catch(reason=>{if(active)setFileError(reason instanceof Error?reason.message:'Project file history unavailable.');});
+    if(projectId)void fetchProjectFileEvents(projectId,taskId).then(events=>{if(active)setFileEvents(events);}).catch(reason=>{if(active)setFileError(readableUiError(reason, "Project file history unavailable.", 'read'));});
     return()=>{active=false;};
   },[projectId,taskId,retry]);
 
@@ -97,7 +98,7 @@ export function TaskActivityTimeline({ taskId,projectId }: { taskId: string;proj
         .eq("task_id", taskId)
         .order("created_at", { ascending: false });
       if (!active) return;
-      if (error) { setLoadError(error.message); setLoading(false); return; }
+      if (error) { setLoadError(readableUiError(error, 'We couldn’t load task activity.', 'read')); setLoading(false); return; }
       setLoadError('');
       setEvents(
         (data || []).map((r: Record<string, unknown>) => ({

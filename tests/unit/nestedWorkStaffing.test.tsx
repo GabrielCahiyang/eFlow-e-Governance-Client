@@ -52,7 +52,7 @@ describe('canonical staffing dialog capability and commands',()=>{
   const save=vi.fn().mockRejectedValueOnce(new WorkRequestFailure('confirmed_failure','tasks_assignment_consistent constraint')).mockResolvedValue(tree()),ctrl=controller(await verified(),save);
   render(<WorkStaffingDialog controller={ctrl} nodeId={null} onClose={vi.fn()} onChanged={vi.fn()}/>);
   fireEvent.click(screen.getByRole('button',{name:'Add contributor Replacement Lead'}));fireEvent.click(saveButton());
-  await screen.findByText('Could not save this team. Please try again.');
+  await screen.findByText("We couldn't save this team. Check the current Lead and contributors before trying again.");
   expect((screen.getByRole('button',{name:'Remove contributor Replacement Lead'}) as HTMLButtonElement).disabled).toBe(false);
   expect(screen.queryByText('Saving…')).toBeNull();expect(screen.queryByRole('button',{name:'Try again'})).toBeNull();
   fireEvent.click(saveButton());await waitFor(()=>expect(save).toHaveBeenCalledTimes(2));

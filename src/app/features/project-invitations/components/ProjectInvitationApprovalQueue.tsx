@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { useEffect, useRef, useState } from 'react';
 import { supabase } from '../../../../lib/supabase';
@@ -33,7 +34,7 @@ function HeadQueue({ userId, focusProjectId }: { userId: string; focusProjectId?
         } else { setRows(data || []); setError(''); }
       } catch (reason) {
         if (!active || request !== generation) return;
-        setRows([]); setError(reason instanceof Error ? reason.message : 'Membership approvals could not be loaded.');
+        setRows([]); setError(readableUiError(reason, "Membership approvals could not be loaded.", 'read'));
       } finally { if (active && request === generation) setLoading(false); }
     }
     reload.current = () => { void load(); };

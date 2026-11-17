@@ -35,7 +35,7 @@ export function WorkTableColumnHeader({
     <th scope="col" aria-label={label} className={`nw-col nw-col--${column}`}>
       <span>
         {label}
-        <ActionMenu
+        <ActionMenu tooltip="Column options"
           trigger={
             <button className="pt-column-menu" type="button" aria-label={'Column actions for ' + label}>
               <MoreHorizontal size={13} />

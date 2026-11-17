@@ -1,3 +1,4 @@
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { CalendarClock, ClipboardList, Layers, X } from "lucide-react";
 import { useState } from "react";
 import { FeatureDialog } from "../../../components/ui/FeatureDialog";
@@ -50,14 +51,14 @@ export function ProjectTemplatesModal({
               Standardize project starter templates, recurring tasks, and repeatable Team Leader checklists.
             </p>
           </div>
-          <button
+          <WorkspaceTooltip content="Close templates library"><button
             type="button"
             aria-label="Close templates library"
             onClick={onClose}
             className="rounded-lg p-2 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-800"
           >
             <X size={17} />
-          </button>
+          </button></WorkspaceTooltip>
         </div>
 
         <div className="eflow-tpl-tabs-bar">

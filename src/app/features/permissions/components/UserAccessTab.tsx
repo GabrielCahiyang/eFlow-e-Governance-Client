@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import '../permissionPresentation.css';
 import { isAdminRole } from "../../../shared/roles";
@@ -190,9 +191,7 @@ export function UserAccessTab({
       .catch((error) => {
         if (live)
           setFailure(
-            error instanceof Error
-              ? error.message
-              : "Access could not be read.",
+            readableUiError(error, "Access could not be read.", 'read'),
           );
       });
     return () => {
@@ -226,7 +225,7 @@ export function UserAccessTab({
       if (
         !(await confirmation.confirm({
           title: "Change individual access?",
-          description: `${selected.full_name}: ${PERMISSION_LABELS[permission as keyof typeof PERMISSION_LABELS] || permission}. ${current ? (current.allowed ? "Individual allow" : "Individual deny") : "Role default"} → ${next === null ? "Role default" : next ? "Individual allow" : "Individual deny"}. Other accounts are unchanged. Office scope and server authorization still apply.`,
+          description: `${selected.full_name}: ${PERMISSION_LABELS[permission as keyof typeof PERMISSION_LABELS] || permission}. ${current ? (current.allowed ? "Allow for this person" : "Block for this person") : "Role default"} → ${next === null ? "Role default" : next ? "Allow for this person" : "Block for this person"}. Other accounts are unchanged. This person’s Office access still applies.`,
           actionLabel: "Change access",
         }))
       )
@@ -322,10 +321,10 @@ export function UserAccessTab({
           <div className="text-center">
             <UserRoundCog size={34} className="mx-auto text-neutral-300" />
             <p className="mt-3 text-[12px] font-medium text-neutral-600">
-              Choose a user to inspect final access
+              Choose a person to see their access
             </p>
             <p className="mt-1 text-[12px] text-neutral-400">
-              Role defaults and individual exceptions are shown together.
+              See what their role allows and any changes made for this person.
               External Offices join through project invitations.
             </p>
           </div>
@@ -333,9 +332,7 @@ export function UserAccessTab({
       ) : (
         <div className="space-y-4">
           <p className="text-xs text-muted-foreground">
-            Displayed access uses role fallbacks when the reader returns no
-            rows, including an unavailable read. Saved changes are shown by
-            their receipt; scope and server authorization still apply.
+            If eFlow can’t load this person’s access, the list may show role defaults only. Refresh before making an access decision.
           </p>
           <button
             type="button"
@@ -351,7 +348,7 @@ export function UserAccessTab({
               });
             }}
           >
-            Refresh individual access
+            Refresh access
           </button>
           {result && (
             <FeedbackState tone="success" title="Saved access change">
@@ -360,7 +357,7 @@ export function UserAccessTab({
           )}
           {failure && (
             <FeedbackState tone="error" title="Access change needs review">
-              {failure} Read current access before retrying.
+              {failure} Refresh access before trying again.
             </FeedbackState>
           )}
           <header className="rounded-2xl border border-teal-100 bg-gradient-to-br from-teal-50 to-white p-5 text-neutral-900 shadow-sm">

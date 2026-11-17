@@ -1,3 +1,4 @@
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import {DeadlineBadge} from '../../../components/ui/DeadlineBadge';
 import { getPhilippineCalendarDate, scheduledDateError } from '../../../shared/calendarDates';
 import {supportsNestedWork,type WorkTreeController} from '../../nested-work';
@@ -51,7 +52,7 @@ function LegacySubitemRows({ task, subtasks, columns, profiles, canAdd, readOnly
             return <tr className="pt-subitem" key={subtask.id}>
               <td><div className="pt-subitem-name">
                 <InlineEditableText value={subtask.title} label={'subtask ' + subtask.title} disabled={!canAdd || busy || subtask.status === 'completed'} onSave={async title => { await updateSubtask(subtask.id, { title }); await refresh(); }}/>
-                <button type="button" aria-label={'Open subtask ' + subtask.title} onClick={() => onOpen(subtask,readOnly)}><PanelRight size={15}/></button>
+                <WorkspaceTooltip content="Open subtask details"><button type="button" aria-label={'Open subtask ' + subtask.title} onClick={() => onOpen(subtask,readOnly)}><PanelRight size={15}/></button></WorkspaceTooltip>
               </div></td>
               <td className="pt-subitem-owner" title={owners || 'Unassigned'}>{owners || 'Unassigned'}</td>
               <td className="pt-subitem-status" style={{ background: STATUS_COLORS[subtask.status], boxShadow: status.color ? `inset 3px 0 ${status.color}` : undefined }}>{status.label}</td>

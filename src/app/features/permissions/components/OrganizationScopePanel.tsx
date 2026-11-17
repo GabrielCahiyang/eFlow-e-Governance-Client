@@ -1,3 +1,4 @@
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Building2, CalendarClock, Plus, Trash2 } from "lucide-react";
 import type { Organization } from "../../../types";
@@ -13,6 +14,10 @@ import type { OrganizationAccessLevel, OrganizationScopeGrant } from "../types";
 import { useConfirmation } from "../../../components/ui/useConfirmation";
 import { useExplicitDraft } from "../../../shared/useExplicitDraft";
 import { FeedbackState } from "../../../components/ui/FeedbackState";
+import { readableUiError } from "../../../shared/userFacingError";
+
+const accessLabel = (value: OrganizationAccessLevel) =>
+  ({ read: 'View records', review: 'View and review assigned work', manage: 'Manage projects and tasks' }[value]);
 export function OrganizationScopePanel({
   userId,
   homeOrgId,
@@ -43,7 +48,7 @@ export function OrganizationScopePanel({
     setAccessLevel("read");
   };
   const draft = useExplicitDraft(
-    "Office scope grant",
+    "Office access change",
     Boolean(orgId || reason || expiresAt || accessLevel !== "read"),
     saving,
     reset,
@@ -60,7 +65,7 @@ export function OrganizationScopePanel({
     try {
       setGrants(await fetchOrganizationScopeGrants(userId));
     } catch (error: any) {
-      toast(error?.message || "Could not load organization grants.", "error");
+      toast(readableUiError(error, "We couldn’t load this person’s Office access.", 'read'), "error");
     }
   };
   useEffect(() => {
@@ -69,8 +74,8 @@ export function OrganizationScopePanel({
 
   const save = async () => {
     if (pending.current) return;
-    if (!reason.trim()) return setFailure("A business reason is required.");
-    if (!orgId) return toast("Choose an organization.", "warning");
+    if (!reason.trim()) return setFailure("Enter a reason for granting access.");
+    if (!orgId) return toast("Choose an Office.", "warning");
     pending.current = true;
     draft.pendingRef.current = true;
     setSaving(true);
@@ -78,9 +83,9 @@ export function OrganizationScopePanel({
     try {
       if (
         !(await confirmation.confirm({
-          title: "Grant Office scope?",
-          description: `${orgMap[orgId] || orgId}: ${accessLevel} access for this account. ${expiresAt ? "Expires " + expiresAt : "No expiry"}. Reason: ${reason}. Page permissions and server policies continue to apply.`,
-          actionLabel: "Grant scope",
+          title: "Grant Office access?",
+          description: `Grant access to ${orgMap[orgId] || "the selected Office"}. Access level: ${accessLabel(accessLevel)}. ${expiresAt ? "Expires " + expiresAt : "No expiry date"}. Reason: ${reason}. Their page permissions still apply.`,
+          actionLabel: "Grant Office access",
         }))
       )
         return;
@@ -96,15 +101,11 @@ export function OrganizationScopePanel({
       });
       draft.markClean();
       reset();
-      setResult(`Saved ${accessLevel} scope for ${orgMap[orgId] || orgId}.`);
+      setResult(`Granted access to ${orgMap[orgId] || "the selected Office"}.`);
       await load();
-      toast("Organization scope granted and audited.", "success");
-    } catch (error: any) {
-      setFailure(error?.message || "Failed to save the organization grant.");
-      toast(
-        error?.message || "Failed to save the organization grant.",
-        "error",
-      );
+      toast("Office access granted.", "success");
+    } catch (error) {
+      setFailure(readableUiError(error, "We couldn’t grant Office access. Check the person’s current access before trying again."));
     } finally {
       pending.current = false;
       draft.pendingRef.current = false;
@@ -122,20 +123,19 @@ export function OrganizationScopePanel({
     try {
       if (
         !(await confirmation.confirm({
-          title: "Remove Office scope?",
-          description: `Remove ${grant.accessLevel} access to ${orgMap[grant.orgId] || grant.orgId}. Normal role and home Office scope continue to apply.`,
-          actionLabel: "Remove scope",
+          title: "Remove Office access?",
+          description: `Remove the additional access to ${orgMap[grant.orgId] || "this Office"}. Access level: ${accessLabel(grant.accessLevel)}. The person keeps access provided by their role and home Office.`,
+          actionLabel: "Remove Office access",
           danger: true,
         }))
       )
         return;
       await deleteOrganizationScopeGrant(grantId);
-      setResult("Office scope removed.");
+      setResult("Office access removed.");
       await load();
-      toast("Organization grant removed.", "success");
-    } catch (error: any) {
-      setFailure(error?.message || "Failed to remove the grant.");
-      toast(error?.message || "Failed to remove the grant.", "error");
+      toast("Office access removed.", "success");
+    } catch (error) {
+      setFailure(readableUiError(error, "We couldn’t remove Office access. Check the person’s current access before trying again."));
     } finally {
       pending.current = false;
       draft.pendingRef.current = false;
@@ -147,12 +147,12 @@ export function OrganizationScopePanel({
     <section className="rounded-2xl border border-neutral-200 bg-white p-4">
       {confirmation.dialog}
       {failure && (
-        <FeedbackState tone="error" title="Scope change needs review">
+        <FeedbackState tone="error" title="Check Office access">
           {failure}
         </FeedbackState>
       )}
       {result && (
-        <FeedbackState tone="success" title="Saved scope change">
+        <FeedbackState tone="success" title="Office access updated">
           {result}
         </FeedbackState>
       )}
@@ -162,11 +162,10 @@ export function OrganizationScopePanel({
         </div>
         <div>
           <h3 className="text-[13px] font-semibold text-neutral-900">
-            Organization scope exceptions
+            Access to other Offices
           </h3>
           <p className="mt-0.5 text-[10.5px] leading-relaxed text-neutral-500">
-            A page permission does not expose another office. Add a separate,
-            reasoned scope only when cross-office work requires it.
+            Use this to give someone access to another Office’s records. Their page permissions still apply.
           </p>
         </div>
       </div>
@@ -176,12 +175,12 @@ export function OrganizationScopePanel({
         className="grid gap-2 rounded-xl bg-neutral-50 p-3 lg:grid-cols-[1fr_120px_150px]"
       >
         <select
-          aria-label="Scope Office"
+          aria-label="Office to grant access to"
           value={orgId}
           onChange={(event) => setOrgId(event.target.value)}
           className="h-9 rounded-lg border border-neutral-200 bg-white px-3 text-[11px] outline-none focus:border-neutral-400"
         >
-          <option value="">Choose another organization…</option>
+          <option value="">Choose another Office…</option>
           {available.map((org) => (
             <option key={org.id} value={org.id}>
               {org.name}
@@ -189,7 +188,7 @@ export function OrganizationScopePanel({
           ))}
         </select>
         <select
-          aria-label="Scope access level"
+          aria-label="Office access level"
           value={accessLevel}
           onChange={(event) =>
             setAccessLevel(event.target.value as OrganizationAccessLevel)
@@ -198,12 +197,12 @@ export function OrganizationScopePanel({
         >
           {ACCESS_LEVELS.map((level) => (
             <option key={level.value} value={level.value}>
-              {level.label}
+              {accessLabel(level.value)}
             </option>
           ))}
         </select>
         <input
-          aria-label="Scope expiry"
+          aria-label="Access expiry date"
           type="date"
           value={expiresAt}
           onChange={(event) => setExpiresAt(event.target.value)}
@@ -211,10 +210,10 @@ export function OrganizationScopePanel({
           title="Optional expiry date"
         />
         <input
-          aria-label="Scope business reason"
+          aria-label="Reason for granting Office access"
           value={reason}
           onChange={(event) => setReason(event.target.value)}
-          placeholder="Required business reason…"
+          placeholder="Enter a reason…"
           className="h-9 rounded-lg border border-neutral-200 bg-white px-3 text-[11px] outline-none focus:border-neutral-400 lg:col-span-2"
         />
         <button
@@ -223,15 +222,14 @@ export function OrganizationScopePanel({
           onClick={save}
           className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-neutral-900 px-3 text-[11px] font-semibold text-white hover:bg-neutral-800 disabled:opacity-50"
         >
-          <Plus size={13} /> {saving ? "Saving…" : "Add scope"}
+          <Plus size={13} /> {saving ? "Saving…" : "Grant Office access"}
         </button>
       </fieldset>
 
       <div className="mt-3 space-y-2">
         {grants.length === 0 ? (
           <p className="rounded-xl border border-dashed border-neutral-200 py-6 text-center text-[11px] text-neutral-400">
-            No cross-organization exceptions. Normal role and organization scope
-            applies.
+            This person has no additional Office access.
           </p>
         ) : (
           grants.map((grant) => (
@@ -242,10 +240,10 @@ export function OrganizationScopePanel({
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-[11.5px] font-semibold text-neutral-900">
-                    {orgMap[grant.orgId] || "Unknown organization"}
+                    {orgMap[grant.orgId] || "Office name unavailable"}
                   </span>
                   <span className="rounded-full bg-violet-50 px-2 py-0.5 text-[9px] font-semibold uppercase text-violet-700">
-                    {grant.accessLevel}
+                    {accessLabel(grant.accessLevel)}
                   </span>
                 </div>
                 <p className="mt-1 truncate text-[10px] text-neutral-500">
@@ -258,18 +256,18 @@ export function OrganizationScopePanel({
                   {new Date(grant.expiresAt).toLocaleDateString()}
                 </span>
               ) : (
-                <span className="text-[9.5px] text-neutral-400">No expiry</span>
+                <span className="text-[9.5px] text-neutral-400">No expiry date</span>
               )}
-              <button
+              <WorkspaceTooltip content={`Remove Office access for ${orgMap[grant.orgId] || "this Office"}`}><button
                 type="button"
                 disabled={saving}
-                aria-label={`Remove scope for ${orgMap[grant.orgId] || grant.orgId}`}
+                aria-label={`Remove Office access for ${orgMap[grant.orgId] || "this Office"}`}
                 onClick={() => remove(grant.id)}
                 className="rounded-lg p-2 text-neutral-400 hover:bg-red-50 hover:text-red-600"
-                title="Remove scope"
+
               >
                 <Trash2 size={14} />
-              </button>
+              </button></WorkspaceTooltip>
             </div>
           ))
         )}

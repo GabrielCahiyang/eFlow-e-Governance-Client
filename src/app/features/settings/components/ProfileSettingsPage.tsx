@@ -1,83 +1,53 @@
 import { attachmentError } from '../../../shared/fileValidation';
 import { useEffect, useRef, useState, type ChangeEvent } from 'react';
-import { Building2, Camera, Check, IdCard, Mail, ShieldCheck, Trash2, Upload, UserRound } from 'lucide-react';
+import { Building2, Calendar, Check, IdCard, Mail, ShieldCheck, Trash2, Upload, UserRound } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { clearProfileAvatar, getProfileAvatarUrl, replaceProfileAvatar, updateOwnProfile } from '../../../services/userSettingsService';
 import { fetchAllOrgs } from '../../../../lib/supabaseService';
 import { Input } from '../../../components/ui/input';
 import { useNavigationBlocker } from '../../../shared/navigationGuard';
+import {
+  readPersonalSettings,
+  savePersonalSettings,
+  type DateDisplayFormat,
+  type PersonalSettings,
+  type TimeDisplayFormat,
+  type WeekStartDay,
+} from '../personalSettingsStore';
 import { IdentityItem, ResultMessage, SectionHeading, Surface, formatRole, initials, inputClass, type Result } from './settingsPrimitives';
 
 function ProfileSettingsSkeleton() {
+  const pulse = 'animate-pulse rounded bg-[var(--eflow-subtle)]';
   return (
-    <div
-      className="space-y-5"
-      role="status"
-      aria-label="Loading your personal profile…"
-    >
+    <div className="space-y-5" role="status" aria-label="Loading your personal profile…">
       <span className="sr-only">Loading your personal profile…</span>
       <div aria-hidden="true" className="space-y-5">
         <Surface className="overflow-hidden">
-          <div className="relative overflow-hidden bg-[#0c1c3d] px-5 pb-5 pt-6 sm:px-7 sm:pt-7">
-            <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-center gap-4">
-                <div className="size-20 shrink-0 animate-pulse rounded-2xl border border-white/25 bg-white/15" />
-                <div className="space-y-2">
-                  <div className="h-2.5 w-28 animate-pulse rounded bg-blue-200/40" />
-                  <div className="h-6 w-44 animate-pulse rounded bg-white/30" />
-                  <div className="h-5 w-24 animate-pulse rounded-full border border-white/15 bg-white/10" />
-                </div>
-              </div>
-              <div className="rounded-xl border border-white/10 bg-white/10 px-3 py-2">
-                <div className="h-2.5 w-20 animate-pulse rounded bg-blue-300/40" />
-                <div className="mt-1.5 h-3.5 w-40 animate-pulse rounded bg-white/30" />
+          <div className="border-b border-[var(--eflow-border)] px-5 py-5 sm:px-7">
+            <div className="flex items-center gap-4">
+              <div className={`size-16 shrink-0 rounded-xl ${pulse}`} />
+              <div className="space-y-2">
+                <div className={`h-5 w-44 ${pulse}`} />
+                <div className={`h-3.5 w-60 ${pulse}`} />
               </div>
             </div>
           </div>
-          <div className="grid grid-cols-1 divide-y divide-neutral-100 px-5 py-3 sm:grid-cols-3 sm:divide-x sm:divide-y-0 sm:px-7 dark:divide-slate-800">
+          <div className="grid grid-cols-1 divide-y divide-[var(--eflow-border)] px-5 py-3 sm:grid-cols-3 sm:divide-x sm:divide-y-0 sm:px-7">
             {[0, 1, 2].map((index) => (
               <div key={index} className="flex items-center gap-3 py-2 sm:px-3">
-                <div className="size-8 shrink-0 animate-pulse rounded-lg bg-neutral-100 dark:bg-slate-800" />
+                <div className={`size-7 shrink-0 rounded-lg ${pulse}`} />
                 <div className="space-y-1.5">
-                  <div className="h-2.5 w-16 animate-pulse rounded bg-neutral-100 dark:bg-slate-800" />
-                  <div className="h-3.5 w-32 animate-pulse rounded bg-neutral-200/80 dark:bg-slate-700" />
+                  <div className={`h-2.5 w-16 ${pulse}`} />
+                  <div className={`h-3.5 w-32 ${pulse}`} />
                 </div>
               </div>
             ))}
           </div>
         </Surface>
-
-        <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(300px,0.78fr)]">
-          <Surface className="p-5 sm:p-6">
-            <SectionHeading
-              icon={<UserRound size={19} />}
-              eyebrow="Profile"
-              title="How your name appears"
-              description="Use a clear display name for assignments, messages, and activity."
-            />
-            <div className="mt-5 max-w-xl space-y-3">
-              <div className="h-3.5 w-24 animate-pulse rounded bg-neutral-200/80 dark:bg-slate-700" />
-              <div className="h-10 w-full animate-pulse rounded-xl bg-neutral-100 dark:bg-slate-800" />
-              <div className="h-10 w-28 animate-pulse rounded-xl bg-neutral-200/80 dark:bg-slate-700" />
-            </div>
-          </Surface>
-
-          <Surface className="p-5 sm:p-6">
-            <SectionHeading
-              icon={<Camera size={19} />}
-              eyebrow="Profile photo"
-              title="A recognizable account"
-              description="JPEG, PNG, or WebP. Up to 2 MB. Your photo stays private."
-            />
-            <div className="mt-5 flex items-center gap-4">
-              <div className="size-16 shrink-0 animate-pulse rounded-2xl bg-neutral-200/80 dark:bg-slate-800" />
-              <div className="space-y-2">
-                <div className="h-9 w-24 animate-pulse rounded-lg bg-neutral-100 dark:bg-slate-800" />
-                <div className="h-3 w-48 animate-pulse rounded bg-neutral-100 dark:bg-slate-800" />
-              </div>
-            </div>
-          </Surface>
-        </div>
+        <Surface className="p-5 sm:p-6">
+          <div className={`h-4 w-36 ${pulse}`} />
+          <div className={`mt-4 h-10 max-w-md ${pulse}`} />
+        </Surface>
       </div>
     </div>
   );
@@ -87,28 +57,39 @@ export function ProfileSettingsPage() {
   const { userProfile, updateUserProfile } = useAuth();
   const [displayName, setDisplayName] = useState(userProfile?.full_name ?? '');
   const [nameDirty, setNameDirty] = useState(false);
-  const [office, setOffice] = useState('Loading office…');
+  const [office, setOffice] = useState(userProfile?.org_name ?? 'Loading office…');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
   const [nameSaving, setNameSaving] = useState(false);
   const [avatarSaving, setAvatarSaving] = useState(false);
   const [nameResult, setNameResult] = useState<Result>(null);
   const [avatarResult, setAvatarResult] = useState<Result>(null);
+  const [regional, setRegional] = useState<PersonalSettings>(() => readPersonalSettings(userProfile?.id));
+  const [regionalSaved, setRegionalSaved] = useState<Result>(null);
   const fileInput = useRef<HTMLInputElement>(null);
-  useNavigationBlocker({ label: 'Profile', dirty: nameDirty && displayName !== (userProfile?.full_name ?? ''), pending: nameSaving || avatarSaving, onDiscard: () => { setNameDirty(false); setDisplayName(userProfile?.full_name ?? ''); } });
+
+  useNavigationBlocker({
+    label: 'Profile',
+    dirty: nameDirty && displayName !== (userProfile?.full_name ?? ''),
+    pending: nameSaving || avatarSaving,
+    onDiscard: () => {
+      setNameDirty(false);
+      setDisplayName(userProfile?.full_name ?? '');
+    },
+  });
 
   useEffect(() => {
     if (!nameDirty) setDisplayName(userProfile?.full_name ?? '');
   }, [nameDirty, userProfile?.full_name]);
 
   useEffect(() => {
-    let active = true;
-    if (!userProfile) {
-      setLoading(false);
-      return;
-    }
+    setRegional(readPersonalSettings(userProfile?.id));
+    setRegionalSaved(null);
+  }, [userProfile?.id]);
 
-    setLoading(true);
+  useEffect(() => {
+    let active = true;
+    if (!userProfile) return;
+
     Promise.all([
       getProfileAvatarUrl(userProfile.avatar_path),
       fetchAllOrgs(),
@@ -123,10 +104,6 @@ export function ProfileSettingsPage() {
         if (!active) return;
         setAvatarUrl(null);
         setOffice(userProfile.org_name ?? 'Unavailable');
-        setAvatarResult({ tone: 'error', text: 'We could not load your private profile photo.' });
-      })
-      .finally(() => {
-        if (active) setLoading(false);
       });
 
     return () => {
@@ -161,8 +138,11 @@ export function ProfileSettingsPage() {
     const file = event.target.files?.[0];
     event.target.value = '';
     if (!file || !userProfile) return;
-    const issue = attachmentError([file], { maxMb: 2, maxCount: 1, extensions: ['jpg','jpeg','png','webp'] });
-    if (issue) { setAvatarResult({ tone: 'error', text: issue }); return; }
+    const issue = attachmentError([file], { maxMb: 2, maxCount: 1, extensions: ['jpg', 'jpeg', 'png', 'webp'] });
+    if (issue) {
+      setAvatarResult({ tone: 'error', text: issue });
+      return;
+    }
 
     setAvatarSaving(true);
     setAvatarResult(null);
@@ -196,77 +176,155 @@ export function ProfileSettingsPage() {
     }
   };
 
-  if (!userProfile || loading) {
+  const updateRegional = (patch: Partial<PersonalSettings>) => {
+    const next = savePersonalSettings(userProfile?.id, patch);
+    setRegional(next);
+    setRegionalSaved({ tone: 'success', text: 'Regional preference saved on this browser.' });
+  };
+
+  if (!userProfile) {
     return <ProfileSettingsSkeleton />;
   }
 
   return (
     <div className="space-y-5">
+      {/* Unified Identity & Photo Card (single avatar + inline photo controls) */}
       <Surface className="overflow-hidden">
-        <div className="relative overflow-hidden bg-[#0c1c3d] px-5 pb-5 pt-6 sm:px-7 sm:pt-7">
-          <div className="absolute -right-12 -top-16 size-56 rounded-full bg-blue-400/20 blur-3xl" />
-          <div className="absolute bottom-0 left-1/3 size-36 rounded-full bg-cyan-300/10 blur-2xl" />
-          <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-4">
-              <div className="relative flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/25 bg-gradient-to-br from-blue-400 to-indigo-600 text-[22px] font-semibold text-white shadow-xl shadow-blue-950/30">
+        <div className="border-b border-[var(--eflow-border)] bg-[var(--eflow-surface)] px-5 py-5 sm:px-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-4 min-w-0">
+              <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-[10px] border border-[var(--eflow-border)] bg-[var(--eflow-primary)] text-[20px] font-semibold text-[var(--eflow-on-primary)]">
                 {avatarUrl ? <img src={avatarUrl} alt="Your profile" className="size-full object-cover" /> : initials(userProfile.full_name)}
-                <span className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/15" />
               </div>
-              <div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-blue-200">Personal workspace</p>
-                <h2 className="mt-1 text-[20px] font-semibold text-white">{userProfile.full_name}</h2>
-                <div className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wide text-blue-50">
-                  <ShieldCheck size={12} /> {formatRole(userProfile.role)}
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h2 className="text-[18px] font-semibold text-[var(--eflow-text)]">{userProfile.full_name}</h2>
+                  <span className="inline-flex items-center gap-1 rounded-[6px] border border-[var(--eflow-border)] bg-[var(--eflow-selected)] px-2 py-0.5 text-[11px] font-medium text-[var(--eflow-on-selected)]">
+                    <ShieldCheck size={12} /> {formatRole(userProfile.role)}
+                  </span>
                 </div>
+                <p className="mt-0.5 text-[12px] text-[var(--eflow-text-muted)]">
+                  JPEG, PNG, or WebP up to 2 MB · Private signed link for your active session
+                </p>
               </div>
             </div>
-            <div className="rounded-xl border border-white/10 bg-white/10 px-3 py-2 text-[11px] text-blue-100 backdrop-blur-sm">
-              <span className="block text-[9px] font-semibold uppercase tracking-wider text-blue-300">Account identity</span>
-              <span className="mt-0.5 block truncate font-medium text-white">{userProfile.email}</span>
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => fileInput.current?.click()}
+                disabled={avatarSaving}
+                className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-[var(--eflow-border)] bg-[var(--eflow-surface)] px-3 text-[12px] font-medium text-[var(--eflow-text)] transition hover:border-[var(--eflow-primary)] hover:bg-[var(--eflow-subtle)] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <Upload size={14} aria-hidden="true" />
+                <span>{avatarSaving ? 'Working…' : userProfile.avatar_path ? 'Replace photo' : 'Upload photo'}</span>
+              </button>
+              {userProfile.avatar_path && (
+                <button
+                  type="button"
+                  onClick={removePhoto}
+                  disabled={avatarSaving}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-transparent px-2.5 text-[12px] font-medium text-[var(--eflow-negative-text)] transition hover:bg-[var(--eflow-negative-bg)] disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <Trash2 size={14} aria-hidden="true" />
+                  <span>Remove</span>
+                </button>
+              )}
+              <input ref={fileInput} type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" aria-label="Upload profile photo" onChange={onChoosePhoto} />
             </div>
           </div>
+          <ResultMessage result={avatarResult} />
         </div>
-        <div className="grid grid-cols-1 divide-y divide-neutral-100 px-5 py-1 sm:grid-cols-3 sm:divide-x sm:divide-y-0 sm:px-7 dark:divide-slate-800">
+        <div className="grid grid-cols-1 divide-y divide-[var(--eflow-border)] px-5 py-1 sm:grid-cols-3 sm:divide-x sm:divide-y-0 sm:px-6">
           <IdentityItem icon={<Mail size={15} />} label="Email" value={userProfile.email} />
           <IdentityItem icon={<IdCard size={15} />} label="Employee ID" value={userProfile.employee_id || '—'} />
           <IdentityItem icon={<Building2 size={15} />} label="Office / section" value={office} />
         </div>
       </Surface>
 
-      <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(300px,0.78fr)]">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <Surface className="p-5 sm:p-6">
-          <SectionHeading icon={<UserRound size={19} />} eyebrow="Profile" title="How your name appears" description="Use a clear display name for assignments, messages, and activity." />
-          <div className="mt-5 max-w-xl">
-            <label htmlFor="display-name" className="mb-2 block text-[12px] font-medium text-neutral-700 dark:text-slate-200">Display name</label>
-            <Input id="display-name" value={displayName} onChange={(event) => { setDisplayName(event.target.value); setNameDirty(true); }} className={inputClass} maxLength={100} />
+          <SectionHeading
+            icon={<UserRound size={18} />}
+            title="Display name"
+            description="Shown on task assignments, reviews, comments, and activity logs."
+          />
+          <div className="mt-4">
+            <label htmlFor="display-name" className="mb-1.5 block text-[12px] font-medium text-[var(--eflow-text-secondary)]">
+              Display name
+            </label>
+            <Input
+              id="display-name"
+              value={displayName}
+              onChange={(event) => {
+                setDisplayName(event.target.value);
+                setNameDirty(true);
+              }}
+              className={inputClass}
+              maxLength={100}
+            />
             <div className="mt-3 flex flex-wrap items-center gap-3">
-              <button type="button" onClick={saveName} disabled={nameSaving || !displayName.trim()} className="inline-flex h-10 items-center gap-2 rounded-xl bg-primary px-4 text-[12px] font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50">
-                {nameSaving ? 'Saving…' : <><Check size={15} /> Save name</>}
+              <button
+                type="button"
+                onClick={saveName}
+                disabled={nameSaving || !displayName.trim()}
+                className="inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-4 text-[12px] font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {nameSaving ? 'Saving…' : <><Check size={14} aria-hidden="true" /> Save name</>}
               </button>
-              {nameDirty && !nameSaving && <span className="text-[11px] text-amber-600 dark:text-amber-400">Unsaved changes</span>}
+              {nameDirty && !nameSaving && (
+                <span className="text-[11.5px] font-medium text-[var(--eflow-warning-text)]">Unsaved changes</span>
+              )}
             </div>
             <ResultMessage result={nameResult} />
           </div>
         </Surface>
 
         <Surface className="p-5 sm:p-6">
-          <SectionHeading icon={<Camera size={19} />} eyebrow="Profile photo" title="A recognizable account" description="JPEG, PNG, or WebP. Up to 2 MB. Your photo stays private." />
-          <div className="mt-5 flex items-center gap-4">
-            <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-slate-800 to-slate-600 text-[17px] font-semibold text-white dark:from-slate-700 dark:to-slate-900">
-              {avatarUrl ? <img src={avatarUrl} alt="Current profile" className="size-full object-cover" /> : initials(userProfile.full_name)}
-            </div>
-            <div className="min-w-0">
-              <div className="flex flex-wrap gap-2">
-                <button type="button" onClick={() => fileInput.current?.click()} disabled={avatarSaving} className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 text-[11px] font-semibold text-neutral-700 transition hover:border-primary/30 hover:bg-primary/5 hover:text-primary disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-primary/10">
-                  {avatarSaving ? 'Working…' : <><Upload size={14} /> {userProfile.avatar_path ? 'Replace' : 'Upload'}</>}
-                </button>
-                {userProfile.avatar_path && <button type="button" onClick={removePhoto} disabled={avatarSaving} className="inline-flex h-9 items-center gap-1.5 rounded-lg px-2 text-[11px] font-semibold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 dark:text-red-400 dark:hover:bg-red-500/10"><Trash2 size={14} /> Remove</button>}
-              </div>
-              <p className="mt-2 text-[10px] leading-4 text-neutral-500 dark:text-slate-400">A signed link is generated only for your active session.</p>
-            </div>
+          <SectionHeading
+            icon={<Calendar size={18} />}
+            title="Regional display"
+            description="Personalize how dates, timestamps, and calendars are formatted."
+          />
+          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <label className="grid gap-1.5 text-[12px] font-medium text-[var(--eflow-text-secondary)]">
+              <span>Date format</span>
+              <select
+                aria-label="Date format"
+                value={regional.dateFormat}
+                onChange={(e) => updateRegional({ dateFormat: e.target.value as DateDisplayFormat })}
+                className="h-10 rounded-lg border border-[var(--eflow-border)] bg-[var(--eflow-surface)] px-3 text-[13px] font-normal text-[var(--eflow-text)]"
+              >
+                <option value="dmy">17 Nov 2026</option>
+                <option value="mdy">Nov 17, 2026</option>
+                <option value="iso">2026-11-17</option>
+              </select>
+            </label>
+            <label className="grid gap-1.5 text-[12px] font-medium text-[var(--eflow-text-secondary)]">
+              <span>Time format</span>
+              <select
+                aria-label="Time format"
+                value={regional.timeFormat}
+                onChange={(e) => updateRegional({ timeFormat: e.target.value as TimeDisplayFormat })}
+                className="h-10 rounded-lg border border-[var(--eflow-border)] bg-[var(--eflow-surface)] px-3 text-[13px] font-normal text-[var(--eflow-text)]"
+              >
+                <option value="12h">12-hour (2:30 PM)</option>
+                <option value="24h">24-hour (14:30)</option>
+              </select>
+            </label>
+            <label className="grid gap-1.5 text-[12px] font-medium text-[var(--eflow-text-secondary)] sm:col-span-2">
+              <span>Week starts on</span>
+              <select
+                aria-label="Week starts on"
+                value={regional.weekStartsOn}
+                onChange={(e) => updateRegional({ weekStartsOn: e.target.value as WeekStartDay })}
+                className="h-10 rounded-lg border border-[var(--eflow-border)] bg-[var(--eflow-surface)] px-3 text-[13px] font-normal text-[var(--eflow-text)]"
+              >
+                <option value="monday">Monday</option>
+                <option value="sunday">Sunday</option>
+              </select>
+            </label>
           </div>
-          <input ref={fileInput} type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={onChoosePhoto} />
-          <ResultMessage result={avatarResult} />
+          <ResultMessage result={regionalSaved} />
         </Surface>
       </div>
     </div>

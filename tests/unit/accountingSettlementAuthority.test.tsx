@@ -122,7 +122,7 @@ describe("Accounting settlement authority", () => {
     await waitFor(() => expect(screen.getByRole('button', { name: /Settle & post/ }).getAttribute('aria-disabled')).not.toBe('true'));
     fireEvent.click(screen.getByRole('button', { name: /Settle & post/ }));
     fireEvent.click(await screen.findByRole('button', { name: 'Confirm settlement', exact: true }));
-    await screen.findByText(message + ' Your review reason is retained.');
+    await screen.findByText('The settlement was not saved. ' + message + '.');
     expect(screen.queryByRole('button', { name: 'Verify settlement outcome' })).toBeNull();
     expect(changed).not.toHaveBeenCalled();
     fireEvent.click(await screen.findByRole('button', { name: /Settle & post/ }));

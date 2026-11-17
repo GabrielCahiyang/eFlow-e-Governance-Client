@@ -5,7 +5,7 @@ type IntentListener = (intent: NotificationNavigationIntent) => void;
 let pending: {intent:NotificationNavigationIntent;actorId?:string} | null = null;
 const listeners = new Set<IntentListener>();
 const storageKey=(actorId:string)=>`eflow.notification-intent.v1:${actorId}`;
-const kinds=new Set(['task','subtask','leading_task','task_review','subtask_review','announcement','team_intelligence','project','proposal','collaboration','budget']);
+const kinds=new Set(['task','subtask','leading_task','personal_work','task_review','subtask_review','announcement','team_intelligence','project','proposal','collaboration','budget']);
 const fields=['notificationId','kind','taskId','projectId','proposalId','entityLabel','entityId','inspectorSection','financialRecordId','financialRecordType'] as const;
 const optionalFields=['taskId','projectId','proposalId','entityLabel','entityId','financialRecordId','financialRecordType'] as const;
 function read(actorId:string):NotificationNavigationIntent|null {

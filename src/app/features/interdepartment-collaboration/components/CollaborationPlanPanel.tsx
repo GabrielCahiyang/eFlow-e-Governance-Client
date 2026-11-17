@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import * as React from "react";
 import { Button, IconButton, Label } from "@vibe/core";
 import { Collapse, Expand } from "@vibe/icons";
@@ -82,7 +83,7 @@ export function CollaborationPlanPanel({
     try {
       await onSave(working, "Proposal plan and responsibilities updated");
     } catch (error) {
-      setSaveError(error instanceof Error ? error.message : "Changes could not be saved.");
+      setSaveError(readableUiError(error, "Changes could not be saved.", 'write'));
     } finally {
       setSaving(false);
     }

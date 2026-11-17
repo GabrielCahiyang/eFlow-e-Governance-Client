@@ -1,3 +1,4 @@
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { Compass, Play, Volume2, VolumeX, X } from "lucide-react";
 import { createPortal } from "react-dom";
 import { isTourNarrationSupported } from "../services/tourNarrationService";
@@ -26,7 +27,7 @@ export function WelcomeTourPrompt({
         <div className="bg-gradient-to-br from-neutral-950 via-slate-900 to-violet-950 p-6 text-white">
           <div className="flex items-start justify-between gap-4">
             <div className="flex h-12 w-12 animate-in items-center justify-center rounded-2xl bg-white/10 ring-1 ring-white/15 zoom-in-75 duration-700 motion-reduce:animate-none"><Compass size={24} /></div>
-            <button type="button" onClick={onLater} aria-label="Close welcome" className="rounded-lg p-1.5 text-white/60 transition-all duration-200 hover:bg-white/10 hover:text-white active:scale-95 motion-reduce:transform-none"><X size={18} /></button>
+            <WorkspaceTooltip content="Close welcome"><button type="button" onClick={onLater} aria-label="Close welcome" className="rounded-lg p-1.5 text-white/60 transition-all duration-200 hover:bg-white/10 hover:text-white active:scale-95 motion-reduce:transform-none"><X size={18} /></button></WorkspaceTooltip>
           </div>
           <h2 id="welcome-tour-title" className="mt-5 text-[22px] font-semibold">Welcome to your eFlow workspace</h2>
           <p className="mt-2 text-[13.5px] leading-6 text-white/75">A short guided tour will introduce the tools available to your {roleLabel} account. The tour is instructional only and cannot change official records.</p>

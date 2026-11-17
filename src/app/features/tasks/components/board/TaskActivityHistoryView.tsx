@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../../shared/userFacingError';
 import { EmptyState } from '../../../../components/ui/EmptyState';
 import { useEffect, useMemo, useState } from "react";
 import { Activity, CircleDot, History, RefreshCw } from "lucide-react";
@@ -38,7 +39,7 @@ export function TaskActivityHistoryView({
       .catch((loadError) => {
         if (active) {
           setItems([]);
-          setError(loadError instanceof Error ? loadError.message : "Activity history could not be loaded.");
+          setError(readableUiError(loadError, "Activity history could not be loaded.", 'read'));
         }
       })
       .finally(() => {

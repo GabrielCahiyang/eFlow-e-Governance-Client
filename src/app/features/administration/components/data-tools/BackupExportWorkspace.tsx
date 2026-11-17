@@ -77,7 +77,7 @@ function BackupExportWorkspaceSkeleton() {
             icon={<Table2 size={15} />}
           />
           <StatCard
-            label="Gateway readiness"
+            label="Backup service status"
             value={<span className="inline-block h-6 w-16 animate-pulse rounded bg-neutral-200/80" />}
             hint="Database URL + pg_dump"
             tone="info"
@@ -93,7 +93,7 @@ function BackupExportWorkspaceSkeleton() {
           <StatCard
             label="Rows packaged"
             value={<span className="inline-block h-6 w-14 animate-pulse rounded bg-neutral-200/80" />}
-            hint="This gateway session"
+            hint="This backup session"
             icon={<Database size={15} />}
           />
         </div>
@@ -516,7 +516,7 @@ export function BackupExportWorkspace() {
           icon={<Table2 size={15} />}
         />
         <StatCard
-          label="Gateway readiness"
+          label="Backup service status"
           value={overview?.preflight.configured ? "Ready" : "Setup needed"}
           hint="Database URL + pg_dump"
           tone={overview?.preflight.configured ? "good" : "warn"}
@@ -532,7 +532,7 @@ export function BackupExportWorkspace() {
         <StatCard
           label="Rows packaged"
           value={exportedRows.toLocaleString()}
-          hint="This gateway session"
+          hint="This backup session"
           icon={<Database size={15} />}
         />
       </div>
@@ -863,7 +863,7 @@ export function BackupExportWorkspace() {
           <div className="rounded-xl border border-dashed border-neutral-300 bg-white py-10 text-center">
             <Archive size={24} className="mx-auto text-neutral-300" />
             <div className="mt-2 text-[12px] font-medium text-neutral-600">
-              No backup jobs in this gateway session
+              No backup jobs in this session
             </div>
             <div className="mt-0.5 text-[10.5px] text-neutral-400">
               Completed operations will appear here with their checksum and

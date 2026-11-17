@@ -1,3 +1,4 @@
+import { WorkspaceTooltip } from "./workspace/WorkspaceTooltip";
 import { useEffect, useRef, useState } from "react";
 import { PhoneOff, Mic, MicOff, Video, VideoOff } from "lucide-react";
 import {
@@ -101,26 +102,26 @@ export function CallModal({
       </div>
 
       <div className="absolute bottom-8 flex items-center gap-4">
-        <button
+        <WorkspaceTooltip content={muted ? "Unmute microphone" : "Mute microphone"}><button aria-label={muted ? "Unmute microphone" : "Mute microphone"}
           onClick={toggleMute}
           className="w-12 h-12 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20"
         >
           {muted ? <MicOff size={20} /> : <Mic size={20} />}
-        </button>
+        </button></WorkspaceTooltip>
         {call.callType === "video" && (
-          <button
+          <WorkspaceTooltip content={cameraOff ? "Turn camera on" : "Turn camera off"}><button aria-label={cameraOff ? "Turn camera on" : "Turn camera off"}
             onClick={toggleCamera}
             className="w-12 h-12 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20"
           >
             {cameraOff ? <VideoOff size={20} /> : <Video size={20} />}
-          </button>
+          </button></WorkspaceTooltip>
         )}
-        <button
+        <WorkspaceTooltip content="End call"><button aria-label="End call"
           onClick={() => sessionRef.current?.hangup()}
           className="w-12 h-12 rounded-full bg-red-600 text-white flex items-center justify-center hover:bg-red-700"
         >
           <PhoneOff size={20} />
-        </button>
+        </button></WorkspaceTooltip>
       </div>
     </div>
   );

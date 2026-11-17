@@ -1,3 +1,4 @@
+import { WorkspaceTooltip } from "../ui/workspace/WorkspaceTooltip";
 // ─── ReportsWorkspace (shared) ───────────────────────────────────
 // Departmental / system-wide reporting with data tables + visual summaries and
 // CSV/PDF export of the EXACT filtered rows. Scope-parameterized: Dept Head is
@@ -778,14 +779,14 @@ export function ReportsWorkspace({
                 >
                   <Printer size={13} /> Print / Save PDF
                 </button>
-                <button
+                <WorkspaceTooltip content="Close PDF preview"><button
                   type="button"
                   onClick={() => setPdfPreview(null)}
                   className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
                   aria-label="Close PDF preview"
                 >
                   <X size={17} />
-                </button>
+                </button></WorkspaceTooltip>
               </div>
             </header>
             <iframe

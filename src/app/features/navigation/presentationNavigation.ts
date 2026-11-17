@@ -1,6 +1,7 @@
 import { getRoleNavigationCandidates, isRoleNavigationItemVisible, type RoleNavItem } from './roleNavigation';
 import { canOpenNavigationSection, isAdministrativeNavigationSection } from './navigationPermissions';
 import { getSidebarContent } from './sidebarContent';
+import { pageDisplayLabel } from './pageDisplayLabel';
 import { getAuthorizedSupportPages, resolveSupportPage } from './administrativePages';
 
 export type NavigationGroupId = 'my-work' | 'workspaces' | 'inbox' | 'accounting' | 'admin-center' | 'account';
@@ -10,13 +11,13 @@ export interface ShellNavigationItem extends RoleNavItem {
   hasAlert?: boolean;
 }
 export const navigationGroupLabels: Record<NavigationGroupId, string> = {
-  'my-work': 'My Work', workspaces: 'Workspaces', inbox: 'Inbox',
+  'my-work': 'My Work', workspaces: 'Workspace', inbox: 'Inbox',
   accounting: 'Accounting', 'admin-center': 'Admin Center', account: 'Profile & Settings',
 };
 export const navigationGroupDescriptions: Partial<Record<NavigationGroupId, string>> = {
   'my-work': 'Your personal tasks, deadlines, leadership and work history.',
   inbox: 'Personal review actions and recent updates, with their existing workflow owners.',
-  workspaces: 'Existing Office context and all projects you can access, including shared projects.',
+  workspaces: 'Office workspace tools, pages, and projects you can access.',
   'admin-center': 'Account and system support under your granted permissions.',
 };
 export function getContextEntry(items:ShellNavigationItem[],group:NavigationGroupId,activeSection:string){
@@ -29,7 +30,7 @@ export function getPresentationGroup(role: string, section: string): NavigationG
   if (section === 'users' || section === 'permissions' || isAdministrativeNavigationSection(section)) return 'admin-center';
   if (section.startsWith('accounting_')) return 'accounting';
   if (section === 'dashboard' || section === 'command') return 'workspaces';
-  if (section === 'inbox' || section === 'reviews' || section === 'announcements') return 'inbox';
+  if (section === 'inbox' || section === 'messages' || section === 'reviews') return 'inbox';
   if (['projects', 'budget', 'team', 'identity', 'intelligence'].includes(section) || (role === 'head' && ['tasks', 'reports'].includes(section))) return 'workspaces';
   return 'my-work';
 }
@@ -39,6 +40,7 @@ export function buildShellNavigation({ role, persistedRole = role, can, hasLeadi
   alerts?: { projects?: boolean; reviews?: boolean };
 }): ShellNavigationItem[] {
   return getRoleNavigationCandidates(role)
+    .filter(item => item.id !== 'announcements')
     .filter(item => isRoleNavigationItemVisible(item, hasLeadingWork, persistedRole) && canOpenNavigationSection(role, item.id, can, Boolean(hasLeadingWork && (item.requiresLeadership || item.id === 'personal_work'))))
     .filter(item=>item.id!=='intelligence'||!canOpenNavigationSection(role,'team',can,false))
     .filter(item=>item.id!=='identity'||!canOpenNavigationSection(role,'team',can,false))
@@ -58,7 +60,7 @@ export function buildShellNavigation({ role, persistedRole = role, can, hasLeadi
 export function searchNavigation(query: string, items: ShellNavigationItem[], projects: { id: string; title: string }[]) {
   const needle = query.trim().toLocaleLowerCase();
   if (!needle) return [];
-  const destinations = items.flatMap(item => item.pages.map(page => ({ id: `${item.id}:${page.label}`, title: page.label, kind: navigationGroupLabels[item.group], section: item.id, page: page.label, projectId: undefined as string | undefined })));
+  const destinations = items.flatMap(item => item.pages.map(page => ({ id: `${item.id}:${page.label}`, title: pageDisplayLabel(item.id, page.label), kind: navigationGroupLabels[item.group], section: item.id, page: page.label, projectId: undefined as string | undefined })));
   if (items.some(item => item.id === 'projects')) destinations.push(...projects.map(project => ({ id: project.id, title: project.title, kind: 'Project', section: 'projects', page: 'Projects', projectId: project.id })));
-  return destinations.filter(item => `${item.title} ${item.kind}`.toLocaleLowerCase().includes(needle)).slice(0, 50);
+  return destinations.filter(item => `${item.title} ${item.kind} ${item.page}`.toLocaleLowerCase().includes(needle)).slice(0, 50);
 }

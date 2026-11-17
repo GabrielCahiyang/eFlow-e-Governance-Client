@@ -1,3 +1,4 @@
+import { WorkspaceTooltip } from "../../../../components/ui/workspace/WorkspaceTooltip";
 import { X } from "lucide-react";
 import type { UserProfile } from "../../../../types";
 import { InspectorPanel } from "../../../../shared/motion";
@@ -30,14 +31,14 @@ export function AccountInspector({
           <p className="text-xs text-muted-foreground">Admin Center · People</p>
           <h2 className="text-xl font-semibold">{profile.full_name}</h2>
         </div>
-        <Button
+        <WorkspaceTooltip content="Close account details"><Button
           variant="ghost"
           size="icon"
           aria-label="Close account details"
           onClick={onClose}
         >
           <X size={18} />
-        </Button>
+        </Button></WorkspaceTooltip>
       </header>
       <div className="flex-1 space-y-5 overflow-y-auto p-5">
         <dl className="grid gap-4 text-sm">

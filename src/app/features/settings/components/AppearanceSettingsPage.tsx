@@ -1,61 +1,59 @@
-import { useState, type ReactNode } from 'react';
-import { Check, Laptop, Moon, Palette, Sun } from 'lucide-react';
+import { useEffect, useState, type ReactNode } from 'react';
+import { Check, Laptop, Moon, Palette, SlidersHorizontal, Sun } from 'lucide-react';
+import { useAuth } from '../../../contexts/AuthContext';
 import { useUserPreferences } from '../../../contexts/UserPreferencesContext';
 import type { ThemePreference } from '../../../types';
+import {
+  applyDisplayPreferences,
+  readPersonalSettings,
+  savePersonalSettings,
+  type InterfaceDensity,
+  type MotionMode,
+} from '../personalSettingsStore';
 import { ResultMessage, SectionHeading, Surface, type Result } from './settingsPrimitives';
 
 function AppearanceSettingsSkeleton() {
+  const pulse = 'animate-pulse rounded bg-[var(--eflow-subtle)]';
   return (
-    <div
-      className="max-w-3xl space-y-5"
-      role="status"
-      aria-label="Loading appearance preference…"
-    >
+    <div className="space-y-5" role="status" aria-label="Loading appearance preference…">
       <span className="sr-only">Loading appearance preference…</span>
       <div aria-hidden="true" className="space-y-5">
         <Surface className="p-5 sm:p-6">
-          <SectionHeading
-            icon={<Palette size={19} />}
-            eyebrow="Appearance"
-            title="Set the tone for your workspace"
-            description="Choose one appearance. System automatically tracks your device’s light or dark mode."
-          />
-          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <div className={`h-4 w-40 ${pulse}`} />
+          <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
             {[0, 1, 2].map((index) => (
-              <div
-                key={index}
-                className="relative min-h-36 rounded-2xl border border-neutral-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-950"
-              >
-                <div className="size-9 animate-pulse rounded-xl bg-neutral-100 dark:bg-slate-800" />
-                <div className="mt-4 h-4 w-20 animate-pulse rounded bg-neutral-200/80 dark:bg-slate-700" />
-                <div className="mt-2 h-3 w-36 animate-pulse rounded bg-neutral-100 dark:bg-slate-800" />
-                <div className="absolute right-3 top-3 size-4 animate-pulse rounded-full border border-neutral-300 bg-neutral-100 dark:border-slate-600 dark:bg-slate-800" />
+              <div key={index} className="min-h-32 rounded-[10px] border border-[var(--eflow-border)] p-4">
+                <div className={`size-9 rounded-lg ${pulse}`} />
+                <div className={`mt-4 h-4 w-20 ${pulse}`} />
+                <div className={`mt-2 h-3 w-36 ${pulse}`} />
               </div>
             ))}
           </div>
         </Surface>
-
-        <div className="flex items-start gap-3 rounded-2xl border border-blue-100 bg-blue-50/70 px-4 py-3.5 text-[12px] text-blue-800 dark:border-blue-900/60 dark:bg-blue-950/25 dark:text-blue-200">
-          <Laptop size={17} className="mt-0.5 shrink-0" />
-          <p>
-            <span className="font-semibold">System is the default.</span> It
-            only listens for device changes while System is selected; Light and
-            Dark stay exactly as you set them.
-          </p>
-        </div>
       </div>
     </div>
   );
 }
 
 export function AppearanceSettingsPage() {
+  const { userProfile } = useAuth();
   const { theme, loading, error: preferenceError, setTheme } = useUserPreferences();
   const [pendingTheme, setPendingTheme] = useState<ThemePreference | null>(null);
   const [result, setResult] = useState<Result>(null);
+  const [prefs, setPrefs] = useState(() => readPersonalSettings(userProfile?.id));
+  const [comfortSaved, setComfortSaved] = useState<Result>(null);
+
+  useEffect(() => {
+    const loaded = readPersonalSettings(userProfile?.id);
+    setPrefs(loaded);
+    applyDisplayPreferences(loaded);
+    setComfortSaved(null);
+  }, [userProfile?.id]);
+
   const options: Array<{ value: ThemePreference; title: string; description: string; icon: ReactNode; tint: string }> = [
-    { value: 'system', title: 'System', description: 'Follow your device setting.', icon: <Laptop size={19} />, tint: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200' },
-    { value: 'light', title: 'Light', description: 'A clear, focused workspace.', icon: <Sun size={19} />, tint: 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-300' },
-    { value: 'dark', title: 'Dark', description: 'A quieter interface for late work.', icon: <Moon size={19} />, tint: 'bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-300' },
+    { value: 'system', title: 'System', description: 'Follow your device light or dark mode.', icon: <Laptop size={18} />, tint: 'bg-[var(--eflow-subtle)] text-[var(--eflow-text-secondary)]' },
+    { value: 'light', title: 'Light', description: 'Crisp bright surfaces for daytime work.', icon: <Sun size={18} />, tint: 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-300' },
+    { value: 'dark', title: 'Dark', description: 'Low-glare dark surfaces for dim rooms.', icon: <Moon size={18} />, tint: 'bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-300' },
   ];
 
   const chooseTheme = async (nextTheme: ThemePreference) => {
@@ -72,21 +70,51 @@ export function AppearanceSettingsPage() {
     }
   };
 
+  const updateComfort = (patch: { density?: InterfaceDensity; motion?: MotionMode }) => {
+    const next = savePersonalSettings(userProfile?.id, patch);
+    setPrefs(next);
+    setComfortSaved({ tone: 'success', text: 'Display comfort preference saved.' });
+  };
+
   if (loading) return <AppearanceSettingsSkeleton />;
 
   return (
-    <div className="max-w-3xl space-y-5">
+    <div className="space-y-5">
       <Surface className="p-5 sm:p-6">
-        <SectionHeading icon={<Palette size={19} />} eyebrow="Appearance" title="Set the tone for your workspace" description="Choose one appearance. System automatically tracks your device’s light or dark mode." />
-        <div role="radiogroup" aria-label="Appearance preference" className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <SectionHeading
+          icon={<Palette size={18} />}
+          title="Theme"
+          description="Choose light, dark, or match your device setting."
+        />
+        <div role="radiogroup" aria-label="Appearance preference" className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
           {options.map((option) => {
             const selected = theme === option.value || pendingTheme === option.value;
             return (
-              <button key={option.value} type="button" role="radio" aria-checked={selected} onClick={() => chooseTheme(option.value)} disabled={Boolean(pendingTheme)} className={`group relative min-h-36 rounded-2xl border p-4 text-left transition ${selected ? 'border-primary bg-primary/5 shadow-sm dark:border-primary dark:bg-primary/10' : 'border-neutral-200 bg-white hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-sm dark:border-slate-800 dark:bg-slate-950 dark:hover:border-slate-600'} disabled:cursor-not-allowed`}>
-                <span className={`flex size-9 items-center justify-center rounded-xl ${option.tint}`}>{option.icon}</span>
-                <span className="mt-4 block text-[13px] font-semibold text-neutral-900 dark:text-slate-100">{option.title}</span>
-                <span className="mt-1 block text-[11px] leading-4 text-neutral-500 dark:text-slate-400">{option.description}</span>
-                <span className={`absolute right-3 top-3 flex size-4 items-center justify-center rounded-full border ${selected ? 'border-primary bg-primary text-primary-foreground' : 'border-neutral-300 bg-white dark:border-slate-600 dark:bg-slate-900'}`}>{selected && <Check size={11} strokeWidth={3} />}</span>
+              <button
+                key={option.value}
+                type="button"
+                role="radio"
+                aria-checked={selected}
+                onClick={() => chooseTheme(option.value)}
+                disabled={Boolean(pendingTheme)}
+                className={`group relative min-h-32 rounded-[10px] border p-4 text-left transition ${
+                  selected
+                    ? 'border-[var(--eflow-primary)] bg-[var(--eflow-selected)]'
+                    : 'border-[var(--eflow-border)] bg-[var(--eflow-surface)] hover:border-[var(--eflow-primary)]/40 hover:bg-[var(--eflow-subtle)]'
+                } disabled:cursor-not-allowed`}
+              >
+                <span className={`flex size-9 items-center justify-center rounded-lg ${option.tint}`}>{option.icon}</span>
+                <span className="mt-3.5 block text-[13px] font-semibold text-[var(--eflow-text)]">{option.title}</span>
+                <span className="mt-1 block text-[12px] leading-4 text-[var(--eflow-text-muted)]">{option.description}</span>
+                <span
+                  className={`absolute right-3 top-3 flex size-4 items-center justify-center rounded-full border ${
+                    selected
+                      ? 'border-[var(--eflow-primary)] bg-[var(--eflow-primary)] text-[var(--eflow-on-primary)]'
+                      : 'border-[var(--eflow-border)] bg-[var(--eflow-surface)]'
+                  }`}
+                >
+                  {selected && <Check size={11} strokeWidth={3} />}
+                </span>
               </button>
             );
           })}
@@ -94,10 +122,40 @@ export function AppearanceSettingsPage() {
         <ResultMessage result={result ?? (preferenceError ? { tone: 'error', text: preferenceError } : null)} />
       </Surface>
 
-      <div className="flex items-start gap-3 rounded-2xl border border-blue-100 bg-blue-50/70 px-4 py-3.5 text-[12px] text-blue-800 dark:border-blue-900/60 dark:bg-blue-950/25 dark:text-blue-200">
-        <Laptop size={17} className="mt-0.5 shrink-0" />
-        <p><span className="font-semibold">System is the default.</span> It only listens for device changes while System is selected; Light and Dark stay exactly as you set them.</p>
-      </div>
+      <Surface className="p-5 sm:p-6">
+        <SectionHeading
+          icon={<SlidersHorizontal size={18} />}
+          title="Display & motion comfort"
+          description="Adjust row spacing and animation intensity for your browser."
+        />
+        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <label className="grid gap-1.5 text-[12px] font-medium text-[var(--eflow-text-secondary)]">
+            <span>Table & list density</span>
+            <select
+              aria-label="Table and list density"
+              value={prefs.density}
+              onChange={(e) => updateComfort({ density: e.target.value as InterfaceDensity })}
+              className="h-10 rounded-lg border border-[var(--eflow-border)] bg-[var(--eflow-surface)] px-3 text-[13px] font-normal text-[var(--eflow-text)]"
+            >
+              <option value="comfortable">Comfortable (default spacing)</option>
+              <option value="compact">Compact (show more rows)</option>
+            </select>
+          </label>
+          <label className="grid gap-1.5 text-[12px] font-medium text-[var(--eflow-text-secondary)]">
+            <span>Animations & transitions</span>
+            <select
+              aria-label="Animations and transitions"
+              value={prefs.motion}
+              onChange={(e) => updateComfort({ motion: e.target.value as MotionMode })}
+              className="h-10 rounded-lg border border-[var(--eflow-border)] bg-[var(--eflow-surface)] px-3 text-[13px] font-normal text-[var(--eflow-text)]"
+            >
+              <option value="system">Standard transitions</option>
+              <option value="reduced">Reduced motion</option>
+            </select>
+          </label>
+        </div>
+        <ResultMessage result={comfortSaved} />
+      </Surface>
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { useReviewedMutation } from "../../../shared/useReviewedMutation";
 import { FeedbackState } from "../../../components/ui/FeedbackState";
@@ -32,9 +33,7 @@ export function RecurringTaskTemplatesPanel({
         setTemplates(await fetchTaskTemplates());
       } catch (error) {
         toast(
-          error instanceof Error
-            ? error.message
-            : "Failed to load recurring templates.",
+          readableUiError(error, "Failed to load recurring templates.", 'read'),
           "error",
         );
         if (throwOnError) throw error;

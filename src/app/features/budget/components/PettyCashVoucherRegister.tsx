@@ -7,6 +7,8 @@ import type { DepartmentBudgetBundle } from "../types";
 import { buildPettyCashVoucherRows, PCV_HEADINGS } from "../selectors/pettyCashVoucherReport";
 import { downloadBudgetCsv, printBudgetTable } from "../services/budgetReportExport";
 import { peso, StatusPill } from "./budgetUi";
+import { DEFAULT_BUDGET_PAGE_SIZE, useBudgetPagination } from "../hooks/useBudgetPagination";
+import { BudgetPagination } from "./BudgetPagination";
 
 const AUTHORIZED_STATES = new Set([
   "approved",
@@ -49,6 +51,11 @@ export function PettyCashVoucherRegister({ data }: { data: DepartmentBudgetBundl
   const exportRows = useMemo(
     () => buildPettyCashVoucherRows({ ...data, requests: filteredRequests }, verifiedOnly),
     [data, filteredRequests, verifiedOnly],
+  );
+  const pagination = useBudgetPagination(
+    filteredRequests,
+    `${data.summary?.id || ""}:${verifiedOnly}:${query}`,
+    DEFAULT_BUDGET_PAGE_SIZE,
   );
 
   const exportTitle = `${
@@ -118,7 +125,7 @@ export function PettyCashVoucherRegister({ data }: { data: DepartmentBudgetBundl
 
       {filteredRequests.length ? (
         <div className="divide-y divide-border">
-          {filteredRequests.map((request) => {
+          {pagination.pageItems.map((request) => {
             const versions = data.liquidations.filter(
               (l) => l.requestId === request.id,
             );
@@ -297,6 +304,16 @@ export function PettyCashVoucherRegister({ data }: { data: DepartmentBudgetBundl
           />
         </div>
       )}
+
+      <BudgetPagination
+        page={pagination.page}
+        pageSize={pagination.pageSize}
+        totalItems={pagination.totalItems}
+        visibleCount={pagination.pageItems.length}
+        noun="voucher"
+        onPageChange={pagination.setPage}
+        onPageSizeChange={pagination.setPageSize}
+      />
 
       <p className="border-t border-border bg-subtle px-4 py-3 text-xs text-muted-foreground">
         Vouchers keep their reference through corrections. Older requests without a reference appear as “Legacy”. Receipts become verified when Accounting settles them.

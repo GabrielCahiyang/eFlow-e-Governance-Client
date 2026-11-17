@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import { useRef, useState } from 'react';
 import { Button } from '@vibe/core';
 import { startScheduledSubtask } from '../services/subtaskWorkflowService';
@@ -34,7 +35,7 @@ export function SubitemStartPanel({ taskId, subtaskId, blockedReason, pending, r
       window.dispatchEvent(new CustomEvent('eflow:work-updated', { detail: { taskId } }));
       await onStarted().catch(() => {});
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : 'Could not start this subtask. Try again.');
+      setError(readableUiError(reason, "Could not start this subtask. Try again.", 'write'));
     } finally {
       inFlight.current = false;
       setBusy(false);

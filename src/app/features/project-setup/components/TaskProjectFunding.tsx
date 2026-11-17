@@ -1,3 +1,5 @@
+import { readableUiError } from '../../../shared/userFacingError';
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import {useEffect,useRef,useState,type MutableRefObject} from 'react';
 import {Wallet,Plus,X} from 'lucide-react';
 import {MoneyInput} from '../../../components/ui/MoneyInput';
@@ -66,7 +68,7 @@ export function TaskProjectFunding({
    try{await projectFlowCall('allocate_project_task_funding',{p_task:taskId,p_lines:attempt.current.lines,p_reason:attempt.current.reason,p_key:key.current});}
    catch(e){if(e instanceof ProjectFlowError&&!uncertain){attempt.current=null;key.current=crypto.randomUUID();setUncertain(false);}else setUncertain(true);throw e;}
    attempt.current=null;setUncertain(false);key.current=crypto.randomUUID();setReason('');setLines([{sourceId:'',amount:0}]);await flow.reload();await onChanged();
-  }catch(e){setError(e instanceof Error?e.message:'Task allocation could not be saved.');}finally{pending.current=false;setBusy(false);}
+  }catch(e){setError(readableUiError(e, "Task allocation could not be saved.", 'write'));}finally{pending.current=false;setBusy(false);}
  }
 
  return <section className={variant==='modal'?'pf-task-accounts pf-task-accounts--modal':'pf-panel pf-task-accounts'} aria-label="Allocate task budget">
@@ -76,7 +78,7 @@ export function TaskProjectFunding({
    {lines.map((line,index)=>{const selected=sources.find(source=>source.id===line.sourceId);return <div key={index} className="pf-funding-row pf-task-funding-row">
     <label>Account<select aria-label={`Task budget account ${index+1}`} value={selected?line.sourceId:''} onChange={e=>setLines(rows=>rows.map((row,i)=>i===index?{...row,sourceId:e.target.value}:row))}><option value="">Choose account</option>{sources.map(source=><option value={source.id} key={source.id} disabled={lines.some((row,i)=>i!==index&&row.sourceId===source.id)}>FY {source.fiscal_year} · {source.name} · ₱{source.available.toLocaleString('en-PH')} left</option>)}</select>{selected&&<small>₱{selected.available.toLocaleString('en-PH')} left in this project</small>}</label>
     <label>Amount<MoneyInput aria-label={`Task account ${index+1} amount`} min="0" max={selected?.available} step="0.01" value={line.amount||''} onValueChange={value=>setLines(rows=>rows.map((row,i)=>i===index?{...row,amount:Number(value)}:row))}/></label>
-    <button type="button" disabled={lines.length===1} aria-label={`Remove task funding source ${index+1}`} onClick={()=>setLines(rows=>rows.filter((_,i)=>i!==index))}><X size={16}/></button>
+    <WorkspaceTooltip content={`Remove task funding source ${index+1}`}><button type="button" disabled={lines.length===1} aria-label={`Remove task funding source ${index+1}`} onClick={()=>setLines(rows=>rows.filter((_,i)=>i!==index))}><X size={16}/></button></WorkspaceTooltip>
    </div>;})}
    <button type="button" className="pf-task-accounts__add" disabled={lines.length>=sources.length} onClick={()=>setLines(rows=>rows.length>=sources.length?rows:[...rows,{sourceId:'',amount:0}])}><Plus size={16}/>Add another account</button>
    <div className="pf-task-accounts__totals">{funded&&<div><span>Already allocated</span><strong>₱{existing.toLocaleString('en-PH')}</strong></div>}<div><span>{funded?'Adding now':'Task budget'}</span><strong>₱{added.toLocaleString('en-PH')}</strong></div>{funded&&<div><span>New task total</span><strong>₱{(existing+added).toLocaleString('en-PH')}</strong></div>}</div>

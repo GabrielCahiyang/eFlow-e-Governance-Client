@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, CalendarClock, Save } from "lucide-react";
 import type { Task } from "../../../services/taskService";
@@ -48,7 +49,7 @@ export function SubtaskDeadlineEditor({
       toast("Subtask deadline updated and assigned contributors were notified.", "success");
       await onSaved();
     } catch (error) {
-      toast(error instanceof Error ? error.message : "Could not update the subtask deadline.", "error");
+      toast(readableUiError(error, "Could not update the subtask deadline.", 'write'), "error");
     } finally {
       setSaving(false);
     }

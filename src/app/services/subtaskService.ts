@@ -248,9 +248,10 @@ export async function createSubtask(
         .map((uid) =>
           createNotification(uid, {
             type: 'assignment',
-            title: 'New Subtask Assignment',
+            title: 'Your subtask assignment',
             message: `${actorName} assigned you to subtask "${title}" in "${taskTitle}".`,
             taskId,
+            workNodeId: data.id,
             taskTitle,
           }),
         ),
@@ -356,9 +357,10 @@ export async function updateSubtask(
           addedIds.map((uid) =>
             createNotification(uid, {
               type: 'assignment',
-              title: 'New Subtask Assignment',
+              title: 'Your subtask assignment',
               message: `${actorName} assigned you to subtask "${subTitle}" in "${taskTitle}".`,
               taskId: current.task_id,
+              workNodeId: subtaskId,
               taskTitle,
               actorId: actor?.id,
               actorName,

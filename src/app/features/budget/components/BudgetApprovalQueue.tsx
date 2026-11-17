@@ -26,6 +26,8 @@ import {
 import { BudgetEmpty, peso, StatusPill } from "./budgetUi";
 import { useApprovalThreshold } from "../hooks/useApprovalThreshold";
 import { ApprovalThresholdDialog } from "./ApprovalThresholdDialog";
+import { DEFAULT_BUDGET_PAGE_SIZE, useBudgetPagination } from "../hooks/useBudgetPagination";
+import { BudgetPagination } from "./BudgetPagination";
 import {
   formatEvidenceCount,
   formatFundingRequestCode,
@@ -40,6 +42,7 @@ import {
   financialOutcome,
   recordFinancialOutcome,
   financialFailureIsUncertain,
+  financialWriteFeedback,
   financialErrorMessage,
 } from "../financialReceipts";
 type RejectionTarget = {
@@ -142,6 +145,21 @@ export function BudgetApprovalQueue({
     () => new Map(data.allocationLines.map((item) => [item.id, item])),
     [data.allocationLines],
   );
+  const allocationPagination = useBudgetPagination(pendingAllocations, data.summary?.id || "", DEFAULT_BUDGET_PAGE_SIZE);
+  const requestPagination = useBudgetPagination(pendingRequests, data.summary?.id || "", DEFAULT_BUDGET_PAGE_SIZE);
+  const liquidationPagination = useBudgetPagination(pendingLiquidations, data.summary?.id || "", DEFAULT_BUDGET_PAGE_SIZE);
+  const releasePagination = useBudgetPagination(dueReleases, data.summary?.id || "", DEFAULT_BUDGET_PAGE_SIZE);
+  useEffect(() => {
+    if (!focusRecordId) return;
+    const allocIdx = pendingAllocations.findIndex((item) => item.id === focusRecordId);
+    if (allocIdx >= 0) allocationPagination.setPage(Math.floor(allocIdx / allocationPagination.pageSize) + 1);
+    const reqIdx = pendingRequests.findIndex((item) => item.id === focusRecordId);
+    if (reqIdx >= 0) requestPagination.setPage(Math.floor(reqIdx / requestPagination.pageSize) + 1);
+    const liqIdx = pendingLiquidations.findIndex((item) => item.id === focusRecordId);
+    if (liqIdx >= 0) liquidationPagination.setPage(Math.floor(liqIdx / liquidationPagination.pageSize) + 1);
+    const relIdx = dueReleases.findIndex((item) => item.id === focusRecordId);
+    if (relIdx >= 0) releasePagination.setPage(Math.floor(relIdx / releasePagination.pageSize) + 1);
+  }, [focusRecordId]);
   useEffect(() => {
     if (!focusRecordId) return;
     const timer = window.setTimeout(
@@ -180,6 +198,7 @@ export function BudgetApprovalQueue({
     draft.pendingRef.current = true;
     setBusy(id);
     setMessage("");
+    let submitted = false;
     try {
       if (
         !rejection &&
@@ -195,6 +214,7 @@ export function BudgetApprovalQueue({
         }))
       )
         return false;
+      submitted = true;
       await operation();
       recordFinancialOutcome(key, "saved");
       setRejection(null);
@@ -210,15 +230,13 @@ export function BudgetApprovalQueue({
       }
       return true;
     } catch (error) {
-      setMessageTone(financialFailureIsUncertain(error) ? "warning" : "error");
-      if (!financialOutcome(key) && financialFailureIsUncertain(error))
+      const uncertain = submitted && financialFailureIsUncertain(error);
+      setMessageTone(uncertain ? "warning" : "error");
+      if (!financialOutcome(key) && uncertain)
         recordFinancialOutcome(key, "uncertain");
-      setMessage(
-        financialErrorMessage(error) +
-          (financialOutcome(key)
-            ? " Verify current financial history; do not repeat the decision."
-            : " Review retained."),
-      );
+      setMessage(financialWriteFeedback(error, {
+        outcome: financialOutcome(key), submitted, action: 'Your decision', record: 'financial history',
+      }));
       return false;
     } finally {
       pending.current = false;
@@ -278,7 +296,10 @@ export function BudgetApprovalQueue({
         return;
       for (const item of tier1DepartmentRequests) {
         const key = `approval:${currentUserId}:${item.id}:pending_department_approval:`;
-        if (financialOutcome(key)) continue;
+        if (financialOutcome(key) === 'uncertain') {
+          throw new Error('We couldn’t confirm an earlier approval for a selected request.');
+        }
+        if (financialOutcome(key) === 'saved') continue;
         try {
           await decidePettyCashRequest(
             item.id,
@@ -303,11 +324,8 @@ export function BudgetApprovalQueue({
       }
     } catch (error) {
       setMessageTone(financialFailureIsUncertain(error) ? "warning" : "error");
-      setMessage(
-        error instanceof Error
-          ? error.message
-          : "Some requests could not be approved.",
-      );
+      const detail = financialErrorMessage(error, "We couldn’t finish the approvals.", 'read');
+      setMessage(`${detail} Check the status of each selected request before approving any again. Earlier approvals may already be saved.`);
     } finally {
       pending.current = false;
       draft.pendingRef.current = false;
@@ -386,8 +404,19 @@ export function BudgetApprovalQueue({
           icon={<WalletCards size={14} />}
           title="Legacy subtask allocation proposals"
           count={pendingAllocations.length}
+          footer={
+            <BudgetPagination
+              page={allocationPagination.page}
+              pageSize={allocationPagination.pageSize}
+              totalItems={allocationPagination.totalItems}
+              visibleCount={allocationPagination.pageItems.length}
+              noun="allocation"
+              onPageChange={allocationPagination.setPage}
+              onPageSizeChange={allocationPagination.setPageSize}
+            />
+          }
         >
-          {pendingAllocations.map((item) => (
+          {allocationPagination.pageItems.map((item) => (
             <QueueRow
               key={item.id}
               recordId={item.id}
@@ -427,6 +456,17 @@ export function BudgetApprovalQueue({
           icon={<WalletCards size={14} />}
           title="Task-linked cash requests"
           count={pendingRequests.length}
+          footer={
+            <BudgetPagination
+              page={requestPagination.page}
+              pageSize={requestPagination.pageSize}
+              totalItems={requestPagination.totalItems}
+              visibleCount={requestPagination.pageItems.length}
+              noun="request"
+              onPageChange={requestPagination.setPage}
+              onPageSizeChange={requestPagination.setPageSize}
+            />
+          }
           action={
             isDepartmentApprover && tier1DepartmentRequests.length > 1 ? (
               <Button
@@ -443,7 +483,7 @@ export function BudgetApprovalQueue({
             ) : undefined
           }
         >
-          {pendingRequests.map((item) => {
+          {requestPagination.pageItems.map((item) => {
             const line = item.allocationLineId
               ? lineById.get(item.allocationLineId)
               : undefined;
@@ -551,8 +591,19 @@ export function BudgetApprovalQueue({
           icon={<FileCheck2 size={14} />}
           title="Receipt liquidations"
           count={pendingLiquidations.length}
+          footer={
+            <BudgetPagination
+              page={liquidationPagination.page}
+              pageSize={liquidationPagination.pageSize}
+              totalItems={liquidationPagination.totalItems}
+              visibleCount={liquidationPagination.pageItems.length}
+              noun="liquidation"
+              onPageChange={liquidationPagination.setPage}
+              onPageSizeChange={liquidationPagination.setPageSize}
+            />
+          }
         >
-          {pendingLiquidations.map((item) => {
+          {liquidationPagination.pageItems.map((item) => {
             const request = requestById.get(item.requestId);
             const late = isLiquidationLate(request, item);
             const needsHead =
@@ -670,8 +721,19 @@ export function BudgetApprovalQueue({
           icon={<Banknote size={14} />}
           title="Cash releases due"
           count={dueReleases.length}
+          footer={
+            <BudgetPagination
+              page={releasePagination.page}
+              pageSize={releasePagination.pageSize}
+              totalItems={releasePagination.totalItems}
+              visibleCount={releasePagination.pageItems.length}
+              noun="release"
+              onPageChange={releasePagination.setPage}
+              onPageSizeChange={releasePagination.setPageSize}
+            />
+          }
         >
-          {dueReleases.map((release) => {
+          {releasePagination.pageItems.map((release) => {
             const request = requestById.get(release.requestId);
             return (
               <QueueRow
@@ -728,12 +790,14 @@ function QueueSection({
   count,
   children,
   action,
+  footer,
 }: {
   icon: ReactNode;
   title: string;
   count: number;
   children: ReactNode;
   action?: ReactNode;
+  footer?: ReactNode;
 }) {
   return (
     <section className="overflow-hidden rounded-[10px] border border-border bg-card">
@@ -754,6 +818,7 @@ function QueueSection({
           {children}
         </AnimatePresence>
       </div>
+      {footer}
     </section>
   );
 }

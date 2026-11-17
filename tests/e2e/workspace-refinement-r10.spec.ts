@@ -436,7 +436,7 @@ test('R10 retained Office tools return from a personal workspace to the canonica
 
 test('NW9.2 Lead-only depth-eight Office work is searchable and executes by canonical ID without root or cash authority',async({page})=>{
  const records=await workFixture(page,false,true);
- await page.getByRole('navigation',{name:'My Work destinations'}).getByRole('button',{name:'Leading',exact:true}).click();
+ await page.getByRole('navigation',{name:'My Work destinations'}).getByRole('button',{name:'Work I lead',exact:true}).click();
  await page.getByRole('searchbox',{name:'Search personal work'}).fill('Office ancestor 6');
  const item=page.locator(`[data-work-key="office-node:${records.officeNode.id}"]`);
  await expect(page.locator('[data-work-key]')).toHaveCount(1);

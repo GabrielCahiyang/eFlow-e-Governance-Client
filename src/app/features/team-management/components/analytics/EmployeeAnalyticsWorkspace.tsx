@@ -29,7 +29,7 @@ import { EmployeeIntelligencePanel } from "../intelligence/EmployeeIntelligenceP
 import { SkillCoveragePanel } from "../intelligence/SkillCoveragePanel";
 import type { Employee, EmployeeNote } from "../../../members";
 
-type View = "projects" | "health" | "contribution" | "reports";
+type View = "projects" | "health" | "people" | "contribution" | "reports";
 type LegacyOrCurrentView =
   | View
   | "overview"
@@ -40,6 +40,7 @@ type LegacyOrCurrentView =
 const tabs = [
   { id: "projects", label: "Delivery", icon: FolderKanban },
   { id: "health", label: "Workload & health", icon: Activity },
+  { id: "people", label: "People & skills", icon: UsersRound },
   { id: "contribution", label: "Contributions", icon: Trophy },
   { id: "reports", label: "Reports", icon: FileText },
 ] as const;
@@ -47,10 +48,14 @@ const tabs = [
 function normalizeInitialView(initialView: LegacyOrCurrentView): View {
   if (
     initialView === "health" ||
+    initialView === "people" ||
     initialView === "contribution" ||
     initialView === "reports"
   ) {
     return initialView;
+  }
+  if (initialView === "employees" || initialView === "skills") {
+    return "people";
   }
   return "projects";
 }
@@ -108,7 +113,9 @@ function AnalyticsContent({
       ? reportsAllowed
       : t.id === "health" || t.id === "contribution"
         ? intelligence
-        : true,
+        : t.id === "people"
+          ? supervision || intelligence
+          : true,
   );
   const selectedView = available.some((t) => t.id === view)
     ? view
@@ -138,7 +145,10 @@ function AnalyticsContent({
   const selectEmployee = (id: string) =>
     void requestNavigation(() => {
       setEmployeeId(id);
-      setView("projects");
+      setView("people");
+      if (typeof document !== "undefined") {
+        document.getElementById("eflow-active-workspace")?.scrollTo({ top: 0, behavior: "smooth" });
+      }
     });
   const navigateProject = (id: string) =>
     void requestNavigation(() =>
@@ -150,28 +160,30 @@ function AnalyticsContent({
           }),
     );
 
-  const deliveryAndPeoplePanel = (
+  const deliveryPanel = (
+    <DeliveryAnalytics
+      input={input}
+      projectAnalysis
+      onOpenTask={setTask}
+      onOpenProject={navigateProject}
+      onSelectPerson={selectEmployee}
+      error={analytics.error}
+      loading={analytics.loading}
+    />
+  );
+
+  const peopleAndSkillsPanel = (
     <>
-      <DeliveryAnalytics
-        input={input}
-        projectAnalysis
-        onOpenTask={setTask}
-        onOpenProject={navigateProject}
-        onSelectPerson={selectEmployee}
-        error={analytics.error}
-        loading={analytics.loading}
-      />
       <section className="ea-panel" aria-label="Employee details">
         <div className="ea-heading">
           <div>
-            <h2>Employee workspace</h2>
+            <h2>People &amp; assignments</h2>
             <p>
-              Select a person to see their work, workload, delivery history and
-              coaching.
+              Select a team member to review active work, workload balance, delivery history, and coaching context.
             </p>
           </div>
           <div
-            className="ea-tabs"
+            className="ea-tabs ea-tabs--compact"
             role="group"
             aria-label="Employee detail views"
           >
@@ -270,7 +282,7 @@ function AnalyticsContent({
       <TaskDetailDrawer
         task={task}
         taskId={task?.id}
-        presentation="page"
+        presentation="dialog"
         onClose={() => setTask(null)}
         canDiscuss
       />
@@ -307,12 +319,12 @@ function AnalyticsContent({
               </button>
             </div>
           )}
-          {selectedView === "projects" && deliveryAndPeoplePanel}
+          {selectedView === "projects" && deliveryPanel}
+          {selectedView === "people" && peopleAndSkillsPanel}
           {selectedView === "health" && !analytics.error && (
             <>
               <div className="ea-health-note">
-                Work health shows workload pressure, overdue work, blockers and
-                review waiting. It does not infer medical or personal health.
+                Work health tracks workload pressure, overdue items, blockers, and pending reviews.
               </div>
               <TeamHealthOverview
                 health={analytics.health}
@@ -334,6 +346,7 @@ function AnalyticsContent({
                 <h2>Attention queue</h2>
                 <TeamAttentionQueue
                   items={analytics.attention}
+                  employees={analytics.deptEmployees}
                   onOpenTask={(id) =>
                     setTask(analytics.tasks.find((t) => t.id === id) || null)
                   }
@@ -345,9 +358,7 @@ function AnalyticsContent({
           {selectedView === "contribution" && !analytics.error && (
             <>
               <p className="ea-health-note">
-                Contribution recognition uses recorded work. It does not replace
-                workload, skills or delivery context and does not change AI
-                assignment inputs.
+                Contributions reflect approved tasks and completed subtasks only.
               </p>
               <MonthlyLeaderboard
                 employees={analytics.deptEmployees}
@@ -363,7 +374,7 @@ function AnalyticsContent({
       <TaskDetailDrawer
         task={task}
         taskId={task?.id}
-        presentation="page"
+        presentation="dialog"
         onClose={() => setTask(null)}
         canDiscuss
       />

@@ -16,6 +16,7 @@ import { sectionLabel } from "../presentation";
 import type { ArchiveManifest, PublicCertificate } from "../types";
 import "../publication.css";
 import { RecordSections } from "./RecordSections";
+import { readableUiError } from "../../../shared/userFacingError";
 export function PublicProjectRecord({
   certificateId,
 }: {
@@ -42,7 +43,7 @@ export function PublicProjectRecord({
         if (active) setArchive(record);
       })
       .catch((e) => {
-        if (active) setError(e.message);
+        if (active) setError(readableUiError(e, "We couldn’t open this public record.", 'read'));
       })
       .finally(() => {
         if (active) setLoading(false);
@@ -59,8 +60,8 @@ export function PublicProjectRecord({
           <small>eFlow · Public project archive · Polygon Amoy testnet</small>
           <h1>{certificate?.title || "Project certificate"}</h1>
           <p>
-            A permanent reviewed project version. Operational accounts and
-            private personnel records are not public.
+            A published version of the project record. The archive lists the
+            records and files included in this version.
           </p>
         </div>
       </header>
@@ -85,7 +86,8 @@ export function PublicProjectRecord({
               </strong>
             </div>
             <div>
-              <small>Manifest SHA-256</small>
+              <small>Archive fingerprint (SHA-256)</small>
+              <p>A code calculated from the archive’s record file.</p>
               <code>{certificate.manifest_hash}</code>
             </div>
           </div>
@@ -110,14 +112,14 @@ export function PublicProjectRecord({
                 void checkAmoyProof(certificate)
                   .then(() => {setProofValid(true);return (
                     setProof(
-                      "Amoy receipt, project fingerprint and finality verified.",
+                      "The finalized Polygon Amoy transaction matches this certificate and its archive fingerprint.",
                     ));})
-                  .catch((e) => {setProofValid(false);setProof(e.message);})
+                  .catch((e) => {setProofValid(false);setProof(readableUiError(e, "We couldn’t check this certificate on Polygon Amoy.", 'read'));})
                   .finally(() => setVerifying(false));
               }}
             >
               {" "}
-              {verifying ? "Checking Amoy…" : "Check Amoy proof"}
+              {verifying ? "Checking transaction…" : "Check blockchain transaction"}
             </button>
           </nav>
           {proof && <div role={proofValid?'status':'alert'} className={proofValid?'project-seal-status is-sealed':'project-seal-error'}>{proof}</div>}
@@ -134,9 +136,10 @@ export function PublicProjectRecord({
           <div className="project-seal-status is-sealed">
             <CheckCircle2 size={25} />
             <div>
-              <strong>Archive fingerprint matches</strong>
+              <strong>Record file matches the certificate</strong>
               <p>
-                This copy matches the fingerprint in the published certificate.
+                eFlow compared this record file with the fingerprint in the certificate.
+                To check an individual attachment, select Verify and download.
               </p>
             </div>
           </div>
@@ -171,7 +174,7 @@ export function PublicProjectRecord({
                   onClick={() =>
                     void publicFile(archive.url, file.path, file.sha256)
                       .then((blob) => saveFile(blob, file.name))
-                      .catch((e) => setError(e.message))
+                      .catch((e) => setError(readableUiError(e, "We couldn’t verify and download this file.", 'read')))
                   }
                 >
                   Verify and download

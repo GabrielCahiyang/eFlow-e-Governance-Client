@@ -15,7 +15,7 @@ import {
   financialOutcome,
   recordFinancialOutcome,
   financialFailureIsUncertain,
-  financialErrorMessage,
+  financialWriteFeedback,
 } from "../financialReceipts";
 export function LockedBudgetControls({
   data,
@@ -61,6 +61,7 @@ export function LockedBudgetControls({
     draft.pendingRef.current = true;
     setBusy(true);
     setMessage("");
+    let submitted = false;
     try {
       if (
         !(await confirmation.confirm({
@@ -74,6 +75,7 @@ export function LockedBudgetControls({
         }))
       )
         return;
+      submitted = true;
       if (mode === "adjust")
         await adjustDepartmentFiscalBudget({
           budgetId: summary.id,
@@ -89,14 +91,9 @@ export function LockedBudgetControls({
       setReason("");
       await onChanged();
     } catch (caught) {
-      if (!financialOutcome(key) && financialFailureIsUncertain(caught))
+      if (submitted && !financialOutcome(key) && financialFailureIsUncertain(caught))
         recordFinancialOutcome(key, "uncertain");
-      setMessage(
-        financialErrorMessage(caught) +
-          (financialOutcome(key)
-            ? " Verify current fiscal history before another write."
-            : " Draft retained."),
-      );
+      setMessage(financialWriteFeedback(caught, { outcome: financialOutcome(key), submitted, action: mode === 'adjust' ? 'The appropriation adjustment' : 'The fiscal year closure', record: 'the annual budget', draft: 'Your entries are still in the form.' }));
     } finally {
       pending.current = false;
       draft.pendingRef.current = false;
@@ -122,9 +119,7 @@ export function LockedBudgetControls({
             <History size={14} /> Locked-budget controls
           </div>
           <p className="mt-1 text-[10px] text-neutral-500">
-            The original appropriation is immutable. Corrections create an
-            audited before/after adjustment; fiscal close is blocked while cash
-            remains unsettled.
+            An appropriation is the amount authorized for this fiscal year. Adjustments record the old and new amounts. Settle open cash advances before closing the year.
           </p>
         </div>
         {canManage && summary.status === "locked" && (

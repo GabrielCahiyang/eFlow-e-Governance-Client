@@ -10,7 +10,9 @@ import {
   isDocumentVisible,
   loadWithQueryCache,
   readCachedQuery,
+  subscribeQueryDomain,
 } from '../shared/queryCache';
+import { isQueryAccessDenied } from '../shared/queryAccess';
 
 export type NotificationType =
   | 'assignment'
@@ -68,7 +70,7 @@ export interface Notification {
   createdAt: number;
 }
 
-function rowToNotif(row: Record<string, unknown>): Notification {
+export function rowToNotif(row: Record<string, unknown>): Notification {
   return normalizeWorkUpdateNotification({
     id: row.id as string,
     type: (row.type as NotificationType) || 'assignment',
@@ -108,35 +110,47 @@ export function subscribeToNotifications(
   userId: string,
   callback: (notifications: Notification[]) => void,
   limit = 50,
+  onState?: (state: { unreadCount: number | null; error: string; loading: boolean }) => void,
 ) {
+  let active = true, busy = false, queued = false;
+  let unreadCount: number | null = null;
   const scope = buildQueryScopeKey({ userId, filter: String(limit) });
   const cached = readCachedQuery<Notification[]>('notifications', scope);
   if (cached.hit && cached.data) {
     callback(cached.data);
   }
   const load = async (forceRefresh = false) => {
+    if (!active) return;
+    if (busy) { queued = true; return; }
+    busy = true;
     try {
-      if (forceRefresh) {
-        invalidateQueryDomain('notifications', scope);
-      }
-      const list = await loadWithQueryCache({
+      const [list, count] = await Promise.all([loadWithQueryCache({
         domain: 'notifications',
         scope,
         ttlMs: 30_000,
         forceRefresh,
         fetcher: async () => {
-          const { data } = await supabase
+          const { data, error, status } = await supabase
             .from('notifications')
             .select('*')
             .eq('user_id', userId)
             .order('created_at', { ascending: false })
             .limit(limit);
+          if (error) throw Object.assign(new Error(error.message), { code: error.code, status });
           return data ? data.map(rowToNotif) : [];
         },
-      });
+      }), getUnreadCount(userId)]);
+      if (!active) return;
+      unreadCount = count;
       callback(list);
-    } catch {
-      callback([]);
+      onState?.({ unreadCount, error: '', loading: false });
+    } catch (error) {
+      if (!active) return;
+      if (isQueryAccessDenied(error)) { callback([]); unreadCount = null; }
+      onState?.({ unreadCount, error: 'We couldn’t refresh your notifications. Open Inbox to try again.', loading: false });
+    } finally {
+      busy = false;
+      if (active && queued) { queued = false; void load(true); }
     }
   };
   void load(false);
@@ -152,10 +166,23 @@ export function subscribeToNotifications(
   const refreshTimer = window.setInterval(() => {
     if (isDocumentVisible()) void load(true);
   }, 15_000);
+  const refresh = () => { void load(true); };
+  const visible = () => { if (isDocumentVisible()) refresh(); };
+  const stopInvalidation = subscribeQueryDomain('notifications', event => {
+    if (event.type === 'invalidated') refresh();
+  });
+  window.addEventListener('focus', refresh);
+  window.addEventListener('online', refresh);
+  document.addEventListener('visibilitychange', visible);
 
   return () => {
+    active = false;
     window.clearInterval(refreshTimer);
     unsubscribe();
+    stopInvalidation();
+    window.removeEventListener('focus', refresh);
+    window.removeEventListener('online', refresh);
+    document.removeEventListener('visibilitychange', visible);
   };
 }
 
@@ -186,7 +213,11 @@ export async function createNotification(
   if (notification.proposalId) row.proposal_id = notification.proposalId;
   if (notification.orgId) row.org_id = isUuid(notification.orgId) ? notification.orgId : null;
   if (notification.entityType) row.entity_type = notification.entityType;
-  await supabase.from('notifications').insert(row);
+  if (notification.workNodeId && isUuid(notification.workNodeId)) row.work_node_id = notification.workNodeId;
+  const { error } = await supabase.from('notifications').insert(row);
+  // This legacy helper is secondary to an already-saved workflow action. Keep
+  // its void contract without sending an email that implies a failed row exists.
+  if (error) { console.error('In-app notification could not be saved.', { code: error.code }); return; }
   invalidateQueryDomain('notifications');
   invalidateQueryDomain('personal-feed');
 
@@ -213,17 +244,20 @@ export async function markNotificationRead(userId: string, notificationId: strin
 }
 
 export async function markAllNotificationsRead(userId: string): Promise<void> {
-  await supabase.from('notifications').update({ read: true }).eq('user_id', userId).eq('read', false);
+  if (!userId) throw new Error('Sign in to mark your notifications as read.');
+  const { error } = await supabase.from('notifications').update({ read: true }).eq('user_id', userId).eq('read', false);
+  if (error) throw new Error('We couldn’t mark your notifications as read. Try again.');
   invalidateQueryDomain('notifications');
   invalidateQueryDomain('personal-feed');
 }
 
 export async function getUnreadCount(userId: string): Promise<number> {
-  const { count } = await supabase
+  const { count, error, status } = await supabase
     .from('notifications')
     .select('*', { count: 'exact', head: true })
     .eq('user_id', userId)
     .eq('read', false);
+  if (error) throw Object.assign(new Error(error.message), { code: error.code, status });
   return count || 0;
 }
 

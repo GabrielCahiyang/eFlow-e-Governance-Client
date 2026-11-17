@@ -7,7 +7,7 @@ import {PublicProjectRecord} from './features/project-publication';
 
 export default function App() {
   const certificatePath=window.location.pathname.match(/^\/(?:public\/)?project-record\/([0-9a-f-]+)\/?$/i);
-  if(certificatePath)return <PublicProjectRecord certificateId={certificatePath[1]}/>;
+  if(certificatePath)return <PublicProjectRecord key={certificatePath[1]} certificateId={certificatePath[1]}/>;
   return (
     <AppProviders>
       <QuickLoginListener />

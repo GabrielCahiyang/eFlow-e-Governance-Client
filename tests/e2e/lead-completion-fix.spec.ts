@@ -14,7 +14,7 @@ test('task lead submits finished work with evidence without a second start reque
  });
  await page.reload();
  await page.getByRole('navigation',{name:'Global navigation'}).getByRole('button',{name:'My Work',exact:true}).click();
- await page.getByRole('navigation',{name:'My Work destinations'}).getByRole('button',{name:'Leading',exact:true}).click();
+ await page.getByRole('navigation',{name:'My Work destinations'}).getByRole('button',{name:'Work I lead',exact:true}).click();
  await page.locator('[data-personal-task]').filter({hasText:String(task.title)}).click();
  const detail=page.getByRole('region',{name:`Task details: ${task.title}`,exact:true});await expect(detail).toBeVisible();
  await detail.getByRole('tab',{name:'Update work',exact:true}).click();

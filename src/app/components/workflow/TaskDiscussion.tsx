@@ -1,3 +1,4 @@
+import { WorkspaceTooltip } from "../ui/workspace/WorkspaceTooltip";
 import { EmptyState } from '../ui/EmptyState';
 import { Button } from '../ui/button';
 import { FeatureDialog } from '../ui/FeatureDialog';
@@ -73,7 +74,7 @@ export function TaskDiscussion({
       setDraft("");
       draftGuard.markClean();
     } catch (e: any) {
-      toast(e?.message || "Failed to post comment.", "error");
+      toast(e?.message || "We couldn't post your comment. Check the discussion before posting it again.", "error");
     } finally {
       draftGuard.pendingRef.current = false;
       setSending(false);
@@ -92,7 +93,7 @@ export function TaskDiscussion({
       setMenuFor(null); setModerating(null); setReason(''); moderationGuard.markClean();
       toast("Comment removed. History preserved in the audit log.", "success");
     } catch (e: any) {
-      toast(e?.message || "Failed to remove comment.", "error");
+      toast(e?.message || "We couldn't remove this comment. Check the discussion before trying again.", "error");
     } finally { moderationGuard.pendingRef.current = false; setRemoving(false); }
   };
 
@@ -123,12 +124,12 @@ export function TaskDiscussion({
                   {c.editedAt && <span className="text-[10px] text-neutral-300">· edited</span>}
                   {canModerate && !c.deletedAt && (
                     <div className="relative ml-auto opacity-0 group-hover:opacity-100 transition">
-                      <button
+                      <WorkspaceTooltip content="Comment actions"><button aria-label="Comment actions"
                         onClick={() => setMenuFor(menuFor === c.id ? null : c.id)}
                         className="text-neutral-400 hover:text-neutral-700 p-0.5"
                       >
                         <MoreHorizontal size={14} />
-                      </button>
+                      </button></WorkspaceTooltip>
                       {menuFor === c.id && (
                         <>
                           <div className="fixed inset-0 z-10" onClick={() => setMenuFor(null)} />

@@ -51,7 +51,7 @@ export function InspectorSummary({
           <section className="task-overview__description" aria-label="Task description">
             <h3>Description</h3>
             <p className={task.description ? undefined : 'is-empty'}>
-              {task.description || 'No description has been added for this task yet.'}
+              {task.description || 'Add a description to document the scope and objectives for this task.'}
             </p>
           </section>
 
@@ -120,6 +120,14 @@ export function InspectorSummary({
               )}
             </div>
           )}
+
+          <WorkBudgetCard
+            task={fundingTask || task}
+            canManage={canManageSubtasks}
+            canAuthorizeFunding={canAuthorizeFunding}
+            readOnly={supportsNestedWork(task) ? (budgetReadOnly ?? readOnly) : false}
+            authorityPending={authorityPending}
+          />
         </div>
 
         <aside className="task-overview__rail" aria-label="Task metadata">
@@ -128,7 +136,7 @@ export function InspectorSummary({
             <div className="task-overview__rail-fields">
               <InspectorField
                 icon={<Building2 size={14} aria-hidden="true" />}
-                label="Responsible Office"
+                label="Responsible office"
                 value={<TaskDepartmentLabel task={task} />}
               />
               <InspectorField
@@ -166,14 +174,6 @@ export function InspectorSummary({
               {teamSlot}
             </div>
           )}
-
-          <WorkBudgetCard
-            task={fundingTask || task}
-            canManage={canManageSubtasks}
-            canAuthorizeFunding={canAuthorizeFunding}
-            readOnly={supportsNestedWork(task) ? (budgetReadOnly ?? readOnly) : false}
-            authorityPending={authorityPending}
-          />
         </aside>
       </div>
     </section>

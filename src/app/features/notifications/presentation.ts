@@ -26,6 +26,8 @@ export function getNotificationDetail(
     return { label: "Reviewer feedback", text, tone: "danger" };
   }
 
+  if (title.includes("accepted")) return { label: "Review note", text, tone: "success" };
+
   if (title.includes("approved") || (notification.type === "completed" && destination === "completed")) {
     return { label: "Approval note", text, tone: "success" };
   }
@@ -33,6 +35,8 @@ export function getNotificationDetail(
   if (title.includes("evidence ready for review")) {
     return { label: "Submission note", text, tone: "info" };
   }
+
+  if (title.includes("review is needed")) return { label: "Submission note", text, tone: "info" };
 
   if (title.includes("ready for review") || destination === "for_review") {
     return { label: "Completion note", text, tone: "info" };

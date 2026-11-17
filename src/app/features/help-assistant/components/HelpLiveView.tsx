@@ -1,3 +1,4 @@
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { AudioLines, ChevronDown, ChevronUp, CircleAlert, MessageSquare, Mic, MicOff, Pause, Play, Volume2, VolumeX } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { Button } from '../../../components/ui/button';
@@ -27,8 +28,8 @@ export function HelpLiveView({ conversation, context, onBack, microphoneInput }:
     <div className="eflow-live__bottom">
       {microphoneInput}
       <div className="eflow-live__controls">
-        <Button variant="outline" size="icon" onClick={conversation.toggleMute} aria-label={conversation.muted ? 'Enable spoken replies' : 'Mute spoken replies'}>{conversation.muted ? <VolumeX/> : <Volume2/>}</Button>
-        <Button className="eflow-live__pause" onClick={() => active ? conversation.pause() : void conversation.start()} aria-label={active ? 'Pause eFlow Live' : 'Resume eFlow Live'} title={active ? 'Pause microphone; the current reply continues' : 'Resume microphone'}>{active ? <><Pause size={18}/><Mic size={18}/></> : <><Play size={18}/><MicOff size={18}/></>}</Button>
+        <WorkspaceTooltip content={conversation.muted ? 'Enable spoken replies' : 'Mute spoken replies'}><Button variant="outline" size="icon" onClick={conversation.toggleMute} aria-label={conversation.muted ? 'Enable spoken replies' : 'Mute spoken replies'}>{conversation.muted ? <VolumeX/> : <Volume2/>}</Button></WorkspaceTooltip>
+        <WorkspaceTooltip content={active ? 'Pause eFlow Live' : 'Resume eFlow Live'}><Button className="eflow-live__pause" onClick={() => active ? conversation.pause() : void conversation.start()} aria-label={active ? 'Pause eFlow Live' : 'Resume eFlow Live'} >{active ? <><Pause size={18}/><Mic size={18}/></> : <><Play size={18}/><MicOff size={18}/></>}</Button></WorkspaceTooltip>
         <Button variant="outline" onClick={onBack} aria-label="End eFlow Live">End</Button>
       </div>
       <Button variant="ghost" size="sm" aria-expanded={showTranscript} onClick={() => setShowTranscript(value => !value)}>{showTranscript ? <ChevronDown size={15}/> : <ChevronUp size={15}/>} {showTranscript ? 'Hide transcript' : 'Show transcript'}</Button>

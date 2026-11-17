@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import { EmptyStateIllustration } from '../../../components/ui/EmptyStateIllustration';
 import * as React from "react";
 import { Button, EmptyState } from "@vibe/core";
@@ -34,7 +35,7 @@ export function CollaborationSourcePanel({
       setPreviewUrl(await getCollaborationSourceUrl(draft.sourceFilePath));
     } catch (error) {
       toast(
-        error instanceof Error ? error.message : "Could not open source PDF.",
+        readableUiError(error, "Could not open source PDF.", 'read'),
         "error",
       );
     } finally {
@@ -64,9 +65,7 @@ export function CollaborationSourcePanel({
       toast("Source PDF attached.", "success");
     } catch (error) {
       toast(
-        error instanceof Error
-          ? error.message
-          : "Could not attach the source PDF.",
+        readableUiError(error, "Could not attach the source PDF.", 'write'),
         "error",
       );
     } finally {

@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../../shared/userFacingError';
 import { EmptyState } from '../../../../components/ui/EmptyState';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Button } from '@vibe/core';
@@ -19,7 +20,7 @@ export function PendingActivationsTable({ actorId, revision }: { actorId: string
       const result = await listPendingActivations();
       if (!Array.isArray(result.invitations)) throw new Error('Could not load invitations. Please refresh.');
       if (mounted.current && request === generation.current) { setRows(result.invitations); setRefreshVersion(n => n + 1); }
-    } catch (reason) { if (mounted.current && request === generation.current) { setRows([]); setError(reason instanceof Error ? reason.message : 'Could not load pending invitations.'); } }
+    } catch (reason) { if (mounted.current && request === generation.current) { setRows([]); setError(readableUiError(reason, "Could not load pending invitations.", 'read')); } }
     finally { if (mounted.current && request === generation.current) setLoading(false); }
   }, []);
   useEffect(() => { void refresh(); }, [refresh, revision]);

@@ -35,7 +35,7 @@ export async function fetchDepartmentBudgetBundle(orgId: string, fiscalYear: num
     budgetReportRead(()=>supabase.from("department_budget_lines").select("*",{count:"exact"}).eq("fiscal_budget_id", summary.id).order("position").order("id",{ascending:true}), undefined, "position", true),
     budgetReportRead(()=>supabase.from("budget_commitments").select("*",{count:"exact"}).eq("fiscal_budget_id", summary.id).order("created_at", { ascending: false }).order("id",{ascending:true}), undefined, "created_at", false),
     budgetReportRead(()=>supabase.from("petty_cash_requests").select("*",{count:"exact"}).eq("fiscal_budget_id", summary.id).order("created_at", { ascending: false }).order("id",{ascending:true}), undefined, "created_at", false),
-    budgetReportRead(()=>supabase.from("budget_ledger_entries").select("*",{count:"exact"}).eq("fiscal_budget_id", summary.id).order("created_at", { ascending: false }).order("id",{ascending:true}), undefined, "created_at", false),
+    supabase.from("budget_ledger_entries").select("*", { count: "exact" }).eq("fiscal_budget_id", summary.id).order("created_at", { ascending: false }).order("id", { ascending: true }).range(0, 9),
     budgetReportRead(()=>supabase.from("department_budget_adjustments").select("*",{count:"exact"}).eq("fiscal_budget_id", summary.id).order("created_at", { ascending: false }).order("id",{ascending:true}), undefined, "created_at", false),
   ]);
   [linesResult.error, commitmentsResult.error, requestsResult.error, ledgerResult.error].forEach(throwIf);
@@ -129,6 +129,7 @@ export async function fetchDepartmentBudgetBundle(orgId: string, fiscalYear: num
     releases: (releasesResult.data || []).map((row) => mapRelease(row as Record<string, unknown>)),
     liquidations: liquidationRows.map((row) => mapLiquidation(row as Record<string, unknown>, receipts)),
     ledger: (ledgerResult.data || []).map((row) => mapLedger(row as Record<string, unknown>)),
+    ledgerCount: typeof ledgerResult.count === "number" ? ledgerResult.count : undefined,
     adjustments: adjustmentsResult.error ? [] : (adjustmentsResult.data || []).map((row) => mapAdjustment(row as Record<string, unknown>)),
     schemaWarnings: adjustmentsResult.error ? ["The latest fiscal controls update has not been applied to the live system."] : [],
   };
@@ -573,6 +574,41 @@ export async function fetchGeneralJournal(orgId: string, fiscalYear: number): Pr
       credit: Number(line.credit || 0),
     })),
   }));
+}
+
+export async function fetchBudgetLedgerPage({
+  fiscalBudgetId,
+  page,
+  pageSize = 10,
+  query = "",
+}: {
+  fiscalBudgetId: string;
+  page: number;
+  pageSize?: number;
+  query?: string;
+}) {
+  const safePage = Math.max(1, page);
+  const offset = (safePage - 1) * pageSize;
+  let builder = supabase
+    .from("budget_ledger_entries")
+    .select("*", { count: "exact" })
+    .eq("fiscal_budget_id", fiscalBudgetId);
+  const needle = query.trim().replace(/[,%()*]/g, " ").trim();
+  if (needle) {
+    const pattern = `%${needle}%`;
+    builder = builder.or(
+      `entry_type.ilike.${pattern},description.ilike.${pattern},actor_role.ilike.${pattern},reason.ilike.${pattern}`,
+    );
+  }
+  const { data, error, count } = await builder
+    .order("created_at", { ascending: false })
+    .order("id", { ascending: true })
+    .range(offset, offset + pageSize - 1);
+  throwIf(error);
+  return {
+    rows: ((data || []) as Array<Record<string, unknown>>).map((row) => mapLedger(row)),
+    total: typeof count === "number" ? count : (data?.length || 0),
+  };
 }
 
 export async function postGeneralJournalAdjustment(input: {

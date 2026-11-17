@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import { useRef, useState, type FormEvent } from "react";
 import { Plus, WalletCards } from "lucide-react";
 import { Modal, ModalButton } from "../../../components/ui/Modal";
@@ -88,7 +89,7 @@ export function SubtaskBudgetManager({ context, title, canManage, taskFinished, 
       await onChanged();
       setNotice(draft.mode === "return" ? "Unused funding returned to the task." : "Subtask budget saved.");
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "Could not save this budget change.");
+      setError(readableUiError(reason, "Could not save this budget change.", 'write'));
     } finally {
       setBusy(false);
     }

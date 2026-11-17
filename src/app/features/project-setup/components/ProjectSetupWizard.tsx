@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import {useEffect,useRef,useState} from 'react';
 import {Button} from '@vibe/core';
 import {ArrowLeft,ArrowRight,Check,ClipboardList,Layers,CalendarDays,Wallet,ShieldCheck,Save,UsersRound} from 'lucide-react';
@@ -87,7 +88,7 @@ export function ProjectSetupWizard({projectId,profiles,profilesLoading,organizat
   pending.current=true;setBusy(true);setError('');
   try{await action();}
   catch(e){
-   setError(creationAttempt.current?'Could not confirm project creation. Retry to check the same request.':
+   setError(creationAttempt.current?"We couldn't confirm whether the project was created. Keep this setup open and try again here; don't start another project.":
     e instanceof Error?e.message:'Could not save project setup.');
   }finally{pending.current=false;setBusy(false);}
  }
@@ -99,7 +100,7 @@ export function ProjectSetupWizard({projectId,profiles,profilesLoading,organizat
  const next=()=>{
   if(step<3){
    try{validate(step);setError('');setStep(value=>value+1);}
-   catch(e){setError(e instanceof Error?e.message:'Check the project details before continuing.');}
+   catch(e){setError(readableUiError(e, "Check the project details before continuing.", 'write'));}
    return;
   }
   void perform(async()=>{

@@ -7,7 +7,7 @@ import { useExplicitDraft } from '../../../shared/useExplicitDraft';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useConfirmation } from '../../../components/ui/useConfirmation';
 import { formatManilaInstant } from '../../../shared/calendarDisplay';
-import { financialErrorMessage, financialFailureIsUncertain } from '../financialReceipts';
+import { financialErrorMessage, financialFailureIsUncertain, financialWriteFeedback } from '../financialReceipts';
 import { approveStaffingEscalation, decideIndependentReview, getIndependentReview, routeIndependentReview, type IndependentReviewContext } from '../services/independentReviewService';
 
 type ReviewDecision = 'approved' | 'changes_requested' | 'rejected' | 'approve_escalation';
@@ -42,11 +42,11 @@ export function IndependentReviewCard({ id, version, context, error, onChanged, 
         if (confirmed) {
           sessionStorage.setItem(key, JSON.stringify({ ...attempt, outcome: 'saved' }));
           draft.markClean(); setReason(''); setUncertain(false); setMessage('The saved review outcome is confirmed from current records.');
-        } else { setUncertain(true); setMessage('The earlier outcome is not confirmed. Keep this request identity and verify with Accounting before changing the decision.'); }
+        } else { setUncertain(true); setMessage("We couldn't confirm the earlier decision. Keep this review open and check with Accounting before making another decision."); }
       } else { setMessage('Current review refreshed.'); setUncertain(false); }
       await onChanged();
     }
-    catch (caught) { setMessage(financialErrorMessage(caught)); }
+    catch (caught) { setMessage(financialErrorMessage(caught, 'We couldn’t check the current review. Reload its record before continuing.', 'read')); }
     finally { pending.current = false; setBusy(false); }
   };
   const run = async (decision?: ReviewDecision, takeReview = false) => {
@@ -56,10 +56,17 @@ export function IndependentReviewCard({ id, version, context, error, onChanged, 
     pending.current = true; draft.pendingRef.current = true; setBusy(true); setMessage('');
     const payload = JSON.stringify([id, version, selectedReviewer, findings, decision]);
     const key = `eflow:independent-review:${userProfile?.id}:${id}:${version}`;
+    let submitted = false;
+    let unconfirmed = false;
+    let saved = false;
     try {
       const previous = sessionStorage.getItem(key);
       const attempt = previous ? JSON.parse(previous) as { payload: string; key: string; outcome: string } : null;
-      if (attempt && attempt.payload !== payload && attempt.outcome === 'uncertain') throw new Error('An earlier review has an uncertain outcome. Verify its decision before changing details.');
+      if (attempt && attempt.payload !== payload && attempt.outcome === 'uncertain') {
+        unconfirmed = true;
+        setUncertain(true);
+        throw new Error('An earlier review has an uncertain outcome.');
+      }
       const command = attempt?.payload === payload ? attempt.key : crypto.randomUUID();
       if (!decision && !await confirmation.confirm({ title: takeReview ? 'Take this review?' : 'Route independent review?', description: `${findings} Review approval does not settle cash or post a journal.`, actionLabel: takeReview ? 'Yes, take review' : 'Yes, send to reviewer', tone:'approve' })) return;
       const fresh = await getIndependentReview(id);
@@ -68,21 +75,32 @@ export function IndependentReviewCard({ id, version, context, error, onChanged, 
       try {
         if (decision === 'approve_escalation') {
           if (!fresh.headEscalationFingerprint) throw new Error('This escalation is no longer awaiting your approval.');
+          submitted = true;
           await approveStaffingEscalation(id, version, fresh.headEscalationFingerprint, findings, command);
-        } else if (decision) await decideIndependentReview(id, version, decision, findings, command);
-        else await routeIndependentReview(id, version, selectedReviewer!, findings, command);
+        } else {
+          submitted = true;
+          if (decision) await decideIndependentReview(id, version, decision, findings, command);
+          else await routeIndependentReview(id, version, selectedReviewer!, findings, command);
+        }
       } catch (caught) {
-        if (financialFailureIsUncertain(caught)) setUncertain(true);
+        unconfirmed = submitted && financialFailureIsUncertain(caught);
+        if (unconfirmed) setUncertain(true);
         else sessionStorage.removeItem(key);
         throw caught;
       }
+      saved = true;
       sessionStorage.setItem(key, JSON.stringify({ payload, key: command, outcome: 'saved' }));
       draft.markClean(); setReason(''); setDecision(null); setMessage('');
       toast(decision === 'approve_escalation'
         ? fresh.headCanPostSettlement ? 'Settlement approved and posted.' : 'Approved. Waiting for Accounting settlement.'
         : 'Independent review saved. Accounting settlement remains separate.', decision === 'changes_requested' || decision === 'rejected' ? 'warning' : 'success');
       try { await onChanged(); } catch { toast('Review saved. Could not load the latest status.', 'warning'); }
-    } catch (caught) { setMessage(financialErrorMessage(caught)); }
+    } catch (caught) {
+      setMessage(financialWriteFeedback(caught, {
+        outcome: saved ? 'saved' : unconfirmed ? 'uncertain' : undefined,
+        submitted, action: decision ? 'Your review decision' : 'Your reviewer selection', record: 'the current review',
+      }));
+    }
     finally { pending.current = false; draft.pendingRef.current = false; setBusy(false); }
   };
   if (error) return <div className="mt-3 rounded-lg border border-amber-300 p-3 text-sm" role="status">Independent review unavailable: {error}<Button variant="outline" onClick={() => void verify()} disabled={busy}><RefreshCw size={14} /> Retry review check</Button></div>;

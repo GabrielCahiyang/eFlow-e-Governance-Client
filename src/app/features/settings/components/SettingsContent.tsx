@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { Bell, ChevronRight, Database, LockKeyhole, Palette, UserRound } from 'lucide-react';
+import { Bell, Database, LockKeyhole, Palette, UserRound } from 'lucide-react';
 import { AppearanceSettingsPage } from './AppearanceSettingsPage';
 import { NotificationSettingsPage } from './NotificationSettingsPage';
 import { ProfileSettingsPage } from './ProfileSettingsPage';
@@ -16,6 +16,14 @@ function resolvePage(page?: string): string {
   return 'Profile';
 }
 
+const SECTION_DESCRIPTIONS: Record<string, string> = {
+  Profile: 'Manage your display name, photo, and regional display preferences.',
+  Appearance: 'Choose your theme, layout density, and motion comfort.',
+  Notifications: 'Control email alerts and default inbox behavior.',
+  Security: 'Update your account password.',
+  'Storage & cache': 'Inspect preserved local drafts and clear cached workspace reads.',
+};
+
 export function SettingsContent({ activePage, onNavigate }: { activePage?: string; onNavigate?: (section: string, page: string) => void }) {
   const [selectedPage, setSelectedPage] = useState<string>(() => resolvePage(activePage));
 
@@ -31,36 +39,38 @@ export function SettingsContent({ activePage, onNavigate }: { activePage?: strin
     'Storage & cache': <StorageCacheSettingsPage />,
   };
 
-  const tabs = [
-    { id: 'Profile', label: 'Profile', icon: <UserRound size={15} /> },
-    { id: 'Appearance', label: 'Appearance', icon: <Palette size={15} /> },
-    { id: 'Notifications', label: 'Notifications', icon: <Bell size={15} /> },
-    { id: 'Security', label: 'Security', icon: <LockKeyhole size={15} /> },
-    { id: 'Storage & cache', label: 'Storage & cache', icon: <Database size={15} /> },
+  const sections = [
+    { id: 'Profile', label: 'Profile', icon: <UserRound size={14} /> },
+    { id: 'Appearance', label: 'Appearance', icon: <Palette size={14} /> },
+    { id: 'Notifications', label: 'Notifications', icon: <Bell size={14} /> },
+    { id: 'Security', label: 'Security', icon: <LockKeyhole size={14} /> },
+    { id: 'Storage & cache', label: 'Storage & cache', icon: <Database size={14} /> },
   ];
+  const currentMeta = sections.find((item) => item.id === selectedPage) ?? sections[0];
 
   return (
-    <div className="min-h-full bg-muted/30 px-5 py-6 sm:px-8 sm:py-8">
-      <div className="mx-auto max-w-5xl">
+    <div className="min-h-full bg-[var(--eflow-surface)] px-5 py-6 sm:px-8">
+      <div className="max-w-5xl space-y-6">
         <PageHeader
-          actions={<div className="hidden items-center gap-1 text-[11px] text-muted-foreground sm:flex"><span>Account</span><ChevronRight size={13} /><span className="font-medium text-foreground">{selectedPage}</span></div>}
-          eyebrow={<><Palette size={13} /> Personal settings</>}
+          eyebrow={<>{currentMeta.icon} Account</>}
           title={selectedPage}
+          subtitle={SECTION_DESCRIPTIONS[selectedPage]}
         />
 
-        {/* Horizontal Navigation Tabs */}
-        <div className="mb-6 flex border-b border-neutral-200 dark:border-slate-800 overflow-x-auto">
-          {tabs.map((tab) => {
+        {/* Compact mobile section switcher (desktop uses the Context Rail) */}
+        <div className="flex border-b border-[var(--eflow-border)] overflow-x-auto md:hidden" aria-label="Account sections">
+          {sections.map((tab) => {
             const active = selectedPage === tab.id;
             return (
               <button
                 key={tab.id}
+                type="button"
                 onClick={() => onNavigate ? onNavigate('settings', tab.id) : void requestNavigation(() => setSelectedPage(tab.id))}
-                className={`flex items-center gap-2 border-b-2 px-4 py-3 text-[13px] font-medium transition-all duration-200 whitespace-nowrap
+                className={`flex items-center gap-2 border-b-2 px-3.5 py-2.5 text-[13px] font-medium transition-colors whitespace-nowrap
                   ${
                     active
-                      ? 'border-primary text-primary dark:border-primary dark:text-primary font-semibold'
-                      : 'border-transparent text-neutral-500 hover:border-neutral-300 hover:text-neutral-700 dark:text-slate-400 dark:hover:text-slate-200'
+                      ? 'border-[var(--eflow-primary)] text-[var(--eflow-primary)] font-semibold'
+                      : 'border-transparent text-[var(--eflow-text-secondary)] hover:bg-[var(--eflow-subtle)] hover:text-[var(--eflow-primary)]'
                   }`}
               >
                 {tab.icon}

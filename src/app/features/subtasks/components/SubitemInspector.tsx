@@ -1,4 +1,5 @@
 import {useState} from 'react';
+import {Layers, History} from 'lucide-react';
 import {useAuth} from '../../../contexts/AuthContext';
 import {InspectorSurface} from '../../task-inspector';
 import {Button} from '../../../components/ui/button';
@@ -38,7 +39,7 @@ function SubitemInspectorContent(props:SubitemInspectorProps&{controller:WorkTre
  const [section,setSection]=useState<'work'|'activity'>(props.initialSection==='activity'?'activity':'work');
  const {user}=useAuth();
  // Loading and loaded panels must keep the real opener, not each other's buttons.
- const [origin]=useState<TaskInspectorOrigin>(()=>props.origin||{view:'Subitem',returnFocus:typeof document!=='undefined'&&document.activeElement instanceof HTMLElement?document.activeElement:null});
+ const [origin]=useState<TaskInspectorOrigin>(()=>props.origin||{view:'Subtask',returnFocus:typeof document!=='undefined'&&document.activeElement instanceof HTMLElement?document.activeElement:null});
  const data=useSubitemInspectorData(props.rootTask.id,itemId,props.controller);
  const close=()=>void requestNavigation(props.onClose);
  const openItem=(id:string)=>{if(data.tree?.nodes.some(node=>node.id===id))void requestNavigation(()=>{setItemId(id);});};
@@ -47,8 +48,10 @@ function SubitemInspectorContent(props:SubitemInspectorProps&{controller:WorkTre
  const scopeReadOnly=!!props.readOnly||!!props.rootTask.archivedAt||!!props.rootTask.proposedOfficeIdentityId||['completed','cancelled'].includes(props.rootTask.status)||!data.fresh||!scopeMatches;
  const context=tree?{actorId:user?.id||null,rootId:props.rootTask.id,projectId:tree.root.project,officeId:tree.root.office,kind:tree.root.kind,revision:tree.revision,readOnly:scopeReadOnly,executionBlocked:!!props.executionBlocked}:undefined;
  const reviewNode=(id:string)=>openItem(id);
+ const surfacePresentation = props.presentation || 'page';
+ const isDialog = surfacePresentation === 'dialog';
  const loadError=data.error||(tree&&!scopeMatches?'Subtask unavailable in this project or Office.':'');
- if(!node||!tree||!data.data||!scopeMatches)return <><InspectorSurface presentation={props.presentation||'page'} open onClose={close} ariaLabel={data.loading&&!loadError?'Loading subtask':'Subtask unavailable'} layer={60} className="w-full sm:w-[460px]" returnFocus={origin.returnFocus} onReturnFocus={origin.restoreFocus}>
+ if(!node||!tree||!data.data||!scopeMatches)return <><InspectorSurface presentation={surfacePresentation} open onClose={close} ariaLabel={data.loading&&!loadError?'Loading subtask':'Subtask unavailable'} layer={60} className="w-full sm:w-[460px]" returnFocus={origin.returnFocus} onReturnFocus={origin.restoreFocus}>
   <SubtaskLoadState loading={data.loading&&!loadError} error={loadError} onRetry={()=>void data.reload()} onClose={close}/>
  </InspectorSurface></>;
  const current:Subtask={...data.data.subtask,customStatusId:node.custom_status_id === undefined ? data.data.subtask.customStatusId : node.custom_status_id ?? undefined,title:node.title,parentSubtaskId:node.parent_subtask_id||undefined,leadId:node.lead_id||undefined,
@@ -104,10 +107,42 @@ function SubitemInspectorContent(props:SubitemInspectorProps&{controller:WorkTre
   root={tree.root.id} node={itemId} actor={actorId} status={current.status} initialBlocker={data.data.progressUpdates[0]?.blocker||''} readOnly={scopeReadOnly||startPaused} pending={data.pending}
   blocked={reviewBlocked} completionBlocked={unfinishedChild?'Complete the child subtasks first.':undefined}
   reviewerName={tree.people.find(person=>person.id===tree.root.lead)?.name} onChanged={reload}/>:undefined;
- return <InspectorSurface presentation={props.presentation||'page'} open onClose={close} ariaLabel={`Subtask: ${node.title}`} returnFocus={origin.returnFocus} onReturnFocus={origin.restoreFocus}>
-  <SubitemContext stuck={!!data.data.progressUpdates[0]?.blocker} node={node} tree={tree} rootTitle={props.rootTask.title} onOpenItem={openItem} onClose={close}/>
-  <nav className="task-page__tabs" aria-label="Subtask sections">{(['work','activity'] as const).map(value=><button key={value} type="button" aria-current={section===value?'page':undefined} onClick={()=>void requestNavigation(()=>setSection(value))}>{value==='work'?'Work':'Activity'}</button>)}</nav>
-  <div className="task-page__body subitem-page-body">
+ return <InspectorSurface presentation={surfacePresentation} open onClose={close} ariaLabel={`Subtask: ${node.title}`} returnFocus={origin.returnFocus} onReturnFocus={origin.restoreFocus}>
+  <SubitemContext dialog={isDialog} stuck={!!data.data.progressUpdates[0]?.blocker} node={node} tree={tree} rootTitle={props.rootTask.title} onOpenItem={openItem} onClose={close}/>
+  <nav
+    className="task-page__tabs"
+    aria-label="Subtask sections"
+    onKeyDown={event => {
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+      event.preventDefault();
+      const items: Array<'work' | 'activity'> = ['work', 'activity'];
+      const currentIndex = items.indexOf(section);
+      const nextIndex =
+        event.key === 'Home'
+          ? 0
+          : event.key === 'End'
+            ? items.length - 1
+            : (currentIndex + (event.key === 'ArrowRight' ? 1 : -1) + items.length) % items.length;
+      void requestNavigation(() => setSection(items[nextIndex]));
+    }}
+  >
+    {(['work', 'activity'] as const).map(value => {
+      const Icon = value === 'work' ? Layers : History;
+      return (
+        <button
+          key={value}
+          type="button"
+          aria-current={section === value ? 'page' : undefined}
+          className={`task-page__tab-btn ${section === value ? 'is-active' : ''}`}
+          onClick={() => void requestNavigation(() => setSection(value))}
+        >
+          <Icon size={15} aria-hidden="true" />
+          <span>{value === 'work' ? 'Work' : 'Activity'}</span>
+        </button>
+      );
+    })}
+  </nav>
+  <div className={isDialog ? 'task-dialog__body subitem-page-body' : 'task-page__body subitem-page-body'}>
    <div hidden={section!=='work'} className="subitem-work-layout"><SubitemWorkflow dependencyBlockedReason={dependencyBlockedReason} recheckCompletion={recheckCompletion} task={fundingTask} subtask={current} prerequisite={prerequisite} capabilities={capabilities} pending={data.pending} saving={data.saving} submissions={data.data.submissions} progressUpdates={data.data.progressUpdates} onSaved={reload} schedule={schedule} onReview={()=>reviewNode(itemId)} startPanel={startPanel}
     leadReview={leadReview} directUpdates={!usesLeadReview||leadsStep||leadsTask} directCompletion={!usesLeadReview||leadsStep&&leadsTask}/>
    {tree.nodes.some(child=>child.parent_subtask_id===itemId)&&<section className="subitem-child-work" aria-label="Child subtasks"><SubitemChildWork itemId={itemId} controller={props.controller} readOnly={scopeReadOnly} executionBlocked={!!props.executionBlocked} onOpenItem={openItem} onReviewItem={reviewNode}/></section>}</div>

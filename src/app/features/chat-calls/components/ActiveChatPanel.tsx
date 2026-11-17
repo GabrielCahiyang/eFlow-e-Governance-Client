@@ -1,3 +1,5 @@
+import { readableUiError } from "../../../shared/userFacingError";
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { useEffect, useRef, useState } from 'react';
 import { Archive, ArrowLeft, ImagePlus, Info, Phone, Pin, Send, Video, X } from 'lucide-react';
 import { EmptyState } from '../../../components/ui/EmptyState';
@@ -163,16 +165,16 @@ export function ActiveChatPanel({ conversation, userId, userName, targetMessageI
             : conversation.orgId ? 'Office channel' : 'Direct message'}</p>
         </div>
         <div className="messages-thread-tools">
-          {!conversation.archived && !conversation.projectId && <button type="button" className="messages-icon-button"
-            aria-label={conversation.personalPin ? 'Unpin chat' : 'Pin chat'} title={conversation.personalPin ? 'Unpin chat' : 'Pin chat'}
+          {!conversation.archived && !conversation.projectId && <WorkspaceTooltip content={conversation.personalPin ? 'Unpin chat' : 'Pin chat'}><button type="button" className="messages-icon-button"
+            aria-label={conversation.personalPin ? 'Unpin chat' : 'Pin chat'}
             aria-pressed={Boolean(conversation.personalPin)} onClick={() => void run(async () => {
               await setConversationPin(conversation.channelId, !conversation.personalPin); await refreshList();
-            })}><Pin size={17} /></button>}
+            })}><Pin size={17} /></button></WorkspaceTooltip>}
           {conversation.channelType === 'direct' && conversation.otherUserId && <>
-            <button type="button" className="messages-icon-button" aria-label="Start audio call" onClick={() => void startCall('audio')}><Phone size={18} /></button>
-            <button type="button" className="messages-icon-button" aria-label="Start video call" onClick={() => void startCall('video')}><Video size={19} /></button>
+            <WorkspaceTooltip content="Start audio call"><button type="button" className="messages-icon-button" aria-label="Start audio call" onClick={() => void startCall('audio')}><Phone size={18} /></button></WorkspaceTooltip>
+            <WorkspaceTooltip content="Start video call"><button type="button" className="messages-icon-button" aria-label="Start video call" onClick={() => void startCall('video')}><Video size={19} /></button></WorkspaceTooltip>
           </>}
-          <button type="button" className="messages-icon-button" aria-label="Chat info" aria-expanded={showInfo} onClick={() => setShowInfo(value => !value)}><Info size={20} /></button>
+          <WorkspaceTooltip content="Chat details" disabled={showInfo}><button type="button" className="messages-icon-button" aria-label="Chat info" aria-expanded={showInfo} onClick={() => setShowInfo(value => !value)}><Info size={20} /></button></WorkspaceTooltip>
         </div>
       </header>
       {conversation.archived && <div className="messages-archive-banner"><Archive size={17} />
@@ -221,8 +223,8 @@ export function ActiveChatPanel({ conversation, userId, userName, targetMessageI
       </div>
       {error && <p className="messages-error messages-composer-error" role="alert">{error}</p>}
       {!conversation.archived && <form className="messages-composer" onSubmit={event => { event.preventDefault(); void send(); }}>
-        {replyPreview && <div className="messages-composer-reply"><span><strong>Replying to {nicknames[replyPreview.senderId] || replyPreview.senderName}</strong><span>{replyPreview.deleted ? 'Message deleted.' : parseMessage(replyPreview.content).text}</span></span><button className="messages-icon-button" type="button" onClick={() => setReply(undefined)} aria-label="Cancel reply"><X size={16} /></button></div>}
-        {image && <div className="messages-image-preview"><img src={image.preview} alt="Image ready to send" /><span>{image.file.name}</span><button type="button" className="messages-icon-button" disabled={busy} onClick={() => setImage(undefined)} aria-label="Remove attached image"><X size={16} /></button></div>}
+        {replyPreview && <div className="messages-composer-reply"><span><strong>Replying to {nicknames[replyPreview.senderId] || replyPreview.senderName}</strong><span>{replyPreview.deleted ? 'Message deleted.' : parseMessage(replyPreview.content).text}</span></span><WorkspaceTooltip content="Cancel reply"><button className="messages-icon-button" type="button" onClick={() => setReply(undefined)} aria-label="Cancel reply"><X size={16} /></button></WorkspaceTooltip></div>}
+        {image && <div className="messages-image-preview"><img src={image.preview} alt="Image ready to send" /><span>{image.file.name}</span><WorkspaceTooltip content="Remove attached image"><button type="button" className="messages-icon-button" disabled={busy} onClick={() => setImage(undefined)} aria-label="Remove attached image"><X size={16} /></button></WorkspaceTooltip></div>}
         <div className="messages-compose-row">
           <input ref={imagePicker} type="file" hidden accept="image/jpeg,image/png,image/gif,image/webp" aria-label="Choose an image" onChange={event => {
             const file = event.target.files?.[0];
@@ -231,10 +233,10 @@ export function ActiveChatPanel({ conversation, userId, userName, targetMessageI
             try { validateChatImage(file); setImage({ file, preview: URL.createObjectURL(file) }); setError(''); }
             catch (failure) { setError(errorMessage(failure, 'Could not attach this image.')); }
           }} />
-          <button type="button" className="messages-icon-button" disabled={busy} onClick={() => imagePicker.current?.click()} aria-label="Attach an image"><ImagePlus size={21} /></button>
+          <WorkspaceTooltip content="Attach an image"><button type="button" className="messages-icon-button" disabled={busy} onClick={() => imagePicker.current?.click()} aria-label="Attach an image"><ImagePlus size={21} /></button></WorkspaceTooltip>
           <ChatMentionInput composer={composer} draft={draft} setDraft={setDraft} channelId={conversation.channelId}
             userId={userId} group={group} disabled={busy} onSend={() => void send()} />
-          <button type="submit" className="messages-send" disabled={(!draft.text.trim() && !image) || busy} aria-label="Send message"><Send size={18} /></button>
+          <WorkspaceTooltip content="Send message"><button type="submit" className="messages-send" disabled={(!draft.text.trim() && !image) || busy} aria-label="Send message"><Send size={18} /></button></WorkspaceTooltip>
         </div>
       </form>}
     </section>
@@ -244,11 +246,11 @@ export function ActiveChatPanel({ conversation, userId, userName, targetMessageI
         await Promise.all([refreshList(), thread.refresh()]);
       }}
       onClose={() => setShowInfo(false)} onOpenTask={onOpenTask} onOpenProject={onOpenProject} onShowPinned={showPinned} />}
-    {selectedPin && <div className="messages-pin-preview" role="status"><span><strong>{selectedPin.senderName}</strong><span>{parseMessage(selectedPin.content).text}</span>{selectedPin.imagePath && <ConversationImage path={selectedPin.imagePath} thumbnail />}</span><button type="button" className="messages-icon-button" onClick={() => setSelectedPin(undefined)} aria-label="Close pinned message"><X size={18} /></button></div>}
+    {selectedPin && <div className="messages-pin-preview" role="status"><span><strong>{selectedPin.senderName}</strong><span>{parseMessage(selectedPin.content).text}</span>{selectedPin.imagePath && <ConversationImage path={selectedPin.imagePath} thumbnail />}</span><WorkspaceTooltip content="Close pinned message"><button type="button" className="messages-icon-button" onClick={() => setSelectedPin(undefined)} aria-label="Close pinned message"><X size={18} /></button></WorkspaceTooltip></div>}
     {confirmation.dialog}
   </div>;
 }
 
 function errorMessage(failure: unknown, fallback: string) {
-  return failure instanceof Error ? failure.message : fallback;
+  return readableUiError(failure, fallback, "write");
 }

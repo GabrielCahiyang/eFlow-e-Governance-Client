@@ -1,6 +1,6 @@
 import {useState,type ReactNode} from 'react';
-import {UsersRound} from 'lucide-react';
-import {WorkspaceTooltip} from '../../../components/ui/workspace';
+import {HelpCircle, UsersRound} from 'lucide-react';
+import {WorkspacePopover, WorkspaceTooltip} from '../../../components/ui/workspace';
 import {useAuth} from '../../../contexts/AuthContext';
 import {useWorkTree} from '../hooks/useWorkTree';
 import {WorkStaffingDialog} from './WorkStaffingDialog';
@@ -47,7 +47,26 @@ function WorkRootOwnerContent({rootId,fallback,readOnly=false,tree,layout='defau
    : <WorkPeopleSummary leadId={data.root.lead} contributorIds={data.root.people} people={data.people} compact/>}
   {tree.error&&<p role="alert">{tree.error}<button type="button" onClick={()=>void tree.reload()}>Retry project people</button></p>}
   {tree.refreshPending&&<span role="status" className={layout!=='default'?'sr-only':'r7-help'}>Checking current access…</span>}
-  {contributorAccess.reason_code==='active_staffing_locked'&&<p className="r7-help" role="status">{contributorAccess.disabledReason}</p>}
+  {contributorAccess.reason_code==='active_staffing_locked'&&(layout==='table'
+   ? <WorkspacePopover
+    collisionPadding={16}
+    trigger={
+     <button
+      type="button"
+      className="r7-owner-edit r7-owner-edit--icon"
+      aria-label="Team access info"
+      title={contributorAccess.disabledReason || undefined}
+     >
+      <HelpCircle size={14} aria-hidden="true"/>
+     </button>
+    }
+   >
+    <div className="max-w-[260px] space-y-1 text-xs leading-relaxed text-[var(--eflow-text-secondary)]">
+     <p className="font-semibold text-[var(--eflow-text)]">Active project team access</p>
+     <p role="status">{contributorAccess.disabledReason}</p>
+    </div>
+   </WorkspacePopover>
+   : <p className="r7-help" role="status">{contributorAccess.disabledReason}</p>)}
   {canStaff&&(layout==='table'
    ? <WorkspaceTooltip content={recoverable?'Recover people draft':'Choose people'}>
     <button type="button" className="r7-owner-edit r7-owner-edit--icon" aria-label="Choose task lead and contributors" disabled={tree.loading||tree.pending||!tree.authorityFresh} onClick={()=>setOpen(true)}>

@@ -1,3 +1,4 @@
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { useState, type ReactNode } from "react";
 import { ArrowDown, ArrowUp, CalendarDays, CornerDownRight, Plus, Trash2 } from "lucide-react";
 import { EmptyState } from "../../../components/ui/EmptyState";
@@ -183,23 +184,23 @@ export function BudgetSectionEditor({
                       <span className="sr-only">Add breakdown</span>
                     </button>
                   )}
-                  <button
+                  <WorkspaceTooltip content={`Move ${s.name} up`}><button
                     type="button"
                     aria-label={`Move ${s.name} up`}
                     onClick={() => move(s, -1)}
                     className={iconActionClass}
                   >
                     <ArrowUp size={12} aria-hidden="true" />
-                  </button>
-                  <button
+                  </button></WorkspaceTooltip>
+                  <WorkspaceTooltip content={`Move ${s.name} down`}><button
                     type="button"
                     aria-label={`Move ${s.name} down`}
                     onClick={() => move(s, 1)}
                     className={iconActionClass}
                   >
                     <ArrowDown size={12} aria-hidden="true" />
-                  </button>
-                  <button
+                  </button></WorkspaceTooltip>
+                  <WorkspaceTooltip content={deleteText}><button
                     type="button"
                     aria-label={deleteText}
                     onClick={() => onChange(removeSectionTree(sections, s.id))}
@@ -207,7 +208,7 @@ export function BudgetSectionEditor({
                   >
                     <Trash2 size={12} aria-hidden="true" />
                     <span className="sr-only">{deleteText}</span>
-                  </button>
+                  </button></WorkspaceTooltip>
                 </div>
               )}
             </div>

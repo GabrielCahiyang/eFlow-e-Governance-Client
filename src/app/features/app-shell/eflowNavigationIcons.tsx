@@ -1,13 +1,13 @@
 import {
   Activity, ArchiveRestore, BadgeCheck, Bell, BookOpen, BrainCircuit, CalendarClock,
   ChartColumnIncreasing, ChartNoAxesCombined, CircleAlert, ClipboardCheck,
-  ClipboardList, Coins, Compass, Contact, ContactRound, Cpu, DatabaseBackup,
-  FileText, Files, Fingerprint, FlagTriangleRight, FolderOpen, GanttChart,
+  ClipboardList, Coins, Compass, Contact, ContactRound, Cpu, Database, DatabaseBackup,
+  FileText, Files, FlagTriangleRight, FolderOpen, GanttChart,
   Gauge, GitBranch, HandCoins, Heart, HeartPulse, History, KeyRound,
   Landmark, LayoutDashboard, ListTree, Lock, LockKeyhole, Logs, Mail,
-  Megaphone, Monitor, Network, Newspaper, Palette, PanelsTopLeft, Pin,
+  Megaphone, MessageSquare, Monitor, Network, Newspaper, Palette, PanelsTopLeft, Pin,
   Presentation, ReceiptText, ScrollText, ShieldBan, ShieldEllipsis,
-  SlidersHorizontal, SquareCheckBig, TableProperties, TrendingUp, UserCog,
+  SlidersHorizontal, SquareCheckBig, TableProperties, Tags, TrendingUp, UserCog,
   UserRound, UsersRound, Vote, WalletCards, Waypoints, Workflow, Cog,
   type LucideIcon,
 } from 'lucide-react';
@@ -21,6 +21,8 @@ const destinationIcons: Record<string, LucideIcon> = {
   History,
   'Needs action': CircleAlert,
   Updates: Newspaper,
+  Notifications: Bell,
+  Messages: MessageSquare,
   'All Users': ContactRound,
   'Locked out accounts': LockKeyhole,
   'Role Defaults': SlidersHorizontal,
@@ -28,6 +30,7 @@ const destinationIcons: Record<string, LucideIcon> = {
   'Office Structure': Network,
   'Account Audit': Logs,
   'System Settings': Cog,
+  'Status Maintenance': Tags,
   'Workspace Policy': ShieldEllipsis,
   'Email & Integrations': Mail,
   'Runtime / AI Health': Cpu,
@@ -50,8 +53,8 @@ const destinationIcons: Record<string, LucideIcon> = {
   'Task History': ArchiveRestore,
   Profile: UserRound,
   Appearance: Palette,
-  Notifications: Bell,
-  Security: Fingerprint,
+  Security: LockKeyhole,
+  'Storage & cache': Database,
 };
 
 /** Keep existing section/legacy callers supported; icons never imply authority. */

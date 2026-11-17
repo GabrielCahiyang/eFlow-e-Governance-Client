@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import { useEffect, useId, useRef, useState } from 'react';
 import { useNavigationBlocker } from '../../../shared/navigationGuard';
 import type { WorkspaceTaskPatch } from '../types';
@@ -13,7 +14,7 @@ export function NumberCell({ value, label, disabled, save, field }: { value: num
     if (disabled || pending.current || Number(draft) === baseline.current) return;
     pending.current = true; setBusy(true); setError(''); setNotice('');
     try { const patch = numericPatch(field, draft); await save(patch); baseline.current = Number(draft); setNotice('Saved.'); }
-    catch (caught) { setError(caught instanceof Error ? caught.message : 'Could not save this amount.'); }
+    catch (caught) { setError(readableUiError(caught, "Could not save this amount.", 'write')); }
     finally { pending.current = false; setBusy(false); }
   };
   return <div className="pt-inline-cell" aria-busy={busy}>

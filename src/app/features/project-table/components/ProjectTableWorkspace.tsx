@@ -1,5 +1,7 @@
+import { readableUiError } from "../../../shared/userFacingError";
 import { ProjectActualExpensesProvider, ProjectTaskBudgetProvider } from '../../budget';
 import { EmptyState } from '../../../components/ui/EmptyState';
+import { WorkspaceTooltip } from '../../../components/ui/workspace/WorkspaceTooltip';
 import { useEffect,useMemo,useState,useRef } from 'react';
 
 import { Plus,Table2,LockKeyhole } from 'lucide-react';
@@ -85,23 +87,23 @@ export function ProjectTableWorkspace({data,profiles,orgs,canManage,planningOnly
  const shownGroups=useMemo(()=>visibleProjectGroups(groups,data.tasks),[groups,data.tasks]);
  const people=profiles.filter(p=>data.tasks.some(t=>t.assigneeId===p.id)||p.org_id===data.project.orgId);
 
- const run=async(fn:()=>Promise<void>)=>{setNotice('');try{await fn();}catch(e){setNotice(e instanceof Error?e.message:'Could not save this change.');}};
+ const run=async(fn:()=>Promise<void>)=>{setNotice('');try{await fn();}catch(e){setNotice(readableUiError(e, "We couldn't confirm whether this change was saved. Check the current project before trying again.", "write"));}};
 
  const addTask=()=>{ if(shownGroups.length)setTaskOpen(true); else setGroupOpen(true); };
  const addInlineTask=()=>{ if(shownGroups.length)setInlineFocus(count=>count+1); else setGroupOpen(true); };
- const refreshCreatedGroup=async()=>{try{await refresh();setRefreshFailed(false);}catch(e){setRefreshFailed(true);setNotice('Group added, but could not refresh: '+(e instanceof Error?e.message:'Please reload.'));}};
+ const refreshCreatedGroup=async()=>{try{await refresh();setRefreshFailed(false);}catch(e){setRefreshFailed(true);setNotice('Group added, but could not refresh: '+(readableUiError(e, "Please reload.", "read")));}};
 
  const parentTask=openSubitem?data.tasks.find(t=>t.id===openSubitem.taskId):undefined;
  const subitemReadOnly=openSubitemReadOnly||!userProfile||userProfile.is_active===false||userProfile.role==='admin'||['completed','archived'].includes(data.project.status)||!!parentTask?.archivedAt||!!parentTask?.proposedOfficeIdentityId||['for_review','completed','cancelled'].includes(parentTask?.status||'');
 
  return <ProjectTaskBudgetProvider projectId={data.project.id} officeId={data.project.orgId} officeIds={data.tasks.map(task=>task.orgId).filter((id):id is string=>!!id)}><ProjectActualExpensesProvider taskIds={data.tasks.map(task=>task.id)}><section className="pt-workspace" aria-label="Project main table" data-tour-id="project-main-table">
 
-  <div hidden={!!openSubitem}><TableToolbar sharedFilters={!!sharedFilters} query={query} setQuery={setQuery} status={status} setStatus={setStatus} owner={owner} setOwner={setOwner} sort={sort} setSort={setSort} people={people} hidden={hidden} toggleColumn={layout.toggleColumn} onResetWidths={layout.resetWidths} onResetCompact={layout.resetCompact} canManage={editable&&!planningOnly} onAddTask={addTask} onAddInlineTask={addInlineTask} onAddGroup={()=>setGroupOpen(true)} onImport={()=>{setImportSeed(prev=>({text:'',version:prev.version+1}));setImportOpen(true);}} onAi={()=>setAiOpen(true)} onOpenBoard={onOpenLegacyBoard}/>
+  <div><TableToolbar sharedFilters={!!sharedFilters} query={query} setQuery={setQuery} status={status} setStatus={setStatus} owner={owner} setOwner={setOwner} sort={sort} setSort={setSort} people={people} hidden={hidden} toggleColumn={layout.toggleColumn} onResetWidths={layout.resetWidths} onResetCompact={layout.resetCompact} canManage={editable&&!planningOnly} onAddTask={addTask} onAddInlineTask={addInlineTask} onAddGroup={()=>setGroupOpen(true)} onImport={()=>{setImportSeed(prev=>({text:'',version:prev.version+1}));setImportOpen(true);}} onAi={()=>setAiOpen(true)} onOpenBoard={onOpenLegacyBoard}/>
 
   {(!sharedFilters||!editable)&&<div className="pt-context-line">{!sharedFilters&&<span><Table2 size={14}/>{tasks.length === 1 ? '1 visible task' : `${tasks.length} visible tasks`}</span>}{!editable&&<span><LockKeyhole size={13}/>Project structure is read-only for this account or project.</span>}</div>}
   <ProjectImportHistory projectId={data.project.id} revision={historyRevision}/>
 
-  {notice&&<div role="alert" className="pt-error">{notice}{refreshFailed&&<button type="button" onClick={()=>{void refreshCreatedGroup();}}>Retry refresh</button>}<button onClick={()=>setNotice('')} aria-label="Dismiss error">×</button></div>}
+  {notice&&<div role="alert" className="pt-error">{notice}{refreshFailed&&<button type="button" onClick={()=>{void refreshCreatedGroup();}}>Retry refresh</button>}<WorkspaceTooltip content="Dismiss error"><button onClick={()=>setNotice('')} aria-label="Dismiss error">×</button></WorkspaceTooltip></div>}
 
   {error&&<div role="alert" className="pt-error">Unable to refresh task groups.<button type="button" onClick={()=>{void run(refresh);}}>Retry groups</button></div>}
   {loading?<div className="pt-skeleton" role="status" aria-label="Loading project table">{[0,1].map(i=><div key={i}><span/>{[0,1,2,3].map(j=><i key={j}/>)}</div>)}</div>:(!error||groups.length>0)&&<>
@@ -123,7 +125,7 @@ export function ProjectTableWorkspace({data,profiles,orgs,canManage,planningOnly
 
   {taskOpen&&<CreateWorkDialog key={'new-task-'+data.project.id} kind="task" projectId={data.project.id} groups={shownGroups} onClose={()=>setTaskOpen(false)}/>}
 
-  </div>{openSubitem&&(parentTask?<SubtaskWorkDrawer key={openSubitem.id} subtask={openSubitem} parentTask={parentTask} origin={subitemOrigin} readOnly={subitemReadOnly} canManageDeadline={!subitemReadOnly&&(parentTask.assigneeId===userId||editable)} onClose={()=>{setOpenSubitem(null);void run(refreshSubitems);}}/>:<p role="alert">Current parent task access is unavailable. <button type="button" onClick={()=>setOpenSubitem(null)}>Close subtask</button></p>)}
+  </div>{openSubitem&&(parentTask?<SubtaskWorkDrawer key={openSubitem.id} presentation="dialog" subtask={openSubitem} parentTask={parentTask} origin={subitemOrigin} readOnly={subitemReadOnly} canManageDeadline={!subitemReadOnly&&(parentTask.assigneeId===userId||editable)} onClose={()=>{setOpenSubitem(null);void run(refreshSubitems);}}/>:<p role="alert">Current parent task access is unavailable. <button type="button" onClick={()=>setOpenSubitem(null)}>Close subtask</button></p>)}
 
  </section></ProjectActualExpensesProvider></ProjectTaskBudgetProvider>;
 

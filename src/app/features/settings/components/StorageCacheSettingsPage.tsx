@@ -37,28 +37,40 @@ export function StorageCacheSettingsPage() {
   }, []);
 
   const handleClearCachedData = () => {
-    const outcome = purgeAllQueryCaches("manual");
+    purgeAllQueryCaches("manual");
     setDiagnostics(inspectStorageAndCache());
     setResult({
       tone: "success",
-      text: `Cached data cleared (${outcome.clearedEntries} snapshot${outcome.clearedEntries === 1 ? "" : "s"} evicted). Drafts, attachments awaiting submission, and financial retry records were preserved.`,
+      text: "Cached data cleared. eFlow will load fresh data as you work. Your drafts and pending submissions are kept.",
     });
   };
 
   return (
-    <div className="max-w-3xl space-y-5">
+    <div className="space-y-5">
       <Surface className="p-5 sm:p-6">
         <SectionHeading
           icon={<Database size={19} />}
-          eyebrow="Storage & cache"
-          title="In-memory workspace cache"
-          description="eFlow caches read-only workspace queries in memory for fast repeat navigation and deduplicates concurrent requests. Clearing cached data forces fresh server reads on next visit without affecting your work in progress."
+          eyebrow=""
+          title="Cached workspace data"
+          description="Clear cached data to reload your workspace. Your drafts and pending submissions are kept."
         />
 
+        <div className="mt-5 flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            onClick={handleClearCachedData}
+            className="inline-flex h-10 items-center gap-2 rounded-xl bg-primary px-4 text-[12px] font-semibold text-primary-foreground transition hover:bg-primary/90"
+          >
+            <RotateCcw size={15} aria-hidden="true" /> Clear cached data
+          </button>
+          <ResultMessage result={result} />
+        </div>
+        <details className="mt-5 border-t border-[var(--eflow-border)] pt-4">
+          <summary className="cursor-pointer text-sm font-semibold">Diagnostics</summary>
         <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
           <div className="rounded-xl border border-neutral-200/80 bg-neutral-50/70 p-3.5 dark:border-slate-800 dark:bg-slate-900/50">
             <p className="text-[11px] font-medium text-neutral-500 dark:text-slate-400">
-              Cached snapshots
+              Cached records
             </p>
             <p
               data-testid="cache-entry-count"
@@ -80,21 +92,21 @@ export function StorageCacheSettingsPage() {
           </div>
           <div className="rounded-xl border border-neutral-200/80 bg-neutral-50/70 p-3.5 dark:border-slate-800 dark:bg-slate-900/50">
             <p className="text-[11px] font-medium text-neutral-500 dark:text-slate-400">
-              Active scope
+              Signed-in account
             </p>
             <p className="mt-1 truncate text-[13px] font-semibold text-neutral-900 dark:text-slate-100">
               {userProfile?.email || user?.email || "Authenticated session"}
             </p>
             <p className="text-[11px] text-neutral-500 dark:text-slate-400">
-              Scope generation #{diagnostics.generation}
+              Cache version {diagnostics.generation}
             </p>
           </div>
         </div>
 
         {diagnostics.domains.length > 0 && (
-          <div className="mt-4 rounded-xl border border-neutral-200/80 p-3.5 dark:border-slate-800">
-            <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-neutral-500 dark:text-slate-400">
-              Active cached domains
+          <div className="mt-4 rounded-xl border border-[var(--eflow-border)] p-3.5">
+            <p className="mb-2 text-[12px] font-medium text-[var(--eflow-text-muted)]">
+              Cached data by feature
             </p>
             <div className="flex flex-wrap gap-2">
               {diagnostics.domains.map((item) => (
@@ -112,38 +124,26 @@ export function StorageCacheSettingsPage() {
           </div>
         )}
 
-        <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-neutral-200/80 pt-4 dark:border-slate-800">
-          <div className="text-[11px] text-neutral-500 dark:text-slate-400">
+          <p className="mt-4 text-[11px] text-neutral-500 dark:text-slate-400">
             {diagnostics.lastClearedAt
               ? `Last cleared at ${new Date(diagnostics.lastClearedAt).toLocaleTimeString()}`
-              : "Cache automatically resets on sign-out, account switch, or permission changes."}
-          </div>
-          <button
-            type="button"
-            onClick={handleClearCachedData}
-            className="inline-flex h-10 items-center gap-2 rounded-xl bg-primary px-4 text-[12px] font-semibold text-primary-foreground transition hover:bg-primary/90"
-          >
-            <RotateCcw size={15} /> Clear cached data
-          </button>
-        </div>
-
-        <div className="mt-4">
-          <ResultMessage result={result} />
-        </div>
+              : "eFlow clears cached data when you sign out, switch accounts, or your permissions change."}
+          </p>
+        </details>
       </Surface>
 
       <Surface className="p-5 sm:p-6">
         <SectionHeading
           icon={<HardDrive size={19} />}
-          eyebrow="Protected local state"
-          title="Preserved drafts & financial retry records"
-          description="Clearing cached data never deletes unsaved drafts, attachments awaiting submission, or pending financial reconciliation records."
+          eyebrow=""
+          title="Drafts and pending submissions"
+          description="These are kept when you clear cached data, along with files waiting to be submitted."
         />
 
         <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
           <div className="rounded-xl border border-neutral-200/80 bg-neutral-50/70 p-3.5 dark:border-slate-800 dark:bg-slate-900/50">
             <p className="text-[11px] font-medium text-neutral-500 dark:text-slate-400">
-              Work & hierarchy drafts
+              Task and subtask drafts
             </p>
             <p
               data-testid="protected-work-drafts"
@@ -165,7 +165,7 @@ export function StorageCacheSettingsPage() {
           </div>
           <div className="rounded-xl border border-neutral-200/80 bg-neutral-50/70 p-3.5 dark:border-slate-800 dark:bg-slate-900/50">
             <p className="text-[11px] font-medium text-neutral-500 dark:text-slate-400">
-              Financial retry receipts
+              Financial actions to check
             </p>
             <p
               data-testid="protected-financial-retries"
@@ -180,9 +180,7 @@ export function StorageCacheSettingsPage() {
       <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3.5 text-[12px] text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/25 dark:text-amber-200">
         <ShieldCheck size={17} className="mt-0.5 shrink-0" />
         <p>
-          Cached permissions, balances, and capabilities are never used as
-          authority for financial transactions or consequential actions. All
-          mutations are validated directly by the server.
+          eFlow checks your current access and balances before saving a financial action.
         </p>
       </div>
     </div>

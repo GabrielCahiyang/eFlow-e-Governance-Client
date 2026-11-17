@@ -1,3 +1,4 @@
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import * as React from "react";
 import { Building2, Landmark, Plus, ShieldCheck, X } from "lucide-react";
 import type { Organization } from "../../../types";
@@ -245,14 +246,14 @@ function OrganizationRow({
         </label>
       )}
       {onRemove && (
-        <button
+        <WorkspaceTooltip content="Remove organization"><button aria-label="Remove organization"
           type="button"
           onClick={onRemove}
           className="rounded-lg p-1.5 text-neutral-400 hover:bg-red-50 hover:text-red-600"
-          title="Remove organization"
+
         >
           <X size={13} />
-        </button>
+        </button></WorkspaceTooltip>
       )}
     </div>
   );

@@ -224,47 +224,52 @@ export function HeadReportsWorkspace({ embedded = false }: { embedded?: boolean 
       ) : (
         <WorkspaceHeader
           title="Reports"
-          description="Office reports · Operational, contribution, review, evidence and risk lenses in your authorized scope."
+          description="See work, contributions, reviews, evidence, and risks for your Offices."
           actions={headerActions}
         />
       )}
 
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-card p-4">
-        <p className="text-sm">
-          <strong>{office}</strong> · Authorized Office scope ·{" "}
-          {projectId === "all"
-            ? "All permitted projects"
-            : analytics.projects.find((project) => project.id === projectId)
-                ?.title || projectId}
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--eflow-border)] bg-[var(--eflow-surface)] px-4 py-3">
+        <p className="text-[13px] text-[var(--eflow-text)]">
+          <strong>{office}</strong>
+          <span className="text-[var(--eflow-text-muted)]"> · Offices included · </span>
+          <span>
+            {projectId === "all"
+              ? "All permitted projects"
+              : analytics.projects.find((project) => project.id === projectId)
+                  ?.title || projectId}
+          </span>
         </p>
-        <Button
-          variant="outline"
-          onClick={analytics.refresh}
-          disabled={analytics.refreshing}
-        >
-          Refresh report facts
-        </Button>
-        <Button
-          variant="outline"
-          onClick={() => {
-            setSearch("");
-            setPersonId("all");
-            setProjectId("all");
-            setStatus("all");
-            setPeriod("0");
-            setFromDate("");
-            setToDate("");
-          }}
-        >
-          Clear report filters
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={analytics.refresh}
+            disabled={analytics.refreshing}
+          >
+            Refresh reports
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setSearch("");
+              setPersonId("all");
+              setProjectId("all");
+              setStatus("all");
+              setPeriod("0");
+              setFromDate("");
+              setToDate("");
+            }}
+          >
+            Clear filters
+          </Button>
+        </div>
       </div>
-      {analytics.refreshing && <p role="status">Refreshing report facts…</p>}
+      {analytics.refreshing && <p role="status">Refreshing reports…</p>}
       {analytics.error && (
         <div role="alert" className="eflow-analytics-error">
-          Some workflow facts could not be loaded: {analytics.error}. Totals and
-          exports reflect only loaded records; missing facts are not zero
-          activity. Use Refresh report facts to retry.
+          Some report data couldn’t load. Totals and exports cover the records eFlow could load. Select Refresh reports to check again.
         </div>
       )}
 
@@ -278,7 +283,7 @@ export function HeadReportsWorkspace({ embedded = false }: { embedded?: boolean 
         <>
           <div className="mb-4">
             {analytics.error ? (
-              <p>Office contribution facts unavailable.</p>
+              <p>We couldn’t load Office contributions.</p>
             ) : (
               <ContributionSummaryCard
                 rows={contributionRows}
@@ -290,7 +295,7 @@ export function HeadReportsWorkspace({ embedded = false }: { embedded?: boolean 
           <div className="grid grid-cols-1 xl:grid-cols-[250px_minmax(0,1fr)] gap-4">
             <Card
               title="Report library"
-              subtitle="Select a live operational lens"
+              subtitle="Choose a report"
               bodyClassName="p-2 h-fit"
             >
               <div className="space-y-1">
@@ -385,10 +390,13 @@ export function HeadReportsWorkspace({ embedded = false }: { embedded?: boolean 
                       onChange={setStatus}
                       options={[
                         { value: "all", label: "All statuses" },
-                        ...statuses.map((value) => ({
-                          value,
-                          label: value.replace(/_/g, " "),
-                        })),
+                        ...statuses.map((value) => {
+                          const readable = value.replace(/_/g, " ");
+                          return {
+                            value,
+                            label: readable.charAt(0).toUpperCase() + readable.slice(1),
+                          };
+                        }),
                       ]}
                     />
                     <WSelect
@@ -439,7 +447,7 @@ export function HeadReportsWorkspace({ embedded = false }: { embedded?: boolean 
                     icon={<BarChart3 size={28} />}
                     title={
                       analytics.error
-                        ? "Report facts unavailable"
+                        ? "Report data unavailable"
                         : "No report rows match"
                     }
                     description="Change the people, project, status, date, or search filters."
@@ -489,7 +497,7 @@ function HeadReportsWorkspaceSkeleton({
       <div className="grid grid-cols-1 xl:grid-cols-[250px_minmax(0,1fr)] gap-4">
         <Card
           title="Report library"
-          subtitle="Select a live operational lens"
+          subtitle="Choose a report"
           bodyClassName="p-2 h-fit"
         >
           <div className="space-y-1">
@@ -557,7 +565,7 @@ function HeadReportsWorkspaceSkeleton({
                     ].map((header) => (
                       <th
                         key={header}
-                        className="px-4 py-3 text-left text-[12px] font-medium uppercase tracking-wider text-muted-foreground"
+                        className="px-4 py-3 text-left text-[12px] font-semibold text-muted-foreground"
                       >
                         {header}
                       </th>

@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import { useState, type FormEvent } from 'react';
 import { ListChecks, Plus } from 'lucide-react';
 import { builtInStatuses, useWorkStatuses, type StatusDefinition, type StatusScope } from '../../work-status';
@@ -40,7 +41,7 @@ export function StatusMaintenance() {
       setDraft(null);
       setNotice('Status saved.');
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : 'Could not save this status.');
+      setError(readableUiError(reason, "Could not save this status.", 'write'));
     } finally {
       setBusy(false);
     }

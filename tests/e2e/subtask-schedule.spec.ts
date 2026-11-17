@@ -19,7 +19,7 @@ test('project subtask schedule shows the current dates and constrains the editor
   });
 
   await page.getByRole('navigation', { name: 'Global navigation' }).getByRole('button', { name: 'My Work', exact: true }).click();
-  await page.getByRole('navigation', { name: 'My Work destinations' }).getByRole('button', { name: 'Leading', exact: true }).click();
+  await page.getByRole('navigation', { name: 'My Work destinations' }).getByRole('button', { name: 'Work I lead', exact: true }).click();
   await page.locator('[data-personal-task]').filter({ hasText: 'Prepare community assessment' }).click();
   const task = page.getByRole('region', { name: 'Task details: Prepare community assessment' });
   await task.getByRole('button', { name: 'Gather supporting evidence', exact: true }).click();

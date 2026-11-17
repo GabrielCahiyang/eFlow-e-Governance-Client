@@ -1,3 +1,4 @@
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { ArrowLeft, ArrowRight, AudioLines, Check, Volume2, VolumeX, X } from "lucide-react";
 import type { CSSProperties, ReactNode, Ref } from "react";
 import "../guidedTourPresentation.css";
@@ -43,7 +44,7 @@ export function GuidedTourCard({
             <span className="relative grid h-4 w-4 place-items-center">{voice.enabled ? voice.speaking ? <AudioLines size={14} className="animate-pulse motion-reduce:animate-none" /> : <Volume2 size={14} /> : <VolumeX size={14} />}</span>
             <span>AI voice</span><span className={`h-1.5 w-1.5 rounded-full transition-colors duration-300 ${voice.enabled ? "bg-primary/100" : "bg-muted-foreground"}`} />
           </button>}
-          {onSkip && <button type="button" onClick={onSkip} aria-label="Exit walkthrough" className="rounded-lg p-1.5 text-muted-foreground transition-all duration-200 hover:bg-muted hover:text-foreground active:scale-95 motion-reduce:transform-none"><X size={17} /></button>}
+          {onSkip && <WorkspaceTooltip content="Exit walkthrough"><button type="button" onClick={onSkip} aria-label="Exit walkthrough" className="rounded-lg p-1.5 text-muted-foreground transition-all duration-200 hover:bg-muted hover:text-foreground active:scale-95 motion-reduce:transform-none"><X size={17} /></button></WorkspaceTooltip>}
         </div>
       </div>
       <div className="mb-4 h-1.5 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-primary transition-[width] duration-500 ease-out motion-reduce:transition-none" style={{ width: `${((index + 1) / total) * 100}%` }} /></div>

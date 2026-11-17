@@ -1,3 +1,5 @@
+import { readableUiError } from '../../../shared/userFacingError';
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { useReviewedMutation } from "../../../shared/useReviewedMutation";
 import { FeedbackState } from "../../../components/ui/FeedbackState";
@@ -57,9 +59,7 @@ export function SubtaskTemplateLibrary({
       setTemplates(await fetchSubtaskTemplates());
     } catch (caught) {
       setError(
-        caught instanceof Error
-          ? caught.message
-          : "Templates could not be loaded.",
+        readableUiError(caught, "Templates could not be loaded.", 'read'),
       );
       if (throwOnError) throw caught;
     } finally {
@@ -323,7 +323,7 @@ export function SubtaskTemplateLibrary({
                       </>
                     )}
                   {canEdit && (
-                    <button
+                    <WorkspaceTooltip content={`Delete ${template.title}`}><button
                       aria-label={`Delete ${template.title}`}
                       disabled={safety.pending}
                       onClick={() =>
@@ -344,7 +344,7 @@ export function SubtaskTemplateLibrary({
                       className="ml-auto inline-flex items-center gap-1 rounded-lg border border-rose-200 px-2.5 py-1.5 text-[10.5px] text-rose-600 hover:bg-rose-50"
                     >
                       <Trash2 size={11} />
-                    </button>
+                    </button></WorkspaceTooltip>
                   )}
                 </div>
               </article>

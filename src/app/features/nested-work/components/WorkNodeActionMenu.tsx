@@ -6,6 +6,10 @@ import {ActionMenu,type WorkspaceAction} from '../../../components/ui/workspace/
 export function WorkNodeActionMenu({label,actions,compact=false,prominent=false}:{label:string;actions:WorkspaceAction[];compact?:boolean;prominent?:boolean}) {
  const handoff=useRef<WorkspaceAction['onSelect']|null>(null);
  if(!actions.length)return null;
+ const only=actions[0];
+ if(prominent&&actions.length===1&&only.id==='create'){
+  return <button type="button" data-work-toolbar-primary="true" className="nw-hierarchy-control nw-hierarchy-control--primary" disabled={only.disabled} title={only.disabledReason} onClick={()=>{if(!only.disabled)only.onSelect();}}><Plus size={17} aria-hidden="true"/>{only.label}</button>;
+ }
  const editorActions=new Set(['staff','create','order','edit','move','delete','progress','submit','review']);
  // A closing dropdown can still trap focus. Open the editor after its close
  // event, and leave canonical return-focus selection to the WorkTree owner.

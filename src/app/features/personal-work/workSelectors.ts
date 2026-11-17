@@ -5,6 +5,12 @@ import type {
   WorkDateFilter,
   WorkSnapshot,
 } from "./types";
+export interface ExtraWorkFilters {
+  project?: string;
+  status?: string;
+  relation?: string;
+}
+
 export function selectWorkRows(
   rows: WorkRow[],
   destination: WorkDestination,
@@ -13,8 +19,12 @@ export function selectWorkRows(
   workspace = "",
   recent = false,
   now = new Date(),
+  extra?: ExtraWorkFilters,
 ) {
   const needle = query.trim().toLocaleLowerCase();
+  const projectFilter = extra?.project?.trim() || "";
+  const statusFilter = extra?.status?.trim() || "";
+  const relationFilter = extra?.relation?.trim() || "";
   return rows
     .filter((row) => {
       if (!row.mine || (workspace && row.workspaceId !== workspace))
@@ -39,6 +49,14 @@ export function selectWorkRows(
         return false;
       if (destination === "Subtasks" && !row.kind.endsWith("node"))
         return false;
+      if (projectFilter && (row.projectTitle || "") !== projectFilter)
+        return false;
+      if (statusFilter) {
+        const effectiveStatus =
+          row.status === "in_progress" && row.blocker ? "stuck" : row.status;
+        if (effectiveStatus !== statusFilter) return false;
+      }
+      if (relationFilter && row.relation !== relationFilter) return false;
       return (
         matchesWorkDate(row.due, date, now, row.timezone) &&
         (!needle ||

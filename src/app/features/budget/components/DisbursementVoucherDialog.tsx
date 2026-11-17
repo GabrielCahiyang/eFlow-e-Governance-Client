@@ -41,6 +41,7 @@ import {
   financialOutcome,
   recordFinancialOutcome,
   financialFailureIsUncertain,
+  financialWriteFeedback,
   financialErrorMessage,
 } from "../financialReceipts";
 export function DisbursementVoucherDialog({
@@ -123,7 +124,7 @@ export function DisbursementVoucherDialog({
           "The release is pending or unavailable. Its outcome is not confirmed. Review financial history before another handover.",
         );
     } catch (caught) {
-      setError(financialErrorMessage(caught));
+      setError(financialErrorMessage(caught, "We couldn’t check the release. Reload financial history before continuing.", 'read'));
     } finally {
       inFlight.current = false;
       setBusy(false);
@@ -153,12 +154,7 @@ export function DisbursementVoucherDialog({
     } catch (caught) {
       if (financialFailureIsUncertain(caught))
         recordFinancialOutcome(key, "uncertain");
-      setError(
-        financialErrorMessage(caught) +
-          (financialOutcome(key) === "uncertain"
-            ? " Outcome uncertain. Verify before repeating a handover."
-            : " Your entries are retained."),
-      );
+      setError(financialWriteFeedback(caught, { outcome: financialOutcome(key), submitted: true, action: 'The cash release', record: 'the release record', draft: 'Your entries are still in the form.' }));
       inFlight.current = false;
       draft.pendingRef.current = false;
       setBusy(false);
@@ -171,10 +167,7 @@ export function DisbursementVoucherDialog({
       await onReleased();
       onClose();
     } catch (caught) {
-      setError(
-        financialErrorMessage(caught) +
-          " Release already recorded. Do not repeat it.",
-      );
+      setError(financialWriteFeedback(caught, { outcome: 'saved', submitted: true, action: 'The cash release', record: 'the release record' }));
       inFlight.current = false;
       setBusy(false);
     }
@@ -207,7 +200,7 @@ export function DisbursementVoucherDialog({
             Disbursement Voucher
           </DialogTitle>
           <DialogDescription className="text-[11.5px] text-neutral-500">
-            Official cash release authorization and physical handover record.
+            The disbursement voucher records who authorized the payment and who received it.
           </DialogDescription>
         </DialogHeader>
 

@@ -1,3 +1,4 @@
+import { WorkspaceTooltip } from "../../../../components/ui/workspace/WorkspaceTooltip";
 import { TaskDepartmentLabel } from "../TaskDepartmentLabel";
 import { useMemo } from "react";
 import { ChevronLeft, ChevronRight, Crown, Hand, ListChecks } from "lucide-react";
@@ -74,8 +75,8 @@ export function KanbanBoardView({
           <span className="truncate">Scroll horizontally to see all statuses.</span>
         </div>
         <div className="flex shrink-0 items-center gap-1">
-          <button type="button" aria-label="Scroll Kanban board left" onClick={() => panByPage(-1)} className="rounded-[6px] border border-border bg-card p-1 text-secondary-foreground transition hover:bg-muted hover:text-foreground"><ChevronLeft size={14} /></button>
-          <button type="button" aria-label="Scroll Kanban board right" onClick={() => panByPage(1)} className="rounded-[6px] border border-border bg-card p-1 text-secondary-foreground transition hover:bg-muted hover:text-foreground"><ChevronRight size={14} /></button>
+          <WorkspaceTooltip content="Scroll Kanban board left"><button type="button" aria-label="Scroll Kanban board left" onClick={() => panByPage(-1)} className="rounded-[6px] border border-border bg-card p-1 text-secondary-foreground transition hover:bg-muted hover:text-foreground"><ChevronLeft size={14} /></button></WorkspaceTooltip>
+          <WorkspaceTooltip content="Scroll Kanban board right"><button type="button" aria-label="Scroll Kanban board right" onClick={() => panByPage(1)} className="rounded-[6px] border border-border bg-card p-1 text-secondary-foreground transition hover:bg-muted hover:text-foreground"><ChevronRight size={14} /></button></WorkspaceTooltip>
         </div>
       </div>
       <div

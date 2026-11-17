@@ -8,10 +8,9 @@ import {
   Layers,
   LockKeyhole,
   MessageSquareText,
-  X,
 } from 'lucide-react';
-import type { Task } from '../../tasks';
-import { TaskStatusBadge, PriorityPill } from '../../../components/workflow/StatusBadges';
+import { TaskStatusLabel, type Task } from '../../tasks';
+import { PriorityPill } from '../../../components/workflow/StatusBadges';
 import { DeadlineBadge } from '../../../components/ui/DeadlineBadge';
 import { WorkspaceTooltip } from '../../../components/ui/workspace';
 import { requestNavigation } from '../../../shared/navigationGuard';
@@ -82,19 +81,6 @@ export function TaskPageHeader({
             </WorkspaceTooltip>
           )}
         </div>
-        {dialog && (
-          <WorkspaceTooltip content="Close task details">
-            <button
-              type="button"
-              className="task-drawer__close"
-              aria-label="Close task detail"
-              disabled={busy}
-              onClick={() => void requestNavigation(onClose)}
-            >
-              <X size={18} />
-            </button>
-          </WorkspaceTooltip>
-        )}
       </div>
 
       <div className="task-page__heading">
@@ -102,7 +88,7 @@ export function TaskPageHeader({
           <Heading type="h1">{task.title}</Heading>
         </div>
         <div className="task-page__badges">
-          <TaskStatusBadge status={task.status} customStatusId={task.customStatusId} />
+          <TaskStatusLabel status={task.status} customStatusId={task.customStatusId} />
           <PriorityPill priority={task.priority} />
           <DeadlineBadge value={task.deadline || task.dueDate} status={task.status} />
         </div>

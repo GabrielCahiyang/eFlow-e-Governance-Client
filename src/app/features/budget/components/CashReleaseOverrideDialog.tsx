@@ -21,6 +21,7 @@ import {
   financialOutcome,
   recordFinancialOutcome,
   financialFailureIsUncertain,
+  financialWriteFeedback,
   financialErrorMessage,
 } from "../financialReceipts";
 export function CashReleaseOverrideDialog({
@@ -74,7 +75,7 @@ export function CashReleaseOverrideDialog({
           "The release is pending or unavailable. Its outcome is not confirmed. Review financial history before another handover.",
         );
     } catch (caught) {
-      setError(financialErrorMessage(caught));
+      setError(financialErrorMessage(caught, "We couldn’t check the release. Reload financial history before continuing.", 'read'));
     } finally {
       inFlight.current = false;
       setBusy(false);
@@ -97,12 +98,7 @@ export function CashReleaseOverrideDialog({
     } catch (caught) {
       if (financialFailureIsUncertain(caught))
         recordFinancialOutcome(key, "uncertain");
-      setError(
-        financialErrorMessage(caught) +
-          (financialOutcome(key) === "uncertain"
-            ? " Outcome uncertain. Verify before repeating a handover."
-            : " Your entries are retained."),
-      );
+      setError(financialWriteFeedback(caught, { outcome: financialOutcome(key), submitted: true, action: 'The cash release', record: 'the release record', draft: 'Your entries are still in the form.' }));
       inFlight.current = false;
       draft.pendingRef.current = false;
       setBusy(false);
@@ -116,10 +112,7 @@ export function CashReleaseOverrideDialog({
       await onReleased();
       onClose();
     } catch (caught) {
-      setError(
-        financialErrorMessage(caught) +
-          " Release already recorded. Do not repeat it.",
-      );
+      setError(financialWriteFeedback(caught, { outcome: 'saved', submitted: true, action: 'The cash release', record: 'the release record' }));
       inFlight.current = false;
       setBusy(false);
     }

@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import {useEffect,useRef,useState} from 'react';
 import {ArrowRight,Check,ClipboardList,RotateCcw,Wallet} from 'lucide-react';
 import type {Organization,UserProfile} from '../../../types';
@@ -81,7 +82,7 @@ export function ProjectDefinitionPanel({projectId,profiles,profilesLoading,organ
    await flow.reload();
    setNotice('Project settings saved.');
   }catch(e){
-   setError(e instanceof Error?e.message:'Could not save project settings.');
+   setError(readableUiError(e, "Could not save project settings.", 'write'));
   }finally{
    setBusy(false);
   }
@@ -102,7 +103,7 @@ export function ProjectDefinitionPanel({projectId,profiles,profilesLoading,organ
    syncedRef.current='';
    await flow.reload();
   }catch(e){
-   setError(e instanceof Error?e.message:'Could not update funding requirement.');
+   setError(readableUiError(e, "Could not update funding requirement.", 'write'));
   }finally{
    setFundingModeBusy(false);
   }

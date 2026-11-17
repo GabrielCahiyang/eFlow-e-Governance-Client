@@ -4,5 +4,5 @@ const subscribe=(notify:()=>void)=>{window.addEventListener(NAVIGATION_LOCATION_
 /** Reads the existing route; there is no separate category selection authority. */
 export function useInboxCategory(page:string,role:string){
  const selected=useSyncExternalStore(subscribe,()=>window.location.pathname==='/inbox'?new URLSearchParams(window.location.search).get('page')||page:page,()=>page);
- return selected==='Updates'||selected==='Inbox'&&role==='admin'?'updates':'actions';
+ return selected==='Notifications'||selected==='Updates'||selected==='Inbox'&&role==='admin'?'updates':'actions';
 }

@@ -28,6 +28,22 @@ let uninstall:(()=>void)|undefined;
 beforeEach(()=>{vi.clearAllMocks();api.actor='me';api.tasks=[task];api.read.mockResolvedValue({data:rows(),error:null});api.record.mockImplementation(async(rootId:string,id:string)=>{if(!['eight','sibling','new-node'].includes(id))throw new Error('Subtask unavailable.');return {subtask:{id,taskId:rootId,title:'Same',assignedToIds:[],leadId:'me',status:'todo',percentComplete:20,createdAt:1,updatedAt:1},submissions:[],progressUpdates:[]};});const pending=peekNotificationNavigationIntent();if(pending)completeNotificationNavigationIntent(pending.notificationId);sessionStorage.clear();});
 afterEach(()=>{cleanup();uninstall?.();uninstall=undefined;const pending=peekNotificationNavigationIntent();if(pending)completeNotificationNavigationIntent(pending.notificationId);sessionStorage.clear();});
 describe('NW9.5 canonical notification entrances',()=>{
+ it('opens a Personal-work notification by its exact authorized row rather than an Office lookup',async()=>{
+  const open=vi.fn(async()=>true);
+  const personal={key:'personal-node:personal-node',id:'personal-node',rootId:'personal-root',projectId:'personal-project',kind:'personal-node',title:'Same'} as any;
+  queueNotificationNavigationIntent({notificationId:'personal-notice',kind:'personal_work',taskId:'personal-root',projectId:'personal-project',entityId:'personal-node'},'me');
+  render(<LeadingNotificationTarget rows={[personal]} loading={false} onOpen={open}/>);
+  await waitFor(()=>expect(open).toHaveBeenCalledWith(personal,expect.any(HTMLElement),expect.any(Function)));
+  expect(api.record).not.toHaveBeenCalled();
+  await waitFor(()=>expect(peekNotificationNavigationIntent('me')).toBeNull());
+ });
+ it('does not replace a missing Personal-work target with a similarly named row',async()=>{
+  const open=vi.fn(async()=>true);
+  queueNotificationNavigationIntent({notificationId:'personal-notice',kind:'personal_work',taskId:'personal-root',projectId:'personal-project',entityId:'missing'},'me');
+  render(<LeadingNotificationTarget rows={[{id:'same-title',rootId:'personal-root',projectId:'personal-project',kind:'personal-node',title:'Same'} as any]} loading={false} onOpen={open}/>);
+  await screen.findByText('This personal work is unavailable. Refresh My Work to check your current project access.');
+  expect(open).not.toHaveBeenCalled();
+ });
  it('keeps assigned subtasks visible during a quiet work refresh and then shows their new status',async()=>{
   render(<SubtasksWorkspace/>);await screen.findByRole('button',{name:/Same/});
   let finish!:(value:unknown)=>void;api.read.mockImplementationOnce(()=>new Promise(resolve=>{finish=resolve;}));

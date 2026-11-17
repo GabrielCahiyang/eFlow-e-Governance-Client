@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -29,7 +30,7 @@ export function ActionCenter({role,hasLeadingWork=false,page='Inbox',onNavigate}
   const {user,can} = useAuth();
   const {tasks,loading,error,retry} = useTasksData();
   const category=useInboxCategory(page,role);
-  const setCategory=(next:'actions'|'updates')=>{const destination=next==='updates'?'Updates':'Needs action';if(onNavigate)onNavigate('inbox',destination);else void requestNavigation(()=>writeNavigationLocation('inbox',destination));};
+  const setCategory=(next:'actions'|'updates')=>{const destination=next==='updates'?'Notifications':'Needs action';if(onNavigate)onNavigate('inbox',destination);else void requestNavigation(()=>writeNavigationLocation('inbox',destination));};
   const [notice,setNotice] = useState('');
   const [pendingFinancial,setPendingFinancial] = useState(0);
   const canReview = role !== 'admin' && (can('navigation.reviews') || hasLeadingWork);
@@ -61,7 +62,7 @@ export function ActionCenter({role,hasLeadingWork=false,page='Inbox',onNavigate}
     const recipient = user?.id, href = window.location.href;
     const destination=resolveInboxUpdateDestination(item,role);
     setNotice('');
-    if(item.taskId && !tasks.some(task=>task.id===item.taskId)&&!(destination?.intent.entityId&&['subtask','leading_task','subtask_review'].includes(destination.intent.kind))) {setNotice('The referenced task is unavailable, deleted or outside your access. Open your current work or review queue.');return;}
+    if(item.taskId && destination?.intent.kind!=='personal_work' && !tasks.some(task=>task.id===item.taskId)&&!(destination?.intent.entityId&&['subtask','leading_task','subtask_review'].includes(destination.intent.kind))) {setNotice('The referenced task is unavailable, deleted or outside your access. Open your current work or review queue.');return;}
     if(!destination || !canOpenNavigationSection(role,destination.section,can,hasLeadingWork && ['leading','reviews'].includes(destination.section))) {setNotice('This update has no available destination under your current access. Your current queues remain available.');return;}
     if(item.taskId && destination && ['task','leading_task','task_review'].includes(destination.intent.kind) && !destination.intent.entityId) {
       inspector.openTask(item.taskId,{view:'Inbox Updates',restoreFocus:() => (document.querySelector<HTMLElement>(`[data-update-id="${item.id}"]`) || document.getElementById('inbox-updates-context') || document.getElementById('inbox-updates'))?.focus()});return;
@@ -81,32 +82,62 @@ export function ActionCenter({role,hasLeadingWork=false,page='Inbox',onNavigate}
         const target=resolveNotificationSubitem(destination.intent,eligible);
         if(target.status!=='resolved') {setNotice('The referenced subtask is unavailable or its older label is ambiguous. Open the current subtask queue or inspect its accessible parent task.');return;}
         destination.intent.entityId = target.item.id;
-      } catch(caught) {setNotice(caught instanceof Error ? caught.message : 'The subtask destination could not be checked.');return;}
+      } catch(caught) {setNotice(readableUiError(caught, "The subtask destination could not be checked.", 'read'));return;}
     }
     navigate(destination.section,destination.page,destination.intent);
   };
+  const taskReviewCount = actions.filter(item => item.source === 'task-review').length;
+  const subtaskReviewCount = actions.filter(item => item.source === 'subtask-review').length;
   return <section className="eflow-personal-inbox space-y-5 min-w-0" aria-label="Personal Inbox">
-    <header><p className="text-xs text-muted-foreground">Personal action center</p><h1 className="text-2xl font-semibold">Inbox</h1><p className="text-sm text-muted-foreground mt-1">{category==='updates'?'Recent updates from your work and projects.':'Work and assigned independent financial reviews that need your attention.'}</p></header>
-    <div className="inbox-destination-host flex flex-wrap gap-2" role="group" aria-label="Inbox categories"><Button aria-current={category==='actions'?'page':undefined} aria-pressed={category==='actions'} variant={category==='actions'?'default':'outline'} onClick={()=>setCategory('actions')}>Needs action</Button><Button id="inbox-updates" aria-current={category==='updates'?'page':undefined} aria-pressed={category==='updates'} variant={category==='updates'?'default':'outline'} onClick={()=>setCategory('updates')}>Updates</Button></div>
+    <header className="flex flex-wrap items-start justify-between gap-3 border-b border-[var(--eflow-border)] pb-4">
+      <div>
+        <h1 className="text-[22px] font-semibold text-[var(--eflow-text)]">
+          {category === 'updates' ? 'Notifications' : 'Needs action'}
+        </h1>
+        <p className="mt-1 text-[13px] text-[var(--eflow-text-muted)]">
+          {category === 'updates'
+            ? 'Recent activity, mentions, and status alerts across your work.'
+            : 'Work submissions and financial reviews waiting for your decision.'}
+        </p>
+      </div>
+    </header>
+    <div className="inbox-destination-host flex flex-wrap gap-2 lg:hidden" role="group" aria-label="Inbox categories">
+      <Button aria-current={category === 'actions' ? 'page' : undefined} aria-pressed={category === 'actions'} variant={category === 'actions' ? 'default' : 'outline'} size="sm" onClick={() => setCategory('actions')}>Needs action</Button>
+      <Button id="inbox-updates" aria-current={category === 'updates' ? 'page' : undefined} aria-pressed={category === 'updates'} variant={category === 'updates' ? 'default' : 'outline'} size="sm" onClick={() => setCategory('updates')}>Notifications</Button>
+      <Button variant="outline" size="sm" onClick={() => onNavigate ? onNavigate('inbox', 'Messages') : void requestNavigation(() => writeNavigationLocation('inbox', 'Messages'))}>Messages</Button>
+    </div>
     {notice && <FeedbackState tone="warning" title="Update destination unavailable">{notice}</FeedbackState>}
-    {category==='updates'?<UpdatesFeed onOpen={item => void openUpdate(item)}/>:<>
+    {category === 'updates' ? <UpdatesFeed onOpen={item => void openUpdate(item)} /> : <>
       <AssignedIndependentReviews onPendingChange={setPendingFinancial} />
-      {!canReview?pendingFinancial===0?<FeedbackState title="No review queue under your current access">Updates remain available. Account roles do not grant operational approval authority.</FeedbackState>:null:<>
-        <div className="flex flex-wrap items-center gap-2"><p id="inbox-action-summary" tabIndex={-1} className="flex-1 text-sm text-muted-foreground">Task reviews: {loading?'loading':error?'unavailable':actions.filter(item=>item.source==='task-review').length} · Subtask reviews: {subtasks.loading?'loading':subtasks.error?'unavailable':actions.filter(item=>item.source==='subtask-review').length}</p></div>
-        {error && <FeedbackState tone={visibleTasks.length ? "warning" : "error"} title={visibleTasks.length ? "Task reviews could not refresh" : "Task reviews could not be loaded"} onRetry={retry}>{error.message}</FeedbackState>}
-        {subtasks.error && <FeedbackState tone={subtasks.rows.length ? "warning" : "error"} title={subtasks.rows.length ? "Subtask reviews could not refresh" : "Subtask reviews could not be loaded"} onRetry={subtasks.retry}>{subtasks.error}</FeedbackState>}
+      {!canReview ? pendingFinancial === 0 ? <FeedbackState title="No review queue under your current access">Notifications remain available. Account roles do not grant operational approval authority.</FeedbackState> : null : <>
+        <div id="inbox-action-summary" tabIndex={-1} className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="rounded-xl border border-[var(--eflow-border)] bg-[var(--eflow-surface)] px-4 py-3">
+            <span className="block text-[12px] font-medium text-[var(--eflow-text-muted)]">Task reviews</span>
+            <strong className="mt-1 block text-[20px] font-semibold tabular-nums text-[var(--eflow-text)]">
+              {loading ? '…' : error ? 'Unavailable' : taskReviewCount}
+            </strong>
+          </div>
+          <div className="rounded-xl border border-[var(--eflow-border)] bg-[var(--eflow-surface)] px-4 py-3">
+            <span className="block text-[12px] font-medium text-[var(--eflow-text-muted)]">Subtask reviews</span>
+            <strong className="mt-1 block text-[20px] font-semibold tabular-nums text-[var(--eflow-text)]">
+              {subtasks.loading ? '…' : subtasks.error ? 'Unavailable' : subtaskReviewCount}
+            </strong>
+          </div>
+        </div>
+        {error && <FeedbackState tone={visibleTasks.length ? "warning" : "error"} title={visibleTasks.length ? "Task reviews could not refresh" : "Task reviews could not be loaded"} onRetry={retry}>{readableUiError(error, "Reload the task reviews to check what needs your attention.", 'read')}</FeedbackState>}
+        {subtasks.error && <FeedbackState tone={subtasks.rows.length ? "warning" : "error"} title={subtasks.rows.length ? "Subtask reviews could not refresh" : "Subtask reviews could not be loaded"} onRetry={subtasks.retry}>{readableUiError(subtasks.error, "Reload the subtask reviews to check what needs your attention.", 'read')}</FeedbackState>}
         {(loading || subtasks.loading) ? (
           <div role="status" aria-busy="true" className="space-y-2">
             <span className="sr-only">Refreshing review sources…</span>
             {!actions.length && <PersonalActionRowsSkeleton rows={3} />}
           </div>
         ) : null}
-        {!pendingFinancial && !actions.length && !loading && !subtasks.loading && !error && !subtasks.error && <EmptyState fill illustration="complete" title="No personal task or subtask reviews pending" description="Work plans, governance and other approval queues remain in Reviews."/>}
+        {!pendingFinancial && !actions.length && !loading && !subtasks.loading && !error && !subtasks.error && <EmptyState fill illustration="complete" title="All caught up" description="No task, subtask, or financial reviews are waiting for your decision."/>}
         <PersonalActionRows items={actions} onOpen={openAction} />
-        <div className="inbox-workflow-fallback"><Button variant="outline" onClick={()=>navigate('reviews','For Review')}>Open all review queues</Button></div>
+        <div className="inbox-workflow-fallback"><Button variant="outline" onClick={() => navigate('reviews', 'For Review')}>Open all review queues</Button></div>
       </>}
-      {role==='accounting_staff' && can('navigation.accounting_overview') && <div className="inbox-workflow-fallback"><Button variant="outline" onClick={()=>navigate('accounting_overview','Accounting Overview')}>Open Accounting</Button></div>}
+      {role === 'accounting_staff' && can('navigation.accounting_overview') && <div className="inbox-workflow-fallback"><Button variant="outline" onClick={() => navigate('accounting_overview', 'Accounting Overview')}>Open Accounting</Button></div>}
     </>}
-    <TaskInspector task={selected} taskId={inspector.taskId || undefined} origin={inspector.origin} onClose={inspector.close} readOnly={role==='admin' || !!error} canDiscuss canReview={!!selected && canReview && canUserReviewTask(selected,user?.id,role)} />
+    <TaskInspector task={selected} taskId={inspector.taskId || undefined} origin={inspector.origin} onClose={inspector.close} readOnly={role === 'admin' || !!error} canDiscuss canReview={!!selected && canReview && canUserReviewTask(selected, user?.id, role)} />
   </section>;
 }

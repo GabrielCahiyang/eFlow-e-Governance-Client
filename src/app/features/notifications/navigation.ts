@@ -4,6 +4,7 @@ export type NotificationIntentKind =
   | "task"
   | "subtask"
   | "leading_task"
+  | "personal_work"
   | "task_review"
   | "subtask_review"
   | "announcement"
@@ -67,7 +68,7 @@ function destinationForTask(role: string) {
 
 function destinationForSubtask(role: string) {
   if (role === "head" || role === "member" || role === "accounting_staff" || role === "teamleader") {
-    return { section: "subtasks", page: "My Subtasks" };
+    return { section: "personal_work", page: "Subtasks" };
   }
   return destinationForTask(role);
 }
@@ -159,6 +160,11 @@ export function resolveNotificationDestination(
   const title = notification.title.trim().toLowerCase();
   const messageLabels = quotedLabels(notification.message || "");
   const isSubtask = !!notification.workNodeId || title.includes("subtask");
+  if (notification.entityType === 'm7_personal_work_proposal' && notification.taskId) {
+    return makeDestination(notification,
+      ['head', 'member', 'accounting_staff', 'teamleader'].includes(role) ? { section: 'personal_work', page: 'Leading' } : null,
+      'personal_work', 'Open personal work submission', messageLabels[0]);
+  }
   if (notification.financialRecordType === 'independent_liquidation_review') {
     return makeDestination(notification, ['head','member','accounting_staff'].includes(role) ? { section: 'inbox', page: 'Needs action' } : null, 'budget', 'Open independent review');
   }
@@ -208,17 +214,27 @@ export function resolveNotificationDestination(
   if (notification.type === "burnout_warning") {
     const route = role === "head"
       ? { section: "intelligence", page: "Team Intelligence" }
-      : role === "member" || role === "accounting_staff" || role === "teamleader"
-        ? { section: "performance", page: "Performance" }
-        : null;
+      : role === "accounting_staff"
+        ? { section: "personal_work", page: "Assigned work" }
+        : role === "member" || role === "teamleader"
+          ? { section: "performance", page: "Performance" }
+          : null;
     return makeDestination(notification, route, "team_intelligence", "Open workload insight");
   }
 
-  if (notification.entityType === 'm7_work_proposal' && notification.workNodeId && notification.taskId) {
+  if (notification.entityType === 'm7_work_proposal' && notification.taskId) {
     const route = ["head", "member", "accounting_staff", "teamleader"].includes(role)
       ? { section: "personal_work", page: notification.type === 'approval_needed' ? "Reviews" : "Leading" }
       : null;
-    return makeDestination(notification, route, "leading_task", "Open subtask submission");
+    return makeDestination(notification, route, "leading_task", notification.workNodeId ? "Open subtask submission" : "Open task submission");
+  }
+
+  if (notification.entityType === 'work_change' && notification.taskId) {
+    return makeDestination(notification,
+      notification.workNodeId ? ['head', 'member', 'accounting_staff', 'teamleader'].includes(role)
+        ? { section: 'personal_work', page: 'Leading' } : null : destinationForTask(role),
+      notification.workNodeId ? 'leading_task' : 'task',
+      notification.workNodeId ? 'View subtask changes' : 'View task changes', messageLabels[0]);
   }
 
   if (isSubtask && ["progress updated","work updated","blocker reported","subtask completed"].some(label=>title.includes(label))) {
@@ -280,6 +296,15 @@ export function resolveNotificationDestination(
 
   if (notification.projectId && role === 'head' && notification.title.startsWith('Project invitation')) {
     return makeDestination(notification, {section:'reviews',page:'For Review'}, 'membership_review', 'Review membership invitations', messageLabels[0]);
+  }
+  if (notification.taskId && (notification.type === 'reminder' || notification.type === 'overdue')) {
+    return makeDestination(
+      notification,
+      destinationForTask(role),
+      "task",
+      "Open task",
+      notification.taskTitle || messageLabels[0],
+    );
   }
   if (notification.projectId) {
     return makeDestination(

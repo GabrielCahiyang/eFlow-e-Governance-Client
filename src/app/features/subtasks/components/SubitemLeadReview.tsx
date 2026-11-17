@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { attachmentError, EVIDENCE_ACCEPT } from '../../../shared/fileValidation';
 import { useExplicitDraft } from '../../../shared/useExplicitDraft';
@@ -24,7 +25,7 @@ export function SubitemLeadReview({ root, node, actor, readOnly, pending, blocke
       const result = await fetchSubitemLeadReview(root, node);
       if (run === version.current) { setReview(result); setError(''); }
     } catch (reason) {
-      if (run === version.current) setError(reason instanceof Error ? reason.message : 'Could not load Lead review.');
+      if (run === version.current) setError(readableUiError(reason, "Could not load Lead review.", 'read'));
     }
   }, [root, node]);
   useEffect(() => {
@@ -111,7 +112,7 @@ function ReviewForm({ root, node, actor, kind, reviewerName, supersedes, disable
       guard.markClean();
       onSubmitted(item);
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : 'Could not submit work for review.');
+      setError(readableUiError(reason, "Could not submit work for review.", 'write'));
     } finally { guard.pendingRef.current = false; setBusy(false); }
   }
   const label = kind === 'completion' ? 'Submit for Task Lead review' : 'Send update for Lead review';

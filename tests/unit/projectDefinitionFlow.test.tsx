@@ -56,7 +56,7 @@ it('retries an uncertain creation with the original request identity and payload
  const view=render(<ProjectSetupWizard {...props}/>);
  fireEvent.change(screen.getByLabelText('Project title *'),{target:{value:'Unconfirmed project'}});
  fireEvent.click(screen.getByRole('button',{name:'Save draft and close'}));
- expect(await screen.findByRole('alert')).toHaveTextContent('Could not confirm project creation');
+ expect(await screen.findByRole('alert')).toHaveTextContent("We couldn't confirm whether the project was created");
  view.unmount();
  render(<ProjectSetupWizard {...props}/>);
  expect(screen.getByRole('button',{name:'Start new project'})).toBeDisabled();
@@ -184,7 +184,7 @@ it('retries an uncertain automatic Funding preparation with the same draft reque
  }));
  render(<ProjectSetupWizard {...props}/>);
  fireEvent.click(screen.getByRole('button',{name:'Continue draft'}));
- expect(await screen.findByRole('alert')).toHaveTextContent('Could not confirm project creation');
+ expect(await screen.findByRole('alert')).toHaveTextContent("We couldn't confirm whether the project was created");
  expect(screen.queryByRole('region',{name:'Project budget'})).toBeNull();
  fireEvent.click(screen.getByRole('button',{name:'Retry loading funding sources'}));
  await waitFor(()=>expect(screen.getByLabelText('Fiscal year')).toBeEnabled());

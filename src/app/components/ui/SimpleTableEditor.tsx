@@ -1,3 +1,4 @@
+import { WorkspaceTooltip } from "./workspace/WorkspaceTooltip";
 import { useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 
@@ -68,9 +69,9 @@ export function SimpleTableEditor({ onChange }: { onChange: (html: string) => vo
                 </td>
               ))}
               <td className="w-6 text-center">
-                <button aria-label={`Remove row ${r + 1}`} type="button" onClick={() => removeRow(r)} className="text-neutral-300 hover:text-red-500">
+                <WorkspaceTooltip content={`Remove row ${r + 1}`}><button aria-label={`Remove row ${r + 1}`} type="button" onClick={() => removeRow(r)} className="text-neutral-300 hover:text-red-500">
                   <Trash2 size={12} />
-                </button>
+                </button></WorkspaceTooltip>
               </td>
             </tr>
           ))}

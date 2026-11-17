@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import {useEffect,useState,type ReactNode} from 'react';
 import {useAuth} from '../../../contexts/AuthContext';
 import {requestNavigation} from '../../../shared/navigationGuard';
@@ -22,7 +23,7 @@ function RetiredSubitemReviews({focus,onShowTasks,readOnly=false}:Props){
   void Promise.all([fetchTaskById(focus.taskId),fetchSubitemInspectorRecord(focus.taskId,focus.entityId)]).then(([task,record])=>{
    if(!task||task.id!==focus.taskId)throw new Error('The referenced task is no longer accessible.');
    if(active)setTarget({task:rowToTask(task),subtask:record.subtask});
-  }).catch(reason=>{if(active)setError(reason instanceof Error?reason.message:'Could not open this subtask.');}).finally(()=>{if(active)setPending(false);});
+  }).catch(reason=>{if(active)setError(readableUiError(reason, "Could not open this subtask.", 'read'));}).finally(()=>{if(active)setPending(false);});
   return()=>{active=false;};
  },[focus?.taskId,focus?.entityId,retry]);
  useNotificationNavigationIntent(intent=>intent.kind==='subtask_review'&&intent.notificationId===focus?.notificationId,async()=>!pending,[pending,target,error]);

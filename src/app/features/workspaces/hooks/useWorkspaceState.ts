@@ -11,7 +11,7 @@ import { readWorkspacePreference, saveWorkspacePreference, WORKSPACE_QUERY, writ
 import type { Workspace, WorkspaceSnapshot } from '../types';
 
 /** Scope snapshots have no shared/global cache. A late response cannot populate another scope. */
-export function useWorkspaceState(userId: string, officeId: string, enabled: boolean) {
+export function useWorkspaceState(userId: string, officeId: string, enabled: boolean, officeOnly = false) {
   const read = () => new URLSearchParams(window.location.search).get(WORKSPACE_QUERY) || readWorkspacePreference(userId).current || officeId;
   const [requested,setRequested] = useState(read);
   const [state,setState] = useState<{ key: string; workspaces: Workspace[]; snapshot?: WorkspaceSnapshot; loading: boolean; error?: string; unavailable?: boolean }>({ key:'',workspaces:[],loading:true });
@@ -21,9 +21,13 @@ export function useWorkspaceState(userId: string, officeId: string, enabled: boo
     const token=++generation.current;
     if (!enabled || !userId) { setState({key:scopeKey,workspaces:[],loading:false,unavailable:true}); return; }
     try {
-      const workspaces=await listWorkspaces();
+      const rawWorkspaces=await listWorkspaces();
       if (token!==generation.current) return;
-      const selected=requested || workspaces.find(w=>w.office_id===officeId)?.id || workspaces[0]?.id;
+      const workspaces=officeOnly?rawWorkspaces.filter(w=>w.kind==='office'):rawWorkspaces;
+      const defaultOfficeId=workspaces.find(w=>w.office_id===officeId)?.id || workspaces[0]?.id;
+      const selected=officeOnly
+        ? (requested && workspaces.some(w=>w.id===requested) ? requested : defaultOfficeId)
+        : (requested || defaultOfficeId);
       if (!selected) { setState({key:scopeKey,workspaces,loading:false}); return; }
       if (!workspaces.some(w=>w.id===selected)) { setState({key:scopeKey,workspaces,loading:false,error:'This workspace is unavailable or your membership has ended.'}); return; }
       const snapshot=await selectWorkspace(selected);
@@ -39,7 +43,7 @@ export function useWorkspaceState(userId: string, officeId: string, enabled: boo
       }
       setState({key:scopeKey,workspaces:[],loading:false,error:userFacingError(error,'Could not load workspaces.'),unavailable:error instanceof WorkspaceApiUnavailable});
     }
-  },[enabled,userId,requested,officeId,scopeKey]);
+  },[enabled,userId,requested,officeId,officeOnly,scopeKey]);
   useEffect(()=>{
     const sync=()=>setRequested(read());
     sync(); window.addEventListener(NAVIGATION_LOCATION_EVENT,sync); window.addEventListener('popstate',sync);

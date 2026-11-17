@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type Context, type ReactNode } from "react";
 import { getRoleLabel } from "../../../shared/roles";
 import { getPageTourSteps, getSystemTourSteps } from "../tourCatalog";
 import { getPageProgressKey, readGuidedTourProgress, writeGuidedTourProgress } from "../services/tourProgressService";
@@ -15,7 +15,11 @@ interface GuidedTourContextValue {
   startPageTour: () => void;
 }
 
-const GuidedTourContext = createContext<GuidedTourContextValue | null>(null);
+const GUIDED_TOUR_CONTEXT_KEY = Symbol.for("eflow.guidedTourContext");
+const guidedTourGlobal = globalThis as Record<symbol, Context<GuidedTourContextValue | null> | undefined>;
+const GuidedTourContext =
+  guidedTourGlobal[GUIDED_TOUR_CONTEXT_KEY] ??
+  (guidedTourGlobal[GUIDED_TOUR_CONTEXT_KEY] = createContext<GuidedTourContextValue | null>(null));
 type BeginTour = (kind: GuidedTourKind, steps: GuidedTourStep[], startIndex?: number, section?: string, page?: string) => void;
 
 export function GuidedTourProvider({

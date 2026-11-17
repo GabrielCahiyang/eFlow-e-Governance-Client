@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import { useState } from "react";
 import { CheckCircle2, Send, Trash2 } from "lucide-react";
 import { useConfirmation } from "../../../components/ui/useConfirmation";
@@ -21,7 +22,7 @@ export function CollaborationActionRail({ isOwner, status, readiness, busy, hasR
     if (locked) return;
     setPending(true); setError("");
     try { await operation(); onSuccess?.(); }
-    catch (failure) { setError(failure instanceof Error ? failure.message : "The action failed. Please retry."); }
+    catch (failure) { setError(readableUiError(failure, "The action failed. Please retry.", 'write')); }
     finally { setPending(false); }
   };
   return <div className="space-y-3">

@@ -12,7 +12,7 @@ export function auditEventTime(timestamp:number){return Number.isFinite(timestam
 export function AuditEventDetailContent({event,entityLabel,officeLabel,section}:{event:AuditEvent;entityLabel:string;officeLabel:string;section:AuditDetailSection}){
  if(section==='overview')return <div className="audit-detail__overview">
   <div className="audit-detail__summary">
-   <SummaryCard icon={<UserRound size={18}/>} label="Responsible actor" value={event.actorName||'Not recorded'}/>
+   <SummaryCard icon={<UserRound size={18}/>} label="Performed by" value={event.actorName||'Not recorded'}/>
    <SummaryCard icon={<CalendarClock size={18}/>} label="Recorded at" value={auditEventTime(event.createdAt)} detail="Philippine time"/>
    <SummaryCard icon={<Database size={18}/>} label="Affected record" value={entityLabel} detail={event.entityId}/>
    <SummaryCard icon={<Building2 size={18}/>} label="Office" value={officeLabel}/>

@@ -44,7 +44,10 @@ describe('NW5.5 lightweight forms and authoritative confirmation',()=>{
  it('requires both dates for new subtasks and sends the selected pair',async()=>{
   data.root.scheduleBounds={projectStart:'2026-11-30',projectDue:'2026-12-31',taskStart:'2026-12-01',taskDue:'2026-12-20'};
   open('create');
+  expect((screen.getByLabelText('Subtask start date') as HTMLInputElement).value).toBe('2026-12-01');
+  expect((screen.getByLabelText('Subtask due date') as HTMLInputElement).value).toBe('2026-12-20');
   fireEvent.change(screen.getByLabelText('Subtask title'),{target:{value:'New scheduled subtask'}});
+  fireEvent.change(screen.getByLabelText('Subtask start date'),{target:{value:''}});
   save();
   await screen.findByText('Choose a subtask start date.',{exact:false});
   expect(writes()).toHaveLength(0);
@@ -57,6 +60,12 @@ describe('NW5.5 lightweight forms and authoritative confirmation',()=>{
   save();
   await waitFor(()=>expect(writes()).toHaveLength(1));
   expect(writes()[0][1].p_payload).toMatchObject({start:'2026-12-10',due:'2026-12-10'});
+ });
+ it('requires a title before dispatching subtask creation',async()=>{
+  open('create');
+  save();
+  await screen.findByText('Enter a subtask title.',{exact:false});
+  expect(writes()).toHaveLength(0);
  });
  it('checks a server-classified routine date without an extra confirmation',async()=>{
   open('edit');fireEvent.change(screen.getByLabelText('Subtask due date'),{target:{value:'2026-12-02'}});save();await waitFor(()=>expect(writes()).toHaveLength(1));expect(previews()).toHaveLength(1);expect(screen.queryByRole('alertdialog')).toBeNull();expect(writes()[0][0]).toBe('nw_work_command');expect(writes()[0][1].p_impact_fingerprint).toBe('synthetic-checked-impact');
@@ -72,22 +81,23 @@ describe('NW5.5 lightweight forms and authoritative confirmation',()=>{
   previewPatch={requires_date_confirmation:undefined,date_impact:undefined};open('edit');fireEvent.change(screen.getByLabelText('Subtask due date'),{target:{value:'2026-12-02'}});save();await screen.findByText(/Date impact confirmation is not installed/);expect(writes()).toHaveLength(0);
  });
  it('does not skip mode confirmation when a combined date is routine',async()=>{
-  open('edit');fireEvent.change(screen.getByLabelText('Subtask due date'),{target:{value:'2026-12-02'}});fireEvent.change(screen.getByLabelText('Execution mode'),{target:{value:'independent'}});save();await screen.findByRole('alertdialog');expect(writes()).toHaveLength(0);await accept();await waitFor(()=>expect(writes()).toHaveLength(1));expect(writes()[0][0]).toBe('nw_work_command');
+  open('edit');fireEvent.change(screen.getByLabelText('Subtask due date'),{target:{value:'2026-12-02'}});fireEvent.change(screen.getByLabelText('Work order'),{target:{value:'independent'}});save();await screen.findByRole('alertdialog');expect(writes()).toHaveLength(0);await accept();await waitFor(()=>expect(writes()).toHaveLength(1));expect(writes()[0][0]).toBe('nw_work_command');
  });
  it('never downgrades a routine date after hidden history invalidates the checked write',async()=>{
   api.rpc.mockImplementation(async(name,args)=>name==='r7_work_tree'?{data,error:null}:name==='nw_work_impact'?{data:nestedWorkImpactFixture(data,{revision:args.p_revision,command:args.p_command,payload:args.p_payload}),error:null}:{data:null,error:{code:'40001',message:'Work impact changed; review affected work'}});
   open('edit');fireEvent.change(screen.getByLabelText('Subtask due date'),{target:{value:'2026-12-02'}});save();await screen.findByText(/Work impact changed; review affected work/);expect(writes()).toHaveLength(1);expect(writes()[0][0]).toBe('nw_work_command');expect(previews()).toHaveLength(1);
  });
- it('keeps initial execution mode and optional eligible staffing in the advanced create draft',async()=>{
-  open('create');expect(screen.getByLabelText('Execution mode')).toBeTruthy();expect(screen.getByRole('option',{name:'In sequence'})).toBeTruthy();expect(screen.getByRole('option',{name:'Can start independently'})).toBeTruthy();
-  expect(screen.getByText('Assign people').closest('details')?.hasAttribute('open')).toBe(false);fireEvent.click(screen.getByText('Assign people'));
-  expect(screen.queryByRole('option',{name:'Expired'})).toBeNull();fireEvent.change(screen.getByLabelText('Subtask title'),{target:{value:'Created'}});fireEvent.change(screen.getByLabelText('Execution mode'),{target:{value:'independent'}});save();
+ it('keeps execution mode and optional eligible Lead & contributors visible in create dialog',async()=>{
+  open('create');expect(screen.getByLabelText('Work order')).toBeTruthy();expect(screen.getByRole('option',{name:'In sequence'})).toBeTruthy();expect(screen.getByRole('option',{name:'Can start out of order'})).toBeTruthy();
+  expect(screen.getByText('Subtask Lead and contributors')).toBeTruthy();
+  expect(screen.queryByRole('option',{name:'Expired'})).toBeNull();fireEvent.change(screen.getByLabelText('Subtask title'),{target:{value:'Created'}});fireEvent.change(screen.getByLabelText('Work order'),{target:{value:'independent'}});save();
   await waitFor(()=>expect(writes()).toHaveLength(1));expect(writes()[0][0]).toBe('r7_work_command');expect(writes()[0][1].p_payload).toMatchObject({title:'Created',standalone:true,lead:null,people:[]});expect(previews()).toHaveLength(0);
  });
- it('hides assignment controls for the Active Project Lead and creates an unassigned step',async()=>{
+ it('hides assignment controls for the Active Project Lead, explains the lock, and creates an unassigned step',async()=>{
   data.root.subtask_staffing_locked=true;
   open('create');
-  expect(screen.queryByText('Assign people')).toBeNull();
+  expect(screen.queryByLabelText('Appointed Lead')).toBeNull();
+  expect(screen.getByText(/Managed by the Task Lead while this project is active/)).toBeTruthy();
   fireEvent.change(screen.getByLabelText('Subtask title'),{target:{value:'Unassigned step'}});save();
   await waitFor(()=>expect(writes()).toHaveLength(1));
   expect(writes()[0][1].p_payload).toMatchObject({title:'Unassigned step',lead:null,people:[]});
@@ -107,7 +117,7 @@ describe('NW5.5 lightweight forms and authoritative confirmation',()=>{
  });
  it('shows only authorized safe destinations as readable paths and confirms exact move terms',async()=>{
   open('move');const select=screen.getByLabelText('Destination parent');expect(within(select).queryByRole('option',{name:'Other branch'})).toBeNull();expect(within(select).queryByRole('option',{name:'Source / Child'})).toBeNull();expect(within(select).getByRole('option',{name:'This task'})).toBeTruthy();
-  fireEvent.change(select,{target:{value:'destination'}});save();const dialog=await screen.findByRole('alertdialog');expect(writes()).toHaveLength(0);expect(dialog.textContent).toContain('subtasks in the selected scope');await accept();
+  fireEvent.change(select,{target:{value:'destination'}});save();const dialog=await screen.findByRole('alertdialog');expect(writes()).toHaveLength(0);expect(dialog.textContent).toContain('subtasks in this selection');await accept();
   await waitFor(()=>expect(writes()).toHaveLength(1));expect(writes()[0]).toEqual(['nw_work_command',expect.objectContaining({p_command:'move',p_revision:7,p_payload:{id:'source',parent:'destination'},p_impact_fingerprint:'synthetic-checked-impact'})]);
   expect(previews()[0][1].p_payload).toEqual(writes()[0][1].p_payload);
  });
@@ -116,13 +126,13 @@ describe('NW5.5 lightweight forms and authoritative confirmation',()=>{
   fireEvent.click(screen.getByRole('button',{name:'Move down Source'}));save();await accept();await waitFor(()=>expect(writes()).toHaveLength(1));expect(writes()[0][1].p_payload.order).toEqual(['destination','source','sibling','denied']);expect(writes()[0][1].p_payload.parent).toBeNull();
  });
  it('requires a checked review of changed execution mode with sequential consequences',async()=>{
-  open('edit');fireEvent.change(screen.getByLabelText('Execution mode'),{target:{value:'independent'}});save();const dialog=await screen.findByRole('alertdialog');expect(dialog.textContent).toContain('In sequence → Can start independently');expect(writes()).toHaveLength(0);await accept();await waitFor(()=>expect(writes()).toHaveLength(1));expect(writes()[0][0]).toBe('nw_work_command');
+  open('edit');fireEvent.change(screen.getByLabelText('Work order'),{target:{value:'independent'}});save();const dialog=await screen.findByRole('alertdialog');expect(dialog.textContent).toContain('In sequence → Can start out of order');expect(writes()).toHaveLength(0);await accept();await waitFor(()=>expect(writes()).toHaveLength(1));expect(writes()[0][0]).toBe('nw_work_command');
  });
  it('uses server subtree counts and danger confirmation for deletion',async()=>{
-  previewPatch={selected_count:8,descendant_count:7};open('delete');fireEvent.click(screen.getByRole('button',{name:'Review deletion'}));const dialog=await screen.findByRole('alertdialog');expect(dialog.textContent).toContain('8 subtasks in the selected scope; 7 are child subtasks');expect(writes()).toHaveLength(0);await accept('Delete subtask');await waitFor(()=>expect(writes()).toHaveLength(1));expect(writes()[0][1]).toMatchObject({p_command:'delete',p_payload:{id:'source'},p_impact_fingerprint:'synthetic-checked-impact'});
+  previewPatch={selected_count:8,descendant_count:7};open('delete');fireEvent.click(screen.getByRole('button',{name:'Review deletion'}));const dialog=await screen.findByRole('alertdialog');expect(dialog.textContent).toContain('8 subtasks in this selection; 7 are child subtasks');expect(writes()).toHaveLength(0);await accept('Delete subtask');await waitFor(()=>expect(writes()).toHaveLength(1));expect(writes()[0][1]).toMatchObject({p_command:'delete',p_payload:{id:'source'},p_impact_fingerprint:'synthetic-checked-impact'});
  });
  it('cancels impact review without sending a command or losing the draft',async()=>{
-  open('edit');fireEvent.change(screen.getByLabelText('Execution mode'),{target:{value:'independent'}});save();const dialog=await screen.findByRole('alertdialog');fireEvent.click(within(dialog).getByRole('button',{name:'Cancel',exact:true}));await waitFor(()=>expect(screen.queryByRole('alertdialog')).toBeNull());expect(writes()).toHaveLength(0);expect((screen.getByLabelText('Execution mode') as HTMLSelectElement).value).toBe('independent');
+  open('edit');fireEvent.change(screen.getByLabelText('Work order'),{target:{value:'independent'}});save();const dialog=await screen.findByRole('alertdialog');fireEvent.click(within(dialog).getByRole('button',{name:'Cancel',exact:true}));await waitFor(()=>expect(screen.queryByRole('alertdialog')).toBeNull());expect(writes()).toHaveLength(0);expect((screen.getByLabelText('Work order') as HTMLSelectElement).value).toBe('independent');
  });
  it('shows denied preview blockers without permitting deletion',async()=>{
   previewPatch={allowed:false,blocker_codes:['history_blocked'],selected_count:2,descendant_count:1};open('delete');fireEvent.click(screen.getByRole('button',{name:'Review deletion'}));const dialog=await screen.findByRole('alertdialog');expect((within(dialog).getByRole('button',{name:'Delete subtask'}) as HTMLButtonElement).disabled).toBe(true);expect(dialog.textContent).toContain('financial commitments');fireEvent.click(within(dialog).getByRole('button',{name:'Cancel',exact:true}));expect(writes()).toHaveLength(0);

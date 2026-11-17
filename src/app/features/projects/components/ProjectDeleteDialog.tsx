@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import * as React from "react";
 import * as Icons from "lucide-react";
 import { Modal } from "../../../components/ui/Modal";
@@ -72,7 +73,7 @@ export function ProjectDeleteDialog({
       onDeleted();
     } catch (caught) {
       setError(
-        caught instanceof Error ? caught.message : "Project deletion failed.",
+        readableUiError(caught, "Project deletion failed.", 'write'),
       );
       setCheck({});
       retryCheck();

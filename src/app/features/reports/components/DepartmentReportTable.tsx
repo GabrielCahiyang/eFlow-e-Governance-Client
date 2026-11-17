@@ -57,7 +57,7 @@ export function DepartmentReportTable({
             ].map((header) => (
               <th
                 key={header}
-                className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground"
+                className="px-4 py-2.5 text-left text-[12px] font-semibold text-muted-foreground"
               >
                 {header}
               </th>

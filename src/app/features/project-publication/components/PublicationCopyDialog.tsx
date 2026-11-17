@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import { useState } from "react";
 import { FileUp, AlertTriangle } from "lucide-react";
 import { Modal } from "../../../components/ui/Modal";
@@ -32,7 +33,7 @@ export function PublicationCopyDialog({
       onClose();
     } catch (e) {
       setError(
-        e instanceof Error ? e.message : "Could not save the publication copy.",
+        readableUiError(e, "Could not save the publication copy.", 'write'),
       );
       await onUpdated().catch(() => {});
     } finally {

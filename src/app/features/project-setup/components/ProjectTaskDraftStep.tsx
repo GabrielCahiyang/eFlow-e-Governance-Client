@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import { useRef, useState } from 'react';
 import { Button } from '@vibe/core';
 import { BookmarkPlus, ClipboardList, Sparkles } from 'lucide-react';
@@ -71,7 +72,7 @@ export function ProjectTaskDraftStep({ projectId, project, templates, templateEr
     onBusyChange(true);
     setError('');
     try { await action(); }
-    catch (reason) { setError(reason instanceof Error ? reason.message : 'Could not finish this action.'); }
+    catch (reason) { setError(readableUiError(reason, "Could not finish this action.", 'write')); }
     finally { pending.current = false; setBusy(undefined); onBusyChange(false); }
   }
 

@@ -1,6 +1,6 @@
 import { isAdminRole } from "../../../../shared/roles";
 import * as React from "react";
-import { Avatar, Button, EmptyState, IconButton, Label, Tooltip } from "@vibe/core";
+import { Avatar, Button, EmptyState, IconButton, Label } from "@vibe/core";
 import { Add, Delete } from "@vibe/icons";
 import type { UserProfile } from "../../../../types";
 import { useToast } from "../../../../components/ui/Toast";
@@ -180,7 +180,6 @@ export function ProjectTeamTab({
                     />
                   )}
                   {editable && member.role !== "owner" && (
-                    <Tooltip content={`Remove ${profile?.full_name || "member"}`}>
                       <IconButton
                         aria-label={`Remove ${profile?.full_name || "member"}`}
                         icon={Delete}
@@ -188,7 +187,6 @@ export function ProjectTeamTab({
                         size="small"
                         onClick={() => void remove(member)}
                       />
-                    </Tooltip>
                   )}
                 </div>
               </div>

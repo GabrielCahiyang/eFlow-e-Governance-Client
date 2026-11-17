@@ -1,3 +1,4 @@
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { useCallback, useRef, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Pause, Play, RotateCcw, Volume2, VolumeX, X } from "lucide-react";
@@ -49,14 +50,14 @@ export function WorkflowPreviewPanel({ kind }: { kind: WorkflowKind }) {
             style={{ background: `linear-gradient(to right, #0875e1 ${progress}%, #dce7f3 ${progress}%)` }} />
         </label>
         <div className={styles.playerControls}>
-          <button type="button" className={styles.playButton} onClick={togglePlay} aria-label={isPlaying ? "Pause flow" : ended ? "Replay flow" : "Play flow"}>
+          <WorkspaceTooltip content={isPlaying ? "Pause flow" : ended ? "Replay flow" : "Play flow"}><button type="button" className={styles.playButton} onClick={togglePlay} aria-label={isPlaying ? "Pause flow" : ended ? "Replay flow" : "Play flow"}>
             {isPlaying ? <Pause size={18} /> : ended ? <RotateCcw size={18} /> : <Play size={18} />}
-          </button>
-          <button type="button" className={styles.restartButton} disabled={!narration.supported} aria-pressed={voice}
+          </button></WorkspaceTooltip>
+          <WorkspaceTooltip content={voice ? "Turn narration off" : "Turn narration on"}><button type="button" className={styles.restartButton} disabled={!narration.supported} aria-pressed={voice}
             aria-label={voice ? "Turn narration off" : "Turn narration on"}
-            title={narration.supported ? "Narration" : "Narration unavailable in this browser"} onClick={() => setVoice(!voice)}>
+             onClick={() => setVoice(!voice)}>
             {voice ? <Volume2 size={19} /> : <VolumeX size={19} />}
-          </button>
+          </button></WorkspaceTooltip>
           <span className={styles.playTime}>{formatTime(elapsed)} <span>/</span> {formatTime(duration)}</span>
           <label className={styles.chapterSelect}>
             <span className={styles.srOnly}>Jump to chapter</span>

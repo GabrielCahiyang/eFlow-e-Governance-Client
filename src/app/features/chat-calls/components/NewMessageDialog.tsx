@@ -23,7 +23,7 @@ export function NewMessageDialog({ onClose, onOpen }: { onClose: () => void; onO
           setBusy(true);
           setError('');
           try { await onOpen(await openDirectConversation(person.id)); }
-          catch { setError('Could not open this conversation. Try again.'); }
+          catch { setError("We couldn't open this conversation. Check Messages before starting another conversation."); }
           finally { setBusy(false); }
         }}>{person.name}</button>)}
       {!people && !error && <p role="status">Loading people…</p>}

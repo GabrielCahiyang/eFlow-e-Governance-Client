@@ -454,11 +454,11 @@ export function ErrorState({
       role="alert"
     >
       <EmptyState
-        description={message || "We couldn't load this data. Please try again."}
-        title="Something went wrong"
+        description={message || "Reload the view to try again."}
+        title="Couldn't load this view"
         visual={<Warning aria-hidden="true" size={32} />}
       />
-      {onRetry && <WButton onClick={onRetry}>Retry</WButton>}
+      {onRetry && <WButton onClick={onRetry}>Reload view</WButton>}
     </div>
   );
 }

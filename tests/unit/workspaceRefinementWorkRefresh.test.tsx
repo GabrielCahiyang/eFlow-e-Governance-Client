@@ -140,6 +140,20 @@ describe("R10 access-sensitive feed lifecycle", () => {
     await act(async () => next.resolve({ ...data, rows: [] }));
     expect(view.result.current.data?.rows).toEqual([]);
   });
+  it('groups Subtasks by Project and Parent Task and omits redundant Approved text in History',()=>{
+    const row = item();
+    row.projectTitle = 'LEDIPO Outreach';
+    row.rootTitle = 'Parent Task Alpha';
+    const open = vi.fn();
+    const { rerender } = render(<WorkList rows={[row]} onOpen={open} groupByParent />);
+    expect(screen.getByText('LEDIPO Outreach', { selector: 'strong' })).toBeTruthy();
+    expect(screen.getByText('Parent Task Alpha')).toBeTruthy();
+    expect(screen.getByText('1 step')).toBeTruthy();
+
+    rerender(<WorkList rows={[{ ...row, status: 'completed', history: true, updatedAt: Date.UTC(2026, 9, 25) }]} onOpen={open} historyView />);
+    expect(screen.queryByText('Approved')).toBeNull();
+    expect(screen.getByText('25 Oct 2026')).toBeTruthy();
+  });
   it("rechecks access events, clears denied data, and unregisters on unmount", async () => {
     api.load.mockResolvedValue(data);
     const view = renderHook(() => useWorkFeed("me"));

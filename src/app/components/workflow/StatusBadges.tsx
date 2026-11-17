@@ -1,3 +1,4 @@
+import { Label as VibeLabel } from "@vibe/core";
 import { useWorkStatus } from "../../features/work-status";
 
 // ─── Shared workflow status badges & tokens ──────────────────────
@@ -85,17 +86,26 @@ export function ProjectStatusBadge({ status, size = "md" }: { status: string; si
   );
 }
 
-// ─── Priority pill ───────────────────────────────────────────────
+// ─── Priority pill (Vibe Label + eFlow tokens) ──────────────────
 export function PriorityPill({ priority }: { priority?: string }) {
-  const map: Record<string, string> = {
-    high: "bg-red-50 text-red-700 border-red-200",
-    medium: "bg-amber-50 text-amber-700 border-amber-200",
-    low: "bg-neutral-100 text-neutral-600 border-neutral-200",
+  const map: Record<string, { color: "negative" | "working_orange" | "dark"; tone: "negative" | "warning" | "neutral"; label: string }> = {
+    high: { color: "negative", tone: "negative", label: "High" },
+    medium: { color: "working_orange", tone: "warning", label: "Medium" },
+    low: { color: "dark", tone: "neutral", label: "Low" },
   };
-  const p = priority || "medium";
+  const p = (priority || "medium").toLowerCase();
+  const meta = map[p] || {
+    color: "working_orange" as const,
+    tone: "warning" as const,
+    label: p.charAt(0).toUpperCase() + p.slice(1),
+  };
   return (
-    <span className={`inline-flex items-center rounded-md border px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide ${map[p] || map.medium}`}>
-      {p}
+    <span className="eflow-project-status-label">
+      <VibeLabel
+        text={meta.label}
+        color={meta.color}
+        labelClassName={`eflow-project-label eflow-project-label--${meta.tone}`}
+      />
     </span>
   );
 }

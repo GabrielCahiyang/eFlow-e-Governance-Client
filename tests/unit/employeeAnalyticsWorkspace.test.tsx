@@ -118,9 +118,11 @@ beforeEach(() => {
   });
 });
 afterEach(cleanup);
-it("brings employee delivery, assignments and 360 into one selected-person workspace", () => {
+it("brings employee delivery, assignments and 360 into a dedicated People & skills tab", () => {
   render(<EmployeeAnalyticsWorkspace />);
   expect(state.options).toMatchObject({ includeCurrentUser: true });
+  expect(screen.getByRole("button", { name: "Inspect employee analytics" })).toBeTruthy();
+  fireEvent.click(screen.getByRole("button", { name: "People & skills", exact: true }));
   expect(screen.getByText("Preserved safe reassignment")).toBeTruthy();
   fireEvent.click(
     screen.getByRole("button", { name: "Employee 360", exact: true }),
@@ -131,10 +133,9 @@ it("brings employee delivery, assignments and 360 into one selected-person works
 it("does not load coaching notes or intelligence-only views when that permission is absent", () => {
   state.intel = false;
   render(<EmployeeAnalyticsWorkspace />);
+  expect(screen.queryByRole("button", { name: "Workload & health" })).toBeNull();
+  fireEvent.click(screen.getByRole("button", { name: "People & skills", exact: true }));
   expect(screen.queryByRole("button", { name: "Employee 360" })).toBeNull();
-  expect(
-    screen.queryByRole("button", { name: "Workload & health" }),
-  ).toBeNull();
   expect(state.notes).not.toHaveBeenCalled();
 });
 it("consolidates redundant Overview and Team access tabs while embedding Reports", () => {

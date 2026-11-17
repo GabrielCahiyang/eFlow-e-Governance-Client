@@ -1,3 +1,4 @@
+import { WorkspaceTooltip } from "../../../../components/ui/workspace/WorkspaceTooltip";
 import type { Organization } from '../../../../types';
 
 export interface UndoItem {
@@ -35,23 +36,23 @@ export function UndoNotifications({ items, onUndo, onDismiss }: UndoNotification
                 >
                   Undo
                 </button>
-                <button
+                <WorkspaceTooltip content="Dismiss message"><button aria-label="Dismiss message"
                   onClick={() => onDismiss(item.id)}
                   className="text-neutral-400 hover:text-neutral-200 cursor-pointer p-1 rounded-md hover:bg-neutral-900 transition-colors"
                 >
                   <svg viewBox="0 0 16 16" className="w-3.5 h-3.5" fill="currentColor">
                     <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
                   </svg>
-                </button>
+                </button></WorkspaceTooltip>
               </div>
-              
+
               {/* Progress/Timer Bar */}
-              <div 
+              <div
                 className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-blue-600 to-blue-400"
-                style={{ 
+                style={{
                   animation: 'undo-shrink 30s linear forwards',
                   width: '100%'
-                }} 
+                }}
               />
             </div>
           ))}

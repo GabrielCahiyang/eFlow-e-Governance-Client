@@ -13,7 +13,7 @@ export function LinkOfficeDialog({ identity, organizations, leadOffice, onClose,
   const close = () => { if (!busy) { if (office && !done) setDiscard(true); else onClose(); } };
   return <Dialog open onOpenChange={value => { if (!value) close(); }}><DialogContent className="po-local-dialog">
     <DialogTitle>Link {identity.display_name}</DialogTitle>
-    <DialogDescription>Confirm the canonical directory record. This link cannot be replaced. Its appointed Head controls its people.</DialogDescription>
+    <DialogDescription>Choose the matching Office from the official directory. This link cannot be changed later. The appointed Office Head manages its members.</DialogDescription>
     {done ? <><p role="status">Office linked. Confirm participation before resolving task responsibility.</p><button type="button" onClick={onClose}>Done</button></> : <form onSubmit={async event => {
       event.preventDefault(); if (inFlight.current) return; inFlight.current = true; setBusy(true); setError('');
       try { await linkOfficeIdentity(identity.id, office); setDone(true); try { await onLinked(); } catch { setError('Linked, but could not refresh. Retry loading Project Offices.'); } }

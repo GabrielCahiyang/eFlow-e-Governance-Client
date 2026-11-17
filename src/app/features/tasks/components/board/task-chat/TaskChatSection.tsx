@@ -1,3 +1,5 @@
+import { readableUiError } from '../../../../../shared/userFacingError';
+import { WorkspaceTooltip } from "../../../../../components/ui/workspace/WorkspaceTooltip";
 import { EmptyState } from '../../../../../components/ui/EmptyState';
 import { CornerUpLeft, MoreVertical, Send, Smile, X } from 'lucide-react';
 import { FeatureDialog } from '../../../../../components/ui/FeatureDialog';
@@ -36,7 +38,7 @@ if (!channelId) {
           const parsed = parseMessage(m.content);
           const reactionsMap = parsed.reactions || {};
           const hasReactions = Object.values(reactionsMap).some((users) => users.length > 0);
-          
+
           const myInitials = currentUserName?.split(" ").map((p) => p[0]).join("").slice(0, 2).toUpperCase() || "ME";
           const senderInitials = m.senderName?.split(" ").map((p) => p[0]).join("").slice(0, 2).toUpperCase() || "?";
           const isNearTop = idx < 2;
@@ -44,13 +46,13 @@ if (!channelId) {
           const hoverActions = (
             <div className="opacity-0 group-hover:opacity-100 flex items-center gap-1 transition-opacity duration-150 shrink-0 relative z-20">
               <div className="relative">
-                <button
+                <WorkspaceTooltip content="React"><button aria-label="React"
                   onClick={() => setActiveReactionMenuFor(activeReactionMenuFor === m.id ? null : m.id)}
                   className="w-6 h-6 flex items-center justify-center rounded-full bg-white shadow hover:bg-neutral-50 text-neutral-500 transition-colors cursor-pointer"
-                  title="React"
+
                 >
                   <Smile size={12} />
-                </button>
+                </button></WorkspaceTooltip>
                 {activeReactionMenuFor === m.id && (
                   <div className={`absolute ${isNearTop ? "top-8" : "bottom-8"} left-1/2 -translate-x-1/2 flex items-center gap-1 bg-white border border-neutral-200 rounded-full shadow-xl p-1.5 z-50`}>
                     {["👍", "❤️", "😂", "😮", "😢", "😡"].map((emoji) => (
@@ -66,22 +68,22 @@ if (!channelId) {
                 )}
               </div>
 
-              <button
+              <WorkspaceTooltip content="Reply"><button aria-label="Reply"
                 onClick={() => setReplyingTo(m)}
                 className="w-6 h-6 flex items-center justify-center rounded-full bg-white shadow hover:bg-neutral-50 text-neutral-500 transition-colors cursor-pointer"
-                title="Reply"
+
               >
                 <CornerUpLeft size={12} />
-              </button>
+              </button></WorkspaceTooltip>
 
               <div className="relative">
-                <button
+                <WorkspaceTooltip content="More"><button aria-label="More"
                   onClick={() => setActiveMoreMenuFor(activeMoreMenuFor === m.id ? null : m.id)}
                   className="w-6 h-6 flex items-center justify-center rounded-full bg-white shadow hover:bg-neutral-50 text-neutral-500 transition-colors cursor-pointer"
-                  title="More"
+
                 >
                   <MoreVertical size={12} />
-                </button>
+                </button></WorkspaceTooltip>
                 {activeMoreMenuFor === m.id && (
                   <div className={`absolute z-50 ${isNearTop ? "top-8" : "bottom-8"} bg-white rounded-xl border border-neutral-200 shadow-xl py-1.5 w-28 ${mine ? "right-0" : "left-0"}`}>
                     {mine && <button
@@ -93,7 +95,7 @@ if (!channelId) {
                             description: 'The message will be replaced by a deleted-message marker.', danger: true,
                           })) return;
                           try { await deleteMessage(m.id); }
-                          catch (error) { setSendError(error instanceof Error ? error.message : 'Could not remove this message.'); }
+                          catch (error) { setSendError(readableUiError(error, "Could not remove this message.", 'write')); }
                         })();
                       }}
                       className="w-full text-left px-3 py-1.5 text-[11px] text-red-500 hover:bg-red-50 font-semibold cursor-pointer"
@@ -128,7 +130,7 @@ if (!channelId) {
               {/* Bubble Container */}
               <div className={`flex flex-col ${mine ? "items-end" : "items-start"} max-w-[72%] relative`}>
                 {!mine && <span className="text-[9px] text-neutral-500 ml-2 mb-0.5 font-semibold">{m.senderName}</span>}
-                
+
                 {parsed.replyToText && (
                   <div className={`mb-1 text-[9px] text-neutral-500 bg-white/70 rounded-xl px-2.5 py-1.5 max-w-[90%] border-l-2 border-blue-400 shadow-xs ${mine ? "self-end" : "self-start"}`}>
                     <span className="font-bold text-blue-600 block">{parsed.replyToName}</span>
@@ -146,7 +148,7 @@ if (!channelId) {
                   >
                     {parsed.text}
                   </div>
-                  
+
                   {hasReactions && (
                     <button
                       onClick={() => {
@@ -198,9 +200,9 @@ if (!channelId) {
             Replying to <span className="font-semibold">{replyingTo.senderName}</span>: "
             {parseMessage(replyingTo.content).text.slice(0, 40)}"
           </span>
-          <button onClick={() => setReplyingTo(null)} className="text-neutral-400 hover:text-neutral-600">
+          <WorkspaceTooltip content="Cancel reply"><button aria-label="Cancel reply" onClick={() => setReplyingTo(null)} className="text-neutral-400 hover:text-neutral-600">
             <X size={10} />
-          </button>
+          </button></WorkspaceTooltip>
         </div>
       )}
 
@@ -213,19 +215,19 @@ if (!channelId) {
           placeholder="Message the team…"
           className="flex-1 h-[36px] rounded-full border border-neutral-200 bg-neutral-50 px-3.5 text-[12px] outline-none focus:border-neutral-300 focus:bg-white transition-all"
         />
-        <button
+        <WorkspaceTooltip content="Send message"><button aria-label="Send message"
           onClick={handleSend}
           disabled={sending || !draft.trim()}
           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm transition-all hover:bg-primary/90 active:scale-95 disabled:bg-neutral-200 disabled:opacity-40"
         >
           <Send size={13} />
-        </button>
+        </button></WorkspaceTooltip>
       </div>
       <div className="mt-1 flex items-start justify-between gap-3 text-[10px]">
         <span role={sendError ? "alert" : undefined} className="text-rose-600">{sendError}</span>
         <span className={draft.length > 900 ? "shrink-0 text-rose-600" : "shrink-0 text-neutral-400"}>{draft.length}/1000</span>
       </div>
-      
+
       {/* Detailed Reactions Modal */}
       {reactionsModalContent && (
         <FeatureDialog onClose={() => setReactionsModalContent(null)} title="Message reactions" contentClassName="!max-w-sm" showCloseButton={false}>
@@ -233,14 +235,14 @@ if (!channelId) {
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-800 bg-[#242526]">
               <span className="text-[14px] font-bold">Message reactions</span>
-              <button
+              <WorkspaceTooltip content="Close reactions"><button aria-label="Close reactions"
                 onClick={() => setReactionsModalContent(null)}
                 className="w-7 h-7 flex items-center justify-center rounded-full bg-neutral-800 text-neutral-400 hover:bg-neutral-700 transition cursor-pointer"
               >
                 <X size={14} />
-              </button>
+              </button></WorkspaceTooltip>
             </div>
-            
+
             {/* Tabs */}
             <div className="flex gap-4 px-4 border-b border-neutral-800 bg-[#18191a] shrink-0 overflow-x-auto">
               <button
@@ -272,7 +274,7 @@ if (!channelId) {
                 );
               })}
             </div>
-            
+
             {/* User list */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#242526]">
               {(activeReactionTab === "all"

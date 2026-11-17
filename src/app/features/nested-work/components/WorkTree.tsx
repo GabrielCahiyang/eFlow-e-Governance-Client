@@ -86,7 +86,7 @@ function WorkTreeContent({rootId,branchParentId,branchActions=false,presentation
    return;
   }
   const node=data.nodes.find(item=>item.id===id);
-  returnFocus.current=document.activeElement instanceof HTMLElement&&section.current?.contains(document.activeElement)?document.activeElement:(id?[...section.current?.querySelectorAll<HTMLElement>('[data-work-open]')||[]].find(element=>element.dataset.workOpen===id):section.current?.querySelector<HTMLElement>('[aria-label="Task work actions"]'))||null;
+  returnFocus.current=document.activeElement instanceof HTMLElement&&section.current?.contains(document.activeElement)?document.activeElement:(id?[...section.current?.querySelectorAll<HTMLElement>('[data-work-open]')||[]].find(element=>element.dataset.workOpen===id):section.current?.querySelector<HTMLElement>('[data-work-toolbar-primary],[aria-label="Task work actions"]'))||null;
   void requestNavigation(()=>{if(command==='review'&&data.root.kind==='office'){if(node)onReviewOfficeNode?.(node,data);return;}
    setEdit({command,node:command==='create'||command==='order'?undefined:node,parent:command==='create'||command==='order'?id||null:undefined,root:command==='staff'&&!id});});
  };
@@ -100,7 +100,7 @@ function WorkTreeContent({rootId,branchParentId,branchActions=false,presentation
  const onCreateInline=presentation==='project-table'?async(title:string,request:InlineCreateRequest)=>{
   if(!data||!tree.authorityFresh||readOnly)throw new InlineCreateRejected('Verify current work access before adding a subtask.');
   if(!request.verifyFirst){
-   const issue=duplicateWorkNameError(title,data.nodes.filter(node=>(node.parent_subtask_id||'')===(branchParentId||'')),'Subitem');
+   const issue=duplicateWorkNameError(title,data.nodes.filter(node=>(node.parent_subtask_id||'')===(branchParentId||'')),'Subtask');
    if(issue)throw new InlineCreateRejected(issue);
   }
   const parentNode=branchParentId?data.nodes.find(node=>node.id===branchParentId):undefined;
@@ -130,7 +130,7 @@ function WorkTreeContent({rootId,branchParentId,branchActions=false,presentation
  }:undefined;
  const onRenameNode=presentation==='project-table'?async(node:WorkNode,nextTitle:string)=>{
   if(!data||!tree.authorityFresh||readOnly)throw new Error('Verify current work access before renaming a subtask.');
-  const issue=duplicateWorkNameError(nextTitle,data.nodes.filter(item=>(item.parent_subtask_id||'')===(node.parent_subtask_id||'')),'Subitem',node.id);
+  const issue=duplicateWorkNameError(nextTitle,data.nodes.filter(item=>(item.parent_subtask_id||'')===(node.parent_subtask_id||'')),'Subtask',node.id);
   if(issue)throw new Error(issue);
   if(data.root.kind==='office'){
    const fresh=await fetchWorkTree(rootId),context={actorId:user?.id||null,rootId,projectId:data.root.project,officeId:data.root.office,kind:data.root.kind,revision:fresh.revision,readOnly};

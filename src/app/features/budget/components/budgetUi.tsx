@@ -4,8 +4,9 @@ import { StatusPill as WorkspaceStatusPill } from "../../../components/ui/worksp
 import { EmptyState } from '../../../components/ui/EmptyState';
 import type { EmptyIllustration } from '../../../components/ui/EmptyStateIllustration';
 import '../budgetViewControl.css';
+import { peso } from '../../../shared/currency';
 
-export const peso = new Intl.NumberFormat("en-PH", { style: "currency", currency: "PHP", minimumFractionDigits: 2 });
+export { peso };
 export const pesoShort = new Intl.NumberFormat("en-PH", { style: "currency", currency: "PHP", notation: "compact", maximumFractionDigits: 1 });
 
 export function BudgetCard({ label, value, note, icon, tone = "neutral" }: { label: string; value: string; note: string; icon: ReactNode; tone?: "neutral" | "good" | "warn" | "bad" }) {

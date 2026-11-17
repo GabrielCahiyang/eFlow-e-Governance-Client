@@ -1,0 +1,63 @@
+// @vitest-environment jsdom
+import { act, cleanup, renderHook, waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, expect, it, vi } from 'vitest';
+import type { NotificationPage } from '../../src/app/features/notifications/services/notificationInboxService';
+const fixture = vi.hoisted(() => ({ page: vi.fn(), count: vi.fn(), changed: undefined as undefined | (() => void), stop: vi.fn() }));
+vi.mock('../../src/app/features/notifications/services/notificationInboxService', () => ({ fetchNotificationPage: (...args: unknown[]) => fixture.page(...args) }));
+vi.mock('../../src/app/services/notificationService', () => ({ getUnreadCount: () => fixture.count(), subscribeNotificationChanges: (_id: string, changed: () => void) => { fixture.changed = changed; return fixture.stop; } }));
+import { useNotificationInbox } from '../../src/app/features/notifications/hooks/useNotificationInbox';
+import { DEFAULT_NOTIFICATION_FILTERS as filters } from '../../src/app/features/notifications/inboxFilters';
+const row = (id: string) => ({ id, type: 'status_change' as const, title: id, message: '', createdAt: 1, read: false });
+const page = (id: string, next = false): NotificationPage => ({ rows: [row(id)], next: next ? { id, createdAt: '2026-11-17T00:00:00.000Z' } : null });
+beforeEach(() => { vi.clearAllMocks(); fixture.page.mockResolvedValue(page('first', true)); fixture.count.mockResolvedValue(64); });
+afterEach(cleanup);
+it('loads older pages, refreshes every loaded page and retains the loaded position', async () => {
+  const view = renderHook(() => useNotificationInbox('me', filters));
+  await waitFor(() => expect(view.result.current.loading).toBe(false));
+  fixture.page.mockResolvedValueOnce(page('older'));
+  act(() => view.result.current.loadMore());
+  await waitFor(() => expect(view.result.current.rows.map(row => row.id)).toEqual(['first', 'older']));
+  fixture.page.mockResolvedValueOnce(page('new', true)).mockResolvedValueOnce(page('first'));
+  act(() => fixture.changed?.());
+  await waitFor(() => expect(view.result.current.rows.map(row => row.id)).toEqual(['new', 'first']));
+  expect(view.result.current.unreadCount).toBe(64);
+});
+it('keeps loaded notifications on network failure, recovers online and clears denied data', async () => {
+  const view = renderHook(() => useNotificationInbox('me', filters));
+  await waitFor(() => expect(view.result.current.loading).toBe(false));
+  fixture.page.mockRejectedValueOnce(new TypeError('Failed to fetch'));
+  act(() => window.dispatchEvent(new Event('focus')));
+  await waitFor(() => expect(view.result.current.error).toContain('connection'));
+  expect(view.result.current.rows[0].id).toBe('first');
+  fixture.page.mockResolvedValueOnce(page('recovered'));
+  act(() => window.dispatchEvent(new Event('online')));
+  await waitFor(() => expect(view.result.current.rows[0].id).toBe('recovered'));
+  fixture.page.mockRejectedValueOnce(Object.assign(new Error('Permission denied'), { code: '42501' }));
+  act(() => fixture.changed?.());
+  await waitFor(() => expect(view.result.current.rows).toEqual([]));
+  expect(view.result.current.unreadCount).toBeNull();
+});
+it('ignores a delayed previous-account page and unsubscribes the old recipient', async () => {
+  let complete!: (value: NotificationPage) => void;
+  fixture.page.mockImplementationOnce(() => new Promise(resolve => { complete = resolve; }));
+  const view = renderHook(({ user }) => useNotificationInbox(user, filters), { initialProps: { user: 'old' } });
+  fixture.page.mockResolvedValueOnce(page('new-account'));
+  view.rerender({ user: 'new' });
+  await waitFor(() => expect(view.result.current.rows[0]?.id).toBe('new-account'));
+  await act(async () => complete(page('old-private-record')));
+  expect(view.result.current.rows[0].id).toBe('new-account');
+  expect(fixture.stop).toHaveBeenCalled();
+});
+it('discards late pages when filters change and starts a new cursor chain', async () => {
+  const view = renderHook(({ category }) => useNotificationInbox('me', { ...filters, category }), { initialProps: { category: 'all' as 'all' | 'reviews' } });
+  await waitFor(() => expect(view.result.current.loading).toBe(false));
+  let complete!: (value: NotificationPage) => void;
+  fixture.page.mockImplementationOnce(() => new Promise(resolve => { complete = resolve; }));
+  act(() => view.result.current.loadMore());
+  fixture.page.mockResolvedValueOnce(page('review-only'));
+  view.rerender({ category: 'reviews' });
+  await waitFor(() => expect(view.result.current.rows[0]?.id).toBe('review-only'));
+  await act(async () => complete(page('stale-assignment')));
+  expect(view.result.current.rows.map(row => row.id)).toEqual(['review-only']);
+  expect(fixture.page.mock.calls.find(call => call[1].category === 'reviews')?.[2]).toBeNull();
+});

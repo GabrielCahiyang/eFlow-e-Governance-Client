@@ -1,3 +1,4 @@
+import { WorkspaceTooltip } from "../../../../components/ui/workspace/WorkspaceTooltip";
 import { requestNavigation } from "../../../../shared/navigationGuard";
 import { workDay } from "../../../../shared/workCalendar";
 import { FeedbackState } from "../../../../components/ui/FeedbackState";
@@ -721,7 +722,7 @@ export function MondayBoard({
                                 </span>
                                 <span className="truncate">{view.label}</span>
                               </span>
-                              <button
+                              <WorkspaceTooltip content={`Close ${view.label} view`}><button
                                 type="button"
                                 aria-label={`Close ${view.label} view`}
                                 onClick={(event) => {
@@ -731,7 +732,7 @@ export function MondayBoard({
                                 className="shrink-0 rounded-[4px] p-0.5 text-muted-foreground hover:bg-secondary hover:text-foreground"
                               >
                                 <X size={11} />
-                              </button>
+                              </button></WorkspaceTooltip>
                             </div>
                           ))}
                         </div>

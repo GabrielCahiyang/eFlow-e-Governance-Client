@@ -60,7 +60,7 @@ describe("Phase 02 account utility", () => {
     view.unmount(); account.theme = "light"; account.systemDark = false;
   });
 
-  it("shows human-readable account context and retains settings and logout actions", async () => {
+  it("shows concise user name trigger and retains profile & settings and logout actions", async () => {
     const onPageSelect = vi.fn();
     render(
       <EflowVibeThemeProvider preference="light">
@@ -76,16 +76,11 @@ describe("Phase 02 account utility", () => {
       </EflowVibeThemeProvider>,
     );
 
-    expect(screen.getByText("Head")).toBeTruthy();
+    expect(screen.getByText("Ari Santos")).toBeTruthy();
+    expect(screen.queryByText("Head")).toBeNull();
     fireEvent.keyDown(screen.getByRole("button", { name: "Open account menu" }), { key: "ArrowDown" });
 
-    const settings = await screen.findByRole("menuitem", { name: "Settings" });
-    fireEvent.mouseEnter(settings);
-    fireEvent.click(settings);
-    await waitFor(() => expect(onPageSelect).toHaveBeenCalledWith("settings", "Appearance"));
-
-    fireEvent.keyDown(screen.getByRole("button", { name: "Open account menu" }), { key: "ArrowDown" });
-    const profile = await screen.findByRole("menuitem", { name: "Profile" });
+    const profile = await screen.findByRole("menuitem", { name: "Profile & settings" });
     fireEvent.mouseEnter(profile);
     fireEvent.click(profile);
     await waitFor(() => expect(onPageSelect).toHaveBeenCalledWith("settings", "Profile"));

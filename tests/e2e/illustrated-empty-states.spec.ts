@@ -11,7 +11,7 @@ test('all four My Work tabs center their empty state in the remaining workspace'
   await page.setViewportSize({width:1918,height:914});
   const state=await projectWorkspaceFixture(page,'head',false,{landingOnly:true,empty:true});
   state.subtasks.length=0;
-  for(const tab of ['Assigned work','Leading','Subtasks','History']){
+  for(const tab of ['Assigned work','Work I lead','Subtasks','History']){
     await page.goto('/my-work?page='+encodeURIComponent(tab));await imagesLoaded(page);
     const empty=page.locator('.r10-work-list-view .eflow-illustrated-empty');
     await expect(empty).toHaveAttribute('data-fill','true');

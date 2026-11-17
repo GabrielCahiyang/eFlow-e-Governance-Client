@@ -34,17 +34,17 @@ export function Surface({ children, className = '' }: { children: ReactNode; cla
   return <WorkflowCard bodyClassName="contents" className={className}>{children}</WorkflowCard>;
 }
 
-export function SectionHeading({ icon, eyebrow, title, description }: { icon: ReactNode; eyebrow: string; title: string; description: string }) {
+export function SectionHeading({ icon, eyebrow = '', title, description }: { icon: ReactNode; eyebrow?: string; title: string; description: string }) {
   return <WorkflowSectionHeading description={description} eyebrow={eyebrow} icon={icon} title={title} />;
 }
 
 export function IdentityItem({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
   return (
     <div className="flex min-w-0 items-center gap-2.5 py-3.5 sm:px-4 first:pl-0 last:pr-0">
-      <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-neutral-100 text-neutral-500 dark:bg-slate-900 dark:text-slate-400">{icon}</span>
+      <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-[var(--eflow-subtle)] text-[var(--eflow-text-muted)]">{icon}</span>
       <div className="min-w-0">
-        <p className="text-[9px] font-semibold uppercase tracking-[0.13em] text-neutral-400 dark:text-slate-500">{label}</p>
-        <p className="mt-0.5 truncate text-[12px] font-medium text-neutral-800 dark:text-slate-200">{value}</p>
+        <p className="text-[11px] font-medium text-[var(--eflow-text-muted)]">{label}</p>
+        <p className="mt-0.5 truncate text-[13px] font-medium text-[var(--eflow-text)]">{value}</p>
       </div>
     </div>
   );

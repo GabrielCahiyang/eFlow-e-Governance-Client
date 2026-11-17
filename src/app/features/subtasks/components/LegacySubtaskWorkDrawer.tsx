@@ -1,3 +1,4 @@
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { useEffect, useRef, useState } from "react";
 import { requestNavigation } from '../../../shared/navigationGuard';
 import { Calendar, CheckCircle2, Eye, LockKeyhole, Unlink2, UsersRound, X } from "lucide-react";
@@ -102,12 +103,12 @@ export function SubtaskWorkDrawerView({current,parentTask,prerequisite,readOnly,
             <div className="min-w-0">
               <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium ${status.tone}`}>{status.label}</span>
               <span className={`ml-1.5 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${current.isStandalone ? "bg-violet-50 text-violet-700" : "bg-neutral-100 text-neutral-600"}`}>
-                {current.isStandalone ? <><Unlink2 size={10} /> Standalone</> : <>Ordered step</>}
+                {current.isStandalone ? <><Unlink2 size={10} /> Independent</> : <>In sequence</>}
               </span>
               <h2 className="mt-2 text-[16px] font-semibold text-neutral-900">{current.title}</h2>
               <p className="mt-0.5 truncate text-[11px] text-neutral-500">Subtask of {parentTask?.title || "parent task"}</p>
             </div>
-            <button aria-label="Close subtask detail" onClick={close} className="p-1 text-neutral-400 hover:text-neutral-800"><X size={18} /></button>
+            <WorkspaceTooltip content="Close subtask detail"><button aria-label="Close subtask detail" onClick={close} className="p-1 text-neutral-400 hover:text-neutral-800"><X size={18} /></button></WorkspaceTooltip>
           </div>
 
           {prerequisite && !["for_review", "completed"].includes(current.status) && (

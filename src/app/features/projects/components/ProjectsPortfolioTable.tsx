@@ -187,7 +187,7 @@ export function ProjectsPortfolioTable({
                   <div className="eflow-portfolio-actions">
                     <Button kind="secondary" size="small" rightIcon={Open} onClick={() => onOpen(project.id)}>Open project</Button>
                     <ProjectPublicationAction projectId={project.id} title={project.title} status={project.status} officeId={project.orgId}/>
-                    <ActionMenu
+                    <ActionMenu tooltip="Project actions"
                       trigger={<button type="button" className="eflow-portfolio-more" aria-label={`More actions for ${project.title}`}><Ellipsis size={18} aria-hidden="true"/></button>}
                       actions={[
                         { id: "open", label: "Open project workspace", icon: <Folder size={16}/>, onSelect: () => onOpen(project.id) },

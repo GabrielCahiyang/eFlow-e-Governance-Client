@@ -20,6 +20,18 @@ function notification(
 }
 
 describe("notification navigation", () => {
+  it('opens change alerts for supervisors without treating them as personal assignments or review requests', () => {
+    const changed = notification({ type: 'status_change', title: 'Subtask schedule changed', entityType: 'work_change', taskId: 'root', workNodeId: 'node', projectId: 'project' });
+    expect(resolveNotificationDestination(changed, 'head')).toMatchObject({ section: 'personal_work', label: 'View subtask changes', intent: { kind: 'leading_task', taskId: 'root', entityId: 'node' } });
+    expect(resolveNotificationDestination(changed, 'admin')).toBeNull();
+    expect(resolveNotificationDestination({ ...changed, workNodeId: undefined, statusTo: 'for_review' }, 'member')).toMatchObject({ intent: { kind: 'task', taskId: 'root' } });
+  });
+  it('opens a root contributor submission at its task rather than the project directory', () => {
+    expect(resolveNotificationDestination(notification({ type: 'approval_needed', entityType: 'm7_work_proposal', taskId: 'root', projectId: 'project' }), 'member')).toMatchObject({ label: 'Open task submission', intent: { kind: 'leading_task', taskId: 'root' } });
+  });
+  it('keeps personal review notifications on the personal work access path', () => {
+    expect(resolveNotificationDestination(notification({ type: 'approval_needed', entityType: 'm7_personal_work_proposal', taskId: 'personal-root', workNodeId: 'personal-node', projectId: 'personal-project' }), 'member')).toMatchObject({ section: 'personal_work', intent: { kind: 'personal_work', taskId: 'personal-root', entityId: 'personal-node', projectId: 'personal-project' } });
+  });
   it('opens the exact subtask from a Lead review notification', () => {
     const review = notification({ type: 'approval_needed', entityType: 'm7_work_proposal', taskId: 'task', workNodeId: 'subtask' });
     expect(resolveNotificationDestination(review, 'member')).toMatchObject({
@@ -43,8 +55,8 @@ describe("notification navigation", () => {
     expect(resolveNotificationDestination(invitation, 'member')).toMatchObject({ section: 'projects', intent: { kind: 'project' } });
     expect(resolveNotificationDestination(notification({ projectId: 'project-one', title: 'Project changed' }), 'head')).toMatchObject({ section: 'projects', intent: { kind: 'project' } });
   });
-  it('routes canonical Subtasks even when the notification copy does not say subtask',()=>{
-    expect(resolveNotificationDestination(notification({type:'assignment',title:'New work appointment',message:'Work changed.',taskId:'root',workNodeId:'depth-eight',projectId:'project'}),'member')).toMatchObject({section:'subtasks',intent:{kind:'subtask',taskId:'root',entityId:'depth-eight'}});
+  it('routes canonical Subtasks into My Work Subtasks even when the notification copy does not say subtask',()=>{
+    expect(resolveNotificationDestination(notification({type:'assignment',title:'New work appointment',message:'Work changed.',taskId:'root',workNodeId:'depth-eight',projectId:'project'}),'member')).toMatchObject({section:'personal_work',page:'Subtasks',intent:{kind:'subtask',taskId:'root',entityId:'depth-eight'}});
     expect(resolveNotificationDestination(notification({type:'approval_needed',title:'Evidence ready for review',message:'Work changed.',taskId:'root',workNodeId:'depth-eight'}),'head')).toMatchObject({section:'reviews',intent:{kind:'subtask_review',entityId:'depth-eight'}});
   });
   it('resolves canonical IDs before stale labels and never redirects a missing ID to a same-title sibling',()=>{
@@ -99,17 +111,33 @@ describe("notification navigation", () => {
     });
   });
 
-  it("opens an assigned employee subtask rather than the parent task board", () => {
+  it("opens an assigned employee subtask inside My Work Subtasks rather than the retired checklist", () => {
     expect(resolveNotificationDestination(notification({
       type: "assignment",
       title: "New Subtask Assignment",
       message: 'Crisostomo assigned you to subtask "Prepare snacks" in "Meeting".',
       taskId: "task-2",
     }), "member")).toMatchObject({
-      section: "subtasks",
-      page: "My Subtasks",
+      section: "personal_work",
+      page: "Subtasks",
       label: "Open subtask",
       intent: { entityLabel: "Prepare snacks" },
+    });
+  });
+
+  it("opens task deadline reminders at the task rather than only the parent project", () => {
+    expect(resolveNotificationDestination(notification({
+      type: "reminder",
+      title: "Task due soon",
+      message: '"Prepare logistics" is due on Nov 20, 2026.',
+      taskId: "task-9",
+      taskTitle: "Prepare logistics",
+      projectId: "proj-1",
+    }), "accounting_staff")).toMatchObject({
+      section: "tasks",
+      page: "My Tasks",
+      label: "Open task",
+      intent: { kind: "task", taskId: "task-9", projectId: "proj-1" },
     });
   });
 

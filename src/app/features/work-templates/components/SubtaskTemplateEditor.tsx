@@ -1,3 +1,4 @@
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { useExplicitDraft } from "../../../shared/useExplicitDraft";
 import { requestNavigation } from "../../../shared/navigationGuard";
 import { Plus, Trash2, X } from "lucide-react";
@@ -94,12 +95,12 @@ export function SubtaskTemplateEditor({
               {initial?.id ? "Edit checklist" : "Create checklist"}
             </h3>
           </div>
-          <button
+          <WorkspaceTooltip content="Close template"><button aria-label="Close template"
             onClick={close}
             className="rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-100"
           >
             <X size={16} />
-          </button>
+          </button></WorkspaceTooltip>
         </div>
         <div className="flex-1 space-y-4 overflow-y-auto p-5">
           <label className="block text-[10.5px] text-neutral-500">
@@ -198,7 +199,7 @@ export function SubtaskTemplateEditor({
                     placeholder="Describe the subtask…"
                     className="h-9 flex-1 rounded-lg border border-neutral-200 bg-white px-2.5 text-[12px] outline-none focus:border-neutral-400"
                   />
-                  <button
+                  <WorkspaceTooltip content={`Remove step ${index + 1}`}><button aria-label={`Remove step ${index + 1}`}
                     disabled={draft.items.length === 1}
                     onClick={() =>
                       setDraft((current) => ({
@@ -211,7 +212,7 @@ export function SubtaskTemplateEditor({
                     className="rounded-lg p-2 text-neutral-400 hover:bg-rose-50 hover:text-rose-600 disabled:opacity-30"
                   >
                     <Trash2 size={13} />
-                  </button>
+                  </button></WorkspaceTooltip>
                 </div>
               ))}
             </div>

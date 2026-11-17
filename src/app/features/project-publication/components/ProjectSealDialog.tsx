@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import { useCallback, useEffect, useState } from "react";
 import {
   AlertTriangle,
@@ -63,7 +64,7 @@ export function ProjectSealDialog({
         }
       })
       .catch((e) => {
-        if (active) setError(e.message);
+        if (active) setError(readableUiError(e, "We couldn’t load the publication record.", 'read'));
       })
       .finally(() => {
         if (active) setLoading(false);
@@ -82,7 +83,7 @@ export function ProjectSealDialog({
             if (active) {setSeal(status.snapshot);setError('');}
           })
           .catch((e) => {
-            if (active) setError(e.message);
+            if (active) setError(readableUiError(e, "We couldn’t check the latest publication status.", 'read'));
           });
     }, 3000);
     return () => {
@@ -98,7 +99,7 @@ export function ProjectSealDialog({
       await refresh();
       setReviewed(false);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not save publication.");
+      setError(readableUiError(e, "Could not save publication.", 'write'));
     } finally {
       setBusy(false);
     }
@@ -163,7 +164,7 @@ export function ProjectSealDialog({
         <>
           {config && !config.worker_enabled && (
             <div className="project-seal-note">
-              The blockchain publication worker service is offline or not enabled on this host. Saved seal records remain viewable; start the publication worker before preparing or signing a new seal.
+              Publishing is unavailable right now. You can still view saved seals. Ask your administrator to restore publishing before preparing a new seal.
             </div>
           )}
           <div

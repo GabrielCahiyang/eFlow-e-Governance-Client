@@ -69,13 +69,13 @@ export function TeamMemberBoard({
                     <div className="min-w-0"><h3 className="truncate text-[13px] font-semibold text-neutral-900">{employee.name}</h3><p className="truncate text-[12px] text-neutral-500">{employee.jobTitle}</p></div>
                     {metric.blocked > 0 ? <ShieldAlert size={15} className="shrink-0 text-red-500" /> : metric.stale ? <Clock3 size={15} className="shrink-0 text-amber-500" /> : <CheckCircle2 size={15} className="shrink-0 text-emerald-500" />}
                   </div>
-                  <div className="mt-3 flex items-center justify-between text-[12px]"><span className="uppercase tracking-wide text-neutral-500">Workload signal</span><span className={high ? "font-medium text-red-600" : medium ? "font-medium text-amber-600" : "font-medium text-emerald-600"}>{metric.workloadSignal}/100</span></div>
-                  <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-neutral-100"><div className={`h-full rounded-full transition-all ${high ? "bg-red-500" : medium ? "bg-amber-500" : "bg-emerald-500"}`} style={{ width: `${metric.workloadSignal}%` }} /></div>
+                  <div className="mt-3 flex items-center justify-between text-[12px]"><span className="text-neutral-500">Workload signal</span><span className={high ? "font-medium text-red-600" : medium ? "font-medium text-amber-600" : "font-medium text-emerald-600"}>{metric.workloadSignal}/100</span></div>
+                  <div className="mt-1 h-1.5 overflow-hidden rounded-[3px] bg-neutral-100"><div className={`h-full rounded-[3px] transition-all ${high ? "bg-red-500" : medium ? "bg-amber-500" : "bg-emerald-500"}`} style={{ width: `${metric.workloadSignal}%` }} /></div>
                 </div>
               </div>
               <div className="mt-3 grid grid-cols-4 gap-1.5 border-t border-neutral-100 pt-3">
                 {[ ["Tasks", metric.activeTasks], ["Subtasks", metric.activeSubtasks], ["Due", metric.dueSoon], ["Risk", metric.overdue + metric.blocked] ].map(([label, value]) => (
-                  <div key={label as string} className="rounded-lg bg-neutral-50 px-1.5 py-2 text-center"><div className={`text-[13px] font-semibold ${label === "Risk" && Number(value) > 0 ? "text-red-600" : "text-neutral-900"}`}>{value as number}</div><div className="text-[12px] uppercase tracking-wide text-neutral-500">{label as string}</div></div>
+                  <div key={label as string} className="rounded-lg bg-neutral-50 px-1.5 py-2 text-center"><div className={`text-[13px] font-semibold ${label === "Risk" && Number(value) > 0 ? "text-red-600" : "text-neutral-900"}`}>{value as number}</div><div className="text-[11px] text-neutral-500">{label as string}</div></div>
                 ))}
               </div>
               {high && <p className="mt-2 flex items-center gap-1 text-[12px] text-red-600"><AlertTriangle size={11} /> Review priorities or redistribute work.</p>}

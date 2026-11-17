@@ -83,7 +83,7 @@ export function useWorkEditorDraft({data,edit,context,refreshPending,reload,onCa
     if(['create','edit','move'].includes(baseline.command)){
      const fields=latest.current.fields,parent=baseline.command==='edit'?baseline.fields.parent:fields.parent;
      const title=baseline.command==='move'?latest.current.data.nodes.find(node=>node.id===baseline.nodeId)?.title||'':fields.title;
-     // Keep existing required-title handling in the form/server; this guard only adds sibling uniqueness.
+     if(['create','edit'].includes(baseline.command)&&!title.trim())throw new Error('Enter a subtask title.');
      const issue=title.trim()?duplicateWorkNameError(title,latest.current.data.nodes.filter(node=>(node.parent_subtask_id||'')===(parent||'')),'Subitem',baseline.nodeId||undefined):'';if(issue)throw new Error(issue);
     }
     const dateIssue=workEditorDateError(latest.current.data,baseline,latest.current.fields);

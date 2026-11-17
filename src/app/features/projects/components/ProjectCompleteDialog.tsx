@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import { useRef, useState } from "react";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import { Modal } from "../../../components/ui/Modal";
@@ -36,7 +37,7 @@ export function ProjectCompleteDialog({ projectId, projectTitle, project, onClos
     setBusy(true); setError("");
     try { await completeProject(projectId, note); }
     catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Project could not be completed.");
+      setError(readableUiError(caught, "Project could not be completed.", 'write'));
       void checks.refresh();
       setBusy(false); inFlight.current = false;
       return;

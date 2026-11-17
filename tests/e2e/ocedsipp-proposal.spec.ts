@@ -149,7 +149,7 @@ for (const uncertain of [false, true])
     await page.getByRole("button", { name: "Import PDF", exact: true }).click();
     const panel = page.getByRole("region", { name: "Import PDF into project" });
     await panel.getByLabel("PDF schedule starts").fill("2099-10-20");
-    await panel.getByRole('checkbox',{name:/Choose people automatically/}).uncheck();
+    await panel.getByRole('checkbox',{name:/Choose people during import/}).uncheck();
     await page.screenshot({path:info.outputPath('project-header-before-import.png')});
     await panel.getByLabel("Import project PDF").setInputFiles(pdf);
     if (uncertain) {

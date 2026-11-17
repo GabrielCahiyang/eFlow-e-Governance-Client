@@ -79,7 +79,7 @@ export function InvitationTable({
                 <td data-label="Actions">
                   {canManage && invitationCanManage(item) ? (
                     <div className="eflow-invitation-actions">
-                      <ActionMenu
+                      <ActionMenu tooltip="Invitation actions"
                         trigger={
                           <button
                             className="eflow-icon-button"

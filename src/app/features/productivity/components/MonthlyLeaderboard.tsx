@@ -60,9 +60,9 @@ export function MonthlyLeaderboard({ employees, tasks, facts, currentUserId, all
           <div className="flex items-start gap-3">
             <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-primary/20 bg-primary/10 text-primary"><Trophy size={18} /></div>
             <div>
-              <div className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">Approved contribution</div>
+              <div className="text-[12px] font-medium text-muted-foreground">Approved contribution</div>
               <h2 className="mt-0.5 text-[16px] font-semibold text-foreground">Monthly leaderboard</h2>
-              <p className="mt-1 max-w-2xl text-[12px] leading-5 text-muted-foreground">Only approved work counts. Quality, effort, timeliness, and collaboration are scored separately so raw clicks cannot inflate rank. Direct subitems receive collaboration credit only after the parent task is approved.</p>
+              <p className="mt-1 max-w-2xl text-[12px] leading-5 text-muted-foreground">Scores reflect approved tasks and completed subtasks across delivery, quality, speed, and collaboration.</p>
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -91,7 +91,7 @@ export function MonthlyLeaderboard({ employees, tasks, facts, currentUserId, all
       </div>
 
       {loadingHistory ? (
-        <div className="py-16 text-center text-[12px] text-muted-foreground">Loading the signed monthly snapshot…</div>
+        <div className="py-16 text-center text-[12px] text-muted-foreground">Loading monthly results…</div>
       ) : rows.length === 0 ? (
         <div className="py-16 text-center"><Trophy size={24} className="mx-auto text-muted-foreground/60" /><h3 className="mt-3 text-[13px] font-medium text-foreground">No approved contribution for this period</h3><p className="mt-1 text-[12px] text-muted-foreground">Work appears after an authorized reviewer approves it.</p></div>
       ) : (
@@ -99,7 +99,7 @@ export function MonthlyLeaderboard({ employees, tasks, facts, currentUserId, all
           <p className="px-4 py-2 text-[11px] text-muted-foreground sm:hidden">Swipe sideways to see all columns and row actions.</p>
           <div className="overflow-x-auto" role="region" aria-label="Monthly contribution table" tabIndex={0}>
           <table className="min-w-[920px] w-full border-collapse text-left">
-            <thead><tr className="border-b border-border bg-muted text-[11px] font-semibold uppercase tracking-wider text-muted-foreground"><th className="px-4 py-2.5">Rank</th><th className="px-3 py-2.5">Member</th><th className="px-3 py-2.5 text-center">Tasks</th><th className="px-3 py-2.5 text-center">Subtasks</th><th className="px-3 py-2.5 text-center">On time</th><th className="px-3 py-2.5 text-center">Median cycle</th><th className="px-3 py-2.5 text-center">First pass</th><th className="px-3 py-2.5 text-right">Score</th><th className="px-4 py-2.5 text-right">Breakdown</th></tr></thead>
+            <thead><tr className="border-b border-border bg-muted text-[12px] font-semibold text-muted-foreground"><th className="px-4 py-2.5">Rank</th><th className="px-3 py-2.5">Member</th><th className="px-3 py-2.5 text-center">Tasks</th><th className="px-3 py-2.5 text-center">Subtasks</th><th className="px-3 py-2.5 text-center">On time</th><th className="px-3 py-2.5 text-center">Median cycle</th><th className="px-3 py-2.5 text-center">First pass</th><th className="px-3 py-2.5 text-right">Score</th><th className="px-4 py-2.5 text-right">Breakdown</th></tr></thead>
             <tbody>
               {rows.map((row) => {
                 const expanded = expandedUserId === row.userId;
@@ -113,7 +113,7 @@ export function MonthlyLeaderboard({ employees, tasks, facts, currentUserId, all
                 return [
                   <tr key={row.userId} className={`border-b border-border text-[12px] transition-colors ${row.userId === currentUserId ? "bg-primary/5" : "hover:bg-muted/50"}`}>
                     <td className="px-4 py-3"><span className={`inline-flex h-6 min-w-7 items-center justify-center gap-1 rounded-[6px] border px-2 text-[12px] font-semibold tabular-nums ${medalTone}`}>{row.rank <= 3 && <Medal size={11} />}{row.rank}</span></td>
-                    <td className="px-3 py-3"><div className="font-medium text-foreground">{row.employeeName}{row.userId === currentUserId ? <span className="ml-2 rounded-[6px] border border-primary/20 bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">You</span> : null}</div><div className="mt-0.5 text-[11px] text-muted-foreground">{row.departmentName || "Office"} · {row.source === "live" ? "Live" : "Closed snapshot"}</div></td>
+                    <td className="px-3 py-3"><div className="font-medium text-foreground">{row.employeeName}{row.userId === currentUserId ? <span className="ml-2 rounded-[6px] border border-primary/20 bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">You</span> : null}</div><div className="mt-0.5 text-[11px] text-muted-foreground">{row.departmentName || "Office"} · {row.source === "live" ? "Live" : "Finalized monthly results"}</div></td>
                     <td className="px-3 py-3 text-center font-medium tabular-nums text-foreground">{row.approvedTasks}</td><td className="px-3 py-3 text-center font-medium tabular-nums text-foreground">{row.approvedSubtasks}</td><td className="px-3 py-3 text-center tabular-nums text-muted-foreground">{percentage(row.onTimeRate)}</td><td className="px-3 py-3 text-center tabular-nums text-muted-foreground">{duration(row.medianCycleHours)}</td><td className="px-3 py-3 text-center tabular-nums text-muted-foreground">{percentage(row.firstPassApprovalRate)}</td>
                     <td className="px-3 py-3 text-right"><span className="text-[15px] font-semibold tabular-nums text-foreground">{row.contributionScore}</span></td>
                     <td className="px-4 py-3 text-right"><button type="button" onClick={() => setExpandedUserId(expanded ? undefined : row.userId)} className="inline-flex items-center gap-1 rounded-[6px] border border-border bg-card px-2.5 py-1 text-[12px] font-medium text-foreground transition-colors hover:bg-muted">View {expanded ? <ChevronUp size={11} /> : <ChevronDown size={11} />}</button></td>

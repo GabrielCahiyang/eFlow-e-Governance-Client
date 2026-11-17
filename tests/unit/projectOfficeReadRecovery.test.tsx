@@ -65,7 +65,7 @@ describe('Office read settlement and recovery', () => {
     expect(result.current.members).toEqual(roster('a').members);
     const head = { id: 'head', role: 'head', org_id: 'own', is_active: true } as UserProfile;
     const organizations = [{ id: 'own', head_user_id: 'head' }] as Organization[];
-    expect(officeStaffingReason(result.current.offices[0], head, organizations, 'planning', false, result.current.error)).toContain('Refresh the authoritative Office data');
+    expect(officeStaffingReason(result.current.offices[0], head, organizations, 'planning', false, result.current.error)).toContain('Reload the latest Office details');
     await act(async () => result.current.refresh());
     expect(result.current.error).toBe('');
     expect(officeStaffingReason(result.current.offices[0], head, organizations, 'planning', false, result.current.error)).toBe('');

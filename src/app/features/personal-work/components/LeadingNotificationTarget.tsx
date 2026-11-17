@@ -1,7 +1,8 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import { useState } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { requestNavigation } from '../../../shared/navigationGuard';
-import { fetchNotificationSubitem, useNotificationNavigationIntent } from '../../notifications';
+import { fetchNotificationSubitem, resolveNotificationSubitem, useNotificationNavigationIntent } from '../../notifications';
 import { SubtaskWorkDrawer, type Subtask } from '../../subtasks';
 import type { Task } from '../../tasks';
 import type { TaskInspectorOrigin } from '../../task-inspector';
@@ -19,11 +20,59 @@ export function LeadingNotificationTarget({ rows, loading, onOpen }: {
   const [origin, setOrigin] = useState<TaskInspectorOrigin>();
   const [error, setError] = useState('');
   useNotificationNavigationIntent(
-    intent => intent.kind === 'leading_task',
+    intent => intent.kind === 'leading_task' || intent.kind === 'personal_work' || intent.kind === 'subtask',
     async (intent, isCurrent) => {
       if (loading) return false;
-      const root = rows.find(row => row.kind === 'office-task' && row.id === intent.taskId);
       const opener = document.activeElement instanceof HTMLElement ? document.activeElement : document.body;
+      if (intent.kind === 'subtask') {
+        if (intent.entityId) {
+          const direct = rows.find(row => row.kind === 'office-node' && row.id === intent.entityId);
+          if (direct) {
+            const accepted = await onOpen(direct, opener, isCurrent);
+            if (accepted && isCurrent()) { setSubitem(undefined); setError(''); }
+            return accepted;
+          }
+          try {
+            const root = rows.find(row => row.kind === 'office-task' && row.id === intent.taskId);
+            const record = await fetchNotificationSubitem(intent, user?.id || '', root?.task);
+            if (!isCurrent()) return false;
+            return requestNavigation(() => {
+              if (!isCurrent()) return;
+              setSubitem(record);
+              setOrigin({ view: 'My Work', section: 'work', returnFocus: opener,
+                restoreFocus: () => document.getElementById('personal-work-search')?.focus() });
+              setError('');
+            });
+          } catch (caught) {
+            if (!isCurrent()) return false;
+            return requestNavigation(() => {
+              if (!isCurrent()) return;
+              setSubitem(undefined);
+              setError(readableUiError(caught, "This subtask is no longer available to your account.", 'read'));
+            });
+          }
+        }
+        const candidates = rows
+          .filter(row => row.kind === 'office-node' && (!intent.taskId || row.rootId === intent.taskId))
+          .map(row => ({ id: row.id, taskId: row.rootId, title: row.title, row }));
+        const resolved = resolveNotificationSubitem(intent, candidates);
+        if (resolved.status === 'resolved') {
+          const accepted = await onOpen(resolved.item.row, opener, isCurrent);
+          if (accepted && isCurrent()) { setSubitem(undefined); setError(''); }
+          return accepted;
+        }
+        setError('This subtask is no longer available in your assigned subtasks.');
+        return true;
+      }
+      if (intent.kind === 'personal_work') {
+        const target = rows.find(row => row.rootId === intent.taskId && (!intent.projectId || row.projectId === intent.projectId)
+          && (intent.entityId ? row.kind === 'personal-node' && row.id === intent.entityId : row.kind === 'personal-task'));
+        if (!target) { setError('This personal work is unavailable. Refresh My Work to check your current project access.'); return true; }
+        const accepted = await onOpen(target, opener, isCurrent);
+        if (accepted && isCurrent()) setError('');
+        return accepted;
+      }
+      const root = rows.find(row => row.kind === 'office-task' && row.id === intent.taskId);
       if (intent.entityId) {
         try {
           const record = await fetchNotificationSubitem(intent, user?.id || '', root?.task);
@@ -40,7 +89,7 @@ export function LeadingNotificationTarget({ rows, loading, onOpen }: {
           return requestNavigation(() => {
             if (!isCurrent()) return;
             setSubitem(undefined);
-            setError(caught instanceof Error ? caught.message : 'This subitem is unavailable.');
+            setError(readableUiError(caught, "This subtask is no longer available to your account.", 'write'));
           });
         }
       }

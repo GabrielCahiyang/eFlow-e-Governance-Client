@@ -197,7 +197,7 @@ export function OrgModal({
       onClose();
     } catch (err: any) {
       setSaveError(err?.message || "Office details could not be saved.");
-      toast(err?.message || "Failed to save", "error");
+      toast(err?.message || "We couldn't confirm whether the organization changes were saved. Check the current structure before saving again.", "error");
     } finally {
       pending.current = false;
       draft.pendingRef.current = false;
@@ -263,7 +263,7 @@ export function OrgModal({
               value={form.parent_id}
               onChange={(e) => setForm({ ...form, parent_id: e.target.value })}
               options={[
-                { value: "", label: "No parent (root-level)" },
+                { value: "", label: "No parent Office (top level)" },
                 ...parentOptions,
               ]}
             />

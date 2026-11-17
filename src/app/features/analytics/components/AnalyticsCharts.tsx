@@ -1,12 +1,12 @@
 import { useId } from "react";
 import "../analytics.css";
 export const ANALYTICS_COLORS = [
-  "#00857a",
-  "#3b82f6",
-  "#e3a11a",
-  "#8758be",
-  "#d65a67",
-  "#698387",
+  "var(--eflow-primary, #0c6f6b)",
+  "var(--eflow-chart-2, #2767a7)",
+  "var(--eflow-chart-3, #198754)",
+  "var(--eflow-chart-4, #b65b08)",
+  "var(--eflow-chart-5, #c92a3a)",
+  "var(--eflow-text-muted, #5d706c)",
 ];
 export function AnalyticsDonut({
   title,

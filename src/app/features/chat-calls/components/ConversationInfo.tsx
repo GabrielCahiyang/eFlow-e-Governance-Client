@@ -1,3 +1,4 @@
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { ArrowUpRight, ExternalLink, Pin, Users, X } from 'lucide-react';
 import type { ChatPerson, Conversation, Message } from '../services/messagesWorkspace';
 import { parseMessage } from '../services/chatMessageCodec';
@@ -16,7 +17,7 @@ export function ConversationInfo({ conversation, messages, pinned, userId, peopl
   const images = messages.filter(message => message.imagePath);
 
   return <aside className="messages-info eflow-scroll-region" aria-label="Chat info">
-    <header className="messages-info-header"><h2>Chat info</h2><button type="button" className="messages-icon-button" aria-label="Close chat info" onClick={onClose}><X size={18} /></button></header>
+    <header className="messages-info-header"><h2>Chat info</h2><WorkspaceTooltip content="Close chat info"><button type="button" className="messages-icon-button" aria-label="Close chat info" onClick={onClose}><X size={18} /></button></WorkspaceTooltip></header>
     <div className="messages-info-identity">
       <ConversationAvatar conversation={conversation} />
       <strong>{conversation.name}</strong>

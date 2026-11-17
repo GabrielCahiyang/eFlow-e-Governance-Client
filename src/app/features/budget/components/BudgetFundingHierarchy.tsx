@@ -3,6 +3,8 @@ import type { Task } from "../../tasks";
 import type { BudgetCommitment, DepartmentBudgetBundle, WorkBudgetAllocation } from "../types";
 import { getAllocationCashPosition } from "../selectors/budgetSelectors";
 import { BudgetEmpty, peso, StatusPill } from "./budgetUi";
+import { DEFAULT_BUDGET_PAGE_SIZE, useBudgetPagination } from "../hooks/useBudgetPagination";
+import { BudgetPagination } from "./BudgetPagination";
 
 interface FundingHierarchyProps {
   data: DepartmentBudgetBundle;
@@ -10,6 +12,11 @@ interface FundingHierarchyProps {
 }
 
 export function BudgetFundingHierarchy({ data, tasks }: FundingHierarchyProps) {
+  const pagination = useBudgetPagination(
+    data.commitments,
+    data.summary?.id || "",
+    DEFAULT_BUDGET_PAGE_SIZE,
+  );
   if (!data.commitments.length) {
     return (
       <BudgetEmpty
@@ -35,7 +42,7 @@ export function BudgetFundingHierarchy({ data, tasks }: FundingHierarchyProps) {
         </span>
       </header>
       <div className="divide-y divide-border">
-        {data.commitments.map((commitment) => (
+        {pagination.pageItems.map((commitment) => (
           <ProposalFundingCard
             key={commitment.id}
             commitment={commitment}
@@ -44,6 +51,15 @@ export function BudgetFundingHierarchy({ data, tasks }: FundingHierarchyProps) {
           />
         ))}
       </div>
+      <BudgetPagination
+        page={pagination.page}
+        pageSize={pagination.pageSize}
+        totalItems={pagination.totalItems}
+        visibleCount={pagination.pageItems.length}
+        noun="record"
+        onPageChange={pagination.setPage}
+        onPageSizeChange={pagination.setPageSize}
+      />
     </section>
   );
 }

@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import { useEffect, useRef, useState } from 'react';
 import { Clock3, ShieldCheck, UserRound } from 'lucide-react';
 import { Modal } from '../../../components/ui/Modal';
@@ -22,7 +23,7 @@ export function GuestAccountDialog({guest, mode, onClose, onSaved}: {guest: Proj
     if (pending.current || reason.trim().length < 3) return;
     pending.current = true; setBusy(true); setError('');
     try { await changeGuestState(guest.user_id, mode === 'activate', reason.trim(), key.current); onSaved(); }
-    catch(e) { setError(e instanceof Error ? e.message : 'Could not update this account.'); }
+    catch(e) { setError(readableUiError(e, "Could not update this account.", 'write')); }
     finally { pending.current = false; setBusy(false); }
   }
   return <Modal isOpen title={title} description={`${guest.full_name} · ${guest.email}`} width="max-w-3xl" preventClose={busy} onClose={onClose}

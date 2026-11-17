@@ -7,6 +7,6 @@ export const DEPARTMENT_REPORTS: DepartmentReportDefinition[] = [
   { id: "reviews", title: "Reviews and revisions", description: "Submission attempts, decision status, feedback, and review turnaround." },
   { id: "evidence", title: "Evidence register", description: "Task and subtask evidence with its work item and approval state." },
   { id: "risks", title: "Attention and risk register", description: "Overdue, blocked, stalled, unassigned, and waiting-review work." },
-  { id: "lifecycle", title: "Task lifecycle history", description: "Auditable task status transitions with actor, time, and reason." },
+  { id: "lifecycle", title: "Task lifecycle history", description: "Task status changes with who made each change, when it happened and the reason." },
 ];
 

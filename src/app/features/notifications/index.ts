@@ -13,3 +13,5 @@ export {
 export { queueNotificationNavigationIntent } from "./navigationIntent";
 export { useNotificationNavigationIntent } from "./hooks/useNotificationNavigationIntent";
 export {fetchNotificationSubitem} from './services/notificationSubitemRead';
+export { useNotificationInbox } from './hooks/useNotificationInbox';
+export { NOTIFICATION_CATEGORIES, DEFAULT_NOTIFICATION_FILTERS, type NotificationInboxFilters } from './inboxFilters';

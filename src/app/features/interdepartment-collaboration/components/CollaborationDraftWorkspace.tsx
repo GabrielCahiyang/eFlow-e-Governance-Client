@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import { requestNavigation } from "../../../shared/navigationGuard";
 import * as React from "react";
 import { useConfirmation } from "../../../components/ui/useConfirmation";
@@ -262,9 +263,7 @@ export function CollaborationDraftWorkspace({
       toast(success, "success");
     } catch (error) {
       toast(
-        error instanceof Error
-          ? error.message
-          : "The action could not be completed.",
+        readableUiError(error, "The action could not be completed.", 'write'),
         "error",
       );
       if (error instanceof SavedPlanApprovalError) await state.refresh();

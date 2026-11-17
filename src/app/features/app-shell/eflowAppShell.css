@@ -172,14 +172,22 @@
 }
 
 .eflow-topbar__account {
-  gap: var(--space-8);
   min-width: 0;
 }
 
-.eflow-topbar__account-context {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
+.eflow-topbar__account-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 4px 10px 4px 6px;
+  border-radius: 8px;
+  color: var(--primary-text-color);
+  max-width: 240px;
+}
+
+.eflow-topbar__account-trigger:hover {
+  background: var(--eflow-subtle, #f7f9f9);
 }
 
 .eflow-topbar__account-name {
@@ -188,6 +196,11 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.eflow-topbar__account-chevron {
+  color: var(--secondary-text-color);
+  flex-shrink: 0;
 }
 
 .eflow-topbar__brand-lockup {
@@ -413,7 +426,7 @@
 
   .eflow-topbar__brand-divider,
   .eflow-topbar__brand-org,
-  .eflow-topbar__account-avatar {
+  .eflow-topbar__account-name {
     display: none;
   }
 
@@ -428,15 +441,12 @@
   }
 
   .eflow-topbar__account-trigger {
-    font-size: 0 !important;
-    min-width: 36px !important;
-    padding-inline: 8px !important;
-    width: 36px;
+    padding: 4px 6px;
+    gap: 4px;
   }
 
   .eflow-topbar__utilities > [data-tour-id="page-walkthrough"],
-  .eflow-topbar__utilities > [data-tour-id="system-walkthrough"],
-  .eflow-topbar__account-context {
+  .eflow-topbar__utilities > [data-tour-id="system-walkthrough"] {
     display: none;
   }
 
@@ -452,8 +462,7 @@
 
 @media (max-width: 1199px) {
   .eflow-topbar__brand-divider,
-  .eflow-topbar__brand-org,
-  .eflow-topbar__account-context {
+  .eflow-topbar__brand-org {
     display: none;
   }
 }

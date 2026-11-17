@@ -30,6 +30,9 @@
 .r3-personal-workspace li { display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:6px 0; }
 .r3-shortcut-choice { display:flex;align-items:flex-start;gap:8px;max-width:650px;font-size:13px; }
 @media(max-width:600px) { .r3-personal-workspace {padding:16px;}.r3-task-create,.r3-members-form {flex-direction:column;align-items:stretch;}.r3-task-create .eflow-form-field,.r3-members-form .eflow-form-field {flex:auto;} }
+.eflow-workspace-static{display:flex;align-items:center;gap:8px;width:100%;min-width:0;padding:4px 6px;border:0;background:transparent;color:var(--eflow-text-secondary);font-size:13px;line-height:1.35}
+.eflow-workspace-static svg{color:var(--eflow-primary);flex-shrink:0}
+.eflow-workspace-static strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;color:var(--eflow-text)}
 .eflow-workspace-switcher-controls{display:flex;align-items:center;gap:var(--eflow-space-2);width:100%;min-width:0}
 .eflow-workspace-switcher-controls>.eflow-workspace-selector{flex:1;min-width:0;border:1px solid var(--eflow-border);border-radius:var(--eflow-radius-control);padding:0 var(--eflow-space-2);background:var(--eflow-surface)}
 .eflow-workspace-create{display:flex;align-items:center;justify-content:center;min-width:var(--eflow-control-height);min-height:var(--eflow-control-height);border:1px solid var(--eflow-border);border-radius:var(--eflow-radius-control)}

@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import { useState } from 'react';
 import { FeatureDialog } from '../../../components/ui/FeatureDialog';
 import { requestNavigation } from '../../../shared/navigationGuard';
@@ -21,7 +22,7 @@ export function TaskDatesDialog({ task, onClose, onSave }: { task: Task; onClose
   if (invalid) { setError(invalid); return; }
   guard.pendingRef.current = true; setBusy(true); setError('');
   try { await onSave(task, timelinePatch(task, draft)); guard.markClean(); onClose(); }
-  catch (reason) { setError(reason instanceof Error ? reason.message : 'Could not save dates.'); }
+  catch (reason) { setError(readableUiError(reason, "Could not save dates.", 'write')); }
   finally { guard.pendingRef.current = false; setBusy(false); }
  };
  return <FeatureDialog title="Task dates" description={task.title} onClose={close} preventClose={busy} contentClassName="max-w-md">

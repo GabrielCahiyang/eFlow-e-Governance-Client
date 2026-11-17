@@ -1,3 +1,4 @@
+import { readableUiError } from '../../shared/userFacingError';
 import { useState } from 'react';
 import { supabase } from '../../../lib/supabase';
 import { customStatusChoices, resolveStatus } from './statusDefinitions';
@@ -29,7 +30,7 @@ export function CustomWorkStatusSelect({ taskId, subtaskId, customId, onChanged 
       window.dispatchEvent(new CustomEvent('eflow:work-updated', { detail: { taskId } }));
       await onChanged?.();
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : 'Could not update this status.');
+      setError(readableUiError(reason, "Could not update this status.", 'write'));
     } finally {
       setBusy(false);
     }

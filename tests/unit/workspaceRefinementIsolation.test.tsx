@@ -147,4 +147,12 @@ describe('R3 scoped navigation, drafts and personal review',()=>{
   render(<PersonalTaskCreate members={detail.members} userId="owner" busy={false} run={vi.fn()}/>);
   const select=screen.getByRole('combobox',{name:'Independent review'});expect([...select.querySelectorAll('option')].map(o=>o.value)).toEqual(['','reviewer']);
  });
+ it('pins active workspace state to Office workspaces only when officeOnly is enabled',async()=>{
+  window.history.replaceState({},'','/projects?workspace=private');
+  api.list.mockResolvedValue([office,personal]);
+  api.select.mockResolvedValue({workspace:office,projects:[]});
+  const view=renderHook(()=>useWorkspaceState('owner','office',true,true));
+  await waitFor(()=>expect(view.result.current.snapshot?.workspace.id).toBe('office'));
+  expect(view.result.current.workspaces).toEqual([office]);
+ });
 });

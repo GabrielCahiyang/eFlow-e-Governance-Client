@@ -203,7 +203,7 @@ function TaskBoardCard({
           )}
         </div>
 
-        <button
+        <WorkspaceTooltip content={`Manage ${task.title}`}><button
           aria-label={`Manage ${task.title}`}
           className="eflow-figma-task-card__menu"
           onClick={(event) => {
@@ -211,10 +211,10 @@ function TaskBoardCard({
             canManage ? onManageTeam() : onOpen();
           }}
           type="button"
-          title={canManage ? "Manage team & assignment" : "View details"}
+
         >
           <MoreVertical size={16} />
-        </button>
+        </button></WorkspaceTooltip>
       </div>
 
       {/* Task Content: Title & Description */}

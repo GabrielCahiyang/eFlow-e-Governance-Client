@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../../shared/userFacingError';
 import { useMemo, useState } from "react";
 import { AttentionBox, Button, Search as VibeSearch } from "@vibe/core";
 import { BadgeCheck, ShieldCheck, UserRoundCog } from "lucide-react";
@@ -47,9 +48,7 @@ export function OfficeIdentityAccessPanel({
       }));
     } catch (caught) {
       setError(
-        caught instanceof Error
-          ? caught.message
-          : "Accounting access could not be updated.",
+        readableUiError(caught, "Accounting access could not be updated.", 'write'),
       );
     } finally {
       setBusyId("");

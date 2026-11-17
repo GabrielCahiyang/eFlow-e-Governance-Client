@@ -1,3 +1,4 @@
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { MoneyInput } from '../../../components/ui/MoneyInput';
 import type { ReactNode } from "react";
 import { Banknote, CircleDollarSign, Plus, Trash2 } from "lucide-react";
@@ -81,7 +82,7 @@ export function TaskBudgetEditor({
             <header className="grid gap-2 border-b border-neutral-100 bg-neutral-50 p-3 sm:grid-cols-[.8fr_1fr_auto]">
               <select disabled={readOnly} value={expense.expenseClass} onChange={(event) => patchIds(ids, { expenseClass: event.target.value })} className="h-9 rounded-lg border border-neutral-200 bg-white px-2.5 text-[10px] disabled:bg-neutral-50">{PROPOSAL_EXPENSE_CLASSES.map((item) => <option key={item}>{item}</option>)}</select>
               <input disabled={readOnly} value={category.category} maxLength={120} onChange={(event) => patchIds(ids, { category: event.target.value })} placeholder="Category, e.g. Workshop and Consultation" className="h-9 rounded-lg border border-neutral-200 bg-white px-2.5 text-[10px] disabled:bg-neutral-50" />
-              <div className="flex items-center justify-end gap-2"><span className="text-[10px] font-semibold tabular-nums">{peso.format(category.amount)}</span>{!readOnly && <button type="button" onClick={() => removeIds(ids)} className="rounded-lg p-2 text-neutral-400 hover:bg-rose-50 hover:text-rose-600" aria-label={`Remove ${category.category}`}><Trash2 size={12} /></button>}</div>
+              <div className="flex items-center justify-end gap-2"><span className="text-[10px] font-semibold tabular-nums">{peso.format(category.amount)}</span>{!readOnly && <WorkspaceTooltip content={`Remove ${category.category}`}><button type="button" onClick={() => removeIds(ids)} className="rounded-lg p-2 text-neutral-400 hover:bg-rose-50 hover:text-rose-600" aria-label={`Remove ${category.category}`}><Trash2 size={12} /></button></WorkspaceTooltip>}</div>
             </header>
             <div className="divide-y divide-neutral-100">
               {category.particulars.map((line) => <div key={line.id}><ParticularRow line={line} readOnly={readOnly} onPatch={(patch) => patchIds(new Set([line.id]), patch)} onRemove={() => removeIds(new Set([line.id]))} />{partitions.length>0 && <label className="block px-3 pb-3"><span className="text-[11px] text-muted-foreground">Annual funding account</span><select disabled={readOnly} value={line.budgetPartitionId||""} onChange={e=>patchIds(new Set([line.id]),{budgetPartitionId:e.target.value})} className={inputClass}><option value="">Choose the account that authorizes this item</option>{partitions.map(s=><option key={s.id} value={s.id}>{s.name} · {peso.format(s.amount-s.heldAmount-(s.committedAmount||0))} available</option>)}</select></label>}</div>)}
@@ -108,7 +109,7 @@ function ParticularRow({ line, readOnly, onPatch, onRemove }: { line: BudgetLine
     <Field label="Unit"><input disabled={readOnly} value={line.unit || "item"} onChange={(event) => onPatch({ unit: event.target.value })} className={inputClass} /></Field>
     <Field label="Unit cost"><MoneyInput disabled={readOnly} min={0.01} max={9999999999} step="0.01" value={line.unitCost || ""} onValueChange={raw => onPatch({ unitCost: Number(raw), amount: Number(line.quantity || 0) * Number(raw) })} className={`${inputClass} text-right`} /></Field>
     <Field label="Amount"><div className="flex h-9 items-center justify-end rounded-lg border border-neutral-200 bg-neutral-50 px-2.5 text-[10px] font-medium tabular-nums">{issue?'—':peso.format(amount)}</div></Field>
-    {!readOnly && <button type="button" onClick={onRemove} className="mb-0.5 rounded-lg p-2 text-neutral-400 hover:bg-rose-50 hover:text-rose-600" aria-label="Remove particular"><Trash2 size={12} /></button>}
+    {!readOnly && <WorkspaceTooltip content="Remove particular"><button type="button" onClick={onRemove} className="mb-0.5 rounded-lg p-2 text-neutral-400 hover:bg-rose-50 hover:text-rose-600" aria-label="Remove particular"><Trash2 size={12} /></button></WorkspaceTooltip>}
     {issue&&<p role="alert" className="col-span-2 md:col-span-6 text-xs text-destructive">{issue}</p>}
   </div>;
 }

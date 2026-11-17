@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import {fetchAccess} from '../../project-access';
 import { useEffect, useState } from 'react';
 import { FormField, SelectInput } from '../../../components/ui/FormField';
@@ -8,7 +9,7 @@ export function PersonalProjectMembers({data,busy,run}:{data:PersonalSnapshot;bu
  const [reviewed,setReviewed]=useState(false);
  useEffect(()=>{let active=true;void fetchAccess(data.project.id).then(()=>{if(active)setReviewed(true);}).catch(()=>{});return()=>{active=false;};},[data.project.id]);
  const [candidates,setCandidates]=useState<{id:string;name:string}[]>([]),[selected,setSelected]=useState(''),[access,setAccess]=useState('member'),[error,setError]=useState('');
- useEffect(()=>{let active=true;fetchPersonalCandidates(data.project.id).then(rows=>{if(active)setCandidates(rows);}).catch(error=>{if(active)setError(error instanceof Error?error.message:'Could not load eligible people.');});return()=>{active=false;};},[data.project.id]);
+ useEffect(()=>{let active=true;fetchPersonalCandidates(data.project.id).then(rows=>{if(active)setCandidates(rows);}).catch(error=>{if(active)setError(readableUiError(error, "Could not load eligible people.", 'read'));});return()=>{active=false;};},[data.project.id]);
  if(reviewed)return <p>Use Members and access terms above for recipient-bound sharing, explicit reapproval and reviewed removal.</p>;
  return <section aria-label="Personal project membership"><h2>Project access</h2><p>Choose already onboarded people in your own Office. Membership applies to this project; it does not grant workspace administration or Office authority.</p>
   {error&&<p role="alert">{error}</p>}

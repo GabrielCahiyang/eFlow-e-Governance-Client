@@ -130,7 +130,7 @@ function WorkStaffingDialogContent({controller,nodeId,readOnly=false,executionBl
    // A confirmed rollback has no saved receipt to retry. Keep the fields editable.
    // Unknown outcomes retain the identical request to prevent duplicate writes.
    if(failure.kind==='confirmed_failure'){request.current=undefined;persist();}
-   setError(/constraint|violates|relation |SQLSTATE/i.test(failure.message)?'Could not save this team. Please try again.':failure.message);
+   setError(/constraint|violates|relation |SQLSTATE/i.test(failure.message)?"We couldn't save this team. Check the current Lead and contributors before trying again.":failure.message);
   }}
   finally{guard.pendingRef.current=false;if(active.current)setBusy(false);}
   if(receipt&&active.current){
@@ -148,7 +148,7 @@ function WorkStaffingDialogContent({controller,nodeId,readOnly=false,executionBl
    {draftError&&!busy&&<p role="alert">{draftError}</p>}
    {error&&<p role="alert">{error}{request.current&&!saved?' Press Try again to check and finish the last save.':''}</p>}
    {saved&&<p role="status">People saved.</p>}
-   {recovery.recovered&&<p role="status">{recovery.stale?'Recovered people draft is stale. Review the current appointments before saving.':'People draft recovered after current access verification.'}</p>}
+   {recovery.recovered&&<p role="status">{recovery.stale?"Task details changed after this team draft was saved. Review the current Lead and contributors before saving.":'People draft recovered after current access verification.'}</p>}
    {recovery.storageFailed&&<p role="alert">Draft recovery could not be stored in this tab. Keep the editor open to retain your changes.</p>}
    <div className="r7-actions"><button type="button" disabled={busy} onClick={close}>{saved?'Close':'Cancel changes'}</button>
     {!saved&&<button type="submit" disabled={busy||!request.current&&!!draftError}>{busy?(aiBusy?'Choosing team…':'Saving…'):request.current?'Try again':'Save changes'}</button>}

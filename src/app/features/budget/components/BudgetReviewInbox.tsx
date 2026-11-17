@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { readableUiError } from '../../../shared/userFacingError';
 import { CheckCircle2, Inbox, ReceiptText } from "lucide-react";
 import { useAuth } from "../../../contexts/AuthContext";
 import { PageHeader } from "../../../components/workflow/primitives";
@@ -90,7 +91,7 @@ export function BudgetReviewInbox({
     let active = true;
     void getLiquidationFiscalYear(staffingFocus, orgId).then(year => {
       if (active) { setFiscalYear(year); setFocusYear({ key: focusKey }); }
-    }).catch(error => { if (active) setFocusYear({ key: focusKey, error: error.message }); });
+    }).catch(error => { if (active) setFocusYear({ key: focusKey, error: readableUiError(error, 'We couldn’t find the fiscal year for this review.', 'read') }); });
     return () => { active = false; };
   }, [focusKey, staffingFocus, orgId]);
   const budget = useDepartmentBudget(resolvingFocus ? '' : orgId, fiscalYear);
@@ -144,7 +145,7 @@ export function BudgetReviewInbox({
       {resolvingFocus || budget.loading ? (
         <BudgetReviewInboxSkeleton />
       ) : budget.error ? (
-        <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-[11px] text-rose-700">{budget.error}</div>
+        <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-[11px] text-rose-700">{readableUiError(budget.error, 'We couldn’t load the budget reviews.', 'read')}</div>
       ) : !budget.summary ? (
         <BudgetEmpty title={`No ${fiscalYear} office budget`} description="Create and lock the annual office budget before contributors can request task funding." />
       ) : (

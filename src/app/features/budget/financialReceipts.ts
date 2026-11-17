@@ -1,3 +1,5 @@
+import { readableUiError } from '../../shared/userFacingError';
+
 /** Session-only receipts prevent a repeated write after a lost response, including after reopening a dialog. */
 const outcomes = new Map<string, "saved" | "uncertain">();
 export const financialOutcome = (key: string) => outcomes.get(key);
@@ -18,10 +20,26 @@ export function financialFailureIsUncertain(error: unknown): boolean {
     message,
   );
 }
-export const financialErrorMessage = (error: unknown) =>
-  error instanceof Error
-    ? error.message
-    : "The financial operation returned no confirmed result.";
+export const financialErrorMessage = (error: unknown, fallback = "We couldn’t complete this financial action.", operation: 'read' | 'write' = 'write') =>
+  readableUiError(error, fallback, operation);
+
+/** Use workflow evidence for the outcome. Error text alone cannot confirm a write. */
+export function financialWriteFeedback(error: unknown, context: {
+  outcome?: 'saved' | 'uncertain';
+  submitted: boolean;
+  action: string;
+  record: string;
+  draft?: string;
+}) {
+  const { outcome, submitted, action, record, draft } = context;
+  if (outcome === 'saved') return `${action} was saved. We couldn’t refresh ${record}. Reload the records before continuing.`;
+  if (outcome === 'uncertain') return `We couldn’t confirm whether ${action.toLowerCase()} was saved. Check ${record} before submitting again.`;
+  const summary = submitted ? `${action} was not saved.` : `${action} was not submitted.`;
+  const fallback = 'Review the form or contact your administrator if the problem continues.';
+  const detail = financialErrorMessage(error, fallback, 'read');
+  const sentence = /[.!?]$/.test(detail) ? detail : `${detail}.`;
+  return [summary, sentence, draft].filter(Boolean).join(' ');
+}
 
 interface JournalProof {
   ids: string[];

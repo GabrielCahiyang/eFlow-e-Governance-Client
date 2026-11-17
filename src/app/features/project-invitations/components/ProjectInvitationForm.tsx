@@ -35,7 +35,7 @@ export function ProjectInvitationForm({project,office,root,node,timezone,canSend
     <label>Engagement<select aria-label="Engagement" value={row.engagement} onChange={event=>change(row.id,{engagement:event.target.value as InvitationDraft['engagement']})}>{['Permanent','Job Order','OJT','Consultant','Other'].map(value=><option key={value}>{value}</option>)}</select></label>
     <label className="r8-invite-until"><input type="checkbox" checked={row.untilClose} onChange={event=>change(row.id,{untilClose:event.target.checked,end:event.target.checked?'':row.end})}/>Until project completion or archive</label>
     {!row.untilClose&&<label>Access ends after this date · {timezone}<input type="date" required={row.engagement!=='Permanent'} value={row.end} onChange={event=>change(row.id,{end:event.target.value})}/></label>}
-    <p className="r8-invite-scope"><ShieldCheck size={15} aria-hidden="true"/>Project-only access{root?' · selected task':''}{node?' / subitem':''}. This does not grant a permanent account role.</p>
+    <p className="r8-invite-scope"><ShieldCheck size={15} aria-hidden="true"/>Project-only access{root?' · selected task':''}{node?" / subtask":''}. This does not grant a permanent account role.</p>
    </fieldset>{receipts[row.id]&&<p role="status" className="r8-invite-receipt">{row.email}: {receipts[row.id]}</p>}</div>)}
    {rows.length<5&&<button type="button" className="r8-add-person" disabled={busy} onClick={()=>setRows(current=>[...current,blank()])}><Plus size={16} aria-hidden="true"/>Add another person</button>}
    {error&&<p role="alert">{error} Successful invitations are excluded from retry. Saved request details are retained to prevent duplicates.</p>}

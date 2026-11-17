@@ -1,4 +1,6 @@
 import {BudgetReleaseCalendar} from './BudgetReleaseCalendar';
+import { readableUiError } from '../../../shared/userFacingError';
+import { Button as VibeButton } from "@vibe/core";
 import { useState, useEffect } from "react";
 import {
   AlertTriangle,
@@ -160,10 +162,14 @@ function OfficeBudgetContent({ orgId, fiscalYear, embedded, tab, setTab, setFisc
             <FiscalYearControl compact value={fiscalYear} onChange={setFiscalYear} />
           </div>
         } />}
-        {embedded && <div className="eflow-budget-ledger-status"><span className="eflow-budget-status" data-status={budget.summary?.status || (budget.error ? "unavailable" : "unconfigured")}>{budget.summary?.status || (budget.error ? "Unavailable" : "Not configured")}</span>{budget.summary?.updatedAt && <span>Updated {new Date(budget.summary.updatedAt).toLocaleString()}</span>}</div>}
+        {embedded && <div className="eflow-budget-ledger-status">
+          <StatusPill label={statusLabel} tone={budgetStatus === 'locked' ? 'positive' : budgetStatus === 'draft' ? 'warning' : budget.error ? 'negative' : 'neutral'} />
+          <span>{budget.loading ? `Loading FY ${fiscalYear}…` : budget.error ? 'Pending financial actions unavailable' : `Pending financial actions: ${pendingCount}`}</span>
+          {budget.summary?.updatedAt && <span>· Updated {new Date(budget.summary.updatedAt).toLocaleString()}</span>}
+        </div>}
         {budget.error && (
           <FeedbackState tone="error" title="Budget data unavailable" onRetry={() => void budget.refresh()}>
-            {budget.error}
+            {readableUiError(budget.error, 'We couldn’t load the Office budget.', 'read')}
           </FeedbackState>
         )}
         {budget.schemaWarnings?.map((warning) => (
@@ -186,7 +192,6 @@ function OfficeBudgetContent({ orgId, fiscalYear, embedded, tab, setTab, setFisc
         ))}
         <div className={`eflow-budget-view-toolbar${groupedViews ? ' eflow-budget-view-toolbar--grouped' : ''}`}>
           <BudgetViewControl value={tab} onChange={setTab} grouped={groupedViews} />
-          {embedded && <small>{budget.loading ? `Loading FY ${fiscalYear}…` : budget.error ? 'Pending financial actions unavailable' : `Pending financial actions: ${pendingCount}`} · FY {fiscalYear}</small>}
         </div>
         {budget.loading ? (
           <OfficeBudgetTabSkeleton tab={tab} label="Loading the office ledger…" />
@@ -199,12 +204,13 @@ function OfficeBudgetContent({ orgId, fiscalYear, embedded, tab, setTab, setFisc
                 description="The Head must create and lock the annual budget before proposals and task-level cash requests can be funded."
                 action={
                   canPrepare ? (
-                    <button
+                    <VibeButton
+                      kind="primary"
+                      size="small"
                       onClick={() => setTab("annual")}
-                      className="rounded-xl bg-primary px-4 py-2.5 text-[10.5px] font-medium text-primary-foreground transition hover:bg-primary/90"
                     >
                       Create annual budget
-                    </button>
+                    </VibeButton>
                   ) : undefined
                 }
               />
@@ -310,8 +316,8 @@ function Overview({
         utilization={{ value: utilization, underTarget }}
       />
       {underTarget && (
-        <div className="eflow-budget-warning flex gap-3 rounded-lg p-4">
-          <AlertTriangle size={18} className="shrink-0" />
+        <div className="eflow-budget-warning flex gap-3 rounded-[10px] border border-[var(--eflow-warning-text)]/25 p-4">
+          <AlertTriangle size={18} className="mt-0.5 shrink-0" />
           <div>
             <div className="text-sm font-semibold">
               Q4 utilization is below target

@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { expect, test } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
 import { projectWorkspaceFixture } from "./fixtures/projectWorkspace";
 import { phase16FinancialFixture } from "./fixtures/phase16Financial";
 
@@ -246,7 +247,7 @@ test("Uncertain settlement keeps its reason and requires verification before res
   await page
     .getByRole("button", { name: "Verify settlement outcome", exact: true })
     .click();
-  await expect(page.getByText(/still pending or unavailable/)).toBeVisible();
+  await expect(page.getByText(/couldn’t confirm a settlement or request for corrections/)).toBeVisible();
   expect(state.writes).toHaveLength(1);
 });
 
@@ -291,6 +292,13 @@ test("Journal correction has guarded lines, explicit posting and a retained unce
   await expect(
     page.getByRole("button", { name: "Verify journal outcome", exact: true }),
   ).toBeVisible();
+  const outcome = dialog.getByRole('status').filter({ hasText: /couldn’t confirm whether your journal entry was saved/ });
+  await expect(outcome).toBeInViewport();
+  const accessibility = await new AxeBuilder({ page })
+    .include('[role="dialog"]')
+    .withRules(['aria-dialog-name', 'button-name', 'label'])
+    .analyze();
+  expect(accessibility.violations.map(v => v.id)).toEqual([]);
   await expect(
     dialog.getByRole("button", { name: "Post balanced entry", exact: true }),
   ).toHaveAttribute("aria-disabled", "true");
@@ -358,7 +366,7 @@ test("Reports retain seven lenses, filtered CSV export and the task inspector", 
   await expect(
     page.getByRole("heading", { name: "Reports", exact: true }),
   ).toBeVisible();
-  await expect(page.getByText(/Authorized Office scope/)).toBeVisible();
+  await expect(page.getByText(/Offices included/)).toBeVisible();
   await expect(
     page.getByRole("button", { name: /Office operations/i }),
   ).toBeVisible();

@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../../shared/userFacingError';
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Calendar } from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
@@ -198,7 +199,7 @@ export function ProjectCalendarView({
         const after = calendarDay(info.event.startStr);
         if (pendingSave.current || !task || before === null || before === undefined || after === null || !current.canEditDates(task)) { info.revert(); return; }
         pendingSave.current = true;
-        void Promise.resolve().then(() => current.saveDates(task, shiftedTaskDates(task, after - before, 'move'))).catch(error => { info.revert(); current.setNotice(error instanceof Error ? error.message : 'Could not save dates.'); }).finally(() => { pendingSave.current = false; });
+        void Promise.resolve().then(() => current.saveDates(task, shiftedTaskDates(task, after - before, 'move'))).catch(error => { info.revert(); current.setNotice(readableUiError(error, "Could not save dates.", 'write')); }).finally(() => { pendingSave.current = false; });
       },
       dayMaxEvents: 3,
       height: "auto",

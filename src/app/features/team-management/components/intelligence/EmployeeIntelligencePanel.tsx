@@ -34,7 +34,7 @@ export function EmployeeIntelligencePanel({
       <section className="rounded-lg border border-border bg-card p-4">
         <div className="ea-360-heading flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="ea-360-person flex items-center gap-3"><div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary text-[13px] font-semibold text-primary-foreground">{employee.initials || "??"}</div><div><h2 className="text-[16px] font-semibold text-foreground">{employee.name}</h2><p className="mt-0.5 text-[12px] text-muted-foreground">{employee.jobTitle} · {employee.email || employee.departmentName || "Office team"}</p></div></div>
-          <div className="text-left sm:text-right"><div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Workload signal</div><div className={`mt-0.5 text-[20px] font-semibold ${metric.workloadSignal >= TEAM_WORKLOAD_HIGH_THRESHOLD ? "text-red-600" : metric.workloadSignal >= TEAM_WORKLOAD_ELEVATED_THRESHOLD ? "text-amber-600" : "text-emerald-600"}`}>{metric.workload?.label || String(metric.workloadSignal)}</div><div className="text-[12px] text-muted-foreground">{metric.workload?.explanation || "Based on estimated duration and deadlines"}</div></div>
+          <div className="text-left sm:text-right"><div className="text-[12px] font-medium text-muted-foreground">Workload signal</div><div className={`mt-0.5 text-[20px] font-semibold ${metric.workloadSignal >= TEAM_WORKLOAD_HIGH_THRESHOLD ? "text-red-600" : metric.workloadSignal >= TEAM_WORKLOAD_ELEVATED_THRESHOLD ? "text-amber-600" : "text-emerald-600"}`}>{metric.workload?.label || String(metric.workloadSignal)}</div><div className="text-[12px] text-muted-foreground">{metric.workload?.explanation || "Based on estimated duration and deadlines"}</div></div>
         </div>
         <div className="ea-360-metrics mt-4 grid grid-cols-2 gap-2 lg:grid-cols-6">
           <Metric icon={<Activity size={13} />} label="Active tasks" value={metric.activeTasks} />
@@ -69,7 +69,7 @@ export function EmployeeIntelligencePanel({
 }
 
 function Metric({ icon, label, value, bad }: { icon: React.ReactNode; label: string; value: string | number; bad?: boolean }) {
-  return <div className={`rounded-lg border p-2.5 ${bad ? "border-red-200 bg-red-50/60" : "border-border bg-muted/50"}`}><div className={`flex items-center gap-1 text-[11px] font-medium uppercase tracking-wide ${bad ? "text-red-600" : "text-muted-foreground"}`}>{icon}{label}</div><div className={`mt-1 text-[15px] font-semibold tabular-nums ${bad ? "text-red-700" : "text-foreground"}`}>{value}</div></div>;
+  return <div className={`rounded-lg border p-2.5 ${bad ? "border-[var(--eflow-negative-text)]/25 bg-[var(--eflow-negative-bg)]" : "border-border bg-muted/50"}`}><div className={`flex items-center gap-1 text-[11px] font-medium ${bad ? "text-[var(--eflow-negative-text)]" : "text-muted-foreground"}`}>{icon}{label}</div><div className={`mt-1 text-[15px] font-semibold tabular-nums ${bad ? "text-[var(--eflow-negative-text)]" : "text-foreground"}`}>{value}</div></div>;
 }
 
 function Quality({ label, value, tone = "neutral" }: { label: string; value: string; tone?: "neutral" | "amber" | "red" }) {

@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import { useState } from "react";
 import { AttentionBox, Heading, IconButton, Loader, Text } from "@vibe/core";
 import { Close, Retry, Robot } from "@vibe/icons";
@@ -22,7 +23,7 @@ export function ManagementBriefPanel({ title, rows }: { title: string; rows: Dep
     try {
       setBrief(await generateManagementBrief(title, rows, setQueue));
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Unable to generate the management brief.");
+      setError(readableUiError(caught, "Unable to generate the management brief.", 'write'));
     } finally {
       setLoading(false);
     }

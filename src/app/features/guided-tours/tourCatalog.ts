@@ -56,7 +56,7 @@ export function getSystemTourSteps(
     {
       id: "system-navigation",
       title: "Your navigation",
-      description: "The global rail groups your authorized destinations. The adjacent context sidebar selects a destination. Workspaces keeps Office tools and the project tree together; Find pages and projects searches authorized destinations and loaded projects. Collapse keeps the global rail available. On a small screen, use bottom navigation and More to open the panel.",
+      description: "The global rail groups your authorized destinations. The adjacent context sidebar selects a destination. Workspace keeps Office tools and the project tree together; Find pages and projects searches authorized destinations and loaded projects. Collapse keeps the global rail available. On a small screen, use bottom navigation and More to open the panel.",
       target: "[data-tour-id='primary-navigation']",
     },
     ...sections.map((section) => ({
@@ -102,7 +102,7 @@ export function getSystemTourSteps(
 export function getPageTourSteps(section: string, page?: string): GuidedTourStep[] {
   const label = page || section;
   if (section === 'projects' && page === 'Projects') return [
-    {id:'project-context',title:'Choose or create a project',description:'Choose a project in Workspaces, or open More on a small screen to see the project tree. Star a project for quick access on this device. Use Projects and proposals for authorized creation, proposal import, saved work plans and proposal review. The plus beside the workspace selector changes visible sections.',target:() => document.querySelector<HTMLElement>("[aria-label='Workspace content']") || document.querySelector<HTMLElement>("[aria-label='Mobile primary navigation']") || document.querySelector<HTMLElement>('[data-tour-page-content]')},
+    {id:'project-context',title:'Choose or create a project',description:'Choose a project in Workspace, or open More on a small screen to see the project tree. Star a project for quick access on this device. Use Projects and proposals for authorized creation, proposal import, saved work plans and proposal review.',target:() => document.querySelector<HTMLElement>("[aria-label='Workspace content']") || document.querySelector<HTMLElement>("[aria-label='Mobile primary navigation']") || document.querySelector<HTMLElement>('[data-tour-page-content]')},
     {id:'project-main-table',title:'Your main working table',description:'Groups organize tasks; expand a task to see its subitems. Your changes use the same records as evidence, reviews and budget workflows.',target:"[data-tour-id='project-main-table']"},
     {id:'project-table-tools',title:'Add and find work',description:'Use New task for individual tasks, or Import PDF beside Add people to add source groups, tasks, dates, priorities and budget estimates directly to this project. Search, filter, sort and choose visible columns within your existing access.',target:"[data-tour-id='project-table-toolbar']"},
     {id:'project-replay',title:'Continue working, or revisit this guide',description:'Open task details for evidence, review and funding. Eligible Office Heads can review staffing suggestions before assigning an owner. Office Heads can open View completion requirements for plan reviews and blockers; governed projects keep Proposal Context. Help → Guide for this page reopens this guide.',target:"[data-tour-id='workspace-help']"},

@@ -1,3 +1,4 @@
+import { readableUiError } from '../../../shared/userFacingError';
 import { MoneyInput } from '../../../components/ui/MoneyInput';
 import { useRef, useState } from "react";
 import { Paperclip, Send } from "lucide-react";
@@ -83,7 +84,7 @@ export function CashRequestForm({
       if (attachment) await uploadCashRequestAttachment({ orgId, requestId, file: attachment });
       await onSaved();
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "The cash request could not be submitted.");
+      setError(readableUiError(caught, "The cash request could not be submitted.", 'write'));
     } finally {
       setBusy(false);
     }

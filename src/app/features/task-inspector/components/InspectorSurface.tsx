@@ -36,7 +36,7 @@ export function InspectorSurface({
         ariaLabel={props.ariaLabel}
         preventClose={props.preventClose}
         onClose={props.onClose}
-        width="max-w-5xl"
+        width="max-w-6xl"
         className="task-dialog-modal"
         bodyClassName="task-dialog-modal__body"
       >

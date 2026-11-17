@@ -1,3 +1,4 @@
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { CalendarDays, CheckCircle2, Plus, Trash2 } from "lucide-react";
 import { MoneyInput } from "../../../components/ui/MoneyInput";
 import type { BudgetScheduledRelease, BudgetSection } from "../types";
@@ -61,13 +62,13 @@ export function BudgetReleaseScheduleEditor({
             </span>
           ) : (
             !disabled && (
-              <button
+              <WorkspaceTooltip content={`Remove release ${index + 1} for ${account.name}`}><button
                 type="button"
                 aria-label={`Remove release ${index + 1} for ${account.name}`}
                 onClick={() => save(rows.filter((r) => r.id !== row.id))}
               >
                 <Trash2 size={15} aria-hidden="true" />
-              </button>
+              </button></WorkspaceTooltip>
             )
           )}
         </div>

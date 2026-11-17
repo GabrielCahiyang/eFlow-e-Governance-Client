@@ -143,7 +143,7 @@ describe("subtask assignee picker", () => {
     fireEvent.change(widget.getByLabelText("New subtask due date"), {
       target: { value: "2026-08-30" },
     });
-    fireEvent.click(widget.getByRole("button", { name: "Standalone" }));
+    fireEvent.click(widget.getByRole("button", { name: "Allow out of order" }));
     fireEvent.click(widget.getByRole("button", { name: "Add" }));
 
     await waitFor(() => {

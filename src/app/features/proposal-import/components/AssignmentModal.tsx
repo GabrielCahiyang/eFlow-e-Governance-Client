@@ -1,3 +1,4 @@
+import { WorkspaceTooltip } from "../../../components/ui/workspace/WorkspaceTooltip";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Crown, Search, X } from "lucide-react";
@@ -110,12 +111,12 @@ export function AssignmentModal({
               Eligible members are grouped by participating organization. Select the crown to choose the proposed Task Leader.
             </div>
           </div>
-          <button
+          <WorkspaceTooltip content="Close assignments"><button aria-label="Close assignments"
             onClick={onClose}
             className="text-neutral-400 hover:text-neutral-700 p-1.5 rounded-lg hover:bg-neutral-100 transition"
           >
             <X size={16} />
-          </button>
+          </button></WorkspaceTooltip>
         </div>
 
         {/* Search */}
@@ -130,12 +131,12 @@ export function AssignmentModal({
               className="flex-1 bg-transparent px-2 text-[12px] font-normal text-neutral-800 placeholder:text-neutral-400 focus:outline-none"
             />
             {search && (
-              <button
+              <WorkspaceTooltip content="Clear search"><button aria-label="Clear search"
                 onClick={() => setSearch("")}
                 className="pr-2.5 text-neutral-400 hover:text-neutral-700"
               >
                 <X size={12} />
-              </button>
+              </button></WorkspaceTooltip>
             )}
           </div>
 
@@ -154,12 +155,12 @@ export function AssignmentModal({
                       <Crown size={10} className="text-amber-500" />
                     )}
                     {getInitials(emp.name)} · {emp.name.split(" ")[0]}
-                    <button
+                    <WorkspaceTooltip content="Remove person"><button aria-label="Remove person"
                       onClick={() => toggle(id)}
                       className="text-violet-400 hover:text-violet-700 ml-0.5"
                     >
                       <X size={10} />
-                    </button>
+                    </button></WorkspaceTooltip>
                   </span>
                 );
               })}
@@ -225,7 +226,7 @@ export function AssignmentModal({
                           {emp.name}
                         </span>
                         {selected && (
-                          <button
+                          <WorkspaceTooltip content={isLead ? "Current team leader" : "Make team leader"}><button aria-label={isLead ? "Current team leader" : "Make team leader"}
                             onClick={(e) => {
                               e.stopPropagation();
                               setDraftAssignment((current) =>
@@ -237,10 +238,10 @@ export function AssignmentModal({
                                 ? "text-amber-500 hover:text-neutral-400"
                                 : "text-neutral-300 hover:text-amber-500"
                             }`}
-                            title={isLead ? "Current team leader" : "Make team leader"}
+
                           >
                             <Crown size={12} />
-                          </button>
+                          </button></WorkspaceTooltip>
                         )}
                       </div>
                       <div className="text-[11px] text-neutral-400 truncate">
@@ -300,7 +301,7 @@ export function AssignmentModal({
               onClick={confirmAssignment}
               className="px-4 py-2 bg-neutral-900 text-white text-[12px] font-semibold rounded-xl hover:bg-neutral-800 transition"
             >
-              Confirm
+              Apply team selection
             </button>
           </div>
         </div>

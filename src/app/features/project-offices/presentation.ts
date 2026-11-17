@@ -18,12 +18,12 @@ export function officeParticipation(o: ProjectOffice, invitation?: Invitation) {
   return invitation?.status === 'expired' ? 'Invitation expired' : 'Invitation pending';
 }
 export function officeStaffingReason(office: ProjectOffice | undefined, user: UserProfile | null | undefined, organizations: Organization[], status: string, governed: boolean, error = '') {
-  if (error) return 'Refresh the authoritative Office data before managing participation.';
+  if (error) return "Reload the latest Office details before changing its project participation.";
   if (!office) return 'This Office participation is no longer available.';
   if (['completed', 'archived'].includes(status)) return 'This project is closed; participation is read only.';
   if (governed) return 'Manage governed participation in Proposal Context.';
   if (office.relationship_type === 'observer') return 'Observers follow progress without staffing work.';
-  if (office.invitation_status !== 'joined') return 'The appointed Office Head must confirm joined participation first.';
+  if (office.invitation_status !== 'joined') return "The appointed Office Head must confirm that this Office is joining the project first.";
   if (!isAppointedOfficeHead(user, organizations) || user?.org_id !== office.office_id) return 'Only the appointed Head of this Office selects its project members.';
   return '';
 }

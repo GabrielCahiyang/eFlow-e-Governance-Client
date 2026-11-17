@@ -66,9 +66,9 @@ export function SecuritySettingsPage() {
   };
 
   return (
-    <div className="max-w-3xl space-y-5">
+    <div className="space-y-5">
       <Surface className="p-5 sm:p-6">
-        <SectionHeading icon={<LockKeyhole size={19} />} eyebrow="Security" title="Change your password" description="For your protection, confirm your current password before choosing a new one." />
+        <SectionHeading icon={<LockKeyhole size={19} />} eyebrow="Password" title="Change password" description="Confirm your current password before setting a new one." />
         <form onSubmit={changePassword} className="mt-6 max-w-xl space-y-4">
           <div>
             <label htmlFor="current-password" className="mb-2 block text-[12px] font-medium text-neutral-700 dark:text-slate-200">Current password</label>

@@ -7,6 +7,7 @@ const reader = createClient(
   import.meta.env.VITE_SUPABASE_ANON_KEY,
   {
     auth: {
+      storageKey: "eflow-public-record-reader",
       persistSession: false,
       autoRefreshToken: false,
       detectSessionInUrl: false,
@@ -60,19 +61,24 @@ export async function loadPublicArchive(
     response = await fetch(url, { signal: AbortSignal.timeout(30000) });
   if (!response.ok)
     throw new Error(
-      "The public archive is unavailable. Its blockchain fingerprint remains recorded.",
+      "The archive couldn’t be loaded. You can still view the certificate and check its blockchain transaction.",
     );
   const bytes = await response.arrayBuffer();
   if (bytes.byteLength > 20 * 1024 * 1024)
     throw new Error("The public archive is too large to display.");
   if ((await sha256(bytes)) !== certificate.manifest_hash)
     throw new Error(
-      "The archive does not match its published fingerprint. Do not rely on this copy.",
+      "The record file does not match the fingerprint in the certificate. Use the certificate to check which version was published.",
     );
-  const text = new TextDecoder().decode(bytes),
+  const text = new TextDecoder().decode(bytes);
+  let manifest: ArchiveManifest;
+  try {
     manifest = JSON.parse(text) as ArchiveManifest;
+  } catch {
+    throw new Error("The record file could not be opened. Check the certificate or contact the project office.");
+  }
   if (
-    manifest.schema_version !== 1 ||
+    !manifest || manifest.schema_version !== 1 ||
     manifest.snapshot_id !== certificate.id ||
     manifest.project_id !== certificate.project_id ||
     !Array.isArray(manifest.files) ||
@@ -94,6 +100,6 @@ export async function publicFile(
   if (!response.ok) throw new Error("This project file is unavailable.");
   const bytes = await response.arrayBuffer();
   if ((await sha256(bytes)) !== expected)
-    throw new Error("This file does not match its published fingerprint.");
+    throw new Error("This file does not match the fingerprint listed in the archive. The download was stopped.");
   return new Blob([bytes], { type: "application/octet-stream" });
 }

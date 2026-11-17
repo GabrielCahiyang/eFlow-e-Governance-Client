@@ -22,11 +22,11 @@ const navigationItems: ShellNavigationItem[] = [
     pages: [{ label: "Dashboard" }],
   },
   {
-    id: "tasks",
+    id: "budget",
     icon: null,
-    label: "Tasks",
+    label: "Office Budget",
     group: "workspaces",
-    pages: [{ label: "My Tasks" }, { label: "Task Board" }],
+    pages: [{ label: "Overview" }, { label: "Budget Board" }],
   },
 ];
 
@@ -57,12 +57,12 @@ describe("Phase 02 productivity sidebar", () => {
     render(<SidebarFixture onPageSelect={onPageSelect} />);
     fireEvent.mouseEnter(screen.getByRole("complementary", { name: "Primary navigation" }));
 
-    fireEvent.click(screen.getByRole("button", { name: "Workspaces" }));
+    fireEvent.click(screen.getByRole("button", { name: "Workspace" }));
     expect(onPageSelect).toHaveBeenCalledWith("dashboard", "Dashboard");
 
-    fireEvent.click(screen.getByRole("button", { name: "Task Board" }));
-    expect(onPageSelect).toHaveBeenLastCalledWith("tasks", "Task Board");
-    expect(screen.getByRole("button", { name: "Task Board" }).getAttribute("aria-current")).toBe("page");
+    fireEvent.click(screen.getByRole("button", { name: "Budget Board" }));
+    expect(onPageSelect).toHaveBeenLastCalledWith("budget", "Budget Board");
+    expect(screen.getByRole("button", { name: "Budget Board" }).getAttribute("aria-current")).toBe("page");
   });
 
   it("keeps labelled global destinations available without hover", () => {
@@ -73,9 +73,44 @@ describe("Phase 02 productivity sidebar", () => {
 
     fireEvent.mouseEnter(sidebar);
     expect(sidebar.getAttribute("data-navigation-density")).toBe("expanded");
-    expect(screen.getByRole("button", { name: "Workspaces" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Workspace" })).toBeTruthy();
 
     fireEvent.mouseLeave(sidebar);
     expect(sidebar.getAttribute("data-navigation-density")).toBe("expanded");
+  });
+
+  it("opens all projects when clicking the Projects folder and toggles project list with its dropdown", () => {
+    const onPageSelect = vi.fn();
+    render(
+      <EflowVibeThemeProvider preference="light">
+        <ProductivitySidebar
+          activePage="Dashboard"
+          activeSection="dashboard"
+          navigationItems={[
+            ...navigationItems,
+            { id: "projects", icon: null, label: "Projects", group: "workspaces", pages: [{ label: "Projects" }] },
+          ]}
+          role="head"
+          projects={[{ id: "proj-1", title: "Community Outreach", status: "active" }]}
+          onPageSelect={onPageSelect}
+        />
+      </EflowVibeThemeProvider>,
+    );
+
+    expect(screen.queryByRole("button", { name: "All projects" })).toBeNull();
+    expect(screen.getByRole("button", { name: "Community Outreach" })).toBeTruthy();
+
+    const sections = Array.from(document.querySelectorAll(".eflow-workspace-section")).map((node) =>
+      node.getAttribute("aria-label"),
+    );
+    expect(sections).toEqual(["Office tools", "Projects", "Favorites", "Archived projects"]);
+    expect(screen.getByRole("button", { name: "Archived projects" }).getAttribute("aria-expanded")).toBe("false");
+
+    fireEvent.click(screen.getByRole("button", { name: "Projects" }));
+    expect(onPageSelect).toHaveBeenLastCalledWith("projects", "Projects");
+
+    fireEvent.click(screen.getByRole("button", { name: "Collapse Projects" }));
+    expect(screen.getByRole("button", { name: "Expand Projects" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Community Outreach" })).toBeNull();
   });
 });

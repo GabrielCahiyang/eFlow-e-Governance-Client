@@ -2,7 +2,7 @@
 import {act,cleanup,fireEvent,render,screen,waitFor} from '@testing-library/react';
 import {afterEach,beforeEach,describe,it,expect,vi} from 'vitest';
 import {installNavigationConfirmation,requestNavigation} from '../../src/app/shared/navigationGuard';
-async function chooseWorkAction(label:string, action:string){const trigger=await screen.findByRole('button',{name:label,exact:true});fireEvent.keyDown(trigger,{key:'Enter'});fireEvent.click(await screen.findByRole('menuitem',{name:action,exact:true}));await screen.findByLabelText('Subtask title');}
+async function chooseWorkAction(_label:string, action:string){fireEvent.click(await screen.findByRole('button',{name:action,exact:true}));await screen.findByLabelText('Subtask title');}
 
 const mocks=vi.hoisted(()=>({actor:'lead',load:vi.fn(),save:vi.fn(),impact:vi.fn()}));
 vi.mock('../../src/app/contexts/AuthContext',()=>({useAuth:()=>({user:{id:mocks.actor}})}));
@@ -77,8 +77,8 @@ describe('R7 checked nested-work UI',()=>{
  it('retains one request and creation identity after a lost response, prevents double saves, and guards drafts',async()=>{
   let reject:(reason:Error)=>void=()=>{};mocks.save.mockImplementationOnce(()=>new Promise((_r,no)=>{reject=no;})).mockImplementation(async(_root,request)=>tree({nodes:[node(),node({id:request.payload.id,title:request.payload.title,parent_subtask_id:null,depth:1})]}));
   const uninstall=installNavigationConfirmation(vi.fn().mockResolvedValue(false));render(<WorkTree rootId="root"/>);
-  await chooseWorkAction('Task work actions','Add subtask');fireEvent.change(screen.getByLabelText('Subtask title'),{target:{value:'Deep work'}});fireEvent.click(screen.getByText('Assign people'));fireEvent.change(screen.getByLabelText('Appointed Lead'),{target:{value:'bob'}});
-  expect(await requestNavigation(vi.fn())).toBe(false);const save=screen.getByRole('button',{name:'Add subtask',exact:true});fireEvent.click(save);fireEvent.click(save);expect(mocks.save).toHaveBeenCalledTimes(1);
+  await chooseWorkAction('Task work actions','Add subtask');fireEvent.change(screen.getByLabelText('Subtask title'),{target:{value:'Deep work'}});fireEvent.change(screen.getByLabelText('Appointed Lead'),{target:{value:'bob'}});
+  expect(await requestNavigation(vi.fn())).toBe(false);const save=screen.getAllByRole('button',{name:'Add subtask',exact:true}).at(-1)!;fireEvent.click(save);fireEvent.click(save);expect(mocks.save).toHaveBeenCalledTimes(1);
   await act(async()=>reject(new Error('Receipt interrupted')));await screen.findByText(/Receipt interrupted/);expect((screen.getByLabelText('Subtask title') as HTMLInputElement).disabled).toBe(true);
   const request=mocks.save.mock.calls[0][1];expect(request.payload).toMatchObject({title:'Deep work',parent:null,lead:'bob',people:['bob']});expect(request.revision).toBe(7);
   fireEvent.click(screen.getByRole('button',{name:'Retry saved request'}));await screen.findByText('Deep work');expect(mocks.save.mock.calls[1][1]).toBe(request);uninstall();

@@ -2,11 +2,12 @@ import {supportsNestedWork,useWorkTree,type WorkTreeController} from '../../nest
 import {useAuth} from '../../../contexts/AuthContext';
 import type {TaskInspectorOrigin} from '../../task-inspector';
 import {LegacySubtaskWorkDrawer} from './LegacySubtaskWorkDrawer';
-import {SubitemInspector} from './SubitemInspector';
+import {SubitemInspector, type SubitemInspectorProps} from './SubitemInspector';
 
 export type SubtaskWorkDrawerProps=Parameters<typeof LegacySubtaskWorkDrawer>[0]&{
  controller?:WorkTreeController;origin?:TaskInspectorOrigin;executionBlocked?:boolean;onChanged?:()=>void;
  initialSection?:'work'|'activity'|'review';
+ presentation?:SubitemInspectorProps['presentation'];
 };
 /** Retained public facade; excluded work keeps the original workflow. */
 export function SubtaskWorkDrawer(props:SubtaskWorkDrawerProps){
@@ -26,5 +27,5 @@ function SupportedSubtaskWorkDrawer(props:SubtaskWorkDrawerProps&{controller:Wor
   return <LegacySubtaskWorkDrawer {...props}/>;
  return <SubitemInspector rootTask={props.parentTask!} itemId={props.subtask!.id} readOnly={props.readOnly}
   canManageDeadline={props.canManageDeadline} currentReviewerId={props.currentReviewerId} prerequisite={props.prerequisite}
-  controller={props.controller} origin={props.origin} initialSection={props.initialSection} executionBlocked={props.executionBlocked} onClose={props.onClose} onChanged={props.onChanged}/>;
+  controller={props.controller} origin={props.origin} initialSection={props.initialSection} presentation={props.presentation} executionBlocked={props.executionBlocked} onClose={props.onClose} onChanged={props.onChanged}/>;
 }
