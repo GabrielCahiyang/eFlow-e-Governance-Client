@@ -116,6 +116,14 @@ export function fetchUserOverrides(userId: string): Promise<UserOverrideRow[]> {
   return readUserOverrides(userId);
 }
 
+export async function fetchIndividualAccess(userId: string) {
+  const [roleRows, overrides] = await Promise.all([
+    readRolePermissions(true),
+    readUserOverrides(userId, true),
+  ]);
+  return { roleRows, overrides };
+}
+
 export async function fetchCustomRoles(): Promise<CustomRoleDefinition[]> {
   const table = (supabase as any)?.from?.("custom_roles");
   if (!table || typeof table.select !== "function") return [];

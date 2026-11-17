@@ -18,13 +18,13 @@ describe('in-page Account Audit details',()=>{
  it('preserves filters, mounted table sorting and return focus without a modal',async()=>{
   api.fetch.mockResolvedValue({events:[event(),event({id:'event-two',actorName:'Ana Cruz'})],total:2});render(<AdminAuditLog/>);
   const search=await screen.findByPlaceholderText('Search person, action or record…');fireEvent.change(search,{target:{value:'profile'}});
-  fireEvent.click(screen.getByRole('button',{name:'Actor',exact:true}));
+  fireEvent.click(screen.getByRole('button',{name:'Changed by',exact:true}));
   const trigger=await inspect();expect(screen.queryByRole('dialog')).toBeNull();expect(screen.queryByRole('table')).toBeNull();
   expect(screen.getByRole('heading',{level:1,name:'Profile updated'})).toBe(document.activeElement);
   expect(document.body.style.overflow).not.toBe('hidden');
   fireEvent.click(screen.getByRole('button',{name:'Back to Account Audit',exact:true}));
   await waitFor(()=>expect(document.activeElement).toBe(trigger));expect(search).toHaveValue('profile');
-  expect(screen.getByRole('columnheader',{name:/Actor/})).toHaveAttribute('aria-sort','ascending');
+  expect(screen.getByRole('columnheader',{name:/Changed by/})).toHaveAttribute('aria-sort','ascending');
   expect(within(screen.getAllByRole('row')[1]).getByText('Ana Cruz')).toBeTruthy();
  });
  it('keeps long changes readable and uses existing nested redaction for metadata and copy values',async()=>{

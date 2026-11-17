@@ -148,6 +148,12 @@ function AdministrativeAuditView() {
           </div>
         }
       />
+      {!error && (
+        <FeedbackState tone="info" title="Latest 500 permitted events">
+          The filters apply to the events loaded into this view.
+          {total === undefined && " The total number of permitted events is unavailable."}
+        </FeedbackState>
+      )}
       {error && (
         <FeedbackState tone="error" title="Audit unavailable" onRetry={() => void refresh()}>
           {error}

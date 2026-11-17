@@ -11,6 +11,7 @@ import {
 import { useProfiles, useOrgs } from "../../../hooks/useSupabaseData";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useToast } from "../../../components/ui/Toast";
+import { Button } from "../../../components/ui/button";
 import {
   ACTION_PERMISSION_KEYS,
   PERMISSIONS_CHANGED_EVENT,
@@ -20,8 +21,7 @@ import {
 import { resolveAccountRoleDisplay, useRoleCatalog } from "../hooks/useRoleCatalog";
 import { resolvePermissions, rolePermissionAllowed } from "../selectors";
 import {
-  fetchRolePermissions,
-  fetchUserOverrides,
+  fetchIndividualAccess,
   setUserOverride,
 } from "../services/permissionService";
 import type { RolePermissionRow, UserOverrideRow } from "../types";
@@ -170,6 +170,9 @@ export function UserAccessTab({
   const [orgFilter, setOrgFilter] = useState("all");
   const [roleRows, setRoleRows] = useState<RolePermissionRow[]>([]);
   const [overrides, setOverrides] = useState<UserOverrideRow[]>([]);
+  const [accessRevision, setAccessRevision] = useState(0);
+  const [loadedAccessKey, setLoadedAccessKey] = useState("");
+  const [accessReadError, setAccessReadError] = useState<{ key: string; message: string }>();
   const [busy, setBusy] = useState(false);
   const [exceptionsOnly, setExceptionsOnly] = useState(false);
   const pending = useRef(false);
@@ -186,6 +189,15 @@ export function UserAccessTab({
   const selected = profiles.find(
     (profile) => profile.id === activeUserId && !isAdminRole(profile.role),
   );
+  const selectedId = selected?.id;
+  const accessKey = `${selectedId}:${accessRevision}`;
+  const accessReady = loadedAccessKey === accessKey;
+  const accessError = accessReadError?.key === accessKey ? accessReadError.message : "";
+  const refreshingAccess = !accessReady && !accessError;
+  const refreshAccess = () => {
+    setFailure("");
+    setAccessRevision((revision) => revision + 1);
+  };
   const orgMap = useMemo(
     () => Object.fromEntries(orgs.map((org) => [org.id, org.name])),
     [orgs],
@@ -221,33 +233,32 @@ export function UserAccessTab({
   };
 
   useEffect(() => {
-    const loadRoles = () => void fetchRolePermissions().then(setRoleRows);
-    loadRoles();
-    if (typeof window === "undefined") return;
-    window.addEventListener(PERMISSIONS_CHANGED_EVENT, loadRoles);
-    return () => window.removeEventListener(PERMISSIONS_CHANGED_EVENT, loadRoles);
+    const onPermissionsChanged = () => setAccessRevision((revision) => revision + 1);
+    window.addEventListener(PERMISSIONS_CHANGED_EVENT, onPermissionsChanged);
+    return () => window.removeEventListener(PERMISSIONS_CHANGED_EVENT, onPermissionsChanged);
   }, []);
   useEffect(() => {
-    if (!activeUserId) {
-      setOverrides([]);
-      return;
-    }
+    if (!selectedId) return;
     let live = true;
+    setLoadedAccessKey("");
+    setAccessReadError(undefined);
+    setRoleRows([]);
     setOverrides([]);
-    void fetchUserOverrides(activeUserId)
-      .then((rows) => {
-        if (live) setOverrides(rows);
+    void fetchIndividualAccess(selectedId)
+      .then(({ roleRows, overrides }) => {
+        if (!live) return;
+        setRoleRows(roleRows);
+        setOverrides(overrides);
+        setLoadedAccessKey(accessKey);
       })
       .catch((error) => {
-        if (live)
-          setFailure(
-            readableUiError(error, "Access could not be read.", 'read'),
-          );
+        if (!live) return;
+        setAccessReadError({ key: accessKey, message: readableUiError(error, "Access could not be read.", 'read') });
       });
     return () => {
       live = false;
     };
-  }, [activeUserId]);
+  }, [selectedId, accessKey]);
 
   const selectedCustomRole = useMemo(
     () =>
@@ -272,7 +283,7 @@ export function UserAccessTab({
   ).length;
 
   const updateOverride = async (permission: string, next: boolean | null) => {
-    if (!selected || !userProfile || pending.current) return;
+    if (!selected || !userProfile || !accessReady || pending.current) return;
     const current = overrides.find((row) => row.permission === permission);
     const currentLabel = !current
       ? "Default"
@@ -290,7 +301,7 @@ export function UserAccessTab({
       if (
         !(await confirmation.confirm({
           title: "Change individual access?",
-          description: `${selected.full_name}: ${PERMISSION_LABELS[permission as keyof typeof PERMISSION_LABELS] || permission} will change from ${currentLabel} to ${nextLabel}. Other accounts stay unchanged.`,
+          description: `${selected.full_name}: ${PERMISSION_LABELS[permission as keyof typeof PERMISSION_LABELS] || permission} will change from ${currentLabel} to ${nextLabel}. The change applies only to this account. This person’s Office access still applies.`,
           actionLabel: "Change access",
         }))
       )
@@ -299,7 +310,6 @@ export function UserAccessTab({
       setResult(
         `${selected.full_name} · ${PERMISSION_LABELS[permission as keyof typeof PERMISSION_LABELS] || permission}: ${next === null ? "Default" : next ? "Allowed" : "Denied"}. Saved.`,
       );
-      setOverrides(await fetchUserOverrides(selected.id));
       toast(
         next === null
           ? "Restored the role default."
@@ -400,6 +410,11 @@ export function UserAccessTab({
         </div>
       ) : (
         <div className="space-y-4">
+          {accessError && (
+            <FeedbackState tone="error" title="Access could not be read">
+              {accessError} Refresh access before making a change.
+            </FeedbackState>
+          )}
           {result && (
             <FeedbackState tone="success" title="Saved access change">
               {result}
@@ -432,6 +447,9 @@ export function UserAccessTab({
                 </div>
               </div>
               <div className="flex flex-wrap items-center gap-2">
+                <Button type="button" variant="outline" size="sm" disabled={busy || refreshingAccess} onClick={refreshAccess}>
+                  {refreshingAccess ? "Refreshing access…" : "Refresh access"}
+                </Button>
                 <div className="eflow-tabular rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-center">
                   <div className="text-[15px] font-semibold">{pageCount}</div>
                   <div className="text-[11px] font-medium text-neutral-500">
@@ -496,7 +514,7 @@ export function UserAccessTab({
               </div>
             </div>
           </header>
-          <fieldset disabled={busy} className="min-w-0">
+          <fieldset disabled={busy || !accessReady} className="min-w-0">
             <AccessRows
               title="Page access"
               permissions={PAGE_PERMISSION_KEYS}
@@ -509,7 +527,7 @@ export function UserAccessTab({
               onSelectOverride={updateOverride}
             />
           </fieldset>
-          <fieldset disabled={busy} className="min-w-0">
+          <fieldset disabled={busy || !accessReady} className="min-w-0">
             <AccessRows
               title="Actions"
               permissions={ACTION_PERMISSION_KEYS}

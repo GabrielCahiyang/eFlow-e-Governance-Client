@@ -72,6 +72,32 @@ test("Admin Center keeps legacy pages, account inspection and unsaved account ed
   await page.screenshot({ path: info.outputPath("admin-access.png") });
 });
 
+test("Individual access can be refreshed after an unavailable read", async ({ page }) => {
+  const { profiles } = await projectWorkspaceFixture(page, "admin");
+  const person = profiles.find((profile) => profile.full_name === "Directory colleague 1")!;
+  let unavailable = true;
+  await page.route("**/rest/v1/user_permission_overrides*", (route) => {
+    const userFilter = new URL(route.request().url()).searchParams.get("user_id");
+    if (userFilter !== `eq.${person.id}`) return route.fallback();
+    return unavailable
+      ? route.fulfill({ status: 400, json: { message: "Access could not be read." } })
+      : route.fulfill({ json: [] });
+  });
+
+  await page.goto("/users?page=User%20Access");
+  await page.getByRole("button", { name: /Directory colleague 1\s/ }).first().click();
+  const refresh = page.getByRole("button", { name: "Refresh access", exact: true });
+  const error = page.getByText("Refresh access before making a change.", { exact: false });
+  const allow = page.getByRole("button", { name: "Allow", exact: true }).first();
+  await expect(error).toBeVisible();
+  await expect(allow).toBeDisabled();
+
+  unavailable = false;
+  await refresh.click();
+  await expect(error).toHaveCount(0);
+  await expect(allow).toBeEnabled();
+});
+
 test("Account audit has bounded coverage, loaded filters, nested redaction and truthful unavailable reads on a phone", async ({
   page,
 }, info) => {
