@@ -31,7 +31,7 @@ describe('canonical project lifecycle controls',()=>{
   utilities('active');expect(screen.queryByRole('button',{name:'Setup & activation'})).toBeNull();
  });
  it('keeps creation and portfolio switching without a second sidebar',async()=>{
-  const create=vi.fn(),open=vi.fn();render(<><ProjectWorkspaceActions canCreate onAllProjects={vi.fn()} onCreate={create} onCreateWithAi={vi.fn()} onImport={vi.fn()} onTemplates={vi.fn()} onSavedPlans={vi.fn()}/><ProjectIndex projects={[project]} tasks={[]} organizations={[]} profiles={[]} onOpen={open} onOpenProposal={vi.fn()}/></>);
+  const create=vi.fn(),open=vi.fn();render(<><ProjectWorkspaceActions canCreate onAllProjects={vi.fn()} onCreate={create} onCreateWithAi={vi.fn()} onTemplates={vi.fn()} onSavedPlans={vi.fn()}/><ProjectIndex projects={[project]} tasks={[]} organizations={[]} profiles={[]} onOpen={open} onOpenProposal={vi.fn()}/></>);
   fireEvent.keyDown(screen.getByRole('button',{name:'+ New'}),{key:'Enter'});
   fireEvent.click(screen.getByRole('menuitem',{name:'Create project'}));await waitFor(()=>expect(create).toHaveBeenCalledOnce());
   fireEvent.click(screen.getByRole('button',{name:project.title,exact:true}));expect(open).toHaveBeenCalledWith(project.id);expect(screen.queryByRole('complementary')).toBeNull();

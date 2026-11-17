@@ -240,12 +240,11 @@ describe('Project starter templates workflow', () => {
     });
   });
 
-  it('keeps one Templates button and puts both AI entry points in the New menu', async () => {
+  it('keeps one Templates button and offers AI creation without standalone PDF import', async () => {
     const onTemplates = vi.fn();
-    const onImport = vi.fn();
     const onCreateWithAi = vi.fn();
     const actions = {
-      onCreate: vi.fn(), onCreateWithAi, onTemplates, onImport, onSavedPlans: vi.fn(),
+      onCreate: vi.fn(), onCreateWithAi, onTemplates, onSavedPlans: vi.fn(),
       onAllProjects: vi.fn(),
     };
     const { rerender } = render(<ProjectWorkspaceActions canCreate {...actions} />);
@@ -257,9 +256,7 @@ describe('Project starter templates workflow', () => {
     const menu = screen.getByRole('button', { name: '+ New' });
     fireEvent.keyDown(menu, { key: 'Enter' });
     expect(screen.queryByRole('menuitem', { name: 'Template library' })).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole('menuitem', { name: 'Import AI PDF' }));
-    await waitFor(() => expect(onImport).toHaveBeenCalledTimes(1));
-    fireEvent.keyDown(menu, { key: 'Enter' });
+    expect(screen.queryByRole('menuitem', { name: 'Import AI PDF' })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('menuitem', { name: 'Create project with AI' }));
     await waitFor(() => expect(onCreateWithAi).toHaveBeenCalledTimes(1));
 

@@ -16,7 +16,6 @@ import { Skeleton } from "@vibe/core";
 import { useDeptDirectoryEmployees } from "../../members";
 import { isTaskLead } from "../../tasks";
 import { ProjectTemplatesModal } from "../../work-templates";
-import { ProposalImportDialog } from "../../proposal-import";
 import { useNotificationNavigationIntent } from "../../notifications";
 import {
   useProjectsData,
@@ -122,7 +121,6 @@ export function ProjectsWorkspace({
   const [activeTab, setActiveTab] = React.useState<ProjectWorkspaceContext>({ id: 'portfolio', type: 'portfolio', title: 'All projects' });
   const [projectWorkspaceTab, setProjectWorkspaceTab] = React.useState<ProjectCommandTab>("tasks");
   const [quickProjectMode, setQuickProjectMode] = React.useState<'manual' | 'pdf'>();
-  const [proposalImportOpen, setProposalImportOpen] = React.useState(false);
   const [requestedProjectTool, setRequestedProjectTool] = React.useState<{ projectId: string; tool: ProjectTool } | null>(null);
   const [deleteTarget, setDeleteTarget] = React.useState<Pick<Project, "id" | "title" | "status" | "publicationState"> | null>(null);
   const [archiveTarget, setArchiveTarget] = React.useState<{ id: string; title: string; isArchived: boolean } | null>(null);
@@ -144,11 +142,6 @@ export function ProjectsWorkspace({
   const baseAccess = resolveProjectWorkspaceAccess(workspaceReadOnly, can);
   const access = { ...baseAccess, canCreate: baseAccess.canCreate && isAppointedOfficeHead(userProfile, orgs) && (!workspaceScope || workspaceScope.workspace.office_id === (userProfile?.org_id || userProfile?.departmentId)) };
   const collaboration = useCollaborationDrafts();
-  const { refresh: refreshCollaboration } = collaboration;
-  const closeProposalImport = React.useCallback(() => {
-    setProposalImportOpen(false);
-    void refreshCollaboration().catch(() => {});
-  }, [refreshCollaboration]);
   const activeCollaborationDrafts = React.useMemo(
     () => collaboration.drafts.filter(isActiveCollaborationDraft),
     [collaboration.drafts],
@@ -387,7 +380,6 @@ export function ProjectsWorkspace({
       <div className="eflow-ide-workspace__content" hidden={!!completionTaskId}>
       {activeTab.type !== "project" && <ProjectWorkspaceActions onAllProjects={() => { void requestNavigation(openIndex); }} canCreate={access.canCreate} disabledReason={baseAccess.canCreate && !access.canCreate ? workspaceScope && workspaceScope.workspace.office_id !== currentOrgId ? 'Return to your office to create a project.' : 'Only the appointed Office Head can create projects.' : undefined} onCreate={() => setQuickProjectMode('manual')} onCreateWithAi={() => setQuickProjectMode('pdf')}
         onTemplates={() => setTemplatesOpen(true)}
-        onImport={() => setProposalImportOpen(true)}
         onSavedPlans={() => { void requestNavigation(() => openPlanning('drafts')); }}
         departmentFilter={scope.includeAllAccessibleWork ? { value: departmentFilter, options: departmentFilterOptions, onChange: value => { void requestNavigation(() => changeDepartmentFilter(value)); } } : undefined} />}
       {contextNotice && <FeedbackState tone="warning" title="Project unavailable">{contextNotice}<button type="button" onClick={() => setContextNotice('')}>Dismiss</button></FeedbackState>}
@@ -517,9 +509,6 @@ export function ProjectsWorkspace({
         />
       )}
 
-      {access.canCreate && proposalImportOpen && (
-        <ProposalImportDialog onClose={closeProposalImport} />
-      )}
 
       {archiveTarget && (
         <ProjectArchiveDialog

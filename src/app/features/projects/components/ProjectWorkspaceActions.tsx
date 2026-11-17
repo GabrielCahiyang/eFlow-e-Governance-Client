@@ -3,9 +3,9 @@ import { useRef } from 'react';
 import { requestNavigation } from '../../../shared/navigationGuard';
 
 /** Retained project workflows live in the content toolbar, separately from section visibility. */
-export function ProjectWorkspaceActions({ canCreate, disabledReason, onCreate, onCreateWithAi, onTemplates, onImport, onSavedPlans, onAllProjects, departmentFilter }: {
+export function ProjectWorkspaceActions({ canCreate, disabledReason, onCreate, onCreateWithAi, onTemplates, onSavedPlans, onAllProjects, departmentFilter }: {
   canCreate: boolean; disabledReason?: string; onCreate: () => void;
-  onCreateWithAi: () => void; onTemplates: () => void; onImport: () => void; onSavedPlans: () => void; onAllProjects: () => void;
+  onCreateWithAi: () => void; onTemplates: () => void; onSavedPlans: () => void; onAllProjects: () => void;
   departmentFilter?: { value: string; options: { value: string; label: string }[]; onChange: (value: string) => void };
 }) {
   const trigger = useRef<HTMLButtonElement>(null);
@@ -24,7 +24,6 @@ export function ProjectWorkspaceActions({ canCreate, disabledReason, onCreate, o
       }} actions={[
       { id: 'project', label: 'Create project', onSelect: () => queueDialog(onCreate) },
       { id: 'project-ai', label: 'Create project with AI', onSelect: () => queueDialog(onCreateWithAi) },
-      { id: 'import-ai-pdf', label: 'Import AI PDF', onSelect: () => queueDialog(onImport) },
     ]} />}
     {!canCreate && disabledReason && <><button type="button" className="eflow-project-new" disabled aria-describedby="project-create-reason">+ New</button><span id="project-create-reason" className="eflow-project-create-reason">{disabledReason}</span></>}
     <button type="button" className="eflow-project-view-trigger" onClick={onAllProjects}>All projects</button>

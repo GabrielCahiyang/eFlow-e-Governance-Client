@@ -3,57 +3,6 @@ import { resolve } from "node:path";
 import { expect, test } from "@playwright/test";
 import { projectWorkspaceFixture } from "./fixtures/projectWorkspace";
 
-test("New menu imports the real OCEDSIPP PDF into a review draft", async ({ page }) => {
-  test.setTimeout(120_000);
-  const pdf = resolve("Project-Proposal-OCEDSIPP-Final-Version.pdf");
-  test.skip(!existsSync(pdf), "Local acceptance PDF is unavailable.");
-  const { org, id } = await projectWorkspaceFixture(page, "head");
-  await page.getByRole("button", { name: "← All projects", exact: true }).click();
-  await page.route("**/controlpanelEflow/api/ai/status", route => route.fulfill({ json: {
-    ai_endpoint: "http://127.0.0.1:5190/controlpanelEflow/api",
-    ai_endpoint_status: "online",
-    ai_endpoint_heartbeat: new Date().toISOString(),
-  } }));
-  await page.route("**/controlpanelEflow/api/proposals/validate", route => route.fulfill({ json: { is_proposal: true, score: 100 } }));
-  await page.route("**/controlpanelEflow/api/ai/jobs", route => {
-    const table = route.request().postDataJSON().pdf_table_enrichment;
-    expect(table.tasks).toHaveLength(10);
-    expect(table.tasks[0].title).toBe("Kick Off Meeting");
-    expect(table.costs).toHaveLength(16);
-    return route.fulfill({ status: 202, json: {
-      job_id: "pdf-enrichment", status: "completed", jobs_ahead: 0, result: { message: { content: JSON.stringify({
-        // Reverse the suggestions to prove that IDs, rather than position, link them.
-        tasks: table.tasks.map(({ key }: { key: string }) => ({ key, priority: "high", estimatedHours: 8 })).reverse(),
-        allocations: table.costs.map(({ sourceId }: { sourceId: string }, index: number) => ({ sourceId, taskId: table.tasks[index % 10].key })),
-      }) } },
-    } });
-  });
-  const draftId = "d106989e-f550-45e1-b1d7-0291a301a473";
-  let created = 0;
-  await page.route("**/rest/v1/rpc/create_collaboration_draft", route => {
-    const { p_snapshot: snapshot, p_title: title } = route.request().postDataJSON();
-    const { tasks } = snapshot;
-    expect(tasks).toHaveLength(10);
-    expect(tasks[0]).toMatchObject({ title: "Kick Off Meeting", assignedMemberIds: [], leadMemberId: null });
-    expect(tasks[0].subtasks).toContain("Prepare presentation");
-    expect(tasks.flatMap((task: { budgetLines: { amount: number }[] }) => task.budgetLines).reduce((sum: number, line: { amount: number }) => sum + line.amount, 0)).toBe(2_156_500);
-    created++;
-    return route.fulfill({ json: { id: draftId, title, owner_org_id: org, owner_user_id: id, source_type: "ai_pdf", status: "draft", working_snapshot: snapshot } });
-  });
-  await page.route("**/storage/v1/object/proposal-drafts/**", route => route.fulfill({ json: { Key: `proposal-drafts/${draftId}/source.pdf` } }));
-  await page.route("**/rest/v1/rpc/set_collaboration_source_document", route => route.fulfill({ json: null }));
-
-  await page.getByRole("button", { name: "+ New", exact: true }).click();
-  await page.getByRole("menuitem", { name: "Import AI PDF", exact: true }).click();
-  const dialog = page.getByRole("dialog", { name: "Import AI PDF" });
-  await dialog.getByRole("checkbox", { name: /Suggest people/ }).uncheck();
-  await dialog.locator('input[type="file"]').setInputFiles(pdf);
-  expect(created).toBe(0);
-  await dialog.getByRole("button", { name: "Start import", exact: true }).click();
-  await expect(dialog.getByRole("region", { name: "Work-plan draft review" })).toBeVisible({ timeout: 40_000 });
-  expect(created).toBe(1);
-});
-
 for (const uncertain of [false, true])
   test(`PDF imports into the current project table${uncertain ? " with a safe retry" : ""}`, async ({
     page,
