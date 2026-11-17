@@ -1,16 +1,38 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigationBlocker } from "../../../shared/navigationGuard";
 import {
-  DEFAULT_PRESENTATION,
-  fetchPresentationSettings,
-  savePresentationSettings,
-  validatePresentationSettings,
+  DEFAULT_GENERAL_SETTINGS,
+  fetchGeneralSystemSettings,
+  saveGeneralSystemSettings,
   SettingsWriteError,
-  type PresentationSettings,
+  validateGeneralSystemSettings,
+  type GeneralSystemSettings,
 } from "./settingsService";
+
+function normalizeGeneralForm(
+  values?: Partial<GeneralSystemSettings> | null,
+): GeneralSystemSettings {
+  return {
+    organization_name:
+      values?.organization_name || DEFAULT_GENERAL_SETTINGS.organization_name,
+    organization_subtitle: values?.organization_subtitle ?? "",
+    support_email: values?.support_email ?? "",
+    activation_expiry_hours:
+      values?.activation_expiry_hours || DEFAULT_GENERAL_SETTINGS.activation_expiry_hours,
+    default_email_notifications_enabled:
+      values?.default_email_notifications_enabled ||
+      DEFAULT_GENERAL_SETTINGS.default_email_notifications_enabled,
+    maintenance_banner_enabled:
+      values?.maintenance_banner_enabled ||
+      DEFAULT_GENERAL_SETTINGS.maintenance_banner_enabled,
+    maintenance_banner_message: values?.maintenance_banner_message ?? "",
+    due_soon_days: values?.due_soon_days || DEFAULT_GENERAL_SETTINGS.due_soon_days,
+  };
+}
+
 export function useApplicationSettingsForm(canManage: boolean) {
-  const [saved, setSaved] = useState<PresentationSettings>();
-  const [form, setForm] = useState<PresentationSettings>(DEFAULT_PRESENTATION);
+  const [saved, setSaved] = useState<GeneralSystemSettings>();
+  const [form, setForm] = useState<GeneralSystemSettings>(DEFAULT_GENERAL_SETTINGS);
   const [loading, setLoading] = useState(true),
     [pending, setPending] = useState(false),
     [error, setError] = useState(""),
@@ -21,47 +43,40 @@ export function useApplicationSettingsForm(canManage: boolean) {
     attempt = useRef<
       | {
           id: string;
-          expected: PresentationSettings;
-          values: PresentationSettings;
+          expected: GeneralSystemSettings;
+          values: GeneralSystemSettings;
         }
       | undefined
     >(undefined);
+
   const dirty =
     !!saved &&
-    JSON.stringify(form) !==
-      JSON.stringify({
-        organization_name:
-          saved.organization_name || DEFAULT_PRESENTATION.organization_name,
-        app_version: saved.app_version || DEFAULT_PRESENTATION.app_version,
-      });
+    JSON.stringify(normalizeGeneralForm(form)) !==
+      JSON.stringify(normalizeGeneralForm(saved));
+
   const resetDraft = () => {
-    setForm({
-      organization_name:
-        saved?.organization_name || DEFAULT_PRESENTATION.organization_name,
-      app_version: saved?.app_version || DEFAULT_PRESENTATION.app_version,
-    });
+    setForm(normalizeGeneralForm(saved));
     setUncertain(false);
     attempt.current = undefined;
   };
+
   useNavigationBlocker({
-    label: "Application settings",
+    label: "General settings",
     dirty: dirty || uncertain,
     pending,
     onDiscard: resetDraft,
   });
+
   const load = async () => {
     if (busy.current) return;
     setLoading(true);
     setError("");
     try {
-      const data = await fetchPresentationSettings();
+      const data = await fetchGeneralSystemSettings();
       if (live.current) {
-        setSaved(data);
-        setForm({
-          organization_name:
-            data.organization_name || DEFAULT_PRESENTATION.organization_name,
-          app_version: data.app_version || DEFAULT_PRESENTATION.app_version,
-        });
+        const normalized = normalizeGeneralForm(data);
+        setSaved(normalized);
+        setForm(normalized);
       }
     } catch (reason) {
       if (live.current)
@@ -72,6 +87,7 @@ export function useApplicationSettingsForm(canManage: boolean) {
       if (live.current) setLoading(false);
     }
   };
+
   useEffect(() => {
     live.current = true;
     void load();
@@ -79,6 +95,7 @@ export function useApplicationSettingsForm(canManage: boolean) {
       live.current = false;
     };
   }, []);
+
   const save = async () => {
     if (busy.current || !saved || !canManage) return;
     busy.current = true;
@@ -89,25 +106,32 @@ export function useApplicationSettingsForm(canManage: boolean) {
       id: crypto.randomUUID(),
       expected: saved,
       values: {
-        organization_name: form.organization_name?.trim() || "",
-        app_version: form.app_version?.trim() || "",
+        organization_name: form.organization_name.trim(),
+        organization_subtitle: form.organization_subtitle.trim(),
+        support_email: form.support_email.trim(),
+        activation_expiry_hours: form.activation_expiry_hours,
+        default_email_notifications_enabled: form.default_email_notifications_enabled,
+        maintenance_banner_enabled: form.maintenance_banner_enabled,
+        maintenance_banner_message: form.maintenance_banner_message.trim(),
+        due_soon_days: form.due_soon_days,
       },
     };
     try {
-      validatePresentationSettings(current.values);
+      validateGeneralSystemSettings(current.values);
       attempt.current = current;
-      const data = await savePresentationSettings(
+      const data = await saveGeneralSystemSettings(
         current.id,
         current.expected,
         current.values,
       );
       if (live.current) {
-        setSaved(data);
-        setForm(data);
+        const normalized = normalizeGeneralForm(data);
+        setSaved(normalized);
+        setForm(normalized);
         setUncertain(false);
         attempt.current = undefined;
         setReceipt(
-          "Presentation settings saved and audited. Branding updates now; other sessions refresh on focus or within 60 seconds.",
+          "General settings saved and audited. Updates apply across open sessions automatically.",
         );
       }
     } catch (reason) {
@@ -128,6 +152,7 @@ export function useApplicationSettingsForm(canManage: boolean) {
       if (live.current) setPending(false);
     }
   };
+
   return {
     saved,
     form,

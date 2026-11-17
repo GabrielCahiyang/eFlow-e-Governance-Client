@@ -1,7 +1,8 @@
+import { Building2, CalendarClock, Info, MailCheck, Megaphone, RotateCcw } from "lucide-react";
 import { useAuth } from "../../../contexts/AuthContext";
 import { Button } from "../../../components/ui/button";
+import { FeedbackState } from "../../../components/ui/FeedbackState";
 import { WorkspaceHeader } from "../../../components/ui/workspace";
-import { ConfigurationMatrix } from "./ConfigurationMatrix";
 import { useApplicationSettingsForm } from "./useApplicationSettingsForm";
 import { requestNavigation } from "../../../shared/navigationGuard";
 
@@ -13,9 +14,9 @@ function ApplicationSettingsFormSkeleton() {
       aria-label="Loading application settings"
     >
       <span className="sr-only">Loading application settings</span>
-      <div aria-hidden="true" className="space-y-4">
+      <div aria-hidden="true" className="eflow-admin-card space-y-4">
         <div className="space-y-2">
-          <div className="h-3.5 w-32 animate-pulse rounded bg-neutral-200/80" />
+          <div className="h-4 w-36 animate-pulse rounded bg-neutral-200/80" />
           <div className="h-10 w-full max-w-md animate-pulse rounded-lg border border-neutral-200 bg-neutral-100" />
           <div className="h-3 w-72 animate-pulse rounded bg-neutral-100" />
         </div>
@@ -28,16 +29,18 @@ function ApplicationSettingsFormSkeleton() {
   );
 }
 
-export function ApplicationSettings() {
+export function ApplicationSettings({ embedded = false }: { embedded?: boolean }) {
   const { user, can } = useAuth();
   return (
     <SettingsForm
       key={user?.id || "unassigned"}
       canManage={can("settings.manage")}
+      embedded={embedded}
     />
   );
 }
-function SettingsForm({ canManage }: { canManage: boolean }) {
+
+function SettingsForm({ canManage, embedded }: { canManage: boolean; embedded: boolean }) {
   const {
     saved,
     form,
@@ -52,100 +55,305 @@ function SettingsForm({ canManage }: { canManage: boolean }) {
     save,
     resetDraft,
   } = useApplicationSettingsForm(canManage);
+
+  const locked = !canManage || pending || uncertain;
+
   return (
     <div className="eflow-admin-configuration">
-      <WorkspaceHeader
-        title="System Settings"
-        description="Application presentation settings. Sessions, workspace calendars and provider policies have separate authorities."
-      />
+      {!embedded && (
+        <WorkspaceHeader
+          title="General settings"
+          description="Manage organization branding, invitation defaults, deadline rules, and maintenance notices."
+        />
+      )}
       {loading ? (
         <ApplicationSettingsFormSkeleton />
       ) : (
         <>
           {error && (
-            <div className="eflow-analytics-error" role="alert">
+            <FeedbackState tone="error" title="Could not update settings">
               {error}
-            </div>
+            </FeedbackState>
           )}
-          {receipt && <p role="status">{receipt}</p>}
+          {receipt && (
+            <FeedbackState tone="success" title="Settings updated">
+              {receipt}
+            </FeedbackState>
+          )}
           {!saved ? (
-            <Button onClick={() => void load()}>Retry settings</Button>
+            <div className="eflow-admin-card space-y-3">
+              <p className="text-sm text-[var(--eflow-text-muted)]">
+                Organization settings could not be loaded.
+              </p>
+              <Button variant="outline" onClick={() => void load()}>
+                Retry settings
+              </Button>
+            </div>
           ) : (
             <form
               onSubmit={(e) => {
                 e.preventDefault();
                 void save();
               }}
-              className="eflow-admin-settings-form"
+              className="space-y-4"
             >
-              <label>
-                Organization Name
-                <input
-                  maxLength={120}
-                  required
-                  disabled={!canManage || pending || uncertain}
-                  value={form.organization_name || ""}
-                  onChange={(e) =>
-                    setForm({ ...form, organization_name: e.target.value })
-                  }
-                />
-                <small>
-                  Workspace utility-bar branding; Office names and appointments
-                  are unchanged.
-                </small>
-              </label>
-              <div className="eflow-admin-actions">
-                <Button
-                  type="submit"
-                  disabled={!canManage || pending || (!dirty && !uncertain)}
-                >
-                  {pending
-                    ? "Saving…"
-                    : uncertain
-                      ? "Verify settings save"
-                      : "Save Settings"}
-                </Button>
-                {!pending && (dirty || uncertain) && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    disabled={uncertain}
-                    onClick={resetDraft}
+              <div className="eflow-admin-card eflow-admin-settings-form">
+                <div className="eflow-admin-card__title-row">
+                  <span className="eflow-admin-icon-chip" aria-hidden="true">
+                    <Building2 size={16} />
+                  </span>
+                  <div>
+                    <h2>System branding &amp; export header</h2>
+                    <p className="eflow-admin-copy">
+                      Shown in the top navigation bar, exported CSV/PDF report headers, and invitation emails.
+                    </p>
+                  </div>
+                </div>
+
+                <label>
+                  Organization Name
+                  <input
+                    maxLength={120}
+                    required
+                    disabled={locked}
+                    value={form.organization_name}
+                    onChange={(e) =>
+                      setForm({ ...form, organization_name: e.target.value })
+                    }
+                  />
+                </label>
+
+                <label>
+                  Organization Full Name / Header Subtitle
+                  <input
+                    maxLength={160}
+                    disabled={locked}
+                    placeholder="e.g. Local Economic Development and Investment Promotions Office"
+                    value={form.organization_subtitle}
+                    onChange={(e) =>
+                      setForm({ ...form, organization_subtitle: e.target.value })
+                    }
+                  />
+                  <small>
+                    Optional agency or city title printed on exported reports and activation emails.
+                  </small>
+                </label>
+
+                <label>
+                  Support / Reply-To Email
+                  <input
+                    type="email"
+                    maxLength={254}
+                    disabled={locked}
+                    placeholder="support@eflow.gov.ph"
+                    value={form.support_email}
+                    onChange={(e) =>
+                      setForm({ ...form, support_email: e.target.value })
+                    }
+                  />
+                  <small>
+                    Included in invitation email footers and used as the reply-to contact when present.
+                  </small>
+                </label>
+              </div>
+
+              <div className="eflow-admin-card eflow-admin-settings-form">
+                <div className="eflow-admin-card__title-row">
+                  <span className="eflow-admin-icon-chip" aria-hidden="true">
+                    <MailCheck size={16} />
+                  </span>
+                  <div>
+                    <h2>Account &amp; invitation defaults</h2>
+                    <p className="eflow-admin-copy">
+                      Configure activation link lifetime and starting notification preferences for new accounts.
+                    </p>
+                  </div>
+                </div>
+
+                <label>
+                  Activation Link Expiry
+                  <select
+                    disabled={locked}
+                    value={form.activation_expiry_hours}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        activation_expiry_hours: e.target.value as "24" | "72" | "168",
+                      })
+                    }
                   >
-                    Reset draft
+                    <option value="24">24 hours</option>
+                    <option value="72">3 days (72 hours)</option>
+                    <option value="168">7 days (168 hours)</option>
+                  </select>
+                  <small>
+                    Controls how long new email activation links stay valid before needing a resend.
+                  </small>
+                </label>
+
+                <label className="!flex-row items-start gap-3 !font-normal cursor-pointer">
+                  <input
+                    type="checkbox"
+                    disabled={locked}
+                    checked={form.default_email_notifications_enabled === "true"}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        default_email_notifications_enabled: e.target.checked
+                          ? "true"
+                          : "false",
+                      })
+                    }
+                    className="mt-0.5 !h-4 !w-4 shrink-0"
+                  />
+                  <span>
+                    <span className="block text-[13px] font-medium text-[var(--eflow-text)]">
+                      Enable email notifications for newly activated accounts
+                    </span>
+                    <small>
+                      Users can still change their own notification preferences in Account settings afterward.
+                    </small>
+                  </span>
+                </label>
+              </div>
+
+              <div className="eflow-admin-card eflow-admin-settings-form">
+                <div className="eflow-admin-card__title-row">
+                  <span className="eflow-admin-icon-chip" aria-hidden="true">
+                    <CalendarClock size={16} />
+                  </span>
+                  <div>
+                    <h2>Work &amp; deadline rules</h2>
+                    <p className="eflow-admin-copy">
+                      Controls when upcoming project, task, and subtask deadlines switch to “Due soon”.
+                    </p>
+                  </div>
+                </div>
+
+                <label>
+                  “Due soon” Warning Window
+                  <select
+                    disabled={locked}
+                    value={form.due_soon_days}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        due_soon_days: e.target.value as "1" | "2" | "3" | "5" | "7",
+                      })
+                    }
+                  >
+                    <option value="1">1 day before due date</option>
+                    <option value="2">2 days before due date</option>
+                    <option value="3">3 days before due date</option>
+                    <option value="5">5 days before due date</option>
+                    <option value="7">7 days before due date</option>
+                  </select>
+                </label>
+              </div>
+
+              <div className="eflow-admin-card eflow-admin-settings-form">
+                <div className="eflow-admin-card__title-row">
+                  <span className="eflow-admin-icon-chip" aria-hidden="true">
+                    <Megaphone size={16} />
+                  </span>
+                  <div>
+                    <h2>Maintenance notice banner</h2>
+                    <p className="eflow-admin-copy">
+                      Display a temporary advisory banner at the top of the workspace for all signed-in users.
+                    </p>
+                  </div>
+                </div>
+
+                <label className="!flex-row items-start gap-3 !font-normal cursor-pointer">
+                  <input
+                    type="checkbox"
+                    disabled={locked}
+                    checked={form.maintenance_banner_enabled === "true"}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        maintenance_banner_enabled: e.target.checked
+                          ? "true"
+                          : "false",
+                      })
+                    }
+                    className="mt-0.5 !h-4 !w-4 shrink-0"
+                  />
+                  <span>
+                    <span className="block text-[13px] font-medium text-[var(--eflow-text)]">
+                      Show system-wide notice banner
+                    </span>
+                    <small>
+                      Updates open sessions automatically when saved.
+                    </small>
+                  </span>
+                </label>
+
+                <label>
+                  Notice Message
+                  <textarea
+                    rows={2}
+                    maxLength={240}
+                    disabled={locked}
+                    placeholder="e.g. Scheduled maintenance tonight from 9:00 PM to 9:30 PM. Please save open work."
+                    value={form.maintenance_banner_message}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        maintenance_banner_message: e.target.value,
+                      })
+                    }
+                  />
+                </label>
+
+                <div className="eflow-admin-actions pt-1">
+                  <Button
+                    type="submit"
+                    disabled={!canManage || pending || (!dirty && !uncertain)}
+                  >
+                    {pending
+                      ? "Saving…"
+                      : uncertain
+                        ? "Verify settings save"
+                        : "Save Settings"}
                   </Button>
+                  {!pending && (dirty || uncertain) && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      disabled={uncertain}
+                      onClick={resetDraft}
+                    >
+                      <RotateCcw size={14} aria-hidden="true" />
+                      Reset draft
+                    </Button>
+                  )}
+                  {!pending && !uncertain && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => void requestNavigation(() => void load())}
+                    >
+                      Reload settings
+                    </Button>
+                  )}
+                </div>
+                {uncertain && (
+                  <FeedbackState tone="warning" title="Confirming save">
+                    Connection was interrupted while saving. Use Verify settings save to confirm whether the change succeeded.
+                  </FeedbackState>
                 )}
-                {!pending && !uncertain && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={() => void requestNavigation(() => void load())}
-                  >
-                    Reload settings
-                  </Button>
+                {!canManage && (
+                  <p className="eflow-admin-note">
+                    <Info size={14} aria-hidden="true" />
+                    <span>Read-only view. Your account needs settings management permission to save changes.</span>
+                  </p>
                 )}
               </div>
-              {uncertain && (
-                <p>
-                  Saving was not confirmed. Verify with the same request before
-                  editing or repeating a change. Navigation offers an explicit
-                  discard.
-                </p>
-              )}
-              {!canManage && (
-                <p>
-                  Read only. The settings.manage capability is required to save.
-                </p>
-              )}
             </form>
           )}
         </>
       )}
-      <ConfigurationMatrix
-        embedded
-        area="application"
-        title="Application configuration status"
-      />
     </div>
   );
 }

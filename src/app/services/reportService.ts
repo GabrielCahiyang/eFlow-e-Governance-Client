@@ -9,6 +9,7 @@
 //        table, and an optional chart snapshot (SVG/canvas dataURL).
 
 import { recordAudit } from './auditService';
+import { getExportBrandHeader } from '../shared/systemRuntimeConfig';
 import {
   escapeCsv as formatCsvValue,
   escapeHtml as formatHtmlValue,
@@ -127,7 +128,7 @@ export function buildReportHtml<T>(rows: T[], columns: ReportColumn<T>[], meta: 
     @media print { body { margin:0; } @page { size:A4 landscape; margin:12mm; @bottom-right { content:"Page " counter(page) " of " counter(pages); font-size:9pt; } } }
   </style></head>
   <body>
-    <div class="brand"><div class="mark">eF</div><div class="name">eFlow · Ormoc City e-Governance</div></div>
+    <div class="brand"><div class="mark">eF</div><div class="name">${escapeHtml(getExportBrandHeader())}</div></div>
     <h1>${escapeHtml(meta.title)}</h1>
     ${meta.subtitle ? `<div class="subtitle">${escapeHtml(meta.subtitle)}</div>` : ''}
     <div class="meta">Generated ${escapeHtml(generatedAt)} · ${rows.length} row(s)</div>

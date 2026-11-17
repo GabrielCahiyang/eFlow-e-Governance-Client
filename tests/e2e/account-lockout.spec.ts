@@ -12,13 +12,14 @@ test('Admin changes the limit and must confirm before unlocking',async({page})=>
     return route.fulfill({json:{max_attempts:limit,accounts}});
   });
   await page.goto('/users?page=Locked%20out%20accounts');
-  await expect(page.getByRole('heading',{name:'Locked out accounts',exact:true})).toBeVisible({timeout:30000});
+  await expect(page.getByRole('heading',{name:'People & Accounts',exact:true})).toBeVisible({timeout:30000});
+  await expect(page.getByRole('heading',{name:'Sign-in lockout rules',exact:true})).toBeVisible();
   const categories=page.getByRole('navigation',{name:'Admin Center destinations'});
-  await expect(categories.getByRole('button')).toHaveCount(10);
-  await expect(categories.getByRole('button',{name:'Locked out accounts',exact:true})).toHaveAttribute('aria-current','page');
+  await expect(categories.getByRole('button')).toHaveCount(5);
+  await expect(categories.getByRole('button',{name:'People & Accounts',exact:true})).toHaveAttribute('aria-current','page');
   await expect(page.getByText('locked@example.test',{exact:true})).toBeVisible();
   await page.getByRole('spinbutton',{name:'Failed attempts before lockout'}).fill('5');
-  await categories.getByRole('button',{name:'All Users',exact:true}).click();
+  await categories.getByRole('button',{name:'Roles & Access',exact:true}).click();
   const discard=page.getByRole('alertdialog');
   await expect(discard).toBeVisible();
   await discard.getByRole('button',{name:'Keep editing',exact:true}).click();

@@ -30,7 +30,7 @@ export function AuditEventFeed({
 }: {
   events: AuditEvent[];
   entityLabel: (event: AuditEvent) => string;
-  onSelect: (event: AuditEvent) => void;
+  onSelect: (event: AuditEvent, trigger: HTMLElement) => void;
 }) {
   return (
     <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
@@ -45,7 +45,7 @@ export function AuditEventFeed({
         {events.map((event) => {
           const tone = auditActionTone(event.action);
           return (
-            <button key={event.id} type="button" onClick={() => onSelect(event)} className="group flex w-full items-center gap-3.5 px-4 py-3.5 text-left transition-colors hover:bg-neutral-50/80 sm:px-5">
+            <button key={event.id} type="button" onClick={(click) => onSelect(event, click.currentTarget)} className="group flex w-full items-center gap-3.5 px-4 py-3.5 text-left transition-colors hover:bg-neutral-50/80 sm:px-5">
               <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border ${TONE_STYLE[tone]}`}><ToneIcon tone={tone} /></span>
               <InitialsAvatar name={event.actorName} size={34} />
               <div className="min-w-0 flex-1">

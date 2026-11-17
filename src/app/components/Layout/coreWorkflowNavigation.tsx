@@ -155,7 +155,7 @@ const EMPLOYEE_NAV_ITEMS: CoreRoleNavItem[] = [
  * text; they are no longer overloaded as the primary navigation structure.
  */
 const CORE_WORKFLOW_NAVIGATION: Record<string, CoreRoleNavigation> = {
-  admin: { defaultSection: "users", navItems: [{id:"users", icon:<UserMultiple size={16} />,label:"User Management",page:"All Users",group:"Administration"}] },
+  admin: { defaultSection: "users", navItems: [{id:"users", icon:<UserMultiple size={16} />,label:"People & Accounts",page:"People & Accounts",group:"Administration"}] },
   /**
    * accounting_staff: All standard employee sections are kept intact so that
    * assigning accounting access is purely additive — the person retains their

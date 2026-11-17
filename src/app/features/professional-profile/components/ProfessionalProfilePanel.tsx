@@ -7,15 +7,19 @@ import { useExplicitDraft } from '../../../shared/useExplicitDraft';
 import { requestNavigation } from '../../../shared/navigationGuard';
 import { professionalFields, type ProfessionalProfile, type ProfessionalValues, type PdsDocument } from '../types';
 import { confirmProfessionalProfile, getMyPds, getPdsDownload, getPdsDraft, getProfessionalProfile, retryPds, updateProfessionalProfile, uploadPds } from '../services/professionalProfileService';
+import { SkillTagSelector } from '../../../components/ui/SkillTagSelector';
+import { useSkillTags } from '../../../shared/skillTags';
 import '../../invitations/invitations.css';
 import '../professionalProfile.css';
 
 const labels = { skills: 'Skills', education: 'Education', trainings: 'Training', certifications: 'Certifications', work_experience: 'Work experience', specializations: 'Specializations' };
 const emptyValues = (): ProfessionalValues => ({ skills: [], education: [], trainings: [], certifications: [], work_experience: [], specializations: [], competency_summary: '' });
-export function ProfessionalProfilePanel({ userId,projectRequestId }: { userId?: string;projectRequestId?:string }) {
+export function ProfessionalProfilePanel({ userId, projectRequestId, availableSkills }: { userId?: string; projectRequestId?: string; availableSkills?: readonly string[] }) {
   const confirmation = useConfirmation();
   const [notice, setNotice] = useState(''), [pollError, setPollError] = useState('');
   const { user } = useAuth(); const id = userId || user?.id; const own = id === user?.id;
+  const { activeLabels: liveSkillTags, loading: loadingSkillTags } = useSkillTags(!(availableSkills && availableSkills.length > 0));
+  const skillOptions = availableSkills && availableSkills.length > 0 ? availableSkills : liveSkillTags;
   const [profile, setProfile] = useState<ProfessionalProfile | null>(null); const [draft, setDraft] = useState<ProfessionalValues>(emptyValues);
   const [documents, setDocuments] = useState<PdsDocument[]>([]); const [error, setError] = useState(''); const [busy, setBusy] = useState(false); const [editing, setEditing] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -55,7 +59,21 @@ export function ProfessionalProfilePanel({ userId,projectRequestId }: { userId?:
     <p className="eflow-invite-help">Keep only work-relevant skills, experience, and qualifications. Private PDS details stay out of your team summary.</p>
     {!profile && !editing && <p>No confirmed professional summary is available. This does not indicate whether a private PDS exists.</p>}
     {editing ? <form onSubmit={event => { event.preventDefault(); void perform(async () => { const result=await updateProfessionalProfile(draft);setProfile(result.profile); guard.markClean(); setEditing(false); }, 'Profile changes saved. Review and confirm the updated summary.'); }} className="eflow-professional-form"><p className="eflow-invite-help">Review extracted text carefully. Save your work-relevant changes, then confirm the saved summary separately. Saving resets earlier confirmation.</p><fieldset disabled={busy}>
-      {professionalFields.map(field => <label key={field}>{labels[field]}<textarea rows={3} value={draft[field].join('\n')} placeholder="One entry per line" onChange={event => setDraft(current => ({ ...current, [field]: event.target.value.split('\n') }))} /></label>)}
+      {professionalFields.map(field => field === 'skills' ? (
+        <div key={field} className="rounded-xl border border-neutral-200 p-3">
+          <SkillTagSelector
+            availableTags={skillOptions}
+            loading={loadingSkillTags}
+            selected={draft.skills}
+            disabled={busy}
+            title="Skills"
+            description="Tap skill tags to choose your skills."
+            onChange={next => setDraft(current => ({ ...current, skills: next }))}
+          />
+        </div>
+      ) : (
+        <label key={field}>{labels[field]}<textarea rows={3} value={draft[field].join('\n')} placeholder="One entry per line" onChange={event => setDraft(current => ({ ...current, [field]: event.target.value.split('\n') }))} /></label>
+      ))}
       <label>Professional summary<textarea rows={3} maxLength={1500} value={draft.competency_summary} onChange={event => setDraft(current => ({ ...current, competency_summary: event.target.value }))} /></label>
       <div className="flex gap-4"><button type="submit" className="eflow-primary-button" disabled={busy}>Save changes</button><button type="button" className="eflow-text-button" onClick={() => void requestNavigation(() => setEditing(false))}>Cancel</button></div>
     </fieldset></form> : <><div className="eflow-professional-sections">{professionalFields.map(field => <div key={field}><h3>{labels[field]}</h3>{profile?.[field]?.length ? <ul>{profile[field].map((entry, index) => <li key={index}>{entry}</li>)}</ul> : <p className="text-sm text-neutral-400">Not added yet</p>}</div>)}</div>{profile?.competency_summary && <p className="text-sm leading-6">{profile.competency_summary}</p>}

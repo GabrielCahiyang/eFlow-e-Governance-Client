@@ -1,11 +1,13 @@
-import type { UserProfile, UserRole } from "../../../types";
+import type { UserProfile } from "../../../types";
+
+const BUILTIN_ROLES = new Set(["admin", "head", "accounting_staff", "member"]);
 
 export type UserDirectoryStatus = "all" | "active" | "inactive";
 export type UserDirectorySort = "name-asc" | "name-desc" | "organization-asc" | "organization-desc" | "workload-desc";
 
 export interface UserDirectoryFilters {
   organizationId: string;
-  role: UserRole | "all";
+  role: string;
   status: UserDirectoryStatus;
   sort: UserDirectorySort;
 }
@@ -28,7 +30,13 @@ export function filterAndSortUserDirectory(
 ) {
   const filtered = profiles.filter((profile) => {
     if (filters.organizationId !== "all" && profile.org_id !== filters.organizationId) return false;
-    if (filters.role !== "all" && profile.role !== filters.role) return false;
+    if (filters.role !== "all") {
+      if (BUILTIN_ROLES.has(filters.role)) {
+        if (profile.role !== filters.role) return false;
+      } else if (profile.custom_role_key !== filters.role) {
+        return false;
+      }
+    }
     if (filters.status === "active" && !profile.is_active) return false;
     if (filters.status === "inactive" && profile.is_active) return false;
     return true;

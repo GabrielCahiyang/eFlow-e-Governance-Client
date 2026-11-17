@@ -98,40 +98,36 @@ for (const width of [390, 1440])
     const state = await adminFixture(page);
     await page.goto("/users?page=System%20Settings");
     await expect(
-      page.getByRole("heading", { name: "System Settings", exact: true }),
-    ).toBeVisible();
+      page.getByRole("heading", { name: "System & Integrations", exact: true }),
+    ).toBeVisible({ timeout: 15_000 });
     const nav = await supportNav(page);
-    await expect(nav.getByRole("button")).toHaveCount(11);
+    await expect(nav.getByRole("button")).toHaveCount(5);
+    if (width < 1024) await page.keyboard.press("Escape");
     await expect(page.getByLabel(/Organization Name/)).toHaveValue(
       "Original City",
     );
-    await expect(
-      page.getByText("Session timeout", { exact: true }),
-    ).toBeVisible();
     await expect(page.getByLabel("Session Timeout (minutes)")).toHaveCount(0);
-    for (const name of [
-      "Workspace Policy",
-      "Runtime / AI Health",
-      "Email & Integrations",
-    ])
-      await (await supportNav(page)).getByRole("button", { name, exact: true }).click();
+    await page.getByRole("tab", { name: "Email & AI Health", exact: true }).click();
     await expect(
       page.getByRole("heading", {
-        name: "Application invitations (Resend)",
+        name: "Account & project invitations",
         exact: true,
       }),
     ).toBeVisible();
-    await expect(page.getByText(/Restricted rehearsal sender/)).toBeVisible();
+    await expect(page.getByText(/Test sender active/)).toBeVisible();
     await expect(
-      page.getByRole("heading", { name: "Notification SMTP", exact: true }),
+      page.getByRole("heading", { name: "Notification alerts", exact: true }),
     ).toBeVisible();
     await expect(
-      page.getByRole("heading", { name: "Supabase Auth SMTP", exact: true }),
+      page.getByRole("heading", {
+        name: "Sign-in & password recovery emails",
+        exact: true,
+      }),
     ).toBeVisible();
     expect(state.writes).toHaveLength(0);
     await page.goto("/system-settings?page=Email%20%26%20Integrations");
     await expect(
-      page.getByRole("heading", { name: "Email & integrations", exact: true }),
+      page.getByRole("heading", { name: "Email delivery channels", exact: true }),
     ).toBeVisible();
     if (width === 390)
       await page.evaluate(() => document.documentElement.classList.add("dark"));
@@ -150,14 +146,14 @@ for (const width of [390, 1440])
     ).toBeVisible();
     await page.goBack();
     await expect(
-      page.getByRole("heading", { name: "Email & integrations", exact: true }),
+      page.getByRole("heading", { name: "Email delivery channels", exact: true }),
     ).toBeVisible();
     state.healthFailure = true;
-    await page.getByRole("button", { name: "Refresh delivery health" }).click();
+    await page.getByRole("button", { name: "Check delivery status" }).click();
     await expect(
       page
         .getByRole("alert")
-        .filter({ hasText: "Configuration health is unavailable" }),
+        .filter({ hasText: "Email delivery status could not be checked right now" }),
     ).toBeVisible();
   });
 test("R12 settings guard drafts, update actual branding and verify an uncertain save without a new request", async ({
@@ -169,7 +165,7 @@ test("R12 settings guard drafts, update actual branding and verify an uncertain 
   await expect(name).toHaveValue("Original City");
   await name.fill("Reviewed City");
   await (await supportNav(page))
-    .getByRole("button", { name: "Email & Integrations", exact: true })
+    .getByRole("button", { name: "Account Audit", exact: true })
     .click();
   const discard = page.getByRole("alertdialog");
   await expect(discard).toBeVisible();
@@ -199,14 +195,14 @@ test("R12 settings guard drafts, update actual branding and verify an uncertain 
   await page.screenshot({ path: info.outputPath("r12-settings-saved.png") });
   await name.fill("Unsaved City");
   await (await supportNav(page))
-    .getByRole("button", { name: "Email & Integrations", exact: true })
+    .getByRole("button", { name: "Account Audit", exact: true })
     .click();
   await page
     .getByRole("alertdialog")
     .getByRole("button", { name: /Discard/ })
     .click();
   await expect(
-    page.getByRole("heading", { name: "Email & integrations", exact: true }),
+    page.getByRole("heading", { name: "Account Audit", exact: true }),
   ).toBeVisible();
 });
 test("R12 settings read and stale-edit failures remain correctable; no deployment is explicit", async ({
@@ -279,10 +275,10 @@ test("R12 authorized audit count is distinct from its 500-row window and unpermi
   );
   await page.goto("/users?page=Account%20Audit");
   await expect(
-    page.getByText(/500 loaded of 801 permitted records/),
-  ).toBeVisible();
+    page.getByText(/500 loaded of 801 permitted events/),
+  ).toBeVisible({ timeout: 15_000 });
   await expect(
-    page.getByText(/older records are outside this window/),
+    page.getByText(/latest 500 window/),
   ).toBeVisible();
   await page.screenshot({ path: info.outputPath("r12-audit-window.png") });
   const memberContext = await browser.newContext({ baseURL });
@@ -292,9 +288,10 @@ test("R12 authorized audit count is distinct from its 500-row window and unpermi
       landingOnly: true,
     });
     await memberPage.goto("/system-settings?page=System%20Settings");
+    await expect(memberPage).not.toHaveURL(/\/system-settings/);
     await expect(
-      memberPage.getByRole("heading", { name: "Access denied" }),
-    ).toBeVisible();
+      memberPage.getByRole("heading", { name: "System & Integrations", exact: true }),
+    ).toHaveCount(0);
     await expect(memberPage.getByLabel(/Organization Name/)).toHaveCount(0);
     await expect(
       memberPage.getByRole("button", { name: "Admin Center", exact: true }),

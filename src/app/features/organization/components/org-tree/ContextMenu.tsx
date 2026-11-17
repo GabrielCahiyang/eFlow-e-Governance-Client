@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Pencil, Plus, Trash2, UserCog } from "lucide-react";
 
 export interface ContextMenuState {
   x: number;
@@ -48,46 +49,54 @@ export function ContextMenu({
 
   return (
     <div
-      className="context-menu fixed z-50 bg-white rounded-xl border border-neutral-200 shadow-lg py-1 min-w-[180px]"
+      className="context-menu fixed z-50 min-w-[190px] rounded-xl border border-[var(--eflow-border)] bg-[var(--eflow-surface)] py-1 shadow-lg"
       style={{ left: menu.x, top: menu.y }}
     >
       {menu.orgId && (
         <>
           <button
+            type="button"
             onClick={() => { onAddChild(); onClose(); }}
-            className="w-full text-left px-3 py-2 text-[12px] font-medium text-neutral-700 hover:bg-neutral-50 cursor-pointer flex items-center gap-2"
+            className="flex w-full cursor-pointer items-center gap-2.5 px-3 py-2 text-left text-[13px] font-medium text-[var(--eflow-text)] hover:bg-[var(--eflow-subtle)]"
           >
-            <span className="text-[14px]">+</span> Add child dept
+            <Plus size={15} aria-hidden="true" className="text-[var(--eflow-text-muted)]" /> Add child office
           </button>
           <button
+            type="button"
             onClick={() => { onEdit(); onClose(); }}
-            className="w-full text-left px-3 py-2 text-[12px] font-medium text-neutral-700 hover:bg-neutral-50 cursor-pointer flex items-center gap-2"
+            className="flex w-full cursor-pointer items-center gap-2.5 px-3 py-2 text-left text-[13px] font-medium text-[var(--eflow-text)] hover:bg-[var(--eflow-subtle)]"
           >
-            <span className="text-[14px]">✏️</span> Edit
+            <Pencil size={15} aria-hidden="true" className="text-[var(--eflow-text-muted)]" /> Edit office
           </button>
           <button
+            type="button"
             onClick={() => { onAssignHead(); onClose(); }}
-            className="w-full text-left px-3 py-2 text-[12px] font-medium text-neutral-700 hover:bg-neutral-50 cursor-pointer flex items-center gap-2"
+            className="flex w-full cursor-pointer items-center gap-2.5 px-3 py-2 text-left text-[13px] font-medium text-[var(--eflow-text)] hover:bg-[var(--eflow-subtle)]"
           >
-            <span className="text-[14px]">👤</span> Assign leadership
+            <UserCog size={15} aria-hidden="true" className="text-[var(--eflow-text-muted)]" /> Assign leadership
           </button>
-          <div className="border-t border-neutral-100 my-1" />
+          <div className="my-1 border-t border-[var(--eflow-border)]" />
           <button
+            type="button"
             onClick={() => { onDelete(); onClose(); }}
             disabled={!canDelete}
-            className={`w-full text-left px-3 py-2 text-[12px] font-medium cursor-pointer flex items-center gap-2
-              ${canDelete ? 'text-red-600 hover:bg-red-50' : 'text-neutral-300 cursor-not-allowed'}`}
+            className={`flex w-full items-center gap-2.5 px-3 py-2 text-left text-[13px] font-medium ${
+              canDelete
+                ? "cursor-pointer text-[var(--eflow-negative-text)] hover:bg-[var(--eflow-negative-bg)]"
+                : "cursor-not-allowed text-[var(--eflow-text-muted)] opacity-50"
+            }`}
           >
-            <span className="text-[14px]">🗑</span> Delete
+            <Trash2 size={15} aria-hidden="true" /> Delete
           </button>
         </>
       )}
       {!menu.orgId && (
         <button
+          type="button"
           onClick={() => { onAddChild(); onClose(); }}
-          className="w-full text-left px-3 py-2 text-[12px] font-medium text-neutral-700 hover:bg-neutral-50 cursor-pointer flex items-center gap-2"
+          className="flex w-full cursor-pointer items-center gap-2.5 px-3 py-2 text-left text-[13px] font-medium text-[var(--eflow-text)] hover:bg-[var(--eflow-subtle)]"
         >
-          <span className="text-[14px]">+</span> Add office
+          <Plus size={15} aria-hidden="true" className="text-[var(--eflow-text-muted)]" /> Add office
         </button>
       )}
     </div>

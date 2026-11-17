@@ -58,9 +58,15 @@ describe("User Management deletion", () => {
     render(<UsersTab onOpenAccess={vi.fn()} />);
 
     expect(screen.getByText("Protected Admin")).toBeTruthy();
-    expect(within(screen.getByTestId("row-super-admin-1")).getByRole("button", { name: "Delete" }).hasAttribute("disabled")).toBe(true);
+    const superAdminTrigger = within(screen.getByTestId("row-super-admin-1")).getByRole("button", { name: /More actions/ });
+    fireEvent.keyDown(superAdminTrigger, { key: "Enter" });
+    const protectedDelete = await screen.findByRole("menuitem", { name: /Delete permanently/ });
+    expect(protectedDelete.getAttribute("aria-disabled")).toBe("true");
+    fireEvent.keyDown(screen.getByRole("menu"), { key: "Escape" });
 
-    fireEvent.click(within(screen.getByTestId("row-employee-1")).getByRole("button", { name: "Delete" }));
+    const employeeTrigger = within(screen.getByTestId("row-employee-1")).getByRole("button", { name: /More actions/ });
+    fireEvent.keyDown(employeeTrigger, { key: "Enter" });
+    fireEvent.click(await screen.findByRole("menuitem", { name: /Delete permanently/ }));
     expect(screen.getByRole("alertdialog")).toBeTruthy();
     expect(screen.getByText(/cannot be undone/i)).toBeTruthy();
     expect(deleteManagedUser).not.toHaveBeenCalled();

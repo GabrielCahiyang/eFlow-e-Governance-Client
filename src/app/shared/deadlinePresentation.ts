@@ -1,4 +1,5 @@
 import {getPhilippineCalendarDate, isCalendarDate} from './calendarDates';
+import {getDueSoonWindowDays} from './systemRuntimeConfig';
 
 export type DeadlineTone = 'neutral' | 'green' | 'yellow' | 'red';
 export function deadlinePresentation(value?: string | null, status?: string, now = Date.now()) {
@@ -11,8 +12,9 @@ export function deadlinePresentation(value?: string | null, status?: string, now
   const days = Math.round((Date.parse(date) - Date.parse(today)) / 86_400_000);
   const overdue = days < 0 || (Number.isFinite(at) && at < now);
   const count = Math.max(1, Math.abs(days));
+  const dueSoonWindow = getDueSoonWindowDays();
   const label = terminal ? (status === 'cancelled' || status === 'canceled' ? 'Cancelled' : 'Completed')
     : overdue ? (days === 0 ? 'Overdue today' : `${count} ${count === 1 ? 'day' : 'days'} overdue`)
     : days === 0 ? 'Due today' : days === 1 ? '1 day left' : `${days} days left`;
-  return {date, days, label, tone: (terminal ? 'neutral' : overdue ? 'red' : days <= 3 ? 'yellow' : 'green') as DeadlineTone};
+  return {date, days, label, tone: (terminal ? 'neutral' : overdue ? 'red' : days <= dueSoonWindow ? 'yellow' : 'green') as DeadlineTone};
 }

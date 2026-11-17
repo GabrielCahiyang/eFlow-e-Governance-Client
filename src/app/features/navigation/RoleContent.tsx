@@ -306,7 +306,7 @@ export function RoleContent({
       </Suspense>
     );
   }
-  if (activeSection === "inbox")
+  if (activeSection === "inbox" && role !== "admin")
     return (
       <Suspense
         fallback={

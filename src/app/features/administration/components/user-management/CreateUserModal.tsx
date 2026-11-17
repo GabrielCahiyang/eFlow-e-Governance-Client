@@ -8,7 +8,12 @@ import {
 import { FeedbackState } from "../../../../components/ui/FeedbackState";
 import { Modal, ModalButton } from "../../../../components/ui/Modal";
 import { useToast } from "../../../../components/ui/Toast";
-import type { Organization, UserProfile, UserRole } from "../../../../types";
+import type { Organization, UserProfile } from "../../../../types";
+import {
+  getAssignableRoleCatalog,
+  resolveRoleSelection,
+  type ManagedRoleCatalogEntry,
+} from "../../../permissions";
 import {
   getLeadershipSlotConflict,
 } from "../../services/leadershipConstraints";
@@ -18,10 +23,16 @@ import {
   type ParsedPdsImport,
   type PdsEmployeeNotes,
 } from "../../../members";
-import { FileSpreadsheet, Plus, X } from "lucide-react";
+import { FileSpreadsheet } from "lucide-react";
 import { PdsImportReview } from "./PdsImportReview";
 import { ledipoOffice } from '../../selectors/ledipoOffice';
 import { accountSkillsError, listActivationOffices, stageAccountActivation, type ActivationOffice, type ManagedAccountRole } from '../../../account-activation';
+import {
+  SkillTagSelector,
+  skillListToMap,
+  skillMapToList,
+} from "../../../../components/ui/SkillTagSelector";
+import { useSkillTags } from "../../../../shared/skillTags";
 
 import { useExplicitDraft } from "../../../../shared/useExplicitDraft";
 import { requestNavigation } from "../../../../shared/navigationGuard";
@@ -31,6 +42,7 @@ export function CreateUserModal({
   organizations,
   profiles,
   mode = 'ledipo_create',
+  roleCatalog = [],
   onCreated,
 }: {
   isOpen: boolean;
@@ -38,6 +50,7 @@ export function CreateUserModal({
   organizations: Organization[];
   profiles: UserProfile[];
   mode?: 'ledipo_create' | 'office_invite';
+  roleCatalog?: ManagedRoleCatalogEntry[];
   onCreated?: () => void;
 }) {
   const { userProfile } = useAuth();
@@ -58,14 +71,19 @@ export function CreateUserModal({
       .catch(reason => { if (active) setOfficeError(reason.message); });
     return () => { active = false; };
   }, [isOpen, userProfile?.id, userProfile?.role]);
+  const resolvedLedipoId =
+    homeOfficeId ||
+    authorizedOffices.find((o) => o.slug === 'ledipo')?.id ||
+    authorizedOffices[0]?.id ||
+    '';
   const orgOptions = (mode === 'ledipo_create' ? authorizedOffices.filter(o => o.id === homeOfficeId) : authorizedOffices).map(o => ({ value: o.id, label: o.name }));
   const [form, setForm] = useState({
     fullName: "",
     email: "",
-    role: "member" as UserRole,
-    orgId: mode === 'ledipo_create' ? homeOfficeId : '',
+    role: "member",
+    orgId: resolvedLedipoId,
   });
-  useEffect(() => { setForm(current => ({ ...current, orgId: mode === 'ledipo_create' ? homeOfficeId : '' })); }, [homeOfficeId, mode]);
+  useEffect(() => { setForm(current => ({ ...current, orgId: resolvedLedipoId })); }, [resolvedLedipoId, mode]);
   const savePending = useRef(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -78,27 +96,32 @@ export function CreateUserModal({
   const [activeTab, setActiveTab] = useState<"basic" | "skills" | "review">(
     "basic",
   );
-  const [skillInput, setSkillInput] = useState("");
   const [skills, setSkills] = useState<Record<string, boolean>>({});
+  const { activeLabels: availableSkillTags, loading: loadingSkillTags } = useSkillTags(isOpen);
+  const resolvedRole = resolveRoleSelection(form.role, roleCatalog);
   const leadershipConflict = getLeadershipSlotConflict({
-    role: form.role,
+    role: resolvedRole.role,
     orgId: form.orgId,
     organizations,
     profiles,
   });
-  const roleOptions = getAssignableRoleOptions(userProfile?.role);
+  const roleOptions = roleCatalog.length > 0
+    ? getAssignableRoleCatalog(roleCatalog, userProfile?.role).map((entry) => ({
+        value: entry.key,
+        label: entry.label,
+      }))
+    : getAssignableRoleOptions(userProfile?.role);
 
   const resetForm = () => {
     setForm({
       fullName: "",
       email: "",
       role: "member",
-      orgId: mode === 'ledipo_create' ? homeOfficeId : '',
+      orgId: resolvedLedipoId,
     });
     request.current = null;
     setErrors({});
     setActiveTab("basic");
-    setSkillInput("");
     setSkills({});
     setPdsPreview(null);
     setAppliedPdsNotes(null);
@@ -111,7 +134,6 @@ export function CreateUserModal({
         form.fullName ||
           form.email ||
           form.role !== "member" ||
-          skillInput ||
           Object.keys(skills).length ||
           pdsPreview ||
           appliedPdsNotes,
@@ -123,22 +145,6 @@ export function CreateUserModal({
     void requestNavigation(() => {
       resetForm();
       onClose();
-    });
-  };
-  const addSkill = () => {
-    const trimmed = skillInput.trim();
-    if (!trimmed || skills[trimmed]) return;
-    const issue=accountSkillsError({...skills,[trimmed]:true});if(issue){setErrors(current=>({...current,skills:issue}));return;}
-    setErrors(current=>({...current,skills:''}));
-    setSkills((prev) => ({ ...prev, [trimmed]: true }));
-    setSkillInput("");
-  };
-
-  const removeSkill = (key: string) => {
-    setSkills((prev) => {
-      const next = { ...prev };
-      delete next[key];
-      return next;
     });
   };
 
@@ -201,15 +207,25 @@ export function CreateUserModal({
 
   const validate = () => {
     const errs: Record<string, string> = {};
-    if (!form.fullName.trim()) errs.fullName = "Required";
+    const targetOrgId = form.orgId || resolvedLedipoId;
+    if (mode === 'ledipo_create' && !form.fullName.trim()) errs.fullName = "Required";
     if (!form.email.trim()) errs.email = "Required";
-    if (!orgOptions.some(o => o.value === form.orgId) || mode === 'ledipo_create' && form.orgId !== homeOfficeId) errs.orgId = officeError || 'Choose an authorized active office.';
+    if (mode === 'ledipo_create') {
+      if (!orgOptions.some(o => o.value === targetOrgId) || targetOrgId !== homeOfficeId) {
+        errs.orgId = officeError || 'Choose an authorized active office.';
+      }
+    } else if (!targetOrgId || (authorizedOffices.length > 0 && !authorizedOffices.some(o => o.id === targetOrgId))) {
+      errs.orgId = officeError || 'LEDIPO office is unavailable.';
+    }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) errs.email = 'Enter a valid email address.';
-    if (form.fullName.trim().length < 2) errs.fullName = 'Enter the full name.';
+    if (mode === 'ledipo_create' && form.fullName.trim() && form.fullName.trim().length < 2) errs.fullName = 'Enter the full name.';
     if (!roleOptions.some(({ value }) => value === form.role))
       errs.role = "You cannot assign this role.";
     if (leadershipConflict) errs.role = leadershipConflict;
-    const skillIssue=accountSkillsError(skills);if(skillIssue){errs.skills=skillIssue;setActiveTab('skills');}
+    if (mode === 'ledipo_create') {
+      const skillIssue = accountSkillsError(skills);
+      if (skillIssue) { errs.skills = skillIssue; setActiveTab('skills'); }
+    }
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -222,7 +238,18 @@ export function CreateUserModal({
     setSaveError(null);
     setSaving(true);
     try {
-      const values = { mode, email: form.email.trim().toLowerCase(), full_name: form.fullName.trim(), role: form.role as ManagedAccountRole, org_id: form.orgId, skills, pds_notes: appliedPdsNotes };
+      const cleanedFullName = form.fullName.trim();
+      const targetOrgId = form.orgId || resolvedLedipoId;
+      const values = {
+        mode,
+        email: form.email.trim().toLowerCase(),
+        ...(mode === 'ledipo_create' && cleanedFullName ? { full_name: cleanedFullName } : {}),
+        role: resolvedRole.role as ManagedAccountRole,
+        ...(resolvedRole.customRoleKey ? { custom_role_key: resolvedRole.customRoleKey } : {}),
+        org_id: targetOrgId,
+        skills: mode === 'ledipo_create' ? skills : {},
+        pds_notes: mode === 'ledipo_create' ? appliedPdsNotes : null,
+      };
       const fingerprint = JSON.stringify(values);
       if (request.current?.fingerprint !== fingerprint) request.current = { fingerprint, id: crypto.randomUUID() };
       const receipt = await stageAccountActivation({ ...values, request_id: request.current.id });
@@ -276,8 +303,16 @@ export function CreateUserModal({
       }
     >
       <fieldset className="m-0 min-w-0 border-0 p-0" aria-label="Account invitation" disabled={saving || importingPds}>
-        <FeedbackState tone="info" title="Email activation required">The person will receive a link and choose their own password. They cannot sign in before activation.</FeedbackState>
-        {officeError && <FeedbackState tone="error" title="Offices unavailable">{officeError}</FeedbackState>}
+        <FeedbackState tone="info" title="Email activation required">
+          {mode === 'office_invite'
+            ? 'The person will receive an activation link to enter their name, skills, and password. They cannot sign in before activation.'
+            : 'The person will receive a link and choose their own password. They cannot sign in before activation.'}
+        </FeedbackState>
+        {(officeError || (mode === 'office_invite' && errors.orgId)) && (
+          <FeedbackState tone="error" title="Office unavailable">
+            {officeError || errors.orgId}
+          </FeedbackState>
+        )}
         {saveError && (
           <FeedbackState tone="error" title="Could not confirm the invitation">
             {saveError} Your entries are kept. Retry to check the same request.
@@ -313,7 +348,7 @@ export function CreateUserModal({
           </label>
         )}
 
-        {activeTab !== "review" && (
+        {mode === 'ledipo_create' && activeTab !== "review" && (
           <div className="flex border-b border-border mb-4 -mt-1">
             <button
               onClick={() => setActiveTab("basic")}
@@ -349,15 +384,17 @@ export function CreateUserModal({
 
         {activeTab === "basic" && (
           <div className="space-y-4">
-            <FormField label="Full Name" error={errors.fullName} required>
-              <TextInput
-                maxLength={160}
-                value={form.fullName}
-                onChange={(e) => setForm({ ...form, fullName: e.target.value })}
-                placeholder="Juan Dela Cruz"
-                hasError={!!errors.fullName}
-              />
-            </FormField>
+            {mode === 'ledipo_create' && (
+              <FormField label="Full Name" error={errors.fullName} required>
+                <TextInput
+                  maxLength={160}
+                  value={form.fullName}
+                  onChange={(e) => setForm({ ...form, fullName: e.target.value })}
+                  placeholder="Juan Dela Cruz"
+                  hasError={!!errors.fullName}
+                />
+              </FormField>
+            )}
 
             <div>
               <FormField label="Email" error={errors.email} required>
@@ -372,9 +409,9 @@ export function CreateUserModal({
               </FormField>
 
             </div>
-            {(form.role === 'admin' || form.role === 'head') && <FeedbackState tone="info" title="Approval after activation">After this person verifies their email, Admin must approve their role from Pending activation before they can sign in.</FeedbackState>}
+            {(resolvedRole.role === 'admin' || resolvedRole.role === 'head') && <FeedbackState tone="info" title="Approval after activation">After this person verifies their email, Admin must approve their role from Pending activation before they can sign in.</FeedbackState>}
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className={mode === 'ledipo_create' ? "grid grid-cols-1 gap-4 sm:grid-cols-2" : ""}>
               <FormField
                 label="Role"
                 error={errors.role || leadershipConflict || undefined}
@@ -383,74 +420,37 @@ export function CreateUserModal({
                 <SelectInput
                   value={form.role}
                   onChange={(e) =>
-                    setForm({ ...form, role: e.target.value as UserRole })
+                    setForm({ ...form, role: e.target.value })
                   }
                   options={roleOptions}
                   hasError={Boolean(errors.role || leadershipConflict)}
                 />
               </FormField>
-              <FormField label="Office" error={errors.orgId} description={mode === 'ledipo_create' ? 'This account belongs to LEDIPO.' : 'Account office only. Project access is invited separately.'} required>
-                {mode === 'ledipo_create' ? <TextInput value={homeOffice?.name || ''} readOnly placeholder="Loading LEDIPO…" hasError={!!errors.orgId}/> : <SelectInput value={form.orgId} placeholder="Choose an office" options={orgOptions} disabled={!orgOptions.length} onChange={e => setForm({ ...form, orgId: e.target.value })}/>}
-              </FormField>
+              {mode === 'ledipo_create' && (
+                <FormField label="Office" error={errors.orgId} description="This account belongs to LEDIPO." required>
+                  <TextInput value={homeOffice?.name || ''} readOnly placeholder="Loading LEDIPO…" hasError={!!errors.orgId}/>
+                </FormField>
+              )}
             </div>
           </div>
         )}
 
-        {activeTab === "skills" && (
+        {mode === 'ledipo_create' && activeTab === "skills" && (
           <div className="space-y-3">
-            {errors.skills&&<p role="alert" className="text-xs text-destructive">{errors.skills}</p>}
-            <p className="text-[11px] font-normal text-muted-foreground">
-              Add skills that the AI recommendation engine will use to match
-              this member to tasks. Each skill is a keyword (e.g. "data
-              analysis", "coordination", "budgeting").
-            </p>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={skillInput}
-                maxLength={100}
-                aria-invalid={!!errors.skills}
-                onChange={(e) => setSkillInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    addSkill();
-                  }
-                }}
-                placeholder="Type a skill and press Enter or +"
-                className="flex-1 px-3 py-2 text-[12px] font-normal border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-neutral-900 bg-white text-foreground placeholder:text-muted-foreground"
-              />
-              <button
-                onClick={addSkill}
-                disabled={!skillInput.trim()}
-                className="px-3 py-2 rounded-lg bg-primary text-white text-[12px] font-medium hover:bg-neutral-800 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed transition-colors"
-              >
-                <Plus size={14} />
-              </button>
-            </div>
-            {Object.keys(skills).length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground text-[12px] font-normal">
-                No skills added yet. Skills help the AI recommend the right
-                member for each task.
-              </div>
-            ) : (
-              <div className="flex flex-wrap gap-2 pt-1">
-                {Object.keys(skills).map((skill) => (
-                  <span
-                    key={skill}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-neutral-100 text-secondary-foreground text-[11px] font-medium"
-                  >
-                    {skill}
-                    <button
-                      onClick={() => removeSkill(skill)}
-                      className="text-muted-foreground hover:text-secondary-foreground cursor-pointer transition-colors leading-none"
-                    >
-                      <X size={11} />
-                    </button>
-                  </span>
-                ))}
-              </div>
-            )}
+            {errors.skills && <p role="alert" className="text-xs text-destructive">{errors.skills}</p>}
+            <SkillTagSelector
+              availableTags={availableSkillTags}
+              loading={loadingSkillTags}
+              selected={skillMapToList(skills)}
+              disabled={saving || importingPds}
+              title="Pre-select skills (optional)"
+              description="Tap skill tags maintained by Admin so the invited user starts with matching tags."
+              emptyMessage="No skill tags added yet. Add skills in System & Maintenance → Skill Tags."
+              onChange={(next) => {
+                setErrors((current) => ({ ...current, skills: "" }));
+                setSkills(skillListToMap(next));
+              }}
+            />
           </div>
         )}
       </fieldset>

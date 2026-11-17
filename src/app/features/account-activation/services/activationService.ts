@@ -10,4 +10,21 @@ export const listPendingActivations = () => phase2Request<{ invitations: Pending
 export const listActivationOffices = () => phase2Request<{ offices: ActivationOffice[] }>('/admin/users/invite-options');
 export const manageAccountActivation = (id: string, action: 'resend' | 'revoke' | 'approve') => phase2Request<PendingActivation>(`/admin/users/pending-activation/${encodeURIComponent(id)}/${action}`, { method: 'POST' });
 export const validateAccountActivation = (token: string) => phase2Request<ActivationPreview>('/invitations/managed-account/validate', jsonRequest('POST', { token }), true);
-export const completeAccountActivation = (token: string, password: string, attemptId: string) => phase2Request<ActivationResult>('/invitations/managed-account/activate', jsonRequest('POST', { token, password, attempt_id: attemptId }), true);
+export const completeAccountActivation = (
+  token: string,
+  password: string,
+  attemptId: string,
+  skills?: Record<string, boolean>,
+  fullName?: string,
+) =>
+  phase2Request<ActivationResult>(
+    '/invitations/managed-account/activate',
+    jsonRequest('POST', {
+      token,
+      password,
+      attempt_id: attemptId,
+      ...(fullName !== undefined && fullName.trim() ? { full_name: fullName.trim() } : {}),
+      ...(skills !== undefined ? { skills } : {}),
+    }),
+    true,
+  );

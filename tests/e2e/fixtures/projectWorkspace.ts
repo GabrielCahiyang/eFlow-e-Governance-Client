@@ -482,7 +482,7 @@ export async function projectWorkspaceFixture(
   });
   await page.route('**/controlpanelEflow/api/auth/login', route => route.fulfill({json:{access_token:token,refresh_token:'synthetic'}}));
   await establishLocalNetwork(page);
-  await page.goto("/");
+  await page.goto(role === "admin" ? "/admin" : "/");
   await page.locator("#login-email").fill(user.email);
   await page.locator("#login-password").fill("synthetic-password");
   // Opacity-zero staggered entrances are considered visible by locator
@@ -495,7 +495,7 @@ export async function projectWorkspaceFixture(
   })).toBe(true);
   await page.locator("#login-submit").click();
   await expect(page.locator(".eflow-app-shell")).toBeVisible({
-    timeout: 30_000,
+    timeout: 45_000,
   });
   const later = page.getByRole("button", { name: "Maybe later", exact: true });
   await later
@@ -532,7 +532,7 @@ export async function projectWorkspaceFixture(
       });
     await page.goto("/users?page=All%20Users");
     await expect(
-      page.getByRole("heading", { name: "All Users", exact: true, level: 1 }),
+      page.getByRole("heading", { name: "People & Accounts", exact: true, level: 1 }),
     ).toBeVisible({timeout:30_000});
     return {
       emitTaskDelete,

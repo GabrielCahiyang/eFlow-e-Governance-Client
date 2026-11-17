@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { customStatusChoices, orderedStatusLabels, resolveStatus, type StatusDefinition } from '../../src/app/features/work-status/statusDefinitions';
-import { getAuthorizedSupportPages, resolveSupportPage } from '../../src/app/features/navigation/administrativePages';
+import { isSupportPageAuthorized, resolveSupportPage, resolveSupportSubTab } from '../../src/app/features/navigation/administrativePages';
 
 const definitions: StatusDefinition[] = [
   { id: 'todo', label: 'To-do', color: '#087972', position: 50, scope: 'builtin', retired: false },
@@ -12,10 +12,11 @@ const definitions: StatusDefinition[] = [
 
 describe('Status Maintenance', () => {
   it('is an Admin Center destination for admins only', () => {
-    expect(resolveSupportPage('administration', 'Status Maintenance')).toBe('Status Maintenance');
-    expect(getAuthorizedSupportPages('admin', () => true).some(page => page.label === 'Status Maintenance')).toBe(true);
+    expect(resolveSupportPage('administration', 'Status Maintenance')).toBe('System & Maintenance');
+    expect(resolveSupportSubTab('administration', 'Status Maintenance')).toBe('statuses');
+    expect(isSupportPageAuthorized('admin', 'administration', 'Status Maintenance', () => true)).toBe(true);
     for (const role of ['head', 'member', 'accounting_staff']) {
-      expect(getAuthorizedSupportPages(role, () => true).some(page => page.label === 'Status Maintenance')).toBe(false);
+      expect(isSupportPageAuthorized(role, 'administration', 'Status Maintenance', () => true)).toBe(false);
     }
   });
 

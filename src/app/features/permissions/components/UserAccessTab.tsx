@@ -3,7 +3,6 @@ import '../permissionPresentation.css';
 import { isAdminRole } from "../../../shared/roles";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  RotateCcw,
   Search,
   Shield,
   UserRoundCog,
@@ -13,9 +12,11 @@ import { useAuth } from "../../../contexts/AuthContext";
 import { useToast } from "../../../components/ui/Toast";
 import {
   ACTION_PERMISSION_KEYS,
+  PERMISSIONS_CHANGED_EVENT,
   VISIBLE_PAGE_PERMISSION_KEYS as PAGE_PERMISSION_KEYS,
   PERMISSION_LABELS,
 } from "../constants";
+import { resolveAccountRoleDisplay, useRoleCatalog } from "../hooks/useRoleCatalog";
 import { resolvePermissions, rolePermissionAllowed } from "../selectors";
 import {
   fetchRolePermissions,
@@ -23,7 +24,6 @@ import {
   setUserOverride,
 } from "../services/permissionService";
 import type { RolePermissionRow, UserOverrideRow } from "../types";
-import { Tooltip } from "@vibe/core";
 import { WSelect } from "../../../components/workflow/primitives";
 
 import { useConfirmation } from "../../../components/ui/useConfirmation";
@@ -34,76 +34,120 @@ function AccessRows({
   title,
   permissions,
   role,
+  fallbackRole,
   roleRows,
   overrides,
   effective,
-  onCycle,
+  exceptionsOnly,
+  onSelectOverride,
 }: {
   title: string;
   permissions: readonly string[];
   role: string;
+  fallbackRole?: string;
   roleRows: RolePermissionRow[];
   overrides: UserOverrideRow[];
   effective: Set<string>;
-  onCycle: (permission: string) => void;
+  exceptionsOnly: boolean;
+  onSelectOverride: (permission: string, next: boolean | null) => void;
 }) {
+  const visible = exceptionsOnly
+    ? permissions.filter((permission) =>
+        overrides.some((row) => row.permission === permission),
+      )
+    : permissions;
   return (
-    <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white">
-      <div className="border-b border-neutral-100 bg-neutral-50/70 px-4 py-3 text-[12px] font-semibold uppercase tracking-[0.12em] text-neutral-500">
-        {title}
+    <section className="overflow-hidden rounded-xl border border-neutral-200 bg-white">
+      <div className="flex items-center justify-between border-b border-neutral-100 bg-neutral-50/70 px-4 py-3">
+        <span className="text-[13px] font-semibold text-neutral-900">{title}</span>
+        <span className="eflow-tabular text-[12px] text-neutral-400">
+          {visible.length} {visible.length === 1 ? "rule" : "rules"}
+        </span>
       </div>
-      <div className="divide-y divide-neutral-100">
-        {permissions.map((permission) => {
-          const inherited = rolePermissionAllowed(role, permission, roleRows);
-          const override = overrides.find(
-            (row) => row.permission === permission,
-          );
-          const allowed = effective.has(permission);
-          return (
-            <div
-              key={permission}
-              className="eflow-access-row"
-            >
-
-              <div className="min-w-0 flex-1">
-                <div id={`access-${title.replace(/ /g, "-")}-${permission}`} className="text-[13px] font-medium text-neutral-900">
-                  {
-                    PERMISSION_LABELS[
-                      permission as keyof typeof PERMISSION_LABELS
-                    ]
-                  }
+      {visible.length === 0 ? (
+        <p className="px-4 py-6 text-center text-[13px] text-neutral-400">
+          No custom permissions in {title.toLowerCase()}.
+        </p>
+      ) : (
+        <div className="divide-y divide-neutral-100">
+          {visible.map((permission) => {
+            const inherited = rolePermissionAllowed(role, permission, roleRows, fallbackRole);
+            const override = overrides.find(
+              (row) => row.permission === permission,
+            );
+            const allowed = effective.has(permission);
+            const currentMode = !override
+              ? "default"
+              : override.allowed
+                ? "allow"
+                : "deny";
+            return (
+              <div key={permission} className="eflow-access-row">
+                <div className="min-w-0 flex-1">
+                  <div
+                    id={`access-${title.replace(/ /g, "-")}-${permission}`}
+                    className="text-[13px] font-medium text-neutral-900"
+                  >
+                    {
+                      PERMISSION_LABELS[
+                        permission as keyof typeof PERMISSION_LABELS
+                      ]
+                    }
+                  </div>
+                  <div className="mt-0.5 text-[12px] text-neutral-400">
+                    Default: {inherited ? "Allowed" : "Denied"}
+                    {override
+                      ? ` · Overridden to ${override.allowed ? "Allowed" : "Denied"}`
+                      : ""}
+                  </div>
                 </div>
-                <div className="mt-0.5 text-[12px] text-neutral-400">
-                  Role default: {inherited ? "Allowed" : "Denied"}
-                  {override
-                    ? ` · Individual ${override.allowed ? "allow" : "deny"}`
-                    : ""}
+                <span
+                  className={`rounded-md px-2.5 py-1 text-[12px] font-medium ${allowed ? "bg-emerald-50 text-emerald-700" : "bg-neutral-100 text-neutral-500"}`}
+                >
+                  {allowed ? "Allowed" : "Denied"}
+                </span>
+                <div
+                  role="group"
+                  aria-label={`Override for ${PERMISSION_LABELS[permission as keyof typeof PERMISSION_LABELS] || permission}`}
+                  aria-describedby={`access-${title.replace(/ /g, "-")}-${permission}`}
+                  className="inline-flex overflow-hidden rounded-lg border border-neutral-200 bg-neutral-50 p-0.5"
+                >
+                  {(
+                    [
+                      ["default", "Default", null],
+                      ["allow", "Allow", true],
+                      ["deny", "Deny", false],
+                    ] as const
+                  ).map(([mode, label, target]) => {
+                    const active = currentMode === mode;
+                    return (
+                      <button
+                        key={mode}
+                        type="button"
+                        aria-pressed={active}
+                        onClick={() => {
+                          if (!active) onSelectOverride(permission, target);
+                        }}
+                        className={`min-h-[32px] rounded-md px-2.5 text-[12px] font-medium transition-colors ${
+                          active
+                            ? mode === "allow"
+                              ? "bg-emerald-50 text-emerald-700"
+                              : mode === "deny"
+                                ? "bg-white text-[var(--eflow-negative-text)]"
+                                : "bg-white text-neutral-900"
+                            : "text-neutral-500 hover:text-neutral-900"
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
-              <span
-                className={`rounded-full px-2 py-1 text-[12px] font-semibold uppercase tracking-wide ${allowed ? "bg-emerald-50 text-emerald-700" : "bg-neutral-100 text-neutral-500"}`}
-              >
-                {allowed ? "Allowed" : "Denied"}
-              </span>
-              <Tooltip content="Cycle through role default, individual allow, and individual deny">
-                <button
-                  type="button"
-                  aria-describedby={`access-${title.replace(/ /g, "-")}-${permission}`}
-                  onClick={() => onCycle(permission)}
-                  className={`inline-flex min-w-[88px] items-center justify-center gap-1 rounded-lg border px-2.5 py-1.5 text-[12px] font-medium transition-colors ${override ? "border-teal-200 bg-teal-50 text-teal-800 hover:bg-teal-100" : "border-neutral-200 text-neutral-600 hover:border-teal-200 hover:bg-teal-50"}`}
-                >
-                  {override ? <RotateCcw size={11} /> : null}
-                  {!override
-                    ? "Set exception"
-                    : override.allowed
-                      ? "Allow"
-                      : "Deny"}
-                </button>
-              </Tooltip>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
     </section>
   );
 }
@@ -119,12 +163,14 @@ export function UserAccessTab({
   const { orgs } = useOrgs();
   const { userProfile } = useAuth();
   const { toast } = useToast();
+  const { roleCatalog, customRoles } = useRoleCatalog();
   const [internalUserId, setInternalUserId] = useState(selectedUserId || "");
   const [search, setSearch] = useState("");
   const [orgFilter, setOrgFilter] = useState("all");
   const [roleRows, setRoleRows] = useState<RolePermissionRow[]>([]);
   const [overrides, setOverrides] = useState<UserOverrideRow[]>([]);
   const [busy, setBusy] = useState(false);
+  const [exceptionsOnly, setExceptionsOnly] = useState(false);
   const pending = useRef(false);
   const [result, setResult] = useState("");
   const [failure, setFailure] = useState("");
@@ -174,7 +220,11 @@ export function UserAccessTab({
   };
 
   useEffect(() => {
-    void fetchRolePermissions().then(setRoleRows);
+    const loadRoles = () => void fetchRolePermissions().then(setRoleRows);
+    loadRoles();
+    if (typeof window === "undefined") return;
+    window.addEventListener(PERMISSIONS_CHANGED_EVENT, loadRoles);
+    return () => window.removeEventListener(PERMISSIONS_CHANGED_EVENT, loadRoles);
   }, []);
   useEffect(() => {
     if (!activeUserId) {
@@ -200,12 +250,20 @@ export function UserAccessTab({
     };
   }, [activeUserId]);
 
+  const selectedCustomRole = useMemo(
+    () =>
+      selected?.custom_role_key
+        ? customRoles.find((item) => item.key === selected.custom_role_key) || null
+        : null,
+    [customRoles, selected?.custom_role_key],
+  );
+
   const effective = useMemo(
     () =>
       selected
-        ? resolvePermissions(selected.role, roleRows, overrides)
+        ? resolvePermissions(selected.role, roleRows, overrides, selectedCustomRole)
         : new Set<string>(),
-    [selected, roleRows, overrides],
+    [selected, roleRows, overrides, selectedCustomRole],
   );
   const pageCount = PAGE_PERMISSION_KEYS.filter((permission) =>
     effective.has(permission),
@@ -214,10 +272,17 @@ export function UserAccessTab({
     effective.has(permission),
   ).length;
 
-  const cycle = async (permission: string) => {
+  const updateOverride = async (permission: string, next: boolean | null) => {
     if (!selected || !userProfile || pending.current) return;
     const current = overrides.find((row) => row.permission === permission);
-    const next = !current ? true : current.allowed ? false : null;
+    const currentLabel = !current
+      ? "Default"
+      : current.allowed
+        ? "Allow"
+        : "Deny";
+    const nextLabel =
+      next === null ? "Default" : next ? "Allow" : "Deny";
+    if (currentLabel === nextLabel) return;
     pending.current = true;
     draft.pendingRef.current = true;
     setBusy(true);
@@ -226,14 +291,14 @@ export function UserAccessTab({
       if (
         !(await confirmation.confirm({
           title: "Change individual access?",
-          description: `${selected.full_name}: ${PERMISSION_LABELS[permission as keyof typeof PERMISSION_LABELS] || permission}. ${current ? (current.allowed ? "Individual allow" : "Individual deny") : "Role default"} → ${next === null ? "Role default" : next ? "Individual allow" : "Individual deny"}. Other accounts are unchanged. Office scope and server authorization still apply.`,
+          description: `${selected.full_name}: ${PERMISSION_LABELS[permission as keyof typeof PERMISSION_LABELS] || permission} will change from ${currentLabel} to ${nextLabel}. Other accounts stay unchanged.`,
           actionLabel: "Change access",
         }))
       )
         return;
       await setUserOverride(selected.id, permission, next, userProfile.id);
       setResult(
-        `${selected.full_name} · ${permission}: ${next === null ? "Role default" : next ? "Allowed" : "Denied"}. Saved.`,
+        `${selected.full_name} · ${PERMISSION_LABELS[permission as keyof typeof PERMISSION_LABELS] || permission}: ${next === null ? "Default" : next ? "Allowed" : "Denied"}. Saved.`,
       );
       setOverrides(await fetchUserOverrides(selected.id));
       toast(
@@ -257,7 +322,7 @@ export function UserAccessTab({
   return (
     <div className="eflow-permissions-surface eflow-access-workspace grid min-h-[650px] gap-4 xl:grid-cols-[280px_minmax(0,1fr)]">
       {confirmation.dialog}
-      <aside className="overflow-hidden rounded-2xl border border-neutral-200 bg-white">
+      <aside className="overflow-hidden rounded-xl border border-neutral-200 bg-white">
         <div className="space-y-2 border-b border-neutral-100 p-3">
           <div className="relative">
             <Search
@@ -267,7 +332,8 @@ export function UserAccessTab({
             <input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              aria-label="Search account access" placeholder="Search name, email, role or Office…"
+              aria-label="Search account access"
+              placeholder="Search name, email, role or Office…"
               className="h-9 w-full rounded-xl border border-neutral-200 bg-neutral-50 pl-9 pr-3 text-[12px] outline-none focus:border-neutral-400"
             />
           </div>
@@ -305,54 +371,36 @@ export function UserAccessTab({
                 <span
                   className={`block truncate text-[12px] ${profile.id === activeUserId ? "text-neutral-300" : "text-neutral-400"}`}
                 >
-                  {orgMap[profile.org_id || ""] || "No organization"} ·{" "}
-                  {profile.role.replace(/_/g, " ")}
+                  {orgMap[profile.org_id || ""] || "No Office"} ·{" "}
+                  {resolveAccountRoleDisplay(profile.role, profile.custom_role_key, roleCatalog).label}
                 </span>
               </span>
             </button>
           ))}
           {filteredUsers.length === 0 ? (
-            <EmptyState illustration="search" size="compact" title="No active users match this search."/>
+            <EmptyState
+              illustration="search"
+              size="compact"
+              title="No active users match this search."
+            />
           ) : null}
         </div>
       </aside>
 
       {!selected ? (
-        <div className="flex min-h-[500px] items-center justify-center rounded-2xl border border-dashed border-neutral-200 bg-white">
-          <div className="text-center">
+        <div className="flex min-h-[500px] items-center justify-center rounded-xl border border-dashed border-neutral-200 bg-white">
+          <div className="max-w-sm px-6 text-center">
             <UserRoundCog size={34} className="mx-auto text-neutral-300" />
-            <p className="mt-3 text-[12px] font-medium text-neutral-600">
-              Choose a user to inspect final access
+            <p className="mt-3 text-[14px] font-semibold text-neutral-800">
+              Select a person to review access
             </p>
-            <p className="mt-1 text-[12px] text-neutral-400">
-              Role defaults and individual exceptions are shown together.
-              External Offices join through project invitations.
+            <p className="mt-1 text-[13px] text-neutral-500">
+              Choose an account on the left to inspect or override permissions without affecting anyone else in that role.
             </p>
           </div>
         </div>
       ) : (
         <div className="space-y-4">
-          <p className="text-xs text-muted-foreground">
-            Displayed access uses role fallbacks when the reader returns no
-            rows, including an unavailable read. Saved changes are shown by
-            their receipt; scope and server authorization still apply.
-          </p>
-          <button
-            type="button"
-            disabled={busy}
-            className="rounded-lg border px-3 py-2 text-sm"
-            onClick={() => {
-              void Promise.all([
-                fetchRolePermissions(),
-                fetchUserOverrides(activeUserId),
-              ]).then(([roles, individual]) => {
-                setRoleRows(roles);
-                setOverrides(individual);
-              });
-            }}
-          >
-            Refresh individual access
-          </button>
           {result && (
             <FeedbackState tone="success" title="Saved access change">
               {result}
@@ -360,13 +408,13 @@ export function UserAccessTab({
           )}
           {failure && (
             <FeedbackState tone="error" title="Access change needs review">
-              {failure} Read current access before retrying.
+              {failure} Refresh current access before retrying.
             </FeedbackState>
           )}
-          <header className="rounded-2xl border border-teal-100 bg-gradient-to-br from-teal-50 to-white p-5 text-neutral-900 shadow-sm">
+          <header className="rounded-xl border border-neutral-200 bg-white p-5 text-neutral-900">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-teal-100 text-[13px] font-semibold text-teal-800">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--eflow-selected)] text-[13px] font-semibold text-[var(--eflow-on-selected)]">
                   {selected.full_name
                     .split(" ")
                     .map((part) => part[0])
@@ -378,61 +426,101 @@ export function UserAccessTab({
                   <h2 className="text-[16px] font-semibold">
                     {selected.full_name}
                   </h2>
-                  <p className="mt-0.5 text-[12px] text-neutral-500">
-                    {selected.role.replace(/_/g, " ")} ·{" "}
-                    {orgMap[selected.org_id || ""] || "No organization"}
+                  <p className="mt-0.5 text-[13px] text-neutral-500">
+                    {resolveAccountRoleDisplay(selected.role, selected.custom_role_key, roleCatalog).label} ·{" "}
+                    {orgMap[selected.org_id || ""] || "No Office assigned"}
                   </p>
                 </div>
               </div>
-              <div className="flex gap-2">
-                <div className="rounded-xl border border-teal-100 bg-white px-3 py-2 text-center">
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="eflow-tabular rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-center">
                   <div className="text-[15px] font-semibold">{pageCount}</div>
-                  <div className="text-[8.5px] uppercase tracking-widest text-neutral-400">
+                  <div className="text-[11px] font-medium text-neutral-500">
                     Pages
                   </div>
                 </div>
-                <div className="rounded-xl border border-teal-100 bg-white px-3 py-2 text-center">
+                <div className="eflow-tabular rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-center">
                   <div className="text-[15px] font-semibold">{actionCount}</div>
-                  <div className="text-[8.5px] uppercase tracking-widest text-neutral-400">
+                  <div className="text-[11px] font-medium text-neutral-500">
                     Actions
                   </div>
                 </div>
-                <div className="rounded-xl border border-teal-100 bg-white px-3 py-2 text-center">
+                <div className="eflow-tabular rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-center">
                   <div className="text-[15px] font-semibold">
                     {overrides.length}
                   </div>
-                  <div className="text-[8.5px] uppercase tracking-widest text-neutral-400">
-                    Exceptions
+                  <div className="text-[11px] font-medium text-neutral-500">
+                    Custom
                   </div>
                 </div>
               </div>
             </div>
-            <div className="mt-4 flex items-center gap-2 border-t border-teal-100 pt-3 text-[12px] text-neutral-500">
-              <Shield size={12} /> Effective access = individual exception →
-              role default → safe fallback. External Office access is managed
-              within each project.
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-neutral-100 pt-3">
+              <span className="inline-flex items-center gap-2 text-[12.5px] text-neutral-500">
+                <Shield
+                  size={14}
+                  aria-hidden="true"
+                  className="text-[var(--eflow-primary)]"
+                />
+                Custom permissions override this user’s role defaults. Project
+                access still depends on project membership.
+              </span>
+              <div
+                role="group"
+                aria-label="Filter permissions"
+                className="inline-flex rounded-lg border border-neutral-200 bg-neutral-50 p-0.5"
+              >
+                <button
+                  type="button"
+                  aria-pressed={!exceptionsOnly}
+                  onClick={() => setExceptionsOnly(false)}
+                  className={`min-h-[30px] rounded-md px-3 text-[12px] font-medium transition-colors ${
+                    !exceptionsOnly
+                      ? "bg-white text-neutral-900 shadow-xs"
+                      : "text-neutral-500 hover:text-neutral-900"
+                  }`}
+                >
+                  All permissions
+                </button>
+                <button
+                  type="button"
+                  aria-pressed={exceptionsOnly}
+                  onClick={() => setExceptionsOnly(true)}
+                  className={`min-h-[30px] rounded-md px-3 text-[12px] font-medium transition-colors ${
+                    exceptionsOnly
+                      ? "bg-white text-neutral-900 shadow-xs"
+                      : "text-neutral-500 hover:text-neutral-900"
+                  }`}
+                >
+                  Custom only{overrides.length > 0 ? ` (${overrides.length})` : ""}
+                </button>
+              </div>
             </div>
           </header>
           <fieldset disabled={busy} className="min-w-0">
             <AccessRows
               title="Page access"
               permissions={PAGE_PERMISSION_KEYS}
-              role={selected.role}
+              role={selectedCustomRole?.key || selected.role}
+              fallbackRole={selected.role}
               roleRows={roleRows}
               overrides={overrides}
               effective={effective}
-              onCycle={cycle}
+              exceptionsOnly={exceptionsOnly}
+              onSelectOverride={updateOverride}
             />
           </fieldset>
           <fieldset disabled={busy} className="min-w-0">
             <AccessRows
               title="Actions"
               permissions={ACTION_PERMISSION_KEYS}
-              role={selected.role}
+              role={selectedCustomRole?.key || selected.role}
+              fallbackRole={selected.role}
               roleRows={roleRows}
               overrides={overrides}
               effective={effective}
-              onCycle={cycle}
+              exceptionsOnly={exceptionsOnly}
+              onSelectOverride={updateOverride}
             />
           </fieldset>
         </div>

@@ -33,7 +33,7 @@ export function AccountDirectoryTabs({children}: {children: ReactNode}) {
   </div><div role="tabpanel" aria-label={tab === 'office' ? 'Office accounts' : 'Project guests'}>{tab === 'office' ? children : <ProjectGuestAccounts key={userProfile?.id}/>}</div></>;
 }
 
-function ProjectGuestAccounts() {
+export function ProjectGuestAccounts() {
   const {userProfile} = useAuth();
   const state = useProjectGuests(userProfile?.id || '', isAdminRole(userProfile?.role));
   const [filter, setFilter] = useState<GuestFilter>('all'), [notice, setNotice] = useState('');
@@ -43,12 +43,12 @@ function ProjectGuestAccounts() {
     {key: 'sponsor', header: 'Sponsoring office', render: g => g.sponsor_office},
     {key: 'projects', header: 'Active projects', render: g => g.projects.length ? <ul>{g.projects.map(p => <li key={p.id}>{p.title}</li>)}</ul> : <span className="guest-secondary">No active project</span>},
     {key: 'status', header: 'Status', render: g => <span className="guest-status" data-tone={guestStatus(g).tone}>{guestStatus(g).label}</span>},
-    {key: 'deadline', header: 'Deactivation', render: g => !g.is_active ? g.deactivated_at ? new Date(g.deactivated_at).toLocaleDateString() : 'Deactivated' : g.finance_open && !g.projects.length ? 'Paused until cash is settled' : g.deactivates_at ? new Date(g.deactivates_at).toLocaleString() : 'No countdown'},
-    {key: 'actions', header: 'Actions', action: true, render: guest => <div className="guest-row-actions"><Button size="sm" variant="outline" onClick={() => setSelection({guest, mode: 'details'})}>View details</Button><Button size="sm" variant={guest.is_active ? 'outline' : 'default'} disabled={guest.is_active && guest.finance_open} title={guest.is_active && guest.finance_open ? 'Settle the open cash responsibility first.' : undefined} onClick={() => setSelection({guest, mode: guest.is_active ? 'deactivate' : 'activate'})}>{guest.is_active ? 'Deactivate' : 'Reactivate'}</Button></div>},
+    {key: 'deadline', header: 'Auto-deactivation', render: g => !g.is_active ? g.deactivated_at ? new Date(g.deactivated_at).toLocaleDateString() : 'Deactivated' : g.finance_open && !g.projects.length ? 'Paused while cash is open' : g.deactivates_at ? new Date(g.deactivates_at).toLocaleString() : 'Active on project'},
+    {key: 'actions', header: 'Actions', action: true, render: guest => <div className="guest-row-actions"><Button size="sm" variant="outline" onClick={() => setSelection({guest, mode: 'details'})}>View details</Button><Button size="sm" variant={guest.is_active ? 'outline' : 'default'} disabled={guest.is_active && guest.finance_open} title={guest.is_active && guest.finance_open ? 'Settle open cash before deactivating.' : undefined} onClick={() => setSelection({guest, mode: guest.is_active ? 'deactivate' : 'activate'})}>{guest.is_active ? 'Deactivate' : 'Reactivate'}</Button></div>},
   ];
   const stats = [{filter: 'active', label: 'Active guests', icon: UserRoundCheck}, {filter: 'unassigned', label: 'Awaiting assignment', icon: UsersRound}, {filter: 'soon', label: 'Deactivating soon', icon: Clock3}, {filter: 'deactivated', label: 'Deactivated', icon: ShieldCheck}] as const;
   return <section className="guest-accounts" aria-label="Project guest accounts">
-    <header><h2>Project guests</h2><p>Temporary project accounts. After 7 days without an active project, login is deactivated. Work and history are kept.</p></header>
+    <header><h2>Project guests</h2><p>Temporary collaborators invited only to specific projects. Access pauses automatically 7 days after leaving their last active project; past work and records remain preserved.</p></header>
     <div className="guest-stats">{stats.map(stat => <button type="button" key={stat.filter} aria-pressed={filter === stat.filter} onClick={() => setFilter(current => current === stat.filter ? 'all' : stat.filter)}><stat.icon size={19}/><span>{stat.label}<strong>{state.loading ? '—' : state.data.filter(g => guestMatches(g, stat.filter)).length}</strong></span></button>)}</div>
     {notice && <FeedbackState tone="success" title="Account updated">{notice}</FeedbackState>}
     {state.error && state.data.length > 0 && <FeedbackState tone="error" title="Guest list could not update">{state.error}</FeedbackState>}

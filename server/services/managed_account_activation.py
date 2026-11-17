@@ -12,7 +12,7 @@ from gateway_dependencies import supabase_admin
 from invitations.service import normalize_email, token_hash
 from services.email_delivery import managed_account_activation_email, send_email
 from services.phase2_config import app_url, invitation_ttl
-INVALID_SKILL_CHARACTERS = re.compile(r'[\x00-\x1f\x7f\u200b-\u200f\u202a-\u202e\u2060-\u206f\ufeff]')
+from services.skill_tags import INVALID_SKILL_CHARACTERS, active_skill_labels, validate_skill_map
 
 
 class PdsNotes(BaseModel):
@@ -35,8 +35,9 @@ class StageManagedAccountPayload(BaseModel):
     request_id: UUID
     mode: Literal['ledipo_create', 'office_invite']
     email: str = Field(max_length=254)
-    full_name: str = Field(min_length=2, max_length=160)
+    full_name: str | None = Field(default=None, max_length=160)
     role: Literal['member', 'accounting_staff', 'head', 'admin']
+    custom_role_key: str | None = Field(default=None, min_length=2, max_length=48, pattern=r'^[a-z][a-z0-9_]{1,47}$')
     org_id: UUID
     skills: dict[str, bool] = Field(default_factory=dict)
     pds_notes: PdsNotes | None = None
@@ -51,9 +52,14 @@ class StageManagedAccountPayload(BaseModel):
     @field_validator('full_name')
     @classmethod
     def valid_name(cls, value):
-        if len(value.strip()) < 2 or '\x00' in value:
-            raise ValueError('Enter a full name')
-        return value.strip()
+        if value is None:
+            return None
+        cleaned = value.strip()
+        if not cleaned:
+            return None
+        if len(cleaned) < 2 or INVALID_SKILL_CHARACTERS.search(cleaned):
+            raise ValueError('Enter a full name with 2 to 160 characters')
+        return cleaned
 
     @field_validator('skills')
     @classmethod
@@ -83,7 +89,30 @@ def safe(row: dict) -> dict:
     return {k: v for k, v in row.items() if k in fields}
 
 
+def _general_activation_settings() -> dict[str, str]:
+    try:
+        res = (
+            supabase_admin.table('system_config')
+            .select('key,value')
+            .in_('key', ['activation_expiry_hours', 'organization_name', 'organization_subtitle', 'support_email'])
+            .execute()
+        )
+        rows = getattr(res, 'data', None)
+        if not isinstance(rows, list):
+            return {}
+        return {
+            str(r['key']): str(r['value'])
+            for r in rows
+            if isinstance(r, dict) and isinstance(r.get('key'), str) and isinstance(r.get('value'), str)
+        }
+    except Exception:
+        return {}
+
+
 def ttl():
+    raw = _general_activation_settings().get('activation_expiry_hours', '').strip()
+    if raw in {'24', '72', '168'}:
+        return min(int(raw), invitation_ttl())
     return min(24, invitation_ttl())
 
 
@@ -98,8 +127,22 @@ def dispatch(row: dict, token: str) -> dict:
         return safe(row)
     try:
         link = app_url() + '/activate-account?' + urlencode({'token': token})
-        content = managed_account_activation_email(row['full_name'], row['office_name'], link, ttl())
-        message_id = send_email(row['email'], content, 'managed-account/' + row['invitation_id'] + '/' + digest[:32])
+        cfg = _general_activation_settings()
+        hours = ttl()
+        content = managed_account_activation_email(
+            row.get('full_name'),
+            row['office_name'],
+            link,
+            hours,
+            organization_name=cfg.get('organization_name'),
+            organization_subtitle=cfg.get('organization_subtitle'),
+            support_email=cfg.get('support_email'),
+        )
+        support_reply_to = cfg.get('support_email', '').strip()
+        if support_reply_to:
+            message_id = send_email(row['email'], content, 'managed-account/' + row['invitation_id'] + '/' + digest[:32], reply_to=support_reply_to)
+        else:
+            message_id = send_email(row['email'], content, 'managed-account/' + row['invitation_id'] + '/' + digest[:32])
         rpc('eflow_managed_activation_delivery', {'p_id': row['invitation_id'], 'p_hash': digest, 'p_status': 'sent', 'p_message': message_id})
         return {**safe(row), 'email_delivery_status': 'sent'}
     except HTTPException:
@@ -138,7 +181,11 @@ def validate_public(token: str, ip: str):
     digest = public_rate(token, ip)
     try:
         preview = rpc('eflow_validate_managed_activation', {'p_hash': digest})
-        return {k: v for k, v in preview.items() if k in {'email', 'full_name', 'office_name', 'account_role', 'requested_privileged_role', 'expires_at'}}
+        safe_preview = {k: v for k, v in preview.items() if k in {'email', 'full_name', 'office_name', 'account_role', 'requested_privileged_role', 'expires_at', 'skills'}}
+        if 'skills' not in safe_preview or not isinstance(safe_preview['skills'], dict):
+            safe_preview['skills'] = {}
+        safe_preview['available_skills'] = active_skill_labels(supabase_admin)
+        return safe_preview
     except HTTPException as exc:
         if exc.status_code not in (403, 409):
             raise
@@ -157,9 +204,24 @@ def _reconcile(invitation_id, attempt, created_id):
     return None
 
 
-def activate(token: str, password: str, attempt: str, ip: str):
+def activate(
+    token: str,
+    password: str,
+    attempt: str,
+    ip: str,
+    skills: dict[str, bool] | None = None,
+    full_name: str | None = None,
+):
     if not 12 <= len(password) <= 128:
         raise HTTPException(422, 'Use a password with 12 to 128 characters.')
+    cleaned_full_name: str | None = None
+    if full_name is not None:
+        trimmed = full_name.strip()
+        if trimmed:
+            if len(trimmed) < 2 or len(trimmed) > 160 or INVALID_SKILL_CHARACTERS.search(trimmed):
+                raise HTTPException(422, 'Enter a full name with 2 to 160 characters.')
+            cleaned_full_name = trimmed
+    cleaned_skills = validate_skill_map(skills) if skills is not None else None
     digest = public_rate(token, ip)
     claim = rpc('eflow_claim_managed_activation', {'p_hash': digest, 'p_claim': attempt})
     if claim.get('accepted'):
@@ -171,7 +233,8 @@ def activate(token: str, password: str, attempt: str, ip: str):
             result = supabase_admin.auth.admin.create_user({'email': claim['email'], 'password': password, 'email_confirm': True,
                 'app_metadata': {'eflow_activation': claim['invitation_id'], 'eflow_activation_attempt': attempt}})
             uid = created_id = str(result.user.id)
-        return rpc('eflow_complete_managed_activation', {'p_hash': digest, 'p_claim': attempt, 'p_auth_user': uid})
+        rpc_params = {'p_hash': digest, 'p_claim': attempt, 'p_auth_user': uid, 'p_skills': cleaned_skills, 'p_full_name': cleaned_full_name}
+        return rpc('eflow_complete_managed_activation', rpc_params)
     except Exception as exc:
         if created_id:
             try:

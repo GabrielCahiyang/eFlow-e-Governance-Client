@@ -14,7 +14,7 @@ describe('P5a support contract and actor-local account intent', () => {
   it('presents every Admin leaf exactly once using the current support registry', () => {
     const pages=buildShellNavigation({role:'admin',can:()=>true}).filter(item=>item.group==='admin-center').flatMap(item=>item.pages.map(page=>page.label));
     expect(pages).toEqual(administrativePages.map(page=>page.label));
-    expect(new Set(pages).size).toBe(10);expect(pages).not.toContain('Office Structure');
+    expect(new Set(pages).size).toBe(5);expect(pages).not.toContain('Office Structure');expect(pages).not.toContain('Workspace Policy');
     expect(new Set(pages.map(getSupportPageGroup))).toEqual(new Set(supportGroupOrder));
   });
   it('preserves every leaf under a single operational support grant without Admin-only leaves', () => {
@@ -22,13 +22,13 @@ describe('P5a support contract and actor-local account intent', () => {
       const can=(permission:string)=>permission===grant;
       const pages=buildShellNavigation({role,can}).filter(item=>item.group==='admin-center').flatMap(item=>item.pages.map(page=>page.label));
       expect(pages).toEqual(getAuthorizedSupportPages(role,can).map(page=>page.label));
-      for(const page of ['Locked out accounts','Role Defaults','User Access'])expect(pages).not.toContain(page);
+      for(const page of ['Roles & Access','Locked out accounts','Role Defaults','User Access'])expect(pages).not.toContain(page);
     }
   });
   it('keeps configuration and legacy support URLs in the existing route owner', () => {
-    for(const role of ['admin','head','member','accounting_staff']) for(const page of ['System Settings','Workspace Policy','Email & Integrations','Runtime / AI Health']) {
+    for(const role of ['admin','head','member','accounting_staff']) for(const page of ['System Settings','Workspace Policy','Email & Integrations','Runtime / AI Health','System & Integrations','System & Maintenance']) {
       window.history.replaceState({},'',`/system-settings?page=${encodeURIComponent(page)}`);
-      expect(readNavigationLocation(role,()=>undefined)).toMatchObject({section:role==='admin'?'users':'administration',page});
+      expect(readNavigationLocation(role,()=>undefined)).toMatchObject({section:role==='admin'?'users':'administration',page:'System & Maintenance'});
     }
   });
   it('merges directory updates without overwriting an accepted record handoff', () => {

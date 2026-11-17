@@ -61,6 +61,7 @@ export interface UserProfile {
   employee_id: string;
   org_id: string | null;
   role: UserRole;
+  custom_role_key?: string | null;
   skills: Record<string, boolean>;
   workload: number;
   burnout_level: 'low' | 'medium' | 'high';

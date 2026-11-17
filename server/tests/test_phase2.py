@@ -108,10 +108,13 @@ class Phase2Tests(unittest.TestCase):
         self.assertEqual(response.status_code, 422)
         self.assertNotIn('sensitive', response.text)
 
-    def test_trial_sender_cannot_send_to_unapproved_recipients(self):
-        with patch.dict(os.environ, {'EFLOW_EMAIL_FROM': 'eFlow <onboarding@resend.dev>', 'RESEND_API_KEY': 'test-key', 'EFLOW_EMAIL_TEST_RECIPIENT': 'approved@example.test'}):
-            with self.assertRaises(HTTPException):
-                send_email('other@example.test', invitation_email('Head', 'Office', 'member', 'https://example.test/accept-invite', 168), 'test')
+    def test_send_email_forwards_any_recipient_without_local_lock(self):
+        mock_response = MagicMock(status_code=200)
+        mock_response.json.return_value = {'id': 'msg-123'}
+        with patch.dict(os.environ, {'EFLOW_EMAIL_FROM': 'eFlow <onboarding@resend.dev>', 'RESEND_API_KEY': 'test-key', 'EFLOW_EMAIL_TEST_RECIPIENT': 'approved@example.test'}), patch('services.email_delivery.httpx.post', return_value=mock_response) as post:
+            message_id = send_email('other@example.test', invitation_email('Head', 'Office', 'member', 'https://example.test/accept-invite', 168), 'test')
+        self.assertEqual(message_id, 'msg-123')
+        self.assertEqual(post.call_args.kwargs['json']['to'], ['other@example.test'])
 
     def test_email_html_escapes_names_and_contains_plaintext_link(self):
         message = invitation_email('<script>Head</script>', 'Office & Team', 'member', 'https://example.test/accept-invite?token=abc', 168)

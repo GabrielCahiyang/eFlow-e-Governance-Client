@@ -6,6 +6,7 @@ from gateway_dependencies import supabase_admin
 from invitations.service import token_hash
 from services.phase2_config import app_url, invitation_ttl
 from services.email_delivery import project_member_email, send_email
+from services.skill_tags import active_skill_labels
 
 
 def rpc(name, params):
@@ -55,8 +56,10 @@ def dispatch(user, request_id, revision, resend=False):
 def validate(token):
     item = office_context(rpc('r8_lookup', {'p_hash': token_hash(token)}))
     # No tokens, claims, uploader IDs or raw PDS metadata on the public endpoint.
-    return {key: item.get(key) for key in ('id', 'email', 'office_name', 'project_title', 'project_id',
+    payload = {key: item.get(key) for key in ('id', 'email', 'office_name', 'project_title', 'project_id',
             'needs_full_name', 'home_workspace_id', 'kind', 'engagement', 'access_end', 'until_close', 'expires_at', 'existing_account', 'summary', 'skills', 'project_participation_role')}
+    payload['available_skills'] = active_skill_labels(supabase_admin)
+    return payload
 
 
 def accept(token, identity, name='', claim=None):

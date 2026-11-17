@@ -116,8 +116,8 @@ describe('Phase 13 personal discovery',()=>{
   expect(nav.slice(0,2).map(item=>item.id)).toEqual(['personal_work','inbox']);
   expect(nav.some(item=>item.id==='tasks')).toBe(true);expect(nav.some(item=>item.id==='reviews')).toBe(true);
  });
- it('Admin receives only personal updates discovery, not operational My Work',()=>{
-  const nav=buildShellNavigation({role:'admin',can:()=>true});expect(nav[0].id).toBe('inbox');expect(nav.some(item=>item.id==='personal_work')).toBe(false);
+ it('excludes personal My Work and Inbox destinations for Admin',()=>{
+  const nav=buildShellNavigation({role:'admin',can:()=>true});expect(nav.some(item=>item.id==='inbox'||item.id==='personal_work')).toBe(false);
  });
 });
 

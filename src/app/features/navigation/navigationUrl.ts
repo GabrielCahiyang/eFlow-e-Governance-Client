@@ -183,11 +183,11 @@ export function readNavigationLocation(
   const url = new URL(window.location.href);
   if (role === "admin") {
     const legacySupport: Record<string, string> = {
-      organization: "All Users",
+      organization: "People & Accounts",
       audit: "Account Audit",
-      "system-settings": "System Settings",
+      "system-settings": "System & Maintenance",
       "data-tools": "Backup & Export",
-      permissions: "Role Defaults",
+      permissions: "Roles & Access",
     };
     const supportPage =
       legacySupport[url.pathname.split("/").filter(Boolean)[0] || ""];
@@ -195,7 +195,7 @@ export function readNavigationLocation(
       return {
         section: "users",
         page:
-          supportPage === "System Settings"
+          supportPage === "System & Maintenance"
             ? resolveSupportPage("administration", getPageFromUrl(url))
             : supportPage,
       };

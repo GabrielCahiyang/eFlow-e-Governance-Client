@@ -52,13 +52,13 @@ const { userProfile } = useAuth();
           if (count > 0) {
             setBlocked(true);
             addLog(
-              `⛔ /users node already contains ${count} entries. Migration is blocked to prevent duplicates.`,
+              `[BLOCKED] /users node already contains ${count} entries. Migration is stopped to prevent duplicates.`,
               "error"
             );
           }
         }
       } catch (err: any) {
-        addLog(`⚠ Could not check /users node: ${err.message}`, "warn");
+        addLog(`[WARN] Could not check /users node: ${err.message}`, "warn");
       } finally {
         setChecking(false);
       }
@@ -69,15 +69,15 @@ const { userProfile } = useAuth();
   const runMigration = async () => {
     setRunning(true);
     setProgress(0);
-    addLog("🚀 Starting migration...", "info");
+    addLog("[START] Starting migration...", "info");
 
     try {
       // ── Step 1: Read departments array ──
-      addLog("📖 Reading /offices array...", "info");
+      addLog("[READ] Reading /offices list...", "info");
       const deptSnap = await get(ref(database, "departments"));
 
       if (!deptSnap.exists()) {
-        addLog("⚠ /offices node is empty or does not exist.", "warn");
+        addLog("[WARN] /offices node is empty or does not exist.", "warn");
       }
 
       const deptArray: any[] = deptSnap.val() || [];
@@ -92,11 +92,11 @@ const { userProfile } = useAuth();
       }));
 
       // ── Step 2: Rewrite departments as keyed object ──
-      addLog("📝 Migrating offices to /offices/{id} format...", "info");
+      addLog("[MIGRATE] Moving offices to /offices/{id}...", "info");
       for (let i = 0; i < validDepts.length; i++) {
         const dept = validDepts[i];
         if (!dept || !dept.id) {
-          addLog(`  ⚠ Skipping null/invalid office at index ${i}`, "warn");
+          addLog(`  [WARN] Skipping invalid office at index ${i}`, "warn");
           continue;
         }
 
@@ -109,7 +109,7 @@ const { userProfile } = useAuth();
         };
 
         await set(ref(database, `offices/${dept.id}`), deptData);
-        addLog(`  ✓ Migrated office ${dept.id} → /offices/${dept.id}`, "success");
+        addLog(`  [OK] Migrated office ${dept.id} to /offices/${dept.id}`, "success");
 
         setStats((s) => ({
           ...s,
@@ -121,11 +121,11 @@ const { userProfile } = useAuth();
       }
 
       // ── Step 3: Read employees array ──
-      addLog("📖 Reading /members array...", "info");
+      addLog("[READ] Reading /members list...", "info");
       const empSnap = await get(ref(database, "employees"));
 
       if (!empSnap.exists()) {
-        addLog("⚠ /members node is empty or does not exist.", "warn");
+        addLog("[WARN] /members node is empty or does not exist.", "warn");
       }
 
       const empArray: any[] = empSnap.val() || [];
@@ -140,7 +140,7 @@ const { userProfile } = useAuth();
       }));
 
       // ── Step 4: Write employees to /users/{pushKey} ──
-      addLog("📝 Migrating members to /users/{uid} format...", "info");
+      addLog("[MIGRATE] Moving members to /users/{uid}...", "info");
 
       // Track dept heads to update /departments/{id}/headUid later
       const deptHeadMap: Record<string, string> = {};
@@ -148,7 +148,7 @@ const { userProfile } = useAuth();
       for (let i = 0; i < validEmps.length; i++) {
         const emp = validEmps[i];
         if (!emp || !emp.id) {
-          addLog(`  ⚠ Skipping null/invalid member at index ${i}`, "warn");
+          addLog(`  [WARN] Skipping invalid member at index ${i}`, "warn");
           continue;
         }
 
@@ -172,7 +172,7 @@ const { userProfile } = useAuth();
 
         await set(newUserRef, userData);
         addLog(
-          `  ✓ Migrated ${emp.name} (${emp.id}) → /users/${uid} [${mappedRole}]`,
+          `  [OK] Migrated ${emp.name} (${emp.id}) to /users/${uid} [${mappedRole}]`,
           "success"
         );
 
@@ -191,24 +191,24 @@ const { userProfile } = useAuth();
       }
 
       // ── Step 5: Link dept heads to departments ──
-      addLog("🔗 Linking Heads...", "info");
+      addLog("[LINK] Connecting office heads...", "info");
       for (const [deptId, headUid] of Object.entries(deptHeadMap)) {
         try {
           await set(ref(database, `offices/${deptId}/headUid`), headUid);
-          addLog(`  ✓ Linked ${deptId} headUid → ${headUid}`, "success");
+          addLog(`  [OK] Linked ${deptId} headUid to ${headUid}`, "success");
         } catch (err: any) {
-          addLog(`  ✗ Failed to link ${deptId}: ${err.message}`, "error");
+          addLog(`  [ERROR] Failed to link ${deptId}: ${err.message}`, "error");
         }
       }
 
       setProgress(100);
       setComplete(true);
       addLog("", "info");
-      addLog("═══════════════════════════════════════════", "info");
-      addLog("✅ Migration completed successfully!", "success");
-      addLog("═══════════════════════════════════════════", "info");
+      addLog("-------------------------------------------", "info");
+      addLog("[DONE] Migration completed successfully.", "success");
+      addLog("-------------------------------------------", "info");
     } catch (err: any) {
-      addLog(`✗ MIGRATION FAILED: ${err.message}`, "error");
+      addLog(`[ERROR] Migration failed: ${err.message}`, "error");
       setProgress(0);
     } finally {
       setRunning(false);

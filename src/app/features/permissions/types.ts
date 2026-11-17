@@ -5,6 +5,31 @@ export interface RolePermissionRow {
   updatedAt?: string;
 }
 
+export type BaseCustomRole = "head" | "accounting_staff" | "member";
+
+export interface CustomRoleDefinition {
+  key: string;
+  label: string;
+  description: string;
+  baseRole: BaseCustomRole;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CustomRoleSummary {
+  key: string;
+  baseRole: string;
+}
+
+export interface ManagedRoleCatalogEntry {
+  key: string;
+  label: string;
+  description: string;
+  baseRole: "admin" | BaseCustomRole;
+  isBuiltIn: boolean;
+  isLocked: boolean;
+}
+
 export interface UserOverrideRow {
   userId: string;
   permission: string;

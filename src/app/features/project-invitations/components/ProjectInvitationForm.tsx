@@ -4,9 +4,12 @@ import {useExplicitDraft} from '../../../shared/useExplicitDraft';
 import {useConfirmation} from '../../../components/ui/useConfirmation';
 import {sendProjectInvitation,submitProjectInvitation} from '../services/projectInvitationService';
 import type {InvitationDraft} from '../types';
+import { SkillTagSelector } from '../../../components/ui/SkillTagSelector';
+import { useSkillTags } from '../../../shared/skillTags';
 
 const blank=():InvitationDraft=>({id:crypto.randomUUID(),email:'',summary:'',skills:'',engagement:'Other',end:'',untilClose:true});
 export function ProjectInvitationForm({project,office,root,node,timezone,canSend=false,onDone,onClose,closeRef}:{project:string;office:string;root?:string;node?:string;timezone:string;canSend?:boolean;onDone:()=>void;onClose:()=>void;closeRef?:MutableRefObject<(()=>void)|undefined>}){
+ const { activeLabels: availableSkillTags, loading: loadingSkillTags } = useSkillTags(true);
  const [rows,setRows]=useState<InvitationDraft[]>(()=>[blank()]),[busy,setBusy]=useState(false),[error,setError]=useState(''),[receipts,setReceipts]=useState<Record<string,string>>({});
  const attempted=useRef(new Set<string>()),dirty=rows.some(row=>!!row.email&&!receipts[row.id]);
  const guard=useExplicitDraft('Project invitations',dirty,busy,onClose),confirmation=useConfirmation();
@@ -35,6 +38,17 @@ export function ProjectInvitationForm({project,office,root,node,timezone,canSend
     <label>Engagement<select aria-label="Engagement" value={row.engagement} onChange={event=>change(row.id,{engagement:event.target.value as InvitationDraft['engagement']})}>{['Permanent','Job Order','OJT','Consultant','Other'].map(value=><option key={value}>{value}</option>)}</select></label>
     <label className="r8-invite-until"><input type="checkbox" checked={row.untilClose} onChange={event=>change(row.id,{untilClose:event.target.checked,end:event.target.checked?'':row.end})}/>Until project completion or archive</label>
     {!row.untilClose&&<label>Access ends after this date · {timezone}<input type="date" required={row.engagement!=='Permanent'} value={row.end} onChange={event=>change(row.id,{end:event.target.value})}/></label>}
+    {(availableSkillTags.length > 0 || row.skills) && (
+      <SkillTagSelector
+        availableTags={availableSkillTags}
+        loading={loadingSkillTags}
+        selected={row.skills ? row.skills.split(',').map(s => s.trim()).filter(Boolean) : []}
+        disabled={busy || attempted.current.has(row.id)}
+        title="Requested skills (optional)"
+        description="Tap the skills needed for this project member."
+        onChange={next => change(row.id, { skills: next.join(', ') })}
+      />
+    )}
     <p className="r8-invite-scope"><ShieldCheck size={15} aria-hidden="true"/>Project-only access{root?' · selected task':''}{node?' / subitem':''}. This does not grant a permanent account role.</p>
    </fieldset>{receipts[row.id]&&<p role="status" className="r8-invite-receipt">{row.email}: {receipts[row.id]}</p>}</div>)}
    {rows.length<5&&<button type="button" className="r8-add-person" disabled={busy} onClick={()=>setRows(current=>[...current,blank()])}><Plus size={16} aria-hidden="true"/>Add another person</button>}

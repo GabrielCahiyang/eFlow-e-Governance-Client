@@ -157,7 +157,11 @@ export function EflowTopBar({
             size="small"
           />
         </Tooltip>
-        <div className="eflow-topbar__brand-lockup" data-tour-id="brand">
+        <div
+          className="eflow-topbar__brand-lockup"
+          data-tour-id="brand"
+          title={branding.organization_subtitle || undefined}
+        >
           <EFlowMark variant={dark ? "white" : "default"} height={36} className="eflow-topbar__wordmark" />
           <div className="eflow-topbar__brand-divider" aria-hidden="true" />
           <span className="eflow-topbar__brand-org">{branding.organization_name}</span>
