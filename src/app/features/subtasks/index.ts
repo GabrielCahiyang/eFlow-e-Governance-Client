@@ -12,6 +12,7 @@ export const SubtasksWorkspace = lazyFeature(
 );
 export { TaskSubtasksWidget } from "./components/TaskSubtasksWidget";
 export { SubitemInspector, type SubitemInspectorProps } from "./components/SubitemInspector";
+export { SubitemActionModal, type SubitemActionModalProps, type SubitemActionSection } from "./components/SubitemActionModal";
 export { SubitemLeadReview } from "./components/SubitemLeadReview";
 export type { SubtaskWorkDrawerProps } from "./components/SubtaskWorkDrawer";
 export const SubtaskWorkDrawer = lazyFeature(

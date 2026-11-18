@@ -181,8 +181,12 @@
   border-radius:4px
 }
 
-.pt-task-name>div>button:first-child:hover {
+.pt-task-name>div>button:first-child:hover:not(:disabled) {
   background:#e6e9f2
+}
+.pt-task-name>div>button.pt-subitem-toggle-disabled {
+  opacity:.35;
+  cursor:not-allowed;
 }
 .pt-add-group{display:flex;align-items:center;gap:8px;border:1px solid var(--eflow-border);border-radius:5px;padding:8px 12px;background:var(--eflow-surface);color:var(--eflow-text-secondary);font-size:13px}.pt-collapsed{display:flex;align-items:center;gap:26px;border:1px solid var(--eflow-border);border-left:5px solid var(--group-color);border-radius:4px;padding:18px 16px;font-size:12px;color:var(--eflow-text-muted)}.pt-status-summary{display:flex;overflow:hidden;border-radius:3px;width:180px;height:21px}.pt-status-summary i{flex:1}
 .pt-popover-form{display:flex;flex-direction:column;gap:12px;font-size:13px;color:var(--eflow-text-secondary)}.pt-popover-form strong{font-size:14px;color:var(--eflow-text)}.pt-popover-form label{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.pt-popover-form input:not([type=checkbox]),.pt-popover-form select,.pt-popover-form textarea{border:1px solid var(--eflow-border);border-radius:4px;padding:8px;width:100%;background:var(--eflow-surface);color:var(--eflow-text)}.pt-popover-form p{font-size:12px;line-height:1.5;white-space:normal}.pt-popover-form [role=alert]{color:var(--eflow-negative-text)}.pt-dependency-options{max-height:230px;overflow:auto;display:flex;flex-direction:column;gap:10px}.pt-primary{background:var(--eflow-primary)!important;color:var(--eflow-on-primary)!important;border:0;border-radius:5px;padding:10px 17px!important;font-size:13px;cursor:pointer}.pt-primary:disabled{opacity:.45;cursor:default}
@@ -271,4 +275,8 @@
 @media(max-width:767px){.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table th:first-child,.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-table td:first-child{position:static}}
 /* Include both nested cell borders in the sticky footer's width budget. */
 .pt-subitems tfoot .pt-subitem-add{box-sizing:border-box;width:min(100%,calc(100cqw - 66px));position:sticky;left:0;background:var(--eflow-surface)}
+.pt-date--required{color:#92400e;border-radius:6px;padding:4px 8px;background:#fffbeb;border:1px dashed #f59e0b;text-align:left}
+.pt-date--required:hover:not(:disabled){background:#fef3c7;border-color:#d97706}
+.pt-date--required>svg{color:#d97706;flex-shrink:0}
+.pt-date-required-hint{display:inline-flex;align-items:center;font-size:10.5px;font-weight:600;line-height:1.25;color:#b45309;white-space:normal}
 @media(max-width:639px){.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-control{min-width:var(--eflow-touch-target);max-width:none}.pt-nested-work [data-work-presentation="project-table"] .nw-hierarchy-open{min-width:var(--eflow-touch-target)}}

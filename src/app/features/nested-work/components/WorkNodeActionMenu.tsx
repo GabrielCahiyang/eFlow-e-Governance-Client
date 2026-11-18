@@ -10,7 +10,7 @@ export function WorkNodeActionMenu({label,actions,compact=false,prominent=false}
  if(prominent&&actions.length===1&&only.id==='create'){
   return <button type="button" data-work-toolbar-primary="true" className="nw-hierarchy-control nw-hierarchy-control--primary" disabled={only.disabled} title={only.disabledReason} onClick={()=>{if(!only.disabled)only.onSelect();}}><Plus size={17} aria-hidden="true"/>{only.label}</button>;
  }
- const editorActions=new Set(['staff','create','order','edit','move','delete','progress','submit','review']);
+ const editorActions=new Set(['staff','create','order','edit','move','delete','progress','submit','review','evidence','funding','files']);
  // A closing dropdown can still trap focus. Open the editor after its close
  // event, and leave canonical return-focus selection to the WorkTree owner.
  const menuActions=actions.map(action=>({...action,onSelect:()=>{

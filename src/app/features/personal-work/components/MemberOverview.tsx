@@ -428,7 +428,7 @@ function MemberHome({
           <button
             type="button"
             className="ea-button"
-            onClick={() => navigate("inbox", "Needs action")}
+            onClick={() => navigate("inbox", "Notifications")}
           >
             Open my action inbox
             <ArrowRight size={15} />

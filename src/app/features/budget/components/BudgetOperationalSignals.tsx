@@ -3,7 +3,7 @@ import type { EmptyIllustration } from '../../../components/ui/EmptyStateIllustr
 import { Banknote, Clock3, History, TrendingUp } from "lucide-react";
 import type { DepartmentBudgetBundle } from "../types";
 import { peso, StatusPill } from "./budgetUi";
-import { formatFundingRequestCode } from "../selectors/cashWorkflowRules";
+import { formatFundingRequestCode, formatLedgerEntryLabel } from "../selectors/cashWorkflowRules";
 
 export function BudgetOperationalSignals({ data }: { data: DepartmentBudgetBundle }) {
   const upcoming = data.releases.filter((item) => item.status === "scheduled").sort((a, b) => a.scheduledDate.localeCompare(b.scheduledDate)).slice(0, 5);
@@ -27,7 +27,7 @@ export function BudgetOperationalSignals({ data }: { data: DepartmentBudgetBundl
     </section>
     <section className="rounded-[10px] border border-[var(--eflow-border)] bg-[var(--eflow-surface)] p-4">
       <header className="mb-3 flex items-center gap-2"><History size={15} className="text-[var(--eflow-primary)]" /><h3 className="text-[15px] font-semibold text-[var(--eflow-text)]">Recent financial activity</h3></header>
-      {data.ledger.length ? <div className="divide-y divide-[var(--eflow-border)]">{data.ledger.slice(0, 6).map((entry) => <div key={entry.id} className="flex gap-3 py-3"><div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-[6px] bg-[var(--eflow-subtle)] text-[var(--eflow-text-muted)]"><History size={11} /></div><div className="min-w-0"><div className="truncate text-[12px] font-medium capitalize">{entry.entryType.replace(/_/g, " ")}</div><div className="mt-0.5 truncate text-[12px] text-[var(--eflow-text-muted)]">{entry.description}</div><div className="mt-1 text-[12px] text-[var(--eflow-text-muted)]">{peso.format(entry.amount)} · {new Date(entry.createdAt).toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric', hour: 'numeric', minute: '2-digit' })}</div></div></div>)}</div> : <EmptyLine illustration="files" text="Audited financial actions will appear here." />}
+      {data.ledger.length ? <div className="divide-y divide-[var(--eflow-border)]">{data.ledger.slice(0, 6).map((entry) => <div key={entry.id} className="flex gap-3 py-3"><div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-[6px] bg-[var(--eflow-subtle)] text-[var(--eflow-text-muted)]"><History size={11} /></div><div className="min-w-0"><div className="truncate text-[12px] font-medium">{formatLedgerEntryLabel(entry.entryType)}</div><div className="mt-0.5 truncate text-[12px] text-[var(--eflow-text-muted)]">{entry.description}</div><div className="mt-1 text-[12px] text-[var(--eflow-text-muted)]">{peso.format(entry.amount)} · {new Date(entry.createdAt).toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric', hour: 'numeric', minute: '2-digit' })}</div></div></div>)}</div> : <EmptyLine illustration="files" text="Audited financial actions will appear here." />}
     </section>
   </div>;
 }

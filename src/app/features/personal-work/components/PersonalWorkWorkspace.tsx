@@ -47,6 +47,46 @@ const DESTINATION_META: Record<WorkDestination, { title: string; description: st
     description: 'Completed, cancelled, and archived work records across your workspaces.',
   },
 };
+
+const EMPTY_STATE_COPY: Record<
+  Exclude<WorkDestination, 'Reviews'>,
+  {
+    illustration: 'tasks' | 'files';
+    emptyTitle: string;
+    emptyDescription: string;
+    filteredTitle: string;
+    filteredDescription: string;
+  }
+> = {
+  'Assigned work': {
+    illustration: 'tasks',
+    emptyTitle: 'No assigned work yet',
+    emptyDescription: 'Active tasks and deliverables assigned to you across accessible workspaces will appear here.',
+    filteredTitle: 'No matching assigned work',
+    filteredDescription: 'Try another search or clear your filters to see all assigned work.',
+  },
+  Leading: {
+    illustration: 'tasks',
+    emptyTitle: 'No led work yet',
+    emptyDescription: 'Tasks and subtasks you lead or supervise across your workspaces will appear here.',
+    filteredTitle: 'No matching led work',
+    filteredDescription: 'Try another search or clear your filters to see all work you lead.',
+  },
+  Subtasks: {
+    illustration: 'tasks',
+    emptyTitle: 'No assigned subtasks yet',
+    emptyDescription: 'Subtask steps assigned to you across projects and tasks will appear here.',
+    filteredTitle: 'No matching subtasks',
+    filteredDescription: 'Try another search or clear your filters to see all assigned subtasks.',
+  },
+  History: {
+    illustration: 'files',
+    emptyTitle: 'No work history yet',
+    emptyDescription: 'Completed, cancelled, and archived work records across your workspaces will appear here.',
+    filteredTitle: 'No matching work history',
+    filteredDescription: 'Try another search or clear your filters to see completed, cancelled, and archived work.',
+  },
+};
 export function PersonalWorkWorkspace({
   page = "Assigned work",
   onNavigate,
@@ -284,17 +324,24 @@ function PersonalWorkContent({
               historyView={destination === 'History'}
             />
           ) : (
-            !feed.error && <EmptyState size="page" illustration={filtered ? 'search' : 'tasks'}
-              title={filtered ? 'No matching work' : 'No work in this view'}
-              description={filtered ? 'Try a different search or filter.' : 'Assigned tasks and subitems will appear here when they are available to you.'}
-              action={filtered ? <Button type="button" variant="outline" onClick={() => update({ query: '', date: 'All my work', workspace: '', project: '', status: '', relation: '', recent: false })}>Clear search and filters</Button> : undefined}
-            />
+            !feed.error && (() => {
+              const copy = EMPTY_STATE_COPY[destination];
+              return (
+                <EmptyState
+                  size="page"
+                  illustration={filtered ? 'search' : copy.illustration}
+                  title={filtered ? copy.filteredTitle : copy.emptyTitle}
+                  description={filtered ? copy.filteredDescription : copy.emptyDescription}
+                  action={filtered ? <Button type="button" variant="outline" onClick={() => update({ query: '', date: 'All my work', workspace: '', project: '', status: '', relation: '', recent: false })}>Clear search and filters</Button> : undefined}
+                />
+              );
+            })()
           )}
         </>
       )}
       </>}
       </div>
-      {(destination === 'Leading' || destination === 'Subtasks') && <LeadingNotificationTarget rows={feed.data?.rows || []}
+      {destination !== 'Reviews' && <LeadingNotificationTarget rows={feed.data?.rows || []}
         loading={feed.loading} onOpen={inspector.open} />}
       <WorkInspector
         presentation="dialog"

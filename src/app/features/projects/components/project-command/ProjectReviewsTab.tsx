@@ -18,6 +18,13 @@ export function ProjectReviewsTab({
   const pendingTasks = rows.filter(
     (row) => row.kind === "task" && row.status === "pending",
   ).length;
+  const approvedAwaitingCompletion = data.tasks.filter((task) => {
+    if (task.status !== "for_review" || task.archivedAt) return false;
+    const taskSubmissions = data.facts.submissions
+      .filter((submission) => submission.kind === "task" && submission.taskId === task.id)
+      .sort((a, b) => b.version - a.version);
+    return taskSubmissions[0]?.status === "approved";
+  });
   const completedSubtasks = data.facts.subtasks.filter(row=>row.status==='completed').length;
   const changes = rows.filter(
     (row) => row.status === "changes_requested",
@@ -126,6 +133,45 @@ export function ProjectReviewsTab({
           )}
         </div>
       </section>
+
+      {approvedAwaitingCompletion.length > 0 && (
+        <section className="eflow-section-card">
+          <header>
+            <h2>Approved · awaiting completion</h2>
+            <p className="m-0 mt-1 text-xs text-secondary">
+              Work has been accepted. Open the task to finish financial clearance or click Mark as complete.
+            </p>
+          </header>
+          <div className="divide-y divide-neutral-100">
+            {approvedAwaitingCompletion.map((task) => (
+              <div
+                key={task.id}
+                className="flex flex-wrap items-center justify-between gap-3 p-4 hover:bg-neutral-50/70 transition-colors"
+              >
+                <div>
+                  <div className="text-sm font-semibold text-neutral-900">
+                    {task.title}
+                  </div>
+                  <div className="mt-1 text-xs text-secondary">
+                    Task Lead: {task.assigneeName || "Unassigned"} · Work accepted
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Label text="Ready for clearance" color="positive" />
+                  <Button
+                    kind="secondary"
+                    size="small"
+                    rightIcon={Open}
+                    onClick={() => onOpenTask(task.id)}
+                  >
+                    Open task
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

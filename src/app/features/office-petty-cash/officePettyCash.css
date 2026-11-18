@@ -85,7 +85,7 @@
 .opc tbody tr:focus, .opc tbody tr:hover { background: var(--eflow-subtle); }
 .opc td small { display: block; margin-top: var(--eflow-space-1); }
 .opc-amount { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
-.opc-status { text-transform: capitalize; }
+.opc-status { display: inline-flex; }
 .opc-error {
   color: var(--eflow-negative-text);
   background: var(--eflow-negative-bg);
@@ -115,7 +115,8 @@
   border-radius: var(--eflow-radius-surface);
   padding: var(--eflow-space-4);
 }
-.opc-launcher { margin-bottom: var(--eflow-space-3); }
+.opc-launcher { margin: 0; }
+.opc-launcher:enabled:hover { background: var(--eflow-subtle); }
 .opc summary { cursor: pointer; font-size: var(--eflow-text-sm); padding-block: var(--eflow-space-3); }
 @media (max-width: 639px) {
   .opc-metrics { grid-template-columns: 1fr; }

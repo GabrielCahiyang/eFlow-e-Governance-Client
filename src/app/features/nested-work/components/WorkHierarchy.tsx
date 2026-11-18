@@ -51,9 +51,12 @@ export function WorkHierarchy({snapshot,readOnly,executionBlocked,authorityFresh
  },[snapshot.root.id,focusedNodeId,display.rows,mobile]);
  function actionsFor(nodeId?:string):WorkspaceAction[] {
   const node=nodeId?snapshot.nodes.find(item=>item.id===nodeId):undefined;
-  const actions:WorkspaceAction[]=node?[
-   {id:'open',label:snapshot.root.kind==='office'?'Open work / evidence':'Open work',onSelect:()=>onOpenNode(node.id)},
-   ...(!branchParentId?[{id:'activity',label:'Activity',onSelect:()=>onRequestAction('activity',node.id)}]:[]),
+  const isRowNode=Boolean(node&&node.id!==branchParentId);
+  const actions:WorkspaceAction[]=isRowNode?[
+   {id:'evidence',label:'Evidence',onSelect:()=>onRequestAction('evidence',node!.id)},
+   ...(snapshot.root.kind==='office'?[{id:'funding',label:'Funding',onSelect:()=>onRequestAction('funding',node!.id)}]:[]),
+   {id:'files',label:'Files',onSelect:()=>onRequestAction('files',node!.id)},
+   ...(!branchParentId?[{id:'activity',label:'Activity',onSelect:()=>onRequestAction('activity',node!.id)}]:[]),
   ]:[];
   const allowed=(capability:NodeWorkAction)=>node?selectNodeWorkCapability(snapshot,node.id,capability,context).allowed:selectRootWorkCapability(snapshot,capability as RootWorkAction,context).allowed;
   const add=(action:WorkHierarchyAction,label:string,capabilities:NodeWorkAction[])=>{
@@ -63,7 +66,7 @@ export function WorkHierarchy({snapshot,readOnly,executionBlocked,authorityFresh
     // Recheck at selection; callers also use controller.save's current identity guard.
     onSelect:()=>{if(authorityFresh&&capabilities.some(allowed))onRequestAction(action,nodeId);}});
   };
-  add('staff','Choose people',['manage_contributors','appoint_lead']);
+  if(!isRowNode)add('staff','Choose people',['manage_contributors','appoint_lead']);
   const projectSubtask=!!snapshot.root.project&&!!node;
   if(!projectSubtask)add('create','Add subtask',['create_child']);
   // nodeId names the parent. No displayed/filtered IDs are sent as an order list.

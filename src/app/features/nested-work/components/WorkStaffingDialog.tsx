@@ -26,7 +26,7 @@ export interface WorkStaffingController {
 }
 export interface WorkStaffingDialogProps {
  controller:WorkTreeController|WorkStaffingController;nodeId:string|null;readOnly?:boolean;executionBlocked?:boolean;contributorsOnly?:boolean;
- preselectedLeadId?:string;onClose:()=>void;onChanged:(receipt:WorkTreeSnapshot)=>void|Promise<void>;
+ preselectedLeadId?:string;projectLeadId?:string|null;onClose:()=>void;onChanged:(receipt:WorkTreeSnapshot)=>void|Promise<void>;
 }
 export function WorkStaffingDialog(props:WorkStaffingDialogProps) {
  if('authorityFresh' in props.controller)return <ControlledWorkStaffingDialog {...props} controller={props.controller}/>;
@@ -40,16 +40,19 @@ function ControlledWorkStaffingDialog(props:Omit<WorkStaffingDialogProps,'contro
  const controller:WorkStaffingController={...source,data,verificationFailed:!source.authorityFresh||source.refreshPending||source.pending};
  return <WorkStaffingDialogContent key={`${controller.actorId}:${controller.rootId}:${props.nodeId}`} {...props} controller={controller}/>;
 }
-function WorkStaffingDialogContent({controller,nodeId,readOnly=false,executionBlocked=false,contributorsOnly=false,preselectedLeadId,onClose,onChanged}:Omit<WorkStaffingDialogProps,'controller'> & {controller:WorkStaffingController}) {
+function WorkStaffingDialogContent({controller,nodeId,readOnly=false,executionBlocked=false,contributorsOnly=false,preselectedLeadId,projectLeadId,onClose,onChanged}:Omit<WorkStaffingDialogProps,'controller'> & {controller:WorkStaffingController}) {
  const {userProfile}=useAuth();
  const data=controller.data,context:WorkCapabilityContext={actorId:controller.actorId,rootId:controller.rootId,projectId:data.root.project,officeId:data.root.office,kind:data.root.kind,revision:data.revision,readOnly,executionBlocked};
+ const effectiveProjectLeadId=projectLeadId??data.root.project_lead_id??null;
+ const excludedLeadIds=!nodeId&&data.root.kind==='office'&&effectiveProjectLeadId?[effectiveProjectLeadId]:undefined;
+ const safePreselectedLeadId=preselectedLeadId&&!excludedLeadIds?.includes(preselectedLeadId)?preselectedLeadId:undefined;
  const [captured]=useState(()=>{
   const staff=captureStaffingBaseline(data,nodeId,context),editor=captureWorkEditorBaseline(data,{command:nodeId?'staff':'root_lead',node:data.nodes.find(node=>node.id===nodeId),root:!nodeId},context.actorId,crypto.randomUUID());
   editor.fields.lead=staff.leadId||'';editor.fields.people=staff.workerIds;return editor;
  });
  const recovery=useWorkDraftRecovery(data,context,captured,contributorsOnly?'staffing_contributors':'staffing'),draftBaseline=recovery.baseline;
  const baseline=useRef({...captureStaffingBaseline(data,nodeId,context),revision:draftBaseline.revision,leadId:draftBaseline.fields.lead||null,workerIds:draftBaseline.fields.people}).current;
- const [lead,setLead]=useState<string|null>(recovery.initial?.fields.lead||preselectedLeadId||baseline.leadId),[workers,setWorkers]=useState(recovery.initial?.fields.people||baseline.workerIds);
+ const [lead,setLead]=useState<string|null>(recovery.initial?.fields.lead||safePreselectedLeadId||baseline.leadId),[workers,setWorkers]=useState(recovery.initial?.fields.people||baseline.workerIds);
  const [busy,setBusy]=useState(false),[aiBusy,setAiBusy]=useState(false),[error,setError]=useState(''),[saved,setSaved]=useState(false);
  const request=useRef<WorkRequest|undefined>(recovery.initial?.request),confirmed=useRef(false),active=useRef(true),closed=useRef(false);
  useEffect(()=>{active.current=true;return()=>{active.current=false;};},[]);
@@ -57,7 +60,8 @@ function WorkStaffingDialogContent({controller,nodeId,readOnly=false,executionBl
  const selfLeadReviewerRisk=!nodeId&&data.root.kind==='office'&&userProfile?.role==='head'&&Boolean(lead)&&lead===context.actorId;
  // A quiet in-flight read does not invalidate an already verified response.
  // Preserve the existing save/read generation race; SQL rechecks the revision.
- const draftError=controller.verificationFailed?'Verify current work access before saving.':contributorsOnly&&lead!==baseline.leadId?'Lead appointments use the separate appointment action.':staffingDraftError(data,context,baseline,lead,workers,!!request.current);
+ const validationExcludedLeadIds=contributorsOnly?undefined:excludedLeadIds;
+ const draftError=controller.verificationFailed?'Verify current work access before saving.':contributorsOnly&&lead!==baseline.leadId?'Lead appointments use the separate appointment action.':staffingDraftError(data,context,baseline,lead,workers,!!request.current,validationExcludedLeadIds);
  const dirty=!!request.current||lead!==baseline.leadId||JSON.stringify(workers)!==JSON.stringify(baseline.workerIds);
  const closeOwner=()=>{recovery.clear();if(!closed.current){closed.current=true;onClose();}};
  const guard=useExplicitDraft('Task/subtask people changes',dirty&&!saved,busy,closeOwner,`${controller.actorId}:${controller.rootId}:${nodeId}:${contributorsOnly?'contributors':'staffing'}`);
@@ -114,7 +118,7 @@ function WorkStaffingDialogContent({controller,nodeId,readOnly=false,executionBl
    if(!active.current)return;
    const checked=latest.current;
    const freshContext={...checked.context,revision:fresh.revision};
-   const freshError=staffingDraftError(fresh,freshContext,baseline,checked.lead,checked.workers,false);
+   const freshError=staffingDraftError(fresh,freshContext,baseline,checked.lead,checked.workers,false,validationExcludedLeadIds);
    if(freshError)throw new Error(freshError);
    if(!request.current){
     if(JSON.stringify(candidate.payload)!==JSON.stringify(createStaffingRequest(baseline,latest.current.lead!,latest.current.workers).payload))throw new Error('Draft terms changed during confirmation. Review the current impact again.');
@@ -142,11 +146,12 @@ function WorkStaffingDialogContent({controller,nodeId,readOnly=false,executionBl
  return <Modal isOpen title={title} description={nodeId?'Assign the subtask lead and contributors responsible for this step.':'Choose the primary Task Lead and optional contributors directly from eligible Office members.'} onClose={close} preventClose={busy} width="max-w-2xl">
   <form className="nw-staffing-form" aria-label="Task/subtask people changes" onSubmit={event=>{event.preventDefault();void submit();}}>
    {!nodeId&&data.root.kind==='office'&&data.can_transfer&&caps.appointment.allowed&&!baseline.leadId&&!contributorsOnly&&!readOnly&&<AutoAssignTaskButton snapshot={data} disabled={locked||dirty||executionBlocked} onBusyChange={value=>{guard.pendingRef.current=value;setAiBusy(value);setBusy(value);}} onAssigned={async receipt=>{confirmed.current=true;recovery.clear();setSaved(true);guard.markClean();await latest.current.onChanged(receipt);}}/>}
-   <WorkPeoplePicker people={data.people} lead={lead||''} selected={workers} onLead={setLead} onSelected={setWorkers}
+   <WorkPeoplePicker people={data.people} lead={lead||''} excludedLeadIds={excludedLeadIds} selected={workers} onLead={setLead} onSelected={setWorkers}
     priority={nodeId?workAssignmentPriority(data,data.nodes.find(node=>node.id===nodeId)?.parent_subtask_id||null):undefined}
     appointmentCapability={contributorsOnly?{allowed:false,reason_code:'read_only',disabledReason:'Change the lead from the Lead menu.'}:caps.appointment} contributorCapability={caps.contributors} disabled={locked} disabledReason={lockReason}
     invite={!readOnly&&!locked?{project:data.root.project,office:data.root.office,root:controller.rootId,node:nodeId||undefined,canRequest:scopedInvitationRequestAllowed(data,nodeId,context)}:undefined}/>
    {selfLeadReviewerRisk&&<div role="status" className="nw-staffing-banner nw-staffing-banner--warn">Heads up: assigning yourself as both Office Head and Task Lead means you cannot review your own task submission. Unless an independent Project Lead is assigned on the project, final review submission will be blocked.</div>}
+   {!nodeId&&data.root.kind==='office'&&!data.root.due&&Boolean(lead)&&<div role="status" className="nw-staffing-banner nw-staffing-banner--warn">Set a due date in the Due date column. Tasks without a due date will not be shown to the assigned leader.</div>}
    {showDraftAlert&&<p role="alert" className="nw-staffing-banner nw-staffing-banner--error">{draftError}</p>}
    {error&&<p role="alert" className="nw-staffing-banner nw-staffing-banner--error">{error}{request.current&&!saved?' Press Try again to check and finish the last save.':''}</p>}
    {saved&&<p role="status" className="nw-staffing-banner nw-staffing-banner--ok">People saved.</p>}

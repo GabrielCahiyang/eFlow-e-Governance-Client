@@ -8,10 +8,9 @@
 
 import { requestNavigation } from '../../../shared/navigationGuard';
 import { writeNavigationLocation } from '../../navigation';
-import { canOpenMembershipReview, resolveReviewView } from '../reviewView';
+import { resolveReviewView } from '../reviewView';
 import '../reviewWorkspace.css';
 import { NAVIGATION_LOCATION_EVENT } from '../../../shared/navigationHistory';
-import {ProjectInvitationApprovalQueue} from '../../project-invitations';
 import { useEffect, useMemo, useState } from "react";
 import { Dropdown, Search as VibeSearch } from "@vibe/core";
 import {
@@ -28,6 +27,7 @@ import {
 import { useAuth } from "../../../contexts/AuthContext";
 import { useTasks } from "../../../hooks/useFirebaseData";
 import { useProjectsData, useScopedOrgIds } from "../../../hooks/useSupabaseData";
+import { notifyTaskListeners } from "../../tasks";
 import type { Task } from "../../../services/taskService";
 import {
   canUserReviewTask,
@@ -52,12 +52,10 @@ import { canOpenBudgetReviewWorkspace } from "../selectors";
 import { BudgetReviewInbox, type CashReviewFocus } from "../../budget";
 import { SubtaskReviewInbox } from "./SubtaskReviewInbox";
 import { ReviewKindSwitch, type ReviewKind } from "./ReviewKindSwitch";
-import { TaskReviewStandards } from "./TaskReviewStandards";
 import { TaskSubtaskEvidenceSection } from "./TaskSubtaskEvidenceSection";
+import { ReadyToCompleteInbox } from "./ReadyToCompleteInbox";
+import { useReadyToCompleteTasks } from "../hooks/useReadyToCompleteTasks";
 import { useTaskReviewEvidence } from "../hooks/useTaskReviewEvidence";
-import { WorkPlanReviewInbox } from "./WorkPlanReviewInbox";
-import { GovernanceReviewInbox } from "./GovernanceReviewInbox";
-import { useCollaborationDrafts, isActiveCollaborationDraft } from "../../interdepartment-collaboration";
 import {
   useNotificationNavigationIntent,
   type NotificationNavigationIntent,
@@ -171,11 +169,9 @@ export interface ForReviewInboxProps {
 
 export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
   const { user, userProfile } = useAuth();
-  const canReviewMembership = canOpenMembershipReview(scope, userProfile?.role);
   const { tasks, loading: tasksLoading } = useTasks();
   const { includeAllAccessibleWork } = useScopedOrgIds();
   const { projects, loading: projectsLoading } = useProjectsData();
-  const collaboration = useCollaborationDrafts();
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState("oldest");
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -190,7 +186,6 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
   const [subtaskFocus, setSubtaskFocus] = useState<NotificationNavigationIntent | null>(null);
   const [budgetFocus, setBudgetFocus] = useState<NotificationNavigationIntent | null>(null);
   const [cashReviewFocus, setCashReviewFocus] = useState<CashReviewFocus | null>(null);
-  const [membershipFocus, setMembershipFocus] = useState<string | undefined>();
 
   const canReviewBudget = canOpenBudgetReviewWorkspace(scope, userProfile?.role);
 
@@ -217,42 +212,6 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
     window.addEventListener(NAVIGATION_LOCATION_EVENT, onPopState);
     return () => { window.removeEventListener("popstate", onPopState); window.removeEventListener(NAVIGATION_LOCATION_EVENT, onPopState); };
   }, [scope, user?.id, userProfile?.role]);
-
-  useEffect(() => { setMembershipFocus(undefined); }, [user?.id, scope]);
-
-  const currentOrgId = userProfile?.org_id || userProfile?.departmentId || "";
-  const accessibleOrgIds = useMemo(
-    () => new Set([currentOrgId, ...collaboration.membershipOrgIds].filter(Boolean)),
-    [collaboration.membershipOrgIds, currentOrgId],
-  );
-
-  // Incoming Work Plan Reviews count
-  const incomingWorkPlansCount = useMemo(() => {
-    return collaboration.drafts
-      .filter(isActiveCollaborationDraft)
-      .filter(
-        (draft) =>
-          ["in_review", "changes_requested", "ready_to_commit"].includes(draft.status) &&
-          draft.snapshot.organizations.some(
-            (org) => org.participationRole !== "owner" && accessibleOrgIds.has(org.orgId),
-          ),
-      ).length;
-  }, [accessibleOrgIds, collaboration.drafts]);
-
-  // Governance decisions count
-  const governanceReviewsCount = useMemo(() => {
-    return collaboration.drafts
-      .filter(isActiveCollaborationDraft)
-      .filter(
-        (draft) =>
-          ["in_review", "ready_to_commit"].includes(draft.status) &&
-          (includeAllAccessibleWork ||
-            draft.ownerOrgId === currentOrgId ||
-            draft.snapshot.organizations.some(
-              (item) => item.participationRole === "governance" && accessibleOrgIds.has(item.orgId),
-            )),
-      ).length;
-  }, [accessibleOrgIds, collaboration.drafts, currentOrgId, includeAllAccessibleWork]);
 
   const [decided, setDecided] = useState<{ actor?: string; ids: Set<string> }>({ ids: new Set() });
   const candidateIds = useMemo(() => tasks.filter(task => isTaskVisibleInReviewQueue(task, user?.id, userProfile?.role))
@@ -298,11 +257,28 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
     decided,
   ]);
 
+  const closedProjectIds = useMemo(
+    () =>
+      new Set(
+        projects
+          .filter((project) => ["completed", "archived"].includes(project.status))
+          .map((project) => project.id),
+      ),
+    [projects],
+  );
+  const clearanceCandidates = useMemo(
+    () =>
+      tasks.filter(
+        (task) => !task.linkedProjectId || !closedProjectIds.has(task.linkedProjectId),
+      ),
+    [closedProjectIds, tasks],
+  );
+  const clearanceQueue = useReadyToCompleteTasks(clearanceCandidates, user?.id);
+
   const reviewCounts = useMemo(() => ({
-    workplans: incomingWorkPlansCount,
     tasks: queue.length,
-    governance: governanceReviewsCount,
-  }), [governanceReviewsCount, incomingWorkPlansCount, queue.length]);
+    clearance: clearanceQueue.items.length,
+  }), [queue.length, clearanceQueue.items.length]);
 
   // Keep a valid selection in tasks tab.
   useEffect(() => {
@@ -319,14 +295,8 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
     (intent) =>
       intent.kind === "task_review" ||
       intent.kind === "subtask_review" ||
-      intent.kind === "budget" ||
-      intent.kind === "membership_review" ||
-      intent.kind === "collaboration",
+      intent.kind === "budget",
     (intent) => {
-      if (intent.kind === 'membership_review') {
-        if (canReviewMembership) { setMembershipFocus(intent.projectId); setReviewKind('membership'); }
-        return true;
-      }
       if (tasksLoading || projectsLoading) return false;
       if (intent.kind === "budget" && canReviewBudget) {
         setCashReviewFocus(null);
@@ -337,8 +307,6 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
         setReviewKind("subtasks");
         // The Subitem queue owns fresh target resolution and completion.
         return false;
-      } else if (intent.kind === "collaboration") {
-        setReviewKind("workplans");
       } else {
         setReviewKind("tasks");
         const match = queue.find((task) => task.id === intent.taskId);
@@ -346,7 +314,7 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
       }
       return true;
     },
-    [canReviewBudget, canReviewMembership, projectsLoading, queue, tasksLoading],
+    [canReviewBudget, projectsLoading, queue, tasksLoading],
   );
 
   const canReviewSelected = Boolean(
@@ -377,20 +345,23 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
               : `${getHeadWorkspaceLabel(userProfile?.role)} · Reviews`
         }
         title="For Review"
-        subtitle="Validate submitted work, collaborate on proposals, and keep the pipeline moving."
+        subtitle="Review submitted project tasks and financial approvals in one queue."
         actions={reviewKind === 'tasks' ? (
                 <div className="inline-flex items-center gap-1.5 rounded-md border border-border bg-[var(--eflow-warning-bg)] px-3 py-1.5 text-xs font-semibold text-[var(--eflow-warning-text)]">
                   <Inbox size={14} /> {tasksLoading || projectsLoading ? '…' : queue.length} {query.trim() ? 'matching submissions' : 'awaiting review'}
+                </div>
+        ) : reviewKind === 'clearance' ? (
+                <div className="inline-flex items-center gap-1.5 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-800">
+                  <CheckCircle2 size={14} /> {clearanceQueue.loading && clearanceQueue.items.length === 0 ? '…' : clearanceQueue.readyCount} ready to complete
                 </div>
         ) : undefined}
       />
 
       <div className="mb-4 min-w-0">
-        <ReviewKindSwitch active={reviewKind} includeBudget={canReviewBudget} includeMembership={canReviewMembership} counts={reviewCounts} onChange={setReviewKind} />
+        <ReviewKindSwitch active={reviewKind} includeBudget={canReviewBudget} counts={reviewCounts} onChange={setReviewKind} />
       </div>
 
       {/* Review Category Content */}
-      {reviewKind === 'membership' && canReviewMembership && <ProjectInvitationApprovalQueue focusProjectId={membershipFocus} />}
       {reviewKind === "budget" && canReviewBudget && (
         <BudgetReviewInbox
           key={`${cashReviewFocus?.orgId || "default"}:${cashReviewFocus?.fiscalYear || "current"}`}
@@ -401,20 +372,22 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
         />
       )}
 
-      {reviewKind === "workplans" && <WorkPlanReviewInbox />}
-
-      {reviewKind === "governance" && <GovernanceReviewInbox />}
-
       {reviewKind === "tasks" && (
         <>
           {tasksLoading || projectsLoading ? (
             <TaskReviewsSplitSkeleton />
           ) : queue.length === 0 && !query ? (
             <div className="rounded-[10px] border border-border bg-card shadow-[0_4px_6px_-4px_rgba(0,0,0,0.10)]">
-              <SectionEmpty fill illustration="complete"
+              <SectionEmpty
+                fill
+                illustration="complete"
                 icon={<CheckCircle2 size={36} className="text-[var(--eflow-positive-text)]" />}
-                title="Inbox zero"
-                description="No task submissions are waiting for your review. Other review types remain available above."
+                title={scope === "leading" ? "No task reviews waiting" : "No task submissions awaiting review"}
+                description={
+                  scope === "leading"
+                    ? "Task completion submissions from work you lead will appear here when ready for review."
+                    : "Submitted project tasks waiting for review will appear here. Other review tabs remain available above."
+                }
               />
             </div>
           ) : (
@@ -517,8 +490,6 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
 
                     </div>
 
-                    <details className="work-secondary"><summary>Completion checks</summary><TaskReviewStandards task={selected} tasks={tasks} /></details>
-
                     <details className="work-secondary"><summary>Approved subtask evidence</summary><TaskSubtaskEvidenceSection
                       task={selected}
                       evidence={subtaskEvidence}
@@ -568,6 +539,22 @@ export function ForReviewInbox({ scope = "department" }: ForReviewInboxProps) {
           )}
 
         </>
+      )}
+
+      {reviewKind === "clearance" && (
+        <ReadyToCompleteInbox
+          items={clearanceQueue.items}
+          loading={clearanceQueue.loading}
+          projectTitleFor={(projectId, fallback) =>
+            projects.find((project) => project.id === projectId)?.title || fallback
+          }
+          onChanged={async () => {
+            if (typeof notifyTaskListeners === "function") {
+              await notifyTaskListeners();
+            }
+            await clearanceQueue.refresh();
+          }}
+        />
       )}
 
       {reviewKind === "subtasks" && (

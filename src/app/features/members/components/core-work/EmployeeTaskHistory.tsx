@@ -50,6 +50,29 @@ export function EmployeeTaskHistory() {
     { id: "archived", label: "Archived", icon: <Archive size={13} /> },
   ] as const;
 
+  const emptyCopy = {
+    completed: {
+      illustration: "complete" as const,
+      title: "No completed tasks yet",
+      description: "Finished tasks kept out of your active queue will appear here.",
+    },
+    rejected: {
+      illustration: "tasks" as const,
+      title: "No tasks needing changes",
+      description: "Submissions returned with reviewer feedback will appear here.",
+    },
+    reopened: {
+      illustration: "tasks" as const,
+      title: "No reopened tasks",
+      description: "Tasks reopened after completion or review will appear here.",
+    },
+    archived: {
+      illustration: "files" as const,
+      title: "No archived tasks",
+      description: "Archived tasks kept out of your active queue will appear here.",
+    },
+  }[tab];
+
   return (
     <div className="eflow-operational-workspace min-h-full p-4 sm:p-8">
       <PageHeader eyebrow="My Workspace · History" title="Task History" subtitle="Your finished and past work, kept out of your active queue." />
@@ -78,7 +101,13 @@ export function EmployeeTaskHistory() {
         {loading ? (
           <EmployeeTaskHistoryListSkeleton />
         ) : rows.length === 0 ? (
-          <SectionEmpty fill illustration="tasks" icon={<History size={30} />} title="Nothing here yet" description="This history bucket is empty." />
+          <SectionEmpty
+            fill
+            illustration={emptyCopy.illustration}
+            icon={<History size={30} />}
+            title={emptyCopy.title}
+            description={emptyCopy.description}
+          />
         ) : (
           <div className="divide-y divide-neutral-100">
             {rows.map((t) => (

@@ -11,7 +11,7 @@ import {isCurrentWorkSnapshot,selectRootWorkCapability} from '../selectors/capab
 import type {WorkTreeController} from '../types';
 import '../nestedWork.css';
 import {readWorkDrafts} from '../services/workDraftStore';
-export interface WorkRootOwnerProps {rootId:string;controller?:WorkTreeController;fallback?:ReactNode;readOnly?:boolean;layout?:'default'|'inline'|'table'}
+export interface WorkRootOwnerProps {rootId:string;controller?:WorkTreeController;fallback?:ReactNode;readOnly?:boolean;layout?:'default'|'inline'|'table';projectLeadId?:string|null}
 export function WorkRootOwner(props:WorkRootOwnerProps){
  const {user}=useAuth(),key=JSON.stringify([user?.id,props.rootId]);
  if(props.controller){
@@ -23,7 +23,7 @@ export function WorkRootOwner(props:WorkRootOwnerProps){
  return <ConnectedWorkRootOwner key={key} {...props}/>;
 }
 function ConnectedWorkRootOwner(props:WorkRootOwnerProps){const tree=useWorkTree(props.rootId);return <WorkRootOwnerContent {...props} tree={tree}/>;}
-function WorkRootOwnerContent({rootId,fallback,readOnly=false,tree,layout='default'}:WorkRootOwnerProps & {tree:WorkTreeController}){
+function WorkRootOwnerContent({rootId,fallback,readOnly=false,tree,layout='default',projectLeadId}:WorkRootOwnerProps & {tree:WorkTreeController}){
  const {user}=useAuth();
  const [open,setOpen]=useState(false),[saved,setSaved]=useState('');
  if(tree.unavailable)return <>{fallback}</>;
@@ -77,7 +77,7 @@ function WorkRootOwnerContent({rootId,fallback,readOnly=false,tree,layout='defau
     {layout==='inline'&&<UsersRound size={13} aria-hidden="true"/>}<span>{recoverable?'Recover people draft':layout==='inline'?'Manage people':'Choose people'}</span>
    </button>)}
   {saved&&<p role="status">{saved}</p>}
-  {open&&<WorkStaffingDialog controller={tree} nodeId={null} readOnly={readOnly}
+  {open&&<WorkStaffingDialog controller={tree} nodeId={null} projectLeadId={projectLeadId} readOnly={readOnly}
    onChanged={()=>{setOpen(false);setSaved('Task people saved.');}} onClose={()=>{setOpen(false);void tree.reload();}}/>}
  </div>;
 }

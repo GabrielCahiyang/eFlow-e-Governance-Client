@@ -1,5 +1,5 @@
 import {supabase} from '../../../../lib/supabase';
-export interface InspectorFile {id:string;name:string;path:string;bucket:'task-attachments'|'task-comment-attachments';source:string;uploader:string;at:string;restriction:string}
+export interface InspectorFile {id:string;name:string;path:string;bucket:'task-attachments'|'task-comment-attachments';source:string;uploader:string;at:string;restriction:string;subtaskId?:string}
 type Row=Record<string,unknown>;
 const text=(row:Row,key:string,fallback='')=>String(row[key]||fallback);
 export function mapInspectorFiles(parent:Row[],progress:Row[],submissions:Row[],subProgress:Row[],subFiles:Row[],subSubmissions:Row[],subtasks:Row[]):InspectorFile[]{
@@ -9,10 +9,12 @@ export function mapInspectorFiles(parent:Row[],progress:Row[],submissions:Row[],
   return {id:`${sub?'sub':'task'}-${row.id}`,name:text(row,'file_name','Evidence'),path:text(row,'file_path'),bucket:'task-attachments',
    source:`${sub?subTitle(row):'Task'} · ${attempt?`Submission ${attempt.version} (${attempt.status})`:'Workflow attachment'}`,
    uploader:text(row,'uploader_name',text(attempt||{},'submitter_name','Recorded uploader')),
-   at:text(row,'created_at',text(attempt||{},'submitted_at')),restriction:'Formal evidence · Existing review and immutability rules apply'};
+   at:text(row,'created_at',text(attempt||{},'submitted_at')),restriction:'Formal evidence · Existing review and immutability rules apply',
+   ...(sub&&row.subtask_id?{subtaskId:String(row.subtask_id)}:{})};
  };
  const update=(row:Row,sub:boolean):InspectorFile=>({id:`${sub?'sub':'task'}-progress-${row.id}`,name:text(row,'attachment_name','Progress attachment'),path:text(row,'attachment_path'),
-  bucket:sub?'task-attachments':'task-comment-attachments',source:`${sub?subTitle(row):'Task'} · Progress update`,uploader:text(row,'author_name','Recorded contributor'),at:text(row,'created_at'),restriction:'Progress evidence · Existing workflow restrictions apply'});
+  bucket:sub?'task-attachments':'task-comment-attachments',source:`${sub?subTitle(row):'Task'} · Progress update`,uploader:text(row,'author_name','Recorded contributor'),at:text(row,'created_at'),restriction:'Progress evidence · Existing workflow restrictions apply',
+  ...(sub&&row.subtask_id?{subtaskId:String(row.subtask_id)}:{})});
  return [...parent.map(r=>attachment(r,false)),...progress.filter(r=>r.attachment_path).map(r=>update(r,false)),...subFiles.map(r=>attachment(r,true)),...subProgress.filter(r=>r.attachment_path).map(r=>update(r,true))]
   .filter(f=>f.path).sort((a,b)=>b.at.localeCompare(a.at)||a.id.localeCompare(b.id));
 }

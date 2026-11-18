@@ -102,7 +102,6 @@ export function ActionCenter({role,hasLeadingWork=false,page='Inbox',onNavigate}
       </div>
     </header>
     <div className="inbox-destination-host flex flex-wrap gap-2 lg:hidden" role="group" aria-label="Inbox categories">
-      <Button aria-current={category === 'actions' ? 'page' : undefined} aria-pressed={category === 'actions'} variant={category === 'actions' ? 'default' : 'outline'} size="sm" onClick={() => setCategory('actions')}>Needs action</Button>
       <Button id="inbox-updates" aria-current={category === 'updates' ? 'page' : undefined} aria-pressed={category === 'updates'} variant={category === 'updates' ? 'default' : 'outline'} size="sm" onClick={() => setCategory('updates')}>Notifications</Button>
       <Button variant="outline" size="sm" onClick={() => onNavigate ? onNavigate('inbox', 'Messages') : void requestNavigation(() => writeNavigationLocation('inbox', 'Messages'))}>Messages</Button>
     </div>

@@ -23,7 +23,7 @@ import { TaskDiscussion } from "../../tasks";
 import { TaskReviewPanel, canUserReviewTask } from "../../reviews";
 import { useTasks } from "../../../hooks/useFirebaseData";
 import { useProfiles, useProjectsData } from "../../../hooks/useSupabaseData";
-import { isTaskLead, TaskEvidenceRecovery } from "../../tasks";
+import { isTaskLead, notifyTaskListeners, TaskEvidenceRecovery } from "../../tasks";
 import { resolveSubtaskManagementCapability, resolveTaskDetailCapabilities } from "../../tasks";
 import { TaskTeamEditorDialog } from "../../tasks";
 import { useTaskSubtasks,SubitemInspector } from "../../subtasks";
@@ -42,7 +42,7 @@ function TaskInspectorContent({
   onChanged,
   origin,
   controller,
-  presentation = 'drawer',
+  presentation = 'dialog',
 }: {
   task?: Task | null;
   taskId?: string;
@@ -83,6 +83,16 @@ function TaskInspectorContent({
   const proposedOffice = !!task.proposedOfficeIdentityId;
   const staffingReason = staffingEntryReason(task, userProfile, orgs, readOnly);
   const executionBlocked = proposedOffice || isProjectOnHold || isPrivatePlanning;
+  // Financial clearance finalization is authorized by the server RPC (`work_financial_clearance`),
+  // so opening a `for_review` task from My Work (where execution fields are read-only) must not hide
+  // the Mark as complete action from the authorized lead.
+  const clearanceReadOnly =
+    executionBlocked ||
+    Boolean(task.archivedAt) ||
+    ['completed', 'archived'].includes(operationalProject?.status || '') ||
+    userProfile?.role === 'admin' ||
+    userProfile?.is_active === false ||
+    (readOnly && task.status !== 'for_review');
   const capabilities = resolveTaskDetailCapabilities(readOnly || executionBlocked, {
     canReview,
     canPostProgress,
@@ -134,9 +144,21 @@ function TaskInspectorContent({
   const canExecuteWork = Boolean(capabilities.canPostProgress || canStart || canResume || canSubmit);
   const directSubtasks = taskSubtasks.filter(s => !s.parentSubtaskId);
   const completedSubtaskCount = directSubtasks.filter(s => s.status === 'completed').length;
+  const headerReadOnly = readOnly && (clearanceReadOnly || !currentUserIsLead);
+  const taskLeadId = task.assigneeId || task.recommendationLeadId || undefined;
+  const taskLeadName =
+    (taskLeadId ? profiles.find((profile) => profile.id === taskLeadId)?.full_name : undefined) ||
+    task.assigneeName ||
+    null;
+  const handleClearanceSaved = () => {
+    if (typeof notifyTaskListeners === 'function') {
+      void notifyTaskListeners();
+    }
+    onChanged?.();
+  };
   const overviewTeamSlot = supportsNestedWork(task) ? (
     <section aria-label="Task Lead and contributors">
-      <WorkRootOwner rootId={task.id} controller={controller} readOnly={readOnly || proposedOffice || lifecycle.busy} layout="inline" />
+      <WorkRootOwner rootId={task.id} controller={controller} projectLeadId={operationalProject?.projectLeadId} readOnly={readOnly || proposedOffice || lifecycle.busy} layout="inline" />
     </section>
   ) : undefined;
 
@@ -153,7 +175,7 @@ function TaskInspectorContent({
         ariaLabel={`Task details: ${task.title}`}
         className="w-full font-sans sm:w-[520px]"
       >
-        {presentation==='page'||presentation==='dialog'?<TaskPageHeader dialog={presentation==='dialog'} readOnly={readOnly} backLabel={origin?.view && origin.view !== "My Work" ? "Back to project" : "Back to My Work"} task={task} projectTitle={operationalProject?.title||task.projectTitle} tab={tab} tabs={visibleTabs} onTab={setTab} onClose={onClose} busy={lifecycle.busy}/>:<InspectorHeader task={task} tab={tab} tabs={visibleTabs} onTab={setTab} onClose={onClose} busy={lifecycle.busy}/>}
+        {presentation==='page'||presentation==='dialog'?<TaskPageHeader dialog={presentation==='dialog'} readOnly={headerReadOnly} backLabel={origin?.view && origin.view !== "My Work" ? "Back to project" : "Back to My Work"} task={task} projectTitle={operationalProject?.title||task.projectTitle} tab={tab} tabs={visibleTabs} onTab={setTab} onClose={onClose} busy={lifecycle.busy}/>:<InspectorHeader task={task} tab={tab} tabs={visibleTabs} onTab={setTab} onClose={onClose} busy={lifecycle.busy}/>}
 
         {/* Body */}
         <div id={`task-panel-${task.id}`} role="tabpanel" aria-labelledby={`task-${task.id}-${tab}`} className={presentation==='page'?'task-page__body':presentation==='dialog'?'task-dialog__body':'task-drawer__body'}>
@@ -165,6 +187,16 @@ function TaskInspectorContent({
 
           {tab === 'overview' && (
             <section aria-label="Task details">
+              {typeof WorkFinancialClearancePanel === 'function' && task.status === 'for_review' && (
+                <div className="mb-4">
+                  <WorkFinancialClearancePanel
+                    root={task.id}
+                    readOnly={clearanceReadOnly}
+                    leadName={taskLeadName}
+                    onSaved={handleClearanceSaved}
+                  />
+                </div>
+              )}
               <InspectorSummary
                 task={task}
                 projectTitle={operationalProject?.title}
@@ -191,8 +223,9 @@ function TaskInspectorContent({
               {typeof WorkFinancialClearancePanel === 'function' && (
                 <WorkFinancialClearancePanel
                   root={task.id}
-                  readOnly={readOnly || executionBlocked}
-                  onSaved={() => { onChanged?.(); }}
+                  readOnly={clearanceReadOnly}
+                  leadName={taskLeadName}
+                  onSaved={handleClearanceSaved}
                 />
               )}
               {reviewAvailable ? (
@@ -246,6 +279,7 @@ function TaskInspectorContent({
                   task={task}
                   profiles={profiles}
                   projectTitle={operationalProject?.title}
+                  projectLeadId={operationalProject?.projectLeadId}
                   controller={controller}
                   canManageTaskTeam={canManageTaskTeam}
                   canManageSubtasks={canManageSubtasks}
@@ -306,7 +340,7 @@ function TaskInspectorContent({
 
         </div>
       </InspectorSurface>
-      {staffingOpen && !staffingReason && <StaffingDialog task={task} controller={controller} onClose={() => setStaffingOpen(false)} onAssigned={onChanged}/>}
+      {staffingOpen && !staffingReason && <StaffingDialog task={task} projectLeadId={operationalProject?.projectLeadId} controller={controller} onClose={() => setStaffingOpen(false)} onAssigned={onChanged}/>}
       <TaskTeamEditorDialog
         task={teamEditorOpen && canManageTaskTeam ? task : null}
         profiles={profiles}

@@ -5,6 +5,7 @@ import { EmptyState } from '../../../components/ui/EmptyState';
 import type { EmptyIllustration } from '../../../components/ui/EmptyStateIllustration';
 import '../budgetViewControl.css';
 import { peso } from '../../../shared/currency';
+import { formatCashStatusLabel } from "../selectors/cashWorkflowRules";
 
 export { peso };
 export const pesoShort = new Intl.NumberFormat("en-PH", { style: "currency", currency: "PHP", notation: "compact", maximumFractionDigits: 1 });
@@ -32,6 +33,6 @@ export function StatusPill({ status }: { status: string }) {
         : status.startsWith('pending') || status.includes('changes_requested') || status === 'liquidation_submitted'
           ? 'warning'
           : 'neutral';
-  const label = status === 'pending_department_settlement' ? 'Awaiting Accounting settlement' : status.replace(/_/g, ' ');
-  return <span className="inline-flex max-w-full capitalize"><WorkspaceStatusPill label={label} tone={tone} /></span>;
+  const label = formatCashStatusLabel(status);
+  return <span className="inline-flex max-w-full"><WorkspaceStatusPill label={label} tone={tone} /></span>;
 }

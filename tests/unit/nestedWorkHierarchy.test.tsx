@@ -90,11 +90,17 @@ describe('one supplied work hierarchy composition',()=>{
   act(()=>{mobile=false;listeners.forEach(listener=>listener());});expect(screen.getByRole('table')).toBeTruthy();expect(screen.queryByRole('list',{name:'Subtask hierarchy'})).toBeNull();
   expect(screen.getAllByRole('button',{name:'Actions for Parent'})).toHaveLength(1);
  });
- it('keeps read-only Open and Activity, ignoring permissive legacy booleans',async()=>{
-  const input=props();input.readOnly=true;render(<WorkHierarchy {...input}/>);await openMenu('Actions for Parent');
-  expect(screen.getAllByRole('menuitem').map(item=>item.textContent)).toEqual(['Open work / evidence','Activity']);
-  fireEvent.click(screen.getByRole('menuitem',{name:'Open work / evidence'}));expect(input.onOpenNode).toHaveBeenCalledWith('Parent');
-  await openMenu('Actions for Parent');fireEvent.click(screen.getByRole('menuitem',{name:'Activity'}));expect(input.onRequestAction).toHaveBeenCalledWith('activity','Parent');expect(api.save).not.toHaveBeenCalled();
+ it('shows Evidence, Funding, Files, and Activity without Open work/evidence or Choose people',async()=>{
+  const data=tree([node('Parent',null,{capabilities:{manage_contributors:allow,appoint_lead:allow,edit_details:deny,delete:deny}})]);
+  const input=props(data);input.readOnly=true;render(<WorkHierarchy {...input}/>);await openMenu('Actions for Parent');
+  expect(screen.getAllByRole('menuitem').map(item=>item.textContent)).toEqual(['Evidence','Funding','Files','Activity']);
+  expect(screen.queryByRole('menuitem',{name:'Open work / evidence'})).toBeNull();
+  expect(screen.queryByRole('menuitem',{name:'Choose people'})).toBeNull();
+  fireEvent.click(screen.getByRole('menuitem',{name:'Activity'}));expect(input.onRequestAction).toHaveBeenCalledWith('activity','Parent');
+  await openMenu('Actions for Parent');fireEvent.click(screen.getByRole('menuitem',{name:'Evidence'}));await waitFor(()=>expect(input.onRequestAction).toHaveBeenCalledWith('evidence','Parent'));
+  await openMenu('Actions for Parent');fireEvent.click(screen.getByRole('menuitem',{name:'Funding'}));await waitFor(()=>expect(input.onRequestAction).toHaveBeenCalledWith('funding','Parent'));
+  await openMenu('Actions for Parent');fireEvent.click(screen.getByRole('menuitem',{name:'Files'}));await waitFor(()=>expect(input.onRequestAction).toHaveBeenCalledWith('files','Parent'));
+  expect(api.save).not.toHaveBeenCalled();
  });
  it('fails closed on missing maps and hides unverified/foreign snapshots',async()=>{
   const data=tree([node('Parent')]);data.nodes[0].capabilities=undefined;

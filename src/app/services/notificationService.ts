@@ -3,7 +3,10 @@
 
 import { supabase } from '../../lib/supabase';
 import { controlPanelFetch } from '../shared/controlPanelClient';
-import { normalizeWorkUpdateNotification } from '../shared/notificationWorkCopy';
+import {
+  normalizeFinancialNotification,
+  normalizeWorkUpdateNotification,
+} from '../shared/notificationWorkCopy';
 import {
   buildQueryScopeKey,
   invalidateQueryDomain,
@@ -71,30 +74,32 @@ export interface Notification {
 }
 
 export function rowToNotif(row: Record<string, unknown>): Notification {
-  return normalizeWorkUpdateNotification({
-    id: row.id as string,
-    type: (row.type as NotificationType) || 'assignment',
-    title: (row.title as string) || '',
-    message: (row.message as string) || '',
-    taskId: (row.task_id as string) || undefined,
-    taskTitle: (row.task_title as string) || undefined,
-    actorId: (row.actor_id as string) || undefined,
-    actorName: (row.actor_name as string) || undefined,
-    statusFrom: (row.status_from as string) || undefined,
-    statusTo: (row.status_to as string) || undefined,
-    reason: (row.reason as string) || undefined,
-    projectId: (row.project_id as string) || undefined,
-    proposalId: (row.proposal_id as string) || undefined,
-    orgId: (row.org_id as string) || undefined,
-    entityType: (row.entity_type as string) || undefined,
-    workNodeId: (row.work_node_id as string) || undefined,
-    financialRecordId: (row.financial_record_id as string) || undefined,
-    financialRecordType: (row.financial_record_type as string) || undefined,
-    conversationId: (row.conversation_id as string) || undefined,
-    conversationMessageId: (row.conversation_message_id as string) || undefined,
-    read: (row.read as boolean) || false,
-    createdAt: new Date((row.created_at as string) || Date.now()).getTime(),
-  });
+  return normalizeFinancialNotification(
+    normalizeWorkUpdateNotification({
+      id: row.id as string,
+      type: (row.type as NotificationType) || 'assignment',
+      title: (row.title as string) || '',
+      message: (row.message as string) || '',
+      taskId: (row.task_id as string) || undefined,
+      taskTitle: (row.task_title as string) || undefined,
+      actorId: (row.actor_id as string) || undefined,
+      actorName: (row.actor_name as string) || undefined,
+      statusFrom: (row.status_from as string) || undefined,
+      statusTo: (row.status_to as string) || undefined,
+      reason: (row.reason as string) || undefined,
+      projectId: (row.project_id as string) || undefined,
+      proposalId: (row.proposal_id as string) || undefined,
+      orgId: (row.org_id as string) || undefined,
+      entityType: (row.entity_type as string) || undefined,
+      workNodeId: (row.work_node_id as string) || undefined,
+      financialRecordId: (row.financial_record_id as string) || undefined,
+      financialRecordType: (row.financial_record_type as string) || undefined,
+      conversationId: (row.conversation_id as string) || undefined,
+      conversationMessageId: (row.conversation_message_id as string) || undefined,
+      read: (row.read as boolean) || false,
+      createdAt: new Date((row.created_at as string) || Date.now()).getTime(),
+    }),
+  );
 }
 
 export function subscribeNotificationChanges(userId: string, onChanged: () => void) {

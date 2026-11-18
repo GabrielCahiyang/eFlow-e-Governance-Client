@@ -21,7 +21,7 @@ import {WorkNodeReadSummary} from './WorkNodeReadSummary';
 import type {Task} from '../../tasks';
 import type {WorkHierarchyAction} from '../types';
 const draftLabels:Record<string,string>={create:'new subtask',edit:'details',move:'move',order:'sequence',delete:'deletion',progress:'progress',submit:'submission',review:'review'};
-export interface WorkTreeProps {rootId:string;branchParentId?:string;branchActions?:boolean;presentation?:'standard'|'project-table';parentTask?:Task;parentTitle?:string;parentStartDate?:string;controller?:WorkTreeController;fallback?:ReactNode;readOnly?:boolean;executionBlocked?:boolean;createRequest?:number;createFocusTarget?:HTMLElement;collapsedIds?:Set<string>;onCollapsedIdsChange?:(next:Set<string>)=>void;focusedNodeId?:string;onOpenOfficeNode?:(node:WorkNode,tree:WorkTreeSnapshot)=>void;onReviewOfficeNode?:(node:WorkNode,tree:WorkTreeSnapshot)=>void}
+export interface WorkTreeProps {rootId:string;branchParentId?:string;branchActions?:boolean;presentation?:'standard'|'project-table';parentTask?:Task;parentTitle?:string;parentStartDate?:string;controller?:WorkTreeController;fallback?:ReactNode;readOnly?:boolean;executionBlocked?:boolean;createRequest?:number;createFocusTarget?:HTMLElement;collapsedIds?:Set<string>;onCollapsedIdsChange?:(next:Set<string>)=>void;focusedNodeId?:string;onOpenOfficeNode?:(node:WorkNode,tree:WorkTreeSnapshot)=>void;onReviewOfficeNode?:(node:WorkNode,tree:WorkTreeSnapshot)=>void;onSubtaskSection?:(section:'evidence'|'funding'|'files',node:WorkNode,tree:WorkTreeSnapshot)=>void}
 export function WorkTree(props:WorkTreeProps){
  const {user}=useAuth(),key=JSON.stringify([user?.id,props.rootId]);
  if(props.controller){
@@ -33,7 +33,7 @@ export function WorkTree(props:WorkTreeProps){
  return <ConnectedWorkTree key={key} {...props}/>;
 }
 function ConnectedWorkTree(props:WorkTreeProps){const tree=useWorkTree(props.rootId);return <WorkTreeContent {...props} tree={tree}/>;}
-function WorkTreeContent({rootId,branchParentId,branchActions=false,presentation='standard',parentTask,parentTitle,parentStartDate,fallback,readOnly=false,executionBlocked=false,createRequest=0,createFocusTarget,collapsedIds:controlledCollapsed,onCollapsedIdsChange,focusedNodeId,onOpenOfficeNode,onReviewOfficeNode,tree}:WorkTreeProps & {tree:WorkTreeController}){
+function WorkTreeContent({rootId,branchParentId,branchActions=false,presentation='standard',parentTask,parentTitle,parentStartDate,fallback,readOnly=false,executionBlocked=false,createRequest=0,createFocusTarget,collapsedIds:controlledCollapsed,onCollapsedIdsChange,focusedNodeId,onOpenOfficeNode,onReviewOfficeNode,onSubtaskSection,tree}:WorkTreeProps & {tree:WorkTreeController}){
  const {user}=useAuth();
  const [edit,setEdit]=useState<WorkEdit>(),[saved,setSaved]=useState('');
  const [localCollapsed,setLocalCollapsed]=useState(new Set<string>()),[opened,setOpened]=useState<string>(),[activity,setActivity]=useState(false);
@@ -78,6 +78,19 @@ function WorkTreeContent({rootId,branchParentId,branchActions=false,presentation
  const openNode=(id:string)=>{const node=data?.nodes.find(item=>item.id===id);if(!node||!data||!isBranchNode(id))return;void requestNavigation(()=>{if(data.root.kind==='office'&&onOpenOfficeNode)onOpenOfficeNode(node,data);else setOpened(id);});};
  const action=(command:WorkHierarchyAction,id?:string)=>{
   if(command==='open'){if(id)openNode(id);return;}
+  if(command==='evidence'||command==='funding'||command==='files'){
+   if(id&&data&&isBranchNode(id)){
+    const target=data.nodes.find(item=>item.id===id);
+    if(target){
+     void requestNavigation(()=>{
+      if(onSubtaskSection)onSubtaskSection(command,target,data);
+      else if(command!=='funding'&&data.root.kind==='office'&&onOpenOfficeNode)onOpenOfficeNode(target,data);
+      else if(command!=='funding')setOpened(target.id);
+     });
+    }
+   }
+   return;
+  }
   if(command==='activity'&&!branchParentId){void requestNavigation(()=>setActivity(true));return;}
   if(command==='activity'||branchParentId&&(id!==branchParentId&&!isBranchNode(id||'')||!id))return;
   if(!data||!tree.authorityFresh||tree.pending||readOnly)return;

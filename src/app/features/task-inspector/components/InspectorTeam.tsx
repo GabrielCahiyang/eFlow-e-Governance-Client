@@ -5,7 +5,7 @@ import { TaskSubtasksWidget } from '../../subtasks';
 import type { UserProfile } from '../../../types';
 import { InspectorField as Field } from './InspectorSummary';
 import type {TaskInspectorOrigin} from '../types';
-export function InspectorTeam({task, profiles, canManageTaskTeam, canManageSubtasks, currentUserIsLead, onManage,readOnly=false,subtaskReadOnly=false,controller,presentation='drawer',onInspect}: {task: Task; profiles: UserProfile[]; projectTitle?: string; canManageTaskTeam: boolean; canManageSubtasks: boolean; currentUserIsLead: boolean; onManage: () => void;readOnly?:boolean;subtaskReadOnly?:boolean;controller?:WorkTreeController;presentation?:'drawer'|'page'|'dialog';onInspect?:(id:string,section:'work'|'review',origin:TaskInspectorOrigin)=>void}) {
+export function InspectorTeam({task, profiles, projectLeadId, canManageTaskTeam, canManageSubtasks, currentUserIsLead, onManage,readOnly=false,subtaskReadOnly=false,controller,presentation='drawer',onInspect}: {task: Task; profiles: UserProfile[]; projectTitle?: string; projectLeadId?: string; canManageTaskTeam: boolean; canManageSubtasks: boolean; currentUserIsLead: boolean; onManage: () => void;readOnly?:boolean;subtaskReadOnly?:boolean;controller?:WorkTreeController;presentation?:'drawer'|'page'|'dialog';onInspect?:(id:string,section:'work'|'review',origin:TaskInspectorOrigin)=>void}) {
  const wide = presentation === 'page' || presentation === 'dialog';
  const legacyTeam=(<section className="rounded-xl border border-neutral-200 bg-neutral-50/70 p-3">
                 <div className="flex items-center justify-between gap-2">
@@ -21,7 +21,7 @@ export function InspectorTeam({task, profiles, canManageTaskTeam, canManageSubta
                     <Field icon={<User size={13} />} label="Assignee" value={task.teamMemberNames && task.teamMemberNames.length > 0 ? task.teamMemberNames.join(", ") : task.assigneeName || "Unassigned"} />
                     {task.teamName && <Field icon={<Building2 size={13} />} label="Team" value={task.teamName} />}
                   </div>}
-                  {supportsNestedWork(task)?<section aria-label="Task Lead and contributors"><WorkRootOwner rootId={task.id} controller={controller} readOnly={readOnly} fallback={legacyTeam} layout="default"/></section>:legacyTeam}
+                  {supportsNestedWork(task)?<section aria-label="Task Lead and contributors"><WorkRootOwner rootId={task.id} controller={controller} projectLeadId={projectLeadId} readOnly={readOnly} fallback={legacyTeam} layout="default"/></section>:legacyTeam}
                 </div>
               )}
               {wide && !supportsNestedWork(task) && (

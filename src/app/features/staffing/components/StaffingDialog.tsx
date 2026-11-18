@@ -8,8 +8,8 @@ import { Modal } from '../../../components/ui/Modal';
 import { type Task } from '../../tasks';
 import { supportsNestedWork, WorkRootStaffingDialog, type WorkTreeController } from '../../nested-work';
 import '../staffing.css';
-export function StaffingDialog({task, onClose, onAssigned, controller}: {task: Task; onClose: () => void; onAssigned?: () => void | Promise<void>; controller?: WorkTreeController}) {
-  const state = useStaffingReview(task, onAssigned, onClose);
+export function StaffingDialog({task, projectLeadId, onClose, onAssigned, controller}: {task: Task; projectLeadId?: string; onClose: () => void; onAssigned?: () => void | Promise<void>; controller?: WorkTreeController}) {
+  const state = useStaffingReview(task, onAssigned, onClose, projectLeadId);
   const { context, rows, loading, busy, error, progress, selected, setSelected, saved, assigning } = state;
   const confirmation = useConfirmation();
   const guard = useExplicitDraft('Staffing recommendation selection', !!selected && !saved && !state.appointment, assigning, () => setSelected(''));
@@ -20,7 +20,7 @@ export function StaffingDialog({task, onClose, onAssigned, controller}: {task: T
   const confirm = () => state.confirm(person => confirmation.confirm(supported
     ? {title:'Review recommended Task Lead?',description:`Review ${person} for “${task.title}”. AI is advisory; current profile and selected project membership are checked before opening the appointment editor.`,actionLabel:'Review appointment',impact:<p>The appointment editor shows current permissions, workers and descendant impact before you save. Responsible Office stays unchanged.</p>}
     : { title: 'Assign recommended owner?', description: `Assign ${person} as owner of “${task.title}”. AI is advisory; current Office and task eligibility are checked again before assignment.`, actionLabel: 'Assign owner', impact: <p>Responsible Office stays unchanged. The selected person joins this task’s team.</p> }));
-  if (state.appointment) return <WorkRootStaffingDialog rootId={task.id} controller={controller} preselectedLeadId={state.appointment.leadId} onClose={state.cancelAppointment} onChanged={state.appointmentSaved}/>;
+  if (state.appointment) return <WorkRootStaffingDialog rootId={task.id} controller={controller} preselectedLeadId={state.appointment.leadId} projectLeadId={projectLeadId} onClose={state.cancelAppointment} onChanged={state.appointmentSaved}/>;
   return <Modal isOpen onClose={close} title="Recommend staff" width="max-w5xl" preventClose={assigning} overlayClassName="p7-staff-dialog" bodyClassName="p7-staff-body" footer={<div className="p7-staff-footer"><p>Choose a recommendation, then confirm its owner. AI never assigns automatically.</p><Button kind="secondary" onClick={close} disabled={assigning}>Cancel</Button><Button disabled={busy||loading||saved||!selected||!rows.some(row=>row.userId===selected)} onClick={()=>void confirm()}>Confirm owner</Button></div>}>
     <div className="p7-staff">{confirmation.dialog}{saved && <p role="status">{supported?'Lead appointed.':'Owner assigned.'}</p>}<header><span className="p7-staff-eyebrow">Office Head decision</span><h2>{task.title}</h2><p>Recommendations compare confirmed professional profiles with task requirements and current Office workload.</p></header>
       {error&&<div className="p7-staff-error" role="alert">{error}<button className="eflow-text-button" disabled={busy||loading||saved} onClick={()=>void state.refresh()}>Refresh eligible context</button></div>}

@@ -3,24 +3,27 @@ import { assignTask, type Task } from '../../tasks';
 import { fetchWorkTree, supportsNestedWork } from '../../nested-work';
 import { fetchStaffingContext, parseStaffRecommendations, recommendStaff } from '../services/staffingService';
 import type { StaffingContext, StaffRecommendation } from '../types';
-export function useStaffingReview(task: Task, onAssigned?: () => void | Promise<void>, onClose?: () => void) {
+export function useStaffingReview(task: Task, onAssigned?: () => void | Promise<void>, onClose?: () => void, projectLeadId?: string) {
   const [context, setContext] = useState<StaffingContext | null>(null), [rows, setRows] = useState<StaffRecommendation[]>([]);
   const [loading, setLoading] = useState(true), [busy, setBusy] = useState(false), [error, setError] = useState(''), [progress, setProgress] = useState(''), [selected, setSelected] = useState(''), [saved, setSaved] = useState(false), [assigning, setAssigning] = useState(false);
   const pending = useRef(false), savedReceipt = useRef(false), version = useRef(0);
   const [appointment, setAppointment] = useState<{leadId:string;version:number} | null>(null);
   const appointmentOpen = useRef(false);
+  const filterExcluded = useCallback((ctx: StaffingContext): StaffingContext => (
+    projectLeadId ? { ...ctx, candidates: ctx.candidates.filter(person => person.id !== projectLeadId) } : ctx
+  ), [projectLeadId]);
   const refresh = useCallback(async () => {
     if (pending.current || savedReceipt.current || appointmentOpen.current) return;
     const request = version.current; pending.current = true; setLoading(true); setError('');
-    try { const fresh = await fetchStaffingContext(task.id); if (request === version.current) { setContext(fresh); setRows([]); setSelected(id => fresh.candidates.some(person => person.id === id) ? id : ''); } }
+    try { const fresh = filterExcluded(await fetchStaffingContext(task.id)); if (request === version.current) { setContext(fresh); setRows([]); setSelected(id => fresh.candidates.some(person => person.id === id) ? id : ''); } }
     catch (reason) { if (request === version.current) { setContext(null); setError((reason as Error).message); } }
     finally { if (request === version.current) { pending.current = false; setLoading(false); } }
-  }, [task.id]);
+  }, [task.id, filterExcluded]);
   useEffect(() => { ++version.current; pending.current = false; appointmentOpen.current = false; setAppointment(null); setBusy(false); setAssigning(false); setContext(null); setRows([]); setSelected(''); savedReceipt.current = false; setSaved(false); void refresh(); return () => { ++version.current; }; }, [refresh]);
   const generate = async () => {
     if (!context || pending.current || savedReceipt.current || appointmentOpen.current) return;
     const request = version.current; pending.current = true; setBusy(true); setError(''); setRows([]); setProgress('Joining the AI queue…');
-    try { const fresh = await fetchStaffingContext(task.id); if (request !== version.current) return; setContext(fresh); const next = await recommendStaff(fresh, update => { if (request === version.current) setProgress(update.progress?.message || (update.status === 'queued' ? `Queued · ${update.jobsAhead} ahead` : 'Comparing confirmed professional profiles…')); }); if (request === version.current) setRows(next); }
+    try { const fresh = filterExcluded(await fetchStaffingContext(task.id)); if (request !== version.current) return; setContext(fresh); const next = await recommendStaff(fresh, update => { if (request === version.current) setProgress(update.progress?.message || (update.status === 'queued' ? `Queued · ${update.jobsAhead} ahead` : 'Comparing confirmed professional profiles…')); }); if (request === version.current) setRows(next); }
     catch (reason) { if (request === version.current) setError((reason as Error).message || 'Generation failed. Retry or refresh eligible context.'); }
     finally { if (request === version.current) { pending.current = false; setBusy(false); setProgress(''); } }
   };
@@ -30,7 +33,7 @@ export function useStaffingReview(task: Task, onAssigned?: () => void | Promise<
     const request = version.current; pending.current = true; setBusy(true); setAssigning(true); setError('');
     try {
       if (!await review(person.name)) return;
-      const fresh = await fetchStaffingContext(task.id); if (request !== version.current) return;
+      const fresh = filterExcluded(await fetchStaffingContext(task.id)); if (request !== version.current) return;
       setContext(fresh);
       const valid = parseStaffRecommendations(JSON.stringify({ recommendations: rows.map(row => ({ userId: row.userId, evidence: row.evidence })) }), fresh);
       setRows(valid);

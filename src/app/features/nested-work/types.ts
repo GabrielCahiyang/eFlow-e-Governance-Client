@@ -51,7 +51,7 @@ export interface WorkNode {
 }
 export interface WorkTreeSnapshot {
  supportsSubtaskDependencies?:boolean;
- root:{subtask_staffing_locked?:boolean;status?:string;project_status?:string;blocker?:string|null;id:string;project:string;office:string|null;lead:string|null;kind:'office'|'personal';open:boolean;due:string|null;people:string[];scheduleBounds?:WorkScheduleBounds;capabilities?:WorkCapabilityMap<RootWorkAction>;scheduling?:{version:number;today:string}};
+ root:{subtask_staffing_locked?:boolean;project_lead_id?:string|null;status?:string;project_status?:string;blocker?:string|null;id:string;project:string;office:string|null;lead:string|null;kind:'office'|'personal';open:boolean;due:string|null;people:string[];scheduleBounds?:WorkScheduleBounds;capabilities?:WorkCapabilityMap<RootWorkAction>;scheduling?:{version:number;today:string}};
  revision:number;can_manage:boolean;can_transfer:boolean;nodes:WorkNode[];people:WorkPerson[];leaf_total:number;leaf_completed:number;
 }
 export type WorkCommand='create'|'staff'|'edit'|'move'|'delete'|'order'|'contributors'|'root_lead'|'progress'|'submit'|'review';
@@ -66,7 +66,7 @@ export interface WorkTreeController {
 /** For create/order, nodeId is the parent; undefined means the root (parent:null).
  * The command owner builds requests from the complete snapshot, never visible rows.
  */
-export type WorkHierarchyAction=WorkCommand|'open'|'activity';
+export type WorkHierarchyAction=WorkCommand|'open'|'activity'|'evidence'|'funding'|'files';
 export interface WorkImpact {
  root_id:string;expected_revision:number;current_revision:number;command:WorkCommand;allowed:boolean;
  blocker_codes:WorkCapabilityReasonCode[];selected_count:number;descendant_count:number;affected_appointment_count:number;

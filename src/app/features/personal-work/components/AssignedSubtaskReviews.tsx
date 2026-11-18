@@ -163,12 +163,23 @@ export function AssignedSubtaskReviews({
             {visibleRows.length} {reviewWord}
           </p>
           {!rows.length ? (
-            <EmptyState size="page" illustration="complete" title="No reviews waiting" description="Assigned subtask submissions and check-ins will appear here." />
+            <EmptyState
+              size="page"
+              illustration="inbox"
+              title="No reviews waiting"
+              description="Subtask completion submissions and progress check-ins awaiting your decision will appear here."
+            />
           ) : !visibleRows.length ? (
             <EmptyState
               size="page"
               illustration="search"
-              title="No matching reviews"
+              title={
+                kindFilter === 'completion'
+                  ? 'No matching completion reviews'
+                  : kindFilter === 'progress'
+                    ? 'No matching progress updates'
+                    : 'No matching reviews'
+              }
               description="Try another search term or clear your review type filter."
               action={hasFilter ? <Button type="button" variant="outline" onClick={() => { setKindFilter('all'); setQuery(''); }}>Clear search and filters</Button> : undefined}
             />

@@ -25,11 +25,12 @@ export function TimelineCell({ task, disabled, projectStartDate, projectTargetDa
   const maxStart = editor.draft.end && (!projectEnd || editor.draft.end < projectEnd) ? editor.draft.end : projectEnd || undefined;
   const minEnd = editor.draft.start > minimumStart ? editor.draft.start : minimumStart;
   const due = task.deadline || task.dueDate || '', date = timelineDraft(task).end;
+  const needsDate = !date && !due.trim() && !['completed', 'cancelled'].includes(task.status);
   const validation = editor.dirty ? timelineError(task, editor.draft, undefined, projectBounds) : undefined;
   const text = date ? new Date(date + 'T12:00:00').toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }) : due || 'Set dates';
   const startText=task.startDate ? new Date(task.startDate.slice(0,10)+'T12:00:00').toLocaleDateString('en-US',{month:'2-digit',day:'2-digit',year:'numeric'}) : '';
   return <Popover open={editor.open} onOpenChange={editor.onOpenChange}>
-    <PopoverTrigger asChild><button ref={trigger} className="pt-date" disabled={disabled} title={`${task.startDate ? task.startDate+' → ' : ''}${date||due}`} aria-label={'Edit dates for ' + task.title}><Calendar size={14}/><span className="pt-date-label"><span>{startText ? startText+' → ' : ''}{text}</span>{date&&<DeadlineBadge value={date} status={task.status} showDate={false}/>}
+    <PopoverTrigger asChild><button ref={trigger} className={needsDate ? 'pt-date pt-date--required' : 'pt-date'} disabled={disabled} title={needsDate ? 'Set a due date in this column. Tasks without a due date will not be shown to the assigned leader.' : `${task.startDate ? task.startDate+' → ' : ''}${date||due}`} aria-label={'Edit dates for ' + task.title}><Calendar size={14}/><span className="pt-date-label"><span>{startText ? startText+' → ' : ''}{text}</span>{date ? <DeadlineBadge value={date} status={task.status} showDate={false}/> : needsDate ? <span className="pt-date-required-hint">{disabled ? 'Date required' : 'Required · hidden from lead'}</span> : null}
 </span></button></PopoverTrigger>
     <PopoverContent className="eflow-workspace-popover pt-planning-editor pt-timeline-editor" aria-label={'Task timeline for ' + task.title} align="start" sticky="always" collisionPadding={12} onInteractOutside={event => { if (editor.pending) event.preventDefault(); }} onEscapeKeyDown={event => { if (editor.pending) event.preventDefault(); }} onCloseAutoFocus={event => {
       if (!focusAfterSave.current) return;
@@ -45,6 +46,7 @@ export function TimelineCell({ task, disabled, projectStartDate, projectTargetDa
         focusAfterSave.current = true;
       }, 'Dates saved.'); }}>
         <strong>Task timeline</strong><p>Updating task dates automatically updates the project timeline.</p>
+        {needsDate && <div className="rounded-md border border-amber-300 bg-amber-50 px-2.5 py-2 text-xs text-amber-950">Set a due date for this task. Until a date is set, it will not be shown to the assigned leader.</div>}
         {policyLoading&&<p role="status">Checking current task editing access…</p>}{policyError&&<p role="alert">{policyError} Editing is unavailable until access can be verified.</p>}{editState?.started&&<p role="status">Work is already in progress. Start date and prerequisites cannot be changed. Due-date changes require supervising authority and a reason.</p>}
         {editor.notice && <p role="status">{editor.notice}</p>}
         <FormField label="Start date"><TextInput type="date" min={minimumStart} max={maxStart} value={editor.draft.start} disabled={disabled || editor.pending || !canPlan} onChange={event => editor.setDraft({ ...editor.draft, start: event.target.value })}/></FormField>

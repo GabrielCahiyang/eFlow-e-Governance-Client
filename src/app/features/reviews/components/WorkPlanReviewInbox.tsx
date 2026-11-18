@@ -161,10 +161,16 @@ export function WorkPlanReviewInbox({ onNavigate }: { onNavigate?: (section: str
         <WorkPlanCardsSkeleton />
       ) : incomingDrafts.length === 0 ? (
         <div className="bg-white border border-neutral-200/80 rounded-2xl p-12 text-center shadow-xs">
-          <SectionEmpty fill illustration="complete"
-            icon={<CheckCircle2 size={36} className="text-emerald-500" />}
-            title="All work plans reviewed"
-            description="No incoming collaborative proposals or work plans currently require your office's decision."
+          <SectionEmpty
+            fill
+            illustration={query.trim() ? "search" : "complete"}
+            icon={query.trim() ? undefined : <CheckCircle2 size={36} className="text-emerald-500" />}
+            title={query.trim() ? "No matching work plans" : "All work plans reviewed"}
+            description={
+              query.trim()
+                ? `No work plan reviews match "${query.trim()}".`
+                : "No incoming collaborative proposals or work plans currently require your office's decision."
+            }
           />
         </div>
       ) : (

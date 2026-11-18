@@ -124,7 +124,7 @@ describe('Phase 13 personal discovery',()=>{
 describe('Accounting retains personal and financial update destinations',()=>{
  it('opens personal task updates without redirecting financial records away from Accounting',()=>{
   const notification={id:'n',type:'assignment',title:'Task assigned',message:'Assigned task',taskId:'t',read:false,createdAt:1} as Notification;
-  expect(resolveInboxUpdateDestination(notification,'accounting_staff')).toMatchObject({section:'tasks',intent:{kind:'task'}});
+  expect(resolveInboxUpdateDestination(notification,'accounting_staff')).toMatchObject({section:'personal_work',page:'Assigned work',intent:{kind:'task'}});
   expect(resolveInboxUpdateDestination({...notification,type:'petty_cash_liquidation'},'accounting_staff')).toMatchObject({section:'accounting_releases',intent:{kind:'budget'}});
   expect(resolveInboxUpdateDestination(notification,'admin')).toBeNull();
  });

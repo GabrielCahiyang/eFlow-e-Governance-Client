@@ -7,31 +7,43 @@ import { ProjectInvitationApprovalQueue } from '../../src/app/features/project-i
 import { destinationNavigationParameters } from '../../src/app/features/navigation/queryContext';
 
 const mocks = vi.hoisted(() => ({ actor: { id: 'head-one', role: 'head' }, rpc: vi.fn() }));
-vi.mock('../../src/lib/supabase', () => ({ supabase: { rpc: mocks.rpc } }));
+vi.mock('../../src/lib/supabase', () => ({
+  supabase: {
+    rpc: mocks.rpc,
+    channel: () => ({ on: () => ({ subscribe: () => ({}) }) }),
+    removeChannel: vi.fn(),
+  },
+}));
 vi.mock('../../src/app/contexts/AuthContext', () => ({ useAuth: () => ({ user: { id: mocks.actor.id }, userProfile: { role: mocks.actor.role } }) }));
 vi.mock('../../src/app/features/project-invitations/components/ProjectInvitations', () => ({ ProjectInvitations: ({ project }: { project: string }) => <p>Existing invitation controls {project}</p> }));
 beforeEach(() => { mocks.actor = { id: 'head-one', role: 'head' }; mocks.rpc.mockReset(); mocks.rpc.mockResolvedValue({ data: [], error: null }); });
 afterEach(cleanup);
 
 describe('P3 local review navigation', () => {
-  it('retains all review views and rejects display preferences outside current eligibility', () => {
-    for (const view of ['tasks', 'workplans', 'governance', 'subtasks', 'budget', 'membership']) expect(resolveReviewView(view, 'department', 'head')).toBe(view);
-    expect(destinationNavigationParameters('reviews', { view: 'membership', project: 'private', token: 'secret' })).toEqual({ view: 'membership' });
+  it('retains active review views and falls back removed tabs to tasks', () => {
+    for (const view of ['tasks', 'clearance', 'subtasks', 'budget']) expect(resolveReviewView(view, 'department', 'head')).toBe(view);
+    for (const retired of ['workplans', 'governance', 'membership']) expect(resolveReviewView(retired, 'department', 'head')).toBe('tasks');
+    expect(destinationNavigationParameters('reviews', { view: 'budget', project: 'private', token: 'secret' })).toEqual({ view: 'budget' });
     expect(resolveReviewView('membership', 'leading', 'head')).toBe('tasks');
     expect(resolveReviewView('membership', 'department', 'member')).toBe('tasks');
     expect(resolveReviewView('budget', 'department', 'member')).toBe('tasks');
     expect(resolveReviewView('budget', 'leading', 'member')).toBe('budget');
     expect(resolveReviewView('unknown', 'leading', 'member')).toBe('tasks');
-    for (const role of ['member', 'admin', 'accounting_staff']) expect(canOpenMembershipReview('department', role)).toBe(false);
+    for (const role of ['head', 'member', 'admin', 'accounting_staff']) expect(canOpenMembershipReview('department', role)).toBe(false);
   });
-  it('adds membership to the same local selector without fabricating an unknown count', () => {
+  it('shows only Project Tasks, Ready to Complete, and Budget tabs without Work Plans, Governance & Approval, or Membership approvals', () => {
     const onChange = vi.fn(); const { rerender } = render(<ReviewKindSwitch active="tasks" onChange={onChange} />);
+    expect(screen.getAllByRole('tab')).toHaveLength(2);
+    expect(screen.getByRole('tab', { name: 'Project Tasks' })).toBeTruthy();
+    expect(screen.getByRole('tab', { name: 'Ready to Complete' })).toBeTruthy();
+    expect(screen.queryByRole('tab', { name: 'Work Plans' })).toBeNull();
+    expect(screen.queryByRole('tab', { name: 'Governance & Approval' })).toBeNull();
     expect(screen.queryByRole('tab', { name: 'Membership approvals' })).toBeNull();
-    rerender(<ReviewKindSwitch active="membership" includeMembership includeBudget onChange={onChange} counts={{ tasks: 2 }} />);
-    expect(screen.getAllByRole('tab')).toHaveLength(5);
-    fireEvent.click(screen.getByRole('tab', { name: 'Membership approvals', exact: true }));
-    expect(onChange).toHaveBeenCalledWith('membership');
-    expect(screen.getByRole('tab', { name: 'Membership approvals', exact: true }).getAttribute('aria-selected')).toBe('true');
+    rerender(<ReviewKindSwitch active="budget" includeMembership includeBudget onChange={onChange} counts={{ tasks: 2, clearance: 1 }} />);
+    expect(screen.getAllByRole('tab')).toHaveLength(3);
+    fireEvent.click(screen.getByRole('tab', { name: 'Budget', exact: true }));
+    expect(onChange).toHaveBeenCalledWith('budget');
+    expect(screen.getByRole('tab', { name: 'Budget', exact: true }).getAttribute('aria-selected')).toBe('true');
   });
 });
 

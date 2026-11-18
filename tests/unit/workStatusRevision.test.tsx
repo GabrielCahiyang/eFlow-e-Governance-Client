@@ -4,7 +4,7 @@ import {afterEach,describe,expect,it,vi} from 'vitest';
 import {cleanup,fireEvent,render,screen,waitFor} from '@testing-library/react';
 import {WorkExecutionForm} from '../../src/app/features/work-state/components/WorkExecutionForm';
 import {approvedWorkProgress} from '../../src/app/features/work-state/selectors';
-vi.mock('@vibe/core',()=>({Button:({children,onClick,disabled}:any)=><button onClick={onClick} disabled={disabled}>{children}</button>}));
+vi.mock('@vibe/core',()=>({Button:({children,onClick,disabled}:any)=><button onClick={onClick} disabled={disabled}>{children}</button>,Tooltip:({children}:any)=><>{children}</>}));
 vi.mock('../../src/app/shared/useExplicitDraft',()=>({useExplicitDraft:()=>({pendingRef:{current:false},markClean:vi.fn()})}));
 afterEach(cleanup);
 describe('status-based execution',()=>{
@@ -42,6 +42,27 @@ describe('status-based execution',()=>{
  it('cannot bypass a prerequisite or an approval lock',()=>{
   const save=vi.fn();const view=render(<WorkExecutionForm status="todo" blockedBy="Draft agenda approval" onSave={save}/>);
   expect(screen.queryByLabelText('Work status')).toBeNull();view.rerender(<WorkExecutionForm status="for_review" onSave={save}/>);expect(screen.queryByRole('button')).toBeNull();expect(screen.getByRole('status').textContent).toContain('Awaiting approval');
+ });
+ it('prevents saving an empty progress update and labels file attachment as optional',async()=>{
+  const save=vi.fn().mockResolvedValue(undefined);render(<WorkExecutionForm status="in_progress" onSave={save}/>);
+  expect(screen.getByText('Attach a file (optional)')).toBeTruthy();
+  fireEvent.click(screen.getByRole('button',{name:'Save update'}));
+  expect(save).not.toHaveBeenCalled();
+  expect(screen.getByRole('alert').textContent).toContain('Enter an update note, next step, or attach a file before saving.');
+  fireEvent.change(screen.getByLabelText('Work update'),{target:{value:'   '}});
+  fireEvent.click(screen.getByRole('button',{name:'Save update'}));
+  expect(save).not.toHaveBeenCalled();
+  fireEvent.change(screen.getByLabelText('Work update'),{target:{value:'Drafted minutes'}});
+  expect(screen.queryByRole('alert')).toBeNull();
+  fireEvent.click(screen.getByRole('button',{name:'Save update'}));
+  await waitFor(()=>expect(save).toHaveBeenCalledWith(expect.objectContaining({note:'Drafted minutes'})));
+ });
+ it('allows saving when only an optional file attachment or only a next step is provided',async()=>{
+  const save=vi.fn().mockResolvedValue(undefined),file=new File(['proof'],'evidence.pdf',{type:'application/pdf'});
+  render(<WorkExecutionForm status="in_progress" onSave={save}/>);
+  fireEvent.change(screen.getByLabelText('Update attachment'),{target:{files:[file]}});
+  fireEvent.click(screen.getByRole('button',{name:'Save update'}));
+  await waitFor(()=>expect(save).toHaveBeenCalledWith(expect.objectContaining({note:'',nextStep:'',files:[file]})));
  });
  it('counts approved leaves once and excludes parent containers',()=>{
   expect(approvedWorkProgress([{id:'parent',status:'in_progress'},{id:'a',parent_subtask_id:'parent',status:'completed'},{id:'b',parent_subtask_id:'parent',status:'for_review'}])).toEqual({approved:1,total:2,percent:50});

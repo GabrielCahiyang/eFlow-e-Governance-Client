@@ -24,3 +24,4 @@ export { TASK_INSPECTOR_SECTIONS, resolveTaskInspectorSection } from './types';
 export type { TaskInspectorSection } from './types';
 
 export {InspectorSurface} from './components/InspectorSurface';
+export {fetchInspectorFiles,openInspectorFile,type InspectorFile} from './services/inspectorFileService';

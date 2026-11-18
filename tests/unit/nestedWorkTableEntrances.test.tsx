@@ -31,7 +31,7 @@ function snapshot(create=true):WorkTreeSnapshot{
 const rowProps=()=>({task,tasks:[task],groups:[],profiles:[],orgs:[],columns:['owner'] as const,editable:false,userId:api.actor,subtasks:[],onOpen:vi.fn(),onOpenSubitem:vi.fn(),refreshSubitems:vi.fn().mockResolvedValue(undefined),reorderable:false,onMove:vi.fn(),run:async(fn:()=>Promise<void>)=>{await fn();}});
 function show(patch:Partial<Task>={},locked=false){const props={...rowProps(),columns:['owner'] as ('owner')[],task:{...task,...patch},locked};return render(<table><tbody><ProjectTaskRow {...props}/></tbody></table>);}
 async function menu(name='Actions for Office delivery'){fireEvent.keyDown(screen.getByRole('button',{name,exact:true}),{key:'Enter'});await screen.findByRole('menu');}
-beforeEach(()=>{api.actor='head';api.role='head';api.office='office';api.officeState.error='';vi.clearAllMocks();localStorage.clear();sessionStorage.clear();api.load.mockImplementation(async()=>snapshot());api.save.mockResolvedValue(snapshot());api.impact.mockResolvedValue({root_id:'root',expected_revision:7,current_revision:7,command:'edit',allowed:true,blocker_codes:[],selected_count:1,descendant_count:0,affected_appointment_count:0,before_path:['Parent'],after_path:['Parent'],fingerprint:'fp-1',requires_date_confirmation:false,date_impact:{old_due:null,new_due:null,items:[]}});});
+beforeEach(()=>{api.actor='head';api.role='head';api.office='office';api.officeState.error='';vi.clearAllMocks();localStorage.clear();sessionStorage.clear();api.load.mockImplementation(async()=>snapshot());api.save.mockImplementation(async()=>snapshot());api.impact.mockResolvedValue({root_id:'root',expected_revision:7,current_revision:7,command:'edit',allowed:true,blocker_codes:[],selected_count:1,descendant_count:0,affected_appointment_count:0,before_path:['Parent'],after_path:['Parent'],fingerprint:'fp-1',requires_date_confirmation:false,date_impact:{old_due:null,new_due:null,items:[]}});});
 afterEach(()=>{cleanup();vi.useRealTimers();});
 if(!globalThis.ResizeObserver)globalThis.ResizeObserver=class {observe(){}unobserve(){}disconnect(){}};
 describe('NW6.3 existing Main Table entrances',()=>{
@@ -43,23 +43,40 @@ describe('NW6.3 existing Main Table entrances',()=>{
   fireEvent(window,new Event('focus'));await act(async()=>{});expect(api.load).toHaveBeenCalledTimes(3);
   fireEvent.click(screen.getByRole('button',{name:'Subtasks for Office delivery'}));await act(async()=>vi.advanceTimersByTime(15000));expect(api.load).toHaveBeenCalledTimes(4);expect(api.save).not.toHaveBeenCalled();
  });
- it('lets eligible Head oversight add a root child inline despite not being Task Lead, expands and focuses Title',async()=>{
+ it('blocks Project Lead / Office Head from creating subtasks and disables the subtask dropdown until a subtask exists, while Task Lead adds inline',async()=>{
+  const empty=snapshot();empty.nodes=[];rememberWorkCapabilityContext(empty,api.actor);
+  api.load.mockImplementation(async()=>empty);
+  render(<table><tbody><ProjectTaskRow {...rowProps()} projectStatus="planning" projectLeadId="head"/></tbody></table>);
+  await screen.findByText('Branch Lead');
+  const blockedToggle=screen.getByRole('button',{name:'Subtasks for Office delivery'}) as HTMLButtonElement;
+  expect(blockedToggle.disabled).toBe(true);
+  await menu();
+  expect(screen.queryByRole('menuitem',{name:'Add subtask'})).toBeNull();
+  fireEvent.keyDown(screen.getByRole('menu'),{key:'Escape'});
+  cleanup();
+
+  api.actor='lead';api.role='member';
+  api.load.mockImplementation(async()=>snapshot());
   show();await screen.findByText('Branch Lead');await menu();const add=screen.getByRole('menuitem',{name:'Add subtask',exact:true});expect(add.getAttribute('aria-disabled')).not.toBe('true');fireEvent.click(add);
-  const input=await screen.findByLabelText('Add subtask to Office delivery');await waitFor(()=>expect(document.activeElement).toBe(input));expect(screen.getByRole('button',{name:'Subtasks for Office delivery'}).getAttribute('aria-expanded')).toBe('true');expect(api.load).toHaveBeenCalledTimes(1);
+  const input=await screen.findByLabelText('Add subtask to Office delivery');await waitFor(()=>expect(document.activeElement).toBe(input));expect(screen.getByRole('button',{name:'Subtasks for Office delivery'}).getAttribute('aria-expanded')).toBe('true');
   expect(screen.queryByRole('dialog',{name:'Add subtask'})).toBeNull();
   expect(screen.queryByRole('button',{name:'Add subtask',exact:true})).toBeNull();
   fireEvent.change(input,{target:{value:'New root child'}});fireEvent.keyDown(input,{key:'Enter'});await waitFor(()=>expect(api.save).toHaveBeenCalledTimes(1));expect(api.save.mock.calls[0][1]).toMatchObject({command:'create',payload:{parent:null,title:'New root child'},revision:7});
  });
  it('fails closed for legacy management booleans without current create-child capability',async()=>{
+  api.actor='lead';api.role='member';
   api.load.mockImplementation(async()=>snapshot(false));show();await screen.findByText('Branch Lead');await menu();expect(screen.getByRole('menuitem',{name:'Add subtask'}).getAttribute('aria-disabled')).toBe('true');expect(api.save).not.toHaveBeenCalled();
  });
  for(const [label,patch,locked] of [['archive',{archivedAt:1},false],['caller lock',{},true],['review state',{status:'for_review'},false]] as const)it(`propagates ${label} through row, owner and widget`,async()=>{
+  api.actor='lead';api.role='member';
   show(patch as Partial<Task>,locked);await screen.findByText('Branch Lead');expect(screen.queryByRole('button',{name:'Choose task lead and contributors'})).toBeNull();await menu();expect(screen.getByRole('menuitem',{name:'Add subtask'}).getAttribute('aria-disabled')).toBe('true');fireEvent.keyDown(screen.getByRole('menu'),{key:'Escape'});fireEvent.click(screen.getByRole('button',{name:'Subtasks for Office delivery'}));const parentEdit=await screen.findByRole('button',{name:'Edit subtask Parent'}) as HTMLButtonElement;expect(parentEdit.disabled).toBe(true);expect(screen.queryByRole('button',{name:'Choose subtask lead and contributors for Parent'})).toBeNull();expect((screen.getByRole('button',{name:'Edit dates for Parent'}) as HTMLButtonElement).disabled).toBe(true);expect(screen.queryByRole('button',{name:'Task work actions'})).toBeNull();expect(api.save).not.toHaveBeenCalled();
  });
  it('keeps proposed Office work in the locked legacy path without a nested-work controller',async()=>{
+  api.actor='lead';api.role='member';
   show({proposedOfficeIdentityId:'proposal'});expect((screen.getByRole('combobox',{name:'Owner for Office delivery'}) as HTMLSelectElement).disabled).toBe(true);await menu();expect(screen.getByRole('menuitem',{name:'Add subtask'}).getAttribute('aria-disabled')).toBe('true');fireEvent.keyDown(screen.getByRole('menu'),{key:'Escape'});fireEvent.click(screen.getByRole('button',{name:'Subtasks for Office delivery'}));expect(screen.queryByRole('button',{name:'Task work actions'})).toBeNull();expect(api.load).not.toHaveBeenCalled();expect(api.save).not.toHaveBeenCalled();
  });
  it('retains this task collapse state across row close and does not refocus an old Add request',async()=>{
+  api.actor='lead';api.role='member';
   show();await screen.findByText('Branch Lead');const toggle=screen.getByRole('button',{name:'Subtasks for Office delivery'});await menu();fireEvent.click(screen.getByRole('menuitem',{name:'Add subtask'}));const input=await screen.findByLabelText('Add subtask to Office delivery');await waitFor(()=>expect(document.activeElement).toBe(input));fireEvent.change(input,{target:{value:'Draft title'}});fireEvent.keyDown(input,{key:'Escape'});expect((input as HTMLInputElement).value).toBe('');
   fireEvent.click(screen.getByRole('button',{name:'Collapse children of Parent'}));expect(screen.queryByRole('button',{name:'Edit subtask Child'})).toBeNull();fireEvent.click(toggle);await waitFor(()=>expect(toggle.getAttribute('aria-expanded')).toBe('false'));fireEvent.click(toggle);await screen.findByRole('button',{name:'Expand children of Parent'});expect(screen.queryByRole('button',{name:'Edit subtask Child'})).toBeNull();expect(document.activeElement).not.toBe(screen.getByLabelText('Add subtask to Office delivery'));expect(api.save).not.toHaveBeenCalled();
  });
@@ -75,6 +92,7 @@ describe('NW6.3 existing Main Table entrances',()=>{
   render(<WorkTree rootId="root" controller={controller} onReviewOfficeNode={review}/>);await menu('Actions for Parent');expect(screen.queryByRole('menuitem',{name:'Review',exact:true})).toBeNull();expect(review).not.toHaveBeenCalled();expect(api.save).not.toHaveBeenCalled();
  });
  it('retains dirty branch and row on declined collapse and discards only after accepted navigation',async()=>{
+  api.actor='lead';api.role='member';
   const confirm=vi.fn().mockResolvedValue(false),uninstall=installNavigationConfirmation(confirm);
   try{show();await screen.findByText('Branch Lead');const toggle=screen.getByRole('button',{name:'Subtasks for Office delivery'});fireEvent.click(toggle);await screen.findByRole('button',{name:'Edit subtask Parent'});await menu('Actions for Parent');fireEvent.click(screen.getByRole('menuitem',{name:'Edit subtask'}));fireEvent.change(await screen.findByLabelText('Subtask title'),{target:{value:'Retained branch'}});
    fireEvent.click(screen.getByRole('button',{name:'Collapse children of Parent'}));await waitFor(()=>expect(confirm).toHaveBeenCalledTimes(1));expect(screen.getByRole('button',{name:'Edit subtask Child'})).toBeTruthy();expect(screen.getByDisplayValue('Retained branch')).toBeTruthy();
@@ -82,6 +100,7 @@ describe('NW6.3 existing Main Table entrances',()=>{
   }finally{uninstall();}
  });
  it('renders the subtask columns, inline title rename on click, and PanelRight open trigger',async()=>{
+  api.actor='lead';api.role='member';
   const data=snapshot();data.root.due='2099-11-30';data.nodes[0]={...data.nodes[0],lead_id:'lead',assigned_to_ids:['lead','head'],start_date:'2099-11-10',due_date:'2099-11-20',capabilities:{...data.nodes[0].capabilities,manage_contributors:allow,appoint_lead:allow}};rememberWorkCapabilityContext(data,api.actor);
   api.load.mockImplementation(async()=>data);api.save.mockResolvedValue(data);
   show({startDate:'2099-11-05',deadline:'2099-11-30T23:59:00+08:00'});
@@ -99,6 +118,7 @@ describe('NW6.3 existing Main Table entrances',()=>{
   expect(within(table).getAllByText('Not started')[0].className).toContain('work-status-trigger--todo');
  });
  it('combines Lead and Contributors into Owner with Choose people opening subtask staffing',async()=>{
+  api.actor='lead';api.role='member';
   const data=snapshot();data.nodes[0]={...data.nodes[0],lead_id:'lead',assigned_to_ids:['lead','head'],capabilities:{...data.nodes[0].capabilities,manage_contributors:allow,appoint_lead:allow}};rememberWorkCapabilityContext(data,api.actor);
   api.load.mockImplementation(async()=>data);
   show();await screen.findByText('Branch Lead');
@@ -110,6 +130,7 @@ describe('NW6.3 existing Main Table entrances',()=>{
   expect(await screen.findByRole('dialog',{name:'Subtask Lead and contributors'})).toBeTruthy();
  });
  it('edits subtask dates via root-style timeline popover within parent schedule bounds',async()=>{
+  api.actor='lead';api.role='member';
   const data=snapshot();data.root.due='2099-11-30';data.nodes[0]={...data.nodes[0],start_date:'2099-11-10',due_date:'2099-11-20',capabilities:{...data.nodes[0].capabilities}};rememberWorkCapabilityContext(data,api.actor);
   api.load.mockImplementation(async()=>data);api.save.mockResolvedValue(data);
   show({startDate:'2099-11-05',deadline:'2099-11-30T23:59:00+08:00'});
@@ -122,10 +143,12 @@ describe('NW6.3 existing Main Table entrances',()=>{
   expect(await screen.findByText('Subtask dates must stay within the parent schedule.')).toBeTruthy();
   expect((screen.getByRole('button',{name:'Save dates'}) as HTMLButtonElement).disabled).toBe(true);
   fireEvent.change(dueInput,{target:{value:'2099-11-25'}});
+  fireEvent.change(screen.getByLabelText('Due-date change reason'),{target:{value:'Extended schedule'}});
   fireEvent.click(screen.getByRole('button',{name:'Save dates'}));
   await waitFor(()=>expect(api.save).toHaveBeenCalledWith('root',expect.objectContaining({command:'edit',impactFingerprint:'fp-1',payload:expect.objectContaining({id:'parent',due:'2099-11-25'})})));
  });
  it('adds subtasks inline via Shift+Enter (keeping focus) and outside click without a submit button',async()=>{
+  api.actor='lead';api.role='member';
   render(<><button type="button">Outside target</button><table><tbody><ProjectTaskRow {...rowProps()}/></tbody></table></>);
   await screen.findByText('Branch Lead');
   fireEvent.click(screen.getByRole('button',{name:'Subtasks for Office delivery'}));
@@ -135,6 +158,7 @@ describe('NW6.3 existing Main Table entrances',()=>{
   fireEvent.change(addInput,{target:{value:'Child via Shift+Enter'}});
   fireEvent.keyDown(addInput,{key:'Enter',shiftKey:true});
   await waitFor(()=>expect(api.save).toHaveBeenCalledWith('root',expect.objectContaining({command:'create',payload:expect.objectContaining({title:'Child via Shift+Enter',parent:null})})));
+  await waitFor(()=>expect((addInput as HTMLInputElement).value).toBe(''));
   expect(document.activeElement).toBe(addInput);
   fireEvent.change(addInput,{target:{value:'Child via outside click'}});
   fireEvent.click(screen.getByRole('button',{name:'Outside target'}));
@@ -167,6 +191,7 @@ describe('NW6.3 existing Main Table entrances',()=>{
   expect(within(table).queryByRole('columnheader',{name:'Budget'})).toBeNull();
  });
  it('saves priority and sibling prerequisites with the current Subtask command',async()=>{
+  api.actor='lead';api.role='member';
   const data=snapshot();
   data.supportsSubtaskDependencies=true;
   const parent={...data.nodes[0],priority:'medium' as const,can_edit_dependencies:true,dependency_ids:[]};
@@ -201,6 +226,7 @@ describe('NW6.3 existing Main Table entrances',()=>{
   expect(within(table).getByRole('columnheader',{name:'Budget'})).toBeTruthy();
  });
  it('inherits bounded start and due dates from the parent task when adding subtasks inline',async()=>{
+  api.actor='lead';api.role='member';
   const data=snapshot();data.root.due='2099-11-25';rememberWorkCapabilityContext(data,api.actor);
   api.load.mockImplementation(async()=>data);api.save.mockResolvedValue(data);
   show({startDate:'2099-11-18',deadline:'2099-11-25T23:59:00+08:00'});

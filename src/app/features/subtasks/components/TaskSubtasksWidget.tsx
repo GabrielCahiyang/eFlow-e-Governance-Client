@@ -4,13 +4,15 @@ import { DateInput } from "../../../components/ui/DateInput";
 import { getPhilippineCalendarDate, scheduledDateError } from '../../../shared/calendarDates';
 import { supportsNestedWork, isCurrentWorkSnapshot, WorkTree, type WorkNode, type WorkTreeSnapshot, type WorkTreeController } from '../../nested-work';
 import type {TaskInspectorOrigin} from '../../task-inspector';
+import {SubitemActionModal, type SubitemActionSection} from './SubitemActionModal';
 import {SubitemInspector} from './SubitemInspector';
 
 export function TaskSubtasksWidget(props: Parameters<typeof LegacyTaskSubtasksWidget>[0] & {onInspect?:(id:string,section:'work'|'review',origin:TaskInspectorOrigin)=>void;presentation?:'standard'|'project-table';fallback?:import('react').ReactNode;controller?:WorkTreeController;createRequest?:number;createFocusTarget?:HTMLElement;executionBlocked?:boolean;collapsedIds?:Set<string>;onCollapsedIdsChange?:(next:Set<string>)=>void}) {
  const [opened,setOpened]=useState<{id:string;section:'work'|'review';origin:TaskInspectorOrigin}>();
+ const [sectionModal,setSectionModal]=useState<{id:string;section:SubitemActionSection}>();
  const {user}=useAuth();
  const readOnly=!!props.readOnly||!!props.parentTask?.archivedAt||!!props.parentTask?.proposedOfficeIdentityId;
- useEffect(()=>setOpened(undefined),[user?.id,props.taskId]);
+ useEffect(()=>{setOpened(undefined);setSectionModal(undefined);},[user?.id,props.taskId]);
  if(!props.parentTask||!supportsNestedWork(props.parentTask))return <LegacyTaskSubtasksWidget {...props} readOnly={readOnly}/>;
  const supplied=props.controller,data=supplied?.data;
  if(supplied&&(supplied.actorId!==(user?.id||null)||supplied.rootId!==props.taskId||data&&(data.root.id!==props.taskId||data.root.project!==props.parentTask.linkedProjectId||data.root.kind==='office'&&data.root.office!==props.parentTask.orgId||!isCurrentWorkSnapshot(data,{actorId:user?.id||null,rootId:props.taskId,projectId:data.root.project,officeId:data.root.office,kind:data.root.kind,revision:data.revision}))))return <p role="alert">We couldn't confirm access to this task's work. Close this view and open the task again.</p>;
@@ -23,8 +25,9 @@ export function TaskSubtasksWidget(props: Parameters<typeof LegacyTaskSubtasksWi
   if(props.onInspect)props.onInspect(node.id,section,origin);else setOpened({id:node.id,section,origin});
  };
  const isProjectTable = props.presentation === 'project-table';
- return <><div hidden={!!opened && !isProjectTable}><WorkTree presentation={props.presentation} rootId={props.taskId} parentTask={props.parentTask} parentTitle={props.parentTask.title} parentStartDate={props.parentTask.startDate} controller={props.controller} createRequest={props.createRequest} createFocusTarget={props.createFocusTarget} collapsedIds={props.collapsedIds} onCollapsedIdsChange={props.onCollapsedIdsChange} executionBlocked={props.executionBlocked} readOnly={readOnly} fallback={props.fallback||<LegacyTaskSubtasksWidget {...props} readOnly={readOnly}/>} onOpenOfficeNode={(node,tree)=>open(node,tree,'work')} onReviewOfficeNode={(node,tree)=>open(node,tree,'review')}/></div>
+ return <><div hidden={!!opened && !isProjectTable}><WorkTree presentation={props.presentation} rootId={props.taskId} parentTask={props.parentTask} parentTitle={props.parentTask.title} parentStartDate={props.parentTask.startDate} controller={props.controller} createRequest={props.createRequest} createFocusTarget={props.createFocusTarget} collapsedIds={props.collapsedIds} onCollapsedIdsChange={props.onCollapsedIdsChange} executionBlocked={props.executionBlocked} readOnly={readOnly} fallback={props.fallback||<LegacyTaskSubtasksWidget {...props} readOnly={readOnly}/>} onOpenOfficeNode={(node,tree)=>open(node,tree,'work')} onReviewOfficeNode={(node,tree)=>open(node,tree,'review')} onSubtaskSection={(section,node)=>setSectionModal({id:node.id,section})}/></div>
  {opened&&<SubitemInspector key={opened.id} presentation={isProjectTable?'dialog':undefined} rootTask={props.parentTask} itemId={opened.id} controller={props.controller} initialSection={opened.section} origin={opened.origin} executionBlocked={props.executionBlocked} readOnly={readOnly} onClose={()=>setOpened(undefined)}/>}
+ {sectionModal&&<SubitemActionModal key={`${sectionModal.id}:${sectionModal.section}`} rootTask={props.parentTask} itemId={sectionModal.id} section={sectionModal.section} controller={props.controller} readOnly={readOnly} executionBlocked={props.executionBlocked} onClose={()=>setSectionModal(undefined)}/>}
  </>;
 }
 // ─── TaskSubtasksWidget ──────────────────────────────────────────

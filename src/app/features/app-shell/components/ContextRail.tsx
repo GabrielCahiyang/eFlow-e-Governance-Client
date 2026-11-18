@@ -21,7 +21,7 @@ export function MyWorkContextRail(props:Props){
 }
 export function InboxContextRail(props:Props){
  const normalized=props.activePage==='Updates'?'Notifications':props.activeSection==='messages'?'Messages':props.activePage;
- const page=(props.activeSection==='inbox'||props.activeSection==='messages')&&(!normalized||normalized==='Inbox')?(props.role==='admin'?'Notifications':'Needs action'):normalized;
+ const page=(props.activeSection==='inbox'||props.activeSection==='messages')&&(!normalized||normalized==='Inbox'||normalized==='Needs action')?'Notifications':normalized;
  const section=props.activeSection==='messages'?'inbox':props.activeSection;
  return <ContextContent {...props}><Destinations {...props} activeSection={section} activePage={page} items={props.items.filter(item=>item.group==='inbox')}/></ContextContent>;
 }

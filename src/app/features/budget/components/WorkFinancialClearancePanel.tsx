@@ -19,11 +19,13 @@ export function WorkFinancialClearancePanel({
   root,
   node,
   readOnly = false,
+  leadName,
   onSaved,
 }: {
   root: string;
   node?: string | null;
   readOnly?: boolean;
+  leadName?: string | null;
   onSaved?: () => void | Promise<void>;
 }) {
   const { user } = useAuth();
@@ -114,6 +116,7 @@ export function WorkFinancialClearancePanel({
       void refresh();
     };
     window.addEventListener("focus", reload);
+    window.addEventListener("eflow:work-updated", reload);
     window.addEventListener("eflow:finance-updated", reload);
     window.addEventListener("eflow:expenses-updated", reload);
     const unsubscribe = subscribeWorkChanges(reload, root);
@@ -122,6 +125,7 @@ export function WorkFinancialClearancePanel({
     return () => {
       version.current++;
       window.removeEventListener("focus", reload);
+      window.removeEventListener("eflow:work-updated", reload);
       window.removeEventListener("eflow:finance-updated", reload);
       window.removeEventListener("eflow:expenses-updated", reload);
       unsubscribe();
@@ -251,7 +255,11 @@ export function WorkFinancialClearancePanel({
             ? "Completion confirmed."
             : current?.cashOutstanding
               ? "Work accepted. Required receipts, cash returns and settlement must be cleared before completion."
-              : "Work accepted and financial clearance confirmed. The authorized lead can mark this work complete."}
+              : !readOnly && (current?.canFinalize || recovery)
+                ? "Work accepted and financial clearance confirmed. Click Mark as complete to finalize this work."
+                : leadName
+                  ? `Work accepted and financial clearance confirmed. Waiting for ${leadName} (the authorized lead) to mark this work complete.`
+                  : "Work accepted and financial clearance confirmed. The authorized lead can mark this work complete."}
         </p>
       )}
 

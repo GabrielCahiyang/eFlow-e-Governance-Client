@@ -1,7 +1,7 @@
 import {decimalError,integerError} from '../../../shared/numericValidation';
 import {historicalDateError} from '../../../shared/calendarDates';
 import {attachmentError} from '../../../shared/fileValidation';
-import type {BudgetLineInput,ReceiptDraft,ReceiptItem} from '../types';
+import type {BudgetLineInput,CashFundingLine,ReceiptDraft,ReceiptItem} from '../types';
 // Keep quantities within both deployed numeric(16,scale) and exact scaled JS integers.
 export const MAX_RECEIPT_QUANTITY=Math.floor(Number.MAX_SAFE_INTEGER/1000);
 export const MAX_BUDGET_QUANTITY=Math.floor(Number.MAX_SAFE_INTEGER/100);
@@ -23,22 +23,34 @@ export function budgetLineError(line:BudgetLineInput){
  }
  return financialAmountError(line.amount,'Line total',false,MAX_BUDGET_LINE_AMOUNT);
 }
-export function liquidationInputError(input:{spent:number;note:string;receipts:ReceiptDraft[];refundDate?:string;refundReceiptNumber?:string}){
+export function liquidationInputError(input:{spent:number;note:string;receipts:ReceiptDraft[];refundDate?:string;refundReceiptNumber?:string;releasedAmount?:number;sources?:CashFundingLine[]}){
  const amountIssue=financialAmountError(input.spent,'Actual spending',true);if(amountIssue)return amountIssue;
+ if(input.releasedAmount!==undefined&&Math.round(input.spent*100)>Math.round(input.releasedAmount*100))return `Total spending exceeds the released cash of ₱${input.releasedAmount.toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2})}.`;
  if(!input.note.trim())return 'Add a liquidation note.';
  if(!Array.isArray(input.receipts)||input.receipts.length<1||input.receipts.length>100)return 'Include between 1 and 100 receipts.';
  let sum=0;
+ const sourceTotals=new Map<string,number>();
  for(const [index,receipt] of input.receipts.entries()){
   const prefix=`Receipt ${index+1}: `;
   const issue=historicalDateError(receipt.receiptDate,'Receipt date')||financialAmountError(receipt.amount,'Receipt amount',true)||(!receipt.vendor.trim()?'Vendor is required.':'');if(issue)return prefix+issue;
   if(receipt.items!==undefined){
    if(!Array.isArray(receipt.items)||receipt.items.length>100)return prefix+'Use up to 100 purchased items.';
-   for(const item of receipt.items){const problem=receiptItemError(item);if(problem)return prefix+problem;}
+   for(const item of receipt.items){
+    const problem=receiptItemError(item);if(problem)return prefix+problem;
+    sourceTotals.set(item.allocationLineId,(sourceTotals.get(item.allocationLineId)??0)+Math.round(item.amount*100));
+   }
    if(receipt.items.reduce((total,item)=>total+Math.round(item.amount*100),0)!==Math.round(receipt.amount*100))return prefix+'Purchased items must equal the receipt amount.';
   }else if(!receipt.description.trim())return prefix+'Describe the expense.';
   if(!receipt.file)return prefix+'Attach the receipt file.';
   const fileIssue=attachmentError([receipt.file],{extensions:['jpg','jpeg','png','webp','pdf']});if(fileIssue)return prefix+fileIssue;
   sum+=Math.round(receipt.amount*100);
+ }
+ if(input.releasedAmount!==undefined&&sum>Math.round(input.releasedAmount*100))return `Receipt totals exceed the released cash of ₱${input.releasedAmount.toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2})}.`;
+ if(input.sources?.length){
+  for(const [idx,source] of input.sources.entries()){
+   const used=sourceTotals.get(source.allocationLineId)??0;
+   if(used>Math.round(source.amount*100))return `${source.sourceName||`Funding line ${idx+1}`} spending exceeds its approved funding of ₱${source.amount.toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2})}.`;
+  }
  }
  if(sum!==Math.round(input.spent*100))return 'Receipt totals must equal actual spending.';
  if(input.refundDate){const issue=historicalDateError(input.refundDate,'Cash return date');if(issue)return issue;}

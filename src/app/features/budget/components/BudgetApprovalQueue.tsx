@@ -520,7 +520,7 @@ export function BudgetApprovalQueue({
                 recordId={item.id}
                 focused={focusRecordId === item.id}
                 title={`FR-${String(item.requestNumber).padStart(5, "0")} · ${hierarchy || "Funded work"}`}
-                meta={`${item.requesterName || "Member"} · ${item.purpose} · ${peso.format(item.requestedAmount)} · ${isLeaderReview ? "Leader endorsement" : "Department approval"}${line ? ` · ${line.category} / ${line.particular} / ${line.fundSource}` : ""}`}
+                meta={`${item.requesterName || "Member"} · ${item.purpose} · ${peso.format(item.requestedAmount)} · ${isLeaderReview ? "Task Lead endorsement" : "Project Lead approval"}${line ? ` · ${line.category} / ${line.particular} / ${line.fundSource}` : ""}`}
                 status={item.status}
                 tierBadge={tierBadge}
                 details={
@@ -557,7 +557,7 @@ export function BudgetApprovalQueue({
                               true,
                               isTier1
                                 ? "Endorsed under quick-approval limit"
-                                : "Endorsed for department approval",
+                                : "Endorsed for Project Lead approval",
                             )
                           : decidePettyCashRequest(
                               item.id,

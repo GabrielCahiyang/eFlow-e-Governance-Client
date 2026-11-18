@@ -35,7 +35,7 @@ describe("notification navigation", () => {
   it('opens the exact subtask from a Lead review notification', () => {
     const review = notification({ type: 'approval_needed', entityType: 'm7_work_proposal', taskId: 'task', workNodeId: 'subtask' });
     expect(resolveNotificationDestination(review, 'member')).toMatchObject({
-      section: 'personal_work', page: 'Reviews', intent: { kind: 'leading_task', taskId: 'task', entityId: 'subtask' },
+      section: 'personal_work', page: 'Leading', intent: { kind: 'leading_task', taskId: 'task', entityId: 'subtask' },
     });
   });
   it('links Office Petty Cash and archive blockers to their own records', () => {
@@ -49,9 +49,9 @@ describe("notification navigation", () => {
     expect(resolveNotificationDestination(alert, 'head')).toMatchObject({ section: 'reviews', page: 'For Review', label: 'Open budget review', intent: { kind: 'budget', financialRecordId: 'liquidation-id' } });
     expect(resolveNotificationDestination(alert, 'accounting_staff')).toBeNull();
   });
-  it('targets Head membership approvals without stealing ordinary project notifications', () => {
+  it('routes Head project invitation notifications directly into Projects without the removed membership tab', () => {
     const invitation = notification({ type: 'system', title: 'Project invitation approval requested', projectId: 'project-one' });
-    expect(resolveNotificationDestination(invitation, 'head')).toMatchObject({ section: 'reviews', intent: { kind: 'membership_review', projectId: 'project-one' } });
+    expect(resolveNotificationDestination(invitation, 'head')).toMatchObject({ section: 'projects', page: 'Projects', label: 'Open project invitations', intent: { kind: 'project', projectId: 'project-one' } });
     expect(resolveNotificationDestination(invitation, 'member')).toMatchObject({ section: 'projects', intent: { kind: 'project' } });
     expect(resolveNotificationDestination(notification({ projectId: 'project-one', title: 'Project changed' }), 'head')).toMatchObject({ section: 'projects', intent: { kind: 'project' } });
   });
@@ -125,7 +125,7 @@ describe("notification navigation", () => {
     });
   });
 
-  it("opens task deadline reminders at the task rather than only the parent project", () => {
+  it("opens task deadline reminders at the linked project and exact task rather than old Task Board / My Tasks", () => {
     expect(resolveNotificationDestination(notification({
       type: "reminder",
       title: "Task due soon",
@@ -134,8 +134,8 @@ describe("notification navigation", () => {
       taskTitle: "Prepare logistics",
       projectId: "proj-1",
     }), "accounting_staff")).toMatchObject({
-      section: "tasks",
-      page: "My Tasks",
+      section: "projects",
+      page: "Projects",
       label: "Open task",
       intent: { kind: "task", taskId: "task-9", projectId: "proj-1" },
     });
@@ -172,8 +172,8 @@ describe("notification navigation", () => {
       taskTitle: "Meeting report",
       statusTo: "completed",
     }), "member")).toMatchObject({
-      section: "tasks",
-      page: "My Tasks",
+      section: "personal_work",
+      page: "Assigned work",
       label: "Open task",
       intent: { kind: "task", taskId: "task-4" },
     });
@@ -212,10 +212,22 @@ describe("notification navigation", () => {
       title: "Petty cash approved",
       taskId: "task-5",
     }), "member")).toMatchObject({
-      section: "tasks",
-      page: "My Tasks",
+      section: "personal_work",
+      page: "Assigned work",
       label: "Open task funding",
       intent: { kind: "budget", taskId: "task-5" },
+    });
+
+    expect(resolveNotificationDestination(notification({
+      type: "petty_cash_decision",
+      title: "Fund cash approved and scheduled",
+      taskId: "task-5",
+      projectId: "project-5",
+    }), "member")).toMatchObject({
+      section: "projects",
+      page: "Projects",
+      label: "Open task funding",
+      intent: { kind: "budget", taskId: "task-5", projectId: "project-5" },
     });
 
     expect(resolveNotificationDestination(notification({
@@ -227,7 +239,7 @@ describe("notification navigation", () => {
     }), "accounting_staff")).toMatchObject({
       section: "accounting_releases",
       page: "Voucher & Cash Releases",
-      label: "Open accounting record",
+      label: "Open cash releases",
       intent: { kind: "budget", financialRecordId: "liquidation-1" },
     });
   });

@@ -11,25 +11,27 @@ import { supportsNestedWork, WorkRootOwner, type WorkTreeController } from '../.
 import { AsyncSelectCell, PriorityCell, WorkspaceTooltip } from '../../../components/ui/workspace';
 import '../cellEditors.css';
 
-function OwnerCell({ task, people, profiles, disabled, write }: { task: Task; people: UserProfile[]; profiles: UserProfile[]; disabled: boolean; write: (operation: () => Promise<void>) => Promise<void> }) {
+function OwnerCell({ task, people, profiles, projectLeadId, disabled, write }: { task: Task; people: UserProfile[]; profiles: UserProfile[]; projectLeadId?: string; disabled: boolean; write: (operation: () => Promise<void>) => Promise<void> }) {
   const owner = getTaskLeadId(task), person = profiles.find(profile => profile.id === owner), { confirm, dialog } = useConfirmation();
+  const leadOptions = projectLeadId ? people.filter(profile => profile.id !== projectLeadId) : people;
   return <><div className="pt-owner"><WorkspaceTooltip content={person?.full_name || 'Unassigned'}><span className="pt-avatar" tabIndex={0} aria-label={person?.full_name || 'Unassigned'}>{person?.full_name?.split(' ').map(part => part[0]).slice(0, 2).join('') || '+'}</span></WorkspaceTooltip>
-    <AsyncSelectCell value={task.assigneeId || ''} label={'Owner for ' + task.title} disabled={disabled} onSave={async id => {
-      const selected = people.find(profile => profile.id === id);
+    <AsyncSelectCell value={task.assigneeId && task.assigneeId !== projectLeadId ? task.assigneeId : ''} label={'Owner for ' + task.title} disabled={disabled} onSave={async id => {
+      if (projectLeadId && id === projectLeadId) return false;
+      const selected = leadOptions.find(profile => profile.id === id);
       if (!await confirm({ title: 'Change task lead', description: 'Appoint ' + (selected?.full_name || 'Unassigned') + ' for ' + task.title + '? Existing contributors are retained. Its responsible Office keeps control of staffing.', actionLabel: 'Confirm task lead' })) return false;
       await write(() => assignTask(task.id, id, selected?.full_name || '', { teamId: task.teamId, teamName: task.teamName, teamMemberIds: [...new Set([...(task.teamMemberIds || []), id].filter(Boolean))] }));
-    }}><option value="">Unassigned</option>{people.map(profile => <option key={profile.id} value={profile.id}>{profile.full_name}</option>)}{owner && !people.some(profile => profile.id === owner) && <option value={owner}>{person?.full_name || task.assigneeName || 'Assigned person'}</option>}</AsyncSelectCell>
+    }}><option value="">Unassigned</option>{leadOptions.map(profile => <option key={profile.id} value={profile.id}>{profile.full_name}</option>)}{owner && owner !== projectLeadId && !leadOptions.some(profile => profile.id === owner) && <option value={owner}>{person?.full_name || task.assigneeName || 'Assigned person'}</option>}</AsyncSelectCell>
   </div>{dialog}</>;
 }
 
-export function ProjectTaskCell({ column, task, tasks, profiles, people, orgs, editable, busy, readOnly=false, controller, canSetOffice, hasStaffedSubitems, save, write, canUpdateWork, canSubmitWork, statuses = [], onOpenWork, projectStartDate, projectTargetDate }: {
-  column: ProjectColumn; task: Task; tasks: Task[]; profiles: UserProfile[]; people: UserProfile[]; orgs: Organization[]; editable: boolean; busy: boolean; readOnly?:boolean; controller?:WorkTreeController; canSetOffice?:boolean;canSubmitWork?:boolean;statuses?:Task['status'][];onOpenWork?:(section?:import('../../task-inspector').TaskInspectorOrigin['section'])=>void; canUpdateWork?:boolean; hasStaffedSubitems: boolean; save: (patch: WorkspaceTaskPatch) => Promise<void>; write: (operation: () => Promise<void>) => Promise<void>; projectStartDate?: string; projectTargetDate?: string;
+export function ProjectTaskCell({ column, task, tasks, profiles, people, orgs, projectLeadId, editable, busy, readOnly=false, controller, canSetOffice, hasStaffedSubitems, save, write, canUpdateWork, canSubmitWork, statuses = [], onOpenWork, projectStartDate, projectTargetDate }: {
+  column: ProjectColumn; task: Task; tasks: Task[]; profiles: UserProfile[]; people: UserProfile[]; orgs: Organization[]; projectLeadId?: string; editable: boolean; busy: boolean; readOnly?:boolean; controller?:WorkTreeController; canSetOffice?:boolean;canSubmitWork?:boolean;statuses?:Task['status'][];onOpenWork?:(section?:import('../../task-inspector').TaskInspectorOrigin['section'])=>void; canUpdateWork?:boolean; hasStaffedSubitems: boolean; save: (patch: WorkspaceTaskPatch) => Promise<void>; write: (operation: () => Promise<void>) => Promise<void>; projectStartDate?: string; projectTargetDate?: string;
 }) {
   const disabled = !editable || busy;
   const blocked=!!controller?.data?.root.blocker;
   const status=useWorkStatus(blocked?'stuck':task.status,workStateLabel(task.status,blocked),task.customStatusId);
   if (column === 'office') return <TaskOfficeControl task={task} organizations={orgs} canManage={!!canSetOffice} hasStaffedSubitems={hasStaffedSubitems}/>;
-  if (column === 'owner') {const legacy=<OwnerCell task={task} profiles={profiles} people={people} disabled={disabled || !!task.proposedOfficeIdentityId || task.status === 'for_review'} write={write}/>;return supportsNestedWork(task)?<WorkRootOwner rootId={task.id} controller={controller} layout="table" readOnly={readOnly || busy || !!task.proposedOfficeIdentityId || !!task.archivedAt || ['for_review','completed','cancelled'].includes(task.status)} fallback={legacy}/>:legacy;}
+  if (column === 'owner') {const legacy=<OwnerCell task={task} profiles={profiles} people={people} projectLeadId={projectLeadId} disabled={disabled || !!task.proposedOfficeIdentityId || task.status === 'for_review'} write={write}/>;return supportsNestedWork(task)?<WorkRootOwner rootId={task.id} controller={controller} projectLeadId={projectLeadId} layout="table" readOnly={readOnly || busy || !!task.proposedOfficeIdentityId || !!task.archivedAt || ['for_review','completed','cancelled'].includes(task.status)} fallback={legacy}/>:legacy;}
   if (column === 'status') return canUpdateWork && onOpenWork
     ? <WorkStatusControl status={task.status} customStatusId={task.customStatusId} stuck={blocked} disabled={busy} onStart={statuses.includes('in_progress')||task.status==='in_progress'?()=>onOpenWork('work'):undefined} onBlocker={task.status==='in_progress'?()=>onOpenWork('report-blocker'):undefined} onSubmit={canSubmitWork&&task.status==='in_progress'?()=>onOpenWork('submit-work'):undefined}/>
     : <span className={`work-status-trigger work-status-trigger--${blocked?'stuck':task.status}`} style={status.color ? {boxShadow:`inset 3px 0 ${status.color}`} : undefined}>{status.label}</span>;

@@ -20,10 +20,30 @@ export function LeadingNotificationTarget({ rows, loading, onOpen }: {
   const [origin, setOrigin] = useState<TaskInspectorOrigin>();
   const [error, setError] = useState('');
   useNotificationNavigationIntent(
-    intent => intent.kind === 'leading_task' || intent.kind === 'personal_work' || intent.kind === 'subtask',
+    intent =>
+      intent.kind === 'leading_task' ||
+      intent.kind === 'personal_work' ||
+      intent.kind === 'subtask' ||
+      intent.kind === 'task' ||
+      (intent.kind === 'budget' && Boolean(intent.taskId)),
     async (intent, isCurrent) => {
       if (loading) return false;
       const opener = document.activeElement instanceof HTMLElement ? document.activeElement : document.body;
+      if (intent.kind === 'task' || intent.kind === 'budget') {
+        const taskRow =
+          rows.find(row => row.id === intent.taskId && row.kind.endsWith('task')) ||
+          rows.find(row => row.rootId === intent.taskId && row.kind.endsWith('task'));
+        if (taskRow) {
+          const accepted = await onOpen(taskRow, opener, isCurrent);
+          if (accepted && isCurrent()) {
+            setSubitem(undefined);
+            setError('');
+          }
+          return accepted;
+        }
+        setError('This task is no longer available in your accessible work.');
+        return true;
+      }
       if (intent.kind === 'subtask') {
         if (intent.entityId) {
           const direct = rows.find(row => row.kind === 'office-node' && row.id === intent.entityId);

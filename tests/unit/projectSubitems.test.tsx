@@ -204,20 +204,23 @@ describe('NW6.4 Main Table hierarchy accessibility',()=>{
  });
 });
 
-describe('Active project subtask planning lock in Main Table', () => {
-  it('blocks Project Lead / Office Head who is not the Task Lead once active, hiding empty subtask input while keeping existing subtasks read-only', async () => {
+describe('Office project subtask planning lock in Main Table', () => {
+  it.each(['planning', 'active'] as const)('blocks Project Lead / Office Head who is not the Task Lead during %s, disabling empty subtask toggle until a subtask exists', async (status) => {
     const emptyView = render(
       <table><tbody>
         <ProjectTaskRow
           task={{ ...task, linkedProjectId: 'project', assigneeId: 'lead' }}
           tasks={[]} groups={[]} profiles={profiles} orgs={[]} columns={[]} editable
-          userId="viewer" projectStatus="active" projectLeadId="viewer"
+          userId="viewer" projectStatus={status} projectLeadId="viewer"
           subtasks={[]} onOpen={mocks.open} onOpenSubitem={mocks.openSubitem}
           refreshSubitems={mocks.refresh} reorderable={false} onMove={vi.fn()} run={async fn => { await fn(); }}
         />
       </tbody></table>,
     );
-    expect(screen.queryByRole('button', { name: 'Subtasks for Prepare assessment' })).toBeNull();
+    const disabledToggle = screen.getByRole('button', { name: 'Subtasks for Prepare assessment' }) as HTMLButtonElement;
+    expect(disabledToggle.disabled).toBe(true);
+    fireEvent.click(disabledToggle);
+    expect(screen.queryByRole('table', { name: 'Prepare assessment subtasks' })).toBeNull();
     expect(screen.queryByRole('textbox', { name: 'Add subtask to Prepare assessment' })).toBeNull();
     fireEvent.keyDown(screen.getByRole('button', { name: 'Actions for Prepare assessment' }), { key: 'Enter' });
     expect(await screen.findByRole('menuitem', { name: 'Task details, evidence & review' })).toBeTruthy();
@@ -229,13 +232,15 @@ describe('Active project subtask planning lock in Main Table', () => {
         <ProjectTaskRow
           task={{ ...task, linkedProjectId: 'project', assigneeId: 'lead' }}
           tasks={[]} groups={[]} profiles={profiles} orgs={[]} columns={[]} editable
-          userId="viewer" projectStatus="active" projectLeadId="viewer"
+          userId="viewer" projectStatus={status} projectLeadId="viewer"
           subtasks={[subtask()]} onOpen={mocks.open} onOpenSubitem={mocks.openSubitem}
           refreshSubitems={mocks.refresh} reorderable={false} onMove={vi.fn()} run={async fn => { await fn(); }}
         />
       </tbody></table>,
     );
-    fireEvent.click(screen.getByRole('button', { name: 'Subtasks for Prepare assessment' }));
+    const enabledToggle = screen.getByRole('button', { name: 'Subtasks for Prepare assessment' }) as HTMLButtonElement;
+    expect(enabledToggle.disabled).toBe(false);
+    fireEvent.click(enabledToggle);
     const widget = screen.getByTestId('task-subtasks-widget');
     expect(widget.getAttribute('data-readonly')).toBe('true');
     expect(widget.getAttribute('data-can-manage')).toBe('false');
@@ -268,9 +273,11 @@ describe('Active project subtask planning lock in Main Table', () => {
   });
 
   it('evaluates isTaskSubtaskPlanningBlocked and isProjectLeadSubtaskPlanningBlocked accurately across states and roles', () => {
-    expect(isTaskSubtaskPlanningBlocked({ isOfficeProject: true, projectStatus: 'planning', projectLeadId: 'pl', taskLeadId: 'tl', actorId: 'pl', actorRole: 'member' })).toBe(false);
+    expect(isTaskSubtaskPlanningBlocked({ isOfficeProject: true, projectStatus: 'planning', projectLeadId: 'pl', taskLeadId: 'tl', actorId: 'pl', actorRole: 'member' })).toBe(true);
+    expect(isTaskSubtaskPlanningBlocked({ isOfficeProject: true, projectStatus: 'planning', projectLeadId: 'pl', taskLeadId: 'tl', actorId: 'head', actorRole: 'head' })).toBe(true);
     expect(isTaskSubtaskPlanningBlocked({ isOfficeProject: true, projectStatus: 'active', projectLeadId: 'pl', taskLeadId: 'tl', actorId: 'pl', actorRole: 'member' })).toBe(true);
     expect(isTaskSubtaskPlanningBlocked({ isOfficeProject: true, projectStatus: 'active', projectLeadId: 'pl', taskLeadId: 'tl', actorId: 'head', actorRole: 'head' })).toBe(true);
+    expect(isTaskSubtaskPlanningBlocked({ isOfficeProject: true, projectStatus: 'planning', projectLeadId: 'pl', taskLeadId: 'tl', actorId: 'tl', actorRole: 'member' })).toBe(false);
     expect(isTaskSubtaskPlanningBlocked({ isOfficeProject: true, projectStatus: 'active', projectLeadId: 'pl', taskLeadId: 'pl', actorId: 'pl', actorRole: 'head' })).toBe(false);
     expect(isProjectLeadSubtaskPlanningBlocked({ root: { kind: 'office', lead: 'tl', project_status: 'active', project_lead_id: 'pl' } }, 'pl', { actorRole: 'member' })).toBe(true);
     expect(isProjectLeadSubtaskPlanningBlocked({ root: { kind: 'personal', lead: 'tl', project_status: 'active', project_lead_id: 'pl' } }, 'pl', { actorRole: 'head' })).toBe(false);

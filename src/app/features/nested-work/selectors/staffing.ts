@@ -38,7 +38,7 @@ export function scopedInvitationRequestAllowed(data:WorkTreeSnapshot|undefined,n
 }
 const sameIds=(a:readonly string[],b:readonly string[])=>JSON.stringify([...new Set(a)].sort())===JSON.stringify([...new Set(b)].sort());
 
-export function staffingDraftError(data:WorkTreeSnapshot|undefined,context:WorkCapabilityContext,baseline:StaffingBaseline,leadId:string|null,workerIds:readonly string[],retry=false):string|null {
+export function staffingDraftError(data:WorkTreeSnapshot|undefined,context:WorkCapabilityContext,baseline:StaffingBaseline,leadId:string|null,workerIds:readonly string[],retry=false,excludedLeadIds?:readonly string[]):string|null {
  const caps=staffingCapabilities(data,baseline.nodeId,context,leadId),changedLead=leadId!==baseline.leadId;
  if(context.actorId!==baseline.actorId||context.rootId!==baseline.rootId||context.projectId!==baseline.projectId||context.officeId!==baseline.officeId||context.kind!==baseline.kind)return 'The work scope changed. Reopen staffing in the current scope.';
  if(!leadId&&caps.appointment.allowed)return 'Choose a lead first.';
@@ -48,6 +48,8 @@ export function staffingDraftError(data:WorkTreeSnapshot|undefined,context:WorkC
  if(!data)return 'Reload the current work before saving.';
  if(!retry&&data.revision!==baseline.revision)return 'Work changed. Reopen staffing and review the current tree before saving.';
  if(baseline.nodeId&&!data.nodes.some(node=>node.id===baseline.nodeId))return 'This subtask is no longer available in the current tree.';
+ const excludedLeads=new Set((excludedLeadIds||[]).filter(Boolean));
+ if(!baseline.nodeId&&leadId&&excludedLeads.has(leadId))return 'The Project Lead cannot be appointed as a Task Lead.';
  const eligible=new Set(eligibleWorkPeople(data.people).map(person=>person.id));
  if(!leadId||!eligible.has(leadId))return 'Choose a currently eligible selected project Lead.';
  const personalRoot=baseline.kind==='personal'&&!baseline.nodeId;

@@ -57,11 +57,13 @@ function quotedLabels(value: string): string[] {
     .filter(Boolean);
 }
 
-function destinationForTask(role: string) {
+function destinationForTask(role: string, notification?: Notification) {
   if (role === "admin") return null;
-  if (role === "head") return { section: "tasks", page: "Task Board" };
-  if (role === "member" || role === "accounting_staff" || role === "teamleader") {
-    return { section: "tasks", page: "My Tasks" };
+  if (["head", "member", "accounting_staff", "teamleader"].includes(role)) {
+    if (notification?.projectId) {
+      return { section: "projects", page: "Projects" };
+    }
+    return { section: "personal_work", page: "Assigned work" };
   }
   return null;
 }
@@ -95,26 +97,45 @@ function destinationForProject(role: string) {
   return null;
 }
 
-function destinationForBudget(notification: Notification, role: string) {
+function destinationForBudget(notification: Notification, role: string): { route: { section: string; page: string } | null; label: string } {
+  const title = notification.title.trim().toLowerCase();
+  if (notification.financialRecordType === "office_petty_cash") {
+    if (role === "head") return { route: { section: "budget", page: "Office Budget" }, label: "Open Office Petty Cash" };
+    if (role === "accounting_staff") return { route: { section: "accounting_releases", page: "Voucher & Cash Releases" }, label: "Open Office Petty Cash" };
+    return { route: destinationForTask(role, notification), label: "Open Office Petty Cash" };
+  }
   // A task-leader endorsement belongs in Leader Reviews, even for accounting staff who lead the task.
-  if (role === "accounting_staff" && notification.type.includes("leader_review")) {
-    return { section: "reviews", page: "Leader Reviews" };
+  if (notification.type.includes("leader_review")) {
+    return { route: { section: "reviews", page: "Leader Reviews" }, label: "Open funding review" };
   }
   if (role === "accounting_staff") {
-    return notification.type.includes("settlement") || notification.type.includes("release") || notification.type.includes("liquidation")
-      ? { section: "accounting_releases", page: "Voucher & Cash Releases" }
-      : { section: "accounting_audit", page: "Financial Audit Trail" };
+    if (
+      notification.type.includes("settlement") ||
+      notification.type.includes("release") ||
+      notification.type.includes("liquidation") ||
+      title.includes("scheduled") ||
+      title.includes("approved")
+    ) {
+      return { route: { section: "accounting_releases", page: "Voucher & Cash Releases" }, label: "Open cash releases" };
+    }
+    if (notification.taskId) {
+      return { route: destinationForTask(role, notification), label: "Open task funding" };
+    }
+    return { route: { section: "accounting_audit", page: "Financial Audit Trail" }, label: "Open accounting record" };
   }
   if (role === "head") {
-    return { section: "reviews", page: "For Review" };
-  }
-  if (role === "member" || role === "accounting_staff" || role === "teamleader") {
-    if (notification.type.includes("leader_review")) {
-      return { section: "reviews", page: "Leader Reviews" };
+    if (
+      notification.taskId &&
+      ["petty_cash_decision", "petty_cash_released", "petty_cash_liquidation_decision"].includes(notification.type)
+    ) {
+      return { route: destinationForTask(role, notification), label: "Open task funding" };
     }
-    return { section: "tasks", page: "My Tasks" };
+    return { route: { section: "reviews", page: "For Review" }, label: "Open funding review" };
   }
-  return null;
+  if (role === "member" || role === "teamleader") {
+    return { route: destinationForTask(role, notification), label: "Open task funding" };
+  }
+  return { route: null, label: "Open task funding" };
 }
 
 function makeDestination(
@@ -182,11 +203,12 @@ export function resolveNotificationDestination(
     notification.type.startsWith("budget_")
     || notification.type.startsWith("petty_cash_")
   ) {
+    const budgetTarget = destinationForBudget(notification, role);
     return makeDestination(
       notification,
-      destinationForBudget(notification, role),
+      budgetTarget.route,
       "budget",
-      notification.type.includes("leader_review") ? "Open funding review" : role === "accounting_staff" ? "Open accounting record" : role === "head" ? "Open funding review" : "Open task funding",
+      budgetTarget.label,
       notification.taskTitle || messageLabels[0],
     );
   }
@@ -213,18 +235,16 @@ export function resolveNotificationDestination(
 
   if (notification.type === "burnout_warning") {
     const route = role === "head"
-      ? { section: "intelligence", page: "Team Intelligence" }
-      : role === "accounting_staff"
+      ? { section: "team", page: "Analytics" }
+      : ["accounting_staff", "member", "teamleader"].includes(role)
         ? { section: "personal_work", page: "Assigned work" }
-        : role === "member" || role === "teamleader"
-          ? { section: "performance", page: "Performance" }
-          : null;
+        : null;
     return makeDestination(notification, route, "team_intelligence", "Open workload insight");
   }
 
   if (notification.entityType === 'm7_work_proposal' && notification.taskId) {
     const route = ["head", "member", "accounting_staff", "teamleader"].includes(role)
-      ? { section: "personal_work", page: notification.type === 'approval_needed' ? "Reviews" : "Leading" }
+      ? { section: "personal_work", page: "Leading" }
       : null;
     return makeDestination(notification, route, "leading_task", notification.workNodeId ? "Open subtask submission" : "Open task submission");
   }
@@ -232,7 +252,7 @@ export function resolveNotificationDestination(
   if (notification.entityType === 'work_change' && notification.taskId) {
     return makeDestination(notification,
       notification.workNodeId ? ['head', 'member', 'accounting_staff', 'teamleader'].includes(role)
-        ? { section: 'personal_work', page: 'Leading' } : null : destinationForTask(role),
+        ? { section: 'personal_work', page: 'Leading' } : null : destinationForTask(role, notification),
       notification.workNodeId ? 'leading_task' : 'task',
       notification.workNodeId ? 'View subtask changes' : 'View task changes', messageLabels[0]);
   }
@@ -240,7 +260,7 @@ export function resolveNotificationDestination(
   if (isSubtask && ["progress updated","work updated","blocker reported","subtask completed"].some(label=>title.includes(label))) {
     const route = role === "head" || role === "member" || role === "accounting_staff" || role === "teamleader"
       ? { section: "personal_work", page: "Leading" }
-      : destinationForTask(role);
+      : destinationForTask(role, notification);
     return makeDestination(
       notification,
       route,
@@ -295,12 +315,12 @@ export function resolveNotificationDestination(
   }
 
   if (notification.projectId && role === 'head' && notification.title.startsWith('Project invitation')) {
-    return makeDestination(notification, {section:'reviews',page:'For Review'}, 'membership_review', 'Review membership invitations', messageLabels[0]);
+    return makeDestination(notification, destinationForProject(role), 'project', 'Open project invitations', messageLabels[0]);
   }
   if (notification.taskId && (notification.type === 'reminder' || notification.type === 'overdue')) {
     return makeDestination(
       notification,
-      destinationForTask(role),
+      destinationForTask(role, notification),
       "task",
       "Open task",
       notification.taskTitle || messageLabels[0],
@@ -319,7 +339,7 @@ export function resolveNotificationDestination(
   if (notification.taskId) {
     return makeDestination(
       notification,
-      destinationForTask(role),
+      destinationForTask(role, notification),
       "task",
       "Open task",
       notification.taskTitle || messageLabels[0],

@@ -162,10 +162,16 @@ export function GovernanceReviewInbox({ onNavigate }: { onNavigate?: (section: s
         <GovernanceCardsSkeleton />
       ) : governanceDrafts.length === 0 ? (
         <div className="bg-white border border-neutral-200/80 rounded-2xl p-12 text-center shadow-xs">
-          <SectionEmpty fill illustration="complete"
-            icon={<CheckCircle2 size={36} className="text-emerald-500" />}
-            title="Governance queue clear"
-            description="No governance decisions or formal approval items require your action at this time."
+          <SectionEmpty
+            fill
+            illustration={query.trim() ? "search" : "complete"}
+            icon={query.trim() ? undefined : <CheckCircle2 size={36} className="text-emerald-500" />}
+            title={query.trim() ? "No matching governance items" : "Governance queue clear"}
+            description={
+              query.trim()
+                ? `No governance decisions match "${query.trim()}".`
+                : "No governance decisions or formal approval items require your action at this time."
+            }
           />
         </div>
       ) : (

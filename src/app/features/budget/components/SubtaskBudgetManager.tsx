@@ -84,12 +84,14 @@ export function SubtaskBudgetDistributionInline({
   canManage,
   taskFinished,
   onOpenRow,
+  showTotals = true,
 }: {
   context: TaskFundingContext;
   subtaskId?: string;
   canManage: boolean;
   taskFinished: boolean;
   onOpenRow?: (trigger: SubtaskBudgetDraftTrigger) => void;
+  showTotals?: boolean;
 }) {
   const totals = context.distribution;
   if (!context.funded || !totals) return null;
@@ -100,9 +102,9 @@ export function SubtaskBudgetDistributionInline({
   const progress = subtaskAllocationProgressPercent(context);
 
   return (
-    <div className="mt-3 space-y-3">
-      {!subtaskId && context.taskBudget > 0 && (
-        <div className="rounded-lg border border-border bg-muted/35 px-3 py-2.5">
+    <div className="space-y-3">
+      {!subtaskId && context.taskBudget > 0 && (rows.length > 0 || totals.allocated > 0) && (
+        <div className="rounded-lg border border-border bg-muted/25 px-3 py-2.5">
           <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
             <span className="font-medium text-foreground">Subtask allocation progress</span>
             <span className="tabular-nums text-muted-foreground">
@@ -122,7 +124,7 @@ export function SubtaskBudgetDistributionInline({
         </div>
       )}
 
-      <SubtaskBudgetTotals context={context} subtask={Boolean(subtaskId)} />
+      {showTotals && <SubtaskBudgetTotals context={context} subtask={Boolean(subtaskId)} />}
 
       {subtaskId ? (
         focusedRow && (
@@ -507,12 +509,16 @@ export function SubtaskBudgetManager({
   );
 }
 
-export function SubtaskBudgetButton({ hasAllocation, subtask, onClick }: { hasAllocation: boolean; subtask: boolean; onClick: () => void }) {
+export function SubtaskBudgetButton({ hasAllocation, subtask, secondary = false, onClick }: { hasAllocation: boolean; subtask: boolean; secondary?: boolean; onClick: () => void }) {
   const Icon = subtask && !hasAllocation ? Plus : WalletCards;
   return (
     <button
       type="button"
-      className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground"
+      className={
+        secondary
+          ? "inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-2 text-[12.5px] font-medium text-foreground transition hover:bg-muted"
+          : "inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground"
+      }
       onClick={onClick}
     >
       <Icon size={15} aria-hidden="true" />

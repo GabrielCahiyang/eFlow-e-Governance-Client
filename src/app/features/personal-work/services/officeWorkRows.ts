@@ -42,6 +42,16 @@ export function appendOfficeRows(
       recommended = task.recommendationLeadId === userId;
     const mine = !!(leading || contributor || recommended);
     const open = tree ? tree.root.open : !history;
+    const hasDueDate = Boolean(
+      (task.deadline && task.deadline.trim()) ||
+        (task.dueDate && task.dueDate.trim()) ||
+        (tree?.root.due && tree.root.due.trim()),
+    );
+    const awaitingSchedule =
+      Boolean(task.linkedProjectId) &&
+      !history &&
+      !["for_review", "completed", "cancelled"].includes(task.status) &&
+      !hasDueDate;
     out.rows.push({
       ...context,
       key: `office-task:${task.id}`,
@@ -55,8 +65,8 @@ export function appendOfficeRows(
       progress: task.percentComplete || 0,
       updatedAt: task.updatedAt,
       mine,
-      leading: leading && eligible,
-      actionable: open && (!mine || eligible),
+      leading: leading && eligible && !awaitingSchedule,
+      actionable: open && !awaitingSchedule && (!mine || eligible),
       history,
       relation: leading
         ? "Task Lead"

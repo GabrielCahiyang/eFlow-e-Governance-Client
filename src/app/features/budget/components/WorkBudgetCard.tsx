@@ -90,6 +90,7 @@ export function WorkBudgetCard({
   const [correction, setCorrection] = useState<PettyCashRequest>();
   const [budgetsOpen, setBudgetsOpen] = useState(false);
   const [budgetDraft, setBudgetDraft] = useState<SubtaskBudgetDraftTrigger>();
+  const [section, setSection] = useState<"all" | "requests" | "subtasks" | "sources">("all");
   const currentUserId = userProfile?.id || "";
   const savedRequest = usePendingAction<CashRequestAttempt>(cashRequestActionKey(currentUserId, fundingOffice, task.id, subtask?.id));
   const isTaskLeader = currentUserId === getTaskLeadId(task);
@@ -144,16 +145,6 @@ export function WorkBudgetCard({
   const settledSpending = poolRequests
     .filter((request) => request.status === "settled")
     .reduce((sum, request) => sum + (request.actualSpent || 0), 0);
-  const protectedCaps = context?.cap
-    ? 0
-    : budget.allocations
-        .filter(
-          (allocation) =>
-            allocation.taskId === task.id &&
-            allocation.subtaskId &&
-            allocation.status === "approved",
-        )
-        .reduce((sum, allocation) => sum + allocation.amount, 0);
   const correctionWaiting = requests.some((request) =>
     ["leader_changes_requested", "department_changes_requested"].includes(
       request.status,
@@ -185,68 +176,161 @@ export function WorkBudgetCard({
       : !requests.length && (readOnly || !canRequestForWork) ? 'An assigned contributor or the Task Lead can request cash. The recipient records expenses after release.'
       : !requests.length && budget.summary?.status !== 'locked' ? 'Cash requests open once the Office Budget is locked.'
       : !requests.length && context.available <= 0 ? 'There is no requestable balance for this subtask.'
-      : requests.some(request => (APPROVED_CASH_STATES.has(request.status) || TEMPORARY_HOLD_STATES.has(request.status) || correctionWaiting)) ? 'Check Funding activity for the request status and any action due.'
+      : requests.some(request => (APPROVED_CASH_STATES.has(request.status) || TEMPORARY_HOLD_STATES.has(request.status) || correctionWaiting)) ? 'Check Cash requests below for status and any action due.'
       : null
   ) : null;
 
   const refresh = async () => {
     await Promise.all([funding.refresh(), budget.refresh()]);
   };
+  const subtaskRows = context?.subtaskBudgets ?? [];
+  const hasSubtaskSection = Boolean(
+    context?.funded &&
+      context.distribution &&
+      (subtask
+        ? subtaskRows.some((item) => item.id === subtask.id)
+        : subtaskRows.length > 0 || (context.distribution.allocated ?? 0) > 0),
+  );
+  const fundingSources = context?.lines ?? [];
+  const activeSection =
+    section === "subtasks" && !hasSubtaskSection
+      ? "all"
+      : section === "sources" && !fundingSources.length
+        ? "all"
+        : section;
+  const approvedTotal = context?.cap?.amount || context?.taskBudget || 0;
+  const releasedTotal = context?.distribution?.released ?? approvedCash;
+  const spentTotal = context?.distribution?.spent ?? settledSpending;
+  const separatePettyCashSection = !readOnly && (
+    <div
+      className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-3"
+      aria-label="Separate office petty cash fund"
+    >
+      <div className="min-w-0">
+        <div className="text-[12px] font-medium text-foreground">
+          Separate office petty cash
+        </div>
+        <p className="text-[11.5px] text-muted-foreground">
+          Draws from the office’s ₱30,000 revolving fund — does not charge this task’s budget.
+        </p>
+      </div>
+      <OfficePettyCashLauncher />
+    </div>
+  );
 
-  if (!subtask && !budget.summary && !budget.loading && !context?.funded) return <>{!readOnly&&<OfficePettyCashLauncher/>}{task.linkedProjectId&&!subtask&&<TaskProjectFunding projectId={task.linkedProjectId} taskId={task.id} funded={!!context?.funded} onChanged={refresh}/>}</>;
-  return (
-    <section className="rounded-[12px] border border-[var(--eflow-border)] bg-[var(--eflow-surface)] p-4">
-      {!subtask&&!readOnly&&<OfficePettyCashLauncher/>}
-      {!subtask&&authorityPending && <p role="status" className="mb-3 flex items-center gap-2 text-[13px] text-muted-foreground"><Loader2 size={14} className="animate-spin" />Checking access…</p>}
-      {task.linkedProjectId&&!subtask&&<TaskProjectFunding projectId={task.linkedProjectId} taskId={task.id} funded={!!context?.funded} onChanged={refresh}/>}
-      {!task.linkedProjectId&&!authorityPending&&(canAuthorizeFunding||!readOnly&&canManage)&&isOpenDirectFundingWork(task)&&!subtask&&!context?.funded&&!funding.loading&&userProfile?.role==="head"&&userProfile.is_active!==false&&userProfile.org_id===orgId&&orgId===fundingOffice&&<DirectWorkFunding key={task.id} data={budget} tasks={[task]} onChanged={refresh} />}
-      <header className="flex flex-wrap items-start justify-between gap-3">
-        <div className="flex min-w-0 gap-2.5">
-          <div className="flex size-6 shrink-0 items-center justify-center rounded-[6px] bg-[var(--eflow-selected)] text-[var(--eflow-primary)]">
-            <Banknote size={14} />
+  if (!subtask && !budget.summary && !budget.loading && !context?.funded) {
+    return (
+      <section
+        aria-label="Task funding"
+        className="space-y-4 rounded-[12px] border border-[var(--eflow-border)] bg-[var(--eflow-surface)] p-4"
+      >
+        <div className="flex items-start gap-2.5">
+          <div className="flex size-7 shrink-0 items-center justify-center rounded-[6px] bg-[var(--eflow-selected)] text-[var(--eflow-primary)]">
+            <Banknote size={15} />
           </div>
           <div className="min-w-0">
-            <div className="text-[12px] font-semibold text-[var(--eflow-text-muted)]">
-              {subtask ? "Subtask funding" : "Task funding"}
-            </div>
-            {funding.loading && !context ? (
-              <div className="mt-1 flex items-center gap-1 text-[12px] text-neutral-500">
-                <Loader2 size={10} className="animate-spin" /> Calculating
-                availability…
-              </div>
-            ) : context?.funded ? (
-              <div className="mt-1 text-right">
-                <strong className="text-[14px] tabular-nums text-foreground">
-                  {peso.format(context.available)}
-                </strong>
-                <span className="ml-1 text-[12px] text-muted-foreground">
-                  available{" "}
-                  {context.cap
-                    ? "for this subtask"
-                    : "from the task budget"}
-                </span>
-              </div>
-            ) : (
-              <div className="mt-1 text-[12px] text-neutral-600">
-                {funding.error ? "Funding unavailable right now" : "No approved funding for this task"}
-              </div>
-            )}
+            <h3 className="text-[13px] font-semibold text-foreground">Task funding</h3>
+            <p className="mt-0.5 text-[12px] text-muted-foreground">
+              No approved budget for this task yet.
+            </p>
           </div>
         </div>
-        <div className="flex shrink-0 flex-wrap justify-end gap-1.5">
-          {canManageBudgets && (
+        {task.linkedProjectId && (
+          <TaskProjectFunding projectId={task.linkedProjectId} taskId={task.id} funded={false} onChanged={refresh} />
+        )}
+        {separatePettyCashSection}
+      </section>
+    );
+  }
+  return (
+    <section
+      aria-label={subtask ? "Subtask funding" : "Task funding"}
+      className="space-y-4 rounded-[12px] border border-[var(--eflow-border)] bg-[var(--eflow-surface)] p-4"
+    >
+      {!subtask && authorityPending && (
+        <p role="status" className="flex items-center gap-2 text-[13px] text-muted-foreground">
+          <Loader2 size={14} className="animate-spin" />
+          Checking access…
+        </p>
+      )}
+      {task.linkedProjectId && !subtask && (
+        <TaskProjectFunding projectId={task.linkedProjectId} taskId={task.id} funded={!!context?.funded} onChanged={refresh} />
+      )}
+      {!task.linkedProjectId &&
+        !authorityPending &&
+        (canAuthorizeFunding || (!readOnly && canManage)) &&
+        isOpenDirectFundingWork(task) &&
+        !subtask &&
+        !context?.funded &&
+        !funding.loading &&
+        userProfile?.role === "head" &&
+        userProfile.is_active !== false &&
+        userProfile.org_id === orgId &&
+        orgId === fundingOffice && (
+          <DirectWorkFunding key={task.id} data={budget} tasks={[task]} onChanged={refresh} />
+        )}
+
+      <header className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0 space-y-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex size-6 shrink-0 items-center justify-center rounded-[6px] bg-[var(--eflow-selected)] text-[var(--eflow-primary)]">
+              <Banknote size={14} />
+            </div>
+            <h3 className="text-[13px] font-semibold text-foreground">
+              {subtask ? "Subtask funding" : "Task funding"}
+            </h3>
+            {context?.fiscalYear && (
+              <span className="rounded-[5px] border border-border bg-muted/60 px-2 py-0.5 text-[11px] font-medium tabular-nums text-muted-foreground">
+                FY {context.fiscalYear}
+              </span>
+            )}
+          </div>
+          {funding.loading && !context ? (
+            <div className="flex items-center gap-1.5 pl-8 text-[12px] text-muted-foreground">
+              <Loader2 size={12} className="animate-spin" />
+              <span>Calculating availability…</span>
+            </div>
+          ) : context?.funded ? (
+            <div className="pl-8">
+              <div className="flex flex-wrap items-baseline gap-1.5">
+                <strong className="text-[18px] font-semibold tabular-nums text-foreground">
+                  {peso.format(context.available)}
+                </strong>
+                <span className="text-[12.5px] text-muted-foreground">
+                  available {context.cap ? "for this subtask" : "from the task budget"}
+                </span>
+              </div>
+              {!subtask && (
+                <p className="mt-0.5 text-[11.5px] text-muted-foreground">
+                  Task requests go through Project Lead approval, then Accounting approval to release.
+                </p>
+              )}
+            </div>
+          ) : (
+            <div className="pl-8 text-[12px] text-muted-foreground">
+              {funding.error ? "Funding unavailable right now" : "No approved funding for this task"}
+            </div>
+          )}
+        </div>
+        <div className="flex shrink-0 flex-wrap items-center gap-2">
+          {canManageBudgets && (subtask || hasSubtaskSection) && (
             <SubtaskBudgetButton
               hasAllocation={!!context?.cap}
               subtask={!!subtask}
+              secondary
               onClick={() => {
                 setBudgetDraft(undefined);
                 setBudgetsOpen(true);
               }}
             />
           )}
-          {currentUserId && savedRequest.value && !requestOpen && !correction && context &&
-            <button type="button" className="text-sm underline" onClick={() => setRequestOpen(true)}>Check saved cash request</button>}
-          {!savedRequest.value && showRequest &&
+          {currentUserId && savedRequest.value && !requestOpen && !correction && context && (
+            <button type="button" className="text-sm underline" onClick={() => setRequestOpen(true)}>
+              Check saved cash request
+            </button>
+          )}
+          {!savedRequest.value &&
+            showRequest &&
             !requestOpen &&
             !correction &&
             context &&
@@ -255,24 +339,100 @@ export function WorkBudgetCard({
                 type="button"
                 disabled={!canRequest}
                 onClick={() => setRequestOpen(true)}
-                className="inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-emerald-700 px-3 text-[13px] font-medium text-white disabled:opacity-50"
+                className="inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-[var(--eflow-primary)] px-3.5 text-[13px] font-medium text-[var(--eflow-on-primary)] transition hover:bg-[var(--eflow-primary-hover)] disabled:opacity-50"
               >
-                <WalletCards size={9} /> Request cash
+                <WalletCards size={14} aria-hidden="true" /> Request cash
               </button>
             )}
         </div>
       </header>
 
-      <SubtaskBudgetDistributionInline
-        context={context ?? { funded: false, taskId: task.id, taskBudget: 0, available: 0, lines: [] }}
-        subtaskId={subtask?.id}
-        canManage={canManageBudgets}
-        taskFinished={taskFinished}
-        onOpenRow={(trigger) => {
-          setBudgetDraft(trigger);
-          setBudgetsOpen(true);
-        }}
-      />
+      {context?.funded && (
+        <div
+          role="tablist"
+          aria-label="Task funding sections"
+          className="flex flex-wrap gap-1.5 border-b border-border pb-2.5"
+        >
+          {(
+            [
+              { id: "all", label: "Overview" },
+              { id: "requests", label: `Requests (${requests.length})` },
+              ...(hasSubtaskSection
+                ? [{ id: "subtasks" as const, label: `Subtask budgets (${subtaskRows.length})` }]
+                : []),
+              ...(fundingSources.length > 0
+                ? [{ id: "sources" as const, label: `Sources (${fundingSources.length})` }]
+                : []),
+            ] as const
+          ).map((tab) => {
+            const active = activeSection === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                onClick={() => setSection(tab.id)}
+                className={`rounded-md px-2.5 py-1 text-[12px] font-medium transition ${
+                  active
+                    ? "bg-[var(--eflow-selected)] text-[var(--eflow-primary)]"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {context?.funded && activeSection === "all" && (
+        <dl
+          aria-label="Budget summary"
+          className="grid grid-cols-2 divide-y divide-border overflow-hidden rounded-lg border border-border bg-muted/20 sm:grid-cols-4 sm:divide-x sm:divide-y-0"
+        >
+          <SummaryCell
+            label={context.cap ? "Subtask budget" : "Approved budget"}
+            value={approvedTotal}
+          />
+          <SummaryCell
+            label="Pending holds"
+            value={temporaryHeld}
+            tone={temporaryHeld > 0 ? "amber" : "neutral"}
+            note={temporaryHeld > 0 ? "Held, not spent yet" : "No pending holds"}
+          />
+          <SummaryCell
+            label="Cash released"
+            value={releasedTotal}
+          />
+          <SummaryCell
+            label="Actual spent"
+            value={spentTotal}
+            note="Settled receipts"
+          />
+        </dl>
+      )}
+
+      {fundingStep && (
+        <p
+          role={fundingChecking ? "status" : undefined}
+          className="rounded-lg border border-border bg-muted/35 px-3 py-2 text-[12.5px] leading-relaxed text-foreground"
+        >
+          {fundingStep}
+        </p>
+      )}
+
+      {activeSection === "all" && temporaryHeld > 0 && (
+        <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[12px] text-amber-900">
+          Pending cash requests temporarily hold <strong>{peso.format(temporaryHeld)}</strong> until approved or cancelled — this is not released or spent money yet.
+        </p>
+      )}
+      {activeSection === "all" && correctionWaiting && (
+        <p className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-[12px] text-blue-900">
+          Returned requests hold no funds. Funds are checked and held again only when resubmitted.
+        </p>
+      )}
+
       {budgetsOpen && context && (
         <SubtaskBudgetManager
           key={`${subtask?.id || task.id}:${budgetDraft?.id || "all"}:${budgetDraft?.mode || "list"}`}
@@ -289,85 +449,10 @@ export function WorkBudgetCard({
           }}
         />
       )}
-      {fundingStep && <p role={fundingChecking ? 'status' : undefined} className="mt-3 rounded-md bg-muted px-3 py-2 text-[13px] leading-relaxed text-foreground">{fundingStep}</p>}
-
-      <details hidden={!context?.funded} className="mt-3 text-[13px]">
-      <summary className="cursor-pointer text-muted-foreground">Budget details</summary>
-      {context?.funded && (
-        <div className="mt-3 rounded-lg border border-primary/20 bg-primary/5 p-2.5 text-[12px] text-primary">
-          {subtask
-            ? context.cap
-              ? `${peso.format(context.cap.available)} is available for this subtask.`
-              : `This subtask uses the parent task’s budget. ${peso.format(context.available)} is available.`
-            : `${peso.format(context.available)} remains in this task’s budget. Cash is released separately after approval.`}
-        </div>
-      )}
-
-      {context?.funded && (
-        <div className="mt-2 grid grid-cols-2 gap-1.5 sm:grid-cols-4">
-          <FundingMetric
-            label={context.cap ? "Subtask budget" : "Approved task budget"}
-            value={context.cap?.amount || context.taskBudget}
-          />
-          <FundingMetric
-            label="Temporary holds"
-            value={temporaryHeld}
-            tone={temporaryHeld > 0 ? "amber" : "neutral"}
-          />
-          <FundingMetric label="Approved cash" value={approvedCash} />
-          <FundingMetric label="Settled spending" value={settledSpending} />
-          {!context.cap && protectedCaps > 0 && (
-            <FundingMetric label="Allocated to subtasks" value={protectedCaps} />
-          )}
-        </div>
-      )}
-
-      {temporaryHeld > 0 && (
-        <div className="mt-2 rounded-lg border border-amber-200 bg-amber-50 p-2 text-[12px] text-amber-800">
-          A pending request temporarily reduces what others may request, but it
-          is not approved spending and has not been released.
-        </div>
-      )}
-      {correctionWaiting && (
-        <div className="mt-2 rounded-lg border border-blue-200 bg-blue-50 p-2 text-[12px] text-blue-800">
-          A returned request holds no funds. Its amount is checked and
-          temporarily held again only when the member resubmits it.
-        </div>
-      )}
-
-      {context?.lines.length ? (
-        <div className="mt-2 space-y-1">
-          {context.lines
-            .filter(
-              (line) =>
-                line.available > 0 || context.cap?.allocationLineId === line.id,
-            )
-            .map((line) => (
-              <div
-                key={line.id}
-                className="flex items-center justify-between gap-3 rounded-md bg-muted/45 px-2.5 py-1.5 text-[12px]"
-              >
-                <span className="min-w-0 truncate text-muted-foreground">
-                  {line.category} · {line.particular} · {line.fundSource}
-                </span>
-                <span className="shrink-0 text-right">
-                  <strong className="block tabular-nums text-primary">
-                    {peso.format(line.available)} requestable
-                  </strong>
-                  <span className="text-[11px] tabular-nums text-muted-foreground">
-                    of {peso.format(line.amount)} approved
-                  </span>
-                </span>
-              </div>
-            ))}
-        </div>
-      ) : null}
-
-      </details>
 
       {(requestOpen || correction) && context && (
         <CashRequestForm
-          key={`${currentUserId}:${fundingOffice}:${task.id}:${subtask?.id ?? ''}:${correction?.id ?? ''}`}
+          key={`${currentUserId}:${fundingOffice}:${task.id}:${subtask?.id ?? ""}:${correction?.id ?? ""}`}
           context={context}
           orgId={fundingOffice}
           taskId={task.id}
@@ -389,24 +474,69 @@ export function WorkBudgetCard({
         />
       )}
 
-      <CashRequestTimeline
-        data={budget}
-        requests={requests}
-        currentUserId={currentUserId}
-        orgId={fundingOffice}
-        canCorrect={canRequest}
-        workCompleted={workClosed}
-        onCorrect={(request) => {
-          if (!canRequest) return;
-          setCorrection(request);
-          setRequestOpen(false);
-        }}
-        onChanged={refresh}
-      />
-      {subtask&&!readOnly&&<div className="mt-3 border-t border-border pt-3"><OfficePettyCashLauncher/></div>}
+      {(activeSection === "all" || activeSection === "requests") && (
+        <>
+          <CashRequestTimeline
+            data={budget}
+            requests={requests}
+            currentUserId={currentUserId}
+            orgId={fundingOffice}
+            canCorrect={canRequest}
+            workCompleted={workClosed}
+            onCorrect={(request) => {
+              if (!canRequest) return;
+              setCorrection(request);
+              setRequestOpen(false);
+            }}
+            onChanged={refresh}
+          />
+          {activeSection === "requests" && !requests.length && (
+            <p className="rounded-lg border border-dashed border-border px-3 py-4 text-center text-[12.5px] text-muted-foreground">
+              No cash requests for this {subtask ? "subtask" : "task"} yet.
+            </p>
+          )}
+        </>
+      )}
+
+      {(activeSection === "all" || activeSection === "subtasks") && hasSubtaskSection && (
+        <SubtaskBudgetDistributionInline
+          context={context ?? { funded: false, taskId: task.id, taskBudget: 0, available: 0, lines: [] }}
+          subtaskId={subtask?.id}
+          canManage={canManageBudgets}
+          taskFinished={taskFinished}
+          showTotals={false}
+          onOpenRow={(trigger) => {
+            setBudgetDraft(trigger);
+            setBudgetsOpen(true);
+          }}
+        />
+      )}
+
+      {fundingSources.length > 0 && activeSection === "sources" && (
+        <div aria-label="Approved funding sources">
+          <FundingSourceList lines={fundingSources} />
+        </div>
+      )}
+
+      {fundingSources.length > 0 && activeSection === "all" && (
+        <details className="text-[12.5px]">
+          <summary className="cursor-pointer font-medium text-muted-foreground hover:text-foreground">
+            Funding sources ({fundingSources.length})
+          </summary>
+          <div className="mt-2">
+            <FundingSourceList
+              lines={fundingSources.filter(
+                (line) => line.available > 0 || context?.cap?.allocationLineId === line.id,
+              )}
+            />
+          </div>
+        </details>
+      )}
+
+      {separatePettyCashSection}
 
       {(funding.error || budget.error) && (
-        <div role="alert" className="mt-2 flex items-center justify-between gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-[12px] text-rose-700">
+        <div role="alert" className="flex items-center justify-between gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-[12px] text-rose-700">
           <span>{funding.error || budget.error}</span>
           <button
             type="button"
@@ -421,27 +551,57 @@ export function WorkBudgetCard({
   );
 }
 
-function FundingMetric({
+function FundingSourceList({
+  lines,
+}: {
+  lines: NonNullable<ReturnType<typeof useTaskFundingContext>["context"]>["lines"];
+}) {
+  return (
+    <div className="space-y-1.5">
+      {lines.map((line) => (
+        <div
+          key={line.id}
+          className="flex items-center justify-between gap-3 rounded-lg border border-border bg-muted/25 px-3 py-2 text-[12px]"
+        >
+          <span className="min-w-0 truncate text-foreground">
+            {line.category} · {line.particular} · {line.fundSource}
+          </span>
+          <span className="shrink-0 text-right tabular-nums">
+            <strong className="block text-[var(--eflow-primary)]">
+              {peso.format(line.available)} available
+            </strong>
+            <span className="text-[11px] text-muted-foreground">
+              of {peso.format(line.amount)} approved
+            </span>
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function SummaryCell({
   label,
   value,
+  note,
   tone = "neutral",
 }: {
   label: string;
   value: number;
+  note?: string;
   tone?: "neutral" | "amber";
 }) {
   return (
-    <div
-      className={`rounded-lg border px-2.5 py-2 ${tone === "amber" ? "border-amber-200 bg-amber-50" : "border-border bg-muted/35"}`}
-    >
-      <div className="text-[11px] text-muted-foreground">
-        {label}
-      </div>
-      <strong
-        className={`mt-0.5 block text-right text-[12px] tabular-nums ${tone === "amber" ? "text-amber-800" : "text-foreground"}`}
+    <div className={`min-w-0 px-3 py-2.5 ${tone === "amber" ? "bg-amber-50/70" : ""}`}>
+      <dt className="text-[11px] text-muted-foreground">{label}</dt>
+      <dd
+        className={`mt-0.5 text-[13.5px] font-semibold tabular-nums ${
+          tone === "amber" ? "text-amber-900" : "text-foreground"
+        }`}
       >
         {peso.format(value)}
-      </strong>
+      </dd>
+      {note && <div className="mt-0.5 text-[10.5px] text-muted-foreground">{note}</div>}
     </div>
   );
 }

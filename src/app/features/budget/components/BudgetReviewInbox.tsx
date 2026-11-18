@@ -124,7 +124,7 @@ export function BudgetReviewInbox({
       {!embedded && <PageHeader
         eyebrow={scope === "leading" ? "Leader Workspace · Financial Reviews" : "Office · Reviews"}
         title="Financial Approvals"
-        subtitle={scope === "leading" ? "Operationally endorse cash requests and receipt packages from contributors on work you lead." : "Fiscally authorize task-linked cash requests, releases, and receipt settlements from one review inbox."}
+        subtitle={scope === "leading" ? "Endorse cash requests and receipt packages from contributors on work you lead." : "Approve project cash requests, approve releases with Accounting, and settle verified receipts from one review inbox."}
         actions={(
           <div className="flex w-full min-w-0 max-w-full flex-wrap items-center gap-2">
             {actions}

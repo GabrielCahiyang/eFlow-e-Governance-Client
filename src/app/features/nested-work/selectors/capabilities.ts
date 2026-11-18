@@ -70,9 +70,9 @@ export interface SubtaskPlanningBlockOptions {
 }
 
 /**
- * In office projects, once the project leaves planning (for example `active` or
- * `on_hold`), Project Leads and Office Heads who are not the appointed Task
- * Lead may no longer add/edit/delete/reorder subtasks or staff subtask teams.
+ * In office projects, Project Leads and Office Heads who are not the appointed
+ * Task Lead cannot create/edit/delete/reorder subtasks or staff subtask teams.
+ * Subtask planning stays the responsibility of the Task Lead.
  */
 export function isTaskSubtaskPlanningBlocked(options:{
  isOfficeProject:boolean;
@@ -83,7 +83,6 @@ export function isTaskSubtaskPlanningBlocked(options:{
  actorRole?:string|null;
 }):boolean {
  if(!options.isOfficeProject||!options.actorId)return false;
- if(!options.projectStatus||options.projectStatus==='planning')return false;
  if(options.taskLeadId===options.actorId)return false;
  return Boolean(options.projectLeadId)&&options.projectLeadId===options.actorId||options.actorRole==='head';
 }

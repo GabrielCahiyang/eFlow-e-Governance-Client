@@ -20,11 +20,9 @@ export function ReviewKindSwitch({
   counts = {},
 }: ReviewKindSwitchProps) {
   const kinds: { id: ReviewKind; label: string }[] = [
-    { id: "workplans", label: "Work Plans" },
     { id: "tasks", label: "Project Tasks" },
-    { id: "governance", label: "Governance & Approval" },
+    { id: "clearance", label: "Ready to Complete" },
     ...(includeBudget ? [{ id: "budget" as const, label: "Budget" }] : []),
-    ...(includeMembership ? [{ id: "membership" as const, label: "Membership approvals" }] : []),
   ];
   const tabs = useRef<HTMLDivElement>(null);
   useLayoutEffect(() => {

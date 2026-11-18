@@ -4,7 +4,7 @@ import { EmptyState } from '../../../components/ui/EmptyState';
 import { WorkspaceTooltip } from '../../../components/ui/workspace/WorkspaceTooltip';
 import { useEffect,useMemo,useState,useRef } from 'react';
 
-import { Plus,Table2,LockKeyhole } from 'lucide-react';
+import { Calendar,Plus,Table2,LockKeyhole } from 'lucide-react';
 
 import { useAuth } from '../../../contexts/AuthContext';
 
@@ -83,7 +83,9 @@ export function ProjectTableWorkspace({data,profiles,orgs,canManage,planningOnly
 
  const columns=PROJECT_COLUMNS.filter(c=>!hidden.includes(c.id)).map(c=>c.id);
 
- const tasks=useMemo(()=>visibleProjectTasks(data.tasks,query,status,owner,sort).filter(t=>!sharedFilters?.office||t.orgId===sharedFilters.office).filter(t=>matchesProjectDateRange(t,sharedFilters||{})),[data.tasks,query,status,owner,sort,sharedFilters?.office,sharedFilters?.dateFrom,sharedFilters?.dateTo]);
+ const canSeeUnscheduledTasks=editable||canStaff||canEditProjectWork||isHeadWorkspaceRole(userProfile?.role)||(Boolean(userId)&&data.project.projectLeadId===userId);
+ const tasks=useMemo(()=>visibleProjectTasks(data.tasks,query,status,owner,sort).filter(t=>!sharedFilters?.office||t.orgId===sharedFilters.office).filter(t=>matchesProjectDateRange(t,sharedFilters||{})).filter(t=>canSeeUnscheduledTasks||['completed','cancelled','for_review'].includes(t.status)||Boolean((t.deadline||t.dueDate||'').trim())),[data.tasks,query,status,owner,sort,sharedFilters?.office,sharedFilters?.dateFrom,sharedFilters?.dateTo,canSeeUnscheduledTasks]);
+ const undatedActiveTaskCount=useMemo(()=>data.tasks.filter(t=>!['completed','cancelled','for_review'].includes(t.status)&&!t.archivedAt&&!(t.deadline||t.dueDate||'').trim()).length,[data.tasks]);
  const shownGroups=useMemo(()=>visibleProjectGroups(groups,data.tasks),[groups,data.tasks]);
  const people=profiles.filter(p=>data.tasks.some(t=>t.assigneeId===p.id)||p.org_id===data.project.orgId);
 
@@ -101,6 +103,15 @@ export function ProjectTableWorkspace({data,profiles,orgs,canManage,planningOnly
   <div><TableToolbar sharedFilters={!!sharedFilters} query={query} setQuery={setQuery} status={status} setStatus={setStatus} owner={owner} setOwner={setOwner} sort={sort} setSort={setSort} people={people} hidden={hidden} toggleColumn={layout.toggleColumn} onResetWidths={layout.resetWidths} onResetCompact={layout.resetCompact} canManage={editable&&!planningOnly} onAddTask={addTask} onAddInlineTask={addInlineTask} onAddGroup={()=>setGroupOpen(true)} onImport={()=>{setImportSeed(prev=>({text:'',version:prev.version+1}));setImportOpen(true);}} onAi={()=>setAiOpen(true)} onOpenBoard={onOpenLegacyBoard}/>
 
   {(!sharedFilters||!editable)&&<div className="pt-context-line">{!sharedFilters&&<span><Table2 size={14}/>{tasks.length === 1 ? '1 visible task' : `${tasks.length} visible tasks`}</span>}{!editable&&<span><LockKeyhole size={13}/>Project structure is read-only for this account or project.</span>}</div>}
+  {editable && undatedActiveTaskCount > 0 && (
+    <div role="status" className="mb-3 flex flex-wrap items-center gap-2 rounded-lg border border-amber-300 bg-amber-50/90 px-3.5 py-2.5 text-xs text-amber-950">
+      <Calendar size={15} className="shrink-0 text-amber-700" aria-hidden="true" />
+      <span>
+        <strong>{undatedActiveTaskCount === 1 ? '1 task is missing a due date.' : `${undatedActiveTaskCount} tasks are missing due dates.`}</strong>{' '}
+        Set the date in the <strong>Due date</strong> column — tasks without a due date will not be shown to the assigned leader.
+      </span>
+    </div>
+  )}
   <ProjectImportHistory projectId={data.project.id} revision={historyRevision}/>
 
   {notice&&<div role="alert" className="pt-error">{notice}{refreshFailed&&<button type="button" onClick={()=>{void refreshCreatedGroup();}}>Retry refresh</button>}<WorkspaceTooltip content="Dismiss error"><button onClick={()=>setNotice('')} aria-label="Dismiss error">×</button></WorkspaceTooltip></div>}

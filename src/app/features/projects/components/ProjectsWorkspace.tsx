@@ -253,7 +253,9 @@ export function ProjectsWorkspace({
     (intent) =>
       intent.kind === "project" ||
       intent.kind === "proposal" ||
-      intent.kind === "collaboration",
+      intent.kind === "collaboration" ||
+      intent.kind === "task" ||
+      (intent.kind === "budget" && Boolean(intent.taskId && intent.projectId)),
     (intent) => {
       if (loading || projectsError) return false;
       if (intent.financialRecordType === 'project_archive_blocker' && officesLoading) return false;
@@ -266,6 +268,9 @@ export function ProjectsWorkspace({
       }
       if (intent.projectId) {
         if (!openProject(intent.projectId, 'push')) { setContextNotice('This project is unavailable in this workspace. Open its home workspace or check your access.'); return 'unavailable'; }
+        if ((intent.kind === "task" || intent.kind === "budget") && intent.taskId) {
+          setCompletionTaskId(intent.taskId);
+        }
         if (intent.financialRecordType === 'project_archive_blocker') {
           const project = inScope.find(item => item.id === intent.projectId);
           if (project?.status === 'completed' && project.orgId === userProfile?.org_id && isAppointedOfficeHead(userProfile, orgs)) {

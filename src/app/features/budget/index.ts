@@ -47,6 +47,7 @@ export { peso, pesoShort, StatusPill } from "./components/budgetUi";
 export { useTaskFundingContext } from "./hooks/useTaskFundingContext";
 export { ProjectTaskBudgetProvider, ProjectTaskBudgetCell, ProjectSubtaskBudgetCell, ProjectWorkExpensesCell, useProjectTaskBudgetTotal } from './components/ProjectTaskBudget';
 export { ProjectActualExpensesProvider } from './components/ProjectActualExpenses';
+export { fetchProjectExpenseTotals, type ProjectExpenseTotals } from './services/projectExpenseService';
 export { BudgetReviewInbox } from "./components/BudgetReviewInbox";
 export { TaskCashClearancePanel } from "./components/TaskCashClearancePanel";
 export { useTaskCashClearance } from "./hooks/useTaskCashClearance";

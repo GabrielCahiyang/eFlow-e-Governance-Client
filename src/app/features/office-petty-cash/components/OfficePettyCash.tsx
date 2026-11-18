@@ -16,6 +16,16 @@ const statusTone = {
   pending: 'warning', approved: 'positive', released: 'info', receipt_review: 'warning',
   receipt_approved: 'info', settled: 'positive', rejected: 'negative',
 } as const;
+const statusLabels: Record<string, string> = {
+  pending: 'Pending Head approval',
+  approved: 'Pending Accounting release',
+  released: 'Cash released',
+  receipt_review: 'Receipt review',
+  receipt_approved: 'Awaiting Accounting settlement',
+  settled: 'Settled',
+  rejected: 'Declined',
+  cancelled: 'Cancelled',
+};
 export function OfficePettyCash({focusRequestId,allowRequest=true}:{focusRequestId?:string;allowRequest?:boolean}={}){
  const {userProfile}=useAuth();const office=userProfile?.org_id||'';const actor=userProfile?.id||'';
  return <ScopedOfficeCash key={`${office}:${actor}`} office={office} actor={actor} role={userProfile?.role||''} focusRequestId={focusRequestId} allowRequest={allowRequest}/>;
@@ -95,7 +105,7 @@ function ScopedOfficeCash({office,actor,role,focusRequestId,allowRequest}:{offic
      <tbody>{snapshot.requests.map(r=><tr key={r.id} id={'office-petty-cash-'+r.id} tabIndex={-1}>
       <td><strong>{r.purpose}</strong><small>{r.requesterName}</small></td>
       <td className="opc-amount">{peso.format(r.amount)}</td>
-      <td><span className="opc-status"><StatusPill label={r.status.replace(/_/g,' ')} tone={statusTone[r.status as keyof typeof statusTone]} /></span></td>
+      <td><span className="opc-status"><StatusPill label={statusLabels[r.status] || r.status.replace(/_/g,' ')} tone={statusTone[r.status as keyof typeof statusTone]} /></span></td>
       <td><div className="opc-row-actions">{r.receipts.map((receipt,i)=><button key={receipt.path} onClick={()=>void openOfficeReceipt(receipt.path).catch(reason=>setError((reason as Error).message))}>Receipt {i+1} · {peso.format(receipt.amount)}</button>)}</div></td>
       <td>
        <div className="opc-row-actions">

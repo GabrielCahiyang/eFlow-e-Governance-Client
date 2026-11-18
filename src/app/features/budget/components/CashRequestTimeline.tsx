@@ -20,7 +20,11 @@ import {
 } from "../services/budgetService";
 import { peso, StatusPill } from "./budgetUi";
 import { CashLiquidationDialog } from "./CashLiquidationDialog";
-import { isLiquidationCurrentlyOverdue } from "../selectors/cashWorkflowRules";
+import {
+  formatCashStatusLabel,
+  getCashWorkflowProgress,
+  isLiquidationCurrentlyOverdue,
+} from "../selectors/cashWorkflowRules";
 import {LiquidationStageNotice} from './LiquidationStageNotice';
 import { CashReturnPanel } from "./CashReturnPanel";
 import { usePendingAction } from '../../../shared/usePendingAction';
@@ -90,7 +94,7 @@ export function CashRequestTimeline({
         description: `FR-${String(request.requestNumber).padStart(5, "0")} · ${request.purpose}. Cancelling withdraws this request; existing server checks protect released funds.`,
         actionLabel: "Cancel request",
         danger: true,
-        impact: `Requested ${peso.format(request.requestedAmount)} · current status ${request.status.replace(/_/g, " ")}`,
+        impact: `Requested ${peso.format(request.requestedAmount)} · current status ${formatCashStatusLabel(request.status)}`,
         reason: {
           label: "Cancellation reason",
           onAccept: (value) => {
@@ -117,9 +121,17 @@ export function CashRequestTimeline({
 
   if (!requests.length && !(safety.message && safety.tone !== "success") && !safety.pending) return null;
   return (
-    <div className="mt-3 space-y-2">
-      <div className="flex items-center gap-1 text-[12px] font-semibold uppercase tracking-[0.12em] text-neutral-400">
-        <Clock3 size={10} /> Funding activity
+    <div className="space-y-2.5">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+          <Clock3 size={13} className="text-muted-foreground" aria-hidden="true" />
+          <span>Cash requests</span>
+        </div>
+        {requests.length > 0 && (
+          <span className="rounded-[5px] border border-border bg-muted/60 px-2 py-0.5 text-[11px] font-medium tabular-nums text-muted-foreground">
+            {requests.length}
+          </span>
+        )}
       </div>
       {safety.dialog}
       {safety.message && safety.tone !== "success" && (
@@ -191,35 +203,73 @@ export function CashRequestTimeline({
         const liquidationOverdue =
           isLiquidationCurrentlyOverdue(request) &&
           request.status !== "settled";
+        const workflow = getCashWorkflowProgress(request, {
+          unacknowledgedRelease: Boolean(unacknowledged || hasUnacknowledgedRelease),
+        });
         return (
           <article
             key={request.id}
-            className="rounded-xl border border-neutral-200 bg-white p-3"
+            className="rounded-xl border border-border bg-card p-3.5"
           >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-1.5">
-                  <strong className="text-[12px] text-neutral-900">
+                <div className="flex flex-wrap items-center gap-2">
+                  <strong className="text-[13px] text-foreground">
                     FR-{String(request.requestNumber).padStart(5, "0")}
                   </strong>
                   <StatusPill status={request.status} />
                 </div>
-                <div className="mt-1 text-[12px] text-neutral-700">
+                <div className="mt-1.5 text-[13px] font-medium text-foreground">
                   {request.purpose}
                 </div>
-                {line && (
-                  <div className="mt-1 text-[12px] text-neutral-400">
-                    {line.category} · {line.particular} · {line.fundSource}
-                  </div>
-                )}
+                <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[12px] text-muted-foreground">
+                  {line && <span>{line.category} · {line.particular} · {line.fundSource}</span>}
+                  {request.neededBy && (
+                    <span>{line ? '· ' : ''}Needed by {formatManilaDate(request.neededBy, request.neededBy)}</span>
+                  )}
+                </div>
               </div>
-              <strong className="shrink-0 text-[11px] text-neutral-900">
+              <strong className="shrink-0 text-[14px] font-semibold tabular-nums text-foreground">
                 {peso.format(request.approvedAmount ?? request.requestedAmount)}
               </strong>
             </div>
-            <div className="mt-2 text-[12px] text-neutral-500">
-              Operational endorsement → fiscal authorization → release →
-              receipts and return
+            <div className="mt-3 rounded-lg border border-border bg-muted/25 p-2.5" aria-label="Approval progress">
+              <ol className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11.5px]">
+                {workflow.steps.map((step, index) => (
+                  <li key={step.id} className="inline-flex items-center gap-1.5">
+                    <span
+                      className={`inline-flex size-4 shrink-0 items-center justify-center rounded-[4px] text-[10px] font-semibold ${
+                        step.state === "complete"
+                          ? "bg-emerald-600 text-white"
+                          : step.state === "current"
+                            ? "bg-[var(--eflow-primary)] text-[var(--eflow-on-primary)]"
+                            : step.state === "attention"
+                              ? "bg-amber-600 text-white"
+                              : "bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      {step.state === "complete" ? "✓" : index + 1}
+                    </span>
+                    <span
+                      className={
+                        step.state === "current"
+                          ? "font-semibold text-foreground"
+                          : step.state === "attention"
+                            ? "font-semibold text-amber-800"
+                            : step.state === "complete"
+                              ? "text-foreground"
+                              : "text-muted-foreground"
+                      }
+                    >
+                      {step.label}
+                    </span>
+                    {index < workflow.steps.length - 1 && (
+                      <span className="text-muted-foreground/60" aria-hidden="true">→</span>
+                    )}
+                  </li>
+                ))}
+              </ol>
+              <p className="mt-1.5 text-[12px] text-muted-foreground">{workflow.nextAction}</p>
             </div>
             <LiquidationStageNotice request={request} liquidation={latest}/>
             {["rejected", "leader_changes_requested", "department_changes_requested"].includes(request.status) &&
@@ -376,6 +426,16 @@ export function CashRequestTimeline({
                 )}
                 {!canLiquidate && request.cashRecipientId === currentUserId && (
                   <SavedLiquidationLink actor={currentUserId} orgId={orgId} requestId={request.id} open={() => setLiquidating(request)} />
+                )}
+                {canLiquidate && !workCompleted && (
+                  <p
+                    role="status"
+                    className="mr-auto text-[11.5px] font-medium text-amber-800"
+                  >
+                    {request.subtaskId
+                      ? "Complete this subtask and get Lead approval before starting liquidation."
+                      : "Complete this task and get Project Lead approval before starting liquidation."}
+                  </p>
                 )}
                 {canLiquidate && (
                   <button

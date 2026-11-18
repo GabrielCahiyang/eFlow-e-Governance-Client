@@ -6,7 +6,7 @@ export function navigationParameters(value:unknown):Record<string,string>{
  return Object.fromEntries(navigationDisplayKeys.flatMap(key=>typeof (value as Record<string,unknown>)[key]==='string'?[[key,(value as Record<string,string>)[key]]]:[]));
 }
 
-export const reviewRouteViews = ['tasks', 'workplans', 'governance', 'subtasks', 'budget', 'membership'] as const;
+export const reviewRouteViews = ['tasks', 'clearance', 'workplans', 'governance', 'subtasks', 'budget', 'membership'] as const;
 export const budgetRouteViews = ['overview', 'annual', 'funding', 'approvals', 'releases', 'expenses', 'vouchers', 'journal', 'audit', 'office-petty-cash'] as const;
 // Include existing project parser aliases at this display-preference boundary.
 const projectViews = ['settings', 'tasks', 'board', 'gantt', 'calendar', 'dashboard', 'analytics', 'offices', 'members', 'overview', 'timeline', 'reports', 'proposal_context', 'activity', 'reviews', 'budget', 'plan', 'delivery', 'work', 'people', 'team', 'workload', 'readiness', 'signoff', 'evidence', 'decisions', 'main_table', 'main-table', 'proposal-context'];
